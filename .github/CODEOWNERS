@@ -1,0 +1,5 @@
+# These owners will be the default owners for everything in
+# the repo. Unless a later match takes precedence,
+
+* @cloudoperators/frontend-core
+/packages/ui-components/ @cloudoperators/frontend-core @franzheidl
