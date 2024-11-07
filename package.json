@@ -4,10 +4,19 @@
     "build": "turbo build",
     "dev": "turbo dev",
     "lint": "turbo lint",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\""
+    "test": "turbo test",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "typecheck": "turbo typecheck",
+    "format:check": "prettier --config ./.prettierrc --check \"**/*.{js,jsx,ts,tsx,md}\" ",
+    "licenses:check": "npx license-checker-rseidelsohn --summary --excludePrivatePackages --onlyAllow 'MIT;ISC;Apache-2.0;BSD-2-Clause;BSD-3-Clause;BSD-4-Clause;CC-BY-3.0;CC-BY-4.0;BlueOak-1.0.0;CC0-1.0;0BSD;Python-2.0;BSD*;Unlicense'",
+    "clean:vite": "find . -type f -name 'vite.config.*.timestamp-*' -ls -delete 2>/dev/null",
+    "clean": "pnpm run clean:vite && turbo run clean && rm -rf node_modules",
+    "clean:cache": "turbo run clean:cache && rm -rf .turbo && rm -rf node_modules/.cache/turbo",
+    "generate:package": "turbo gen workspace --type package --copy @cobalcore-dev/aurora-package-template --name",
+    "generate:app": "turbo gen workspace --type app --copy @cobalcore-dev/aurora-app-template --name"
   },
   "devDependencies": {
-    "eslint": "^8.57.0",
+    "eslint": "^8.57.1",
     "prettier": "^3.2.5",
     "turbo": "^2.2.3"
   },

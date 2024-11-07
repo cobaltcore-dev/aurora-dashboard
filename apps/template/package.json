@@ -1,8 +1,8 @@
 {
-  "name": "@cobaltcore-dev/aurora-dashboard",
+  "name": "@cobaltcore-dev/aurora-app-template",
   "version": "1.0.0",
   "author": "UI-Team",
-  "repository": "https://github.com/@cobaltcore-dev/aurora-dashboard/tree/main/apps/dashboard",
+  "repository": "https://github.com/@cobaltcore-dev/aurora-dashboard/tree/main/apps/template",
   "license": "Apache-2.0",
   "exports": {
     ".": "./dist/index.js"

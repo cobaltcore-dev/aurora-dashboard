@@ -1,4 +1,26 @@
 {
-  "extends": "@repo/typescript-config/vite.json",
-  "include": ["src"]
+  "extends": "@cobaltcore-dev/aurora-config/typescript/base.json",
+  "compilerOptions": {
+    "target": "ES5",
+    "module": "ESNext",
+    "jsx": "react",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "outDir": "build",
+    "allowJs": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "allowSyntheticDefaultImports": true,
+    "types": ["vitest/globals", "@testing-library/jest-dom", "@types/react"]
+  },
+  "include": [
+    "./src/**/*.ts",
+    "./types/**/*.ts",
+    "./src/**/*.tsx",
+    "vitest.setup.ts"
+  ],
+  "exclude": ["node_modules", "build"]
 }

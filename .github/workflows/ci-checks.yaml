@@ -1,0 +1,83 @@
+name: CI Check ✅
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  push:
+    branches: [changeset-release/main]
+
+permissions:
+  contents: write
+  pull-requests: write
+  actions: read
+  checks: write
+  statuses: write
+
+env:
+  HUSKY: 0
+
+jobs:
+  setup-environment:
+    runs-on: [default]
+    outputs:
+      cache-hit: ${{ steps.cache-pnpm.outputs.cache-hit }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: "8"
+
+      - name: Cache pnpm
+        id: cache-pnpm
+        uses: actions/cache@v4
+        with:
+          path: ~/.local/share/pnpm/store
+          key: ${{ runner.OS }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.OS }}-pnpm-
+
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
+        if: steps.cache-pnpm.outputs.cache-hit != 'true'
+
+  allowed-licenses:
+    needs: setup-environment
+    runs-on: [default]
+    steps:
+      - name: Run Linter for Licenses
+        run: pnpm run licenses:check
+
+  lint:
+    needs: setup-environment
+    runs-on: [default]
+    steps:
+      - name: Run Linter
+        run: pnpm run lint
+
+  type-check:
+    needs: setup-environment
+    runs-on: [default]
+    steps:
+      - name: Run Typecheck
+        run: pnpm run typecheck
+
+  format:
+    needs: setup-environment
+    runs-on: [default]
+    steps:
+      - name: Run Prettier
+        run: pnpm run format:check
+
+  test:
+    needs: setup-environment
+    runs-on: [default]
+    steps:
+      - name: Build and Run Tests
+        run: pnpm run build && pnpm run test
