@@ -3,6 +3,7 @@
   "display": "Aurora Library Package",
   "extends": "./base.json",
   "compilerOptions": {
-    "declarationDir": "types"
+    "declarationDir": "types",
+    "types": ["vite/client", "vitest/globals"]
   }
 }

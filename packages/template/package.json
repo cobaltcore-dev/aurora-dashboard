@@ -26,7 +26,7 @@
     "dev": "vite",
     "build": "vite build",
     "serve": "vite preview",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --project tsconfig.json --noEmit",
     "clean": "rm -rf build && rm -rf node_modules && rm -rf .turbo",
     "clean:cache": "rm -rf .turbo"
   },
