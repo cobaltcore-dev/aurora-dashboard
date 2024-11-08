@@ -1,17 +1,14 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
-  "display": "React App",
+  "display": "Aurora React App",
   "extends": "./base.json",
   "compilerOptions": {
-    "allowJs": true,
     "declaration": false,
     "declarationMap": false,
-    "incremental": true,
-    "jsx": "preserve",
+    "jsx": "react-jsx",
     "lib": ["dom", "dom.iterable", "esnext"],
-    "module": "esnext",
+    "incremental": true,
     "noEmit": true,
-    "resolveJsonModule": true,
-    "target": "es5"
+    "types": ["vitest/globals", "@testing-library/jest-dom", "@types/react"]
   }
 }

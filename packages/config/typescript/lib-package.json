@@ -1,0 +1,6 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "display": "Aurora Library Package",
+  "extends": "./base.json",
+  "compilerOptions": {}
+}
