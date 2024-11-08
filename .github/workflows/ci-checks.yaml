@@ -1,0 +1,103 @@
+name: CI Check ✅
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  push:
+    branches: [changeset-release/main]
+
+permissions:
+  contents: write
+  pull-requests: write
+  actions: read
+  checks: write
+  statuses: write
+
+env:
+  HUSKY: 0
+
+jobs:
+  install-deps:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PNPM
+        uses: ./.github/actions/setup-pnpm
+        with:
+          node-version: "20"
+          pnpm-version: "9"
+
+  allowed-licenses:
+    needs: install-deps
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PNPM
+        uses: ./.github/actions/setup-pnpm
+        with:
+          node-version: "20"
+          pnpm-version: "9"
+
+      - name: Run Linter for Licenses
+        run: pnpm run licenses:check
+
+  lint:
+    needs: install-deps
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PNPM
+        uses: ./.github/actions/setup-pnpm
+        with:
+          node-version: "20"
+          pnpm-version: "9"
+
+      - name: Run Linter
+        run: pnpm run lint
+
+  type-check:
+    needs: install-deps
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PNPM
+        uses: ./.github/actions/setup-pnpm
+        with:
+          node-version: "20"
+          pnpm-version: "9"
+
+      - name: Run Typecheck
+        run: pnpm run typecheck
+
+  format:
+    needs: install-deps
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PNPM
+        uses: ./.github/actions/setup-pnpm
+        with:
+          node-version: "20"
+          pnpm-version: "9"
+
+      - name: Run Prettier
+        run: pnpm run format:check
+
+  test:
+    needs: install-deps
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PNPM
+        uses: ./.github/actions/setup-pnpm
+        with:
+          node-version: "20"
+          pnpm-version: "9"
+      - name: Build and Run Tests
+        run: pnpm run build && pnpm run test

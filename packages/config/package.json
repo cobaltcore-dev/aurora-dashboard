@@ -1,0 +1,17 @@
+{
+  "name": "@cobaltcore-dev/aurora-config",
+  "version": "0.0.1",
+  "private": true,
+  "files": [
+    "typescript/*",
+    "eslint/*"
+  ],
+  "devDependencies": {
+    "@types/eslint__js": "^8.42.3",
+    "eslint": "^9.7.0",
+    "eslint-plugin-react": "^7.37.2",
+    "globals": "^15.8.0",
+    "typescript": "^5.5.4",
+    "typescript-eslint": "^8.13.0"
+  }
+}

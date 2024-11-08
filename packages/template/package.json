@@ -1,0 +1,42 @@
+{
+  "name": "@cobaltcore-dev/aurora-template",
+  "version": "1.0.0",
+  "description": "Package template that will be use to generate new juno packages",
+  "author": "UI-Team",
+  "source": "src/index.js",
+  "license": "Apache-2.0",
+  "type": "module",
+  "private": true,
+  "exports": {
+    ".": "./dist/index.js",
+    "./types": "./dist/types/index.d.ts"
+  },
+  "files": [
+    "dist/**",
+    "LICENCE"
+  ],
+  "engines": {
+    "node": ">=20.0.0 <21.0.0",
+    "npm": ">=10.0.0 <11.0.0"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest --watch",
+    "lint": "eslint ",
+    "dev": "vite",
+    "build": "vite build",
+    "serve": "vite preview",
+    "typecheck": "tsc --project tsconfig.json --noEmit",
+    "clean": "rm -rf build && rm -rf node_modules && rm -rf .turbo",
+    "clean:cache": "rm -rf .turbo"
+  },
+  "devDependencies": {
+    "@cobaltcore-dev/aurora-config": "workspace:*",
+    "@types/node": "^20.11.24",
+    "jsdom": "^24.1.1",
+    "typescript": "^5.5.4",
+    "vite": "^5.4.0",
+    "vite-plugin-dts": "^4.0.3",
+    "vitest": "^2.0.4"
+  }
+}

@@ -1,0 +1,46 @@
+name: "Setup PNPM"
+description: "Installs Node.js, sets up PNPM, and restores dependencies from cache."
+inputs:
+  node-version:
+    description: "The version of Node.js to install"
+    required: true
+    default: "20"
+  pnpm-version:
+    description: "The version of PNPM to install"
+    required: true
+    default: "9"
+outputs:
+  cache-hit:
+    description: "Whether cache was hit for dependencies"
+    value: ${{ steps.cache-pnpm.outputs.cache-hit }}
+runs:
+  using: "composite"
+  steps:
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ inputs.node-version }}
+
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v3
+      with:
+        version: ${{ inputs.pnpm-version }}
+
+    - name: Cache pnpm store and node_modules
+      id: cache-pnpm
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.local/share/pnpm/store
+          node_modules
+        key: ${{ runner.OS }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+        restore-keys: |
+          ${{ runner.OS }}-pnpm-
+
+    - name: Install Dependencies
+      run: pnpm install --frozen-lockfile
+      shell: bash
+
+    - name: Output Cache Hit Status
+      run: echo "cache-hit=${{ steps.cache-pnpm.outputs.cache-hit }}" >> $GITHUB_ENV
+      shell: bash
