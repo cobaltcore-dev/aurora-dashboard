@@ -9,7 +9,7 @@ export default defineConfig({
       formats: ["es"], // Output formats: ESM and CommonJS
       fileName: () => `index.js`, // Output file names
     },
-    outDir: "build",
+    outDir: "dist",
   },
   plugins: [
     dts({
