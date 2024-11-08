@@ -23,9 +23,9 @@
     "clean:cache": "rm -rf .turbo"
   },
   "dependencies": {
+    "@cloudoperators/juno-ui-components": "^2.28.0",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "@cloudoperators/juno-ui-components": "^2.28.0"
+    "react-dom": "^18.2.0"
   },
   "devDependencies": {
     "@cobaltcore-dev/aurora-config": "workspace:*",
@@ -33,6 +33,7 @@
     "@testing-library/react": "^16.0.1",
     "@types/node": "^20.16.5",
     "@types/react": "^18.3.8",
+    "@vitejs/plugin-react-swc": "^3.7.1",
     "autoprefixer": "^10.4.20",
     "jsdom": "^24.1.1",
     "postcss": "^8.4.47",
