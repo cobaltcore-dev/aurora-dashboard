@@ -49,35 +49,35 @@ jobs:
 
   allowed-licenses:
     needs: setup-environment
-    runs-on: [default]
+    runs-on: ubuntu-latest
     steps:
       - name: Run Linter for Licenses
         run: pnpm run licenses:check
 
   lint:
     needs: setup-environment
-    runs-on: [default]
+    runs-on: ubuntu-latest
     steps:
       - name: Run Linter
         run: pnpm run lint
 
   type-check:
     needs: setup-environment
-    runs-on: [default]
+    runs-on: ubuntu-latest
     steps:
       - name: Run Typecheck
         run: pnpm run typecheck
 
   format:
     needs: setup-environment
-    runs-on: [default]
+    runs-on: ubuntu-latest
     steps:
       - name: Run Prettier
         run: pnpm run format:check
 
   test:
     needs: setup-environment
-    runs-on: [default]
+    runs-on: ubuntu-latest
     steps:
       - name: Build and Run Tests
         run: pnpm run build && pnpm run test
