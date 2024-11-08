@@ -32,6 +32,7 @@ runs:
       with:
         path: |
           ~/.local/share/pnpm/store
+          node_modules
           **/node_modules
         key: ${{ runner.OS }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
         restore-keys: |
