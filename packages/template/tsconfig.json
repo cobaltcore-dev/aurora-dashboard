@@ -1,14 +1,5 @@
 {
-"extends": "@cobaltcore-dev/aurora-config/typescript/base.json",
-  "compilerOptions": {
-    "target": "ES6",
-    "module": "ES2022",
-    "strict": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "types": ["vitest/globals"]
-  },
-  "include": ["./src/**/*.ts", "./types/**/*.ts", "vitest.setup.ts"],
-  "exclude": ["node_modules", "build"]
+  "extends": "@cobaltcore-dev/aurora-config/typescript/lib-package.json",
+  "include": ["src", "vitest.setup.ts"],
+  "exclude": ["node_modules", "dist"]
 }
