@@ -9,6 +9,6 @@
     "lib": ["dom", "dom.iterable", "esnext"],
     "incremental": true,
     "noEmit": true,
-    "types": ["vitest/globals", "@testing-library/jest-dom", "@types/react"]
+    "types": ["vite/client", "vitest/globals", "@testing-library/jest-dom", "@types/react"]
   }
 }
