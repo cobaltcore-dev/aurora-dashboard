@@ -17,7 +17,7 @@ env:
   HUSKY: 0
 
 jobs:
-  setup-environment:
+  install-deps:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -29,7 +29,7 @@ jobs:
           pnpm-version: "9"
 
   allowed-licenses:
-    needs: setup-environment
+    needs: install-deps
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -44,7 +44,7 @@ jobs:
         run: pnpm run licenses:check
 
   lint:
-    needs: setup-environment
+    needs: install-deps
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -59,7 +59,7 @@ jobs:
         run: pnpm run lint
 
   type-check:
-    needs: setup-environment
+    needs: install-deps
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -74,7 +74,7 @@ jobs:
         run: pnpm run typecheck
 
   format:
-    needs: setup-environment
+    needs: install-deps
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -89,7 +89,7 @@ jobs:
         run: pnpm run format:check
 
   test:
-    needs: setup-environment
+    needs: install-deps
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
