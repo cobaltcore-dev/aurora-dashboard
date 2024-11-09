@@ -5,6 +5,7 @@
     "dev": "turbo dev",
     "lint": "turbo lint",
     "test": "turbo test",
+    "test:coverage": "turbo test -- --coverage",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "typecheck": "turbo typecheck",
     "format:check": "prettier --config ./.prettierrc --check \"**/*.{js,jsx,ts,tsx,md}\" ",
