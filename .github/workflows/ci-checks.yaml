@@ -101,6 +101,3 @@ jobs:
           pnpm-version: "9"
       - name: Build and Run Tests
         run: pnpm run build && pnpm run test
-
-      - name: Vitest Coverage Report
-        uses: davelosert/vitest-coverage-report-action@v2.7.0
