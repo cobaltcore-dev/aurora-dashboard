@@ -28,7 +28,7 @@ jobs:
         if: github.event.action != 'closed' # You might want to skip the build if the PR has been closed
         run: |
           pnpm install
-          pnpm build
+          pnpm build --base "./"
           ls -la ./apps/dashboard/dist/
 
       - name: Deploy preview
