@@ -9,14 +9,14 @@ export default defineConfig({
       formats: ["es"], // Output formats: ESM and CommonJS
       fileName: () => `index.js`, // Output file names
     },
-    outDir: "build",
+    outDir: "dist",
   },
   plugins: [
     dts({
       exclude: ["**/*.test.ts", "vitest.setup.ts"], // Exclude test files from type generation
       include: ["src/**/*.ts", "types/**/*.ts"], // Include your source and global types
       insertTypesEntry: true, // Ensure types are properly exported
-      outDir: "build/types", // Specify where to output the types
+      outDir: "dist/types", // Specify where to output the types
       tsconfigPath: "./tsconfig.json",
       copyDtsFiles: true,
       compilerOptions: {
