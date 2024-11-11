@@ -18,7 +18,7 @@
     "serve": "vite preview",
     "test": "vitest run",
     "lint": "eslint",
-    "clean": "rm -rf build && rm -rf node_modules && rm -rf .turbo",
+    "clean": "rm -rf dist && rm -rf node_modules && rm -rf .turbo",
     "typecheck": "tsc --project tsconfig.json --noEmit",
     "clean:cache": "rm -rf .turbo"
   },
