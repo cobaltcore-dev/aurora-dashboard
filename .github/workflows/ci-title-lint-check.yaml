@@ -33,9 +33,9 @@ jobs:
           # Configure which types are allowed (newline-delimited).
           # Default: https://github.com/commitizen/conventional-commit-types
           types: |
-            "${{ env.TYPES }}"
+            ${{ env.TYPES }}
           scopes: |
-            "${{ env.SCOPES }}"
+            ${{ env.SCOPES }}
 
           # Configure that a scope must always be provided.
           requireScope: true
