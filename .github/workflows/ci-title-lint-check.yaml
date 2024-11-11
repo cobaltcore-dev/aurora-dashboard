@@ -19,13 +19,8 @@ jobs:
       - name: Load config
         id: load-config
         run: |
-          TYPES=$(node -e 'console.log(require("./.github/commit-config").types.join(","))')
-          SCOPES=$(node -e 'console.log(require("./.github/commit-config").scopes.join(","))')
-          TYPES_ARRAY="[\"$(echo $TYPES | sed 's/,/\", \"/g')\"]"
-          SCOPES_ARRAY="[\"$(echo $SCOPES | sed 's/,/\", \"/g')\"]"
-
-          echo "TYPES=$TYPES_ARRAY" >> $GITHUB_ENV          
-          echo "SCOPES=$SCOPES_ARRAY" >> $GITHUB_ENV
+          echo "TYPES=$(node -e 'console.log(require("./.github/commit-config").types.join("\\n"))')" >> $GITHUB_ENV
+          echo "SCOPES=$(node -e 'console.log(require("./.github/commit-config").scopes.join("\\n"))')" >> $GITHUB_ENV
 
       - name: CI Check Title
         uses: amannn/action-semantic-pull-request@v5
@@ -35,8 +30,10 @@ jobs:
           wip: true
           # Configure which types are allowed (newline-delimited).
           # Default: https://github.com/commitizen/conventional-commit-types
-          types: ${{ env.TYPES }}
-          scopes: ${{ env.SCOPES }}
+          types: |
+            ${{ env.TYPES }}
+          scopes: |
+            ${{ env.SCOPES }}
           # Configure that a scope must always be provided.
           requireScope: true
           # Configure which scopes are disallowed in PR titles (newline-delimited).
