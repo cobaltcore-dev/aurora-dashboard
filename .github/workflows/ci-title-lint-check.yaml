@@ -11,7 +11,7 @@ on:
 jobs:
   title-lint:
     name: Validate PR title
-    runs-on: [default]
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
