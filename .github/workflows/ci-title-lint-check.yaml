@@ -19,13 +19,13 @@ jobs:
       - name: Load config
         id: load-config
         run: |
-          # TYPES=$(node -e 'console.log(require("./.github/commit-config").types.join("\\n"))')
+          # TYPES=$(node -e 'console.log(require("./.github/commit-config").types.join("\\n "))')
           # echo "TYPES=$TYPES" >> $GITHUB_ENV
-          # SCOPES=$(node -e 'console.log(require("./.github/commit-config").scopes.join("\\n"))')
+          # SCOPES=$(node -e 'console.log(require("./.github/commit-config").scopes.join("\\n "))')
           # echo "SCOPES=$SCOPES" >> $GITHUB_ENV
-          TYPES="fix\nbuild"
-          echo -E "TYPES=\"$TYPES\"" >> $GITHUB_ENV
-          SCOPES="core\nui"
+          TYPES="fix\n build"
+          echo -E "TYPES=$TYPES" >> $GITHUB_ENV
+          SCOPES="core\n ui"
           echo "SCOPES=$SCOPES" >> $
           cat $GITHUB_ENV
 
@@ -37,8 +37,7 @@ jobs:
           wip: true
           # Configure which types are allowed (newline-delimited).
           # Default: https://github.com/commitizen/conventional-commit-types
-          types: |
-            ${{ env.TYPES }}
+          types: ${{ env.TYPES }}
           scopes: ${{ env.SCOPES }}
           # Configure that a scope must always be provided.
           requireScope: true
