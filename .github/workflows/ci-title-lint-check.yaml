@@ -38,7 +38,8 @@ jobs:
           wip: true
           # Configure which types are allowed (newline-delimited).
           # Default: https://github.com/commitizen/conventional-commit-types
-          types: ${{ join(fromJson(env.TYPES), '\n') }}
+          types: |
+            ${{ join(fromJson(env.TYPES), '\n') }}
           scopes: ${{ env.SCOPES }}
           # Configure that a scope must always be provided.
           requireScope: true
