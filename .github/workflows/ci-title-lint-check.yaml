@@ -35,10 +35,6 @@ jobs:
           echo "File created at: $PWD/types.txt and: $PWD/scopes.txt"
           echo "::set-output name=types::$PWD/types.txt"  # Set the types as output
           echo "::set-output name=scopes::$PWD/scopes.txt"  # Set the scopes as output
-
-          FILE_CONTENT=$(cat types.txt)
-          echo "TYPES=$FILE_CONTENT" >> $GITHUB_ENV
-
       - name: TEST
         run: |
           echo "======================="
@@ -57,9 +53,9 @@ jobs:
           # Configure which types are allowed (newline-delimited).
           # Default: https://github.com/commitizen/conventional-commit-types
           types: | 
-            ${{ needs.load_config.outputs.types }} 
+            ${{ steps.load_config.outputs.types }} 
           scopes: | 
-            ${{ needs.load_config.outputs.scopes }} 
+            ${{ steps.load_config.outputs.scopes }} 
 
           # Configure that a scope must always be provided.
           requireScope: true
