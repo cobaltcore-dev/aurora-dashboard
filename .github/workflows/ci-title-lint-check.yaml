@@ -25,8 +25,7 @@ jobs:
           # echo "SCOPES=$SCOPES" >> $GITHUB_ENV
           TYPES="fix"
           # echo -E "TYPES=$TYPES" >> $GITHUB_ENV
-          echo "TYPES=fix" >> $GITHUB_ENV
-          echo "TYPES=chore" >> $GITHUB_ENV
+          echo "TYPES=[\"fix\",\"chore\"]" >> $GITHUB_ENV
           SCOPES="ci"
           echo "SCOPES=$SCOPES" >> $
           cat $GITHUB_ENV
@@ -39,7 +38,7 @@ jobs:
           wip: true
           # Configure which types are allowed (newline-delimited).
           # Default: https://github.com/commitizen/conventional-commit-types
-          types: "${{ env.TYPES }}"
+          types: ${{ join(fromJson(env.TYPES), '\n') }}
           scopes: ${{ env.SCOPES }}
           # Configure that a scope must always be provided.
           requireScope: true
