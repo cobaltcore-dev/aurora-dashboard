@@ -14,7 +14,6 @@
     "clean": "pnpm run clean:vite && turbo run clean && rm -rf node_modules",
     "clean:cache": "turbo run clean:cache && rm -rf .turbo && rm -rf node_modules/.cache/turbo",
     "generate:package": "turbo gen workspace --type package --copy @cobalcore-dev/aurora-package-template --name",
-    "generate:app": "turbo gen workspace --type app --copy @cobalcore-dev/aurora-app-template --name",
     "prepare": "husky"
   },
   "devDependencies": {
