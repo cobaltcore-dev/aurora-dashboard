@@ -37,7 +37,7 @@ jobs:
           echo "::set-output name=scopes::$PWD/scopes.txt"  # Set the scopes as output
 
           echo 'TYPES<<EOF' >> $GITHUB_ENV
-          echo $(cat $PWD/types.txt) >> $GITHUB_ENV
+          echo -E $(cat $PWD/types.txt) >> $GITHUB_ENV
           echo 'EOF' >> $GITHUB_ENV
       - name: TEST
         run: |
