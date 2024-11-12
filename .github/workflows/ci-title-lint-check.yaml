@@ -29,6 +29,13 @@ jobs:
           SCOPES="ci"
           echo "SCOPES=$SCOPES" >> $
           cat $GITHUB_ENV
+          # Extract 'types' and 'scopes' from a JS file using node
+          echo "Extracting 'types' and 'scopes' from ./.github/commit-config"
+          node -e "
+            const config = require('./.github/commit-config.js'); 
+            require('fs').writeFileSync('types.txt', config.types.join('\n'));
+            require('fs').writeFileSync('scopes.txt', config.scopes.join('\n'));
+          "
 
       - name: CI Check Title
         uses: amannn/action-semantic-pull-request@v5
@@ -39,8 +46,9 @@ jobs:
           # Configure which types are allowed (newline-delimited).
           # Default: https://github.com/commitizen/conventional-commit-types
           types: |
-            ${{ env.TYPES }}
-          scopes: ${{ env.SCOPES }}
+            $(cat types.txt)
+          scopes: |
+            $(cat scopes.txt)
           # Configure that a scope must always be provided.
           requireScope: true
           # Configure which scopes are disallowed in PR titles (newline-delimited).
