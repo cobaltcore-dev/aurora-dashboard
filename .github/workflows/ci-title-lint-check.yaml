@@ -36,12 +36,17 @@ jobs:
           echo "::set-output name=types::$PWD/types.txt"  # Set the types as output
           echo "::set-output name=scopes::$PWD/scopes.txt"  # Set the scopes as output
 
+          FILE_CONTENT=$(cat types.txt)
+          echo "TYPES=$FILE_CONTENT" >> $GITHUB_ENV
+
       - name: TEST
         run: |
           echo "======================="
           cat ${{ steps.load_config.outputs.types }}  
           echo "::::::::::::::::::::::::"  
-          cat ${{ steps.load_config.outputs.scopes }}    
+          cat ${{ steps.load_config.outputs.scopes }}   
+          echo "--------------------------"
+          echo "Using the TYPES variable: $TYPES" 
 
       - name: CI Check Title
         uses: amannn/action-semantic-pull-request@v5
@@ -52,9 +57,9 @@ jobs:
           # Configure which types are allowed (newline-delimited).
           # Default: https://github.com/commitizen/conventional-commit-types
           types: | 
-            ${{ needs.load_config.outputs.types }}  # Pass the types extracted earlier
+            ${{ needs.load_config.outputs.types }} 
           scopes: | 
-            ${{ needs.load_config.outputs.scopes }}  # Pass the scopes extracted earlier
+            ${{ needs.load_config.outputs.scopes }} 
 
           # Configure that a scope must always be provided.
           requireScope: true
