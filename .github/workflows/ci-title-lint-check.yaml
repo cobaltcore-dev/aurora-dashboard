@@ -25,7 +25,7 @@ jobs:
         run: |
           # Extrahiere 'types' und 'scopes' aus der JS-Datei und setze sie als Ausgaben
           node -e "
-            const config= require('./yourfile.js'); 
+            const config= require('./.github/commit-config.js'); 
             console.log('types=' + config.types.join('\n'));
             console.log('scopes=' + config.scopes.join('\n'));
           " >> $GITHUB_OUTPUT  # Setze die Ausgabe direkt in GitHub Output
