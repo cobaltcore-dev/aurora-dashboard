@@ -13,8 +13,8 @@ jobs:
     name: Validate PR title
     runs-on: ubuntu-latest
     outputs:
-      types: ${{ steps.load_config.outputs.types }}  # Setze die Ausgabe für types
-      scopes: ${{ steps.load_config.outputs.scopes }}  # Setze die Ausgabe für scopes
+      types: ${{ steps.load_config.outputs.types }}  # Job output for types file
+      scopes: ${{ steps.load_config.outputs.scopes }}  # Job output for scopes file
 
     steps:
       - name: Checkout repository
@@ -26,16 +26,20 @@ jobs:
           node -e "
             const config = require('./.github/commit-config.js');
             const types = config.types;  // Access the 'types' array
+            const scopes = config.scopes;  // Access the 'scopes' array
             const fs = require('fs');
-            fs.writeFileSync('types.txt', types.join('\n'));  // Write to a file, each item on a new line
+            fs.writeFileSync('types.txt', types.join('\n'));  // Write types to a file, each item on a new line
+            fs.writeFileSync('scopes.txt', scopes.join('\n'));  // Write scopes to a file, each item on a new line
           "
-          echo "File created at: $PWD/types.txt"
-          echo "::set-output name=types::$PWD/types.txt"  # Set the file path as output
+          echo "File created at: $PWD/types.txt and: $PWD/scopes.txt"
+          echo "::set-output name=types::$PWD/types.txt"  # Set the types as output
+          echo "::set-output name=scopes::$PWD/scopes.txt"  # Set the scopes as output
 
       - name: TEST
         run: |
           echo "======================="
-          cat ${{ steps.load_config.outputs.types }}    
+          cat ${{ steps.load_config.outputs.types }}  
+          echo "::::::::::::::::::::::::"  
           cat ${{ steps.load_config.outputs.scopes }}    
 
       - name: CI Check Title
