@@ -13,28 +13,28 @@ jobs:
     name: Validate PR title
     runs-on: ubuntu-latest
     outputs:
-      file_path: ${{ steps.create.outputs.file_path }} # Set job output (artifact name or file path)
+      types: ${{ steps.load_config.outputs.types }}  # Setze die Ausgabe für types
+      scopes: ${{ steps.load_config.outputs.scopes }}  # Setze die Ausgabe für scopes
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Load config
-        id: load-config
+        id: load_config
         run: |
-          # Extract 'types' and 'scopes' from a JS file using node
-          echo "Extracting 'types' and 'scopes' from ./.github/commit-config"
+          # Extrahiere 'types' und 'scopes' aus der JS-Datei und setze sie als Ausgaben
           node -e "
-            const config = require('./.github/commit-config.js'); 
-            require('fs').writeFileSync('types.txt', config.types.join('\n'));
-            require('fs').writeFileSync('scopes.txt', config.scopes.join('\n'));
-          "
-          echo "types=$(echo 'HELLO')" >> $GITHUB_OUTPUT
+            const config= require('./yourfile.js'); 
+            console.log('types=' + config.types.join('\n'));
+            console.log('scopes=' + config.scopes.join('\n'));
+          " >> $GITHUB_OUTPUT  # Setze die Ausgabe direkt in GitHub Output
 
       - name: TEST
         run: |
           echo "======================="
-          cat ${{ steps.load-config.outputs.types }}    
+          cat ${{ steps.load_config.outputs.types }}    
+          cat ${{ steps.load_config.outputs.scopes }}    
 
       - name: CI Check Title
         uses: amannn/action-semantic-pull-request@v5
@@ -44,10 +44,9 @@ jobs:
           wip: true
           # Configure which types are allowed (newline-delimited).
           # Default: https://github.com/commitizen/conventional-commit-types
-          types: |
-            $(cat types.txt)
-          scopes: |
-            $(cat scopes.txt)
+          types: ${{ needs.load_config.outputs.types }}  # Pass the types extracted earlier
+          scopes: ${{ needs.load_config.outputs.scopes }}  # Pass the scopes extracted earlier
+
           # Configure that a scope must always be provided.
           requireScope: true
           # Configure which scopes are disallowed in PR titles (newline-delimited).
