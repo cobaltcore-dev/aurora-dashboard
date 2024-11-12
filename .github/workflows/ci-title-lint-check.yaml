@@ -24,9 +24,9 @@ jobs:
           # SCOPES=$(node -e 'console.log(require("./.github/commit-config").scopes.join("\\n"))')
           # echo "SCOPES=$SCOPES" >> $GITHUB_ENV
           TYPES="fix\nbuild"
-          printf "TYPES=%b\n" "$TYPES" >> $GITHUB_ENV
+          echo -E "TYPES=$TYPES" >> $GITHUB_ENV
           SCOPES="core\nui"
-          printf "SCOPES=%b\n" "$SCOPES" >> $
+          echo "SCOPES=$SCOPES" >> $
           cat $GITHUB_ENV
 
       - name: CI Check Title
