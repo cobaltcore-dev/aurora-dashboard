@@ -40,8 +40,8 @@ jobs:
           echo -E "$TYPES" >> $GITHUB_ENV
           echo 'EOF' >> $GITHUB_ENV
 
-          echo 'TYPES<<EOF' >> $GITHUB_ENV
-          echo -E "$TYPES" >> $GITHUB_ENV
+          echo 'SCOPES<<EOF' >> $GITHUB_ENV
+          echo -E "$SCOPES" >> $GITHUB_ENV
           echo 'EOF' >> $GITHUB_ENV
 
       - name: TEST
