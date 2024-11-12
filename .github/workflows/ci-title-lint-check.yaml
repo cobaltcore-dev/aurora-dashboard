@@ -12,6 +12,9 @@ jobs:
   title-lint:
     name: Validate PR title
     runs-on: ubuntu-latest
+    outputs:
+      file_path: ${{ steps.create.outputs.file_path }} # Set job output (artifact name or file path)
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -26,6 +29,12 @@ jobs:
             require('fs').writeFileSync('types.txt', config.types.join('\n'));
             require('fs').writeFileSync('scopes.txt', config.scopes.join('\n'));
           "
+          echo "types=$(echo 'HELLO')" >> $GITHUB_OUTPUT
+
+      - name: TEST
+        run: |
+          echo "======================="
+          cat ${{ steps.load-config.outputs.types }}    
 
       - name: CI Check Title
         uses: amannn/action-semantic-pull-request@v5
