@@ -23,9 +23,9 @@ jobs:
           # echo "TYPES=$TYPES" >> $GITHUB_ENV
           # SCOPES=$(node -e 'console.log(require("./.github/commit-config").scopes.join("\\n "))')
           # echo "SCOPES=$SCOPES" >> $GITHUB_ENV
-          TYPES="fix\n build"
+          TYPES="fix"
           echo -E "TYPES=$TYPES" >> $GITHUB_ENV
-          SCOPES="core\n ui"
+          SCOPES="ci"
           echo "SCOPES=$SCOPES" >> $
           cat $GITHUB_ENV
 
