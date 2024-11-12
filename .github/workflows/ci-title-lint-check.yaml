@@ -23,11 +23,18 @@ jobs:
       - name: Load config
         id: load_config
         run: |
-          TYPES=$(node -e 'console.log(require("./.github/commit-config").types.join("\\n"))')
-          # echo -E "TYPES=$TYPES" >> $GITHUB_ENV
-          SCOPES=$(node -e 'console.log(require("./.github/commit-config").scopes.join("\\n"))')
-          # echo -E "SCOPES=$SCOPES" >> $GITHUB_ENV
+          node -e "
+            async function load() {
+              const {types,scopes} = await import('./commitlint.config.mjs');
+              const fs = await import('fs');
+              fs.writeFileSync('types.txt', types.join('\n'));  // Write types to a file, each item on a new line
+              fs.writeFileSync('scopes.txt', scopes.join('\n'));  // Write scopes to a file, each item on a new line
+            }
+            load()  
+          "
 
+          TYPES=$(cat $PWD/types.txt)
+          
           echo 'TYPES<<EOF' >> $GITHUB_ENV
           echo -E "$TYPES" >> $GITHUB_ENV
           echo 'EOF' >> $GITHUB_ENV
