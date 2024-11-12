@@ -51,8 +51,10 @@ jobs:
           wip: true
           # Configure which types are allowed (newline-delimited).
           # Default: https://github.com/commitizen/conventional-commit-types
-          types: ${{ needs.load_config.outputs.types }}  # Pass the types extracted earlier
-          scopes: ${{ needs.load_config.outputs.scopes }}  # Pass the scopes extracted earlier
+          types: | 
+            ${{ needs.load_config.outputs.types }}  # Pass the types extracted earlier
+          scopes: | 
+            ${{ needs.load_config.outputs.scopes }}  # Pass the scopes extracted earlier
 
           # Configure that a scope must always be provided.
           requireScope: true
