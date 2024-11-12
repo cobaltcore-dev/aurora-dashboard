@@ -23,12 +23,14 @@ jobs:
       - name: Load config
         id: load_config
         run: |
-          # Extrahiere 'types' und 'scopes' aus der JS-Datei und setze sie als Ausgaben
           node -e "
-            const config= require('./.github/commit-config.js'); 
-            console.log('types=' + config.types.join('\n'));
-            console.log('scopes=' + config.scopes.join('\n'));
-          " >> $GITHUB_OUTPUT  # Setze die Ausgabe direkt in GitHub Output
+            const config = require('./.github/commit-config.js');
+            const types = config.types;  // Access the 'types' array
+            const fs = require('fs');
+            fs.writeFileSync('types.txt', types.join('\n'));  // Write to a file, each item on a new line
+          "
+          echo "File created at: $PWD/types.txt"
+          echo "::set-output name=types::$PWD/types.txt"  # Set the file path as output
 
       - name: TEST
         run: |
