@@ -20,9 +20,9 @@ jobs:
         id: load-config
         run: |
           TYPES=$(node -e 'console.log(require("./.github/commit-config").types.join("\\n"))')
-          echo -E "TYPES=$TYPES" >> $GITHUB_ENV
+          echo "TYPES=$TYPES" >> $GITHUB_ENV
           SCOPES=$(node -e 'console.log(require("./.github/commit-config").scopes.join("\\n"))')
-          echo -E "SCOPES=$SCOPES" >> $GITHUB_ENV
+          echo "SCOPES=$SCOPES" >> $GITHUB_ENV
 
       - name: CI Check Title
         uses: amannn/action-semantic-pull-request@v5
