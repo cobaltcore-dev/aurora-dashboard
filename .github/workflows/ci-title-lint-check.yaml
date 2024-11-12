@@ -33,6 +33,7 @@ jobs:
               console.log('EOF');
             });
           " >> $GITHUB_ENV
+          echo "Done!"
 
       - name: CI Check Title
         uses: amannn/action-semantic-pull-request@v5
