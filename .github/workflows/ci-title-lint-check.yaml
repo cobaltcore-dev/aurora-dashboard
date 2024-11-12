@@ -24,7 +24,7 @@ jobs:
         id: load_config
         run: |
           node -e "
-            const {types,scopes} = require('./commitlint-config.mjs');
+            const {types,scopes} = require('./commitlint.config.mjs');
             const fs = require('fs');
             fs.writeFileSync('types.txt', types.join('\n'));  // Write types to a file, each item on a new line
             fs.writeFileSync('scopes.txt', scopes.join('\n'));  // Write scopes to a file, each item on a new line
