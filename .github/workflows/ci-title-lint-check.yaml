@@ -23,8 +23,8 @@ jobs:
           # echo "TYPES=$TYPES" >> $GITHUB_ENV
           # SCOPES=$(node -e 'console.log(require("./.github/commit-config").scopes.join("\\n"))')
           # echo "SCOPES=$SCOPES" >> $GITHUB_ENV
-          SCOPES="core\nui\nJIRA-\\d+"
-          printf "SCOPES=%b\n" "$SCOPES" >> $GITHUB_ENV
+          TYPES="core\nui\nJIRA-\\d+"
+          printf "TYPES=%b\n" "$TYPES" >> $GITHUB_ENV
 
       - name: CI Check Title
         uses: amannn/action-semantic-pull-request@v5
