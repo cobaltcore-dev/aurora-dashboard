@@ -34,10 +34,16 @@ jobs:
           "
 
           TYPES=$(cat $PWD/types.txt)
-          
+          SCOPES=$(cat $PWD/scopes.txt)
+
           echo 'TYPES<<EOF' >> $GITHUB_ENV
           echo -E "$TYPES" >> $GITHUB_ENV
           echo 'EOF' >> $GITHUB_ENV
+
+          echo 'TYPES<<EOF' >> $GITHUB_ENV
+          echo -E "$TYPES" >> $GITHUB_ENV
+          echo 'EOF' >> $GITHUB_ENV
+
       - name: TEST
         run: |
           echo "======================="
@@ -58,7 +64,7 @@ jobs:
           types: | 
             ${{ env.TYPES }} 
           scopes: | 
-            ${{ steps.load_config.outputs.scopes }} 
+            ${{ env.SCOPES }} 
 
           # Configure that a scope must always be provided.
           requireScope: true
