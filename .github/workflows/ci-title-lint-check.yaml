@@ -25,7 +25,7 @@ jobs:
           # echo "SCOPES=$SCOPES" >> $GITHUB_ENV
           TYPES="fix
           chore"
-          echo TYPES=$TYPES" >> $GITHUB_ENV
+          echo "TYPES=$TYPES" >> $GITHUB_ENV
           SCOPES="ci"
           echo "SCOPES=$SCOPES" >> $
           cat $GITHUB_ENV
