@@ -1,5 +1,5 @@
 {
-  "name": "@cobaltcore-dev/aurora-template",
+  "name": "@cobaltcore-dev/aurora-package-template",
   "version": "1.0.0",
   "description": "Package template that will be use to generate new juno packages",
   "author": "UI-Team",

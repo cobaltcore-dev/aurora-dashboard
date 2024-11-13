@@ -29,7 +29,6 @@ jobs:
         run: |
           pnpm install
           pnpm build -- --base "./"
-          ls -la ./apps/dashboard/dist/
 
       - name: Deploy preview
         uses: rossjrw/pr-preview-action@v1
