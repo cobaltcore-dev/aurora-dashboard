@@ -7,6 +7,7 @@ export const scopes = [
   "ci",
   "core",
   "dashboard",
+  "aurora-portal",
   "docs",
   "deps",
   "infra",
