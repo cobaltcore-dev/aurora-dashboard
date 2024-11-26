@@ -1,7 +1,15 @@
 {
   "extends": "@cobaltcore-dev/aurora-config/typescript/base.json",
   "compilerOptions": {
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "experimentalDecorators": true, // Enable experimental decorator support
+    "emitDecoratorMetadata": true, // Include metadata for reflection
+    "strict": true, // Optional, but ensures stricter typing
+    "skipLibCheck": true, // Skip type checking for library declarations
+    "moduleResolution": "node", // Use Node.js module resolution
+    "outDir": "./dist", // Output directory
+    "allowSyntheticDefaultImports": true, // Compatibility with default imports
+    "resolveJsonModule": true
   },
   "include": ["src/**/*.ts", "vitest.setup.ts"],
   "exclude": ["node_modules", "dist"]
