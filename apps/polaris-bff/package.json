@@ -2,7 +2,7 @@
   "name": "@cobalcore-dev/polaris-bff",
   "version": "1.0.0",
   "author": "UI-Team",
-  "repository": "https://github.com/@cobaltcore-dev/aurora-dashboard/tree/main/apps/aurora-portal",
+  "repository": "https://github.com/@cobaltcore-dev/aurora-dashboard/tree/main/apps/polaris-bff",
   "license": "Apache-2.0",
   "exports": {
     ".": "./dist/index.js"

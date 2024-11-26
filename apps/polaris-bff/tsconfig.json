@@ -8,9 +8,10 @@
     "skipLibCheck": true, // Skip type checking for library declarations
     "moduleResolution": "node", // Use Node.js module resolution
     "outDir": "./dist", // Output directory
+    "incremental": false,
     "allowSyntheticDefaultImports": true, // Compatibility with default imports
     "resolveJsonModule": true
   },
-  "include": ["src/**/*.ts", "vitest.setup.ts"],
+  "include": ["src/**/*.ts"],
   "exclude": ["node_modules", "dist"]
 }
