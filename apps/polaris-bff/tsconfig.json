@@ -1,0 +1,8 @@
+{
+  "extends": "@cobaltcore-dev/aurora-config/typescript/base.json",
+  "compilerOptions": {
+    "esModuleInterop": true
+  },
+  "include": ["src/**/*.ts", "vitest.setup.ts"],
+  "exclude": ["node_modules", "dist"]
+}
