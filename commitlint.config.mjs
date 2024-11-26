@@ -1,6 +1,18 @@
 // import config from "./.github/commit-config.js"
 
-export const types = ["build", "chore", "fix", "feat", "merge", "publish", "release", "refactor", "research", "style", "test"]
+export const types = [
+  "build",
+  "chore",
+  "fix",
+  "feat",
+  "merge",
+  "publish",
+  "release",
+  "refactor",
+  "research",
+  "style",
+  "test",
+]
 export const scopes = [
   "build",
   "config",
@@ -8,6 +20,7 @@ export const scopes = [
   "core",
   "dashboard",
   "aurora-portal",
+  "polaris",
   "docs",
   "deps",
   "infra",

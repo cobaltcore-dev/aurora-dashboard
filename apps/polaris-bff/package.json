@@ -1,0 +1,54 @@
+{
+  "name": "@cobalcore-dev/polaris-bff",
+  "version": "1.0.0",
+  "author": "UI-Team",
+  "repository": "https://github.com/@cobaltcore-dev/aurora-dashboard/tree/main/apps/polaris-bff",
+  "license": "Apache-2.0",
+  "exports": {
+    ".": "./dist/index.js"
+  },
+  "main": "src/index.ts",
+  "private": true,
+  "engines": {
+    "node": ">=20.0.0 <21.0.0",
+    "npm": ">=10.0.0 <11.0.0"
+  },
+  "scripts": {
+    "start": "tsx ./src/index.ts",
+    "test": "vitest run",
+    "lint": "eslint",
+    "generate:schema": "tsx ./src/index.ts --emitSchemaOnly",
+    "clean": "rm -rf dist && rm -rf node_modules && rm -rf .turbo",
+    "typecheck": "tsc --project tsconfig.json --noEmit",
+    "clean:cache": "rm -rf .turbo"
+  },
+  "devDependencies": {
+    "@cobaltcore-dev/aurora-config": "workspace:*",
+    "@types/node": "^20.16.5",
+    "@vitest/coverage-v8": "^2.1.4",
+    "autoprefixer": "^10.4.20",
+    "class-validator": "^0.14.1",
+    "dotenv": "^16.0.0",
+    "prettier": "3.1.1",
+    "reflect-metadata": "^0.2.2",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.2",
+    "vitest": "^2.1.4"
+  },
+  "dependencies": {
+    "@apollo/server": "^4.11.2",
+    "@graphql-tools/mock": "^9.0.0",
+    "@graphql-tools/schema": "^9.0.10",
+    "body-parser": "^1.20.1",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "graphql": "^16.9.0",
+    "graphql-scalars": "^1.23.0",
+    "graphql-subscriptions": "^2.0.0",
+    "graphql-tag": "^2.12.6",
+    "graphql-ws": "^5.11.2",
+    "nodemon": "^2.0.20",
+    "type-graphql": "2.0.0-rc.2",
+    "ws": "^8.11.0"
+  }
+}

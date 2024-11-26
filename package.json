@@ -25,5 +25,8 @@
     "turbo": "^2.2.3"
   },
   "packageManager": "pnpm@8.15.6",
-  "name": "aurora-dashboard"
+  "name": "aurora-dashboard",
+  "dependencies": {
+    "pnpm": "^9.14.2"
+  }
 }
