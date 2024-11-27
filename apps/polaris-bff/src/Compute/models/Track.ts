@@ -9,6 +9,9 @@ export class Track {
   @Field(() => String, { nullable: true, description: "The track's title" })
   title!: string
 
+  @Field(() => String, { description: "The track's description" })
+  description!: string
+
   @Field(() => Author, { description: "The track's main Author" })
   author!: Author
 
