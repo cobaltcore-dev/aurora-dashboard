@@ -1,11 +1,19 @@
 import React from "react"
 import { AppShellProvider, AppShell, FormattedText } from "@cloudoperators/juno-ui-components"
+import { useGetTracksQuery } from "../generated/graphql"
 
 export default function App() {
+  const { data, loading } = useGetTracksQuery()
+
+  if (loading) {
+    return <p>Loading...</p>
+  }
+
   return (
     <AppShellProvider stylesWrapper="head" shadowRoot={false}>
       <AppShell pageHeader="Aurora Dashboard">
         <FormattedText className="p-5">
+          {data?.tracksForHome.map((track) => <p>{track.title}</p>)}
           <h1>Welcome to Aurora Dashboard</h1>
           <p className="text-theme-accent">Coming Soon!</p>
           <p>

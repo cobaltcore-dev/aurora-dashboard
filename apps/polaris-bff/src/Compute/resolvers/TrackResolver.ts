@@ -19,11 +19,12 @@ export class TrackResolver {
         id: "track_01",
         title: "Astro Kitty, Space Explorer",
         author,
+        description: "Explore the galaxy in a spaceship built by cats",
         thumbnail:
           "https://res.cloudinary.com/apollographql/image/upload/v1730818804/odyssey/lift-off-api/nebula_cat_djkt9r_nzifdj.jpg",
         length: 1210,
         modulesCount: 6,
-      }
+      } as Track
     })
 
     return tracks
