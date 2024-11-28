@@ -2,8 +2,10 @@ import { defineConfig } from "vite"
 import react from "@vitejs/plugin-react-swc"
 import tailwindcss from "tailwindcss"
 import autoprefixer from "autoprefixer"
-
 import tsconfigPaths from "vite-tsconfig-paths"
+import * as dotenv from "dotenv"
+
+dotenv.config()
 
 export default defineConfig(() => ({
   root: "./",
