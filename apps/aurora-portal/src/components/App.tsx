@@ -13,7 +13,7 @@ export default function App() {
     <AppShellProvider stylesWrapper="head" shadowRoot={false}>
       <AppShell pageHeader="Aurora Dashboard">
         <FormattedText className="p-5">
-          {data?.tracksForHome.map((track) => <p>{track.id}</p>)}
+          {data?.tracksForHome.map((track) => <p>{track.title}</p>)}
           <h1>Welcome to Aurora Dashboard</h1>
           <p className="text-theme-accent">Coming Soon!</p>
           <p>
