@@ -4,6 +4,7 @@ import { MockedProvider } from "@apollo/client/testing"
 import { describe, it, expect } from "vitest"
 import App from "./App"
 import { GetTracksDocument } from "../generated/graphql"
+
 const mocks = [
   {
     request: {
@@ -33,7 +34,9 @@ describe("App Component", () => {
         <App />
       </MockedProvider>
     )
-    expect(screen.getByText(/Loading.../i)).toBeInTheDocument()
+    await waitFor(() => {
+      expect(screen.getByText(/Loading.../i)).toBeInTheDocument()
+    })
 
     // Wait for the data to appear
     await waitFor(() => {
