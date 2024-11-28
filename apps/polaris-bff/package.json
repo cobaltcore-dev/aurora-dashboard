@@ -14,7 +14,9 @@
     "npm": ">=10.0.0 <11.0.0"
   },
   "scripts": {
-    "start": "tsx watch ./src/index.ts",
+    "dev": "tsx watch ./src/index.ts",
+    "build": "pkgroll",
+    "start": "node dist/index.js",
     "test": "vitest run",
     "lint": "eslint",
     "generate:schema": "tsx ./src/index.ts --emitSchemaOnly",
@@ -28,7 +30,7 @@
     "@vitest/coverage-v8": "^2.1.4",
     "autoprefixer": "^10.4.20",
     "class-validator": "^0.14.1",
-    "dotenv": "^16.0.0",
+    "dotenv": "^16.4.5",
     "prettier": "3.1.1",
     "reflect-metadata": "^0.2.2",
     "tsx": "^4.19.2",
@@ -48,6 +50,7 @@
     "graphql-tag": "^2.12.6",
     "graphql-ws": "^5.11.2",
     "nodemon": "^2.0.20",
+    "pkgroll": "^2.5.1",
     "type-graphql": "2.0.0-rc.2",
     "ws": "^8.11.0"
   }
