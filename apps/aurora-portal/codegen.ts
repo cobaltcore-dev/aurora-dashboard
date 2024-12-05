@@ -21,28 +21,4 @@ const config: CodegenConfig = {
   },
 }
 
-// const config: CodegenConfig = {
-//   schema: schemaUrl,
-//   documents: "src/**/*.graphql",
-
-//   generates: {
-//     "src/graphql": {
-//       preset: "near-operation-file",
-//       presetConfig: {
-//         baseTypesPath: "types.ts",
-//       },
-//       plugins: ["typescript-operations", "typescript-react-apollo"],
-//       config: {
-//         withHooks: true,
-//         withHOC: false,
-//         withComponent: false,
-//       },
-//     },
-
-//     "src/graphql/types.ts": {
-//       plugins: ["typescript"],
-//     },
-//   },
-// }
-
 export default config
