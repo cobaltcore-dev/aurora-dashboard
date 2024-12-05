@@ -1,0 +1,19 @@
+mutation Authentication($domain: String!, $username: String!, $password: String!) {
+  authenticate(domain: $domain, user: $username, password: $password) {
+    user {
+      name
+      id
+      domain {
+        name
+      }
+    }
+    project {
+      name
+    }
+    domain {
+      name
+    }
+    expiresAt
+    authToken
+  }
+}
