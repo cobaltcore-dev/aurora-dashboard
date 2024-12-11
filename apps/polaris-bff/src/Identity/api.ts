@@ -12,7 +12,8 @@ interface CreateTokenResult extends TokenResponse {
   authToken: string | null
 }
 
-class IdentityAPI extends RESTDataSource {
+export class IdentityAPI extends RESTDataSource {
+  // Sets the base URL for the REST API
   override baseURL = process.env.IDENTITY_API_URL
 
   async createToken(domain: string, user: string, password: string): Promise<CreateTokenResult> {
@@ -41,5 +42,3 @@ class IdentityAPI extends RESTDataSource {
     return { ...data, authToken: response.headers.get("X-Subject-Token") }
   }
 }
-
-export default IdentityAPI

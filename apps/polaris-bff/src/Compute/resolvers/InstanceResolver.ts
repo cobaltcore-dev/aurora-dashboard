@@ -1,12 +1,18 @@
-import { Query, Resolver } from "type-graphql"
+import { Query, Resolver, Ctx } from "type-graphql"
 import { Instance } from "../models/Instance"
-import ComputeAPI from "../compute-api"
+import { ComputeAPI } from "../api"
+
+interface Context {
+  dataSources: {
+    computeAPI: ComputeAPI
+  }
+}
 
 @Resolver()
 export class InstanceResolver {
   @Query(() => [Instance])
-  async instances(): Promise<Instance[]> {
-    return new ComputeAPI().getServers().then((response) => {
+  async instances(@Ctx() ctx: Context): Promise<Instance[]> {
+    return ctx.dataSources.computeAPI.getServers().then((response) => {
       return response.servers.map((server: { id: string; name: string }) => new Instance(server))
     })
   }
