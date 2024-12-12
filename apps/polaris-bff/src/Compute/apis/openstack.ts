@@ -1,7 +1,7 @@
 import { AugmentedRequest, CacheOptions, RESTDataSource } from "@apollo/datasource-rest"
 import { ValueOrPromise } from "@apollo/datasource-rest/dist/RESTDataSource"
 
-export class ComputeAPI extends RESTDataSource {
+export class OsComputeAPI extends RESTDataSource {
   override baseURL = "https://compute-3.qa-de-1.cloud.sap:443/v2/e9141fb24eee4b3e9f25ae69cda31132/"
   private token = ""
 

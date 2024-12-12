@@ -2,27 +2,27 @@ import path from "path"
 import { readdirSync } from "fs"
 
 const componentsDir = path.resolve(__dirname, ".")
-const apiFolders = readdirSync(componentsDir, { withFileTypes: true }).filter((dir) => dir.isDirectory())
+const apisPaths = readdirSync(componentsDir, { withFileTypes: true })
+  .filter((dir) => dir.isDirectory())
+  .map((dir) => path.join(componentsDir, dir.name, "apis", "index.ts"))
 
+type Api = () => void
 type Apis = {
-  [key: string]: () => void
+  [key: string]: Api
 }
 
-const getApis = async () => {
-  const apis: Apis = {}
+// Get all apis from all components
+export const getApis = async (): Promise<Apis> => {
+  const apisMap: Apis = {}
 
-  for (const dir of apiFolders) {
-    const apiPath: string = path.join(componentsDir, dir.name, "api.ts")
+  for (const apiPath of apisPaths) {
+    const apis = await import(apiPath)
 
-    await import(apiPath)
-    const componentApis = await import(apiPath)
-    for (const key in componentApis) {
+    for (const key in apis) {
       const apiName: string = key.charAt(0).toLowerCase() + key.slice(1)
-      apis[apiName] = new componentApis[key]()
+      apisMap[apiName] = new apis[key]()
     }
   }
 
-  return apis
+  return apisMap as Apis
 }
-
-export { getApis }

@@ -1,10 +1,10 @@
 import { Query, Resolver, Ctx } from "type-graphql"
 import { Instance } from "../models/Instance"
-import { ComputeAPI } from "../api"
+import { OsComputeAPI } from "../apis"
 
 interface Context {
   dataSources: {
-    computeAPI: ComputeAPI
+    osComputeAPI: OsComputeAPI
   }
 }
 
@@ -12,7 +12,7 @@ interface Context {
 export class InstanceResolver {
   @Query(() => [Instance])
   async instances(@Ctx() ctx: Context): Promise<Instance[]> {
-    return ctx.dataSources.computeAPI.getServers().then((response) => {
+    return ctx.dataSources.osComputeAPI.getServers().then((response) => {
       return response.servers.map((server: { id: string; name: string }) => new Instance(server))
     })
   }

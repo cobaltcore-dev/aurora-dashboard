@@ -18,7 +18,6 @@ export const getResolvers = async (): Promise<Resolvers> => {
   const resolvers = []
 
   for (const resolverPath of resolverPaths) {
-    await import(resolverPath)
     const resolver = await import(resolverPath)
     const componentResolvers = Object.keys(resolver).map((key) => resolver[key])
     resolvers.push(...componentResolvers)
