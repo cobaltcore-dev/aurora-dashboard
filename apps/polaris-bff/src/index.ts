@@ -2,8 +2,10 @@ import "reflect-metadata"
 import { ApolloServer } from "@apollo/server"
 import { startStandaloneServer } from "@apollo/server/standalone"
 import { buildSchema } from "type-graphql"
-import resolvers from "./resolvers"
-import apis from "./apis"
+import { resolvers } from "./resolvers"
+import { apis } from "./apis"
+import { getSessionData } from "./sessionCookieHandler"
+import { Request } from "./types"
 
 import * as dotenv from "dotenv"
 
@@ -21,11 +23,14 @@ async function startApolloServer() {
   const { url } = await startStandaloneServer(server, {
     listen: { port },
     context: async ({ res, req }) => {
-      return {
+      const contextData = {
         dataSources: apis,
         req,
         res,
+        ...getSessionData(req as Request),
       }
+
+      return contextData
     },
   })
 

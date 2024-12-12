@@ -1,14 +1,12 @@
 import { Mutation, Resolver, Args, ArgsType, Field, Ctx } from "type-graphql"
+import { Context } from "../../types"
 import { Token } from "../models/Token"
-import { OsIdentityAPI } from "../apis/openstack"
+import { OpenstackIdentityAPI } from "../apis/openstack"
+import { setSessionData } from "../../sessionCookieHandler"
 
-type VariantType = "polaris-session"
-interface Context {
+interface IdentityContext extends Context {
   dataSources: {
-    osIdentityAPI: OsIdentityAPI
-  }
-  res: {
-    cookie: (name: VariantType, body: string, options: { [subject: string]: string | boolean | number }) => void
+    osIdentityAPI: OpenstackIdentityAPI
   }
 }
 
@@ -29,7 +27,7 @@ export class TokenResolver {
   @Mutation(() => Token)
   async login(
     @Args(() => AuthenticateArgs) { domain, user, password }: AuthenticateArgs,
-    @Ctx() ctx: Context
+    @Ctx() ctx: IdentityContext
   ): Promise<Token> {
     // Authenticate with OpenStack Keystone and get the token
     const { token, authToken } = await ctx.dataSources.osIdentityAPI.createToken(domain, user, password)
@@ -38,14 +36,8 @@ export class TokenResolver {
       throw new Error("Invalid credentials")
     }
 
-    ctx.res.cookie("polaris-session", authToken, {
-      httpOnly: true, // Prevent JavaScript access
-      secure: true, // Send only over HTTPS
-      sameSite: "strict", // Protect against CSRF
-      maxAge: 3600 * 1000, // Set token expiration (1 hour, in ms)
-    })
-    // ctx.res.headers.set("Set-Cookie", `authToken=${authToken}; HttpOnly; Secure; SameSite=Strict; Max-Age=3600`)
-
+    // Set the token as a cookie
+    setSessionData(ctx.res, authToken)
     return Object.assign(new Token(), token)
   }
 }

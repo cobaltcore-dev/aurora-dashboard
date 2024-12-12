@@ -12,7 +12,7 @@ interface CreateTokenResult extends TokenResponse {
   authToken: string | null
 }
 
-export class OsIdentityAPI extends RESTDataSource {
+export class OpenstackIdentityAPI extends RESTDataSource {
   // Sets the base URL for the REST API
   override baseURL = process.env.IDENTITY_API_URL
 

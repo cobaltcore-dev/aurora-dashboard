@@ -1,7 +1,7 @@
-import { OsComputeAPI } from "./Compute/apis/openstack"
-import { OsIdentityAPI } from "./Identity/apis/openstack"
+import { OpenstackComputeAPI } from "./Compute/apis/openstack"
+import { OpenstackIdentityAPI } from "./Identity/apis/openstack"
 
-export default {
-  osComputeAPI: new OsComputeAPI(),
-  osIdentityAPI: new OsIdentityAPI(),
+export const apis = {
+  osComputeAPI: new OpenstackComputeAPI(),
+  osIdentityAPI: new OpenstackIdentityAPI(),
 }
