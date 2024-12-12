@@ -80,12 +80,6 @@ class Catalog {
 
 @ObjectType()
 export class Token {
-  @Field(() => String, {
-    nullable: true,
-    description: "The authentication token, which is used for all API communications.",
-  })
-  authToken?: string | null
-
   @Field(() => Catalog, { nullable: true, description: "Catalog of the token" })
   catalog?: Catalog | null
 

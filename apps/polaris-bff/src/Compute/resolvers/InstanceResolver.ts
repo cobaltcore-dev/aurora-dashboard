@@ -1,6 +1,6 @@
 import { Query, Resolver, Ctx } from "type-graphql"
 import { Instance } from "../models/Instance"
-import { OsComputeAPI } from "../apis"
+import { OsComputeAPI } from "../apis/openstack"
 
 interface Context {
   dataSources: {

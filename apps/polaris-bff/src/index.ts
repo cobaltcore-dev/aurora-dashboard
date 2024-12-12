@@ -2,20 +2,16 @@ import "reflect-metadata"
 import { ApolloServer } from "@apollo/server"
 import { startStandaloneServer } from "@apollo/server/standalone"
 import { buildSchema } from "type-graphql"
-import { getResolvers } from "./resolvers"
-import * as dotenv from "dotenv"
+import resolvers from "./resolvers"
+import apis from "./apis"
 
-import { getApis } from "./apis"
+import * as dotenv from "dotenv"
 
 // Load environment variables from .env file
 dotenv.config()
 const port = Number(process.env.PORT || 4000)
 
 async function startApolloServer() {
-  // Get all APIs
-  const apis = await getApis()
-  // Get resolvers and build schema
-  const resolvers = await getResolvers()
   // Build schema
   const schema = await buildSchema({ resolvers })
 
@@ -24,9 +20,11 @@ async function startApolloServer() {
 
   const { url } = await startStandaloneServer(server, {
     listen: { port },
-    context: async () => {
+    context: async ({ res, req }) => {
       return {
         dataSources: apis,
+        req,
+        res,
       }
     },
   })
