@@ -6,7 +6,7 @@ import { setSessionData } from "../../sessionCookieHandler"
 
 interface IdentityContext extends Context {
   dataSources: {
-    osIdentityAPI: OpenstackIdentityAPI
+    openstackIdentityAPI: OpenstackIdentityAPI
   }
 }
 
@@ -30,7 +30,7 @@ export class TokenResolver {
     @Ctx() ctx: IdentityContext
   ): Promise<Token> {
     // Authenticate with OpenStack Keystone and get the token
-    const { token, authToken } = await ctx.dataSources.osIdentityAPI.createToken(domain, user, password)
+    const { token, authToken } = await ctx.dataSources.openstackIdentityAPI.createToken(domain, user, password)
 
     if (!authToken) {
       throw new Error("Invalid credentials")

@@ -34,8 +34,8 @@ importers:
   apps/aurora-portal:
     dependencies:
       '@cloudoperators/juno-ui-components':
-        specifier: ^2.28.0
-        version: 2.28.0(prop-types@15.8.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: ^2.34.0
+        version: 2.34.0(prop-types@15.8.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       dotenv:
         specifier: ^16.0.0
         version: 16.4.5
@@ -130,6 +130,9 @@ importers:
       '@graphql-tools/schema':
         specifier: ^9.0.10
         version: 9.0.19(graphql@16.9.0)
+      '@types/cors':
+        specifier: ^2.8.17
+        version: 2.8.17
       body-parser:
         specifier: ^1.20.1
         version: 1.20.3
@@ -137,7 +140,7 @@ importers:
         specifier: ^2.8.5
         version: 2.8.5
       express:
-        specifier: ^4.18.2
+        specifier: ^4.21.1
         version: 4.21.1
       graphql:
         specifier: ^16.9.0
@@ -663,8 +666,8 @@ packages:
   '@bcoe/v8-coverage@0.2.3':
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
 
-  '@cloudoperators/juno-ui-components@2.28.0':
-    resolution: {integrity: sha512-tQ+HF6cl2/jR3R+OcT8eC9FjmZ8lPc39SLciChNOSBRwPBXOwrLY+9524KkAeCn/ceIoo/05AReNuaysoiIoNw==}
+  '@cloudoperators/juno-ui-components@2.34.0':
+    resolution: {integrity: sha512-BZzKKmvY57I24gq+mu8biiFpApgVBlwqERSw6f02A8Creg6Wl8rwdPOIqOgMHqi8oON4m9tYlstUgdSS/pJwrg==}
     engines: {node: '>=20.0.0 <21.0.0', npm: '>=10.0.0 <11.0.0'}
     peerDependencies:
       prop-types: 15.8.1
@@ -1755,6 +1758,9 @@ packages:
 
   '@types/conventional-commits-parser@5.0.0':
     resolution: {integrity: sha512-loB369iXNmAZglwWATL+WRe+CRMmmBPtpolYzIebFaX4YA3x+BEfLqhUAV9WanycKI3TG1IMr5bMJDajDKLlUQ==}
+
+  '@types/cors@2.8.17':
+    resolution: {integrity: sha512-8CGDvrBj1zgo2qE+oS3pOCyYNqCPryMWY2bGfwA0dcfopWGgxs+78df0Rs3rc9THP4JkOhLsAa+15VdpAqkcUA==}
 
   '@types/eslint@9.6.1':
     resolution: {integrity: sha512-FXx2pKgId/WyYo2jXw63kk7/+TY7u7AziEJxJAnSFzHlqTAS3Ync6SvgYAN/k4/PQpnnVuzoMuVnByKK2qp0ag==}
@@ -5472,7 +5478,7 @@ snapshots:
 
   '@bcoe/v8-coverage@0.2.3': {}
 
-  '@cloudoperators/juno-ui-components@2.28.0(prop-types@15.8.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@cloudoperators/juno-ui-components@2.34.0(prop-types@15.8.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       prop-types: 15.8.1
       react: 18.3.1
@@ -6684,6 +6690,10 @@ snapshots:
       '@types/node': 20.17.6
 
   '@types/conventional-commits-parser@5.0.0':
+    dependencies:
+      '@types/node': 20.17.6
+
+  '@types/cors@2.8.17':
     dependencies:
       '@types/node': 20.17.6
 

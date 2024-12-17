@@ -1,8 +1,4 @@
 import { RESTDataSource } from "@apollo/datasource-rest"
-import * as dotenv from "dotenv"
-
-// Load environment variables from .env file
-dotenv.config()
 
 interface TokenResponse {
   token: object
@@ -40,5 +36,13 @@ export class OpenstackIdentityAPI extends RESTDataSource {
 
     const data = parsedBody as TokenResponse
     return { ...data, authToken: response.headers.get("X-Subject-Token") }
+  }
+
+  async listAuthProjects(authToken: string) {
+    return this.get("auth/projects", {
+      headers: {
+        "X-Auth-Token": authToken,
+      },
+    })
   }
 }

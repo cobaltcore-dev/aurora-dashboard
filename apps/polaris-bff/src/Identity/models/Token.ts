@@ -1,40 +1,7 @@
 import { Field, ObjectType, ID } from "type-graphql"
-
-@ObjectType()
-class Domain {
-  @Field(() => String, { nullable: true, description: "ID of the user domain" })
-  id?: string
-
-  @Field(() => String, { nullable: true, description: "Name of the user domain" })
-  name?: string
-}
-
-@ObjectType()
-class User {
-  @Field(() => ID, { description: "ID of the user" })
-  id!: string
-
-  @Field(() => String, { description: "Name of the user" })
-  name!: string
-
-  @Field(() => Domain)
-  domain!: Domain
-
-  @Field(() => String, { nullable: true, description: "Expiration date of the password" })
-  passwordExpiresAt?: string
-}
-
-@ObjectType()
-class Project {
-  @Field(() => Domain)
-  domain!: Domain
-
-  @Field(() => ID, { description: "ID of the project" })
-  id!: string
-
-  @Field(() => String, { description: "Name of the project" })
-  name!: string
-}
+import { Domain } from "./Domain"
+import { User } from "./User"
+import { Project } from "./Project"
 
 @ObjectType()
 class Role {

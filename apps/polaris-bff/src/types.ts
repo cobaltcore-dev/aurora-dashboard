@@ -1,7 +1,9 @@
 type SessionCookieName = "polaris-session"
 
 export type Request = {
-  cookies?: { [key in SessionCookieName]?: string }
+  headers?: {
+    cookie: string
+  }
 }
 
 export type Response = {

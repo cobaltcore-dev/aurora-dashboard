@@ -24,5 +24,12 @@ export default defineConfig(() => ({
   server: {
     host: "0.0.0.0",
     port: parseInt(process.env.PORT || "3000"),
+    proxy: {
+      "/__bff": {
+        target: process.env.VITE_GRAPHQL_API_URL,
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/__bff/, "graphql"),
+      },
+    },
   },
 }))

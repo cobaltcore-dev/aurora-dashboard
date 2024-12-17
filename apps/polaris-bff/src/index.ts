@@ -1,4 +1,5 @@
 import "reflect-metadata"
+import "./envs"
 import { ApolloServer } from "@apollo/server"
 import { startStandaloneServer } from "@apollo/server/standalone"
 import { buildSchema } from "type-graphql"
@@ -7,10 +8,6 @@ import { apis } from "./apis"
 import { getSessionData } from "./sessionCookieHandler"
 import { Request } from "./types"
 
-import * as dotenv from "dotenv"
-
-// Load environment variables from .env file
-dotenv.config()
 const port = Number(process.env.PORT || 4000)
 
 async function startApolloServer() {
