@@ -1,7 +1,12 @@
+import "reflect-metadata"
 import { ApolloServer } from "@apollo/server"
 import { startStandaloneServer } from "@apollo/server/standalone"
-import { addMocksToSchema } from "@graphql-tools/mock"
-import { createSchema } from "./schema"
+import { buildSchema } from "type-graphql"
+import { resolvers } from "./resolvers"
+import { apis } from "./apis"
+import { getSessionData } from "./sessionCookieHandler"
+import { Request } from "./types"
+
 import * as dotenv from "dotenv"
 
 // Load environment variables from .env file
@@ -9,23 +14,24 @@ dotenv.config()
 const port = Number(process.env.PORT || 4000)
 
 async function startApolloServer() {
-  const schema = await createSchema()
-
-  // Optionally apply mocks
-  const mockedSchema = addMocksToSchema({
-    schema,
-    mocks: {
-      // You can override specific fields if needed
-    },
-  })
+  // Build schema
+  const schema = await buildSchema({ resolvers })
 
   // Create Apollo Server
-  const server = new ApolloServer({
-    schema: mockedSchema,
-  })
+  const server = new ApolloServer({ schema })
 
   const { url } = await startStandaloneServer(server, {
     listen: { port },
+    context: async ({ res, req }) => {
+      const contextData = {
+        dataSources: apis,
+        req,
+        res,
+        ...getSessionData(req as Request),
+      }
+
+      return contextData
+    },
   })
 
   console.log(`

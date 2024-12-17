@@ -1,20 +1,20 @@
 import React from "react"
+// @ts-expect-error types will be provided soon
 import { AppShellProvider, AppShell, FormattedText } from "@cloudoperators/juno-ui-components"
-import { useGetTracksQuery } from "../generated/graphql"
+import { AuthForm } from "../Identity/Authentication/AuthForm"
+import { AuthenticationMutation } from "../generated/graphql"
 
 export default function App() {
-  const { data, loading } = useGetTracksQuery()
-
-  if (loading) {
-    return <p>Loading...</p>
-  }
+  const [auth, setAuth] = React.useState<AuthenticationMutation["authenticate"] | undefined>()
 
   return (
     <AppShellProvider stylesWrapper="head" shadowRoot={false}>
       <AppShell pageHeader="Aurora Dashboard">
         <FormattedText className="p-5">
-          {data?.tracksForHome.map((track) => <p>{track.title}</p>)}
           <h1>Welcome to Aurora Dashboard</h1>
+          {auth?.authToken && <h2>Hello {auth.authToken}</h2>}
+          <AuthForm onSuccess={setAuth} opened={!auth} />
+
           <p className="text-theme-accent">Coming Soon!</p>
           <p>
             The <strong>Aurora Dashboard</strong> is on its way! Get ready for a powerful, all-in-one cloud management

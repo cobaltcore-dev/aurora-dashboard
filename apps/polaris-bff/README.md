@@ -16,17 +16,50 @@ Aurora Dashboard is designed to enhance visibility and control across projects, 
 
 ## Getting Started
 
-1. **Clone the Repository**: Start by cloning the monorepo and navigating to the `aurora-dashboard` directory.
-2. **Install Dependencies**: Run `npm install` (or `yarn install`) to install the necessary dependencies.
-3. **Run the Dashboard Locally**: Use `npm start` (or `yarn start`) to launch the dashboard locally for development or testing.
+Follow these steps to set up and run the project locally:
+
+1. **Clone the Repository**  
+   Clone the monorepo to your local machine and navigate to the `aurora-dashboard` directory.
+
+2. **Install pnpm**  
+   Ensure you have `pnpm` installed globally. Run:
+   ```bash
+   npm install -g pnpm
+   ```
+3. **Install Dependencies**
+   Install all necessary dependencies for the monorepo:
+
+   ```bash
+   pnpm install
+   ```
+
+4. **Run the Dashboard Locally**
+   To start both the dashboard and backend locally for development, use:
+
+   ```bash
+   pnpm dev
+   ```
 
 ## Configuring Aurora Dashboard
 
 To tailor Aurora Dashboard to your environment:
 
-- **Environment Variables**: Configure any required environment variables listed in `.env.example` to connect to your data sources and services.
-- **Customize Widgets**: Adjust the dashboard layout and add/remove widgets to match your monitoring and management needs.
-- **Set Up Alerts**: Define custom alerts and notification channels under the "Alerts" section to stay updated on critical changes.
+- **Environment Variables**: Configure any required environment variables listed in `.env.sample` to connect to your data sources and services.
+
+  If your environment requires customization, follow these steps:
+
+  1.  Navigate to the respective app directory:
+
+      - For the frontend: apps/aurora-portal
+      - For the backend: apps/polaris-bff
+
+  2.  Copy the sample environment file:
+
+      ```bash
+      cp .env.sample .env
+      ```
+
+  3.  Adjust the variables in the .env file to suit your setup.
 
 ## Contributing
 

@@ -8,6 +8,7 @@ const schemaUrl = process.env.VITE_GRAPHQL_API_URL || "http://localhost:4000/gra
 const config: CodegenConfig = {
   schema: schemaUrl,
   documents: "src/**/*.graphql",
+
   generates: {
     "src/generated/graphql.tsx": {
       plugins: ["typescript", "typescript-operations", "typescript-react-apollo"],
