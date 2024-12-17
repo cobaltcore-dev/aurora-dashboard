@@ -1,170 +1,192 @@
-import { gql } from '@apollo/client';
-import * as Apollo from '@apollo/client';
-export type Maybe<T> = T | null;
-export type InputMaybe<T> = Maybe<T>;
-export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
-export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
-export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
-export type MakeEmpty<T extends { [key: string]: unknown }, K extends keyof T> = { [_ in K]?: never };
-export type Incremental<T> = T | { [P in keyof T]?: P extends ' $fragmentName' | '__typename' ? T[P] : never };
-const defaultOptions = {} as const;
+import { gql } from "@apollo/client"
+import * as Apollo from "@apollo/client"
+export type Maybe<T> = T | null
+export type InputMaybe<T> = Maybe<T>
+export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] }
+export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> }
+export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> }
+export type MakeEmpty<T extends { [key: string]: unknown }, K extends keyof T> = { [_ in K]?: never }
+export type Incremental<T> = T | { [P in keyof T]?: P extends " $fragmentName" | "__typename" ? T[P] : never }
+const defaultOptions = {} as const
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
-  ID: { input: string; output: string; }
-  String: { input: string; output: string; }
-  Boolean: { input: boolean; output: boolean; }
-  Int: { input: number; output: number; }
-  Float: { input: number; output: number; }
-};
+  ID: { input: string; output: string }
+  String: { input: string; output: string }
+  Boolean: { input: boolean; output: boolean }
+  Int: { input: number; output: number }
+  Float: { input: number; output: number }
+}
 
 export type Catalog = {
-  __typename?: 'Catalog';
+  __typename?: "Catalog"
   /** Endpoints of the catalog */
-  endpoints: Array<Endpoint>;
+  endpoints: Array<Endpoint>
   /** ID of the catalog */
-  id: Scalars['String']['output'];
+  id: Scalars["String"]["output"]
   /** Name of the catalog */
-  name: Scalars['String']['output'];
+  name: Scalars["String"]["output"]
   /** Type of the catalog */
-  type: Scalars['String']['output'];
-};
+  type: Scalars["String"]["output"]
+}
 
 export type Domain = {
-  __typename?: 'Domain';
+  __typename?: "Domain"
   /** Description of the user domain */
-  description?: Maybe<Scalars['String']['output']>;
+  description?: Maybe<Scalars["String"]["output"]>
   /** ID of the user domain */
-  id?: Maybe<Scalars['ID']['output']>;
+  id?: Maybe<Scalars["ID"]["output"]>
   /** Name of the user domain */
-  name?: Maybe<Scalars['String']['output']>;
-};
+  name?: Maybe<Scalars["String"]["output"]>
+}
 
 export type Endpoint = {
-  __typename?: 'Endpoint';
+  __typename?: "Endpoint"
   /** ID of the endpoint */
-  id: Scalars['ID']['output'];
+  id: Scalars["ID"]["output"]
   /** Interface of the endpoint */
-  interface: Scalars['String']['output'];
+  interface: Scalars["String"]["output"]
   /** Region of the endpoint */
-  region: Scalars['String']['output'];
+  region: Scalars["String"]["output"]
   /** Region ID of the endpoint */
-  regionId: Scalars['String']['output'];
+  regionId: Scalars["String"]["output"]
   /** Url of the endpoint */
-  url: Scalars['String']['output'];
-};
+  url: Scalars["String"]["output"]
+}
 
 export type Link = {
-  __typename?: 'Link';
+  __typename?: "Link"
   /** The hyperlink reference */
-  href: Scalars['String']['output'];
+  href: Scalars["String"]["output"]
   /** The relationship type */
-  rel: Scalars['String']['output'];
-};
+  rel: Scalars["String"]["output"]
+}
 
 export type Mutation = {
-  __typename?: 'Mutation';
-  login: Token;
-};
-
+  __typename?: "Mutation"
+  login: Token
+}
 
 export type MutationLoginArgs = {
-  domain: Scalars['String']['input'];
-  password: Scalars['String']['input'];
-  user: Scalars['String']['input'];
-};
+  domain: Scalars["String"]["input"]
+  password: Scalars["String"]["input"]
+  user: Scalars["String"]["input"]
+}
 
 export type Project = {
-  __typename?: 'Project';
+  __typename?: "Project"
   /** Description of the project */
-  description?: Maybe<Scalars['String']['output']>;
+  description?: Maybe<Scalars["String"]["output"]>
   /** Domain of the project */
-  domain: Domain;
+  domain: Domain
   /** Is project enabled? */
-  enabled: Scalars['Boolean']['output'];
+  enabled: Scalars["Boolean"]["output"]
   /** Project ID */
-  id: Scalars['ID']['output'];
+  id: Scalars["ID"]["output"]
   /** Name of the project */
-  name: Scalars['String']['output'];
-};
+  name: Scalars["String"]["output"]
+}
 
 export type Query = {
-  __typename?: 'Query';
-  listAuthProjects: Array<Project>;
-  listServers: Array<Server>;
-};
+  __typename?: "Query"
+  listAuthProjects: Array<Project>
+  listServers: Array<Server>
+}
 
 export type Role = {
-  __typename?: 'Role';
+  __typename?: "Role"
   /** ID of the role */
-  id: Scalars['ID']['output'];
+  id: Scalars["ID"]["output"]
   /** Name of the role */
-  name: Scalars['String']['output'];
-};
+  name: Scalars["String"]["output"]
+}
 
 export type Server = {
-  __typename?: 'Server';
-  id: Scalars['ID']['output'];
+  __typename?: "Server"
+  id: Scalars["ID"]["output"]
   /** Test */
-  links?: Maybe<Array<Link>>;
+  links?: Maybe<Array<Link>>
   /** Instance's name */
-  name: Scalars['String']['output'];
-};
+  name: Scalars["String"]["output"]
+}
 
 export type Token = {
-  __typename?: 'Token';
+  __typename?: "Token"
   /** Catalog of the token */
-  catalog?: Maybe<Catalog>;
+  catalog?: Maybe<Catalog>
   /** Domain of the token */
-  domain?: Maybe<Domain>;
+  domain?: Maybe<Domain>
   /** Expiration date of the token */
-  expiresAt?: Maybe<Scalars['String']['output']>;
+  expiresAt?: Maybe<Scalars["String"]["output"]>
   /** Project of the token */
-  project?: Maybe<Project>;
+  project?: Maybe<Project>
   /** Roles of the token */
-  roles?: Maybe<Array<Role>>;
+  roles?: Maybe<Array<Role>>
   /** User of the token */
-  user?: Maybe<User>;
-};
+  user?: Maybe<User>
+}
 
 export type User = {
-  __typename?: 'User';
-  domain: Domain;
+  __typename?: "User"
+  domain: Domain
   /** ID of the user */
-  id: Scalars['ID']['output'];
+  id: Scalars["ID"]["output"]
   /** Name of the user */
-  name: Scalars['String']['output'];
+  name: Scalars["String"]["output"]
   /** Expiration date of the password */
-  passwordExpiresAt?: Maybe<Scalars['String']['output']>;
-};
+  passwordExpiresAt?: Maybe<Scalars["String"]["output"]>
+}
 
-export type GetServersQueryVariables = Exact<{ [key: string]: never; }>;
+export type GetServersQueryVariables = Exact<{ [key: string]: never }>
 
-
-export type GetServersQuery = { __typename?: 'Query', listServers: Array<{ __typename?: 'Server', id: string, name: string }> };
+export type GetServersQuery = {
+  __typename?: "Query"
+  listServers: Array<{ __typename?: "Server"; id: string; name: string }>
+}
 
 export type AuthenticationMutationVariables = Exact<{
-  domain: Scalars['String']['input'];
-  username: Scalars['String']['input'];
-  password: Scalars['String']['input'];
-}>;
+  domain: Scalars["String"]["input"]
+  username: Scalars["String"]["input"]
+  password: Scalars["String"]["input"]
+}>
 
-
-export type AuthenticationMutation = { __typename?: 'Mutation', login: { __typename?: 'Token', expiresAt?: string | null, user?: { __typename?: 'User', name: string, id: string, domain: { __typename?: 'Domain', name?: string | null } } | null, project?: { __typename?: 'Project', name: string } | null, domain?: { __typename?: 'Domain', name?: string | null } | null } };
-
-export type ListAuthProjectsQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type ListAuthProjectsQuery = { __typename?: 'Query', listAuthProjects: Array<{ __typename?: 'Project', id: string, name: string, enabled: boolean, description?: string | null, domain: { __typename?: 'Domain', id?: string | null, name?: string | null } }> };
-
-
-export const GetServersDocument = gql`
-    query GetServers {
-  listServers {
-    id
-    name
+export type AuthenticationMutation = {
+  __typename?: "Mutation"
+  login: {
+    __typename?: "Token"
+    expiresAt?: string | null
+    user?: {
+      __typename?: "User"
+      name: string
+      id: string
+      domain: { __typename?: "Domain"; name?: string | null }
+    } | null
+    project?: { __typename?: "Project"; name: string } | null
+    domain?: { __typename?: "Domain"; name?: string | null } | null
   }
 }
-    `;
+
+export type ListAuthProjectsQueryVariables = Exact<{ [key: string]: never }>
+
+export type ListAuthProjectsQuery = {
+  __typename?: "Query"
+  listAuthProjects: Array<{
+    __typename?: "Project"
+    id: string
+    name: string
+    enabled: boolean
+    description?: string | null
+    domain: { __typename?: "Domain"; id?: string | null; name?: string | null }
+  }>
+}
+
+export const GetServersDocument = gql`
+  query GetServers {
+    listServers {
+      id
+      name
+    }
+  }
+`
 
 /**
  * __useGetServersQuery__
@@ -182,42 +204,46 @@ export const GetServersDocument = gql`
  * });
  */
 export function useGetServersQuery(baseOptions?: Apollo.QueryHookOptions<GetServersQuery, GetServersQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetServersQuery, GetServersQueryVariables>(GetServersDocument, options);
-      }
-export function useGetServersLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetServersQuery, GetServersQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetServersQuery, GetServersQueryVariables>(GetServersDocument, options);
-        }
-export function useGetServersSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetServersQuery, GetServersQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<GetServersQuery, GetServersQueryVariables>(GetServersDocument, options);
-        }
-export type GetServersQueryHookResult = ReturnType<typeof useGetServersQuery>;
-export type GetServersLazyQueryHookResult = ReturnType<typeof useGetServersLazyQuery>;
-export type GetServersSuspenseQueryHookResult = ReturnType<typeof useGetServersSuspenseQuery>;
-export type GetServersQueryResult = Apollo.QueryResult<GetServersQuery, GetServersQueryVariables>;
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useQuery<GetServersQuery, GetServersQueryVariables>(GetServersDocument, options)
+}
+export function useGetServersLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<GetServersQuery, GetServersQueryVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useLazyQuery<GetServersQuery, GetServersQueryVariables>(GetServersDocument, options)
+}
+export function useGetServersSuspenseQuery(
+  baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetServersQuery, GetServersQueryVariables>
+) {
+  const options = baseOptions === Apollo.skipToken ? baseOptions : { ...defaultOptions, ...baseOptions }
+  return Apollo.useSuspenseQuery<GetServersQuery, GetServersQueryVariables>(GetServersDocument, options)
+}
+export type GetServersQueryHookResult = ReturnType<typeof useGetServersQuery>
+export type GetServersLazyQueryHookResult = ReturnType<typeof useGetServersLazyQuery>
+export type GetServersSuspenseQueryHookResult = ReturnType<typeof useGetServersSuspenseQuery>
+export type GetServersQueryResult = Apollo.QueryResult<GetServersQuery, GetServersQueryVariables>
 export const AuthenticationDocument = gql`
-    mutation Authentication($domain: String!, $username: String!, $password: String!) {
-  login(domain: $domain, user: $username, password: $password) {
-    user {
-      name
-      id
+  mutation Authentication($domain: String!, $username: String!, $password: String!) {
+    login(domain: $domain, user: $username, password: $password) {
+      user {
+        name
+        id
+        domain {
+          name
+        }
+      }
+      project {
+        name
+      }
       domain {
         name
       }
+      expiresAt
     }
-    project {
-      name
-    }
-    domain {
-      name
-    }
-    expiresAt
   }
-}
-    `;
-export type AuthenticationMutationFn = Apollo.MutationFunction<AuthenticationMutation, AuthenticationMutationVariables>;
+`
+export type AuthenticationMutationFn = Apollo.MutationFunction<AuthenticationMutation, AuthenticationMutationVariables>
 
 /**
  * __useAuthenticationMutation__
@@ -238,27 +264,32 @@ export type AuthenticationMutationFn = Apollo.MutationFunction<AuthenticationMut
  *   },
  * });
  */
-export function useAuthenticationMutation(baseOptions?: Apollo.MutationHookOptions<AuthenticationMutation, AuthenticationMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<AuthenticationMutation, AuthenticationMutationVariables>(AuthenticationDocument, options);
-      }
-export type AuthenticationMutationHookResult = ReturnType<typeof useAuthenticationMutation>;
-export type AuthenticationMutationResult = Apollo.MutationResult<AuthenticationMutation>;
-export type AuthenticationMutationOptions = Apollo.BaseMutationOptions<AuthenticationMutation, AuthenticationMutationVariables>;
+export function useAuthenticationMutation(
+  baseOptions?: Apollo.MutationHookOptions<AuthenticationMutation, AuthenticationMutationVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useMutation<AuthenticationMutation, AuthenticationMutationVariables>(AuthenticationDocument, options)
+}
+export type AuthenticationMutationHookResult = ReturnType<typeof useAuthenticationMutation>
+export type AuthenticationMutationResult = Apollo.MutationResult<AuthenticationMutation>
+export type AuthenticationMutationOptions = Apollo.BaseMutationOptions<
+  AuthenticationMutation,
+  AuthenticationMutationVariables
+>
 export const ListAuthProjectsDocument = gql`
-    query ListAuthProjects {
-  listAuthProjects {
-    id
-    name
-    enabled
-    domain {
+  query ListAuthProjects {
+    listAuthProjects {
       id
       name
+      enabled
+      domain {
+        id
+        name
+      }
+      description
     }
-    description
   }
-}
-    `;
+`
 
 /**
  * __useListAuthProjectsQuery__
@@ -275,19 +306,30 @@ export const ListAuthProjectsDocument = gql`
  *   },
  * });
  */
-export function useListAuthProjectsQuery(baseOptions?: Apollo.QueryHookOptions<ListAuthProjectsQuery, ListAuthProjectsQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<ListAuthProjectsQuery, ListAuthProjectsQueryVariables>(ListAuthProjectsDocument, options);
-      }
-export function useListAuthProjectsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListAuthProjectsQuery, ListAuthProjectsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<ListAuthProjectsQuery, ListAuthProjectsQueryVariables>(ListAuthProjectsDocument, options);
-        }
-export function useListAuthProjectsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListAuthProjectsQuery, ListAuthProjectsQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<ListAuthProjectsQuery, ListAuthProjectsQueryVariables>(ListAuthProjectsDocument, options);
-        }
-export type ListAuthProjectsQueryHookResult = ReturnType<typeof useListAuthProjectsQuery>;
-export type ListAuthProjectsLazyQueryHookResult = ReturnType<typeof useListAuthProjectsLazyQuery>;
-export type ListAuthProjectsSuspenseQueryHookResult = ReturnType<typeof useListAuthProjectsSuspenseQuery>;
-export type ListAuthProjectsQueryResult = Apollo.QueryResult<ListAuthProjectsQuery, ListAuthProjectsQueryVariables>;
+export function useListAuthProjectsQuery(
+  baseOptions?: Apollo.QueryHookOptions<ListAuthProjectsQuery, ListAuthProjectsQueryVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useQuery<ListAuthProjectsQuery, ListAuthProjectsQueryVariables>(ListAuthProjectsDocument, options)
+}
+export function useListAuthProjectsLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<ListAuthProjectsQuery, ListAuthProjectsQueryVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useLazyQuery<ListAuthProjectsQuery, ListAuthProjectsQueryVariables>(ListAuthProjectsDocument, options)
+}
+export function useListAuthProjectsSuspenseQuery(
+  baseOptions?:
+    | Apollo.SkipToken
+    | Apollo.SuspenseQueryHookOptions<ListAuthProjectsQuery, ListAuthProjectsQueryVariables>
+) {
+  const options = baseOptions === Apollo.skipToken ? baseOptions : { ...defaultOptions, ...baseOptions }
+  return Apollo.useSuspenseQuery<ListAuthProjectsQuery, ListAuthProjectsQueryVariables>(
+    ListAuthProjectsDocument,
+    options
+  )
+}
+export type ListAuthProjectsQueryHookResult = ReturnType<typeof useListAuthProjectsQuery>
+export type ListAuthProjectsLazyQueryHookResult = ReturnType<typeof useListAuthProjectsLazyQuery>
+export type ListAuthProjectsSuspenseQueryHookResult = ReturnType<typeof useListAuthProjectsSuspenseQuery>
+export type ListAuthProjectsQueryResult = Apollo.QueryResult<ListAuthProjectsQuery, ListAuthProjectsQueryVariables>
