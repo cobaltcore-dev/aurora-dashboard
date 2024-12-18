@@ -5,8 +5,8 @@ import { startStandaloneServer } from "@apollo/server/standalone"
 import { buildSchema } from "type-graphql"
 import { resolvers } from "./resolvers"
 import { getAPIAdapters } from "./apiManager"
-import { getSessionData } from "./sessionCookieHandler"
-import { PolarisRequest } from "./types/context"
+import { SessionCookieHandler } from "./sessionCookieHandler"
+import { BaseContext } from "./types/baseContext"
 
 async function startApolloServer() {
   // Build schema
@@ -24,12 +24,16 @@ async function startApolloServer() {
       // get cache from server
       const { cache } = server
 
-      const contextData = {
-        // pass cache to the api adapters
-        dataSources: getAPIAdapters({ cache }),
+      const sessionCookieHandler = new SessionCookieHandler({ req, res })
+
+      const contextData: BaseContext = {
         req,
         res,
-        ...getSessionData(req as PolarisRequest),
+        // pass cache to the api adapters
+        dataSources: getAPIAdapters({ cache }),
+        authToken: sessionCookieHandler.getSessionAuthToken(),
+        setAuthToken: sessionCookieHandler.setSessionAuthToken,
+        clearSessionCookie: sessionCookieHandler.clearSessionCookie,
       }
 
       return contextData
