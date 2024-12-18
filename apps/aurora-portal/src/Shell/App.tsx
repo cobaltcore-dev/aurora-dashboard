@@ -5,14 +5,14 @@ import { AuthForm } from "../Identity/Authentication/AuthForm"
 import { AuthenticationMutation } from "../generated/graphql"
 
 export default function App() {
-  const [auth, setAuth] = React.useState<AuthenticationMutation["authenticate"] | undefined>()
+  const [auth, setAuth] = React.useState<AuthenticationMutation["login"] | undefined>()
 
   return (
     <AppShellProvider stylesWrapper="head" shadowRoot={false}>
       <AppShell pageHeader="Aurora Dashboard">
         <FormattedText className="p-5">
           <h1>Welcome to Aurora Dashboard</h1>
-          {auth?.authToken && <h2>Hello {auth.authToken}</h2>}
+          {auth && <h2>Hello {auth.user?.name}</h2>}
           <AuthForm onSuccess={setAuth} opened={!auth} />
 
           <p className="text-theme-accent">Coming Soon!</p>

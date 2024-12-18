@@ -1,15 +1,8 @@
-import { Request, Response } from "./types"
+import { Request, Response } from "./types/context"
 
 export const getSessionData = (req: Request) => {
   // Extract the auth token from cookies
   const authToken = req.cookies?.["polaris-session"]
-
-  // if (!authToken) {
-  //   throw new Error("Authentication required")
-  // }
-
-  console.log("===================================")
-  console.log(authToken)
 
   // Attach the token to the context for downstream resolvers
   return { authToken }

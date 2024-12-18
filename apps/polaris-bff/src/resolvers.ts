@@ -1,6 +1,6 @@
 import { NonEmptyArray } from "type-graphql"
-import { InstanceResolver } from "./Compute/resolvers/InstanceResolver"
+import { ServerResolver } from "./Compute/resolvers/ServerResolver"
 import { TokenResolver } from "./Identity/resolvers/TokenResolver"
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
-export const resolvers: NonEmptyArray<Function> = [TokenResolver, InstanceResolver]
+export const resolvers: NonEmptyArray<Function> = [TokenResolver, ServerResolver]

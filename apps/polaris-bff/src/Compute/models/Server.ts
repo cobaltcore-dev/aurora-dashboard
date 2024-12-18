@@ -10,18 +10,15 @@ class Link {
 }
 
 @ObjectType()
-export class Instance {
-  constructor({ id, name, links }: { id: string; name: string; links?: { rel: string; href: string }[] }) {
-    this.id = id
-    this.name = name
-    this.links = links
-  }
-
+export class Server {
   @Field(() => ID)
   id!: string
 
-  @Field(() => String, { description: "Instance's name" })
+  @Field(() => String, { description: "Server's name" })
   name!: string
+
+  @Field(() => String, { nullable: true, description: "Server's description" })
+  description?: string
 
   @Field(() => [Link], { nullable: true, description: "Test" })
   links: { rel: string; href: string }[] | undefined

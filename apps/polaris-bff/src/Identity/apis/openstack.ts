@@ -1,8 +1,4 @@
 import { RESTDataSource } from "@apollo/datasource-rest"
-import * as dotenv from "dotenv"
-
-// Load environment variables from .env file
-dotenv.config()
 
 interface TokenResponse {
   token: object

@@ -1,5 +1,5 @@
 mutation Authentication($domain: String!, $username: String!, $password: String!) {
-  authenticate(domain: $domain, user: $username, password: $password) {
+  login(domain: $domain, user: $username, password: $password) {
     user {
       name
       id
@@ -14,6 +14,5 @@ mutation Authentication($domain: String!, $username: String!, $password: String!
       name
     }
     expiresAt
-    authToken
   }
 }
