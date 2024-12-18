@@ -1,5 +1,9 @@
 import { Mutation, Resolver, Args, ArgsType, Field, Ctx } from "type-graphql"
+<<<<<<< HEAD
 import { BaseContext } from "../../types/context"
+=======
+import { Context } from "../../types/context"
+>>>>>>> ea6ae7b (chore(core): refactors the data sources)
 import { Token } from "../models/Token"
 import { OpenstackIdentityAPI } from "../apis/openstack"
 import { setSessionData } from "../../sessionCookieHandler"
