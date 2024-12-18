@@ -1,9 +1,9 @@
 import { Query, Resolver, Ctx } from "type-graphql"
-import { Context } from "../../types/context"
+import { BaseContext } from "../../types/context"
 import { Server } from "../models/Server"
 import { OpenstackComputeAPI } from "../apis/openstack"
 
-interface ComputeContext extends Context {
+interface ComputeContext extends BaseContext {
   dataSources: {
     openstack: {
       compute: OpenstackComputeAPI

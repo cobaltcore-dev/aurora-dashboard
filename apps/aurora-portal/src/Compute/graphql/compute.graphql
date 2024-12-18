@@ -1,4 +1,4 @@
-query listServers {
+query GetServers {
   servers {
     id
     name

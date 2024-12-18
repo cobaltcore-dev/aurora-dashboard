@@ -6,7 +6,7 @@ import { buildSchema } from "type-graphql"
 import { resolvers } from "./resolvers"
 import { getAPIAdapters } from "./apiManager"
 import { getSessionData } from "./sessionCookieHandler"
-import { Request } from "./types/context"
+import { PolarisRequest } from "./types/context"
 
 async function startApolloServer() {
   // Build schema
@@ -29,7 +29,7 @@ async function startApolloServer() {
         dataSources: getAPIAdapters({ cache }),
         req,
         res,
-        ...getSessionData(req as Request),
+        ...getSessionData(req as PolarisRequest),
       }
 
       return contextData

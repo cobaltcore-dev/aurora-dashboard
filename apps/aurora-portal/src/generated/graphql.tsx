@@ -130,9 +130,9 @@ export type User = {
   passwordExpiresAt?: Maybe<Scalars["String"]["output"]>
 }
 
-export type ListServersQueryVariables = Exact<{ [key: string]: never }>
+export type GetServersQueryVariables = Exact<{ [key: string]: never }>
 
-export type ListServersQuery = {
+export type GetServersQuery = {
   __typename?: "Query"
   servers: Array<{ __typename?: "Server"; id: string; name: string; description?: string | null }>
 }
@@ -159,8 +159,8 @@ export type AuthenticationMutation = {
   }
 }
 
-export const ListServersDocument = gql`
-  query listServers {
+export const GetServersDocument = gql`
+  query GetServers {
     servers {
       id
       name
@@ -170,42 +170,40 @@ export const ListServersDocument = gql`
 `
 
 /**
- * __useListServersQuery__
+ * __useGetServersQuery__
  *
- * To run a query within a React component, call `useListServersQuery` and pass it any options that fit your needs.
- * When your component renders, `useListServersQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetServersQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetServersQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useListServersQuery({
+ * const { data, loading, error } = useGetServersQuery({
  *   variables: {
  *   },
  * });
  */
-export function useListServersQuery(
-  baseOptions?: Apollo.QueryHookOptions<ListServersQuery, ListServersQueryVariables>
+export function useGetServersQuery(baseOptions?: Apollo.QueryHookOptions<GetServersQuery, GetServersQueryVariables>) {
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useQuery<GetServersQuery, GetServersQueryVariables>(GetServersDocument, options)
+}
+export function useGetServersLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<GetServersQuery, GetServersQueryVariables>
 ) {
   const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useQuery<ListServersQuery, ListServersQueryVariables>(ListServersDocument, options)
+  return Apollo.useLazyQuery<GetServersQuery, GetServersQueryVariables>(GetServersDocument, options)
 }
-export function useListServersLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<ListServersQuery, ListServersQueryVariables>
-) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<ListServersQuery, ListServersQueryVariables>(ListServersDocument, options)
-}
-export function useListServersSuspenseQuery(
-  baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListServersQuery, ListServersQueryVariables>
+export function useGetServersSuspenseQuery(
+  baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetServersQuery, GetServersQueryVariables>
 ) {
   const options = baseOptions === Apollo.skipToken ? baseOptions : { ...defaultOptions, ...baseOptions }
-  return Apollo.useSuspenseQuery<ListServersQuery, ListServersQueryVariables>(ListServersDocument, options)
+  return Apollo.useSuspenseQuery<GetServersQuery, GetServersQueryVariables>(GetServersDocument, options)
 }
-export type ListServersQueryHookResult = ReturnType<typeof useListServersQuery>
-export type ListServersLazyQueryHookResult = ReturnType<typeof useListServersLazyQuery>
-export type ListServersSuspenseQueryHookResult = ReturnType<typeof useListServersSuspenseQuery>
-export type ListServersQueryResult = Apollo.QueryResult<ListServersQuery, ListServersQueryVariables>
+export type GetServersQueryHookResult = ReturnType<typeof useGetServersQuery>
+export type GetServersLazyQueryHookResult = ReturnType<typeof useGetServersLazyQuery>
+export type GetServersSuspenseQueryHookResult = ReturnType<typeof useGetServersSuspenseQuery>
+export type GetServersQueryResult = Apollo.QueryResult<GetServersQuery, GetServersQueryVariables>
 export const AuthenticationDocument = gql`
   mutation Authentication($domain: String!, $username: String!, $password: String!) {
     login(domain: $domain, user: $username, password: $password) {

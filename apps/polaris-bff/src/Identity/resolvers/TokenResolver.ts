@@ -1,10 +1,10 @@
 import { Mutation, Resolver, Args, ArgsType, Field, Ctx } from "type-graphql"
-import { Context } from "../../types/context"
+import { BaseContext } from "../../types/context"
 import { Token } from "../models/Token"
 import { OpenstackIdentityAPI } from "../apis/openstack"
 import { setSessionData } from "../../sessionCookieHandler"
 
-interface IdentityContext extends Context {
+interface IdentityContext extends BaseContext {
   dataSources: {
     openstack: {
       identity: OpenstackIdentityAPI
