@@ -1,21 +1,14 @@
-import { Request, Response } from "./types"
+import { PolarisRequest, PolarisResponse } from "./types/context"
 
-export const getSessionData = (req: Request) => {
+export const getSessionData = (req: PolarisRequest) => {
   // Extract the auth token from cookies
   const authToken = req.cookies?.["polaris-session"]
-
-  // if (!authToken) {
-  //   throw new Error("Authentication required")
-  // }
-
-  console.log("===================================")
-  console.log(authToken)
 
   // Attach the token to the context for downstream resolvers
   return { authToken }
 }
 
-export const clearSessionData = (res: Response) => {
+export const clearSessionData = (res: PolarisResponse) => {
   // Clear the auth token cookie
   res.cookie("polaris-session", "", {
     httpOnly: true,
@@ -25,7 +18,7 @@ export const clearSessionData = (res: Response) => {
   })
 }
 
-export const setSessionData = (res: Response, authToken: string) => {
+export const setSessionData = (res: PolarisResponse, authToken: string) => {
   // Set the auth token cookie
   res.cookie("polaris-session", authToken, {
     httpOnly: true,

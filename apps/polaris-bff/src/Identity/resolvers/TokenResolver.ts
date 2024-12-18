@@ -1,12 +1,14 @@
 import { Mutation, Resolver, Args, ArgsType, Field, Ctx } from "type-graphql"
-import { Context } from "../../types"
+import { BaseContext } from "../../types/context"
 import { Token } from "../models/Token"
 import { OpenstackIdentityAPI } from "../apis/openstack"
 import { setSessionData } from "../../sessionCookieHandler"
 
-interface IdentityContext extends Context {
+interface IdentityContext extends BaseContext {
   dataSources: {
-    osIdentityAPI: OpenstackIdentityAPI
+    openstack: {
+      identity: OpenstackIdentityAPI
+    }
   }
 }
 
@@ -30,7 +32,7 @@ export class TokenResolver {
     @Ctx() ctx: IdentityContext
   ): Promise<Token> {
     // Authenticate with OpenStack Keystone and get the token
-    const { token, authToken } = await ctx.dataSources.osIdentityAPI.createToken(domain, user, password)
+    const { token, authToken } = await ctx.dataSources.openstack.identity.createToken(domain, user, password)
 
     if (!authToken) {
       throw new Error("Invalid credentials")

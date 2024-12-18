@@ -1,11 +1,7 @@
-query GetTracks {
-  tracksForHome {
+query GetServers {
+  servers {
     id
-    title
-    author {
-      name
-    }
-    length
-    modulesCount
+    name
+    description
   }
 }

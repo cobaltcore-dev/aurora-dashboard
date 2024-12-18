@@ -1,10 +1,10 @@
 type SessionCookieName = "polaris-session"
 
-export type Request = {
+export type PolarisRequest = {
   cookies?: { [key in SessionCookieName]?: string }
 }
 
-export type Response = {
+export type PolarisResponse = {
   // Define the `cookie` method for setting cookies
   cookie: (
     name: SessionCookieName,
@@ -20,8 +20,8 @@ export type Response = {
   ) => void
 }
 
-export interface Context {
-  req: Request
-  res: Response
+export interface BaseContext {
+  req: PolarisRequest
+  res: PolarisResponse
   authToken?: string
 }

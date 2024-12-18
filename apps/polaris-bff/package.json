@@ -25,6 +25,7 @@
     "clean:cache": "rm -rf .turbo"
   },
   "devDependencies": {
+    "@apollo/utils.keyvaluecache": "^3.1.0",
     "@cobaltcore-dev/aurora-config": "workspace:*",
     "@types/node": "^20.16.5",
     "@vitest/coverage-v8": "^2.1.4",

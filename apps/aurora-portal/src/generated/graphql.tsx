@@ -17,15 +17,6 @@ export type Scalars = {
   Float: { input: number; output: number }
 }
 
-export type Author = {
-  __typename?: "Author"
-  id: Scalars["ID"]["output"]
-  /** Author's first and last name */
-  name: Scalars["String"]["output"]
-  /** Author's profile picture */
-  photo?: Maybe<Scalars["String"]["output"]>
-}
-
 export type Catalog = {
   __typename?: "Catalog"
   /** Endpoints of the catalog */
@@ -60,15 +51,6 @@ export type Endpoint = {
   url: Scalars["String"]["output"]
 }
 
-export type Instance = {
-  __typename?: "Instance"
-  id: Scalars["ID"]["output"]
-  /** Test */
-  links?: Maybe<Array<Link>>
-  /** Instance's name */
-  name: Scalars["String"]["output"]
-}
-
 export type Link = {
   __typename?: "Link"
   /** The hyperlink reference */
@@ -79,10 +61,10 @@ export type Link = {
 
 export type Mutation = {
   __typename?: "Mutation"
-  authenticate: Token
+  login: Token
 }
 
-export type MutationAuthenticateArgs = {
+export type MutationLoginArgs = {
   domain: Scalars["String"]["input"]
   password: Scalars["String"]["input"]
   user: Scalars["String"]["input"]
@@ -99,8 +81,7 @@ export type Project = {
 
 export type Query = {
   __typename?: "Query"
-  instances: Array<Instance>
-  tracksForHome: Array<Track>
+  servers: Array<Server>
 }
 
 export type Role = {
@@ -111,10 +92,19 @@ export type Role = {
   name: Scalars["String"]["output"]
 }
 
+export type Server = {
+  __typename?: "Server"
+  /** Server's description */
+  description?: Maybe<Scalars["String"]["output"]>
+  id: Scalars["ID"]["output"]
+  /** Test */
+  links?: Maybe<Array<Link>>
+  /** Server's name */
+  name: Scalars["String"]["output"]
+}
+
 export type Token = {
   __typename?: "Token"
-  /** The authentication token, which is used for all API communications. */
-  authToken?: Maybe<Scalars["String"]["output"]>
   /** Catalog of the token */
   catalog?: Maybe<Catalog>
   /** Domain of the token */
@@ -129,23 +119,6 @@ export type Token = {
   user?: Maybe<User>
 }
 
-export type Track = {
-  __typename?: "Track"
-  /** The track's main Author */
-  author: Author
-  /** The track's description */
-  description: Scalars["String"]["output"]
-  id: Scalars["ID"]["output"]
-  /** The track's approximate length in minutes */
-  length?: Maybe<Scalars["Int"]["output"]>
-  /** The number of modules this track contains */
-  modulesCount?: Maybe<Scalars["Int"]["output"]>
-  /** The track's illustration */
-  thumbnail?: Maybe<Scalars["String"]["output"]>
-  /** The track's title */
-  title?: Maybe<Scalars["String"]["output"]>
-}
-
 export type User = {
   __typename?: "User"
   domain: Domain
@@ -157,18 +130,11 @@ export type User = {
   passwordExpiresAt?: Maybe<Scalars["String"]["output"]>
 }
 
-export type GetTracksQueryVariables = Exact<{ [key: string]: never }>
+export type GetServersQueryVariables = Exact<{ [key: string]: never }>
 
-export type GetTracksQuery = {
+export type GetServersQuery = {
   __typename?: "Query"
-  tracksForHome: Array<{
-    __typename?: "Track"
-    id: string
-    title?: string | null
-    length?: number | null
-    modulesCount?: number | null
-    author: { __typename?: "Author"; name: string }
-  }>
+  servers: Array<{ __typename?: "Server"; id: string; name: string; description?: string | null }>
 }
 
 export type AuthenticationMutationVariables = Exact<{
@@ -179,10 +145,9 @@ export type AuthenticationMutationVariables = Exact<{
 
 export type AuthenticationMutation = {
   __typename?: "Mutation"
-  authenticate: {
+  login: {
     __typename?: "Token"
     expiresAt?: string | null
-    authToken?: string | null
     user?: {
       __typename?: "User"
       name: string
@@ -194,58 +159,54 @@ export type AuthenticationMutation = {
   }
 }
 
-export const GetTracksDocument = gql`
-  query GetTracks {
-    tracksForHome {
+export const GetServersDocument = gql`
+  query GetServers {
+    servers {
       id
-      title
-      author {
-        name
-      }
-      length
-      modulesCount
+      name
+      description
     }
   }
 `
 
 /**
- * __useGetTracksQuery__
+ * __useGetServersQuery__
  *
- * To run a query within a React component, call `useGetTracksQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetTracksQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetServersQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetServersQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useGetTracksQuery({
+ * const { data, loading, error } = useGetServersQuery({
  *   variables: {
  *   },
  * });
  */
-export function useGetTracksQuery(baseOptions?: Apollo.QueryHookOptions<GetTracksQuery, GetTracksQueryVariables>) {
+export function useGetServersQuery(baseOptions?: Apollo.QueryHookOptions<GetServersQuery, GetServersQueryVariables>) {
   const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useQuery<GetTracksQuery, GetTracksQueryVariables>(GetTracksDocument, options)
+  return Apollo.useQuery<GetServersQuery, GetServersQueryVariables>(GetServersDocument, options)
 }
-export function useGetTracksLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<GetTracksQuery, GetTracksQueryVariables>
+export function useGetServersLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<GetServersQuery, GetServersQueryVariables>
 ) {
   const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<GetTracksQuery, GetTracksQueryVariables>(GetTracksDocument, options)
+  return Apollo.useLazyQuery<GetServersQuery, GetServersQueryVariables>(GetServersDocument, options)
 }
-export function useGetTracksSuspenseQuery(
-  baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetTracksQuery, GetTracksQueryVariables>
+export function useGetServersSuspenseQuery(
+  baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetServersQuery, GetServersQueryVariables>
 ) {
   const options = baseOptions === Apollo.skipToken ? baseOptions : { ...defaultOptions, ...baseOptions }
-  return Apollo.useSuspenseQuery<GetTracksQuery, GetTracksQueryVariables>(GetTracksDocument, options)
+  return Apollo.useSuspenseQuery<GetServersQuery, GetServersQueryVariables>(GetServersDocument, options)
 }
-export type GetTracksQueryHookResult = ReturnType<typeof useGetTracksQuery>
-export type GetTracksLazyQueryHookResult = ReturnType<typeof useGetTracksLazyQuery>
-export type GetTracksSuspenseQueryHookResult = ReturnType<typeof useGetTracksSuspenseQuery>
-export type GetTracksQueryResult = Apollo.QueryResult<GetTracksQuery, GetTracksQueryVariables>
+export type GetServersQueryHookResult = ReturnType<typeof useGetServersQuery>
+export type GetServersLazyQueryHookResult = ReturnType<typeof useGetServersLazyQuery>
+export type GetServersSuspenseQueryHookResult = ReturnType<typeof useGetServersSuspenseQuery>
+export type GetServersQueryResult = Apollo.QueryResult<GetServersQuery, GetServersQueryVariables>
 export const AuthenticationDocument = gql`
   mutation Authentication($domain: String!, $username: String!, $password: String!) {
-    authenticate(domain: $domain, user: $username, password: $password) {
+    login(domain: $domain, user: $username, password: $password) {
       user {
         name
         id
@@ -260,7 +221,6 @@ export const AuthenticationDocument = gql`
         name
       }
       expiresAt
-      authToken
     }
   }
 `

@@ -3,22 +3,22 @@ import React from "react"
 import { Panel, PanelBody, Form, FormRow, TextInput, ButtonRow, Button } from "@cloudoperators/juno-ui-components"
 import { useAuthenticationMutation, AuthenticationMutation } from "../../generated/graphql"
 
-type IdentityToken = AuthenticationMutation["authenticate"] | undefined
+type IdentityToken = AuthenticationMutation["login"] | undefined
 interface AuthPanelProps {
   onSuccess: (auth: IdentityToken | undefined) => void
   opened: boolean
 }
 
 export const AuthForm = ({ onSuccess, opened }: AuthPanelProps) => {
-  const [authenticate] = useAuthenticationMutation()
+  const [login] = useAuthenticationMutation()
   const [form, setForm] = React.useState({ domain: "", username: "", password: "" })
 
   const signin = async () => {
-    const { data } = await authenticate({
+    const { data } = await login({
       variables: form,
     })
 
-    onSuccess(data?.authenticate)
+    onSuccess(data?.login)
   }
 
   return (
@@ -48,6 +48,7 @@ export const AuthForm = ({ onSuccess, opened }: AuthPanelProps) => {
                 required
                 type="password"
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, password: e.target.value })}
+                onKeyPress={(e: React.KeyboardEvent<HTMLInputElement>) => e.key === "Enter" && signin()}
               />
             </FormRow>
             <ButtonRow>

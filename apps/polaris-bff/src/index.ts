@@ -1,17 +1,12 @@
 import "reflect-metadata"
+import "./envs"
 import { ApolloServer } from "@apollo/server"
 import { startStandaloneServer } from "@apollo/server/standalone"
 import { buildSchema } from "type-graphql"
 import { resolvers } from "./resolvers"
-import { apis } from "./apis"
+import { getAPIAdapters } from "./apiManager"
 import { getSessionData } from "./sessionCookieHandler"
-import { Request } from "./types"
-
-import * as dotenv from "dotenv"
-
-// Load environment variables from .env file
-dotenv.config()
-const port = Number(process.env.PORT || 4000)
+import { PolarisRequest } from "./types/context"
 
 async function startApolloServer() {
   // Build schema
@@ -20,14 +15,21 @@ async function startApolloServer() {
   // Create Apollo Server
   const server = new ApolloServer({ schema })
 
+  // get port from env or use 4000
+  const port = Number(process.env.PORT || 4000)
+
   const { url } = await startStandaloneServer(server, {
     listen: { port },
     context: async ({ res, req }) => {
+      // get cache from server
+      const { cache } = server
+
       const contextData = {
-        dataSources: apis,
+        // pass cache to the api adapters
+        dataSources: getAPIAdapters({ cache }),
         req,
         res,
-        ...getSessionData(req as Request),
+        ...getSessionData(req as PolarisRequest),
       }
 
       return contextData
