@@ -9,9 +9,6 @@ export default function App() {
   const { data, loading: authLoading, refetch } = useGetTokenQuery()
   const [logout] = useLogoutMutation()
 
-  console.log("========================")
-  console.log(data, authLoading)
-
   return (
     <AppShellProvider stylesWrapper="head" shadowRoot={false}>
       <AppShell pageHeader="Aurora Dashboard">
