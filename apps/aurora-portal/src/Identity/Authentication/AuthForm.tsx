@@ -1,11 +1,10 @@
 import React from "react"
 // @ts-expect-error types will be provided soon
 import { Panel, PanelBody, Form, FormRow, TextInput, ButtonRow, Button } from "@cloudoperators/juno-ui-components"
-import { useAuthenticationMutation, AuthenticationMutation } from "../../generated/graphql"
+import { useAuthenticationMutation } from "../../generated/graphql"
 
-type IdentityToken = AuthenticationMutation["login"] | undefined
 interface AuthPanelProps {
-  onSuccess: (auth: IdentityToken | undefined) => void
+  onSuccess: () => void
   opened: boolean
 }
 
@@ -14,11 +13,11 @@ export const AuthForm = ({ onSuccess, opened }: AuthPanelProps) => {
   const [form, setForm] = React.useState({ domain: "", username: "", password: "" })
 
   const signin = async () => {
-    const { data } = await login({
+    await login({
       variables: form,
     })
 
-    onSuccess(data?.login)
+    onSuccess()
   }
 
   return (

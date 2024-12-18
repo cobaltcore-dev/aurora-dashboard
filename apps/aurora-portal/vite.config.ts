@@ -7,7 +7,7 @@ import * as dotenv from "dotenv"
 
 dotenv.config()
 
-const proxyPath = process.env.VITE_POLARIS_BFF_PROXY_PATH || "/polaris-bff"
+const proxyPath = "/polaris-bff"
 
 export default defineConfig(() => ({
   root: "./",

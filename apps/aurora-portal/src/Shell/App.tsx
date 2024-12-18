@@ -1,21 +1,52 @@
 import React from "react"
 // @ts-expect-error types will be provided soon
-import { AppShellProvider, AppShell, FormattedText } from "@cloudoperators/juno-ui-components"
+import { AppShellProvider, AppShell, FormattedText, Button } from "@cloudoperators/juno-ui-components"
 import { AuthForm } from "../Identity/Authentication/AuthForm"
-import { AuthenticationMutation } from "../generated/graphql"
+import { useGetTokenQuery, useLogoutMutation } from "../generated/graphql"
 
 export default function App() {
-  const [auth, setAuth] = React.useState<AuthenticationMutation["login"] | undefined>()
+  const [showAuth, setShowAuth] = React.useState<boolean>(false)
+  const { data, loading: authLoading, refetch } = useGetTokenQuery()
+  const [logout] = useLogoutMutation()
+
+  console.log("========================")
+  console.log(data, authLoading)
 
   return (
     <AppShellProvider stylesWrapper="head" shadowRoot={false}>
       <AppShell pageHeader="Aurora Dashboard">
         <FormattedText className="p-5">
           <h1>Welcome to Aurora Dashboard</h1>
-          {auth && <h2>Hello {auth.user?.name}</h2>}
-          <AuthForm onSuccess={setAuth} opened={!auth} />
+          {authLoading && <p>Loading...</p>}
 
-          <p className="text-theme-accent">Coming Soon!</p>
+          {data?.token ? (
+            <>
+              <h2>Hello {data.token?.user?.name}</h2>
+              <p>
+                <Button
+                  onClick={() => {
+                    logout().then(() => refetch())
+                  }}
+                >
+                  Logout
+                </Button>
+              </p>
+            </>
+          ) : (
+            <>
+              <h2>Sign in to get started</h2>
+              <Button onClick={() => setShowAuth(true)}>Sign in</Button>
+            </>
+          )}
+
+          <AuthForm
+            onSuccess={() => {
+              refetch()
+              setShowAuth(false)
+            }}
+            opened={showAuth}
+          />
+
           <p>
             The <strong>Aurora Dashboard</strong> is on its way! Get ready for a powerful, all-in-one cloud management
             interface designed to make managing your cloud assets simple and efficient. With tools for provisioning,

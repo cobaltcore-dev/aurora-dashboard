@@ -21,7 +21,7 @@ class User {
   domain!: Domain
 
   @Field(() => String, { nullable: true, description: "Expiration date of the password" })
-  passwordExpiresAt?: string
+  password_expires_at?: string
 }
 
 @ObjectType()
@@ -60,28 +60,28 @@ class Endpoint {
   interface!: string
 
   @Field(() => String, { description: "Region ID of the endpoint" })
-  regionId!: string
+  region_id!: string
 }
 
 @ObjectType()
-class Catalog {
-  @Field(() => String, { description: "ID of the catalog" })
-  id!: string
+class CatalogItem {
+  @Field(() => [Endpoint], { description: "Endpoints of the catalog item" })
+  endpoints: Endpoint[] = []
 
-  @Field(() => String, { description: "Name of the catalog" })
-  name!: string
-
-  @Field(() => String, { description: "Type of the catalog" })
+  @Field(() => String, { description: "Type of the catalog item" })
   type!: string
 
-  @Field(() => [Endpoint], { description: "Endpoints of the catalog" })
-  endpoints!: Endpoint[]
+  @Field(() => ID, { description: "ID of the catalog item" })
+  id!: string
+
+  @Field(() => String, { description: "Name of the catalog item" })
+  name!: string
 }
 
 @ObjectType()
 export class Token {
-  @Field(() => Catalog, { nullable: true, description: "Catalog of the token" })
-  catalog?: Catalog | null
+  @Field(() => [CatalogItem], { nullable: true, description: "Catalog of the token" })
+  catalog?: CatalogItem[] | null
 
   @Field(() => String, { nullable: true, description: "Expiration date of the token" })
   expiresAt?: string | null

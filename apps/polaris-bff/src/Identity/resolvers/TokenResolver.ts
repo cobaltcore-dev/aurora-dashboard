@@ -30,15 +30,22 @@ export class TokenResolver {
 
     // Set the token as a cookie
     ctx.setAuthToken(authToken)
-    return token
+    return token as Token
   }
 
-  @Query(() => Token || null)
-  async token(@Ctx() ctx: BaseContext): Promise<Token | null | undefined> {
+  @Query(() => Token, { nullable: true })
+  async token(@Ctx() ctx: BaseContext): Promise<Token | null> {
+    console.log(ctx.authToken)
     if (!ctx.authToken) {
       return null
     }
     const token = await ctx.dataSources.openstack.identity.validateToken(ctx.authToken)
-    return token as Token
+    return token
+  }
+
+  @Mutation(() => Boolean)
+  async logout(@Ctx() ctx: BaseContext): Promise<boolean> {
+    ctx.clearSessionCookie()
+    return true
   }
 }

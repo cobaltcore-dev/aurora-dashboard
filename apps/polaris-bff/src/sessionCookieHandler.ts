@@ -1,13 +1,12 @@
 import { IncomingMessage, ServerResponse } from "http"
 import { SessionCookieName } from "./types/baseContext"
 
+const cookieName: SessionCookieName = "polaris-session"
 export class SessionCookieHandler {
-  private cookieName: SessionCookieName
   private req: IncomingMessage
   private res: ServerResponse
 
   constructor(params: { req: IncomingMessage; res: ServerResponse }) {
-    this.cookieName = "polaris-session"
     this.req = params.req
     this.res = params.res
   }
@@ -16,7 +15,7 @@ export class SessionCookieHandler {
     // Extract the auth token from cookies
     const authToken = this.req.headers.cookie
       ?.split(";")
-      .find((c) => c.trim().startsWith(`${this.cookieName}=`))
+      .find((c) => c.trim().startsWith(`${cookieName}=`))
       ?.split("=")[1]
 
     // Attach the token to the context for downstream resolvers
@@ -24,10 +23,10 @@ export class SessionCookieHandler {
   }
 
   clearSessionCookie() {
-    this.res.setHeader("Set-Cookie", `${this.cookieName}=; HttpOnly; Secure; SameSite=Strict; Max-Age=0`)
+    this.res.setHeader("Set-Cookie", `${cookieName}=; HttpOnly; Secure; SameSite=Strict; Max-Age=0`)
   }
 
   setSessionAuthToken(authToken: string) {
-    this.res.setHeader("Set-Cookie", `${this.cookieName}=${authToken}; HttpOnly; Secure; SameSite=Strict; Max-Age=3600`)
+    this.res.setHeader("Set-Cookie", `${cookieName}=${authToken}; HttpOnly; Secure; SameSite=Strict; Max-Age=3600`)
   }
 }
