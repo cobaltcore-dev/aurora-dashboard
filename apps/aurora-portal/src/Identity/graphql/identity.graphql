@@ -16,3 +16,26 @@ mutation Authentication($domain: String!, $username: String!, $password: String!
     expiresAt
   }
 }
+
+mutation Logout {
+  logout
+}
+
+query GetToken {
+  token {
+    user {
+      name
+      id
+      domain {
+        name
+      }
+    }
+    project {
+      name
+    }
+    domain {
+      name
+    }
+    expiresAt
+  }
+}

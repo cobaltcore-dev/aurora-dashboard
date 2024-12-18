@@ -7,6 +7,8 @@ import * as dotenv from "dotenv"
 
 dotenv.config()
 
+const proxyPath = "/polaris-bff"
+
 export default defineConfig(() => ({
   root: "./",
 
@@ -24,5 +26,13 @@ export default defineConfig(() => ({
   server: {
     host: "0.0.0.0",
     port: parseInt(process.env.PORT || "3000"),
+    proxy: {
+      [proxyPath]: {
+        target: process.env.POLARIS_BFF_ENDPOINT || "http://localhost:4000",
+        changeOrigin: true,
+        secure: false,
+        rewrite: (path) => path.replace(/^\/polaris-bff/, ""),
+      },
+    },
   },
 }))

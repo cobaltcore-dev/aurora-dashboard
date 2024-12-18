@@ -1,4 +1,3 @@
-import React from "react"
 import { render, screen } from "@testing-library/react"
 import { MockedProvider } from "@apollo/client/testing"
 import { describe, it, expect } from "vitest"
@@ -17,8 +16,7 @@ const mocks = [
     },
     result: {
       data: {
-        authenticate: {
-          authToken: "test",
+        login: {
           user: {
             id: "1",
             name: "Astro Kitty",

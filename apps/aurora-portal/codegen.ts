@@ -3,7 +3,7 @@ import * as dotenv from "dotenv"
 
 // Load environment variables from .env file
 dotenv.config()
-const schemaUrl = process.env.VITE_GRAPHQL_API_URL || "http://localhost:4000/graphql"
+const schemaUrl = process.env.POLARIS_BFF_ENDPOINT || "http://localhost:4000/graphql"
 
 const config: CodegenConfig = {
   schema: schemaUrl,

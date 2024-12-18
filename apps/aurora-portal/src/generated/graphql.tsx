@@ -17,15 +17,15 @@ export type Scalars = {
   Float: { input: number; output: number }
 }
 
-export type Catalog = {
-  __typename?: "Catalog"
-  /** Endpoints of the catalog */
+export type CatalogItem = {
+  __typename?: "CatalogItem"
+  /** Endpoints of the catalog item */
   endpoints: Array<Endpoint>
-  /** ID of the catalog */
-  id: Scalars["String"]["output"]
-  /** Name of the catalog */
+  /** ID of the catalog item */
+  id: Scalars["ID"]["output"]
+  /** Name of the catalog item */
   name: Scalars["String"]["output"]
-  /** Type of the catalog */
+  /** Type of the catalog item */
   type: Scalars["String"]["output"]
 }
 
@@ -46,7 +46,7 @@ export type Endpoint = {
   /** Region of the endpoint */
   region: Scalars["String"]["output"]
   /** Region ID of the endpoint */
-  regionId: Scalars["String"]["output"]
+  region_id: Scalars["String"]["output"]
   /** Url of the endpoint */
   url: Scalars["String"]["output"]
 }
@@ -62,6 +62,7 @@ export type Link = {
 export type Mutation = {
   __typename?: "Mutation"
   login: Token
+  logout: Scalars["Boolean"]["output"]
 }
 
 export type MutationLoginArgs = {
@@ -82,6 +83,7 @@ export type Project = {
 export type Query = {
   __typename?: "Query"
   servers: Array<Server>
+  token?: Maybe<Token>
 }
 
 export type Role = {
@@ -106,7 +108,7 @@ export type Server = {
 export type Token = {
   __typename?: "Token"
   /** Catalog of the token */
-  catalog?: Maybe<Catalog>
+  catalog?: Maybe<Array<CatalogItem>>
   /** Domain of the token */
   domain?: Maybe<Domain>
   /** Expiration date of the token */
@@ -127,7 +129,7 @@ export type User = {
   /** Name of the user */
   name: Scalars["String"]["output"]
   /** Expiration date of the password */
-  passwordExpiresAt?: Maybe<Scalars["String"]["output"]>
+  password_expires_at?: Maybe<Scalars["String"]["output"]>
 }
 
 export type GetServersQueryVariables = Exact<{ [key: string]: never }>
@@ -157,6 +159,28 @@ export type AuthenticationMutation = {
     project?: { __typename?: "Project"; name: string } | null
     domain?: { __typename?: "Domain"; name?: string | null } | null
   }
+}
+
+export type LogoutMutationVariables = Exact<{ [key: string]: never }>
+
+export type LogoutMutation = { __typename?: "Mutation"; logout: boolean }
+
+export type GetTokenQueryVariables = Exact<{ [key: string]: never }>
+
+export type GetTokenQuery = {
+  __typename?: "Query"
+  token?: {
+    __typename?: "Token"
+    expiresAt?: string | null
+    user?: {
+      __typename?: "User"
+      name: string
+      id: string
+      domain: { __typename?: "Domain"; name?: string | null }
+    } | null
+    project?: { __typename?: "Project"; name: string } | null
+    domain?: { __typename?: "Domain"; name?: string | null } | null
+  } | null
 }
 
 export const GetServersDocument = gql`
@@ -257,3 +281,87 @@ export type AuthenticationMutationOptions = Apollo.BaseMutationOptions<
   AuthenticationMutation,
   AuthenticationMutationVariables
 >
+export const LogoutDocument = gql`
+  mutation Logout {
+    logout
+  }
+`
+export type LogoutMutationFn = Apollo.MutationFunction<LogoutMutation, LogoutMutationVariables>
+
+/**
+ * __useLogoutMutation__
+ *
+ * To run a mutation, you first call `useLogoutMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useLogoutMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [logoutMutation, { data, loading, error }] = useLogoutMutation({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useLogoutMutation(baseOptions?: Apollo.MutationHookOptions<LogoutMutation, LogoutMutationVariables>) {
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useMutation<LogoutMutation, LogoutMutationVariables>(LogoutDocument, options)
+}
+export type LogoutMutationHookResult = ReturnType<typeof useLogoutMutation>
+export type LogoutMutationResult = Apollo.MutationResult<LogoutMutation>
+export type LogoutMutationOptions = Apollo.BaseMutationOptions<LogoutMutation, LogoutMutationVariables>
+export const GetTokenDocument = gql`
+  query GetToken {
+    token {
+      user {
+        name
+        id
+        domain {
+          name
+        }
+      }
+      project {
+        name
+      }
+      domain {
+        name
+      }
+      expiresAt
+    }
+  }
+`
+
+/**
+ * __useGetTokenQuery__
+ *
+ * To run a query within a React component, call `useGetTokenQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetTokenQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetTokenQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetTokenQuery(baseOptions?: Apollo.QueryHookOptions<GetTokenQuery, GetTokenQueryVariables>) {
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useQuery<GetTokenQuery, GetTokenQueryVariables>(GetTokenDocument, options)
+}
+export function useGetTokenLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetTokenQuery, GetTokenQueryVariables>) {
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useLazyQuery<GetTokenQuery, GetTokenQueryVariables>(GetTokenDocument, options)
+}
+export function useGetTokenSuspenseQuery(
+  baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetTokenQuery, GetTokenQueryVariables>
+) {
+  const options = baseOptions === Apollo.skipToken ? baseOptions : { ...defaultOptions, ...baseOptions }
+  return Apollo.useSuspenseQuery<GetTokenQuery, GetTokenQueryVariables>(GetTokenDocument, options)
+}
+export type GetTokenQueryHookResult = ReturnType<typeof useGetTokenQuery>
+export type GetTokenLazyQueryHookResult = ReturnType<typeof useGetTokenLazyQuery>
+export type GetTokenSuspenseQueryHookResult = ReturnType<typeof useGetTokenSuspenseQuery>
+export type GetTokenQueryResult = Apollo.QueryResult<GetTokenQuery, GetTokenQueryVariables>

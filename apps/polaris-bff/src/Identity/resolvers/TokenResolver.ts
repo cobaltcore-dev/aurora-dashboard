@@ -1,16 +1,6 @@
-import { Mutation, Resolver, Args, ArgsType, Field, Ctx } from "type-graphql"
-import { BaseContext } from "../../types/context"
+import { Mutation, Query, Resolver, Args, ArgsType, Field, Ctx } from "type-graphql"
+import type { BaseContext } from "../../types/baseContext"
 import { Token } from "../models/Token"
-import { OpenstackIdentityAPI } from "../apis/openstack"
-import { setSessionData } from "../../sessionCookieHandler"
-
-interface IdentityContext extends BaseContext {
-  dataSources: {
-    openstack: {
-      identity: OpenstackIdentityAPI
-    }
-  }
-}
 
 @ArgsType()
 class AuthenticateArgs {
@@ -29,7 +19,7 @@ export class TokenResolver {
   @Mutation(() => Token)
   async login(
     @Args(() => AuthenticateArgs) { domain, user, password }: AuthenticateArgs,
-    @Ctx() ctx: IdentityContext
+    @Ctx() ctx: BaseContext
   ): Promise<Token> {
     // Authenticate with OpenStack Keystone and get the token
     const { token, authToken } = await ctx.dataSources.openstack.identity.createToken(domain, user, password)
@@ -39,7 +29,23 @@ export class TokenResolver {
     }
 
     // Set the token as a cookie
-    setSessionData(ctx.res, authToken)
-    return Object.assign(new Token(), token)
+    ctx.setAuthToken(authToken)
+    return token as Token
+  }
+
+  @Query(() => Token, { nullable: true })
+  async token(@Ctx() ctx: BaseContext): Promise<Token | null> {
+    console.log(ctx.authToken)
+    if (!ctx.authToken) {
+      return null
+    }
+    const token = await ctx.dataSources.openstack.identity.validateToken(ctx.authToken)
+    return token
+  }
+
+  @Mutation(() => Boolean)
+  async logout(@Ctx() ctx: BaseContext): Promise<boolean> {
+    ctx.clearSessionCookie()
+    return true
   }
 }
