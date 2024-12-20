@@ -6,10 +6,6 @@
 
 Aurora Dashboard is a comprehensive management interface for **cloud management systems**, focused on efficiently handling cloud assets. It allows users to manage resources like servers, networks, volumes, and other cloud components. With Aurora, users can easily provision, configure, and scale assets across cloud environments, providing a centralized platform for streamlined cloud management.
 
-## Requirements and Setup
-
-_Insert a short description of what is required to get your project running..._
-
 ## Support, Feedback, Contributing
 
 This project is open to feature requests/suggestions, bug reports, etc. via [GitHub issues](https://github.com/cobaltcore-dev/aurora-dashboard/issues). Contribution and feedback are encouraged and always welcome. For more information about how to contribute, the project structure, as well as additional contribution information, see our [Contribution Guidelines](CONTRIBUTING.md).
