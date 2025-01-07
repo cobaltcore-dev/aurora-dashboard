@@ -85,7 +85,7 @@ describe("App Component", () => {
 
     await waitFor(() => {
       expect(screen.getByText("Sign in to get started")).toBeInTheDocument()
-      expect(screen.getAllByRole("button", { name: /sign in/i })).toHaveLength(2)
+      expect(screen.getAllByRole("button", { name: /sign in/i })).toHaveLength(1)
     })
   })
 

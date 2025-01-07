@@ -8,10 +8,5 @@ export default defineConfig({
     environment: "jsdom",
     setupFiles: "./vitest.setup.ts",
     watch: true,
-    server: {
-      deps: {
-        inline: ["@cloudoperators/juno-ui-components"],
-      },
-    },
   },
 })

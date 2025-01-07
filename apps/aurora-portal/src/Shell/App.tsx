@@ -41,6 +41,7 @@ export default function App() {
               refetch()
               setShowAuth(false)
             }}
+            onCancel={() => setShowAuth(false)}
             opened={showAuth}
           />
 
