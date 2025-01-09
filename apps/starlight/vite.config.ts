@@ -3,6 +3,7 @@ import react from "@vitejs/plugin-react-swc"
 import tailwindcss from "tailwindcss"
 import autoprefixer from "autoprefixer"
 import tsconfigPaths from "vite-tsconfig-paths"
+import svgr from "vite-plugin-svgr"
 import * as dotenv from "dotenv"
 
 dotenv.config()
@@ -19,7 +20,7 @@ export default defineConfig({
   define: {
     BFF_ENDPOINT: JSON.stringify(BFF_ENDPOINT),
   },
-  plugins: [react(), tsconfigPaths()],
+  plugins: [react(), tsconfigPaths(), svgr()],
   css: {
     postcss: {
       plugins: [tailwindcss, autoprefixer],

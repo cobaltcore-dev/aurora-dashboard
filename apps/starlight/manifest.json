@@ -7,5 +7,14 @@
       "label": "Identity",
       "route": "identity"
     }
+  },
+  {
+    "name": "compute",
+    "type": "core",
+    "navigation": {
+      "icon": "star",
+      "label": "Compute",
+      "route": "compute"
+    }
   }
 ]
