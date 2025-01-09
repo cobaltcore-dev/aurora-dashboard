@@ -1,0 +1,11 @@
+[
+  {
+    "name": "identity",
+    "type": "core",
+    "navigation": {
+      "icon": "user",
+      "label": "Identity",
+      "route": "identity"
+    }
+  }
+]
