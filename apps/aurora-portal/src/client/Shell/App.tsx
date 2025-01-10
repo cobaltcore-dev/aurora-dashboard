@@ -1,11 +1,11 @@
 // @ts-expect-error missing types
 import { AppShellProvider } from "@cloudoperators/juno-ui-components"
 import React, { useState, lazy, Suspense } from "react"
-import { trpcClient } from "../trpcClient"
 import Navigation from "./Navigation"
 import type { Manifest, Module } from "../../shared/types/manifest"
 import type { ExtensionProps } from "../../shared/types/extension"
-
+import { trpcClient, trpc } from "../trpcClient"
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import Home from "./Home"
 
 const shellStyles = `
@@ -63,16 +63,23 @@ const component = (manifestEntry: Module | undefined): React.ComponentType<Exten
 
 export default function App({ manifest }: AppProps) {
   const [active, setActive] = useState<string>("home")
+  const [queryClient] = useState(() => new QueryClient())
   const ActiveComponent = component(manifest.find((entry) => entry.name === active))
 
   return (
-    <AppShellProvider stylesWrapper="head" shadowRoot={false}>
-      <div className={`${shellStyles}`}>
-        <Navigation manifest={manifest} active={active} handleActive={(name: string) => setActive(name)} />
-        <div>
-          <div className={contentStyles}>{active === "home" ? <Home /> : <ActiveComponent client={trpcClient} />}</div>
-        </div>
-      </div>
-    </AppShellProvider>
+    <trpc.Provider client={trpcClient} queryClient={queryClient}>
+      <QueryClientProvider client={queryClient}>
+        <AppShellProvider stylesWrapper="head" shadowRoot={false}>
+          <div className={`${shellStyles}`}>
+            <Navigation manifest={manifest} active={active} handleActive={(name: string) => setActive(name)} />
+            <div>
+              <div className={contentStyles}>
+                {active === "home" ? <Home /> : <ActiveComponent client={trpcClient} />}
+              </div>
+            </div>
+          </div>
+        </AppShellProvider>
+      </QueryClientProvider>
+    </trpc.Provider>
   )
 }

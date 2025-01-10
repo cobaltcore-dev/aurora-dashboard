@@ -1,21 +1,15 @@
-import React, { useEffect } from "react"
-import type { ExtensionProps } from "../../shared/types/extension"
 import type { Server } from "../../shared/types/models"
+import { trpc } from "../trpcClient"
 
-export default function Compute({ client }: ExtensionProps) {
-  const [result, setResult] = React.useState<Server[] | null>(null)
+export default function Compute() {
+  const serversQuery = trpc.compute.getServers.useQuery()
 
-  useEffect(() => {
-    client.compute.getServers.query().then((res: Server[]) => {
-      setResult(res)
-    })
-  }, [])
   return (
     <div>
       <h2>Compute</h2>
       <p>
         Servers:
-        <ul>{result?.map((server: Server) => <li key={server.id}>{server.name}</li>)}</ul>
+        <ul>{serversQuery.data?.map((server: Server) => <li key={server.id}>{server.name}</li>)}</ul>
       </p>
     </div>
   )

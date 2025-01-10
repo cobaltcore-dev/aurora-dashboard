@@ -1,7 +1,11 @@
-import { createTRPCProxyClient, httpBatchLink } from "@trpc/client"
+import { QueryClient } from "react-query"
 import type { AppRouter } from "../polaris-bff/routers"
 
-export const trpcClient = createTRPCProxyClient<AppRouter>({
+import { createTRPCReact, httpBatchLink } from "@trpc/react-query"
+
+export const trpc = createTRPCReact<AppRouter>()
+
+export const trpcClient = trpc.createClient({
   links: [
     httpBatchLink({
       // @ts-expect-error env does not exist
