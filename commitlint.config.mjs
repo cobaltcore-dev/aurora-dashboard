@@ -18,6 +18,7 @@ export const scopes = [
   "config",
   "ci",
   "core",
+  "starlight",
   "dashboard",
   "aurora-portal",
   "polaris",

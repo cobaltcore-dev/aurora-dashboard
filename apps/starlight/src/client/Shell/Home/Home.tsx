@@ -1,4 +1,4 @@
-// @ts-ignore
+// @ts-expect-error missing types
 import { FormattedText } from "@cloudoperators/juno-ui-components"
 
 export default function Home() {

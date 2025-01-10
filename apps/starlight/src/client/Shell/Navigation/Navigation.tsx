@@ -4,9 +4,9 @@
  */
 
 import React from "react"
-// @ts-ignore
+// @ts-expect-error missing types
 import Logo from "../../assets/logo.svg?react"
-// @ts-ignore
+// @ts-expect-error missing types
 import { Stack } from "@cloudoperators/juno-ui-components"
 import type { Manifest } from "../../../shared/types/manifest"
 

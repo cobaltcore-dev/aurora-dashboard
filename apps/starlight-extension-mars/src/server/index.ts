@@ -2,7 +2,8 @@ import Fastify from "fastify"
 import { fastifyTRPCPlugin, FastifyTRPCPluginOptions } from "@trpc/server/adapters/fastify"
 import fastifyStatic from "@fastify/static"
 import path from "path"
-import { appRouter, AppRouter } from "./routers" // tRPC router
+import { appRouter } from "./routers/index" // tRPC router
+import type { AppRouter } from "./routers/index" // Importing types for the AppRouter
 import * as dotenv from "dotenv"
 
 dotenv.config()

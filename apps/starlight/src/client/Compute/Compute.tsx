@@ -1,6 +1,6 @@
 import React, { useEffect } from "react"
-import type { ExtensionProps } from "../../../shared/types/extension"
-import type { Server } from "../../../shared/types/models"
+import type { ExtensionProps } from "../../shared/types/extension"
+import type { Server } from "../../shared/types/models"
 
 export default function Compute({ client }: ExtensionProps) {
   const [result, setResult] = React.useState<Server[] | null>(null)

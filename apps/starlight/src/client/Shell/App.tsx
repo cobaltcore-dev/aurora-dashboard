@@ -1,7 +1,7 @@
-// @ts-ignore
+// @ts-expect-error missing types
 import { AppShellProvider } from "@cloudoperators/juno-ui-components"
-import { ReactNode, useState, lazy, Suspense } from "react"
-import client from "../trpcClient"
+import React, { useState, lazy, Suspense } from "react"
+import { trpcClient } from "../trpcClient"
 import Navigation from "./Navigation"
 import type { Manifest, Module } from "../../shared/types/manifest"
 import type { ExtensionProps } from "../../shared/types/extension"
@@ -26,27 +26,39 @@ interface AppProps {
 }
 
 // Define the component function
-const component = (manifestEntry: Module | undefined) => {
+const component = (manifestEntry: Module | undefined): React.ComponentType<ExtensionProps> => {
+  // Handle invalid or unsupported manifest entries
   if (!manifestEntry || manifestEntry.type !== "core") {
-    return () => <span>Could not find the component</span> // Return null if the manifest entry is not valid
+    return () => <span>Could not find the component</span>
   }
 
-  let LazyComponent: React.LazyExoticComponent<React.ComponentType<any>>
+  // Lazy-loaded component variable
+  let LazyComponent: React.LazyExoticComponent<React.ComponentType<ExtensionProps>> | null = null
+
+  // Determine which component to load based on the manifest entry
   switch (manifestEntry.name) {
     case "compute":
-      LazyComponent = lazy(() => import("../galaxy/compute/App"))
+      LazyComponent = lazy(() => import("../Compute")) // Adjust the import path as necessary
       break
     case "identity":
-      LazyComponent = lazy(() => import("../galaxy/identity/App"))
+      LazyComponent = lazy(() => import("../Identity")) // Adjust the import path as necessary
       break
+    default:
+      return () => <span>Component not supported</span> // Fallback for unsupported names
   }
 
-  // Return a function component conforming to the `Extension` type
-  return (props: ExtensionProps) => (
-    <Suspense fallback={<div>Loading...</div>}>
-      <LazyComponent {...props} />
-    </Suspense>
-  )
+  // Return a function component that wraps the lazy-loaded component
+  return (props: ExtensionProps) => {
+    if (!LazyComponent) {
+      return <span>Component failed to load</span> // Handle the case where LazyComponent is null
+    }
+
+    return (
+      <Suspense fallback={<div>Loading...</div>}>
+        <LazyComponent {...props} />
+      </Suspense>
+    )
+  }
 }
 
 export default function App({ manifest }: AppProps) {
@@ -58,7 +70,7 @@ export default function App({ manifest }: AppProps) {
       <div className={`${shellStyles}`}>
         <Navigation manifest={manifest} active={active} handleActive={(name: string) => setActive(name)} />
         <div>
-          <div className={contentStyles}>{active === "home" ? <Home /> : <ActiveComponent client={client} />}</div>
+          <div className={contentStyles}>{active === "home" ? <Home /> : <ActiveComponent client={trpcClient} />}</div>
         </div>
       </div>
     </AppShellProvider>

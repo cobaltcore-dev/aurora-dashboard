@@ -17,6 +17,7 @@ import("../../manifest.json")
     createRoot(container).render(
       <StrictMode>
         <h1>Error: Could not load manifest</h1>
+        <p>{error.message}</p>
       </StrictMode>
     )
   )

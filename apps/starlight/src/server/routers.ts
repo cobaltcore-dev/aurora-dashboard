@@ -1,7 +1,7 @@
 // src/server/api/index.ts
-import { router } from "../../shared/trpc"
-import { identityRouters } from "./identity"
-import { computeRouters } from "./compute"
+import { router } from "../shared/trpc"
+import { identityRouters } from "./Identity/routers"
+import { computeRouters } from "./Compute/routers"
 
 // Combine the routers for the app
 export const appRouter = router({
