@@ -31,292 +31,7 @@ importers:
         specifier: ^2.2.3
         version: 2.3.3
 
-  apps/aurora-portal:
-    dependencies:
-      '@cloudoperators/juno-ui-components':
-        specifier: ^2.28.0
-        version: 2.35.1(prop-types@15.8.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      dotenv:
-        specifier: ^16.0.0
-        version: 16.4.7
-      react:
-        specifier: ^18.2.0
-        version: 18.3.1
-      react-dom:
-        specifier: ^18.2.0
-        version: 18.3.1(react@18.3.1)
-    devDependencies:
-      '@apollo/client':
-        specifier: ^3.11.10
-        version: 3.12.5(@types/react@18.3.18)(graphql-ws@5.16.1(graphql@16.10.0))(graphql@16.10.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@cobaltcore-dev/aurora-config':
-        specifier: workspace:*
-        version: link:../../packages/config
-      '@graphql-codegen/cli':
-        specifier: ^5.0.3
-        version: 5.0.3(@types/node@20.17.12)(graphql@16.10.0)(typescript@5.7.3)
-      '@graphql-codegen/typescript':
-        specifier: ^4.1.2
-        version: 4.1.2(graphql@16.10.0)
-      '@graphql-codegen/typescript-operations':
-        specifier: ^4.4.0
-        version: 4.4.0(graphql@16.10.0)
-      '@graphql-codegen/typescript-react-apollo':
-        specifier: ^4.3.2
-        version: 4.3.2(graphql@16.10.0)
-      '@testing-library/jest-dom':
-        specifier: ^6.5.0
-        version: 6.6.3
-      '@testing-library/react':
-        specifier: ^16.0.1
-        version: 16.1.0(@testing-library/dom@10.4.0)(@types/react-dom@18.3.5(@types/react@18.3.18))(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@types/node':
-        specifier: ^20.16.5
-        version: 20.17.12
-      '@types/react':
-        specifier: ^18.3.8
-        version: 18.3.18
-      '@types/react-dom':
-        specifier: ^18.3.0
-        version: 18.3.5(@types/react@18.3.18)
-      '@vitejs/plugin-react-swc':
-        specifier: ^3.7.1
-        version: 3.7.2(vite@5.4.11(@types/node@20.17.12))
-      '@vitest/coverage-v8':
-        specifier: ^2.1.4
-        version: 2.1.8(vitest@2.1.8(@types/node@20.17.12)(jsdom@24.1.3))
-      autoprefixer:
-        specifier: ^10.4.20
-        version: 10.4.20(postcss@8.4.49)
-      graphql:
-        specifier: ^16.9.0
-        version: 16.10.0
-      jsdom:
-        specifier: ^24.1.1
-        version: 24.1.3
-      postcss:
-        specifier: ^8.4.47
-        version: 8.4.49
-      prettier:
-        specifier: 3.1.1
-        version: 3.1.1
-      tailwindcss:
-        specifier: ^3.4.12
-        version: 3.4.17
-      typescript:
-        specifier: ^5.6.2
-        version: 5.7.3
-      vite:
-        specifier: ^5.4.7
-        version: 5.4.11(@types/node@20.17.12)
-      vite-tsconfig-paths:
-        specifier: ^4.3.2
-        version: 4.3.2(typescript@5.7.3)(vite@5.4.11(@types/node@20.17.12))
-      vitest:
-        specifier: ^2.1.4
-        version: 2.1.8(@types/node@20.17.12)(jsdom@24.1.3)
-
-  apps/polaris-bff:
-    dependencies:
-      '@apollo/datasource-rest':
-        specifier: ^6.3.0
-        version: 6.4.1(graphql@16.10.0)
-      '@apollo/server':
-        specifier: ^4.11.2
-        version: 4.11.3(graphql@16.10.0)
-      '@graphql-tools/mock':
-        specifier: ^9.0.0
-        version: 9.0.14(graphql@16.10.0)
-      '@graphql-tools/schema':
-        specifier: ^9.0.10
-        version: 9.0.19(graphql@16.10.0)
-      body-parser:
-        specifier: ^1.20.1
-        version: 1.20.3
-      cors:
-        specifier: ^2.8.5
-        version: 2.8.5
-      express:
-        specifier: ^4.18.2
-        version: 4.21.2
-      graphql:
-        specifier: ^16.9.0
-        version: 16.10.0
-      graphql-scalars:
-        specifier: ^1.23.0
-        version: 1.24.0(graphql@16.10.0)
-      graphql-subscriptions:
-        specifier: ^2.0.0
-        version: 2.0.0(graphql@16.10.0)
-      graphql-tag:
-        specifier: ^2.12.6
-        version: 2.12.6(graphql@16.10.0)
-      graphql-ws:
-        specifier: ^5.11.2
-        version: 5.16.1(graphql@16.10.0)
-      nodemon:
-        specifier: ^2.0.20
-        version: 2.0.22
-      pkgroll:
-        specifier: ^2.5.1
-        version: 2.6.1(typescript@5.7.3)
-      type-graphql:
-        specifier: 2.0.0-rc.2
-        version: 2.0.0-rc.2(class-validator@0.14.1)(graphql-scalars@1.24.0(graphql@16.10.0))(graphql@16.10.0)
-      ws:
-        specifier: ^8.11.0
-        version: 8.18.0
-    devDependencies:
-      '@apollo/utils.keyvaluecache':
-        specifier: ^3.1.0
-        version: 3.1.0
-      '@cobaltcore-dev/aurora-config':
-        specifier: workspace:*
-        version: link:../../packages/config
-      '@types/node':
-        specifier: ^20.16.5
-        version: 20.17.12
-      '@vitest/coverage-v8':
-        specifier: ^2.1.4
-        version: 2.1.8(vitest@2.1.8(@types/node@20.17.12)(jsdom@24.1.3))
-      autoprefixer:
-        specifier: ^10.4.20
-        version: 10.4.20(postcss@8.4.49)
-      class-validator:
-        specifier: ^0.14.1
-        version: 0.14.1
-      dotenv:
-        specifier: ^16.4.5
-        version: 16.4.7
-      prettier:
-        specifier: 3.1.1
-        version: 3.1.1
-      reflect-metadata:
-        specifier: ^0.2.2
-        version: 0.2.2
-      tsx:
-        specifier: ^4.19.2
-        version: 4.19.2
-      typescript:
-        specifier: ^5.6.2
-        version: 5.7.3
-      vitest:
-        specifier: ^2.1.4
-        version: 2.1.8(@types/node@20.17.12)(jsdom@24.1.3)
-
-  apps/starlight:
-    dependencies:
-      '@fastify/static':
-        specifier: ^8.0.3
-        version: 8.0.3
-      '@trpc/client':
-        specifier: ^10.45.2
-        version: 10.45.2(@trpc/server@10.45.2)
-      '@trpc/react-query':
-        specifier: ^10.45.2
-        version: 10.45.2(@tanstack/react-query@4.36.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@trpc/client@10.45.2(@trpc/server@10.45.2))(@trpc/server@10.45.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@trpc/server':
-        specifier: ^10.45.2
-        version: 10.45.2
-      '@types/express':
-        specifier: ^5.0.0
-        version: 5.0.0
-      '@types/node':
-        specifier: ^22.10.5
-        version: 22.10.5
-      dotenv:
-        specifier: ^16.4.7
-        version: 16.4.7
-      express:
-        specifier: ^4.21.2
-        version: 4.21.2
-      fastify:
-        specifier: ^5.2.1
-        version: 5.2.1
-      react:
-        specifier: ^18.3.1
-        version: 18.3.1
-      react-dom:
-        specifier: ^18.3.1
-        version: 18.3.1(react@18.3.1)
-      react-query:
-        specifier: ^3.39.3
-        version: 3.39.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      tsx:
-        specifier: ^4.19.2
-        version: 4.19.2
-      zod:
-        specifier: ^3.24.1
-        version: 3.24.1
-    devDependencies:
-      '@cloudoperators/juno-ui-components':
-        specifier: ^2.28.0
-        version: 2.35.1(prop-types@15.8.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@cobaltcore-dev/aurora-config':
-        specifier: workspace:*
-        version: link:../../packages/config
-      '@testing-library/jest-dom':
-        specifier: ^6.5.0
-        version: 6.6.3
-      '@types/react':
-        specifier: ^18.3.18
-        version: 18.3.18
-      '@types/react-dom':
-        specifier: ^18.3.5
-        version: 18.3.5(@types/react@18.3.18)
-      '@vitejs/plugin-react-swc':
-        specifier: ^3.7.1
-        version: 3.7.2(vite@5.4.11(@types/node@22.10.5))
-      autoprefixer:
-        specifier: ^10.4.20
-        version: 10.4.20(postcss@8.4.49)
-      concurrently:
-        specifier: ^9.1.2
-        version: 9.1.2
-      eslint:
-        specifier: ^9.17.0
-        version: 9.17.0(jiti@2.4.2)
-      eslint-plugin-react:
-        specifier: ^7.37.2
-        version: 7.37.3(eslint@9.17.0(jiti@2.4.2))
-      eslint-plugin-react-hooks:
-        specifier: ^5.0.0
-        version: 5.1.0(eslint@9.17.0(jiti@2.4.2))
-      eslint-plugin-react-refresh:
-        specifier: ^0.4.16
-        version: 0.4.16(eslint@9.17.0(jiti@2.4.2))
-      globals:
-        specifier: ^15.14.0
-        version: 15.14.0
-      jsdom:
-        specifier: ^24.1.1
-        version: 24.1.3
-      postcss:
-        specifier: ^8.4.47
-        version: 8.4.49
-      prettier:
-        specifier: ^3.4.2
-        version: 3.4.2
-      tailwindcss:
-        specifier: ^3.4.12
-        version: 3.4.17
-      typescript:
-        specifier: ^5.6.2
-        version: 5.7.3
-      vite:
-        specifier: ^5.4.7
-        version: 5.4.11(@types/node@22.10.5)
-      vite-plugin-svgr:
-        specifier: ^4.3.0
-        version: 4.3.0(rollup@4.30.1)(typescript@5.7.3)(vite@5.4.11(@types/node@22.10.5))
-      vite-tsconfig-paths:
-        specifier: ^4.3.2
-        version: 4.3.2(typescript@5.7.3)(vite@5.4.11(@types/node@22.10.5))
-      vitest:
-        specifier: ^2.1.4
-        version: 2.1.8(@types/node@22.10.5)(jsdom@24.1.3)
-
-  apps/starlight-extension-mars:
+  apps/aurora-extension-a:
     dependencies:
       '@fastify/static':
         specifier: ^8.0.3
@@ -430,6 +145,291 @@ importers:
       vitest:
         specifier: ^2.1.4
         version: 2.1.8(@types/node@22.10.5)(jsdom@24.1.3)
+
+  apps/aurora-portal:
+    dependencies:
+      '@fastify/static':
+        specifier: ^8.0.3
+        version: 8.0.3
+      '@trpc/client':
+        specifier: ^10.45.2
+        version: 10.45.2(@trpc/server@10.45.2)
+      '@trpc/react-query':
+        specifier: ^10.45.2
+        version: 10.45.2(@tanstack/react-query@4.36.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@trpc/client@10.45.2(@trpc/server@10.45.2))(@trpc/server@10.45.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@trpc/server':
+        specifier: ^10.45.2
+        version: 10.45.2
+      '@types/express':
+        specifier: ^5.0.0
+        version: 5.0.0
+      '@types/node':
+        specifier: ^22.10.5
+        version: 22.10.5
+      dotenv:
+        specifier: ^16.4.7
+        version: 16.4.7
+      express:
+        specifier: ^4.21.2
+        version: 4.21.2
+      fastify:
+        specifier: ^5.2.1
+        version: 5.2.1
+      react:
+        specifier: ^18.3.1
+        version: 18.3.1
+      react-dom:
+        specifier: ^18.3.1
+        version: 18.3.1(react@18.3.1)
+      react-query:
+        specifier: ^3.39.3
+        version: 3.39.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      tsx:
+        specifier: ^4.19.2
+        version: 4.19.2
+      zod:
+        specifier: ^3.24.1
+        version: 3.24.1
+    devDependencies:
+      '@cloudoperators/juno-ui-components':
+        specifier: ^2.28.0
+        version: 2.35.1(prop-types@15.8.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@cobaltcore-dev/aurora-config':
+        specifier: workspace:*
+        version: link:../../packages/config
+      '@testing-library/jest-dom':
+        specifier: ^6.5.0
+        version: 6.6.3
+      '@types/react':
+        specifier: ^18.3.18
+        version: 18.3.18
+      '@types/react-dom':
+        specifier: ^18.3.5
+        version: 18.3.5(@types/react@18.3.18)
+      '@vitejs/plugin-react-swc':
+        specifier: ^3.7.1
+        version: 3.7.2(vite@5.4.11(@types/node@22.10.5))
+      autoprefixer:
+        specifier: ^10.4.20
+        version: 10.4.20(postcss@8.4.49)
+      concurrently:
+        specifier: ^9.1.2
+        version: 9.1.2
+      eslint:
+        specifier: ^9.17.0
+        version: 9.17.0(jiti@2.4.2)
+      eslint-plugin-react:
+        specifier: ^7.37.2
+        version: 7.37.3(eslint@9.17.0(jiti@2.4.2))
+      eslint-plugin-react-hooks:
+        specifier: ^5.0.0
+        version: 5.1.0(eslint@9.17.0(jiti@2.4.2))
+      eslint-plugin-react-refresh:
+        specifier: ^0.4.16
+        version: 0.4.16(eslint@9.17.0(jiti@2.4.2))
+      globals:
+        specifier: ^15.14.0
+        version: 15.14.0
+      jsdom:
+        specifier: ^24.1.1
+        version: 24.1.3
+      postcss:
+        specifier: ^8.4.47
+        version: 8.4.49
+      prettier:
+        specifier: ^3.4.2
+        version: 3.4.2
+      tailwindcss:
+        specifier: ^3.4.12
+        version: 3.4.17
+      typescript:
+        specifier: ^5.6.2
+        version: 5.7.3
+      vite:
+        specifier: ^5.4.7
+        version: 5.4.11(@types/node@22.10.5)
+      vite-plugin-svgr:
+        specifier: ^4.3.0
+        version: 4.3.0(rollup@4.30.1)(typescript@5.7.3)(vite@5.4.11(@types/node@22.10.5))
+      vite-tsconfig-paths:
+        specifier: ^4.3.2
+        version: 4.3.2(typescript@5.7.3)(vite@5.4.11(@types/node@22.10.5))
+      vitest:
+        specifier: ^2.1.4
+        version: 2.1.8(@types/node@22.10.5)(jsdom@24.1.3)
+
+  apps/legacy-aurora-portal:
+    dependencies:
+      '@cloudoperators/juno-ui-components':
+        specifier: ^2.28.0
+        version: 2.35.1(prop-types@15.8.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      dotenv:
+        specifier: ^16.0.0
+        version: 16.4.7
+      react:
+        specifier: ^18.2.0
+        version: 18.3.1
+      react-dom:
+        specifier: ^18.2.0
+        version: 18.3.1(react@18.3.1)
+    devDependencies:
+      '@apollo/client':
+        specifier: ^3.11.10
+        version: 3.12.5(@types/react@18.3.18)(graphql-ws@5.16.2(graphql@16.10.0))(graphql@16.10.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@cobaltcore-dev/aurora-config':
+        specifier: workspace:*
+        version: link:../../packages/config
+      '@graphql-codegen/cli':
+        specifier: ^5.0.3
+        version: 5.0.3(@types/node@20.17.12)(graphql@16.10.0)(typescript@5.7.3)
+      '@graphql-codegen/typescript':
+        specifier: ^4.1.2
+        version: 4.1.2(graphql@16.10.0)
+      '@graphql-codegen/typescript-operations':
+        specifier: ^4.4.0
+        version: 4.4.0(graphql@16.10.0)
+      '@graphql-codegen/typescript-react-apollo':
+        specifier: ^4.3.2
+        version: 4.3.2(graphql@16.10.0)
+      '@testing-library/jest-dom':
+        specifier: ^6.5.0
+        version: 6.6.3
+      '@testing-library/react':
+        specifier: ^16.0.1
+        version: 16.1.0(@testing-library/dom@10.4.0)(@types/react-dom@18.3.5(@types/react@18.3.18))(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@types/node':
+        specifier: ^20.16.5
+        version: 20.17.12
+      '@types/react':
+        specifier: ^18.3.8
+        version: 18.3.18
+      '@types/react-dom':
+        specifier: ^18.3.0
+        version: 18.3.5(@types/react@18.3.18)
+      '@vitejs/plugin-react-swc':
+        specifier: ^3.7.1
+        version: 3.7.2(vite@5.4.11(@types/node@20.17.12))
+      '@vitest/coverage-v8':
+        specifier: ^2.1.4
+        version: 2.1.8(vitest@2.1.8(@types/node@20.17.12)(jsdom@24.1.3))
+      autoprefixer:
+        specifier: ^10.4.20
+        version: 10.4.20(postcss@8.4.49)
+      graphql:
+        specifier: ^16.9.0
+        version: 16.10.0
+      jsdom:
+        specifier: ^24.1.1
+        version: 24.1.3
+      postcss:
+        specifier: ^8.4.47
+        version: 8.4.49
+      prettier:
+        specifier: 3.1.1
+        version: 3.1.1
+      tailwindcss:
+        specifier: ^3.4.12
+        version: 3.4.17
+      typescript:
+        specifier: ^5.6.2
+        version: 5.7.3
+      vite:
+        specifier: ^5.4.7
+        version: 5.4.11(@types/node@20.17.12)
+      vite-tsconfig-paths:
+        specifier: ^4.3.2
+        version: 4.3.2(typescript@5.7.3)(vite@5.4.11(@types/node@20.17.12))
+      vitest:
+        specifier: ^2.1.4
+        version: 2.1.8(@types/node@20.17.12)(jsdom@24.1.3)
+
+  apps/legacy-polaris-bff:
+    dependencies:
+      '@apollo/datasource-rest':
+        specifier: ^6.3.0
+        version: 6.4.1(graphql@16.10.0)
+      '@apollo/server':
+        specifier: ^4.11.2
+        version: 4.11.3(graphql@16.10.0)
+      '@graphql-tools/mock':
+        specifier: ^9.0.0
+        version: 9.0.14(graphql@16.10.0)
+      '@graphql-tools/schema':
+        specifier: ^9.0.10
+        version: 9.0.19(graphql@16.10.0)
+      body-parser:
+        specifier: ^1.20.1
+        version: 1.20.3
+      cors:
+        specifier: ^2.8.5
+        version: 2.8.5
+      express:
+        specifier: ^4.18.2
+        version: 4.21.2
+      graphql:
+        specifier: ^16.9.0
+        version: 16.10.0
+      graphql-scalars:
+        specifier: ^1.23.0
+        version: 1.24.0(graphql@16.10.0)
+      graphql-subscriptions:
+        specifier: ^2.0.0
+        version: 2.0.0(graphql@16.10.0)
+      graphql-tag:
+        specifier: ^2.12.6
+        version: 2.12.6(graphql@16.10.0)
+      graphql-ws:
+        specifier: ^5.11.2
+        version: 5.16.2(graphql@16.10.0)
+      nodemon:
+        specifier: ^2.0.20
+        version: 2.0.22
+      pkgroll:
+        specifier: ^2.5.1
+        version: 2.6.1(typescript@5.7.3)
+      type-graphql:
+        specifier: 2.0.0-rc.2
+        version: 2.0.0-rc.2(class-validator@0.14.1)(graphql-scalars@1.24.0(graphql@16.10.0))(graphql@16.10.0)
+      ws:
+        specifier: ^8.11.0
+        version: 8.18.0
+    devDependencies:
+      '@apollo/utils.keyvaluecache':
+        specifier: ^3.1.0
+        version: 3.1.0
+      '@cobaltcore-dev/aurora-config':
+        specifier: workspace:*
+        version: link:../../packages/config
+      '@types/node':
+        specifier: ^20.16.5
+        version: 20.17.12
+      '@vitest/coverage-v8':
+        specifier: ^2.1.4
+        version: 2.1.8(vitest@2.1.8(@types/node@20.17.12)(jsdom@24.1.3))
+      autoprefixer:
+        specifier: ^10.4.20
+        version: 10.4.20(postcss@8.4.49)
+      class-validator:
+        specifier: ^0.14.1
+        version: 0.14.1
+      dotenv:
+        specifier: ^16.4.5
+        version: 16.4.7
+      prettier:
+        specifier: 3.1.1
+        version: 3.1.1
+      reflect-metadata:
+        specifier: ^0.2.2
+        version: 0.2.2
+      tsx:
+        specifier: ^4.19.2
+        version: 4.19.2
+      typescript:
+        specifier: ^5.6.2
+        version: 5.7.3
+      vitest:
+        specifier: ^2.1.4
+        version: 2.1.8(@types/node@20.17.12)(jsdom@24.1.3)
 
   packages/config:
     devDependencies:
@@ -3651,8 +3651,8 @@ packages:
     peerDependencies:
       graphql: ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0
 
-  graphql-ws@5.16.1:
-    resolution: {integrity: sha512-/U3sZOhiZ36ZtSFhdnT8Fj5novy2E+Fnr6P5KjMSDv6E72yfvnWRJN7hll9G/mlzhWPuK+8xRtZ8RJIw++vV3w==}
+  graphql-ws@5.16.2:
+    resolution: {integrity: sha512-E1uccsZxt/96jH/OwmLPuXMACILs76pKF2i3W861LpKBCYtGIyPQGtWLuBLkND4ox1KHns70e83PS4te50nvPQ==}
     engines: {node: '>=10'}
     peerDependencies:
       graphql: '>=0.11 <=16'
@@ -5767,7 +5767,7 @@ snapshots:
     dependencies:
       graphql: 16.10.0
 
-  '@apollo/client@3.12.5(@types/react@18.3.18)(graphql-ws@5.16.1(graphql@16.10.0))(graphql@16.10.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@apollo/client@3.12.5(@types/react@18.3.18)(graphql-ws@5.16.2(graphql@16.10.0))(graphql@16.10.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@graphql-typed-document-node/core': 3.2.0(graphql@16.10.0)
       '@wry/caches': 1.0.1
@@ -5785,7 +5785,7 @@ snapshots:
       tslib: 2.8.1
       zen-observable-ts: 1.2.5
     optionalDependencies:
-      graphql-ws: 5.16.1(graphql@16.10.0)
+      graphql-ws: 5.16.2(graphql@16.10.0)
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
     transitivePeerDependencies:
@@ -6998,7 +6998,7 @@ snapshots:
       '@graphql-tools/utils': 10.7.2(graphql@16.10.0)
       '@whatwg-node/disposablestack': 0.0.5
       graphql: 16.10.0
-      graphql-ws: 5.16.1(graphql@16.10.0)
+      graphql-ws: 5.16.2(graphql@16.10.0)
       isomorphic-ws: 5.0.0(ws@8.18.0)
       tslib: 2.8.1
       ws: 8.18.0
@@ -7730,11 +7730,11 @@ snapshots:
   '@types/body-parser@1.19.5':
     dependencies:
       '@types/connect': 3.4.38
-      '@types/node': 20.17.12
+      '@types/node': 22.10.5
 
   '@types/connect@3.4.38':
     dependencies:
-      '@types/node': 20.17.12
+      '@types/node': 22.10.5
 
   '@types/conventional-commits-parser@5.0.1':
     dependencies:
@@ -7760,7 +7760,7 @@ snapshots:
 
   '@types/express-serve-static-core@5.0.4':
     dependencies:
-      '@types/node': 20.17.12
+      '@types/node': 22.10.5
       '@types/qs': 6.9.17
       '@types/range-parser': 1.2.7
       '@types/send': 0.17.4
@@ -7826,12 +7826,12 @@ snapshots:
   '@types/send@0.17.4':
     dependencies:
       '@types/mime': 1.3.5
-      '@types/node': 20.17.12
+      '@types/node': 22.10.5
 
   '@types/serve-static@1.15.7':
     dependencies:
       '@types/http-errors': 2.0.4
-      '@types/node': 20.17.12
+      '@types/node': 22.10.5
       '@types/send': 0.17.4
 
   '@types/validator@13.12.2': {}
@@ -8792,7 +8792,7 @@ snapshots:
   dot-case@3.0.4:
     dependencies:
       no-case: 3.0.4
-      tslib: 2.6.3
+      tslib: 2.8.1
 
   dot-prop@5.3.0:
     dependencies:
@@ -9513,7 +9513,7 @@ snapshots:
       graphql: 16.10.0
       tslib: 2.8.1
 
-  graphql-ws@5.16.1(graphql@16.10.0):
+  graphql-ws@5.16.2(graphql@16.10.0):
     dependencies:
       graphql: 16.10.0
 
