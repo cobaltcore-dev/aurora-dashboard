@@ -1,4 +1,3 @@
-import { QueryClient } from "react-query"
 import type { AppRouter } from "../polaris-bff/routers"
 
 import { createTRPCReact, httpBatchLink } from "@trpc/react-query"
