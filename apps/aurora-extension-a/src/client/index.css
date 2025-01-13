@@ -1,0 +1,13 @@
+/* Do not remove these tailwind directives. Without them styles won't work as expected */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  margin: 0;
+  padding: 0;
+}
+
+#app {
+  height: 100vh;
+}

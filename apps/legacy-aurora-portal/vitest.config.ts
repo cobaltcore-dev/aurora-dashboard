@@ -1,7 +1,6 @@
 import { defineConfig } from "vitest/config"
 import viteConfig from "./vite.config.ts"
 
-// ignore the type error
 export default defineConfig({
   ...viteConfig,
   test: {
@@ -9,5 +8,10 @@ export default defineConfig({
     environment: "jsdom",
     setupFiles: "./vitest.setup.ts",
     watch: true,
+    server: {
+      deps: {
+        inline: ["@cloudoperators/juno-ui-components"],
+      },
+    },
   },
 })

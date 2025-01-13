@@ -14,8 +14,13 @@ export const BFF_ENDPOINT = process.env.BFF_ENDPOINT || "/polaris-bff"
 
 export default defineConfig({
   build: {
-    outDir: "dist/client", // Output directory for the client
-    sourcemap: true, // Optional: Generate sourcemaps
+    lib: {
+      entry: "src/client/App.tsx", // or 'src/main.ts' if TypeScript
+      name: "starlight-extension-mars", // Replace with your library's global name
+      formats: ["es"], // Output formats: ESM and CommonJS
+      fileName: () => `index.js`, // Output file names
+    },
+    outDir: "dist/client",
   },
   define: {
     BFF_ENDPOINT: JSON.stringify(BFF_ENDPOINT),
