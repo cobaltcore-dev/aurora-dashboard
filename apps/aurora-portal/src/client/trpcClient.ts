@@ -1,8 +1,8 @@
-import type { AppRouter } from "../polaris-bff/routers"
+import type { AuroraRouter } from "../polaris-bff/routers"
 
 import { createTRPCReact, httpBatchLink } from "@trpc/react-query"
 
-export const trpc = createTRPCReact<AppRouter>()
+export const trpc = createTRPCReact<AuroraRouter>()
 
 export const trpcClient = trpc.createClient({
   links: [
