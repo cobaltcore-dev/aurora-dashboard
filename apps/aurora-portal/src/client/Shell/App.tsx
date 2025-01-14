@@ -1,11 +1,12 @@
 // @ts-expect-error missing types
 import { AppShellProvider } from "@cloudoperators/juno-ui-components"
-import React, { useState, lazy, Suspense } from "react"
+import React, { useState, Suspense } from "react"
 import Navigation from "./Navigation"
 import type { Manifest, Module } from "../../shared/types/manifest"
 import type { ExtensionProps } from "../../shared/types/extension"
 import { trpcClient, trpc } from "../trpcClient"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
+import Compute from "../Compute/Compute"
 import Home from "./Home"
 
 const shellStyles = `
@@ -32,30 +33,11 @@ const component = (manifestEntry: Module | undefined): React.ComponentType<Exten
     return () => <span>Could not find the component</span>
   }
 
-  // Lazy-loaded component variable
-  let LazyComponent: React.LazyExoticComponent<React.ComponentType<ExtensionProps>> | null = null
-
-  // Determine which component to load based on the manifest entry
-  switch (manifestEntry.name) {
-    case "compute":
-      LazyComponent = lazy(() => import("../Compute")) // Adjust the import path as necessary
-      break
-    case "identity":
-      LazyComponent = lazy(() => import("../Identity")) // Adjust the import path as necessary
-      break
-    default:
-      return () => <span>Component not supported</span> // Fallback for unsupported names
-  }
-
   // Return a function component that wraps the lazy-loaded component
-  return (props: ExtensionProps) => {
-    if (!LazyComponent) {
-      return <span>Component failed to load</span> // Handle the case where LazyComponent is null
-    }
-
+  return () => {
     return (
       <Suspense fallback={<div>Loading...</div>}>
-        <LazyComponent {...props} />
+        <Compute computeApi={trpc.compute} />
       </Suspense>
     )
   }

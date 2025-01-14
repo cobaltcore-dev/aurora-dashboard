@@ -2,7 +2,7 @@ import Fastify from "fastify"
 import { fastifyTRPCPlugin, FastifyTRPCPluginOptions } from "@trpc/server/adapters/fastify"
 import fastifyStatic from "@fastify/static"
 import path from "path"
-import { appRouter, AppRouter } from "./routers" // tRPC router
+import { appRouter, AuroraRouter } from "./routers" // tRPC router
 import * as dotenv from "dotenv"
 
 dotenv.config()
@@ -23,7 +23,7 @@ fastify.register(fastifyTRPCPlugin, {
   prefix: BFF_ENDPOINT, // Prefix for tRPC routes
   trpcOptions: {
     router: appRouter, // Pass the tRPC router to handle routes
-  } satisfies FastifyTRPCPluginOptions<AppRouter>["trpcOptions"], // Type-safety to ensure proper config
+  } satisfies FastifyTRPCPluginOptions<AuroraRouter>["trpcOptions"], // Type-safety to ensure proper config
 })
 
 // Register static file serving for the Vite frontend
