@@ -2,9 +2,4 @@
 
 import config from "@cobaltcore-dev/aurora-config/eslint/index.mjs"
 
-export default [
-  ...config,
-  {
-    ignore: ["./scripts/installExtensions.js"],
-  },
-]
+export default [...config]

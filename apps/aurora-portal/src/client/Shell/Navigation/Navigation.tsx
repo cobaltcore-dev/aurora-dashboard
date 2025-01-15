@@ -8,7 +8,7 @@ import React from "react"
 import Logo from "../../assets/logo.svg?react"
 // @ts-expect-error missing types
 import { Stack } from "@cloudoperators/juno-ui-components"
-import type { Manifest } from "../../../shared/types/manifest"
+import { ExtensionProps } from "../../../shared/types/extension"
 
 const navStyles = `
   bg-juno-grey-blue-11
@@ -41,38 +41,41 @@ const appNameStyles = `
 `
 
 interface NavigationProps {
-  manifest: Manifest
+  extensions: ExtensionProps[]
   active?: string
   handleActive: (name: string) => void
 }
 
-export default function Navigation({ manifest, active = "home", handleActive }: NavigationProps) {
+export default function Navigation({ extensions, active = "home", handleActive }: NavigationProps) {
   return (
     <Stack direction="vertical" alignment="center" className={navStyles}>
       <Logo className="mb-6" title="Aurora" />
 
-      <Stack
-        direction="vertical"
-        alignment="center"
-        className={navItem(active === "home")}
-        role="button"
-        tabIndex="0"
-        onClick={() => handleActive("home")}
-      >
-        <span className={appNameStyles}>Home</span>
-      </Stack>
-
-      {manifest.map((module) => (
+      {["home", "compute", "identity"].map((name) => (
         <Stack
-          key={module.name}
           direction="vertical"
           alignment="center"
-          className={navItem(module.name === active)}
+          className={navItem(active === name)}
           role="button"
           tabIndex="0"
-          onClick={() => handleActive(module.name)}
+          onClick={() => handleActive(name)}
         >
-          <span className={appNameStyles}>{module.navigation.label}</span>
+          <span className={appNameStyles}>{name.charAt(0).toUpperCase() + name.slice(1)}</span>
+        </Stack>
+      ))}
+      {console.log("=::::", extensions)}
+
+      {extensions.map((ext, i) => (
+        <Stack
+          key={i}
+          direction="vertical"
+          alignment="center"
+          className={navItem(ext.name === active)}
+          role="button"
+          tabIndex="0"
+          onClick={() => handleActive(ext.name)}
+        >
+          <span className={appNameStyles}>{ext.label}</span>
         </Stack>
       ))}
     </Stack>

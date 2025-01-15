@@ -1,13 +1,14 @@
 // @ts-expect-error missing types
 import { AppShellProvider } from "@cloudoperators/juno-ui-components"
-import React, { useState, Suspense } from "react"
+import React, { useState, lazy, Suspense, ReactNode } from "react"
 import Navigation from "./Navigation"
-import type { Manifest, Module } from "../../shared/types/manifest"
-import type { ExtensionProps } from "../../shared/types/extension"
 import { trpcClient, trpc } from "../trpcClient"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
-import Compute from "../Compute/Compute"
-import Home from "./Home"
+import { ExtensionProps } from "../../shared/types/extension"
+
+const Home = lazy(() => import("./Home"))
+const Compute = lazy(() => import("../Compute"))
+const Identity = lazy(() => import("../Identity"))
 
 const shellStyles = `
   grid
@@ -22,41 +23,39 @@ const contentStyles = `
   h-full
 `
 
-interface AppProps {
-  manifest: Manifest
-}
+const ExtensionA = React.lazy(
+  () => import("../../../extensions/@cobaltcore-dev/aurora-extension-a/dist/client/index.js")
+)
 
-// Define the component function
-const component = (manifestEntry: Module | undefined): React.ComponentType<ExtensionProps> => {
-  // Handle invalid or unsupported manifest entries
-  if (!manifestEntry || manifestEntry.type !== "core") {
-    return () => <span>Could not find the component</span>
-  }
+const ExtensionB = React.lazy(
+  () => import("../../../extensions/@cobaltcore-dev/aurora-extension-b/dist/client/index.js")
+)
 
-  // Return a function component that wraps the lazy-loaded component
-  return () => {
-    return (
-      <Suspense fallback={<div>Loading...</div>}>
-        <Compute computeApi={trpc.compute} />
-      </Suspense>
-    )
-  }
-}
-
-export default function App({ manifest }: AppProps) {
+export default function App() {
   const [active, setActive] = useState<string>("home")
   const [queryClient] = useState(() => new QueryClient())
-  const ActiveComponent = component(manifest.find((entry) => entry.name === active))
+
+  const [extensions, setExtensions] = useState<ExtensionProps[]>([])
 
   return (
     <trpc.Provider client={trpcClient} queryClient={queryClient}>
       <QueryClientProvider client={queryClient}>
         <AppShellProvider stylesWrapper="head" shadowRoot={false}>
           <div className={`${shellStyles}`}>
-            <Navigation manifest={manifest} active={active} handleActive={(name: string) => setActive(name)} />
+            <Navigation extensions={extensions} active={active} handleActive={(name: string) => setActive(name)} />
             <div>
               <div className={contentStyles}>
-                {active === "home" ? <Home /> : <ActiveComponent client={trpcClient} />}
+                <Suspense fallback={<div>Loading...</div>}>
+                  <ExtensionA client={trpcClient.extensionA} />
+                  <ExtensionB client={trpcClient.extensionB} />
+                  {active === "home" ? (
+                    <Home />
+                  ) : active === "identity" ? (
+                    <Identity client={trpcClient} />
+                  ) : active === "compute" ? (
+                    <Compute client={trpcClient} />
+                  ) : null}
+                </Suspense>
               </div>
             </div>
           </div>

@@ -4,6 +4,7 @@
   "version": "1.0.0",
   "main": "dist/server/index.js",
   "scripts": {
+    "postinstall": "node scripts/installExtensions.js",
     "dev:client": "vite",
     "dev:server": "tsx watch src/polaris-bff",
     "dev": "concurrently -k \"pnpm dev:client\" \"pnpm dev:server\"",
@@ -23,7 +24,6 @@
     "@trpc/react-query": "11.0.0-rc.694",
     "@trpc/server": "11.0.0-rc.694",
     "@types/express": "^5.0.0",
-    "@types/node": "^22.10.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "fastify": "^5.2.1",
@@ -37,6 +37,7 @@
     "@cloudoperators/juno-ui-components": "^2.28.0",
     "@cobaltcore-dev/aurora-config": "workspace:*",
     "@testing-library/jest-dom": "^6.5.0",
+    "@types/node": "^22.10.5",
     "@types/react": "^18.3.18",
     "@types/react-dom": "^18.3.5",
     "@vitejs/plugin-react-swc": "^3.7.1",
