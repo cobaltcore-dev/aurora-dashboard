@@ -1,9 +1,9 @@
 {
-  "name": "@cobaltcore-dev/aurora-extension-a",
+  "name": "@cobaltcore-dev/aurora-extension-b",
   "private": true,
   "version": "1.0.0",
   "exports": {
-    ".": "./dist/server/routers.js"
+    ".": "./dist/extension.js"
   },
   "files": [
     "dist"

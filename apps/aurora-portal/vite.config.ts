@@ -4,6 +4,7 @@ import tailwindcss from "tailwindcss"
 import autoprefixer from "autoprefixer"
 import tsconfigPaths from "vite-tsconfig-paths"
 import svgr from "vite-plugin-svgr"
+import path from "path"
 import * as dotenv from "dotenv"
 
 dotenv.config()
@@ -16,6 +17,12 @@ export default defineConfig({
   build: {
     outDir: "dist/client", // Output directory for the client
     sourcemap: true, // Optional: Generate sourcemaps
+  },
+  resolve: {
+    alias: {
+      // Alias für Extensions-Verzeichnis
+      "@extensions": path.resolve(__dirname, "extensions"),
+    },
   },
   define: {
     BFF_ENDPOINT: JSON.stringify(BFF_ENDPOINT),

@@ -1,4 +1,5 @@
 {
+  "name": "@cobaltcore-dev/aurora-dashboard",
   "private": true,
   "scripts": {
     "build": "turbo build",
@@ -25,7 +26,6 @@
     "turbo": "^2.2.3"
   },
   "packageManager": "pnpm@8.15.6",
-  "name": "aurora-dashboard",
   "dependencies": {
     "pnpm": "^9.14.2"
   }

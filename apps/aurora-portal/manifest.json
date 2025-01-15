@@ -1,20 +1,22 @@
-[
-  {
-    "name": "identity",
-    "type": "core",
-    "navigation": {
-      "icon": "user",
-      "label": "Identity",
-      "route": "identity"
+{
+  "extensions": [
+    {
+      "name": "aurora-extension-a",
+      "source": "file:../aurora-extension-a",
+      "navigation": {
+        "icon": "star",
+        "label": "Extension A",
+        "route": "extension-a"
+      }
+    },
+    {
+      "name": "aurora-extension-b",
+      "source": "file:../aurora-extension-b",
+      "navigation": {
+        "icon": "star",
+        "label": "Extension B",
+        "route": "extension-b"
+      }
     }
-  },
-  {
-    "name": "compute",
-    "type": "core",
-    "navigation": {
-      "icon": "star",
-      "label": "Compute",
-      "route": "compute"
-    }
-  }
-]
+  ]
+}
