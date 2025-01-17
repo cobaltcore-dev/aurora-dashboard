@@ -1,0 +1,16 @@
+[
+  {
+    "name": "@cobaltcore-dev/aurora-extension-a",
+    "source": "file:../aurora-extension-a",
+    "navigation": {
+      "label": "Mars"
+    }
+  },
+  {
+    "name": "@cobaltcore-dev/aurora-extension-b",
+    "source": "file:../aurora-extension-b",
+    "navigation": {
+      "label": "Jupiter"
+    }
+  }
+]

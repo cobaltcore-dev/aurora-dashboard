@@ -1,14 +1,13 @@
 // @ts-expect-error missing types
 import { AppShellProvider } from "@cloudoperators/juno-ui-components"
-import React, { useState, lazy, Suspense, ReactNode } from "react"
+import { useState, lazy, Suspense } from "react"
 import Navigation from "./Navigation"
 import { trpcClient, trpc } from "../trpcClient"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
-import { ExtensionProps } from "../../shared/types/extension"
+// import { extensions } from "../../../extensions/clients"
+const extensions = []
 
-const Home = lazy(() => import("./Home"))
-const Compute = lazy(() => import("../Compute"))
-const Identity = lazy(() => import("../Identity"))
+import ExtensionA from "extensions/@cobaltcore-dev/aurora-extension-a/ui"
 
 const shellStyles = `
   grid
@@ -23,38 +22,67 @@ const contentStyles = `
   h-full
 `
 
-const ExtensionA = React.lazy(
-  () => import("../../../extensions/@cobaltcore-dev/aurora-extension-a/dist/client/index.js")
-)
+type AppComponentType = React.LazyExoticComponent<React.ComponentType<{ client: typeof trpcClient }>>
+type AppType = {
+  name: string
+  component: AppComponentType
+  extension?: boolean
+  routerID?: string
+}
+type Extension = {
+  label: string
+  routerID: string
+  UIComponent: Promise<{ default: React.ComponentType<{ client: typeof trpcClient }> }>
+}
 
-const ExtensionB = React.lazy(
-  () => import("../../../extensions/@cobaltcore-dev/aurora-extension-b/dist/client/index.js")
-)
+const Apps: AppType[] = [
+  {
+    name: "home",
+    component: lazy(() => import("./Home")),
+  },
+  {
+    name: "compute",
+    component: lazy(() => import("../Identity")),
+  },
+  {
+    name: "identity",
+    component: lazy(() => import("../Identity")),
+  },
+  ...extensions.map((ext: Extension) => ({
+    extension: true,
+    name: ext.label,
+    routerID: ext.routerID,
+    component: lazy(() => ext.UIComponent),
+  })),
+]
 
 export default function App() {
-  const [active, setActive] = useState<string>("home")
+  const [active, setActive] = useState<number>(0)
   const [queryClient] = useState(() => new QueryClient())
-
-  const [extensions, setExtensions] = useState<ExtensionProps[]>([])
 
   return (
     <trpc.Provider client={trpcClient} queryClient={queryClient}>
       <QueryClientProvider client={queryClient}>
         <AppShellProvider stylesWrapper="head" shadowRoot={false}>
           <div className={`${shellStyles}`}>
-            <Navigation extensions={extensions} active={active} handleActive={(name: string) => setActive(name)} />
+            <Navigation
+              apps={Apps.map((app) => app.name)}
+              active={active}
+              handleActive={(index: number) => setActive(index)}
+            />
             <div>
               <div className={contentStyles}>
+                <ExtensionA client={trpcClient} />
                 <Suspense fallback={<div>Loading...</div>}>
-                  <ExtensionA client={trpcClient.extensionA} />
-                  <ExtensionB client={trpcClient.extensionB} />
-                  {active === "home" ? (
-                    <Home />
-                  ) : active === "identity" ? (
-                    <Identity client={trpcClient} />
-                  ) : active === "compute" ? (
-                    <Compute client={trpcClient} />
-                  ) : null}
+                  {Apps.map(
+                    (app, i) =>
+                      active === i && (
+                        <app.component
+                          key={i}
+                          client={app.extension && app.routerID ? trpcClient.extension0 : trpcClient}
+                        />
+                      )
+                  )}
                 </Suspense>
               </div>
             </div>

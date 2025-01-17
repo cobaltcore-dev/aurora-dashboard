@@ -5,7 +5,6 @@ export type ExtensionProps = {
   label: string
   icon?: string
   ui?: React.ComponentType
-  router: any
 }
 export type Extension = {
   register: () => ExtensionProps
