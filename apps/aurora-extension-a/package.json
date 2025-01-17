@@ -3,17 +3,20 @@
   "private": true,
   "version": "1.0.0",
   "exports": {
-    ".": "./dist/server/routers.js"
+    "/icon": "./dist/client/favicon.ico",
+    "/ui": "./dist/client/App.js",
+    "/router": "./dist/server/routers/index.js"
   },
   "files": [
     "dist"
   ],
   "scripts": {
     "dev:client": "vite",
-    "dev:server": "tsx watch src/server",
+    "dev:server": "tsx watch src/server --tsconfig src/tsconfig.json",
     "dev": "concurrently -k \"pnpm dev:client\" \"pnpm dev:server\"",
     "build:client": "vite build",
-    "build:server": "tsc -p tsconfig.server.json",
+    "build:clientts": "tsc -b",
+    "build:server": "tsc -b",
     "build": "pnpm build:client && pnpm build:server",
     "lint": "eslint .",
     "preview": "vite preview"
@@ -55,6 +58,7 @@
     "tailwindcss": "^3.4.12",
     "typescript": "^5.6.2",
     "vite": "^5.4.7",
+    "vite-plugin-dts": "^4.0.3",
     "vite-plugin-svgr": "^4.3.0",
     "vite-tsconfig-paths": "^4.3.2",
     "vitest": "^2.1.4"

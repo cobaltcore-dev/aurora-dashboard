@@ -8,7 +8,6 @@ import React from "react"
 import Logo from "../../assets/logo.svg?react"
 // @ts-expect-error missing types
 import { Stack } from "@cloudoperators/juno-ui-components"
-import { ExtensionProps } from "../../../shared/types/extension"
 
 const navStyles = `
   bg-juno-grey-blue-11
@@ -41,41 +40,27 @@ const appNameStyles = `
 `
 
 interface NavigationProps {
-  extensions: ExtensionProps[]
-  active?: string
-  handleActive: (name: string) => void
+  apps: string[]
+  active?: number
+  handleActive: (index: number) => void
 }
 
-export default function Navigation({ extensions, active = "home", handleActive }: NavigationProps) {
+export default function Navigation({ apps, active = 0, handleActive }: NavigationProps) {
   return (
     <Stack direction="vertical" alignment="center" className={navStyles}>
       <Logo className="mb-6" title="Aurora" />
 
-      {["home", "compute", "identity"].map((name) => (
-        <Stack
-          direction="vertical"
-          alignment="center"
-          className={navItem(active === name)}
-          role="button"
-          tabIndex="0"
-          onClick={() => handleActive(name)}
-        >
-          <span className={appNameStyles}>{name.charAt(0).toUpperCase() + name.slice(1)}</span>
-        </Stack>
-      ))}
-      {console.log("=::::", extensions)}
-
-      {extensions.map((ext, i) => (
+      {apps.map((name, i) => (
         <Stack
           key={i}
           direction="vertical"
           alignment="center"
-          className={navItem(ext.name === active)}
+          className={navItem(active === i)}
           role="button"
           tabIndex="0"
-          onClick={() => handleActive(ext.name)}
+          onClick={() => handleActive(i)}
         >
-          <span className={appNameStyles}>{ext.label}</span>
+          <span className={appNameStyles}>{name.charAt(0).toUpperCase() + name.slice(1)}</span>
         </Stack>
       ))}
     </Stack>

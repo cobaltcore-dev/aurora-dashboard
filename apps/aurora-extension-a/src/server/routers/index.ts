@@ -8,13 +8,10 @@ export const appRouter = trpc.router({
 
 export type AppRouter = typeof appRouter
 
-// import { initTRPC } from "@trpc/server"
+export default appRouter
 
-// // Generic function, tt is typed dynamically at call-site
-// export const testRouters = <T extends ReturnType<typeof initTRPC.create>>(t: T) => {
-//   return t.router({
-//     test: t.procedure.query(() => {
-//       return "test"
-//     }),
-//   })
-// }
+export const buildRouter = (client: typeof trpc) => {
+  return client.router({
+    test: client.procedure.query(() => "test"),
+  })
+}

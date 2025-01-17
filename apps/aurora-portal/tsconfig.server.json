@@ -1,7 +1,7 @@
 // this config is used to compile the server part of the app
 {
   "compilerOptions": {
-    "module": "CommonJS",            // CommonJS
+    "module": "Node16",            // CommonJS
     "esModuleInterop": true,         // Ensure compatibility with CommonJS modules
     "outDir": "./dist/",       // Output directory for the server code
     "target": "ESNext",              // Use the latest JavaScript features
@@ -13,10 +13,14 @@
     "emitDecoratorMetadata": true,    // Include metadata for reflection
     "strict": true,                   // Optional, but ensures stricter typing
     "skipLibCheck": true,             // Skip type checking for library declarations
-    "moduleResolution": "node",       // Use Node.js module resolution
+    "moduleResolution":"node16",       // Use Node.js module resolution
     "incremental": false,
     "allowSyntheticDefaultImports": true, // Compatibility with default imports
     "resolveJsonModule": true,
+
+    "paths": {
+      "extensions/*": ["./extensions/node_modules/*"]  // Include the server and shared code
+    }
   },
   "include": ["src/polaris-bff"],           // Include the server and shared code
   "exclude": ["node_modules","dist","src/client"]   // Exclude the node_modules and dist directories

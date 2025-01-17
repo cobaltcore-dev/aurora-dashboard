@@ -3,7 +3,15 @@
   "private": true,
   "version": "1.0.0",
   "exports": {
-    ".": "./dist/extension.js"
+    "./icon": "./dist/favicon.ico",
+    "./ui": "./dist/client/index.js",
+    "./router": {
+      "import": "./dist/server/routers/index.js",
+      "types": "./dist/server/routers/index.d.ts"
+    }
+  },
+  "config": {
+    "label": "Jupiter"
   },
   "files": [
     "dist"

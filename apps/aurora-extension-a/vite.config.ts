@@ -17,6 +17,7 @@ export default defineConfig({
     rollupOptions: {
       external: ["react", "react-dom"],
     },
+
     lib: {
       entry: "src/client/App.tsx", // or 'src/main.ts' if TypeScript
       name: "aurora-extension-a", // Replace with your library's global name

@@ -1,0 +1,23 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "Preserve",
+    "esModuleInterop": true,
+    "noEmit": false,
+    "strict": true,
+    "skipLibCheck": true,
+    "isolatedModules": false,
+    "jsx": "react-jsx",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "incremental": false,
+    "types": ["vite/client", "vitest/globals", "@testing-library/jest-dom", "@types/react"],
+    "declaration":true,
+    "emitDeclarationOnly": true,
+    "outFile": "../dist/client/index.d.ts",
+    
+  },
+  "include": [
+    "../src/client", "../src/types", "../src/server/routers"
+  ]
+}

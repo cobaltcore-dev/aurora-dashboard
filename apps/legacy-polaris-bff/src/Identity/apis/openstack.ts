@@ -45,8 +45,6 @@ export class OpenstackIdentityAPI extends RESTDataSource {
       })
 
       return response.token
-
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       console.error(error)
       return null
