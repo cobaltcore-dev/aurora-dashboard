@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "target": "ES2022",
+    "composite": true,
     "module": "ESNext",
     "moduleResolution": "Bundler",
     "declarationMap": false,
@@ -11,7 +12,6 @@
     "isolatedModules": true,
     "declaration": true,
     "outDir": "../dist",
-    "rootDir": "../src",
-    "incremental": false
-  },
+    "rootDir": "../src"
+  }
 }
