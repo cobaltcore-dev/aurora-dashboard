@@ -15,9 +15,8 @@
     "dev:server": "tsx watch src/server --tsconfig src/tsconfig.json",
     "dev": "concurrently -k \"pnpm dev:client\" \"pnpm dev:server\"",
     "build:client": "vite build",
-    "build:clientts": "tsc -b",
     "build:server": "tsc -b",
-    "build": "pnpm build:client && pnpm build:server",
+    "build": "pnpm build:server && pnpm build:client",
     "lint": "eslint .",
     "preview": "vite preview"
   },
