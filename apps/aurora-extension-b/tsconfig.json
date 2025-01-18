@@ -1,4 +1,4 @@
 {
-  "extends": "@cobaltcore-dev/aurora-config/typescript/react-app.json",
-  "include": ["src/**/*.ts", "src/**/*.tsx","vitest.setup.ts"],
+  "references": [{ "path": "./.config/tsconfig.client.json" }, { "path": "./.config/tsconfig.server.json" }],
+  "files": []
 }

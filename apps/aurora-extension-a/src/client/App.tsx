@@ -11,7 +11,7 @@ export default function App({ client }: ExtensionProps) {
   const [result, setResult] = React.useState<Entity[] | null>(null)
 
   useEffect(() => {
-    client.extensionA.entities.list.query().then((res: Entity[]) => {
+    client.entities.list.query().then((res: Entity[]) => {
       setResult(res)
     })
   }, [])

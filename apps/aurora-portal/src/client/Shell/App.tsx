@@ -4,10 +4,10 @@ import { useState, lazy, Suspense } from "react"
 import Navigation from "./Navigation"
 import { trpcClient, trpc } from "../trpcClient"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
-// const extensions = []
 
 // import ExtensionA from "extensions/@cobaltcore-dev/aurora-extension-a/dist/client/index"
-// import ExtensionA from "extensions/@cobaltcore-dev/aurora-extension-a/dist/client"
+import ExtensionA from "extensions/@cobaltcore-dev/aurora-extension-a/dist/client"
+
 const shellStyles = `
   grid
   grid-cols-[max-content_auto]
@@ -28,11 +28,6 @@ type AppType = {
   extension?: boolean
   routerID?: string
 }
-type Extension = {
-  label: string
-  routerID: string
-  UIComponent: Promise<{ default: React.ComponentType<{ client: typeof trpcClient }> }>
-}
 
 const Apps: AppType[] = [
   {
@@ -47,12 +42,6 @@ const Apps: AppType[] = [
     name: "identity",
     component: lazy(() => import("../Identity")),
   },
-  ...extensions.map((ext: Extension) => ({
-    extension: true,
-    name: ext.label,
-    routerID: ext.routerID,
-    component: lazy(() => ext.UIComponent),
-  })),
 ]
 
 export default function App() {
@@ -71,6 +60,7 @@ export default function App() {
             />
             <div>
               <div className={contentStyles}>
+                <ExtensionA client={trpcClient} />
                 {/* <ExtensionA client={trpcClient} /> */}
                 <Suspense fallback={<div>Loading...</div>}>
                   {Apps.map(

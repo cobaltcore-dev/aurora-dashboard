@@ -3,26 +3,23 @@
   "private": true,
   "version": "1.0.0",
   "exports": {
-    "./icon": "./dist/favicon.ico",
-    "./ui": "./dist/client/index.js",
-    "./router": {
-      "import": "./dist/server/routers/index.js",
-      "types": "./dist/server/routers/index.d.ts"
-    }
-  },
-  "config": {
-    "label": "Jupiter"
+    "./icon": "./dist/client/favicon.ico",
+    "./ui": {
+      "import": "./dist/client/index.js",
+      "types": "./dist/client/index.d.ts"
+    },
+    "./router": "./dist/server/routers/index.js"
   },
   "files": [
     "dist"
   ],
   "scripts": {
     "dev:client": "vite",
-    "dev:server": "tsx watch src/server",
+    "dev:server": "tsx watch src/server --tsconfig src/tsconfig.json",
     "dev": "concurrently -k \"pnpm dev:client\" \"pnpm dev:server\"",
     "build:client": "vite build",
-    "build:server": "tsc -p tsconfig.server.json",
-    "build": "pnpm build:client && pnpm build:server",
+    "build:server": "tsc -b",
+    "build": "pnpm build:server && pnpm build:client",
     "lint": "eslint .",
     "preview": "vite preview"
   },
@@ -63,6 +60,7 @@
     "tailwindcss": "^3.4.12",
     "typescript": "^5.6.2",
     "vite": "^5.4.7",
+    "vite-plugin-dts": "^4.0.3",
     "vite-plugin-svgr": "^4.3.0",
     "vite-tsconfig-paths": "^4.3.2",
     "vitest": "^2.1.4"

@@ -38,7 +38,7 @@ export default defineConfig({
       insertTypesEntry: true, // Ensures a types entry is added to package.json
       outDir: "dist/client",
       logLevel: "warn",
-      tsconfigPath: "./config/tsconfig.client.json",
+      tsconfigPath: "./.config/tsconfig.client.json",
     }),
   ],
   css: {

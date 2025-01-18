@@ -1,18 +1,21 @@
-import { t } from "./trpc"
 import { z } from "zod"
+import { trpc } from "./trpc"
 
-import type { Entity } from "../../shared/types/models"
+export interface Entity {
+  id: number
+  name: string
+}
 
 export const entityRouter = {
-  entities: t.router({
-    get: t.procedure.input(z.object({ id: z.number() })).query(({ input }): Entity => {
-      return { id: input.id, name: "Jupiter 1" }
+  entities: trpc.router({
+    get: trpc.procedure.input(z.object({ id: z.number() })).query(({ input }): Entity => {
+      return { id: input.id, name: "Jupiter1" }
     }),
 
-    list: t.procedure.query((): Entity[] => {
+    list: trpc.procedure.query((): Entity[] => {
       return [
-        { id: 1, name: "Jupiter 1" },
-        { id: 2, name: "Jupiter 2" },
+        { id: 1, name: "Jupiter1" },
+        { id: 2, name: "Jupiter2" },
       ]
     }),
   }),
