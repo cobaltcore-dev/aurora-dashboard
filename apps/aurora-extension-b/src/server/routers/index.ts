@@ -1,7 +1,9 @@
 import { entityRouter } from "./entityRouter"
-import { t } from "./trpc"
+import { trpc } from "./trpc"
 
-export const appRouter = t.router(entityRouter)
+// Example usage of the buildRouter function
+export const appRouter = trpc.router(entityRouter)
+
 export type AppRouter = typeof appRouter
 
 export default appRouter

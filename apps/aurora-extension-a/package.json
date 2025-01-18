@@ -3,9 +3,12 @@
   "private": true,
   "version": "1.0.0",
   "exports": {
-    "/icon": "./dist/client/favicon.ico",
-    "/ui": "./dist/client/App.js",
-    "/router": "./dist/server/routers/index.js"
+    "./icon": "./dist/client/favicon.ico",
+    "./ui": {
+      "import": "./dist/client/index.js",
+      "types": "./dist/client/index.d.ts"
+    },
+    "./router": "./dist/server/routers/index.js"
   },
   "files": [
     "dist"

@@ -18,12 +18,6 @@ export default defineConfig({
     outDir: "dist/client", // Output directory for the client
     sourcemap: true, // Optional: Generate sourcemaps
   },
-  resolve: {
-    alias: {
-      // Alias für Extensions-Verzeichnis
-      "@extensions": path.resolve(__dirname, "extensions"),
-    },
-  },
   define: {
     BFF_ENDPOINT: JSON.stringify(BFF_ENDPOINT),
   },

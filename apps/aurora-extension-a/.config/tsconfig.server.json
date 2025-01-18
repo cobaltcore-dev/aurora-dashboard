@@ -2,10 +2,9 @@
   "extends": "./tsconfig.base.json",
   "compilerOptions": {
     "lib": ["ES2022"],
-    "moduleResolution": "nodenext",
-    "module": "NodeNext"
+    "module": "NodeNext",
+    "moduleResolution": "nodenext"
   },
   "exclude": ["../src/client"],
-
   "include": ["../src/server"]
 }
