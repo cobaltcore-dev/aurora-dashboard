@@ -5,7 +5,7 @@ import Navigation from "./Navigation"
 import { trpcClient, trpc } from "../trpcClient"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 
-import { registerClients } from "../../../extensions/client"
+import { registerClients } from "extensions/client"
 
 type RouterScopes = keyof typeof trpcClient
 //const result = trpcClient[ext.routerScope as RouterScopes];

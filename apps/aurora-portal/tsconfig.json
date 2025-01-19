@@ -5,6 +5,12 @@
     "target": "ESNext",
     "module": "ESNext",
     "moduleResolution": "bundler",
-    "allowImportingTsExtensions": true
+    "allowImportingTsExtensions": true,
+
+    "paths": {
+      "extensions/*": ["./extensions/node_modules/*"],
+      "extensions/server": ["./extensions/server.ts"],
+      "extensions/client": ["./extensions/client.ts"]
+    }
   }
 }
