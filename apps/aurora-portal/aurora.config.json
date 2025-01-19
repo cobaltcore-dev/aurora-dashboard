@@ -1,0 +1,11 @@
+{
+  "extensions": [
+    {
+      "id": "aurora-extension-a",
+      "source": "file:../aurora-extension-a",
+      "navigation": {
+        "label": "Mars"
+      }
+    }
+  ]
+}

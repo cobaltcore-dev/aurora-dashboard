@@ -1,10 +1,6 @@
 import { z } from "zod"
 import { trpc } from "./trpc"
-
-export interface Entity {
-  id: number
-  name: string
-}
+import type { Entity } from "../types/models"
 
 export const entityRouter = {
   entities: trpc.router({

@@ -19,7 +19,7 @@ export default defineConfig({
       external: ["react", "react-dom"],
     },
     lib: {
-      entry: "src/client/App.tsx", // or 'src/main.ts' if TypeScript
+      entry: "src/client/index.tsx", // or 'src/main.ts' if TypeScript
       name: "aurora-extension-a", // Replace with your library's global name
       formats: ["es"], // Output formats: ESM and CommonJS
       fileName: () => `index.js`, // Output file names

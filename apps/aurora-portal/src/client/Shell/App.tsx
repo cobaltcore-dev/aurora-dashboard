@@ -1,12 +1,22 @@
 // @ts-expect-error missing types
 import { AppShellProvider } from "@cloudoperators/juno-ui-components"
-import { useState, lazy, Suspense } from "react"
+import React, { useState, lazy, Suspense } from "react"
 import Navigation from "./Navigation"
 import { trpcClient, trpc } from "../trpcClient"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 
-// import ExtensionA from "extensions/@cobaltcore-dev/aurora-extension-a/dist/client/index"
-import ExtensionA from "extensions/@cobaltcore-dev/aurora-extension-a/dist/client"
+import { registerClients } from "../../../extensions/client"
+
+type RouterScopes = keyof typeof trpcClient
+//const result = trpcClient[ext.routerScope as RouterScopes];
+
+const extensions = registerClients().map((ext) => ({
+  name: ext.extensionName,
+  routerID: ext.routerScope,
+  component: lazy(() => ext.App),
+  Logo: lazy(() => ext.Logo),
+  extension: true,
+}))
 
 const shellStyles = `
   grid
@@ -25,8 +35,9 @@ type AppComponentType = React.LazyExoticComponent<React.ComponentType<{ client: 
 type AppType = {
   name: string
   component: AppComponentType
-  extension?: boolean
+  Logo?: React.LazyExoticComponent<React.ComponentType>
   routerID?: string
+  extension?: boolean
 }
 
 const Apps: AppType[] = [
@@ -36,12 +47,13 @@ const Apps: AppType[] = [
   },
   {
     name: "compute",
-    component: lazy(() => import("../Identity")),
+    component: lazy(() => import("../Compute")),
   },
   {
     name: "identity",
     component: lazy(() => import("../Identity")),
   },
+  ...extensions,
 ]
 
 export default function App() {
@@ -60,14 +72,15 @@ export default function App() {
             />
             <div>
               <div className={contentStyles}>
-                <ExtensionA client={trpcClient} />
-                {/* <ExtensionA client={trpcClient} /> */}
                 <Suspense fallback={<div>Loading...</div>}>
                   {Apps.map(
                     (app, i) =>
-                      active === i && (
-                        <app.component key={i} client={app.extension && app.routerID ? trpcClient : trpcClient} />
-                      )
+                      active === i &&
+                      (app.routerID ? (
+                        <app.component key={i} client={trpcClient[app.routerID as RouterScopes]} />
+                      ) : (
+                        <app.component key={i} />
+                      ))
                   )}
                 </Suspense>
               </div>

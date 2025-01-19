@@ -4,7 +4,6 @@ import tailwindcss from "tailwindcss"
 import autoprefixer from "autoprefixer"
 import tsconfigPaths from "vite-tsconfig-paths"
 import svgr from "vite-plugin-svgr"
-import path from "path"
 import * as dotenv from "dotenv"
 
 dotenv.config()
