@@ -2,7 +2,7 @@ import { t } from "./trpc"
 import { identityRouters } from "./Identity/routers"
 import { RouterLike } from "@trpc/react-query/shared"
 import { computeRouters } from "./Compute/routers"
-import { registerServers } from "../../extensions/server"
+import { registerServers } from "extensions/server"
 
 const coreRouter = t.mergeRouters(t.router(identityRouters), t.router(computeRouters))
 const extensionRouters = registerServers()

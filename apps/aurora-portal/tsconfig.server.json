@@ -16,8 +16,13 @@
     "moduleResolution": "nodenext", // Use Node.js module resolution
     "incremental": false,
     "allowSyntheticDefaultImports": true, // Compatibility with default imports
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "paths": {
+      "extensions/*": ["./extensions/node_modules/*"],
+      "extensions/server.ts": ["./extensions/server.ts"],
+      "extensions/client.ts": ["./extensions/client.ts"]
+    }
   },
-  "include": ["src/polaris-bff"], // Include the server and shared code
+  "include": ["src/polaris-bff", "extensions"], // Include the server and shared code
   "exclude": ["node_modules", "dist", "src/client"] // Exclude the node_modules and dist directories
 }

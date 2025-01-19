@@ -55,23 +55,6 @@ function generateValidPackageName(name: string) {
   return name
 }
 
-/*
-const client0 = import("./node_modules/@cobaltcore-dev/aurora-extension-a/dist/client/index.js").then((m) =>
-  m.registerClient()
-)
-
-export const registerClients = () => {
-  return [
-    {
-      extensionName: "@cobaltcore-dev/aurora-extension-a",
-      routerScope: "cobaltcore-dev_aurora-extension-a",
-      App: client0.then((m) => ({ default: m.App })),
-      Logo: client0.then((m) => ({ default: m.Logo })),
-    },
-  ]
-}
-
-*/
 const generateExtensionsImportFile = (entries: ExtensionImportEntry[] = []): void => {
   const clientImports = []
   const serverImports = []
