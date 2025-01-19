@@ -1,13 +1,13 @@
 import React, { useEffect } from "react"
-import { TrpcClient } from "../client/trpcClient"
-import { Entity } from "../server/routers/entityRouter"
+import { TrpcClient } from "../../client/trpcClient"
+import { Entity } from "../../server/types/models"
 
 // Define the props for the component
 export interface ExtensionProps {
   client: TrpcClient
 }
 
-export default function App({ client }: ExtensionProps) {
+export const App = ({ client }: ExtensionProps) => {
   const [result, setResult] = React.useState<Entity[] | null>(null)
 
   useEffect(() => {
