@@ -5,13 +5,13 @@ import Navigation from "./Navigation"
 import { trpcClient, trpc } from "../trpcClient"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 
-import { registerClients } from "extensions/client"
+import { registerClients } from "../generated/extensions"
 
 type RouterScopes = keyof typeof trpcClient
 //const result = trpcClient[ext.routerScope as RouterScopes];
 
 const extensions = registerClients().map((ext) => ({
-  name: ext.extensionName,
+  name: ext.label,
   routerID: ext.routerScope,
   component: lazy(() => ext.App),
   Logo: lazy(() => ext.Logo),

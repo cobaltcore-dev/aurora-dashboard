@@ -1,5 +1,0 @@
-{
-  "dependencies": {
-    "@cobaltcore-dev/aurora-extension-a": "file:../../aurora-extension-a"
-  }
-}

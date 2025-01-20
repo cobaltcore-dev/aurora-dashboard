@@ -1,16 +1,15 @@
 import { execSync } from "child_process"
 import fs from "fs"
 import path from "path"
-
-// Root-Verzeichnis und andere Konstanten
-const ROOT = path.resolve(__dirname, "..")
-const manifestPath = path.join(ROOT, "aurora.config.json")
-const extensionsDir = path.join(ROOT, "extensions")
+import { manifestPath, extensionsTmpDir, extensionsDir, clientImportsFile, serverImportsFile } from "./paths"
 
 // Interface für Extension im Manifest
 interface Extension {
   source: string
-  name: string
+  name?: string
+  navigation?: {
+    label?: string
+  }
 }
 
 interface InstalledExtension extends Extension {
@@ -29,6 +28,7 @@ type Error = {
 interface ExtensionImportEntry {
   name: string
   id: string
+  label?: string
   packagePath: string
   clientPath?: string
   serverPath?: string
@@ -66,16 +66,17 @@ const generateExtensionsImportFile = (entries: ExtensionImportEntry[] = []): voi
     const entry = entries[index]
     console.log("====", entry)
     if (entry.clientPath) {
-      clientImports.push(`const client${index} = import("./${entry.clientPath}").then((m) => m.registerClient());`)
+      clientImports.push(`const client${index} = import("${entry.clientPath}").then((m) => m.registerClient());`)
       clientExports.push("  {")
       clientExports.push(`    extensionName: "${entry.name}", `)
       clientExports.push(`    routerScope: "${entry.id}",`)
+      clientExports.push(`    label: "${entry.label}",`)
       clientExports.push(`    App: client0.then((m) => ({ default: m.App })),`)
       clientExports.push(`    Logo: client0.then((m) => ({ default: m.Logo })),`)
       clientExports.push("  },")
     }
     if (entry.serverPath) {
-      serverImports.push(`import * as server${index} from "./${entry.serverPath}";`)
+      serverImports.push(`import * as server${index} from "${entry.serverPath}";`)
       serverExports.push(`  "${entry.id}": server${index}.registerRouter().appRouter,`)
     }
   }
@@ -85,34 +86,25 @@ const generateExtensionsImportFile = (entries: ExtensionImportEntry[] = []): voi
   const clientFileContent = [...clientImports, "", ...clientExports]
   const serverFileContent = [...serverImports, "", ...serverExports]
 
-  fs.writeFileSync(path.join(extensionsDir, "client.ts"), clientFileContent.join("\n"))
-  fs.writeFileSync(path.join(extensionsDir, "server.ts"), serverFileContent.join("\n"))
+  fs.mkdirSync(path.dirname(clientImportsFile), { recursive: true })
+  fs.writeFileSync(clientImportsFile, clientFileContent.join("\n"))
+  fs.mkdirSync(path.dirname(serverImportsFile), { recursive: true })
+  fs.writeFileSync(serverImportsFile, serverFileContent.join("\n"))
 }
 
 const createExtensionImportEntry = (extension: InstalledExtension): ExtensionImportEntry | null => {
-  const packagePath = path.join("node_modules", extension.packageJson.name)
+  const name = extension.name || extension.packageJson.name
+  const packagePath = extension.packageJson.name
   const pkgExports = extension.packageJson.exports
 
   const importEntry: ExtensionImportEntry = {
-    name: extension.name,
-    id: generateValidPackageName(extension.name),
+    name: extension.name || name,
+    id: generateValidPackageName(name),
+    label: extension?.navigation?.label || name,
     packagePath,
   }
-  const clientExport =
-    typeof pkgExports["./client"] === "string"
-      ? pkgExports["./client"]
-      : pkgExports["./client"]?.import || pkgExports["./client"]?.require
-  const serverExport =
-    typeof pkgExports["./server"] === "string"
-      ? pkgExports["./server"]
-      : pkgExports["./server"]?.import || pkgExports["./server"]?.require
-
-  if (clientExport) {
-    importEntry.clientPath = path.join(packagePath, "/", clientExport)
-  }
-  if (serverExport) {
-    importEntry.serverPath = path.join(packagePath, "/", serverExport)
-  }
+  if (pkgExports?.["./client"]) importEntry.clientPath = path.join(packagePath, "client")
+  if (pkgExports?.["./server"]) importEntry.serverPath = path.join(packagePath, "server")
 
   return importEntry
 }
@@ -132,10 +124,20 @@ const installExtension = (extension: Extension): ExtensionImportEntry | null => 
     console.info("=== Installing " + extension.source)
 
     // Install extension to extensions directory using --prefix
-    execSync(`npm install ${extension.source} --prefix ${extensionsDir}`, { stdio: "inherit" })
+    execSync(`npm install ${extension.source} --prefix ${extensionsTmpDir}`, { stdio: "inherit" })
 
     // get package info
     const packageInfo = JSON.parse(execSync(`npm show ${extension.source} --json`).toString())
+
+    // ######################### TEST
+    fs.rmSync(path.join(extensionsDir, packageInfo.name), { recursive: true, force: true })
+    fs.cpSync(
+      path.join(extensionsTmpDir, "node_modules", packageInfo.name),
+      path.join(extensionsDir, packageInfo.name),
+      { recursive: true }
+    )
+    // ######################### TEST
+
     // add packageJson to extension as installedExtension
     const installedExtension: InstalledExtension = {
       ...extension,
@@ -153,7 +155,6 @@ const installExtension = (extension: Extension): ExtensionImportEntry | null => 
 // ############################ MAIN ############################
 
 function main() {
-  fs.mkdirSync(extensionsDir, { recursive: true })
   // Load extensions from manifest
   const extensions = loadManifestExtensions()
   // Install extensions
@@ -162,6 +163,7 @@ function main() {
     .filter((e) => e !== null) as ExtensionImportEntry[]
 
   generateExtensionsImportFile(extensionImportEntries)
+  fs.rmSync(extensionsTmpDir, { recursive: true, force: true })
 }
 
 main()

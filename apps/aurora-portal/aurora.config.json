@@ -1,7 +1,6 @@
 {
   "extensions": [
     {
-      "name": "@cobaltcore-dev/aurora-extension-a",
       "source": "file:../aurora-extension-a",
       "navigation": {
         "label": "Mars"

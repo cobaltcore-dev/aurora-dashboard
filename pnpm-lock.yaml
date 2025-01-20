@@ -33,9 +33,6 @@ importers:
 
   apps/aurora-extension-a:
     dependencies:
-      '@fastify/static':
-        specifier: ^8.0.3
-        version: 8.0.3
       '@trpc/client':
         specifier: 11.0.0-rc.694
         version: 11.0.0-rc.694(@trpc/server@11.0.0-rc.694(typescript@5.7.3))(typescript@5.7.3)
@@ -54,12 +51,6 @@ importers:
       dotenv:
         specifier: ^16.4.7
         version: 16.4.7
-      express:
-        specifier: ^4.21.2
-        version: 4.21.2
-      fastify:
-        specifier: ^5.2.1
-        version: 5.2.1
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -85,6 +76,9 @@ importers:
       '@eslint/js':
         specifier: ^9.17.0
         version: 9.17.0
+      '@fastify/static':
+        specifier: ^8.0.3
+        version: 8.0.3
       '@testing-library/jest-dom':
         specifier: ^6.5.0
         version: 6.6.3
@@ -118,6 +112,9 @@ importers:
       eslint-plugin-react-refresh:
         specifier: ^0.4.16
         version: 0.4.16(eslint@9.17.0(jiti@2.4.2))
+      fastify:
+        specifier: ^5.2.1
+        version: 5.2.1
       globals:
         specifier: ^15.14.0
         version: 15.14.0
@@ -178,9 +175,6 @@ importers:
       dotenv:
         specifier: ^16.4.7
         version: 16.4.7
-      express:
-        specifier: ^4.21.2
-        version: 4.21.2
       fastify:
         specifier: ^5.2.1
         version: 5.2.1
@@ -193,6 +187,9 @@ importers:
       react-query:
         specifier: ^3.39.3
         version: 3.39.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      tsconfig-paths:
+        specifier: ^4.2.0
+        version: 4.2.0
       tsx:
         specifier: ^4.19.2
         version: 4.19.2
@@ -5162,6 +5159,10 @@ packages:
     resolution: {integrity: sha512-iq6eVVI64nQQTRYq2KtEg2d2uU7LElhTJwsH4YzIHZshxlgZms/wIc4VoDQTlG/IvVIrBKG06CrZnp0qv7hkcQ==}
     engines: {node: '>=12'}
 
+  strip-bom@3.0.0:
+    resolution: {integrity: sha512-vavAMRXOgBVNF6nyEEmL3DBK19iRpDcoIwW+swQ+CbGiu7lju6t+JklA1MHweoWtadgt4ISVUsXLyDq34ddcwA==}
+    engines: {node: '>=4'}
+
   strip-indent@3.0.0:
     resolution: {integrity: sha512-laJTa3Jb+VQpaC6DseHhF7dXVqHTfJPCRDaEbid/drOhgitgYku/letMUqOXFoWV0zIIUbjpdH2t+tYj4bQMRQ==}
     engines: {node: '>=8'}
@@ -5319,6 +5320,10 @@ packages:
     peerDependenciesMeta:
       typescript:
         optional: true
+
+  tsconfig-paths@4.2.0:
+    resolution: {integrity: sha512-NoZ4roiN7LnbKn9QqE1amc9DJfzvZXxF4xDavcOWt1BPkdx+m+0gJuPM+S0vCe7zTJMYUP0R8pO2XMr+Y8oLIg==}
+    engines: {node: '>=6'}
 
   tslib@2.4.1:
     resolution: {integrity: sha512-tGyy4dAjRIEwI7BzsB0lynWgOpfqjUdq91XXAlIWD2OwKBH7oCl/GZG/HT4BOHrTlPMOASlMQ7veyTqpmRcrNA==}
@@ -11094,6 +11099,8 @@ snapshots:
     dependencies:
       ansi-regex: 6.1.0
 
+  strip-bom@3.0.0: {}
+
   strip-indent@3.0.0:
     dependencies:
       min-indent: 1.0.1
@@ -11249,6 +11256,12 @@ snapshots:
   tsconfck@3.1.4(typescript@5.7.3):
     optionalDependencies:
       typescript: 5.7.3
+
+  tsconfig-paths@4.2.0:
+    dependencies:
+      json5: 2.2.3
+      minimist: 1.2.8
+      strip-bom: 3.0.0
 
   tslib@2.4.1: {}
 

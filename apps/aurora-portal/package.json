@@ -11,8 +11,7 @@
     "build:client": "vite build",
     "build:server": "tsc -p tsconfig.server.json",
     "build": "pnpm build:client && pnpm build:server",
-    "test": "vitest run",
-    "lint": "eslint .",
+    "clean:extensions": "tsx scripts/remove-extensions.ts",
     "preview": "vite preview",
     "prod": "node dist/polaris-bff/index.js"
   },
@@ -25,11 +24,11 @@
     "@trpc/server": "11.0.0-rc.694",
     "@types/express": "^5.0.0",
     "dotenv": "^16.4.7",
-    "express": "^4.21.2",
     "fastify": "^5.2.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-query": "^3.39.3",
+    "tsconfig-paths": "^4.2.0",
     "tsx": "^4.19.2",
     "zod": "^3.24.1"
   },
