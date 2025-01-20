@@ -1,7 +1,7 @@
 import { execSync } from "child_process"
 import fs from "fs"
 import path from "path"
-import { manifestPath, extensionsTmpDir, extensionsDir, clientImportsFile, serverImportsFile } from "./paths"
+import { manifestPath, extensionsTmpDir, extensionsDir, clientImportsFile, serverImportsFile } from "./shared/paths"
 
 // Interface für Extension im Manifest
 interface Extension {

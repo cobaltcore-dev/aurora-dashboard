@@ -1,6 +1,6 @@
 import { t } from "./trpc"
-import { identityRouters } from "./Identity/routers"
 import { RouterLike } from "@trpc/react-query/shared"
+import { identityRouters } from "./Identity/routers"
 import { computeRouters } from "./Compute/routers"
 import { registerServers } from "./generated/extensions"
 
@@ -9,4 +9,5 @@ const extensionRouters = registerServers()
 
 export const appRouter = t.mergeRouters(coreRouter, t.router(extensionRouters))
 
-export type AppRouter = typeof appRouter
+export type AuroraRouter = typeof appRouter
+export type AuroraReactQueryRouter = RouterLike<AuroraRouter>

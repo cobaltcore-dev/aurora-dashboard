@@ -1,18 +1,8 @@
-/*
- * SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
- * SPDX-License-Identifier: Apache-2.0
- */
-
-import React from "react"
-// @ts-expect-error missing types
+import { Link, useLocation } from "wouter"
 import Logo from "../../assets/logo.svg?react"
 // @ts-expect-error missing types
 import { Stack } from "@cloudoperators/juno-ui-components"
-
-const navStyles = `
-  bg-juno-grey-blue-11
-  py-4
-`
+import React from "react"
 
 const navItem = (active: boolean) => {
   return `
@@ -20,48 +10,53 @@ const navItem = (active: boolean) => {
   py-3
   w-full
   hover:text-theme-high
+  border-l-4
 
+  
   ${
-    active &&
-    `
+    active
+      ? `
+      border-theme-accent
       bg-theme-global-bg  
-      border-text-theme-light
-      border-l-4
-      text-white
-      hover:text-white
+      text-theme-high
+      hover:text-theme-highest
+    `
+      : `
+      border-theme-background-lvl-0
     `
   }
 `
 }
 
-const appNameStyles = `
-  text-xs
-  break-all
-`
-
 interface NavigationProps {
-  apps: string[]
-  active?: number
-  handleActive: (index: number) => void
+  items: {
+    route: string
+    label: string
+    Logo?: React.FC
+  }[]
 }
 
-export default function Navigation({ apps, active = 0, handleActive }: NavigationProps) {
+export default function Navigation({ items }: NavigationProps) {
+  const [location] = useLocation()
+
   return (
-    <Stack direction="vertical" alignment="center" className={navStyles}>
+    <Stack direction="vertical" alignment="center" className="bg-theme-background-lvl-0 ">
       <Logo className="mb-6" title="Aurora" />
 
-      {apps.map((name, i) => (
-        <Stack
-          key={i}
-          direction="vertical"
-          alignment="center"
-          className={navItem(active === i)}
-          role="button"
-          tabIndex="0"
-          onClick={() => handleActive(i)}
-        >
-          <span className={appNameStyles}>{name.charAt(0).toUpperCase() + name.slice(1)}</span>
-        </Stack>
+      {items.map(({ route, label, Logo: ItemLogo }, i) => (
+        <Link href={route} key={i} asChild>
+          <Stack
+            aria-label={name}
+            direction="vertical"
+            alignment="center"
+            role="button"
+            tabIndex="0"
+            className={navItem(location === route)}
+          >
+            {ItemLogo && <ItemLogo />}
+            <span className="text-xs break-all">{label}</span>
+          </Stack>
+        </Link>
       ))}
     </Stack>
   )

@@ -2,7 +2,7 @@ import { execSync } from "child_process"
 import fs from "fs"
 import path from "path"
 
-import { manifestPath, extensionsDir } from "./paths"
+import { manifestPath, extensionsDir } from "./shared/paths"
 
 interface Extension {
   source: string

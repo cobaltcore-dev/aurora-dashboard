@@ -1,21 +1,24 @@
+import { useState, lazy, Suspense } from "react"
+import { Route, Switch } from "wouter"
 // @ts-expect-error missing types
 import { AppShellProvider } from "@cloudoperators/juno-ui-components"
-import React, { useState, lazy, Suspense } from "react"
 import Navigation from "./Navigation"
 import { trpcClient, trpc } from "../trpcClient"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
-
 import { registerClients } from "../generated/extensions"
+
+const Home = lazy(() => import("./Home"))
+const Compute = lazy(() => import("../Compute"))
+const Identity = lazy(() => import("../Identity"))
 
 type RouterScopes = keyof typeof trpcClient
 //const result = trpcClient[ext.routerScope as RouterScopes];
 
 const extensions = registerClients().map((ext) => ({
-  name: ext.label,
+  label: ext.label,
   routerID: ext.routerScope,
-  component: lazy(() => ext.App),
+  Component: lazy(() => ext.App),
   Logo: lazy(() => ext.Logo),
-  extension: true,
 }))
 
 const shellStyles = `
@@ -31,57 +34,41 @@ const contentStyles = `
   h-full
 `
 
-type AppComponentType = React.LazyExoticComponent<React.ComponentType<{ client: typeof trpcClient }>>
-type AppType = {
-  name: string
-  component: AppComponentType
-  Logo?: React.LazyExoticComponent<React.ComponentType>
-  routerID?: string
-  extension?: boolean
-}
-
-const Apps: AppType[] = [
-  {
-    name: "home",
-    component: lazy(() => import("./Home")),
-  },
-  {
-    name: "compute",
-    component: lazy(() => import("../Compute")),
-  },
-  {
-    name: "identity",
-    component: lazy(() => import("../Identity")),
-  },
-  ...extensions,
-]
-
 export default function App() {
-  const [active, setActive] = useState<number>(0)
   const [queryClient] = useState(() => new QueryClient())
 
   return (
     <trpc.Provider client={trpcClient} queryClient={queryClient}>
       <QueryClientProvider client={queryClient}>
-        <AppShellProvider stylesWrapper="head" shadowRoot={false}>
+        <AppShellProvider stylesWrapper="head" shadowRoot={false} theme="theme-dark">
           <div className={`${shellStyles}`}>
             <Navigation
-              apps={Apps.map((app) => app.name)}
-              active={active}
-              handleActive={(index: number) => setActive(index)}
+              items={[
+                { route: "/", label: "Home" },
+                { route: "/compute", label: "Compute" },
+                { route: "/identity", label: "Identity" },
+                ...extensions.map((ext) => ({ route: `/${ext.routerID}`, label: ext.label })),
+              ]}
             />
             <div>
               <div className={contentStyles}>
                 <Suspense fallback={<div>Loading...</div>}>
-                  {Apps.map(
-                    (app, i) =>
-                      active === i &&
-                      (app.routerID ? (
-                        <app.component key={i} client={trpcClient[app.routerID as RouterScopes]} />
-                      ) : (
-                        <app.component key={i} />
-                      ))
-                  )}
+                  <Switch>
+                    <Route path="/" component={Home} />
+                    <Route path="/compute">
+                      <Compute api={trpc["compute"]} />
+                    </Route>
+                    <Route path="/identity">
+                      <Identity api={trpc["identity"]} />
+                    </Route>
+                    {extensions.map((ext) => (
+                      <Route key={ext.routerID} path={`/${ext.routerID}`}>
+                        <ext.Component client={trpcClient[ext.routerID as RouterScopes]} />
+                      </Route>
+                    ))}
+                    {/* Default route in a switch */}
+                    <Route>404: No such page!</Route>
+                  </Switch>
                 </Suspense>
               </div>
             </div>
