@@ -86,7 +86,7 @@ jobs:
           pnpm-version: "9"
 
       - name: Run Prettier
-        run: pnpm run format:check
+        run: pnpm i && pnpm format:check
 
   test:
     needs: install-deps
@@ -99,5 +99,19 @@ jobs:
         with:
           node-version: "20"
           pnpm-version: "9"
-      - name: Build and Run Tests
-        run: pnpm run build && pnpm run test
+      - name: Run Tests
+        run: pnpm i && pnpm test
+
+  build:
+    needs: install-deps
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PNPM
+        uses: ./.github/actions/setup-pnpm
+        with:
+          node-version: "20"
+          pnpm-version: "9"
+      - name: Run Tests
+        run: pnpm i && pnpm build
