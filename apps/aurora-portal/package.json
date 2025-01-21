@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "main": "dist/client/index.js",
   "scripts": {
-    "postinstall": "tsx scripts/install-extensions.ts",
+    "postinstall": "tsx --no-cache scripts/install-extensions.ts && rm -rf tsx-0",
     "dev:client": "vite",
     "dev:server": "tsx watch src/polaris-bff/server --tsconfig tsconfig.server.json",
     "dev": "concurrently -k \"pnpm dev:client\" \"pnpm dev:server\"",
