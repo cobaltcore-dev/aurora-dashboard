@@ -33,6 +33,9 @@ importers:
 
   apps/aurora-extension-a:
     dependencies:
+      '@fastify/vite':
+        specifier: ^7.0.1
+        version: 7.0.1(@types/node@22.10.5)
       '@trpc/client':
         specifier: 11.0.0-rc.694
         version: 11.0.0-rc.694(@trpc/server@11.0.0-rc.694(typescript@5.7.3))(typescript@5.7.3)
@@ -45,6 +48,9 @@ importers:
       dotenv:
         specifier: ^16.4.7
         version: 16.4.7
+      fastify:
+        specifier: ^5.2.1
+        version: 5.2.1
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -70,9 +76,6 @@ importers:
       '@eslint/js':
         specifier: ^9.17.0
         version: 9.17.0
-      '@fastify/vite':
-        specifier: ^7.0.1
-        version: 7.0.1(@types/node@22.10.5)
       '@testing-library/jest-dom':
         specifier: ^6.5.0
         version: 6.6.3
@@ -106,9 +109,6 @@ importers:
       eslint-plugin-react-refresh:
         specifier: ^0.4.16
         version: 0.4.16(eslint@9.17.0(jiti@2.4.2))
-      fastify:
-        specifier: ^5.2.1
-        version: 5.2.1
       globals:
         specifier: ^15.14.0
         version: 15.14.0
@@ -1502,6 +1502,7 @@ packages:
 
   '@fastify/vite@7.0.1':
     resolution: {integrity: sha512-kFmuJa7ltQIcuuii3rmtBqbTORxNwcGSsWOXuLdK0D35Swqbmmdz4o+ir34NNLxKDpb4nU35zfO52iYI9toDkQ==}
+    bundledDependencies: []
 
   '@graphql-codegen/add@5.0.3':
     resolution: {integrity: sha512-SxXPmramkth8XtBlAHu4H4jYcYXM/o3p01+psU+0NADQowA8jtYkK6MW5rV6T+CxkEaNZItfSmZRPgIuypcqnA==}
