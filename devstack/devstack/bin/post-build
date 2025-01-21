@@ -1,0 +1,55 @@
+#!/bin/bash -e
+
+echo "Run post-build script to setup devstack"
+
+# disable devstack service so the setup script will not run again
+echo "Disabling setup-devstack.service ⚡"
+sydisable setup-devstack.servicestemctl
+
+# Disable loading kmod for openvswitch on "ovs-ctl start"
+echo "Disabling loading kmod for openvswitch on 'ovs-ctl start' ⚡"
+sed -i -e 's/insert_mod_if_required.*return 1/#&/' /usr/share/openvswitch/scripts/ovs-ctl
+
+# Add auth info for nova-compute
+# https://bugs.launchpad.net/devstack/+bug/1996465
+echo "Adding auth info for nova-compute ⚡"
+cat <<EOF | tee -a /etc/nova/nova-cpu.conf
+[placement]
+region_name = RegionOne
+project_domain_name = Default
+project_name = service
+user_domain_name = Default
+password = password
+username = placement
+auth_url = http://localhost/identity
+auth_type = password
+EOF
+
+# Disable namespace in libvirt/qemu.conf
+# https://listman.redhat.com/archives/libvirt-users/2017-February/009734.html
+echo "Disabling namespace in libvirt/qemu.conf ⚡"
+echo 'namespaces = []' >>/etc/libvirt/qemu.conf
+
+# setup endpoints
+echo "Setting up endpoints ⚡"
+if [[ -z "${PUBLIC_IP}" ]]; then
+  echo "ERROR: no public IP provided"
+  exit 1
+fi
+# set env to use openstack cli
+. /opt/stack/devstack/openrc admin admin
+set-endpoint neutron http://$PUBLIC_IP:9696/networking http://172.28.0.2:9696/networking
+set-endpoint nova http://$PUBLIC_IP:8080/compute/v2.1 http://172.28.0.2/compute/v2.1
+set-endpoint glance http://$PUBLIC_IP:8080/image http://172.28.0.2/image
+set-endpoint placement http://$PUBLIC_IP:8080/placement http://172.28.0.2/placement
+set-endpoint keystone http://$PUBLIC_IP:8080/identity/v3/ http://172.28.0.2/identity/v3/
+#set-endpoint nova_legacy http://$PUBLIC_IP:8080/compute/v2/'$(project_id)s' http://172.28.0.2/compute/v2/'$(project_id)s'
+#set-endpoint cinderv3 http://$PUBLIC_IP:8080/volume/v3/'$(project_id)s' http://172.28.0.2/volume/v3/'$(project_id)s'
+#set-endpoint cinder http://$PUBLIC_IP:8080/volume/v3/'$(project_id)s' http://172.28.0.2/volume/v3/'$(project_id)s'
+
+# set env to use openstack cli
+# https://docs.openstack.org/devstack/latest/#profit
+# disabled this because we set the env globally in the dockerfile
+# because some services need that env to be set
+# echo "Setting up openstack env for admin access"
+# echo ". /opt/stack/devstack/openrc admin admin" >>/etc/profile

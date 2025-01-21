@@ -1,0 +1,34 @@
+services:
+  ready:
+    container_name: devstack-ready
+    # the hostname must be the same like in the docker-compose.build.yaml
+    # otherwise rabbitmq lose the "stackrabbit" user (this is bound to the hostname)
+    # to check the user run: docker exec -it devstack-build rabbitmqctl list_users
+    hostname: devstack
+    image: devstack-build:latest
+    privileged: true
+    tty: true
+    cgroup: host
+    ports:
+      - "8080:80"
+      - "9696:9696"
+    volumes:
+      - "/lib/modules:/lib/modules"
+      - "/sys/fs/cgroup:/sys/fs/cgroup:rw"
+    devices:
+      - "/dev/net/tun:/dev/net/tun"
+    sysctls:
+      net.ipv6.conf.all.disable_ipv6: 0
+      net.ipv6.conf.default.disable_ipv6: 0
+    environment:
+      - HOST_IP=172.28.0.2
+    networks:
+      management_network:
+        ipv4_address: 172.28.0.2
+networks:
+  management_network:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.28.0.0/24

@@ -1,0 +1,31 @@
+#!/bin/bash -e
+
+NEW_PUBLIC_URL=$2
+NEW_INTERNAL_URL=$3
+#NEW_ADMIN_URL=$4
+
+SERVICE_NAME=$1
+
+if [[ -z "${SERVICE_NAME}" ]]; then
+  echo "ERROR: no service name provided"
+fi
+
+PUBLIC_ENDPOINT_ID=$(openstack endpoint list --service $SERVICE_NAME --interface public -f value -c ID)
+INTERNAL_ENDPOINT_ID=$(openstack endpoint list --service $SERVICE_NAME --interface internal -f value -c ID)
+#ADMIN_ENDPOINT_ID=$(openstack endpoint list --service $SERVICE_NAME --interface admin -f value -c ID)
+
+if [[ -z "$PUBLIC_ENDPOINT_ID" ]]; then
+  echo "Run: openstack endpoint create $SERVICE_NAME public $NEW_PUBLIC_URL --region RegionOne 🛠️"
+  openstack endpoint create $SERVICE_NAME public $NEW_PUBLIC_URL --region RegionOne
+else
+  echo "Run: openstack endpoint set --url $NEW_PUBLIC_URL --interface public $PUBLIC_ENDPOINT_ID 🛠️"
+  openstack endpoint set --url $NEW_PUBLIC_URL --interface public $PUBLIC_ENDPOINT_ID
+fi
+
+if [[ -z "$INTERNAL_ENDPOINT_ID" ]]; then
+  echo "Run: openstack endpoint create $SERVICE_NAME internal $NEW_INTERNAL_URL --region RegionOne 🛠️"
+  openstack endpoint create $SERVICE_NAME internal $NEW_INTERNAL_URL --region RegionOne
+else
+  echo "Run: openstack endpoint set --url $NEW_INTERNAL_URL --interface internal $INTERNAL_ENDPOINT_ID 🛠️"
+  openstack endpoint set --url $NEW_INTERNAL_URL --interface internal $INTERNAL_ENDPOINT_ID
+fi

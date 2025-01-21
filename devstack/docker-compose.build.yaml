@@ -1,0 +1,34 @@
+services:
+  master:
+    container_name: devstack-build
+    hostname: devstack 
+    build:
+      context: .
+      args:
+        DEVSTACK_VERSION: ${DEVSTACK_VERSION}
+        PUBLIC_IP: ${PUBLIC_IP}
+      dockerfile: devstack/Dockerfile
+    privileged: true
+    tty: true
+    cgroup: host
+    ports:
+      - "8080:80"
+      - "9696:9696"
+    volumes:
+      - "/lib/modules:/lib/modules"
+      - "/sys/fs/cgroup:/sys/fs/cgroup:rw"
+    sysctls:
+      net.ipv6.conf.all.disable_ipv6: 0
+      net.ipv6.conf.default.disable_ipv6: 0
+    environment:
+      - HOST_IP=172.28.0.2
+    networks:
+      management_network:
+        ipv4_address: 172.28.0.2
+networks:
+  management_network:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.28.0.0/24
