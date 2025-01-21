@@ -13,7 +13,7 @@
     "build": "pnpm build:client && pnpm build:server",
     "clean:extensions": "tsx scripts/remove-extensions.ts",
     "preview": "vite preview",
-    "prod": "node dist/polaris-bff/server.js"
+    "prod": "NODE_ENV=production node dist/polaris-bff/server.js"
   },
   "dependencies": {
     "@fastify/static": "^8.0.3",
