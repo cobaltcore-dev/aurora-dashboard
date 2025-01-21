@@ -2,13 +2,13 @@
 
 ## rabitmq-server
 
-* logs are found in /var/log/rabbitmq
-* check if the service is running
-``` systemctl status rabbitmq-server.service ```
-* list user `rabbitmqctl list_users`
-* status `rabbitmqctl status`
+- logs are found in /var/log/rabbitmq
+- check if the service is running
+  `systemctl status rabbitmq-server.service`
+- list user `rabbitmqctl list_users`
+- status `rabbitmqctl status`
 
-## Devastack Services 
+## Devastack Services
 
 You can check the services status by running `systemctl status` or `systemctl list-units | grep devstack@`
 
@@ -22,8 +22,6 @@ To see the log use `journalctl --no-pager -n 300 -eu devstack@<service-name>`
 
 #### Network Agents
 
-* devstack@q-dhcp.service
-* devstack@q-l3.service.
-* devstack@q-meta.service
-
-
+- devstack@q-dhcp.service
+- devstack@q-l3.service.
+- devstack@q-meta.service
