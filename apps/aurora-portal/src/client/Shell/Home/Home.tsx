@@ -4,7 +4,7 @@ import { FormattedText } from "@cloudoperators/juno-ui-components"
 export default function Home() {
   return (
     <FormattedText className="p-5">
-      <h1>Welcome to Aurora Dashboard</h1>
+      <h1>Welcome to Aurora Dashboard </h1>
       <p>
         The <strong>Aurora Dashboard</strong> is on its way! Get ready for a powerful, all-in-one cloud management
         interface designed to make managing your cloud assets simple and efficient. With tools for provisioning,
