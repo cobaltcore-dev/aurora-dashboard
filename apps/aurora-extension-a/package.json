@@ -23,10 +23,11 @@
     "lint": "eslint ."
   },
   "dependencies": {
+    "fastify": "^5.2.1",
+    "@fastify/vite": "^7.0.1",
     "@trpc/client": "11.0.0-rc.694",
     "@trpc/react-query": "11.0.0-rc.694",
     "@trpc/server": "11.0.0-rc.694",
-    "@types/node": "^22.10.5",
     "dotenv": "^16.4.7",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
@@ -41,10 +42,10 @@
   "devDependencies": {
     "@cloudoperators/juno-ui-components": "^2.28.0",
     "@cobaltcore-dev/aurora-config": "workspace:*",
-    "@fastify/vite": "^7.0.1",
     "@eslint/js": "^9.17.0",
     "@testing-library/jest-dom": "^6.5.0",
     "@types/eslint": "^9.6.1",
+    "@types/node": "^22.10.5",
     "@types/react": "^18.3.18",
     "@types/react-dom": "^18.3.5",
     "@vitejs/plugin-react-swc": "^3.7.1",
@@ -53,7 +54,6 @@
     "eslint-plugin-react": "^7.37.2",
     "eslint-plugin-react-hooks": "^5.0.0",
     "eslint-plugin-react-refresh": "^0.4.16",
-    "fastify": "^5.2.1",
     "globals": "^15.14.0",
     "jsdom": "^24.1.1",
     "postcss": "^8.4.47",

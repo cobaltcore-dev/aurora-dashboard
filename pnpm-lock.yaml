@@ -42,9 +42,6 @@ importers:
       '@trpc/server':
         specifier: 11.0.0-rc.694
         version: 11.0.0-rc.694(typescript@5.7.3)
-      '@types/node':
-        specifier: ^22.10.5
-        version: 22.10.5
       dotenv:
         specifier: ^16.4.7
         version: 16.4.7
@@ -82,6 +79,9 @@ importers:
       '@types/eslint':
         specifier: ^9.6.1
         version: 9.6.1
+      '@types/node':
+        specifier: ^22.10.5
+        version: 22.10.5
       '@types/react':
         specifier: ^18.3.18
         version: 18.3.18
@@ -1502,7 +1502,6 @@ packages:
 
   '@fastify/vite@7.0.1':
     resolution: {integrity: sha512-kFmuJa7ltQIcuuii3rmtBqbTORxNwcGSsWOXuLdK0D35Swqbmmdz4o+ir34NNLxKDpb4nU35zfO52iYI9toDkQ==}
-    bundledDependencies: []
 
   '@graphql-codegen/add@5.0.3':
     resolution: {integrity: sha512-SxXPmramkth8XtBlAHu4H4jYcYXM/o3p01+psU+0NADQowA8jtYkK6MW5rV6T+CxkEaNZItfSmZRPgIuypcqnA==}
