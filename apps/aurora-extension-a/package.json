@@ -16,19 +16,21 @@
     "dist"
   ],
   "scripts": {
-    "dev": "tsx src/server/index.ts",
+    "dev:client": "vite",
+    "dev:server": "tsx watch src/server",
+    "dev": "concurrently -k \"pnpm dev:client\" \"pnpm dev:server\"",
     "build:client": "vite build",
     "build:server": "tsc -b",
     "build": "pnpm build:server && pnpm build:client",
     "lint": "eslint ."
   },
   "dependencies": {
-    "fastify": "^5.2.1",
-    "@fastify/vite": "^7.0.1",
     "@trpc/client": "11.0.0-rc.694",
     "@trpc/react-query": "11.0.0-rc.694",
     "@trpc/server": "11.0.0-rc.694",
+    "concurrently": "^9.1.2",
     "dotenv": "^16.4.7",
+    "fastify": "^5.2.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-query": "^3.39.3",

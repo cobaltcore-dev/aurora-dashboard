@@ -25,10 +25,10 @@ export default defineConfig(() => ({
 
   server: {
     host: "0.0.0.0",
-    port: parseInt(process.env.PORT || "3000"),
+    port: parseInt(process.env.PORT || "3003"),
     proxy: {
       [proxyPath]: {
-        target: process.env.POLARIS_BFF_ENDPOINT || "http://localhost:4000",
+        target: process.env.POLARIS_BFF_ENDPOINT || "http://localhost:4003",
         changeOrigin: true,
         secure: false,
         rewrite: (path) => path.replace(/^\/polaris-bff/, ""),

@@ -1,5 +1,4 @@
 import Fastify from "fastify"
-import FastifyVite from "@fastify/vite"
 import FastifyStatic from "@fastify/static"
 import { fastifyTRPCPlugin, FastifyTRPCPluginOptions } from "@trpc/server/adapters/fastify"
 import { appRouter, AuroraRouter } from "./routers" // tRPC router
@@ -9,11 +8,11 @@ import path from "path"
 dotenv.config()
 
 const isProduction = process.env.NODE_ENV === "production"
-const PORT = process.env.PORT || "4000"
+const PORT = process.env.PORT || "4004"
 const BFF_ENDPOINT = process.env.BFF_ENDPOINT || "/polaris-bff"
 const server = Fastify()
 
-async function run() {
+async function startServer() {
   // Register the tRPC plugin to handle API routes for the application
   await server.register(fastifyTRPCPlugin, {
     prefix: BFF_ENDPOINT, // Prefix for tRPC routes
@@ -23,12 +22,6 @@ async function run() {
   })
 
   // Use fastify-static to serve static files in production mode
-  // FastifyVite also uses the FastifyStatic plugin internally
-  // but iit has an issue with serving static files in production mode
-  // see: https://github.com/fastify/fastify-vite/issues/184
-  // once the issue is resolved, we can remove this block
-  // and use FastifyVite to serve static files in production mode
-  // consider change dev: true to dev: !isProduction
   if (isProduction) {
     await server.register(FastifyStatic, {
       root: path.join(__dirname, "../../dist/client"),
@@ -41,17 +34,6 @@ async function run() {
     server.get("/*", (req, reply) => {
       return reply.sendFile("index.html")
     })
-  } else {
-    await server.register(FastifyVite, {
-      root: path.join(__dirname, "../../"), // new URL("../../", import.meta.url).href, // where to look for vite.config.js
-      dev: true,
-      spa: true,
-    })
-
-    server.get("/*", (req, reply) => {
-      return reply.html()
-    })
-    await server.vite.ready()
   }
 
   await server.listen({ host: "0.0.0.0", port: Number(PORT) }).then((address) => {
@@ -59,4 +41,4 @@ async function run() {
   })
 }
 
-run()
+startServer()

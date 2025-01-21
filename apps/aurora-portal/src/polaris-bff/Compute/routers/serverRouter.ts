@@ -11,6 +11,7 @@ export const serverRouter = {
     return [
       { id: 1, name: "Server 1" },
       { id: 2, name: "Server 2" },
+      { id: 2, name: "Server 3" },
     ]
   }),
 }

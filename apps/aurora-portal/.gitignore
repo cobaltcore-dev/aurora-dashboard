@@ -16,6 +16,8 @@ tsx-0
 src/client/generated
 src/polaris-bff/generated
 
+aurora.config.json
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

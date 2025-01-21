@@ -10,7 +10,8 @@ import process from "process"
 
 dotenv.config()
 
-export const PORT = process.env.PORT || "3000"
+export const DEV_PORT = process.env.DEV_PORT || "3005"
+export const PORT = process.env.PORT || "4005"
 export const BFF_ENDPOINT = process.env.BFF_ENDPOINT || "/polaris-bff"
 
 export default defineConfig({
@@ -47,8 +48,14 @@ export default defineConfig({
       plugins: [tailwindcss, autoprefixer],
     },
   },
-  preview: {
-    host: true,
-    port: PORT,
+  server: {
+    host: "0.0.0.0",
+    port: parseInt(DEV_PORT),
+    proxy: {
+      [BFF_ENDPOINT]: {
+        target: `http://localhost:${PORT}`,
+        changeOrigin: true,
+      },
+    },
   },
 })
