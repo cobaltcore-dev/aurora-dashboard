@@ -13,10 +13,8 @@ export function Nav() {
   }
 
   const logout = () => {
-    logoutMutation.mutate()
+    logoutMutation.mutate(undefined, { onSuccess: () => checkLoginStatus.refetch() })
   }
-
-  if (logoutMutation.isSuccess) checkLoginStatus.refetch()
 
   return (
     <div className="mt-5 pt-5 w-24 flex justify-center items-center">
@@ -24,7 +22,7 @@ export function Nav() {
         <div className="flex flex-col items-center">
           <Icon color="jn-global-text" icon="accountCircle" />
           <div className="mt-1 mb-3">{checkLoginStatus.data?.user?.name}</div>
-          <Button progress={logoutMutation.isPending} variant="primary" size="small" onClick={logout}>
+          <Button disabled={logoutMutation.isPending} variant="default" size="small" onClick={logout}>
             Sign Out
           </Button>
         </div>

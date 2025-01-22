@@ -12,7 +12,12 @@ export function SignIn(props: { api: AuroraReactQueryRouter["identity"] }) {
   const checkLoginStatus = api.getAuthStatus.useQuery()
 
   const login = () => {
-    tokenMutation.mutate({ user: form.user, password: form.password, domainName: form.domain })
+    tokenMutation.mutate(
+      { user: form.user, password: form.password, domainName: form.domain },
+      {
+        onSuccess: () => setLocation("/"),
+      }
+    )
   }
   if (checkLoginStatus.data?.isAuthenticated) {
     return (
@@ -25,7 +30,6 @@ export function SignIn(props: { api: AuroraReactQueryRouter["identity"] }) {
 
   if (tokenMutation.isPending || checkLoginStatus.isPending) return <div>Loading...</div>
   if (tokenMutation.isError) return <div>Error: {tokenMutation.error.message}</div>
-  if (tokenMutation.isSuccess) setLocation("/")
   return (
     <div className="w-80">
       <Form title="Sign In">
