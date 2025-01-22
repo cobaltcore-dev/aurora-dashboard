@@ -7,7 +7,9 @@ import { trpcClient, trpc } from "../trpcClient"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { registerClients } from "../generated/extensions"
 
+import Breadcrumb from "./Breadcrumb"
 const Home = lazy(() => import("./Home"))
+const About = lazy(() => import("./About"))
 const Compute = lazy(() => import("../Compute"))
 const IdentityOverview = lazy(() => import("../Identity/Overview"))
 const SignIn = lazy(() => import("../Identity/Auth/SignIn"))
@@ -18,22 +20,10 @@ type RouterScopes = keyof typeof trpcClient
 const extensions = registerClients().map((ext) => ({
   label: ext.label,
   routerID: ext.routerScope,
+  scope: ext.scope,
   Component: lazy(() => ext.App),
   Logo: lazy(() => ext.Logo),
 }))
-
-const shellStyles = `
-  grid
-  grid-cols-[max-content_auto]
-  grid-rows-[minmax(100vh,100%)]
-`
-
-const contentStyles = `
-  py-4
-  pl-4
-  bg-theme-global-bg
-  h-full
-`
 
 export default function App() {
   const [queryClient] = useState(() => new QueryClient())
@@ -42,20 +32,23 @@ export default function App() {
     <trpc.Provider client={trpcClient} queryClient={queryClient}>
       <QueryClientProvider client={queryClient}>
         <AppShellProvider stylesWrapper="head" shadowRoot={false} theme="theme-dark">
-          <div className={`${shellStyles}`}>
+          <div className="grid grid-cols-[max-content_auto] grid-rows-[minmax(100vh,100%)]">
             <Navigation
               items={[
                 { route: "/", label: "Home" },
+                { route: "/about", label: "About" },
                 { route: "/compute", label: "Compute" },
                 { route: "/identity", label: "Identity" },
                 ...extensions.map((ext) => ({ route: `/${ext.routerID}`, label: ext.label })),
               ]}
             />
             <div>
-              <div className={contentStyles}>
+              <div className="py-4 pl-4 bg-theme-global-bg h-full">
+                <Breadcrumb />
                 <Suspense fallback={<div>Loading...</div>}>
                   <Switch>
                     <Route path="/" component={Home} />
+                    <Route path="/about" component={About} />
                     <Route path="/compute">
                       <Compute api={trpc["compute"]} />
                     </Route>
