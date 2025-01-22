@@ -9,7 +9,8 @@ import { registerClients } from "../generated/extensions"
 
 const Home = lazy(() => import("./Home"))
 const Compute = lazy(() => import("../Compute"))
-const Identity = lazy(() => import("../Identity"))
+const IdentityOverview = lazy(() => import("../Identity/Overview"))
+const SignIn = lazy(() => import("../Identity/Auth/SignIn"))
 
 type RouterScopes = keyof typeof trpcClient
 //const result = trpcClient[ext.routerScope as RouterScopes];
@@ -59,7 +60,10 @@ export default function App() {
                       <Compute api={trpc["compute"]} />
                     </Route>
                     <Route path="/identity">
-                      <Identity api={trpc["identity"]} />
+                      <IdentityOverview />
+                    </Route>
+                    <Route path="auth/signin">
+                      <SignIn api={trpc["identity"]} />
                     </Route>
                     {extensions.map((ext) => (
                       <Route key={ext.routerID} path={`/${ext.routerID}`}>

@@ -1,7 +1,7 @@
-import type { User } from "../../shared/types/models"
-import type { AuroraReactQueryRouter } from "../../polaris-bff/routers"
+import type { User } from "../../../shared/types/models"
+import type { AuroraReactQueryRouter } from "../../../polaris-bff/routers"
 
-export default function Identity(props: { api: AuroraReactQueryRouter["identity"] }) {
+export default function Projects(props: { api: AuroraReactQueryRouter["identity"] }) {
   const { api } = props
   const { data, error, isLoading } = api.getUsers.useQuery()
 

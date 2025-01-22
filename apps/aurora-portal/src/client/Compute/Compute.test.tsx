@@ -25,7 +25,7 @@ test("renders servers list", () => {
     },
   }
 
-  render(<Compute computeApi={mockCompute} />)
+  render(<Compute api={mockCompute} />)
 
   // Assertions
   expect(screen.getByText("Compute")).toBeInTheDocument()

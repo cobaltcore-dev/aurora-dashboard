@@ -1,7 +1,9 @@
 import Fastify from "fastify"
 import FastifyStatic from "@fastify/static"
+import cookie from "@fastify/cookie"
 import { fastifyTRPCPlugin, FastifyTRPCPluginOptions } from "@trpc/server/adapters/fastify"
 import { appRouter, AuroraRouter } from "./routers" // tRPC router
+import { createContext } from "./context"
 import * as dotenv from "dotenv"
 import path from "path"
 
@@ -13,11 +15,17 @@ const BFF_ENDPOINT = process.env.BFF_ENDPOINT || "/polaris-bff"
 const server = Fastify()
 
 async function startServer() {
+  // Register Fastify Cookie Plugin
+  server.register(cookie, {
+    secret: undefined, // Replace with a secure secret for signing cookies
+  })
+
   // Register the tRPC plugin to handle API routes for the application
   await server.register(fastifyTRPCPlugin, {
     prefix: BFF_ENDPOINT, // Prefix for tRPC routes
     trpcOptions: {
       router: appRouter, // Pass the tRPC router to handle routes
+      createContext, // Pass the context
     } satisfies FastifyTRPCPluginOptions<AuroraRouter>["trpcOptions"], // Type-safety to ensure proper config
   })
 
