@@ -1,0 +1,10 @@
+{
+  "extensions": [
+    {
+      "source": "file:../aurora-extension-a",
+      "navigation": {
+        "label": "Mars"
+      }
+    }
+  ]
+}

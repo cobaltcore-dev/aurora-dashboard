@@ -1,17 +1,20 @@
 import { z } from "zod"
-import { router, publicProcedure } from "../../shared/trpc"
-import type { Entity } from "../../shared/types/models"
+import { trpc } from "./trpc"
+import type { Entity } from "../types/models"
 
 export const entityRouter = {
-  entities: router({
-    get: publicProcedure.input(z.object({ id: z.number() })).query(({ input }): Entity => {
-      return { id: input.id, name: "Entity 1" }
+  entities: trpc.router({
+    get: trpc.procedure.input(z.object({ id: z.number() })).query(({ input }): Entity => {
+      return { id: input.id, name: "Mars 1" }
     }),
 
-    list: publicProcedure.query((): Entity[] => {
+    list: trpc.procedure.query((): Entity[] => {
       return [
-        { id: 1, name: "Entity 1" },
-        { id: 2, name: "Entity 2" },
+        { id: 1, name: "Mars 1" },
+        { id: 2, name: "Mars 2" },
+        { id: 2, name: "Mars 3" },
+        { id: 2, name: "Mars 4" },
+        { id: 2, name: "Mars 5" },
       ]
     }),
   }),

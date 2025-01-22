@@ -16,7 +16,7 @@ async function startApolloServer() {
   const server = new ApolloServer({ schema })
 
   // get port from env or use 4000
-  const port = Number(process.env.PORT || 4000)
+  const port = Number(process.env.PORT || 4003)
 
   const { url } = await startStandaloneServer(server, {
     listen: { port },

@@ -1,13 +1,25 @@
+import { useState, lazy, Suspense } from "react"
+import { Route, Switch } from "wouter"
 // @ts-expect-error missing types
 import { AppShellProvider } from "@cloudoperators/juno-ui-components"
-import React, { useState, Suspense } from "react"
 import Navigation from "./Navigation"
-import type { Manifest, Module } from "../../shared/types/manifest"
-import type { ExtensionProps } from "../../shared/types/extension"
 import { trpcClient, trpc } from "../trpcClient"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
-import Compute from "../Compute/Compute"
-import Home from "./Home"
+import { registerClients } from "../generated/extensions"
+
+const Home = lazy(() => import("./Home"))
+const Compute = lazy(() => import("../Compute"))
+const Identity = lazy(() => import("../Identity"))
+
+type RouterScopes = keyof typeof trpcClient
+//const result = trpcClient[ext.routerScope as RouterScopes];
+
+const extensions = registerClients().map((ext) => ({
+  label: ext.label,
+  routerID: ext.routerScope,
+  Component: lazy(() => ext.App),
+  Logo: lazy(() => ext.Logo),
+}))
 
 const shellStyles = `
   grid
@@ -22,41 +34,42 @@ const contentStyles = `
   h-full
 `
 
-interface AppProps {
-  manifest: Manifest
-}
-
-// Define the component function
-const component = (manifestEntry: Module | undefined): React.ComponentType<ExtensionProps> => {
-  // Handle invalid or unsupported manifest entries
-  if (!manifestEntry || manifestEntry.type !== "core") {
-    return () => <span>Could not find the component</span>
-  }
-
-  // Return a function component that wraps the lazy-loaded component
-  return () => {
-    return (
-      <Suspense fallback={<div>Loading...</div>}>
-        <Compute computeApi={trpc.compute} />
-      </Suspense>
-    )
-  }
-}
-
-export default function App({ manifest }: AppProps) {
-  const [active, setActive] = useState<string>("home")
+export default function App() {
   const [queryClient] = useState(() => new QueryClient())
-  const ActiveComponent = component(manifest.find((entry) => entry.name === active))
 
   return (
     <trpc.Provider client={trpcClient} queryClient={queryClient}>
       <QueryClientProvider client={queryClient}>
-        <AppShellProvider stylesWrapper="head" shadowRoot={false}>
+        <AppShellProvider stylesWrapper="head" shadowRoot={false} theme="theme-dark">
           <div className={`${shellStyles}`}>
-            <Navigation manifest={manifest} active={active} handleActive={(name: string) => setActive(name)} />
+            <Navigation
+              items={[
+                { route: "/", label: "Home" },
+                { route: "/compute", label: "Compute" },
+                { route: "/identity", label: "Identity" },
+                ...extensions.map((ext) => ({ route: `/${ext.routerID}`, label: ext.label })),
+              ]}
+            />
             <div>
               <div className={contentStyles}>
-                {active === "home" ? <Home /> : <ActiveComponent client={trpcClient} />}
+                <Suspense fallback={<div>Loading...</div>}>
+                  <Switch>
+                    <Route path="/" component={Home} />
+                    <Route path="/compute">
+                      <Compute api={trpc["compute"]} />
+                    </Route>
+                    <Route path="/identity">
+                      <Identity api={trpc["identity"]} />
+                    </Route>
+                    {extensions.map((ext) => (
+                      <Route key={ext.routerID} path={`/${ext.routerID}`}>
+                        <ext.Component client={trpcClient[ext.routerID as RouterScopes]} />
+                      </Route>
+                    ))}
+                    {/* Default route in a switch */}
+                    <Route>404: No such page!</Route>
+                  </Switch>
+                </Suspense>
               </div>
             </div>
           </div>

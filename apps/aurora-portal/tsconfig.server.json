@@ -1,23 +1,23 @@
 // this config is used to compile the server part of the app
 {
   "compilerOptions": {
-    "module": "CommonJS",            // CommonJS
-    "esModuleInterop": true,         // Ensure compatibility with CommonJS modules
-    "outDir": "./dist/",       // Output directory for the server code
-    "target": "ESNext",              // Use the latest JavaScript features
-    "rootDir": "./src/",             // Input directory for the server code
-    "declaration": false,             // Optional: Generate type declaration files
+    "module": "NodeNext", // CommonJS
+    "esModuleInterop": true, // Ensure compatibility with CommonJS modules
+    "outDir": "./dist", // Output directory for the server code
+    "target": "ESNext", // Use the latest JavaScript features
+    "rootDir": "./src", // Input directory for the server code
+    "declaration": false, // Optional: Generate type declaration files
     "declarationMap": false,
-    "sourceMap": false,                // Optional: Generate sourcemaps
-    "experimentalDecorators": true,   // Enable experimental decorator support
-    "emitDecoratorMetadata": true,    // Include metadata for reflection
-    "strict": true,                   // Optional, but ensures stricter typing
-    "skipLibCheck": true,             // Skip type checking for library declarations
-    "moduleResolution": "node",       // Use Node.js module resolution
+    "sourceMap": false, // Optional: Generate sourcemaps
+    "experimentalDecorators": true, // Enable experimental decorator support
+    "emitDecoratorMetadata": true, // Include metadata for reflection
+    "strict": true, // Optional, but ensures stricter typing
+    "skipLibCheck": true, // Skip type checking for library declarations
+    "moduleResolution": "nodenext", // Use Node.js module resolution
     "incremental": false,
     "allowSyntheticDefaultImports": true, // Compatibility with default imports
-    "resolveJsonModule": true,
+    "resolveJsonModule": true
   },
-  "include": ["src/polaris-bff"],           // Include the server and shared code
-  "exclude": ["node_modules","dist","src/client"]   // Exclude the node_modules and dist directories
+  "include": ["src/polaris-bff"], // Include the server and shared code
+  "exclude": ["node_modules", "dist", "src/client"] // Exclude the node_modules and dist directories
 }

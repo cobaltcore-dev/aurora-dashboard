@@ -1,8 +1,11 @@
 import { entityRouter } from "./entityRouter"
-import { router } from "../../shared/trpc"
+import { trpc } from "./trpc"
 
-export const appRouter = router({
-  extensionMars: router({ ...entityRouter }),
-})
+// Example usage of the buildRouter function
+const appRouter = trpc.router(entityRouter)
 
 export type AppRouter = typeof appRouter
+
+export const registerRouter = () => ({
+  appRouter,
+})

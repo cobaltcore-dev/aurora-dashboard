@@ -1,7 +1,7 @@
-import { createTRPCProxyClient, httpBatchLink } from "@trpc/client"
+import { createTRPCClient, httpBatchLink } from "@trpc/client"
 import type { AppRouter } from "../server/routers"
 
-export const trpcClient = createTRPCProxyClient<AppRouter>({
+export const trpcClient = createTRPCClient<AppRouter>({
   links: [
     httpBatchLink({
       // @ts-expect-error missing env var
