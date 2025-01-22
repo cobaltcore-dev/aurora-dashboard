@@ -3,6 +3,7 @@ import Logo from "../../assets/logo.svg?react"
 // @ts-expect-error missing types
 import { Stack } from "@cloudoperators/juno-ui-components"
 import React from "react"
+import UserNav from "../../Identity/Auth/Nav"
 
 const navItem = (active: boolean) => {
   return `
@@ -58,6 +59,10 @@ export default function Navigation({ items }: NavigationProps) {
           </Stack>
         </Link>
       ))}
+
+      <Stack aria-label={name} direction="vertical" alignment="center" role="button">
+        <UserNav />
+      </Stack>
     </Stack>
   )
 }

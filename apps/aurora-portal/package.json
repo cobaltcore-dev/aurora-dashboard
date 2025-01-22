@@ -16,6 +16,7 @@
     "prod": "NODE_ENV=production node dist/polaris-bff/server.js"
   },
   "dependencies": {
+    "@fastify/cookie": "^11.0.2",
     "@fastify/static": "^8.0.3",
     "@tanstack/react-query": "^5.63.0",
     "@testing-library/react": "^16.1.0",
