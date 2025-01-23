@@ -14,7 +14,7 @@
     "clean:extensions": "tsx scripts/remove-extensions.ts",
     "preview": "vite preview",
     "prod": "NODE_ENV=production node dist/polaris-bff/server.js",
-    "test": "vitest"
+    "test": "vitest run"
   },
   "dependencies": {
     "@fastify/cookie": "^11.0.2",
