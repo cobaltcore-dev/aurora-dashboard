@@ -11,10 +11,8 @@ export default function Compute(props: { api: AuroraReactQueryRouter["compute"] 
   return (
     <div>
       <h2>Compute</h2>
-      <p>
-        Servers:
-        <ul>{data?.map((server: Server) => <li key={server.id}>{server.name}</li>)}</ul>
-      </p>
+      Servers:
+      <ul>{data?.map((server: Server, i) => <li key={i}>{server.name}</li>)}</ul>
     </div>
   )
 }

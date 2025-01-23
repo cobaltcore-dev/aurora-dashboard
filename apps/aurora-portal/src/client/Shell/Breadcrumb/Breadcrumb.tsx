@@ -1,29 +1,25 @@
-// @ts-expect-error missing types
 import { Breadcrumb, BreadcrumbItem } from "@cloudoperators/juno-ui-components"
 import { useLocation } from "wouter"
 
 export function AuroraBreadcrumb() {
   const [location, setLocation] = useLocation()
 
-  const currentLocation = location.split("/").filter((l) => l !== "")
+  const currentLocation = location.split("/").filter((path) => path !== "")
 
-  console.log(currentLocation)
   return (
     <Breadcrumb>
       <BreadcrumbItem
         icon="home"
         label=""
-        onClick={(e: React.ChangeEvent<HTMLInputElement>) => {
+        onClick={(e) => {
           e.stopPropagation()
           e.preventDefault()
           setLocation("/")
         }}
       />
-      {currentLocation?.length > 0 && <BreadcrumbItem label={currentLocation} />}
-      {/* <BreadcrumbItem label="Breadcrumb Item" />
-      <BreadcrumbItem icon="place" label="Breadcrumb Item with Icon" />
-      <BreadcrumbItem disabled label="Disabled Item " />
-      <BreadcrumbItem active label="Active Item" /> */}
+      {currentLocation.map((path, i) => (
+        <BreadcrumbItem key={i} label={path} />
+      ))}
     </Breadcrumb>
   )
 }
