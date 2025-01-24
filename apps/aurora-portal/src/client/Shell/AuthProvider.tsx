@@ -8,12 +8,16 @@ interface LoginParams {
 }
 
 interface User {
+  id: string
   name: string
+  domain: string
+  password_expires_at: string
+  session_expires_at: string
 }
 
 interface AuthApi {
-  login: (props: LoginParams) => void
-  logout: () => void
+  login: (props: LoginParams) => Promise<void>
+  logout: () => Promise<void>
   error: string | null
   isLoading: boolean
   user: User | null
@@ -39,7 +43,7 @@ const useAuthApi = (): AuthApi => {
 
   const login = (props: LoginParams) => {
     setAuth({ ...auth, error: null, isLoading: true })
-    trpcClient.identity.login
+    return trpcClient.identity.login
       .mutate(props)
       .then((res) => {
         setAuth({ user: res.user, error: null, isLoading: false })
@@ -49,7 +53,7 @@ const useAuthApi = (): AuthApi => {
 
   const logout = () => {
     setAuth({ ...auth, error: null, isLoading: true })
-    trpcClient.identity.logout
+    return trpcClient.identity.logout
       .mutate()
       .then(() => {
         setAuth({ user: null, error: null, isLoading: false })

@@ -15,8 +15,11 @@ export const tokenRouter = {
       return { isAuthenticated: false, user: null, reason: token.statusText }
     }
     const tokenData = await token.json().then((data) => data.token)
-
-    return { isAuthenticated: true, user: tokenData.user, reason: null }
+    return {
+      isAuthenticated: true,
+      user: { ...tokenData.user, session_expires_at: tokenData.expires_at },
+      reason: null,
+    }
   }),
   login: publicProcedure
     .input(z.object({ user: z.string(), password: z.string(), domainName: z.string() }))
@@ -31,7 +34,7 @@ export const tokenRouter = {
       const expDate = new Date(tokenData.expires_at)
 
       ctx.setSessionCookie(authToken, { expires: expDate })
-      return { user: tokenData.user }
+      return { user: { ...tokenData.user, session_expires_at: tokenData.expires_at } }
     }),
 
   logout: publicProcedure.mutation(async ({ ctx }) => {
