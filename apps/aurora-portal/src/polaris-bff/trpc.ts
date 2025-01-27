@@ -10,7 +10,7 @@ export const mergeRouters = t.mergeRouters
 export const publicProcedure = t.procedure
 
 export const protectedProcedure = publicProcedure.use(function isAuthed(opts) {
-  if (opts.ctx.getSessionCookie() === null) {
+  if (opts.ctx.getSessionCookie() === null || opts.ctx.getSessionCookie() === undefined) {
     throw new TRPCError({
       code: "UNAUTHORIZED",
     })

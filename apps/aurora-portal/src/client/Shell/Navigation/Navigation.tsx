@@ -1,9 +1,8 @@
 import { Link, useLocation } from "wouter"
 import Logo from "../../assets/logo.svg?react"
-// @ts-expect-error missing types
 import { Stack } from "@cloudoperators/juno-ui-components"
 import React from "react"
-import UserNav from "../../Identity/Auth/Nav"
+import { UserMenu } from "./UserMenu"
 
 const navItem = (active: boolean) => {
   return `
@@ -47,11 +46,10 @@ export default function Navigation({ items }: NavigationProps) {
       {items.map(({ route, label, Logo: ItemLogo }, i) => (
         <Link href={route} key={i} asChild>
           <Stack
-            aria-label={name}
             direction="vertical"
             alignment="center"
             role="button"
-            tabIndex="0"
+            tabIndex={0}
             className={navItem(location === route)}
           >
             {ItemLogo && <ItemLogo />}
@@ -60,8 +58,8 @@ export default function Navigation({ items }: NavigationProps) {
         </Link>
       ))}
 
-      <Stack aria-label={name} direction="vertical" alignment="center" role="button">
-        <UserNav />
+      <Stack direction="vertical" alignment="center" role="button">
+        <UserMenu />
       </Stack>
     </Stack>
   )

@@ -13,7 +13,8 @@
     "build": "pnpm build:client && pnpm build:server",
     "clean:extensions": "tsx scripts/remove-extensions.ts",
     "preview": "vite preview",
-    "prod": "NODE_ENV=production node dist/polaris-bff/server.js"
+    "prod": "NODE_ENV=production node dist/polaris-bff/server.js",
+    "test": "vitest run"
   },
   "dependencies": {
     "@fastify/cookie": "^11.0.2",
@@ -34,7 +35,7 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
-    "@cloudoperators/juno-ui-components": "^2.35.0",
+    "@cloudoperators/juno-ui-components": "^2.36.0",
     "@cobaltcore-dev/aurora-config": "workspace:*",
     "@testing-library/jest-dom": "^6.5.0",
     "@types/node": "^22.10.5",

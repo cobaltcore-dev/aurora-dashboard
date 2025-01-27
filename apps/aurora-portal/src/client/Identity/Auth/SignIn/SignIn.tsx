@@ -1,42 +1,35 @@
 import { useState } from "react"
-import type { AuroraReactQueryRouter } from "../../../../polaris-bff/routers"
-// @ts-expect-error missing types
-import { ButtonRow, Button, Form, FormRow, TextInput } from "@cloudoperators/juno-ui-components"
-import { useLocation } from "wouter"
+import { ButtonRow, Button, Form, FormRow, TextInput, Spinner } from "@cloudoperators/juno-ui-components"
+import { useAuth } from "../../../Shell/AuthProvider"
 
-export function SignIn(props: { api: AuroraReactQueryRouter["identity"] }) {
-  const [form, setForm] = useState({ domain: "", user: "", password: "" })
-  const { api } = props
-  const tokenMutation = api.login.useMutation()
-  const setLocation = useLocation()[1]
-  const checkLoginStatus = api.getAuthStatus.useQuery()
+export function SignIn() {
+  const [form, setForm] = useState({ domainName: "", user: "", password: "" })
+  const { user, error, isLoading, login } = useAuth()
 
-  const login = () => {
-    tokenMutation.mutate(
-      { user: form.user, password: form.password, domainName: form.domain },
-      {
-        onSuccess: () => setLocation("/"),
-      }
-    )
-  }
-  if (checkLoginStatus.data?.isAuthenticated) {
+  if (isLoading)
     return (
       <div>
-        <div>Already logged in</div>
-        <div>Hi {checkLoginStatus.data?.user?.name}</div>
+        <Spinner /> Loading...
       </div>
     )
-  }
 
-  if (tokenMutation.isPending || checkLoginStatus.isPending) return <div>Loading...</div>
-  if (tokenMutation.isError) return <div>Error: {tokenMutation.error.message}</div>
+  if (user)
+    return (
+      <div aria-live="polite" className="signed-in-notice">
+        <strong>Welcome back, {user.name}!</strong> <br />
+        You are already signed in.
+      </div>
+    )
+
   return (
     <div className="w-80">
       <Form title="Sign In">
+        {error && <div className="text-theme-error mt-2 mb-3">Error: {error}</div>}
+
         <FormRow>
           <TextInput
             label="Domain"
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, domain: e.target.value })}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, domainName: e.target.value })}
           />
         </FormRow>
         <FormRow>
@@ -51,11 +44,11 @@ export function SignIn(props: { api: AuroraReactQueryRouter["identity"] }) {
             required
             type="password"
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, password: e.target.value })}
-            onKeyPress={(e: React.KeyboardEvent<HTMLInputElement>) => e.key === "Enter" && login()}
+            onKeyPress={(e: React.KeyboardEvent<HTMLInputElement>) => e.key === "Enter" && login(form)}
           />
         </FormRow>
         <ButtonRow>
-          <Button variant="primary" onClick={login}>
+          <Button variant="primary" onClick={() => login(form)}>
             Sign in
           </Button>
         </ButtonRow>

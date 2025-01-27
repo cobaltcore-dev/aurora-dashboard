@@ -9,6 +9,7 @@ interface Extension {
   name?: string
   navigation?: {
     label?: string
+    scope: string[]
   }
 }
 
@@ -29,6 +30,7 @@ interface ExtensionImportEntry {
   name: string
   id: string
   label?: string
+  scope: string[]
   packagePath: string
   clientPath?: string
   serverPath?: string
@@ -71,6 +73,7 @@ const generateExtensionsImportFile = (entries: ExtensionImportEntry[] = []): voi
       clientExports.push(`    extensionName: "${entry.name}", `)
       clientExports.push(`    routerScope: "${entry.id}",`)
       clientExports.push(`    label: "${entry.label}",`)
+      clientExports.push(`    scope: ${JSON.stringify(entry.scope)},`)
       clientExports.push(`    App: client0.then((m) => ({ default: m.App })),`)
       clientExports.push(`    Logo: client0.then((m) => ({ default: m.Logo })),`)
       clientExports.push("  },")
@@ -101,6 +104,7 @@ const createExtensionImportEntry = (extension: InstalledExtension): ExtensionImp
     name: extension.name || name,
     id: generateValidPackageName(name),
     label: extension?.navigation?.label || name,
+    scope: extension?.navigation?.scope || ["domain", "project"],
     packagePath,
   }
   if (pkgExports?.["./client"]) importEntry.clientPath = path.join(packagePath, "client")
