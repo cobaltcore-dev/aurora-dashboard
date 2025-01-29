@@ -41,7 +41,10 @@ export default function Navigation({ items }: NavigationProps) {
 
   return (
     <Stack direction="vertical" alignment="center" className="bg-theme-background-lvl-0 ">
-      <Logo className="mb-6" title="Aurora" />
+      <div className="text-sap-gold mt-2 mb-2 flex">
+        <Logo className="fill-current mr-1" title="Aurora" width={25} />
+        Aurora
+      </div>
 
       {items.map(({ route, label, Logo: ItemLogo }, i) => (
         <Link href={route} key={i} asChild>
