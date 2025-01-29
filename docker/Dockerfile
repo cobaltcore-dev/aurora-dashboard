@@ -1,4 +1,5 @@
 FROM node:23-alpine 
+LABEL source_repository="https://github.com/cobaltcore-dev/aurora-dashboard"
 
 # install git
 RUN apk add --no-cache git  ca-certificates curl
