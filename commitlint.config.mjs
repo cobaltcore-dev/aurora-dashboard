@@ -20,6 +20,7 @@ export const scopes = [
   "core",
   "dashboard",
   "aurora-portal",
+  "aurora-sdk",
   "polaris",
   "docs",
   "deps",
