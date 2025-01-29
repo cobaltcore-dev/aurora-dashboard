@@ -437,6 +437,33 @@ importers:
         specifier: ^2.1.4
         version: 2.1.8(@types/node@20.17.12)(jsdom@24.1.3)
 
+  packages/aurora-sdk:
+    devDependencies:
+      '@cobaltcore-dev/aurora-config':
+        specifier: workspace:*
+        version: link:../config
+      '@types/node':
+        specifier: ^20.11.24
+        version: 20.17.12
+      '@vitest/coverage-v8':
+        specifier: ^2.1.4
+        version: 2.1.8(vitest@2.1.8(@types/node@20.17.12)(jsdom@24.1.3))
+      jsdom:
+        specifier: ^24.1.1
+        version: 24.1.3
+      typescript:
+        specifier: ^5.5.4
+        version: 5.7.3
+      vite:
+        specifier: ^5.4.0
+        version: 5.4.11(@types/node@20.17.12)
+      vite-plugin-dts:
+        specifier: ^4.0.3
+        version: 4.5.0(@types/node@20.17.12)(rollup@4.30.1)(typescript@5.7.3)(vite@5.4.11(@types/node@20.17.12))
+      vitest:
+        specifier: ^2.1.4
+        version: 2.1.8(@types/node@20.17.12)(jsdom@24.1.3)
+
   packages/config:
     devDependencies:
       '@types/eslint__js':
