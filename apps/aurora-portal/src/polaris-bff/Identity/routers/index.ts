@@ -1,10 +1,10 @@
 import { userRouter } from "./userRouter"
 import { tokenRouter } from "./tokenRouter"
 
-import { router } from "../../trpc"
+import { auroraRouter } from "../../trpc"
 
 export const identityRouters = {
-  identity: router({
+  identity: auroraRouter({
     ...userRouter,
     ...tokenRouter,
   }),

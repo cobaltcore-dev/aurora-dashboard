@@ -145,6 +145,9 @@ importers:
 
   apps/aurora-portal:
     dependencies:
+      '@cobaltcore-dev/aurora-sdk':
+        specifier: workspace:*
+        version: link:../../packages/aurora-sdk
       '@fastify/cookie':
         specifier: ^11.0.2
         version: 11.0.2
@@ -157,15 +160,6 @@ importers:
       '@testing-library/react':
         specifier: ^16.1.0
         version: 16.1.0(@testing-library/dom@10.4.0)(@types/react-dom@18.3.5(@types/react@18.3.18))(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@trpc/client':
-        specifier: 11.0.0-rc.694
-        version: 11.0.0-rc.694(@trpc/server@11.0.0-rc.694(typescript@5.7.3))(typescript@5.7.3)
-      '@trpc/react-query':
-        specifier: 11.0.0-rc.694
-        version: 11.0.0-rc.694(@tanstack/react-query@5.63.0(react@18.3.1))(@trpc/client@11.0.0-rc.694(@trpc/server@11.0.0-rc.694(typescript@5.7.3))(typescript@5.7.3))(@trpc/server@11.0.0-rc.694(typescript@5.7.3))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.7.3)
-      '@trpc/server':
-        specifier: 11.0.0-rc.694
-        version: 11.0.0-rc.694(typescript@5.7.3)
       dotenv:
         specifier: ^16.4.7
         version: 16.4.7
@@ -438,31 +432,77 @@ importers:
         version: 2.1.8(@types/node@20.17.12)(jsdom@24.1.3)
 
   packages/aurora-sdk:
+    dependencies:
+      '@fastify/cookie':
+        specifier: ^11.0.2
+        version: 11.0.2
+      '@fastify/static':
+        specifier: ^8.0.3
+        version: 8.0.3
+      '@testing-library/jest-dom':
+        specifier: ^6.5.0
+        version: 6.6.3
+      '@trpc/client':
+        specifier: 11.0.0-rc.694
+        version: 11.0.0-rc.694(@trpc/server@11.0.0-rc.694(typescript@5.7.3))(typescript@5.7.3)
+      '@trpc/react-query':
+        specifier: 11.0.0-rc.694
+        version: 11.0.0-rc.694(@tanstack/react-query@5.63.0(react@18.3.1))(@trpc/client@11.0.0-rc.694(@trpc/server@11.0.0-rc.694(typescript@5.7.3))(typescript@5.7.3))(@trpc/server@11.0.0-rc.694(typescript@5.7.3))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.7.3)
+      '@trpc/server':
+        specifier: 11.0.0-rc.694
+        version: 11.0.0-rc.694(typescript@5.7.3)
+      '@types/node':
+        specifier: ^22.10.5
+        version: 22.10.5
+      '@types/react':
+        specifier: ^18.3.18
+        version: 18.3.18
+      '@types/react-dom':
+        specifier: ^18.3.5
+        version: 18.3.5(@types/react@18.3.18)
+      dotenv:
+        specifier: ^16.4.7
+        version: 16.4.7
+      fastify:
+        specifier: ^5.2.1
+        version: 5.2.1
+      globals:
+        specifier: ^15.14.0
+        version: 15.14.0
+      jsdom:
+        specifier: ^24.1.1
+        version: 24.1.3
+      zod:
+        specifier: ^3.24.1
+        version: 3.24.1
     devDependencies:
       '@cobaltcore-dev/aurora-config':
         specifier: workspace:*
         version: link:../config
-      '@types/node':
-        specifier: ^20.11.24
-        version: 20.17.12
       '@vitest/coverage-v8':
         specifier: ^2.1.4
-        version: 2.1.8(vitest@2.1.8(@types/node@20.17.12)(jsdom@24.1.3))
-      jsdom:
-        specifier: ^24.1.1
-        version: 24.1.3
+        version: 2.1.8(vitest@2.1.8(@types/node@22.10.5)(jsdom@24.1.3))
+      react:
+        specifier: ^18.3.1
+        version: 18.3.1
+      react-dom:
+        specifier: ^18.3.1
+        version: 18.3.1(react@18.3.1)
+      react-query:
+        specifier: ^3.39.3
+        version: 3.39.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       typescript:
         specifier: ^5.5.4
         version: 5.7.3
       vite:
         specifier: ^5.4.0
-        version: 5.4.11(@types/node@20.17.12)
+        version: 5.4.11(@types/node@22.10.5)
       vite-plugin-dts:
         specifier: ^4.0.3
-        version: 4.5.0(@types/node@20.17.12)(rollup@4.30.1)(typescript@5.7.3)(vite@5.4.11(@types/node@20.17.12))
+        version: 4.5.0(@types/node@22.10.5)(rollup@4.30.1)(typescript@5.7.3)(vite@5.4.11(@types/node@22.10.5))
       vitest:
         specifier: ^2.1.4
-        version: 2.1.8(@types/node@20.17.12)(jsdom@24.1.3)
+        version: 2.1.8(@types/node@22.10.5)(jsdom@24.1.3)
 
   packages/config:
     devDependencies:
@@ -8057,6 +8097,24 @@ snapshots:
       test-exclude: 7.0.1
       tinyrainbow: 1.2.0
       vitest: 2.1.8(@types/node@20.17.12)(jsdom@24.1.3)
+    transitivePeerDependencies:
+      - supports-color
+
+  '@vitest/coverage-v8@2.1.8(vitest@2.1.8(@types/node@22.10.5)(jsdom@24.1.3))':
+    dependencies:
+      '@ampproject/remapping': 2.3.0
+      '@bcoe/v8-coverage': 0.2.3
+      debug: 4.4.0
+      istanbul-lib-coverage: 3.2.2
+      istanbul-lib-report: 3.0.1
+      istanbul-lib-source-maps: 5.0.6
+      istanbul-reports: 3.1.7
+      magic-string: 0.30.17
+      magicast: 0.3.5
+      std-env: 3.8.0
+      test-exclude: 7.0.1
+      tinyrainbow: 1.2.0
+      vitest: 2.1.8(@types/node@22.10.5)(jsdom@24.1.3)
     transitivePeerDependencies:
       - supports-color
 
