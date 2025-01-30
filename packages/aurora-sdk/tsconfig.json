@@ -1,9 +1,13 @@
 {
-  "extends": "@cobaltcore-dev/aurora-config/typescript/lib-package.json",
+  "extends": "@cobaltcore-dev/aurora-config/typescript/react-app.json",
   "compilerOptions": {
-    "lib": ["ES2022"],
-    "jsx": "react-jsx"
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "types": ["vite/client", "vitest/globals"]
   },
-  "include": ["src", "vitest.setup.ts"],
+  "include": ["src/**/*.ts", "src/**/*.tsx", "vitest.setup.ts"],
+
   "exclude": ["node_modules", "dist"]
 }
