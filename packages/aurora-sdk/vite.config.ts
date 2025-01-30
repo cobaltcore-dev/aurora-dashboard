@@ -5,7 +5,7 @@ export default defineConfig({
   build: {
     lib: {
       entry: "src/index.ts", // or 'src/main.ts' if TypeScript
-      name: "package-template", // Replace with your library's global name
+      name: "aurora-sdk", // Replace with your library's global name
       formats: ["es"], // Output formats: ESM and CommonJS
       fileName: () => `index.js`, // Output file names
     },

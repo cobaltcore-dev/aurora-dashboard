@@ -1,16 +1,14 @@
 {
-  "name": "aurora-sdk",
+  "name": "@cobaltcore-dev/aurora-sdk",
   "version": "1.0.0",
-  "description": "Package template that will be use to generate new juno packages",
+  "description": "Package for provide basic SDK functionality for BFF and Client",
   "author": "UI-Team",
+  "main": "dist/index.js",
   "source": "src/index.js",
+  "types": "dist/types/index.d.ts",
   "license": "Apache-2.0",
   "type": "module",
   "private": true,
-  "exports": {
-    ".": "./dist/index.js",
-    "./types": "./dist/types/index.d.ts"
-  },
   "files": [
     "dist/**",
     "LICENCE"
@@ -28,6 +26,16 @@
     "typecheck": "tsc --project tsconfig.json --noEmit",
     "clean": "rm -rf dist && rm -rf node_modules && rm -rf .turbo",
     "clean:cache": "rm -rf .turbo"
+  },
+  "dependencies": {
+    "@fastify/cookie": "^11.0.2",
+    "@fastify/static": "^8.0.3",
+    "@trpc/client": "11.0.0-rc.694",
+    "@trpc/react-query": "11.0.0-rc.694",
+    "@trpc/server": "11.0.0-rc.694",
+    "dotenv": "^16.4.7",
+    "fastify": "^5.2.1",
+    "zod": "^3.24.1"
   },
   "devDependencies": {
     "@cobaltcore-dev/aurora-config": "workspace:*",

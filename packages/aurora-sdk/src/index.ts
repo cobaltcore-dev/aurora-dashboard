@@ -1,11 +1,7 @@
-/**
- * Adds two numbers together.
- * @param a The first number.
- * @param b The second number.
- * @returns The sum of the two numbers.
- */
-function templateAddNumbers(a: number, b: number): number {
-  return a + b
-}
+export { getAuroraProvider } from "./server/aurora-provider"
+export { AuroraTRPCError } from "./server/errors"
+export type { AuroraReactQueryRouterLike } from "./server/aurora-query"
+export * from "./server/fastify"
+export * from "./client"
 
-export default templateAddNumbers
+// export type { AuroraProvider } from "./types"

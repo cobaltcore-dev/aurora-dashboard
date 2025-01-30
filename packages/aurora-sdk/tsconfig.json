@@ -1,5 +1,9 @@
 {
   "extends": "@cobaltcore-dev/aurora-config/typescript/lib-package.json",
+  "compilerOptions": {
+    "lib": ["ES2022"],
+    "jsx": "react-jsx"
+  },
   "include": ["src", "vitest.setup.ts"],
   "exclude": ["node_modules", "dist"]
 }
