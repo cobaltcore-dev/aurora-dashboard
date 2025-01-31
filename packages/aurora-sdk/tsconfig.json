@@ -1,8 +1,8 @@
 {
   "extends": "@cobaltcore-dev/aurora-config/typescript/react-app.json",
   "compilerOptions": {
-    "target": "ESNext",
-    "module": "ESNext",
+    "target": "ES2022",
+    "module": "Preserve",
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
     "types": ["vite/client", "vitest/globals"]

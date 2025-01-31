@@ -3,6 +3,7 @@ import { computeRouters } from "./Compute/routers"
 import { registerServers } from "./generated/extensions"
 import { auroraRouter, mergeRouters } from "./trpc"
 import { AuroraReactQueryRouterLike } from "@cobaltcore-dev/aurora-sdk"
+
 const coreRouter = mergeRouters(auroraRouter(identityRouters), auroraRouter(computeRouters))
 const extensionRouters = registerServers()
 
