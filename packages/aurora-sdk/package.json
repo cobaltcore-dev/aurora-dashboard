@@ -3,12 +3,10 @@
   "version": "1.0.0",
   "description": "Package for provide basic SDK functionality for BFF and Client",
   "author": "UI-Team",
-  "main": "dist/index.js",
-  "source": "src/index.js",
-  "types": "dist/types/index.d.ts",
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.js",
   "license": "Apache-2.0",
-  "type": "module",
-  "private": true,
+  "private": false,
   "files": [
     "dist/**",
     "LICENCE"
@@ -22,15 +20,16 @@
     "test:watch": "vitest --watch",
     "lint": "eslint ",
     "dev": "vite",
-    "build": "vite build",
+    "build:esm": "tsc --outDir dist/esm --module ESNext --moduleResolution node",
+    "build:cjs": "tsc --outDir dist/cjs --module CommonJS --moduleResolution node",
+    "build": "rm -rf dist && pnpm run build:esm && pnpm run build:cjs",
     "typecheck": "tsc --project tsconfig.json --noEmit",
     "clean": "rm -rf dist && rm -rf node_modules && rm -rf .turbo",
     "clean:cache": "rm -rf .turbo"
   },
   "peerDependencies": {
     "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "react-query": "^5.66.0"
+    "react-dom": "^18.3.1"
   },
   "dependencies": {
     "@fastify/cookie": "^11.0.2",
