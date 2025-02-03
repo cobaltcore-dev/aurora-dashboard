@@ -1,8 +1,7 @@
 import Fastify from "fastify"
 import FastifyStatic from "@fastify/static"
 import cookie from "@fastify/cookie"
-import { TRPCError } from "@trpc/server"
-import { fastifyTRPCPlugin, FastifyTRPCPluginOptions } from "@trpc/server/adapters/fastify"
+import { AuroraFastifyTRPCPluginOptions, AuroraTRPCError, auroraFastifyTRPCPlugin } from "@cobaltcore-dev/aurora-sdk"
 import { appRouter, AuroraRouter } from "./routers" // tRPC router
 import { createContext } from "./context"
 import * as dotenv from "dotenv"
@@ -25,12 +24,12 @@ async function startServer() {
   })
 
   // Register the tRPC plugin to handle API routes for the application
-  await server.register(fastifyTRPCPlugin, {
+  await server.register(auroraFastifyTRPCPlugin, {
     prefix: BFF_ENDPOINT, // Prefix for tRPC routes
     trpcOptions: {
       router: appRouter, // Pass the tRPC router to handle routes
       createContext, // Pass the context
-    } satisfies FastifyTRPCPluginOptions<AuroraRouter>["trpcOptions"], // Type-safety to ensure proper config
+    } satisfies AuroraFastifyTRPCPluginOptions<AuroraRouter>["trpcOptions"], // Type-safety to ensure proper config
   })
 
   // Use fastify-static to serve static files in production mode
@@ -52,7 +51,7 @@ async function startServer() {
     server.log.error(error)
 
     // For tRPC errors
-    if (error instanceof TRPCError) {
+    if (error instanceof AuroraTRPCError) {
       reply.status(400).send({
         status: error.code || "error",
         statusCode: 400,

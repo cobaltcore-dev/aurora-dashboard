@@ -1,6 +1,7 @@
-import type { CreateAuroraFastifyContextOptions } from "@cobaltcore-dev/aurora-sdk"
+import type { CreateFastifyContextOptions } from "@trpc/server/adapters/fastify"
+import "@fastify/cookie"
 
-export async function createContext(opts: CreateAuroraFastifyContextOptions) {
+export async function createContext(opts: CreateFastifyContextOptions) {
   const setSessionCookie = (authToken: string | null, options?: { expires: Date }) => {
     if (!authToken) return
     opts.res.setCookie("aurora-session", authToken, {

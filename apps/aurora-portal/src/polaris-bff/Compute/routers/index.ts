@@ -1,6 +1,6 @@
 import { serverRouter } from "./serverRouter"
-import { router } from "../../trpc"
+import { auroraRouter } from "../../trpc"
 
 export const computeRouters = {
-  compute: router({ ...serverRouter }),
+  compute: auroraRouter({ ...serverRouter }),
 }

@@ -5,7 +5,6 @@
   "author": "UI-Team",
   "source": "src/index.js",
   "license": "Apache-2.0",
-  "type": "module",
   "private": true,
   "exports": {
     ".": "./dist/index.js",

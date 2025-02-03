@@ -1,0 +1,12 @@
+{
+  "extends": "@cobaltcore-dev/aurora-config/typescript/tsconfig.lib.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "dist",
+    "jsx": "react-jsx",
+    "isolatedModules": true,
+    "types": ["vite/client", "vitest/globals"]
+  },
+  "include": ["src"],
+  "exclude": ["node_modules", "dist"]
+}

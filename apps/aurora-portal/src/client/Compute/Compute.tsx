@@ -1,5 +1,6 @@
 import type { Server } from "../../shared/types/models"
 import type { AuroraReactQueryRouter } from "../../polaris-bff/routers"
+import { Key } from "react"
 
 export default function Compute(props: { api: AuroraReactQueryRouter["compute"] }) {
   const { api } = props
@@ -12,7 +13,7 @@ export default function Compute(props: { api: AuroraReactQueryRouter["compute"] 
     <div>
       <h2>Compute</h2>
       Servers:
-      <ul>{data?.map((server: Server, i) => <li key={i}>{server.name}</li>)}</ul>
+      <ul>{data?.map((server: Server, i: Key | null | undefined) => <li key={i}>{server.name}</li>)}</ul>
     </div>
   )
 }

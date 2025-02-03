@@ -1,17 +1,21 @@
-import { initTRPC, TRPCError } from "@trpc/server"
-import { Context } from "./context"
+import { getAuroraProvider } from "@cobaltcore-dev/aurora-sdk"
+import { AuroraTRPCError } from "@cobaltcore-dev/aurora-sdk"
+import type { Context } from "./context"
 // You can use any variable name you like.
 // We use t to keep things simple.
-export const t = initTRPC.context<Context>().create()
+const auroraProvider = getAuroraProvider<Context>()
 
-export const router = t.router
-export const mergeRouters = t.mergeRouters
+export const auroraRouter = auroraProvider.getAuroraRouter
+export const mergeRouters = auroraProvider.getAuroraMergeRouters
 
-export const publicProcedure = t.procedure
+export const publicProcedure = auroraProvider.getAuroraPublicProcedure
 
-export const protectedProcedure = publicProcedure.use(function isAuthed(opts) {
+export const protectedProcedure = publicProcedure.use(function isAuthed(opts: {
+  ctx: { getSessionCookie: () => string | null | undefined }
+  next: (arg0: { ctx: any }) => any
+}) {
   if (opts.ctx.getSessionCookie() === null || opts.ctx.getSessionCookie() === undefined) {
-    throw new TRPCError({
+    throw new AuroraTRPCError({
       code: "UNAUTHORIZED",
     })
   }

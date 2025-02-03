@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "display": "Aurora Library Package",
+  "extends": "./base.json",
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "NodeNext",
+    "moduleResolution": "nodenext",
+    "incremental": false,
+    "declaration": true,
+    "strict": true, // Enforce strict type checking
+    "esModuleInterop": true, // Ensure compatibility with CommonJS
+    "skipLibCheck": true, // Speed up build time
+    "resolveJsonModule": true, // Allow importing JSON files
+    "noEmit": false // Do not emit compiled files
+  }
+}

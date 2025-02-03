@@ -1,5 +1,10 @@
 {
-  "extends": "@cobaltcore-dev/aurora-config/typescript/lib-package.json",
+  "compilerOptions": {
+    "types": ["vite/client", "vitest/globals"],
+    "module": "NodeNext",
+    "moduleResolution": "nodenext"
+  },
+  "extends": "@cobaltcore-dev/aurora-config/typescript/tsconfig.lib.json",
   "include": ["src", "vitest.setup.ts"],
   "exclude": ["node_modules", "dist"]
 }
