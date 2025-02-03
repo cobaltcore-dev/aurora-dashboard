@@ -1,4 +1,0 @@
-{
-  "extends": "@cobaltcore-dev/aurora-config/typescript/tsconfig.react.json",
-  "include": ["src/**/*.ts", "src/**/*.tsx", "vitest.setup.ts"]
-}
