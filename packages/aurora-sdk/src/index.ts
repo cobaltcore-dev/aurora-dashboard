@@ -1,8 +1,15 @@
 export { getAuroraProvider } from "./server/aurora-provider"
-export { AuroraTRPCError } from "./server/errors"
-export type { AuroraReactQueryRouterLike } from "./server/aurora-query"
-export * from "./server/fastify"
-export * from "./client"
+export { AuroraSDKTRPCError, AuroraSDKError } from "./server/errors"
+export { auroraFastifyTRPCPlugin } from "./server/fastify"
+export { createAuroraOpenstackDevContext } from "./server/aurora-dev-context"
 
-export * from "./server/aurora-context"
-// export type { AuroraProvider } from "./types"
+export {
+  createAuroraTRPCReact,
+  auroraHttpBatchLink,
+  AuroraReactQueryClient,
+  AuroraReactQueryClientProvider,
+} from "./client"
+
+export type { AuroraFastifyTRPCPluginOptions, CreateAuroraFastifyContextOptions } from "./server/fastify"
+export type { AuroraContext, Token } from "./server/types"
+export type { AuroraReactQueryRouterLike } from "./server/aurora-query"

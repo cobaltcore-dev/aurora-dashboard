@@ -1,13 +1,14 @@
-import { createTRPCClient, httpBatchLink } from "@trpc/client"
 import type { AppRouter } from "../server/routers"
 
-export const trpcClient = createTRPCClient<AppRouter>({
+import { createAuroraTRPCReact, auroraHttpBatchLink } from "@cobaltcore-dev/aurora-sdk"
+
+export const trpc = createAuroraTRPCReact<AppRouter>()
+
+export const trpcClient = trpc.createClient({
   links: [
-    httpBatchLink({
-      // @ts-expect-error missing env var
+    auroraHttpBatchLink({
+      // @ts-expect-error env does not exist
       url: BFF_ENDPOINT, // Ensure this matches your backend's tRPC path
     }),
   ],
 })
-
-export type TrpcClient = typeof trpcClient
