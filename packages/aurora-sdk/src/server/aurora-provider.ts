@@ -1,6 +1,6 @@
 // packages/aurora-server/src/AuroraServer.ts
 import { initTRPC } from "@trpc/server"
-import type { Context } from "./context"
+import type { Context } from "./aurora-context"
 
 export function getAuroraProvider<TContext extends Context>() {
   const t = initTRPC.context<TContext>().create()

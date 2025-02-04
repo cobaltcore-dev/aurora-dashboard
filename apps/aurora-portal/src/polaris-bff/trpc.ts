@@ -1,9 +1,9 @@
 import { getAuroraProvider } from "@cobaltcore-dev/aurora-sdk"
 import { AuroraTRPCError } from "@cobaltcore-dev/aurora-sdk"
-import type { Context } from "./context"
+import type { AuroraPortalContext } from "./context"
 // You can use any variable name you like.
 // We use t to keep things simple.
-const auroraProvider = getAuroraProvider<Context>()
+const auroraProvider = getAuroraProvider<AuroraPortalContext>()
 
 export const auroraRouter = auroraProvider.getAuroraRouter
 export const mergeRouters = auroraProvider.getAuroraMergeRouters

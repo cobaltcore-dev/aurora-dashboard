@@ -1,6 +1,13 @@
+import { AuroraContext, Token } from "@cobaltcore-dev/aurora-sdk"
 import type { CreateAuroraFastifyContextOptions } from "@cobaltcore-dev/aurora-sdk"
 
-export async function createContext(opts: CreateAuroraFastifyContextOptions) {
+export interface AuroraPortalContext extends AuroraContext {
+  setSessionCookie: (authToken: string | null, options?: { expires: Date }) => void
+  getSessionCookie: () => string | undefined
+  deleteSessionCookie: () => void
+}
+
+export async function createContext(opts: CreateAuroraFastifyContextOptions): Promise<AuroraPortalContext> {
   const setSessionCookie = (authToken: string | null, options?: { expires: Date }) => {
     if (!authToken) return
     opts.res.setCookie("aurora-session", authToken, {
@@ -24,7 +31,19 @@ export async function createContext(opts: CreateAuroraFastifyContextOptions) {
     })
   }
 
-  return { setSessionCookie, getSessionCookie, deleteSessionCookie }
-}
+  const validateAuthToken = (authToken: string | null) => {
+    // Validate the authToken
+    // For example, check if the token is expired
+    // If the token is invalid, set it to null
+    const token: Token = JSON.parse(Buffer.from(authToken || "", "base64").toString("utf-8"))
+    return Promise.resolve(token)
+  }
 
-export type Context = Awaited<ReturnType<typeof createContext>>
+  return {
+    setSessionCookie,
+    getSessionCookie,
+    deleteSessionCookie,
+    validateAuthToken,
+    authToken: opts.req.cookies["aurora-session"] ?? null,
+  }
+}
