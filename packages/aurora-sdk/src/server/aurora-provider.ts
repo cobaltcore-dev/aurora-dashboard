@@ -1,14 +1,28 @@
 // packages/aurora-server/src/AuroraServer.ts
 import { initTRPC } from "@trpc/server"
-import type { Context } from "./aurora-context"
+import type { AuroraContext } from "./aurora-context"
+import { AuroraTRPCError } from "./errors"
 
-export function getAuroraProvider<TContext extends Context>() {
+export function getAuroraProvider<TContext extends AuroraContext>() {
   const t = initTRPC.context<TContext>().create()
+  const publicProcedure = t.procedure
+
+  const protectedProcedure = publicProcedure.use(function isAuthed(opts) {
+    if (opts.ctx.validateAuthToken() === null || opts.ctx.validateAuthToken() === undefined) {
+      throw new AuroraTRPCError({
+        code: "UNAUTHORIZED",
+      })
+    }
+    return opts.next({
+      ctx: opts.ctx,
+    })
+  })
 
   return {
     getAuroraRouter: t.router,
     getAuroraMergeRouters: t.mergeRouters,
-    getAuroraPublicProcedure: t.procedure,
+    getAuroraPublicProcedure: publicProcedure,
+    getAuroraProtectedProcedure: protectedProcedure,
   }
 }
 

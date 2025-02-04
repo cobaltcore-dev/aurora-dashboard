@@ -13,4 +13,6 @@ export const trpcClient = trpc.createClient({
   ],
 })
 
-export type TrpcClient = typeof trpcClient
+// export type TrpcClient = typeof trpcClient
+
+// export {TrpcClient, queryClient} = createAuroraTRPCReact<AuroraRouter>(bff_endpoint: BFF_ENDPOINT)
