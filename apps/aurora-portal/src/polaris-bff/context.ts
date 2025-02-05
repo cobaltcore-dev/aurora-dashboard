@@ -1,10 +1,11 @@
-import { AuroraContext } from "@cobaltcore-dev/aurora-sdk"
+import { AuroraContext, Token } from "@cobaltcore-dev/aurora-sdk"
 import type { CreateAuroraFastifyContextOptions } from "@cobaltcore-dev/aurora-sdk"
 
 export interface AuroraPortalContext extends AuroraContext {
   setSessionCookie: (authToken: string | null, options?: { expires: Date }) => void
   getSessionCookie: () => string | undefined
   deleteSessionCookie: () => void
+  validateAuthToken: () => Promise<Token | null>
 }
 
 export async function createContext(opts: CreateAuroraFastifyContextOptions): Promise<AuroraPortalContext> {

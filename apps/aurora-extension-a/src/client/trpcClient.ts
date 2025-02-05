@@ -12,3 +12,5 @@ export const trpcClient = trpc.createClient({
     }),
   ],
 })
+
+export type TrpcClient = typeof trpcClient
