@@ -9,8 +9,10 @@ export const entityRouter = {
     }),
 
     list: protectedProcedure.query(async ({ ctx }): Promise<Entity[]> => {
+      const { authToken, token } = await ctx.validateSession()
       return [
-        { id: 1, name: JSON.stringify(ctx.token, null, 2) },
+        { id: -1, name: JSON.stringify(token, null, 2) },
+        { id: 0, name: JSON.stringify(authToken, null, 2) },
         { id: 1, name: "Mars 1" },
         { id: 2, name: "Mars 2" },
         { id: 2, name: "Mars 3" },
