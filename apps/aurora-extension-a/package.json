@@ -21,7 +21,7 @@
     "dev": "concurrently -k \"pnpm dev:client\" \"pnpm dev:server\"",
     "build:client": "vite build",
     "build:server": "tsc -p tsconfig.server.json",
-    "build": "pnpm build:client && pnpm build:server && rm vite.config.*.timestamp-*",
+    "build": "pnpm build:client && pnpm build:server && rm -f vite.config.*.timestamp-*",
     "lint": "eslint ."
   },
   "dependencies": {
