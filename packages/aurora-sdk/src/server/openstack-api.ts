@@ -1,4 +1,4 @@
-import { Token } from "./types"
+import { Token } from "./aurora-context"
 import { AuroraSDKError } from "./errors"
 
 type CreateTokenParams = {

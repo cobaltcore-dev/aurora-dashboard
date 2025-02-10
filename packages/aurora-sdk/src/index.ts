@@ -11,5 +11,5 @@ export {
 } from "./client"
 
 export type { AuroraFastifyTRPCPluginOptions, CreateAuroraFastifyContextOptions } from "./server/fastify"
-export type { AuroraContext, Token } from "./server/types"
+export type { AuroraContext, Token, AuroraSession } from "./server/aurora-context"
 export type { AuroraReactQueryRouterLike } from "./server/aurora-query"

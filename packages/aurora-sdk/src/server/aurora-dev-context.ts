@@ -1,4 +1,4 @@
-import { AuroraContext } from "./types"
+import { AuroraContext } from "./aurora-context"
 import { createToken } from "./openstack-api"
 
 type CredentialsParams = {
@@ -24,11 +24,13 @@ type CredentialsParams = {
 
 export async function createAuroraOpenstackDevContext(params: CredentialsParams) {
   const { authToken, token } = await createToken(params)
+  const validateSession = async () => {
+    return { authToken, token }
+  }
 
   return async function createContext(): Promise<AuroraContext> {
     return {
-      authToken,
-      token,
+      validateSession,
     }
   }
 }

@@ -33,7 +33,11 @@ export type Token = {
   }
 }
 
-export interface AuroraContext {
+export type AuroraSession = {
   authToken?: string | null
   token?: Token | null
+}
+
+export interface AuroraContext {
+  validateSession(): Promise<AuroraSession>
 }

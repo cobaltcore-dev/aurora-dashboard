@@ -61,11 +61,21 @@ export const createUnscopedToken = async ({ user, password, domainName }: Create
   }
   const headers = new Headers()
   headers.set("Content-Type", "application/json")
-  return fetch(tokensEndpoint, {
+
+  const response = await fetch(tokensEndpoint, {
     method: "POST",
     headers,
     body: JSON.stringify(auth),
   })
+
+  if (!response.ok) {
+    throw new Error(response.statusText)
+  }
+
+  const tokenData = await response.json().then((data) => data.token)
+  const authToken = response.headers.get("X-Subject-Token")
+
+  return { tokenData, authToken }
 }
 
 export const validateToken = async (token: string, options?: { nocatalog: boolean }) => {
@@ -77,8 +87,11 @@ export const validateToken = async (token: string, options?: { nocatalog: boolea
     url.searchParams.set("nocatalog", "true")
   }
 
-  return fetch(url, {
+  const response = await fetch(url, {
     method: "GET",
     headers,
   })
+  if (!response.ok) throw new Error(response.statusText)
+
+  return response.json().then((data) => data.token)
 }
