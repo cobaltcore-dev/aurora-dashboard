@@ -1,5 +1,4 @@
 import Fastify from "fastify"
-// import { fastifyTRPCPlugin, FastifyTRPCPluginOptions } from "@trpc/server/adapters/fastify"
 import {
   auroraFastifyTRPCPlugin,
   AuroraFastifyTRPCPluginOptions,
