@@ -113,5 +113,5 @@ jobs:
         with:
           node-version: "20"
           pnpm-version: "9"
-      - name: Run Tests
+      - name: Run Build
         run: pnpm i && pnpm build

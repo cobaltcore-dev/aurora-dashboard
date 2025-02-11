@@ -1,5 +1,9 @@
 import Fastify from "fastify"
-import { fastifyTRPCPlugin, FastifyTRPCPluginOptions } from "@trpc/server/adapters/fastify"
+import {
+  auroraFastifyTRPCPlugin,
+  AuroraFastifyTRPCPluginOptions,
+  createAuroraOpenstackDevContext,
+} from "@cobaltcore-dev/aurora-sdk"
 import { registerRouter, AppRouter } from "./routers" // tRPC router
 import * as dotenv from "dotenv"
 
@@ -16,12 +20,20 @@ const server = Fastify({
 })
 
 async function startServer() {
+  const createContext = await createAuroraOpenstackDevContext({
+    endpointUrl: process.env.OS_AUTH_URL || "http://localhost:8080/identity/v3/",
+    domain: process.env.OS_DOMAIN_NAME || "Default",
+    user: process.env.OS_USERNAME || "admin",
+    password: process.env.OS_PASSWORD || "password",
+  })
+
   // Register the tRPC plugin to handle API routes for the application
-  await server.register(fastifyTRPCPlugin, {
+  await server.register(auroraFastifyTRPCPlugin, {
     prefix: BFF_ENDPOINT, // Prefix for tRPC routes
     trpcOptions: {
       router: appRouter, // Pass the tRPC router to handle routes
-    } satisfies FastifyTRPCPluginOptions<AppRouter>["trpcOptions"], // Type-safety to ensure proper config
+      createContext, // Create a context for the tRPC router
+    } satisfies AuroraFastifyTRPCPluginOptions<AppRouter>["trpcOptions"], // Type-safety to ensure proper config
   })
 
   await server.listen({ host: "0.0.0.0", port: Number(PORT) }).then((address) => {

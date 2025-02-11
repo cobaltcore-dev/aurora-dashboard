@@ -9,32 +9,35 @@ export const tokenRouter = {
       return { isAuthenticated: false, user: null, reason: "No token found" }
     }
 
-    const token = await validateToken(authToken, { nocatalog: true })
-    // console.log("========", token)
-    if (!token.ok) {
-      return { isAuthenticated: false, user: null, reason: token.statusText }
-    }
-    const tokenData = await token.json().then((data) => data.token)
-    return {
-      isAuthenticated: true,
-      user: { ...tokenData.user, session_expires_at: tokenData.expires_at },
-      reason: null,
-    }
+    return validateToken(authToken, { nocatalog: true })
+      .then((token) => ({
+        isAuthenticated: true,
+        user: { ...token.user, session_expires_at: token.expires_at },
+        reason: null,
+      }))
+      .catch((err: unknown) => {
+        let errorMessage = "Unknown error"
+        if (err instanceof Error) {
+          errorMessage = err.message
+        }
+        return { isAuthenticated: false, user: null, reason: errorMessage }
+      })
   }),
   login: publicProcedure
     .input(z.object({ user: z.string(), password: z.string(), domainName: z.string() }))
     .mutation(async ({ input, ctx }) => {
-      const token = await createUnscopedToken(input)
-
-      if (!token.ok) {
-        return { user: null, reason: token.statusText }
+      try {
+        const { authToken, tokenData } = await createUnscopedToken(input)
+        const expDate = new Date(tokenData.expires_at)
+        ctx.setSessionCookie(authToken, { expires: expDate })
+        return { user: { ...tokenData.user, session_expires_at: tokenData.expires_at } }
+      } catch (err: unknown) {
+        let errorMessage = "Unknown error"
+        if (err instanceof Error) {
+          errorMessage = err.message
+        }
+        return { user: null, reason: errorMessage }
       }
-      const tokenData = await token.json().then((data) => data.token)
-      const authToken = token.headers.get("X-Subject-Token")
-      const expDate = new Date(tokenData.expires_at)
-
-      ctx.setSessionCookie(authToken, { expires: expDate })
-      return { user: { ...tokenData.user, session_expires_at: tokenData.expires_at } }
     }),
 
   logout: publicProcedure.mutation(async ({ ctx }) => {

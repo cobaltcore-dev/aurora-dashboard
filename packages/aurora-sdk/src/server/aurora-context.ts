@@ -1,6 +1,6 @@
 export type Token = {
-  audit_ids: string[]
-  catalog: {
+  audit_ids?: string[]
+  catalog?: {
     endpoints: {
       id: string
       interface: "public" | "admin" | "internal"
@@ -33,7 +33,11 @@ export type Token = {
   }
 }
 
+export type AuroraSession = {
+  authToken?: string | null
+  token?: Token | null
+}
+
 export interface AuroraContext {
-  authToken: string | null
-  validateAuthToken: () => Promise<Token>
+  validateSession(): Promise<AuroraSession>
 }

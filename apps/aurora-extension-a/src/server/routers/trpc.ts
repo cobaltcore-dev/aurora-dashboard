@@ -1,5 +1,9 @@
-import { initTRPC } from "@trpc/server"
-
+import { getAuroraProvider } from "@cobaltcore-dev/aurora-sdk"
 // You can use any variable name you like.
 // We use t to keep things simple.
-export const trpc = initTRPC.create()
+const auroraProvider = getAuroraProvider()
+
+export const auroraRouter = auroraProvider.getAuroraRouter
+export const mergeRouters = auroraProvider.getAuroraMergeRouters
+export const publicProcedure = auroraProvider.getAuroraPublicProcedure
+export const protectedProcedure = auroraProvider.getAuroraProtectedProcedure

@@ -1,4 +1,5 @@
 import * as sdk from "./index"
+import { describe, it, expect } from "vitest"
 
 describe("aurora-sdk", () => {
   it("should export getAuroraProvider", () => {
@@ -6,6 +7,6 @@ describe("aurora-sdk", () => {
   })
 
   it("should export AuroraTRPCError", () => {
-    expect(sdk.AuroraTRPCError).toBeDefined()
+    expect(sdk.AuroraSDKTRPCError).toBeDefined()
   })
 })
