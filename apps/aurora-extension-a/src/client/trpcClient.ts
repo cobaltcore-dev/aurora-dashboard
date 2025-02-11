@@ -1,21 +1,9 @@
 import type { AppRouter } from "../server/routers"
 
-import { createAuroraTRPCReact, auroraHttpBatchLink } from "@cobaltcore-dev/aurora-sdk"
+import { createAuroraTRPCClient } from "@cobaltcore-dev/aurora-sdk/client"
 
-type GlobalTypes = typeof window & {
-  BFF_ENDPOINT: string
-}
+declare const BFF_ENDPOINT: string
 
-const url = (globalThis as GlobalTypes).BFF_ENDPOINT
-
-export const trpc = createAuroraTRPCReact<AppRouter>()
-
-export const trpcClient = trpc.createClient({
-  links: [
-    auroraHttpBatchLink({
-      url, // Ensure this matches your backend's tRPC path
-    }),
-  ],
-})
+export const trpcClient = createAuroraTRPCClient<AppRouter>(BFF_ENDPOINT)
 
 export type TrpcClient = typeof trpcClient

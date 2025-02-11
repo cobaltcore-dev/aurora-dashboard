@@ -1,7 +1,11 @@
 import Fastify from "fastify"
 import FastifyStatic from "@fastify/static"
 import cookie from "@fastify/cookie"
-import { AuroraFastifyTRPCPluginOptions, AuroraSDKTRPCError, auroraFastifyTRPCPlugin } from "@cobaltcore-dev/aurora-sdk"
+import {
+  AuroraFastifyTRPCPluginOptions,
+  AuroraTRPCError,
+  auroraFastifyTRPCPlugin,
+} from "@cobaltcore-dev/aurora-sdk/server"
 import { appRouter, AuroraRouter } from "./routers" // tRPC router
 import { createContext } from "./context"
 import * as dotenv from "dotenv"
@@ -51,7 +55,7 @@ async function startServer() {
     server.log.error(error)
 
     // For tRPC errors
-    if (error instanceof AuroraSDKTRPCError) {
+    if (error instanceof AuroraTRPCError) {
       reply.status(400).send({
         status: error.code || "error",
         statusCode: 400,

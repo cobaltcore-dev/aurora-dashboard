@@ -3,7 +3,7 @@ import {
   auroraFastifyTRPCPlugin,
   AuroraFastifyTRPCPluginOptions,
   createAuroraOpenstackDevContext,
-} from "@cobaltcore-dev/aurora-sdk"
+} from "@cobaltcore-dev/aurora-sdk/server"
 import { registerRouter, AppRouter } from "./routers" // tRPC router
 import * as dotenv from "dotenv"
 

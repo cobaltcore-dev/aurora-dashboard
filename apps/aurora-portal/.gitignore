@@ -14,7 +14,7 @@ dist-ssr
 tmp
 tsx-0
 src/client/generated
-src/polaris-bff/generated
+src/server/generated
 
 aurora.config.json
 

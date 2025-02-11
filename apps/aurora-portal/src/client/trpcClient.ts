@@ -1,18 +1,7 @@
-import type { AuroraRouter } from "../polaris-bff/routers"
+import type { AuroraRouter } from "../server/routers"
 
-import { createAuroraTRPCReact, auroraHttpBatchLink } from "@cobaltcore-dev/aurora-sdk"
+import { createAuroraTRPCClient } from "@cobaltcore-dev/aurora-sdk/client"
 
-export const trpc = createAuroraTRPCReact<AuroraRouter>()
+declare const BFF_ENDPOINT: string
 
-export const trpcClient = trpc.createClient({
-  links: [
-    auroraHttpBatchLink({
-      // @ts-expect-error env does not exist
-      url: BFF_ENDPOINT, // Ensure this matches your backend's tRPC path
-    }),
-  ],
-})
-
-// export type TrpcClient = typeof trpcClient
-
-// export {TrpcClient, queryClient} = createAuroraTRPCReact<AuroraRouter>(bff_endpoint: BFF_ENDPOINT)
+export const trpcClient = createAuroraTRPCClient<AuroraRouter>(BFF_ENDPOINT)

@@ -11,15 +11,18 @@
   "exports": {
     ".": {
       "import": "./dist/esm/index.js",
-      "require": "./dist/cjs/index.js"
+      "require": "./dist/cjs/index.js",
+      "types": "./dist/types/index.d.ts"
     },
     "./client": {
       "import": "./dist/esm/client/index.js",
-      "require": "./dist/cjs/client/index.js"
+      "require": "./dist/cjs/client/index.js",
+      "types": "./dist/types/client/index.d.ts"
     },
     "./server": {
       "import": "./dist/esm/server/index.js",
-      "require": "./dist/cjs/server/index.js"
+      "require": "./dist/cjs/server/index.js",
+      "types": "./dist/types/server/index.d.ts"
     }
   },
   "files": [

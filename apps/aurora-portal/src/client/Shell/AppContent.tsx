@@ -6,16 +6,22 @@ const About = lazy(() => import("./About"))
 const Compute = lazy(() => import("../Compute"))
 const IdentityOverview = lazy(() => import("../Identity/Overview"))
 const SignIn = lazy(() => import("../Identity/Auth/SignIn"))
-import { trpcClient, trpc } from "../trpcClient"
+import { trpcClient } from "../trpcClient"
 import { registerClients } from "../generated/extensions"
 import { Route, Switch } from "wouter"
 import Navigation from "./Navigation"
 import { useAuth } from "./AuthProvider"
 
 type RouterScopes = keyof typeof trpcClient
-//const result = trpcClient[ext.routerScope as RouterScopes];
+type Extension = {
+  label: string
+  routerScope: RouterScopes
+  scope: RouterScopes
+  App: Promise<{ default: React.ComponentType<{ client: (typeof trpcClient)[RouterScopes] }> }>
+  Logo: Promise<{ default: React.ComponentType }>
+}
 
-const extensions = registerClients().map((ext) => ({
+const extensions = (registerClients() as Extension[]).map((ext) => ({
   label: ext.label,
   routerID: ext.routerScope,
   scope: ext.scope,
@@ -53,7 +59,7 @@ export function AppContent() {
               {user && (
                 <>
                   <Route path="/compute">
-                    <Compute api={trpc["compute"]} />
+                    <Compute />
                   </Route>
                   <Route path="/identity">
                     <IdentityOverview />

@@ -1,5 +1,9 @@
-import { AuroraContext, AuroraSession, Token } from "@cobaltcore-dev/aurora-sdk"
-import type { CreateAuroraFastifyContextOptions } from "@cobaltcore-dev/aurora-sdk"
+import {
+  AuroraContext,
+  AuroraSession,
+  Token,
+  CreateAuroraFastifyContextOptions,
+} from "@cobaltcore-dev/aurora-sdk/server"
 import { validateToken } from "./Identity/services/tokenApi"
 
 export interface AuroraPortalContext extends AuroraContext {

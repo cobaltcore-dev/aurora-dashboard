@@ -1,4 +1,4 @@
-import { getAuroraProvider } from "@cobaltcore-dev/aurora-sdk"
+import { getAuroraProvider } from "@cobaltcore-dev/aurora-sdk/server"
 import type { AuroraPortalContext } from "./context"
 // You can use any variable name you like.
 // We use t to keep things simple.

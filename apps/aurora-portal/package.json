@@ -6,14 +6,14 @@
   "scripts": {
     "postinstall": "tsx --no-cache scripts/install-extensions.ts && rm -rf tsx-0",
     "dev:client": "vite",
-    "dev:server": "tsx watch src/polaris-bff/server --tsconfig tsconfig.server.json",
+    "dev:server": "tsx watch src/server/server --tsconfig tsconfig.server.json",
     "dev": "concurrently -k \"pnpm dev:client\" \"pnpm dev:server\"",
     "build:client": "vite build",
     "build:server": "tsc -p tsconfig.server.json",
     "build": "pnpm build:client && pnpm build:server",
     "clean:extensions": "tsx scripts/remove-extensions.ts",
     "preview": "vite preview",
-    "prod": "NODE_ENV=production node dist/polaris-bff/server.js",
+    "prod": "NODE_ENV=production node dist/server/server.js",
     "test": "vitest run"
   },
   "dependencies": {

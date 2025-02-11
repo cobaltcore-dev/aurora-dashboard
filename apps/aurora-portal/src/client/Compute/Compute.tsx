@@ -1,19 +1,35 @@
+import { useEffect, useState } from "react"
 import type { Server } from "../../shared/types/models"
-import type { AuroraReactQueryRouter } from "../../polaris-bff/routers"
-import { Key } from "react"
+import { trpcClient } from "../../client/trpcClient"
 
-export default function Compute(props: { api: AuroraReactQueryRouter["compute"] }) {
-  const { api } = props
-  const { data, error, isLoading } = api.getServers.useQuery()
+type GetServersState = {
+  data?: Server[]
+  error?: string
+  isLoading?: boolean
+}
 
-  if (isLoading) return <div>Loading...</div>
-  if (error) return <div>Error: {error.message}</div>
+export default function Compute() {
+  const [getServers, updateGetServer] = useState<GetServersState>({ isLoading: true })
+
+  useEffect(() => {
+    trpcClient.compute.getServers
+      .query()
+      .then((data) => {
+        updateGetServer({ data, isLoading: false, error: undefined })
+      })
+      .catch((error) => {
+        updateGetServer({ error: error.message, isLoading: false })
+      })
+  }, [])
+
+  if (getServers.isLoading) return <div>Loading...</div>
+  if (getServers.error) return <div>Error: {getServers.error}</div>
 
   return (
     <div>
       <h2>Compute</h2>
       Servers:
-      <ul>{data?.map((server: Server, i: Key | null | undefined) => <li key={i}>{server.name}</li>)}</ul>
+      <ul>{getServers.data?.map((server, i) => <li key={i}>{server.name}</li>)}</ul>
     </div>
   )
 }
