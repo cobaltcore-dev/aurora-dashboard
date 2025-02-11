@@ -1,10 +1,21 @@
 {
   "extends": "@cobaltcore-dev/aurora-config/typescript/tsconfig.lib.json",
   "compilerOptions": {
-    "rootDir": "src",
+    "rootDir": ".",
     "outDir": "dist",
-    "jsx": "react-jsx",
     "isolatedModules": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "moduleResolution": "node",
+
+    "declaration": false,
+    "declarationMap": false,
+    "emitDeclarationOnly": false,
+    "stripInternal": true,
+
+    "jsx": "react-jsx",
+    "module": "ESNext",
+    "target": "ESNext",
     "types": ["vite/client", "vitest/globals"]
   },
   "include": ["src"],
