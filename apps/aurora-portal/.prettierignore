@@ -6,4 +6,4 @@ node_modules
 dist
 build
 src/client/generated
-src/polaris-bff/generated
+src/server/generated

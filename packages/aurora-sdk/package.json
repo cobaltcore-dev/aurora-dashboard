@@ -3,10 +3,28 @@
   "version": "1.0.0",
   "description": "Package for provide basic SDK functionality for BFF and Client",
   "author": "UI-Team",
-  "main": "dist/cjs/index.js",
-  "module": "dist/esm/index.js",
   "license": "Apache-2.0",
   "private": false,
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.js",
+  "types": "dist/types/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js",
+      "types": "./dist/types/index.d.ts"
+    },
+    "./client": {
+      "import": "./dist/esm/client/index.js",
+      "require": "./dist/cjs/client/index.js",
+      "types": "./dist/types/client/index.d.ts"
+    },
+    "./server": {
+      "import": "./dist/esm/server/index.js",
+      "require": "./dist/cjs/server/index.js",
+      "types": "./dist/types/server/index.d.ts"
+    }
+  },
   "files": [
     "dist/**",
     "LICENCE"
@@ -20,9 +38,10 @@
     "test:watch": "vitest --watch",
     "lint": "eslint ",
     "dev": "vite",
-    "build:esm": "tsc --outDir dist/esm --module ESNext --moduleResolution node",
-    "build:cjs": "tsc --outDir dist/cjs --module CommonJS --moduleResolution node",
-    "build": "rm -rf dist && pnpm run build:esm && pnpm run build:cjs",
+    "build:esm": "tsc --project tsconfig.esm.json",
+    "build:cjs": "tsc --project tsconfig.cjs.json",
+    "build:types": "tsc --project tsconfig.types.json",
+    "build": "rm -rf dist && pnpm run build:esm && pnpm run build:cjs && pnpm run build:types",
     "typecheck": "tsc --project tsconfig.json --noEmit",
     "clean": "rm -rf dist && rm -rf node_modules && rm -rf .turbo",
     "clean:cache": "rm -rf .turbo"
@@ -34,10 +53,8 @@
   "dependencies": {
     "@fastify/cookie": "^11.0.2",
     "@fastify/static": "^8.0.3",
-    "@tanstack/react-query": "^5.66.0",
     "@testing-library/jest-dom": "^6.5.0",
     "@trpc/client": "11.0.0-rc.730",
-    "@trpc/react-query": "11.0.0-rc.730",
     "@trpc/server": "11.0.0-rc.730",
     "@types/node": "^22.10.5",
     "@types/react": "^18.3.18",

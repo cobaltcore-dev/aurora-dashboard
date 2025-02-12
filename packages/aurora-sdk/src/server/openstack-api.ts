@@ -1,5 +1,5 @@
 import { Token } from "./aurora-context"
-import { AuroraSDKError } from "./errors"
+import { AuroraSDKError } from "./aurora-error"
 
 type CreateTokenParams = {
   endpointUrl: string

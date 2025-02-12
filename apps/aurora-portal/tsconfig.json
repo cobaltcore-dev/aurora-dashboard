@@ -7,6 +7,6 @@
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
 
-    "types": ["vite/client", "vitest/globals", "vite-plugin-svgr/client"]
+    "types": ["vite/client", "vitest/globals", "vite-plugin-svgr/client", "@testing-library/jest-dom"]
   }
 }
