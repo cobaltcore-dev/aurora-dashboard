@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import type { Server } from "../../shared/types/models"
-import { trpcClient } from "../../client/trpcClient"
+import { TrpcClient } from "../trpcClient"
 
 type GetServersState = {
   data?: Server[]
@@ -8,11 +8,11 @@ type GetServersState = {
   isLoading?: boolean
 }
 
-export default function Compute() {
+export default function Compute({ api }: { api: TrpcClient["compute"] }) {
   const [getServers, updateGetServer] = useState<GetServersState>({ isLoading: true })
 
   useEffect(() => {
-    trpcClient.compute.getServers
+    api.getServers
       .query()
       .then((data) => {
         updateGetServer({ data, isLoading: false, error: undefined })
