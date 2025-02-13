@@ -29,6 +29,7 @@ export default defineConfig({
     },
   },
   server: {
+    allowedHosts: ["aurora.ap.ws2.eu-nl-1.cloud.sap"],
     host: "0.0.0.0",
     port: parseInt(DEV_PORT),
     proxy: {

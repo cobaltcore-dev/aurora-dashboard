@@ -13,15 +13,8 @@ import Navigation from "./Navigation"
 import { useAuth } from "./AuthProvider"
 
 type RouterScopes = keyof typeof trpcClient
-type Extension = {
-  label: string
-  routerScope: RouterScopes
-  scope: RouterScopes
-  App: Promise<{ default: React.ComponentType<{ client: (typeof trpcClient)[RouterScopes] }> }>
-  Logo: Promise<{ default: React.ComponentType }>
-}
 
-const extensions = (registerClients() as Extension[]).map((ext) => ({
+const extensions = registerClients().map((ext) => ({
   label: ext.label,
   routerID: ext.routerScope,
   scope: ext.scope,
@@ -59,7 +52,7 @@ export function AppContent() {
               {user && (
                 <>
                   <Route path="/compute">
-                    <Compute />
+                    <Compute api={trpcClient.compute} />
                   </Route>
                   <Route path="/identity">
                     <IdentityOverview />
