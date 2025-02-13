@@ -18,6 +18,7 @@ src/server/generated
 
 aurora.config.json
 .npmrc
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

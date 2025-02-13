@@ -1,4 +1,4 @@
-import { lazy, Suspense } from "react"
+import React, { lazy, Suspense } from "react"
 
 import Breadcrumb from "./Breadcrumb"
 const Home = lazy(() => import("./Home"))
@@ -14,12 +14,26 @@ import { useAuth } from "./AuthProvider"
 
 type RouterScopes = keyof typeof trpcClient
 
+type Extension = {
+  label: string
+  routerScope: RouterScopes
+  type?: "juno-app" | "aurora-extension"
+  scope: RouterScopes
+  load: Promise<{ mount: (container: HTMLElement, options?: object) => void }> | null
+  App: Promise<{ default: React.ComponentType<{ client: (typeof trpcClient)[RouterScopes] }> }> | null
+  Logo: Promise<{ default: React.ComponentType }> | null
+}
+
+const JunoAppLoader = ({ load }: { load: Extension["load"] }) => {
+  return <div ref={(el) => load?.then((m) => m.mount(el!))} />
+}
+
 const extensions = registerClients().map((ext) => ({
   label: ext.label,
   routerID: ext.routerScope,
   scope: ext.scope,
-  Component: lazy(() => ext.App),
-  Logo: lazy(() => ext.Logo),
+  Component: ext.type === "juno-app" ? JunoAppLoader : lazy(() => ext.App),
+  Logo: ext.type === "juno-app" ? null : lazy(() => ext.Logo),
 }))
 
 export function AppContent() {

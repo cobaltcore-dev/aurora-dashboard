@@ -1,6 +1,6 @@
 {
   "extends": "@cobaltcore-dev/aurora-config/typescript/tsconfig.react.json",
-  "include": ["src/**/*.ts", "src/**/*.tsx", "vitest.setup.ts", "scripts/*.ts"],
+  "include": ["src/**/*.ts", "src/**/*.tsx", "vitest.setup.ts", "scripts/**/*.ts"],
   "compilerOptions": {
     "target": "ESNext",
     "module": "ESNext",
