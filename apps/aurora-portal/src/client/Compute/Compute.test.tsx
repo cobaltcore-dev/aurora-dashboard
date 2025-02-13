@@ -19,14 +19,14 @@ describe("Compute Component", () => {
 
   test("renders loading state initially", () => {
     mockCompute.getServers.query.mockImplementation(() => new Promise(() => {})) // Keeps loading
-    render(<Compute api={mockCompute} />)
+    render(<Compute client={mockCompute} />)
     expect(screen.getByText("Loading...")).toBeInTheDocument()
   })
 
   test("renders servers list when API succeeds", async () => {
     mockCompute.getServers.query.mockResolvedValue(mockData)
 
-    render(<Compute api={mockCompute} />)
+    render(<Compute client={mockCompute} />)
 
     // Wait for servers list to appear
     await waitFor(() => {
@@ -40,7 +40,7 @@ describe("Compute Component", () => {
     const errorMessage = "Failed to fetch servers"
     mockCompute.getServers.query.mockRejectedValue(new Error(errorMessage))
 
-    render(<Compute api={mockCompute} />)
+    render(<Compute client={mockCompute} />)
 
     // Wait for error message to appear
     await waitFor(() => {
