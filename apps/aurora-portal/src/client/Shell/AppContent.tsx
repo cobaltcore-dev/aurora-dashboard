@@ -52,7 +52,7 @@ export function AppContent() {
               {user && (
                 <>
                   <Route path="/compute">
-                    <Compute api={trpcClient.compute} />
+                    <Compute client={trpcClient.compute} />
                   </Route>
                   <Route path="/identity">
                     <IdentityOverview />
