@@ -1,6 +1,7 @@
 {
   "name": "@cobaltcore-dev/aurora-dashboard",
-  "private": true,
+  "version": "1.0.0",
+  "private": false,
   "scripts": {
     "build": "turbo build",
     "dev": "turbo dev",
