@@ -1,39 +1,33 @@
-import React, { lazy, Suspense } from "react"
+import { Suspense } from "react"
 
-import Breadcrumb from "./Breadcrumb"
-const Home = lazy(() => import("./Home"))
-const About = lazy(() => import("./About"))
-const Compute = lazy(() => import("../Compute"))
-const IdentityOverview = lazy(() => import("../Identity/Overview"))
-const SignIn = lazy(() => import("../Identity/Auth/SignIn"))
+import { Breadcrumb } from "./Breadcrumb"
+import { Home } from "./Home"
+import { About } from "./About"
+import { Overview as Compute } from "../Compute/Overview"
+import { Overview as IdentityOverview } from "../Identity/Overview"
+import { SignIn } from "../Identity/Auth/SignIn"
 import { trpcClient } from "../trpcClient"
-import { registerClients } from "../generated/extensions"
 import { Route, Switch } from "wouter"
-import Navigation from "./Navigation"
+import { MainNavigation } from "./Navigation/MainNavigation"
 import { useAuth } from "./AuthProvider"
+import { ErrorBoundary } from "react-error-boundary"
 
 type RouterScopes = keyof typeof trpcClient
+import { lazy, ReactNode } from "react"
+import { TrpcClient } from "../trpcClient"
+import { clientExtensions } from "../generated/extensions"
 
-type Extension = {
-  label: string
-  routerScope: RouterScopes
-  type?: "juno-app" | "aurora-extension"
-  scope: RouterScopes
-  load: Promise<{ mount: (container: HTMLElement, options?: object) => void }> | null
-  App: Promise<{ default: React.ComponentType<{ client: (typeof trpcClient)[RouterScopes] }> }> | null
-  Logo: Promise<{ default: React.ComponentType }> | null
+interface ExtensionProps {
+  client: TrpcClient
+  getTokenFunc: () => string
 }
 
-const JunoAppLoader = ({ load }: { load: Extension["load"] }) => {
-  return <div ref={(el) => load?.then((m) => m.mount(el!))} />
-}
+type Extension = (props: ExtensionProps) => ReactNode
 
-const extensions = registerClients().map((ext) => ({
-  label: ext.label,
-  routerID: ext.routerScope,
-  scope: ext.scope,
-  Component: ext.type === "juno-app" ? JunoAppLoader : lazy(() => ext.App),
-  Logo: ext.type === "juno-app" ? null : lazy(() => ext.Logo),
+const extensions = clientExtensions.map((ext) => ({
+  ...ext,
+  App: lazy(() => ext.App) as Extension,
+  Logo: ext.Logo ? lazy(() => ext.Logo) : null,
 }))
 
 export function AppContent() {
@@ -46,44 +40,46 @@ export function AppContent() {
   if (user) {
     navItems.push({ route: "/compute", label: "Compute" })
     navItems.push({ route: "/identity", label: "Identity" })
-    extensions.forEach((ext) => navItems.push({ route: `/${ext.routerID}`, label: ext.label }))
+    extensions.forEach((ext) => navItems.push({ route: `/${ext.id}`, label: ext.navigation?.label || ext.name }))
   }
 
   return (
     <>
-      <Navigation items={navItems} />
+      <MainNavigation items={navItems} />
       <div>
         <div className="py-4 pl-4 bg-theme-global-bg h-full">
           <Breadcrumb />
-          <Suspense fallback={<div>Loading...</div>}>
-            <Switch>
-              <Route path="/" component={Home} />
-              <Route path="/about" component={About} />
+          <Switch>
+            <Route path="/" component={Home} />
+            <Route path="/about" component={About} />
 
-              <Route path="auth/signin">
-                <SignIn />
-              </Route>
-              {user && (
-                <>
-                  <Route path="/compute">
-                    <Compute client={trpcClient.compute} />
+            <Route path="auth/signin">
+              <SignIn />
+            </Route>
+            {user && (
+              <>
+                <Route path="/compute">
+                  <Compute client={trpcClient.compute} />
+                </Route>
+                <Route path="/identity">
+                  <IdentityOverview />
+                </Route>
+
+                {extensions.map((ext, i) => (
+                  <Route key={i} path={`/${ext.id}`}>
+                    <ErrorBoundary fallback={<div>Something went wrong</div>}>
+                      <Suspense fallback={<div>Loading...</div>}>
+                        <ext.App client={trpcClient[ext.id as RouterScopes]} getTokenFunc={() => ""} />
+                      </Suspense>
+                    </ErrorBoundary>
                   </Route>
-                  <Route path="/identity">
-                    <IdentityOverview />
-                  </Route>
+                ))}
+              </>
+            )}
 
-                  {extensions.map((ext) => (
-                    <Route key={ext.routerID} path={`/${ext.routerID}`}>
-                      <ext.Component client={trpcClient[ext.routerID as RouterScopes]} />
-                    </Route>
-                  ))}
-                </>
-              )}
-
-              {/* Default route in a switch */}
-              <Route>404: No such page!</Route>
-            </Switch>
-          </Suspense>
+            {/* Default route in a switch */}
+            <Route>404: No such page!</Route>
+          </Switch>
         </div>
       </div>
     </>

@@ -1,13 +1,13 @@
-import { Breadcrumb, BreadcrumbItem } from "@cloudoperators/juno-ui-components"
+import { Breadcrumb as BreadcrumbComponent, BreadcrumbItem } from "@cloudoperators/juno-ui-components"
 import { useLocation } from "wouter"
 
-export function AuroraBreadcrumb() {
+export function Breadcrumb() {
   const [location, setLocation] = useLocation()
 
   const currentLocation = location.split("/").filter((path) => path !== "")
 
   return (
-    <Breadcrumb>
+    <BreadcrumbComponent>
       <BreadcrumbItem
         icon="home"
         label=""
@@ -20,6 +20,6 @@ export function AuroraBreadcrumb() {
       {currentLocation.map((path, i) => (
         <BreadcrumbItem key={i} label={path} />
       ))}
-    </Breadcrumb>
+    </BreadcrumbComponent>
   )
 }

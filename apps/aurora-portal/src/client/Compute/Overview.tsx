@@ -8,7 +8,7 @@ type GetServersState = {
   isLoading?: boolean
 }
 
-export default function Compute({ client }: { client: TrpcClient["compute"] }) {
+export function Overview({ client }: { client: TrpcClient["compute"] }) {
   const [getServers, updateGetServer] = useState<GetServersState>({ isLoading: true })
 
   useEffect(() => {

@@ -36,7 +36,7 @@ interface NavigationProps {
   }[]
 }
 
-export default function Navigation({ items }: NavigationProps) {
+export function MainNavigation({ items }: NavigationProps) {
   const [location] = useLocation()
 
   return (

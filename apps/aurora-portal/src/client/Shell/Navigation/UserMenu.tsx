@@ -18,28 +18,25 @@ function Countdown(props: { className?: string; passwordExpiresAt: string }) {
         return
       }
 
+      const seconds = Math.floor(timeDiff / 1000) % 60
+      const minutes = Math.floor(timeDiff / (1000 * 60)) % 60
+      const hours = Math.floor(timeDiff / (1000 * 60 * 60)) % 24
       const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24))
-      const hours = Math.floor((timeDiff / (1000 * 60 * 60)) % 24)
-      const minutes = Math.floor((timeDiff / (1000 * 60)) % 60)
-      const seconds = Math.floor((timeDiff / 1000) % 60)
-      let timeLeft = ""
-      if (days > 0) timeLeft += `${days}d `
-      if (hours > 0) timeLeft += `${hours}h `
-      if (minutes > 0) timeLeft += `${minutes}m `
-      setTimeLeft(`${timeLeft} ${seconds}s`)
+
+      const formatted = [days > 0 && `${days}d`, hours > 0 && `${hours}h`, minutes > 0 && `${minutes}m`, `${seconds}s`]
+        .filter(Boolean) // Remove undefined values
+        .join(" ")
+
+      setTimeLeft(formatted)
     }
 
-    // Initial update
-    updateCountdown()
-
-    // Update every second
+    updateCountdown() // Initial update
     const intervalId = setInterval(updateCountdown, 1000)
 
-    // Cleanup interval on component unmount
-    return () => clearInterval(intervalId)
+    return () => clearInterval(intervalId) // Cleanup
   }, [props.passwordExpiresAt])
 
-  return <div className="text-xs pt-2 pb-2 text-theme-light">{timeLeft}</div>
+  return <div className={`text-xs pt-2 pb-2 text-theme-light ${props.className || ""}`}>{timeLeft}</div>
 }
 
 export function UserMenu() {

@@ -10,7 +10,7 @@ const ROOT = path.resolve(__dirname, "../../")
 const manifestPath = path.join(ROOT, "aurora.config.json")
 const extensionsTmpDir = path.join(ROOT, "tmp")
 const extensionsDir = path.join(ROOT, "node_modules")
-const clientImportsFile = path.join(ROOT, "src/client/generated", "extensions.ts")
+const clientImportsFile = path.join(ROOT, "src/client/generated", "extensions.tsx")
 const serverImportsFile = path.join(ROOT, "src/server/generated", "extensions.ts")
 const npmrcFile = path.join(ROOT, ".npmrc")
 
@@ -21,11 +21,10 @@ type Error = {
 const generateExtensionsImportFiles = (extensionImports: ExtensionImports[] = []): void => {
   const clientImports: string[] = []
   const serverImports: string[] = []
-  const clientExports = [`export const registerClients = () => ([`]
-  const serverExports = [`export const registerServers = () => ({`]
+  const clientExports = [`export const clientExtensions = [`]
+  const serverExports = [`export const serverExtensions = {`]
 
   for (const imports of extensionImports) {
-    console.log("===", imports)
     if (imports?.clientImports?.length) {
       clientImports.push(...imports.clientImports)
     }
@@ -39,8 +38,8 @@ const generateExtensionsImportFiles = (extensionImports: ExtensionImports[] = []
       serverExports.push(...imports.serverExports)
     }
   }
-  clientExports.push(`])`)
-  serverExports.push(`})`)
+  clientExports.push(`]`)
+  serverExports.push(`}`)
 
   const clientFileContent = [...clientImports, "", ...clientExports]
   const serverFileContent = [...serverImports, "", ...serverExports]

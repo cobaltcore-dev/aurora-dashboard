@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { ButtonRow, Button, Form, FormRow, TextInput, Spinner } from "@cloudoperators/juno-ui-components"
-import { useAuth } from "../../../Shell/AuthProvider"
+import { useAuth } from "../../Shell/AuthProvider"
 
 export function SignIn() {
   const [form, setForm] = useState({ domainName: "", user: "", password: "" })
@@ -15,7 +15,7 @@ export function SignIn() {
 
   if (user)
     return (
-      <div aria-live="polite" className="signed-in-notice">
+      <div className="signed-in-notice">
         <strong>Welcome back, {user.name}!</strong> <br />
         You are already signed in.
       </div>

@@ -83,6 +83,11 @@ export const installExtension = (extension: Extension, options: InstallExtension
       { recursive: true }
     )
 
+    // load packageJson from installed extension
+    const packageJson = JSON.parse(
+      fs.readFileSync(path.join(extensionsDir, packageInfo.name, "package.json")).toString()
+    )
+
     // add packageJson to extension as installedExtension
     const installedExtension: InstalledExtension = {
       ...extension,
@@ -94,7 +99,7 @@ export const installExtension = (extension: Extension, options: InstallExtension
         label: extension?.navigation?.label || extension.name || packageInfo.name,
         scope: extension?.navigation?.scope || ["domain", "project"],
       },
-      packageJson: packageInfo,
+      packageJson,
     }
 
     return installedExtension
