@@ -27,7 +27,7 @@ export function Overview({ client }: { client: TrpcClient["compute"] }) {
 
   return (
     <div>
-      <h2>Compute</h2>
+      <h2>Compute Overview</h2>
       Servers:
       <ul>{getServers.data?.map((server, i) => <li key={i}>{server.name}</li>)}</ul>
     </div>

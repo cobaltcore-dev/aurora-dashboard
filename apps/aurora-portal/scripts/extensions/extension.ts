@@ -3,12 +3,12 @@ import fs from "fs"
 import path from "path"
 
 export interface Extension {
-  source: string
   name?: string
-  type: "aurora-extension" | "juno-app"
-  navigation?: {
-    label?: string
-    scope: string[]
+  source: string // Can be a file path or package name
+  type: "aurora-extension" | "juno-app" // Allowed types
+  navigation: {
+    label: string // Display label
+    scope: ("project" | "domain")[] // Allowed scopes
   }
 }
 

@@ -30,7 +30,7 @@ describe("Overview Component", () => {
 
     // Wait for servers list to appear
     await waitFor(() => {
-      expect(screen.getByText("Overview")).toBeInTheDocument()
+      expect(screen.getByText("Compute Overview")).toBeInTheDocument()
       expect(screen.getByText("Server A")).toBeInTheDocument()
       expect(screen.getByText("Server B")).toBeInTheDocument()
     })

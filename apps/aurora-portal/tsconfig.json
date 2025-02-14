@@ -6,6 +6,9 @@
     "module": "ESNext",
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "strict": true,
 
     "types": ["vite/client", "vitest/globals", "vite-plugin-svgr/client", "@testing-library/jest-dom"]
   }

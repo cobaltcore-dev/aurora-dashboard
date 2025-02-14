@@ -53,6 +53,7 @@ const generateExtensionsImportFiles = (extensionImports: ExtensionImports[] = []
 const loadManifestExtensions = (): Extension[] => {
   try {
     const { extensions } = JSON.parse(fs.readFileSync(manifestPath, "utf-8"))
+
     return extensions
   } catch (e: Error | any) {
     console.warn("Could not read extensions manifest", e?.message)
