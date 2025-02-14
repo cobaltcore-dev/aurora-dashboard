@@ -1,6 +1,7 @@
 {
   "name": "@cobaltcore-dev/aurora-dashboard",
   "version": "1.0.0",
+  "license": "Apache-2.0",
   "private": false,
   "scripts": {
     "build": "turbo build",
