@@ -320,6 +320,10 @@ importers:
         version: 2.1.9(@types/node@22.13.2)(jsdom@24.1.3)
 
   packages/config:
+    dependencies:
+      '@eslint/js':
+        specifier: ^9.17.0
+        version: 9.20.0
     devDependencies:
       '@types/eslint__js':
         specifier: ^8.42.3
