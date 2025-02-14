@@ -18,10 +18,10 @@ export const App = ({ client }: ExtensionProps) => {
   return (
     <div>
       <h2>Starlight Mars</h2>
-      <p>
+      <div>
         Entities:
         <ul>{result?.map((entity: Entity) => <li key={entity.id}>{entity.name}</li>)}</ul>
-      </p>
+      </div>
     </div>
   )
 }

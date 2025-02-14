@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "main": "dist/client/index.js",
   "scripts": {
-    "postinstall": "tsx --no-cache scripts/install-extensions.ts && rm -rf tsx-0",
+    "postinstall": "tsx --no-cache scripts/extensions/install.ts && rm -rf tsx-0",
     "dev:client": "vite",
     "dev:server": "tsx watch src/server/server --tsconfig tsconfig.server.json",
     "dev": "concurrently -k \"pnpm dev:client\" \"pnpm dev:server\"",
@@ -24,6 +24,7 @@
     "fastify": "^5.2.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-error-boundary": "^5.0.0",
     "tsconfig-paths": "^4.2.0",
     "tsx": "^4.19.2",
     "wouter": "^3.3.5",

@@ -1,7 +1,6 @@
-// @ts-expect-error missing types
 import { FormattedText } from "@cloudoperators/juno-ui-components"
 
-export default function Home() {
+export function Home() {
   return (
     <FormattedText className="p-5">
       <h1>Welcome to Aurora Dashboard </h1>
