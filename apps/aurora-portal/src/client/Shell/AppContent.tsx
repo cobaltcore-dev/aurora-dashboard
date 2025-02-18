@@ -1,4 +1,4 @@
-import { Suspense } from "react"
+import React, { Suspense } from "react"
 
 import { Breadcrumb } from "./Breadcrumb"
 import { Home } from "./Home"
@@ -11,23 +11,32 @@ import { Route, Switch } from "wouter"
 import { MainNavigation } from "./Navigation/MainNavigation"
 import { useAuth } from "./AuthProvider"
 import { ErrorBoundary } from "react-error-boundary"
-
-type RouterScopes = keyof typeof trpcClient
-import { lazy, ReactNode } from "react"
+import { lazy } from "react"
 import { TrpcClient } from "../trpcClient"
 import { clientExtensions } from "../generated/extensions"
 
+type RouterScopes = keyof typeof trpcClient
+
 interface ExtensionProps {
-  client: TrpcClient
+  client: TrpcClient[RouterScopes]
   getTokenFunc: () => string
 }
 
-type Extension = (props: ExtensionProps) => ReactNode
+interface Extension {
+  id: string
+  name: string
+  navigation: {
+    label: string
+    scope: string[]
+  }
+  App: Promise<{ default: React.ComponentType<ExtensionProps> }>
+  Logo?: Promise<{ default: React.ComponentType }>
+}
 
-const extensions = clientExtensions.map((ext) => ({
+const extensions = clientExtensions.map((ext: Extension) => ({
   ...ext,
-  App: lazy(() => ext.App) as Extension,
-  Logo: ext.Logo ? lazy(() => ext.Logo) : null,
+  App: lazy(() => ext.App),
+  Logo: lazy(() => ext.Logo || Promise.resolve({ default: () => null })),
 }))
 
 export function AppContent() {
