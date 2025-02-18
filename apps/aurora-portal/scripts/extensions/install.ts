@@ -22,7 +22,7 @@ const generateExtensionsImportFiles = (extensionImports: ExtensionImports[] = []
   const clientImports: string[] = []
   const serverImports: string[] = []
   const clientExports = [`export const clientExtensions = [`]
-  const serverExports = [`export const serverExtensions = {`]
+  const serverExports = [`export const extensionRouters = {`]
 
   for (const imports of extensionImports) {
     if (imports?.clientImports?.length) {

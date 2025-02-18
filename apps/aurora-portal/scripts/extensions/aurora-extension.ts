@@ -31,7 +31,7 @@ export const generateAuroraExtensionImports = (extension: InstalledExtension): E
   }
   if (serverPath) {
     serverImports.push(`import * as ${extension.id} from "${serverPath}";`)
-    serverExports.push(`  "${extension.id}": ${extension.id}.registerRouter(),`)
+    serverExports.push(`  "${extension.id}": ${extension.id}.registerRouter().appRouter,`)
   }
 
   return {
