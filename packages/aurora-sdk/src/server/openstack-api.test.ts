@@ -77,6 +77,34 @@ describe("openstack-api", () => {
     })
   })
 
+  it("should call the correct endpoint", async () =>
+    expect(fetch).toHaveBeenCalledWith(new URL("auth/tokens", "http://example.com"), expect.anything()))
+
+  it("should call the correct endpoint with the correct body", async () => {
+    expect(fetch).toHaveBeenCalledWith(
+      new URL("auth/tokens", "http://example.com"),
+      expect.objectContaining({
+        method: "POST",
+        body: JSON.stringify({
+          auth: {
+            identity: {
+              methods: ["password"],
+              password: {
+                user: {
+                  domain: {
+                    name: "example",
+                  },
+                  name: "example",
+                  password: "example",
+                },
+              },
+            },
+          },
+        }),
+      })
+    )
+  })
+
   it("should create a token", async () => {
     expect(data).toBeDefined()
   })
