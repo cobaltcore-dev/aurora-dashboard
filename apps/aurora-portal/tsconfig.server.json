@@ -16,7 +16,8 @@
     "moduleResolution": "nodenext", // Use Node.js module resolution
     "incremental": false,
     "allowSyntheticDefaultImports": true, // Compatibility with default imports
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "types": ["vitest/globals"]
   },
   "include": ["src/server"], // Include the server and shared code
   "exclude": ["node_modules", "dist", "src/client"] // Exclude the node_modules and dist directories
