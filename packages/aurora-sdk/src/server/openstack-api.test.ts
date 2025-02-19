@@ -1,5 +1,5 @@
 import { createToken } from "./openstack-api"
-import { Token } from "./types"
+import { Token } from "./aurora-context"
 import { vi, it, expect, describe, beforeAll } from "vitest"
 
 vi.stubGlobal(

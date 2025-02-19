@@ -1,8 +1,8 @@
 import { z } from "zod"
-import { publicProcedure } from "../../trpc"
-import { createUnscopedToken, validateToken } from "../services/tokenApi"
+import { protectedProcedure, publicProcedure } from "../../trpc"
+import { createToken, rescopeToken, validateToken } from "../services/authApi"
 
-export const tokenRouter = {
+export const authRouter = {
   getAuthStatus: publicProcedure.query(async ({ ctx }) => {
     const authToken = ctx.getSessionCookie()
     if (!authToken) {
@@ -27,7 +27,7 @@ export const tokenRouter = {
     .input(z.object({ user: z.string(), password: z.string(), domainName: z.string() }))
     .mutation(async ({ input, ctx }) => {
       try {
-        const { authToken, tokenData } = await createUnscopedToken(input)
+        const { authToken, tokenData } = await createToken(input)
         const expDate = new Date(tokenData.expires_at)
         ctx.setSessionCookie(authToken, { expires: expDate })
         return { user: { ...tokenData.user, session_expires_at: tokenData.expires_at } }
@@ -44,4 +44,32 @@ export const tokenRouter = {
     ctx.deleteSessionCookie()
     return { success: true }
   }),
+
+  rescopeToken: protectedProcedure
+    .input(z.object({ domainId: z.string().optional(), projectId: z.string().optional() }))
+    .mutation(async ({ input, ctx }) => {
+      const { authToken } = await ctx.validateSession()
+      if (!authToken) {
+        throw new Error("No token found")
+      }
+      const scope = input.domainId
+        ? { domain: { id: input.domainId } }
+        : input.projectId
+          ? { project: { id: input.projectId } }
+          : {}
+
+      try {
+        const newAuthData = await rescopeToken(authToken, scope)
+        const expDate = new Date(newAuthData.tokenData.expires_at)
+        ctx.setSessionCookie(newAuthData.authToken, { expires: expDate })
+
+        return { user: { ...newAuthData.tokenData.user, session_expires_at: newAuthData.tokenData.expires_at } }
+      } catch (err: unknown) {
+        let errorMessage = "Unknown error"
+        if (err instanceof Error) {
+          errorMessage = err.message
+        }
+        return { user: null, reason: errorMessage }
+      }
+    }),
 }

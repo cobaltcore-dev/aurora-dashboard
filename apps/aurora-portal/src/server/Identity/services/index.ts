@@ -1,1 +1,1 @@
-export { createUnscopedToken } from "./tokenApi"
+export { createToken } from "./authApi"

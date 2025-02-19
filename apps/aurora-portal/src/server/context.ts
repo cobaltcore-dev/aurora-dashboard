@@ -4,7 +4,7 @@ import {
   Token,
   CreateAuroraFastifyContextOptions,
 } from "@cobaltcore-dev/aurora-sdk/server"
-import { validateToken } from "./Identity/services/tokenApi"
+import { validateToken } from "./Identity/services/authApi"
 
 export interface AuroraPortalContext extends AuroraContext {
   setSessionCookie: (authToken: string | null, options?: { expires: Date }) => void

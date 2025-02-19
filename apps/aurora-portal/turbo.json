@@ -7,6 +7,9 @@
     "test": {
       "dependsOn": ["@cobaltcore-dev/aurora-extension-a#build", "@cobaltcore-dev/aurora-sdk#build"]
     },
+    "test:watch": {
+      "dependsOn": ["@cobaltcore-dev/aurora-extension-a#build", "@cobaltcore-dev/aurora-sdk#build"]
+    },
     "build": {
       "dependsOn": ["@cobaltcore-dev/aurora-extension-a#build", "@cobaltcore-dev/aurora-sdk#build"]
     }

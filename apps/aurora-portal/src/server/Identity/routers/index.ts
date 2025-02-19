@@ -1,11 +1,11 @@
 import { userRouter } from "./userRouter"
-import { tokenRouter } from "./tokenRouter"
+import { authRouter } from "./authRouter"
 
 import { auroraRouter } from "../../trpc"
 
 export const identityRouters = {
   identity: auroraRouter({
     ...userRouter,
-    ...tokenRouter,
+    ...authRouter,
   }),
 }

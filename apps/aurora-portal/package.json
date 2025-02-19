@@ -14,7 +14,8 @@
     "clean:extensions": "tsx scripts/remove-extensions.ts",
     "preview": "vite preview",
     "prod": "NODE_ENV=production node dist/server/server.js",
-    "test": "vitest run"
+    "test": "vitest run",
+    "test:watch": "vitest watch"
   },
   "dependencies": {
     "@cobaltcore-dev/aurora-sdk": "workspace:*",
