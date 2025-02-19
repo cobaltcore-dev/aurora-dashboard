@@ -21,8 +21,11 @@ type Error = {
 const generateExtensionsImportFiles = (extensionImports: ExtensionImports[] = []): void => {
   const clientImports: string[] = []
   const serverImports: string[] = []
-  const clientExports = [`export const clientExtensions = [`]
-  const serverExports = [`export const extensionRouters = {`]
+  const clientExports: string[] = []
+  const serverExports: string[] = []
+
+  clientExports.push(`export const clientExtensions = [`)
+  serverExports.push(`export const extensionRouters = {`)
 
   for (const imports of extensionImports) {
     if (imports?.clientImports?.length) {
