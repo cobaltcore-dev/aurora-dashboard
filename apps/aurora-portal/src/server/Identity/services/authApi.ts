@@ -2,7 +2,7 @@ import * as dotenv from "dotenv"
 
 dotenv.config()
 
-const identityEndpoint = process.env.IDENTITY_ENDPOINT
+const identityEndpoint = process.env.IDENTITY_ENDPOINT || "http://localhost:5000/v3"
 
 // Ensure it ends with a single slash
 const normalizedEndpoint = identityEndpoint?.endsWith("/") ? identityEndpoint : `${identityEndpoint}/`
