@@ -1,6 +1,6 @@
 import { describe, it, vi, beforeEach } from "vitest"
 import { render, screen, waitFor, fireEvent } from "@testing-library/react"
-import { ComputePanel } from "./ComputePanel"
+import { ComputeOverview } from "./ComputeOverview"
 import { TrpcClient } from "../trpcClient"
 import { Server } from "../../shared/types/models"
 
@@ -20,14 +20,14 @@ describe("ComputePanel", () => {
   it("renders loading state", async () => {
     mockGetServers.mockReturnValue(new Promise(() => {})) // Never resolves
 
-    render(<ComputePanel client={mockClient} />)
+    render(<ComputeOverview client={mockClient} />)
     expect(screen.getByText("Loading...")).toBeInTheDocument()
   })
 
   it("renders error state", async () => {
     mockGetServers.mockRejectedValue(new Error("Failed to fetch servers"))
 
-    render(<ComputePanel client={mockClient} />)
+    render(<ComputeOverview client={mockClient} />)
 
     await waitFor(() => {
       expect(screen.getByText("Error: Failed to fetch servers")).toBeInTheDocument()
@@ -54,7 +54,7 @@ describe("ComputePanel", () => {
     ]
     mockGetServers.mockResolvedValue(mockServers)
 
-    render(<ComputePanel client={mockClient} />)
+    render(<ComputeOverview client={mockClient} />)
 
     await waitFor(() => {
       expect(screen.getByText("Server List")).toBeInTheDocument()
@@ -82,7 +82,7 @@ describe("ComputePanel", () => {
     ] as Server[]
     mockGetServers.mockResolvedValue(mockServers)
 
-    render(<ComputePanel client={mockClient} />)
+    render(<ComputeOverview client={mockClient} />)
 
     await waitFor(() => {
       expect(screen.getByText("Server List")).toBeInTheDocument()

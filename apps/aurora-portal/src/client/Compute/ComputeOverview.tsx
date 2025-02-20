@@ -10,7 +10,7 @@ type GetServersState = {
   error?: string
   isLoading?: boolean
 }
-export function ComputePanel({ client }: { client: TrpcClient["compute"] }) {
+export function ComputeOverview({ client }: { client: TrpcClient["compute"] }) {
   const [getServers, updateGetServer] = useState<GetServersState>({ isLoading: true })
   const [viewMode, setViewMode] = useState<"list" | "card">("list")
 
