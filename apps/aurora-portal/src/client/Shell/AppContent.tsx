@@ -3,7 +3,7 @@ import React, { Suspense } from "react"
 import { Breadcrumb } from "./Breadcrumb"
 import { Home } from "./Home"
 import { About } from "./About"
-import { Overview as Compute } from "../Compute/Overview"
+import { ComputeOverview } from "../Compute/ComputeOverview"
 import { Overview as IdentityOverview } from "../Identity/Overview"
 import { SignIn } from "../Identity/Auth/SignIn"
 import { trpcClient } from "../trpcClient"
@@ -68,7 +68,7 @@ export function AppContent() {
             {user && (
               <>
                 <Route path="/compute">
-                  <Compute client={trpcClient.compute} />
+                  <ComputeOverview client={trpcClient.compute} />
                 </Route>
                 <Route path="/identity">
                   <IdentityOverview />
