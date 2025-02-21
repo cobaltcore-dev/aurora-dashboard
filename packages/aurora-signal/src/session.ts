@@ -1,55 +1,64 @@
-import type { AuthConfig, AuthCredentials } from "./auth-config"
+import type { AuthCredentials } from "./auth-config"
+import type { AuroraSignalOptions } from "./shared-types"
 import { AuroraSignalTokenType, AuroraSignalToken } from "./token"
 import { convertAuthConfigToKeystoneAuthObject } from "./auth-config"
 import { del, post } from "./client"
+import { Service } from "./service"
 import { AuroraSignalError } from "./error"
 
-export class Session {
-  private debug: boolean = false
-  private authConfig: AuthConfig
-  private endpoint: string
-  private headers: Record<string, string> = { "Content-Type": "application/json" }
-  private token?: AuroraSignalTokenType
+// This Options pre-define the region, interfaceName, and debug for the whole session
+export function Session(identityEndpoint: string, authCredentials: AuthCredentials, options: AuroraSignalOptions = {}) {
+  const debug = options.debug === true
+  const defaultHeaders: Record<string, string> = { "Content-Type": "application/json" }
+  const authConfig = convertAuthConfigToKeystoneAuthObject(authCredentials)
+  const endpoint = new URL("/v3/auth/tokens", identityEndpoint).toString()
+  let token: AuroraSignalTokenType | undefined = undefined
 
-  constructor(endpoint: string, authCredentials: AuthCredentials, debug?: boolean) {
-    this.debug = debug === true
-    this.authConfig = convertAuthConfigToKeystoneAuthObject(authCredentials)
-    this.endpoint = new URL("/v3/auth/tokens", endpoint).toString()
-    const methods: Array<string> = this.authConfig.auth.identity?.methods || []
-
-    if (methods.includes("token") && "token" in this.authConfig.auth.identity) {
-      this.headers["X-Auth-Token"] = this.authConfig.auth.identity.token.id
-      this.headers["X-Subject-Token"] = this.authConfig.auth.identity.token.id
-    }
-  }
-
-  private async authenticate() {
+  // private function authenticate
+  const authenticate = async () => {
     // If we already have a valid token, we don't need to create a new one
-    if (this.token?.isExpired === false) {
-      return this
-    }
+    if (token?.isExpired === false) return
 
-    const response = await post(this.endpoint, this.authConfig, { headers: this.headers, debug: this.debug })
+    const authHeaders: Record<string, string> = { ...defaultHeaders }
+    if ("token" in authConfig.auth.identity) {
+      authHeaders["X-Auth-Token"] = authConfig.auth.identity.token.id
+      authHeaders["X-Subject-Token"] = authConfig.auth.identity.token.id
+    }
+    const response = await post(endpoint, authConfig, { headers: authHeaders, debug: debug })
 
     const authToken = response.headers.get("X-Subject-Token")
     if (!authToken) {
-      throw new AuroraSignalError("No auth token found in response")
+      throw new AuroraSignalError("Could not retrieve auth token")
     }
     const data = await response.json()
-    this.token = new AuroraSignalToken(data.token, response.headers.get("X-Subject-Token")!)
+    token = new AuroraSignalToken(data.token, response.headers.get("X-Subject-Token")!)
   }
 
-  async terminate() {
-    if (this.token) {
-      await del(this.endpoint, { headers: { "X-Auth-Token": this.token.authToken } })
-      this.token = undefined
+  // public functions
+  async function terminate() {
+    if (token) {
+      await del(endpoint, { headers: { "X-Auth-Token": token.authToken } })
+      token = undefined
     }
   }
 
-  async getToken(): Promise<AuroraSignalTokenType | undefined> {
-    await this.authenticate()
-    return this.token
+  async function getToken(): Promise<AuroraSignalTokenType | undefined> {
+    await authenticate()
+    return token
+  }
+
+  async function service(name: string, serviceDefaultOptions: AuroraSignalOptions = {}) {
+    await authenticate()
+    if (!token) throw new AuroraSignalError("No valid token available")
+    return Service(name, token, { ...defaultHeaders, ...options, ...serviceDefaultOptions })
+  }
+
+  // expose the public functions
+  return {
+    service,
+    terminate,
+    getToken,
   }
 }
 
-export type AuroraSignalSession = InstanceType<typeof Session>
+export type AuroraSignalSession = typeof Session

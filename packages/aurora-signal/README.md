@@ -1,37 +1,136 @@
-# Template
+# Aurora Signal
 
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
+Aurora Signal is a library designed to simplify communication with OpenStack APIs. It manages sessions, assists with service discovery, constructs URLs based on provided options, and implements API calls. Think of it as a Swiss Army knife for interacting with OpenStack!
 
-**Template** is a package that allows you to generate new packages with ease. It provides a convenient command-line interface for generating packages based on predefined templates.
+### **Key Features**
 
-## Features
+- **Authentication**: Supports multiple authentication methods, including `password`, `token`, and `application_credentials`.
+- **Service Discovery**: Easily search for services by name, region, and interface within the current token.
+- **API Client**: Implements all HTTP methods, while also simplifying the management of query parameters and request bodies.
+- **TypeScript Support**: Fully typed for enhanced development experience and code safety.
 
-- Easily generate new packages with a single command
-- Customizable templates for different project types
-- Supports popular configurations like Vite, Vitest, and TypeScript
+# Examples
 
-## Installation and usage
+**Create Session with password credentials**
 
-To use the **Template** package as a template to generate your next package, you don't need to install it inside your monorepo. Simply follow the instructions below:
+```ts
+import { Session } from "@cobaltcore-dev/aurora-signal"
 
-1. Make sure you have Node.js installed on your machine.
+const session = Session({ userName: "admin", password: "password", userDomainName: "Default" })
 
-2. Open your terminal and navigate to the root directory of your project.
-
-3. Run the following command to install the **Template** package as a global dependency:
-
-```bash
-turbo gen workspace --type package --copy @cloudoperators/aurora-package-template
+session
+  .service("compute", { interfaceName: "internal" })
+  .get("servers")
+  .then((response) => response.json())
+  .then((servers) => console.log(servers))
 ```
 
-All your pacakges should start with `@cloudoperators/aurora-` prefix.
+**Create Session with token id**
 
-That's it! You can now use the **Template** package as a template to generate your next package without installing it inside your monorepo.
+```ts
+import { Session } from "@cobaltcore-dev/aurora-signal"
 
-## Contributing
+const session = Session({ token: "Some Bearer Token" })
 
-We welcome contributions from the community. Please follow our [contribution guidelines] to contribute to this project.
+session
+  .service("compute", { interfaceName: "internal" })
+  .get("servers")
+  .then((response) => response.json())
+  .then((servers) => console.log(servers))
+```
 
-## License
+**Rescope Token**
 
-This project is licensed under the Apache License 2.0. See the [LICENSE](LICENSE) file for details.
+```ts
+import { Session } from "@cobaltcore-dev/aurora-signal"
+
+const session = Session({ token: "Some Bearer Token", scopeProjectId: "123456" })
+const newAuthToken = await session.getToken().then((token) => token.authToken)
+```
+
+# Installation
+
+To install **Aurora Signal**, you can use one of the following package managers:
+
+### **npm**
+
+```bash
+npm install @cobaltcore-dev/aurora-signal
+```
+
+### pnpm
+
+```bash
+pnpm add @cobaltcore-dev/aurora-signal
+```
+
+# API Usage
+
+## Session
+
+When creating a session, you can provide options including `headers`, `region`, `interfaceName`, and `debug`. These options are applied to every service and request. You can override them individually for each service or request.
+
+- **constructor**: `(credentials: AuthCredentials, options: AuroraSignalOptions) -> AuroraSignalSession`
+- **getToken**: `() -> AuroraSignalToken`
+- **terminate**: `() -> void`
+- **service**: `(name: string, options: AuroraSignalOptions) -> Service`
+
+### AuthCredentials
+
+#### **Identity**
+
+- **token**: A valid Keystone auth token. If provided, no further authentication information is necessary.
+- **userId**: The user ID.
+- **userName**: The user name. Only one of **userId** or **userName** is required.
+- **userDomainId**: The domain ID where the user is registered.
+- **userDomainName**: The domain name where the user is registered. Only one of **userDomainId** or **userDomainName** is required.
+- **password**: The user password.
+
+#### **Scope**
+
+- **scopeProjectId**: The project ID. If provided, no further scope information is necessary (project scope).
+- **scopeProjectName**: The project name. If provided, **scopeProjectDomainId** or **scopeProjectDomainName** are required (project scope).
+- **scopeProjectDomainId**: The project domain ID (project scope).
+- **scopeProjectDomainName**: The project domain name (project scope).
+- **scopeDomainId**: The domain ID (domain scope).
+- **scopeDomainName**: The domain name (domain scope).
+
+### AuroraSignalToken
+
+- **authToken**: `string` — The authentication token.
+- **availableRegions**: `string[]` — A list of available regions.
+- **tokenData**: `string` — The OpenStack response token.
+- **isExpired**: `boolean` — Indicates whether the token has expired.
+- **hasService**: `(name: string) -> boolean` — Checks if a service is available by name.
+- **hasRole**: `(name: string) -> boolean` — Checks if a role is available by name.
+- **serviceEndpoint**: `(type: string, options: { region?: string; interfaceName: string }) -> string | null` — Retrieves the service endpoint by type, region, and interface name.
+
+### AuroraSignalOptions
+
+- **headers**: `Record<string, string>` — Custom headers for requests.
+- **debug**: `boolean` — Enables or disables debug logging.
+- **region**: `string` — Specifies the region.
+- **interfaceName**: `string` — Specifies the interface name.
+
+## Service
+
+Service methods allow you to interact with API endpoints:
+
+- **get**: `(path: string, options: ActionOptions) -> Promise<Response>`
+- **head**: `(path: string, options: ActionOptions) -> Promise<Response>`
+- **del**: `(path: string, options: ActionOptions) -> Promise<Response>`
+- **post**: `(path: string, values: object, options: ActionOptions) -> Promise<Response>`
+- **put**: `(path: string, options: ActionOptions) -> Promise<Response>`
+- **patch**: `(path: string, options: ActionOptions) -> Promise<Response>`
+
+### ActionOptions
+
+- **queryParams**: `Record<string, string | number | boolean | string[]>` — Query parameters for the request.
+- **headers**: `Record<string, string>` — Custom headers for the request.
+- **debug**: `boolean` — Enables or disables debug logging.
+- **region**: `string` — Specifies the region.
+- **interfaceName**: `string` — Specifies the interface name.
+
+# Architecture
+
+![Aurora Signal Architecture](./docs/AuroraSignalArch.svg)

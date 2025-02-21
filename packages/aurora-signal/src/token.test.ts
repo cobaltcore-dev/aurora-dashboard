@@ -217,7 +217,7 @@ describe("Token", () => {
     expect(token.hasService("type")).toBe(true)
   })
 
-  it("should return null serviceURL if endpoints are empty", () => {
+  it("should return null serviceEndpoint if endpoints are empty", () => {
     const token = new AuroraSignalToken(
       {
         catalog: [{ id: "id", name: "name", type: "type", endpoints: [] }],
@@ -235,10 +235,10 @@ describe("Token", () => {
       },
       "token"
     )
-    expect(token.serviceURL("type", { region: "", interfaceName: "" })).toBe(null)
+    expect(token.serviceEndpoint("type", { region: "", interfaceName: "" })).toBe(null)
   })
 
-  it("should return serviceURL for empty region", () => {
+  it("should return serviceEndpoint for empty region", () => {
     const token = new AuroraSignalToken(
       {
         catalog: [
@@ -265,10 +265,10 @@ describe("Token", () => {
       },
       "token"
     )
-    expect(token.serviceURL("type", { region: "", interfaceName: "public" })).toBe("http://localhost/name")
+    expect(token.serviceEndpoint("type", { region: "", interfaceName: "public" })).toBe("http://localhost/name")
   })
 
-  it("should return serviceURL for specific region", () => {
+  it("should return serviceEndpoint for specific region", () => {
     const token = new AuroraSignalToken(
       {
         catalog: [
@@ -322,9 +322,11 @@ describe("Token", () => {
       },
       "token"
     )
-    expect(token.serviceURL("type", { region: "region2", interfaceName: "public" })).toBe("http://localhost/region2")
+    expect(token.serviceEndpoint("type", { region: "region2", interfaceName: "public" })).toBe(
+      "http://localhost/region2"
+    )
   })
-  it("should return serviceURL for specific region and interface", () => {
+  it("should return serviceEndpoint for specific region and interface", () => {
     const token = new AuroraSignalToken(
       {
         catalog: [
@@ -378,6 +380,8 @@ describe("Token", () => {
       },
       "token"
     )
-    expect(token.serviceURL("type", { region: "region1", interfaceName: "internal" })).toBe("http://localhost/internal")
+    expect(token.serviceEndpoint("type", { region: "region1", interfaceName: "internal" })).toBe(
+      "http://localhost/internal"
+    )
   })
 })

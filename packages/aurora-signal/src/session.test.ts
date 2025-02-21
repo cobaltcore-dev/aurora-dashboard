@@ -10,16 +10,16 @@ describe("session", () => {
   })
 
   it("should create a session", () => {
-    const session = new Session("http://localhost", {
+    const session = Session("http://localhost", {
       userId: "user",
       password: "password",
       userDomainName: "domain",
     })
-    expect(session).toBeInstanceOf(Session)
+    expect(session).toBeDefined()
   })
 
   it("should respond to getAuthData", async () => {
-    const session = new Session("http://localhost", {
+    const session = Session("http://localhost", {
       userId: "user",
       password: "password",
       userDomainName: "domain",
@@ -28,7 +28,7 @@ describe("session", () => {
   })
 
   it("should respond to terminate", async () => {
-    const session = new Session("http://localhost", {
+    const session = Session("http://localhost", {
       userId: "user",
       password: "password",
       userDomainName: "domain",
@@ -37,7 +37,7 @@ describe("session", () => {
   })
 
   it("should call fetch with user, password", async () => {
-    const session = new Session("http://localhost", {
+    const session = Session("http://localhost", {
       userId: "user",
       password: "password",
       userDomainName: "domain",
@@ -66,7 +66,7 @@ describe("session", () => {
   })
 
   it("should call fetch with token credentials", async () => {
-    const session = new Session("http://localhost", {
+    const session = Session("http://localhost", {
       token: "token",
     })
 
@@ -91,7 +91,7 @@ describe("session", () => {
   })
 
   it("should call fetch with application credentials", async () => {
-    const session = new Session("http://localhost", {
+    const session = Session("http://localhost", {
       applicationId: "application",
       applicationSecret: "secret",
     })
@@ -120,7 +120,7 @@ describe("session", () => {
       json: () => ({ token: { expires_at: `${date.getFullYear() + 1}-01-01T00:00:00Z` } }),
     })
 
-    const session = new Session("http://localhost", {
+    const session = Session("http://localhost", {
       userId: "user",
       password: "password",
       userDomainName: "domain",
@@ -138,7 +138,7 @@ describe("session", () => {
       json: () => ({ token: { expires_at: "2021-01-01T00:00:00Z" } }),
     })
 
-    const session = new Session("http://localhost", {
+    const session = Session("http://localhost", {
       userId: "user",
       password: "password",
       userDomainName: "domain",
@@ -156,7 +156,7 @@ describe("session", () => {
       json: () => ({ token: { expires_at: "2021-01-01T00:00:00Z" } }),
     })
 
-    const session = new Session("http://localhost", {
+    const session = Session("http://localhost", {
       userId: "user",
       password: "password",
       userDomainName: "domain",

@@ -1,4 +1,4 @@
-export interface Token {
+export interface ResponseToken {
   application_credential?: {
     id: string
     name: string
@@ -42,9 +42,9 @@ export class AuroraSignalToken {
   private expiresAt: number
   authToken: string
   availableRegions: string[]
-  tokenData: Token
+  tokenData: ResponseToken
 
-  constructor(token: Token, authToken: string) {
+  constructor(token: ResponseToken, authToken: string) {
     this.tokenData = token
     this.authToken = authToken
     this.expiresAt = new Date(token.expires_at).getTime()
@@ -74,7 +74,7 @@ export class AuroraSignalToken {
     return this.tokenData.roles.some((role) => role.name === name)
   }
 
-  serviceURL(type: string, options: { region?: string; interfaceName: string }): string | null {
+  serviceEndpoint(type: string, options: { region?: string; interfaceName: string }): string | null {
     const region = options.region || (this.availableRegions.length > 0 && this.availableRegions[0])
     const interfaceName = options.interfaceName
 

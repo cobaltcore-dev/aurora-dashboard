@@ -240,21 +240,41 @@ describe("client", () => {
     })
   })
 
-  // describe("PUT", () => {
-  //   it("should respond to put", async () => {
-  //     expect(client.put).toBeDefined()
-  //   })
-  //   it("should return a promise", async () => {
-  //     expect(client.put()).toBeInstanceOf(Promise)
-  //   })
-  // })
+  describe("PUT", () => {
+    it("should respond to put", async () => {
+      expect(client.put).toBeDefined()
+    })
+    it("should return a promise", async () => {
+      expect(client.put("/", { test: "test" }, { host: "http://localhost" })).toBeInstanceOf(Promise)
+    })
+  })
 
-  // describe("PATCH", () => {
-  //   it("should respond to patch", async () => {
-  //     expect(client.patch).toBeDefined()
-  //   })
-  //   it("should return a promise", async () => {
-  //     expect(client.patch()).toBeInstanceOf(Promise)
-  //   })
-  // })
+  describe("PATCH", () => {
+    it("should respond to patch", async () => {
+      expect(client.patch).toBeDefined()
+    })
+    it("should return a promise", async () => {
+      expect(client.patch("http://localhost", {})).toBeInstanceOf(Promise)
+    })
+  })
+
+  describe("options->queryParams", () => {
+    it("should call fetch with search params", () => {
+      global.fetch = vi.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve({}) })
+      client.get("/", { host: "http://localhost", queryParams: { test: "test", region: "region2" } })
+      expect(global.fetch).toHaveBeenCalledWith("http://localhost/?test=test&region=region2", {
+        headers: {},
+        method: "GET",
+      })
+    })
+
+    it("should convert array and call fetch with search params", () => {
+      global.fetch = vi.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve({}) })
+      client.get("/", { host: "http://localhost", queryParams: { test: ["test", "test2"] } })
+      expect(global.fetch).toHaveBeenCalledWith("http://localhost/?test=test&test=test2", {
+        headers: {},
+        method: "GET",
+      })
+    })
+  })
 })
