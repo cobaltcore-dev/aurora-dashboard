@@ -4,7 +4,7 @@ import type { AuroraSignalToken } from "./token"
 import * as client from "./client"
 import { AuroraSignalError } from "./error"
 
-interface ServiceActionOptions extends AuroraSignalOptions {
+export interface ServiceActionOptions extends AuroraSignalOptions {
   queryParams?: Record<string, string | number | boolean | string[]>
 }
 
