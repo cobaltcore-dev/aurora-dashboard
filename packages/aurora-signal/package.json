@@ -1,6 +1,7 @@
 {
   "name": "@cobaltcore-dev/aurora-signal",
   "version": "1.0.0",
+  "private": false,
   "description": "Openstack client",
   "author": "UI-Team",
   "source": "src/index.js",

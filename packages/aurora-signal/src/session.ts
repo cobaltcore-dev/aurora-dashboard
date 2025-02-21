@@ -2,9 +2,23 @@ import type { AuthCredentials } from "./auth-config"
 import type { AuroraSignalOptions } from "./shared-types"
 import { AuroraSignalTokenType, AuroraSignalToken } from "./token"
 import { convertAuthConfigToKeystoneAuthObject } from "./auth-config"
-import { del, post } from "./client"
+import { del, post, head } from "./client"
 import { Service } from "./service"
 import { AuroraSignalError } from "./error"
+
+// validateTokenMode checks if the credentials are in token mode and no scope is defined
+const checkTokenInValidateMode = (credentials: AuthCredentials): boolean => {
+  return (
+    "token" in credentials &&
+    !("scope" in credentials) &&
+    !("scopeProjectId" in credentials) &&
+    !("scopeProjectName" in credentials) &&
+    !("scopeProjectDomainId" in credentials) &&
+    !("scopeProjectDomainName" in credentials) &&
+    !("scopeDomainId" in credentials) &&
+    !("scopeDomainName" in credentials)
+  )
+}
 
 // This Options pre-define the region, interfaceName, and debug for the whole session
 export function Session(identityEndpoint: string, authCredentials: AuthCredentials, options: AuroraSignalOptions = {}) {
@@ -12,6 +26,10 @@ export function Session(identityEndpoint: string, authCredentials: AuthCredentia
   const defaultHeaders: Record<string, string> = { "Content-Type": "application/json" }
   const authConfig = convertAuthConfigToKeystoneAuthObject(authCredentials)
   const endpoint = new URL("/v3/auth/tokens", identityEndpoint).toString()
+  const validateTokenMode = checkTokenInValidateMode(authCredentials)
+
+  console.log("=========================")
+  console.log("validateTokenMode: ", validateTokenMode, authConfig.auth)
   let token: AuroraSignalTokenType | undefined = undefined
 
   // private function authenticate
@@ -20,11 +38,16 @@ export function Session(identityEndpoint: string, authCredentials: AuthCredentia
     if (token?.isExpired === false) return
 
     const authHeaders: Record<string, string> = { ...defaultHeaders }
-    if ("token" in authConfig.auth.identity) {
+
+    let response: Response
+
+    if (validateTokenMode && "token" in authConfig.auth.identity) {
       authHeaders["X-Auth-Token"] = authConfig.auth.identity.token.id
       authHeaders["X-Subject-Token"] = authConfig.auth.identity.token.id
+      response = await head(endpoint, { headers: authHeaders, debug: debug })
+    } else {
+      response = await post(endpoint, authConfig, { headers: authHeaders, debug: debug })
     }
-    const response = await post(endpoint, authConfig, { headers: authHeaders, debug: debug })
 
     const authToken = response.headers.get("X-Subject-Token")
     if (!authToken) {

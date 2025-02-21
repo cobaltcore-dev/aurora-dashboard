@@ -78,15 +78,7 @@ describe("session", () => {
         "X-Auth-Token": "token",
         "X-Subject-Token": "token",
       },
-      method: "POST",
-      body: JSON.stringify({
-        auth: {
-          identity: {
-            methods: ["token"],
-            token: { id: "token" },
-          },
-        },
-      }),
+      method: "HEAD",
     })
   })
 
@@ -165,5 +157,51 @@ describe("session", () => {
     const token = await session.getToken()
     expect(token?.authToken).toBe("token")
     expect(token?.tokenData).toEqual({ expires_at: "2021-01-01T00:00:00Z" })
+  })
+
+  it("should create token", async () => {
+    globalThis.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      headers: new Headers({ "X-Subject-Token": "token" }),
+      json: () => ({ token: { expires_at: "2021-01-01T00:00:00Z" } }),
+    })
+
+    const session = Session("http://localhost", {
+      token: "token",
+      scopeProjectId: "project",
+    })
+
+    await session.getToken()
+    expect(fetch).toHaveBeenCalledWith("http://localhost/v3/auth/tokens", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        auth: {
+          identity: {
+            methods: ["token"],
+            token: { id: "token" },
+          },
+          scope: { project: { id: "project" } },
+        },
+      }),
+    })
+  })
+
+  it("should validate token", async () => {
+    globalThis.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      headers: new Headers({ "X-Subject-Token": "token" }),
+      json: () => ({ token: { expires_at: "2021-01-01T00:00:00Z" } }),
+    })
+
+    const session = Session("http://localhost", {
+      token: "token",
+    })
+
+    await session.getToken()
+    expect(fetch).toHaveBeenCalledWith("http://localhost/v3/auth/tokens", {
+      method: "HEAD",
+      headers: { "Content-Type": "application/json", "X-Auth-Token": "token", "X-Subject-Token": "token" },
+    })
   })
 })
