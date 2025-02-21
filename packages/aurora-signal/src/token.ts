@@ -66,6 +66,10 @@ export class AuroraSignalToken {
     return this.expiresAt <= Date.now()
   }
 
+  get expiresAtDate(): Date {
+    return new Date(this.expiresAt)
+  }
+
   hasService(name: string): boolean {
     return !!this.tokenData.catalog?.find((service) => service.type === name || service.name === name)
   }

@@ -1,1 +1,6 @@
-export { Session } from "./session"
+export { AuroraSignalSession } from "./session"
+export type { AuthCredentials, AuthCredentialsScope, AuthCredentialsIdentity } from "./auth-config"
+export type { AuroraSignalOptions } from "./shared-types"
+export type { AuroraSignalTokenType } from "./token"
+export type { AuroraSignalService } from "./service"
+export type { AuroraSignalError, AuroraSignalApiError } from "./error"

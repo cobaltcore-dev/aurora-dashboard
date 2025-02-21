@@ -1,4 +1,4 @@
-import { Session } from "./session"
+import { AuroraSignalSession } from "./session"
 
 describe("session", () => {
   beforeAll(() => {
@@ -10,7 +10,7 @@ describe("session", () => {
   })
 
   it("should create a session", () => {
-    const session = Session("http://localhost", {
+    const session = AuroraSignalSession("http://localhost", {
       userId: "user",
       password: "password",
       userDomainName: "domain",
@@ -19,7 +19,7 @@ describe("session", () => {
   })
 
   it("should respond to getAuthData", async () => {
-    const session = Session("http://localhost", {
+    const session = AuroraSignalSession("http://localhost", {
       userId: "user",
       password: "password",
       userDomainName: "domain",
@@ -28,7 +28,7 @@ describe("session", () => {
   })
 
   it("should respond to terminate", async () => {
-    const session = Session("http://localhost", {
+    const session = AuroraSignalSession("http://localhost", {
       userId: "user",
       password: "password",
       userDomainName: "domain",
@@ -37,7 +37,7 @@ describe("session", () => {
   })
 
   it("should call fetch with user, password", async () => {
-    const session = Session("http://localhost", {
+    const session = AuroraSignalSession("http://localhost", {
       userId: "user",
       password: "password",
       userDomainName: "domain",
@@ -66,7 +66,7 @@ describe("session", () => {
   })
 
   it("should call fetch with token credentials", async () => {
-    const session = Session("http://localhost", {
+    const session = AuroraSignalSession("http://localhost", {
       token: "token",
     })
 
@@ -83,7 +83,7 @@ describe("session", () => {
   })
 
   it("should call fetch with application credentials", async () => {
-    const session = Session("http://localhost", {
+    const session = AuroraSignalSession("http://localhost", {
       applicationId: "application",
       applicationSecret: "secret",
     })
@@ -112,7 +112,7 @@ describe("session", () => {
       json: () => ({ token: { expires_at: `${date.getFullYear() + 1}-01-01T00:00:00Z` } }),
     })
 
-    const session = Session("http://localhost", {
+    const session = AuroraSignalSession("http://localhost", {
       userId: "user",
       password: "password",
       userDomainName: "domain",
@@ -130,7 +130,7 @@ describe("session", () => {
       json: () => ({ token: { expires_at: "2021-01-01T00:00:00Z" } }),
     })
 
-    const session = Session("http://localhost", {
+    const session = AuroraSignalSession("http://localhost", {
       userId: "user",
       password: "password",
       userDomainName: "domain",
@@ -148,7 +148,7 @@ describe("session", () => {
       json: () => ({ token: { expires_at: "2021-01-01T00:00:00Z" } }),
     })
 
-    const session = Session("http://localhost", {
+    const session = AuroraSignalSession("http://localhost", {
       userId: "user",
       password: "password",
       userDomainName: "domain",
@@ -166,7 +166,7 @@ describe("session", () => {
       json: () => ({ token: { expires_at: "2021-01-01T00:00:00Z" } }),
     })
 
-    const session = Session("http://localhost", {
+    const session = AuroraSignalSession("http://localhost", {
       token: "token",
       scopeProjectId: "project",
     })
@@ -194,7 +194,7 @@ describe("session", () => {
       json: () => ({ token: { expires_at: "2021-01-01T00:00:00Z" } }),
     })
 
-    const session = Session("http://localhost", {
+    const session = AuroraSignalSession("http://localhost", {
       token: "token",
     })
 

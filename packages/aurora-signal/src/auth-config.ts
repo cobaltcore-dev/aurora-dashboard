@@ -1,4 +1,4 @@
-type AuthCredentialsIdentity =
+export type AuthCredentialsIdentity =
   | { userId: string; password: string; userDomainId: string }
   | { userId: string; password: string; userDomainName: string }
   | { userName: string; password: string; userDomainId: string }
@@ -6,7 +6,7 @@ type AuthCredentialsIdentity =
   | { applicationId: string; applicationSecret: string }
   | { token: string }
 
-type AuthCredentialsScope =
+export type AuthCredentialsScope =
   | { scope: "unscoped" }
   | { scopeDomainId: string }
   | { scopeDomainName: string }

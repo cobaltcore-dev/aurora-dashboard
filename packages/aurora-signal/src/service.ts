@@ -69,3 +69,5 @@ export const Service = (name: string, token: AuroraSignalToken, serviceOptions: 
       clientParams(options).then((params) => client.del(path, params)),
   }
 }
+
+export type AuroraSignalService = ReturnType<typeof Service>

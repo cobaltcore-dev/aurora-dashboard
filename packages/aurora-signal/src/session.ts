@@ -21,15 +21,17 @@ const checkTokenInValidateMode = (credentials: AuthCredentials): boolean => {
 }
 
 // This Options pre-define the region, interfaceName, and debug for the whole session
-export function Session(identityEndpoint: string, authCredentials: AuthCredentials, options: AuroraSignalOptions = {}) {
+export function AuroraSignalSession(
+  identityEndpoint: string,
+  authCredentials: AuthCredentials,
+  options: AuroraSignalOptions = {}
+) {
   const debug = options.debug === true
   const defaultHeaders: Record<string, string> = { "Content-Type": "application/json" }
   const authConfig = convertAuthConfigToKeystoneAuthObject(authCredentials)
   const endpoint = new URL("/v3/auth/tokens", identityEndpoint).toString()
   const validateTokenMode = checkTokenInValidateMode(authCredentials)
 
-  console.log("=========================")
-  console.log("validateTokenMode: ", validateTokenMode, authConfig.auth)
   let token: AuroraSignalTokenType | undefined = undefined
 
   // private function authenticate
@@ -83,5 +85,3 @@ export function Session(identityEndpoint: string, authCredentials: AuthCredentia
     getToken,
   }
 }
-
-export type AuroraSignalSession = typeof Session
