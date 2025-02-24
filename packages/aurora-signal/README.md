@@ -16,7 +16,20 @@ Aurora Signal is a library designed to simplify communication with OpenStack API
 ```ts
 import { Session } from "@cobaltcore-dev/aurora-signal"
 
-const session = Session({ userName: "admin", password: "password", userDomainName: "Default" })
+const session = Session({
+  auth: {
+    identity: {
+      methods: ["passowrd"],
+      password: {
+        user: {
+          id: "admin",
+          password: "password",
+          domain: { name: "Default" },
+        },
+      },
+    },
+  },
+})
 
 session
   .service("compute", { interfaceName: "internal" })
@@ -28,9 +41,16 @@ session
 **Create Session with token id**
 
 ```ts
-import { Session } from "@cobaltcore-dev/aurora-signal"
+import { AuroraSignalSession } from "@cobaltcore-dev/aurora-signal"
 
-const session = Session({ token: "Some Bearer Token" })
+const session = AuroraSignalSession("http://identity", {
+  auth: {
+    identity: {
+      methods: ["token"],
+      token: { id: "Some Bearer Token" },
+    },
+  },
+})
 
 session
   .service("compute", { interfaceName: "internal" })
@@ -44,7 +64,18 @@ session
 ```ts
 import { Session } from "@cobaltcore-dev/aurora-signal"
 
-const session = Session({ token: "Some Bearer Token", scopeProjectId: "123456" })
+const session = AuroraSignalSession("http://identity", {
+  auth: {
+    identity: {
+      methods: ["token"],
+      token: { id: "Some Bearer Token" },
+    },
+    scope: {
+      project: { id: "123456" },
+    },
+  },
+})
+
 const newAuthToken = await session.getToken().then((token) => token.authToken)
 ```
 
@@ -66,41 +97,46 @@ pnpm add @cobaltcore-dev/aurora-signal
 
 # API Usage
 
-## Session
+## AuroraSignalSession
 
 When creating a session, you can provide options including `headers`, `region`, `interfaceName`, and `debug`. These options are applied to every service and request. You can override them individually for each service or request.
 
-- **constructor**: `(credentials: AuthCredentials, options: AuroraSignalOptions) -> AuroraSignalSession`
+- **constructor**: `(identityEndpoint: string, credentials: AuthConfig, options: AuroraSignalOptions) -> AuroraSignalSession`
 - **getToken**: `() -> AuroraSignalToken`
 - **terminate**: `() -> void`
 - **service**: `(name: string, options: AuroraSignalOptions) -> Service`
 
-### AuthCredentials
+### AuthConfig
 
-#### **Identity**
+[Please read the Openstack Api description](https://docs.openstack.org/api-ref/identity/v3/#password-authentication-with-unscoped-authorization)
+**Example**:
 
-- **token**: A valid Keystone auth token. If provided, no further authentication information is necessary.
-- **userId**: The user ID.
-- **userName**: The user name. Only one of **userId** or **userName** is required.
-- **userDomainId**: The domain ID where the user is registered.
-- **userDomainName**: The domain name where the user is registered. Only one of **userDomainId** or **userDomainName** is required.
-- **password**: The user password.
-
-#### **Scope**
-
-- **scopeProjectId**: The project ID. If provided, no further scope information is necessary (project scope).
-- **scopeProjectName**: The project name. If provided, **scopeProjectDomainId** or **scopeProjectDomainName** are required (project scope).
-- **scopeProjectDomainId**: The project domain ID (project scope).
-- **scopeProjectDomainName**: The project domain name (project scope).
-- **scopeDomainId**: The domain ID (domain scope).
-- **scopeDomainName**: The domain name (domain scope).
+```json
+{
+  "auth": {
+    "identity": {
+      "methods": ["password"],
+      "password": {
+        "user": {
+          "name": "admin",
+          "domain": {
+            "name": "Default"
+          },
+          "password": "devstacker"
+        }
+      }
+    },
+    "scope": "unscoped"
+  }
+}
+```
 
 ### AuroraSignalToken
 
 - **authToken**: `string` — The authentication token.
 - **availableRegions**: `string[]` — A list of available regions.
 - **tokenData**: `string` — The OpenStack response token.
-- **isExpired**: `boolean` — Indicates whether the token has expired.
+- **isExpired**: `() -> boolean` — Indicates whether the token has expired.
 - **hasService**: `(name: string) -> boolean` — Checks if a service is available by name.
 - **hasRole**: `(name: string) -> boolean` — Checks if a role is available by name.
 - **serviceEndpoint**: `(type: string, options: { region?: string; interfaceName: string }) -> string | null` — Retrieves the service endpoint by type, region, and interface name.

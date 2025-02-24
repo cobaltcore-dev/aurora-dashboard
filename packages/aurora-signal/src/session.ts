@@ -1,53 +1,45 @@
-import type { AuthCredentials } from "./auth-config"
+import { AuthSchema, AuthConfig } from "./auth-config"
 import type { AuroraSignalOptions } from "./shared-types"
 import { AuroraSignalTokenType, AuroraSignalToken } from "./token"
-import { convertAuthConfigToKeystoneAuthObject } from "./auth-config"
-import { del, post, head } from "./client"
-import { Service } from "./service"
+import { del, post, get } from "./client"
+import { AuroraSignalService } from "./service"
 import { AuroraSignalError } from "./error"
 
-// validateTokenMode checks if the credentials are in token mode and no scope is defined
-const checkTokenInValidateMode = (credentials: AuthCredentials): boolean => {
-  return (
-    "token" in credentials &&
-    !("scope" in credentials) &&
-    !("scopeProjectId" in credentials) &&
-    !("scopeProjectName" in credentials) &&
-    !("scopeProjectDomainId" in credentials) &&
-    !("scopeProjectDomainName" in credentials) &&
-    !("scopeDomainId" in credentials) &&
-    !("scopeDomainName" in credentials)
-  )
+function normalizeOpenstackIdentityUrl(url: string) {
+  const match = url.match(/\/v3\/?$/) // Check if the URL already ends with /v3 (optional trailing /)
+  const baseUrl = url.replace(/(\/v\d+\/?)?$/, "") // Remove any version part
+  const version = match ? "/v3" : "/v3" // Force v3
+
+  return `${baseUrl}${version}/auth/tokens`
 }
 
 // This Options pre-define the region, interfaceName, and debug for the whole session
 export function AuroraSignalSession(
   identityEndpoint: string,
-  authCredentials: AuthCredentials,
+  authConfig: AuthConfig,
   options: AuroraSignalOptions = {}
 ) {
+  AuthSchema.parse(authConfig) // Validate the auth config
+  const endpoint = normalizeOpenstackIdentityUrl(identityEndpoint.toString())
   const debug = options.debug === true
   const defaultHeaders: Record<string, string> = { "Content-Type": "application/json" }
-  const authConfig = convertAuthConfigToKeystoneAuthObject(authCredentials)
-  const endpoint = new URL("/v3/auth/tokens", identityEndpoint).toString()
-  const validateTokenMode = checkTokenInValidateMode(authCredentials)
-
   let token: AuroraSignalTokenType | undefined = undefined
 
   // private function authenticate
   const authenticate = async () => {
     // If we already have a valid token, we don't need to create a new one
-    if (token?.isExpired === false) return
+    if (token !== undefined && token?.isExpired() === false) return
 
     const authHeaders: Record<string, string> = { ...defaultHeaders }
 
     let response: Response
-
-    if (validateTokenMode && "token" in authConfig.auth.identity) {
+    if ("token" in authConfig.auth.identity && authConfig.auth.identity.token.id && !authConfig.auth.scope) {
+      // If we have token authentication and no scope, we can use the get method to validate the token
       authHeaders["X-Auth-Token"] = authConfig.auth.identity.token.id
       authHeaders["X-Subject-Token"] = authConfig.auth.identity.token.id
-      response = await head(endpoint, { headers: authHeaders, debug: debug })
+      response = await get(endpoint, { headers: authHeaders, debug: debug })
     } else {
+      // Otherwise, we need to create a new token
       response = await post(endpoint, authConfig, { headers: authHeaders, debug: debug })
     }
 
@@ -56,7 +48,7 @@ export function AuroraSignalSession(
       throw new AuroraSignalError("Could not retrieve auth token")
     }
     const data = await response.json()
-    token = new AuroraSignalToken(data.token, response.headers.get("X-Subject-Token")!)
+    token = AuroraSignalToken({ tokenData: data.token, authToken: response.headers.get("X-Subject-Token")! })
   }
 
   // public functions
@@ -75,7 +67,7 @@ export function AuroraSignalSession(
   async function service(name: string, serviceDefaultOptions: AuroraSignalOptions = {}) {
     await authenticate()
     if (!token) throw new AuroraSignalError("No valid token available")
-    return Service(name, token, { ...defaultHeaders, ...options, ...serviceDefaultOptions })
+    return AuroraSignalService(name, token, { ...defaultHeaders, ...options, ...serviceDefaultOptions })
   }
 
   // expose the public functions

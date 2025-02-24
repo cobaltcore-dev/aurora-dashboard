@@ -11,36 +11,56 @@ describe("session", () => {
 
   it("should create a session", () => {
     const session = AuroraSignalSession("http://localhost", {
-      userId: "user",
-      password: "password",
-      userDomainName: "domain",
+      auth: {
+        identity: {
+          methods: ["password"],
+          password: {
+            user: { name: "user", domain: { name: "domain" }, password: "password" },
+          },
+        },
+      },
     })
     expect(session).toBeDefined()
   })
 
   it("should respond to getAuthData", async () => {
     const session = AuroraSignalSession("http://localhost", {
-      userId: "user",
-      password: "password",
-      userDomainName: "domain",
+      auth: {
+        identity: {
+          methods: ["password"],
+          password: {
+            user: { name: "user", domain: { name: "domain" }, password: "password" },
+          },
+        },
+      },
     })
     expect(session.getToken).toBeInstanceOf(Function)
   })
 
   it("should respond to terminate", async () => {
     const session = AuroraSignalSession("http://localhost", {
-      userId: "user",
-      password: "password",
-      userDomainName: "domain",
+      auth: {
+        identity: {
+          methods: ["password"],
+          password: {
+            user: { name: "user", domain: { name: "domain" }, password: "password" },
+          },
+        },
+      },
     })
     expect(session.terminate).toBeInstanceOf(Function)
   })
 
   it("should call fetch with user, password", async () => {
     const session = AuroraSignalSession("http://localhost", {
-      userId: "user",
-      password: "password",
-      userDomainName: "domain",
+      auth: {
+        identity: {
+          methods: ["password"],
+          password: {
+            user: { id: "user", password: "password", domain: { id: "domain" } },
+          },
+        },
+      },
     })
 
     await session.getToken()
@@ -56,7 +76,7 @@ describe("session", () => {
               user: {
                 id: "user",
                 password: "password",
-                domain: { name: "domain" },
+                domain: { id: "domain" },
               },
             },
           },
@@ -67,7 +87,7 @@ describe("session", () => {
 
   it("should call fetch with token credentials", async () => {
     const session = AuroraSignalSession("http://localhost", {
-      token: "token",
+      auth: { identity: { methods: ["token"], token: { id: "token" } } },
     })
 
     await session.getToken()
@@ -78,14 +98,21 @@ describe("session", () => {
         "X-Auth-Token": "token",
         "X-Subject-Token": "token",
       },
-      method: "HEAD",
+      method: "GET",
     })
   })
 
   it("should call fetch with application credentials", async () => {
     const session = AuroraSignalSession("http://localhost", {
-      applicationId: "application",
-      applicationSecret: "secret",
+      auth: {
+        identity: {
+          methods: ["application_credential"],
+          application_credential: {
+            id: "423f19a4ac1e4f48bbb4180756e6eb6c",
+            secret: "secret",
+          },
+        },
+      },
     })
 
     await session.getToken()
@@ -97,7 +124,7 @@ describe("session", () => {
         auth: {
           identity: {
             methods: ["application_credential"],
-            application_credential: { id: "application", secret: "secret" },
+            application_credential: { id: "423f19a4ac1e4f48bbb4180756e6eb6c", secret: "secret" },
           },
         },
       }),
@@ -113,9 +140,14 @@ describe("session", () => {
     })
 
     const session = AuroraSignalSession("http://localhost", {
-      userId: "user",
-      password: "password",
-      userDomainName: "domain",
+      auth: {
+        identity: {
+          methods: ["password"],
+          password: {
+            user: { name: "user", domain: { name: "domain" }, password: "password" },
+          },
+        },
+      },
     })
 
     await session.getToken()
@@ -131,9 +163,14 @@ describe("session", () => {
     })
 
     const session = AuroraSignalSession("http://localhost", {
-      userId: "user",
-      password: "password",
-      userDomainName: "domain",
+      auth: {
+        identity: {
+          methods: ["password"],
+          password: {
+            user: { name: "user", domain: { name: "domain" }, password: "password" },
+          },
+        },
+      },
     })
 
     await session.getToken()
@@ -149,9 +186,14 @@ describe("session", () => {
     })
 
     const session = AuroraSignalSession("http://localhost", {
-      userId: "user",
-      password: "password",
-      userDomainName: "domain",
+      auth: {
+        identity: {
+          methods: ["password"],
+          password: {
+            user: { name: "user", domain: { name: "domain" }, password: "password" },
+          },
+        },
+      },
     })
 
     const token = await session.getToken()
@@ -167,8 +209,13 @@ describe("session", () => {
     })
 
     const session = AuroraSignalSession("http://localhost", {
-      token: "token",
-      scopeProjectId: "project",
+      auth: {
+        identity: {
+          methods: ["token"],
+          token: { id: "token" },
+        },
+        scope: { project: { id: "project" } },
+      },
     })
 
     await session.getToken()
@@ -195,12 +242,12 @@ describe("session", () => {
     })
 
     const session = AuroraSignalSession("http://localhost", {
-      token: "token",
+      auth: { identity: { methods: ["token"], token: { id: "token" } } },
     })
 
     await session.getToken()
     expect(fetch).toHaveBeenCalledWith("http://localhost/v3/auth/tokens", {
-      method: "HEAD",
+      method: "GET",
       headers: { "Content-Type": "application/json", "X-Auth-Token": "token", "X-Subject-Token": "token" },
     })
   })

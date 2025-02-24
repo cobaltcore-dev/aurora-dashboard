@@ -1,267 +1,150 @@
-import { convertAuthConfigToKeystoneAuthObject } from "./auth-config"
-
-/**
- * Convert auth config to keystone authentication object
- * possible properties:
- * AUTH
- * - token: a valid keystone auth token. If token is given, no further information is necessary
- * - userId: user ID
- * - userName: user name, only one of the two is necessary userId or userName
- * - userDomainId: domain id where the user is registered
- * - userDomainName: domain name where the user is registered, only one of the two is necessary userDomainId or userDomainName
- * - password: user password
- * SCOPE
- * - scopeProjectId: project ID. If this parameter is given no further scope information is neccessary (project scope)
- * - scopeProjectName: project name. In this case scopeProjectDomainID or scopeProjectDomainName are neccessary. (project scope)
- * - scopeProjectDomainId: project domain id (project scope)
- * - scopeProjectDomainName: project domain name (project scope)
- * - scopeDomainId: domain id (domain scope)
- * - scopeDomainName: domain name (domain scope)
- */
+import { AuthConfig, AuthSchema } from "./auth-config"
 
 describe("auth-config", () => {
-  it("should convert userName, password, userDomainName credentials", () => {
-    const result = convertAuthConfigToKeystoneAuthObject({
-      userName: "user",
-      password: "password",
-      userDomainName: "domain",
-    })
-
-    expect(result).toEqual({
+  it("should validate password authentication with unscoped authorization", () => {
+    const authConfig: AuthConfig = {
       auth: {
         identity: {
           methods: ["password"],
           password: {
             user: {
-              name: "user",
-              password: "password",
-              domain: { name: "domain" },
+              name: "admin",
+              domain: {
+                name: "Default",
+              },
+              password: "devstacker",
             },
           },
         },
       },
-    })
+    }
+    expect(AuthSchema.safeParse(authConfig)).toEqual({ success: true, data: authConfig })
   })
 
-  it("should convert userName, password, userDomainId credentials", () => {
-    const result = convertAuthConfigToKeystoneAuthObject({
-      userName: "user",
-      password: "password",
-      userDomainId: "domain",
-    })
-
-    expect(result).toEqual({
+  it("should validate Password authentication with scoped authorization", () => {
+    const authConfig: AuthConfig = {
       auth: {
         identity: {
           methods: ["password"],
           password: {
             user: {
-              name: "user",
-              password: "password",
-              domain: { id: "domain" },
+              name: "admin",
+              domain: {
+                name: "Default",
+              },
+              password: "devstacker",
+            },
+          },
+        },
+        scope: {
+          project: {
+            name: "admin",
+            domain: {
+              name: "Default",
             },
           },
         },
       },
-    })
+    }
+    expect(AuthSchema.safeParse(authConfig)).toEqual({ success: true, data: authConfig })
   })
 
-  it("should convert userId, password, userDomainName credentials", () => {
-    const result = convertAuthConfigToKeystoneAuthObject({
-      userId: "user",
-      password: "password",
-      userDomainName: "domain",
-    })
-
-    expect(result).toEqual({
+  it("should validate Password authentication with explicit unscoped authorization", () => {
+    const authConfig: AuthConfig = {
       auth: {
         identity: {
           methods: ["password"],
           password: {
             user: {
-              id: "user",
-              password: "password",
-              domain: { name: "domain" },
+              id: "ee4dfb6e5540447cb3741905149d9b6e",
+              password: "devstacker",
             },
           },
         },
+        scope: "unscoped",
       },
-    })
+    }
+    expect(AuthSchema.safeParse(authConfig)).toEqual({ success: true, data: authConfig })
   })
 
-  it("should convert userId, password, userDomainId credentials", () => {
-    const result = convertAuthConfigToKeystoneAuthObject({
-      userId: "user",
-      password: "password",
-      userDomainId: "domain",
-    })
-
-    expect(result).toEqual({
+  it("should validate Token authentication with unscoped authorization", () => {
+    const authConfig: AuthConfig = {
       auth: {
         identity: {
-          methods: ["password"],
-          password: {
-            user: {
-              id: "user",
-              password: "password",
-              domain: { id: "domain" },
-            },
+          methods: ["token"],
+          token: {
+            id: "'$OS_TOKEN'",
           },
         },
       },
-    })
+    }
+    expect(AuthSchema.safeParse(authConfig)).toEqual({ success: true, data: authConfig })
   })
 
-  it("should convert applicationId, applicationSecret credentials", () => {
-    const result = convertAuthConfigToKeystoneAuthObject({
-      applicationId: "id",
-      applicationSecret: "secret",
-    })
+  it("should validate Token authentication with scoped authorization", () => {
+    const authConfig: AuthConfig = {
+      auth: {
+        identity: {
+          methods: ["token"],
+          token: {
+            id: "'$OS_TOKEN'",
+          },
+        },
+        scope: {
+          system: {
+            all: true,
+          },
+        },
+      },
+    }
+    expect(AuthSchema.safeParse(authConfig)).toEqual({ success: true, data: authConfig })
+  })
 
-    expect(result).toEqual({
+  it("should validate Token authentication with explicit unscoped authorization", () => {
+    const authConfig: AuthConfig = {
+      auth: {
+        identity: {
+          methods: ["token"],
+          token: {
+            id: "'$OS_TOKEN'",
+          },
+        },
+        scope: "unscoped",
+      },
+    }
+    expect(AuthSchema.safeParse(authConfig)).toEqual({ success: true, data: authConfig })
+  })
+
+  it("should validate Authenticating with an Application Credential", () => {
+    const authConfig: AuthConfig = {
       auth: {
         identity: {
           methods: ["application_credential"],
-          application_credential: { id: "id", secret: "secret" },
+          application_credential: {
+            id: "423f19a4ac1e4f48bbb4180756e6eb6c",
+            secret: "rEaqvJka48mpv",
+          },
         },
       },
-    })
+    }
+    expect(AuthSchema.safeParse(authConfig)).toEqual({ success: true, data: authConfig })
   })
 
-  it("should convert userId, password, userDomainId credentials and scopeProjectId", () => {
-    const result = convertAuthConfigToKeystoneAuthObject({
-      userId: "user",
-      password: "password",
-      userDomainId: "domain",
-      scopeProjectId: "project",
-    })
-
-    expect(result).toEqual({
+  it("should validate Authenticating with an Application Credential by user id", () => {
+    const authConfig: AuthConfig = {
       auth: {
         identity: {
-          methods: ["password"],
-          password: {
+          methods: ["application_credential"],
+          application_credential: {
+            name: "monitoring",
+            secret: "rEaqvJka48mpv",
             user: {
-              id: "user",
-              password: "password",
-              domain: { id: "domain" },
+              id: "423f19a4ac1e4f48bbb4180756e6eb6c",
             },
           },
         },
-        scope: {
-          project: { id: "project" },
-        },
       },
-    })
-  })
-
-  it("should convert userId, password, userDomainId credentials and scopeProjectName, scopeProjectDomainId", () => {
-    const result = convertAuthConfigToKeystoneAuthObject({
-      userId: "user",
-      password: "password",
-      userDomainId: "domain",
-      scopeProjectName: "project",
-      scopeProjectDomainId: "domain",
-    })
-
-    expect(result).toEqual({
-      auth: {
-        identity: {
-          methods: ["password"],
-          password: {
-            user: {
-              id: "user",
-              password: "password",
-              domain: { id: "domain" },
-            },
-          },
-        },
-        scope: {
-          project: { name: "project", domain: { id: "domain" } },
-        },
-      },
-    })
-  })
-
-  it("should convert userId, password, userDomainId credentials and scopeProjectName, scopeProjectDomainName", () => {
-    const result = convertAuthConfigToKeystoneAuthObject({
-      userId: "user",
-      password: "password",
-      userDomainId: "domain",
-      scopeProjectName: "project",
-      scopeProjectDomainName: "domain",
-    })
-
-    expect(result).toEqual({
-      auth: {
-        identity: {
-          methods: ["password"],
-          password: {
-            user: {
-              id: "user",
-              password: "password",
-              domain: { id: "domain" },
-            },
-          },
-        },
-        scope: {
-          project: { name: "project", domain: { name: "domain" } },
-        },
-      },
-    })
-  })
-
-  it("should convert userId, password, userDomainId credentials and scopeDomainId", () => {
-    const result = convertAuthConfigToKeystoneAuthObject({
-      userId: "user",
-      password: "password",
-      userDomainId: "domain",
-      scopeDomainId: "domain",
-    })
-
-    expect(result).toEqual({
-      auth: {
-        identity: {
-          methods: ["password"],
-          password: {
-            user: {
-              id: "user",
-              password: "password",
-              domain: { id: "domain" },
-            },
-          },
-        },
-        scope: {
-          domain: { id: "domain" },
-        },
-      },
-    })
-  })
-
-  it("should convert userId, password, userDomainId credentials and scopeDomainName", () => {
-    const result = convertAuthConfigToKeystoneAuthObject({
-      userId: "user",
-      password: "password",
-      userDomainId: "domain",
-      scopeDomainName: "domain",
-    })
-
-    expect(result).toEqual({
-      auth: {
-        identity: {
-          methods: ["password"],
-          password: {
-            user: {
-              id: "user",
-              password: "password",
-              domain: { id: "domain" },
-            },
-          },
-        },
-        scope: {
-          domain: { name: "domain" },
-        },
-      },
-    })
+    }
+    expect(AuthSchema.safeParse(authConfig)).toEqual({ success: true, data: authConfig })
   })
 })

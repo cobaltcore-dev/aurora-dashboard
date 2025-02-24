@@ -2,8 +2,8 @@ import { AuroraSignalToken } from "./token"
 
 describe("Token", () => {
   it("should create a token", () => {
-    const token = new AuroraSignalToken(
-      {
+    const token = AuroraSignalToken({
+      tokenData: {
         catalog: [],
         expires_at: "2021-01-01T00:00:00Z",
         issued_at: "2021-01-01T00:00:00Z",
@@ -17,14 +17,14 @@ describe("Token", () => {
           password_expires_at: "2021-01-01T00:00:00Z",
         },
       },
-      "token"
-    )
-    expect(token).toBeInstanceOf(AuroraSignalToken)
+      authToken: "token",
+    })
+    expect(token).toBeDefined()
   })
 
   it("should return isExpired", () => {
-    const token = new AuroraSignalToken(
-      {
+    const token = AuroraSignalToken({
+      tokenData: {
         catalog: [],
         expires_at: "2021-01-01T00:00:00Z",
         issued_at: "2021-01-01T00:00:00Z",
@@ -38,14 +38,14 @@ describe("Token", () => {
           password_expires_at: "2021-01-01T00:00:00Z",
         },
       },
-      "token"
-    )
-    expect(token.isExpired).toBe(true)
+      authToken: "token",
+    })
+    expect(token.isExpired()).toBe(true)
   })
 
   it("should return authToken", () => {
-    const token = new AuroraSignalToken(
-      {
+    const token = AuroraSignalToken({
+      tokenData: {
         catalog: [],
         expires_at: "2021-01-01T00:00:00Z",
         issued_at: "2021-01-01T00:00:00Z",
@@ -59,14 +59,14 @@ describe("Token", () => {
           password_expires_at: "2021-01-01T00:00:00Z",
         },
       },
-      "token"
-    )
+      authToken: "token",
+    })
     expect(token.authToken).toBe("token")
   })
 
   it("should return availableRegions", () => {
-    const token = new AuroraSignalToken(
-      {
+    const token = AuroraSignalToken({
+      tokenData: {
         catalog: [
           {
             endpoints: [
@@ -89,14 +89,14 @@ describe("Token", () => {
           password_expires_at: "2021-01-01T00:00:00Z",
         },
       },
-      "token"
-    )
+      authToken: "token",
+    })
     expect(token.availableRegions).toEqual(["region"])
   })
 
   it("should return empty availableRegions", () => {
-    const token = new AuroraSignalToken(
-      {
+    const token = AuroraSignalToken({
+      tokenData: {
         catalog: [],
         expires_at: "2021-01-01T00:00:00Z",
         issued_at: "2021-01-01T00:00:00Z",
@@ -110,14 +110,14 @@ describe("Token", () => {
           password_expires_at: "2021-01-01T00:00:00Z",
         },
       },
-      "token"
-    )
+      authToken: "token",
+    })
     expect(token.availableRegions).toEqual([])
   })
 
   it("should return true for hasRole", () => {
-    const token = new AuroraSignalToken(
-      {
+    const token = AuroraSignalToken({
+      tokenData: {
         catalog: [],
         expires_at: "2021-01-01T00:00:00Z",
         issued_at: "2021-01-01T00:00:00Z",
@@ -131,14 +131,14 @@ describe("Token", () => {
           password_expires_at: "2021-01-01T00:00:00Z",
         },
       },
-      "token"
-    )
+      authToken: "token",
+    })
     expect(token.hasRole("name")).toBe(true)
   })
 
   it("should return false for hasRole", () => {
-    const token = new AuroraSignalToken(
-      {
+    const token = AuroraSignalToken({
+      tokenData: {
         catalog: [],
         expires_at: "2021-01-01T00:00:00Z",
         issued_at: "2021-01-01T00:00:00Z",
@@ -152,14 +152,14 @@ describe("Token", () => {
           password_expires_at: "2021-01-01T00:00:00Z",
         },
       },
-      "token"
-    )
+      authToken: "token",
+    })
     expect(token.hasRole("other")).toBe(false)
   })
 
   it("should return true for hasService", () => {
-    const token = new AuroraSignalToken(
-      {
+    const token = AuroraSignalToken({
+      tokenData: {
         catalog: [
           {
             endpoints: [
@@ -182,14 +182,14 @@ describe("Token", () => {
           password_expires_at: "2021-01-01T00:00:00Z",
         },
       },
-      "token"
-    )
+      authToken: "token",
+    })
     expect(token.hasService("name")).toBe(true)
   })
 
   it("should return true for hasService by type", () => {
-    const token = new AuroraSignalToken(
-      {
+    const token = AuroraSignalToken({
+      tokenData: {
         catalog: [
           {
             endpoints: [
@@ -212,14 +212,14 @@ describe("Token", () => {
           password_expires_at: "2021-01-01T00:00:00Z",
         },
       },
-      "token"
-    )
+      authToken: "token",
+    })
     expect(token.hasService("type")).toBe(true)
   })
 
   it("should return null serviceEndpoint if endpoints are empty", () => {
-    const token = new AuroraSignalToken(
-      {
+    const token = AuroraSignalToken({
+      tokenData: {
         catalog: [{ id: "id", name: "name", type: "type", endpoints: [] }],
         expires_at: "2021-01-01T00:00:00Z",
         issued_at: "2021-01-01T00:00:00Z",
@@ -233,14 +233,14 @@ describe("Token", () => {
           password_expires_at: "2021-01-01T00:00:00Z",
         },
       },
-      "token"
-    )
+      authToken: "token",
+    })
     expect(token.serviceEndpoint("type", { region: "", interfaceName: "" })).toBe(null)
   })
 
   it("should return serviceEndpoint for empty region", () => {
-    const token = new AuroraSignalToken(
-      {
+    const token = AuroraSignalToken({
+      tokenData: {
         catalog: [
           {
             endpoints: [
@@ -263,14 +263,14 @@ describe("Token", () => {
           password_expires_at: "2021-01-01T00:00:00Z",
         },
       },
-      "token"
-    )
+      authToken: "token",
+    })
     expect(token.serviceEndpoint("type", { region: "", interfaceName: "public" })).toBe("http://localhost/name")
   })
 
   it("should return serviceEndpoint for specific region", () => {
-    const token = new AuroraSignalToken(
-      {
+    const token = AuroraSignalToken({
+      tokenData: {
         catalog: [
           {
             endpoints: [
@@ -320,15 +320,15 @@ describe("Token", () => {
           password_expires_at: "2021-01-01T00:00:00Z",
         },
       },
-      "token"
-    )
+      authToken: "token",
+    })
     expect(token.serviceEndpoint("type", { region: "region2", interfaceName: "public" })).toBe(
       "http://localhost/region2"
     )
   })
   it("should return serviceEndpoint for specific region and interface", () => {
-    const token = new AuroraSignalToken(
-      {
+    const token = AuroraSignalToken({
+      tokenData: {
         catalog: [
           {
             endpoints: [
@@ -378,8 +378,8 @@ describe("Token", () => {
           password_expires_at: "2021-01-01T00:00:00Z",
         },
       },
-      "token"
-    )
+      authToken: "token",
+    })
     expect(token.serviceEndpoint("type", { region: "region1", interfaceName: "internal" })).toBe(
       "http://localhost/internal"
     )

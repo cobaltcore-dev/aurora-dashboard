@@ -42,5 +42,8 @@
     "jsdom": "^24.1.1",
     "typescript": "^5.5.4",
     "vitest": "^2.1.4"
+  },
+  "dependencies": {
+    "zod": "^3.24.1"
   }
 }

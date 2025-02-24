@@ -62,13 +62,17 @@ const request = ({ method, path, options = {} }: RequestParams) => {
     headers: { ...options.headers },
     method,
     body,
-  }).then((response) => {
-    if (response.ok) {
-      return response
-    } else {
-      throw new AuroraSignalApiError(response.statusText, response.status)
-    }
   })
+    .then((response) => {
+      if (response.ok) {
+        return response
+      } else {
+        throw new AuroraSignalApiError(response.statusText, response.status)
+      }
+    })
+    .catch((error) => {
+      throw new AuroraSignalApiError(error.message)
+    })
 }
 
 export type ActionOptions = Omit<RequestParams["options"], "body">

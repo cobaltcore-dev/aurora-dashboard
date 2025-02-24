@@ -1,6 +1,6 @@
 import type { ActionOptions, ActionPath, ActionBody } from "./client"
 import type { AuroraSignalOptions } from "./shared-types"
-import type { AuroraSignalToken } from "./token"
+import type { AuroraSignalTokenType } from "./token"
 import * as client from "./client"
 import { AuroraSignalError } from "./error"
 
@@ -19,7 +19,7 @@ export interface ServiceActionOptions extends AuroraSignalOptions {
  * @returns Service object with head, get, post, put, patch, del methods
  * @throws AuroraSignalError
  */
-export const Service = (name: string, token: AuroraSignalToken, serviceOptions: AuroraSignalOptions) => {
+export function AuroraSignalService(name: string, token: AuroraSignalTokenType, serviceOptions: AuroraSignalOptions) {
   // this functions builds the client parameters based on the service options and the client options
   // It allows to override the service options with the client options
   const clientParams = async (clientOptions: AuroraSignalOptions): Promise<ActionOptions> => {
@@ -70,4 +70,4 @@ export const Service = (name: string, token: AuroraSignalToken, serviceOptions: 
   }
 }
 
-export type AuroraSignalService = ReturnType<typeof Service>
+export type AuroraSignalServiceType = ReturnType<typeof AuroraSignalService>
