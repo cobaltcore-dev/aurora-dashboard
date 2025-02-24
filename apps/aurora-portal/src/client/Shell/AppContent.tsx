@@ -1,6 +1,5 @@
 import React, { Suspense } from "react"
 
-import { Breadcrumb } from "./Breadcrumb"
 import { Home } from "./Home"
 import { About } from "./About"
 import { ComputeOverview } from "../Compute/ComputeOverview"
@@ -8,12 +7,12 @@ import { Overview as IdentityOverview } from "../Identity/Overview"
 import { SignIn } from "../Identity/Auth/SignIn"
 import { trpcClient } from "../trpcClient"
 import { Route, Switch } from "wouter"
-import { MainNavigation } from "./Navigation/MainNavigation"
 import { useAuth } from "./AuthProvider"
 import { ErrorBoundary } from "react-error-boundary"
 import { lazy } from "react"
 import { TrpcClient } from "../trpcClient"
 import { clientExtensions } from "../generated/extensions"
+import { NavigationLayout } from "./Navigation/NavigationLayout"
 
 type RouterScopes = keyof typeof trpcClient
 
@@ -54,42 +53,39 @@ export function AppContent() {
 
   return (
     <>
-      <MainNavigation items={navItems} />
-      <div>
-        <div className="py-4 pl-4 bg-theme-global-bg h-full">
-          <Breadcrumb />
-          <Switch>
-            <Route path="/" component={Home} />
-            <Route path="/about" component={About} />
+      <NavigationLayout mainNavItems={navItems} subNavItems={navItems} />
+      <div className="py-4 pl-4 bg-theme-global-bg h-full">
+        <Switch>
+          <Route path="/" component={Home} />
+          <Route path="/about" component={About} />
 
-            <Route path="auth/signin">
-              <SignIn />
-            </Route>
-            {user && (
-              <>
-                <Route path="/compute">
-                  <ComputeOverview client={trpcClient.compute} />
+          <Route path="auth/signin">
+            <SignIn />
+          </Route>
+          {user && (
+            <>
+              <Route path="/compute">
+                <ComputeOverview client={trpcClient.compute} />
+              </Route>
+              <Route path="/identity">
+                <IdentityOverview />
+              </Route>
+
+              {extensions.map((ext, i) => (
+                <Route key={i} path={`/${ext.id}`}>
+                  <ErrorBoundary fallback={<div>Something went wrong</div>}>
+                    <Suspense fallback={<div>Loading...</div>}>
+                      <ext.App client={trpcClient[ext.id as RouterScopes]} getTokenFunc={() => ""} />
+                    </Suspense>
+                  </ErrorBoundary>
                 </Route>
-                <Route path="/identity">
-                  <IdentityOverview />
-                </Route>
+              ))}
+            </>
+          )}
 
-                {extensions.map((ext, i) => (
-                  <Route key={i} path={`/${ext.id}`}>
-                    <ErrorBoundary fallback={<div>Something went wrong</div>}>
-                      <Suspense fallback={<div>Loading...</div>}>
-                        <ext.App client={trpcClient[ext.id as RouterScopes]} getTokenFunc={() => ""} />
-                      </Suspense>
-                    </ErrorBoundary>
-                  </Route>
-                ))}
-              </>
-            )}
-
-            {/* Default route in a switch */}
-            <Route>404: No such page!</Route>
-          </Switch>
-        </div>
+          {/* Default route in a switch */}
+          <Route>404: No such page!</Route>
+        </Switch>
       </div>
     </>
   )
