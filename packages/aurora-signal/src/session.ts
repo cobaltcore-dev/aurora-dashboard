@@ -77,3 +77,5 @@ export function AuroraSignalSession(
     getToken,
   }
 }
+
+export type AuroraSignalSessionType = ReturnType<typeof AuroraSignalSession>
