@@ -7,7 +7,7 @@ interface RequestParams {
     host?: string
     headers?: Record<string, string>
     body?: string | object
-    queryParams?: Record<string, string | number | boolean | object | undefined>
+    queryParams?: Record<string, string | string[] | number | boolean | null | undefined>
     debug?: boolean
   }
 }
@@ -30,18 +30,14 @@ const buildRequestUrl = function ({ base, path }: { base?: string; path?: string
 }
 
 function buildSearchParams(params: NonNullable<RequestParams["options"]>["queryParams"]): string {
-  const searchParams = new URLSearchParams()
-
-  for (const key in params) {
-    const value = params[key]
-    if (Array.isArray(value)) {
-      value.forEach((item) => searchParams.append(key, item.toString())) // Repeated key format
-    } else if (value !== undefined) {
-      searchParams.append(key, value.toString())
-    }
-  }
-
-  return searchParams.toString()
+  if (!params) return ""
+  return new URLSearchParams(
+    Object.entries(params)
+      .filter(([, value]) => value != null) // Remove null & undefined
+      .flatMap(([key, value]) =>
+        Array.isArray(value) ? value.map((v) => [key, v.toString()]) : [[key, value!.toString()]]
+      )
+  ).toString()
 }
 
 const request = ({ method, path, options = {} }: RequestParams) => {
