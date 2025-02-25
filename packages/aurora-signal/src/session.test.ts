@@ -9,8 +9,8 @@ describe("session", () => {
     })
   })
 
-  it("should create a session", () => {
-    const session = AuroraSignalSession("http://localhost", {
+  it("should create a session", async () => {
+    const session = await AuroraSignalSession("http://localhost", {
       auth: {
         identity: {
           methods: ["password"],
@@ -24,7 +24,7 @@ describe("session", () => {
   })
 
   it("should respond to getAuthData", async () => {
-    const session = AuroraSignalSession("http://localhost", {
+    const session = await AuroraSignalSession("http://localhost", {
       auth: {
         identity: {
           methods: ["password"],
@@ -38,7 +38,7 @@ describe("session", () => {
   })
 
   it("should respond to terminate", async () => {
-    const session = AuroraSignalSession("http://localhost", {
+    const session = await AuroraSignalSession("http://localhost", {
       auth: {
         identity: {
           methods: ["password"],
@@ -52,7 +52,7 @@ describe("session", () => {
   })
 
   it("should call fetch with user, password", async () => {
-    const session = AuroraSignalSession("http://localhost", {
+    await AuroraSignalSession("http://localhost", {
       auth: {
         identity: {
           methods: ["password"],
@@ -62,8 +62,6 @@ describe("session", () => {
         },
       },
     })
-
-    await session.getToken()
 
     expect(fetch).toHaveBeenCalledWith("http://localhost/v3/auth/tokens", {
       headers: { "Content-Type": "application/json" },
@@ -86,11 +84,9 @@ describe("session", () => {
   })
 
   it("should call fetch with token credentials", async () => {
-    const session = AuroraSignalSession("http://localhost", {
+    await AuroraSignalSession("http://localhost", {
       auth: { identity: { methods: ["token"], token: { id: "token" } } },
     })
-
-    await session.getToken()
 
     expect(fetch).toHaveBeenCalledWith("http://localhost/v3/auth/tokens", {
       headers: {
@@ -103,7 +99,7 @@ describe("session", () => {
   })
 
   it("should call fetch with application credentials", async () => {
-    const session = AuroraSignalSession("http://localhost", {
+    await AuroraSignalSession("http://localhost", {
       auth: {
         identity: {
           methods: ["application_credential"],
@@ -114,8 +110,6 @@ describe("session", () => {
         },
       },
     })
-
-    await session.getToken()
 
     expect(fetch).toHaveBeenCalledWith("http://localhost/v3/auth/tokens", {
       headers: { "Content-Type": "application/json" },
@@ -139,7 +133,7 @@ describe("session", () => {
       json: () => ({ token: { expires_at: `${date.getFullYear() + 1}-01-01T00:00:00Z` } }),
     })
 
-    const session = AuroraSignalSession("http://localhost", {
+    await AuroraSignalSession("http://localhost", {
       auth: {
         identity: {
           methods: ["password"],
@@ -150,42 +144,19 @@ describe("session", () => {
       },
     })
 
-    await session.getToken()
-    await session.getToken()
     expect(fetch).toHaveBeenCalledTimes(1)
   })
 
-  it("should refetch data if expired", async () => {
-    globalThis.fetch = vi.fn().mockResolvedValue({
-      ok: true,
-      headers: new Headers({ "X-Subject-Token": "token" }),
-      json: () => ({ token: { expires_at: "2021-01-01T00:00:00Z" } }),
-    })
-
-    const session = AuroraSignalSession("http://localhost", {
-      auth: {
-        identity: {
-          methods: ["password"],
-          password: {
-            user: { name: "user", domain: { name: "domain" }, password: "password" },
-          },
-        },
-      },
-    })
-
-    await session.getToken()
-    await session.getToken()
-    expect(fetch).toHaveBeenCalledTimes(2)
-  })
-
   it("should fetch and set data to session", async () => {
+    const date = new Date()
+    const dateString = `${date.getFullYear() + 1}-01-01T00:00:00Z`
     globalThis.fetch = vi.fn().mockResolvedValue({
       ok: true,
       headers: new Headers({ "X-Subject-Token": "token" }),
-      json: () => ({ token: { expires_at: "2021-01-01T00:00:00Z" } }),
+      json: () => ({ token: { expires_at: dateString } }),
     })
 
-    const session = AuroraSignalSession("http://localhost", {
+    const session = await AuroraSignalSession("http://localhost", {
       auth: {
         identity: {
           methods: ["password"],
@@ -196,9 +167,9 @@ describe("session", () => {
       },
     })
 
-    const token = await session.getToken()
+    const token = session.getToken()
     expect(token?.authToken).toBe("token")
-    expect(token?.tokenData).toEqual({ expires_at: "2021-01-01T00:00:00Z" })
+    expect(token?.tokenData).toEqual({ expires_at: dateString })
   })
 
   it("should create token", async () => {
@@ -208,7 +179,7 @@ describe("session", () => {
       json: () => ({ token: { expires_at: "2021-01-01T00:00:00Z" } }),
     })
 
-    const session = AuroraSignalSession("http://localhost", {
+    await AuroraSignalSession("http://localhost", {
       auth: {
         identity: {
           methods: ["token"],
@@ -218,7 +189,6 @@ describe("session", () => {
       },
     })
 
-    await session.getToken()
     expect(fetch).toHaveBeenCalledWith("http://localhost/v3/auth/tokens", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -241,11 +211,10 @@ describe("session", () => {
       json: () => ({ token: { expires_at: "2021-01-01T00:00:00Z" } }),
     })
 
-    const session = AuroraSignalSession("http://localhost", {
+    await AuroraSignalSession("http://localhost", {
       auth: { identity: { methods: ["token"], token: { id: "token" } } },
     })
 
-    await session.getToken()
     expect(fetch).toHaveBeenCalledWith("http://localhost/v3/auth/tokens", {
       method: "GET",
       headers: { "Content-Type": "application/json", "X-Auth-Token": "token", "X-Subject-Token": "token" },

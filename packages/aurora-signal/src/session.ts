@@ -14,7 +14,7 @@ function normalizeOpenstackIdentityUrl(url: string) {
 }
 
 // This Options pre-define the region, interfaceName, and debug for the whole session
-export function AuroraSignalSession(
+export async function AuroraSignalSession(
   identityEndpoint: string,
   authConfig: AuthConfig,
   options: AuroraSignalOptions = {}
@@ -23,51 +23,54 @@ export function AuroraSignalSession(
   const endpoint = normalizeOpenstackIdentityUrl(identityEndpoint.toString())
   const debug = options.debug === true
   const defaultHeaders: Record<string, string> = { "Content-Type": "application/json" }
-  let token: AuroraSignalTokenType | undefined = undefined
 
-  // private function authenticate
-  const authenticate = async () => {
-    // If we already have a valid token, we don't need to create a new one
-    if (token !== undefined && token?.isExpired() === false) return
+  // create or validate token
+  // define headers for authentication
+  const authHeaders: Record<string, string> = { ...defaultHeaders }
 
-    const authHeaders: Record<string, string> = { ...defaultHeaders }
+  // if authConfig includes a token id and no scope, we use the get method to validate the token
+  // otherwise, we create a new token
+  let response: Response
 
-    let response: Response
-    if ("token" in authConfig.auth.identity && authConfig.auth.identity.token.id && !authConfig.auth.scope) {
-      // If we have token authentication and no scope, we can use the get method to validate the token
-      authHeaders["X-Auth-Token"] = authConfig.auth.identity.token.id
-      authHeaders["X-Subject-Token"] = authConfig.auth.identity.token.id
-      response = await get(endpoint, { headers: authHeaders, debug: debug })
-    } else {
-      // Otherwise, we need to create a new token
-      response = await post(endpoint, authConfig, { headers: authHeaders, debug: debug })
-    }
+  if ("token" in authConfig.auth.identity && authConfig.auth.identity.token.id && !authConfig.auth.scope) {
+    // Validate the token
+    authHeaders["X-Auth-Token"] = authConfig.auth.identity.token.id
+    authHeaders["X-Subject-Token"] = authConfig.auth.identity.token.id
+    response = await get(endpoint, { headers: authHeaders, debug: debug })
+  } else {
+    // Create a new token
+    response = await post(endpoint, authConfig, { headers: authHeaders, debug: debug })
+  }
 
-    const authToken = response.headers.get("X-Subject-Token")
-    if (!authToken) {
-      throw new AuroraSignalError("Could not retrieve auth token")
-    }
-    const data = await response.json()
-    token = AuroraSignalToken({ tokenData: data.token, authToken: response.headers.get("X-Subject-Token")! })
+  const authToken = response.headers.get("X-Subject-Token")
+  if (!authToken) throw new AuroraSignalError("Could not retrieve auth token")
+
+  const data = await response.json()
+  let token: AuroraSignalTokenType | undefined = AuroraSignalToken({
+    tokenData: data.token,
+    authToken: response.headers.get("X-Subject-Token")!,
+  })
+
+  function isTokenValid() {
+    return token && !token.isExpired()
   }
 
   // public functions
   async function terminate() {
-    if (token) {
-      await del(endpoint, { headers: { "X-Auth-Token": token.authToken } })
-      token = undefined
+    if (isTokenValid()) {
+      await del(endpoint, { headers: { "X-Auth-Token": token!.authToken } })
     }
+    token = undefined
   }
 
-  async function getToken(): Promise<AuroraSignalTokenType | undefined> {
-    await authenticate()
+  function getToken() {
+    if (!isTokenValid()) throw new AuroraSignalError("No valid token available")
     return token
   }
 
-  async function service(name: string, serviceDefaultOptions: AuroraSignalOptions = {}) {
-    await authenticate()
-    if (!token) throw new AuroraSignalError("No valid token available")
-    return AuroraSignalService(name, token, { ...defaultHeaders, ...options, ...serviceDefaultOptions })
+  function service(name: string, serviceDefaultOptions: AuroraSignalOptions = {}) {
+    if (!isTokenValid()) throw new AuroraSignalError("No valid token available")
+    return AuroraSignalService(name, token!, { ...defaultHeaders, ...options, ...serviceDefaultOptions })
   }
 
   // expose the public functions
