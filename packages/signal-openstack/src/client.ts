@@ -50,7 +50,7 @@ const request = ({ method, path, options = {} }: RequestParams) => {
 
   if (options.debug) {
     console.debug(
-      `Debug: url = ${url.toString()}, headers = ${JSON.stringify({ ...options.headers }, null, 2)}, body = ${body}`
+      `===Signal Openstack Debug: url = ${url.toString()}, headers = ${JSON.stringify({ ...options.headers }, null, 2)}, body = ${body}`
     )
   }
 
