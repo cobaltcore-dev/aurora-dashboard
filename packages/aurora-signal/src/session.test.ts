@@ -220,4 +220,40 @@ describe("session", () => {
       headers: { "Content-Type": "application/json", "X-Auth-Token": "token", "X-Subject-Token": "token" },
     })
   })
+
+  it("should rescope token", async () => {
+    const date = new Date()
+    const dateString = `${date.getFullYear() + 1}-01-01T00:00:00Z`
+    globalThis.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      headers: new Headers({ "X-Subject-Token": "token" }),
+      json: () => ({ token: { expires_at: dateString } }),
+    })
+
+    const session = await AuroraSignalSession("http://localhost", {
+      auth: {
+        identity: {
+          methods: ["password"],
+          password: {
+            user: { name: "user", domain: { name: "domain" }, password: "password" },
+          },
+        },
+      },
+    })
+
+    await session.rescope({ project: { id: "project" } })
+    expect(fetch).toHaveBeenLastCalledWith("http://localhost/v3/auth/tokens", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "X-Auth-Token": "token" },
+      body: JSON.stringify({
+        auth: {
+          identity: {
+            methods: ["token"],
+            token: { id: "token" },
+          },
+          scope: { project: { id: "project" } },
+        },
+      }),
+    })
+  })
 })

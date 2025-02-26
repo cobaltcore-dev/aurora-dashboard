@@ -63,6 +63,20 @@ export async function AuroraSignalSession(
     token = undefined
   }
 
+  async function rescope(scope: AuthConfig["auth"]["scope"]) {
+    if (!token) throw new AuroraSignalError("No valid token available")
+    const rescopeConfig = { auth: { identity: { methods: ["token"], token: { id: token.authToken } }, scope } }
+    const response = await post(endpoint, rescopeConfig, {
+      headers: { ...defaultHeaders, "X-Auth-Token": token.authToken },
+      debug: debug,
+    })
+    const data = await response.json()
+    token = AuroraSignalToken({
+      tokenData: data.token,
+      authToken: response.headers.get("X-Subject-Token")!,
+    })
+  }
+
   function getToken() {
     if (!isTokenValid()) throw new AuroraSignalError("No valid token available")
     return token
@@ -77,6 +91,7 @@ export async function AuroraSignalSession(
   return {
     service,
     terminate,
+    rescope,
     getToken,
   }
 }

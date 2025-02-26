@@ -2,7 +2,7 @@ import Fastify from "fastify"
 import {
   auroraFastifyTRPCPlugin,
   AuroraFastifyTRPCPluginOptions,
-  createAuroraOpenstackDevContext,
+  createAuroraDevelopmentContext,
 } from "@cobaltcore-dev/aurora-sdk/server"
 import { registerRouter, AppRouter } from "./routers" // tRPC router
 import * as dotenv from "dotenv"
@@ -20,11 +20,20 @@ const server = Fastify({
 })
 
 async function startServer() {
-  const createContext = await createAuroraOpenstackDevContext({
-    endpointUrl: process.env.OS_AUTH_URL || "http://localhost:8080/identity/v3/",
-    domain: process.env.OS_DOMAIN_NAME || "Default",
-    user: process.env.OS_USERNAME || "admin",
-    password: process.env.OS_PASSWORD || "password",
+  const createContext = await createAuroraDevelopmentContext({
+    identityEndpoint: process.env.OPENSTACK_AUTH_URL || "http://localhost:8080/identity/v3/",
+    auth: {
+      identity: {
+        methods: ["password"],
+        password: {
+          user: {
+            name: process.env.OPENSTACK_USERNAME || "admin",
+            password: process.env.OPENSTACK_PASSWORD || "password",
+            domain: { name: process.env.OPENSTACK_DOMAIN_NAME || "Default" },
+          },
+        },
+      },
+    },
   })
 
   // Register the tRPC plugin to handle API routes for the application

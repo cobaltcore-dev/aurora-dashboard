@@ -8,8 +8,8 @@ export function getAuroraProvider<TContext extends AuroraContext = AuroraContext
   const publicProcedure = t.procedure
 
   const protectedProcedure = publicProcedure.use(async function isAuthenticated(opts) {
-    const { authToken, token } = await opts.ctx.validateSession()
-    if (!authToken || !token) {
+    const session = opts.ctx.validateSession()
+    if (session === null) {
       throw new AuroraTRPCError({
         code: "UNAUTHORIZED",
       })

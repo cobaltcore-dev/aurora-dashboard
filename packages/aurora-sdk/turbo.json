@@ -2,12 +2,16 @@
   "extends": ["//"],
   "tasks": {
     "build": {
-      "outputs": ["dist/**"]
+      "outputs": ["dist/**"],
+      "dependsOn": ["@cobaltcore-dev/aurora-signal#build"]
     },
-    "test": {},
+    "test": {
+      "dependsOn": ["@cobaltcore-dev/aurora-signal#build"]
+    },
     "test:watch": {
       "cache": false,
-      "persistent": true
+      "persistent": true,
+      "dependsOn": ["@cobaltcore-dev/aurora-signal#build"]
     }
   }
 }

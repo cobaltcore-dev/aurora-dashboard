@@ -9,10 +9,11 @@ export const entityRouter = {
     }),
 
     list: protectedProcedure.query(async ({ ctx }): Promise<Entity[]> => {
-      const { authToken, token } = await ctx.validateSession()
+      const { openstack } = ctx.validateSession()
+      const token = openstack?.getToken()
       return [
-        { id: -1, name: JSON.stringify(token, null, 2) },
-        { id: 0, name: JSON.stringify(authToken, null, 2) },
+        { id: -1, name: JSON.stringify(token?.tokenData, null, 2) },
+        { id: 0, name: JSON.stringify(token?.authToken, null, 2) },
         { id: 1, name: "Mars 1" },
         { id: 2, name: "Mars 2" },
         { id: 2, name: "Mars 3" },

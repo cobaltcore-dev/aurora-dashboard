@@ -142,6 +142,9 @@ importers:
       '@cobaltcore-dev/aurora-sdk':
         specifier: workspace:*
         version: link:../../packages/aurora-sdk
+      '@cobaltcore-dev/aurora-signal':
+        specifier: workspace:*
+        version: link:../../packages/aurora-signal
       '@fastify/cookie':
         specifier: ^11.0.2
         version: 11.0.2
@@ -251,6 +254,9 @@ importers:
 
   packages/aurora-sdk:
     dependencies:
+      '@cobaltcore-dev/aurora-signal':
+        specifier: workspace:*
+        version: link:../aurora-signal
       '@fastify/cookie':
         specifier: ^11.0.2
         version: 11.0.2
