@@ -1,4 +1,4 @@
-import { AuroraSignalSession } from "./session"
+import { SignalOpenstackSession } from "./session"
 
 describe("session", () => {
   beforeAll(() => {
@@ -10,7 +10,7 @@ describe("session", () => {
   })
 
   it("should create a session", async () => {
-    const session = await AuroraSignalSession("http://localhost", {
+    const session = await SignalOpenstackSession("http://localhost", {
       auth: {
         identity: {
           methods: ["password"],
@@ -24,7 +24,7 @@ describe("session", () => {
   })
 
   it("should respond to getAuthData", async () => {
-    const session = await AuroraSignalSession("http://localhost", {
+    const session = await SignalOpenstackSession("http://localhost", {
       auth: {
         identity: {
           methods: ["password"],
@@ -38,7 +38,7 @@ describe("session", () => {
   })
 
   it("should respond to terminate", async () => {
-    const session = await AuroraSignalSession("http://localhost", {
+    const session = await SignalOpenstackSession("http://localhost", {
       auth: {
         identity: {
           methods: ["password"],
@@ -52,7 +52,7 @@ describe("session", () => {
   })
 
   it("should call fetch with user, password", async () => {
-    await AuroraSignalSession("http://localhost", {
+    await SignalOpenstackSession("http://localhost", {
       auth: {
         identity: {
           methods: ["password"],
@@ -84,7 +84,7 @@ describe("session", () => {
   })
 
   it("should call fetch with token credentials", async () => {
-    await AuroraSignalSession("http://localhost", {
+    await SignalOpenstackSession("http://localhost", {
       auth: { identity: { methods: ["token"], token: { id: "token" } } },
     })
 
@@ -99,7 +99,7 @@ describe("session", () => {
   })
 
   it("should call fetch with application credentials", async () => {
-    await AuroraSignalSession("http://localhost", {
+    await SignalOpenstackSession("http://localhost", {
       auth: {
         identity: {
           methods: ["application_credential"],
@@ -133,7 +133,7 @@ describe("session", () => {
       json: () => ({ token: { expires_at: `${date.getFullYear() + 1}-01-01T00:00:00Z` } }),
     })
 
-    await AuroraSignalSession("http://localhost", {
+    await SignalOpenstackSession("http://localhost", {
       auth: {
         identity: {
           methods: ["password"],
@@ -156,7 +156,7 @@ describe("session", () => {
       json: () => ({ token: { expires_at: dateString } }),
     })
 
-    const session = await AuroraSignalSession("http://localhost", {
+    const session = await SignalOpenstackSession("http://localhost", {
       auth: {
         identity: {
           methods: ["password"],
@@ -179,7 +179,7 @@ describe("session", () => {
       json: () => ({ token: { expires_at: "2021-01-01T00:00:00Z" } }),
     })
 
-    await AuroraSignalSession("http://localhost", {
+    await SignalOpenstackSession("http://localhost", {
       auth: {
         identity: {
           methods: ["token"],
@@ -211,7 +211,7 @@ describe("session", () => {
       json: () => ({ token: { expires_at: "2021-01-01T00:00:00Z" } }),
     })
 
-    await AuroraSignalSession("http://localhost", {
+    await SignalOpenstackSession("http://localhost", {
       auth: { identity: { methods: ["token"], token: { id: "token" } } },
     })
 
@@ -230,7 +230,7 @@ describe("session", () => {
       json: () => ({ token: { expires_at: dateString } }),
     })
 
-    const session = await AuroraSignalSession("http://localhost", {
+    const session = await SignalOpenstackSession("http://localhost", {
       auth: {
         identity: {
           methods: ["password"],

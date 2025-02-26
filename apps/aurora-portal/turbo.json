@@ -3,21 +3,21 @@
   "tasks": {
     "dev": {
       "dependsOn": [
-        "@cobaltcore-dev/aurora-signal#build",
+        "@cobaltcore-dev/signal-openstack#build",
         "@cobaltcore-dev/aurora-sdk#build",
         "@cobaltcore-dev/aurora-extension-a#build"
       ]
     },
     "test": {
       "dependsOn": [
-        "@cobaltcore-dev/aurora-signal#build",
+        "@cobaltcore-dev/signal-openstack#build",
         "@cobaltcore-dev/aurora-sdk#build",
         "@cobaltcore-dev/aurora-extension-a#build"
       ]
     },
     "build": {
       "dependsOn": [
-        "@cobaltcore-dev/aurora-signal#build",
+        "@cobaltcore-dev/signal-openstack#build",
         "@cobaltcore-dev/aurora-sdk#build",
         "@cobaltcore-dev/aurora-extension-a#build"
       ]

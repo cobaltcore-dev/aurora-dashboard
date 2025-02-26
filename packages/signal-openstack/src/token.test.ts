@@ -1,8 +1,8 @@
-import { AuroraSignalToken } from "./token"
+import { SignalOpenstackToken } from "./token"
 
 describe("Token", () => {
   it("should create a token", () => {
-    const token = AuroraSignalToken({
+    const token = SignalOpenstackToken({
       tokenData: {
         catalog: [],
         expires_at: "2021-01-01T00:00:00Z",
@@ -23,7 +23,7 @@ describe("Token", () => {
   })
 
   it("should return isExpired", () => {
-    const token = AuroraSignalToken({
+    const token = SignalOpenstackToken({
       tokenData: {
         catalog: [],
         expires_at: "2021-01-01T00:00:00Z",
@@ -44,7 +44,7 @@ describe("Token", () => {
   })
 
   it("should return authToken", () => {
-    const token = AuroraSignalToken({
+    const token = SignalOpenstackToken({
       tokenData: {
         catalog: [],
         expires_at: "2021-01-01T00:00:00Z",
@@ -65,7 +65,7 @@ describe("Token", () => {
   })
 
   it("should return availableRegions", () => {
-    const token = AuroraSignalToken({
+    const token = SignalOpenstackToken({
       tokenData: {
         catalog: [
           {
@@ -95,7 +95,7 @@ describe("Token", () => {
   })
 
   it("should return empty availableRegions", () => {
-    const token = AuroraSignalToken({
+    const token = SignalOpenstackToken({
       tokenData: {
         catalog: [],
         expires_at: "2021-01-01T00:00:00Z",
@@ -116,7 +116,7 @@ describe("Token", () => {
   })
 
   it("should return true for hasRole", () => {
-    const token = AuroraSignalToken({
+    const token = SignalOpenstackToken({
       tokenData: {
         catalog: [],
         expires_at: "2021-01-01T00:00:00Z",
@@ -137,7 +137,7 @@ describe("Token", () => {
   })
 
   it("should return false for hasRole", () => {
-    const token = AuroraSignalToken({
+    const token = SignalOpenstackToken({
       tokenData: {
         catalog: [],
         expires_at: "2021-01-01T00:00:00Z",
@@ -158,7 +158,7 @@ describe("Token", () => {
   })
 
   it("should return true for hasService", () => {
-    const token = AuroraSignalToken({
+    const token = SignalOpenstackToken({
       tokenData: {
         catalog: [
           {
@@ -188,7 +188,7 @@ describe("Token", () => {
   })
 
   it("should return true for hasService by type", () => {
-    const token = AuroraSignalToken({
+    const token = SignalOpenstackToken({
       tokenData: {
         catalog: [
           {
@@ -218,7 +218,7 @@ describe("Token", () => {
   })
 
   it("should return null serviceEndpoint if endpoints are empty", () => {
-    const token = AuroraSignalToken({
+    const token = SignalOpenstackToken({
       tokenData: {
         catalog: [{ id: "id", name: "name", type: "type", endpoints: [] }],
         expires_at: "2021-01-01T00:00:00Z",
@@ -239,7 +239,7 @@ describe("Token", () => {
   })
 
   it("should return serviceEndpoint for empty region", () => {
-    const token = AuroraSignalToken({
+    const token = SignalOpenstackToken({
       tokenData: {
         catalog: [
           {
@@ -269,7 +269,7 @@ describe("Token", () => {
   })
 
   it("should return serviceEndpoint for specific region", () => {
-    const token = AuroraSignalToken({
+    const token = SignalOpenstackToken({
       tokenData: {
         catalog: [
           {
@@ -327,7 +327,7 @@ describe("Token", () => {
     )
   })
   it("should return serviceEndpoint for specific region and interface", () => {
-    const token = AuroraSignalToken({
+    const token = SignalOpenstackToken({
       tokenData: {
         catalog: [
           {

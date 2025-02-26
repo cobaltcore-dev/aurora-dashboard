@@ -38,7 +38,7 @@ export interface OpenstackIdentityTokenData {
   }
 }
 
-export function AuroraSignalToken({
+export function SignalOpenstackToken({
   authToken,
   tokenData,
 }: {
@@ -115,4 +115,4 @@ export function AuroraSignalToken({
   }
 }
 
-export type AuroraSignalTokenType = ReturnType<typeof AuroraSignalToken>
+export type SignalOpenstackTokenType = ReturnType<typeof SignalOpenstackToken>

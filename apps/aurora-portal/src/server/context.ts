@@ -1,5 +1,5 @@
 import { AuroraContext, CreateAuroraFastifyContextOptions } from "@cobaltcore-dev/aurora-sdk/server"
-import { AuroraSignalSession, AuroraSignalSessionType, AuthConfig } from "@cobaltcore-dev/aurora-signal"
+import { SignalOpenstackSession, SignalOpenstackSessionType, AuthConfig } from "@cobaltcore-dev/signal-openstack"
 
 import * as dotenv from "dotenv"
 
@@ -10,8 +10,8 @@ const identityEndpoint = process.env.IDENTITY_ENDPOINT
 const normalizedEndpoint = identityEndpoint?.endsWith("/") ? identityEndpoint : `${identityEndpoint}/`
 
 export interface AuroraPortalContext extends AuroraContext {
-  createSession: (params: { user: string; password: string; domain: string }) => AuroraSignalSessionType
-  rescopeSession: (scope: AuthConfig["auth"]["scope"]) => Promise<Awaited<AuroraSignalSessionType | null>>
+  createSession: (params: { user: string; password: string; domain: string }) => SignalOpenstackSessionType
+  rescopeSession: (scope: AuthConfig["auth"]["scope"]) => Promise<Awaited<SignalOpenstackSessionType | null>>
   terminateSession: () => Promise<void>
 }
 
@@ -43,11 +43,11 @@ function SessionCookie(cookieName: string, opts: CreateAuroraFastifyContextOptio
 export async function createContext(opts: CreateAuroraFastifyContextOptions): Promise<AuroraPortalContext> {
   const sessionCookie = SessionCookie("aurora-session", opts)
   const currentAuthToken = sessionCookie.get()
-  let openstackSession: Awaited<AuroraSignalSessionType> | undefined = undefined
+  let openstackSession: Awaited<SignalOpenstackSessionType> | undefined = undefined
 
   // If we have a token, initialize the session
   if (currentAuthToken) {
-    openstackSession = await AuroraSignalSession(normalizedEndpoint, {
+    openstackSession = await SignalOpenstackSession(normalizedEndpoint, {
       auth: {
         identity: {
           methods: ["token"],
@@ -65,7 +65,7 @@ export async function createContext(opts: CreateAuroraFastifyContextOptions): Pr
 
   // Create a new session (Login)
   const createSession: AuroraPortalContext["createSession"] = async (params) => {
-    openstackSession = await AuroraSignalSession(normalizedEndpoint, {
+    openstackSession = await SignalOpenstackSession(normalizedEndpoint, {
       auth: {
         identity: {
           methods: ["password"],

@@ -1,6 +1,6 @@
-import { AuroraSignalSessionType } from "@cobaltcore-dev/aurora-signal"
+import { SignalOpenstackSessionType } from "@cobaltcore-dev/signal-openstack"
 
 export interface AuroraContext {
   validateSession: () => boolean
-  openstack?: Awaited<AuroraSignalSessionType>
+  openstack?: Awaited<SignalOpenstackSessionType>
 }

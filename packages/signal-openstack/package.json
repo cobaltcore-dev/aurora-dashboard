@@ -1,5 +1,5 @@
 {
-  "name": "@cobaltcore-dev/aurora-signal",
+  "name": "@cobaltcore-dev/signal-openstack",
   "version": "1.0.0",
   "private": false,
   "description": "Openstack client",
