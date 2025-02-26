@@ -43,7 +43,7 @@ function SessionCookie(cookieName: string, opts: CreateAuroraFastifyContextOptio
 export async function createContext(opts: CreateAuroraFastifyContextOptions): Promise<AuroraPortalContext> {
   const sessionCookie = SessionCookie("aurora-session", opts)
   const currentAuthToken = sessionCookie.get()
-  let openstackSession: Awaited<AuroraSignalSessionType | null> = null
+  let openstackSession: Awaited<AuroraSignalSessionType> | undefined = undefined
 
   // If we have a token, initialize the session
   if (currentAuthToken) {
@@ -54,8 +54,14 @@ export async function createContext(opts: CreateAuroraFastifyContextOptions): Pr
           token: { id: currentAuthToken },
         },
       },
+    }).catch(() => {
+      // If the token is invalid, clear the cookie
+      sessionCookie.del()
+      return undefined
     })
   }
+
+  const validateSession = () => openstackSession?.isValid() || false
 
   // Create a new session (Login)
   const createSession: AuroraPortalContext["createSession"] = async (params) => {
@@ -85,7 +91,7 @@ export async function createContext(opts: CreateAuroraFastifyContextOptions): Pr
   const terminateSession = async () => {
     if (openstackSession) {
       await openstackSession.terminate()
-      openstackSession = null
+      openstackSession = undefined
     }
     sessionCookie.del()
   }
@@ -94,8 +100,7 @@ export async function createContext(opts: CreateAuroraFastifyContextOptions): Pr
     createSession,
     rescopeSession,
     terminateSession,
-    validateSession: () => {
-      return openstackSession ? { openstack: openstackSession } : null
-    },
+    validateSession,
+    openstack: openstackSession,
   }
 }

@@ -1,10 +1,9 @@
 import { z } from "zod"
-import { publicProcedure } from "../../trpc"
+import { publicProcedure, protectedProcedure } from "../../trpc"
 
 export const tokenRouter = {
-  getAuthStatus: publicProcedure.query(async ({ ctx }) => {
-    const session = ctx.validateSession()
-    const token = session?.openstack?.getToken()
+  getAuthStatus: protectedProcedure.query(async ({ ctx }) => {
+    const token = ctx.openstack?.getToken()
 
     if (!token?.authToken) {
       return { isAuthenticated: false, user: null, reason: "No token found" }

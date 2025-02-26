@@ -5,13 +5,14 @@ import { AuroraTRPCError } from "./aurora-error"
 
 export function getAuroraProvider<TContext extends AuroraContext = AuroraContext>() {
   const t = initTRPC.context<TContext>().create()
+
   const publicProcedure = t.procedure
 
   const protectedProcedure = publicProcedure.use(async function isAuthenticated(opts) {
-    const session = opts.ctx.validateSession()
-    if (session === null) {
+    if (opts.ctx.validateSession() === false) {
       throw new AuroraTRPCError({
         code: "UNAUTHORIZED",
+        message: "The session is invalid",
       })
     }
     return opts.next({
@@ -23,6 +24,7 @@ export function getAuroraProvider<TContext extends AuroraContext = AuroraContext
     getAuroraRouter: t.router,
     getAuroraMergeRouters: t.mergeRouters,
     getAuroraPublicProcedure: publicProcedure,
-    getAuroraProtectedProcedure: protectedProcedure,
+    // Explicitly casting to avoid TypeScript inferring deep, non-portable types from dependent packages.
+    getAuroraProtectedProcedure: protectedProcedure as typeof publicProcedure,
   }
 }

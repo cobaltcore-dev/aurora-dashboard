@@ -13,7 +13,13 @@ function normalizeOpenstackIdentityUrl(url: string) {
   return `${baseUrl}${version}/auth/tokens`
 }
 
-// This Options pre-define the region, interfaceName, and debug for the whole session
+/**
+ * This Options pre-define the region, interfaceName, and debug for the whole session
+ * @param identityEndpoint - The Openstack Identity endpoint
+ * @param authConfig - The authentication configuration
+ * @param options - The options for the session
+ * @throws {AuroraSignalApiError} If the request fails.
+ */
 export async function AuroraSignalSession(
   identityEndpoint: string,
   authConfig: AuthConfig,
@@ -51,13 +57,13 @@ export async function AuroraSignalSession(
     authToken: response.headers.get("X-Subject-Token")!,
   })
 
-  function isTokenValid() {
-    return token && !token.isExpired()
+  function isValid() {
+    return token?.authToken && !token.isExpired()
   }
 
   // public functions
   async function terminate() {
-    if (isTokenValid()) {
+    if (isValid()) {
       await del(endpoint, { headers: { "X-Auth-Token": token!.authToken } })
     }
     token = undefined
@@ -78,12 +84,12 @@ export async function AuroraSignalSession(
   }
 
   function getToken() {
-    if (!isTokenValid()) throw new AuroraSignalError("No valid token available")
+    if (!isValid()) throw new AuroraSignalError("No valid token available")
     return token
   }
 
   function service(name: string, serviceDefaultOptions: AuroraSignalOptions = {}) {
-    if (!isTokenValid()) throw new AuroraSignalError("No valid token available")
+    if (!isValid()) throw new AuroraSignalError("No valid token available")
     return AuroraSignalService(name, token!, { ...defaultHeaders, ...options, ...serviceDefaultOptions })
   }
 
@@ -93,6 +99,7 @@ export async function AuroraSignalSession(
     terminate,
     rescope,
     getToken,
+    isValid,
   }
 }
 

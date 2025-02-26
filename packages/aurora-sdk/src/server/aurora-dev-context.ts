@@ -13,11 +13,11 @@ interface CredentialsParams extends AuthConfig {
 
 export async function createAuroraDevelopmentContext(params: CredentialsParams) {
   const auroraSignalSession = await AuroraSignalSession(params.identityEndpoint, { auth: params.auth }, { debug: true })
-  const session = auroraSignalSession ? { openstack: auroraSignalSession } : null
 
   return async function createContext(): Promise<AuroraContext> {
     return {
-      validateSession: () => session,
+      validateSession: () => auroraSignalSession.isValid() || false,
+      openstack: auroraSignalSession,
     }
   }
 }
