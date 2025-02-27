@@ -63,7 +63,9 @@ describe("client", () => {
       console.debug = vi.fn()
       global.fetch = vi.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve({}) })
       await client.get("/", { host: "http://localhost", debug: true })
-      expect(console.debug).toHaveBeenCalledWith("Debug: url = http://localhost/, headers = {}, body = undefined")
+      expect(console.debug).toHaveBeenCalledWith(
+        "===Signal Openstack Debug: url = http://localhost/, headers = {}, body = undefined"
+      )
     })
   })
 
@@ -117,7 +119,9 @@ describe("client", () => {
       console.debug = vi.fn()
       global.fetch = vi.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve({}) })
       await client.head("/", { host: "http://localhost", debug: true })
-      expect(console.debug).toHaveBeenCalledWith("Debug: url = http://localhost/, headers = {}, body = undefined")
+      expect(console.debug).toHaveBeenCalledWith(
+        "===Signal Openstack Debug: url = http://localhost/, headers = {}, body = undefined"
+      )
     })
 
     it("should return a promise", async () => {
@@ -173,7 +177,9 @@ describe("client", () => {
       console.debug = vi.fn()
       global.fetch = vi.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve({}) })
       await client.head("/", { host: "http://localhost", debug: true })
-      expect(console.debug).toHaveBeenCalledWith("Debug: url = http://localhost/, headers = {}, body = undefined")
+      expect(console.debug).toHaveBeenCalledWith(
+        "===Signal Openstack Debug: url = http://localhost/, headers = {}, body = undefined"
+      )
     })
   })
 
@@ -227,7 +233,9 @@ describe("client", () => {
       console.debug = vi.fn()
       global.fetch = vi.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve({}) })
       await client.del("/", { host: "http://localhost", debug: true })
-      expect(console.debug).toHaveBeenCalledWith("Debug: url = http://localhost/, headers = {}, body = undefined")
+      expect(console.debug).toHaveBeenCalledWith(
+        "===Signal Openstack Debug: url = http://localhost/, headers = {}, body = undefined"
+      )
     })
   })
 
