@@ -13,7 +13,7 @@ type GetProjectState = {
 
 export function ProjectsOverview({ client }: { client: TrpcClient["project"] }) {
   const [getProjects, updateGetProjects] = useState<GetProjectState>({ isLoading: true })
-  const [viewMode, setViewMode] = useState<ViewMode>("list")
+  const [viewMode, setViewMode] = useState<ViewMode>("card")
 
   useEffect(() => {
     client.list
