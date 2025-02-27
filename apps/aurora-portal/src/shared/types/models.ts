@@ -3,11 +3,6 @@ export interface User {
   name: string
 }
 
-export interface Project {
-  id: number
-  title: string
-}
-
 export interface Server {
   id: string
   name: string
@@ -33,4 +28,24 @@ export interface Server {
     id: string
   }
   metadata: Record<string, string>
+}
+
+export type Project = {
+  domain_id: string
+  enabled: boolean
+  id: string
+  links: {
+    self: string
+  }
+  name: string
+  description: string
+}
+
+export type ProjectsResponse = {
+  projects: Project[]
+  links: {
+    self: string
+    previous: string | null
+    next: string | null
+  }
 }
