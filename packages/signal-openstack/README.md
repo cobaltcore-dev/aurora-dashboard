@@ -1,6 +1,6 @@
-# Aurora Signal
+# Signal-Openstack
 
-Aurora Signal is a library designed to simplify communication with OpenStack APIs. It manages sessions, assists with service discovery, constructs URLs based on provided options, and implements API calls. Think of it as a Swiss Army knife for interacting with OpenStack!
+Signal-Openstack is a library designed to simplify communication with OpenStack APIs. It manages sessions, assists with service discovery, constructs URLs based on provided options, and implements API calls. Think of it as a Swiss Army knife for interacting with OpenStack!
 
 ### **Key Features**
 
@@ -14,7 +14,7 @@ Aurora Signal is a library designed to simplify communication with OpenStack API
 **Create Session with password credentials**
 
 ```ts
-import { Session } from "@cobaltcore-dev/aurora-signal"
+import { Session } from "@cobaltcore-dev/signal-openstack"
 
 const session = Session({
   auth: {
@@ -41,9 +41,9 @@ session
 **Create Session with token id**
 
 ```ts
-import { AuroraSignalSession } from "@cobaltcore-dev/aurora-signal"
+import { SignalOpenstackSession } from "@cobaltcore-dev/signal-openstack"
 
-const session = AuroraSignalSession("http://identity", {
+const session = SignalOpenstackSession("http://identity", {
   auth: {
     identity: {
       methods: ["token"],
@@ -62,9 +62,9 @@ session
 **Rescope Token**
 
 ```ts
-import { Session } from "@cobaltcore-dev/aurora-signal"
+import { Session } from "@cobaltcore-dev/signal-openstack"
 
-const session = AuroraSignalSession("http://identity", {
+const session = SignalOpenstackSession("http://identity", {
   auth: {
     identity: {
       methods: ["token"],
@@ -81,30 +81,30 @@ const newAuthToken = await session.getToken().then((token) => token.authToken)
 
 # Installation
 
-To install **Aurora Signal**, you can use one of the following package managers:
+To install **Signal-Openstack**, you can use one of the following package managers:
 
 ### **npm**
 
 ```bash
-npm install @cobaltcore-dev/aurora-signal
+npm install @cobaltcore-dev/signal-openstack
 ```
 
 ### pnpm
 
 ```bash
-pnpm add @cobaltcore-dev/aurora-signal
+pnpm add @cobaltcore-dev/signal-openstack
 ```
 
 # API Usage
 
-## AuroraSignalSession
+## SignalOpenstackSession
 
 When creating a session, you can provide options including `headers`, `region`, `interfaceName`, and `debug`. These options are applied to every service and request. You can override them individually for each service or request.
 
-- **constructor**: `(identityEndpoint: string, credentials: AuthConfig, options: AuroraSignalOptions) -> AuroraSignalSession`
-- **getToken**: `() -> AuroraSignalToken`
+- **constructor**: `(identityEndpoint: string, credentials: AuthConfig, options: SignalOpenstackOptions) -> SignalOpenstackSession`
+- **getToken**: `() -> SignalOpenstackToken`
 - **terminate**: `() -> void`
-- **service**: `(name: string, options: AuroraSignalOptions) -> Service`
+- **service**: `(name: string, options: SignalOpenstackOptions) -> Service`
 
 ### AuthConfig
 
@@ -131,7 +131,7 @@ When creating a session, you can provide options including `headers`, `region`, 
 }
 ```
 
-### AuroraSignalToken
+### SignalOpenstackToken
 
 - **authToken**: `string` — The authentication token.
 - **availableRegions**: `string[]` — A list of available regions.
@@ -141,7 +141,7 @@ When creating a session, you can provide options including `headers`, `region`, 
 - **hasRole**: `(name: string) -> boolean` — Checks if a role is available by name.
 - **serviceEndpoint**: `(type: string, options: { region?: string; interfaceName: string }) -> string | null` — Retrieves the service endpoint by type, region, and interface name.
 
-### AuroraSignalOptions
+### SignalOpenstackOptions
 
 - **headers**: `Record<string, string>` — Custom headers for requests.
 - **debug**: `boolean` — Enables or disables debug logging.
@@ -169,4 +169,4 @@ Service methods allow you to interact with API endpoints:
 
 # Architecture
 
-![Aurora Signal Architecture](./docs/AuroraSignalArch.svg)
+![Signal-Openstack Architecture](./docs/SignalOpenstackArch.svg)

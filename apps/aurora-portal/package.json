@@ -14,10 +14,12 @@
     "clean:extensions": "tsx scripts/remove-extensions.ts",
     "preview": "vite preview",
     "prod": "NODE_ENV=production node dist/server/server.js",
-    "test": "vitest run"
+    "test": "vitest run",
+    "typecheck": "tsc --project tsconfig.json --noEmit"
   },
   "dependencies": {
     "@cobaltcore-dev/aurora-sdk": "workspace:*",
+    "@cobaltcore-dev/signal-openstack": "workspace:*",
     "@fastify/cookie": "^11.0.2",
     "@fastify/static": "^8.0.3",
     "dotenv": "^16.4.7",

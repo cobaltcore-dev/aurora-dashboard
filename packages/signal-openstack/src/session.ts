@@ -1,9 +1,9 @@
 import { AuthSchema, AuthConfig } from "./auth-config"
-import type { AuroraSignalOptions } from "./shared-types"
-import { AuroraSignalTokenType, AuroraSignalToken } from "./token"
+import type { SignalOpenstackOptions } from "./shared-types"
+import { SignalOpenstackTokenType, SignalOpenstackToken } from "./token"
 import { del, post, get } from "./client"
-import { AuroraSignalService } from "./service"
-import { AuroraSignalError } from "./error"
+import { SignalOpenstackService } from "./service"
+import { SignalOpenstackError } from "./error"
 
 function normalizeOpenstackIdentityUrl(url: string) {
   const match = url.match(/\/v3\/?$/) // Check if the URL already ends with /v3 (optional trailing /)
@@ -13,11 +13,17 @@ function normalizeOpenstackIdentityUrl(url: string) {
   return `${baseUrl}${version}/auth/tokens`
 }
 
-// This Options pre-define the region, interfaceName, and debug for the whole session
-export async function AuroraSignalSession(
+/**
+ * This Options pre-define the region, interfaceName, and debug for the whole session
+ * @param identityEndpoint - The Openstack Identity endpoint
+ * @param authConfig - The authentication configuration
+ * @param options - The options for the session
+ * @throws {SignalOpenstackApiError} If the request fails.
+ */
+export async function SignalOpenstackSession(
   identityEndpoint: string,
   authConfig: AuthConfig,
-  options: AuroraSignalOptions = {}
+  options: SignalOpenstackOptions = {}
 ) {
   AuthSchema.parse(authConfig) // Validate the auth config
   const endpoint = normalizeOpenstackIdentityUrl(identityEndpoint.toString())
@@ -43,42 +49,58 @@ export async function AuroraSignalSession(
   }
 
   const authToken = response.headers.get("X-Subject-Token")
-  if (!authToken) throw new AuroraSignalError("Could not retrieve auth token")
+  if (!authToken) throw new SignalOpenstackError("Could not retrieve auth token")
 
   const data = await response.json()
-  let token: AuroraSignalTokenType | undefined = AuroraSignalToken({
+  let token: SignalOpenstackTokenType | undefined = SignalOpenstackToken({
     tokenData: data.token,
     authToken: response.headers.get("X-Subject-Token")!,
   })
 
-  function isTokenValid() {
-    return token && !token.isExpired()
+  function isValid() {
+    return token?.authToken && !token.isExpired()
   }
 
   // public functions
   async function terminate() {
-    if (isTokenValid()) {
+    if (isValid()) {
       await del(endpoint, { headers: { "X-Auth-Token": token!.authToken } })
     }
     token = undefined
   }
 
+  async function rescope(scope: AuthConfig["auth"]["scope"]) {
+    if (!token) throw new SignalOpenstackError("No valid token available")
+    const rescopeConfig = { auth: { identity: { methods: ["token"], token: { id: token.authToken } }, scope } }
+    const response = await post(endpoint, rescopeConfig, {
+      headers: { ...defaultHeaders, "X-Auth-Token": token.authToken },
+      debug: debug,
+    })
+    const data = await response.json()
+    token = SignalOpenstackToken({
+      tokenData: data.token,
+      authToken: response.headers.get("X-Subject-Token")!,
+    })
+  }
+
   function getToken() {
-    if (!isTokenValid()) throw new AuroraSignalError("No valid token available")
+    if (!isValid()) throw new SignalOpenstackError("No valid token available")
     return token
   }
 
-  function service(name: string, serviceDefaultOptions: AuroraSignalOptions = {}) {
-    if (!isTokenValid()) throw new AuroraSignalError("No valid token available")
-    return AuroraSignalService(name, token!, { ...defaultHeaders, ...options, ...serviceDefaultOptions })
+  function service(name: string, serviceDefaultOptions: SignalOpenstackOptions = {}) {
+    if (!isValid()) throw new SignalOpenstackError("No valid token available")
+    return SignalOpenstackService(name, token!, { ...defaultHeaders, ...options, ...serviceDefaultOptions })
   }
 
   // expose the public functions
   return {
     service,
     terminate,
+    rescope,
     getToken,
+    isValid,
   }
 }
 
-export type AuroraSignalSessionType = ReturnType<typeof AuroraSignalSession>
+export type SignalOpenstackSessionType = ReturnType<typeof SignalOpenstackSession>

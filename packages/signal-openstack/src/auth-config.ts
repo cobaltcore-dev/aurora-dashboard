@@ -89,6 +89,18 @@ const ScopeSchema = z.union([
       id: z.string().min(1, "Project ID is required."),
     }),
   }),
+  // Domain scope with ID
+  z.object({
+    domain: z.object({
+      id: z.string().min(1, "Domain ID is required."),
+    }),
+  }),
+  // Domain scope with name
+  z.object({
+    domain: z.object({
+      name: z.string().min(1, "Domain name is required."),
+    }),
+  }),
   // Unscoped authentication as a string
   z.literal("unscoped"),
 ])

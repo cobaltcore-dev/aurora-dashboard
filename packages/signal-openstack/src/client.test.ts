@@ -56,14 +56,16 @@ describe("client", () => {
 
     it("should throw an error if the response is not ok", async () => {
       global.fetch = vi.fn().mockResolvedValue({ ok: false, statusText: "error", status: 500 })
-      await expect(client.get("/", { host: "http://localhost" })).rejects.toThrow("AuroraSignalApiError: error")
+      await expect(client.get("/", { host: "http://localhost" })).rejects.toThrow("SignalOpenstackApiError: error")
     })
 
     it("should log debug info", async () => {
       console.debug = vi.fn()
       global.fetch = vi.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve({}) })
       await client.get("/", { host: "http://localhost", debug: true })
-      expect(console.debug).toHaveBeenCalledWith("Debug: url = http://localhost/, headers = {}, body = undefined")
+      expect(console.debug).toHaveBeenCalledWith(
+        "===Signal Openstack Debug: url = http://localhost/, headers = {}, body = undefined"
+      )
     })
   })
 
@@ -110,14 +112,16 @@ describe("client", () => {
 
     it("should throw an error if the response is not ok", async () => {
       global.fetch = vi.fn().mockResolvedValue({ ok: false, statusText: "error", status: 500 })
-      await expect(client.head("/", { host: "http://localhost" })).rejects.toThrow("AuroraSignalApiError: error")
+      await expect(client.head("/", { host: "http://localhost" })).rejects.toThrow("SignalOpenstackApiError: error")
     })
 
     it("should log debug info", async () => {
       console.debug = vi.fn()
       global.fetch = vi.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve({}) })
       await client.head("/", { host: "http://localhost", debug: true })
-      expect(console.debug).toHaveBeenCalledWith("Debug: url = http://localhost/, headers = {}, body = undefined")
+      expect(console.debug).toHaveBeenCalledWith(
+        "===Signal Openstack Debug: url = http://localhost/, headers = {}, body = undefined"
+      )
     })
 
     it("should return a promise", async () => {
@@ -166,14 +170,16 @@ describe("client", () => {
 
     it("should throw an error if the response is not ok", async () => {
       global.fetch = vi.fn().mockResolvedValue({ ok: false, statusText: "error", status: 500 })
-      await expect(client.head("/", { host: "http://localhost" })).rejects.toThrow("AuroraSignalApiError: error")
+      await expect(client.head("/", { host: "http://localhost" })).rejects.toThrow("SignalOpenstackApiError: error")
     })
 
     it("should log debug info", async () => {
       console.debug = vi.fn()
       global.fetch = vi.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve({}) })
       await client.head("/", { host: "http://localhost", debug: true })
-      expect(console.debug).toHaveBeenCalledWith("Debug: url = http://localhost/, headers = {}, body = undefined")
+      expect(console.debug).toHaveBeenCalledWith(
+        "===Signal Openstack Debug: url = http://localhost/, headers = {}, body = undefined"
+      )
     })
   })
 
@@ -220,14 +226,16 @@ describe("client", () => {
 
     it("should throw an error if the response is not ok", async () => {
       global.fetch = vi.fn().mockResolvedValue({ ok: false, statusText: "error", status: 500 })
-      await expect(client.del("/", { host: "http://localhost" })).rejects.toThrow("AuroraSignalApiError: error")
+      await expect(client.del("/", { host: "http://localhost" })).rejects.toThrow("SignalOpenstackApiError: error")
     })
 
     it("should log debug info", async () => {
       console.debug = vi.fn()
       global.fetch = vi.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve({}) })
       await client.del("/", { host: "http://localhost", debug: true })
-      expect(console.debug).toHaveBeenCalledWith("Debug: url = http://localhost/, headers = {}, body = undefined")
+      expect(console.debug).toHaveBeenCalledWith(
+        "===Signal Openstack Debug: url = http://localhost/, headers = {}, body = undefined"
+      )
     })
   })
 

@@ -10,7 +10,7 @@ interface LoginParams {
 interface User {
   id: string
   name: string
-  domain: string
+  domain: { id?: string; name?: string }
   password_expires_at: string
   session_expires_at: string
 }

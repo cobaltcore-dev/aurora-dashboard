@@ -9,6 +9,7 @@
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "strict": true,
+    "incremental": false,
 
     "types": ["vite/client", "vitest/globals", "vite-plugin-svgr/client", "@testing-library/jest-dom"]
   }

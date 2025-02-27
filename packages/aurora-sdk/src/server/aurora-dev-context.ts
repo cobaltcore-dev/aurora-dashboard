@@ -1,36 +1,26 @@
 import { AuroraContext } from "./aurora-context"
-import { createToken } from "./openstack-api"
+import { SignalOpenstackSession, AuthConfig } from "@cobaltcore-dev/signal-openstack"
 
-type CredentialsParams = {
-  endpointUrl: string
-  domain: string
-  user: string
-  password: string
-  scope?: {
-    domain: {
-      id: string
-      name: string
-    }
-    project: {
-      id?: string
-      name?: string
-      domain?: {
-        id?: string
-        name?: string
-      }
-    }
-  }
+interface CredentialsParams extends AuthConfig {
+  identityEndpoint: string
 }
 
-export async function createAuroraOpenstackDevContext(params: CredentialsParams) {
-  const { authToken, token } = await createToken(params)
-  const validateSession = async () => {
-    return { authToken, token }
-  }
+/**
+ * Create a development context for Aurora
+ * @param params - The parameters to create the context
+ * @returns The AuroraContext
+ */
+export async function createAuroraDevelopmentContext(params: CredentialsParams) {
+  const signalOpenstackSession = await SignalOpenstackSession(
+    params.identityEndpoint,
+    { auth: params.auth },
+    { debug: true }
+  )
 
   return async function createContext(): Promise<AuroraContext> {
     return {
-      validateSession,
+      validateSession: () => signalOpenstackSession.isValid() || false,
+      openstack: signalOpenstackSession,
     }
   }
 }

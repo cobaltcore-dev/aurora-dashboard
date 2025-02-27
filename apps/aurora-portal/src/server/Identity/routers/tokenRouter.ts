@@ -1,36 +1,32 @@
 import { z } from "zod"
-import { publicProcedure } from "../../trpc"
-import { createUnscopedToken, validateToken } from "../services/tokenApi"
+import { publicProcedure, protectedProcedure } from "../../trpc"
 
 export const tokenRouter = {
-  getAuthStatus: publicProcedure.query(async ({ ctx }) => {
-    const authToken = ctx.getSessionCookie()
-    if (!authToken) {
+  getAuthStatus: protectedProcedure.query(async ({ ctx }) => {
+    const token = ctx.openstack?.getToken()
+
+    if (!token?.authToken) {
       return { isAuthenticated: false, user: null, reason: "No token found" }
     }
 
-    return validateToken(authToken, { nocatalog: true })
-      .then((token) => ({
-        isAuthenticated: true,
-        user: { ...token.user, session_expires_at: token.expires_at },
-        reason: null,
-      }))
-      .catch((err: unknown) => {
-        let errorMessage = "Unknown error"
-        if (err instanceof Error) {
-          errorMessage = err.message
-        }
-        return { isAuthenticated: false, user: null, reason: errorMessage }
-      })
+    return {
+      isAuthenticated: true,
+      user: { ...token.tokenData.user, session_expires_at: token.tokenData.expires_at },
+      reason: null,
+    }
   }),
   login: publicProcedure
     .input(z.object({ user: z.string(), password: z.string(), domainName: z.string() }))
     .mutation(async ({ input, ctx }) => {
       try {
-        const { authToken, tokenData } = await createUnscopedToken(input)
-        const expDate = new Date(tokenData.expires_at)
-        ctx.setSessionCookie(authToken, { expires: expDate })
-        return { user: { ...tokenData.user, session_expires_at: tokenData.expires_at } }
+        const openstackSession = await ctx.createSession({
+          user: input.user,
+          password: input.password,
+          domain: input.domainName,
+        })
+        const token = openstackSession.getToken()
+        if (!token) throw new Error("Could not login")
+        return { user: { ...token?.tokenData.user, session_expires_at: token.tokenData.expires_at } }
       } catch (err: unknown) {
         let errorMessage = "Unknown error"
         if (err instanceof Error) {
@@ -41,7 +37,7 @@ export const tokenRouter = {
     }),
 
   logout: publicProcedure.mutation(async ({ ctx }) => {
-    ctx.deleteSessionCookie()
+    ctx.terminateSession()
     return { success: true }
   }),
 }

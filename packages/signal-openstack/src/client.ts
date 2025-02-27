@@ -1,4 +1,4 @@
-import { AuroraSignalError, AuroraSignalApiError } from "./error"
+import { SignalOpenstackError, SignalOpenstackApiError } from "./error"
 
 interface RequestParams {
   method: "GET" | "POST" | "PUT" | "DELETE" | "PATCH" | "HEAD"
@@ -17,7 +17,7 @@ const buildRequestUrl = function ({ base, path }: { base?: string; path?: string
   if (path?.startsWith("http")) return new URL(path)
 
   // If `base` is not provided, we cannot construct the URL
-  if (!base) throw new AuroraSignalError("Base URL is required when path is not a full URL.")
+  if (!base) throw new SignalOpenstackError("Base URL is required when path is not a full URL.")
 
   // Construct the full URL based on the conditions
   const baseUrl = new URL(base)
@@ -50,7 +50,7 @@ const request = ({ method, path, options = {} }: RequestParams) => {
 
   if (options.debug) {
     console.debug(
-      `Debug: url = ${url.toString()}, headers = ${JSON.stringify({ ...options.headers }, null, 2)}, body = ${body}`
+      `===Signal Openstack Debug: url = ${url.toString()}, headers = ${JSON.stringify({ ...options.headers }, null, 2)}, body = ${body}`
     )
   }
 
@@ -63,11 +63,11 @@ const request = ({ method, path, options = {} }: RequestParams) => {
       if (response.ok) {
         return response
       } else {
-        throw new AuroraSignalApiError(response.statusText, response.status)
+        throw new SignalOpenstackApiError(response.statusText, response.status)
       }
     })
     .catch((error) => {
-      throw new AuroraSignalApiError(error.message)
+      throw new SignalOpenstackApiError(error.message)
     })
 }
 

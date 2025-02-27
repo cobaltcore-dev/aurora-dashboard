@@ -1,56 +1,106 @@
-import {
-  AuroraContext,
-  AuroraSession,
-  Token,
-  CreateAuroraFastifyContextOptions,
-} from "@cobaltcore-dev/aurora-sdk/server"
-import { validateToken } from "./Identity/services/tokenApi"
+import { AuroraContext, CreateAuroraFastifyContextOptions } from "@cobaltcore-dev/aurora-sdk/server"
+import { SignalOpenstackSession, SignalOpenstackSessionType, AuthConfig } from "@cobaltcore-dev/signal-openstack"
+
+import * as dotenv from "dotenv"
+
+// Load the identity endpoint from the environment
+dotenv.config()
+const identityEndpoint = process.env.IDENTITY_ENDPOINT
+// Ensure it ends with a single slash
+const normalizedEndpoint = identityEndpoint?.endsWith("/") ? identityEndpoint : `${identityEndpoint}/`
 
 export interface AuroraPortalContext extends AuroraContext {
-  setSessionCookie: (authToken: string | null, options?: { expires: Date }) => void
-  getSessionCookie: () => string | undefined
-  deleteSessionCookie: () => void
+  createSession: (params: { user: string; password: string; domain: string }) => SignalOpenstackSessionType
+  rescopeSession: (scope: AuthConfig["auth"]["scope"]) => Promise<Awaited<SignalOpenstackSessionType | null>>
+  terminateSession: () => Promise<void>
+}
+
+function SessionCookie(cookieName: string, opts: CreateAuroraFastifyContextOptions) {
+  return {
+    set: (content?: string | null, options?: { expires: Date }) => {
+      if (!content) return
+      opts.res.setCookie(cookieName, content, {
+        secure: true,
+        httpOnly: true,
+        sameSite: "strict",
+        expires: options?.expires || undefined,
+      })
+    },
+    get: () => opts.req.cookies[cookieName],
+
+    del: () => {
+      // Clear the cookie by setting an empty value and an immediate expiration date
+      opts.res.setCookie(cookieName, "", {
+        httpOnly: true, // Optional: to make it inaccessible via JavaScript
+        secure: true, // Optional: set to true for HTTPS
+        sameSite: "strict", // Optional: controls cross-site behavior
+        expires: new Date(0), // Expire immediately
+      })
+    },
+  }
 }
 
 export async function createContext(opts: CreateAuroraFastifyContextOptions): Promise<AuroraPortalContext> {
-  const setSessionCookie = (authToken: string | null, options?: { expires: Date }) => {
-    if (!authToken) return
-    opts.res.setCookie("aurora-session", authToken, {
-      secure: true,
-      httpOnly: true,
-      sameSite: "strict",
-      expires: options?.expires || undefined,
-    })
-  }
-  const getSessionCookie = () => {
-    return opts.req.cookies["aurora-session"]
-  }
+  const sessionCookie = SessionCookie("aurora-session", opts)
+  const currentAuthToken = sessionCookie.get()
+  let openstackSession: Awaited<SignalOpenstackSessionType> | undefined = undefined
 
-  const deleteSessionCookie = () => {
-    // Clear the cookie by setting an empty value and an immediate expiration date
-    opts.res.setCookie("aurora-session", "", {
-      httpOnly: true, // Optional: to make it inaccessible via JavaScript
-      secure: true, // Optional: set to true for HTTPS
-      sameSite: "strict", // Optional: controls cross-site behavior
-      expires: new Date(0), // Expire immediately
+  // If we have a token, initialize the session
+  if (currentAuthToken) {
+    openstackSession = await SignalOpenstackSession(normalizedEndpoint, {
+      auth: {
+        identity: {
+          methods: ["token"],
+          token: { id: currentAuthToken },
+        },
+      },
+    }).catch(() => {
+      // If the token is invalid, clear the cookie
+      sessionCookie.del()
+      return undefined
     })
   }
 
-  const authToken = getSessionCookie()
-  let token: Token | null = null
+  const validateSession = () => openstackSession?.isValid() || false
 
-  const validateSession = async (): Promise<AuroraSession> => {
-    if (!authToken) return { authToken: null, token: null }
+  // Create a new session (Login)
+  const createSession: AuroraPortalContext["createSession"] = async (params) => {
+    openstackSession = await SignalOpenstackSession(normalizedEndpoint, {
+      auth: {
+        identity: {
+          methods: ["password"],
+          password: { user: { name: params.user, password: params.password, domain: { name: params.domain } } },
+        },
+      },
+    })
+    const token = openstackSession.getToken()
+    sessionCookie.set(token?.authToken)
+    return openstackSession
+  }
 
-    token = token || (await validateToken(authToken))
+  // Rescope the current session, change project or domain
+  const rescopeSession: AuroraPortalContext["rescopeSession"] = async (scope) => {
+    if (!openstackSession) return null
+    await openstackSession.rescope(scope)
+    // Update the cookie with the new token
+    sessionCookie.set(openstackSession.getToken()?.authToken)
+    return openstackSession
+  }
 
-    return { authToken, token }
+  // Terminate the current session (Logout)
+  const terminateSession = async () => {
+    if (openstackSession) {
+      await openstackSession.terminate()
+      openstackSession = undefined
+    }
+    sessionCookie.del()
   }
 
   return {
-    setSessionCookie,
-    getSessionCookie,
-    deleteSessionCookie,
+    createSession,
+    rescopeSession,
+    terminateSession,
     validateSession,
+    openstack: openstackSession,
   }
 }

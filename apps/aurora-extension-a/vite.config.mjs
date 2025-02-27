@@ -50,6 +50,7 @@ export default defineConfig({
   },
   server: {
     host: "0.0.0.0",
+    allowedHosts: true,
     port: parseInt(DEV_PORT),
     proxy: {
       [BFF_ENDPOINT]: {

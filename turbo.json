@@ -5,14 +5,14 @@
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "inputs": ["$TURBO_DEFAULT$", ".env*"],
-      "outputs": ["dist/**"]
+      "cache": true
     },
     "lint": {
       "cache": true
     },
     "typecheck": {
-      "cache": true
+      "cache": true,
+      "dependsOn": ["^build"]
     },
     "test": {
       "cache": true,
