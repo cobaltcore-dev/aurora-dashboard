@@ -26,6 +26,7 @@ interface AuthApi {
 interface State {
   user: User | null
   error: string | null
+  reason?: string | null
   isLoading: boolean
 }
 
@@ -36,7 +37,7 @@ const useAuthApi = (): AuthApi => {
     trpcClient.identity.getAuthStatus
       .query()
       .then((res) => {
-        setAuth({ user: res.user, error: null, isLoading: false })
+        setAuth({ user: res.user, error: null, isLoading: false, reason: res.reason })
       })
       .catch((e) => setAuth({ user: null, error: e.message, isLoading: false }))
   }, [])
