@@ -24,12 +24,12 @@ export function ProjectCard({ project }: ProjectCardProps) {
   return (
     <div
       className="bg-[#161b22] rounded-xl shadow-lg p-5 flex flex-col space-y-4 border border-[#30363d] text-gray-300 min-h-[200px] relative cursor-pointer hover:bg-[#1f242b] transition-all"
-      onClick={() => setLocation(`/project/${project.id}/compute`)}
+      onClick={() => setLocation(`/projects/${project.id}/compute`)}
     >
       {/* Header: Project Name (Clickable) + PopupMenu */}
       <div className="flex justify-between items-center w-full">
         <Link
-          href={`/project/${project.id}/compute`}
+          href={`/projects/${project.id}/compute`}
           className="text-xl font-semibold text-blue-400 hover:underline"
           onClick={(e) => e.stopPropagation()} // Prevents card click when clicking the title
         >
@@ -39,6 +39,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
         {/* Popup Menu - Ensures it works */}
         <div
           className="ml-auto"
+          data-testid="project-card-menu"
           onMouseDown={(e) => e.stopPropagation()} // Stops route change
           onClick={(e) => e.stopPropagation()} // Ensures it doesn't trigger navigation
         >

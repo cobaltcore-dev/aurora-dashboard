@@ -16,7 +16,7 @@ export function ProjectListView({ projects }: ProjectListViewProps) {
           <div
             key={project.id}
             className="flex items-center w-full px-6 py-4 hover:bg-[#1f242b] transition-all cursor-pointer border-b border-[#30363d] last:border-0"
-            onClick={() => setLocation(`/project/${project.id}/compute`)}
+            onClick={() => setLocation(`/projects/${project.id}/compute`)}
           >
             {/* Icon + Title (Left Side) */}
             <div className="flex items-center space-x-3 min-w-0 w-1/3">
@@ -26,7 +26,7 @@ export function ProjectListView({ projects }: ProjectListViewProps) {
                 <Icon name="block" icon="info" color="jn-text-theme-danger" />
               )}
               <Link
-                href={`/project/${project.id}/compute`}
+                href={`/projects/${project.id}/compute`}
                 className="text-lg font-semibold text-blue-400 hover:underline truncate"
                 onClick={(e) => e.stopPropagation()}
               >
@@ -37,11 +37,10 @@ export function ProjectListView({ projects }: ProjectListViewProps) {
             {/* Description (Middle, Expands Fully) */}
             <p className="flex-1 text-gray-300 text-base truncate">{project.description}</p>
 
-            {/* Popup Menu (Right Side) */}
-
             {/* Popup Menu (Right Side, Click Prevention) */}
             <div
               className="ml-auto"
+              data-testid="project-card-menu"
               onMouseDown={(e) => e.stopPropagation()} // Stops route change
               onClick={(e) => e.stopPropagation()} // Ensures it doesn't trigger navigation
             >

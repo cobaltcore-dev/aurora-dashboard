@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import { ProjectsOverviewNavNbar, ViewMode } from "./components/ProjectOverviewNavBar"
 import { Project } from "../../shared/types/models"
 import { TrpcClient } from "../trpcClient"
-import ProjectCardView from "./components/ProjectCardOverview"
+import { ProjectCardView } from "./components/ProjectCardView"
 import { ProjectListView } from "./components/ProjectListView"
 
 type GetProjectState = {
