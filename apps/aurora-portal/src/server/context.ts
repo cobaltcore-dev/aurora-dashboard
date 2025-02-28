@@ -10,7 +10,7 @@ const identityEndpoint = process.env.IDENTITY_ENDPOINT
 const normalizedEndpoint = identityEndpoint?.endsWith("/") ? identityEndpoint : `${identityEndpoint}/`
 const defaultSignalOpenstackOptions = {
   interfaceName: process.env.DEFAULT_ENDPOINT_INTERFACE || "internal",
-  debug: false,
+  debug: process.env.NODE_ENV !== "production",
 }
 
 export interface AuroraPortalContext extends AuroraContext {
@@ -81,6 +81,11 @@ export async function createContext(opts: CreateAuroraFastifyContextOptions): Pr
           identity: {
             methods: ["password"],
             password: { user: { name: params.user, password: params.password, domain: { name: params.domain } } },
+          },
+          scope: {
+            domain: {
+              name: params.domain,
+            },
           },
         },
       },

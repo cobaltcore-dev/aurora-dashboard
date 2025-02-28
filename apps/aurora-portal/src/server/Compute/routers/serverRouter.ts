@@ -1,6 +1,6 @@
 import { z } from "zod"
 import { protectedProcedure } from "../../trpc"
-import type { Server } from "../../../shared/types/models"
+import type { Server } from "../types/models"
 
 const sampleServers: Server[] = [
   {

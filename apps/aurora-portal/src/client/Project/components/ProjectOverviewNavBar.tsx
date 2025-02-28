@@ -1,4 +1,4 @@
-import { Button, ComboBox, ComboBoxOption, Icon, Select } from "@cloudoperators/juno-ui-components"
+import { Button, ComboBox, ComboBoxOption, Icon } from "@cloudoperators/juno-ui-components"
 export type ViewMode = "list" | "card"
 
 type ProjectsOverviewNavNbarProps = {

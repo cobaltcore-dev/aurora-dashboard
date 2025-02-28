@@ -2,7 +2,7 @@ import { describe, it, vi, beforeEach } from "vitest"
 import { render, screen, waitFor, fireEvent } from "@testing-library/react"
 import { ComputeOverview } from "./ComputeOverview"
 import { TrpcClient } from "../trpcClient"
-import { Server } from "../../shared/types/models"
+import { Server } from "../../server/Compute/types/models"
 
 const mockGetServers = vi.fn()
 

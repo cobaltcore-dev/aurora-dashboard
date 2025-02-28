@@ -27,6 +27,19 @@ export interface OpenstackIdentityTokenData {
   system: {
     all: boolean
   }
+  project?: {
+    domain?: {
+      id?: string
+      name?: string
+    }
+    id?: string
+    name?: string
+  }
+  domain?: {
+    id?: string
+    name?: string
+  }
+
   user: {
     domain: {
       id: string

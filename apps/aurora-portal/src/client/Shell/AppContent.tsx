@@ -3,8 +3,7 @@ import React, { Suspense } from "react"
 import { Home } from "./Home"
 import { About } from "./About"
 import { ComputeOverview } from "../Compute/ComputeOverview"
-import { Overview as IdentityOverview } from "../Identity/Overview"
-import { SignIn } from "../Identity/Auth/SignIn"
+import { SignIn } from "../Auth/SignIn"
 import { trpcClient } from "../trpcClient"
 import { Route, Switch } from "wouter"
 import { useAuth } from "./AuthProvider"
@@ -66,9 +65,6 @@ export function AppContent() {
           </Route>
           {user && (
             <>
-              <Route path="/identity">
-                <IdentityOverview />
-              </Route>
               <Route path="/projects">
                 <ProjectsOverview client={trpcClient.project} />
               </Route>

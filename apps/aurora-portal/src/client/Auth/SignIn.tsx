@@ -1,10 +1,10 @@
 import { useState } from "react"
 import { ButtonRow, Button, Form, FormRow, TextInput, Spinner } from "@cloudoperators/juno-ui-components"
-import { useAuth } from "../../Shell/AuthProvider"
+import { useAuth } from "../Shell/AuthProvider"
 
 export function SignIn() {
   const [form, setForm] = useState({ domainName: "", user: "", password: "" })
-  const { user, error, isLoading, login } = useAuth()
+  const { isAuthenticated, user, error, isLoading, login } = useAuth()
 
   if (isLoading)
     return (
@@ -13,10 +13,10 @@ export function SignIn() {
       </div>
     )
 
-  if (user)
+  if (isAuthenticated)
     return (
       <div className="signed-in-notice">
-        <strong>Welcome back, {user.name}!</strong> <br />
+        <strong>Welcome back, {user?.name}!</strong> <br />
         You are already signed in.
       </div>
     )
