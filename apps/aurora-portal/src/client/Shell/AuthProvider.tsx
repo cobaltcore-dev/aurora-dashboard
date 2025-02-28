@@ -25,12 +25,11 @@ interface AuthApi {
   isLoading: boolean
   scopedDomain?: { id?: string; name?: string }
   scopedProject?: { id?: string; name?: string }
-  session_expres_at?: TokenData["expires_at"]
+  session_expires_at?: TokenData["expires_at"]
 }
 
 const useAuthApi = (): AuthApi => {
   const [authData, setAuthData] = useState<State>({ isLoading: true })
-  console.log("================", authData?.tokenData)
 
   useEffect(() => {
     trpcClient.auth.token
@@ -71,6 +70,7 @@ const useAuthApi = (): AuthApi => {
     login,
     logout,
     getAuthToken,
+    session_expires_at: authData.tokenData?.expires_at,
     isLoading: authData.isLoading,
     error: authData.error,
     isAuthenticated: !!authData.tokenData,

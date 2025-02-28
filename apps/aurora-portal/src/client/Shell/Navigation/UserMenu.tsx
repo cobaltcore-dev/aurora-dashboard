@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import { useLocation } from "wouter"
-import { Button, Icon, PopupMenu } from "@cloudoperators/juno-ui-components"
+import { Button, Icon } from "@cloudoperators/juno-ui-components"
 import { useAuth } from "../../Shell/AuthProvider"
 
 function Countdown({ className, passwordExpiresAt }: { className?: string; passwordExpiresAt: string }) {
@@ -40,7 +40,7 @@ function Countdown({ className, passwordExpiresAt }: { className?: string; passw
 }
 
 export function UserMenu() {
-  const { user, isLoading, logout: authLogout } = useAuth()
+  const { user, session_expires_at, isLoading, logout: authLogout } = useAuth()
   const setLocation = useLocation()[1]
   const [isOpen, setIsOpen] = useState(false)
 
@@ -65,7 +65,7 @@ export function UserMenu() {
               <Button disabled={isLoading} variant="default" size="small" onClick={logout}>
                 Sign Out
               </Button>
-              <Countdown passwordExpiresAt={user.session_expires_at} />
+              {session_expires_at && <Countdown passwordExpiresAt={session_expires_at} />}
             </div>
           ) : (
             <Button disabled={isLoading} variant="primary" size="small" onClick={login} className="w-full">
