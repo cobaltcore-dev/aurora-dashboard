@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { ProjectsOverviewNavNbar, ViewMode } from "./components/ProjectOverviewNavBar"
-import { Project } from "../../shared/types/models"
+import { Project } from "../../server/Project/types/models"
 import { TrpcClient } from "../trpcClient"
 import { ProjectCardView } from "./components/ProjectCardView"
 import { ProjectListView } from "./components/ProjectListView"
@@ -16,7 +16,7 @@ export function ProjectsOverview({ client }: { client: TrpcClient["project"] }) 
   const [viewMode, setViewMode] = useState<ViewMode>("card")
 
   useEffect(() => {
-    client.list
+    client.authProjects
       .query()
       .then((data) => updateGetProjects({ data, isLoading: false }))
       .catch((error) => updateGetProjects({ error: error.message, isLoading: false }))

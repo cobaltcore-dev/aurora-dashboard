@@ -1,5 +1,6 @@
 import { createContext, ReactNode, useContext, useEffect, useState } from "react"
 import { trpcClient } from "../trpcClient"
+import { TokenData } from "../../server/Authentication/types/models"
 
 interface LoginParams {
   user: string
@@ -7,66 +8,76 @@ interface LoginParams {
   domainName: string
 }
 
-interface User {
-  id: string
-  name: string
-  domain: { id?: string; name?: string }
-  password_expires_at: string
-  session_expires_at: string
+interface State {
+  tokenData?: TokenData | null
+  error?: string | null
+  isLoading: boolean
 }
 
 interface AuthApi {
   login: (props: LoginParams) => Promise<void>
   logout: () => Promise<void>
-  error: string | null
+  getAuthToken: () => Promise<string | null>
+  isAuthenticated: boolean
+  user?: TokenData["user"]
+  roles?: TokenData["roles"]
+  error?: string | null
   isLoading: boolean
-  user: User | null
-}
-
-interface State {
-  user: User | null
-  error: string | null
-  reason?: string | null
-  isLoading: boolean
+  scopedDomain?: { id?: string; name?: string }
+  scopedProject?: { id?: string; name?: string }
+  session_expres_at?: TokenData["expires_at"]
 }
 
 const useAuthApi = (): AuthApi => {
-  const [auth, setAuth] = useState<State>({ user: null, error: null, isLoading: true })
+  const [authData, setAuthData] = useState<State>({ isLoading: true })
+  console.log("================", authData?.tokenData)
 
   useEffect(() => {
-    trpcClient.identity.getAuthStatus
+    trpcClient.auth.token
       .query()
-      .then((res) => {
-        setAuth({ user: res.user, error: null, isLoading: false, reason: res.reason })
+      .then((tokenData) => {
+        setAuthData({ tokenData, error: null, isLoading: false })
       })
-      .catch((e) => setAuth({ user: null, error: e.message, isLoading: false }))
+      .catch((e) => setAuthData({ tokenData: null, error: e.message, isLoading: false }))
   }, [])
 
   const login = (props: LoginParams) => {
-    setAuth({ ...auth, error: null, isLoading: true })
-    return trpcClient.identity.login
+    setAuthData({ tokenData: null, error: null, isLoading: true })
+    return trpcClient.auth.login
       .mutate(props)
-      .then((res) => {
-        setAuth({ user: res.user, error: null, isLoading: false })
+      .then((tokenData) => {
+        setAuthData({ tokenData, error: null, isLoading: false })
       })
-      .catch((e) => setAuth({ user: null, error: e.message, isLoading: false }))
+      .catch((e) => setAuthData({ tokenData: null, error: e.message, isLoading: false }))
   }
 
   const logout = () => {
-    setAuth({ ...auth, error: null, isLoading: true })
-    return trpcClient.identity.logout
+    setAuthData({ ...authData, error: null, isLoading: true })
+    return trpcClient.auth.logout
       .mutate()
       .then(() => {
-        setAuth({ user: null, error: null, isLoading: false })
+        setAuthData({ tokenData: null, error: null, isLoading: false })
       })
-      .catch((e) => setAuth({ user: null, error: e.message, isLoading: false }))
+      .catch((e) => setAuthData({ ...authData, error: e.message, isLoading: false }))
+  }
+
+  const getAuthToken = async () => {
+    const authToken = await trpcClient.auth.authToken.query()
+    return authToken
   }
 
   // Consolidate state and API logic into a single object
   return {
     login,
     logout,
-    ...auth,
+    getAuthToken,
+    isLoading: authData.isLoading,
+    error: authData.error,
+    isAuthenticated: !!authData.tokenData,
+    user: authData.tokenData?.user,
+    roles: authData.tokenData?.roles,
+    scopedDomain: authData.tokenData?.project?.domain || authData.tokenData?.domain,
+    scopedProject: authData.tokenData?.project,
   }
 }
 

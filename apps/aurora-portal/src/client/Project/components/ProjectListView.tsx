@@ -1,6 +1,6 @@
 import { Icon, PopupMenu } from "@cloudoperators/juno-ui-components"
 import { useLocation, Link } from "wouter"
-import { Project } from "../../../shared/types/models"
+import { Project } from "../../../server/Project/types/models"
 
 type ProjectListViewProps = {
   projects: Project[] | undefined

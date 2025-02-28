@@ -1,19 +1,21 @@
-import { Link, useLocation } from "wouter"
+import { Link } from "wouter"
 import Logo from "../../assets/logo.svg?react"
 
 import { UserMenu } from "./UserMenu"
 import { NavigationItem } from "./types"
+import { useAuth } from "../AuthProvider"
 
-const navItem = (active: boolean) =>
-  `px-2 py-2 hover:text-theme-high ${active ? "font-semibold text-theme-accent" : "text-gray-700"}`
+// const navItem = (active: boolean) =>
+//   `px-2 py-2 hover:text-theme-high ${active ? "font-semibold text-theme-accent" : "text-gray-700"}`
 
 interface NavigationProps {
   items: NavigationItem[]
 }
 
 export function MainNavigation({ items }: NavigationProps) {
-  const [location] = useLocation()
-
+  // const [location] = useLocation()
+  const { scopedDomain, scopedProject } = useAuth()
+  console.info(items)
   return (
     <nav>
       {/* Main Navigation Bar */}
@@ -26,8 +28,18 @@ export function MainNavigation({ items }: NavigationProps) {
             <span className="text-lg font-medium text-sap-grey-2">Aurora</span>
             {/* Slightly smaller font for better balance */}
           </Link>
-          <span className="text-sap-grey-1">/</span>
-          <span className="font-semibold text-lg text-sap-grey-2">mansoon1</span>
+          {scopedDomain?.name && (
+            <>
+              <span className="text-sap-grey-1">/</span>
+              <span className="font-semibold text-lg text-sap-grey-2">{scopedDomain.name}</span>
+            </>
+          )}
+          {scopedProject?.name && (
+            <>
+              <span className="text-sap-grey-1">/</span>
+              <span className="font-semibold text-lg text-sap-grey-2">{scopedProject.name}</span>
+            </>
+          )}
         </div>
 
         {/* Right Section: About & User Menu */}

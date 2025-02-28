@@ -1,4 +1,4 @@
-import type { Server } from "../../../shared/types/models"
+import type { Server } from "../../../server/Compute/types/models"
 import { Button, Icon } from "@cloudoperators/juno-ui-components"
 
 type ServerListViewProps = {
