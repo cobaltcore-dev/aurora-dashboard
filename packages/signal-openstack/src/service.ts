@@ -42,7 +42,7 @@ export function SignalOpenstackService(
     const serviceEndpoint = token.serviceEndpoint(name, { interfaceName, region })
 
     if (debug) {
-      console.debug(`===Signal Openstack Debug: serviceEndpoint `, serviceEndpoint)
+      console.debug("===Signal Openstack Debug: ", { name, region, interfaceName, serviceEndpoint })
     }
 
     if (serviceEndpoint === undefined || serviceEndpoint === null) {

@@ -1,8 +1,8 @@
 import { z } from "zod"
-import { publicProcedure, protectedProcedure } from "../../trpc"
+import { publicProcedure } from "../../trpc"
 
 export const tokenRouter = {
-  getAuthStatus: protectedProcedure.query(async ({ ctx }) => {
+  getAuthStatus: publicProcedure.query(async ({ ctx }) => {
     const token = ctx.openstack?.getToken()
 
     if (!token?.authToken) {

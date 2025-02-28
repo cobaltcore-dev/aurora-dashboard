@@ -64,7 +64,7 @@ export async function SignalOpenstackSession(
   // public functions
   async function terminate() {
     if (isValid()) {
-      await del(endpoint, { headers: { "X-Auth-Token": token!.authToken } })
+      await del(endpoint, { headers: { "X-Auth-Token": token!.authToken, "X-Subject-Token": token!.authToken } })
     }
     token = undefined
   }

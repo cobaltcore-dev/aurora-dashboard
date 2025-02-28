@@ -49,9 +49,7 @@ const request = ({ method, path, options = {} }: RequestParams) => {
   }
 
   if (options.debug) {
-    console.debug(
-      `===Signal Openstack Debug: url = ${url.toString()}, headers = ${JSON.stringify({ ...options.headers }, null, 2)}, body = ${body}`
-    )
+    console.debug(`===Signal Openstack Debug: `, JSON.stringify({ method, path, options, url }, null, 2))
   }
 
   return fetch(url.toString(), {

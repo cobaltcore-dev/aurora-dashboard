@@ -8,6 +8,10 @@ dotenv.config()
 const identityEndpoint = process.env.IDENTITY_ENDPOINT
 // Ensure it ends with a single slash
 const normalizedEndpoint = identityEndpoint?.endsWith("/") ? identityEndpoint : `${identityEndpoint}/`
+const defaultSignalOpenstackOptions = {
+  interfaceName: process.env.DEFAULT_ENDPOINT_INTERFACE || "internal",
+  debug: false,
+}
 
 export interface AuroraPortalContext extends AuroraContext {
   createSession: (params: { user: string; password: string; domain: string }) => SignalOpenstackSessionType
@@ -24,17 +28,18 @@ function SessionCookie(cookieName: string, opts: CreateAuroraFastifyContextOptio
         httpOnly: true,
         sameSite: "strict",
         expires: options?.expires || undefined,
+        path: "polaris-bff", // Optional: if set, must be the same for both set and del
       })
     },
     get: () => opts.req.cookies[cookieName],
 
     del: () => {
-      // Clear the cookie by setting an empty value and an immediate expiration date
       opts.res.setCookie(cookieName, "", {
-        httpOnly: true, // Optional: to make it inaccessible via JavaScript
-        secure: true, // Optional: set to true for HTTPS
-        sameSite: "strict", // Optional: controls cross-site behavior
-        expires: new Date(0), // Expire immediately
+        secure: true, // Wichtig: gleich wie beim Setzen
+        httpOnly: true, // Wichtig: gleich wie beim Setzen
+        sameSite: "strict", // Wichtig: gleich wie beim Setzen
+        expires: new Date(0), // Cookie sofort ablaufen lassen
+        path: "polaris-bff", // Optional: falls gesetzt, muss es auch hier gleich sein
       })
     },
   }
@@ -47,14 +52,18 @@ export async function createContext(opts: CreateAuroraFastifyContextOptions): Pr
 
   // If we have a token, initialize the session
   if (currentAuthToken) {
-    openstackSession = await SignalOpenstackSession(normalizedEndpoint, {
-      auth: {
-        identity: {
-          methods: ["token"],
-          token: { id: currentAuthToken },
+    openstackSession = await SignalOpenstackSession(
+      normalizedEndpoint,
+      {
+        auth: {
+          identity: {
+            methods: ["token"],
+            token: { id: currentAuthToken },
+          },
         },
       },
-    }).catch(() => {
+      defaultSignalOpenstackOptions
+    ).catch(() => {
       // If the token is invalid, clear the cookie
       sessionCookie.del()
       return undefined
@@ -65,14 +74,18 @@ export async function createContext(opts: CreateAuroraFastifyContextOptions): Pr
 
   // Create a new session (Login)
   const createSession: AuroraPortalContext["createSession"] = async (params) => {
-    openstackSession = await SignalOpenstackSession(normalizedEndpoint, {
-      auth: {
-        identity: {
-          methods: ["password"],
-          password: { user: { name: params.user, password: params.password, domain: { name: params.domain } } },
+    openstackSession = await SignalOpenstackSession(
+      normalizedEndpoint,
+      {
+        auth: {
+          identity: {
+            methods: ["password"],
+            password: { user: { name: params.user, password: params.password, domain: { name: params.domain } } },
+          },
         },
       },
-    })
+      defaultSignalOpenstackOptions
+    )
     const token = openstackSession.getToken()
     sessionCookie.set(token?.authToken)
     return openstackSession
@@ -90,10 +103,11 @@ export async function createContext(opts: CreateAuroraFastifyContextOptions): Pr
   // Terminate the current session (Logout)
   const terminateSession = async () => {
     if (openstackSession) {
-      await openstackSession.terminate()
-      openstackSession = undefined
+      await openstackSession.terminate().finally(() => {
+        openstackSession = undefined
+        sessionCookie.del()
+      })
     }
-    sessionCookie.del()
   }
 
   return {
