@@ -1,12 +1,15 @@
 import { Icon, PopupMenu } from "@cloudoperators/juno-ui-components"
 import { useLocation, Link } from "wouter"
 import { Project } from "../../../server/Project/types/models"
+import { Domain } from "../../Shell/AuthProvider"
 
 type ProjectListViewProps = {
   projects: Project[] | undefined
+  domain?: Domain
+  onProjectClick: (project: Project) => void
 }
 
-export function ProjectListView({ projects }: ProjectListViewProps) {
+export function ProjectListView({ domain, projects, onProjectClick }: ProjectListViewProps) {
   const [, setLocation] = useLocation()
 
   return (
@@ -16,7 +19,7 @@ export function ProjectListView({ projects }: ProjectListViewProps) {
           <div
             key={project.id}
             className="flex items-center w-full px-6 py-4 hover:bg-[#1f242b] transition-all cursor-pointer border-b border-[#30363d] last:border-0"
-            onClick={() => setLocation(`/projects/${project.id}/compute`)}
+            onClick={() => selectProject(project, onProjectClick)}
           >
             {/* Icon + Title (Left Side) */}
             <div className="flex items-center space-x-3 min-w-0 w-1/3">
@@ -26,9 +29,12 @@ export function ProjectListView({ projects }: ProjectListViewProps) {
                 <Icon name="block" icon="info" color="jn-text-theme-danger" />
               )}
               <Link
-                href={`/projects/${project.id}/compute`}
+                href={`/${domain?.id}/projects/${project.id}/compute`}
                 className="text-lg font-semibold text-blue-400 hover:underline truncate"
-                onClick={(e) => e.stopPropagation()}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  selectProject(project, onProjectClick)
+                }}
               >
                 {project.name}
               </Link>
@@ -56,4 +62,9 @@ export function ProjectListView({ projects }: ProjectListViewProps) {
       )}
     </div>
   )
+
+  function selectProject(project: Project, onProjectClick: (project: Project) => void) {
+    onProjectClick(project)
+    setLocation(`/projects/${project.id}/compute`)
+  }
 }

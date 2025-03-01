@@ -13,8 +13,12 @@ interface State {
   error?: string | null
   isLoading: boolean
 }
+export interface Domain {
+  id?: string
+  name?: string
+}
 
-interface AuthApi {
+export interface AuthApi {
   login: (props: LoginParams) => Promise<void>
   logout: () => Promise<void>
   getAuthToken: () => Promise<string | null>
@@ -23,7 +27,7 @@ interface AuthApi {
   roles?: TokenData["roles"]
   error?: string | null
   isLoading: boolean
-  scopedDomain?: { id?: string; name?: string }
+  scopedDomain?: Domain
   scopedProject?: { id?: string; name?: string }
   session_expires_at?: TokenData["expires_at"]
 }

@@ -39,22 +39,16 @@ const extensions = clientExtensions.map((ext: Extension) => ({
 }))
 
 export function AppContent() {
-  const { user } = useAuth()
-
+  const { user, scopedDomain } = useAuth()
   const navItems = [{ route: "/about", label: "About" }]
-  const subNavItems = []
 
   if (user) {
-    subNavItems.push({ route: "/projects", label: "Overview" })
-    // subNavItems.push({ route: "/compute", label: "Compute" })
     extensions.forEach((ext) => navItems.push({ route: `/${ext.id}`, label: ext.navigation?.label || ext.name }))
-  } else {
-    subNavItems.push({ route: "/", label: "Wellcome" })
   }
 
   return (
     <>
-      <NavigationLayout mainNavItems={navItems} subNavItems={subNavItems} />
+      {user ? <NavigationLayout mainNavItems={navItems} /> : <SignIn />}
       <div className="py-4 pl-4 bg-theme-global-bg h-full">
         <Switch>
           <Route path="/" component={Home} />
@@ -63,13 +57,16 @@ export function AppContent() {
           <Route path="auth/signin">
             <SignIn />
           </Route>
-          {user && (
+          {user ? (
             <>
-              <Route path="/projects">
-                <ProjectsOverview client={trpcClient.project} />
-              </Route>
-              <Route path="/projects/:projectId/compute">
-                <ComputeOverview client={trpcClient.compute} />
+              <Route path="/:domainId" nest>
+                <Route path="/projects">
+                  <ProjectsOverview client={trpcClient.project} />
+                </Route>
+
+                <Route path="/:domainId/:projectId/compute">
+                  <ComputeOverview client={trpcClient.compute} />
+                </Route>
               </Route>
               {extensions.map((ext, i) => (
                 <Route key={i} path={`/${ext.id}`}>
@@ -81,6 +78,8 @@ export function AppContent() {
                 </Route>
               ))}
             </>
+          ) : (
+            <SignIn />
           )}
 
           {/* Default route in a switch */}
