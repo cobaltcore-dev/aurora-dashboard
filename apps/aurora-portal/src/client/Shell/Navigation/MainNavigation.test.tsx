@@ -2,6 +2,7 @@ import { render, screen, fireEvent } from "@testing-library/react"
 import { Router } from "wouter"
 import { MainNavigation } from "./MainNavigation"
 import { AuthProvider } from "../AuthProvider"
+import { AuroraProvider } from "../AuroraProvider"
 
 const mainNavItems = [
   { route: "/", label: "Home" },
@@ -11,20 +12,22 @@ const mainNavItems = [
 // Helper function to wrap components with AuthProvider & Router
 const renderWithAuth = (ui: React.ReactNode) => {
   return render(
-    <AuthProvider>
-      <Router>{ui}</Router>
-    </AuthProvider>
+    <AuroraProvider>
+      <AuthProvider>
+        <Router>{ui}</Router>
+      </AuthProvider>
+    </AuroraProvider>
   )
 }
 
 describe("MainNavigation", () => {
   test("renders MainNavigation with items", () => {
-    renderWithAuth(<MainNavigation items={mainNavItems} />)
+    renderWithAuth(<MainNavigation items={mainNavItems} scopedDomain={undefined} />)
     expect(screen.getByText("Aurora")).toBeInTheDocument()
   })
 
   test("clicking a MainNavigation item updates the route", () => {
-    renderWithAuth(<MainNavigation items={mainNavItems} />)
+    renderWithAuth(<MainNavigation items={mainNavItems} scopedDomain={undefined} />)
 
     const aboutLink = screen.getByText("About")
     fireEvent.click(aboutLink)
