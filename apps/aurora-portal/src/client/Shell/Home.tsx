@@ -1,6 +1,9 @@
 import { FormattedText } from "@cloudoperators/juno-ui-components"
+import { useAuroraContext } from "./AuroraProvider"
 
 export function Home() {
+  const { setCurrentProject } = useAuroraContext()
+  setCurrentProject(null)
   return (
     <FormattedText className="p-5">
       <h1>Welcome to Aurora Dashboard </h1>

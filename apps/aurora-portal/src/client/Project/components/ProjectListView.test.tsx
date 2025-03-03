@@ -2,7 +2,6 @@ import { render, screen, fireEvent } from "@testing-library/react"
 import { ProjectListView } from "./ProjectListView"
 import { memoryLocation } from "wouter/memory-location"
 import { Router } from "wouter"
-import { Project } from "../../../server/Project/types/models"
 
 // Define test projects
 const projects = [
@@ -18,13 +17,13 @@ const projects = [
   },
 ]
 
-describe.skip("ProjectListView", () => {
+describe("ProjectListView", () => {
   test("renders without crashing when no projects", () => {
     const { hook } = memoryLocation({ path: "/", static: true })
 
     render(
       <Router hook={hook}>
-        <ProjectListView projects={undefined} onProjectClick={function (project: Project): void {}} />
+        <ProjectListView projects={undefined} />
       </Router>
     )
 
@@ -37,7 +36,7 @@ describe.skip("ProjectListView", () => {
 
     render(
       <Router hook={hook}>
-        <ProjectListView projects={projects} domain={domain} onProjectClick={function (project: Project): void {}} />
+        <ProjectListView projects={projects} domain={domain} />
       </Router>
     )
 
@@ -54,14 +53,14 @@ describe.skip("ProjectListView", () => {
 
     render(
       <Router hook={hook}>
-        <ProjectListView projects={projects} onProjectClick={function (project: Project): void {}} />
+        <ProjectListView projects={projects} />
       </Router>
     )
 
     const title = screen.getByRole("link", { name: "Security Group" })
     fireEvent.click(title)
 
-    expect(history).toHaveLength(2) // Location should change
+    expect(history).toHaveLength(3) // Location should change
   })
 
   test("clicking the popup menu does NOT trigger navigation", () => {
@@ -69,7 +68,7 @@ describe.skip("ProjectListView", () => {
 
     render(
       <Router hook={hook}>
-        <ProjectListView projects={projects} onProjectClick={function (project: Project): void {}} />
+        <ProjectListView projects={projects} />
       </Router>
     )
 
@@ -85,7 +84,7 @@ describe.skip("ProjectListView", () => {
 
     render(
       <Router hook={hook}>
-        <ProjectListView projects={projects} domain={domain} onProjectClick={function (project: Project): void {}} />
+        <ProjectListView projects={projects} domain={domain} />
       </Router>
     )
 

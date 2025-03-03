@@ -32,10 +32,6 @@ export function ProjectsOverview({ client }: { client: TrpcClient["project"] }) 
   if (getProjects.error)
     return <div className="h-full flex justify-center items-center text-red-500">Error: {getProjects.error}</div>
 
-  const handleProjectClick = (project: Project) => {
-    setCurrentProject(project)
-  }
-
   return (
     <div className="grid grid-cols-12 gap-4 px-6 py-4">
       {/* Left Space */}
@@ -49,9 +45,9 @@ export function ProjectsOverview({ client }: { client: TrpcClient["project"] }) 
         {/* Content - Make sure it has no extra margin/padding that misaligns */}
         <div className="w-full pt-5">
           {viewMode === "list" ? (
-            <ProjectListView domain={domain} projects={getProjects.data} onProjectClick={handleProjectClick} />
+            <ProjectListView domain={domain} projects={getProjects.data} />
           ) : (
-            <ProjectCardView domain={domain} projects={getProjects.data} onProjectClick={handleProjectClick} />
+            <ProjectCardView domain={domain} projects={getProjects.data} />
           )}
         </div>
       </div>

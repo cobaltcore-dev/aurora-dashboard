@@ -4,27 +4,50 @@ import { TrpcClient } from "../trpcClient"
 import ServerListView from "./components/ServerListView"
 import ServerCardView from "./components/ServerCardView"
 import ComputeNavBar from "./components/ComputeNavBar"
+import { useParams } from "wouter"
+import { Project } from "../../server/Project/types/models"
+import { useAuroraContext } from "../Shell/AuroraProvider"
 
 type GetServersState = {
   data?: Server[]
   error?: string
   isLoading?: boolean
 }
-export function ComputeOverview({ client }: { client: TrpcClient["compute"] }) {
+
+type GetProjectByIdState = {
+  data?: Project
+  error?: string
+  isProjectLoading?: boolean
+}
+export function ComputeOverview({ client }: { client: TrpcClient }) {
   const [getServers, updateGetServer] = useState<GetServersState>({ isLoading: true })
+  const [getProjectById, updateProjectById] = useState<GetProjectByIdState>({ isProjectLoading: true })
+  const { setCurrentProject } = useAuroraContext()
+
   const [viewMode, setViewMode] = useState<"list" | "card">("list")
+  const params = useParams()
 
   useEffect(() => {
-    client.getServers
+    client.compute.getServers
       .query()
       .then((data) => updateGetServer({ data, isLoading: false }))
       .catch((error) => updateGetServer({ error: error.message, isLoading: false }))
   }, [])
 
-  if (getServers.isLoading)
+  useEffect(() => {
+    client.project.getProjectById
+      .query({ id: params?.projectId || "" })
+      .then((data) => {
+        setCurrentProject(data)
+        return updateProjectById({ data, isProjectLoading: false })
+      })
+      .catch((error) => updateProjectById({ error: error.message, isProjectLoading: false }))
+  }, [])
+
+  if (getServers.isLoading || getProjectById.isProjectLoading)
     return <div className="h-full flex justify-center items-center text-gray-400">Loading...</div>
 
-  if (getServers.error)
+  if (getServers.error || getProjectById.error)
     return <div className="h-full flex justify-center items-center text-red-500">Error: {getServers.error}</div>
 
   return (

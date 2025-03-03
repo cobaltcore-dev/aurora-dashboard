@@ -48,43 +48,44 @@ export function AppContent() {
 
   return (
     <>
-      {user ? <NavigationLayout mainNavItems={navItems} /> : <SignIn />}
-      <div className="py-4 pl-4 bg-theme-global-bg h-full">
-        <Switch>
-          <Route path="/" component={Home} />
-          <Route path="/about" component={About} />
+      <div className="content">
+        {user && <NavigationLayout mainNavItems={navItems} />}
+        <div className="py-4 pl-4 bg-theme-global-bg h-full">
+          <Switch>
+            <Route path="auth/signin">
+              <SignIn />
+            </Route>
+            {user ? (
+              <>
+                <Route path="/about" component={About} />
+                <Route path="/" component={Home} />
+                <Route path="/:domainId" nest>
+                  <Route path="/projects">
+                    <ProjectsOverview client={trpcClient.project} />
+                  </Route>
 
-          <Route path="auth/signin">
-            <SignIn />
-          </Route>
-          {user ? (
-            <>
-              <Route path="/:domainId" nest>
-                <Route path="/projects">
-                  <ProjectsOverview client={trpcClient.project} />
+                  <Route path="/:domainId/:projectId/compute">
+                    <ComputeOverview client={trpcClient} />
+                  </Route>
                 </Route>
+                {extensions.map((ext, i) => (
+                  <Route key={i} path={`/${ext.id}`}>
+                    <ErrorBoundary fallback={<div>Something went wrong</div>}>
+                      <Suspense fallback={<div>Loading...</div>}>
+                        <ext.App client={trpcClient[ext.id as RouterScopes]} getTokenFunc={() => ""} />
+                      </Suspense>
+                    </ErrorBoundary>
+                  </Route>
+                ))}
+              </>
+            ) : (
+              <SignIn />
+            )}
 
-                <Route path="/:domainId/:projectId/compute">
-                  <ComputeOverview client={trpcClient.compute} />
-                </Route>
-              </Route>
-              {extensions.map((ext, i) => (
-                <Route key={i} path={`/${ext.id}`}>
-                  <ErrorBoundary fallback={<div>Something went wrong</div>}>
-                    <Suspense fallback={<div>Loading...</div>}>
-                      <ext.App client={trpcClient[ext.id as RouterScopes]} getTokenFunc={() => ""} />
-                    </Suspense>
-                  </ErrorBoundary>
-                </Route>
-              ))}
-            </>
-          ) : (
-            <SignIn />
-          )}
-
-          {/* Default route in a switch */}
-          <Route>404: No such page!</Route>
-        </Switch>
+            {/* Default route in a switch */}
+            <Route>404: No such page!</Route>
+          </Switch>
+        </div>
       </div>
     </>
   )
