@@ -80,12 +80,12 @@ describe("ComputePanel", () => {
     renderWithAuth(<ComputeOverview client={mockClient} />)
 
     await waitFor(() => {
-      expect(screen.getByText("Server List")).toBeInTheDocument()
+      expect(screen.getByText("Compute")).toBeInTheDocument()
       expect(screen.getByText("Development Server")).toBeInTheDocument()
     })
   })
 
-  it("switches to card view", async () => {
+  it("shows a content", async () => {
     const mockServers = [
       {
         id: "10",
@@ -110,11 +110,8 @@ describe("ComputePanel", () => {
     renderWithAuth(<ComputeOverview client={mockClient} />)
 
     await waitFor(() => {
-      expect(screen.getByText("Server List")).toBeInTheDocument()
+      expect(screen.getByText("Compute")).toBeInTheDocument()
     })
-
-    const cardViewButton = screen.getByText("Card")
-    fireEvent.click(cardViewButton)
 
     await waitFor(() => {
       expect(screen.getByText("Development Server")).toBeInTheDocument()

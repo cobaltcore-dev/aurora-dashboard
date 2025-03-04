@@ -3,7 +3,7 @@ import type { Server } from "../../server/Compute/types/models"
 import { TrpcClient } from "../trpcClient"
 import ServerListView from "./components/ServerListView"
 import ServerCardView from "./components/ServerCardView"
-import ComputeNavBar from "./components/ComputeNavBar"
+import { ComputeNavBar, ComputeSideNavBar } from "./components/ComputeNavBar"
 import { useParams } from "wouter"
 import { Project } from "../../server/Project/types/models"
 import { useAuroraContext } from "../Shell/AuroraProvider"
@@ -51,19 +51,24 @@ export function ComputeOverview({ client }: { client: TrpcClient }) {
     return <div className="h-full flex justify-center items-center text-red-500">Error: {getServers.error}</div>
 
   return (
-    <div className="flex flex-col bg-[#161b22] p-6 rounded-xl shadow mb-4">
-      {/* Header Content */}
-      <h1 className="text-gray-200 text-5xl font-bold mb-12">Compute Overview</h1>
-
-      {/* Server List & View Mode Switch */}
-      <div className="bg-[#1b1f24] border border-[#30363d] rounded-xl p-6 shadow-lg mb-8">
-        {/* Full-Width Container for NavBar & View */}
-        <div className="bg-[#161b22] rounded-lg shadow-md p-5">
+    <div className="container max-w-screen-3xl mx-auto px-6 py-4 grid grid-cols-12 gap-4">
+      {/* Row 1: Title & Navigation (Balanced Layout) */}
+      <div className="col-span-2 flex flex-col justify-center">
+        <h3 className="text-3xl font-medium text-juno-grey-light-1 text-justify pl-5">Compute</h3>
+      </div>
+      {/* Left Spacing */}
+      <div className="col-span-9 flex items-center justify-between py-2">
+        <div className="flex-1 flex justify-end">
           <ComputeNavBar viewMode={viewMode} setViewMode={setViewMode} />
         </div>
-
-        {/* View Container */}
-        <div className="bg-[#161b22] rounded-lg shadow-md p-5 mt-2">
+      </div>
+      <div className="col-span-1"></div> {/* Right Spacing */}
+      {/* Row 2: Sidebar & Main Content (Properly Aligned) */}
+      <div className="col-span-2 flex flex-col gap-4">
+        <ComputeSideNavBar />
+      </div>
+      <div className="col-span-9 flex flex-col gap-4">
+        <div className="w-full">
           {viewMode === "list" ? (
             <ServerListView servers={getServers.data} />
           ) : (
@@ -71,6 +76,7 @@ export function ComputeOverview({ client }: { client: TrpcClient }) {
           )}
         </div>
       </div>
+      <div className="col-span-1"></div> {/* Right Spacing */}
     </div>
   )
 }
