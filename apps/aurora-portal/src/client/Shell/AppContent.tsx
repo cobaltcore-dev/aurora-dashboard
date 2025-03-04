@@ -39,7 +39,7 @@ const extensions = clientExtensions.map((ext: Extension) => ({
 }))
 
 export function AppContent() {
-  const { user, scopedDomain } = useAuth()
+  const { user } = useAuth()
   const navItems = [{ route: "/about", label: "About" }]
 
   if (user) {
