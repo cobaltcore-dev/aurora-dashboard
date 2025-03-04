@@ -1,10 +1,8 @@
-import { useState } from "react"
 import { MainNavigation } from "./MainNavigation"
 import { SubNavigation } from "./SubNavigation"
 import { NavigationItem } from "./types"
 import { useLocation } from "wouter"
 import { useAuroraContext } from "../AuroraProvider"
-import { useAuth } from "../AuthProvider"
 
 export function NavigationLayout({ mainNavItems }: { mainNavItems: NavigationItem[] }) {
   const [location] = useLocation()

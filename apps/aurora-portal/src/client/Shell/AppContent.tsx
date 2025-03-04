@@ -6,13 +6,13 @@ import { ComputeOverview } from "../Compute/ComputeOverview"
 import { SignIn } from "../Auth/SignIn"
 import { trpcClient } from "../trpcClient"
 import { Route, Switch } from "wouter"
-import { useAuth } from "./AuthProvider"
 import { ErrorBoundary } from "react-error-boundary"
 import { lazy } from "react"
 import { TrpcClient } from "../trpcClient"
 import { clientExtensions } from "../generated/extensions"
 import { NavigationLayout } from "./Navigation/NavigationLayout"
 import { ProjectsOverview } from "../Project/ProejctsOverview"
+import { useAuthSync } from "../hooks/useAuthSync"
 
 type RouterScopes = keyof typeof trpcClient
 
@@ -39,7 +39,8 @@ const extensions = clientExtensions.map((ext: Extension) => ({
 }))
 
 export function AppContent() {
-  const { user } = useAuth()
+  const { user } = useAuthSync()
+
   const navItems = [{ route: "/about", label: "About" }]
 
   if (user) {

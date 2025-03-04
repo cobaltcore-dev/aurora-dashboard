@@ -12,7 +12,7 @@ export interface AuthSlice {
 
     login: (props: { user: string; password: string; domainName: string }) => Promise<void>
     logout: () => Promise<void>
-    getAuthStatus: () => Promise<void>
+    syncAuthStatus: () => Promise<void>
   }
 }
 
@@ -81,7 +81,7 @@ export const createAuthSlice: StateCreator<AuthSlice, [], [], AuthSlice> = (set)
       }
     },
 
-    getAuthStatus: async () => {
+    syncAuthStatus: async () => {
       set((state) => ({ auth: { ...state.auth, isLoading: true } }))
       try {
         const token = await trpcClient.auth.token.query()

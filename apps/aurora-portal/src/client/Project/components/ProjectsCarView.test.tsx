@@ -2,7 +2,6 @@ import { render, screen, fireEvent } from "@testing-library/react"
 import { ProjectCardView } from "./ProjectCardView"
 import { memoryLocation } from "wouter/memory-location"
 import { Router } from "wouter"
-import { Project } from "../../../server/Project/types/models"
 
 // Define a test project
 const projects = [

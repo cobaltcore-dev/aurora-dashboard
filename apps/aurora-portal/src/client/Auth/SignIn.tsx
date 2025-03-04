@@ -1,10 +1,14 @@
 import { useState } from "react"
 import { ButtonRow, Button, Form, FormRow, TextInput, Spinner } from "@cloudoperators/juno-ui-components"
-import { useAuth } from "../Shell/AuthProvider"
+import { useAuroraStore } from "../store"
 
 export function SignIn() {
   const [form, setForm] = useState({ domainName: "", user: "", password: "" })
-  const { isAuthenticated, user, error, isLoading, login } = useAuth()
+  const isAuthenticated = useAuroraStore((state) => state.auth.isAuthenticated)
+  const user = useAuroraStore((state) => state.auth.user)
+  const error = useAuroraStore((state) => state.auth.error)
+  const isLoading = useAuroraStore((state) => state.auth.isLoading)
+  const login = useAuroraStore((state) => state.auth.login)
 
   if (isLoading) {
     return (
@@ -55,12 +59,12 @@ export function SignIn() {
               type="password"
               placeholder="••••••••"
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, password: e.target.value })}
-              onKeyPress={(e: React.KeyboardEvent<HTMLInputElement>) => e.key === "Enter" && login(form)}
+              onKeyUp={(e: React.KeyboardEvent<HTMLInputElement>) => e.key === "Enter" && login(form)}
             />
           </FormRow>
 
           <ButtonRow className="mt-4">
-            <Button variant="primary" className="w-full">
+            <Button variant="primary" className="w-full" onClick={() => login(form)}>
               Sign In
             </Button>
           </ButtonRow>

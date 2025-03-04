@@ -18,7 +18,7 @@ interface NavigationProps {
     | undefined
 }
 
-export function MainNavigation({ items, scopedDomain }: NavigationProps) {
+export function MainNavigation({ scopedDomain }: NavigationProps) {
   const { currentProject } = useAuroraContext()
 
   return (
