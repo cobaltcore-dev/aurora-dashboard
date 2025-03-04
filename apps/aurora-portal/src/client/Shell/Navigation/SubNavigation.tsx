@@ -1,4 +1,4 @@
-import { Link, useLocation, useRoute } from "wouter"
+import { Link, useLocation } from "wouter"
 import { NavigationItem } from "./types"
 
 export function SubNavigation({ items }: { items: NavigationItem[] }) {

@@ -2,7 +2,6 @@ import React from "react"
 import { Link, useLocation } from "wouter"
 import Logo from "../../assets/logo.svg?react"
 import { Project } from "../../../server/Project/types/models"
-import { useAuroraContext } from "../AuroraProvider"
 
 interface AuroraNavigationToolbarProps {
   scopedDomain:
@@ -15,15 +14,14 @@ interface AuroraNavigationToolbarProps {
 }
 
 export const AuroraNavigationToolbar: React.FC<AuroraNavigationToolbarProps> = ({ scopedDomain, scopedProject }) => {
-  const [, setLocation] = useLocation()
-  const { setCurrentProject, domain } = useAuroraContext()
+  const [location, setLocation] = useLocation()
+
   return (
     <div className="flex items-center space-x-4">
       <Link
         href="/"
         onClick={(e) => {
           e.stopPropagation()
-          setCurrentProject(null)
           setLocation(`/`)
         }}
         className="flex items-center space-x-3"
@@ -38,7 +36,6 @@ export const AuroraNavigationToolbar: React.FC<AuroraNavigationToolbarProps> = (
           href={`${scopedDomain.id}/projects`}
           onClick={(e) => {
             e.stopPropagation()
-            setCurrentProject(null)
             setLocation(`/projects`)
           }}
           className="flex items-center space-x-3"

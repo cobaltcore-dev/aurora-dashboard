@@ -12,11 +12,11 @@ const mainNavItems = [
 // Helper function to wrap components with AuthProvider & Router
 const renderWithAuth = (ui: React.ReactNode) => {
   return render(
-    <AuroraProvider>
-      <AuthProvider>
+    <AuthProvider>
+      <AuroraProvider>
         <Router>{ui}</Router>
-      </AuthProvider>
-    </AuroraProvider>
+      </AuroraProvider>
+    </AuthProvider>
   )
 }
 

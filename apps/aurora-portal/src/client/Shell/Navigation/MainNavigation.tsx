@@ -1,6 +1,5 @@
 import { Link } from "wouter"
 
-import { useAuth } from "../AuthProvider"
 import { AuroraNavigationToolbar } from "./AuroraNavigationToolbar"
 import { NavigationItem } from "./types"
 import { UserMenu } from "./UserMenu"

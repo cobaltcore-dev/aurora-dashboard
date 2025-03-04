@@ -3,14 +3,32 @@ import { render, screen, waitFor, fireEvent } from "@testing-library/react"
 import { ComputeOverview } from "./ComputeOverview"
 import { TrpcClient } from "../trpcClient"
 import { Server } from "../../server/Compute/types/models"
+import { AuroraProvider } from "../Shell/AuroraProvider"
+import { AuthProvider } from "../Shell/AuthProvider"
+import { Router } from "wouter"
 
 const mockGetServers = vi.fn()
+const mockGetProjectById = vi.fn()
 
 const mockClient = {
-  getServers: {
-    query: mockGetServers,
+  compute: {
+    getServers: {
+      query: mockGetServers,
+    },
   },
-} as unknown as TrpcClient["compute"]
+  project: { getProjectById: { query: mockGetProjectById } },
+} as unknown as TrpcClient
+
+// Helper function to wrap components with AuthProvider & Router
+const renderWithAuth = (ui: React.ReactNode) => {
+  return render(
+    <AuthProvider>
+      <AuroraProvider>
+        <Router>{ui}</Router>
+      </AuroraProvider>
+    </AuthProvider>
+  )
+}
 
 describe("ComputePanel", () => {
   beforeEach(() => {
@@ -19,15 +37,17 @@ describe("ComputePanel", () => {
 
   it("renders loading state", async () => {
     mockGetServers.mockReturnValue(new Promise(() => {})) // Never resolves
+    mockGetProjectById.mockReturnValue(new Promise(() => {})) // Never resolves
 
-    render(<ComputeOverview client={mockClient} />)
+    renderWithAuth(<ComputeOverview client={mockClient} />)
     expect(screen.getByText("Loading...")).toBeInTheDocument()
   })
 
   it("renders error state", async () => {
     mockGetServers.mockRejectedValue(new Error("Failed to fetch servers"))
+    mockGetProjectById.mockRejectedValue(new Error("Failed to fetch project"))
 
-    render(<ComputeOverview client={mockClient} />)
+    renderWithAuth(<ComputeOverview client={mockClient} />)
 
     await waitFor(() => {
       expect(screen.getByText("Error: Failed to fetch servers")).toBeInTheDocument()
@@ -52,9 +72,12 @@ describe("ComputePanel", () => {
         metadata: { "Server Role": "Development" },
       },
     ]
+    const mockProject = { id: "1", name: "Project 1" }
+    mockGetProjectById.mockResolvedValue(mockProject) // Never resolves
+
     mockGetServers.mockResolvedValue(mockServers)
 
-    render(<ComputeOverview client={mockClient} />)
+    renderWithAuth(<ComputeOverview client={mockClient} />)
 
     await waitFor(() => {
       expect(screen.getByText("Server List")).toBeInTheDocument()
@@ -80,9 +103,11 @@ describe("ComputePanel", () => {
         metadata: { "Server Role": "Development" },
       },
     ] as Server[]
-    mockGetServers.mockResolvedValue(mockServers)
+    const mockProject = { id: "1", name: "Project 1" }
+    mockGetProjectById.mockResolvedValue(mockProject) // Never resolves
 
-    render(<ComputeOverview client={mockClient} />)
+    mockGetServers.mockResolvedValue(mockServers)
+    renderWithAuth(<ComputeOverview client={mockClient} />)
 
     await waitFor(() => {
       expect(screen.getByText("Server List")).toBeInTheDocument()

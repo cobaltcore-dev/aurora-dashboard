@@ -25,7 +25,7 @@ describe("ProjectCardView", () => {
 
     render(
       <Router hook={hook}>
-        <ProjectCardView projects={projects} domain={domain} onProjectClick={function (project: Project): void {}} />
+        <ProjectCardView projects={projects} domain={domain} />
       </Router>
     )
 
@@ -43,7 +43,7 @@ describe("ProjectCardView", () => {
 
     render(
       <Router hook={hook}>
-        <ProjectCardView projects={projects} domain={domain} onProjectClick={function (project: Project): void {}} />
+        <ProjectCardView projects={projects} domain={domain} />
       </Router>
     )
 
@@ -59,7 +59,7 @@ describe("ProjectCardView", () => {
 
     render(
       <Router hook={hook}>
-        <ProjectCardView projects={projects} domain={domain} onProjectClick={function (project: Project): void {}} />
+        <ProjectCardView projects={projects} domain={domain} />
       </Router>
     )
 
@@ -75,7 +75,7 @@ describe("ProjectCardView", () => {
 
     render(
       <Router hook={hook}>
-        <ProjectCardView projects={projects} domain={domain} onProjectClick={function (project: Project): void {}} />
+        <ProjectCardView projects={projects} domain={domain} />
       </Router>
     )
 

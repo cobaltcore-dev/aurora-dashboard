@@ -1,8 +1,8 @@
 import { render, screen, fireEvent } from "@testing-library/react"
 import { Router } from "wouter"
 import { SubNavigation } from "./SubNavigation"
-import { AuthProvider } from "../AuthProvider"
 import { NavigationItem } from "./types"
+import { AuroraProvider } from "../AuroraProvider"
 
 const subNavItems: NavigationItem[] = [
   { route: "/dashboard", label: "Dashboard" },
@@ -13,9 +13,9 @@ const subNavItems: NavigationItem[] = [
 const renderWithAuth = (ui: React.ReactNode, initialRoute = "/") => {
   window.history.pushState({}, "Test page", initialRoute) // Set initial route
   return render(
-    <AuthProvider>
+    <AuroraProvider>
       <Router>{ui}</Router>
-    </AuthProvider>
+    </AuroraProvider>
   )
 }
 

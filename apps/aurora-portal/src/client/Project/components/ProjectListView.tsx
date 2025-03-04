@@ -6,10 +6,9 @@ import { Domain } from "../../Shell/AuthProvider"
 type ProjectListViewProps = {
   projects: Project[] | undefined
   domain?: Domain
-  onProjectClick: (project: Project) => void
 }
 
-export function ProjectListView({ domain, projects, onProjectClick }: ProjectListViewProps) {
+export function ProjectListView({ domain, projects }: ProjectListViewProps) {
   const [, setLocation] = useLocation()
 
   return (
@@ -19,7 +18,7 @@ export function ProjectListView({ domain, projects, onProjectClick }: ProjectLis
           <div
             key={project.id}
             className="flex items-center w-full px-6 py-4 hover:bg-[#1f242b] transition-all cursor-pointer border-b border-[#30363d] last:border-0"
-            onClick={() => selectProject(project, onProjectClick)}
+            onClick={() => setLocation(`/projects/${project.id}/compute`)}
           >
             {/* Icon + Title (Left Side) */}
             <div className="flex items-center space-x-3 min-w-0 w-1/3">
@@ -33,7 +32,7 @@ export function ProjectListView({ domain, projects, onProjectClick }: ProjectLis
                 className="text-lg font-semibold text-blue-400 hover:underline truncate"
                 onClick={(e) => {
                   e.stopPropagation()
-                  selectProject(project, onProjectClick)
+                  setLocation(`/projects/${project.id}/compute`)
                 }}
               >
                 {project.name}
@@ -62,9 +61,4 @@ export function ProjectListView({ domain, projects, onProjectClick }: ProjectLis
       )}
     </div>
   )
-
-  function selectProject(project: Project, onProjectClick: (project: Project) => void) {
-    onProjectClick(project)
-    setLocation(`/projects/${project.id}/compute`)
-  }
 }
