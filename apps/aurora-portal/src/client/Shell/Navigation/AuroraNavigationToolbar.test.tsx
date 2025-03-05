@@ -1,6 +1,6 @@
 import { render, screen, fireEvent } from "@testing-library/react"
 import { Router } from "wouter"
-import { describe, it, expect, vi } from "vitest"
+import { describe, it, expect } from "vitest"
 import { AuroraNavigationToolbar } from "./AuroraNavigationToolbar"
 import { Project } from "../../../server/Project/types/models"
 import { AuroraProvider } from "../AuroraProvider"

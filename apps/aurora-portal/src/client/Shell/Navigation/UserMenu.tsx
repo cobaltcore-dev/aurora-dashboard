@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react"
 import { useLocation } from "wouter"
 import { Button, Icon } from "@cloudoperators/juno-ui-components"
-import { useAuth } from "../../Shell/AuthProvider"
+import { useAuroraStore } from "../../store"
 
 function Countdown({ className, passwordExpiresAt }: { className?: string; passwordExpiresAt: string }) {
   const [timeLeft, setTimeLeft] = useState<string>("")
@@ -40,7 +40,11 @@ function Countdown({ className, passwordExpiresAt }: { className?: string; passw
 }
 
 export function UserMenu() {
-  const { user, session_expires_at, isLoading, logout: authLogout } = useAuth()
+  const user = useAuroraStore((state) => state.auth.user)
+  const sessionExpiresAt = useAuroraStore((state) => state.auth.sessionExpiresAt)
+  const isLoading = useAuroraStore((state) => state.auth.isLoading)
+  const authLogout = useAuroraStore((state) => state.auth.logout)
+
   const setLocation = useLocation()[1]
   const [isOpen, setIsOpen] = useState(false)
 
@@ -65,7 +69,7 @@ export function UserMenu() {
               <Button disabled={isLoading} variant="default" size="small" onClick={logout}>
                 Sign Out
               </Button>
-              {session_expires_at && <Countdown passwordExpiresAt={session_expires_at} />}
+              {sessionExpiresAt && <Countdown passwordExpiresAt={sessionExpiresAt} />}
             </div>
           ) : (
             <Button disabled={isLoading} variant="primary" size="small" onClick={login} className="w-full">

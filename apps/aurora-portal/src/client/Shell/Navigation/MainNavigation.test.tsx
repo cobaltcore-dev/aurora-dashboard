@@ -1,7 +1,6 @@
 import { render, screen, fireEvent } from "@testing-library/react"
 import { Router } from "wouter"
 import { MainNavigation } from "./MainNavigation"
-import { AuthProvider } from "../AuthProvider"
 import { AuroraProvider } from "../AuroraProvider"
 
 const mainNavItems = [
@@ -12,11 +11,9 @@ const mainNavItems = [
 // Helper function to wrap components with AuthProvider & Router
 const renderWithAuth = (ui: React.ReactNode) => {
   return render(
-    <AuthProvider>
-      <AuroraProvider>
-        <Router>{ui}</Router>
-      </AuroraProvider>
-    </AuthProvider>
+    <AuroraProvider>
+      <Router>{ui}</Router>
+    </AuroraProvider>
   )
 }
 

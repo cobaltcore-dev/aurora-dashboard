@@ -1,7 +1,10 @@
 import { createContext, useContext, useState, ReactNode } from "react"
 import { Project } from "../../server/Project/types/models"
 
-import { Domain } from "./AuthProvider"
+type Domain = {
+  id: string
+  name: string
+}
 
 type AuroraContextType = {
   currentProject: Project | null

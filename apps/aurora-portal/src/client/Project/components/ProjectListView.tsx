@@ -1,7 +1,11 @@
 import { Icon, PopupMenu } from "@cloudoperators/juno-ui-components"
 import { useLocation, Link } from "wouter"
 import { Project } from "../../../server/Project/types/models"
-import { Domain } from "../../Shell/AuthProvider"
+
+type Domain = {
+  id: string
+  name: string
+}
 
 type ProjectListViewProps = {
   projects: Project[] | undefined

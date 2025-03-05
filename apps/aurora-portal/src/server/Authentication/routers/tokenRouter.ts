@@ -22,7 +22,11 @@ export const tokenRouter = {
         domain: input.domainName,
       })
 
-      return openstackSession.getToken()?.tokenData || null
+      const tokenData = openstackSession.getToken()?.tokenData
+      if (!tokenData) {
+        throw new Error("Could not get token data")
+      }
+      return tokenData
     }),
 
   logout: publicProcedure.mutation(async ({ ctx }) => {

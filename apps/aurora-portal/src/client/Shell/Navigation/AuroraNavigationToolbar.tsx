@@ -14,7 +14,7 @@ interface AuroraNavigationToolbarProps {
 }
 
 export const AuroraNavigationToolbar: React.FC<AuroraNavigationToolbarProps> = ({ scopedDomain, scopedProject }) => {
-  const [location, setLocation] = useLocation()
+  const [, setLocation] = useLocation()
 
   return (
     <div className="flex items-center space-x-4">

@@ -1,10 +1,9 @@
 import { describe, it, vi, beforeEach } from "vitest"
-import { render, screen, waitFor, fireEvent } from "@testing-library/react"
+import { render, screen, waitFor } from "@testing-library/react"
 import { ComputeOverview } from "./ComputeOverview"
 import { TrpcClient } from "../trpcClient"
 import { Server } from "../../server/Compute/types/models"
 import { AuroraProvider } from "../Shell/AuroraProvider"
-import { AuthProvider } from "../Shell/AuthProvider"
 import { Router } from "wouter"
 
 const mockGetServers = vi.fn()
@@ -22,11 +21,9 @@ const mockClient = {
 // Helper function to wrap components with AuthProvider & Router
 const renderWithAuth = (ui: React.ReactNode) => {
   return render(
-    <AuthProvider>
-      <AuroraProvider>
-        <Router>{ui}</Router>
-      </AuroraProvider>
-    </AuthProvider>
+    <AuroraProvider>
+      <Router>{ui}</Router>
+    </AuroraProvider>
   )
 }
 
