@@ -1,4 +1,4 @@
-import React, { Suspense } from "react"
+import React, { Suspense, useEffect } from "react"
 
 import { Home } from "./Home"
 import { About } from "./About"
@@ -12,7 +12,7 @@ import { TrpcClient } from "../trpcClient"
 import { clientExtensions } from "../generated/extensions"
 import { NavigationLayout } from "./Navigation/NavigationLayout"
 import { ProjectsOverview } from "../Project/ProejctsOverview"
-import { useAuthSync } from "../hooks/useAuthSync"
+import { useAuth, useAuthDispatch } from "../store/StoreProvider"
 
 type RouterScopes = keyof typeof trpcClient
 
@@ -39,24 +39,36 @@ const extensions = clientExtensions.map((ext: Extension) => ({
 }))
 
 export function AppContent() {
-  const { user } = useAuthSync()
+  const { isAuthenticated } = useAuth()
+  const dispatch = useAuthDispatch()
+
+  // sync auth status on mount
+  useEffect(() => {
+    trpcClient.auth.token
+      .query()
+      .then((token) =>
+        token
+          ? dispatch({ type: "LOGIN_SUCCESS", payload: { user: token?.user, sessionExpiresAt: token?.expires_at } })
+          : dispatch({ type: "LOGOUT" })
+      )
+  }, [dispatch])
 
   const navItems = [{ route: "/about", label: "About" }]
 
-  if (user) {
+  if (isAuthenticated) {
     extensions.forEach((ext) => navItems.push({ route: `/${ext.id}`, label: ext.navigation?.label || ext.name }))
   }
 
   return (
     <>
       <div className="content">
-        {user && <NavigationLayout mainNavItems={navItems} />}
+        {isAuthenticated && <NavigationLayout mainNavItems={navItems} />}
         <div className="py-4 pl-4 bg-theme-global-bg h-full">
           <Switch>
             <Route path="auth/signin">
-              <SignIn />
+              <SignIn trpcClient={trpcClient["auth"]} />
             </Route>
-            {user ? (
+            {isAuthenticated ? (
               <>
                 <Route path="/about" component={About} />
                 <Route path="/" component={Home} />
@@ -80,7 +92,7 @@ export function AppContent() {
                 ))}
               </>
             ) : (
-              <SignIn />
+              <SignIn trpcClient={trpcClient["auth"]} />
             )}
 
             {/* Default route in a switch */}
