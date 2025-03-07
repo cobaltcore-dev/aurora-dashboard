@@ -11,9 +11,9 @@ import { lazy } from "react"
 import { TrpcClient } from "../trpcClient"
 import { clientExtensions } from "../generated/extensions"
 import { NavigationLayout } from "./Navigation/NavigationLayout"
+import { NetworkOverview } from "../Network/NetworkOverview"
 import { ProjectsOverview } from "../Project/ProejctsOverview"
 import { useAuth, useAuthDispatch } from "../store/StoreProvider"
-
 type RouterScopes = keyof typeof trpcClient
 
 interface ExtensionProps {
@@ -82,6 +82,9 @@ export function AppContent() {
 
                 <Route path="/:domainId/:projectId/compute">
                   <ComputeOverview client={trpcClient} />
+                </Route>
+                <Route path="/:domainId/:projectId/network">
+                  <NetworkOverview client={trpcClient} />
                 </Route>
               </Route>
               {extensions.map((ext, i) => (
