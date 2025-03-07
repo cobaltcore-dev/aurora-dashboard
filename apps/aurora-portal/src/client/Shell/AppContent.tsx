@@ -5,7 +5,7 @@ import { About } from "./About"
 import { ComputeOverview } from "../Compute/ComputeOverview"
 import { SignIn } from "../Auth/SignIn"
 import { trpcClient } from "../trpcClient"
-import { Route, Switch } from "wouter"
+import { Route, Switch, Redirect } from "wouter"
 import { ErrorBoundary } from "react-error-boundary"
 import { lazy } from "react"
 import { TrpcClient } from "../trpcClient"
@@ -39,6 +39,7 @@ const extensions = clientExtensions.map((ext: Extension) => ({
 }))
 
 export function AppContent() {
+  const [isLoading, setIsLoading] = React.useState(true)
   const { isAuthenticated } = useAuth()
   const dispatch = useAuthDispatch()
 
@@ -51,6 +52,9 @@ export function AppContent() {
           ? dispatch({ type: "LOGIN_SUCCESS", payload: { user: token?.user, sessionExpiresAt: token?.expires_at } })
           : dispatch({ type: "LOGOUT" })
       )
+      .catch((error) => dispatch({ type: "LOGIN_FAILURE", payload: { error: error.message } }))
+
+      .finally(() => setIsLoading(false))
   }, [dispatch])
 
   const navItems = [{ route: "/about", label: "About" }]
@@ -64,12 +68,15 @@ export function AppContent() {
       <div className="content">
         {isAuthenticated && <NavigationLayout mainNavItems={navItems} />}
         <div className="py-4 pl-4 bg-theme-global-bg h-full">
-          <Switch>
-            <Route path="auth/signin">
-              <SignIn trpcClient={trpcClient["auth"]} />
-            </Route>
-            {isAuthenticated ? (
-              <>
+          {isLoading ? (
+            <div>Loading...</div>
+          ) : (
+            <>
+              <Switch>
+                <Route path="auth/signin">
+                  <SignIn trpcClient={trpcClient["auth"]} />
+                </Route>
+
                 <Route path="/about" component={About} />
                 <Route path="/" component={Home} />
                 <Route path="/:domainId" nest>
@@ -90,14 +97,13 @@ export function AppContent() {
                     </ErrorBoundary>
                   </Route>
                 ))}
-              </>
-            ) : (
-              <SignIn trpcClient={trpcClient["auth"]} />
-            )}
 
-            {/* Default route in a switch */}
-            <Route>404: No such page!</Route>
-          </Switch>
+                {/* Default route in a switch */}
+                <Route>404: No such page!</Route>
+              </Switch>
+              {!isAuthenticated && <Redirect to="/auth/signin" />}
+            </>
+          )}
         </div>
       </div>
     </>
