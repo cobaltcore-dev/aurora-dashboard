@@ -13,6 +13,7 @@ import { clientExtensions } from "../generated/extensions"
 import { NavigationLayout } from "./Navigation/NavigationLayout"
 import { ProjectsOverview } from "../Project/ProejctsOverview"
 import { useAuthSync } from "../hooks/useAuthSync"
+import { NetworkOverview } from "../Network/NetworkOverview"
 
 type RouterScopes = keyof typeof trpcClient
 
@@ -67,6 +68,9 @@ export function AppContent() {
 
                   <Route path="/:domainId/:projectId/compute">
                     <ComputeOverview client={trpcClient} />
+                  </Route>
+                  <Route path="/:domainId/:projectId/network">
+                    <NetworkOverview client={trpcClient} />
                   </Route>
                 </Route>
                 {extensions.map((ext, i) => (
