@@ -44,7 +44,7 @@ export function SignIn(props: { trpcClient: TrpcClient["auth"] }) {
   return (
     <div className="flex min-h-screen items-center justify-center bg-theme-background">
       <div className="w-full max-w-md bg-theme-surface shadow-lg rounded-lg p-6 border border-theme-border">
-        <h2 className="text-2xl font-semibold text-center text-theme-text mb-4">Sign In</h2>
+        <h2 className="text-2xl font-semibold text-center text-theme-text mb-4">Login to Your Account</h2>
         <p className="text-theme-text-muted text-center text-sm mb-6">Enter your credentials to access your account</p>
 
         {error && <div className="text-theme-error text-sm mb-4 text-center">Error: {error}</div>}
@@ -76,7 +76,7 @@ export function SignIn(props: { trpcClient: TrpcClient["auth"] }) {
           </FormRow>
 
           <ButtonRow className="mt-4">
-            <Button variant="primary" className="w-full" onClick={() => login()}>
+            <Button variant="primary" disabled={isLoading} className="w-full" onClick={() => login()}>
               Sign In
             </Button>
           </ButtonRow>

@@ -8,12 +8,14 @@ export function UserMenu() {
   const menuRef = useRef<HTMLDivElement>(null)
 
   const toggleMenu = () => {
-    setIsOpen((prev) => !prev)
+    setIsOpen(!isOpen)
   }
 
-  const handleBlur = (e: React.FocusEvent<HTMLDivElement>) => {
-    if (!menuRef.current?.contains(e.relatedTarget)) {
-      setIsOpen(false)
+  const handleBlur = (event: React.FocusEvent<HTMLDivElement>) => {
+    // Check if the newly focused element is not within the menuRef
+    const relatedTarget = event.relatedTarget // The element that will receive focus
+    if (menuRef.current && !menuRef.current.contains(relatedTarget)) {
+      setIsOpen(false) // Close the menu if the focus is outside
     }
   }
 
