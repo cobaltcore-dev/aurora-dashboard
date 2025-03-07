@@ -5,11 +5,6 @@ import { StoreProvider, useAuthDispatch } from "../store/StoreProvider" // Adjus
 import { TrpcClient } from "../trpcClient"
 import { useEffect } from "react"
 
-// Mock the necessary packages
-vi.mock("wouter", () => ({
-  useLocation: () => ["/", vi.fn()],
-}))
-
 const SyncAuth = () => {
   const dispatch = useAuthDispatch()
   useEffect(() => {
