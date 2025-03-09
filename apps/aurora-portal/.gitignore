@@ -17,6 +17,8 @@ src/client/generated
 src/server/generated
 
 aurora.config.json
+aurora-test.config.json
+
 .npmrc
 
 # Editor directories and files
