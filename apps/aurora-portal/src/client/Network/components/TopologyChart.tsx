@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef } from "react"
 import { drawSvg } from "./drawSvg"
 import { topologyData as data } from "./data"
 interface TopologyChartProps {
@@ -7,17 +7,15 @@ interface TopologyChartProps {
 }
 export function TopologyChart({ width, height }: TopologyChartProps) {
   const inputRef = useRef<HTMLDivElement>(null)
-  const [hasRendered, setHasRendered] = useState(false)
 
   useEffect(() => {
-    if (!hasRendered) {
-      drawSvg({ inputRef, width, height, data })
-      setHasRendered(true)
-    }
-  }, [hasRendered])
+    if (inputRef.current === null || inputRef.current.getAttribute("data-loaded") === "true") return
+    drawSvg(inputRef.current, data, { width, height })
+    inputRef.current?.setAttribute("data-loaded", "true")
+  }, [])
 
   return (
-    <div className="border-2 border-blue-500 bg-juno-grey-light-5 rounded-lg overflow-auto max-w-full max-h-full p-4">
+    <div className="overflow-auto max-w-full max-h-full p-4">
       <div
         ref={inputRef}
         className="relative"

@@ -1,7 +1,10 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import * as d3 from "d3"
 
-export const drawSvg = ({ inputRef, width, height, data }) => {
+const EDGE_COLOR = "#15d0e0"
+const NAME_COLOR = "#15d0e0" // "#FFD700"
+
+export const drawSvg = (containerElement, data, { width, height }) => {
   const marginTop = 10
   const marginRight = 20
   const marginBottom = 10
@@ -20,7 +23,7 @@ export const drawSvg = ({ inputRef, width, height, data }) => {
     .linkHorizontal()
     .x((d) => d.y)
     .y((d) => d.x)
-  const container = d3.select(inputRef.current)
+  const container = d3.select(containerElement)
 
   // Create the SVG container, a layer for the links and a layer for the nodes.
   const svg = container
@@ -33,7 +36,7 @@ export const drawSvg = ({ inputRef, width, height, data }) => {
   const gLink = svg
     .append("g")
     .attr("fill", "none")
-    .attr("stroke", "#333")
+    .attr("stroke", EDGE_COLOR)
     .attr("stroke-opacity", 0.4)
     .attr("stroke-width", 1.5)
 
@@ -81,26 +84,31 @@ export const drawSvg = ({ inputRef, width, height, data }) => {
 
     nodeEnter
       .append("svg:image")
-      .attr("xlink:href", (d) => "https://www.svgrepo.com/download/8321/networking.svg")
+      .attr(
+        "xlink:href",
+        (d) =>
+          "data:image/svg+xml;base64,PHN2ZyBmaWxsPSIjZmZmIiBoZWlnaHQ9IjIwMHB4IiB3aWR0aD0iMjAwcHgiIHZlcnNpb249IjEuMSIgaWQ9IkNhcGFfMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIgogIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB2aWV3Qm94PSIwIDAgNDg4IDQ4OCIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSI+CiAgPGcgaWQ9IlNWR1JlcG9fYmdDYXJyaWVyIiBzdHJva2Utd2lkdGg9IjAiPjwvZz4KICA8ZyBpZD0iU1ZHUmVwb190cmFjZXJDYXJyaWVyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjwvZz4KICA8ZyBpZD0iU1ZHUmVwb19pY29uQ2FycmllciI+CiAgICA8Zz4KICAgICAgPGc+CiAgICAgICAgPHBhdGgKICAgICAgICAgIGQ9Ik0zMDUuNCwyNDRjMC0zMy45LTI3LjYtNjEuNC02MS40LTYxLjRzLTYxLjQsMjcuNS02MS40LDYxLjRzMjcuNiw2MS40LDYxLjQsNjEuNFMzMDUuNCwyNzcuOSwzMDUuNCwyNDR6IE0yNDQsMjgxLjQgYy0yMC42LDAtMzcuNC0xNi44LTM3LjQtMzcuNHMxNi44LTM3LjQsMzcuNC0zNy40czM3LjQsMTYuOCwzNy40LDM3LjRTMjY0LjYsMjgxLjQsMjQ0LDI4MS40eiI+CiAgICAgICAgPC9wYXRoPgogICAgICAgIDxwYXRoIGQ9Ik0xNTUuMSwyMzJjLTYuNiwwLTEyLDUuNC0xMiwxMnM1LjQsMTIsMTIsMTJzMTItNS40LDEyLTEyUzE2MS43LDIzMiwxNTUuMSwyMzJ6Ij48L3BhdGg+CiAgICAgICAgPHBhdGggZD0iTTEwMy44LDI0NGMwLDYuNiw1LjQsMTIsMTIsMTJjNi42LDAsMTItNS40LDEyLTEycy01LjQtMTItMTItMTJTMTAzLjgsMjM3LjQsMTAzLjgsMjQ0eiI+PC9wYXRoPgogICAgICAgIDxwYXRoCiAgICAgICAgICBkPSJNODguNSwyNDRjMC0yNC40LTE5LjktNDQuMy00NC4zLTQ0LjNTMCwyMTkuNiwwLDI0NHMxOS45LDQ0LjMsNDQuMyw0NC4zUzg4LjUsMjY4LjQsODguNSwyNDR6IE00NC4zLDI2NC4zIGMtMTEuMiwwLTIwLjMtOS4xLTIwLjMtMjAuM3M5LjEtMjAuMywyMC4zLTIwLjNzMjAuMyw5LjEsMjAuMywyMC4zUzU1LjQsMjY0LjMsNDQuMywyNjQuM3oiPgogICAgICAgIDwvcGF0aD4KICAgICAgICA8Y2lyY2xlIGN4PSIzNzIuMiIgY3k9IjI0NCIgcj0iMTIiPjwvY2lyY2xlPgogICAgICAgIDxwYXRoIGQ9Ik0zMzIuOSwyNTZjNi42LDAsMTItNS40LDEyLTEycy01LjQtMTItMTItMTJzLTEyLDUuNC0xMiwxMlMzMjYuMywyNTYsMzMyLjksMjU2eiI+PC9wYXRoPgogICAgICAgIDxwYXRoCiAgICAgICAgICBkPSJNNDQzLjcsMTk5LjdjLTI0LjQsMC00NC4zLDE5LjktNDQuMyw0NC4zczE5LjksNDQuMyw0NC4zLDQ0LjNTNDg4LDI2OC40LDQ4OCwyNDRTNDY4LjEsMTk5LjcsNDQzLjcsMTk5Ljd6IE00NDMuNywyNjQuMyBjLTExLjIsMC0yMC4zLTkuMS0yMC4zLTIwLjNzOS4xLTIwLjMsMjAuMy0yMC4zUzQ2NCwyMzIuOCw0NjQsMjQ0QzQ2NCwyNTUuMiw0NTQuOSwyNjQuMyw0NDMuNywyNjQuM3oiPgogICAgICAgIDwvcGF0aD4KICAgICAgICA8cGF0aCBkPSJNMjQ0LDMyMC45Yy02LjYsMC0xMiw1LjQtMTIsMTJzNS40LDEyLDEyLDEyczEyLTUuNCwxMi0xMlMyNTAuNiwzMjAuOSwyNDQsMzIwLjl6Ij48L3BhdGg+CiAgICAgICAgPHBhdGggZD0iTTI0NCwzNjAuMmMtNi42LDAtMTIsNS40LTEyLDEyczUuNCwxMiwxMiwxMnMxMi01LjQsMTItMTJTMjUwLjYsMzYwLjIsMjQ0LDM2MC4yeiI+PC9wYXRoPgogICAgICAgIDxwYXRoCiAgICAgICAgICBkPSJNMjQ0LDM5OS41Yy0yNC40LDAtNDQuMywxOS45LTQ0LjMsNDQuM1MyMTkuNiw0ODgsMjQ0LDQ4OHM0NC4zLTE5LjksNDQuMy00NC4zUzI2OC40LDM5OS41LDI0NCwzOTkuNXogTTI0NCw0NjQgYy0xMS4yLDAtMjAuMy05LjEtMjAuMy0yMC4zczkuMS0yMC4zLDIwLjMtMjAuM2MxMS4yLDAsMjAuMyw5LjEsMjAuMywyMC4zUzI1NS4yLDQ2NCwyNDQsNDY0eiI+CiAgICAgICAgPC9wYXRoPgogICAgICAgIDxwYXRoIGQ9Ik0yNDQsMTY3LjFjNi42LDAsMTItNS40LDEyLTEycy01LjQtMTItMTItMTJzLTEyLDUuNC0xMiwxMkMyMzIsMTYxLjcsMjM3LjQsMTY3LjEsMjQ0LDE2Ny4xeiI+PC9wYXRoPgogICAgICAgIDxjaXJjbGUgY3g9IjI0NCIgY3k9IjExNS44IiByPSIxMiI+PC9jaXJjbGU+CiAgICAgICAgPHBhdGgKICAgICAgICAgIGQ9Ik0yNDQsODguNWMyNC40LDAsNDQuMy0xOS45LDQ0LjMtNDQuM1MyNjguNCwwLDI0NCwwcy00NC4zLDE5LjktNDQuMyw0NC4zUzIxOS42LDg4LjUsMjQ0LDg4LjV6IE0yNDQsMjQgYzExLjIsMCwyMC4zLDkuMSwyMC4zLDIwLjNzLTkuMSwyMC4zLTIwLjMsMjAuM3MtMjAuMy05LjEtMjAuMy0yMC4zUzIzMi44LDI0LDI0NCwyNHoiPgogICAgICAgIDwvcGF0aD4KICAgICAgICA8cGF0aCBkPSJNMTcyLjcsMjk4LjRjLTQuNyw0LjctNC43LDEyLjMsMCwxN3MxMi4zLDQuNywxNywwczQuNy0xMi4zLDAtMTdDMTg0LjksMjkzLjcsMTc3LjMsMjkzLjcsMTcyLjcsMjk4LjR6Ij4KICAgICAgICA8L3BhdGg+CiAgICAgICAgPGNpcmNsZSBjeD0iMTUzLjQiIGN5PSIzMzQuNiIgcj0iMTIiPjwvY2lyY2xlPgogICAgICAgIDxwYXRoCiAgICAgICAgICBkPSJNNzEuNSwzNTMuOWMtMTcuMywxNy4zLTE3LjMsNDUuMywwLDYyLjZzNDUuMywxNy4zLDYyLjYsMHMxNy4zLTQ1LjMsMC02Mi42QzExNi44LDMzNi43LDg4LjcsMzM2LjcsNzEuNSwzNTMuOXogTTExNy4xLDM5OS42Yy03LjksNy45LTIwLjcsNy45LTI4LjYsMHMtNy45LTIwLjcsMC0yOC42czIwLjctNy45LDI4LjYsMEMxMjUsMzc4LjgsMTI1LDM5MS43LDExNy4xLDM5OS42eiI+CiAgICAgICAgPC9wYXRoPgogICAgICAgIDxjaXJjbGUgY3g9IjMzNC42IiBjeT0iMTUzLjQiIHI9IjEyIj48L2NpcmNsZT4KICAgICAgICA8Y2lyY2xlIGN4PSIzMDYuOSIgY3k9IjE4MS4xIiByPSIxMiI+PC9jaXJjbGU+CiAgICAgICAgPHBhdGgKICAgICAgICAgIGQ9Ik00MTYuNSwxMzQuMWMxNy4zLTE3LjMsMTcuMy00NS4zLDAtNjIuNnMtNDUuMy0xNy4zLTYyLjYsMHMtMTcuMyw0NS4zLDAsNjIuNlMzOTkuMywxNTEuMyw0MTYuNSwxMzQuMXogTTM3MC45LDg4LjQgYzcuOS03LjksMjAuNy03LjksMjguNiwwczcuOSwyMC43LDAsMjguNnMtMjAuNyw3LjktMjguNiwwQzM2MywxMDkuMiwzNjMsOTYuMywzNzAuOSw4OC40eiI+CiAgICAgICAgPC9wYXRoPgogICAgICAgIDxjaXJjbGUgY3g9IjMzNC42IiBjeT0iMzM0LjYiIHI9IjEyIj48L2NpcmNsZT4KICAgICAgICA8cGF0aCBkPSJNMjk4LjQsMjk4LjRjLTQuNyw0LjctNC43LDEyLjMsMCwxN3MxMi4zLDQuNywxNywwczQuNy0xMi4zLDAtMTdDMzEwLjcsMjkzLjcsMzAzLjEsMjkzLjcsMjk4LjQsMjk4LjR6Ij4KICAgICAgICA8L3BhdGg+CiAgICAgICAgPHBhdGgKICAgICAgICAgIGQ9Ik0zNTMuOSwzNTMuOWMtMTcuMywxNy4zLTE3LjMsNDUuMywwLDYyLjZzNDUuMywxNy4zLDYyLjYsMHMxNy4zLTQ1LjMsMC02Mi42QzM5OS4zLDMzNi43LDM3MS4yLDMzNi43LDM1My45LDM1My45eiBNMzk5LjYsMzk5LjZjLTcuOSw3LjktMjAuNyw3LjktMjguNiwwcy03LjktMjAuNywwLTI4LjZzMjAuNy03LjksMjguNiwwQzQwNy41LDM3OC44LDQwNy41LDM5MS43LDM5OS42LDM5OS42eiI+CiAgICAgICAgPC9wYXRoPgogICAgICAgIDxjaXJjbGUgY3g9IjE4MS4xIiBjeT0iMTgxLjEiIHI9IjEyIj48L2NpcmNsZT4KICAgICAgICA8Y2lyY2xlIGN4PSIxNTMuNCIgY3k9IjE1My40IiByPSIxMiI+PC9jaXJjbGU+CiAgICAgICAgPHBhdGgKICAgICAgICAgIGQ9Ik0xMzQuMSwxMzQuMWMxNy4zLTE3LjMsMTcuMy00NS4zLDAtNjIuNnMtNDUuMy0xNy4zLTYyLjYsMHMtMTcuMyw0NS4zLDAsNjIuNkM4OC43LDE1MS4zLDExNi44LDE1MS4zLDEzNC4xLDEzNC4xeiBNODguNCw4OC40YzcuOS03LjksMjAuNy03LjksMjguNiwwczcuOSwyMC43LDAsMjguNnMtMjAuNyw3LjktMjguNiwwQzgwLjUsMTA5LjIsODAuNSw5Ni4zLDg4LjQsODguNHoiPgogICAgICAgIDwvcGF0aD4KICAgICAgPC9nPgogICAgPC9nPgogIDwvZz4KPC9zdmc+"
+      )
       .attr("y", (d) => -12.5)
       .attr("x", (d) => (d == root ? -25 : -5))
       .attr("width", 25)
       .attr("height", 25)
-      .attr("fill", "#666")
-      .attr("fill-opacity", "0.5")
+    // .attr("fill-opacity", "0.5")
 
     nodeEnter
       .append("text")
-      .attr("x", (d) => (d._children ? -10 : 25))
+      .attr("x", (d) => (d._children ? -50 : 25))
+      .attr("dy", (d) => (d.children ? "-20px" : "5px"))
       .attr("text-align", "center")
       .text((d) => d.data.name || d.data.id)
       .attr("stroke-linejoin", "round")
-      .attr("stroke-width", 3)
-      .attr("stroke", "#cacaca")
+      .attr("stroke-width", 0)
+      .attr("stroke", "#fff")
+      .attr("fill", NAME_COLOR)
       .attr("paint-order", "stroke")
 
     // Transition nodes to their new position.
-    const nodeUpdate = node
+    node
       .merge(nodeEnter)
       .transition(transition)
       .attr("transform", (d) => `translate(${d.y},${d.x})`)
@@ -108,7 +116,7 @@ export const drawSvg = ({ inputRef, width, height, data }) => {
       .attr("stroke-opacity", 1)
 
     // Transition exiting nodes to the parent's new position.
-    const nodeExit = node
+    node
       .exit()
       .transition(transition)
       .remove()
