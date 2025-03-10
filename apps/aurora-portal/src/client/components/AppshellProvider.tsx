@@ -4,7 +4,6 @@
  */
 
 import React from "react"
-
 /**
  * This provider acts as a wrapper for Juno apps. It renders a StyleProvider and PortalProvider
  */

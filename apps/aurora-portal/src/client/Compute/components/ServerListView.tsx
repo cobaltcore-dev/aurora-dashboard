@@ -1,5 +1,6 @@
 import type { Server } from "../../../server/Compute/types/models"
-import { Button, Icon } from "@cloudoperators/juno-ui-components"
+import { Icon } from "@cloudoperators/juno-ui-components"
+import { Button } from "../../components/Button"
 
 type ServerListViewProps = {
   servers: Server[] | undefined
@@ -60,12 +61,8 @@ export function ServerListView({ servers }: ServerListViewProps) {
                   {/* Action Buttons */}
                   <td className="p-3">
                     <div className="flex space-x-2">
-                      <Button variant="primary" size="small">
-                        View
-                      </Button>
-                      <Button variant="primary-danger" size="small">
-                        Restart
-                      </Button>
+                      <Button>View</Button>
+                      <Button variant="primary-danger">Restart</Button>
                     </div>
                   </td>
                 </tr>

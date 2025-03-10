@@ -1,5 +1,6 @@
 import type { Server } from "../../../server/Compute/types/models"
-import { Button, Pill, Icon } from "@cloudoperators/juno-ui-components"
+import { Pill, Icon } from "@cloudoperators/juno-ui-components"
+import { Button } from "../../components/Button"
 
 type ServerListViewProps = {
   servers: Server[] | undefined
@@ -64,12 +65,8 @@ export function ServerCard({ server }: ServerCardProps) {
 
       {/* Action Buttons */}
       <div className="flex space-x-3 mt-4">
-        <Button variant="primary" size="small" className="bg-gray-700 hover:bg-gray-600">
-          View Details
-        </Button>
-        <Button size="small" variant="primary-danger" className="bg-red-600 hover:bg-red-500">
-          Restart
-        </Button>
+        <Button className="bg-gray-700 hover:bg-gray-600">View Details</Button>
+        <Button className="bg-red-600 hover:bg-red-500">Restart</Button>
       </div>
     </div>
   )

@@ -1,5 +1,7 @@
 import { useCallback, useState } from "react"
-import { ButtonRow, Button, Form, FormRow, TextInput, Spinner } from "@cloudoperators/juno-ui-components"
+import { ButtonRow, Form, FormRow, TextInput, Spinner } from "@cloudoperators/juno-ui-components"
+import { Button } from "../components/Button"
+
 import { useAuth, useAuthDispatch } from "../store/StoreProvider"
 import { TrpcClient } from "../trpcClient"
 
@@ -76,7 +78,7 @@ export function SignIn(props: { trpcClient: TrpcClient["auth"] }) {
           </FormRow>
 
           <ButtonRow className="mt-4">
-            <Button variant="primary" disabled={isLoading} className="w-full" onClick={() => login()}>
+            <Button disabled={isLoading} className="w-full" onClick={() => login()}>
               Sign In
             </Button>
           </ButtonRow>

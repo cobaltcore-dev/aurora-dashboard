@@ -1,4 +1,4 @@
-import { Icon, PopupMenu } from "@cloudoperators/juno-ui-components"
+import { Icon } from "@cloudoperators/juno-ui-components"
 import { useLocation, Link } from "wouter"
 import { Project } from "../../../server/Project/types/models"
 
@@ -52,12 +52,7 @@ export function ProjectListView({ domain, projects }: ProjectListViewProps) {
               data-testid="project-card-menu"
               onMouseDown={(e) => e.stopPropagation()} // Stops route change
               onClick={(e) => e.stopPropagation()} // Ensures it doesn't trigger navigation
-            >
-              <PopupMenu onClose={() => {}} onOpen={() => {}}>
-                <PopupMenu.Item label="Edit" />
-                <PopupMenu.Item label="Delete" />
-              </PopupMenu>
-            </div>
+            ></div>
           </div>
         ))
       ) : (

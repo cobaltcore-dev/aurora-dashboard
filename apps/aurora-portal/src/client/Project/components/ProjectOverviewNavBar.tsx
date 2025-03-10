@@ -1,4 +1,6 @@
-import { Button, ComboBox, ComboBoxOption, Icon } from "@cloudoperators/juno-ui-components"
+import { Icon } from "@cloudoperators/juno-ui-components"
+import { ComboBox, ComboBoxOption } from "../../components/ComboBox"
+import { Button } from "../../components/Button"
 export type ViewMode = "list" | "card"
 
 type ProjectsOverviewNavNbarProps = {
@@ -24,7 +26,7 @@ export function ProjectsOverviewNavNbar({ viewMode, setViewMode }: ProjectsOverv
       {/* Controls (30%) */}
 
       <div className="flex items-center gap-2 min-w-[30%] justify-end">
-        <ComboBox>
+        <ComboBox valueLabel={"Sorting..."}>
           <ComboBoxOption value="name">Sort By name</ComboBoxOption>
           <ComboBoxOption value="Date">Sort by date</ComboBoxOption>
         </ComboBox>
@@ -43,7 +45,7 @@ export function ProjectsOverviewNavNbar({ viewMode, setViewMode }: ProjectsOverv
             icon="autoAwesomeMotion"
           />
         </div>
-        <ComboBox label="Add new...">
+        <ComboBox valueLabel="Add new...">
           <ComboBoxOption value="project">Project</ComboBoxOption>
         </ComboBox>
       </div>
