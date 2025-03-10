@@ -8,11 +8,9 @@ export interface TopologyNode {
   children?: TopologyNode[]
 }
 
-export interface DrawSvgProps {
-  inputRef: React.RefObject<HTMLDivElement>
+export interface DrawSvgOptions {
   width: number
   height: number
-  data: TopologyNode
 }
 
-export function drawSvg(props: DrawSvgProps): void
+export function drawSvg(containerElement: HTMLDivElement, data: TopologyNode, DrawSvgOptions): void
