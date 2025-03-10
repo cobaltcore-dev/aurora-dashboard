@@ -1,7 +1,7 @@
 import { z } from "zod"
 import { publicProcedure } from "../../trpc"
 
-export const tokenRouter = {
+export const sessionRouter = {
   getCurrentUserSession: publicProcedure.query(async ({ ctx }) => {
     const token = ctx.openstack?.getToken()
 
