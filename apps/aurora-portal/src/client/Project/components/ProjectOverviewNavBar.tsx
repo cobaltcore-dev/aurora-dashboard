@@ -1,6 +1,6 @@
-import { Icon } from "@cloudoperators/juno-ui-components"
 import { ComboBox, ComboBoxOption } from "../../components/ComboBox"
 import { Button } from "../../components/Button"
+import { Icon } from "../../components/Icon"
 export type ViewMode = "list" | "card"
 
 type ProjectsOverviewNavNbarProps = {

@@ -1,6 +1,6 @@
-import { Icon } from "@cloudoperators/juno-ui-components"
 import { Link, useLocation } from "wouter"
 import { Project } from "../../../server/Project/types/models"
+import { Icon } from "../../components/Icon"
 
 type Domain = {
   id: string
@@ -48,7 +48,7 @@ export function ProjectCard({ domain, project }: ProjectCardProps) {
 
       {/* Status Row (Icon + Status) */}
       <div className="flex items-center space-x-2">
-        <Icon name="info" icon="info" color={project.enabled ? "jn-text-theme-success" : "jn-text-theme-danger"} />
+        <Icon name="info" color={project.enabled ? "jn-text-theme-success" : "jn-text-theme-danger"} />
         <span className="font-medium">{project.enabled ? "Active" : "Disabled"}</span>
       </div>
 

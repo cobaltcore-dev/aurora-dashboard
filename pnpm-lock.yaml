@@ -151,6 +151,9 @@ importers:
       '@fastify/static':
         specifier: ^8.0.3
         version: 8.1.0
+      '@material-design-icons/svg':
+        specifier: ^0.14.15
+        version: 0.14.15
       dotenv:
         specifier: ^16.4.7
         version: 16.4.7
@@ -989,6 +992,9 @@ packages:
   '@lukeed/ms@2.0.2':
     resolution: {integrity: sha512-9I2Zn6+NJLfaGoz9jN3lpwDgAYvfGeNYdbAIjJOqzs4Tpc+VU3Jqq4IofSUBKajiDS8k9fZIg18/z13mpk1bsA==}
     engines: {node: '>=8'}
+
+  '@material-design-icons/svg@0.14.15':
+    resolution: {integrity: sha512-6nbjwGwyJnphwQUscJAYqw1Tk6+W8KvsgOAeyVgzIFXVsHfgX5XyplTUcZ29wbcTUysMMyCUi1LYpmFKA/e61g==}
 
   '@microsoft/api-extractor-model@7.30.3':
     resolution: {integrity: sha512-yEAvq0F78MmStXdqz9TTT4PZ05Xu5R8nqgwI5xmUmQjWBQ9E6R2n8HB/iZMRciG4rf9iwI2mtuQwIzDXBvHn1w==}
@@ -4314,6 +4320,8 @@ snapshots:
       '@jridgewell/sourcemap-codec': 1.5.0
 
   '@lukeed/ms@2.0.2': {}
+
+  '@material-design-icons/svg@0.14.15': {}
 
   '@microsoft/api-extractor-model@7.30.3(@types/node@20.17.18)':
     dependencies:

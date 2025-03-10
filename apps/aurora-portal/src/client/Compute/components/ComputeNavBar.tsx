@@ -1,7 +1,7 @@
-import { Icon } from "@cloudoperators/juno-ui-components"
 import { Link, useLocation, useParams } from "wouter"
 import { ComboBox, ComboBoxOption } from "../../components/ComboBox"
 import { Button } from "../../components/Button"
+import { Icon } from "../../components/Icon"
 
 type ComputeNavBarProps = {
   viewMode: "list" | "card"
