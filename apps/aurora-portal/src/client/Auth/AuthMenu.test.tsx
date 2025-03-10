@@ -26,18 +26,12 @@ const SyncAuth = () => {
 
 describe("AuthMenu Component", () => {
   const trpcClient: TrpcClient["auth"] = {
-    token: {
-      query: vi.fn(),
-    },
-    logout: {
-      mutate: vi.fn(),
-    },
-    login: {
-      mutate: vi.fn(),
-    },
-    authToken: {
-      query: vi.fn(),
-    },
+    getCurrentUserSession: { query: vi.fn() },
+    terminateUserSession: { mutate: vi.fn() },
+    createUserSession: { mutate: vi.fn() },
+    getAuthToken: { query: vi.fn() },
+    setCurrentProject: { mutate: vi.fn() },
+    setCurrentDomain: { mutate: vi.fn() },
   }
 
   beforeEach(() => {
@@ -45,7 +39,7 @@ describe("AuthMenu Component", () => {
   })
 
   it("renders Sign In button when not authenticated", () => {
-    trpcClient.token.query = vi.fn().mockResolvedValueOnce(null) // Mock no token
+    trpcClient.getCurrentUserSession.query = vi.fn().mockResolvedValueOnce(null) // Mock no token
 
     render(
       <StoreProvider>
@@ -57,7 +51,7 @@ describe("AuthMenu Component", () => {
   })
 
   it("renders user info and Sign Out button when authenticated", async () => {
-    trpcClient.token.query = vi.fn().mockReturnValue({
+    trpcClient.getCurrentUserSession.query = vi.fn().mockReturnValue({
       user: { name: "John Doe" },
       sessionExpiresAt: Date.now() + 1000,
     })
@@ -74,8 +68,8 @@ describe("AuthMenu Component", () => {
   })
 
   it("calls logout function on Sign Out button click", async () => {
-    trpcClient.logout.mutate = vi.fn().mockResolvedValueOnce(undefined) // Mock successful logout
-    trpcClient.token.query = vi.fn().mockReturnValue({
+    trpcClient.terminateUserSession.mutate = vi.fn().mockResolvedValueOnce(undefined) // Mock successful logout
+    trpcClient.getCurrentUserSession.query = vi.fn().mockReturnValue({
       user: { name: "John Doe" },
       sessionExpiresAt: Date.now() + 1000,
     })
@@ -90,6 +84,6 @@ describe("AuthMenu Component", () => {
       await fireEvent.click(screen.getByText(/Sign Out/i))
     })
 
-    expect(trpcClient.logout.mutate).toHaveBeenCalled()
+    expect(trpcClient.terminateUserSession.mutate).toHaveBeenCalled()
   })
 })
