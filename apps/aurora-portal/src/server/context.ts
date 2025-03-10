@@ -9,7 +9,7 @@ const identityEndpoint = process.env.IDENTITY_ENDPOINT
 // Ensure it ends with a single slash
 const normalizedEndpoint = identityEndpoint?.endsWith("/") ? identityEndpoint : `${identityEndpoint}/`
 const defaultSignalOpenstackOptions = {
-  interfaceName: process.env.DEFAULT_ENDPOINT_INTERFACE || "internal",
+  interfaceName: process.env.DEFAULT_ENDPOINT_INTERFACE || "public",
   debug: process.env.NODE_ENV !== "production",
 }
 

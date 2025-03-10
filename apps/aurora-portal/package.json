@@ -31,8 +31,7 @@
     "tsconfig-paths": "^4.2.0",
     "tsx": "^4.19.2",
     "wouter": "^3.3.5",
-    "zod": "^3.24.1",
-    "zustand": "^5.0.3"
+    "zod": "^3.24.1"
   },
   "devDependencies": {
     "@cloudoperators/juno-ui-components": "^2.36.0",
