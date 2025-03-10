@@ -7,19 +7,19 @@ import { act } from "react"
 
 describe("SignIn Component", () => {
   const trpcClient: TrpcClient["auth"] = {
-    token: {
+    getCurrentUserSession: {
       query: vi.fn(),
     },
-    logout: {
+    terminateUserSession: {
       mutate: vi.fn(),
     },
-    login: {
+    createUserSession: {
       mutate: vi.fn().mockResolvedValue({
         user: { name: "John Doe" },
         expires_at: new Date().toISOString(),
       }),
     },
-    authToken: {
+    getAuthToken: {
       query: vi.fn(),
     },
   }
@@ -62,7 +62,7 @@ describe("SignIn Component", () => {
     })
   })
 
-  it("handles successful login", async () => {
+  it("handles successful createUserSession", async () => {
     await act(async () => {
       render(
         <StoreProvider>
@@ -85,8 +85,8 @@ describe("SignIn Component", () => {
     })
   })
 
-  it("handles login failure", async () => {
-    trpcClient.login.mutate = vi.fn().mockRejectedValue(new Error("Login failed"))
+  it("handles createUserSession failure", async () => {
+    trpcClient.createUserSession.mutate = vi.fn().mockRejectedValue(new Error("Login failed"))
 
     await act(async () => {
       render(

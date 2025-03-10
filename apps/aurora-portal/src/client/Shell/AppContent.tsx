@@ -45,7 +45,7 @@ export function AppContent() {
 
   // sync auth status on mount
   useEffect(() => {
-    trpcClient.auth.token
+    trpcClient.auth.getCurrentUserSession
       .query()
       .then((token) =>
         token
