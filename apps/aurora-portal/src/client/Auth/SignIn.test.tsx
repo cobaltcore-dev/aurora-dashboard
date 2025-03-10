@@ -7,21 +7,17 @@ import { act } from "react"
 
 describe("SignIn Component", () => {
   const trpcClient: TrpcClient["auth"] = {
-    getCurrentUserSession: {
-      query: vi.fn(),
-    },
-    terminateUserSession: {
-      mutate: vi.fn(),
-    },
     createUserSession: {
       mutate: vi.fn().mockResolvedValue({
         user: { name: "John Doe" },
         expires_at: new Date().toISOString(),
       }),
     },
-    getAuthToken: {
-      query: vi.fn(),
-    },
+    getCurrentUserSession: { query: vi.fn() },
+    terminateUserSession: { mutate: vi.fn() },
+    getAuthToken: { query: vi.fn() },
+    setCurrentProject: { mutate: vi.fn() },
+    setCurrentDomain: { mutate: vi.fn() },
   }
 
   beforeEach(() => {
