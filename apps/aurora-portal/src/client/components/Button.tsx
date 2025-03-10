@@ -5,7 +5,7 @@ interface ButtonProps {
   name?: string
   variant?: "default" | "subdued" | "primary-danger"
   className?: string
-  onClick?: () => void
+  onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void
   icon?: string
   "data-testid"?: string
   disabled?: boolean
