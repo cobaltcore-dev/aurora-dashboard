@@ -1,19 +1,29 @@
 import { z } from "zod"
 import { publicProcedure } from "../../trpc"
 
-export const tokenRouter = {
-  token: publicProcedure.query(async ({ ctx }) => {
+export const sessionRouter = {
+  getCurrentUserSession: publicProcedure.query(async ({ ctx }) => {
     const token = ctx.openstack?.getToken()
 
     return token?.tokenData || null
   }),
 
-  authToken: publicProcedure.query(async ({ ctx }) => {
+  setCurrentProject: publicProcedure.input(z.string()).mutation(async ({ input, ctx }) => {
+    const openstackSession = await ctx.rescopeSession({ project: { id: input } })
+    return openstackSession?.getToken()?.tokenData || null
+  }),
+
+  setCurrentDomain: publicProcedure.input(z.string()).mutation(async ({ input, ctx }) => {
+    const openstackSession = await ctx.rescopeSession({ domain: { id: input } })
+    return openstackSession?.getToken()?.tokenData || null
+  }),
+
+  getAuthToken: publicProcedure.query(async ({ ctx }) => {
     const token = ctx.openstack?.getToken()
     return token?.authToken || null
   }),
 
-  login: publicProcedure
+  createUserSession: publicProcedure
     .input(z.object({ user: z.string(), password: z.string(), domainName: z.string() }))
     .mutation(async ({ input, ctx }) => {
       const openstackSession = await ctx.createSession({
@@ -29,7 +39,7 @@ export const tokenRouter = {
       return tokenData
     }),
 
-  logout: publicProcedure.mutation(async ({ ctx }) => {
+  terminateUserSession: publicProcedure.mutation(async ({ ctx }) => {
     ctx.terminateSession()
   }),
 }

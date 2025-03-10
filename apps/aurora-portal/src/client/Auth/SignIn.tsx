@@ -28,7 +28,7 @@ export function SignIn(props: { trpcClient: TrpcClient["auth"] }) {
 
   const login = useCallback(() => {
     setIsLoading(true)
-    props.trpcClient.login
+    props.trpcClient.createUserSession
       .mutate(form)
       .then((token) => {
         dispatch({ type: "LOGIN_SUCCESS", payload: { user: token?.user, sessionExpiresAt: token?.expires_at } })

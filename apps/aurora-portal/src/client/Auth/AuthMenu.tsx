@@ -18,7 +18,7 @@ export function AuthMenu(props: { authClient: TrpcClient["auth"] }) {
 
   const logout = useCallback(() => {
     setIsLoading(true)
-    props.authClient.logout
+    props.authClient.terminateUserSession
       .mutate()
       .then(() => {
         dispatch({ type: "LOGOUT" })
