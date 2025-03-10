@@ -47,6 +47,7 @@ export const Icon: React.FC<IconProps> = ({ name, color = "", size = "24", iconC
 
   return (
     <IconComponent
+      data-testid={`icon-${name}`}
       className={`jn-leading-none ${color} ${iconClassName} ${className}`.trim()}
       width={size}
       height={size}

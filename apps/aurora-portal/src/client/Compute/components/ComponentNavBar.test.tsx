@@ -10,7 +10,7 @@ describe("ComputeNavBar", () => {
 
   it("renders search bar with placeholder text", async () => {
     await act(() => render(<ComputeNavBar viewMode="list" setViewMode={vi.fn()} />))
-    expect(screen.getByDisplayValue("Sorting...")).toBeInTheDocument()
+    expect(screen.getAllByTestId("combobox-button").length).toBe(2)
   })
 
   it("switches to card view when clicking the Card button", async () => {

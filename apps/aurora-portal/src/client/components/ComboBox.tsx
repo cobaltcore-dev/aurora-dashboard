@@ -19,6 +19,7 @@ export const ComboBox: React.FC<ComboBoxProps> = ({ valueLabel, children }) => {
     <div className="relative inline-block text-left">
       <button
         onClick={toggleDropdown}
+        data-testid="combobox-button"
         className="px-4 py-2 bg-gray-200 rounded-md hover:bg-gray-300 focus:outline-none"
       >
         {selectedValue || valueLabel}
