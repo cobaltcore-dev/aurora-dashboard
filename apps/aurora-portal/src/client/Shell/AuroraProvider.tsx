@@ -17,7 +17,7 @@ const AuroraContext = createContext<AuroraContextType | undefined>(undefined)
 
 export function AuroraProvider({ children }: { children: ReactNode }) {
   const [currentProject, setCurrentProject] = useState<Project | null>(null)
-  const [domain, setDomain] = useState<Domain>({ id: "deafult", name: "Default" })
+  const [domain, setDomain] = useState<Domain>({ id: "default", name: "Default" })
 
   return (
     <AuroraContext.Provider
