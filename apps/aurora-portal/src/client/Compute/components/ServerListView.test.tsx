@@ -48,10 +48,10 @@ describe("ServerListView", () => {
     render(<ServerListView servers={mockServers} />)
 
     // "ACTIVE" should have a success icon
-    expect(screen.getAllByRole("img", { name: /success/i }).length).toBe(1)
+    expect(screen.getByTestId("icon-success")).toBeInTheDocument()
 
     // "SHUTOFF" should have a danger icon
-    expect(screen.getAllByRole("img", { name: /danger/i }).length).toBe(1)
+    expect(screen.getByTestId("icon-danger")).toBeInTheDocument()
 
     expect(screen.getByText("ACTIVE")).toBeInTheDocument()
     expect(screen.getByText("SHUTOFF")).toBeInTheDocument()

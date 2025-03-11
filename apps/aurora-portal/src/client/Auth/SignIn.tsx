@@ -1,7 +1,24 @@
 import { useCallback, useState } from "react"
-import { ButtonRow, Button, Form, FormRow, TextInput, Spinner } from "@cloudoperators/juno-ui-components"
+import { Button } from "../components/Button"
 import { useAuth, useAuthDispatch } from "../store/StoreProvider"
 import { TrpcClient } from "../trpcClient"
+
+const textinputstyles = `
+  jn-bg-theme-textinput
+  jn-text-theme-textinput
+  jn-text-base
+  jn-leading-4
+  jn-px-4
+  jn-h-textinput
+  jn-rounded-3px
+  focus:jn-outline-none
+  focus:jn-ring-2
+  focus:jn-ring-theme-focus
+  disabled:jn-opacity-50
+  autofill:jn-bg-theme-textinput-autofill
+  autofill:jn-text-theme-textinput-autofill
+  peer
+`
 
 export function SignIn(props: { trpcClient: TrpcClient["auth"] }) {
   const [isLoading, setIsLoading] = useState(false)
@@ -24,67 +41,93 @@ export function SignIn(props: { trpcClient: TrpcClient["auth"] }) {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-theme-background">
-        <Spinner /> <span className="ml-2 text-sm text-theme-text-muted">Loading...</span>
+      <div className="flex min-h-screen items-center justify-center">
+        <span className="animate-spin w-6 h-6 border-4 border-gray-300 border-t-blue-600 rounded-full"></span>
+        <span className="ml-2 text-sm text-gray-500">Loading...</span>
       </div>
     )
   }
 
   if (isAuthenticated) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-theme-background">
-        <div className="max-w-md w-full text-center bg-theme-surface shadow-lg rounded-lg p-6 border border-theme-border">
-          <h2 className="text-xl font-semibold text-theme-text">Welcome back, {user?.name}!</h2>
-          <p className="text-theme-text-muted">You are already signed in.</p>
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="max-w-md w-full text-center shadow-lg rounded-lg p-6 border border-gray-300">
+          <h2 className="text-xl font-semibold">Welcome back, {user?.name}!</h2>
+          <p className="text-gray-500">You are already signed in.</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-theme-background">
-      <div className="w-full max-w-md bg-theme-surface shadow-lg rounded-lg p-6 border border-theme-border">
-        <h2 className="text-2xl font-semibold text-center text-theme-text mb-4">Login to Your Account</h2>
-        <p className="text-theme-text-muted text-center text-sm mb-6">Enter your credentials to access your account</p>
+    <div className="flex min-h-screen items-center justify-center">
+      <div className="w-full max-w-md shadow-lg rounded-lg p-6 border border-gray-700 bg-gray-900">
+        <h2 className="text-2xl font-semibold text-center text-white mb-4">Login to Your Account</h2>
+        <p className="text-gray-400 text-center text-sm mb-6">Enter your credentials to access your account</p>
 
-        {error && <div className="text-theme-error text-sm mb-4 text-center">Error: {error}</div>}
+        {error && <div className="text-red-500 text-sm mb-4 text-center">Error: {error}</div>}
 
-        <Form>
-          <FormRow>
-            <TextInput
-              label="Domain"
+        <form className="space-y-4">
+          {/* Domain Input */}
+          <div className="flex flex-col">
+            <label htmlFor="domain" className="text-gray-300 font-medium">
+              Domain
+            </label>
+            <input
+              id="domain"
+              type="text"
               placeholder="Enter your domain"
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, domainName: e.target.value })}
+              className={textinputstyles}
+              onChange={(e) => setForm({ ...form, domainName: e.target.value })}
             />
-          </FormRow>
-          <FormRow>
-            <TextInput
-              label="User C/D/I"
+          </div>
+
+          {/* User Input */}
+          <div className="flex flex-col">
+            <label htmlFor="user" className="text-gray-300 font-medium">
+              User C/D/I
+            </label>
+            <input
+              id="user"
+              type="text"
               placeholder="Enter your username"
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, user: e.target.value })}
+              className={textinputstyles}
+              onChange={(e) => setForm({ ...form, user: e.target.value })}
             />
-          </FormRow>
-          <FormRow>
-            <TextInput
-              label="Password"
-              required
+          </div>
+
+          {/* Password Input */}
+          <div className="flex flex-col">
+            <label htmlFor="password" className="text-gray-300 font-medium">
+              Password
+            </label>
+            <input
+              id="password"
               type="password"
               placeholder="••••••••"
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, password: e.target.value })}
-              onKeyUp={(e: React.KeyboardEvent<HTMLInputElement>) => e.key === "Enter" && login()}
+              required
+              className={textinputstyles}
+              onChange={(e) => setForm({ ...form, password: e.target.value })}
+              onKeyUp={(e) => e.key === "Enter" && login()}
             />
-          </FormRow>
+          </div>
 
-          <ButtonRow className="mt-4">
-            <Button variant="primary" disabled={isLoading} className="w-full" onClick={() => login()}>
-              Sign In
-            </Button>
-          </ButtonRow>
-        </Form>
+          {/* Sign In Button */}
+          <Button
+            disabled={isLoading}
+            className="w-full"
+            onClick={(e) => {
+              e.preventDefault()
+              login()
+            }}
+          >
+            Sign In
+          </Button>
+        </form>
 
-        <p className="text-center text-sm text-theme-text-muted mt-4">
+        <p className="text-center text-sm text-gray-400 mt-4">
           Need help?{" "}
-          <a href="#" className="text-theme-primary hover:underline">
+          <a href="#" className="text-blue-500 hover:underline">
             Contact support
           </a>
         </p>

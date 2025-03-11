@@ -47,11 +47,11 @@ describe("ServerCardView", () => {
   it("renders correct status icons for ACTIVE and SHUTOFF servers", () => {
     render(<ServerCardView servers={mockServers} />)
 
-    // "ACTIVE" server should show success icon
-    expect(screen.getAllByRole("img", { name: /success/i }).length).toBe(1)
+    // "ACTIVE" should have a success icon
+    expect(screen.getByTestId("icon-success")).toBeInTheDocument()
 
-    // "SHUTOFF" server should show danger icon
-    expect(screen.getAllByRole("img", { name: /danger/i }).length).toBe(1)
+    // "SHUTOFF" should have a danger icon
+    expect(screen.getByTestId("icon-danger")).toBeInTheDocument()
   })
 
   it("displays server details correctly", () => {

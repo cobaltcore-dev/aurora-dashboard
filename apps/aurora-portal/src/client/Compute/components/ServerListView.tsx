@@ -1,5 +1,6 @@
 import type { Server } from "../../../server/Compute/types/models"
-import { Button, Icon } from "@cloudoperators/juno-ui-components"
+import { Button } from "../../components/Button"
+import { Icon } from "../../components/Icon"
 
 type ServerListViewProps = {
   servers: Server[] | undefined
@@ -38,9 +39,9 @@ export function ServerListView({ servers }: ServerListViewProps) {
                   <td className="p-3">
                     <div className="flex items-center space-x-2">
                       {server.status === "ACTIVE" ? (
-                        <Icon name="success" icon="success" color="jn-text-theme-success" />
+                        <Icon name="success" color="jn-text-theme-success" />
                       ) : server.status === "SHUTOFF" ? (
-                        <Icon name="danger" icon="danger" color="jn-text-theme-danger" />
+                        <Icon name="danger" color="jn-text-theme-danger" />
                       ) : (
                         <p>{server.status}</p>
                       )}
@@ -60,12 +61,8 @@ export function ServerListView({ servers }: ServerListViewProps) {
                   {/* Action Buttons */}
                   <td className="p-3">
                     <div className="flex space-x-2">
-                      <Button variant="primary" size="small">
-                        View
-                      </Button>
-                      <Button variant="primary-danger" size="small">
-                        Restart
-                      </Button>
+                      <Button>View</Button>
+                      <Button variant="primary-danger">Restart</Button>
                     </div>
                   </td>
                 </tr>

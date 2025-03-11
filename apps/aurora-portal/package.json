@@ -23,6 +23,7 @@
     "@cobaltcore-dev/signal-openstack": "workspace:*",
     "@fastify/cookie": "^11.0.2",
     "@fastify/static": "^8.0.3",
+    "@material-design-icons/svg": "^0.14.15",
     "@types/d3": "^7.4.3",
     "d3": "^7.9.0",
     "dotenv": "^16.4.7",

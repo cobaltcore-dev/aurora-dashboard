@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { useLocation } from "wouter"
 import { TrpcClient } from "../trpcClient"
-import { Button } from "@cloudoperators/juno-ui-components"
+import { Button } from "../components/Button"
 import { SessionExpirationTimer } from "./SessionExpirationTimer"
 import { useAuth, useAuthDispatch } from "../store/StoreProvider"
 import { useCallback } from "react"
@@ -32,7 +32,7 @@ export function AuthMenu(props: { authClient: TrpcClient["auth"] }) {
     return (
       <div className="flex flex-col items-center">
         <div className="mt-1 mb-3 text-sm font-medium">{user?.name}</div>
-        <Button disabled={isLoading} variant="default" size="small" onClick={logout}>
+        <Button disabled={isLoading} variant="default" onClick={logout}>
           Sign Out
         </Button>
         {sessionExpiresAt && <SessionExpirationTimer passwordExpiresAt={sessionExpiresAt} logout={logout} />}
@@ -41,7 +41,7 @@ export function AuthMenu(props: { authClient: TrpcClient["auth"] }) {
   }
 
   return (
-    <Button disabled={isLoading} variant="primary" size="small" onClick={login} className="w-full">
+    <Button disabled={isLoading} onClick={login} className="w-full">
       Sign In
     </Button>
   )

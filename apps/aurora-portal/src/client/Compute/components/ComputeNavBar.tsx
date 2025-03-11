@@ -1,5 +1,7 @@
-import { Button, ComboBox, ComboBoxOption, Icon } from "@cloudoperators/juno-ui-components"
 import { Link, useLocation, useParams } from "wouter"
+import { ComboBox, ComboBoxOption } from "../../components/ComboBox"
+import { Button } from "../../components/Button"
+import { Icon } from "../../components/Icon"
 
 type ComputeNavBarProps = {
   viewMode: "list" | "card"
@@ -78,10 +80,8 @@ export function ComputeNavBar({ viewMode, setViewMode }: ComputeNavBarProps) {
             icon="autoAwesomeMotion"
           />
         </div>
-        <ComboBox valueLabel="Server" label="Add new...">
-          <ComboBoxOption label="Server" value="Server">
-            Server
-          </ComboBoxOption>
+        <ComboBox valueLabel="Server">
+          <ComboBoxOption value="Server">Server</ComboBoxOption>
         </ComboBox>
       </div>
     </div>

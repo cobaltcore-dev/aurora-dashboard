@@ -1,5 +1,7 @@
 import type { Server } from "../../../server/Compute/types/models"
-import { Button, Pill, Icon } from "@cloudoperators/juno-ui-components"
+import { Button } from "../../components/Button"
+import { Icon } from "../../components/Icon"
+import { Pill } from "../../components/Pill"
 
 type ServerListViewProps = {
   servers: Server[] | undefined
@@ -18,9 +20,9 @@ export function ServerCard({ server }: ServerCardProps) {
       {/* Status with Icon */}
       <div className="flex items-center space-x-2">
         {server.status === "ACTIVE" ? (
-          <Icon name="success" icon="success" color="jn-text-theme-success" />
+          <Icon name="success" color="jn-text-theme-success" />
         ) : server.status === "SHUTOFF" ? (
-          <Icon name="danger" icon="danger" color="jn-text-theme-danger" />
+          <Icon name="danger" color="jn-text-theme-danger" />
         ) : (
           <p>{server.status}</p>
         )}
@@ -28,48 +30,19 @@ export function ServerCard({ server }: ServerCardProps) {
       </div>
 
       {/* Server Details */}
-      <Pill
-        pillKey="IPv4"
-        pillKeyLabel="IPv4:"
-        pillValueLabel={server.accessIPv4 || "N/A"}
-        pillValue={server.accessIPv4 || "N/A"}
-      />
-      <Pill
-        pillKey="IPv6"
-        pillKeyLabel="IPv6:"
-        pillValueLabel={server.accessIPv6 || "N/A"}
-        pillValue={server.accessIPv6 || "N/A"}
-      />
-      <Pill
-        pillKey="CPU"
-        pillKeyLabel="CPU:"
-        pillValueLabel={server.flavor.vcpus.toString()}
-        pillValue={server.flavor.vcpus.toString()}
-      />
-      <Pill
-        pillKey="RAM"
-        pillKeyLabel="RAM:"
-        pillValueLabel={`${server.flavor.ram} MB`}
-        pillValue={`${server.flavor.ram} MB`}
-      />
-      <Pill
-        pillKey="Disk"
-        pillKeyLabel="Disk:"
-        pillValueLabel={`${server.flavor.disk} GB`}
-        pillValue={`${server.flavor.disk} GB`}
-      />
+      <Pill pillKeyLabel="IPv4:" pillValueLabel={server.accessIPv4 || "N/A"} />
+      <Pill pillKeyLabel="IPv6:" pillValueLabel={server.accessIPv6 || "N/A"} />
+      <Pill pillKeyLabel="CPU:" pillValueLabel={server.flavor.vcpus.toString()} />
+      <Pill pillKeyLabel="RAM:" pillValueLabel={`${server.flavor.ram} MB`} />
+      <Pill pillKeyLabel="Disk:" pillValueLabel={`${server.flavor.disk} GB`} />
 
       {/* Server Metadata */}
       <p className="text-sm">Server Role: {server.metadata["Server Role"] || "Unknown Role"}</p>
 
       {/* Action Buttons */}
       <div className="flex space-x-3 mt-4">
-        <Button variant="primary" size="small" className="bg-gray-700 hover:bg-gray-600">
-          View Details
-        </Button>
-        <Button size="small" variant="primary-danger" className="bg-red-600 hover:bg-red-500">
-          Restart
-        </Button>
+        <Button className="bg-gray-700 hover:bg-gray-600">View Details</Button>
+        <Button className="bg-red-600 hover:bg-red-500">Restart</Button>
       </div>
     </div>
   )

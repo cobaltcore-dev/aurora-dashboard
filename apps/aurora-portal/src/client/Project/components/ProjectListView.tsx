@@ -1,6 +1,6 @@
-import { Icon, PopupMenu } from "@cloudoperators/juno-ui-components"
 import { useLocation, Link } from "wouter"
 import { Project } from "../../../server/Project/types/models"
+import { Icon } from "../../components/Icon"
 
 type Domain = {
   id: string
@@ -27,9 +27,9 @@ export function ProjectListView({ domain, projects }: ProjectListViewProps) {
             {/* Icon + Title (Left Side) */}
             <div className="flex items-center space-x-3 min-w-0 w-1/3">
               {project.enabled ? (
-                <Icon name="check_circle" icon="info" color="jn-text-theme-success" />
+                <Icon name="checkCircle" color="jn-text-theme-success" />
               ) : (
-                <Icon name="block" icon="info" color="jn-text-theme-danger" />
+                <Icon name="info" color="jn-text-theme-danger" />
               )}
               <Link
                 href={`/${domain?.id}/projects/${project.id}/compute`}
@@ -52,12 +52,7 @@ export function ProjectListView({ domain, projects }: ProjectListViewProps) {
               data-testid="project-card-menu"
               onMouseDown={(e) => e.stopPropagation()} // Stops route change
               onClick={(e) => e.stopPropagation()} // Ensures it doesn't trigger navigation
-            >
-              <PopupMenu onClose={() => {}} onOpen={() => {}}>
-                <PopupMenu.Item label="Edit" />
-                <PopupMenu.Item label="Delete" />
-              </PopupMenu>
-            </div>
+            ></div>
           </div>
         ))
       ) : (

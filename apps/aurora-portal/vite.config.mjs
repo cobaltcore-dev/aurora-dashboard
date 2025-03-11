@@ -22,7 +22,7 @@ export default defineConfig({
   define: {
     BFF_ENDPOINT: JSON.stringify(BFF_ENDPOINT),
   },
-  plugins: [react(), tsconfigPaths(), svgr()],
+  plugins: [react(), svgr(), tsconfigPaths()],
   css: {
     postcss: {
       plugins: [tailwindcss, autoprefixer],
