@@ -1,4 +1,5 @@
 import React, { useState } from "react"
+import { Button } from "./Button"
 
 interface ComboBoxProps {
   valueLabel: string
@@ -17,15 +18,9 @@ export const ComboBox: React.FC<ComboBoxProps> = ({ valueLabel, children }) => {
 
   return (
     <div className="relative inline-block text-left">
-      <button
-        onClick={toggleDropdown}
-        data-testid="combobox-button"
-        className="px-4 py-2 bg-gray-200 rounded-md hover:bg-gray-300 focus:outline-none"
-      >
-        {selectedValue || valueLabel}
-      </button>
+      <Button onClick={toggleDropdown}>{selectedValue || valueLabel}</Button>
       {isOpen && (
-        <div className="absolute mt-2 w-48 bg-white border border-gray-300 rounded-md shadow-lg">
+        <div className="absolute mt-2 w-48 bg-[#161b22] border border-[#30363d] rounded-md shadow-lg z-10">
           <div className="py-1">
             {children &&
               (Array.isArray(children) ? children : [children]).map((child) =>

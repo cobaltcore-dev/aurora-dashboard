@@ -1,4 +1,6 @@
 import React from "react"
+import { Icon } from "./Icon"
+import type { IconName } from "./Icon"
 
 interface ButtonProps {
   children?: React.ReactNode
@@ -6,7 +8,7 @@ interface ButtonProps {
   variant?: "default" | "subdued" | "primary-danger"
   className?: string
   onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void
-  icon?: string
+  icon?: IconName
   "data-testid"?: string
   disabled?: boolean
 }
@@ -50,7 +52,7 @@ export const Button: React.FC<ButtonProps> = ({
       ? "juno-button-subdued"
       : variant === "primary-danger"
         ? "juno-button-primary-danger"
-        : "juno-button-primary juno-button-default-size"
+        : "juno-button-default juno-button-default-size"
 
   return (
     <button
@@ -61,7 +63,7 @@ export const Button: React.FC<ButtonProps> = ({
       disabled={disabled}
       {...props}
     >
-      {icon && <span className="material-icons mr-2">{icon}</span>}
+      {icon && <Icon name={icon} />}
       {children || name}
     </button>
   )
