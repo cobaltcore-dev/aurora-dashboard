@@ -18,7 +18,9 @@ export const ComboBox: React.FC<ComboBoxProps> = ({ valueLabel, children }) => {
 
   return (
     <div className="relative inline-block text-left">
-      <Button onClick={toggleDropdown}>{selectedValue || valueLabel}</Button>
+      <Button data-testid="combobox-button" onClick={toggleDropdown}>
+        {selectedValue || valueLabel}
+      </Button>
       {isOpen && (
         <div className="absolute mt-2 w-48 bg-[#161b22] border border-[#30363d] rounded-md shadow-lg z-10">
           <div className="py-1">
