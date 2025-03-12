@@ -1,4 +1,4 @@
-import React, { Suspense, useEffect } from "react"
+import React, { Suspense, useEffect, useTransition } from "react"
 
 import { Home } from "./Home"
 import { About } from "./About"
@@ -39,23 +39,17 @@ const extensions = clientExtensions.map((ext: Extension) => ({
 }))
 
 export function AppContent() {
-  const [isLoading, setIsLoading] = React.useState(true)
   const { isAuthenticated } = useAuth()
   const dispatch = useAuthDispatch()
 
-  // sync auth status on mount
+  const [isLoadingAuthStatus, fetchAuthStatus] = useTransition()
   useEffect(() => {
-    trpcClient.auth.getCurrentUserSession
-      .query()
-      .then((token) =>
-        token
-          ? dispatch({ type: "LOGIN_SUCCESS", payload: { user: token?.user, sessionExpiresAt: token?.expires_at } })
-          : dispatch({ type: "LOGOUT" })
-      )
-      .catch((error) => dispatch({ type: "LOGIN_FAILURE", payload: { error: error.message } }))
-
-      .finally(() => setIsLoading(false))
-  }, [dispatch])
+    fetchAuthStatus(async () => {
+      await trpcClient.auth.getCurrentUserSession
+        .query()
+        .then((token) => dispatch({ type: "RECEIVE_AUTH_STATUS", payload: { token } }))
+    })
+  }, [])
 
   const navItems = [{ route: "/about", label: "About" }]
 
@@ -99,7 +93,7 @@ export function AppContent() {
             </>
           ) : (
             <>
-              {isLoading ? (
+              {isLoadingAuthStatus ? (
                 <span>Please wait while you session is synced...</span>
               ) : (
                 <SignIn trpcClient={trpcClient.auth} />

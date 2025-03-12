@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useTransition } from "react"
 import { useLocation } from "wouter"
 import { TrpcClient } from "../trpcClient"
 import { Button } from "../components/Button"
@@ -7,7 +7,7 @@ import { useAuth, useAuthDispatch } from "../store/StoreProvider"
 import { useCallback } from "react"
 
 export function AuthMenu(props: { authClient: TrpcClient["auth"] }) {
-  const [isLoading, setIsLoading] = useState(false)
+  const [isLoading, startTransition] = useTransition()
   const setLocation = useLocation()[1]
   const { isAuthenticated, user, sessionExpiresAt } = useAuth()
   const dispatch = useAuthDispatch()
@@ -17,15 +17,12 @@ export function AuthMenu(props: { authClient: TrpcClient["auth"] }) {
   }
 
   const logout = useCallback(() => {
-    setIsLoading(true)
-    props.authClient.terminateUserSession
-      .mutate()
-      .then(() => {
+    startTransition(() =>
+      props.authClient.terminateUserSession.mutate().then(() => {
         dispatch({ type: "LOGOUT" })
-        setIsLoading(false)
         setLocation("/")
       })
-      .catch((e: Error) => dispatch({ type: "LOGIN_FAILURE", payload: { error: e.message } }))
+    )
   }, [])
 
   if (isAuthenticated) {

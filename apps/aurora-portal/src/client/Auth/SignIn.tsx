@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react"
+import { useCallback, useState, useTransition } from "react"
 import { Button } from "../components/Button"
 import { useAuth, useAuthDispatch } from "../store/StoreProvider"
 import { TrpcClient } from "../trpcClient"
@@ -21,22 +21,17 @@ const textinputstyles = `
 `
 
 export function SignIn(props: { trpcClient: TrpcClient["auth"] }) {
-  const [isLoading, setIsLoading] = useState(false)
+  const [isLoading, startTransition] = useTransition()
   const { isAuthenticated, user, error } = useAuth()
   const dispatch = useAuthDispatch()
   const [form, setForm] = useState({ domainName: "", user: "", password: "" })
 
   const login = useCallback(() => {
-    setIsLoading(true)
-    props.trpcClient.createUserSession
-      .mutate(form)
-      .then((token) => {
+    startTransition(() =>
+      props.trpcClient.createUserSession.mutate(form).then((token) => {
         dispatch({ type: "LOGIN_SUCCESS", payload: { user: token?.user, sessionExpiresAt: token?.expires_at } })
       })
-      .catch((error) => {
-        dispatch({ type: "LOGIN_FAILURE", payload: { error: error.message } })
-      })
-      .finally(() => setIsLoading(false))
+    )
   }, [form])
 
   if (isLoading) {

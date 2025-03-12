@@ -10,6 +10,7 @@ export interface AuthState {
 
 // Define the action interface
 export type AuthAction =
+  | { type: "RECEIVE_AUTH_STATUS"; payload: { token: TokenData | null } }
   | { type: "LOGIN_SUCCESS"; payload: { user: TokenData["user"]; sessionExpiresAt: TokenData["expires_at"] } }
   | { type: "LOGIN_FAILURE"; payload: { error: string } }
   | { type: "LOGOUT" }
@@ -24,6 +25,24 @@ export const authInitialState: AuthState = {
 
 export function authReducer(state: AuthState, action: AuthAction): AuthState {
   switch (action.type) {
+    case "RECEIVE_AUTH_STATUS":
+      if (!action.payload?.token) {
+        return {
+          ...state,
+          isAuthenticated: false,
+          user: undefined,
+          sessionExpiresAt: undefined,
+          error: null,
+        }
+      } else {
+        return {
+          ...state,
+          isAuthenticated: true,
+          user: action.payload.token.user,
+          sessionExpiresAt: action.payload.token.expires_at,
+          error: null,
+        }
+      }
     case "LOGIN_SUCCESS":
       return {
         ...state,
