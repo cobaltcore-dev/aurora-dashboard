@@ -63,7 +63,7 @@ importers:
     devDependencies:
       '@cloudoperators/juno-ui-components':
         specifier: ^2.36.0
-        version: 2.38.0(prop-types@15.8.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 2.38.1(prop-types@15.8.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@cobaltcore-dev/aurora-config':
         specifier: workspace:*
         version: link:../../packages/config
@@ -190,7 +190,7 @@ importers:
     devDependencies:
       '@cloudoperators/juno-ui-components':
         specifier: ^2.36.0
-        version: 2.38.0(prop-types@15.8.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 2.38.1(prop-types@15.8.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@cobaltcore-dev/aurora-config':
         specifier: workspace:*
         version: link:../../packages/config
@@ -485,9 +485,9 @@ packages:
     resolution: {integrity: sha512-emqcG3vHrpxUKTrxcblR36dcrcoRDvKmnL/dCL6ZsHaShW80qxCAcNhzQZrpeM765VzEos+xOi4s+r4IXzTwdQ==}
     engines: {node: '>=6.9.0'}
 
-  '@cloudoperators/juno-ui-components@2.38.0':
-    resolution: {integrity: sha512-djd2VKKc+cXGy99ZtR7X7MyN/bPGYh+yUXUxypWkCnMNvgTXsB3S81v/N3iS0CiwImUnK5LnSoSXQ72Oi6hgzw==}
-    engines: {node: '>=20.0.0 <21.0.0', npm: '>=10.0.0 <11.0.0'}
+  '@cloudoperators/juno-ui-components@2.38.1':
+    resolution: {integrity: sha512-7MM0U+SlilAIBLzyzt7WJ942YheZQVFpc6zoquiWK2SxTL6Zp2KVcWdVmbm7KxtET9AnGnlURodqFnDX5YhoJA==}
+    engines: {node: '>=20.0.0', npm: '>=10.0.0'}
     peerDependencies:
       prop-types: 15.8.1
       react: ^18.2.0
@@ -3972,7 +3972,7 @@ snapshots:
       '@babel/helper-string-parser': 7.25.9
       '@babel/helper-validator-identifier': 7.25.9
 
-  '@cloudoperators/juno-ui-components@2.38.0(prop-types@15.8.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@cloudoperators/juno-ui-components@2.38.1(prop-types@15.8.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       prop-types: 15.8.1
       react: 18.3.1
