@@ -16,6 +16,8 @@
     "dist"
   ],
   "scripts": {
+    "clean": "rm -rf dist && rm -rf node_modules && rm -rf .turbo",
+    "clean:cache": "rm -rf .turbo",
     "dev:client": "vite",
     "dev:server": "tsx watch src/server",
     "dev": "concurrently -k \"pnpm dev:client\" \"pnpm dev:server\"",
@@ -59,12 +61,12 @@
     "postcss": "^8.4.47",
     "prettier": "^3.4.2",
     "tailwindcss": "^3.4.12",
-    "typescript": "^5.6.2",
-    "vite": "^5.4.7",
+    "typescript": "^5.8.2",
+    "vite": "^6.2.1",
     "vite-plugin-dts": "^4.0.3",
     "vite-plugin-svgr": "^4.3.0",
     "vite-tsconfig-paths": "^4.3.2",
-    "vitest": "^2.1.4"
+    "vitest": "^3.0.8"
   },
   "_id": "@cobaltcore-dev/aurora-extension-a@1.0.0",
   "_integrity": null,
