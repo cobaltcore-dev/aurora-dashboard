@@ -16,6 +16,8 @@
     "dist"
   ],
   "scripts": {
+    "clean": "rm -rf dist && rm -rf node_modules && rm -rf .turbo",
+    "clean:cache": "rm -rf .turbo",
     "dev:client": "vite",
     "dev:server": "tsx watch src/server",
     "dev": "concurrently -k \"pnpm dev:client\" \"pnpm dev:server\"",
