@@ -42,9 +42,9 @@ export function AppContent() {
   const { isAuthenticated } = useAuth()
   const dispatch = useAuthDispatch()
 
-  const [isLoadingAuthStatus, fetchAuthStatus] = useTransition()
+  const [isLoadingAuthStatus, startAuthStatusTransition] = useTransition()
   useEffect(() => {
-    fetchAuthStatus(async () => {
+    startAuthStatusTransition(async () => {
       await trpcClient.auth.getCurrentUserSession
         .query()
         .then((token) => dispatch({ type: "RECEIVE_AUTH_STATUS", payload: { token } }))
