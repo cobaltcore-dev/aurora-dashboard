@@ -1,4 +1,4 @@
-import { Link, useLocation } from "wouter"
+import { useLocation } from "wouter"
 import { Project } from "../../../server/Project/types/models"
 import { Icon } from "../../components/Icon"
 
@@ -16,7 +16,7 @@ type ProjectCardViewProps = {
   domain: Domain
 }
 
-export function ProjectCard({ domain, project }: ProjectCardProps) {
+export function ProjectCard({ project }: ProjectCardProps) {
   const [, setLocation] = useLocation()
 
   return (
@@ -26,16 +26,9 @@ export function ProjectCard({ domain, project }: ProjectCardProps) {
     >
       {/* Header: Project Name (Clickable) + PopupMenu */}
       <div className="flex justify-between items-center w-full">
-        <Link
-          href={`/${domain?.id}/projects/${project.id}/compute`}
-          className={(active) => (active ? "active" : "")}
-          onClick={(e) => {
-            e.stopPropagation()
-            setLocation(`/projects/${project.id}/compute`)
-          }}
-        >
+        <a href="#" onClick={(e) => e.preventDefault()}>
           {project.name}
-        </Link>
+        </a>
 
         {/* Popup Menu - Ensures it works */}
         <div

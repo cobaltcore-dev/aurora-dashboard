@@ -1,4 +1,4 @@
-import { useLocation, Link } from "wouter"
+import { useLocation } from "wouter"
 import { Project } from "../../../server/Project/types/models"
 import { Icon } from "../../components/Icon"
 
@@ -12,7 +12,7 @@ type ProjectListViewProps = {
   domain?: Domain
 }
 
-export function ProjectListView({ domain, projects }: ProjectListViewProps) {
+export function ProjectListView({ projects }: ProjectListViewProps) {
   const [, setLocation] = useLocation()
 
   return (
@@ -31,16 +31,13 @@ export function ProjectListView({ domain, projects }: ProjectListViewProps) {
               ) : (
                 <Icon name="info" color="jn-text-theme-danger" />
               )}
-              <Link
-                href={`/${domain?.id}/projects/${project.id}/compute`}
+              <a
+                href="#"
+                onClick={(e) => e.preventDefault()}
                 className="text-lg font-semibold text-blue-400 hover:underline truncate"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  setLocation(`/projects/${project.id}/compute`)
-                }}
               >
                 {project.name}
-              </Link>
+              </a>
             </div>
 
             {/* Description (Middle, Expands Fully) */}
