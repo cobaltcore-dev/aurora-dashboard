@@ -65,7 +65,7 @@ const request = ({ method, path, options = {} }: RequestParams) => {
       }
     })
     .catch((error) => {
-      throw new SignalOpenstackApiError(error.message)
+      throw new SignalOpenstackApiError(error.message, 500)
     })
 }
 
