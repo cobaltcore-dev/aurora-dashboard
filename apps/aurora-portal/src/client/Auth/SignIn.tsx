@@ -1,6 +1,7 @@
 import { useCallback, useState, useTransition } from "react"
 import { Button } from "../components/Button"
-import { useAuth, useAuthDispatch } from "../store/StoreProvider"
+import { Icon } from "../components/Icon"
+import { useAuthState, useAuthDispatch } from "../global-state/GlobalStateProvider"
 import { TrpcClient } from "../trpcClient"
 
 const textinputstyles = `
@@ -22,15 +23,21 @@ const textinputstyles = `
 
 export function SignIn(props: { trpcClient: TrpcClient["auth"] }) {
   const [isLoading, startTransition] = useTransition()
-  const { isAuthenticated, user, error } = useAuth()
+  const { isAuthenticated, user } = useAuthState()
   const dispatch = useAuthDispatch()
   const [form, setForm] = useState({ domainName: "", user: "", password: "" })
+  const [signInError, setSignInError] = useState<string | null>(null)
 
   const login = useCallback(() => {
     startTransition(() =>
-      props.trpcClient.createUserSession.mutate(form).then((token) => {
-        dispatch({ type: "LOGIN_SUCCESS", payload: { user: token?.user, sessionExpiresAt: token?.expires_at } })
-      })
+      props.trpcClient.createUserSession
+        .mutate(form)
+        .then((token) => {
+          dispatch({ type: "LOGIN", payload: { user: token?.user, sessionExpiresAt: token?.expires_at } })
+        })
+        .catch((e) => {
+          setSignInError(e.message)
+        })
     )
   }, [form])
 
@@ -60,7 +67,17 @@ export function SignIn(props: { trpcClient: TrpcClient["auth"] }) {
         <h2 className="text-2xl font-semibold text-center text-white mb-4">Login to Your Account</h2>
         <p className="text-gray-400 text-center text-sm mb-6">Enter your credentials to access your account</p>
 
-        {error && <div className="text-red-500 text-sm mb-4 text-center">Error: {error}</div>}
+        {signInError && (
+          <div className="p-2 juno-message juno-message-error jn-text-theme-high jn-flex jn-rounded jn-leading-5 jn-overflow-hidden jn-items-center jn-bg-theme-message-error">
+            <Icon name="danger" color="jn-text-theme-danger" size="30" className="jn-mr-2" />
+
+            <ul>
+              {signInError.split(",").map((m, i) => (
+                <li key={i}>{m}</li>
+              ))}
+            </ul>
+          </div>
+        )}
 
         <form className="space-y-4">
           {/* Domain Input */}

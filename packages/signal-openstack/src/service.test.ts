@@ -101,7 +101,7 @@ describe("service", () => {
     it("should throw error for unknown region", async () => {
       const service = SignalOpenstackService("service1", token, { region: "region1" })
       await expect(service.get("path", {})).rejects.toThrow(
-        "SignalOpenstackError: Service service1 (region: region1, interface: public) not found."
+        "Service service1 (region: region1, interface: public) not found."
       )
     })
 
@@ -113,7 +113,7 @@ describe("service", () => {
     it("should throw error for unknown interface", async () => {
       const service = SignalOpenstackService("service1", token, { region: "region", interfaceName: "unknown" })
       await expect(service.get("path", {})).rejects.toThrow(
-        "SignalOpenstackError: Service service1 (region: region, interface: unknown) not found."
+        "Service service1 (region: region, interface: unknown) not found."
       )
     })
 

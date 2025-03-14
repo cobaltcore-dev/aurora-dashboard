@@ -1,25 +1,19 @@
 import Fastify from "fastify"
 import FastifyStatic from "@fastify/static"
 import cookie from "@fastify/cookie"
-import {
-  AuroraFastifyTRPCPluginOptions,
-  AuroraTRPCError,
-  auroraFastifyTRPCPlugin,
-} from "@cobaltcore-dev/aurora-sdk/server"
+import { AuroraFastifyTRPCPluginOptions, auroraFastifyTRPCPlugin } from "@cobaltcore-dev/aurora-sdk/server"
 import { appRouter, AuroraRouter } from "./routers" // tRPC router
 import { createContext } from "./context"
 import * as dotenv from "dotenv"
 import path from "path"
+import { ZodError } from "zod"
 
 dotenv.config()
 
 const isProduction = process.env.NODE_ENV === "production"
 const PORT = process.env.PORT || "4004"
 const BFF_ENDPOINT = process.env.BFF_ENDPOINT || "/polaris-bff"
-const server = Fastify({
-  logger: true,
-  maxParamLength: 5000,
-})
+const server = Fastify({ logger: true, maxParamLength: 5000 })
 
 async function startServer() {
   // Register Fastify Cookie Plugin
@@ -33,6 +27,10 @@ async function startServer() {
     trpcOptions: {
       router: appRouter, // Pass the tRPC router to handle routes
       createContext, // Pass the context
+      onError: (err) => {
+        if (err.error.cause instanceof ZodError)
+          err.error.message = err.error.cause.errors.map((e) => e.message).join(",")
+      },
     } satisfies AuroraFastifyTRPCPluginOptions<AuroraRouter>["trpcOptions"], // Type-safety to ensure proper config
   })
 
@@ -52,28 +50,21 @@ async function startServer() {
   }
 
   await server.setErrorHandler((error, request, reply) => {
-    server.log.error(error)
-
-    // For tRPC errors
-    if (error instanceof AuroraTRPCError) {
-      reply.status(400).send({
-        status: error.code || "error",
-        statusCode: 400,
-        message: error.message || "A tRPC error occurred",
-      })
-    } else {
-      // For generic errors
-      reply.status(500).send({
-        status: "error",
-        statusCode: error.code || 500,
-        message: error.message || "Internal Server Error",
-      })
-    }
+    reply.status(error.statusCode || 500).send({
+      status: error.code || "Internal Server Error",
+      message: error.message || "Internal Server Error",
+    })
   })
 
-  await server.listen({ host: "0.0.0.0", port: Number(PORT) }).then((address) => {
-    console.log(`Server listening on ${address}`)
-  })
+  await server
+    .listen({ host: "0.0.0.0", port: Number(PORT) })
+    .then((address) => {
+      console.log(`Server listening on ${address}`)
+    })
+    .catch((err) => {
+      console.error(err)
+      process.exit(1)
+    })
 }
 
 startServer()

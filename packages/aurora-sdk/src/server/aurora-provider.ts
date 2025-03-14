@@ -1,7 +1,7 @@
 // packages/aurora-server/src/AuroraServer.ts
 import { initTRPC } from "@trpc/server"
 import type { AuroraContext } from "./aurora-context"
-import { AuroraTRPCError } from "./aurora-error"
+import { TRPCError } from "@trpc/server"
 
 export function getAuroraProvider<TContext extends AuroraContext = AuroraContext>() {
   const t = initTRPC.context<TContext>().create()
@@ -10,7 +10,7 @@ export function getAuroraProvider<TContext extends AuroraContext = AuroraContext
 
   const protectedProcedure = publicProcedure.use(async function isAuthenticated(opts) {
     if (opts.ctx.validateSession() === false) {
-      throw new AuroraTRPCError({
+      throw new TRPCError({
         code: "UNAUTHORIZED",
         message: "The session is invalid",
       })

@@ -2,12 +2,12 @@ import { AppShellProvider } from "../components/AppshellProvider"
 import { AppContent } from "./AppContent"
 import { AuroraProvider } from "./AuroraProvider"
 import { AppRouter } from "./AppRouter"
-import { StoreProvider } from "../store/StoreProvider"
+import { GlobalStateProvider } from "../global-state/GlobalStateProvider"
 import { ErrorBoundary } from "react-error-boundary"
 
 export default function App() {
   return (
-    <StoreProvider>
+    <GlobalStateProvider>
       <AppShellProvider theme="theme-dark">
         <AuroraProvider>
           <AppRouter>
@@ -17,6 +17,6 @@ export default function App() {
           </AppRouter>
         </AuroraProvider>
       </AppShellProvider>
-    </StoreProvider>
+    </GlobalStateProvider>
   )
 }

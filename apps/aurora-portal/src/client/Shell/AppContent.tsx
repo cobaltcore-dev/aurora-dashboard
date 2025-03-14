@@ -13,7 +13,7 @@ import { clientExtensions } from "../generated/extensions"
 import { NavigationLayout } from "./Navigation/NavigationLayout"
 import { NetworkOverview } from "../Network/NetworkOverview"
 import { ProjectsOverview } from "../Project/ProejctsOverview"
-import { useAuth, useAuthDispatch } from "../store/StoreProvider"
+import { useAuthState, useAuthDispatch } from "../global-state/GlobalStateProvider"
 type RouterScopes = keyof typeof trpcClient
 
 interface ExtensionProps {
@@ -39,7 +39,7 @@ const extensions = clientExtensions.map((ext: Extension) => ({
 }))
 
 export function AppContent() {
-  const { isAuthenticated } = useAuth()
+  const { isAuthenticated } = useAuthState()
   const dispatch = useAuthDispatch()
 
   const [isLoadingAuthStatus, startAuthStatusTransition] = useTransition()
@@ -47,7 +47,11 @@ export function AppContent() {
     startAuthStatusTransition(async () => {
       await trpcClient.auth.getCurrentUserSession
         .query()
-        .then((token) => dispatch({ type: "RECEIVE_AUTH_STATUS", payload: { token } }))
+        .then((token) =>
+          token
+            ? dispatch({ type: "LOGIN", payload: { user: token.user, sessionExpiresAt: token.expires_at } })
+            : dispatch({ type: "LOGOUT" })
+        )
     })
   }, [])
 

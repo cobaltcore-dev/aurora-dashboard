@@ -4,7 +4,7 @@ import { AuthAction, authReducer, AuthState, authInitialState } from "./reducers
 const AuthContext = createContext<AuthState | null>(null)
 const AuthDispatchContext = createContext<React.Dispatch<AuthAction> | null>(null)
 
-const StoreProvider = ({ children }: { children: ReactNode }) => {
+const GlobalStateProvider = ({ children }: { children: ReactNode }) => {
   const [authState, dispatch] = useReducer(authReducer, authInitialState)
 
   return (
@@ -14,7 +14,7 @@ const StoreProvider = ({ children }: { children: ReactNode }) => {
   )
 }
 
-const useAuth = (): AuthState => {
+const useAuthState = (): AuthState => {
   const authState = useContext(AuthContext)
 
   if (!authState) {
@@ -34,4 +34,4 @@ const useAuthDispatch = (): React.Dispatch<AuthAction> => {
   return dispatch
 }
 
-export { StoreProvider, useAuth, useAuthDispatch }
+export { GlobalStateProvider, useAuthState, useAuthDispatch }

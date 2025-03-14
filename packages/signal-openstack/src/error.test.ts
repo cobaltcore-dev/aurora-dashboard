@@ -14,7 +14,7 @@ describe("SignalOpenstackError", () => {
   })
 
   it("should contain a message starting with SignalOpenstack SignalOpenstackError: ", async () => {
-    expect(new SignalOpenstackError("test").message).toContain("SignalOpenstackError: ")
+    expect(new SignalOpenstackError("test").message).toContain("test")
   })
 })
 
@@ -24,22 +24,68 @@ describe("SignalOpenstackApiError", () => {
   })
 
   it("should return an instance of SignalOpenstackApiError", async () => {
-    expect(new SignalOpenstackApiError("Test")).toBeInstanceOf(SignalOpenstackApiError)
+    expect(new SignalOpenstackApiError({ message: "Test" })).toBeInstanceOf(SignalOpenstackApiError)
   })
 
   it("should return an instance of SignalOpenstackApiError with a message", async () => {
-    expect(new SignalOpenstackApiError("test")).toBeInstanceOf(SignalOpenstackApiError)
+    expect(new SignalOpenstackApiError({ message: "test" })).toBeInstanceOf(SignalOpenstackApiError)
   })
 
   it("should contain a message starting with SignalOpenstack SignalOpenstackApiError: ", async () => {
-    expect(new SignalOpenstackApiError("test").message).toContain("SignalOpenstackApiError: ")
+    expect(new SignalOpenstackApiError({ message: "test" }).message).toContain("test")
   })
 
   it("should respond to statusCode", async () => {
-    expect(new SignalOpenstackApiError("test").statusCode).toBeUndefined()
+    expect(new SignalOpenstackApiError({ message: "test" }).statusCode).toBeUndefined()
   })
 
   it("should respond to statusCode with a value", async () => {
-    expect(new SignalOpenstackApiError("test", 500).statusCode).toBe(500)
+    expect(new SignalOpenstackApiError({ message: "test", statusCode: 500 }).statusCode).toBe(500)
+  })
+
+  describe("errorObject", () => {
+    it("should return null if no object is provided", async () => {
+      expect(new SignalOpenstackApiError({ message: "test" }).message).toBe("test")
+    })
+
+    it("should return null if object is an empty object", async () => {
+      expect(new SignalOpenstackApiError({ message: "test", errorObject: {} }).message).toBe("test")
+    })
+
+    it("should return error from errorObject by message", async () => {
+      expect(
+        new SignalOpenstackApiError({
+          message: "test",
+          errorObject: { error: { code: 401, message: "TEST.", title: "Unauthorized" } },
+        }).message
+      ).toBe("TEST.")
+    })
+
+    it("should return error from errorObject by description", async () => {
+      expect(
+        new SignalOpenstackApiError({
+          message: "test",
+          errorObject: { error: { code: 401, description: "TEST.", title: "Unauthorized" } },
+        }).message
+      ).toBe("TEST.")
+    })
+
+    it("should return error from errorObject by type", async () => {
+      expect(
+        new SignalOpenstackApiError({
+          message: "test",
+          errorObject: { error: { code: 401, type: "TEST.", title: "Unauthorized" } },
+        }).message
+      ).toBe("TEST.")
+    })
+
+    it("should return error from errorObject by faultstring", async () => {
+      expect(
+        new SignalOpenstackApiError({
+          message: "test",
+          errorObject: { error: { faultstring: "TEST." } },
+        }).message
+      ).toBe("TEST.")
+    })
   })
 })

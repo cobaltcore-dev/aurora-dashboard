@@ -1,6 +1,6 @@
 export type { AuroraContext } from "./aurora-context"
 export type { AuroraFastifyTRPCPluginOptions, CreateAuroraFastifyContextOptions } from "./fastify"
 export { createAuroraDevelopmentContext } from "./aurora-dev-context"
-export { AuroraSDKError, AuroraTRPCError } from "./aurora-error"
+export { TRPCError as AuroraTRPCError } from "@trpc/server"
 export { getAuroraProvider } from "./aurora-provider"
 export { auroraFastifyTRPCPlugin } from "./fastify"

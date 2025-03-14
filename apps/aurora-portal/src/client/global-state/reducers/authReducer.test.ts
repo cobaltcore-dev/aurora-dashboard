@@ -4,15 +4,15 @@ import { authReducer, authInitialState, AuthAction } from "./authReducer" // Adj
 describe("authReducer", () => {
   it("should return initial state when an unknown action type is provided", () => {
     const initialState = authInitialState
-    const action: AuthAction = { type: "CLEAR_ERROR" } // Use an unknown action type
+    const action: AuthAction = { type: "LOGOUT" } // Use an unknown action type
     const newState = authReducer(initialState, action)
 
     expect(newState).toEqual(initialState) // Expect the state to remain unchanged
   })
 
-  it("should handle LOGIN_SUCCESS", () => {
+  it("should handle LOGIN", () => {
     const action: AuthAction = {
-      type: "LOGIN_SUCCESS",
+      type: "LOGIN",
       payload: {
         user: {
           id: "12345",
@@ -28,34 +28,14 @@ describe("authReducer", () => {
 
     expect(newState).toEqual({
       isAuthenticated: true,
-      error: null,
       user: action.payload.user,
       sessionExpiresAt: action.payload.sessionExpiresAt,
-    })
-  })
-
-  it("should handle LOGIN_FAILURE", () => {
-    const action: AuthAction = {
-      type: "LOGIN_FAILURE",
-      payload: {
-        error: "Invalid credentials",
-      },
-    }
-
-    const newState = authReducer(authInitialState, action)
-
-    expect(newState).toEqual({
-      isAuthenticated: false,
-      error: action.payload.error,
-      user: undefined,
-      sessionExpiresAt: undefined,
     })
   })
 
   it("should handle LOGOUT", () => {
     const state = {
       isAuthenticated: true,
-      error: null,
       user: {
         id: "1",
         name: "John Doe",
@@ -70,24 +50,6 @@ describe("authReducer", () => {
 
     expect(newState).toEqual({
       isAuthenticated: false,
-      error: null,
-      user: undefined,
-      sessionExpiresAt: undefined,
-    })
-  })
-
-  it("should handle CLEAR_ERROR", () => {
-    const state = {
-      ...authInitialState,
-      error: "Some error occurred",
-    }
-
-    const action: AuthAction = { type: "CLEAR_ERROR" }
-    const newState = authReducer(state, action)
-
-    expect(newState).toEqual({
-      isAuthenticated: false,
-      error: null,
       user: undefined,
       sessionExpiresAt: undefined,
     })

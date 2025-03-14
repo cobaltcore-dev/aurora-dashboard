@@ -1,7 +1,7 @@
 import { render, screen, fireEvent, act } from "@testing-library/react"
 import { vi } from "vitest"
 import { AuthMenu } from "./AuthMenu" // Adjust the import as necessary
-import { StoreProvider, useAuthDispatch } from "../store/StoreProvider" // Adjust based on your file structure
+import { GlobalStateProvider, useAuthDispatch } from "../global-state/GlobalStateProvider" // Adjust based on your file structure
 import { TrpcClient } from "../trpcClient"
 import { useEffect } from "react"
 
@@ -9,7 +9,7 @@ const SyncAuth = () => {
   const dispatch = useAuthDispatch()
   useEffect(() => {
     dispatch({
-      type: "LOGIN_SUCCESS",
+      type: "LOGIN",
       payload: {
         user: {
           name: "John Doe",
@@ -42,9 +42,9 @@ describe("AuthMenu Component", () => {
     trpcClient.getCurrentUserSession.query = vi.fn().mockResolvedValueOnce(null) // Mock no token
 
     render(
-      <StoreProvider>
+      <GlobalStateProvider>
         <AuthMenu authClient={trpcClient} />
-      </StoreProvider>
+      </GlobalStateProvider>
     )
 
     expect(screen.getByText(/Sign In/i)).toBeInTheDocument()
@@ -57,10 +57,10 @@ describe("AuthMenu Component", () => {
     })
 
     render(
-      <StoreProvider>
+      <GlobalStateProvider>
         <SyncAuth />
         <AuthMenu authClient={trpcClient} />
-      </StoreProvider>
+      </GlobalStateProvider>
     )
 
     expect(screen.getByText(/John Doe/i)).toBeInTheDocument()
@@ -75,10 +75,10 @@ describe("AuthMenu Component", () => {
     })
 
     render(
-      <StoreProvider>
+      <GlobalStateProvider>
         <SyncAuth />
         <AuthMenu authClient={trpcClient} />
-      </StoreProvider>
+      </GlobalStateProvider>
     )
     await act(async () => {
       await fireEvent.click(screen.getByText(/Sign Out/i))

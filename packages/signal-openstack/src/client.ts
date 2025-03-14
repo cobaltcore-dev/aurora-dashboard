@@ -57,15 +57,20 @@ const request = ({ method, path, options = {} }: RequestParams) => {
     method,
     body,
   })
-    .then((response) => {
+    .then(async (response) => {
       if (response.ok) {
         return response
       } else {
-        throw new SignalOpenstackApiError(response.statusText, response.status)
+        const error = await response.json()
+        throw new SignalOpenstackApiError({
+          message: response.statusText,
+          statusCode: response.status,
+          errorObject: error,
+        })
       }
     })
     .catch((error) => {
-      throw new SignalOpenstackApiError(error.message)
+      throw new SignalOpenstackApiError({ message: error.message, statusCode: error.statusCode })
     })
 }
 

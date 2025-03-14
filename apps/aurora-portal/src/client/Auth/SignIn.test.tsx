@@ -1,5 +1,5 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react"
-import { StoreProvider } from "../store/StoreProvider"
+import { GlobalStateProvider } from "../global-state/GlobalStateProvider"
 import { vi } from "vitest"
 import { SignIn } from "./SignIn" // Adjust the import as necessary
 import { TrpcClient } from "../trpcClient"
@@ -20,17 +20,21 @@ describe("SignIn Component", () => {
     setCurrentDomain: { mutate: vi.fn() },
   }
 
+  const TestComponent = () => {
+    return (
+      <GlobalStateProvider>
+        <SignIn trpcClient={trpcClient} />
+      </GlobalStateProvider>
+    )
+  }
+
   beforeEach(() => {
     vi.clearAllMocks()
   })
 
   it("renders correctly when not authenticated", async () => {
     await act(async () => {
-      render(
-        <StoreProvider>
-          <SignIn trpcClient={trpcClient} />
-        </StoreProvider>
-      )
+      render(<TestComponent />)
     })
 
     expect(screen.getByText(/Login to Your Account/i)).toBeInTheDocument()
@@ -41,11 +45,7 @@ describe("SignIn Component", () => {
 
   it("shows loading state while authenticating", async () => {
     await act(async () => {
-      render(
-        <StoreProvider>
-          <SignIn trpcClient={trpcClient} />
-        </StoreProvider>
-      )
+      render(<TestComponent />)
     })
 
     fireEvent.change(screen.getByPlaceholderText(/Enter your domain/i), { target: { value: "my-domain" } })
@@ -60,11 +60,7 @@ describe("SignIn Component", () => {
 
   it("handles successful createUserSession", async () => {
     await act(async () => {
-      render(
-        <StoreProvider>
-          <SignIn trpcClient={trpcClient} />
-        </StoreProvider>
-      )
+      render(<TestComponent />)
     })
 
     fireEvent.change(screen.getByPlaceholderText(/Enter your domain/i), { target: { value: "my-domain" } })
@@ -85,11 +81,7 @@ describe("SignIn Component", () => {
     trpcClient.createUserSession.mutate = vi.fn().mockRejectedValue(new Error("Login failed"))
 
     await act(async () => {
-      render(
-        <StoreProvider>
-          <SignIn trpcClient={trpcClient} />
-        </StoreProvider>
-      )
+      render(<TestComponent />)
     })
 
     fireEvent.change(screen.getByPlaceholderText(/Enter your domain/i), { target: { value: "my-domain" } })
@@ -101,7 +93,7 @@ describe("SignIn Component", () => {
     })
 
     await waitFor(() => {
-      expect(screen.getByText(/Error: Login failed/i)).toBeInTheDocument()
+      expect(screen.getByText(/Login failed/i)).toBeInTheDocument()
       expect(screen.queryByText(/Loading.../i)).not.toBeInTheDocument()
     })
   })

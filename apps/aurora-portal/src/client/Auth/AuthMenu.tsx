@@ -3,16 +3,16 @@ import { useLocation } from "wouter"
 import { TrpcClient } from "../trpcClient"
 import { Button } from "../components/Button"
 import { SessionExpirationTimer } from "./SessionExpirationTimer"
-import { useAuth, useAuthDispatch } from "../store/StoreProvider"
+import { useAuthState, useAuthDispatch } from "../global-state/GlobalStateProvider"
 import { useCallback } from "react"
 
 export function AuthMenu(props: { authClient: TrpcClient["auth"] }) {
   const [isLoading, startTransition] = useTransition()
   const setLocation = useLocation()[1]
-  const { isAuthenticated, user, sessionExpiresAt } = useAuth()
+  const { isAuthenticated, user, sessionExpiresAt } = useAuthState()
   const dispatch = useAuthDispatch()
 
-  const login = () => {
+  const redirectToLogin = () => {
     setLocation("/auth/signin")
   }
 
@@ -38,7 +38,7 @@ export function AuthMenu(props: { authClient: TrpcClient["auth"] }) {
   }
 
   return (
-    <Button disabled={isLoading} onClick={login} className="w-full">
+    <Button disabled={isLoading} onClick={redirectToLogin} className="w-full">
       Sign In
     </Button>
   )
