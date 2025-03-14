@@ -26,9 +26,7 @@ export const ComboBox: React.FC<ComboBoxProps> = ({ valueLabel, children }) => {
           <div className="py-1">
             {children &&
               (Array.isArray(children) ? children : [children]).map((child) =>
-                child && typeof child === "object"
-                  ? React.cloneElement(child as React.ReactElement, { onSelect: handleSelect })
-                  : null
+                child && typeof child === "object" ? React.cloneElement(child, { onSelect: handleSelect }) : null
               )}
           </div>
         </div>

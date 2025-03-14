@@ -21,8 +21,8 @@
     "LICENCE"
   ],
   "engines": {
-    "node": ">=20.0.0 <21.0.0",
-    "npm": ">=10.0.0 <11.0.0"
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
   },
   "scripts": {
     "test": "vitest run",
@@ -38,12 +38,12 @@
   },
   "devDependencies": {
     "@cobaltcore-dev/aurora-config": "workspace:*",
-    "@types/node": "^20.11.24",
-    "jsdom": "^24.1.1",
-    "typescript": "^5.5.4",
-    "vitest": "^2.1.4"
+    "@types/node": "^20.17.24",
+    "jsdom": "^24.1.3",
+    "typescript": "^5.8.2",
+    "vitest": "^2.1.9"
   },
   "dependencies": {
-    "zod": "^3.24.1"
+    "zod": "^3.24.2"
   }
 }

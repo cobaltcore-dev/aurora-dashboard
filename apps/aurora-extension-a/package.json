@@ -16,6 +16,8 @@
     "dist"
   ],
   "scripts": {
+    "clean": "rm -rf dist && rm -rf node_modules && rm -rf .turbo",
+    "clean:cache": "rm -rf .turbo",
     "dev:client": "vite",
     "dev:server": "tsx watch src/server",
     "dev": "concurrently -k \"pnpm dev:client\" \"pnpm dev:server\"",
@@ -29,15 +31,10 @@
     "concurrently": "^9.1.2",
     "dotenv": "^16.4.7",
     "fastify": "^5.2.1",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "react-query": "^3.39.3",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
     "tsx": "^4.19.2",
     "zod": "^3.24.1"
-  },
-  "peerDependencies": {
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1"
   },
   "devDependencies": {
     "@cloudoperators/juno-ui-components": "^2.36.0",
@@ -46,8 +43,8 @@
     "@testing-library/jest-dom": "^6.5.0",
     "@types/eslint": "^9.6.1",
     "@types/node": "^22.10.5",
-    "@types/react": "^18.3.18",
-    "@types/react-dom": "^18.3.5",
+    "@types/react": "^19.0.10",
+    "@types/react-dom": "^19.0.4",
     "@vitejs/plugin-react-swc": "^3.7.1",
     "autoprefixer": "^10.4.20",
     "eslint": "^9.17.0",
@@ -65,13 +62,5 @@
     "vite-plugin-svgr": "^4.3.0",
     "vite-tsconfig-paths": "^4.3.2",
     "vitest": "^2.1.4"
-  },
-  "_id": "@cobaltcore-dev/aurora-extension-a@1.0.0",
-  "_integrity": null,
-  "_resolved": "/workspace/aurora-dashboard/apps/aurora-extension-a",
-  "_from": "file:../aurora-extension-a",
-  "dist": {
-    "tarball": "file:/workspace/aurora-dashboard/apps/aurora-extension-a",
-    "integrity": null
   }
 }
