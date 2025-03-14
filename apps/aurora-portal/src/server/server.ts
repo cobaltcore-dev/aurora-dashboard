@@ -32,7 +32,7 @@ async function startServer() {
       createContext, // Pass the context
       onError: (err) => {
         // handle ZodError messages
-        //
+        // combine all error messages into a single string
         if (err.error.cause instanceof ZodError)
           err.error.message = err.error.cause.errors.map((e) => e.message).join(",")
       },
