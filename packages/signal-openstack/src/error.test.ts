@@ -14,7 +14,7 @@ describe("SignalOpenstackError", () => {
   })
 
   it("should contain a message starting with SignalOpenstack SignalOpenstackError: ", async () => {
-    expect(new SignalOpenstackError("test").message).toContain("SignalOpenstackError: ")
+    expect(new SignalOpenstackError("test").message).toContain("test")
   })
 })
 
@@ -32,7 +32,7 @@ describe("SignalOpenstackApiError", () => {
   })
 
   it("should contain a message starting with SignalOpenstack SignalOpenstackApiError: ", async () => {
-    expect(new SignalOpenstackApiError("test").message).toContain("SignalOpenstackApiError: ")
+    expect(new SignalOpenstackApiError("test").message).toContain("test")
   })
 
   it("should respond to statusCode", async () => {

@@ -1,3 +1,4 @@
+import { parseErrorObject } from "./responseErrorHandler"
 import { SignalOpenstackError, SignalOpenstackApiError } from "./error"
 
 interface RequestParams {
@@ -57,15 +58,17 @@ const request = ({ method, path, options = {} }: RequestParams) => {
     method,
     body,
   })
-    .then((response) => {
+    .then(async (response) => {
       if (response.ok) {
         return response
       } else {
-        throw new SignalOpenstackApiError(response.statusText, response.status)
+        const errorObject = await response.json()
+        const parsedError = parseErrorObject(errorObject)
+        throw new SignalOpenstackApiError(parsedError || response.statusText, response.status)
       }
     })
     .catch((error) => {
-      throw new SignalOpenstackApiError(error.message)
+      throw new SignalOpenstackApiError(error.message, 500)
     })
 }
 
