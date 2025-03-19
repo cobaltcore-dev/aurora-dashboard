@@ -10,7 +10,7 @@ interface AuroraNavigationToolbarProps {
         name?: string
       }
     | undefined
-  scopedProject: Project | null
+  scopedProject: Project | undefined
 }
 
 export const AuroraNavigationToolbar: React.FC<AuroraNavigationToolbarProps> = ({ scopedDomain, scopedProject }) => {
