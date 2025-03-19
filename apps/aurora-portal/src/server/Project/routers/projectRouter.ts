@@ -7,9 +7,11 @@ export const projectRouter = {
     const openstackSession = ctx.openstack
 
     const identityService = openstackSession?.service("identity")
-    const data = await identityService?.get("projects").then((res) => projectsResponseSchema.parse(res.json()))
-    const projects = data?.projects
-    return projects
+    const response = await identityService?.get("projects")
+    if (response) {
+      const { projects } = projectsResponseSchema.parse(response.json())
+      return projects
+    }
   }),
   // temporary router for simple getProjectById should be replaced by rescope
   getProjectById: protectedProcedure
