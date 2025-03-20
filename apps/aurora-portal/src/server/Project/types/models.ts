@@ -10,9 +10,11 @@ export const baseProjectSchema = z.object({
   tags: z.array(z.string()).nullable().optional(),
   options: z.record(z.string()).nullable().optional(),
   description: z.string().nullable().optional(),
-  links: z.object({
-    self: z.string().url(),
-  }),
+  links: z
+    .object({
+      self: z.string().url().nullable().optional(),
+    })
+    .optional(),
 })
 
 export const projectSchema = baseProjectSchema.extend({
@@ -27,11 +29,13 @@ export const projectSchema = baseProjectSchema.extend({
 
 export const projectsResponseSchema = z.object({
   projects: z.array(projectSchema),
-  links: z.object({
-    self: z.string().url(),
-    previous: z.string().url().nullable(),
-    next: z.string().url().nullable(),
-  }),
+  links: z
+    .object({
+      self: z.string().url().optional(),
+      previous: z.string().url().nullable().optional(),
+      next: z.string().url().nullable().optional(),
+    })
+    .optional(),
 })
 
 export type Project = z.infer<typeof projectSchema>
