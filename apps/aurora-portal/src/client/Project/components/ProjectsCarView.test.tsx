@@ -2,6 +2,7 @@ import { render, screen, fireEvent } from "@testing-library/react"
 import { ProjectCardView } from "./ProjectCardView"
 import { memoryLocation } from "wouter/memory-location"
 import { Router } from "wouter"
+import { createRouter } from "../../routes/AuroraRoutes"
 
 // Define a test project
 const projects = [
@@ -16,10 +17,10 @@ const projects = [
     description: "Manages security compliance and access control.",
   },
 ]
-
+const auroraRoutes = createRouter().auroraRouter()
 describe("ProjectCardView", () => {
   test("renders project data correctly", () => {
-    const { hook } = memoryLocation({ path: "/", static: true })
+    const { hook } = memoryLocation({ path: auroraRoutes.home, static: true })
     const domain = { id: "default", name: "Default" }
 
     render(
@@ -37,7 +38,7 @@ describe("ProjectCardView", () => {
   })
 
   test("clicking the title does NOT trigger navigation", () => {
-    const { hook } = memoryLocation({ path: "/", static: true })
+    const { hook } = memoryLocation({ path: auroraRoutes.home, static: true })
     const domain = { id: "default", name: "Default" }
 
     render(
@@ -53,7 +54,7 @@ describe("ProjectCardView", () => {
   })
 
   test("clicking the popup menu does NOT trigger navigation", () => {
-    const { hook, history } = memoryLocation({ path: "/", record: true })
+    const { hook, history } = memoryLocation({ path: auroraRoutes.home, record: true })
     const domain = { id: "default", name: "Default" }
 
     render(
@@ -69,7 +70,7 @@ describe("ProjectCardView", () => {
   })
 
   test("clicking the card navigates correctly", () => {
-    const { hook, history } = memoryLocation({ path: "/", record: true })
+    const { hook, history } = memoryLocation({ path: auroraRoutes.home, record: true })
     const domain = { id: "default", name: "Default" }
 
     render(

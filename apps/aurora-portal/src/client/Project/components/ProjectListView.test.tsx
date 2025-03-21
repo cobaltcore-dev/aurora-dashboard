@@ -2,6 +2,7 @@ import { render, screen, fireEvent } from "@testing-library/react"
 import { ProjectListView } from "./ProjectListView"
 import { memoryLocation } from "wouter/memory-location"
 import { Router } from "wouter"
+import { createRouter } from "../../routes/AuroraRoutes"
 
 // Define test projects
 const projects = [
@@ -16,10 +17,11 @@ const projects = [
     description: "Manages security compliance and access control.",
   },
 ]
+const auroraRoutes = createRouter().auroraRouter()
 
 describe("ProjectListView", () => {
   test("renders without crashing when no projects", () => {
-    const { hook } = memoryLocation({ path: "/", static: true })
+    const { hook } = memoryLocation({ path: auroraRoutes.home, static: true })
 
     render(
       <Router hook={hook}>
@@ -31,7 +33,7 @@ describe("ProjectListView", () => {
   })
 
   test("renders project data correctly", () => {
-    const { hook } = memoryLocation({ path: "/", static: true })
+    const { hook } = memoryLocation({ path: auroraRoutes.home, static: true })
     const domain = { id: "default", name: "Default" }
 
     render(
@@ -49,7 +51,7 @@ describe("ProjectListView", () => {
   })
 
   test("clicking the title does trigger navigation", () => {
-    const { hook, history } = memoryLocation({ path: "/", record: true })
+    const { hook, history } = memoryLocation({ path: auroraRoutes.home, record: true })
 
     render(
       <Router hook={hook}>
@@ -64,7 +66,7 @@ describe("ProjectListView", () => {
   })
 
   test("clicking the popup menu does NOT trigger navigation", () => {
-    const { hook, history } = memoryLocation({ path: "/", record: true })
+    const { hook, history } = memoryLocation({ path: auroraRoutes.home, record: true })
 
     render(
       <Router hook={hook}>
@@ -79,7 +81,7 @@ describe("ProjectListView", () => {
   })
 
   test("clicking the row navigates correctly", () => {
-    const { hook, history } = memoryLocation({ path: "/", record: true })
+    const { hook, history } = memoryLocation({ path: auroraRoutes.home, record: true })
     const domain = { id: "default", name: "Default" }
 
     render(

@@ -23,7 +23,7 @@ describe("AuroraRouter:", () => {
     const projectRouter = domainRouter.project(projectId)
 
     expect(domainRouter.root).toBe(`/${domainId}`)
-    expect(domainRouter.projects).toBe(`/${domainId}/projects`)
+    expect(domainRouter.projects).toBe("/projects")
     expect(projectRouter.root).toBe(`/${domainId}/${projectId}/`)
     expect(projectRouter.compute.root).toBe(`/${domainId}/${projectId}/compute`)
     expect(projectRouter.network.root).toBe(`/${domainId}/${projectId}/network`)
