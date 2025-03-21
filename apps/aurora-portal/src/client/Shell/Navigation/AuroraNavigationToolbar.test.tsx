@@ -24,7 +24,7 @@ describe("AuroraNavigationToolbar", () => {
     render(
       <Router hook={hook}>
         <AuroraProvider>
-          <AuroraNavigationToolbar scopedDomain={undefined} scopedProject={null} />
+          <AuroraNavigationToolbar scopedDomain={undefined} scopedProject={undefined} />
         </AuroraProvider>
       </Router>
     )
@@ -38,7 +38,7 @@ describe("AuroraNavigationToolbar", () => {
     render(
       <Router hook={hook}>
         <AuroraProvider>
-          <AuroraNavigationToolbar scopedDomain={domain} scopedProject={null} />
+          <AuroraNavigationToolbar scopedDomain={domain} scopedProject={undefined} />
         </AuroraProvider>
       </Router>
     )
@@ -80,7 +80,7 @@ describe("AuroraNavigationToolbar", () => {
     render(
       <Router hook={hook}>
         <AuroraProvider>
-          <AuroraNavigationToolbar scopedDomain={domain} scopedProject={null} />
+          <AuroraNavigationToolbar scopedDomain={domain} scopedProject={undefined} />
         </AuroraProvider>
       </Router>
     )
