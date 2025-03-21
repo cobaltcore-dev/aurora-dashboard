@@ -50,7 +50,7 @@ export const DomainSchema = z
   )
 
 // Final Schema
-export const AuroraRouteSchema = RouteSchema.extend({
+export const AuroraRoutesSchema = RouteSchema.extend({
   domain: DomainSchema,
   extensions: z.function().args(z.string()).returns(z.string()).optional(),
 })

@@ -1,10 +1,10 @@
-import { AuroraRouteSchema, DomainIdSchema, ProjectIdSchema, SubRouteSchema } from "./AuroraRoutesSchema"
+import { AuroraRoutesSchema, DomainIdSchema, ProjectIdSchema, SubRouteSchema } from "./AuroraRoutesSchema"
 import { AllowedComputeRoutes, AllowedNetworkRoutes } from "./constants"
 
 // Create router function with parse methods
 export function createRouter(extensions?: readonly string[]) {
   const auroraRouter = () => {
-    return AuroraRouteSchema.parse({
+    return AuroraRoutesSchema.parse({
       auth: {
         signin: "auth/signin",
       },
@@ -13,11 +13,9 @@ export function createRouter(extensions?: readonly string[]) {
       domain: (domainIdParam?: string) => {
         const domainId = DomainIdSchema.parse(domainIdParam)
 
-        const withinDomain = (path: string) => `/${domainId}/${path}`
-
         return {
           root: `/${domainId}`,
-          projects: withinDomain("projects"),
+          projects: "/projects",
           project: (projectIdParam?: string) => {
             const projectId = ProjectIdSchema.parse(projectIdParam)
 
