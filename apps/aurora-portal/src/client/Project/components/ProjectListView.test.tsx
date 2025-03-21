@@ -2,7 +2,7 @@ import { render, screen, fireEvent } from "@testing-library/react"
 import { ProjectListView } from "./ProjectListView"
 import { memoryLocation } from "wouter/memory-location"
 import { Router } from "wouter"
-import { createRouter } from "../../routes/AuroraRoutes"
+import { createRoutePaths } from "../../routes/AuroraRoutes"
 
 // Define test projects
 const projects = [
@@ -17,7 +17,7 @@ const projects = [
     description: "Manages security compliance and access control.",
   },
 ]
-const auroraRoutes = createRouter().auroraRouter()
+const auroraRoutes = createRoutePaths().auroraRoutePaths()
 
 describe("ProjectListView", () => {
   test("renders without crashing when no projects", () => {

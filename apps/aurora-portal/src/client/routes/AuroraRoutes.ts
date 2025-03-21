@@ -2,8 +2,8 @@ import { AuroraRoutesSchema, DomainIdSchema, ProjectIdSchema, SubRouteSchema } f
 import { AllowedComputeRoutes, AllowedNetworkRoutes } from "./constants"
 
 // Create router function with parse methods
-export function createRouter(extensions?: readonly string[]) {
-  const auroraRouter = () => {
+export function createRoutePaths(extensions?: readonly string[]) {
+  const auroraRoutePaths = () => {
     return AuroraRoutesSchema.parse({
       auth: {
         signin: "auth/signin",
@@ -48,5 +48,5 @@ export function createRouter(extensions?: readonly string[]) {
     })
   }
 
-  return { auroraRouter }
+  return { auroraRoutePaths }
 }

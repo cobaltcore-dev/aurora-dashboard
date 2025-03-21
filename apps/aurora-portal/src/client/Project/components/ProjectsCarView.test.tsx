@@ -2,7 +2,7 @@ import { render, screen, fireEvent } from "@testing-library/react"
 import { ProjectCardView } from "./ProjectCardView"
 import { memoryLocation } from "wouter/memory-location"
 import { Router } from "wouter"
-import { createRouter } from "../../routes/AuroraRoutes"
+import { createRoutePaths } from "../../routes/AuroraRoutes"
 
 // Define a test project
 const projects = [
@@ -17,7 +17,7 @@ const projects = [
     description: "Manages security compliance and access control.",
   },
 ]
-const auroraRoutes = createRouter().auroraRouter()
+const auroraRoutes = createRoutePaths().auroraRoutePaths()
 describe("ProjectCardView", () => {
   test("renders project data correctly", () => {
     const { hook } = memoryLocation({ path: auroraRoutes.home, static: true })

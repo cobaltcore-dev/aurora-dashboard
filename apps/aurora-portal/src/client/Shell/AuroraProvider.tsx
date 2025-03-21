@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, ReactNode } from "react"
 import { Project } from "../../server/Project/types/models"
-import { createRouter } from "../routes/AuroraRoutes"
+import { createRoutePaths } from "../routes/AuroraRoutes"
 import { AuroraRoutesSchema } from "../routes/AuroraRoutesSchema"
 import { z } from "zod"
 
@@ -22,7 +22,9 @@ const AuroraContext = createContext<AuroraContextType | undefined>(undefined)
 
 export function AuroraProvider({ children }: { children: ReactNode }) {
   const [currentProject, setCurrentProject] = useState<Project | null>(null)
-  const [auroraRoutes, setAuroraRoutes] = useState<z.infer<typeof AuroraRoutesSchema>>(createRouter().auroraRouter())
+  const [auroraRoutes, setAuroraRoutes] = useState<z.infer<typeof AuroraRoutesSchema>>(
+    createRoutePaths().auroraRoutePaths()
+  )
 
   const [domain, setDomain] = useState<Domain>({ id: "default", name: "Default" })
 

@@ -5,7 +5,7 @@ import { AuroraNavigationToolbar } from "./AuroraNavigationToolbar"
 import { Project } from "../../../server/Project/types/models"
 import { AuroraProvider } from "../AuroraProvider"
 import { memoryLocation } from "wouter/memory-location"
-import { createRouter } from "../../routes/AuroraRoutes"
+import { createRoutePaths } from "../../routes/AuroraRoutes"
 
 describe("AuroraNavigationToolbar", () => {
   const domain = { id: "default", name: "Default Domain" }
@@ -17,7 +17,7 @@ describe("AuroraNavigationToolbar", () => {
     enabled: true,
     links: { self: "https://example.com/project-1" },
   }
-  const auroraRoutes = createRouter().auroraRouter()
+  const auroraRoutes = createRoutePaths().auroraRoutePaths()
 
   it("renders the logo and 'Aurora' text", () => {
     const { hook } = memoryLocation({ path: auroraRoutes.home })
