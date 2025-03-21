@@ -5,6 +5,7 @@ import { AuroraNavigationToolbar } from "./AuroraNavigationToolbar"
 import { Project } from "../../../server/Project/types/models"
 import { AuroraProvider } from "../AuroraProvider"
 import { memoryLocation } from "wouter/memory-location"
+import { createRoutePaths } from "../../routes/AuroraRoutes"
 
 describe("AuroraNavigationToolbar", () => {
   const domain = { id: "default", name: "Default Domain" }
@@ -16,9 +17,10 @@ describe("AuroraNavigationToolbar", () => {
     enabled: true,
     links: { self: "https://example.com/project-1" },
   }
+  const auroraRoutes = createRoutePaths().auroraRoutePaths()
 
   it("renders the logo and 'Aurora' text", () => {
-    const { hook } = memoryLocation({ path: "/" })
+    const { hook } = memoryLocation({ path: auroraRoutes.home })
     render(
       <Router hook={hook}>
         <AuroraProvider>
@@ -32,7 +34,7 @@ describe("AuroraNavigationToolbar", () => {
   })
 
   it("displays the domain name if provided", () => {
-    const { hook } = memoryLocation({ path: "/" })
+    const { hook } = memoryLocation({ path: auroraRoutes.home })
     render(
       <Router hook={hook}>
         <AuroraProvider>
@@ -45,7 +47,7 @@ describe("AuroraNavigationToolbar", () => {
   })
 
   it("displays the project name if provided", () => {
-    const { hook } = memoryLocation({ path: "/" })
+    const { hook } = memoryLocation({ path: auroraRoutes.home })
     render(
       <Router hook={hook}>
         <AuroraProvider>
@@ -58,7 +60,7 @@ describe("AuroraNavigationToolbar", () => {
   })
 
   it("navigates to '/' and resets project when clicking the logo", () => {
-    const { hook, history } = memoryLocation({ path: "/projects", record: true })
+    const { hook, history } = memoryLocation({ path: auroraRoutes.domain(domain.id).projects, record: true })
     render(
       <Router hook={hook}>
         <AuroraProvider>
@@ -74,7 +76,7 @@ describe("AuroraNavigationToolbar", () => {
   })
 
   it("navigates to '/projects' when clicking the domain name", () => {
-    const { hook, history } = memoryLocation({ path: "/", record: true })
+    const { hook, history } = memoryLocation({ path: auroraRoutes.home, record: true })
     render(
       <Router hook={hook}>
         <AuroraProvider>
