@@ -14,7 +14,7 @@ type GetProjectState = {
 
 export function ProjectsOverview({ client }: { client: TrpcClient["project"] }) {
   const { setCurrentProject, domain } = useAuroraContext()
-  setCurrentProject(null)
+  setCurrentProject(undefined)
 
   const [getProjects, updateGetProjects] = useState<GetProjectState>({ isLoading: true })
   const [viewMode, setViewMode] = useState<ViewMode>("card")

@@ -7,8 +7,8 @@ type Domain = {
 }
 
 type AuroraContextType = {
-  currentProject: Project | null
-  setCurrentProject: (project: Project | null) => void
+  currentProject: Project | undefined
+  setCurrentProject: (project: Project | undefined) => void
   domain: Domain
   setDomain: (domain: Domain) => void
 }
@@ -16,7 +16,7 @@ type AuroraContextType = {
 const AuroraContext = createContext<AuroraContextType | undefined>(undefined)
 
 export function AuroraProvider({ children }: { children: ReactNode }) {
-  const [currentProject, setCurrentProject] = useState<Project | null>(null)
+  const [currentProject, setCurrentProject] = useState<Project | undefined>(undefined)
   const [domain, setDomain] = useState<Domain>({ id: "default", name: "Default" })
 
   return (
