@@ -21,9 +21,6 @@ const RouteSchema = z.object({
   about: z.literal("/about"),
 })
 
-// Dynamic subroute builder
-const SubRouteBuilderSchema = z.function().args(SubRouteSchema).returns(z.string())
-
 // Project Schema
 export const ProjectSchema = z
   .function()
@@ -33,11 +30,9 @@ export const ProjectSchema = z
       root: z.string(),
       compute: ComputeRoutesSchema.extend({
         root: z.string(),
-        withSubRoute: SubRouteBuilderSchema,
       }),
       network: NetworkRoutesSchema.extend({
         root: z.string(),
-        withSubRoute: SubRouteBuilderSchema,
       }),
     })
   )
