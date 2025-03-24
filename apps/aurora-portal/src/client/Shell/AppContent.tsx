@@ -14,6 +14,8 @@ import { NavigationLayout } from "./Navigation/NavigationLayout"
 import { NetworkOverview } from "../Network/NetworkOverview"
 import { ProjectsOverview } from "../Project/ProejctsOverview"
 import { useAuth, useAuthDispatch } from "../store/StoreProvider"
+import { useAuroraContext } from "./AuroraProvider"
+import { NavigationItem } from "./Navigation/types"
 type RouterScopes = keyof typeof trpcClient
 
 interface ExtensionProps {
@@ -40,6 +42,7 @@ const extensions = clientExtensions.map((ext: Extension) => ({
 
 export function AppContent() {
   const [isLoading, setIsLoading] = React.useState(true)
+  const { auroraRoutes } = useAuroraContext()
   const { isAuthenticated } = useAuth()
   const dispatch = useAuthDispatch()
 
@@ -57,7 +60,7 @@ export function AppContent() {
       .finally(() => setIsLoading(false))
   }, [dispatch])
 
-  const navItems = [{ route: "/about", label: "About" }]
+  const navItems: NavigationItem[] = [{ route: auroraRoutes.about, label: "About" }]
 
   if (isAuthenticated) {
     extensions.forEach((ext) => navItems.push({ route: `/${ext.id}`, label: ext.navigation?.label || ext.name }))
@@ -68,22 +71,22 @@ export function AppContent() {
       {isAuthenticated && <NavigationLayout mainNavItems={navItems} />}
       <div className="py-4 pl-4 bg-theme-global-bg h-full">
         <Switch>
-          <Route path="auth/signin">
+          <Route path={auroraRoutes.auth.signin}>
             <SignIn trpcClient={trpcClient.auth} />
           </Route>
           {isAuthenticated ? (
             <>
-              <Route path="/about" component={About} />
-              <Route path="/" component={Home} />
-              <Route path="/:domainId" nest>
-                <Route path="/projects">
+              <Route path={auroraRoutes.about} component={About} />
+              <Route path={auroraRoutes.home} component={Home} />
+              <Route path={auroraRoutes.domain(":domainId").root} nest>
+                <Route path={auroraRoutes.domain(":domainId").projects}>
                   <ProjectsOverview client={trpcClient.project} />
                 </Route>
 
-                <Route path="/:domainId/:projectId/compute">
+                <Route path={auroraRoutes.domain(":domainId").project(":projectId").compute.root}>
                   <ComputeOverview client={trpcClient} />
                 </Route>
-                <Route path="/:domainId/:projectId/network">
+                <Route path={auroraRoutes.domain(":domainId").project(":projectId").network.root}>
                   <NetworkOverview client={trpcClient} />
                 </Route>
               </Route>

@@ -2,6 +2,8 @@ import { render, screen, fireEvent } from "@testing-library/react"
 import { ProjectListView } from "./ProjectListView"
 import { memoryLocation } from "wouter/memory-location"
 import { Router } from "wouter"
+import { createRoutePaths } from "../../routes/AuroraRoutes"
+import { AuroraProvider } from "../../Shell/AuroraProvider"
 
 // Define test projects
 const projects = [
@@ -16,14 +18,17 @@ const projects = [
     description: "Manages security compliance and access control.",
   },
 ]
+const auroraRoutes = createRoutePaths().auroraRoutePaths()
 
 describe("ProjectListView", () => {
   test("renders without crashing when no projects", () => {
-    const { hook } = memoryLocation({ path: "/", static: true })
+    const { hook } = memoryLocation({ path: auroraRoutes.home, static: true })
 
     render(
       <Router hook={hook}>
-        <ProjectListView projects={undefined} />
+        <AuroraProvider>
+          <ProjectListView projects={undefined} />
+        </AuroraProvider>
       </Router>
     )
 
@@ -31,44 +36,46 @@ describe("ProjectListView", () => {
   })
 
   test("renders project data correctly", () => {
-    const { hook } = memoryLocation({ path: "/", static: true })
+    const { hook } = memoryLocation({ path: auroraRoutes.home, static: true })
     const domain = { id: "default", name: "Default" }
 
     render(
       <Router hook={hook}>
-        <ProjectListView projects={projects} domain={domain} />
+        <AuroraProvider>
+          <ProjectListView projects={projects} domain={domain} />
+        </AuroraProvider>
       </Router>
     )
 
     expect(screen.getByText("Security Group")).toBeInTheDocument()
     expect(screen.getByText("Manages security compliance and access control.")).toBeInTheDocument()
-    expect(screen.getByRole("link", { name: "Security Group" })).toHaveAttribute(
-      "href",
-      "/default/projects/89ac3f/compute"
-    )
   })
 
   test("clicking the title does trigger navigation", () => {
-    const { hook, history } = memoryLocation({ path: "/", record: true })
+    const { hook, history } = memoryLocation({ path: auroraRoutes.home, record: true })
 
     render(
       <Router hook={hook}>
-        <ProjectListView projects={projects} />
+        <AuroraProvider>
+          <ProjectListView projects={projects} />
+        </AuroraProvider>
       </Router>
     )
 
-    const title = screen.getByRole("link", { name: "Security Group" })
+    const title = screen.getByText("Security Group")
     fireEvent.click(title)
 
-    expect(history).toHaveLength(3) // Location should change
+    expect(history).toHaveLength(2) // Location should change
   })
 
   test("clicking the popup menu does NOT trigger navigation", () => {
-    const { hook, history } = memoryLocation({ path: "/", record: true })
+    const { hook, history } = memoryLocation({ path: auroraRoutes.home, record: true })
 
     render(
       <Router hook={hook}>
-        <ProjectListView projects={projects} />
+        <AuroraProvider>
+          <ProjectListView projects={projects} />
+        </AuroraProvider>
       </Router>
     )
 
@@ -79,12 +86,14 @@ describe("ProjectListView", () => {
   })
 
   test("clicking the row navigates correctly", () => {
-    const { hook, history } = memoryLocation({ path: "/", record: true })
+    const { hook, history } = memoryLocation({ path: auroraRoutes.home, record: true })
     const domain = { id: "default", name: "Default" }
 
     render(
       <Router hook={hook}>
-        <ProjectListView projects={projects} domain={domain} />
+        <AuroraProvider>
+          <ProjectListView projects={projects} domain={domain} />
+        </AuroraProvider>
       </Router>
     )
 

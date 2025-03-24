@@ -1,6 +1,7 @@
-import { useLocation, Link } from "wouter"
+import { useLocation } from "wouter"
 import { Project } from "../../../server/Project/types/models"
 import { Icon } from "../../components/Icon"
+import { useAuroraContext } from "../../Shell/AuroraProvider"
 
 type Domain = {
   id: string
@@ -14,7 +15,7 @@ type ProjectListViewProps = {
 
 export function ProjectListView({ domain, projects }: ProjectListViewProps) {
   const [, setLocation] = useLocation()
-
+  const { auroraRoutes } = useAuroraContext()
   return (
     <div className="w-full border border-[#30363d] rounded-lg overflow-hidden">
       {projects?.length ? (
@@ -22,7 +23,7 @@ export function ProjectListView({ domain, projects }: ProjectListViewProps) {
           <div
             key={project.id}
             className="flex items-center w-full px-6 py-4 hover:bg-[#1f242b] transition-all cursor-pointer border-b border-[#30363d] last:border-0"
-            onClick={() => setLocation(`/projects/${project.id}/compute`)}
+            onClick={() => setLocation(auroraRoutes.domain(domain?.id).project(project.id).compute.root)}
           >
             {/* Icon + Title (Left Side) */}
             <div className="flex items-center space-x-3 min-w-0 w-1/3">
@@ -31,16 +32,7 @@ export function ProjectListView({ domain, projects }: ProjectListViewProps) {
               ) : (
                 <Icon name="info" color="jn-text-theme-danger" />
               )}
-              <Link
-                href={`/${domain?.id}/projects/${project.id}/compute`}
-                className="text-lg font-semibold text-blue-400 hover:underline truncate"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  setLocation(`/projects/${project.id}/compute`)
-                }}
-              >
-                {project.name}
-              </Link>
+              <div className="text-lg font-semibold text-juno-turquoise-5 hover:underline truncate">{project.name}</div>
             </div>
 
             {/* Description (Middle, Expands Fully) */}
