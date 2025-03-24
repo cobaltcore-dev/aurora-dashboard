@@ -34,7 +34,6 @@ describe("ProjectCardView", () => {
 
     expect(screen.getByText("Security Group")).toBeInTheDocument()
     expect(screen.getByText("Manages security compliance and access control.")).toBeInTheDocument()
-    expect(screen.getByRole("link", { name: "Security Group" })).toHaveAttribute("href", "/projects/89ac3f/compute")
   })
 
   test("clicking the title does NOT trigger navigation", () => {
@@ -49,7 +48,7 @@ describe("ProjectCardView", () => {
       </Router>
     )
 
-    const title = screen.getByRole("link", { name: "Security Group" })
+    const title = screen.getByText("Security Group")
     fireEvent.click(title)
 
     expect(history).toHaveLength(1) // Should NOT change location

@@ -49,7 +49,6 @@ describe("ProjectListView", () => {
 
     expect(screen.getByText("Security Group")).toBeInTheDocument()
     expect(screen.getByText("Manages security compliance and access control.")).toBeInTheDocument()
-    expect(screen.getByRole("link", { name: "Security Group" })).toHaveAttribute("href", "/projects/89ac3f/compute")
   })
 
   test("clicking the title does trigger navigation", () => {
@@ -63,10 +62,10 @@ describe("ProjectListView", () => {
       </Router>
     )
 
-    const title = screen.getByRole("link", { name: "Security Group" })
+    const title = screen.getByText("Security Group")
     fireEvent.click(title)
 
-    expect(history).toHaveLength(3) // Location should change
+    expect(history).toHaveLength(2) // Location should change
   })
 
   test("clicking the popup menu does NOT trigger navigation", () => {

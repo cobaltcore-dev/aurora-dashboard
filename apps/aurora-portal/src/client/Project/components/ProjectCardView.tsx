@@ -1,4 +1,4 @@
-import { Link, useLocation } from "wouter"
+import { useLocation } from "wouter"
 import { Project } from "../../../server/Project/types/models"
 import { Icon } from "../../components/Icon"
 import { useAuroraContext } from "../../Shell/AuroraProvider"
@@ -28,13 +28,7 @@ export function ProjectCard({ domain, project }: ProjectCardProps) {
     >
       {/* Header: Project Name (Clickable) + PopupMenu */}
       <div className="flex justify-between items-center w-full">
-        <Link
-          href={auroraRoutes.domain(domain.id).project(project.id).compute.root}
-          className={(active) => (active ? "active" : "")}
-        >
-          {project.name}
-        </Link>
-
+        <div className="text-lg font-semibold text-juno-turquoise-5 hover:underline truncate">{project.name}</div>
         {/* Popup Menu - Ensures it works */}
         <div
           className="ml-auto"
