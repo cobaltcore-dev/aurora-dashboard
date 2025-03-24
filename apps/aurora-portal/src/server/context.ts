@@ -1,5 +1,5 @@
 import { AuroraContext, CreateAuroraFastifyContextOptions } from "@cobaltcore-dev/aurora-sdk/server"
-import { SignalOpenstackSession, SignalOpenstackSessionType, AuthConfig } from "@cobaltcore-dev/signal-openstack"
+import { SignalOpenstackSession, SignalOpenstackSessionType } from "@cobaltcore-dev/signal-openstack"
 
 import * as dotenv from "dotenv"
 
@@ -15,7 +15,10 @@ const defaultSignalOpenstackOptions = {
 
 export interface AuroraPortalContext extends AuroraContext {
   createSession: (params: { user: string; password: string; domain: string }) => SignalOpenstackSessionType
-  rescopeSession: (scope: AuthConfig["auth"]["scope"]) => Promise<Awaited<SignalOpenstackSessionType | null>>
+  rescopeSession: (scope: {
+    projectId?: string
+    domainId?: string
+  }) => Promise<Awaited<SignalOpenstackSessionType | null>>
   terminateSession: () => Promise<void>
 }
 
@@ -97,9 +100,27 @@ export async function createContext(opts: CreateAuroraFastifyContextOptions): Pr
   }
 
   // Rescope the current session, change project or domain
+  // This is how Openstack handles switching between projects
+  // the auth token should always be scoped to a project or domain to access resources
   const rescopeSession: AuroraPortalContext["rescopeSession"] = async (scope) => {
     if (!openstackSession) return null
-    await openstackSession.rescope(scope)
+    const token = openstackSession.getToken()
+    const currentScopeDomainId = token?.tokenData.domain?.id
+    const currentScopeProjectId = token?.tokenData.project?.id
+    const newScopeDomainId = scope.domainId
+    const newScopeProjectId = scope.projectId
+    //check if newScope differs from currentScope
+    if (currentScopeDomainId === newScopeDomainId && currentScopeProjectId === newScopeProjectId) {
+      return openstackSession
+    }
+
+    const newScope = newScopeProjectId
+      ? { project: { id: newScopeProjectId } }
+      : newScopeDomainId
+        ? { domain: { id: newScopeDomainId } }
+        : "unscoped"
+
+    await openstackSession.rescope(newScope)
     // Update the cookie with the new token
     sessionCookie.set(openstackSession.getToken()?.authToken)
     return openstackSession

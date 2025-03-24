@@ -16,8 +16,6 @@ describe("SignIn Component", () => {
     getCurrentUserSession: { query: vi.fn() },
     terminateUserSession: { mutate: vi.fn() },
     getAuthToken: { query: vi.fn() },
-    setCurrentProject: { mutate: vi.fn() },
-    setCurrentDomain: { mutate: vi.fn() },
   }
 
   beforeEach(() => {
