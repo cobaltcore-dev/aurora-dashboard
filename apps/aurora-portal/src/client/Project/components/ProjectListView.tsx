@@ -1,6 +1,7 @@
 import { useLocation, Link } from "wouter"
 import { Project } from "../../../server/Project/types/models"
 import { Icon } from "../../components/Icon"
+import { useAuroraContext } from "../../Shell/AuroraProvider"
 
 type Domain = {
   id: string
@@ -14,7 +15,7 @@ type ProjectListViewProps = {
 
 export function ProjectListView({ domain, projects }: ProjectListViewProps) {
   const [, setLocation] = useLocation()
-
+  const { auroraRoutes } = useAuroraContext()
   return (
     <div className="w-full border border-[#30363d] rounded-lg overflow-hidden">
       {projects?.length ? (
@@ -32,12 +33,8 @@ export function ProjectListView({ domain, projects }: ProjectListViewProps) {
                 <Icon name="info" color="jn-text-theme-danger" />
               )}
               <Link
-                href={`/${domain?.id}/projects/${project.id}/compute`}
+                href={auroraRoutes.domain(domain?.id).project(project.id).compute.root}
                 className="text-lg font-semibold text-blue-400 hover:underline truncate"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  setLocation(`/projects/${project.id}/compute`)
-                }}
               >
                 {project.name}
               </Link>

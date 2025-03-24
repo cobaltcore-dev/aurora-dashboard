@@ -3,6 +3,7 @@ import { ProjectListView } from "./ProjectListView"
 import { memoryLocation } from "wouter/memory-location"
 import { Router } from "wouter"
 import { createRoutePaths } from "../../routes/AuroraRoutes"
+import { AuroraProvider } from "../../Shell/AuroraProvider"
 
 // Define test projects
 const projects = [
@@ -25,7 +26,9 @@ describe("ProjectListView", () => {
 
     render(
       <Router hook={hook}>
-        <ProjectListView projects={undefined} />
+        <AuroraProvider>
+          <ProjectListView projects={undefined} />
+        </AuroraProvider>
       </Router>
     )
 
@@ -38,16 +41,15 @@ describe("ProjectListView", () => {
 
     render(
       <Router hook={hook}>
-        <ProjectListView projects={projects} domain={domain} />
+        <AuroraProvider>
+          <ProjectListView projects={projects} domain={domain} />
+        </AuroraProvider>
       </Router>
     )
 
     expect(screen.getByText("Security Group")).toBeInTheDocument()
     expect(screen.getByText("Manages security compliance and access control.")).toBeInTheDocument()
-    expect(screen.getByRole("link", { name: "Security Group" })).toHaveAttribute(
-      "href",
-      "/default/projects/89ac3f/compute"
-    )
+    expect(screen.getByRole("link", { name: "Security Group" })).toHaveAttribute("href", "/projects/89ac3f/compute")
   })
 
   test("clicking the title does trigger navigation", () => {
@@ -55,7 +57,9 @@ describe("ProjectListView", () => {
 
     render(
       <Router hook={hook}>
-        <ProjectListView projects={projects} />
+        <AuroraProvider>
+          <ProjectListView projects={projects} />
+        </AuroraProvider>
       </Router>
     )
 
@@ -70,7 +74,9 @@ describe("ProjectListView", () => {
 
     render(
       <Router hook={hook}>
-        <ProjectListView projects={projects} />
+        <AuroraProvider>
+          <ProjectListView projects={projects} />
+        </AuroraProvider>
       </Router>
     )
 
@@ -86,7 +92,9 @@ describe("ProjectListView", () => {
 
     render(
       <Router hook={hook}>
-        <ProjectListView projects={projects} domain={domain} />
+        <AuroraProvider>
+          <ProjectListView projects={projects} domain={domain} />
+        </AuroraProvider>
       </Router>
     )
 

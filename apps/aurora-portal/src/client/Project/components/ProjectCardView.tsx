@@ -1,6 +1,7 @@
 import { Link, useLocation } from "wouter"
 import { Project } from "../../../server/Project/types/models"
 import { Icon } from "../../components/Icon"
+import { useAuroraContext } from "../../Shell/AuroraProvider"
 
 type Domain = {
   id: string
@@ -18,21 +19,18 @@ type ProjectCardViewProps = {
 
 export function ProjectCard({ domain, project }: ProjectCardProps) {
   const [, setLocation] = useLocation()
+  const { auroraRoutes } = useAuroraContext()
 
   return (
     <div
       className="bg-[#161b22] rounded-xl shadow-lg p-5 flex flex-col space-y-4 border border-[#30363d] text-gray-300 min-h-[200px] relative cursor-pointer hover:bg-[#1f242b] transition-all"
-      onClick={() => setLocation(`/projects/${project.id}/compute`)}
+      onClick={() => setLocation(auroraRoutes.domain(domain.id).project(project.id).compute.root)}
     >
       {/* Header: Project Name (Clickable) + PopupMenu */}
       <div className="flex justify-between items-center w-full">
         <Link
-          href={`/${domain?.id}/projects/${project.id}/compute`}
+          href={auroraRoutes.domain(domain.id).project(project.id).compute.root}
           className={(active) => (active ? "active" : "")}
-          onClick={(e) => {
-            e.stopPropagation()
-            setLocation(`/projects/${project.id}/compute`)
-          }}
         >
           {project.name}
         </Link>

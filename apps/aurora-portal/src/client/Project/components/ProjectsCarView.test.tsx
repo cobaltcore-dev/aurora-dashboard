@@ -3,6 +3,7 @@ import { ProjectCardView } from "./ProjectCardView"
 import { memoryLocation } from "wouter/memory-location"
 import { Router } from "wouter"
 import { createRoutePaths } from "../../routes/AuroraRoutes"
+import { AuroraProvider } from "../../Shell/AuroraProvider"
 
 // Define a test project
 const projects = [
@@ -25,16 +26,15 @@ describe("ProjectCardView", () => {
 
     render(
       <Router hook={hook}>
-        <ProjectCardView projects={projects} domain={domain} />
+        <AuroraProvider>
+          <ProjectCardView projects={projects} domain={domain} />
+        </AuroraProvider>
       </Router>
     )
 
     expect(screen.getByText("Security Group")).toBeInTheDocument()
     expect(screen.getByText("Manages security compliance and access control.")).toBeInTheDocument()
-    expect(screen.getByRole("link", { name: "Security Group" })).toHaveAttribute(
-      "href",
-      "/default/projects/89ac3f/compute"
-    )
+    expect(screen.getByRole("link", { name: "Security Group" })).toHaveAttribute("href", "/projects/89ac3f/compute")
   })
 
   test("clicking the title does NOT trigger navigation", () => {
@@ -43,7 +43,9 @@ describe("ProjectCardView", () => {
 
     render(
       <Router hook={hook}>
-        <ProjectCardView projects={projects} domain={domain} />
+        <AuroraProvider>
+          <ProjectCardView projects={projects} domain={domain} />
+        </AuroraProvider>
       </Router>
     )
 
@@ -59,7 +61,9 @@ describe("ProjectCardView", () => {
 
     render(
       <Router hook={hook}>
-        <ProjectCardView projects={projects} domain={domain} />
+        <AuroraProvider>
+          <ProjectCardView projects={projects} domain={domain} />
+        </AuroraProvider>
       </Router>
     )
 
@@ -75,7 +79,9 @@ describe("ProjectCardView", () => {
 
     render(
       <Router hook={hook}>
-        <ProjectCardView projects={projects} domain={domain} />
+        <AuroraProvider>
+          <ProjectCardView projects={projects} domain={domain} />
+        </AuroraProvider>
       </Router>
     )
 

@@ -19,7 +19,7 @@ export function createRoutePaths(extensions?: readonly string[]) {
           project: (projectIdParam?: string) => {
             const projectId = ProjectIdSchema.parse(projectIdParam)
 
-            const withinProject = (path: string) => `/${domainId}/${projectId}/${path}`
+            const withinProject = (path: string) => `/projects/${projectId}/${path}`
 
             const withSubRoute = (base: string, allowedRoutes: readonly string[]) =>
               Object.fromEntries(allowedRoutes.map((route) => [route, withinProject(`${base}/${route}`)]))
