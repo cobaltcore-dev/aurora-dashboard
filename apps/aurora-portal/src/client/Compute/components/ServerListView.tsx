@@ -54,9 +54,9 @@ export function ServerListView({ servers }: ServerListViewProps) {
                   <td className="p-3">{server.accessIPv6 || "N/A"}</td>
 
                   {/* Resource Details */}
-                  <td className="p-3">{server.flavor.vcpus}</td>
-                  <td className="p-3">{server.flavor.ram} MB</td>
-                  <td className="p-3">{server.flavor.disk} GB</td>
+                  <td className="p-3">{server?.flavor?.vcpus}</td>
+                  <td className="p-3">{server?.flavor?.ram} MB</td>
+                  <td className="p-3">{server?.flavor?.disk} GB</td>
 
                   {/* Action Buttons */}
                   <td className="p-3">
