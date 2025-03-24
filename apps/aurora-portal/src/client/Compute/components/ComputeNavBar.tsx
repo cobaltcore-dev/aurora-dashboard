@@ -2,6 +2,7 @@ import { Link, useLocation, useParams } from "wouter"
 import { ComboBox, ComboBoxOption } from "../../components/ComboBox"
 import { Button } from "../../components/Button"
 import { Icon } from "../../components/Icon"
+import { useAuroraContext } from "../../Shell/AuroraProvider"
 
 type ComputeNavBarProps = {
   viewMode: "list" | "card"
@@ -10,13 +11,15 @@ type ComputeNavBarProps = {
 
 export const ComputeSideNavBar = () => {
   const [location] = useLocation()
-  const { projectId } = useParams()
+  const { auroraRoutes } = useAuroraContext()
+
+  const { projectId, domainId } = useParams()
   const links = [
-    { path: `/projects/${projectId}/compute`, label: "Overview" },
-    { path: `/projects/${projectId}/compute/instances`, label: "Instances" },
-    { path: `/projects/${projectId}/compute/images`, label: "Images" },
-    { path: `/projects/${projectId}/compute/keypairs`, label: "Key Pairs" },
-    { path: `/projects/${projectId}/compute/servergroups`, label: "Server Groups" },
+    { path: auroraRoutes.domain(domainId).project(projectId).compute.root, label: "Overview" },
+    { path: auroraRoutes.domain(domainId).project(projectId).compute.instances, label: "Instances" },
+    { path: auroraRoutes.domain(domainId).project(projectId).compute.images, label: "Images" },
+    { path: auroraRoutes.domain(domainId).project(projectId).compute.keypairs, label: "Key Pairs" },
+    { path: auroraRoutes.domain(domainId).project(projectId).compute.servergroups, label: "Server Groups" },
   ]
 
   return (

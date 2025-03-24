@@ -5,9 +5,6 @@ import { NavigationItem } from "./types"
 import { UserMenu } from "./UserMenu"
 import { useAuroraContext } from "../AuroraProvider"
 
-// const navItem = (active: boolean) =>
-//   `px-2 py-2 hover:text-theme-high ${active ? "font-semibold text-theme-accent" : "text-gray-700"}`
-
 interface NavigationProps {
   items: NavigationItem[]
   scopedDomain:
@@ -19,7 +16,7 @@ interface NavigationProps {
 }
 
 export function MainNavigation({ scopedDomain }: NavigationProps) {
-  const { currentProject } = useAuroraContext()
+  const { currentProject, auroraRoutes } = useAuroraContext()
 
   return (
     <nav>
@@ -28,7 +25,7 @@ export function MainNavigation({ scopedDomain }: NavigationProps) {
         <AuroraNavigationToolbar scopedDomain={scopedDomain} scopedProject={currentProject} />
         {/* Right Section: About & User Menu */}
         <div className="flex items-center space-x-4">
-          <Link href="/about" className="text-sap-grey-2 hover:text-sap-grey-2 font-medium">
+          <Link href={auroraRoutes.about} className="text-sap-grey-2 hover:text-sap-grey-2 font-medium">
             About
           </Link>
           <UserMenu />
