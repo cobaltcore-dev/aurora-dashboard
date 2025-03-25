@@ -1,4 +1,5 @@
 import type { SignalOpenstackTokenType } from "@cobaltcore-dev/signal-openstack"
+export type { AuthConfig } from "@cobaltcore-dev/signal-openstack"
 
 export interface User {
   id: number

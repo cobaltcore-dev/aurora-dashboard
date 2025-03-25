@@ -2,6 +2,7 @@ import { AuroraContext, CreateAuroraFastifyContextOptions } from "@cobaltcore-de
 import { SignalOpenstackSession, SignalOpenstackSessionType } from "@cobaltcore-dev/signal-openstack"
 
 import * as dotenv from "dotenv"
+import { AuthConfig } from "./Authentication/types/models"
 
 // Load the identity endpoint from the environment
 dotenv.config()
@@ -114,7 +115,7 @@ export async function createContext(opts: CreateAuroraFastifyContextOptions): Pr
       return openstackSession
     }
 
-    const newScope = newScopeProjectId
+    const newScope: AuthConfig["auth"]["scope"] = newScopeProjectId
       ? { project: { id: newScopeProjectId } }
       : newScopeDomainId
         ? { domain: { id: newScopeDomainId } }
