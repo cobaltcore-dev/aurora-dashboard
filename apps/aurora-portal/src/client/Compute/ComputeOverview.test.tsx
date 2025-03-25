@@ -11,7 +11,7 @@ const mockGetProjectById = vi.fn()
 
 const mockClient = {
   compute: {
-    getServers: {
+    getServersByProjectId: {
       query: mockGetServers,
     },
   },
