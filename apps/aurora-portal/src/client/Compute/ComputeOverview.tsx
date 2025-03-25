@@ -28,9 +28,8 @@ export function ComputeOverview({ client }: { client: TrpcClient }) {
   const { projectId } = useParams()
 
   useEffect(() => {
-    if (!projectId) return
     client.compute.getServersByProjectId
-      .query({ projectId })
+      .query({ projectId: projectId! })
       .then((data) => updateGetServer({ data, isLoading: false }))
       .catch((error) => updateGetServer({ error: error.message, isLoading: false }))
   }, [])
