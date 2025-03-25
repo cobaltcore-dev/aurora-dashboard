@@ -3,8 +3,11 @@ import { protectedProcedure } from "../../trpc"
 import { Project, projectsResponseSchema } from "../types/models"
 
 export const projectRouter = {
-  authProjects: protectedProcedure.query(async ({ ctx }): Promise<Project[] | undefined> => {
-    const openstackSession = ctx.openstack
+  getAuthProjects: protectedProcedure.query(async ({ ctx }): Promise<Project[] | undefined> => {
+    const token = ctx.openstack?.getToken()
+    if (!token) throw new Error("Not authenticated")
+    const domainId = token?.tokenData?.project?.domain?.id || token?.tokenData?.user?.domain?.id
+    const openstackSession = await ctx.rescopeSession({ domainId: domainId })
 
     const identityService = openstackSession?.service("identity")
     const parsedData = projectsResponseSchema.safeParse(
@@ -16,6 +19,7 @@ export const projectRouter = {
     }
     return parsedData.data.projects
   }),
+
   // temporary router for simple getProjectById should be replaced by rescope
   getProjectById: protectedProcedure
     .input(z.object({ id: z.string() }))

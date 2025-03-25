@@ -8,19 +8,22 @@ export const sessionRouter = {
     return token?.tokenData || null
   }),
 
-  setCurrentProject: publicProcedure.input(z.string()).mutation(async ({ input, ctx }) => {
-    const openstackSession = await ctx.rescopeSession({ project: { id: input } })
-    return openstackSession?.getToken()?.tokenData || null
-  }),
-
-  setCurrentDomain: publicProcedure.input(z.string()).mutation(async ({ input, ctx }) => {
-    const openstackSession = await ctx.rescopeSession({ domain: { id: input } })
-    return openstackSession?.getToken()?.tokenData || null
-  }),
-
   getAuthToken: publicProcedure.query(async ({ ctx }) => {
     const token = ctx.openstack?.getToken()
     return token?.authToken || null
+  }),
+
+  getCurrentScope: publicProcedure.query(async ({ ctx }) => {
+    const token = ctx.openstack?.getToken()
+    if (!token) {
+      return null
+    }
+    const project = token.tokenData.project
+    const domain = project?.domain || token.tokenData.domain
+    return {
+      project: project,
+      domain: domain,
+    }
   }),
 
   createUserSession: publicProcedure

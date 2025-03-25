@@ -159,7 +159,17 @@ export const serverRouter = {
     return sampleServers[input.id]
   }),
 
-  getServers: protectedProcedure.query((): Server[] => {
+  getMockServers: protectedProcedure.query((): Server[] => {
     return sampleServers
+  }),
+
+  getServersByProjectId: protectedProcedure.input(z.object({ projectId: z.string() })).query(async ({ input, ctx }) => {
+    const openstackSession = await ctx.rescopeSession({ projectId: input.projectId })
+    const compute = openstackSession?.service("compute")
+    if (!compute) {
+      throw new Error("Compute service not available")
+    }
+    const { servers } = await compute.get("servers/detail").then((res) => res.json())
+    return servers as Server[]
   }),
 }

@@ -25,18 +25,18 @@ export function ComputeOverview({ client }: { client: TrpcClient }) {
   const { setCurrentProject } = useAuroraContext()
 
   const [viewMode, setViewMode] = useState<"list" | "card">("list")
-  const params = useParams()
+  const { projectId } = useParams()
 
   useEffect(() => {
-    client.compute.getServers
-      .query()
+    client.compute.getServersByProjectId
+      .query({ projectId: projectId! })
       .then((data) => updateGetServer({ data, isLoading: false }))
       .catch((error) => updateGetServer({ error: error.message, isLoading: false }))
   }, [])
 
   useEffect(() => {
     client.project.getProjectById
-      .query({ id: params?.projectId || "" })
+      .query({ id: projectId || "" })
       .then((data) => {
         setCurrentProject(data)
         return updateProjectById({ data, isProjectLoading: false })
