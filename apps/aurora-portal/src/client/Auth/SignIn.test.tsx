@@ -16,6 +16,7 @@ describe("SignIn Component", () => {
     getCurrentUserSession: { query: vi.fn() },
     terminateUserSession: { mutate: vi.fn() },
     getAuthToken: { query: vi.fn() },
+    getCurrentScope: { query: vi.fn() },
   }
 
   beforeEach(() => {

@@ -13,6 +13,19 @@ export const sessionRouter = {
     return token?.authToken || null
   }),
 
+  getCurrentScope: publicProcedure.query(async ({ ctx }) => {
+    const token = ctx.openstack?.getToken()
+    if (!token) {
+      return null
+    }
+    const project = token.tokenData.project
+    const domain = project?.domain || token.tokenData.domain
+    return {
+      project: project,
+      domain: domain,
+    }
+  }),
+
   createUserSession: publicProcedure
     .input(z.object({ user: z.string(), password: z.string(), domainName: z.string() }))
     .mutation(async ({ input, ctx }) => {

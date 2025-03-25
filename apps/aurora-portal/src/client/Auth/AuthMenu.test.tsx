@@ -30,6 +30,7 @@ describe("AuthMenu Component", () => {
     terminateUserSession: { mutate: vi.fn() },
     createUserSession: { mutate: vi.fn() },
     getAuthToken: { query: vi.fn() },
+    getCurrentScope: { query: vi.fn() },
   }
 
   beforeEach(() => {
