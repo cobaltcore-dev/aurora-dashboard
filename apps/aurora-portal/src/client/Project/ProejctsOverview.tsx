@@ -20,7 +20,7 @@ export function ProjectsOverview({ client }: { client: TrpcClient["project"] }) 
   const [viewMode, setViewMode] = useState<ViewMode>("card")
 
   useEffect(() => {
-    client.authProjects
+    client.getAuthProjects
       .query()
       .then((data) => updateGetProjects({ data, isLoading: false }))
       .catch((error) => updateGetProjects({ error: error.message, isLoading: false }))

@@ -23,6 +23,7 @@ export const scopes = [
   "aurora-sdk",
   "signal-openstack",
   "polaris",
+  "bff",
   "docs",
   "deps",
   "infra",
