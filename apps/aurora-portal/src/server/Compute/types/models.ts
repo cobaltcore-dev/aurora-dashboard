@@ -70,7 +70,6 @@ export const serverSchema = z.object({
   status: z
     .union([
       z.literal("ACTIVE"),
-      z.literal("SHUTOFF"),
       z.literal("BUILD"),
       z.literal("DELETED"),
       z.literal("ERROR"),
@@ -89,6 +88,7 @@ export const serverSchema = z.object({
       z.literal("SUSPENDED"),
       z.literal("UNKNOWN"),
       z.literal("VERIFY_RESIZE"),
+      z.string(),
     ])
     .optional(),
   tags: z.array(z.string()).optional(),
