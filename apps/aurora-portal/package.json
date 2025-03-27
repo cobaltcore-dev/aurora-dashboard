@@ -6,7 +6,7 @@
   "scripts": {
     "clean": "rm -rf dist && rm -rf node_modules && rm -rf .turbo",
     "clean:cache": "rm -rf .turbo",
-    "clean:extensions": "tsx scripts/removea-extensions.ts",
+    "clean:extensions": "tsx scripts/remove-extensions.ts",
     "build": "pnpm build:client && pnpm build:server",
     "build:client": "vite build",
     "build:server": "tsc -p tsconfig.server.json",
