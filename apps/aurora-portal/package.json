@@ -6,7 +6,7 @@
   "scripts": {
     "clean": "rm -rf dist && rm -rf node_modules && rm -rf .turbo",
     "clean:cache": "rm -rf .turbo",
-    "clean:extensions": "tsx scripts/remove-extensions.ts",
+    "clean:extensions": "tsx scripts/removea-extensions.ts",
     "build": "pnpm build:client && pnpm build:server",
     "build:client": "vite build",
     "build:server": "tsc -p tsconfig.server.json",
@@ -33,6 +33,7 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-error-boundary": "^5.0.0",
+    "sonner": "^2.0.1",
     "tsconfig-paths": "^4.2.0",
     "tsx": "^4.19.2",
     "wouter": "^3.3.5",
