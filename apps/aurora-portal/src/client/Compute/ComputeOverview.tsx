@@ -22,10 +22,14 @@ type GetProjectByIdState = {
 export function ComputeOverview({ client }: { client: TrpcClient }) {
   const [getServers, updateGetServer] = useState<GetServersState>({ isLoading: true })
   const [getProjectById, updateProjectById] = useState<GetProjectByIdState>({ isProjectLoading: true })
-  const { setCurrentProject } = useAuroraContext()
+  const { setCurrentProject, serverSearchTerm } = useAuroraContext()
 
   const [viewMode, setViewMode] = useState<"list" | "card">("list")
   const { projectId } = useParams()
+
+  useEffect(() => {
+    console.log(serverSearchTerm)
+  }, [serverSearchTerm])
 
   useEffect(() => {
     client.compute.getServersByProjectId

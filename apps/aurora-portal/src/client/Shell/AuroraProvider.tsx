@@ -16,12 +16,18 @@ type AuroraContextType = {
   auroraRoutes: z.infer<typeof AuroraRoutesSchema>
   setAuroraRoutes: (routes: z.infer<typeof AuroraRoutesSchema>) => void
   setDomain: (domain: Domain) => void
+  projectSearchTerm: string
+  setProjectSearchTerm: (searchTerm: string) => void
+  serverSearchTerm: string
+  setServerSearchTerm: (searchTerm: string) => void
 }
 
 const AuroraContext = createContext<AuroraContextType | undefined>(undefined)
 
 export function AuroraProvider({ children }: { children: ReactNode }) {
   const [currentProject, setCurrentProject] = useState<Project | undefined>(undefined)
+  const [projectSearchTerm, setProjectSearchTerm] = useState<string>("")
+  const [serverSearchTerm, setServerSearchTerm] = useState<string>("")
   const [auroraRoutes, setAuroraRoutes] = useState<z.infer<typeof AuroraRoutesSchema>>(
     createRoutePaths().auroraRoutePaths()
   )
@@ -37,6 +43,10 @@ export function AuroraProvider({ children }: { children: ReactNode }) {
         auroraRoutes,
         setAuroraRoutes,
         setDomain,
+        projectSearchTerm,
+        setProjectSearchTerm,
+        serverSearchTerm,
+        setServerSearchTerm,
       }}
     >
       {children}

@@ -1,3 +1,4 @@
+import { useState, useEffect, useRef } from "react"
 import { Link, useLocation, useParams } from "wouter"
 import { ComboBox, ComboBoxOption } from "../../components/ComboBox"
 import { Button } from "../../components/Button"
@@ -11,6 +12,7 @@ type ComputeNavBarProps = {
 
 export const ComputeSideNavBar = () => {
   const [location] = useLocation()
+
   const { auroraRoutes } = useAuroraContext()
 
   const { projectId, domainId } = useParams()
@@ -46,6 +48,23 @@ export const ComputeSideNavBar = () => {
 }
 
 export function ComputeNavBar({ viewMode, setViewMode }: ComputeNavBarProps) {
+  const { setServerSearchTerm, serverSearchTerm } = useAuroraContext()
+  const [searchTerm, setSearchTerm] = useState<string>(serverSearchTerm)
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+
+  const debouncedSetServerSearchTerm = (term: string) => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current)
+    }
+    timeoutRef.current = setTimeout(() => {
+      setServerSearchTerm(term)
+    }, 500)
+  }
+
+  useEffect(() => {
+    debouncedSetServerSearchTerm(searchTerm)
+  }, [searchTerm])
+
   return (
     <div className="flex items-center justify-between gap-4 w-full">
       {/* Search Input (60%) */}
@@ -55,6 +74,10 @@ export function ComputeNavBar({ viewMode, setViewMode }: ComputeNavBarProps) {
           type="text"
           placeholder="Search..."
           className="bg-transparent border-none outline-none text-white placeholder-gray-400 w-full"
+          value={searchTerm}
+          onChange={(e) => {
+            setSearchTerm(e.target.value)
+          }}
         />
       </div>
 
