@@ -16,10 +16,6 @@ export function ProjectsOverview({ client }: { client: TrpcClient["project"] }) 
   const { setCurrentProject, domain, projectSearchTerm } = useAuroraContext()
   setCurrentProject(undefined)
 
-  useEffect(() => {
-    console.log(projectSearchTerm)
-  }, [projectSearchTerm])
-
   const [getProjects, updateGetProjects] = useState<GetProjectState>({ isLoading: true })
   const [viewMode, setViewMode] = useState<ViewMode>("card")
 
@@ -36,6 +32,13 @@ export function ProjectsOverview({ client }: { client: TrpcClient["project"] }) 
   if (getProjects.error)
     return <div className="h-full flex justify-center items-center text-red-500">Error: {getProjects.error}</div>
 
+  const filteredProjects =
+    getProjects.data?.filter((project) => {
+      const searchRegex = new RegExp(projectSearchTerm, "i")
+      const projectString = JSON.stringify(project)
+      return searchRegex.test(projectString)
+    }) || []
+
   return (
     <div className="grid grid-cols-12 gap-4 px-6 py-4">
       {/* Left Space */}
@@ -49,9 +52,9 @@ export function ProjectsOverview({ client }: { client: TrpcClient["project"] }) 
         {/* Content - Make sure it has no extra margin/padding that misaligns */}
         <div className="w-full pt-5">
           {viewMode === "list" ? (
-            <ProjectListView domain={domain} projects={getProjects.data} />
+            <ProjectListView domain={domain} projects={filteredProjects} />
           ) : (
-            <ProjectCardView domain={domain} projects={getProjects.data} />
+            <ProjectCardView domain={domain} projects={filteredProjects} />
           )}
         </div>
       </div>

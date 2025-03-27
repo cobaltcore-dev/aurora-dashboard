@@ -28,10 +28,6 @@ export function ComputeOverview({ client }: { client: TrpcClient }) {
   const { projectId } = useParams()
 
   useEffect(() => {
-    console.log(serverSearchTerm)
-  }, [serverSearchTerm])
-
-  useEffect(() => {
     client.compute.getServersByProjectId
       .query({ projectId: projectId! })
       .then((data) => updateGetServer({ data, isLoading: false }))
@@ -54,6 +50,13 @@ export function ComputeOverview({ client }: { client: TrpcClient }) {
   if (getServers.error || getProjectById.error)
     return <div className="h-full flex justify-center items-center text-red-500">Error: {getServers.error}</div>
 
+  const filteredServers =
+    getServers.data?.filter((server) => {
+      const searchRegex = new RegExp(serverSearchTerm, "i")
+      const serverString = JSON.stringify(server)
+      return searchRegex.test(serverString)
+    }) || []
+
   return (
     <div className="container max-w-screen-3xl mx-auto px-6 py-4 grid grid-cols-12 gap-4">
       {/* Row 1: Title & Navigation (Balanced Layout) */}
@@ -74,9 +77,9 @@ export function ComputeOverview({ client }: { client: TrpcClient }) {
       <div className="col-span-9 flex flex-col gap-4">
         <div className="w-full">
           {viewMode === "list" ? (
-            <ServerListView servers={getServers.data} />
+            <ServerListView servers={filteredServers} />
           ) : (
-            <ServerCardView servers={getServers.data} />
+            <ServerCardView servers={filteredServers} />
           )}
         </div>
       </div>
