@@ -26,10 +26,6 @@ export function ProjectsOverviewNavBar({ viewMode, setViewMode }: ProjectsOvervi
     }, 500)
   }
 
-  useEffect(() => {
-    debouncedSetServerSearchTerm(searchTerm)
-  }, [searchTerm])
-
   return (
     <div className="flex items-center justify-between gap-4 w-full">
       {/* Search Input (60%) */}
@@ -42,6 +38,7 @@ export function ProjectsOverviewNavBar({ viewMode, setViewMode }: ProjectsOvervi
           value={searchTerm}
           onChange={(e) => {
             setSearchTerm(e.target.value)
+            debouncedSetServerSearchTerm(e.target.value)
           }}
         />
       </div>

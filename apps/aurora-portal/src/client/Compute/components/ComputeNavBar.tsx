@@ -61,10 +61,6 @@ export function ComputeNavBar({ viewMode, setViewMode }: ComputeNavBarProps) {
     }, 500)
   }
 
-  useEffect(() => {
-    debouncedSetServerSearchTerm(searchTerm)
-  }, [searchTerm])
-
   return (
     <div className="flex items-center justify-between gap-4 w-full">
       {/* Search Input (60%) */}
@@ -76,6 +72,7 @@ export function ComputeNavBar({ viewMode, setViewMode }: ComputeNavBarProps) {
           className="bg-transparent border-none outline-none text-white placeholder-gray-400 w-full"
           value={searchTerm}
           onChange={(e) => {
+            debouncedSetServerSearchTerm(e.target.value)
             setSearchTerm(e.target.value)
           }}
         />
