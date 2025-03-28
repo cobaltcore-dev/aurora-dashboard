@@ -5,7 +5,7 @@ import type { IconName } from "./Icon"
 interface ButtonProps {
   children?: React.ReactNode
   name?: string
-  variant?: "default" | "subdued" | "primary-danger"
+  variant?: "default" | "subdued" | "primary-danger" | "success"
   className?: string
   onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void
   icon?: IconName
@@ -47,13 +47,18 @@ export const Button: React.FC<ButtonProps> = ({
     w-full
   `
 
-  const variantClasses =
-    variant === "subdued"
-      ? "juno-button-subdued"
-      : variant === "primary-danger"
-        ? "juno-button-primary-danger"
-        : "juno-button-default juno-button-default-size"
-
+  const variantClasses = (() => {
+    switch (variant) {
+      case "subdued":
+        return "juno-button-subdued"
+      case "primary-danger":
+        return "juno-button-primary-danger"
+      case "success":
+        return "bg-sap-green text-sap-grey-2 ring-black/5"
+      default:
+        return "juno-button-default juno-button-default-size"
+    }
+  })()
   return (
     <button
       className={`${baseClasses} ${variantClasses} ${className}`.trim()}

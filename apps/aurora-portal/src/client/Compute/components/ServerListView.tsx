@@ -1,4 +1,5 @@
 import type { Server } from "../../../server/Compute/types/models"
+import { ToastProps, auroraToast, sonnerToast } from "../../Shell/NotificationCenter/AuroraToast"
 import { Button } from "../../components/Button"
 import { Icon } from "../../components/Icon"
 
@@ -60,9 +61,61 @@ export function ServerListView({ servers }: ServerListViewProps) {
 
                   {/* Action Buttons */}
                   <td className="p-3">
-                    <div className="flex space-x-2">
-                      <Button>View</Button>
-                      <Button variant="primary-danger">Restart</Button>
+                    {/* Action Buttons */}
+                    <div className=" flex space-x-3 mt-4">
+                      <Button
+                        variant="success"
+                        className="hover:bg-gray-600"
+                        onClick={() => {
+                          const toastProps: Omit<ToastProps, "id"> = {
+                            title: "All great you are awesome",
+                            description: "Is this not amazing folks?",
+                            variant: "success",
+                            button: {
+                              label: "Dismiss",
+                              onClick: () => sonnerToast.dismiss(),
+                            },
+                          }
+                          auroraToast(toastProps)
+                        }}
+                      >
+                        Create
+                      </Button>
+                      <Button
+                        className=" hover:bg-gray-600"
+                        onClick={() => {
+                          const toastProps: Omit<ToastProps, "id"> = {
+                            title: "All ok you are good",
+                            description: "It is info",
+                            variant: "info",
+                            button: {
+                              label: "Dismiss",
+                              onClick: () => sonnerToast.dismiss(),
+                            },
+                          }
+                          auroraToast(toastProps)
+                        }}
+                      >
+                        View
+                      </Button>
+                      <Button
+                        variant="primary-danger"
+                        className=" hover:bg-red-500"
+                        onClick={() => {
+                          const toastProps: Omit<ToastProps, "id"> = {
+                            title: "This is a danger error",
+                            description: "You are on a bad side check logs",
+                            variant: "error",
+                            button: {
+                              label: "Check",
+                              onClick: () => sonnerToast.dismiss(),
+                            },
+                          }
+                          auroraToast(toastProps)
+                        }}
+                      >
+                        Restart
+                      </Button>
                     </div>
                   </td>
                 </tr>
