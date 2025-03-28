@@ -5,14 +5,14 @@ import { Icon } from "../../components/Icon"
 import { useAuroraContext } from "../../Shell/AuroraProvider"
 export type ViewMode = "list" | "card"
 
-type ProjectsOverviewNavNbarProps = {
+type ProjectsOverviewNavBarProps = {
   viewMode: ViewMode
   setViewMode: (mode: ViewMode) => void
   searchPlaceholder?: string
   filters?: { label: string; value: string }[]
 }
 
-export function ProjectsOverviewNavNbar({ viewMode, setViewMode }: ProjectsOverviewNavNbarProps) {
+export function ProjectsOverviewNavBar({ viewMode, setViewMode }: ProjectsOverviewNavBarProps) {
   const { setProjectSearchTerm, projectSearchTerm } = useAuroraContext()
   const [searchTerm, setSearchTerm] = useState<string>(projectSearchTerm)
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)

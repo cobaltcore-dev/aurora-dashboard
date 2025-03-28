@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { ProjectsOverviewNavNbar, ViewMode } from "./components/ProjectOverviewNavBar"
+import { ProjectsOverviewNavBar, ViewMode } from "./components/ProjectOverviewNavBar"
 import { Project } from "../../server/Project/types/models"
 import { TrpcClient } from "../trpcClient"
 import { ProjectCardView } from "./components/ProjectCardView"
@@ -47,7 +47,7 @@ export function ProjectsOverview({ client }: { client: TrpcClient["project"] }) 
       {/* Main Content Area - Ensuring NavBar and Content Align Properly */}
       <div className="col-span-8 flex flex-col gap-4">
         {/* Navigation Bar */}
-        <ProjectsOverviewNavNbar viewMode={viewMode} setViewMode={setViewMode} />
+        <ProjectsOverviewNavBar viewMode={viewMode} setViewMode={setViewMode} />
 
         {/* Content - Make sure it has no extra margin/padding that misaligns */}
         <div className="w-full pt-5">
