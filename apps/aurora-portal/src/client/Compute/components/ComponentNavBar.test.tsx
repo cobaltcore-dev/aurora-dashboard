@@ -54,4 +54,21 @@ describe("ComputeNavBar", () => {
 
     expect(setViewMode).toHaveBeenCalledWith("list")
   })
+
+  it("updates search term when typing in the search input", async () => {
+    render(
+      <AuroraProvider>
+        <ComputeNavBar viewMode="list" setViewMode={vi.fn()} />
+      </AuroraProvider>
+    )
+
+    const searchInput = screen.getByPlaceholderText("Search...")
+    fireEvent.change(searchInput, { target: { value: "test search" } })
+
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 500))
+    })
+
+    expect(searchInput).toHaveValue("test search")
+  })
 })
