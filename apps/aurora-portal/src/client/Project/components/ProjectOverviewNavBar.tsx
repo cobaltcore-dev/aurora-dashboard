@@ -55,6 +55,7 @@ export function ProjectsOverviewNavBar({ viewMode, setViewMode }: ProjectsOvervi
         </ComboBox>
         <div className="flex items-center gap-1 bg-juno-grey-blue-7 rounded-md">
           <Button
+            data-testid="list-view"
             variant={viewMode === "list" ? "default" : "subdued"}
             className="text-white text-xs flex items-center justify-center rounded"
             onClick={() => setViewMode("list")}
@@ -62,6 +63,7 @@ export function ProjectsOverviewNavBar({ viewMode, setViewMode }: ProjectsOvervi
           />
 
           <Button
+            data-testid="card-view"
             variant={viewMode === "card" ? "default" : "subdued"}
             className="text-white text-xs flex items-center justify-center rounded"
             onClick={() => setViewMode("card")}

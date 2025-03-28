@@ -42,7 +42,7 @@ describe("ProjectsOverviewNavBar", () => {
       </AuroraProvider>
     )
 
-    const cardButton = screen.getByText("Card")
+    const cardButton = screen.getByTestId("card-view")
     await act(async () => await fireEvent.click(cardButton))
 
     expect(setViewMode).toHaveBeenCalledWith("card")
@@ -56,8 +56,7 @@ describe("ProjectsOverviewNavBar", () => {
       </AuroraProvider>
     )
 
-    const listButton = screen.getByText("list")
-
+    const listButton = screen.getByTestId("list-view")
     await act(async () => await fireEvent.click(listButton))
 
     expect(setViewMode).toHaveBeenCalledWith("list")
