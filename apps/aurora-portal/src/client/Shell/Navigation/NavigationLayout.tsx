@@ -10,7 +10,7 @@ export function NavigationLayout({ mainNavItems }: { mainNavItems: NavigationIte
   const subNavItems = []
 
   if (location === "/") {
-    subNavItems.push({ route: "/", label: "Wellcome" })
+    subNavItems.push({ route: "/", label: "Welcome" })
   } else {
     if (currentProject) {
       subNavItems.push({ route: `/${domain?.id}/projects/${currentProject.id}/compute`, label: "Compute" })
