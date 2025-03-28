@@ -1,16 +1,31 @@
+import { useState, useRef } from "react"
 import { ComboBox, ComboBoxOption } from "../../components/ComboBox"
 import { Button } from "../../components/Button"
 import { Icon } from "../../components/Icon"
+import { useAuroraContext } from "../../Shell/AuroraProvider"
 export type ViewMode = "list" | "card"
 
-type ProjectsOverviewNavNbarProps = {
+type ProjectsOverviewNavBarProps = {
   viewMode: ViewMode
   setViewMode: (mode: ViewMode) => void
   searchPlaceholder?: string
   filters?: { label: string; value: string }[]
 }
 
-export function ProjectsOverviewNavNbar({ viewMode, setViewMode }: ProjectsOverviewNavNbarProps) {
+export function ProjectsOverviewNavBar({ viewMode, setViewMode }: ProjectsOverviewNavBarProps) {
+  const { setProjectSearchTerm, projectSearchTerm } = useAuroraContext()
+  const [searchTerm, setSearchTerm] = useState<string>(projectSearchTerm)
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+
+  const debouncedSetServerSearchTerm = (term: string) => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current)
+    }
+    timeoutRef.current = setTimeout(() => {
+      setProjectSearchTerm(term)
+    }, 500)
+  }
+
   return (
     <div className="flex items-center justify-between gap-4 w-full">
       {/* Search Input (60%) */}
@@ -20,6 +35,11 @@ export function ProjectsOverviewNavNbar({ viewMode, setViewMode }: ProjectsOverv
           type="text"
           placeholder="Search..."
           className="bg-transparent border-none outline-none text-white placeholder-gray-400 w-full"
+          value={searchTerm}
+          onChange={(e) => {
+            setSearchTerm(e.target.value)
+            debouncedSetServerSearchTerm(e.target.value)
+          }}
         />
       </div>
 
@@ -32,6 +52,7 @@ export function ProjectsOverviewNavNbar({ viewMode, setViewMode }: ProjectsOverv
         </ComboBox>
         <div className="flex items-center gap-1 bg-juno-grey-blue-7 rounded-md">
           <Button
+            data-testid="list-view"
             variant={viewMode === "list" ? "default" : "subdued"}
             className="text-white text-xs flex items-center justify-center rounded"
             onClick={() => setViewMode("list")}
@@ -39,6 +60,7 @@ export function ProjectsOverviewNavNbar({ viewMode, setViewMode }: ProjectsOverv
           />
 
           <Button
+            data-testid="card-view"
             variant={viewMode === "card" ? "default" : "subdued"}
             className="text-white text-xs flex items-center justify-center rounded"
             onClick={() => setViewMode("card")}

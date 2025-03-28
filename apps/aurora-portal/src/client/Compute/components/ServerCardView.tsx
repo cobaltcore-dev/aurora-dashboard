@@ -32,7 +32,7 @@ export function ServerCard({ server }: ServerCardProps) {
       {/* Server Details */}
       <Pill pillKeyLabel="IPv4:" pillValueLabel={server.accessIPv4 || "N/A"} />
       <Pill pillKeyLabel="IPv6:" pillValueLabel={server.accessIPv6 || "N/A"} />
-      <Pill pillKeyLabel="CPU:" pillValueLabel={server.flavor.vcpus.toString()} />
+      <Pill pillKeyLabel="CPU:" pillValueLabel={String(server.flavor.vcpus)} />
       <Pill pillKeyLabel="RAM:" pillValueLabel={`${server.flavor.ram} MB`} />
       <Pill pillKeyLabel="Disk:" pillValueLabel={`${server.flavor.disk} GB`} />
 
