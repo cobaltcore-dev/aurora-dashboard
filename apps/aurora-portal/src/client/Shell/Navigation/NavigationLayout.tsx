@@ -1,38 +1,31 @@
 import { MainNavigation } from "./MainNavigation"
 import { SubNavigation } from "./SubNavigation"
 import { NavigationItem } from "./types"
-import { useLocation } from "wouter"
-import { useAuroraContext } from "../AuroraProvider"
+import { use } from "react"
+import { Domain } from "../../../server/Authentication/types/models"
+import { Project } from "../../../server/Project/types/models"
 
-export function NavigationLayout({ mainNavItems }: { mainNavItems: NavigationItem[] }) {
-  const [location] = useLocation()
-  const { currentProject, domain } = useAuroraContext()
-  const subNavItems = []
+export function NavigationLayout({
+  currentScopePromise,
+  mainNavItems,
+}: {
+  mainNavItems: NavigationItem[]
+  currentScopePromise: Promise<{ domain: Domain; project: Project }>
+}) {
+  const { domain, project } = use(currentScopePromise)
 
-  if (location === "/") {
-    subNavItems.push({ route: "/", label: "Wellcome" })
-  } else {
-    if (currentProject) {
-      subNavItems.push({ route: `/${domain?.id}/projects/${currentProject.id}/compute`, label: "Compute" })
-      subNavItems.push({ route: `/${domain?.id}/projects/${currentProject.id}/network`, label: "Network" })
-      subNavItems.push({ route: `/${domain?.id}/projects/${currentProject.id}/storage`, label: "Storage" })
-      subNavItems.push({ route: `/${domain?.id}/projects/${currentProject.id}/metrics`, label: "Metrics" })
-    } else {
-      subNavItems.push({ route: `/${domain?.id}/projects`, label: "Overview" })
-    }
-  }
   return (
     <div className="flex flex-col w-full bg-theme-background-lvl-1">
       {/* Main Navigation with minimal height */}
       <div className="px-2 py-1">
         {/* Reduced padding */}
-        <MainNavigation scopedDomain={domain} items={mainNavItems} />
+        <MainNavigation domain={domain} project={project} items={mainNavItems} />
       </div>
 
       {/* Sub-Navigation with similar reduced height */}
       <div className="w-full flex">
         {/* Even smaller spacing */}
-        <SubNavigation items={subNavItems} />
+        <SubNavigation domain={domain} project={project} />
       </div>
     </div>
   )

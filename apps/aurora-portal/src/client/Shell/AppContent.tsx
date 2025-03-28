@@ -65,10 +65,14 @@ export function AppContent() {
   if (isAuthenticated) {
     extensions.forEach((ext) => navItems.push({ route: `/${ext.id}`, label: ext.navigation?.label || ext.name }))
   }
-
+  const currentScopePromise = trpcClient.auth.getCurrentScope.query()
   return (
     <div className="content">
-      {isAuthenticated && <NavigationLayout mainNavItems={navItems} />}
+      {isAuthenticated && (
+        <Suspense>
+          <NavigationLayout mainNavItems={navItems} currentScopePromise={currentScopePromise} />
+        </Suspense>
+      )}
       <div className="py-4 pl-4 bg-theme-global-bg h-full">
         <Switch>
           <Route path={auroraRoutes.auth.signin}>
@@ -78,17 +82,15 @@ export function AppContent() {
             <>
               <Route path={auroraRoutes.about} component={About} />
               <Route path={auroraRoutes.home} component={Home} />
-              <Route path={auroraRoutes.domain(":domainId").root} nest>
-                <Route path={auroraRoutes.domain(":domainId").projects}>
-                  <ProjectsOverview client={trpcClient.project} />
-                </Route>
+              <Route path={auroraRoutes.domain("default").projects}>
+                <ProjectsOverview client={trpcClient.project} />
+              </Route>
 
-                <Route path={auroraRoutes.domain(":domainId").project(":projectId").compute.root}>
-                  <ComputeOverview client={trpcClient} />
-                </Route>
-                <Route path={auroraRoutes.domain(":domainId").project(":projectId").network.root}>
-                  <NetworkOverview client={trpcClient} />
-                </Route>
+              <Route path={auroraRoutes.domain(":domainId").project(":projectId").compute.root}>
+                <ComputeOverview client={trpcClient} />
+              </Route>
+              <Route path={auroraRoutes.domain(":domainId").project(":projectId").network.root}>
+                <NetworkOverview client={trpcClient} />
               </Route>
               {extensions.map((ext, i) => (
                 <Route key={i} path={`/${ext.id}`}>
