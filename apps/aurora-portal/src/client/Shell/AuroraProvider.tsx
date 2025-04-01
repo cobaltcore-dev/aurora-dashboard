@@ -3,31 +3,27 @@ import { Project } from "../../server/Project/types/models"
 import { createRoutePaths } from "../routes/AuroraRoutes"
 import { AuroraRoutesSchema } from "../routes/AuroraRoutesSchema"
 import { z } from "zod"
+import { Domain } from "../../server/Authentication/types/models"
 
-type Domain = {
-  id: string
-  name: string
+type ScopeProject = {
+  scope?: { project: Project; domain: Domain }
+  error?: string
+  isLoading?: boolean
 }
 
-type AuroraContextType = {
-  currentProject: Project | undefined
-  setCurrentProject: (project: Project | undefined) => void
+export type AuroraContextType = {
+  currentScope: ScopeProject | undefined
+  setCurrentScope: (project: ScopeProject | undefined) => void
   domain: Domain
   auroraRoutes: z.infer<typeof AuroraRoutesSchema>
   setAuroraRoutes: (routes: z.infer<typeof AuroraRoutesSchema>) => void
   setDomain: (domain: Domain) => void
-  projectSearchTerm: string
-  setProjectSearchTerm: (searchTerm: string) => void
-  serverSearchTerm: string
-  setServerSearchTerm: (searchTerm: string) => void
 }
 
-const AuroraContext = createContext<AuroraContextType | undefined>(undefined)
+export const AuroraContext = createContext<AuroraContextType | undefined>(undefined)
 
 export function AuroraProvider({ children }: { children: ReactNode }) {
-  const [currentProject, setCurrentProject] = useState<Project | undefined>(undefined)
-  const [projectSearchTerm, setProjectSearchTerm] = useState<string>("")
-  const [serverSearchTerm, setServerSearchTerm] = useState<string>("")
+  const [currentScope, setCurrentScope] = useState<ScopeProject | undefined>(undefined)
   const [auroraRoutes, setAuroraRoutes] = useState<z.infer<typeof AuroraRoutesSchema>>(
     createRoutePaths().auroraRoutePaths()
   )
@@ -37,16 +33,12 @@ export function AuroraProvider({ children }: { children: ReactNode }) {
   return (
     <AuroraContext.Provider
       value={{
-        currentProject,
-        setCurrentProject,
+        currentScope,
+        setCurrentScope,
         domain,
         auroraRoutes,
         setAuroraRoutes,
         setDomain,
-        projectSearchTerm,
-        setProjectSearchTerm,
-        serverSearchTerm,
-        setServerSearchTerm,
       }}
     >
       {children}

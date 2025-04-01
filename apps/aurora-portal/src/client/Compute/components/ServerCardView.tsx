@@ -32,12 +32,12 @@ export function ServerCard({ server }: ServerCardProps) {
       {/* Server Details */}
       <Pill pillKeyLabel="IPv4:" pillValueLabel={server.accessIPv4 || "N/A"} />
       <Pill pillKeyLabel="IPv6:" pillValueLabel={server.accessIPv6 || "N/A"} />
-      <Pill pillKeyLabel="CPU:" pillValueLabel={String(server.flavor.vcpus)} />
-      <Pill pillKeyLabel="RAM:" pillValueLabel={`${server.flavor.ram} MB`} />
-      <Pill pillKeyLabel="Disk:" pillValueLabel={`${server.flavor.disk} GB`} />
+      <Pill pillKeyLabel="CPU:" pillValueLabel={server?.flavor?.vcpus ? String(server.flavor.vcpus) : ""} />
+      <Pill pillKeyLabel="RAM:" pillValueLabel={`${server?.flavor?.ram} MB`} />
+      <Pill pillKeyLabel="Disk:" pillValueLabel={`${server?.flavor?.disk} GB`} />
 
       {/* Server Metadata */}
-      <p className="text-sm">Server Role: {server.metadata["Server Role"] || "Unknown Role"}</p>
+      <p className="text-sm">Server Role: {server?.metadata?.["Server Role"] ?? "Unknown Role"}</p>
 
       {/* Action Buttons */}
       <div className="flex space-x-3 mt-4">

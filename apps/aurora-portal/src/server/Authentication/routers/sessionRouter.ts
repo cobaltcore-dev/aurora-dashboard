@@ -26,6 +26,22 @@ export const sessionRouter = {
     }
   }),
 
+  setCurrentScope: publicProcedure
+    .input(z.object({ domainId: z.string(), projectId: z.string() }))
+    .mutation(async ({ input, ctx }) => {
+      const session = await ctx.rescopeSession({ domainId: input.domainId, projectId: input.projectId })
+      const token = session?.getToken()
+      if (!token) {
+        return null
+      }
+      const project = token.tokenData.project
+      const domain = project?.domain || token.tokenData.domain
+      return {
+        project: project,
+        domain: domain,
+      }
+    }),
+
   createUserSession: publicProcedure
     .input(z.object({ user: z.string(), password: z.string(), domainName: z.string() }))
     .mutation(async ({ input, ctx }) => {

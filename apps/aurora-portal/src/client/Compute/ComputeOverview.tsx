@@ -5,8 +5,6 @@ import ServerListView from "./components/ServerListView"
 import ServerCardView from "./components/ServerCardView"
 import { ComputeNavBar, ComputeSideNavBar } from "./components/ComputeNavBar"
 import { useParams } from "wouter"
-import { Project } from "../../server/Project/types/models"
-import { useAuroraContext } from "../Shell/AuroraProvider"
 
 type GetServersState = {
   data?: Server[]
@@ -14,15 +12,8 @@ type GetServersState = {
   isLoading?: boolean
 }
 
-type GetProjectByIdState = {
-  data?: Project
-  error?: string
-  isProjectLoading?: boolean
-}
 export function ComputeOverview({ client }: { client: TrpcClient }) {
   const [getServers, updateGetServer] = useState<GetServersState>({ isLoading: true })
-  const [getProjectById, updateProjectById] = useState<GetProjectByIdState>({ isProjectLoading: true })
-  const { setCurrentProject, serverSearchTerm } = useAuroraContext()
 
   const [viewMode, setViewMode] = useState<"list" | "card">("list")
   const { projectId } = useParams()
@@ -34,20 +25,10 @@ export function ComputeOverview({ client }: { client: TrpcClient }) {
       .catch((error) => updateGetServer({ error: error.message, isLoading: false }))
   }, [])
 
-  useEffect(() => {
-    client.project.getProjectById
-      .query({ id: projectId || "" })
-      .then((data) => {
-        setCurrentProject(data)
-        return updateProjectById({ data, isProjectLoading: false })
-      })
-      .catch((error) => updateProjectById({ error: error.message, isProjectLoading: false }))
-  }, [])
-
-  if (getServers.isLoading || getProjectById.isProjectLoading)
+  if (getServers.isLoading)
     return <div className="h-full flex justify-center items-center text-gray-400">Loading...</div>
 
-  if (getServers.error || getProjectById.error)
+  if (getServers.error)
     return <div className="h-full flex justify-center items-center text-red-500">Error: {getServers.error}</div>
 
   const filteredServers =

@@ -37,12 +37,11 @@ describe("ProjectListView", () => {
 
   test("renders project data correctly", () => {
     const { hook } = memoryLocation({ path: auroraRoutes.home, static: true })
-    const domain = { id: "default", name: "Default" }
 
     render(
       <Router hook={hook}>
         <AuroraProvider>
-          <ProjectListView projects={projects} domain={domain} />
+          <ProjectListView projects={projects} />
         </AuroraProvider>
       </Router>
     )
@@ -87,19 +86,17 @@ describe("ProjectListView", () => {
 
   test("clicking the row navigates correctly", () => {
     const { hook, history } = memoryLocation({ path: auroraRoutes.home, record: true })
-    const domain = { id: "default", name: "Default" }
 
     render(
       <Router hook={hook}>
         <AuroraProvider>
-          <ProjectListView projects={projects} domain={domain} />
+          <ProjectListView projects={projects} />
         </AuroraProvider>
       </Router>
     )
 
     const row = screen.getByText("Security Group").closest("div")
     fireEvent.click(row!)
-
-    expect(history).toContain("/projects/89ac3f/compute") // Navigation should work
+    expect(history).toContain("/1789d1/projects/89ac3f/compute") // Navigation should work
   })
 })

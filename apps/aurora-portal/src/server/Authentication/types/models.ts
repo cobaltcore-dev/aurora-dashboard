@@ -6,5 +6,10 @@ export interface User {
   name: string
 }
 
+export interface Domain {
+  id?: string | undefined
+  name?: string | undefined
+}
+
 export type TokenData = SignalOpenstackTokenType["tokenData"]
 export type AuthToken = SignalOpenstackTokenType["authToken"]

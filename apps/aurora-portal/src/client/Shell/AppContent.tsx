@@ -16,6 +16,7 @@ import { ProjectsOverview } from "../Project/ProjectsOverview"
 import { useAuth, useAuthDispatch } from "../store/StoreProvider"
 import { useAuroraContext } from "./AuroraProvider"
 import { NavigationItem } from "./Navigation/types"
+import { ProjectRescope } from "../Project/ProjectRescope"
 type RouterScopes = keyof typeof trpcClient
 
 interface ExtensionProps {
@@ -65,7 +66,6 @@ export function AppContent() {
   if (isAuthenticated) {
     extensions.forEach((ext) => navItems.push({ route: `/${ext.id}`, label: ext.navigation?.label || ext.name }))
   }
-
   return (
     <div className="content">
       {isAuthenticated && <NavigationLayout mainNavItems={navItems} />}
@@ -78,18 +78,21 @@ export function AppContent() {
             <>
               <Route path={auroraRoutes.about} component={About} />
               <Route path={auroraRoutes.home} component={Home} />
-              <Route path={auroraRoutes.domain(":domainId").root} nest>
-                <Route path={auroraRoutes.domain(":domainId").projects}>
-                  <ProjectsOverview client={trpcClient.project} />
-                </Route>
 
-                <Route path={auroraRoutes.domain(":domainId").project(":projectId").compute.root}>
-                  <ComputeOverview client={trpcClient} />
-                </Route>
-                <Route path={auroraRoutes.domain(":domainId").project(":projectId").network.root}>
-                  <NetworkOverview client={trpcClient} />
-                </Route>
+              <Route path={auroraRoutes.domain(":domainId").projects}>
+                <ProjectRescope client={trpcClient.auth}>
+                  <ProjectsOverview client={trpcClient.project} />
+                </ProjectRescope>
               </Route>
+              <Route path={auroraRoutes.domain(":domainId").project(":projectId").compute.root}>
+                <ProjectRescope client={trpcClient.auth}>
+                  <ComputeOverview client={trpcClient} />
+                </ProjectRescope>
+              </Route>
+              <Route path={auroraRoutes.domain(":domainId").project(":projectId").network.root}>
+                <NetworkOverview />
+              </Route>
+
               {extensions.map((ext, i) => (
                 <Route key={i} path={`/${ext.id}`}>
                   <ErrorBoundary fallback={<div>Something went wrong</div>}>
