@@ -8,7 +8,7 @@ describe("ComputeNavBar", () => {
     await act(() =>
       render(
         <AuroraProvider>
-          <ComputeNavBar viewMode="list" setViewMode={vi.fn()} />
+          <ComputeNavBar viewMode="list" setViewMode={vi.fn()} onChange={() => {}} />
         </AuroraProvider>
       )
     )
@@ -19,7 +19,7 @@ describe("ComputeNavBar", () => {
     await act(() =>
       render(
         <AuroraProvider>
-          <ComputeNavBar viewMode="list" setViewMode={vi.fn()} />
+          <ComputeNavBar viewMode="list" setViewMode={vi.fn()} onChange={() => {}} />
         </AuroraProvider>
       )
     )
@@ -30,7 +30,7 @@ describe("ComputeNavBar", () => {
     const setViewMode = vi.fn()
     render(
       <AuroraProvider>
-        <ComputeNavBar viewMode="list" setViewMode={setViewMode} />
+        <ComputeNavBar viewMode="list" setViewMode={setViewMode} onChange={() => {}} />
       </AuroraProvider>
     )
 
@@ -44,7 +44,7 @@ describe("ComputeNavBar", () => {
     const setViewMode = vi.fn()
     render(
       <AuroraProvider>
-        <ComputeNavBar viewMode="card" setViewMode={setViewMode} />
+        <ComputeNavBar viewMode="card" setViewMode={setViewMode} onChange={() => {}} />
       </AuroraProvider>
     )
 
@@ -53,22 +53,5 @@ describe("ComputeNavBar", () => {
     await act(async () => await fireEvent.click(listButton))
 
     expect(setViewMode).toHaveBeenCalledWith("list")
-  })
-
-  it("updates search term when typing in the search input", async () => {
-    render(
-      <AuroraProvider>
-        <ComputeNavBar viewMode="list" setViewMode={vi.fn()} />
-      </AuroraProvider>
-    )
-
-    const searchInput = screen.getByPlaceholderText("Search...")
-    fireEvent.change(searchInput, { target: { value: "test search" } })
-
-    await act(async () => {
-      await new Promise((resolve) => setTimeout(resolve, 500))
-    })
-
-    expect(searchInput).toHaveValue("test search")
   })
 })

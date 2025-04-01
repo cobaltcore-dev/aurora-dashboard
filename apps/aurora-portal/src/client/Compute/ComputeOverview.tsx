@@ -14,6 +14,7 @@ type GetServersState = {
 
 export function ComputeOverview({ client }: { client: TrpcClient }) {
   const [getServers, updateGetServer] = useState<GetServersState>({ isLoading: true })
+  const [searchTerm, setSearchTerm] = useState("")
 
   const [viewMode, setViewMode] = useState<"list" | "card">("list")
   const { projectId } = useParams()
@@ -31,12 +32,12 @@ export function ComputeOverview({ client }: { client: TrpcClient }) {
   if (getServers.error)
     return <div className="h-full flex justify-center items-center text-red-500">Error: {getServers.error}</div>
 
-  // const filteredServers =
-  //   getServers.data?.filter((server) => {
-  //     const searchRegex = new RegExp(serverSearchTerm, "i")
-  //     const serverString = JSON.stringify(server)
-  //     return searchRegex.test(serverString)
-  //   }) || []
+  const filteredServers =
+    getServers.data?.filter((server) => {
+      const searchRegex = new RegExp(searchTerm, "i")
+      const serverString = JSON.stringify(server)
+      return searchRegex.test(serverString)
+    }) || []
 
   return (
     <div className="container max-w-screen-3xl mx-auto px-6 py-4 grid grid-cols-12 gap-4">
@@ -47,7 +48,13 @@ export function ComputeOverview({ client }: { client: TrpcClient }) {
       {/* Left Spacing */}
       <div className="col-span-9 flex items-center justify-between py-2">
         <div className="flex-1 flex justify-end">
-          <ComputeNavBar viewMode={viewMode} setViewMode={setViewMode} />
+          <ComputeNavBar
+            viewMode={viewMode}
+            setViewMode={setViewMode}
+            onChange={(term: string) => {
+              setSearchTerm(term)
+            }}
+          />
         </div>
       </div>
       <div className="col-span-1"></div> {/* Right Spacing */}
@@ -58,9 +65,9 @@ export function ComputeOverview({ client }: { client: TrpcClient }) {
       <div className="col-span-9 flex flex-col gap-4">
         <div className="w-full">
           {viewMode === "list" ? (
-            <ServerListView servers={getServers.data} />
+            <ServerListView servers={filteredServers} />
           ) : (
-            <ServerCardView servers={getServers.data} />
+            <ServerCardView servers={filteredServers} />
           )}
         </div>
       </div>
