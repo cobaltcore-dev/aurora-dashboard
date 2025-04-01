@@ -14,7 +14,7 @@ interface NavigationProps {
 export function MainNavigation({ items }: NavigationProps) {
   const context = use(AuroraContext)
   if (!context) return null
-  const { domain, currentProject } = context
+  const { domain, currentScope } = context
 
   return (
     <nav>
@@ -33,10 +33,10 @@ export function MainNavigation({ items }: NavigationProps) {
               <span className="font-semibold text-lg text-sap-grey-2">{domain.name}</span>
             </Link>
           )}
-          {currentProject?.scope?.project?.name && (
+          {currentScope?.scope?.project?.name && (
             <>
               <span className="text-sap-grey-1">/</span>
-              <span className="font-semibold text-lg text-sap-grey-2">{currentProject?.scope?.project?.name}</span>
+              <span className="font-semibold text-lg text-sap-grey-2">{currentScope?.scope?.project?.name}</span>
             </>
           )}
         </div>

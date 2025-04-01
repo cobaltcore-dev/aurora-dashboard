@@ -1,4 +1,4 @@
-import { useLocation, useParams } from "wouter"
+import { useLocation } from "wouter"
 import { Project } from "../../../server/Project/types/models"
 import { Icon } from "../../components/Icon"
 import { useAuroraContext } from "../../Shell/AuroraProvider"
@@ -11,12 +11,14 @@ type ProjectCardViewProps = {
 }
 
 export function ProjectCard({ project }: ProjectCardProps) {
-  const [location, setLocation] = useLocation()
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [_, setLocation] = useLocation()
   const { auroraRoutes } = useAuroraContext()
 
   return (
     <div
       className="bg-[#161b22] rounded-xl shadow-lg p-5 flex flex-col space-y-4 border border-[#30363d] text-gray-300 min-h-[200px] relative cursor-pointer hover:bg-[#1f242b] transition-all"
+      // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
       onClick={() => setLocation(auroraRoutes.domain(project?.domain_id!).project(project.id).compute.root)}
     >
       {/* Header: Project Name (Clickable) + PopupMenu */}

@@ -6,8 +6,8 @@ export function SubNavigation() {
   const [location] = useLocation()
   const context = use(AuroraContext)
   const { auroraRoutes } = useAuroraContext()
-  const projectId = context?.currentProject?.scope?.project?.id
-  const domainId = context?.currentProject?.scope?.domain?.id
+  const projectId = context?.currentScope?.scope?.project?.id
+  const domainId = context?.currentScope?.scope?.domain?.id
 
   const items = []
   if (location === auroraRoutes.home) {

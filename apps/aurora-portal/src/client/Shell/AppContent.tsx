@@ -90,7 +90,7 @@ export function AppContent() {
                 </ProjectRescope>
               </Route>
               <Route path={auroraRoutes.domain(":domainId").project(":projectId").network.root}>
-                <NetworkOverview client={trpcClient} />
+                <NetworkOverview />
               </Route>
 
               {extensions.map((ext, i) => (

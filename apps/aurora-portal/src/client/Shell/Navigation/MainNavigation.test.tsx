@@ -1,7 +1,7 @@
 import { render, screen, fireEvent } from "@testing-library/react"
 import { BaseLocationHook, Router } from "wouter"
 import { MainNavigation } from "./MainNavigation"
-import { AuroraContext } from "../AuroraProvider"
+import { AuroraContext, AuroraContextType } from "../AuroraProvider"
 import { memoryLocation } from "wouter/memory-location"
 import { createRoutePaths } from "../../routes/AuroraRoutes"
 import { Project } from "../../../server/Project/types/models"
@@ -26,7 +26,7 @@ const mockProject: Project = {
 }
 
 // Helper function to wrap components with a **mocked AuroraContext**
-const renderWithContext = (ui: React.ReactNode, hook: BaseLocationHook, contextValue: any) => {
+const renderWithContext = (ui: React.ReactNode, hook: BaseLocationHook, contextValue: AuroraContextType) => {
   return render(
     <AuroraContext.Provider value={contextValue}>
       <Router hook={hook}>{ui}</Router>
@@ -38,8 +38,8 @@ describe("MainNavigation", () => {
   test("renders MainNavigation with items", () => {
     const { hook } = memoryLocation({ path: auroraRoutes.home })
     const contextValue = {
-      currentProject: undefined,
-      setCurrentProject: vi.fn(),
+      currentScope: undefined,
+      setCurrentScope: vi.fn(),
       domain: mockDomain,
       auroraRoutes,
       setAuroraRoutes: vi.fn(),
@@ -53,8 +53,8 @@ describe("MainNavigation", () => {
   test("clicking a MainNavigation item updates the route", () => {
     const { hook } = memoryLocation({ path: auroraRoutes.home })
     const contextValue = {
-      currentProject: undefined,
-      setCurrentProject: vi.fn(),
+      currentScope: undefined,
+      setCurrentScope: vi.fn(),
       domain: mockDomain,
       auroraRoutes,
       setAuroraRoutes: vi.fn(),
@@ -73,8 +73,8 @@ describe("MainNavigation", () => {
     it("renders the logo and 'Aurora' text", () => {
       const { hook } = memoryLocation({ path: auroraRoutes.home })
       const contextValue = {
-        currentProject: undefined,
-        setCurrentProject: vi.fn(),
+        currentScope: undefined,
+        setCurrentScope: vi.fn(),
         domain: mockDomain,
         auroraRoutes,
         setAuroraRoutes: vi.fn(),
@@ -90,8 +90,8 @@ describe("MainNavigation", () => {
     it("displays the domain name if provided", () => {
       const { hook } = memoryLocation({ path: auroraRoutes.home })
       const contextValue = {
-        currentProject: undefined,
-        setCurrentProject: vi.fn(),
+        currentScope: undefined,
+        setCurrentScope: vi.fn(),
         domain: mockDomain,
         auroraRoutes,
         setAuroraRoutes: vi.fn(),
@@ -105,8 +105,8 @@ describe("MainNavigation", () => {
     it("displays the project name if provided", () => {
       const { hook } = memoryLocation({ path: auroraRoutes.home })
       const contextValue = {
-        currentProject: { scope: { project: mockProject, domain: mockDomain } },
-        setCurrentProject: vi.fn(),
+        currentScope: { scope: { project: mockProject, domain: mockDomain } },
+        setCurrentScope: vi.fn(),
         domain: mockDomain,
         auroraRoutes,
         setAuroraRoutes: vi.fn(),
@@ -120,8 +120,8 @@ describe("MainNavigation", () => {
     it("navigates to '/projects' when clicking the domain name", () => {
       const { hook, history } = memoryLocation({ path: auroraRoutes.home, record: true })
       const contextValue = {
-        currentProject: { scope: { project: mockProject, domain: mockDomain } },
-        setCurrentProject: vi.fn(),
+        currentScope: { scope: { project: mockProject, domain: mockDomain } },
+        setCurrentScope: vi.fn(),
         domain: mockDomain,
         auroraRoutes,
         setAuroraRoutes: vi.fn(),

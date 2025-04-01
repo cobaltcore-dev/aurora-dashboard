@@ -13,6 +13,7 @@ describe("SignIn Component", () => {
         expires_at: new Date().toISOString(),
       }),
     },
+    setCurrentScope: { mutate: vi.fn() },
     getCurrentUserSession: { query: vi.fn() },
     terminateUserSession: { mutate: vi.fn() },
     getAuthToken: { query: vi.fn() },

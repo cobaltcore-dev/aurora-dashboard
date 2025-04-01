@@ -1,4 +1,4 @@
-import { useLocation, useParams } from "wouter"
+import { useLocation } from "wouter"
 import { Project } from "../../../server/Project/types/models"
 import { Icon } from "../../components/Icon"
 import { useAuroraContext } from "../../Shell/AuroraProvider"

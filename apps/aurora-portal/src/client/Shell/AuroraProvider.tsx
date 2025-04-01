@@ -3,11 +3,8 @@ import { Project } from "../../server/Project/types/models"
 import { createRoutePaths } from "../routes/AuroraRoutes"
 import { AuroraRoutesSchema } from "../routes/AuroraRoutesSchema"
 import { z } from "zod"
+import { Domain } from "../../server/Authentication/types/models"
 
-type Domain = {
-  id: string
-  name: string
-}
 type ScopeProject = {
   scope?: { project: Project; domain: Domain }
   error?: string
@@ -15,8 +12,8 @@ type ScopeProject = {
 }
 
 export type AuroraContextType = {
-  currentProject: ScopeProject | undefined
-  setCurrentProject: (project: ScopeProject | undefined) => void
+  currentScope: ScopeProject | undefined
+  setCurrentScope: (project: ScopeProject | undefined) => void
   domain: Domain
   auroraRoutes: z.infer<typeof AuroraRoutesSchema>
   setAuroraRoutes: (routes: z.infer<typeof AuroraRoutesSchema>) => void
@@ -26,7 +23,7 @@ export type AuroraContextType = {
 export const AuroraContext = createContext<AuroraContextType | undefined>(undefined)
 
 export function AuroraProvider({ children }: { children: ReactNode }) {
-  const [currentProject, setCurrentProject] = useState<ScopeProject | undefined>(undefined)
+  const [currentScope, setCurrentScope] = useState<ScopeProject | undefined>(undefined)
   const [auroraRoutes, setAuroraRoutes] = useState<z.infer<typeof AuroraRoutesSchema>>(
     createRoutePaths().auroraRoutePaths()
   )
@@ -36,8 +33,8 @@ export function AuroraProvider({ children }: { children: ReactNode }) {
   return (
     <AuroraContext.Provider
       value={{
-        currentProject,
-        setCurrentProject,
+        currentScope,
+        setCurrentScope,
         domain,
         auroraRoutes,
         setAuroraRoutes,

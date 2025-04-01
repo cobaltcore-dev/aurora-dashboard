@@ -21,8 +21,8 @@ describe("ProjectRescope", () => {
 
   beforeEach(() => {
     contextValue = {
-      currentProject: undefined, // Start as undefined
-      setCurrentProject: vi.fn(),
+      currentScope: undefined, // Start as undefined
+      setCurrentScope: vi.fn(),
       domain: { id: "default-domain", name: "Default Domain" }, // Ensure a default domain
       auroraRoutes: createRoutePaths().auroraRoutePaths(), // Mock routes as needed
       setAuroraRoutes: vi.fn(),
@@ -46,7 +46,7 @@ describe("ProjectRescope", () => {
   })
 
   test("shows loading state when rescoping", async () => {
-    contextValue.currentProject = {
+    contextValue.currentScope = {
       scope: {
         domain: { id: "domain-1", name: "default" },
         project: {
@@ -83,7 +83,7 @@ describe("ProjectRescope", () => {
       },
     } as unknown as TrpcClient["auth"]
 
-    contextValue.currentProject = {
+    contextValue.currentScope = {
       scope: {
         domain: { id: "domain-1", name: "default" },
         project: {
