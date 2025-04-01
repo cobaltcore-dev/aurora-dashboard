@@ -1,54 +1,71 @@
 import { render, screen, fireEvent } from "@testing-library/react"
-import { Router } from "wouter"
+import { BaseLocationHook, Router } from "wouter"
 import { SubNavigation } from "./SubNavigation"
-import { NavigationItem } from "./types"
-import { AuroraProvider } from "../AuroraProvider"
+import { AuroraContext, AuroraContextType } from "../AuroraProvider"
+import { memoryLocation } from "wouter/memory-location"
+import { createRoutePaths } from "../../routes/AuroraRoutes"
 
-const subNavItems: NavigationItem[] = [
-  { route: "/dashboard", label: "Dashboard" },
-  { route: "/settings", label: "Settings" },
-]
+const auroraRoutes = createRoutePaths().auroraRoutePaths()
 
-// Helper function to wrap components with AuthProvider & Router
-const renderWithAuth = (ui: React.ReactNode, initialRoute = "/") => {
-  window.history.pushState({}, "Test page", initialRoute) // Set initial route
+const renderWithAuth = (ui: React.ReactNode, hook: BaseLocationHook, contextValue: AuroraContextType) => {
   return render(
-    <AuroraProvider>
-      <Router>{ui}</Router>
-    </AuroraProvider>
+    <AuroraContext.Provider value={contextValue}>
+      <Router hook={hook}>{ui}</Router>
+    </AuroraContext.Provider>
   )
 }
 
 describe("SubNavigation", () => {
-  test("renders SubNavigation items correctly", () => {
-    renderWithAuth(<SubNavigation items={subNavItems} />)
+  test("renders correct navigation items based on route", () => {
+    const { hook } = memoryLocation({ path: auroraRoutes.home })
+    const contextValue = { currentScope: { scope: {} }, auroraRoutes } as AuroraContextType
 
-    subNavItems.forEach(({ label }) => {
-      expect(screen.getByText(label)).toBeInTheDocument()
-    })
+    renderWithAuth(<SubNavigation />, hook, contextValue)
+    expect(screen.getByText("Wellcome")).toBeInTheDocument()
   })
 
-  test("applies correct styles on hover", () => {
-    renderWithAuth(<SubNavigation items={subNavItems} />)
+  test("renders project-specific items when projectId is set", () => {
+    const { hook } = memoryLocation({ path: auroraRoutes.domain("domain-1").project("project-1").compute.root })
+    const contextValue = {
+      currentScope: { scope: { project: { id: "project-1" }, domain: { id: "domain-1" } } },
+      auroraRoutes,
+    } as AuroraContextType
 
-    const dashboardLink = screen.getByText("Dashboard").closest("a") // Get the link element
-    expect(dashboardLink).not.toHaveClass("hover:bg-juno-grey-blue-1")
-
-    fireEvent.mouseOver(dashboardLink!) // Simulate hover
-    expect(dashboardLink?.firstChild).toHaveClass("hover:bg-juno-grey-blue-1")
+    renderWithAuth(<SubNavigation />, hook, contextValue)
+    expect(screen.getByText("Compute")).toBeInTheDocument()
+    expect(screen.getByText("Network")).toBeInTheDocument()
+    expect(screen.getByText("Storage")).toBeInTheDocument()
+    expect(screen.getByText("Metrics")).toBeInTheDocument()
   })
 
-  test("clicking a SubNavigation item updates the route and applies bottom border", () => {
-    renderWithAuth(<SubNavigation items={subNavItems} />)
+  test("applies correct active styles", () => {
+    const { hook } = memoryLocation({ path: auroraRoutes.home })
+    const contextValue = { currentScope: { scope: {} }, auroraRoutes } as AuroraContextType
 
-    const settingsLink = screen.getByText("Settings").closest("a") as HTMLElement
-    fireEvent.click(settingsLink)
+    renderWithAuth(<SubNavigation />, hook, contextValue)
+    const activeLink = screen.getByText("Wellcome").closest("a")
+    expect(activeLink).toHaveClass("relative px-3 py-2 transition-colors active")
+  })
 
-    // Ensure active class is applied
-    expect(settingsLink.querySelector("span")).toHaveClass("font-semibold text-theme-accent")
+  test("hover effect is applied correctly", () => {
+    const { hook } = memoryLocation({ path: auroraRoutes.home })
+    const contextValue = { currentScope: { scope: {} }, auroraRoutes } as AuroraContextType
 
-    // Ensure bottom border effect is applied
-    const bottomBorder = settingsLink.querySelector("div.absolute")
-    expect(bottomBorder).toHaveClass("absolute left-0 bottom-0 w-full h-[3px] bg-theme-accent")
+    renderWithAuth(<SubNavigation />, hook, contextValue)
+    const wellcomeLink = screen.getByText("Wellcome").closest("a")
+
+    fireEvent.mouseOver(wellcomeLink!)
+    expect(wellcomeLink?.firstChild).toHaveClass("hover:bg-juno-grey-blue-1")
+  })
+
+  test("clicking a navigation item updates the route", () => {
+    const { hook, history } = memoryLocation({ path: auroraRoutes.about, record: true })
+    const contextValue = { currentScope: { scope: {} }, auroraRoutes } as AuroraContextType
+
+    renderWithAuth(<SubNavigation />, hook, contextValue)
+    const aboutLink = screen.getByText("About").closest("a")
+    fireEvent.click(aboutLink!)
+
+    expect(history).toContain(auroraRoutes.about)
   })
 })

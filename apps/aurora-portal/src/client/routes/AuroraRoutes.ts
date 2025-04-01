@@ -1,5 +1,5 @@
 import { AuroraRoutesSchema, DomainIdSchema, ProjectIdSchema, SubRouteSchema } from "./AuroraRoutesSchema"
-import { AllowedComputeRoutes, AllowedNetworkRoutes } from "./constants"
+import { AllowedComputeRoutes, AllowedMetricsRoutes, AllowedNetworkRoutes, AllowedStorageRoutes } from "./constants"
 
 // Create router function with parse methods
 export function createRoutePaths(extensions?: readonly string[]) {
@@ -15,11 +15,11 @@ export function createRoutePaths(extensions?: readonly string[]) {
 
         return {
           root: `/${domainId}`,
-          projects: "/projects",
+          projects: `/${domainId}/projects`,
           project: (projectIdParam?: string) => {
             const projectId = ProjectIdSchema.parse(projectIdParam)
 
-            const withinProject = (path: string) => `/projects/${projectId}/${path}`
+            const withinProject = (path: string) => `/${domainId}/projects/${projectId}/${path}`
 
             const withSubRoute = (base: string, allowedRoutes: readonly string[]) =>
               Object.fromEntries(allowedRoutes.map((route) => [route, withinProject(`${base}/${route}`)]))
@@ -30,10 +30,17 @@ export function createRoutePaths(extensions?: readonly string[]) {
                 root: withinProject("compute"),
                 ...withSubRoute("compute", AllowedComputeRoutes),
               },
-
               network: {
                 root: withinProject("network"),
                 ...withSubRoute("network", AllowedNetworkRoutes),
+              },
+              metrics: {
+                root: withinProject("metrics"),
+                ...withSubRoute("metrics", AllowedMetricsRoutes),
+              },
+              storage: {
+                root: withinProject("storage"),
+                ...withSubRoute("storage", AllowedStorageRoutes),
               },
             }
           },
