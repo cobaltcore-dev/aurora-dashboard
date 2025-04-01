@@ -1,8 +1,8 @@
-import { useState, useRef } from "react"
+// import { useState, useRef } from "react"
 import { ComboBox, ComboBoxOption } from "../../components/ComboBox"
 import { Button } from "../../components/Button"
 import { Icon } from "../../components/Icon"
-import { useAuroraContext } from "../../Shell/AuroraProvider"
+// import { useAuroraContext } from "../../Shell/AuroraProvider"
 export type ViewMode = "list" | "card"
 
 type ProjectsOverviewNavBarProps = {
@@ -13,18 +13,18 @@ type ProjectsOverviewNavBarProps = {
 }
 
 export function ProjectsOverviewNavBar({ viewMode, setViewMode }: ProjectsOverviewNavBarProps) {
-  const { setProjectSearchTerm, projectSearchTerm } = useAuroraContext()
-  const [searchTerm, setSearchTerm] = useState<string>(projectSearchTerm)
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+  // const { setProjectSearchTerm, projectSearchTerm } = useAuroraContext()
+  // const [searchTerm, setSearchTerm] = useState<string>(projectSearchTerm)
+  // const timeoutRef = useRef<NodeJS.Timeout | null>(null)
 
-  const debouncedSetServerSearchTerm = (term: string) => {
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current)
-    }
-    timeoutRef.current = setTimeout(() => {
-      setProjectSearchTerm(term)
-    }, 500)
-  }
+  // const debouncedSetServerSearchTerm = (term: string) => {
+  //   if (timeoutRef.current) {
+  //     clearTimeout(timeoutRef.current)
+  //   }
+  //   timeoutRef.current = setTimeout(() => {
+  //     setProjectSearchTerm(term)
+  //   }, 500)
+  // }
 
   return (
     <div className="flex items-center justify-between gap-4 w-full">
@@ -35,11 +35,11 @@ export function ProjectsOverviewNavBar({ viewMode, setViewMode }: ProjectsOvervi
           type="text"
           placeholder="Search..."
           className="bg-transparent border-none outline-none text-white placeholder-gray-400 w-full"
-          value={searchTerm}
-          onChange={(e) => {
-            setSearchTerm(e.target.value)
-            debouncedSetServerSearchTerm(e.target.value)
-          }}
+          // value={searchTerm}
+          // onChange={(e) => {
+          //   setSearchTerm(e.target.value)
+          //   // debouncedSetServerSearchTerm(e.target.value)
+          // }}
         />
       </div>
 
