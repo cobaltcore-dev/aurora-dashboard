@@ -8,20 +8,25 @@ type Domain = {
   id: string
   name: string
 }
+type ScopeProject = {
+  scope?: { project: Project; domain: Domain }
+  error?: string
+  isLoading?: boolean
+}
 
-type AuroraContextType = {
-  currentProject: Project | undefined
-  setCurrentProject: (project: Project | undefined) => void
+export type AuroraContextType = {
+  currentProject: ScopeProject | undefined
+  setCurrentProject: (project: ScopeProject | undefined) => void
   domain: Domain
   auroraRoutes: z.infer<typeof AuroraRoutesSchema>
   setAuroraRoutes: (routes: z.infer<typeof AuroraRoutesSchema>) => void
   setDomain: (domain: Domain) => void
 }
 
-const AuroraContext = createContext<AuroraContextType | undefined>(undefined)
+export const AuroraContext = createContext<AuroraContextType | undefined>(undefined)
 
 export function AuroraProvider({ children }: { children: ReactNode }) {
-  const [currentProject, setCurrentProject] = useState<Project | undefined>(undefined)
+  const [currentProject, setCurrentProject] = useState<ScopeProject | undefined>(undefined)
   const [auroraRoutes, setAuroraRoutes] = useState<z.infer<typeof AuroraRoutesSchema>>(
     createRoutePaths().auroraRoutePaths()
   )

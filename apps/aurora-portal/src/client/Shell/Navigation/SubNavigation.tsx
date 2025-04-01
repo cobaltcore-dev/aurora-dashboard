@@ -1,9 +1,29 @@
 import { Link, useLocation } from "wouter"
-import { NavigationItem } from "./types"
+import { AuroraContext, useAuroraContext } from "../AuroraProvider"
+import { use } from "react"
 
-export function SubNavigation({ items }: { items: NavigationItem[] }) {
+export function SubNavigation() {
   const [location] = useLocation()
+  const context = use(AuroraContext)
+  const { auroraRoutes } = useAuroraContext()
+  const projectId = context?.currentProject?.scope?.project?.id
+  const domainId = context?.currentProject?.scope?.domain?.id
 
+  const items = []
+  if (location === auroraRoutes.home) {
+    items.push({ route: auroraRoutes.home, label: "Wellcome" })
+  } else if (location === auroraRoutes.about) {
+    items.push({ route: auroraRoutes.about, label: "About" })
+  } else {
+    if (projectId) {
+      items.push({ route: auroraRoutes.domain(domainId).project(projectId).compute.root, label: "Compute" })
+      items.push({ route: auroraRoutes.domain(domainId).project(projectId).network.root, label: "Network" })
+      items.push({ route: auroraRoutes.domain(domainId).project(projectId).storage.root, label: "Storage" })
+      items.push({ route: auroraRoutes.domain(domainId).project(projectId).metrics.root, label: "Metrics" })
+    } else {
+      items.push({ route: auroraRoutes.domain(domainId).projects, label: "Overview" })
+    }
+  }
   return (
     <div className="flex items-center px-3 bg-gray-50 shadow-sm w-full relative">
       {items.map(({ route, label }) => (

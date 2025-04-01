@@ -22,12 +22,11 @@ const auroraRoutes = createRoutePaths().auroraRoutePaths()
 describe("ProjectCardView", () => {
   test("renders project data correctly", () => {
     const { hook } = memoryLocation({ path: auroraRoutes.home, static: true })
-    const domain = { id: "default", name: "Default" }
 
     render(
       <Router hook={hook}>
         <AuroraProvider>
-          <ProjectCardView projects={projects} domain={domain} />
+          <ProjectCardView projects={projects} />
         </AuroraProvider>
       </Router>
     )
@@ -38,12 +37,11 @@ describe("ProjectCardView", () => {
 
   test("clicking the title does NOT trigger navigation", () => {
     const { hook } = memoryLocation({ path: auroraRoutes.home, static: true })
-    const domain = { id: "default", name: "Default" }
 
     render(
       <Router hook={hook}>
         <AuroraProvider>
-          <ProjectCardView projects={projects} domain={domain} />
+          <ProjectCardView projects={projects} />
         </AuroraProvider>
       </Router>
     )
@@ -56,12 +54,11 @@ describe("ProjectCardView", () => {
 
   test("clicking the popup menu does NOT trigger navigation", () => {
     const { hook, history } = memoryLocation({ path: auroraRoutes.home, record: true })
-    const domain = { id: "default", name: "Default" }
 
     render(
       <Router hook={hook}>
         <AuroraProvider>
-          <ProjectCardView projects={projects} domain={domain} />
+          <ProjectCardView projects={projects} />
         </AuroraProvider>
       </Router>
     )
@@ -74,19 +71,17 @@ describe("ProjectCardView", () => {
 
   test("clicking the card navigates correctly", () => {
     const { hook, history } = memoryLocation({ path: auroraRoutes.home, record: true })
-    const domain = { id: "default", name: "Default" }
 
     render(
       <Router hook={hook}>
         <AuroraProvider>
-          <ProjectCardView projects={projects} domain={domain} />
+          <ProjectCardView projects={projects} />
         </AuroraProvider>
       </Router>
     )
 
     const card = screen.getByText("Security Group").closest("div")
     fireEvent.click(card!)
-
-    expect(history).toContain("/projects/89ac3f/compute") // Navigation should work
+    expect(history).toContain("/1789d1/projects/89ac3f/compute") // Navigation should work
   })
 })
