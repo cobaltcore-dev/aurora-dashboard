@@ -3,18 +3,13 @@ import { Project } from "../../../server/Project/types/models"
 import { Icon } from "../../components/Icon"
 import { useAuroraContext } from "../../Shell/AuroraProvider"
 
-type Domain = {
-  id: string
-  name: string
-}
-
 type ProjectListViewProps = {
   projects: Project[] | undefined
-  domain?: Domain
 }
 
-export function ProjectListView({ domain, projects }: ProjectListViewProps) {
+export function ProjectListView({ projects }: ProjectListViewProps) {
   const [, setLocation] = useLocation()
+
   const { auroraRoutes } = useAuroraContext()
   return (
     <div className="w-full border border-[#30363d] rounded-lg overflow-hidden">
@@ -23,7 +18,7 @@ export function ProjectListView({ domain, projects }: ProjectListViewProps) {
           <div
             key={project.id}
             className="flex items-center w-full px-6 py-4 hover:bg-[#1f242b] transition-all cursor-pointer border-b border-[#30363d] last:border-0"
-            onClick={() => setLocation(auroraRoutes.domain(domain?.id).project(project.id).compute.root)}
+            onClick={() => setLocation(auroraRoutes.domain(project.domain_id!).project(project.id).compute.root)}
           >
             {/* Icon + Title (Left Side) */}
             <div className="flex items-center space-x-3 min-w-0 w-1/3">

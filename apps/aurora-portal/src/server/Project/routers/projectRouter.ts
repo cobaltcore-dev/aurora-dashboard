@@ -11,7 +11,7 @@ export const projectRouter = {
 
     const identityService = openstackSession?.service("identity")
     const parsedData = projectsResponseSchema.safeParse(
-      await identityService?.get("projects").then((res) => res.json())
+      await identityService?.get("auth/projects").then((res) => res.json())
     )
     if (!parsedData.success) {
       console.error("Zod Parsing Error:", parsedData.error.format())
@@ -28,7 +28,7 @@ export const projectRouter = {
 
       const identityService = openstackSession?.service("identity")
       const parsedData = projectsResponseSchema.safeParse(
-        await identityService?.get("projects").then((res) => res.json())
+        await identityService?.get(`projects/${input.id}`).then((res) => res.json())
       )
       if (!parsedData.success) {
         console.error("Zod Parsing Error:", parsedData.error.format())

@@ -4,7 +4,6 @@ import { Project } from "../../server/Project/types/models"
 import { TrpcClient } from "../trpcClient"
 import { ProjectCardView } from "./components/ProjectCardView"
 import { ProjectListView } from "./components/ProjectListView"
-import { useAuroraContext } from "../Shell/AuroraProvider"
 
 type GetProjectState = {
   data?: Project[]
@@ -13,9 +12,6 @@ type GetProjectState = {
 }
 
 export function ProjectsOverview({ client }: { client: TrpcClient["project"] }) {
-  const { setCurrentProject, domain } = useAuroraContext()
-  setCurrentProject(undefined)
-
   const [getProjects, updateGetProjects] = useState<GetProjectState>({ isLoading: true })
   const [viewMode, setViewMode] = useState<ViewMode>("card")
 
@@ -45,9 +41,9 @@ export function ProjectsOverview({ client }: { client: TrpcClient["project"] }) 
         {/* Content - Make sure it has no extra margin/padding that misaligns */}
         <div className="w-full pt-5">
           {viewMode === "list" ? (
-            <ProjectListView domain={domain} projects={getProjects.data} />
+            <ProjectListView projects={getProjects.data} />
           ) : (
-            <ProjectCardView domain={domain} projects={getProjects.data} />
+            <ProjectCardView projects={getProjects.data} />
           )}
         </div>
       </div>

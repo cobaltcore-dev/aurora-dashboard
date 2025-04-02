@@ -27,6 +27,7 @@ const SyncAuth = () => {
 describe("AuthMenu Component", () => {
   const trpcClient: TrpcClient["auth"] = {
     getCurrentUserSession: { query: vi.fn() },
+    setCurrentScope: { mutate: vi.fn() },
     terminateUserSession: { mutate: vi.fn() },
     createUserSession: { mutate: vi.fn() },
     getAuthToken: { query: vi.fn() },

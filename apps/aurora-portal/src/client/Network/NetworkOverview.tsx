@@ -1,36 +1,10 @@
 import { useEffect, useState, useRef } from "react"
-import { TrpcClient } from "../trpcClient"
-import { useParams } from "wouter"
-import { Project } from "../../server/Project/types/models"
-import { useAuroraContext } from "../Shell/AuroraProvider"
 import { TopologyChart } from "./components/TopologyChart"
 
-type GetProjectByIdState = {
-  data?: Project
-  error?: string
-  isProjectLoading?: boolean
-}
-
-export function NetworkOverview({ client }: { client: TrpcClient }) {
-  const [getProjectById, updateProjectById] = useState<GetProjectByIdState>({
-    isProjectLoading: true,
-  })
-  const { setCurrentProject } = useAuroraContext()
-  const params = useParams()
-
+export function NetworkOverview() {
   // **Ref for container and state for dimensions**
   const containerRef = useRef<HTMLDivElement>(null)
   const [dimensions, setDimensions] = useState({ width: 800, height: 500 })
-
-  useEffect(() => {
-    client.project.getProjectById
-      .query({ id: params?.projectId || "" })
-      .then((data) => {
-        setCurrentProject(data)
-        updateProjectById({ data, isProjectLoading: false })
-      })
-      .catch((error) => updateProjectById({ error: error.message, isProjectLoading: false }))
-  }, [])
 
   useEffect(() => {
     const updateSize = () => {
@@ -50,11 +24,6 @@ export function NetworkOverview({ client }: { client: TrpcClient }) {
 
     return () => window.removeEventListener("resize", updateSize)
   }, [])
-  if (getProjectById.isProjectLoading)
-    return <div className="h-full flex justify-center items-center text-gray-400">Loading...</div>
-
-  if (getProjectById.error)
-    return <div className="h-full flex justify-center items-center text-red-500">Error: {getProjectById.error}</div>
 
   return (
     <div

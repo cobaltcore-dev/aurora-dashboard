@@ -1,5 +1,11 @@
 import { z } from "zod"
-import { AllowedComputeRoutes, AllowedNetworkRoutes, AuroraDomainNavigationRoutes } from "./constants"
+import {
+  AllowedComputeRoutes,
+  AllowedMetricsRoutes,
+  AllowedNetworkRoutes,
+  AllowedStorageRoutes,
+  AuroraDomainNavigationRoutes,
+} from "./constants"
 
 // Utility to convert routes to Zod objects
 const createRoutesSchema = <T extends readonly string[]>(routes: T) =>
@@ -12,6 +18,9 @@ export const SubRouteSchema = z.string().min(1)
 
 export const AuroraDomainNavigationSchema = createRoutesSchema(AuroraDomainNavigationRoutes)
 export const ComputeRoutesSchema = createRoutesSchema(AllowedComputeRoutes)
+export const StorageRouteSchema = createRoutesSchema(AllowedStorageRoutes)
+export const MetricsRouteSchema = createRoutesSchema(AllowedMetricsRoutes)
+
 export const NetworkRoutesSchema = createRoutesSchema(AllowedNetworkRoutes)
 
 // Base Routes
@@ -32,6 +41,12 @@ export const ProjectSchema = z
         root: z.string(),
       }),
       network: NetworkRoutesSchema.extend({
+        root: z.string(),
+      }),
+      storage: StorageRouteSchema.extend({
+        root: z.string(),
+      }),
+      metrics: MetricsRouteSchema.extend({
         root: z.string(),
       }),
     })
