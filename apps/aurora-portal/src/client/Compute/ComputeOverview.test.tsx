@@ -1,5 +1,5 @@
 import { describe, it, vi, beforeEach } from "vitest"
-import { render, screen, waitFor } from "@testing-library/react"
+import { render, screen, waitFor, fireEvent, act } from "@testing-library/react"
 import { ComputeOverview } from "./ComputeOverview"
 import { TrpcClient } from "../trpcClient"
 import { Server } from "../../server/Compute/types/models"
@@ -112,6 +112,62 @@ describe("ComputePanel", () => {
 
     await waitFor(() => {
       expect(screen.getByText("Development Server")).toBeInTheDocument()
+    })
+  })
+
+  it("filters by search term", async () => {
+    const mockServers = [
+      {
+        id: "10",
+        name: "Development Server",
+        accessIPv4: "192.168.1.100",
+        accessIPv6: "fe80::A",
+        addresses: {
+          private: [{ addr: "10.0.0.10", mac_addr: "00:2D:3E:4F:7A:8B", type: "fixed", version: 4 }],
+        },
+        created: "2025-02-15T03:25:00Z",
+        updated: "2025-02-16T04:40:00Z",
+        status: "ACTIVE",
+        flavor: { disk: 60, ram: 32768, vcpus: 16 },
+        image: { id: "image-110" },
+        metadata: { "Server Role": "Development" },
+      },
+      {
+        id: "11",
+        name: "Test",
+        accessIPv4: "192.168.1.101",
+        accessIPv6: "fe80::B",
+        addresses: {
+          private: [{ addr: "10.0.0.11", mac_addr: "00:2D:3E:4F:7A:8C", type: "fixed", version: 4 }],
+        },
+        created: "2025-02-15T03:25:00Z",
+        updated: "2025-02-16T04:40:00Z",
+        status: "ACTIVE",
+        flavor: { disk: 60, ram: 32768, vcpus: 16 },
+        image: { id: "image-110" },
+        metadata: { "Server Role": "QA" },
+      },
+    ] as Server[]
+    const mockProject = { id: "1", name: "Project 1" }
+    mockGetProjectById.mockResolvedValue(mockProject) // Never resolves
+
+    mockGetServers.mockResolvedValue(mockServers)
+    renderWithAuth(<ComputeOverview client={mockClient} />)
+
+    await waitFor(() => {
+      expect(screen.getByPlaceholderText("Search...")).toBeInTheDocument()
+    })
+
+    const searchInput = screen.getByPlaceholderText("Search...")
+    fireEvent.change(searchInput, { target: { value: "test" } })
+
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 500))
+    })
+
+    await waitFor(() => {
+      expect(screen.queryByText("Development Server")).not.toBeInTheDocument()
+      expect(screen.getByText("Test")).toBeInTheDocument()
     })
   })
 })
