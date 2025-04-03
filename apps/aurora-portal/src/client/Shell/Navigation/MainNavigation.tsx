@@ -28,7 +28,7 @@ export function MainNavigation({ items }: NavigationProps) {
             <span className="text-lg font-medium text-sap-grey-2">Aurora</span>
           </Link>
           {domain?.id && (
-            <Link to={projectsPath} className="flex items-center space-x-3">
+            <Link to={projectsPath} data-testid="domain-link" className="flex items-center space-x-3">
               {/* Changed href to to */}
               <span className="text-sap-grey-1">/</span>
               <span className="font-semibold text-lg text-sap-grey-2">{domain.name}</span>

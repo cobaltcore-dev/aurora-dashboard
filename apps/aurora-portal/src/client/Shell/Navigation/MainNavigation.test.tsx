@@ -1,8 +1,7 @@
 import { render, screen, fireEvent } from "@testing-library/react"
-import { BaseLocationHook, Router } from "wouter"
+import { MemoryRouter, Routes, Route } from "react-router-dom"
 import { MainNavigation } from "./MainNavigation"
 import { AuroraContext, AuroraContextType } from "../AuroraProvider"
-import { memoryLocation } from "wouter/memory-location"
 import { createRoutePaths } from "../../routes/AuroraRoutes"
 import { Project } from "../../../server/Project/types/models"
 import { vi } from "vitest"
@@ -25,18 +24,23 @@ const mockProject: Project = {
   links: { self: "https://example.com/project-1" },
 }
 
-// Helper function to wrap components with a **mocked AuroraContext**
-const renderWithContext = (ui: React.ReactNode, hook: BaseLocationHook, contextValue: AuroraContextType) => {
+// Helper function to wrap components with a mocked AuroraContext
+const renderWithContext = (ui: React.ReactNode, contextValue: AuroraContextType) => {
   return render(
     <AuroraContext.Provider value={contextValue}>
-      <Router hook={hook}>{ui}</Router>
+      <MemoryRouter initialEntries={[auroraRoutes.home]}>
+        <Routes>
+          <Route path="/" element={ui} />
+          <Route path="/about" element={<div>About Page Content</div>} />
+          <Route path={auroraRoutes.domain(mockDomain.id).projects} element={<div>Projects Page</div>} />
+        </Routes>
+      </MemoryRouter>
     </AuroraContext.Provider>
   )
 }
 
 describe("MainNavigation", () => {
   test("renders MainNavigation with items", () => {
-    const { hook } = memoryLocation({ path: auroraRoutes.home })
     const contextValue = {
       currentScope: undefined,
       setCurrentScope: vi.fn(),
@@ -46,12 +50,11 @@ describe("MainNavigation", () => {
       setDomain: vi.fn(),
     }
 
-    renderWithContext(<MainNavigation items={mainNavItems} />, hook, contextValue)
+    renderWithContext(<MainNavigation items={mainNavItems} />, contextValue)
     expect(screen.getByText("Aurora")).toBeInTheDocument()
   })
 
-  test("clicking a MainNavigation item updates the route", () => {
-    const { hook } = memoryLocation({ path: auroraRoutes.home })
+  test("clicking a MainNavigation item updates the route", async () => {
     const contextValue = {
       currentScope: undefined,
       setCurrentScope: vi.fn(),
@@ -61,17 +64,17 @@ describe("MainNavigation", () => {
       setDomain: vi.fn(),
     }
 
-    renderWithContext(<MainNavigation items={mainNavItems} />, hook, contextValue)
+    renderWithContext(<MainNavigation items={mainNavItems} />, contextValue)
 
     const aboutLink = screen.getByText("About")
     fireEvent.click(aboutLink)
 
-    expect(aboutLink).toHaveClass("text-sap-grey-2 hover:text-sap-grey-2 font-medium")
+    // Now we should expect to see the content of the About page
+    expect(await screen.findByText("About Page Content")).toBeInTheDocument()
   })
 
   describe("Domain Navigation links", () => {
     it("renders the logo and 'Aurora' text", () => {
-      const { hook } = memoryLocation({ path: auroraRoutes.home })
       const contextValue = {
         currentScope: undefined,
         setCurrentScope: vi.fn(),
@@ -81,14 +84,13 @@ describe("MainNavigation", () => {
         setDomain: vi.fn(),
       }
 
-      renderWithContext(<MainNavigation items={mainNavItems} />, hook, contextValue)
+      renderWithContext(<MainNavigation items={mainNavItems} />, contextValue)
 
       expect(screen.getByTitle("Aurora")).toBeInTheDocument()
       expect(screen.getByText("Aurora")).toBeInTheDocument()
     })
 
     it("displays the domain name if provided", () => {
-      const { hook } = memoryLocation({ path: auroraRoutes.home })
       const contextValue = {
         currentScope: undefined,
         setCurrentScope: vi.fn(),
@@ -98,12 +100,11 @@ describe("MainNavigation", () => {
         setDomain: vi.fn(),
       }
 
-      renderWithContext(<MainNavigation items={mainNavItems} />, hook, contextValue)
+      renderWithContext(<MainNavigation items={mainNavItems} />, contextValue)
       expect(screen.getByText(mockDomain.name)).toBeInTheDocument()
     })
 
     it("displays the project name if provided", () => {
-      const { hook } = memoryLocation({ path: auroraRoutes.home })
       const contextValue = {
         currentScope: { scope: { project: mockProject, domain: mockDomain } },
         setCurrentScope: vi.fn(),
@@ -113,12 +114,11 @@ describe("MainNavigation", () => {
         setDomain: vi.fn(),
       }
 
-      renderWithContext(<MainNavigation items={mainNavItems} />, hook, contextValue)
+      renderWithContext(<MainNavigation items={mainNavItems} />, contextValue)
       expect(screen.getByText(mockProject.name)).toBeInTheDocument()
     })
 
-    it("navigates to '/projects' when clicking the domain name", () => {
-      const { hook, history } = memoryLocation({ path: auroraRoutes.home, record: true })
+    it("navigates to '/projects' when clicking the domain name", async () => {
       const contextValue = {
         currentScope: { scope: { project: mockProject, domain: mockDomain } },
         setCurrentScope: vi.fn(),
@@ -128,12 +128,13 @@ describe("MainNavigation", () => {
         setDomain: vi.fn(),
       }
 
-      renderWithContext(<MainNavigation items={mainNavItems} />, hook, contextValue)
+      renderWithContext(<MainNavigation items={mainNavItems} />, contextValue)
 
-      const domainLink = screen.getByText(mockDomain.name).closest("a")
+      const domainLink = screen.getByTestId("domain-link").closest("a")
       fireEvent.click(domainLink!)
 
-      expect(history).toContain(auroraRoutes.domain(mockDomain.id).projects)
+      // Now we should expect to see the Projects page content
+      expect(await screen.findByText("Projects Page")).toBeInTheDocument()
     })
   })
 })

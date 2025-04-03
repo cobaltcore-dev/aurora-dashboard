@@ -19,7 +19,7 @@ export function SubNavigation() {
       items.push({ route: auroraRoutes.domain(domain).project(project).storage.root, label: "Storage" })
       items.push({ route: auroraRoutes.domain(domain).project(project).metrics.root, label: "Metrics" })
     } else {
-      items.push({ route: `/accounts/${domain}/projects`, label: "Overview" })
+      items.push({ route: auroraRoutes.domain(domain).projects, label: "Overview" })
     }
   }
 

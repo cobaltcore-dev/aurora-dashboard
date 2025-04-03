@@ -4,6 +4,9 @@ import { AuthMenu } from "./AuthMenu" // Adjust the import as necessary
 import { StoreProvider, useAuthDispatch } from "../store/StoreProvider" // Adjust based on your file structure
 import { TrpcClient } from "../trpcClient"
 import { useEffect } from "react"
+import { MemoryRouter, Route, Routes } from "react-router-dom"
+import { AuroraProvider } from "../Shell/AuroraProvider"
+import { createRoutePaths } from "../routes/AuroraRoutes"
 
 const SyncAuth = () => {
   const dispatch = useAuthDispatch()
@@ -24,6 +27,18 @@ const SyncAuth = () => {
   return null
 }
 
+const auroraRoutes = createRoutePaths().auroraRoutePaths()
+const renderWithAuth = (ui: React.ReactNode) =>
+  render(
+    <MemoryRouter initialEntries={[auroraRoutes.home]}>
+      <AuroraProvider>
+        <Routes>
+          <Route path={auroraRoutes.home} element={ui} />
+          <Route path="/1789d1/projects/89ac3f/compute" element={<div>Compute Page</div>} />
+        </Routes>
+      </AuroraProvider>
+    </MemoryRouter>
+  )
 describe("AuthMenu Component", () => {
   const trpcClient: TrpcClient["auth"] = {
     getCurrentUserSession: { query: vi.fn() },
@@ -41,7 +56,7 @@ describe("AuthMenu Component", () => {
   it("renders Sign In button when not authenticated", () => {
     trpcClient.getCurrentUserSession.query = vi.fn().mockResolvedValueOnce(null) // Mock no token
 
-    render(
+    renderWithAuth(
       <StoreProvider>
         <AuthMenu authClient={trpcClient} />
       </StoreProvider>
@@ -56,7 +71,7 @@ describe("AuthMenu Component", () => {
       sessionExpiresAt: Date.now() + 1000,
     })
 
-    render(
+    renderWithAuth(
       <StoreProvider>
         <SyncAuth />
         <AuthMenu authClient={trpcClient} />
@@ -74,7 +89,7 @@ describe("AuthMenu Component", () => {
       sessionExpiresAt: Date.now() + 1000,
     })
 
-    render(
+    renderWithAuth(
       <StoreProvider>
         <SyncAuth />
         <AuthMenu authClient={trpcClient} />
