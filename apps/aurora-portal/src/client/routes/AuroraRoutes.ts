@@ -14,12 +14,12 @@ export function createRoutePaths(extensions?: readonly string[]) {
         const domainId = DomainIdSchema.parse(domainIdParam)
 
         return {
-          root: `/${domainId}`,
-          projects: `/${domainId}/projects`,
+          root: `/accounts/${domainId}`,
+          projects: `/accounts/${domainId}/projects`,
           project: (projectIdParam?: string) => {
             const projectId = ProjectIdSchema.parse(projectIdParam)
 
-            const withinProject = (path: string) => `/${domainId}/projects/${projectId}/${path}`
+            const withinProject = (path: string) => `/accounts/${domainId}/projects/${projectId}/${path}`
 
             const withSubRoute = (base: string, allowedRoutes: readonly string[]) =>
               Object.fromEntries(allowedRoutes.map((route) => [route, withinProject(`${base}/${route}`)]))

@@ -4,7 +4,7 @@ import { TrpcClient } from "../trpcClient"
 import ServerListView from "./components/ServerListView"
 import ServerCardView from "./components/ServerCardView"
 import { ComputeNavBar, ComputeSideNavBar } from "./components/ComputeNavBar"
-import { useParams } from "wouter"
+import { useParams } from "react-router-dom"
 
 type GetServersState = {
   data?: Server[]
@@ -16,11 +16,11 @@ export function ComputeOverview({ client }: { client: TrpcClient }) {
   const [getServers, updateGetServer] = useState<GetServersState>({ isLoading: true })
 
   const [viewMode, setViewMode] = useState<"list" | "card">("list")
-  const { projectId } = useParams()
+  const { project } = useParams()
 
   useEffect(() => {
     client.compute.getServersByProjectId
-      .query({ projectId: projectId! })
+      .query({ projectId: project! })
       .then((data) => updateGetServer({ data, isLoading: false }))
       .catch((error) => updateGetServer({ error: error.message, isLoading: false }))
   }, [])

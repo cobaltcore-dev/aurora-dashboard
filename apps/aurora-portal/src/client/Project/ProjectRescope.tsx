@@ -1,4 +1,4 @@
-import { useParams } from "wouter"
+import { useParams } from "react-router-dom"
 
 import { use, useEffect } from "react"
 import { AuroraContext } from "../Shell/AuroraProvider"
@@ -8,15 +8,12 @@ import { Project } from "../../server/Project/types/models"
 
 export function ProjectRescope({ children, client }: { children: React.ReactNode; client: TrpcClient["auth"] }) {
   const context = use(AuroraContext)
-  const { projectId, domainId } = useParams()
+  const { project, domain } = useParams()
 
   useEffect(() => {
-    if (
-      projectId !== context?.currentScope?.scope?.project?.id ||
-      domainId !== context?.currentScope?.scope?.domain?.id
-    ) {
+    if (project !== context?.currentScope?.scope?.project?.id || domain !== context?.currentScope?.scope?.domain?.id) {
       client.setCurrentScope
-        .mutate({ domainId: domainId!, projectId: projectId || "" })
+        .mutate({ domainId: domain!, projectId: project || "" })
         .then((data) => {
           context?.setCurrentScope({
             scope: { domain: data?.domain as Domain, project: data?.project as Project },
@@ -25,7 +22,7 @@ export function ProjectRescope({ children, client }: { children: React.ReactNode
         })
         .catch((error) => context?.setCurrentScope({ error: error.message, isLoading: false }))
     }
-  }, [projectId, domainId])
+  }, [project, domain])
 
   if (context?.currentScope?.isLoading)
     return <div className="h-full flex justify-center items-center text-gray-400">Rescoping...</div>

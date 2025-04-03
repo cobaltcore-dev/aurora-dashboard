@@ -1,6 +1,7 @@
-import { useLocation } from "wouter"
 import { Project } from "../../../server/Project/types/models"
 import { Icon } from "../../components/Icon"
+import { useNavigate } from "react-router-dom"
+
 import { useAuroraContext } from "../../Shell/AuroraProvider"
 
 type ProjectListViewProps = {
@@ -8,7 +9,7 @@ type ProjectListViewProps = {
 }
 
 export function ProjectListView({ projects }: ProjectListViewProps) {
-  const [, setLocation] = useLocation()
+  const navigate = useNavigate()
 
   const { auroraRoutes } = useAuroraContext()
   return (
@@ -18,7 +19,8 @@ export function ProjectListView({ projects }: ProjectListViewProps) {
           <div
             key={project.id}
             className="flex items-center w-full px-6 py-4 hover:bg-[#1f242b] transition-all cursor-pointer border-b border-[#30363d] last:border-0"
-            onClick={() => setLocation(auroraRoutes.domain(project.domain_id!).project(project.id).compute.root)}
+            // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
+            onClick={() => navigate(auroraRoutes.domain(project?.domain_id!).project(project.id).compute.root)}
           >
             {/* Icon + Title (Left Side) */}
             <div className="flex items-center space-x-3 min-w-0 w-1/3">

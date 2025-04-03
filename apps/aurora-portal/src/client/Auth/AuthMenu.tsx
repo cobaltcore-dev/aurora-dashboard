@@ -1,5 +1,6 @@
 import { useState } from "react"
-import { useLocation } from "wouter"
+import { useNavigate } from "react-router-dom" // Update imports
+
 import { TrpcClient } from "../trpcClient"
 import { Button } from "../components/Button"
 import { SessionExpirationTimer } from "./SessionExpirationTimer"
@@ -8,12 +9,11 @@ import { useCallback } from "react"
 
 export function AuthMenu(props: { authClient: TrpcClient["auth"] }) {
   const [isLoading, setIsLoading] = useState(false)
-  const setLocation = useLocation()[1]
   const { isAuthenticated, user, sessionExpiresAt } = useAuth()
   const dispatch = useAuthDispatch()
-
+  const navigate = useNavigate()
   const login = () => {
-    setLocation("/auth/signin")
+    navigate("/auth/signin")
   }
 
   const logout = useCallback(() => {
@@ -23,7 +23,7 @@ export function AuthMenu(props: { authClient: TrpcClient["auth"] }) {
       .then(() => {
         dispatch({ type: "LOGOUT" })
         setIsLoading(false)
-        setLocation("/")
+        navigate("/")
       })
       .catch((e: Error) => dispatch({ type: "LOGIN_FAILURE", payload: { error: e.message } }))
   }, [])
