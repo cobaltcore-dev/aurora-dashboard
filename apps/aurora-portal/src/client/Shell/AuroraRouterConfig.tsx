@@ -44,7 +44,7 @@ export function AuroraRouter({
               }
             ></Route>
             <Route
-              path="projects/:project/compute"
+              path="projects/:project/compute/*"
               element={
                 <ProjectRescope client={trpcClient.auth}>
                   <ComputeOverview client={trpcClient} />

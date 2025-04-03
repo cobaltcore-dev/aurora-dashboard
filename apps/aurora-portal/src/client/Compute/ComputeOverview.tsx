@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react"
 import type { Server } from "../../server/Compute/types/models"
 import { TrpcClient } from "../trpcClient"
-import ServerListView from "./components/ServerListView"
-import ServerCardView from "./components/ServerCardView"
 import { ComputeNavBar, ComputeSideNavBar } from "./components/ComputeNavBar"
 import { useParams } from "react-router-dom"
+import { Instances } from "./Instances/List"
+import { KeyPairs } from "./KeyPairs/List"
+import { Images } from "./Images/List"
+import { ServerGroups } from "./ServerGroups/List"
 
 type GetServersState = {
   data?: Server[]
@@ -17,6 +19,7 @@ export function ComputeOverview({ client }: { client: TrpcClient }) {
 
   const [viewMode, setViewMode] = useState<"list" | "card">("list")
   const { project } = useParams()
+  const { "*": splat } = useParams()
 
   useEffect(() => {
     client.compute.getServersByProjectId
@@ -44,17 +47,25 @@ export function ComputeOverview({ client }: { client: TrpcClient }) {
         </div>
       </div>
       <div className="col-span-1"></div> {/* Right Spacing */}
-      {/* Row 2: Sidebar & Main Content (Properly Aligned) */}
       <div className="col-span-2 flex flex-col gap-4">
         <ComputeSideNavBar />
       </div>
       <div className="col-span-9 flex flex-col gap-4">
         <div className="w-full">
-          {viewMode === "list" ? (
-            <ServerListView servers={getServers.data} />
-          ) : (
-            <ServerCardView servers={getServers.data} />
-          )}
+          {(() => {
+            switch (splat) {
+              case "instances":
+                return <Instances viewMode={viewMode} data={getServers.data!} />
+              case "keypairs":
+                return <KeyPairs />
+              case "images":
+                return <Images />
+              case "servergroups":
+                return <ServerGroups />
+              default:
+                return <Instances viewMode={viewMode} data={getServers.data!} />
+            }
+          })()}
         </div>
       </div>
       <div className="col-span-1"></div> {/* Right Spacing */}
