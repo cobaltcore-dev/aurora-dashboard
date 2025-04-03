@@ -83,7 +83,7 @@ describe("ComputePanel", () => {
   })
 
   it("shows a content", async () => {
-    const mockServers = [
+    const mockServers: Server[] = [
       {
         id: "10",
         name: "Development Server",
@@ -99,7 +99,7 @@ describe("ComputePanel", () => {
         image: { id: "image-110" },
         metadata: { "Server Role": "Development" },
       },
-    ] as Server[]
+    ]
     const mockProject = { id: "1", name: "Project 1" }
     mockGetProjectById.mockResolvedValue(mockProject) // Never resolves
 
@@ -116,7 +116,7 @@ describe("ComputePanel", () => {
   })
 
   it("filters by search term", async () => {
-    const mockServers = [
+    const mockServers: Server[] = [
       {
         id: "10",
         name: "Development Server",
@@ -147,7 +147,7 @@ describe("ComputePanel", () => {
         image: { id: "image-110" },
         metadata: { "Server Role": "QA" },
       },
-    ] as Server[]
+    ]
     const mockProject = { id: "1", name: "Project 1" }
     mockGetProjectById.mockResolvedValue(mockProject) // Never resolves
 
