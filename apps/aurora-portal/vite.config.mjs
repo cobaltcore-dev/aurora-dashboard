@@ -6,6 +6,7 @@ import tsconfigPaths from "vite-tsconfig-paths"
 import svgr from "vite-plugin-svgr"
 import * as dotenv from "dotenv"
 import process from "process"
+import { lingui } from "@lingui/vite-plugin"
 
 dotenv.config()
 
@@ -22,7 +23,14 @@ export default defineConfig({
   define: {
     BFF_ENDPOINT: JSON.stringify(BFF_ENDPOINT),
   },
-  plugins: [react(), svgr(), tsconfigPaths()],
+  plugins: [
+    react({
+      plugins: [["@lingui/swc-plugin", {}]],
+    }),
+    svgr(),
+    tsconfigPaths(),
+    lingui(),
+  ],
   css: {
     postcss: {
       plugins: [tailwindcss, autoprefixer],

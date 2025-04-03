@@ -2,6 +2,7 @@ import { useCallback, useState } from "react"
 import { Button } from "../components/Button"
 import { useAuth, useAuthDispatch } from "../store/StoreProvider"
 import { TrpcClient } from "../trpcClient"
+import { Trans } from "@lingui/react/macro"
 
 const textinputstyles = `
   jn-bg-theme-textinput
@@ -62,7 +63,9 @@ export function SignIn(props: { trpcClient: TrpcClient["auth"] }) {
   return (
     <div className="flex min-h-screen items-center justify-center">
       <div className="w-full max-w-md shadow-lg rounded-lg p-6 border border-gray-700 bg-gray-900">
-        <h2 className="text-2xl font-semibold text-center text-white mb-4">Login to Your Account</h2>
+        <h2 className="text-2xl font-semibold text-center text-white mb-4">
+          <Trans>Login to Your Account</Trans>
+        </h2>
         <p className="text-gray-400 text-center text-sm mb-6">Enter your credentials to access your account</p>
 
         {error && <div className="text-red-500 text-sm mb-4 text-center">Error: {error}</div>}
