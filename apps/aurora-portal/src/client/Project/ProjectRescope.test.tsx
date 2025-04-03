@@ -1,8 +1,7 @@
 import { render, screen, waitFor } from "@testing-library/react"
-import { Router } from "wouter"
+import { MemoryRouter } from "react-router-dom"
 import { ProjectRescope } from "./ProjectRescope"
 import { AuroraContext, AuroraContextType } from "../Shell/AuroraProvider"
-import { memoryLocation } from "wouter/memory-location"
 import { vi } from "vitest"
 import { createRoutePaths } from "../routes/AuroraRoutes"
 import { TrpcClient } from "../trpcClient"
@@ -21,24 +20,23 @@ describe("ProjectRescope", () => {
 
   beforeEach(() => {
     contextValue = {
-      currentScope: undefined, // Start as undefined
+      currentScope: undefined,
       setCurrentScope: vi.fn(),
-      domain: { id: "default-domain", name: "Default Domain" }, // Ensure a default domain
-      auroraRoutes: createRoutePaths().auroraRoutePaths(), // Mock routes as needed
+      domain: { id: "default-domain", name: "Default Domain" },
+      auroraRoutes: createRoutePaths().auroraRoutePaths(),
       setAuroraRoutes: vi.fn(),
       setDomain: vi.fn(),
     }
   })
 
   test("calls setCurrentScope.mutate when projectId or domainId change", async () => {
-    const { hook } = memoryLocation({ path: "/domain-1/project-1" })
     render(
       <AuroraContext.Provider value={contextValue}>
-        <Router hook={hook}>
+        <MemoryRouter initialEntries={["/domain-1/project-1"]}>
           <ProjectRescope client={mockSetCurrentScope}>
             <div>Content Loaded</div>
           </ProjectRescope>
-        </Router>
+        </MemoryRouter>
       </AuroraContext.Provider>
     )
 
@@ -58,15 +56,14 @@ describe("ProjectRescope", () => {
       isLoading: true,
       error: undefined,
     }
-    const { hook } = memoryLocation({ path: "/domain-1/project-1" })
 
     render(
       <AuroraContext.Provider value={contextValue}>
-        <Router hook={hook}>
+        <MemoryRouter initialEntries={["/domain-1/project-1"]}>
           <ProjectRescope client={mockSetCurrentScope}>
             <div>Content Loaded</div>
           </ProjectRescope>
-        </Router>
+        </MemoryRouter>
       </AuroraContext.Provider>
     )
 
@@ -96,14 +93,13 @@ describe("ProjectRescope", () => {
       error: "Scope failed",
     }
 
-    const { hook } = memoryLocation({ path: "/domain-1/project-1" })
     render(
       <AuroraContext.Provider value={contextValue}>
-        <Router hook={hook}>
+        <MemoryRouter initialEntries={["/domain-1/project-1"]}>
           <ProjectRescope client={mockSetCurrentScope}>
             <div>Content Loaded</div>
           </ProjectRescope>
-        </Router>
+        </MemoryRouter>
       </AuroraContext.Provider>
     )
 

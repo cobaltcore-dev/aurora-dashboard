@@ -1,4 +1,4 @@
-import { Link, useLocation, useParams } from "wouter"
+import { NavLink, useLocation, useParams } from "react-router-dom"
 import { ComboBox, ComboBoxOption } from "../../components/ComboBox"
 import { Button } from "../../components/Button"
 import { Icon } from "../../components/Icon"
@@ -10,16 +10,16 @@ type ComputeNavBarProps = {
 }
 
 export const ComputeSideNavBar = () => {
-  const [location] = useLocation()
+  const location = useLocation()
   const { auroraRoutes } = useAuroraContext()
 
-  const { projectId, domainId } = useParams()
+  const { project, domain } = useParams()
   const links = [
-    { path: auroraRoutes.domain(domainId).project(projectId).compute.root, label: "Overview" },
-    { path: auroraRoutes.domain(domainId).project(projectId).compute.instances, label: "Instances" },
-    { path: auroraRoutes.domain(domainId).project(projectId).compute.images, label: "Images" },
-    { path: auroraRoutes.domain(domainId).project(projectId).compute.keypairs, label: "Key Pairs" },
-    { path: auroraRoutes.domain(domainId).project(projectId).compute.servergroups, label: "Server Groups" },
+    { path: auroraRoutes.domain(domain).project(project).compute.root, label: "Overview" },
+    { path: auroraRoutes.domain(domain).project(project).compute.instances, label: "Instances" },
+    { path: auroraRoutes.domain(domain).project(project).compute.images, label: "Images" },
+    { path: auroraRoutes.domain(domain).project(project).compute.keypairs, label: "Key Pairs" },
+    { path: auroraRoutes.domain(domain).project(project).compute.servergroups, label: "Server Groups" },
   ]
 
   return (
@@ -27,18 +27,18 @@ export const ComputeSideNavBar = () => {
       {/* Navigation */}
       <nav className="w-full flex flex-col rounded-lg items-start ">
         {links.map(({ path, label }) => (
-          <Link
+          <NavLink
             key={path}
-            href={path}
+            to={path}
             className={`w-full text-base font-medium px-4 py-3 rounded-md transition text-justify
               ${
-                location === path
+                location.pathname === path
                   ? "bg-juno-grey-blue-3 text-white shadow-md"
                   : "text-juno-blue-1 hover:bg-juno-grey-blue-4 hover:text-white"
               }`}
           >
             {label}
-          </Link>
+          </NavLink>
         ))}
       </nav>
     </div>

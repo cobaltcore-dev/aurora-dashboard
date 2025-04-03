@@ -48,7 +48,7 @@ async function startServer() {
     })
 
     // In case of a SPA, we need to serve the index.html file for all routes
-    // (wouter handles the routing on the client-side)
+    // (react-router handles the routing on the client-side)
     server.get("/*", (req, reply) => {
       return reply.sendFile("index.html")
     })

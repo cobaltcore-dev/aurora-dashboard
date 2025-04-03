@@ -4,7 +4,7 @@ import { ComputeOverview } from "./ComputeOverview"
 import { TrpcClient } from "../trpcClient"
 import { Server } from "../../server/Compute/types/models"
 import { AuroraProvider } from "../Shell/AuroraProvider"
-import { Router } from "wouter"
+import { MemoryRouter, Route, Routes } from "react-router-dom"
 
 const mockGetServers = vi.fn()
 const mockGetProjectById = vi.fn()
@@ -18,12 +18,16 @@ const mockClient = {
   project: { getProjectById: { query: mockGetProjectById } },
 } as unknown as TrpcClient
 
-// Helper function to wrap components with AuthProvider & Router
+// Helper function to wrap components with AuthProvider & MemoryRouter
 const renderWithAuth = (ui: React.ReactNode) => {
   return render(
-    <AuroraProvider>
-      <Router>{ui}</Router>
-    </AuroraProvider>
+    <MemoryRouter initialEntries={["/1789d1/projects/89ac3f/compute"]}>
+      <AuroraProvider>
+        <Routes>
+          <Route path="/1789d1/projects/89ac3f/compute" element={ui} />
+        </Routes>
+      </AuroraProvider>
+    </MemoryRouter>
   )
 }
 
@@ -70,8 +74,7 @@ describe("ComputePanel", () => {
       },
     ]
     const mockProject = { id: "1", name: "Project 1" }
-    mockGetProjectById.mockResolvedValue(mockProject) // Never resolves
-
+    mockGetProjectById.mockResolvedValue(mockProject)
     mockGetServers.mockResolvedValue(mockServers)
 
     renderWithAuth(<ComputeOverview client={mockClient} />)
@@ -101,16 +104,13 @@ describe("ComputePanel", () => {
       },
     ] as Server[]
     const mockProject = { id: "1", name: "Project 1" }
-    mockGetProjectById.mockResolvedValue(mockProject) // Never resolves
-
+    mockGetProjectById.mockResolvedValue(mockProject)
     mockGetServers.mockResolvedValue(mockServers)
+
     renderWithAuth(<ComputeOverview client={mockClient} />)
 
     await waitFor(() => {
       expect(screen.getByText("Compute")).toBeInTheDocument()
-    })
-
-    await waitFor(() => {
       expect(screen.getByText("Development Server")).toBeInTheDocument()
     })
   })
