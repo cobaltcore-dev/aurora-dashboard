@@ -1,4 +1,4 @@
-import { serverResponseSchema } from "./models"
+import { serverResponseSchema } from "./server"
 import { describe, expect, test } from "vitest"
 
 const examplev2m1 = {

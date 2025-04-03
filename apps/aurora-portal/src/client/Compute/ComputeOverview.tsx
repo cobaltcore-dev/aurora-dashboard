@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import type { Server } from "../../server/Compute/types/models"
+import type { Server } from "../../server/Compute/types/server"
 import { TrpcClient } from "../trpcClient"
 import ServerListView from "./components/ServerListView"
 import ServerCardView from "./components/ServerCardView"
