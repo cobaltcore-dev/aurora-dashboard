@@ -13,6 +13,47 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: src/client/Auth/SignIn.tsx:67
+#: src/client/Auth/SignIn.tsx:146
+msgid "Contact support"
+msgstr "Contact support"
+
+#: src/client/Auth/SignIn.tsx:76
+msgid "Enter your credentials to access your account"
+msgstr "Enter your credentials to access your account"
+
+#: src/client/Auth/SignIn.tsx:81
+msgid "Error: {error}"
+msgstr "Error: {error}"
+
+#: src/client/Auth/SignIn.tsx:48
+msgid "Loading..."
+msgstr "Loading..."
+
+#: src/client/Auth/SignIn.tsx:73
 msgid "Login to Your Account"
 msgstr "Login to Your Account"
+
+#: src/client/Auth/SignIn.tsx:144
+msgid "Need help?"
+msgstr "Need help?"
+
+#: src/client/Auth/SignIn.tsx:117
+msgid "Password"
+msgstr "Password"
+
+#: src/client/Auth/SignIn.tsx:139
+msgid "Sign In"
+msgstr "Sign In"
+
+#: src/client/Auth/SignIn.tsx:103
+msgid "User C/D/I"
+msgstr "User C/D/I"
+
+#. placeholder {0}: user?.name
+#: src/client/Auth/SignIn.tsx:59
+msgid "Welcome back, {0}!"
+msgstr "Welcome back, {0}!"
+
+#: src/client/Auth/SignIn.tsx:62
+msgid "You are already signed in."
+msgstr "You are already signed in."

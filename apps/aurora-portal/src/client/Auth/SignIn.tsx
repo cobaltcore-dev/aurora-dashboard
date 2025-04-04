@@ -44,7 +44,9 @@ export function SignIn(props: { trpcClient: TrpcClient["auth"] }) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <span className="animate-spin w-6 h-6 border-4 border-gray-300 border-t-blue-600 rounded-full"></span>
-        <span className="ml-2 text-sm text-gray-500">Loading...</span>
+        <span className="ml-2 text-sm text-gray-500">
+          <Trans>Loading...</Trans>
+        </span>
       </div>
     )
   }
@@ -53,8 +55,12 @@ export function SignIn(props: { trpcClient: TrpcClient["auth"] }) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <div className="max-w-md w-full text-center shadow-lg rounded-lg p-6 border border-gray-300">
-          <h2 className="text-xl font-semibold">Welcome back, {user?.name}!</h2>
-          <p className="text-gray-500">You are already signed in.</p>
+          <h2 className="text-xl font-semibold">
+            <Trans>Welcome back, {user?.name}!</Trans>
+          </h2>
+          <p className="text-gray-500">
+            <Trans>You are already signed in.</Trans>
+          </p>
         </div>
       </div>
     )
@@ -66,9 +72,15 @@ export function SignIn(props: { trpcClient: TrpcClient["auth"] }) {
         <h2 className="text-2xl font-semibold text-center text-white mb-4">
           <Trans>Login to Your Account</Trans>
         </h2>
-        <p className="text-gray-400 text-center text-sm mb-6">Enter your credentials to access your account</p>
+        <p className="text-gray-400 text-center text-sm mb-6">
+          <Trans>Enter your credentials to access your account</Trans>
+        </p>
 
-        {error && <div className="text-red-500 text-sm mb-4 text-center">Error: {error}</div>}
+        {error && (
+          <div className="text-red-500 text-sm mb-4 text-center">
+            <Trans>Error: {error}</Trans>
+          </div>
+        )}
 
         <form className="space-y-4">
           {/* Domain Input */}
@@ -88,7 +100,7 @@ export function SignIn(props: { trpcClient: TrpcClient["auth"] }) {
           {/* User Input */}
           <div className="flex flex-col">
             <label htmlFor="user" className="text-gray-300 font-medium">
-              User C/D/I
+              <Trans>User C/D/I</Trans>
             </label>
             <input
               id="user"
@@ -102,7 +114,7 @@ export function SignIn(props: { trpcClient: TrpcClient["auth"] }) {
           {/* Password Input */}
           <div className="flex flex-col">
             <label htmlFor="password" className="text-gray-300 font-medium">
-              Password
+              <Trans>Password</Trans>
             </label>
             <input
               id="password"
@@ -124,14 +136,14 @@ export function SignIn(props: { trpcClient: TrpcClient["auth"] }) {
               login()
             }}
           >
-            Sign In
+            <Trans>Sign In</Trans>
           </Button>
         </form>
 
         <p className="text-center text-sm text-gray-400 mt-4">
-          Need help?{" "}
+          <Trans>Need help? </Trans>
           <a href="#" className="text-blue-500 hover:underline">
-            Contact support
+            <Trans>Contact support</Trans>
           </a>
         </p>
       </div>
