@@ -59,7 +59,7 @@ export function ComputeOverview({ client }: { client: TrpcClient }) {
               case "keypairs":
                 return <KeyPairs />
               case "images":
-                return <Images />
+                return <Images client={client} />
               case "servergroups":
                 return <ServerGroups />
               default:
