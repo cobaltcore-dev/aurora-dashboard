@@ -1,7 +1,7 @@
 import { Routes, Route } from "react-router-dom"
 import { Home } from "./Home"
 import { About } from "./About"
-import { ComputeOverview } from "../Compute/ComputeOverview"
+import { ComputeDashboard } from "../Compute/ComputeDashboard"
 import { SignIn } from "../Auth/SignIn"
 import { ProjectsOverview } from "../Project/ProejctsOverview"
 import { ProjectRescope } from "../Project/ProjectRescope"
@@ -9,6 +9,7 @@ import { trpcClient } from "../trpcClient"
 import { AuroraLayout } from "./AuroraLayout"
 import { AuroraRoutesSchema } from "../routes/AuroraRoutesSchema"
 import { z } from "zod"
+
 export function AuroraRouter({
   auroraRoutes,
   isAuthenticated,
@@ -47,7 +48,7 @@ export function AuroraRouter({
               path="projects/:project/compute/*"
               element={
                 <ProjectRescope client={trpcClient.auth}>
-                  <ComputeOverview client={trpcClient} />
+                  <ComputeDashboard client={trpcClient} />
                 </ProjectRescope>
               }
             />

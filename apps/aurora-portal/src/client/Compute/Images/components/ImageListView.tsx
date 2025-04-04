@@ -1,13 +1,26 @@
+// export default ImagesPage
 import type { GlanceImage } from "../../../../server/Compute/types/image"
 import { ToastProps, auroraToast, sonnerToast } from "../../../Shell/NotificationCenter/AuroraToast"
 import { Button } from "../../../components/Button"
 import { Icon } from "../../../components/Icon"
-
-type ImageListViewProps = {
-  images: GlanceImage[] | undefined
+interface ImagePageProps {
+  images: GlanceImage[]
 }
 
-export function ImageListView({ images }: ImageListViewProps) {
+// Utility function to format bytes
+export function formatBytes(bytes: number, decimals = 2) {
+  if (bytes === 0) return "0 Bytes"
+
+  const k = 1024
+  const dm = decimals < 0 ? 0 : decimals
+  const sizes = ["Bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"]
+
+  const i = Math.floor(Math.log(bytes) / Math.log(k))
+
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i]
+}
+
+export function ImageListView({ images }: ImagePageProps) {
   // Helper function to format status with appropriate icon
   const renderStatus = (status: string | undefined) => {
     if (!status) return <span>Unknown</span>
@@ -69,7 +82,7 @@ export function ImageListView({ images }: ImageListViewProps) {
                 <th className="p-3">Disk Format</th>
                 <th className="p-3">OS Type</th>
                 <th className="p-3">Created</th>
-                <th className="p-3">Actions</th>
+                <th className="p-3 flex justify-center">Actions</th>
               </tr>
             </thead>
 
@@ -100,7 +113,7 @@ export function ImageListView({ images }: ImageListViewProps) {
 
                   {/* Action Buttons */}
                   <td className="p-3">
-                    <div className="flex space-x-3 mt-4">
+                    <div className="flex space-x-3 mt-4 justify-end">
                       <Button
                         variant="success"
                         className="hover:bg-gray-600"
@@ -167,18 +180,3 @@ export function ImageListView({ images }: ImageListViewProps) {
     </div>
   )
 }
-
-// Utility function to format bytes
-export function formatBytes(bytes: number, decimals = 2) {
-  if (bytes === 0) return "0 Bytes"
-
-  const k = 1024
-  const dm = decimals < 0 ? 0 : decimals
-  const sizes = ["Bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"]
-
-  const i = Math.floor(Math.log(bytes) / Math.log(k))
-
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i]
-}
-
-export default ImageListView
