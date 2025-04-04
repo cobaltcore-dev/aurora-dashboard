@@ -36,14 +36,16 @@ export function SubNavigation() {
           {/* Inner container for hover effect */}
           <div className="px-3 py-2 rounded-md hover:bg-juno-grey-blue-1">
             <span
-              className={`text-base ${location.pathname === route ? "font-semibold text-theme-accent" : "text-gray-700"}`}
+              className={`text-base ${location.pathname.startsWith(route) ? "font-semibold text-theme-accent" : "text-gray-700"}`}
             >
               {label}
             </span>
           </div>
 
           {/* Bottom border effect */}
-          {location.pathname === route && <div className="absolute left-0 bottom-0 w-full h-[3px] bg-theme-accent" />}
+          {location.pathname.startsWith(route) && (
+            <div className="absolute left-0 bottom-0 w-full h-[3px] bg-theme-accent" />
+          )}
         </NavLink>
       ))}
     </div>
