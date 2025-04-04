@@ -1,6 +1,6 @@
 import { z } from "zod"
 import { protectedProcedure } from "../../trpc"
-import { Server, serverResponseSchema } from "../types/models"
+import { Server, serverResponseSchema } from "../types/server"
 
 export const serverRouter = {
   getServersByProjectId: protectedProcedure

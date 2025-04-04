@@ -2,7 +2,7 @@ import { describe, it, vi, beforeEach } from "vitest"
 import { render, screen, waitFor } from "@testing-library/react"
 import { ComputeOverview } from "./ComputeOverview"
 import { TrpcClient } from "../trpcClient"
-import { Server } from "../../server/Compute/types/models"
+import { Server } from "../../server/Compute/types/server"
 import { AuroraProvider } from "../Shell/AuroraProvider"
 import { MemoryRouter, Route, Routes } from "react-router-dom"
 

@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest"
 import { render, screen } from "@testing-library/react"
 import { ServerListView } from "./ServerListView"
-import type { Server } from "../../../server/Compute/types/models"
+import type { Server } from "../../../server/Compute/types/server"
 
 const mockServers: Server[] = [
   {

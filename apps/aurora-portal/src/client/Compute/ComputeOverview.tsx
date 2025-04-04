@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import type { Server } from "../../server/Compute/types/models"
+import type { Server } from "../../server/Compute/types/server"
 import { TrpcClient } from "../trpcClient"
 import { ComputeNavBar, ComputeSideNavBar } from "./components/ComputeNavBar"
 import { useParams } from "react-router-dom"

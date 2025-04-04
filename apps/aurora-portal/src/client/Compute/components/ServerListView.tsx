@@ -1,4 +1,4 @@
-import type { Server } from "../../../server/Compute/types/models"
+import type { Server } from "../../../server/Compute/types/server"
 import { ToastProps, auroraToast, sonnerToast } from "../../Shell/NotificationCenter/AuroraToast"
 import { Button } from "../../components/Button"
 import { Icon } from "../../components/Icon"

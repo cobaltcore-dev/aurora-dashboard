@@ -1,21 +1,18 @@
 import { protectedProcedure } from "../../trpc"
-import { networkResponseSchema, Network } from "../types/models"
-import { z } from "zod"
+import { networksResponseSchema, Network } from "../types/network"
 
 export const networkRouter = {
-  getRoutersByProjectId: protectedProcedure
-    .input(z.object({ projectId: z.string() }))
-    .query(async ({ input, ctx }): Promise<Network[] | undefined> => {
-      const openstackSession = await ctx.rescopeSession({ projectId: input.projectId })
+  getNetworks: protectedProcedure.query(async ({ ctx }): Promise<Network[] | undefined> => {
+    const openstackSession = ctx.openstack
+    const network = openstackSession?.service("network")
 
-      const identityService = openstackSession?.service("identity")
-      const parsedData = networkResponseSchema.safeParse(
-        await identityService?.get("projects").then((res) => res.json())
-      )
-      if (!parsedData.success) {
-        console.error("Zod Parsing Error:", parsedData.error.format())
-        return undefined
-      }
-      return parsedData.data.networks
-    }),
+    const parsedData = networksResponseSchema.safeParse(await network?.get("v2.0/networks").then((res) => res.json()))
+
+    if (!parsedData.success) {
+      console.error("Zod Parsing Error:", parsedData.error.format())
+      return undefined
+    }
+
+    return parsedData.data.networks
+  }),
 }
