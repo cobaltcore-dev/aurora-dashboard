@@ -1,4 +1,5 @@
-import { Link } from "wouter"
+// MainNavigation.tsx
+import { Link } from "react-router-dom"
 import Logo from "../../assets/logo.svg?react"
 
 import { NavigationItem } from "./types"
@@ -15,20 +16,20 @@ export function MainNavigation({ items }: NavigationProps) {
   const context = use(AuroraContext)
   if (!context) return null
   const { domain, currentScope } = context
-
+  const projectsPath = `/accounts/${domain.id}/projects`
   return (
     <nav>
       {/* Main Navigation Bar */}
       <div className="flex items-center justify-between px-6 py-3">
         <div className="flex items-center space-x-4">
-          <Link href={context.auroraRoutes.home} className="flex items-center space-x-3">
+          <Link to={context.auroraRoutes.home} className="flex items-center space-x-3">
+            {/* Changed href to to */}
             <Logo className="w-6 h-6 fill-current" title="Aurora" />
-            {/* Decreased logo size slightly for better alignment */}
             <span className="text-lg font-medium text-sap-grey-2">Aurora</span>
-            {/* Slightly smaller font for better balance */}
           </Link>
           {domain?.id && (
-            <Link href={context.auroraRoutes.domain(domain.id).projects} className="flex items-center space-x-3">
+            <Link to={projectsPath} data-testid="domain-link" className="flex items-center space-x-3">
+              {/* Changed href to to */}
               <span className="text-sap-grey-1">/</span>
               <span className="font-semibold text-lg text-sap-grey-2">{domain.name}</span>
             </Link>
@@ -40,10 +41,11 @@ export function MainNavigation({ items }: NavigationProps) {
             </>
           )}
         </div>
-        {/* Right Section: Extensions, Aboutm & User Menu */}
+        {/* Right Section: Extensions, About, & User Menu */}
         <div className="flex items-center space-x-4">
-          {items.map(({ route, label }) => (
-            <Link href={route} className="text-sap-grey-2 hover:text-sap-grey-2 font-medium">
+          {items.map(({ route, label }, index) => (
+            <Link key={index} to={route} className="text-sap-grey-2 hover:text-sap-grey-2 font-medium">
+              {/* Changed href to to */}
               {label}
             </Link>
           ))}

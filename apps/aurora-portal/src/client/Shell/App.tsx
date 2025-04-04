@@ -1,8 +1,8 @@
 import { AppShellProvider } from "../components/AppshellProvider"
+import { BrowserRouter } from "react-router-dom"
 
 import { AppContent } from "./AppContent"
 import { AuroraProvider } from "./AuroraProvider"
-import { AppRouter } from "./AppRouter"
 import { StoreProvider } from "../store/StoreProvider"
 import { Toaster } from "sonner"
 import { I18nProvider } from "@lingui/react"
@@ -24,9 +24,9 @@ export default function App() {
         <AppShellProvider theme="theme-dark">
           <Toaster theme="dark" position="top-center" />
           <AuroraProvider>
-            <AppRouter>
+            <BrowserRouter>
               <AppContent />
-            </AppRouter>
+            </BrowserRouter>
           </AuroraProvider>
         </AppShellProvider>
       </StoreProvider>

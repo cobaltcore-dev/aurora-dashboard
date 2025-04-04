@@ -44,9 +44,7 @@ export function SignIn(props: { trpcClient: TrpcClient["auth"] }) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <span className="animate-spin w-6 h-6 border-4 border-gray-300 border-t-blue-600 rounded-full"></span>
-        <span className="ml-2 text-sm text-gray-500">
-          <Trans>Loading...</Trans>
-        </span>
+        <span className="ml-2 text-sm text-gray-500">Auth...</span>
       </div>
     )
   }

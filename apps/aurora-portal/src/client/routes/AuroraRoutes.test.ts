@@ -22,11 +22,11 @@ describe("AuroraRouter:", () => {
     const domainRouter = auroraRoutePaths().domain(domainId)
     const projectRouter = domainRouter.project(projectId)
 
-    expect(domainRouter.root).toBe(`/${domainId}`)
-    expect(domainRouter.projects).toBe(`/${domainId}/projects`)
-    expect(projectRouter.root).toBe(`/${domainId}/projects/${projectId}/`)
-    expect(projectRouter.compute.root).toBe(`/${domainId}/projects/${projectId}/compute`)
-    expect(projectRouter.network.root).toBe(`/${domainId}/projects/${projectId}/network`)
+    expect(domainRouter.root).toBe(`/accounts/${domainId}`)
+    expect(domainRouter.projects).toBe(`/accounts/${domainId}/projects`)
+    expect(projectRouter.root).toBe(`/accounts/${domainId}/projects/${projectId}/`)
+    expect(projectRouter.compute.root).toBe(`/accounts/${domainId}/projects/${projectId}/compute`)
+    expect(projectRouter.network.root).toBe(`/accounts/${domainId}/projects/${projectId}/network`)
   })
 
   it("should generate valid compute and network subroutes", () => {
@@ -34,8 +34,8 @@ describe("AuroraRouter:", () => {
     const { auroraRoutePaths } = router
     const projectRouter = auroraRoutePaths().domain(domainId).project(projectId)
 
-    expect(projectRouter.compute.instances).toBe(`/${domainId}/projects/${projectId}/compute/instances`)
-    expect(projectRouter.network.firewall).toBe(`/${domainId}/projects/${projectId}/network/firewall`)
+    expect(projectRouter.compute.instances).toBe(`/accounts/${domainId}/projects/${projectId}/compute/instances`)
+    expect(projectRouter.network.firewall).toBe(`/accounts/${domainId}/projects/${projectId}/network/firewall`)
   })
 
   it("should validate invalid domain and project ids", () => {

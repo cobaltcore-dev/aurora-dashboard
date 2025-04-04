@@ -4,8 +4,12 @@ import { vi } from "vitest"
 import { SignIn } from "./SignIn" // Adjust the import as necessary
 import { TrpcClient } from "../trpcClient"
 import { act } from "react"
+import { MemoryRouter, Route, Routes } from "react-router-dom"
+import { AuroraProvider } from "../Shell/AuroraProvider"
+import { createRoutePaths } from "../routes/AuroraRoutes"
 
 describe("SignIn Component", () => {
+  const auroraRoutes = createRoutePaths().auroraRoutePaths()
   const trpcClient: TrpcClient["auth"] = {
     createUserSession: {
       mutate: vi.fn().mockResolvedValue({
@@ -19,18 +23,31 @@ describe("SignIn Component", () => {
     getAuthToken: { query: vi.fn() },
     getCurrentScope: { query: vi.fn() },
   }
-
+  const renderWithAuth = () =>
+    render(
+      <MemoryRouter initialEntries={[auroraRoutes.home]}>
+        <AuroraProvider>
+          <Routes>
+            <Route
+              path={auroraRoutes.home}
+              element={
+                <StoreProvider>
+                  <SignIn trpcClient={trpcClient} />
+                </StoreProvider>
+              }
+            />
+            <Route path="/1789d1/projects/89ac3f/compute" element={<div>Compute Page</div>} />
+          </Routes>
+        </AuroraProvider>
+      </MemoryRouter>
+    )
   beforeEach(() => {
     vi.clearAllMocks()
   })
 
   it("renders correctly when not authenticated", async () => {
     await act(async () => {
-      render(
-        <StoreProvider>
-          <SignIn trpcClient={trpcClient} />
-        </StoreProvider>
-      )
+      renderWithAuth()
     })
 
     expect(screen.getByText(/Login to Your Account/i)).toBeInTheDocument()
@@ -41,11 +58,7 @@ describe("SignIn Component", () => {
 
   it("shows loading state while authenticating", async () => {
     await act(async () => {
-      render(
-        <StoreProvider>
-          <SignIn trpcClient={trpcClient} />
-        </StoreProvider>
-      )
+      renderWithAuth()
     })
 
     fireEvent.change(screen.getByPlaceholderText(/Enter your domain/i), { target: { value: "my-domain" } })
@@ -54,17 +67,13 @@ describe("SignIn Component", () => {
 
     fireEvent.click(screen.getByText(/Sign In/i)) // Remember to use the updated button text
     await waitFor(() => {
-      expect(screen.getByText(/Loading.../i)).toBeInTheDocument()
+      expect(screen.getByText(/Auth.../i)).toBeInTheDocument()
     })
   })
 
   it("handles successful createUserSession", async () => {
     await act(async () => {
-      render(
-        <StoreProvider>
-          <SignIn trpcClient={trpcClient} />
-        </StoreProvider>
-      )
+      renderWithAuth()
     })
 
     fireEvent.change(screen.getByPlaceholderText(/Enter your domain/i), { target: { value: "my-domain" } })
@@ -85,11 +94,7 @@ describe("SignIn Component", () => {
     trpcClient.createUserSession.mutate = vi.fn().mockRejectedValue(new Error("Login failed"))
 
     await act(async () => {
-      render(
-        <StoreProvider>
-          <SignIn trpcClient={trpcClient} />
-        </StoreProvider>
-      )
+      renderWithAuth()
     })
 
     fireEvent.change(screen.getByPlaceholderText(/Enter your domain/i), { target: { value: "my-domain" } })
