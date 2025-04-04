@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest"
 import { render, screen } from "@testing-library/react"
-import { ServerCardView } from "./ServerCardView"
-import type { Server } from "../../../server/Compute/types/server"
+import { ServerListView } from "./ServerListView"
+import type { Server } from "../../../../server/Compute/types/server"
 
 const mockServers: Server[] = [
   {
@@ -36,49 +36,61 @@ const mockServers: Server[] = [
   },
 ]
 
-describe("ServerCardView", () => {
-  it("renders a list of servers with correct names", () => {
-    render(<ServerCardView servers={mockServers} />)
+describe("ServerListView", () => {
+  it("renders a table with server names", () => {
+    render(<ServerListView servers={mockServers} />)
 
     expect(screen.getByText("Cache Server")).toBeInTheDocument()
     expect(screen.getByText("Development Server")).toBeInTheDocument()
   })
 
-  it("renders correct status icons for ACTIVE and SHUTOFF servers", () => {
-    render(<ServerCardView servers={mockServers} />)
+  it("displays the correct server status with icons", () => {
+    render(<ServerListView servers={mockServers} />)
 
     // "ACTIVE" should have a success icon
     expect(screen.getByTestId("icon-success")).toBeInTheDocument()
 
     // "SHUTOFF" should have a danger icon
     expect(screen.getByTestId("icon-danger")).toBeInTheDocument()
+
+    expect(screen.getByText("ACTIVE")).toBeInTheDocument()
+    expect(screen.getByText("SHUTOFF")).toBeInTheDocument()
   })
 
-  it("displays server details correctly", () => {
-    render(<ServerCardView servers={mockServers} />)
+  it("displays correct IPv4 and IPv6 addresses", () => {
+    render(<ServerListView servers={mockServers} />)
 
     expect(screen.getByText("192.168.1.90")).toBeInTheDocument()
     expect(screen.getByText("fe80::9")).toBeInTheDocument()
+
+    expect(screen.getByText("192.168.1.100")).toBeInTheDocument()
+    expect(screen.getByText("fe80::A")).toBeInTheDocument()
+  })
+
+  it("displays correct CPU, RAM, and disk details", () => {
+    render(<ServerListView servers={mockServers} />)
+
     expect(screen.getByText("4")).toBeInTheDocument()
     expect(screen.getByText("8192 MB")).toBeInTheDocument()
     expect(screen.getByText("15 GB")).toBeInTheDocument()
 
-    expect(screen.getByText("192.168.1.100")).toBeInTheDocument()
-    expect(screen.getByText("fe80::A")).toBeInTheDocument()
     expect(screen.getByText("16")).toBeInTheDocument()
     expect(screen.getByText("32768 MB")).toBeInTheDocument()
     expect(screen.getByText("60 GB")).toBeInTheDocument()
   })
 
-  it("renders server roles correctly", () => {
-    render(<ServerCardView servers={mockServers} />)
+  it("renders action buttons for each server", () => {
+    render(<ServerListView servers={mockServers} />)
 
-    expect(screen.getByText("Server Role: Cache")).toBeInTheDocument()
-    expect(screen.getByText("Server Role: Development")).toBeInTheDocument()
+    const viewButtons = screen.getAllByRole("button", { name: "View" })
+    const restartButtons = screen.getAllByRole("button", { name: "Restart" })
+
+    expect(viewButtons.length).toBe(2) // One for each server
+    expect(restartButtons.length).toBe(2)
   })
 
   it("shows 'No servers available' when the list is empty", () => {
-    render(<ServerCardView servers={[]} />)
+    render(<ServerListView servers={[]} />)
 
     expect(screen.getByText("No servers available.")).toBeInTheDocument()
   })
