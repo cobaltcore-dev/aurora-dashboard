@@ -28,7 +28,7 @@ export function AuroraProvider({ children }: { children: ReactNode }) {
     createRoutePaths().auroraRoutePaths()
   )
 
-  const [domain, setDomain] = useState<Domain>({ id: "default", name: "Default" })
+  const [domain, setDomain] = useState<Domain>({}) //({ id: "default", name: "Default" })
 
   return (
     <AuroraContext.Provider

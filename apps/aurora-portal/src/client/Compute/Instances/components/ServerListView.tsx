@@ -1,7 +1,7 @@
-import type { Server } from "../../../server/Compute/types/server"
-import { ToastProps, auroraToast, sonnerToast } from "../../Shell/NotificationCenter/AuroraToast"
-import { Button } from "../../components/Button"
-import { Icon } from "../../components/Icon"
+import type { Server } from "../../../../server/Compute/types/server"
+import { ToastProps, auroraToast, sonnerToast } from "../../../Shell/NotificationCenter/AuroraToast"
+import { Button } from "../../../components/Button"
+import { Icon } from "../../../components/Icon"
 
 type ServerListViewProps = {
   servers: Server[] | undefined
@@ -23,7 +23,7 @@ export function ServerListView({ servers }: ServerListViewProps) {
                 <th className="p-3">CPU</th>
                 <th className="p-3">RAM</th>
                 <th className="p-3">Disk</th>
-                <th className="p-3">Actions</th>
+                <th className="p-3 flex justify-center">Actions</th>
               </tr>
             </thead>
 
@@ -62,7 +62,7 @@ export function ServerListView({ servers }: ServerListViewProps) {
                   {/* Action Buttons */}
                   <td className="p-3">
                     {/* Action Buttons */}
-                    <div className=" flex space-x-3 mt-4">
+                    <div className=" flex space-x-3 justify-end mt-4">
                       <Button
                         variant="success"
                         className="hover:bg-gray-600"
