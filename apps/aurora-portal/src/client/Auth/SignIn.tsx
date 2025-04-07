@@ -3,6 +3,7 @@ import { Button } from "../components/Button"
 import { useAuth, useAuthDispatch } from "../store/StoreProvider"
 import { TrpcClient } from "../trpcClient"
 import { Trans } from "@lingui/react/macro"
+import { useLingui } from "@lingui/react/macro"
 
 const textinputstyles = `
   jn-bg-theme-textinput
@@ -27,6 +28,11 @@ export function SignIn(props: { trpcClient: TrpcClient["auth"] }) {
   const dispatch = useAuthDispatch()
   const [form, setForm] = useState({ domainName: "", user: "", password: "" })
 
+  // example
+  const { t, i18n } = useLingui()
+  const random = Math.random()
+  const example = t`It is:${i18n.date(new Date())} random: ${random}`
+
   const login = useCallback(() => {
     setIsLoading(true)
     props.trpcClient.createUserSession
@@ -35,7 +41,13 @@ export function SignIn(props: { trpcClient: TrpcClient["auth"] }) {
         dispatch({ type: "LOGIN_SUCCESS", payload: { user: token?.user, sessionExpiresAt: token?.expires_at } })
       })
       .catch((error) => {
-        dispatch({ type: "LOGIN_FAILURE", payload: { error: error.message } })
+        let translatedError
+        if (error.message.includes("Failed to execute 'json' on 'Response': Unexpected end of JSON input")) {
+          translatedError = t`Failed to execute 'json' on 'Response': Unexpected end of JSON input`
+        } else {
+          translatedError = t`An unexpected error occurred: ${error.message}`
+        }
+        dispatch({ type: "LOGIN_FAILURE", payload: { error: translatedError } })
       })
       .finally(() => setIsLoading(false))
   }, [form])
@@ -68,7 +80,7 @@ export function SignIn(props: { trpcClient: TrpcClient["auth"] }) {
     <div className="flex min-h-screen items-center justify-center">
       <div className="w-full max-w-md shadow-lg rounded-lg p-6 border border-gray-700 bg-gray-900">
         <h2 className="text-2xl font-semibold text-center text-white mb-4">
-          <Trans>Login to Your Account</Trans>
+          <Trans>Login to Your Account {example}</Trans>
         </h2>
         <p className="text-gray-400 text-center text-sm mb-6">
           <Trans>Enter your credentials to access your account</Trans>

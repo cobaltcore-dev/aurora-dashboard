@@ -13,47 +13,65 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: src/client/Auth/SignIn.tsx:146
+#. placeholder {0}: error.message
+#: src/client/Auth/SignIn.tsx:48
+msgid "An unexpected error occurred: {0}"
+msgstr "Ein unerwarteter Fehler ist aufgetreten: {0}"
+
+#: src/client/Auth/SignIn.tsx:156
 msgid "Contact support"
 msgstr "Support kontaktieren"
 
-#: src/client/Auth/SignIn.tsx:76
+#: src/client/Auth/SignIn.tsx:86
 msgid "Enter your credentials to access your account"
 msgstr "Geben Sie Ihre Zugangsdaten ein, um auf Ihr Konto zuzugreifen"
 
-#: src/client/Auth/SignIn.tsx:81
+#: src/client/Auth/SignIn.tsx:91
 msgid "Error: {error}"
 msgstr "Fehler: {error}"
 
+#: src/client/Auth/SignIn.tsx:46
+msgid "Failed to execute 'json' on 'Response': Unexpected end of JSON input"
+msgstr "Fehler beim Ausführen von 'json' auf 'Response': Unerwartetes Ende der JSON-Eingabe"
+
+#. placeholder {0}: i18n.date(new Date())
+#: src/client/Auth/SignIn.tsx:34
+msgid "It is:{0} random: {random}"
+msgstr "Es ist: {0} Zufall: {random}"
+
 #: src/client/Auth/SignIn.tsx:48
-msgid "Loading..."
-msgstr "Lädt..."
+#~ msgid "Loading..."
+#~ msgstr "Lädt..."
 
 #: src/client/Auth/SignIn.tsx:73
-msgid "Login to Your Account"
-msgstr "In Ihr Konto einloggen"
+#~ msgid "Login to Your Account"
+#~ msgstr "In Ihr Konto einloggen"
 
-#: src/client/Auth/SignIn.tsx:144
+#: src/client/Auth/SignIn.tsx:83
+msgid "Login to Your Account {example}"
+msgstr "Melden Sie sich bei Ihrem Konto an {example}"
+
+#: src/client/Auth/SignIn.tsx:154
 msgid "Need help? "
 msgstr "Brauchst du Hilfe? "
 
-#: src/client/Auth/SignIn.tsx:117
+#: src/client/Auth/SignIn.tsx:127
 msgid "Password"
 msgstr "Passwort"
 
-#: src/client/Auth/SignIn.tsx:139
+#: src/client/Auth/SignIn.tsx:149
 msgid "Sign In"
 msgstr "Anmelden"
 
-#: src/client/Auth/SignIn.tsx:103
+#: src/client/Auth/SignIn.tsx:113
 msgid "User C/D/I"
 msgstr "Benutzer C/D/I"
 
 #. placeholder {0}: user?.name
-#: src/client/Auth/SignIn.tsx:59
+#: src/client/Auth/SignIn.tsx:69
 msgid "Welcome back, {0}!"
 msgstr "Willkommen zurück, {0}!"
 
-#: src/client/Auth/SignIn.tsx:62
+#: src/client/Auth/SignIn.tsx:72
 msgid "You are already signed in."
 msgstr "Du bist bereits angemeldet."
