@@ -6,7 +6,7 @@ import { z } from "zod"
 import { Domain } from "../../server/Authentication/types/models"
 
 type ScopeProject = {
-  scope?: { project: Project; domain: Domain }
+  scope?: { project?: Project; domain?: Domain }
   error?: string
   isLoading?: boolean
 }
@@ -14,10 +14,8 @@ type ScopeProject = {
 export type AuroraContextType = {
   currentScope: ScopeProject | undefined
   setCurrentScope: (project: ScopeProject | undefined) => void
-  domain: Domain
   auroraRoutes: z.infer<typeof AuroraRoutesSchema>
   setAuroraRoutes: (routes: z.infer<typeof AuroraRoutesSchema>) => void
-  setDomain: (domain: Domain) => void
 }
 
 export const AuroraContext = createContext<AuroraContextType | undefined>(undefined)
@@ -28,17 +26,13 @@ export function AuroraProvider({ children }: { children: ReactNode }) {
     createRoutePaths().auroraRoutePaths()
   )
 
-  const [domain, setDomain] = useState<Domain>({}) //({ id: "default", name: "Default" })
-
   return (
     <AuroraContext.Provider
       value={{
         currentScope,
         setCurrentScope,
-        domain,
         auroraRoutes,
         setAuroraRoutes,
-        setDomain,
       }}
     >
       {children}

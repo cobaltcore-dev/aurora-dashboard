@@ -15,8 +15,12 @@ interface NavigationProps {
 export function MainNavigation({ items }: NavigationProps) {
   const context = use(AuroraContext)
   if (!context) return null
-  const { domain, currentScope } = context
-  const projectsPath = `/accounts/${domain.id}/projects`
+  const { currentScope } = context
+
+  const domain = currentScope?.scope?.domain
+  const project = currentScope?.scope?.project
+  const projectsPath = `/accounts/${domain?.id}/projects`
+
   return (
     <nav>
       {/* Main Navigation Bar */}
@@ -34,10 +38,10 @@ export function MainNavigation({ items }: NavigationProps) {
               <span className="font-semibold text-lg text-sap-grey-2">{domain.name}</span>
             </Link>
           )}
-          {currentScope?.scope?.project?.name && (
+          {project?.name && (
             <>
               <span className="text-sap-grey-1">/</span>
-              <span className="font-semibold text-lg text-sap-grey-2">{currentScope?.scope?.project?.name}</span>
+              <span className="font-semibold text-lg text-sap-grey-2">{project?.name}</span>
             </>
           )}
         </div>

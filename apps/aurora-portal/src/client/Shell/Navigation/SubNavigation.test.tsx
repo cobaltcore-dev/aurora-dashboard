@@ -23,10 +23,8 @@ const mockProject: Project = {
 const createMockContext = (overrides = {}): AuroraContextType => ({
   currentScope: undefined,
   setCurrentScope: vi.fn(),
-  domain: mockDomain,
   auroraRoutes,
   setAuroraRoutes: vi.fn(),
-  setDomain: vi.fn(),
   ...overrides,
 })
 
