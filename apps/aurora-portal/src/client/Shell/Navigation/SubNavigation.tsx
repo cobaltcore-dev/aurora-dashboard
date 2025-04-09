@@ -1,25 +1,24 @@
-import { useAuroraContext } from "../AuroraProvider"
-
 import { NavLink, useLocation, useParams } from "react-router-dom"
 
 export function SubNavigation() {
   const location = useLocation()
-  const { auroraRoutes } = useAuroraContext()
 
   const { domain, project } = useParams()
   const items = []
-  if (location.pathname === auroraRoutes.home) {
-    items.push({ route: auroraRoutes.home, label: "Wellcome" })
-  } else if (location.pathname === auroraRoutes.about) {
-    items.push({ route: auroraRoutes.about, label: "About" })
+
+  if (location.pathname === "/") {
+    items.push({ route: "/", label: "Wellcome" })
+  } else if (location.pathname === "/about") {
+    items.push({ route: "/about", label: "About" })
   } else {
     if (project) {
-      items.push({ route: auroraRoutes.domain(domain).project(project).compute.root, label: "Compute" })
-      items.push({ route: auroraRoutes.domain(domain).project(project).network.root, label: "Network" })
-      items.push({ route: auroraRoutes.domain(domain).project(project).storage.root, label: "Storage" })
-      items.push({ route: auroraRoutes.domain(domain).project(project).metrics.root, label: "Metrics" })
+      const projectBasePath = `/accounts/${domain}/projects/${project}`
+      items.push({ route: `${projectBasePath}/compute`, label: "Compute" })
+      items.push({ route: `${projectBasePath}/network`, label: "Network" })
+      items.push({ route: `${projectBasePath}/storage`, label: "Storage" })
+      items.push({ route: `${projectBasePath}/metrics`, label: "Metrics" })
     } else {
-      items.push({ route: auroraRoutes.domain(domain).projects, label: "Overview" })
+      items.push({ route: `/accounts/${domain}/projects`, label: "Overview" })
     }
   }
 

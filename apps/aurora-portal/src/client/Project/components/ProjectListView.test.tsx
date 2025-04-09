@@ -1,7 +1,6 @@
 import { render, screen, fireEvent } from "@testing-library/react"
 import { MemoryRouter, Route, Routes } from "react-router-dom"
 import { ProjectListView } from "./ProjectListView"
-import { createRoutePaths } from "../../routes/AuroraRoutes"
 import { AuroraProvider } from "../../Shell/AuroraProvider"
 import { vi } from "vitest"
 
@@ -17,7 +16,6 @@ const projects = [
     description: "Manages security compliance and access control.",
   },
 ]
-const auroraRoutes = createRoutePaths().auroraRoutePaths()
 
 describe("ProjectListView", () => {
   test("renders without crashing when no projects", () => {
@@ -47,10 +45,10 @@ describe("ProjectListView", () => {
   test("clicking the title triggers navigation", () => {
     const mockNavigate = vi.fn()
     render(
-      <MemoryRouter initialEntries={[auroraRoutes.home]}>
+      <MemoryRouter initialEntries={["/"]}>
         <AuroraProvider>
           <Routes>
-            <Route path={auroraRoutes.home} element={<ProjectListView projects={projects} />} />
+            <Route path={"/"} element={<ProjectListView projects={projects} />} />
           </Routes>
         </AuroraProvider>
       </MemoryRouter>
@@ -75,16 +73,16 @@ describe("ProjectListView", () => {
     const popupButton = screen.getByTestId("project-card-menu")
     fireEvent.click(popupButton)
 
-    expect(window.location.pathname).toBe(auroraRoutes.home)
+    expect(window.location.pathname).toBe("/")
   })
 
   test("clicking the row navigates correctly", () => {
     const mockNavigate = vi.fn()
     render(
-      <MemoryRouter initialEntries={[auroraRoutes.home]}>
+      <MemoryRouter initialEntries={["/"]}>
         <AuroraProvider>
           <Routes>
-            <Route path={auroraRoutes.home} element={<ProjectListView projects={projects} />} />
+            <Route path={"/"} element={<ProjectListView projects={projects} />} />
           </Routes>
         </AuroraProvider>
       </MemoryRouter>

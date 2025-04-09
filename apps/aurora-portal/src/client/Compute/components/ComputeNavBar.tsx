@@ -2,7 +2,6 @@ import { NavLink, useLocation, useParams } from "react-router-dom"
 import { ComboBox, ComboBoxOption } from "../../components/ComboBox"
 import { Button } from "../../components/Button"
 import { Icon } from "../../components/Icon"
-import { useAuroraContext } from "../../Shell/AuroraProvider"
 
 type ComputeNavBarProps = {
   viewMode: "list" | "card"
@@ -11,15 +10,16 @@ type ComputeNavBarProps = {
 
 export const ComputeSideNavBar = () => {
   const location = useLocation()
-  const { auroraRoutes } = useAuroraContext()
 
   const { project, domain } = useParams()
+  const computeRootPath = `/accounts/${domain}/projects/${project}/compute`
+
   const links = [
-    { path: auroraRoutes.domain(domain).project(project).compute.root, label: "Overview" },
-    { path: auroraRoutes.domain(domain).project(project).compute.instances, label: "Instances" },
-    { path: auroraRoutes.domain(domain).project(project).compute.images, label: "Images" },
-    { path: auroraRoutes.domain(domain).project(project).compute.keypairs, label: "Key Pairs" },
-    { path: auroraRoutes.domain(domain).project(project).compute.servergroups, label: "Server Groups" },
+    { path: computeRootPath, label: "Overview" },
+    { path: `${computeRootPath}/instances`, label: "Instances" },
+    { path: `${computeRootPath}/images`, label: "Images" },
+    { path: `${computeRootPath}/keypairs`, label: "Key Pairs" },
+    { path: `${computeRootPath}/servergroups`, label: "Server Groups" },
   ]
 
   return (

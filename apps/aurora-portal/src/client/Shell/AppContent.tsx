@@ -2,12 +2,11 @@
 import React, { useEffect } from "react"
 import { trpcClient } from "../trpcClient"
 import { useAuth, useAuthDispatch } from "../store/StoreProvider"
-import { useAuroraContext } from "./AuroraProvider"
 import { AuroraRouter } from "./AuroraRouterConfig"
 
 export function AppContent() {
   const [authLoading, setIsLoading] = React.useState(true)
-  const { auroraRoutes } = useAuroraContext()
+
   const { isAuthenticated } = useAuth()
   const dispatch = useAuthDispatch()
 
@@ -27,7 +26,7 @@ export function AppContent() {
 
   return (
     <div className="content">
-      <AuroraRouter auroraRoutes={auroraRoutes} isAuthenticated={isAuthenticated} isLoading={authLoading} />
+      <AuroraRouter isAuthenticated={isAuthenticated} isLoading={authLoading} />
     </div>
   )
 }

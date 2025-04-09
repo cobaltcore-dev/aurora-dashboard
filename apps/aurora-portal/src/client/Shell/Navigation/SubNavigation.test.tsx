@@ -1,12 +1,9 @@
 import { render, screen, fireEvent } from "@testing-library/react"
 import { SubNavigation } from "./SubNavigation"
 import { AuroraContext, AuroraContextType } from "../AuroraProvider"
-import { createRoutePaths } from "../../routes/AuroraRoutes"
 import { MemoryRouter, Routes, Route } from "react-router-dom"
 import { vi } from "vitest"
 import { Project } from "../../../server/Project/types/models" // Adjust import path as needed
-
-const auroraRoutes = createRoutePaths().auroraRoutePaths()
 
 // Define mock domain and project
 const mockDomain = { id: "domain-1", name: "Test Domain" }
@@ -23,8 +20,6 @@ const mockProject: Project = {
 const createMockContext = (overrides = {}): AuroraContextType => ({
   currentScope: undefined,
   setCurrentScope: vi.fn(),
-  auroraRoutes,
-  setAuroraRoutes: vi.fn(),
   ...overrides,
 })
 

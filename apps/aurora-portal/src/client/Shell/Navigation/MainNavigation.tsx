@@ -26,7 +26,7 @@ export function MainNavigation({ items }: NavigationProps) {
       {/* Main Navigation Bar */}
       <div className="flex items-center justify-between px-6 py-3">
         <div className="flex items-center space-x-4">
-          <Link to={context.auroraRoutes.home} className="flex items-center space-x-3">
+          <Link to={"/"} className="flex items-center space-x-3">
             {/* Changed href to to */}
             <Logo className="w-6 h-6 fill-current" title="Aurora" />
             <span className="text-lg font-medium text-sap-grey-2">Aurora</span>
@@ -41,7 +41,7 @@ export function MainNavigation({ items }: NavigationProps) {
           {project?.name && (
             <>
               <span className="text-sap-grey-1">/</span>
-              <span className="font-semibold text-lg text-sap-grey-2">{project?.name}</span>
+              <span className="font-semibold text-lg text-sap-grey-2">{project.name}</span>
             </>
           )}
         </div>
