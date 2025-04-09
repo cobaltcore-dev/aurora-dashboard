@@ -44,10 +44,8 @@ describe("MainNavigation", () => {
     const contextValue = {
       currentScope: undefined,
       setCurrentScope: vi.fn(),
-      domain: mockDomain,
       auroraRoutes,
       setAuroraRoutes: vi.fn(),
-      setDomain: vi.fn(),
     }
 
     renderWithContext(<MainNavigation items={mainNavItems} />, contextValue)
@@ -58,10 +56,8 @@ describe("MainNavigation", () => {
     const contextValue = {
       currentScope: undefined,
       setCurrentScope: vi.fn(),
-      domain: mockDomain,
       auroraRoutes,
       setAuroraRoutes: vi.fn(),
-      setDomain: vi.fn(),
     }
 
     renderWithContext(<MainNavigation items={mainNavItems} />, contextValue)
@@ -78,10 +74,8 @@ describe("MainNavigation", () => {
       const contextValue = {
         currentScope: undefined,
         setCurrentScope: vi.fn(),
-        domain: mockDomain,
         auroraRoutes,
         setAuroraRoutes: vi.fn(),
-        setDomain: vi.fn(),
       }
 
       renderWithContext(<MainNavigation items={mainNavItems} />, contextValue)
@@ -92,12 +86,10 @@ describe("MainNavigation", () => {
 
     it("displays the domain name if provided", () => {
       const contextValue = {
-        currentScope: undefined,
+        currentScope: { scope: { project: mockProject, domain: mockDomain } },
         setCurrentScope: vi.fn(),
-        domain: mockDomain,
         auroraRoutes,
         setAuroraRoutes: vi.fn(),
-        setDomain: vi.fn(),
       }
 
       renderWithContext(<MainNavigation items={mainNavItems} />, contextValue)
@@ -108,10 +100,8 @@ describe("MainNavigation", () => {
       const contextValue = {
         currentScope: { scope: { project: mockProject, domain: mockDomain } },
         setCurrentScope: vi.fn(),
-        domain: mockDomain,
         auroraRoutes,
         setAuroraRoutes: vi.fn(),
-        setDomain: vi.fn(),
       }
 
       renderWithContext(<MainNavigation items={mainNavItems} />, contextValue)
@@ -122,10 +112,8 @@ describe("MainNavigation", () => {
       const contextValue = {
         currentScope: { scope: { project: mockProject, domain: mockDomain } },
         setCurrentScope: vi.fn(),
-        domain: mockDomain,
         auroraRoutes,
         setAuroraRoutes: vi.fn(),
-        setDomain: vi.fn(),
       }
 
       renderWithContext(<MainNavigation items={mainNavItems} />, contextValue)

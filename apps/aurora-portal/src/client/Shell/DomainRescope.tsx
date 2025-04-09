@@ -6,14 +6,14 @@ import { TrpcClient } from "../trpcClient"
 import { Domain } from "../../server/Authentication/types/models"
 import { Project } from "../../server/Project/types/models"
 
-export function ProjectRescope({ children, client }: { children: React.ReactNode; client: TrpcClient["auth"] }) {
+export function DomainRescope({ children, client }: { children: React.ReactNode; client: TrpcClient["auth"] }) {
   const context = use(AuroraContext)
-  const { project } = useParams()
+  const { domain } = useParams()
 
   useEffect(() => {
-    if (project !== context?.currentScope?.scope?.project?.id) {
+    if (domain !== context?.currentScope?.scope?.domain?.id) {
       client.setCurrentScope
-        .mutate({ type: "project", projectId: project || "" })
+        .mutate({ type: "domain", domainId: domain! })
         .then((data) => {
           context?.setCurrentScope({
             scope: { domain: data?.domain as Domain, project: data?.project as Project },
@@ -22,10 +22,10 @@ export function ProjectRescope({ children, client }: { children: React.ReactNode
         })
         .catch((error) => context?.setCurrentScope({ error: error.message, isLoading: false }))
     }
-  }, [project])
+  }, [domain])
 
   if (context?.currentScope?.isLoading)
-    return <div className="h-full flex justify-center items-center text-gray-400">Rescoping project...</div>
+    return <div className="h-full flex justify-center items-center text-gray-400">Rescoping domain...</div>
 
   if (context?.currentScope?.error)
     return (

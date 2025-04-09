@@ -9,6 +9,7 @@ import { trpcClient } from "../trpcClient"
 import { AuroraLayout } from "./AuroraLayout"
 import { AuroraRoutesSchema } from "../routes/AuroraRoutesSchema"
 import { z } from "zod"
+import { DomainRescope } from "./DomainRescope"
 
 export function AuroraRouter({
   auroraRoutes,
@@ -39,9 +40,9 @@ export function AuroraRouter({
               index
               path="projects"
               element={
-                <ProjectRescope client={trpcClient.auth}>
+                <DomainRescope client={trpcClient.auth}>
                   <ProjectsOverview client={trpcClient.project} />
-                </ProjectRescope>
+                </DomainRescope>
               }
             ></Route>
             <Route

@@ -1,6 +1,6 @@
 import { render, screen, waitFor } from "@testing-library/react"
 import { MemoryRouter } from "react-router-dom"
-import { ProjectRescope } from "./ProjectRescope"
+import { DomainRescope } from "./DomainRescope"
 import { AuroraContext, AuroraContextType } from "../Shell/AuroraProvider"
 import { vi } from "vitest"
 import { createRoutePaths } from "../routes/AuroraRoutes"
@@ -11,11 +11,11 @@ const mockSetCurrentScope = {
   getAuthToken: vi.fn(),
   getCurrentScope: vi.fn(),
   setCurrentScope: {
-    mutate: vi.fn(() => Promise.resolve({ domain: { id: "domain-1" }, project: { id: "project-1" } })),
+    mutate: vi.fn(() => Promise.resolve({ domain: { id: "domain-1" } })),
   },
 } as unknown as TrpcClient["auth"]
 
-describe("ProjectRescope", () => {
+describe("DomainRescope", () => {
   let contextValue: AuroraContextType
 
   beforeEach(() => {
@@ -27,13 +27,13 @@ describe("ProjectRescope", () => {
     }
   })
 
-  test("calls setCurrentScope.mutate when projectId or domainId change", async () => {
+  test("calls setCurrentScope.mutate when domainId change", async () => {
     render(
       <AuroraContext.Provider value={contextValue}>
-        <MemoryRouter initialEntries={["/domain-1/project-1"]}>
-          <ProjectRescope client={mockSetCurrentScope}>
+        <MemoryRouter initialEntries={["/domain-1/projects"]}>
+          <DomainRescope client={mockSetCurrentScope}>
             <div>Content Loaded</div>
-          </ProjectRescope>
+          </DomainRescope>
         </MemoryRouter>
       </AuroraContext.Provider>
     )
@@ -45,11 +45,6 @@ describe("ProjectRescope", () => {
     contextValue.currentScope = {
       scope: {
         domain: { id: "domain-1", name: "default" },
-        project: {
-          id: "project-1",
-          name: "cool-project",
-          enabled: false,
-        },
       },
       isLoading: true,
       error: undefined,
@@ -57,15 +52,15 @@ describe("ProjectRescope", () => {
 
     render(
       <AuroraContext.Provider value={contextValue}>
-        <MemoryRouter initialEntries={["/domain-1/project-1"]}>
-          <ProjectRescope client={mockSetCurrentScope}>
+        <MemoryRouter initialEntries={["/domain-1/projects"]}>
+          <DomainRescope client={mockSetCurrentScope}>
             <div>Content Loaded</div>
-          </ProjectRescope>
+          </DomainRescope>
         </MemoryRouter>
       </AuroraContext.Provider>
     )
 
-    expect(screen.getByText("Rescoping project...")).toBeInTheDocument()
+    expect(screen.getByText("Rescoping domain...")).toBeInTheDocument()
   })
 
   test("shows error message if rescoping fails", async () => {
@@ -81,11 +76,6 @@ describe("ProjectRescope", () => {
     contextValue.currentScope = {
       scope: {
         domain: { id: "domain-1", name: "default" },
-        project: {
-          id: "project-1",
-          name: "cool-project",
-          enabled: false,
-        },
       },
       isLoading: false,
       error: "Scope failed",
@@ -93,10 +83,10 @@ describe("ProjectRescope", () => {
 
     render(
       <AuroraContext.Provider value={contextValue}>
-        <MemoryRouter initialEntries={["/domain-1/project-1"]}>
-          <ProjectRescope client={mockSetCurrentScope}>
+        <MemoryRouter initialEntries={["/domain-1/projects"]}>
+          <DomainRescope client={mockSetCurrentScope}>
             <div>Content Loaded</div>
-          </ProjectRescope>
+          </DomainRescope>
         </MemoryRouter>
       </AuroraContext.Provider>
     )
