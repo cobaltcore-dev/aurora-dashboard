@@ -2,7 +2,7 @@ import { render, screen, fireEvent } from "@testing-library/react"
 import { MemoryRouter, Routes, Route } from "react-router-dom"
 import { MainNavigation } from "./MainNavigation"
 import { AuroraContext, AuroraContextType } from "../AuroraProvider"
-import { createRoutePaths } from "../../routes/AuroraRoutes"
+
 import { Project } from "../../../server/Project/types/models"
 import { vi } from "vitest"
 
@@ -10,8 +10,6 @@ const mainNavItems = [
   { route: "/", label: "Home" },
   { route: "/about", label: "About" },
 ]
-
-const auroraRoutes = createRoutePaths().auroraRoutePaths()
 
 // Mocked Domain & Project Data
 const mockDomain = { id: "default", name: "Default Domain" }
@@ -28,11 +26,11 @@ const mockProject: Project = {
 const renderWithContext = (ui: React.ReactNode, contextValue: AuroraContextType) => {
   return render(
     <AuroraContext.Provider value={contextValue}>
-      <MemoryRouter initialEntries={[auroraRoutes.home]}>
+      <MemoryRouter initialEntries={["/"]}>
         <Routes>
           <Route path="/" element={ui} />
           <Route path="/about" element={<div>About Page Content</div>} />
-          <Route path={auroraRoutes.domain(mockDomain.id).projects} element={<div>Projects Page</div>} />
+          <Route path={`/accounts/${mockDomain?.id}/projects`} element={<div>Projects Page</div>} />
         </Routes>
       </MemoryRouter>
     </AuroraContext.Provider>
@@ -44,7 +42,6 @@ describe("MainNavigation", () => {
     const contextValue = {
       currentScope: undefined,
       setCurrentScope: vi.fn(),
-      auroraRoutes,
       setAuroraRoutes: vi.fn(),
     }
 
@@ -56,7 +53,6 @@ describe("MainNavigation", () => {
     const contextValue = {
       currentScope: undefined,
       setCurrentScope: vi.fn(),
-      auroraRoutes,
       setAuroraRoutes: vi.fn(),
     }
 
@@ -74,8 +70,6 @@ describe("MainNavigation", () => {
       const contextValue = {
         currentScope: undefined,
         setCurrentScope: vi.fn(),
-        auroraRoutes,
-        setAuroraRoutes: vi.fn(),
       }
 
       renderWithContext(<MainNavigation items={mainNavItems} />, contextValue)
@@ -88,8 +82,6 @@ describe("MainNavigation", () => {
       const contextValue = {
         currentScope: { scope: { project: mockProject, domain: mockDomain } },
         setCurrentScope: vi.fn(),
-        auroraRoutes,
-        setAuroraRoutes: vi.fn(),
       }
 
       renderWithContext(<MainNavigation items={mainNavItems} />, contextValue)
@@ -100,8 +92,6 @@ describe("MainNavigation", () => {
       const contextValue = {
         currentScope: { scope: { project: mockProject, domain: mockDomain } },
         setCurrentScope: vi.fn(),
-        auroraRoutes,
-        setAuroraRoutes: vi.fn(),
       }
 
       renderWithContext(<MainNavigation items={mainNavItems} />, contextValue)
@@ -112,8 +102,6 @@ describe("MainNavigation", () => {
       const contextValue = {
         currentScope: { scope: { project: mockProject, domain: mockDomain } },
         setCurrentScope: vi.fn(),
-        auroraRoutes,
-        setAuroraRoutes: vi.fn(),
       }
 
       renderWithContext(<MainNavigation items={mainNavItems} />, contextValue)

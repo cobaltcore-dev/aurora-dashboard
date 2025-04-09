@@ -1,7 +1,6 @@
 import { useNavigate } from "react-router-dom"
 import { Project } from "../../../server/Project/types/models"
 import { Icon } from "../../components/Icon"
-import { useAuroraContext } from "../../Shell/AuroraProvider"
 
 type ProjectCardProps = {
   project: Project
@@ -12,13 +11,13 @@ type ProjectCardViewProps = {
 
 export function ProjectCard({ project }: ProjectCardProps) {
   const navigate = useNavigate()
-  const { auroraRoutes } = useAuroraContext()
-
+  const domain = project?.domain_id // Assuming domain_id is the domai
+  const computeRootPath = `/accounts/${domain}/projects/${project.id}/compute`
   return (
     <div
       className="bg-[#161b22] rounded-xl shadow-lg p-5 flex flex-col space-y-4 border border-[#30363d] text-gray-300 min-h-[200px] relative cursor-pointer hover:bg-[#1f242b] transition-all"
       // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
-      onClick={() => navigate(auroraRoutes.domain(project?.domain_id!).project(project.id).compute.root)}
+      onClick={() => navigate(computeRootPath)}
     >
       {/* Header: Project Name (Clickable) + PopupMenu */}
       <div className="flex justify-between items-center w-full">

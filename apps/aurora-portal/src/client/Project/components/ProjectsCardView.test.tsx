@@ -1,7 +1,6 @@
 import { render, screen, fireEvent } from "@testing-library/react"
 import { ProjectCardView } from "./ProjectCardView"
 import { MemoryRouter, Routes, Route } from "react-router-dom"
-import { createRoutePaths } from "../../routes/AuroraRoutes"
 import { AuroraProvider } from "../../Shell/AuroraProvider"
 
 // Define a test project
@@ -18,12 +17,10 @@ const projects = [
   },
 ]
 
-const auroraRoutes = createRoutePaths().auroraRoutePaths()
-
 describe("ProjectCardView", () => {
   test("renders project data correctly", () => {
     render(
-      <MemoryRouter initialEntries={[auroraRoutes.home]}>
+      <MemoryRouter initialEntries={["/"]}>
         <AuroraProvider>
           <ProjectCardView projects={projects} />
         </AuroraProvider>
@@ -36,10 +33,10 @@ describe("ProjectCardView", () => {
 
   test("clicking the title does NOT trigger navigation", () => {
     render(
-      <MemoryRouter initialEntries={[auroraRoutes.home]}>
+      <MemoryRouter initialEntries={["/"]}>
         <Routes>
           <Route
-            path={auroraRoutes.home}
+            path={"/"}
             element={
               <AuroraProvider>
                 <ProjectCardView projects={projects} />
@@ -60,10 +57,10 @@ describe("ProjectCardView", () => {
 
   test("clicking the popup menu does NOT trigger navigation", () => {
     render(
-      <MemoryRouter initialEntries={[auroraRoutes.home]}>
+      <MemoryRouter initialEntries={["/"]}>
         <Routes>
           <Route
-            path={auroraRoutes.home}
+            path={"/"}
             element={
               <AuroraProvider>
                 <ProjectCardView projects={projects} />
@@ -84,10 +81,10 @@ describe("ProjectCardView", () => {
 
   test.skip("clicking the card navigates correctly", async () => {
     render(
-      <MemoryRouter initialEntries={[auroraRoutes.home]}>
+      <MemoryRouter initialEntries={["/"]}>
         <AuroraProvider>
           <Routes>
-            <Route path={auroraRoutes.home} element={<ProjectCardView projects={projects} />} />
+            <Route path={"/"} element={<ProjectCardView projects={projects} />} />
             <Route path="/1789d1/projects/89ac3f/compute" element={<div>Compute Page</div>} />
           </Routes>
         </AuroraProvider>

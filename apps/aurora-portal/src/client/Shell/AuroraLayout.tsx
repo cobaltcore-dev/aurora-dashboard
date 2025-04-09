@@ -5,7 +5,6 @@ import React from "react"
 import { Outlet } from "react-router-dom"
 import { MainNavigation } from "../Shell/Navigation/MainNavigation"
 import { NavigationItem } from "../Shell/Navigation/types"
-import { useAuroraContext } from "../Shell/AuroraProvider"
 
 interface NavigationLayoutProps {
   mainNavItems?: NavigationItem[]
@@ -13,10 +12,8 @@ interface NavigationLayoutProps {
 }
 
 export function AuroraLayout({ mainNavItems = [], children }: NavigationLayoutProps) {
-  const { auroraRoutes } = useAuroraContext()
-
   // Default navigation items
-  const defaultItems: NavigationItem[] = [{ route: auroraRoutes.about, label: "About" }]
+  const defaultItems: NavigationItem[] = [{ route: "/about", label: "About" }]
 
   const items = mainNavItems.length > 0 ? mainNavItems : defaultItems
 

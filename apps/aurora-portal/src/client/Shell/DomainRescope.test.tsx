@@ -3,7 +3,6 @@ import { MemoryRouter } from "react-router-dom"
 import { DomainRescope } from "./DomainRescope"
 import { AuroraContext, AuroraContextType } from "../Shell/AuroraProvider"
 import { vi } from "vitest"
-import { createRoutePaths } from "../routes/AuroraRoutes"
 import { TrpcClient } from "../trpcClient"
 
 const mockSetCurrentScope = {
@@ -22,8 +21,6 @@ describe("DomainRescope", () => {
     contextValue = {
       currentScope: undefined,
       setCurrentScope: vi.fn(),
-      auroraRoutes: createRoutePaths().auroraRoutePaths(),
-      setAuroraRoutes: vi.fn(),
     }
   })
 

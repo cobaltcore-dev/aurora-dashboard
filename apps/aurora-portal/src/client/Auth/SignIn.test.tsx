@@ -6,10 +6,8 @@ import { TrpcClient } from "../trpcClient"
 import { act } from "react"
 import { MemoryRouter, Route, Routes } from "react-router-dom"
 import { AuroraProvider } from "../Shell/AuroraProvider"
-import { createRoutePaths } from "../routes/AuroraRoutes"
 
 describe("SignIn Component", () => {
-  const auroraRoutes = createRoutePaths().auroraRoutePaths()
   const trpcClient: TrpcClient["auth"] = {
     createUserSession: {
       mutate: vi.fn().mockResolvedValue({
@@ -25,11 +23,11 @@ describe("SignIn Component", () => {
   }
   const renderWithAuth = () =>
     render(
-      <MemoryRouter initialEntries={[auroraRoutes.home]}>
+      <MemoryRouter initialEntries={["/"]}>
         <AuroraProvider>
           <Routes>
             <Route
-              path={auroraRoutes.home}
+              path={"/"}
               element={
                 <StoreProvider>
                   <SignIn trpcClient={trpcClient} />

@@ -7,19 +7,9 @@ import { ProjectsOverview } from "../Project/ProejctsOverview"
 import { ProjectRescope } from "../Project/ProjectRescope"
 import { trpcClient } from "../trpcClient"
 import { AuroraLayout } from "./AuroraLayout"
-import { AuroraRoutesSchema } from "../routes/AuroraRoutesSchema"
-import { z } from "zod"
 import { DomainRescope } from "./DomainRescope"
 
-export function AuroraRouter({
-  auroraRoutes,
-  isAuthenticated,
-  isLoading,
-}: {
-  auroraRoutes: z.infer<typeof AuroraRoutesSchema>
-  isAuthenticated: boolean
-  isLoading: boolean
-}) {
+export function AuroraRouter({ isAuthenticated, isLoading }: { isAuthenticated: boolean; isLoading: boolean }) {
   if (isLoading) {
     return <span>Please wait while your session is synced...</span>
   }
@@ -31,8 +21,8 @@ export function AuroraRouter({
   return (
     <Routes>
       <Route element={<AuroraLayout />}>
-        <Route path={auroraRoutes.home} element={<Home />} />
-        <Route path={auroraRoutes.about} element={<About />} />
+        <Route path={"/"} element={<Home />} />
+        <Route path={"/about"} element={<About />} />
 
         <Route path="accounts">
           <Route path=":domain">
