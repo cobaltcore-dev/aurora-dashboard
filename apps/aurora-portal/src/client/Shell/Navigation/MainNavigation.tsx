@@ -11,7 +11,6 @@ interface NavigationProps {
 
 export function MainNavigation({ items }: NavigationProps) {
   const { domain, project } = useLoaderData()
-  console.log("MainNavigation", domain)
   const projectsPath = `/accounts/${domain?.id}/projects`
 
   return (
