@@ -5,7 +5,6 @@ import { SignIn } from "./SignIn" // Adjust the import as necessary
 import { TrpcClient } from "../trpcClient"
 import { act } from "react"
 import { MemoryRouter, Route, Routes } from "react-router-dom"
-import { AuroraProvider } from "../Shell/AuroraProvider"
 
 describe("SignIn Component", () => {
   const trpcClient: TrpcClient["auth"] = {
@@ -24,19 +23,17 @@ describe("SignIn Component", () => {
   const renderWithAuth = () =>
     render(
       <MemoryRouter initialEntries={["/"]}>
-        <AuroraProvider>
-          <Routes>
-            <Route
-              path={"/"}
-              element={
-                <StoreProvider>
-                  <SignIn trpcClient={trpcClient} />
-                </StoreProvider>
-              }
-            />
-            <Route path="/1789d1/projects/89ac3f/compute" element={<div>Compute Page</div>} />
-          </Routes>
-        </AuroraProvider>
+        <Routes>
+          <Route
+            path={"/"}
+            element={
+              <StoreProvider>
+                <SignIn trpcClient={trpcClient} />
+              </StoreProvider>
+            }
+          />
+          <Route path="/1789d1/projects/89ac3f/compute" element={<div>Compute Page</div>} />
+        </Routes>
       </MemoryRouter>
     )
   beforeEach(() => {

@@ -2,7 +2,6 @@ import { describe, it, vi, beforeEach, expect } from "vitest"
 import { render, screen, waitFor } from "@testing-library/react"
 import { ComputeDashboard } from "./ComputeDashboard"
 import { TrpcClient } from "../trpcClient"
-import { AuroraProvider } from "../Shell/AuroraProvider"
 import { MemoryRouter, Route, Routes } from "react-router-dom"
 
 // Create more complete mock client based on the error
@@ -32,11 +31,9 @@ const mockClient = {
 const renderWithProviders = (ui: React.ReactNode, initialPath = "/projects/test-project") => {
   return render(
     <MemoryRouter initialEntries={[initialPath]}>
-      <AuroraProvider>
-        <Routes>
-          <Route path="/projects/:project/*" element={ui} />
-        </Routes>
-      </AuroraProvider>
+      <Routes>
+        <Route path="/projects/:project/*" element={ui} />
+      </Routes>
     </MemoryRouter>
   )
 }
@@ -85,11 +82,9 @@ describe("ComputeDashboard", () => {
     // Use renderWithProviders directly but override the route path
     render(
       <MemoryRouter initialEntries={["/projects/"]}>
-        <AuroraProvider>
-          <Routes>
-            <Route path="/projects/" element={<ComputeDashboard client={mockClient} />} />
-          </Routes>
-        </AuroraProvider>
+        <Routes>
+          <Route path="/projects/" element={<ComputeDashboard client={mockClient} />} />
+        </Routes>
       </MemoryRouter>
     )
 
