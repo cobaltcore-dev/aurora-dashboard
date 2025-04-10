@@ -1,12 +1,13 @@
-import { useLoaderData, useNavigate } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 import { Button } from "../components/Button"
+import { useAuth } from "../store/StoreProvider"
 
 export function Home() {
   const navigate = useNavigate()
-  const { domain } = useLoaderData()
 
+  const { user } = useAuth()
   const handleEnterCloud = () => {
-    navigate(`/accounts/${domain.id}/projects`)
+    navigate(`/accounts/${user?.domain.id}/projects`)
   }
 
   return (

@@ -31,10 +31,6 @@ export async function rescopeTokenLoader({ params }: { params: Params<string> })
       })
     }
 
-    if (!data?.domain || !data?.project) {
-      throw new Error("Project or domain data not found")
-    }
-
     return {
       domain: data.domain as Domain,
       project: data.project as Project,
