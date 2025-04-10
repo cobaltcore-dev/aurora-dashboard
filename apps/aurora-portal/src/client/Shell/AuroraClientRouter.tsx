@@ -62,7 +62,7 @@ const router = createBrowserRouter([
   },
 ])
 
-export function AuroraRouter({ isAuthenticated, isLoading }: { isAuthenticated: boolean; isLoading: boolean }) {
+export function AuroraClientRouter({ isAuthenticated, isLoading }: { isAuthenticated: boolean; isLoading: boolean }) {
   if (isLoading) {
     return <span>Please wait while your session is synced...</span>
   }
