@@ -2,7 +2,7 @@
 import React, { useEffect } from "react"
 import { trpcClient } from "../trpcClient"
 import { useAuth, useAuthDispatch } from "../store/StoreProvider"
-import { AuroraRouter } from "./AuroraRouterConfig"
+import { AuroraRouter } from "./AuroraRouter"
 
 export function AppContent() {
   const [authLoading, setIsLoading] = React.useState(true)

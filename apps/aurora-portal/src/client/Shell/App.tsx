@@ -1,5 +1,4 @@
 import { AppShellProvider } from "../components/AppshellProvider"
-import { BrowserRouter } from "react-router-dom"
 
 import { AppContent } from "./AppContent"
 import { AuroraProvider } from "./AuroraProvider"
@@ -13,9 +12,7 @@ export default function App() {
       <AppShellProvider theme="theme-dark">
         <Toaster theme="dark" position="top-center" />
         <AuroraProvider>
-          <BrowserRouter>
-            <AppContent />
-          </BrowserRouter>
+          <AppContent />
         </AuroraProvider>
       </AppShellProvider>
     </StoreProvider>
