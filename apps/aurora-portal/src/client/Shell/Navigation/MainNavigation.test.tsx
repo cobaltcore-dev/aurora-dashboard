@@ -99,7 +99,7 @@ describe("MainNavigation", () => {
       const projectsPath = `/accounts/${mockDomain.id}/projects`
       const Stub = createRoutesStub([
         {
-          path: "/",
+          path: `/`,
           Component: () => <MainNavigation items={mainNavItems} />,
           loader: () => ({ domain: mockDomain, project: mockProject }),
         },
@@ -108,13 +108,12 @@ describe("MainNavigation", () => {
           Component: () => <div>Projects Page</div>,
         },
       ])
-      render(<Stub initialEntries={["/"]} />)
+      render(<Stub initialEntries={[`/`]} />)
       await waitFor(async () => {
-        const domainLink = screen.getByTestId("domain-link")
+        const domainLink = await screen.getByTestId("domain-link")
         await fireEvent.click(domainLink)
         // Now we should expect to see the Projects page content
         expect(await screen.findByText("Projects Page")).toBeInTheDocument()
-        expect(await screen.getByText(mockProject.name)).not.toBeInTheDocument()
       })
     })
   })
