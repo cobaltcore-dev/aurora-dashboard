@@ -1,24 +1,16 @@
 // MainNavigation.tsx
-import { Link } from "react-router-dom"
+import { Link, useLoaderData } from "react-router-dom"
 import Logo from "../../assets/logo.svg?react"
 
 import { NavigationItem } from "./types"
 import { UserMenu } from "./UserMenu"
-import { AuroraContext } from "../AuroraProvider"
-
-import { use } from "react"
 
 interface NavigationProps {
   items: NavigationItem[]
 }
 
 export function MainNavigation({ items }: NavigationProps) {
-  const context = use(AuroraContext)
-  if (!context) return null
-  const { currentScope } = context
-
-  const domain = currentScope?.scope?.domain
-  const project = currentScope?.scope?.project
+  const { domain, project } = useLoaderData()
   const projectsPath = `/accounts/${domain?.id}/projects`
 
   return (

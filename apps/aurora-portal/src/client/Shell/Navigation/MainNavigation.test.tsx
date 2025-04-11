@@ -1,10 +1,8 @@
-import { render, screen, fireEvent } from "@testing-library/react"
-import { MemoryRouter, Routes, Route } from "react-router-dom"
+import { render, screen, fireEvent, waitFor } from "@testing-library/react"
 import { MainNavigation } from "./MainNavigation"
-import { AuroraContext, AuroraContextType } from "../AuroraProvider"
-
 import { Project } from "../../../server/Project/types/models"
-import { vi } from "vitest"
+import { Domain } from "../../../server/Authentication/types/models"
+import { createMemoryRouter, RouterProvider, createRoutesFromElements, Route } from "react-router-dom"
 
 const mainNavItems = [
   { route: "/", label: "Home" },
@@ -12,7 +10,12 @@ const mainNavItems = [
 ]
 
 // Mocked Domain & Project Data
-const mockDomain = { id: "default", name: "Default Domain" }
+const mockDomain: Domain = {
+  id: "default",
+  name: "Default Domain",
+  // Add other required properties based on your Domain type
+}
+
 const mockProject: Project = {
   id: "project-1",
   name: "Project Alpha",
@@ -22,95 +25,124 @@ const mockProject: Project = {
   links: { self: "https://example.com/project-1" },
 }
 
-// Helper function to wrap components with a mocked AuroraContext
-const renderWithContext = (ui: React.ReactNode, contextValue: AuroraContextType) => {
-  return render(
-    <AuroraContext.Provider value={contextValue}>
-      <MemoryRouter initialEntries={["/"]}>
-        <Routes>
-          <Route path="/" element={ui} />
-          <Route path="/about" element={<div>About Page Content</div>} />
-          <Route path={`/accounts/${mockDomain?.id}/projects`} element={<div>Projects Page</div>} />
-        </Routes>
-      </MemoryRouter>
-    </AuroraContext.Provider>
-  )
-}
-
 describe("MainNavigation", () => {
-  test("renders MainNavigation with items", () => {
-    const contextValue = {
-      currentScope: undefined,
-      setCurrentScope: vi.fn(),
-      setAuroraRoutes: vi.fn(),
-    }
+  test("renders MainNavigation with items", async () => {
+    const routes = createRoutesFromElements(
+      <Route
+        path="/"
+        element={<MainNavigation items={mainNavItems} />}
+        loader={async () => ({ domain: undefined, project: undefined })}
+      />
+    )
 
-    renderWithContext(<MainNavigation items={mainNavItems} />, contextValue)
-    expect(screen.getByText("Aurora")).toBeInTheDocument()
+    const router = createMemoryRouter(routes, {
+      initialEntries: ["/"],
+    })
+
+    render(<RouterProvider router={router} />)
+
+    await waitFor(() => {
+      expect(screen.getByText("Aurora")).toBeInTheDocument()
+    })
   })
 
   test("clicking a MainNavigation item updates the route", async () => {
-    const contextValue = {
-      currentScope: undefined,
-      setCurrentScope: vi.fn(),
-      setAuroraRoutes: vi.fn(),
-    }
+    const routes = createRoutesFromElements(
+      <>
+        <Route
+          path="/"
+          element={<MainNavigation items={mainNavItems} />}
+          loader={async () => ({ domain: undefined, project: undefined })}
+        />
+        <Route path="/about" element={<div>About Page Content</div>} />
+      </>
+    )
 
-    renderWithContext(<MainNavigation items={mainNavItems} />, contextValue)
+    const router = createMemoryRouter(routes, {
+      initialEntries: ["/"],
+    })
 
-    const aboutLink = screen.getByText("About")
-    fireEvent.click(aboutLink)
+    render(<RouterProvider router={router} />)
 
-    // Now we should expect to see the content of the About page
-    expect(await screen.findByText("About Page Content")).toBeInTheDocument()
+    await waitFor(async () => {
+      const aboutLink = screen.getByText("About")
+      await fireEvent.click(aboutLink)
+
+      // Now we should expect to see the content of the About page
+      expect(await screen.findByText("About Page Content")).toBeInTheDocument()
+    })
   })
 
   describe("Domain Navigation links", () => {
-    it("renders the logo and 'Aurora' text", () => {
-      const contextValue = {
-        currentScope: undefined,
-        setCurrentScope: vi.fn(),
-      }
+    it("displays the domain name if provided", async () => {
+      const routes = createRoutesFromElements(
+        <Route
+          path="/"
+          element={<MainNavigation items={mainNavItems} />}
+          loader={async () => ({ domain: mockDomain, project: undefined })}
+        />
+      )
 
-      renderWithContext(<MainNavigation items={mainNavItems} />, contextValue)
+      const router = createMemoryRouter(routes, {
+        initialEntries: ["/"],
+      })
 
-      expect(screen.getByTitle("Aurora")).toBeInTheDocument()
-      expect(screen.getByText("Aurora")).toBeInTheDocument()
+      render(<RouterProvider router={router} />)
+
+      await waitFor(async () => {
+        expect(await screen.getByText("Aurora")).toBeInTheDocument()
+        expect(await screen.getByText(mockDomain.name!)).toBeInTheDocument()
+      })
     })
 
-    it("displays the domain name if provided", () => {
-      const contextValue = {
-        currentScope: { scope: { project: mockProject, domain: mockDomain } },
-        setCurrentScope: vi.fn(),
-      }
+    it("displays the domain and the project name if provided", async () => {
+      const routes = createRoutesFromElements(
+        <Route
+          path="/"
+          element={<MainNavigation items={mainNavItems} />}
+          loader={async () => ({ domain: mockDomain, project: mockProject })}
+        />
+      )
 
-      renderWithContext(<MainNavigation items={mainNavItems} />, contextValue)
-      expect(screen.getByText(mockDomain.name)).toBeInTheDocument()
+      const router = createMemoryRouter(routes, {
+        initialEntries: ["/"],
+      })
+
+      render(<RouterProvider router={router} />)
+
+      await waitFor(async () => {
+        expect(await screen.getByText("Aurora")).toBeInTheDocument()
+        expect(await screen.getByText(mockDomain.name!)).toBeInTheDocument()
+        expect(await screen.getByText(mockProject.name)).toBeInTheDocument()
+      })
     })
 
-    it("displays the project name if provided", () => {
-      const contextValue = {
-        currentScope: { scope: { project: mockProject, domain: mockDomain } },
-        setCurrentScope: vi.fn(),
-      }
+    it("navigates to '/accounts/:domain/projects' when clicking the domain name", async () => {
+      const projectsPath = `/accounts/${mockDomain.id}/projects`
 
-      renderWithContext(<MainNavigation items={mainNavItems} />, contextValue)
-      expect(screen.getByText(mockProject.name)).toBeInTheDocument()
-    })
+      const routes = createRoutesFromElements(
+        <>
+          <Route
+            path="/"
+            element={<MainNavigation items={mainNavItems} />}
+            loader={async () => ({ domain: mockDomain, project: mockProject })}
+          />
+          <Route path={projectsPath} element={<div>Projects Page</div>} />
+        </>
+      )
 
-    it("navigates to '/projects' when clicking the domain name", async () => {
-      const contextValue = {
-        currentScope: { scope: { project: mockProject, domain: mockDomain } },
-        setCurrentScope: vi.fn(),
-      }
+      const router = createMemoryRouter(routes, {
+        initialEntries: ["/"],
+      })
 
-      renderWithContext(<MainNavigation items={mainNavItems} />, contextValue)
+      render(<RouterProvider router={router} />)
 
-      const domainLink = screen.getByTestId("domain-link").closest("a")
-      fireEvent.click(domainLink!)
-
-      // Now we should expect to see the Projects page content
-      expect(await screen.findByText("Projects Page")).toBeInTheDocument()
+      await waitFor(async () => {
+        const domainLink = await screen.getByTestId("domain-link")
+        await fireEvent.click(domainLink)
+        // Now we should expect to see the Projects page content
+        expect(await screen.findByText("Projects Page")).toBeInTheDocument()
+      })
     })
   })
 })

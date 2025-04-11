@@ -1,7 +1,6 @@
 import { render, screen, fireEvent } from "@testing-library/react"
 import { MemoryRouter, Route, Routes } from "react-router-dom"
 import { ProjectListView } from "./ProjectListView"
-import { AuroraProvider } from "../../Shell/AuroraProvider"
 import { vi } from "vitest"
 
 const projects = [
@@ -21,9 +20,7 @@ describe("ProjectListView", () => {
   test("renders without crashing when no projects", () => {
     render(
       <MemoryRouter>
-        <AuroraProvider>
-          <ProjectListView projects={undefined} />
-        </AuroraProvider>
+        <ProjectListView projects={undefined} />
       </MemoryRouter>
     )
     expect(screen.getByText(/no projects found/i)).toBeInTheDocument()
@@ -32,9 +29,7 @@ describe("ProjectListView", () => {
   test("renders project data correctly", () => {
     render(
       <MemoryRouter>
-        <AuroraProvider>
-          <ProjectListView projects={projects} />
-        </AuroraProvider>
+        <ProjectListView projects={projects} />
       </MemoryRouter>
     )
 
@@ -46,11 +41,9 @@ describe("ProjectListView", () => {
     const mockNavigate = vi.fn()
     render(
       <MemoryRouter initialEntries={["/"]}>
-        <AuroraProvider>
-          <Routes>
-            <Route path={"/"} element={<ProjectListView projects={projects} />} />
-          </Routes>
-        </AuroraProvider>
+        <Routes>
+          <Route path={"/"} element={<ProjectListView projects={projects} />} />
+        </Routes>
       </MemoryRouter>
     )
 
@@ -64,9 +57,7 @@ describe("ProjectListView", () => {
   test("clicking the popup menu does NOT trigger navigation", () => {
     render(
       <MemoryRouter>
-        <AuroraProvider>
-          <ProjectListView projects={projects} />
-        </AuroraProvider>
+        <ProjectListView projects={projects} />
       </MemoryRouter>
     )
 
@@ -80,11 +71,9 @@ describe("ProjectListView", () => {
     const mockNavigate = vi.fn()
     render(
       <MemoryRouter initialEntries={["/"]}>
-        <AuroraProvider>
-          <Routes>
-            <Route path={"/"} element={<ProjectListView projects={projects} />} />
-          </Routes>
-        </AuroraProvider>
+        <Routes>
+          <Route path={"/"} element={<ProjectListView projects={projects} />} />
+        </Routes>
       </MemoryRouter>
     )
 

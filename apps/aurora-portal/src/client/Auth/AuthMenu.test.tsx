@@ -5,7 +5,6 @@ import { StoreProvider, useAuthDispatch } from "../store/StoreProvider" // Adjus
 import { TrpcClient } from "../trpcClient"
 import { useEffect } from "react"
 import { MemoryRouter, Route, Routes } from "react-router-dom"
-import { AuroraProvider } from "../Shell/AuroraProvider"
 
 const SyncAuth = () => {
   const dispatch = useAuthDispatch()
@@ -29,12 +28,10 @@ const SyncAuth = () => {
 const renderWithAuth = (ui: React.ReactNode) =>
   render(
     <MemoryRouter initialEntries={["/"]}>
-      <AuroraProvider>
-        <Routes>
-          <Route path={"/"} element={ui} />
-          <Route path="/1789d1/projects/89ac3f/compute" element={<div>Compute Page</div>} />
-        </Routes>
-      </AuroraProvider>
+      <Routes>
+        <Route path={"/"} element={ui} />
+        <Route path="/1789d1/projects/89ac3f/compute" element={<div>Compute Page</div>} />
+      </Routes>
     </MemoryRouter>
   )
 describe("AuthMenu Component", () => {

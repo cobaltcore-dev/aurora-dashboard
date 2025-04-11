@@ -1,100 +1,201 @@
-import { render, screen, fireEvent } from "@testing-library/react"
+import { render, screen, fireEvent, waitFor } from "@testing-library/react"
 import { SubNavigation } from "./SubNavigation"
-import { AuroraContext, AuroraContextType } from "../AuroraProvider"
-import { MemoryRouter, Routes, Route } from "react-router-dom"
-import { vi } from "vitest"
-import { Project } from "../../../server/Project/types/models" // Adjust import path as needed
-
-// Define mock domain and project
-const mockDomain = { id: "domain-1", name: "Test Domain" }
-const mockProject: Project = {
-  id: "project-1",
-  name: "Test Project",
-  description: "Test project description",
-  domain_id: "domain-1",
-  enabled: true,
-  links: { self: "https://example.com/projects/project-1" },
-}
-
-// Create a properly typed mock context factory
-const createMockContext = (overrides = {}): AuroraContextType => ({
-  currentScope: undefined,
-  setCurrentScope: vi.fn(),
-  ...overrides,
-})
-
-// We need to ensure our route paths match the format expected by useParams()
-// Looking at your component, we need routes with :domain and :project parameters
-const renderWithAuth = (ui: React.ReactNode, initialEntries: string[], contextValue: AuroraContextType) => {
-  return render(
-    <AuroraContext.Provider value={contextValue}>
-      <MemoryRouter initialEntries={initialEntries}>
-        <Routes>
-          <Route path="/" element={ui} />
-          <Route path="/about" element={<div>About Page Content</div>} />
-          {/* Routes with parameters that match what useParams() expects */}
-          <Route path="/:domain/projects" element={<div>Projects Page</div>} />
-          <Route path="/:domain/projects/:project/compute" element={ui} />
-          <Route path="/:domain/projects/:project/network" element={ui} />
-          <Route path="/:domain/projects/:project/storage" element={<div>Storage Page</div>} />
-          <Route path="/:domain/projects/:project/metrics" element={<div>Metrics Page</div>} />
-        </Routes>
-      </MemoryRouter>
-    </AuroraContext.Provider>
-  )
-}
+import { Route, createMemoryRouter, RouterProvider, createRoutesFromElements } from "react-router-dom"
 
 describe("SubNavigation", () => {
-  test("renders correct navigation items based on route", () => {
-    const contextValue = createMockContext()
+  test("renders Welcome item on home route", async () => {
+    const routes = createRoutesFromElements(<Route path="/" element={<SubNavigation />} />)
 
-    renderWithAuth(<SubNavigation />, ["/"], contextValue)
-    expect(screen.getByText("Wellcome")).toBeInTheDocument()
-  })
-
-  test("renders project-specific items when on a project route", () => {
-    const contextValue = createMockContext({
-      currentScope: {
-        scope: {
-          project: mockProject,
-          domain: mockDomain,
-        },
-      },
+    const router = createMemoryRouter(routes, {
+      initialEntries: ["/"],
     })
 
-    // Use a route with actual parameters that useParams will extract
-    renderWithAuth(<SubNavigation />, ["/domain-1/projects/project-1/compute"], contextValue)
-    expect(screen.getByText("Compute")).toBeInTheDocument()
-    expect(screen.getByText("Network")).toBeInTheDocument()
-    expect(screen.getByText("Storage")).toBeInTheDocument()
-    expect(screen.getByText("Metrics")).toBeInTheDocument()
+    render(<RouterProvider router={router} />)
+
+    await waitFor(() => {
+      expect(screen.getByText("Wellcome")).toBeInTheDocument()
+    })
   })
 
-  test("applies correct active styles", () => {
-    const contextValue = createMockContext()
+  test("renders About item on about route", async () => {
+    const routes = createRoutesFromElements(<Route path="/about" element={<SubNavigation />} />)
 
-    renderWithAuth(<SubNavigation />, ["/"], contextValue)
-    const activeLink = screen.getByText("Wellcome").closest("a")
-    expect(activeLink).toHaveClass("relative px-3 py-2 transition-colors active")
+    const router = createMemoryRouter(routes, {
+      initialEntries: ["/about"],
+    })
+
+    render(<RouterProvider router={router} />)
+
+    await waitFor(() => {
+      expect(screen.getByText("About")).toBeInTheDocument()
+    })
   })
 
-  test("hover effect is applied correctly", () => {
-    const contextValue = createMockContext()
+  test("renders project-specific items when on a project route", async () => {
+    const domainId = "domain-1"
+    const projectId = "project-1"
+    const projectPath = `/accounts/${domainId}/projects/${projectId}/compute`
 
-    renderWithAuth(<SubNavigation />, ["/"], contextValue)
-    const wellcomeLink = screen.getByText("Wellcome").closest("a")
+    const routes = createRoutesFromElements(
+      <Route
+        path="/accounts/:domain/projects/:project/compute"
+        element={<SubNavigation />}
+        loader={async ({ params }) => {
+          // Mock loader that returns domain and project from params
+          return {
+            domain: { id: params.domain },
+            project: { id: params.project },
+          }
+        }}
+      />
+    )
 
-    fireEvent.mouseOver(wellcomeLink!)
-    expect(wellcomeLink?.firstChild).toHaveClass("hover:bg-juno-grey-blue-1")
+    const router = createMemoryRouter(routes, {
+      initialEntries: [projectPath],
+    })
+
+    render(<RouterProvider router={router} />)
+
+    await waitFor(() => {
+      expect(screen.getByText("Compute")).toBeInTheDocument()
+      expect(screen.getByText("Network")).toBeInTheDocument()
+      expect(screen.getByText("Storage")).toBeInTheDocument()
+      expect(screen.getByText("Metrics")).toBeInTheDocument()
+    })
   })
 
-  test("renders Overview link on domain routes without project", async () => {
-    const contextValue = createMockContext()
+  test("renders Overview item on domain projects route", async () => {
+    const domainId = "domain-1"
+    const domainPath = `/accounts/${domainId}/projects`
 
-    // Use a route with only the domain parameter
-    renderWithAuth(<SubNavigation />, ["/domain-1/projects"], contextValue)
+    const routes = createRoutesFromElements(
+      <Route
+        path="/accounts/:domain/projects"
+        element={<SubNavigation />}
+        loader={async ({ params }) => {
+          // Mock loader that returns domain from params
+          return {
+            domain: { id: params.domain },
+            project: null,
+          }
+        }}
+      />
+    )
 
-    // Check that the Overview link is displayed
-    expect(screen.getByText("Projects Page")).toBeInTheDocument()
+    const router = createMemoryRouter(routes, {
+      initialEntries: [domainPath],
+    })
+
+    render(<RouterProvider router={router} />)
+
+    await waitFor(() => {
+      expect(screen.getByText("Overview")).toBeInTheDocument()
+    })
+  })
+
+  test("applies correct active styles to current route", async () => {
+    const domainId = "domain-1"
+    const projectId = "project-1"
+    const projectPath = `/accounts/${domainId}/projects/${projectId}/compute`
+
+    const routes = createRoutesFromElements(
+      <Route
+        path="/accounts/:domain/projects/:project/compute"
+        element={<SubNavigation />}
+        loader={async ({ params }) => {
+          return {
+            domain: { id: params.domain },
+            project: { id: params.project },
+          }
+        }}
+      />
+    )
+
+    const router = createMemoryRouter(routes, {
+      initialEntries: [projectPath],
+    })
+
+    render(<RouterProvider router={router} />)
+
+    await waitFor(() => {
+      const computeLink = screen.getByText("Compute").closest("a")
+      expect(computeLink).toHaveClass("relative px-3 py-2 transition-colors active")
+
+      const computeText = screen.getByText("Compute")
+      expect(computeText).toHaveClass("font-semibold text-theme-accent")
+
+      // Check that the active indicator is present for Compute
+      const activeIndicator = computeLink?.querySelector(".absolute.left-0.bottom-0")
+      expect(activeIndicator).toBeInTheDocument()
+    })
+  })
+
+  test("navigates to different project tab when clicked", async () => {
+    const domainId = "domain-1"
+    const projectId = "project-1"
+    const computePath = `/accounts/${domainId}/projects/${projectId}/compute`
+
+    const routes = createRoutesFromElements(
+      <>
+        <Route
+          path="/accounts/:domain/projects/:project/compute"
+          element={<SubNavigation />}
+          loader={async ({ params }) => {
+            return {
+              domain: { id: params.domain },
+              project: { id: params.project },
+            }
+          }}
+        />
+        <Route
+          path="/accounts/:domain/projects/:project/storage"
+          element={
+            <>
+              <SubNavigation />
+              <div>Storage Page</div>
+            </>
+          }
+          loader={async ({ params }) => {
+            return {
+              domain: { id: params.domain },
+              project: { id: params.project },
+            }
+          }}
+        />
+      </>
+    )
+
+    const router = createMemoryRouter(routes, {
+      initialEntries: [computePath],
+    })
+
+    render(<RouterProvider router={router} />)
+
+    await waitFor(async () => {
+      const storageLink = screen.getByText("Storage").closest("a")
+      await fireEvent.click(storageLink!)
+
+      // Should find the Storage Page content
+      expect(await screen.findByText("Storage Page")).toBeInTheDocument()
+
+      // Check that the Storage link now has the active class
+      const storageLinkAfterClick = screen.getByText("Storage").closest("a")
+      expect(storageLinkAfterClick).toHaveClass("active")
+    })
+  })
+
+  test("hover effect is applied to navigation items", async () => {
+    const routes = createRoutesFromElements(<Route path="/" element={<SubNavigation />} />)
+
+    const router = createMemoryRouter(routes, {
+      initialEntries: ["/"],
+    })
+
+    render(<RouterProvider router={router} />)
+
+    await waitFor(() => {
+      const welcomeLink = screen.getByText("Wellcome").closest("div")
+      expect(welcomeLink).toHaveClass("hover:bg-juno-grey-blue-1")
+    })
   })
 })

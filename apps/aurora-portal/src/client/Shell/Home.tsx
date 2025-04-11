@@ -1,14 +1,11 @@
-import { useAuroraContext } from "./AuroraProvider"
 import { useNavigate } from "react-router-dom"
 import { Button } from "../components/Button"
 import { useAuth } from "../store/StoreProvider"
 
 export function Home() {
-  const { setCurrentScope } = useAuroraContext()
   const navigate = useNavigate()
-  setCurrentScope(undefined)
-  const { user } = useAuth()
 
+  const { user } = useAuth()
   const handleEnterCloud = () => {
     navigate(`/accounts/${user?.domain.id}/projects`)
   }

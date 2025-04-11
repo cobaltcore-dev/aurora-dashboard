@@ -1,8 +1,4 @@
-import { useAuroraContext } from "./AuroraProvider"
-
 export function About() {
-  const { setCurrentScope } = useAuroraContext()
-  setCurrentScope(undefined)
   return (
     <div className="min-h-screen flex items-start justify-start bg-gray-100 px-6 mt-10">
       <div className="max-w-4xl w-full">
