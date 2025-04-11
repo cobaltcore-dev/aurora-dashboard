@@ -1,17 +1,16 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react"
 import { SubNavigation } from "./SubNavigation"
-import { createRoutesStub } from "react-router"
+import { Route, createMemoryRouter, RouterProvider, createRoutesFromElements } from "react-router-dom"
 
 describe("SubNavigation", () => {
   test("renders Welcome item on home route", async () => {
-    const Stub = createRoutesStub([
-      {
-        path: "/",
-        Component: SubNavigation,
-      },
-    ])
+    const routes = createRoutesFromElements(<Route path="/" element={<SubNavigation />} />)
 
-    render(<Stub initialEntries={["/"]} />)
+    const router = createMemoryRouter(routes, {
+      initialEntries: ["/"],
+    })
+
+    render(<RouterProvider router={router} />)
 
     await waitFor(() => {
       expect(screen.getByText("Wellcome")).toBeInTheDocument()
@@ -19,14 +18,13 @@ describe("SubNavigation", () => {
   })
 
   test("renders About item on about route", async () => {
-    const Stub = createRoutesStub([
-      {
-        path: "/about",
-        Component: SubNavigation,
-      },
-    ])
+    const routes = createRoutesFromElements(<Route path="/about" element={<SubNavigation />} />)
 
-    render(<Stub initialEntries={["/about"]} />)
+    const router = createMemoryRouter(routes, {
+      initialEntries: ["/about"],
+    })
+
+    render(<RouterProvider router={router} />)
 
     await waitFor(() => {
       expect(screen.getByText("About")).toBeInTheDocument()
@@ -38,14 +36,25 @@ describe("SubNavigation", () => {
     const projectId = "project-1"
     const projectPath = `/accounts/${domainId}/projects/${projectId}/compute`
 
-    const Stub = createRoutesStub([
-      {
-        path: `/accounts/:domain/projects/:project/compute`,
-        Component: SubNavigation,
-      },
-    ])
+    const routes = createRoutesFromElements(
+      <Route
+        path="/accounts/:domain/projects/:project/compute"
+        element={<SubNavigation />}
+        loader={async ({ params }) => {
+          // Mock loader that returns domain and project from params
+          return {
+            domain: { id: params.domain },
+            project: { id: params.project },
+          }
+        }}
+      />
+    )
 
-    render(<Stub initialEntries={[projectPath]} />)
+    const router = createMemoryRouter(routes, {
+      initialEntries: [projectPath],
+    })
+
+    render(<RouterProvider router={router} />)
 
     await waitFor(() => {
       expect(screen.getByText("Compute")).toBeInTheDocument()
@@ -59,14 +68,25 @@ describe("SubNavigation", () => {
     const domainId = "domain-1"
     const domainPath = `/accounts/${domainId}/projects`
 
-    const Stub = createRoutesStub([
-      {
-        path: `/accounts/:domain/projects`,
-        Component: SubNavigation,
-      },
-    ])
+    const routes = createRoutesFromElements(
+      <Route
+        path="/accounts/:domain/projects"
+        element={<SubNavigation />}
+        loader={async ({ params }) => {
+          // Mock loader that returns domain from params
+          return {
+            domain: { id: params.domain },
+            project: null,
+          }
+        }}
+      />
+    )
 
-    render(<Stub initialEntries={[domainPath]} />)
+    const router = createMemoryRouter(routes, {
+      initialEntries: [domainPath],
+    })
+
+    render(<RouterProvider router={router} />)
 
     await waitFor(() => {
       expect(screen.getByText("Overview")).toBeInTheDocument()
@@ -78,14 +98,24 @@ describe("SubNavigation", () => {
     const projectId = "project-1"
     const projectPath = `/accounts/${domainId}/projects/${projectId}/compute`
 
-    const Stub = createRoutesStub([
-      {
-        path: `/accounts/:domain/projects/:project/compute`,
-        Component: SubNavigation,
-      },
-    ])
+    const routes = createRoutesFromElements(
+      <Route
+        path="/accounts/:domain/projects/:project/compute"
+        element={<SubNavigation />}
+        loader={async ({ params }) => {
+          return {
+            domain: { id: params.domain },
+            project: { id: params.project },
+          }
+        }}
+      />
+    )
 
-    render(<Stub initialEntries={[projectPath]} />)
+    const router = createMemoryRouter(routes, {
+      initialEntries: [projectPath],
+    })
+
+    render(<RouterProvider router={router} />)
 
     await waitFor(() => {
       const computeLink = screen.getByText("Compute").closest("a")
@@ -105,23 +135,41 @@ describe("SubNavigation", () => {
     const projectId = "project-1"
     const computePath = `/accounts/${domainId}/projects/${projectId}/compute`
 
-    const Stub = createRoutesStub([
-      {
-        path: `/accounts/:domain/projects/:project/compute`,
-        Component: SubNavigation,
-      },
-      {
-        path: `/accounts/:domain/projects/:project/storage`,
-        Component: () => (
-          <>
-            <SubNavigation />
-            <div>Storage Page</div>
-          </>
-        ),
-      },
-    ])
+    const routes = createRoutesFromElements(
+      <>
+        <Route
+          path="/accounts/:domain/projects/:project/compute"
+          element={<SubNavigation />}
+          loader={async ({ params }) => {
+            return {
+              domain: { id: params.domain },
+              project: { id: params.project },
+            }
+          }}
+        />
+        <Route
+          path="/accounts/:domain/projects/:project/storage"
+          element={
+            <>
+              <SubNavigation />
+              <div>Storage Page</div>
+            </>
+          }
+          loader={async ({ params }) => {
+            return {
+              domain: { id: params.domain },
+              project: { id: params.project },
+            }
+          }}
+        />
+      </>
+    )
 
-    render(<Stub initialEntries={[computePath]} />)
+    const router = createMemoryRouter(routes, {
+      initialEntries: [computePath],
+    })
+
+    render(<RouterProvider router={router} />)
 
     await waitFor(async () => {
       const storageLink = screen.getByText("Storage").closest("a")
@@ -137,14 +185,13 @@ describe("SubNavigation", () => {
   })
 
   test("hover effect is applied to navigation items", async () => {
-    const Stub = createRoutesStub([
-      {
-        path: "/",
-        Component: SubNavigation,
-      },
-    ])
+    const routes = createRoutesFromElements(<Route path="/" element={<SubNavigation />} />)
 
-    render(<Stub initialEntries={["/"]} />)
+    const router = createMemoryRouter(routes, {
+      initialEntries: ["/"],
+    })
+
+    render(<RouterProvider router={router} />)
 
     await waitFor(() => {
       const welcomeLink = screen.getByText("Wellcome").closest("div")
