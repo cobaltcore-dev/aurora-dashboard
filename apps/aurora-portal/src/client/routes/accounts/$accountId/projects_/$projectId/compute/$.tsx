@@ -6,6 +6,8 @@ import { Overview } from "./-components/Overview"
 import { TrpcClient } from "../../../../../../trpcClient"
 import { Instances } from "./-components/Instances/List"
 import { Images } from "./-components/Images/List"
+import { KeyPairs } from "./-components/KeyPairs/List"
+import { ServerGroups } from "./-components/ServerGroups/List"
 
 export const Route = createFileRoute("/accounts/$accountId/projects_/$projectId/compute/$")({
   component: RouteComponent,
@@ -70,6 +72,10 @@ function ComputeDashboard({ client }: { client: TrpcClient }) {
                     return <Instances client={client} project={project} viewMode={viewMode} />
                   case "images":
                     return <Images project={project} client={client} />
+                  case "keypairs":
+                    return <KeyPairs project={project} client={client} />
+                  case "servergroups":
+                    return <ServerGroups project={project} client={client} />
                   default:
                     return <Overview project={project} client={client} />
                 }
