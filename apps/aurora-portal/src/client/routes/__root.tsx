@@ -2,8 +2,8 @@ import * as React from "react"
 import { Outlet, createRootRouteWithContext } from "@tanstack/react-router"
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools"
 // NavigationLayout.tsx
-import { MainNavigation } from "../Shell/Navigation/MainNavigation"
-import { NavigationItem } from "../Shell/Navigation/types"
+import { MainNavigation } from "../components/navigation/MainNavigation"
+import { NavigationItem } from "../components/navigation/types"
 import { Domain } from "../../server/Authentication/types/models"
 import { Project } from "../../server/Project/types/models"
 import { TrpcClient } from "../trpcClient"
@@ -25,6 +25,7 @@ export async function rescopeTokenLoader(
   trpcClient: TrpcClient
 ): Promise<ProjectLoaderData> {
   let data = null
+
   try {
     if (project) {
       data = await trpcClient.auth.setCurrentScope.mutate({
@@ -56,35 +57,24 @@ export async function rescopeTokenLoader(
   }
 }
 interface MyRouterContext {
-  domain?: Domain
-  project?: Project
   trpcClient?: TrpcClient
+  crumb?: string
 }
 
 export const Route = createRootRouteWithContext<MyRouterContext>()({
-  beforeLoad: () => {
+  loader: async ({ context, params }) => {
+    // @ts-expect-error for now just leave it like this it is lefotver of rescoping, we will remove it later
+    const { domain, project } = await rescopeTokenLoader(params.accountId, params.projectId, context.trpcClient)
+    // Call the loader function with the context
     return {
-      domain: { id: "default", name: "Default Domain" },
-      project: {
-        id: "project-1",
-        name: "Project Alpha",
-        description: "Test project",
-        domain_id: "default",
-        enabled: true,
-        links: { self: "https://example.com/project-1" },
-      },
-    }
-  },
-  loader: ({ context }) => {
-    return {
-      domain: context.domain,
-      project: context.project,
+      domain: domain,
+      project: project,
     }
   },
   component: AuroraLayout,
 })
 
-function AuroraLayout({ mainNavItems = [], children }: NavigationLayoutProps) {
+function AuroraLayout({ mainNavItems = [] }: NavigationLayoutProps) {
   // Default navigation items
   const defaultItems: NavigationItem[] = [{ route: "/about", label: "About" }]
   const { domain, project } = Route.useLoaderData()
@@ -98,10 +88,7 @@ function AuroraLayout({ mainNavItems = [], children }: NavigationLayoutProps) {
         <MainNavigation domain={domain} project={project} items={items} />
       </div>
 
-      {/* Sub-Navigation with similar reduced height */}
-      <div className="w-full flex">{/* Even smaller spacing */}</div>
-
-      <div className="py-4 pl-4 bg-theme-global-bg h-full">{children || <Outlet />}</div>
+      <div>{<Outlet />}</div>
       <TanStackRouterDevtools position="bottom-right" />
     </div>
   )

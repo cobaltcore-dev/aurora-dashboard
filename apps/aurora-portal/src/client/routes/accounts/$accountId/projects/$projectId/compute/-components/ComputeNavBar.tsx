@@ -12,7 +12,7 @@ export const ComputeSideNavBar = () => {
   const location = useLocation()
 
   const { project, domain } = useParams({
-    from: "/accounts/$accountId/projects_/$projectId/compute/$",
+    from: "/accounts/$accountId/projects/$projectId/compute/$",
     select: (params) => {
       return { project: params.projectId, domain: params.accountId }
     },

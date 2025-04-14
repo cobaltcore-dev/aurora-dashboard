@@ -9,7 +9,7 @@ import { Images } from "./-components/Images/List"
 import { KeyPairs } from "./-components/KeyPairs/List"
 import { ServerGroups } from "./-components/ServerGroups/List"
 
-export const Route = createFileRoute("/accounts/$accountId/projects_/$projectId/compute/$")({
+export const Route = createFileRoute("/accounts/$accountId/projects/$projectId/compute/$")({
   component: RouteComponent,
   errorComponent: ({ error }) => {
     if (error instanceof Error) {
@@ -27,6 +27,7 @@ export const Route = createFileRoute("/accounts/$accountId/projects_/$projectId/
     const { trpcClient } = context
 
     return {
+      crumb: "Compute",
       client: trpcClient,
     }
   },
@@ -40,7 +41,7 @@ function RouteComponent() {
 function ComputeDashboard({ client }: { client: TrpcClient }) {
   const [viewMode, setViewMode] = useState<"list" | "card">("list")
   const { project, splat } = useParams({
-    from: "/accounts/$accountId/projects_/$projectId/compute/$",
+    from: "/accounts/$accountId/projects/$projectId/compute/$",
     select: (params) => {
       return { project: params.projectId, splat: params._splat }
     },

@@ -1,9 +1,15 @@
-import { createFileRoute } from "@tanstack/react-router"
+import { createFileRoute, redirect } from "@tanstack/react-router"
 
 export const Route = createFileRoute("/accounts/$accountId/")({
+  beforeLoad: () => {
+    throw redirect({
+      to: "/accounts/$accountId/projects",
+      params: undefined!,
+    })
+  },
   component: RouteComponent,
 })
 
 function RouteComponent() {
-  return <div>Hello "/accounts/$accountId/"!</div>
+  return <div>test</div>
 }
