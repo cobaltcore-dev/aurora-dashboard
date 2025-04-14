@@ -1,8 +1,8 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react"
-import { StoreProvider } from "../store/StoreProvider"
+import { StoreProvider } from "../../store/StoreProvider"
 import { vi } from "vitest"
 import { SignIn } from "./SignIn" // Adjust the import as necessary
-import { TrpcClient } from "../trpcClient"
+import { TrpcClient } from "../../trpcClient"
 import { act } from "react"
 import { MemoryRouter, Route, Routes } from "react-router-dom"
 

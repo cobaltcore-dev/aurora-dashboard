@@ -1,7 +1,7 @@
 import { useCallback, useState } from "react"
-import { Button } from "../components/Button"
-import { useAuth, useAuthDispatch } from "../store/StoreProvider"
-import { TrpcClient } from "../trpcClient"
+import { Button } from "../../components/Button"
+import { useAuth, useAuthDispatch } from "../../store/StoreProvider"
+import { TrpcClient } from "../../trpcClient"
 
 const textinputstyles = `
   jn-bg-theme-textinput

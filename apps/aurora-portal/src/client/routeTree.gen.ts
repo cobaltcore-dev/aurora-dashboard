@@ -14,6 +14,7 @@ import { Route as rootRoute } from "./routes/__root"
 import { Route as AboutImport } from "./routes/about"
 import { Route as IndexImport } from "./routes/index"
 import { Route as AccountsIndexImport } from "./routes/accounts/index"
+import { Route as AuthSigninImport } from "./routes/auth/signin"
 import { Route as AccountsAccountIdIndexImport } from "./routes/accounts/$accountId/index"
 import { Route as AccountsAccountIdProjectsIndexImport } from "./routes/accounts/$accountId/projects/index"
 import { Route as AccountsAccountIdProjectsProjectIdImport } from "./routes/accounts/$accountId/projects/$projectId"
@@ -37,6 +38,12 @@ const IndexRoute = IndexImport.update({
 const AccountsIndexRoute = AccountsIndexImport.update({
   id: "/accounts/",
   path: "/accounts/",
+  getParentRoute: () => rootRoute,
+} as any)
+
+const AuthSigninRoute = AuthSigninImport.update({
+  id: "/auth/signin",
+  path: "/auth/signin",
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -90,6 +97,13 @@ declare module "@tanstack/react-router" {
       path: "/about"
       fullPath: "/about"
       preLoaderRoute: typeof AboutImport
+      parentRoute: typeof rootRoute
+    }
+    "/auth/signin": {
+      id: "/auth/signin"
+      path: "/auth/signin"
+      fullPath: "/auth/signin"
+      preLoaderRoute: typeof AuthSigninImport
       parentRoute: typeof rootRoute
     }
     "/accounts/": {
@@ -156,6 +170,7 @@ const AccountsAccountIdProjectsProjectIdRouteWithChildren = AccountsAccountIdPro
 export interface FileRoutesByFullPath {
   "/": typeof IndexRoute
   "/about": typeof AboutRoute
+  "/auth/signin": typeof AuthSigninRoute
   "/accounts": typeof AccountsIndexRoute
   "/accounts/$accountId": typeof AccountsAccountIdIndexRoute
   "/accounts/$accountId/projects/$projectId": typeof AccountsAccountIdProjectsProjectIdRouteWithChildren
@@ -167,6 +182,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   "/": typeof IndexRoute
   "/about": typeof AboutRoute
+  "/auth/signin": typeof AuthSigninRoute
   "/accounts": typeof AccountsIndexRoute
   "/accounts/$accountId": typeof AccountsAccountIdIndexRoute
   "/accounts/$accountId/projects/$projectId": typeof AccountsAccountIdProjectsProjectIdRouteWithChildren
@@ -179,6 +195,7 @@ export interface FileRoutesById {
   __root__: typeof rootRoute
   "/": typeof IndexRoute
   "/about": typeof AboutRoute
+  "/auth/signin": typeof AuthSigninRoute
   "/accounts/": typeof AccountsIndexRoute
   "/accounts/$accountId/": typeof AccountsAccountIdIndexRoute
   "/accounts/$accountId/projects/$projectId": typeof AccountsAccountIdProjectsProjectIdRouteWithChildren
@@ -192,6 +209,7 @@ export interface FileRouteTypes {
   fullPaths:
     | "/"
     | "/about"
+    | "/auth/signin"
     | "/accounts"
     | "/accounts/$accountId"
     | "/accounts/$accountId/projects/$projectId"
@@ -202,6 +220,7 @@ export interface FileRouteTypes {
   to:
     | "/"
     | "/about"
+    | "/auth/signin"
     | "/accounts"
     | "/accounts/$accountId"
     | "/accounts/$accountId/projects/$projectId"
@@ -212,6 +231,7 @@ export interface FileRouteTypes {
     | "__root__"
     | "/"
     | "/about"
+    | "/auth/signin"
     | "/accounts/"
     | "/accounts/$accountId/"
     | "/accounts/$accountId/projects/$projectId"
@@ -224,6 +244,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
+  AuthSigninRoute: typeof AuthSigninRoute
   AccountsIndexRoute: typeof AccountsIndexRoute
   AccountsAccountIdIndexRoute: typeof AccountsAccountIdIndexRoute
   AccountsAccountIdProjectsProjectIdRoute: typeof AccountsAccountIdProjectsProjectIdRouteWithChildren
@@ -233,6 +254,7 @@ export interface RootRouteChildren {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
+  AuthSigninRoute: AuthSigninRoute,
   AccountsIndexRoute: AccountsIndexRoute,
   AccountsAccountIdIndexRoute: AccountsAccountIdIndexRoute,
   AccountsAccountIdProjectsProjectIdRoute: AccountsAccountIdProjectsProjectIdRouteWithChildren,
@@ -249,6 +271,7 @@ export const routeTree = rootRoute._addFileChildren(rootRouteChildren)._addFileT
       "children": [
         "/",
         "/about",
+        "/auth/signin",
         "/accounts/",
         "/accounts/$accountId/",
         "/accounts/$accountId/projects/$projectId",
@@ -260,6 +283,9 @@ export const routeTree = rootRoute._addFileChildren(rootRouteChildren)._addFileT
     },
     "/about": {
       "filePath": "about.tsx"
+    },
+    "/auth/signin": {
+      "filePath": "auth/signin.tsx"
     },
     "/accounts/": {
       "filePath": "accounts/index.tsx"

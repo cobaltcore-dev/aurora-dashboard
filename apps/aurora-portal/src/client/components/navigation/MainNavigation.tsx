@@ -5,6 +5,7 @@ import { NavigationItem } from "./types"
 import { Project } from "../../../server/Project/types/models"
 import { Domain } from "../../../server/Authentication/types/models"
 import { Link } from "@tanstack/react-router"
+import { UserMenu } from "./UserMenu"
 
 interface NavigationProps {
   items: NavigationItem[]
@@ -47,6 +48,7 @@ export function MainNavigation({ items, domain, project }: NavigationProps) {
               {label}
             </Link>
           ))}
+          <UserMenu />
         </div>
       </div>
     </nav>

@@ -4,7 +4,7 @@ import { trpcClient } from "./trpcClient"
 import { useAuth, useAuthDispatch } from "./store/StoreProvider"
 import { routeTree } from "./routeTree.gen"
 import { RouterProvider, createRouter } from "@tanstack/react-router"
-import { SignIn } from "./Auth/SignIn"
+import { SignIn } from "./components/Auth/SignIn"
 // Register things for typesafety
 
 declare module "@tanstack/react-router" {

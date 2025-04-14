@@ -1,8 +1,8 @@
 import { render, screen, fireEvent, act } from "@testing-library/react"
 import { vi } from "vitest"
 import { AuthMenu } from "./AuthMenu" // Adjust the import as necessary
-import { StoreProvider, useAuthDispatch } from "../store/StoreProvider" // Adjust based on your file structure
-import { TrpcClient } from "../trpcClient"
+import { StoreProvider, useAuthDispatch } from "../../store/StoreProvider" // Adjust based on your file structure
+import { TrpcClient } from "../../trpcClient"
 import { useEffect } from "react"
 import { MemoryRouter, Route, Routes } from "react-router-dom"
 

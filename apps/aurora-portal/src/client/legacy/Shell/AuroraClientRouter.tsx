@@ -1,7 +1,7 @@
 import { Home } from "./Home"
 import { About } from "./About"
 import { ComputeDashboard } from "../Compute/ComputeDashboard"
-import { SignIn } from "../../Auth/SignIn"
+import { SignIn } from "../../components/Auth/SignIn"
 import { ProjectsOverview } from "../Project/ProejctsOverview"
 import { AuroraLayout } from "./AuroraLayout"
 import { RouterProvider } from "react-router-dom"

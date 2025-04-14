@@ -1,6 +1,6 @@
 import { useState, useRef } from "react"
 
-import { AuthMenu } from "../../Auth/AuthMenu"
+import { AuthMenu } from "../Auth/AuthMenu"
 import { trpcClient } from "../../trpcClient"
 import { Icon } from "../../components/Icon"
 
