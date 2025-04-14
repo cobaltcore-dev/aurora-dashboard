@@ -1,12 +1,8 @@
 // export default ImagesPage
-import {
-  ToastProps,
-  auroraToast,
-  sonnerToast,
-} from "../../../../../../../../../legacy/Shell/NotificationCenter/AuroraToast"
-import type { GlanceImage } from "../../../../../../../../../../server/Compute/types/image"
-import { Button } from "../../../../../../../../../components/Button"
-import { Icon } from "../../../../../../../../../components/Icon"
+import type { GlanceImage } from "../../../../../server/Compute/types/image"
+import { ToastProps, auroraToast, sonnerToast } from "../../../Shell/NotificationCenter/AuroraToast"
+import { Button } from "../../../../components/Button"
+import { Icon } from "../../../../components/Icon"
 interface ImagePageProps {
   images: GlanceImage[]
 }

@@ -1,12 +1,8 @@
 // KeyPairListView.tsx - Component to display key pairs
-import {
-  ToastProps,
-  auroraToast,
-  sonnerToast,
-} from "../../../../../../../../../legacy/Shell/NotificationCenter/AuroraToast"
-import type { Keypair } from "../../../../../../../../../../server/Compute/types/keypair"
-import { Button } from "../../../../../../../../../components/Button"
-import { Icon } from "../../../../../../../../../components/Icon"
+import { ToastProps, auroraToast, sonnerToast } from "../../../Shell/NotificationCenter/AuroraToast"
+import { Button } from "../../../../components/Button"
+import { Icon } from "../../../../components/Icon"
+import { Keypair } from "../../../../../server/Compute/types/keypair"
 
 interface KeyPairListViewProps {
   keyPairs: Keypair[]

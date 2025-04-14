@@ -1,11 +1,7 @@
-import {
-  ToastProps,
-  auroraToast,
-  sonnerToast,
-} from "../../../../../../../../../legacy/Shell/NotificationCenter/AuroraToast"
-import type { ServerGroup } from "../../../../../../../../../../server/Compute/types/serverGroup"
-import { Button } from "../../../../../../../../../components/Button"
-import { Icon } from "../../../../../../../../../components/Icon"
+import { ToastProps, auroraToast, sonnerToast } from "../../../Shell/NotificationCenter/AuroraToast"
+import { Button } from "../../../../components/Button"
+import { Icon } from "../../../../components/Icon"
+import { ServerGroup } from "../../../../../server/Compute/types/serverGroup"
 
 interface ServerGroupListViewProps {
   serverGroups: ServerGroup[]

@@ -1,11 +1,8 @@
-import {
-  ToastProps,
-  auroraToast,
-  sonnerToast,
-} from "../../../../../../../../../legacy/Shell/NotificationCenter/AuroraToast"
-import type { Server } from "../../../../../../../../../../server/Compute/types/server"
-import { Button } from "../../../../../../../../../components/Button"
-import { Icon } from "../../../../../../../../../components/Icon"
+import { ToastProps, auroraToast, sonnerToast } from "../../../Shell/NotificationCenter/AuroraToast"
+import type { Server } from "../../../../../server/Compute/types/server"
+import { Button } from "../../../../components/Button"
+import { Icon } from "../../../../components/Icon"
+
 type ServerListViewProps = {
   servers: Server[] | undefined
 }
