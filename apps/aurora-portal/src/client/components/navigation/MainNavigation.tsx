@@ -1,18 +1,16 @@
 // MainNavigation.tsx
+import { Link, useLoaderData } from "react-router-dom"
 import Logo from "../../assets/logo.svg?react"
 
 import { NavigationItem } from "./types"
-import { Project } from "../../../server/Project/types/models"
-import { Domain } from "../../../server/Authentication/types/models"
-import { Link } from "@tanstack/react-router"
+import { UserMenu } from "./UserMenu"
 
 interface NavigationProps {
   items: NavigationItem[]
-  domain?: Domain
-  project?: Project
 }
 
-export function MainNavigation({ items, domain, project }: NavigationProps) {
+export function MainNavigation({ items }: NavigationProps) {
+  const { domain, project } = useLoaderData()
   const projectsPath = `/accounts/${domain?.id}/projects`
 
   return (
@@ -47,6 +45,7 @@ export function MainNavigation({ items, domain, project }: NavigationProps) {
               {label}
             </Link>
           ))}
+          <UserMenu />
         </div>
       </div>
     </nav>

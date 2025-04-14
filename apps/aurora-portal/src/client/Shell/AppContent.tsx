@@ -2,7 +2,26 @@
 import React, { useEffect } from "react"
 import { trpcClient } from "../trpcClient"
 import { useAuth, useAuthDispatch } from "../store/StoreProvider"
-import { AuroraClientRouter } from "./AuroraClientRouter"
+import { routeTree } from "../routeTree.gen"
+import { RouterProvider, createRouter } from "@tanstack/react-router"
+import { SignIn } from "../Auth/SignIn"
+// Register things for typesafety
+
+declare module "@tanstack/react-router" {
+  interface Register {
+    router: typeof router
+  }
+}
+
+// Set up a Router instance
+const router = createRouter({
+  routeTree,
+  context: {
+    trpcClient: undefined!,
+  },
+  defaultPreload: "intent",
+  scrollRestoration: true,
+})
 
 export function AppContent() {
   const [authLoading, setIsLoading] = React.useState(true)
@@ -23,10 +42,17 @@ export function AppContent() {
       .finally(() => setIsLoading(false))
   }, [dispatch])
   // Create router
+  if (authLoading) {
+    return <span>Please wait while your session is synced...</span>
+  }
+
+  if (!isAuthenticated) {
+    return <SignIn trpcClient={trpcClient.auth} />
+  }
 
   return (
     <div className="content">
-      <AuroraClientRouter isAuthenticated={isAuthenticated} isLoading={authLoading} />
+      <RouterProvider context={{ trpcClient }} router={router} />
     </div>
   )
 }

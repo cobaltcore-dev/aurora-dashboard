@@ -12,6 +12,7 @@ dotenv.config()
 export const DEV_PORT = process.env.DEV_PORT || "3004"
 export const PORT = process.env.PORT || "4004"
 export const BFF_ENDPOINT = process.env.BFF_ENDPOINT || "/polaris-bff"
+import { TanStackRouterVite } from "@tanstack/router-plugin/vite"
 
 export default defineConfig({
   root: ".",
@@ -22,7 +23,17 @@ export default defineConfig({
   define: {
     BFF_ENDPOINT: JSON.stringify(BFF_ENDPOINT),
   },
-  plugins: [react(), svgr(), tsconfigPaths()],
+  plugins: [
+    TanStackRouterVite({
+      target: "react",
+      autoCodeSplitting: true,
+      generatedRouteTree: "./src/client/routeTree.gen.ts",
+      routesDirectory: "./src/client/routes",
+    }),
+    react(),
+    svgr(),
+    tsconfigPaths(),
+  ],
   css: {
     postcss: {
       plugins: [tailwindcss, autoprefixer],
