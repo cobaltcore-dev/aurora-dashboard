@@ -19,7 +19,6 @@ export function ProjectListView({ projects }: ProjectListViewProps) {
             <div
               key={project.id}
               className="flex items-center w-full px-6 py-4 hover:bg-[#1f242b] transition-all cursor-pointer border-b border-[#30363d] last:border-0"
-              // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
               onClick={() => navigate(computeRootPath)}
             >
               {/* Icon + Title (Left Side) */}

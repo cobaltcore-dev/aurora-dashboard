@@ -16,7 +16,6 @@ export function ProjectCard({ project }: ProjectCardProps) {
   return (
     <div
       className="bg-[#161b22] rounded-xl shadow-lg p-5 flex flex-col space-y-4 border border-[#30363d] text-gray-300 min-h-[200px] relative cursor-pointer hover:bg-[#1f242b] transition-all"
-      // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
       onClick={() => navigate(computeRootPath)}
     >
       {/* Header: Project Name (Clickable) + PopupMenu */}
