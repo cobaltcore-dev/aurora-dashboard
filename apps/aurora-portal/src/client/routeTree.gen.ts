@@ -10,82 +10,81 @@
 
 // Import Routes
 
-import { Route as rootRoute } from './routes/__root'
-import { Route as AboutImport } from './routes/about'
-import { Route as IndexImport } from './routes/index'
-import { Route as AccountsIndexImport } from './routes/accounts/index'
-import { Route as AccountsAccountIdIndexImport } from './routes/accounts/$accountId/index'
-import { Route as AccountsAccountIdProjectsIndexImport } from './routes/accounts/$accountId/projects/index'
+import { Route as rootRoute } from "./routes/__root"
+import { Route as AboutImport } from "./routes/about"
+import { Route as IndexImport } from "./routes/index"
+import { Route as AccountsIndexImport } from "./routes/accounts/index"
+import { Route as AccountsAccountIdIndexImport } from "./routes/accounts/$accountId/index"
+import { Route as AccountsAccountIdProjectsIndexImport } from "./routes/accounts/$accountId/projects/index"
 
 // Create/Update Routes
 
 const AboutRoute = AboutImport.update({
-  id: '/about',
-  path: '/about',
+  id: "/about",
+  path: "/about",
   getParentRoute: () => rootRoute,
 } as any)
 
 const IndexRoute = IndexImport.update({
-  id: '/',
-  path: '/',
+  id: "/",
+  path: "/",
   getParentRoute: () => rootRoute,
 } as any)
 
 const AccountsIndexRoute = AccountsIndexImport.update({
-  id: '/accounts/',
-  path: '/accounts/',
+  id: "/accounts/",
+  path: "/accounts/",
   getParentRoute: () => rootRoute,
 } as any)
 
 const AccountsAccountIdIndexRoute = AccountsAccountIdIndexImport.update({
-  id: '/accounts/$accountId/',
-  path: '/accounts/$accountId/',
+  id: "/accounts/$accountId/",
+  path: "/accounts/$accountId/",
   getParentRoute: () => rootRoute,
 } as any)
 
-const AccountsAccountIdProjectsIndexRoute =
-  AccountsAccountIdProjectsIndexImport.update({
-    id: '/accounts/$accountId/projects/',
-    path: '/accounts/$accountId/projects/',
-    getParentRoute: () => rootRoute,
-  } as any)
+const AccountsAccountIdProjectsIndexRoute = AccountsAccountIdProjectsIndexImport.update({
+  id: "/accounts/$accountId/projects/",
+  path: "/accounts/$accountId/projects/",
+  getParentRoute: () => rootRoute,
+} as any)
 
 // Populate the FileRoutesByPath interface
 
-declare module '@tanstack/react-router' {
+declare module "@tanstack/react-router" {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
+    "/": {
+      id: "/"
+      path: "/"
+      fullPath: "/"
       preLoaderRoute: typeof IndexImport
       parentRoute: typeof rootRoute
     }
-    '/about': {
-      id: '/about'
-      path: '/about'
-      fullPath: '/about'
+    "/about": {
+      id: "/about"
+      path: "/about"
+      fullPath: "/about"
       preLoaderRoute: typeof AboutImport
       parentRoute: typeof rootRoute
     }
-    '/accounts/': {
-      id: '/accounts/'
-      path: '/accounts'
-      fullPath: '/accounts'
+    "/accounts/": {
+      id: "/accounts/"
+      path: "/accounts"
+      fullPath: "/accounts"
       preLoaderRoute: typeof AccountsIndexImport
       parentRoute: typeof rootRoute
     }
-    '/accounts/$accountId/': {
-      id: '/accounts/$accountId/'
-      path: '/accounts/$accountId'
-      fullPath: '/accounts/$accountId'
+    "/accounts/$accountId/": {
+      id: "/accounts/$accountId/"
+      path: "/accounts/$accountId"
+      fullPath: "/accounts/$accountId"
       preLoaderRoute: typeof AccountsAccountIdIndexImport
       parentRoute: typeof rootRoute
     }
-    '/accounts/$accountId/projects/': {
-      id: '/accounts/$accountId/projects/'
-      path: '/accounts/$accountId/projects'
-      fullPath: '/accounts/$accountId/projects'
+    "/accounts/$accountId/projects/": {
+      id: "/accounts/$accountId/projects/"
+      path: "/accounts/$accountId/projects"
+      fullPath: "/accounts/$accountId/projects"
       preLoaderRoute: typeof AccountsAccountIdProjectsIndexImport
       parentRoute: typeof rootRoute
     }
@@ -95,52 +94,36 @@ declare module '@tanstack/react-router' {
 // Create and export the route tree
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/about': typeof AboutRoute
-  '/accounts': typeof AccountsIndexRoute
-  '/accounts/$accountId': typeof AccountsAccountIdIndexRoute
-  '/accounts/$accountId/projects': typeof AccountsAccountIdProjectsIndexRoute
+  "/": typeof IndexRoute
+  "/about": typeof AboutRoute
+  "/accounts": typeof AccountsIndexRoute
+  "/accounts/$accountId": typeof AccountsAccountIdIndexRoute
+  "/accounts/$accountId/projects": typeof AccountsAccountIdProjectsIndexRoute
 }
 
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/about': typeof AboutRoute
-  '/accounts': typeof AccountsIndexRoute
-  '/accounts/$accountId': typeof AccountsAccountIdIndexRoute
-  '/accounts/$accountId/projects': typeof AccountsAccountIdProjectsIndexRoute
+  "/": typeof IndexRoute
+  "/about": typeof AboutRoute
+  "/accounts": typeof AccountsIndexRoute
+  "/accounts/$accountId": typeof AccountsAccountIdIndexRoute
+  "/accounts/$accountId/projects": typeof AccountsAccountIdProjectsIndexRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
-  '/': typeof IndexRoute
-  '/about': typeof AboutRoute
-  '/accounts/': typeof AccountsIndexRoute
-  '/accounts/$accountId/': typeof AccountsAccountIdIndexRoute
-  '/accounts/$accountId/projects/': typeof AccountsAccountIdProjectsIndexRoute
+  "/": typeof IndexRoute
+  "/about": typeof AboutRoute
+  "/accounts/": typeof AccountsIndexRoute
+  "/accounts/$accountId/": typeof AccountsAccountIdIndexRoute
+  "/accounts/$accountId/projects/": typeof AccountsAccountIdProjectsIndexRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths:
-    | '/'
-    | '/about'
-    | '/accounts'
-    | '/accounts/$accountId'
-    | '/accounts/$accountId/projects'
+  fullPaths: "/" | "/about" | "/accounts" | "/accounts/$accountId" | "/accounts/$accountId/projects"
   fileRoutesByTo: FileRoutesByTo
-  to:
-    | '/'
-    | '/about'
-    | '/accounts'
-    | '/accounts/$accountId'
-    | '/accounts/$accountId/projects'
-  id:
-    | '__root__'
-    | '/'
-    | '/about'
-    | '/accounts/'
-    | '/accounts/$accountId/'
-    | '/accounts/$accountId/projects/'
+  to: "/" | "/about" | "/accounts" | "/accounts/$accountId" | "/accounts/$accountId/projects"
+  id: "__root__" | "/" | "/about" | "/accounts/" | "/accounts/$accountId/" | "/accounts/$accountId/projects/"
   fileRoutesById: FileRoutesById
 }
 
@@ -160,9 +143,7 @@ const rootRouteChildren: RootRouteChildren = {
   AccountsAccountIdProjectsIndexRoute: AccountsAccountIdProjectsIndexRoute,
 }
 
-export const routeTree = rootRoute
-  ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>()
+export const routeTree = rootRoute._addFileChildren(rootRouteChildren)._addFileTypes<FileRouteTypes>()
 
 /* ROUTE_MANIFEST_START
 {
