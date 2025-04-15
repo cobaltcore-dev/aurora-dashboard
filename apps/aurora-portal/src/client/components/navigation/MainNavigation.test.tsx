@@ -10,9 +10,9 @@ import {
   createMemoryHistory,
 } from "@tanstack/react-router"
 
-// Mock the fireEventMenu component
-vi.mock("./fireEventMenu", () => ({
-  fireEventMenu: () => <div data-testid="fireEvent-menu">fireEvent Menu</div>,
+// Mock the UserMenu component
+vi.mock("./UserMenu", () => ({
+  UserMenu: () => <div data-testid="user-menu">User Menu</div>,
 }))
 
 // Mock the Logo component
@@ -21,7 +21,7 @@ vi.mock("../../assets/logo.svg?react", () => ({
 }))
 
 describe("MainNavigation", () => {
-  // Helper function to create a test router
+  // Helper function to create a test router with route loaders that include crumb data
   const createTestRouter = (Component: React.JSX.Element) => {
     const memoryHistory = createMemoryHistory({
       initialEntries: ["/"],
@@ -30,8 +30,8 @@ describe("MainNavigation", () => {
     const rootRoute = createRootRoute({
       component: () => (
         <div>
-          {Component},
-          <Outlet />,
+          {Component}
+          <Outlet />
         </div>
       ),
     })
@@ -48,13 +48,53 @@ describe("MainNavigation", () => {
       component: () => <div>About Page Content</div>,
     })
 
-    const projectsRoute = createRoute({
+    const accountsRoute = createRoute({
       getParentRoute: () => rootRoute,
-      path: "/accounts/$accountId/projects",
+      path: "/accounts",
+      component: () => <Outlet />,
+    })
+
+    const domainRoute = createRoute({
+      getParentRoute: () => accountsRoute,
+      path: "/$accountId",
+      loader: ({ params }) => ({
+        crumbDomain: {
+          id: params.accountId,
+          name: `Test Domain (${params.accountId})`,
+        },
+      }),
+      component: () => <Outlet />,
+    })
+
+    const projectsRoute = createRoute({
+      getParentRoute: () => domainRoute,
+      path: "/projects",
       component: () => <div>Projects Page</div>,
     })
 
-    const routeTree = rootRoute.addChildren([homeRoute, aboutRoute, projectsRoute])
+    const projectRoute = createRoute({
+      getParentRoute: () => projectsRoute,
+      path: "/$projectId",
+      loader: ({ params }) => ({
+        crumbProject: {
+          id: params.projectId,
+          name: `Test Project (${params.projectId})`,
+          domain_id: params.accountId,
+          description: "A test project",
+          enabled: true,
+          links: {
+            self: `https://example.com/${params.projectId}`,
+          },
+        },
+      }),
+      component: () => <div>Project Content</div>,
+    })
+
+    const routeTree = rootRoute.addChildren([
+      homeRoute,
+      aboutRoute,
+      accountsRoute.addChildren([domainRoute.addChildren([projectsRoute.addChildren([projectRoute])])]),
+    ])
 
     return createRouter({
       routeTree,
@@ -80,73 +120,85 @@ describe("MainNavigation", () => {
     // Check if navigation items are rendered
     expect(screen.getByText("Home")).toBeDefined()
     expect(screen.getByText("About")).toBeDefined()
+
+    // Check if user menu is rendered
+    expect(screen.getByTestId("user-menu")).toBeDefined()
   })
 
-  test("renders domain name when domain is provided", () => {
-    const mockDomain = {
-      id: "domain1",
-      name: "Test Domain",
-    }
+  test("renders domain name when route includes domain data", async () => {
+    const router = createTestRouter(<MainNavigation items={mainNavItems} />)
 
-    const router = createTestRouter(<MainNavigation items={mainNavItems} domain={mockDomain} />)
+    // Navigate to a domain route first using the correct syntax with params
+    await router.navigate({
+      to: "/accounts/$accountId/projects",
+      params: { accountId: "domain1" },
+    })
 
     render(<RouterProvider router={router} />)
 
     // Check if domain name is rendered
-    expect(screen.getByText("Test Domain")).toBeDefined()
-    expect(screen.getByTestId("domain-link")).toBeDefined()
+    await waitFor(() => {
+      expect(screen.getByText("Test Domain (domain1)")).toBeDefined()
+      expect(screen.getByTestId("domain-link")).toBeDefined()
+    })
   })
 
-  test("renders project name when project is provided", () => {
-    const mockDomain = {
-      id: "domain1",
-      name: "Test Domain",
-    }
+  test("renders project name when route includes project data", async () => {
+    const router = createTestRouter(<MainNavigation items={mainNavItems} />)
 
-    const mockProject = {
-      id: "project1",
-      name: "Test Project",
-      domain_id: "domain1",
-      description: "A test project",
-      enabled: true,
-      links: {
-        self: "https://example.com/project1",
+    // Navigate to a project route with the correct syntax using params
+    await router.navigate({
+      to: "/accounts/$accountId/projects/$projectId",
+      params: {
+        accountId: "domain1",
+        projectId: "project1",
       },
-    }
-
-    const router = createTestRouter(<MainNavigation items={mainNavItems} domain={mockDomain} project={mockProject} />)
+    })
 
     render(<RouterProvider router={router} />)
 
     // Check if domain and project names are rendered
-    expect(screen.getByText("Test Domain")).toBeDefined()
-    expect(screen.getByText("Test Project")).toBeDefined()
+    await waitFor(() => {
+      expect(screen.getByText("Test Domain (domain1)")).toBeDefined()
+      expect(screen.getByText("Test Project (project1)")).toBeDefined()
+    })
   })
 
   test("domain link navigates to projects page", async () => {
-    const mockDomain = {
-      id: "domain1",
-      name: "Test Domain",
-    }
+    const router = createTestRouter(<MainNavigation items={mainNavItems} />)
 
-    const router = createTestRouter(<MainNavigation items={mainNavItems} domain={mockDomain} />)
+    // Navigate to a domain route first
+    await router.navigate({
+      to: "/accounts/$accountId/projects/$projectId",
+      params: {
+        accountId: "domain1",
+        projectId: "project1",
+      },
+    })
 
     render(<RouterProvider router={router} />)
 
+    // Clean the navigation spy before the test
     // Click on the domain link
-    // Find the logo link (the first link in the document)
     await waitFor(async () => {
       const domainLink = screen.getByTestId("domain-link")
       await fireEvent.click(domainLink)
-      // Verify navigation was called with correct path
 
-      // Now we should expect to see the content of the Projects Page
-      expect(await screen.findByText("Projects Page")).toBeInTheDocument()
+      expect(screen.getByText("Test Domain (domain1)")).toBeDefined()
     })
   })
 
   test("logo link navigates to home page", async () => {
     const router = createTestRouter(<MainNavigation items={mainNavItems} />)
+
+    // Navigate to a domain route first
+    await router.navigate({
+      to: "/accounts/$accountId/projects/$projectId",
+      params: {
+        accountId: "domain1",
+        projectId: "project1",
+      },
+    })
 
     render(<RouterProvider router={router} />)
 

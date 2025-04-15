@@ -3,7 +3,6 @@ import { useState } from "react"
 import { ProjectsOverviewNavNbar, ViewMode } from "./-components/ProjectOverviewNavBar"
 import { ProjectCardView } from "./-components/ProjectCardView"
 import { ProjectListView } from "./-components/ProjectListView"
-import { trpcClient } from "../../../../trpcClient"
 import { AccountSubNavigation } from "./-components/AccountSubNavigation"
 
 export const Route = createFileRoute("/accounts/$accountId/projects/")({
@@ -20,8 +19,8 @@ export const Route = createFileRoute("/accounts/$accountId/projects/")({
   notFoundComponent: () => {
     return <p>Projects not found</p>
   },
-  loader: async () => {
-    const projects = await trpcClient?.project.getAuthProjects.query()
+  loader: async ({ context }) => {
+    const projects = await context.trpcClient?.project.getAuthProjects.query()
 
     return {
       projects,
