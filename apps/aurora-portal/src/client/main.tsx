@@ -3,7 +3,7 @@ import { createRoot } from "react-dom/client"
 import "./index.css"
 import junoStyle from "./junoStyle.css?inline"
 
-import App from "./Shell"
+import App from "./App"
 
 const container = document.getElementById("app")!
 
