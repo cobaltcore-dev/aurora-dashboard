@@ -1,7 +1,14 @@
 import { describe, test, expect, vi } from "vitest"
 import { render, screen, fireEvent, waitFor } from "@testing-library/react"
 import { MainNavigation } from "./MainNavigation"
-import { createRootRoute, createRoute, RouterProvider, createRouter } from "@tanstack/react-router"
+import {
+  createRootRoute,
+  createRoute,
+  RouterProvider,
+  createRouter,
+  Outlet,
+  createMemoryHistory,
+} from "@tanstack/react-router"
 
 // Mock the fireEventMenu component
 vi.mock("./fireEventMenu", () => ({
@@ -13,11 +20,20 @@ vi.mock("../../assets/logo.svg?react", () => ({
   default: () => <div data-testid="aurora-logo">Logo</div>,
 }))
 
-describe.skip("MainNavigation", () => {
+describe("MainNavigation", () => {
   // Helper function to create a test router
-  const createTestRouter = (MainNavComponent: React.ReactNode) => {
+  const createTestRouter = (Component: React.JSX.Element) => {
+    const memoryHistory = createMemoryHistory({
+      initialEntries: ["/"],
+    })
+
     const rootRoute = createRootRoute({
-      component: () => MainNavComponent,
+      component: () => (
+        <div>
+          {Component},
+          <Outlet />,
+        </div>
+      ),
     })
 
     const homeRoute = createRoute({
@@ -34,7 +50,7 @@ describe.skip("MainNavigation", () => {
 
     const projectsRoute = createRoute({
       getParentRoute: () => rootRoute,
-      path: "/accounts/:domain/projects",
+      path: "/accounts/$accountId/projects",
       component: () => <div>Projects Page</div>,
     })
 
@@ -42,6 +58,7 @@ describe.skip("MainNavigation", () => {
 
     return createRouter({
       routeTree,
+      history: memoryHistory,
       defaultPreload: "intent",
     })
   }
