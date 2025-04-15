@@ -1,6 +1,8 @@
 import { render, screen, fireEvent } from "@testing-library/react"
 import { ProjectCardView } from "./ProjectCardView"
-import { MemoryRouter, Routes, Route } from "react-router-dom"
+import { describe, test, expect, vi } from "vitest"
+import { createMemoryHistory, createRouter, createRoute, RouterProvider, createRootRoute } from "@tanstack/react-router"
+import { JSX } from "react/jsx-runtime"
 
 // Define a test project
 const projects = [
@@ -17,65 +19,73 @@ const projects = [
 ]
 
 describe("ProjectCardView", () => {
-  test("renders project data correctly", () => {
-    render(
-      <MemoryRouter initialEntries={["/"]}>
-        <ProjectCardView projects={projects} />
-      </MemoryRouter>
-    )
+  // Helper function to create a test router
+  const createTestRouter = (Component: JSX.Element) => {
+    const memoryHistory = createMemoryHistory({
+      initialEntries: ["/"],
+    })
 
-    expect(screen.getByText("Security Group")).toBeInTheDocument()
-    expect(screen.getByText("Manages security compliance and access control.")).toBeInTheDocument()
+    const rootRoute = createRootRoute({
+      component: () => Component,
+    })
+
+    // Create a route for the compute page to test navigation
+    const computeRoute = createRoute({
+      getParentRoute: () => rootRoute,
+      path: "/accounts/$accountId/projects/$projectId/compute",
+      component: () => <div>Compute</div>,
+    })
+
+    const routeTree = rootRoute.addChildren([computeRoute])
+
+    return createRouter({
+      routeTree,
+      history: memoryHistory,
+    })
+  }
+
+  test("renders project data correctly", () => {
+    const router = createTestRouter(<ProjectCardView projects={projects} />)
+    render(<RouterProvider router={router} />)
+
+    expect(screen.getByText("Security Group")).toBeDefined()
+    expect(screen.getByText("Manages security compliance and access control.")).toBeDefined()
   })
 
-  test("clicking the title does NOT trigger navigation", () => {
-    render(
-      <MemoryRouter initialEntries={["/"]}>
-        <Routes>
-          <Route path={"/"} element={<ProjectCardView projects={projects} />} />
-          <Route path="/1789d1/projects/89ac3f/compute" element={<div>Compute Page</div>} />
-        </Routes>
-      </MemoryRouter>
-    )
+  test("clicking the title does trigger navigation", async () => {
+    const router = createTestRouter(<ProjectCardView projects={projects} />)
+
+    // Spy on router navigation
+    const navigateSpy = vi.spyOn(router, "navigate")
+
+    render(<RouterProvider router={router} />)
 
     const title = screen.getByText("Security Group")
-    fireEvent.click(title)
+    await fireEvent.click(title)
 
-    // Verify we're still on the same page (no Compute Page content visible)
-    expect(screen.queryByText("Compute Overview")).not.toBeInTheDocument()
+    expect(navigateSpy).toHaveBeenCalledTimes(1)
+    expect(navigateSpy).toHaveBeenCalledWith({
+      from: undefined,
+      to: "/accounts/1789d1/projects/89ac3f/compute",
+    })
   })
 
-  test("clicking the popup menu does NOT trigger navigation", () => {
-    render(
-      <MemoryRouter initialEntries={["/"]}>
-        <Routes>
-          <Route path={"/"} element={<ProjectCardView projects={projects} />} />
-          <Route path="/1789d1/projects/89ac3f/compute" element={<div>Compute Page</div>} />
-        </Routes>
-      </MemoryRouter>
-    )
+  test("clicking the card navigates correctly", async () => {
+    const router = createTestRouter(<ProjectCardView projects={projects} />)
 
-    const popupButton = screen.getByTestId("project-card-menu")
-    fireEvent.click(popupButton)
+    // Spy on router navigation
+    const navigateSpy = vi.spyOn(router, "navigate")
 
-    // Verify we're still on the same page (no Compute Page content visible)
-    expect(screen.queryByText("Compute Page")).not.toBeInTheDocument()
-  })
-
-  test.skip("clicking the card navigates correctly", async () => {
-    render(
-      <MemoryRouter initialEntries={["/"]}>
-        <Routes>
-          <Route path={"/"} element={<ProjectCardView projects={projects} />} />
-          <Route path="/1789d1/projects/89ac3f/compute" element={<div>Compute Page</div>} />
-        </Routes>
-      </MemoryRouter>
-    )
+    render(<RouterProvider router={router} />)
 
     const card = screen.getByText("Security Group").closest("div")
-    fireEvent.click(card!)
+    await fireEvent.click(card!)
 
-    // Check for the presence of the destination page content
-    expect(await screen.findByText("Compute Overview")).toBeInTheDocument()
+    // Check that navigate was called with the correct path
+    expect(navigateSpy).toHaveBeenCalledTimes(1)
+    expect(navigateSpy).toHaveBeenCalledWith({
+      from: undefined,
+      to: "/accounts/1789d1/projects/89ac3f/compute",
+    })
   })
 })

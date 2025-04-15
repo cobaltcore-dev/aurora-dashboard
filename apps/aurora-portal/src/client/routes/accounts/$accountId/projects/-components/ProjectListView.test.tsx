@@ -1,7 +1,8 @@
 import { render, screen, fireEvent } from "@testing-library/react"
-import { MemoryRouter, Route, Routes } from "react-router-dom"
 import { ProjectListView } from "./ProjectListView"
-import { vi } from "vitest"
+import { describe, test, expect, vi } from "vitest"
+import { createMemoryHistory, createRouter, RouterProvider, createRootRoute } from "@tanstack/react-router"
+import { JSX } from "react/jsx-runtime"
 
 const projects = [
   {
@@ -17,69 +18,81 @@ const projects = [
 ]
 
 describe("ProjectListView", () => {
+  // Helper function to create a test router
+  const createTestRouter = (Component: JSX.Element) => {
+    const memoryHistory = createMemoryHistory({
+      initialEntries: ["/"],
+    })
+
+    const rootRoute = createRootRoute({
+      component: () => Component,
+    })
+
+    const routeTree = rootRoute.addChildren([])
+
+    return createRouter({
+      routeTree,
+      history: memoryHistory,
+    })
+  }
+
   test("renders without crashing when no projects", () => {
-    render(
-      <MemoryRouter>
-        <ProjectListView projects={undefined} />
-      </MemoryRouter>
-    )
-    expect(screen.getByText(/no projects found/i)).toBeInTheDocument()
+    const router = createTestRouter(<ProjectListView projects={undefined} />)
+    render(<RouterProvider router={router} />)
+
+    expect(screen.getByText(/no projects found/i)).toBeDefined()
   })
 
   test("renders project data correctly", () => {
-    render(
-      <MemoryRouter>
-        <ProjectListView projects={projects} />
-      </MemoryRouter>
-    )
+    const router = createTestRouter(<ProjectListView projects={projects} />)
+    render(<RouterProvider router={router} />)
 
-    expect(screen.getByText("Security Group")).toBeInTheDocument()
-    expect(screen.getByText("Manages security compliance and access control.")).toBeInTheDocument()
+    expect(screen.getByText("Security Group")).toBeDefined()
+    expect(screen.getByText("Manages security compliance and access control.")).toBeDefined()
   })
 
-  test("clicking the title triggers navigation", () => {
-    const mockNavigate = vi.fn()
-    render(
-      <MemoryRouter initialEntries={["/"]}>
-        <Routes>
-          <Route path={"/"} element={<ProjectListView projects={projects} />} />
-        </Routes>
-      </MemoryRouter>
-    )
+  test("clicking the title triggers navigation", async () => {
+    const router = createTestRouter(<ProjectListView projects={projects} />)
+
+    // Spy on router navigation
+    const navigateSpy = vi.spyOn(router, "navigate")
+
+    render(<RouterProvider router={router} />)
 
     const title = screen.getByText("Security Group")
-    fireEvent.click(title)
+    await fireEvent.click(title)
 
-    // Assuming navigation happens inside a function
-    expect(mockNavigate).not.toHaveBeenCalled() // Replace with actual expectation
+    // Check that navigate was called
+    expect(navigateSpy).toHaveBeenCalledTimes(1)
   })
 
-  test("clicking the popup menu does NOT trigger navigation", () => {
-    render(
-      <MemoryRouter>
-        <ProjectListView projects={projects} />
-      </MemoryRouter>
-    )
+  test("clicking the popup menu does NOT trigger navigation", async () => {
+    const router = createTestRouter(<ProjectListView projects={projects} />)
+
+    // Spy on router navigation
+    const navigateSpy = vi.spyOn(router, "navigate")
+
+    render(<RouterProvider router={router} />)
 
     const popupButton = screen.getByTestId("project-card-menu")
-    fireEvent.click(popupButton)
+    await fireEvent.click(popupButton)
 
-    expect(window.location.pathname).toBe("/")
+    // Verify navigation was not called
+    expect(navigateSpy).not.toHaveBeenCalled()
   })
 
-  test("clicking the row navigates correctly", () => {
-    const mockNavigate = vi.fn()
-    render(
-      <MemoryRouter initialEntries={["/"]}>
-        <Routes>
-          <Route path={"/"} element={<ProjectListView projects={projects} />} />
-        </Routes>
-      </MemoryRouter>
-    )
+  test("clicking the row navigates correctly", async () => {
+    const router = createTestRouter(<ProjectListView projects={projects} />)
+
+    // Spy on router navigation
+    const navigateSpy = vi.spyOn(router, "navigate")
+
+    render(<RouterProvider router={router} />)
 
     const row = screen.getByText("Security Group").closest("div")
-    fireEvent.click(row!)
+    await fireEvent.click(row!)
 
-    expect(mockNavigate).not.toHaveBeenCalled() // Update this assertion
+    // Check that navigate was called
+    expect(navigateSpy).toHaveBeenCalledTimes(1)
   })
 })
