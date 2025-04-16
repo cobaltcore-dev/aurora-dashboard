@@ -2,20 +2,40 @@
 import Logo from "../../assets/logo.svg?react"
 
 import { NavigationItem } from "./types"
-import { Project } from "../../../server/Project/types/models"
-import { Domain } from "../../../server/Authentication/types/models"
-import { Link } from "@tanstack/react-router"
+
+import { isMatch, Link, MakeRouteMatchUnion, useRouterState } from "@tanstack/react-router"
 import { UserMenu } from "./UserMenu"
 
 interface NavigationProps {
   items: NavigationItem[]
-  domain?: Domain
-  project?: Project
 }
 
-export function MainNavigation({ items, domain, project }: NavigationProps) {
-  const projectsPath = `/accounts/${domain?.id}/projects`
+function getDomain(matches: MakeRouteMatchUnion[]) {
+  const domainMatch = matches.filter((match) => isMatch(match, "loaderData.crumbDomain"))[0]
+  if (!domainMatch) {
+    return null
+  }
+  return {
+    name: domainMatch?.loaderData?.crumbDomain?.name,
+    path: domainMatch?.pathname,
+  }
+}
 
+function getProject(matches: MakeRouteMatchUnion[]) {
+  const projectMatch = matches.filter((match) => isMatch(match, "loaderData.crumbProject"))[0]
+  if (!projectMatch) {
+    return null
+  }
+  return {
+    name: projectMatch.loaderData?.crumbProject?.name || undefined,
+    path: projectMatch.fullPath,
+  }
+}
+
+export function MainNavigation({ items }: NavigationProps) {
+  const matches = useRouterState({ select: (s) => s.matches })
+  const domain = getDomain(matches)
+  const project = getProject(matches)
   return (
     <nav>
       {/* Main Navigation Bar */}
@@ -26,14 +46,14 @@ export function MainNavigation({ items, domain, project }: NavigationProps) {
             <Logo className="w-6 h-6 fill-current" title="Aurora" />
             <span className="text-lg font-medium text-sap-grey-2">Aurora</span>
           </Link>
-          {domain?.id && (
-            <Link to={projectsPath} data-testid="domain-link" className="flex items-center space-x-3">
+          {domain && (
+            <Link to={domain.path} data-testid="domain-link" className="flex items-center space-x-3">
               {/* Changed href to to */}
               <span className="text-sap-grey-1">/</span>
               <span className="font-semibold text-lg text-sap-grey-2">{domain.name}</span>
             </Link>
           )}
-          {project?.name && (
+          {project && (
             <>
               <span className="text-sap-grey-1">/</span>
               <span className="font-semibold text-lg text-sap-grey-2">{project.name}</span>

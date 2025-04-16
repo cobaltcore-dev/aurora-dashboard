@@ -27,7 +27,6 @@ export const Route = createFileRoute("/accounts/$accountId/projects/$projectId/c
     const { trpcClient } = context
 
     return {
-      crumb: "Compute",
       client: trpcClient,
     }
   },

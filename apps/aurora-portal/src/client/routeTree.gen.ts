@@ -15,7 +15,7 @@ import { Route as AboutImport } from "./routes/about"
 import { Route as IndexImport } from "./routes/index"
 import { Route as AccountsIndexImport } from "./routes/accounts/index"
 import { Route as AuthSigninImport } from "./routes/auth/signin"
-import { Route as AccountsAccountIdIndexImport } from "./routes/accounts/$accountId/index"
+import { Route as AccountsAccountIdProjectsImport } from "./routes/accounts/$accountId.projects"
 import { Route as AccountsAccountIdProjectsIndexImport } from "./routes/accounts/$accountId/projects/index"
 import { Route as AccountsAccountIdProjectsProjectIdImport } from "./routes/accounts/$accountId/projects/$projectId"
 import { Route as AccountsAccountIdProjectsProjectIdNetworkIndexImport } from "./routes/accounts/$accountId/projects/$projectId/network/index"
@@ -47,22 +47,22 @@ const AuthSigninRoute = AuthSigninImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const AccountsAccountIdIndexRoute = AccountsAccountIdIndexImport.update({
-  id: "/accounts/$accountId/",
-  path: "/accounts/$accountId/",
+const AccountsAccountIdProjectsRoute = AccountsAccountIdProjectsImport.update({
+  id: "/accounts/$accountId/projects",
+  path: "/accounts/$accountId/projects",
   getParentRoute: () => rootRoute,
 } as any)
 
 const AccountsAccountIdProjectsIndexRoute = AccountsAccountIdProjectsIndexImport.update({
-  id: "/accounts/$accountId/projects/",
-  path: "/accounts/$accountId/projects/",
-  getParentRoute: () => rootRoute,
+  id: "/",
+  path: "/",
+  getParentRoute: () => AccountsAccountIdProjectsRoute,
 } as any)
 
 const AccountsAccountIdProjectsProjectIdRoute = AccountsAccountIdProjectsProjectIdImport.update({
-  id: "/accounts/$accountId/projects/$projectId",
-  path: "/accounts/$accountId/projects/$projectId",
-  getParentRoute: () => rootRoute,
+  id: "/$projectId",
+  path: "/$projectId",
+  getParentRoute: () => AccountsAccountIdProjectsRoute,
 } as any)
 
 const AccountsAccountIdProjectsProjectIdNetworkIndexRoute = AccountsAccountIdProjectsProjectIdNetworkIndexImport.update(
@@ -113,26 +113,26 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof AccountsIndexImport
       parentRoute: typeof rootRoute
     }
-    "/accounts/$accountId/": {
-      id: "/accounts/$accountId/"
-      path: "/accounts/$accountId"
-      fullPath: "/accounts/$accountId"
-      preLoaderRoute: typeof AccountsAccountIdIndexImport
+    "/accounts/$accountId/projects": {
+      id: "/accounts/$accountId/projects"
+      path: "/accounts/$accountId/projects"
+      fullPath: "/accounts/$accountId/projects"
+      preLoaderRoute: typeof AccountsAccountIdProjectsImport
       parentRoute: typeof rootRoute
     }
     "/accounts/$accountId/projects/$projectId": {
       id: "/accounts/$accountId/projects/$projectId"
-      path: "/accounts/$accountId/projects/$projectId"
+      path: "/$projectId"
       fullPath: "/accounts/$accountId/projects/$projectId"
       preLoaderRoute: typeof AccountsAccountIdProjectsProjectIdImport
-      parentRoute: typeof rootRoute
+      parentRoute: typeof AccountsAccountIdProjectsImport
     }
     "/accounts/$accountId/projects/": {
       id: "/accounts/$accountId/projects/"
-      path: "/accounts/$accountId/projects"
-      fullPath: "/accounts/$accountId/projects"
+      path: "/"
+      fullPath: "/accounts/$accountId/projects/"
       preLoaderRoute: typeof AccountsAccountIdProjectsIndexImport
-      parentRoute: typeof rootRoute
+      parentRoute: typeof AccountsAccountIdProjectsImport
     }
     "/accounts/$accountId/projects/$projectId/compute/$": {
       id: "/accounts/$accountId/projects/$projectId/compute/$"
@@ -167,14 +167,28 @@ const AccountsAccountIdProjectsProjectIdRouteWithChildren = AccountsAccountIdPro
   AccountsAccountIdProjectsProjectIdRouteChildren
 )
 
+interface AccountsAccountIdProjectsRouteChildren {
+  AccountsAccountIdProjectsProjectIdRoute: typeof AccountsAccountIdProjectsProjectIdRouteWithChildren
+  AccountsAccountIdProjectsIndexRoute: typeof AccountsAccountIdProjectsIndexRoute
+}
+
+const AccountsAccountIdProjectsRouteChildren: AccountsAccountIdProjectsRouteChildren = {
+  AccountsAccountIdProjectsProjectIdRoute: AccountsAccountIdProjectsProjectIdRouteWithChildren,
+  AccountsAccountIdProjectsIndexRoute: AccountsAccountIdProjectsIndexRoute,
+}
+
+const AccountsAccountIdProjectsRouteWithChildren = AccountsAccountIdProjectsRoute._addFileChildren(
+  AccountsAccountIdProjectsRouteChildren
+)
+
 export interface FileRoutesByFullPath {
   "/": typeof IndexRoute
   "/about": typeof AboutRoute
   "/auth/signin": typeof AuthSigninRoute
   "/accounts": typeof AccountsIndexRoute
-  "/accounts/$accountId": typeof AccountsAccountIdIndexRoute
+  "/accounts/$accountId/projects": typeof AccountsAccountIdProjectsRouteWithChildren
   "/accounts/$accountId/projects/$projectId": typeof AccountsAccountIdProjectsProjectIdRouteWithChildren
-  "/accounts/$accountId/projects": typeof AccountsAccountIdProjectsIndexRoute
+  "/accounts/$accountId/projects/": typeof AccountsAccountIdProjectsIndexRoute
   "/accounts/$accountId/projects/$projectId/compute/$": typeof AccountsAccountIdProjectsProjectIdComputeSplatRoute
   "/accounts/$accountId/projects/$projectId/network": typeof AccountsAccountIdProjectsProjectIdNetworkIndexRoute
 }
@@ -184,7 +198,6 @@ export interface FileRoutesByTo {
   "/about": typeof AboutRoute
   "/auth/signin": typeof AuthSigninRoute
   "/accounts": typeof AccountsIndexRoute
-  "/accounts/$accountId": typeof AccountsAccountIdIndexRoute
   "/accounts/$accountId/projects/$projectId": typeof AccountsAccountIdProjectsProjectIdRouteWithChildren
   "/accounts/$accountId/projects": typeof AccountsAccountIdProjectsIndexRoute
   "/accounts/$accountId/projects/$projectId/compute/$": typeof AccountsAccountIdProjectsProjectIdComputeSplatRoute
@@ -197,7 +210,7 @@ export interface FileRoutesById {
   "/about": typeof AboutRoute
   "/auth/signin": typeof AuthSigninRoute
   "/accounts/": typeof AccountsIndexRoute
-  "/accounts/$accountId/": typeof AccountsAccountIdIndexRoute
+  "/accounts/$accountId/projects": typeof AccountsAccountIdProjectsRouteWithChildren
   "/accounts/$accountId/projects/$projectId": typeof AccountsAccountIdProjectsProjectIdRouteWithChildren
   "/accounts/$accountId/projects/": typeof AccountsAccountIdProjectsIndexRoute
   "/accounts/$accountId/projects/$projectId/compute/$": typeof AccountsAccountIdProjectsProjectIdComputeSplatRoute
@@ -211,9 +224,9 @@ export interface FileRouteTypes {
     | "/about"
     | "/auth/signin"
     | "/accounts"
-    | "/accounts/$accountId"
-    | "/accounts/$accountId/projects/$projectId"
     | "/accounts/$accountId/projects"
+    | "/accounts/$accountId/projects/$projectId"
+    | "/accounts/$accountId/projects/"
     | "/accounts/$accountId/projects/$projectId/compute/$"
     | "/accounts/$accountId/projects/$projectId/network"
   fileRoutesByTo: FileRoutesByTo
@@ -222,7 +235,6 @@ export interface FileRouteTypes {
     | "/about"
     | "/auth/signin"
     | "/accounts"
-    | "/accounts/$accountId"
     | "/accounts/$accountId/projects/$projectId"
     | "/accounts/$accountId/projects"
     | "/accounts/$accountId/projects/$projectId/compute/$"
@@ -233,7 +245,7 @@ export interface FileRouteTypes {
     | "/about"
     | "/auth/signin"
     | "/accounts/"
-    | "/accounts/$accountId/"
+    | "/accounts/$accountId/projects"
     | "/accounts/$accountId/projects/$projectId"
     | "/accounts/$accountId/projects/"
     | "/accounts/$accountId/projects/$projectId/compute/$"
@@ -246,9 +258,7 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   AuthSigninRoute: typeof AuthSigninRoute
   AccountsIndexRoute: typeof AccountsIndexRoute
-  AccountsAccountIdIndexRoute: typeof AccountsAccountIdIndexRoute
-  AccountsAccountIdProjectsProjectIdRoute: typeof AccountsAccountIdProjectsProjectIdRouteWithChildren
-  AccountsAccountIdProjectsIndexRoute: typeof AccountsAccountIdProjectsIndexRoute
+  AccountsAccountIdProjectsRoute: typeof AccountsAccountIdProjectsRouteWithChildren
 }
 
 const rootRouteChildren: RootRouteChildren = {
@@ -256,9 +266,7 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   AuthSigninRoute: AuthSigninRoute,
   AccountsIndexRoute: AccountsIndexRoute,
-  AccountsAccountIdIndexRoute: AccountsAccountIdIndexRoute,
-  AccountsAccountIdProjectsProjectIdRoute: AccountsAccountIdProjectsProjectIdRouteWithChildren,
-  AccountsAccountIdProjectsIndexRoute: AccountsAccountIdProjectsIndexRoute,
+  AccountsAccountIdProjectsRoute: AccountsAccountIdProjectsRouteWithChildren,
 }
 
 export const routeTree = rootRoute._addFileChildren(rootRouteChildren)._addFileTypes<FileRouteTypes>()
@@ -273,9 +281,7 @@ export const routeTree = rootRoute._addFileChildren(rootRouteChildren)._addFileT
         "/about",
         "/auth/signin",
         "/accounts/",
-        "/accounts/$accountId/",
-        "/accounts/$accountId/projects/$projectId",
-        "/accounts/$accountId/projects/"
+        "/accounts/$accountId/projects"
       ]
     },
     "/": {
@@ -290,18 +296,24 @@ export const routeTree = rootRoute._addFileChildren(rootRouteChildren)._addFileT
     "/accounts/": {
       "filePath": "accounts/index.tsx"
     },
-    "/accounts/$accountId/": {
-      "filePath": "accounts/$accountId/index.tsx"
+    "/accounts/$accountId/projects": {
+      "filePath": "accounts/$accountId.projects.tsx",
+      "children": [
+        "/accounts/$accountId/projects/$projectId",
+        "/accounts/$accountId/projects/"
+      ]
     },
     "/accounts/$accountId/projects/$projectId": {
       "filePath": "accounts/$accountId/projects/$projectId.tsx",
+      "parent": "/accounts/$accountId/projects",
       "children": [
         "/accounts/$accountId/projects/$projectId/compute/$",
         "/accounts/$accountId/projects/$projectId/network/"
       ]
     },
     "/accounts/$accountId/projects/": {
-      "filePath": "accounts/$accountId/projects/index.tsx"
+      "filePath": "accounts/$accountId/projects/index.tsx",
+      "parent": "/accounts/$accountId/projects"
     },
     "/accounts/$accountId/projects/$projectId/compute/$": {
       "filePath": "accounts/$accountId/projects/$projectId/compute/$.tsx",

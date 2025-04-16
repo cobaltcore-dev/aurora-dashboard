@@ -3,6 +3,21 @@ import { ProjectSubNavigation } from "./-components/ProjectSubNavigation"
 
 export const Route = createFileRoute("/accounts/$accountId/projects/$projectId")({
   component: RouteComponent,
+  loader: async (options) => {
+    const { context, params } = options
+    const data = await context.trpcClient?.auth.setCurrentScope.mutate({
+      type: "project",
+      projectId: params.projectId || "",
+    })
+    const projects = await context.trpcClient?.project.getAuthProjects.query()
+
+    return {
+      projects,
+      trpcClient: context.trpcClient,
+      crumbDomain: data?.project?.domain,
+      crumbProject: data?.project,
+    }
+  },
 })
 
 function RouteComponent() {
