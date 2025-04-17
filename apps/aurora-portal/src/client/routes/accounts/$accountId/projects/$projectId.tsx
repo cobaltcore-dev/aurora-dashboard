@@ -9,12 +9,10 @@ export const Route = createFileRoute("/accounts/$accountId/projects/$projectId")
       type: "project",
       projectId: params.projectId || "",
     })
-    const projects = await context.trpcClient?.project.getAuthProjects.query()
 
     return {
-      projects,
       trpcClient: context.trpcClient,
-      crumbDomain: data?.project?.domain,
+      crumbDomain: { path: `/accounts/${params.accountId}/projects`, name: data?.domain?.name },
       crumbProject: data?.project,
     }
   },

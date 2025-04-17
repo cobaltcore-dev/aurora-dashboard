@@ -17,7 +17,7 @@ function getDomain(matches: MakeRouteMatchUnion[]) {
   }
   return {
     name: domainMatch?.loaderData?.crumbDomain?.name,
-    path: domainMatch?.pathname,
+    path: domainMatch?.loaderData?.crumbDomain?.path,
   }
 }
 

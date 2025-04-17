@@ -19,11 +19,21 @@ export const Route = createFileRoute("/accounts/$accountId/projects/")({
   notFoundComponent: () => {
     return <p>Projects not found</p>
   },
+  beforeLoad: async ({ context, params }) => {
+    const data = await context.trpcClient?.auth.setCurrentScope.mutate({
+      type: "domain",
+      domainId: params.accountId || "",
+    })
+    return {
+      crumbDomain: { path: `/accounts/${params.accountId}/projects`, name: data?.domain?.name },
+    }
+  },
   loader: async ({ context }) => {
     const projects = await context.trpcClient?.project.getAuthProjects.query()
 
     return {
       projects,
+      crumbDomain: context.crumbDomain,
     }
   },
 })
