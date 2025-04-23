@@ -48,6 +48,10 @@ export default defineConfig({
         target: `http://localhost:${PORT}`,
         changeOrigin: true,
       },
+      "/csrf-token": {
+        target: `http://localhost:${PORT}`,
+        changeOrigin: true,
+      },
     },
   },
 })

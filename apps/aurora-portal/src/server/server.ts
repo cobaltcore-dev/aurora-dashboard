@@ -1,6 +1,8 @@
 import Fastify from "fastify"
 import FastifyStatic from "@fastify/static"
 import cookie from "@fastify/cookie"
+import csrfProtection from "@fastify/csrf-protection"
+import helmet from "@fastify/helmet"
 import { AuroraFastifyTRPCPluginOptions, auroraFastifyTRPCPlugin } from "@cobaltcore-dev/aurora-sdk/server"
 import { appRouter, AuroraRouter } from "./routers" // tRPC router
 import { createContext } from "./context"
@@ -23,6 +25,31 @@ async function startServer() {
   server.register(cookie, {
     secret: undefined, // Replace with a secure secret for signing cookies
   })
+
+  server.register(helmet)
+  // CSRF Protection
+  server.register(csrfProtection, {
+    cookieKey: "aurora-csrf-protection",
+    getToken: (request) => {
+      const token = request.headers["x-csrf-token"]
+      return Array.isArray(token) ? token[0] : token
+    },
+  })
+  server.get("/csrf-token", (request, reply) => {
+    // Generate a CSRF token and set it in the response cookie
+    const csrfToken = reply.generateCsrf()
+    return { csrfToken }
+  })
+
+  server.addHook("preHandler", async (request, reply) => {
+    // Validate CSRF token for POST, PUT, DELETE requests
+    if (["POST", "PUT", "DELETE"].includes(request.method)) {
+      server.csrfProtection(request, reply, () => {
+        // CSRF token is valid, proceed with the request
+      })
+    }
+  })
+  // END CSRF Protection
 
   // Register the tRPC plugin to handle API routes for the application
   await server.register(auroraFastifyTRPCPlugin, {
