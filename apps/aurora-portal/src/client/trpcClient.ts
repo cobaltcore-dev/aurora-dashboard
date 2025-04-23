@@ -5,7 +5,16 @@ import { createAuroraTRPCClient } from "@cobaltcore-dev/aurora-sdk/client"
 
 declare const BFF_ENDPOINT: string
 
-export const trpcClient = createAuroraTRPCClient<AuroraRouter>(BFF_ENDPOINT)
+// get the CSRF token from the server
+// and set it in the headers
+const headers = async () => {
+  const { csrfToken } = await fetch("/csrf-token").then((res) => res.json())
+  return {
+    "x-csrf-token": csrfToken,
+  }
+}
+
+export const trpcClient = createAuroraTRPCClient<AuroraRouter>(BFF_ENDPOINT, { headers })
 export type TrpcClient = typeof trpcClient
 
 export type AuroraRouterInput = inferAuroraRouterInputs<AuroraRouter>

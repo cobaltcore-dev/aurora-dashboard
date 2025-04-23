@@ -1,5 +1,5 @@
 import { createTRPCClient } from "@trpc/client"
-import { httpBatchLink } from "@trpc/client"
+import { httpBatchLink, HTTPHeaders } from "@trpc/client"
 import { AnyTRPCRouter } from "@trpc/server"
 
 /**
@@ -8,9 +8,18 @@ import { AnyTRPCRouter } from "@trpc/server"
  * @param url of the backend server (BFF)
  * @returns trpc client
  */
-export function createAuroraTRPCClient<ConcreteRouter extends AnyTRPCRouter>(url: string) {
-  const links = httpBatchLink({ url })
+export function createAuroraTRPCClient<ConcreteRouter extends AnyTRPCRouter>(
+  url: string,
+  options?: {
+    headers?: HTTPHeaders | (() => HTTPHeaders | Promise<HTTPHeaders>)
+  }
+) {
+  const batchLink = httpBatchLink({
+    url,
+    headers: options?.headers || undefined,
+  })
+
   return createTRPCClient<ConcreteRouter>({
-    links: [links],
+    links: [batchLink],
   })
 }
