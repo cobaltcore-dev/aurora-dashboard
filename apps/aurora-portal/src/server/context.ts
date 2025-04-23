@@ -54,13 +54,6 @@ export async function createContext(opts: CreateAuroraFastifyContextOptions): Pr
   const currentAuthToken = sessionCookie.get()
   let openstackSession: Awaited<SignalOpenstackSessionType> | undefined = undefined
 
-  // // generate CSRF token for the GET request
-  // if (opts.req.method === "GET") opts.res.generateCsrf()
-  // if (["POST", "PUT", "DELETE"].includes(opts.req.method)) {
-  //   console.log("--------------------------------")
-  //   console.log(opts.req.server.csrfProtection(opts.req, opts.res, () => {}))
-  // }
-
   // If we have a token, initialize the session
   if (currentAuthToken) {
     openstackSession = await SignalOpenstackSession(
