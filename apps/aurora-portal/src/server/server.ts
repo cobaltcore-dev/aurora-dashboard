@@ -1,8 +1,9 @@
 import Fastify from "fastify"
 import FastifyStatic from "@fastify/static"
-import cookie from "@fastify/cookie"
-import csrfProtection from "@fastify/csrf-protection"
-import helmet from "@fastify/helmet"
+import FastifyVite from "@fastify/vite"
+import FastifyCookie from "@fastify/cookie"
+import FastifyCsrfProtection from "@fastify/csrf-protection"
+import FastifyHelmet from "@fastify/helmet"
 import { AuroraFastifyTRPCPluginOptions, auroraFastifyTRPCPlugin } from "@cobaltcore-dev/aurora-sdk/server"
 import { appRouter, AuroraRouter } from "./routers" // tRPC router
 import { createContext } from "./context"
@@ -10,77 +11,106 @@ import * as dotenv from "dotenv"
 import path from "path"
 import { ZodError } from "zod"
 
+// Load environment variables from .env file
 dotenv.config()
 
+// Determine environment and configuration
 const isProduction = process.env.NODE_ENV === "production"
-const PORT = process.env.PORT || "4004"
+const PORT = process.env.PORT || "4005"
 const BFF_ENDPOINT = process.env.BFF_ENDPOINT || "/polaris-bff"
+
+// Initialize Fastify server
 const server = Fastify({
   logger: true,
-  maxParamLength: 5000,
+  maxParamLength: 5000, // Increased limit for handling large requests
 })
 
 async function startServer() {
-  // Register Fastify Cookie Plugin
-  server.register(cookie, {
-    secret: undefined, // Replace with a secure secret for signing cookies
+  // Register cookie middleware - required for session management and CSRF
+  server.register(FastifyCookie, {
+    secret: undefined, // Should be set to a secure value in production
   })
 
-  server.register(helmet)
-  // CSRF Protection
-  server.register(csrfProtection, {
-    cookieKey: "aurora-csrf-protection",
+  // CSRF Protection setup
+  server.register(FastifyCsrfProtection, {
+    cookieKey: "aurora-csrf-protection", // Cookie name for storing CSRF token
     getToken: (request) => {
+      // Extract CSRF token from custom header
       const token = request.headers["x-csrf-token"]
       return Array.isArray(token) ? token[0] : token
     },
   })
+
+  // Endpoint to get a new CSRF token
   server.get("/csrf-token", (request, reply) => {
-    // Generate a CSRF token and set it in the response cookie
     const csrfToken = reply.generateCsrf()
     return { csrfToken }
   })
 
+  // Validate CSRF token for mutating requests
   server.addHook("preHandler", async (request, reply) => {
-    // Validate CSRF token for POST, PUT, DELETE requests
     if (["POST", "PUT", "DELETE"].includes(request.method)) {
       server.csrfProtection(request, reply, () => {
-        // CSRF token is valid, proceed with the request
+        // Validation passes, request continues
       })
     }
   })
-  // END CSRF Protection
 
-  // Register the tRPC plugin to handle API routes for the application
+  // Register tRPC plugin to handle API routes
   await server.register(auroraFastifyTRPCPlugin, {
-    prefix: BFF_ENDPOINT, // Prefix for tRPC routes
+    prefix: BFF_ENDPOINT, // All tRPC routes will be under this prefix
     trpcOptions: {
-      router: appRouter, // Pass the tRPC router to handle routes
-      createContext, // Pass the context
+      router: appRouter,
+      createContext,
       onError: (err) => {
-        // handle ZodError messages
-        // combine all error messages into a single string
+        // Format Zod validation errors for better client-side handling
         if (err.error.cause instanceof ZodError)
           err.error.message = err.error.cause.errors.map((e) => e.message).join(",")
       },
-    } satisfies AuroraFastifyTRPCPluginOptions<AuroraRouter>["trpcOptions"], // Type-safety to ensure proper config
+    } satisfies AuroraFastifyTRPCPluginOptions<AuroraRouter>["trpcOptions"],
   })
 
-  // Use fastify-static to serve static files in production mode
+  // Environment-specific setup
   if (isProduction) {
+    // PRODUCTION MODE
+
+    // Register security headers
+    server.register(FastifyHelmet)
+
+    // Serve static files from the build directory
     await server.register(FastifyStatic, {
       root: path.join(__dirname, "../../dist/client"),
-      wildcard: false, // Prevent `/*` wildcard conflicts
+      wildcard: false, // Prevent wildcard conflicts with API routes
       serve: true,
     })
 
-    // In case of a SPA, we need to serve the index.html file for all routes
-    // (react-router handles the routing on the client-side)
+    // SPA fallback - serve index.html for all unmatched routes
+    // This enables client-side routing (React Router, etc.)
     server.get("/*", (req, reply) => {
       return reply.sendFile("index.html")
     })
+  } else {
+    // DEVELOPMENT MODE
+
+    // Register Vite plugin for development with HMR support
+    await server.register(FastifyVite, {
+      root: path.resolve(__dirname, "../../"), // Location of vite.config.js
+      dev: true, // Enable dev mode
+      spa: true, // SPA mode (no SSR)
+    })
+
+    // Wait for Vite to be ready before registering routes
+    // This ensures Vite middleware is initialized
+    await server.vite.ready()
+
+    // SPA fallback for development
+    // The reply.html() method is provided by FastifyVite
+    server.get("/*", (req, reply) => {
+      return reply.html()
+    })
   }
 
+  // Global error handler
   await server.setErrorHandler((error, request, reply) => {
     reply.status(error.statusCode || 500).send({
       status: error.code || "Internal Server Error",
@@ -88,6 +118,7 @@ async function startServer() {
     })
   })
 
+  // Start the server
   await server.listen({ host: "0.0.0.0", port: Number(PORT) }).then((address) => {
     console.log(`Server listening on ${address}`)
   })

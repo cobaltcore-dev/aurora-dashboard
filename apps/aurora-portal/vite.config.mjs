@@ -1,5 +1,6 @@
 import { defineConfig } from "vite"
 import react from "@vitejs/plugin-react-swc"
+
 import tailwindcss from "tailwindcss"
 import autoprefixer from "autoprefixer"
 import tsconfigPaths from "vite-tsconfig-paths"
@@ -9,8 +10,6 @@ import process from "process"
 
 dotenv.config()
 
-export const DEV_PORT = process.env.DEV_PORT || "3004"
-export const PORT = process.env.PORT || "4004"
 export const BFF_ENDPOINT = process.env.BFF_ENDPOINT || "/polaris-bff"
 import { TanStackRouterVite } from "@tanstack/router-plugin/vite"
 
@@ -18,7 +17,8 @@ export default defineConfig({
   root: "./src/client",
   build: {
     outDir: "../../dist/client", // Output directory for the client
-    sourcemap: true, // Optional: Generate sourcemaps
+    sourcemap: true, // Optional: Generate sourcemaps,
+    emptyOutDir: true
   },
   define: {
     BFF_ENDPOINT: JSON.stringify(BFF_ENDPOINT),
@@ -37,21 +37,6 @@ export default defineConfig({
   css: {
     postcss: {
       plugins: [tailwindcss, autoprefixer],
-    },
-  },
-  server: {
-    allowedHosts: true,
-    host: "0.0.0.0",
-    port: parseInt(DEV_PORT),
-    proxy: {
-      [BFF_ENDPOINT]: {
-        target: `http://localhost:${PORT}`,
-        changeOrigin: true,
-      },
-      "/csrf-token": {
-        target: `http://localhost:${PORT}`,
-        changeOrigin: true,
-      },
     },
   },
 })
