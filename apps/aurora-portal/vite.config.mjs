@@ -15,9 +15,9 @@ export const BFF_ENDPOINT = process.env.BFF_ENDPOINT || "/polaris-bff"
 import { TanStackRouterVite } from "@tanstack/router-plugin/vite"
 
 export default defineConfig({
-  root: ".",
+  root: "./src/client",
   build: {
-    outDir: "./dist/client", // Output directory for the client
+    outDir: "../../dist/client", // Output directory for the client
     sourcemap: true, // Optional: Generate sourcemaps
   },
   define: {
