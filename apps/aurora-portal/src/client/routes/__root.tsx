@@ -21,7 +21,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 
 function AuroraLayout({ mainNavItems = [] }: NavigationLayoutProps) {
   // Default navigation items
-  const defaultItems: NavigationItem[] = [{ route: "/about", label: "About X" }]
+  const defaultItems: NavigationItem[] = [{ route: "/about", label: "About" }]
   const items = mainNavItems.length > 0 ? mainNavItems : defaultItems
   return (
     <div className="flex flex-col w-full bg-theme-background-lvl-1">
