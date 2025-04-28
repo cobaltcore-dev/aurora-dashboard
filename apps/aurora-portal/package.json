@@ -10,9 +10,7 @@
     "build": "pnpm build:client && pnpm build:server",
     "build:client": "vite build",
     "build:server": "tsc -p tsconfig.server.json",
-    "dev": "concurrently -k \"pnpm dev:client\" \"pnpm dev:server\"",
-    "dev:client": "vite",
-    "dev:server": "tsx watch src/server/server --tsconfig tsconfig.server.json",
+    "dev": "tsx watch src/server/server --tsconfig tsconfig.server.json",
     "lint": "eslint",
     "postinstall": "tsx --no-cache scripts/extensions/install.ts && rm -rf tsx-0",
     "preview": "vite preview",
@@ -46,6 +44,7 @@
   "devDependencies": {
     "@cloudoperators/juno-ui-components": "^2.36.0",
     "@cobaltcore-dev/aurora-config": "workspace:*",
+    "@fastify/vite": "^8.0.5",
     "@tanstack/react-router-devtools": "^1.115.2",
     "@tanstack/router-plugin": "^1.115.2",
     "@testing-library/jest-dom": "^6.5.0",
