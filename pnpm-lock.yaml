@@ -14,7 +14,7 @@ importers:
     devDependencies:
       '@commitlint/cli':
         specifier: ^19.5.0
-        version: 19.7.1(@types/node@22.13.2)(typescript@5.8.2)
+        version: 19.7.1(@types/node@22.13.2)(typescript@5.8.3)
       '@commitlint/config-conventional':
         specifier: ^19.5.0
         version: 19.7.1
@@ -296,6 +296,168 @@ importers:
       vitest:
         specifier: ^3.1.1
         version: 3.1.1(@types/node@22.13.2)(jiti@2.4.2)(jsdom@24.1.3)(tsx@4.19.2)(yaml@2.7.0)
+
+  apps/extension-x:
+    dependencies:
+      '@fastify/static':
+        specifier: ^8.1.0
+        version: 8.1.0
+      '@fastify/vite':
+        specifier: ^8.0.5
+        version: 8.0.5(@kitajs/ts-html-plugin@4.1.1)(@types/node@22.13.2)(@types/react@19.1.0)(fastify@5.2.1)(jiti@2.4.2)(rollup@4.34.6)(tsx@4.19.2)(typescript@5.8.3)(yaml@2.7.0)
+      '@trpc/server':
+        specifier: 11.0.0-rc.730
+        version: 11.0.0-rc.730(typescript@5.8.3)
+      fastify:
+        specifier: ^5.2.1
+        version: 5.2.1
+      react:
+        specifier: ^19.1.0
+        version: 19.1.0
+      react-dom:
+        specifier: ^19.1.0
+        version: 19.1.0(react@19.1.0)
+      tsx:
+        specifier: ^4.19.2
+        version: 4.19.2
+      vite:
+        specifier: ^6.2.4
+        version: 6.2.5(@types/node@22.13.2)(jiti@2.4.2)(tsx@4.19.2)(yaml@2.7.0)
+      vitest:
+        specifier: ^3.1.1
+        version: 3.1.1(@types/node@22.13.2)(jiti@2.4.2)(jsdom@24.1.3)(tsx@4.19.2)(yaml@2.7.0)
+      zod:
+        specifier: ^3.24.3
+        version: 3.24.3
+    devDependencies:
+      '@cobaltcore-dev/aurora-config':
+        specifier: workspace:*
+        version: link:../../packages/config
+      '@cobaltcore-dev/aurora-sdk':
+        specifier: workspace:*
+        version: link:../../packages/aurora-sdk
+      '@types/node':
+        specifier: ^22.10.5
+        version: 22.13.2
+      '@types/react':
+        specifier: ^19.1.0
+        version: 19.1.0
+      '@types/react-dom':
+        specifier: ^19.1.0
+        version: 19.1.1(@types/react@19.1.0)
+      '@vitejs/plugin-react-swc':
+        specifier: ^3.7.1
+        version: 3.8.0(vite@6.2.5(@types/node@22.13.2)(jiti@2.4.2)(tsx@4.19.2)(yaml@2.7.0))
+      typescript:
+        specifier: ^5.8.3
+        version: 5.8.3
+
+  apps/extension-y:
+    dependencies:
+      '@fastify/static':
+        specifier: ^8.1.0
+        version: 8.1.1
+      '@fastify/vite':
+        specifier: ^8.0.5
+        version: 8.0.5(@kitajs/ts-html-plugin@4.1.1)(@types/node@22.13.2)(@types/react@19.1.0)(fastify@5.2.1)(jiti@2.4.2)(rollup@4.34.6)(tsx@4.19.2)(typescript@5.8.3)(yaml@2.7.0)
+      fastify:
+        specifier: ^5.2.1
+        version: 5.2.1
+      react:
+        specifier: ^19.1.0
+        version: 19.1.0
+      react-dom:
+        specifier: ^19.1.0
+        version: 19.1.0(react@19.1.0)
+      tsx:
+        specifier: ^4.19.2
+        version: 4.19.2
+      vite:
+        specifier: ^6.2.4
+        version: 6.2.5(@types/node@22.13.2)(jiti@2.4.2)(tsx@4.19.2)(yaml@2.7.0)
+      vitest:
+        specifier: ^3.1.1
+        version: 3.1.1(@types/node@22.13.2)(jiti@2.4.2)(jsdom@24.1.3)(tsx@4.19.2)(yaml@2.7.0)
+      zod:
+        specifier: ^3.24.3
+        version: 3.24.3
+    devDependencies:
+      '@cobaltcore-dev/aurora-config':
+        specifier: workspace:*
+        version: link:../../packages/config
+      '@cobaltcore-dev/aurora-sdk':
+        specifier: workspace:*
+        version: link:../../packages/aurora-sdk
+      '@types/node':
+        specifier: ^22.10.5
+        version: 22.13.2
+      '@types/react':
+        specifier: ^19.1.0
+        version: 19.1.0
+      '@types/react-dom':
+        specifier: ^19.1.0
+        version: 19.1.1(@types/react@19.1.0)
+      '@vitejs/plugin-react-swc':
+        specifier: ^3.7.1
+        version: 3.8.0(vite@6.2.5(@types/node@22.13.2)(jiti@2.4.2)(tsx@4.19.2)(yaml@2.7.0))
+      typescript:
+        specifier: ^5.8.3
+        version: 5.8.3
+
+  apps/extension-z:
+    dependencies:
+      '@fastify/static':
+        specifier: ^8.1.0
+        version: 8.1.1
+      '@fastify/vite':
+        specifier: ^8.0.5
+        version: 8.0.5(@kitajs/ts-html-plugin@4.1.1)(@types/node@22.13.2)(@types/react@19.1.0)(fastify@5.2.1)(jiti@2.4.2)(rollup@4.34.6)(tsx@4.19.2)(typescript@5.8.3)(yaml@2.7.0)
+      fastify:
+        specifier: ^5.2.1
+        version: 5.2.1
+      react:
+        specifier: ^19.1.0
+        version: 19.1.0
+      react-dom:
+        specifier: ^19.1.0
+        version: 19.1.0(react@19.1.0)
+      trpc:
+        specifier: ^0.11.3
+        version: 0.11.3
+      tsx:
+        specifier: ^4.19.2
+        version: 4.19.2
+      vite:
+        specifier: ^6.2.4
+        version: 6.2.5(@types/node@22.13.2)(jiti@2.4.2)(tsx@4.19.2)(yaml@2.7.0)
+      vitest:
+        specifier: ^3.1.1
+        version: 3.1.1(@types/node@22.13.2)(jiti@2.4.2)(jsdom@24.1.3)(tsx@4.19.2)(yaml@2.7.0)
+      zod:
+        specifier: ^3.24.3
+        version: 3.24.3
+    devDependencies:
+      '@cobaltcore-dev/aurora-config':
+        specifier: workspace:*
+        version: link:../../packages/config
+      '@cobaltcore-dev/aurora-sdk':
+        specifier: workspace:*
+        version: link:../../packages/aurora-sdk
+      '@types/node':
+        specifier: ^22.10.5
+        version: 22.13.2
+      '@types/react':
+        specifier: ^19.1.0
+        version: 19.1.0
+      '@types/react-dom':
+        specifier: ^19.1.0
+        version: 19.1.1(@types/react@19.1.0)
+      '@vitejs/plugin-react-swc':
+        specifier: ^3.7.1
+        version: 3.8.0(vite@6.2.5(@types/node@22.13.2)(jiti@2.4.2)(tsx@4.19.2)(yaml@2.7.0))
+      typescript:
+        specifier: ^5.8.3
+        version: 5.8.3
 
   packages/aurora-sdk:
     dependencies:
@@ -1048,6 +1210,7 @@ packages:
   '@fastify/vue@1.0.6':
     resolution: {integrity: sha512-uwXYtb8F7JkKyiBBYOvh9DpArSVHIpPn+3kAK5VL8jFFbLL6qGV/jvbWyvv84iNRnfNUtPSukUMl32xSc3kudg==}
 
+<<<<<<< HEAD
   '@floating-ui/core@1.7.0':
     resolution: {integrity: sha512-FRdBLykrPPA6P76GGGqlex/e7fbe0F1ykgxHYNXQsH/iTEtjMj/f9bpY5oQqbjt5VgZvgz/uKXbGuROijh3VLA==}
 
@@ -1076,6 +1239,8 @@ packages:
       react: ^18 || ^19 || ^19.0.0-rc
       react-dom: ^18 || ^19 || ^19.0.0-rc
 
+=======
+>>>>>>> 0658f88 (feat(dashboard): extension improvement)
   '@humanfs/core@0.19.1':
     resolution: {integrity: sha512-5DyQ4+1JEUzejeK1JGICcideyfUbGixgS9jNgex5nqkW+cY7WZhxBigmieN5Qnw9ZosSNVC9KQKyb+GUaGyKUA==}
     engines: {node: '>=18.18.0'}
@@ -1171,6 +1336,7 @@ packages:
     resolution: {integrity: sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==}
     engines: {node: '>=14'}
 
+<<<<<<< HEAD
   '@react-aria/focus@3.20.2':
     resolution: {integrity: sha512-Q3rouk/rzoF/3TuH6FzoAIKrl+kzZi9LHmr8S5EqLAOyP9TXIKG34x2j42dZsAhrw7TbF9gA8tBKwnCNH4ZV+Q==}
     peerDependencies:
@@ -1208,6 +1374,8 @@ packages:
     peerDependencies:
       react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
 
+=======
+>>>>>>> 0658f88 (feat(dashboard): extension improvement)
   '@rollup/plugin-inject@5.0.5':
     resolution: {integrity: sha512-2+DEJbNBoPROPkgTDNe8/1YXWcqxbN5DTjASVIOx8HS+pITXushyNiBV56RB08zuptzz8gT3YfkqriTBVycepg==}
     engines: {node: '>=14.0.0'}
@@ -2185,6 +2353,10 @@ packages:
   avvio@9.1.0:
     resolution: {integrity: sha512-fYASnYi600CsH/j9EQov7lECAniYiBFiiAtBNuZYLA2leLe9qOvZzqYHFjtIj6gD2VMoMLP14834LFWvr4IfDw==}
 
+  axios@0.19.2:
+    resolution: {integrity: sha512-fjgm5MvRHLhx+osE2xoekY70AhARk3a6hkN+3Io1jc00jtquGvxYlKlsFUhmUET0V5te6CcZI7lcv2Ym61mjHA==}
+    deprecated: Critical security vulnerability fixed in v0.21.1. For more information, see https://github.com/axios/axios/pull/3410
+
   babel-dead-code-elimination@1.0.10:
     resolution: {integrity: sha512-DV5bdJZTzZ0zn0DC24v3jD7Mnidh6xhKa4GfKCbq3sfW8kaWhDdZjP3i81geA8T33tdYqWKw4D3fVv0CwEgKVA==}
 
@@ -2544,6 +2716,14 @@ packages:
   de-indent@1.0.2:
     resolution: {integrity: sha512-e/1zu3xH5MQryN2zdVaF0OrdNLUbvWxzMbi+iNA6Bky7l1RoP8a2fIbRocyHclXt/arDrrR6lL3TqFD9pMQTsg==}
 
+  debug@3.1.0:
+    resolution: {integrity: sha512-OX8XqP7/1a9cqkxYw2yXss15f26NKWBpDXQd0/uK/KPqdQhxbPa994hnzjcE2VqQpDslf55723cKPUOGSmMY3g==}
+    peerDependencies:
+      supports-color: '*'
+    peerDependenciesMeta:
+      supports-color:
+        optional: true
+
   debug@4.4.0:
     resolution: {integrity: sha512-6WTZ/IxCY/T6BALoZHaE4ctp9xm+Z5kY/pzYaCHRFeyVhojxlrm+46y68HA6hr0TcwEssoxNiDEUJQjfPZ/RYA==}
     engines: {node: '>=6.0'}
@@ -2856,6 +3036,7 @@ packages:
   flatted@3.3.2:
     resolution: {integrity: sha512-AiwGJM8YcNOaobumgtng+6NHuOqC3A7MixFeDafM3X9cIUM+xUXoS5Vfgf+OihAYe20fxqNM9yPBXJzRtZ/4eA==}
 
+<<<<<<< HEAD
   focus-trap-react@11.0.3:
     resolution: {integrity: sha512-tS1+enWS/gwCHk2WIF3KpM2oz7Y3HsnRImzHZNRgCBLWXzNG4XQVlJgbqdLr4lBKRXGdDBjQYitSh1bf2xe4Ag==}
     peerDependencies:
@@ -2866,6 +3047,11 @@ packages:
 
   focus-trap@7.6.4:
     resolution: {integrity: sha512-xx560wGBk7seZ6y933idtjJQc1l+ck+pI3sKvhKozdBV1dRZoKhkW5xoCaFv9tQiX5RH1xfSxjuNu6g+lmN/gw==}
+=======
+  follow-redirects@1.5.10:
+    resolution: {integrity: sha512-0V5l4Cizzvqt5D44aTXbFZz+FtyXV1vrDN6qrelxtfYQKW0KO0W2T/hkE8xvGa/540LkZlkaUjO4ailYTFtHVQ==}
+    engines: {node: '>=4.0'}
+>>>>>>> 0658f88 (feat(dashboard): extension improvement)
 
   for-each@0.3.5:
     resolution: {integrity: sha512-dKx12eRCVIzqCxFGplyFKJMPvLEWgmNtUrpTiJIR5u97zEhRG8ySrtboPHZXx7daLxQVrl643cTzbab2tkQjxg==}
@@ -3487,6 +3673,9 @@ packages:
 
   mlly@1.7.4:
     resolution: {integrity: sha512-qmdSIPC4bDJXgZTCR7XosJiNKySV7O215tsPtDN9iEO/7q/76b/ijtgRu/+epFXSJhijtTCCGp3DWS549P3xKw==}
+
+  ms@2.0.0:
+    resolution: {integrity: sha512-Tpp60P6IUJDTuOq/5Z8cdskzJujfwqfOTkrwIwj7IRISpnkJnT6SyJ4PCPnGMoFjC9ddhal5KVIYtAt97ix05A==}
 
   ms@2.1.3:
     resolution: {integrity: sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA==}
@@ -4231,6 +4420,10 @@ packages:
     resolution: {integrity: sha512-L0Orpi8qGpRG//Nd+H90vFB+3iHnue1zSSGmNOOCh1GLJ7rUKVwV2HvijphGQS2UmhUZewS9VgvxYIdgr+fG1A==}
     hasBin: true
 
+  trpc@0.11.3:
+    resolution: {integrity: sha512-vfj6WrxYk8XDZzCsFNLwo5WhlKi4IYmVRzRgRQAlcK8zH4sY0yIAlJ7Nd1lZcGFe985GfP2LZLoEsCrMsIl/tA==}
+    deprecated: superseded by @trpc/*-packages - see tRPC.io
+
   ts-api-utils@2.0.1:
     resolution: {integrity: sha512-dnlgjFSVetynI8nzgJ+qF62efpglpWRk8isUEWZGWlJYySCTD6aKvbUDu+zbPeDakk3bg5H4XpitHukgfL1m9w==}
     engines: {node: '>=18.12'}
@@ -4336,6 +4529,11 @@ packages:
     engines: {node: '>=14.17'}
     hasBin: true
 
+  typescript@5.8.3:
+    resolution: {integrity: sha512-p1diW6TqL9L07nNxvRMM7hMMw4c5XOo/1ibL4aAIGmSAt9slTE1Xgw5KWuof2uTOvCg9BY7ZRi+GaF+7sfgPeQ==}
+    engines: {node: '>=14.17'}
+    hasBin: true
+
   ufo@1.5.4:
     resolution: {integrity: sha512-UsUk3byDzKd04EyoZ7U4DOlxQaD14JUKQl6/P7wiX4FNvUfm3XL246n9W5AmqwW5RSFJ27NAuM0iLscAOYUiGQ==}
 
@@ -4388,8 +4586,13 @@ packages:
   util-deprecate@1.0.2:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
 
+<<<<<<< HEAD
   valtio@2.1.5:
     resolution: {integrity: sha512-vsh1Ixu5mT0pJFZm+Jspvhga5GzHUTYv0/+Th203pLfh3/wbHwxhu/Z2OkZDXIgHfjnjBns7SN9HNcbDvPmaGw==}
+=======
+  valtio@2.1.4:
+    resolution: {integrity: sha512-O6U79SacltN5E5XOwLNixrGSAc4+TNkQw8AWSqjcpvvRjvFbfMvdbFW98g/VgxKoT8v9kb8WQkD8lvf+Dcme8w==}
+>>>>>>> 0658f88 (feat(dashboard): extension improvement)
     engines: {node: '>=12.20.0'}
     peerDependencies:
       '@types/react': '>=18.0.0'
@@ -4668,6 +4871,9 @@ packages:
   zod@3.24.2:
     resolution: {integrity: sha512-lY7CDW43ECgW9u1TcT3IoXHflywfVqDYze4waEz812jR/bZ8FHDsl7pFQoSZTz5N+2NqRXs8GBwnAwo3ZNxqhQ==}
 
+  zod@3.24.3:
+    resolution: {integrity: sha512-HhY1oqzWCQWuUqvBFnsyrtZRhyPeR7SUGv+C4+MsisMuVfSPx8HpwWqH8tRahSlt6M3PiFAcoeFhZAqIXTxoSg==}
+
 snapshots:
 
   '@adobe/css-tools@4.4.2': {}
@@ -4822,11 +5028,11 @@ snapshots:
       react: 19.1.0
       react-dom: 19.1.0(react@19.1.0)
 
-  '@commitlint/cli@19.7.1(@types/node@22.13.2)(typescript@5.8.2)':
+  '@commitlint/cli@19.7.1(@types/node@22.13.2)(typescript@5.8.3)':
     dependencies:
       '@commitlint/format': 19.5.0
       '@commitlint/lint': 19.7.1
-      '@commitlint/load': 19.6.1(@types/node@22.13.2)(typescript@5.8.2)
+      '@commitlint/load': 19.6.1(@types/node@22.13.2)(typescript@5.8.3)
       '@commitlint/read': 19.5.0
       '@commitlint/types': 19.5.0
       tinyexec: 0.3.2
@@ -4873,15 +5079,15 @@ snapshots:
       '@commitlint/rules': 19.6.0
       '@commitlint/types': 19.5.0
 
-  '@commitlint/load@19.6.1(@types/node@22.13.2)(typescript@5.8.2)':
+  '@commitlint/load@19.6.1(@types/node@22.13.2)(typescript@5.8.3)':
     dependencies:
       '@commitlint/config-validator': 19.5.0
       '@commitlint/execute-rule': 19.5.0
       '@commitlint/resolve-extends': 19.5.0
       '@commitlint/types': 19.5.0
       chalk: 5.4.1
-      cosmiconfig: 9.0.0(typescript@5.8.2)
-      cosmiconfig-typescript-loader: 6.1.0(@types/node@22.13.2)(cosmiconfig@9.0.0(typescript@5.8.2))(typescript@5.8.2)
+      cosmiconfig: 9.0.0(typescript@5.8.3)
+      cosmiconfig-typescript-loader: 6.1.0(@types/node@22.13.2)(cosmiconfig@9.0.0(typescript@5.8.3))(typescript@5.8.3)
       lodash.isplainobject: 4.0.6
       lodash.merge: 4.6.2
       lodash.uniq: 4.5.0
@@ -5181,10 +5387,17 @@ snapshots:
       fastify-plugin: 5.0.1
       helmet: 8.1.0
 
+<<<<<<< HEAD
   '@fastify/htmx@0.4.0(@kitajs/ts-html-plugin@4.1.1)(rollup@4.41.0)':
     dependencies:
       '@kitajs/html': 3.1.2(@kitajs/ts-html-plugin@4.1.1)
       '@rollup/plugin-inject': 5.0.5(rollup@4.41.0)
+=======
+  '@fastify/htmx@0.4.0(@kitajs/ts-html-plugin@4.1.1)(rollup@4.34.6)':
+    dependencies:
+      '@kitajs/html': 3.1.2(@kitajs/ts-html-plugin@4.1.1)
+      '@rollup/plugin-inject': 5.0.5(rollup@4.34.6)
+>>>>>>> 0658f88 (feat(dashboard): extension improvement)
       devalue: 5.1.1
       htmx.org: 1.9.12
       mlly: 1.7.4
@@ -5209,9 +5422,15 @@ snapshots:
       '@fastify/forwarded': 3.0.0
       ipaddr.js: 2.2.0
 
+<<<<<<< HEAD
   '@fastify/react@1.0.2(@kitajs/ts-html-plugin@4.1.1)(@types/node@22.13.2)(@types/react@19.1.0)(fastify@5.3.3)(jiti@2.4.2)(rollup@4.41.0)(tsx@4.19.2)(typescript@5.7.3)(yaml@2.7.0)':
     dependencies:
       '@fastify/vite': 8.0.5(@kitajs/ts-html-plugin@4.1.1)(@types/node@22.13.2)(@types/react@19.1.0)(fastify@5.3.3)(jiti@2.4.2)(rollup@4.41.0)(tsx@4.19.2)(typescript@5.7.3)(yaml@2.7.0)
+=======
+  '@fastify/react@1.0.2(@kitajs/ts-html-plugin@4.1.1)(@types/node@22.13.2)(@types/react@19.1.0)(fastify@5.2.1)(jiti@2.4.2)(rollup@4.34.6)(tsx@4.19.2)(typescript@5.8.3)(yaml@2.7.0)':
+    dependencies:
+      '@fastify/vite': 8.0.5(@kitajs/ts-html-plugin@4.1.1)(@types/node@22.13.2)(@types/react@19.1.0)(fastify@5.2.1)(jiti@2.4.2)(rollup@4.34.6)(tsx@4.19.2)(typescript@5.8.3)(yaml@2.7.0)
+>>>>>>> 0658f88 (feat(dashboard): extension improvement)
       acorn: 8.14.1
       acorn-strip-function: 1.2.0
       acorn-walk: 8.3.4
@@ -5224,7 +5443,11 @@ snapshots:
       react-dom: 19.1.0(react@19.1.0)
       react-router: 7.5.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       unihead: 0.8.0
+<<<<<<< HEAD
       valtio: 2.1.5(@types/react@19.1.0)(react@19.1.0)
+=======
+      valtio: 2.1.4(@types/react@19.1.0)(react@19.1.0)
+>>>>>>> 0658f88 (feat(dashboard): extension improvement)
       youch: 3.3.4
     transitivePeerDependencies:
       - '@kitajs/ts-html-plugin'
@@ -5271,22 +5494,37 @@ snapshots:
       fastq: 1.19.0
       glob: 11.0.1
 
+<<<<<<< HEAD
   '@fastify/vite@8.0.5(@kitajs/ts-html-plugin@4.1.1)(@types/node@22.13.2)(@types/react@19.1.0)(fastify@5.3.3)(jiti@2.4.2)(rollup@4.41.0)(tsx@4.19.2)(typescript@5.7.3)(yaml@2.7.0)':
+=======
+  '@fastify/vite@8.0.5(@kitajs/ts-html-plugin@4.1.1)(@types/node@22.13.2)(@types/react@19.1.0)(fastify@5.2.1)(jiti@2.4.2)(rollup@4.34.6)(tsx@4.19.2)(typescript@5.8.3)(yaml@2.7.0)':
+>>>>>>> 0658f88 (feat(dashboard): extension improvement)
     dependencies:
       '@fastify/deepmerge': 3.1.0
       '@fastify/middie': 9.0.3
       '@fastify/static': 8.1.1
+<<<<<<< HEAD
       fastify: 5.3.3
+=======
+      fastify: 5.2.1
+>>>>>>> 0658f88 (feat(dashboard): extension improvement)
       fastify-plugin: 5.0.1
       find-cache-dir: 5.0.0
       fs-extra: 11.3.0
       html-rewriter-wasm: 0.4.1
       klaw: 4.1.0
     optionalDependencies:
+<<<<<<< HEAD
       '@fastify/htmx': 0.4.0(@kitajs/ts-html-plugin@4.1.1)(rollup@4.41.0)
       '@fastify/react': 1.0.2(@kitajs/ts-html-plugin@4.1.1)(@types/node@22.13.2)(@types/react@19.1.0)(fastify@5.3.3)(jiti@2.4.2)(rollup@4.41.0)(tsx@4.19.2)(typescript@5.7.3)(yaml@2.7.0)
       '@fastify/vue': 1.0.6(@kitajs/ts-html-plugin@4.1.1)(@types/node@22.13.2)(fastify@5.3.3)(jiti@2.4.2)(rollup@4.41.0)(tsx@4.19.2)(typescript@5.7.3)(yaml@2.7.0)
       vite: 6.3.5(@types/node@22.13.2)(jiti@2.4.2)(tsx@4.19.2)(yaml@2.7.0)
+=======
+      '@fastify/htmx': 0.4.0(@kitajs/ts-html-plugin@4.1.1)(rollup@4.34.6)
+      '@fastify/react': 1.0.2(@kitajs/ts-html-plugin@4.1.1)(@types/node@22.13.2)(@types/react@19.1.0)(fastify@5.2.1)(jiti@2.4.2)(rollup@4.34.6)(tsx@4.19.2)(typescript@5.8.3)(yaml@2.7.0)
+      '@fastify/vue': 1.0.6(@kitajs/ts-html-plugin@4.1.1)(@types/node@22.13.2)(fastify@5.2.1)(jiti@2.4.2)(rollup@4.34.6)(tsx@4.19.2)(typescript@5.8.3)(yaml@2.7.0)
+      vite: 6.2.5(@types/node@22.13.2)(jiti@2.4.2)(tsx@4.19.2)(yaml@2.7.0)
+>>>>>>> 0658f88 (feat(dashboard): extension improvement)
     transitivePeerDependencies:
       - '@kitajs/ts-html-plugin'
       - '@types/node'
@@ -5304,20 +5542,34 @@ snapshots:
       - typescript
       - yaml
 
+<<<<<<< HEAD
   '@fastify/vue@1.0.6(@kitajs/ts-html-plugin@4.1.1)(@types/node@22.13.2)(fastify@5.3.3)(jiti@2.4.2)(rollup@4.41.0)(tsx@4.19.2)(typescript@5.7.3)(yaml@2.7.0)':
     dependencies:
       '@fastify/vite': 8.0.5(@kitajs/ts-html-plugin@4.1.1)(@types/node@22.13.2)(@types/react@19.1.0)(fastify@5.3.3)(jiti@2.4.2)(rollup@4.41.0)(tsx@4.19.2)(typescript@5.7.3)(yaml@2.7.0)
+=======
+  '@fastify/vue@1.0.6(@kitajs/ts-html-plugin@4.1.1)(@types/node@22.13.2)(fastify@5.2.1)(jiti@2.4.2)(rollup@4.34.6)(tsx@4.19.2)(typescript@5.8.3)(yaml@2.7.0)':
+    dependencies:
+      '@fastify/vite': 8.0.5(@kitajs/ts-html-plugin@4.1.1)(@types/node@22.13.2)(@types/react@19.1.0)(fastify@5.2.1)(jiti@2.4.2)(rollup@4.34.6)(tsx@4.19.2)(typescript@5.8.3)(yaml@2.7.0)
+>>>>>>> 0658f88 (feat(dashboard): extension improvement)
       acorn: 8.14.1
       acorn-walk: 8.3.4
       devalue: 5.1.1
       html-rewriter-wasm: 0.4.1
       mlly: 1.7.4
       unihead: 0.8.0
+<<<<<<< HEAD
       vue: 3.5.13(typescript@5.7.3)
       vue-router: 4.5.0(vue@3.5.13(typescript@5.7.3))
       youch: 3.3.4
     optionalDependencies:
       vite: 6.3.5(@types/node@22.13.2)(jiti@2.4.2)(tsx@4.19.2)(yaml@2.7.0)
+=======
+      vue: 3.5.13(typescript@5.8.3)
+      vue-router: 4.5.0(vue@3.5.13(typescript@5.8.3))
+      youch: 3.3.4
+    optionalDependencies:
+      vite: 6.2.5(@types/node@22.13.2)(jiti@2.4.2)(tsx@4.19.2)(yaml@2.7.0)
+>>>>>>> 0658f88 (feat(dashboard): extension improvement)
     transitivePeerDependencies:
       - '@kitajs/ts-html-plugin'
       - '@types/node'
@@ -5336,6 +5588,7 @@ snapshots:
       - yaml
     optional: true
 
+<<<<<<< HEAD
   '@floating-ui/core@1.7.0':
     dependencies:
       '@floating-ui/utils': 0.2.9
@@ -5371,6 +5624,8 @@ snapshots:
       react-dom: 19.1.0(react@19.1.0)
       use-sync-external-store: 1.5.0(react@19.1.0)
 
+=======
+>>>>>>> 0658f88 (feat(dashboard): extension improvement)
   '@humanfs/core@0.19.1': {}
 
   '@humanfs/node@0.16.6':
@@ -5414,16 +5669,28 @@ snapshots:
 
   '@kitajs/html@3.1.2(@kitajs/ts-html-plugin@4.1.1)':
     dependencies:
+<<<<<<< HEAD
       '@kitajs/ts-html-plugin': 4.1.1(@kitajs/html@3.1.2)(typescript@5.7.3)
       csstype: 3.1.3
     optional: true
 
   '@kitajs/ts-html-plugin@4.1.1(@kitajs/html@3.1.2)(typescript@5.7.3)':
+=======
+      '@kitajs/ts-html-plugin': 4.1.1(@kitajs/html@3.1.2)(typescript@5.8.3)
+      csstype: 3.1.3
+    optional: true
+
+  '@kitajs/ts-html-plugin@4.1.1(@kitajs/html@3.1.2)(typescript@5.8.3)':
+>>>>>>> 0658f88 (feat(dashboard): extension improvement)
     dependencies:
       '@kitajs/html': 3.1.2(@kitajs/ts-html-plugin@4.1.1)
       chalk: 4.1.2
       tslib: 2.8.1
+<<<<<<< HEAD
       typescript: 5.7.3
+=======
+      typescript: 5.8.3
+>>>>>>> 0658f88 (feat(dashboard): extension improvement)
       yargs: 17.7.2
     optional: true
 
@@ -5481,6 +5748,7 @@ snapshots:
   '@pkgjs/parseargs@0.11.0':
     optional: true
 
+<<<<<<< HEAD
   '@react-aria/focus@3.20.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
       '@react-aria/interactions': 3.25.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -5540,6 +5808,18 @@ snapshots:
     optional: true
 
   '@rollup/pluginutils@5.1.4(rollup@4.41.0)':
+=======
+  '@rollup/plugin-inject@5.0.5(rollup@4.34.6)':
+    dependencies:
+      '@rollup/pluginutils': 5.1.4(rollup@4.34.6)
+      estree-walker: 2.0.2
+      magic-string: 0.30.17
+    optionalDependencies:
+      rollup: 4.34.6
+    optional: true
+
+  '@rollup/pluginutils@5.1.4(rollup@4.34.6)':
+>>>>>>> 0658f88 (feat(dashboard): extension improvement)
     dependencies:
       '@types/estree': 1.0.6
       estree-walker: 2.0.2
@@ -5884,7 +6164,7 @@ snapshots:
       '@tanstack/virtual-file-routes': 1.115.0
       prettier: 3.5.0
       tsx: 4.19.2
-      zod: 3.24.2
+      zod: 3.24.3
     optionalDependencies:
       '@tanstack/react-router': 1.115.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
 
@@ -5965,6 +6245,10 @@ snapshots:
   '@trpc/server@11.0.0-rc.730(typescript@5.7.3)':
     dependencies:
       typescript: 5.7.3
+
+  '@trpc/server@11.0.0-rc.730(typescript@5.8.3)':
+    dependencies:
+      typescript: 5.8.3
 
   '@types/argparse@1.0.38': {}
 
@@ -6414,11 +6698,19 @@ snapshots:
       csstype: 3.1.3
     optional: true
 
+<<<<<<< HEAD
   '@vue/server-renderer@3.5.13(vue@3.5.13(typescript@5.7.3))':
     dependencies:
       '@vue/compiler-ssr': 3.5.13
       '@vue/shared': 3.5.13
       vue: 3.5.13(typescript@5.7.3)
+=======
+  '@vue/server-renderer@3.5.13(vue@3.5.13(typescript@5.8.3))':
+    dependencies:
+      '@vue/compiler-ssr': 3.5.13
+      '@vue/shared': 3.5.13
+      vue: 3.5.13(typescript@5.8.3)
+>>>>>>> 0658f88 (feat(dashboard): extension improvement)
     optional: true
 
   '@vue/shared@3.5.13': {}
@@ -6623,6 +6915,12 @@ snapshots:
       '@fastify/error': 4.0.0
       fastq: 1.19.0
 
+  axios@0.19.2:
+    dependencies:
+      follow-redirects: 1.5.10
+    transitivePeerDependencies:
+      - supports-color
+
   babel-dead-code-elimination@1.0.10:
     dependencies:
       '@babel/core': 7.26.8
@@ -6794,12 +7092,12 @@ snapshots:
 
   cookie@1.0.2: {}
 
-  cosmiconfig-typescript-loader@6.1.0(@types/node@22.13.2)(cosmiconfig@9.0.0(typescript@5.8.2))(typescript@5.8.2):
+  cosmiconfig-typescript-loader@6.1.0(@types/node@22.13.2)(cosmiconfig@9.0.0(typescript@5.8.3))(typescript@5.8.3):
     dependencies:
       '@types/node': 22.13.2
-      cosmiconfig: 9.0.0(typescript@5.8.2)
+      cosmiconfig: 9.0.0(typescript@5.8.3)
       jiti: 2.4.2
-      typescript: 5.8.2
+      typescript: 5.8.3
 
   cosmiconfig@8.3.6(typescript@5.7.3):
     dependencies:
@@ -6810,14 +7108,14 @@ snapshots:
     optionalDependencies:
       typescript: 5.7.3
 
-  cosmiconfig@9.0.0(typescript@5.8.2):
+  cosmiconfig@9.0.0(typescript@5.8.3):
     dependencies:
       env-paths: 2.2.1
       import-fresh: 3.3.1
       js-yaml: 4.1.0
       parse-json: 5.2.0
     optionalDependencies:
-      typescript: 5.8.2
+      typescript: 5.8.3
 
   cross-spawn@7.0.6:
     dependencies:
@@ -7017,6 +7315,10 @@ snapshots:
       is-data-view: 1.0.2
 
   de-indent@1.0.2: {}
+
+  debug@3.1.0:
+    dependencies:
+      ms: 2.0.0
 
   debug@4.4.0:
     dependencies:
@@ -7472,6 +7774,7 @@ snapshots:
 
   flatted@3.3.2: {}
 
+<<<<<<< HEAD
   focus-trap-react@11.0.3(@types/react-dom@19.1.1(@types/react@19.1.0))(@types/react@19.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0):
     dependencies:
       '@types/react': 19.1.0
@@ -7484,6 +7787,13 @@ snapshots:
   focus-trap@7.6.4:
     dependencies:
       tabbable: 6.2.0
+=======
+  follow-redirects@1.5.10:
+    dependencies:
+      debug: 3.1.0
+    transitivePeerDependencies:
+      - supports-color
+>>>>>>> 0658f88 (feat(dashboard): extension improvement)
 
   for-each@0.3.5:
     dependencies:
@@ -7649,7 +7959,11 @@ snapshots:
 
   history@5.3.0:
     dependencies:
+<<<<<<< HEAD
       '@babel/runtime': 7.27.1
+=======
+      '@babel/runtime': 7.27.0
+>>>>>>> 0658f88 (feat(dashboard): extension improvement)
     optional: true
 
   html-encoding-sniffer@4.0.0:
@@ -8109,6 +8423,8 @@ snapshots:
       pathe: 2.0.3
       pkg-types: 1.3.1
       ufo: 1.5.4
+
+  ms@2.0.0: {}
 
   ms@2.1.3: {}
 
@@ -8904,6 +9220,12 @@ snapshots:
 
   tree-kill@1.2.2: {}
 
+  trpc@0.11.3:
+    dependencies:
+      axios: 0.19.2
+    transitivePeerDependencies:
+      - supports-color
+
   ts-api-utils@2.0.1(typescript@5.7.3):
     dependencies:
       typescript: 5.7.3
@@ -9010,6 +9332,8 @@ snapshots:
 
   typescript@5.8.2: {}
 
+  typescript@5.8.3: {}
+
   ufo@1.5.4: {}
 
   unbox-primitive@1.1.0:
@@ -9059,7 +9383,11 @@ snapshots:
 
   util-deprecate@1.0.2: {}
 
+<<<<<<< HEAD
   valtio@2.1.5(@types/react@19.1.0)(react@19.1.0):
+=======
+  valtio@2.1.4(@types/react@19.1.0)(react@19.1.0):
+>>>>>>> 0658f88 (feat(dashboard): extension improvement)
     dependencies:
       proxy-compare: 3.0.1
     optionalDependencies:
@@ -9358,6 +9686,7 @@ snapshots:
 
   vscode-uri@3.1.0: {}
 
+<<<<<<< HEAD
   vue-router@4.5.0(vue@3.5.13(typescript@5.7.3)):
     dependencies:
       '@vue/devtools-api': 6.6.4
@@ -9365,14 +9694,30 @@ snapshots:
     optional: true
 
   vue@3.5.13(typescript@5.7.3):
+=======
+  vue-router@4.5.0(vue@3.5.13(typescript@5.8.3)):
+    dependencies:
+      '@vue/devtools-api': 6.6.4
+      vue: 3.5.13(typescript@5.8.3)
+    optional: true
+
+  vue@3.5.13(typescript@5.8.3):
+>>>>>>> 0658f88 (feat(dashboard): extension improvement)
     dependencies:
       '@vue/compiler-dom': 3.5.13
       '@vue/compiler-sfc': 3.5.13
       '@vue/runtime-dom': 3.5.13
+<<<<<<< HEAD
       '@vue/server-renderer': 3.5.13(vue@3.5.13(typescript@5.7.3))
       '@vue/shared': 3.5.13
     optionalDependencies:
       typescript: 5.7.3
+=======
+      '@vue/server-renderer': 3.5.13(vue@3.5.13(typescript@5.8.3))
+      '@vue/shared': 3.5.13
+    optionalDependencies:
+      typescript: 5.8.3
+>>>>>>> 0658f88 (feat(dashboard): extension improvement)
     optional: true
 
   w3c-xmlserializer@5.0.0:
@@ -9495,3 +9840,5 @@ snapshots:
     optional: true
 
   zod@3.24.2: {}
+
+  zod@3.24.3: {}
