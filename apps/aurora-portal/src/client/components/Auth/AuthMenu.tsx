@@ -2,42 +2,43 @@ import { useState } from "react"
 
 import { TrpcClient } from "../../trpcClient"
 import { Button } from "../Button"
-import { SessionExpirationTimer } from "./SessionExpirationTimer"
-import { useAuth, useAuthDispatch } from "../../store/StoreProvider"
+// import { SessionExpirationTimer } from "./SessionExpirationTimer"
+import { useAuth } from "../../store/AuthProvider"
 import { useCallback } from "react"
 import { useNavigate } from "@tanstack/react-router"
 
 export function AuthMenu(props: { authClient: TrpcClient["auth"] }) {
   const [isLoading, setIsLoading] = useState(false)
-  const { isAuthenticated, user, sessionExpiresAt } = useAuth()
-  const dispatch = useAuthDispatch()
+  const { isAuthenticated, user, logout } = useAuth()
   const navigate = useNavigate()
+
   const login = () => {
-    // @ts-expect-error we will redo this component and remove this error
-    navigate("/auth/signin")
+    navigate({ to: "/auth/login" })
   }
 
-  const logout = useCallback(() => {
-    setIsLoading(true)
-    props.authClient.terminateUserSession
-      .mutate()
-      .then(() => {
-        dispatch({ type: "LOGOUT" })
-        setIsLoading(false)
-        // @ts-expect-error we will redo this component and remove this error
-        navigate("/")
-      })
-      .catch((e: Error) => dispatch({ type: "LOGIN_FAILURE", payload: { error: e.message } }))
-  }, [])
+  const signout = useCallback(async () => {
+    try {
+      await props.authClient.terminateUserSession.mutate()
+      logout()
+
+      // Wait for auth state to update before navigation
+      await navigate({ to: "/" })
+    } catch (error) {
+      console.error("Error logginout in: ", error)
+    } finally {
+      setIsLoading(false)
+      logout()
+    }
+  }, [navigate])
 
   if (isAuthenticated) {
     return (
       <div className="flex flex-col items-center">
         <div className="mt-1 mb-3 text-sm font-medium">{user?.name}</div>
-        <Button disabled={isLoading} variant="default" onClick={logout}>
+        <Button disabled={isLoading} variant="default" onClick={signout}>
           Sign Out
         </Button>
-        {sessionExpiresAt && <SessionExpirationTimer passwordExpiresAt={sessionExpiresAt} logout={logout} />}
+        {/* {sessionExpiresAt && <SessionExpirationTimer passwordExpiresAt={sessionExpiresAt} logout={signout} />} */}
       </div>
     )
   }

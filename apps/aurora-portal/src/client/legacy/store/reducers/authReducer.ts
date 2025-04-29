@@ -1,4 +1,4 @@
-import { TokenData } from "../../../server/Authentication/types/models"
+import { TokenData } from "../../../../server/Authentication/types/models"
 
 // Define the state interface
 export interface AuthState {

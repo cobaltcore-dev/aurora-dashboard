@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom"
 import { Button } from "../../components/Button"
-import { useAuth } from "../../store/StoreProvider"
+import { useAuth } from "../store/StoreProvider"
 
 export function Home() {
   const navigate = useNavigate()

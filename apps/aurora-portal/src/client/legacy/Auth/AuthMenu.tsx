@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom" // Update imports
 import { TrpcClient } from "../../trpcClient"
 import { Button } from "../../components/Button"
 import { SessionExpirationTimer } from "./SessionExpirationTimer"
-import { useAuth, useAuthDispatch } from "../../store/StoreProvider"
+import { useAuth, useAuthDispatch } from "../store/StoreProvider"
 import { useCallback } from "react"
 
 export function AuthMenu(props: { authClient: TrpcClient["auth"] }) {
