@@ -7,7 +7,6 @@ import { z } from "zod"
 import { trpcClient } from "../../trpcClient"
 
 // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-const fallback = "/about" as const
 
 export const Route = createFileRoute("/auth/login")({
   validateSearch: z.object({
@@ -15,7 +14,7 @@ export const Route = createFileRoute("/auth/login")({
   }),
   beforeLoad: ({ context, search }) => {
     if (context.auth?.isAuthenticated) {
-      throw redirect({ to: search.redirect || fallback })
+      throw redirect({ to: search.redirect || `/accounts/${context.auth.user?.domain.id}/projects` })
     }
     return {
       trpcClient: context.trpcClient,
@@ -58,7 +57,9 @@ export function AuthLoginPage() {
       const token = await trpcClient.auth.createUserSession.mutate(form)
       login(token.user)
       // Wait for auth state to update before navigation
-      await navigate({ to: search.redirect || fallback })
+      await navigate({
+        to: search.redirect || token.user.domain.id ? `/accounts/${token.user.domain.id}/projects` : "/",
+      })
     } catch (error) {
       login(null)
       console.error("Error logging in: ", error)
