@@ -1,4 +1,3 @@
-import * as React from "react"
 import { useState, useCallback } from "react"
 import { createFileRoute, redirect, useRouter, useRouterState } from "@tanstack/react-router"
 import { useAuth } from "../../store/AuthProvider"
