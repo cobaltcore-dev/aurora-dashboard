@@ -15,13 +15,13 @@ import { Route as GardenerImport } from "./routes/gardener"
 import { Route as AboutImport } from "./routes/about"
 import { Route as AuthImport } from "./routes/_auth"
 import { Route as IndexImport } from "./routes/index"
-import { Route as AccountsIndexImport } from "./routes/accounts/index"
 import { Route as AuthLoginImport } from "./routes/auth/login"
 import { Route as AuthAuroraImport } from "./routes/_auth/aurora"
-import { Route as AccountsAccountIdProjectsIndexImport } from "./routes/accounts/$accountId/projects/index"
-import { Route as AccountsAccountIdProjectsProjectIdImport } from "./routes/accounts/$accountId/projects/$projectId"
-import { Route as AccountsAccountIdProjectsProjectIdNetworkIndexImport } from "./routes/accounts/$accountId/projects/$projectId/network/index"
-import { Route as AccountsAccountIdProjectsProjectIdComputeSplatImport } from "./routes/accounts/$accountId/projects/$projectId/compute/$"
+import { Route as AuthAccountsIndexImport } from "./routes/_auth/accounts/index"
+import { Route as AuthAccountsAccountIdProjectsIndexImport } from "./routes/_auth/accounts/$accountId/projects/index"
+import { Route as AuthAccountsAccountIdProjectsProjectIdImport } from "./routes/_auth/accounts/$accountId/projects/$projectId"
+import { Route as AuthAccountsAccountIdProjectsProjectIdNetworkIndexImport } from "./routes/_auth/accounts/$accountId/projects/$projectId/network/index"
+import { Route as AuthAccountsAccountIdProjectsProjectIdComputeSplatImport } from "./routes/_auth/accounts/$accountId/projects/$projectId/compute/$"
 
 // Create/Update Routes
 
@@ -48,12 +48,6 @@ const IndexRoute = IndexImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const AccountsIndexRoute = AccountsIndexImport.update({
-  id: "/accounts/",
-  path: "/accounts/",
-  getParentRoute: () => rootRoute,
-} as any)
-
 const AuthLoginRoute = AuthLoginImport.update({
   id: "/auth/login",
   path: "/auth/login",
@@ -66,33 +60,37 @@ const AuthAuroraRoute = AuthAuroraImport.update({
   getParentRoute: () => AuthRoute,
 } as any)
 
-const AccountsAccountIdProjectsIndexRoute = AccountsAccountIdProjectsIndexImport.update({
+const AuthAccountsIndexRoute = AuthAccountsIndexImport.update({
+  id: "/accounts/",
+  path: "/accounts/",
+  getParentRoute: () => AuthRoute,
+} as any)
+
+const AuthAccountsAccountIdProjectsIndexRoute = AuthAccountsAccountIdProjectsIndexImport.update({
   id: "/accounts/$accountId/projects/",
   path: "/accounts/$accountId/projects/",
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => AuthRoute,
 } as any)
 
-const AccountsAccountIdProjectsProjectIdRoute = AccountsAccountIdProjectsProjectIdImport.update({
+const AuthAccountsAccountIdProjectsProjectIdRoute = AuthAccountsAccountIdProjectsProjectIdImport.update({
   id: "/accounts/$accountId/projects/$projectId",
   path: "/accounts/$accountId/projects/$projectId",
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => AuthRoute,
 } as any)
 
-const AccountsAccountIdProjectsProjectIdNetworkIndexRoute = AccountsAccountIdProjectsProjectIdNetworkIndexImport.update(
-  {
+const AuthAccountsAccountIdProjectsProjectIdNetworkIndexRoute =
+  AuthAccountsAccountIdProjectsProjectIdNetworkIndexImport.update({
     id: "/network/",
     path: "/network/",
-    getParentRoute: () => AccountsAccountIdProjectsProjectIdRoute,
-  } as any
-)
+    getParentRoute: () => AuthAccountsAccountIdProjectsProjectIdRoute,
+  } as any)
 
-const AccountsAccountIdProjectsProjectIdComputeSplatRoute = AccountsAccountIdProjectsProjectIdComputeSplatImport.update(
-  {
+const AuthAccountsAccountIdProjectsProjectIdComputeSplatRoute =
+  AuthAccountsAccountIdProjectsProjectIdComputeSplatImport.update({
     id: "/compute/$",
     path: "/compute/$",
-    getParentRoute: () => AccountsAccountIdProjectsProjectIdRoute,
-  } as any
-)
+    getParentRoute: () => AuthAccountsAccountIdProjectsProjectIdRoute,
+  } as any)
 
 // Populate the FileRoutesByPath interface
 
@@ -140,69 +138,74 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof AuthLoginImport
       parentRoute: typeof rootRoute
     }
-    "/accounts/": {
-      id: "/accounts/"
+    "/_auth/accounts/": {
+      id: "/_auth/accounts/"
       path: "/accounts"
       fullPath: "/accounts"
-      preLoaderRoute: typeof AccountsIndexImport
-      parentRoute: typeof rootRoute
+      preLoaderRoute: typeof AuthAccountsIndexImport
+      parentRoute: typeof AuthImport
     }
-    "/accounts/$accountId/projects/$projectId": {
-      id: "/accounts/$accountId/projects/$projectId"
+    "/_auth/accounts/$accountId/projects/$projectId": {
+      id: "/_auth/accounts/$accountId/projects/$projectId"
       path: "/accounts/$accountId/projects/$projectId"
       fullPath: "/accounts/$accountId/projects/$projectId"
-      preLoaderRoute: typeof AccountsAccountIdProjectsProjectIdImport
-      parentRoute: typeof rootRoute
+      preLoaderRoute: typeof AuthAccountsAccountIdProjectsProjectIdImport
+      parentRoute: typeof AuthImport
     }
-    "/accounts/$accountId/projects/": {
-      id: "/accounts/$accountId/projects/"
+    "/_auth/accounts/$accountId/projects/": {
+      id: "/_auth/accounts/$accountId/projects/"
       path: "/accounts/$accountId/projects"
       fullPath: "/accounts/$accountId/projects"
-      preLoaderRoute: typeof AccountsAccountIdProjectsIndexImport
-      parentRoute: typeof rootRoute
+      preLoaderRoute: typeof AuthAccountsAccountIdProjectsIndexImport
+      parentRoute: typeof AuthImport
     }
-    "/accounts/$accountId/projects/$projectId/compute/$": {
-      id: "/accounts/$accountId/projects/$projectId/compute/$"
+    "/_auth/accounts/$accountId/projects/$projectId/compute/$": {
+      id: "/_auth/accounts/$accountId/projects/$projectId/compute/$"
       path: "/compute/$"
       fullPath: "/accounts/$accountId/projects/$projectId/compute/$"
-      preLoaderRoute: typeof AccountsAccountIdProjectsProjectIdComputeSplatImport
-      parentRoute: typeof AccountsAccountIdProjectsProjectIdImport
+      preLoaderRoute: typeof AuthAccountsAccountIdProjectsProjectIdComputeSplatImport
+      parentRoute: typeof AuthAccountsAccountIdProjectsProjectIdImport
     }
-    "/accounts/$accountId/projects/$projectId/network/": {
-      id: "/accounts/$accountId/projects/$projectId/network/"
+    "/_auth/accounts/$accountId/projects/$projectId/network/": {
+      id: "/_auth/accounts/$accountId/projects/$projectId/network/"
       path: "/network"
       fullPath: "/accounts/$accountId/projects/$projectId/network"
-      preLoaderRoute: typeof AccountsAccountIdProjectsProjectIdNetworkIndexImport
-      parentRoute: typeof AccountsAccountIdProjectsProjectIdImport
+      preLoaderRoute: typeof AuthAccountsAccountIdProjectsProjectIdNetworkIndexImport
+      parentRoute: typeof AuthAccountsAccountIdProjectsProjectIdImport
     }
   }
 }
 
 // Create and export the route tree
 
+interface AuthAccountsAccountIdProjectsProjectIdRouteChildren {
+  AuthAccountsAccountIdProjectsProjectIdComputeSplatRoute: typeof AuthAccountsAccountIdProjectsProjectIdComputeSplatRoute
+  AuthAccountsAccountIdProjectsProjectIdNetworkIndexRoute: typeof AuthAccountsAccountIdProjectsProjectIdNetworkIndexRoute
+}
+
+const AuthAccountsAccountIdProjectsProjectIdRouteChildren: AuthAccountsAccountIdProjectsProjectIdRouteChildren = {
+  AuthAccountsAccountIdProjectsProjectIdComputeSplatRoute: AuthAccountsAccountIdProjectsProjectIdComputeSplatRoute,
+  AuthAccountsAccountIdProjectsProjectIdNetworkIndexRoute: AuthAccountsAccountIdProjectsProjectIdNetworkIndexRoute,
+}
+
+const AuthAccountsAccountIdProjectsProjectIdRouteWithChildren =
+  AuthAccountsAccountIdProjectsProjectIdRoute._addFileChildren(AuthAccountsAccountIdProjectsProjectIdRouteChildren)
+
 interface AuthRouteChildren {
   AuthAuroraRoute: typeof AuthAuroraRoute
+  AuthAccountsIndexRoute: typeof AuthAccountsIndexRoute
+  AuthAccountsAccountIdProjectsProjectIdRoute: typeof AuthAccountsAccountIdProjectsProjectIdRouteWithChildren
+  AuthAccountsAccountIdProjectsIndexRoute: typeof AuthAccountsAccountIdProjectsIndexRoute
 }
 
 const AuthRouteChildren: AuthRouteChildren = {
   AuthAuroraRoute: AuthAuroraRoute,
+  AuthAccountsIndexRoute: AuthAccountsIndexRoute,
+  AuthAccountsAccountIdProjectsProjectIdRoute: AuthAccountsAccountIdProjectsProjectIdRouteWithChildren,
+  AuthAccountsAccountIdProjectsIndexRoute: AuthAccountsAccountIdProjectsIndexRoute,
 }
 
 const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
-
-interface AccountsAccountIdProjectsProjectIdRouteChildren {
-  AccountsAccountIdProjectsProjectIdComputeSplatRoute: typeof AccountsAccountIdProjectsProjectIdComputeSplatRoute
-  AccountsAccountIdProjectsProjectIdNetworkIndexRoute: typeof AccountsAccountIdProjectsProjectIdNetworkIndexRoute
-}
-
-const AccountsAccountIdProjectsProjectIdRouteChildren: AccountsAccountIdProjectsProjectIdRouteChildren = {
-  AccountsAccountIdProjectsProjectIdComputeSplatRoute: AccountsAccountIdProjectsProjectIdComputeSplatRoute,
-  AccountsAccountIdProjectsProjectIdNetworkIndexRoute: AccountsAccountIdProjectsProjectIdNetworkIndexRoute,
-}
-
-const AccountsAccountIdProjectsProjectIdRouteWithChildren = AccountsAccountIdProjectsProjectIdRoute._addFileChildren(
-  AccountsAccountIdProjectsProjectIdRouteChildren
-)
 
 export interface FileRoutesByFullPath {
   "/": typeof IndexRoute
@@ -211,11 +214,11 @@ export interface FileRoutesByFullPath {
   "/gardener": typeof GardenerRoute
   "/aurora": typeof AuthAuroraRoute
   "/auth/login": typeof AuthLoginRoute
-  "/accounts": typeof AccountsIndexRoute
-  "/accounts/$accountId/projects/$projectId": typeof AccountsAccountIdProjectsProjectIdRouteWithChildren
-  "/accounts/$accountId/projects": typeof AccountsAccountIdProjectsIndexRoute
-  "/accounts/$accountId/projects/$projectId/compute/$": typeof AccountsAccountIdProjectsProjectIdComputeSplatRoute
-  "/accounts/$accountId/projects/$projectId/network": typeof AccountsAccountIdProjectsProjectIdNetworkIndexRoute
+  "/accounts": typeof AuthAccountsIndexRoute
+  "/accounts/$accountId/projects/$projectId": typeof AuthAccountsAccountIdProjectsProjectIdRouteWithChildren
+  "/accounts/$accountId/projects": typeof AuthAccountsAccountIdProjectsIndexRoute
+  "/accounts/$accountId/projects/$projectId/compute/$": typeof AuthAccountsAccountIdProjectsProjectIdComputeSplatRoute
+  "/accounts/$accountId/projects/$projectId/network": typeof AuthAccountsAccountIdProjectsProjectIdNetworkIndexRoute
 }
 
 export interface FileRoutesByTo {
@@ -225,11 +228,11 @@ export interface FileRoutesByTo {
   "/gardener": typeof GardenerRoute
   "/aurora": typeof AuthAuroraRoute
   "/auth/login": typeof AuthLoginRoute
-  "/accounts": typeof AccountsIndexRoute
-  "/accounts/$accountId/projects/$projectId": typeof AccountsAccountIdProjectsProjectIdRouteWithChildren
-  "/accounts/$accountId/projects": typeof AccountsAccountIdProjectsIndexRoute
-  "/accounts/$accountId/projects/$projectId/compute/$": typeof AccountsAccountIdProjectsProjectIdComputeSplatRoute
-  "/accounts/$accountId/projects/$projectId/network": typeof AccountsAccountIdProjectsProjectIdNetworkIndexRoute
+  "/accounts": typeof AuthAccountsIndexRoute
+  "/accounts/$accountId/projects/$projectId": typeof AuthAccountsAccountIdProjectsProjectIdRouteWithChildren
+  "/accounts/$accountId/projects": typeof AuthAccountsAccountIdProjectsIndexRoute
+  "/accounts/$accountId/projects/$projectId/compute/$": typeof AuthAccountsAccountIdProjectsProjectIdComputeSplatRoute
+  "/accounts/$accountId/projects/$projectId/network": typeof AuthAccountsAccountIdProjectsProjectIdNetworkIndexRoute
 }
 
 export interface FileRoutesById {
@@ -240,11 +243,11 @@ export interface FileRoutesById {
   "/gardener": typeof GardenerRoute
   "/_auth/aurora": typeof AuthAuroraRoute
   "/auth/login": typeof AuthLoginRoute
-  "/accounts/": typeof AccountsIndexRoute
-  "/accounts/$accountId/projects/$projectId": typeof AccountsAccountIdProjectsProjectIdRouteWithChildren
-  "/accounts/$accountId/projects/": typeof AccountsAccountIdProjectsIndexRoute
-  "/accounts/$accountId/projects/$projectId/compute/$": typeof AccountsAccountIdProjectsProjectIdComputeSplatRoute
-  "/accounts/$accountId/projects/$projectId/network/": typeof AccountsAccountIdProjectsProjectIdNetworkIndexRoute
+  "/_auth/accounts/": typeof AuthAccountsIndexRoute
+  "/_auth/accounts/$accountId/projects/$projectId": typeof AuthAccountsAccountIdProjectsProjectIdRouteWithChildren
+  "/_auth/accounts/$accountId/projects/": typeof AuthAccountsAccountIdProjectsIndexRoute
+  "/_auth/accounts/$accountId/projects/$projectId/compute/$": typeof AuthAccountsAccountIdProjectsProjectIdComputeSplatRoute
+  "/_auth/accounts/$accountId/projects/$projectId/network/": typeof AuthAccountsAccountIdProjectsProjectIdNetworkIndexRoute
 }
 
 export interface FileRouteTypes {
@@ -282,11 +285,11 @@ export interface FileRouteTypes {
     | "/gardener"
     | "/_auth/aurora"
     | "/auth/login"
-    | "/accounts/"
-    | "/accounts/$accountId/projects/$projectId"
-    | "/accounts/$accountId/projects/"
-    | "/accounts/$accountId/projects/$projectId/compute/$"
-    | "/accounts/$accountId/projects/$projectId/network/"
+    | "/_auth/accounts/"
+    | "/_auth/accounts/$accountId/projects/$projectId"
+    | "/_auth/accounts/$accountId/projects/"
+    | "/_auth/accounts/$accountId/projects/$projectId/compute/$"
+    | "/_auth/accounts/$accountId/projects/$projectId/network/"
   fileRoutesById: FileRoutesById
 }
 
@@ -296,9 +299,6 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   GardenerRoute: typeof GardenerRoute
   AuthLoginRoute: typeof AuthLoginRoute
-  AccountsIndexRoute: typeof AccountsIndexRoute
-  AccountsAccountIdProjectsProjectIdRoute: typeof AccountsAccountIdProjectsProjectIdRouteWithChildren
-  AccountsAccountIdProjectsIndexRoute: typeof AccountsAccountIdProjectsIndexRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
@@ -307,9 +307,6 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   GardenerRoute: GardenerRoute,
   AuthLoginRoute: AuthLoginRoute,
-  AccountsIndexRoute: AccountsIndexRoute,
-  AccountsAccountIdProjectsProjectIdRoute: AccountsAccountIdProjectsProjectIdRouteWithChildren,
-  AccountsAccountIdProjectsIndexRoute: AccountsAccountIdProjectsIndexRoute,
 }
 
 export const routeTree = rootRoute._addFileChildren(rootRouteChildren)._addFileTypes<FileRouteTypes>()
@@ -324,10 +321,7 @@ export const routeTree = rootRoute._addFileChildren(rootRouteChildren)._addFileT
         "/_auth",
         "/about",
         "/gardener",
-        "/auth/login",
-        "/accounts/",
-        "/accounts/$accountId/projects/$projectId",
-        "/accounts/$accountId/projects/"
+        "/auth/login"
       ]
     },
     "/": {
@@ -336,7 +330,10 @@ export const routeTree = rootRoute._addFileChildren(rootRouteChildren)._addFileT
     "/_auth": {
       "filePath": "_auth.tsx",
       "children": [
-        "/_auth/aurora"
+        "/_auth/aurora",
+        "/_auth/accounts/",
+        "/_auth/accounts/$accountId/projects/$projectId",
+        "/_auth/accounts/$accountId/projects/"
       ]
     },
     "/about": {
@@ -352,26 +349,29 @@ export const routeTree = rootRoute._addFileChildren(rootRouteChildren)._addFileT
     "/auth/login": {
       "filePath": "auth/login.tsx"
     },
-    "/accounts/": {
-      "filePath": "accounts/index.tsx"
+    "/_auth/accounts/": {
+      "filePath": "_auth/accounts/index.tsx",
+      "parent": "/_auth"
     },
-    "/accounts/$accountId/projects/$projectId": {
-      "filePath": "accounts/$accountId/projects/$projectId.tsx",
+    "/_auth/accounts/$accountId/projects/$projectId": {
+      "filePath": "_auth/accounts/$accountId/projects/$projectId.tsx",
+      "parent": "/_auth",
       "children": [
-        "/accounts/$accountId/projects/$projectId/compute/$",
-        "/accounts/$accountId/projects/$projectId/network/"
+        "/_auth/accounts/$accountId/projects/$projectId/compute/$",
+        "/_auth/accounts/$accountId/projects/$projectId/network/"
       ]
     },
-    "/accounts/$accountId/projects/": {
-      "filePath": "accounts/$accountId/projects/index.tsx"
+    "/_auth/accounts/$accountId/projects/": {
+      "filePath": "_auth/accounts/$accountId/projects/index.tsx",
+      "parent": "/_auth"
     },
-    "/accounts/$accountId/projects/$projectId/compute/$": {
-      "filePath": "accounts/$accountId/projects/$projectId/compute/$.tsx",
-      "parent": "/accounts/$accountId/projects/$projectId"
+    "/_auth/accounts/$accountId/projects/$projectId/compute/$": {
+      "filePath": "_auth/accounts/$accountId/projects/$projectId/compute/$.tsx",
+      "parent": "/_auth/accounts/$accountId/projects/$projectId"
     },
-    "/accounts/$accountId/projects/$projectId/network/": {
-      "filePath": "accounts/$accountId/projects/$projectId/network/index.tsx",
-      "parent": "/accounts/$accountId/projects/$projectId"
+    "/_auth/accounts/$accountId/projects/$projectId/network/": {
+      "filePath": "_auth/accounts/$accountId/projects/$projectId/network/index.tsx",
+      "parent": "/_auth/accounts/$accountId/projects/$projectId"
     }
   }
 }

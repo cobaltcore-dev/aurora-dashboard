@@ -11,7 +11,10 @@
     "esModuleInterop": true,
     "strict": true,
     "incremental": false,
-
+    "baseUrl": "./",
+    "paths": {
+      "@/*": ["./src/*"]
+    },
     "types": ["vite/client", "vitest/globals", "vite-plugin-svgr/client", "@testing-library/jest-dom"]
   }
 }
