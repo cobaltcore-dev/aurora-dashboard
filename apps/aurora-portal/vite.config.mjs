@@ -18,7 +18,7 @@ export default defineConfig({
   build: {
     outDir: "../../dist/client", // Output directory for the client
     sourcemap: true, // Optional: Generate sourcemaps,
-    emptyOutDir: true
+    emptyOutDir: true,
   },
   define: {
     BFF_ENDPOINT: JSON.stringify(BFF_ENDPOINT),
@@ -34,6 +34,7 @@ export default defineConfig({
     svgr(),
     tsconfigPaths(),
   ],
+
   css: {
     postcss: {
       plugins: [tailwindcss, autoprefixer],

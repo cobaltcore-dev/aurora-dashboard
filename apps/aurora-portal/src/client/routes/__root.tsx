@@ -6,6 +6,7 @@ import { MainNavigation } from "../components/navigation/MainNavigation"
 import { NavigationItem } from "../components/navigation/types"
 
 import { TrpcClient } from "../trpcClient"
+import { AuthContext } from "../store/AuthProvider"
 
 interface NavigationLayoutProps {
   mainNavItems?: NavigationItem[]
@@ -13,6 +14,7 @@ interface NavigationLayoutProps {
 
 interface MyRouterContext {
   trpcClient?: TrpcClient
+  auth?: AuthContext
 }
 
 export const Route = createRootRouteWithContext<MyRouterContext>()({
@@ -21,7 +23,10 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 
 function AuroraLayout({ mainNavItems = [] }: NavigationLayoutProps) {
   // Default navigation items
-  const defaultItems: NavigationItem[] = [{ route: "/about", label: "About" }]
+  const defaultItems: NavigationItem[] = [
+    { route: "/about", label: "About" },
+    { route: "/gardener", label: "Gardener" },
+  ]
   const items = mainNavItems.length > 0 ? mainNavItems : defaultItems
   return (
     <div className="flex flex-col w-full bg-theme-background-lvl-1">

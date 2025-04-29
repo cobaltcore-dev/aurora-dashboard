@@ -1,7 +1,6 @@
 import { Home } from "./Home"
 import { About } from "./About"
 import { ComputeDashboard } from "../Compute/ComputeDashboard"
-import { SignIn } from "../../components/Auth/SignIn"
 import { ProjectsOverview } from "../Project/ProejctsOverview"
 import { AuroraLayout } from "./AuroraLayout"
 import { RouterProvider } from "react-router-dom"
@@ -62,13 +61,9 @@ const router = createBrowserRouter([
   },
 ])
 
-export function AuroraClientRouter({ isAuthenticated, isLoading }: { isAuthenticated: boolean; isLoading: boolean }) {
+export function AuroraClientRouter({ isLoading }: { isAuthenticated: boolean; isLoading: boolean }) {
   if (isLoading) {
     return <span>Please wait while your session is synced...</span>
-  }
-
-  if (!isAuthenticated) {
-    return <SignIn trpcClient={trpcClient.auth} />
   }
 
   return <RouterProvider router={router} />

@@ -1,7 +1,27 @@
-import { useCallback, useState } from "react"
+import { useState, useCallback } from "react"
+import { createFileRoute, redirect, useRouter, useRouterState } from "@tanstack/react-router"
+import { useAuth } from "../../store/AuthProvider"
 import { Button } from "../../components/Button"
-import { useAuth, useAuthDispatch } from "../store/StoreProvider"
-import { TrpcClient } from "../../trpcClient"
+import { z } from "zod"
+import { trpcClient } from "../../trpcClient"
+
+// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+
+export const Route = createFileRoute("/auth/login")({
+  validateSearch: z.object({
+    redirect: z.string().optional().catch(""),
+  }),
+  beforeLoad: ({ context, search }) => {
+    if (context.auth?.isAuthenticated) {
+      throw redirect({ to: search.redirect || `/accounts/${context.auth.user?.domain.id}/projects` })
+    }
+    return {
+      trpcClient: context.trpcClient,
+      auth: context.auth,
+    }
+  },
+  component: AuthLoginPage,
+})
 
 const textinputstyles = `
   jn-bg-theme-textinput
@@ -20,33 +40,34 @@ const textinputstyles = `
   peer
 `
 
-export function SignIn(props: { trpcClient: TrpcClient["auth"] }) {
-  const [isLoading, setIsLoading] = useState(false)
-  const { isAuthenticated, user, error } = useAuth()
-  const dispatch = useAuthDispatch()
+export function AuthLoginPage() {
+  const { isAuthenticated, user, login } = useAuth()
+  const router = useRouter()
+  const isLoading = useRouterState({ select: (s) => s.isLoading })
+  const navigate = Route.useNavigate()
+  const search = Route.useSearch()
+
   const [form, setForm] = useState({ domainName: "", user: "", password: "" })
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const login = useCallback(() => {
-    setIsLoading(true)
-    props.trpcClient.createUserSession
-      .mutate(form)
-      .then((token) => {
-        dispatch({ type: "LOGIN_SUCCESS", payload: { user: token?.user, sessionExpiresAt: token?.expires_at } })
+  const signin = useCallback(async () => {
+    setIsSubmitting(true)
+    try {
+      const token = await trpcClient.auth.createUserSession.mutate(form)
+      login(token.user)
+      // Wait for auth state to update before navigation
+      await navigate({
+        to: search.redirect || token.user.domain.id ? `/accounts/${token.user.domain.id}/projects` : "/",
       })
-      .catch((error) => {
-        dispatch({ type: "LOGIN_FAILURE", payload: { error: error.message } })
-      })
-      .finally(() => setIsLoading(false))
-  }, [form])
+    } catch (error) {
+      login(null)
+      console.error("Error logging in: ", error)
+    } finally {
+      setIsSubmitting(false)
+    }
+  }, [form, router, navigate, search.redirect])
 
-  if (isLoading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <span className="animate-spin w-6 h-6 border-4 border-gray-300 border-t-blue-600 rounded-full"></span>
-        <span className="ml-2 text-sm text-gray-500">Auth...</span>
-      </div>
-    )
-  }
+  const isLoggingIn = isLoading || isSubmitting
 
   if (isAuthenticated) {
     return (
@@ -65,9 +86,17 @@ export function SignIn(props: { trpcClient: TrpcClient["auth"] }) {
         <h2 className="text-2xl font-semibold text-center text-white mb-4">Login to Your Account</h2>
         <p className="text-gray-400 text-center text-sm mb-6">Enter your credentials to access your account</p>
 
-        {error && <div className="text-red-500 text-sm mb-4 text-center">Error: {error}</div>}
+        {search.redirect && (
+          <p className="text-red-500 text-sm mb-4 text-center">You need to login to access this page.</p>
+        )}
 
-        <form className="space-y-4">
+        <form
+          className="space-y-4"
+          onSubmit={(e) => {
+            e.preventDefault()
+            signin()
+          }}
+        >
           {/* Domain Input */}
           <div className="flex flex-col">
             <label htmlFor="domain" className="text-gray-300 font-medium">
@@ -79,6 +108,7 @@ export function SignIn(props: { trpcClient: TrpcClient["auth"] }) {
               placeholder="Enter your domain"
               className={textinputstyles}
               onChange={(e) => setForm({ ...form, domainName: e.target.value })}
+              required
             />
           </div>
 
@@ -93,6 +123,7 @@ export function SignIn(props: { trpcClient: TrpcClient["auth"] }) {
               placeholder="Enter your username"
               className={textinputstyles}
               onChange={(e) => setForm({ ...form, user: e.target.value })}
+              required
             />
           </div>
 
@@ -104,24 +135,23 @@ export function SignIn(props: { trpcClient: TrpcClient["auth"] }) {
             <input
               id="password"
               type="password"
-              placeholder="••••••••"
               required
               className={textinputstyles}
               onChange={(e) => setForm({ ...form, password: e.target.value })}
-              onKeyUp={(e) => e.key === "Enter" && login()}
+              onKeyUp={(e) => e.key === "Enter" && signin()}
             />
           </div>
 
           {/* Sign In Button */}
           <Button
-            disabled={isLoading}
             className="w-full"
+            disabled={isLoggingIn}
             onClick={(e) => {
               e.preventDefault()
-              login()
+              signin()
             }}
           >
-            Sign In
+            {isLoggingIn ? "Loading..." : "Sign In"}
           </Button>
         </form>
 

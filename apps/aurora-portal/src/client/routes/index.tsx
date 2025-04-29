@@ -1,7 +1,6 @@
-import * as React from "react"
 import { createFileRoute, useNavigate } from "@tanstack/react-router"
 import { Button } from "../components/Button"
-import { useAuth } from "../store/StoreProvider"
+import { useAuth } from "../store/AuthProvider"
 
 export const Route = createFileRoute("/")({
   component: Home,
@@ -12,7 +11,13 @@ export function Home() {
 
   const { user } = useAuth()
   const handleEnterCloud = () => {
-    navigate({ to: `/accounts/${user?.domain.id}/projects` })
+    if (!user) {
+      navigate({
+        to: "/auth/login",
+      })
+    } else {
+      navigate({ to: `/accounts/${user?.domain.id}/projects` })
+    }
   }
 
   return (
