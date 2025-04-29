@@ -14,7 +14,8 @@ export const Route = createFileRoute("/_auth")({
           },
         })
       }
-      context.auth?.login(token.user)
+      console.log("Restoring session with token:", token.expires_at)
+      context.auth?.login(token.user, "2025-04-29T15:46:18.000000Z")
     }
   },
 })
