@@ -1,14 +1,12 @@
 import { useEffect, useState } from "react"
 
-export function SessionExpirationTimer(props: { className?: string; passwordExpiresAt: string; logout?: () => void }) {
+export function SessionExpirationTimer(props: { className?: string; sessionExpired: Date; logout?: () => void }) {
   const [timeLeft, setTimeLeft] = useState<string>("")
 
   useEffect(() => {
-    const expirationDate = new Date(props.passwordExpiresAt)
-
     const updateCountdown = () => {
       const now = new Date()
-      const timeDiff = expirationDate.getTime() - now.getTime()
+      const timeDiff = props.sessionExpired.getTime() - now.getTime()
 
       if (timeDiff <= 0) {
         setTimeLeft("expired!")
@@ -34,7 +32,7 @@ export function SessionExpirationTimer(props: { className?: string; passwordExpi
     let logoutTimer: NodeJS.Timeout
     // only set the timer if the logout function is provided
     if (props.logout) {
-      const delay = expirationDate.getTime() - Date.now()
+      const delay = props.sessionExpired.getTime() - Date.now()
       if (delay < 0) props.logout()
       else logoutTimer = setTimeout(props.logout, delay)
     }
@@ -43,7 +41,7 @@ export function SessionExpirationTimer(props: { className?: string; passwordExpi
       clearInterval(intervalId)
       clearTimeout(logoutTimer)
     }
-  }, [props.passwordExpiresAt])
+  }, [props.sessionExpired])
 
   return <div className={`text-xs pt-2 pb-2 text-theme-light ${props.className || ""}`}>{timeLeft}</div>
 }

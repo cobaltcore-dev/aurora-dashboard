@@ -2,14 +2,14 @@ import { useState } from "react"
 
 import { TrpcClient } from "../../trpcClient"
 import { Button } from "../Button"
-// import { SessionExpirationTimer } from "./SessionExpirationTimer"
+import { SessionExpirationTimer } from "./SessionExpirationTimer"
 import { useAuth } from "../../store/AuthProvider"
 import { useCallback } from "react"
 import { useNavigate } from "@tanstack/react-router"
 
 export function AuthMenu(props: { authClient: TrpcClient["auth"] }) {
   const [isLoading, setIsLoading] = useState(false)
-  const { isAuthenticated, user, logout } = useAuth()
+  const { isAuthenticated, user, logout, expiresAt } = useAuth()
   const navigate = useNavigate()
 
   const login = () => {
@@ -38,7 +38,7 @@ export function AuthMenu(props: { authClient: TrpcClient["auth"] }) {
         <Button disabled={isLoading} variant="default" onClick={signout}>
           Sign Out
         </Button>
-        {/* {sessionExpiresAt && <SessionExpirationTimer passwordExpiresAt={sessionExpiresAt} logout={signout} />} */}
+        {expiresAt && <SessionExpirationTimer sessionExpired={expiresAt} logout={signout} />}
       </div>
     )
   }

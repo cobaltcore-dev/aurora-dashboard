@@ -1,29 +1,96 @@
-import React from "react"
+import React, { useEffect, useRef } from "react"
 import { TokenData } from "../../server/Authentication/types/models"
+import { useRouter } from "@tanstack/react-router"
 type User = TokenData["user"] | null
 
 export interface AuthContext {
   isAuthenticated: boolean
-  login: (user: User) => Promise<void>
+  login: (user: User, expires_at?: string) => Promise<void>
   logout: () => Promise<void>
-  user?: User // Adjust based on your specific types
+  user?: User
+  expiresAt?: Date
 }
 
 const AuthContext = React.createContext<AuthContext | null>(null)
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = React.useState<User | null>(null)
+  const [expiresAt, setExpiresAt] = React.useState<Date | undefined>(undefined)
+  const logoutTimerRef = useRef<NodeJS.Timeout | null>(null)
+
+  const router = useRouter()
+
   const isAuthenticated = !!user
+  // Function to clear any existing timers
+  const clearLogoutTimer = () => {
+    if (logoutTimerRef.current) {
+      clearTimeout(logoutTimerRef.current)
+      logoutTimerRef.current = null
+    }
+  }
 
+  // Logout function
   const logout = React.useCallback(async () => {
+    clearLogoutTimer()
     setUser(null)
+    router.invalidate()
+    setExpiresAt(undefined)
   }, [])
 
-  const login = React.useCallback(async (user: User) => {
+  // Login function with expires_at parameter from token
+  const login = React.useCallback(async (user: User, expires_at?: string) => {
     setUser(user)
+
+    // Set expiration if provided
+    if (expires_at) {
+      const expiration = new Date(expires_at)
+      setExpiresAt(expiration)
+    } else {
+      setExpiresAt(undefined)
+    }
+    router.invalidate()
   }, [])
 
-  return <AuthContext.Provider value={{ isAuthenticated, user, login, logout }}>{children}</AuthContext.Provider>
+  // Effect to handle session expiration
+  useEffect(() => {
+    clearLogoutTimer()
+
+    if (user && expiresAt) {
+      const timeUntilExpiry = expiresAt.getTime() - Date.now()
+
+      if (timeUntilExpiry <= 0) {
+        // Token already expired
+        console.log("Token expired on load, logging out")
+        logout()
+        return
+      }
+
+      // Set timer for automatic logout
+      logoutTimerRef.current = setTimeout(() => {
+        console.log("Session expired, logging out")
+        logout()
+      }, timeUntilExpiry)
+    }
+
+    // Cleanup on unmount
+    return () => {
+      clearLogoutTimer()
+    }
+  }, [user, expiresAt, logout])
+
+  return (
+    <AuthContext.Provider
+      value={{
+        isAuthenticated,
+        user,
+        login,
+        logout,
+        expiresAt,
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
+  )
 }
 
 export function useAuth() {

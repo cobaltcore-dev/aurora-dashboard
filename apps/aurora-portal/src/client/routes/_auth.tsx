@@ -14,7 +14,7 @@ export const Route = createFileRoute("/_auth")({
           },
         })
       }
-      context.auth?.login(token.user)
+      context.auth?.login(token.user, token.expires_at)
     }
   },
 })

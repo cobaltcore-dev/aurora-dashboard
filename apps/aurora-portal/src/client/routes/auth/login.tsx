@@ -5,8 +5,6 @@ import { Button } from "../../components/Button"
 import { z } from "zod"
 import { trpcClient } from "../../trpcClient"
 
-// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-
 export const Route = createFileRoute("/auth/login")({
   validateSearch: z.object({
     redirect: z.string().optional().catch(""),
@@ -54,7 +52,7 @@ export function AuthLoginPage() {
     setIsSubmitting(true)
     try {
       const token = await trpcClient.auth.createUserSession.mutate(form)
-      login(token.user)
+      login(token.user, token.expires_at)
       // Wait for auth state to update before navigation
       await navigate({
         to: search.redirect || token.user.domain.id ? `/accounts/${token.user.domain.id}/projects` : "/",
