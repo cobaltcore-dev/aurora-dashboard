@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from "react"
 import { TokenData } from "../../server/Authentication/types/models"
+import { useRouter } from "@tanstack/react-router"
 type User = TokenData["user"] | null
 
 export interface AuthContext {
@@ -16,8 +17,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = React.useState<User | null>(null)
   const [expiresAt, setExpiresAt] = React.useState<Date | undefined>(undefined)
   const logoutTimerRef = useRef<NodeJS.Timeout | null>(null)
-  const isAuthenticated = !!user
 
+  const router = useRouter()
+
+  const isAuthenticated = !!user
   // Function to clear any existing timers
   const clearLogoutTimer = () => {
     if (logoutTimerRef.current) {
@@ -30,6 +33,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = React.useCallback(async () => {
     clearLogoutTimer()
     setUser(null)
+    router.invalidate()
     setExpiresAt(undefined)
   }, [])
 
@@ -44,6 +48,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } else {
       setExpiresAt(undefined)
     }
+    router.invalidate()
   }, [])
 
   // Effect to handle session expiration
