@@ -1,17 +1,13 @@
 import Fastify from "fastify"
 import FastifyVite from "@fastify/vite"
-import {
-  auroraFastifyTRPCPlugin,
-  AuroraFastifyTRPCPluginOptions,
-  AuroraContext,
-} from "@cobaltcore-dev/aurora-sdk/server"
-import { appRouter, AppRouter } from "../bff/routers" // tRPC router
+import FastifyStatic from "@fastify/static"
 
 import path from "path"
 import { handleRequest } from "../interface"
 
 const PORT = "4005"
-const BFF_ENDPOINT = process.env.BFF_ENDPOINT || "/polaris-bff"
+const BFF_ENDPOINT = "/_bff"
+const isProduction = process.env.NODE_ENV === "production"
 
 const server = Fastify({
   logger: true, // Enable logging for the server
@@ -24,22 +20,31 @@ async function startServer() {
       validateSession: () => true,
     })
 
-  server.all(BFF_ENDPOINT + "/*", (req, res) => {
-    handleRequest(req.raw, res.raw)
+  await server.all(BFF_ENDPOINT + "/*", (req, res) => {
+    req.raw.url = req.raw.url?.replace(BFF_ENDPOINT, "")
+    return handleRequest(req.raw, res.raw)
   })
 
-  // In development, use FastifyVite
-  await server.register(FastifyVite, {
-    root: path.resolve(__dirname, "../../"),
-    dev: true,
-    spa: true,
-  })
-  await server.vite.ready()
+  if (isProduction) {
+    // Serve static files in production
+    await server.register(FastifyStatic, {
+      root: path.resolve(__dirname, "../../dist"),
+      prefix: "/",
+    })
+  } else {
+    // In development, use FastifyVite
+    await server.register(FastifyVite, {
+      root: path.resolve(__dirname, "../../"),
+      dev: true,
+      spa: true,
+    })
+    await server.vite.ready()
 
-  // SPA fallback for development
-  server.get("/*", (req, reply) => {
-    return reply.html()
-  })
+    // SPA fallback for development
+    server.get("/*", (req, reply) => {
+      return reply.html()
+    })
+  }
 
   await server.listen({ host: "0.0.0.0", port: Number(PORT) }).then((address) => {
     console.log(`Server listening on ${address}`)

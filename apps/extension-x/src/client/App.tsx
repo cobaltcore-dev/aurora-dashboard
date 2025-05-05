@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { TrpcClient, trpcClient } from "./trpcClient"
+import { trpcClient } from "./trpcClient"
 
 interface Item {
   id: number

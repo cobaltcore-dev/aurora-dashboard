@@ -1,7 +1,7 @@
 import { IncomingMessage, ServerResponse } from "node:http"
 import { appRouter } from "../bff/routers"
-
 import { createHTTPHandler } from "@trpc/server/adapters/standalone"
+export { App } from "../client/App"
 
 const handler = createHTTPHandler({
   router: appRouter,
@@ -16,11 +16,4 @@ const handler = createHTTPHandler({
 
 export function handleRequest(req: IncomingMessage, res: ServerResponse) {
   return handler(req, res)
-}
-
-export function mountUI(container: HTMLElement, props: object) {
-  const app = document.createElement("div")
-  app.id = "aurora-extension-x"
-  container.appendChild(app)
-  // Here you would typically mount your UI framework (React, Vue, etc.) to the app element
 }

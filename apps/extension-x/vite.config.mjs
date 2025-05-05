@@ -4,9 +4,9 @@ import process from "process"
 export const BFF_ENDPOINT = process.env.BFF_ENDPOINT || "/polaris-bff"
 
 export default defineConfig({
-  root: "./src/client",
+  root: ".",
   build: {
-    outDir: "../../dist/client", // Output directory for the client
+    outDir: "./dist/client", // Output directory for the client
     sourcemap: true, // Optional: Generate sourcemaps
   },
   define: {
