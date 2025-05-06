@@ -1,9 +1,12 @@
 import type { GlanceImage } from "@/server/Compute/types/image"
 
 import { useState } from "react"
-import EditImageModal from "./EditImageModal"
+import { EditImageModal } from "./EditImageModal"
 import { ImageTableRow } from "./ImageTableRow"
 import { auroraToast, sonnerToast, ToastProps } from "@/client/components/NotificationCenter/AuroraToast"
+import { DeleteImageModal } from "./DeleteImageModal"
+import { Button } from "@/client/components/headless-ui/Button"
+import { CreateImageModal } from "./CreateImageModal"
 
 interface ImagePageProps {
   images: GlanceImage[]
@@ -11,16 +14,47 @@ interface ImagePageProps {
 
 export function ImageListView({ images }: ImagePageProps) {
   const [editModalOpen, setEditModalOpen] = useState(false)
+  const [createModalOpen, setCreateModalOpen] = useState(false)
+
   const [selectedImage, setSelectedImage] = useState<GlanceImage | null>(null)
+
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false)
 
   const handleSaveEdit = (updatedImage: GlanceImage) => {
     setEditModalOpen(false)
     const toastProps: Omit<ToastProps, "id"> = {
       title: "Image Instance",
-      description: `Image instance "${updatedImage.name} || "Unnamed"}" has been updated`,
+      description: `Image instance "${updatedImage.name || "Unnamed"}" has been updated`,
       variant: "success",
       button: {
-        label: "Dismiss",
+        label: "Confirm",
+        onClick: () => sonnerToast.dismiss(),
+      },
+    }
+    auroraToast(toastProps)
+  }
+
+  const handleCreate = (newImage: Partial<GlanceImage>) => {
+    setCreateModalOpen(false)
+    const toastProps: Omit<ToastProps, "id"> = {
+      title: "Image Instance",
+      description: `Image instance "${newImage.name || "Unnamed"}" has been created`,
+      variant: "success",
+      button: {
+        label: "Confirm",
+        onClick: () => sonnerToast.dismiss(),
+      },
+    }
+    auroraToast(toastProps)
+  }
+  const handleDelete = (updatedImage: GlanceImage) => {
+    setEditModalOpen(false)
+    const toastProps: Omit<ToastProps, "id"> = {
+      title: "Image Instance",
+      description: `Image instance "${updatedImage.name || "Unnamed"}" has been updated`,
+      variant: "success",
+      button: {
+        label: "Confirm",
         onClick: () => sonnerToast.dismiss(),
       },
     }
@@ -30,10 +64,30 @@ export function ImageListView({ images }: ImagePageProps) {
     setSelectedImage(image)
     setEditModalOpen(true)
   }
+  const handleCreateImage = () => {
+    setCreateModalOpen(true)
+  }
+
+  const handleDeleteImage = (image: GlanceImage) => {
+    setSelectedImage(image)
+    setDeleteModalOpen(true)
+  }
 
   return (
-    <div>
-      {images && images.length > 0 ? (
+    <div className="container mx-auto px-4 py-6">
+      {/* Header with Add Button */}
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-semibold text-gray-200">Images</h2>
+        <Button
+          onClick={handleCreateImage}
+          className="bg-sap-blue-4 hover:bg-blue-700 text-sap-grey-1 text-sm px-3 py-1.5 w-32"
+        >
+          Add New Image
+        </Button>
+      </div>
+
+      {/* Images Table */}
+      {images.length > 0 ? (
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse border border-[#30363d] text-gray-300">
             {/* Table Header */}
@@ -57,7 +111,7 @@ export function ImageListView({ images }: ImagePageProps) {
                   image={image}
                   key={image.id}
                   onEdit={handleEditImage}
-                  onDelete={setSelectedImage}
+                  onDelete={handleDeleteImage}
                   isLast={index === images.length - 1}
                 />
               ))}
@@ -67,7 +121,6 @@ export function ImageListView({ images }: ImagePageProps) {
       ) : (
         <p className="text-gray-400">No images available.</p>
       )}
-      {/* Modals */}
       {selectedImage && (
         <EditImageModal
           isOpen={editModalOpen}
@@ -76,6 +129,16 @@ export function ImageListView({ images }: ImagePageProps) {
           onSave={handleSaveEdit}
         />
       )}
+      {selectedImage && (
+        <DeleteImageModal
+          isOpen={deleteModalOpen}
+          onClose={() => setDeleteModalOpen(false)}
+          image={selectedImage}
+          onSave={handleDelete}
+        />
+      )}
+
+      <CreateImageModal isOpen={createModalOpen} onClose={() => setCreateModalOpen(false)} onCreate={handleCreate} />
     </div>
   )
 }
