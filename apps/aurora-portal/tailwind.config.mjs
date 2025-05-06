@@ -1,4 +1,4 @@
-import junoConfig from "@cloudoperators/juno-ui-components/build/lib/tailwind.config"
+import junoConfig from "@cloudoperators/juno-ui-components/tailwind.config.js"
 export default {
   presets: [
     junoConfig, // important, do not change
