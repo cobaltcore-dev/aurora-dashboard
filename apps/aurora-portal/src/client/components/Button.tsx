@@ -5,7 +5,7 @@ import type { IconName } from "./Icon"
 interface ButtonProps {
   children?: React.ReactNode
   name?: string
-  variant?: "default" | "subdued" | "primary-danger" | "success"
+  variant?: "default" | "subdued" | "primary-danger" | "success" | "cancel"
   className?: string
   onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void
   icon?: IconName
@@ -25,25 +25,28 @@ export const Button: React.FC<ButtonProps> = ({
 }) => {
   const baseClasses = `
     juno-button 
-    jn-font-bold 
-    jn-inline-flex 
-    jn-justify-center 
-    jn-items-center 
-    jn-rounded 
-    jn-shadow-sm 
-    jn-w-auto 
-    focus:jn-outline-none 
-    focus-visible:jn-ring-2 
-    focus-visible:jn-ring-theme-focus 
-    focus-visible:jn-ring-offset-1 
-    focus-visible:jn-ring-offset-theme-focus 
-    disabled:jn-opacity-50 
-    disabled:jn-cursor-not-allowed 
-    disabled:jn-pointer-events-none 
-    jn-text-base 
-    jn-leading-6 
-    jn-py-[0.4375rem] 
-    jn-px-[0.625rem] 
+    rounded
+    juno-font-bold 
+    juno-inline-flex 
+    juno-justify-center 
+    juno-items-center 
+    juno-rounded 
+    juno-shadow-sm 
+    px-1
+    py-1
+    juno-w-auto 
+    focus:juno-outline-none 
+    focus-visible:juno-ring-2 
+    focus-visible:juno-ring-theme-focus 
+    focus-visible:juno-ring-offset-1 
+    focus-visible:juno-ring-offset-theme-focus 
+    disabled:juno-opacity-50 
+    disabled:juno-cursor-not-allowed 
+    disabled:juno-pointer-events-none 
+    juno-text-base 
+    juno-leading-6 
+    juno-py-[0.4375rem] 
+    juno-px-[0.625rem] 
     w-full
   `
 
@@ -51,6 +54,8 @@ export const Button: React.FC<ButtonProps> = ({
     switch (variant) {
       case "subdued":
         return "juno-button-subdued"
+      case "cancel":
+        return "juno-button-cancel"
       case "primary-danger":
         return "juno-button-primary-danger"
       case "success":
