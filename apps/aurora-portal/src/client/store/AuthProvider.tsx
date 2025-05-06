@@ -48,7 +48,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } else {
       setExpiresAt(undefined)
     }
-    router.invalidate()
   }, [])
 
   // Effect to handle session expiration
