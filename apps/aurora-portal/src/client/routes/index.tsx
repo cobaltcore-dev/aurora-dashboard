@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router"
-import { Button } from "../components/Button"
 import { useAuth } from "../store/AuthProvider"
+import { Button } from "../components/headless-ui/Button"
 
 export const Route = createFileRoute("/")({
   component: Home,
@@ -23,22 +23,21 @@ export function Home() {
   return (
     <div className="min-h-screen flex items-start justify-start bg-gray-100 px-6 mt-10">
       <div className="max-w-4xl w-full">
-        <div className="flex flex-col md:flex-row md:items-center justify-between mb-8">
+        <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
           <h1 className="text-5xl font-bold text-gray-900">Welcome to Aurora Dashboard</h1>
           <Button
-            variant="success"
             onClick={handleEnterCloud}
-            className="mt-6 md:mt-0 py-3 px-6 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg shadow-lg transform transition-transform hover:scale-105 flex items-center"
+            className="h-10 px-4 bg-sap-green text-sm hover:bg-sap-green-4 text-white font-medium rounded-md shadow-sm transition hover:scale-105 flex items-center"
           >
             <span>Enter the Cloud</span>
             <svg
-              className="ml-2 w-5 h-5"
+              className="ml-2 w-4 h-4"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
               xmlns="http://www.w3.org/2000/svg"
             >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
             </svg>
           </Button>
         </div>

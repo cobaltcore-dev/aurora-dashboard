@@ -7,15 +7,15 @@ interface DeleteImageModalProps {
   isOpen: boolean
   onClose: () => void
   image: GlanceImage
-  onSave: (updatedImage: GlanceImage) => void
+  onDelete: (updatedImage: GlanceImage) => void
 }
 
-export const DeleteImageModal: React.FC<DeleteImageModalProps> = ({ isOpen, onClose, image, onSave }) => {
+export const DeleteImageModal: React.FC<DeleteImageModalProps> = ({ isOpen, onClose, image, onDelete }) => {
   if (!image) return null
 
   const handleDelete = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault()
-    onSave(image)
+    onDelete(image)
   }
 
   return (
@@ -39,7 +39,7 @@ export const DeleteImageModal: React.FC<DeleteImageModalProps> = ({ isOpen, onCl
             handleDelete(e)
           }}
         >
-          Delete Image
+          Delete
         </Button>
       </DialogFooter>
     </Dialog>

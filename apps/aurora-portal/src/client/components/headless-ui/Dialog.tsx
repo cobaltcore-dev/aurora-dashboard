@@ -1,6 +1,6 @@
 import * as React from "react"
 import { DialogBackdrop, Dialog as HeadlessDialog } from "@headlessui/react"
-import { Description, DialogPanel, DialogTitle } from "@headlessui/react"
+import { Description, DialogPanel, DialogTitle as HeadlessDialogTitle } from "@headlessui/react"
 
 import { cn } from "@/client/utils/cn"
 
@@ -16,6 +16,7 @@ const Dialog = ({
   return (
     <HeadlessDialog
       open={open}
+      data-testid="dialog"
       onClose={() => onOpenChange?.(false)}
       className="fixed inset-0 flex text-gray-200
        w-screen items-center justify-center p-4 transition duration-300 ease-out data-closed:opacity-0"
@@ -43,8 +44,12 @@ const Dialog = ({
 const DialogContent = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
   <div className={cn("flex flex-col space-y-1.5 text-center sm:text-left", className)} {...props} />
 )
-const DialogHeader = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn("flex flex-col space-y-1.5 text-center sm:text-left", className)} {...props} />
+const DialogTitle = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
+  <HeadlessDialogTitle
+    data-testid="dialog-title"
+    className={cn("flex flex-col space-y-1.5 text-center sm:text-left", className)}
+    {...props}
+  />
 )
 
 const DialogFooter = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
@@ -52,4 +57,4 @@ const DialogFooter = ({ className, ...props }: React.HTMLAttributes<HTMLDivEleme
 )
 DialogFooter.displayName = "DialogFooter"
 
-export { Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, Description as DialogDescription }
+export { Dialog, DialogContent, DialogFooter, DialogTitle, Description as DialogDescription }

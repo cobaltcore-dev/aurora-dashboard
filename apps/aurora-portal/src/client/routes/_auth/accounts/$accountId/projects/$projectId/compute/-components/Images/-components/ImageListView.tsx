@@ -134,7 +134,7 @@ export function ImageListView({ images }: ImagePageProps) {
           isOpen={deleteModalOpen}
           onClose={() => setDeleteModalOpen(false)}
           image={selectedImage}
-          onSave={handleDelete}
+          onDelete={handleDelete}
         />
       )}
 
