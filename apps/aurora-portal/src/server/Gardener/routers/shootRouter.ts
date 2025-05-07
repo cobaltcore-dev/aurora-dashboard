@@ -6,7 +6,7 @@ import { z } from "zod"
 
 export const shootRouter = {
   getClusters: publicProcedure.query(async (): Promise<Cluster[]> => {
-    const shootList = shootListSchema.safeParse(
+    const parsedData = shootListSchema.safeParse(
       await client
         .get(`apis/core.gardener.cloud/v1beta1/namespaces/garden-${process.env.GARDENER_PROJECT}/shoots`)
         .catch((err) => {
@@ -15,33 +15,29 @@ export const shootRouter = {
         })
     )
 
-    if (!shootList.data) return []
-    const clusters = convertShootListToClusters(shootList.data.items)
+    if (!parsedData.success) {
+      console.error("Zod Parsing Error:", parsedData.error.format())
+      return []
+    }
 
+    const clusters = convertShootListToClusters(parsedData.data.items)
     return clusters
   }),
 
   getCluster: publicProcedure
     .input(z.object({ name: z.string() }))
     .query(async ({ input }): Promise<Cluster | undefined> => {
-      const shoot = shootItemSchema.safeParse(
-        await client
-          .get(
-            `apis/core.gardener.cloud/v1beta1/namespaces/garden-${process.env.GARDENER_PROJECT}/shoots/${input.name}`
-          )
-          .catch((err) => {
-            console.error("Error fetching shoot:", err.message)
-            return undefined
-          })
+      const parsedData = shootItemSchema.safeParse(
+        await client.get(
+          `apis/core.gardener.cloud/v1beta1/namespaces/garden-${process.env.GARDENER_PROJECT}/shoots/${input.name}`
+        )
       )
 
-      if (!shoot.data) return undefined
-      const cluster = convertShootToCluster(shoot.data)
-
+      if (!parsedData.success) {
+        console.error("Zod Parsing Error:", parsedData.error.format())
+        return undefined
+      }
+      const cluster = convertShootToCluster(parsedData.data)
       return cluster
     }),
-
-  // createCluster: publicProcedure
-  //   .input(z.object({ name: z.string(), region: z.string() }))
-  //   .mutation(async ({ input }) => {}),
 }
