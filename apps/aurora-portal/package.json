@@ -19,7 +19,7 @@
     "typecheck": "tsc --project tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@cloudoperators/juno-k8s-client": "^1.0.4",
+    "@cloudoperators/juno-k8s-client": "^1.0.5",
     "@cobaltcore-dev/aurora-sdk": "workspace:*",
     "@cobaltcore-dev/signal-openstack": "workspace:*",
     "@fastify/cookie": "^11.0.2",
