@@ -24,7 +24,7 @@ export const shootRouter = {
     return clusters
   }),
 
-  getCluster: publicProcedure
+  getClusterByName: publicProcedure
     .input(z.object({ name: z.string() }))
     .query(async ({ input }): Promise<Cluster | undefined> => {
       const parsedData = shootItemSchema.safeParse(
@@ -40,4 +40,26 @@ export const shootRouter = {
       const cluster = convertShootToCluster(parsedData.data)
       return cluster
     }),
+
+  createCluster: publicProcedure.input(z.object({ name: z.string() })).mutation(async ({ input }) => {
+    const parsedData = shootItemSchema.safeParse(
+      await client.post(`apis/core.gardener.cloud/v1beta1/namespaces/garden-${process.env.GARDENER_PROJECT}/shoots`, {
+        apiVersion: "core.gardener.cloud/v1beta1",
+        kind: "Shoot",
+        metadata: {
+          name: input.name,
+          namespace: `garden-${process.env.GARDENER_PROJECT}`,
+        },
+        spec: {
+          // Add your cluster spec here
+        },
+      })
+    )
+    if (!parsedData.success) {
+      console.error("Zod Parsing Error:", parsedData.error.format())
+      return undefined
+    }
+
+    return parsedData.data
+  }),
 }
