@@ -138,12 +138,17 @@ importers:
     dependencies:
       '@cloudoperators/juno-k8s-client':
 <<<<<<< HEAD
+<<<<<<< HEAD
         specifier: ^1.0.5
         version: 1.0.5
 =======
         specifier: ^1.0.4
         version: 1.0.4
 >>>>>>> b589485 (add bff for gardener)
+=======
+        specifier: ^1.0.5
+        version: 1.0.5
+>>>>>>> 7d462d2 (chore(dashboard): upgrade the k8s client version)
       '@cobaltcore-dev/aurora-sdk':
         specifier: workspace:*
         version: link:../../packages/aurora-sdk
@@ -552,12 +557,17 @@ packages:
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   '@cloudoperators/juno-k8s-client@1.0.5':
     resolution: {integrity: sha512-/jRXnG/RiVVABUExl0e7A0bze1u2fuwIjumxgb3mumsk+9dI1FxDTV4XFVk0S92f5DmFy/8N9azjyO3sl9CNrQ==}
 =======
   '@cloudoperators/juno-k8s-client@1.0.4':
     resolution: {integrity: sha512-O5wdoZH7b6N6vCvuMw4ju7KG4bbJaLokH8sb10TDIAKEU3sCOCKwXrzC/QvsvVvqqn+FAHAxvCjZuTB3yzAvvw==}
 >>>>>>> b589485 (add bff for gardener)
+=======
+  '@cloudoperators/juno-k8s-client@1.0.5':
+    resolution: {integrity: sha512-/jRXnG/RiVVABUExl0e7A0bze1u2fuwIjumxgb3mumsk+9dI1FxDTV4XFVk0S92f5DmFy/8N9azjyO3sl9CNrQ==}
+>>>>>>> 7d462d2 (chore(dashboard): upgrade the k8s client version)
 
   '@cloudoperators/juno-ui-components@2.37.0':
     resolution: {integrity: sha512-7KWNlO+QPXavEhyreTED2LbyzoB/ugs8omDZhT4noqPkNHfcSpjMSnlFioM6o53+xi+j8ohmemF3KSgMAxud5Q==}
@@ -4662,10 +4672,14 @@ snapshots:
   '@bcoe/v8-coverage@0.2.3': {}
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   '@cloudoperators/juno-k8s-client@1.0.5': {}
 =======
   '@cloudoperators/juno-k8s-client@1.0.4': {}
 >>>>>>> b589485 (add bff for gardener)
+=======
+  '@cloudoperators/juno-k8s-client@1.0.5': {}
+>>>>>>> 7d462d2 (chore(dashboard): upgrade the k8s client version)
 
   '@cloudoperators/juno-ui-components@2.37.0(prop-types@15.8.1)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
