@@ -1,33 +1,43 @@
 import { publicProcedure } from "../../trpc"
-import { shootItemSchema } from "../types/shoot"
-import { Cluster, createClusterFromApiResponse, createClustersFromApiResponse } from "../types/cluster"
+import { shootItemSchema, shootListSchema } from "../types/shoot"
+import { Cluster, convertShootListToClusters, convertShootToCluster } from "../types/cluster"
 import { client } from "../client"
 import { z } from "zod"
 
 export const shootRouter = {
   getClusters: publicProcedure.query(async (): Promise<Cluster[]> => {
-    const apiResponse = await client
-      .get(`apis/core.gardener.cloud/v1beta1/namespaces/garden-${process.env.GARDENER_PROJECT}/shoots`)
-      .catch(async (err) => {
-        const errorDetails = await err.response.json()
-        throw new Error(errorDetails.message)
-      })
+    const parsedData = shootListSchema.safeParse(
+      await client
+        .get(`apis/core.gardener.cloud/v1beta1/namespaces/garden-${process.env.GARDENER_PROJECT}/shoots`)
+        .catch((err) => {
+          console.error("Error fetching shoots:", err.message)
+          return undefined
+        })
+    )
 
-    const clusters = createClustersFromApiResponse(apiResponse)
+    if (!parsedData.success) {
+      console.error("Zod Parsing Error:", parsedData.error.format())
+      return []
+    }
+
+    const clusters = convertShootListToClusters(parsedData.data.items)
     return clusters
   }),
 
   getClusterByName: publicProcedure
     .input(z.object({ name: z.string() }))
     .query(async ({ input }): Promise<Cluster | undefined> => {
-      const apiResponse = await client
-        .get(`apis/core.gardener.cloud/v1beta1/namespaces/garden-${process.env.GARDENER_PROJECT}/shoots/${input.name}`)
-        .catch(async (err) => {
-          const errorDetails = await err.response.json()
-          throw new Error(errorDetails.message)
-        })
+      const parsedData = shootItemSchema.safeParse(
+        await client.get(
+          `apis/core.gardener.cloud/v1beta1/namespaces/garden-${process.env.GARDENER_PROJECT}/shoots/${input.name}`
+        )
+      )
 
-      const cluster = createClusterFromApiResponse(apiResponse)
+      if (!parsedData.success) {
+        console.error("Zod Parsing Error:", parsedData.error.format())
+        return undefined
+      }
+      const cluster = convertShootToCluster(parsedData.data)
       return cluster
     }),
 

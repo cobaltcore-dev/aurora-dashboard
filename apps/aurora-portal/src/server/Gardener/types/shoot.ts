@@ -279,5 +279,15 @@ export const shootItemSchema = z.object({
     .optional(),
 })
 
+export const shootListSchema = z.object({
+  apiVersion: z.string(),
+  kind: z.string(),
+  metadata: z.object({
+    resourceVersion: z.string(),
+    selfLink: z.string(),
+  }),
+  items: z.array(shootItemSchema),
+})
+
 // Type definitions derived from the schemas
 export type ShootItem = z.infer<typeof shootItemSchema>

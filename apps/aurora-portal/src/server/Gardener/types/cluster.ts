@@ -1,4 +1,5 @@
 import { z } from "zod"
+import { ShootItem } from "./shoot"
 
 // Define simplified cluster schema for the UI
 export const clusterSchema = z.object({
@@ -24,7 +25,7 @@ export const clusterSchema = z.object({
       containerRuntime: z.string(),
       min: z.number(),
       max: z.number(),
-      actual: z.number().optional(),
+      actual: z.number().optional(), // This might need to come from another API
       maxSurge: z.number(),
       zones: z.array(z.string()),
     })
@@ -45,14 +46,14 @@ export const clusterSchema = z.object({
 export type Cluster = z.infer<typeof clusterSchema>
 
 /**
- * Converts a raw API response directly to the simplified UI cluster format
+ * Converts a Gardener Shoot item to a simplified UI cluster format
  */
-export function createClusterFromApiResponse(apiResponse: any): Cluster {
+export function convertShootToCluster(shoot: ShootItem): Cluster {
   // Helper function to get status from conditions
-  const getStatus = (response: any): string => {
-    if (!response.status?.lastOperation) return "Unknown"
+  const getStatus = (shoot: ShootItem): string => {
+    if (!shoot.status?.lastOperation) return "Unknown"
 
-    const state = response.status.lastOperation.state
+    const state = shoot.status.lastOperation.state
 
     if (state === "Failed") return "Error"
     if (state === "Succeeded") return "Operational"
@@ -61,28 +62,28 @@ export function createClusterFromApiResponse(apiResponse: any): Cluster {
   }
 
   // Helper function to get readiness based on conditions
-  const getReadiness = (response: any): string => {
-    if (!response.status?.conditions) return "Unknown"
+  const getReadiness = (shoot: ShootItem): string => {
+    if (!shoot.status?.conditions) return "Unknown"
 
     // Count True conditions vs total
-    const conditions = response.status.conditions
-    const healthyCount = conditions.filter((c: any) => c.status === "True").length
+    const conditions = shoot.status.conditions
+    const healthyCount = conditions.filter((c) => c.status === "True").length
 
     return `${healthyCount}/${conditions.length}`
   }
 
   return {
     // List view fields
-    uid: apiResponse.metadata.uid,
-    name: apiResponse.metadata.name,
-    region: apiResponse.spec.region,
-    infrastructure: apiResponse.spec.provider.type,
-    status: getStatus(apiResponse),
-    version: apiResponse.spec.kubernetes.version,
-    readiness: getReadiness(apiResponse),
+    uid: shoot.metadata.uid,
+    name: shoot.metadata.name,
+    region: shoot.spec.region,
+    infrastructure: shoot.spec.provider.type,
+    status: getStatus(shoot),
+    version: shoot.spec.kubernetes.version,
+    readiness: getReadiness(shoot),
 
     // Detail fields - Workers
-    workers: apiResponse.spec.provider.workers.map((worker: any) => ({
+    workers: shoot.spec.provider.workers.map((worker) => ({
       name: worker.name,
       architecture: worker.machine.architecture,
       machineType: worker.machine.type,
@@ -100,20 +101,20 @@ export function createClusterFromApiResponse(apiResponse: any): Cluster {
 
     // Maintenance info
     maintenance: {
-      startTime: apiResponse.spec.maintenance?.timeWindow.begin || "",
-      timezone: apiResponse.spec.hibernation?.schedules?.[0]?.location || "",
-      windowTime: apiResponse.spec.maintenance?.timeWindow.end || "",
+      startTime: shoot.spec.maintenance?.timeWindow.begin || "",
+      timezone: shoot.spec.hibernation?.schedules?.[0]?.location || "",
+      windowTime: shoot.spec.maintenance?.timeWindow.end || "",
     },
 
     // Auto update
     autoUpdate: {
-      os: apiResponse.spec.maintenance?.autoUpdate.machineImageVersion || false,
-      kubernetes: apiResponse.spec.maintenance?.autoUpdate.kubernetesVersion || false,
+      os: shoot.spec.maintenance?.autoUpdate.machineImageVersion || false,
+      kubernetes: shoot.spec.maintenance?.autoUpdate.kubernetesVersion || false,
     },
   }
 }
 
-export function createClustersFromApiResponse(apiResponse: any): Cluster[] {
-  if (!apiResponse.items) return []
-  return apiResponse.items.map((item: any) => createClusterFromApiResponse(item))
+export function convertShootListToClusters(shoots: ShootItem[]): Cluster[] {
+  if (!shoots) return []
+  return shoots.map(convertShootToCluster)
 }

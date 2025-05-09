@@ -21,33 +21,12 @@ export const cloudProfileSchema = z.object({
   ),
 })
 
+export const cloudProfileListSchema = z.object({
+  items: z.array(cloudProfileSchema),
+  metadata: z.object({
+    resourceVersion: z.string(),
+    selfLink: z.string(),
+  }),
+})
+
 export type CloudProfile = z.infer<typeof cloudProfileSchema>
-
-/**
- * Converts a raw API response to the simplified CloudProfile format
- */
-export function createCloudProfileFromApiResponse(apiResponse: any): CloudProfile {
-  return {
-    uid: apiResponse.metadata.uid,
-    name: apiResponse.metadata.name,
-    provider: apiResponse.spec.type,
-    kubernetesVersions: apiResponse.spec.kubernetes.versions.map((v: any) => v.version),
-    machineTypes: apiResponse.spec.machineTypes.map((mt: any) => mt.name),
-    machineImages: apiResponse.spec.machineImages.map((mi: any) => ({
-      name: mi.name,
-      versions: mi.versions.map((v: any) => v.version),
-    })),
-    regions: apiResponse.spec.regions?.map((r: any) => ({
-      name: r.name,
-      zones: r.zones?.map((z: any) => z.name),
-    })),
-  }
-}
-
-/**
- * Converts a list of CloudProfiles from API response
- */
-export function createCloudProfilesFromApiResponse(apiResponse: any): CloudProfile[] {
-  if (!apiResponse.items) return []
-  return apiResponse.items.map((item: any) => createCloudProfileFromApiResponse(item))
-}
