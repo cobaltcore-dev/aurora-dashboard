@@ -1048,11 +1048,11 @@ packages:
   '@fastify/vue@1.0.6':
     resolution: {integrity: sha512-uwXYtb8F7JkKyiBBYOvh9DpArSVHIpPn+3kAK5VL8jFFbLL6qGV/jvbWyvv84iNRnfNUtPSukUMl32xSc3kudg==}
 
-  '@floating-ui/core@1.6.9':
-    resolution: {integrity: sha512-uMXCuQ3BItDUbAMhIXw7UPXRfAlOAvZzdK9BWpE60MCn+Svt3aLn9jsPTi/WNGlRUu2uI0v5S7JiIUsbsvh3fw==}
+  '@floating-ui/core@1.7.0':
+    resolution: {integrity: sha512-FRdBLykrPPA6P76GGGqlex/e7fbe0F1ykgxHYNXQsH/iTEtjMj/f9bpY5oQqbjt5VgZvgz/uKXbGuROijh3VLA==}
 
-  '@floating-ui/dom@1.6.13':
-    resolution: {integrity: sha512-umqzocjDgNRGTuO7Q8CU32dkHkECqI8ZdMZ5Swb6QAM0t5rnlrN3lGo1hdpscRd3WS8T6DKYK4ephgIH9iRh3w==}
+  '@floating-ui/dom@1.7.0':
+    resolution: {integrity: sha512-lGTor4VlXcesUMh1cupTUTDoCxMb0V6bm3CnxHzQcw8Eaf1jQbgQX4i02fYgT0vJ82tb5MZ4CZk1LRGkktJCzg==}
 
   '@floating-ui/react-dom@2.1.2':
     resolution: {integrity: sha512-06okr5cgPzMNBy+Ycse2A6udMi4bqwW/zgBF/rwjcNqWkyr82Mcg8b0vjX8OJpZFy/FKjJmw6wV7t44kK6kW7A==}
@@ -1514,8 +1514,8 @@ packages:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
       react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
-  '@tanstack/react-virtual@3.13.6':
-    resolution: {integrity: sha512-WT7nWs8ximoQ0CDx/ngoFP7HbQF9Q2wQe4nh2NB+u2486eX3nZRE40P9g6ccCVq7ZfTSH5gFOuCoVH5DLNS/aA==}
+  '@tanstack/react-virtual@3.13.8':
+    resolution: {integrity: sha512-meS2AanUg50f3FBSNoAdBSRAh8uS0ue01qm7zrw65KGJtiXB9QXfybqZwkh4uFpRv2iX/eu5tjcH5wqUpwYLPg==}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
       react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
@@ -1573,8 +1573,8 @@ packages:
   '@tanstack/store@0.7.0':
     resolution: {integrity: sha512-CNIhdoUsmD2NolYuaIs8VfWM467RK6oIBAW4nPEKZhg1smZ+/CwtCdpURgp7nxSqOaV9oKkzdWD80+bC66F/Jg==}
 
-  '@tanstack/virtual-core@3.13.6':
-    resolution: {integrity: sha512-cnQUeWnhNP8tJ4WsGcYiX24Gjkc9ALstLbHcBj1t3E7EimN6n6kHH+DPV4PpDnuw00NApQp+ViojMj1GRdwYQg==}
+  '@tanstack/virtual-core@3.13.8':
+    resolution: {integrity: sha512-BT6w89Hqy7YKaWewYzmecXQzcJh6HTBbKYJIIkMaNU49DZ06LoTV3z32DWWEdUsgW6n1xTmwTLs4GtWrZC261w==}
 
   '@tanstack/virtual-file-routes@1.115.0':
     resolution: {integrity: sha512-XLUh1Py3AftcERrxkxC5Y5m5mfllRH3YR6YVlyjFgI2Tc2Ssy2NKmQFQIafoxfW459UJ8Dn81nWKETEIJifE4g==}
@@ -5046,7 +5046,7 @@ snapshots:
       '@fastify/forwarded': 3.0.0
       ipaddr.js: 2.2.0
 
-  '@fastify/react@1.0.2(@kitajs/ts-html-plugin@4.1.1)(@types/node@22.13.2)(@types/react@19.1.0)(fastify@5.2.1)(jiti@2.4.2)(rollup@4.34.6)(tsx@4.19.2)(yaml@2.7.0)':
+  '@fastify/react@1.0.2(@kitajs/ts-html-plugin@4.1.1)(@types/node@22.13.2)(@types/react@19.1.0)(fastify@5.2.1)(jiti@2.4.2)(rollup@4.34.6)(tsx@4.19.2)(typescript@5.7.3)(yaml@2.7.0)':
     dependencies:
       '@fastify/vite': 8.0.5(@kitajs/ts-html-plugin@4.1.1)(@types/node@22.13.2)(@types/react@19.1.0)(fastify@5.2.1)(jiti@2.4.2)(rollup@4.34.6)(tsx@4.19.2)(typescript@5.7.3)(yaml@2.7.0)
       acorn: 8.14.1
@@ -5078,6 +5078,7 @@ snapshots:
       - sugarss
       - terser
       - tsx
+      - typescript
       - yaml
     optional: true
 
@@ -5120,8 +5121,8 @@ snapshots:
       klaw: 4.1.0
     optionalDependencies:
       '@fastify/htmx': 0.4.0(@kitajs/ts-html-plugin@4.1.1)(rollup@4.34.6)
-      '@fastify/react': 1.0.2(@kitajs/ts-html-plugin@4.1.1)(@types/node@22.13.2)(@types/react@19.1.0)(fastify@5.2.1)(jiti@2.4.2)(rollup@4.34.6)(tsx@4.19.2)(yaml@2.7.0)
-      '@fastify/vue': 1.0.6(@kitajs/ts-html-plugin@4.1.1)(@types/node@22.13.2)(@types/react@19.1.0)(fastify@5.2.1)(jiti@2.4.2)(rollup@4.34.6)(tsx@4.19.2)(typescript@5.7.3)(yaml@2.7.0)
+      '@fastify/react': 1.0.2(@kitajs/ts-html-plugin@4.1.1)(@types/node@22.13.2)(@types/react@19.1.0)(fastify@5.2.1)(jiti@2.4.2)(rollup@4.34.6)(tsx@4.19.2)(typescript@5.7.3)(yaml@2.7.0)
+      '@fastify/vue': 1.0.6(@kitajs/ts-html-plugin@4.1.1)(@types/node@22.13.2)(fastify@5.2.1)(jiti@2.4.2)(rollup@4.34.6)(tsx@4.19.2)(typescript@5.7.3)(yaml@2.7.0)
       vite: 6.2.5(@types/node@22.13.2)(jiti@2.4.2)(tsx@4.19.2)(yaml@2.7.0)
     transitivePeerDependencies:
       - '@kitajs/ts-html-plugin'
@@ -5140,7 +5141,7 @@ snapshots:
       - typescript
       - yaml
 
-  '@fastify/vue@1.0.6(@kitajs/ts-html-plugin@4.1.1)(@types/node@22.13.2)(@types/react@19.1.0)(fastify@5.2.1)(jiti@2.4.2)(rollup@4.34.6)(tsx@4.19.2)(typescript@5.7.3)(yaml@2.7.0)':
+  '@fastify/vue@1.0.6(@kitajs/ts-html-plugin@4.1.1)(@types/node@22.13.2)(fastify@5.2.1)(jiti@2.4.2)(rollup@4.34.6)(tsx@4.19.2)(typescript@5.7.3)(yaml@2.7.0)':
     dependencies:
       '@fastify/vite': 8.0.5(@kitajs/ts-html-plugin@4.1.1)(@types/node@22.13.2)(@types/react@19.1.0)(fastify@5.2.1)(jiti@2.4.2)(rollup@4.34.6)(tsx@4.19.2)(typescript@5.7.3)(yaml@2.7.0)
       acorn: 8.14.1
@@ -5157,7 +5158,6 @@ snapshots:
     transitivePeerDependencies:
       - '@kitajs/ts-html-plugin'
       - '@types/node'
-      - '@types/react'
       - fastify
       - jiti
       - less
@@ -5173,18 +5173,18 @@ snapshots:
       - yaml
     optional: true
 
-  '@floating-ui/core@1.6.9':
+  '@floating-ui/core@1.7.0':
     dependencies:
       '@floating-ui/utils': 0.2.9
 
-  '@floating-ui/dom@1.6.13':
+  '@floating-ui/dom@1.7.0':
     dependencies:
-      '@floating-ui/core': 1.6.9
+      '@floating-ui/core': 1.7.0
       '@floating-ui/utils': 0.2.9
 
   '@floating-ui/react-dom@2.1.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
-      '@floating-ui/dom': 1.6.13
+      '@floating-ui/dom': 1.7.0
       react: 19.1.0
       react-dom: 19.1.0(react@19.1.0)
 
@@ -5203,7 +5203,7 @@ snapshots:
       '@floating-ui/react': 0.26.28(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/focus': 3.20.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/interactions': 3.25.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      '@tanstack/react-virtual': 3.13.6(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@tanstack/react-virtual': 3.13.8(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       react: 19.1.0
       react-dom: 19.1.0(react@19.1.0)
       use-sync-external-store: 1.5.0(react@19.1.0)
@@ -5634,9 +5634,9 @@ snapshots:
       react-dom: 19.1.0(react@19.1.0)
       use-sync-external-store: 1.5.0(react@19.1.0)
 
-  '@tanstack/react-virtual@3.13.6(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
+  '@tanstack/react-virtual@3.13.8(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
-      '@tanstack/virtual-core': 3.13.6
+      '@tanstack/virtual-core': 3.13.8
       react: 19.1.0
       react-dom: 19.1.0(react@19.1.0)
 
@@ -5699,7 +5699,7 @@ snapshots:
 
   '@tanstack/store@0.7.0': {}
 
-  '@tanstack/virtual-core@3.13.6': {}
+  '@tanstack/virtual-core@3.13.8': {}
 
   '@tanstack/virtual-file-routes@1.115.0': {}
 

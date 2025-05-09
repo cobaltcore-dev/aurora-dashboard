@@ -1,5 +1,5 @@
 import { z } from "zod"
-import { ShootItem } from "./shoot"
+import { ShootApiResponse } from "./shootApiSchema"
 
 // Define simplified cluster schema for the UI
 export const clusterSchema = z.object({
@@ -48,9 +48,9 @@ export type Cluster = z.infer<typeof clusterSchema>
 /**
  * Converts a Gardener Shoot item to a simplified UI cluster format
  */
-export function convertShootToCluster(shoot: ShootItem): Cluster {
+export function convertShootApiResponseToCluster(shoot: ShootApiResponse): Cluster {
   // Helper function to get status from conditions
-  const getStatus = (shoot: ShootItem): string => {
+  const getStatus = (shoot: ShootApiResponse): string => {
     if (!shoot.status?.lastOperation) return "Unknown"
 
     const state = shoot.status.lastOperation.state
@@ -62,7 +62,7 @@ export function convertShootToCluster(shoot: ShootItem): Cluster {
   }
 
   // Helper function to get readiness based on conditions
-  const getReadiness = (shoot: ShootItem): string => {
+  const getReadiness = (shoot: ShootApiResponse): string => {
     if (!shoot.status?.conditions) return "Unknown"
 
     // Count True conditions vs total
@@ -114,7 +114,7 @@ export function convertShootToCluster(shoot: ShootItem): Cluster {
   }
 }
 
-export function convertShootListToClusters(shoots: ShootItem[]): Cluster[] {
+export function convertShootListApiSchemaToClusters(shoots: ShootApiResponse[]): Cluster[] {
   if (!shoots) return []
-  return shoots.map(convertShootToCluster)
+  return shoots.map(convertShootApiResponseToCluster)
 }

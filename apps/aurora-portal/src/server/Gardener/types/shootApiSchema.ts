@@ -63,7 +63,7 @@ const extensionSchema = z.object({
 })
 
 // ShootSpec schema (without kind and apiVersion)
-export const shootItemSchema = z.object({
+export const shootApiResponseSchema = z.object({
   metadata: z.object({
     name: z.string(),
     namespace: z.string(),
@@ -222,7 +222,7 @@ export const shootItemSchema = z.object({
     }),
     purpose: z.string().optional(),
     region: z.string(),
-    secretBindingName: z.string(),
+    secretBindingName: z.string().optional(),
     seedName: z.string(),
     systemComponents: z
       .object({
@@ -279,16 +279,16 @@ export const shootItemSchema = z.object({
     .optional(),
 })
 
-// ShootList schema
-export const shootListSchema = z.object({
-  kind: z.literal("ShootList"),
+export const shootListApiResponseSchema = z.object({
   apiVersion: z.string(),
+  kind: z.string(),
   metadata: z.object({
     resourceVersion: z.string(),
+    selfLink: z.string().optional(),
   }),
-  items: z.array(shootItemSchema),
+  items: z.array(shootApiResponseSchema),
 })
 
 // Type definitions derived from the schemas
-export type ShootItem = z.infer<typeof shootItemSchema>
-export type ShootList = z.infer<typeof shootListSchema>
+export type ShootApiResponse = z.infer<typeof shootApiResponseSchema>
+export type ShootListApiResponse = z.infer<typeof shootListApiResponseSchema>
