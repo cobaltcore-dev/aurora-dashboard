@@ -137,18 +137,8 @@ importers:
   apps/aurora-portal:
     dependencies:
       '@cloudoperators/juno-k8s-client':
-<<<<<<< HEAD
-<<<<<<< HEAD
         specifier: ^1.0.5
         version: 1.0.5
-=======
-        specifier: ^1.0.4
-        version: 1.0.4
->>>>>>> b589485 (add bff for gardener)
-=======
-        specifier: ^1.0.5
-        version: 1.0.5
->>>>>>> 7d462d2 (chore(dashboard): upgrade the k8s client version)
       '@cobaltcore-dev/aurora-sdk':
         specifier: workspace:*
         version: link:../../packages/aurora-sdk
@@ -556,18 +546,8 @@ packages:
   '@bcoe/v8-coverage@0.2.3':
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
 
-<<<<<<< HEAD
-<<<<<<< HEAD
   '@cloudoperators/juno-k8s-client@1.0.5':
     resolution: {integrity: sha512-/jRXnG/RiVVABUExl0e7A0bze1u2fuwIjumxgb3mumsk+9dI1FxDTV4XFVk0S92f5DmFy/8N9azjyO3sl9CNrQ==}
-=======
-  '@cloudoperators/juno-k8s-client@1.0.4':
-    resolution: {integrity: sha512-O5wdoZH7b6N6vCvuMw4ju7KG4bbJaLokH8sb10TDIAKEU3sCOCKwXrzC/QvsvVvqqn+FAHAxvCjZuTB3yzAvvw==}
->>>>>>> b589485 (add bff for gardener)
-=======
-  '@cloudoperators/juno-k8s-client@1.0.5':
-    resolution: {integrity: sha512-/jRXnG/RiVVABUExl0e7A0bze1u2fuwIjumxgb3mumsk+9dI1FxDTV4XFVk0S92f5DmFy/8N9azjyO3sl9CNrQ==}
->>>>>>> 7d462d2 (chore(dashboard): upgrade the k8s client version)
 
   '@cloudoperators/juno-ui-components@2.37.0':
     resolution: {integrity: sha512-7KWNlO+QPXavEhyreTED2LbyzoB/ugs8omDZhT4noqPkNHfcSpjMSnlFioM6o53+xi+j8ohmemF3KSgMAxud5Q==}
@@ -1068,11 +1048,11 @@ packages:
   '@fastify/vue@1.0.6':
     resolution: {integrity: sha512-uwXYtb8F7JkKyiBBYOvh9DpArSVHIpPn+3kAK5VL8jFFbLL6qGV/jvbWyvv84iNRnfNUtPSukUMl32xSc3kudg==}
 
-  '@floating-ui/core@1.6.9':
-    resolution: {integrity: sha512-uMXCuQ3BItDUbAMhIXw7UPXRfAlOAvZzdK9BWpE60MCn+Svt3aLn9jsPTi/WNGlRUu2uI0v5S7JiIUsbsvh3fw==}
+  '@floating-ui/core@1.7.0':
+    resolution: {integrity: sha512-FRdBLykrPPA6P76GGGqlex/e7fbe0F1ykgxHYNXQsH/iTEtjMj/f9bpY5oQqbjt5VgZvgz/uKXbGuROijh3VLA==}
 
-  '@floating-ui/dom@1.6.13':
-    resolution: {integrity: sha512-umqzocjDgNRGTuO7Q8CU32dkHkECqI8ZdMZ5Swb6QAM0t5rnlrN3lGo1hdpscRd3WS8T6DKYK4ephgIH9iRh3w==}
+  '@floating-ui/dom@1.7.0':
+    resolution: {integrity: sha512-lGTor4VlXcesUMh1cupTUTDoCxMb0V6bm3CnxHzQcw8Eaf1jQbgQX4i02fYgT0vJ82tb5MZ4CZk1LRGkktJCzg==}
 
   '@floating-ui/react-dom@2.1.2':
     resolution: {integrity: sha512-06okr5cgPzMNBy+Ycse2A6udMi4bqwW/zgBF/rwjcNqWkyr82Mcg8b0vjX8OJpZFy/FKjJmw6wV7t44kK6kW7A==}
@@ -1534,8 +1514,8 @@ packages:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
       react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
-  '@tanstack/react-virtual@3.13.6':
-    resolution: {integrity: sha512-WT7nWs8ximoQ0CDx/ngoFP7HbQF9Q2wQe4nh2NB+u2486eX3nZRE40P9g6ccCVq7ZfTSH5gFOuCoVH5DLNS/aA==}
+  '@tanstack/react-virtual@3.13.8':
+    resolution: {integrity: sha512-meS2AanUg50f3FBSNoAdBSRAh8uS0ue01qm7zrw65KGJtiXB9QXfybqZwkh4uFpRv2iX/eu5tjcH5wqUpwYLPg==}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
       react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
@@ -1593,8 +1573,8 @@ packages:
   '@tanstack/store@0.7.0':
     resolution: {integrity: sha512-CNIhdoUsmD2NolYuaIs8VfWM467RK6oIBAW4nPEKZhg1smZ+/CwtCdpURgp7nxSqOaV9oKkzdWD80+bC66F/Jg==}
 
-  '@tanstack/virtual-core@3.13.6':
-    resolution: {integrity: sha512-cnQUeWnhNP8tJ4WsGcYiX24Gjkc9ALstLbHcBj1t3E7EimN6n6kHH+DPV4PpDnuw00NApQp+ViojMj1GRdwYQg==}
+  '@tanstack/virtual-core@3.13.8':
+    resolution: {integrity: sha512-BT6w89Hqy7YKaWewYzmecXQzcJh6HTBbKYJIIkMaNU49DZ06LoTV3z32DWWEdUsgW6n1xTmwTLs4GtWrZC261w==}
 
   '@tanstack/virtual-file-routes@1.115.0':
     resolution: {integrity: sha512-XLUh1Py3AftcERrxkxC5Y5m5mfllRH3YR6YVlyjFgI2Tc2Ssy2NKmQFQIafoxfW459UJ8Dn81nWKETEIJifE4g==}
@@ -4671,15 +4651,7 @@ snapshots:
 
   '@bcoe/v8-coverage@0.2.3': {}
 
-<<<<<<< HEAD
-<<<<<<< HEAD
   '@cloudoperators/juno-k8s-client@1.0.5': {}
-=======
-  '@cloudoperators/juno-k8s-client@1.0.4': {}
->>>>>>> b589485 (add bff for gardener)
-=======
-  '@cloudoperators/juno-k8s-client@1.0.5': {}
->>>>>>> 7d462d2 (chore(dashboard): upgrade the k8s client version)
 
   '@cloudoperators/juno-ui-components@2.37.0(prop-types@15.8.1)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
@@ -5201,18 +5173,18 @@ snapshots:
       - yaml
     optional: true
 
-  '@floating-ui/core@1.6.9':
+  '@floating-ui/core@1.7.0':
     dependencies:
       '@floating-ui/utils': 0.2.9
 
-  '@floating-ui/dom@1.6.13':
+  '@floating-ui/dom@1.7.0':
     dependencies:
-      '@floating-ui/core': 1.6.9
+      '@floating-ui/core': 1.7.0
       '@floating-ui/utils': 0.2.9
 
   '@floating-ui/react-dom@2.1.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
-      '@floating-ui/dom': 1.6.13
+      '@floating-ui/dom': 1.7.0
       react: 19.1.0
       react-dom: 19.1.0(react@19.1.0)
 
@@ -5231,7 +5203,7 @@ snapshots:
       '@floating-ui/react': 0.26.28(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/focus': 3.20.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/interactions': 3.25.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      '@tanstack/react-virtual': 3.13.6(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@tanstack/react-virtual': 3.13.8(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       react: 19.1.0
       react-dom: 19.1.0(react@19.1.0)
       use-sync-external-store: 1.5.0(react@19.1.0)
@@ -5662,9 +5634,9 @@ snapshots:
       react-dom: 19.1.0(react@19.1.0)
       use-sync-external-store: 1.5.0(react@19.1.0)
 
-  '@tanstack/react-virtual@3.13.6(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
+  '@tanstack/react-virtual@3.13.8(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
-      '@tanstack/virtual-core': 3.13.6
+      '@tanstack/virtual-core': 3.13.8
       react: 19.1.0
       react-dom: 19.1.0(react@19.1.0)
 
@@ -5727,7 +5699,7 @@ snapshots:
 
   '@tanstack/store@0.7.0': {}
 
-  '@tanstack/virtual-core@3.13.6': {}
+  '@tanstack/virtual-core@3.13.8': {}
 
   '@tanstack/virtual-file-routes@1.115.0': {}
 
