@@ -11,25 +11,21 @@
 // Import Routes
 
 import { Route as rootRoute } from "./routes/__root"
-import { Route as GardenerImport } from "./routes/gardener"
 import { Route as AboutImport } from "./routes/about"
 import { Route as AuthImport } from "./routes/_auth"
 import { Route as IndexImport } from "./routes/index"
+import { Route as GardenerIndexImport } from "./routes/gardener/index"
 import { Route as AuthLoginImport } from "./routes/auth/login"
 import { Route as AuthAuroraImport } from "./routes/_auth/aurora"
+import { Route as GardenerClustersIndexImport } from "./routes/gardener/clusters/index"
 import { Route as AuthAccountsIndexImport } from "./routes/_auth/accounts/index"
+import { Route as GardenerClustersClusterNameImport } from "./routes/gardener/clusters/$clusterName"
 import { Route as AuthAccountsAccountIdProjectsIndexImport } from "./routes/_auth/accounts/$accountId/projects/index"
 import { Route as AuthAccountsAccountIdProjectsProjectIdImport } from "./routes/_auth/accounts/$accountId/projects/$projectId"
 import { Route as AuthAccountsAccountIdProjectsProjectIdNetworkIndexImport } from "./routes/_auth/accounts/$accountId/projects/$projectId/network/index"
 import { Route as AuthAccountsAccountIdProjectsProjectIdComputeSplatImport } from "./routes/_auth/accounts/$accountId/projects/$projectId/compute/$"
 
 // Create/Update Routes
-
-const GardenerRoute = GardenerImport.update({
-  id: "/gardener",
-  path: "/gardener",
-  getParentRoute: () => rootRoute,
-} as any)
 
 const AboutRoute = AboutImport.update({
   id: "/about",
@@ -48,6 +44,12 @@ const IndexRoute = IndexImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const GardenerIndexRoute = GardenerIndexImport.update({
+  id: "/gardener/",
+  path: "/gardener/",
+  getParentRoute: () => rootRoute,
+} as any)
+
 const AuthLoginRoute = AuthLoginImport.update({
   id: "/auth/login",
   path: "/auth/login",
@@ -60,10 +62,22 @@ const AuthAuroraRoute = AuthAuroraImport.update({
   getParentRoute: () => AuthRoute,
 } as any)
 
+const GardenerClustersIndexRoute = GardenerClustersIndexImport.update({
+  id: "/gardener/clusters/",
+  path: "/gardener/clusters/",
+  getParentRoute: () => rootRoute,
+} as any)
+
 const AuthAccountsIndexRoute = AuthAccountsIndexImport.update({
   id: "/accounts/",
   path: "/accounts/",
   getParentRoute: () => AuthRoute,
+} as any)
+
+const GardenerClustersClusterNameRoute = GardenerClustersClusterNameImport.update({
+  id: "/gardener/clusters/$clusterName",
+  path: "/gardener/clusters/$clusterName",
+  getParentRoute: () => rootRoute,
 } as any)
 
 const AuthAccountsAccountIdProjectsIndexRoute = AuthAccountsAccountIdProjectsIndexImport.update({
@@ -117,13 +131,6 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof AboutImport
       parentRoute: typeof rootRoute
     }
-    "/gardener": {
-      id: "/gardener"
-      path: "/gardener"
-      fullPath: "/gardener"
-      preLoaderRoute: typeof GardenerImport
-      parentRoute: typeof rootRoute
-    }
     "/_auth/aurora": {
       id: "/_auth/aurora"
       path: "/aurora"
@@ -138,12 +145,33 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof AuthLoginImport
       parentRoute: typeof rootRoute
     }
+    "/gardener/": {
+      id: "/gardener/"
+      path: "/gardener"
+      fullPath: "/gardener"
+      preLoaderRoute: typeof GardenerIndexImport
+      parentRoute: typeof rootRoute
+    }
+    "/gardener/clusters/$clusterName": {
+      id: "/gardener/clusters/$clusterName"
+      path: "/gardener/clusters/$clusterName"
+      fullPath: "/gardener/clusters/$clusterName"
+      preLoaderRoute: typeof GardenerClustersClusterNameImport
+      parentRoute: typeof rootRoute
+    }
     "/_auth/accounts/": {
       id: "/_auth/accounts/"
       path: "/accounts"
       fullPath: "/accounts"
       preLoaderRoute: typeof AuthAccountsIndexImport
       parentRoute: typeof AuthImport
+    }
+    "/gardener/clusters/": {
+      id: "/gardener/clusters/"
+      path: "/gardener/clusters"
+      fullPath: "/gardener/clusters"
+      preLoaderRoute: typeof GardenerClustersIndexImport
+      parentRoute: typeof rootRoute
     }
     "/_auth/accounts/$accountId/projects/$projectId": {
       id: "/_auth/accounts/$accountId/projects/$projectId"
@@ -211,10 +239,12 @@ export interface FileRoutesByFullPath {
   "/": typeof IndexRoute
   "": typeof AuthRouteWithChildren
   "/about": typeof AboutRoute
-  "/gardener": typeof GardenerRoute
   "/aurora": typeof AuthAuroraRoute
   "/auth/login": typeof AuthLoginRoute
+  "/gardener": typeof GardenerIndexRoute
+  "/gardener/clusters/$clusterName": typeof GardenerClustersClusterNameRoute
   "/accounts": typeof AuthAccountsIndexRoute
+  "/gardener/clusters": typeof GardenerClustersIndexRoute
   "/accounts/$accountId/projects/$projectId": typeof AuthAccountsAccountIdProjectsProjectIdRouteWithChildren
   "/accounts/$accountId/projects": typeof AuthAccountsAccountIdProjectsIndexRoute
   "/accounts/$accountId/projects/$projectId/compute/$": typeof AuthAccountsAccountIdProjectsProjectIdComputeSplatRoute
@@ -225,10 +255,12 @@ export interface FileRoutesByTo {
   "/": typeof IndexRoute
   "": typeof AuthRouteWithChildren
   "/about": typeof AboutRoute
-  "/gardener": typeof GardenerRoute
   "/aurora": typeof AuthAuroraRoute
   "/auth/login": typeof AuthLoginRoute
+  "/gardener": typeof GardenerIndexRoute
+  "/gardener/clusters/$clusterName": typeof GardenerClustersClusterNameRoute
   "/accounts": typeof AuthAccountsIndexRoute
+  "/gardener/clusters": typeof GardenerClustersIndexRoute
   "/accounts/$accountId/projects/$projectId": typeof AuthAccountsAccountIdProjectsProjectIdRouteWithChildren
   "/accounts/$accountId/projects": typeof AuthAccountsAccountIdProjectsIndexRoute
   "/accounts/$accountId/projects/$projectId/compute/$": typeof AuthAccountsAccountIdProjectsProjectIdComputeSplatRoute
@@ -240,10 +272,12 @@ export interface FileRoutesById {
   "/": typeof IndexRoute
   "/_auth": typeof AuthRouteWithChildren
   "/about": typeof AboutRoute
-  "/gardener": typeof GardenerRoute
   "/_auth/aurora": typeof AuthAuroraRoute
   "/auth/login": typeof AuthLoginRoute
+  "/gardener/": typeof GardenerIndexRoute
+  "/gardener/clusters/$clusterName": typeof GardenerClustersClusterNameRoute
   "/_auth/accounts/": typeof AuthAccountsIndexRoute
+  "/gardener/clusters/": typeof GardenerClustersIndexRoute
   "/_auth/accounts/$accountId/projects/$projectId": typeof AuthAccountsAccountIdProjectsProjectIdRouteWithChildren
   "/_auth/accounts/$accountId/projects/": typeof AuthAccountsAccountIdProjectsIndexRoute
   "/_auth/accounts/$accountId/projects/$projectId/compute/$": typeof AuthAccountsAccountIdProjectsProjectIdComputeSplatRoute
@@ -256,10 +290,12 @@ export interface FileRouteTypes {
     | "/"
     | ""
     | "/about"
-    | "/gardener"
     | "/aurora"
     | "/auth/login"
+    | "/gardener"
+    | "/gardener/clusters/$clusterName"
     | "/accounts"
+    | "/gardener/clusters"
     | "/accounts/$accountId/projects/$projectId"
     | "/accounts/$accountId/projects"
     | "/accounts/$accountId/projects/$projectId/compute/$"
@@ -269,10 +305,12 @@ export interface FileRouteTypes {
     | "/"
     | ""
     | "/about"
-    | "/gardener"
     | "/aurora"
     | "/auth/login"
+    | "/gardener"
+    | "/gardener/clusters/$clusterName"
     | "/accounts"
+    | "/gardener/clusters"
     | "/accounts/$accountId/projects/$projectId"
     | "/accounts/$accountId/projects"
     | "/accounts/$accountId/projects/$projectId/compute/$"
@@ -282,10 +320,12 @@ export interface FileRouteTypes {
     | "/"
     | "/_auth"
     | "/about"
-    | "/gardener"
     | "/_auth/aurora"
     | "/auth/login"
+    | "/gardener/"
+    | "/gardener/clusters/$clusterName"
     | "/_auth/accounts/"
+    | "/gardener/clusters/"
     | "/_auth/accounts/$accountId/projects/$projectId"
     | "/_auth/accounts/$accountId/projects/"
     | "/_auth/accounts/$accountId/projects/$projectId/compute/$"
@@ -297,16 +337,20 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRoute: typeof AuthRouteWithChildren
   AboutRoute: typeof AboutRoute
-  GardenerRoute: typeof GardenerRoute
   AuthLoginRoute: typeof AuthLoginRoute
+  GardenerIndexRoute: typeof GardenerIndexRoute
+  GardenerClustersClusterNameRoute: typeof GardenerClustersClusterNameRoute
+  GardenerClustersIndexRoute: typeof GardenerClustersIndexRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRouteWithChildren,
   AboutRoute: AboutRoute,
-  GardenerRoute: GardenerRoute,
   AuthLoginRoute: AuthLoginRoute,
+  GardenerIndexRoute: GardenerIndexRoute,
+  GardenerClustersClusterNameRoute: GardenerClustersClusterNameRoute,
+  GardenerClustersIndexRoute: GardenerClustersIndexRoute,
 }
 
 export const routeTree = rootRoute._addFileChildren(rootRouteChildren)._addFileTypes<FileRouteTypes>()
@@ -320,8 +364,10 @@ export const routeTree = rootRoute._addFileChildren(rootRouteChildren)._addFileT
         "/",
         "/_auth",
         "/about",
-        "/gardener",
-        "/auth/login"
+        "/auth/login",
+        "/gardener/",
+        "/gardener/clusters/$clusterName",
+        "/gardener/clusters/"
       ]
     },
     "/": {
@@ -339,9 +385,6 @@ export const routeTree = rootRoute._addFileChildren(rootRouteChildren)._addFileT
     "/about": {
       "filePath": "about.tsx"
     },
-    "/gardener": {
-      "filePath": "gardener.tsx"
-    },
     "/_auth/aurora": {
       "filePath": "_auth/aurora.tsx",
       "parent": "/_auth"
@@ -349,9 +392,18 @@ export const routeTree = rootRoute._addFileChildren(rootRouteChildren)._addFileT
     "/auth/login": {
       "filePath": "auth/login.tsx"
     },
+    "/gardener/": {
+      "filePath": "gardener/index.tsx"
+    },
+    "/gardener/clusters/$clusterName": {
+      "filePath": "gardener/clusters/$clusterName.tsx"
+    },
     "/_auth/accounts/": {
       "filePath": "_auth/accounts/index.tsx",
       "parent": "/_auth"
+    },
+    "/gardener/clusters/": {
+      "filePath": "gardener/clusters/index.tsx"
     },
     "/_auth/accounts/$accountId/projects/$projectId": {
       "filePath": "_auth/accounts/$accountId/projects/$projectId.tsx",

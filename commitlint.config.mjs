@@ -19,6 +19,7 @@ export const scopes = [
   "ci",
   "core",
   "dashboard",
+  "gardener",
   "aurora-portal",
   "aurora-sdk",
   "signal-openstack",
