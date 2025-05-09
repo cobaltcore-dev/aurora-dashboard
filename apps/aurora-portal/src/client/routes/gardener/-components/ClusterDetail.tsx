@@ -1,7 +1,7 @@
 import React from "react"
 import { Link } from "@tanstack/react-router"
 import { Button } from "@/client/components/headless-ui/Button"
-import { ArrowLeft, Share2, Edit, RefreshCcw, Check } from "lucide-react"
+import { ArrowLeft, Share2, Edit, RefreshCcw, Check, CheckCircle, AlertTriangle, XCircle, Clock } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/client/components/Card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/client/components/Table"
 import { Cluster } from "@/server/Gardener/types/cluster"
@@ -11,68 +11,98 @@ import { toast } from "sonner"
 const WorkersSection: React.FC<{ workers: Cluster["workers"] }> = ({ workers }) => {
   if (!workers || workers.length === 0) {
     return (
-      <Card className="mt-6 bg-aurora-gray-900 border-aurora-gray-800 text-aurora-white shadow-md">
-        <CardHeader className="flex flex-row items-center justify-between">
+      <Card className="mt-6 bg-aurora-gray-900 border-aurora-gray-800 text-aurora-white shadow-xl">
+        <CardHeader className="flex flex-row items-center justify-between border-b border-aurora-gray-800 pb-4">
           <CardTitle className="text-xl font-medium">Workers</CardTitle>
           <Button size="sm" variant="secondary" className="opacity-50 cursor-not-allowed">
             <RefreshCcw className="h-4 w-4 mr-2" />
             Add Worker
           </Button>
         </CardHeader>
-        <CardContent>
-          <p className="text-aurora-gray-400">No worker nodes configured for this cluster.</p>
+        <CardContent className="pt-4">
+          <div className="flex flex-col items-center justify-center py-8 text-center">
+            <div className="bg-aurora-gray-800/50 rounded-full p-3 mb-3">
+              <AlertTriangle className="h-6 w-6 text-aurora-gray-500" />
+            </div>
+            <p className="text-aurora-gray-400 mb-1">No worker nodes configured for this cluster.</p>
+            <p className="text-sm text-aurora-gray-500">Add worker nodes to run your workloads</p>
+          </div>
         </CardContent>
       </Card>
     )
   }
 
   return (
-    <Card className="mt-6 bg-aurora-gray-900 border-aurora-gray-800 text-aurora-white shadow-md">
-      <CardHeader className="flex flex-row items-center justify-between">
+    <Card className="mt-6 bg-aurora-gray-900 border-aurora-gray-800 text-aurora-white shadow-xl">
+      <CardHeader className="flex flex-row items-center justify-between border-b border-aurora-gray-800 pb-4">
         <CardTitle className="text-xl font-medium">Workers</CardTitle>
-        <Button size="sm" variant="secondary">
+        <Button
+          size="sm"
+          variant="secondary"
+          className="hover:bg-aurora-blue-900/20 hover:text-aurora-blue-300 hover:border-aurora-blue-700"
+        >
           <RefreshCcw className="h-4 w-4 mr-2" />
           Add Worker
         </Button>
       </CardHeader>
-      <CardContent>
+      <CardContent className="pt-4">
         <Table>
-          <TableHeader className="bg-aurora-gray-800">
+          <TableHeader className="bg-aurora-gray-800/80">
             <TableRow className="border-aurora-gray-700">
-              <TableHead className="text-aurora-gray-300">Name</TableHead>
-              <TableHead className="text-aurora-gray-300">Machine Type</TableHead>
-              <TableHead className="text-aurora-gray-300">Image</TableHead>
-              <TableHead className="text-aurora-gray-300">Scaling</TableHead>
-              <TableHead className="text-aurora-gray-300">Zones</TableHead>
+              <TableHead className="text-aurora-gray-300 font-medium uppercase text-xs tracking-wider">Name</TableHead>
+              <TableHead className="text-aurora-gray-300 font-medium uppercase text-xs tracking-wider">
+                Machine Type
+              </TableHead>
+              <TableHead className="text-aurora-gray-300 font-medium uppercase text-xs tracking-wider">Image</TableHead>
+              <TableHead className="text-aurora-gray-300 font-medium uppercase text-xs tracking-wider">
+                Scaling
+              </TableHead>
+              <TableHead className="text-aurora-gray-300 font-medium uppercase text-xs tracking-wider">Zones</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {workers.map((worker) => (
-              <TableRow key={worker.name} className="border-aurora-gray-800">
+              <TableRow
+                key={worker.name}
+                className="border-aurora-gray-800 hover:bg-aurora-gray-800/30 transition-colors"
+              >
                 <TableCell className="font-medium text-aurora-white">
-                  <div>{worker.name}</div>
-                  <div className="text-xs text-aurora-gray-400">{worker.architecture}</div>
-                </TableCell>
-                <TableCell>
-                  <div className="text-aurora-gray-200">{worker.machineType}</div>
-                  <div className="text-xs text-aurora-gray-400">{worker.containerRuntime}</div>
-                </TableCell>
-                <TableCell>
-                  <div className="text-aurora-gray-200">{worker.machineImage.name}</div>
-                  <div className="text-xs text-aurora-gray-400">v{worker.machineImage.version}</div>
-                </TableCell>
-                <TableCell>
-                  <div className="text-aurora-gray-200">{worker.actual !== undefined ? worker.actual : "?"} nodes</div>
-                  <div className="text-xs text-aurora-gray-400">
-                    Min: {worker.min} / Max: {worker.max} / Surge: {worker.maxSurge}
+                  <div className="flex flex-col">
+                    <span>{worker.name}</span>
+                    <span className="text-xs text-aurora-gray-400 mt-1">{worker.architecture}</span>
                   </div>
                 </TableCell>
                 <TableCell>
-                  <div className="flex flex-wrap gap-1">
+                  <div className="flex flex-col">
+                    <span className="text-aurora-gray-200">{worker.machineType}</span>
+                    <span className="text-xs text-aurora-blue-300 mt-1">{worker.containerRuntime}</span>
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <div className="flex flex-col">
+                    <span className="text-aurora-gray-200">{worker.machineImage.name}</span>
+                    <div className="flex items-center mt-1">
+                      <span className="text-aurora-blue-400 text-xs">v</span>
+                      <span className="text-xs text-aurora-gray-400">{worker.machineImage.version}</span>
+                    </div>
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <div className="flex flex-col">
+                    <span className="text-aurora-gray-200">
+                      {worker.actual !== undefined ? worker.actual : "?"} nodes
+                    </span>
+                    <span className="text-xs text-aurora-gray-400 mt-1">
+                      Min: {worker.min} / Max: {worker.max} / Surge: {worker.maxSurge}
+                    </span>
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <div className="flex flex-wrap gap-1.5">
                     {worker.zones.map((zone) => (
                       <span
                         key={zone}
-                        className="px-1.5 py-0.5 text-xs bg-aurora-gray-700 text-aurora-gray-300 rounded-md"
+                        className="px-2 py-0.5 text-xs bg-aurora-gray-800 text-aurora-purple-300 rounded-md border border-aurora-gray-700"
                       >
                         {zone}
                       </span>
@@ -94,51 +124,79 @@ const SettingsSection: React.FC<{
   autoUpdate: Cluster["autoUpdate"]
 }> = ({ maintenance, autoUpdate }) => {
   return (
-    <Card className="mt-6 bg-aurora-gray-900 border-aurora-gray-800 text-aurora-white shadow-md">
-      <CardHeader className="flex flex-row items-center justify-between">
+    <Card className="mt-6 bg-aurora-gray-900 border-aurora-gray-800 text-aurora-white shadow-xl">
+      <CardHeader className="flex flex-row items-center justify-between border-b border-aurora-gray-800 pb-4">
         <CardTitle className="text-xl font-medium">Settings</CardTitle>
-        <Button size="sm" variant="secondary">
+        <Button
+          size="sm"
+          variant="secondary"
+          className="hover:bg-aurora-blue-900/20 hover:text-aurora-blue-300 hover:border-aurora-blue-700"
+        >
           <Edit className="h-4 w-4 mr-2" />
           Edit Settings
         </Button>
       </CardHeader>
-      <CardContent>
+      <CardContent className="pt-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <h3 className="text-lg font-medium text-aurora-white mb-3">
-              Maintenance Window
-              <span className="ml-2 text-sm text-aurora-orange-400">Scheduled</span>
-            </h3>
-            <div className="bg-aurora-gray-800 rounded-md p-4 space-y-3">
-              <div className="flex justify-between">
+            <div className="flex items-center mb-3">
+              <h3 className="text-lg font-medium text-aurora-white">Maintenance Window</h3>
+              <span className="ml-2 px-2 py-0.5 text-xs bg-aurora-orange-900/30 text-aurora-orange-300 rounded border border-aurora-orange-700/30">
+                Scheduled
+              </span>
+            </div>
+            <div className="bg-aurora-gray-800/50 rounded-md p-4 space-y-3 border border-aurora-gray-700">
+              <div className="flex justify-between items-center">
                 <span className="text-aurora-gray-400">Start Time:</span>
-                <span className="text-aurora-gray-200">{maintenance.startTime}</span>
+                <span className="text-aurora-gray-200 px-2 py-1 bg-aurora-gray-800 rounded font-mono text-sm">
+                  {maintenance.startTime}
+                </span>
               </div>
-              <div className="flex justify-between">
+              <div className="flex justify-between items-center">
                 <span className="text-aurora-gray-400">Window Time:</span>
-                <span className="text-aurora-gray-200">{maintenance.windowTime}</span>
+                <span className="text-aurora-gray-200 px-2 py-1 bg-aurora-gray-800 rounded font-mono text-sm">
+                  {maintenance.windowTime}
+                </span>
               </div>
-              <div className="flex justify-between">
+              <div className="flex justify-between items-center">
                 <span className="text-aurora-gray-400">Timezone:</span>
-                <span className="text-aurora-gray-200">{maintenance.timezone}</span>
+                <span className="text-aurora-gray-200 px-2 py-1 bg-aurora-gray-800 rounded font-mono text-sm">
+                  {maintenance.timezone}
+                </span>
               </div>
             </div>
           </div>
 
           <div>
             <h3 className="text-lg font-medium text-aurora-white mb-3">Auto Update</h3>
-            <div className="bg-aurora-gray-800 rounded-md p-4 space-y-3">
-              <div className="flex justify-between">
+            <div className="bg-aurora-gray-800/50 rounded-md p-4 space-y-3 border border-aurora-gray-700">
+              <div className="flex justify-between items-center">
                 <span className="text-aurora-gray-400">OS Updates:</span>
-                <span className={autoUpdate.os ? "text-aurora-green-500" : "text-aurora-red-500"}>
-                  {autoUpdate.os ? "Enabled" : "Disabled"}
-                </span>
+                {autoUpdate.os ? (
+                  <div className="flex items-center px-2 py-1 bg-aurora-green-900/20 text-aurora-green-400 rounded border border-aurora-green-700/30">
+                    <CheckCircle className="h-3.5 w-3.5 mr-1.5" />
+                    <span className="text-sm">Enabled</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center px-2 py-1 bg-aurora-red-900/20 text-aurora-red-400 rounded border border-aurora-red-700/30">
+                    <XCircle className="h-3.5 w-3.5 mr-1.5" />
+                    <span className="text-sm">Disabled</span>
+                  </div>
+                )}
               </div>
-              <div className="flex justify-between">
+              <div className="flex justify-between items-center">
                 <span className="text-aurora-gray-400">Kubernetes Updates:</span>
-                <span className={autoUpdate.kubernetes ? "text-aurora-green-500" : "text-aurora-red-500"}>
-                  {autoUpdate.kubernetes ? "Enabled" : "Disabled"}
-                </span>
+                {autoUpdate.kubernetes ? (
+                  <div className="flex items-center px-2 py-1 bg-aurora-green-900/20 text-aurora-green-400 rounded border border-aurora-green-700/30">
+                    <CheckCircle className="h-3.5 w-3.5 mr-1.5" />
+                    <span className="text-sm">Enabled</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center px-2 py-1 bg-aurora-red-900/20 text-aurora-red-400 rounded border border-aurora-red-700/30">
+                    <XCircle className="h-3.5 w-3.5 mr-1.5" />
+                    <span className="text-sm">Disabled</span>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -148,31 +206,57 @@ const SettingsSection: React.FC<{
   )
 }
 
-// Helper function to get status color
-const getStatusColor = (status: string): string => {
+// Helper function to get status styles
+const getStatusStyles = (status: string) => {
   switch (status.toLowerCase()) {
     case "healthy":
-      return "text-aurora-green-500"
+    case "operational":
+      return {
+        bg: "bg-aurora-green-500",
+        glow: "shadow-lg shadow-aurora-green-500/30",
+        text: "text-aurora-green-500",
+        badgeBg: "bg-aurora-green-900/20",
+        badgeBorder: "border-aurora-green-700/30",
+        badgeText: "text-aurora-green-400",
+        pulse: false,
+        icon: <CheckCircle className="h-4 w-4 text-white" />,
+      }
     case "warning":
-      return "text-aurora-yellow-500"
+    case "pending":
+      return {
+        bg: "bg-aurora-yellow-500",
+        glow: "shadow-lg shadow-aurora-yellow-500/30",
+        text: "text-aurora-yellow-500",
+        badgeBg: "bg-aurora-yellow-900/20",
+        badgeBorder: "border-aurora-yellow-700/30",
+        badgeText: "text-aurora-yellow-400",
+        pulse: true,
+        icon: <Clock className="h-4 w-4 text-white" />,
+      }
     case "unhealthy":
-      return "text-aurora-red-500"
+    case "error":
+    case "failed":
+      return {
+        bg: "bg-aurora-red-500",
+        glow: "shadow-lg shadow-aurora-red-500/30",
+        text: "text-aurora-red-500",
+        badgeBg: "bg-aurora-red-900/20",
+        badgeBorder: "border-aurora-red-700/30",
+        badgeText: "text-aurora-red-400",
+        pulse: false,
+        icon: <XCircle className="h-4 w-4 text-white" />,
+      }
     default:
-      return "text-aurora-gray-500"
-  }
-}
-
-// Helper function to get status indicator color
-const getStatusIndicatorColor = (status: string): string => {
-  switch (status.toLowerCase()) {
-    case "healthy":
-      return "bg-aurora-green-500"
-    case "warning":
-      return "bg-aurora-yellow-500"
-    case "unhealthy":
-      return "bg-aurora-red-500"
-    default:
-      return "bg-aurora-gray-500"
+      return {
+        bg: "bg-aurora-gray-500",
+        glow: "shadow-md shadow-aurora-gray-500/20",
+        text: "text-aurora-gray-500",
+        badgeBg: "bg-aurora-gray-900/20",
+        badgeBorder: "border-aurora-gray-700/30",
+        badgeText: "text-aurora-gray-400",
+        pulse: false,
+        icon: <AlertTriangle className="h-4 w-4 text-white" />,
+      }
   }
 }
 
@@ -181,6 +265,8 @@ interface ClusterDetailProps {
 }
 
 const ClusterDetail: React.FC<ClusterDetailProps> = ({ cluster }) => {
+  const statusStyles = getStatusStyles(cluster.status)
+
   // Function to handle sharing cluster info
   const handleShare = async () => {
     try {
@@ -209,29 +295,37 @@ const ClusterDetail: React.FC<ClusterDetailProps> = ({ cluster }) => {
   }
 
   return (
-    <div className="min-h-screen bg-aurora-gray-950 p-6">
+    <div className="min-h-screen bg-gradient-to-b from-aurora-gray-950 to-aurora-gray-900 p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header with back button and title */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
           <div className="flex items-center mb-4 sm:mb-0">
-            <Link to="/gardener">
+            <Link to="/gardener/clusters">
               <Button size="md" variant="secondary" className="mr-4">
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Return to Clusters
               </Button>
             </Link>
-            <h1 className="text-2xl font-bold text-aurora-white">Cluster Details</h1>
+            <div>
+              <h1 className="text-2xl font-bold text-aurora-white">Cluster Details</h1>
+              <p className="text-aurora-gray-400 text-sm mt-1">View and manage your Kubernetes cluster</p>
+            </div>
           </div>
 
           <div className="flex gap-2">
-            <Button size="md" variant="secondary" onClick={handleShare}>
+            <Button
+              size="md"
+              variant="secondary"
+              onClick={handleShare}
+              className="hover:bg-aurora-blue-900/20 hover:text-aurora-blue-300 hover:border-aurora-blue-700"
+            >
               <Share2 className="mr-2 h-4 w-4" />
               Share
             </Button>
             <Button
               size="md"
               variant="primary"
-              className="bg-aurora-blue-700 hover:bg-aurora-blue-600 border-aurora-blue-600"
+              className="bg-aurora-blue-700 hover:bg-aurora-blue-600 border-aurora-blue-600 text-aurora-white shadow-lg shadow-aurora-blue-900/20"
             >
               <Edit className="mr-2 h-4 w-4" />
               Edit Cluster
@@ -240,33 +334,57 @@ const ClusterDetail: React.FC<ClusterDetailProps> = ({ cluster }) => {
         </div>
 
         {/* Cluster overview card */}
-        <div className="bg-aurora-gray-900 rounded-lg border border-aurora-gray-800 shadow-md p-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-aurora-gray-800 pb-4 mb-4">
+        <div className="bg-aurora-gray-900 rounded-lg border border-aurora-gray-800 shadow-xl p-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-aurora-gray-800 pb-6 mb-6">
             <div>
-              <h2 className="text-xl font-medium text-aurora-white">{cluster.name}</h2>
-              <div className="text-sm text-aurora-gray-400 mt-1">ID: {cluster.uid}</div>
-            </div>
-            <div className="flex items-center gap-2 mt-3 sm:mt-0">
-              <div className="flex items-center">
-                <div className={`w-2.5 h-2.5 rounded-full ${getStatusIndicatorColor(cluster.status)} mr-2`}></div>
-                <div className={`text-lg font-medium ${getStatusColor(cluster.status)}`}>{cluster.status}</div>
+              <h2 className="text-2xl font-medium text-aurora-white">{cluster.name}</h2>
+              <div
+                className="text-sm text-aurora-gray-400 mt-1.5 hover:text-aurora-gray-300 transition-colors cursor-pointer"
+                onClick={handleShare}
+              >
+                ID: <span className="font-mono">{cluster.uid}</span>
               </div>
-              <div className="bg-aurora-gray-800 px-3 py-1 rounded text-sm">Readiness: {cluster.readiness}</div>
+            </div>
+            <div className="flex items-center gap-3 mt-4 sm:mt-0">
+              <div className="flex items-center">
+                <div
+                  className={`relative w-6 h-6 rounded-full ${statusStyles.bg} ${statusStyles.glow} flex items-center justify-center ${statusStyles.pulse ? "animate-pulse" : ""} mr-2`}
+                >
+                  {statusStyles.icon}
+                </div>
+                <div className={`text-lg font-medium ${statusStyles.text}`}>{cluster.status}</div>
+              </div>
+              <div
+                className={`px-3 py-1.5 rounded text-sm ${statusStyles.badgeBg} ${statusStyles.badgeText} border ${statusStyles.badgeBorder}`}
+              >
+                Readiness: {cluster.readiness}
+              </div>
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-4">
               <div>
-                <h3 className="text-sm font-medium text-aurora-gray-400 mb-1">Infrastructure</h3>
-                <div className="bg-aurora-gray-800 rounded-md p-4 space-y-3">
-                  <div className="flex justify-between">
+                <h3 className="text-sm font-medium text-aurora-gray-400 uppercase tracking-wider mb-3">
+                  Infrastructure
+                </h3>
+                <div className="bg-aurora-gray-800/50 rounded-md p-5 space-y-4 border border-aurora-gray-700">
+                  <div className="flex justify-between items-center">
                     <span className="text-aurora-gray-400">Provider:</span>
-                    <span className="text-aurora-gray-200 capitalize">{cluster.infrastructure}</span>
+                    <div className="flex items-center">
+                      <div className="rounded-md bg-aurora-gray-800 py-1 px-2 mr-2 border border-aurora-gray-700">
+                        <span className="uppercase text-xs font-mono text-aurora-blue-300">
+                          {cluster.infrastructure.substring(0, 3)}
+                        </span>
+                      </div>
+                      <span className="text-aurora-gray-200 capitalize">{cluster.infrastructure}</span>
+                    </div>
                   </div>
-                  <div className="flex justify-between">
+                  <div className="flex justify-between items-center">
                     <span className="text-aurora-gray-400">Region:</span>
-                    <span className="text-aurora-gray-200">{cluster.region}</span>
+                    <span className="px-2 py-1 rounded-md bg-aurora-gray-800/80 text-sm text-aurora-purple-300">
+                      {cluster.region}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -274,15 +392,22 @@ const ClusterDetail: React.FC<ClusterDetailProps> = ({ cluster }) => {
 
             <div className="space-y-4">
               <div>
-                <h3 className="text-sm font-medium text-aurora-gray-400 mb-1">Kubernetes</h3>
-                <div className="bg-aurora-gray-800 rounded-md p-4 space-y-3">
-                  <div className="flex justify-between">
+                <h3 className="text-sm font-medium text-aurora-gray-400 uppercase tracking-wider mb-3">Kubernetes</h3>
+                <div className="bg-aurora-gray-800/50 rounded-md p-5 space-y-4 border border-aurora-gray-700">
+                  <div className="flex justify-between items-center">
                     <span className="text-aurora-gray-400">Version:</span>
-                    <span className="text-aurora-gray-200">{cluster.version}</span>
+                    <div className="flex items-center text-aurora-gray-200">
+                      <span className="text-aurora-blue-400 mr-0.5">v</span>
+                      {cluster.version}
+                    </div>
                   </div>
-                  <div className="flex justify-between">
+                  <div className="flex justify-between items-center">
                     <span className="text-aurora-gray-400">Readiness:</span>
-                    <span className="text-aurora-gray-200">{cluster.readiness}</span>
+                    <div
+                      className={`px-2 py-1 rounded text-sm ${statusStyles.badgeBg} ${statusStyles.badgeText} border ${statusStyles.badgeBorder}`}
+                    >
+                      {cluster.readiness}
+                    </div>
                   </div>
                 </div>
               </div>

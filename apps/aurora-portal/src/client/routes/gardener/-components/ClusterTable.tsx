@@ -1,12 +1,13 @@
-import React, { useState } from "react"
+import React from "react"
 import ClusterTableRow from "./ClusterTableRow"
 import { Button } from "@/client/components/headless-ui/Button"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import { Cluster } from "@/server/Gardener/types/cluster"
-
-const ClusterTable: React.FC<{ propClusters?: Cluster[] }> = ({ propClusters }) => {
-  const [clusters] = useState<Cluster[]>(propClusters ?? [])
-
+// Inner table component for consistent styling
+export const ClusterTable: React.FC<{
+  clusters: Cluster[]
+  filteredCount: number
+}> = ({ clusters, filteredCount }) => {
   return (
     <div className="w-full">
       {/* Table with enhanced styling */}
@@ -57,14 +58,15 @@ const ClusterTable: React.FC<{ propClusters?: Cluster[] }> = ({ propClusters }) 
       {clusters.length > 0 && (
         <div className="mt-4 flex justify-between items-center text-aurora-gray-400 text-sm">
           <div>
-            Showing <span className="text-aurora-white">{clusters.length}</span> clusters
+            Showing <span className="text-aurora-white">{clusters.length}</span> of{" "}
+            <span className="text-aurora-white">{filteredCount}</span> clusters
           </div>
           <div className="flex items-center gap-2">
             <Button size="sm" variant="secondary">
               <ChevronLeft className="h-4 w-4 mr-1" />
               Previous
             </Button>
-            <span className="px-3 py-1 bg-aurora-slate-600/45 text-aurora-green-100 rounded">1</span>
+            <span className="px-3 py-1 bg-aurora-blue-800/40 text-aurora-blue-300 rounded">1</span>
             <Button size="sm" variant="secondary">
               Next
               <ChevronRight className="h-4 w-4 ml-1" />
@@ -75,5 +77,3 @@ const ClusterTable: React.FC<{ propClusters?: Cluster[] }> = ({ propClusters }) 
     </div>
   )
 }
-
-export default ClusterTable

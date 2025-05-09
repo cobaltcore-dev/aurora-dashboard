@@ -28,12 +28,14 @@ export function Button({
   onClick,
   children,
   type = "button",
+  disabled = false,
   size = "md",
   variant = "primary",
   fullWidth = false,
 }: {
   className?: string
   children: ReactNode
+  disabled?: boolean
   type?: "button" | "submit" | "reset"
   onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void
   size?: "sm" | "md" | "lg"
@@ -43,6 +45,7 @@ export function Button({
   return (
     <HeadlessButton
       type={type}
+      disabled={disabled}
       onClick={onClick}
       className={cn(baseButtonStyles, buttonSizes[size], buttonVariants[variant], fullWidth ? "w-full" : "", className)}
     >
@@ -56,11 +59,13 @@ export function IconButton({
   className,
   onClick,
   children,
+  disabled = false,
   type = "button",
   size = "md",
   variant = "ghost",
 }: {
   className?: string
+  disabled?: boolean
   children: ReactNode
   type?: "button" | "submit" | "reset"
   onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void
@@ -75,6 +80,7 @@ export function IconButton({
 
   return (
     <HeadlessButton
+      disabled={disabled}
       type={type}
       onClick={onClick}
       className={cn(baseButtonStyles, iconSizes[size], buttonVariants[variant], "aspect-square", className)}

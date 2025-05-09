@@ -1,8 +1,8 @@
 import { createFileRoute, useLoaderData } from "@tanstack/react-router"
-import ClusterTable from "../-components/ClusterTable"
 import { Button } from "@/client/components/headless-ui/Button"
-import { Filter, Plus, X } from "lucide-react"
+import { Filter, Plus, X, RefreshCw } from "lucide-react"
 import { useState } from "react"
+import { ClusterTable } from "../-components/ClusterTable"
 
 export const Route = createFileRoute("/gardener/clusters/")({
   component: RouteComponent,
@@ -22,6 +22,7 @@ function RouteComponent() {
   const [selectedProvider, setSelectedProvider] = useState("")
   const [selectedRegion, setSelectedRegion] = useState("")
   const [selectedStatus, setSelectedStatus] = useState("")
+  const [isRefreshing, setIsRefreshing] = useState(false)
 
   // Function to toggle filters panel
   const toggleFilters = () => {
@@ -35,13 +36,35 @@ function RouteComponent() {
     setSelectedStatus("")
   }
 
+  // Function to refresh data
+  const handleRefresh = async () => {
+    setIsRefreshing(true)
+    // In a real app, you would invalidate the query cache here
+    setTimeout(() => {
+      setIsRefreshing(false)
+    }, 1000)
+  }
+
   // Get unique providers, regions and statuses from clusters
   const providers = [...new Set(clusters?.map((cluster) => cluster.infrastructure) || [])]
   const regions = [...new Set(clusters?.map((cluster) => cluster.region) || [])]
   const statuses = [...new Set(clusters?.map((cluster) => cluster.status) || [])]
 
+  // Filter clusters based on search and filter criteria
+  const filteredClusters =
+    clusters?.filter(
+      (cluster) =>
+        (searchTerm === "" ||
+          cluster.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          cluster.infrastructure.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          cluster.region.toLowerCase().includes(searchTerm.toLowerCase())) &&
+        (selectedProvider === "" || cluster.infrastructure === selectedProvider) &&
+        (selectedRegion === "" || cluster.region === selectedRegion) &&
+        (selectedStatus === "" || cluster.status === selectedStatus)
+    ) || []
+
   return (
-    <div className="min-h-screen bg-aurora-gray-950 p-6">
+    <div className="min-h-screen bg-gradient-to-b from-aurora-gray-950 to-aurora-gray-900 text-aurora-white p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header with title */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
@@ -51,7 +74,15 @@ function RouteComponent() {
           </div>
 
           <div className="flex gap-2 mt-4 sm:mt-0">
-            <Button size="md" variant="primary" className="flex items-center">
+            <Button size="md" variant="secondary" className="flex items-center" onClick={handleRefresh}>
+              <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? "animate-spin" : ""}`} />
+              Refresh
+            </Button>
+            <Button
+              size="md"
+              variant="primary"
+              className="flex items-center bg-aurora-blue-700 hover:bg-aurora-blue-600 border-aurora-blue-600 text-aurora-white shadow-lg shadow-aurora-blue-900/20"
+            >
               <Plus className="h-4 w-4 mr-2" />
               New Cluster
             </Button>
@@ -59,17 +90,17 @@ function RouteComponent() {
         </div>
 
         {/* Main content container */}
-        <div className="bg-aurora-gray-900 rounded-lg border border-aurora-gray-800 shadow-md p-6">
+        <div className="bg-aurora-gray-900 rounded-lg border border-aurora-gray-800 shadow-xl p-6">
           {/* Search and filters bar */}
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-aurora-gray-800 pb-4 mb-6">
-            <div className="flex flex-grow gap-2 items-center mb-4 sm:mb-0">
-              <div className="relative max-w-xs w-full sm:w-64">
+          <div className="flex flex-col lg:flex-row justify-between items-stretch lg:items-center border-b border-aurora-gray-800 pb-4 mb-6 gap-4">
+            <div className="flex flex-grow items-center">
+              <div className="relative flex-grow">
                 <input
                   type="text"
                   placeholder="Search clusters..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-9 pr-4 py-2 bg-aurora-gray-800 border border-aurora-gray-700 rounded-md text-aurora-gray-300 focus:outline-none focus:ring-1 focus:ring-aurora-green-500"
+                  className="w-full pl-9 pr-4 py-2 bg-aurora-gray-800 border border-aurora-gray-700 rounded-md text-aurora-gray-300 focus:outline-none focus:ring-1 focus:ring-aurora-blue-500"
                 />
                 <svg
                   className="absolute left-3 top-2.5 h-4 w-4 text-aurora-gray-500"
@@ -86,43 +117,43 @@ function RouteComponent() {
                   />
                 </svg>
               </div>
-
-              {/* Applied filters badges */}
-              {(selectedProvider || selectedRegion || selectedStatus) && (
-                <div className="flex flex-wrap gap-2 ml-2">
-                  {selectedProvider && (
-                    <div className="flex items-center bg-aurora-blue-900/30 text-aurora-blue-300 text-xs rounded px-2 py-1">
-                      {selectedProvider}
-                      <button onClick={() => setSelectedProvider("")} className="ml-1.5">
-                        <X className="h-3 w-3" />
-                      </button>
-                    </div>
-                  )}
-                  {selectedRegion && (
-                    <div className="flex items-center bg-aurora-purple-900/30 text-aurora-purple-300 text-xs rounded px-2 py-1">
-                      {selectedRegion}
-                      <button onClick={() => setSelectedRegion("")} className="ml-1.5">
-                        <X className="h-3 w-3" />
-                      </button>
-                    </div>
-                  )}
-                  {selectedStatus && (
-                    <div className="flex items-center bg-aurora-green-900/30 text-aurora-green-300 text-xs rounded px-2 py-1">
-                      {selectedStatus}
-                      <button onClick={() => setSelectedStatus("")} className="ml-1.5">
-                        <X className="h-3 w-3" />
-                      </button>
-                    </div>
-                  )}
-                </div>
-              )}
             </div>
 
-            <div className="flex gap-2 self-end">
+            {/* Applied filters badges */}
+            {(selectedProvider || selectedRegion || selectedStatus) && (
+              <div className="flex flex-wrap gap-2 ml-0 lg:ml-2 mb-4 lg:mb-0">
+                {selectedProvider && (
+                  <div className="flex items-center bg-aurora-blue-900/30 text-aurora-blue-300 text-xs rounded px-2 py-1">
+                    {selectedProvider}
+                    <button onClick={() => setSelectedProvider("")} className="ml-1.5">
+                      <X className="h-3 w-3" />
+                    </button>
+                  </div>
+                )}
+                {selectedRegion && (
+                  <div className="flex items-center bg-aurora-blue-900/30 text-aurora-blue-300 text-xs rounded px-2 py-1">
+                    {selectedRegion}
+                    <button onClick={() => setSelectedRegion("")} className="ml-1.5">
+                      <X className="h-3 w-3" />
+                    </button>
+                  </div>
+                )}
+                {selectedStatus && (
+                  <div className="flex items-center bg-aurora-blue-900/30 text-aurora-blue-300 text-xs rounded px-2 py-1">
+                    {selectedStatus}
+                    <button onClick={() => setSelectedStatus("")} className="ml-1.5">
+                      <X className="h-3 w-3" />
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+
+            <div className="flex gap-2 shrink-0">
               <Button
                 size="sm"
                 variant={showFilters ? "primary" : "secondary"}
-                className="flex items-center"
+                className={`flex items-center ${showFilters ? "bg-aurora-blue-700 text-aurora-white" : ""}`}
                 onClick={toggleFilters}
               >
                 <Filter className="h-4 w-4 mr-2" />
@@ -196,21 +227,8 @@ function RouteComponent() {
             </div>
           )}
 
-          {/* Filter and display clusters based on search and filters */}
-          <ClusterTable
-            propClusters={
-              clusters?.filter(
-                (cluster) =>
-                  (searchTerm === "" ||
-                    cluster.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                    cluster.infrastructure.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                    cluster.region.toLowerCase().includes(searchTerm.toLowerCase())) &&
-                  (selectedProvider === "" || cluster.infrastructure === selectedProvider) &&
-                  (selectedRegion === "" || cluster.region === selectedRegion) &&
-                  (selectedStatus === "" || cluster.status === selectedStatus)
-              ) || []
-            }
-          />
+          {/* Unified ClusterTable component */}
+          <ClusterTable clusters={filteredClusters} filteredCount={clusters?.length || 0} />
         </div>
       </div>
     </div>
