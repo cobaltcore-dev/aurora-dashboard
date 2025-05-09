@@ -1,164 +1,77 @@
 import React, { useState } from "react"
 import ClusterTableRow from "./ClusterTableRow"
 import { Button } from "@/client/components/headless-ui/Button"
-import { Plus } from "lucide-react"
+import { ChevronLeft, ChevronRight } from "lucide-react"
 import { Cluster } from "@/server/Gardener/types/cluster"
 
-// Mock data for clusters
-const mockClusters: Cluster[] = [
-  {
-    uid: "c1a2b3d4",
-    name: "shoot-aws-dev",
-    region: "eu-west-1",
-    infrastructure: "aws",
-    status: "Healthy",
-    version: "1.28.2",
-    readiness: "100%",
-    workers: [
-      {
-        name: "worker-small",
-        architecture: "amd64",
-        machineType: "t3.medium",
-        machineImage: {
-          name: "ubuntu",
-          version: "20.04",
-        },
-        containerRuntime: "containerd",
-        min: 2,
-        max: 5,
-        actual: undefined,
-        maxSurge: 1,
-        zones: ["eu-west-1a", "eu-west-1b"],
-      },
-    ],
-    maintenance: {
-      startTime: "030000+0000",
-      timezone: "Europe/Dublin",
-      windowTime: "040000+0000",
-    },
-    autoUpdate: {
-      os: true,
-      kubernetes: false,
-    },
-  },
-  {
-    uid: "d5e6f7g8",
-    name: "shoot-gcp-prod",
-    region: "us-central1",
-    infrastructure: "gcp",
-    status: "Warning",
-    version: "1.29.0",
-    readiness: "95%",
-    workers: [
-      {
-        name: "worker-medium",
-        architecture: "amd64",
-        machineType: "n2-standard-4",
-        machineImage: {
-          name: "ubuntu",
-          version: "22.04",
-        },
-        containerRuntime: "containerd",
-        min: 3,
-        max: 7,
-        actual: 5,
-        maxSurge: 2,
-        zones: ["us-central1-a", "us-central1-b", "us-central1-c"],
-      },
-      {
-        name: "worker-large",
-        architecture: "amd64",
-        machineType: "n2-standard-8",
-        machineImage: {
-          name: "ubuntu",
-          version: "22.04",
-        },
-        containerRuntime: "containerd",
-        min: 1,
-        max: 3,
-        actual: 2,
-        maxSurge: 1,
-        zones: ["us-central1-a"],
-      },
-    ],
-    maintenance: {
-      startTime: "010000+0000",
-      timezone: "America/Chicago",
-      windowTime: "020000+0000",
-    },
-    autoUpdate: {
-      os: true,
-      kubernetes: true,
-    },
-  },
-  {
-    uid: "h8i9j0k1",
-    name: "shoot-azure-test",
-    region: "eastus2",
-    infrastructure: "azure",
-    status: "Unhealthy",
-    version: "1.28.3",
-    readiness: "75%",
-    workers: [
-      {
-        name: "worker-small",
-        architecture: "amd64",
-        machineType: "Standard_D2s_v3",
-        machineImage: {
-          name: "ubuntu",
-          version: "20.04",
-        },
-        containerRuntime: "containerd",
-        min: 1,
-        max: 3,
-        actual: 1,
-        maxSurge: 1,
-        zones: ["eastus2-1"],
-      },
-    ],
-    maintenance: {
-      startTime: "020000+0000",
-      timezone: "America/New_York",
-      windowTime: "030000+0000",
-    },
-    autoUpdate: {
-      os: false,
-      kubernetes: false,
-    },
-  },
-]
-
 const ClusterTable: React.FC<{ propClusters?: Cluster[] }> = ({ propClusters }) => {
-  const [clusters] = useState<Cluster[]>(propClusters ?? mockClusters)
+  const [clusters] = useState<Cluster[]>(propClusters ?? [])
 
   return (
     <div className="w-full">
-      <div className="mb-4 flex justify-end">
-        <Button className="bg-blue-600 hover:bg-blue-700">
-          <Plus className="mr-2 h-4 w-4" />
-          New Cluster
-        </Button>
+      {/* Table with enhanced styling */}
+      <div className="overflow-hidden rounded-lg border border-aurora-gray-800 bg-aurora-gray-900/70 shadow-md">
+        {clusters.length === 0 ? (
+          <div className="py-12 px-6 text-center">
+            <div className="rounded-full bg-aurora-gray-800 p-3 w-12 h-12 mx-auto mb-4 flex items-center justify-center">
+              <svg
+                className="h-6 w-6 text-aurora-gray-400"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+                />
+              </svg>
+            </div>
+            <h3 className="text-aurora-gray-300 text-lg font-medium mb-1">No clusters found</h3>
+            <p className="text-aurora-gray-500 mb-6">No Kubernetes clusters match your current filter criteria</p>
+          </div>
+        ) : (
+          <table className="w-full text-left border-collapse text-aurora-gray-300">
+            <thead className="bg-aurora-gray-800/90">
+              <tr className="text-aurora-gray-400 border-b border-aurora-gray-700">
+                <th className="p-4 font-medium">Name</th>
+                <th className="p-4 font-medium">Infrastructure</th>
+                <th className="p-4 font-medium">Region</th>
+                <th className="p-4 font-medium">Version</th>
+                <th className="p-4 font-medium">Status</th>
+                <th className="p-4 text-right font-medium">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {clusters.map((cluster, index) => (
+                <ClusterTableRow key={cluster.uid} cluster={cluster} isLast={index === clusters.length - 1} />
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
 
-      <div className="overflow-x-auto rounded-lg border border-gray-800 bg-gray-950/50">
-        <table className="w-full text-left border-collapse text-gray-300">
-          <thead className="bg-gray-900/70">
-            <tr className="text-gray-400 border-b border-gray-800">
-              <th className="p-3">Name</th>
-              <th className="p-3">Infrastructure</th>
-              <th className="p-3">Region</th>
-              <th className="p-3">Version</th>
-              <th className="p-3">Status</th>
-              <th className="p-3 text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {clusters.map((cluster, index) => (
-              <ClusterTableRow key={cluster.uid} cluster={cluster} isLast={index === clusters.length - 1} />
-            ))}
-          </tbody>
-        </table>
-      </div>
+      {/* Footer with pagination or summary */}
+      {clusters.length > 0 && (
+        <div className="mt-4 flex justify-between items-center text-aurora-gray-400 text-sm">
+          <div>
+            Showing <span className="text-aurora-white">{clusters.length}</span> clusters
+          </div>
+          <div className="flex items-center gap-2">
+            <Button size="sm" variant="secondary">
+              <ChevronLeft className="h-4 w-4 mr-1" />
+              Previous
+            </Button>
+            <span className="px-3 py-1 bg-aurora-slate-600/45 text-aurora-green-100 rounded">1</span>
+            <Button size="sm" variant="secondary">
+              Next
+              <ChevronRight className="h-4 w-4 ml-1" />
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

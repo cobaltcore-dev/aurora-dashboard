@@ -16,10 +16,5 @@ export const Route = createFileRoute("/gardener/clusters/$clusterName")({
 
 function RouteComponent() {
   const { cluster } = Route.useLoaderData()
-  return (
-    <div>
-      <div className="w-full flex"></div>
-      <div className="py-4 pl-4 bg-theme-global-bg h-full">{cluster && <ClusterDetail cluster={cluster} />}</div>
-    </div>
-  )
+  return <div className="bg-theme-global-bg h-full">{cluster && <ClusterDetail cluster={cluster} />}</div>
 }
