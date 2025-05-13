@@ -1,3 +1,4 @@
+import { useState, useRef } from "react"
 import { ComboBox, ComboBoxOption } from "@/client/components/ComboBox"
 import { Button } from "@/client/components/Button"
 import { Icon } from "@/client/components/Icon"
@@ -18,7 +19,20 @@ export function ProjectsOverviewNavNbar({
   searchTerm = "",
   onSearch,
 }: ProjectsOverviewNavNbarProps) {
-  // TODO - ggf reintroduce state for debounce.
+  const [localSearchTerm, setLocalSearchTerm] = useState(searchTerm)
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null)
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+    setLocalSearchTerm(value)
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current)
+    }
+
+    debounceTimerRef.current = setTimeout(() => {
+      onSearch(value)
+    }, 300)
+  }
 
   return (
     <div className="flex items-center justify-between gap-4 w-full">
@@ -29,8 +43,8 @@ export function ProjectsOverviewNavNbar({
           type="text"
           placeholder="Search..."
           className="bg-transparent border-none outline-none text-white placeholder-gray-400 w-full"
-          value={searchTerm}
-          onChange={(e) => onSearch(e.target.value)}
+          value={localSearchTerm}
+          onChange={handleSearchChange}
         />
       </div>
 

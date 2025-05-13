@@ -36,8 +36,14 @@ export const Route = createFileRoute("/_auth/accounts/$accountId/projects/")({
 
   validateSearch: searchSchema,
 
-  loader: async ({ context }) => {
-    const projects = await context.trpcClient?.project.getAuthProjects.query()
+  loaderDeps: ({ search }) => ({
+    search: search.search || "",
+  }),
+
+  loader: async ({ context, deps }) => {
+    const projects = await context.trpcClient?.project.searchProjects.query({
+      search: deps.search,
+    })
 
     return {
       projects,
