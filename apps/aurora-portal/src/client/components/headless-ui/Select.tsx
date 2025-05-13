@@ -12,7 +12,7 @@ export function Select({
 }: {
   id?: string
   children: ReactNode
-  name: string // The name of the select element
+  name?: string // The name of the select element
   value: string | number | undefined // The current value of the select
   onChange: (value: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void // Function to handle value changes
   className?: string

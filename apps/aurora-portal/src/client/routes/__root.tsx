@@ -1,5 +1,4 @@
-import * as React from "react"
-import { Outlet, createRootRouteWithContext } from "@tanstack/react-router"
+import { Outlet, createRootRouteWithContext, useRouterState } from "@tanstack/react-router"
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools"
 // NavigationLayout.tsx
 import { MainNavigation } from "../components/navigation/MainNavigation"
@@ -7,6 +6,8 @@ import { NavigationItem } from "../components/navigation/types"
 
 import { TrpcClient } from "../trpcClient"
 import { AuthContext } from "../store/AuthProvider"
+import { Spinner } from "../components/Spiner" // Adjust the path if necessary
+import { useEffect, useState } from "react"
 
 interface NavigationLayoutProps {
   mainNavItems?: NavigationItem[]
@@ -22,6 +23,19 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 })
 
 function AuroraLayout({ mainNavItems = [] }: NavigationLayoutProps) {
+  const isPending = useRouterState({ select: (s) => s.status === "pending" })
+  const [isLoading, setIsLoading] = useState(false)
+  useEffect(() => {
+    // Set loading state based on router status
+    if (isPending) {
+      setIsLoading(true)
+    } else {
+      setTimeout(() => {
+        setIsLoading(false)
+      }, 300) // Delay to show spinner for at least 1 second
+    }
+  }, [isPending, isLoading, setIsLoading])
+
   // Default navigation items
   const defaultItems: NavigationItem[] = [
     { route: "/about", label: "About" },
@@ -35,8 +49,24 @@ function AuroraLayout({ mainNavItems = [] }: NavigationLayoutProps) {
         {/* Reduced padding */}
         <MainNavigation items={items} />
       </div>
+      {/* Show a global spinner when the router is transitioning */}
 
-      <div>{<Outlet />}</div>
+      <div className="relative flex-1">
+        <Outlet />
+
+        {/* Overlay spinner when loading */}
+        {isLoading && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center">
+            {/* Backdrop */}
+            <div className="absolute inset-0 bg-gradient-to-b from-aurora-gray-950/80 to-aurora-gray-900/80 backdrop-blur-sm" />
+
+            {/* Spinner container */}
+            <div className="relative bg-aurora-gray-900/95 rounded-2xl p-8 shadow-2xl border border-aurora-gray-800">
+              <Spinner show={isLoading} fullscreen size="lg" text="Loading..." />
+            </div>
+          </div>
+        )}
+      </div>
       <TanStackRouterDevtools position="bottom-right" />
     </div>
   )

@@ -1,8 +1,9 @@
-import { createFileRoute, useLoaderData } from "@tanstack/react-router"
+import { createFileRoute, useLoaderData, useRouter } from "@tanstack/react-router"
 import { Button } from "@/client/components/headless-ui/Button"
 import { Filter, Plus, X, RefreshCw } from "lucide-react"
-import { Suspense, useState } from "react"
+import { useState } from "react"
 import { ClusterTable } from "../-components/ClusterTable"
+import CreateClusterWizard from "../-components/CreateClusterDialog"
 
 export const Route = createFileRoute("/gardener/clusters/")({
   component: RouteComponent,
@@ -11,20 +12,21 @@ export const Route = createFileRoute("/gardener/clusters/")({
 
     return {
       clusters: clusters,
+      trpcClient: context.trpcClient,
     }
   },
 })
 
 function RouteComponent() {
-  const { clusters } = useLoaderData({ from: Route.id })
+  const { clusters, trpcClient } = useLoaderData({ from: Route.id })
+  const router = useRouter()
   const [searchTerm, setSearchTerm] = useState("")
+  const [createWizardModal, setCreateWizardModal] = useState(false)
   const [showFilters, setShowFilters] = useState(false)
   const [selectedProvider, setSelectedProvider] = useState("")
   const [selectedRegion, setSelectedRegion] = useState("")
   const [selectedStatus, setSelectedStatus] = useState("")
-  const [isRefreshing, setIsRefreshing] = useState(false)
 
-  // Function to toggle filters panel
   const toggleFilters = () => {
     setShowFilters(!showFilters)
   }
@@ -36,13 +38,8 @@ function RouteComponent() {
     setSelectedStatus("")
   }
 
-  // Function to refresh data
-  const handleRefresh = async () => {
-    setIsRefreshing(true)
-    // In a real app, you would invalidate the query cache here
-    setTimeout(() => {
-      setIsRefreshing(false)
-    }, 1000)
+  const handleRefresh = () => {
+    router.invalidate()
   }
 
   // Get unique providers, regions and statuses from clusters
@@ -63,190 +60,188 @@ function RouteComponent() {
         (selectedStatus === "" || cluster.status === selectedStatus)
     ) || []
 
+  const handleCreateWizzard = () => {
+    setCreateWizardModal(true)
+  }
   return (
-    <Suspense fallback={<div className="flex items-center justify-center h-full">Loading...</div>}>
-      <div className="min-h-screen bg-gradient-to-b from-aurora-gray-950 to-aurora-gray-900 text-aurora-white p-6">
-        <div className="max-w-7xl mx-auto">
-          {/* Header with title */}
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
-            <div>
-              <h1 className="text-2xl font-bold text-aurora-white mb-1">Kubernetes Clusters</h1>
-              <p className="text-aurora-gray-400">Manage your VM-based Kubernetes deployments</p>
-            </div>
-
-            <div className="flex gap-2 mt-4 sm:mt-0">
-              <Button size="md" variant="secondary" className="flex items-center" onClick={handleRefresh}>
-                <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? "animate-spin" : ""}`} />
-                Refresh
-              </Button>
-              <Button
-                size="md"
-                variant="primary"
-                className="flex items-center bg-aurora-blue-700 hover:bg-aurora-blue-600 border-aurora-blue-600 text-aurora-white shadow-lg shadow-aurora-blue-900/20"
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                New Cluster
-              </Button>
-            </div>
+    <div className="min-h-screen bg-gradient-to-b from-aurora-gray-950 to-aurora-gray-900 text-aurora-white p-6">
+      <div className="max-w-7xl mx-auto">
+        {/* Header with title */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
+          <div>
+            <h1 className="text-2xl font-bold text-aurora-white mb-1">Kubernetes Clusters</h1>
+            <p className="text-aurora-gray-400">Manage your VM-based Kubernetes deployments</p>
           </div>
 
-          {/* Main content container */}
-          <div className="bg-aurora-gray-900 rounded-lg border border-aurora-gray-800 shadow-xl p-6">
-            {/* Search and filters bar */}
-            <div className="flex flex-col lg:flex-row justify-between items-stretch lg:items-center border-b border-aurora-gray-800 pb-4 mb-6 gap-4">
-              <div className="flex flex-grow items-center">
-                <div className="relative flex-grow">
-                  <input
-                    type="text"
-                    placeholder="Search clusters..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-9 pr-4 py-2 bg-aurora-gray-800 border border-aurora-gray-700 rounded-md text-aurora-gray-300 focus:outline-none focus:ring-1 focus:ring-aurora-blue-500"
-                  />
-                  <svg
-                    className="absolute left-3 top-2.5 h-4 w-4 text-aurora-gray-500"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                    />
-                  </svg>
-                </div>
-              </div>
+          <div className="flex gap-2 mt-4 sm:mt-0">
+            <Button size="md" variant="secondary" className="flex items-center" onClick={handleRefresh}>
+              <RefreshCw className={`h-4 w-4 mr-2`} />
+              Refresh
+            </Button>
+            <Button
+              onClick={handleCreateWizzard}
+              size="md"
+              variant="primary"
+              className="flex items-center bg-aurora-blue-700 hover:bg-aurora-blue-600 border-aurora-blue-600 text-aurora-white shadow-lg shadow-aurora-blue-900/20"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              New Cluster
+            </Button>
+          </div>
+        </div>
 
-              {/* Applied filters badges */}
-              {(selectedProvider || selectedRegion || selectedStatus) && (
-                <div className="flex flex-wrap gap-2 ml-0 lg:ml-2 mb-4 lg:mb-0">
-                  {selectedProvider && (
-                    <div className="flex items-center bg-aurora-blue-900/30 text-aurora-blue-300 text-xs rounded px-2 py-1">
-                      {selectedProvider}
-                      <button onClick={() => setSelectedProvider("")} className="ml-1.5">
-                        <X className="h-3 w-3" />
-                      </button>
-                    </div>
-                  )}
-                  {selectedRegion && (
-                    <div className="flex items-center bg-aurora-blue-900/30 text-aurora-blue-300 text-xs rounded px-2 py-1">
-                      {selectedRegion}
-                      <button onClick={() => setSelectedRegion("")} className="ml-1.5">
-                        <X className="h-3 w-3" />
-                      </button>
-                    </div>
-                  )}
-                  {selectedStatus && (
-                    <div className="flex items-center bg-aurora-blue-900/30 text-aurora-blue-300 text-xs rounded px-2 py-1">
-                      {selectedStatus}
-                      <button onClick={() => setSelectedStatus("")} className="ml-1.5">
-                        <X className="h-3 w-3" />
-                      </button>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              <div className="flex gap-2 shrink-0">
-                <Button
-                  size="sm"
-                  variant={showFilters ? "primary" : "secondary"}
-                  className={`flex items-center ${showFilters ? "bg-aurora-blue-700 text-aurora-white" : ""}`}
-                  onClick={toggleFilters}
-                >
-                  <Filter className="h-4 w-4 mr-2" />
-                  Filters
-                </Button>
-                <select className="bg-aurora-gray-800 border border-aurora-gray-700 rounded-md px-3 py-1 text-aurora-gray-300 text-sm">
-                  <option value="">Sort: Newest</option>
-                  <option value="name-asc">Name (A-Z)</option>
-                  <option value="name-desc">Name (Z-A)</option>
-                  <option value="status">Status</option>
-                </select>
-              </div>
-            </div>
-
-            {/* Filters panel */}
-            {showFilters && (
-              <div className="bg-aurora-gray-800/50 border border-aurora-gray-700 rounded-md p-4 mb-6">
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-aurora-white font-medium">Filter Clusters</h3>
-                  <Button size="sm" variant="secondary" className="text-xs" onClick={clearFilters}>
-                    Clear All
-                  </Button>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <div>
-                    <label className="block text-aurora-gray-400 text-sm mb-1.5">Provider</label>
-                    <select
-                      className="w-full bg-aurora-gray-900 border border-aurora-gray-700 rounded-md px-3 py-1.5 text-aurora-gray-300"
-                      value={selectedProvider}
-                      onChange={(e) => setSelectedProvider(e.target.value)}
-                    >
-                      <option value="">All Providers</option>
-                      {providers.map((provider) => (
-                        <option key={provider} value={provider}>
-                          {provider.charAt(0).toUpperCase() + provider.slice(1)}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-aurora-gray-400 text-sm mb-1.5">Region</label>
-                    <select
-                      className="w-full bg-aurora-gray-900 border border-aurora-gray-700 rounded-md px-3 py-1.5 text-aurora-gray-300"
-                      value={selectedRegion}
-                      onChange={(e) => setSelectedRegion(e.target.value)}
-                    >
-                      <option value="">All Regions</option>
-                      {regions.map((region) => (
-                        <option key={region} value={region}>
-                          {region}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-aurora-gray-400 text-sm mb-1.5">Status</label>
-                    <select
-                      className="w-full bg-aurora-gray-900 border border-aurora-gray-700 rounded-md px-3 py-1.5 text-aurora-gray-300"
-                      value={selectedStatus}
-                      onChange={(e) => setSelectedStatus(e.target.value)}
-                    >
-                      <option value="">All Statuses</option>
-                      {statuses.map((status) => (
-                        <option key={status} value={status}>
-                          {status.charAt(0).toUpperCase() + status.slice(1)}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Unified ClusterTable component */}
-            {isRefreshing ? (
-              <div className="flex items-center justify-center mb-4">
+        {/* Main content container */}
+        <div className="bg-aurora-gray-900 rounded-lg border border-aurora-gray-800 shadow-xl p-6">
+          {/* Search and filters bar */}
+          <div className="flex flex-col lg:flex-row justify-between items-stretch lg:items-center border-b border-aurora-gray-800 pb-4 mb-6 gap-4">
+            <div className="flex flex-grow items-center">
+              <div className="relative flex-grow">
+                <input
+                  type="text"
+                  placeholder="Search clusters..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-9 pr-4 py-2 bg-aurora-gray-800 border border-aurora-gray-700 rounded-md text-aurora-gray-300 focus:outline-none focus:ring-1 focus:ring-aurora-blue-500"
+                />
                 <svg
-                  className="animate-spin h-5 w-5 text-aurora-blue-500"
+                  className="absolute left-3 top-2.5 h-4 w-4 text-aurora-gray-500"
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
-                ></svg>
-                <span className="ml-2 text-aurora-gray-400">Refreshing...</span>
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                  />
+                </svg>
               </div>
-            ) : (
-              <ClusterTable clusters={filteredClusters} filteredCount={clusters?.length || 0} />
+            </div>
+
+            {/* Applied filters badges */}
+            {(selectedProvider || selectedRegion || selectedStatus) && (
+              <div className="flex flex-wrap gap-2 ml-0 lg:ml-2 mb-4 lg:mb-0">
+                {selectedProvider && (
+                  <div className="flex items-center bg-aurora-blue-900/30 text-aurora-blue-300 text-xs rounded px-2 py-1">
+                    {selectedProvider}
+                    <button onClick={() => setSelectedProvider("")} className="ml-1.5">
+                      <X className="h-3 w-3" />
+                    </button>
+                  </div>
+                )}
+                {selectedRegion && (
+                  <div className="flex items-center bg-aurora-blue-900/30 text-aurora-blue-300 text-xs rounded px-2 py-1">
+                    {selectedRegion}
+                    <button onClick={() => setSelectedRegion("")} className="ml-1.5">
+                      <X className="h-3 w-3" />
+                    </button>
+                  </div>
+                )}
+                {selectedStatus && (
+                  <div className="flex items-center bg-aurora-blue-900/30 text-aurora-blue-300 text-xs rounded px-2 py-1">
+                    {selectedStatus}
+                    <button onClick={() => setSelectedStatus("")} className="ml-1.5">
+                      <X className="h-3 w-3" />
+                    </button>
+                  </div>
+                )}
+              </div>
             )}
+
+            <div className="flex gap-2 shrink-0">
+              <Button
+                size="sm"
+                variant={showFilters ? "primary" : "secondary"}
+                className={`flex items-center ${showFilters ? "bg-aurora-blue-700 text-aurora-white" : ""}`}
+                onClick={toggleFilters}
+              >
+                <Filter className="h-4 w-4 mr-2" />
+                Filters
+              </Button>
+              <select className="bg-aurora-gray-800 border border-aurora-gray-700 rounded-md px-3 py-1 text-aurora-gray-300 text-sm">
+                <option value="">Sort: Newest</option>
+                <option value="name-asc">Name (A-Z)</option>
+                <option value="name-desc">Name (Z-A)</option>
+                <option value="status">Status</option>
+              </select>
+            </div>
           </div>
+
+          {/* Filters panel */}
+          {showFilters && (
+            <div className="bg-aurora-gray-800/50 border border-aurora-gray-700 rounded-md p-4 mb-6">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-aurora-white font-medium">Filter Clusters</h3>
+                <Button size="sm" variant="secondary" className="text-xs" onClick={clearFilters}>
+                  Clear All
+                </Button>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-aurora-gray-400 text-sm mb-1.5">Provider</label>
+                  <select
+                    className="w-full bg-aurora-gray-900 border border-aurora-gray-700 rounded-md px-3 py-1.5 text-aurora-gray-300"
+                    value={selectedProvider}
+                    onChange={(e) => setSelectedProvider(e.target.value)}
+                  >
+                    <option value="">All Providers</option>
+                    {providers.map((provider) => (
+                      <option key={provider} value={provider}>
+                        {provider.charAt(0).toUpperCase() + provider.slice(1)}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-aurora-gray-400 text-sm mb-1.5">Region</label>
+                  <select
+                    className="w-full bg-aurora-gray-900 border border-aurora-gray-700 rounded-md px-3 py-1.5 text-aurora-gray-300"
+                    value={selectedRegion}
+                    onChange={(e) => setSelectedRegion(e.target.value)}
+                  >
+                    <option value="">All Regions</option>
+                    {regions.map((region) => (
+                      <option key={region} value={region}>
+                        {region}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-aurora-gray-400 text-sm mb-1.5">Status</label>
+                  <select
+                    className="w-full bg-aurora-gray-900 border border-aurora-gray-700 rounded-md px-3 py-1.5 text-aurora-gray-300"
+                    value={selectedStatus}
+                    onChange={(e) => setSelectedStatus(e.target.value)}
+                  >
+                    <option value="">All Statuses</option>
+                    {statuses.map((status) => (
+                      <option key={status} value={status}>
+                        {status.charAt(0).toUpperCase() + status.slice(1)}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <ClusterTable clusters={filteredClusters} filteredCount={clusters?.length || 0} />
         </div>
       </div>
-    </Suspense>
+      {createWizardModal && trpcClient && (
+        <CreateClusterWizard
+          client={trpcClient}
+          isOpen={createWizardModal}
+          onClose={() => {
+            setCreateWizardModal(false)
+            handleRefresh()
+          }}
+        />
+      )}
+    </div>
   )
 }
 
