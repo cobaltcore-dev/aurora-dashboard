@@ -104,7 +104,6 @@ const CreateClusterDialogContent: React.FC<{
     try {
       await client.gardener.createCluster.mutate({
         ...formData,
-        worker: formData.workers[0], // Take the first worker as the API expects a single worker
       }) // Adjust the type as needed
       toast.success("Cluster created successfully")
       onClose()
