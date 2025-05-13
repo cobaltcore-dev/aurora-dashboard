@@ -1,7 +1,7 @@
 // components/CreateClusterWizard/CreateClusterWizard.tsx
-import React, { useState } from "react"
+import React, { Suspense, use, useState } from "react"
 import { ClusterFormData, WorkerConfig } from "./ClusterWizard/types"
-import { defaultWorker, steps } from "./ClusterWizard/constants"
+import { steps } from "./ClusterWizard/constants"
 import { toast } from "sonner"
 import { BasicInfoStep } from "./ClusterWizard/BasicInfoStep"
 import { InfrastructureStep } from "./ClusterWizard/InfrastructureStep"
@@ -12,138 +12,66 @@ import { WizardHeader } from "./ClusterWizard/WizardHeader"
 import { WizardProgress } from "./ClusterWizard/WizardProgress"
 import { WizardActions } from "./ClusterWizard/WizardActions"
 import { FieldSet } from "@/client/components/headless-ui/FieldSet"
+import { TrpcClient } from "@/client/trpcClient"
 
 interface CreateClusterWizardProps {
   isOpen: boolean
   onClose: () => void
+  client: TrpcClient
 }
 
-const CreateClusterWizard: React.FC<CreateClusterWizardProps> = ({ isOpen, onClose }) => {
+type CloudProfile = Awaited<ReturnType<TrpcClient["gardener"]["getCloudProfiles"]["query"]>>[number]
+
+const CreateClusterDialogContent: React.FC<{
+  onClose: () => void
+  client: TrpcClient
+  isOpen: boolean
+  getCloudProfilesPromises: Promise<CloudProfile[]>
+}> = ({ onClose, getCloudProfilesPromises, isOpen, client }) => {
+  const cloudProfiles = use(getCloudProfilesPromises)
+  cloudProfiles.sort((a, b) => a.name.localeCompare(b.name))
+  const defaultCloudProfile = cloudProfiles.find((profile) => profile.name === "converged-cloud")
+
   const [currentStep, setCurrentStep] = useState(0)
-  const [isSubmitting, setIsSubmitting] = useState(false)
   const [formData, setFormData] = useState<ClusterFormData>({
-    name: "",
-    kubernetes: {
-      version: "1.31.7",
-    },
-    region: "eu-de-1",
+    name: "test-cluster-35454545454",
     cloudProfileName: "converged-cloud",
-    secretBindingName: "my-openstack-secret",
+    credentialsBindingName: "app-cred-openstack",
+    region: "eu-de-1",
+    kubernetesVersion: "1.32.2",
+    infrastructure: {
+      floatingPoolName: "FloatingIP-external-monsoon3-01",
+    },
     networking: {
-      type: "calico",
       pods: "100.64.0.0/12",
       nodes: "10.180.0.0/16",
       services: "100.104.0.0/13",
-      ipFamilies: ["IPv4"],
     },
-    provider: {
-      type: "openstack",
-      workers: [defaultWorker],
-    },
+    workers: [
+      {
+        machineType: "g_c2_m4",
+        machineImage: {
+          name: "gardenlinux",
+          version: "1592.9.0",
+        },
+        minimum: 1,
+        maximum: 2,
+        zones: ["eu-de-1a"],
+      },
+    ],
   })
 
-  const handleInputChange = (
-    section: keyof ClusterFormData,
-    field: string,
-    value: string | number | boolean | string[]
-  ) => {
-    setFormData((prev) => {
-      if (field === "") {
-        return {
-          ...prev,
-          [section]: value,
-        }
-      }
-
-      const updatedSection = { ...(prev[section as keyof typeof prev] as object) }
-      ;(updatedSection as Record<string, unknown>)[field] = value
-
-      return {
-        ...prev,
-        [section]: updatedSection,
-      }
-    })
-  }
-
-  const handleNestedInputChange = (
-    section: keyof ClusterFormData,
-    nestedSection: string,
-    field: string,
-    value: string | number | boolean | string[]
-  ) => {
-    setFormData((prev) => {
-      if (field === "") {
-        const updatedSection = { ...(prev[section as keyof typeof prev] as object) }
-        ;(updatedSection as Record<string, unknown>)[nestedSection] = value
-
-        return {
-          ...prev,
-          [section]: updatedSection,
-        }
-      }
-
-      const sectionData = prev[section as keyof typeof prev]
-      let nestedData: Record<string, unknown> = {}
-      if (sectionData && typeof sectionData === "object" && nestedSection in sectionData) {
-        nestedData = { ...((sectionData as Record<string, unknown>)[nestedSection] as Record<string, unknown>) }
-      }
-      nestedData[field] = value
-
-      const updatedSection = { ...(sectionData as object) }
-      ;(updatedSection as Record<string, unknown>)[nestedSection] = nestedData
-
-      return {
-        ...prev,
-        [section]: updatedSection,
-      }
-    })
-  }
-
-  const handleWorkerChange = (index: number, field: keyof WorkerConfig, value: unknown) => {
-    setFormData((prev) => {
-      const newWorkers = [...prev.provider.workers]
-      newWorkers[index] = {
-        ...newWorkers[index],
-        [field]: value,
-      }
-      return {
-        ...prev,
-        provider: {
-          ...prev.provider,
-          workers: newWorkers,
-        },
-      }
-    })
-  }
-
-  const addWorker = () => {
+  const handleFormDataChange = (field: keyof ClusterFormData, value: unknown) => {
     setFormData((prev) => ({
       ...prev,
-      provider: {
-        ...prev.provider,
-        workers: [
-          ...prev.provider.workers,
-          {
-            ...defaultWorker,
-            name: `worker-pool-${prev.provider.workers.length + 1}`,
-          },
-        ],
-      },
+      [field]: value,
     }))
   }
 
-  const removeWorker = (index: number) => {
-    if (formData.provider.workers.length <= 1) {
-      toast.error("At least one worker pool is required")
-      return
-    }
-
+  const handleWorkersChange = (workers: WorkerConfig[]) => {
     setFormData((prev) => ({
       ...prev,
-      provider: {
-        ...prev.provider,
-        workers: prev.provider.workers.filter((_, i) => i !== index),
-      },
+      workers,
     }))
   }
 
@@ -174,7 +102,10 @@ const CreateClusterWizard: React.FC<CreateClusterWizardProps> = ({ isOpen, onClo
     setIsSubmitting(true)
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1500))
+      await client.gardener.createCluster.mutate({
+        ...formData,
+        worker: formData.workers[0], // Take the first worker as the API expects a single worker
+      }) // Adjust the type as needed
       toast.success("Cluster created successfully")
       onClose()
     } catch (error) {
@@ -187,30 +118,36 @@ const CreateClusterWizard: React.FC<CreateClusterWizardProps> = ({ isOpen, onClo
   if (!isOpen) return null
 
   const renderStepContent = () => {
+    const selectedCloudProfile =
+      cloudProfiles.find((cp) => cp.name === formData.cloudProfileName) || defaultCloudProfile
+
     switch (currentStep) {
       case 0:
         return (
           <BasicInfoStep
             formData={formData}
-            onInputChange={handleInputChange}
-            onNestedInputChange={handleNestedInputChange}
+            onFormDataChange={handleFormDataChange}
+            availableKubernetesVersions={selectedCloudProfile?.kubernetesVersions || []}
           />
         )
       case 1:
-        return (
-          <InfrastructureStep
-            formData={formData}
-            onInputChange={handleInputChange}
-            onNestedInputChange={handleNestedInputChange}
-          />
-        )
+        return <InfrastructureStep formData={formData} onFormDataChange={handleFormDataChange} />
       case 2:
         return (
           <WorkerNodesStep
             formData={formData}
-            onWorkerChange={handleWorkerChange}
-            onAddWorker={addWorker}
-            onRemoveWorker={removeWorker}
+            onWorkersChange={handleWorkersChange}
+            cloudProfileData={{
+              machineTypes: (selectedCloudProfile?.machineTypes || []).map((mt) => ({
+                ...mt,
+                architecture: mt.architecture ?? "",
+              })),
+              machineImages: selectedCloudProfile?.machineImages || [],
+              regions: (selectedCloudProfile?.regions || []).map((region) => ({
+                ...region,
+                zones: region.zones ?? [],
+              })),
+            }}
           />
         )
       case 3:
@@ -220,28 +157,49 @@ const CreateClusterWizard: React.FC<CreateClusterWizardProps> = ({ isOpen, onClo
     }
   }
 
-  return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-aurora-black/50">
-        <div className="bg-aurora-gray-900 border border-aurora-gray-800 rounded-lg shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
-          <div className="p-6">
-            <WizardHeader onClose={onClose} />
-            <WizardProgress steps={steps} currentStep={currentStep} onStepClick={goToStep} />
-            <FieldSet>
-              <div className="mb-8">{renderStepContent()}</div>
-            </FieldSet>
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
-            <WizardActions
-              currentStep={currentStep}
-              totalSteps={steps.length}
-              isSubmitting={isSubmitting}
-              onNext={nextStep}
-              onPrev={prevStep}
-              onSubmit={handleSubmit}
-            />
-          </div>
+  if (!cloudProfiles || cloudProfiles.length === 0) {
+    return <p className="text-gray-400">No cloud profiles available.</p>
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-aurora-black/50">
+      <div className="bg-aurora-gray-900 border border-aurora-gray-800 rounded-lg shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+        <div className="p-6">
+          <WizardHeader onClose={onClose} />
+          <WizardProgress steps={steps} currentStep={currentStep} onStepClick={goToStep} />
+          <FieldSet>
+            <div className="mb-8">{renderStepContent()}</div>
+          </FieldSet>
+
+          <WizardActions
+            currentStep={currentStep}
+            totalSteps={steps.length}
+            isSubmitting={isSubmitting}
+            onNext={nextStep}
+            onPrev={prevStep}
+            onSubmit={handleSubmit}
+          />
         </div>
       </div>
+    </div>
+  )
+}
+
+const CreateClusterWizard: React.FC<CreateClusterWizardProps> = ({ isOpen, onClose, client }) => {
+  const getCloudProfilesPromises = client.gardener.getCloudProfiles.query()
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <Suspense fallback={<div className="p-4 text-center text-aurora-gray-400">Loading cloud profiles...</div>}>
+        <CreateClusterDialogContent
+          isOpen={isOpen}
+          onClose={onClose}
+          client={client}
+          getCloudProfilesPromises={getCloudProfilesPromises}
+        />
+      </Suspense>
     </Dialog>
   )
 }

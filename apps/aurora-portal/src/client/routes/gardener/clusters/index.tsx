@@ -12,12 +12,13 @@ export const Route = createFileRoute("/gardener/clusters/")({
 
     return {
       clusters: clusters,
+      trpcClient: context.trpcClient,
     }
   },
 })
 
 function RouteComponent() {
-  const { clusters } = useLoaderData({ from: Route.id })
+  const { clusters, trpcClient } = useLoaderData({ from: Route.id })
   const router = useRouter()
   const [searchTerm, setSearchTerm] = useState("")
   const [createWizardModal, setCreateWizardModal] = useState(false)
@@ -230,8 +231,15 @@ function RouteComponent() {
           <ClusterTable clusters={filteredClusters} filteredCount={clusters?.length || 0} />
         </div>
       </div>
-      {createWizardModal && (
-        <CreateClusterWizard isOpen={createWizardModal} onClose={() => setCreateWizardModal(false)} />
+      {createWizardModal && trpcClient && (
+        <CreateClusterWizard
+          client={trpcClient}
+          isOpen={createWizardModal}
+          onClose={() => {
+            setCreateWizardModal(false)
+            handleRefresh()
+          }}
+        />
       )}
     </div>
   )

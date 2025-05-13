@@ -16,6 +16,7 @@ interface ImagesProps {
   client: TrpcClient
   project: string
 }
+
 export const Images = ({ client, project }: ImagesProps) => {
   const getImagesPromise = client.compute.getImagesByProjectId.query({ projectId: project })
 

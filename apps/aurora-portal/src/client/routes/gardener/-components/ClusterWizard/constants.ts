@@ -1,18 +1,15 @@
 import { WorkerConfig } from "./types"
 
 export const defaultWorker: WorkerConfig = {
-  name: "worker-pool-1",
+  machineImage: {
+    name: "ubuntu",
+    version: "22.04",
+  },
+  minimum: 1,
+  maximum: 2,
   machineType: "g_c2_m4",
-  machineImageName: "gardenlinux",
-  machineImageVersion: "1592.9.0",
-  architecture: "amd64",
-  min: 1,
-  max: 2,
-  maxSurge: 1,
   zones: ["eu-de-1d"],
-  containerRuntime: "containerd",
 }
-
 export const steps = [
   { title: "Basic Info", description: "Cluster name and Kubernetes version" },
   { title: "Infrastructure", description: "Provider, region and networking" },
