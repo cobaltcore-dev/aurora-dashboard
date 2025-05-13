@@ -17,7 +17,7 @@ export const shootRouter = {
         })
     )
 
-    // console.log("Parsed Data:", parsedData?.error)
+    console.log("Parsed Data:", parsedData?.error)
     const clusters = convertShootListApiSchemaToClusters(parsedData.data?.items || [])
     return clusters
   }),
