@@ -4,7 +4,7 @@ import { Description, DialogPanel, DialogTitle as HeadlessDialogTitle } from "@h
 
 import { cn } from "@/client/utils/cn"
 
-const Dialog = ({
+const GardenerDialog = ({
   open,
   onOpenChange,
   children,
@@ -18,11 +18,11 @@ const Dialog = ({
       open={open}
       data-testid="dialog"
       onClose={() => onOpenChange?.(false)}
-      className="fixed inset-0 flex text-gray-200
+      className="fixed inset-0 flex text-aurora-light-1
        w-screen items-center justify-center p-4 transition duration-300 ease-out data-closed:opacity-0"
     >
       {/* The backdrop, rendered as a fixed sibling to the panel container */}
-      <DialogBackdrop className="fixed inset-0 bg-theme-modal-backdrop backdrop-blur-xl backdrop-brightness-100" />
+      <DialogBackdrop className="fixed inset-0 bg-aurora-modal-backdrop backdrop-blur-xl backdrop-brightness-100" />
 
       {/* Full-screen container to center the panel */}
       <div className="fixed inset-0 flex w-screen items-center justify-center p-4">
@@ -30,8 +30,8 @@ const Dialog = ({
 
         <DialogPanel
           transition
-          className="max-w-lg w-full text-center shadow-lg rounded-lg border border-juno-grey-blue-2 space-y-4
-          bg-juno-grey-blue-2 bg-opacity-85 text-gray-200
+          className="max-w-lg w-full text-center shadow-lg rounded-lg border border-aurora-border space-y-4
+          bg-aurora-gray-950 bg-opacity-85 text-aurora-light-1
          p-12 duration-300 ease-out data-closed:scale-95 data-closed:opacity-0"
         >
           {children}
@@ -41,10 +41,10 @@ const Dialog = ({
   )
 }
 
-const DialogContent = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
+const GardenerDialogContent = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
   <div className={cn("flex flex-col space-y-1.5 text-center sm:text-left", className)} {...props} />
 )
-const DialogTitle = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
+const GardenerDialogTitle = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
   <HeadlessDialogTitle
     data-testid="dialog-title"
     className={cn("flex flex-col space-y-1.5 text-center sm:text-left", className)}
@@ -52,9 +52,15 @@ const DialogTitle = ({ className, ...props }: React.HTMLAttributes<HTMLDivElemen
   />
 )
 
-const DialogFooter = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
+const GardenerDialogFooter = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
   <div className={cn("flex gap-4 flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2", className)} {...props} />
 )
-DialogFooter.displayName = "DialogFooter"
+GardenerDialogFooter.displayName = "GardenerDialogFooter"
 
-export { Dialog, DialogContent, DialogFooter, DialogTitle, Description as DialogDescription }
+export {
+  GardenerDialog,
+  GardenerDialogFooter,
+  GardenerDialogContent,
+  GardenerDialogTitle,
+  Description as DialogDescription,
+}

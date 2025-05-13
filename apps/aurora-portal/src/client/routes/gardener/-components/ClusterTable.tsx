@@ -7,7 +7,8 @@ import { Cluster } from "@/server/Gardener/types/cluster"
 export const ClusterTable: React.FC<{
   clusters: Cluster[]
   filteredCount: number
-}> = ({ clusters, filteredCount }) => {
+  setDeleteClusterModal: (clusterName: string) => void
+}> = ({ clusters, filteredCount, setDeleteClusterModal }) => {
   return (
     <div className="w-full">
       {/* Table with enhanced styling */}
@@ -47,7 +48,12 @@ export const ClusterTable: React.FC<{
             </thead>
             <tbody>
               {clusters.map((cluster, index) => (
-                <ClusterTableRow key={cluster.uid} cluster={cluster} isLast={index === clusters.length - 1} />
+                <ClusterTableRow
+                  key={cluster.uid}
+                  cluster={cluster}
+                  isLast={index === clusters.length - 1}
+                  setShowClusterModal={setDeleteClusterModal}
+                />
               ))}
             </tbody>
           </table>

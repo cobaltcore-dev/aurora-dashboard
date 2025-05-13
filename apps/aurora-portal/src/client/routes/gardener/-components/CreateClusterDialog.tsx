@@ -7,12 +7,12 @@ import { BasicInfoStep } from "./ClusterWizard/BasicInfoStep"
 import { InfrastructureStep } from "./ClusterWizard/InfrastructureStep"
 import { WorkerNodesStep } from "./ClusterWizard/WorkerNodesStep"
 import { ReviewStep } from "./ClusterWizard/ReviewStep"
-import { Dialog } from "@/client/components/headless-ui/Dialog"
 import { WizardHeader } from "./ClusterWizard/WizardHeader"
 import { WizardProgress } from "./ClusterWizard/WizardProgress"
 import { WizardActions } from "./ClusterWizard/WizardActions"
 import { FieldSet } from "@/client/components/headless-ui/FieldSet"
 import { TrpcClient } from "@/client/trpcClient"
+import { GardenerDialog } from "./GardenerDialog"
 
 interface CreateClusterWizardProps {
   isOpen: boolean
@@ -190,7 +190,7 @@ const CreateClusterWizard: React.FC<CreateClusterWizardProps> = ({ isOpen, onClo
   const getCloudProfilesPromises = client.gardener.getCloudProfiles.query()
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <GardenerDialog open={isOpen} onOpenChange={onClose}>
       <Suspense fallback={<div className="p-4 text-center text-aurora-gray-400">Loading cloud profiles...</div>}>
         <CreateClusterDialogContent
           isOpen={isOpen}
@@ -199,7 +199,7 @@ const CreateClusterWizard: React.FC<CreateClusterWizardProps> = ({ isOpen, onClo
           getCloudProfilesPromises={getCloudProfilesPromises}
         />
       </Suspense>
-    </Dialog>
+    </GardenerDialog>
   )
 }
 

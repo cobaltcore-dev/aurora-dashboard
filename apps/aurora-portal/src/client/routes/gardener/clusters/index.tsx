@@ -4,6 +4,8 @@ import { Filter, Plus, X, RefreshCw } from "lucide-react"
 import { useState } from "react"
 import { ClusterTable } from "../-components/ClusterTable"
 import CreateClusterWizard from "../-components/CreateClusterDialog"
+import { DeleteClusterDialog } from "../-components/DeleteClusterDialog"
+import { toast } from "sonner"
 
 export const Route = createFileRoute("/gardener/clusters/")({
   component: RouteComponent,
@@ -22,6 +24,10 @@ function RouteComponent() {
   const router = useRouter()
   const [searchTerm, setSearchTerm] = useState("")
   const [createWizardModal, setCreateWizardModal] = useState(false)
+
+  const [deleteClusterModal, setDeleteClusterModal] = useState(false)
+  const [deletedClusterName, setDeleteClusterName] = useState<string | null>(null)
+
   const [showFilters, setShowFilters] = useState(false)
   const [selectedProvider, setSelectedProvider] = useState("")
   const [selectedRegion, setSelectedRegion] = useState("")
@@ -63,6 +69,23 @@ function RouteComponent() {
   const handleCreateWizzard = () => {
     setCreateWizardModal(true)
   }
+
+  const handleDeleteCluster = async () => {
+    try {
+      await trpcClient?.gardener.deleteCluster.mutate({
+        name: deletedClusterName!,
+      })
+      toast.success("Cluster deleted successfully")
+      setDeleteClusterModal(false)
+      handleRefresh()
+    } catch (error) {
+      toast.error("Failed to delete cluster: " + (error instanceof Error ? error.message : "Unknown error"))
+    } finally {
+      setDeleteClusterModal(false)
+      handleRefresh()
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-aurora-gray-950 to-aurora-gray-900 text-aurora-white p-6">
       <div className="max-w-7xl mx-auto">
@@ -228,7 +251,16 @@ function RouteComponent() {
             </div>
           )}
 
-          <ClusterTable clusters={filteredClusters} filteredCount={clusters?.length || 0} />
+          <ClusterTable
+            clusters={filteredClusters}
+            filteredCount={clusters?.length || 0}
+            setDeleteClusterModal={(clusterName: string) => {
+              console.log("Delete cluster:", clusterName)
+              setDeleteClusterModal(true)
+              setDeleteClusterName(clusterName)
+              // You may want to store the clusterName in state if needed for deletion
+            }}
+          />
         </div>
       </div>
       {createWizardModal && trpcClient && (
@@ -237,6 +269,18 @@ function RouteComponent() {
           isOpen={createWizardModal}
           onClose={() => {
             setCreateWizardModal(false)
+            handleRefresh()
+          }}
+        />
+      )}
+      {deleteClusterModal && (
+        <DeleteClusterDialog
+          clusterName={deletedClusterName!}
+          isOpen={deleteClusterModal}
+          onDelete={handleDeleteCluster}
+          onClose={() => {
+            setDeleteClusterModal(false)
+            setDeleteClusterName(null)
             handleRefresh()
           }}
         />
