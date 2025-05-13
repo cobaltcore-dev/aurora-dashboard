@@ -1,4 +1,4 @@
-import { createFileRoute, useLoaderData } from "@tanstack/react-router"
+import { createFileRoute, useLoaderData, useRouter } from "@tanstack/react-router"
 import { Button } from "@/client/components/headless-ui/Button"
 import { Filter, Plus, X, RefreshCw } from "lucide-react"
 import { useState } from "react"
@@ -18,15 +18,14 @@ export const Route = createFileRoute("/gardener/clusters/")({
 
 function RouteComponent() {
   const { clusters } = useLoaderData({ from: Route.id })
+  const router = useRouter()
   const [searchTerm, setSearchTerm] = useState("")
   const [createWizardModal, setCreateWizardModal] = useState(false)
   const [showFilters, setShowFilters] = useState(false)
   const [selectedProvider, setSelectedProvider] = useState("")
   const [selectedRegion, setSelectedRegion] = useState("")
   const [selectedStatus, setSelectedStatus] = useState("")
-  const [isRefreshing, setIsRefreshing] = useState(false)
 
-  // Function to toggle filters panel
   const toggleFilters = () => {
     setShowFilters(!showFilters)
   }
@@ -38,13 +37,8 @@ function RouteComponent() {
     setSelectedStatus("")
   }
 
-  // Function to refresh data
-  const handleRefresh = async () => {
-    setIsRefreshing(true)
-    // In a real app, you would invalidate the query cache here
-    setTimeout(() => {
-      setIsRefreshing(false)
-    }, 1000)
+  const handleRefresh = () => {
+    router.invalidate()
   }
 
   // Get unique providers, regions and statuses from clusters
@@ -80,7 +74,7 @@ function RouteComponent() {
 
           <div className="flex gap-2 mt-4 sm:mt-0">
             <Button size="md" variant="secondary" className="flex items-center" onClick={handleRefresh}>
-              <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? "animate-spin" : ""}`} />
+              <RefreshCw className={`h-4 w-4 mr-2`} />
               Refresh
             </Button>
             <Button
@@ -233,21 +227,7 @@ function RouteComponent() {
             </div>
           )}
 
-          {/* Unified ClusterTable component */}
-          {isRefreshing ? (
-            <div className="flex items-center justify-center mb-4">
-              <svg
-                className="animate-spin h-5 w-5 text-aurora-blue-500"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              ></svg>
-              <span className="ml-2 text-aurora-gray-400">Refreshing...</span>
-            </div>
-          ) : (
-            <ClusterTable clusters={filteredClusters} filteredCount={clusters?.length || 0} />
-          )}
+          <ClusterTable clusters={filteredClusters} filteredCount={clusters?.length || 0} />
         </div>
       </div>
       {createWizardModal && (

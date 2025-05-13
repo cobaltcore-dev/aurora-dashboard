@@ -7,6 +7,7 @@ import { NavigationItem } from "../components/navigation/types"
 import { TrpcClient } from "../trpcClient"
 import { AuthContext } from "../store/AuthProvider"
 import { Spinner } from "../components/Spiner" // Adjust the path if necessary
+import { useEffect, useState } from "react"
 
 interface NavigationLayoutProps {
   mainNavItems?: NavigationItem[]
@@ -22,7 +23,18 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 })
 
 function AuroraLayout({ mainNavItems = [] }: NavigationLayoutProps) {
-  const isLoading = useRouterState({ select: (s) => s.status === "pending" })
+  const isPending = useRouterState({ select: (s) => s.status === "pending" })
+  const [isLoading, setIsLoading] = useState(false)
+  useEffect(() => {
+    // Set loading state based on router status
+    if (isPending) {
+      setIsLoading(true)
+    } else {
+      setTimeout(() => {
+        setIsLoading(false)
+      }, 300) // Delay to show spinner for at least 1 second
+    }
+  }, [isPending, isLoading, setIsLoading])
 
   // Default navigation items
   const defaultItems: NavigationItem[] = [
