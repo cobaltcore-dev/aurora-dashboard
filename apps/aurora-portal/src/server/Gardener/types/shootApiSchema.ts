@@ -93,9 +93,11 @@ export const shootApiResponseSchema = z.object({
       })
       .optional(),
     cloudProfileName: z.string(),
-    dns: z.object({
-      domain: z.string(),
-    }),
+    dns: z
+      .object({
+        domain: z.string(),
+      })
+      .optional(),
     extensions: z.array(extensionSchema).optional(),
     hibernation: z
       .object({
@@ -223,7 +225,7 @@ export const shootApiResponseSchema = z.object({
     purpose: z.string().optional(),
     region: z.string(),
     secretBindingName: z.string().optional(),
-    seedName: z.string(),
+    seedName: z.string().optional(),
     systemComponents: z
       .object({
         coreDNS: z
@@ -266,7 +268,7 @@ export const shootApiResponseSchema = z.object({
       observedGeneration: z.number().int().positive().optional(),
       seedName: z.string().optional(),
       technicalID: z.string().optional(),
-      uid: z.string().uuid().optional(),
+      uid: z.string().uuid().optional().or(z.literal("")),
       clusterIdentity: z.string().optional(),
       lastMaintenance: z
         .object({
