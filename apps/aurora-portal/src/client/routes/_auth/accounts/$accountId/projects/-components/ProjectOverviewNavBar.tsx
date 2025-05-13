@@ -8,9 +8,18 @@ type ProjectsOverviewNavNbarProps = {
   setViewMode: (mode: ViewMode) => void
   searchPlaceholder?: string
   filters?: { label: string; value: string }[]
+  searchTerm?: string
+  onSearch: (value: string) => void
 }
 
-export function ProjectsOverviewNavNbar({ viewMode, setViewMode }: ProjectsOverviewNavNbarProps) {
+export function ProjectsOverviewNavNbar({
+  viewMode,
+  setViewMode,
+  searchTerm = "",
+  onSearch,
+}: ProjectsOverviewNavNbarProps) {
+  // TODO - ggf reintroduce state for debounce.
+
   return (
     <div className="flex items-center justify-between gap-4 w-full">
       {/* Search Input (60%) */}
@@ -20,6 +29,8 @@ export function ProjectsOverviewNavNbar({ viewMode, setViewMode }: ProjectsOverv
           type="text"
           placeholder="Search..."
           className="bg-transparent border-none outline-none text-white placeholder-gray-400 w-full"
+          value={searchTerm}
+          onChange={(e) => onSearch(e.target.value)}
         />
       </div>
 
