@@ -9,6 +9,10 @@ function RouteComponent() {
   const [clusterName, updateClusterName] = useState("test-cluster-10")
   const { trpcClient } = Route.useRouteContext()
 
+  trpcClient?.gardener.getCloudProfiles.query().then((data) => {
+    console.log("Cloud Profiles:", data)
+  })
+
   const createCluster = async () => {
     await trpcClient?.gardener.createCluster
       .mutate({
@@ -32,16 +36,18 @@ function RouteComponent() {
         },
 
         // Worker configuration
-        worker: {
-          machineType: "g_c2_m4",
-          machineImage: {
-            name: "gardenlinux",
-            version: "1592.9.0",
+        workers: [
+          {
+            machineType: "g_c2_m4",
+            machineImage: {
+              name: "gardenlinux",
+              version: "1592.9.0",
+            },
+            minimum: 1,
+            maximum: 2,
+            zones: ["eu-de-1a"],
           },
-          minimum: 1,
-          maximum: 2,
-          zones: ["eu-de-1a"],
-        },
+        ],
       })
       .catch((err) => {
         console.error("Error creating cluster:", err)

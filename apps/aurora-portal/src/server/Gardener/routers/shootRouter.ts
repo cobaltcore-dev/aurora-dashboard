@@ -115,17 +115,21 @@ export const shootRouter = {
         }),
 
         // Worker configuration
-        worker: z.object({
-          name: z.string().default("containerd"),
-          machineType: z.string(),
-          machineImage: z.object({
-            name: z.string(),
-            version: z.string(),
-          }),
-          minimum: z.number().int().min(1),
-          maximum: z.number().int().min(1),
-          zones: z.array(z.string()),
-        }),
+        workers: z
+          .array(
+            z.object({
+              name: z.string().default("containerd"),
+              machineType: z.string(),
+              machineImage: z.object({
+                name: z.string(),
+                version: z.string(),
+              }),
+              minimum: z.number().int().min(1),
+              maximum: z.number().int().min(1),
+              zones: z.array(z.string()),
+            })
+          )
+          .min(1),
 
         // Optional advanced settings
         secretBindingName: z.string().optional(),
@@ -166,31 +170,29 @@ export const shootRouter = {
               },
               ...(input.infrastructure.floatingPoolName && { floatingPoolName: input.infrastructure.floatingPoolName }),
             },
-            workers: [
-              {
-                name: input.worker.name,
-                machine: {
-                  type: input.worker.machineType,
-                  image: {
-                    name: input.worker.machineImage.name,
-                    version: input.worker.machineImage.version,
-                  },
-                  architecture: "amd64", // Could make this configurable if needed
+            workers: input.workers.map((worker) => ({
+              name: worker.name,
+              machine: {
+                type: worker.machineType,
+                image: {
+                  name: worker.machineImage.name,
+                  version: worker.machineImage.version,
                 },
-                minimum: input.worker.minimum,
-                maximum: input.worker.maximum,
-                maxSurge: 1, // Could make this configurable if needed
-                maxUnavailable: 0, // Could make this configurable if needed
-                zones: input.worker.zones,
-                cri: {
-                  name: "containerd", // Could make this configurable if needed
-                },
-                systemComponents: {
-                  allow: true,
-                },
-                updateStrategy: input.updateStrategy,
+                architecture: "amd64", // Could make this configurable if needed
               },
-            ],
+              minimum: worker.minimum,
+              maximum: worker.maximum,
+              maxSurge: 1, // Could make this configurable if needed
+              maxUnavailable: 0, // Could make this configurable if needed
+              zones: worker.zones,
+              cri: {
+                name: "containerd", // Could make this configurable if needed
+              },
+              systemComponents: {
+                allow: true,
+              },
+              updateStrategy: input.updateStrategy,
+            })),
           },
           cloudProfileName: input.cloudProfileName,
           secretBindingName: input.secretBindingName, // Default value if not provided
