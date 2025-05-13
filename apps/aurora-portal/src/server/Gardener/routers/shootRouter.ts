@@ -11,13 +11,13 @@ export const shootRouter = {
       await client
         .get(`apis/core.gardener.cloud/v1beta1/namespaces/garden-${process.env.GARDENER_PROJECT}/shoots`)
         .catch(async (err) => {
-          const errorBody = await err.response.json()
-          const errorDetails = errorBody.error || errorBody.message || err.message
+          const errorBody = await err?.response?.json()
+          const errorDetails = errorBody?.error || errorBody?.message || err.message
           throw new Error(`Error fetching clusters: ${errorDetails}`)
         })
     )
 
-    console.log("Parsed Data:", parsedData.error)
+    // console.log("Parsed Data:", parsedData?.error)
     const clusters = convertShootListApiSchemaToClusters(parsedData.data?.items || [])
     return clusters
   }),

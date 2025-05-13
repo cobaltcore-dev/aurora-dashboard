@@ -3,6 +3,7 @@ import { Button } from "@/client/components/headless-ui/Button"
 import { Filter, Plus, X, RefreshCw } from "lucide-react"
 import { useState } from "react"
 import { ClusterTable } from "../-components/ClusterTable"
+import CreateClusterWizard from "../-components/CreateClusterDialog"
 
 export const Route = createFileRoute("/gardener/clusters/")({
   component: RouteComponent,
@@ -18,6 +19,7 @@ export const Route = createFileRoute("/gardener/clusters/")({
 function RouteComponent() {
   const { clusters } = useLoaderData({ from: Route.id })
   const [searchTerm, setSearchTerm] = useState("")
+  const [createWizardModal, setCreateWizardModal] = useState(false)
   const [showFilters, setShowFilters] = useState(false)
   const [selectedProvider, setSelectedProvider] = useState("")
   const [selectedRegion, setSelectedRegion] = useState("")
@@ -63,6 +65,9 @@ function RouteComponent() {
         (selectedStatus === "" || cluster.status === selectedStatus)
     ) || []
 
+  const handleCreateWizzard = () => {
+    setCreateWizardModal(true)
+  }
   return (
     <div className="min-h-screen bg-gradient-to-b from-aurora-gray-950 to-aurora-gray-900 text-aurora-white p-6">
       <div className="max-w-7xl mx-auto">
@@ -79,6 +84,7 @@ function RouteComponent() {
               Refresh
             </Button>
             <Button
+              onClick={handleCreateWizzard}
               size="md"
               variant="primary"
               className="flex items-center bg-aurora-blue-700 hover:bg-aurora-blue-600 border-aurora-blue-600 text-aurora-white shadow-lg shadow-aurora-blue-900/20"
@@ -244,6 +250,9 @@ function RouteComponent() {
           )}
         </div>
       </div>
+      {createWizardModal && (
+        <CreateClusterWizard isOpen={createWizardModal} onClose={() => setCreateWizardModal(false)} />
+      )}
     </div>
   )
 }
