@@ -100,10 +100,10 @@ export const shootRouter = {
         // Infrastructure settings
         cloudProfileName: z.string(),
         infrastructure: z.object({
-          type: z.string(), // e.g., "openstack", "aws", etc.
+          type: z.string().default("openstack"), // e.g., "openstack", "aws", etc.
           // Provider-specific options
-          loadBalancerProvider: z.string().optional(),
-          floatingPoolName: z.string().optional(),
+          loadBalancerProvider: z.string().default("f5"), // e.g., "f5", "aws", etc.
+          floatingPoolName: z.string(),
         }),
 
         // Networking settings
@@ -116,7 +116,7 @@ export const shootRouter = {
 
         // Worker configuration
         worker: z.object({
-          name: z.string(),
+          name: z.string().default("containerd"),
           machineType: z.string(),
           machineImage: z.object({
             name: z.string(),
@@ -129,6 +129,7 @@ export const shootRouter = {
 
         // Optional advanced settings
         secretBindingName: z.string().optional(),
+        credentialsBindingName: z.string().optional(),
         updateStrategy: z.enum(["RollingUpdate", "AutoRollingUpdate"]).default("AutoRollingUpdate"),
       })
     )
@@ -193,32 +194,33 @@ export const shootRouter = {
           },
           cloudProfileName: input.cloudProfileName,
           secretBindingName: input.secretBindingName, // Default value if not provided
+          credentialsBindingName: input.credentialsBindingName, // Default value if not provided
           region: input.region,
         },
       }
 
-      try {
-        const response = await client.post(
-          `apis/core.gardener.cloud/v1beta1/namespaces/garden-${process.env.GARDENER_PROJECT}/shoots`,
-          shoot
-        )
+      const response = await client
+        .post(`apis/core.gardener.cloud/v1beta1/namespaces/garden-${process.env.GARDENER_PROJECT}/shoots`, shoot)
+        .catch(async (err) => {
+          const errorBody = (await err.response?.json()) || {}
+          const errorDetails = errorBody.error || errorBody.message || err.message
+          throw new Error(`Error creating cluster: ${errorDetails}`)
+        })
 
-        // Parse and validate the response
-        const parsedData = shootApiResponseSchema.safeParse(response)
+      console.log("====================================", response)
+      // Parse and validate the response
+      const parsedData = shootApiResponseSchema.safeParse(response)
 
-        if (!parsedData.success) {
-          console.error("Zod Parsing Error:", parsedData.error.format())
-          throw new AuroraTRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: "Failed to parse the API response",
-          })
-        }
-
-        // Convert to cluster format if needed
-        return convertShootApiResponseToCluster(parsedData.data)
-      } catch (error) {
-        console.error("Error creating cluster:", error)
-        return undefined
+      console.log(parsedData.error)
+      if (!parsedData.success) {
+        console.error("Zod Parsing Error:", parsedData.error.format())
+        throw new AuroraTRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to parse the API response",
+        })
       }
+
+      // Convert to cluster format if needed
+      return convertShootApiResponseToCluster(parsedData.data)
     }),
 }
