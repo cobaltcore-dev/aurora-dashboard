@@ -207,7 +207,6 @@ export const shootRouter = {
           throw new Error(`Error creating cluster: ${errorDetails}`)
         })
 
-      console.log("====================================", response)
       // Parse and validate the response
       const parsedData = shootApiResponseSchema.safeParse(response)
 
