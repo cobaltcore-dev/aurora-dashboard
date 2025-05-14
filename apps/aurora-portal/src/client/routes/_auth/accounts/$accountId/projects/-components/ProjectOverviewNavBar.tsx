@@ -4,7 +4,7 @@ import { Button } from "@/client/components/Button"
 import { Icon } from "@/client/components/Icon"
 export type ViewMode = "list" | "card"
 
-type ProjectsOverviewNavNbarProps = {
+type ProjectsOverviewNavBarProps = {
   viewMode: ViewMode
   setViewMode: (mode: ViewMode) => void
   searchPlaceholder?: string
@@ -13,12 +13,12 @@ type ProjectsOverviewNavNbarProps = {
   onSearch: (value: string) => void
 }
 
-export function ProjectsOverviewNavNbar({
+export function ProjectsOverviewNavBar({
   viewMode,
   setViewMode,
   searchTerm = "",
   onSearch,
-}: ProjectsOverviewNavNbarProps) {
+}: ProjectsOverviewNavBarProps) {
   const [localSearchTerm, setLocalSearchTerm] = useState(searchTerm)
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null)
 

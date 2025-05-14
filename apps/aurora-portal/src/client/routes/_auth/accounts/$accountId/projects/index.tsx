@@ -1,6 +1,6 @@
 import { createFileRoute, ErrorComponent } from "@tanstack/react-router"
 import { useState } from "react"
-import { ProjectsOverviewNavNbar, ViewMode } from "./-components/ProjectOverviewNavBar"
+import { ProjectsOverviewNavBar, ViewMode } from "./-components/ProjectOverviewNavBar"
 import { ProjectCardView } from "./-components/ProjectCardView"
 import { ProjectListView } from "./-components/ProjectListView"
 import { AccountSubNavigation } from "./-components/AccountSubNavigation"
@@ -78,7 +78,7 @@ export function ProjectsOverview() {
           {/* Main Content Area - Ensuring NavBar and Content Align Properly */}
           <div className="col-span-8 flex flex-col gap-4">
             {/* Navigation Bar */}
-            <ProjectsOverviewNavNbar
+            <ProjectsOverviewNavBar
               viewMode={viewMode}
               setViewMode={setViewMode}
               searchTerm={search}
