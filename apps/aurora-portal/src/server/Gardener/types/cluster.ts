@@ -12,6 +12,17 @@ export const clusterSchema = z.object({
   version: z.string(),
   readiness: z.string(),
 
+  // New state information fields
+  stateDetails: z
+    .object({
+      state: z.string().optional(),
+      progress: z.number().optional(),
+      type: z.string().optional(),
+      description: z.string().optional(),
+      lastTransitionTime: z.string().optional(),
+    })
+    .optional(),
+
   // Additional detail fields
   workers: z.array(
     z.object({
@@ -72,6 +83,21 @@ export function convertShootApiResponseToCluster(shoot: ShootApiResponse): Clust
     return `${healthyCount}/${conditions.length}`
   }
 
+  // New helper function to extract state details
+  const getStateDetails = (shoot: ShootApiResponse) => {
+    if (!shoot.status?.lastOperation) return undefined
+
+    const { state, type, progress, description, lastUpdateTime } = shoot.status.lastOperation
+
+    return {
+      state: state,
+      progress: typeof progress === "number" ? progress : undefined,
+      type: type,
+      description: description,
+      lastTransitionTime: lastUpdateTime,
+    }
+  }
+
   return {
     // List view fields
     uid: shoot.metadata.uid,
@@ -81,6 +107,9 @@ export function convertShootApiResponseToCluster(shoot: ShootApiResponse): Clust
     status: getStatus(shoot),
     version: shoot.spec.kubernetes.version,
     readiness: getReadiness(shoot),
+
+    // Add the state details
+    stateDetails: getStateDetails(shoot),
 
     // Detail fields - Workers
     workers: shoot.spec.provider.workers.map((worker) => ({
