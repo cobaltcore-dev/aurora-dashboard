@@ -4265,8 +4265,8 @@ packages:
   util-deprecate@1.0.2:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
 
-  valtio@2.1.4:
-    resolution: {integrity: sha512-O6U79SacltN5E5XOwLNixrGSAc4+TNkQw8AWSqjcpvvRjvFbfMvdbFW98g/VgxKoT8v9kb8WQkD8lvf+Dcme8w==}
+  valtio@2.1.5:
+    resolution: {integrity: sha512-vsh1Ixu5mT0pJFZm+Jspvhga5GzHUTYv0/+Th203pLfh3/wbHwxhu/Z2OkZDXIgHfjnjBns7SN9HNcbDvPmaGw==}
     engines: {node: '>=12.20.0'}
     peerDependencies:
       '@types/react': '>=18.0.0'
@@ -5046,7 +5046,7 @@ snapshots:
       '@fastify/forwarded': 3.0.0
       ipaddr.js: 2.2.0
 
-  '@fastify/react@1.0.2(@kitajs/ts-html-plugin@4.1.1)(@types/node@22.13.2)(@types/react@19.1.0)(fastify@5.2.1)(jiti@2.4.2)(rollup@4.34.6)(tsx@4.19.2)(typescript@5.7.3)(yaml@2.7.0)':
+  '@fastify/react@1.0.2(@kitajs/ts-html-plugin@4.1.1)(@types/node@22.13.2)(@types/react@19.1.0)(fastify@5.2.1)(jiti@2.4.2)(rollup@4.34.6)(tsx@4.19.2)(yaml@2.7.0)':
     dependencies:
       '@fastify/vite': 8.0.5(@kitajs/ts-html-plugin@4.1.1)(@types/node@22.13.2)(@types/react@19.1.0)(fastify@5.2.1)(jiti@2.4.2)(rollup@4.34.6)(tsx@4.19.2)(typescript@5.7.3)(yaml@2.7.0)
       acorn: 8.14.1
@@ -5061,7 +5061,7 @@ snapshots:
       react-dom: 19.1.0(react@19.1.0)
       react-router: 7.5.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       unihead: 0.8.0
-      valtio: 2.1.4(@types/react@19.1.0)(react@19.1.0)
+      valtio: 2.1.5(@types/react@19.1.0)(react@19.1.0)
       youch: 3.3.4
     transitivePeerDependencies:
       - '@kitajs/ts-html-plugin'
@@ -5078,7 +5078,6 @@ snapshots:
       - sugarss
       - terser
       - tsx
-      - typescript
       - yaml
     optional: true
 
@@ -5121,8 +5120,8 @@ snapshots:
       klaw: 4.1.0
     optionalDependencies:
       '@fastify/htmx': 0.4.0(@kitajs/ts-html-plugin@4.1.1)(rollup@4.34.6)
-      '@fastify/react': 1.0.2(@kitajs/ts-html-plugin@4.1.1)(@types/node@22.13.2)(@types/react@19.1.0)(fastify@5.2.1)(jiti@2.4.2)(rollup@4.34.6)(tsx@4.19.2)(typescript@5.7.3)(yaml@2.7.0)
-      '@fastify/vue': 1.0.6(@kitajs/ts-html-plugin@4.1.1)(@types/node@22.13.2)(fastify@5.2.1)(jiti@2.4.2)(rollup@4.34.6)(tsx@4.19.2)(typescript@5.7.3)(yaml@2.7.0)
+      '@fastify/react': 1.0.2(@kitajs/ts-html-plugin@4.1.1)(@types/node@22.13.2)(@types/react@19.1.0)(fastify@5.2.1)(jiti@2.4.2)(rollup@4.34.6)(tsx@4.19.2)(yaml@2.7.0)
+      '@fastify/vue': 1.0.6(@kitajs/ts-html-plugin@4.1.1)(@types/node@22.13.2)(@types/react@19.1.0)(fastify@5.2.1)(jiti@2.4.2)(rollup@4.34.6)(tsx@4.19.2)(typescript@5.7.3)(yaml@2.7.0)
       vite: 6.2.5(@types/node@22.13.2)(jiti@2.4.2)(tsx@4.19.2)(yaml@2.7.0)
     transitivePeerDependencies:
       - '@kitajs/ts-html-plugin'
@@ -5141,7 +5140,7 @@ snapshots:
       - typescript
       - yaml
 
-  '@fastify/vue@1.0.6(@kitajs/ts-html-plugin@4.1.1)(@types/node@22.13.2)(fastify@5.2.1)(jiti@2.4.2)(rollup@4.34.6)(tsx@4.19.2)(typescript@5.7.3)(yaml@2.7.0)':
+  '@fastify/vue@1.0.6(@kitajs/ts-html-plugin@4.1.1)(@types/node@22.13.2)(@types/react@19.1.0)(fastify@5.2.1)(jiti@2.4.2)(rollup@4.34.6)(tsx@4.19.2)(typescript@5.7.3)(yaml@2.7.0)':
     dependencies:
       '@fastify/vite': 8.0.5(@kitajs/ts-html-plugin@4.1.1)(@types/node@22.13.2)(@types/react@19.1.0)(fastify@5.2.1)(jiti@2.4.2)(rollup@4.34.6)(tsx@4.19.2)(typescript@5.7.3)(yaml@2.7.0)
       acorn: 8.14.1
@@ -5158,6 +5157,7 @@ snapshots:
     transitivePeerDependencies:
       - '@kitajs/ts-html-plugin'
       - '@types/node'
+      - '@types/react'
       - fastify
       - jiti
       - less
@@ -8797,7 +8797,7 @@ snapshots:
 
   util-deprecate@1.0.2: {}
 
-  valtio@2.1.4(@types/react@19.1.0)(react@19.1.0):
+  valtio@2.1.5(@types/react@19.1.0)(react@19.1.0):
     dependencies:
       proxy-compare: 3.0.1
     optionalDependencies:
