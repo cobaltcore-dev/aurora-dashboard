@@ -1,6 +1,6 @@
 import React from "react"
-import { Button } from "@/client/components/headless-ui/Button"
-import { GardenerDialog, GardenerDialogFooter, GardenerDialogTitle } from "./GardenerDialog"
+import { GardenerDialog, GardenerDialogFooter, GardenerDialogTitle } from "./ui/GardenerDialog"
+import { GardenerButton } from "./ui/GardenerButton"
 
 interface DeleteClusterGardenerDialogProps {
   isOpen: boolean
@@ -47,13 +47,13 @@ export const DeleteClusterDialog: React.FC<DeleteClusterGardenerDialogProps> = (
         </div>
       </div>
       <GardenerDialogFooter className="flex space-x-3 justify-end">
-        <Button
+        <GardenerButton
           onClick={onClose}
           className="bg-aurora-gray-800 text-aurora-gray-300 hover:bg-aurora-gray-700 hover:text-aurora-white"
         >
           Cancel
-        </Button>
-        <Button
+        </GardenerButton>
+        <GardenerButton
           className="bg-aurora-red-600 text-aurora-white hover:bg-aurora-red-500"
           onClick={(e) => {
             onClose()
@@ -61,7 +61,7 @@ export const DeleteClusterDialog: React.FC<DeleteClusterGardenerDialogProps> = (
           }}
         >
           Delete
-        </Button>
+        </GardenerButton>
       </GardenerDialogFooter>
     </GardenerDialog>
   )

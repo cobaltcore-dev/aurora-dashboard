@@ -2,7 +2,7 @@ import * as React from "react"
 import { DialogBackdrop, Dialog as HeadlessDialog } from "@headlessui/react"
 import { Description, DialogPanel, DialogTitle as HeadlessDialogTitle } from "@headlessui/react"
 
-import { cn } from "@/client/utils/cn"
+import { cn } from "../../-utils/cn"
 
 const GardenerDialog = ({
   open,

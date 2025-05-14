@@ -1,5 +1,5 @@
-import { Button } from "@/client/components/headless-ui/Button"
 import { Filter } from "lucide-react"
+import { GardenerButton } from "./ui/GardenerButton"
 
 // Search Bar component
 interface SearchBarProps {
@@ -38,7 +38,7 @@ export const SearchBar = ({ searchTerm, setSearchTerm, toggleFilters, showFilter
     </div>
 
     <div className="flex gap-2 shrink-0">
-      <Button
+      <GardenerButton
         size="sm"
         variant={showFilters ? "primary" : "secondary"}
         className={`flex items-center ${showFilters ? "bg-aurora-blue-700 text-aurora-white" : ""}`}
@@ -46,7 +46,7 @@ export const SearchBar = ({ searchTerm, setSearchTerm, toggleFilters, showFilter
       >
         <Filter className="h-4 w-4 mr-2" />
         Filters
-      </Button>
+      </GardenerButton>
       <select className="bg-aurora-gray-800 border border-aurora-gray-700 rounded-md px-3 py-1 text-aurora-gray-300 text-sm">
         <option value="">Sort: Newest</option>
         <option value="name-asc">Name (A-Z)</option>

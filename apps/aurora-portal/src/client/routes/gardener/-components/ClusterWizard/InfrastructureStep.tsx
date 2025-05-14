@@ -1,9 +1,8 @@
-// components/CreateClusterWizard/steps/InfrastructureStep.tsx
-import { Input } from "@/client/components/headless-ui/Input"
-import { Label } from "@/client/components/headless-ui/Label"
-import { Select } from "@/client/components/headless-ui/Select"
 import React from "react"
 import { ClusterFormData } from "./types"
+import { GardenerLabel } from "../ui/GardenerLabel"
+import { GardenerSelect } from "../ui/GardenerSelect"
+import { GardenerInput } from "../ui/GardenerInput"
 
 interface InfrastructureStepProps {
   formData: ClusterFormData
@@ -33,10 +32,10 @@ export const InfrastructureStep: React.FC<InfrastructureStepProps> = ({
   return (
     <div className="space-y-6">
       <div>
-        <Label htmlFor="floatingPool" className="text-aurora-gray-300">
+        <GardenerLabel htmlFor="floatingPool" className="text-aurora-gray-300">
           Floating IP Pool
-        </Label>
-        <Select
+        </GardenerLabel>
+        <GardenerSelect
           id="floatingPool"
           name="floatingPool"
           value={formData.infrastructure.floatingPoolName}
@@ -55,7 +54,7 @@ export const InfrastructureStep: React.FC<InfrastructureStepProps> = ({
               <option value="FloatingIP-external-monsoon3-02">FloatingIP-external-monsoon3-02</option>
             </>
           )}
-        </Select>
+        </GardenerSelect>
         <p className="text-xs text-aurora-gray-500 mt-1">
           The floating IP pool to use for the cluster's external network access
         </p>
@@ -66,10 +65,10 @@ export const InfrastructureStep: React.FC<InfrastructureStepProps> = ({
 
         <div className="grid grid-cols-3 gap-4">
           <div>
-            <Label htmlFor="podsCIDR" className="text-aurora-gray-300">
+            <GardenerLabel htmlFor="podsCIDR" className="text-aurora-gray-300">
               Pods CIDR
-            </Label>
-            <Input
+            </GardenerLabel>
+            <GardenerInput
               id="podsCIDR"
               className="mt-1 bg-aurora-gray-800 border-aurora-gray-700 text-aurora-white"
               value={formData.networking.pods}
@@ -80,10 +79,10 @@ export const InfrastructureStep: React.FC<InfrastructureStepProps> = ({
           </div>
 
           <div>
-            <Label htmlFor="nodesCIDR" className="text-aurora-gray-300">
+            <GardenerLabel htmlFor="nodesCIDR" className="text-aurora-gray-300">
               Nodes CIDR
-            </Label>
-            <Input
+            </GardenerLabel>
+            <GardenerInput
               id="nodesCIDR"
               className="mt-1 bg-aurora-gray-800 border-aurora-gray-700 text-aurora-white"
               value={formData.networking.nodes}
@@ -94,10 +93,10 @@ export const InfrastructureStep: React.FC<InfrastructureStepProps> = ({
           </div>
 
           <div>
-            <Label htmlFor="servicesCIDR" className="text-aurora-gray-300">
+            <GardenerLabel htmlFor="servicesCIDR" className="text-aurora-gray-300">
               Services CIDR
-            </Label>
-            <Input
+            </GardenerLabel>
+            <GardenerInput
               id="servicesCIDR"
               className="mt-1 bg-aurora-gray-800 border-aurora-gray-700 text-aurora-white"
               value={formData.networking.services}

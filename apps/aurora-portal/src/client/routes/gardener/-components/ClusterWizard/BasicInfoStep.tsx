@@ -1,8 +1,9 @@
 // components/CreateClusterWizard/steps/BasicInfoStep.tsx
-import { Input, Label } from "@headlessui/react"
 import React from "react"
 import { ClusterFormData } from "./types"
-import { Select } from "@/client/components/headless-ui/Select"
+import { GardenerLabel } from "../ui/GardenerLabel"
+import { GardenerInput } from "../ui/GardenerInput"
+import { GardenerSelect } from "../ui/GardenerSelect"
 
 interface BasicInfoStepProps {
   formData: ClusterFormData
@@ -18,10 +19,10 @@ export const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
   return (
     <div className="space-y-6">
       <div>
-        <Label htmlFor="clusterName" className="text-aurora-gray-300">
+        <GardenerLabel htmlFor="clusterName" className="text-aurora-gray-300">
           Cluster Name
-        </Label>
-        <Input
+        </GardenerLabel>
+        <GardenerInput
           id="clusterName"
           className="mt-1 bg-aurora-gray-800 border-aurora-gray-700 text-aurora-white"
           placeholder="my-cluster"
@@ -34,10 +35,10 @@ export const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
       </div>
 
       <div>
-        <Label htmlFor="kubeVersion" className="text-aurora-gray-300">
+        <GardenerLabel htmlFor="kubeVersion" className="text-aurora-gray-300">
           Kubernetes Version
-        </Label>
-        <Select
+        </GardenerLabel>
+        <GardenerSelect
           id="kubeVersion"
           name="kubeVersion"
           value={formData.kubernetesVersion}
@@ -49,14 +50,14 @@ export const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
               {version}
             </option>
           ))}
-        </Select>
+        </GardenerSelect>
       </div>
 
       <div>
-        <Label htmlFor="region" className="text-aurora-gray-300">
+        <GardenerLabel htmlFor="region" className="text-aurora-gray-300">
           Region
-        </Label>
-        <Select
+        </GardenerLabel>
+        <GardenerSelect
           id="region"
           name="region"
           value={formData.region}
@@ -70,15 +71,15 @@ export const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
           <option value="na-us-2">na-us-2 (USA)</option>
           <option value="ap-jp-1">ap-jp-1 (Japan)</option>
           <option value="ap-au-1">ap-au-1 (Australia)</option>
-        </Select>
+        </GardenerSelect>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <Label htmlFor="cloudProfile" className="text-aurora-gray-300">
+          <GardenerLabel htmlFor="cloudProfile" className="text-aurora-gray-300">
             Cloud Profile
-          </Label>
-          <Input
+          </GardenerLabel>
+          <GardenerInput
             id="cloudProfile"
             className="mt-1 bg-aurora-gray-800 border-aurora-gray-700 text-aurora-white"
             value={formData.cloudProfileName}
@@ -87,10 +88,10 @@ export const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
         </div>
 
         <div>
-          <Label htmlFor="credentialsBinding" className="text-aurora-gray-300">
+          <GardenerLabel htmlFor="credentialsBinding" className="text-aurora-gray-300">
             Credentials Binding
-          </Label>
-          <Select
+          </GardenerLabel>
+          <GardenerSelect
             id="credentialsBinding"
             name="credentialsBinding"
             value={formData.credentialsBindingName}
@@ -99,7 +100,7 @@ export const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
           >
             <option value="app-cred-openstack">app-cred-openstack</option>
             <option value="my-openstack-secret">my-openstack-secret</option>
-          </Select>
+          </GardenerSelect>
         </div>
       </div>
     </div>

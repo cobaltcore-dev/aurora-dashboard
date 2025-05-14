@@ -10,9 +10,9 @@ import { ReviewStep } from "./ClusterWizard/ReviewStep"
 import { WizardHeader } from "./ClusterWizard/WizardHeader"
 import { WizardProgress } from "./ClusterWizard/WizardProgress"
 import { WizardActions } from "./ClusterWizard/WizardActions"
-import { FieldSet } from "@/client/components/headless-ui/FieldSet"
 import { TrpcClient } from "@/client/trpcClient"
-import { GardenerDialog } from "./GardenerDialog"
+import { GardenerDialog } from "./ui/GardenerDialog"
+import { GardenerFieldset } from "./ui/GardenerFieldset"
 
 interface CreateClusterWizardProps {
   isOpen: boolean
@@ -168,9 +168,9 @@ const CreateClusterDialogContent: React.FC<{
         <div className="p-6">
           <WizardHeader onClose={onClose} />
           <WizardProgress steps={steps} currentStep={currentStep} onStepClick={goToStep} />
-          <FieldSet>
+          <GardenerFieldset>
             <div className="mb-8">{renderStepContent()}</div>
-          </FieldSet>
+          </GardenerFieldset>
 
           <WizardActions
             currentStep={currentStep}

@@ -1,11 +1,12 @@
 // components/CreateClusterWizard/WorkerPool.tsx
 import React from "react"
 import { WorkerConfig } from "./types"
-import { Label } from "@/client/components/headless-ui/Label"
-import { Input } from "@/client/components/headless-ui/Input"
-import { Select } from "@/client/components/headless-ui/Select"
-import { Button } from "@/client/components/headless-ui/Button"
+
 import { X } from "lucide-react"
+import { GardenerButton } from "../ui/GardenerButton"
+import { GardenerLabel } from "../ui/GardenerLabel"
+import { GardenerSelect } from "../ui/GardenerSelect"
+import { GardenerInput } from "../ui/GardenerInput"
 
 interface WorkerPoolProps {
   workers: WorkerConfig[]
@@ -30,13 +31,13 @@ export const WorkerPool: React.FC<WorkerPoolProps> = ({
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <h3 className="text-lg font-medium text-aurora-white">Worker Pools</h3>
-        <Button
+        <GardenerButton
           onClick={onAddWorker}
           variant="secondary"
           className="border-aurora-gray-700 bg-aurora-gray-800 text-aurora-white hover:bg-aurora-gray-700"
         >
           Add Worker Pool
-        </Button>
+        </GardenerButton>
       </div>
 
       {workers.map((worker, index) => {
@@ -55,22 +56,22 @@ export const WorkerPool: React.FC<WorkerPoolProps> = ({
             <div className="flex justify-between items-center">
               <h4 className="text-aurora-white font-medium">Worker Pool #{index + 1}</h4>
               {workers.length > 1 && (
-                <Button
+                <GardenerButton
                   onClick={() => onRemoveWorker(index)}
                   variant="ghost"
                   className="h-8 w-8 p-0 text-aurora-red-400 hover:text-aurora-red-300 hover:bg-aurora-gray-700/50"
                 >
                   <X className="h-4 w-4" />
-                </Button>
+                </GardenerButton>
               )}
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label htmlFor={`worker-machine-type-${index}`} className="text-aurora-gray-300">
+                <GardenerLabel htmlFor={`worker-machine-type-${index}`} className="text-aurora-gray-300">
                   Machine Type
-                </Label>
-                <Select
+                </GardenerLabel>
+                <GardenerSelect
                   id={`worker-machine-type-${index}`}
                   value={worker.machineType}
                   className="mt-1 bg-aurora-gray-800 border-aurora-gray-700 text-aurora-white"
@@ -81,15 +82,15 @@ export const WorkerPool: React.FC<WorkerPoolProps> = ({
                       {machine.name} ({machine.cpu} CPU, {machine.memory})
                     </option>
                   ))}
-                </Select>
+                </GardenerSelect>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor={`worker-image-${index}`} className="text-aurora-gray-300">
+                  <GardenerLabel htmlFor={`worker-image-${index}`} className="text-aurora-gray-300">
                     Machine Image
-                  </Label>
-                  <Select
+                  </GardenerLabel>
+                  <GardenerSelect
                     id={`worker-image-${index}`}
                     value={worker.machineImage.name}
                     className="mt-1 bg-aurora-gray-800 border-aurora-gray-700 text-aurora-white"
@@ -100,14 +101,14 @@ export const WorkerPool: React.FC<WorkerPoolProps> = ({
                         {image.name}
                       </option>
                     ))}
-                  </Select>
+                  </GardenerSelect>
                 </div>
 
                 <div>
-                  <Label htmlFor={`worker-version-${index}`} className="text-aurora-gray-300">
+                  <GardenerLabel htmlFor={`worker-version-${index}`} className="text-aurora-gray-300">
                     Image Version
-                  </Label>
-                  <Select
+                  </GardenerLabel>
+                  <GardenerSelect
                     id={`worker-version-${index}`}
                     value={worker.machineImage.version}
                     className="mt-1 bg-aurora-gray-800 border-aurora-gray-700 text-aurora-white"
@@ -118,17 +119,17 @@ export const WorkerPool: React.FC<WorkerPoolProps> = ({
                         {version}
                       </option>
                     ))}
-                  </Select>
+                  </GardenerSelect>
                 </div>
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label htmlFor={`worker-min-${index}`} className="text-aurora-gray-300">
+                <GardenerLabel htmlFor={`worker-min-${index}`} className="text-aurora-gray-300">
                   Minimum Nodes
-                </Label>
-                <Input
+                </GardenerLabel>
+                <GardenerInput
                   id={`worker-min-${index}`}
                   type="number"
                   min="1"
@@ -139,10 +140,10 @@ export const WorkerPool: React.FC<WorkerPoolProps> = ({
               </div>
 
               <div>
-                <Label htmlFor={`worker-max-${index}`} className="text-aurora-gray-300">
+                <GardenerLabel htmlFor={`worker-max-${index}`} className="text-aurora-gray-300">
                   Maximum Nodes
-                </Label>
-                <Input
+                </GardenerLabel>
+                <GardenerInput
                   id={`worker-max-${index}`}
                   type="number"
                   min={worker.minimum}
@@ -154,11 +155,11 @@ export const WorkerPool: React.FC<WorkerPoolProps> = ({
             </div>
 
             <div>
-              <Label className="text-aurora-gray-300">Availability Zones</Label>
+              <GardenerLabel className="text-aurora-gray-300">Availability Zones</GardenerLabel>
               <div className="grid grid-cols-2 gap-2 mt-1">
                 {availableZones.map((zone) => (
                   <div key={zone} className="flex items-center space-x-2">
-                    <input
+                    <GardenerInput
                       type="checkbox"
                       id={`zone-${index}-${zone}`}
                       checked={worker.zones.includes(zone)}

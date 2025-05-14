@@ -1,11 +1,19 @@
 import React from "react"
 import { Link } from "@tanstack/react-router"
-import { Button } from "@/client/components/headless-ui/Button"
 import { ArrowLeft, Share2, Edit, RefreshCcw, Check, CheckCircle, AlertTriangle, XCircle, Clock } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/client/components/Card"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/client/components/Table"
+import {
+  GardenerTable,
+  GardenerTableBody,
+  GardenerTableCell,
+  GardenerTableHead,
+  GardenerTableHeader,
+  GardenerTableRow,
+} from "./ui/GardenerTable"
 import { Cluster } from "@/server/Gardener/types/cluster"
 import { toast } from "sonner"
+import { GardenerButton } from "./ui/GardenerButton"
+import { GardenerCard, GardenerCardContent, GardenerCardHeader, GardenerCardTitle } from "./ui/GardenerCard"
 
 // Component to render worker details
 const WorkersSection: React.FC<{ workers: Cluster["workers"] }> = ({ workers }) => {
@@ -14,10 +22,10 @@ const WorkersSection: React.FC<{ workers: Cluster["workers"] }> = ({ workers }) 
       <Card className="mt-6 bg-aurora-gray-900 border-aurora-gray-800 text-aurora-white shadow-xl">
         <CardHeader className="flex flex-row items-center justify-between border-b border-aurora-gray-800 pb-4">
           <CardTitle className="text-xl font-medium">Workers</CardTitle>
-          <Button size="sm" variant="secondary" className="opacity-50 cursor-not-allowed">
+          <GardenerButton size="sm" variant="secondary" className="opacity-50 cursor-not-allowed">
             <RefreshCcw className="h-4 w-4 mr-2" />
             Add Worker
-          </Button>
+          </GardenerButton>
         </CardHeader>
         <CardContent className="pt-4">
           <div className="flex flex-col items-center justify-center py-8 text-center">
@@ -36,49 +44,55 @@ const WorkersSection: React.FC<{ workers: Cluster["workers"] }> = ({ workers }) 
     <Card className="mt-6 bg-aurora-gray-900 border-aurora-gray-800 text-aurora-white shadow-xl">
       <CardHeader className="flex flex-row items-center justify-between border-b border-aurora-gray-800 pb-4">
         <CardTitle className="text-xl font-medium">Workers</CardTitle>
-        <Button
+        <GardenerButton
           size="sm"
           variant="secondary"
           className="hover:bg-aurora-blue-900/20 hover:text-aurora-blue-300 hover:border-aurora-blue-700"
         >
           <RefreshCcw className="h-4 w-4 mr-2" />
           Add Worker
-        </Button>
+        </GardenerButton>
       </CardHeader>
       <CardContent className="pt-4">
-        <Table>
-          <TableHeader className="bg-aurora-gray-800/80">
-            <TableRow className="border-aurora-gray-700">
-              <TableHead className="text-aurora-gray-300 font-medium uppercase text-xs tracking-wider">Name</TableHead>
-              <TableHead className="text-aurora-gray-300 font-medium uppercase text-xs tracking-wider">
+        <GardenerTable>
+          <GardenerTableHeader className="bg-aurora-gray-800/80">
+            <GardenerTableRow className="border-aurora-gray-700">
+              <GardenerTableHead className="text-aurora-gray-300 font-medium uppercase text-xs tracking-wider">
+                Name
+              </GardenerTableHead>
+              <GardenerTableHead className="text-aurora-gray-300 font-medium uppercase text-xs tracking-wider">
                 Machine Type
-              </TableHead>
-              <TableHead className="text-aurora-gray-300 font-medium uppercase text-xs tracking-wider">Image</TableHead>
-              <TableHead className="text-aurora-gray-300 font-medium uppercase text-xs tracking-wider">
+              </GardenerTableHead>
+              <GardenerTableHead className="text-aurora-gray-300 font-medium uppercase text-xs tracking-wider">
+                Image
+              </GardenerTableHead>
+              <GardenerTableHead className="text-aurora-gray-300 font-medium uppercase text-xs tracking-wider">
                 Scaling
-              </TableHead>
-              <TableHead className="text-aurora-gray-300 font-medium uppercase text-xs tracking-wider">Zones</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
+              </GardenerTableHead>
+              <GardenerTableHead className="text-aurora-gray-300 font-medium uppercase text-xs tracking-wider">
+                Zones
+              </GardenerTableHead>
+            </GardenerTableRow>
+          </GardenerTableHeader>
+          <GardenerTableBody>
             {workers.map((worker) => (
-              <TableRow
+              <GardenerTableRow
                 key={worker.name}
                 className="border-aurora-gray-800 hover:bg-aurora-gray-800/30 transition-colors"
               >
-                <TableCell className="font-medium text-aurora-white">
+                <GardenerTableCell className="font-medium text-aurora-white">
                   <div className="flex flex-col">
                     <span>{worker.name}</span>
                     <span className="text-xs text-aurora-gray-400 mt-1">{worker.architecture}</span>
                   </div>
-                </TableCell>
-                <TableCell>
+                </GardenerTableCell>
+                <GardenerTableCell>
                   <div className="flex flex-col">
                     <span className="text-aurora-gray-200">{worker.machineType}</span>
                     <span className="text-xs text-aurora-blue-300 mt-1">{worker.containerRuntime}</span>
                   </div>
-                </TableCell>
-                <TableCell>
+                </GardenerTableCell>
+                <GardenerTableCell>
                   <div className="flex flex-col">
                     <span className="text-aurora-gray-200">{worker.machineImage.name}</span>
                     <div className="flex items-center mt-1">
@@ -86,8 +100,8 @@ const WorkersSection: React.FC<{ workers: Cluster["workers"] }> = ({ workers }) 
                       <span className="text-xs text-aurora-gray-400">{worker.machineImage.version}</span>
                     </div>
                   </div>
-                </TableCell>
-                <TableCell>
+                </GardenerTableCell>
+                <GardenerTableCell>
                   <div className="flex flex-col">
                     <span className="text-aurora-gray-200">
                       {worker.actual !== undefined ? worker.actual : "?"} nodes
@@ -96,8 +110,8 @@ const WorkersSection: React.FC<{ workers: Cluster["workers"] }> = ({ workers }) 
                       Min: {worker.min} / Max: {worker.max} / Surge: {worker.maxSurge}
                     </span>
                   </div>
-                </TableCell>
-                <TableCell>
+                </GardenerTableCell>
+                <GardenerTableCell>
                   <div className="flex flex-wrap gap-1.5">
                     {worker.zones.map((zone) => (
                       <span
@@ -108,11 +122,11 @@ const WorkersSection: React.FC<{ workers: Cluster["workers"] }> = ({ workers }) 
                       </span>
                     ))}
                   </div>
-                </TableCell>
-              </TableRow>
+                </GardenerTableCell>
+              </GardenerTableRow>
             ))}
-          </TableBody>
-        </Table>
+          </GardenerTableBody>
+        </GardenerTable>
       </CardContent>
     </Card>
   )
@@ -124,19 +138,19 @@ const SettingsSection: React.FC<{
   autoUpdate: Cluster["autoUpdate"]
 }> = ({ maintenance, autoUpdate }) => {
   return (
-    <Card className="mt-6 bg-aurora-gray-900 border-aurora-gray-800 text-aurora-white shadow-xl">
-      <CardHeader className="flex flex-row items-center justify-between border-b border-aurora-gray-800 pb-4">
-        <CardTitle className="text-xl font-medium">Settings</CardTitle>
-        <Button
+    <GardenerCard className="mt-6 bg-aurora-gray-900 border-aurora-gray-800 text-aurora-white shadow-xl">
+      <GardenerCardHeader className="flex flex-row items-center justify-between border-b border-aurora-gray-800 pb-4">
+        <GardenerCardTitle className="text-xl font-medium">Settings</GardenerCardTitle>
+        <GardenerButton
           size="sm"
           variant="secondary"
           className="hover:bg-aurora-blue-900/20 hover:text-aurora-blue-300 hover:border-aurora-blue-700"
         >
           <Edit className="h-4 w-4 mr-2" />
           Edit Settings
-        </Button>
-      </CardHeader>
-      <CardContent className="pt-6">
+        </GardenerButton>
+      </GardenerCardHeader>
+      <GardenerCardContent className="pt-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <div className="flex items-center mb-3">
@@ -201,8 +215,8 @@ const SettingsSection: React.FC<{
             </div>
           </div>
         </div>
-      </CardContent>
-    </Card>
+      </GardenerCardContent>
+    </GardenerCard>
   )
 }
 
@@ -297,14 +311,14 @@ const ClusterDetail: React.FC<ClusterDetailProps> = ({ cluster }) => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-aurora-gray-950 to-aurora-gray-900 p-6">
       <div className="max-w-7xl mx-auto">
-        {/* Header with back button and title */}
+        {/* Header with back GardenerButton and title */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
           <div className="flex items-center mb-4 sm:mb-0">
             <Link to="/gardener/clusters">
-              <Button size="md" variant="secondary" className="mr-4">
+              <GardenerButton size="md" variant="secondary" className="mr-4">
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Return to Clusters
-              </Button>
+              </GardenerButton>
             </Link>
             <div>
               <h1 className="text-2xl font-bold text-aurora-white">Cluster Details</h1>
@@ -313,7 +327,7 @@ const ClusterDetail: React.FC<ClusterDetailProps> = ({ cluster }) => {
           </div>
 
           <div className="flex gap-2">
-            <Button
+            <GardenerButton
               size="md"
               variant="secondary"
               onClick={handleShare}
@@ -321,15 +335,15 @@ const ClusterDetail: React.FC<ClusterDetailProps> = ({ cluster }) => {
             >
               <Share2 className="mr-2 h-4 w-4" />
               Share
-            </Button>
-            <Button
+            </GardenerButton>
+            <GardenerButton
               size="md"
               variant="primary"
               className="bg-aurora-blue-700 hover:bg-aurora-blue-600 border-aurora-blue-600 text-aurora-white shadow-lg shadow-aurora-blue-900/20"
             >
               <Edit className="mr-2 h-4 w-4" />
               Edit Cluster
-            </Button>
+            </GardenerButton>
           </div>
         </div>
 

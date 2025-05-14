@@ -1,9 +1,9 @@
 import React from "react"
-import { IconButton } from "@/client/components/headless-ui/Button"
 import { Eye, Edit, Trash2, AlertTriangle, CheckCircle, XCircle, Clock } from "lucide-react"
 import { Link } from "@tanstack/react-router"
 import { Cluster } from "@/server/Gardener/types/cluster"
 import { toast } from "sonner"
+import { GardenerIconButton } from "./ui/GardenerButton"
 
 interface ClusterTableRowProps {
   cluster: Cluster
@@ -142,7 +142,7 @@ const ClusterTableRow: React.FC<ClusterTableRowProps> = ({ cluster, isLast, setS
       <td className="p-4">
         <div className="flex items-center justify-end gap-2 group-hover:opacity-100 transition-opacity">
           <Link to="/gardener/clusters/$clusterName" params={{ clusterName: cluster.name }}>
-            <IconButton
+            <GardenerIconButton
               size="sm"
               variant="ghost"
               className="text-aurora-blue-500 hover:text-aurora-blue-400 hover:bg-aurora-blue-800/20"
@@ -150,11 +150,12 @@ const ClusterTableRow: React.FC<ClusterTableRowProps> = ({ cluster, isLast, setS
             >
               <Eye className="h-4 w-4" />
               <span className="sr-only">View Details</span>
-            </IconButton>
+            </GardenerIconButton>
           </Link>
 
-          <IconButton
+          <GardenerIconButton
             size="sm"
+            disabled
             variant="ghost"
             className="text-aurora-gray-500 hover:text-aurora-gray-400 hover:bg-aurora-gray-700/40"
             onClick={() => {
@@ -163,9 +164,9 @@ const ClusterTableRow: React.FC<ClusterTableRowProps> = ({ cluster, isLast, setS
           >
             <Edit className="h-4 w-4" />
             <span className="sr-only">Edit</span>
-          </IconButton>
+          </GardenerIconButton>
 
-          <IconButton
+          <GardenerIconButton
             size="sm"
             variant="ghost"
             className="text-aurora-red-500 hover:text-aurora-red-400 hover:bg-aurora-red-800/20"
@@ -175,7 +176,7 @@ const ClusterTableRow: React.FC<ClusterTableRowProps> = ({ cluster, isLast, setS
           >
             <Trash2 className="h-4 w-4" />
             <span className="sr-only">Delete</span>
-          </IconButton>
+          </GardenerIconButton>
         </div>
       </td>
     </tr>

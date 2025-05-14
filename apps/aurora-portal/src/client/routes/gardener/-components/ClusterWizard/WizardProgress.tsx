@@ -1,7 +1,7 @@
 // components/CreateClusterWizard/WizardProgress.tsx
 import React from "react"
 import { Check } from "lucide-react"
-import { cn } from "@/client/utils/cn"
+import { cn } from "../../-utils/cn"
 
 interface WizardProgressProps {
   steps: Array<{ title: string; description: string }>
