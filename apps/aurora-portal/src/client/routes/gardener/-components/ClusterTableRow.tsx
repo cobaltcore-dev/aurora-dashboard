@@ -8,6 +8,7 @@ import { toast } from "sonner"
 interface ClusterTableRowProps {
   cluster: Cluster
   isLast: boolean
+  setShowClusterModal: (clusterName: string) => void
 }
 
 // Helper function to get status color
@@ -70,7 +71,7 @@ const getStatusStyles = (status: string) => {
   }
 }
 
-const ClusterTableRow: React.FC<ClusterTableRowProps> = ({ cluster, isLast }) => {
+const ClusterTableRow: React.FC<ClusterTableRowProps> = ({ cluster, isLast, setShowClusterModal }) => {
   const statusStyles = getStatusStyles(cluster.status)
   const StatusIcon = statusStyles.icon
 
@@ -169,7 +170,7 @@ const ClusterTableRow: React.FC<ClusterTableRowProps> = ({ cluster, isLast }) =>
             variant="ghost"
             className="text-aurora-red-500 hover:text-aurora-red-400 hover:bg-aurora-red-800/20"
             onClick={() => {
-              toast.info(`Deleting ${cluster.name}... (Not implemented)`)
+              setShowClusterModal(cluster.name)
             }}
           >
             <Trash2 className="h-4 w-4" />
