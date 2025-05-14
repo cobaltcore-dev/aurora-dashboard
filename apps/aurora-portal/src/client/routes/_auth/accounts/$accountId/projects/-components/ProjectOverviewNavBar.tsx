@@ -1,3 +1,4 @@
+import { useState, useRef } from "react"
 import { ComboBox, ComboBoxOption } from "@/client/components/ComboBox"
 import { Button } from "@/client/components/Button"
 import { Icon } from "@/client/components/Icon"
@@ -8,9 +9,31 @@ type ProjectsOverviewNavNbarProps = {
   setViewMode: (mode: ViewMode) => void
   searchPlaceholder?: string
   filters?: { label: string; value: string }[]
+  searchTerm?: string
+  onSearch: (value: string) => void
 }
 
-export function ProjectsOverviewNavNbar({ viewMode, setViewMode }: ProjectsOverviewNavNbarProps) {
+export function ProjectsOverviewNavNbar({
+  viewMode,
+  setViewMode,
+  searchTerm = "",
+  onSearch,
+}: ProjectsOverviewNavNbarProps) {
+  const [localSearchTerm, setLocalSearchTerm] = useState(searchTerm)
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null)
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+    setLocalSearchTerm(value)
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current)
+    }
+
+    debounceTimerRef.current = setTimeout(() => {
+      onSearch(value)
+    }, 300)
+  }
+
   return (
     <div className="flex items-center justify-between gap-4 w-full">
       {/* Search Input (60%) */}
@@ -20,6 +43,8 @@ export function ProjectsOverviewNavNbar({ viewMode, setViewMode }: ProjectsOverv
           type="text"
           placeholder="Search..."
           className="bg-transparent border-none outline-none text-white placeholder-gray-400 w-full"
+          value={localSearchTerm}
+          onChange={handleSearchChange}
         />
       </div>
 

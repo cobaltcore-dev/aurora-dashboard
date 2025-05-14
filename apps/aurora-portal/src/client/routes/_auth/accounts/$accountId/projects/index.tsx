@@ -4,6 +4,11 @@ import { ProjectsOverviewNavNbar, ViewMode } from "./-components/ProjectOverview
 import { ProjectCardView } from "./-components/ProjectCardView"
 import { ProjectListView } from "./-components/ProjectListView"
 import { AccountSubNavigation } from "./-components/AccountSubNavigation"
+import { z } from "zod"
+
+const searchSchema = z.object({
+  search: z.string().optional(),
+})
 
 export const Route = createFileRoute("/_auth/accounts/$accountId/projects/")({
   component: ProjectsOverview,
@@ -28,8 +33,17 @@ export const Route = createFileRoute("/_auth/accounts/$accountId/projects/")({
       crumbDomain: { path: `/accounts/${params.accountId}/projects`, name: data?.domain?.name },
     }
   },
-  loader: async ({ context }) => {
-    const projects = await context.trpcClient?.project.getAuthProjects.query()
+
+  validateSearch: searchSchema,
+
+  loaderDeps: ({ search }) => ({
+    search: search.search || "",
+  }),
+
+  loader: async ({ context, deps }) => {
+    const projects = await context.trpcClient?.project.searchProjects.query({
+      search: deps.search,
+    })
 
     return {
       projects,
@@ -41,6 +55,15 @@ export const Route = createFileRoute("/_auth/accounts/$accountId/projects/")({
 export function ProjectsOverview() {
   const [viewMode, setViewMode] = useState<ViewMode>("card")
   const { projects } = Route.useLoaderData()
+  const { search = "" } = Route.useSearch()
+  const navigate = Route.useNavigate()
+
+  const handleSearch = (value: string) => {
+    navigate({
+      search: { search: value },
+      replace: true,
+    })
+  }
 
   return (
     <div>
@@ -55,8 +78,12 @@ export function ProjectsOverview() {
           {/* Main Content Area - Ensuring NavBar and Content Align Properly */}
           <div className="col-span-8 flex flex-col gap-4">
             {/* Navigation Bar */}
-            <ProjectsOverviewNavNbar viewMode={viewMode} setViewMode={setViewMode} />
-
+            <ProjectsOverviewNavNbar
+              viewMode={viewMode}
+              setViewMode={setViewMode}
+              searchTerm={search}
+              onSearch={handleSearch}
+            />
             {/* Content - Make sure it has no extra margin/padding that misaligns */}
             <div className="w-full pt-5">
               {viewMode === "list" ? <ProjectListView projects={projects} /> : <ProjectCardView projects={projects} />}
