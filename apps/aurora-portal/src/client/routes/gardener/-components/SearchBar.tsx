@@ -1,15 +1,26 @@
 import { Filter } from "lucide-react"
 import { GardenerButton } from "./ui/GardenerButton"
+import { GardenerSelect } from "./ui/GardenerSelect"
 
+export type SortByType = "name-asc" | "name-desc" | "status" | "newest" | ""
 // Search Bar component
 interface SearchBarProps {
   searchTerm: string
+  sortTearm: SortByType
   setSearchTerm: (value: string) => void
+  setSortTearm: (value: SortByType) => void
   toggleFilters: () => void
   showFilters: boolean
 }
 
-export const SearchBar = ({ searchTerm, setSearchTerm, toggleFilters, showFilters }: SearchBarProps) => (
+export const SearchBar = ({
+  searchTerm,
+  setSearchTerm,
+  toggleFilters,
+  showFilters,
+  setSortTearm,
+  sortTearm,
+}: SearchBarProps) => (
   <div className="flex flex-col lg:flex-row justify-between items-stretch lg:items-center border-b border-aurora-gray-800 pb-4 mb-6 gap-4">
     <div className="flex flex-grow items-center">
       <div className="relative flex-grow">
@@ -38,21 +49,23 @@ export const SearchBar = ({ searchTerm, setSearchTerm, toggleFilters, showFilter
     </div>
 
     <div className="flex gap-2 shrink-0">
-      <GardenerButton
-        size="sm"
-        variant={showFilters ? "primary" : "secondary"}
-        className={`flex items-center ${showFilters ? "bg-aurora-blue-700 text-aurora-white" : ""}`}
-        onClick={toggleFilters}
-      >
+      <GardenerButton size="sm" variant={showFilters ? "primary" : "secondary"} onClick={toggleFilters}>
         <Filter className="h-4 w-4 mr-2" />
         Filters
       </GardenerButton>
-      <select className="bg-aurora-gray-800 border border-aurora-gray-700 rounded-md px-3 py-1 text-aurora-gray-300 text-sm">
+      <GardenerSelect
+        name="sort"
+        value={sortTearm}
+        onChange={(e) => {
+          setSortTearm(e.target.value as SortByType)
+        }}
+        className="bg-aurora-gray-800 border border-aurora-gray-700 rounded-md px-3 py-1 text-aurora-gray-300 text-sm"
+      >
         <option value="">Sort: Newest</option>
         <option value="name-asc">Name (A-Z)</option>
         <option value="name-desc">Name (Z-A)</option>
         <option value="status">Status</option>
-      </select>
+      </GardenerSelect>
     </div>
   </div>
 )

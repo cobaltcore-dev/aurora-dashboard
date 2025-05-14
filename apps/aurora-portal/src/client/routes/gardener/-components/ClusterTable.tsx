@@ -68,12 +68,12 @@ export const ClusterTable: React.FC<{
             <span className="text-aurora-white">{filteredCount}</span> clusters
           </div>
           <div className="flex items-center gap-2">
-            <GardenerButton size="sm" variant="secondary">
+            <GardenerButton size="sm" variant="disabled" disabled>
               <ChevronLeft className="h-4 w-4 mr-1" />
               Previous
             </GardenerButton>
-            <span className="px-3 py-1 bg-aurora-blue-800/40 text-aurora-blue-300 rounded">1</span>
-            <GardenerButton size="sm" variant="secondary">
+            <span className="px-3 py-1 bg-aurora-gray-900/50 text-aurora-gray-600 rounded cursor-not-allowed">1</span>
+            <GardenerButton size="sm" variant="disabled" disabled>
               Next
               <ChevronRight className="h-4 w-4 ml-1" />
             </GardenerButton>

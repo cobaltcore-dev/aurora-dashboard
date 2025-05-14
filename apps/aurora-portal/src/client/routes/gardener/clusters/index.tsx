@@ -1,11 +1,15 @@
 import { createFileRoute, useLoaderData, useRouter } from "@tanstack/react-router"
-import { Button } from "@/client/components/headless-ui/Button"
-import { Filter, Plus, X, RefreshCw } from "lucide-react"
-import { useState } from "react"
+import { Plus, RefreshCw } from "lucide-react"
+import { toast } from "sonner"
+import React, { useState } from "react"
+import { Cluster } from "@/server/Gardener/types/cluster"
+
 import { ClusterTable } from "../-components/ClusterTable"
 import CreateClusterWizard from "../-components/CreateClusterDialog"
 import { DeleteClusterDialog } from "../-components/DeleteClusterDialog"
-import { toast } from "sonner"
+import { SearchBar, SortByType } from "../-components/SearchBar"
+import { GardenerButton } from "../-components/ui/GardenerButton"
+import { ClusterFilters } from "../-components/ClusterFilters"
 
 export const Route = createFileRoute("/gardener/clusters/")({
   component: RouteComponent,
@@ -19,18 +23,41 @@ export const Route = createFileRoute("/gardener/clusters/")({
   },
 })
 
+const sortClusters = (clusters: Cluster[], sortBy: SortByType) => {
+  switch (sortBy) {
+    case "name-asc":
+      return [...clusters].sort((a, b) => a.name.localeCompare(b.name))
+    case "name-desc":
+      return [...clusters].sort((a, b) => b.name.localeCompare(a.name))
+    case "status":
+      return [...clusters].sort((a, b) => a.status.localeCompare(b.status))
+    case "newest":
+    default:
+      // Assuming clusters have a createdAt or similar date field
+      // If not, you can keep original order or add your own logic
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      return [...clusters].sort((a, b) => {
+        // If you have dates:
+        // return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        // Otherwise, return original order:
+        return 0
+      })
+  }
+}
+
 function RouteComponent() {
   const { clusters, trpcClient } = useLoaderData({ from: Route.id })
   const router = useRouter()
   const [searchTerm, setSearchTerm] = useState("")
+  const [sortBy, setSortBy] = useState<SortByType>("")
+
   const [createWizardModal, setCreateWizardModal] = useState(false)
 
   const [deleteClusterModal, setDeleteClusterModal] = useState(false)
   const [deletedClusterName, setDeleteClusterName] = useState<string | null>(null)
 
   const [showFilters, setShowFilters] = useState(false)
-  const [selectedProvider, setSelectedProvider] = useState("")
-  const [selectedRegion, setSelectedRegion] = useState("")
+  const [selectedVersion, setSelectedVersion] = useState("")
   const [selectedStatus, setSelectedStatus] = useState("")
 
   const toggleFilters = () => {
@@ -39,8 +66,7 @@ function RouteComponent() {
 
   // Function to clear all filters
   const clearFilters = () => {
-    setSelectedProvider("")
-    setSelectedRegion("")
+    setSelectedVersion("")
     setSelectedStatus("")
   }
 
@@ -49,22 +75,25 @@ function RouteComponent() {
   }
 
   // Get unique providers, regions and statuses from clusters
-  const providers = [...new Set(clusters?.map((cluster) => cluster.infrastructure) || [])]
-  const regions = [...new Set(clusters?.map((cluster) => cluster.region) || [])]
+  const versions = [...new Set(clusters?.map((cluster) => cluster.version) || [])]
   const statuses = [...new Set(clusters?.map((cluster) => cluster.status) || [])]
 
   // Filter clusters based on search and filter criteria
-  const filteredClusters =
-    clusters?.filter(
-      (cluster) =>
-        (searchTerm === "" ||
-          cluster.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          cluster.infrastructure.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          cluster.region.toLowerCase().includes(searchTerm.toLowerCase())) &&
-        (selectedProvider === "" || cluster.infrastructure === selectedProvider) &&
-        (selectedRegion === "" || cluster.region === selectedRegion) &&
-        (selectedStatus === "" || cluster.status === selectedStatus)
-    ) || []
+  // Update your filtered and sorted clusters
+  const filteredAndSortedClusters = React.useMemo(() => {
+    const filtered =
+      clusters?.filter(
+        (cluster) =>
+          (searchTerm === "" ||
+            cluster.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            cluster.infrastructure.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            cluster.region.toLowerCase().includes(searchTerm.toLowerCase())) &&
+          (selectedVersion === "" || cluster.version === selectedVersion) &&
+          (selectedStatus === "" || cluster.status === selectedStatus)
+      ) || []
+
+    return sortClusters(filtered, sortBy)
+  }, [clusters, searchTerm, selectedVersion, selectedVersion, selectedStatus, sortBy])
 
   const handleCreateWizzard = () => {
     setCreateWizardModal(true)
@@ -97,11 +126,11 @@ function RouteComponent() {
           </div>
 
           <div className="flex gap-2 mt-4 sm:mt-0">
-            <Button size="md" variant="secondary" className="flex items-center" onClick={handleRefresh}>
+            <GardenerButton size="md" variant="secondary" className="flex items-center" onClick={handleRefresh}>
               <RefreshCw className={`h-4 w-4 mr-2`} />
               Refresh
-            </Button>
-            <Button
+            </GardenerButton>
+            <GardenerButton
               onClick={handleCreateWizzard}
               size="md"
               variant="primary"
@@ -109,150 +138,36 @@ function RouteComponent() {
             >
               <Plus className="h-4 w-4 mr-2" />
               New Cluster
-            </Button>
+            </GardenerButton>
           </div>
         </div>
 
         {/* Main content container */}
         <div className="bg-aurora-gray-900 rounded-lg border border-aurora-gray-800 shadow-xl p-6">
-          {/* Search and filters bar */}
-          <div className="flex flex-col lg:flex-row justify-between items-stretch lg:items-center border-b border-aurora-gray-800 pb-4 mb-6 gap-4">
-            <div className="flex flex-grow items-center">
-              <div className="relative flex-grow">
-                <input
-                  type="text"
-                  placeholder="Search clusters..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-9 pr-4 py-2 bg-aurora-gray-800 border border-aurora-gray-700 rounded-md text-aurora-gray-300 focus:outline-none focus:ring-1 focus:ring-aurora-blue-500"
-                />
-                <svg
-                  className="absolute left-3 top-2.5 h-4 w-4 text-aurora-gray-500"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                  />
-                </svg>
-              </div>
-            </div>
-
-            {/* Applied filters badges */}
-            {(selectedProvider || selectedRegion || selectedStatus) && (
-              <div className="flex flex-wrap gap-2 ml-0 lg:ml-2 mb-4 lg:mb-0">
-                {selectedProvider && (
-                  <div className="flex items-center bg-aurora-blue-900/30 text-aurora-blue-300 text-xs rounded px-2 py-1">
-                    {selectedProvider}
-                    <button onClick={() => setSelectedProvider("")} className="ml-1.5">
-                      <X className="h-3 w-3" />
-                    </button>
-                  </div>
-                )}
-                {selectedRegion && (
-                  <div className="flex items-center bg-aurora-blue-900/30 text-aurora-blue-300 text-xs rounded px-2 py-1">
-                    {selectedRegion}
-                    <button onClick={() => setSelectedRegion("")} className="ml-1.5">
-                      <X className="h-3 w-3" />
-                    </button>
-                  </div>
-                )}
-                {selectedStatus && (
-                  <div className="flex items-center bg-aurora-blue-900/30 text-aurora-blue-300 text-xs rounded px-2 py-1">
-                    {selectedStatus}
-                    <button onClick={() => setSelectedStatus("")} className="ml-1.5">
-                      <X className="h-3 w-3" />
-                    </button>
-                  </div>
-                )}
-              </div>
-            )}
-
-            <div className="flex gap-2 shrink-0">
-              <Button
-                size="sm"
-                variant={showFilters ? "primary" : "secondary"}
-                className={`flex items-center ${showFilters ? "bg-aurora-blue-700 text-aurora-white" : ""}`}
-                onClick={toggleFilters}
-              >
-                <Filter className="h-4 w-4 mr-2" />
-                Filters
-              </Button>
-              <select className="bg-aurora-gray-800 border border-aurora-gray-700 rounded-md px-3 py-1 text-aurora-gray-300 text-sm">
-                <option value="">Sort: Newest</option>
-                <option value="name-asc">Name (A-Z)</option>
-                <option value="name-desc">Name (Z-A)</option>
-                <option value="status">Status</option>
-              </select>
-            </div>
-          </div>
+          <SearchBar
+            searchTerm={searchTerm}
+            setSearchTerm={setSearchTerm}
+            toggleFilters={toggleFilters}
+            setSortTearm={setSortBy}
+            sortTearm={sortBy}
+            showFilters={showFilters}
+          ></SearchBar>
 
           {/* Filters panel */}
           {showFilters && (
-            <div className="bg-aurora-gray-800/50 border border-aurora-gray-700 rounded-md p-4 mb-6">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-aurora-white font-medium">Filter Clusters</h3>
-                <Button size="sm" variant="secondary" className="text-xs" onClick={clearFilters}>
-                  Clear All
-                </Button>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-aurora-gray-400 text-sm mb-1.5">Provider</label>
-                  <select
-                    className="w-full bg-aurora-gray-900 border border-aurora-gray-700 rounded-md px-3 py-1.5 text-aurora-gray-300"
-                    value={selectedProvider}
-                    onChange={(e) => setSelectedProvider(e.target.value)}
-                  >
-                    <option value="">All Providers</option>
-                    {providers.map((provider) => (
-                      <option key={provider} value={provider}>
-                        {provider.charAt(0).toUpperCase() + provider.slice(1)}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-aurora-gray-400 text-sm mb-1.5">Region</label>
-                  <select
-                    className="w-full bg-aurora-gray-900 border border-aurora-gray-700 rounded-md px-3 py-1.5 text-aurora-gray-300"
-                    value={selectedRegion}
-                    onChange={(e) => setSelectedRegion(e.target.value)}
-                  >
-                    <option value="">All Regions</option>
-                    {regions.map((region) => (
-                      <option key={region} value={region}>
-                        {region}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-aurora-gray-400 text-sm mb-1.5">Status</label>
-                  <select
-                    className="w-full bg-aurora-gray-900 border border-aurora-gray-700 rounded-md px-3 py-1.5 text-aurora-gray-300"
-                    value={selectedStatus}
-                    onChange={(e) => setSelectedStatus(e.target.value)}
-                  >
-                    <option value="">All Statuses</option>
-                    {statuses.map((status) => (
-                      <option key={status} value={status}>
-                        {status.charAt(0).toUpperCase() + status.slice(1)}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-            </div>
+            <ClusterFilters
+              selectedStatus={selectedStatus}
+              selectedVersion={selectedVersion}
+              onStatusChange={setSelectedStatus}
+              onVersionChange={setSelectedVersion}
+              onClearFilters={clearFilters}
+              statuses={statuses}
+              versions={versions}
+            ></ClusterFilters>
           )}
 
           <ClusterTable
-            clusters={filteredClusters}
+            clusters={filteredAndSortedClusters}
             filteredCount={clusters?.length || 0}
             setDeleteClusterModal={(clusterName: string) => {
               console.log("Delete cluster:", clusterName)

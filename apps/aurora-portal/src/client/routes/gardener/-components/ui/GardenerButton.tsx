@@ -22,12 +22,13 @@ const buttonVariants = {
   next: "text-aurora-gray-300 bg-aurora-blue-600 hover:bg-aurora-blue-600/90 hover:text-aurora-gray-200 border border-transparent",
   primary: "bg-aurora-purple-700 hover:bg-aurora-purple-800 text-aurora-white border border-aurora-purple-700",
   danger: "bg-aurora-red-700 hover:bg-aurora-red-600 text-aurora-white border border-aurora-red-600",
+  disabled: "bg-aurora-gray-900 text-aurora-gray-600 border border-aurora-gray-800 cursor-not-allowed opacity-50",
 }
 
 // Base button styles
 const baseButtonStyles = cn(
   "font-medium inline-flex items-center justify-center transition-colors duration-200",
-  "focus:outline-none focus:ring-2 focus:ring-aurora-green-500 focus:ring-opacity-50"
+  "focus:outline-none focus:ring-2 focus:ring-aurora-blue-500 focus:ring-opacity-50"
 )
 
 export function GardenerButton({
@@ -46,7 +47,17 @@ export function GardenerButton({
   type?: "button" | "submit" | "reset"
   onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void
   size?: "sm" | "md" | "lg"
-  variant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link" | "next" | "primary" | "danger"
+  variant?:
+    | "default"
+    | "destructive"
+    | "outline"
+    | "secondary"
+    | "ghost"
+    | "link"
+    | "next"
+    | "primary"
+    | "danger"
+    | "disabled"
   fullWidth?: boolean
 }) {
   return (
@@ -77,7 +88,7 @@ export function GardenerIconButton({
   type?: "button" | "submit" | "reset"
   onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void
   size?: "sm" | "md" | "lg"
-  variant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link" | "primary" | "danger"
+  variant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link" | "primary" | "danger" | "disabled"
 }) {
   const iconSizes = {
     sm: "p-1 rounded",

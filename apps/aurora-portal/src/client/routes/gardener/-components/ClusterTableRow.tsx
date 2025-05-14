@@ -156,8 +156,7 @@ const ClusterTableRow: React.FC<ClusterTableRowProps> = ({ cluster, isLast, setS
           <GardenerIconButton
             size="sm"
             disabled
-            variant="ghost"
-            className="text-aurora-gray-500 hover:text-aurora-gray-400 hover:bg-aurora-gray-700/40"
+            variant="disabled"
             onClick={() => {
               toast.info(`Editing ${cluster.name}... (Not implemented)`)
             }}

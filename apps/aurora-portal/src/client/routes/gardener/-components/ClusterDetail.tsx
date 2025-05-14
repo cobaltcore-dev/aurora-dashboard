@@ -1,7 +1,6 @@
 import React from "react"
 import { Link } from "@tanstack/react-router"
 import { ArrowLeft, Share2, Edit, RefreshCcw, Check, CheckCircle, AlertTriangle, XCircle, Clock } from "lucide-react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/client/components/Card"
 import {
   GardenerTable,
   GardenerTableBody,
@@ -19,15 +18,15 @@ import { GardenerCard, GardenerCardContent, GardenerCardHeader, GardenerCardTitl
 const WorkersSection: React.FC<{ workers: Cluster["workers"] }> = ({ workers }) => {
   if (!workers || workers.length === 0) {
     return (
-      <Card className="mt-6 bg-aurora-gray-900 border-aurora-gray-800 text-aurora-white shadow-xl">
-        <CardHeader className="flex flex-row items-center justify-between border-b border-aurora-gray-800 pb-4">
-          <CardTitle className="text-xl font-medium">Workers</CardTitle>
+      <GardenerCard className="mt-6 bg-aurora-gray-900 border-aurora-gray-800 text-aurora-white shadow-xl">
+        <GardenerCardHeader className="flex flex-row items-center justify-between border-b border-aurora-gray-800 pb-4">
+          <GardenerCardTitle className="text-xl font-medium">Workers</GardenerCardTitle>
           <GardenerButton size="sm" variant="secondary" className="opacity-50 cursor-not-allowed">
             <RefreshCcw className="h-4 w-4 mr-2" />
             Add Worker
           </GardenerButton>
-        </CardHeader>
-        <CardContent className="pt-4">
+        </GardenerCardHeader>
+        <GardenerCardContent className="pt-4">
           <div className="flex flex-col items-center justify-center py-8 text-center">
             <div className="bg-aurora-gray-800/50 rounded-full p-3 mb-3">
               <AlertTriangle className="h-6 w-6 text-aurora-gray-500" />
@@ -35,15 +34,15 @@ const WorkersSection: React.FC<{ workers: Cluster["workers"] }> = ({ workers }) 
             <p className="text-aurora-gray-400 mb-1">No worker nodes configured for this cluster.</p>
             <p className="text-sm text-aurora-gray-500">Add worker nodes to run your workloads</p>
           </div>
-        </CardContent>
-      </Card>
+        </GardenerCardContent>
+      </GardenerCard>
     )
   }
 
   return (
-    <Card className="mt-6 bg-aurora-gray-900 border-aurora-gray-800 text-aurora-white shadow-xl">
-      <CardHeader className="flex flex-row items-center justify-between border-b border-aurora-gray-800 pb-4">
-        <CardTitle className="text-xl font-medium">Workers</CardTitle>
+    <GardenerCard className="mt-6 bg-aurora-gray-900 border-aurora-gray-800 text-aurora-white shadow-xl">
+      <GardenerCardHeader className="flex flex-row items-center justify-between border-b border-aurora-gray-800 pb-4">
+        <GardenerCardTitle className="text-xl font-medium">Workers</GardenerCardTitle>
         <GardenerButton
           size="sm"
           variant="secondary"
@@ -52,8 +51,8 @@ const WorkersSection: React.FC<{ workers: Cluster["workers"] }> = ({ workers }) 
           <RefreshCcw className="h-4 w-4 mr-2" />
           Add Worker
         </GardenerButton>
-      </CardHeader>
-      <CardContent className="pt-4">
+      </GardenerCardHeader>
+      <GardenerCardContent className="pt-4">
         <GardenerTable>
           <GardenerTableHeader className="bg-aurora-gray-800/80">
             <GardenerTableRow className="border-aurora-gray-700">
@@ -127,8 +126,8 @@ const WorkersSection: React.FC<{ workers: Cluster["workers"] }> = ({ workers }) 
             ))}
           </GardenerTableBody>
         </GardenerTable>
-      </CardContent>
-    </Card>
+      </GardenerCardContent>
+    </GardenerCard>
   )
 }
 
