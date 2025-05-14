@@ -19,7 +19,8 @@ const buttonVariants = {
     "bg-aurora-gray-800 text-aurora-gray-300 hover:bg-aurora-gray-700 hover:text-aurora-white border border-aurora-gray-700",
   ghost: "hover:bg-aurora-gray-800 hover:text-aurora-white text-aurora-gray-300 border border-transparent",
   link: "text-aurora-blue-600 underline-offset-4 hover:underline hover:text-aurora-blue-500 border border-transparent",
-  primary: "bg-aurora-green-700 hover:bg-aurora-green-600 text-aurora-white border border-aurora-green-600",
+  next: "text-aurora-gray-300 bg-aurora-blue-600 hover:bg-aurora-blue-600/90 hover:text-aurora-gray-200 border border-transparent",
+  primary: "bg-aurora-purple-700 hover:bg-aurora-purple-800 text-aurora-white border border-aurora-purple-700",
   danger: "bg-aurora-red-700 hover:bg-aurora-red-600 text-aurora-white border border-aurora-red-600",
 }
 
@@ -45,7 +46,7 @@ export function GardenerButton({
   type?: "button" | "submit" | "reset"
   onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void
   size?: "sm" | "md" | "lg"
-  variant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link" | "primary" | "danger"
+  variant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link" | "next" | "primary" | "danger"
   fullWidth?: boolean
 }) {
   return (

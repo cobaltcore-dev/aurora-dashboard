@@ -62,8 +62,8 @@ export const WorkerNodesStep: React.FC<WorkerNodesStepProps> = ({ formData, onWo
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-lg font-medium text-aurora-white mb-2">Worker Configuration</h2>
-        <p className="text-sm text-aurora-gray-400">
+        <h2 className="text-lg font-medium text-aurora-white mb-2 text-left">Worker Configuration</h2>
+        <p className="text-sm text-aurora-gray-400 text-left">
           Configure the worker pools for your cluster. These settings determine the compute resources available for your
           workloads.
         </p>
@@ -79,10 +79,10 @@ export const WorkerNodesStep: React.FC<WorkerNodesStepProps> = ({ formData, onWo
         availableZones={availableZones}
       />
 
-      <div className="bg-blue-950/20 border border-blue-800/50 rounded-lg p-4">
+      <div className="bg-aurora-blue-950/20 border border-aurora-blue-800/50 rounded-lg p-4">
         <div className="flex gap-2">
           <svg
-            className="w-5 h-5 text-blue-500 mt-0.5 flex-shrink-0"
+            className="w-5 h-5 text-aurora-blue-500 mt-0.5 flex-shrink-0"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -95,8 +95,8 @@ export const WorkerNodesStep: React.FC<WorkerNodesStepProps> = ({ formData, onWo
             />
           </svg>
           <div>
-            <h4 className="text-blue-500 font-medium">Node Auto-scaling</h4>
-            <p className="text-aurora-gray-300 text-sm mt-1">
+            <h4 className="text-aurora-blue-300 font-medium text-left">Node Auto-scaling</h4>
+            <p className="text-aurora-gray-300 text-sm mt-1 text-left">
               Each worker pool will automatically scale between its minimum and maximum node counts based on workload
               demands. Ensure your maximum node counts align with your resource quotas.
             </p>

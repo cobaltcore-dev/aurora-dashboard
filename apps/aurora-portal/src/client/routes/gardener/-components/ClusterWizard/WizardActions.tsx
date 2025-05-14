@@ -37,16 +37,12 @@ export const WizardActions: React.FC<WizardActionsProps> = ({
       </GardenerButton>
 
       {currentStep < totalSteps - 1 ? (
-        <GardenerButton onClick={onNext} className="bg-aurora-blue-600 hover:bg-aurora-blue-700 text-aurora-white">
+        <GardenerButton onClick={onNext} variant="next">
           Next
           <ChevronRight className="ml-2 h-4 w-4" />
         </GardenerButton>
       ) : (
-        <GardenerButton
-          onClick={onSubmit}
-          disabled={isSubmitting}
-          className="bg-aurora-green-600 hover:bg-aurora-green-700 text-aurora-white"
-        >
+        <GardenerButton onClick={onSubmit} disabled={isSubmitting} variant="primary">
           {isSubmitting ? (
             <>
               <Loader className="mr-2 h-4 w-4 animate-spin" />
