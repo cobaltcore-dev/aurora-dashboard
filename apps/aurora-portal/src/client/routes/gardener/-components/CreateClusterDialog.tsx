@@ -10,9 +10,10 @@ import { ReviewStep } from "./ClusterWizard/ReviewStep"
 import { WizardHeader } from "./ClusterWizard/WizardHeader"
 import { WizardProgress } from "./ClusterWizard/WizardProgress"
 import { WizardActions } from "./ClusterWizard/WizardActions"
-import { FieldSet } from "@/client/components/headless-ui/FieldSet"
 import { TrpcClient } from "@/client/trpcClient"
-import { GardenerDialog } from "./GardenerDialog"
+import { GardenerDialog } from "./ui/GardenerDialog"
+import { GardenerFieldset } from "./ui/GardenerFieldset"
+import { GardenerSpinner } from "./ui/GardenerSpiner"
 
 interface CreateClusterWizardProps {
   isOpen: boolean
@@ -168,9 +169,9 @@ const CreateClusterDialogContent: React.FC<{
         <div className="p-6">
           <WizardHeader onClose={onClose} />
           <WizardProgress steps={steps} currentStep={currentStep} onStepClick={goToStep} />
-          <FieldSet>
+          <GardenerFieldset>
             <div className="mb-8">{renderStepContent()}</div>
-          </FieldSet>
+          </GardenerFieldset>
 
           <WizardActions
             currentStep={currentStep}
@@ -191,7 +192,7 @@ const CreateClusterWizard: React.FC<CreateClusterWizardProps> = ({ isOpen, onClo
 
   return (
     <GardenerDialog open={isOpen} onOpenChange={onClose}>
-      <Suspense fallback={<div className="p-4 text-center text-aurora-gray-400">Loading cloud profiles...</div>}>
+      <Suspense fallback={<GardenerSpinner text="Loading Gardener..." />}>
         <CreateClusterDialogContent
           isOpen={isOpen}
           onClose={onClose}

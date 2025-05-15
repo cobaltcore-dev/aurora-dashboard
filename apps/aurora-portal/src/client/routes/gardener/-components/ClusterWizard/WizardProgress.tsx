@@ -1,7 +1,7 @@
 // components/CreateClusterWizard/WizardProgress.tsx
 import React from "react"
 import { Check } from "lucide-react"
-import { cn } from "@/client/utils/cn"
+import { cn } from "../../-utils/cn"
 
 interface WizardProgressProps {
   steps: Array<{ title: string; description: string }>
@@ -17,11 +17,9 @@ export const WizardProgress: React.FC<WizardProgressProps> = ({ steps, currentSt
           <div key={step.title} className={`flex-1 ${index < steps.length - 1 ? "pr-6" : ""}`}>
             <div
               className={cn(
-                "flex items-start p-2 rounded-md",
+                "flex items-start p-2 rounded-md transition-colors duration-150 ease-in-out",
                 index <= currentStep ? "cursor-pointer opacity-100" : "opacity-40 cursor-not-allowed",
-                index < currentStep
-                  ? "hover:bg-aurora-gray-800/60 hover:translate-y-[-2px] transition-all duration-200"
-                  : ""
+                index < currentStep && index <= currentStep ? "hover:bg-aurora-gray-700/30" : ""
               )}
               onClick={() => onStepClick(index)}
               role="button"
@@ -32,7 +30,7 @@ export const WizardProgress: React.FC<WizardProgressProps> = ({ steps, currentSt
               <div className="flex-shrink-0 mt-1">
                 <div
                   className={cn(
-                    "flex items-center justify-center h-8 w-8 rounded-full mr-3 text-sm font-semibold transition-colors duration-200",
+                    "flex items-center justify-center h-8 w-8 rounded-full mr-3 text-sm font-semibold transition-colors duration-150",
                     currentStep > index
                       ? "bg-aurora-green-600 text-aurora-white shadow-sm"
                       : currentStep === index
@@ -46,7 +44,7 @@ export const WizardProgress: React.FC<WizardProgressProps> = ({ steps, currentSt
               <div className="w-full min-w-0">
                 <p
                   className={cn(
-                    "text-sm font-medium truncate",
+                    "text-sm font-medium text-left transition-colors duration-150",
                     currentStep >= index ? "text-aurora-white" : "text-aurora-gray-500"
                   )}
                 >
@@ -54,7 +52,7 @@ export const WizardProgress: React.FC<WizardProgressProps> = ({ steps, currentSt
                 </p>
                 <p
                   className={cn(
-                    "text-xs line-clamp-2 max-w-[90%]",
+                    "text-xs line-clamp-2 text-left transition-colors duration-150",
                     currentStep >= index ? "text-aurora-gray-500" : "text-aurora-gray-600"
                   )}
                 >
@@ -69,7 +67,7 @@ export const WizardProgress: React.FC<WizardProgressProps> = ({ steps, currentSt
       <div className="relative mt-4">
         <div className="absolute left-1 right-1 top-1/2 transform -translate-y-1/2 h-1 bg-aurora-gray-700 rounded-full">
           <div
-            className="h-1 bg-aurora-blue-600 rounded-full transition-all duration-300"
+            className="h-1 bg-aurora-blue-600 rounded-full transition-all duration-300 ease-out"
             style={{ width: `${(currentStep / (steps.length - 1)) * 100}%` }}
           />
         </div>

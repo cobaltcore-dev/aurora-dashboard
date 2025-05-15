@@ -2,7 +2,7 @@ import * as React from "react"
 import { DialogBackdrop, Dialog as HeadlessDialog } from "@headlessui/react"
 import { Description, DialogPanel, DialogTitle as HeadlessDialogTitle } from "@headlessui/react"
 
-import { cn } from "@/client/utils/cn"
+import { cn } from "../../-utils/cn"
 
 const GardenerDialog = ({
   open,
@@ -30,8 +30,8 @@ const GardenerDialog = ({
 
         <DialogPanel
           transition
-          className="max-w-lg w-full text-center shadow-lg rounded-lg border border-aurora-border space-y-4
-          bg-aurora-gray-950 bg-opacity-85 text-aurora-light-1
+          className="max-w-lg w-full text-center shadow-lg rounded-lg  space-y-4
+         bg-opacity-85 text-aurora-light-1
          p-12 duration-300 ease-out data-closed:scale-95 data-closed:opacity-0"
         >
           {children}
