@@ -10,5 +10,5 @@
     "types": ["vite/client", "vitest/globals"]
   },
 
-  "include": ["src/**/*.ts", "src/**/*.tsx", "vitest.setup.ts"]
+  "include": ["src/**/*.ts", "src/**/*.tsx", "vitest.setup.ts", "../extension-sdk/src/types.ts"]
 }

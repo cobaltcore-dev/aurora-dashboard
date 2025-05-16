@@ -1,11 +1,18 @@
 import { useEffect, useState } from "react"
-import { trpcClient } from "./trpcClient"
+import { initTrpcClient } from "./trpcClient"
 
 interface Item {
   id: number
   name: string
 }
-export function App() {
+
+export interface AppProps {
+  baseUrl: string
+  bffPath: string
+}
+
+export function App({ baseUrl, bffPath }: AppProps) {
+  const trpcClient = initTrpcClient(bffPath)
   const [items, setItems] = useState<Item[]>([])
   useEffect(() => {
     // Initialize the TRPC client

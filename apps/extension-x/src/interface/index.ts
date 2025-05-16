@@ -1,19 +1,38 @@
-import { IncomingMessage, ServerResponse } from "node:http"
-import { appRouter } from "../bff/routers"
-import { createHTTPHandler } from "@trpc/server/adapters/standalone"
-export { App } from "../client/App"
+import { name, version, description } from "../../package.json"
+import { Extension } from "@cobaltcore-dev/extension-sdk"
+import { AppProps } from "./client"
+import { AppContext } from "./server"
 
-const handler = createHTTPHandler({
-  router: appRouter,
-  createContext: async ({ req, res }) => {
-    // Define and return the context object here
+type Props = Omit<AppProps, "bffPath" | "baseUrl">
+
+const extension: Extension<Props, AppContext> = {
+  name,
+  description,
+  version,
+
+  registerServer: async (config?) => {
+    // Check if we're in a Node.js environment
+    if (typeof window !== "undefined") {
+      throw new Error("Server module cannot be loaded in browser environment")
+    }
+    const mountPath = config?.mountRoute || ""
+    const { handleRequest } = await import("./server")
     return {
-      validateSession: () => true, // Example implementation
-      openstack: undefined, // Provide a valid value if needed
+      handleRequest,
+      path: `${mountPath}/_bff`,
     }
   },
-})
 
-export function handleRequest(req: IncomingMessage, res: ServerResponse) {
-  return handler(req, res)
+  registerClient: async (config?) => {
+    const baseUrl = config?.mountRoute || ""
+    const bffPath = `${baseUrl}/_bff`
+
+    const { mount } = await import("./client")
+    return {
+      mount: (container: HTMLElement, props: Props) => mount(container, { ...props, bffPath, baseUrl }),
+      unmount: () => Promise.resolve(),
+    }
+  },
 }
+
+export default extension

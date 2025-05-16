@@ -19,5 +19,5 @@
     "resolveJsonModule": true
   },
   "include": ["src/server"], // Include the server and shared code
-  "exclude": ["node_modules", "dist", "src/client"] // Exclude the node_modules and dist directories
+  "exclude": ["node_modules", "dist", "src/client", "src/interface", "src/standalone"] // Exclude the node_modules and dist directories
 }

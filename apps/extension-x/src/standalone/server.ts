@@ -3,10 +3,9 @@ import FastifyVite from "@fastify/vite"
 import FastifyStatic from "@fastify/static"
 
 import path from "path"
-import { handleRequest } from "../interface"
+import appInterface from "../interface"
 
 const PORT = "4005"
-const BFF_ENDPOINT = "/_bff"
 const isProduction = process.env.NODE_ENV === "production"
 
 const server = Fastify({
@@ -20,10 +19,17 @@ async function startServer() {
       validateSession: () => true,
     })
 
-  await server.all(BFF_ENDPOINT + "/*", (req, res) => {
-    req.raw.url = req.raw.url?.replace(BFF_ENDPOINT, "")
-    return handleRequest(req.raw, res.raw)
-  })
+  if (appInterface.registerServer) {
+    const { handleRequest } = await appInterface.registerServer({
+      mountRoute: "",
+    })
+
+    const path = "/_bff"
+    await server.all(path + "/*", (req, res) => {
+      req.raw.url = req.raw.url?.replace(path, "")
+      return handleRequest(req.raw, res.raw)
+    })
+  }
 
   if (isProduction) {
     // Serve static files in production

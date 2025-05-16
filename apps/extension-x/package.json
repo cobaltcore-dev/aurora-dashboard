@@ -5,8 +5,12 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "tsx watch src/server --project tsconfig.server.json",
-    "prod": "NODE_ENV=production tsx src/server --project tsconfig.server.json"
+    "dev": "tsx watch src/standalone/server --project tsconfig.server.json",
+    "prod": "NODE_ENV=production tsx src/standalone/server --project tsconfig.server.json",
+    "build:client": "vite build",
+    "build:server": "tsc -p tsconfig.server.json",
+    "build": "pnpm build:client && pnpm build:server && rm -f vite.config.*.timestamp-*",
+    "type:check": "tsc --noEmit"
   },
   "keywords": [ ],
   "author": "",
@@ -14,6 +18,7 @@
   "devDependencies": {
     "@cobaltcore-dev/aurora-config": "workspace:*",
     "@cobaltcore-dev/aurora-sdk": "workspace:*",
+    "@cobaltcore-dev/extension-sdk": "workspace:*",
     "@types/node": "^22.10.5",
     "@types/react": "^19.1.0",
     "@types/react-dom": "^19.1.0",

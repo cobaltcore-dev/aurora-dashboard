@@ -297,6 +297,8 @@ importers:
         specifier: ^3.1.1
         version: 3.1.1(@types/node@22.13.2)(jiti@2.4.2)(jsdom@24.1.3)(tsx@4.19.2)(yaml@2.7.0)
 
+  apps/extension-sdk: {}
+
   apps/extension-x:
     dependencies:
       '@fastify/static':
@@ -339,6 +341,9 @@ importers:
       '@cobaltcore-dev/aurora-sdk':
         specifier: workspace:*
         version: link:../../packages/aurora-sdk
+      '@cobaltcore-dev/extension-sdk':
+        specifier: workspace:*
+        version: link:../extension-sdk
       '@types/node':
         specifier: ^22.10.5
         version: 22.13.2
@@ -4582,12 +4587,17 @@ packages:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   valtio@2.1.5:
     resolution: {integrity: sha512-vsh1Ixu5mT0pJFZm+Jspvhga5GzHUTYv0/+Th203pLfh3/wbHwxhu/Z2OkZDXIgHfjnjBns7SN9HNcbDvPmaGw==}
 =======
   valtio@2.1.4:
     resolution: {integrity: sha512-O6U79SacltN5E5XOwLNixrGSAc4+TNkQw8AWSqjcpvvRjvFbfMvdbFW98g/VgxKoT8v9kb8WQkD8lvf+Dcme8w==}
 >>>>>>> 0658f88 (feat(dashboard): extension improvement)
+=======
+  valtio@2.1.5:
+    resolution: {integrity: sha512-vsh1Ixu5mT0pJFZm+Jspvhga5GzHUTYv0/+Th203pLfh3/wbHwxhu/Z2OkZDXIgHfjnjBns7SN9HNcbDvPmaGw==}
+>>>>>>> fd0c96a (feat(core): extensoins bundeling)
     engines: {node: '>=12.20.0'}
     peerDependencies:
       '@types/react': '>=18.0.0'
@@ -5419,6 +5429,7 @@ snapshots:
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   '@fastify/react@1.0.2(@kitajs/ts-html-plugin@4.1.1)(@types/node@22.13.2)(@types/react@19.1.0)(fastify@5.3.3)(jiti@2.4.2)(rollup@4.41.0)(tsx@4.19.2)(typescript@5.7.3)(yaml@2.7.0)':
     dependencies:
       '@fastify/vite': 8.0.5(@kitajs/ts-html-plugin@4.1.1)(@types/node@22.13.2)(@types/react@19.1.0)(fastify@5.3.3)(jiti@2.4.2)(rollup@4.41.0)(tsx@4.19.2)(typescript@5.7.3)(yaml@2.7.0)
@@ -5427,6 +5438,9 @@ snapshots:
 =======
   '@fastify/react@1.0.2(@kitajs/ts-html-plugin@4.1.1)(@types/node@22.13.2)(@types/react@19.1.0)(fastify@5.2.1)(jiti@2.4.2)(rollup@4.34.6)(tsx@4.19.2)(yaml@2.7.0)':
 >>>>>>> 35ef95d (chore(dashboard): work on extensions v2)
+=======
+  '@fastify/react@1.0.2(@kitajs/ts-html-plugin@4.1.1)(@types/node@22.13.2)(@types/react@19.1.0)(fastify@5.2.1)(jiti@2.4.2)(rollup@4.34.6)(tsx@4.19.2)(typescript@5.8.3)(yaml@2.7.0)':
+>>>>>>> fd0c96a (feat(core): extensoins bundeling)
     dependencies:
       '@fastify/vite': 8.0.5(@kitajs/ts-html-plugin@4.1.1)(@types/node@22.13.2)(@types/react@19.1.0)(fastify@5.2.1)(jiti@2.4.2)(rollup@4.34.6)(tsx@4.19.2)(typescript@5.8.3)(yaml@2.7.0)
 >>>>>>> 0658f88 (feat(dashboard): extension improvement)
@@ -5443,10 +5457,14 @@ snapshots:
       react-router: 7.5.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       unihead: 0.8.0
 <<<<<<< HEAD
+<<<<<<< HEAD
       valtio: 2.1.5(@types/react@19.1.0)(react@19.1.0)
 =======
       valtio: 2.1.4(@types/react@19.1.0)(react@19.1.0)
 >>>>>>> 0658f88 (feat(dashboard): extension improvement)
+=======
+      valtio: 2.1.5(@types/react@19.1.0)(react@19.1.0)
+>>>>>>> fd0c96a (feat(core): extensoins bundeling)
       youch: 3.3.4
     transitivePeerDependencies:
       - '@kitajs/ts-html-plugin'
@@ -5463,6 +5481,7 @@ snapshots:
       - sugarss
       - terser
       - tsx
+      - typescript
       - yaml
     optional: true
 
@@ -5519,8 +5538,8 @@ snapshots:
       vite: 6.3.5(@types/node@22.13.2)(jiti@2.4.2)(tsx@4.19.2)(yaml@2.7.0)
 =======
       '@fastify/htmx': 0.4.0(@kitajs/ts-html-plugin@4.1.1)(rollup@4.34.6)
-      '@fastify/react': 1.0.2(@kitajs/ts-html-plugin@4.1.1)(@types/node@22.13.2)(@types/react@19.1.0)(fastify@5.2.1)(jiti@2.4.2)(rollup@4.34.6)(tsx@4.19.2)(yaml@2.7.0)
-      '@fastify/vue': 1.0.6(@kitajs/ts-html-plugin@4.1.1)(@types/node@22.13.2)(@types/react@19.1.0)(fastify@5.2.1)(jiti@2.4.2)(rollup@4.34.6)(tsx@4.19.2)(typescript@5.8.3)(yaml@2.7.0)
+      '@fastify/react': 1.0.2(@kitajs/ts-html-plugin@4.1.1)(@types/node@22.13.2)(@types/react@19.1.0)(fastify@5.2.1)(jiti@2.4.2)(rollup@4.34.6)(tsx@4.19.2)(typescript@5.8.3)(yaml@2.7.0)
+      '@fastify/vue': 1.0.6(@kitajs/ts-html-plugin@4.1.1)(@types/node@22.13.2)(fastify@5.2.1)(jiti@2.4.2)(rollup@4.34.6)(tsx@4.19.2)(typescript@5.8.3)(yaml@2.7.0)
       vite: 6.2.5(@types/node@22.13.2)(jiti@2.4.2)(tsx@4.19.2)(yaml@2.7.0)
 >>>>>>> 0658f88 (feat(dashboard): extension improvement)
     transitivePeerDependencies:
@@ -5542,6 +5561,7 @@ snapshots:
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   '@fastify/vue@1.0.6(@kitajs/ts-html-plugin@4.1.1)(@types/node@22.13.2)(fastify@5.3.3)(jiti@2.4.2)(rollup@4.41.0)(tsx@4.19.2)(typescript@5.7.3)(yaml@2.7.0)':
     dependencies:
       '@fastify/vite': 8.0.5(@kitajs/ts-html-plugin@4.1.1)(@types/node@22.13.2)(@types/react@19.1.0)(fastify@5.3.3)(jiti@2.4.2)(rollup@4.41.0)(tsx@4.19.2)(typescript@5.7.3)(yaml@2.7.0)
@@ -5550,6 +5570,9 @@ snapshots:
 =======
   '@fastify/vue@1.0.6(@kitajs/ts-html-plugin@4.1.1)(@types/node@22.13.2)(@types/react@19.1.0)(fastify@5.2.1)(jiti@2.4.2)(rollup@4.34.6)(tsx@4.19.2)(typescript@5.8.3)(yaml@2.7.0)':
 >>>>>>> 35ef95d (chore(dashboard): work on extensions v2)
+=======
+  '@fastify/vue@1.0.6(@kitajs/ts-html-plugin@4.1.1)(@types/node@22.13.2)(fastify@5.2.1)(jiti@2.4.2)(rollup@4.34.6)(tsx@4.19.2)(typescript@5.8.3)(yaml@2.7.0)':
+>>>>>>> fd0c96a (feat(core): extensoins bundeling)
     dependencies:
       '@fastify/vite': 8.0.5(@kitajs/ts-html-plugin@4.1.1)(@types/node@22.13.2)(@types/react@19.1.0)(fastify@5.2.1)(jiti@2.4.2)(rollup@4.34.6)(tsx@4.19.2)(typescript@5.8.3)(yaml@2.7.0)
 >>>>>>> 0658f88 (feat(dashboard): extension improvement)
@@ -5575,7 +5598,6 @@ snapshots:
     transitivePeerDependencies:
       - '@kitajs/ts-html-plugin'
       - '@types/node'
-      - '@types/react'
       - fastify
       - jiti
       - less
@@ -9377,10 +9399,14 @@ snapshots:
   util-deprecate@1.0.2: {}
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   valtio@2.1.5(@types/react@19.1.0)(react@19.1.0):
 =======
   valtio@2.1.4(@types/react@19.1.0)(react@19.1.0):
 >>>>>>> 0658f88 (feat(dashboard): extension improvement)
+=======
+  valtio@2.1.5(@types/react@19.1.0)(react@19.1.0):
+>>>>>>> fd0c96a (feat(core): extensoins bundeling)
     dependencies:
       proxy-compare: 3.0.1
     optionalDependencies:
