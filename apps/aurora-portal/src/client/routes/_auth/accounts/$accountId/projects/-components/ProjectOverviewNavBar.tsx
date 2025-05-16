@@ -1,4 +1,4 @@
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 import { ComboBox, ComboBoxOption } from "@/client/components/ComboBox"
 import { Button } from "@/client/components/Button"
 import { Icon } from "@/client/components/Icon"
@@ -21,6 +21,15 @@ export function ProjectsOverviewNavBar({
 }: ProjectsOverviewNavBarProps) {
   const [localSearchTerm, setLocalSearchTerm] = useState(searchTerm)
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null)
+
+  useEffect(() => {
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current)
+        debounceTimerRef.current = null
+      }
+    }
+  }, [])
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
