@@ -18,6 +18,11 @@ describe("ProjectOverviewNavBar", () => {
     vi.useRealTimers()
   })
 
+  it("renders correctly with initial search term", () => {
+    render(<ProjectsOverviewNavBar {...defaultProps} searchTerm="initial search" />)
+    expect(screen.getByPlaceholderText("Search...")).toHaveValue("initial search")
+  })
+
   it("updates local search term immediately on input change", () => {
     render(<ProjectsOverviewNavBar {...defaultProps} />)
 

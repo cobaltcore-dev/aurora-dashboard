@@ -13,7 +13,7 @@ type ProjectsOverviewNavBarProps = {
   onSearch: (value: string) => void
 }
 
-export function ProjectsOverviewNavBar({ viewMode, setViewMode, onSearch }: ProjectsOverviewNavBarProps) {
+export function ProjectsOverviewNavBar({ viewMode, setViewMode, onSearch, searchTerm }: ProjectsOverviewNavBarProps) {
   let timer: NodeJS.Timeout | null = null
   useEffect(() => {
     return () => {
@@ -42,6 +42,7 @@ export function ProjectsOverviewNavBar({ viewMode, setViewMode, onSearch }: Proj
           placeholder="Search..."
           className="bg-transparent border-none outline-none text-white placeholder-gray-400 w-full"
           onChange={handleSearchChange}
+          defaultValue={searchTerm}
         />
       </div>
 
