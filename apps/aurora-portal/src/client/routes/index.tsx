@@ -1,5 +1,4 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router"
-import { useAuth } from "../store/AuthProvider"
 import { Button } from "../components/headless-ui/Button"
 
 export const Route = createFileRoute("/")({
@@ -9,15 +8,10 @@ export const Route = createFileRoute("/")({
 export function Home() {
   const navigate = useNavigate()
 
-  const { user } = useAuth()
   const handleEnterCloud = () => {
-    if (!user) {
-      navigate({
-        to: "/auth/login",
-      })
-    } else {
-      navigate({ to: `/accounts/${user?.domain.id}/projects` })
-    }
+    navigate({
+      to: "/accounts",
+    })
   }
 
   return (
