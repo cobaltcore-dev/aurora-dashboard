@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from "react"
 import { TokenData } from "../../server/Authentication/types/models"
-import { useRouter } from "@tanstack/react-router"
+import { router } from "../router"
+
 type User = TokenData["user"] | null
 
 export interface AuthContext {
@@ -17,8 +18,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = React.useState<User | null>(null)
   const [expiresAt, setExpiresAt] = React.useState<Date | undefined>(undefined)
   const logoutTimerRef = useRef<NodeJS.Timeout | null>(null)
-
-  const router = useRouter()
 
   const isAuthenticated = !!user
   // Function to clear any existing timers
