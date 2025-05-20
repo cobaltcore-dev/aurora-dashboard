@@ -1,10 +1,10 @@
-import { useState, useRef } from "react"
+import { useEffect } from "react"
 import { ComboBox, ComboBoxOption } from "@/client/components/ComboBox"
 import { Button } from "@/client/components/Button"
 import { Icon } from "@/client/components/Icon"
 export type ViewMode = "list" | "card"
 
-type ProjectsOverviewNavNbarProps = {
+type ProjectsOverviewNavBarProps = {
   viewMode: ViewMode
   setViewMode: (mode: ViewMode) => void
   searchPlaceholder?: string
@@ -13,23 +13,21 @@ type ProjectsOverviewNavNbarProps = {
   onSearch: (value: string) => void
 }
 
-export function ProjectsOverviewNavNbar({
-  viewMode,
-  setViewMode,
-  searchTerm = "",
-  onSearch,
-}: ProjectsOverviewNavNbarProps) {
-  const [localSearchTerm, setLocalSearchTerm] = useState(searchTerm)
-  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null)
-
+export function ProjectsOverviewNavBar({ viewMode, setViewMode, onSearch, searchTerm }: ProjectsOverviewNavBarProps) {
+  let timer: NodeJS.Timeout | null = null
+  useEffect(() => {
+    return () => {
+      if (timer) {
+        clearTimeout(timer)
+      }
+    }
+  }, [])
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
-    setLocalSearchTerm(value)
-    if (debounceTimerRef.current) {
-      clearTimeout(debounceTimerRef.current)
+    if (timer) {
+      clearTimeout(timer)
     }
-
-    debounceTimerRef.current = setTimeout(() => {
+    timer = setTimeout(() => {
       onSearch(value)
     }, 300)
   }
@@ -43,8 +41,8 @@ export function ProjectsOverviewNavNbar({
           type="text"
           placeholder="Search..."
           className="bg-transparent border-none outline-none text-white placeholder-gray-400 w-full"
-          value={localSearchTerm}
           onChange={handleSearchChange}
+          defaultValue={searchTerm}
         />
       </div>
 
