@@ -3,7 +3,7 @@ import FastifyVite from "@fastify/vite"
 import FastifyStatic from "@fastify/static"
 
 import path from "path"
-import appInterface from "../interface"
+import appInterface from "./interface"
 
 const PORT = "4005"
 const isProduction = process.env.NODE_ENV === "production"
@@ -40,7 +40,7 @@ async function startServer() {
   } else {
     // In development, use FastifyVite
     await server.register(FastifyVite, {
-      root: path.resolve(__dirname, "../../"),
+      root: path.resolve(__dirname, "../"),
       dev: true,
       spa: true,
     })

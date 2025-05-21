@@ -1,19 +1,14 @@
 import { useEffect, useState } from "react"
-import { initTrpcClient } from "./trpcClient"
-
-interface Item {
-  id: number
-  name: string
-}
+import { initTrpcClient, TrpcClient } from "./trpcClient"
+import type { Entity } from "../bff/types/models"
 
 export interface AppProps {
   baseUrl: string
-  bffPath: string
+  trpcClient: TrpcClient
 }
 
-export function App({ baseUrl, bffPath }: AppProps) {
-  const trpcClient = initTrpcClient(bffPath)
-  const [items, setItems] = useState<Item[]>([])
+export function App({ baseUrl, trpcClient }: AppProps) {
+  const [items, setItems] = useState<Entity[]>([])
   useEffect(() => {
     // Initialize the TRPC client
     trpcClient.entities.list
@@ -39,5 +34,4 @@ export function App({ baseUrl, bffPath }: AppProps) {
       {/* Add more components or content here */}
     </div>
   )
-  // Default navigation items
 }

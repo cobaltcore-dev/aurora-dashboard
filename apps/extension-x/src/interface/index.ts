@@ -1,7 +1,7 @@
 import { name, version, description } from "../../package.json"
 import { Extension } from "@cobaltcore-dev/extension-sdk"
 import { AppProps } from "./client"
-import { AppContext } from "./server"
+import { AppContext } from "./bff"
 
 type Props = Omit<AppProps, "bffPath" | "baseUrl">
 
@@ -16,7 +16,8 @@ const extension: Extension<Props, AppContext> = {
       throw new Error("Server module cannot be loaded in browser environment")
     }
     const mountPath = config?.mountRoute || ""
-    const { handleRequest } = await import("./server")
+
+    const { handleRequest } = await import("./bff")
     return {
       handleRequest,
       path: `${mountPath}/_bff`,
@@ -27,10 +28,15 @@ const extension: Extension<Props, AppContext> = {
     const baseUrl = config?.mountRoute || ""
     const bffPath = `${baseUrl}/_bff`
 
-    const { mount } = await import("./client")
+    const { mount, unmount } = await import("./client")
     return {
-      mount: (container: HTMLElement, props: Props) => mount(container, { ...props, bffPath, baseUrl }),
-      unmount: () => Promise.resolve(),
+      mount: (container: HTMLElement, props?: Props) => {
+        if (!props) {
+          throw new Error("Props are required for mounting the client")
+        }
+        mount(container, { ...props, bffPath, baseUrl })
+      },
+      unmount,
     }
   },
 }

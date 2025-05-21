@@ -1,4 +1,4 @@
-import appInterface from "../interface"
+import appInterface from "./interface"
 
 async function main() {
   if (appInterface.registerClient) {

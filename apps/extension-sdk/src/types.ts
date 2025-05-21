@@ -30,8 +30,8 @@ export interface ClientConfig {
 }
 
 export interface ClientAPI<AppProps> {
-  mount: (container: HTMLElement, props: AppProps) => void
-  unmount: () => void
+  mount: (container: HTMLElement, props?: AppProps) => void
+  unmount: (container: HTMLElement) => void
 }
 
 /**

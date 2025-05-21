@@ -1,5 +1,5 @@
 import { IncomingMessage, ServerResponse } from "node:http"
-import { appRouter } from "../server/routers"
+import { appRouter } from "../bff/routers"
 import { createHTTPHandler } from "@trpc/server/adapters/standalone"
 
 const handler = createHTTPHandler({
