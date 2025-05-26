@@ -1,15 +1,15 @@
 export default {
-  root: "src/standalone",
+  root: "src",
   build: {
-    outDir: "../../dist/standalone",
+    outDir: "../dist",
     emptyOutDir: true,
     sourcemap: true,
     rollupOptions: {
-      external: [/^\.\.\/client.*/, /^\.\.\/bff.*/, /^\.\.\/extension.*/],
+      external: [/^\.\/client.*/, /^\.\/bff.*/, /^\.\/extension.*/],
       output: {
         paths: (id) => {
           if (id.match(/\/extension$/)) {
-            return "../extension/index.js/"
+            return "./extension.js"
           }
           return id
         },

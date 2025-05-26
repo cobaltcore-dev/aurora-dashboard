@@ -1,10 +1,10 @@
 import react from "@vitejs/plugin-react"
 
 export default {
-  root: "src/standalone",
+  root: "src",
 
   build: {
-    outDir: "../../dist/dev",
+    outDir: "../dist/dev",
     emptyOutDir: true,
     sourcemap: true,
     formats: ["es"],

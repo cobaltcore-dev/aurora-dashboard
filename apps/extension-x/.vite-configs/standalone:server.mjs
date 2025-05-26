@@ -1,11 +1,11 @@
 export default {
-  root: "src/standalone",
+  root: "src",
   build: {
-    outDir: "../../dist/standalone",
+    outDir: "../dist/",
     emptyOutDir: false,
     sourcemap: true,
     rollupOptions: {
-      external: [/^\.\.\/client.*/, /^\.\.\/bff.*/, /^\.\.\/extension.*/],
+      external: [/^\.\/client.*/, /^\.\/bff.*/, /^\.\/extension.*/],
       output: {
         // Fix: Handle ESM imports in CJS output
         interop: "auto",

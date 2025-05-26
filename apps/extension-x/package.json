@@ -4,14 +4,14 @@
   "description": "",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "tsx watch src/standalone/server --project tsconfig.server.json",
-    "prod": "NODE_ENV=production tsx src/standalone/server --project tsconfig.server.json",
+    "dev": "tsx watch src/server.ts --project tsconfig.server.json",
+    "prod": "NODE_ENV=production tsx dist/server.js",
     "build:client": "vite build --config vite.config.mjs --mode client",
     "build:bff": "vite build --config vite.config.mjs --mode bff",
     "build:extension": "vite build --config vite.config.mjs --mode extension",
     "build:standalone:ui": "vite build --config vite.config.mjs --mode standalone:ui",
     "build:standalone:server": "vite build --config vite.config.mjs --mode standalone:server",
-    "build:types": "tsc --declaration --emitDeclarationOnly --moduleResolution bundler --module es2022 --skipLibCheck --outFile dist/types.d.ts --jsx react-jsx src/**/*.ts && rm tsconfig.tsbuildinfo",
+    "build:types": "tsc --declaration --emitDeclarationOnly --moduleResolution bundler --module es2022 --skipLibCheck --outFile dist/types.d.ts --jsx react-jsx src/**/*.ts && rm -f tsconfig.tsbuildinfo",
     "build": "npm run build:standalone:ui && npm run build:standalone:server && npm run build:client && npm run build:bff && npm run build:extension && npm run build:types",
     "type:check": "tsc --noEmit"
   },
@@ -39,8 +39,7 @@
     "@types/react-dom": "^19.1.5",
     "@vitejs/plugin-react": "^4.4.1",
     "@vitejs/plugin-react-swc": "^3.9.0",
-    "typescript": "^5.8.3",
-    "vite-plugin-dts": "^4.5.4"
+    "typescript": "^5.8.3"
   },
   "dependencies": {
     "@fastify/static": "^8.2.0",

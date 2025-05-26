@@ -1,7 +1,7 @@
-import { name, version, description } from "../../package.json"
+import { name, version, description } from "../package.json"
 import { Extension } from "@cobaltcore-dev/extension-sdk"
-import { Props } from "../client"
-import { AppContext } from "../bff"
+import { Props } from "./client"
+import { AppContext } from "./bff"
 
 const extension: Extension<AppContext, Props> = {
   name,
@@ -12,7 +12,7 @@ const extension: Extension<AppContext, Props> = {
     const mountPath = config?.mountRoute || ""
     const path = `${mountPath}/_bff`
 
-    const { handleRequest } = await import("../bff")
+    const { handleRequest } = await import("./bff")
 
     return {
       handleRequest,
@@ -24,7 +24,7 @@ const extension: Extension<AppContext, Props> = {
     const baseUrl = config?.mountRoute ?? ""
     const bffPath = `${baseUrl}/_bff`
 
-    const { mount, unmount } = await import("../client")
+    const { mount, unmount } = await import("./client")
 
     type MountFunction = typeof mount
     type MountProps = Parameters<MountFunction>[1]

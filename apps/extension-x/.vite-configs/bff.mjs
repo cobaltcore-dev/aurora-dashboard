@@ -1,5 +1,3 @@
-import dts from "vite-plugin-dts"
-
 export default {
   build: {
     lib: {
@@ -14,9 +12,4 @@ export default {
       external: [/^\.\.\/client.*/, /^\.\.\/bff.*/, /^@trpc\/.*/],
     },
   },
-  // plugins: [
-  //   dts({
-  //     rollupTypes: true, // Enables type bundling
-  //   }),
-  // ],
 }

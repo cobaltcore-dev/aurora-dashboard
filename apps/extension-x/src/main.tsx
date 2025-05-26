@@ -1,4 +1,4 @@
-import extension from "../extension"
+import extension from "./extension"
 
 const container = document.getElementById("app")!
 if (extension.registerClient) {
