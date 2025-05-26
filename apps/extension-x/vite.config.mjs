@@ -10,11 +10,6 @@ export default defineConfig({
     outDir: "../dist/client",
     emptyOutDir: true,
     sourcemap: true,
-    formats: ["es", "cjs"],
-
-    rollupOptions: {
-      // Tell Rollup which modules to treat as external
-      external: [/^\.\/bff/],
-    },
+    formats: ["es"],
   },
 })

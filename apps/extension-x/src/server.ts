@@ -3,7 +3,7 @@ import FastifyVite from "@fastify/vite"
 import FastifyStatic from "@fastify/static"
 
 import path from "path"
-import appInterface from "./interface"
+import { registerServer } from "./bff"
 
 const PORT = "4005"
 const isProduction = process.env.NODE_ENV === "production"
@@ -19,22 +19,18 @@ async function startServer() {
       validateSession: () => true,
     })
 
-  if (appInterface.registerServer) {
-    const { handleRequest } = await appInterface.registerServer({
-      mountRoute: "",
-    })
+  const { handleRequest } = await registerServer({ mountRoute: "" })
 
-    const path = "/_bff"
-    await server.all(path + "/*", (req, res) => {
-      req.raw.url = req.raw.url?.replace(path, "")
-      return handleRequest(req.raw, res.raw)
-    })
-  }
+  const bffPath = "/_bff"
+  await server.all(bffPath + "/*", (req, res) => {
+    req.raw.url = req.raw.url?.replace(bffPath, "")
+    return handleRequest(req.raw, res.raw)
+  })
 
   if (isProduction) {
     // Serve static files in production
     await server.register(FastifyStatic, {
-      root: path.resolve(__dirname, "../../dist"),
+      root: path.resolve(__dirname, "../dist/"),
       prefix: "/",
     })
   } else {

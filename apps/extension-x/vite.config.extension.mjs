@@ -6,14 +6,14 @@ import { defineConfig } from "vite"
 export default defineConfig({
   build: {
     lib: {
-      entry: "src/interface/index.ts",
-      formats: ["es", "cjs"],
-      fileName: (format) => `index.${format}.js`,
+      entry: "src/extension/index.ts",
+      formats: ["es"], // Build both formats
+      fileName: (format) => `index.js`,
     },
-    outDir: "dist/lib",
+    outDir: "dist/extension",
     sourcemap: true,
     rollupOptions: {
-      external: ["fastify", "node:http"],
+      external: [/^\.\.\/client.*/, /^\.\.\/bff.*/, /^@trpc\/.*/],
     },
   },
 })

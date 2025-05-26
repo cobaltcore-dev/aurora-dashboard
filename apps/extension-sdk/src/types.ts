@@ -34,12 +34,15 @@ export interface ClientAPI<AppProps> {
   unmount: (container: HTMLElement) => void
 }
 
+export type RegisterServerFunction<Context> = (config?: ServerConfig) => ServerAPI<Context>
+export type RegisterClientFunction<AppProps> = (config?: ClientConfig) => ClientAPI<AppProps>
+
 /**
  * The Extension interface defines the structure of an extension.
  * It includes the name, description, and version of the extension.
  * It also includes optional methods for registering server and client components.
  */
-export interface Extension<AppProps = JSON, Context = JSON> {
+export interface Extension<Context, AppProps> {
   name: string
   description: string
   version: string

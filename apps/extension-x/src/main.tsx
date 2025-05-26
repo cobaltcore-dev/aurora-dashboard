@@ -1,14 +1,7 @@
-import appInterface from "./interface"
+import { registerClient } from "./client/index.js"
 
-async function main() {
-  if (appInterface.registerClient) {
-    const container = document.getElementById("app")!
-    const { mount } = await appInterface.registerClient({
-      mountRoute: "",
-    })
-
-    mount(container, {})
-  }
-}
-
-main()
+const container = document.getElementById("app")!
+const { mount } = registerClient({
+  mountRoute: "",
+})
+mount(container, { baseUrl: "", bffPath: "_bff" })

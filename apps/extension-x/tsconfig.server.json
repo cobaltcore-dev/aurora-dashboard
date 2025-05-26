@@ -27,8 +27,8 @@
   "compilerOptions": {
     "module": "CommonJS",
     "esModuleInterop": true,
-    "outDir": "./dist",
-    "rootDir": "./src",
+    "outDir": "./dist/standalone",
+    "rootDir": "./src/standalone",
     "target": "ESNext",
     "sourceMap": true,
     "experimentalDecorators": true,
@@ -39,6 +39,6 @@
     "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true
   },
-  "include": ["src/server.ts", "src/bff/**/*.ts", "src/interface/bff.ts", "src/interface/index.ts"],
-  "exclude": ["node_modules", "dist", "src/client", "src/interface/client.ts"] // Exclude the node_modules and dist directories
+  "include": ["src/standalone/server.ts"],
+  "exclude": ["node_modules", "dist", "src/client", "src/interface", "src/bff"] // Exclude the node_modules and dist directories
 }
