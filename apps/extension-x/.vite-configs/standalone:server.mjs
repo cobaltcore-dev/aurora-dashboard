@@ -12,6 +12,7 @@ export default {
         exports: "auto",
       },
     },
+    // ssr true improves the build for node environments
     ssr: true,
     target: "node22",
     lib: {
