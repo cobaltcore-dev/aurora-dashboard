@@ -32,8 +32,29 @@ async function startServer() {
   if (isProduction) {
     // Serve static files in production
     await server.register(FastifyStatic, {
-      root: path.resolve(__dirname, "../../dist/"),
+      root: path.resolve(__dirname, "../../dist/standalone"),
       prefix: "/",
+    })
+
+    // 2. Serve client library at /client
+    await server.register(FastifyStatic, {
+      root: path.resolve(__dirname, "../../dist/client"),
+      prefix: "/client/",
+      decorateReply: false,
+    })
+
+    // 3. Serve BFF library at /bff
+    await server.register(FastifyStatic, {
+      root: path.resolve(__dirname, "../../dist/bff"),
+      prefix: "/bff/",
+      decorateReply: false,
+    })
+
+    // 4. Serve extension library at /extension
+    await server.register(FastifyStatic, {
+      root: path.resolve(__dirname, "../../dist/extension"),
+      prefix: "/extension/",
+      decorateReply: false,
     })
   } else {
     // In development, use FastifyVite

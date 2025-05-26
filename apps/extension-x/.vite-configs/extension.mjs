@@ -1,9 +1,4 @@
-// export default {
-//   // plugins: [react()],
-
-import { defineConfig } from "vite"
-
-export default defineConfig({
+export default {
   build: {
     lib: {
       entry: "src/extension/index.ts",
@@ -29,4 +24,4 @@ export default defineConfig({
       },
     },
   },
-})
+}

@@ -15,7 +15,7 @@ export function App({ baseUrl, trpcClient }: AppProps) {
       .query()
       .then((data) => {
         console.log("Entities:", data)
-        setItems(data)
+        setItems(data as Entity[])
       })
       .catch((error) => {
         console.error("Error fetching entities:", error)
