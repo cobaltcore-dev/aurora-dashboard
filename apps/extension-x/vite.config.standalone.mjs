@@ -5,11 +5,11 @@ import { defineConfig } from "vite"
 
 export default defineConfig(({ mode }) => {
   const common = {
-    root: "./src",
+    root: "./src/standalone",
     build: {
-      outDir: "../dist/",
+      outDir: "../../dist/standalone",
       rollupOptions: {
-        external: [/^\.\/client.*/, /^\.\/bff.*/, /^\.\/extension.*/],
+        external: [/^\.\.\/client.*/, /^\.\.\/bff.*/, /^\.\.\/extension.*/],
       },
     },
   }
@@ -19,8 +19,19 @@ export default defineConfig(({ mode }) => {
       ...common,
       build: {
         ...common.build,
-        emptyOutDir: false,
+        emptyOutDir: true,
         sourcemap: true,
+        rollupOptions: {
+          ...common.build.rollupOptions,
+
+          output: {
+            paths: (id) => {
+              if (id.match(/\/extension$/)) {
+                return "../extension/index.js/"
+              }
+            },
+          },
+        },
       },
     }
   } else {
@@ -34,6 +45,15 @@ export default defineConfig(({ mode }) => {
           entry: "server.ts",
           formats: ["cjs"],
           fileName: (format) => `server.js`,
+        },
+        rollupOptions: {
+          ...common.build.rollupOptions,
+          output: {
+            format: "cjs",
+            // Fix: Handle ESM imports in CJS output
+            interop: "auto",
+            exports: "auto",
+          },
         },
       },
     }

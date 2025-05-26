@@ -4,10 +4,10 @@
 import { defineConfig } from "vite"
 
 export default defineConfig({
-  root: "./src",
+  root: "./src/standalone",
 
   build: {
-    outDir: "../dist/client",
+    outDir: "../../dist/dev",
     emptyOutDir: true,
     sourcemap: true,
     formats: ["es"],

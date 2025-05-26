@@ -4,7 +4,7 @@
   "description": "",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "tsx watch src/server --project tsconfig.server.json",
+    "dev": "tsx watch src/standalone/server --project tsconfig.server.json",
     "prod": "NODE_ENV=production tsx src/standalone/server --project tsconfig.server.json",
     "build:client": "vite build --config vite.config.client.mjs",
     "build:bff": "vite build --config vite.config.bff.mjs",

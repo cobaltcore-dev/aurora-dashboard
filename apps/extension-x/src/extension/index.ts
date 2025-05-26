@@ -1,7 +1,7 @@
 import { name, version, description } from "../../package.json"
 import { Extension } from "@cobaltcore-dev/extension-sdk"
-import { Props } from "../client/index.js"
-import { AppContext } from "../bff/index.js"
+import { Props } from "../client"
+import { AppContext } from "../bff"
 
 const extension: Extension<AppContext, Props> = {
   name,
@@ -9,12 +9,12 @@ const extension: Extension<AppContext, Props> = {
   version,
 
   registerServer: async (config?) => {
-    const { registerServer } = await import("../bff/index.js")
+    const { registerServer } = await import("../bff")
     return registerServer(config)
   },
 
   registerClient: async (config?) => {
-    const { registerClient } = await import("../client/index.js")
+    const { registerClient } = await import("../client")
     return registerClient(config)
   },
 }
