@@ -3,6 +3,6 @@ import dotenv from "dotenv"
 dotenv.config()
 
 export const client = createClient({
-  apiEndpoint: process.env.GARDENER_ENDPOINT!,
-  token: process.env.GARDENER_TOKEN!,
+  apiEndpoint: process.env.GARDENER_ENDPOINT || "https://api.gardener.cloud",
+  token: process.env.GARDENER_TOKEN || "123456",
 })
