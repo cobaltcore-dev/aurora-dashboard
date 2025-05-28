@@ -1,25 +1,22 @@
 {
-  "extends": ["//"],
+  "extends": [ "//" ],
   "tasks": {
     "dev": {
       "dependsOn": [
         "@cobaltcore-dev/signal-openstack#build",
-        "@cobaltcore-dev/aurora-sdk#build",
-        "@cobaltcore-dev/aurora-extension-a#build"
+        "@cobaltcore-dev/aurora-sdk#build"
       ]
     },
     "test": {
       "dependsOn": [
         "@cobaltcore-dev/signal-openstack#build",
-        "@cobaltcore-dev/aurora-sdk#build",
-        "@cobaltcore-dev/aurora-extension-a#build"
+        "@cobaltcore-dev/aurora-sdk#build"
       ]
     },
     "build": {
       "dependsOn": [
         "@cobaltcore-dev/signal-openstack#build",
-        "@cobaltcore-dev/aurora-sdk#build",
-        "@cobaltcore-dev/aurora-extension-a#build"
+        "@cobaltcore-dev/aurora-sdk#build"
       ]
     }
   }
