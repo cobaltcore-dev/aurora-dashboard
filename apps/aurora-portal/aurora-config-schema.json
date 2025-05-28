@@ -13,8 +13,12 @@
           },
           "type": {
             "type": "string",
-            "enum": ["aurora-extension", "juno-app"],
+            "enum": [ "aurora-extension", "juno-app" ],
             "description": "The type of the extension, either 'aurora-extension' or 'juno-app'."
+          },
+          "entrypoint": {
+            "type": "string",
+            "description": "The entry point for the extension, typically a module path."
           },
           "navigation": {
             "type": "object",
@@ -27,7 +31,7 @@
                 "type": "array",
                 "items": {
                   "type": "string",
-                  "enum": ["project", "domain"],
+                  "enum": [ "project", "account" ],
                   "description": "The scope defines the context where this navigation item is visible."
                 },
                 "minItems": 1,
@@ -35,15 +39,23 @@
                 "description": "An array of allowed scopes for this navigation item."
               }
             },
-            "required": ["label", "scope"],
+            "required": [ "label", "scope" ],
             "additionalProperties": false
+          },
+          "appProps": {
+            "type": "object",
+            "description": "Additional properties for the application/extension configuration."
           }
         },
-        "required": ["source", "type", "navigation"],
+        "required": [ "source", "type", "navigation" ],
         "additionalProperties": false
       }
+    },
+    "$schema": {
+      "type": "string",
+      "description": "The JSON schema URL for validation."
     }
   },
-  "required": ["extensions"],
+  "required": [ "extensions" ],
   "additionalProperties": false
 }
