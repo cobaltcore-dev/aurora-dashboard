@@ -4,7 +4,7 @@ import FastifyVite from "@fastify/vite"
 import FastifyCookie from "@fastify/cookie"
 import FastifyCsrfProtection from "@fastify/csrf-protection"
 import FastifyHelmet from "@fastify/helmet"
-import { AuroraFastifyTRPCPluginOptions, auroraFastifyTRPCPlugin } from "@cobaltcore-dev/aurora-sdk/server"
+import { FastifyTRPCPluginOptions, fastifyTRPCPlugin } from "@trpc/server/adapters/fastify"
 import { appRouter, AuroraRouter } from "./routers" // tRPC router
 import { createContext } from "./context"
 import * as dotenv from "dotenv"
@@ -58,7 +58,7 @@ async function startServer() {
   })
 
   // Register tRPC plugin to handle API routes
-  await server.register(auroraFastifyTRPCPlugin, {
+  await server.register(fastifyTRPCPlugin, {
     prefix: BFF_ENDPOINT, // All tRPC routes will be under this prefix
     trpcOptions: {
       router: appRouter,
@@ -68,7 +68,7 @@ async function startServer() {
         if (err.error.cause instanceof ZodError)
           err.error.message = err.error.cause.errors.map((e) => e.message).join(",")
       },
-    } satisfies AuroraFastifyTRPCPluginOptions<AuroraRouter>["trpcOptions"],
+    } satisfies FastifyTRPCPluginOptions<AuroraRouter>["trpcOptions"],
   })
 
   // Register extension server handlers

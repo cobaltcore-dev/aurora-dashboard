@@ -1,5 +1,7 @@
-import { AuroraContext, CreateAuroraFastifyContextOptions } from "@cobaltcore-dev/aurora-sdk/server"
+import { AuroraContext } from "@cobaltcore-dev/aurora-sdk/server"
 import { SignalOpenstackSession, SignalOpenstackSessionType } from "@cobaltcore-dev/signal-openstack"
+
+import type { CreateFastifyContextOptions } from "@trpc/server/adapters/fastify"
 
 import * as dotenv from "dotenv"
 import { AuthConfig } from "./Authentication/types/models"
@@ -23,7 +25,7 @@ export interface AuroraPortalContext extends AuroraContext {
   terminateSession: () => Promise<void>
 }
 
-function SessionCookie(cookieName: string, opts: CreateAuroraFastifyContextOptions) {
+function SessionCookie(cookieName: string, opts: CreateFastifyContextOptions) {
   return {
     set: (content?: string | null, options?: { expires: Date }) => {
       if (!content) return
@@ -49,7 +51,7 @@ function SessionCookie(cookieName: string, opts: CreateAuroraFastifyContextOptio
   }
 }
 
-export async function createContext(opts: CreateAuroraFastifyContextOptions): Promise<AuroraPortalContext> {
+export async function createContext(opts: CreateFastifyContextOptions): Promise<AuroraPortalContext> {
   const sessionCookie = SessionCookie("aurora-session", opts)
   const currentAuthToken = sessionCookie.get()
   let openstackSession: Awaited<SignalOpenstackSessionType> | undefined = undefined

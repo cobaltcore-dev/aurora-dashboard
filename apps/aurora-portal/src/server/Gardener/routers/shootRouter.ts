@@ -2,7 +2,7 @@ import { publicProcedure } from "../../trpc"
 import { shootApiResponseSchema, shootListApiResponseSchema } from "../types/shootApiSchema"
 import { Cluster, convertShootApiResponseToCluster, convertShootListApiSchemaToClusters } from "../types/cluster"
 import { client } from "../client"
-import { AuroraTRPCError } from "@cobaltcore-dev/aurora-sdk"
+import { TRPCError } from "@trpc/server"
 import { z } from "zod"
 
 export const shootRouter = {
@@ -215,7 +215,7 @@ export const shootRouter = {
       console.log(parsedData.error)
       if (!parsedData.success) {
         console.error("Zod Parsing Error:", parsedData.error.format())
-        throw new AuroraTRPCError({
+        throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "Failed to parse the API response",
         })
