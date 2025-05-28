@@ -1,56 +1,17 @@
 import fs from "fs"
 import path from "path"
-import { installExtension, Extension } from "./extension"
-import { generateAuroraExtensionImports } from "./aurora-extension"
-import { generateJunoAppImports } from "./juno-app"
-import { ExtensionImports } from "./shared-types"
+import { installExtension, Extension, InstalledExtension } from "./extension"
 
 // Root-Verzeichnis und andere Konstanten
 const ROOT = path.resolve(__dirname, "../../")
 const manifestPath = path.join(ROOT, "aurora.config.json")
 const extensionsTmpDir = path.join(ROOT, "tmp")
 const extensionsDir = path.join(ROOT, "node_modules")
-const clientImportsFile = path.join(ROOT, "src/client/generated", "extensions.tsx")
-const serverImportsFile = path.join(ROOT, "src/server/generated", "extensions.ts")
+const extensionsFile = path.join(ROOT, "src/extensions.json")
 const npmrcFile = path.join(ROOT, ".npmrc")
 
 type Error = {
   message: string
-}
-
-const generateExtensionsImportFiles = (extensionImports: ExtensionImports[] = []): void => {
-  const clientImports: string[] = []
-  const serverImports: string[] = []
-  const clientExports: string[] = []
-  const serverExports: string[] = []
-
-  clientExports.push(`export const clientExtensions = [`)
-  serverExports.push(`export const extensionRouters = {`)
-
-  for (const imports of extensionImports) {
-    if (imports?.clientImports?.length) {
-      clientImports.push(...imports.clientImports)
-    }
-    if (imports?.clientExports?.length) {
-      clientExports.push(...imports.clientExports)
-    }
-    if (imports?.serverImports?.length) {
-      serverImports.push(...imports.serverImports)
-    }
-    if (imports?.serverExports?.length) {
-      serverExports.push(...imports.serverExports)
-    }
-  }
-  clientExports.push(`]`)
-  serverExports.push(`}`)
-
-  const clientFileContent = [...clientImports, "", ...clientExports]
-  const serverFileContent = [...serverImports, "", ...serverExports]
-
-  fs.mkdirSync(path.dirname(clientImportsFile), { recursive: true })
-  fs.writeFileSync(clientImportsFile, clientFileContent.join("\n"))
-  fs.mkdirSync(path.dirname(serverImportsFile), { recursive: true })
-  fs.writeFileSync(serverImportsFile, serverFileContent.join("\n"))
 }
 
 const loadManifestExtensions = (): Extension[] => {
@@ -74,7 +35,9 @@ function install() {
 
   // Load extensions from manifest
   const extensions = loadManifestExtensions()
-  const allImports = []
+
+  const installedExtensions: InstalledExtension[] = []
+
   // Install all registered extensions
   for (const extension of extensions) {
     // install extension
@@ -85,26 +48,10 @@ function install() {
       continue
     }
 
-    let extensionImports = null
-    switch (installedExtension.type) {
-      case "aurora-extension":
-        extensionImports = generateAuroraExtensionImports(installedExtension)
-        break
-      case "juno-app":
-        extensionImports = generateJunoAppImports(installedExtension)
-        break
-    }
-
-    if (extensionImports === null) {
-      console.warn("Could not generate imports for " + installedExtension.name)
-      continue
-    }
-
-    allImports.push(extensionImports)
+    installedExtensions.push(installedExtension)
   }
 
-  generateExtensionsImportFiles(allImports)
-
+  fs.writeFileSync(extensionsFile, JSON.stringify(installedExtensions, null, 2))
   // delete tmp directory
   fs.rmSync(extensionsTmpDir, { recursive: true, force: true })
   return true

@@ -3,7 +3,6 @@ import fs from "fs"
 import path from "path"
 
 export interface Extension {
-  name?: string
   source: string // Can be a file path or package name
   type: "aurora-extension" | "juno-app" // Allowed types
   navigation: {
@@ -15,18 +14,7 @@ export interface Extension {
 export interface InstalledExtension extends Extension {
   id: string
   name: string
-  navigation: Extension["navigation"] & {
-    label: string
-    scope: string[]
-  }
-  packageJson: {
-    name: string
-    main?: string
-    module?: string
-    exports?: {
-      [key: string]: string | { import: string; require: string }
-    }
-  }
+  version: string
 }
 
 interface InstallExtensionOptions {
@@ -34,7 +22,7 @@ interface InstallExtensionOptions {
   extensionsTmpDir: string
 }
 
-function generateValidPackageName(name: string) {
+function generateId(name: string) {
   // Step 1: Remove leading or trailing spaces and normalize case
   name = name.trim().toLowerCase()
 
@@ -91,15 +79,15 @@ export const installExtension = (extension: Extension, options: InstallExtension
     // add packageJson to extension as installedExtension
     const installedExtension: InstalledExtension = {
       ...extension,
-      name: extension.name || packageInfo.name,
-      id: generateValidPackageName(packageInfo.name),
+      name: packageInfo.name,
+      id: generateId(packageInfo.name),
+      version: packageInfo.version,
 
       navigation: {
         ...extension.navigation,
-        label: extension?.navigation?.label || extension.name || packageInfo.name,
-        scope: extension?.navigation?.scope || ["domain", "project"],
+        label: extension?.navigation?.label || packageInfo.name,
+        scope: extension?.navigation?.scope || ["account", "project"],
       },
-      packageJson,
     }
 
     return installedExtension

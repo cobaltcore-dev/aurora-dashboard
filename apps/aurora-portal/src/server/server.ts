@@ -10,6 +10,8 @@ import { createContext } from "./context"
 import * as dotenv from "dotenv"
 import path from "path"
 import { ZodError } from "zod"
+import extensions from "../extensions.json"
+import extension from "extension-x/extension"
 
 // Load environment variables from .env file
 dotenv.config()
@@ -55,6 +57,29 @@ async function startServer() {
       })
     }
   })
+
+  // Register extension server handlers
+  if (extensions.length > 0) {
+    // Register each extension's server handler
+    for (const ext of extensions) {
+      // Dynamically import the extension module
+      const extensionModule = await import(ext.entrypoint)
+      // Ensure the module has a default export or named export
+      const { registerServer } = extensionModule.default || extensionModule
+      // If the extension has a server registration function, call it
+      if (registerServer) {
+        const { handleRequest, path: bffPath } = await registerServer({
+          mountRoute: `/extensions/${ext.id}`,
+        })
+
+        // Register the extension's BFF path
+        await server.all(bffPath + "/*", (req, res) => {
+          req.raw.url = req.raw.url?.replace(bffPath, "")
+          return handleRequest(req.raw, res.raw)
+        })
+      }
+    }
+  }
 
   // Register tRPC plugin to handle API routes
   await server.register(auroraFastifyTRPCPlugin, {

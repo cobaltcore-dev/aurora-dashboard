@@ -11,20 +11,15 @@
     "build:extension": "vite build --config vite.config.mjs --mode extension",
     "build:standalone:ui": "vite build --config vite.config.mjs --mode standalone:ui",
     "build:standalone:server": "vite build --config vite.config.mjs --mode standalone:server",
-    "build:types": "tsc --declaration --emitDeclarationOnly --moduleResolution bundler --module es2022 --skipLibCheck --outFile dist/types.d.ts --jsx react-jsx src/**/*.ts && rm -f tsconfig.tsbuildinfo",
+    "build:types": "tsc --project tsconfig.types.json",
     "build": "npm run build:standalone:ui && npm run build:standalone:server && npm run build:client && npm run build:bff && npm run build:extension && npm run build:types",
-    "type:check": "tsc --noEmit"
+    "type:check": "tsc --noEmit --project tsconfig.types.json"
   },
+
   "exports": {
-    "./client": {
-      "import": "./dist/client/index.js"
-    },
-    "./bff": {
-      "require": "./dist/bff/index.js"
-    },
     "./extension": {
-      "import": "./dist/extension/index.cjs",
-      "require": "./dist/extension/index.mjs"
+      "import": "./dist/extension.js",
+      "require": "./dist/extension.js"
     }
   },
   "keywords": [ ],

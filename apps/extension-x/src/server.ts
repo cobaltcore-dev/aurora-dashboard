@@ -20,9 +20,8 @@ async function startServer() {
     })
 
   if (extension.registerServer) {
-    const { handleRequest } = await extension.registerServer({ mountRoute: "" })
+    const { handleRequest, path: bffPath } = await extension.registerServer({ mountRoute: "" })
 
-    const bffPath = "/_bff"
     await server.all(bffPath + "/*", (req, res) => {
       req.raw.url = req.raw.url?.replace(bffPath, "")
       return handleRequest(req.raw, res.raw)
