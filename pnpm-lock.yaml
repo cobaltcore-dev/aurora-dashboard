@@ -31,109 +31,6 @@ importers:
         specifier: ^2.2.3
         version: 2.4.2
 
-  apps/aurora-extension-a:
-    dependencies:
-      '@cobaltcore-dev/aurora-sdk':
-        specifier: workspace:*
-        version: link:../../packages/aurora-sdk
-      concurrently:
-        specifier: ^9.1.2
-        version: 9.1.2
-      dotenv:
-        specifier: ^16.4.7
-        version: 16.4.7
-      fastify:
-        specifier: ^5.3.2
-        version: 5.3.3
-      react:
-        specifier: ^19.1.0
-        version: 19.1.0
-      react-dom:
-        specifier: ^19.1.0
-        version: 19.1.0(react@19.1.0)
-      tsx:
-        specifier: ^4.19.2
-        version: 4.19.2
-      zod:
-        specifier: ^3.24.1
-        version: 3.24.2
-    devDependencies:
-      '@cloudoperators/juno-ui-components':
-        specifier: ^2.36.0
-        version: 2.37.0(prop-types@15.8.1)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      '@cobaltcore-dev/aurora-config':
-        specifier: workspace:*
-        version: link:../../packages/config
-      '@eslint/js':
-        specifier: ^9.17.0
-        version: 9.20.0
-      '@testing-library/jest-dom':
-        specifier: ^6.5.0
-        version: 6.6.3
-      '@types/eslint':
-        specifier: ^9.6.1
-        version: 9.6.1
-      '@types/node':
-        specifier: ^22.10.5
-        version: 22.13.2
-      '@types/react':
-        specifier: ^19.1.0
-        version: 19.1.0
-      '@types/react-dom':
-        specifier: ^19.1.0
-        version: 19.1.1(@types/react@19.1.0)
-      '@vitejs/plugin-react-swc':
-        specifier: ^3.7.1
-        version: 3.8.0(@swc/helpers@0.5.17)(vite@6.2.7(@types/node@22.13.2)(jiti@2.4.2)(tsx@4.19.2)(yaml@2.7.0))
-      autoprefixer:
-        specifier: ^10.4.20
-        version: 10.4.20(postcss@8.5.2)
-      eslint:
-        specifier: ^9.17.0
-        version: 9.20.1(jiti@2.4.2)
-      eslint-plugin-react:
-        specifier: ^7.37.2
-        version: 7.37.4(eslint@9.20.1(jiti@2.4.2))
-      eslint-plugin-react-hooks:
-        specifier: ^5.0.0
-        version: 5.1.0(eslint@9.20.1(jiti@2.4.2))
-      eslint-plugin-react-refresh:
-        specifier: ^0.4.16
-        version: 0.4.19(eslint@9.20.1(jiti@2.4.2))
-      globals:
-        specifier: ^15.14.0
-        version: 15.15.0
-      jsdom:
-        specifier: ^24.1.1
-        version: 24.1.3
-      postcss:
-        specifier: ^8.4.47
-        version: 8.5.2
-      prettier:
-        specifier: ^3.4.2
-        version: 3.5.0
-      tailwindcss:
-        specifier: ^3.4.12
-        version: 3.4.17
-      typescript:
-        specifier: ^5.6.2
-        version: 5.7.3
-      vite:
-        specifier: ^6.2.7
-        version: 6.2.7(@types/node@22.13.2)(jiti@2.4.2)(tsx@4.19.2)(yaml@2.7.0)
-      vite-plugin-dts:
-        specifier: ^4.5.3
-        version: 4.5.3(@types/node@22.13.2)(rollup@4.41.0)(typescript@5.7.3)(vite@6.2.7(@types/node@22.13.2)(jiti@2.4.2)(tsx@4.19.2)(yaml@2.7.0))
-      vite-plugin-svgr:
-        specifier: ^4.3.0
-        version: 4.3.0(rollup@4.41.0)(typescript@5.7.3)(vite@6.2.7(@types/node@22.13.2)(jiti@2.4.2)(tsx@4.19.2)(yaml@2.7.0))
-      vite-tsconfig-paths:
-        specifier: ^5.1.4
-        version: 5.1.4(typescript@5.7.3)(vite@6.2.7(@types/node@22.13.2)(jiti@2.4.2)(tsx@4.19.2)(yaml@2.7.0))
-      vitest:
-        specifier: ^3.1.1
-        version: 3.1.1(@types/node@22.13.2)(jiti@2.4.2)(jsdom@24.1.3)(tsx@4.19.2)(yaml@2.7.0)
-
   apps/aurora-portal:
     dependencies:
       '@cloudoperators/juno-k8s-client':
@@ -5062,7 +4959,7 @@ snapshots:
       '@fastify/forwarded': 3.0.0
       ipaddr.js: 2.2.0
 
-  '@fastify/react@1.0.2(@kitajs/ts-html-plugin@4.1.1)(@types/node@22.13.2)(@types/react@19.1.0)(fastify@5.3.3)(jiti@2.4.2)(rollup@4.41.0)(tsx@4.19.2)(yaml@2.7.0)':
+  '@fastify/react@1.0.2(@kitajs/ts-html-plugin@4.1.1)(@types/node@22.13.2)(@types/react@19.1.0)(fastify@5.3.3)(jiti@2.4.2)(rollup@4.41.0)(tsx@4.19.2)(typescript@5.7.3)(yaml@2.7.0)':
     dependencies:
       '@fastify/vite': 8.0.5(@kitajs/ts-html-plugin@4.1.1)(@types/node@22.13.2)(@types/react@19.1.0)(fastify@5.3.3)(jiti@2.4.2)(rollup@4.41.0)(tsx@4.19.2)(typescript@5.7.3)(yaml@2.7.0)
       acorn: 8.14.1
@@ -5094,6 +4991,7 @@ snapshots:
       - sugarss
       - terser
       - tsx
+      - typescript
       - yaml
     optional: true
 
@@ -5136,8 +5034,8 @@ snapshots:
       klaw: 4.1.0
     optionalDependencies:
       '@fastify/htmx': 0.4.0(@kitajs/ts-html-plugin@4.1.1)(rollup@4.41.0)
-      '@fastify/react': 1.0.2(@kitajs/ts-html-plugin@4.1.1)(@types/node@22.13.2)(@types/react@19.1.0)(fastify@5.3.3)(jiti@2.4.2)(rollup@4.41.0)(tsx@4.19.2)(yaml@2.7.0)
-      '@fastify/vue': 1.0.6(@kitajs/ts-html-plugin@4.1.1)(@types/node@22.13.2)(@types/react@19.1.0)(fastify@5.3.3)(jiti@2.4.2)(rollup@4.41.0)(tsx@4.19.2)(typescript@5.7.3)(yaml@2.7.0)
+      '@fastify/react': 1.0.2(@kitajs/ts-html-plugin@4.1.1)(@types/node@22.13.2)(@types/react@19.1.0)(fastify@5.3.3)(jiti@2.4.2)(rollup@4.41.0)(tsx@4.19.2)(typescript@5.7.3)(yaml@2.7.0)
+      '@fastify/vue': 1.0.6(@kitajs/ts-html-plugin@4.1.1)(@types/node@22.13.2)(fastify@5.3.3)(jiti@2.4.2)(rollup@4.41.0)(tsx@4.19.2)(typescript@5.7.3)(yaml@2.7.0)
       vite: 6.2.7(@types/node@22.13.2)(jiti@2.4.2)(tsx@4.19.2)(yaml@2.7.0)
     transitivePeerDependencies:
       - '@kitajs/ts-html-plugin'
@@ -5156,7 +5054,7 @@ snapshots:
       - typescript
       - yaml
 
-  '@fastify/vue@1.0.6(@kitajs/ts-html-plugin@4.1.1)(@types/node@22.13.2)(@types/react@19.1.0)(fastify@5.3.3)(jiti@2.4.2)(rollup@4.41.0)(tsx@4.19.2)(typescript@5.7.3)(yaml@2.7.0)':
+  '@fastify/vue@1.0.6(@kitajs/ts-html-plugin@4.1.1)(@types/node@22.13.2)(fastify@5.3.3)(jiti@2.4.2)(rollup@4.41.0)(tsx@4.19.2)(typescript@5.7.3)(yaml@2.7.0)':
     dependencies:
       '@fastify/vite': 8.0.5(@kitajs/ts-html-plugin@4.1.1)(@types/node@22.13.2)(@types/react@19.1.0)(fastify@5.3.3)(jiti@2.4.2)(rollup@4.41.0)(tsx@4.19.2)(typescript@5.7.3)(yaml@2.7.0)
       acorn: 8.14.1
@@ -5173,7 +5071,6 @@ snapshots:
     transitivePeerDependencies:
       - '@kitajs/ts-html-plugin'
       - '@types/node'
-      - '@types/react'
       - fastify
       - jiti
       - less

@@ -11,6 +11,7 @@
 // Import Routes
 
 import { Route as rootRoute } from "./routes/__root"
+import { Route as ExtensionsImport } from "./routes/extensions"
 import { Route as AboutImport } from "./routes/about"
 import { Route as AuthImport } from "./routes/_auth"
 import { Route as IndexImport } from "./routes/index"
@@ -26,6 +27,12 @@ import { Route as AuthAccountsAccountIdProjectsProjectIdNetworkIndexImport } fro
 import { Route as AuthAccountsAccountIdProjectsProjectIdComputeSplatImport } from "./routes/_auth/accounts/$accountId/projects/$projectId/compute/$"
 
 // Create/Update Routes
+
+const ExtensionsRoute = ExtensionsImport.update({
+  id: "/extensions",
+  path: "/extensions",
+  getParentRoute: () => rootRoute,
+} as any)
 
 const AboutRoute = AboutImport.update({
   id: "/about",
@@ -129,6 +136,13 @@ declare module "@tanstack/react-router" {
       path: "/about"
       fullPath: "/about"
       preLoaderRoute: typeof AboutImport
+      parentRoute: typeof rootRoute
+    }
+    "/extensions": {
+      id: "/extensions"
+      path: "/extensions"
+      fullPath: "/extensions"
+      preLoaderRoute: typeof ExtensionsImport
       parentRoute: typeof rootRoute
     }
     "/_auth/aurora": {
@@ -239,6 +253,7 @@ export interface FileRoutesByFullPath {
   "/": typeof IndexRoute
   "": typeof AuthRouteWithChildren
   "/about": typeof AboutRoute
+  "/extensions": typeof ExtensionsRoute
   "/aurora": typeof AuthAuroraRoute
   "/auth/login": typeof AuthLoginRoute
   "/gardener": typeof GardenerIndexRoute
@@ -255,6 +270,7 @@ export interface FileRoutesByTo {
   "/": typeof IndexRoute
   "": typeof AuthRouteWithChildren
   "/about": typeof AboutRoute
+  "/extensions": typeof ExtensionsRoute
   "/aurora": typeof AuthAuroraRoute
   "/auth/login": typeof AuthLoginRoute
   "/gardener": typeof GardenerIndexRoute
@@ -272,6 +288,7 @@ export interface FileRoutesById {
   "/": typeof IndexRoute
   "/_auth": typeof AuthRouteWithChildren
   "/about": typeof AboutRoute
+  "/extensions": typeof ExtensionsRoute
   "/_auth/aurora": typeof AuthAuroraRoute
   "/auth/login": typeof AuthLoginRoute
   "/gardener/": typeof GardenerIndexRoute
@@ -290,6 +307,7 @@ export interface FileRouteTypes {
     | "/"
     | ""
     | "/about"
+    | "/extensions"
     | "/aurora"
     | "/auth/login"
     | "/gardener"
@@ -305,6 +323,7 @@ export interface FileRouteTypes {
     | "/"
     | ""
     | "/about"
+    | "/extensions"
     | "/aurora"
     | "/auth/login"
     | "/gardener"
@@ -320,6 +339,7 @@ export interface FileRouteTypes {
     | "/"
     | "/_auth"
     | "/about"
+    | "/extensions"
     | "/_auth/aurora"
     | "/auth/login"
     | "/gardener/"
@@ -337,6 +357,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRoute: typeof AuthRouteWithChildren
   AboutRoute: typeof AboutRoute
+  ExtensionsRoute: typeof ExtensionsRoute
   AuthLoginRoute: typeof AuthLoginRoute
   GardenerIndexRoute: typeof GardenerIndexRoute
   GardenerClustersClusterNameRoute: typeof GardenerClustersClusterNameRoute
@@ -347,6 +368,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRouteWithChildren,
   AboutRoute: AboutRoute,
+  ExtensionsRoute: ExtensionsRoute,
   AuthLoginRoute: AuthLoginRoute,
   GardenerIndexRoute: GardenerIndexRoute,
   GardenerClustersClusterNameRoute: GardenerClustersClusterNameRoute,
@@ -364,6 +386,7 @@ export const routeTree = rootRoute._addFileChildren(rootRouteChildren)._addFileT
         "/",
         "/_auth",
         "/about",
+        "/extensions",
         "/auth/login",
         "/gardener/",
         "/gardener/clusters/$clusterName",
@@ -384,6 +407,9 @@ export const routeTree = rootRoute._addFileChildren(rootRouteChildren)._addFileT
     },
     "/about": {
       "filePath": "about.tsx"
+    },
+    "/extensions": {
+      "filePath": "extensions.tsx"
     },
     "/_auth/aurora": {
       "filePath": "_auth/aurora.tsx",

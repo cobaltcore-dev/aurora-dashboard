@@ -1,40 +1,9 @@
 import { execSync } from "child_process"
 import fs from "fs"
 import path from "path"
+import { Extension, InstalledExtension } from "./types"
 
-export interface Extension {
-  name?: string
-  source: string // Can be a file path or package name
-  type: "aurora-extension" | "juno-app" // Allowed types
-  navigation: {
-    label: string // Display label
-    scope: ("project" | "domain")[] // Allowed scopes
-  }
-}
-
-export interface InstalledExtension extends Extension {
-  id: string
-  name: string
-  navigation: Extension["navigation"] & {
-    label: string
-    scope: string[]
-  }
-  packageJson: {
-    name: string
-    main?: string
-    module?: string
-    exports?: {
-      [key: string]: string | { import: string; require: string }
-    }
-  }
-}
-
-interface InstallExtensionOptions {
-  extensionsDir: string
-  extensionsTmpDir: string
-}
-
-function generateValidPackageName(name: string) {
+function generateId(name: string) {
   // Step 1: Remove leading or trailing spaces and normalize case
   name = name.trim().toLowerCase()
 
@@ -56,6 +25,11 @@ function generateValidPackageName(name: string) {
   return name
 }
 
+interface InstallExtensionOptions {
+  extensionsDir: string
+  extensionsTmpDir: string
+}
+
 export const installExtension = (extension: Extension, options: InstallExtensionOptions): InstalledExtension | null => {
   try {
     const { extensionsDir, extensionsTmpDir } = options
@@ -68,38 +42,25 @@ export const installExtension = (extension: Extension, options: InstallExtension
     // get package info
     const packageInfo = JSON.parse(execSync(`npm show ${extension.source} --json`).toString())
 
-    // copy extension to node_modules to support node resolution
-    // TODO: use mv instead of cp
-
     fs.rmSync(path.join(extensionsDir, packageInfo.name), { recursive: true, force: true })
-    // this is much faster than fs.copyFileSync but it doesn't follow symlinks
-    // fs.renameSync(
-    //   path.join(extensionsTmpDir, "node_modules", packageInfo.name), // source: TMP/node_modules/PACKAGE
-    //   path.join(extensionsDir, packageInfo.name) // destination: ROOT/node_modules/PACKAGE
-    // )
     fs.cpSync(
       path.join(extensionsTmpDir, "node_modules", packageInfo.name),
       path.join(extensionsDir, packageInfo.name),
       { recursive: true }
     )
 
-    // load packageJson from installed extension
-    const packageJson = JSON.parse(
-      fs.readFileSync(path.join(extensionsDir, packageInfo.name, "package.json")).toString()
-    )
-
     // add packageJson to extension as installedExtension
     const installedExtension: InstalledExtension = {
       ...extension,
-      name: extension.name || packageInfo.name,
-      id: generateValidPackageName(packageInfo.name),
+      name: packageInfo.name,
+      id: generateId(packageInfo.name),
+      version: packageInfo.version,
 
       navigation: {
         ...extension.navigation,
-        label: extension?.navigation?.label || extension.name || packageInfo.name,
-        scope: extension?.navigation?.scope || ["domain", "project"],
+        label: extension?.navigation?.label || packageInfo.name,
+        scope: extension?.navigation?.scope || ["account", "project"],
       },
-      packageJson,
     }
 
     return installedExtension

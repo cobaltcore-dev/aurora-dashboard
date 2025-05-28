@@ -13,8 +13,7 @@ dist-ssr
 *.local
 tmp
 tsx-0
-src/client/generated
-src/server/generated
+src/extensions.ts
 
 aurora.config.json
 aurora-test.config.json
