@@ -1,26 +1,7 @@
 import { execSync } from "child_process"
 import fs from "fs"
 import path from "path"
-
-export interface Extension {
-  source: string // Can be a file path or package name
-  type: "aurora-extension" | "juno-app" // Allowed types
-  navigation: {
-    label: string // Display label
-    scope: ("project" | "domain")[] // Allowed scopes
-  }
-}
-
-export interface InstalledExtension extends Extension {
-  id: string
-  name: string
-  version: string
-}
-
-interface InstallExtensionOptions {
-  extensionsDir: string
-  extensionsTmpDir: string
-}
+import { Extension, InstalledExtension } from "./types"
 
 function generateId(name: string) {
   // Step 1: Remove leading or trailing spaces and normalize case
@@ -44,6 +25,11 @@ function generateId(name: string) {
   return name
 }
 
+interface InstallExtensionOptions {
+  extensionsDir: string
+  extensionsTmpDir: string
+}
+
 export const installExtension = (extension: Extension, options: InstallExtensionOptions): InstalledExtension | null => {
   try {
     const { extensionsDir, extensionsTmpDir } = options
@@ -56,15 +42,7 @@ export const installExtension = (extension: Extension, options: InstallExtension
     // get package info
     const packageInfo = JSON.parse(execSync(`npm show ${extension.source} --json`).toString())
 
-    // copy extension to node_modules to support node resolution
-    // TODO: use mv instead of cp
-
     fs.rmSync(path.join(extensionsDir, packageInfo.name), { recursive: true, force: true })
-    // this is much faster than fs.copyFileSync but it doesn't follow symlinks
-    // fs.renameSync(
-    //   path.join(extensionsTmpDir, "node_modules", packageInfo.name), // source: TMP/node_modules/PACKAGE
-    //   path.join(extensionsDir, packageInfo.name) // destination: ROOT/node_modules/PACKAGE
-    // )
     fs.cpSync(
       path.join(extensionsTmpDir, "node_modules", packageInfo.name),
       path.join(extensionsDir, packageInfo.name),

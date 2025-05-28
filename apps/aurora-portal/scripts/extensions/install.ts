@@ -1,13 +1,14 @@
 import fs from "fs"
 import path from "path"
-import { installExtension, Extension, InstalledExtension } from "./extension"
+import { installExtension } from "./extension"
+import { Extension, InstalledExtension } from "./types"
 
 // Root-Verzeichnis und andere Konstanten
 const ROOT = path.resolve(__dirname, "../../")
 const manifestPath = path.join(ROOT, "aurora.config.json")
 const extensionsTmpDir = path.join(ROOT, "tmp")
 const extensionsDir = path.join(ROOT, "node_modules")
-const extensionsFile = path.join(ROOT, "src/extensions.json")
+const extensionsFile = path.join(ROOT, "src/extensions.ts")
 const npmrcFile = path.join(ROOT, ".npmrc")
 
 type Error = {
@@ -51,7 +52,14 @@ function install() {
     installedExtensions.push(installedExtension)
   }
 
-  fs.writeFileSync(extensionsFile, JSON.stringify(installedExtensions, null, 2))
+  const types = fs.readFileSync(path.join(ROOT, "scripts", "extensions", "types.d.ts"))
+  const extensionsContent = `
+  ${types}\n
+  const extensions: InstalledExtension[] = ${JSON.stringify(installedExtensions, null, 2)}\n
+  export default extensions\n
+  `
+
+  fs.writeFileSync(extensionsFile, extensionsContent, "utf-8")
   // delete tmp directory
   fs.rmSync(extensionsTmpDir, { recursive: true, force: true })
   return true

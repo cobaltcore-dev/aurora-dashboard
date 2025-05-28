@@ -10,8 +10,7 @@ import { createContext } from "./context"
 import * as dotenv from "dotenv"
 import path from "path"
 import { ZodError } from "zod"
-import extensions from "../extensions.json"
-import extension from "extension-x/extension"
+import extensions from "../extensions"
 
 // Load environment variables from .env file
 dotenv.config()
@@ -72,7 +71,6 @@ async function startServer() {
           mountRoute: `/extensions/${ext.id}`,
         })
 
-        // Register the extension's BFF path
         await server.all(bffPath + "/*", (req, res) => {
           req.raw.url = req.raw.url?.replace(bffPath, "")
           return handleRequest(req.raw, res.raw)

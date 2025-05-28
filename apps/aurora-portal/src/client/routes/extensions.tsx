@@ -2,7 +2,7 @@ import React from "react"
 import { createRoute, createRootRoute, Outlet, Link } from "@tanstack/react-router"
 import extensionX from "extension-x/extension"
 import { Route as rootRoute } from "./__root"
-import extensions from "../../extensions.json"
+import extensions from "../../extensions"
 
 export const Route = createRoute({
   getParentRoute: () => rootRoute,

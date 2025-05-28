@@ -31,7 +31,7 @@
                 "type": "array",
                 "items": {
                   "type": "string",
-                  "enum": [ "project", "domain" ],
+                  "enum": [ "project", "account" ],
                   "description": "The scope defines the context where this navigation item is visible."
                 },
                 "minItems": 1,
@@ -46,6 +46,10 @@
         "required": [ "source", "type", "navigation" ],
         "additionalProperties": false
       }
+    },
+    "$schema": {
+      "type": "string",
+      "description": "The JSON schema URL for validation."
     }
   },
   "required": [ "extensions" ],
