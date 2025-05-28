@@ -119,7 +119,7 @@ async function startServer() {
     await server.register(FastifyVite, {
       root: path.resolve(__dirname, "../../"), // Location of vite.config.js
       dev: true, // Enable dev mode
-      spa: true, // SPA mode (no SSR)
+      spa: true, // SPA mode (no SSR),
     })
 
     // Wait for Vite to be ready before registering routes

@@ -7,6 +7,7 @@ import tsconfigPaths from "vite-tsconfig-paths"
 import svgr from "vite-plugin-svgr"
 import * as dotenv from "dotenv"
 import process from "process"
+import viteFastify from "@fastify/vite/plugin"
 
 dotenv.config()
 
@@ -33,6 +34,7 @@ export default defineConfig({
     react(),
     svgr(),
     tsconfigPaths(),
+    viteFastify(),
   ],
 
   css: {
