@@ -16,7 +16,23 @@ export interface InstalledExtension extends Extension {
 }
 
 
-  const extensions: InstalledExtension[] = []
+  const extensions: InstalledExtension[] = [
+  {
+    "source": "file:../extension-x",
+    "type": "aurora-extension",
+    "entrypoint": "extension-x/extension",
+    "navigation": {
+      "label": "Mars",
+      "scope": [
+        "account",
+        "project"
+      ]
+    },
+    "name": "extension-x",
+    "id": "extensionX",
+    "version": "1.0.0"
+  }
+]
 
   export default extensions
 

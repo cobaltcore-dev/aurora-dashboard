@@ -8,16 +8,18 @@ export const Route = createRoute({
   getParentRoute: () => rootRoute,
   path: "/extensions",
   component: () =>
-    extensions.map((ext) => (
-      <div>
-        <a href={`/extensions/${ext.id}`}>
-          <h2>
-            {ext.navigation.label} ({ext.name}@{ext.version})
-          </h2>
-        </a>
-        <Outlet />
-      </div>
-    )),
+    extensions.length > 0
+      ? extensions.map((ext) => (
+          <div>
+            <a href={`/extensions/${ext.id}`}>
+              <h2>
+                {ext.navigation.label} ({ext.name}@{ext.version})
+              </h2>
+            </a>
+            <Outlet />
+          </div>
+        ))
+      : "No extensions installed",
 })
 
 extensions.forEach((ext) => {
