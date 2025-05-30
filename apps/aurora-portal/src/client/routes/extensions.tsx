@@ -43,25 +43,27 @@ function ExtensionsOverviewComponent() {
 function ExtensionComponent({ ext }: { ext: (typeof extensions)[number] }) {
   const ref = React.useRef<HTMLDivElement>(null)
   React.useEffect(() => {
-    if (!ref.current) return
+    if (!ref.current || ref.current.shadowRoot) return
 
     const shadowRoot = ref.current.attachShadow({ mode: "open" })
     const container = document.createElement("div")
     shadowRoot.appendChild(container)
 
-    import(ext.entrypoint).then((extensionModule) => {
-      if (extensionModule.registerClient) {
-        extensionModule
-          .registerClient({
-            mountRoute: `/extensions/${ext.id}`,
-          })
-          .then(({ mount }: { mount: (c: HTMLElement) => void }) => {
-            mount(container)
-          })
-      }
-    })
+    import("@cobaltcore-dev/gardener/extension")
+      .then((extensionModule) => extensionModule.default)
+      .then((extensionModule) => {
+        if (extensionModule.registerClient) {
+          extensionModule
+            .registerClient({
+              mountRoute: `/extensions/${ext.id}`,
+            })
+            .then(({ mount }: { mount: (c: HTMLElement) => void }) => {
+              mount(container as HTMLElement)
+            })
+        }
+      })
 
     return () => {}
   }, [])
-  return <div ref={ref}>HALLO</div>
+  return <div ref={ref}>Hello</div>
 }

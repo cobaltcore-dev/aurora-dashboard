@@ -1,0 +1,51 @@
+{
+  "name": "@cobaltcore-dev/app-template",
+  "version": "1.0.0",
+  "description": "An app that can function as an extension, capable of integrating into a host system (e.g. aurora)or act as standalone",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "tsx watch src/server.ts --project tsconfig.server.json",
+    "prod": "NODE_ENV=production tsx dist/server.js",
+    "build:client": "vite build --config vite.config.mjs --mode client",
+    "build:bff": "vite build --config vite.config.mjs --mode bff",
+    "build:extension": "vite build --config vite.config.mjs --mode extension",
+    "build:standalone:ui": "vite build --config vite.config.mjs --mode standalone:ui",
+    "build:standalone:server": "vite build --config vite.config.mjs --mode standalone:server",
+    "build:types": "tsc --project tsconfig.types.json",
+    "build": "npm run build:standalone:ui && npm run build:standalone:server && npm run build:client && npm run build:bff && npm run build:extension && npm run build:types",
+    "type:check": "tsc --noEmit --project tsconfig.types.json"
+  },
+
+  "exports": {
+    "./extension": {
+      "import": "./dist/extension.js",
+      "require": "./dist/extension.js"
+    }
+  },
+  "keywords": [ ],
+  "author": "",
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "@cobaltcore-dev/aurora-config": "workspace:*",
+    "@cobaltcore-dev/aurora-sdk": "workspace:*",
+    "@types/node": "^22.15.21",
+    "@types/react": "^19.1.5",
+    "@types/react-dom": "^19.1.5",
+    "@vitejs/plugin-react": "^4.4.1",
+    "@vitejs/plugin-react-swc": "^3.9.0",
+    "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "@fastify/static": "^8.2.0",
+    "@fastify/vite": "^8.1.3",
+    "@trpc/client": "11.1.2",
+    "@trpc/server": "11.1.2",
+    "fastify": "^5.3.3",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "tsx": "^4.19.4",
+    "vite": "^6.3.5",
+    "vitest": "^3.1.4",
+    "zod": "^3.25.20"
+  }
+}
