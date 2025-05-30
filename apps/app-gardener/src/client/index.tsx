@@ -2,6 +2,7 @@ import { StrictMode } from "react"
 import { createRoot } from "react-dom/client"
 import { App, AppProps } from "./App"
 import { initTrpcClient } from "./trpcClient"
+import styles from "./index.css?inline"
 
 export type Props = Omit<AppProps, "trpcClient"> & {
   bffPath: string
@@ -16,6 +17,7 @@ const mount = (container: HTMLElement, props?: Props) => {
 
   root.render(
     <StrictMode>
+      <style>{styles.toString()}</style>
       <App trpcClient={trpcClient} {...props} />
     </StrictMode>
   )

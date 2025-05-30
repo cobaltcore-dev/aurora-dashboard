@@ -1,13 +1,13 @@
-import { appRouter } from "./routers"
+import { gardenerRouter } from "./routers"
 import { IncomingMessage, ServerResponse } from "node:http"
 import { createHTTPHandler } from "@trpc/server/adapters/standalone"
 
-export type { AppRouter } from "./routers"
+export type { GardenerRouter } from "./routers"
 
 export type AppContext = Record<string, string | number | boolean | undefined>
 
 const handler = createHTTPHandler({
-  router: appRouter,
+  router: gardenerRouter,
   createContext: async ({ req, res }) => {
     const context: AppContext = {}
     const extensionContext = res.getHeader("extension-context")
@@ -24,6 +24,7 @@ const handler = createHTTPHandler({
 
 const handleRequest = (req: IncomingMessage, res: ServerResponse, context?: AppContext) => {
   if (context) res.setHeader("extension-context", JSON.stringify(context))
+
   return handler(req, res)
 }
 

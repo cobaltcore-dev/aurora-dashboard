@@ -1,12 +1,12 @@
-import type { AppRouter } from "../bff/routers"
+import type { GardenerRouter } from "../bff"
 
 import { createTRPCClient, httpBatchLink, TRPCClient } from "@trpc/client"
 
-export type TrpcClient = TRPCClient<AppRouter>
+export type TrpcClient = TRPCClient<GardenerRouter>
 
 export function initTrpcClient(bffPath: string): TrpcClient {
   // Create a TRPC client instance
-  return createTRPCClient<AppRouter>({
+  return createTRPCClient<GardenerRouter>({
     links: [
       httpBatchLink({
         url: bffPath,

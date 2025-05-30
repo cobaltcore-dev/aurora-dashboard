@@ -1,5 +1,7 @@
 import react from "@vitejs/plugin-react"
 import viteFastify from "@fastify/vite/plugin"
+import { TanStackRouterPlugin } from "./tanstackRouterPlugin.mjs"
+import { PostcssPlugin } from "./postcssPlugin.mjs"
 
 export default {
   root: "src",
@@ -10,5 +12,8 @@ export default {
     sourcemap: true,
     formats: ["es"],
   },
-  plugins: [react(), viteFastify()],
+  plugins: [TanStackRouterPlugin(), react(), viteFastify()],
+  css: {
+    postcss: PostcssPlugin,
+  },
 }
