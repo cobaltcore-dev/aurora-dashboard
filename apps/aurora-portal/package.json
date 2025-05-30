@@ -8,7 +8,7 @@
     "clean:cache": "rm -rf .turbo",
     "clean:extensions": "tsx scripts/remove-extensions.ts",
     "build": "pnpm build:client && pnpm build:server",
-    "build:client": "vite build",
+    "build:client": "vite build --mode=production",
     "build:server": "tsc -p tsconfig.server.json",
     "dev": "tsx watch src/server/server --tsconfig tsconfig.server.json",
     "lint": "eslint",
@@ -51,7 +51,7 @@
   "devDependencies": {
     "@cloudoperators/juno-ui-components": "^2.37.0",
     "@cobaltcore-dev/aurora-config": "workspace:*",
-    "@fastify/vite": "8.1.3",
+    "@fastify/vite": "^8.1.3",
     "@tanstack/react-router-devtools": "^1.115.2",
     "@tanstack/router-plugin": "^1.115.2",
     "@testing-library/jest-dom": "^6.5.0",

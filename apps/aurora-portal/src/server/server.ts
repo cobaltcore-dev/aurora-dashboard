@@ -94,6 +94,7 @@ async function startServer() {
   }
 
   // Environment-specific setup
+  // Do not use vite plugin in production
   if (isProduction) {
     // PRODUCTION MODE
 
@@ -114,6 +115,7 @@ async function startServer() {
     })
   } else {
     // DEVELOPMENT MODE
+    // use FastifyVite for development with HMR support
 
     // Register Vite plugin for development with HMR support
     await server.register(FastifyVite, {

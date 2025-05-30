@@ -14,12 +14,21 @@ dotenv.config()
 export const BFF_ENDPOINT = process.env.BFF_ENDPOINT || "/polaris-bff"
 import { TanStackRouterVite } from "@tanstack/router-plugin/vite"
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   root: "./src/client",
   build: {
     outDir: "../../dist/client", // Output directory for the client
     sourcemap: true, // Optional: Generate sourcemaps,
     emptyOutDir: true,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // Vendor chunks
+          "vendor-react": ["react", "react-dom"],
+          "vendor-ui-components": ["@cloudoperators/juno-ui-components"],
+        },
+      },
+    },
   },
   define: {
     BFF_ENDPOINT: JSON.stringify(BFF_ENDPOINT),
@@ -31,10 +40,10 @@ export default defineConfig({
       generatedRouteTree: "./src/client/routeTree.gen.ts",
       routesDirectory: "./src/client/routes",
     }),
+    mode !== "production" && viteFastify(),
     react(),
     svgr(),
     tsconfigPaths(),
-    viteFastify(),
   ],
 
   css: {
@@ -42,4 +51,4 @@ export default defineConfig({
       plugins: [tailwindcss, autoprefixer],
     },
   },
-})
+}))
