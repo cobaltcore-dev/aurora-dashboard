@@ -20,15 +20,6 @@ export default defineConfig(({ mode }) => ({
     outDir: "../../dist/client", // Output directory for the client
     sourcemap: true, // Optional: Generate sourcemaps,
     emptyOutDir: true,
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          // Vendor chunks
-          "vendor-react": ["react", "react-dom"],
-          "vendor-ui-components": ["@cloudoperators/juno-ui-components"],
-        },
-      },
-    },
   },
   define: {
     BFF_ENDPOINT: JSON.stringify(BFF_ENDPOINT),
