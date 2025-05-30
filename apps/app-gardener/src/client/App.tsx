@@ -8,5 +8,5 @@ export interface AppProps {
 }
 
 export function App({ baseUrl, trpcClient }: AppProps) {
-  return <RouterProvider context={{ trpcClient }} router={router} />
+  return <RouterProvider context={{ trpcClient }} router={router({ basepath: baseUrl || "/" })} />
 }
