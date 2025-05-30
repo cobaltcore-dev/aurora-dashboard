@@ -1,10 +1,14 @@
-import { AuroraContext } from "@cobaltcore-dev/aurora-sdk/server"
 import { SignalOpenstackSession, SignalOpenstackSessionType } from "@cobaltcore-dev/signal-openstack"
 
 import type { CreateFastifyContextOptions } from "@trpc/server/adapters/fastify"
 
 import * as dotenv from "dotenv"
 import { AuthConfig } from "./Authentication/types/models"
+
+export interface AuroraContext {
+  validateSession: () => boolean
+  openstack?: Awaited<SignalOpenstackSessionType>
+}
 
 // Load the identity endpoint from the environment
 dotenv.config()

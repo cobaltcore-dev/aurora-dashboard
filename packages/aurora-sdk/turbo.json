@@ -1,17 +1,9 @@
 {
-  "extends": ["//"],
+  "extends": [ "//" ],
   "tasks": {
     "build": {
-      "outputs": ["dist/**"],
-      "dependsOn": ["@cobaltcore-dev/signal-openstack#build"]
-    },
-    "test": {
-      "dependsOn": ["@cobaltcore-dev/signal-openstack#build"]
-    },
-    "test:watch": {
-      "cache": false,
-      "persistent": true,
-      "dependsOn": ["@cobaltcore-dev/signal-openstack#build"]
+      "outputs": [ "dist/**" ],
+      "dependsOn": [ "@cobaltcore-dev/signal-openstack#build" ]
     }
   }
 }

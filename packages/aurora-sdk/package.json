@@ -34,8 +34,6 @@
     "npm": ">=10.0.0"
   },
   "scripts": {
-    "test": "vitest run",
-    "test:watch": "vitest --watch",
     "lint": "eslint ",
     "dev": "vite",
     "build:esm": "tsc --project tsconfig.esm.json",
