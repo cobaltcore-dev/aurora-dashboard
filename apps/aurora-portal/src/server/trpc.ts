@@ -1,10 +1,19 @@
-import { getAuroraProvider } from "@cobaltcore-dev/aurora-sdk/server"
 import type { AuroraPortalContext } from "./context"
-// You can use any variable name you like.
-// We use t to keep things simple.
-const auroraProvider = getAuroraProvider<AuroraPortalContext>()
+import { initTRPC, TRPCError } from "@trpc/server"
+const t = initTRPC.context<AuroraPortalContext>().create()
 
-export const auroraRouter = auroraProvider.getAuroraRouter
-export const mergeRouters = auroraProvider.getAuroraMergeRouters
-export const publicProcedure = auroraProvider.getAuroraPublicProcedure
-export const protectedProcedure = auroraProvider.getAuroraProtectedProcedure
+export const auroraRouter = t.router
+export const mergeRouters = t.mergeRouters
+export const publicProcedure = t.procedure
+
+export const protectedProcedure = publicProcedure.use(async function isAuthenticated(opts) {
+  if (opts.ctx.validateSession() === false) {
+    throw new TRPCError({
+      code: "UNAUTHORIZED",
+      message: "The session is invalid",
+    })
+  }
+  return opts.next({
+    ctx: opts.ctx,
+  })
+})

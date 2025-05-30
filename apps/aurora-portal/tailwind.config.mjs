@@ -1,6 +1,13 @@
 import junoConfig from "@cloudoperators/juno-ui-components/build/lib/tailwind.config"
 import defaultColors from "tailwindcss/colors"
 
+// Remove deprecated colors to silence warnings while building
+delete defaultColors["lightBlue"]
+delete defaultColors["warmGray"]
+delete defaultColors["trueGray"]
+delete defaultColors["coolGray"]
+delete defaultColors["blueGray"]
+
 // Create prefixed default colors with 'tw-' prefix
 const prefixedDefaultColors = Object.fromEntries(
   Object.entries(defaultColors).map(([colorName, colorValue]) => {

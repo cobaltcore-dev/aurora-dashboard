@@ -7,13 +7,14 @@ import tsconfigPaths from "vite-tsconfig-paths"
 import svgr from "vite-plugin-svgr"
 import * as dotenv from "dotenv"
 import process from "process"
+import viteFastify from "@fastify/vite/plugin"
 
 dotenv.config()
 
 export const BFF_ENDPOINT = process.env.BFF_ENDPOINT || "/polaris-bff"
 import { TanStackRouterVite } from "@tanstack/router-plugin/vite"
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   root: "./src/client",
   build: {
     outDir: "../../dist/client", // Output directory for the client
@@ -30,6 +31,7 @@ export default defineConfig({
       generatedRouteTree: "./src/client/routeTree.gen.ts",
       routesDirectory: "./src/client/routes",
     }),
+    mode !== "production" && viteFastify(),
     react(),
     svgr(),
     tsconfigPaths(),
@@ -40,4 +42,4 @@ export default defineConfig({
       plugins: [tailwindcss, autoprefixer],
     },
   },
-})
+}))
