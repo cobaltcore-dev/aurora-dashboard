@@ -1,7 +1,10 @@
-import { entityRouter } from "./entityRouter"
+import { shootRouter } from "./shootRouter"
+import { cloudProfilesRouter } from "./cloudProfilesRouter"
 import { router } from "./trpc"
 
-// Example usage of the buildRouter function
-export const appRouter = router(entityRouter)
+export const gardenerRouter = router({
+  ...shootRouter,
+  ...cloudProfilesRouter,
+})
 
-export type AppRouter = typeof appRouter
+export type GardenerRouter = typeof gardenerRouter

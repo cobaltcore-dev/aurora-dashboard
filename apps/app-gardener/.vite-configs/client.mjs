@@ -1,3 +1,6 @@
+import { PostcssPlugin } from "./postcssPlugin.mjs"
+import { TanStackRouterPlugin } from "./tanstackRouterPlugin.mjs"
+
 export default {
   build: {
     lib: {
@@ -15,5 +18,9 @@ export default {
     // Define process.env for browser
     "process.env": {},
     "process.env.NODE_ENV": JSON.stringify("production"),
+  },
+  plugins: [TanStackRouterPlugin()],
+  css: {
+    postcss: PostcssPlugin,
   },
 }

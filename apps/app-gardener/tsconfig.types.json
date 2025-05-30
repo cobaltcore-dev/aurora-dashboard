@@ -9,11 +9,17 @@
     "rootDir": "./src",
     "jsx": "react-jsx",
     "skipLibCheck": true,
-    "strict": false,
+    // "strict": false,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "strictNullChecks": true,
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+    "types": ["vite/client"]
   },
   "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.d.ts"],
   "exclude": ["node_modules", "**/*.test.ts", "**/*.spec.ts"]

@@ -1,5 +1,6 @@
 export default {
   build: {
+    ssr: true,
     lib: {
       entry: "src/bff/index.ts",
       formats: ["cjs"],

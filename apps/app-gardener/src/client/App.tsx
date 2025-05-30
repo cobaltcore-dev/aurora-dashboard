@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react"
-import { initTrpcClient, TrpcClient } from "./trpcClient"
-import type { Entity } from "../bff/types/models"
+import { TrpcClient } from "./trpcClient"
+import { RouterProvider } from "@tanstack/react-router"
+import { router } from "./router"
 
 export interface AppProps {
   baseUrl: string
@@ -8,30 +8,5 @@ export interface AppProps {
 }
 
 export function App({ baseUrl, trpcClient }: AppProps) {
-  const [items, setItems] = useState<Entity[]>([])
-  useEffect(() => {
-    // Initialize the TRPC client
-    trpcClient.entities.list
-      .query()
-      .then((data) => {
-        console.log("Entities:", data)
-        setItems(data as Entity[])
-      })
-      .catch((error) => {
-        console.error("Error fetching entities:", error)
-      })
-  }, [])
-  return (
-    <div className="flex flex-col w-full bg-theme-background-lvl-1">
-      <h1>Gardener UI</h1>
-      <ul>
-        {items.map((item) => (
-          <li key={item.id}>
-            {item.id}: {item.name}
-          </li>
-        ))}
-      </ul>
-      {/* Add more components or content here */}
-    </div>
-  )
+  return <RouterProvider context={{ trpcClient }} router={router} />
 }

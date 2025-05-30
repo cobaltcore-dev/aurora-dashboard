@@ -7,8 +7,13 @@
     "moduleResolution": "Bundler",
     "skipLibCheck": true,
     "target": "ESNext",
-    "types": ["vite/client", "vitest/globals"]
+    "types": ["vite/client", "vitest/globals"],
+    "strict": true,
+    "strictNullChecks": true,
+    "paths": {
+      "@/*": ["./src/*"]
+    }
   },
 
-  "include": ["src/**/*.ts", "src/**/*.tsx", "vitest.setup.ts", "../extension-sdk/src/types.ts"]
+  "include": ["src/**/*.ts", "src/**/*.tsx", "vitest.setup.ts"]
 }

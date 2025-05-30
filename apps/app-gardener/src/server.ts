@@ -4,6 +4,7 @@ import FastifyStatic from "@fastify/static"
 
 import path from "path"
 import extension from "./extension"
+import { IncomingMessage } from "http"
 
 const PORT = "4005"
 const isProduction = process.env.NODE_ENV === "production"
@@ -24,15 +25,30 @@ async function startServer() {
 
     await server.all(bffPath + "/*", (req, res) => {
       req.raw.url = req.raw.url?.replace(bffPath, "")
+      if (req.body) {
+        Object.defineProperty(req.raw, "body", {
+          value: req.body,
+          writable: false,
+        })
+        req.raw.headers["content-length"] =
+          req.headers["content-length"] || Buffer.byteLength(JSON.stringify(req.body)).toString()
+      }
       return handleRequest(req.raw, res.raw)
     })
   }
 
   if (isProduction) {
-    // Serve static files in production
+    // Serve static files from the build directory
     await server.register(FastifyStatic, {
-      root: path.resolve(__dirname, "../dist/"),
-      prefix: "/",
+      root: path.join(__dirname, "."),
+      wildcard: false, // Prevent wildcard conflicts with API routes
+      serve: true,
+    })
+
+    // SPA fallback - serve index.html for all unmatched routes
+    // This enables client-side routing (React Router, etc.)
+    server.get("/*", (req, reply) => {
+      return reply.sendFile("index.html")
     })
   } else {
     // In development, use FastifyVite
