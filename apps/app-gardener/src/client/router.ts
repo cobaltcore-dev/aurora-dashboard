@@ -7,8 +7,10 @@ declare module "@tanstack/react-router" {
   }
 }
 
-export const router = createRouter({
-  routeTree,
-  defaultPreload: "intent",
-  scrollRestoration: true,
-})
+export const router = ({ basepath }: { basepath: string }) =>
+  createRouter({
+    basepath,
+    routeTree,
+    defaultPreload: "intent",
+    scrollRestoration: true,
+  })

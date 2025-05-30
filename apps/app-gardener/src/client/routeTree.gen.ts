@@ -10,53 +10,53 @@
 
 // Import Routes
 
-import { Route as rootRoute } from './routes/__root'
-import { Route as IndexImport } from './routes/index'
-import { Route as ClustersIndexImport } from './routes/clusters/index'
-import { Route as ClustersClusterNameImport } from './routes/clusters/$clusterName'
+import { Route as rootRoute } from "./routes/__root"
+import { Route as IndexImport } from "./routes/index"
+import { Route as ClustersIndexImport } from "./routes/clusters/index"
+import { Route as ClustersClusterNameImport } from "./routes/clusters/$clusterName"
 
 // Create/Update Routes
 
 const IndexRoute = IndexImport.update({
-  id: '/',
-  path: '/',
+  id: "/",
+  path: "/",
   getParentRoute: () => rootRoute,
 } as any)
 
 const ClustersIndexRoute = ClustersIndexImport.update({
-  id: '/clusters/',
-  path: '/clusters/',
+  id: "/clusters/",
+  path: "/clusters/",
   getParentRoute: () => rootRoute,
 } as any)
 
 const ClustersClusterNameRoute = ClustersClusterNameImport.update({
-  id: '/clusters/$clusterName',
-  path: '/clusters/$clusterName',
+  id: "/clusters/$clusterName",
+  path: "/clusters/$clusterName",
   getParentRoute: () => rootRoute,
 } as any)
 
 // Populate the FileRoutesByPath interface
 
-declare module '@tanstack/react-router' {
+declare module "@tanstack/react-router" {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
+    "/": {
+      id: "/"
+      path: "/"
+      fullPath: "/"
       preLoaderRoute: typeof IndexImport
       parentRoute: typeof rootRoute
     }
-    '/clusters/$clusterName': {
-      id: '/clusters/$clusterName'
-      path: '/clusters/$clusterName'
-      fullPath: '/clusters/$clusterName'
+    "/clusters/$clusterName": {
+      id: "/clusters/$clusterName"
+      path: "/clusters/$clusterName"
+      fullPath: "/clusters/$clusterName"
       preLoaderRoute: typeof ClustersClusterNameImport
       parentRoute: typeof rootRoute
     }
-    '/clusters/': {
-      id: '/clusters/'
-      path: '/clusters'
-      fullPath: '/clusters'
+    "/clusters/": {
+      id: "/clusters/"
+      path: "/clusters"
+      fullPath: "/clusters"
       preLoaderRoute: typeof ClustersIndexImport
       parentRoute: typeof rootRoute
     }
@@ -66,30 +66,30 @@ declare module '@tanstack/react-router' {
 // Create and export the route tree
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/clusters/$clusterName': typeof ClustersClusterNameRoute
-  '/clusters': typeof ClustersIndexRoute
+  "/": typeof IndexRoute
+  "/clusters/$clusterName": typeof ClustersClusterNameRoute
+  "/clusters": typeof ClustersIndexRoute
 }
 
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/clusters/$clusterName': typeof ClustersClusterNameRoute
-  '/clusters': typeof ClustersIndexRoute
+  "/": typeof IndexRoute
+  "/clusters/$clusterName": typeof ClustersClusterNameRoute
+  "/clusters": typeof ClustersIndexRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
-  '/': typeof IndexRoute
-  '/clusters/$clusterName': typeof ClustersClusterNameRoute
-  '/clusters/': typeof ClustersIndexRoute
+  "/": typeof IndexRoute
+  "/clusters/$clusterName": typeof ClustersClusterNameRoute
+  "/clusters/": typeof ClustersIndexRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/clusters/$clusterName' | '/clusters'
+  fullPaths: "/" | "/clusters/$clusterName" | "/clusters"
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/clusters/$clusterName' | '/clusters'
-  id: '__root__' | '/' | '/clusters/$clusterName' | '/clusters/'
+  to: "/" | "/clusters/$clusterName" | "/clusters"
+  id: "__root__" | "/" | "/clusters/$clusterName" | "/clusters/"
   fileRoutesById: FileRoutesById
 }
 
@@ -105,9 +105,7 @@ const rootRouteChildren: RootRouteChildren = {
   ClustersIndexRoute: ClustersIndexRoute,
 }
 
-export const routeTree = rootRoute
-  ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>()
+export const routeTree = rootRoute._addFileChildren(rootRouteChildren)._addFileTypes<FileRouteTypes>()
 
 /* ROUTE_MANIFEST_START
 {
