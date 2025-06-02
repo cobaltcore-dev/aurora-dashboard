@@ -5,7 +5,7 @@ import { client } from "../k8sClient"
 import { TRPCError } from "@trpc/server"
 import { z } from "zod"
 
-export const shootRouter = {
+export const clustersRouter = {
   getClusters: publicProcedure.query(async () => {
     const parsedData = shootListApiResponseSchema.safeParse(
       await client

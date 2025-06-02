@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router"
+import { createFileRoute, Link } from "@tanstack/react-router"
 
 export const Route = createFileRoute("/")({
   component: Gardener,
@@ -86,12 +86,12 @@ function Gardener() {
                 platform.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
-                <a href="/clusters">
+                <Link to="/clusters">
                   <button className="bg-aurora-blue-700 hover:bg-aurora-blue-600 text-aurora-white px-6 py-3 rounded-lg font-medium transition duration-200 flex items-center justify-center border border-aurora-blue-600 shadow-lg shadow-aurora-blue-900/20">
                     <Server className="h-5 w-5 mr-2" />
                     Manage Clusters
                   </button>
-                </a>
+                </Link>
                 <button
                   onClick={scrollToFeatures}
                   className="bg-transparent border border-aurora-blue-600 text-aurora-blue-400 hover:bg-aurora-blue-900 hover:bg-opacity-20 px-6 py-3 rounded-lg font-medium transition duration-200"
@@ -289,11 +289,11 @@ function Gardener() {
                   </li>
                 </ul>
                 <div className="mt-8">
-                  <a href="/clusters">
+                  <Link to="/clusters">
                     <button className="bg-aurora-blue-700 hover:bg-aurora-blue-600 text-aurora-white px-6 py-3 rounded-lg font-medium transition duration-200 border border-aurora-blue-600 shadow-lg shadow-aurora-blue-900/20">
                       Get Started Today
                     </button>
-                  </a>
+                  </Link>
                 </div>
               </div>
               <div className="md:w-1/2">

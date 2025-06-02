@@ -3,7 +3,9 @@ import { Extension } from "@cobaltcore-dev/aurora-sdk"
 import { Props } from "./client"
 import { AppContext } from "./bff"
 
-const extension: Extension<AppContext, Props> = {
+type AppProps = Omit<Props, "bffPath" | "baseUrl">
+
+const extension: Extension<AppContext, AppProps> = {
   name,
   description,
   version,
@@ -26,11 +28,9 @@ const extension: Extension<AppContext, Props> = {
 
     const { mount, unmount } = await import("./client")
 
-    type MountFunction = typeof mount
-    type MountProps = Parameters<MountFunction>[1]
-
     return {
-      mount: (container: HTMLElement, props: MountProps) => mount(container, { ...props, bffPath, baseUrl }),
+      mount: (container: HTMLElement, props?: AppProps) => mount(container, { ...props, bffPath, baseUrl }),
+
       unmount,
     }
   },

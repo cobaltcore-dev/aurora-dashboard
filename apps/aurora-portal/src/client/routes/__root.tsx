@@ -40,6 +40,7 @@ function AuroraLayout({ mainNavItems = [] }: NavigationLayoutProps) {
   const defaultItems: NavigationItem[] = [
     { route: "/about", label: "About" },
     { route: "/gardener", label: "Gardener" },
+    { route: "/extensions", label: "Extensions" },
   ]
   const items = mainNavItems.length > 0 ? mainNavItems : defaultItems
   return (

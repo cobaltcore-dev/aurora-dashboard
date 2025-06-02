@@ -7,6 +7,6 @@ if (extension.registerClient) {
       mountRoute: "",
     })
     .then(({ mount }) => {
-      mount(container, { baseUrl: "", bffPath: "_bff" })
+      mount(container, { bffPath: "_bff" })
     })
 }

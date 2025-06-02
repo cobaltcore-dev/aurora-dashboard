@@ -10,6 +10,12 @@ import { DeleteClusterDialog } from "../-components/DeleteClusterDialog"
 import { SearchBar, SortByType } from "../-components/SearchBar"
 import { GardenerButton } from "../-components/ui/GardenerButton"
 import { ClusterFilters } from "../-components/ClusterFilters"
+import { TrpcClient } from "@/client/trpcClient"
+
+type LoaderData = {
+  clusters: Cluster[] | undefined
+  trpcClient: any // Replace with your actual tRPC client type
+}
 
 export const Route = createFileRoute("/clusters/")({
   component: RouteComponent,
@@ -17,7 +23,7 @@ export const Route = createFileRoute("/clusters/")({
     const clusters = await context.trpcClient?.getClusters.query()
 
     return {
-      clusters: clusters,
+      clusters,
       trpcClient: context.trpcClient,
     }
   },
@@ -46,7 +52,7 @@ const sortClusters = (clusters: Cluster[], sortBy: SortByType) => {
 }
 
 function RouteComponent() {
-  const { clusters, trpcClient } = useLoaderData({ from: Route.id })
+  const { clusters, trpcClient }: LoaderData = useLoaderData({ from: Route.id })
   const router = useRouter()
   const [searchTerm, setSearchTerm] = useState("")
   const [sortBy, setSortBy] = useState<SortByType>("")

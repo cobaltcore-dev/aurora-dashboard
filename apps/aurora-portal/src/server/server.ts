@@ -50,7 +50,7 @@ async function startServer() {
 
   // Validate CSRF token for mutating requests
   server.addHook("preHandler", async (request, reply) => {
-    if (["POST", "PUT", "DELETE"].includes(request.method)) {
+    if (["POST", "PUT", "DELETE"].includes(request.method) && !request.url.startsWith("/extensions")) {
       server.csrfProtection(request, reply, () => {
         // Validation passes, request continues
       })

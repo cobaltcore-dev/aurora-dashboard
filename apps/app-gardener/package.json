@@ -30,8 +30,6 @@
     "@cobaltcore-dev/aurora-sdk": "workspace:*",
     "@fastify/vite": "^8.1.3",
     "@headlessui/react": "^2.2.2",
-    "@tanstack/react-router": "^1.115.2",
-    "@tanstack/router-plugin": "^1.115.2",
     "@types/node": "^22.15.21",
     "@types/react": "^19.1.5",
     "@types/react-dom": "^19.1.5",
@@ -56,6 +54,8 @@
     "fastify": "^5.3.3",
     "tsx": "^4.19.4",
     "vitest": "^3.1.4",
-    "zod": "^3.25.20"
+    "zod": "^3.25.20",
+    "@tanstack/react-router": "^1.115.2",
+    "@tanstack/router-plugin": "^1.115.2"
   }
 }

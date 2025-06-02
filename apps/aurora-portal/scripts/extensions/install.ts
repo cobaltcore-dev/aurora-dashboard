@@ -52,9 +52,26 @@ function install() {
     installedExtensions.push(installedExtension)
   }
 
+  // Create a template function
+  const generateExtensionEntry = (ext: InstalledExtension) => {
+    const { uiLoader, ...staticProps } = ext
+
+    return `{
+    ${Object.entries(staticProps)
+      .map(([key, value]) => `${key}: ${JSON.stringify(value)}`)
+      .join(",\n    ")},
+    uiLoader: import("${ext.entrypoint}").then((mod) => mod.default)
+  }`
+  }
+
   const types = fs.readFileSync(path.join(ROOT, "scripts", "extensions", "types.d.ts"))
+  const extensionEntries = installedExtensions.map(generateExtensionEntry).join(",\n  ")
+
   const extensionsContent = `${types}
-const extensions: InstalledExtension[] = ${JSON.stringify(installedExtensions, null, 2)}\n
+const extensions: InstalledExtension[] = [
+  ${extensionEntries}
+]
+
 export default extensions
 `
 

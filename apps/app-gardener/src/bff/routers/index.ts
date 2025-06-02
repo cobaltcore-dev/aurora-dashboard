@@ -1,9 +1,9 @@
-import { shootRouter } from "./shootRouter"
+import { clustersRouter } from "./clustersRouter"
 import { cloudProfilesRouter } from "./cloudProfilesRouter"
 import { router } from "./trpc"
 
 export const gardenerRouter = router({
-  ...shootRouter,
+  ...clustersRouter,
   ...cloudProfilesRouter,
 })
 

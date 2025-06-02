@@ -21,6 +21,14 @@
     },
     "types": ["vite/client"]
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.d.ts"],
-  "exclude": ["node_modules", "**/*.test.ts", "**/*.spec.ts"]
+  "include": ["src/extension.ts"],
+  "exclude": [
+    "node_modules",
+    "**/*.test.ts",
+    "**/*.spec.ts",
+    "src/standalone",
+    "src/server.ts",
+    "src/client",
+    "src/bff"
+  ] // Exclude the node_modules and dist directories
 }
