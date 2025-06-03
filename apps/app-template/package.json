@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "An app that can function as an extension, capable of integrating into a host system (e.g. aurora)or act as standalone",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+
     "dev": "tsx watch src/server.ts --project tsconfig.server.json",
     "prod": "NODE_ENV=production tsx dist/server.js",
     "build:client": "vite build --config vite.config.mjs --mode client",
