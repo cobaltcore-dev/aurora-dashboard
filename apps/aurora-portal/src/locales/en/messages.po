@@ -25,10 +25,50 @@ msgstr "<0>Efficient Resource Management</0>: Provision, configure, and scale re
 msgid "<0>Enhanced Scalability</0>: Seamlessly handle everything from small setups to complex, multi-cloud environments."
 msgstr "<0>Enhanced Scalability</0>: Seamlessly handle everything from small setups to complex, multi-cloud environments."
 
+#: src/client/routes/auth/login.tsx:171
+msgid "Contact support"
+msgstr "Contact support"
+
+#: src/client/routes/auth/login.tsx:113
+msgid "Domain"
+msgstr "Domain"
+
 #: src/client/routes/index.tsx:30
 #: src/client/routes/index.tsx:97
 msgid "Enter the Cloud"
 msgstr "Enter the Cloud"
+
+#: src/client/routes/auth/login.tsx:94
+msgid "Enter your credentials to access your account"
+msgstr "Enter your credentials to access your account"
+
+#: src/client/routes/auth/login.tsx:118
+msgid "Enter your domain"
+msgstr "Enter your domain"
+
+#: src/client/routes/auth/login.tsx:133
+msgid "Enter your username"
+msgstr "Enter your username"
+
+#: src/client/routes/auth/login.tsx:164
+msgid "Loading..."
+msgstr "Loading..."
+
+#: src/client/routes/auth/login.tsx:91
+msgid "Login to Your Account"
+msgstr "Login to Your Account"
+
+#: src/client/routes/auth/login.tsx:169
+msgid "Need help?"
+msgstr "Need help?"
+
+#: src/client/routes/auth/login.tsx:143
+msgid "Password"
+msgstr "Password"
+
+#: src/client/routes/auth/login.tsx:164
+msgid "Sign In"
+msgstr "Sign In"
 
 #: src/client/routes/index.tsx:86
 msgid "Stay tuned — Aurora Dashboard is launching soon to streamline your cloud management experience!"
@@ -38,6 +78,23 @@ msgstr "Stay tuned — Aurora Dashboard is launching soon to streamline your clo
 msgid "The <0>Aurora Dashboard</0> is on its way! Get ready for a powerful, all-in-one cloud management interface designed to make managing your cloud assets simple and efficient. With tools for provisioning, configuring, and scaling resources like servers, networks, and volumes, Aurora will soon bring you:"
 msgstr "The <0>Aurora Dashboard</0> is on its way! Get ready for a powerful, all-in-one cloud management interface designed to make managing your cloud assets simple and efficient. With tools for provisioning, configuring, and scaling resources like servers, networks, and volumes, Aurora will soon bring you:"
 
+#: src/client/routes/auth/login.tsx:128
+msgid "User C/D/I"
+msgstr "User C/D/I"
+
+#. placeholder {0}: user?.name
+#: src/client/routes/auth/login.tsx:77
+msgid "Welcome back, {0}!"
+msgstr "Welcome back, {0}!"
+
 #: src/client/routes/index.tsx:23
 msgid "Welcome to Aurora Dashboard"
 msgstr "Welcome to Aurora Dashboard"
+
+#: src/client/routes/auth/login.tsx:80
+msgid "You are already signed in."
+msgstr "You are already signed in."
+
+#: src/client/routes/auth/login.tsx:99
+msgid "You need to login to access this page."
+msgstr "You need to login to access this page."

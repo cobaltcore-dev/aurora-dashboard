@@ -4,6 +4,7 @@ import { useAuth } from "../../store/AuthProvider"
 import { Button } from "../../components/Button"
 import { z } from "zod"
 import { trpcClient } from "../../trpcClient"
+import { Trans, useLingui } from "@lingui/react/macro"
 
 export const Route = createFileRoute("/auth/login")({
   validateSearch: z.object({
@@ -44,6 +45,7 @@ export function AuthLoginPage() {
   const isLoading = useRouterState({ select: (s) => s.isLoading })
   const navigate = Route.useNavigate()
   const search = Route.useSearch()
+  const { t } = useLingui()
 
   const [form, setForm] = useState({ domainName: "", user: "", password: "" })
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -71,8 +73,12 @@ export function AuthLoginPage() {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <div className="max-w-md w-full text-center shadow-lg rounded-lg p-6 border border-gray-300">
-          <h2 className="text-xl font-semibold">Welcome back, {user?.name}!</h2>
-          <p className="text-gray-500">You are already signed in.</p>
+          <h2 className="text-xl font-semibold">
+            <Trans>Welcome back, {user?.name}!</Trans>
+          </h2>
+          <p className="text-gray-500">
+            <Trans>You are already signed in.</Trans>
+          </p>
         </div>
       </div>
     )
@@ -81,11 +87,17 @@ export function AuthLoginPage() {
   return (
     <div className="flex min-h-screen items-center justify-center">
       <div className="w-full max-w-md shadow-lg rounded-lg p-6 border border-gray-700 bg-gray-900">
-        <h2 className="text-2xl font-semibold text-center text-white mb-4">Login to Your Account</h2>
-        <p className="text-gray-400 text-center text-sm mb-6">Enter your credentials to access your account</p>
+        <h2 className="text-2xl font-semibold text-center text-white mb-4">
+          <Trans>Login to Your Account</Trans>
+        </h2>
+        <p className="text-gray-400 text-center text-sm mb-6">
+          <Trans>Enter your credentials to access your account</Trans>
+        </p>
 
         {search.redirect && (
-          <p className="text-red-500 text-sm mb-4 text-center">You need to login to access this page.</p>
+          <p className="text-red-500 text-sm mb-4 text-center">
+            <Trans>You need to login to access this page.</Trans>
+          </p>
         )}
 
         <form
@@ -98,12 +110,12 @@ export function AuthLoginPage() {
           {/* Domain Input */}
           <div className="flex flex-col">
             <label htmlFor="domain" className="text-gray-300 font-medium">
-              Domain
+              <Trans>Domain</Trans>
             </label>
             <input
               id="domain"
               type="text"
-              placeholder="Enter your domain"
+              placeholder={t`Enter your domain`}
               className={textinputstyles}
               onChange={(e) => setForm({ ...form, domainName: e.target.value })}
               required
@@ -113,12 +125,12 @@ export function AuthLoginPage() {
           {/* User Input */}
           <div className="flex flex-col">
             <label htmlFor="user" className="text-gray-300 font-medium">
-              User C/D/I
+              <Trans>User C/D/I</Trans>
             </label>
             <input
               id="user"
               type="text"
-              placeholder="Enter your username"
+              placeholder={t`Enter your username`}
               className={textinputstyles}
               onChange={(e) => setForm({ ...form, user: e.target.value })}
               required
@@ -128,7 +140,7 @@ export function AuthLoginPage() {
           {/* Password Input */}
           <div className="flex flex-col">
             <label htmlFor="password" className="text-gray-300 font-medium">
-              Password
+              <Trans>Password</Trans>
             </label>
             <input
               id="password"
@@ -149,14 +161,14 @@ export function AuthLoginPage() {
               signin()
             }}
           >
-            {isLoggingIn ? "Loading..." : "Sign In"}
+            {isLoggingIn ? <Trans>Loading...</Trans> : <Trans>Sign In</Trans>}
           </Button>
         </form>
 
         <p className="text-center text-sm text-gray-400 mt-4">
-          Need help?{" "}
+          <Trans>Need help?</Trans>{" "}
           <a href="#" className="text-blue-500 hover:underline">
-            Contact support
+            <Trans>Contact support</Trans>
           </a>
         </p>
       </div>
