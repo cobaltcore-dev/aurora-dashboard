@@ -8,6 +8,7 @@ import svgr from "vite-plugin-svgr"
 import * as dotenv from "dotenv"
 import process from "process"
 import viteFastify from "@fastify/vite/plugin"
+import { lingui } from "@lingui/vite-plugin"
 
 dotenv.config()
 
@@ -32,7 +33,11 @@ export default defineConfig(({ mode }) => ({
       routesDirectory: "./src/client/routes",
     }),
     mode !== "production" && viteFastify(),
-    react(),
+    react({
+      plugins: [["@lingui/swc-plugin", {}]],
+    }),
+
+    lingui(),
     svgr(),
     tsconfigPaths(),
   ],

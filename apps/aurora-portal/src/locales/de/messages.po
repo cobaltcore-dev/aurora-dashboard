@@ -1,0 +1,46 @@
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2025-06-03 11:49+0200\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: @lingui/cli\n"
+"Language: de\n"
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Plural-Forms: \n"
+
+#: src/client/routes/index.tsx:58
+msgid "<0>Centralized Cloud Control</0>: Manage all your assets from one intuitive interface."
+msgstr "<0>Zentralisierte Cloud-Steuerung</0>: Verwalten Sie alle Ihre Ressourcen über eine intuitive Oberfläche."
+
+#: src/client/routes/index.tsx:67
+msgid "<0>Efficient Resource Management</0>: Provision, configure, and scale resources across cloud environments with ease."
+msgstr "<0>Effizientes Ressourcenmanagement</0>: Stellen Sie Ressourcen bereit, konfigurieren Sie diese und skalieren Sie sie problemlos in verschiedenen Cloud-Umgebungen."
+
+#: src/client/routes/index.tsx:76
+msgid "<0>Enhanced Scalability</0>: Seamlessly handle everything from small setups to complex, multi-cloud environments."
+msgstr "<0>Erweiterte Skalierbarkeit</0>: Bewältigen Sie mühelos alles von kleinen Setups bis hin zu komplexen Multi-Cloud-Umgebungen."
+
+#: src/client/routes/index.tsx:30
+#: src/client/routes/index.tsx:95
+msgid "Enter the Cloud"
+msgstr "Die Cloud betreten"
+
+#: src/client/routes/index.tsx:86
+msgid "Stay tuned — Aurora Dashboard is launching soon to streamline your cloud management experience!"
+msgstr "Stay tunded – das Aurora-Dashboard wird bald eingeführt, um Ihre Cloud-Management-Erfahrung zu optimieren!"
+
+#: src/client/routes/index.tsx:46
+msgid "The <0>Aurora Dashboard</0> is on its way! Get ready for a powerful, all-in-one cloud management interface designed to make managing your cloud assets simple and efficient. With tools for provisioning, configuring, and scaling resources like servers, networks, and volumes, Aurora will soon bring you:"
+msgstr "Das <0>Aurora-Dashboard</0> ist auf dem Weg! Bereiten Sie sich auf eine leistungsstarke, All-in-One-Cloud-Management-Oberfläche vor, die darauf ausgelegt ist, die Verwaltung Ihrer Cloud-Ressourcen einfach und effizient zu gestalten. Mit Tools zum Bereitstellen, Konfigurieren und Skalieren von Ressourcen wie Servern, Netzwerken und Volumes wird Aurora Ihnen bald bieten:"
+
+#: src/client/routes/index.tsx:23
+msgid "Welcome to Aurora Dashboard"
+msgstr "Willkommen beim Aurora-Dashboard"
+
+msgid "Welcome ddto Aurora Dashboard"
+msgstr "Willkommen beim Aurora-Dashboard"
