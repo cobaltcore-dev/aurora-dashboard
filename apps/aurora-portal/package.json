@@ -12,7 +12,7 @@
     "clean:extensions": "tsx scripts/remove-extensions.ts",
     "compile": "lingui compile --typescript",
     "dev": "tsx watch src/server/server --tsconfig tsconfig.server.json",
-    "extract": "lingui extract",
+    "extract": "lingui extract --clean",
     "lint": "eslint",
     "postinstall": "tsx --no-cache scripts/extensions/install.ts && rm -rf tsx-0",
     "preview": "vite preview",

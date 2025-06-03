@@ -26,13 +26,13 @@ msgid "<0>Enhanced Scalability</0>: Seamlessly handle everything from small setu
 msgstr "<0>Enhanced Scalability</0>: Seamlessly handle everything from small setups to complex, multi-cloud environments."
 
 #: src/client/routes/index.tsx:30
-#: src/client/routes/index.tsx:95
+#: src/client/routes/index.tsx:97
 msgid "Enter the Cloud"
 msgstr "Enter the Cloud"
 
 #: src/client/routes/index.tsx:86
-msgid "Stay tuned—Aurora Dashboard is launching soon to streamline your cloud management experience!"
-msgstr "Stay tuned—Aurora Dashboard is launching soon to streamline your cloud management experience!"
+msgid "Stay tuned — Aurora Dashboard is launching soon to streamline your cloud management experience!"
+msgstr "Stay tuned — Aurora Dashboard is launching soon to streamline your cloud management experience!"
 
 #: src/client/routes/index.tsx:46
 msgid "The <0>Aurora Dashboard</0> is on its way! Get ready for a powerful, all-in-one cloud management interface designed to make managing your cloud assets simple and efficient. With tools for provisioning, configuring, and scaling resources like servers, networks, and volumes, Aurora will soon bring you:"

@@ -26,7 +26,7 @@ msgid "<0>Enhanced Scalability</0>: Seamlessly handle everything from small setu
 msgstr "<0>Erweiterte Skalierbarkeit</0>: Bewältigen Sie mühelos alles von kleinen Setups bis hin zu komplexen Multi-Cloud-Umgebungen."
 
 #: src/client/routes/index.tsx:30
-#: src/client/routes/index.tsx:95
+#: src/client/routes/index.tsx:97
 msgid "Enter the Cloud"
 msgstr "Die Cloud betreten"
 
@@ -40,7 +40,4 @@ msgstr "Das <0>Aurora-Dashboard</0> ist auf dem Weg! Bereiten Sie sich auf eine 
 
 #: src/client/routes/index.tsx:23
 msgid "Welcome to Aurora Dashboard"
-msgstr "Willkommen beim Aurora-Dashboard"
-
-msgid "Welcome ddto Aurora Dashboard"
 msgstr "Willkommen beim Aurora-Dashboard"
