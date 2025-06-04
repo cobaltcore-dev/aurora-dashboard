@@ -12,13 +12,9 @@ export interface Extension {
 }
 
 type ExtensionBaseProps = Record<string, "string | number | boolean | undefined">
-
-interface ExtensionContext extends ExtensionBaseProps {}
-interface ExtensionProps extends ExtensionBaseProps {}
-
 export interface InstalledExtension extends Extension {
   id: string
   name: string
   version: string
-  uiLoader?: Promise<ExtensionInterface<ExtensionContext, ExtensionProps>> // UI loader, a promise that is needed to allow bundler to resolve the extension
+  uiLoader?: Promise<ExtensionInterface<ExtensionBaseProps, ExtensionBaseProps>> // UI loader, a promise that is needed to allow bundler to resolve the extension
 }
