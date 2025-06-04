@@ -68,7 +68,6 @@ function install() {
   const extensionEntries = installedExtensions.map(generateExtensionEntry).join(",\n  ")
 
   const extensionsContent = `${types}
- 
 const extensions: InstalledExtension[] = [
   ${extensionEntries}
 ]
