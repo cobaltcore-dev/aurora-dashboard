@@ -67,7 +67,7 @@ function AuroraLayout({ mainNavItems = [] }: NavigationLayoutProps) {
           </div>
         )}
       </div>
-      <TanStackRouterDevtools position="bottom-right" />
+      <TanStackRouterDevtools initialIsOpen={false} position="bottom-right" />
     </div>
   )
 }
