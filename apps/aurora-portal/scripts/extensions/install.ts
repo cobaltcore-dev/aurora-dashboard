@@ -67,13 +67,21 @@ function install() {
   const types = fs.readFileSync(path.join(ROOT, "scripts", "extensions", "types.d.ts"))
   const extensionEntries = installedExtensions.map(generateExtensionEntry).join(",\n  ")
 
-  const extensionsContent = `${types}
+  let extensionsContent = ""
+  if (extensionEntries.length > 0) {
+    extensionsContent = `${types}
 const extensions: InstalledExtension[] = [
   ${extensionEntries}
 ]
 
 export default extensions
 `
+  } else {
+    extensionsContent = `${types}
+const extensions: InstalledExtension[] = []
+export default extensions
+`
+  }
 
   fs.writeFileSync(extensionsFile, extensionsContent, "utf-8")
   // delete tmp directory
