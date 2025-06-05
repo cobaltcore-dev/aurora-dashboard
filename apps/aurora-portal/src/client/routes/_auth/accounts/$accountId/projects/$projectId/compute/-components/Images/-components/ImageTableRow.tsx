@@ -1,6 +1,6 @@
 // export default ImagesPage
 import { ToastProps, auroraToast, sonnerToast } from "@/client/components/NotificationCenter/AuroraToast"
-import { Button } from "@/client/components/Button"
+import { Button } from "@cloudoperators/juno-ui-components"
 import { Icon } from "@/client/components/Icon"
 import { GlanceImage } from "@/server/Compute/types/image"
 
@@ -92,8 +92,7 @@ export function ImageTableRow({ image, onEdit, onDelete, isLast }: ImageTableRow
       <td className="p-3">
         <div className="flex space-x-3 mt-4 justify-end">
           <Button
-            variant="success"
-            className="h-8 w-8 p-0 text-blue-500 hover:text-blue-400 hover:bg-blue-500/20"
+            className="text-blue-500 hover:text-blue-400 hover:bg-blue-500/20"
             onClick={() => {
               const toastProps: Omit<ToastProps, "id"> = {
                 title: "Launch Instance",
@@ -112,11 +111,7 @@ export function ImageTableRow({ image, onEdit, onDelete, isLast }: ImageTableRow
           <Button className="hover:bg-gray-600" onClick={() => onEdit(image)}>
             Edit
           </Button>
-          <Button
-            variant="primary-danger"
-            className="h-8 w-8 p-0 text-red-500 hover:text-red-400 hover:bg-red-500/20"
-            onClick={() => onDelete(image)}
-          >
+          <Button variant="primary-danger" className="hover:bg-red-500" onClick={() => onDelete(image)}>
             Delete
           </Button>
         </div>

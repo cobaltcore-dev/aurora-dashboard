@@ -1,7 +1,7 @@
 import { useState } from "react"
 
 import { TrpcClient } from "../../trpcClient"
-import { Button } from "../Button"
+import { Button } from "@cloudoperators/juno-ui-components"
 import { SessionExpirationTimer } from "./SessionExpirationTimer"
 import { useAuth } from "../../store/AuthProvider"
 import { useCallback } from "react"

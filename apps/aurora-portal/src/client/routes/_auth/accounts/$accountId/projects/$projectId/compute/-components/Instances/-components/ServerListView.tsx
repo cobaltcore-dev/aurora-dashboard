@@ -1,6 +1,6 @@
 import { ToastProps, auroraToast, sonnerToast } from "@/client/components/NotificationCenter/AuroraToast"
 import type { Server } from "@/server/Compute/types/server"
-import { Button } from "@/client/components/Button"
+import { Button } from "@cloudoperators/juno-ui-components"
 import { Icon } from "@/client/components/Icon"
 type ServerListViewProps = {
   servers: Server[] | undefined
@@ -63,7 +63,6 @@ export function ServerListView({ servers }: ServerListViewProps) {
                     {/* Action Buttons */}
                     <div className=" flex space-x-3 justify-end mt-4">
                       <Button
-                        variant="success"
                         className="hover:bg-gray-600"
                         onClick={() => {
                           const toastProps: Omit<ToastProps, "id"> = {

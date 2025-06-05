@@ -1,7 +1,7 @@
 // KeyPairListView.tsx - Component to display key pairs
 import { ToastProps, auroraToast, sonnerToast } from "@/client/components/NotificationCenter/AuroraToast"
 import type { Keypair } from "@/server/Compute/types/keypair"
-import { Button } from "@/client/components/Button"
+import { Button } from "@cloudoperators/juno-ui-components"
 import { Icon } from "@/client/components/Icon"
 
 interface KeyPairListViewProps {
@@ -68,7 +68,6 @@ export function KeyPairListView({ keyPairs }: KeyPairListViewProps) {
                   <td className="p-3">
                     <div className="flex space-x-3 justify-end">
                       <Button
-                        variant="success"
                         className="hover:bg-gray-600"
                         onClick={() => {
                           const toastProps: Omit<ToastProps, "id"> = {

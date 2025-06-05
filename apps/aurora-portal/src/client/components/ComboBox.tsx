@@ -1,5 +1,5 @@
 import React, { useState } from "react"
-import { Button } from "./Button"
+import { Button } from "@cloudoperators/juno-ui-components"
 
 interface ComboBoxProps {
   valueLabel: string

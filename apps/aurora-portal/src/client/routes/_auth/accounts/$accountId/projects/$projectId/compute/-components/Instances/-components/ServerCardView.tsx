@@ -1,6 +1,6 @@
 import type { Server } from "@/server/Compute/types/server"
 import { Pill } from "@cloudoperators/juno-ui-components"
-import { Button } from "@/client/components/Button"
+import { Button } from "@cloudoperators/juno-ui-components"
 import { Icon } from "@/client/components/Icon"
 type ServerListViewProps = {
   servers: Server[] | undefined
