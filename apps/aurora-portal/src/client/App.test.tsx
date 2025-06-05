@@ -3,14 +3,7 @@ import { i18n } from "@lingui/core"
 import { I18nProvider } from "@lingui/react"
 import { ReactNode } from "react"
 
-import { messages } from "../locales/en/messages"
-import { messages as deMessages } from "../locales/de/messages"
 import App from "./App"
-
-i18n.load({
-  en: messages,
-  de: deMessages,
-})
 
 const TestingProvider = ({ children }: { children: ReactNode }) => <I18nProvider i18n={i18n}>{children}</I18nProvider>
 
