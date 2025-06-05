@@ -53,7 +53,7 @@ export const installExtension = (extension: Extension, options: InstallExtension
     const installedExtension: InstalledExtension = {
       ...extension,
       name: packageInfo.name,
-      id: generateId(packageInfo.name),
+      id: extension.id || generateId(packageInfo.name),
       version: packageInfo.version,
 
       navigation: {

@@ -50,7 +50,7 @@ async function startServer() {
 
   // Validate CSRF token for mutating requests
   server.addHook("preHandler", async (request, reply) => {
-    if (["POST", "PUT", "DELETE"].includes(request.method)) {
+    if (["POST", "PUT", "DELETE"].includes(request.method) && !request.url.startsWith("/extensions")) {
       server.csrfProtection(request, reply, () => {
         // Validation passes, request continues
       })
@@ -87,6 +87,14 @@ async function startServer() {
 
         await server.all(bffPath + "/*", (req, res) => {
           req.raw.url = req.raw.url?.replace(bffPath, "")
+          if (req.body) {
+            Object.defineProperty(req.raw, "body", {
+              value: req.body,
+              writable: false,
+            })
+            req.raw.headers["content-length"] =
+              req.headers["content-length"] || Buffer.byteLength(JSON.stringify(req.body)).toString()
+          }
           return handleRequest(req.raw, res.raw)
         })
       }

@@ -16,7 +16,8 @@
     "build": {
       "dependsOn": [
         "@cobaltcore-dev/signal-openstack#build",
-        "@cobaltcore-dev/aurora-sdk#build"
+        "@cobaltcore-dev/aurora-sdk#build",
+        "@cobaltcore-dev/gardener#build"
       ]
     }
   }

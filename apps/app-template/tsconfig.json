@@ -1,0 +1,14 @@
+{
+  "extends": "@cobaltcore-dev/aurora-config/typescript/tsconfig.react.json",
+  "compilerOptions": {
+    "declaration": true,
+    "jsx": "react-jsx",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "skipLibCheck": true,
+    "target": "ESNext",
+    "types": ["vite/client", "vitest/globals"]
+  },
+
+  "include": ["src/**/*.ts", "src/**/*.tsx", "vitest.setup.ts", "../extension-sdk/src/types.ts"]
+}

@@ -52,11 +52,36 @@ function install() {
     installedExtensions.push(installedExtension)
   }
 
+  // Create a template function
+  const generateExtensionEntry = (ext: InstalledExtension) => {
+    const { uiLoader, ...staticProps } = ext
+
+    return `{
+    ${Object.entries(staticProps)
+      .map(([key, value]) => `${key}: ${JSON.stringify(value)}`)
+      .join(",\n    ")},
+    uiLoader: import("${ext.entrypoint}").then((mod) => mod.default)
+  }`
+  }
+
   const types = fs.readFileSync(path.join(ROOT, "scripts", "extensions", "types.d.ts"))
-  const extensionsContent = `${types}
-const extensions: InstalledExtension[] = ${JSON.stringify(installedExtensions, null, 2)}\n
+  const extensionEntries = installedExtensions.map(generateExtensionEntry).join(",\n  ")
+
+  let extensionsContent = ""
+  if (extensionEntries.length > 0) {
+    extensionsContent = `${types}
+const extensions: InstalledExtension[] = [
+  ${extensionEntries}
+]
+
 export default extensions
 `
+  } else {
+    extensionsContent = `${types}
+const extensions: InstalledExtension[] = []
+export default extensions
+`
+  }
 
   fs.writeFileSync(extensionsFile, extensionsContent, "utf-8")
   // delete tmp directory

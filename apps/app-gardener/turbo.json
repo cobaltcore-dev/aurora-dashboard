@@ -1,0 +1,20 @@
+{
+  "extends": [ "//" ],
+  "tasks": {
+    "dev": {
+      "dependsOn": [
+        "@cobaltcore-dev/aurora-sdk#build"
+      ]
+    },
+    "test": {
+      "dependsOn": [
+        "@cobaltcore-dev/aurora-sdk#build"
+      ]
+    },
+    "build": {
+      "dependsOn": [
+        "@cobaltcore-dev/aurora-sdk#build"
+      ]
+    }
+  }
+}
