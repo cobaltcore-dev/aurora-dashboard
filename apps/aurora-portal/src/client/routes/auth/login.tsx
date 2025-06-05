@@ -1,10 +1,10 @@
 import { useState, useCallback } from "react"
 import { createFileRoute, redirect, useRouter, useRouterState } from "@tanstack/react-router"
 import { useAuth } from "../../store/AuthProvider"
-import { Button } from "../../components/Button"
 import { z } from "zod"
 import { trpcClient } from "../../trpcClient"
 import { Trans, useLingui } from "@lingui/react/macro"
+import { Button } from "@cloudoperators/juno-ui-components"
 
 export const Route = createFileRoute("/auth/login")({
   validateSearch: z.object({

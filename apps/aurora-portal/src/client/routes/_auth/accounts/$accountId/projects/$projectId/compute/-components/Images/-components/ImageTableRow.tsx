@@ -1,7 +1,7 @@
 // export default ImagesPage
 import { ToastProps, auroraToast, sonnerToast } from "@/client/components/NotificationCenter/AuroraToast"
-import { Button } from "@/client/components/Button"
-import { Icon } from "@/client/components/Icon"
+import { Button } from "@cloudoperators/juno-ui-components"
+import { Icon } from "@cloudoperators/juno-ui-components"
 import { GlanceImage } from "@/server/Compute/types/image"
 
 // Utility function to format bytes
@@ -24,13 +24,13 @@ const renderStatus = (status: string | undefined) => {
   return (
     <div className="flex items-center space-x-2">
       {status === "active" ? (
-        <Icon name="success" color="jn-text-theme-success" />
+        <Icon icon="success" color="jn-text-theme-success" />
       ) : status === "deleted" || status === "killed" ? (
-        <Icon name="danger" color="jn-text-theme-danger" />
+        <Icon icon="danger" color="jn-text-theme-danger" />
       ) : status === "queued" || status === "saving" || status === "importing" ? (
-        <Icon name="info" color="jn-text-theme-warning" />
+        <Icon icon="info" color="jn-text-theme-warning" />
       ) : (
-        <Icon name="info" color="jn-text-theme-info" />
+        <Icon icon="info" color="jn-text-theme-info" />
       )}
       <span>{status}</span>
     </div>
@@ -44,11 +44,11 @@ const renderVisibility = (visibility: string | undefined) => {
   return (
     <div className="flex items-center space-x-2">
       {visibility === "public" ? (
-        <Icon name="info" color="jn-text-theme-info" />
+        <Icon icon="info" color="jn-text-theme-info" />
       ) : visibility === "private" ? (
-        <Icon name="info" color="jn-text-theme-warning" />
+        <Icon icon="info" color="jn-text-theme-warning" />
       ) : visibility === "shared" ? (
-        <Icon name="info" color="jn-text-theme-success" />
+        <Icon icon="info" color="jn-text-theme-success" />
       ) : (
         <span>{visibility}</span>
       )}
@@ -79,7 +79,7 @@ export function ImageTableRow({ image, onEdit, onDelete, isLast }: ImageTableRow
       <td className="p-3">
         {image.os_type ? (
           <div className="flex items-center space-x-2">
-            <Icon name={"info"} color="jn-text-theme-info" />
+            <Icon icon={"info"} color="jn-text-theme-info" />
             <span>{image.os_type}</span>
             {image.os_distro && <span className="text-xs text-gray-400">({image.os_distro})</span>}
           </div>
@@ -92,8 +92,7 @@ export function ImageTableRow({ image, onEdit, onDelete, isLast }: ImageTableRow
       <td className="p-3">
         <div className="flex space-x-3 mt-4 justify-end">
           <Button
-            variant="success"
-            className="h-8 w-8 p-0 text-blue-500 hover:text-blue-400 hover:bg-blue-500/20"
+            className="text-blue-500 hover:text-blue-400 hover:bg-blue-500/20"
             onClick={() => {
               const toastProps: Omit<ToastProps, "id"> = {
                 title: "Launch Instance",
@@ -112,11 +111,7 @@ export function ImageTableRow({ image, onEdit, onDelete, isLast }: ImageTableRow
           <Button className="hover:bg-gray-600" onClick={() => onEdit(image)}>
             Edit
           </Button>
-          <Button
-            variant="primary-danger"
-            className="h-8 w-8 p-0 text-red-500 hover:text-red-400 hover:bg-red-500/20"
-            onClick={() => onDelete(image)}
-          >
+          <Button variant="primary-danger" className="hover:bg-red-500" onClick={() => onDelete(image)}>
             Delete
           </Button>
         </div>

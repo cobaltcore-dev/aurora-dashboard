@@ -1,7 +1,7 @@
 import { ToastProps, auroraToast, sonnerToast } from "@/client/components/NotificationCenter/AuroraToast"
 import type { Server } from "@/server/Compute/types/server"
-import { Button } from "@/client/components/Button"
-import { Icon } from "@/client/components/Icon"
+import { Button } from "@cloudoperators/juno-ui-components"
+import { Icon } from "@cloudoperators/juno-ui-components"
 type ServerListViewProps = {
   servers: Server[] | undefined
 }
@@ -39,9 +39,9 @@ export function ServerListView({ servers }: ServerListViewProps) {
                   <td className="p-3">
                     <div className="flex items-center space-x-2">
                       {server.status === "ACTIVE" ? (
-                        <Icon name="success" color="jn-text-theme-success" />
+                        <Icon icon="success" data-testid="icon-success" color="jn-text-theme-success" />
                       ) : server.status === "SHUTOFF" ? (
-                        <Icon name="danger" color="jn-text-theme-danger" />
+                        <Icon icon="danger" data-testid="icon-danger" color="jn-text-theme-danger" />
                       ) : (
                         <p>{server.status}</p>
                       )}
@@ -63,7 +63,6 @@ export function ServerListView({ servers }: ServerListViewProps) {
                     {/* Action Buttons */}
                     <div className=" flex space-x-3 justify-end mt-4">
                       <Button
-                        variant="success"
                         className="hover:bg-gray-600"
                         onClick={() => {
                           const toastProps: Omit<ToastProps, "id"> = {
