@@ -2,7 +2,7 @@ import { useState, useRef } from "react"
 
 import { AuthMenu } from "../Auth/AuthMenu"
 import { trpcClient } from "../../trpcClient"
-import { Icon } from "../../components/Icon"
+import { Icon } from "@cloudoperators/juno-ui-components"
 
 export function UserMenu() {
   const [isOpen, setIsOpen] = useState(false)

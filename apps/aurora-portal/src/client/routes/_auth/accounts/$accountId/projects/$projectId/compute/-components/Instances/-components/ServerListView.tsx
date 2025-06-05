@@ -1,7 +1,7 @@
 import { ToastProps, auroraToast, sonnerToast } from "@/client/components/NotificationCenter/AuroraToast"
 import type { Server } from "@/server/Compute/types/server"
 import { Button } from "@cloudoperators/juno-ui-components"
-import { Icon } from "@/client/components/Icon"
+import { Icon } from "@cloudoperators/juno-ui-components"
 type ServerListViewProps = {
   servers: Server[] | undefined
 }

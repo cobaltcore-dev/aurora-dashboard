@@ -1,5 +1,5 @@
 import { Project } from "@/server/Project/types/models"
-import { Icon } from "@/client/components/Icon"
+import { Icon } from "@cloudoperators/juno-ui-components"
 import { useNavigate } from "@tanstack/react-router"
 
 type ProjectListViewProps = {

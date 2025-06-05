@@ -1,6 +1,6 @@
 import { ComboBox, ComboBoxOption } from "@/client/components/ComboBox"
 import { Button } from "@cloudoperators/juno-ui-components"
-import { Icon } from "@/client/components/Icon"
+import { Icon } from "@cloudoperators/juno-ui-components"
 import { useLocation, useParams, Link } from "@tanstack/react-router"
 
 type ComputeNavBarProps = {

@@ -1,7 +1,7 @@
 import type { Server } from "@/server/Compute/types/server"
 import { Pill } from "@cloudoperators/juno-ui-components"
 import { Button } from "@cloudoperators/juno-ui-components"
-import { Icon } from "@/client/components/Icon"
+import { Icon } from "@cloudoperators/juno-ui-components"
 type ServerListViewProps = {
   servers: Server[] | undefined
 }

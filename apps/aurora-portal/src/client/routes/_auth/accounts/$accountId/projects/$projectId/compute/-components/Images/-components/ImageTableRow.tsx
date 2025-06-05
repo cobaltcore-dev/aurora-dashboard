@@ -1,7 +1,7 @@
 // export default ImagesPage
 import { ToastProps, auroraToast, sonnerToast } from "@/client/components/NotificationCenter/AuroraToast"
 import { Button } from "@cloudoperators/juno-ui-components"
-import { Icon } from "@/client/components/Icon"
+import { Icon } from "@cloudoperators/juno-ui-components"
 import { GlanceImage } from "@/server/Compute/types/image"
 
 // Utility function to format bytes

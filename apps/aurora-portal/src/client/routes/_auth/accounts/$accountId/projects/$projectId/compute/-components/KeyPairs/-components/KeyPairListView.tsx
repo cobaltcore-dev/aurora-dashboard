@@ -2,7 +2,7 @@
 import { ToastProps, auroraToast, sonnerToast } from "@/client/components/NotificationCenter/AuroraToast"
 import type { Keypair } from "@/server/Compute/types/keypair"
 import { Button } from "@cloudoperators/juno-ui-components"
-import { Icon } from "@/client/components/Icon"
+import { Icon } from "@cloudoperators/juno-ui-components"
 
 interface KeyPairListViewProps {
   keyPairs: Keypair[]
