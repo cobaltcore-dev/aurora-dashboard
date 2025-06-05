@@ -1,5 +1,5 @@
 import type { Server } from "@/server/Compute/types/server"
-import { Pill } from "@/client/components/Pill"
+import { Pill } from "@cloudoperators/juno-ui-components"
 import { Button } from "@/client/components/Button"
 import { Icon } from "@/client/components/Icon"
 type ServerListViewProps = {
@@ -29,11 +29,15 @@ export function ServerCard({ server }: ServerCardProps) {
       </div>
 
       {/* Server Details */}
-      <Pill pillKeyLabel="IPv4:" pillValueLabel={server.accessIPv4 || "N/A"} />
-      <Pill pillKeyLabel="IPv6:" pillValueLabel={server.accessIPv6 || "N/A"} />
-      <Pill pillKeyLabel="CPU:" pillValueLabel={server?.flavor?.vcpus ? server.flavor.vcpus.toString() : ""} />
-      <Pill pillKeyLabel="RAM:" pillValueLabel={`${server?.flavor?.ram} MB`} />
-      <Pill pillKeyLabel="Disk:" pillValueLabel={`${server?.flavor?.disk} GB`} />
+      <Pill pillKeyLabel="IPv4:" pillValueLabel={server.accessIPv4 || "N/A"} pillValue={""} />
+      <Pill pillKeyLabel="IPv6:" pillValueLabel={server.accessIPv6 || "N/A"} pillValue={""} />
+      <Pill
+        pillKeyLabel="CPU:"
+        pillValueLabel={server?.flavor?.vcpus ? server.flavor.vcpus.toString() : "N/A"}
+        pillValue={""}
+      />
+      <Pill pillKeyLabel="RAM:" pillValueLabel={`${server?.flavor?.ram} MB`} pillValue={""} />
+      <Pill pillKeyLabel="Disk:" pillValueLabel={`${server?.flavor?.disk} GB`} pillValue={""} />
 
       {/* Server Metadata */}
       <p className="text-sm">Server Role: {server?.metadata?.["Server Role"] ?? "Unknown Role"}</p>
