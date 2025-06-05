@@ -5,15 +5,7 @@ import { AuthProvider } from "./store/AuthProvider"
 import styles from "./index.css?inline"
 import { i18n } from "@lingui/core"
 import { I18nProvider } from "@lingui/react"
-import { messages } from "../locales/en/messages"
-import { messages as messagesDe } from "../locales/de/messages"
 import { ErrorBoundary } from "react-error-boundary"
-
-i18n.load({
-  en: messages,
-  de: messagesDe,
-})
-i18n.activate("de")
 
 type AppProps = {
   theme?: "theme-dark" | "theme-light"
@@ -33,8 +25,6 @@ const App = (props: AppProps) => (
         <AppShell fullWidthContent={true} topNavigation={false} pageHeader={false} embedded={false}>
           <style>{styles.toString()}</style>
           <Toaster theme="dark" position="top-center" />
-          {/* load styles inside the shadow dom */}
-
           <AuthProvider>
             <AppContent />
           </AuthProvider>
