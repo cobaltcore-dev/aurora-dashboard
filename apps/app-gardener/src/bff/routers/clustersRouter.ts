@@ -1,14 +1,14 @@
 import { publicProcedure } from "./trpc"
 import { shootApiResponseSchema, shootListApiResponseSchema } from "../types/shootApiSchema"
 import { Cluster, convertShootApiResponseToCluster, convertShootListApiSchemaToClusters } from "../types/cluster"
-import { client } from "../k8sClient"
+import { K8sClient } from "../k8sClient"
 import { TRPCError } from "@trpc/server"
 import { z } from "zod"
 
-export const clustersRouter = {
+export const clustersRouter = (apiClient: K8sClient) => ({
   getClusters: publicProcedure.query(async () => {
     const parsedData = shootListApiResponseSchema.safeParse(
-      await client
+      await apiClient
         .get(`apis/core.gardener.cloud/v1beta1/namespaces/garden-${process.env.GARDENER_PROJECT}/shoots`)
         .catch(async (err) => {
           const errorBody = await err?.response?.json()
@@ -26,7 +26,7 @@ export const clustersRouter = {
     .input(z.object({ name: z.string() }))
     .query(async ({ input }): Promise<Cluster | undefined> => {
       const parsedData = shootApiResponseSchema.safeParse(
-        await client.get(
+        await apiClient.get(
           `apis/core.gardener.cloud/v1beta1/namespaces/garden-${process.env.GARDENER_PROJECT}/shoots/${input.name}`
         )
       )
@@ -42,10 +42,9 @@ export const clustersRouter = {
     const namespace = `garden-${process.env.GARDENER_PROJECT}`
     const clusterName = input.name
 
-    console.log("==========================================", input.name)
     try {
       // Step 1: Add the deletion confirmation annotation
-      await client
+      await apiClient
         .patch(
           `apis/core.gardener.cloud/v1beta1/namespaces/${namespace}/shoots/${clusterName}`,
           [
@@ -69,7 +68,7 @@ export const clustersRouter = {
 
       // Step 2: Delete the cluster
       const parsedData = shootApiResponseSchema.safeParse(
-        await client
+        await apiClient
           .delete(`apis/core.gardener.cloud/v1beta1/namespaces/${namespace}/shoots/${clusterName}`)
           .catch(async (err) => {
             const errorBody = (await err.response?.json()) || {}
@@ -202,7 +201,7 @@ export const clustersRouter = {
         },
       }
 
-      const response = await client
+      const response = await apiClient
         .post(`apis/core.gardener.cloud/v1beta1/namespaces/garden-${process.env.GARDENER_PROJECT}/shoots`, shoot)
         .catch(async (err) => {
           const errorBody = (await err.response?.json()) || {}
@@ -213,7 +212,6 @@ export const clustersRouter = {
       // Parse and validate the response
       const parsedData = shootApiResponseSchema.safeParse(response)
 
-      console.log(parsedData.error)
       if (!parsedData.success) {
         console.error("Zod Parsing Error:", parsedData.error.format())
         throw new TRPCError({
@@ -225,4 +223,4 @@ export const clustersRouter = {
       // Convert to cluster format if needed
       return convertShootApiResponseToCluster(parsedData.data)
     }),
-}
+})

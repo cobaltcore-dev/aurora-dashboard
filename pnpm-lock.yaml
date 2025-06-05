@@ -82,6 +82,9 @@ importers:
       '@headlessui/react':
         specifier: ^2.2.2
         version: 2.2.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@testing-library/jest-dom':
+        specifier: ^6.5.0
+        version: 6.6.3
       '@types/node':
         specifier: ^22.15.21
         version: 22.15.27

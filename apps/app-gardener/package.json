@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Alternative Gardener UI",
   "scripts": {
+    "test": "vitest run --config vitest.config.mjs",
     "dev": "tsx watch src/server.ts --tsconfig tsconfig.server.json",
     "prod": "NODE_ENV=production node dist/server.js",
     "build:client": "vite build --config vite.config.mjs --mode client",
@@ -20,7 +21,7 @@
       "require": "./dist/extension.js"
     }
   },
-  "keywords": [ ],
+  "keywords": [],
   "author": "",
   "license": "Apache-2.0",
   "devDependencies": {
@@ -29,6 +30,7 @@
     "@cobaltcore-dev/aurora-sdk": "workspace:*",
     "@fastify/vite": "^8.1.3",
     "@headlessui/react": "^2.2.2",
+    "@testing-library/jest-dom": "^6.5.0",
     "@types/node": "^22.15.21",
     "@types/react": "^19.1.5",
     "@types/react-dom": "^19.1.5",
@@ -46,6 +48,8 @@
   },
   "dependencies": {
     "@fastify/static": "^8.2.0",
+    "@tanstack/react-router": "^1.115.2",
+    "@tanstack/router-plugin": "^1.115.2",
     "@trpc/client": "11.1.2",
     "@trpc/server": "11.1.2",
     "clsx": "^2.1.1",
@@ -53,8 +57,6 @@
     "fastify": "^5.3.3",
     "tsx": "^4.19.4",
     "vitest": "^3.1.4",
-    "zod": "^3.25.20",
-    "@tanstack/react-router": "^1.115.2",
-    "@tanstack/router-plugin": "^1.115.2"
+    "zod": "^3.25.20"
   }
 }
