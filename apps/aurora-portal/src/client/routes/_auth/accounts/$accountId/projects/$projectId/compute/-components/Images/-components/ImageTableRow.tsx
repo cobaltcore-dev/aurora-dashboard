@@ -24,13 +24,13 @@ const renderStatus = (status: string | undefined) => {
   return (
     <div className="flex items-center space-x-2">
       {status === "active" ? (
-        <Icon name="success" color="jn-text-theme-success" />
+        <Icon icon="success" color="jn-text-theme-success" />
       ) : status === "deleted" || status === "killed" ? (
-        <Icon name="danger" color="jn-text-theme-danger" />
+        <Icon icon="danger" color="jn-text-theme-danger" />
       ) : status === "queued" || status === "saving" || status === "importing" ? (
-        <Icon name="info" color="jn-text-theme-warning" />
+        <Icon icon="info" color="jn-text-theme-warning" />
       ) : (
-        <Icon name="info" color="jn-text-theme-info" />
+        <Icon icon="info" color="jn-text-theme-info" />
       )}
       <span>{status}</span>
     </div>
@@ -44,11 +44,11 @@ const renderVisibility = (visibility: string | undefined) => {
   return (
     <div className="flex items-center space-x-2">
       {visibility === "public" ? (
-        <Icon name="info" color="jn-text-theme-info" />
+        <Icon icon="info" color="jn-text-theme-info" />
       ) : visibility === "private" ? (
-        <Icon name="info" color="jn-text-theme-warning" />
+        <Icon icon="info" color="jn-text-theme-warning" />
       ) : visibility === "shared" ? (
-        <Icon name="info" color="jn-text-theme-success" />
+        <Icon icon="info" color="jn-text-theme-success" />
       ) : (
         <span>{visibility}</span>
       )}
@@ -79,7 +79,7 @@ export function ImageTableRow({ image, onEdit, onDelete, isLast }: ImageTableRow
       <td className="p-3">
         {image.os_type ? (
           <div className="flex items-center space-x-2">
-            <Icon name={"info"} color="jn-text-theme-info" />
+            <Icon icon={"info"} color="jn-text-theme-info" />
             <span>{image.os_type}</span>
             {image.os_distro && <span className="text-xs text-gray-400">({image.os_distro})</span>}
           </div>

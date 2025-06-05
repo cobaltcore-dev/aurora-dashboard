@@ -39,9 +39,9 @@ export function ServerListView({ servers }: ServerListViewProps) {
                   <td className="p-3">
                     <div className="flex items-center space-x-2">
                       {server.status === "ACTIVE" ? (
-                        <Icon name="success" data-testid="icon-success" color="jn-text-theme-success" />
+                        <Icon icon="success" data-testid="icon-success" color="jn-text-theme-success" />
                       ) : server.status === "SHUTOFF" ? (
-                        <Icon name="danger" data-testid="icon-danger" color="jn-text-theme-danger" />
+                        <Icon icon="danger" data-testid="icon-danger" color="jn-text-theme-danger" />
                       ) : (
                         <p>{server.status}</p>
                       )}

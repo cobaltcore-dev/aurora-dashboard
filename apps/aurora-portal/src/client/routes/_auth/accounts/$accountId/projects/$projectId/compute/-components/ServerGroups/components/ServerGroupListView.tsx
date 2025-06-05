@@ -29,7 +29,7 @@ export function ServerGroupListView({ serverGroups }: ServerGroupListViewProps) 
 
     return (
       <div className="flex items-center space-x-2">
-        <Icon name={policyInfo.icon} color={policyInfo.color} />
+        <Icon icon={policyInfo.icon} color={policyInfo.color} />
         <span>{policy}</span>
       </div>
     )

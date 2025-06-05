@@ -21,7 +21,7 @@ export function KeyPairListView({ keyPairs }: KeyPairListViewProps) {
 
     return (
       <div className="flex items-center space-x-2">
-        <Icon name="info" color="jn-text-theme-info" />
+        <Icon icon="info" color="jn-text-theme-info" />
         <span>{type.toUpperCase()}</span>
       </div>
     )
