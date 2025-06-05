@@ -36,7 +36,7 @@ export function ProjectsOverviewNavBar({ viewMode, setViewMode, onSearch, search
     <div className="flex items-center justify-between gap-4 w-full">
       {/* Search Input (60%) */}
       <div className="flex-1 min-w-[60%] relative flex items-center bg-[#1c2026] border border-[#30363d] rounded-md px-3 py-2 text-gray-300">
-        <Icon name="search" className="text-gray-400 mr-2" />
+        <Icon icon="search" className="text-gray-400 mr-2" />
         <input
           type="text"
           placeholder="Search..."
