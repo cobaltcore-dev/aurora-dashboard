@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "An app that can function as an extension, capable of integrating into a host system (e.g. aurora)or act as standalone",
   "scripts": {
-
+    "test": "vitest run --config vitest.config.mjs",
     "dev": "tsx watch src/server.ts --project tsconfig.server.json",
     "prod": "NODE_ENV=production tsx dist/server.js",
     "build:client": "vite build --config vite.config.mjs --mode client",
@@ -15,19 +15,19 @@
     "build": "npm run build:standalone:ui && npm run build:standalone:server && npm run build:client && npm run build:bff && npm run build:extension && npm run build:types",
     "type:check": "tsc --noEmit --project tsconfig.types.json"
   },
-
   "exports": {
     "./extension": {
       "import": "./dist/extension.js",
       "require": "./dist/extension.js"
     }
   },
-  "keywords": [ ],
+  "keywords": [],
   "author": "",
   "license": "Apache-2.0",
   "devDependencies": {
     "@cobaltcore-dev/aurora-config": "workspace:*",
     "@cobaltcore-dev/aurora-sdk": "workspace:*",
+    "@testing-library/jest-dom": "^6.5.0",
     "@types/node": "^22.15.21",
     "@types/react": "^19.1.5",
     "@types/react-dom": "^19.1.5",

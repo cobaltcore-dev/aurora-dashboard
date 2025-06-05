@@ -170,6 +170,9 @@ importers:
       '@cobaltcore-dev/aurora-sdk':
         specifier: workspace:*
         version: link:../../packages/aurora-sdk
+      '@testing-library/jest-dom':
+        specifier: ^6.5.0
+        version: 6.6.3
       '@types/node':
         specifier: ^22.15.21
         version: 22.15.27
