@@ -280,8 +280,8 @@ importers:
         version: 3.24.2
     devDependencies:
       '@cloudoperators/juno-ui-components':
-        specifier: ^3.1.1
-        version: 3.1.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^4.0.0
+        version: 4.0.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@cobaltcore-dev/aurora-config':
         specifier: workspace:*
         version: link:../../packages/config
@@ -684,12 +684,12 @@ packages:
   '@cloudoperators/juno-k8s-client@1.0.5':
     resolution: {integrity: sha512-/jRXnG/RiVVABUExl0e7A0bze1u2fuwIjumxgb3mumsk+9dI1FxDTV4XFVk0S92f5DmFy/8N9azjyO3sl9CNrQ==}
 
-  '@cloudoperators/juno-ui-components@3.1.1':
-    resolution: {integrity: sha512-xJnVNWq0qgRk6yw+EBAXZj8rTnIXiHk20auehktH2EwEEO0IrZo0C6BCMTNcg+NPWMvOVbXBrBgYFdIXXFwR/A==}
+  '@cloudoperators/juno-ui-components@4.0.0':
+    resolution: {integrity: sha512-VyNuE7NOVrA/VpJSctGCRh7G121ViXRnSphcCENxXg7HVLqeep3z4YYiclA+JvQSxKpqHPSlPR2SAcWCWdKNEw==}
     engines: {node: '>=20.0.0', pnpm: '>=8.0.0'}
     peerDependencies:
-      react: ^18.3.0
-      react-dom: ^18.3.0
+      react: ^19.1.0
+      react-dom: ^19.1.0
 
   '@commitlint/cli@19.7.1':
     resolution: {integrity: sha512-iObGjR1tE/PfDtDTEfd+tnRkB3/HJzpQqRTyofS2MPPkDn1mp3DBC8SoPDayokfAy+xKhF8+bwRCJO25Nea0YQ==}
@@ -5290,7 +5290,7 @@ snapshots:
 
   '@cloudoperators/juno-k8s-client@1.0.5': {}
 
-  '@cloudoperators/juno-ui-components@3.1.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
+  '@cloudoperators/juno-ui-components@4.0.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
       react: 19.1.0
       react-dom: 19.1.0(react@19.1.0)
