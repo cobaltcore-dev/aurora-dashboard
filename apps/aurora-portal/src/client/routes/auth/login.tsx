@@ -70,11 +70,12 @@ export function AuthLoginPage() {
   const isLoggingIn = isLoading || isSubmitting
 
   if (isAuthenticated) {
+    const username = user?.name
     return (
       <div className="flex min-h-screen items-center justify-center">
         <div className="max-w-md w-full text-center shadow-lg rounded-lg p-6 border border-gray-300">
           <h2 className="text-xl font-semibold">
-            <Trans>Welcome back, {user?.name}!</Trans>
+            <Trans>Welcome back, {username}!</Trans>
           </h2>
           <p className="text-gray-500">
             <Trans>You are already signed in.</Trans>
