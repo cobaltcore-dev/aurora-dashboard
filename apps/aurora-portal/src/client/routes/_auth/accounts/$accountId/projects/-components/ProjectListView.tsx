@@ -1,5 +1,5 @@
 import { Project } from "@/server/Project/types/models"
-import { Icon } from "@/client/components/Icon"
+import { Icon } from "@cloudoperators/juno-ui-components"
 import { useNavigate } from "@tanstack/react-router"
 
 type ProjectListViewProps = {
@@ -24,9 +24,9 @@ export function ProjectListView({ projects }: ProjectListViewProps) {
               {/* Icon + Title (Left Side) */}
               <div className="flex items-center space-x-3 min-w-0 w-1/3">
                 {project.enabled ? (
-                  <Icon name="checkCircle" color="jn-text-theme-success" />
+                  <Icon icon="checkCircle" color="jn-text-theme-success" />
                 ) : (
-                  <Icon name="info" color="jn-text-theme-danger" />
+                  <Icon icon="info" color="jn-text-theme-danger" />
                 )}
                 <div className="text-lg font-semibold text-juno-turquoise-5 hover:underline truncate">
                   {project.name}

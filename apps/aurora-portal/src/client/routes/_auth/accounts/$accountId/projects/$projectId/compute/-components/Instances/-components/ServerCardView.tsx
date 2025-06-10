@@ -1,7 +1,7 @@
 import type { Server } from "@/server/Compute/types/server"
-import { Pill } from "@/client/components/Pill"
-import { Button } from "@/client/components/Button"
-import { Icon } from "@/client/components/Icon"
+import { Pill } from "@cloudoperators/juno-ui-components"
+import { Button } from "@cloudoperators/juno-ui-components"
+import { Icon } from "@cloudoperators/juno-ui-components"
 type ServerListViewProps = {
   servers: Server[] | undefined
 }
@@ -19,9 +19,9 @@ export function ServerCard({ server }: ServerCardProps) {
       {/* Status with Icon */}
       <div className="flex items-center space-x-2">
         {server.status === "ACTIVE" ? (
-          <Icon name="success" color="jn-text-theme-success" />
+          <Icon icon="success" data-testid="icon-success" color="jn-text-theme-success" />
         ) : server.status === "SHUTOFF" ? (
-          <Icon name="danger" color="jn-text-theme-danger" />
+          <Icon icon="danger" data-testid="icon-danger" color="jn-text-theme-danger" />
         ) : (
           <p>{server.status}</p>
         )}
@@ -29,11 +29,11 @@ export function ServerCard({ server }: ServerCardProps) {
       </div>
 
       {/* Server Details */}
-      <Pill pillKeyLabel="IPv4:" pillValueLabel={server.accessIPv4 || "N/A"} />
-      <Pill pillKeyLabel="IPv6:" pillValueLabel={server.accessIPv6 || "N/A"} />
-      <Pill pillKeyLabel="CPU:" pillValueLabel={server?.flavor?.vcpus ? server.flavor.vcpus.toString() : ""} />
-      <Pill pillKeyLabel="RAM:" pillValueLabel={`${server?.flavor?.ram} MB`} />
-      <Pill pillKeyLabel="Disk:" pillValueLabel={`${server?.flavor?.disk} GB`} />
+      <Pill pillKeyLabel="IPv4:" pillValue={server.accessIPv4 || "N/A"} />
+      <Pill pillKeyLabel="IPv6:" pillValue={server.accessIPv6 || "N/A"} />
+      <Pill pillKeyLabel="CPU:" pillValue={server?.flavor?.vcpus ? server.flavor.vcpus.toString() : "N/A"} />
+      <Pill pillKeyLabel="RAM:" pillValue={server?.flavor?.vcpus ? `${server?.flavor?.ram} MB` : "N/A"} />
+      <Pill pillKeyLabel="Disk:" pillValue={server?.flavor?.disk ? `${server?.flavor?.disk} GB` : "N/A"} />
 
       {/* Server Metadata */}
       <p className="text-sm">Server Role: {server?.metadata?.["Server Role"] ?? "Unknown Role"}</p>

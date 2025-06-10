@@ -2,7 +2,7 @@ import { screen, fireEvent, waitFor } from "@testing-library/react"
 import { ToastProps, auroraToast } from "./AuroraToast" // Adjust the import path accordingly
 import { vi } from "vitest"
 import { renderWithSonner } from "../../test-helper"
-import { Button } from "../Button"
+import { Button } from "@cloudoperators/juno-ui-components"
 
 describe("Toast Component", () => {
   it("should show toast notification with correct content", async () => {
@@ -11,7 +11,6 @@ describe("Toast Component", () => {
     // Render the component with Sonner
     renderWithSonner(
       <Button
-        variant="success"
         className="hover:bg-gray-600"
         onClick={() => {
           const toastProps: Omit<ToastProps, "id"> = {

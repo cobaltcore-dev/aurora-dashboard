@@ -1,6 +1,6 @@
 import { useNavigate } from "@tanstack/react-router"
 import { Project } from "@/server/Project/types/models"
-import { Icon } from "@/client/components/Icon"
+import { Icon } from "@cloudoperators/juno-ui-components"
 
 type ProjectCardProps = {
   project: Project
@@ -32,7 +32,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
 
       {/* Status Row (Icon + Status) */}
       <div className="flex items-center space-x-2">
-        <Icon name="info" color={project.enabled ? "jn-text-theme-success" : "jn-text-theme-danger"} />
+        <Icon icon="info" color={project.enabled ? "jn-text-theme-success" : "jn-text-theme-danger"} />
         <span className="font-medium">{project.enabled ? "Active" : "Disabled"}</span>
       </div>
 

@@ -1,7 +1,7 @@
 import { ToastProps, auroraToast, sonnerToast } from "@/client/components/NotificationCenter/AuroraToast"
 import type { ServerGroup } from "@/server/Compute/types/serverGroup"
-import { Button } from "@/client/components/Button"
-import { Icon } from "@/client/components/Icon"
+import { Button } from "@cloudoperators/juno-ui-components"
+import { Icon } from "@cloudoperators/juno-ui-components"
 
 interface ServerGroupListViewProps {
   serverGroups: ServerGroup[]
@@ -29,7 +29,7 @@ export function ServerGroupListView({ serverGroups }: ServerGroupListViewProps) 
 
     return (
       <div className="flex items-center space-x-2">
-        <Icon name={policyInfo.icon} color={policyInfo.color} />
+        <Icon icon={policyInfo.icon} color={policyInfo.color} />
         <span>{policy}</span>
       </div>
     )
@@ -90,7 +90,6 @@ export function ServerGroupListView({ serverGroups }: ServerGroupListViewProps) 
                         Details
                       </Button>
                       <Button
-                        variant="success"
                         className="hover:bg-gray-600"
                         onClick={() => {
                           const toastProps: Omit<ToastProps, "id"> = {
