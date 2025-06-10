@@ -29,15 +29,11 @@ export function ServerCard({ server }: ServerCardProps) {
       </div>
 
       {/* Server Details */}
-      <Pill pillKeyLabel="IPv4:" pillValueLabel={server.accessIPv4 || "N/A"} pillValue={""} />
-      <Pill pillKeyLabel="IPv6:" pillValueLabel={server.accessIPv6 || "N/A"} pillValue={""} />
-      <Pill
-        pillKeyLabel="CPU:"
-        pillValueLabel={server?.flavor?.vcpus ? server.flavor.vcpus.toString() : "N/A"}
-        pillValue={""}
-      />
-      <Pill pillKeyLabel="RAM:" pillValueLabel={`${server?.flavor?.ram} MB`} pillValue={""} />
-      <Pill pillKeyLabel="Disk:" pillValueLabel={`${server?.flavor?.disk} GB`} pillValue={""} />
+      <Pill pillKeyLabel="IPv4:" pillValue={server.accessIPv4 || "N/A"} />
+      <Pill pillKeyLabel="IPv6:" pillValue={server.accessIPv6 || "N/A"} />
+      <Pill pillKeyLabel="CPU:" pillValue={server?.flavor?.vcpus ? server.flavor.vcpus.toString() : "N/A"} />
+      <Pill pillKeyLabel="RAM:" pillValue={server?.flavor?.vcpus ? `${server?.flavor?.ram} MB` : "N/A"} />
+      <Pill pillKeyLabel="Disk:" pillValue={server?.flavor?.disk ? `${server?.flavor?.disk} GB` : "N/A"} />
 
       {/* Server Metadata */}
       <p className="text-sm">Server Role: {server?.metadata?.["Server Role"] ?? "Unknown Role"}</p>
