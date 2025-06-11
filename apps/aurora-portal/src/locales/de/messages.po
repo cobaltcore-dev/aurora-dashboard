@@ -52,7 +52,7 @@ msgstr "Geben Sie Ihren Benutzernamen ein"
 
 #: src/client/routes/auth/login.tsx:164
 msgid "Loading..."
-msgstr "Lädt..."
+msgstr ""
 
 #: src/client/routes/auth/login.tsx:91
 msgid "Login to Your Account"
