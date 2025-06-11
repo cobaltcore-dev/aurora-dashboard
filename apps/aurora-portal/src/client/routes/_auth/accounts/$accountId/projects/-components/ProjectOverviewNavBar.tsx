@@ -1,6 +1,5 @@
 import { useEffect } from "react"
-import { ComboBox, ComboBoxOption } from "@/client/components/ComboBox"
-import { Button } from "@cloudoperators/juno-ui-components"
+import { Button, ComboBox, ComboBoxOption } from "@cloudoperators/juno-ui-components"
 import { Icon } from "@cloudoperators/juno-ui-components"
 export type ViewMode = "list" | "card"
 

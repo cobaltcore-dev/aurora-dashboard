@@ -1,5 +1,4 @@
-import { ComboBox, ComboBoxOption } from "@/client/components/ComboBox"
-import { Button } from "@cloudoperators/juno-ui-components"
+import { Button, ComboBox, ComboBoxOption } from "@cloudoperators/juno-ui-components"
 import { Icon } from "@cloudoperators/juno-ui-components"
 import { useLocation, useParams, Link } from "@tanstack/react-router"
 
@@ -66,7 +65,7 @@ export function ComputeNavBar({ viewMode, setViewMode }: ComputeNavBarProps) {
 
       {/* Controls (30%) */}
       <div className="flex items-center gap-2 min-w-[30%] justify-end">
-        <ComboBox valueLabel="Sorting...">
+        <ComboBox data-testid="combobox-button" valueLabel="Sorting...">
           <ComboBoxOption value="Sort By Name">Sort By name</ComboBoxOption>
           <ComboBoxOption value="Date">Sort by date</ComboBoxOption>
         </ComboBox>
@@ -89,8 +88,10 @@ export function ComputeNavBar({ viewMode, setViewMode }: ComputeNavBarProps) {
             icon="autoAwesomeMotion"
           />
         </div>
-        <ComboBox valueLabel="Server">
-          <ComboBoxOption value="Server">Server</ComboBoxOption>
+        <ComboBox ariaLabel="Create Server" data-testid="combobox-button" valueLabel="Server">
+          <ComboBoxOption label="Create Server" value="Server">
+            Server
+          </ComboBoxOption>
         </ComboBox>
       </div>
     </div>
