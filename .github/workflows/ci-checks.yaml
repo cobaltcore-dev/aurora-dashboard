@@ -58,7 +58,7 @@ jobs:
       - name: Run Linter
         run: pnpm run lint
 
-   check-and-compile:
+   check-i18n:
     needs: install-deps
     runs-on: ubuntu-latest
     steps:
@@ -71,7 +71,7 @@ jobs:
           pnpm-version: "9"
 
       - name: Run 
-        run: pnpm run check-and-compile 
+        run: pnpm run check-i18n 
 
   type-check:
     needs: install-deps

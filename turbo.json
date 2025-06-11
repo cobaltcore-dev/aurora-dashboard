@@ -28,7 +28,7 @@
     "clean:cache": {
       "cache": false
     },
-    "check-and-compile": {
+    "check-i18n": {
       "cache": true,
       "dependsOn": ["^build"]
     }
