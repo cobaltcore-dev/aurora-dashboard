@@ -5,7 +5,7 @@ import { ComputeNavBar } from "./ComputeNavBar"
 describe("ComputeNavBar", () => {
   it("renders the Compute navigation bar", async () => {
     await act(() => render(<ComputeNavBar viewMode="list" setViewMode={vi.fn()} />))
-    expect(screen.getByText("Server")).toBeInTheDocument()
+    expect(screen.getAllByLabelText("Create Server").length).toBe(1)
   })
 
   it("renders search bar with placeholder text", async () => {
