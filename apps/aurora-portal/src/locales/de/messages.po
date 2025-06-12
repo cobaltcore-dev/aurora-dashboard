@@ -25,11 +25,11 @@ msgstr "<0>Effizientes Ressourcenmanagement</0>: Stellen Sie Ressourcen bereit, 
 msgid "<0>Enhanced Scalability</0>: Seamlessly handle everything from small setups to complex, multi-cloud environments."
 msgstr "<0>Erweiterte Skalierbarkeit</0>: Bewältigen Sie mühelos alles von kleinen Setups bis hin zu komplexen Multi-Cloud-Umgebungen."
 
-#: src/client/routes/auth/login.tsx:171
+#: src/client/routes/auth/login.tsx:172
 msgid "Contact support"
 msgstr "Support kontaktieren"
 
-#: src/client/routes/auth/login.tsx:113
+#: src/client/routes/auth/login.tsx:114
 msgid "Domain"
 msgstr "Domain"
 
@@ -38,35 +38,35 @@ msgstr "Domain"
 msgid "Enter the Cloud"
 msgstr "Die Cloud betreten"
 
-#: src/client/routes/auth/login.tsx:94
+#: src/client/routes/auth/login.tsx:95
 msgid "Enter your credentials to access your account"
 msgstr "Geben Sie Ihre Anmeldedaten ein, um auf Ihr Konto zuzugreifen."
 
-#: src/client/routes/auth/login.tsx:118
+#: src/client/routes/auth/login.tsx:119
 msgid "Enter your domain"
 msgstr "Geben Sie den Domain ein"
 
-#: src/client/routes/auth/login.tsx:133
+#: src/client/routes/auth/login.tsx:134
 msgid "Enter your username"
 msgstr "Geben Sie Ihren Benutzernamen ein"
 
-#: src/client/routes/auth/login.tsx:164
+#: src/client/routes/auth/login.tsx:165
 msgid "Loading..."
 msgstr "Lädt..."
 
-#: src/client/routes/auth/login.tsx:91
+#: src/client/routes/auth/login.tsx:92
 msgid "Login to Your Account"
 msgstr "Bei Ihrem Konto anmelden"
 
-#: src/client/routes/auth/login.tsx:169
+#: src/client/routes/auth/login.tsx:170
 msgid "Need help?"
 msgstr "Benötigen Sie Hilfe?"
 
-#: src/client/routes/auth/login.tsx:143
+#: src/client/routes/auth/login.tsx:144
 msgid "Password"
 msgstr "Passwort"
 
-#: src/client/routes/auth/login.tsx:164
+#: src/client/routes/auth/login.tsx:165
 msgid "Sign In"
 msgstr "Einloggen"
 
@@ -78,23 +78,22 @@ msgstr "Stay tunded – das Aurora-Dashboard wird bald eingeführt, um Ihre Clou
 msgid "The <0>Aurora Dashboard</0> is on its way! Get ready for a powerful, all-in-one cloud management interface designed to make managing your cloud assets simple and efficient. With tools for provisioning, configuring, and scaling resources like servers, networks, and volumes, Aurora will soon bring you:"
 msgstr "Das <0>Aurora-Dashboard</0> ist auf dem Weg! Bereiten Sie sich auf eine leistungsstarke, All-in-One-Cloud-Management-Oberfläche vor, die darauf ausgelegt ist, die Verwaltung Ihrer Cloud-Ressourcen einfach und effizient zu gestalten. Mit Tools zum Bereitstellen, Konfigurieren und Skalieren von Ressourcen wie Servern, Netzwerken und Volumes wird Aurora Ihnen bald bieten:"
 
-#: src/client/routes/auth/login.tsx:128
+#: src/client/routes/auth/login.tsx:129
 msgid "User C/D/I"
 msgstr "Benutzer C/D/I"
 
-#. placeholder {0}: user?.name
-#: src/client/routes/auth/login.tsx:77
-msgid "Welcome back, {0}!"
-msgstr "Willkommen zurück, {0}!"
+#: src/client/routes/auth/login.tsx:78
+msgid "Welcome back, {username}!"
+msgstr "aserewar"
 
 #: src/client/routes/index.tsx:23
 msgid "Welcome to Aurora Dashboard"
 msgstr "Willkommen beim Aurora-Dashboard"
 
-#: src/client/routes/auth/login.tsx:80
+#: src/client/routes/auth/login.tsx:81
 msgid "You are already signed in."
 msgstr "Sie sind bereits angemeldet."
 
-#: src/client/routes/auth/login.tsx:99
+#: src/client/routes/auth/login.tsx:100
 msgid "You need to login to access this page."
 msgstr "Sie müssen sich anmelden, um auf diese Seite zuzugreifen."
