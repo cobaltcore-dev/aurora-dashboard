@@ -58,6 +58,21 @@ jobs:
       - name: Run Linter
         run: pnpm run lint
 
+  check-i18n:
+    needs: install-deps
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PNPM
+        uses: ./.github/actions/setup-pnpm
+        with:
+          node-version: "20"
+          pnpm-version: "9"
+
+      - name: Run 
+        run: pnpm run check-i18n 
+
   type-check:
     needs: install-deps
     runs-on: ubuntu-latest

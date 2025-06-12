@@ -27,6 +27,10 @@
     },
     "clean:cache": {
       "cache": false
+    },
+    "check-i18n": {
+      "cache": true,
+      "dependsOn": ["^build"]
     }
   }
 }
