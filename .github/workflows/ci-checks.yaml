@@ -58,7 +58,7 @@ jobs:
       - name: Run Linter
         run: pnpm run lint
 
-   check-i18n:
+  check-i18n:
     needs: install-deps
     runs-on: ubuntu-latest
     steps:
