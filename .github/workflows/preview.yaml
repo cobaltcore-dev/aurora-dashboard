@@ -22,7 +22,7 @@
 #         uses: ./.github/actions/setup-pnpm
 #         with:
 #           node-version: "20"
-#           pnpm-version: "9"
+#           pnpm-version: "10.3.0" # match with the set in packageManager within package.json
 
 #       - name: Install and Build
 #         if: github.event.action != 'closed' # You might want to skip the build if the PR has been closed
