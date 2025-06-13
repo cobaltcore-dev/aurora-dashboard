@@ -15,30 +15,32 @@ permissions:
 
 env:
   HUSKY: 0
+  NODE_VERSION: "20"
+  PNPM_VERSION: "10.3.0" # match with the set in packageManager within package.json
 
 jobs:
   install-deps:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Setup PNPM
         uses: ./.github/actions/setup-pnpm
         with:
-          node-version: "20"
-          pnpm-version: "9"
+          node-version: ${{ env.NODE_VERSION }}
+          pnpm-version: ${{ env.PNPM_VERSION }}
 
   allowed-licenses:
     needs: install-deps
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Setup PNPM
         uses: ./.github/actions/setup-pnpm
         with:
-          node-version: "20"
-          pnpm-version: "9"
+          node-version: ${{ env.NODE_VERSION }}
+          pnpm-version: ${{ env.PNPM_VERSION }}
 
       - name: Run Linter for Licenses
         run: pnpm run licenses:check
@@ -47,13 +49,13 @@ jobs:
     needs: install-deps
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Setup PNPM
         uses: ./.github/actions/setup-pnpm
         with:
-          node-version: "20"
-          pnpm-version: "9"
+          node-version: ${{ env.NODE_VERSION }}
+          pnpm-version: ${{ env.PNPM_VERSION }}
 
       - name: Run Linter
         run: pnpm run lint
@@ -62,13 +64,13 @@ jobs:
     needs: install-deps
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Setup PNPM
         uses: ./.github/actions/setup-pnpm
         with:
-          node-version: "20"
-          pnpm-version: "9"
+          node-version: ${{ env.NODE_VERSION }}
+          pnpm-version: ${{ env.PNPM_VERSION }}
 
       - name: Run 
         run: pnpm run check-i18n 
@@ -77,13 +79,13 @@ jobs:
     needs: install-deps
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Setup PNPM
         uses: ./.github/actions/setup-pnpm
         with:
-          node-version: "20"
-          pnpm-version: "9"
+          node-version: ${{ env.NODE_VERSION }}
+          pnpm-version: ${{ env.PNPM_VERSION }}
 
       - name: Run Typecheck
         run: pnpm run typecheck
@@ -92,13 +94,13 @@ jobs:
     needs: install-deps
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Setup PNPM
         uses: ./.github/actions/setup-pnpm
         with:
-          node-version: "20"
-          pnpm-version: "9"
+          node-version: ${{ env.NODE_VERSION }}
+          pnpm-version: ${{ env.PNPM_VERSION }}
 
       - name: Run Prettier
         run: pnpm i && pnpm format:check
@@ -107,13 +109,13 @@ jobs:
     needs: install-deps
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Setup PNPM
         uses: ./.github/actions/setup-pnpm
         with:
-          node-version: "20"
-          pnpm-version: "9"
+          node-version: ${{ env.NODE_VERSION }}
+          pnpm-version: ${{ env.PNPM_VERSION }}
       - name: Run Tests
         run: pnpm i && pnpm test
 
@@ -121,12 +123,12 @@ jobs:
     needs: install-deps
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Setup PNPM
         uses: ./.github/actions/setup-pnpm
         with:
-          node-version: "20"
-          pnpm-version: "9"
+          node-version: ${{ env.NODE_VERSION }}
+          pnpm-version: ${{ env.PNPM_VERSION }}
       - name: Run Build
         run: pnpm i && pnpm build
