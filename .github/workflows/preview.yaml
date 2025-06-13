@@ -16,7 +16,7 @@
 #     runs-on: ubuntu-latest
 #     steps:
 #       - name: Checkout
-#         uses: actions/checkout@v4
+#         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
 #       - name: Setup PNPM
 #         uses: ./.github/actions/setup-pnpm
@@ -31,6 +31,6 @@
 #           pnpm build -- --base "./"
 
 #       - name: Deploy preview
-#         uses: rossjrw/pr-preview-action@v1
+#         uses: rossjrw/pr-preview-action@2fb559e4766555e23d07b73d313fe97c4f8c3cfe # v1.6.1
 #         with:
 #           source-dir: ./apps/aurora-portal/dist/
