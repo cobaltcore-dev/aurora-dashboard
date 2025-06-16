@@ -1,17 +1,15 @@
 import React, { useState } from "react"
-import { Dialog, DialogTitle, DialogFooter } from "@/client/components/headless-ui/Dialog"
-import { Label } from "@/client/components/headless-ui/Label"
-import { Input } from "@/client/components/headless-ui/Input"
-import { GlanceImage } from "@/server/Compute/types/image"
-import clsx from "clsx"
-import { FieldSet } from "@/client/components/headless-ui/FieldSet"
-import { Select } from "@/client/components/headless-ui/Select"
-import { Button } from "@/client/components/headless-ui/Button"
 
-const textinputstyles = clsx(
-  "mt-3 block w-full rounded-lg border-none bg-white/5 px-3 py-1.5 text-sm/6 text-white",
-  "focus:not-data-focus:outline-none data-focus:outline-2 data-focus:-outline-offset-2 data-focus:outline-white/25"
-)
+import {
+  Modal,
+  Form,
+  FormRow,
+  TextInput,
+  Select,
+  SelectOption,
+  FormSection,
+} from "@cloudoperators/juno-ui-components/index"
+import { GlanceImage } from "@/server/Compute/types/image"
 
 // Default values for a new image
 const defaultImageValues: Partial<GlanceImage> = {
@@ -33,8 +31,15 @@ interface CreateImageModalProps {
 export const CreateImageModal: React.FC<CreateImageModalProps> = ({ isOpen, onClose, onCreate }) => {
   const [newImage, setNewImage] = useState<Partial<GlanceImage>>({ ...defaultImageValues })
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target
+    setNewImage((prev) => ({
+      ...prev,
+      [name]: value,
+    }))
+  }
+
+  const handleSelectChange = (name: string, value: string | number | string[] | undefined) => {
     setNewImage((prev) => ({
       ...prev,
       [name]: value,
@@ -53,155 +58,122 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({ isOpen, onCl
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogTitle className="text-xl font-semibold text-sap-grey-1">Create New Image</DialogTitle>
-      <FieldSet onSubmit={handleSubmit} className="space-y-4 py-3">
-        <div className="grid gap-4">
-          <div className="grid gap-2">
-            <Label htmlFor="name" className="text-sap-grey-1 text-left">
-              Image Name
-            </Label>
-            <Input
+    <Modal
+      onCancel={handleClose}
+      size="large"
+      title="Create New Image"
+      open={isOpen}
+      onConfirm={(e) => {
+        onClose()
+        handleSubmit(e)
+      }}
+      cancelButtonLabel="Cancel"
+      confirmButtonLabel="Create Image"
+    >
+      <Form className="mt-6">
+        <FormSection>
+          <FormRow>
+            <TextInput
               id="name"
               name="name"
+              label="Image Name"
               value={newImage.name || ""}
-              onChange={handleChange}
-              className={textinputstyles}
+              onChange={handleInputChange}
               required
             />
-          </div>
-
-          <div className="grid gap-2">
-            <Label htmlFor="status" className="text-sap-grey-1 text-left">
-              Status
-            </Label>
+          </FormRow>
+          <FormRow>
             <Select
               id="status"
               name="status"
+              label="Status"
+              onChange={(value) => handleSelectChange("status", value)}
               value={newImage.status || "active"}
-              onChange={handleChange}
-              className={textinputstyles}
             >
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
-              <option value="pending">Pending</option>
-              <option value="error">Error</option>
+              <SelectOption value="active" label="Active" />
+              <SelectOption value="inactive" label="Inactive" />
+              <SelectOption value="pending" label="Pending" />
+              <SelectOption value="error" label="Error" />
             </Select>
-          </div>
+          </FormRow>
 
-          <div className="grid gap-2">
-            <Label htmlFor="visibility" className="text-sap-grey-1 text-left">
-              Visibility
-            </Label>
+          <FormRow>
             <Select
               id="visibility"
               name="visibility"
+              label="Visibility"
               value={newImage.visibility || "private"}
-              onChange={handleChange}
-              className={textinputstyles}
+              onChange={(value) => handleSelectChange("visibility", value)}
             >
-              <option value="public">Public</option>
-              <option value="private">Private</option>
-              <option value="shared">Shared</option>
+              <SelectOption value="public" label="Public" />
+              <SelectOption value="private" label="Private" />
+              <SelectOption value="shared" label="Shared" />
             </Select>
-          </div>
-
-          <div className="grid gap-2">
-            <Label htmlFor="disk_format" className="text-sap-grey-1 text-left">
-              Disk Format
-            </Label>
+          </FormRow>
+          <FormRow>
             <Select
               id="disk_format"
               name="disk_format"
+              label="Disk Format"
               value={newImage.disk_format || "qcow2"}
-              onChange={handleChange}
-              className={textinputstyles}
+              onChange={(value) => handleSelectChange("disk_format", value)}
             >
-              <option value="qcow2">qcow2</option>
-              <option value="raw">raw</option>
-              <option value="vhd">vhd</option>
-              <option value="vmdk">vmdk</option>
+              <SelectOption value="qcow2" label="qcow2" />
+              <SelectOption value="raw" label="raw" />
+              <SelectOption value="vhd" label="vhd" />
+              <SelectOption value="vmdk" label="vmdk" />
             </Select>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="grid gap-2">
-              <Label htmlFor="os_type" className="text-sap-grey-1 text-left">
-                OS Type
-              </Label>
-              <Input
-                id="os_type"
-                name="os_type"
-                value={newImage.os_type || ""}
-                onChange={handleChange}
-                className={textinputstyles}
-              />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="os_distro" className="text-sap-grey-1 text-left">
-                OS Distribution
-              </Label>
-              <Input
-                id="os_distro"
-                name="os_distro"
-                value={newImage.os_distro || ""}
-                onChange={handleChange}
-                className={textinputstyles}
-              />
-            </div>
-          </div>
-
-          <div className="grid gap-2">
-            <Label htmlFor="image_source" className="text-sap-grey-1 text-left">
-              Image Source
-            </Label>
+          </FormRow>
+        </FormSection>
+        <FormSection>
+          <FormRow>
+            <TextInput
+              id="os_type"
+              name="os_type"
+              label="OS Type"
+              value={newImage.os_type || ""}
+              onChange={handleInputChange}
+            />
+          </FormRow>
+          <FormRow>
+            <TextInput
+              label="OS Distribution"
+              id="os_distro"
+              name="os_distro"
+              value={newImage.os_distro || ""}
+              onChange={handleInputChange}
+            />
+          </FormRow>
+        </FormSection>
+        <FormSection>
+          <FormRow>
             <Select
               id="image_source"
-              name="image_source"
-              value={newImage.file || "url"}
-              onChange={handleChange}
-              className={textinputstyles}
+              name="file"
+              label="Image Source"
+              value={newImage.file || ""}
+              onChange={(value) => handleSelectChange("file", value)}
             >
-              <option value="url">URL</option>
-              <option value="upload">Upload</option>
-              <option value="snapshot">Snapshot</option>
+              <SelectOption value="url" label="URL" />
+              <SelectOption value="upload" label="Upload" />
+              <SelectOption value="snapshot" label="Snapshot" />
             </Select>
-          </div>
-
-          {newImage.direct_url === "url" && (
-            <div className="grid gap-2">
-              <Label htmlFor="image_url" className="text-sap-grey-1 text-left">
-                Image URL
-              </Label>
-              <Input
+          </FormRow>
+          {newImage.file === "url" && (
+            <FormRow>
+              <TextInput
                 id="image_url"
                 name="image_url"
+                label="Image URL"
                 value={newImage.direct_url || ""}
-                onChange={handleChange}
-                className={textinputstyles}
+                onChange={handleInputChange}
                 placeholder="https://"
                 required
               />
-            </div>
+            </FormRow>
           )}
-        </div>
-
-        <DialogFooter className="pt-4">
-          <Button onClick={handleClose} className="bg-sap-grey-5 text-sap-grey-1 hover:bg-gray-800">
-            Cancel
-          </Button>
-          <Button
-            type="submit"
-            onClick={(e) => {
-              onClose()
-              handleSubmit(e)
-            }}
-            className="bg-sap-green text-sap-grey-2 hover:bg-green-700"
-          >
-            Create Image
-          </Button>
-        </DialogFooter>
-      </FieldSet>
-    </Dialog>
+        </FormSection>
+      </Form>
+    </Modal>
   )
 }

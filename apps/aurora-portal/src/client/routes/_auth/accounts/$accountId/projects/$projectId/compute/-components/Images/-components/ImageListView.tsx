@@ -5,8 +5,8 @@ import { EditImageModal } from "./EditImageModal"
 import { ImageTableRow } from "./ImageTableRow"
 import { auroraToast, sonnerToast, ToastProps } from "@/client/components/NotificationCenter/AuroraToast"
 import { DeleteImageModal } from "./DeleteImageModal"
-import { Button } from "@/client/components/headless-ui/Button"
 import { CreateImageModal } from "./CreateImageModal"
+import { Button } from "@cloudoperators/juno-ui-components/index"
 
 interface ImagePageProps {
   images: GlanceImage[]
@@ -78,12 +78,7 @@ export function ImageListView({ images }: ImagePageProps) {
       {/* Header with Add Button */}
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-semibold text-gray-200">Images</h2>
-        <Button
-          onClick={handleCreateImage}
-          className="bg-sap-blue-4 hover:bg-blue-700 text-sap-grey-1 text-sm px-3 py-1.5 w-32"
-        >
-          Add New Image
-        </Button>
+        <Button onClick={handleCreateImage}>Add New Image</Button>
       </div>
 
       {/* Images Table */}
