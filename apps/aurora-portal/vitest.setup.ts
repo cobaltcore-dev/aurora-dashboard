@@ -12,6 +12,12 @@ beforeAll(() => {
   global.window = window
   global.document = window.document
 
+  global.ResizeObserver = class {
+    observe = vi.fn()
+    unobserve = vi.fn()
+    disconnect = vi.fn()
+  }
+
   i18n.load({
     en: messages,
     de: deMessages,

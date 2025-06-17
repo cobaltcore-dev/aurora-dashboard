@@ -19,6 +19,7 @@
     "preview": "vite preview",
     "prod": "NODE_ENV=production node dist/server/server.js",
     "test": "vitest run",
+    "test:watch": "vitest --watch",
     "typecheck": "tsc --project tsconfig.json --noEmit"
   },
   "dependencies": {
