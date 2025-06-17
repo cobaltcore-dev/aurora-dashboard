@@ -23,8 +23,8 @@ export const DeleteImageModal: React.FC<DeleteImageModalProps> = ({ isOpen, onCl
       title="Delete Image"
       open={isOpen}
       onConfirm={(e) => {
-        onClose()
         handleDelete(e)
+        onClose()
       }}
       cancelButtonLabel="Cancel"
       confirmButtonLabel="Delete Image"

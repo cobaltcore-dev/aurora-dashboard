@@ -64,8 +64,8 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({ isOpen, onCl
       title="Create New Image"
       open={isOpen}
       onConfirm={(e) => {
-        onClose()
         handleSubmit(e)
+        onClose()
       }}
       cancelButtonLabel="Cancel"
       confirmButtonLabel="Create Image"

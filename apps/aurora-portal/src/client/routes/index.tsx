@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router"
-import { Button } from "../components/headless-ui/Button"
 import { Trans } from "@lingui/react/macro"
+import { Button } from "@cloudoperators/juno-ui-components/index"
 
 export const Route = createFileRoute("/")({
   component: Home,
@@ -22,10 +22,7 @@ export function Home() {
           <h1 className="text-5xl font-bold text-gray-900" data-testid="welcome-title">
             <Trans>Welcome to Aurora Dashboard</Trans>
           </h1>
-          <Button
-            onClick={handleEnterCloud}
-            className="h-10 px-4 bg-sap-green text-sm hover:bg-sap-green-4 text-white font-medium rounded-md shadow-sm transition hover:scale-105 flex items-center"
-          >
+          <Button onClick={handleEnterCloud} variant="primary">
             <span>
               <Trans>Enter the Cloud</Trans>
             </span>

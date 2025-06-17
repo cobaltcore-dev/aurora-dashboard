@@ -44,13 +44,14 @@ export const EditImageModal: React.FC<EditImageModalProps> = ({ isOpen, onClose,
       open={isOpen}
       onCancel={onClose}
       size="large"
-      title="Edit Image"
+      title="Edit Image Details"
       onConfirm={(e) => {
-        onClose()
         handleSubmit(e)
+        onClose()
       }}
       cancelButtonLabel="Cancel"
-      confirmButtonLabel="Edit Image"
+      confirmButtonLabel="Save Changes"
+      data-test-id="dialog"
     >
       <Form>
         <FormSection>

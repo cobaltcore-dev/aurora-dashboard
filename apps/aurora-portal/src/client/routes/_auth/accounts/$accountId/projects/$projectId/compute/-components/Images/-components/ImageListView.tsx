@@ -6,8 +6,7 @@ import { ImageTableRow } from "./ImageTableRow"
 import { auroraToast, sonnerToast, ToastProps } from "@/client/components/NotificationCenter/AuroraToast"
 import { DeleteImageModal } from "./DeleteImageModal"
 import { CreateImageModal } from "./CreateImageModal"
-import { Button } from "@cloudoperators/juno-ui-components/index"
-
+import { Button, PortalProvider } from "@cloudoperators/juno-ui-components/index"
 interface ImagePageProps {
   images: GlanceImage[]
 }
@@ -117,23 +116,28 @@ export function ImageListView({ images }: ImagePageProps) {
         <p className="text-gray-400">No images available.</p>
       )}
       {selectedImage && (
-        <EditImageModal
-          isOpen={editModalOpen}
-          onClose={() => setEditModalOpen(false)}
-          image={selectedImage}
-          onSave={handleSaveEdit}
-        />
+        <PortalProvider.Portal>
+          <EditImageModal
+            isOpen={editModalOpen}
+            onClose={() => setEditModalOpen(false)}
+            image={selectedImage}
+            onSave={handleSaveEdit}
+          />
+        </PortalProvider.Portal>
       )}
       {selectedImage && (
-        <DeleteImageModal
-          isOpen={deleteModalOpen}
-          onClose={() => setDeleteModalOpen(false)}
-          image={selectedImage}
-          onDelete={handleDelete}
-        />
+        <PortalProvider.Portal>
+          <DeleteImageModal
+            isOpen={deleteModalOpen}
+            onClose={() => setDeleteModalOpen(false)}
+            image={selectedImage}
+            onDelete={handleDelete}
+          />
+        </PortalProvider.Portal>
       )}
-
-      <CreateImageModal isOpen={createModalOpen} onClose={() => setCreateModalOpen(false)} onCreate={handleCreate} />
+      <PortalProvider.Portal>
+        <CreateImageModal isOpen={createModalOpen} onClose={() => setCreateModalOpen(false)} onCreate={handleCreate} />
+      </PortalProvider.Portal>
     </div>
   )
 }
