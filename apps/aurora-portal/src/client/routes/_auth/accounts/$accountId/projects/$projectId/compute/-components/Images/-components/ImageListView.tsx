@@ -1,4 +1,5 @@
 import type { GlanceImage } from "@/server/Compute/types/image"
+import { Button } from "@cloudoperators/juno-ui-components/index"
 
 import { useState } from "react"
 import { EditImageModal } from "./EditImageModal"
@@ -6,7 +7,6 @@ import { ImageTableRow } from "./ImageTableRow"
 import { auroraToast, sonnerToast, ToastProps } from "@/client/components/NotificationCenter/AuroraToast"
 import { DeleteImageModal } from "./DeleteImageModal"
 import { CreateImageModal } from "./CreateImageModal"
-import { Button, PortalProvider } from "@cloudoperators/juno-ui-components/index"
 interface ImagePageProps {
   images: GlanceImage[]
 }
@@ -76,17 +76,17 @@ export function ImageListView({ images }: ImagePageProps) {
     <div className="container mx-auto px-4 py-6">
       {/* Header with Add Button */}
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-semibold text-gray-200">Images</h2>
+        <h2 className="text-2xl font-semibold ">Images</h2>
         <Button onClick={handleCreateImage}>Add New Image</Button>
       </div>
 
       {/* Images Table */}
       {images.length > 0 ? (
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse border border-[#30363d] text-gray-300">
+          <table className="w-full text-left border-collapse border border-[#30363d] ">
             {/* Table Header */}
             <thead className="bg-[#21262d]">
-              <tr className="text-gray-400 border-b border-[#30363d]">
+              <tr className=" border-b border-[#30363d]">
                 <th className="p-3">Image Name</th>
                 <th className="p-3">Status</th>
                 <th className="p-3">Visibility</th>
@@ -113,31 +113,25 @@ export function ImageListView({ images }: ImagePageProps) {
           </table>
         </div>
       ) : (
-        <p className="text-gray-400">No images available.</p>
+        <p>No images available.</p>
       )}
       {selectedImage && (
-        <PortalProvider.Portal>
-          <EditImageModal
-            isOpen={editModalOpen}
-            onClose={() => setEditModalOpen(false)}
-            image={selectedImage}
-            onSave={handleSaveEdit}
-          />
-        </PortalProvider.Portal>
+        <EditImageModal
+          isOpen={editModalOpen}
+          onClose={() => setEditModalOpen(false)}
+          image={selectedImage}
+          onSave={handleSaveEdit}
+        />
       )}
       {selectedImage && (
-        <PortalProvider.Portal>
-          <DeleteImageModal
-            isOpen={deleteModalOpen}
-            onClose={() => setDeleteModalOpen(false)}
-            image={selectedImage}
-            onDelete={handleDelete}
-          />
-        </PortalProvider.Portal>
+        <DeleteImageModal
+          isOpen={deleteModalOpen}
+          onClose={() => setDeleteModalOpen(false)}
+          image={selectedImage}
+          onDelete={handleDelete}
+        />
       )}
-      <PortalProvider.Portal>
-        <CreateImageModal isOpen={createModalOpen} onClose={() => setCreateModalOpen(false)} onCreate={handleCreate} />
-      </PortalProvider.Portal>
+      <CreateImageModal isOpen={createModalOpen} onClose={() => setCreateModalOpen(false)} onCreate={handleCreate} />
     </div>
   )
 }

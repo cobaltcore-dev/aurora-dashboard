@@ -19,7 +19,7 @@ export function Home() {
     <div className="min-h-screen flex items-start justify-start bg-gray-100 px-6 mt-10">
       <div className="max-w-4xl w-full">
         <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
-          <h1 className="text-5xl font-bold text-gray-900" data-testid="welcome-title">
+          <h1 className="text-5xl font-bold" data-testid="welcome-title">
             <Trans>Welcome to Aurora Dashboard</Trans>
           </h1>
           <Button onClick={handleEnterCloud} variant="primary">
@@ -41,10 +41,9 @@ export function Home() {
 
         <p className="text-lg text-gray-700 leading-relaxed">
           <Trans>
-            The <strong className="text-gray-900">Aurora Dashboard</strong> is on its way! Get ready for a powerful,
-            all-in-one cloud management interface designed to make managing your cloud assets simple and efficient. With
-            tools for provisioning, configuring, and scaling resources like servers, networks, and volumes, Aurora will
-            soon bring you:
+            The <strong>Aurora Dashboard</strong> is on its way! Get ready for a powerful, all-in-one cloud management
+            interface designed to make managing your cloud assets simple and efficient. With tools for provisioning,
+            configuring, and scaling resources like servers, networks, and volumes, Aurora will soon bring you:
           </Trans>
         </p>
 
@@ -53,8 +52,7 @@ export function Home() {
             <span className="text-blue-600 font-semibold text-2xl">•</span>
             <p className="ml-4">
               <Trans>
-                <strong className="text-gray-900">Centralized Cloud Control</strong>: Manage all your assets from one
-                intuitive interface.
+                <strong>Centralized Cloud Control</strong>: Manage all your assets from one intuitive interface.
               </Trans>
             </p>
           </li>
@@ -62,8 +60,8 @@ export function Home() {
             <span className="text-blue-600 font-semibold text-2xl">•</span>
             <p className="ml-4">
               <Trans>
-                <strong className="text-gray-900">Efficient Resource Management</strong>: Provision, configure, and
-                scale resources across cloud environments with ease.
+                <strong>Efficient Resource Management</strong>: Provision, configure, and scale resources across cloud
+                environments with ease.
               </Trans>
             </p>
           </li>
@@ -71,8 +69,8 @@ export function Home() {
             <span className="text-blue-600 font-semibold text-2xl">•</span>
             <p className="ml-4">
               <Trans>
-                <strong className="text-gray-900">Enhanced Scalability</strong>: Seamlessly handle everything from small
-                setups to complex, multi-cloud environments.
+                <strong>Enhanced Scalability</strong>: Seamlessly handle everything from small setups to complex,
+                multi-cloud environments.
               </Trans>
             </p>
           </li>

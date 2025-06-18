@@ -1,6 +1,7 @@
 import { describe, test, expect, vi, beforeEach } from "vitest"
-import { render, screen, fireEvent } from "@testing-library/react"
+import { render, screen } from "@testing-library/react"
 import { CreateImageModal } from "./CreateImageModal"
+import userEvent from "@testing-library/user-event"
 
 describe("CreateImageModal", () => {
   const mockOnCreate = vi.fn()
@@ -22,32 +23,23 @@ describe("CreateImageModal", () => {
     expect(screen.queryByTestId("dialog")).toBeNull()
   })
 
-  test("calls onClose when Cancel button is clicked", () => {
+  test("calls onClose when Cancel button is clicked", async () => {
     render(<CreateImageModal isOpen={true} onClose={mockOnClose} onCreate={mockOnCreate} />)
 
     const cancelButton = screen.getByText("Cancel")
-    fireEvent.click(cancelButton)
+    await userEvent.click(cancelButton)
 
     expect(mockOnClose).toHaveBeenCalledTimes(1)
   })
 
-  test("calls onCreate with form data when Create button is clicked", () => {
+  test("calls onCreate with form data when Create button is clicked", async () => {
     render(<CreateImageModal isOpen={true} onClose={mockOnClose} onCreate={mockOnCreate} />)
 
-    // Get the inputs by their label text and then find the associated input
-    const nameLabel = screen.getByText("Image Name")
-    const nameInput = nameLabel.closest("label")?.nextElementSibling || document.getElementById("name")
+    const nameInput = screen.getByLabelText("Image Name")
+    await userEvent.type(nameInput, "Test Image")
 
-    // Fill out form
-    if (nameInput) {
-      fireEvent.change(nameInput, { target: { value: "Test Image" } })
-    }
-
-    // Get Create button by its text
     const createButton = screen.getByText("Create Image")
-
-    // Click the button
-    fireEvent.click(createButton)
+    await userEvent.click(createButton)
 
     // Check that onCreate was called with expected data
     expect(mockOnCreate).toHaveBeenCalledTimes(1)
@@ -64,26 +56,20 @@ describe("CreateImageModal", () => {
     expect(mockOnClose).toHaveBeenCalledTimes(1)
   })
 
-  test("handles form input changes", async () => {
+  test("allows user to submit form", async () => {
     render(<CreateImageModal isOpen={true} onClose={mockOnClose} onCreate={mockOnCreate} />)
 
     const nameInput = screen.getByLabelText("Image Name")
-    if (nameInput) {
-      fireEvent.change(nameInput, { target: { value: "Test Image Name" } })
-    }
+    await userEvent.type(nameInput, "Test Image Name")
 
     const statusSelect = screen.getByLabelText("Status")
-    fireEvent.click(statusSelect)
+    await userEvent.click(statusSelect)
+    const inactiveOption = screen.getByText("Inactive")
+    await userEvent.click(inactiveOption)
 
-    // Wait for the dropdown option to appear
-    const inactiveOption = await screen.findByText("Inactive")
-    fireEvent.click(inactiveOption)
-
-    // Submit the form
     const createButton = screen.getByText("Create Image")
-    fireEvent.click(createButton)
+    await userEvent.click(createButton)
 
-    // Check correct values were passed to onCreate
     expect(mockOnCreate).toHaveBeenCalledWith(
       expect.objectContaining({
         name: "Test Image Name",

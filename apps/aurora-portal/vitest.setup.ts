@@ -12,6 +12,8 @@ beforeAll(() => {
   global.window = window
   global.document = window.document
 
+  // Global mocks that apply to all tests
+  // ResizeObserver is needed for testing some JunoUI-Components like Select
   global.ResizeObserver = class {
     observe = vi.fn()
     unobserve = vi.fn()

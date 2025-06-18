@@ -19,7 +19,7 @@ export const DeleteImageModal: React.FC<DeleteImageModalProps> = ({ isOpen, onCl
   return (
     <Modal
       onCancel={onClose}
-      size="large"
+      size="small"
       title="Delete Image"
       open={isOpen}
       onConfirm={(e) => {

@@ -70,7 +70,7 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({ isOpen, onCl
       cancelButtonLabel="Cancel"
       confirmButtonLabel="Create Image"
     >
-      <Form className="mt-6">
+      <Form>
         <FormSection>
           <FormRow>
             <TextInput

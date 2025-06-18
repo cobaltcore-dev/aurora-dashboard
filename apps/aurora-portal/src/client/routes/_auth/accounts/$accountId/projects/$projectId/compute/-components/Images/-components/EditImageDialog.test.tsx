@@ -1,10 +1,11 @@
 import { describe, test, expect, vi, beforeEach } from "vitest"
-import { render, screen, fireEvent, act } from "@testing-library/react"
+import { render, screen, act } from "@testing-library/react"
 import { EditImageModal } from "./EditImageModal"
 import { GlanceImage } from "@/server/Compute/types/image"
+import userEvent from "@testing-library/user-event"
 
 describe("EditImageModal", () => {
-  // Sample image for testing
+  // mock image for testing
   const mockImage: GlanceImage = {
     id: "test-id",
     name: "Test Image",
@@ -41,21 +42,20 @@ describe("EditImageModal", () => {
   test("displays the current image data", () => {
     render(<EditImageModal isOpen={true} onClose={mockOnClose} image={mockImage} onSave={mockOnSave} />)
 
-    // Check if input fields have the correct initial values
-    const nameInput = document.getElementById("name") as HTMLInputElement
-    const osTypeInput = document.getElementById("os_type") as HTMLInputElement
-    const osDistroInput = document.getElementById("os_distro") as HTMLInputElement
+    const nameInput = screen.getByLabelText("Image Name") as HTMLInputElement
+    const osTypeInput = screen.getByLabelText("OS Type") as HTMLInputElement
+    const osDistroInput = screen.getByLabelText("OS Distribution") as HTMLInputElement
 
     expect(nameInput.value).toBe(mockImage.name)
     expect(osTypeInput.value).toBe(mockImage.os_type)
     expect(osDistroInput.value).toBe(mockImage.os_distro)
   })
 
-  test("calls onClose when Cancel button is clicked", () => {
+  test("calls onClose when Cancel button is clicked", async () => {
     render(<EditImageModal isOpen={true} onClose={mockOnClose} image={mockImage} onSave={mockOnSave} />)
 
     const cancelButton = screen.getByText("Cancel")
-    fireEvent.click(cancelButton)
+    await userEvent.click(cancelButton)
 
     expect(mockOnClose).toHaveBeenCalledTimes(1)
   })
@@ -63,31 +63,23 @@ describe("EditImageModal", () => {
   test("updates the image properties when inputs change", async () => {
     render(<EditImageModal isOpen={true} onClose={mockOnClose} image={mockImage} onSave={mockOnSave} />)
 
-    // Change name
-    const nameInput = document.getElementById("name") as HTMLInputElement
-    fireEvent.change(nameInput, { target: { value: "Updated Image Name" } })
+    const nameInput = screen.getByLabelText("Image Name")
+    await userEvent.clear(nameInput)
+    await userEvent.type(nameInput, "Updated Image Name")
 
-    // Handle status select
     const statusSelect = screen.getByLabelText("Status")
-    fireEvent.click(statusSelect)
+    await userEvent.click(statusSelect)
+    const inactiveOption = screen.getByText("Inactive")
+    await userEvent.click(inactiveOption)
 
-    // Wait for the dropdown option to appear
-    const inactiveOption = await screen.findByText("Inactive")
-    fireEvent.click(inactiveOption)
-
-    // Handle visibility select
     const visibilitySelect = screen.getByLabelText("Visibility")
-    fireEvent.click(visibilitySelect)
+    await userEvent.click(visibilitySelect)
+    const publicOption = screen.getByText("Public")
+    await userEvent.click(publicOption)
 
-    // Wait for the dropdown option to appear
-    const publicOption = await screen.findByText("Public")
-    fireEvent.click(publicOption)
-
-    // Save
     const saveButton = screen.getByText("Save Changes")
-    fireEvent.click(saveButton)
+    await userEvent.click(saveButton)
 
-    // Verify onSave was called with the updated image
     expect(mockOnSave).toHaveBeenCalledTimes(1)
     expect(mockOnSave).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -101,26 +93,22 @@ describe("EditImageModal", () => {
       })
     )
 
-    // Verify onClose was called
     expect(mockOnClose).toHaveBeenCalledTimes(1)
   })
 
-  test("calls onSave with updated image when Save Changes is clicked", () => {
+  test("calls onSave with updated image when Save Changes is clicked", async () => {
     render(<EditImageModal isOpen={true} onClose={mockOnClose} image={mockImage} onSave={mockOnSave} />)
 
-    // Make a simple change
-    const nameInput = document.getElementById("name") as HTMLInputElement
-    fireEvent.change(nameInput, { target: { value: "New Name" } })
+    const nameInput = screen.getByLabelText("Image Name")
+    await userEvent.clear(nameInput)
+    await userEvent.type(nameInput, "New Name")
 
-    // Click save button
     const saveButton = screen.getByText("Save Changes")
-    fireEvent.click(saveButton)
+    await userEvent.click(saveButton)
 
-    // Verify both functions were called
     expect(mockOnSave).toHaveBeenCalledTimes(1)
     expect(mockOnClose).toHaveBeenCalledTimes(1)
 
-    // Verify the updated data
     const updatedImage = { ...mockImage, name: "New Name" }
     expect(mockOnSave).toHaveBeenCalledWith(expect.objectContaining(updatedImage))
   })
