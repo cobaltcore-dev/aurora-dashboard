@@ -11,6 +11,7 @@ import * as dotenv from "dotenv"
 import path from "path"
 import { ZodError } from "zod"
 import extensions from "../extensions"
+import { restoreSessionFromToken, restoreSessionFromTokenGet } from "./sessionFromToken"
 
 // Load environment variables from .env file
 dotenv.config()
@@ -47,6 +48,10 @@ async function startServer() {
     const csrfToken = reply.generateCsrf()
     return { csrfToken }
   })
+
+  // Register cookie for session management
+  server.post("/restore-session", restoreSessionFromToken)
+  server.get("/restore-session", restoreSessionFromTokenGet)
 
   // Validate CSRF token for mutating requests
   server.addHook("preHandler", async (request, reply) => {
