@@ -52,33 +52,35 @@ describe("EditImageModal", () => {
   })
 
   test("calls onClose when Cancel button is clicked", async () => {
+    const user = userEvent.setup()
     render(<EditImageModal isOpen={true} onClose={mockOnClose} image={mockImage} onSave={mockOnSave} />)
 
     const cancelButton = screen.getByText("Cancel")
-    await userEvent.click(cancelButton)
+    await user.click(cancelButton)
 
     expect(mockOnClose).toHaveBeenCalledTimes(1)
   })
 
   test("updates the image properties when inputs change", async () => {
+    const user = userEvent.setup()
     render(<EditImageModal isOpen={true} onClose={mockOnClose} image={mockImage} onSave={mockOnSave} />)
 
     const nameInput = screen.getByLabelText("Image Name")
-    await userEvent.clear(nameInput)
-    await userEvent.type(nameInput, "Updated Image Name")
+    await user.clear(nameInput)
+    await user.type(nameInput, "Updated Image Name")
 
     const statusSelect = screen.getByLabelText("Status")
-    await userEvent.click(statusSelect)
+    await user.click(statusSelect)
     const inactiveOption = screen.getByText("Inactive")
-    await userEvent.click(inactiveOption)
+    await user.click(inactiveOption)
 
     const visibilitySelect = screen.getByLabelText("Visibility")
-    await userEvent.click(visibilitySelect)
+    await user.click(visibilitySelect)
     const publicOption = screen.getByText("Public")
-    await userEvent.click(publicOption)
+    await user.click(publicOption)
 
     const saveButton = screen.getByText("Save Changes")
-    await userEvent.click(saveButton)
+    await user.click(saveButton)
 
     expect(mockOnSave).toHaveBeenCalledTimes(1)
     expect(mockOnSave).toHaveBeenCalledWith(
@@ -97,14 +99,14 @@ describe("EditImageModal", () => {
   })
 
   test("calls onSave with updated image when Save Changes is clicked", async () => {
+    const user = userEvent.setup()
     render(<EditImageModal isOpen={true} onClose={mockOnClose} image={mockImage} onSave={mockOnSave} />)
-
     const nameInput = screen.getByLabelText("Image Name")
-    await userEvent.clear(nameInput)
-    await userEvent.type(nameInput, "New Name")
+    await user.clear(nameInput)
+    await user.type(nameInput, "New Name")
 
     const saveButton = screen.getByText("Save Changes")
-    await userEvent.click(saveButton)
+    await user.click(saveButton)
 
     expect(mockOnSave).toHaveBeenCalledTimes(1)
     expect(mockOnClose).toHaveBeenCalledTimes(1)

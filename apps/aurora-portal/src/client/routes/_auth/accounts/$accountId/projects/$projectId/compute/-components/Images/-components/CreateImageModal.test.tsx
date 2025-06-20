@@ -24,22 +24,24 @@ describe("CreateImageModal", () => {
   })
 
   test("calls onClose when Cancel button is clicked", async () => {
+    const user = userEvent.setup()
     render(<CreateImageModal isOpen={true} onClose={mockOnClose} onCreate={mockOnCreate} />)
 
     const cancelButton = screen.getByText("Cancel")
-    await userEvent.click(cancelButton)
+    await user.click(cancelButton)
 
     expect(mockOnClose).toHaveBeenCalledTimes(1)
   })
 
   test("calls onCreate with form data when Create button is clicked", async () => {
+    const user = userEvent.setup()
     render(<CreateImageModal isOpen={true} onClose={mockOnClose} onCreate={mockOnCreate} />)
 
     const nameInput = screen.getByLabelText("Image Name")
-    await userEvent.type(nameInput, "Test Image")
+    await user.type(nameInput, "Test Image")
 
     const createButton = screen.getByText("Create Image")
-    await userEvent.click(createButton)
+    await user.click(createButton)
 
     // Check that onCreate was called with expected data
     expect(mockOnCreate).toHaveBeenCalledTimes(1)
@@ -57,18 +59,19 @@ describe("CreateImageModal", () => {
   })
 
   test("allows user to submit form", async () => {
+    const user = userEvent.setup()
     render(<CreateImageModal isOpen={true} onClose={mockOnClose} onCreate={mockOnCreate} />)
 
     const nameInput = screen.getByLabelText("Image Name")
-    await userEvent.type(nameInput, "Test Image Name")
+    await user.type(nameInput, "Test Image Name")
 
     const statusSelect = screen.getByLabelText("Status")
-    await userEvent.click(statusSelect)
+    await user.click(statusSelect)
     const inactiveOption = screen.getByText("Inactive")
-    await userEvent.click(inactiveOption)
+    await user.click(inactiveOption)
 
     const createButton = screen.getByText("Create Image")
-    await userEvent.click(createButton)
+    await user.click(createButton)
 
     expect(mockOnCreate).toHaveBeenCalledWith(
       expect.objectContaining({
