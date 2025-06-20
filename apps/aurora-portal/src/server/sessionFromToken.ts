@@ -8,7 +8,6 @@ export async function restoreSessionFromToken(req: FastifyRequest, res: FastifyR
   if (!authToken) {
     return res.status(400).send({ error: "authToken is required" })
   }
-  // Here you would typically validate the authToken with your authentication service
 
   const sessionCookie = SessionCookie({ req, res })
   sessionCookie.set(authToken)
