@@ -2,7 +2,8 @@ import { FastifyRequest, FastifyReply } from "fastify"
 import { SessionCookie } from "./sessionCookie"
 
 export async function restoreSessionFromToken(req: FastifyRequest, res: FastifyReply) {
-  // This endpoint receives a auth token, validates it and sets the session cookie
+  // This endpoint receives a auth token and sets the session cookie
+  // The validation of the token is done in the createContext function
   const { authToken, redirectUrl = "/" } = req.body as { authToken: string; redirectUrl?: string }
 
   if (!authToken) {
