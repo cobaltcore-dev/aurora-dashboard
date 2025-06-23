@@ -9,27 +9,28 @@ export interface SessionProps {
 
 export const SessionCookieName = "aurora-session"
 
+const DEFAULT_COOKIE_VALUES = {
+  secure: true,
+  httpOnly: true,
+  sameSite: "strict",
+  path: "/polaris-bff", // Optional: if set, must be the same for both set and del
+} as const
+
 export function SessionCookie({ cookieName = SessionCookieName, req, res }: SessionProps) {
   return {
     set: (content?: string | null, options?: { expires: Date }) => {
       if (!content) return
       res.setCookie(cookieName, content, {
-        secure: true,
-        httpOnly: true,
-        sameSite: "strict",
+        ...DEFAULT_COOKIE_VALUES, // Use default values
         expires: options?.expires || undefined,
-        path: "/polaris-bff", // Optional: if set, must be the same for both set and del
       })
     },
     get: () => req.cookies[cookieName],
 
     del: () => {
       res.setCookie(cookieName, "", {
-        secure: true, // Important: same as when setting it
-        httpOnly: true, // Important: same as when setting it
-        sameSite: "strict", // Important: same as when setting it
+        ...DEFAULT_COOKIE_VALUES, // Use default values
         expires: new Date(0), // Make the cookie expire immediately
-        path: "/polaris-bff", // Optional: if set, it must be the same here as well
       })
     },
   }
