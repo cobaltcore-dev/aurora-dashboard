@@ -2,6 +2,7 @@ import { render, screen, fireEvent } from "@testing-library/react"
 import { describe, it, expect, vi } from "vitest"
 import { DeleteImageModal } from "./DeleteImageModal"
 import { GlanceImage } from "@/server/Compute/types/image"
+import { PortalProvider } from "@cloudoperators/juno-ui-components/index"
 
 describe("DeleteImageModal", () => {
   const mockOnClose = vi.fn()
@@ -19,7 +20,11 @@ describe("DeleteImageModal", () => {
     size: 1024,
   }
   const setup = (isOpen: boolean) => {
-    render(<DeleteImageModal isOpen={isOpen} onClose={mockOnClose} onDelete={mockOnDelete} image={mockImage} />)
+    render(
+      <PortalProvider>
+        <DeleteImageModal isOpen={isOpen} onClose={mockOnClose} onDelete={mockOnDelete} image={mockImage} />
+      </PortalProvider>
+    )
   }
 
   it("should render the modal when isOpen is true", () => {
