@@ -1,5 +1,7 @@
 import type { CreateFastifyContextOptions } from "@trpc/server/adapters/fastify"
+import * as dotenv from "dotenv"
 
+dotenv.config()
 export interface SessionProps {
   cookieName?: string
 
@@ -7,13 +9,15 @@ export interface SessionProps {
   res: CreateFastifyContextOptions["res"]
 }
 
+const BFF_ENDPOINT = process.env.BFF_ENDPOINT || "/polaris-bff"
+
 export const SessionCookieName = "aurora-session"
 
 const DEFAULT_COOKIE_VALUES = {
   secure: true,
   httpOnly: true,
   sameSite: "strict",
-  path: "/polaris-bff", // Optional: if set, must be the same for both set and del
+  path: BFF_ENDPOINT, // Optional: if set, must be the same for both set and del
 } as const
 
 export function SessionCookie({ cookieName = SessionCookieName, req, res }: SessionProps) {
