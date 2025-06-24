@@ -3,7 +3,7 @@ import { render, screen, act } from "@testing-library/react"
 import { EditImageModal } from "./EditImageModal"
 import { GlanceImage } from "@/server/Compute/types/image"
 import userEvent from "@testing-library/user-event"
-import { PortalProvider } from "@cloudoperators/juno-ui-components/index"
+import { PortalProvider } from "@cloudoperators/juno-ui-components"
 
 const renderEditModal = (isOpen = true, mockOnClose = vi.fn(), mockImage: GlanceImage, mockOnSave = vi.fn()) => {
   return render(

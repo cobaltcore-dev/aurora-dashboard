@@ -1,14 +1,6 @@
 import React, { useState } from "react"
 
-import {
-  Modal,
-  Form,
-  FormRow,
-  TextInput,
-  Select,
-  SelectOption,
-  FormSection,
-} from "@cloudoperators/juno-ui-components/index"
+import { Modal, Form, FormRow, TextInput, Select, SelectOption, FormSection } from "@cloudoperators/juno-ui-components"
 import { GlanceImage } from "@/server/Compute/types/image"
 interface EditImageModalProps {
   isOpen: boolean

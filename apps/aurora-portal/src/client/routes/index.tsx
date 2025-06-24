@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router"
 import { Trans } from "@lingui/react/macro"
-import { Button } from "@cloudoperators/juno-ui-components/index"
+import { Button } from "@cloudoperators/juno-ui-components"
 
 export const Route = createFileRoute("/")({
   component: Home,

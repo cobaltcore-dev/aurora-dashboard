@@ -1,5 +1,5 @@
 import type { GlanceImage } from "@/server/Compute/types/image"
-import { Button } from "@cloudoperators/juno-ui-components/index"
+import { Button } from "@cloudoperators/juno-ui-components"
 
 import { useState } from "react"
 import { EditImageModal } from "./EditImageModal"

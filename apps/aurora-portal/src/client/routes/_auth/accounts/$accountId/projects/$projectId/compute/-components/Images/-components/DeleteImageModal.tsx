@@ -1,6 +1,6 @@
 import React from "react"
 import { GlanceImage } from "@/server/Compute/types/image"
-import { Modal } from "@cloudoperators/juno-ui-components/index"
+import { Modal } from "@cloudoperators/juno-ui-components"
 interface DeleteImageModalProps {
   isOpen: boolean
   onClose: () => void

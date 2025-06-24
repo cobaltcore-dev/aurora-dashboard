@@ -2,7 +2,7 @@ import { render, screen, fireEvent } from "@testing-library/react"
 import { describe, it, expect, vi } from "vitest"
 import { DeleteImageModal } from "./DeleteImageModal"
 import { GlanceImage } from "@/server/Compute/types/image"
-import { PortalProvider } from "@cloudoperators/juno-ui-components/index"
+import { PortalProvider } from "@cloudoperators/juno-ui-components"
 
 describe("DeleteImageModal", () => {
   const mockOnClose = vi.fn()

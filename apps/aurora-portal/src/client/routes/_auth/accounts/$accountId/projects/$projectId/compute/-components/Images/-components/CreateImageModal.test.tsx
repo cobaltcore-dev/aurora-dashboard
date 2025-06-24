@@ -2,7 +2,7 @@ import { describe, test, expect, vi, beforeEach } from "vitest"
 import { render, screen, act, waitFor } from "@testing-library/react"
 import { CreateImageModal } from "./CreateImageModal"
 import userEvent from "@testing-library/user-event"
-import { PortalProvider } from "@cloudoperators/juno-ui-components/index"
+import { PortalProvider } from "@cloudoperators/juno-ui-components"
 
 const renderImageModal = (isOpen = true, onClose = vi.fn(), onCreate = vi.fn()) => {
   return render(
