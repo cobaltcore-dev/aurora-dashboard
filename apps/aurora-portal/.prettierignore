@@ -7,3 +7,4 @@ dist
 build
 src/client/generated
 src/server/generated
+src/locales

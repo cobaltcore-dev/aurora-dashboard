@@ -1,13 +1,12 @@
 import type { GlanceImage } from "@/server/Compute/types/image"
+import { Button } from "@cloudoperators/juno-ui-components"
 
 import { useState } from "react"
 import { EditImageModal } from "./EditImageModal"
 import { ImageTableRow } from "./ImageTableRow"
 import { auroraToast, sonnerToast, ToastProps } from "@/client/components/NotificationCenter/AuroraToast"
 import { DeleteImageModal } from "./DeleteImageModal"
-import { Button } from "@/client/components/headless-ui/Button"
 import { CreateImageModal } from "./CreateImageModal"
-
 interface ImagePageProps {
   images: GlanceImage[]
 }
@@ -77,22 +76,17 @@ export function ImageListView({ images }: ImagePageProps) {
     <div className="container mx-auto px-4 py-6">
       {/* Header with Add Button */}
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-semibold text-gray-200">Images</h2>
-        <Button
-          onClick={handleCreateImage}
-          className="bg-sap-blue-4 hover:bg-blue-700 text-sap-grey-1 text-sm px-3 py-1.5 w-32"
-        >
-          Add New Image
-        </Button>
+        <h2 className="text-2xl font-semibold ">Images</h2>
+        <Button onClick={handleCreateImage}>Add New Image</Button>
       </div>
 
       {/* Images Table */}
       {images.length > 0 ? (
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse border border-[#30363d] text-gray-300">
+          <table className="w-full text-left border-collapse border border-[#30363d] ">
             {/* Table Header */}
             <thead className="bg-[#21262d]">
-              <tr className="text-gray-400 border-b border-[#30363d]">
+              <tr className=" border-b border-[#30363d]">
                 <th className="p-3">Image Name</th>
                 <th className="p-3">Status</th>
                 <th className="p-3">Visibility</th>
@@ -119,7 +113,7 @@ export function ImageListView({ images }: ImagePageProps) {
           </table>
         </div>
       ) : (
-        <p className="text-gray-400">No images available.</p>
+        <p>No images available.</p>
       )}
       {selectedImage && (
         <EditImageModal
@@ -137,7 +131,6 @@ export function ImageListView({ images }: ImagePageProps) {
           onDelete={handleDelete}
         />
       )}
-
       <CreateImageModal isOpen={createModalOpen} onClose={() => setCreateModalOpen(false)} onCreate={handleCreate} />
     </div>
   )
