@@ -1,6 +1,7 @@
 import { TrpcClient } from "./trpcClient"
 import { RouterProvider } from "@tanstack/react-router"
 import { router } from "./router"
+import { AppShellProvider } from "@cloudoperators/juno-ui-components"
 
 export interface AppProps {
   baseUrl: string
@@ -8,5 +9,9 @@ export interface AppProps {
 }
 
 export function App({ baseUrl, trpcClient }: AppProps) {
-  return <RouterProvider context={{ trpcClient }} router={router({ basepath: baseUrl || "/" })} />
+  return (
+    <AppShellProvider shadowRoot={false}>
+      <RouterProvider context={{ trpcClient }} router={router({ basepath: baseUrl || "/" })} />
+    </AppShellProvider>
+  )
 }

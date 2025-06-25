@@ -15,7 +15,7 @@ export const DeleteClusterDialog: React.FC<DeleteClusterGardenerDialogProps> = (
   clusterName,
   onDelete,
 }) => {
-  const handleDelete = (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleDelete = (e: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => {
     e.preventDefault()
     onDelete(clusterName)
   }
