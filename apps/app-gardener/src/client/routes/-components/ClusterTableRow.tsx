@@ -162,6 +162,7 @@ const ClusterTableRow: React.FC<ClusterTableRowProps> = ({ cluster, isLast, setS
             onClick={() => {
               setShowClusterModal(cluster.name)
             }}
+            variant="primary-danger"
           >
             <Trash2 className="h-4 w-4" />
             <span className="sr-only">Delete</span>
