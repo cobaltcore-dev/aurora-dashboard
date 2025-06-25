@@ -23,14 +23,7 @@ export const WizardActions: React.FC<WizardActionsProps> = ({
 }) => {
   return (
     <div className="flex justify-between">
-      <Button
-        onClick={onPrev}
-        disabled={currentStep === 0}
-        className={cn(
-          "border-aurora-gray-700 bg-aurora-gray-800 text-aurora-white hover:bg-aurora-gray-700",
-          currentStep === 0 ? "opacity-50 cursor-not-allowed" : ""
-        )}
-      >
+      <Button onClick={onPrev} disabled={currentStep === 0}>
         <ChevronLeft className="mr-2 h-4 w-4" />
         Back
       </Button>

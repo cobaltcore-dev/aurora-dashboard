@@ -13,7 +13,7 @@ import { WizardActions } from "./ClusterWizard/WizardActions"
 import { TrpcClient } from "@/client/trpcClient"
 import { GardenerDialog } from "./ui/GardenerDialog"
 import { GardenerFieldset } from "./ui/GardenerFieldset"
-import { Spinner } from "./ui/GardenerSpiner"
+import { Spinner } from "@cloudoperators/juno-ui-components"
 
 interface CreateClusterWizardProps {
   isOpen: boolean
