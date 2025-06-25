@@ -1,5 +1,5 @@
 import { Cluster } from "@/server/Gardener/types/cluster"
-import { GardenerButton } from "../ui/GardenerButton"
+import { Button } from "@cloudoperators/juno-ui-components"
 import { GardenerCard, GardenerCardContent, GardenerCardHeader, GardenerCardTitle } from "../ui/GardenerCard"
 import { AlertTriangle, RefreshCcw } from "lucide-react"
 import {
@@ -18,10 +18,10 @@ export const WorkersSection: React.FC<{ workers: Cluster["workers"] }> = ({ work
       <GardenerCard className="mt-6 bg-aurora-gray-900 border-aurora-gray-800 text-aurora-white shadow-xl">
         <GardenerCardHeader className="flex flex-row items-center justify-between border-b border-aurora-gray-800 pb-4">
           <GardenerCardTitle className="text-xl font-medium">Workers</GardenerCardTitle>
-          <GardenerButton size="sm" variant="secondary" className="opacity-50 cursor-not-allowed">
+          <Button>
             <RefreshCcw className="h-4 w-4 mr-2" />
             Add Worker
-          </GardenerButton>
+          </Button>
         </GardenerCardHeader>
         <GardenerCardContent className="pt-4">
           <div className="flex flex-col items-center justify-center py-8 text-center">

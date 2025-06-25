@@ -4,7 +4,7 @@ import { ArrowLeft, Share2, Edit, Check } from "lucide-react"
 
 import { Cluster } from "@/server/Gardener/types/cluster"
 import { toast } from "sonner"
-import { GardenerButton } from "./ui/GardenerButton"
+import { Button } from "@cloudoperators/juno-ui-components"
 import { WorkersSection } from "./ClusterDetail/WorkerSection"
 import { SettingsSection } from "./ClusterDetail/SettingsSection"
 import { ClusterOverviewCard } from "./ClusterDetail/ClusterOverviewCard"
@@ -46,14 +46,13 @@ const ClusterDetail: React.FC<ClusterDetailProps> = ({ cluster }) => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-aurora-gray-950 to-aurora-gray-900 p-6">
       <div className="max-w-7xl mx-auto">
-        {/* Header with back GardenerButton and title */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
           <div className="flex items-center mb-4 sm:mb-0">
             <Link to="/gardener/clusters">
-              <GardenerButton size="md" variant="secondary" className="mr-4">
+              <Button>
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Return
-              </GardenerButton>
+              </Button>
             </Link>
             <div>
               <h1 className="text-2xl font-bold text-aurora-white">Cluster Details</h1>
@@ -62,19 +61,14 @@ const ClusterDetail: React.FC<ClusterDetailProps> = ({ cluster }) => {
           </div>
 
           <div className="flex gap-2">
-            <GardenerButton
-              size="md"
-              variant="secondary"
-              onClick={handleShare}
-              className="hover:bg-aurora-blue-900/20 hover:text-aurora-blue-300 hover:border-aurora-blue-700"
-            >
+            <Button onClick={handleShare}>
               <Share2 className="mr-2 h-4 w-4" />
               Share
-            </GardenerButton>
-            <GardenerButton size="md" disabled variant="disabled">
+            </Button>
+            <Button disabled>
               <Edit className="mr-2 h-4 w-4" />
               Edit Cluster
-            </GardenerButton>
+            </Button>
           </div>
         </div>
         {/* Cluster Overview Card */}

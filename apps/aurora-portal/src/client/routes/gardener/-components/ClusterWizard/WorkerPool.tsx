@@ -3,7 +3,7 @@ import React from "react"
 import { WorkerConfig } from "./types"
 
 import { X } from "lucide-react"
-import { GardenerButton } from "../ui/GardenerButton"
+import { Button } from "@cloudoperators/juno-ui-components"
 import { GardenerLabel } from "../ui/GardenerLabel"
 import { GardenerSelect } from "../ui/GardenerSelect"
 import { GardenerInput } from "../ui/GardenerInput"
@@ -31,13 +31,7 @@ export const WorkerPool: React.FC<WorkerPoolProps> = ({
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <h3 className="text-lg font-medium text-aurora-white text-left">Worker Pools</h3>
-        <GardenerButton
-          onClick={onAddWorker}
-          variant="secondary"
-          className="border-aurora-gray-700 bg-aurora-gray-800 text-aurora-white hover:bg-aurora-gray-700"
-        >
-          Add Worker Pool
-        </GardenerButton>
+        <Button onClick={onAddWorker}>Add Worker Pool</Button>
       </div>
 
       {workers.map((worker, index) => {
@@ -56,13 +50,9 @@ export const WorkerPool: React.FC<WorkerPoolProps> = ({
             <div className="flex justify-between items-center">
               <h4 className="text-aurora-white font-medium text-left">Worker Pool #{index + 1}</h4>
               {workers.length > 1 && (
-                <GardenerButton
-                  onClick={() => onRemoveWorker(index)}
-                  variant="ghost"
-                  className="h-8 w-8 p-0 text-aurora-red-400 hover:text-aurora-red-300 hover:bg-aurora-gray-700/50"
-                >
+                <Button onClick={() => onRemoveWorker(index)}>
                   <X className="h-4 w-4" />
-                </GardenerButton>
+                </Button>
               )}
             </div>
 

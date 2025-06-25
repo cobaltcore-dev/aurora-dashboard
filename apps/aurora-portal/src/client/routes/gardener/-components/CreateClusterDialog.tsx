@@ -13,7 +13,7 @@ import { WizardActions } from "./ClusterWizard/WizardActions"
 import { TrpcClient } from "@/client/trpcClient"
 import { GardenerDialog } from "./ui/GardenerDialog"
 import { GardenerFieldset } from "./ui/GardenerFieldset"
-import { GardenerSpinner } from "./ui/GardenerSpiner"
+import { Spinner } from "./ui/GardenerSpiner"
 
 interface CreateClusterWizardProps {
   isOpen: boolean
@@ -192,7 +192,7 @@ const CreateClusterWizard: React.FC<CreateClusterWizardProps> = ({ isOpen, onClo
 
   return (
     <GardenerDialog open={isOpen} onOpenChange={onClose}>
-      <Suspense fallback={<GardenerSpinner text="Loading Gardener..." />}>
+      <Suspense fallback={<Spinner />}>
         <CreateClusterDialogContent
           isOpen={isOpen}
           onClose={onClose}

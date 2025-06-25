@@ -3,7 +3,7 @@ import { Eye, Edit, Trash2, AlertTriangle, CheckCircle, XCircle, Clock } from "l
 import { Link } from "@tanstack/react-router"
 import { Cluster } from "@/server/Gardener/types/cluster"
 import { toast } from "sonner"
-import { GardenerIconButton } from "./ui/GardenerButton"
+import { Button } from "@cloudoperators/juno-ui-components"
 
 interface ClusterTableRowProps {
   cluster: Cluster
@@ -142,40 +142,30 @@ const ClusterTableRow: React.FC<ClusterTableRowProps> = ({ cluster, isLast, setS
       <td className="p-4">
         <div className="flex items-center justify-end gap-2 group-hover:opacity-100 transition-opacity">
           <Link to="/gardener/clusters/$clusterName" params={{ clusterName: cluster.name }}>
-            <GardenerIconButton
-              size="sm"
-              variant="ghost"
-              className="text-aurora-blue-500 hover:text-aurora-blue-400 hover:bg-aurora-blue-800/20"
-              onClick={() => {}}
-            >
+            <Button onClick={() => {}}>
               <Eye className="h-4 w-4" />
               <span className="sr-only">View Details</span>
-            </GardenerIconButton>
+            </Button>
           </Link>
 
-          <GardenerIconButton
-            size="sm"
+          <Button
             disabled
-            variant="disabled"
             onClick={() => {
               toast.info(`Editing ${cluster.name}... (Not implemented)`)
             }}
           >
             <Edit className="h-4 w-4" />
             <span className="sr-only">Edit</span>
-          </GardenerIconButton>
+          </Button>
 
-          <GardenerIconButton
-            size="sm"
-            variant="ghost"
-            className="text-aurora-red-500 hover:text-aurora-red-400 hover:bg-aurora-red-800/20"
+          <Button
             onClick={() => {
               setShowClusterModal(cluster.name)
             }}
           >
             <Trash2 className="h-4 w-4" />
             <span className="sr-only">Delete</span>
-          </GardenerIconButton>
+          </Button>
         </div>
       </td>
     </tr>

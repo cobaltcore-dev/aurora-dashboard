@@ -33,6 +33,9 @@ importers:
 
   apps/app-gardener:
     dependencies:
+      '@cloudoperators/juno-ui-components':
+        specifier: ^4.0.0
+        version: 4.0.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@fastify/static':
         specifier: ^8.2.0
         version: 8.2.0
@@ -197,6 +200,9 @@ importers:
       '@cloudoperators/juno-k8s-client':
         specifier: ^1.0.5
         version: 1.0.5
+      '@cloudoperators/juno-ui-components':
+        specifier: ^4.0.0
+        version: 4.0.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@cobaltcore-dev/aurora-sdk':
         specifier: workspace:*
         version: link:../../packages/aurora-sdk
@@ -288,9 +294,6 @@ importers:
         specifier: ^3.24.1
         version: 3.24.2
     devDependencies:
-      '@cloudoperators/juno-ui-components':
-        specifier: ^4.0.0
-        version: 4.0.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@cobaltcore-dev/aurora-config':
         specifier: workspace:*
         version: link:../../packages/config

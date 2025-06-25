@@ -1,6 +1,6 @@
 import { Filter } from "lucide-react"
-import { GardenerButton } from "./ui/GardenerButton"
 import { GardenerSelect } from "./ui/GardenerSelect"
+import { Button } from "@cloudoperators/juno-ui-components"
 
 export type SortByType = "name-asc" | "name-desc" | "status" | "newest" | ""
 // Search Bar component
@@ -49,10 +49,10 @@ export const SearchBar = ({
     </div>
 
     <div className="flex gap-2 shrink-0">
-      <GardenerButton size="sm" variant={showFilters ? "primary" : "secondary"} onClick={toggleFilters}>
+      <Button variant={showFilters ? "primary" : undefined} onClick={toggleFilters}>
         <Filter className="h-4 w-4 mr-2" />
         Filters
-      </GardenerButton>
+      </Button>
       <GardenerSelect
         name="sort"
         value={sortTearm}

@@ -25,6 +25,7 @@
   "author": "",
   "license": "Apache-2.0",
   "devDependencies": {
+    "@cloudoperators/juno-ui-components": "^4.0.0",
     "@cloudoperators/juno-k8s-client": "^1.0.5",
     "@cobaltcore-dev/aurora-config": "workspace:*",
     "@cobaltcore-dev/aurora-sdk": "workspace:*",
@@ -47,6 +48,7 @@
     "vite": "^6.3.5"
   },
   "dependencies": {
+    "@cloudoperators/juno-ui-components": "^4.0.0",
     "@fastify/static": "^8.2.0",
     "@tanstack/react-router": "^1.115.2",
     "@tanstack/router-plugin": "^1.115.2",

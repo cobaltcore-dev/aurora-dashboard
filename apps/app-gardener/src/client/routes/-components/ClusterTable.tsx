@@ -2,7 +2,7 @@ import React from "react"
 import ClusterTableRow from "./ClusterTableRow"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import { Cluster } from "@/bff/types/cluster"
-import { GardenerButton } from "./ui/GardenerButton"
+import { Button } from "@cloudoperators/juno-ui-components"
 // Inner table component for consistent styling
 export const ClusterTable: React.FC<{
   clusters: Cluster[]
@@ -68,15 +68,15 @@ export const ClusterTable: React.FC<{
             <span className="text-aurora-white">{filteredCount}</span> clusters
           </div>
           <div className="flex items-center gap-2">
-            <GardenerButton size="sm" variant="disabled" disabled>
+            <Button disabled>
               <ChevronLeft className="h-4 w-4 mr-1" />
               Previous
-            </GardenerButton>
+            </Button>
             <span className="px-3 py-1 bg-aurora-gray-900/50 text-aurora-gray-600 rounded cursor-not-allowed">1</span>
-            <GardenerButton size="sm" variant="disabled" disabled>
+            <Button disabled>
               Next
               <ChevronRight className="h-4 w-4 ml-1" />
-            </GardenerButton>
+            </Button>
           </div>
         </div>
       )}

@@ -1,6 +1,6 @@
 // components/ClusterFilters/ClusterFilters.tsx
 import React from "react"
-import { GardenerButton } from "./ui/GardenerButton"
+import { Button } from "@cloudoperators/juno-ui-components"
 import { GardenerSelect } from "./ui/GardenerSelect"
 
 interface ClusterFiltersProps {
@@ -26,9 +26,7 @@ export const ClusterFilters: React.FC<ClusterFiltersProps> = ({
     <div className="bg-aurora-gray-800/50 border border-aurora-gray-700 rounded-md p-4 mb-6">
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-aurora-white font-medium">Filter Clusters</h3>
-        <GardenerButton size="sm" variant="secondary" className="text-xs" onClick={onClearFilters}>
-          Clear All
-        </GardenerButton>
+        <Button onClick={onClearFilters}>Clear All</Button>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>

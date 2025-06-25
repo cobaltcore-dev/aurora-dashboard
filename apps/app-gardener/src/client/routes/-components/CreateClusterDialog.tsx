@@ -3,6 +3,8 @@ import React, { Suspense, use, useState } from "react"
 import { ClusterFormData, WorkerConfig } from "./ClusterWizard/types"
 import { steps } from "./ClusterWizard/constants"
 import { toast } from "sonner"
+
+import { Spinner } from "@cloudoperators/juno-ui-components"
 import { BasicInfoStep } from "./ClusterWizard/BasicInfoStep"
 import { InfrastructureStep } from "./ClusterWizard/InfrastructureStep"
 import { WorkerNodesStep } from "./ClusterWizard/WorkerNodesStep"
@@ -13,7 +15,6 @@ import { WizardActions } from "./ClusterWizard/WizardActions"
 import { TrpcClient } from "@/client/trpcClient"
 import { GardenerDialog } from "./ui/GardenerDialog"
 import { GardenerFieldset } from "./ui/GardenerFieldset"
-import { GardenerSpinner } from "./ui/GardenerSpiner"
 
 interface CreateClusterWizardProps {
   isOpen: boolean
@@ -192,7 +193,7 @@ const CreateClusterWizard: React.FC<CreateClusterWizardProps> = ({ isOpen, onClo
 
   return (
     <GardenerDialog open={isOpen} onOpenChange={onClose}>
-      <Suspense fallback={<GardenerSpinner text="Loading Gardener..." />}>
+      <Suspense fallback={<Spinner />}>
         <CreateClusterDialogContent
           isOpen={isOpen}
           onClose={onClose}

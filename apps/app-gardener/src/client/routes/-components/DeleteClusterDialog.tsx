@@ -1,6 +1,6 @@
 import React from "react"
 import { GardenerDialog } from "./ui/GardenerDialog"
-import { GardenerButton } from "./ui/GardenerButton"
+import { Button } from "@cloudoperators/juno-ui-components"
 
 interface DeleteClusterGardenerDialogProps {
   isOpen: boolean
@@ -72,18 +72,15 @@ export const DeleteClusterDialog: React.FC<DeleteClusterGardenerDialogProps> = (
 
             {/* Actions */}
             <div className="flex justify-end gap-3 px-8 pb-8 mt-8">
-              <GardenerButton variant="secondary" onClick={onClose}>
-                Cancel
-              </GardenerButton>
-              <GardenerButton
-                variant="destructive"
+              <Button onClick={onClose}>Cancel</Button>
+              <Button
                 onClick={(e) => {
                   onClose()
                   handleDelete(e)
                 }}
               >
                 Delete Cluster
-              </GardenerButton>
+              </Button>
             </div>
           </div>
         </div>

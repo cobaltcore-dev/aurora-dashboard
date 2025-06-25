@@ -2,7 +2,7 @@
 import React from "react"
 import { ChevronLeft, ChevronRight, Check, Loader } from "lucide-react"
 import { cn } from "../../-utils/cn"
-import { GardenerButton } from "../ui/GardenerButton"
+import { Button } from "@cloudoperators/juno-ui-components"
 
 interface WizardActionsProps {
   currentStep: number
@@ -23,10 +23,9 @@ export const WizardActions: React.FC<WizardActionsProps> = ({
 }) => {
   return (
     <div className="flex justify-between">
-      <GardenerButton
+      <Button
         onClick={onPrev}
         disabled={currentStep === 0}
-        variant="secondary"
         className={cn(
           "border-aurora-gray-700 bg-aurora-gray-800 text-aurora-white hover:bg-aurora-gray-700",
           currentStep === 0 ? "opacity-50 cursor-not-allowed" : ""
@@ -34,15 +33,15 @@ export const WizardActions: React.FC<WizardActionsProps> = ({
       >
         <ChevronLeft className="mr-2 h-4 w-4" />
         Back
-      </GardenerButton>
+      </Button>
 
       {currentStep < totalSteps - 1 ? (
-        <GardenerButton onClick={onNext} variant="next">
+        <Button onClick={onNext}>
           Next
           <ChevronRight className="ml-2 h-4 w-4" />
-        </GardenerButton>
+        </Button>
       ) : (
-        <GardenerButton onClick={onSubmit} disabled={isSubmitting} variant="primary">
+        <Button onClick={onSubmit} disabled={isSubmitting} variant="primary">
           {isSubmitting ? (
             <>
               <Loader className="mr-2 h-4 w-4 animate-spin" />
@@ -54,7 +53,7 @@ export const WizardActions: React.FC<WizardActionsProps> = ({
               Create Cluster
             </>
           )}
-        </GardenerButton>
+        </Button>
       )}
     </div>
   )

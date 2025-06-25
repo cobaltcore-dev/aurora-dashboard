@@ -8,7 +8,7 @@ import { ClusterTable } from "../-components/ClusterTable"
 import CreateClusterWizard from "../-components/CreateClusterDialog"
 import { DeleteClusterDialog } from "../-components/DeleteClusterDialog"
 import { SearchBar, SortByType } from "../-components/SearchBar"
-import { GardenerButton } from "../-components/ui/GardenerButton"
+import { Button } from "@cloudoperators/juno-ui-components"
 import { ClusterFilters } from "../-components/ClusterFilters"
 import { TrpcClient } from "@/client/trpcClient"
 
@@ -133,19 +133,18 @@ function RouteComponent() {
           </div>
 
           <div className="flex gap-2 mt-4 sm:mt-0">
-            <GardenerButton size="md" variant="secondary" className="flex items-center" onClick={handleRefresh}>
+            <Button onClick={handleRefresh}>
               <RefreshCw className={`h-4 w-4 mr-2`} />
               Refresh
-            </GardenerButton>
-            <GardenerButton
+            </Button>
+            <Button
               onClick={handleCreateWizzard}
-              size="md"
               variant="primary"
               className="flex items-center bg-aurora-blue-700 hover:bg-aurora-blue-600 border-aurora-blue-600 text-aurora-white shadow-lg shadow-aurora-blue-900/20"
             >
               <Plus className="h-4 w-4 mr-2" />
               New Cluster
-            </GardenerButton>
+            </Button>
           </div>
         </div>
 
