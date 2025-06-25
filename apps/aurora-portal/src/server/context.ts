@@ -1,7 +1,6 @@
-import { SignalOpenstackSession, SignalOpenstackSessionType } from "@cobaltcore-dev/signal-openstack"
-
 import type { CreateFastifyContextOptions } from "@trpc/server/adapters/fastify"
-
+import { SignalOpenstackSession, SignalOpenstackSessionType } from "@cobaltcore-dev/signal-openstack"
+import { SessionCookie } from "./sessionCookie"
 import * as dotenv from "dotenv"
 import { AuthConfig } from "./Authentication/types/models"
 
@@ -29,34 +28,8 @@ export interface AuroraPortalContext extends AuroraContext {
   terminateSession: () => Promise<void>
 }
 
-function SessionCookie(cookieName: string, opts: CreateFastifyContextOptions) {
-  return {
-    set: (content?: string | null, options?: { expires: Date }) => {
-      if (!content) return
-      opts.res.setCookie(cookieName, content, {
-        secure: true,
-        httpOnly: true,
-        sameSite: "strict",
-        expires: options?.expires || undefined,
-        path: "polaris-bff", // Optional: if set, must be the same for both set and del
-      })
-    },
-    get: () => opts.req.cookies[cookieName],
-
-    del: () => {
-      opts.res.setCookie(cookieName, "", {
-        secure: true, // Wichtig: gleich wie beim Setzen
-        httpOnly: true, // Wichtig: gleich wie beim Setzen
-        sameSite: "strict", // Wichtig: gleich wie beim Setzen
-        expires: new Date(0), // Cookie sofort ablaufen lassen
-        path: "polaris-bff", // Optional: falls gesetzt, muss es auch hier gleich sein
-      })
-    },
-  }
-}
-
 export async function createContext(opts: CreateFastifyContextOptions): Promise<AuroraPortalContext> {
-  const sessionCookie = SessionCookie("aurora-session", opts)
+  const sessionCookie = SessionCookie({ req: opts.req, res: opts.res })
   const currentAuthToken = sessionCookie.get()
   let openstackSession: Awaited<SignalOpenstackSessionType> | undefined = undefined
 
