@@ -1,5 +1,5 @@
 import { describe, test, expect, vi, beforeEach } from "vitest"
-import { render, screen, act } from "@testing-library/react"
+import { render, screen, waitFor } from "@testing-library/react"
 import { EditImageModal } from "./EditImageModal"
 import { GlanceImage } from "@/server/Compute/types/image"
 import userEvent from "@testing-library/user-event"
@@ -35,8 +35,8 @@ describe("EditImageModal", () => {
     vi.resetAllMocks()
   })
 
-  test("renders when isOpen is true", () => {
-    renderEditModal(true, mockOnClose, mockImage, mockOnSave)
+  test("renders when isOpen is true", async () => {
+    await waitFor(() => renderEditModal(true, mockOnClose, mockImage, mockOnSave))
     expect(screen.getByText("Edit Image Details")).toBeDefined()
   })
 
@@ -46,8 +46,8 @@ describe("EditImageModal", () => {
     expect(screen.queryByText("Edit Image Details")).toBeNull()
   })
 
-  test("displays the current image data", () => {
-    renderEditModal(true, mockOnClose, mockImage, mockOnSave)
+  test("displays the current image data", async () => {
+    await waitFor(() => renderEditModal(true, mockOnClose, mockImage, mockOnSave))
 
     const nameInput = screen.getByLabelText("Image Name") as HTMLInputElement
     const osTypeInput = screen.getByLabelText("OS Type") as HTMLInputElement
@@ -60,77 +60,72 @@ describe("EditImageModal", () => {
 
   test("calls onClose when Cancel button is clicked", async () => {
     const user = userEvent.setup()
-    renderEditModal(true, mockOnClose, mockImage, mockOnSave)
+    await waitFor(() => renderEditModal(true, mockOnClose, mockImage, mockOnSave))
 
     const cancelButton = screen.getByText("Cancel")
-    await act(async () => {
-      await user.click(cancelButton)
-    })
+    await user.click(cancelButton)
 
     expect(mockOnClose).toHaveBeenCalledTimes(1)
   })
 
   test("updates the image properties when inputs change", async () => {
     const user = userEvent.setup()
-    renderEditModal(true, mockOnClose, mockImage, mockOnSave)
+    await waitFor(() => renderEditModal(true, mockOnClose, mockImage, mockOnSave))
 
     const nameInput = screen.getByLabelText("Image Name")
-    await act(async () => {
-      await user.clear(nameInput)
-      await user.type(nameInput, "Updated Image Name")
-    })
+    await user.clear(nameInput)
+    await user.type(nameInput, "Updated Image Name")
 
     const statusSelect = screen.getByLabelText("Status")
-    await act(async () => {
-      await user.click(statusSelect)
-    })
+    await user.click(statusSelect)
+
     const inactiveOption = screen.getByText("Inactive")
-    await act(async () => {
-      await user.click(inactiveOption)
-    })
+    await user.click(inactiveOption)
+
     const visibilitySelect = screen.getByLabelText("Visibility")
-    await act(async () => {
-      await user.click(visibilitySelect)
-    })
+    await user.click(visibilitySelect)
+
     const publicOption = screen.getByText("Public")
-    await act(async () => {
-      await user.click(publicOption)
-    })
+    await user.click(publicOption)
+
     const saveButton = screen.getByText("Save Changes")
-    await act(async () => {
-      await user.click(saveButton)
+    await user.click(saveButton)
+
+    await waitFor(() => {
+      expect(mockOnSave).toHaveBeenCalledTimes(1)
+      expect(mockOnClose).toHaveBeenCalledTimes(1)
     })
 
-    expect(mockOnSave).toHaveBeenCalledTimes(1)
-    expect(mockOnSave).toHaveBeenCalledWith(
-      expect.objectContaining({
-        id: mockImage.id,
-        name: "Updated Image Name",
-        status: "inactive",
-        visibility: "public",
-        disk_format: mockImage.disk_format,
-        os_type: mockImage.os_type,
-        os_distro: mockImage.os_distro,
-      })
-    )
-
-    expect(mockOnClose).toHaveBeenCalledTimes(1)
+    await waitFor(() => {
+      expect(mockOnSave).toHaveBeenCalledWith(
+        expect.objectContaining({
+          id: mockImage.id,
+          name: "Updated Image Name",
+          status: "inactive",
+          visibility: "public",
+          disk_format: mockImage.disk_format,
+          os_type: mockImage.os_type,
+          os_distro: mockImage.os_distro,
+        })
+      )
+    })
   })
 
   test("calls onSave with updated image when Save Changes is clicked", async () => {
     const user = userEvent.setup()
-    renderEditModal(true, mockOnClose, mockImage, mockOnSave)
+    await waitFor(() => renderEditModal(true, mockOnClose, mockImage, mockOnSave))
+
     const nameInput = screen.getByLabelText("Image Name")
-    await act(async () => {
-      await user.clear(nameInput)
-      await user.type(nameInput, "New Name")
-    })
+    await user.clear(nameInput)
+    await user.type(nameInput, "New Name")
 
     const saveButton = screen.getByText("Save Changes")
-    await act(async () => {
-      await user.click(saveButton)
+    await user.click(saveButton)
+
+    await waitFor(() => {
+      expect(mockOnSave).toHaveBeenCalledTimes(1)
     })
-    expect(mockOnSave).toHaveBeenCalledTimes(1)
+
     expect(mockOnClose).toHaveBeenCalledTimes(1)
 
     const updatedImage = { ...mockImage, name: "New Name" }

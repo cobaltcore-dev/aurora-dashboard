@@ -1,5 +1,5 @@
 import { describe, test, expect, vi, beforeEach } from "vitest"
-import { render, screen, act, waitFor } from "@testing-library/react"
+import { render, screen, waitFor } from "@testing-library/react"
 import { CreateImageModal } from "./CreateImageModal"
 import userEvent from "@testing-library/user-event"
 import { PortalProvider } from "@cloudoperators/juno-ui-components"
@@ -25,28 +25,20 @@ describe("CreateImageModal", () => {
     renderImageModal(true, mockOnClose, mockOnCreate)
 
     const nameInput = screen.getByLabelText("Image Name")
-    await act(async () => {
-      await user.type(nameInput, "Test Image Name")
-    })
+    await user.type(nameInput, "Test Image Name")
 
     const statusSelect = screen.getByLabelText("Status")
-    await act(async () => {
-      await user.click(statusSelect)
-    })
+    await user.click(statusSelect)
 
     await waitFor(() => {
       expect(screen.getByText("Inactive")).toBeInTheDocument()
     })
 
     const inactiveOption = screen.getByText("Inactive")
-    await act(async () => {
-      await user.click(inactiveOption)
-    })
+    await user.click(inactiveOption)
 
     const createButton = screen.getByText("Create Image")
-    await act(async () => {
-      await user.click(createButton)
-    })
+    await user.click(createButton)
 
     await waitFor(() => {
       expect(mockOnCreate).toHaveBeenCalledWith(
