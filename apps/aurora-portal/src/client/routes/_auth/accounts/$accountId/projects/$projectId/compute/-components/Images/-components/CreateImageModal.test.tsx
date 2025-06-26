@@ -1,7 +1,6 @@
 import { describe, test, expect, vi, beforeEach } from "vitest"
-import { render, screen, waitFor } from "@testing-library/react"
+import { fireEvent, render, screen, waitFor } from "@testing-library/react"
 import { CreateImageModal } from "./CreateImageModal"
-import userEvent from "@testing-library/user-event"
 import { PortalProvider } from "@cloudoperators/juno-ui-components"
 
 const renderImageModal = (isOpen = true, onClose = vi.fn(), onCreate = vi.fn()) => {
@@ -21,24 +20,31 @@ describe("CreateImageModal", () => {
   })
 
   test("allows user to submit form", async () => {
-    const user = userEvent.setup()
     renderImageModal(true, mockOnClose, mockOnCreate)
 
-    const nameInput = screen.getByLabelText("Image Name")
-    await user.type(nameInput, "Test Image Name")
+    await waitFor(async () => {
+      const nameInput = screen.getByLabelText("Image Name")
+      await fireEvent.change(nameInput, { target: { value: "Test Image Name" } })
+    })
 
-    const statusSelect = screen.getByLabelText("Status")
-    await user.click(statusSelect)
+    await waitFor(async () => {
+      const statusSelect = screen.getByLabelText("Status")
+      await fireEvent.click(statusSelect)
+    })
 
     await waitFor(() => {
       expect(screen.getByText("Inactive")).toBeInTheDocument()
     })
 
-    const inactiveOption = screen.getByText("Inactive")
-    await user.click(inactiveOption)
+    await waitFor(async () => {
+      const inactiveOption = screen.getByText("Inactive")
+      await fireEvent.click(inactiveOption)
+    })
 
-    const createButton = screen.getByText("Create Image")
-    await user.click(createButton)
+    await waitFor(async () => {
+      const createButton = screen.getByText("Create Image")
+      await fireEvent.click(createButton)
+    })
 
     await waitFor(() => {
       expect(mockOnCreate).toHaveBeenCalledWith(
