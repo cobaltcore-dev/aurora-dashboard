@@ -1,6 +1,5 @@
 import { Filter } from "lucide-react"
-import { GardenerButton } from "./ui/GardenerButton"
-import { GardenerSelect } from "./ui/GardenerSelect"
+import { Button, Select, SelectOption, SearchInput, Stack, InputGroup } from "@cloudoperators/juno-ui-components"
 
 export type SortByType = "name-asc" | "name-desc" | "status" | "newest" | ""
 // Search Bar component
@@ -21,51 +20,41 @@ export const SearchBar = ({
   setSortTearm,
   sortTearm,
 }: SearchBarProps) => (
-  <div className="flex flex-col lg:flex-row justify-between items-stretch lg:items-center border-b border-aurora-gray-800 pb-4 mb-6 gap-4">
-    <div className="flex flex-grow items-center">
-      <div className="relative flex-grow">
-        <input
-          type="text"
-          placeholder="Search clusters..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full pl-9 pr-4 py-2 bg-aurora-gray-800 border border-aurora-gray-700 rounded-md text-aurora-gray-300 focus:outline-none focus:ring-1 focus:ring-aurora-blue-500"
-        />
-        <svg
-          className="absolute left-3 top-2.5 h-4 w-4 text-aurora-gray-500"
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
+  <Stack
+    direction="vertical"
+    gap="4"
+    className={`filters   bg-theme-background-lvl-1
+  py-2
+  px-4
+  my-px`}
+  >
+    <Stack alignment="center" gap="8">
+      <InputGroup>
+        <Button variant={showFilters ? "primary" : undefined} onClick={toggleFilters}>
+          <Filter className="h-4 w-4 mr-2" />
+          Filters
+        </Button>
+        <Select
+          name="sort"
+          value={sortTearm}
+          label="Sort"
+          onChange={(value) => {
+            setSortTearm(value as SortByType)
+          }}
+          className="w-48"
         >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-          />
-        </svg>
-      </div>
-    </div>
-
-    <div className="flex gap-2 shrink-0">
-      <GardenerButton size="sm" variant={showFilters ? "primary" : "secondary"} onClick={toggleFilters}>
-        <Filter className="h-4 w-4 mr-2" />
-        Filters
-      </GardenerButton>
-      <GardenerSelect
-        name="sort"
-        value={sortTearm}
-        onChange={(e) => {
-          setSortTearm(e.target.value as SortByType)
-        }}
-        className="bg-aurora-gray-800 border border-aurora-gray-700 rounded-md px-3 py-1 text-aurora-gray-300 text-sm"
-      >
-        <option value="">Sort: Newest</option>
-        <option value="name-asc">Name (A-Z)</option>
-        <option value="name-desc">Name (Z-A)</option>
-        <option value="status">Status</option>
-      </GardenerSelect>
-    </div>
-  </div>
+          <SelectOption value="">Newest</SelectOption>
+          <SelectOption value="name-asc">Name (A-Z)</SelectOption>
+          <SelectOption value="name-desc">Name (Z-A)</SelectOption>
+          <SelectOption value="status">Status</SelectOption>
+        </Select>
+      </InputGroup>
+      <SearchInput
+        onChange={(e) => setSearchTerm(e.target.value)}
+        placeholder="Search clusters..."
+        value={searchTerm}
+        className="w-96 ml-auto"
+      />
+    </Stack>
+  </Stack>
 )
