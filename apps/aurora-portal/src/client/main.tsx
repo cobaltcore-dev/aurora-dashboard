@@ -1,5 +1,4 @@
 import { createRoot } from "react-dom/client"
-import "tailwindcss/tailwind.css"
 import App from "./App"
 import { i18n } from "@lingui/core"
 import { I18nProvider } from "@lingui/react"

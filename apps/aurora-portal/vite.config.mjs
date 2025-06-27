@@ -1,8 +1,7 @@
 import { defineConfig } from "vite"
 import react from "@vitejs/plugin-react-swc"
+import tailwindcss from "@tailwindcss/vite"
 
-import tailwindcss from "tailwindcss"
-import autoprefixer from "autoprefixer"
 import tsconfigPaths from "vite-tsconfig-paths"
 import svgr from "vite-plugin-svgr"
 import * as dotenv from "dotenv"
@@ -26,6 +25,7 @@ export default defineConfig(({ mode }) => ({
     BFF_ENDPOINT: JSON.stringify(BFF_ENDPOINT),
   },
   plugins: [
+    tailwindcss(),
     TanStackRouterVite({
       target: "react",
       autoCodeSplitting: true,
@@ -41,10 +41,4 @@ export default defineConfig(({ mode }) => ({
     svgr(),
     tsconfigPaths(),
   ],
-
-  css: {
-    postcss: {
-      plugins: [tailwindcss, autoprefixer],
-    },
-  },
 }))
