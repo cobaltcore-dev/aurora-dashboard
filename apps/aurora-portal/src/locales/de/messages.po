@@ -86,6 +86,10 @@ msgstr "Geben Sie den Domain ein"
 msgid "Enter your username"
 msgstr "Geben Sie Ihren Benutzernamen ein"
 
+#: src/client/routes/gardener/-components/SearchBar.tsx:37
+msgid "Filters"
+msgstr "Filter"
+
 #: src/client/routes/about.tsx:105
 msgid "Get Involved"
 msgstr "Mitmachen"
@@ -102,9 +106,21 @@ msgstr "Lädt..."
 msgid "Login to Your Account"
 msgstr "Bei Ihrem Konto anmelden"
 
+#: src/client/routes/gardener/-components/SearchBar.tsx:49
+msgid "Name (A-Z)"
+msgstr "Name (A-Z)"
+
+#: src/client/routes/gardener/-components/SearchBar.tsx:50
+msgid "Name (Z-A)"
+msgstr "Name (Z-A)"
+
 #: src/client/routes/auth/login.tsx:170
 msgid "Need help?"
 msgstr "Benötigen Sie Hilfe?"
+
+#: src/client/routes/gardener/-components/SearchBar.tsx:48
+msgid "Newest"
+msgstr "Neuste"
 
 #: src/client/routes/about.tsx:24
 msgid "Our Mission"
@@ -114,9 +130,17 @@ msgstr "Unsere Mission"
 msgid "Password"
 msgstr "Passwort"
 
+#: src/client/routes/gardener/-components/SearchBar.tsx:56
+msgid "Search clusters..."
+msgstr "Cluster suchen..."
+
 #: src/client/routes/auth/login.tsx:165
 msgid "Sign In"
 msgstr "Einloggen"
+
+#: src/client/routes/gardener/-components/SearchBar.tsx:51
+msgid "Status"
+msgstr "Status"
 
 #: src/client/routes/index.tsx:81
 msgid "Stay tuned — Aurora Dashboard is launching soon to streamline your cloud management experience!"
