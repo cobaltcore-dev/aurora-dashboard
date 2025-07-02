@@ -148,8 +148,8 @@ function RouteComponent() {
             searchTerm={searchTerm}
             setSearchTerm={setSearchTerm}
             toggleFilters={toggleFilters}
-            setSortTearm={setSortBy}
-            sortTearm={sortBy}
+            setSortTerm={setSortBy}
+            sortTerm={sortBy}
             showFilters={showFilters}
           ></SearchBar>
 

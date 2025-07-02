@@ -7,9 +7,9 @@ const { t } = useLingui()
 export type SortByType = "name-asc" | "name-desc" | "status" | "newest" | ""
 interface SearchBarProps {
   searchTerm: string
-  sortTearm: SortByType
+  sortTerm: SortByType
   setSearchTerm: (value: string) => void
-  setSortTearm: (value: SortByType) => void
+  setSortTerm: (value: SortByType) => void
   toggleFilters: () => void
   showFilters: boolean
 }
@@ -19,16 +19,16 @@ export const SearchBar = ({
   setSearchTerm,
   toggleFilters,
   showFilters,
-  setSortTearm,
-  sortTearm,
+  setSortTerm,
+  sortTerm,
 }: SearchBarProps) => (
   <Stack
     direction="vertical"
     gap="4"
-    className={`bg-theme-background-lvl-1
+    className="bg-theme-background-lvl-1
   py-2
   px-4
-  my-px`}
+  my-px"
   >
     <Stack alignment="center" gap="8">
       <InputGroup>
@@ -38,10 +38,10 @@ export const SearchBar = ({
         </Button>
         <Select
           name="sort"
-          value={sortTearm}
+          value={sortTerm}
           label="Sort"
           onChange={(value) => {
-            setSortTearm(value as SortByType)
+            setSortTerm(value as SortByType)
           }}
           className="w-48"
         >
