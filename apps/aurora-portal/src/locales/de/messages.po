@@ -86,7 +86,7 @@ msgstr "Geben Sie den Domain ein"
 msgid "Enter your username"
 msgstr "Geben Sie Ihren Benutzernamen ein"
 
-#: src/client/routes/gardener/-components/SearchBar.tsx:37
+#: src/client/routes/gardener/-components/SearchBar.tsx:38
 msgid "Filters"
 msgstr "Filter"
 
@@ -106,11 +106,11 @@ msgstr "Lädt..."
 msgid "Login to Your Account"
 msgstr "Bei Ihrem Konto anmelden"
 
-#: src/client/routes/gardener/-components/SearchBar.tsx:49
+#: src/client/routes/gardener/-components/SearchBar.tsx:50
 msgid "Name (A-Z)"
 msgstr "Name (A-Z)"
 
-#: src/client/routes/gardener/-components/SearchBar.tsx:50
+#: src/client/routes/gardener/-components/SearchBar.tsx:51
 msgid "Name (Z-A)"
 msgstr "Name (Z-A)"
 
@@ -118,7 +118,7 @@ msgstr "Name (Z-A)"
 msgid "Need help?"
 msgstr "Benötigen Sie Hilfe?"
 
-#: src/client/routes/gardener/-components/SearchBar.tsx:48
+#: src/client/routes/gardener/-components/SearchBar.tsx:49
 msgid "Newest"
 msgstr "Neuste"
 
@@ -130,15 +130,19 @@ msgstr "Unsere Mission"
 msgid "Password"
 msgstr "Passwort"
 
-#: src/client/routes/gardener/-components/SearchBar.tsx:56
+#: src/client/routes/gardener/-components/SearchBar.tsx:57
 msgid "Search clusters..."
-msgstr "Cluster suchen..."
+msgstr "Cluster durchsuchen..."
 
 #: src/client/routes/auth/login.tsx:165
 msgid "Sign In"
 msgstr "Einloggen"
 
-#: src/client/routes/gardener/-components/SearchBar.tsx:51
+#: src/client/routes/gardener/-components/SearchBar.tsx:43
+msgid "Sort"
+msgstr "Sortieren"
+
+#: src/client/routes/gardener/-components/SearchBar.tsx:52
 msgid "Status"
 msgstr "Status"
 

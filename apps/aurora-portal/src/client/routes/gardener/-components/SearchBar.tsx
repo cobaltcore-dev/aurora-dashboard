@@ -40,7 +40,7 @@ export const SearchBar = ({
           <Select
             name="sort"
             value={sortTerm}
-            label="Sort"
+            label={t`Sort`}
             onChange={(value) => {
               setSortTerm(value as SortByType)
             }}
