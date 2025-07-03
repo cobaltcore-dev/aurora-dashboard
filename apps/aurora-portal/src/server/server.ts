@@ -2,7 +2,6 @@ import Fastify from "fastify"
 import FastifyStatic from "@fastify/static"
 import FastifyVite from "@fastify/vite"
 import FastifyCookie from "@fastify/cookie"
-import FastifyCsrfProtection from "@fastify/csrf-protection"
 import FastifyHelmet from "@fastify/helmet"
 import { FastifyTRPCPluginOptions, fastifyTRPCPlugin } from "@trpc/server/adapters/fastify"
 import { appRouter, AuroraRouter } from "./routers" // tRPC router
@@ -11,6 +10,7 @@ import * as dotenv from "dotenv"
 import path from "path"
 import { ZodError } from "zod"
 import extensions from "../extensions"
+import { AuroraFastifySessionFromToken, AuroraFastifyCsrfProtection } from "./aurora-fastify-plugins"
 
 // Load environment variables from .env file
 dotenv.config()
@@ -32,29 +32,17 @@ async function startServer() {
     secret: undefined, // Should be set to a secure value in production
   })
 
-  // CSRF Protection setup
-  server.register(FastifyCsrfProtection, {
-    cookieKey: "aurora-csrf-protection", // Cookie name for storing CSRF token
-    getToken: (request) => {
-      // Extract CSRF token from custom header
-      const token = request.headers["x-csrf-token"]
-      return Array.isArray(token) ? token[0] : token
-    },
+  // Register session restoration plugin
+  server.register(AuroraFastifySessionFromToken, {
+    route: "/auth/restore-session", // Custom route for restoring session from token
   })
 
-  // Endpoint to get a new CSRF token
-  server.get("/csrf-token", (request, reply) => {
-    const csrfToken = reply.generateCsrf()
-    return { csrfToken }
-  })
-
-  // Validate CSRF token for mutating requests
-  server.addHook("preHandler", async (request, reply) => {
-    if (["POST", "PUT", "DELETE"].includes(request.method) && !request.url.startsWith("/extensions")) {
-      server.csrfProtection(request, reply, () => {
-        // Validation passes, request continues
-      })
-    }
+  server.register(AuroraFastifyCsrfProtection, {
+    tokenRoute: "/csrf-token", // Route to get CSRF token
+    cookieKey: "aurora-csrf-protection", // Cookie name for CSRF
+    tokenHeader: "x-csrf-token", // Header name for CSRF token
+    excludePaths: ["/extensions"], // Paths to exclude from CSRF protection
+    protectionMethods: ["POST", "PUT", "DELETE"], // HTTP methods that require CSRF protection
   })
 
   // Register tRPC plugin to handle API routes

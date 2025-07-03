@@ -1,6 +1,7 @@
 import { render, screen, fireEvent, act } from "@testing-library/react"
 import { vi, describe, it, expect, beforeEach, afterEach } from "vitest"
 import { ProjectsOverviewNavBar } from "./ProjectOverviewNavBar"
+import { PortalProvider } from "@cloudoperators/juno-ui-components/index"
 
 describe("ProjectOverviewNavBar", () => {
   const defaultProps = {
@@ -19,12 +20,20 @@ describe("ProjectOverviewNavBar", () => {
   })
 
   it("renders correctly with initial search term", () => {
-    render(<ProjectsOverviewNavBar {...defaultProps} searchTerm="initial search" />)
+    render(
+      <PortalProvider>
+        <ProjectsOverviewNavBar {...defaultProps} searchTerm="initial search" />
+      </PortalProvider>
+    )
     expect(screen.getByPlaceholderText("Search...")).toHaveValue("initial search")
   })
 
   it("updates local search term immediately on input change", () => {
-    render(<ProjectsOverviewNavBar {...defaultProps} />)
+    render(
+      <PortalProvider>
+        <ProjectsOverviewNavBar {...defaultProps} />
+      </PortalProvider>
+    )
 
     const searchInput = screen.getByPlaceholderText("Search...")
     fireEvent.change(searchInput, { target: { value: "test" } })
@@ -33,7 +42,11 @@ describe("ProjectOverviewNavBar", () => {
   })
 
   it("debounces search callback", () => {
-    render(<ProjectsOverviewNavBar {...defaultProps} />)
+    render(
+      <PortalProvider>
+        <ProjectsOverviewNavBar {...defaultProps} />
+      </PortalProvider>
+    )
 
     const searchInput = screen.getByPlaceholderText("Search...")
     fireEvent.change(searchInput, { target: { value: "test" } })
@@ -50,7 +63,11 @@ describe("ProjectOverviewNavBar", () => {
   })
 
   it("clears previous timeout when typing quickly", () => {
-    render(<ProjectsOverviewNavBar {...defaultProps} />)
+    render(
+      <PortalProvider>
+        <ProjectsOverviewNavBar {...defaultProps} />
+      </PortalProvider>
+    )
     const searchInput = screen.getByPlaceholderText("Search...")
 
     fireEvent.change(searchInput, { target: { value: "te" } })

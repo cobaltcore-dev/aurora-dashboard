@@ -108,10 +108,10 @@ describe("MainNavigation", () => {
     { route: "/about", label: "About" },
   ]
 
-  test("renders logo and navigation items", () => {
+  test("renders logo and navigation items", async () => {
     const router = createTestRouter(<MainNavigation items={mainNavItems} />)
 
-    render(<RouterProvider router={router} />)
+    await waitFor(() => render(<RouterProvider router={router} />))
 
     // Check if logo is rendered
     expect(screen.getByTestId("aurora-logo")).toBeDefined()
@@ -134,7 +134,7 @@ describe("MainNavigation", () => {
       params: { accountId: "domain1" },
     })
 
-    render(<RouterProvider router={router} />)
+    await waitFor(() => render(<RouterProvider router={router} />))
 
     // Check if domain name is rendered
     await waitFor(() => {
@@ -155,7 +155,7 @@ describe("MainNavigation", () => {
       },
     })
 
-    render(<RouterProvider router={router} />)
+    await waitFor(() => render(<RouterProvider router={router} />))
 
     // Check if domain and project names are rendered
     await waitFor(() => {
@@ -176,7 +176,7 @@ describe("MainNavigation", () => {
       },
     })
 
-    render(<RouterProvider router={router} />)
+    await waitFor(() => render(<RouterProvider router={router} />))
 
     // Clean the navigation spy before the test
     // Click on the domain link
@@ -200,7 +200,7 @@ describe("MainNavigation", () => {
       },
     })
 
-    render(<RouterProvider router={router} />)
+    await waitFor(() => render(<RouterProvider router={router} />))
 
     // Find the logo link (the first link in the document)
     await waitFor(async () => {
@@ -218,7 +218,7 @@ describe("MainNavigation", () => {
 
     // Spy on router navigation
 
-    render(<RouterProvider router={router} />)
+    await waitFor(() => render(<RouterProvider router={router} />))
 
     // Find the logo link (the first link in the document)
     await waitFor(async () => {
@@ -231,7 +231,7 @@ describe("MainNavigation", () => {
     })
   })
 
-  test("renders custom navigation items when provided", () => {
+  test("renders custom navigation items when provided", async () => {
     const customItems = [
       { route: "/dashboard", label: "Dashboard" },
       { route: "/settings", label: "Settings" },
@@ -239,7 +239,7 @@ describe("MainNavigation", () => {
 
     const router = createTestRouter(<MainNavigation items={customItems} />)
 
-    render(<RouterProvider router={router} />)
+    await waitFor(() => render(<RouterProvider router={router} />))
 
     // Check if custom navigation items are rendered
     expect(screen.getByText("Dashboard")).toBeDefined()

@@ -1,0 +1,299 @@
+/* Import Juno UI styles if needed */
+/* @import "@cloudoperators/juno-ui-components/build/lib/styles.css"; */
+
+@theme {
+    /* Aurora prefixed colors - equivalent to Tailwind's default color palette */
+
+    /* Slate colors */
+    --color-aurora-slate-50: #f8fafc;
+    --color-aurora-slate-100: #f1f5f9;
+    --color-aurora-slate-200: #e2e8f0;
+    --color-aurora-slate-300: #cbd5e1;
+    --color-aurora-slate-400: #94a3b8;
+    --color-aurora-slate-500: #64748b;
+    --color-aurora-slate-600: #475569;
+    --color-aurora-slate-700: #334155;
+    --color-aurora-slate-800: #1e293b;
+    --color-aurora-slate-900: #0f172a;
+    --color-aurora-slate-950: #020617;
+
+    /* Gray colors */
+    --color-aurora-gray-50: #f9fafb;
+    --color-aurora-gray-100: #f3f4f6;
+    --color-aurora-gray-200: #e5e7eb;
+    --color-aurora-gray-300: #d1d5db;
+    --color-aurora-gray-400: #9ca3af;
+    --color-aurora-gray-500: #6b7280;
+    --color-aurora-gray-600: #4b5563;
+    --color-aurora-gray-700: #374151;
+    --color-aurora-gray-800: #1f2937;
+    --color-aurora-gray-900: #111827;
+    --color-aurora-gray-950: #030712;
+
+    /* Zinc colors */
+    --color-aurora-zinc-50: #fafafa;
+    --color-aurora-zinc-100: #f4f4f5;
+    --color-aurora-zinc-200: #e4e4e7;
+    --color-aurora-zinc-300: #d4d4d8;
+    --color-aurora-zinc-400: #a1a1aa;
+    --color-aurora-zinc-500: #71717a;
+    --color-aurora-zinc-600: #52525b;
+    --color-aurora-zinc-700: #3f3f46;
+    --color-aurora-zinc-800: #27272a;
+    --color-aurora-zinc-900: #18181b;
+    --color-aurora-zinc-950: #09090b;
+
+    /* Neutral colors */
+    --color-aurora-neutral-50: #fafafa;
+    --color-aurora-neutral-100: #f5f5f5;
+    --color-aurora-neutral-200: #e5e5e5;
+    --color-aurora-neutral-300: #d4d4d4;
+    --color-aurora-neutral-400: #a3a3a3;
+    --color-aurora-neutral-500: #737373;
+    --color-aurora-neutral-600: #525252;
+    --color-aurora-neutral-700: #404040;
+    --color-aurora-neutral-800: #262626;
+    --color-aurora-neutral-900: #171717;
+    --color-aurora-neutral-950: #0a0a0a;
+
+    /* Stone colors */
+    --color-aurora-stone-50: #fafaf9;
+    --color-aurora-stone-100: #f5f5f4;
+    --color-aurora-stone-200: #e7e5e4;
+    --color-aurora-stone-300: #d6d3d1;
+    --color-aurora-stone-400: #a8a29e;
+    --color-aurora-stone-500: #78716c;
+    --color-aurora-stone-600: #57534e;
+    --color-aurora-stone-700: #44403c;
+    --color-aurora-stone-800: #292524;
+    --color-aurora-stone-900: #1c1917;
+    --color-aurora-stone-950: #0c0a09;
+
+    /* Red colors */
+    --color-aurora-red-50: #fef2f2;
+    --color-aurora-red-100: #fee2e2;
+    --color-aurora-red-200: #fecaca;
+    --color-aurora-red-300: #fca5a5;
+    --color-aurora-red-400: #f87171;
+    --color-aurora-red-500: #ef4444;
+    --color-aurora-red-600: #dc2626;
+    --color-aurora-red-700: #b91c1c;
+    --color-aurora-red-800: #991b1b;
+    --color-aurora-red-900: #7f1d1d;
+    --color-aurora-red-950: #450a0a;
+
+    /* Orange colors */
+    --color-aurora-orange-50: #fff7ed;
+    --color-aurora-orange-100: #ffedd5;
+    --color-aurora-orange-200: #fed7aa;
+    --color-aurora-orange-300: #fdba74;
+    --color-aurora-orange-400: #fb923c;
+    --color-aurora-orange-500: #f97316;
+    --color-aurora-orange-600: #ea580c;
+    --color-aurora-orange-700: #c2410c;
+    --color-aurora-orange-800: #9a3412;
+    --color-aurora-orange-900: #7c2d12;
+    --color-aurora-orange-950: #431407;
+
+    /* Amber colors */
+    --color-aurora-amber-50: #fffbeb;
+    --color-aurora-amber-100: #fef3c7;
+    --color-aurora-amber-200: #fde68a;
+    --color-aurora-amber-300: #fcd34d;
+    --color-aurora-amber-400: #fbbf24;
+    --color-aurora-amber-500: #f59e0b;
+    --color-aurora-amber-600: #d97706;
+    --color-aurora-amber-700: #b45309;
+    --color-aurora-amber-800: #92400e;
+    --color-aurora-amber-900: #78350f;
+    --color-aurora-amber-950: #451a03;
+
+    /* Yellow colors */
+    --color-aurora-yellow-50: #fefce8;
+    --color-aurora-yellow-100: #fef9c3;
+    --color-aurora-yellow-200: #fef08a;
+    --color-aurora-yellow-300: #fde047;
+    --color-aurora-yellow-400: #facc15;
+    --color-aurora-yellow-500: #eab308;
+    --color-aurora-yellow-600: #ca8a04;
+    --color-aurora-yellow-700: #a16207;
+    --color-aurora-yellow-800: #854d0e;
+    --color-aurora-yellow-900: #713f12;
+    --color-aurora-yellow-950: #422006;
+
+    /* Lime colors */
+    --color-aurora-lime-50: #f7fee7;
+    --color-aurora-lime-100: #ecfccb;
+    --color-aurora-lime-200: #d9f99d;
+    --color-aurora-lime-300: #bef264;
+    --color-aurora-lime-400: #a3e635;
+    --color-aurora-lime-500: #84cc16;
+    --color-aurora-lime-600: #65a30d;
+    --color-aurora-lime-700: #4d7c0f;
+    --color-aurora-lime-800: #3f6212;
+    --color-aurora-lime-900: #365314;
+    --color-aurora-lime-950: #1a2e05;
+
+    /* Green colors */
+    --color-aurora-green-50: #f0fdf4;
+    --color-aurora-green-100: #dcfce7;
+    --color-aurora-green-200: #bbf7d0;
+    --color-aurora-green-300: #86efac;
+    --color-aurora-green-400: #4ade80;
+    --color-aurora-green-500: #22c55e;
+    --color-aurora-green-600: #16a34a;
+    --color-aurora-green-700: #15803d;
+    --color-aurora-green-800: #166534;
+    --color-aurora-green-900: #14532d;
+    --color-aurora-green-950: #052e16;
+
+    /* Emerald colors */
+    --color-aurora-emerald-50: #ecfdf5;
+    --color-aurora-emerald-100: #d1fae5;
+    --color-aurora-emerald-200: #a7f3d0;
+    --color-aurora-emerald-300: #6ee7b7;
+    --color-aurora-emerald-400: #34d399;
+    --color-aurora-emerald-500: #10b981;
+    --color-aurora-emerald-600: #059669;
+    --color-aurora-emerald-700: #047857;
+    --color-aurora-emerald-800: #065f46;
+    --color-aurora-emerald-900: #064e3b;
+    --color-aurora-emerald-950: #022c22;
+
+    /* Teal colors */
+    --color-aurora-teal-50: #f0fdfa;
+    --color-aurora-teal-100: #ccfbf1;
+    --color-aurora-teal-200: #99f6e4;
+    --color-aurora-teal-300: #5eead4;
+    --color-aurora-teal-400: #2dd4bf;
+    --color-aurora-teal-500: #14b8a6;
+    --color-aurora-teal-600: #0d9488;
+    --color-aurora-teal-700: #0f766e;
+    --color-aurora-teal-800: #115e59;
+    --color-aurora-teal-900: #134e4a;
+    --color-aurora-teal-950: #042f2e;
+
+    /* Cyan colors */
+    --color-aurora-cyan-50: #ecfeff;
+    --color-aurora-cyan-100: #cffafe;
+    --color-aurora-cyan-200: #a5f3fc;
+    --color-aurora-cyan-300: #67e8f9;
+    --color-aurora-cyan-400: #22d3ee;
+    --color-aurora-cyan-500: #06b6d4;
+    --color-aurora-cyan-600: #0891b2;
+    --color-aurora-cyan-700: #0e7490;
+    --color-aurora-cyan-800: #155e75;
+    --color-aurora-cyan-900: #164e63;
+    --color-aurora-cyan-950: #083344;
+
+    /* Sky colors */
+    --color-aurora-sky-50: #f0f9ff;
+    --color-aurora-sky-100: #e0f2fe;
+    --color-aurora-sky-200: #bae6fd;
+    --color-aurora-sky-300: #7dd3fc;
+    --color-aurora-sky-400: #38bdf8;
+    --color-aurora-sky-500: #0ea5e9;
+    --color-aurora-sky-600: #0284c7;
+    --color-aurora-sky-700: #0369a1;
+    --color-aurora-sky-800: #075985;
+    --color-aurora-sky-900: #0c4a6e;
+    --color-aurora-sky-950: #082f49;
+
+    /* Blue colors */
+    --color-aurora-blue-50: #eff6ff;
+    --color-aurora-blue-100: #dbeafe;
+    --color-aurora-blue-200: #bfdbfe;
+    --color-aurora-blue-300: #93c5fd;
+    --color-aurora-blue-400: #60a5fa;
+    --color-aurora-blue-500: #3b82f6;
+    --color-aurora-blue-600: #2563eb;
+    --color-aurora-blue-700: #1d4ed8;
+    --color-aurora-blue-800: #1e40af;
+    --color-aurora-blue-900: #1e3a8a;
+    --color-aurora-blue-950: #172554;
+
+    /* Indigo colors */
+    --color-aurora-indigo-50: #eef2ff;
+    --color-aurora-indigo-100: #e0e7ff;
+    --color-aurora-indigo-200: #c7d2fe;
+    --color-aurora-indigo-300: #a5b4fc;
+    --color-aurora-indigo-400: #818cf8;
+    --color-aurora-indigo-500: #6366f1;
+    --color-aurora-indigo-600: #4f46e5;
+    --color-aurora-indigo-700: #4338ca;
+    --color-aurora-indigo-800: #3730a3;
+    --color-aurora-indigo-900: #312e81;
+    --color-aurora-indigo-950: #1e1b4b;
+
+    /* Violet colors */
+    --color-aurora-violet-50: #f5f3ff;
+    --color-aurora-violet-100: #ede9fe;
+    --color-aurora-violet-200: #ddd6fe;
+    --color-aurora-violet-300: #c4b5fd;
+    --color-aurora-violet-400: #a78bfa;
+    --color-aurora-violet-500: #8b5cf6;
+    --color-aurora-violet-600: #7c3aed;
+    --color-aurora-violet-700: #6d28d9;
+    --color-aurora-violet-800: #5b21b6;
+    --color-aurora-violet-900: #4c1d95;
+    --color-aurora-violet-950: #2e1065;
+
+    /* Purple colors */
+    --color-aurora-purple-50: #faf5ff;
+    --color-aurora-purple-100: #f3e8ff;
+    --color-aurora-purple-200: #e9d5ff;
+    --color-aurora-purple-300: #d8b4fe;
+    --color-aurora-purple-400: #c084fc;
+    --color-aurora-purple-500: #a855f7;
+    --color-aurora-purple-600: #9333ea;
+    --color-aurora-purple-700: #7e22ce;
+    --color-aurora-purple-800: #6b21a8;
+    --color-aurora-purple-900: #581c87;
+    --color-aurora-purple-950: #3b0764;
+
+    /* Fuchsia colors */
+    --color-aurora-fuchsia-50: #fdf4ff;
+    --color-aurora-fuchsia-100: #fae8ff;
+    --color-aurora-fuchsia-200: #f5d0fe;
+    --color-aurora-fuchsia-300: #f0abfc;
+    --color-aurora-fuchsia-400: #e879f9;
+    --color-aurora-fuchsia-500: #d946ef;
+    --color-aurora-fuchsia-600: #c026d3;
+    --color-aurora-fuchsia-700: #a21caf;
+    --color-aurora-fuchsia-800: #86198f;
+    --color-aurora-fuchsia-900: #701a75;
+    --color-aurora-fuchsia-950: #4a044e;
+
+    /* Pink colors */
+    --color-aurora-pink-50: #fdf2f8;
+    --color-aurora-pink-100: #fce7f3;
+    --color-aurora-pink-200: #fbcfe8;
+    --color-aurora-pink-300: #f9a8d4;
+    --color-aurora-pink-400: #f472b6;
+    --color-aurora-pink-500: #ec4899;
+    --color-aurora-pink-600: #db2777;
+    --color-aurora-pink-700: #be185d;
+    --color-aurora-pink-800: #9d174d;
+    --color-aurora-pink-900: #831843;
+    --color-aurora-pink-950: #500724;
+
+    /* Rose colors */
+    --color-aurora-rose-50: #fff1f2;
+    --color-aurora-rose-100: #ffe4e6;
+    --color-aurora-rose-200: #fecdd3;
+    --color-aurora-rose-300: #fda4af;
+    --color-aurora-rose-400: #fb7185;
+    --color-aurora-rose-500: #f43f5e;
+    --color-aurora-rose-600: #e11d48;
+    --color-aurora-rose-700: #be123c;
+    --color-aurora-rose-800: #9f1239;
+    --color-aurora-rose-900: #881337;
+    --color-aurora-rose-950: #4c0519;
+
+    /* Single color values */
+    --color-aurora-inherit: inherit;
+    --color-aurora-current: currentColor;
+    --color-aurora-transparent: transparent;
+    --color-aurora-black: #000000;
+    --color-aurora-white: #ffffff;
+}
