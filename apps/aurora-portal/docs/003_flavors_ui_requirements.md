@@ -36,10 +36,10 @@ Flavors in OpenStack define the hardware configuration templates for virtual mac
 
 ## 4. User Roles and Permissions
 
-| Role  | Permissions                                                                                 |
-|-------|---------------------------------------------------------------------------------------------|
-| Admin | List, View Details, Create, Delete, Edit Metadata, Manage Access Control                    |
-| User  | List, View Details only                                                                     |
+| Role  | Permissions                                                              |
+| ----- | ------------------------------------------------------------------------ |
+| Admin | List, View Details, Create, Delete, Edit Metadata, Manage Access Control |
+| User  | List, View Details only                                                  |
 
 - Permissions must be enforced both in the frontend UI and backend API.
 - The system should retrieve user roles dynamically from the backend or context.
@@ -47,20 +47,24 @@ Flavors in OpenStack define the hardware configuration templates for virtual mac
 ## 5. UI Components
 
 - **Flavors Table**
+
   - Columns: Name/ID, vCPU, RAM (MB), Root Disk (GB), Ephemeral Disk (GB), Swap (MB), RX/TX Factor, Public, Actions.
   - Supports sorting and pagination.
   - Responsive layout for desktop and mobile.
 
 - **Create Flavor Modal**
+
   - Input fields: Name, vCPU, RAM, Root Disk, Ephemeral Disk, Swap Disk, RX/TX Factor.
   - Validation feedback inline.
   - Submit and Cancel controls.
 
 - **Delete Confirmation Modal**
+
   - Displays flavor name and warning about deletion.
   - Confirm and Cancel controls.
 
 - **Edit Metadata Modal**
+
   - List existing key-value metadata pairs.
   - Provide a mechanism to add new key-value pairs.
   - Provide a mechanism to remove existing pairs.
@@ -130,18 +134,16 @@ Flavors in OpenStack define the hardware configuration templates for virtual mac
 - **FR6.4**: Submit access control changes to the backend API.
 - **FR6.5**: Provide feedback on success or failure and refresh the access list accordingly.
 
-
-
 ## 7. Non-Functional Requirements
 
-| ID    | Requirement                                           |
-|-------|-------------------------------------------------------|
-| NFR1  | UI shall conform to Juno UI design system             |
-| NFR2  | User actions (create/delete/edit) respond within 2 sec|
-| NFR3  | Table supports sorting and pagination for >10 rows    |
-| NFR4  | System must comply with accessibility standards (WCAG 2.1 AA) |
-| NFR5  | All API communications secured via HTTPS              |
-| NFR6  | Audit logging of flavor creation, deletion, and edits |
+| ID   | Requirement                                                   |
+| ---- | ------------------------------------------------------------- |
+| NFR1 | UI shall conform to Juno UI design system                     |
+| NFR2 | User actions (create/delete/edit) respond within 2 sec        |
+| NFR3 | Table supports sorting and pagination for >10 rows            |
+| NFR4 | System must comply with accessibility standards (WCAG 2.1 AA) |
+| NFR5 | All API communications secured via HTTPS                      |
+| NFR6 | Audit logging of flavor creation, deletion, and edits         |
 
 ## 8. Success Metrics
 
