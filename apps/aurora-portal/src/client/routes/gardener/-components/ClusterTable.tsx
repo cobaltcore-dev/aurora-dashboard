@@ -3,12 +3,13 @@ import ClusterTableRow from "./ClusterTableRow"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import { Cluster } from "@/server/Gardener/types/cluster"
 import { GardenerButton } from "./ui/GardenerButton"
+import { DataGrid, Button, DataGridHeadCell, DataGridRow } from "@cloudoperators/juno-ui-components/index"
 // Inner table component for consistent styling
 export const ClusterTable: React.FC<{
   clusters: Cluster[]
   filteredCount: number
-  setDeleteClusterModal: (clusterName: string) => void
-}> = ({ clusters, filteredCount, setDeleteClusterModal }) => {
+  seDataGridCelleleteClusterModal: (clusterName: string) => void
+}> = ({ clusters, filteredCount, seDataGridCelleleteClusterModal }) => {
   return (
     <div className="w-full">
       {/* Table with enhanced styling */}
@@ -35,28 +36,24 @@ export const ClusterTable: React.FC<{
             <p className="text-aurora-gray-500 mb-6">No Kubernetes clusters match your current filter criteria</p>
           </div>
         ) : (
-          <table className="w-full text-left border-collapse text-aurora-gray-300">
-            <thead className="bg-aurora-gray-800/90">
-              <tr className="text-aurora-gray-400 border-b border-aurora-gray-700">
-                <th className="p-4 font-medium">Name</th>
-                <th className="p-4 font-medium">Infrastructure</th>
-                <th className="p-4 font-medium">Region</th>
-                <th className="p-4 font-medium">Version</th>
-                <th className="p-4 font-medium">Status</th>
-                <th className="p-4 text-right font-medium">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {clusters.map((cluster, index) => (
-                <ClusterTableRow
-                  key={cluster.uid}
-                  cluster={cluster}
-                  isLast={index === clusters.length - 1}
-                  setShowClusterModal={setDeleteClusterModal}
-                />
-              ))}
-            </tbody>
-          </table>
+          <DataGrid columns={6} cellVerticalAlignment="top" className="alerts">
+            <DataGridRow>
+              <DataGridHeadCell className="p-4 font-medium">Name</DataGridHeadCell>
+              <DataGridHeadCell className="p-4 font-medium">Infrastructure</DataGridHeadCell>
+              <DataGridHeadCell className="p-4 font-medium">Region</DataGridHeadCell>
+              <DataGridHeadCell className="p-4 font-medium">Version</DataGridHeadCell>
+              <DataGridHeadCell className="p-4 font-medium">Status</DataGridHeadCell>
+              <DataGridHeadCell className="p-4 text-right font-medium">Actions</DataGridHeadCell>
+            </DataGridRow>
+            {clusters.map((cluster, index) => (
+              <ClusterTableRow
+                key={cluster.uid}
+                cluster={cluster}
+                isLast={index === clusters.length - 1}
+                setShowClusterModal={seDataGridCelleleteClusterModal}
+              />
+            ))}
+          </DataGrid>
         )}
       </div>
 

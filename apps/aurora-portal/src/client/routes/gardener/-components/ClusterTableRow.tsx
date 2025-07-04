@@ -3,7 +3,7 @@ import { Eye, Edit, Trash2, AlertTriangle, CheckCircle, XCircle, Clock } from "l
 import { Link } from "@tanstack/react-router"
 import { Cluster } from "@/server/Gardener/types/cluster"
 import { toast } from "sonner"
-import { GardenerIconButton } from "./ui/GardenerButton"
+import { Button, DataGridRow, DataGridCell, ButtonRow } from "@cloudoperators/juno-ui-components/index"
 
 interface ClusterTableRowProps {
   cluster: Cluster
@@ -82,10 +82,8 @@ const ClusterTableRow: React.FC<ClusterTableRowProps> = ({ cluster, isLast, setS
   }
 
   return (
-    <tr
-      className={`group hover:bg-aurora-gray-800/50 transition-colors ${!isLast ? "border-b border-aurora-gray-800" : ""}`}
-    >
-      <td className="p-4 font-medium">
+    <DataGridRow>
+      <DataGridCell>
         <div className="flex flex-col">
           <Link
             to="/gardener/clusters/$clusterName"
@@ -104,8 +102,8 @@ const ClusterTableRow: React.FC<ClusterTableRowProps> = ({ cluster, isLast, setS
             </div>
           </div>
         </div>
-      </td>
-      <td className="p-4">
+      </DataGridCell>
+      <DataGridCell>
         <div className="flex items-center">
           <div className="rounded-md bg-aurora-gray-800 p-1 mr-2 border border-aurora-gray-700">
             <span className="uppercase text-xs font-mono text-aurora-blue-300">
@@ -114,19 +112,14 @@ const ClusterTableRow: React.FC<ClusterTableRowProps> = ({ cluster, isLast, setS
           </div>
           <span className="capitalize">{cluster.infrastructure}</span>
         </div>
-      </td>
-      <td className="p-4">
+      </DataGridCell>
+      <DataGridCell>
         <span className="px-2 py-1 rounded-md bg-aurora-gray-800/50 text-sm text-aurora-purple-300">
           {cluster.region}
         </span>
-      </td>
-      <td className="p-4">
-        <div className="flex items-center">
-          <span className="text-aurora-blue-400">v</span>
-          {cluster.version}
-        </div>
-      </td>
-      <td className="p-4">
+      </DataGridCell>
+      <DataGridCell>{cluster.version}</DataGridCell>
+      <DataGridCell>
         <div className="flex items-center">
           {/* Improved status indicator with better proportions */}
           <div
@@ -136,49 +129,39 @@ const ClusterTableRow: React.FC<ClusterTableRowProps> = ({ cluster, isLast, setS
           </div>
           <span className={`font-medium ${getStatusColor(cluster.status)}`}>{cluster.status}</span>
         </div>
-      </td>
+      </DataGridCell>
 
       {/* Action Buttons - Hidden until row hover */}
-      <td className="p-4">
-        <div className="flex items-center justify-end gap-2 group-hover:opacity-100 transition-opacity">
+      <DataGridCell>
+        <ButtonRow>
           <Link to="/gardener/clusters/$clusterName" params={{ clusterName: cluster.name }}>
-            <GardenerIconButton
-              size="sm"
-              variant="ghost"
-              className="text-aurora-blue-500 hover:text-aurora-blue-400 hover:bg-aurora-blue-800/20"
-              onClick={() => {}}
-            >
+            <Button onClick={() => {}}>
               <Eye className="h-4 w-4" />
               <span className="sr-only">View Details</span>
-            </GardenerIconButton>
+            </Button>
           </Link>
 
-          <GardenerIconButton
-            size="sm"
+          <Button
             disabled
-            variant="disabled"
             onClick={() => {
               toast.info(`Editing ${cluster.name}... (Not implemented)`)
             }}
           >
             <Edit className="h-4 w-4" />
             <span className="sr-only">Edit</span>
-          </GardenerIconButton>
+          </Button>
 
-          <GardenerIconButton
-            size="sm"
-            variant="ghost"
-            className="text-aurora-red-500 hover:text-aurora-red-400 hover:bg-aurora-red-800/20"
+          <Button
             onClick={() => {
               setShowClusterModal(cluster.name)
             }}
           >
             <Trash2 className="h-4 w-4" />
             <span className="sr-only">Delete</span>
-          </GardenerIconButton>
-        </div>
-      </td>
-    </tr>
+          </Button>
+        </ButtonRow>
+      </DataGridCell>
+    </DataGridRow>
   )
 }
 
