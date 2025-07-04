@@ -10,6 +10,7 @@ on:
 
 permissions:
   pull-requests: read
+  statuses: write
 
 jobs:
   title-lint:
