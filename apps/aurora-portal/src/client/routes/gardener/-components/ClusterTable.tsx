@@ -3,13 +3,13 @@ import ClusterTableRow from "./ClusterTableRow"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import { Cluster } from "@/server/Gardener/types/cluster"
 import { GardenerButton } from "./ui/GardenerButton"
-import { DataGrid, Button, DataGridHeadCell, DataGridRow } from "@cloudoperators/juno-ui-components/index"
+import { DataGrid, DataGridHeadCell, DataGridRow } from "@cloudoperators/juno-ui-components/index"
 // Inner table component for consistent styling
 export const ClusterTable: React.FC<{
   clusters: Cluster[]
   filteredCount: number
-  seDataGridCelleleteClusterModal: (clusterName: string) => void
-}> = ({ clusters, filteredCount, seDataGridCelleleteClusterModal }) => {
+  setDeleteClusterModal: (clusterName: string) => void
+}> = ({ clusters, filteredCount, setDeleteClusterModal }) => {
   return (
     <div className="w-full">
       {/* Table with enhanced styling */}
@@ -50,7 +50,7 @@ export const ClusterTable: React.FC<{
                 key={cluster.uid}
                 cluster={cluster}
                 isLast={index === clusters.length - 1}
-                setShowClusterModal={seDataGridCelleleteClusterModal}
+                setShowClusterModal={setDeleteClusterModal}
               />
             ))}
           </DataGrid>

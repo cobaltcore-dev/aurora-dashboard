@@ -71,7 +71,7 @@ const getStatusStyles = (status: string) => {
   }
 }
 
-const ClusterTableRow: React.FC<ClusterTableRowProps> = ({ cluster, isLast, setShowClusterModal }) => {
+const ClusterTableRow: React.FC<ClusterTableRowProps> = ({ cluster, setShowClusterModal }) => {
   const statusStyles = getStatusStyles(cluster.status)
   const StatusIcon = statusStyles.icon
 
