@@ -63,6 +63,7 @@ Enable users to transition from the legacy dashboard to the Aurora dashboard by 
 - Preserves login states and permissions.
 - Could include automatic redirection post-validation.
 - Slight delay during validation may occur.
+- Redirect to login page if validation fails
 
 ### Challenges & Limitations
 
@@ -112,7 +113,6 @@ The session transfer method offers a more transparent, seamless user experience 
 - **Security:** Leverages existing secure token-based authentication infrastructure (Keystone).
 - **Speed:** Transition can be quick, as it involves redirecting with token validation rather than UI embedding.
 - **Simplicity:** Minimal UI complexity; mainly backend validation and redirection.
-- **User experience:** Seamless, single-click transition without embedding issues.
 
 #### Cons
 
@@ -128,7 +128,7 @@ The session transfer method offers a more transparent, seamless user experience 
 | **Time**                   | Moderate (medium complexity, cross-origin handling)                                       | Faster (mainly backend work and redirection)                                      |
 | **Security**               | Moderate to high risk if not carefully validated; cross-origin communication complexities | High security if tokens are transmitted over HTTPS and validated properly         |
 | **Ease of Implementation** | Moderate; requires JS libraries, URL sync mechanisms, iframe setup                        | High; standard API calls and redirection, leveraging existing auth infrastructure |
-| **User Experience**        | High; seamless in-place interaction, flexible layout                                      | Very high; seamless transition, minimal user interaction                          |
+| **User Experience**        | High; seamless in-place interaction, flexible layout                                      | Low; seamless transition, minimal user interaction                          |
 | **Maintenance**            | Medium to high; keeps synchronization layers                                              | Low; mainly backend validation and session management                             |
 
 ### Final Recommendation
@@ -137,4 +137,4 @@ The session transfer method offers a more transparent, seamless user experience 
 
 - It provides a **more secure** and **simpler** implementation, especially when already using Keystone or similar auth systems.
 - It results in **faster** deployment, as it primarily involves backend validation and redirection rather than complex UI embedding.
-- It offers **better user experience** with minimal disruption during transition.
+
