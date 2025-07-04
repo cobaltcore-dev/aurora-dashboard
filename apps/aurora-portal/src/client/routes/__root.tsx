@@ -23,18 +23,23 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 })
 
 function AuroraLayout({ mainNavItems = [] }: NavigationLayoutProps) {
-  const isPending = useRouterState({ select: (s) => s.status === "pending" })
+  // More specific selector to check if we're actually navigating to a different route
+  const routerState = useRouterState()
+  const isNavigating =
+    routerState.status === "pending" && routerState.location.pathname !== routerState?.resolvedLocation?.pathname
+
   const [isLoading, setIsLoading] = useState(false)
+
   useEffect(() => {
-    // Set loading state based on router status
-    if (isPending) {
+    // Only show loading spinner for actual route changes, not search parameter changes
+    if (isNavigating) {
       setIsLoading(true)
     } else {
       setTimeout(() => {
         setIsLoading(false)
-      }, 300) // Delay to show spinner for at least 1 second
+      }, 300) // Delay to show spinner for at least 300ms
     }
-  }, [isPending, isLoading, setIsLoading])
+  }, [isNavigating, isLoading, setIsLoading])
 
   // Default navigation items
   const defaultItems: NavigationItem[] = [
