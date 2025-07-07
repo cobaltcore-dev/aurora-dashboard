@@ -2,13 +2,13 @@ import { createFileRoute, useLoaderData, useRouter } from "@tanstack/react-route
 import { Plus, RefreshCw } from "lucide-react"
 import { toast } from "sonner"
 import React, { useState } from "react"
+import { Button } from "@cloudoperators/juno-ui-components/index"
 import { Cluster } from "@/server/Gardener/types/cluster"
 
 import { ClusterTable } from "../-components/ClusterTable"
 import CreateClusterWizard from "../-components/CreateClusterDialog"
 import { DeleteClusterDialog } from "../-components/DeleteClusterDialog"
 import { SearchBar, SortByType } from "../-components/SearchBar"
-import { GardenerButton } from "../-components/ui/GardenerButton"
 import { ClusterFilters } from "../-components/ClusterFilters"
 
 export const Route = createFileRoute("/gardener/clusters/")({
@@ -116,7 +116,7 @@ function RouteComponent() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-aurora-gray-950 to-aurora-gray-900 text-aurora-white p-6">
+    <div className="min-h-screen bg-theme-background-lvl-0">
       <div className="max-w-7xl mx-auto">
         {/* Header with title */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
@@ -126,24 +126,19 @@ function RouteComponent() {
           </div>
 
           <div className="flex gap-2 mt-4 sm:mt-0">
-            <GardenerButton size="md" variant="secondary" className="flex items-center" onClick={handleRefresh}>
+            <Button onClick={handleRefresh}>
               <RefreshCw className={`h-4 w-4 mr-2`} />
               Refresh
-            </GardenerButton>
-            <GardenerButton
-              onClick={handleCreateWizzard}
-              size="md"
-              variant="primary"
-              className="flex items-center bg-aurora-blue-700 hover:bg-aurora-blue-600 border-aurora-blue-600 text-aurora-white shadow-lg shadow-aurora-blue-900/20"
-            >
+            </Button>
+            <Button onClick={handleCreateWizzard} variant="primary">
               <Plus className="h-4 w-4 mr-2" />
               New Cluster
-            </GardenerButton>
+            </Button>
           </div>
         </div>
 
         {/* Main content container */}
-        <div className="bg-aurora-gray-900 rounded-lg border border-aurora-gray-800 shadow-xl p-6">
+        <div>
           <SearchBar
             searchTerm={searchTerm}
             setSearchTerm={setSearchTerm}
