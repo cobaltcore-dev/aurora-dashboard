@@ -6,6 +6,10 @@ name: REUSE Compliance Check
 
 on: [pull_request]
 
+permissions:
+  contents: read # Needed to access repo files for linting
+  pull-requests: read # Needed to access PR metadata (e.g., changed files) 
+
 jobs:
   test:
     runs-on: ubuntu-latest
