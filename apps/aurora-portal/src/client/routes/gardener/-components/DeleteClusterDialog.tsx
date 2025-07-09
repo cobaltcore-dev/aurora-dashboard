@@ -1,5 +1,6 @@
 import React from "react"
 import { Modal, Button, ModalFooter, ButtonRow, Message } from "@cloudoperators/juno-ui-components"
+import { Trans } from "@lingui/react/macro"
 
 interface DeleteClusterGardenerDialogProps {
   isOpen: boolean
@@ -41,10 +42,10 @@ export const DeleteClusterDialog: React.FC<DeleteClusterGardenerDialogProps> = (
                 handleDelete(e)
               }}
             >
-              Delete
+              <Trans>Delete</Trans>
             </Button>
             <Button variant="default" onClick={onClose}>
-              Cancel
+              <Trans>Cancel</Trans>
             </Button>
           </ButtonRow>
         </ModalFooter>
@@ -57,19 +58,23 @@ export const DeleteClusterDialog: React.FC<DeleteClusterGardenerDialogProps> = (
               <div className="px-8 space-y-6">
                 {/* Warning */}
                 <Message dismissible={false} variant="warning">
-                  This action cannot be undone. The cluster will be permanently deleted.
+                  <Trans>This action cannot be undone. The cluster will be permanently deleted.</Trans>
                 </Message>
 
                 {/* Question */}
                 <p className="text-juno-grey-light text-base text-left">
-                  Would you like to remove the{" "}
-                  <strong className="text-juno-grey-light-7 font-semibold">{clusterName}</strong> from your project?
+                  <Trans>
+                    Would you like to remove the{" "}
+                    <strong className="text-juno-grey-light-7 font-semibold">{clusterName}</strong> from your project?
+                  </Trans>
                 </p>
 
                 {/* Consequence */}
                 <p className="text-juno-grey-light text-base text-left">
-                  After continuing, your project will no longer have access to the{" "}
-                  <strong className="text-juno-light font-semibold">{clusterName}</strong> resources.
+                  <Trans>
+                    After continuing, your project will no longer have access to the{" "}
+                    <strong className="text-juno-light font-semibold">{clusterName}</strong> resources.
+                  </Trans>
                 </p>
               </div>
             </div>
