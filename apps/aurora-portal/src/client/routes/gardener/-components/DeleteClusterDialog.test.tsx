@@ -1,8 +1,9 @@
-import { render, screen, fireEvent } from "@testing-library/react"
+import { render, screen, fireEvent, act } from "@testing-library/react"
 import { describe, it, expect, vi, beforeEach } from "vitest"
 import { DeleteClusterDialog } from "./DeleteClusterDialog"
 import { PortalProvider } from "@cloudoperators/juno-ui-components"
-
+import { i18n } from "@lingui/core"
+import { I18nProvider } from "@lingui/react"
 describe("DeleteClusterDialog", () => {
   const mockOnClose = vi.fn()
   const mockOnDelete = vi.fn()
@@ -10,14 +11,24 @@ describe("DeleteClusterDialog", () => {
 
   const setup = (isOpen: boolean, clusterName: string = mockClusterName) => {
     render(
-      <PortalProvider>
-        <DeleteClusterDialog isOpen={isOpen} onClose={mockOnClose} onDelete={mockOnDelete} clusterName={clusterName} />
-      </PortalProvider>
+      <I18nProvider i18n={i18n}>
+        <PortalProvider>
+          <DeleteClusterDialog
+            isOpen={isOpen}
+            onClose={mockOnClose}
+            onDelete={mockOnDelete}
+            clusterName={clusterName}
+          />
+        </PortalProvider>
+      </I18nProvider>
     )
   }
 
-  beforeEach(() => {
+  beforeEach(async () => {
     vi.clearAllMocks()
+    await act(async () => {
+      i18n.activate("en")
+    })
   })
 
   it("should render the modal when isOpen is true", () => {
