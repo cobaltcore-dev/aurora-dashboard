@@ -50,34 +50,27 @@ export const DeleteClusterDialog: React.FC<DeleteClusterGardenerDialogProps> = (
         </ModalFooter>
       }
       children={
-        <div className="flex items-center justify-center">
-          <div className="rounded-lg shadow-2xl w-full max-w-md overflow-y-auto">
-            <div className="space-y-8">
-              {/* Content */}
-              <div className="px-8 space-y-6">
-                {/* Warning */}
-                <Message dismissible={false} variant="warning">
-                  <Trans>This action cannot be undone. The cluster will be permanently deleted.</Trans>
-                </Message>
+        <div className="px-8 space-y-6">
+          {/* Warning */}
+          <Message dismissible={false} variant="warning">
+            <Trans>This action cannot be undone. The cluster will be permanently deleted.</Trans>
+          </Message>
 
-                {/* Question */}
-                <p className="text-juno-grey-light text-base text-left">
-                  <Trans>
-                    Would you like to remove the{" "}
-                    <strong className="text-juno-grey-light-7 font-semibold">{clusterName}</strong> from your project?
-                  </Trans>
-                </p>
+          {/* Question */}
+          <p className="text-base text-left">
+            <Trans>
+              Would you like to remove the <strong className="text-theme-high font-semibold">{clusterName}</strong> from
+              your project?
+            </Trans>
+          </p>
 
-                {/* Consequence */}
-                <p className="text-juno-grey-light text-base text-left">
-                  <Trans>
-                    After continuing, your project will no longer have access to the{" "}
-                    <strong className="text-juno-light font-semibold">{clusterName}</strong> resources.
-                  </Trans>
-                </p>
-              </div>
-            </div>
-          </div>
+          {/* Consequence */}
+          <p className="text-base text-left">
+            <Trans>
+              After continuing, your project will no longer have access to the{" "}
+              <strong className="text-theme-high font-semibold">{clusterName}</strong> resources.
+            </Trans>
+          </p>
         </div>
       }
     ></Modal>
