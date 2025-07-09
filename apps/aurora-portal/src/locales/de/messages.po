@@ -79,7 +79,7 @@ msgstr "Löschen"
 
 #: src/client/routes/gardener/-components/DeleteClusterDialog.tsx:29
 msgid "Delete Cluster"
-msgstr "Cluster Löschen"
+msgstr "Cluster löschen"
 
 #: src/client/routes/auth/login.tsx:114
 msgid "Domain"
