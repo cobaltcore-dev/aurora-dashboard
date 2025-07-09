@@ -53,7 +53,7 @@ msgstr "<0>Unified Cloud Management:</0> Consolidates all your cloud assets into
 msgid "About Aurora Dashboard"
 msgstr "About Aurora Dashboard"
 
-#: src/client/routes/gardener/-components/DeleteClusterDialog.tsx:74
+#: src/client/routes/gardener/-components/DeleteClusterDialog.tsx:73
 msgid "After continuing, your project will no longer have access to the <0>{clusterName}</0> resources."
 msgstr "After continuing, your project will no longer have access to the <0>{clusterName}</0> resources."
 
@@ -65,7 +65,7 @@ msgstr "At Aurora, our mission is to provide a centralized platform that unifies
 msgid "Aurora Dashboard is more than just a tool—it's your partner in navigating the cloud. Whether you're a small startup or a global enterprise, Aurora provides the flexibility, power, and simplicity you need to achieve your goals."
 msgstr "Aurora Dashboard is more than just a tool—it's your partner in navigating the cloud. Whether you're a small startup or a global enterprise, Aurora provides the flexibility, power, and simplicity you need to achieve your goals."
 
-#: src/client/routes/gardener/-components/DeleteClusterDialog.tsx:48
+#: src/client/routes/gardener/-components/DeleteClusterDialog.tsx:47
 msgid "Cancel"
 msgstr "Cancel"
 
@@ -73,9 +73,13 @@ msgstr "Cancel"
 msgid "Contact support"
 msgstr "Contact support"
 
-#: src/client/routes/gardener/-components/DeleteClusterDialog.tsx:45
+#: src/client/routes/gardener/-components/DeleteClusterDialog.tsx:44
 msgid "Delete"
 msgstr "Delete"
+
+#: src/client/routes/gardener/-components/DeleteClusterDialog.tsx:29
+msgid "Delete Cluster"
+msgstr "Delete Cluster"
 
 #: src/client/routes/auth/login.tsx:114
 msgid "Domain"
@@ -166,7 +170,7 @@ msgstr "Stay tuned — Aurora Dashboard is launching soon to streamline your clo
 msgid "The <0>Aurora Dashboard</0> is on its way! Get ready for a powerful, all-in-one cloud management interface designed to make managing your cloud assets simple and efficient. With tools for provisioning, configuring, and scaling resources like servers, networks, and volumes, Aurora will soon bring you:"
 msgstr "The <0>Aurora Dashboard</0> is on its way! Get ready for a powerful, all-in-one cloud management interface designed to make managing your cloud assets simple and efficient. With tools for provisioning, configuring, and scaling resources like servers, networks, and volumes, Aurora will soon bring you:"
 
-#: src/client/routes/gardener/-components/DeleteClusterDialog.tsx:61
+#: src/client/routes/gardener/-components/DeleteClusterDialog.tsx:60
 msgid "This action cannot be undone. The cluster will be permanently deleted."
 msgstr "This action cannot be undone. The cluster will be permanently deleted."
 
@@ -198,7 +202,7 @@ msgstr "Welcome to Aurora Dashboard"
 msgid "Why Choose Aurora?"
 msgstr "Why Choose Aurora?"
 
-#: src/client/routes/gardener/-components/DeleteClusterDialog.tsx:66
+#: src/client/routes/gardener/-components/DeleteClusterDialog.tsx:65
 msgid "Would you like to remove the <0>{clusterName}</0> from your project?"
 msgstr "Would you like to remove the <0>{clusterName}</0> from your project?"
 

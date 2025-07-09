@@ -1,6 +1,6 @@
 import React from "react"
 import { Modal, Button, ModalFooter, ButtonRow, Message } from "@cloudoperators/juno-ui-components"
-import { Trans } from "@lingui/react/macro"
+import { Trans, useLingui } from "@lingui/react/macro"
 
 interface DeleteClusterGardenerDialogProps {
   isOpen: boolean
@@ -15,6 +15,7 @@ export const DeleteClusterDialog: React.FC<DeleteClusterGardenerDialogProps> = (
   clusterName,
   onDelete,
 }) => {
+  const { t } = useLingui()
   const handleDelete = (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault()
     onDelete(clusterName)
@@ -25,13 +26,11 @@ export const DeleteClusterDialog: React.FC<DeleteClusterGardenerDialogProps> = (
       open={isOpen}
       onCancel={onClose}
       size="small"
-      title="Delete Cluster"
+      title={t`Delete Cluster`}
       onConfirm={(e) => {
         handleDelete(e)
         onClose()
       }}
-      cancelButtonLabel="Cancel"
-      confirmButtonLabel="Delete Cluster"
       modalFooter={
         <ModalFooter className="flex justify-end gap-3 px-8 mt-8">
           <ButtonRow>
