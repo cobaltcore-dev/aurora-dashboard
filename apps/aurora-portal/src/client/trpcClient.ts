@@ -18,12 +18,6 @@ export const trpcClient = createTRPCClient<AuroraRouter>({
       condition: (op) => op.type === "subscription",
       true: httpSubscriptionLink({
         url: BFF_ENDPOINT,
-        async headers() {
-          const { csrfToken } = await fetch("/csrf-token").then((res) => res.json())
-          return {
-            "x-csrf-token": csrfToken,
-          }
-        },
       }),
       false: httpBatchLink({
         url: BFF_ENDPOINT,
