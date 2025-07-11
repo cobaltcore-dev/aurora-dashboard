@@ -10,7 +10,17 @@ export const clusterSchema = z.object({
   infrastructure: z.string(),
   status: z.string(),
   version: z.string(),
-  readiness: z.string(),
+  readiness: z.object({
+    status: z.string(),
+    conditions: z.array(
+      z.object({
+        displayValue: z.string(),
+        type: z.string(),
+        status: z.string(),
+      })
+    ),
+  }),
+  purpose: z.string().optional(),
 
   // New state information fields
   stateDetails: z
@@ -48,6 +58,10 @@ export const clusterSchema = z.object({
     windowTime: z.string(),
   }),
 
+  lastMaintenance: z.object({
+    state: z.string().optional(),
+  }),
+
   autoUpdate: z.object({
     os: z.boolean(),
     kubernetes: z.boolean(),
@@ -64,6 +78,7 @@ export function convertShootApiResponseToCluster(shoot: ShootApiResponse): Clust
   const getStatus = (shoot: ShootApiResponse): string => {
     if (!shoot.status?.lastOperation) return "Unknown"
 
+    // one of Aborted, Processing, Succeeded, Error, Failed
     const state = shoot.status.lastOperation.state
 
     if (state === "Failed") return "Error"
@@ -73,14 +88,35 @@ export function convertShootApiResponseToCluster(shoot: ShootApiResponse): Clust
   }
 
   // Helper function to get readiness based on conditions
-  const getReadiness = (shoot: ShootApiResponse): string => {
-    if (!shoot.status?.conditions) return "Unknown"
+  const getReadiness = (
+    shoot: ShootApiResponse
+  ): {
+    status: string
+    conditions: Array<{ type: string; status: string; displayValue: string }>
+  } => {
+    // one of True, False, Unknown
+    if (!shoot.status?.conditions) return { status: "Unknown", conditions: [] }
+
+    const conditionNamesByType = {
+      APIServerAvailable: "API",
+      ControlPlaneHealthy: "CP",
+      ObservabilityComponentsHealthy: "OC",
+      EveryNodeReady: "N",
+      SystemComponentsHealthy: "SC",
+    }
 
     // Count True conditions vs total
     const conditions = shoot.status.conditions
     const healthyCount = conditions.filter((c) => c.status === "True").length
 
-    return `${healthyCount}/${conditions.length}`
+    return {
+      status: `${healthyCount}/${conditions.length}`,
+      conditions: conditions.map((condition) => ({
+        displayValue: conditionNamesByType[condition.type],
+        type: condition.type,
+        status: condition.status,
+      })),
+    }
   }
 
   // New helper function to extract state details
@@ -107,6 +143,7 @@ export function convertShootApiResponseToCluster(shoot: ShootApiResponse): Clust
     status: getStatus(shoot),
     version: shoot.spec.kubernetes.version,
     readiness: getReadiness(shoot),
+    purpose: shoot.spec.purpose,
 
     // Add the state details
     stateDetails: getStateDetails(shoot),
@@ -133,6 +170,13 @@ export function convertShootApiResponseToCluster(shoot: ShootApiResponse): Clust
       startTime: shoot.spec.maintenance?.timeWindow.begin || "",
       timezone: shoot.spec.hibernation?.schedules?.[0]?.location || "",
       windowTime: shoot.spec.maintenance?.timeWindow.end || "",
+    },
+
+    // Last Maintenance state
+
+    lastMaintenance: {
+      // one of Processing, Succeeded, Error
+      state: shoot.status?.lastMaintenance?.state,
     },
 
     // Auto update

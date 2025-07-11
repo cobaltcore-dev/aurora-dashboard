@@ -87,7 +87,7 @@ export const ClusterOverviewCard: React.FC<{
             <div
               className={`px-3 py-1.5 rounded text-sm ${statusStyles.badgeBg} ${statusStyles.badgeText} border ${statusStyles.badgeBorder}`}
             >
-              Readiness: {cluster.readiness}
+              Readiness: {cluster.readiness.status}
             </div>
           </div>
         </div>
@@ -141,7 +141,7 @@ export const ClusterOverviewCard: React.FC<{
                 <div
                   className={`px-2 py-1 rounded text-sm ${statusStyles.badgeBg} ${statusStyles.badgeText} border ${statusStyles.badgeBorder}`}
                 >
-                  {cluster.readiness}
+                  {cluster.readiness.status}
                 </div>
               </div>
             </GardenerCardContent>
