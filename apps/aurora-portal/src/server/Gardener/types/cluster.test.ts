@@ -205,7 +205,22 @@ describe("Cluster Conversion Functions", () => {
         infrastructure: mockOperationalShoot.spec.provider.type,
         status: "Operational",
         version: mockOperationalShoot.spec.kubernetes.version,
-        readiness: "2/2", // Based on the 2 conditions in the mock
+        // Based on the 2 conditions in the mock
+        readiness: {
+          conditions: [
+            {
+              displayValue: "API",
+              status: "True",
+              type: "APIServerAvailable",
+            },
+            {
+              displayValue: "CP",
+              status: "True",
+              type: "ControlPlaneHealthy",
+            },
+          ],
+          status: "2/2",
+        },
         stateDetails: {
           progress: 100,
           type: "Reconcile",
