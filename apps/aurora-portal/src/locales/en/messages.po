@@ -61,6 +61,10 @@ msgstr "At Aurora, our mission is to provide a centralized platform that unifies
 msgid "Aurora Dashboard is more than just a tool—it's your partner in navigating the cloud. Whether you're a small startup or a global enterprise, Aurora provides the flexibility, power, and simplicity you need to achieve your goals."
 msgstr "Aurora Dashboard is more than just a tool—it's your partner in navigating the cloud. Whether you're a small startup or a global enterprise, Aurora provides the flexibility, power, and simplicity you need to achieve your goals."
 
+#: src/client/routes/gardener/-components/Filters/index.tsx:48
+msgid "Clear all"
+msgstr "Clear all"
+
 #: src/client/routes/auth/login.tsx:172
 msgid "Contact support"
 msgstr "Contact support"
@@ -86,7 +90,7 @@ msgstr "Enter your domain"
 msgid "Enter your username"
 msgstr "Enter your username"
 
-#: src/client/routes/gardener/-components/SearchBar.tsx:38
+#: src/client/routes/gardener/-components/Filters/FilterSelect.tsx:55
 msgid "Filters"
 msgstr "Filters"
 
@@ -106,21 +110,9 @@ msgstr "Loading..."
 msgid "Login to Your Account"
 msgstr "Login to Your Account"
 
-#: src/client/routes/gardener/-components/SearchBar.tsx:50
-msgid "Name (A-Z)"
-msgstr "Name (A-Z)"
-
-#: src/client/routes/gardener/-components/SearchBar.tsx:51
-msgid "Name (Z-A)"
-msgstr "Name (Z-A)"
-
 #: src/client/routes/auth/login.tsx:170
 msgid "Need help?"
 msgstr "Need help?"
-
-#: src/client/routes/gardener/-components/SearchBar.tsx:49
-msgid "Newest"
-msgstr "Newest"
 
 #: src/client/routes/about.tsx:24
 msgid "Our Mission"
@@ -130,21 +122,13 @@ msgstr "Our Mission"
 msgid "Password"
 msgstr "Password"
 
-#: src/client/routes/gardener/-components/SearchBar.tsx:57
+#: src/client/routes/gardener/-components/Filters/index.tsx:59
 msgid "Search clusters..."
 msgstr "Search clusters..."
 
 #: src/client/routes/auth/login.tsx:165
 msgid "Sign In"
 msgstr "Sign In"
-
-#: src/client/routes/gardener/-components/SearchBar.tsx:43
-msgid "Sort"
-msgstr "Sort"
-
-#: src/client/routes/gardener/-components/SearchBar.tsx:52
-msgid "Status"
-msgstr "Status"
 
 #: src/client/routes/index.tsx:81
 msgid "Stay tuned — Aurora Dashboard is launching soon to streamline your cloud management experience!"
