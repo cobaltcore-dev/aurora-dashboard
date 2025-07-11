@@ -284,7 +284,7 @@ describe("Cluster Conversion Functions", () => {
       const result = convertShootApiResponseToCluster(mockMissingStatusShoot)
 
       expect(result.status).toBe("Unknown")
-      expect(result.readiness).toBe("Unknown")
+      expect(result.readiness.status).toBe("Unknown")
       expect(result.stateDetails).toBeUndefined()
     })
 
