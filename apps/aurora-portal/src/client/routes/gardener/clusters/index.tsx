@@ -109,8 +109,8 @@ function RouteComponent() {
         {/* Header with title */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center px-4 py-6">
           <div>
-            <h1 className="text-2xl font-bold text-white mb-1">Kubernetes Clusters</h1>
-            <p className="text-gray-400">Manage your VM-based Kubernetes deployments</p>
+            <h1 className="text-2xl font-bold text-theme-high mb-1">Kubernetes Clusters</h1>
+            <p className="text-theme-light">Manage your VM-based Kubernetes deployments</p>
           </div>
 
           <div className="flex gap-2 mt-4 sm:mt-0">

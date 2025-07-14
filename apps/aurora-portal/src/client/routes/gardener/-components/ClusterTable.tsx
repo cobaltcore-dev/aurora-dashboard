@@ -12,12 +12,12 @@ export const ClusterTable: React.FC<{
       {/* Header with summary */}
       <Stack className="bg-theme-background-lvl-1 py-2 px-4 my-0">
         <Stack gap="1" className="w-1/2">
-          <span className="text-white">{clusters.length}</span> out of{" "}
-          <span className="text-white">{filteredCount}</span> clusters
+          <span className="text-theme-high">{clusters.length}</span> out of{" "}
+          <span className="text-theme-high">{filteredCount}</span> clusters
         </Stack>
         <Stack distribution="end" gap="1" className="w-1/2">
           Last Update{" "}
-          <span className="text-white">
+          <span className="text-theme-high">
             {clusters
               .filter((cluster) => cluster.stateDetails?.lastTransitionTime)
               .map((cluster) => new Date(cluster.stateDetails?.lastTransitionTime as string))
