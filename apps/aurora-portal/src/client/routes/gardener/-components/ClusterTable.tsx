@@ -1,15 +1,7 @@
 import React from "react"
 import ClusterTableRow from "./ClusterTableRow"
 import { Cluster } from "@/server/Gardener/types/cluster"
-import {
-  DataGrid,
-  DataGridHeadCell,
-  DataGridRow,
-  Icon,
-  DataGridCell,
-  Stack,
-  Pagination,
-} from "@cloudoperators/juno-ui-components"
+import { DataGrid, DataGridHeadCell, DataGridRow, Icon, DataGridCell, Stack } from "@cloudoperators/juno-ui-components"
 // Inner table component for consistent styling
 export const ClusterTable: React.FC<{
   clusters: Cluster[]
@@ -68,23 +60,6 @@ export const ClusterTable: React.FC<{
           </>
         )}
       </DataGrid>
-
-      {/* Footer with pagination */}
-      {clusters.length > 0 && (
-        <div className="flex justify-center py-4">
-          <Pagination
-            currentPage={1}
-            // () => setCurrentPage(Math.min(currentPage + 1, pages))
-            onPressNext={() => {}}
-            // () => setCurrentPage(Math.max(currentPage - 1, 1))
-            onPressPrevious={() => {}}
-            // (newPage) => setCurrentPage(newPage)
-            onSelectChange={() => {}}
-            pages={1}
-            variant="input"
-          />
-        </div>
-      )}
     </div>
   )
 }

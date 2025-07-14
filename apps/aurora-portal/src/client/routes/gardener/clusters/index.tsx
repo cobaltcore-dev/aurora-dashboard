@@ -12,8 +12,6 @@ import { DeleteClusterDialog } from "../-components/DeleteClusterDialog"
 import { Filters } from "../-components/Filters"
 import { FilterSettings } from "../-components/Filters/types"
 
-// type SortByType = "name-asc" | "name-desc" | "status" | "newest" | ""
-
 export const Route = createFileRoute("/gardener/clusters/")({
   component: RouteComponent,
   loader: async ({ context }) => {
@@ -26,32 +24,9 @@ export const Route = createFileRoute("/gardener/clusters/")({
   },
 })
 
-// const sortClusters = (clusters: Cluster[], sortBy: SortByType) => {
-//   switch (sortBy) {
-//     case "name-asc":
-//       return [...clusters].sort((a, b) => a.name.localeCompare(b.name))
-//     case "name-desc":
-//       return [...clusters].sort((a, b) => b.name.localeCompare(a.name))
-//     case "status":
-//       return [...clusters].sort((a, b) => a.status.localeCompare(b.status))
-//     case "newest":
-//     default:
-//       // Assuming clusters have a createdAt or similar date field
-//       // If not, you can keep original order or add your own logic
-//       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-//       return [...clusters].sort((a, b) => {
-//         // If you have dates:
-//         // return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-//         // Otherwise, return original order:
-//         return 0
-//       })
-//   }
-// }
-
 function RouteComponent() {
   const { clusters, trpcClient } = useLoaderData({ from: Route.id })
   const router = useRouter()
-  // const [sortBy, setSortBy] = useState<SortByType>("")
   const [filterSettings, setFilterSettings] = useState<FilterSettings>({})
 
   const [createWizardModal, setCreateWizardModal] = useState(false)
@@ -63,6 +38,38 @@ function RouteComponent() {
     router.invalidate()
   }
 
+  const getClustersBySelectedFilters = (clusters: Cluster[] = []) => {
+    return clusters?.filter((cluster) => {
+      if (filterSettings?.selectedFilters?.length) {
+        return filterSettings.selectedFilters?.some((filter) => {
+          const { name } = filter
+
+          return filter.value === cluster[name as "status" | "version"]
+        })
+      }
+
+      return true
+    })
+  }
+
+  const getClustersBySearchTerm = (clusters: Cluster[] = []) => {
+    const { searchTerm = "" } = filterSettings
+
+    return (
+      clusters.filter((cluster: Cluster) => {
+        if (searchTerm.length) {
+          return (
+            cluster.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            cluster.infrastructure.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            cluster?.purpose?.toLowerCase().includes(searchTerm.toLowerCase())
+          )
+        }
+
+        return true
+      }) || []
+    )
+  }
+
   // Get unique providers, regions and statuses from clusters
   const versions = [...new Set(clusters?.map((cluster) => cluster.version) || [])]
   const statuses = [...new Set(clusters?.map((cluster) => cluster.status) || [])]
@@ -70,40 +77,11 @@ function RouteComponent() {
   // Filter clusters based on search and filter criteria
   // Update your filtered and sorted clusters
   const filteredAndSortedClusters = React.useMemo(() => {
-    const { searchTerm = "" } = filterSettings
+    const clustersBySelectedFilters: Cluster[] = getClustersBySelectedFilters(clusters)
+    const clustersBySearchTerm: Cluster[] = getClustersBySearchTerm(clustersBySelectedFilters)
 
-    const filtered: Cluster[] =
-      clusters
-        ?.filter((cluster) => {
-          if (filterSettings?.selectedFilters?.length) {
-            return filterSettings.selectedFilters?.some((filter) => {
-              if (filter.name === "status") {
-                return filter.value === cluster.status
-              }
-
-              if (filter.name === "version") {
-                return filter.value === cluster.version
-              }
-            })
-          }
-
-          return true
-        })
-        .filter((cluster: Cluster) => {
-          if (searchTerm.length) {
-            return (
-              cluster.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-              cluster.infrastructure.toLowerCase().includes(searchTerm.toLowerCase()) ||
-              cluster?.purpose?.toLowerCase().includes(searchTerm.toLowerCase())
-            )
-          }
-
-          return true
-        }) || []
-
-    return filtered
-    // return sortClusters(filtered, sortBy)
-  }, [clusters, filterSettings /* sortBy */])
+    return clustersBySearchTerm
+  }, [clusters, filterSettings])
 
   const handleCreateWizzard = () => {
     setCreateWizardModal(true)

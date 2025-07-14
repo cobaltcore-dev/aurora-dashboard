@@ -26,24 +26,23 @@ export const Filters = ({ filters, filterSettings, onFilterChange }: FiltersProp
     [filterSettings, onFilterChange]
   )
 
+  const handleSelect = (selectedFilter: SelectedFilter) => {
+    const filterExists = filterSettings.selectedFilters?.some(
+      (filter) => filter.name === selectedFilter.name && filter.value === selectedFilter.value
+    )
+    //only add the filter if it does not already exist
+    if (!filterExists) {
+      onFilterChange({
+        ...filterSettings,
+        selectedFilters: [...(filterSettings.selectedFilters || []), selectedFilter],
+      })
+    }
+  }
+
   return (
     <Stack direction="vertical" gap="4" className="bg-theme-background-lvl-1 py-2 px-4 ">
       <InputGroup>
-        <FilterSelect
-          filters={filters}
-          onChange={(selectedFilter) => {
-            const filterExists = filterSettings.selectedFilters?.some(
-              (filter) => filter.name === selectedFilter.name && filter.value === selectedFilter.value
-            )
-            //only add the filter if it does not already exist
-            if (!filterExists) {
-              onFilterChange({
-                ...filterSettings,
-                selectedFilters: [...(filterSettings.selectedFilters || []), selectedFilter],
-              })
-            }
-          }}
-        />
+        <FilterSelect filters={filters} onChange={handleSelect} />
         <Button
           label={t`Clear all`}
           className="ml-4"
