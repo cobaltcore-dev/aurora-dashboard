@@ -73,8 +73,6 @@ const renderReadinessConditions = (conditions: Array<{ type: string; status: str
 }
 
 const ClusterTableRow: React.FC<ClusterTableRowProps> = ({ cluster }) => {
-  console.log(cluster)
-
   const statusStyles = getStatusStyles(cluster.status)
 
   // Function to handle copy of cluster ID

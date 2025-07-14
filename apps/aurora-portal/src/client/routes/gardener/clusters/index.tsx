@@ -54,8 +54,6 @@ function RouteComponent() {
   // const [sortBy, setSortBy] = useState<SortByType>("")
   const [filterSettings, setFilterSettings] = useState<FilterSettings>({})
 
-  console.log("filter settings: ", filterSettings)
-
   const [createWizardModal, setCreateWizardModal] = useState(false)
 
   const [deleteClusterModal, setDeleteClusterModal] = useState(false)
@@ -106,8 +104,6 @@ function RouteComponent() {
     return filtered
     // return sortClusters(filtered, sortBy)
   }, [clusters, filterSettings /* sortBy */])
-
-  console.log("filtered and sorted items ", filteredAndSortedClusters)
 
   const handleCreateWizzard = () => {
     setCreateWizardModal(true)
