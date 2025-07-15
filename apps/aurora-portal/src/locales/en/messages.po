@@ -53,7 +53,7 @@ msgstr "<0>Unified Cloud Management:</0> Consolidates all your cloud assets into
 msgid "About Aurora Dashboard"
 msgstr "About Aurora Dashboard"
 
-#: src/client/routes/gardener/-components/DeleteClusterDialog.tsx:73
+#: src/client/routes/gardener/-components/DeleteClusterDialog.tsx:69
 msgid "After continuing, your project will no longer have access to the <0>{clusterName}</0> resources."
 msgstr "After continuing, your project will no longer have access to the <0>{clusterName}</0> resources."
 
@@ -68,6 +68,10 @@ msgstr "Aurora Dashboard is more than just a tool—it's your partner in navigat
 #: src/client/routes/gardener/-components/DeleteClusterDialog.tsx:47
 msgid "Cancel"
 msgstr "Cancel"
+
+#: src/client/routes/gardener/-components/Filters/index.tsx:48
+msgid "Clear all"
+msgstr "Clear all"
 
 #: src/client/routes/auth/login.tsx:172
 msgid "Contact support"
@@ -102,7 +106,7 @@ msgstr "Enter your domain"
 msgid "Enter your username"
 msgstr "Enter your username"
 
-#: src/client/routes/gardener/-components/SearchBar.tsx:38
+#: src/client/routes/gardener/-components/Filters/FilterSelect.tsx:55
 msgid "Filters"
 msgstr "Filters"
 
@@ -122,21 +126,9 @@ msgstr "Loading..."
 msgid "Login to Your Account"
 msgstr "Login to Your Account"
 
-#: src/client/routes/gardener/-components/SearchBar.tsx:50
-msgid "Name (A-Z)"
-msgstr "Name (A-Z)"
-
-#: src/client/routes/gardener/-components/SearchBar.tsx:51
-msgid "Name (Z-A)"
-msgstr "Name (Z-A)"
-
 #: src/client/routes/auth/login.tsx:170
 msgid "Need help?"
 msgstr "Need help?"
-
-#: src/client/routes/gardener/-components/SearchBar.tsx:49
-msgid "Newest"
-msgstr "Newest"
 
 #: src/client/routes/about.tsx:24
 msgid "Our Mission"
@@ -146,21 +138,13 @@ msgstr "Our Mission"
 msgid "Password"
 msgstr "Password"
 
-#: src/client/routes/gardener/-components/SearchBar.tsx:57
+#: src/client/routes/gardener/-components/Filters/index.tsx:59
 msgid "Search clusters..."
 msgstr "Search clusters..."
 
 #: src/client/routes/auth/login.tsx:165
 msgid "Sign In"
 msgstr "Sign In"
-
-#: src/client/routes/gardener/-components/SearchBar.tsx:43
-msgid "Sort"
-msgstr "Sort"
-
-#: src/client/routes/gardener/-components/SearchBar.tsx:52
-msgid "Status"
-msgstr "Status"
 
 #: src/client/routes/index.tsx:81
 msgid "Stay tuned — Aurora Dashboard is launching soon to streamline your cloud management experience!"
@@ -170,7 +154,7 @@ msgstr "Stay tuned — Aurora Dashboard is launching soon to streamline your clo
 msgid "The <0>Aurora Dashboard</0> is on its way! Get ready for a powerful, all-in-one cloud management interface designed to make managing your cloud assets simple and efficient. With tools for provisioning, configuring, and scaling resources like servers, networks, and volumes, Aurora will soon bring you:"
 msgstr "The <0>Aurora Dashboard</0> is on its way! Get ready for a powerful, all-in-one cloud management interface designed to make managing your cloud assets simple and efficient. With tools for provisioning, configuring, and scaling resources like servers, networks, and volumes, Aurora will soon bring you:"
 
-#: src/client/routes/gardener/-components/DeleteClusterDialog.tsx:60
+#: src/client/routes/gardener/-components/DeleteClusterDialog.tsx:56
 msgid "This action cannot be undone. The cluster will be permanently deleted."
 msgstr "This action cannot be undone. The cluster will be permanently deleted."
 
@@ -202,7 +186,7 @@ msgstr "Welcome to Aurora Dashboard"
 msgid "Why Choose Aurora?"
 msgstr "Why Choose Aurora?"
 
-#: src/client/routes/gardener/-components/DeleteClusterDialog.tsx:65
+#: src/client/routes/gardener/-components/DeleteClusterDialog.tsx:61
 msgid "Would you like to remove the <0>{clusterName}</0> from your project?"
 msgstr "Would you like to remove the <0>{clusterName}</0> from your project?"
 

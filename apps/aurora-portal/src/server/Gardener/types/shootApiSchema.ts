@@ -6,12 +6,23 @@ const metadataAnnotationsSchema = z.record(z.string()).optional()
 
 // Condition schema
 const conditionSchema = z.object({
-  type: z.string(),
+  type: z.enum([
+    "APIServerAvailable",
+    "ControlPlaneHealthy",
+    "ObservabilityComponentsHealthy",
+    "EveryNodeReady",
+    "SystemComponentsHealthy",
+  ]),
   status: z.enum(["True", "False", "Unknown", "Progressing"]),
   lastTransitionTime: z.string(),
   lastUpdateTime: z.string(),
   reason: z.string(),
   message: z.string(),
+})
+
+// Constraint schema
+const constraintSchema = conditionSchema.extend({
+  type: z.string(),
 })
 
 // LastOperation schema
@@ -254,7 +265,7 @@ export const shootApiResponseSchema = z.object({
   status: z
     .object({
       conditions: z.array(conditionSchema).optional(),
-      constraints: z.array(conditionSchema).optional(),
+      constraints: z.array(constraintSchema).optional(),
       gardener: z
         .object({
           id: z.string(),
