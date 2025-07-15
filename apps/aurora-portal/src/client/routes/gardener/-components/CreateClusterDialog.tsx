@@ -1,8 +1,7 @@
 // components/CreateClusterWizard/CreateClusterWizard.tsx
 
 import { TrpcClient } from "@/client/trpcClient"
-import { GardenerSpinner } from "./ui/GardenerSpiner"
-import { Modal } from "@cloudoperators/juno-ui-components/index"
+import { Modal, Spinner } from "@cloudoperators/juno-ui-components/index"
 import { t } from "@lingui/core/macro"
 import { CreateClusterDialogContent } from "./ClusterWizard/CreateClusterDialogContent"
 import { Suspense } from "react"
@@ -22,12 +21,12 @@ const CreateClusterWizard: React.FC<CreateClusterWizardProps> = ({ isOpen, onClo
       onCancel={onClose}
       size="large"
       modalFooter={<div />}
-      title={t`Delete Cluster`}
+      title={t`Create Cluster`}
       onConfirm={() => {
         onClose()
       }}
       children={
-        <Suspense fallback={<GardenerSpinner text="Loading Gardener..." />}>
+        <Suspense fallback={<Spinner>{t`Loading Gardener...`}</Spinner>}>
           <CreateClusterDialogContent
             isOpen={isOpen}
             onClose={onClose}

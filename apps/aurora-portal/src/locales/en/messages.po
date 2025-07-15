@@ -85,18 +85,25 @@ msgstr "Cluster Name"
 msgid "Contact support"
 msgstr "Contact support"
 
+#: src/client/routes/gardener/-components/CreateClusterDialog.tsx:24
+msgid "Create Cluster"
+msgstr "Create Cluster"
+
 #: src/client/routes/gardener/-components/DeleteClusterDialog.tsx:44
 msgid "Delete"
 msgstr "Delete"
 
 #: src/client/routes/gardener/-components/DeleteClusterDialog.tsx:29
-#: src/client/routes/gardener/-components/CreateClusterDialog.tsx:25
 msgid "Delete Cluster"
 msgstr "Delete Cluster"
 
 #: src/client/routes/auth/login.tsx:114
 msgid "Domain"
 msgstr "Domain"
+
+#: src/client/routes/gardener/-components/ClusterWizard/InfrastructureStep.tsx:36
+msgid "Each worker nodes will automatically scale between its minimum and maximum number of nodes based on the workload demands. Ensure your maximum node counts allign with your resouce quotas."
+msgstr "Each worker nodes will automatically scale between its minimum and maximum number of nodes based on the workload demands. Ensure your maximum node counts allign with your resouce quotas."
 
 #: src/client/routes/index.tsx:27
 #: src/client/routes/index.tsx:92
@@ -119,6 +126,10 @@ msgstr "Enter your username"
 msgid "Filters"
 msgstr "Filters"
 
+#: src/client/routes/gardener/-components/ClusterWizard/InfrastructureStep.tsx:47
+msgid "Floating IP Pool"
+msgstr "Floating IP Pool"
+
 #: src/client/routes/about.tsx:105
 msgid "Get Involved"
 msgstr "Get Involved"
@@ -130,6 +141,10 @@ msgstr "Key Features"
 #: src/client/routes/gardener/-components/ClusterWizard/BasicInfoStep.tsx:36
 msgid "Kunernetes Version"
 msgstr "Kunernetes Version"
+
+#: src/client/routes/gardener/-components/CreateClusterDialog.tsx:29
+msgid "Loading Gardener..."
+msgstr "Loading Gardener..."
 
 #: src/client/routes/auth/login.tsx:165
 msgid "Loading..."
@@ -155,6 +170,10 @@ msgstr "Name (Z-A)"
 msgid "Need help?"
 msgstr "Need help?"
 
+#: src/client/routes/gardener/-components/ClusterWizard/InfrastructureStep.tsx:76
+msgid "Network Configuration"
+msgstr "Network Configuration"
+
 #: src/client/routes/gardener/-components/SearchBar.tsx:49
 msgid "Newest"
 msgstr "Newest"
@@ -164,6 +183,14 @@ msgstr "Newest"
 msgid "Next"
 msgstr "Next"
 
+#: src/client/routes/gardener/-components/ClusterWizard/InfrastructureStep.tsx:97
+msgid "Nodes CIDR"
+msgstr "Nodes CIDR"
+
+#: src/client/routes/gardener/-components/ClusterWizard/InfrastructureStep.tsx:124
+msgid "Note: These network settings will be prefilled by the Kubernetes controller in the future."
+msgstr "Note: These network settings will be prefilled by the Kubernetes controller in the future."
+
 #: src/client/routes/about.tsx:24
 msgid "Our Mission"
 msgstr "Our Mission"
@@ -172,9 +199,17 @@ msgstr "Our Mission"
 msgid "Password"
 msgstr "Password"
 
+#: src/client/routes/gardener/-components/ClusterWizard/InfrastructureStep.tsx:82
+msgid "Pods CIDR"
+msgstr "Pods CIDR"
+
 #: src/client/routes/gardener/-components/SearchBar.tsx:57
 msgid "Search clusters..."
 msgstr "Search clusters..."
+
+#: src/client/routes/gardener/-components/ClusterWizard/InfrastructureStep.tsx:111
+msgid "Services CIDR"
+msgstr "Services CIDR"
 
 #: src/client/routes/auth/login.tsx:165
 msgid "Sign In"
@@ -195,6 +230,11 @@ msgstr "Stay tuned — Aurora Dashboard is launching soon to streamline your clo
 #: src/client/routes/index.tsx:43
 msgid "The <0>Aurora Dashboard</0> is on its way! Get ready for a powerful, all-in-one cloud management interface designed to make managing your cloud assets simple and efficient. With tools for provisioning, configuring, and scaling resources like servers, networks, and volumes, Aurora will soon bring you:"
 msgstr "The <0>Aurora Dashboard</0> is on its way! Get ready for a powerful, all-in-one cloud management interface designed to make managing your cloud assets simple and efficient. With tools for provisioning, configuring, and scaling resources like servers, networks, and volumes, Aurora will soon bring you:"
+
+#: src/client/routes/gardener/-components/ClusterWizard/InfrastructureStep.tsx:69
+#: src/client/routes/gardener/-components/ClusterWizard/InfrastructureStep.tsx:91
+msgid "The floating IP pool to use for the cluster's external network access"
+msgstr "The floating IP pool to use for the cluster's external network access"
 
 #: src/client/routes/gardener/-components/DeleteClusterDialog.tsx:56
 msgid "This action cannot be undone. The cluster will be permanently deleted."

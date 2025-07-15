@@ -1,8 +1,8 @@
 import React from "react"
 import { ClusterFormData } from "./types"
-import { GardenerLabel } from "../ui/GardenerLabel"
-import { GardenerSelect } from "../ui/GardenerSelect"
-import { GardenerInput } from "../ui/GardenerInput"
+import { Form, FormRow, Message, Select, SelectOption, TextInput } from "@cloudoperators/juno-ui-components"
+import { t } from "@lingui/core/macro"
+import { Trans } from "@lingui/react/macro"
 
 interface InfrastructureStepProps {
   formData: ClusterFormData
@@ -32,91 +32,99 @@ export const InfrastructureStep: React.FC<InfrastructureStepProps> = ({
   return (
     <div className="space-y-6">
       {/* Floating IP Pool */}
-      <div>
-        <GardenerLabel htmlFor="floatingPool" className="text-aurora-gray-300 mb-2 block text-left">
-          Floating IP Pool
-        </GardenerLabel>
-        <GardenerSelect
-          id="floatingPool"
-          name="floatingPool"
-          value={formData.infrastructure.floatingPoolName}
-          onChange={(e) => handleInfrastructureChange("floatingPoolName", e.target.value)}
-          className="w-full h-10 px-3 bg-aurora-gray-800 border border-aurora-gray-700 text-aurora-white rounded-md"
-        >
-          {availableFloatingPools.length > 0 ? (
-            availableFloatingPools.map((pool) => (
-              <option key={pool} value={pool}>
-                {pool}
-              </option>
-            ))
-          ) : (
-            <>
-              <option value="FloatingIP-external-monsoon3-01">FloatingIP-external-monsoon3-01</option>
-              <option value="FloatingIP-external-monsoon3-02">FloatingIP-external-monsoon3-02</option>
-            </>
-          )}
-        </GardenerSelect>
-        <p className="text-xs text-aurora-gray-500 mt-1 text-left">
-          The floating IP pool to use for the cluster's external network access
-        </p>
-      </div>
+      <Message dismissible={false} variant="info">
+        <Trans>
+          Each worker nodes will automatically scale between its minimum and maximum number of nodes based on the
+          workload demands. Ensure your maximum node counts allign with your resouce quotas.
+        </Trans>
+      </Message>
 
-      {/* Network Configuration Section */}
-      <div className="space-y-4">
-        <h3 className="text-lg font-medium text-aurora-white text-left">Network Configuration</h3>
+      <Form>
+        <FormRow key={"credentialsBinding"}>
+          <Select
+            required
+            id="floatingPool"
+            label={t`Floating IP Pool`}
+            name="floatingPool"
+            value={formData.infrastructure.floatingPoolName}
+            onChange={(e) => handleInfrastructureChange("floatingPoolName", e?.toString() || "")}
+            className="w-full h-10 px-3 rounded-md appearance-none"
+            truncateOptions
+          >
+            {availableFloatingPools.length > 0 ? (
+              availableFloatingPools.map((pool) => (
+                <SelectOption key={pool} value={pool}>
+                  {pool}
+                </SelectOption>
+              ))
+            ) : (
+              <>
+                <SelectOption value="FloatingIP-external-monsoon3-01">FloatingIP-external-monsoon3-01</SelectOption>
+                <SelectOption value="FloatingIP-external-monsoon3-02">FloatingIP-external-monsoon3-02</SelectOption>
+              </>
+            )}
+          </Select>
 
-        <div className="space-y-6">
-          {/* Pods CIDR */}
-          <div>
-            <GardenerLabel htmlFor="podsCIDR" className="text-aurora-gray-300 mb-2 block text-left">
-              Pods CIDR
-            </GardenerLabel>
-            <GardenerInput
-              id="podsCIDR"
-              className="w-full h-10 px-3 bg-aurora-gray-800 border border-aurora-gray-700 text-aurora-white rounded-md"
-              value={formData.networking.pods}
-              onChange={(e) => handleNetworkingChange("pods", e.target.value)}
-              placeholder="100.64.0.0/12"
-            />
-            <p className="text-xs text-aurora-gray-500 mt-1 text-left">IP range for pod network</p>
+          <p className="text-xs text-theme-light mt-1 text-left">
+            <Trans>The floating IP pool to use for the cluster's external network access</Trans>
+          </p>
+        </FormRow>
+
+        {/* Network Configuration Section */}
+        <div className="space-y-4">
+          <h3 className="text-lg font-medium text-theme-light text-left">
+            <Trans>Network Configuration</Trans>
+          </h3>
+          <div className="space-y-6">
+            {/* Pods CIDR */}
+            <FormRow key={"podsCIDR"}>
+              <TextInput
+                label={t`Pods CIDR`}
+                type={"text"}
+                id="podsCIDR"
+                placeholder="100.64.0.0/12"
+                onChange={(e) => handleNetworkingChange("pods", e.target.value)}
+                value={formData.networking.pods}
+                className="w-full h-10 px-3 rounded-md"
+              />
+              <p className="text-xs text-theme-light mt-1 text-left">
+                <Trans>The floating IP pool to use for the cluster's external network access</Trans>
+              </p>
+            </FormRow>
+
+            <FormRow key={"nodesCIDR"}>
+              <TextInput
+                label={t`Nodes CIDR`}
+                type={"text"}
+                id="nodesCIDR"
+                placeholder="10.180.0.0/16"
+                onChange={(e) => handleNetworkingChange("nodes", e.target.value)}
+                value={formData.networking.nodes}
+                className="w-full h-10 px-3 rounded-md"
+              />
+              <p className="text-xs text-theme-light mt-1 text-left">IP range for node network</p>
+            </FormRow>
+
+            {/* Services CIDR */}
+            <FormRow key={"servicesCIDR"}>
+              <TextInput
+                label={t`Services CIDR`}
+                type={"text"}
+                id="servicesCIDR"
+                placeholder="100.104.0.0/13"
+                onChange={(e) => handleNetworkingChange("services", e.target.value)}
+                value={formData.networking.services}
+                className="w-full h-10 px-3 rounded-md"
+              />
+              <p className="text-xs text-theme-light mt-1 text-left">IP range for service network</p>
+            </FormRow>
           </div>
 
-          {/* Nodes CIDR */}
-          <div>
-            <GardenerLabel htmlFor="nodesCIDR" className="text-aurora-gray-300 mb-2 block text-left">
-              Nodes CIDR
-            </GardenerLabel>
-            <GardenerInput
-              id="nodesCIDR"
-              className="w-full h-10 px-3 bg-aurora-gray-800 border border-aurora-gray-700 text-aurora-white rounded-md"
-              value={formData.networking.nodes}
-              onChange={(e) => handleNetworkingChange("nodes", e.target.value)}
-              placeholder="10.180.0.0/16"
-            />
-            <p className="text-xs text-aurora-gray-500 mt-1 text-left">IP range for node network</p>
-          </div>
-
-          {/* Services CIDR */}
-          <div>
-            <GardenerLabel htmlFor="servicesCIDR" className="text-aurora-gray-300 mb-2 block text-left">
-              Services CIDR
-            </GardenerLabel>
-            <GardenerInput
-              id="servicesCIDR"
-              className="w-full h-10 px-3 bg-aurora-gray-800 border border-aurora-gray-700 text-aurora-white rounded-md"
-              value={formData.networking.services}
-              onChange={(e) => handleNetworkingChange("services", e.target.value)}
-              placeholder="100.104.0.0/13"
-            />
-            <p className="text-xs text-aurora-gray-500 mt-1 text-left">IP range for service network</p>
-          </div>
+          <p className="text-sm text-theme-light mt-4 text-left">
+            <Trans>Note: These network settings will be prefilled by the Kubernetes controller in the future.</Trans>
+          </p>
         </div>
-
-        <p className="text-sm text-aurora-gray-400 mt-4 text-left">
-          <span className="font-medium">Note:</span> These network settings will be prefilled by the Kubernetes
-          controller in the future.
-        </p>
-      </div>
+      </Form>
     </div>
   )
 }
