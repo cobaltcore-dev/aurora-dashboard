@@ -2,6 +2,8 @@
 import React from "react"
 import { WorkerPool } from "./WorkerPool"
 import { ClusterFormData, WorkerConfig } from "./types"
+import { Trans } from "@lingui/react/macro"
+import { Message } from "@cloudoperators/juno-ui-components/index"
 
 interface WorkerNodesStepProps {
   formData: ClusterFormData
@@ -61,11 +63,21 @@ export const WorkerNodesStep: React.FC<WorkerNodesStepProps> = ({ formData, onWo
 
   return (
     <div className="space-y-6">
+      <Message dismissible={false} variant="info">
+        <Trans>
+          Each worker pool will automatically scale between its minimum and maximum node counts based on workload
+          demands. Ensure your maximum node counts align with your resource quotas.
+        </Trans>
+      </Message>
       <div>
-        <h2 className="text-lg font-medium text-aurora-white mb-2 text-left">Worker Configuration</h2>
-        <p className="text-sm text-aurora-gray-400 text-left">
-          Configure the worker pools for your cluster. These settings determine the compute resources available for your
-          workloads.
+        <h2 className="text-lg font-medium text-theme-light mb-2 text-left">
+          <Trans>Worker Configuration</Trans>
+        </h2>
+        <p className="text-sm text-theme-light text-left">
+          <Trans>
+            Configure the worker pools for your cluster. These settings determine the compute resources available for
+            your workloads.
+          </Trans>
         </p>
       </div>
 
@@ -78,31 +90,6 @@ export const WorkerNodesStep: React.FC<WorkerNodesStepProps> = ({ formData, onWo
         machineImages={cloudProfileData?.machineImages || []}
         availableZones={availableZones}
       />
-
-      <div className="bg-aurora-blue-950/20 border border-aurora-blue-800/50 rounded-lg p-4">
-        <div className="flex gap-2">
-          <svg
-            className="w-5 h-5 text-aurora-blue-500 mt-0.5 flex-shrink-0"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-            />
-          </svg>
-          <div>
-            <h4 className="text-aurora-blue-300 font-medium text-left">Node Auto-scaling</h4>
-            <p className="text-aurora-gray-300 text-sm mt-1 text-left">
-              Each worker pool will automatically scale between its minimum and maximum node counts based on workload
-              demands. Ensure your maximum node counts align with your resource quotas.
-            </p>
-          </div>
-        </div>
-      </div>
     </div>
   )
 }
