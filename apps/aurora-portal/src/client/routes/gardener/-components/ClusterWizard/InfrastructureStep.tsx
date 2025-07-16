@@ -72,7 +72,7 @@ export const InfrastructureStep: React.FC<InfrastructureStepProps> = ({
 
         {/* Network Configuration Section */}
         <div className="space-y-4">
-          <h3 className="text-lg font-medium text-theme-light text-left">
+          <h3 className="text-lg font-medium  text-theme-high text-left">
             <Trans>Network Configuration</Trans>
           </h3>
           <div className="space-y-6">

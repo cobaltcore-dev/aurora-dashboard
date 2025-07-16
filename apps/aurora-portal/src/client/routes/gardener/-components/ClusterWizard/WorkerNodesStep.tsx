@@ -70,7 +70,7 @@ export const WorkerNodesStep: React.FC<WorkerNodesStepProps> = ({ formData, onWo
         </Trans>
       </Message>
       <div>
-        <h2 className="text-lg font-medium text-theme-light mb-2 text-left">
+        <h2 className="text-lg font-medium text-theme-high mb-2 text-left">
           <Trans>Worker Configuration</Trans>
         </h2>
         <p className="text-sm text-theme-light text-left">
