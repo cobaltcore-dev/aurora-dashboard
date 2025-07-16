@@ -80,6 +80,9 @@ msgstr "Cloud Profil"
 #: src/client/routes/gardener/-components/ClusterWizard/BasicInfoStep.tsx:23
 msgid "Cluster Name"
 msgstr "Cluster Name"
+#: src/client/routes/gardener/-components/Filters/index.tsx:48
+msgid "Clear all"
+msgstr "Alle Filter löschen"
 
 #: src/client/routes/auth/login.tsx:172
 msgid "Contact support"
@@ -122,7 +125,7 @@ msgstr "Geben Sie den Domain ein"
 msgid "Enter your username"
 msgstr "Geben Sie Ihren Benutzernamen ein"
 
-#: src/client/routes/gardener/-components/SearchBar.tsx:38
+#: src/client/routes/gardener/-components/Filters/FilterSelect.tsx:55
 msgid "Filters"
 msgstr "Filter"
 
@@ -214,14 +217,6 @@ msgstr "CIDR-Bereich für Services"
 #: src/client/routes/auth/login.tsx:165
 msgid "Sign In"
 msgstr "Einloggen"
-
-#: src/client/routes/gardener/-components/SearchBar.tsx:43
-msgid "Sort"
-msgstr "Sortieren"
-
-#: src/client/routes/gardener/-components/SearchBar.tsx:52
-msgid "Status"
-msgstr "Status"
 
 #: src/client/routes/index.tsx:81
 msgid "Stay tuned — Aurora Dashboard is launching soon to streamline your cloud management experience!"

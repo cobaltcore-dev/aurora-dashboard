@@ -2,12 +2,10 @@ import React from "react"
 import { Link } from "@tanstack/react-router"
 import { Cluster } from "@/server/Gardener/types/cluster"
 import { toast } from "sonner"
-import { DataGridRow, DataGridCell, Icon, ButtonRow, Stack } from "@cloudoperators/juno-ui-components/index"
+import { DataGridRow, DataGridCell, Icon, Stack, Button, Badge } from "@cloudoperators/juno-ui-components"
 
 interface ClusterTableRowProps {
   cluster: Cluster
-  isLast: boolean
-  setShowClusterModal: (clusterName: string) => void
 }
 
 // Helper function to get status indicator color and shadow
@@ -40,7 +38,41 @@ const getStatusStyles = (status: string) => {
   }
 }
 
-const ClusterTableRow: React.FC<ClusterTableRowProps> = ({ cluster, setShowClusterModal }) => {
+const getReadinessConditionStyles = (condition: { type: string; status: string; displayValue: string }) => {
+  switch (condition.status) {
+    case "True":
+      return {
+        variant: "success" as const,
+      }
+    case "False":
+      return {
+        variant: "error" as const,
+        icon: "error" as const,
+      }
+    default:
+      return {
+        variant: "warning" as const,
+        icon: "warning" as const,
+      }
+  }
+}
+
+const renderReadinessConditions = (conditions: Array<{ type: string; status: string; displayValue: string }>) => {
+  return conditions.map((condition) => {
+    const conditionStyles = getReadinessConditionStyles(condition)
+
+    return (
+      <Badge
+        key={condition.type}
+        text={condition.displayValue}
+        icon={conditionStyles.icon}
+        variant={conditionStyles.variant}
+      />
+    )
+  })
+}
+
+const ClusterTableRow: React.FC<ClusterTableRowProps> = ({ cluster }) => {
   const statusStyles = getStatusStyles(cluster.status)
 
   // Function to handle copy of cluster ID
@@ -57,6 +89,9 @@ const ClusterTableRow: React.FC<ClusterTableRowProps> = ({ cluster, setShowClust
 
       <DataGridCell>{cluster.status}</DataGridCell>
       <DataGridCell>
+        <Stack gap="1">{renderReadinessConditions(cluster.readiness.conditions)}</Stack>
+      </DataGridCell>
+      <DataGridCell>
         <Stack direction="vertical">
           <Link
             to="/gardener/clusters/$clusterName"
@@ -71,36 +106,23 @@ const ClusterTableRow: React.FC<ClusterTableRowProps> = ({ cluster, setShowClust
         </Stack>
       </DataGridCell>
 
-      <DataGridCell>{cluster.region}</DataGridCell>
+      <DataGridCell>{cluster.purpose}</DataGridCell>
 
       <DataGridCell>{cluster.infrastructure}</DataGridCell>
 
-      <DataGridCell>{cluster.version}</DataGridCell>
-
-      {/* Action Buttons - Hidden until row hover */}
       <DataGridCell>
-        <ButtonRow>
+        <Stack gap="1">
+          {cluster.lastMaintenance.state === "Error" ? <Icon icon="errorOutline" color="text-theme-error" /> : null}{" "}
+          {cluster.version}
+        </Stack>
+      </DataGridCell>
+
+      <DataGridCell>
+        <Stack distribution="end">
           <Link to="/gardener/clusters/$clusterName" params={{ clusterName: cluster.name }}>
-            <Icon onClick={() => {}} icon="info" aria-label="View Details" />
+            <Button label="View Details" variant="primary" />
           </Link>
-
-          <Icon
-            disabled
-            onClick={() => {
-              toast.info(`Editing ${cluster.name}... (Not implemented)`)
-            }}
-            icon="edit"
-            aria-label="Edit Cluster"
-          />
-
-          <Icon
-            onClick={() => {
-              setShowClusterModal(cluster.name)
-            }}
-            icon="deleteForever"
-            aria-label="Delete Cluster"
-          />
-        </ButtonRow>
+        </Stack>
       </DataGridCell>
     </DataGridRow>
   )
