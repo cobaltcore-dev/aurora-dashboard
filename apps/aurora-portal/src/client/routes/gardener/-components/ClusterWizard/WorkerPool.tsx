@@ -149,15 +149,16 @@ export const WorkerPool: React.FC<WorkerPoolProps> = ({
             </div>
 
             {/* Availability Zones */}
-            <CheckboxGroup label="Availability Zones" key={"availabilityZones"}>
+            <CheckboxGroup label="Availability Zones">
               <div className="grid grid-cols-2 gap-2">
                 {availableZones.map((zone) => (
                   <div key={zone} className="flex items-center space-x-2">
                     <Checkbox
                       checked={worker.zones.includes(zone)}
-                      className="h-4 w-4 rounded border-aurora-gray-700 bg-aurora-gray-700 text-aurora-blue-600 focus:ring-aurora-blue-600 focus:ring-offset-aurora-gray-900"
+                      className="h-4 w-4 rounded border-theme-box-default text-juno-blue-7 focus:ring-sap-blue  focus:ring-offset-sap-grey-7"
                       label={zone}
                       id={`zone-${index}-${zone}`}
+                      value={zone}
                       onChange={(e) => {
                         if (e.target.checked) {
                           onWorkerChange(index, "zones", [...worker.zones, zone])
