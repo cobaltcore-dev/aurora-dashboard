@@ -13,7 +13,7 @@ interface PeakDetailPageProps {
   cluster: Cluster
 }
 
-const PeakDetailPage: React.FC<PeakDetailPageProps> = ({ cluster }) => {
+const ClusterDetailPage: React.FC<PeakDetailPageProps> = ({ cluster }) => {
   const [isJsonView, setIsJsonView] = useState<boolean>(false)
   const [toastData, setToastData] = useState<ToastProps | null>(null)
 
@@ -104,4 +104,4 @@ const PeakDetailPage: React.FC<PeakDetailPageProps> = ({ cluster }) => {
   )
 }
 
-export default PeakDetailPage
+export default ClusterDetailPage
