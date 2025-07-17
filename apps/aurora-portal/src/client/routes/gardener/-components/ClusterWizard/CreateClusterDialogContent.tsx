@@ -8,7 +8,6 @@ import { WorkerNodesStep } from "./WorkerNodesStep"
 import { ReviewStep } from "./ReviewStep"
 import { WizardProgress } from "./WizardProgress"
 import { WizardActions } from "./WizardActions"
-import { GardenerFieldset } from "../ui/GardenerFieldset"
 import { TrpcClient } from "@/client/trpcClient"
 type CloudProfile = Awaited<ReturnType<TrpcClient["gardener"]["getCloudProfiles"]["query"]>>[number]
 
@@ -24,7 +23,7 @@ export const CreateClusterDialogContent: React.FC<{
 
   const [currentStep, setCurrentStep] = useState(0)
   const [formData, setFormData] = useState<ClusterFormData>({
-    name: "test-cluster-35454545454",
+    name: "test-cluster",
     cloudProfileName: "converged-cloud",
     credentialsBindingName: "app-cred-openstack",
     region: "eu-de-1",
@@ -149,15 +148,13 @@ export const CreateClusterDialogContent: React.FC<{
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   if (!cloudProfiles || cloudProfiles.length === 0) {
-    return <p className="text-gray-400">No cloud profiles available.</p>
+    return <p className="text-theme-light">No cloud profiles available.</p>
   }
 
   return (
     <div className="p-6">
       <WizardProgress steps={steps} currentStep={currentStep} onStepClick={goToStep} />
-      <GardenerFieldset>
-        <div className="mb-8">{renderStepContent()}</div>
-      </GardenerFieldset>
+      <div className="mb-8">{renderStepContent()}</div>
 
       <WizardActions
         currentStep={currentStep}

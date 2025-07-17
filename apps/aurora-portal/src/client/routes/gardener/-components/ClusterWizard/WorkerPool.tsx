@@ -36,7 +36,7 @@ export const WorkerPool: React.FC<WorkerPoolProps> = ({
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h3 className="text-lg font-medium text-aurora-white text-left">Worker Pools</h3>
+        <h3 className="text-lg font-medium text-theme-high text-left">Worker Pools</h3>
         <Button onClick={onAddWorker} variant="subdued">
           Add Worker Pool
         </Button>
