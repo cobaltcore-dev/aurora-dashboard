@@ -1,21 +1,30 @@
-import React from "react"
-import { Link } from "@tanstack/react-router"
-import { ArrowLeft, Share2, Edit, Check } from "lucide-react"
+import React, { useState } from "react"
+import { Box, CodeBlock, JsonViewer, Stack, Toast, ToastProps } from "@cloudoperators/juno-ui-components"
 
 import { Cluster } from "@/server/Gardener/types/cluster"
-import { toast } from "sonner"
-import { GardenerButton } from "./ui/GardenerButton"
-import { WorkersSection } from "./ClusterDetail/WorkerSection"
-import { SettingsSection } from "./ClusterDetail/SettingsSection"
-import { ClusterOverviewCard } from "./ClusterDetail/ClusterOverviewCard"
+import { useNavigate } from "@tanstack/react-router"
 
-// Helper function to get status styles
+import DetailLayout from "./ClusterDetail/DetailLayout"
+import WorkerSection from "./ClusterDetail/WorkerSection"
+import ClusterOverviewSection from "./ClusterDetail/ClusterOverviewSection"
+import SettingsSection from "./ClusterDetail/SettingsSection"
 
-interface ClusterDetailProps {
+interface PeakDetailPageProps {
   cluster: Cluster
 }
 
-const ClusterDetail: React.FC<ClusterDetailProps> = ({ cluster }) => {
+const PeakDetailPage: React.FC<PeakDetailPageProps> = ({ cluster }) => {
+  const [isJsonView, setIsJsonView] = useState<boolean>(false)
+  const [toastData, setToastData] = useState<ToastProps | null>(null)
+
+  const navigate = useNavigate()
+
+  const handleBack = () => {
+    navigate({
+      to: "/gardener/clusters",
+    })
+  }
+
   // Function to handle sharing cluster info
   const handleShare = async () => {
     try {
@@ -25,68 +34,74 @@ const ClusterDetail: React.FC<ClusterDetailProps> = ({ cluster }) => {
       // Copy to clipboard
       await navigator.clipboard.writeText(clusterInfo)
 
-      // Show success toast notification
-      toast.success("Cluster details copied to clipboard!", {
-        duration: 3000,
-        icon: <Check className="h-4 w-4 text-aurora-green-500" />,
-        description: "You can now share this information with your team",
-        position: "top-right",
+      setToastData({
+        variant: "success",
+        children: (
+          <Stack direction="vertical" gap="1.5">
+            <span className="text-theme-heigh font-semibold">Cluster details copied to clipboard!</span>
+            <span className="text-theme-light">You can now share this information with your team</span>
+          </Stack>
+        ),
+        autoDismiss: true,
+        autoDismissTimeout: 3000,
+        onDismiss: handleToastDismiss,
       })
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      // Show error toast if clipboard write fails
-      toast.error("Failed to copy to clipboard", {
-        duration: 3000,
-        description: "Please try again or copy manually",
-        position: "top-right",
+      setToastData({
+        variant: "error",
+        children: (
+          <Stack direction="vertical" gap="1.5">
+            <span className="text-theme-heigh font-semibold">Failed to copy to clipboard</span>
+            <span className="text-theme-light">Please try again or copy manually</span>
+          </Stack>
+        ),
+        autoDismiss: true,
+        autoDismissTimeout: 3000,
+        onDismiss: handleToastDismiss,
       })
     }
   }
 
+  const handleToastDismiss = () => setToastData(null)
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-aurora-gray-950 to-aurora-gray-900 p-6">
+    <div className="min-h-screen p-6">
       <div className="max-w-7xl mx-auto">
-        {/* Header with back GardenerButton and title */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
-          <div className="flex items-center mb-4 sm:mb-0">
-            <Link to="/gardener/clusters">
-              <GardenerButton size="md" variant="secondary" className="mr-4">
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Return
-              </GardenerButton>
-            </Link>
-            <div>
-              <h1 className="text-2xl font-bold text-aurora-white">Cluster Details</h1>
-              <p className="text-aurora-gray-400 text-sm mt-1">View and manage your Kubernetes cluster</p>
-            </div>
-          </div>
+        <DetailLayout
+          title={"Cluster Details"}
+          description={"View and manage your Kubernetes cluster"}
+          breadcrumbLabel={"Clusters"}
+          breadcrumbActiveLabel={`${cluster.uid}`}
+          onBack={handleBack}
+          handleShare={handleShare}
+          isJsonView={isJsonView}
+          toggleView={() => setIsJsonView(!isJsonView)}
+        >
+          {isJsonView ? (
+            <Box className="border border-gray-300 rounded-lg shadow-lg p-6">
+              <CodeBlock size="large">
+                <JsonViewer data={cluster} expanded={true} toolbar={true} title={`Raw JSON Data for ${cluster.name}`} />
+              </CodeBlock>
+            </Box>
+          ) : (
+            <>
+              <Stack direction="vertical" gap="10">
+                <ClusterOverviewSection cluster={cluster} handleShare={handleShare} />
 
-          <div className="flex gap-2">
-            <GardenerButton
-              size="md"
-              variant="secondary"
-              onClick={handleShare}
-              className="hover:bg-aurora-blue-900/20 hover:text-aurora-blue-300 hover:border-aurora-blue-700"
-            >
-              <Share2 className="mr-2 h-4 w-4" />
-              Share
-            </GardenerButton>
-            <GardenerButton size="md" disabled variant="disabled">
-              <Edit className="mr-2 h-4 w-4" />
-              Edit Cluster
-            </GardenerButton>
-          </div>
-        </div>
-        {/* Cluster Overview Card */}
-        <ClusterOverviewCard cluster={cluster} handleShare={handleShare} />
-        {/* Workers Section */}
-        <WorkersSection workers={cluster.workers} />
+                <WorkerSection workers={cluster.workers} />
 
-        {/* Settings Section */}
-        <SettingsSection maintenance={cluster.maintenance} autoUpdate={cluster.autoUpdate} />
+                <SettingsSection autoUpdate={cluster.autoUpdate} maintenance={cluster.maintenance} />
+              </Stack>
+            </>
+          )}
+          {toastData && (
+            <Toast {...toastData} className="fixed top-5 right-5 z-50 border border-theme-light rounded-lg shadow-lg" />
+          )}
+        </DetailLayout>
       </div>
     </div>
   )
 }
 
-export default ClusterDetail
+export default PeakDetailPage
