@@ -1,8 +1,9 @@
 // components/CreateClusterWizard/WizardActions.tsx
 import React from "react"
-import { ChevronLeft, ChevronRight, Check, Loader } from "lucide-react"
-import { cn } from "../../-utils/cn"
-import { GardenerButton } from "../ui/GardenerButton"
+import { Check, Loader } from "lucide-react"
+
+import { Button, ButtonRow, ModalFooter } from "@cloudoperators/juno-ui-components/index"
+import { Trans } from "@lingui/react/macro"
 
 interface WizardActionsProps {
   currentStep: number
@@ -22,40 +23,32 @@ export const WizardActions: React.FC<WizardActionsProps> = ({
   onSubmit,
 }) => {
   return (
-    <div className="flex justify-between">
-      <GardenerButton
-        onClick={onPrev}
-        disabled={currentStep === 0}
-        variant="secondary"
-        className={cn(
-          "border-aurora-gray-700 bg-aurora-gray-800 text-aurora-white hover:bg-aurora-gray-700",
-          currentStep === 0 ? "opacity-50 cursor-not-allowed" : ""
+    <ModalFooter className="flex justify-end gap-3 px-8 mt-8">
+      <ButtonRow>
+        <Button onClick={onPrev} disabled={currentStep === 0} variant="default">
+          <Trans>Back</Trans>
+        </Button>
+        {currentStep < totalSteps - 1 ? (
+          <Button onClick={onNext} variant="primary">
+            <Trans>Next</Trans>
+          </Button>
+        ) : (
+          <Button onClick={onSubmit} disabled={isSubmitting} variant="primary">
+            {isSubmitting ? (
+              <>
+                <Loader className="mr-2 h-4 w-4 animate-spin" />
+                Creating...
+              </>
+            ) : (
+              <>
+                <Check className="mr-2 h-4 w-4" />
+                Create Cluster
+              </>
+            )}
+            <Trans>Next</Trans>
+          </Button>
         )}
-      >
-        <ChevronLeft className="mr-2 h-4 w-4" />
-        Back
-      </GardenerButton>
-
-      {currentStep < totalSteps - 1 ? (
-        <GardenerButton onClick={onNext} variant="next">
-          Next
-          <ChevronRight className="ml-2 h-4 w-4" />
-        </GardenerButton>
-      ) : (
-        <GardenerButton onClick={onSubmit} disabled={isSubmitting} variant="primary">
-          {isSubmitting ? (
-            <>
-              <Loader className="mr-2 h-4 w-4 animate-spin" />
-              Creating...
-            </>
-          ) : (
-            <>
-              <Check className="mr-2 h-4 w-4" />
-              Create Cluster
-            </>
-          )}
-        </GardenerButton>
-      )}
-    </div>
+      </ButtonRow>
+    </ModalFooter>
   )
 }

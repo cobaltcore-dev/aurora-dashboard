@@ -1,9 +1,9 @@
 // components/CreateClusterWizard/steps/BasicInfoStep.tsx
 import React from "react"
 import { ClusterFormData } from "./types"
-import { GardenerLabel } from "../ui/GardenerLabel"
-import { GardenerInput } from "../ui/GardenerInput"
-import { GardenerSelect } from "../ui/GardenerSelect"
+import { t } from "@lingui/core/macro"
+
+import { Form, FormRow, Select, SelectOption, TextInput } from "@cloudoperators/juno-ui-components"
 
 interface BasicInfoStepProps {
   formData: ClusterFormData
@@ -17,95 +17,84 @@ export const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
   availableKubernetesVersions = [],
 }) => {
   return (
-    <div className="space-y-6">
-      {/* Cluster Name */}
-      <div>
-        <GardenerLabel htmlFor="clusterName" className="text-aurora-gray-300 mb-2 block text-left">
-          Cluster Name
-        </GardenerLabel>
-        <GardenerInput
-          id="clusterName"
-          className="w-full h-10 px-3 bg-aurora-gray-800 border border-aurora-gray-700 text-aurora-white rounded-md"
-          placeholder="my-cluster"
+    <Form>
+      <FormRow key={"clusterName"}>
+        <TextInput
+          label={t`Cluster Name`}
+          type={"text"}
           value={formData.name}
           onChange={(e) => onFormDataChange("name", e.target.value)}
+          placeholder={t`Lowercase alphanumeric characters, dash (-) and must start with a letter`}
+          maxLength={200}
         />
-        <p className="text-xs text-left text-aurora-gray-500 mt-1">
-          Lowercase alphanumeric characters, dash (-) and must start with a letter
-        </p>
-      </div>
+      </FormRow>
 
       {/* Kubernetes Version */}
-      <div>
-        <GardenerLabel htmlFor="kubeVersion" className="text-aurora-gray-300 mb-2 block text-left">
-          Kubernetes Version
-        </GardenerLabel>
-        <GardenerSelect
+      <FormRow key={"kubeVersion"}>
+        <Select
+          required
+          label={t`Kunernetes Version`}
           id="kubeVersion"
           name="kubeVersion"
           value={formData.kubernetesVersion}
-          onChange={(e) => onFormDataChange("kubernetesVersion", e.target.value)}
-          className="w-full h-10 px-3 bg-aurora-gray-800 border border-aurora-gray-700 text-aurora-white rounded-md appearance-none"
+          className="w-full h-10 px-3"
+          onChange={(e) => onFormDataChange("kubernetesVersion", e?.toString() || "")}
+          truncateOptions
         >
           {availableKubernetesVersions.map((version) => (
-            <option key={version} value={version}>
+            <SelectOption key={version} value={version}>
               {version}
-            </option>
+            </SelectOption>
           ))}
-        </GardenerSelect>
-      </div>
-
-      {/* Region */}
-      <div>
-        <GardenerLabel htmlFor="region" className="text-aurora-gray-300 mb-2 block text-left">
-          Region
-        </GardenerLabel>
-        <GardenerSelect
+        </Select>
+      </FormRow>
+      <FormRow key={"kubeVersion"}>
+        <Select
+          required
           id="region"
           name="region"
           value={formData.region}
-          onChange={(e) => onFormDataChange("region", e.target.value)}
-          className="w-full h-10 px-3 bg-aurora-gray-800 border border-aurora-gray-700 text-aurora-white rounded-md appearance-none"
+          onChange={(e) => onFormDataChange("region", e?.toString() || "")}
+          className="w-full h-10 px-3 rounded-md appearance-none"
+          truncateOptions
         >
-          <option value="eu-de-1">eu-de-1 (Germany)</option>
-          <option value="eu-de-2">eu-de-2 (Germany)</option>
-          <option value="eu-nl-1">eu-nl-1 (Netherlands)</option>
-          <option value="na-us-1">na-us-1 (USA)</option>
-          <option value="na-us-2">na-us-2 (USA)</option>
-          <option value="ap-jp-1">ap-jp-1 (Japan)</option>
-          <option value="ap-au-1">ap-au-1 (Australia)</option>
-        </GardenerSelect>
-      </div>
+          <SelectOption value="eu-de-1">eu-de-1 (Germany)</SelectOption>
+          <SelectOption value="eu-de-2">eu-de-2 (Germany)</SelectOption>
+          <SelectOption value="eu-nl-1">eu-nl-1 (Netherlands)</SelectOption>
+          <SelectOption value="na-us-1">na-us-1 (USA)</SelectOption>
+          <SelectOption value="na-us-2">na-us-2 (USA)</SelectOption>
+          <SelectOption value="ap-jp-1">ap-jp-1 (Japan)</SelectOption>
+          <SelectOption value="ap-au-1">ap-au-1 (Australia)</SelectOption>
+        </Select>
+      </FormRow>
 
       {/* Cloud Profile */}
-      <div>
-        <GardenerLabel htmlFor="cloudProfile" className="text-aurora-gray-300 mb-2 block text-left">
-          Cloud Profile
-        </GardenerLabel>
-        <GardenerInput
+      <FormRow key={"cloudProfile"}>
+        <TextInput
+          label={t`Cloud Profile`}
+          type={"text"}
           id="cloudProfile"
-          className="w-full h-10 px-3 bg-aurora-gray-800 border border-aurora-gray-700 text-aurora-white rounded-md"
           value={formData.cloudProfileName}
+          className="w-full h-10 px-3 rounded-md"
           readOnly
         />
-      </div>
+      </FormRow>
 
       {/* Credentials Binding */}
-      <div>
-        <GardenerLabel htmlFor="credentialsBinding" className="text-aurora-gray-300 mb-2 block text-left">
-          Credentials Binding
-        </GardenerLabel>
-        <GardenerSelect
+      <FormRow key={"credentialsBinding"}>
+        <Select
+          required
           id="credentialsBinding"
           name="credentialsBinding"
           value={formData.credentialsBindingName}
-          onChange={(e) => onFormDataChange("credentialsBindingName", e.target.value)}
-          className="w-full h-10 px-3 bg-aurora-gray-800 border border-aurora-gray-700 text-aurora-white rounded-md appearance-none"
+          onChange={(e) => onFormDataChange("credentialsBindingName", e?.toString() || "")}
+          className="w-full h-10 px-3 rounded-md appearance-none"
+          truncateOptions
         >
-          <option value="app-cred-openstack">app-cred-openstack</option>
-          <option value="my-openstack-secret">my-openstack-secret</option>
-        </GardenerSelect>
-      </div>
-    </div>
+          <SelectOption value="app-cred-openstack">app-cred-openstack</SelectOption>
+          <SelectOption value="my-openstack-secret">my-openstack-secret</SelectOption>
+        </Select>
+      </FormRow>
+    </Form>
   )
 }
