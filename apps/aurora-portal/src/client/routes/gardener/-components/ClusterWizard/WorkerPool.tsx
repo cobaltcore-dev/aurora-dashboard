@@ -155,7 +155,7 @@ export const WorkerPool: React.FC<WorkerPoolProps> = ({
                   <div key={zone} className="flex items-center space-x-2">
                     <Checkbox
                       checked={worker.zones.includes(zone)}
-                      className="h-4 w-4 rounded border-theme-box-default text-juno-blue-7 focus:ring-sap-blue  focus:ring-offset-sap-grey-7"
+                      className="h-4 w-4 rounded border-theme-box-default text-juno-blue-7 focus:ring-juno-blue  focus:ring-offset-juno-grey-blue-2"
                       label={zone}
                       id={`zone-${index}-${zone}`}
                       value={zone}
