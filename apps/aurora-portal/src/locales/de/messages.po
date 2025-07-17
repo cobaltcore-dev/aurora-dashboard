@@ -73,6 +73,10 @@ msgstr "Zurück"
 msgid "Cancel"
 msgstr "Abbrechen"
 
+#: src/client/routes/gardener/-components/Filters/index.tsx:47
+msgid "Clear all"
+msgstr "Alle Filter löschen"
+
 #: src/client/routes/gardener/-components/ClusterWizard/BasicInfoStep.tsx:74
 msgid "Cloud Profile"
 msgstr "Cloud Profil"
@@ -80,9 +84,10 @@ msgstr "Cloud Profil"
 #: src/client/routes/gardener/-components/ClusterWizard/BasicInfoStep.tsx:23
 msgid "Cluster Name"
 msgstr "Cluster Name"
-#: src/client/routes/gardener/-components/Filters/index.tsx:48
-msgid "Clear all"
-msgstr "Alle Filter löschen"
+
+#: src/client/routes/gardener/-components/ClusterWizard/WorkerNodesStep.tsx:77
+msgid "Configure the worker pools for your cluster. These settings determine the compute resources available for your workloads."
+msgstr "Konfiguriere die Worker-Pools für deinen Cluster. Diese Einstellungen bestimmen die Rechenressourcen, die für deine Workloads verfügbar sind."
 
 #: src/client/routes/auth/login.tsx:172
 msgid "Contact support"
@@ -107,6 +112,10 @@ msgstr "Domain"
 #: src/client/routes/gardener/-components/ClusterWizard/InfrastructureStep.tsx:36
 msgid "Each worker nodes will automatically scale between its minimum and maximum number of nodes based on the workload demands. Ensure your maximum node counts allign with your resouce quotas."
 msgstr "Jeder Worker-Knoten wird je nach Arbeitslast automatisch zwischen der minimalen und maximalen Knotenzahl skaliert. Stelle sicher, dass deine maximale Knotenzahl mit deinen Ressourcenkontingenten übereinstimmt."
+
+#: src/client/routes/gardener/-components/ClusterWizard/WorkerNodesStep.tsx:67
+msgid "Each worker pool will automatically scale between its minimum and maximum node counts based on workload demands. Ensure your maximum node counts align with your resource quotas."
+msgstr "Jeder Worker-Pool skaliert je nach Arbeitslast automatisch zwischen der minimalen und maximalen Knotenzahl. Stelle sicher, dass deine maximale Knotenzahl mit deinen Ressourcenkontingenten übereinstimmt."
 
 #: src/client/routes/index.tsx:27
 #: src/client/routes/index.tsx:92
@@ -137,6 +146,10 @@ msgstr "Floating IP Pool"
 msgid "Get Involved"
 msgstr "Mitmachen"
 
+#: src/client/routes/gardener/-components/ClusterWizard/WorkerPool.tsx:110
+msgid "Image Version"
+msgstr "Image Version"
+
 #: src/client/routes/about.tsx:34
 msgid "Key Features"
 msgstr "Hauptmerkmale"
@@ -161,13 +174,21 @@ msgstr "Bei Ihrem Konto anmelden"
 msgid "Lowercase alphanumeric characters, dash (-) and must start with a letter"
 msgstr "Kleinbuchstaben (alphanumerisch), Bindestrich (-) und muss mit einem Buchstaben beginnen."
 
-#: src/client/routes/gardener/-components/SearchBar.tsx:50
-msgid "Name (A-Z)"
-msgstr "Name (A-Z)"
+#: src/client/routes/gardener/-components/ClusterWizard/WorkerPool.tsx:92
+msgid "Machine Image"
+msgstr "Machine Image"
 
-#: src/client/routes/gardener/-components/SearchBar.tsx:51
-msgid "Name (Z-A)"
-msgstr "Name (Z-A)"
+#: src/client/routes/gardener/-components/ClusterWizard/WorkerPool.tsx:72
+msgid "Machine Type"
+msgstr "Machine Typ"
+
+#: src/client/routes/gardener/-components/ClusterWizard/WorkerPool.tsx:140
+msgid "Maximum Nodes"
+msgstr "Maximale Nodes"
+
+#: src/client/routes/gardener/-components/ClusterWizard/WorkerPool.tsx:128
+msgid "Minimum Nodes"
+msgstr "Minimale Nodes"
 
 #: src/client/routes/auth/login.tsx:170
 msgid "Need help?"
@@ -176,10 +197,6 @@ msgstr "Benötigen Sie Hilfe?"
 #: src/client/routes/gardener/-components/ClusterWizard/InfrastructureStep.tsx:76
 msgid "Network Configuration"
 msgstr "Netzwerkkonfiguration"
-
-#: src/client/routes/gardener/-components/SearchBar.tsx:49
-msgid "Newest"
-msgstr "Neuste"
 
 #: src/client/routes/gardener/-components/ClusterWizard/WizardActions.tsx:33
 #: src/client/routes/gardener/-components/ClusterWizard/WizardActions.tsx:48
@@ -202,11 +219,15 @@ msgstr "Unsere Mission"
 msgid "Password"
 msgstr "Passwort"
 
+#: src/client/routes/gardener/-components/ClusterWizard/ReviewStep.tsx:123
+msgid "Please review all configurations carefully before creating the cluster. Once created, some settings cannot be changed."
+msgstr "Bitte überprüfe alle Konfigurationen sorgfältig, bevor du den Cluster erstellst. Nach der Erstellung können einige Einstellungen nicht mehr geändert werden."
+
 #: src/client/routes/gardener/-components/ClusterWizard/InfrastructureStep.tsx:82
 msgid "Pods CIDR"
 msgstr "CIDR-Bereich für Pods"
 
-#: src/client/routes/gardener/-components/SearchBar.tsx:57
+#: src/client/routes/gardener/-components/Filters/index.tsx:58
 msgid "Search clusters..."
 msgstr "Cluster durchsuchen..."
 
@@ -262,6 +283,10 @@ msgstr "Willkommen beim Aurora-Dashboard"
 #: src/client/routes/about.tsx:75
 msgid "Why Choose Aurora?"
 msgstr "Warum Aurora wählen?"
+
+#: src/client/routes/gardener/-components/ClusterWizard/WorkerNodesStep.tsx:74
+msgid "Worker Configuration"
+msgstr "Worker-Konfiguration"
 
 #: src/client/routes/gardener/-components/DeleteClusterDialog.tsx:61
 msgid "Would you like to remove the <0>{clusterName}</0> from your project?"
