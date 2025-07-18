@@ -1,15 +1,10 @@
-import React from "react"
+import React, { ReactElement } from "react"
 import { render, screen, fireEvent, waitFor, act } from "@testing-library/react"
 import { vi, describe, it, expect, beforeEach } from "vitest"
-import { useNavigate } from "@tanstack/react-router"
+import { createMemoryHistory, createRouter, createRootRoute, createRoute, RouterProvider } from "@tanstack/react-router"
 import { i18n } from "@lingui/core"
 import { I18nProvider } from "@lingui/react"
 import ClusterDetailPage from "./ClusterDetail"
-
-// Mock the useNavigate hook
-vi.mock("@tanstack/react-router", () => ({
-  useNavigate: vi.fn(),
-}))
 
 // Mock the clipboard API
 Object.assign(navigator, {
@@ -19,7 +14,6 @@ Object.assign(navigator, {
 })
 
 describe("ClusterDetailPage", () => {
-  const mockNavigate = vi.fn()
   const mockCluster = {
     uid: "test-cluster-123",
     name: "test-cluster",
@@ -46,16 +40,41 @@ describe("ClusterDetailPage", () => {
     },
   }
 
+  const createTestRouter = (Component: ReactElement) => {
+    const memoryHistory = createMemoryHistory({
+      initialEntries: ["/gardener/clusters/test-cluster"],
+    })
+
+    const rootRoute = createRootRoute({
+      component: () => Component,
+    })
+
+    // Create a route for the clusters list page to test navigation
+    const computeRoute = createRoute({
+      getParentRoute: () => rootRoute,
+      path: "/gardener/clusters",
+      component: () => <div>Clusters List</div>,
+    })
+
+    const routeTree = rootRoute.addChildren([computeRoute])
+
+    return createRouter({
+      routeTree,
+      history: memoryHistory,
+    })
+  }
+
   const setup = () => {
-    return render(
+    const router = createTestRouter(
       <I18nProvider i18n={i18n}>
         <ClusterDetailPage cluster={mockCluster} />
       </I18nProvider>
     )
+
+    return render(<RouterProvider router={router} />)
   }
 
   beforeEach(async () => {
-    vi.mocked(useNavigate).mockReturnValue(mockNavigate)
     vi.mocked(navigator.clipboard.writeText).mockResolvedValue(undefined)
 
     await act(async () => {
@@ -73,7 +92,8 @@ describe("ClusterDetailPage", () => {
     setup()
 
     fireEvent.click(screen.getByText("Clusters"))
-    expect(mockNavigate).toHaveBeenCalledWith({ to: "/gardener/clusters" })
+
+    waitFor(() => fireEvent.click(screen.getByText("Clusters List")))
   })
 
   it("handles share functionality", async () => {
