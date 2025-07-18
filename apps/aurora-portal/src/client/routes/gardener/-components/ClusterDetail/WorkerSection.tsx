@@ -1,5 +1,6 @@
 import React from "react"
 import { DataGridRow, DataGridCell, Stack, DataGrid, DataGridHeadCell, Badge } from "@cloudoperators/juno-ui-components"
+import { Trans } from "@lingui/react/macro"
 import { Cluster } from "@/server/Gardener/types/cluster"
 
 interface WorkerSectionProps {
@@ -11,11 +12,21 @@ const WorkerSection: React.FC<WorkerSectionProps> = ({ workers }) => (
     <h3 className={"text-2xl font-semibold leading-none tracking-tight text-theme-highest text-lg"}>Workers</h3>
     <DataGrid>
       <DataGridRow className="flex">
-        <DataGridHeadCell className="w-1/5">Name</DataGridHeadCell>
-        <DataGridHeadCell className="w-1/5">Machine Type</DataGridHeadCell>
-        <DataGridHeadCell className="w-1/5">Image</DataGridHeadCell>
-        <DataGridHeadCell className="w-1/5">Scaling</DataGridHeadCell>
-        <DataGridHeadCell className="w-1/5">Zones</DataGridHeadCell>
+        <DataGridHeadCell className="w-1/5">
+          <Trans>Name</Trans>
+        </DataGridHeadCell>
+        <DataGridHeadCell className="w-1/5">
+          <Trans>Machine Type</Trans>
+        </DataGridHeadCell>
+        <DataGridHeadCell className="w-1/5">
+          <Trans>Image</Trans>
+        </DataGridHeadCell>
+        <DataGridHeadCell className="w-1/5">
+          <Trans>Scaling</Trans>
+        </DataGridHeadCell>
+        <DataGridHeadCell className="w-1/5">
+          <Trans>Zones</Trans>
+        </DataGridHeadCell>
       </DataGridRow>
       {!workers || workers.length === 0 ? (
         <DataGridRow>
@@ -52,7 +63,8 @@ const WorkerSection: React.FC<WorkerSectionProps> = ({ workers }) => (
                 <Stack direction="vertical" gap="1">
                   <span className="text-theme-high">{worker.actual !== undefined ? worker.actual : "?"} nodes</span>
                   <span className="text-xs text-theme-light mt-1">
-                    Min: {worker.min} / Max: {worker.max} / Surge: {worker.maxSurge}
+                    <Trans>Min:</Trans> {worker.min} / <Trans>Max:</Trans> {worker.max} / <Trans>Surge:</Trans>{" "}
+                    {worker.maxSurge}
                   </span>
                 </Stack>
               </DataGridCell>

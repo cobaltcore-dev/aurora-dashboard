@@ -1,9 +1,11 @@
 import React from "react"
 
 import { Cluster } from "@/server/Gardener/types/cluster"
+import { Badge, BadgeVariantType, KnownIcons, Stack } from "@cloudoperators/juno-ui-components"
+
+import { useLingui } from "@lingui/react/macro"
 import Section from "./Section"
 import DataRow from "./DataRow"
-import { Badge, BadgeVariantType, KnownIcons, Stack } from "@cloudoperators/juno-ui-components"
 
 interface ClusterOverviewSectionProps {
   cluster: Cluster
@@ -42,6 +44,8 @@ const getStatusStyles = (status: string): { variant: BadgeVariantType; icon: Kno
 const ClusterOverviewSection: React.FC<ClusterOverviewSectionProps> = ({ cluster, handleShare }) => {
   const statusStyles = getStatusStyles(cluster.status)
 
+  const { t } = useLingui()
+
   return (
     <>
       <Stack distribution="between" className="mt-5">
@@ -59,11 +63,11 @@ const ClusterOverviewSection: React.FC<ClusterOverviewSectionProps> = ({ cluster
         </Stack>
       </Stack>
       <Section
-        title="Infrastructure"
+        title={t`Infrastructure`}
         rows={[
           <DataRow
             key="infrastructure"
-            label="Infrastructure:"
+            label={t`Infrastructure:`}
             content={
               <Stack direction="horizontal" gap="1.5" alignment="center">
                 <Badge text={cluster.infrastructure.substring(0, 3).toUpperCase()} variant="info" />{" "}
@@ -71,15 +75,19 @@ const ClusterOverviewSection: React.FC<ClusterOverviewSectionProps> = ({ cluster
               </Stack>
             }
           />,
-          <DataRow key="region" label="Region:" content={<span className="text-theme-high">{cluster.region}</span>} />,
+          <DataRow
+            key="region"
+            label={t`Region:`}
+            content={<span className="text-theme-high">{cluster.region}</span>}
+          />,
         ]}
       />
       <Section
-        title="Kubernetes"
+        title={t`Kubernetes`}
         rows={[
           <DataRow
             key="version"
-            label="Version:"
+            label={t`Version:`}
             content={
               <Stack>
                 <span className="text-theme-link mr-0.5">v</span>
@@ -89,7 +97,7 @@ const ClusterOverviewSection: React.FC<ClusterOverviewSectionProps> = ({ cluster
           />,
           <DataRow
             key="readiness"
-            label="Readiness:"
+            label={t`Readiness:`}
             content={
               <Stack direction="vertical" alignment="start">
                 <Badge
