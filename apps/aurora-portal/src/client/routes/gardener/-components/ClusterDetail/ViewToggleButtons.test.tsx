@@ -4,14 +4,6 @@ import { i18n } from "@lingui/core"
 import { I18nProvider } from "@lingui/react"
 import ViewToggleButtons, { Views } from "./ViewToggleButtons"
 
-// Mock the SVG imports
-vi.mock("../../../../assets/grid.svg?react", () => ({
-  default: () => <svg data-testid="grid-icon" />,
-}))
-vi.mock("../../../../assets/json.svg?react", () => ({
-  default: () => <svg data-testid="json-icon" />,
-}))
-
 describe("ViewToggleButtons", () => {
   const mockToggleView = vi.fn()
 

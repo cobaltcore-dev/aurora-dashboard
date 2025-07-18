@@ -4,14 +4,6 @@ import { i18n } from "@lingui/core"
 import { I18nProvider } from "@lingui/react"
 import DetailLayout, { DetailLayoutProps } from "./DetailLayout"
 
-// Mock the SVG imports that ViewToggleButtons uses
-vi.mock("../../../../assets/grid.svg?react", () => ({
-  default: () => <svg data-testid="grid-icon" />,
-}))
-vi.mock("../../../../assets/json.svg?react", () => ({
-  default: () => <svg data-testid="json-icon" />,
-}))
-
 const setup = (props: DetailLayoutProps) => {
   return render(
     <I18nProvider i18n={i18n}>
