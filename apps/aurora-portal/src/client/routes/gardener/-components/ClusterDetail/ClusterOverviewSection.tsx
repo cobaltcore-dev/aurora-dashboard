@@ -100,12 +100,7 @@ const ClusterOverviewSection: React.FC<ClusterOverviewSectionProps> = ({ cluster
             label={t`Readiness:`}
             content={
               <Stack direction="vertical" alignment="start">
-                <Badge
-                  variant={statusStyles.variant}
-                  icon={statusStyles.icon}
-                  text={cluster.readiness.status}
-                  //   className="text-theme-high"
-                ></Badge>
+                <Badge variant={statusStyles.variant} icon={statusStyles.icon} text={cluster.readiness.status}></Badge>
               </Stack>
             }
           />,
