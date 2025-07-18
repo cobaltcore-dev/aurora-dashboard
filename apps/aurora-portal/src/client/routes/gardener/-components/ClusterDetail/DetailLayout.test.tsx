@@ -1,6 +1,8 @@
-import { render, screen, fireEvent } from "@testing-library/react"
+import { render, screen, fireEvent, act } from "@testing-library/react"
 import { describe, it, expect, vi } from "vitest"
-import DetailLayout from "./DetailLayout"
+import { i18n } from "@lingui/core"
+import { I18nProvider } from "@lingui/react"
+import DetailLayout, { DetailLayoutProps } from "./DetailLayout"
 
 // Mock the SVG imports that ViewToggleButtons uses
 vi.mock("../../../../assets/grid.svg?react", () => ({
@@ -9,6 +11,14 @@ vi.mock("../../../../assets/grid.svg?react", () => ({
 vi.mock("../../../../assets/json.svg?react", () => ({
   default: () => <svg data-testid="json-icon" />,
 }))
+
+const setup = (props: DetailLayoutProps) => {
+  return render(
+    <I18nProvider i18n={i18n}>
+      <DetailLayout {...props} />
+    </I18nProvider>
+  )
+}
 
 describe("DetailLayout", () => {
   const defaultProps = {
@@ -23,12 +33,18 @@ describe("DetailLayout", () => {
     children: <div data-testid="test-children">Test children content</div>,
   }
 
+  beforeEach(async () => {
+    await act(async () => {
+      i18n.activate("en")
+    })
+  })
+
   afterEach(() => {
     vi.clearAllMocks()
   })
 
   it("renders the component with all required elements", () => {
-    render(<DetailLayout {...defaultProps} />)
+    setup(defaultProps)
 
     // Check if title is rendered
     expect(screen.getByText("Test Title")).toBeInTheDocument()
@@ -48,7 +64,7 @@ describe("DetailLayout", () => {
   })
 
   it("calls onBack when breadcrumb parent item is clicked", () => {
-    render(<DetailLayout {...defaultProps} />)
+    setup(defaultProps)
 
     const parentBreadcrumb = screen.getByText("Parent")
     fireEvent.click(parentBreadcrumb)
@@ -57,7 +73,7 @@ describe("DetailLayout", () => {
   })
 
   it("calls handleShare when share button is clicked", () => {
-    render(<DetailLayout {...defaultProps} />)
+    setup(defaultProps)
 
     const shareButton = screen.getByRole("button", { name: /share/i })
     fireEvent.click(shareButton)
@@ -66,7 +82,7 @@ describe("DetailLayout", () => {
   })
 
   it("renders ViewToggleButtons component and passes correct props", () => {
-    const { rerender } = render(<DetailLayout {...defaultProps} isJsonView={false} />)
+    const { rerender } = setup({ ...defaultProps, isJsonView: false })
 
     // Check that ViewToggleButtons is rendered by looking for "View:" text
     expect(screen.getByText("View:")).toBeInTheDocument()
@@ -83,7 +99,11 @@ describe("DetailLayout", () => {
     expect(jsonButton).not.toHaveAttribute("disabled")
 
     // Test with JSON view active
-    rerender(<DetailLayout {...defaultProps} isJsonView={true} />)
+    rerender(
+      <I18nProvider i18n={i18n}>
+        <DetailLayout {...defaultProps} isJsonView={true} />
+      </I18nProvider>
+    )
 
     const gridButtonAfterRerender = screen.getByTestId("grid-icon").closest("button")
     const jsonButtonAfterRerender = screen.getByTestId("json-icon").closest("button")
@@ -93,7 +113,7 @@ describe("DetailLayout", () => {
   })
 
   it("handles ViewToggleButtons interaction correctly", () => {
-    render(<DetailLayout {...defaultProps} isJsonView={false} />)
+    setup({ ...defaultProps, isJsonView: false })
 
     // Find the JSON button (should be enabled since we're in grid view)
     const jsonButton = screen.getByTestId("json-icon").closest("button")
@@ -108,7 +128,7 @@ describe("DetailLayout", () => {
   })
 
   it("handles ViewToggleButtons interaction when in JSON view", () => {
-    render(<DetailLayout {...defaultProps} isJsonView={true} />)
+    setup({ ...defaultProps, isJsonView: true })
 
     // Find the grid button (should be enabled since we're in JSON view)
     const gridButton = screen.getByTestId("grid-icon").closest("button")
@@ -128,7 +148,7 @@ describe("DetailLayout", () => {
       </div>
     )
 
-    render(<DetailLayout {...defaultProps} children={customChildren} />)
+    setup({ ...defaultProps, children: customChildren })
 
     expect(screen.getByTestId("custom-children")).toBeInTheDocument()
     expect(screen.getByText("Custom Content")).toBeInTheDocument()
@@ -136,21 +156,21 @@ describe("DetailLayout", () => {
   })
 
   it("applies correct CSS classes to title", () => {
-    render(<DetailLayout {...defaultProps} />)
+    setup(defaultProps)
 
     const titleElement = screen.getByText("Test Title")
     expect(titleElement).toHaveClass("text-2xl", "font-bold", "text-theme-highest")
   })
 
   it("applies correct CSS classes to description", () => {
-    render(<DetailLayout {...defaultProps} />)
+    setup(defaultProps)
 
     const descriptionElement = screen.getByText("Test description")
     expect(descriptionElement).toHaveClass("text-theme-default", "text-sm", "mt-1")
   })
 
   it("has correct breadcrumb structure", () => {
-    render(<DetailLayout {...defaultProps} />)
+    setup(defaultProps)
 
     // Check that parent breadcrumb is clickable (not active)
     const parentBreadcrumb = screen.getByText("Parent")
@@ -162,7 +182,7 @@ describe("DetailLayout", () => {
   })
 
   it("renders share button with correct props", () => {
-    render(<DetailLayout {...defaultProps} />)
+    setup(defaultProps)
 
     const shareButton = screen.getByRole("button", { name: /share/i })
     expect(shareButton).toBeInTheDocument()
@@ -172,7 +192,7 @@ describe("DetailLayout", () => {
   })
 
   it("maintains proper component structure with Stack layouts", () => {
-    render(<DetailLayout {...defaultProps} />)
+    setup(defaultProps)
 
     // Verify that all main elements are present in the correct structure
     expect(screen.getByText("Test Title")).toBeInTheDocument()

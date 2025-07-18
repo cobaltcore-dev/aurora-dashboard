@@ -3,7 +3,7 @@ import { Stack, Breadcrumb, BreadcrumbItem, ContentHeading, Button } from "@clou
 
 import ViewToggleButtons from "../ClusterDetail/ViewToggleButtons"
 
-interface DetailLayoutProps {
+export interface DetailLayoutProps {
   title: string
   description?: string
   breadcrumbLabel: string

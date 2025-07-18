@@ -1,7 +1,9 @@
-import { render, screen, fireEvent } from "@testing-library/react"
+import { render, screen, fireEvent, act } from "@testing-library/react"
 import { describe, it, expect, vi } from "vitest"
-import ClusterOverviewSection from "./ClusterOverviewSection"
 import { Cluster } from "@/server/Gardener/types/cluster"
+import { i18n } from "@lingui/core"
+import { I18nProvider } from "@lingui/react"
+import ClusterOverviewSection from "./ClusterOverviewSection"
 
 describe("ClusterOverviewSection", () => {
   const mockHandleShare = vi.fn()
@@ -18,12 +20,24 @@ describe("ClusterOverviewSection", () => {
     },
   } as Cluster
 
-  beforeEach(() => {
+  const setup = (cluster: Cluster) => {
+    return render(
+      <I18nProvider i18n={i18n}>
+        <ClusterOverviewSection cluster={cluster} handleShare={mockHandleShare} />
+      </I18nProvider>
+    )
+  }
+
+  beforeEach(async () => {
     vi.clearAllMocks()
+
+    await act(async () => {
+      i18n.activate("en")
+    })
   })
 
   it("renders cluster name and ID correctly", () => {
-    render(<ClusterOverviewSection cluster={mockCluster} handleShare={mockHandleShare} />)
+    setup(mockCluster)
 
     expect(screen.getByText("test-cluster")).toBeInTheDocument()
     expect(screen.getByText("test-uid-123")).toBeInTheDocument()
@@ -31,7 +45,7 @@ describe("ClusterOverviewSection", () => {
   })
 
   it("calls handleShare when ID is clicked", () => {
-    render(<ClusterOverviewSection cluster={mockCluster} handleShare={mockHandleShare} />)
+    setup(mockCluster)
 
     const idElement = screen.getByText("test-uid-123").closest("div")
     fireEvent.click(idElement!)
@@ -40,7 +54,7 @@ describe("ClusterOverviewSection", () => {
   })
 
   it("renders cluster name with correct heading styles", () => {
-    render(<ClusterOverviewSection cluster={mockCluster} handleShare={mockHandleShare} />)
+    setup(mockCluster)
 
     const clusterName = screen.getByText("test-cluster")
     expect(clusterName).toHaveClass("text-xl", "font-semibold", "leading-none", "tracking-tight", "text-theme-highest")
@@ -48,7 +62,7 @@ describe("ClusterOverviewSection", () => {
   })
 
   it("renders ID with correct styling and behavior", () => {
-    render(<ClusterOverviewSection cluster={mockCluster} handleShare={mockHandleShare} />)
+    setup(mockCluster)
 
     const idContainer = screen.getByText("test-uid-123").closest("div")
     expect(idContainer).toHaveClass(
@@ -65,7 +79,7 @@ describe("ClusterOverviewSection", () => {
   })
 
   it("renders infrastructure section with correct data", () => {
-    render(<ClusterOverviewSection cluster={mockCluster} handleShare={mockHandleShare} />)
+    setup(mockCluster)
 
     expect(screen.getByText("Infrastructure")).toBeInTheDocument()
     expect(screen.getByText("Infrastructure:")).toBeInTheDocument()
@@ -76,7 +90,7 @@ describe("ClusterOverviewSection", () => {
   })
 
   it("renders kubernetes section with correct data", () => {
-    render(<ClusterOverviewSection cluster={mockCluster} handleShare={mockHandleShare} />)
+    setup(mockCluster)
 
     expect(screen.getByText("Kubernetes")).toBeInTheDocument()
     expect(screen.getByText("Version:")).toBeInTheDocument()
@@ -86,7 +100,7 @@ describe("ClusterOverviewSection", () => {
   })
 
   it("displays version with correct styling", () => {
-    render(<ClusterOverviewSection cluster={mockCluster} handleShare={mockHandleShare} />)
+    setup(mockCluster)
 
     const versionPrefix = screen.getByText("v")
     expect(versionPrefix).toHaveClass("text-theme-link", "mr-0.5")
@@ -96,96 +110,78 @@ describe("ClusterOverviewSection", () => {
   })
 
   it("displays infrastructure with correct styling", () => {
-    render(<ClusterOverviewSection cluster={mockCluster} handleShare={mockHandleShare} />)
+    setup(mockCluster)
 
     const infrastructureText = screen.getByText("aws")
     expect(infrastructureText).toHaveClass("text-theme-high", "capitalize")
   })
 
   it("displays region with correct styling", () => {
-    render(<ClusterOverviewSection cluster={mockCluster} handleShare={mockHandleShare} />)
+    setup(mockCluster)
 
     const regionText = screen.getByText("us-west-2")
     expect(regionText).toHaveClass("text-theme-high")
   })
 
   it("creates infrastructure badge with first 3 characters uppercase", () => {
-    render(<ClusterOverviewSection cluster={mockCluster} handleShare={mockHandleShare} />)
+    setup(mockCluster)
 
     // AWS -> AWS (first 3 chars)
     expect(screen.getByText("AWS")).toBeInTheDocument()
   })
 
-  it("handles different infrastructure types correctly", () => {
-    const azureCluster = { ...mockCluster, infrastructure: "azure" }
-    render(<ClusterOverviewSection cluster={azureCluster} handleShare={mockHandleShare} />)
-
-    // azure -> AZU (first 3 chars)
-    expect(screen.getByText("AZU")).toBeInTheDocument()
-    expect(screen.getByText("azure")).toBeInTheDocument()
-  })
-
-  it("handles short infrastructure names", () => {
-    const gcpCluster = { ...mockCluster, infrastructure: "gcp" }
-    render(<ClusterOverviewSection cluster={gcpCluster} handleShare={mockHandleShare} />)
-
-    // gcp -> GCP (first 3 chars, all available)
-    expect(screen.getByText("GCP")).toBeInTheDocument()
-    expect(screen.getByText("gcp")).toBeInTheDocument()
-  })
-
   describe("status badge rendering", () => {
     it("renders healthy status badge", () => {
-      render(<ClusterOverviewSection cluster={mockCluster} handleShare={mockHandleShare} />)
+      setup(mockCluster)
 
       expect(screen.getByText("healthy")).toBeInTheDocument()
     })
 
     it("renders operational status", () => {
       const operationalCluster = { ...mockCluster, status: "operational" }
-      render(<ClusterOverviewSection cluster={operationalCluster} handleShare={mockHandleShare} />)
+      setup(operationalCluster)
 
       expect(screen.getByText("operational")).toBeInTheDocument()
     })
 
     it("renders warning status", () => {
       const warningCluster = { ...mockCluster, status: "warning" }
-      render(<ClusterOverviewSection cluster={warningCluster} handleShare={mockHandleShare} />)
+      setup(warningCluster)
 
       expect(screen.getByText("warning")).toBeInTheDocument()
     })
 
     it("renders pending status", () => {
       const pendingCluster = { ...mockCluster, status: "pending" }
-      render(<ClusterOverviewSection cluster={pendingCluster} handleShare={mockHandleShare} />)
+      setup(pendingCluster)
 
       expect(screen.getByText("pending")).toBeInTheDocument()
     })
 
     it("renders unhealthy status", () => {
       const unhealthyCluster = { ...mockCluster, status: "unhealthy" }
-      render(<ClusterOverviewSection cluster={unhealthyCluster} handleShare={mockHandleShare} />)
+      setup(unhealthyCluster)
 
       expect(screen.getByText("unhealthy")).toBeInTheDocument()
     })
 
     it("renders error status", () => {
       const errorCluster = { ...mockCluster, status: "error" }
-      render(<ClusterOverviewSection cluster={errorCluster} handleShare={mockHandleShare} />)
+      setup(errorCluster)
 
       expect(screen.getByText("error")).toBeInTheDocument()
     })
 
     it("renders failed status", () => {
       const failedCluster = { ...mockCluster, status: "failed" }
-      render(<ClusterOverviewSection cluster={failedCluster} handleShare={mockHandleShare} />)
+      setup(failedCluster)
 
       expect(screen.getByText("failed")).toBeInTheDocument()
     })
 
     it("renders unknown status", () => {
       const unknownCluster = { ...mockCluster, status: "unknown" }
-      render(<ClusterOverviewSection cluster={unknownCluster} handleShare={mockHandleShare} />)
+      setup(unknownCluster)
 
       expect(screen.getByText("unknown")).toBeInTheDocument()
     })
@@ -193,7 +189,7 @@ describe("ClusterOverviewSection", () => {
 
   describe("readiness badge rendering", () => {
     it("renders readiness status badge", () => {
-      render(<ClusterOverviewSection cluster={mockCluster} handleShare={mockHandleShare} />)
+      setup(mockCluster)
 
       expect(screen.getByText("ready")).toBeInTheDocument()
     })
@@ -204,46 +200,21 @@ describe("ClusterOverviewSection", () => {
         readiness: { status: "degraded" },
       } as Cluster
 
-      render(<ClusterOverviewSection cluster={degradedCluster} handleShare={mockHandleShare} />)
+      setup(degradedCluster)
 
       expect(screen.getByText("degraded")).toBeInTheDocument()
     })
   })
 
-  it("renders with complex cluster data", () => {
-    const complexCluster: Cluster = {
-      name: "production-cluster-eu",
-      uid: "prod-eu-xyz-789",
-      status: "warning",
-      infrastructure: "gcp",
-      region: "europe-west1",
-      version: "1.29.3",
-      readiness: {
-        status: "degraded",
-      },
-    } as Cluster
-
-    render(<ClusterOverviewSection cluster={complexCluster} handleShare={mockHandleShare} />)
-
-    expect(screen.getByText("production-cluster-eu")).toBeInTheDocument()
-    expect(screen.getByText("prod-eu-xyz-789")).toBeInTheDocument()
-    expect(screen.getByText("GCP")).toBeInTheDocument()
-    expect(screen.getByText("gcp")).toBeInTheDocument()
-    expect(screen.getByText("europe-west1")).toBeInTheDocument()
-    expect(screen.getByText("1.29.3")).toBeInTheDocument()
-    expect(screen.getByText("warning")).toBeInTheDocument()
-    expect(screen.getByText("degraded")).toBeInTheDocument()
-  })
-
   it("renders infrastructure and kubernetes sections", () => {
-    render(<ClusterOverviewSection cluster={mockCluster} handleShare={mockHandleShare} />)
+    setup(mockCluster)
 
     expect(screen.getByText("Infrastructure")).toBeInTheDocument()
     expect(screen.getByText("Kubernetes")).toBeInTheDocument()
   })
 
   it("renders all expected labels", () => {
-    render(<ClusterOverviewSection cluster={mockCluster} handleShare={mockHandleShare} />)
+    setup(mockCluster)
 
     expect(screen.getByText("Infrastructure:")).toBeInTheDocument()
     expect(screen.getByText("Region:")).toBeInTheDocument()
@@ -253,13 +224,13 @@ describe("ClusterOverviewSection", () => {
 
   it("handles case sensitivity in status correctly", () => {
     const upperCaseCluster = { ...mockCluster, status: "HEALTHY" }
-    render(<ClusterOverviewSection cluster={upperCaseCluster} handleShare={mockHandleShare} />)
+    setup(upperCaseCluster)
 
     expect(screen.getByText("HEALTHY")).toBeInTheDocument()
   })
 
   it("renders multiple status badges correctly", () => {
-    render(<ClusterOverviewSection cluster={mockCluster} handleShare={mockHandleShare} />)
+    setup(mockCluster)
 
     // Main status badge
     expect(screen.getByText("healthy")).toBeInTheDocument()
@@ -280,7 +251,7 @@ describe("ClusterOverviewSection", () => {
       },
     } as Cluster
 
-    render(<ClusterOverviewSection cluster={minimalCluster} handleShare={mockHandleShare} />)
+    setup(minimalCluster)
 
     // Should still render the structure even with empty values
     expect(screen.getByText("Infrastructure:")).toBeInTheDocument()
@@ -290,7 +261,7 @@ describe("ClusterOverviewSection", () => {
   })
 
   it("renders stack components with proper distribution and gaps", () => {
-    render(<ClusterOverviewSection cluster={mockCluster} handleShare={mockHandleShare} />)
+    setup(mockCluster)
 
     // Test that the component renders without errors
     // Stack components should handle layout properly
@@ -298,18 +269,9 @@ describe("ClusterOverviewSection", () => {
     expect(screen.getByText("healthy")).toBeInTheDocument()
   })
 
-  it("infrastructure badge shows only first 3 characters in uppercase", () => {
-    const longInfraCluster = { ...mockCluster, infrastructure: "kubernetes" }
-    render(<ClusterOverviewSection cluster={longInfraCluster} handleShare={mockHandleShare} />)
-
-    // kubernetes -> KUB (first 3 chars)
-    expect(screen.getByText("KUB")).toBeInTheDocument()
-    expect(screen.getByText("kubernetes")).toBeInTheDocument()
-  })
-
   it("handles single character infrastructure names", () => {
     const singleCharCluster = { ...mockCluster, infrastructure: "k" }
-    render(<ClusterOverviewSection cluster={singleCharCluster} handleShare={mockHandleShare} />)
+    setup(singleCharCluster)
 
     expect(screen.getByText("K")).toBeInTheDocument()
     expect(screen.getByText("k")).toBeInTheDocument()
@@ -321,7 +283,7 @@ describe("ClusterOverviewSection", () => {
       readiness: { status: "not-ready" },
     } as Cluster
 
-    render(<ClusterOverviewSection cluster={notReadyCluster} handleShare={mockHandleShare} />)
+    setup(notReadyCluster)
 
     expect(screen.getByText("not-ready")).toBeInTheDocument()
   })

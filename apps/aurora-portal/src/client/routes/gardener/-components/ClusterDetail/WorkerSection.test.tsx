@@ -1,12 +1,28 @@
-import { render, screen } from "@testing-library/react"
+import { render, screen, act } from "@testing-library/react"
 import { describe, it, expect } from "vitest"
-import WorkerSection from "./WorkerSection"
 import { Cluster } from "@/server/Gardener/types/cluster"
+import { i18n } from "@lingui/core"
+import { I18nProvider } from "@lingui/react"
+import WorkerSection from "./WorkerSection"
+
+const setup = (workers: Cluster["workers"]) => {
+  return render(
+    <I18nProvider i18n={i18n}>
+      <WorkerSection workers={workers} />
+    </I18nProvider>
+  )
+}
 
 describe("WorkerSection", () => {
+  beforeEach(async () => {
+    await act(async () => {
+      i18n.activate("en")
+    })
+  })
+
   it('renders "No worker nodes configured" message when workers array is empty', () => {
     const workers: Cluster["workers"] = []
-    render(<WorkerSection workers={workers} />)
+    setup(workers)
 
     expect(screen.getByText("No worker nodes configured for this cluster.")).toBeInTheDocument()
     expect(screen.queryByRole("row", { name: /Name Machine Type Image Scaling Zones/i })).toBeInTheDocument()
@@ -28,7 +44,7 @@ describe("WorkerSection", () => {
       },
     ]
 
-    render(<WorkerSection workers={workers} />)
+    setup(workers)
 
     // Check header
     expect(screen.getByText("Workers")).toBeInTheDocument()
@@ -63,7 +79,7 @@ describe("WorkerSection", () => {
       },
     ]
 
-    render(<WorkerSection workers={workers} />)
+    setup(workers)
 
     expect(screen.getByText("? nodes")).toBeInTheDocument()
     expect(screen.getByText("Min: 1 / Max: 3 / Surge: 2")).toBeInTheDocument()
@@ -97,7 +113,7 @@ describe("WorkerSection", () => {
       },
     ]
 
-    render(<WorkerSection workers={workers} />)
+    setup(workers)
 
     expect(screen.getAllByRole("row")).toHaveLength(3) // Header + 2 worker rows
     expect(screen.getByText("worker-1")).toBeInTheDocument()

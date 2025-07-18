@@ -1,5 +1,7 @@
-import { render, screen, fireEvent } from "@testing-library/react"
+import { render, screen, fireEvent, act } from "@testing-library/react"
 import { describe, it, expect, vi, beforeEach } from "vitest"
+import { i18n } from "@lingui/core"
+import { I18nProvider } from "@lingui/react"
 import ViewToggleButtons, { Views } from "./ViewToggleButtons"
 
 // Mock the SVG imports
@@ -13,13 +15,25 @@ vi.mock("../../../../assets/json.svg?react", () => ({
 describe("ViewToggleButtons", () => {
   const mockToggleView = vi.fn()
 
+  const setup = (currentView: (typeof Views)[keyof typeof Views]) => {
+    return render(
+      <I18nProvider i18n={i18n}>
+        <ViewToggleButtons currentView={currentView} toggleView={mockToggleView} />
+      </I18nProvider>
+    )
+  }
+
   // Clear mocks before each test
-  beforeEach(() => {
+  beforeEach(async () => {
     mockToggleView.mockClear()
+
+    await act(async () => {
+      i18n.activate("en")
+    })
   })
 
   it("renders correctly with grid view active", () => {
-    render(<ViewToggleButtons currentView={Views.GRID} toggleView={mockToggleView} />)
+    setup(Views.GRID)
 
     expect(screen.getByText("View:")).toBeInTheDocument()
     expect(screen.getByTestId("grid-icon")).toBeInTheDocument()
@@ -35,7 +49,7 @@ describe("ViewToggleButtons", () => {
   })
 
   it("renders correctly with json view active", () => {
-    render(<ViewToggleButtons currentView={Views.JSON} toggleView={mockToggleView} />)
+    setup(Views.JSON)
 
     expect(screen.getByText("View:")).toBeInTheDocument()
     expect(screen.getByTestId("grid-icon")).toBeInTheDocument()
@@ -51,7 +65,7 @@ describe("ViewToggleButtons", () => {
   })
 
   it("calls toggleView with correct view when grid button is clicked", () => {
-    render(<ViewToggleButtons currentView={Views.JSON} toggleView={mockToggleView} />)
+    setup(Views.JSON)
 
     const gridButton = screen.getByTestId("grid-icon").closest("button")
     fireEvent.click(gridButton!)
@@ -60,7 +74,7 @@ describe("ViewToggleButtons", () => {
   })
 
   it("calls toggleView with correct view when json button is clicked", () => {
-    render(<ViewToggleButtons currentView={Views.GRID} toggleView={mockToggleView} />)
+    setup(Views.GRID)
 
     const jsonButton = screen.getByTestId("json-icon").closest("button")
     fireEvent.click(jsonButton!)
@@ -69,7 +83,7 @@ describe("ViewToggleButtons", () => {
   })
 
   it("does not call toggleView when disabled grid button is clicked", () => {
-    render(<ViewToggleButtons currentView={Views.GRID} toggleView={mockToggleView} />)
+    setup(Views.GRID)
 
     const gridButton = screen.getByTestId("grid-icon").closest("button")
     fireEvent.click(gridButton!)
@@ -78,7 +92,7 @@ describe("ViewToggleButtons", () => {
   })
 
   it("does not call toggleView when disabled json button is clicked", () => {
-    render(<ViewToggleButtons currentView={Views.JSON} toggleView={mockToggleView} />)
+    setup(Views.JSON)
 
     const jsonButton = screen.getByTestId("json-icon").closest("button")
     fireEvent.click(jsonButton!)
