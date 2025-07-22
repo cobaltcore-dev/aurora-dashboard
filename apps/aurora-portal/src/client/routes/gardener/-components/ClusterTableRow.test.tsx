@@ -1,17 +1,9 @@
 import { ReactElement } from "react"
-import { render, screen, fireEvent } from "@testing-library/react"
+import { render, screen, fireEvent, waitFor } from "@testing-library/react"
 import { vi, describe, it, expect, beforeEach } from "vitest"
 import { Cluster } from "@/server/Gardener/types/cluster"
 import { createRoute, createRootRoute, RouterProvider, createMemoryHistory, createRouter } from "@tanstack/react-router"
-import { toast } from "sonner"
 import ClusterTableRow from "./ClusterTableRow"
-
-// Mock sonner toast
-vi.mock("sonner", () => ({
-  toast: {
-    success: vi.fn(),
-  },
-}))
 
 // Mock navigator.clipboard
 const mockClipboardWriteText = vi.fn()
@@ -149,7 +141,11 @@ describe("ClusterTableRow", () => {
     fireEvent.click(clusterId)
 
     expect(mockClipboardWriteText).toHaveBeenCalledWith(defaultCluster.uid)
-    expect(toast.success).toHaveBeenCalledWith("Cluster ID copied to clipboard")
+
+    // Check that the toast appears with the success message
+    await waitFor(() => {
+      expect(screen.getByText("Cluster ID copied to clipboard")).toBeInTheDocument()
+    })
   })
 
   it("renders cluster name as a link with correct href", () => {
