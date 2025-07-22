@@ -12,7 +12,7 @@ export const ClusterTable: React.FC<{
       {/* Header with summary */}
       <Stack className="bg-theme-background-lvl-1 py-2 px-4 my-0">
         <Stack gap="1" className="w-1/2">
-          <span className="text-theme-high">{clusters.length}</span> out of{" "}
+          <span className="text-theme-high">{clusters.length}</span> <span>out of</span>
           <span className="text-theme-high">{filteredCount}</span> clusters
         </Stack>
         <Stack distribution="end" gap="1" className="w-1/2">
@@ -22,7 +22,7 @@ export const ClusterTable: React.FC<{
               .filter((cluster) => cluster.stateDetails?.lastTransitionTime)
               .map((cluster) => new Date(cluster.stateDetails?.lastTransitionTime as string))
               .sort((a, b) => b.getTime() - a.getTime())[0]
-              .toUTCString()}
+              ?.toUTCString()}
           </span>
         </Stack>
       </Stack>
@@ -32,7 +32,7 @@ export const ClusterTable: React.FC<{
           <DataGridRow className="no-hover">
             <DataGridCell colSpan={7}>
               <Stack gap="3">
-                <Icon icon="info" color="text-theme-info" />
+                <Icon data-testid="icon-info" icon="info" color="text-theme-info" />
                 <div>
                   <h3>No clusters found</h3>
                   <p>No Kubernetes clusters match your current filter criteria</p>
@@ -44,7 +44,7 @@ export const ClusterTable: React.FC<{
           <>
             <DataGridRow>
               <DataGridHeadCell>
-                <Icon icon="monitorHeart" />
+                <Icon data-testid="status-header-icon" icon="monitorHeart" />
               </DataGridHeadCell>
               <DataGridHeadCell>Status</DataGridHeadCell>
               <DataGridHeadCell>Readiness</DataGridHeadCell>

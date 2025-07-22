@@ -84,7 +84,7 @@ const ClusterTableRow: React.FC<ClusterTableRowProps> = ({ cluster }) => {
   return (
     <DataGridRow>
       <DataGridCell>
-        <Icon color={statusStyles.color} icon={statusStyles.icon} />
+        <Icon data-testid="status-icon" color={statusStyles.color} icon={statusStyles.icon} />
       </DataGridCell>
 
       <DataGridCell>{cluster.status}</DataGridCell>
@@ -112,7 +112,9 @@ const ClusterTableRow: React.FC<ClusterTableRowProps> = ({ cluster }) => {
 
       <DataGridCell>
         <Stack gap="1">
-          {cluster.lastMaintenance.state === "Error" ? <Icon icon="errorOutline" color="text-theme-error" /> : null}{" "}
+          {cluster.lastMaintenance.state === "Error" ? (
+            <Icon data-testid="maintenance-error-icon" icon="errorOutline" color="text-theme-error" />
+          ) : null}{" "}
           {cluster.version}
         </Stack>
       </DataGridCell>
