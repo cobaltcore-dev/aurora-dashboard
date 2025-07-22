@@ -1,117 +1,247 @@
-# Policy Engine
+# OpenStack Policy Engine (TypeScript)
+A TypeScript implementation of the OpenStack Policy Engine compatible with OSLO policy files. This library provides a comprehensive policy evaluation system for access control decisions in OpenStack-like environments.
 
-Ploicy Engine compiles a JSON file with rules and returns a policy, which in turn implements the check function. The syntax of the rules corresponds to the policy syntax used in Openstack Services. However, some features have been added to allow more flexibility.
+## Overview
+This policy engine implements the OpenStack Policy Engine specification, allowing you to define and evaluate complex access control rules using the same syntax and semantics as OpenStack's native policy system. It supports rule-based access control with context-aware evaluation, role-based permissions, and parameter substitution.
 
 ## Architecture
-
-JSON File -> Policy Engine -> Policy
-
-Openstack Token -> Policy -> check function
-
-Lexer -> Parser -> Evaluator
-
-https://www.codeproject.com/Articles/345888/How-to-Write-a-Simple-Interpreter-in-JavaScript
-
-## Usage
-
 ```js
-const rules = {
-  admin: "role:admin",
-}
-const { PolicyEngine } = require("policy-engine")
-
-const currentUserToken = "..."
-const engine = new PolicyEngine(rules)
-const policy = engine.policy(currentUserToken, { debug: false })
-
-policy.check("admin")
+┌──────────────────────────────────────────────────────────────────┐
+│                    Policy Engine Architecture                    │
+├──────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│                                                                  │
+│  ┌─────────────────┐    ┌─────────────────┐                      │
+│  │ Policy File     │    │ Policy Config   │                      │
+│  │ (.json/.yaml)   │    │ Object          │                      │
+│  └─────┬───────────┘    └─────┬───────────┘                      │
+│        │                      │                                  │
+│        │ policyFileLoader     │ createPolicyEngine()             │
+│        │                      │                                  │
+│        └──────────┬───────────┘                                  │
+│                   │                                              │
+│                   ▼                                              │
+│  ┌─────────────────────────────────────────────────────────────┐ │
+│  │                 PolicyEngine                                │ │
+│  │                                                             │ │  
+│  │  Rules compilation during construction:                     │ │
+│  │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐          │ │
+│  │  │   Lexer     │─▶│   Parser    │─▶│ Compiled    │          │ │
+│  │  │(tokenize)   │  │(parse AST)  │  │ Rules Map   │          │ │
+│  │  └─────────────┘  └─────────────┘  └─────────────┘          │ │
+│  └─────────────────────┬───────────────────────────────────────┘ │
+│                        │                                         │
+│                        │                                         │
+│                        │ .policy(keystoneToken)                  │
+│                        ▼                                         │
+│  ┌─────────────────────────────────────────────────────────────┐ │
+│  │               buildContext()                                │ │
+│  │                                                             │ │
+│  │  ┌─────────────────┐         ┌─────────────────┐            │ │
+│  │  │ Keystone Token  │────────▶│ Policy Context  │            │ │
+│  │  │ • user          │         │ • user_id       │            │ │
+│  │  │ • roles         │         │ • roles         │            │ │
+│  │  │ • project       │         │ • project_id    │            │ │
+│  │  │ • domain        │         │ • domain_id     │            │ │
+│  │  └─────────────────┘         │ • is_admin      │            │ │
+│  │                              │ • token.*       │            │ │
+│  │                              └─────────────────┘            │ │
+│  └─────────────────────────────────────────────────────────────┘ │
+│                        │                                         │
+│                        ▼                                         │
+│  ┌─────────────────────────────────────────────────────────────┐ │
+│  │              UserPolicy Object                              │ │
+│  │                  { check() }                                │ │
+│  └─────────────────────┬───────────────────────────────────────┘ │
+│                        │                                         │
+│                        │                                         │
+│                        │ .check(ruleName, params)                │
+│                        ▼                                         │
+│  ┌─────────────────────────────────────────────────────────────┐ │
+│  │                checkRule()                                  │ │
+│  │                                                             │ │
+│  │  ┌─────────────────┐    ┌─────────────────┐                 │ │
+│  │  │   Get Rule AST  │───▶│   Evaluator     │                 │ │
+│  │  │  (from cache)   │    │  evaluate()     │                 │ │
+│  │  └─────────────────┘    └─────────┬───────┘                 │ │
+│  │                                   │                         │ │
+│  │  ┌────────────────────────────────┘                         │ │
+│  │  │                                                          │ │
+│  │  │  EvaluationContext:                                      │ │
+│  │  │  • context (PolicyContext)                               │ │
+│  │  │  • params (PolicyCheckParams)                            │ │
+│  │  │  • getRule (for nested rules)                            │ │
+│  │  │                                                          │ │
+│  │  ▼                                                          │ │
+│  │  ┌─────────────────┐                                        │ │
+│  │  │ Boolean Result  │                                        │ │
+│  │  │ (true / false)  │                                        │ │
+│  │  └─────────────────┘                                        │ │
+│  └─────────────────────────────────────────────────────────────┘ │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
 ```
+## Key Components
+- **Policy Loader:** Parses JSON/YAML policy configuration files
+- **Lexer:** Tokenizes policy rule expressions into structured tokens
+- **Parser:** Builds Abstract Syntax Trees (AST) from tokens with operator precedence
+- **Evaluator:** Executes policy rules against provided context and parameters
+- **Context Builder:** Transforms Keystone tokens into evaluation context
+- **Debug Tracer:** Provides detailed execution traces for debugging
 
-## Syntax
-
-- rules (JSON file): `RULE_NAME (string): RULE_BODY (expression)`,
-  example: `"admin": "false"`
-
-- TRUE expression: `@`, example: `"can_read": "@"`
-- FALSE expression: `!`, example: `"can_write": "!"`
-- RULE expression: `rule:RULE_NAME`,
-  example: `"superadmin": "rule:admin"`
-
-- ROLE expression: `role:ROLE_NAME`, example: `"admin":"role:admin"`
-
-- CONTEXT expression: `CONTEXT_VARIABLE:VALUE`, example: `"admin": "is_admin:1"`
-
-  available context variables:
-
-  - `is_admin_project`
-  - `is_admin`
-  - `domain_id`
-  - `domain_name`
-  - `project_id`
-  - `project_domain_id`
-  - `user_id`
-  - `user_name`
-
-- PARAMS expression: `CONTEXT_VARIABLE:%(PARAM_VALUE)s`, example: `"admin": "domain_id:%(domain.id)s"`
-
-  should be used as follows:
-
-  `policy.check("admin", { domain: { id: "ID" } } )`
-
-- NULL Value expression: `CONTEXT_VARIABLE:null`, example: `"admin": "domain_id:null"`
-
-- STATIC Value: `STATIC_VALUE:%(PARAM_VALUE)s`, example: `"admin": "cloud_admin:%(domain.name)s"`
-
-  should be used as follows:
-
-  `policy.check("admin", { domain: { name: "SOME_NAME" } } )`
-
-- AND Operator: `EXPRESSION and EXPRESSION`, example: `"domain_admin": "rule:admin and project_id:null"`
-
-- OR Operator: `EXPRESSION or EXPRESSION`, example: `"can_read": "role:admin or role:member"`
-
-- NOT Operator: `not EXPRESSION`, example: `"project_admin": "role:admin and not project_id:null"`
-
-- BRACKETS Operator: `(EXPRESSION)`, example: `"can_edit_project": "role:admin or ( role:member and project_id:%(project.id)s )"`
-
-- DEFAULT rule: `_default:RULE_BODY`, example: `"_default": "!"`,
-  is used if a rule was not found
-
-## Example
-
-```js
-const rules = {
-  _default: "rule:admin_required",
-  project_parent: "not null:%(project.parent_id)s",
-  admin_required: " role:admin or is_admin:1",
-
-  domain_admin: "rule:admin_required and not domain_id:null",
-  project_admin: "rule:admin_required and not project_id:null",
-
-  service_role: "role:service",
-  service_or_admin: "rule:admin_required or rule:service_role",
-  owner: "user_id:%(user_id)s",
-  admin_or_owner: "rule:admin_required or rule:owner",
-}
-
-const { PolicyEngine } = require("policy-engine")
-
-const currentUserToken = "..."
-const engine = new PolicyEngine(rules)
-const policy = engine.policy(currentUserToken)
-
-policy.check("project_parent", { project: SOME_PROJECT })
-policy.check("admin_required")
-policy.check("domain_admin")
-policy.check("project_admin")
-policy.check("service_role")
-policy.check("service_or_admin")
-policy.check("owner", { user_id: SOME_ID })
-policy.check("admin_or_owner", { user_id: SOME_ID })
-```
-
-## Development
-
+## Installation
 ```bash
-npm run test
+pnpm install
 ```
+## Quick Start
+### Basic Usage
+```ts
+import { createPolicyEngineFromFile } from 'openstack-policy-engine'
+
+// Load policy from file
+const policyEngine = createPolicyEngineFromFile('./policy.json')
+
+// Create a policy checker with Keystone token
+const policy = policyEngine.policy({
+  user: { id: 'user123', name: 'john', domain: { id: 'default', name: 'Default' } },
+  roles: [{ id: 'role1', name: 'admin' }],
+  project: { id: 'proj123', name: 'myproject', domain: { id: 'default', name: 'Default' } }
+})
+
+// Check if user can perform action
+const canDelete = policy.check('compute:delete', { 
+  target: { user: { id: 'user123' } }
+})
+```
+### Policy Configuration Example
+
+**policy.json:**
+```json
+{
+  "admin_required": "role:admin",
+  "owner": "user_id:%(target.user.id)s", 
+  "admin_or_owner": "rule:admin_required or rule:owner",
+  "compute:delete": "rule:admin_or_owner",
+  "compute:list": "@",
+  "_default": "!"
+}
+```
+**policy.yaml:**
+```yaml
+admin_required: "role:admin"
+owner: "user_id:%(target.user.id)s"
+admin_or_owner: "rule:admin_required or rule:owner" 
+compute:delete: "rule:admin_or_owner"
+compute:list: "@"
+_default: "!"
+```
+
+## API Reference
+### Factory Functions
+
+#### createPolicyEngine(config: Record<string, string>): PolicyEngine
+Creates a policy engine from a configuration object.
+
+#### createPolicyEngineFromFile(filePath: string): PolicyEngine
+Creates a policy engine from a JSON/YAML policy file.
+
+### PolicyEngine Methods
+#### policy(tokenPayload: KeystoneTokenPayload, options?: PolicyOptions): UserPolicy
+Creates a policy checker for a specific user context.
+
+**Parameters:**
+
+- **tokenPayload:** Keystone token containing user, roles, project information
+- **options:** `debug` (boolean) to enable detailed execution traces
+
+**Returns:** UserPolicy object with `check()` method
+
+#### check(ruleName: string, params?: PolicyCheckParams): boolean
+Evaluates a specific policy rule.
+
+**Parameters:**
+
+- **ruleName:** Name of the rule to evaluate
+- **params:** Optional parameters for rule evaluation (target objects, etc.)
+
+**Returns:** Boolean indicating if the rule allows access
+
+### Policy Rule Syntax
+#### Basic Expressions
+- `@` - Always allow (unconditional access)
+- `!` - Always deny (unconditional denial)
+- `true` - Always allow
+- `false` - Always deny
+
+#### Role-based Rules
+- **role:admin** - User must have 'admin' role
+- **role:member** - User must have 'member' role
+
+#### Context Matching
+- **user_id:%(target.user.id)s** - User ID must match target user
+- **project_id:%(target.project.id)s** - Project ID must match target project
+- **domain_id:default** - Domain must be 'default'
+
+#### Rule References
+- **rule:admin_required** - Reference another rule
+- **rule:owner** - Reference owner rule
+
+#### Logical Operators
+- `rule:admin or rule:owner` - OR operation
+- `role:admin and project_id:%(target.project.id)s` - AND operation
+- `not rule:admin` - NOT operation
+- `(rule:admin or rule:owner) and role:member` - Grouping with parentheses
+
+#### Special Checks
+- `is_admin:true` - Check if user is admin
+- `is_admin_project:true` - Check if project is admin project
+- `system_scope:all` - Check for system-scoped token
+
+### Advanced Features
+#### Parameter Substitution
+The engine supports parameter substitution using the %(param.path)s syntax:
+
+```ts
+// Policy rule: "user_id:%(target.user.id)s"
+policy.check('compute:delete', {
+  target: { user: { id: 'user123' } }
+})
+```
+#### Debug Mode
+Enable debug mode to get detailed execution traces:
+
+```ts
+const policy = policyEngine.policy(tokenPayload, { debug: true })
+policy.check('compute:delete') // Will log detailed trace to console
+```
+
+#### Nested Rule Evaluation
+Rules can reference other rules, enabling complex policy composition:
+
+```ts
+{
+  "admin_required": "role:admin",
+  "owner": "user_id:%(target.user.id)s",
+  "admin_or_owner": "rule:admin_required or rule:owner",
+  "compute:delete": "rule:admin_or_owner"
+}
+```
+### Error Handling
+The engine provides comprehensive error handling:
+
+- Parse Errors: Invalid rule syntax
+- Validation Errors: Invalid token payload structure
+- Evaluation Errors: Missing rules or invalid context
+- File Errors: Missing or invalid policy files
+```ts
+try {
+  const result = policy.check('invalid:rule')
+} catch (error) {
+  console.error('Policy evaluation failed:', error.message)
+}
+```
+## License
+Licensed under the Apache-2.0 License. See LICENSE file for details.
+
+## Contributing
+This project follows OpenStack policy engine specifications. Contributions should maintain compatibility with the OSLO policy format and syntax.
