@@ -69,9 +69,13 @@ msgstr "Das Aurora-Dashboard ist mehr als nur ein Werkzeug – es ist Ihr Partne
 msgid "Cancel"
 msgstr "Abbrechen"
 
-#: src/client/routes/gardener/-components/Filters/index.tsx:48
+#: src/client/routes/gardener/-components/Filters/index.tsx:47
 msgid "Clear all"
 msgstr "Alle Filter löschen"
+
+#: src/client/routes/gardener/-components/ClusterTableRow.tsx:96
+msgid "Cluster ID copied to clipboard"
+msgstr "Cluster-ID wurde in die Zwischenablage kopiert"
 
 #: src/client/routes/auth/login.tsx:172
 msgid "Contact support"
@@ -138,7 +142,7 @@ msgstr "Unsere Mission"
 msgid "Password"
 msgstr "Passwort"
 
-#: src/client/routes/gardener/-components/Filters/index.tsx:59
+#: src/client/routes/gardener/-components/Filters/index.tsx:58
 msgid "Search clusters..."
 msgstr "Cluster durchsuchen..."
 

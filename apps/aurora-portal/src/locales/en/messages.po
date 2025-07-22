@@ -69,9 +69,13 @@ msgstr "Aurora Dashboard is more than just a tool—it's your partner in navigat
 msgid "Cancel"
 msgstr "Cancel"
 
-#: src/client/routes/gardener/-components/Filters/index.tsx:48
+#: src/client/routes/gardener/-components/Filters/index.tsx:47
 msgid "Clear all"
 msgstr "Clear all"
+
+#: src/client/routes/gardener/-components/ClusterTableRow.tsx:96
+msgid "Cluster ID copied to clipboard"
+msgstr "Cluster ID copied to clipboard"
 
 #: src/client/routes/auth/login.tsx:172
 msgid "Contact support"
@@ -138,7 +142,7 @@ msgstr "Our Mission"
 msgid "Password"
 msgstr "Password"
 
-#: src/client/routes/gardener/-components/Filters/index.tsx:59
+#: src/client/routes/gardener/-components/Filters/index.tsx:58
 msgid "Search clusters..."
 msgstr "Search clusters..."
 

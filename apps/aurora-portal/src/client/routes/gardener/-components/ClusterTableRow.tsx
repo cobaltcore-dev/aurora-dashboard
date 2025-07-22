@@ -1,6 +1,7 @@
 import React, { useState } from "react"
 import { Link } from "@tanstack/react-router"
 import { Cluster } from "@/server/Gardener/types/cluster"
+import { t } from "@lingui/core/macro"
 import {
   DataGridRow,
   DataGridCell,
@@ -92,7 +93,7 @@ const ClusterTableRow: React.FC<ClusterTableRowProps> = ({ cluster }) => {
 
     setToastData({
       variant: "success",
-      text: "Cluster ID copied to clipboard",
+      text: t`Cluster ID copied to clipboard`,
       autoDismiss: true,
       autoDismissTimeout: 3000,
       onDismiss: handleToastDismiss,

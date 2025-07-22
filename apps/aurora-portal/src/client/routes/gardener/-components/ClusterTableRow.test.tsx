@@ -1,8 +1,17 @@
 import { ReactElement } from "react"
-import { render, screen, fireEvent, waitFor } from "@testing-library/react"
+import { render, screen, fireEvent, waitFor, act } from "@testing-library/react"
 import { vi, describe, it, expect, beforeEach } from "vitest"
 import { Cluster } from "@/server/Gardener/types/cluster"
-import { createRoute, createRootRoute, RouterProvider, createMemoryHistory, createRouter } from "@tanstack/react-router"
+import {
+  createRoute,
+  createRootRoute,
+  RouterProvider,
+  createMemoryHistory,
+  createRouter,
+  AnyRouter,
+} from "@tanstack/react-router"
+import { i18n } from "@lingui/core"
+import { I18nProvider } from "@lingui/react"
 import ClusterTableRow from "./ClusterTableRow"
 
 // Mock navigator.clipboard
@@ -37,6 +46,14 @@ const createTestRouter = (Component: ReactElement) => {
   })
 }
 
+const setup = (router: AnyRouter) => {
+  return render(
+    <I18nProvider i18n={i18n}>
+      <RouterProvider router={router} />
+    </I18nProvider>
+  )
+}
+
 describe("ClusterTableRow", () => {
   const defaultCluster = {
     uid: "12345678-1234-1234-1234-1234567890ab",
@@ -54,8 +71,11 @@ describe("ClusterTableRow", () => {
     lastMaintenance: { state: "Succeeded" },
   } as Cluster
 
-  beforeEach(() => {
+  beforeEach(async () => {
     vi.clearAllMocks()
+    await act(async () => {
+      i18n.activate("en")
+    })
   })
 
   it("renders cluster data correctly", () => {
@@ -89,7 +109,8 @@ describe("ClusterTableRow", () => {
 
   it("displays correct status icon and color for Operational status", () => {
     const router = createTestRouter(<ClusterTableRow cluster={defaultCluster} />)
-    render(<RouterProvider router={router} />)
+
+    setup(router)
 
     const statusIcon = screen.getByTestId("status-icon")
     expect(statusIcon).toBeInTheDocument()
@@ -100,7 +121,8 @@ describe("ClusterTableRow", () => {
     const errorCluster = { ...defaultCluster, status: "Error" }
 
     const router = createTestRouter(<ClusterTableRow cluster={errorCluster} />)
-    render(<RouterProvider router={router} />)
+
+    setup(router)
 
     const statusIcon = screen.getByTestId("status-icon")
     expect(statusIcon).toBeInTheDocument()
@@ -109,7 +131,8 @@ describe("ClusterTableRow", () => {
 
   it("renders readiness conditions with correct badges", () => {
     const router = createTestRouter(<ClusterTableRow cluster={defaultCluster} />)
-    render(<RouterProvider router={router} />)
+
+    setup(router)
 
     const badges = screen.getAllByText(/Ready|Control Plane Healthy/)
     expect(badges).toHaveLength(2)
@@ -126,7 +149,8 @@ describe("ClusterTableRow", () => {
     }
 
     const router = createTestRouter(<ClusterTableRow cluster={errorMaintenanceCluster} />)
-    render(<RouterProvider router={router} />)
+
+    setup(router)
 
     const errorIcon = screen.getByTestId("maintenance-error-icon")
     expect(errorIcon).toBeInTheDocument()
@@ -135,7 +159,8 @@ describe("ClusterTableRow", () => {
 
   it("copies cluster ID to clipboard when ID is clicked", async () => {
     const router = createTestRouter(<ClusterTableRow cluster={defaultCluster} />)
-    render(<RouterProvider router={router} />)
+
+    setup(router)
 
     const clusterId = screen.getByText("ID: 12345678...")
     fireEvent.click(clusterId)
@@ -150,7 +175,8 @@ describe("ClusterTableRow", () => {
 
   it("renders cluster name as a link with correct href", () => {
     const router = createTestRouter(<ClusterTableRow cluster={defaultCluster} />)
-    render(<RouterProvider router={router} />)
+
+    setup(router)
 
     const clusterLink = screen.getByText("test-cluster").closest("a")
     expect(clusterLink).toHaveAttribute("href", "/gardener/clusters/test-cluster")
@@ -159,7 +185,8 @@ describe("ClusterTableRow", () => {
 
   it("renders View Details button with correct link", () => {
     const router = createTestRouter(<ClusterTableRow cluster={defaultCluster} />)
-    render(<RouterProvider router={router} />)
+
+    setup(router)
 
     const viewDetailsButton = screen.getByRole("button", { name: "View Details" })
     const link = viewDetailsButton.closest("a")
@@ -174,7 +201,8 @@ describe("ClusterTableRow", () => {
     }
 
     const router = createTestRouter(<ClusterTableRow cluster={clusterWithoutConditions} />)
-    render(<RouterProvider router={router} />)
+
+    setup(router)
 
     expect(screen.queryAllByText(/Ready|Control Plane Healthy/)).toHaveLength(0)
     expect(screen.getByRole("row")).toBeInTheDocument()
@@ -194,7 +222,8 @@ describe("ClusterTableRow", () => {
     }
 
     const router = createTestRouter(<ClusterTableRow cluster={clusterWithMixedConditions} />)
-    render(<RouterProvider router={router} />)
+
+    setup(router)
 
     const badges = screen.getAllByText(/Ready|Control Plane Unhealthy|Unknown Status/)
     expect(badges).toHaveLength(3)
