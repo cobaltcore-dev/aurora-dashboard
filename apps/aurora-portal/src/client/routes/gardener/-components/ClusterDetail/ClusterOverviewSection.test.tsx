@@ -8,7 +8,7 @@ import ClusterOverviewSection from "./ClusterOverviewSection"
 describe("ClusterOverviewSection", () => {
   const mockHandleShare = vi.fn()
 
-  const mockCluster = {
+  const mockCluster: Cluster = {
     name: "test-cluster",
     uid: "test-uid-123",
     status: "healthy",
@@ -17,8 +17,17 @@ describe("ClusterOverviewSection", () => {
     version: "1.28.0",
     readiness: {
       status: "ready",
+      conditions: [],
     },
-  } as Cluster
+    workers: [],
+    maintenance: {
+      startTime: "",
+      timezone: "",
+      windowTime: "",
+    },
+    lastMaintenance: {},
+    autoUpdate: { os: false, kubernetes: false },
+  }
 
   const setup = (cluster: Cluster) => {
     return render(
@@ -195,10 +204,10 @@ describe("ClusterOverviewSection", () => {
     })
 
     it("renders different readiness statuses", () => {
-      const degradedCluster = {
+      const degradedCluster: Cluster = {
         ...mockCluster,
-        readiness: { status: "degraded" },
-      } as Cluster
+        readiness: { status: "degraded", conditions: [] },
+      }
 
       setup(degradedCluster)
 
@@ -248,8 +257,17 @@ describe("ClusterOverviewSection", () => {
       version: "",
       readiness: {
         status: "",
+        conditions: [],
       },
-    } as Cluster
+      workers: [],
+      maintenance: {
+        startTime: "",
+        timezone: "",
+        windowTime: "",
+      },
+      lastMaintenance: {},
+      autoUpdate: { os: false, kubernetes: false },
+    }
 
     setup(minimalCluster)
 
@@ -278,10 +296,10 @@ describe("ClusterOverviewSection", () => {
   })
 
   it("renders with different readiness statuses", () => {
-    const notReadyCluster = {
+    const notReadyCluster: Cluster = {
       ...mockCluster,
-      readiness: { status: "not-ready" },
-    } as Cluster
+      readiness: { status: "not-ready", conditions: [] },
+    }
 
     setup(notReadyCluster)
 
