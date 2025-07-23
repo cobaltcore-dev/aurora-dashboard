@@ -1,13 +1,11 @@
 import { createFileRoute, useLoaderData, useRouter } from "@tanstack/react-router"
 import { Plus, RefreshCw } from "lucide-react"
-import { toast } from "sonner"
 import React, { useState } from "react"
 import { Button } from "@cloudoperators/juno-ui-components/index"
 import { Cluster } from "@/server/Gardener/types/cluster"
 
 import { ClusterTable } from "../-components/ClusterTable"
 import CreateClusterWizard from "../-components/CreateClusterDialog"
-import { DeleteClusterDialog } from "../-components/DeleteClusterDialog"
 
 import { Filters } from "../-components/Filters"
 import { FilterSettings } from "../-components/Filters/types"
@@ -30,9 +28,6 @@ function RouteComponent() {
   const [filterSettings, setFilterSettings] = useState<FilterSettings>({})
 
   const [createWizardModal, setCreateWizardModal] = useState(false)
-
-  const [deleteClusterModal, setDeleteClusterModal] = useState(false)
-  const [deletedClusterName, setDeleteClusterName] = useState<string | null>(null)
 
   const handleRefresh = () => {
     router.invalidate()
@@ -71,8 +66,8 @@ function RouteComponent() {
   }
 
   // Get unique providers, regions and statuses from clusters
-  const versions = [...new Set(clusters?.map((cluster) => cluster.version) || [])]
-  const statuses = [...new Set(clusters?.map((cluster) => cluster.status) || [])]
+  const versions = [...new Set(clusters?.map((cluster: Cluster) => cluster.version) || [])]
+  const statuses = [...new Set(clusters?.map((cluster: Cluster) => cluster.status) || [])]
 
   // Filter clusters based on search and filter criteria
   // Update your filtered and sorted clusters
@@ -85,22 +80,6 @@ function RouteComponent() {
 
   const handleCreateWizzard = () => {
     setCreateWizardModal(true)
-  }
-
-  const handleDeleteCluster = async () => {
-    try {
-      await trpcClient?.gardener.deleteCluster.mutate({
-        name: deletedClusterName!,
-      })
-      toast.success("Cluster deleted successfully")
-      setDeleteClusterModal(false)
-      handleRefresh()
-    } catch (error) {
-      toast.error("Failed to delete cluster: " + (error instanceof Error ? error.message : "Unknown error"))
-    } finally {
-      setDeleteClusterModal(false)
-      handleRefresh()
-    }
   }
 
   return (
@@ -153,18 +132,6 @@ function RouteComponent() {
           isOpen={createWizardModal}
           onClose={() => {
             setCreateWizardModal(false)
-            handleRefresh()
-          }}
-        />
-      )}
-      {deleteClusterModal && (
-        <DeleteClusterDialog
-          clusterName={deletedClusterName!}
-          isOpen={deleteClusterModal}
-          onDelete={handleDeleteCluster}
-          onClose={() => {
-            setDeleteClusterModal(false)
-            setDeleteClusterName(null)
             handleRefresh()
           }}
         />

@@ -32,7 +32,7 @@ export const DeleteClusterDialog: React.FC<DeleteClusterGardenerDialogProps> = (
         onClose()
       }}
       modalFooter={
-        <ModalFooter className="flex justify-end gap-3 px-8 mt-8">
+        <ModalFooter className="flex justify-end ">
           <ButtonRow>
             <Button
               variant="primary-danger"
@@ -49,30 +49,29 @@ export const DeleteClusterDialog: React.FC<DeleteClusterGardenerDialogProps> = (
           </ButtonRow>
         </ModalFooter>
       }
-      children={
-        <div className="px-8 space-y-6">
-          {/* Warning */}
-          <Message dismissible={false} variant="warning">
-            <Trans>This action cannot be undone. The cluster will be permanently deleted.</Trans>
-          </Message>
+    >
+      <div>
+        {/* Warning */}
+        <Message dismissible={false} variant="warning">
+          <Trans>This action cannot be undone. The cluster will be permanently deleted.</Trans>
+        </Message>
 
-          {/* Question */}
-          <p className="text-base text-left">
-            <Trans>
-              Would you like to remove the <strong className="text-theme-high font-semibold">{clusterName}</strong> from
-              your project?
-            </Trans>
-          </p>
+        {/* Question */}
+        <p className="mt-4">
+          <Trans>
+            Would you like to remove the <strong className="text-theme-high font-semibold">{clusterName}</strong> from
+            your project?
+          </Trans>
+        </p>
 
-          {/* Consequence */}
-          <p className="text-base text-left">
-            <Trans>
-              After continuing, your project will no longer have access to the{" "}
-              <strong className="text-theme-high font-semibold">{clusterName}</strong> resources.
-            </Trans>
-          </p>
-        </div>
-      }
-    ></Modal>
+        {/* Consequence */}
+        <p>
+          <Trans>
+            After continuing, your project will no longer have access to the{" "}
+            <strong className="text-theme-high font-semibold">{clusterName}</strong> resources.
+          </Trans>
+        </p>
+      </div>
+    </Modal>
   )
 }

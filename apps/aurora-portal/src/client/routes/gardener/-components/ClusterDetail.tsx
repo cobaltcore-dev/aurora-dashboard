@@ -4,11 +4,13 @@ import { useLingui, Trans } from "@lingui/react/macro"
 
 import { Cluster } from "@/server/Gardener/types/cluster"
 import { useNavigate } from "@tanstack/react-router"
+import { trpcClient } from "@/client/trpcClient"
 
 import DetailLayout from "./ClusterDetail/DetailLayout"
 import WorkerSection from "./ClusterDetail/WorkerSection"
 import ClusterOverviewSection from "./ClusterDetail/ClusterOverviewSection"
 import SettingsSection from "./ClusterDetail/SettingsSection"
+import { DeleteClusterDialog } from "./DeleteClusterDialog"
 
 interface PeakDetailPageProps {
   cluster: Cluster
@@ -22,6 +24,23 @@ const ClusterDetailPage: React.FC<PeakDetailPageProps> = ({ cluster }) => {
 
   const navigate = useNavigate()
 
+  const [deleteClusterModal, setDeleteClusterModal] = useState(false)
+  const [deletedClusterName, setDeleteClusterName] = useState<string | null>(null)
+
+  const handleDeleteCluster = async () => {
+    try {
+      await trpcClient?.gardener.deleteCluster.mutate({
+        name: deletedClusterName!,
+      })
+      console.log("Cluster deleted successfully")
+      setDeleteClusterModal(false)
+      handleBack()
+    } catch (error) {
+      console.error("Failed to delete cluster: " + (error instanceof Error ? error.message : "Unknown error"))
+    } finally {
+      setDeleteClusterModal(false)
+    }
+  }
   const handleBack = () => {
     navigate({
       to: "/gardener/clusters",
@@ -86,6 +105,9 @@ const ClusterDetailPage: React.FC<PeakDetailPageProps> = ({ cluster }) => {
           breadcrumbActiveLabel={`${cluster.uid}`}
           onBack={handleBack}
           handleShare={handleShare}
+          setDeleteClusterModal={setDeleteClusterModal}
+          setDeleteClusterName={setDeleteClusterName}
+          cluster={cluster}
           isJsonView={isJsonView}
           toggleView={() => setIsJsonView(!isJsonView)}
         >
@@ -114,6 +136,17 @@ const ClusterDetailPage: React.FC<PeakDetailPageProps> = ({ cluster }) => {
           )}
         </DetailLayout>
       </div>
+      {deleteClusterModal && (
+        <DeleteClusterDialog
+          clusterName={deletedClusterName!}
+          isOpen={deleteClusterModal}
+          onDelete={handleDeleteCluster}
+          onClose={() => {
+            setDeleteClusterModal(false)
+            setDeleteClusterName(null)
+          }}
+        />
+      )}
     </div>
   )
 }
