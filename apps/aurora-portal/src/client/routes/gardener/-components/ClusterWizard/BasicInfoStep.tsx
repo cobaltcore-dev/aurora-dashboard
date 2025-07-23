@@ -5,7 +5,7 @@ import { t } from "@lingui/core/macro"
 
 import { Form, FormRow, Select, SelectOption, TextInput } from "@cloudoperators/juno-ui-components"
 
-interface BasicInfoStepProps {
+export interface BasicInfoStepProps {
   formData: ClusterFormData
   onFormDataChange: (field: keyof ClusterFormData, value: string) => void
   availableKubernetesVersions?: string[]
@@ -33,7 +33,7 @@ export const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
       <FormRow key={"kubeVersion"}>
         <Select
           required
-          label={t`Kunernetes Version`}
+          label={t`Kubernetes Version`}
           id="kubeVersion"
           name="kubeVersion"
           value={formData.kubernetesVersion}
@@ -48,11 +48,12 @@ export const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
           ))}
         </Select>
       </FormRow>
-      <FormRow key={"kubeVersion"}>
+      <FormRow key={"region"}>
         <Select
           required
           id="region"
           name="region"
+          data-testid="region"
           value={formData.region}
           onChange={(e) => onFormDataChange("region", e?.toString() || "")}
           className="w-full h-10 px-3 rounded-md appearance-none"
@@ -85,6 +86,7 @@ export const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
         <Select
           required
           id="credentialsBinding"
+          data-testid="credentialsBinding"
           name="credentialsBinding"
           value={formData.credentialsBindingName}
           onChange={(e) => onFormDataChange("credentialsBindingName", e?.toString() || "")}

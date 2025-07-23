@@ -77,7 +77,7 @@ msgstr "Cancel"
 msgid "Clear all"
 msgstr "Clear all"
 
-#: src/client/routes/gardener/-components/ClusterWizard/BasicInfoStep.tsx:74
+#: src/client/routes/gardener/-components/ClusterWizard/BasicInfoStep.tsx:75
 msgid "Cloud Profile"
 msgstr "Cloud Profile"
 
@@ -155,8 +155,8 @@ msgid "Key Features"
 msgstr "Key Features"
 
 #: src/client/routes/gardener/-components/ClusterWizard/BasicInfoStep.tsx:36
-msgid "Kunernetes Version"
-msgstr "Kunernetes Version"
+msgid "Kubernetes Version"
+msgstr "Kubernetes Version"
 
 #: src/client/routes/gardener/-components/CreateClusterDialog.tsx:29
 msgid "Loading Gardener..."
