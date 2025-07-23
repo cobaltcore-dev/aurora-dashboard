@@ -3,7 +3,7 @@ import React from "react"
 import { WorkerPool } from "./WorkerPool"
 import { ClusterFormData, WorkerConfig } from "./types"
 import { Trans } from "@lingui/react/macro"
-import { Message } from "@cloudoperators/juno-ui-components/index"
+import { Message } from "@cloudoperators/juno-ui-components"
 
 interface WorkerNodesStepProps {
   formData: ClusterFormData

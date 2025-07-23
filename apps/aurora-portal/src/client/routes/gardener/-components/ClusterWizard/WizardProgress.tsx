@@ -1,7 +1,7 @@
 // components/CreateClusterWizard/WizardProgress.tsx
 import React from "react"
 import { cn } from "../../-utils/cn"
-import { Icon } from "@cloudoperators/juno-ui-components/index"
+import { Icon } from "@cloudoperators/juno-ui-components"
 
 interface WizardProgressProps {
   steps: Array<{ title: string; description: string }>
@@ -11,7 +11,7 @@ interface WizardProgressProps {
 
 export const WizardProgress: React.FC<WizardProgressProps> = ({ steps, currentStep, onStepClick }) => {
   return (
-    <div className="mb-6">
+    <div className="mb-6" data-testid="wizard-progress-container">
       <div className="flex justify-between mb-3 px-1">
         {steps.map((step, index) => (
           <div key={step.title} className={`flex-1 ${index < steps.length - 1 ? "pr-6" : ""}`}>
