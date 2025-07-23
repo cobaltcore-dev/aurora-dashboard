@@ -3,6 +3,7 @@ import { computeRouters } from "./Compute/routers"
 import { projectRouters } from "./Project/routers"
 import { gardenerRouters } from "./Gardener/routers"
 import { progressRouter } from "./Compute/routers/progressRouter"
+import { sseRouter } from "./SSE/SSErouter"
 import { auroraRouter, mergeRouters } from "./trpc"
 
 export const appRouter = mergeRouters(
@@ -10,7 +11,8 @@ export const appRouter = mergeRouters(
   auroraRouter(computeRouters),
   auroraRouter(projectRouters),
   auroraRouter(gardenerRouters),
-  auroraRouter(progressRouter)
+  auroraRouter(progressRouter),
+  auroraRouter({ sse: sseRouter })
 )
 
 export type AuroraRouter = typeof appRouter
