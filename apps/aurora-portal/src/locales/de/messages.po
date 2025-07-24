@@ -77,11 +77,15 @@ msgstr "Abbrechen"
 msgid "Clear all"
 msgstr "Alle Filter löschen"
 
-#: src/client/routes/gardener/-components/ClusterDetail.tsx:83
+#: src/client/routes/gardener/-components/ClusterDetail.tsx:35
+msgid "Cluster deleted successfully"
+msgstr "Cluster erfolgreich gelöscht"
+
+#: src/client/routes/gardener/-components/ClusterDetail.tsx:105
 msgid "Cluster Details"
 msgstr "Cluster-Details"
 
-#: src/client/routes/gardener/-components/ClusterDetail.tsx:45
+#: src/client/routes/gardener/-components/ClusterDetail.tsx:66
 msgid "Cluster details copied to clipboard!"
 msgstr "Cluster-Details erfolgreich kopiert!"
 
@@ -89,7 +93,7 @@ msgstr "Cluster-Details erfolgreich kopiert!"
 msgid "Cluster ID copied to clipboard"
 msgstr "Cluster-ID wurde in die Zwischenablage kopiert"
 
-#: src/client/routes/gardener/-components/ClusterDetail.tsx:85
+#: src/client/routes/gardener/-components/ClusterDetail.tsx:107
 msgid "Clusters"
 msgstr "Cluster"
 
@@ -102,6 +106,7 @@ msgid "Contact support"
 msgstr "Support kontaktieren"
 
 #: src/client/routes/gardener/-components/DeleteClusterDialog.tsx:44
+#: src/client/routes/gardener/-components/ClusterDetail/DetailLayout.tsx:66
 msgid "Delete"
 msgstr "Löschen"
 
@@ -130,9 +135,13 @@ msgstr "Geben Sie den Domain ein"
 msgid "Enter your username"
 msgstr "Geben Sie Ihren Benutzernamen ein"
 
-#: src/client/routes/gardener/-components/ClusterDetail.tsx:63
+#: src/client/routes/gardener/-components/ClusterDetail.tsx:84
 msgid "Failed to copy to clipboard"
 msgstr "Kopieren fehlgeschlagen"
+
+#: src/client/routes/gardener/-components/ClusterDetail.tsx:39
+msgid "Failed to delete cluster: "
+msgstr "Fehler beim lösches des Clusters:"
 
 #: src/client/routes/gardener/-components/Filters/FilterSelect.tsx:55
 msgid "Filters"
@@ -214,11 +223,11 @@ msgstr "Unsere Mission"
 msgid "Password"
 msgstr "Passwort"
 
-#: src/client/routes/gardener/-components/ClusterDetail.tsx:66
+#: src/client/routes/gardener/-components/ClusterDetail.tsx:87
 msgid "Please try again or copy manually"
 msgstr "Bitte versuchen Sie es erneut oder kopieren Sie manuell"
 
-#: src/client/routes/gardener/-components/ClusterDetail.tsx:99
+#: src/client/routes/gardener/-components/ClusterDetail.tsx:124
 msgid "Raw JSON Data for"
 msgstr "JSON-Rohdaten für"
 
@@ -237,6 +246,10 @@ msgstr "Scaling"
 #: src/client/routes/gardener/-components/Filters/index.tsx:58
 msgid "Search clusters..."
 msgstr "Cluster durchsuchen..."
+
+#: src/client/routes/gardener/-components/ClusterDetail/DetailLayout.tsx:74
+msgid "Share"
+msgstr "Teilen"
 
 #: src/client/routes/auth/login.tsx:165
 msgid "Sign In"
@@ -278,7 +291,7 @@ msgstr "Benutzer C/D/I"
 msgid "Version:"
 msgstr "Version:"
 
-#: src/client/routes/gardener/-components/ClusterDetail.tsx:84
+#: src/client/routes/gardener/-components/ClusterDetail.tsx:106
 msgid "View and manage your Kubernetes cluster"
 msgstr "Kubernetes-Cluster anzeigen und verwalten"
 
@@ -314,7 +327,7 @@ msgstr "Möchtest du <0>{clusterName}</0> aus deinem Projekt entfernen?"
 msgid "You are already signed in."
 msgstr "Sie sind bereits angemeldet."
 
-#: src/client/routes/gardener/-components/ClusterDetail.tsx:48
+#: src/client/routes/gardener/-components/ClusterDetail.tsx:69
 msgid "You can now share this information with your team"
 msgstr "Sie können diese Informationen nun mit Ihrem Team teilen"
 
