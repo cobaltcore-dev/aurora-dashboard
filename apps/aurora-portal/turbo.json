@@ -4,20 +4,19 @@
     "dev": {
       "dependsOn": [
         "@cobaltcore-dev/signal-openstack#build",
-        "@cobaltcore-dev/aurora-sdk#build"
+        "@cobaltcore-dev/policy-engine#build"
       ]
     },
     "test": {
       "dependsOn": [
         "@cobaltcore-dev/signal-openstack#build",
-        "@cobaltcore-dev/aurora-sdk#build"
+        "@cobaltcore-dev/policy-engine#build"
       ]
     },
     "build": {
       "dependsOn": [
         "@cobaltcore-dev/signal-openstack#build",
-        "@cobaltcore-dev/aurora-sdk#build",
-        "@cobaltcore-dev/gardener#build"
+        "@cobaltcore-dev/policy-engine#build"
       ]
     }
   }
