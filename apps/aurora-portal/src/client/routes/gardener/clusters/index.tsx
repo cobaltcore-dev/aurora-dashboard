@@ -8,8 +8,9 @@ import { Cluster } from "@/server/Gardener/types/cluster"
 import { ClusterTable } from "../-components/ClusterTable"
 import CreateClusterWizard from "../-components/CreateClusterDialog"
 import { DeleteClusterDialog } from "../-components/DeleteClusterDialog"
-import { SearchBar, SortByType } from "../-components/SearchBar"
-import { ClusterFilters } from "../-components/ClusterFilters"
+
+import { Filters } from "../-components/Filters"
+import { FilterSettings } from "../-components/Filters/types"
 
 export const Route = createFileRoute("/gardener/clusters/")({
   component: RouteComponent,
@@ -23,55 +24,50 @@ export const Route = createFileRoute("/gardener/clusters/")({
   },
 })
 
-const sortClusters = (clusters: Cluster[], sortBy: SortByType) => {
-  switch (sortBy) {
-    case "name-asc":
-      return [...clusters].sort((a, b) => a.name.localeCompare(b.name))
-    case "name-desc":
-      return [...clusters].sort((a, b) => b.name.localeCompare(a.name))
-    case "status":
-      return [...clusters].sort((a, b) => a.status.localeCompare(b.status))
-    case "newest":
-    default:
-      // Assuming clusters have a createdAt or similar date field
-      // If not, you can keep original order or add your own logic
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      return [...clusters].sort((a, b) => {
-        // If you have dates:
-        // return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        // Otherwise, return original order:
-        return 0
-      })
-  }
-}
-
 function RouteComponent() {
   const { clusters, trpcClient } = useLoaderData({ from: Route.id })
   const router = useRouter()
-  const [searchTerm, setSearchTerm] = useState("")
-  const [sortBy, setSortBy] = useState<SortByType>("")
+  const [filterSettings, setFilterSettings] = useState<FilterSettings>({})
 
   const [createWizardModal, setCreateWizardModal] = useState(false)
 
   const [deleteClusterModal, setDeleteClusterModal] = useState(false)
   const [deletedClusterName, setDeleteClusterName] = useState<string | null>(null)
 
-  const [showFilters, setShowFilters] = useState(false)
-  const [selectedVersion, setSelectedVersion] = useState("")
-  const [selectedStatus, setSelectedStatus] = useState("")
-
-  const toggleFilters = () => {
-    setShowFilters(!showFilters)
-  }
-
-  // Function to clear all filters
-  const clearFilters = () => {
-    setSelectedVersion("")
-    setSelectedStatus("")
-  }
-
   const handleRefresh = () => {
     router.invalidate()
+  }
+
+  const getClustersBySelectedFilters = (clusters: Cluster[] = []) => {
+    return clusters?.filter((cluster) => {
+      if (filterSettings?.selectedFilters?.length) {
+        return filterSettings.selectedFilters?.some((filter) => {
+          const { name } = filter
+
+          return filter.value === cluster[name as "status" | "version"]
+        })
+      }
+
+      return true
+    })
+  }
+
+  const getClustersBySearchTerm = (clusters: Cluster[] = []) => {
+    const { searchTerm = "" } = filterSettings
+
+    return (
+      clusters.filter((cluster: Cluster) => {
+        if (searchTerm.length) {
+          return (
+            cluster.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            cluster.infrastructure.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            cluster?.purpose?.toLowerCase().includes(searchTerm.toLowerCase())
+          )
+        }
+
+        return true
+      }) || []
+    )
   }
 
   // Get unique providers, regions and statuses from clusters
@@ -81,19 +77,11 @@ function RouteComponent() {
   // Filter clusters based on search and filter criteria
   // Update your filtered and sorted clusters
   const filteredAndSortedClusters = React.useMemo(() => {
-    const filtered =
-      clusters?.filter(
-        (cluster) =>
-          (searchTerm === "" ||
-            cluster.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            cluster.infrastructure.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            cluster.region.toLowerCase().includes(searchTerm.toLowerCase())) &&
-          (selectedVersion === "" || cluster.version === selectedVersion) &&
-          (selectedStatus === "" || cluster.status === selectedStatus)
-      ) || []
+    const clustersBySelectedFilters: Cluster[] = getClustersBySelectedFilters(clusters)
+    const clustersBySearchTerm: Cluster[] = getClustersBySearchTerm(clustersBySelectedFilters)
 
-    return sortClusters(filtered, sortBy)
-  }, [clusters, searchTerm, selectedVersion, selectedVersion, selectedStatus, sortBy])
+    return clustersBySearchTerm
+  }, [clusters, filterSettings])
 
   const handleCreateWizzard = () => {
     setCreateWizardModal(true)
@@ -119,10 +107,10 @@ function RouteComponent() {
     <div className="min-h-screen bg-theme-background-lvl-0">
       <div className="max-w-7xl mx-auto">
         {/* Header with title */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center px-4 py-6">
           <div>
-            <h1 className="text-2xl font-bold text-aurora-white mb-1">Kubernetes Clusters</h1>
-            <p className="text-aurora-gray-400">Manage your VM-based Kubernetes deployments</p>
+            <h1 className="text-2xl font-bold text-theme-high mb-1">Kubernetes Clusters</h1>
+            <p className="text-theme-light">Manage your VM-based Kubernetes deployments</p>
           </div>
 
           <div className="flex gap-2 mt-4 sm:mt-0">
@@ -139,38 +127,24 @@ function RouteComponent() {
 
         {/* Main content container */}
         <div>
-          <SearchBar
-            searchTerm={searchTerm}
-            setSearchTerm={setSearchTerm}
-            toggleFilters={toggleFilters}
-            setSortTerm={setSortBy}
-            sortTerm={sortBy}
-            showFilters={showFilters}
-          ></SearchBar>
-
-          {/* Filters panel */}
-          {showFilters && (
-            <ClusterFilters
-              selectedStatus={selectedStatus}
-              selectedVersion={selectedVersion}
-              onStatusChange={setSelectedStatus}
-              onVersionChange={setSelectedVersion}
-              onClearFilters={clearFilters}
-              statuses={statuses}
-              versions={versions}
-            ></ClusterFilters>
-          )}
-
-          <ClusterTable
-            clusters={filteredAndSortedClusters}
-            filteredCount={clusters?.length || 0}
-            setDeleteClusterModal={(clusterName: string) => {
-              console.log("Delete cluster:", clusterName)
-              setDeleteClusterModal(true)
-              setDeleteClusterName(clusterName)
-              // You may want to store the clusterName in state if needed for deletion
-            }}
+          <Filters
+            filters={[
+              {
+                displayName: "Status",
+                filterName: "status",
+                values: statuses,
+              },
+              {
+                displayName: "Kubernetes Version",
+                filterName: "version",
+                values: versions,
+              },
+            ]}
+            filterSettings={filterSettings}
+            onFilterChange={setFilterSettings}
           />
+
+          <ClusterTable clusters={filteredAndSortedClusters} filteredCount={clusters?.length || 0} />
         </div>
       </div>
       {createWizardModal && trpcClient && (

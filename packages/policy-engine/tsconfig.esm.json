@@ -1,0 +1,11 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "dist/esm",
+    "moduleResolution": "node",
+    "module": "ESNext",
+    "target": "ESNext"
+  },
+  "exclude": ["src/**/*.test.ts"]
+}
