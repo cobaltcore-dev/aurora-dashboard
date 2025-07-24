@@ -1,7 +1,9 @@
 // components/CreateClusterWizard/steps/ReviewStep.tsx
 import React, { ReactNode } from "react"
+import { Box, Stack, DataGrid, Message, DataGridRow, DataGridCell } from "@cloudoperators/juno-ui-components"
+import { Trans } from "@lingui/react/macro"
+import { t } from "@lingui/core/macro"
 import { ClusterFormData } from "./types"
-import { Box, Stack, DataGrid, Message } from "@cloudoperators/juno-ui-components"
 
 interface ReviewStepProps {
   formData: ClusterFormData
@@ -11,9 +13,6 @@ interface SectionProps {
   title: string
   rows: ReactNode[]
 }
-
-import { DataGridRow, DataGridCell } from "@cloudoperators/juno-ui-components"
-import { Trans } from "@lingui/react/macro"
 
 interface DataRowProps {
   label: React.ReactNode
@@ -50,7 +49,7 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({ formData }) => {
   return (
     <div className="space-y-6">
       <Section
-        title="Cluster Configuration"
+        title={t`Cluster Configuration`}
         rows={[
           <DataRow key="cluster-name" label="Cluster Name" content={formData.name || "N/A"} />,
           <DataRow key="cluster-version" label="Kubernetes Version" content={formData.kubernetesVersion || "N/A"} />,
@@ -65,7 +64,7 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({ formData }) => {
       />
 
       <Section
-        title="Infrastructure Configuration"
+        title={t`Infrastructure Configuration`}
         rows={[
           <DataRow
             key="floating-ip-pool"
@@ -76,7 +75,7 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({ formData }) => {
       />
 
       <Section
-        title="Network Configuration"
+        title={t`Network Configuration`}
         rows={[
           <DataRow key="pods-cidr" label="Pods CIDR" content={formData.networking.pods || "N/A"} />,
           <DataRow key="nodes-cidr" label="Nodes CIDR" content={formData.networking.nodes || "N/A"} />,
@@ -84,7 +83,9 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({ formData }) => {
         ]}
       />
       <Stack direction="vertical" gap="3">
-        <h4>{"Worker Pools"}</h4>
+        <h4>
+          <Trans>Worker Pools</Trans>
+        </h4>
         <Box>
           <DataGrid>
             {formData.workers.map((worker, index) => (

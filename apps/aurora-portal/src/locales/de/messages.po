@@ -81,6 +81,10 @@ msgstr "Alle Filter löschen"
 msgid "Cloud Profile"
 msgstr "Cloud Profil"
 
+#: src/client/routes/gardener/-components/ClusterWizard/ReviewStep.tsx:52
+msgid "Cluster Configuration"
+msgstr "Cluster-Konfiguration"
+
 #: src/client/routes/gardener/-components/ClusterWizard/BasicInfoStep.tsx:23
 msgid "Cluster Name"
 msgstr "Cluster Name"
@@ -150,6 +154,10 @@ msgstr "Mitmachen"
 msgid "Image Version"
 msgstr "Image Version"
 
+#: src/client/routes/gardener/-components/ClusterWizard/ReviewStep.tsx:67
+msgid "Infrastructure Configuration"
+msgstr "Infrastruktur-Konfiguration"
+
 #: src/client/routes/about.tsx:34
 msgid "Key Features"
 msgstr "Hauptmerkmale"
@@ -194,6 +202,7 @@ msgstr "Minimale Nodes"
 msgid "Need help?"
 msgstr "Benötigen Sie Hilfe?"
 
+#: src/client/routes/gardener/-components/ClusterWizard/ReviewStep.tsx:78
 #: src/client/routes/gardener/-components/ClusterWizard/InfrastructureStep.tsx:76
 msgid "Network Configuration"
 msgstr "Netzwerkkonfiguration"
@@ -219,7 +228,7 @@ msgstr "Unsere Mission"
 msgid "Password"
 msgstr "Passwort"
 
-#: src/client/routes/gardener/-components/ClusterWizard/ReviewStep.tsx:123
+#: src/client/routes/gardener/-components/ClusterWizard/ReviewStep.tsx:124
 msgid "Please review all configurations carefully before creating the cluster. Once created, some settings cannot be changed."
 msgstr "Bitte überprüfe alle Konfigurationen sorgfältig, bevor du den Cluster erstellst. Nach der Erstellung können einige Einstellungen nicht mehr geändert werden."
 
@@ -287,6 +296,10 @@ msgstr "Warum Aurora wählen?"
 #: src/client/routes/gardener/-components/ClusterWizard/WorkerNodesStep.tsx:74
 msgid "Worker Configuration"
 msgstr "Worker-Konfiguration"
+
+#: src/client/routes/gardener/-components/ClusterWizard/ReviewStep.tsx:87
+msgid "Worker Pools"
+msgstr "Worker-Pools"
 
 #: src/client/routes/gardener/-components/DeleteClusterDialog.tsx:61
 msgid "Would you like to remove the <0>{clusterName}</0> from your project?"
