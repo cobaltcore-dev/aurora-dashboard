@@ -4,7 +4,7 @@ import { Form, FormRow, Message, Select, SelectOption, TextInput } from "@cloudo
 import { t } from "@lingui/core/macro"
 import { Trans } from "@lingui/react/macro"
 
-interface InfrastructureStepProps {
+export interface InfrastructureStepProps {
   formData: ClusterFormData
   onFormDataChange: (field: keyof ClusterFormData, value: unknown) => void
   availableFloatingPools?: string[]
