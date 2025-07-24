@@ -1,0 +1,22 @@
+{
+  "extends": "@cobaltcore-dev/aurora-config/typescript/tsconfig.lib.json",
+  "compilerOptions": {
+    "rootDir": ".",
+    "outDir": "dist",
+    "isolatedModules": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "moduleResolution": "node",
+
+    "declaration": false,
+    "declarationMap": false,
+    "emitDeclarationOnly": false,
+    "stripInternal": true,
+
+    "module": "ESNext",
+    "target": "ESNext",
+    "types": ["vitest/globals"]
+  },
+  "include": ["src"],
+  "exclude": ["node_modules", "dist"]
+}
