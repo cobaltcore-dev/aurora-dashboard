@@ -2,10 +2,10 @@
 import React from "react"
 import { Check, Loader } from "lucide-react"
 
-import { Button, ButtonRow, ModalFooter } from "@cloudoperators/juno-ui-components/index"
+import { Button, ButtonRow, ModalFooter } from "@cloudoperators/juno-ui-components"
 import { Trans } from "@lingui/react/macro"
 
-interface WizardActionsProps {
+export interface WizardActionsProps {
   currentStep: number
   totalSteps: number
   isSubmitting: boolean
@@ -37,7 +37,7 @@ export const WizardActions: React.FC<WizardActionsProps> = ({
             {isSubmitting ? (
               <>
                 <Loader className="mr-2 h-4 w-4 animate-spin" />
-                Creating...
+                <span>Creating...</span>
               </>
             ) : (
               <>
