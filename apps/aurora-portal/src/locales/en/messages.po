@@ -89,6 +89,10 @@ msgstr "Cluster Details"
 msgid "Cluster details copied to clipboard!"
 msgstr "Cluster details copied to clipboard!"
 
+#: src/client/routes/gardener/-components/ClusterTableRow.tsx:96
+msgid "Cluster ID copied to clipboard"
+msgstr "Cluster ID copied to clipboard"
+
 #: src/client/routes/gardener/-components/ClusterDetail.tsx:107
 msgid "Clusters"
 msgstr "Clusters"

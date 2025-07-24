@@ -1,8 +1,17 @@
-import React from "react"
+import React, { useState } from "react"
 import { Link } from "@tanstack/react-router"
 import { Cluster } from "@/server/Gardener/types/cluster"
-import { toast } from "sonner"
-import { DataGridRow, DataGridCell, Icon, Stack, Button, Badge } from "@cloudoperators/juno-ui-components"
+import { t } from "@lingui/core/macro"
+import {
+  DataGridRow,
+  DataGridCell,
+  Icon,
+  Stack,
+  Button,
+  Badge,
+  ToastProps,
+  Toast,
+} from "@cloudoperators/juno-ui-components"
 
 interface ClusterTableRowProps {
   cluster: Cluster
@@ -74,57 +83,74 @@ const renderReadinessConditions = (conditions: Array<{ type: string; status: str
 
 const ClusterTableRow: React.FC<ClusterTableRowProps> = ({ cluster }) => {
   const statusStyles = getStatusStyles(cluster.status)
+  const [toastData, setToastData] = useState<ToastProps | null>(null)
+
+  const handleToastDismiss = () => setToastData(null)
 
   // Function to handle copy of cluster ID
   const handleCopyId = () => {
     navigator.clipboard.writeText(cluster.uid)
-    toast.success("Cluster ID copied to clipboard")
+
+    setToastData({
+      variant: "success",
+      text: t`Cluster ID copied to clipboard`,
+      autoDismiss: true,
+      autoDismissTimeout: 3000,
+      onDismiss: handleToastDismiss,
+    })
   }
 
   return (
-    <DataGridRow>
-      <DataGridCell>
-        <Icon color={statusStyles.color} icon={statusStyles.icon} />
-      </DataGridCell>
+    <>
+      <DataGridRow>
+        <DataGridCell>
+          <Icon data-testid="status-icon" color={statusStyles.color} icon={statusStyles.icon} />
+        </DataGridCell>
 
-      <DataGridCell>{cluster.status}</DataGridCell>
-      <DataGridCell>
-        <Stack gap="1">{renderReadinessConditions(cluster.readiness.conditions)}</Stack>
-      </DataGridCell>
-      <DataGridCell>
-        <Stack direction="vertical">
-          <Link
-            to="/gardener/clusters/$clusterName"
-            params={{ clusterName: cluster.name }}
-            className="text-theme-default hover:text-theme-link"
-          >
-            {cluster.name}
-          </Link>
-          <p className="text-theme-light hover:text-theme-default" onClick={handleCopyId} title="Click to copy ID">
-            ID: {cluster.uid.substring(0, 8)}...
-          </p>
-        </Stack>
-      </DataGridCell>
+        <DataGridCell>{cluster.status}</DataGridCell>
+        <DataGridCell>
+          <Stack gap="1">{renderReadinessConditions(cluster.readiness.conditions)}</Stack>
+        </DataGridCell>
+        <DataGridCell>
+          <Stack direction="vertical">
+            <Link
+              to="/gardener/clusters/$clusterName"
+              params={{ clusterName: cluster.name }}
+              className="text-theme-default hover:text-theme-link"
+            >
+              {cluster.name}
+            </Link>
+            <p className="text-theme-light hover:text-theme-default" onClick={handleCopyId} title="Click to copy ID">
+              ID: {cluster.uid.substring(0, 8)}...
+            </p>
+          </Stack>
+        </DataGridCell>
 
-      <DataGridCell>{cluster.purpose}</DataGridCell>
+        <DataGridCell>{cluster.purpose}</DataGridCell>
 
-      <DataGridCell>{cluster.infrastructure}</DataGridCell>
+        <DataGridCell>{cluster.infrastructure}</DataGridCell>
 
-      <DataGridCell>
-        <Stack gap="1">
-          {cluster.lastMaintenance.state === "Error" ? <Icon icon="errorOutline" color="text-theme-error" /> : null}{" "}
-          {cluster.version}
-        </Stack>
-      </DataGridCell>
+        <DataGridCell>
+          <Stack gap="1">
+            {cluster.lastMaintenance.state === "Error" ? (
+              <Icon data-testid="maintenance-error-icon" icon="errorOutline" color="text-theme-error" />
+            ) : null}{" "}
+            {cluster.version}
+          </Stack>
+        </DataGridCell>
 
-      <DataGridCell>
-        <Stack distribution="end">
-          <Link to="/gardener/clusters/$clusterName" params={{ clusterName: cluster.name }}>
-            <Button label="View Details" variant="primary" />
-          </Link>
-        </Stack>
-      </DataGridCell>
-    </DataGridRow>
+        <DataGridCell>
+          <Stack distribution="end">
+            <Link to="/gardener/clusters/$clusterName" params={{ clusterName: cluster.name }}>
+              <Button label="View Details" variant="primary" />
+            </Link>
+          </Stack>
+        </DataGridCell>
+      </DataGridRow>
+      {toastData && (
+        <Toast {...toastData} className="fixed top-5 right-5 z-50 border border-theme-light rounded-lg shadow-lg" />
+      )}
+    </>
   )
 }
 
