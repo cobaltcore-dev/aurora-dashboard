@@ -23,6 +23,33 @@ describe("DetailLayout", () => {
     onBack: vi.fn(),
     handleShare: vi.fn(),
     children: <div data-testid="test-children">Test children content</div>,
+    cluster: {
+      uid: "test-cluster-123",
+      name: "test-cluster",
+      infrastructure: "aws",
+      region: "us-east-1",
+      status: "Operational",
+      version: "1.28.5",
+      readiness: {
+        status: "5/5",
+        conditions: [],
+      },
+      workers: [],
+      maintenance: {
+        startTime: "030000+0000",
+        timezone: "UTC",
+        windowTime: "040000+0000",
+      },
+      lastMaintenance: {
+        state: "Succeeded",
+      },
+      autoUpdate: {
+        os: true,
+        kubernetes: true,
+      },
+    },
+    setDeleteClusterModal: vi.fn(),
+    setDeleteClusterName: vi.fn(),
   }
 
   beforeEach(async () => {
