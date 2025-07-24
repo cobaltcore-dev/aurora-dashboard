@@ -14,7 +14,7 @@ import {
 } from "@cloudoperators/juno-ui-components"
 import { t } from "@lingui/core/macro"
 
-interface WorkerPoolProps {
+export interface WorkerPoolProps {
   workers: WorkerConfig[]
   onWorkerChange: (index: number, field: keyof WorkerConfig | string, value: unknown) => void
   onAddWorker: () => void
@@ -76,7 +76,7 @@ export const WorkerPool: React.FC<WorkerPoolProps> = ({
                 className="w-full h-10 px-3 border border-theme-box-default text-theme-light rounded-md"
               >
                 {machineTypes.map((machine) => (
-                  <SelectOption key={machine.name} value={machine.name}>
+                  <SelectOption key={machine.name} value={machine.name} data-testid={machine.name}>
                     {`${machine.name} (${machine.cpu} CPU, ${machine.memory})`}
                   </SelectOption>
                 ))}
@@ -96,7 +96,7 @@ export const WorkerPool: React.FC<WorkerPoolProps> = ({
                   className="w-full h-10 px-3 border border-theme-box-default text-theme-light rounded-md"
                 >
                   {machineImages.map((image) => (
-                    <SelectOption key={image.name} value={image.name}>
+                    <SelectOption key={image.name} value={image.name} data-testid={image.name}>
                       {image.name}
                     </SelectOption>
                   ))}
@@ -113,7 +113,7 @@ export const WorkerPool: React.FC<WorkerPoolProps> = ({
                   className="w-full h-10 px-3 border border-theme-box-default text-theme-light rounded-md"
                 >
                   {availableVersions.map((version) => (
-                    <SelectOption key={version} value={version}>
+                    <SelectOption key={version} value={version} data-testid={version}>
                       {version}
                     </SelectOption>
                   ))}
