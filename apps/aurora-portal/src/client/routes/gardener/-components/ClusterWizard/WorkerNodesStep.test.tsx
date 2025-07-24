@@ -80,8 +80,10 @@ describe("WorkerNodesStep", () => {
   })
 
   describe("Rendering", () => {
-    it("renders the component with basic elements", () => {
-      setup()
+    it("renders the component with basic elements", async () => {
+      await act(async () => {
+        setup()
+      })
 
       expect(screen.getByText("Worker Configuration")).toBeInTheDocument()
       expect(screen.getByText(/Configure the worker pools for your cluster/)).toBeInTheDocument()
@@ -89,8 +91,10 @@ describe("WorkerNodesStep", () => {
       expect(screen.getByRole("button", { name: /add worker pool/i })).toBeInTheDocument()
     })
 
-    it("displays info message about worker pool scaling", () => {
-      setup()
+    it("displays info message about worker pool scaling", async () => {
+      await act(async () => {
+        setup()
+      })
 
       expect(screen.getByText(/Each worker pool will automatically scale/)).toBeInTheDocument()
       expect(screen.getByText(/Ensure your maximum node counts align/)).toBeInTheDocument()
@@ -98,8 +102,10 @@ describe("WorkerNodesStep", () => {
   })
 
   describe("Zone Selection Logic", () => {
-    it("provides correct available zones for selected region", () => {
-      setup()
+    it("provides correct available zones for selected region", async () => {
+      await act(async () => {
+        setup()
+      })
 
       // Check that zones from us-west-1 are available
       expect(screen.getByLabelText("us-west-1a")).toBeInTheDocument()
@@ -107,7 +113,7 @@ describe("WorkerNodesStep", () => {
       expect(screen.getByLabelText("us-west-1c")).toBeInTheDocument()
     })
 
-    it("provides different zones when region changes", () => {
+    it("provides different zones when region changes", async () => {
       const formDataWithDifferentRegion = {
         ...mockFormData,
         region: "eu-central-1",
@@ -119,9 +125,11 @@ describe("WorkerNodesStep", () => {
         ],
       }
 
-      setup({
-        ...defaultProps,
-        formData: formDataWithDifferentRegion,
+      await act(async () => {
+        setup({
+          ...defaultProps,
+          formData: formDataWithDifferentRegion,
+        })
       })
 
       expect(screen.getByLabelText("eu-central-1a")).toBeInTheDocument()
@@ -129,15 +137,17 @@ describe("WorkerNodesStep", () => {
       expect(screen.queryByLabelText("us-west-1a")).not.toBeInTheDocument()
     })
 
-    it("handles non-existent region gracefully", () => {
+    it("handles non-existent region gracefully", async () => {
       const formDataWithInvalidRegion = {
         ...mockFormData,
         region: "non-existent-region",
       }
 
-      setup({
-        ...defaultProps,
-        formData: formDataWithInvalidRegion,
+      await act(async () => {
+        setup({
+          ...defaultProps,
+          formData: formDataWithInvalidRegion,
+        })
       })
 
       // Should still render but with no zones
@@ -145,15 +155,17 @@ describe("WorkerNodesStep", () => {
       expect(screen.queryByLabelText("us-west-1a")).not.toBeInTheDocument()
     })
 
-    it("handles missing cloudProfileData regions", () => {
+    it("handles missing cloudProfileData regions", async () => {
       const cloudProfileDataWithoutRegions = {
         ...mockCloudProfileData,
         regions: [],
       }
 
-      setup({
-        ...defaultProps,
-        cloudProfileData: cloudProfileDataWithoutRegions,
+      await act(async () => {
+        setup({
+          ...defaultProps,
+          cloudProfileData: cloudProfileDataWithoutRegions,
+        })
       })
 
       expect(screen.getByText("Worker Configuration")).toBeInTheDocument()
@@ -162,15 +174,17 @@ describe("WorkerNodesStep", () => {
   })
 
   describe("Worker Management", () => {
-    it("displays existing workers", () => {
+    it("displays existing workers", async () => {
       const formDataWithMultipleWorkers = {
         ...mockFormData,
         workers: [mockWorkerConfig, { ...mockWorkerConfig, machineType: "g_c4_m8" }],
       }
 
-      setup({
-        ...defaultProps,
-        formData: formDataWithMultipleWorkers,
+      await act(async () => {
+        setup({
+          ...defaultProps,
+          formData: formDataWithMultipleWorkers,
+        })
       })
 
       expect(screen.getByText("Worker Pool #1")).toBeInTheDocument()
@@ -179,7 +193,10 @@ describe("WorkerNodesStep", () => {
 
     it("handles adding a new worker with default configuration", async () => {
       const user = userEvent.setup()
-      setup()
+
+      await act(async () => {
+        setup()
+      })
 
       const addButton = screen.getByRole("button", { name: /add worker pool/i })
       await user.click(addButton)
@@ -206,9 +223,11 @@ describe("WorkerNodesStep", () => {
         region: "non-existent-region",
       }
 
-      setup({
-        ...defaultProps,
-        formData: formDataWithNoZones,
+      await act(async () => {
+        setup({
+          ...defaultProps,
+          formData: formDataWithNoZones,
+        })
       })
 
       const addButton = screen.getByRole("button", { name: /add worker pool/i })
@@ -236,9 +255,11 @@ describe("WorkerNodesStep", () => {
         workers: [mockWorkerConfig, { ...mockWorkerConfig, machineType: "g_c4_m8" }],
       }
 
-      setup({
-        ...defaultProps,
-        formData: formDataWithMultipleWorkers,
+      await act(async () => {
+        setup({
+          ...defaultProps,
+          formData: formDataWithMultipleWorkers,
+        })
       })
 
       const removeButtons = screen.getAllByRole("button", { name: /close/i })
@@ -251,18 +272,22 @@ describe("WorkerNodesStep", () => {
       const user = userEvent.setup()
       const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {})
 
-      setup()
+      await act(async () => {
+        setup()
+      })
 
       // Should not have remove button when only one worker
       expect(screen.queryByRole("button", { name: /close/i })).not.toBeInTheDocument()
 
       // But let's test the logic by simulating the scenario
-      setup({
-        ...defaultProps,
-        formData: {
-          ...mockFormData,
-          workers: [mockWorkerConfig, { ...mockWorkerConfig }],
-        },
+      await act(async () => {
+        setup({
+          ...defaultProps,
+          formData: {
+            ...mockFormData,
+            workers: [mockWorkerConfig, { ...mockWorkerConfig }],
+          },
+        })
       })
 
       // Now we have remove buttons
@@ -281,7 +306,10 @@ describe("WorkerNodesStep", () => {
   describe("Worker Configuration Changes", () => {
     it("handles machine type changes", async () => {
       const user = userEvent.setup()
-      setup()
+
+      await act(async () => {
+        setup()
+      })
 
       const machineTypeSelect = screen.getByLabelText(/machine type/i)
       await user.click(machineTypeSelect)
@@ -299,7 +327,10 @@ describe("WorkerNodesStep", () => {
 
     it("handles machine image name changes", async () => {
       const user = userEvent.setup()
-      setup()
+
+      await act(async () => {
+        setup()
+      })
 
       const imageSelect = screen.getByLabelText(/machine image/i)
       await user.click(imageSelect)
@@ -318,7 +349,10 @@ describe("WorkerNodesStep", () => {
 
     it("handles machine image version changes", async () => {
       const user = userEvent.setup()
-      setup()
+
+      await act(async () => {
+        setup()
+      })
 
       const versionSelect = screen.getByLabelText(/image version/i)
       await user.click(versionSelect)
@@ -337,7 +371,10 @@ describe("WorkerNodesStep", () => {
 
     it("handles minimum nodes changes", async () => {
       const user = userEvent.setup()
-      setup()
+
+      await act(async () => {
+        setup()
+      })
 
       const minInput = screen.getByLabelText(/minimum nodes/i)
       await user.clear(minInput)
@@ -353,7 +390,10 @@ describe("WorkerNodesStep", () => {
 
     it("handles maximum nodes changes", async () => {
       const user = userEvent.setup()
-      setup()
+
+      await act(async () => {
+        setup()
+      })
 
       const maxInput = screen.getByLabelText(/maximum nodes/i)
       await user.clear(maxInput)
@@ -369,7 +409,10 @@ describe("WorkerNodesStep", () => {
 
     it("handles zone selection changes", async () => {
       const user = userEvent.setup()
-      setup()
+
+      await act(async () => {
+        setup()
+      })
 
       // Add a zone
       const uncheckedZone = screen.getByLabelText("us-west-1b")
@@ -396,8 +439,10 @@ describe("WorkerNodesStep", () => {
   })
 
   describe("Data Flow Integration", () => {
-    it("passes correct machine types to WorkerPool", () => {
-      setup()
+    it("passes correct machine types to WorkerPool", async () => {
+      await act(async () => {
+        setup()
+      })
 
       // Check that machine type options are available
       const machineTypeSelect = screen.getByLabelText(/machine type/i)
@@ -408,8 +453,10 @@ describe("WorkerNodesStep", () => {
       expect(screen.getByTestId("g_c8_m16")).toHaveTextContent("g_c8_m16 (8 CPU, 16Gi)")
     })
 
-    it("passes correct machine images to WorkerPool", () => {
-      setup()
+    it("passes correct machine images to WorkerPool", async () => {
+      await act(async () => {
+        setup()
+      })
 
       const imageSelect = screen.getByLabelText(/machine image/i)
       fireEvent.click(imageSelect)
@@ -419,8 +466,10 @@ describe("WorkerNodesStep", () => {
       expect(screen.getByTestId("coreos")).toBeInTheDocument()
     })
 
-    it("passes correct available zones based on selected region", () => {
-      setup()
+    it("passes correct available zones based on selected region", async () => {
+      await act(async () => {
+        setup()
+      })
 
       // Should show zones for us-west-1
       expect(screen.getByLabelText("us-west-1a")).toBeInTheDocument()
@@ -434,15 +483,17 @@ describe("WorkerNodesStep", () => {
   })
 
   describe("Edge Cases", () => {
-    it("handles empty workers array", () => {
+    it("handles empty workers array", async () => {
       const formDataWithEmptyWorkers = {
         ...mockFormData,
         workers: [],
       }
 
-      setup({
-        ...defaultProps,
-        formData: formDataWithEmptyWorkers,
+      await act(async () => {
+        setup({
+          ...defaultProps,
+          formData: formDataWithEmptyWorkers,
+        })
       })
 
       expect(screen.getByText("Worker Configuration")).toBeInTheDocument()
@@ -450,31 +501,35 @@ describe("WorkerNodesStep", () => {
       expect(screen.queryByText("Worker Pool #1")).not.toBeInTheDocument()
     })
 
-    it("handles region with empty zones array", () => {
+    it("handles region with empty zones array", async () => {
       const cloudProfileDataWithEmptyZones = {
         ...mockCloudProfileData,
         regions: [{ name: "us-west-1", zones: [] }],
       }
 
-      setup({
-        ...defaultProps,
-        cloudProfileData: cloudProfileDataWithEmptyZones,
+      await act(async () => {
+        setup({
+          ...defaultProps,
+          cloudProfileData: cloudProfileDataWithEmptyZones,
+        })
       })
 
       expect(screen.getByText("Worker Configuration")).toBeInTheDocument()
       expect(screen.queryByText("Availability Zones")).toBeInTheDocument()
     })
 
-    it("handles missing optional props gracefully", () => {
+    it("handles missing optional props gracefully", async () => {
       const minimalCloudProfileData = {
         machineTypes: [],
         machineImages: [],
         regions: [],
       }
 
-      setup({
-        ...defaultProps,
-        cloudProfileData: minimalCloudProfileData,
+      await act(async () => {
+        setup({
+          ...defaultProps,
+          cloudProfileData: minimalCloudProfileData,
+        })
       })
 
       expect(screen.getByText("Worker Configuration")).toBeInTheDocument()
@@ -484,7 +539,10 @@ describe("WorkerNodesStep", () => {
   describe("Worker Pool Default Configuration", () => {
     it("uses correct default values when adding new worker", async () => {
       const user = userEvent.setup()
-      setup()
+
+      await act(async () => {
+        setup()
+      })
 
       const addButton = screen.getByRole("button", { name: /add worker pool/i })
       await user.click(addButton)
@@ -516,9 +574,11 @@ describe("WorkerNodesStep", () => {
         ],
       }
 
-      setup({
-        ...defaultProps,
-        formData: formDataWithSingleZoneRegion,
+      await act(async () => {
+        setup({
+          ...defaultProps,
+          formData: formDataWithSingleZoneRegion,
+        })
       })
 
       const addButton = screen.getByRole("button", { name: /add worker pool/i })
