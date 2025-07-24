@@ -1,5 +1,5 @@
 import React, { useState } from "react"
-import { Box, CodeBlock, JsonViewer, Stack, Toast, ToastProps } from "@cloudoperators/juno-ui-components"
+import { Box, CodeBlock, JsonViewer, Stack, Toast, ToastProps, Message } from "@cloudoperators/juno-ui-components"
 import { useLingui, Trans } from "@lingui/react/macro"
 
 import { Cluster } from "@/server/Gardener/types/cluster"
@@ -26,17 +26,19 @@ const ClusterDetailPage: React.FC<PeakDetailPageProps> = ({ cluster }) => {
 
   const [deleteClusterModal, setDeleteClusterModal] = useState(false)
   const [deletedClusterName, setDeleteClusterName] = useState<string | null>(null)
-
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const handleDeleteCluster = async () => {
     try {
       await trpcClient?.gardener.deleteCluster.mutate({
         name: deletedClusterName!,
       })
-      console.log("Cluster deleted successfully")
+      console.log(t`Cluster deleted successfully`)
       setDeleteClusterModal(false)
       handleBack()
     } catch (error) {
-      console.error("Failed to delete cluster: " + (error instanceof Error ? error.message : "Unknown error"))
+      const errorString = t`Failed to delete cluster: ` + (error instanceof Error ? error.message : "Unknown error")
+      setErrorMessage(errorString)
+      console.error(errorString)
     } finally {
       setDeleteClusterModal(false)
     }
@@ -98,6 +100,7 @@ const ClusterDetailPage: React.FC<PeakDetailPageProps> = ({ cluster }) => {
   return (
     <div className="min-h-screen p-6">
       <div className="max-w-7xl mx-auto">
+        {errorMessage && <Message text={errorMessage} variant="error" />}
         <DetailLayout
           title={t`Cluster Details`}
           description={t`View and manage your Kubernetes cluster`}

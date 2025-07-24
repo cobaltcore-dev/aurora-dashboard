@@ -23,7 +23,6 @@ export interface DetailLayoutProps {
   toggleView: () => void
   onBack: () => void
   handleShare: () => void
-
   setDeleteClusterModal: (isShown: boolean) => void
   setDeleteClusterName: (clusterName: string) => void
 }
