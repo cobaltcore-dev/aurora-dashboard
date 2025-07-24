@@ -15,7 +15,6 @@
     "dev": "tsx watch src/server/server --tsconfig tsconfig.server.json",
     "extract": "lingui extract --clean",
     "lint": "eslint",
-    "postinstall": "tsx --no-cache scripts/extensions/install.ts && rm -rf tsx-0",
     "preview": "vite preview",
     "prod": "NODE_ENV=production node dist/server/server.js",
     "test": "vitest run",
@@ -24,7 +23,6 @@
   },
   "dependencies": {
     "@cloudoperators/juno-k8s-client": "^1.0.5",
-    "@cobaltcore-dev/aurora-sdk": "workspace:*",
     "@cobaltcore-dev/signal-openstack": "workspace:*",
     "@fastify/cookie": "^11.0.2",
     "@fastify/csrf-protection": "^7.1.0",

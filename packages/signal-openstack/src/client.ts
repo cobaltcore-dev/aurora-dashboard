@@ -13,6 +13,33 @@ interface RequestParams {
   }
 }
 
+function redactSensitiveData<T>(obj: T): T {
+  const sensitiveKeys: string[] = ["password", "token", "secret", "key", "auth_token"]
+  const redacted: T = JSON.parse(JSON.stringify(obj))
+
+  function redactRecursive(item: unknown): void {
+    if (typeof item === "object" && item !== null && !Array.isArray(item)) {
+      const objectItem = item as Record<string, unknown>
+      for (const [key, value] of Object.entries(objectItem)) {
+        if (sensitiveKeys.some((sensitive: string) => key.toLowerCase().includes(sensitive))) {
+          objectItem[key] = "*****"
+        } else if (typeof value === "object" && value !== null) {
+          redactRecursive(value)
+        }
+      }
+    } else if (Array.isArray(item)) {
+      item.forEach((element) => {
+        if (typeof element === "object" && element !== null) {
+          redactRecursive(element)
+        }
+      })
+    }
+  }
+
+  redactRecursive(redacted)
+  return redacted
+}
+
 const buildRequestUrl = function ({ base, path }: { base?: string; path?: string }): URL {
   // If `path` is a full URL, return it
   if (path?.startsWith("http")) return new URL(path)
@@ -50,7 +77,8 @@ const request = ({ method, path, options = {} }: RequestParams) => {
   }
 
   if (options.debug) {
-    console.debug(`===Signal Openstack Debug: `, JSON.stringify({ method, path, options, url }, null, 2))
+    const debugData = redactSensitiveData({ method, path, options, url })
+    console.debug(`===Signal Openstack Debug: `, JSON.stringify(debugData, null, 2))
   }
 
   return fetch(url.toString(), {

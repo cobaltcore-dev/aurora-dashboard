@@ -9,7 +9,6 @@ import { createContext } from "./context"
 import * as dotenv from "dotenv"
 import path from "path"
 import { ZodError } from "zod"
-import extensions from "../extensions"
 import { AuroraFastifySessionFromToken, AuroraFastifyCsrfProtection } from "./aurora-fastify-plugins"
 
 // Load environment variables from .env file
@@ -58,36 +57,6 @@ async function startServer() {
       },
     } satisfies FastifyTRPCPluginOptions<AuroraRouter>["trpcOptions"],
   })
-
-  // Register extension server handlers
-  if (extensions.length > 0) {
-    // Register each extension's server handler
-    for (const ext of extensions) {
-      // Dynamically import the extension module
-      const extensionModule = await import(ext.entrypoint)
-      // Ensure the module has a default export or named export
-      const { registerServer } = extensionModule.default || extensionModule
-      // If the extension has a server registration function, call it
-      if (registerServer) {
-        const { handleRequest, path: bffPath } = await registerServer({
-          mountRoute: `/extensions/${ext.id}`,
-        })
-
-        await server.all(bffPath + "/*", (req, res) => {
-          req.raw.url = req.raw.url?.replace(bffPath, "")
-          if (req.body) {
-            Object.defineProperty(req.raw, "body", {
-              value: req.body,
-              writable: false,
-            })
-            req.raw.headers["content-length"] =
-              req.headers["content-length"] || Buffer.byteLength(JSON.stringify(req.body)).toString()
-          }
-          return handleRequest(req.raw, res.raw)
-        })
-      }
-    }
-  }
 
   // Environment-specific setup
   // Do not use vite plugin in production
