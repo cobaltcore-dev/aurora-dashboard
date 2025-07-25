@@ -20,6 +20,7 @@ const CreateClusterWizard: React.FC<CreateClusterWizardProps> = ({ isOpen, onClo
       open={isOpen}
       onCancel={onClose}
       size="large"
+      aria-modal={true}
       modalFooter={<div />}
       title={t`Create Cluster`}
       onConfirm={() => {
