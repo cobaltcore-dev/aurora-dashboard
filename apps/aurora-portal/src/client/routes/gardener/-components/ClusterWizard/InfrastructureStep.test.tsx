@@ -40,8 +40,10 @@ describe("InfrastructureStep", () => {
     availableFloatingPools: ["FloatingIP-test-01", "FloatingIP-test-02"],
   }
 
-  it("renders the component with all form elements", () => {
-    setup(defaultProps)
+  it("renders the component with all form elements", async () => {
+    await act(async () => {
+      setup(defaultProps)
+    })
 
     expect(screen.getByText("Floating IP Pool")).toBeInTheDocument()
     expect(screen.getByText("Network Configuration")).toBeInTheDocument()
@@ -50,8 +52,10 @@ describe("InfrastructureStep", () => {
     expect(screen.getByLabelText("Services CIDR")).toBeInTheDocument()
   })
 
-  it("displays provided floating IP pool options", () => {
-    setup(defaultProps)
+  it("displays provided floating IP pool options", async () => {
+    await act(async () => {
+      setup(defaultProps)
+    })
 
     const select = screen.getByLabelText("Floating IP Pool")
     fireEvent.mouseDown(select) // Open the dropdown
@@ -59,8 +63,10 @@ describe("InfrastructureStep", () => {
     expect(screen.getByText("FloatingIP-test-02")).toBeInTheDocument()
   })
 
-  it("falls back to default floating IP pool options when none provided", () => {
-    setup({ ...defaultProps, availableFloatingPools: [] })
+  it("falls back to default floating IP pool options when none provided", async () => {
+    await act(async () => {
+      setup({ ...defaultProps, availableFloatingPools: [] })
+    })
 
     const select = screen.getByLabelText("Floating IP Pool")
     fireEvent.mouseDown(select) // Open the dropdown
@@ -68,8 +74,10 @@ describe("InfrastructureStep", () => {
     expect(screen.getByText("FloatingIP-external-monsoon3-02")).toBeInTheDocument()
   })
 
-  it("calls onFormDataChange when floating IP pool is selected", () => {
-    setup(defaultProps)
+  it("calls onFormDataChange when floating IP pool is selected", async () => {
+    await act(async () => {
+      setup(defaultProps)
+    })
 
     const select = screen.getByLabelText("Floating IP Pool")
     fireEvent.mouseDown(select) // Open the dropdown
@@ -81,8 +89,10 @@ describe("InfrastructureStep", () => {
     })
   })
 
-  it("calls onFormDataChange when pods CIDR input changes", () => {
-    setup(defaultProps)
+  it("calls onFormDataChange when pods CIDR input changes", async () => {
+    await act(async () => {
+      setup(defaultProps)
+    })
 
     const podsInput = screen.getByLabelText("Pods CIDR")
     fireEvent.change(podsInput, { target: { value: "192.168.0.0/16" } })
@@ -93,8 +103,10 @@ describe("InfrastructureStep", () => {
     })
   })
 
-  it("calls onFormDataChange when nodes CIDR input changes", () => {
-    setup(defaultProps)
+  it("calls onFormDataChange when nodes CIDR input changes", async () => {
+    await act(async () => {
+      setup(defaultProps)
+    })
 
     const nodesInput = screen.getByLabelText("Nodes CIDR")
     fireEvent.change(nodesInput, { target: { value: "10.0.0.0/16" } })
@@ -105,8 +117,10 @@ describe("InfrastructureStep", () => {
     })
   })
 
-  it("calls onFormDataChange when services CIDR input changes", () => {
-    setup(defaultProps)
+  it("calls onFormDataChange when services CIDR input changes", async () => {
+    await act(async () => {
+      setup(defaultProps)
+    })
 
     const servicesInput = screen.getByLabelText("Services CIDR")
     fireEvent.change(servicesInput, { target: { value: "172.16.0.0/12" } })
@@ -117,7 +131,7 @@ describe("InfrastructureStep", () => {
     })
   })
 
-  it("displays form data values in inputs", () => {
+  it("displays form data values in inputs", async () => {
     const formDataWithValues: ClusterFormData = {
       infrastructure: {
         floatingPoolName: "FloatingIP-test-01",
@@ -135,7 +149,9 @@ describe("InfrastructureStep", () => {
       workers: [],
     }
 
-    const { container } = setup({ ...defaultProps, formData: formDataWithValues })
+    const { container } = await act(async () => {
+      return setup({ ...defaultProps, formData: formDataWithValues })
+    })
 
     expect(container.querySelector("input[name=floatingPool]")).toHaveValue("FloatingIP-test-01")
     expect(screen.getByLabelText("Pods CIDR")).toHaveValue("192.168.0.0/16")
