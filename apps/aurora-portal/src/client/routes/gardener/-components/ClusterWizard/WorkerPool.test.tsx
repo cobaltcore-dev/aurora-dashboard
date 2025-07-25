@@ -3,9 +3,9 @@ import { render, screen, fireEvent, act, cleanup } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { i18n } from "@lingui/core"
 import { I18nProvider } from "@lingui/react"
+import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import { WorkerPool, WorkerPoolProps } from "./WorkerPool"
 import { WorkerConfig } from "./types"
-import { PortalProvider } from "@cloudoperators/juno-ui-components"
 
 describe("WorkerPool", () => {
   const mockMachineTypes = [
@@ -60,14 +60,16 @@ describe("WorkerPool", () => {
   })
 
   describe("Rendering", () => {
-    it("renders the worker pool title and add button", () => {
-      setup(defaultProps)
+    it("renders the worker pool title and add button", async () => {
+      await act(async () => {
+        setup(defaultProps)
+      })
 
       expect(screen.getByText("Worker Pools")).toBeInTheDocument()
       expect(screen.getByRole("button", { name: /add worker pool/i })).toBeInTheDocument()
     })
 
-    it("renders worker pools with correct numbering", () => {
+    it("renders worker pools with correct numbering", async () => {
       const multipleWorkers = [
         ...mockWorkers,
         {
@@ -79,14 +81,18 @@ describe("WorkerPool", () => {
         },
       ]
 
-      setup({ ...defaultProps, workers: multipleWorkers })
+      await act(async () => {
+        setup({ ...defaultProps, workers: multipleWorkers })
+      })
 
       expect(screen.getByText("Worker Pool #1")).toBeInTheDocument()
       expect(screen.getByText("Worker Pool #2")).toBeInTheDocument()
     })
 
-    it("renders all form fields for each worker", () => {
-      setup(defaultProps)
+    it("renders all form fields for each worker", async () => {
+      await act(async () => {
+        setup(defaultProps)
+      })
 
       expect(screen.getByLabelText(/machine type/i)).toBeInTheDocument()
       expect(screen.getByLabelText(/machine image/i)).toBeInTheDocument()
@@ -96,21 +102,26 @@ describe("WorkerPool", () => {
       expect(screen.getByText(/availability zones/i)).toBeInTheDocument()
     })
 
-    it("shows remove button only when there are multiple workers", () => {
-      const { rerender } = setup(defaultProps)
+    it("shows remove button only when there are multiple workers", async () => {
+      const { rerender } = await act(async () => {
+        return setup(defaultProps)
+      })
 
       // Single worker - no remove button
       expect(screen.queryByRole("button", { name: /close/i })).not.toBeInTheDocument()
 
       // Multiple workers - remove button appears
       const multipleWorkers = [...mockWorkers, { ...mockWorkers[0] }]
-      rerender(
-        <I18nProvider i18n={i18n}>
-          <PortalProvider>
-            <WorkerPool {...defaultProps} workers={multipleWorkers} />
-          </PortalProvider>
-        </I18nProvider>
-      )
+
+      await act(async () => {
+        rerender(
+          <I18nProvider i18n={i18n}>
+            <PortalProvider>
+              <WorkerPool {...defaultProps} workers={multipleWorkers} />
+            </PortalProvider>
+          </I18nProvider>
+        )
+      })
 
       expect(screen.getAllByRole("button", { name: /close/i })).toHaveLength(2)
     })
@@ -119,7 +130,10 @@ describe("WorkerPool", () => {
   describe("Machine Type Selection", () => {
     it("displays machine type options with CPU and memory info", async () => {
       const user = userEvent.setup()
-      setup(defaultProps)
+
+      await act(async () => {
+        setup(defaultProps)
+      })
 
       const machineTypeSelect = screen.getByLabelText(/machine type/i)
 
@@ -132,7 +146,10 @@ describe("WorkerPool", () => {
 
     it("calls onWorkerChange when machine type is selected", async () => {
       const user = userEvent.setup()
-      setup(defaultProps)
+
+      await act(async () => {
+        setup(defaultProps)
+      })
 
       const machineTypeSelect = screen.getByLabelText(/machine type/i)
 
@@ -149,7 +166,10 @@ describe("WorkerPool", () => {
   describe("Machine Image and Version Selection", () => {
     it("displays available machine images", async () => {
       const user = userEvent.setup()
-      setup(defaultProps)
+
+      await act(async () => {
+        setup(defaultProps)
+      })
 
       const imageSelect = screen.getByLabelText(/machine image/i)
       await user.click(imageSelect)
@@ -160,7 +180,10 @@ describe("WorkerPool", () => {
 
     it("updates available versions when image is changed", async () => {
       const user = userEvent.setup()
-      const { rerender } = setup(defaultProps)
+
+      const { rerender } = await act(async () => {
+        return setup(defaultProps)
+      })
 
       // Initially shows versions for ubuntu-20.04
       const versionSelect = screen.getByLabelText(/image version/i)
@@ -175,13 +198,15 @@ describe("WorkerPool", () => {
         },
       ]
 
-      rerender(
-        <I18nProvider i18n={i18n}>
-          <PortalProvider>
-            <WorkerPool {...defaultProps} workers={updatedWorkers} />
-          </PortalProvider>
-        </I18nProvider>
-      )
+      await act(async () => {
+        rerender(
+          <I18nProvider i18n={i18n}>
+            <PortalProvider>
+              <WorkerPool {...defaultProps} workers={updatedWorkers} />
+            </PortalProvider>
+          </I18nProvider>
+        )
+      })
 
       await user.click(versionSelect)
       expect(screen.getByTestId("v2.0.0")).toBeInTheDocument()
@@ -190,7 +215,10 @@ describe("WorkerPool", () => {
 
     it("calls onWorkerChange when image name is changed", async () => {
       const user = userEvent.setup()
-      setup(defaultProps)
+
+      await act(async () => {
+        setup(defaultProps)
+      })
 
       const imageSelect = screen.getByLabelText(/machine image/i)
 
@@ -208,7 +236,10 @@ describe("WorkerPool", () => {
 
     it("calls onWorkerChange when image version is changed", async () => {
       const user = userEvent.setup()
-      setup(defaultProps)
+
+      await act(async () => {
+        setup(defaultProps)
+      })
 
       const versionSelect = screen.getByLabelText(/image version/i)
 
@@ -226,8 +257,10 @@ describe("WorkerPool", () => {
   })
 
   describe("Node Count Configuration", () => {
-    it("displays current minimum and maximum values", () => {
-      setup(defaultProps)
+    it("displays current minimum and maximum values", async () => {
+      await act(async () => {
+        setup(defaultProps)
+      })
 
       const minInput: HTMLInputElement = screen.getByLabelText(/minimum nodes/i)
       const maxInput: HTMLInputElement = screen.getByLabelText(/maximum nodes/i)
@@ -238,7 +271,10 @@ describe("WorkerPool", () => {
 
     it("calls onWorkerChange when minimum nodes is changed", async () => {
       const user = userEvent.setup()
-      setup(defaultProps)
+
+      await act(async () => {
+        setup(defaultProps)
+      })
 
       const minInput = screen.getByLabelText(/minimum nodes/i)
       await user.clear(minInput)
@@ -249,7 +285,10 @@ describe("WorkerPool", () => {
 
     it("calls onWorkerChange when maximum nodes is changed", async () => {
       const user = userEvent.setup()
-      setup(defaultProps)
+
+      await act(async () => {
+        setup(defaultProps)
+      })
 
       const maxInput = screen.getByLabelText(/maximum nodes/i)
       await user.clear(maxInput)
@@ -258,8 +297,10 @@ describe("WorkerPool", () => {
       expect(defaultProps.onWorkerChange).toHaveBeenCalledWith(0, "maximum", 5)
     })
 
-    it("sets minimum constraint on maximum nodes input", () => {
-      setup(defaultProps)
+    it("sets minimum constraint on maximum nodes input", async () => {
+      await act(async () => {
+        setup(defaultProps)
+      })
 
       const maxInput: HTMLInputElement = screen.getByLabelText(/maximum nodes/i)
       expect(maxInput.min).toBe("1") // Should match worker.minimum
@@ -267,16 +308,20 @@ describe("WorkerPool", () => {
   })
 
   describe("Availability Zones", () => {
-    it("renders all available zones as checkboxes", () => {
-      setup(defaultProps)
+    it("renders all available zones as checkboxes", async () => {
+      await act(async () => {
+        setup(defaultProps)
+      })
 
       mockAvailableZones.forEach((zone) => {
         expect(screen.getByLabelText(zone)).toBeInTheDocument()
       })
     })
 
-    it("shows selected zones as checked", () => {
-      setup(defaultProps)
+    it("shows selected zones as checked", async () => {
+      await act(async () => {
+        setup(defaultProps)
+      })
 
       const selectedZone: HTMLInputElement = screen.getByLabelText("us-east-1a")
       const unselectedZone: HTMLInputElement = screen.getByLabelText("us-east-1b")
@@ -287,7 +332,10 @@ describe("WorkerPool", () => {
 
     it("adds zone when checkbox is checked", async () => {
       const user = userEvent.setup()
-      setup(defaultProps)
+
+      await act(async () => {
+        setup(defaultProps)
+      })
 
       const zoneCheckbox = screen.getByLabelText("us-east-1b")
       await user.click(zoneCheckbox)
@@ -297,7 +345,10 @@ describe("WorkerPool", () => {
 
     it("removes zone when checkbox is unchecked", async () => {
       const user = userEvent.setup()
-      setup(defaultProps)
+
+      await act(async () => {
+        setup(defaultProps)
+      })
 
       const zoneCheckbox = screen.getByLabelText("us-east-1a")
       await user.click(zoneCheckbox)
@@ -309,7 +360,10 @@ describe("WorkerPool", () => {
   describe("Worker Pool Management", () => {
     it("calls onAddWorker when add button is clicked", async () => {
       const user = userEvent.setup()
-      setup(defaultProps)
+
+      await act(async () => {
+        setup(defaultProps)
+      })
 
       const addButton = screen.getByRole("button", { name: /add worker pool/i })
       await user.click(addButton)
@@ -320,7 +374,10 @@ describe("WorkerPool", () => {
     it("calls onRemoveWorker when remove button is clicked", async () => {
       const user = userEvent.setup()
       const multipleWorkers = [...mockWorkers, { ...mockWorkers[0] }]
-      setup({ ...defaultProps, workers: multipleWorkers })
+
+      await act(async () => {
+        setup({ ...defaultProps, workers: multipleWorkers })
+      })
 
       const removeButtons = screen.getAllByRole("button", { name: /close/i })
       await user.click(removeButtons[0])
@@ -330,8 +387,10 @@ describe("WorkerPool", () => {
   })
 
   describe("Edge Cases", () => {
-    it("handles empty machine types array", () => {
-      setup({ ...defaultProps, machineTypes: [] })
+    it("handles empty machine types array", async () => {
+      await act(async () => {
+        setup({ ...defaultProps, machineTypes: [] })
+      })
 
       const machineTypeSelect = screen.getByLabelText(/machine type/i)
       fireEvent.click(machineTypeSelect)
@@ -340,8 +399,10 @@ describe("WorkerPool", () => {
       expect(machineTypeSelect).toBeInTheDocument()
     })
 
-    it("handles empty machine images array", () => {
-      setup({ ...defaultProps, machineTypes: [] })
+    it("handles empty machine images array", async () => {
+      await act(async () => {
+        setup({ ...defaultProps, machineImages: [] })
+      })
 
       const imageSelect = screen.getByLabelText(/machine image/i)
       fireEvent.click(imageSelect)
@@ -349,13 +410,15 @@ describe("WorkerPool", () => {
       expect(imageSelect).toBeInTheDocument()
     })
 
-    it("handles empty available zones array", () => {
-      setup({ ...defaultProps, availableZones: [] })
+    it("handles empty available zones array", async () => {
+      await act(async () => {
+        setup({ ...defaultProps, availableZones: [] })
+      })
 
       expect(screen.getByText(/availability zones/i)).toBeInTheDocument()
     })
 
-    it("handles machine image with no versions", () => {
+    it("handles machine image with no versions", async () => {
       const imageWithNoVersions = [{ name: "test-image", versions: [] }]
       const workerWithTestImage = [
         {
@@ -364,7 +427,9 @@ describe("WorkerPool", () => {
         },
       ]
 
-      setup({ ...defaultProps, machineImages: imageWithNoVersions, workers: workerWithTestImage })
+      await act(async () => {
+        setup({ ...defaultProps, machineImages: imageWithNoVersions, workers: workerWithTestImage })
+      })
 
       const versionSelect = screen.getByLabelText(/image version/i)
       expect(versionSelect).toBeInTheDocument()
@@ -372,7 +437,10 @@ describe("WorkerPool", () => {
 
     it("handles non-numeric input for node counts gracefully", async () => {
       const user = userEvent.setup()
-      setup(defaultProps)
+
+      await act(async () => {
+        setup(defaultProps)
+      })
 
       const minInput = screen.getByLabelText(/minimum nodes/i)
       await user.clear(minInput)
@@ -384,8 +452,10 @@ describe("WorkerPool", () => {
   })
 
   describe("Accessibility", () => {
-    it("has proper labels for all form inputs", () => {
-      setup(defaultProps)
+    it("has proper labels for all form inputs", async () => {
+      await act(async () => {
+        setup(defaultProps)
+      })
 
       expect(screen.getByLabelText(/machine type/i)).toBeInTheDocument()
       expect(screen.getByLabelText(/machine image/i)).toBeInTheDocument()
@@ -398,9 +468,12 @@ describe("WorkerPool", () => {
       })
     })
 
-    it("has unique IDs for form elements across multiple workers", () => {
+    it("has unique IDs for form elements across multiple workers", async () => {
       const multipleWorkers = [...mockWorkers, { ...mockWorkers[0] }]
-      setup({ ...defaultProps, workers: multipleWorkers })
+
+      await act(async () => {
+        setup({ ...defaultProps, workers: multipleWorkers })
+      })
 
       const machineTypeSelects = screen.getAllByLabelText(/machine type/i)
       expect(machineTypeSelects[0]).toHaveAttribute("id", "worker-machine-type-0")
