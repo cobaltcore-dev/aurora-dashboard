@@ -69,6 +69,10 @@ msgstr "Aurora Dashboard is more than just a tool—it's your partner in navigat
 msgid "Auto Update"
 msgstr "Auto Update"
 
+#: src/client/routes/gardener/-components/ClusterWizard/WizardActions.tsx:29
+msgid "Back"
+msgstr "Back"
+
 #: src/client/routes/gardener/-components/DeleteClusterDialog.tsx:47
 msgid "Cancel"
 msgstr "Cancel"
@@ -76,6 +80,18 @@ msgstr "Cancel"
 #: src/client/routes/gardener/-components/Filters/index.tsx:47
 msgid "Clear all"
 msgstr "Clear all"
+
+#: src/client/routes/gardener/-components/ClusterWizard/BasicInfoStep.tsx:75
+msgid "Cloud Profile"
+msgstr "Cloud Profile"
+
+#: src/client/routes/gardener/-components/ClusterWizard/ReviewStep.tsx:52
+msgid "Cluster Configuration"
+msgstr "Cluster Configuration"
+
+#: src/client/routes/gardener/-components/ClusterWizard/CreateClusterDialogContent.tsx:111
+msgid "Cluster created successfully"
+msgstr "Cluster created successfully"
 
 #: src/client/routes/gardener/-components/ClusterDetail.tsx:35
 msgid "Cluster deleted successfully"
@@ -93,6 +109,14 @@ msgstr "Cluster details copied to clipboard!"
 msgid "Cluster ID copied to clipboard"
 msgstr "Cluster ID copied to clipboard"
 
+#: src/client/routes/gardener/-components/ClusterWizard/BasicInfoStep.tsx:23
+msgid "Cluster Name"
+msgstr "Cluster Name"
+
+#: src/client/routes/gardener/-components/ClusterWizard/CreateClusterDialogContent.tsx:76
+msgid "Cluster name is required"
+msgstr "Cluster name is required"
+
 #: src/client/routes/gardener/-components/ClusterDetail.tsx:107
 msgid "Clusters"
 msgstr "Clusters"
@@ -101,9 +125,17 @@ msgstr "Clusters"
 msgid "Code View"
 msgstr "Code View"
 
+#: src/client/routes/gardener/-components/ClusterWizard/WorkerNodesStep.tsx:77
+msgid "Configure the worker pools for your cluster. These settings determine the compute resources available for your workloads."
+msgstr "Configure the worker pools for your cluster. These settings determine the compute resources available for your workloads."
+
 #: src/client/routes/auth/login.tsx:172
 msgid "Contact support"
 msgstr "Contact support"
+
+#: src/client/routes/gardener/-components/CreateClusterDialog.tsx:25
+msgid "Create Cluster"
+msgstr "Create Cluster"
 
 #: src/client/routes/gardener/-components/DeleteClusterDialog.tsx:44
 #: src/client/routes/gardener/-components/ClusterDetail/DetailLayout.tsx:66
@@ -117,6 +149,14 @@ msgstr "Delete Cluster"
 #: src/client/routes/auth/login.tsx:114
 msgid "Domain"
 msgstr "Domain"
+
+#: src/client/routes/gardener/-components/ClusterWizard/InfrastructureStep.tsx:36
+msgid "Each worker nodes will automatically scale between its minimum and maximum number of nodes based on the workload demands. Ensure your maximum node counts allign with your resouce quotas."
+msgstr "Each worker nodes will automatically scale between its minimum and maximum number of nodes based on the workload demands. Ensure your maximum node counts allign with your resouce quotas."
+
+#: src/client/routes/gardener/-components/ClusterWizard/WorkerNodesStep.tsx:67
+msgid "Each worker pool will automatically scale between its minimum and maximum node counts based on workload demands. Ensure your maximum node counts align with your resource quotas."
+msgstr "Each worker pool will automatically scale between its minimum and maximum node counts based on workload demands. Ensure your maximum node counts align with your resource quotas."
 
 #: src/client/routes/index.tsx:27
 #: src/client/routes/index.tsx:92
@@ -139,6 +179,10 @@ msgstr "Enter your username"
 msgid "Failed to copy to clipboard"
 msgstr "Failed to copy to clipboard"
 
+#: src/client/routes/gardener/-components/ClusterWizard/CreateClusterDialogContent.tsx:121
+msgid "Failed to create cluster:"
+msgstr "Failed to create cluster:"
+
 #: src/client/routes/gardener/-components/ClusterDetail.tsx:39
 msgid "Failed to delete cluster: "
 msgstr "Failed to delete cluster: "
@@ -146,6 +190,10 @@ msgstr "Failed to delete cluster: "
 #: src/client/routes/gardener/-components/Filters/FilterSelect.tsx:55
 msgid "Filters"
 msgstr "Filters"
+
+#: src/client/routes/gardener/-components/ClusterWizard/InfrastructureStep.tsx:47
+msgid "Floating IP Pool"
+msgstr "Floating IP Pool"
 
 #: src/client/routes/about.tsx:105
 msgid "Get Involved"
@@ -155,9 +203,17 @@ msgstr "Get Involved"
 msgid "Image"
 msgstr "Image"
 
+#: src/client/routes/gardener/-components/ClusterWizard/WorkerPool.tsx:110
+msgid "Image Version"
+msgstr "Image Version"
+
 #: src/client/routes/gardener/-components/ClusterDetail/ClusterOverviewSection.tsx:66
 msgid "Infrastructure"
 msgstr "Infrastructure"
+
+#: src/client/routes/gardener/-components/ClusterWizard/ReviewStep.tsx:67
+msgid "Infrastructure Configuration"
+msgstr "Infrastructure Configuration"
 
 #: src/client/routes/gardener/-components/ClusterDetail/ClusterOverviewSection.tsx:70
 msgid "Infrastructure:"
@@ -175,9 +231,17 @@ msgstr "Kubernetes"
 msgid "Kubernetes Updates:"
 msgstr "Kubernetes Updates:"
 
+#: src/client/routes/gardener/-components/ClusterWizard/BasicInfoStep.tsx:36
+msgid "Kubernetes Version"
+msgstr "Kubernetes Version"
+
 #: src/client/routes/gardener/-components/ClusterDetail/ViewToggleButtons.tsx:36
 msgid "List View"
 msgstr "List View"
+
+#: src/client/routes/gardener/-components/CreateClusterDialog.tsx:30
+msgid "Loading Gardener..."
+msgstr "Loading Gardener..."
 
 #: src/client/routes/auth/login.tsx:165
 msgid "Loading..."
@@ -187,6 +251,15 @@ msgstr "Loading..."
 msgid "Login to Your Account"
 msgstr "Login to Your Account"
 
+#: src/client/routes/gardener/-components/ClusterWizard/BasicInfoStep.tsx:27
+msgid "Lowercase alphanumeric characters, dash (-) and must start with a letter"
+msgstr "Lowercase alphanumeric characters, dash (-) and must start with a letter"
+
+#: src/client/routes/gardener/-components/ClusterWizard/WorkerPool.tsx:92
+msgid "Machine Image"
+msgstr "Machine Image"
+
+#: src/client/routes/gardener/-components/ClusterWizard/WorkerPool.tsx:72
 #: src/client/routes/gardener/-components/ClusterDetail/WorkerSection.tsx:19
 msgid "Machine Type"
 msgstr "Machine Type"
@@ -199,9 +272,17 @@ msgstr "Maintenance Window"
 msgid "Max:"
 msgstr "Max:"
 
+#: src/client/routes/gardener/-components/ClusterWizard/WorkerPool.tsx:140
+msgid "Maximum Nodes"
+msgstr "Maximum Nodes"
+
 #: src/client/routes/gardener/-components/ClusterDetail/WorkerSection.tsx:66
 msgid "Min:"
 msgstr "Min:"
+
+#: src/client/routes/gardener/-components/ClusterWizard/WorkerPool.tsx:128
+msgid "Minimum Nodes"
+msgstr "Minimum Nodes"
 
 #: src/client/routes/gardener/-components/ClusterDetail/WorkerSection.tsx:16
 msgid "Name"
@@ -210,6 +291,24 @@ msgstr "Name"
 #: src/client/routes/auth/login.tsx:170
 msgid "Need help?"
 msgstr "Need help?"
+
+#: src/client/routes/gardener/-components/ClusterWizard/ReviewStep.tsx:78
+#: src/client/routes/gardener/-components/ClusterWizard/InfrastructureStep.tsx:76
+msgid "Network Configuration"
+msgstr "Network Configuration"
+
+#: src/client/routes/gardener/-components/ClusterWizard/WizardActions.tsx:33
+#: src/client/routes/gardener/-components/ClusterWizard/WizardActions.tsx:48
+msgid "Next"
+msgstr "Next"
+
+#: src/client/routes/gardener/-components/ClusterWizard/InfrastructureStep.tsx:97
+msgid "Nodes CIDR"
+msgstr "Nodes CIDR"
+
+#: src/client/routes/gardener/-components/ClusterWizard/InfrastructureStep.tsx:124
+msgid "Note: These network settings will be prefilled by the Kubernetes controller in the future."
+msgstr "Note: These network settings will be prefilled by the Kubernetes controller in the future."
 
 #: src/client/routes/gardener/-components/ClusterDetail/SettingsSection.tsx:50
 msgid "OS Updates:"
@@ -223,9 +322,17 @@ msgstr "Our Mission"
 msgid "Password"
 msgstr "Password"
 
+#: src/client/routes/gardener/-components/ClusterWizard/ReviewStep.tsx:124
+msgid "Please review all configurations carefully before creating the cluster. Once created, some settings cannot be changed."
+msgstr "Please review all configurations carefully before creating the cluster. Once created, some settings cannot be changed."
+
 #: src/client/routes/gardener/-components/ClusterDetail.tsx:87
 msgid "Please try again or copy manually"
 msgstr "Please try again or copy manually"
+
+#: src/client/routes/gardener/-components/ClusterWizard/InfrastructureStep.tsx:82
+msgid "Pods CIDR"
+msgstr "Pods CIDR"
 
 #: src/client/routes/gardener/-components/ClusterDetail.tsx:124
 msgid "Raw JSON Data for"
@@ -246,6 +353,10 @@ msgstr "Scaling"
 #: src/client/routes/gardener/-components/Filters/index.tsx:58
 msgid "Search clusters..."
 msgstr "Search clusters..."
+
+#: src/client/routes/gardener/-components/ClusterWizard/InfrastructureStep.tsx:111
+msgid "Services CIDR"
+msgstr "Services CIDR"
 
 #: src/client/routes/gardener/-components/ClusterDetail/DetailLayout.tsx:74
 msgid "Share"
@@ -271,6 +382,11 @@ msgstr "Surge:"
 msgid "The <0>Aurora Dashboard</0> is on its way! Get ready for a powerful, all-in-one cloud management interface designed to make managing your cloud assets simple and efficient. With tools for provisioning, configuring, and scaling resources like servers, networks, and volumes, Aurora will soon bring you:"
 msgstr "The <0>Aurora Dashboard</0> is on its way! Get ready for a powerful, all-in-one cloud management interface designed to make managing your cloud assets simple and efficient. With tools for provisioning, configuring, and scaling resources like servers, networks, and volumes, Aurora will soon bring you:"
 
+#: src/client/routes/gardener/-components/ClusterWizard/InfrastructureStep.tsx:69
+#: src/client/routes/gardener/-components/ClusterWizard/InfrastructureStep.tsx:91
+msgid "The floating IP pool to use for the cluster's external network access"
+msgstr "The floating IP pool to use for the cluster's external network access"
+
 #: src/client/routes/gardener/-components/DeleteClusterDialog.tsx:56
 msgid "This action cannot be undone. The cluster will be permanently deleted."
 msgstr "This action cannot be undone. The cluster will be permanently deleted."
@@ -282,6 +398,10 @@ msgstr "Timezone:"
 #: src/client/routes/about.tsx:114
 msgid "Together, we can unlock the true potential of your cloud infrastructure."
 msgstr "Together, we can unlock the true potential of your cloud infrastructure."
+
+#: src/client/routes/gardener/-components/ClusterWizard/CreateClusterDialogContent.tsx:121
+msgid "Unknown error"
+msgstr "Unknown error"
 
 #: src/client/routes/auth/login.tsx:129
 msgid "User C/D/I"
@@ -318,6 +438,14 @@ msgstr "Why Choose Aurora?"
 #: src/client/routes/gardener/-components/ClusterDetail/SettingsSection.tsx:35
 msgid "Window Time:"
 msgstr "Window Time:"
+
+#: src/client/routes/gardener/-components/ClusterWizard/WorkerNodesStep.tsx:74
+msgid "Worker Configuration"
+msgstr "Worker Configuration"
+
+#: src/client/routes/gardener/-components/ClusterWizard/ReviewStep.tsx:87
+msgid "Worker Pools"
+msgstr "Worker Pools"
 
 #: src/client/routes/gardener/-components/DeleteClusterDialog.tsx:61
 msgid "Would you like to remove the <0>{clusterName}</0> from your project?"

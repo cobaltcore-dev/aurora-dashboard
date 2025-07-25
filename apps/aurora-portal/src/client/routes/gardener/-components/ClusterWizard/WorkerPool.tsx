@@ -2,13 +2,19 @@
 import React from "react"
 import { WorkerConfig } from "./types"
 
-import { X } from "lucide-react"
-import { GardenerButton } from "../ui/GardenerButton"
-import { GardenerLabel } from "../ui/GardenerLabel"
-import { GardenerSelect } from "../ui/GardenerSelect"
-import { GardenerInput } from "../ui/GardenerInput"
+import {
+  Button,
+  Checkbox,
+  CheckboxGroup,
+  FormRow,
+  Icon,
+  Select,
+  SelectOption,
+  TextInput,
+} from "@cloudoperators/juno-ui-components"
+import { t } from "@lingui/core/macro"
 
-interface WorkerPoolProps {
+export interface WorkerPoolProps {
   workers: WorkerConfig[]
   onWorkerChange: (index: number, field: keyof WorkerConfig | string, value: unknown) => void
   onAddWorker: () => void
@@ -30,14 +36,10 @@ export const WorkerPool: React.FC<WorkerPoolProps> = ({
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h3 className="text-lg font-medium text-aurora-white text-left">Worker Pools</h3>
-        <GardenerButton
-          onClick={onAddWorker}
-          variant="secondary"
-          className="border-aurora-gray-700 bg-aurora-gray-800 text-aurora-white hover:bg-aurora-gray-700"
-        >
+        <h3 className="text-lg font-medium text-theme-high text-left">Worker Pools</h3>
+        <Button onClick={onAddWorker} variant="subdued">
           Add Worker Pool
-        </GardenerButton>
+        </Button>
       </div>
 
       {workers.map((worker, index) => {
@@ -52,125 +54,111 @@ export const WorkerPool: React.FC<WorkerPoolProps> = ({
         const availableVersions = selectedImage?.versions || []
 
         return (
-          <div key={index} className="p-4 border border-aurora-gray-700 rounded-lg bg-aurora-gray-800/50 space-y-6">
+          <div key={index} className="p-4 border border-theme-box-default rounded-lg space-y-6">
             <div className="flex justify-between items-center">
-              <h4 className="text-aurora-white font-medium text-left">Worker Pool #{index + 1}</h4>
+              <h4 className="text-theme-high font-medium text-left">Worker Pool #{index + 1}</h4>
               {workers.length > 1 && (
-                <GardenerButton
-                  onClick={() => onRemoveWorker(index)}
-                  variant="ghost"
-                  className="h-8 w-8 p-0 text-aurora-red-400 hover:text-aurora-red-300 hover:bg-aurora-gray-700/50"
-                >
-                  <X className="h-4 w-4" />
-                </GardenerButton>
+                <Button onClick={() => onRemoveWorker(index)} variant="subdued">
+                  <Icon icon="close" color="text-theme-danger" className="h-4 w-4" />
+                </Button>
               )}
             </div>
 
             {/* Machine Type - Full width */}
-            <div>
-              <GardenerLabel
-                htmlFor={`worker-machine-type-${index}`}
-                className="text-aurora-gray-300 mb-2 block text-left"
-              >
-                Machine Type
-              </GardenerLabel>
-              <GardenerSelect
+            <FormRow key={"worker-machine-type"}>
+              <Select
+                required
                 id={`worker-machine-type-${index}`}
+                label={t`Machine Type`}
+                name="workerMachineType"
                 value={worker.machineType}
-                className="w-full h-10 px-3 bg-aurora-gray-800 border border-aurora-gray-700 text-aurora-white rounded-md"
-                onChange={(e) => onWorkerChange(index, "machineType", e.target.value)}
+                onChange={(e) => onWorkerChange(index, "workerMachineType", e?.toString() || "")}
+                className="w-full h-10 px-3 border border-theme-box-default text-theme-light rounded-md"
               >
                 {machineTypes.map((machine) => (
-                  <option key={machine.name} value={machine.name}>
-                    {machine.name} ({machine.cpu} CPU, {machine.memory})
-                  </option>
+                  <SelectOption key={machine.name} value={machine.name} data-testid={machine.name}>
+                    {`${machine.name} (${machine.cpu} CPU, ${machine.memory})`}
+                  </SelectOption>
                 ))}
-              </GardenerSelect>
-            </div>
+              </Select>
+            </FormRow>
 
             {/* Machine Image and Version - Two columns */}
             <div className="grid grid-cols-2 gap-4">
-              <div>
-                <GardenerLabel htmlFor={`worker-image-${index}`} className="text-aurora-gray-300 mb-2 block text-left">
-                  Machine Image
-                </GardenerLabel>
-                <GardenerSelect
+              {/* Machine Type - Full width */}
+              <FormRow key={"worker-machine-image"}>
+                <Select
                   id={`worker-image-${index}`}
+                  label={t`Machine Image`}
+                  name="workerImageMachineType"
                   value={worker.machineImage.name}
-                  className="w-full h-10 px-3 bg-aurora-gray-800 border border-aurora-gray-700 text-aurora-white rounded-md"
-                  onChange={(e) => handleMachineImageChange("name", e.target.value)}
+                  onChange={(e) => handleMachineImageChange("name", e?.toString() || "")}
+                  className="w-full h-10 px-3 border border-theme-box-default text-theme-light rounded-md"
                 >
                   {machineImages.map((image) => (
-                    <option key={image.name} value={image.name}>
+                    <SelectOption key={image.name} value={image.name} data-testid={image.name}>
                       {image.name}
-                    </option>
+                    </SelectOption>
                   ))}
-                </GardenerSelect>
-              </div>
+                </Select>
+              </FormRow>
 
-              <div>
-                <GardenerLabel
-                  htmlFor={`worker-version-${index}`}
-                  className="text-aurora-gray-300 mb-2 block text-left"
-                >
-                  Image Version
-                </GardenerLabel>
-                <GardenerSelect
+              <FormRow key={"worker-image-version"}>
+                <Select
                   id={`worker-version-${index}`}
                   value={worker.machineImage.version}
-                  className="w-full h-10 px-3 bg-aurora-gray-800 border border-aurora-gray-700 text-aurora-white rounded-md"
-                  onChange={(e) => handleMachineImageChange("version", e.target.value)}
+                  label={t`Image Version`}
+                  name="workerImageMachineVersion"
+                  onChange={(e) => handleMachineImageChange("version", e?.toString() || "")}
+                  className="w-full h-10 px-3 border border-theme-box-default text-theme-light rounded-md"
                 >
                   {availableVersions.map((version) => (
-                    <option key={version} value={version}>
+                    <SelectOption key={version} value={version} data-testid={version}>
                       {version}
-                    </option>
+                    </SelectOption>
                   ))}
-                </GardenerSelect>
-              </div>
+                </Select>
+              </FormRow>
             </div>
 
             {/* Minimum and Maximum Nodes - Two columns */}
             <div className="grid grid-cols-2 gap-4">
-              <div>
-                <GardenerLabel htmlFor={`worker-min-${index}`} className="text-aurora-gray-300 mb-2 block text-left">
-                  Minimum Nodes
-                </GardenerLabel>
-                <GardenerInput
-                  id={`worker-min-${index}`}
+              <FormRow key={"minimumNodes"}>
+                <TextInput
+                  label={t`Minimum Nodes`}
                   type="number"
                   min="1"
-                  className="w-full h-10 px-3 bg-aurora-gray-800 border border-aurora-gray-700 text-aurora-white rounded-md"
-                  value={worker.minimum}
+                  id={`worker-min-${index}`}
                   onChange={(e) => onWorkerChange(index, "minimum", parseInt(e.target.value))}
+                  value={worker.minimum}
+                  className="w-full h-10 px-3  border border-theme-box-default text-theme-light rounded-md"
                 />
-              </div>
+              </FormRow>
 
-              <div>
-                <GardenerLabel htmlFor={`worker-max-${index}`} className="text-aurora-gray-300 mb-2 block text-left">
-                  Maximum Nodes
-                </GardenerLabel>
-                <GardenerInput
-                  id={`worker-max-${index}`}
+              <FormRow key={"maximumNodes"}>
+                <TextInput
+                  label={t`Maximum Nodes`}
                   type="number"
                   min={worker.minimum}
-                  className="w-full h-10 px-3 bg-aurora-gray-800 border border-aurora-gray-700 text-aurora-white rounded-md"
                   value={worker.maximum}
+                  id={`worker-max-${index}`}
                   onChange={(e) => onWorkerChange(index, "maximum", parseInt(e.target.value))}
+                  className="w-full h-10 px-3 border border-theme-box-default text-theme-light rounded-md"
                 />
-              </div>
+              </FormRow>
             </div>
 
             {/* Availability Zones */}
-            <div>
-              <GardenerLabel className="text-aurora-gray-300 mb-2 block text-left">Availability Zones</GardenerLabel>
+            <CheckboxGroup label="Availability Zones">
               <div className="grid grid-cols-2 gap-2">
                 {availableZones.map((zone) => (
                   <div key={zone} className="flex items-center space-x-2">
-                    <GardenerInput
-                      type="checkbox"
-                      id={`zone-${index}-${zone}`}
+                    <Checkbox
                       checked={worker.zones.includes(zone)}
+                      className="h-4 w-4 rounded border-theme-box-default text-juno-blue-7 focus:ring-juno-blue  focus:ring-offset-juno-grey-blue-2"
+                      label={zone}
+                      id={`zone-${index}-${zone}`}
+                      value={zone}
                       onChange={(e) => {
                         if (e.target.checked) {
                           onWorkerChange(index, "zones", [...worker.zones, zone])
@@ -182,15 +170,11 @@ export const WorkerPool: React.FC<WorkerPoolProps> = ({
                           )
                         }
                       }}
-                      className="h-4 w-4 rounded border-aurora-gray-700 bg-aurora-gray-700 text-aurora-blue-600 focus:ring-aurora-blue-600 focus:ring-offset-aurora-gray-900"
                     />
-                    <label htmlFor={`zone-${index}-${zone}`} className="text-sm text-aurora-gray-300 text-left">
-                      {zone}
-                    </label>
                   </div>
                 ))}
               </div>
-            </div>
+            </CheckboxGroup>
           </div>
         )
       })}
