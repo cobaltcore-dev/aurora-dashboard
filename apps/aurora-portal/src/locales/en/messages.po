@@ -89,6 +89,10 @@ msgstr "Cloud Profile"
 msgid "Cluster Configuration"
 msgstr "Cluster Configuration"
 
+#: src/client/routes/gardener/-components/ClusterWizard/CreateClusterDialogContent.tsx:111
+msgid "Cluster created successfully"
+msgstr "Cluster created successfully"
+
 #: src/client/routes/gardener/-components/ClusterDetail.tsx:35
 msgid "Cluster deleted successfully"
 msgstr "Cluster deleted successfully"
@@ -109,6 +113,10 @@ msgstr "Cluster ID copied to clipboard"
 msgid "Cluster Name"
 msgstr "Cluster Name"
 
+#: src/client/routes/gardener/-components/ClusterWizard/CreateClusterDialogContent.tsx:76
+msgid "Cluster name is required"
+msgstr "Cluster name is required"
+
 #: src/client/routes/gardener/-components/ClusterDetail.tsx:107
 msgid "Clusters"
 msgstr "Clusters"
@@ -125,7 +133,7 @@ msgstr "Configure the worker pools for your cluster. These settings determine th
 msgid "Contact support"
 msgstr "Contact support"
 
-#: src/client/routes/gardener/-components/CreateClusterDialog.tsx:24
+#: src/client/routes/gardener/-components/CreateClusterDialog.tsx:25
 msgid "Create Cluster"
 msgstr "Create Cluster"
 
@@ -170,6 +178,10 @@ msgstr "Enter your username"
 #: src/client/routes/gardener/-components/ClusterDetail.tsx:84
 msgid "Failed to copy to clipboard"
 msgstr "Failed to copy to clipboard"
+
+#: src/client/routes/gardener/-components/ClusterWizard/CreateClusterDialogContent.tsx:121
+msgid "Failed to create cluster:"
+msgstr "Failed to create cluster:"
 
 #: src/client/routes/gardener/-components/ClusterDetail.tsx:39
 msgid "Failed to delete cluster: "
@@ -227,7 +239,7 @@ msgstr "Kubernetes Version"
 msgid "List View"
 msgstr "List View"
 
-#: src/client/routes/gardener/-components/CreateClusterDialog.tsx:29
+#: src/client/routes/gardener/-components/CreateClusterDialog.tsx:30
 msgid "Loading Gardener..."
 msgstr "Loading Gardener..."
 
@@ -386,6 +398,10 @@ msgstr "Timezone:"
 #: src/client/routes/about.tsx:114
 msgid "Together, we can unlock the true potential of your cloud infrastructure."
 msgstr "Together, we can unlock the true potential of your cloud infrastructure."
+
+#: src/client/routes/gardener/-components/ClusterWizard/CreateClusterDialogContent.tsx:121
+msgid "Unknown error"
+msgstr "Unknown error"
 
 #: src/client/routes/auth/login.tsx:129
 msgid "User C/D/I"
