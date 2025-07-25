@@ -1,14 +1,16 @@
 import React, { use, useState } from "react"
+import { t } from "@lingui/core/macro"
+import { Toast, ToastProps } from "@cloudoperators/juno-ui-components"
+import { TrpcClient } from "@/client/trpcClient"
 import { ClusterFormData, WorkerConfig } from "./types"
 import { steps } from "./constants"
-import { toast } from "sonner"
 import { BasicInfoStep } from "./BasicInfoStep"
 import { InfrastructureStep } from "./InfrastructureStep"
 import { WorkerNodesStep } from "./WorkerNodesStep"
 import { ReviewStep } from "./ReviewStep"
 import { WizardProgress } from "./WizardProgress"
 import { WizardActions } from "./WizardActions"
-import { TrpcClient } from "@/client/trpcClient"
+
 type CloudProfile = Awaited<ReturnType<TrpcClient["gardener"]["getCloudProfiles"]["query"]>>[number]
 
 export const CreateClusterDialogContent: React.FC<{
@@ -49,6 +51,9 @@ export const CreateClusterDialogContent: React.FC<{
       },
     ],
   })
+  const [toastData, setToastData] = useState<ToastProps | null>(null)
+
+  const handleToastDismiss = () => setToastData(null)
 
   const handleFormDataChange = (field: keyof ClusterFormData, value: unknown) => {
     setFormData((prev) => ({
@@ -66,7 +71,13 @@ export const CreateClusterDialogContent: React.FC<{
 
   const nextStep = () => {
     if (currentStep === 0 && !formData.name.trim()) {
-      toast.error("Cluster name is required")
+      setToastData({
+        variant: "error",
+        text: t`Cluster name is required`,
+        autoDismiss: true,
+        autoDismissTimeout: 3000,
+        onDismiss: handleToastDismiss,
+      })
       return
     }
 
@@ -94,10 +105,24 @@ export const CreateClusterDialogContent: React.FC<{
       await client.gardener.createCluster.mutate({
         ...formData,
       }) // Adjust the type as needed
-      toast.success("Cluster created successfully")
+
+      setToastData({
+        variant: "success",
+        text: t`Cluster created successfully`,
+        autoDismiss: true,
+        autoDismissTimeout: 3000,
+        onDismiss: handleToastDismiss,
+      })
+
       onClose()
     } catch (error) {
-      toast.error("Failed to create cluster: " + (error instanceof Error ? error.message : "Unknown error"))
+      setToastData({
+        variant: "error",
+        text: `${t`Failed to create cluster:`} ${error instanceof Error ? error.message : t`Unknown error`}`,
+        autoDismiss: true,
+        autoDismissTimeout: 3000,
+        onDismiss: handleToastDismiss,
+      })
     } finally {
       setIsSubmitting(false)
     }
@@ -164,6 +189,10 @@ export const CreateClusterDialogContent: React.FC<{
         onPrev={prevStep}
         onSubmit={handleSubmit}
       />
+
+      {toastData && (
+        <Toast {...toastData} className="fixed top-5 right-5 z-50 border border-theme-light rounded-lg shadow-lg" />
+      )}
     </div>
   )
 }

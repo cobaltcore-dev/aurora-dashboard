@@ -7,14 +7,6 @@ import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import { CreateClusterDialogContent } from "./CreateClusterDialogContent"
 import { TrpcClient } from "@/client/trpcClient"
 
-// Mock toast
-vi.mock("sonner", () => ({
-  toast: {
-    error: vi.fn(),
-    success: vi.fn(),
-  },
-}))
-
 describe("CreateClusterDialogContent", () => {
   const mockCloudProfiles = [
     {
@@ -277,7 +269,6 @@ describe("CreateClusterDialogContent", () => {
 
     it("prevents advancing when cluster name is empty", async () => {
       const user = userEvent.setup()
-      const { toast } = await import("sonner")
 
       await act(async () => {
         setup()
@@ -294,7 +285,7 @@ describe("CreateClusterDialogContent", () => {
       const nextButton = screen.getByRole("button", { name: /next/i })
       await user.click(nextButton)
 
-      expect(toast.error).toHaveBeenCalledWith("Cluster name is required")
+      expect(screen.getByText("Cluster name is required")).toBeInTheDocument()
 
       // Should still be on first step
       expect(screen.getByText(/Cluster name and Kubernetes version/i)).toBeInTheDocument()
@@ -446,7 +437,6 @@ describe("CreateClusterDialogContent", () => {
   describe("Cluster Creation", () => {
     it("calls createCluster mutation on submit", async () => {
       const user = userEvent.setup()
-      const { toast } = await import("sonner")
 
       mockClient.gardener.createCluster.mutate.mockResolvedValue({})
 
@@ -503,13 +493,12 @@ describe("CreateClusterDialogContent", () => {
         })
       })
 
-      expect(toast.success).toHaveBeenCalledWith("Cluster created successfully")
+      expect(screen.getByText("Cluster created successfully")).toBeInTheDocument()
       expect(defaultProps.onClose).toHaveBeenCalled()
     })
 
     it("handles cluster creation errors", async () => {
       const user = userEvent.setup()
-      const { toast } = await import("sonner")
 
       const error = new Error("Creation failed")
       mockClient.gardener.createCluster.mutate.mockRejectedValue(error)
@@ -538,7 +527,7 @@ describe("CreateClusterDialogContent", () => {
       await user.click(createButton)
 
       await waitFor(() => {
-        expect(toast.error).toHaveBeenCalledWith("Failed to create cluster: Creation failed")
+        expect(screen.getByText("Failed to create cluster: Creation failed")).toBeInTheDocument()
       })
 
       expect(defaultProps.onClose).not.toHaveBeenCalled()
@@ -546,7 +535,6 @@ describe("CreateClusterDialogContent", () => {
 
     it("handles unknown errors during cluster creation", async () => {
       const user = userEvent.setup()
-      const { toast } = await import("sonner")
 
       mockClient.gardener.createCluster.mutate.mockRejectedValue("Unknown error")
 
@@ -569,7 +557,7 @@ describe("CreateClusterDialogContent", () => {
       await user.click(createButton)
 
       await waitFor(() => {
-        expect(toast.error).toHaveBeenCalledWith("Failed to create cluster: Unknown error")
+        expect(screen.getByText("Failed to create cluster: Unknown error")).toBeInTheDocument()
       })
     })
 

@@ -7,14 +7,6 @@ import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import CreateClusterWizard from "./CreateClusterDialog"
 import { TrpcClient } from "@/client/trpcClient"
 
-// Mock toast
-vi.mock("sonner", () => ({
-  toast: {
-    error: vi.fn(),
-    success: vi.fn(),
-  },
-}))
-
 describe("CreateClusterWizard", () => {
   const mockCloudProfiles = [
     {
