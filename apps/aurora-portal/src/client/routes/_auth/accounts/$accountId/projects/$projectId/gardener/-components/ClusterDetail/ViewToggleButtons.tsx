@@ -2,8 +2,8 @@ import React from "react"
 import { Button, Stack } from "@cloudoperators/juno-ui-components"
 import { useLingui } from "@lingui/react/macro"
 
-import GridIcon from "../../../../assets/grid.svg?react"
-import JsonIcon from "../../../../assets/json.svg?react"
+import GridIcon from "@/client/assets/grid.svg?react"
+import JsonIcon from "@/client/assets/json.svg?react"
 
 interface ViewToggleButtonsProps {
   currentView: (typeof Views)[keyof typeof Views]

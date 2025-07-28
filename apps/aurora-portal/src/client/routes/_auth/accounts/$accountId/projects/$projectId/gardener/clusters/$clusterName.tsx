@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router"
 import ClusterDetail from "../-components/ClusterDetail"
 
-export const Route = createFileRoute("/gardener/clusters/$clusterName")({
+export const Route = createFileRoute("/_auth/accounts/$accountId/projects/$projectId/gardener/clusters/$clusterName")({
   component: RouteComponent,
   loader: async (options) => {
     const { context, params } = options

@@ -3,6 +3,14 @@ import { SubNavigationLayout } from "@/client/components/navigation/SubNavigatio
 
 const options = [
   linkOptions({
+    to: "/accounts/$accountId/projects/$projectId/gardener/clusters",
+    label: "Gardener",
+    params: {
+      accountId: "accountId",
+      projectId: "projectId",
+    },
+  }),
+  linkOptions({
     to: "/accounts/$accountId/projects/$projectId/compute/$",
     label: "Compute",
     params: {

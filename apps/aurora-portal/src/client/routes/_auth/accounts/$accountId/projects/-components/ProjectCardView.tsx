@@ -12,11 +12,11 @@ type ProjectCardViewProps = {
 export function ProjectCard({ project }: ProjectCardProps) {
   const navigate = useNavigate()
   const domain = project?.domain_id // Assuming domain_id is the domai
-  const computeRootPath = `/accounts/${domain}/projects/${project.id}/compute`
+  const gardenerRootPath = `/accounts/${domain}/projects/${project.id}/gardener/clusters`
   return (
     <div
       className="bg-[#161b22] rounded-xl shadow-lg p-5 flex flex-col space-y-4 border border-[#30363d] text-gray-300 min-h-[200px] relative cursor-pointer hover:bg-[#1f242b] transition-all"
-      onClick={() => navigate({ to: computeRootPath })}
+      onClick={() => navigate({ to: gardenerRootPath })}
     >
       {/* Header: Project Name (Clickable) + PopupMenu */}
       <div className="flex justify-between items-center w-full">

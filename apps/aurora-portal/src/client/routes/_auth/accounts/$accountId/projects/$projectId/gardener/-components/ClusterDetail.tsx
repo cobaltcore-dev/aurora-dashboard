@@ -1,4 +1,5 @@
 import React, { useState } from "react"
+import { useParams } from "@tanstack/react-router"
 import { Box, CodeBlock, JsonViewer, Stack, Toast, ToastProps, Message } from "@cloudoperators/juno-ui-components"
 import { useLingui, Trans } from "@lingui/react/macro"
 
@@ -43,9 +44,13 @@ const ClusterDetailPage: React.FC<PeakDetailPageProps> = ({ cluster }) => {
       setDeleteClusterModal(false)
     }
   }
+  const { accountId, projectId } = useParams({
+    from: "/_auth/accounts/$accountId/projects/$projectId/gardener/clusters/$clusterName",
+  })
   const handleBack = () => {
     navigate({
-      to: "/gardener/clusters",
+      to: "/accounts/$accountId/projects/$projectId/gardener/clusters",
+      params: { accountId, projectId },
     })
   }
 

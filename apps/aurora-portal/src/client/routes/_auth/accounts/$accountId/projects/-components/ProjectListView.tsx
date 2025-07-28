@@ -14,12 +14,12 @@ export function ProjectListView({ projects }: ProjectListViewProps) {
       {projects?.length ? (
         projects.map((project) => {
           const domain = project?.domain_id // Assuming domain_id is the domai
-          const computeRootPath = `/accounts/${domain}/projects/${project.id}`
+          const gardenerRootPath = `/accounts/${domain}/projects/${project.id}/gardener/clusters`
           return (
             <div
               key={project.id}
               className="flex items-center w-full px-6 py-4 hover:bg-[#1f242b] transition-all cursor-pointer border-b border-[#30363d] last:border-0"
-              onClick={() => navigate({ to: computeRootPath })}
+              onClick={() => navigate({ to: gardenerRootPath })}
             >
               {/* Icon + Title (Left Side) */}
               <div className="flex items-center space-x-3 min-w-0 w-1/3">

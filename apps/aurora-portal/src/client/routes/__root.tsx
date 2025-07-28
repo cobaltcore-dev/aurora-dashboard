@@ -42,10 +42,7 @@ function AuroraLayout({ mainNavItems = [] }: NavigationLayoutProps) {
   }, [isNavigating, isLoading, setIsLoading])
 
   // Default navigation items
-  const defaultItems: NavigationItem[] = [
-    { route: "/about", label: "About" },
-    { route: "/gardener", label: "Gardener" },
-  ]
+  const defaultItems: NavigationItem[] = [{ route: "/about", label: "About" }]
   const items = mainNavItems.length > 0 ? mainNavItems : defaultItems
   return (
     <div className="flex flex-col w-full bg-theme-background-lvl-1">
