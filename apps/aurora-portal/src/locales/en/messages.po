@@ -197,7 +197,7 @@ msgstr "Get Involved"
 
 #: src/client/routes/gardener/-components/ClusterDetail/WorkerSection.tsx:22
 msgid "Image"
-msgstr "Image<<<<<<< Updated upstream"
+msgstr "Image"
 
 #: src/client/routes/gardener/-components/ClusterWizard/WorkerPool.tsx:110
 msgid "Image Version"
