@@ -77,7 +77,10 @@ describe("ClusterTable", () => {
 
   describe("Header and Summary", () => {
     it("should display correct cluster counts in summary", () => {
-      const clusters = [createMockCluster({ name: "cluster-1" }), createMockCluster({ name: "cluster-2" })]
+      const clusters = [
+        createMockCluster({ name: "cluster-1" }),
+        createMockCluster({ name: "cluster-2", uid: "test-uid-1234" }),
+      ]
 
       const router = createTestRouter(<ClusterTable clusters={clusters} filteredCount={10} />)
       render(<RouterProvider router={router} />)
@@ -95,10 +98,12 @@ describe("ClusterTable", () => {
           stateDetails: { lastTransitionTime: "2024-01-10T10:00:00Z" },
         }),
         createMockCluster({
+          uid: "test-uid-1234",
           name: "cluster-2",
           stateDetails: { lastTransitionTime: "2024-01-15T15:30:00Z" },
         }),
         createMockCluster({
+          uid: "test-uid-12345",
           name: "cluster-3",
           stateDetails: { lastTransitionTime: "2024-01-12T12:00:00Z" },
         }),
@@ -119,6 +124,7 @@ describe("ClusterTable", () => {
           stateDetails: { lastTransitionTime: "2024-01-15T10:00:00Z" },
         }),
         createMockCluster({
+          uid: "test-uid-1234",
           name: "cluster-2",
           stateDetails: undefined,
         }),
@@ -182,8 +188,8 @@ describe("ClusterTable", () => {
     it("should render multiple clusters correctly", () => {
       const clusters = [
         createMockCluster({ name: "cluster-1", status: "operational" }),
-        createMockCluster({ name: "cluster-2", status: "warning" }),
-        createMockCluster({ name: "cluster-3", status: "error" }),
+        createMockCluster({ uid: "test-uid-1234", name: "cluster-2", status: "warning" }),
+        createMockCluster({ uid: "test-uid-12345", name: "cluster-3", status: "error" }),
       ]
 
       const router = createTestRouter(<ClusterTable clusters={clusters} filteredCount={3} />)
@@ -253,7 +259,10 @@ describe("ClusterTable", () => {
     })
 
     it("should render view details buttons for each cluster", () => {
-      const clusters = [createMockCluster({ name: "cluster-1" }), createMockCluster({ name: "cluster-2" })]
+      const clusters = [
+        createMockCluster({ name: "cluster-1" }),
+        createMockCluster({ uid: "test-uid-1234", name: "cluster-2" }),
+      ]
 
       const router = createTestRouter(<ClusterTable clusters={clusters} filteredCount={2} />)
       render(<RouterProvider router={router} />)
@@ -311,9 +320,9 @@ describe("ClusterTable", () => {
     it("should handle clusters with different status values", () => {
       const clusters = [
         createMockCluster({ name: "cluster-1", status: "running" }),
-        createMockCluster({ name: "cluster-2", status: "pending" }),
-        createMockCluster({ name: "cluster-3", status: "failed" }),
-        createMockCluster({ name: "cluster-4", status: "unknown-status" }),
+        createMockCluster({ uid: "test-uid-1234", name: "cluster-2", status: "pending" }),
+        createMockCluster({ uid: "test-uid-12345", name: "cluster-3", status: "failed" }),
+        createMockCluster({ uid: "test-uid-123456", name: "cluster-4", status: "unknown-status" }),
       ]
 
       const router = createTestRouter(<ClusterTable clusters={clusters} filteredCount={4} />)

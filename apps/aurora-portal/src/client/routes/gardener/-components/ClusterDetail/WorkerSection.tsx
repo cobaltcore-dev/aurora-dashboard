@@ -37,7 +37,7 @@ const WorkerSection: React.FC<WorkerSectionProps> = ({ workers }) => (
       ) : (
         workers.map((worker) => {
           return (
-            <DataGridRow className="flex">
+            <DataGridRow className="flex" key={worker.name}>
               <DataGridCell className="w-1/5">
                 <Stack direction="vertical" gap="1">
                   <span className="text-theme-high">{worker.name}</span>
@@ -71,7 +71,7 @@ const WorkerSection: React.FC<WorkerSectionProps> = ({ workers }) => (
               <DataGridCell className="w-1/5">
                 <Stack gap="1.5" wrap={true}>
                   {worker.zones.map((zone) => (
-                    <Badge variant="info" text={zone}></Badge>
+                    <Badge variant="info" text={zone} key={zone}></Badge>
                   ))}
                 </Stack>
               </DataGridCell>
