@@ -1,34 +1,38 @@
-import { publicProcedure } from "../../trpc"
+import { protectedProcedure } from "../../trpc"
 import { shootApiResponseSchema, shootListApiResponseSchema } from "../types/shootApiSchema"
 import { Cluster, convertShootApiResponseToCluster, convertShootListApiSchemaToClusters } from "../types/cluster"
-import { client } from "../client"
+import { getClient } from "../client"
 import { TRPCError } from "@trpc/server"
 import { z } from "zod"
 
 export const shootRouter = {
-  getClusters: publicProcedure.query(async (): Promise<Cluster[]> => {
-    const parsedData = shootListApiResponseSchema.safeParse(
-      await client
-        .get(`apis/core.gardener.cloud/v1beta1/namespaces/garden-${process.env.GARDENER_PROJECT}/shoots`)
-        .catch(async (err) => {
-          const errorBody = await err?.response?.json()
-          const errorDetails = errorBody?.error || errorBody?.message || err.message
-          throw new Error(`Error fetching clusters: ${errorDetails}`)
-        })
-    )
+  getClusters: protectedProcedure.query(async ({ ctx }) => {
+    const token = ctx.openstack?.getToken()
+    const client = getClient({ token: token!.authToken })
+    const namespace = `garden-${token!.tokenData.project?.id}`
 
+    const parsedData = shootListApiResponseSchema.safeParse(
+      await client.get(`apis/core.gardener.cloud/v1beta1/namespaces/${namespace}/shoots`).catch(async (err) => {
+        throw new TRPCError({
+          code: err.code || "INTERNAL_SERVER_ERROR",
+          message: `${err.message}, ${err.cause}`,
+        })
+      })
+    )
     console.log("Parsed Data:", parsedData?.error)
     const clusters = convertShootListApiSchemaToClusters(parsedData.data?.items || [])
     return clusters
   }),
 
-  getClusterByName: publicProcedure
+  getClusterByName: protectedProcedure
     .input(z.object({ name: z.string() }))
-    .query(async ({ input }): Promise<Cluster | undefined> => {
+    .query(async ({ input, ctx }): Promise<Cluster | undefined> => {
+      const token = ctx.openstack?.getToken()
+      const client = getClient({ token: token!.authToken })
+      const namespace = `garden-${token!.tokenData.project?.id}`
+
       const parsedData = shootApiResponseSchema.safeParse(
-        await client.get(
-          `apis/core.gardener.cloud/v1beta1/namespaces/garden-${process.env.GARDENER_PROJECT}/shoots/${input.name}`
-        )
+        await client.get(`apis/core.gardener.cloud/v1beta1/namespaces/${namespace}/shoots/${input.name}`)
       )
 
       if (!parsedData.success) {
@@ -38,8 +42,11 @@ export const shootRouter = {
       const cluster = convertShootApiResponseToCluster(parsedData.data)
       return cluster
     }),
-  deleteCluster: publicProcedure.input(z.object({ name: z.string() })).mutation(async ({ input }) => {
-    const namespace = `garden-${process.env.GARDENER_PROJECT}`
+
+  deleteCluster: protectedProcedure.input(z.object({ name: z.string() })).mutation(async ({ input, ctx }) => {
+    const token = ctx.openstack?.getToken()
+    const client = getClient({ token: token!.authToken })
+    const namespace = `garden-${token!.tokenData.project?.id}`
     const clusterName = input.name
 
     try {
@@ -89,7 +96,7 @@ export const shootRouter = {
     }
   }),
 
-  createCluster: publicProcedure
+  createCluster: protectedProcedure
     .input(
       z.object({
         // Basic cluster settings
@@ -137,12 +144,16 @@ export const shootRouter = {
         updateStrategy: z.enum(["RollingUpdate", "AutoRollingUpdate"]).default("AutoRollingUpdate"),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
+      const token = ctx.openstack?.getToken()
+      const client = getClient({ token: token!.authToken })
+      const namespace = `garden-${token!.tokenData.project?.id}`
+
       // Construct the shoot object from the input
       const shoot = {
         metadata: {
           name: input.name,
-          namespace: `garden-${process.env.GARDENER_PROJECT}`,
+          namespace,
         },
         spec: {
           kubernetes: {
@@ -202,7 +213,7 @@ export const shootRouter = {
       }
 
       const response = await client
-        .post(`apis/core.gardener.cloud/v1beta1/namespaces/garden-${process.env.GARDENER_PROJECT}/shoots`, shoot)
+        .post(`apis/core.gardener.cloud/v1beta1/namespaces/${namespace}/shoots`, shoot)
         .catch(async (err) => {
           const errorBody = (await err.response?.json()) || {}
           const errorDetails = errorBody.error || errorBody.message || err.message

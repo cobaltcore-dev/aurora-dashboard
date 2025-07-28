@@ -26,7 +26,7 @@ export const CreateClusterDialogContent: React.FC<{
   const [currentStep, setCurrentStep] = useState(0)
   const [formData, setFormData] = useState<ClusterFormData>({
     name: "test-cluster",
-    cloudProfileName: "converged-cloud",
+    cloudProfileName: "openstack",
     credentialsBindingName: "app-cred-openstack",
     region: "eu-de-1",
     kubernetesVersion: "1.32.2",

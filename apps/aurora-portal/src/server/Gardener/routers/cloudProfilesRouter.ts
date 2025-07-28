@@ -1,10 +1,13 @@
-import { publicProcedure } from "../../trpc"
+import { protectedProcedure } from "../../trpc"
 import { cloudProfileListApiResponseSchema } from "../types/cloudProfileApiSchema"
 import { CloudProfile, convertCloudProfileListApiResponseToCloudProfiles } from "../types/cloudProfile"
-import { client } from "../client"
+import { getClient } from "../client"
 
 export const cloudProfilesRouter = {
-  getCloudProfiles: publicProcedure.query(async (): Promise<CloudProfile[]> => {
+  getCloudProfiles: protectedProcedure.query(async ({ ctx }): Promise<CloudProfile[]> => {
+    const token = ctx.openstack?.getToken()
+    const client = getClient({ token: token!.authToken })
+
     const parsedData = cloudProfileListApiResponseSchema.safeParse(
       await client.get("apis/core.gardener.cloud/v1beta1/cloudprofiles").catch(async (err) => {
         const errorBody = await err.response.json()
