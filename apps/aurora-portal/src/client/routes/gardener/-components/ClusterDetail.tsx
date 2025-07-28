@@ -102,8 +102,8 @@ const ClusterDetailPage: React.FC<PeakDetailPageProps> = ({ cluster }) => {
       <div className="max-w-7xl mx-auto">
         {errorMessage && <Message text={errorMessage} variant="error" />}
         <DetailLayout
-          title={t`Cluster Details`}
-          description={t`View and manage your Kubernetes cluster`}
+          title={cluster.name}
+          description={`ID: ${cluster.uid}`}
           breadcrumbLabel={t`Clusters`}
           breadcrumbActiveLabel={`${cluster.uid}`}
           onBack={handleBack}
@@ -127,7 +127,7 @@ const ClusterDetailPage: React.FC<PeakDetailPageProps> = ({ cluster }) => {
             </Box>
           ) : (
             <Stack direction="vertical" gap="10">
-              <ClusterOverviewSection cluster={cluster} handleShare={handleShare} />
+              <ClusterOverviewSection cluster={cluster} />
 
               <WorkerSection workers={cluster.workers} />
 

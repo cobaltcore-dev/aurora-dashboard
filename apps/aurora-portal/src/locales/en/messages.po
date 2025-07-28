@@ -97,10 +97,6 @@ msgstr "Cluster created successfully"
 msgid "Cluster deleted successfully"
 msgstr "Cluster deleted successfully"
 
-#: src/client/routes/gardener/-components/ClusterDetail.tsx:105
-msgid "Cluster Details"
-msgstr "Cluster Details"
-
 #: src/client/routes/gardener/-components/ClusterDetail.tsx:66
 msgid "Cluster details copied to clipboard!"
 msgstr "Cluster details copied to clipboard!"
@@ -201,13 +197,14 @@ msgstr "Get Involved"
 
 #: src/client/routes/gardener/-components/ClusterDetail/WorkerSection.tsx:22
 msgid "Image"
-msgstr "Image"
+msgstr "Image<<<<<<< Updated upstream"
 
 #: src/client/routes/gardener/-components/ClusterWizard/WorkerPool.tsx:110
 msgid "Image Version"
 msgstr "Image Version"
 
-#: src/client/routes/gardener/-components/ClusterDetail/ClusterOverviewSection.tsx:66
+#: src/client/routes/gardener/-components/ClusterDetail/ClusterOverviewSection.tsx:58
+#: src/client/routes/gardener/-components/ClusterDetail/ClusterOverviewSection.tsx:61
 msgid "Infrastructure"
 msgstr "Infrastructure"
 
@@ -215,15 +212,11 @@ msgstr "Infrastructure"
 msgid "Infrastructure Configuration"
 msgstr "Infrastructure Configuration"
 
-#: src/client/routes/gardener/-components/ClusterDetail/ClusterOverviewSection.tsx:70
-msgid "Infrastructure:"
-msgstr "Infrastructure:"
-
 #: src/client/routes/about.tsx:34
 msgid "Key Features"
 msgstr "Key Features"
 
-#: src/client/routes/gardener/-components/ClusterDetail/ClusterOverviewSection.tsx:86
+#: src/client/routes/gardener/-components/ClusterDetail/ClusterOverviewSection.tsx:76
 msgid "Kubernetes"
 msgstr "Kubernetes"
 
@@ -338,13 +331,13 @@ msgstr "Pods CIDR"
 msgid "Raw JSON Data for"
 msgstr "Raw JSON Data for"
 
-#: src/client/routes/gardener/-components/ClusterDetail/ClusterOverviewSection.tsx:100
-msgid "Readiness:"
-msgstr "Readiness:"
+#: src/client/routes/gardener/-components/ClusterDetail/ClusterOverviewSection.tsx:83
+msgid "Readiness"
+msgstr "Readiness"
 
-#: src/client/routes/gardener/-components/ClusterDetail/ClusterOverviewSection.tsx:80
-msgid "Region:"
-msgstr "Region:"
+#: src/client/routes/gardener/-components/ClusterDetail/ClusterOverviewSection.tsx:72
+msgid "Region"
+msgstr "Region"
 
 #: src/client/routes/gardener/-components/ClusterDetail/WorkerSection.tsx:25
 msgid "Scaling"
@@ -369,6 +362,10 @@ msgstr "Sign In"
 #: src/client/routes/gardener/-components/ClusterDetail/SettingsSection.tsx:30
 msgid "Start Time:"
 msgstr "Start Time:"
+
+#: src/client/routes/gardener/-components/ClusterDetail/ClusterOverviewSection.tsx:67
+msgid "Status"
+msgstr "Status"
 
 #: src/client/routes/index.tsx:81
 msgid "Stay tuned — Aurora Dashboard is launching soon to streamline your cloud management experience!"
@@ -407,13 +404,9 @@ msgstr "Unknown error"
 msgid "User C/D/I"
 msgstr "User C/D/I"
 
-#: src/client/routes/gardener/-components/ClusterDetail/ClusterOverviewSection.tsx:90
-msgid "Version:"
-msgstr "Version:"
-
-#: src/client/routes/gardener/-components/ClusterDetail.tsx:106
-msgid "View and manage your Kubernetes cluster"
-msgstr "View and manage your Kubernetes cluster"
+#: src/client/routes/gardener/-components/ClusterDetail/ClusterOverviewSection.tsx:79
+msgid "Version"
+msgstr "Version"
 
 #: src/client/routes/about.tsx:108
 msgid "We are building Aurora Dashboard to serve you better. Your feedback is invaluable in shaping a tool that meets the unique needs of businesses like yours. Stay connected and join us as we redefine cloud management."
