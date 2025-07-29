@@ -1,9 +1,15 @@
 import React from "react"
-import { Stack, Badge } from "@cloudoperators/juno-ui-components"
+import {
+  Container,
+  DataGrid,
+  DataGridCell,
+  DataGridHeadCell,
+  ContentHeading,
+  DataGridRow,
+  Badge,
+} from "@cloudoperators/juno-ui-components"
 import { Cluster } from "@/server/Gardener/types/cluster"
-import { useLingui, Trans } from "@lingui/react/macro"
-import Section from "./Section"
-import DataRow from "./DataRow"
+import { useLingui } from "@lingui/react/macro"
 
 interface SettingsSectionProps {
   maintenance: Cluster["maintenance"]
@@ -14,66 +20,61 @@ const SettingsSection: React.FC<SettingsSectionProps> = ({ maintenance, autoUpda
   const { t } = useLingui()
 
   return (
-    <Stack gap="10" direction="vertical">
-      <Section
-        title={
-          <Stack gap="2">
-            <h4 className={"text-xl font-semibold leading-none tracking-tight text-theme-highest"}>
-              <Trans>Maintenance Window</Trans>
-            </h4>{" "}
-            {maintenance.startTime && <Badge variant="warning" text="Scheduled" />}
-          </Stack>
-        }
-        rows={[
-          <DataRow
-            key="startTime"
-            label={t`Start Time:`}
-            content={<span className="text-theme-high">{maintenance.startTime}</span>}
-          />,
-          <DataRow
-            key="windowTime"
-            label={t`Window Time:`}
-            content={<span className="text-theme-high">{maintenance.windowTime}</span>}
-          />,
-          <DataRow
-            key="timeZone"
-            label={t`Timezone:`}
-            content={<span className="text-theme-high">{maintenance.timezone}</span>}
-          />,
-        ]}
-      />
-      <Section
-        title={t`Auto Update`}
-        rows={[
-          <DataRow
-            key="osUpdates"
-            label={t`OS Updates:`}
-            content={
-              <span className="text-theme-high">
-                {autoUpdate.os ? (
-                  <Badge variant="success" text="Enabled" icon="checkCircle" />
-                ) : (
-                  <Badge variant="error" text="Disabled" icon="errorOutline" />
-                )}
-              </span>
-            }
-          />,
-          <DataRow
-            key="kubernetesUpdates"
-            label={t`Kubernetes Updates:`}
-            content={
-              <span className="text-theme-high">
-                {autoUpdate.kubernetes ? (
-                  <Badge variant="success" text="Enabled" icon="checkCircle" />
-                ) : (
-                  <Badge variant="error" text="Disabled" icon="errorOutline" />
-                )}
-              </span>
-            }
-          />,
-        ]}
-      ></Section>
-    </Stack>
+    <Container px={false} py>
+      <ContentHeading>
+        {t`Maintenance Window`} {maintenance.startTime && <Badge variant="warning" text="Scheduled" />}
+      </ContentHeading>
+      <DataGrid columns={2}>
+        <DataGridRow>
+          <DataGridHeadCell>{t`Start Time`}</DataGridHeadCell>
+          <DataGridCell>{maintenance.startTime}</DataGridCell>
+        </DataGridRow>
+
+        <DataGridRow>
+          <DataGridHeadCell>{t`Window Time`}</DataGridHeadCell>
+          <DataGridCell>
+            <span className="capitalize">{maintenance.windowTime}</span>
+          </DataGridCell>
+        </DataGridRow>
+
+        <DataGridRow>
+          <DataGridHeadCell>{t`Timezone`}</DataGridHeadCell>
+          <DataGridCell>{maintenance.timezone} </DataGridCell>
+        </DataGridRow>
+      </DataGrid>
+
+      <ContentHeading className="mt-6">
+        {t`Auto Update`} {maintenance.startTime && <Badge variant="warning" text="Scheduled" />}
+      </ContentHeading>
+      <DataGrid columns={2}>
+        <DataGridRow>
+          <DataGridHeadCell>{t`OS Updates`}</DataGridHeadCell>
+          <DataGridCell>
+            {" "}
+            <span className="text-theme-high">
+              {autoUpdate.os ? (
+                <Badge variant="success" text="Enabled" icon="checkCircle" />
+              ) : (
+                <Badge variant="error" text="Disabled" icon="errorOutline" />
+              )}
+            </span>
+          </DataGridCell>
+        </DataGridRow>
+
+        <DataGridRow>
+          <DataGridHeadCell>{t`Kubernetes Updates`}</DataGridHeadCell>
+          <DataGridCell>
+            <span className="text-theme-high">
+              {autoUpdate.kubernetes ? (
+                <Badge variant="success" text="Enabled" icon="checkCircle" />
+              ) : (
+                <Badge variant="error" text="Disabled" icon="errorOutline" />
+              )}
+            </span>
+          </DataGridCell>
+        </DataGridRow>
+      </DataGrid>
+    </Container>
   )
 }
 
