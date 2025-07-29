@@ -24,7 +24,7 @@ function RouteComponent() {
       <div className="w-full flex">
         <ProjectSubNavigation />
       </div>
-      <div className="py-4 pl-4 h-full">
+      <div className="py-4 pl-4 bg-theme-background-lvl-0 h-full">
         <Outlet /> {/* This is where child routes will render */}
       </div>
     </div>
