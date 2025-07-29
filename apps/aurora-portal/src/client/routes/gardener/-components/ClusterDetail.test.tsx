@@ -82,12 +82,6 @@ describe("ClusterDetailPage", () => {
     })
   })
 
-  it("renders cluster details", () => {
-    setup()
-
-    expect(screen.getByText("Cluster Details")).toBeInTheDocument()
-  })
-
   it("navigates back when breadcrumb is clicked", () => {
     setup()
 

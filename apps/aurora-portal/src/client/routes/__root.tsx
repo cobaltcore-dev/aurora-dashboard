@@ -49,7 +49,7 @@ function AuroraLayout({ mainNavItems = [] }: NavigationLayoutProps) {
   ]
   const items = mainNavItems.length > 0 ? mainNavItems : defaultItems
   return (
-    <div className="flex flex-col w-full bg-theme-background-lvl-1">
+    <div className="flex flex-col w-full ">
       {/* Main Navigation with minimal height */}
       <div className="px-2 py-1">
         {/* Reduced padding */}

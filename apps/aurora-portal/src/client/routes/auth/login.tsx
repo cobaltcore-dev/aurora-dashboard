@@ -4,7 +4,7 @@ import { useAuth } from "../../store/AuthProvider"
 import { z } from "zod"
 import { trpcClient } from "../../trpcClient"
 import { Trans, useLingui } from "@lingui/react/macro"
-import { Button } from "@cloudoperators/juno-ui-components"
+import { Button, ContentHeading } from "@cloudoperators/juno-ui-components"
 
 export const Route = createFileRoute("/auth/login")({
   validateSearch: z.object({
@@ -88,10 +88,10 @@ export function AuthLoginPage() {
   return (
     <div className="flex min-h-screen items-center justify-center">
       <div className="w-full max-w-md shadow-lg rounded-lg p-6 border border-gray-700 bg-gray-900">
-        <h2 className="text-2xl font-semibold text-center text-white mb-4">
+        <ContentHeading className="text-center ">
           <Trans>Login to Your Account</Trans>
-        </h2>
-        <p className="text-gray-400 text-center text-sm mb-6">
+        </ContentHeading>
+        <p className=" text-center  mb-6">
           <Trans>Enter your credentials to access your account</Trans>
         </p>
 

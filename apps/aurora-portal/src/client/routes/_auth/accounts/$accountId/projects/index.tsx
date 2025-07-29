@@ -70,7 +70,7 @@ export function ProjectsOverview() {
       <div className="w-full flex">
         <AccountSubNavigation />
       </div>
-      <div className="py-4 pl-4 bg-theme-global-bg h-full">
+      <div className="py-4 pl-4 h-full">
         <div className="grid grid-cols-12 gap-4 px-6 py-4">
           {/* Left Space */}
           <div className="col-span-2"></div>
