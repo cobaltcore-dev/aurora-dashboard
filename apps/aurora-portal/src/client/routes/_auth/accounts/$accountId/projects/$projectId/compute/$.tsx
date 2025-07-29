@@ -1,4 +1,4 @@
-import { createFileRoute, ErrorComponent, useParams } from "@tanstack/react-router"
+import { createFileRoute, useParams } from "@tanstack/react-router"
 import { useState } from "react"
 import { ErrorBoundary } from "react-error-boundary"
 import { ComputeNavBar, ComputeSideNavBar } from "./-components/ComputeNavBar"
@@ -11,15 +11,7 @@ import { ServerGroups } from "./-components/ServerGroups/List"
 
 export const Route = createFileRoute("/_auth/accounts/$accountId/projects/$projectId/compute/$")({
   component: RouteComponent,
-  errorComponent: ({ error }) => {
-    if (error instanceof Error) {
-      // Render a custom error message
-      return <div>{error.message}</div>
-    }
 
-    // Fallback to the default ErrorComponent
-    return <ErrorComponent error={error} />
-  },
   notFoundComponent: () => {
     return <p>Project not found</p>
   },

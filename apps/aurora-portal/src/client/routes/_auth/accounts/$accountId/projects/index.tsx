@@ -1,4 +1,4 @@
-import { createFileRoute, ErrorComponent } from "@tanstack/react-router"
+import { createFileRoute } from "@tanstack/react-router"
 import { useState } from "react"
 import { ProjectsOverviewNavBar, ViewMode } from "./-components/ProjectOverviewNavBar"
 import { ProjectCardView } from "./-components/ProjectCardView"
@@ -12,15 +12,6 @@ const searchSchema = z.object({
 
 export const Route = createFileRoute("/_auth/accounts/$accountId/projects/")({
   component: ProjectsOverview,
-  errorComponent: ({ error }) => {
-    if (error instanceof Error) {
-      // Render a custom error message
-      return <div>{error.message}</div>
-    }
-
-    // Fallback to the default ErrorComponent
-    return <ErrorComponent error={error} />
-  },
   notFoundComponent: () => {
     return <p>Projects not found</p>
   },

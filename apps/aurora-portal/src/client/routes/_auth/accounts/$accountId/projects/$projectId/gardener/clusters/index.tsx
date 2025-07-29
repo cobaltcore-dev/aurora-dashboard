@@ -12,8 +12,10 @@ import { FilterSettings } from "../-components/Filters/types"
 
 export const Route = createFileRoute("/_auth/accounts/$accountId/projects/$projectId/gardener/clusters/")({
   component: RouteComponent,
-  loader: async ({ context }) => {
-    const clusters = await context.trpcClient?.gardener.getClusters.query()
+  loader: async ({ context, params }) => {
+    const clusters = await context.trpcClient?.gardener.getClustersByProjectId.query({
+      projectId: params.projectId || "",
+    })
 
     return {
       clusters: clusters,

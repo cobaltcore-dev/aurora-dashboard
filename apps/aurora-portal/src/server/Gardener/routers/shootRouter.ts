@@ -6,23 +6,27 @@ import { TRPCError } from "@trpc/server"
 import { z } from "zod"
 
 export const shootRouter = {
-  getClusters: protectedProcedure.query(async ({ ctx }) => {
-    const token = ctx.openstack?.getToken()
-    const client = getClient({ token: token!.authToken })
-    const namespace = `garden-${token!.tokenData.project?.id}`
+  getClustersByProjectId: protectedProcedure
+    .input(z.object({ projectId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const openstackSession = await ctx.rescopeSession({ projectId: input.projectId })
+      const token = openstackSession?.getToken()
+      const client = getClient({ token: token!.authToken })
+      const namespace = `garden-${token!.tokenData.project?.id}`
 
-    const parsedData = shootListApiResponseSchema.safeParse(
-      await client.get(`apis/core.gardener.cloud/v1beta1/namespaces/${namespace}/shoots`).catch(async (err) => {
-        throw new TRPCError({
-          code: err.code || "INTERNAL_SERVER_ERROR",
-          message: `${err.message}, ${err.cause}`,
+      const parsedData = shootListApiResponseSchema.safeParse(
+        await client.get(`apis/core.gardener.cloud/v1beta1/namespaces/${namespace}/shoots`).catch(async (err) => {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: `Failed to fetch clusters: ${err.message}`,
+            cause: err.cause,
+          })
         })
-      })
-    )
-    console.log("Parsed Data:", parsedData?.error)
-    const clusters = convertShootListApiSchemaToClusters(parsedData.data?.items || [])
-    return clusters
-  }),
+      )
+      console.log("Parsed Data:", parsedData?.error)
+      const clusters = convertShootListApiSchemaToClusters(parsedData.data?.items || [])
+      return clusters
+    }),
 
   getClusterByName: protectedProcedure
     .input(z.object({ name: z.string() }))
