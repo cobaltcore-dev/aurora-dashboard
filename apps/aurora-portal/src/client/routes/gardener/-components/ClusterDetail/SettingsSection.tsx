@@ -22,7 +22,7 @@ const SettingsSection: React.FC<SettingsSectionProps> = ({ maintenance, autoUpda
   return (
     <Container px={false} py>
       <ContentHeading>{t`Maintenance Window`} </ContentHeading>
-      <DataGrid columns={2}>
+      <DataGrid columns={2} gridColumnTemplate="38% auto">
         <DataGridRow>
           <DataGridHeadCell>{t`Start Time`}</DataGridHeadCell>
           <DataGridCell>{maintenance.startTime}</DataGridCell>
@@ -42,7 +42,7 @@ const SettingsSection: React.FC<SettingsSectionProps> = ({ maintenance, autoUpda
       </DataGrid>
 
       <ContentHeading className="mt-6">{t`Auto Update`}</ContentHeading>
-      <DataGrid columns={2}>
+      <DataGrid columns={2} gridColumnTemplate="38% auto">
         <DataGridRow>
           <DataGridHeadCell>{t`OS Updates`}</DataGridHeadCell>
           <DataGridCell>

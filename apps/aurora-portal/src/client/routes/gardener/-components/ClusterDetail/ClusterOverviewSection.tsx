@@ -56,7 +56,7 @@ const ClusterOverviewSection: React.FC<ClusterOverviewSectionProps> = ({ cluster
   return (
     <Container px={false} py>
       <ContentHeading>{t`Infrastructure`}</ContentHeading>
-      <DataGrid columns={2}>
+      <DataGrid columns={2} gridColumnTemplate="38% auto">
         <DataGridRow>
           <DataGridHeadCell>{t`Infrastructure`}</DataGridHeadCell>
           <DataGridCell>
@@ -74,7 +74,7 @@ const ClusterOverviewSection: React.FC<ClusterOverviewSectionProps> = ({ cluster
         </DataGridRow>
       </DataGrid>
       <ContentHeading className="mt-6">{t`Kubernetes`}</ContentHeading>
-      <DataGrid columns={2}>
+      <DataGrid columns={2} gridColumnTemplate="38% auto">
         <DataGridRow>
           <DataGridHeadCell>{t`Version`}</DataGridHeadCell>
           <DataGridCell>{cluster.version}</DataGridCell>
