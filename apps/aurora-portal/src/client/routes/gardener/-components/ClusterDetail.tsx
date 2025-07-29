@@ -62,7 +62,7 @@ const ClusterDetailPage: React.FC<PeakDetailPageProps> = ({ cluster }) => {
         variant: "success",
         children: (
           <Stack direction="vertical" gap="1.5">
-            <span className="text-theme-heigh font-semibold">
+            <span>
               <Trans>Cluster details copied to clipboard!</Trans>
             </span>
             <span className="text-theme-light">
@@ -80,7 +80,7 @@ const ClusterDetailPage: React.FC<PeakDetailPageProps> = ({ cluster }) => {
         variant: "error",
         children: (
           <Stack direction="vertical" gap="1.5">
-            <span className="text-theme-heigh font-semibold">
+            <span>
               <Trans>Failed to copy to clipboard</Trans>
             </span>
             <span className="text-theme-light">

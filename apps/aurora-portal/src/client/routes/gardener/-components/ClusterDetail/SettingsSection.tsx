@@ -21,9 +21,7 @@ const SettingsSection: React.FC<SettingsSectionProps> = ({ maintenance, autoUpda
 
   return (
     <Container px={false} py>
-      <ContentHeading>
-        {t`Maintenance Window`} {maintenance.startTime && <Badge variant="warning" text="Scheduled" />}
-      </ContentHeading>
+      <ContentHeading>{t`Maintenance Window`} </ContentHeading>
       <DataGrid columns={2}>
         <DataGridRow>
           <DataGridHeadCell>{t`Start Time`}</DataGridHeadCell>
@@ -43,15 +41,12 @@ const SettingsSection: React.FC<SettingsSectionProps> = ({ maintenance, autoUpda
         </DataGridRow>
       </DataGrid>
 
-      <ContentHeading className="mt-6">
-        {t`Auto Update`} {maintenance.startTime && <Badge variant="warning" text="Scheduled" />}
-      </ContentHeading>
+      <ContentHeading className="mt-6">{t`Auto Update`}</ContentHeading>
       <DataGrid columns={2}>
         <DataGridRow>
           <DataGridHeadCell>{t`OS Updates`}</DataGridHeadCell>
           <DataGridCell>
-            {" "}
-            <span className="text-theme-high">
+            <span>
               {autoUpdate.os ? (
                 <Badge variant="success" text="Enabled" icon="checkCircle" />
               ) : (
@@ -64,7 +59,7 @@ const SettingsSection: React.FC<SettingsSectionProps> = ({ maintenance, autoUpda
         <DataGridRow>
           <DataGridHeadCell>{t`Kubernetes Updates`}</DataGridHeadCell>
           <DataGridCell>
-            <span className="text-theme-high">
+            <span>
               {autoUpdate.kubernetes ? (
                 <Badge variant="success" text="Enabled" icon="checkCircle" />
               ) : (

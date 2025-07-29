@@ -82,7 +82,9 @@ const ClusterOverviewSection: React.FC<ClusterOverviewSectionProps> = ({ cluster
         <DataGridRow>
           <DataGridHeadCell>{t`Readiness`}</DataGridHeadCell>
           <DataGridCell>
-            <Badge variant={statusStyles.variant} icon={statusStyles.icon} text={cluster.readiness.status}></Badge>
+            <span>
+              <Badge variant={statusStyles.variant} icon={statusStyles.icon} text={cluster.readiness.status}></Badge>
+            </span>
           </DataGridCell>
         </DataGridRow>
       </DataGrid>

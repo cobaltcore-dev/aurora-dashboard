@@ -21,7 +21,7 @@ const App = (props: AppProps) => (
     )}
   >
     <I18nProvider i18n={i18n}>
-      <AppShellProvider shadowRoot={false} theme={`${props.theme ? props.theme : "theme-dark"}`}>
+      <AppShellProvider shadowRoot={false} theme={`${props.theme ? props.theme : "theme-light"}`}>
         <AppShell topNavigation={false} pageHeader={true} embedded={true}>
           <style>{styles.toString()}</style>
           <Toaster theme="dark" position="top-center" />
