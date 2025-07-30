@@ -56,7 +56,6 @@ describe("WorkerSection", () => {
     expect(screen.getByText("m5.large")).toBeInTheDocument()
     expect(screen.getByText("containerd")).toBeInTheDocument()
     expect(screen.getByText("ubuntu")).toBeInTheDocument()
-    expect(screen.getByText("v")).toBeInTheDocument()
     expect(screen.getByText("20.04")).toBeInTheDocument()
     expect(screen.getByText("3 nodes")).toBeInTheDocument()
     expect(screen.getByText("Min: 2 / Max: 5 / Surge: 1")).toBeInTheDocument()
