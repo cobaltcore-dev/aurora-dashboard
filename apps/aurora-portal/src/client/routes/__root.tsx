@@ -62,9 +62,9 @@ function AuroraLayout({ mainNavItems = [] }: NavigationLayoutProps) {
 
         {/* Overlay spinner when loading */}
         {isLoading && (
-          <Stack className="fixed inset-0 z-50" distribution="center" alignment="center">
+          <Stack className="fixed inset-0" distribution="center" alignment="center">
             {/* Backdrop */}
-            <div className="absolute inset-0 bg-gradient-to-b from-bg-theme-background-lvl-5 to-bg-theme-background-lvl-1 backdrop-blur-sm" />
+            <div className="absolute inset-0 backdrop-blur-sm" />
             <Spinner variant="primary" size="large" />
           </Stack>
         )}
