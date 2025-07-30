@@ -1,12 +1,12 @@
 import { Outlet, createRootRouteWithContext, useRouterState } from "@tanstack/react-router"
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools"
+import { Spinner, Stack } from "@cloudoperators/juno-ui-components"
 // NavigationLayout.tsx
 import { MainNavigation } from "../components/navigation/MainNavigation"
 import { NavigationItem } from "../components/navigation/types"
 
 import { TrpcClient } from "../trpcClient"
 import { AuthContext } from "../store/AuthProvider"
-import { Spinner } from "../components/Spiner" // Adjust the path if necessary
 import { useEffect, useState } from "react"
 
 interface NavigationLayoutProps {
@@ -62,15 +62,11 @@ function AuroraLayout({ mainNavItems = [] }: NavigationLayoutProps) {
 
         {/* Overlay spinner when loading */}
         {isLoading && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <Stack className="fixed inset-0 z-50" distribution="center" alignment="center">
             {/* Backdrop */}
-            <div className="absolute inset-0 bg-gradient-to-b from-aurora-gray-950/80 to-aurora-gray-900/80 backdrop-blur-sm" />
-
-            {/* Spinner container */}
-            <div className="relative bg-aurora-gray-900/95 rounded-2xl p-8 shadow-2xl border border-aurora-gray-800">
-              <Spinner show={isLoading} fullscreen size="lg" text="Loading..." />
-            </div>
-          </div>
+            <div className="absolute inset-0 bg-gradient-to-b from-bg-theme-background-lvl-5 to-bg-theme-background-lvl-1 backdrop-blur-sm" />
+            <Spinner variant="primary" size="large" />
+          </Stack>
         )}
       </div>
       <TanStackRouterDevtools initialIsOpen={false} position="bottom-right" />
