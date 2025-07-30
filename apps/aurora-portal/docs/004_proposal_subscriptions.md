@@ -248,12 +248,9 @@ import { observable } from "@trpc/server/observable"
 export const sseRouter = {
   subscribe: protectedProcedure.subscription(() => {
     return observable<UpdateType>((emit) => {
-      emit.next("project")
-
       const unsubscribe = updateService.subscribe((type) => {
         emit.next(type)
       })
-
       return unsubscribe
     })
   }),
