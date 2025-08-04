@@ -1,0 +1,28 @@
+import { z } from "zod"
+
+const linkSchema = z.object({
+  href: z.string().url().nullable().optional(),
+  rel: z.string().nullable().optional(),
+})
+
+export const flavorSchema = z.object({
+  "OS-FLV-DISABLED:disabled": z.boolean().nullable().optional(),
+  "OS-FLV-EXT-DATA:ephemeral": z.number().nullable().optional(),
+  "os-flavor-access:is_public": z.boolean().nullable().optional(),
+  id: z.string(),
+  name: z.string().optional(),
+  vcpus: z.number().optional(),
+  ram: z.number().optional(),
+  disk: z.number().optional(),
+  swap: z.number().optional(),
+  rxtx_factor: z.number().optional(),
+  description: z.string().nullable().optional(),
+  links: z.array(linkSchema).optional(),
+  extra_specs: z.record(z.string()).optional(),
+})
+
+export const flavorResponseSchema = z.object({
+  flavors: z.array(flavorSchema),
+})
+
+export type Flavor = z.infer<typeof flavorSchema>

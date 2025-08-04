@@ -25,6 +25,7 @@ export const ComputeSideNavBar = () => {
     { path: `${computeRootPath}/images`, label: "Images" },
     { path: `${computeRootPath}/keypairs`, label: "Key Pairs" },
     { path: `${computeRootPath}/servergroups`, label: "Server Groups" },
+    { path: `${computeRootPath}/flavors`, label: "Flavors" },
   ]
 
   return (
