@@ -24,8 +24,16 @@ export const accessReviewRouter = {
           },
         })
         .catch(async (err) => {
-          const errorBody = await err.response.json()
-          const errorDetails = errorBody.error || errorBody.message || err.message
+          let errorDetails = err.message
+
+          try {
+            const errorBody = await err.response.json()
+            errorDetails = errorBody.error || errorBody.message || err.message
+          } catch {
+            // If JSON parsing fails, use the original error message
+            errorDetails = err.message
+          }
+
           throw new Error(`Error fetching access review information: ${errorDetails}`)
         })
     )
