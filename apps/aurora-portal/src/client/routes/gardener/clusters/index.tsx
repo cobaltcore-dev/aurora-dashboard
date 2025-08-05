@@ -14,9 +14,11 @@ export const Route = createFileRoute("/gardener/clusters/")({
   component: RouteComponent,
   loader: async ({ context }) => {
     const clusters = await context.trpcClient?.gardener.getClusters.query()
+    const permissions = await context.trpcClient?.gardener.getAccessReviewInformation.query()
 
     return {
-      clusters: clusters,
+      clusters,
+      permissions,
       trpcClient: context.trpcClient,
     }
   },
