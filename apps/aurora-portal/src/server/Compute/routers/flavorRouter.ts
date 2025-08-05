@@ -15,12 +15,10 @@ export const flavorRouter = {
           return undefined
         }
 
-        const response = await compute.get("/compute/v2.1/flavors")
-        const rawData = await response.text() // Get the raw response as text first
+        const response = await compute.get("/compute/v2.1/flavors/detail")
+        const rawData = await response.text()
 
-        console.log("Raw response from OpenStack:", rawData) // Log the raw response
-
-        const jsonData = JSON.parse(rawData) // Attempt to parse the response as JSON
+        const jsonData = JSON.parse(rawData)
         const parsedData = flavorResponseSchema.safeParse(jsonData)
 
         if (!parsedData.success) {
