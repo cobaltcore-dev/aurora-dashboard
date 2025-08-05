@@ -4,7 +4,7 @@ import { client } from "../client"
 import { createCallerFactory, router } from "../../trpc"
 import { AuroraPortalContext } from "@/server/context"
 
-// Mock the client
+// Mock the K8s client
 vi.mock("../client", () => ({
   client: {
     get: vi.fn(),
