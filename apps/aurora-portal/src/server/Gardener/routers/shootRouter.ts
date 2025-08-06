@@ -11,8 +11,16 @@ export const shootRouter = {
       await client
         .get(`apis/core.gardener.cloud/v1beta1/namespaces/garden-${process.env.GARDENER_PROJECT}/shoots`)
         .catch(async (err) => {
-          const errorBody = await err?.response?.json()
-          const errorDetails = errorBody?.error || errorBody?.message || err.message
+          let errorDetails
+
+          try {
+            const errorBody = await err.response.json()
+            errorDetails = errorBody.error || errorBody.message || err.message
+          } catch {
+            // If JSON parsing fails, use the original error message
+            errorDetails = err.message
+          }
+
           throw new Error(`Error fetching clusters: ${errorDetails}`)
         })
     )
