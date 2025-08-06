@@ -1,11 +1,11 @@
-import { describe, it, expect, vi, beforeEach } from "vitest"
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest"
 import { cloudProfilesRouter } from "./cloudProfilesRouter"
 import { CloudProfile } from "../types/cloudProfile"
 import { client } from "../client"
 import { CloudProfileApiResponse } from "../types/cloudProfileApiSchema"
 
 import { createCallerFactory, router } from "../../trpc"
-import { AuroraPortalContext } from "@/server/context"
+import { AuroraPortalContext } from "../../context"
 
 // Mock the K8s client
 vi.mock("../client", () => ({

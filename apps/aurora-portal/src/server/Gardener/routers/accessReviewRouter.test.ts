@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest"
 import { accessReviewRouter } from "./accessReviewRouter"
 import { client } from "../client"
 import { createCallerFactory, router } from "../../trpc"
-import { AuroraPortalContext } from "@/server/context"
+import { AuroraPortalContext } from "../../context"
 
 // Mock the K8s client
 vi.mock("../client", () => ({
