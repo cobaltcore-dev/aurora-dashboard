@@ -24,7 +24,7 @@ export const accessReviewRouter = {
           },
         })
         .catch(async (err) => {
-          let errorDetails = err.message
+          let errorDetails
 
           try {
             const errorBody = await err.response.json()
