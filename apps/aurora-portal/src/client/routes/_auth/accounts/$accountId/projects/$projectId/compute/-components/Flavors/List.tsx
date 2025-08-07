@@ -7,10 +7,9 @@ import {
   DataGridHeadCell,
   DataGridRow,
   DataGridCell,
-  Select,
-  SelectOption,
   ContentHeading,
 } from "@cloudoperators/juno-ui-components"
+import FilterToolbar from "./-components/FilterToolbar"
 
 const FlavorListContainer = ({ getFlavorPromise }: { getFlavorPromise: Promise<Flavor[] | undefined> }) => {
   const flavors = use(getFlavorPromise)
@@ -63,11 +62,13 @@ interface FlavorsProps {
 export const Flavors = ({ client, project }: FlavorsProps) => {
   const [sortBy, setSortBy] = useState("name")
   const [sortDirection, setSortDirection] = useState("asc")
+  const [searchTerm, setSearchTerm] = useState("")
 
   const getFlavorsPromise = client.compute.getFlavorsByProjectId.query({
     projectId: project,
     sortBy,
     sortDirection,
+    searchTerm,
   })
 
   const handleSortByChange = (value: string | number | string[] | undefined) => {
@@ -84,22 +85,15 @@ export const Flavors = ({ client, project }: FlavorsProps) => {
 
   return (
     <>
-      <div>
-        <Select onChange={handleSortByChange} value={sortBy}>
-          <SelectOption value="name">Name</SelectOption>
-          <SelectOption value="vcpus">VCPUs</SelectOption>
-          <SelectOption value="ram">RAM</SelectOption>
-          <SelectOption value="disk">Root Disk</SelectOption>
-          <SelectOption value="OS-FLV-EXT-DATA:ephemeral">Ephemeral Disk</SelectOption>
-          <SelectOption value="swap">Swap</SelectOption>
-          <SelectOption value="rxtx_factor">RX/TX Factor</SelectOption>
-        </Select>
-        <Select onChange={handleSortDirectionChange} value={sortDirection}>
-          <SelectOption value="asc">Ascending</SelectOption>
-          <SelectOption value="desc">Descending</SelectOption>
-        </Select>
-      </div>
       <Suspense fallback={<div>Loading flavors...</div>}>
+        <FilterToolbar
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
+          sortBy={sortBy}
+          handleSortByChange={handleSortByChange}
+          sortDirection={sortDirection}
+          handleSortDirectionChange={handleSortDirectionChange}
+        />
         <FlavorListContainer getFlavorPromise={getFlavorsPromise} />
       </Suspense>
     </>

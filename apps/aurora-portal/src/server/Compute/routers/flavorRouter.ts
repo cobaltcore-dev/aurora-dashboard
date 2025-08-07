@@ -2,6 +2,13 @@ import { protectedProcedure } from "../../trpc"
 import { flavorResponseSchema, Flavor } from "../types/flavor"
 import { z } from "zod"
 
+function includesSearchTerm(flavor: Flavor, searchTerm: string): boolean {
+  const regex = new RegExp(searchTerm, "i")
+  return [flavor.name, flavor.description, ...Object.values(flavor.extra_specs || {})].some(
+    (value) => typeof value === "string" && regex.test(value)
+  )
+}
+
 export const flavorRouter = {
   getFlavorsByProjectId: protectedProcedure
     .input(
@@ -9,11 +16,12 @@ export const flavorRouter = {
         projectId: z.string(),
         sortBy: z.string().optional().default("name"),
         sortDirection: z.string().optional().default("asc"),
+        searchTerm: z.string().optional().default(""),
       })
     )
     .query(async ({ input, ctx }): Promise<Flavor[] | undefined> => {
       try {
-        const { projectId, sortBy, sortDirection } = input
+        const { projectId, sortBy, sortDirection, searchTerm } = input
 
         const openstackSession = await ctx.rescopeSession({ projectId: projectId })
         const compute = openstackSession?.service("compute")
@@ -42,7 +50,11 @@ export const flavorRouter = {
           return undefined
         }
 
-        const flavors = parsedData.data.flavors
+        let flavors = parsedData.data.flavors
+
+        flavors = flavors.filter((flavor) => {
+          return includesSearchTerm(flavor, searchTerm)
+        })
 
         flavors.sort((a, b) => {
           const key = sortBy as keyof Flavor
