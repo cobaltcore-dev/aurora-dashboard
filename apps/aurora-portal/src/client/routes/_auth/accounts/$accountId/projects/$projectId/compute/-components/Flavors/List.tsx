@@ -20,7 +20,10 @@ const FlavorListContainer = ({ getFlavorPromise }: { getFlavorPromise: Promise<F
         <DataGridRow>
           <DataGridCell colSpan={7}>
             <ContentHeading>No flavors found</ContentHeading>
-            <p>No flavors are available for this project</p>
+            <p>
+              There are no flavors available for this project with the current filters applied. Try adjusting your
+              filter criteria or create a new flavor.
+            </p>
           </DataGridCell>
         </DataGridRow>
       </DataGrid>

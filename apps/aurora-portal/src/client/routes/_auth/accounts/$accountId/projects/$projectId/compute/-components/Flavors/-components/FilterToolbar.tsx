@@ -1,7 +1,7 @@
 import React, { useState } from "react"
 import { Stack, Select, SelectOption, InputGroup, SearchInput } from "@cloudoperators/juno-ui-components"
 
-interface PeaksFilterToolbarProps {
+interface FilterToolbarProps {
   searchTerm: string
   setSearchTerm: (_term: string) => void
   sortBy: string
@@ -10,7 +10,7 @@ interface PeaksFilterToolbarProps {
   handleSortDirectionChange: (_term: string | number | string[] | undefined) => void
 }
 
-const FilterToolbar: React.FC<PeaksFilterToolbarProps> = ({
+const FilterToolbar: React.FC<FilterToolbarProps> = ({
   searchTerm,
   setSearchTerm,
   sortBy,
