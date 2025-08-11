@@ -7,17 +7,6 @@ export function includesSearchTerm(flavor: Flavor, searchTerm: string): boolean 
   )
 }
 
-export async function getComputeService(ctx: any, projectId: string) {
-  const openstackSession = await ctx.rescopeSession({ projectId })
-  const compute = openstackSession?.service("compute")
-
-  if (!compute) {
-    throw new Error("Compute service not available")
-  }
-
-  return compute
-}
-
 export async function fetchFlavors(compute: any): Promise<Flavor[]> {
   const response = await compute.get("/compute/v2.1/flavors/detail")
   const rawData = await response.text()

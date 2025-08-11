@@ -1,6 +1,6 @@
 import { protectedProcedure } from "../../trpc"
 import { z } from "zod"
-import { getComputeService, fetchFlavors, filterAndSortFlavors } from "../helpers/flavorHelpers"
+import { fetchFlavors, filterAndSortFlavors } from "../helpers/flavorHelpers"
 import { Flavor } from "../types/flavor"
 
 export const flavorRouter = {
@@ -16,7 +16,13 @@ export const flavorRouter = {
     .query(async ({ input, ctx }) => {
       try {
         const { projectId, sortBy, sortDirection, searchTerm } = input
-        const compute = await getComputeService(ctx, projectId)
+
+        const openstackSession = await ctx.rescopeSession({ projectId })
+        const compute = openstackSession?.service("compute")
+        if (!compute) {
+          throw new Error("Compute service not available")
+        }
+
         const flavors = await fetchFlavors(compute)
 
         return filterAndSortFlavors(flavors, searchTerm, sortBy as keyof Flavor, sortDirection)
