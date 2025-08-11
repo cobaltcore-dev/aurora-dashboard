@@ -1,5 +1,3 @@
-import { Button, ComboBox, ComboBoxOption } from "@cloudoperators/juno-ui-components"
-import { Icon } from "@cloudoperators/juno-ui-components"
 import { useLocation, useParams, Link } from "@tanstack/react-router"
 
 export const ComputeSideNavBar = () => {

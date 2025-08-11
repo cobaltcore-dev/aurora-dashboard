@@ -1,5 +1,4 @@
 import { createFileRoute, ErrorComponent, useParams } from "@tanstack/react-router"
-import { useState } from "react"
 import { ErrorBoundary } from "react-error-boundary"
 import { ComputeSideNavBar } from "./-components/ComputeNavBar"
 import { Overview } from "./-components/Overview"
@@ -14,11 +13,9 @@ export const Route = createFileRoute("/_auth/accounts/$accountId/projects/$proje
   component: RouteComponent,
   errorComponent: ({ error }) => {
     if (error instanceof Error) {
-      // Render a custom error message
       return <div>{error.message}</div>
     }
 
-    // Fallback to the default ErrorComponent
     return <ErrorComponent error={error} />
   },
   notFoundComponent: () => {
@@ -39,7 +36,6 @@ function RouteComponent() {
 }
 
 function ComputeDashboard({ client }: { client: TrpcClient }) {
-  const [viewMode, setViewMode] = useState<"list" | "card">("list")
   const { project, splat } = useParams({
     from: "/_auth/accounts/$accountId/projects/$projectId/compute/$",
     select: (params) => {
@@ -66,7 +62,7 @@ function ComputeDashboard({ client }: { client: TrpcClient }) {
               {(() => {
                 switch (splat) {
                   case "instances":
-                    return <Instances client={client} project={project} viewMode={viewMode} />
+                    return <Instances client={client} project={project} viewMode="list" />
                   case "images":
                     return <Images project={project} client={client} />
                   case "keypairs":
