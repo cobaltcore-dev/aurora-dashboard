@@ -1,42 +1,42 @@
 module.exports = {
-  branches: ["main"],
+  branches: ["main", "mark-semantic-release-setup"],
   repositoryUrl: "https://github.com/cobaltcore-dev/aurora-dashboard",
   plugins: [
     [
       "@semantic-release/commit-analyzer",
       {
         preset: "conventionalcommits",
+        // Release rules based on the conventional commit types and follow semantic versioning principles
         releaseRules: [
-          {
-            type: "feat",
-            release: "minor",
-          },
-          {
-            type: "fix",
-            release: "patch",
-          },
-          {
-            type: "perf",
-            release: "patch",
-          },
-          {
-            type: "refactor",
-            release: "patch",
-          },
-          {
-            type: "build",
-            scope: "deps",
-            release: "patch",
-          },
-          {
-            type: "chore",
-            scope: "deps",
-            release: "patch",
-          },
-          {
-            breaking: true,
-            release: "major",
-          },
+          // Major version bumps (breaking changes)
+          { type: "feat", breaking: true, release: "major" },
+          { type: "fix", breaking: true, release: "major" },
+          { type: "perf", breaking: true, release: "major" },
+          { type: "refactor", breaking: true, release: "major" },
+          { type: "build", breaking: true, release: "major" },
+          { type: "chore", breaking: true, release: "major" },
+          { type: "ci", breaking: true, release: "major" },
+          { type: "docs", breaking: true, release: "major" },
+          { type: "style", breaking: true, release: "major" },
+          { type: "test", breaking: true, release: "major" },
+          { type: "revert", breaking: true, release: "major" },
+
+          // Minor version bumps (new features)
+          { type: "feat", breaking: false, release: "minor" },
+
+          // Patch version bumps (bug fixes and other changes)
+          { type: "fix", breaking: false, release: "patch" },
+          { type: "perf", breaking: false, release: "patch" },
+          { type: "revert", breaking: false, release: "patch" },
+
+          // No release (maintenance and documentation)
+          { type: "build", breaking: false, release: false },
+          { type: "chore", breaking: false, release: false },
+          { type: "ci", breaking: false, release: false },
+          { type: "docs", breaking: false, release: false },
+          { type: "refactor", breaking: false, release: false },
+          { type: "style", breaking: false, release: false },
+          { type: "test", breaking: false, release: false },
         ],
       },
     ],
@@ -59,28 +59,37 @@ module.exports = {
               section: "⚡ Performance Improvements",
             },
             {
-              type: "refactor",
-              section: "♻️ Code Refactoring",
-            },
-            {
-              type: "build",
-              section: "🏗️ Build System",
-              hidden: false,
-            },
-            {
-              type: "chore",
-              section: "🔧 Maintenance",
-              hidden: false,
-            },
-            {
-              type: "test",
-              section: "✅ Tests",
-              hidden: false,
+              type: "revert",
+              section: "⏪ Reverts",
             },
             {
               type: "docs",
               section: "📚 Documentation",
-              hidden: false,
+            },
+            {
+              type: "style",
+              section: "💄 Styles",
+            },
+            {
+              type: "refactor",
+              section: "♻️ Code Refactoring",
+            },
+            {
+              type: "test",
+              section: "✅ Tests",
+            },
+            {
+              type: "build",
+              section: "🔧 Build System",
+            },
+            {
+              type: "ci",
+              section: "👷 Continuous Integration",
+            },
+            {
+              type: "chore",
+              section: "🔨 Chores",
+              hidden: true, // Optional: hide chore commits from changelog
             },
           ],
         },
