@@ -1,5 +1,5 @@
 module.exports = {
-  branches: ["main", "mark-semantic-release-setup"],
+  branches: ["main"],
   repositoryUrl: "https://github.com/cobaltcore-dev/aurora-dashboard",
   plugins: [
     [
