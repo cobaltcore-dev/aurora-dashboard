@@ -6,7 +6,7 @@ module.exports = {
       "@semantic-release/commit-analyzer",
       {
         preset: "conventionalcommits",
-        // Release rules based on the conventional commit types and follow semantic versioning principles
+        // Release rules based on the conventional commit types and semantic versioning principles
         releaseRules: [
           // Major version bumps (breaking changes)
           { type: "feat", breaking: true, release: "major" },
