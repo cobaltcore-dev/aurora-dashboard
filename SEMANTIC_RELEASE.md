@@ -56,12 +56,12 @@ Releases are triggered automatically when commits are pushed to the `main` branc
 You can trigger a release manually using GitHub Actions:
 
 1. Go to the "Actions" tab in GitHub
-2. Select "Semantic Release 🚀" workflow
+2. Select "Semantic Release" workflow
 3. Click "Run workflow"
 
 ## Configuration Files
 
-- `.releaserc.json`: Main semantic-release configuration
+- `.releaserc.js`: Main semantic-release configuration
 - `.github/workflows/semantic-release.yaml`: GitHub Actions workflow
 - `commitlint.config.mjs`: Commit message validation (already exists)
 
@@ -126,6 +126,6 @@ pnpm release:dry
 
 ## Monitoring
 
-- Watch the "Semantic Release 🚀" workflow in GitHub Actions
+- Watch the "Semantic Release" workflow in GitHub Actions
 - Check the generated `CHANGELOG.md` after each release
 - Monitor GitHub releases page for published releases
