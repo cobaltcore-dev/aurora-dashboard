@@ -1,5 +1,4 @@
-import { useState } from "react"
-import { Suspense, use } from "react"
+import { useState, useEffect } from "react"
 import { TrpcClient } from "@/client/trpcClient"
 import { Flavor } from "@/server/Compute/types/flavor"
 import {
@@ -8,11 +7,14 @@ import {
   DataGridRow,
   DataGridCell,
   ContentHeading,
+  Message,
 } from "@cloudoperators/juno-ui-components"
 import FilterToolbar from "./-components/FilterToolbar"
 
-const FlavorListContainer = ({ getFlavorPromise }: { getFlavorPromise: Promise<Flavor[] | undefined> }) => {
-  const flavors = use(getFlavorPromise)
+const FlavorListContainer = ({ flavors, isLoading }: { flavors?: Flavor[]; error?: Error; isLoading: boolean }) => {
+  if (isLoading) {
+    return <div>Loading flavors...</div>
+  }
 
   if (!flavors || flavors.length === 0) {
     return (
@@ -45,12 +47,12 @@ const FlavorListContainer = ({ getFlavorPromise }: { getFlavorPromise: Promise<F
       {flavors.map((flavor) => (
         <DataGridRow key={flavor.id}>
           <DataGridCell>{flavor.name || flavor.id}</DataGridCell>
-          <DataGridCell>{flavor.vcpus || "‐"}</DataGridCell>
-          <DataGridCell>{flavor.ram || "‐"}</DataGridCell>
-          <DataGridCell>{flavor.disk || "‐"}</DataGridCell>
-          <DataGridCell>{flavor["OS-FLV-EXT-DATA:ephemeral"] || "‐"}</DataGridCell>
-          <DataGridCell>{flavor.swap || "‐"}</DataGridCell>
-          <DataGridCell>{flavor.rxtx_factor || "‐"}</DataGridCell>
+          <DataGridCell>{flavor.vcpus || "–"}</DataGridCell>
+          <DataGridCell>{flavor.ram || "–"}</DataGridCell>
+          <DataGridCell>{flavor.disk || "–"}</DataGridCell>
+          <DataGridCell>{flavor["OS-FLV-EXT-DATA:ephemeral"] || "–"}</DataGridCell>
+          <DataGridCell>{flavor.swap || "–"}</DataGridCell>
+          <DataGridCell>{flavor.rxtx_factor || "–"}</DataGridCell>
         </DataGridRow>
       ))}
     </DataGrid>
@@ -66,13 +68,32 @@ export const Flavors = ({ client, project }: FlavorsProps) => {
   const [sortBy, setSortBy] = useState("name")
   const [sortDirection, setSortDirection] = useState("asc")
   const [searchTerm, setSearchTerm] = useState("")
+  const [flavors, setFlavors] = useState<Flavor[] | undefined>(undefined)
+  const [error, setError] = useState<Error | undefined>(undefined)
+  const [isLoading, setIsLoading] = useState(true)
 
-  const getFlavorsPromise = client.compute.getFlavorsByProjectId.query({
-    projectId: project,
-    sortBy,
-    sortDirection,
-    searchTerm,
-  })
+  useEffect(() => {
+    const fetchFlavors = async () => {
+      try {
+        setIsLoading(true)
+        setError(undefined)
+        const data = await client.compute.getFlavorsByProjectId.query({
+          projectId: project,
+          sortBy,
+          sortDirection,
+          searchTerm,
+        })
+        setFlavors(data)
+      } catch (err) {
+        console.error(err)
+        setError(err as Error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchFlavors()
+  }, [client, project, sortBy, sortDirection, searchTerm])
 
   const handleSortByChange = (value: string | number | string[] | undefined) => {
     if (value && typeof value === "string") {
@@ -86,19 +107,21 @@ export const Flavors = ({ client, project }: FlavorsProps) => {
     }
   }
 
+  if (error) {
+    return <Message text={error.message} variant="error" />
+  }
+
   return (
     <>
-      <Suspense fallback={<div>Loading flavors...</div>}>
-        <FilterToolbar
-          searchTerm={searchTerm}
-          setSearchTerm={setSearchTerm}
-          sortBy={sortBy}
-          handleSortByChange={handleSortByChange}
-          sortDirection={sortDirection}
-          handleSortDirectionChange={handleSortDirectionChange}
-        />
-        <FlavorListContainer getFlavorPromise={getFlavorsPromise} />
-      </Suspense>
+      <FilterToolbar
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
+        sortBy={sortBy}
+        handleSortByChange={handleSortByChange}
+        sortDirection={sortDirection}
+        handleSortDirectionChange={handleSortDirectionChange}
+      />
+      <FlavorListContainer flavors={flavors} isLoading={isLoading} />
     </>
   )
 }

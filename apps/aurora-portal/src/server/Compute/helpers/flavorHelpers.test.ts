@@ -7,19 +7,16 @@ const mockFlavors: Flavor[] = [
     id: "1",
     name: "flavor1",
     description: "first flavor",
-    extra_specs: { spec1: "value1" },
   },
   {
     id: "2",
     name: "flavor2",
     description: "second flavor",
-    extra_specs: { spec2: "value2" },
   },
   {
     id: "3",
     name: "flavor3",
     description: "third flavor",
-    extra_specs: { spec3: "value3" },
   },
 ]
 
@@ -29,7 +26,6 @@ describe("includesSearchTerm", () => {
       id: "1",
       name: "test flavor",
       description: "a test description",
-      extra_specs: { key1: "test value" },
     }
 
     expect(includesSearchTerm(flavor, "test")).toBe(true)
@@ -40,7 +36,6 @@ describe("includesSearchTerm", () => {
       id: "1",
       name: "flavor",
       description: "description",
-      extra_specs: { key1: "value" },
     }
 
     expect(includesSearchTerm(flavor, "test")).toBe(false)
@@ -78,19 +73,16 @@ describe("filterAndSortFlavors", () => {
         id: "1",
         name: "flavor1",
         description: "first flavor",
-        extra_specs: { spec1: "value1" },
       },
       {
         id: "2",
         name: "flavor2",
         description: "second flavor",
-        extra_specs: { spec2: "value2" },
       },
       {
         id: "3",
         name: "flavor3",
         description: "third flavor",
-        extra_specs: { spec3: "value3" },
       },
     ])
   })
