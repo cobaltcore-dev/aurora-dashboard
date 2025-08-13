@@ -1,8 +1,12 @@
 # Aurora Dashboard – Architecture Overview
 
+![Simple Arhcitecture Overview](overview.png)
+
 ## Introduction
 
-Aurora Dashboard is a modern replacement for the legacy OpenStack Horizon interface. It is designed to be fast, modular, and developer-friendly, offering a clean and type-safe experience across the stack. By following a Backend-for-Frontend (BFF) architecture, we abstract away OpenStack complexity and deliver a UI that is decoupled, composable, and scalable.
+Aurora Dashboard is an alternative OpenStack user dashboard, inspired by the [SAP Cloud Infrastructure Elektra dashboard](https://github.com/SAP-cloud-infrastructure/elektra). Its focus is on allowing fine-grained control and self-service for end users as well as integrating interfaces for related non-OpenStack services. It is designed to be usable with a vanilla OpenStack installation but offers extensibility and configurability for specific custom usecases.
+
+Aurora Dashboard is designed to be fast, modular, and developer-friendly, offering a clean and type-safe experience across the stack. By following a Backend-for-Frontend (BFF) architecture, we abstract away OpenStack complexity and deliver a UI that is decoupled, composable, and scalable.
 
 This document describes the architecture, conventions, technologies, and implementation strategies used to build and maintain the Aurora Dashboard.
 
@@ -51,7 +55,7 @@ To maximize DX and enable type-safe navigation:
 - All route files for dynamic segments use a $ prefix, e.g. /$projectId.tsx
 - UI subfolders that shouldn’t become routes (e.g., components) are prefixed with -, e.g. `-components/`
 - Each route export `component`, `loader`, and optionally `beforeLoad`
-- Internal folders like are excluded from route generation
+- Internal folders like `-components` are excluded from route generation
 
 Example route tree:
 
@@ -210,7 +214,7 @@ describe("OpenStack Keypair Schema", () => {
 
 ### Lingui + Vitest Setup
 
-All component tests use `I18nProvider` and activate language context via `act()`.
+All component tests use `I18nProvider` english locale is default if not language is provided and activate language context via `act()`.
 
 ```tsx
 import { render, act } from "@testing-library/react"
@@ -234,6 +238,36 @@ test("should translate to German", async () => {
 Aurora primarily targets OpenStack APIs, but we also integrate with **Gardener**, a Kubernetes-native service management platform. Gardener provides a standardized Kubernetes API abstraction for managing clusters and infrastructure services, which fits well into our model for domain-scoped control and tRPC-driven orchestration.
 
 ---
+
+## Release Process – Semantic Release
+
+We use **Semantic Release** to automate our versioning, changelog creation, and release tagging based on commit history.
+
+### How It Works
+
+Our release process has two main steps:
+
+1. **Release Stage**  
+   Triggered by the `release` command. It runs Semantic Release, which:
+   - Analyzes commit messages using the **Conventional Commits** format
+   - Decides the next version (major, minor, or patch)
+   - Generates a changelog automatically
+   - Tags the release in Git
+
+2. **Promotion Stage**  
+   Triggered manually via a `promote` command. It:
+   - Selects the Git tag created during the release
+   - Deploys it to production
+
+### Why We Use It
+
+- No manual versioning – everything is based on commits
+- Automatic changelog generation
+- Clear and traceable releases
+- Safer, controlled production deployment
+
+This setup reduces manual work and keeps our releases consistent and predictable.
+![Release diagram](release.png)
 
 ## Summary
 
