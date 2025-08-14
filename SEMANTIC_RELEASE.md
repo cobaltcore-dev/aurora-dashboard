@@ -85,9 +85,6 @@ The following secrets must be configured in GitHub repository settings:
 
 Semantic Release runs after successful:
 
-- Tests (`pnpm test`)
-- Linting (`pnpm lint`)
-- Type checking (`pnpm typecheck`)
 - Build (`pnpm build`)
 
 ## Dry Run
