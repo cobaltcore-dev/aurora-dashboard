@@ -5,6 +5,12 @@ if [ "$2" = "commit" ]; then
   exit 0
 fi
 
+# Skip commitizen when using -m flag (commit message provided directly)
+if [ "$2" = "message" ]; then
+  echo "Skipping prepare-commit-msg hook due to -m flag."
+  exit 0
+fi
+
 # If we're in the middle of an interactive rebase, GIT_SEQUENCE_EDITOR will be set.
 # We'll skip the hook in this case as well.
 if [ -n "$GIT_SEQUENCE_EDITOR" ]; then
