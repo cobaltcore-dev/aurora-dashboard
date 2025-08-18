@@ -11,6 +11,18 @@ if [ "$2" = "message" ]; then
   exit 0
 fi
 
+# Skip commitizen for merge commits
+if [ "$2" = "merge" ]; then
+  echo "Skipping prepare-commit-msg hook due to merge."
+  exit 0
+fi
+
+# Skip commitizen for squash commits
+if [ "$2" = "squash" ]; then
+  echo "Skipping prepare-commit-msg hook due to squash."
+  exit 0
+fi
+
 # If we're in the middle of an interactive rebase, GIT_SEQUENCE_EDITOR will be set.
 # We'll skip the hook in this case as well.
 if [ -n "$GIT_SEQUENCE_EDITOR" ]; then
