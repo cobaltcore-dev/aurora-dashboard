@@ -1,6 +1,5 @@
 import { z } from "zod"
 
-// Resource attributes schema for the spec
 const ResourceAttributesSchema = z.object({
   namespace: z.string().optional(),
   verb: z.string(),
@@ -11,7 +10,6 @@ const ResourceAttributesSchema = z.object({
   version: z.string().optional(),
 })
 
-// Spec schema
 const SpecSchema = z.object({
   resourceAttributes: ResourceAttributesSchema.optional(),
   nonResourceAttributes: z
@@ -22,7 +20,6 @@ const SpecSchema = z.object({
     .optional(),
 })
 
-// Status schema
 const StatusSchema = z.object({
   allowed: z.boolean(),
   denied: z.boolean().optional(),
@@ -30,7 +27,6 @@ const StatusSchema = z.object({
   evaluationError: z.string().optional(),
 })
 
-// Main SelfSubjectAccessReview schema (without metadata)
 export const AccessReviewApiResponseSchema = z.object({
   kind: z.literal("SelfSubjectAccessReview"),
   apiVersion: z.string(),
@@ -40,6 +36,5 @@ export const AccessReviewApiResponseSchema = z.object({
 
 export const SelfSubjectAccessReviewListSchema = z.array(AccessReviewApiResponseSchema)
 
-// Type inference
 export type SelfSubjectAccessReview = z.infer<typeof AccessReviewApiResponseSchema>
 export type ResourceAttributes = z.infer<typeof ResourceAttributesSchema>
