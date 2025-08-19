@@ -5,6 +5,7 @@ const t = initTRPC.context<AuroraPortalContext>().create()
 export const auroraRouter = t.router
 export const mergeRouters = t.mergeRouters
 export const publicProcedure = t.procedure
+export const createCallerFactory = t.createCallerFactory
 
 export const protectedProcedure = publicProcedure.use(async function isAuthenticated(opts) {
   if (opts.ctx.validateSession() === false) {

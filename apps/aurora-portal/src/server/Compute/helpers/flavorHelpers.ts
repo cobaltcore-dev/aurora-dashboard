@@ -10,7 +10,6 @@ export function includesSearchTerm(flavor: Flavor, searchTerm: string): boolean 
 
 export async function fetchFlavors(compute: any): Promise<Flavor[]> {
   const response = await compute.get("/compute/v2.1/flavors/detail")
-
   if (!response.ok) {
     const statusCode = response.status
 
