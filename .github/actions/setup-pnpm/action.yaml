@@ -17,7 +17,7 @@ runs:
   using: "composite"
   steps:
     - name: Setup Node.js
-      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6 # v4.0.4
       with:
         node-version: ${{ inputs.node-version }}
 
@@ -28,14 +28,14 @@ runs:
 
     - name: Cache pnpm store and node_modules
       id: cache-pnpm
-      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      uses: actions/cache@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
       with:
         path: |
           ~/.local/share/pnpm/store
           node_modules
-        key: ${{ runner.OS }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+        key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
         restore-keys: |
-          ${{ runner.OS }}-pnpm-
+          ${{ runner.os }}-pnpm-
 
     - name: Install Dependencies
       run: pnpm install --frozen-lockfile
