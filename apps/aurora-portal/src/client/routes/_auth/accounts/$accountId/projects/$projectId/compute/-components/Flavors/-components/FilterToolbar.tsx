@@ -50,10 +50,11 @@ const FilterToolbar: React.FC<FilterToolbarProps> = ({
               className="w-full md:w-80 flex-shrink-0"
               onInput={handleSearchChange}
               onClear={() => setSearchTerm("")}
+              data-testid="search-input"
             />
             <Stack className="flex flex-row items-center">
               <InputGroup className="flex-shrink-0 w-full md:w-80">
-                <Select onChange={handleSortByChange} value={sortBy}>
+                <Select onChange={handleSortByChange} value={sortBy} data-testid="sort-select">
                   <SelectOption value="name">Name</SelectOption>
                   <SelectOption value="vcpus">VCPUs</SelectOption>
                   <SelectOption value="ram">RAM</SelectOption>
@@ -62,7 +63,7 @@ const FilterToolbar: React.FC<FilterToolbarProps> = ({
                   <SelectOption value="swap">Swap</SelectOption>
                   <SelectOption value="rxtx_factor">RX/TX Factor</SelectOption>
                 </Select>
-                <Select onChange={handleSortDirectionChange} value={sortDirection}>
+                <Select onChange={handleSortDirectionChange} value={sortDirection} data-testid="direction-select">
                   <SelectOption value="asc">Ascending</SelectOption>
                   <SelectOption value="desc">Descending</SelectOption>
                 </Select>
