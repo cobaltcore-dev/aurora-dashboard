@@ -1,6 +1,10 @@
 import { TRPCError } from "@trpc/server"
 import { flavorResponseSchema, Flavor } from "../types/flavor"
 
+interface ComputeService {
+  get(path: string): Promise<Response>
+}
+
 export function includesSearchTerm(flavor: Flavor, searchTerm: string): boolean {
   const regex = new RegExp(searchTerm, "i")
   const searchableValues = [flavor.id, flavor.name, flavor.description]
@@ -8,7 +12,7 @@ export function includesSearchTerm(flavor: Flavor, searchTerm: string): boolean 
   return searchableValues.some((value) => value != null && typeof value === "string" && regex.test(value))
 }
 
-export async function fetchFlavors(compute: any): Promise<Flavor[]> {
+export async function fetchFlavors(compute: ComputeService): Promise<Flavor[]> {
   const response = await compute.get("/compute/v2.1/flavors/detail")
   if (!response.ok) {
     const statusCode = response.status

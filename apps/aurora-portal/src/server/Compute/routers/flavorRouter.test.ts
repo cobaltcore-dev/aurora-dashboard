@@ -6,16 +6,16 @@ import * as flavorHelpers from "../helpers/flavorHelpers"
 
 import { createCallerFactory, auroraRouter } from "../../trpc"
 
-// Mock the flavor helpers
 vi.mock("../helpers/flavorHelpers", () => ({
   fetchFlavors: vi.fn(),
   filterAndSortFlavors: vi.fn(),
   includesSearchTerm: vi.fn(),
 }))
 
-// Create mock context with all required methods
 const createMockContext = (shouldFailAuth = false, shouldFailRescope = false, shouldFailCompute = false) => ({
-  validateSession: vi.fn().mockReturnValue(!shouldFailAuth), // Add this!
+  validateSession: vi.fn().mockReturnValue(!shouldFailAuth),
+  createSession: vi.fn().mockResolvedValue({}),
+  terminateSession: vi.fn().mockResolvedValue({}),
   rescopeSession: vi.fn().mockResolvedValue(
     shouldFailRescope
       ? null
@@ -93,15 +93,13 @@ describe("flavorRouter", () => {
     ]
 
     it("should throw UNAUTHORIZED when session validation fails", async () => {
-      // Arrange
-      const mockCtx = createMockContext(true) // shouldFailAuth = true
+      const mockCtx = createMockContext(true)
       const caller = createCaller(mockCtx)
 
       const input = {
         projectId: "test-project-123",
       }
 
-      // Act & Assert
       await expect(caller.flavor.getFlavorsByProjectId(input)).rejects.toThrow(
         new TRPCError({
           code: "UNAUTHORIZED",
@@ -114,7 +112,6 @@ describe("flavorRouter", () => {
     })
 
     it("should successfully fetch, filter and sort flavors", async () => {
-      // Arrange
       const mockCtx = createMockContext()
       const caller = createCaller(mockCtx)
 
@@ -128,10 +125,8 @@ describe("flavorRouter", () => {
         searchTerm: "m1",
       }
 
-      // Act
       const result = await caller.flavor.getFlavorsByProjectId(input)
 
-      // Assert
       expect(mockCtx.validateSession).toHaveBeenCalled()
       expect(mockCtx.rescopeSession).toHaveBeenCalledWith({ projectId: "test-project-123" })
       expect(flavorHelpers.fetchFlavors).toHaveBeenCalledWith(expect.objectContaining({ get: expect.any(Function) }))
@@ -140,7 +135,6 @@ describe("flavorRouter", () => {
     })
 
     it("should use default values for optional parameters", async () => {
-      // Arrange
       const mockCtx = createMockContext()
       const caller = createCaller(mockCtx)
 
@@ -151,21 +145,13 @@ describe("flavorRouter", () => {
         projectId: "test-project-123",
       }
 
-      // Act
       const result = await caller.flavor.getFlavorsByProjectId(input)
 
-      // Assert
-      expect(flavorHelpers.filterAndSortFlavors).toHaveBeenCalledWith(
-        mockFlavors,
-        "", // default searchTerm
-        "name", // default sortBy
-        "asc" // default sortDirection
-      )
+      expect(flavorHelpers.filterAndSortFlavors).toHaveBeenCalledWith(mockFlavors, "", "name", "asc")
       expect(result).toEqual(mockFlavors)
     })
 
     it("should throw INTERNAL_SERVER_ERROR when rescopeSession returns null", async () => {
-      // Arrange
       const mockCtx = createMockContext(false, true) // shouldFailRescope = true
       const caller = createCaller(mockCtx)
 
@@ -173,7 +159,6 @@ describe("flavorRouter", () => {
         projectId: "test-project-123",
       }
 
-      // Act & Assert
       await expect(caller.flavor.getFlavorsByProjectId(input)).rejects.toThrow(
         new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
@@ -186,7 +171,6 @@ describe("flavorRouter", () => {
     })
 
     it("should throw INTERNAL_SERVER_ERROR when compute service is unavailable", async () => {
-      // Arrange
       const mockCtx = createMockContext(false, false, true) // shouldFailCompute = true
       const caller = createCaller(mockCtx)
 
@@ -194,7 +178,6 @@ describe("flavorRouter", () => {
         projectId: "test-project-123",
       }
 
-      // Act & Assert
       await expect(caller.flavor.getFlavorsByProjectId(input)).rejects.toThrow(
         new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
@@ -206,7 +189,6 @@ describe("flavorRouter", () => {
     })
 
     it("should re-throw TRPCError from fetchFlavors without wrapping", async () => {
-      // Arrange
       const mockCtx = createMockContext()
       const caller = createCaller(mockCtx)
 
@@ -220,13 +202,11 @@ describe("flavorRouter", () => {
         projectId: "test-project-123",
       }
 
-      // Act & Assert
       await expect(caller.flavor.getFlavorsByProjectId(input)).rejects.toThrow(originalTRPCError)
       expect(flavorHelpers.filterAndSortFlavors).not.toHaveBeenCalled()
     })
 
     it("should wrap non-TRPC errors from fetchFlavors", async () => {
-      // Arrange
       const mockCtx = createMockContext()
       const caller = createCaller(mockCtx)
 
@@ -237,7 +217,6 @@ describe("flavorRouter", () => {
         projectId: "test-project-123",
       }
 
-      // Act & Assert
       await expect(caller.flavor.getFlavorsByProjectId(input)).rejects.toThrow(
         new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
@@ -248,18 +227,15 @@ describe("flavorRouter", () => {
     })
 
     it("should handle all possible sortBy fields", async () => {
-      // Arrange
       const mockCtx = createMockContext()
       const caller = createCaller(mockCtx)
 
       vi.mocked(flavorHelpers.fetchFlavors).mockResolvedValue(mockFlavors)
       vi.mocked(flavorHelpers.filterAndSortFlavors).mockReturnValue(mockFlavors)
 
-      // Test different sortBy values
       const sortByOptions = ["id", "name", "vcpus", "ram", "disk", "description"]
 
       for (const sortBy of sortByOptions) {
-        // Clear mocks between iterations
         vi.clearAllMocks()
         vi.mocked(flavorHelpers.fetchFlavors).mockResolvedValue(mockFlavors)
         vi.mocked(flavorHelpers.filterAndSortFlavors).mockReturnValue(mockFlavors)
@@ -270,23 +246,18 @@ describe("flavorRouter", () => {
           sortDirection: "desc",
         }
 
-        // Act
         await caller.flavor.getFlavorsByProjectId(input)
-
-        // Assert
         expect(flavorHelpers.filterAndSortFlavors).toHaveBeenCalledWith(mockFlavors, "", sortBy, "desc")
       }
     })
 
     it("should handle both asc and desc sort directions", async () => {
-      // Arrange
       const mockCtx = createMockContext()
       const caller = createCaller(mockCtx)
 
       vi.mocked(flavorHelpers.fetchFlavors).mockResolvedValue(mockFlavors)
       vi.mocked(flavorHelpers.filterAndSortFlavors).mockReturnValue(mockFlavors)
 
-      // Test asc
       await caller.flavor.getFlavorsByProjectId({
         projectId: "test-project-123",
         sortDirection: "asc",
@@ -294,12 +265,10 @@ describe("flavorRouter", () => {
 
       expect(flavorHelpers.filterAndSortFlavors).toHaveBeenCalledWith(mockFlavors, "", "name", "asc")
 
-      // Clear and setup mocks again
       vi.clearAllMocks()
       vi.mocked(flavorHelpers.fetchFlavors).mockResolvedValue(mockFlavors)
       vi.mocked(flavorHelpers.filterAndSortFlavors).mockReturnValue(mockFlavors)
 
-      // Test desc
       await caller.flavor.getFlavorsByProjectId({
         projectId: "test-project-123",
         sortDirection: "desc",

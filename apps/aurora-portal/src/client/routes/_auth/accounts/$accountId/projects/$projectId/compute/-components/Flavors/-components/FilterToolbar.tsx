@@ -26,7 +26,7 @@ const FilterToolbar: React.FC<FilterToolbarProps> = ({
     }
     const newTimer = window.setTimeout(() => {
       setSearchTerm(value.target.value)
-    }, 1500)
+    }, 500)
     setDebounceTimer(newTimer)
   }
 
