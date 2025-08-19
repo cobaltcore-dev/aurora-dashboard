@@ -48,6 +48,7 @@ describe("DetailLayout", () => {
         kubernetes: true,
       },
     },
+    isDeleteAllowed: true,
     setDeleteClusterModal: vi.fn(),
     setDeleteClusterName: vi.fn(),
   }

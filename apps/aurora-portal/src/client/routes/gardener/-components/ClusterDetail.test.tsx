@@ -67,7 +67,7 @@ describe("ClusterDetailPage", () => {
   const setup = () => {
     const router = createTestRouter(
       <I18nProvider i18n={i18n}>
-        <ClusterDetailPage cluster={mockCluster} />
+        <ClusterDetailPage cluster={mockCluster} isDeleteAllowed={true} />
       </I18nProvider>
     )
 

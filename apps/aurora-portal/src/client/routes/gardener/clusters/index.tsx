@@ -25,7 +25,7 @@ export const Route = createFileRoute("/gardener/clusters/")({
 })
 
 function RouteComponent() {
-  const { clusters, trpcClient } = useLoaderData({ from: Route.id })
+  const { clusters, trpcClient, permissions } = useLoaderData({ from: Route.id })
   const router = useRouter()
   const [filterSettings, setFilterSettings] = useState<FilterSettings>({})
 
@@ -99,10 +99,12 @@ function RouteComponent() {
               <RefreshCw className={`h-4 w-4 mr-2`} />
               Refresh
             </Button>
-            <Button onClick={handleCreateWizzard} variant="primary">
-              <Plus className="h-4 w-4 mr-2" />
-              New Cluster
-            </Button>
+            {permissions?.create && (
+              <Button onClick={handleCreateWizzard} variant="primary">
+                <Plus className="h-4 w-4 mr-2" />
+                New Cluster
+              </Button>
+            )}
           </div>
         </div>
 
