@@ -1,23 +1,21 @@
 import { createFileRoute, ErrorComponent, useParams } from "@tanstack/react-router"
-import { useState } from "react"
 import { ErrorBoundary } from "react-error-boundary"
-import { ComputeNavBar, ComputeSideNavBar } from "./-components/ComputeNavBar"
+import { ComputeSideNavBar } from "./-components/ComputeNavBar"
 import { Overview } from "./-components/Overview"
 import { TrpcClient } from "@/client/trpcClient"
 import { Instances } from "./-components/Instances/List"
 import { Images } from "./-components/Images/List"
 import { KeyPairs } from "./-components/KeyPairs/List"
 import { ServerGroups } from "./-components/ServerGroups/List"
+import { Flavors } from "./-components/Flavors/List"
 
 export const Route = createFileRoute("/_auth/accounts/$accountId/projects/$projectId/compute/$")({
   component: RouteComponent,
   errorComponent: ({ error }) => {
     if (error instanceof Error) {
-      // Render a custom error message
       return <div>{error.message}</div>
     }
 
-    // Fallback to the default ErrorComponent
     return <ErrorComponent error={error} />
   },
   notFoundComponent: () => {
@@ -38,7 +36,6 @@ function RouteComponent() {
 }
 
 function ComputeDashboard({ client }: { client: TrpcClient }) {
-  const [viewMode, setViewMode] = useState<"list" | "card">("list")
   const { project, splat } = useParams({
     from: "/_auth/accounts/$accountId/projects/$projectId/compute/$",
     select: (params) => {
@@ -50,14 +47,10 @@ function ComputeDashboard({ client }: { client: TrpcClient }) {
     <div className="container max-w-screen-3xl mx-auto px-6 py-4 grid grid-cols-12 gap-4">
       {/* Row 1: Title & Navigation (Balanced Layout) */}
       <div className="col-span-2 flex flex-col justify-center">
-        <h3 className="text-3xl font-medium text-juno-grey-light-1 text-justify pl-5">Compute</h3>
+        <h3 className="text-3xl font-medium text-justify pl-5">Compute</h3>
       </div>
       {/* Left Spacing */}
-      <div className="col-span-9 flex items-center justify-between py-2">
-        <div className="flex-1 flex justify-end">
-          <ComputeNavBar viewMode={viewMode} setViewMode={setViewMode} />
-        </div>
-      </div>
+      <div className="col-span-9 flex items-center justify-between py-2"></div>
       <div className="col-span-1"></div> {/* Right Spacing */}
       <div className="col-span-2 flex flex-col gap-4">
         <ComputeSideNavBar />
@@ -69,13 +62,15 @@ function ComputeDashboard({ client }: { client: TrpcClient }) {
               {(() => {
                 switch (splat) {
                   case "instances":
-                    return <Instances client={client} project={project} viewMode={viewMode} />
+                    return <Instances client={client} project={project} viewMode="list" />
                   case "images":
                     return <Images project={project} client={client} />
                   case "keypairs":
                     return <KeyPairs project={project} client={client} />
                   case "servergroups":
                     return <ServerGroups project={project} client={client} />
+                  case "flavors":
+                    return <Flavors project={project} client={client} />
                   default:
                     return <Overview project={project} client={client} />
                 }
