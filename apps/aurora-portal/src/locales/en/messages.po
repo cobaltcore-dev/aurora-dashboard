@@ -65,7 +65,7 @@ msgstr "At Aurora, our mission is to provide a centralized platform that unifies
 msgid "Aurora Dashboard is more than just a tool—it's your partner in navigating the cloud. Whether you're a small startup or a global enterprise, Aurora provides the flexibility, power, and simplicity you need to achieve your goals."
 msgstr "Aurora Dashboard is more than just a tool—it's your partner in navigating the cloud. Whether you're a small startup or a global enterprise, Aurora provides the flexibility, power, and simplicity you need to achieve your goals."
 
-#: src/client/routes/gardener/-components/ClusterDetail/SettingsSection.tsx:47
+#: src/client/routes/gardener/-components/ClusterDetail/SettingsSection.tsx:44
 msgid "Auto Update"
 msgstr "Auto Update"
 
@@ -93,11 +93,11 @@ msgstr "Cluster Configuration"
 msgid "Cluster created successfully"
 msgstr "Cluster created successfully"
 
-#: src/client/routes/gardener/-components/ClusterDetail.tsx:35
+#: src/client/routes/gardener/-components/ClusterDetail.tsx:40
 msgid "Cluster deleted successfully"
 msgstr "Cluster deleted successfully"
 
-#: src/client/routes/gardener/-components/ClusterDetail.tsx:66
+#: src/client/routes/gardener/-components/ClusterDetail.tsx:71
 msgid "Cluster details copied to clipboard!"
 msgstr "Cluster details copied to clipboard!"
 
@@ -113,7 +113,7 @@ msgstr "Cluster Name"
 msgid "Cluster name is required"
 msgstr "Cluster name is required"
 
-#: src/client/routes/gardener/-components/ClusterDetail.tsx:107
+#: src/client/routes/gardener/-components/ClusterDetail.tsx:112
 msgid "Clusters"
 msgstr "Clusters"
 
@@ -134,7 +134,7 @@ msgid "Create Cluster"
 msgstr "Create Cluster"
 
 #: src/client/routes/gardener/-components/DeleteClusterDialog.tsx:44
-#: src/client/routes/gardener/-components/ClusterDetail/DetailLayout.tsx:66
+#: src/client/routes/gardener/-components/ClusterDetail/DetailLayout.tsx:69
 msgid "Delete"
 msgstr "Delete"
 
@@ -171,7 +171,7 @@ msgstr "Enter your domain"
 msgid "Enter your username"
 msgstr "Enter your username"
 
-#: src/client/routes/gardener/-components/ClusterDetail.tsx:84
+#: src/client/routes/gardener/-components/ClusterDetail.tsx:89
 msgid "Failed to copy to clipboard"
 msgstr "Failed to copy to clipboard"
 
@@ -179,7 +179,7 @@ msgstr "Failed to copy to clipboard"
 msgid "Failed to create cluster:"
 msgstr "Failed to create cluster:"
 
-#: src/client/routes/gardener/-components/ClusterDetail.tsx:39
+#: src/client/routes/gardener/-components/ClusterDetail.tsx:44
 msgid "Failed to delete cluster: "
 msgstr "Failed to delete cluster: "
 
@@ -220,7 +220,7 @@ msgstr "Key Features"
 msgid "Kubernetes"
 msgstr "Kubernetes"
 
-#: src/client/routes/gardener/-components/ClusterDetail/SettingsSection.tsx:65
+#: src/client/routes/gardener/-components/ClusterDetail/SettingsSection.tsx:60
 msgid "Kubernetes Updates"
 msgstr "Kubernetes Updates"
 
@@ -257,7 +257,7 @@ msgstr "Machine Image"
 msgid "Machine Type"
 msgstr "Machine Type"
 
-#: src/client/routes/gardener/-components/ClusterDetail/SettingsSection.tsx:25
+#: src/client/routes/gardener/-components/ClusterDetail/SettingsSection.tsx:24
 msgid "Maintenance Window"
 msgstr "Maintenance Window"
 
@@ -303,7 +303,7 @@ msgstr "Nodes CIDR"
 msgid "Note: These network settings will be prefilled by the Kubernetes controller in the future."
 msgstr "Note: These network settings will be prefilled by the Kubernetes controller in the future."
 
-#: src/client/routes/gardener/-components/ClusterDetail/SettingsSection.tsx:51
+#: src/client/routes/gardener/-components/ClusterDetail/SettingsSection.tsx:47
 msgid "OS Updates"
 msgstr "OS Updates"
 
@@ -319,7 +319,7 @@ msgstr "Password"
 msgid "Please review all configurations carefully before creating the cluster. Once created, some settings cannot be changed."
 msgstr "Please review all configurations carefully before creating the cluster. Once created, some settings cannot be changed."
 
-#: src/client/routes/gardener/-components/ClusterDetail.tsx:87
+#: src/client/routes/gardener/-components/ClusterDetail.tsx:92
 msgid "Please try again or copy manually"
 msgstr "Please try again or copy manually"
 
@@ -327,7 +327,7 @@ msgstr "Please try again or copy manually"
 msgid "Pods CIDR"
 msgstr "Pods CIDR"
 
-#: src/client/routes/gardener/-components/ClusterDetail.tsx:124
+#: src/client/routes/gardener/-components/ClusterDetail.tsx:130
 msgid "Raw JSON Data for"
 msgstr "Raw JSON Data for"
 
@@ -351,7 +351,7 @@ msgstr "Search clusters..."
 msgid "Services CIDR"
 msgstr "Services CIDR"
 
-#: src/client/routes/gardener/-components/ClusterDetail/DetailLayout.tsx:74
+#: src/client/routes/gardener/-components/ClusterDetail/DetailLayout.tsx:78
 msgid "Share"
 msgstr "Share"
 
@@ -359,7 +359,7 @@ msgstr "Share"
 msgid "Sign In"
 msgstr "Sign In"
 
-#: src/client/routes/gardener/-components/ClusterDetail/SettingsSection.tsx:29
+#: src/client/routes/gardener/-components/ClusterDetail/SettingsSection.tsx:27
 msgid "Start Time"
 msgstr "Start Time"
 
@@ -388,7 +388,7 @@ msgstr "The floating IP pool to use for the cluster's external network access"
 msgid "This action cannot be undone. The cluster will be permanently deleted."
 msgstr "This action cannot be undone. The cluster will be permanently deleted."
 
-#: src/client/routes/gardener/-components/ClusterDetail/SettingsSection.tsx:41
+#: src/client/routes/gardener/-components/ClusterDetail/SettingsSection.tsx:39
 msgid "Timezone"
 msgstr "Timezone"
 
@@ -428,7 +428,7 @@ msgstr "Welcome to Aurora Dashboard"
 msgid "Why Choose Aurora?"
 msgstr "Why Choose Aurora?"
 
-#: src/client/routes/gardener/-components/ClusterDetail/SettingsSection.tsx:34
+#: src/client/routes/gardener/-components/ClusterDetail/SettingsSection.tsx:32
 msgid "Window Time"
 msgstr "Window Time"
 
@@ -452,7 +452,7 @@ msgstr "Would you like to remove the <0>{clusterName}</0> from your project?"
 msgid "You are already signed in."
 msgstr "You are already signed in."
 
-#: src/client/routes/gardener/-components/ClusterDetail.tsx:69
+#: src/client/routes/gardener/-components/ClusterDetail.tsx:74
 msgid "You can now share this information with your team"
 msgstr "You can now share this information with your team"
 
