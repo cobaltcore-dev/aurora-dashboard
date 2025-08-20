@@ -18,18 +18,33 @@
     "clean": "pnpm run clean:vite && turbo run clean && rm -rf node_modules",
     "clean:cache": "turbo run clean:cache && rm -rf .turbo && rm -rf node_modules/.cache/turbo",
     "generate:package": "turbo gen workspace --type package --copy @cobalcore-dev/aurora-package-template --name",
-    "prepare": "husky"
+    "prepare": "husky",
+    "release": "semantic-release",
+    "release:dry": "semantic-release --dry-run"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.5.0",
     "@commitlint/config-conventional": "^19.5.0",
+    "@semantic-release/changelog": "^6.0.3",
+    "@semantic-release/commit-analyzer": "^13.0.0",
+    "@semantic-release/github": "^11.0.0",
+    "@semantic-release/release-notes-generator": "^14.0.1",
+    "commitizen": "^4.3.1",
+    "conventional-changelog-conventionalcommits": "^8.0.0",
+    "cz-customizable": "^7.5.0",
     "eslint": "^9.14.0",
     "husky": "^9.1.6",
     "prettier": "^3.2.5",
+    "semantic-release": "^24.2.0",
     "turbo": "^2.2.3"
   },
   "packageManager": "pnpm@10.3.0",
   "dependencies": {
     "pnpm": "^10.3.0"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-customizable"
+    }
   }
 }

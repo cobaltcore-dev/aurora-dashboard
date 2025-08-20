@@ -1,17 +1,17 @@
 // import config from "./.github/commit-config.js"
 
 export const types = [
-  "build",
-  "chore",
-  "fix",
-  "feat",
-  "merge",
-  "publish",
-  "release",
-  "refactor",
-  "research",
-  "style",
-  "test",
+  "feat", // new feature
+  "fix", // bug fix
+  "docs", // documentation
+  "style", // formatting, missing semicolons, etc
+  "refactor", // code change that neither fixes a bug nor adds a feature
+  "test", // adding missing tests
+  "chore", // maintain
+  "perf", // performance improvements
+  "ci", // continuous integration
+  "build", // build system or external dependencies
+  "revert", // revert previous commit
 ]
 export const scopes = [
   "build",

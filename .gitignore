@@ -9,3 +9,6 @@ dist-ssr
 .cache
 server/dist
 public/dist
+
+.releaserc.js.bak
+.semantic-release/
