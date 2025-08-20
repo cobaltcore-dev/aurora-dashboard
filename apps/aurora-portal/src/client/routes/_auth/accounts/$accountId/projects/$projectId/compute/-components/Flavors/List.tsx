@@ -37,7 +37,7 @@ export const Flavors = ({ client, project }: FlavorsProps) => {
     let errorCode = "UNKNOWN_ERROR"
 
     if (err && typeof err === "object" && "message" in err) {
-      const errorMessage = (err as any).message
+      const errorMessage = err.message
       if (typeof errorMessage === "string" && errorMessage.startsWith("FLAVORS_")) {
         errorCode = errorMessage
       }
