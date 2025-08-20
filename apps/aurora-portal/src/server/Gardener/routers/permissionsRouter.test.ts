@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest"
-import { accessReviewRouter } from "./accessReviewRouter"
+import { permissionsRouter } from "./permissionsRouter"
 import { client } from "../client"
 import { createCallerFactory, router } from "../../trpc"
 import { AuroraPortalContext } from "../../context"
@@ -30,10 +30,10 @@ vi.mock("../client", () => ({
 const mockClient = vi.mocked(client)
 
 // Create tRPC caller
-const createCaller = createCallerFactory(router(accessReviewRouter))
+const createCaller = createCallerFactory(router(permissionsRouter))
 const caller = createCaller({} as AuroraPortalContext)
 
-describe("accessReviewRouter", () => {
+describe("permissionsRouter", () => {
   beforeEach(() => {
     vi.clearAllMocks()
     // Set default environment variable
@@ -44,7 +44,7 @@ describe("accessReviewRouter", () => {
     vi.restoreAllMocks()
   })
 
-  describe("getAccessReviewInformation", () => {
+  describe("getPermissions", () => {
     it("should return all permissions as true when all access reviews are allowed", async () => {
       // Mock successful responses for all permissions
       const mockResponse = {
@@ -66,7 +66,7 @@ describe("accessReviewRouter", () => {
 
       mockClient.post.mockResolvedValue(mockResponse)
 
-      const result = await caller.getAccessReviewInformation()
+      const result = await caller.getPermissions()
 
       expect(result).toEqual({
         list: true,
@@ -110,7 +110,7 @@ describe("accessReviewRouter", () => {
         .mockResolvedValueOnce(responses[3])
         .mockResolvedValueOnce(responses[4])
 
-      const result = await caller.getAccessReviewInformation()
+      const result = await caller.getPermissions()
 
       expect(result).toEqual({
         list: true,
@@ -141,7 +141,7 @@ describe("accessReviewRouter", () => {
 
       mockClient.post.mockResolvedValue(mockResponse)
 
-      const result = await caller.getAccessReviewInformation()
+      const result = await caller.getPermissions()
 
       expect(result).toEqual({
         list: false,
@@ -171,7 +171,7 @@ describe("accessReviewRouter", () => {
       }
       mockClient.post.mockResolvedValue(mockResponse)
 
-      await caller.getAccessReviewInformation()
+      await caller.getPermissions()
 
       const permissions = ["list", "get", "create", "update", "delete"]
 
@@ -216,7 +216,7 @@ describe("accessReviewRouter", () => {
       }
       mockClient.post.mockResolvedValue(mockResponse)
 
-      await caller.getAccessReviewInformation()
+      await caller.getPermissions()
 
       expect(mockClient.post).toHaveBeenCalledWith(
         expect.any(String),
@@ -241,7 +241,7 @@ describe("accessReviewRouter", () => {
 
       mockClient.post.mockRejectedValue(mockError)
 
-      await expect(caller.getAccessReviewInformation()).rejects.toThrow(
+      await expect(caller.getPermissions()).rejects.toThrow(
         "Error fetching access review information: Unauthorized access"
       )
     })
@@ -257,9 +257,7 @@ describe("accessReviewRouter", () => {
 
       mockClient.post.mockRejectedValue(mockError)
 
-      await expect(caller.getAccessReviewInformation()).rejects.toThrow(
-        "Error fetching access review information: Request timeout"
-      )
+      await expect(caller.getPermissions()).rejects.toThrow("Error fetching access review information: Request timeout")
     })
 
     it("should handle error without response body", async () => {
@@ -272,9 +270,7 @@ describe("accessReviewRouter", () => {
 
       mockClient.post.mockRejectedValue(mockError)
 
-      await expect(caller.getAccessReviewInformation()).rejects.toThrow(
-        "Error fetching access review information: Network error"
-      )
+      await expect(caller.getPermissions()).rejects.toThrow("Error fetching access review information: Network error")
     })
 
     it("should handle JSON parsing error in error response", async () => {
@@ -287,7 +283,7 @@ describe("accessReviewRouter", () => {
 
       mockClient.post.mockRejectedValue(mockError)
 
-      await expect(caller.getAccessReviewInformation()).rejects.toThrow(
+      await expect(caller.getPermissions()).rejects.toThrow(
         "Error fetching access review information: Original error message"
       )
     })
@@ -300,7 +296,7 @@ describe("accessReviewRouter", () => {
 
       mockClient.post.mockResolvedValue(invalidResponse)
 
-      await expect(caller.getAccessReviewInformation()).rejects.toThrow("Failed to parse access review responses:")
+      await expect(caller.getPermissions()).rejects.toThrow("Failed to parse access review responses:")
     })
 
     it("should handle partial failure - some requests succeed, some fail", async () => {
@@ -320,7 +316,7 @@ describe("accessReviewRouter", () => {
         .mockRejectedValueOnce(mockError)
         .mockRejectedValueOnce(mockError)
 
-      await expect(caller.getAccessReviewInformation()).rejects.toThrow(
+      await expect(caller.getPermissions()).rejects.toThrow(
         "Error fetching access review information: Permission denied"
       )
     })
@@ -345,7 +341,7 @@ describe("accessReviewRouter", () => {
       }
       mockClient.post.mockResolvedValue(mockResponse)
 
-      await caller.getAccessReviewInformation()
+      await caller.getPermissions()
 
       expect(mockClient.post).toHaveBeenCalledWith(
         expect.any(String),
@@ -378,7 +374,7 @@ describe("accessReviewRouter", () => {
       }
       mockClient.post.mockResolvedValue(mockResponse)
 
-      await caller.getAccessReviewInformation()
+      await caller.getPermissions()
 
       // All 5 requests should have been initiated (not necessarily completed) before waiting
       expect(mockClient.post).toHaveBeenCalledTimes(5)

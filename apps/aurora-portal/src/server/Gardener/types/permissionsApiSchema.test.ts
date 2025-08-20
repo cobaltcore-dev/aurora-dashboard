@@ -4,10 +4,10 @@ import {
   SelfSubjectAccessReviewListSchema,
   type SelfSubjectAccessReview,
   type ResourceAttributes,
-} from "./accessReviewApiSchema"
+} from "./permissionsApiSchema"
 
-describe("AccessReviewApiSchema", () => {
-  describe("AccessReviewApiResponseSchema", () => {
+describe("PermissionsApiSchema", () => {
+  describe("PermissionsApiResponseSchema", () => {
     it("should validate a minimal valid SelfSubjectAccessReview", () => {
       const validData = {
         kind: "SelfSubjectAccessReview" as const,

@@ -1,9 +1,9 @@
 import { publicProcedure } from "../../trpc"
 import { client } from "../client"
-import { SelfSubjectAccessReviewListSchema } from "../types/accessReviewApiSchema"
+import { SelfSubjectAccessReviewListSchema } from "../types/permissionsApiSchema"
 
-export const accessReviewRouter = {
-  getAccessReviewInformation: publicProcedure.query(async () => {
+export const permissionsRouter = {
+  getPermissions: publicProcedure.query(async () => {
     const permissions = ["list", "get", "create", "update", "delete"] as const
 
     // Kubernetes SelfSubjectAccessReview API only supports checking one permission at a time.
@@ -34,7 +34,7 @@ export const accessReviewRouter = {
             errorDetails = err.message
           }
 
-          throw new Error(`Error fetching access review information: ${errorDetails}`)
+          throw new Error(`Error fetching permissions: ${errorDetails}`)
         })
     )
 
@@ -42,7 +42,7 @@ export const accessReviewRouter = {
     const parsedResponses = SelfSubjectAccessReviewListSchema.safeParse(responses)
 
     if (!parsedResponses.success) {
-      throw new Error(`Failed to parse access review responses: ${parsedResponses.error.message}`)
+      throw new Error(`Failed to parse permissions responses: ${parsedResponses.error.message}`)
     }
 
     const results: Record<string, boolean> = {}

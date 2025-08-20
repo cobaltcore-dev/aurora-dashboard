@@ -6,7 +6,7 @@ export const Route = createFileRoute("/gardener/clusters/$clusterName")({
   loader: async (options) => {
     const { context, params } = options
     const data = await context.trpcClient?.gardener.getClusterByName.query({ name: params.clusterName })
-    const permissions = await context.trpcClient?.gardener.getAccessReviewInformation.query()
+    const permissions = await context.trpcClient?.gardener.getPermissions.query()
 
     return {
       trpcClient: context.trpcClient,
