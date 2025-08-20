@@ -1,4 +1,4 @@
-import { beforeAll, expect } from "vitest"
+import { beforeAll, beforeEach, vi, expect } from "vitest"
 import * as matchers from "@testing-library/jest-dom/matchers"
 import { i18n } from "@lingui/core"
 
