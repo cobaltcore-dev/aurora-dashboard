@@ -1,5 +1,6 @@
 import React, { useState } from "react"
 import { Stack, Select, SelectOption, InputGroup, SearchInput } from "@cloudoperators/juno-ui-components"
+import { useLingui } from "@lingui/react/macro"
 
 interface FilterToolbarProps {
   searchTerm: string
@@ -18,6 +19,7 @@ const FilterToolbar: React.FC<FilterToolbarProps> = ({
   sortDirection,
   handleSortDirectionChange,
 }) => {
+  const { t } = useLingui()
   const [debounceTimer, setDebounceTimer] = useState<number | undefined>(undefined)
 
   const handleSearchChange = (value: React.ChangeEvent<HTMLInputElement>) => {
@@ -45,7 +47,7 @@ const FilterToolbar: React.FC<FilterToolbarProps> = ({
         <Stack direction="vertical" gap="3" className="w-full">
           <Stack gap="6" className="flex flex-row items-center flex-wrap w-full">
             <SearchInput
-              placeholder="Enter search term or regex"
+              placeholder={t`Enter search term or regex`}
               value={searchTerm || ""}
               className="w-full md:w-80 flex-shrink-0"
               onInput={handleSearchChange}
@@ -54,18 +56,18 @@ const FilterToolbar: React.FC<FilterToolbarProps> = ({
             />
             <Stack className="flex flex-row items-center">
               <InputGroup className="flex-shrink-0 w-full md:w-80">
-                <Select onChange={handleSortByChange} value={sortBy} data-testid="sort-select">
-                  <SelectOption value="name">Name</SelectOption>
-                  <SelectOption value="vcpus">VCPUs</SelectOption>
-                  <SelectOption value="ram">RAM</SelectOption>
-                  <SelectOption value="disk">Root Disk</SelectOption>
-                  <SelectOption value="OS-FLV-EXT-DATA:ephemeral">Ephemeral Disk</SelectOption>
-                  <SelectOption value="swap">Swap</SelectOption>
-                  <SelectOption value="rxtx_factor">RX/TX Factor</SelectOption>
+                <Select onChange={handleSortByChange} value={sortBy} data-testid="sort-select" label={t`sort by`}>
+                  <SelectOption value="name">{t`Name`}</SelectOption>
+                  <SelectOption value="vcpus">{t`VCPUs`}</SelectOption>
+                  <SelectOption value="ram">{t`RAM`}</SelectOption>
+                  <SelectOption value="disk">{t`Root Disk`}</SelectOption>
+                  <SelectOption value="OS-FLV-EXT-DATA:ephemeral">{t`Ephemeral Disk`}</SelectOption>
+                  <SelectOption value="swap">{t`Swap`}</SelectOption>
+                  <SelectOption value="rxtx_factor">{t`RX/TX Factor`}</SelectOption>
                 </Select>
                 <Select onChange={handleSortDirectionChange} value={sortDirection} data-testid="direction-select">
-                  <SelectOption value="asc">Ascending</SelectOption>
-                  <SelectOption value="desc">Descending</SelectOption>
+                  <SelectOption value="asc">{t`Ascending`}</SelectOption>
+                  <SelectOption value="desc">{t`Descending`}</SelectOption>
                 </Select>
               </InputGroup>
             </Stack>

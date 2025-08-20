@@ -57,6 +57,14 @@ msgstr "About Aurora Dashboard"
 msgid "After continuing, your project will no longer have access to the <0>{clusterName}</0> resources."
 msgstr "After continuing, your project will no longer have access to the <0>{clusterName}</0> resources."
 
+#: src/client/utils/useErrorTranslation.ts:22
+msgid "An unexpected error occurred. Please try again."
+msgstr "An unexpected error occurred. Please try again."
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FilterToolbar.tsx:69
+msgid "Ascending"
+msgstr "Ascending"
+
 #: src/client/routes/about.tsx:27
 msgid "At Aurora, our mission is to provide a centralized platform that unifies cloud management. We aim to simplify the complexities of provisioning, configuring, and scaling resources across diverse cloud environments while enabling seamless growth for your business."
 msgstr "At Aurora, our mission is to provide a centralized platform that unifies cloud management. We aim to simplify the complexities of provisioning, configuring, and scaling resources across diverse cloud environments while enabling seamless growth for your business."
@@ -65,7 +73,7 @@ msgstr "At Aurora, our mission is to provide a centralized platform that unifies
 msgid "Aurora Dashboard is more than just a tool—it's your partner in navigating the cloud. Whether you're a small startup or a global enterprise, Aurora provides the flexibility, power, and simplicity you need to achieve your goals."
 msgstr "Aurora Dashboard is more than just a tool—it's your partner in navigating the cloud. Whether you're a small startup or a global enterprise, Aurora provides the flexibility, power, and simplicity you need to achieve your goals."
 
-#: src/client/routes/gardener/-components/ClusterDetail/SettingsSection.tsx:47
+#: src/client/routes/gardener/-components/ClusterDetail/SettingsSection.tsx:44
 msgid "Auto Update"
 msgstr "Auto Update"
 
@@ -142,6 +150,10 @@ msgstr "Delete"
 msgid "Delete Cluster"
 msgstr "Delete Cluster"
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FilterToolbar.tsx:70
+msgid "Descending"
+msgstr "Descending"
+
 #: src/client/routes/auth/login.tsx:114
 msgid "Domain"
 msgstr "Domain"
@@ -153,6 +165,10 @@ msgstr "Each worker nodes will automatically scale between its minimum and maxim
 #: src/client/routes/gardener/-components/ClusterWizard/WorkerNodesStep.tsx:67
 msgid "Each worker pool will automatically scale between its minimum and maximum node counts based on workload demands. Ensure your maximum node counts align with your resource quotas."
 msgstr "Each worker pool will automatically scale between its minimum and maximum node counts based on workload demands. Ensure your maximum node counts align with your resource quotas."
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FilterToolbar.tsx:50
+msgid "Enter search term or regex"
+msgstr "Enter search term or regex"
 
 #: src/client/routes/index.tsx:27
 #: src/client/routes/index.tsx:92
@@ -171,6 +187,10 @@ msgstr "Enter your domain"
 msgid "Enter your username"
 msgstr "Enter your username"
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FilterToolbar.tsx:64
+msgid "Ephemeral Disk"
+msgstr "Ephemeral Disk"
+
 #: src/client/routes/gardener/-components/ClusterDetail.tsx:84
 msgid "Failed to copy to clipboard"
 msgstr "Failed to copy to clipboard"
@@ -183,9 +203,17 @@ msgstr "Failed to create cluster:"
 msgid "Failed to delete cluster: "
 msgstr "Failed to delete cluster: "
 
+#: src/client/utils/useErrorTranslation.ts:18
+msgid "Failed to fetch flavors from server."
+msgstr "Failed to fetch flavors from server."
+
 #: src/client/routes/gardener/-components/Filters/FilterSelect.tsx:55
 msgid "Filters"
 msgstr "Filters"
+
+#: src/client/utils/useErrorTranslation.ts:14
+msgid "Flavor service is not available for this project."
+msgstr "Flavor service is not available for this project."
 
 #: src/client/routes/gardener/-components/ClusterWizard/InfrastructureStep.tsx:47
 msgid "Floating IP Pool"
@@ -220,7 +248,7 @@ msgstr "Key Features"
 msgid "Kubernetes"
 msgstr "Kubernetes"
 
-#: src/client/routes/gardener/-components/ClusterDetail/SettingsSection.tsx:65
+#: src/client/routes/gardener/-components/ClusterDetail/SettingsSection.tsx:60
 msgid "Kubernetes Updates"
 msgstr "Kubernetes Updates"
 
@@ -237,6 +265,7 @@ msgid "Loading Gardener..."
 msgstr "Loading Gardener..."
 
 #: src/client/routes/auth/login.tsx:165
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:20
 msgid "Loading..."
 msgstr "Loading..."
 
@@ -257,7 +286,7 @@ msgstr "Machine Image"
 msgid "Machine Type"
 msgstr "Machine Type"
 
-#: src/client/routes/gardener/-components/ClusterDetail/SettingsSection.tsx:25
+#: src/client/routes/gardener/-components/ClusterDetail/SettingsSection.tsx:24
 msgid "Maintenance Window"
 msgstr "Maintenance Window"
 
@@ -278,6 +307,7 @@ msgid "Minimum Nodes"
 msgstr "Minimum Nodes"
 
 #: src/client/routes/gardener/-components/ClusterDetail/WorkerSection.tsx:29
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FilterToolbar.tsx:60
 msgid "Name"
 msgstr "Name"
 
@@ -295,6 +325,10 @@ msgstr "Network Configuration"
 msgid "Next"
 msgstr "Next"
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:31
+msgid "No flavors found"
+msgstr "No flavors found"
+
 #: src/client/routes/gardener/-components/ClusterWizard/InfrastructureStep.tsx:97
 msgid "Nodes CIDR"
 msgstr "Nodes CIDR"
@@ -303,7 +337,7 @@ msgstr "Nodes CIDR"
 msgid "Note: These network settings will be prefilled by the Kubernetes controller in the future."
 msgstr "Note: These network settings will be prefilled by the Kubernetes controller in the future."
 
-#: src/client/routes/gardener/-components/ClusterDetail/SettingsSection.tsx:51
+#: src/client/routes/gardener/-components/ClusterDetail/SettingsSection.tsx:47
 msgid "OS Updates"
 msgstr "OS Updates"
 
@@ -327,6 +361,10 @@ msgstr "Please try again or copy manually"
 msgid "Pods CIDR"
 msgstr "Pods CIDR"
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FilterToolbar.tsx:62
+msgid "RAM"
+msgstr "RAM"
+
 #: src/client/routes/gardener/-components/ClusterDetail.tsx:124
 msgid "Raw JSON Data for"
 msgstr "Raw JSON Data for"
@@ -339,6 +377,18 @@ msgstr "Readiness"
 msgid "Region"
 msgstr "Region"
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/List.tsx:99
+msgid "Retry"
+msgstr "Retry"
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FilterToolbar.tsx:63
+msgid "Root Disk"
+msgstr "Root Disk"
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FilterToolbar.tsx:66
+msgid "RX/TX Factor"
+msgstr "RX/TX Factor"
+
 #: src/client/routes/gardener/-components/ClusterDetail/WorkerSection.tsx:38
 msgid "Scaling"
 msgstr "Scaling"
@@ -346,6 +396,14 @@ msgstr "Scaling"
 #: src/client/routes/gardener/-components/Filters/index.tsx:58
 msgid "Search clusters..."
 msgstr "Search clusters..."
+
+#: src/client/utils/useErrorTranslation.ts:16
+msgid "Server is experiencing issues. Please try again later."
+msgstr "Server is experiencing issues. Please try again later."
+
+#: src/client/utils/useErrorTranslation.ts:20
+msgid "Server returned unexpected data format."
+msgstr "Server returned unexpected data format."
 
 #: src/client/routes/gardener/-components/ClusterWizard/InfrastructureStep.tsx:111
 msgid "Services CIDR"
@@ -359,7 +417,11 @@ msgstr "Share"
 msgid "Sign In"
 msgstr "Sign In"
 
-#: src/client/routes/gardener/-components/ClusterDetail/SettingsSection.tsx:29
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FilterToolbar.tsx:59
+msgid "sort by"
+msgstr "sort by"
+
+#: src/client/routes/gardener/-components/ClusterDetail/SettingsSection.tsx:27
 msgid "Start Time"
 msgstr "Start Time"
 
@@ -375,6 +437,10 @@ msgstr "Stay tuned — Aurora Dashboard is launching soon to streamline your clo
 msgid "Surge:"
 msgstr "Surge:"
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FilterToolbar.tsx:65
+msgid "Swap"
+msgstr "Swap"
+
 #: src/client/routes/index.tsx:43
 msgid "The <0>Aurora Dashboard</0> is on its way! Get ready for a powerful, all-in-one cloud management interface designed to make managing your cloud assets simple and efficient. With tools for provisioning, configuring, and scaling resources like servers, networks, and volumes, Aurora will soon bring you:"
 msgstr "The <0>Aurora Dashboard</0> is on its way! Get ready for a powerful, all-in-one cloud management interface designed to make managing your cloud assets simple and efficient. With tools for provisioning, configuring, and scaling resources like servers, networks, and volumes, Aurora will soon bring you:"
@@ -384,11 +450,15 @@ msgstr "The <0>Aurora Dashboard</0> is on its way! Get ready for a powerful, all
 msgid "The floating IP pool to use for the cluster's external network access"
 msgstr "The floating IP pool to use for the cluster's external network access"
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:34
+msgid "There are no flavors available for this project with the current filters applied. Try adjusting your filter criteria or create a new flavor."
+msgstr "There are no flavors available for this project with the current filters applied. Try adjusting your filter criteria or create a new flavor."
+
 #: src/client/routes/gardener/-components/DeleteClusterDialog.tsx:56
 msgid "This action cannot be undone. The cluster will be permanently deleted."
 msgstr "This action cannot be undone. The cluster will be permanently deleted."
 
-#: src/client/routes/gardener/-components/ClusterDetail/SettingsSection.tsx:41
+#: src/client/routes/gardener/-components/ClusterDetail/SettingsSection.tsx:39
 msgid "Timezone"
 msgstr "Timezone"
 
@@ -403,6 +473,10 @@ msgstr "Unknown error"
 #: src/client/routes/auth/login.tsx:129
 msgid "User C/D/I"
 msgstr "User C/D/I"
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FilterToolbar.tsx:61
+msgid "VCPUs"
+msgstr "VCPUs"
 
 #: src/client/routes/gardener/-components/ClusterDetail/ClusterOverviewSection.tsx:79
 msgid "Version"
@@ -428,7 +502,7 @@ msgstr "Welcome to Aurora Dashboard"
 msgid "Why Choose Aurora?"
 msgstr "Why Choose Aurora?"
 
-#: src/client/routes/gardener/-components/ClusterDetail/SettingsSection.tsx:34
+#: src/client/routes/gardener/-components/ClusterDetail/SettingsSection.tsx:32
 msgid "Window Time"
 msgstr "Window Time"
 
@@ -456,9 +530,17 @@ msgstr "You are already signed in."
 msgid "You can now share this information with your team"
 msgstr "You can now share this information with your team"
 
+#: src/client/utils/useErrorTranslation.ts:12
+msgid "You don't have permission to access flavors for this project."
+msgstr "You don't have permission to access flavors for this project."
+
 #: src/client/routes/auth/login.tsx:100
 msgid "You need to login to access this page."
 msgstr "You need to login to access this page."
+
+#: src/client/utils/useErrorTranslation.ts:10
+msgid "Your session has expired. Please log in again."
+msgstr "Your session has expired. Please log in again."
 
 #: src/client/routes/gardener/-components/ClusterDetail/WorkerSection.tsx:41
 msgid "Zones"
