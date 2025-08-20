@@ -107,7 +107,7 @@ export function Overview({ client, project }: OverviewProps) {
   ])
 
   return (
-    <Suspense fallback={<div className="p-4 text-center text-gray-400">Loading data...</div>}>
+    <Suspense fallback={<div className="p-4 text-center">Loading data...</div>}>
       <OverviewContainer getDataPromise={getDataPromise} />
     </Suspense>
   )
