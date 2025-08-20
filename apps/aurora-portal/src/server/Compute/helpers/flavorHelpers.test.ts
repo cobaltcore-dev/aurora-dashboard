@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from "vitest"
 import { TRPCError } from "@trpc/server"
 import { Flavor } from "../types/flavor"
 import { includesSearchTerm, fetchFlavors, filterAndSortFlavors } from "./flavorHelpers"
-import { ERROR_CODES } from "@/server/errorCodes"
+import { ERROR_CODES } from "../../errorCodes"
 
 const mockFlavors: Flavor[] = [
   {

@@ -1,6 +1,6 @@
 import { TRPCError } from "@trpc/server"
 import { flavorResponseSchema, Flavor } from "../types/flavor"
-import { ERROR_CODES } from "@/server/errorCodes"
+import { ERROR_CODES } from "../../errorCodes"
 
 interface ComputeService {
   get(path: string): Promise<Response>
