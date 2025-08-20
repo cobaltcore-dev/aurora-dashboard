@@ -241,9 +241,7 @@ describe("permissionsRouter", () => {
 
       mockClient.post.mockRejectedValue(mockError)
 
-      await expect(caller.getPermissions()).rejects.toThrow(
-        "Error fetching access review information: Unauthorized access"
-      )
+      await expect(caller.getPermissions()).rejects.toThrow("Error fetching permissions: Unauthorized access")
     })
 
     it("should handle error response with message field", async () => {
@@ -257,7 +255,7 @@ describe("permissionsRouter", () => {
 
       mockClient.post.mockRejectedValue(mockError)
 
-      await expect(caller.getPermissions()).rejects.toThrow("Error fetching access review information: Request timeout")
+      await expect(caller.getPermissions()).rejects.toThrow("Error fetching permissions: Request timeout")
     })
 
     it("should handle error without response body", async () => {
@@ -270,7 +268,7 @@ describe("permissionsRouter", () => {
 
       mockClient.post.mockRejectedValue(mockError)
 
-      await expect(caller.getPermissions()).rejects.toThrow("Error fetching access review information: Network error")
+      await expect(caller.getPermissions()).rejects.toThrow("Error fetching permissions: Network error")
     })
 
     it("should handle JSON parsing error in error response", async () => {
@@ -283,9 +281,7 @@ describe("permissionsRouter", () => {
 
       mockClient.post.mockRejectedValue(mockError)
 
-      await expect(caller.getPermissions()).rejects.toThrow(
-        "Error fetching access review information: Original error message"
-      )
+      await expect(caller.getPermissions()).rejects.toThrow("Error fetching permissions: Original error message")
     })
 
     it("should throw error when schema validation fails", async () => {
@@ -296,7 +292,7 @@ describe("permissionsRouter", () => {
 
       mockClient.post.mockResolvedValue(invalidResponse)
 
-      await expect(caller.getPermissions()).rejects.toThrow("Failed to parse access review responses:")
+      await expect(caller.getPermissions()).rejects.toThrow("Failed to parse permissions responses:")
     })
 
     it("should handle partial failure - some requests succeed, some fail", async () => {
@@ -316,9 +312,7 @@ describe("permissionsRouter", () => {
         .mockRejectedValueOnce(mockError)
         .mockRejectedValueOnce(mockError)
 
-      await expect(caller.getPermissions()).rejects.toThrow(
-        "Error fetching access review information: Permission denied"
-      )
+      await expect(caller.getPermissions()).rejects.toThrow("Error fetching permissions: Permission denied")
     })
 
     it("should handle undefined GARDENER_PROJECT environment variable", async () => {
