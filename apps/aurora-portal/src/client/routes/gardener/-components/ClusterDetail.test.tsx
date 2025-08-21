@@ -64,10 +64,10 @@ describe("ClusterDetailPage", () => {
     })
   }
 
-  const setup = () => {
+  const setup = (isDeleteAllowed = true) => {
     const router = createTestRouter(
       <I18nProvider i18n={i18n}>
-        <ClusterDetailPage cluster={mockCluster} />
+        <ClusterDetailPage cluster={mockCluster} isDeleteAllowed={isDeleteAllowed} />
       </I18nProvider>
     )
 
@@ -99,5 +99,19 @@ describe("ClusterDetailPage", () => {
     await waitFor(() => {
       expect(navigator.clipboard.writeText).toHaveBeenCalled()
     })
+  })
+
+  it("renders delete button", () => {
+    setup()
+
+    const deleteButton = screen.getByRole("button", { name: /delete/i })
+    expect(deleteButton).toBeInTheDocument()
+  })
+
+  it("does not render delete button", () => {
+    setup(false)
+
+    const deleteButton = screen.queryByRole("button", { name: /delete/i })
+    expect(deleteButton).not.toBeInTheDocument()
   })
 })

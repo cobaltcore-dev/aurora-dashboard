@@ -48,6 +48,7 @@ describe("DetailLayout", () => {
         kubernetes: true,
       },
     },
+    isDeleteAllowed: true,
     setDeleteClusterModal: vi.fn(),
     setDeleteClusterName: vi.fn(),
   }
@@ -220,5 +221,19 @@ describe("DetailLayout", () => {
     expect(screen.getByText("Current")).toBeInTheDocument()
     expect(screen.getByRole("button", { name: /share/i })).toBeInTheDocument()
     expect(screen.getByTestId("test-children")).toBeInTheDocument()
+  })
+
+  it("renders delete button", () => {
+    setup(defaultProps)
+
+    const deleteButton = screen.getByRole("button", { name: /delete/i })
+    expect(deleteButton).toBeInTheDocument()
+  })
+
+  it("does not render delete button", () => {
+    setup({ ...defaultProps, isDeleteAllowed: false })
+
+    const deleteButton = screen.queryByRole("button", { name: /delete/i })
+    expect(deleteButton).not.toBeInTheDocument()
   })
 })
