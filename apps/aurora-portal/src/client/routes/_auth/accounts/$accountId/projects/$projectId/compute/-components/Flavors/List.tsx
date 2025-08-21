@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react"
-import { msg } from "@lingui/core/macro"
-import { useLingui } from "@lingui/react"
+import { useLingui } from "@lingui/react/macro"
 import { TrpcClient } from "@/client/trpcClient"
 import { Flavor } from "@/server/Compute/types/flavor"
 import { Message, Button } from "@cloudoperators/juno-ui-components"
@@ -20,7 +19,7 @@ interface ErrorState {
 }
 
 export const Flavors = ({ client, project }: FlavorsProps) => {
-  const { _ } = useLingui()
+  const { t } = useLingui()
   const { translateError, isRetryableError } = useErrorTranslation()
 
   const [sortBy, setSortBy] = useState("name")
@@ -95,7 +94,7 @@ export const Flavors = ({ client, project }: FlavorsProps) => {
         <Message text={error.message} variant="error" />
         {error.isRetryable && (
           <Button onClick={retryFetch} variant="primary" className="mt-4">
-            {_(msg`Retry`)}
+            {t`Retry`}
           </Button>
         )}
       </div>
