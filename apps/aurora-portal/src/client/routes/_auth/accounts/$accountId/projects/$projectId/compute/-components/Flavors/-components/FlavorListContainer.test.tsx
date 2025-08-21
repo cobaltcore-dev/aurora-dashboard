@@ -1,10 +1,20 @@
-import React from "react"
-import { render, screen } from "@testing-library/react"
-import { describe, it, expect, vi } from "vitest"
+import { render, screen, act } from "@testing-library/react"
+import { describe, it, expect, beforeAll } from "vitest"
 import { FlavorListContainer } from "./FlavorListContainer"
 import { Flavor } from "@/server/Compute/types/flavor"
+import { I18nProvider } from "@lingui/react"
+import { ReactNode } from "react"
+import { i18n } from "@lingui/core"
+
+const TestingProvider = ({ children }: { children: ReactNode }) => <I18nProvider i18n={i18n}>{children}</I18nProvider>
 
 describe("FlavorListContainer", () => {
+  beforeAll(async () => {
+    await act(async () => {
+      i18n.activate("en")
+    })
+  })
+
   const mockFlavors: Flavor[] = [
     {
       id: "1",
@@ -28,37 +38,59 @@ describe("FlavorListContainer", () => {
     },
   ]
 
-  beforeEach(() => {
-    vi.clearAllMocks()
-    vi.useFakeTimers()
-  })
-
-  afterEach(() => {
-    vi.useRealTimers()
-  })
-
-  it("renders loading message when isLoading is true", () => {
-    render(<FlavorListContainer isLoading={true} />)
-    expect(screen.getByTestId("loading")).toBeInTheDocument()
-    expect(screen.queryByTestId("no-flavors")).not.toBeInTheDocument()
-    expect(screen.queryByTestId("flavors-table")).not.toBeInTheDocument()
-  })
-
-  it("renders no flavors message when flavors is empty", () => {
-    render(<FlavorListContainer flavors={[]} isLoading={false} />)
-    expect(screen.queryByTestId("loading")).not.toBeInTheDocument()
-    expect(screen.getByTestId("no-flavors")).toBeInTheDocument()
-    expect(screen.queryByTestId("flavors-table")).not.toBeInTheDocument()
-  })
-
-  it("renders the flavors table when flavors are provided", () => {
-    render(<FlavorListContainer flavors={mockFlavors} isLoading={false} />)
-    expect(screen.queryByTestId("loading")).not.toBeInTheDocument()
-    expect(screen.queryByTestId("no-flavors")).not.toBeInTheDocument()
-    expect(screen.getByTestId("flavors-table")).toBeInTheDocument()
-
-    mockFlavors.forEach((flavor) => {
-      expect(screen.getByTestId(`flavor-row-${flavor.id}`)).toBeInTheDocument()
+  it("renders loading message when isLoading is true", async () => {
+    await act(async () => {
+      render(<FlavorListContainer isLoading={true} />, { wrapper: TestingProvider })
     })
+
+    // Use findByText for async rendering
+    expect(await screen.findByText("Loading...")).toBeInTheDocument()
+    expect(screen.queryByText("No flavors found")).not.toBeInTheDocument()
+    expect(screen.queryByText("Name")).not.toBeInTheDocument()
+  })
+
+  it("renders no flavors message when flavors is empty", async () => {
+    await act(async () => {
+      render(<FlavorListContainer flavors={[]} isLoading={false} />, { wrapper: TestingProvider })
+    })
+
+    expect(screen.queryByText("Loading...")).not.toBeInTheDocument()
+    expect(await screen.findByText("No flavors found")).toBeInTheDocument()
+    expect(await screen.findByText(/There are no flavors available for this project/)).toBeInTheDocument()
+    expect(screen.queryByText("vCPU")).not.toBeInTheDocument()
+  })
+
+  it("renders no flavors message when flavors is undefined", async () => {
+    await act(async () => {
+      render(<FlavorListContainer flavors={undefined} isLoading={false} />, {
+        wrapper: TestingProvider,
+      })
+    })
+
+    expect(screen.queryByText("Loading...")).not.toBeInTheDocument()
+    expect(await screen.findByText("No flavors found")).toBeInTheDocument()
+    expect(await screen.findByText(/There are no flavors available for this project/)).toBeInTheDocument()
+    expect(screen.queryByText("vCPU")).not.toBeInTheDocument()
+  })
+
+  it("renders the flavors table when flavors are provided", async () => {
+    await act(async () => {
+      render(<FlavorListContainer flavors={mockFlavors} isLoading={false} />, {
+        wrapper: TestingProvider,
+      })
+    })
+
+    expect(screen.queryByText("Loading...")).not.toBeInTheDocument()
+    expect(screen.queryByText("No flavors found")).not.toBeInTheDocument()
+
+    expect(screen.getByText("Name")).toBeInTheDocument()
+    expect(screen.getByText("vCPU")).toBeInTheDocument()
+    expect(screen.getByText("RAM (MiB)")).toBeInTheDocument()
+    expect(screen.getByText("Root Disk (GiB)")).toBeInTheDocument()
+    expect(screen.getByText("Ephemeral Disk (GiB)")).toBeInTheDocument()
+    expect(screen.getByText("Swap (MiB)")).toBeInTheDocument()
+    expect(screen.getByText("RX/TX Factor")).toBeInTheDocument()
+    expect(screen.getByText("Flavor1")).toBeInTheDocument()
+    expect(screen.getByText("Flavor2")).toBeInTheDocument()
   })
 })

@@ -2,6 +2,7 @@ import { describe, it, expect, vi } from "vitest"
 import { TRPCError } from "@trpc/server"
 import { Flavor } from "../types/flavor"
 import { includesSearchTerm, fetchFlavors, filterAndSortFlavors } from "./flavorHelpers"
+import { ERROR_CODES } from "../../errorCodes"
 
 const mockFlavors: Flavor[] = [
   {
@@ -110,7 +111,7 @@ describe("fetchFlavors", () => {
     await expect(fetchFlavors(mockCompute)).rejects.toThrow(
       new TRPCError({
         code: "PARSE_ERROR",
-        message: "Server returned unexpected data format.",
+        message: ERROR_CODES.FLAVORS_PARSE_ERROR,
       })
     )
   })
@@ -126,7 +127,7 @@ describe("fetchFlavors", () => {
     await expect(fetchFlavors(mockCompute)).rejects.toThrow(
       new TRPCError({
         code: "UNAUTHORIZED",
-        message: "Your session has expired. Please log in again.",
+        message: ERROR_CODES.FLAVORS_UNAUTHORIZED,
       })
     )
   })
@@ -142,7 +143,7 @@ describe("fetchFlavors", () => {
     await expect(fetchFlavors(mockCompute)).rejects.toThrow(
       new TRPCError({
         code: "FORBIDDEN",
-        message: "You don't have permission to access flavors for this project.",
+        message: ERROR_CODES.FLAVORS_FORBIDDEN,
       })
     )
   })
@@ -158,7 +159,7 @@ describe("fetchFlavors", () => {
     await expect(fetchFlavors(mockCompute)).rejects.toThrow(
       new TRPCError({
         code: "NOT_FOUND",
-        message: "Flavor service is not available for this project.",
+        message: ERROR_CODES.FLAVORS_NOT_FOUND,
       })
     )
   })
@@ -174,7 +175,39 @@ describe("fetchFlavors", () => {
     await expect(fetchFlavors(mockCompute)).rejects.toThrow(
       new TRPCError({
         code: "INTERNAL_SERVER_ERROR",
-        message: "Server is experiencing issues. Please try again later.",
+        message: ERROR_CODES.FLAVORS_SERVER_ERROR,
+      })
+    )
+  })
+
+  it("should throw INTERNAL_SERVER_ERROR for 502 status", async () => {
+    const mockCompute = {
+      get: vi.fn().mockResolvedValue({
+        ok: false,
+        status: 502,
+      }),
+    }
+
+    await expect(fetchFlavors(mockCompute)).rejects.toThrow(
+      new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: ERROR_CODES.FLAVORS_SERVER_ERROR,
+      })
+    )
+  })
+
+  it("should throw INTERNAL_SERVER_ERROR for 503 status", async () => {
+    const mockCompute = {
+      get: vi.fn().mockResolvedValue({
+        ok: false,
+        status: 503,
+      }),
+    }
+
+    await expect(fetchFlavors(mockCompute)).rejects.toThrow(
+      new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: ERROR_CODES.FLAVORS_SERVER_ERROR,
       })
     )
   })
@@ -190,7 +223,7 @@ describe("fetchFlavors", () => {
     await expect(fetchFlavors(mockCompute)).rejects.toThrow(
       new TRPCError({
         code: "BAD_REQUEST",
-        message: "Failed to fetch flavors from server.",
+        message: ERROR_CODES.FLAVORS_FETCH_FAILED,
       })
     )
   })

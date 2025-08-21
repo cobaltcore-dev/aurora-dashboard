@@ -6,6 +6,7 @@ import {
   DataGridCell,
   ContentHeading,
 } from "@cloudoperators/juno-ui-components"
+import { Trans } from "@lingui/react/macro"
 
 interface FlavorListContainerProps {
   flavors?: Flavor[]
@@ -14,7 +15,11 @@ interface FlavorListContainerProps {
 
 export const FlavorListContainer = ({ flavors, isLoading }: FlavorListContainerProps) => {
   if (isLoading) {
-    return <div data-testid="loading">Loading flavors...</div>
+    return (
+      <div data-testid="loading">
+        <Trans>Loading...</Trans>
+      </div>
+    )
   }
 
   if (!flavors || flavors.length === 0) {
@@ -22,10 +27,14 @@ export const FlavorListContainer = ({ flavors, isLoading }: FlavorListContainerP
       <DataGrid columns={7} className="flavors" data-testid="no-flavors">
         <DataGridRow>
           <DataGridCell colSpan={7}>
-            <ContentHeading>No flavors found</ContentHeading>
+            <ContentHeading>
+              <Trans>No flavors found</Trans>
+            </ContentHeading>
             <p>
-              There are no flavors available for this project with the current filters applied. Try adjusting your
-              filter criteria or create a new flavor.
+              <Trans>
+                There are no flavors available for this project with the current filters applied. Try adjusting your
+                filter criteria or create a new flavor.
+              </Trans>
             </p>
           </DataGridCell>
         </DataGridRow>
