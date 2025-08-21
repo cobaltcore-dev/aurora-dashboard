@@ -20,6 +20,7 @@ export interface DetailLayoutProps {
   isJsonView: boolean
   children: ReactNode
   cluster: Cluster
+  isDeleteAllowed: boolean
   toggleView: () => void
   onBack: () => void
   handleShare: () => void
@@ -43,6 +44,7 @@ const DetailLayout: React.FC<DetailLayoutProps> = ({
   toggleView,
   children,
   cluster,
+  isDeleteAllowed,
   setDeleteClusterModal,
   setDeleteClusterName,
 }) => {
@@ -62,15 +64,17 @@ const DetailLayout: React.FC<DetailLayoutProps> = ({
         </Stack>
         <Stack direction="vertical" distribution="center">
           <ButtonRow>
-            <Button
-              label={t`Delete`}
-              icon="deleteForever"
-              variant="primary-danger"
-              onClick={() => {
-                setDeleteClusterName(cluster.name)
-                setDeleteClusterModal(true)
-              }}
-            />
+            {isDeleteAllowed && (
+              <Button
+                label={t`Delete`}
+                icon="deleteForever"
+                variant="primary-danger"
+                onClick={() => {
+                  setDeleteClusterName(cluster.name)
+                  setDeleteClusterModal(true)
+                }}
+              />
+            )}
             <Button label={t`Share`} icon="contentCopy" variant="primary" onClick={handleShare} />
           </ButtonRow>
         </Stack>

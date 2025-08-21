@@ -2,6 +2,7 @@ import type { AuroraPortalContext } from "./context"
 import { initTRPC, TRPCError } from "@trpc/server"
 const t = initTRPC.context<AuroraPortalContext>().create()
 
+export const router = t.router
 export const auroraRouter = t.router
 export const mergeRouters = t.mergeRouters
 export const publicProcedure = t.procedure

@@ -14,9 +14,10 @@ import { DeleteClusterDialog } from "./DeleteClusterDialog"
 
 interface PeakDetailPageProps {
   cluster: Cluster
+  isDeleteAllowed: boolean
 }
 
-const ClusterDetailPage: React.FC<PeakDetailPageProps> = ({ cluster }) => {
+const ClusterDetailPage: React.FC<PeakDetailPageProps> = ({ cluster, isDeleteAllowed }) => {
   const [isJsonView, setIsJsonView] = useState<boolean>(false)
   const [toastData, setToastData] = useState<ToastProps | null>(null)
 
@@ -28,6 +29,10 @@ const ClusterDetailPage: React.FC<PeakDetailPageProps> = ({ cluster }) => {
   const [deletedClusterName, setDeleteClusterName] = useState<string | null>(null)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const handleDeleteCluster = async () => {
+    if (!isDeleteAllowed) {
+      return
+    }
+
     try {
       await trpcClient?.gardener.deleteCluster.mutate({
         name: deletedClusterName!,
@@ -111,6 +116,7 @@ const ClusterDetailPage: React.FC<PeakDetailPageProps> = ({ cluster }) => {
           setDeleteClusterModal={setDeleteClusterModal}
           setDeleteClusterName={setDeleteClusterName}
           cluster={cluster}
+          isDeleteAllowed={isDeleteAllowed}
           isJsonView={isJsonView}
           toggleView={() => setIsJsonView(!isJsonView)}
         >
@@ -139,7 +145,7 @@ const ClusterDetailPage: React.FC<PeakDetailPageProps> = ({ cluster }) => {
           )}
         </DetailLayout>
       </div>
-      {deleteClusterModal && (
+      {isDeleteAllowed && deleteClusterModal && (
         <DeleteClusterDialog
           clusterName={deletedClusterName!}
           isOpen={deleteClusterModal}

@@ -74,6 +74,7 @@ msgid "Aurora Dashboard is more than just a tool—it's your partner in navigati
 msgstr "Aurora Dashboard is more than just a tool—it's your partner in navigating the cloud. Whether you're a small startup or a global enterprise, Aurora provides the flexibility, power, and simplicity you need to achieve your goals."
 
 #: src/client/routes/gardener/-components/ClusterDetail/SettingsSection.tsx:44
+#: src/client/routes/gardener/-components/ClusterDetail/SettingsSection.tsx:44
 msgid "Auto Update"
 msgstr "Auto Update"
 
@@ -101,11 +102,11 @@ msgstr "Cluster Configuration"
 msgid "Cluster created successfully"
 msgstr "Cluster created successfully"
 
-#: src/client/routes/gardener/-components/ClusterDetail.tsx:35
+#: src/client/routes/gardener/-components/ClusterDetail.tsx:40
 msgid "Cluster deleted successfully"
 msgstr "Cluster deleted successfully"
 
-#: src/client/routes/gardener/-components/ClusterDetail.tsx:66
+#: src/client/routes/gardener/-components/ClusterDetail.tsx:71
 msgid "Cluster details copied to clipboard!"
 msgstr "Cluster details copied to clipboard!"
 
@@ -121,7 +122,7 @@ msgstr "Cluster Name"
 msgid "Cluster name is required"
 msgstr "Cluster name is required"
 
-#: src/client/routes/gardener/-components/ClusterDetail.tsx:107
+#: src/client/routes/gardener/-components/ClusterDetail.tsx:112
 msgid "Clusters"
 msgstr "Clusters"
 
@@ -142,7 +143,7 @@ msgid "Create Cluster"
 msgstr "Create Cluster"
 
 #: src/client/routes/gardener/-components/DeleteClusterDialog.tsx:44
-#: src/client/routes/gardener/-components/ClusterDetail/DetailLayout.tsx:66
+#: src/client/routes/gardener/-components/ClusterDetail/DetailLayout.tsx:69
 msgid "Delete"
 msgstr "Delete"
 
@@ -191,7 +192,8 @@ msgstr "Enter your username"
 msgid "Ephemeral Disk"
 msgstr "Ephemeral Disk"
 
-#: src/client/routes/gardener/-components/ClusterDetail.tsx:84
+
+#: src/client/routes/gardener/-components/ClusterDetail.tsx:89
 msgid "Failed to copy to clipboard"
 msgstr "Failed to copy to clipboard"
 
@@ -199,7 +201,7 @@ msgstr "Failed to copy to clipboard"
 msgid "Failed to create cluster:"
 msgstr "Failed to create cluster:"
 
-#: src/client/routes/gardener/-components/ClusterDetail.tsx:39
+#: src/client/routes/gardener/-components/ClusterDetail.tsx:44
 msgid "Failed to delete cluster: "
 msgstr "Failed to delete cluster: "
 
@@ -353,7 +355,7 @@ msgstr "Password"
 msgid "Please review all configurations carefully before creating the cluster. Once created, some settings cannot be changed."
 msgstr "Please review all configurations carefully before creating the cluster. Once created, some settings cannot be changed."
 
-#: src/client/routes/gardener/-components/ClusterDetail.tsx:87
+#: src/client/routes/gardener/-components/ClusterDetail.tsx:92
 msgid "Please try again or copy manually"
 msgstr "Please try again or copy manually"
 
@@ -365,7 +367,8 @@ msgstr "Pods CIDR"
 msgid "RAM"
 msgstr "RAM"
 
-#: src/client/routes/gardener/-components/ClusterDetail.tsx:124
+
+#: src/client/routes/gardener/-components/ClusterDetail.tsx:130
 msgid "Raw JSON Data for"
 msgstr "Raw JSON Data for"
 
@@ -409,7 +412,7 @@ msgstr "Server returned unexpected data format."
 msgid "Services CIDR"
 msgstr "Services CIDR"
 
-#: src/client/routes/gardener/-components/ClusterDetail/DetailLayout.tsx:74
+#: src/client/routes/gardener/-components/ClusterDetail/DetailLayout.tsx:78
 msgid "Share"
 msgstr "Share"
 
@@ -526,7 +529,7 @@ msgstr "Would you like to remove the <0>{clusterName}</0> from your project?"
 msgid "You are already signed in."
 msgstr "You are already signed in."
 
-#: src/client/routes/gardener/-components/ClusterDetail.tsx:69
+#: src/client/routes/gardener/-components/ClusterDetail.tsx:74
 msgid "You can now share this information with your team"
 msgstr "You can now share this information with your team"
 

@@ -73,7 +73,7 @@ msgstr "Bei Aurora ist es unsere Mission, eine zentrale Plattform bereitzustelle
 msgid "Aurora Dashboard is more than just a tool—it's your partner in navigating the cloud. Whether you're a small startup or a global enterprise, Aurora provides the flexibility, power, and simplicity you need to achieve your goals."
 msgstr "Das Aurora-Dashboard ist mehr als nur ein Werkzeug – es ist Ihr Partner bei der Navigation in der Cloud. Egal, ob Sie ein kleines Startup oder ein globales Unternehmen sind, Aurora bietet Ihnen die Flexibilität, Leistung und Einfachheit, die Sie benötigen, um Ihre Ziele zu erreichen."
 
-#: src/client/routes/gardener/-components/ClusterDetail/SettingsSection.tsx:44
+#: src/client/routes/gardener/-components/ClusterDetail/SettingsSection.tsx:47
 msgid "Auto Update"
 msgstr "Auto-Update"
 
@@ -101,11 +101,11 @@ msgstr "Cluster-Konfiguration"
 msgid "Cluster created successfully"
 msgstr "Cluster erfolgreich erstellt"
 
-#: src/client/routes/gardener/-components/ClusterDetail.tsx:35
+#: src/client/routes/gardener/-components/ClusterDetail.tsx:40
 msgid "Cluster deleted successfully"
 msgstr "Cluster erfolgreich gelöscht"
 
-#: src/client/routes/gardener/-components/ClusterDetail.tsx:66
+#: src/client/routes/gardener/-components/ClusterDetail.tsx:71
 msgid "Cluster details copied to clipboard!"
 msgstr "Cluster-Details erfolgreich kopiert!"
 
@@ -121,7 +121,7 @@ msgstr "Cluster Name"
 msgid "Cluster name is required"
 msgstr "Cluster Name ist erforderlich"
 
-#: src/client/routes/gardener/-components/ClusterDetail.tsx:107
+#: src/client/routes/gardener/-components/ClusterDetail.tsx:112
 msgid "Clusters"
 msgstr "Cluster"
 
@@ -142,7 +142,7 @@ msgid "Create Cluster"
 msgstr "Cluster erstellen"
 
 #: src/client/routes/gardener/-components/DeleteClusterDialog.tsx:44
-#: src/client/routes/gardener/-components/ClusterDetail/DetailLayout.tsx:66
+#: src/client/routes/gardener/-components/ClusterDetail/DetailLayout.tsx:69
 msgid "Delete"
 msgstr "Löschen"
 
@@ -191,7 +191,7 @@ msgstr "Geben Sie Ihren Benutzernamen ein"
 msgid "Ephemeral Disk"
 msgstr "Ephemeral Disk"
 
-#: src/client/routes/gardener/-components/ClusterDetail.tsx:84
+#: src/client/routes/gardener/-components/ClusterDetail.tsx:89
 msgid "Failed to copy to clipboard"
 msgstr "Kopieren fehlgeschlagen"
 
@@ -199,7 +199,7 @@ msgstr "Kopieren fehlgeschlagen"
 msgid "Failed to create cluster:"
 msgstr "Fehler beim Erstellen des Clusters:"
 
-#: src/client/routes/gardener/-components/ClusterDetail.tsx:39
+#: src/client/routes/gardener/-components/ClusterDetail.tsx:44
 msgid "Failed to delete cluster: "
 msgstr "Fehler beim lösches des Clusters:"
 
@@ -353,7 +353,7 @@ msgstr "Passwort"
 msgid "Please review all configurations carefully before creating the cluster. Once created, some settings cannot be changed."
 msgstr "Bitte überprüfe alle Konfigurationen sorgfältig, bevor du den Cluster erstellst. Nach der Erstellung können einige Einstellungen nicht mehr geändert werden."
 
-#: src/client/routes/gardener/-components/ClusterDetail.tsx:87
+#: src/client/routes/gardener/-components/ClusterDetail.tsx:92
 msgid "Please try again or copy manually"
 msgstr "Bitte versuchen Sie es erneut oder kopieren Sie manuell"
 
@@ -365,7 +365,8 @@ msgstr "CIDR-Bereich für Pods"
 msgid "RAM"
 msgstr "RAM"
 
-#: src/client/routes/gardener/-components/ClusterDetail.tsx:124
+
+#: src/client/routes/gardener/-components/ClusterDetail.tsx:130
 msgid "Raw JSON Data for"
 msgstr "JSON-Rohdaten für"
 
@@ -409,7 +410,7 @@ msgstr "Der Server hat ein unerwartetes Datenformat zurückgegeben."
 msgid "Services CIDR"
 msgstr "CIDR-Bereich für Services"
 
-#: src/client/routes/gardener/-components/ClusterDetail/DetailLayout.tsx:74
+#: src/client/routes/gardener/-components/ClusterDetail/DetailLayout.tsx:78
 msgid "Share"
 msgstr "Teilen"
 
@@ -526,7 +527,7 @@ msgstr "Möchtest du <0>{clusterName}</0> aus deinem Projekt entfernen?"
 msgid "You are already signed in."
 msgstr "Sie sind bereits angemeldet."
 
-#: src/client/routes/gardener/-components/ClusterDetail.tsx:69
+#: src/client/routes/gardener/-components/ClusterDetail.tsx:74
 msgid "You can now share this information with your team"
 msgstr "Sie können diese Informationen nun mit Ihrem Team teilen"
 
