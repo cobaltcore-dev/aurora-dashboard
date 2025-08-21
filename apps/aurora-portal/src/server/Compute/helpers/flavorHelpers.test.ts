@@ -97,7 +97,7 @@ describe("fetchFlavors", () => {
 
     const flavors = await fetchFlavors(mockCompute)
     expect(flavors).toEqual(mockFlavors)
-    expect(mockCompute.get).toHaveBeenCalledWith("/compute/v2.1/flavors/detail")
+    expect(mockCompute.get).toHaveBeenCalledWith("flavors/detail")
   })
 
   it("should throw PARSE_ERROR if Zod parsing fails", async () => {
