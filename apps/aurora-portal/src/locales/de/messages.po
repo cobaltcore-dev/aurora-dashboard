@@ -57,7 +57,7 @@ msgstr "Über das Aurora-Dashboard"
 msgid "After continuing, your project will no longer have access to the <0>{clusterName}</0> resources."
 msgstr "Nach dem Fortfahren hat dein Projekt keinen Zugriff mehr auf die <0>{clusterName}</0>-Ressourcen."
 
-#: src/client/utils/useErrorTranslation.ts:22
+#: src/client/utils/useErrorTranslation.ts:21
 msgid "An unexpected error occurred. Please try again."
 msgstr "Ein unerwarteter Fehler ist aufgetreten. Bitte versuchen Sie es erneut."
 
@@ -73,7 +73,7 @@ msgstr "Bei Aurora ist es unsere Mission, eine zentrale Plattform bereitzustelle
 msgid "Aurora Dashboard is more than just a tool—it's your partner in navigating the cloud. Whether you're a small startup or a global enterprise, Aurora provides the flexibility, power, and simplicity you need to achieve your goals."
 msgstr "Das Aurora-Dashboard ist mehr als nur ein Werkzeug – es ist Ihr Partner bei der Navigation in der Cloud. Egal, ob Sie ein kleines Startup oder ein globales Unternehmen sind, Aurora bietet Ihnen die Flexibilität, Leistung und Einfachheit, die Sie benötigen, um Ihre Ziele zu erreichen."
 
-#: src/client/routes/gardener/-components/ClusterDetail/SettingsSection.tsx:47
+#: src/client/routes/gardener/-components/ClusterDetail/SettingsSection.tsx:44
 msgid "Auto Update"
 msgstr "Auto-Update"
 
@@ -203,7 +203,7 @@ msgstr "Fehler beim Erstellen des Clusters:"
 msgid "Failed to delete cluster: "
 msgstr "Fehler beim lösches des Clusters:"
 
-#: src/client/utils/useErrorTranslation.ts:18
+#: src/client/utils/useErrorTranslation.ts:17
 msgid "Failed to fetch flavors from server."
 msgstr "Fehler beim Abrufen der Flavors vom Server."
 
@@ -211,7 +211,7 @@ msgstr "Fehler beim Abrufen der Flavors vom Server."
 msgid "Filters"
 msgstr "Filter"
 
-#: src/client/utils/useErrorTranslation.ts:14
+#: src/client/utils/useErrorTranslation.ts:13
 msgid "Flavor service is not available for this project."
 msgstr "Der Flavor-Service ist für dieses Projekt nicht verfügbar."
 
@@ -365,7 +365,6 @@ msgstr "CIDR-Bereich für Pods"
 msgid "RAM"
 msgstr "RAM"
 
-
 #: src/client/routes/gardener/-components/ClusterDetail.tsx:130
 msgid "Raw JSON Data for"
 msgstr "JSON-Rohdaten für"
@@ -378,7 +377,7 @@ msgstr "Bereitschaft"
 msgid "Region"
 msgstr "Region"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/List.tsx:99
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/List.tsx:97
 msgid "Retry"
 msgstr "Erneut versuchen"
 
@@ -398,11 +397,11 @@ msgstr "Scaling"
 msgid "Search clusters..."
 msgstr "Cluster durchsuchen..."
 
-#: src/client/utils/useErrorTranslation.ts:16
+#: src/client/utils/useErrorTranslation.ts:15
 msgid "Server is experiencing issues. Please try again later."
 msgstr "Der Server hat Probleme. Bitte versuchen Sie es später erneut."
 
-#: src/client/utils/useErrorTranslation.ts:20
+#: src/client/utils/useErrorTranslation.ts:19
 msgid "Server returned unexpected data format."
 msgstr "Der Server hat ein unerwartetes Datenformat zurückgegeben."
 
@@ -531,7 +530,7 @@ msgstr "Sie sind bereits angemeldet."
 msgid "You can now share this information with your team"
 msgstr "Sie können diese Informationen nun mit Ihrem Team teilen"
 
-#: src/client/utils/useErrorTranslation.ts:12
+#: src/client/utils/useErrorTranslation.ts:11
 msgid "You don't have permission to access flavors for this project."
 msgstr "Sie haben keine Berechtigung, auf Flavors für dieses Projekt zuzugreifen."
 
@@ -539,7 +538,7 @@ msgstr "Sie haben keine Berechtigung, auf Flavors für dieses Projekt zuzugreife
 msgid "You need to login to access this page."
 msgstr "Sie müssen sich anmelden, um auf diese Seite zuzugreifen."
 
-#: src/client/utils/useErrorTranslation.ts:10
+#: src/client/utils/useErrorTranslation.ts:9
 msgid "Your session has expired. Please log in again."
 msgstr "Ihre Sitzung ist abgelaufen. Bitte melden Sie sich erneut an."
 

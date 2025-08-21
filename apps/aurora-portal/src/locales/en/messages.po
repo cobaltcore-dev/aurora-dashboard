@@ -57,7 +57,7 @@ msgstr "About Aurora Dashboard"
 msgid "After continuing, your project will no longer have access to the <0>{clusterName}</0> resources."
 msgstr "After continuing, your project will no longer have access to the <0>{clusterName}</0> resources."
 
-#: src/client/utils/useErrorTranslation.ts:22
+#: src/client/utils/useErrorTranslation.ts:21
 msgid "An unexpected error occurred. Please try again."
 msgstr "An unexpected error occurred. Please try again."
 
@@ -73,7 +73,6 @@ msgstr "At Aurora, our mission is to provide a centralized platform that unifies
 msgid "Aurora Dashboard is more than just a tool—it's your partner in navigating the cloud. Whether you're a small startup or a global enterprise, Aurora provides the flexibility, power, and simplicity you need to achieve your goals."
 msgstr "Aurora Dashboard is more than just a tool—it's your partner in navigating the cloud. Whether you're a small startup or a global enterprise, Aurora provides the flexibility, power, and simplicity you need to achieve your goals."
 
-#: src/client/routes/gardener/-components/ClusterDetail/SettingsSection.tsx:44
 #: src/client/routes/gardener/-components/ClusterDetail/SettingsSection.tsx:44
 msgid "Auto Update"
 msgstr "Auto Update"
@@ -192,7 +191,6 @@ msgstr "Enter your username"
 msgid "Ephemeral Disk"
 msgstr "Ephemeral Disk"
 
-
 #: src/client/routes/gardener/-components/ClusterDetail.tsx:89
 msgid "Failed to copy to clipboard"
 msgstr "Failed to copy to clipboard"
@@ -205,7 +203,7 @@ msgstr "Failed to create cluster:"
 msgid "Failed to delete cluster: "
 msgstr "Failed to delete cluster: "
 
-#: src/client/utils/useErrorTranslation.ts:18
+#: src/client/utils/useErrorTranslation.ts:17
 msgid "Failed to fetch flavors from server."
 msgstr "Failed to fetch flavors from server."
 
@@ -213,7 +211,7 @@ msgstr "Failed to fetch flavors from server."
 msgid "Filters"
 msgstr "Filters"
 
-#: src/client/utils/useErrorTranslation.ts:14
+#: src/client/utils/useErrorTranslation.ts:13
 msgid "Flavor service is not available for this project."
 msgstr "Flavor service is not available for this project."
 
@@ -367,7 +365,6 @@ msgstr "Pods CIDR"
 msgid "RAM"
 msgstr "RAM"
 
-
 #: src/client/routes/gardener/-components/ClusterDetail.tsx:130
 msgid "Raw JSON Data for"
 msgstr "Raw JSON Data for"
@@ -380,7 +377,7 @@ msgstr "Readiness"
 msgid "Region"
 msgstr "Region"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/List.tsx:99
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/List.tsx:97
 msgid "Retry"
 msgstr "Retry"
 
@@ -400,11 +397,11 @@ msgstr "Scaling"
 msgid "Search clusters..."
 msgstr "Search clusters..."
 
-#: src/client/utils/useErrorTranslation.ts:16
+#: src/client/utils/useErrorTranslation.ts:15
 msgid "Server is experiencing issues. Please try again later."
 msgstr "Server is experiencing issues. Please try again later."
 
-#: src/client/utils/useErrorTranslation.ts:20
+#: src/client/utils/useErrorTranslation.ts:19
 msgid "Server returned unexpected data format."
 msgstr "Server returned unexpected data format."
 
@@ -533,7 +530,7 @@ msgstr "You are already signed in."
 msgid "You can now share this information with your team"
 msgstr "You can now share this information with your team"
 
-#: src/client/utils/useErrorTranslation.ts:12
+#: src/client/utils/useErrorTranslation.ts:11
 msgid "You don't have permission to access flavors for this project."
 msgstr "You don't have permission to access flavors for this project."
 
@@ -541,7 +538,7 @@ msgstr "You don't have permission to access flavors for this project."
 msgid "You need to login to access this page."
 msgstr "You need to login to access this page."
 
-#: src/client/utils/useErrorTranslation.ts:10
+#: src/client/utils/useErrorTranslation.ts:9
 msgid "Your session has expired. Please log in again."
 msgstr "Your session has expired. Please log in again."
 
