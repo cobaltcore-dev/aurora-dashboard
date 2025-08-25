@@ -1,5 +1,5 @@
 import React, { useState } from "react"
-import { Stack, Select, SelectOption, InputGroup, SearchInput } from "@cloudoperators/juno-ui-components"
+import { Stack, Select, SelectOption, InputGroup, SearchInput, Button } from "@cloudoperators/juno-ui-components"
 import { useLingui } from "@lingui/react/macro"
 
 interface FilterToolbarProps {
@@ -9,6 +9,7 @@ interface FilterToolbarProps {
   handleSortByChange: (_term: string | number | string[] | undefined) => void
   sortDirection: string
   handleSortDirectionChange: (_term: string | number | string[] | undefined) => void
+  setCreateModalOpen: (_bool: boolean) => void
 }
 
 const FilterToolbar: React.FC<FilterToolbarProps> = ({
@@ -18,6 +19,7 @@ const FilterToolbar: React.FC<FilterToolbarProps> = ({
   handleSortByChange,
   sortDirection,
   handleSortDirectionChange,
+  setCreateModalOpen,
 }) => {
   const { t } = useLingui()
   const [debounceTimer, setDebounceTimer] = useState<number | undefined>(undefined)
@@ -70,6 +72,18 @@ const FilterToolbar: React.FC<FilterToolbarProps> = ({
                   <SelectOption value="desc">{t`Descending`}</SelectOption>
                 </Select>
               </InputGroup>
+            </Stack>
+
+            {/* Separate Stack to ensure button positioning */}
+            <Stack direction="horizontal" className="flex-grow items-center justify-end">
+              <Button
+                icon="addCircle"
+                label={t`Create New Flavor`}
+                onClick={() => {
+                  setCreateModalOpen(true)
+                }}
+                variant="primary"
+              />
             </Stack>
           </Stack>
         </Stack>

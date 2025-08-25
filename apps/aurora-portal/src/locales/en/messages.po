@@ -82,6 +82,7 @@ msgid "Back"
 msgstr "Back"
 
 #: src/client/routes/gardener/-components/DeleteClusterDialog.tsx:47
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/CreateFlavorModal.tsx:36
 msgid "Cancel"
 msgstr "Cancel"
 
@@ -140,6 +141,15 @@ msgstr "Contact support"
 #: src/client/routes/gardener/-components/CreateClusterDialog.tsx:25
 msgid "Create Cluster"
 msgstr "Create Cluster"
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/CreateFlavorModal.tsx:37
+msgid "Create Flavor"
+msgstr "Create Flavor"
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/List.tsx:111
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/CreateFlavorModal.tsx:30
+msgid "Create New Flavor"
+msgstr "Create New Flavor"
 
 #: src/client/routes/gardener/-components/DeleteClusterDialog.tsx:44
 #: src/client/routes/gardener/-components/ClusterDetail/DetailLayout.tsx:69
@@ -377,7 +387,7 @@ msgstr "Readiness"
 msgid "Region"
 msgstr "Region"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/List.tsx:97
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/List.tsx:101
 msgid "Retry"
 msgstr "Retry"
 

@@ -6,6 +6,7 @@ import { Message, Button } from "@cloudoperators/juno-ui-components"
 import { useErrorTranslation } from "@/client/utils/useErrorTranslation"
 import FilterToolbar from "./-components/FilterToolbar"
 import { FlavorListContainer } from "./-components/FlavorListContainer"
+import { CreateFlavorModal } from "./-components/CreateFlavorModal"
 
 interface FlavorsProps {
   client: TrpcClient
@@ -29,6 +30,11 @@ export const Flavors = ({ client, project }: FlavorsProps) => {
   const [error, setError] = useState<ErrorState | undefined>(undefined)
   const [isLoading, setIsLoading] = useState(true)
   const [refetchTrigger, setRefetchTrigger] = useState(0)
+  const [createModalOpen, setCreateModalOpen] = useState(false)
+
+  const handleCreate = (newFlavor: Partial<Flavor>) => {
+    console.log(newFlavor)
+  }
 
   const handleError = (err: unknown) => {
     console.error(err)
@@ -103,6 +109,7 @@ export const Flavors = ({ client, project }: FlavorsProps) => {
 
   return (
     <>
+      <CreateFlavorModal isOpen={createModalOpen} onClose={() => setCreateModalOpen(false)} onCreate={handleCreate} />
       <FilterToolbar
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
@@ -110,6 +117,7 @@ export const Flavors = ({ client, project }: FlavorsProps) => {
         handleSortByChange={handleSortByChange}
         sortDirection={sortDirection}
         handleSortDirectionChange={handleSortDirectionChange}
+        setCreateModalOpen={setCreateModalOpen}
       />
       <FlavorListContainer flavors={flavors} isLoading={isLoading} />
     </>
