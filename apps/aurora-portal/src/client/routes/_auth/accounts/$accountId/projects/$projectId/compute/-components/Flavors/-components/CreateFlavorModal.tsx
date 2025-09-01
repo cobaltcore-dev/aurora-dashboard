@@ -12,6 +12,7 @@ import {
   Stack,
 } from "@cloudoperators/juno-ui-components"
 import { Flavor } from "@/server/Compute/types/flavor"
+import { validateField, FlavorFormField, defaultFlavorValues, FieldErrors } from "./flavorValidation"
 
 interface CreateFlavorModalProps {
   client: TrpcClient
@@ -19,41 +20,6 @@ interface CreateFlavorModalProps {
   onClose: () => void
   project: string
   onSuccess: (name: string) => void
-}
-
-type FlavorFormField =
-  | "id"
-  | "name"
-  | "vcpus"
-  | "ram"
-  | "disk"
-  | "swap"
-  | "description"
-  | "rxtx_factor"
-  | "OS-FLV-EXT-DATA:ephemeral"
-
-const defaultFlavorValues: Partial<Flavor> = {
-  id: "",
-  name: "",
-  vcpus: 1,
-  ram: 128,
-  disk: 0,
-  swap: 0,
-  description: "",
-  rxtx_factor: 1,
-  "OS-FLV-EXT-DATA:ephemeral": 0,
-}
-
-interface FieldErrors {
-  id?: string
-  name?: string
-  vcpus?: string
-  ram?: string
-  disk?: string
-  swap?: string
-  rxtx_factor?: string
-  description?: string
-  "OS-FLV-EXT-DATA:ephemeral"?: string
 }
 
 export const CreateFlavorModal: React.FC<CreateFlavorModalProps> = ({
@@ -68,67 +34,6 @@ export const CreateFlavorModal: React.FC<CreateFlavorModalProps> = ({
   const [errors, setErrors] = useState<FieldErrors>({})
   const [isLoading, setIsLoading] = useState(false)
   const [generalError, setGeneralError] = useState<string | null>(null)
-
-  const validateField = (field: FlavorFormField, value: string | number | null | undefined): string | undefined => {
-    switch (field) {
-      case "id":
-        if (!value) return undefined
-        {
-          const idStr = String(value).trim()
-          const idRegex = /^[a-zA-Z0-9.\-_ ]*$/
-          return idRegex.test(idStr)
-            ? undefined
-            : t`ID must only contain alphanumeric characters, hyphens, underscores, spaces, and dots.`
-        }
-
-      case "name": {
-        const nameStr = String(value || "").trim()
-        return nameStr.length >= 2 && nameStr.length <= 50 ? undefined : t`Name must be 2-50 characters long.`
-      }
-
-      case "vcpus": {
-        const vcpus = Number(value)
-        return !isNaN(vcpus) && vcpus >= 1 ? undefined : t`VCPUs must be an integer ≥ 1.`
-      }
-
-      case "ram": {
-        const ram = Number(value)
-        return !isNaN(ram) && ram >= 128 ? undefined : t`RAM must be an integer ≥ 128 MB.`
-      }
-
-      case "disk": {
-        const disk = Number(value)
-        return !isNaN(disk) && disk >= 0 ? undefined : t`Root Disk must be an integer ≥ 0.`
-      }
-
-      case "swap":
-        if (value === "" || value === undefined || value === null) return undefined
-        {
-          const swap = Number(value)
-          return !isNaN(swap) && swap >= 0 ? undefined : t`Swap Disk must be an integer ≥ 0.`
-        }
-
-      case "rxtx_factor": {
-        const rxtx = Number(value)
-        return !isNaN(rxtx) && rxtx >= 1 ? undefined : t`RX/TX Factor must be an integer ≥ 1.`
-      }
-
-      case "description":
-        if (!value) return undefined
-        {
-          const str = String(value)
-          return str.length < 65535 ? undefined : t`Description must be less than 65535 characters.`
-        }
-
-      case "OS-FLV-EXT-DATA:ephemeral": {
-        const ephemeral = Number(value)
-        return !isNaN(ephemeral) && ephemeral >= 0 ? undefined : t`Ephemeral Disk must be an integer ≥ 0.`
-      }
-
-      default:
-        return undefined
-    }
-  }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
@@ -149,7 +54,7 @@ export const CreateFlavorModal: React.FC<CreateFlavorModalProps> = ({
 
   const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
     const { name, value } = e.target
-    const error = validateField(name as FlavorFormField, value)
+    const error = validateField(name as FlavorFormField, value, t)
     setErrors((prev) => ({
       ...prev,
       [name]: error,
@@ -164,7 +69,7 @@ export const CreateFlavorModal: React.FC<CreateFlavorModalProps> = ({
 
     const requiredFields: FlavorFormField[] = ["name", "vcpus", "ram", "disk"]
     requiredFields.forEach((key) => {
-      const error = validateField(key, newFlavor[key])
+      const error = validateField(key, newFlavor[key], t)
       if (error) {
         newErrors[key] = error
       }
@@ -174,7 +79,7 @@ export const CreateFlavorModal: React.FC<CreateFlavorModalProps> = ({
     optionalFields.forEach((key) => {
       const value = newFlavor[key]
       if (value !== undefined && value !== "" && value !== null) {
-        const error = validateField(key, value)
+        const error = validateField(key, value, t)
         if (error) {
           newErrors[key] = error
         }

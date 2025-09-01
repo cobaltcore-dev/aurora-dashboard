@@ -309,8 +309,8 @@ msgid "ID"
 msgstr "ID"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/CreateFlavorModal.tsx:81
-msgid "ID must only contain alphanumeric characters, hyphens, underscores, spaces, and dots."
-msgstr "Die ID darf nur alphanumerische Zeichen, Bindestriche, Unterstriche, Leerzeichen und Punkte enthalten."
+msgid "ID must only contain alphanumeric characters, hyphens, underscores, and dots."
+msgstr "Die ID darf nur alphanumerische Zeichen, Bindestriche, Unterstriche und Punkte enthalten."
 
 #: src/client/routes/gardener/-components/ClusterDetail/WorkerSection.tsx:35
 msgid "Image"
