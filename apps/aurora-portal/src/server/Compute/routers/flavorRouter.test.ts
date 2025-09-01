@@ -12,6 +12,7 @@ vi.mock("../helpers/flavorHelpers", () => ({
   filterAndSortFlavors: vi.fn(),
   includesSearchTerm: vi.fn(),
   createFlavor: vi.fn(),
+  deleteFlavor: vi.fn(),
 }))
 
 const createMockContext = (shouldFailAuth = false, shouldFailRescope = false, shouldFailCompute = false) => ({
@@ -388,6 +389,153 @@ describe("flavorRouter", () => {
           cause: genericError,
         })
       )
+    })
+  })
+
+  describe("deleteFlavor", () => {
+    const validDeleteInput = {
+      projectId: "test-project-123",
+      flavorId: "flavor-to-delete",
+    }
+
+    it("should throw UNAUTHORIZED when session validation fails", async () => {
+      const mockCtx = createMockContext(true)
+      const caller = createCaller(mockCtx)
+
+      await expect(caller.flavor.deleteFlavor(validDeleteInput)).rejects.toThrow(
+        new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "The session is invalid",
+        })
+      )
+
+      expect(mockCtx.validateSession).toHaveBeenCalled()
+      expect(mockCtx.rescopeSession).not.toHaveBeenCalled()
+    })
+
+    it("should successfully delete a flavor", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      vi.mocked(flavorHelpers.deleteFlavor).mockResolvedValue(undefined)
+
+      const result = await caller.flavor.deleteFlavor(validDeleteInput)
+
+      expect(mockCtx.validateSession).toHaveBeenCalled()
+      expect(mockCtx.rescopeSession).toHaveBeenCalledWith({ projectId: "test-project-123" })
+      expect(flavorHelpers.deleteFlavor).toHaveBeenCalledWith(
+        expect.objectContaining({ get: expect.any(Function) }),
+        "flavor-to-delete"
+      )
+      expect(result).toEqual({
+        success: true,
+        message: "Flavor deleted successfully",
+      })
+    })
+
+    it("should throw INTERNAL_SERVER_ERROR when compute service is unavailable", async () => {
+      const mockCtx = createMockContext(false, false, true)
+      const caller = createCaller(mockCtx)
+
+      await expect(caller.flavor.deleteFlavor(validDeleteInput)).rejects.toThrow(
+        new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: ERROR_CODES.COMPUTE_SERVICE_UNAVAILABLE,
+        })
+      )
+
+      expect(flavorHelpers.deleteFlavor).not.toHaveBeenCalled()
+    })
+
+    it("should re-throw TRPCError from deleteFlavor helper without wrapping", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      const originalTRPCError = new TRPCError({
+        code: "NOT_FOUND",
+        message: "The flavor could not be found. It may have already been deleted.",
+      })
+      vi.mocked(flavorHelpers.deleteFlavor).mockRejectedValue(originalTRPCError)
+
+      await expect(caller.flavor.deleteFlavor(validDeleteInput)).rejects.toThrow(originalTRPCError)
+    })
+
+    it("should re-throw TRPCError for flavor in use", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      const flavorInUseError = new TRPCError({
+        code: "BAD_REQUEST",
+        message: "This flavor cannot be deleted because it is currently in use by existing servers.",
+      })
+      vi.mocked(flavorHelpers.deleteFlavor).mockRejectedValue(flavorInUseError)
+
+      await expect(caller.flavor.deleteFlavor(validDeleteInput)).rejects.toThrow(flavorInUseError)
+    })
+
+    it("should re-throw TRPCError for unauthorized deletion", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      const unauthorizedError = new TRPCError({
+        code: "FORBIDDEN",
+        message: "You don't have permission to delete flavors in this project.",
+      })
+      vi.mocked(flavorHelpers.deleteFlavor).mockRejectedValue(unauthorizedError)
+
+      await expect(caller.flavor.deleteFlavor(validDeleteInput)).rejects.toThrow(unauthorizedError)
+    })
+
+    it("should wrap non-TRPC errors from deleteFlavor helper", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      const networkError = new Error("Network timeout")
+      vi.mocked(flavorHelpers.deleteFlavor).mockRejectedValue(networkError)
+
+      await expect(caller.flavor.deleteFlavor(validDeleteInput)).rejects.toThrow(
+        new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: ERROR_CODES.DELETE_FLAVOR_FAILED,
+          cause: networkError,
+        })
+      )
+    })
+
+    it("should handle different flavorId formats", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      vi.mocked(flavorHelpers.deleteFlavor).mockResolvedValue(undefined)
+
+      const testCases = [
+        "simple-id",
+        "uuid-12345678-1234-1234-1234-123456789012",
+        "flavor_with_underscores",
+        "flavor-with-dashes",
+        "123456789",
+      ]
+
+      for (const flavorId of testCases) {
+        vi.clearAllMocks()
+        vi.mocked(flavorHelpers.deleteFlavor).mockResolvedValue(undefined)
+
+        const input = {
+          projectId: "test-project-123",
+          flavorId,
+        }
+
+        const result = await caller.flavor.deleteFlavor(input)
+
+        expect(flavorHelpers.deleteFlavor).toHaveBeenCalledWith(
+          expect.objectContaining({ get: expect.any(Function) }),
+          flavorId
+        )
+        expect(result).toEqual({
+          success: true,
+          message: "Flavor deleted successfully",
+        })
+      }
     })
   })
 })

@@ -32,6 +32,20 @@ export const useErrorTranslation = () => {
       case "CREATE_FLAVOR_FAILED":
         return t`Failed to create the flavor. Please try again.`
 
+      // Delete Flavor
+      case "DELETE_FLAVOR_UNAUTHORIZED":
+        return t`You are not authorized to delete flavors. Please log in again.`
+      case "DELETE_FLAVOR_FORBIDDEN":
+        return t`You don't have permission to delete flavors in this project.`
+      case "DELETE_FLAVOR_NOT_FOUND":
+        return t`The flavor could not be found. It may have already been deleted.`
+      case "DELETE_FLAVOR_SERVER_ERROR":
+        return t`Server error occurred while deleting the flavor. Please try again later.`
+      case "DELETE_FLAVOR_FAILED":
+        return t`Failed to delete the flavor. Please try again.`
+      case "DELETE_FLAVOR_INVALID_ID":
+        return t`Flavor ID is required and cannot be empty.`
+
       // Service Connection Errors
       case "COMPUTE_SERVICE_UNAVAILABLE":
         return t`The compute service is currently unavailable for this project. Please try again later.`

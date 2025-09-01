@@ -13,7 +13,7 @@ export const flavorSchema = z.object({
   name: z.string(),
   vcpus: z.number(),
   ram: z.number(),
-  disk: z.number().optional(),
+  disk: z.number(),
   swap: z.union([z.string(), z.number()]).optional(),
   rxtx_factor: z.number().optional(),
   description: z.string().nullable().optional(),

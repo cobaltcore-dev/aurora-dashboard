@@ -1,6 +1,6 @@
 import { protectedProcedure } from "../../trpc"
 import { z } from "zod"
-import { createFlavor, fetchFlavors, filterAndSortFlavors } from "../helpers/flavorHelpers"
+import { createFlavor, fetchFlavors, filterAndSortFlavors, deleteFlavor } from "../helpers/flavorHelpers"
 import { Flavor } from "../types/flavor"
 import { TRPCError } from "@trpc/server"
 import { ERROR_CODES } from "../../errorCodes"
@@ -86,6 +86,41 @@ export const flavorRouter = {
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: ERROR_CODES.CREATE_FLAVOR_FAILED,
+          cause: error,
+        })
+      }
+    }),
+  deleteFlavor: protectedProcedure
+    .input(
+      z.object({
+        projectId: z.string(),
+        flavorId: z.string(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      try {
+        const { projectId, flavorId } = input
+
+        const openstackSession = await ctx.rescopeSession({ projectId })
+        const compute = openstackSession?.service("compute")
+        if (!compute) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: ERROR_CODES.COMPUTE_SERVICE_UNAVAILABLE,
+          })
+        }
+
+        await deleteFlavor(compute, flavorId)
+
+        return { success: true, message: "Flavor deleted successfully" }
+      } catch (error) {
+        if (error instanceof TRPCError) {
+          throw error
+        }
+
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: ERROR_CODES.DELETE_FLAVOR_FAILED,
           cause: error,
         })
       }

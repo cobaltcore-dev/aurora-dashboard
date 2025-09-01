@@ -3,8 +3,9 @@ import { flavorResponseSchema, Flavor, CreateFlavorInput } from "../types/flavor
 import { ERROR_CODES } from "../../errorCodes"
 
 interface ComputeService {
+  del(path: string): Promise<Response>
   get(path: string): Promise<Response>
-  post(path: string, body?: any): Promise<Response> // Updated to accept body
+  post(path: string, body: { flavor: CreateFlavorInput }): Promise<Response> // Updated to accept body
 }
 
 interface CreateFlavorResponse {
@@ -152,6 +153,62 @@ export async function createFlavor(compute: ComputeService, flavorData: CreateFl
     throw new TRPCError({
       code: "INTERNAL_SERVER_ERROR",
       message: ERROR_CODES.CREATE_FLAVOR_FAILED,
+      cause: error,
+    })
+  }
+}
+export async function deleteFlavor(compute: ComputeService, flavorId: string): Promise<void> {
+  if (!flavorId || flavorId.trim() === "") {
+    throw new TRPCError({
+      code: "BAD_REQUEST",
+      message: ERROR_CODES.DELETE_FLAVOR_INVALID_ID,
+    })
+  }
+  try {
+    const response = await compute.del(`flavors/${flavorId}`)
+
+    if (!response.ok) {
+      const statusCode = response.status
+
+      switch (statusCode) {
+        case 401:
+          throw new TRPCError({
+            code: "UNAUTHORIZED",
+            message: ERROR_CODES.DELETE_FLAVOR_UNAUTHORIZED,
+          })
+        case 403:
+          throw new TRPCError({
+            code: "FORBIDDEN",
+            message: ERROR_CODES.DELETE_FLAVOR_FORBIDDEN,
+          })
+        case 404:
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: ERROR_CODES.DELETE_FLAVOR_NOT_FOUND,
+          })
+        case 500:
+        case 502:
+        case 503:
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: ERROR_CODES.DELETE_FLAVOR_SERVER_ERROR,
+          })
+        default:
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: ERROR_CODES.DELETE_FLAVOR_FAILED,
+          })
+      }
+    }
+  } catch (error) {
+    if (error instanceof TRPCError) {
+      throw error
+    }
+
+    console.error(`Failed to delete flavor ${flavorId}:`, error)
+    throw new TRPCError({
+      code: "INTERNAL_SERVER_ERROR",
+      message: ERROR_CODES.DELETE_FLAVOR_FAILED,
       cause: error,
     })
   }

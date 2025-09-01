@@ -1,7 +1,16 @@
 import React, { useState } from "react"
 import { useLingui } from "@lingui/react/macro"
 import { TrpcClient } from "@/client/trpcClient"
-import { Modal, Form, FormRow, FormSection, TextInput, Message, Spinner } from "@cloudoperators/juno-ui-components"
+import {
+  Modal,
+  Form,
+  FormRow,
+  FormSection,
+  TextInput,
+  Message,
+  Spinner,
+  Stack,
+} from "@cloudoperators/juno-ui-components"
 import { Flavor } from "@/server/Compute/types/flavor"
 
 interface CreateFlavorModalProps {
@@ -9,7 +18,19 @@ interface CreateFlavorModalProps {
   isOpen: boolean
   onClose: () => void
   project: string
+  onSuccess: (name: string) => void
 }
+
+type FlavorFormField =
+  | "id"
+  | "name"
+  | "vcpus"
+  | "ram"
+  | "disk"
+  | "swap"
+  | "description"
+  | "rxtx_factor"
+  | "OS-FLV-EXT-DATA:ephemeral"
 
 const defaultFlavorValues: Partial<Flavor> = {
   id: "",
@@ -17,10 +38,10 @@ const defaultFlavorValues: Partial<Flavor> = {
   vcpus: 1,
   ram: 128,
   disk: 0,
-  swap: undefined,
+  swap: 0,
   description: "",
   rxtx_factor: 1,
-  "OS-FLV-EXT-DATA:ephemeral": undefined,
+  "OS-FLV-EXT-DATA:ephemeral": 0,
 }
 
 interface FieldErrors {
@@ -35,49 +56,75 @@ interface FieldErrors {
   "OS-FLV-EXT-DATA:ephemeral"?: string
 }
 
-export const CreateFlavorModal: React.FC<CreateFlavorModalProps> = ({ client, isOpen, onClose, project }) => {
+export const CreateFlavorModal: React.FC<CreateFlavorModalProps> = ({
+  client,
+  isOpen,
+  onClose,
+  project,
+  onSuccess,
+}) => {
   const { t } = useLingui()
   const [newFlavor, setNewFlavor] = useState<Partial<Flavor>>({ ...defaultFlavorValues })
   const [errors, setErrors] = useState<FieldErrors>({})
   const [isLoading, setIsLoading] = useState(false)
   const [generalError, setGeneralError] = useState<string | null>(null)
 
-  const validateField = (field: string, value: any): string | undefined => {
+  const validateField = (field: FlavorFormField, value: string | number | null | undefined): string | undefined => {
     switch (field) {
       case "id":
         if (!value) return undefined
-        const idStr = String(value).trim()
-        const idRegex = /^[a-zA-Z0-9\.\-_ ]*$/
-        return idRegex.test(idStr)
-          ? undefined
-          : t`ID must only contain alphanumeric characters, hyphens, underscores, spaces, and dots.`
+        {
+          const idStr = String(value).trim()
+          const idRegex = /^[a-zA-Z0-9.\-_ ]*$/
+          return idRegex.test(idStr)
+            ? undefined
+            : t`ID must only contain alphanumeric characters, hyphens, underscores, spaces, and dots.`
+        }
 
-      case "name":
+      case "name": {
         const nameStr = String(value || "").trim()
         return nameStr.length >= 2 && nameStr.length <= 50 ? undefined : t`Name must be 2-50 characters long.`
-      case "vcpus":
+      }
+
+      case "vcpus": {
         const vcpus = Number(value)
         return !isNaN(vcpus) && vcpus >= 1 ? undefined : t`VCPUs must be an integer ≥ 1.`
-      case "ram":
+      }
+
+      case "ram": {
         const ram = Number(value)
         return !isNaN(ram) && ram >= 128 ? undefined : t`RAM must be an integer ≥ 128 MB.`
-      case "disk":
+      }
+
+      case "disk": {
         const disk = Number(value)
         return !isNaN(disk) && disk >= 0 ? undefined : t`Root Disk must be an integer ≥ 0.`
+      }
+
       case "swap":
         if (value === "" || value === undefined || value === null) return undefined
-        const swap = Number(value)
-        return !isNaN(swap) && swap >= 0 ? undefined : t`Swap Disk must be an integer ≥ 0.`
-      case "rxtx_factor":
+        {
+          const swap = Number(value)
+          return !isNaN(swap) && swap >= 0 ? undefined : t`Swap Disk must be an integer ≥ 0.`
+        }
+
+      case "rxtx_factor": {
         const rxtx = Number(value)
         return !isNaN(rxtx) && rxtx >= 1 ? undefined : t`RX/TX Factor must be an integer ≥ 1.`
+      }
+
       case "description":
         if (!value) return undefined
-        const str = String(value)
-        return str.length < 65535 ? undefined : t`Description must be less than 65535 characters.`
-      case "OS-FLV-EXT-DATA:ephemeral":
+        {
+          const str = String(value)
+          return str.length < 65535 ? undefined : t`Description must be less than 65535 characters.`
+        }
+
+      case "OS-FLV-EXT-DATA:ephemeral": {
         const ephemeral = Number(value)
         return !isNaN(ephemeral) && ephemeral >= 0 ? undefined : t`Ephemeral Disk must be an integer ≥ 0.`
+      }
+
       default:
         return undefined
     }
@@ -91,7 +138,8 @@ export const CreateFlavorModal: React.FC<CreateFlavorModalProps> = ({ client, is
     }))
     if (generalError) setGeneralError(null)
   }
-  const handleNumericInputChange = (name: string, value: number | undefined) => {
+
+  const handleNumericInputChange = (name: FlavorFormField, value: number | undefined) => {
     setNewFlavor((prev) => ({
       ...prev,
       [name]: value,
@@ -101,7 +149,7 @@ export const CreateFlavorModal: React.FC<CreateFlavorModalProps> = ({ client, is
 
   const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
     const { name, value } = e.target
-    const error = validateField(name, value)
+    const error = validateField(name as FlavorFormField, value)
     setErrors((prev) => ({
       ...prev,
       [name]: error,
@@ -114,7 +162,7 @@ export const CreateFlavorModal: React.FC<CreateFlavorModalProps> = ({ client, is
 
     const newErrors: FieldErrors = {}
 
-    const requiredFields = ["name", "vcpus", "ram", "disk"]
+    const requiredFields: FlavorFormField[] = ["name", "vcpus", "ram", "disk"]
     requiredFields.forEach((key) => {
       const error = validateField(key, newFlavor[key])
       if (error) {
@@ -122,7 +170,7 @@ export const CreateFlavorModal: React.FC<CreateFlavorModalProps> = ({ client, is
       }
     })
 
-    const optionalFields = ["id", "swap", "OS-FLV-EXT-DATA:ephemeral", "rxtx_factor", "description"]
+    const optionalFields: FlavorFormField[] = ["id", "swap", "OS-FLV-EXT-DATA:ephemeral", "rxtx_factor", "description"]
     optionalFields.forEach((key) => {
       const value = newFlavor[key]
       if (value !== undefined && value !== "" && value !== null) {
@@ -148,25 +196,19 @@ export const CreateFlavorModal: React.FC<CreateFlavorModalProps> = ({ client, is
         vcpus: Number(newFlavor.vcpus),
         ram: Number(newFlavor.ram),
         disk: Number(newFlavor.disk),
+        swap: Number(newFlavor.swap),
+        "OS-FLV-EXT-DATA:ephemeral": Number(newFlavor["OS-FLV-EXT-DATA:ephemeral"]),
       }
-
-      const cleanFlavorData = Object.fromEntries(
-        Object.entries(flavorData).filter(([key, value]) => {
-          if (["name", "vcpus", "ram", "disk"].includes(key)) {
-            return true
-          }
-
-          return value !== undefined && value !== "" && value !== null
-        })
-      )
 
       await client.compute.createFlavor.mutate({
         projectId: project,
-        flavor: cleanFlavorData,
+        flavor: flavorData,
       })
 
+      onSuccess(flavorData.name)
       handleClose()
     } catch (error) {
+      console.error(error)
       setGeneralError(t`Failed to create flavor. Please try again.`)
     } finally {
       setIsLoading(false)
@@ -192,9 +234,13 @@ export const CreateFlavorModal: React.FC<CreateFlavorModalProps> = ({ client, is
       open={isOpen}
       onConfirm={handleSubmit}
       cancelButtonLabel={t`Cancel`}
-      confirmButtonLabel={t`Create Flavor`}
+      confirmButtonLabel={t`Create New Flavor`}
     >
-      {isLoading && <Spinner variant="primary" />}{" "}
+      {isLoading && (
+        <Stack distribution="center" alignment="center">
+          <Spinner variant="primary" />
+        </Stack>
+      )}
       {!isLoading && (
         <Form>
           {generalError && (

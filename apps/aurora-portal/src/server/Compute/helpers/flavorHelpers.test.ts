@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from "vitest"
 import { TRPCError } from "@trpc/server"
 import { CreateFlavorInput, Flavor } from "../types/flavor"
-import { includesSearchTerm, fetchFlavors, filterAndSortFlavors, createFlavor } from "./flavorHelpers"
+import { includesSearchTerm, fetchFlavors, filterAndSortFlavors, createFlavor, deleteFlavor } from "./flavorHelpers"
 import { ERROR_CODES } from "../../errorCodes"
 
 const mockFlavors: Flavor[] = [
@@ -147,7 +147,8 @@ describe("fetchFlavors", () => {
         ok: true,
         text: vi.fn().mockResolvedValue(JSON.stringify({ flavors: mockFlavors })),
       }),
-      post: vi.fn(), // Adding mock post method
+      post: vi.fn(),
+      del: vi.fn(),
     }
 
     const flavors = await fetchFlavors(mockCompute)
@@ -161,7 +162,8 @@ describe("fetchFlavors", () => {
         ok: true,
         text: vi.fn().mockResolvedValue(JSON.stringify({ invalid: "data" })),
       }),
-      post: vi.fn(), // Adding mock post method
+      post: vi.fn(),
+      del: vi.fn(),
     }
 
     await expect(fetchFlavors(mockCompute)).rejects.toThrow(
@@ -178,7 +180,8 @@ describe("fetchFlavors", () => {
         ok: false,
         status: 401,
       }),
-      post: vi.fn(), // Adding mock post method
+      post: vi.fn(),
+      del: vi.fn(),
     }
 
     await expect(fetchFlavors(mockCompute)).rejects.toThrow(
@@ -195,7 +198,8 @@ describe("fetchFlavors", () => {
         ok: false,
         status: 403,
       }),
-      post: vi.fn(), // Adding mock post method
+      post: vi.fn(),
+      del: vi.fn(),
     }
 
     await expect(fetchFlavors(mockCompute)).rejects.toThrow(
@@ -212,7 +216,8 @@ describe("fetchFlavors", () => {
         ok: false,
         status: 404,
       }),
-      post: vi.fn(), // Adding mock post method
+      post: vi.fn(),
+      del: vi.fn(),
     }
 
     await expect(fetchFlavors(mockCompute)).rejects.toThrow(
@@ -229,7 +234,8 @@ describe("fetchFlavors", () => {
         ok: false,
         status: 500,
       }),
-      post: vi.fn(), // Adding mock post method
+      post: vi.fn(),
+      del: vi.fn(),
     }
 
     await expect(fetchFlavors(mockCompute)).rejects.toThrow(
@@ -246,7 +252,8 @@ describe("fetchFlavors", () => {
         ok: false,
         status: 502,
       }),
-      post: vi.fn(), // Adding mock post method
+      post: vi.fn(),
+      del: vi.fn(),
     }
 
     await expect(fetchFlavors(mockCompute)).rejects.toThrow(
@@ -263,7 +270,8 @@ describe("fetchFlavors", () => {
         ok: false,
         status: 503,
       }),
-      post: vi.fn(), // Adding mock post method
+      post: vi.fn(),
+      del: vi.fn(),
     }
 
     await expect(fetchFlavors(mockCompute)).rejects.toThrow(
@@ -280,7 +288,8 @@ describe("fetchFlavors", () => {
         ok: false,
         status: 418,
       }),
-      post: vi.fn(), // Adding mock post method
+      post: vi.fn(),
+      del: vi.fn(),
     }
 
     await expect(fetchFlavors(mockCompute)).rejects.toThrow(
@@ -377,6 +386,7 @@ describe("createFlavor", () => {
   const compute = {
     post: vi.fn(),
     get: vi.fn(),
+    del: vi.fn(),
   }
 
   const flavorData: CreateFlavorInput = {
@@ -525,5 +535,138 @@ describe("createFlavor", () => {
         message: ERROR_CODES.CREATE_FLAVOR_FAILED,
       })
     )
+  })
+})
+
+describe("deleteFlavor", () => {
+  const compute = {
+    post: vi.fn(),
+    get: vi.fn(),
+    del: vi.fn(),
+  }
+
+  const flavorId = "test-flavor-id"
+
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it("should successfully delete a flavor", async () => {
+    compute.del.mockResolvedValue({
+      ok: true,
+      status: 204,
+    })
+
+    await expect(deleteFlavor(compute, flavorId)).resolves.toBeUndefined()
+    expect(compute.del).toHaveBeenCalledWith(`flavors/${flavorId}`)
+  })
+
+  it("should throw UNAUTHORIZED for 401 status", async () => {
+    compute.del.mockResolvedValue({
+      ok: false,
+      status: 401,
+    })
+
+    await expect(deleteFlavor(compute, flavorId)).rejects.toThrow(
+      new TRPCError({
+        code: "UNAUTHORIZED",
+        message: ERROR_CODES.DELETE_FLAVOR_UNAUTHORIZED,
+      })
+    )
+  })
+
+  it("should throw FORBIDDEN for 403 status", async () => {
+    compute.del.mockResolvedValue({
+      ok: false,
+      status: 403,
+    })
+
+    await expect(deleteFlavor(compute, flavorId)).rejects.toThrow(
+      new TRPCError({
+        code: "FORBIDDEN",
+        message: ERROR_CODES.DELETE_FLAVOR_FORBIDDEN,
+      })
+    )
+  })
+
+  it("should throw NOT_FOUND for 404 status", async () => {
+    compute.del.mockResolvedValue({
+      ok: false,
+      status: 404,
+    })
+
+    await expect(deleteFlavor(compute, flavorId)).rejects.toThrow(
+      new TRPCError({
+        code: "NOT_FOUND",
+        message: ERROR_CODES.DELETE_FLAVOR_NOT_FOUND,
+      })
+    )
+  })
+
+  it("should throw INTERNAL_SERVER_ERROR for 500 status", async () => {
+    compute.del.mockResolvedValue({
+      ok: false,
+      status: 500,
+    })
+
+    await expect(deleteFlavor(compute, flavorId)).rejects.toThrow(
+      new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: ERROR_CODES.DELETE_FLAVOR_SERVER_ERROR,
+      })
+    )
+  })
+
+  it("should throw BAD_REQUEST for unknown status codes", async () => {
+    compute.del.mockResolvedValue({
+      ok: false,
+      status: 418,
+    })
+
+    await expect(deleteFlavor(compute, flavorId)).rejects.toThrow(
+      new TRPCError({
+        code: "BAD_REQUEST",
+        message: ERROR_CODES.DELETE_FLAVOR_FAILED,
+      })
+    )
+  })
+
+  it("should re-throw TRPCError from network request", async () => {
+    const originalError = new TRPCError({
+      code: "TIMEOUT",
+      message: "Request timeout",
+    })
+
+    compute.del.mockRejectedValue(originalError)
+
+    await expect(deleteFlavor(compute, flavorId)).rejects.toThrow(originalError)
+  })
+
+  it("should wrap non-TRPC errors in INTERNAL_SERVER_ERROR", async () => {
+    const networkError = new Error("Network connection failed")
+    const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {})
+
+    compute.del.mockRejectedValue(networkError)
+
+    await expect(deleteFlavor(compute, flavorId)).rejects.toThrow(
+      new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: ERROR_CODES.DELETE_FLAVOR_FAILED,
+        cause: networkError,
+      })
+    )
+
+    expect(consoleSpy).toHaveBeenCalledWith(`Failed to delete flavor ${flavorId}:`, networkError)
+
+    consoleSpy.mockRestore()
+  })
+  it("should throw error on empty string flavorId", async () => {
+    const originalError = new TRPCError({
+      code: "BAD_REQUEST",
+      message: ERROR_CODES.DELETE_FLAVOR_INVALID_ID,
+    })
+
+    await expect(deleteFlavor(compute, "")).rejects.toThrow(originalError)
+    expect(compute.del).not.toHaveBeenCalled()
   })
 })
