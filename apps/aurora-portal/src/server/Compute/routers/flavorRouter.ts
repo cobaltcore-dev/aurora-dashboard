@@ -54,7 +54,7 @@ export const flavorRouter = {
           disk: z.number(),
           swap: z.number().optional(),
           rxtx_factor: z.number().optional(),
-          "OS-FLV-EXT-DATA:ephemeral": z.number().optional().default(0),
+          "OS-FLV-EXT-DATA:ephemeral": z.number().optional(),
         }),
       })
     )

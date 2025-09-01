@@ -12,7 +12,7 @@ export const flavorSchema = z.object({
   id: z.string().optional(),
   name: z.string(),
   vcpus: z.number(),
-  ram: z.number().optional(),
+  ram: z.number(),
   disk: z.number().optional(),
   swap: z.union([z.string(), z.number()]).optional(),
   rxtx_factor: z.number().optional(),
@@ -26,3 +26,14 @@ export const flavorResponseSchema = z.object({
 })
 
 export type Flavor = z.infer<typeof flavorSchema>
+
+export type CreateFlavorInput = {
+  id?: string
+  name: string
+  vcpus: number
+  ram: number
+  disk: number
+  swap?: number
+  rxtx_factor?: number
+  "OS-FLV-EXT-DATA:ephemeral"?: number
+}

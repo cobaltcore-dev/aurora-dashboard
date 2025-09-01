@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from "vitest"
 import { TRPCError } from "@trpc/server"
-import { Flavor } from "../types/flavor"
-import { includesSearchTerm, fetchFlavors, filterAndSortFlavors } from "./flavorHelpers"
+import { CreateFlavorInput, Flavor } from "../types/flavor"
+import { includesSearchTerm, fetchFlavors, filterAndSortFlavors, createFlavor } from "./flavorHelpers"
 import { ERROR_CODES } from "../../errorCodes"
 
 const mockFlavors: Flavor[] = [
@@ -147,6 +147,7 @@ describe("fetchFlavors", () => {
         ok: true,
         text: vi.fn().mockResolvedValue(JSON.stringify({ flavors: mockFlavors })),
       }),
+      post: vi.fn(), // Adding mock post method
     }
 
     const flavors = await fetchFlavors(mockCompute)
@@ -160,6 +161,7 @@ describe("fetchFlavors", () => {
         ok: true,
         text: vi.fn().mockResolvedValue(JSON.stringify({ invalid: "data" })),
       }),
+      post: vi.fn(), // Adding mock post method
     }
 
     await expect(fetchFlavors(mockCompute)).rejects.toThrow(
@@ -176,6 +178,7 @@ describe("fetchFlavors", () => {
         ok: false,
         status: 401,
       }),
+      post: vi.fn(), // Adding mock post method
     }
 
     await expect(fetchFlavors(mockCompute)).rejects.toThrow(
@@ -192,6 +195,7 @@ describe("fetchFlavors", () => {
         ok: false,
         status: 403,
       }),
+      post: vi.fn(), // Adding mock post method
     }
 
     await expect(fetchFlavors(mockCompute)).rejects.toThrow(
@@ -208,6 +212,7 @@ describe("fetchFlavors", () => {
         ok: false,
         status: 404,
       }),
+      post: vi.fn(), // Adding mock post method
     }
 
     await expect(fetchFlavors(mockCompute)).rejects.toThrow(
@@ -224,6 +229,7 @@ describe("fetchFlavors", () => {
         ok: false,
         status: 500,
       }),
+      post: vi.fn(), // Adding mock post method
     }
 
     await expect(fetchFlavors(mockCompute)).rejects.toThrow(
@@ -240,6 +246,7 @@ describe("fetchFlavors", () => {
         ok: false,
         status: 502,
       }),
+      post: vi.fn(), // Adding mock post method
     }
 
     await expect(fetchFlavors(mockCompute)).rejects.toThrow(
@@ -256,6 +263,7 @@ describe("fetchFlavors", () => {
         ok: false,
         status: 503,
       }),
+      post: vi.fn(), // Adding mock post method
     }
 
     await expect(fetchFlavors(mockCompute)).rejects.toThrow(
@@ -272,6 +280,7 @@ describe("fetchFlavors", () => {
         ok: false,
         status: 418,
       }),
+      post: vi.fn(), // Adding mock post method
     }
 
     await expect(fetchFlavors(mockCompute)).rejects.toThrow(
@@ -362,5 +371,159 @@ describe("filterAndSortFlavors", () => {
     expect(result).toHaveLength(2)
     expect(result[0].name).toBe("special-flavor")
     expect(result[1].name).toBe("another-flavor")
+  })
+})
+describe("createFlavor", () => {
+  const compute = {
+    post: vi.fn(),
+    get: vi.fn(),
+  }
+
+  const flavorData: CreateFlavorInput = {
+    name: "test-flavor2",
+    vcpus: 1,
+    ram: 128,
+    disk: 0,
+    swap: 128,
+  }
+
+  const mockFlavor: Flavor = {
+    id: "1",
+    name: "test-flavor",
+    description: "Test flavor description",
+    vcpus: 1,
+    ram: 128,
+    disk: 0,
+    swap: "0",
+    rxtx_factor: 1,
+    "OS-FLV-EXT-DATA:ephemeral": 0,
+  }
+
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it("should return the created flavor if response is valid", async () => {
+    compute.post.mockResolvedValue({
+      ok: true,
+      status: 200,
+      text: vi.fn().mockResolvedValue(JSON.stringify({ flavor: mockFlavor })),
+    })
+
+    const result = await createFlavor(compute, flavorData)
+    expect(result).toEqual(mockFlavor)
+    expect(compute.post).toHaveBeenCalledWith("flavors", { flavor: flavorData })
+  })
+
+  it("should throw BAD_REQUEST for 400 status", async () => {
+    compute.post.mockResolvedValue({
+      ok: false,
+      status: 400,
+    })
+
+    await expect(createFlavor(compute, flavorData)).rejects.toThrow(
+      new TRPCError({
+        code: "BAD_REQUEST",
+        message: ERROR_CODES.CREATE_FLAVOR_INVALID_DATA,
+      })
+    )
+  })
+
+  it("should throw UNAUTHORIZED for 401 status", async () => {
+    compute.post.mockResolvedValue({
+      ok: false,
+      status: 401,
+    })
+
+    await expect(createFlavor(compute, flavorData)).rejects.toThrow(
+      new TRPCError({
+        code: "UNAUTHORIZED",
+        message: ERROR_CODES.CREATE_FLAVOR_UNAUTHORIZED,
+      })
+    )
+  })
+
+  it("should throw FORBIDDEN for 403 status", async () => {
+    compute.post.mockResolvedValue({
+      ok: false,
+      status: 403,
+    })
+
+    await expect(createFlavor(compute, flavorData)).rejects.toThrow(
+      new TRPCError({
+        code: "FORBIDDEN",
+        message: ERROR_CODES.CREATE_FLAVOR_FORBIDDEN,
+      })
+    )
+  })
+
+  it("should throw CONFLICT for 409 status", async () => {
+    compute.post.mockResolvedValue({
+      ok: false,
+      status: 409,
+    })
+
+    await expect(createFlavor(compute, flavorData)).rejects.toThrow(
+      new TRPCError({
+        code: "CONFLICT",
+        message: ERROR_CODES.CREATE_FLAVOR_CONFLICT,
+      })
+    )
+  })
+
+  it("should throw INTERNAL_SERVER_ERROR for 500 status", async () => {
+    compute.post.mockResolvedValue({
+      ok: false,
+      status: 500,
+    })
+
+    await expect(createFlavor(compute, flavorData)).rejects.toThrow(
+      new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: ERROR_CODES.CREATE_FLAVOR_SERVER_ERROR,
+      })
+    )
+  })
+
+  it("should throw INTERNAL_SERVER_ERROR for 502 status", async () => {
+    compute.post.mockResolvedValue({
+      ok: false,
+      status: 502,
+    })
+
+    await expect(createFlavor(compute, flavorData)).rejects.toThrow(
+      new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: ERROR_CODES.CREATE_FLAVOR_SERVER_ERROR,
+      })
+    )
+  })
+
+  it("should throw INTERNAL_SERVER_ERROR for 503 status", async () => {
+    compute.post.mockResolvedValue({
+      ok: false,
+      status: 503,
+    })
+
+    await expect(createFlavor(compute, flavorData)).rejects.toThrow(
+      new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: ERROR_CODES.CREATE_FLAVOR_SERVER_ERROR,
+      })
+    )
+  })
+
+  it("should throw BAD_REQUEST for unknown status codes", async () => {
+    compute.post.mockResolvedValue({
+      ok: false,
+      status: 418,
+    })
+
+    await expect(createFlavor(compute, flavorData)).rejects.toThrow(
+      new TRPCError({
+        code: "BAD_REQUEST",
+        message: ERROR_CODES.CREATE_FLAVOR_FAILED,
+      })
+    )
   })
 })

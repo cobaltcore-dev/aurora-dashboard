@@ -1,21 +1,10 @@
 import { TRPCError } from "@trpc/server"
-import { flavorResponseSchema, Flavor } from "../types/flavor"
+import { flavorResponseSchema, Flavor, CreateFlavorInput } from "../types/flavor"
 import { ERROR_CODES } from "../../errorCodes"
 
 interface ComputeService {
   get(path: string): Promise<Response>
   post(path: string, body?: any): Promise<Response> // Updated to accept body
-}
-
-interface CreateFlavorInput {
-  id?: string
-  name: string
-  vcpus: number
-  ram: number
-  disk: number
-  swap?: string
-  rxtx_factor?: number
-  "OS-FLV-EXT-DATA:ephemeral"?: number
 }
 
 interface CreateFlavorResponse {
@@ -113,53 +102,53 @@ export async function createFlavor(compute: ComputeService, flavorData: CreateFl
     flavor: flavorData,
   }
 
-  try {
-    const response = await compute.post("flavors", requestBody)
-    if (!response.ok) {
-      const statusCode = response.status
+  const response = await compute.post("flavors", requestBody)
 
-      switch (statusCode) {
-        case 400:
-          throw new TRPCError({
-            code: "BAD_REQUEST",
-            message: ERROR_CODES.CREATE_FLAVOR_INVALID_DATA,
-          })
-        case 401:
-          throw new TRPCError({
-            code: "UNAUTHORIZED",
-            message: ERROR_CODES.CREATE_FLAVOR_UNAUTHORIZED,
-          })
-        case 403:
-          throw new TRPCError({
-            code: "FORBIDDEN",
-            message: ERROR_CODES.CREATE_FLAVOR_FORBIDDEN,
-          })
-        case 409:
-          throw new TRPCError({
-            code: "CONFLICT",
-            message: ERROR_CODES.CREATE_FLAVOR_CONFLICT,
-          })
-        case 500:
-        case 502:
-        case 503:
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: ERROR_CODES.CREATE_FLAVOR_SERVER_ERROR,
-          })
-        default:
-          throw new TRPCError({
-            code: "BAD_REQUEST",
-            message: ERROR_CODES.CREATE_FLAVOR_FAILED,
-          })
-      }
+  if (!response.ok) {
+    const statusCode = response.status
+
+    switch (statusCode) {
+      case 400:
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: ERROR_CODES.CREATE_FLAVOR_INVALID_DATA,
+        })
+      case 401:
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: ERROR_CODES.CREATE_FLAVOR_UNAUTHORIZED,
+        })
+      case 403:
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: ERROR_CODES.CREATE_FLAVOR_FORBIDDEN,
+        })
+      case 409:
+        throw new TRPCError({
+          code: "CONFLICT",
+          message: ERROR_CODES.CREATE_FLAVOR_CONFLICT,
+        })
+      case 500:
+      case 502:
+      case 503:
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: ERROR_CODES.CREATE_FLAVOR_SERVER_ERROR,
+        })
+      default:
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: ERROR_CODES.CREATE_FLAVOR_FAILED,
+        })
     }
+  }
 
+  try {
     const rawData = await response.text()
     const jsonData = JSON.parse(rawData) as CreateFlavorResponse
-
     return jsonData.flavor
   } catch (error) {
-    console.error("Error creating flavor:", error)
+    console.error("Error parsing flavor response:", error)
     throw new TRPCError({
       code: "INTERNAL_SERVER_ERROR",
       message: ERROR_CODES.CREATE_FLAVOR_FAILED,

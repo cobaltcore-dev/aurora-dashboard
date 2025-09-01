@@ -3,6 +3,7 @@ import { flavorRouter } from "./flavorRouter"
 import { Flavor } from "../types/flavor"
 import { TRPCError } from "@trpc/server"
 import * as flavorHelpers from "../helpers/flavorHelpers"
+import { ERROR_CODES } from "@/server/errorCodes"
 
 import { createCallerFactory, auroraRouter } from "../../trpc"
 
@@ -10,6 +11,7 @@ vi.mock("../helpers/flavorHelpers", () => ({
   fetchFlavors: vi.fn(),
   filterAndSortFlavors: vi.fn(),
   includesSearchTerm: vi.fn(),
+  createFlavor: vi.fn(),
 }))
 
 const createMockContext = (shouldFailAuth = false, shouldFailRescope = false, shouldFailCompute = false) => ({
@@ -27,6 +29,10 @@ const createMockContext = (shouldFailAuth = false, shouldFailRescope = false, sh
                   get: vi.fn().mockResolvedValue({
                     ok: true,
                     text: vi.fn().mockResolvedValue('{"flavors": []}'),
+                  }),
+                  post: vi.fn().mockResolvedValue({
+                    ok: true,
+                    text: vi.fn().mockResolvedValue('{"flavor": {}}'),
                   }),
                 }
           ),
@@ -275,6 +281,113 @@ describe("flavorRouter", () => {
       })
 
       expect(flavorHelpers.filterAndSortFlavors).toHaveBeenCalledWith(mockFlavors, "", "name", "desc")
+    })
+  })
+
+  describe("createFlavor", () => {
+    const mockCreatedFlavor: Flavor = {
+      id: "new-flavor-id",
+      name: "test-flavor",
+      vcpus: 2,
+      ram: 4096,
+      disk: 20,
+      description: "Test flavor description",
+      swap: "128",
+      rxtx_factor: 1.0,
+      "OS-FLV-DISABLED:disabled": false,
+      "OS-FLV-EXT-DATA:ephemeral": 0,
+      "os-flavor-access:is_public": true,
+    }
+
+    const validFlavorInput = {
+      projectId: "test-project-123",
+      flavor: {
+        name: "test-flavor",
+        vcpus: 2,
+        ram: 4096,
+        disk: 20,
+        swap: 128,
+        rxtx_factor: 1.0,
+        "OS-FLV-EXT-DATA:ephemeral": 0,
+      },
+    }
+
+    it("should throw UNAUTHORIZED when session validation fails", async () => {
+      const mockCtx = createMockContext(true)
+      const caller = createCaller(mockCtx)
+
+      await expect(caller.flavor.createFlavor(validFlavorInput)).rejects.toThrow(
+        new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "The session is invalid",
+        })
+      )
+
+      expect(flavorHelpers.createFlavor).not.toHaveBeenCalled()
+    })
+
+    it("should successfully create a flavor and return the result", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      vi.mocked(flavorHelpers.createFlavor).mockResolvedValue(mockCreatedFlavor)
+
+      const result = await caller.flavor.createFlavor(validFlavorInput)
+
+      expect(mockCtx.rescopeSession).toHaveBeenCalledWith({ projectId: "test-project-123" })
+      expect(flavorHelpers.createFlavor).toHaveBeenCalledWith(expect.objectContaining({ post: expect.any(Function) }), {
+        name: "test-flavor",
+        vcpus: 2,
+        ram: 4096,
+        disk: 20,
+        swap: 128,
+        rxtx_factor: 1.0,
+        "OS-FLV-EXT-DATA:ephemeral": 0,
+      })
+      expect(result).toEqual(mockCreatedFlavor)
+    })
+
+    it("should throw INTERNAL_SERVER_ERROR when compute service is unavailable", async () => {
+      const mockCtx = createMockContext(false, false, true)
+      const caller = createCaller(mockCtx)
+
+      await expect(caller.flavor.createFlavor(validFlavorInput)).rejects.toThrow(
+        new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: ERROR_CODES.COMPUTE_SERVICE_UNAVAILABLE,
+        })
+      )
+
+      expect(flavorHelpers.createFlavor).not.toHaveBeenCalled()
+    })
+
+    it("should re-throw TRPCErrors from createFlavor helper", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      const helperError = new TRPCError({
+        code: "BAD_REQUEST",
+        message: ERROR_CODES.CREATE_FLAVOR_INVALID_DATA,
+      })
+      vi.mocked(flavorHelpers.createFlavor).mockRejectedValue(helperError)
+
+      await expect(caller.flavor.createFlavor(validFlavorInput)).rejects.toThrow(helperError)
+    })
+
+    it("should wrap non-TRPC errors from createFlavor helper", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      const genericError = new Error("Something went wrong")
+      vi.mocked(flavorHelpers.createFlavor).mockRejectedValue(genericError)
+
+      await expect(caller.flavor.createFlavor(validFlavorInput)).rejects.toThrow(
+        new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: ERROR_CODES.CREATE_FLAVOR_FAILED,
+          cause: genericError,
+        })
+      )
     })
   })
 })
