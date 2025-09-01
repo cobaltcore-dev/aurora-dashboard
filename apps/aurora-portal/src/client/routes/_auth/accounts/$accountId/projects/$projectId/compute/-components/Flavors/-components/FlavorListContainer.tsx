@@ -45,13 +45,27 @@ export const FlavorListContainer = ({ flavors, isLoading }: FlavorListContainerP
   return (
     <DataGrid columns={7} className="flavors" data-testid="flavors-table">
       <DataGridRow>
-        <DataGridHeadCell>Name</DataGridHeadCell>
-        <DataGridHeadCell>vCPU</DataGridHeadCell>
-        <DataGridHeadCell>RAM (MiB)</DataGridHeadCell>
-        <DataGridHeadCell>Root Disk (GiB)</DataGridHeadCell>
-        <DataGridHeadCell>Ephemeral Disk (GiB)</DataGridHeadCell>
-        <DataGridHeadCell>Swap (MiB)</DataGridHeadCell>
-        <DataGridHeadCell>RX/TX Factor</DataGridHeadCell>
+        <DataGridHeadCell>
+          <Trans>Name</Trans>
+        </DataGridHeadCell>
+        <DataGridHeadCell>
+          <Trans>vCPU</Trans>
+        </DataGridHeadCell>
+        <DataGridHeadCell>
+          <Trans>RAM (MiB)</Trans>
+        </DataGridHeadCell>
+        <DataGridHeadCell>
+          <Trans>Root Disk (GiB)</Trans>
+        </DataGridHeadCell>
+        <DataGridHeadCell>
+          <Trans>Ephemeral Disk (GiB)</Trans>
+        </DataGridHeadCell>
+        <DataGridHeadCell>
+          <Trans>Swap (MiB)</Trans>
+        </DataGridHeadCell>
+        <DataGridHeadCell>
+          <Trans>RX/TX Factor</Trans>
+        </DataGridHeadCell>
       </DataGridRow>
 
       {flavors.map((flavor) => (

@@ -74,11 +74,10 @@ const FilterToolbar: React.FC<FilterToolbarProps> = ({
               </InputGroup>
             </Stack>
 
-            {/* Separate Stack to ensure button positioning */}
             <Stack direction="horizontal" className="flex-grow items-center justify-end">
               <Button
                 icon="addCircle"
-                label={t`Create New Flavor`}
+                label={t`Create Flavor`}
                 onClick={() => {
                   setCreateModalOpen(true)
                 }}

@@ -9,16 +9,34 @@ const mockFlavors: Flavor[] = [
     id: "1",
     name: "flavor1",
     description: "first flavor",
+    vcpus: 1,
+    ram: 128,
+    disk: 0,
+    swap: "0",
+    rxtx_factor: 1,
+    "OS-FLV-EXT-DATA:ephemeral": 0,
   },
   {
     id: "2",
     name: "flavor2",
     description: "second flavor",
+    vcpus: 1,
+    ram: 128,
+    disk: 0,
+    swap: "0",
+    rxtx_factor: 1,
+    "OS-FLV-EXT-DATA:ephemeral": 0,
   },
   {
     id: "3",
     name: "flavor3",
     description: "third flavor",
+    vcpus: 1,
+    ram: 128,
+    disk: 0,
+    swap: "0",
+    rxtx_factor: 1,
+    "OS-FLV-EXT-DATA:ephemeral": 0,
   },
 ]
 
@@ -28,6 +46,12 @@ describe("includesSearchTerm", () => {
       id: "test-123",
       name: "flavor",
       description: "description",
+      vcpus: 1,
+      ram: 128,
+      disk: 0,
+      swap: "0",
+      rxtx_factor: 1,
+      "OS-FLV-EXT-DATA:ephemeral": 0,
     }
 
     expect(includesSearchTerm(flavor, "test")).toBe(true)
@@ -38,6 +62,12 @@ describe("includesSearchTerm", () => {
       id: "1",
       name: "test flavor",
       description: "description",
+      vcpus: 1,
+      ram: 128,
+      disk: 0,
+      swap: "0",
+      rxtx_factor: 1,
+      "OS-FLV-EXT-DATA:ephemeral": 0,
     }
 
     expect(includesSearchTerm(flavor, "test")).toBe(true)
@@ -48,6 +78,12 @@ describe("includesSearchTerm", () => {
       id: "1",
       name: "flavor",
       description: "a test description",
+      vcpus: 1,
+      ram: 128,
+      disk: 0,
+      swap: "0",
+      rxtx_factor: 1,
+      "OS-FLV-EXT-DATA:ephemeral": 0,
     }
 
     expect(includesSearchTerm(flavor, "test")).toBe(true)
@@ -58,6 +94,12 @@ describe("includesSearchTerm", () => {
       id: "1",
       name: "TEST FLAVOR",
       description: "description",
+      vcpus: 1,
+      ram: 128,
+      disk: 0,
+      swap: "0",
+      rxtx_factor: 1,
+      "OS-FLV-EXT-DATA:ephemeral": 0,
     }
 
     expect(includesSearchTerm(flavor, "test")).toBe(true)
@@ -70,6 +112,12 @@ describe("includesSearchTerm", () => {
       id: "1",
       name: "flavor",
       description: "description",
+      vcpus: 1,
+      ram: 128,
+      disk: 0,
+      swap: "0",
+      rxtx_factor: 1,
+      "OS-FLV-EXT-DATA:ephemeral": 0,
     }
 
     expect(includesSearchTerm(flavor, "notfound")).toBe(false)
@@ -80,6 +128,12 @@ describe("includesSearchTerm", () => {
       id: "1",
       name: "flavor",
       description: null,
+      vcpus: 1,
+      ram: 128,
+      disk: 0,
+      swap: "0",
+      rxtx_factor: 1,
+      "OS-FLV-EXT-DATA:ephemeral": 0,
     }
 
     expect(includesSearchTerm(flavor, "test")).toBe(false)
@@ -243,6 +297,12 @@ describe("filterAndSortFlavors", () => {
         id: "1",
         name: "flavor1",
         description: "first flavor",
+        vcpus: 1,
+        ram: 128,
+        disk: 0,
+        swap: "0",
+        rxtx_factor: 1,
+        "OS-FLV-EXT-DATA:ephemeral": 0,
       },
     ])
   })
@@ -274,8 +334,28 @@ describe("filterAndSortFlavors", () => {
   it("should combine filtering and sorting", () => {
     const extraFlavors: Flavor[] = [
       ...mockFlavors,
-      { id: "4", name: "special-flavor", description: "special one" },
-      { id: "5", name: "another-flavor", description: "another special" },
+      {
+        id: "4",
+        name: "special-flavor",
+        description: "special one",
+        vcpus: 1,
+        ram: 128,
+        disk: 0,
+        swap: "0",
+        rxtx_factor: 1,
+        "OS-FLV-EXT-DATA:ephemeral": 0,
+      },
+      {
+        id: "5",
+        name: "another-flavor",
+        description: "another special",
+        vcpus: 1,
+        ram: 128,
+        disk: 0,
+        swap: "0",
+        rxtx_factor: 1,
+        "OS-FLV-EXT-DATA:ephemeral": 0,
+      },
     ]
 
     const result = filterAndSortFlavors(extraFlavors, "special", "name", "desc")

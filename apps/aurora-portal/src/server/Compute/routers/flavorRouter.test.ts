@@ -162,7 +162,7 @@ describe("flavorRouter", () => {
       await expect(caller.flavor.getFlavorsByProjectId(input)).rejects.toThrow(
         new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
-          message: "Unable to connect to the compute service for this project.",
+          message: "COMPUTE_SERVICE_UNAVAILABLE",
         })
       )
 
@@ -181,7 +181,7 @@ describe("flavorRouter", () => {
       await expect(caller.flavor.getFlavorsByProjectId(input)).rejects.toThrow(
         new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
-          message: "Unable to connect to the compute service for this project.",
+          message: "COMPUTE_SERVICE_UNAVAILABLE",
         })
       )
 
@@ -220,7 +220,7 @@ describe("flavorRouter", () => {
       await expect(caller.flavor.getFlavorsByProjectId(input)).rejects.toThrow(
         new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to fetch flavors",
+          message: "FLAVORS_FETCH_FAILED",
           cause: networkError,
         })
       )

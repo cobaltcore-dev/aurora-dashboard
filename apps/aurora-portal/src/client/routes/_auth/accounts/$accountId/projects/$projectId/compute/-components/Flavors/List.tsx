@@ -32,10 +32,6 @@ export const Flavors = ({ client, project }: FlavorsProps) => {
   const [refetchTrigger, setRefetchTrigger] = useState(0)
   const [createModalOpen, setCreateModalOpen] = useState(false)
 
-  const handleCreate = (newFlavor: Partial<Flavor>) => {
-    console.log(newFlavor)
-  }
-
   const handleError = (err: unknown) => {
     console.error(err)
 
@@ -109,7 +105,12 @@ export const Flavors = ({ client, project }: FlavorsProps) => {
 
   return (
     <>
-      <CreateFlavorModal isOpen={createModalOpen} onClose={() => setCreateModalOpen(false)} onCreate={handleCreate} />
+      <CreateFlavorModal
+        client={client}
+        isOpen={createModalOpen}
+        project={project}
+        onClose={() => setCreateModalOpen(false)}
+      />
       <FilterToolbar
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
