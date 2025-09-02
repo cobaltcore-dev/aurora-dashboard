@@ -3,8 +3,7 @@ import { flavorRouter } from "./flavorRouter"
 import { Flavor } from "../types/flavor"
 import { TRPCError } from "@trpc/server"
 import * as flavorHelpers from "../helpers/flavorHelpers"
-import { ERROR_CODES } from "@/server/errorCodes"
-
+import { ERROR_CODES } from "../../errorCodes"
 import { createCallerFactory, auroraRouter } from "../../trpc"
 
 vi.mock("../helpers/flavorHelpers", () => ({
