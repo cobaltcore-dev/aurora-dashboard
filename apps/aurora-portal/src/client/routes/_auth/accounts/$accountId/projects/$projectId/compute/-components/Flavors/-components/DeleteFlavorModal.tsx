@@ -133,10 +133,12 @@ export const DeleteFlavorModal: React.FC<DeleteFlavorModalProps> = ({
                 <DataGridHeadCell>{t`Disk`}</DataGridHeadCell>
                 <DataGridCell>{flavor.disk} GiB</DataGridCell>
               </DataGridRow>
-              <DataGridRow>
-                <DataGridHeadCell>{t`Swap`}</DataGridHeadCell>
-                <DataGridCell>{flavor.swap} MiB</DataGridCell>
-              </DataGridRow>
+              {flavor.swap && (
+                <DataGridRow>
+                  <DataGridHeadCell>{t`Swap`}</DataGridHeadCell>
+                  <DataGridCell>{flavor.swap} MiB</DataGridCell>
+                </DataGridRow>
+              )}
             </DataGrid>
           )}
         </div>
