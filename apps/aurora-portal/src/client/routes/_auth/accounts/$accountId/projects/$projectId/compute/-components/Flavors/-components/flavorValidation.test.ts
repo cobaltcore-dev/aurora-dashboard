@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll } from "vitest"
-import { validateField, FlavorFormField } from "./flavorValidation"
+import { validateField, FlavorFormField, cleanFlavorData } from "./flavorValidation"
 import { i18n } from "@lingui/core"
 import { MessageDescriptor } from "@lingui/core"
 
@@ -172,6 +172,230 @@ describe("flavorValidation", () => {
     describe("unknown field", () => {
       it("should return undefined for unknown fields", () => {
         expect(validateField("unknownField" as FlavorFormField, "value", mockT)).toBeUndefined()
+      })
+    })
+  })
+
+  describe("cleanFlavorData", () => {
+    it("should include all required fields", () => {
+      const input = {
+        name: "test-flavor",
+        vcpus: 2,
+        ram: 1024,
+        disk: 20,
+      }
+
+      const result = cleanFlavorData(input)
+
+      expect(result).toEqual({
+        name: "test-flavor",
+        vcpus: 2,
+        ram: 1024,
+        disk: 20,
+      })
+    })
+
+    it("should include valid optional string fields", () => {
+      const input = {
+        name: "test-flavor",
+        vcpus: 2,
+        ram: 1024,
+        disk: 20,
+        id: "custom-id",
+        description: "Test description",
+      }
+
+      const result = cleanFlavorData(input)
+
+      expect(result).toEqual({
+        name: "test-flavor",
+        vcpus: 2,
+        ram: 1024,
+        disk: 20,
+        id: "custom-id",
+        description: "Test description",
+      })
+    })
+
+    it("should include valid optional numeric fields", () => {
+      const input = {
+        name: "test-flavor",
+        vcpus: 2,
+        ram: 1024,
+        disk: 20,
+        swap: 512,
+        rxtx_factor: 2,
+        "OS-FLV-EXT-DATA:ephemeral": 10,
+      }
+
+      const result = cleanFlavorData(input)
+
+      expect(result).toEqual({
+        name: "test-flavor",
+        vcpus: 2,
+        ram: 1024,
+        disk: 20,
+        swap: 512,
+        rxtx_factor: 2,
+        "OS-FLV-EXT-DATA:ephemeral": 10,
+      })
+    })
+
+    it("should exclude empty string values", () => {
+      const input = {
+        name: "test-flavor",
+        vcpus: 2,
+        ram: 1024,
+        disk: 20,
+        id: "",
+        description: "",
+        swap: "",
+        rxtx_factor: "",
+        "OS-FLV-EXT-DATA:ephemeral": "",
+      }
+      // @ts-expect-error to ensure correct handling of problematic userInput, which could surive UI and validation
+      const result = cleanFlavorData(input)
+
+      expect(result).toEqual({
+        name: "test-flavor",
+        vcpus: 2,
+        ram: 1024,
+        disk: 20,
+      })
+    })
+
+    it("should exclude null and undefined values", () => {
+      const input = {
+        name: "test-flavor",
+        vcpus: 2,
+        ram: 1024,
+        disk: 20,
+        id: null,
+        description: undefined,
+        swap: null,
+        rxtx_factor: undefined,
+        "OS-FLV-EXT-DATA:ephemeral": null,
+      }
+      // @ts-expect-error to ensure correct handling of problematic userInput, which could surive UI and validation
+      const result = cleanFlavorData(input)
+
+      expect(result).toEqual({
+        name: "test-flavor",
+        vcpus: 2,
+        ram: 1024,
+        disk: 20,
+      })
+    })
+
+    // This maybe looks a bit dangerous - but there is the other validator before which throws errors for "invalid" and so just "" land normally here.
+    it("should exclude NaN values for numeric fields", () => {
+      const input = {
+        name: "test-flavor",
+        vcpus: 2,
+        ram: 1024,
+        disk: 20,
+        swap: "invalid",
+        rxtx_factor: "not-a-number",
+        "OS-FLV-EXT-DATA:ephemeral": "abc",
+      }
+      // @ts-expect-error to ensure correct handling of problematic userInput, which could surive UI and validation
+      const result = cleanFlavorData(input)
+
+      expect(result).toEqual({
+        name: "test-flavor",
+        vcpus: 2,
+        ram: 1024,
+        disk: 20,
+      })
+    })
+
+    it("should trim whitespace from string fields", () => {
+      const input = {
+        name: "test-flavor",
+        vcpus: 2,
+        ram: 1024,
+        disk: 20,
+        id: "  custom-id  ",
+        description: "  Test description  ",
+      }
+
+      const result = cleanFlavorData(input)
+
+      expect(result).toEqual({
+        name: "test-flavor",
+        vcpus: 2,
+        ram: 1024,
+        disk: 20,
+        id: "custom-id",
+        description: "Test description",
+      })
+    })
+
+    it("should exclude whitespace-only string fields", () => {
+      const input = {
+        name: "test-flavor",
+        vcpus: 2,
+        ram: 1024,
+        disk: 20,
+        id: "   ",
+        description: "\t\n  ",
+      }
+
+      const result = cleanFlavorData(input)
+
+      expect(result).toEqual({
+        name: "test-flavor",
+        vcpus: 2,
+        ram: 1024,
+        disk: 20,
+      })
+    })
+
+    it("should handle numeric strings correctly", () => {
+      const input = {
+        name: "test-flavor",
+        vcpus: 2,
+        ram: 1024,
+        disk: 20,
+        swap: "512",
+        rxtx_factor: "2",
+        "OS-FLV-EXT-DATA:ephemeral": "10",
+      }
+      // @ts-expect-error to ensure correct handling of problematic userInput, which could surive UI and validation
+      const result = cleanFlavorData(input)
+
+      expect(result).toEqual({
+        name: "test-flavor",
+        vcpus: 2,
+        ram: 1024,
+        disk: 20,
+        swap: 512,
+        rxtx_factor: 2,
+        "OS-FLV-EXT-DATA:ephemeral": 10,
+      })
+    })
+
+    it("should handle zero values correctly for numeric fields", () => {
+      const input = {
+        name: "test-flavor",
+        vcpus: 2,
+        ram: 1024,
+        disk: 20,
+        swap: 0,
+        rxtx_factor: 1,
+        "OS-FLV-EXT-DATA:ephemeral": 0,
+      }
+
+      const result = cleanFlavorData(input)
+
+      expect(result).toEqual({
+        name: "test-flavor",
+        vcpus: 2,
+        ram: 1024,
+        disk: 20,
+        swap: 0,
+        rxtx_factor: 1,
+        "OS-FLV-EXT-DATA:ephemeral": 0,
       })
     })
   })

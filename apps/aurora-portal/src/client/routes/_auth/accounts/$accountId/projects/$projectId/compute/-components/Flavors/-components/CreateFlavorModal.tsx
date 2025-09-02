@@ -12,7 +12,8 @@ import {
   Stack,
 } from "@cloudoperators/juno-ui-components"
 import { Flavor } from "@/server/Compute/types/flavor"
-import { validateField, FlavorFormField, defaultFlavorValues, FieldErrors } from "./flavorValidation"
+import { validateField, FlavorFormField, FieldErrors } from "./flavorValidation"
+import { cleanFlavorData } from "./flavorValidation"
 
 interface CreateFlavorModalProps {
   client: TrpcClient
@@ -30,7 +31,7 @@ export const CreateFlavorModal: React.FC<CreateFlavorModalProps> = ({
   onSuccess,
 }) => {
   const { t } = useLingui()
-  const [newFlavor, setNewFlavor] = useState<Partial<Flavor>>({ ...defaultFlavorValues })
+  const [newFlavor, setNewFlavor] = useState<Partial<Flavor>>({})
   const [errors, setErrors] = useState<FieldErrors>({})
   const [isLoading, setIsLoading] = useState(false)
   const [generalError, setGeneralError] = useState<string | null>(null)
@@ -95,15 +96,7 @@ export const CreateFlavorModal: React.FC<CreateFlavorModalProps> = ({
     try {
       setIsLoading(true)
 
-      const flavorData = {
-        ...newFlavor,
-        name: String(newFlavor.name),
-        vcpus: Number(newFlavor.vcpus),
-        ram: Number(newFlavor.ram),
-        disk: Number(newFlavor.disk),
-        swap: Number(newFlavor.swap),
-        "OS-FLV-EXT-DATA:ephemeral": Number(newFlavor["OS-FLV-EXT-DATA:ephemeral"]),
-      }
+      const flavorData = cleanFlavorData(newFlavor)
 
       await client.compute.createFlavor.mutate({
         projectId: project,
@@ -121,7 +114,7 @@ export const CreateFlavorModal: React.FC<CreateFlavorModalProps> = ({
   }
 
   const handleClose = () => {
-    setNewFlavor({ ...defaultFlavorValues })
+    setNewFlavor({})
     setErrors({})
     setGeneralError(null)
     onClose()
@@ -257,6 +250,7 @@ export const CreateFlavorModal: React.FC<CreateFlavorModalProps> = ({
                 id="rxtx_factor"
                 name="rxtx_factor"
                 label={t`RX/TX Factor`}
+                defaultValue={1}
                 value={String(newFlavor.rxtx_factor || "")}
                 onChange={(e) => handleNumericInputChange("rxtx_factor", Number(e.target.value))}
                 onBlur={handleBlur}

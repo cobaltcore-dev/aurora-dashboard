@@ -120,18 +120,6 @@ export type FlavorFormField =
   | "rxtx_factor"
   | "OS-FLV-EXT-DATA:ephemeral"
 
-export const defaultFlavorValues: Partial<Flavor> = {
-  id: "",
-  name: "",
-  vcpus: 1,
-  ram: 128,
-  disk: 0,
-  swap: 0,
-  description: "",
-  rxtx_factor: 1,
-  "OS-FLV-EXT-DATA:ephemeral": 0,
-}
-
 export interface FieldErrors {
   id?: string
   name?: string
@@ -142,4 +130,53 @@ export interface FieldErrors {
   rxtx_factor?: string
   description?: string
   "OS-FLV-EXT-DATA:ephemeral"?: string
+}
+
+export const cleanFlavorData = (flavor: Partial<Flavor>) => {
+  const result: {
+    name: string
+    vcpus: number
+    ram: number
+    disk: number
+    "OS-FLV-EXT-DATA:ephemeral"?: number
+    id?: string
+    swap?: number
+    rxtx_factor?: number
+    description?: string
+  } = {
+    name: String(flavor.name),
+    vcpus: Number(flavor.vcpus),
+    ram: Number(flavor.ram),
+    disk: Number(flavor.disk),
+  }
+
+  const isValidValue = (value: string | undefined | null) => {
+    return value !== undefined && value !== null && value !== "" && String(value).trim() !== ""
+  }
+
+  const isValidNumber = (value: string | number | undefined | null) => {
+    return value !== undefined && value !== null && value !== "" && String(value).trim() !== "" && !isNaN(Number(value))
+  }
+
+  if (isValidValue(flavor.id)) {
+    result.id = String(flavor.id).trim()
+  }
+
+  if (isValidValue(flavor.description)) {
+    result.description = String(flavor.description).trim()
+  }
+
+  if (isValidNumber(flavor.swap)) {
+    result.swap = Number(flavor.swap)
+  }
+
+  if (isValidNumber(flavor.rxtx_factor)) {
+    result.rxtx_factor = Number(flavor.rxtx_factor)
+  }
+
+  if (isValidNumber(flavor["OS-FLV-EXT-DATA:ephemeral"])) {
+    result["OS-FLV-EXT-DATA:ephemeral"] = Number(flavor["OS-FLV-EXT-DATA:ephemeral"])
+  }
+
+  return result
 }

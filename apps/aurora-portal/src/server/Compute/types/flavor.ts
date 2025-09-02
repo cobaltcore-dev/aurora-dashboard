@@ -6,9 +6,9 @@ const linkSchema = z.object({
 })
 
 export const flavorSchema = z.object({
-  "OS-FLV-DISABLED:disabled": z.boolean().nullable().optional(),
-  "OS-FLV-EXT-DATA:ephemeral": z.number().nullable().optional(),
-  "os-flavor-access:is_public": z.boolean().nullable().optional(),
+  "OS-FLV-DISABLED:disabled": z.boolean().optional(),
+  "OS-FLV-EXT-DATA:ephemeral": z.number().optional(),
+  "os-flavor-access:is_public": z.boolean().optional(),
   id: z.string().optional(),
   name: z.string(),
   vcpus: z.number(),

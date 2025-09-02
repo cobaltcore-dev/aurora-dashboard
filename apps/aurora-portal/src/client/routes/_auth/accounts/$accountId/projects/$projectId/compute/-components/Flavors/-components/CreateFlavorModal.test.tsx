@@ -50,7 +50,7 @@ describe("CreateFlavorModal", () => {
     expect(screen.getByLabelText("RX/TX Factor")).toBeInTheDocument()
   })
 
-  it("submits the form with changed values and defaults and calls createFlavor", async () => {
+  it("submits the form with changed values and calls createFlavor", async () => {
     await act(async () => {
       render(
         <CreateFlavorModal
@@ -88,10 +88,6 @@ describe("CreateFlavorModal", () => {
         vcpus: 4,
         ram: 2048,
         disk: 20,
-        // default values:
-        rxtx_factor: 1,
-        "OS-FLV-EXT-DATA:ephemeral": 0,
-        swap: 0,
       },
     })
   })
