@@ -171,6 +171,12 @@ export const createImageInputSchema = z
   })
   .catchall(z.string())
 
+// Input schema for deleting an image
+export const deleteImageInputSchema = z.object({
+  projectId: z.string(),
+  imageId: z.string().uuid(), // UUID validation for image ID
+})
+
 export const imageResponseSchema = z.object({
   images: z.array(imageSchema),
 })
@@ -181,3 +187,4 @@ export const imageDetailResponseSchema = z.object({
 
 export type GlanceImage = z.infer<typeof imageSchema>
 export type CreateImageInput = z.infer<typeof createImageInputSchema>
+export type DeleteImageInput = z.infer<typeof deleteImageInputSchema>
