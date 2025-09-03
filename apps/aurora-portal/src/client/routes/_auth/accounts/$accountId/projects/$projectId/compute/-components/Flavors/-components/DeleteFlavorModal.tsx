@@ -106,8 +106,8 @@ export const DeleteFlavorModal: React.FC<DeleteFlavorModalProps> = ({
           {generalError && <Message onDismiss={dismissError} text={generalError} variant="error" className="mb-4" />}
 
           <Message
-            text={t`Are you really sure? This action cannot be undone. The flavor will be permanently deleted.`}
-            variant="danger"
+            text={t`This action cannot be undone. The flavor will be permanently deleted.`}
+            variant="warning"
             className="mb-4"
           />
 

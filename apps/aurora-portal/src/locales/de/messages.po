@@ -66,8 +66,8 @@ msgid "An unexpected error occurred. Please try again."
 msgstr "Ein unerwarteter Fehler ist aufgetreten. Bitte versuchen Sie es erneut."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/DeleteFlavorModal.tsx:109
-msgid "Are you really sure? This action cannot be undone. The flavor will be permanently deleted."
-msgstr "Sind Sie wirklich sicher? Diese Aktion kann nicht rückgängig gemacht werden. Der Flavor wird dauerhaft gelöscht."
+msgid "This action cannot be undone. The flavor will be permanently deleted."
+msgstr "Diese Aktion kann nicht rückgängig gemacht werden. Der Flavor wird dauerhaft gelöscht."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FilterToolbar.tsx:71
 msgid "Ascending"
