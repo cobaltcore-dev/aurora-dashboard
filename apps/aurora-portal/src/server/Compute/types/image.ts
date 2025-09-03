@@ -38,6 +38,10 @@ export const imageSchema = z.object({
       z.literal("ovf"),
       z.literal("ova"),
       z.literal("docker"),
+      z.literal("ami"),
+      z.literal("ari"),
+      z.literal("aki"),
+      z.literal("compressed"),
       z.string(), // fallback
     ])
     .optional()
@@ -96,7 +100,76 @@ export const imageSchema = z.object({
   os_require_quiesce: z.boolean().optional(),
   links: z.array(linkSchema).optional(),
   members: z.array(z.string()).optional(),
+  locations: z
+    .array(
+      z.object({
+        url: z.string(),
+        metadata: z.record(z.any()).optional(),
+      })
+    )
+    .optional(),
 })
+
+// Input schema for creating an image
+export const createImageInputSchema = z
+  .object({
+    projectId: z.string(),
+    // Core properties that can be set during creation
+    name: z.string().optional(),
+    id: z.string().uuid().optional(), // Optional UUID, API will generate if omitted
+    container_format: z
+      .union([
+        z.literal("bare"),
+        z.literal("ovf"),
+        z.literal("ova"),
+        z.literal("docker"),
+        z.literal("ami"),
+        z.literal("ari"),
+        z.literal("aki"),
+        z.literal("compressed"),
+      ])
+      .optional(),
+    disk_format: z
+      .union([
+        z.literal("ami"),
+        z.literal("ari"),
+        z.literal("aki"),
+        z.literal("vhd"),
+        z.literal("vhdx"),
+        z.literal("vmdk"),
+        z.literal("raw"),
+        z.literal("qcow2"),
+        z.literal("vdi"),
+        z.literal("iso"),
+        z.literal("ploop"),
+      ])
+      .optional(),
+    visibility: z
+      .union([z.literal("public"), z.literal("private"), z.literal("shared"), z.literal("community")])
+      .optional()
+      .default("private"),
+    protected: z.boolean().optional().default(false),
+    min_ram: z.number().int().nonnegative().optional().default(0),
+    min_disk: z.number().int().nonnegative().optional().default(0),
+    tags: z.array(z.string().max(255)).optional().default([]),
+    // Additional properties - can include any string key-value pairs
+    // Following OpenStack property naming conventions
+    os_type: z.union([z.literal("linux"), z.literal("windows")]).optional(),
+    os_distro: z.string().optional(),
+    os_version: z.string().optional(),
+    architecture: z.string().optional(),
+    os_hidden: z.boolean().optional().default(false),
+    // Hardware properties
+    hw_disk_bus: z.string().optional(),
+    hw_scsi_model: z.string().optional(),
+    hw_serial: z.string().optional(),
+    hw_qemu_guest_agent: z.boolean().optional(),
+    hw_vif_model: z.string().optional(),
+    hw_rng_model: z.string().optional(),
+    hw_machine_type: z.string().optional(),
+    // Allow additional custom properties as strings
+  })
+  .catchall(z.string())
 
 export const imageResponseSchema = z.object({
   images: z.array(imageSchema),
@@ -107,3 +180,4 @@ export const imageDetailResponseSchema = z.object({
 })
 
 export type GlanceImage = z.infer<typeof imageSchema>
+export type CreateImageInput = z.infer<typeof createImageInputSchema>
