@@ -5,8 +5,19 @@ import { Flavor } from "@/server/Compute/types/flavor"
 import { I18nProvider } from "@lingui/react"
 import { ReactNode } from "react"
 import { i18n } from "@lingui/core"
+import { TrpcClient } from "@/client/trpcClient"
 
 const TestingProvider = ({ children }: { children: ReactNode }) => <I18nProvider i18n={i18n}>{children}</I18nProvider>
+
+const mockClient = {
+  compute: {
+    deleteFlavor: {
+      mutate: vi.fn(),
+    },
+  },
+} as unknown as TrpcClient
+
+const mockProject = "test-project-id"
 
 describe("FlavorListContainer", () => {
   beforeAll(async () => {
@@ -40,7 +51,10 @@ describe("FlavorListContainer", () => {
 
   it("renders loading message when isLoading is true", async () => {
     await act(async () => {
-      render(<FlavorListContainer isLoading={true} />, { wrapper: TestingProvider })
+      render(
+        <FlavorListContainer isLoading={true} client={mockClient} project={mockProject} onFlavorDeleted={vi.fn()} />,
+        { wrapper: TestingProvider }
+      )
     })
 
     // Use findByText for async rendering
@@ -51,7 +65,18 @@ describe("FlavorListContainer", () => {
 
   it("renders no flavors message when flavors is empty", async () => {
     await act(async () => {
-      render(<FlavorListContainer flavors={[]} isLoading={false} />, { wrapper: TestingProvider })
+      render(
+        <FlavorListContainer
+          flavors={[]}
+          isLoading={false}
+          client={mockClient}
+          project={mockProject}
+          onFlavorDeleted={vi.fn()}
+        />,
+        {
+          wrapper: TestingProvider,
+        }
+      )
     })
 
     expect(screen.queryByText("Loading...")).not.toBeInTheDocument()
@@ -62,9 +87,18 @@ describe("FlavorListContainer", () => {
 
   it("renders no flavors message when flavors is undefined", async () => {
     await act(async () => {
-      render(<FlavorListContainer flavors={undefined} isLoading={false} />, {
-        wrapper: TestingProvider,
-      })
+      render(
+        <FlavorListContainer
+          flavors={undefined}
+          isLoading={false}
+          client={mockClient}
+          project={mockProject}
+          onFlavorDeleted={vi.fn()}
+        />,
+        {
+          wrapper: TestingProvider,
+        }
+      )
     })
 
     expect(screen.queryByText("Loading...")).not.toBeInTheDocument()
@@ -75,9 +109,18 @@ describe("FlavorListContainer", () => {
 
   it("renders the flavors table when flavors are provided", async () => {
     await act(async () => {
-      render(<FlavorListContainer flavors={mockFlavors} isLoading={false} />, {
-        wrapper: TestingProvider,
-      })
+      render(
+        <FlavorListContainer
+          flavors={mockFlavors}
+          isLoading={false}
+          client={mockClient}
+          project={mockProject}
+          onFlavorDeleted={vi.fn()}
+        />,
+        {
+          wrapper: TestingProvider,
+        }
+      )
     })
 
     expect(screen.queryByText("Loading...")).not.toBeInTheDocument()

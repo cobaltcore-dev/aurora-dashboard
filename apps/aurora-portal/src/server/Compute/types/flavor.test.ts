@@ -5,6 +5,9 @@ describe("Flavor Schema Validation", () => {
   const minimalValidFlavor = {
     id: "1",
     name: "m1.tiny",
+    vcpus: 1,
+    ram: 2048,
+    disk: 20,
   }
 
   // Complete flavor data with all fields
@@ -40,12 +43,21 @@ describe("Flavor Schema Validation", () => {
     expect(result.success).toBe(true)
   })
 
-  it("should reject a flavor without an id", () => {
-    const invalidFlavor = { ...minimalValidFlavor, id: undefined }
+  it("should reject a flavor without ram", () => {
+    const invalidFlavor = { ...minimalValidFlavor, ram: undefined }
     const result = flavorSchema.safeParse(invalidFlavor)
     expect(result.success).toBe(false)
     if (!result.success) {
-      expect(result.error.issues[0].path).toContain("id")
+      expect(result.error.issues[0].path).toContain("ram")
+    }
+  })
+
+  it("should reject a flavor without vcpus", () => {
+    const invalidFlavor = { ...minimalValidFlavor, vcpus: undefined }
+    const result = flavorSchema.safeParse(invalidFlavor)
+    expect(result.success).toBe(false)
+    if (!result.success) {
+      expect(result.error.issues[0].path).toContain("vcpus")
     }
   })
 

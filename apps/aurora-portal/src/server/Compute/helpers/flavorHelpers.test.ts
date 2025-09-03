@@ -1,7 +1,7 @@
-import { describe, it, expect, vi } from "vitest"
+import { describe, it, expect, vi, beforeEach } from "vitest"
 import { TRPCError } from "@trpc/server"
-import { Flavor } from "../types/flavor"
-import { includesSearchTerm, fetchFlavors, filterAndSortFlavors } from "./flavorHelpers"
+import { CreateFlavorInput, Flavor } from "../types/flavor"
+import { includesSearchTerm, fetchFlavors, filterAndSortFlavors, createFlavor, deleteFlavor } from "./flavorHelpers"
 import { ERROR_CODES } from "../../errorCodes"
 
 const mockFlavors: Flavor[] = [
@@ -9,16 +9,34 @@ const mockFlavors: Flavor[] = [
     id: "1",
     name: "flavor1",
     description: "first flavor",
+    vcpus: 1,
+    ram: 128,
+    disk: 0,
+    swap: "0",
+    rxtx_factor: 1,
+    "OS-FLV-EXT-DATA:ephemeral": 0,
   },
   {
     id: "2",
     name: "flavor2",
     description: "second flavor",
+    vcpus: 1,
+    ram: 128,
+    disk: 0,
+    swap: "0",
+    rxtx_factor: 1,
+    "OS-FLV-EXT-DATA:ephemeral": 0,
   },
   {
     id: "3",
     name: "flavor3",
     description: "third flavor",
+    vcpus: 1,
+    ram: 128,
+    disk: 0,
+    swap: "0",
+    rxtx_factor: 1,
+    "OS-FLV-EXT-DATA:ephemeral": 0,
   },
 ]
 
@@ -28,6 +46,12 @@ describe("includesSearchTerm", () => {
       id: "test-123",
       name: "flavor",
       description: "description",
+      vcpus: 1,
+      ram: 128,
+      disk: 0,
+      swap: "0",
+      rxtx_factor: 1,
+      "OS-FLV-EXT-DATA:ephemeral": 0,
     }
 
     expect(includesSearchTerm(flavor, "test")).toBe(true)
@@ -38,6 +62,12 @@ describe("includesSearchTerm", () => {
       id: "1",
       name: "test flavor",
       description: "description",
+      vcpus: 1,
+      ram: 128,
+      disk: 0,
+      swap: "0",
+      rxtx_factor: 1,
+      "OS-FLV-EXT-DATA:ephemeral": 0,
     }
 
     expect(includesSearchTerm(flavor, "test")).toBe(true)
@@ -48,6 +78,12 @@ describe("includesSearchTerm", () => {
       id: "1",
       name: "flavor",
       description: "a test description",
+      vcpus: 1,
+      ram: 128,
+      disk: 0,
+      swap: "0",
+      rxtx_factor: 1,
+      "OS-FLV-EXT-DATA:ephemeral": 0,
     }
 
     expect(includesSearchTerm(flavor, "test")).toBe(true)
@@ -58,6 +94,12 @@ describe("includesSearchTerm", () => {
       id: "1",
       name: "TEST FLAVOR",
       description: "description",
+      vcpus: 1,
+      ram: 128,
+      disk: 0,
+      swap: "0",
+      rxtx_factor: 1,
+      "OS-FLV-EXT-DATA:ephemeral": 0,
     }
 
     expect(includesSearchTerm(flavor, "test")).toBe(true)
@@ -70,6 +112,12 @@ describe("includesSearchTerm", () => {
       id: "1",
       name: "flavor",
       description: "description",
+      vcpus: 1,
+      ram: 128,
+      disk: 0,
+      swap: "0",
+      rxtx_factor: 1,
+      "OS-FLV-EXT-DATA:ephemeral": 0,
     }
 
     expect(includesSearchTerm(flavor, "notfound")).toBe(false)
@@ -80,6 +128,12 @@ describe("includesSearchTerm", () => {
       id: "1",
       name: "flavor",
       description: null,
+      vcpus: 1,
+      ram: 128,
+      disk: 0,
+      swap: "0",
+      rxtx_factor: 1,
+      "OS-FLV-EXT-DATA:ephemeral": 0,
     }
 
     expect(includesSearchTerm(flavor, "test")).toBe(false)
@@ -93,6 +147,8 @@ describe("fetchFlavors", () => {
         ok: true,
         text: vi.fn().mockResolvedValue(JSON.stringify({ flavors: mockFlavors })),
       }),
+      post: vi.fn(),
+      del: vi.fn(),
     }
 
     const flavors = await fetchFlavors(mockCompute)
@@ -106,6 +162,8 @@ describe("fetchFlavors", () => {
         ok: true,
         text: vi.fn().mockResolvedValue(JSON.stringify({ invalid: "data" })),
       }),
+      post: vi.fn(),
+      del: vi.fn(),
     }
 
     await expect(fetchFlavors(mockCompute)).rejects.toThrow(
@@ -122,6 +180,8 @@ describe("fetchFlavors", () => {
         ok: false,
         status: 401,
       }),
+      post: vi.fn(),
+      del: vi.fn(),
     }
 
     await expect(fetchFlavors(mockCompute)).rejects.toThrow(
@@ -138,6 +198,8 @@ describe("fetchFlavors", () => {
         ok: false,
         status: 403,
       }),
+      post: vi.fn(),
+      del: vi.fn(),
     }
 
     await expect(fetchFlavors(mockCompute)).rejects.toThrow(
@@ -154,6 +216,8 @@ describe("fetchFlavors", () => {
         ok: false,
         status: 404,
       }),
+      post: vi.fn(),
+      del: vi.fn(),
     }
 
     await expect(fetchFlavors(mockCompute)).rejects.toThrow(
@@ -170,6 +234,8 @@ describe("fetchFlavors", () => {
         ok: false,
         status: 500,
       }),
+      post: vi.fn(),
+      del: vi.fn(),
     }
 
     await expect(fetchFlavors(mockCompute)).rejects.toThrow(
@@ -186,6 +252,8 @@ describe("fetchFlavors", () => {
         ok: false,
         status: 502,
       }),
+      post: vi.fn(),
+      del: vi.fn(),
     }
 
     await expect(fetchFlavors(mockCompute)).rejects.toThrow(
@@ -202,6 +270,8 @@ describe("fetchFlavors", () => {
         ok: false,
         status: 503,
       }),
+      post: vi.fn(),
+      del: vi.fn(),
     }
 
     await expect(fetchFlavors(mockCompute)).rejects.toThrow(
@@ -218,6 +288,8 @@ describe("fetchFlavors", () => {
         ok: false,
         status: 418,
       }),
+      post: vi.fn(),
+      del: vi.fn(),
     }
 
     await expect(fetchFlavors(mockCompute)).rejects.toThrow(
@@ -243,6 +315,12 @@ describe("filterAndSortFlavors", () => {
         id: "1",
         name: "flavor1",
         description: "first flavor",
+        vcpus: 1,
+        ram: 128,
+        disk: 0,
+        swap: "0",
+        rxtx_factor: 1,
+        "OS-FLV-EXT-DATA:ephemeral": 0,
       },
     ])
   })
@@ -274,13 +352,321 @@ describe("filterAndSortFlavors", () => {
   it("should combine filtering and sorting", () => {
     const extraFlavors: Flavor[] = [
       ...mockFlavors,
-      { id: "4", name: "special-flavor", description: "special one" },
-      { id: "5", name: "another-flavor", description: "another special" },
+      {
+        id: "4",
+        name: "special-flavor",
+        description: "special one",
+        vcpus: 1,
+        ram: 128,
+        disk: 0,
+        swap: "0",
+        rxtx_factor: 1,
+        "OS-FLV-EXT-DATA:ephemeral": 0,
+      },
+      {
+        id: "5",
+        name: "another-flavor",
+        description: "another special",
+        vcpus: 1,
+        ram: 128,
+        disk: 0,
+        swap: "0",
+        rxtx_factor: 1,
+        "OS-FLV-EXT-DATA:ephemeral": 0,
+      },
     ]
 
     const result = filterAndSortFlavors(extraFlavors, "special", "name", "desc")
     expect(result).toHaveLength(2)
     expect(result[0].name).toBe("special-flavor")
     expect(result[1].name).toBe("another-flavor")
+  })
+})
+describe("createFlavor", () => {
+  const compute = {
+    post: vi.fn(),
+    get: vi.fn(),
+    del: vi.fn(),
+  }
+
+  const flavorData: CreateFlavorInput = {
+    name: "test-flavor2",
+    vcpus: 1,
+    ram: 128,
+    disk: 0,
+    swap: 128,
+  }
+
+  const mockFlavor: Flavor = {
+    id: "1",
+    name: "test-flavor",
+    description: "Test flavor description",
+    vcpus: 1,
+    ram: 128,
+    disk: 0,
+    swap: "0",
+    rxtx_factor: 1,
+    "OS-FLV-EXT-DATA:ephemeral": 0,
+  }
+
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it("should return the created flavor if response is valid", async () => {
+    compute.post.mockResolvedValue({
+      ok: true,
+      status: 200,
+      text: vi.fn().mockResolvedValue(JSON.stringify({ flavor: mockFlavor })),
+    })
+
+    const result = await createFlavor(compute, flavorData)
+    expect(result).toEqual(mockFlavor)
+    expect(compute.post).toHaveBeenCalledWith("flavors", { flavor: flavorData })
+  })
+
+  it("should throw BAD_REQUEST for 400 status", async () => {
+    compute.post.mockResolvedValue({
+      ok: false,
+      status: 400,
+    })
+
+    await expect(createFlavor(compute, flavorData)).rejects.toThrow(
+      new TRPCError({
+        code: "BAD_REQUEST",
+        message: ERROR_CODES.CREATE_FLAVOR_INVALID_DATA,
+      })
+    )
+  })
+
+  it("should throw UNAUTHORIZED for 401 status", async () => {
+    compute.post.mockResolvedValue({
+      ok: false,
+      status: 401,
+    })
+
+    await expect(createFlavor(compute, flavorData)).rejects.toThrow(
+      new TRPCError({
+        code: "UNAUTHORIZED",
+        message: ERROR_CODES.CREATE_FLAVOR_UNAUTHORIZED,
+      })
+    )
+  })
+
+  it("should throw FORBIDDEN for 403 status", async () => {
+    compute.post.mockResolvedValue({
+      ok: false,
+      status: 403,
+    })
+
+    await expect(createFlavor(compute, flavorData)).rejects.toThrow(
+      new TRPCError({
+        code: "FORBIDDEN",
+        message: ERROR_CODES.CREATE_FLAVOR_FORBIDDEN,
+      })
+    )
+  })
+
+  it("should throw CONFLICT for 409 status", async () => {
+    compute.post.mockResolvedValue({
+      ok: false,
+      status: 409,
+    })
+
+    await expect(createFlavor(compute, flavorData)).rejects.toThrow(
+      new TRPCError({
+        code: "CONFLICT",
+        message: ERROR_CODES.CREATE_FLAVOR_CONFLICT,
+      })
+    )
+  })
+
+  it("should throw INTERNAL_SERVER_ERROR for 500 status", async () => {
+    compute.post.mockResolvedValue({
+      ok: false,
+      status: 500,
+    })
+
+    await expect(createFlavor(compute, flavorData)).rejects.toThrow(
+      new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: ERROR_CODES.CREATE_FLAVOR_SERVER_ERROR,
+      })
+    )
+  })
+
+  it("should throw INTERNAL_SERVER_ERROR for 502 status", async () => {
+    compute.post.mockResolvedValue({
+      ok: false,
+      status: 502,
+    })
+
+    await expect(createFlavor(compute, flavorData)).rejects.toThrow(
+      new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: ERROR_CODES.CREATE_FLAVOR_SERVER_ERROR,
+      })
+    )
+  })
+
+  it("should throw INTERNAL_SERVER_ERROR for 503 status", async () => {
+    compute.post.mockResolvedValue({
+      ok: false,
+      status: 503,
+    })
+
+    await expect(createFlavor(compute, flavorData)).rejects.toThrow(
+      new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: ERROR_CODES.CREATE_FLAVOR_SERVER_ERROR,
+      })
+    )
+  })
+
+  it("should throw BAD_REQUEST for unknown status codes", async () => {
+    compute.post.mockResolvedValue({
+      ok: false,
+      status: 418,
+    })
+
+    await expect(createFlavor(compute, flavorData)).rejects.toThrow(
+      new TRPCError({
+        code: "BAD_REQUEST",
+        message: ERROR_CODES.CREATE_FLAVOR_FAILED,
+      })
+    )
+  })
+})
+
+describe("deleteFlavor", () => {
+  const compute = {
+    post: vi.fn(),
+    get: vi.fn(),
+    del: vi.fn(),
+  }
+
+  const flavorId = "test-flavor-id"
+
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it("should successfully delete a flavor", async () => {
+    compute.del.mockResolvedValue({
+      ok: true,
+      status: 204,
+    })
+
+    await expect(deleteFlavor(compute, flavorId)).resolves.toBeUndefined()
+    expect(compute.del).toHaveBeenCalledWith(`flavors/${flavorId}`)
+  })
+
+  it("should throw UNAUTHORIZED for 401 status", async () => {
+    compute.del.mockResolvedValue({
+      ok: false,
+      status: 401,
+    })
+
+    await expect(deleteFlavor(compute, flavorId)).rejects.toThrow(
+      new TRPCError({
+        code: "UNAUTHORIZED",
+        message: ERROR_CODES.DELETE_FLAVOR_UNAUTHORIZED,
+      })
+    )
+  })
+
+  it("should throw FORBIDDEN for 403 status", async () => {
+    compute.del.mockResolvedValue({
+      ok: false,
+      status: 403,
+    })
+
+    await expect(deleteFlavor(compute, flavorId)).rejects.toThrow(
+      new TRPCError({
+        code: "FORBIDDEN",
+        message: ERROR_CODES.DELETE_FLAVOR_FORBIDDEN,
+      })
+    )
+  })
+
+  it("should throw NOT_FOUND for 404 status", async () => {
+    compute.del.mockResolvedValue({
+      ok: false,
+      status: 404,
+    })
+
+    await expect(deleteFlavor(compute, flavorId)).rejects.toThrow(
+      new TRPCError({
+        code: "NOT_FOUND",
+        message: ERROR_CODES.DELETE_FLAVOR_NOT_FOUND,
+      })
+    )
+  })
+
+  it("should throw INTERNAL_SERVER_ERROR for 500 status", async () => {
+    compute.del.mockResolvedValue({
+      ok: false,
+      status: 500,
+    })
+
+    await expect(deleteFlavor(compute, flavorId)).rejects.toThrow(
+      new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: ERROR_CODES.DELETE_FLAVOR_SERVER_ERROR,
+      })
+    )
+  })
+
+  it("should throw BAD_REQUEST for unknown status codes", async () => {
+    compute.del.mockResolvedValue({
+      ok: false,
+      status: 418,
+    })
+
+    await expect(deleteFlavor(compute, flavorId)).rejects.toThrow(
+      new TRPCError({
+        code: "BAD_REQUEST",
+        message: ERROR_CODES.DELETE_FLAVOR_FAILED,
+      })
+    )
+  })
+
+  it("should re-throw TRPCError from network request", async () => {
+    const originalError = new TRPCError({
+      code: "TIMEOUT",
+      message: "Request timeout",
+    })
+
+    compute.del.mockRejectedValue(originalError)
+
+    await expect(deleteFlavor(compute, flavorId)).rejects.toThrow(originalError)
+  })
+
+  it("should wrap non-TRPC errors in INTERNAL_SERVER_ERROR", async () => {
+    const networkError = new Error("Network connection failed")
+    const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {})
+
+    compute.del.mockRejectedValue(networkError)
+
+    await expect(deleteFlavor(compute, flavorId)).rejects.toThrow(
+      new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: ERROR_CODES.DELETE_FLAVOR_FAILED,
+        cause: networkError,
+      })
+    )
+
+    expect(consoleSpy).toHaveBeenCalledWith(`Failed to delete flavor ${flavorId}:`, networkError)
+
+    consoleSpy.mockRestore()
+  })
+  it("should throw error on empty string flavorId", async () => {
+    const originalError = new TRPCError({
+      code: "BAD_REQUEST",
+      message: ERROR_CODES.DELETE_FLAVOR_INVALID_ID,
+    })
+
+    await expect(deleteFlavor(compute, "")).rejects.toThrow(originalError)
+    expect(compute.del).not.toHaveBeenCalled()
   })
 })
