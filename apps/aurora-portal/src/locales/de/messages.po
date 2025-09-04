@@ -178,6 +178,10 @@ msgstr "Absteigend"
 msgid "Description"
 msgstr "Beschreibung"
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/flavorValidation.ts:57
+msgid "Description must be less than 65535 characters."
+msgstr "Die Beschreibung muss weniger als 65535 Zeichen haben."
+
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/DeleteFlavorModal.tsx:133
 msgid "Disk"
 msgstr "Disk"
@@ -227,6 +231,10 @@ msgstr "Ephemeral Disk"
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/CreateFlavorModal.tsx:228
 msgid "Ephemeral Disk (GiB)"
 msgstr "Ephemeral Disk (GiB)"
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/flavorValidation.ts:62
+msgid "Ephemeral Disk must be an integer ≥ 0."
+msgstr "Ephemeral Disk muss eine ganze Zahl ≥ 0 sein."
 
 #: src/client/routes/gardener/-components/ClusterDetail.tsx:89
 msgid "Failed to copy to clipboard"
@@ -295,6 +303,10 @@ msgstr "Mitmachen"
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/DeleteFlavorModal.tsx:121
 msgid "ID"
 msgstr "ID"
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/flavorValidation.ts:18
+msgid "ID must only contain alphanumeric characters, hyphens, underscores, and dots."
+msgstr "Die ID darf nur alphanumerische Zeichen, Bindestriche, Unterstriche und Punkte enthalten."
 
 #: src/client/routes/gardener/-components/ClusterDetail/WorkerSection.tsx:35
 msgid "Image"
@@ -386,6 +398,10 @@ msgstr "Minimale Nodes"
 msgid "Name"
 msgstr "Name"
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/flavorValidation.ts:23
+msgid "Name must be 2-50 characters long."
+msgstr "Der Name muss 2-50 Zeichen lang sein."
+
 #: src/client/routes/auth/login.tsx:170
 msgid "Need help?"
 msgstr "Benötigen Sie Hilfe?"
@@ -454,6 +470,10 @@ msgstr "RAM"
 msgid "RAM (MiB)"
 msgstr "RAM (MiB)"
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/flavorValidation.ts:33
+msgid "RAM must be an integer ≥ 128 MB."
+msgstr "RAM muss eine ganze Zahl ≥ 128 MB sein."
+
 #: src/client/routes/gardener/-components/ClusterDetail.tsx:130
 msgid "Raw JSON Data for"
 msgstr "JSON-Rohdaten für"
@@ -479,11 +499,19 @@ msgstr "Root Disk"
 msgid "Root Disk (GiB)"
 msgstr "Root Disk (GiB)"
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/flavorValidation.ts:38
+msgid "Root Disk must be an integer ≥ 0."
+msgstr "Root Disk muss eine ganze Zahl ≥ 0 sein."
+
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:101
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FilterToolbar.tsx:68
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/CreateFlavorModal.tsx:252
 msgid "RX/TX Factor"
 msgstr "RX/TX Factor"
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/flavorValidation.ts:50
+msgid "RX/TX Factor must be an integer ≥ 1."
+msgstr "RX/TX Faktor muss eine ganze Zahl ≥ 1 sein."
 
 #: src/client/routes/gardener/-components/ClusterDetail/WorkerSection.tsx:38
 msgid "Scaling"
@@ -551,6 +579,10 @@ msgstr "Swap"
 msgid "Swap (MiB)"
 msgstr "Swap (MiB)"
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/flavorValidation.ts:45
+msgid "Swap Disk must be an integer ≥ 0."
+msgstr "Swap-Disk muss eine ganze Zahl ≥ 0 sein."
+
 #: src/client/routes/index.tsx:43
 msgid "The <0>Aurora Dashboard</0> is on its way! Get ready for a powerful, all-in-one cloud management interface designed to make managing your cloud assets simple and efficient. With tools for provisioning, configuring, and scaling resources like servers, networks, and volumes, Aurora will soon bring you:"
 msgstr "Das <0>Aurora-Dashboard</0> ist auf dem Weg! Bereiten Sie sich auf eine leistungsstarke, All-in-One-Cloud-Management-Oberfläche vor, die darauf ausgelegt ist, die Verwaltung Ihrer Cloud-Ressourcen einfach und effizient zu gestalten. Mit Tools zum Bereitstellen, Konfigurieren und Skalieren von Ressourcen wie Servern, Netzwerken und Volumes wird Aurora Ihnen bald bieten:"
@@ -613,6 +645,10 @@ msgstr "vCPU"
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/CreateFlavorModal.tsx:189
 msgid "VCPUs"
 msgstr "VCPUs"
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/flavorValidation.ts:28
+msgid "VCPUs must be an integer ≥ 1."
+msgstr "VCPUs müssen eine ganze Zahl ≥ 1 sein."
 
 #: src/client/routes/gardener/-components/ClusterDetail/ClusterOverviewSection.tsx:79
 msgid "Version"
