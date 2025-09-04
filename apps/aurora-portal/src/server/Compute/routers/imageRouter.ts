@@ -1,26 +1,82 @@
-import { z } from "zod"
 import { protectedProcedure } from "../../trpc"
+import { applyImageQueryParams } from "../helpers/imageHelpers"
 import {
   imageResponseSchema,
   GlanceImage,
   createImageInputSchema,
   imageDetailResponseSchema,
   deleteImageInputSchema,
+  listImagesInputSchema,
+  imagesPaginatedResponseSchema,
+  ImagesPaginatedResponse,
+  imagesPaginatedInputSchema,
 } from "../types/image"
 
 export const imageRouter = {
-  getImagesByProjectId: protectedProcedure
-    .input(z.object({ projectId: z.string() }))
+  listImages: protectedProcedure
+    .input(listImagesInputSchema)
     .query(async ({ input, ctx }): Promise<GlanceImage[] | undefined> => {
-      const openstackSession = await ctx.rescopeSession({ projectId: input.projectId })
+      const { projectId, ...queryInput } = input
+      const openstackSession = await ctx.rescopeSession({ projectId })
       const glance = openstackSession?.service("glance")
 
-      const parsedData = imageResponseSchema.safeParse(await glance?.get("v2/images").then((res) => res.json()))
-      if (!parsedData.success) {
-        console.error("Zod Parsing Error:", parsedData.error.format())
+      // Build query parameters using utility function
+      const queryParams = new URLSearchParams()
+      applyImageQueryParams(queryParams, queryInput)
+
+      const url = `v2/images?${queryParams.toString()}`
+
+      try {
+        const response = await glance?.get(url)
+        if (!response?.ok) {
+          console.error("Failed to fetch images:", response?.statusText)
+          return undefined
+        }
+
+        const parsedData = imageResponseSchema.safeParse(await response.json())
+        if (!parsedData.success) {
+          console.error("Zod Parsing Error:", parsedData.error.format())
+          return undefined
+        }
+
+        return parsedData.data.images
+      } catch (error) {
+        console.error("Error fetching images:", error)
         return undefined
       }
-      return parsedData.data.images
+    }),
+
+  listImagesWithPagination: protectedProcedure
+    .input(imagesPaginatedInputSchema)
+    .query(async ({ input, ctx }): Promise<ImagesPaginatedResponse | undefined> => {
+      const { projectId, first, next, last, ...queryInput } = input
+      const openstackSession = await ctx.rescopeSession({ projectId })
+      const glance = openstackSession?.service("glance")
+
+      // Build query parameters using utility function
+      const queryParams = new URLSearchParams()
+      applyImageQueryParams(queryParams, queryInput)
+
+      const url = first || next || last || `v2/images?${queryParams.toString()}`
+
+      try {
+        const response = await glance?.get(url)
+        if (!response?.ok) {
+          console.error("Failed to fetch images with pagination:", response?.statusText)
+          return undefined
+        }
+
+        const parsedData = imagesPaginatedResponseSchema.safeParse(await response.json())
+        if (!parsedData.success) {
+          console.error("Zod Parsing Error:", parsedData.error.format())
+          return undefined
+        }
+
+        return parsedData.data
+      } catch (error) {
+        console.error("Error fetching images with pagination:", error)
+        return undefined
+      }
     }),
 
   createImage: protectedProcedure
