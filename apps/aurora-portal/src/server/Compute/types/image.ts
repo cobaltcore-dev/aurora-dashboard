@@ -191,7 +191,12 @@ export const listImagesInputSchema = z.object({
 export const imagesPaginatedInputSchema = listImagesInputSchema.extend({
   first: z.string().optional(), // URL for the first page
   next: z.string().optional(), // URL for the next page (only present if more pages exist)
-  last: z.string().optional(), // URL for the last page
+})
+
+// Input schema for getting a single image by ID
+export const getImageByIdInputSchema = z.object({
+  projectId: z.string(),
+  imageId: z.string().uuid(), // UUID validation for image ID
 })
 
 // Input schema for creating an image
@@ -278,6 +283,7 @@ export const imagesPaginatedResponseSchema = z.object({
 })
 
 export type GlanceImage = z.infer<typeof imageSchema>
+export type GetImageByIdInput = z.infer<typeof getImageByIdInputSchema>
 export type CreateImageInput = z.infer<typeof createImageInputSchema>
 export type DeleteImageInput = z.infer<typeof deleteImageInputSchema>
 export type ListImagesInput = z.infer<typeof listImagesInputSchema>

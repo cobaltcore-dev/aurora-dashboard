@@ -2,6 +2,7 @@ import { protectedProcedure } from "../../trpc"
 import { applyImageQueryParams } from "../helpers/imageHelpers"
 import {
   imageResponseSchema,
+  imageSchema,
   GlanceImage,
   createImageInputSchema,
   imageDetailResponseSchema,
@@ -10,6 +11,7 @@ import {
   imagesPaginatedResponseSchema,
   ImagesPaginatedResponse,
   imagesPaginatedInputSchema,
+  getImageByIdInputSchema,
 } from "../types/image"
 
 export const imageRouter = {
@@ -49,7 +51,7 @@ export const imageRouter = {
   listImagesWithPagination: protectedProcedure
     .input(imagesPaginatedInputSchema)
     .query(async ({ input, ctx }): Promise<ImagesPaginatedResponse | undefined> => {
-      const { projectId, first, next, last, ...queryInput } = input
+      const { projectId, first, next, ...queryInput } = input
       const openstackSession = await ctx.rescopeSession({ projectId })
       const glance = openstackSession?.service("glance")
 
@@ -57,7 +59,7 @@ export const imageRouter = {
       const queryParams = new URLSearchParams()
       applyImageQueryParams(queryParams, queryInput)
 
-      const url = first || next || last || `v2/images?${queryParams.toString()}`
+      const url = first || next || `v2/images?${queryParams.toString()}`
 
       try {
         const response = await glance?.get(url)
@@ -75,6 +77,44 @@ export const imageRouter = {
         return parsedData.data
       } catch (error) {
         console.error("Error fetching images with pagination:", error)
+        return undefined
+      }
+    }),
+
+  getImageById: protectedProcedure
+    .input(getImageByIdInputSchema)
+    .query(async ({ input, ctx }): Promise<GlanceImage | undefined> => {
+      const { projectId, imageId } = input
+      const openstackSession = await ctx.rescopeSession({ projectId })
+      const glance = openstackSession?.service("glance")
+
+      try {
+        const response = await glance?.get(`v2/images/${imageId}`)
+        if (!response?.ok) {
+          // Handle image not found case (HTTP 404)
+          if (response?.status === 404) {
+            console.error("Image not found:", imageId)
+            return undefined
+          }
+          // Handle forbidden access (HTTP 403)
+          if (response?.status === 403) {
+            console.error("Access forbidden to image:", imageId)
+            return undefined
+          }
+          console.error("Failed to fetch image:", response?.statusText)
+          return undefined
+        }
+
+        // Parse the single image response directly (not wrapped in a container)
+        const parsedData = imageSchema.safeParse(await response.json())
+        if (!parsedData.success) {
+          console.error("Zod Parsing Error:", parsedData.error.format())
+          return undefined
+        }
+
+        return parsedData.data
+      } catch (error) {
+        console.error("Error fetching image by ID:", error)
         return undefined
       }
     }),
