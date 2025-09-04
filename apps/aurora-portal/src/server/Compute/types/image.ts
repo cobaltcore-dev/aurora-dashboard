@@ -272,6 +272,12 @@ export const deactivateImageInputSchema = z.object({
   imageId: z.string().uuid(), // UUID validation for image ID
 })
 
+// Input schema for reactivating an image
+export const reactivateImageInputSchema = z.object({
+  projectId: z.string(),
+  imageId: z.string().uuid(), // UUID validation for image ID
+})
+
 export const imageResponseSchema = z.object({
   images: z.array(imageSchema),
 })
@@ -293,6 +299,7 @@ export type GetImageByIdInput = z.infer<typeof getImageByIdInputSchema>
 export type CreateImageInput = z.infer<typeof createImageInputSchema>
 export type DeleteImageInput = z.infer<typeof deleteImageInputSchema>
 export type DeactivateImageInput = z.infer<typeof deactivateImageInputSchema>
+export type ReactivateImageInput = z.infer<typeof reactivateImageInputSchema>
 export type ListImagesInput = z.infer<typeof listImagesInputSchema>
 export type ImagesPaginatedInput = z.infer<typeof imagesPaginatedInputSchema>
 export type SortKey = z.infer<typeof sortKeySchema>

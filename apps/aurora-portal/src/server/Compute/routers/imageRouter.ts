@@ -13,6 +13,7 @@ import {
   imagesPaginatedInputSchema,
   getImageByIdInputSchema,
   deactivateImageInputSchema,
+  reactivateImageInputSchema,
 } from "../types/image"
 
 export const imageRouter = {
@@ -215,6 +216,44 @@ export const imageRouter = {
         return true
       } catch (error) {
         console.error("Error deactivating image:", error)
+        return false
+      }
+    }),
+
+  reactivateImage: protectedProcedure
+    .input(reactivateImageInputSchema)
+    .mutation(async ({ input, ctx }): Promise<boolean> => {
+      const { projectId, imageId } = input
+      const openstackSession = await ctx.rescopeSession({ projectId })
+      const glance = openstackSession?.service("glance")
+
+      try {
+        const response = await glance?.post(`v2/images/${imageId}/actions/reactivate`, undefined)
+
+        if (!response?.ok) {
+          // Handle forbidden access (HTTP 403) - typically admin-only operation
+          if (response?.status === 403) {
+            console.error("Access forbidden - cannot reactivate image:", imageId)
+            return false
+          }
+          // Handle image not found case (HTTP 404)
+          if (response?.status === 404) {
+            console.error("Image not found:", imageId)
+            return false
+          }
+          // Handle invalid state case (HTTP 409) - image must be active or deactivated
+          if (response?.status === 409) {
+            console.error("Image is not in a valid state for reactivation:", imageId)
+            return false
+          }
+          console.error("Failed to reactivate image:", response?.statusText)
+          return false
+        }
+
+        // Successfully reactivated (HTTP 204)
+        return true
+      } catch (error) {
+        console.error("Error reactivating image:", error)
         return false
       }
     }),
