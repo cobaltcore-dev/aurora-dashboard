@@ -260,6 +260,21 @@ export const createImageInputSchema = z
   })
   .catchall(z.string())
 
+// JSON Patch operation schema for updating images
+const jsonPatchOperationSchema = z.object({
+  op: z.enum(["add", "remove", "replace", "move", "copy", "test"]),
+  path: z.string(), // JSON Pointer path like "/name", "/tags", "/visibility"
+  value: z.any().optional(), // Value is optional for "remove" operation
+  from: z.string().optional(), // Required for "move" and "copy" operations
+})
+
+// Input schema for updating an image using JSON Patch format
+export const updateImageInputSchema = z.object({
+  projectId: z.string(),
+  imageId: z.string().uuid(), // UUID validation for image ID
+  operations: z.array(jsonPatchOperationSchema).min(1), // Array of JSON Patch operations
+})
+
 // Input schema for deleting an image
 export const deleteImageInputSchema = z.object({
   projectId: z.string(),
@@ -297,6 +312,7 @@ export const imagesPaginatedResponseSchema = z.object({
 export type GlanceImage = z.infer<typeof imageSchema>
 export type GetImageByIdInput = z.infer<typeof getImageByIdInputSchema>
 export type CreateImageInput = z.infer<typeof createImageInputSchema>
+export type UpdateImageInput = z.infer<typeof updateImageInputSchema>
 export type DeleteImageInput = z.infer<typeof deleteImageInputSchema>
 export type DeactivateImageInput = z.infer<typeof deactivateImageInputSchema>
 export type ReactivateImageInput = z.infer<typeof reactivateImageInputSchema>

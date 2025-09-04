@@ -5,6 +5,7 @@ import {
   imageSchema,
   GlanceImage,
   createImageInputSchema,
+  updateImageInputSchema,
   imageDetailResponseSchema,
   deleteImageInputSchema,
   listImagesInputSchema,
@@ -147,6 +148,61 @@ export const imageRouter = {
         return parsedData.data.image
       } catch (error) {
         console.error("Error creating image:", error)
+        return undefined
+      }
+    }),
+
+  updateImage: protectedProcedure
+    .input(updateImageInputSchema)
+    .mutation(async ({ input, ctx }): Promise<GlanceImage | undefined> => {
+      const { projectId, imageId, operations } = input
+      const openstackSession = await ctx.rescopeSession({ projectId })
+      const glance = openstackSession?.service("glance")
+
+      try {
+        // Use PATCH method with JSON Patch operations according to OpenStack Glance API v2
+        const response = await glance?.patch(`v2/images/${imageId}`, {
+          json: operations, // Send the JSON Patch operations array directly
+          headers: {
+            "Content-Type": "application/openstack-images-v2.1-json-patch",
+          },
+        })
+
+        if (!response?.ok) {
+          // Handle image not found case (HTTP 404)
+          if (response?.status === 404) {
+            console.error("Image not found:", imageId)
+            return undefined
+          }
+          // Handle forbidden access (HTTP 403)
+          if (response?.status === 403) {
+            console.error("Access forbidden - cannot update image:", imageId)
+            return undefined
+          }
+          // Handle invalid state case (HTTP 409) - image might be in wrong state for update
+          if (response?.status === 409) {
+            console.error("Image is not in a valid state for update:", imageId)
+            return undefined
+          }
+          // Handle validation errors (HTTP 400)
+          if (response?.status === 400) {
+            console.error("Invalid update data for image:", imageId, response?.statusText)
+            return undefined
+          }
+          console.error("Failed to update image:", response?.statusText)
+          return undefined
+        }
+
+        // Parse the updated image response
+        const parsedData = imageSchema.safeParse(await response.json())
+        if (!parsedData.success) {
+          console.error("Zod Parsing Error:", parsedData.error.format())
+          return undefined
+        }
+
+        return parsedData.data
+      } catch (error) {
+        console.error("Error updating image:", error)
         return undefined
       }
     }),
