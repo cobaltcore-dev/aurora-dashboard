@@ -77,15 +77,13 @@ const request = ({ method, path, options = {} }: RequestParams) => {
   }
 
   if (options.debug) {
-    const headers = redactSensitiveData(options.headers)
-    const debugData = redactSensitiveData({ method, path, headers, options, url })
+    const debugData = redactSensitiveData({ method, path, options, url })
     console.debug(`===Signal Openstack Debug: `, JSON.stringify(debugData, null, 2))
   }
 
   return fetch(url.toString(), {
     headers: { ...options.headers },
     method,
-    credentials: "same-origin",
     body,
   })
     .then(async (response) => {
