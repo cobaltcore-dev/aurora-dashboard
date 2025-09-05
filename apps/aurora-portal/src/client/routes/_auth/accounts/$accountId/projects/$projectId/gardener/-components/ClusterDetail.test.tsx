@@ -42,21 +42,56 @@ describe("ClusterDetailPage", () => {
 
   const createTestRouter = (Component: ReactElement) => {
     const memoryHistory = createMemoryHistory({
-      initialEntries: ["/gardener/clusters/test-cluster"],
+      initialEntries: ["/_auth/accounts/test-account/projects/test-project/gardener/clusters/test-cluster"],
     })
 
-    const rootRoute = createRootRoute({
+    const rootRoute = createRootRoute()
+
+    // Create the _auth route
+    const authRoute = createRoute({
+      getParentRoute: () => rootRoute,
+      path: "/_auth",
+    })
+
+    // Create accounts route with parameter
+    const accountsRoute = createRoute({
+      getParentRoute: () => authRoute,
+      path: "/accounts/$accountId",
+    })
+
+    // Create projects route with parameter
+    const projectsRoute = createRoute({
+      getParentRoute: () => accountsRoute,
+      path: "/projects/$projectId",
+    })
+
+    // Create gardener route
+    const gardenerRoute = createRoute({
+      getParentRoute: () => projectsRoute,
+      path: "/gardener",
+    })
+
+    // Create clusters route - this renders your component and matches the useParams call
+    const clustersRoute = createRoute({
+      getParentRoute: () => gardenerRoute,
+      path: "/clusters/",
       component: () => Component,
     })
 
-    // Create a route for the clusters list page to test navigation
-    const computeRoute = createRoute({
-      getParentRoute: () => rootRoute,
-      path: "/gardener/clusters",
-      component: () => <div>Clusters List</div>,
+    // Create cluster details route for navigation
+    const clusterDetailsRoute = createRoute({
+      getParentRoute: () => clustersRoute,
+      path: "/$clusterName",
+      component: () => <div>Cluster Details</div>,
     })
 
-    const routeTree = rootRoute.addChildren([computeRoute])
+    const routeTree = rootRoute.addChildren([
+      authRoute.addChildren([
+        accountsRoute.addChildren([
+          projectsRoute.addChildren([gardenerRoute.addChildren([clustersRoute.addChildren([clusterDetailsRoute])])]),
+        ]),
+      ]),
+    ])
 
     return createRouter({
       routeTree,

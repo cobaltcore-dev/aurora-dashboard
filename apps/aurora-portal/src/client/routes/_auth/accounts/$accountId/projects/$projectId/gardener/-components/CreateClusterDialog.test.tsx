@@ -154,7 +154,7 @@ describe("CreateClusterWizard", () => {
 
       await waitFor(() => {
         // Should display content from the resolved cloud profiles
-        expect(screen.getByDisplayValue("converged-cloud")).toBeInTheDocument()
+        expect(screen.getByDisplayValue("openstack")).toBeInTheDocument()
       })
     })
   })
