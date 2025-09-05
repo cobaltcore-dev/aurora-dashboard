@@ -18,7 +18,7 @@ interface ImagesProps {
 }
 
 export const Images = ({ client, project }: ImagesProps) => {
-  const getImagesPromise = client.compute.getImagesByProjectId.query({ projectId: project })
+  const getImagesPromise = client.compute.listImages.query({ projectId: project })
 
   return (
     <Suspense fallback={<div className="p-4 text-center text-gray-400">Loading images...</div>}>
