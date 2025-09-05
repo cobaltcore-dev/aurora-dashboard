@@ -4,7 +4,6 @@ import { Cluster, convertShootApiResponseToCluster, convertShootListApiSchemaToC
 import { getGardenerClient } from "../gardenerClient"
 import { TRPCError } from "@trpc/server"
 import { z } from "zod"
-import { T } from "vitest/dist/chunks/reporters.d.C-cu31ET.js"
 
 export const clustersRouter = {
   getClustersByProjectId: protectedProcedure

@@ -1,4 +1,4 @@
-import { SignalOpenstackSessionType, SignalOpenstackServiceType } from "@cobaltcore-dev/signal-openstack"
+import { SignalOpenstackSessionType } from "@cobaltcore-dev/signal-openstack"
 
 // Disable TLS certificate verification
 process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = "0"
