@@ -1,28 +1,41 @@
-import { publicProcedure } from "../../trpc"
-import { client } from "../client"
+import { protectedProcedure } from "../../trpc"
+import { getGardenerClient } from "../gardenerClient"
 import { SelfSubjectAccessReviewListSchema } from "../types/permissionsApiSchema"
+import { z } from "zod"
+import { TRPCError } from "@trpc/server"
 
 export const permissionsRouter = {
-  getPermissions: publicProcedure.query(async () => {
+  getPermissions: protectedProcedure.input(z.object({ projectId: z.string() })).query(async ({ ctx, input }) => {
+    const openstackSession = await ctx.rescopeSession({ projectId: input.projectId })
+
+    const client = getGardenerClient(openstackSession)
+    if (!client) {
+      throw new TRPCError({
+        code: "SERVICE_UNAVAILABLE",
+        message: "Could not get Gardener client. Please check service catalog.",
+      })
+    }
+
+    const namespace = `garden-${input.projectId}`
     const permissions = ["list", "get", "create", "update", "delete"] as const
 
     // Kubernetes SelfSubjectAccessReview API only supports checking one permission at a time.
     // Each request can only check a single verb against a single resource
     const requests = permissions.map((permission) =>
-      client
+      client!
         .post("apis/authorization.k8s.io/v1/selfsubjectaccessreviews", {
           kind: "SelfSubjectAccessReview" as const,
           apiVersion: "authorization.k8s.io/v1",
-          metadata: { creationTimestamp: null },
           spec: {
             resourceAttributes: {
-              namespace: `garden-${process.env.GARDENER_PROJECT}`,
+              namespace,
               verb: permission,
               resource: "shoots",
               group: "core.gardener.cloud",
             },
           },
         })
+        .then((res) => res.json())
         .catch(async (err) => {
           let errorDetails
 

@@ -1,43 +1,38 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest"
 import { permissionsRouter } from "./permissionsRouter"
-import { client } from "../client"
 import { createCallerFactory, router } from "../../trpc"
 import { AuroraPortalContext } from "../../context"
 
-// Mock the K8s client
-vi.mock("../client", () => ({
-  client: {
-    get: vi.fn(),
-    post: vi.fn(),
-    put: vi.fn(),
-    delete: vi.fn(),
-    patch: vi.fn(),
-    WATCH_ADDED: "ADDED",
-    WATCH_MODIFIED: "MODIFIED",
-    WATCH_DELETED: "DELETED",
-    WATCH_ERROR: "ERROR",
-    watch: vi.fn().mockReturnValue({
-      on: vi.fn(),
-      off: vi.fn(),
-      close: vi.fn(),
-    }),
-    head: vi.fn(),
-    refreshToken: vi.fn(),
-    currentToken: vi.fn(),
-  },
-}))
-
-const mockClient = vi.mocked(client)
-
 // Create tRPC caller
 const createCaller = createCallerFactory(router(permissionsRouter))
-const caller = createCaller({} as AuroraPortalContext)
+const mockClient = {
+  get: vi.fn(),
+  post: vi.fn(),
+  put: vi.fn(),
+  del: vi.fn(),
+  patch: vi.fn(),
+  head: vi.fn(),
+  availableEndpoints: vi.fn(),
+}
 
 describe("permissionsRouter", () => {
+  let caller: ReturnType<typeof createCaller>
   beforeEach(() => {
     vi.clearAllMocks()
-    // Set default environment variable
-    process.env.GARDENER_PROJECT = "test-project"
+
+    const mockOpestackSession = {
+      getToken: vi.fn(() => ({ authToken: "test-auth-token" })),
+      service: vi.fn(() => mockClient),
+    }
+
+    // Mock context with all required functions
+    const mockContext: AuroraPortalContext = {
+      createSession: vi.fn().mockResolvedValue(mockOpestackSession),
+      rescopeSession: vi.fn().mockResolvedValue(mockOpestackSession), // Mock the rescoped session
+      terminateSession: vi.fn().mockResolvedValue({}), // Mock the terminated session
+      validateSession: vi.fn().mockResolvedValue(true), // Mock the validated session
+    }
+    caller = createCaller(mockContext)
   })
 
   afterEach(() => {
@@ -64,9 +59,9 @@ describe("permissionsRouter", () => {
         },
       }
 
-      mockClient.post.mockResolvedValue(mockResponse)
+      mockClient.post.mockResolvedValue({ json: vi.fn().mockResolvedValue(mockResponse) })
 
-      const result = await caller.getPermissions()
+      const result = await caller.getPermissions({ projectId: "test-project" })
 
       expect(result).toEqual({
         list: true,
@@ -104,13 +99,13 @@ describe("permissionsRouter", () => {
       ]
 
       mockClient.post
-        .mockResolvedValueOnce(responses[0])
-        .mockResolvedValueOnce(responses[1])
-        .mockResolvedValueOnce(responses[2])
-        .mockResolvedValueOnce(responses[3])
-        .mockResolvedValueOnce(responses[4])
+        .mockResolvedValueOnce({ json: vi.fn().mockResolvedValue(responses[0]) })
+        .mockResolvedValueOnce({ json: vi.fn().mockResolvedValue(responses[1]) })
+        .mockResolvedValueOnce({ json: vi.fn().mockResolvedValue(responses[2]) })
+        .mockResolvedValueOnce({ json: vi.fn().mockResolvedValue(responses[3]) })
+        .mockResolvedValueOnce({ json: vi.fn().mockResolvedValue(responses[4]) })
 
-      const result = await caller.getPermissions()
+      const result = await caller.getPermissions({ projectId: "test-project" })
 
       expect(result).toEqual({
         list: true,
@@ -139,9 +134,9 @@ describe("permissionsRouter", () => {
         },
       }
 
-      mockClient.post.mockResolvedValue(mockResponse)
+      mockClient.post.mockResolvedValue({ json: vi.fn().mockResolvedValue(mockResponse) })
 
-      const result = await caller.getPermissions()
+      const result = await caller.getPermissions({ projectId: "test-project" })
 
       expect(result).toEqual({
         list: false,
@@ -169,9 +164,9 @@ describe("permissionsRouter", () => {
           denied: false,
         },
       }
-      mockClient.post.mockResolvedValue(mockResponse)
+      mockClient.post.mockResolvedValue({ json: vi.fn().mockResolvedValue(mockResponse) })
 
-      await caller.getPermissions()
+      await caller.getPermissions({ projectId: "test-project" })
 
       const permissions = ["list", "get", "create", "update", "delete"]
 
@@ -182,7 +177,6 @@ describe("permissionsRouter", () => {
           {
             kind: "SelfSubjectAccessReview",
             apiVersion: "authorization.k8s.io/v1",
-            metadata: { creationTimestamp: null },
             spec: {
               resourceAttributes: {
                 namespace: "garden-test-project",
@@ -214,16 +208,16 @@ describe("permissionsRouter", () => {
           denied: false,
         },
       }
-      mockClient.post.mockResolvedValue(mockResponse)
+      mockClient.post.mockResolvedValue({ json: vi.fn().mockResolvedValue(mockResponse) })
 
-      await caller.getPermissions()
+      await caller.getPermissions({ projectId: "test-project" })
 
-      expect(mockClient.post).toHaveBeenCalledWith(
+      expect(mockClient.post).toHaveBeenLastCalledWith(
         expect.any(String),
         expect.objectContaining({
           spec: expect.objectContaining({
             resourceAttributes: expect.objectContaining({
-              namespace: "garden-my-custom-project",
+              namespace: "garden-test-project",
             }),
           }),
         })
@@ -241,7 +235,9 @@ describe("permissionsRouter", () => {
 
       mockClient.post.mockRejectedValue(mockError)
 
-      await expect(caller.getPermissions()).rejects.toThrow("Error fetching permissions: Unauthorized access")
+      await expect(caller.getPermissions({ projectId: "test-project" })).rejects.toThrow(
+        "Error fetching permissions: Unauthorized access"
+      )
     })
 
     it("should handle error response with message field", async () => {
@@ -255,7 +251,9 @@ describe("permissionsRouter", () => {
 
       mockClient.post.mockRejectedValue(mockError)
 
-      await expect(caller.getPermissions()).rejects.toThrow("Error fetching permissions: Request timeout")
+      await expect(caller.getPermissions({ projectId: "test-project" })).rejects.toThrow(
+        "Error fetching permissions: Request timeout"
+      )
     })
 
     it("should handle error without response body", async () => {
@@ -268,7 +266,9 @@ describe("permissionsRouter", () => {
 
       mockClient.post.mockRejectedValue(mockError)
 
-      await expect(caller.getPermissions()).rejects.toThrow("Error fetching permissions: Network error")
+      await expect(caller.getPermissions({ projectId: "test-project" })).rejects.toThrow(
+        "Error fetching permissions: Network error"
+      )
     })
 
     it("should handle JSON parsing error in error response", async () => {
@@ -281,7 +281,9 @@ describe("permissionsRouter", () => {
 
       mockClient.post.mockRejectedValue(mockError)
 
-      await expect(caller.getPermissions()).rejects.toThrow("Error fetching permissions: Original error message")
+      await expect(caller.getPermissions({ projectId: "test-project" })).rejects.toThrow(
+        "Error fetching permissions: Original error message"
+      )
     })
 
     it("should throw error when schema validation fails", async () => {
@@ -290,9 +292,11 @@ describe("permissionsRouter", () => {
         invalidField: "invalid",
       }
 
-      mockClient.post.mockResolvedValue(invalidResponse)
+      mockClient.post.mockResolvedValue({ json: vi.fn().mockResolvedValue(invalidResponse) })
 
-      await expect(caller.getPermissions()).rejects.toThrow("Failed to parse permissions responses:")
+      await expect(caller.getPermissions({ projectId: "test-project" })).rejects.toThrow(
+        "Failed to parse permissions responses:"
+      )
     })
 
     it("should handle partial failure - some requests succeed, some fail", async () => {
@@ -306,13 +310,15 @@ describe("permissionsRouter", () => {
 
       // First three succeed, last two fail
       mockClient.post
-        .mockResolvedValueOnce({ status: { allowed: true } })
-        .mockResolvedValueOnce({ status: { allowed: false } })
-        .mockResolvedValueOnce({ status: { allowed: true } })
+        .mockResolvedValueOnce({ status: { allowed: true }, json: vi.fn() })
+        .mockResolvedValueOnce({ status: { allowed: false }, json: vi.fn() })
+        .mockResolvedValueOnce({ status: { allowed: true }, json: vi.fn() })
         .mockRejectedValueOnce(mockError)
         .mockRejectedValueOnce(mockError)
 
-      await expect(caller.getPermissions()).rejects.toThrow("Error fetching permissions: Permission denied")
+      await expect(caller.getPermissions({ projectId: "test-project" })).rejects.toThrow(
+        "Error fetching permissions: Permission denied"
+      )
     })
 
     it("should handle undefined GARDENER_PROJECT environment variable", async () => {
@@ -333,16 +339,16 @@ describe("permissionsRouter", () => {
           denied: false,
         },
       }
-      mockClient.post.mockResolvedValue(mockResponse)
+      mockClient.post.mockResolvedValue({ json: vi.fn().mockResolvedValue(mockResponse) })
 
-      await caller.getPermissions()
+      await caller.getPermissions({ projectId: "" })
 
       expect(mockClient.post).toHaveBeenCalledWith(
         expect.any(String),
         expect.objectContaining({
           spec: expect.objectContaining({
             resourceAttributes: expect.objectContaining({
-              namespace: "garden-undefined",
+              namespace: "garden-",
             }),
           }),
         })
@@ -366,9 +372,9 @@ describe("permissionsRouter", () => {
           denied: false,
         },
       }
-      mockClient.post.mockResolvedValue(mockResponse)
+      mockClient.post.mockResolvedValue({ json: vi.fn().mockResolvedValue(mockResponse) })
 
-      await caller.getPermissions()
+      await caller.getPermissions({ projectId: "test-project" })
 
       // All 5 requests should have been initiated (not necessarily completed) before waiting
       expect(mockClient.post).toHaveBeenCalledTimes(5)

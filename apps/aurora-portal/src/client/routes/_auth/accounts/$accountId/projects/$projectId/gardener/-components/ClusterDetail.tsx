@@ -3,7 +3,7 @@ import { Box, CodeBlock, JsonViewer, Stack, Toast, ToastProps, Message } from "@
 import { useLingui, Trans } from "@lingui/react/macro"
 
 import { Cluster } from "@/server/Gardener/types/cluster"
-import { useNavigate } from "@tanstack/react-router"
+import { useNavigate, useParams } from "@tanstack/react-router"
 import { trpcClient } from "@/client/trpcClient"
 
 import DetailLayout from "./ClusterDetail/DetailLayout"
@@ -48,9 +48,13 @@ const ClusterDetailPage: React.FC<PeakDetailPageProps> = ({ cluster, isDeleteAll
       setDeleteClusterModal(false)
     }
   }
+  const { accountId, projectId } = useParams({
+    from: "/_auth/accounts/$accountId/projects/$projectId/gardener/clusters/$clusterName",
+  })
   const handleBack = () => {
     navigate({
-      to: "/gardener/clusters",
+      to: "/accounts/$accountId/projects/$projectId/gardener/clusters",
+      params: { accountId, projectId },
     })
   }
 

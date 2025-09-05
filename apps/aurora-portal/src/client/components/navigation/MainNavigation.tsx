@@ -60,7 +60,7 @@ export function MainNavigation({ items }: NavigationProps) {
             </>
           )}
         </div>
-        {/* Right Section: Extensions, About, & User Menu */}
+        {/* Right Section: About, & User Menu */}
         <div className="flex items-center space-x-4">
           {items.map(({ route, label }, index) => (
             <Link key={index} to={route} className="text-sap-grey-2 hover:text-sap-grey-2 font-medium">

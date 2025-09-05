@@ -1,103 +1,134 @@
-import { publicProcedure } from "../../trpc"
+import { protectedProcedure } from "../../trpc"
 import { shootApiResponseSchema, shootListApiResponseSchema } from "../types/shootApiSchema"
 import { Cluster, convertShootApiResponseToCluster, convertShootListApiSchemaToClusters } from "../types/cluster"
-import { client } from "../client"
+import { getGardenerClient } from "../gardenerClient"
 import { TRPCError } from "@trpc/server"
 import { z } from "zod"
 
-export const shootRouter = {
-  getClusters: publicProcedure.query(async (): Promise<Cluster[]> => {
-    const parsedData = shootListApiResponseSchema.safeParse(
-      await client
-        .get(`apis/core.gardener.cloud/v1beta1/namespaces/garden-${process.env.GARDENER_PROJECT}/shoots`)
-        .catch(async (err) => {
-          let errorDetails
-
-          try {
-            const errorBody = await err.response.json()
-            errorDetails = errorBody.error || errorBody.message || err.message
-          } catch {
-            // If JSON parsing fails, use the original error message
-            errorDetails = err.message
-          }
-
-          throw new Error(`Error fetching clusters: ${errorDetails}`)
+export const clustersRouter = {
+  getClustersByProjectId: protectedProcedure
+    .input(z.object({ projectId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const openstackSession = await ctx.rescopeSession({ projectId: input.projectId })
+      const client = getGardenerClient(openstackSession)
+      if (!client) {
+        throw new TRPCError({
+          code: "SERVICE_UNAVAILABLE",
+          message: "Gardener client is not available. Please check service catalog.",
         })
-    )
+      }
 
-    console.log("Parsed Data:", parsedData?.error)
-    const clusters = convertShootListApiSchemaToClusters(parsedData.data?.items || [])
-    return clusters
-  }),
+      const namespace = `garden-${input.projectId}`
 
-  getClusterByName: publicProcedure
+      const parsedData = shootListApiResponseSchema.safeParse(
+        await client!.get(`apis/core.gardener.cloud/v1beta1/namespaces/${namespace}/shoots`).then((response) => {
+          if (!response.ok)
+            throw new TRPCError({
+              code: "INTERNAL_SERVER_ERROR",
+              message: `Failed to fetch clusters: ${response.statusText} (${response.status})`,
+            })
+          return response.json()
+        })
+      )
+
+      const clusters = convertShootListApiSchemaToClusters(parsedData.data?.items || [])
+      return clusters
+    }),
+
+  getClusterByName: protectedProcedure
     .input(z.object({ name: z.string() }))
-    .query(async ({ input }): Promise<Cluster | undefined> => {
+    .query(async ({ input, ctx }): Promise<Cluster | undefined> => {
+      const openstackSession = await ctx.openstack
+      const token = openstackSession?.getToken()
+
+      const client = getGardenerClient(openstackSession)
+
+      if (!client) {
+        throw new TRPCError({
+          code: "SERVICE_UNAVAILABLE",
+          message: "Gardener client is not available. Please check service catalog.",
+        })
+      }
+
+      const namespace = `garden-${token?.tokenData?.project?.id}`
+
       const parsedData = shootApiResponseSchema.safeParse(
-        await client.get(
-          `apis/core.gardener.cloud/v1beta1/namespaces/garden-${process.env.GARDENER_PROJECT}/shoots/${input.name}`
-        )
+        await client!
+          .get(`apis/core.gardener.cloud/v1beta1/namespaces/${namespace}/shoots/${input.name}`)
+          .then((res) => res.json())
       )
 
       if (!parsedData.success) {
-        console.error("Zod Parsing Error:", parsedData.error.format())
         return undefined
       }
       const cluster = convertShootApiResponseToCluster(parsedData.data)
       return cluster
     }),
-  deleteCluster: publicProcedure.input(z.object({ name: z.string() })).mutation(async ({ input }) => {
-    const namespace = `garden-${process.env.GARDENER_PROJECT}`
+
+  deleteCluster: protectedProcedure.input(z.object({ name: z.string() })).mutation(async ({ input, ctx }) => {
+    const openstackSession = await ctx.openstack
+    const token = openstackSession?.getToken()
+
+    const client = getGardenerClient(openstackSession)
+    if (!client) {
+      throw new TRPCError({
+        code: "SERVICE_UNAVAILABLE",
+        message: "Gardener client is not available. Please check service catalog.",
+      })
+    }
+
+    const namespace = `garden-${token?.tokenData?.project?.id}`
     const clusterName = input.name
 
-    try {
-      // Step 1: Add the deletion confirmation annotation
-      await client
-        .patch(
-          `apis/core.gardener.cloud/v1beta1/namespaces/${namespace}/shoots/${clusterName}`,
-          [
-            {
-              op: "add",
-              path: "/metadata/annotations/confirmation.gardener.cloud~1deletion",
-              value: "true",
-            },
-          ],
+    // Step 1: Add the deletion confirmation annotation
+    await client!
+      .patch(
+        `apis/core.gardener.cloud/v1beta1/namespaces/${namespace}/shoots/${clusterName}`,
+        [
           {
-            headers: {
-              "Content-Type": "application/json-patch+json",
-            },
-          }
-        )
-        .catch(async (err) => {
-          const errorBody = (await err.response?.json()) || {}
-          const errorDetails = errorBody.error || errorBody.message || err.message
-          throw new Error(`Error adding deletion confirmation: ${errorDetails}`)
-        })
-
-      // Step 2: Delete the cluster
-      const parsedData = shootApiResponseSchema.safeParse(
-        await client
-          .delete(`apis/core.gardener.cloud/v1beta1/namespaces/${namespace}/shoots/${clusterName}`)
-          .catch(async (err) => {
-            const errorBody = (await err.response?.json()) || {}
-            const errorDetails = errorBody.error || errorBody.message || err.message
-            throw new Error(`Error deleting cluster: ${errorDetails}`)
-          })
+            op: "add",
+            path: "/metadata/annotations/confirmation.gardener.cloud~1deletion",
+            value: "true",
+          },
+        ],
+        {
+          headers: {
+            "Content-Type": "application/json-patch+json",
+          },
+        }
       )
+      .then((res) => {
+        if (!res.ok) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: `Failed to add deletion confirmation: ${res.statusText} (${res.status})`,
+          })
+        }
+        return res.json()
+      })
 
-      if (!parsedData.success) {
-        console.error("Zod Parsing Error:", parsedData.error.format())
-        return undefined
-      }
+    // Step 2: Delete the cluster
+    const parsedData = shootApiResponseSchema.safeParse(
+      await client!
+        .del(`apis/core.gardener.cloud/v1beta1/namespaces/${namespace}/shoots/${clusterName}`)
+        .then((res) => {
+          if (!res.ok)
+            throw new TRPCError({
+              code: "INTERNAL_SERVER_ERROR",
+              message: `Failed to delete cluster: ${res.statusText} (${res.status})`,
+            })
+          return res.json()
+        })
+    )
 
-      return convertShootApiResponseToCluster(parsedData.data)
-    } catch (error) {
-      console.error("Error in deleteCluster:", error)
-      throw error
+    if (!parsedData.success) {
+      return undefined
     }
+
+    return convertShootApiResponseToCluster(parsedData.data)
   }),
 
-  createCluster: publicProcedure
+  createCluster: protectedProcedure
     .input(
       z.object({
         // Basic cluster settings
@@ -145,12 +176,26 @@ export const shootRouter = {
         updateStrategy: z.enum(["RollingUpdate", "AutoRollingUpdate"]).default("AutoRollingUpdate"),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
+      const openstackSession = await ctx.openstack
+      const token = openstackSession?.getToken()
+
+      const client = getGardenerClient(openstackSession)
+
+      if (!client) {
+        throw new TRPCError({
+          code: "SERVICE_UNAVAILABLE",
+          message: "Gardener client is not available. Please check service catalog.",
+        })
+      }
+
+      const namespace = `garden-${token?.tokenData?.project?.id}`
+
       // Construct the shoot object from the input
       const shoot = {
         metadata: {
           name: input.name,
-          namespace: `garden-${process.env.GARDENER_PROJECT}`,
+          namespace,
         },
         spec: {
           kubernetes: {
@@ -209,20 +254,19 @@ export const shootRouter = {
         },
       }
 
-      const response = await client
-        .post(`apis/core.gardener.cloud/v1beta1/namespaces/garden-${process.env.GARDENER_PROJECT}/shoots`, shoot)
-        .catch(async (err) => {
-          const errorBody = (await err.response?.json()) || {}
-          const errorDetails = errorBody.error || errorBody.message || err.message
-          throw new Error(`Error creating cluster: ${errorDetails}`)
+      const response = await client!
+        .post(`apis/core.gardener.cloud/v1beta1/namespaces/${namespace}/shoots`, shoot)
+        .then((res) => {
+          if (!res.ok) {
+            throw new TRPCError({ code: "BAD_REQUEST", message: "Failed to create cluster" })
+          }
+          return res.json()
         })
 
       // Parse and validate the response
       const parsedData = shootApiResponseSchema.safeParse(response)
 
-      console.log(parsedData.error)
       if (!parsedData.success) {
-        console.error("Zod Parsing Error:", parsedData.error.format())
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "Failed to parse the API response",

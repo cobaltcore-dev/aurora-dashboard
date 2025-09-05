@@ -10,11 +10,13 @@ import CreateClusterWizard from "../-components/CreateClusterDialog"
 import { Filters } from "../-components/Filters"
 import { FilterSettings } from "../-components/Filters/types"
 
-export const Route = createFileRoute("/gardener/clusters/")({
+export const Route = createFileRoute("/_auth/accounts/$accountId/projects/$projectId/gardener/clusters/")({
   component: RouteComponent,
-  loader: async ({ context }) => {
-    const clusters = await context.trpcClient?.gardener.getClusters.query()
-    const permissions = await context.trpcClient?.gardener.getPermissions.query()
+  loader: async ({ context, params }) => {
+    const clusters = await context.trpcClient?.gardener.getClustersByProjectId.query({
+      projectId: params.projectId,
+    })
+    const permissions = await context.trpcClient?.gardener.getPermissions.query({ projectId: params.projectId })
 
     return {
       clusters,
