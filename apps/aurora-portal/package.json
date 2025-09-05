@@ -21,7 +21,6 @@
     "typecheck": "tsc --project tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@cloudoperators/juno-k8s-client": "^1.1.1",
     "@cobaltcore-dev/signal-openstack": "workspace:*",
     "@fastify/cookie": "^11.0.2",
     "@fastify/csrf-protection": "^7.1.0",

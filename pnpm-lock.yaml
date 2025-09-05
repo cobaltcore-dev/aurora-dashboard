@@ -57,9 +57,6 @@ importers:
 
   apps/aurora-portal:
     dependencies:
-      '@cloudoperators/juno-k8s-client':
-        specifier: ^1.1.1
-        version: 1.1.1
       '@cobaltcore-dev/signal-openstack':
         specifier: workspace:*
         version: link:../../packages/signal-openstack
@@ -481,9 +478,6 @@ packages:
   '@babel/types@7.27.3':
     resolution: {integrity: sha512-Y1GkI4ktrtvmawoSq+4FCVHNryea6uR+qUQy0AGxLSsjCX0nVmkYQMBLHDkXZuo5hGx7eYdnIaslsdBFm7zbUw==}
     engines: {node: '>=6.9.0'}
-
-  '@cloudoperators/juno-k8s-client@1.1.1':
-    resolution: {integrity: sha512-OVABlZlnWqYgSxU84Ij68ANvsu90i3O374agP25uXWZfd04KTKIVbncCJYw4npCHjMFmpRzdx8BdmX3aPlMPug==}
 
   '@cloudoperators/juno-ui-components@5.0.0':
     resolution: {integrity: sha512-nk0ovsrBMGCUKFGIREIPebmYwizCmRNiTV3zHdp4JP9b3DdxOCmfpoVJXhR6XNhVk7NgSAbBqkIivI1oYLlrow==}
@@ -5844,8 +5838,6 @@ snapshots:
     dependencies:
       '@babel/helper-string-parser': 7.27.1
       '@babel/helper-validator-identifier': 7.27.1
-
-  '@cloudoperators/juno-k8s-client@1.1.1': {}
 
   '@cloudoperators/juno-ui-components@5.0.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
