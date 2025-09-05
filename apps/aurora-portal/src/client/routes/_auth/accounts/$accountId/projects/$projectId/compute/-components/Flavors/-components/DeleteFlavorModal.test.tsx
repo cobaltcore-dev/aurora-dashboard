@@ -62,7 +62,7 @@ describe("DeleteFlavorModal", () => {
 
     expect(screen.getByText("Delete Flavor")).toBeInTheDocument()
     expect(
-      screen.getByText("Are you really sure? This action cannot be undone. The flavor will be permanently deleted.")
+      screen.getByText("This action cannot be undone. The flavor will be permanently deleted.")
     ).toBeInTheDocument()
 
     expect(screen.getByText("Test Flavor")).toBeInTheDocument()

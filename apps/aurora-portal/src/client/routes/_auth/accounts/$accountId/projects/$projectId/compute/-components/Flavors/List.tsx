@@ -139,7 +139,7 @@ export const Flavors = ({ client, project }: FlavorsProps) => {
   }
 
   return (
-    <>
+    <div className="relative">
       <CreateFlavorModal
         client={client}
         isOpen={createModalOpen}
@@ -148,10 +148,18 @@ export const Flavors = ({ client, project }: FlavorsProps) => {
         onSuccess={handleFlavorCreated}
       />
 
-      {success && <Message text={success.message} variant="success" onDismiss={dismissSuccess} dismissible />}
+      {success && (
+        <Message
+          className="absolute -top-14 left-0 right-0 z-50 "
+          text={success.message}
+          variant="success"
+          onDismiss={dismissSuccess}
+          dismissible
+        />
+      )}
 
       {error && (
-        <div className="mb-4">
+        <div className="absolute -top-14 left-0 right-0 z-50 ">
           <Message text={error.message} variant="error" onDismiss={dismissError} />
           {error.isRetryable && (
             <Button onClick={refetchFlavors} variant="primary" size="small" className="mt-2">
@@ -178,6 +186,6 @@ export const Flavors = ({ client, project }: FlavorsProps) => {
         project={project}
         onFlavorDeleted={handleFlavorDeleted}
       />
-    </>
+    </div>
   )
 }

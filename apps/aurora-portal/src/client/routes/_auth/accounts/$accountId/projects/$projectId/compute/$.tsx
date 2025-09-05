@@ -45,13 +45,6 @@ function ComputeDashboard({ client }: { client: TrpcClient }) {
 
   return (
     <div className="container max-w-screen-3xl mx-auto px-6 py-4 grid grid-cols-12 gap-4">
-      {/* Row 1: Title & Navigation (Balanced Layout) */}
-      <div className="col-span-2 flex flex-col justify-center">
-        <h3 className="text-3xl font-medium text-justify pl-5">Compute</h3>
-      </div>
-      {/* Left Spacing */}
-      <div className="col-span-9 flex items-center justify-between py-2"></div>
-      <div className="col-span-1"></div> {/* Right Spacing */}
       <div className="col-span-2 flex flex-col gap-4">
         <ComputeSideNavBar />
       </div>
@@ -77,7 +70,7 @@ function ComputeDashboard({ client }: { client: TrpcClient }) {
               })()}
             </ErrorBoundary>
           ) : (
-            <div className="p-4 text-center text-gray-400">No project selected</div>
+            <div className="p-4 text-center">No project selected</div>
           )}
         </div>
       </div>
