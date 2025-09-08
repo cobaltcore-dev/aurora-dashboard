@@ -17,6 +17,11 @@ import {
   getImageByIdInputSchema,
   deactivateImageInputSchema,
   reactivateImageInputSchema,
+  createImageMemberInputSchema,
+  updateImageMemberInputSchema,
+  deleteImageMemberInputSchema,
+  imageMemberSchema,
+  ImageMember,
 } from "../types/image"
 
 export const imageRouter = {
@@ -448,6 +453,138 @@ export const imageRouter = {
         return true
       } catch (error) {
         console.error("Error reactivating image:", error)
+        return false
+      }
+    }),
+
+  createImageMember: protectedProcedure
+    .input(createImageMemberInputSchema)
+    .mutation(async ({ input, ctx }): Promise<ImageMember | undefined> => {
+      const { projectId, imageId, member } = input
+      const openstackSession = await ctx.rescopeSession({ projectId })
+      const glance = openstackSession?.service("glance")
+
+      try {
+        const response = await glance?.post(`v2/images/${imageId}/members`, {
+          json: { member },
+        })
+
+        if (!response?.ok) {
+          // Handle image not found case (HTTP 404)
+          if (response?.status === 404) {
+            console.error("Image not found:", imageId)
+            return undefined
+          }
+          // Handle forbidden access (HTTP 403) - must be image owner
+          if (response?.status === 403) {
+            console.error("Access forbidden - must be image owner to add members:", imageId)
+            return undefined
+          }
+          // Handle bad request (HTTP 400) - invalid member or image visibility
+          if (response?.status === 400) {
+            console.error(
+              "Invalid request - check image visibility is 'shared' and member ID is valid:",
+              imageId,
+              member
+            )
+            return undefined
+          }
+          // Handle conflict (HTTP 409) - member already exists
+          if (response?.status === 409) {
+            console.error("Member already exists for image:", imageId, member)
+            return undefined
+          }
+          console.error("Failed to create image member:", response?.statusText)
+          return undefined
+        }
+
+        const parsedData = imageMemberSchema.safeParse(await response.json())
+        if (!parsedData.success) {
+          console.error("Zod Parsing Error:", parsedData.error.format())
+          return undefined
+        }
+
+        return parsedData.data
+      } catch (error) {
+        console.error("Error creating image member:", error)
+        return undefined
+      }
+    }),
+
+  updateImageMember: protectedProcedure
+    .input(updateImageMemberInputSchema)
+    .mutation(async ({ input, ctx }): Promise<ImageMember | undefined> => {
+      const { projectId, imageId, memberId, status } = input
+      const openstackSession = await ctx.rescopeSession({ projectId })
+      const glance = openstackSession?.service("glance")
+
+      try {
+        const response = await glance?.put(`v2/images/${imageId}/members/${memberId}`, {
+          json: { status },
+        })
+
+        if (!response?.ok) {
+          // Handle image not found case (HTTP 404)
+          if (response?.status === 404) {
+            console.error("Image or member not found:", imageId, memberId)
+            return undefined
+          }
+          // Handle forbidden access (HTTP 403) - only the member can update their own status
+          if (response?.status === 403) {
+            console.error("Access forbidden - only the member can update their own status:", imageId, memberId)
+            return undefined
+          }
+          // Handle bad request (HTTP 400) - invalid status value
+          if (response?.status === 400) {
+            console.error("Invalid status value:", imageId, memberId, status)
+            return undefined
+          }
+          console.error("Failed to update image member:", response?.statusText)
+          return undefined
+        }
+
+        const parsedData = imageMemberSchema.safeParse(await response.json())
+        if (!parsedData.success) {
+          console.error("Zod Parsing Error:", parsedData.error.format())
+          return undefined
+        }
+
+        return parsedData.data
+      } catch (error) {
+        console.error("Error updating image member:", error)
+        return undefined
+      }
+    }),
+
+  deleteImageMember: protectedProcedure
+    .input(deleteImageMemberInputSchema)
+    .mutation(async ({ input, ctx }): Promise<boolean> => {
+      const { projectId, imageId, memberId } = input
+      const openstackSession = await ctx.rescopeSession({ projectId })
+      const glance = openstackSession?.service("glance")
+
+      try {
+        const response = await glance?.del(`v2/images/${imageId}/members/${memberId}`)
+
+        if (!response?.ok) {
+          // Handle image not found case (HTTP 404)
+          if (response?.status === 404) {
+            console.error("Image or member not found:", imageId, memberId)
+            return false
+          }
+          // Handle forbidden access (HTTP 403) - must be image owner
+          if (response?.status === 403) {
+            console.error("Access forbidden - must be image owner to delete members:", imageId, memberId)
+            return false
+          }
+          console.error("Failed to delete image member:", response?.statusText)
+          return false
+        }
+
+        // Successfully deleted (HTTP 204)
+        return true
+      } catch (error) {
+        console.error("Error deleting image member:", error)
         return false
       }
     }),
