@@ -7,6 +7,7 @@ import {
   createImageInputSchema,
   uploadImageInputSchema,
   updateImageInputSchema,
+  updateImageVisibilityInputSchema,
   imageDetailResponseSchema,
   deleteImageInputSchema,
   listImagesInputSchema,
@@ -276,6 +277,70 @@ export const imageRouter = {
         return parsedData.data
       } catch (error) {
         console.error("Error updating image:", error)
+        return undefined
+      }
+    }),
+
+  updateImageVisibility: protectedProcedure
+    .input(updateImageVisibilityInputSchema)
+    .mutation(async ({ input, ctx }): Promise<GlanceImage | undefined> => {
+      const { projectId, imageId, visibility } = input
+      const openstackSession = await ctx.rescopeSession({ projectId })
+      const glance = openstackSession?.service("glance")
+
+      try {
+        // Create a JSON Patch operation to update visibility
+        const operations = [
+          {
+            op: "replace" as const,
+            path: "/visibility",
+            value: visibility,
+          },
+        ]
+
+        // Use PATCH method with JSON Patch operations according to OpenStack Glance API v2
+        const response = await glance?.patch(`v2/images/${imageId}`, {
+          json: operations,
+          headers: {
+            "Content-Type": "application/openstack-images-v2.1-json-patch",
+          },
+        })
+
+        if (!response?.ok) {
+          // Handle image not found case (HTTP 404)
+          if (response?.status === 404) {
+            console.error("Image not found:", imageId)
+            return undefined
+          }
+          // Handle forbidden access (HTTP 403)
+          if (response?.status === 403) {
+            console.error("Access forbidden - cannot update image visibility:", imageId)
+            return undefined
+          }
+          // Handle invalid state case (HTTP 409) - image might be in wrong state for update
+          if (response?.status === 409) {
+            console.error("Image is not in a valid state for visibility update:", imageId)
+            return undefined
+          }
+          // Handle validation errors (HTTP 400)
+          if (response?.status === 400) {
+            console.error("Invalid visibility value for image:", imageId, visibility, response?.statusText)
+            return undefined
+          }
+          console.error("Failed to update image visibility:", response?.statusText)
+          return undefined
+        }
+
+        // Parse the updated image response
+        const parsedData = imageSchema.safeParse(await response.json())
+        if (!parsedData.success) {
+          console.error("Zod Parsing Error:", parsedData.error.format())
+          return undefined
+        }
+
+        return parsedData.data
+      } catch (error) {
+        console.error("Error updating image visibility:", error)
         return undefined
       }
     }),

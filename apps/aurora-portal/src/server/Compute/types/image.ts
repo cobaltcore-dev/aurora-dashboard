@@ -129,6 +129,9 @@ export const sortKeySchema = z.enum([
 
 export const sortDirSchema = z.enum(["asc", "desc"])
 
+// Define image visibility values based on OpenStack Glance API v2
+export const imageVisibilitySchema = z.enum(["public", "private", "shared", "community"])
+
 // Input schema for listing images with sorting and filtering
 export const listImagesInputSchema = z.object({
   projectId: z.string(),
@@ -283,6 +286,13 @@ export const updateImageInputSchema = z.object({
   operations: z.array(jsonPatchOperationSchema).min(1), // Array of JSON Patch operations
 })
 
+// Input schema for updating image visibility specifically
+export const updateImageVisibilityInputSchema = z.object({
+  projectId: z.string(),
+  imageId: z.string().uuid(), // UUID validation for image ID
+  visibility: imageVisibilitySchema, // New visibility value
+})
+
 // Input schema for deleting an image
 export const deleteImageInputSchema = z.object({
   projectId: z.string(),
@@ -322,6 +332,7 @@ export type GetImageByIdInput = z.infer<typeof getImageByIdInputSchema>
 export type CreateImageInput = z.infer<typeof createImageInputSchema>
 export type UploadImageInput = z.infer<typeof uploadImageInputSchema>
 export type UpdateImageInput = z.infer<typeof updateImageInputSchema>
+export type UpdateImageVisibilityInput = z.infer<typeof updateImageVisibilityInputSchema>
 export type DeleteImageInput = z.infer<typeof deleteImageInputSchema>
 export type DeactivateImageInput = z.infer<typeof deactivateImageInputSchema>
 export type ReactivateImageInput = z.infer<typeof reactivateImageInputSchema>
@@ -329,4 +340,5 @@ export type ListImagesInput = z.infer<typeof listImagesInputSchema>
 export type ImagesPaginatedInput = z.infer<typeof imagesPaginatedInputSchema>
 export type SortKey = z.infer<typeof sortKeySchema>
 export type SortDir = z.infer<typeof sortDirSchema>
+export type ImageVisibility = z.infer<typeof imageVisibilitySchema>
 export type ImagesPaginatedResponse = z.infer<typeof imagesPaginatedResponseSchema>
