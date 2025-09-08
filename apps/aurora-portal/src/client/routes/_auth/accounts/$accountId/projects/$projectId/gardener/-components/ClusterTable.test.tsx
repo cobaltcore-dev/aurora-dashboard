@@ -2,19 +2,61 @@ import { ReactElement } from "react"
 import { describe, it, expect } from "vitest"
 import { render, screen } from "@testing-library/react"
 import { Cluster } from "@/server/Gardener/types/cluster"
-import { createRootRoute, createMemoryHistory, createRouter, RouterProvider } from "@tanstack/react-router"
+import { createRootRoute, createMemoryHistory, createRouter, RouterProvider, createRoute } from "@tanstack/react-router"
 import { ClusterTable } from "./ClusterTable"
 
 const createTestRouter = (Component: ReactElement) => {
   const memoryHistory = createMemoryHistory({
-    initialEntries: ["/"],
+    initialEntries: ["/_auth/accounts/test-account/projects/test-project/gardener/clusters/"],
   })
 
-  const rootRoute = createRootRoute({
+  const rootRoute = createRootRoute()
+
+  // Create the _auth route
+  const authRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: "/_auth",
+  })
+
+  // Create accounts route with parameter
+  const accountsRoute = createRoute({
+    getParentRoute: () => authRoute,
+    path: "/accounts/$accountId",
+  })
+
+  // Create projects route with parameter
+  const projectsRoute = createRoute({
+    getParentRoute: () => accountsRoute,
+    path: "/projects/$projectId",
+  })
+
+  // Create gardener route
+  const gardenerRoute = createRoute({
+    getParentRoute: () => projectsRoute,
+    path: "/gardener",
+  })
+
+  // Create clusters route - this renders your component
+  const clustersRoute = createRoute({
+    getParentRoute: () => gardenerRoute,
+    path: "/clusters/",
     component: () => Component,
   })
 
-  const routeTree = rootRoute.addChildren([])
+  // Create cluster details route for link navigation
+  const clusterDetailsRoute = createRoute({
+    getParentRoute: () => clustersRoute,
+    path: "/$clusterName",
+    component: () => <div>Cluster Details</div>,
+  })
+
+  const routeTree = rootRoute.addChildren([
+    authRoute.addChildren([
+      accountsRoute.addChildren([
+        projectsRoute.addChildren([gardenerRoute.addChildren([clustersRoute.addChildren([clusterDetailsRoute])])]),
+      ]),
+    ]),
+  ])
 
   return createRouter({
     routeTree,

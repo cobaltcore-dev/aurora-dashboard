@@ -24,21 +24,56 @@ Object.assign(navigator, {
 
 const createTestRouter = (Component: ReactElement) => {
   const memoryHistory = createMemoryHistory({
-    initialEntries: ["/"],
+    initialEntries: ["/_auth/accounts/test-account/projects/test-project/gardener/clusters/"],
   })
 
-  const rootRoute = createRootRoute({
+  const rootRoute = createRootRoute()
+
+  // Create the _auth route
+  const authRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: "/_auth",
+  })
+
+  // Create accounts route with parameter (this matches $accountId)
+  const accountsRoute = createRoute({
+    getParentRoute: () => authRoute,
+    path: "/accounts/$accountId",
+  })
+
+  // Create projects route with parameter (this matches $projectId)
+  const projectsRoute = createRoute({
+    getParentRoute: () => accountsRoute,
+    path: "/projects/$projectId",
+  })
+
+  // Create gardener route
+  const gardenerRoute = createRoute({
+    getParentRoute: () => projectsRoute,
+    path: "/gardener",
+  })
+
+  // Create clusters route - this is where your component lives
+  const clustersRoute = createRoute({
+    getParentRoute: () => gardenerRoute,
+    path: "/clusters/",
     component: () => Component,
   })
 
-  // Create a route for the cluster details page to test navigation
-  const computeRoute = createRoute({
-    getParentRoute: () => rootRoute,
-    path: "/gardener/clusters/$clusterName",
-    component: () => <div>cluster Details</div>,
+  // Create cluster details route for navigation testing
+  const clusterDetailsRoute = createRoute({
+    getParentRoute: () => clustersRoute,
+    path: "/$clusterName",
+    component: () => <div>Cluster Details</div>,
   })
 
-  const routeTree = rootRoute.addChildren([computeRoute])
+  const routeTree = rootRoute.addChildren([
+    authRoute.addChildren([
+      accountsRoute.addChildren([
+        projectsRoute.addChildren([gardenerRoute.addChildren([clustersRoute.addChildren([clusterDetailsRoute])])]),
+      ]),
+    ]),
+  ])
 
   return createRouter({
     routeTree,
@@ -188,7 +223,10 @@ describe("ClusterTableRow", () => {
     setup(router)
 
     const clusterLink = screen.getByText("test-cluster").closest("a")
-    expect(clusterLink).toHaveAttribute("href", "/gardener/clusters/test-cluster")
+    expect(clusterLink).toHaveAttribute(
+      "href",
+      "/accounts/test-account/projects/test-project/gardener/clusters/test-cluster"
+    )
     expect(clusterLink).toHaveClass("text-theme-default hover:text-theme-link")
   })
 
@@ -199,7 +237,7 @@ describe("ClusterTableRow", () => {
 
     const viewDetailsButton = screen.getByRole("button", { name: "View Details" })
     const link = viewDetailsButton.closest("a")
-    expect(link).toHaveAttribute("href", "/gardener/clusters/test-cluster")
+    expect(link).toHaveAttribute("href", "/accounts/test-account/projects/test-project/gardener/clusters/test-cluster")
     expect(viewDetailsButton).toHaveClass("juno-button-primary")
   })
 

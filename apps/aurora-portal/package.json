@@ -21,7 +21,6 @@
     "typecheck": "tsc --project tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@cloudoperators/juno-k8s-client": "^1.0.5",
     "@cobaltcore-dev/signal-openstack": "workspace:*",
     "@fastify/cookie": "^11.0.2",
     "@fastify/csrf-protection": "^7.1.0",
@@ -44,6 +43,7 @@
     "fastify-plugin": "^5.0.1",
     "focus-trap-react": "^11.0.3",
     "lucide-react": "^0.503.0",
+    "node-fetch": "^3.3.2",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-error-boundary": "^5.0.0",

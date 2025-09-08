@@ -1,5 +1,5 @@
 import React, { useState } from "react"
-import { Link } from "@tanstack/react-router"
+import { Link, useParams } from "@tanstack/react-router"
 import { Cluster } from "@/server/Gardener/types/cluster"
 import { t } from "@lingui/core/macro"
 import {
@@ -84,6 +84,9 @@ const renderReadinessConditions = (conditions: Array<{ type: string; status: str
 const ClusterTableRow: React.FC<ClusterTableRowProps> = ({ cluster }) => {
   const statusStyles = getStatusStyles(cluster.status)
   const [toastData, setToastData] = useState<ToastProps | null>(null)
+  const { accountId, projectId } = useParams({
+    from: "/_auth/accounts/$accountId/projects/$projectId/gardener/clusters/",
+  })
 
   const handleToastDismiss = () => setToastData(null)
 
@@ -114,8 +117,8 @@ const ClusterTableRow: React.FC<ClusterTableRowProps> = ({ cluster }) => {
         <DataGridCell>
           <Stack direction="vertical">
             <Link
-              to="/gardener/clusters/$clusterName"
-              params={{ clusterName: cluster.name }}
+              to="/accounts/$accountId/projects/$projectId/gardener/clusters/$clusterName"
+              params={{ projectId, accountId, clusterName: cluster.name }}
               className="text-theme-default hover:text-theme-link"
             >
               {cluster.name}
@@ -141,7 +144,10 @@ const ClusterTableRow: React.FC<ClusterTableRowProps> = ({ cluster }) => {
 
         <DataGridCell>
           <Stack distribution="end">
-            <Link to="/gardener/clusters/$clusterName" params={{ clusterName: cluster.name }}>
+            <Link
+              to="/accounts/$accountId/projects/$projectId/gardener/clusters/$clusterName"
+              params={{ accountId, projectId, clusterName: cluster.name }}
+            >
               <Button label="View Details" variant="primary" />
             </Link>
           </Stack>
