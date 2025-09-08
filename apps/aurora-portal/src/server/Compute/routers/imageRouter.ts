@@ -5,6 +5,7 @@ import {
   imageSchema,
   GlanceImage,
   createImageInputSchema,
+  uploadImageInputSchema,
   updateImageInputSchema,
   imageDetailResponseSchema,
   deleteImageInputSchema,
@@ -151,6 +152,78 @@ export const imageRouter = {
         return undefined
       }
     }),
+
+  uploadImage: protectedProcedure.input(uploadImageInputSchema).mutation(async ({ input, ctx }): Promise<boolean> => {
+    const { projectId, imageId, imageData, contentType } = input
+    const openstackSession = await ctx.rescopeSession({ projectId })
+    const glance = openstackSession?.service("glance")
+
+    try {
+      // Convert the image data to the appropriate format for the request
+      let body: ArrayBuffer | string
+      if (typeof imageData === "string") {
+        // If it's a base64 string, convert to ArrayBuffer
+        const binaryString = atob(imageData)
+        const bytes = new Uint8Array(binaryString.length)
+        for (let i = 0; i < binaryString.length; i++) {
+          bytes[i] = binaryString.charCodeAt(i)
+        }
+        body = bytes.buffer
+      } else if (imageData instanceof Uint8Array) {
+        body = imageData.buffer
+      } else {
+        body = imageData
+      }
+
+      const response = await glance?.put(`v2/images/${imageId}/file`, {
+        body,
+        headers: {
+          "Content-Type": contentType,
+        },
+      })
+
+      if (!response?.ok) {
+        // Handle image not found case (HTTP 404)
+        if (response?.status === 404) {
+          console.error("Image not found:", imageId)
+          return false
+        }
+        // Handle forbidden access (HTTP 403)
+        if (response?.status === 403) {
+          console.error("Access forbidden - cannot upload to image:", imageId)
+          return false
+        }
+        // Handle invalid state case (HTTP 409) - image must be in 'queued' state
+        if (response?.status === 409) {
+          console.error("Image is not in a valid state for upload:", imageId)
+          return false
+        }
+        // Handle bad request (HTTP 400) - invalid data or headers
+        if (response?.status === 400) {
+          console.error("Invalid upload data for image:", imageId, response?.statusText)
+          return false
+        }
+        // Handle request entity too large (HTTP 413) - image size exceeds limit
+        if (response?.status === 413) {
+          console.error("Image data too large for upload:", imageId)
+          return false
+        }
+        // Handle unsupported media type (HTTP 415) - invalid content type
+        if (response?.status === 415) {
+          console.error("Unsupported content type for image upload:", imageId, contentType)
+          return false
+        }
+        console.error("Failed to upload image:", response?.statusText)
+        return false
+      }
+
+      // Successfully uploaded (HTTP 204)
+      return true
+    } catch (error) {
+      console.error("Error uploading image:", error)
+      return false
+    }
+  }),
 
   updateImage: protectedProcedure
     .input(updateImageInputSchema)

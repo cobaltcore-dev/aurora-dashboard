@@ -260,6 +260,14 @@ export const createImageInputSchema = z
   })
   .catchall(z.string())
 
+// Input schema for uploading image data to an existing image
+export const uploadImageInputSchema = z.object({
+  projectId: z.string(),
+  imageId: z.string().uuid(), // UUID validation for image ID
+  imageData: z.instanceof(ArrayBuffer).or(z.instanceof(Uint8Array)).or(z.string()), // Binary data or base64 string
+  contentType: z.string().optional().default("application/octet-stream"), // MIME type of the image data
+})
+
 // JSON Patch operation schema for updating images
 const jsonPatchOperationSchema = z.object({
   op: z.enum(["add", "remove", "replace", "move", "copy", "test"]),
@@ -312,6 +320,7 @@ export const imagesPaginatedResponseSchema = z.object({
 export type GlanceImage = z.infer<typeof imageSchema>
 export type GetImageByIdInput = z.infer<typeof getImageByIdInputSchema>
 export type CreateImageInput = z.infer<typeof createImageInputSchema>
+export type UploadImageInput = z.infer<typeof uploadImageInputSchema>
 export type UpdateImageInput = z.infer<typeof updateImageInputSchema>
 export type DeleteImageInput = z.infer<typeof deleteImageInputSchema>
 export type DeactivateImageInput = z.infer<typeof deactivateImageInputSchema>
