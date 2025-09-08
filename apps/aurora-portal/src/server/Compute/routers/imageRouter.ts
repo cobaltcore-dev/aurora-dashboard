@@ -17,9 +17,12 @@ import {
   getImageByIdInputSchema,
   deactivateImageInputSchema,
   reactivateImageInputSchema,
+  listImageMembersInputSchema,
+  getImageMemberInputSchema,
   createImageMemberInputSchema,
   updateImageMemberInputSchema,
   deleteImageMemberInputSchema,
+  imageMembersResponseSchema,
   imageMemberSchema,
   ImageMember,
 } from "../types/image"
@@ -454,6 +457,80 @@ export const imageRouter = {
       } catch (error) {
         console.error("Error reactivating image:", error)
         return false
+      }
+    }),
+
+  listImageMembers: protectedProcedure
+    .input(listImageMembersInputSchema)
+    .query(async ({ input, ctx }): Promise<ImageMember[] | undefined> => {
+      const { projectId, imageId } = input
+      const openstackSession = await ctx.rescopeSession({ projectId })
+      const glance = openstackSession?.service("glance")
+
+      try {
+        const response = await glance?.get(`v2/images/${imageId}/members`)
+        if (!response?.ok) {
+          // Handle image not found case (HTTP 404)
+          if (response?.status === 404) {
+            console.error("Image not found:", imageId)
+            return undefined
+          }
+          // Handle forbidden access (HTTP 403) - only shared images have members
+          if (response?.status === 403) {
+            console.error("Access forbidden - only shared images have members:", imageId)
+            return undefined
+          }
+          console.error("Failed to fetch image members:", response?.statusText)
+          return undefined
+        }
+
+        const parsedData = imageMembersResponseSchema.safeParse(await response.json())
+        if (!parsedData.success) {
+          console.error("Zod Parsing Error:", parsedData.error.format())
+          return undefined
+        }
+
+        return parsedData.data.members
+      } catch (error) {
+        console.error("Error fetching image members:", error)
+        return undefined
+      }
+    }),
+
+  getImageMember: protectedProcedure
+    .input(getImageMemberInputSchema)
+    .query(async ({ input, ctx }): Promise<ImageMember | undefined> => {
+      const { projectId, imageId, memberId } = input
+      const openstackSession = await ctx.rescopeSession({ projectId })
+      const glance = openstackSession?.service("glance")
+
+      try {
+        const response = await glance?.get(`v2/images/${imageId}/members/${memberId}`)
+        if (!response?.ok) {
+          // Handle image not found case (HTTP 404)
+          if (response?.status === 404) {
+            console.error("Image or member not found:", imageId, memberId)
+            return undefined
+          }
+          // Handle forbidden access (HTTP 403)
+          if (response?.status === 403) {
+            console.error("Access forbidden to image member:", imageId, memberId)
+            return undefined
+          }
+          console.error("Failed to fetch image member:", response?.statusText)
+          return undefined
+        }
+
+        const parsedData = imageMemberSchema.safeParse(await response.json())
+        if (!parsedData.success) {
+          console.error("Zod Parsing Error:", parsedData.error.format())
+          return undefined
+        }
+
+        return parsedData.data
+      } catch (error) {
+        console.error("Error fetching image member:", error)
+        return undefined
       }
     }),
 

@@ -122,6 +122,19 @@ export const imageMemberSchema = z.object({
   schema: z.string().optional(),
 })
 
+// Input schema for listing image members
+export const listImageMembersInputSchema = z.object({
+  projectId: z.string(),
+  imageId: z.string().uuid(),
+})
+
+// Input schema for getting a specific image member
+export const getImageMemberInputSchema = z.object({
+  projectId: z.string(),
+  imageId: z.string().uuid(),
+  memberId: z.string(), // tenant/project ID of the member
+})
+
 // Input schema for creating an image member
 export const createImageMemberInputSchema = z.object({
   projectId: z.string(),
@@ -142,6 +155,11 @@ export const deleteImageMemberInputSchema = z.object({
   projectId: z.string(),
   imageId: z.string().uuid(),
   memberId: z.string(), // tenant/project ID of the member
+})
+
+// Response schemas for image members
+export const imageMembersResponseSchema = z.object({
+  members: z.array(imageMemberSchema),
 })
 
 // Define valid sort keys based on OpenStack Glance API v2
@@ -364,9 +382,12 @@ export const imagesPaginatedResponseSchema = z.object({
 export type GlanceImage = z.infer<typeof imageSchema>
 export type ImageMember = z.infer<typeof imageMemberSchema>
 export type MemberStatus = z.infer<typeof memberStatusSchema>
+export type ListImageMembersInput = z.infer<typeof listImageMembersInputSchema>
+export type GetImageMemberInput = z.infer<typeof getImageMemberInputSchema>
 export type CreateImageMemberInput = z.infer<typeof createImageMemberInputSchema>
 export type UpdateImageMemberInput = z.infer<typeof updateImageMemberInputSchema>
 export type DeleteImageMemberInput = z.infer<typeof deleteImageMemberInputSchema>
+export type ImageMembersResponse = z.infer<typeof imageMembersResponseSchema>
 export type GetImageByIdInput = z.infer<typeof getImageByIdInputSchema>
 export type CreateImageInput = z.infer<typeof createImageInputSchema>
 export type UploadImageInput = z.infer<typeof uploadImageInputSchema>
