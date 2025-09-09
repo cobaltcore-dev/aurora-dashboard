@@ -72,7 +72,7 @@ export function AuthLoginPage() {
   if (isAuthenticated) {
     const username = user?.name
     return (
-      <div className="flex min-h-screen items-center justify-center">
+      <div className="flex h-[80vh]items-center justify-center">
         <div className="max-w-md w-full text-center shadow-lg rounded-lg p-6 border border-gray-300">
           <h2 className="text-xl font-semibold">
             <Trans>Welcome back, {username}!</Trans>
@@ -86,7 +86,7 @@ export function AuthLoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center">
+    <div className="flex h-[80vh] items-center justify-center">
       <div className="w-full max-w-md shadow-lg rounded-lg p-6 border border-gray-700 bg-gray-900">
         <ContentHeading className="text-center ">
           <Trans>Login to Your Account</Trans>

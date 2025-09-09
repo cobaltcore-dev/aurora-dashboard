@@ -1,6 +1,6 @@
 import { Outlet, createRootRouteWithContext, useRouterState } from "@tanstack/react-router"
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools"
-import { Spinner, Stack } from "@cloudoperators/juno-ui-components"
+import { Spinner, Stack, PageFooter } from "@cloudoperators/juno-ui-components"
 // NavigationLayout.tsx
 import { MainNavigation } from "../components/navigation/MainNavigation"
 import { NavigationItem } from "../components/navigation/types"
@@ -23,7 +23,6 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 })
 
 function AuroraLayout({ mainNavItems = [] }: NavigationLayoutProps) {
-  // More specific selector to check if we're actually navigating to a different route
   const routerState = useRouterState()
   const isNavigating =
     routerState.status === "pending" && routerState.location.pathname !== routerState?.resolvedLocation?.pathname
@@ -31,41 +30,32 @@ function AuroraLayout({ mainNavItems = [] }: NavigationLayoutProps) {
   const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
-    // Only show loading spinner for actual route changes, not search parameter changes
     if (isNavigating) {
       setIsLoading(true)
     } else {
       setTimeout(() => {
         setIsLoading(false)
-      }, 300) // Delay to show spinner for at least 300ms
+      }, 300)
     }
   }, [isNavigating, isLoading, setIsLoading])
 
-  // Default navigation items
   const defaultItems: NavigationItem[] = [{ route: "/about", label: "About" }]
   const items = mainNavItems.length > 0 ? mainNavItems : defaultItems
-  return (
-    <div className="flex flex-col w-full ">
-      {/* Main Navigation with minimal height */}
-      <div className="px-2 py-1">
-        {/* Reduced padding */}
-        <MainNavigation items={items} />
-      </div>
-      {/* Show a global spinner when the router is transitioning */}
 
+  return (
+    <div className="flex flex-col w-full min-h-screen">
+      <MainNavigation items={items} />
       <div className="relative flex-1">
         <Outlet />
-
-        {/* Overlay spinner when loading */}
         {isLoading && (
           <Stack className="fixed inset-0" distribution="center" alignment="center">
-            {/* Backdrop */}
             <div className="absolute inset-0 backdrop-blur-sm" />
             <Spinner variant="primary" size="large" />
           </Stack>
         )}
       </div>
-      <TanStackRouterDevtools initialIsOpen={false} position="bottom-right" />
+      <PageFooter />
+      <TanStackRouterDevtools initialIsOpen={false} position="bottom-left" />
     </div>
   )
 }
