@@ -1,6 +1,12 @@
 import { protectedProcedure } from "../../trpc"
-import { TRPCError } from "@trpc/server"
-import { applyImageQueryParams } from "../helpers/imageHelpers"
+import {
+  applyImageQueryParams,
+  validateGlanceService,
+  mapResponseToTRPCError,
+  ImageErrorHandlers,
+  handleZodParsingError,
+  withErrorHandling,
+} from "../helpers/imageHelpers"
 import {
   imageResponseSchema,
   imageSchema,
@@ -30,238 +36,123 @@ import {
 
 export const imageRouter = {
   listImages: protectedProcedure.input(listImagesInputSchema).query(async ({ input, ctx }): Promise<GlanceImage[]> => {
-    const { projectId, ...queryInput } = input
-    const openstackSession = await ctx.rescopeSession({ projectId })
-    const glance = openstackSession?.service("glance")
-
-    if (!glance) {
-      throw new TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Failed to initialize OpenStack Glance service",
-      })
-    }
-
-    // Build query parameters using utility function
-    const queryParams = new URLSearchParams()
-    applyImageQueryParams(queryParams, queryInput)
-
-    const url = `v2/images?${queryParams.toString()}`
-
-    try {
-      const response = await glance.get(url)
-      if (!response?.ok) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: `Failed to fetch images: ${response?.statusText}`,
-        })
-      }
-
-      const parsedData = imageResponseSchema.safeParse(await response.json())
-      if (!parsedData.success) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Invalid response format from OpenStack Glance API",
-          cause: parsedData.error,
-        })
-      }
-
-      return parsedData.data.images
-    } catch (error) {
-      if (error instanceof TRPCError) {
-        throw error
-      }
-      throw new TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Error fetching images",
-        cause: error,
-      })
-    }
-  }),
-
-  listImagesWithPagination: protectedProcedure
-    .input(imagesPaginatedInputSchema)
-    .query(async ({ input, ctx }): Promise<ImagesPaginatedResponse> => {
-      const { projectId, first, next, ...queryInput } = input
+    return withErrorHandling(async () => {
+      const { projectId, ...queryInput } = input
       const openstackSession = await ctx.rescopeSession({ projectId })
       const glance = openstackSession?.service("glance")
 
-      if (!glance) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to initialize OpenStack Glance service",
-        })
-      }
+      validateGlanceService(glance)
 
       // Build query parameters using utility function
       const queryParams = new URLSearchParams()
       applyImageQueryParams(queryParams, queryInput)
 
-      const url = first || next || `v2/images?${queryParams.toString()}`
+      const url = `v2/images?${queryParams.toString()}`
+      const response = await glance.get(url)
 
-      try {
+      if (!response?.ok) {
+        throw mapResponseToTRPCError(response, { operation: "list images" })
+      }
+
+      const parsedData = imageResponseSchema.safeParse(await response.json())
+      if (!parsedData.success) {
+        throw handleZodParsingError(parsedData.error, "list images")
+      }
+
+      return parsedData.data.images
+    }, "list images")
+  }),
+
+  listImagesWithPagination: protectedProcedure
+    .input(imagesPaginatedInputSchema)
+    .query(async ({ input, ctx }): Promise<ImagesPaginatedResponse> => {
+      return withErrorHandling(async () => {
+        const { projectId, first, next, ...queryInput } = input
+        const openstackSession = await ctx.rescopeSession({ projectId })
+        const glance = openstackSession?.service("glance")
+
+        validateGlanceService(glance)
+
+        // Build query parameters using utility function
+        const queryParams = new URLSearchParams()
+        applyImageQueryParams(queryParams, queryInput)
+
+        const url = first || next || `v2/images?${queryParams.toString()}`
         const response = await glance.get(url)
+
         if (!response?.ok) {
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: `Failed to fetch images with pagination: ${response?.statusText}`,
-          })
+          throw mapResponseToTRPCError(response, { operation: "list images with pagination" })
         }
 
         const parsedData = imagesPaginatedResponseSchema.safeParse(await response.json())
         if (!parsedData.success) {
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: "Invalid response format from OpenStack Glance API",
-            cause: parsedData.error,
-          })
+          throw handleZodParsingError(parsedData.error, "list images with pagination")
         }
 
         return parsedData.data
-      } catch (error) {
-        if (error instanceof TRPCError) {
-          throw error
-        }
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Error fetching images with pagination",
-          cause: error,
-        })
-      }
+      }, "list images with pagination")
     }),
 
   getImageById: protectedProcedure
     .input(getImageByIdInputSchema)
     .query(async ({ input, ctx }): Promise<GlanceImage> => {
-      const { projectId, imageId } = input
-      const openstackSession = await ctx.rescopeSession({ projectId })
-      const glance = openstackSession?.service("glance")
+      return withErrorHandling(async () => {
+        const { projectId, imageId } = input
+        const openstackSession = await ctx.rescopeSession({ projectId })
+        const glance = openstackSession?.service("glance")
 
-      if (!glance) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to initialize OpenStack Glance service",
-        })
-      }
+        validateGlanceService(glance)
 
-      try {
         const response = await glance.get(`v2/images/${imageId}`)
+
         if (!response?.ok) {
-          // Handle image not found case (HTTP 404)
-          if (response?.status === 404) {
-            throw new TRPCError({
-              code: "NOT_FOUND",
-              message: `Image not found: ${imageId}`,
-            })
-          }
-          // Handle forbidden access (HTTP 403)
-          if (response?.status === 403) {
-            throw new TRPCError({
-              code: "FORBIDDEN",
-              message: `Access forbidden to image: ${imageId}`,
-            })
-          }
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: `Failed to fetch image: ${response?.statusText}`,
-          })
+          throw mapResponseToTRPCError(response, { operation: "fetch image", imageId })
         }
 
-        // Parse the single image response directly (not wrapped in a container)
         const parsedData = imageSchema.safeParse(await response.json())
         if (!parsedData.success) {
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: "Invalid response format from OpenStack Glance API",
-            cause: parsedData.error,
-          })
+          throw handleZodParsingError(parsedData.error, "fetch image by ID")
         }
 
         return parsedData.data
-      } catch (error) {
-        if (error instanceof TRPCError) {
-          throw error
-        }
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Error fetching image by ID",
-          cause: error,
-        })
-      }
+      }, "fetch image by ID")
     }),
 
   createImage: protectedProcedure
     .input(createImageInputSchema)
     .mutation(async ({ input, ctx }): Promise<GlanceImage> => {
-      const { projectId, ...imageData } = input
-      const openstackSession = await ctx.rescopeSession({ projectId })
-      const glance = openstackSession?.service("glance")
+      return withErrorHandling(async () => {
+        const { projectId, ...imageData } = input
+        const openstackSession = await ctx.rescopeSession({ projectId })
+        const glance = openstackSession?.service("glance")
 
-      if (!glance) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to initialize OpenStack Glance service",
-        })
-      }
+        validateGlanceService(glance)
 
-      try {
         const response = await glance.post("v2/images", {
           json: imageData,
         })
 
         if (!response?.ok) {
-          if (response?.status === 400) {
-            throw new TRPCError({
-              code: "BAD_REQUEST",
-              message: "Invalid image data provided",
-            })
-          }
-          if (response?.status === 403) {
-            throw new TRPCError({
-              code: "FORBIDDEN",
-              message: "Access forbidden - insufficient permissions to create image",
-            })
-          }
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: `Failed to create image: ${response?.statusText}`,
-          })
+          throw mapResponseToTRPCError(response, { operation: "create image" })
         }
 
         const parsedData = imageDetailResponseSchema.safeParse(await response.json())
         if (!parsedData.success) {
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: "Invalid response format from OpenStack Glance API",
-            cause: parsedData.error,
-          })
+          throw handleZodParsingError(parsedData.error, "create image")
         }
 
         return parsedData.data.image
-      } catch (error) {
-        if (error instanceof TRPCError) {
-          throw error
-        }
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Error creating image",
-          cause: error,
-        })
-      }
+      }, "create image")
     }),
 
   uploadImage: protectedProcedure.input(uploadImageInputSchema).mutation(async ({ input, ctx }): Promise<boolean> => {
-    const { projectId, imageId, imageData, contentType } = input
-    const openstackSession = await ctx.rescopeSession({ projectId })
-    const glance = openstackSession?.service("glance")
+    return withErrorHandling(async () => {
+      const { projectId, imageId, imageData, contentType } = input
+      const openstackSession = await ctx.rescopeSession({ projectId })
+      const glance = openstackSession?.service("glance")
 
-    if (!glance) {
-      throw new TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Failed to initialize OpenStack Glance service",
-      })
-    }
+      validateGlanceService(glance)
 
-    try {
       // Convert the image data to the appropriate format for the request
       let body: ArrayBuffer | string
       if (typeof imageData === "string") {
@@ -286,174 +177,23 @@ export const imageRouter = {
       })
 
       if (!response?.ok) {
-        // Handle image not found case (HTTP 404)
-        if (response?.status === 404) {
-          throw new TRPCError({
-            code: "NOT_FOUND",
-            message: `Image not found: ${imageId}`,
-          })
-        }
-        // Handle forbidden access (HTTP 403)
-        if (response?.status === 403) {
-          throw new TRPCError({
-            code: "FORBIDDEN",
-            message: `Access forbidden - cannot upload to image: ${imageId}`,
-          })
-        }
-        // Handle invalid state case (HTTP 409) - image must be in 'queued' state
-        if (response?.status === 409) {
-          throw new TRPCError({
-            code: "CONFLICT",
-            message: `Image is not in a valid state for upload: ${imageId}`,
-          })
-        }
-        // Handle bad request (HTTP 400) - invalid data or headers
-        if (response?.status === 400) {
-          throw new TRPCError({
-            code: "BAD_REQUEST",
-            message: `Invalid upload data for image: ${imageId}`,
-          })
-        }
-        // Handle request entity too large (HTTP 413) - image size exceeds limit
-        if (response?.status === 413) {
-          throw new TRPCError({
-            code: "PAYLOAD_TOO_LARGE",
-            message: `Image data too large for upload: ${imageId}`,
-          })
-        }
-        // Handle unsupported media type (HTTP 415) - invalid content type
-        if (response?.status === 415) {
-          throw new TRPCError({
-            code: "BAD_REQUEST",
-            message: `Unsupported content type for image upload: ${contentType}`,
-          })
-        }
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: `Failed to upload image: ${response?.statusText}`,
-        })
+        throw ImageErrorHandlers.upload(response, imageId, contentType)
       }
 
-      // Successfully uploaded (HTTP 204)
       return true
-    } catch (error) {
-      if (error instanceof TRPCError) {
-        throw error
-      }
-      throw new TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Error uploading image",
-        cause: error,
-      })
-    }
+    }, "upload image")
   }),
 
   updateImage: protectedProcedure
     .input(updateImageInputSchema)
     .mutation(async ({ input, ctx }): Promise<GlanceImage> => {
-      const { projectId, imageId, operations } = input
-      const openstackSession = await ctx.rescopeSession({ projectId })
-      const glance = openstackSession?.service("glance")
+      return withErrorHandling(async () => {
+        const { projectId, imageId, operations } = input
+        const openstackSession = await ctx.rescopeSession({ projectId })
+        const glance = openstackSession?.service("glance")
 
-      if (!glance) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to initialize OpenStack Glance service",
-        })
-      }
+        validateGlanceService(glance)
 
-      try {
-        // Use PATCH method with JSON Patch operations according to OpenStack Glance API v2
-        const response = await glance.patch(`v2/images/${imageId}`, {
-          json: operations, // Send the JSON Patch operations array directly
-          headers: {
-            "Content-Type": "application/openstack-images-v2.1-json-patch",
-          },
-        })
-
-        if (!response?.ok) {
-          // Handle image not found case (HTTP 404)
-          if (response?.status === 404) {
-            throw new TRPCError({
-              code: "NOT_FOUND",
-              message: `Image not found: ${imageId}`,
-            })
-          }
-          // Handle forbidden access (HTTP 403)
-          if (response?.status === 403) {
-            throw new TRPCError({
-              code: "FORBIDDEN",
-              message: `Access forbidden - cannot update image: ${imageId}`,
-            })
-          }
-          // Handle invalid state case (HTTP 409) - image might be in wrong state for update
-          if (response?.status === 409) {
-            throw new TRPCError({
-              code: "CONFLICT",
-              message: `Image is not in a valid state for update: ${imageId}`,
-            })
-          }
-          // Handle validation errors (HTTP 400)
-          if (response?.status === 400) {
-            throw new TRPCError({
-              code: "BAD_REQUEST",
-              message: `Invalid update data for image: ${imageId}`,
-            })
-          }
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: `Failed to update image: ${response?.statusText}`,
-          })
-        }
-
-        // Parse the updated image response
-        const parsedData = imageSchema.safeParse(await response.json())
-        if (!parsedData.success) {
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: "Invalid response format from OpenStack Glance API",
-            cause: parsedData.error,
-          })
-        }
-
-        return parsedData.data
-      } catch (error) {
-        if (error instanceof TRPCError) {
-          throw error
-        }
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Error updating image",
-          cause: error,
-        })
-      }
-    }),
-
-  updateImageVisibility: protectedProcedure
-    .input(updateImageVisibilityInputSchema)
-    .mutation(async ({ input, ctx }): Promise<GlanceImage> => {
-      const { projectId, imageId, visibility } = input
-      const openstackSession = await ctx.rescopeSession({ projectId })
-      const glance = openstackSession?.service("glance")
-
-      if (!glance) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to initialize OpenStack Glance service",
-        })
-      }
-
-      try {
-        // Create a JSON Patch operation to update visibility
-        const operations = [
-          {
-            op: "replace" as const,
-            path: "/visibility",
-            value: visibility,
-          },
-        ]
-
-        // Use PATCH method with JSON Patch operations according to OpenStack Glance API v2
         const response = await glance.patch(`v2/images/${imageId}`, {
           json: operations,
           headers: {
@@ -462,543 +202,243 @@ export const imageRouter = {
         })
 
         if (!response?.ok) {
-          // Handle image not found case (HTTP 404)
-          if (response?.status === 404) {
-            throw new TRPCError({
-              code: "NOT_FOUND",
-              message: `Image not found: ${imageId}`,
-            })
-          }
-          // Handle forbidden access (HTTP 403)
-          if (response?.status === 403) {
-            throw new TRPCError({
-              code: "FORBIDDEN",
-              message: `Access forbidden - cannot update image visibility: ${imageId}`,
-            })
-          }
-          // Handle invalid state case (HTTP 409) - image might be in wrong state for update
-          if (response?.status === 409) {
-            throw new TRPCError({
-              code: "CONFLICT",
-              message: `Image is not in a valid state for visibility update: ${imageId}`,
-            })
-          }
-          // Handle validation errors (HTTP 400)
-          if (response?.status === 400) {
-            throw new TRPCError({
-              code: "BAD_REQUEST",
-              message: `Invalid visibility value for image: ${visibility}`,
-            })
-          }
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: `Failed to update image visibility: ${response?.statusText}`,
-          })
+          throw mapResponseToTRPCError(response, { operation: "update image", imageId })
         }
 
-        // Parse the updated image response
         const parsedData = imageSchema.safeParse(await response.json())
         if (!parsedData.success) {
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: "Invalid response format from OpenStack Glance API",
-            cause: parsedData.error,
-          })
+          throw handleZodParsingError(parsedData.error, "update image")
         }
 
         return parsedData.data
-      } catch (error) {
-        if (error instanceof TRPCError) {
-          throw error
-        }
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Error updating image visibility",
-          cause: error,
+      }, "update image")
+    }),
+
+  updateImageVisibility: protectedProcedure
+    .input(updateImageVisibilityInputSchema)
+    .mutation(async ({ input, ctx }): Promise<GlanceImage> => {
+      return withErrorHandling(async () => {
+        const { projectId, imageId, visibility } = input
+        const openstackSession = await ctx.rescopeSession({ projectId })
+        const glance = openstackSession?.service("glance")
+
+        validateGlanceService(glance)
+
+        const operations = [
+          {
+            op: "replace" as const,
+            path: "/visibility",
+            value: visibility,
+          },
+        ]
+
+        const response = await glance.patch(`v2/images/${imageId}`, {
+          json: operations,
+          headers: {
+            "Content-Type": "application/openstack-images-v2.1-json-patch",
+          },
         })
-      }
+
+        if (!response?.ok) {
+          throw ImageErrorHandlers.visibility(response, imageId, visibility)
+        }
+
+        const parsedData = imageSchema.safeParse(await response.json())
+        if (!parsedData.success) {
+          throw handleZodParsingError(parsedData.error, "update image visibility")
+        }
+
+        return parsedData.data
+      }, "update image visibility")
     }),
 
   deleteImage: protectedProcedure.input(deleteImageInputSchema).mutation(async ({ input, ctx }): Promise<boolean> => {
-    const { projectId, imageId } = input
-    const openstackSession = await ctx.rescopeSession({ projectId })
-    const glance = openstackSession?.service("glance")
+    return withErrorHandling(async () => {
+      const { projectId, imageId } = input
+      const openstackSession = await ctx.rescopeSession({ projectId })
+      const glance = openstackSession?.service("glance")
 
-    if (!glance) {
-      throw new TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Failed to initialize OpenStack Glance service",
-      })
-    }
+      validateGlanceService(glance)
 
-    try {
       const response = await glance.del(`v2/images/${imageId}`)
 
       if (!response?.ok) {
-        // Handle protected image case (HTTP 403)
-        if (response?.status === 403) {
-          throw new TRPCError({
-            code: "FORBIDDEN",
-            message: `Cannot delete protected image: ${imageId}`,
-          })
-        }
-        // Handle image not found case (HTTP 404)
-        if (response?.status === 404) {
-          throw new TRPCError({
-            code: "NOT_FOUND",
-            message: `Image not found: ${imageId}`,
-          })
-        }
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: `Failed to delete image: ${response?.statusText}`,
-        })
+        throw ImageErrorHandlers.delete(response, imageId)
       }
 
-      // Successfully deleted (HTTP 204)
       return true
-    } catch (error) {
-      if (error instanceof TRPCError) {
-        throw error
-      }
-      throw new TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Error deleting image",
-        cause: error,
-      })
-    }
+    }, "delete image")
   }),
 
   deactivateImage: protectedProcedure
     .input(deactivateImageInputSchema)
     .mutation(async ({ input, ctx }): Promise<boolean> => {
-      const { projectId, imageId } = input
-      const openstackSession = await ctx.rescopeSession({ projectId })
-      const glance = openstackSession?.service("glance")
+      return withErrorHandling(async () => {
+        const { projectId, imageId } = input
+        const openstackSession = await ctx.rescopeSession({ projectId })
+        const glance = openstackSession?.service("glance")
 
-      if (!glance) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to initialize OpenStack Glance service",
-        })
-      }
+        validateGlanceService(glance)
 
-      try {
         const response = await glance.post(`v2/images/${imageId}/actions/deactivate`, undefined)
 
         if (!response?.ok) {
-          // Handle forbidden access (HTTP 403) - typically admin-only operation
-          if (response?.status === 403) {
-            throw new TRPCError({
-              code: "FORBIDDEN",
-              message: `Access forbidden - cannot deactivate image: ${imageId}`,
-            })
-          }
-          // Handle image not found case (HTTP 404)
-          if (response?.status === 404) {
-            throw new TRPCError({
-              code: "NOT_FOUND",
-              message: `Image not found: ${imageId}`,
-            })
-          }
-          // Handle invalid state case (HTTP 409) - image must be active or deactivated
-          if (response?.status === 409) {
-            throw new TRPCError({
-              code: "CONFLICT",
-              message: `Image is not in a valid state for deactivation: ${imageId}`,
-            })
-          }
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: `Failed to deactivate image: ${response?.statusText}`,
+          throw mapResponseToTRPCError(response, {
+            operation: "deactivate image",
+            imageId,
+            additionalInfo: "typically admin-only operation",
           })
         }
 
-        // Successfully deactivated (HTTP 204)
         return true
-      } catch (error) {
-        if (error instanceof TRPCError) {
-          throw error
-        }
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Error deactivating image",
-          cause: error,
-        })
-      }
+      }, "deactivate image")
     }),
 
   reactivateImage: protectedProcedure
     .input(reactivateImageInputSchema)
     .mutation(async ({ input, ctx }): Promise<boolean> => {
-      const { projectId, imageId } = input
-      const openstackSession = await ctx.rescopeSession({ projectId })
-      const glance = openstackSession?.service("glance")
+      return withErrorHandling(async () => {
+        const { projectId, imageId } = input
+        const openstackSession = await ctx.rescopeSession({ projectId })
+        const glance = openstackSession?.service("glance")
 
-      if (!glance) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to initialize OpenStack Glance service",
-        })
-      }
+        validateGlanceService(glance)
 
-      try {
         const response = await glance.post(`v2/images/${imageId}/actions/reactivate`, undefined)
 
         if (!response?.ok) {
-          // Handle forbidden access (HTTP 403) - typically admin-only operation
-          if (response?.status === 403) {
-            throw new TRPCError({
-              code: "FORBIDDEN",
-              message: `Access forbidden - cannot reactivate image: ${imageId}`,
-            })
-          }
-          // Handle image not found case (HTTP 404)
-          if (response?.status === 404) {
-            throw new TRPCError({
-              code: "NOT_FOUND",
-              message: `Image not found: ${imageId}`,
-            })
-          }
-          // Handle invalid state case (HTTP 409) - image must be active or deactivated
-          if (response?.status === 409) {
-            throw new TRPCError({
-              code: "CONFLICT",
-              message: `Image is not in a valid state for reactivation: ${imageId}`,
-            })
-          }
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: `Failed to reactivate image: ${response?.statusText}`,
+          throw mapResponseToTRPCError(response, {
+            operation: "reactivate image",
+            imageId,
+            additionalInfo: "typically admin-only operation",
           })
         }
 
-        // Successfully reactivated (HTTP 204)
         return true
-      } catch (error) {
-        if (error instanceof TRPCError) {
-          throw error
-        }
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Error reactivating image",
-          cause: error,
-        })
-      }
+      }, "reactivate image")
     }),
 
   listImageMembers: protectedProcedure
     .input(listImageMembersInputSchema)
     .query(async ({ input, ctx }): Promise<ImageMember[]> => {
-      const { projectId, imageId } = input
-      const openstackSession = await ctx.rescopeSession({ projectId })
-      const glance = openstackSession?.service("glance")
+      return withErrorHandling(async () => {
+        const { projectId, imageId } = input
+        const openstackSession = await ctx.rescopeSession({ projectId })
+        const glance = openstackSession?.service("glance")
 
-      if (!glance) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to initialize OpenStack Glance service",
-        })
-      }
+        validateGlanceService(glance)
 
-      try {
         const response = await glance.get(`v2/images/${imageId}/members`)
+
         if (!response?.ok) {
-          // Handle image not found case (HTTP 404)
-          if (response?.status === 404) {
-            throw new TRPCError({
-              code: "NOT_FOUND",
-              message: `Image not found: ${imageId}`,
-            })
-          }
-          // Handle forbidden access (HTTP 403) - only shared images have members
-          if (response?.status === 403) {
-            throw new TRPCError({
-              code: "FORBIDDEN",
-              message: `Access forbidden - only shared images have members: ${imageId}`,
-            })
-          }
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: `Failed to fetch image members: ${response?.statusText}`,
-          })
+          throw ImageErrorHandlers.member.list(response, imageId)
         }
 
         const parsedData = imageMembersResponseSchema.safeParse(await response.json())
         if (!parsedData.success) {
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: "Invalid response format from OpenStack Glance API",
-            cause: parsedData.error,
-          })
+          throw handleZodParsingError(parsedData.error, "list image members")
         }
 
         return parsedData.data.members
-      } catch (error) {
-        if (error instanceof TRPCError) {
-          throw error
-        }
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Error fetching image members",
-          cause: error,
-        })
-      }
+      }, "list image members")
     }),
 
   getImageMember: protectedProcedure
     .input(getImageMemberInputSchema)
     .query(async ({ input, ctx }): Promise<ImageMember> => {
-      const { projectId, imageId, memberId } = input
-      const openstackSession = await ctx.rescopeSession({ projectId })
-      const glance = openstackSession?.service("glance")
+      return withErrorHandling(async () => {
+        const { projectId, imageId, memberId } = input
+        const openstackSession = await ctx.rescopeSession({ projectId })
+        const glance = openstackSession?.service("glance")
 
-      if (!glance) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to initialize OpenStack Glance service",
-        })
-      }
+        validateGlanceService(glance)
 
-      try {
         const response = await glance.get(`v2/images/${imageId}/members/${memberId}`)
+
         if (!response?.ok) {
-          // Handle image not found case (HTTP 404)
-          if (response?.status === 404) {
-            throw new TRPCError({
-              code: "NOT_FOUND",
-              message: `Image or member not found: ${imageId}, ${memberId}`,
-            })
-          }
-          // Handle forbidden access (HTTP 403)
-          if (response?.status === 403) {
-            throw new TRPCError({
-              code: "FORBIDDEN",
-              message: `Access forbidden to image member: ${imageId}, ${memberId}`,
-            })
-          }
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: `Failed to fetch image member: ${response?.statusText}`,
-          })
+          throw ImageErrorHandlers.member.get(response, imageId, memberId)
         }
 
         const parsedData = imageMemberSchema.safeParse(await response.json())
         if (!parsedData.success) {
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: "Invalid response format from OpenStack Glance API",
-            cause: parsedData.error,
-          })
+          throw handleZodParsingError(parsedData.error, "get image member")
         }
 
         return parsedData.data
-      } catch (error) {
-        if (error instanceof TRPCError) {
-          throw error
-        }
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Error fetching image member",
-          cause: error,
-        })
-      }
+      }, "get image member")
     }),
 
   createImageMember: protectedProcedure
     .input(createImageMemberInputSchema)
     .mutation(async ({ input, ctx }): Promise<ImageMember> => {
-      const { projectId, imageId, member } = input
-      const openstackSession = await ctx.rescopeSession({ projectId })
-      const glance = openstackSession?.service("glance")
+      return withErrorHandling(async () => {
+        const { projectId, imageId, member } = input
+        const openstackSession = await ctx.rescopeSession({ projectId })
+        const glance = openstackSession?.service("glance")
 
-      if (!glance) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to initialize OpenStack Glance service",
-        })
-      }
+        validateGlanceService(glance)
 
-      try {
         const response = await glance.post(`v2/images/${imageId}/members`, {
           json: { member },
         })
 
         if (!response?.ok) {
-          // Handle image not found case (HTTP 404)
-          if (response?.status === 404) {
-            throw new TRPCError({
-              code: "NOT_FOUND",
-              message: `Image not found: ${imageId}`,
-            })
-          }
-          // Handle forbidden access (HTTP 403) - must be image owner
-          if (response?.status === 403) {
-            throw new TRPCError({
-              code: "FORBIDDEN",
-              message: `Access forbidden - must be image owner to add members: ${imageId}`,
-            })
-          }
-          // Handle bad request (HTTP 400) - invalid member or image visibility
-          if (response?.status === 400) {
-            throw new TRPCError({
-              code: "BAD_REQUEST",
-              message: `Invalid request - check image visibility is 'shared' and member ID is valid: ${imageId}`,
-            })
-          }
-          // Handle conflict (HTTP 409) - member already exists
-          if (response?.status === 409) {
-            throw new TRPCError({
-              code: "CONFLICT",
-              message: `Member already exists for image: ${imageId}, ${member}`,
-            })
-          }
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: `Failed to create image member: ${response?.statusText}`,
-          })
+          throw ImageErrorHandlers.member.create(response, imageId, member)
         }
 
         const parsedData = imageMemberSchema.safeParse(await response.json())
         if (!parsedData.success) {
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: "Invalid response format from OpenStack Glance API",
-            cause: parsedData.error,
-          })
+          throw handleZodParsingError(parsedData.error, "create image member")
         }
 
         return parsedData.data
-      } catch (error) {
-        if (error instanceof TRPCError) {
-          throw error
-        }
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Error creating image member",
-          cause: error,
-        })
-      }
+      }, "create image member")
     }),
 
   updateImageMember: protectedProcedure
     .input(updateImageMemberInputSchema)
     .mutation(async ({ input, ctx }): Promise<ImageMember> => {
-      const { projectId, imageId, memberId, status } = input
-      const openstackSession = await ctx.rescopeSession({ projectId })
-      const glance = openstackSession?.service("glance")
+      return withErrorHandling(async () => {
+        const { projectId, imageId, memberId, status } = input
+        const openstackSession = await ctx.rescopeSession({ projectId })
+        const glance = openstackSession?.service("glance")
 
-      if (!glance) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to initialize OpenStack Glance service",
-        })
-      }
+        validateGlanceService(glance)
 
-      try {
         const response = await glance.put(`v2/images/${imageId}/members/${memberId}`, {
           json: { status },
         })
 
         if (!response?.ok) {
-          // Handle image not found case (HTTP 404)
-          if (response?.status === 404) {
-            throw new TRPCError({
-              code: "NOT_FOUND",
-              message: `Image or member not found: ${imageId}, ${memberId}`,
-            })
-          }
-          // Handle forbidden access (HTTP 403) - only the member can update their own status
-          if (response?.status === 403) {
-            throw new TRPCError({
-              code: "FORBIDDEN",
-              message: `Access forbidden - only the member can update their own status: ${imageId}, ${memberId}`,
-            })
-          }
-          // Handle bad request (HTTP 400) - invalid status value
-          if (response?.status === 400) {
-            throw new TRPCError({
-              code: "BAD_REQUEST",
-              message: `Invalid status value: ${status}`,
-            })
-          }
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: `Failed to update image member: ${response?.statusText}`,
-          })
+          throw ImageErrorHandlers.member.update(response, imageId, memberId, status)
         }
 
         const parsedData = imageMemberSchema.safeParse(await response.json())
         if (!parsedData.success) {
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: "Invalid response format from OpenStack Glance API",
-            cause: parsedData.error,
-          })
+          throw handleZodParsingError(parsedData.error, "update image member")
         }
 
         return parsedData.data
-      } catch (error) {
-        if (error instanceof TRPCError) {
-          throw error
-        }
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Error updating image member",
-          cause: error,
-        })
-      }
+      }, "update image member")
     }),
 
   deleteImageMember: protectedProcedure
     .input(deleteImageMemberInputSchema)
     .mutation(async ({ input, ctx }): Promise<boolean> => {
-      const { projectId, imageId, memberId } = input
-      const openstackSession = await ctx.rescopeSession({ projectId })
-      const glance = openstackSession?.service("glance")
+      return withErrorHandling(async () => {
+        const { projectId, imageId, memberId } = input
+        const openstackSession = await ctx.rescopeSession({ projectId })
+        const glance = openstackSession?.service("glance")
 
-      if (!glance) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to initialize OpenStack Glance service",
-        })
-      }
+        validateGlanceService(glance)
 
-      try {
         const response = await glance.del(`v2/images/${imageId}/members/${memberId}`)
 
         if (!response?.ok) {
-          // Handle image not found case (HTTP 404)
-          if (response?.status === 404) {
-            throw new TRPCError({
-              code: "NOT_FOUND",
-              message: `Image or member not found: ${imageId}, ${memberId}`,
-            })
-          }
-          // Handle forbidden access (HTTP 403) - must be image owner
-          if (response?.status === 403) {
-            throw new TRPCError({
-              code: "FORBIDDEN",
-              message: `Access forbidden - must be image owner to delete members: ${imageId}, ${memberId}`,
-            })
-          }
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: `Failed to delete image member: ${response?.statusText}`,
-          })
+          throw ImageErrorHandlers.member.delete(response, imageId, memberId)
         }
 
-        // Successfully deleted (HTTP 204)
         return true
-      } catch (error) {
-        if (error instanceof TRPCError) {
-          throw error
-        }
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Error deleting image member",
-          cause: error,
-        })
-      }
+      }, "delete image member")
     }),
 }
