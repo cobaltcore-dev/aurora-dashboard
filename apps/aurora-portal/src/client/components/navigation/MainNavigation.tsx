@@ -6,6 +6,7 @@ import { isMatch, Link, MakeRouteMatchUnion, useRouterState } from "@tanstack/re
 import { UserMenu } from "./UserMenu"
 import { PageHeader, Button } from "@cloudoperators/juno-ui-components/index"
 import React from "react"
+import { useNavigate } from "@tanstack/react-router"
 
 interface NavigationProps {
   items: NavigationItem[]
@@ -34,40 +35,46 @@ function getProject(matches: MakeRouteMatchUnion[]) {
 }
 
 export function MainNavigation({ items }: NavigationProps) {
+  const navigate = useNavigate()
   const matches = useRouterState({ select: (s) => s.matches })
   const domain = getDomain(matches)
   const project = getProject(matches)
 
+  const handleHeaderClick = () => {
+    navigate({ to: "/" })
+  }
+
   return (
     <nav>
-      <PageHeader applicationName="Aurora" logo={<Logo className="w-6 h-6 fill-current " title="Aurora" />}>
+      <PageHeader
+        applicationName="Aurora"
+        onClick={handleHeaderClick}
+        logo={<Logo className="w-6 h-6 fill-theme-accent " title="Aurora" />}
+      >
         <React.Fragment key=".0">
           <div className="flex items-center justify-between px-6 py-3">
             <div className="flex items-center space-x-4">
-              <Link to="/" className="flex items-center space-x-3">
-                <span className="text-lg font-medium text-sap-grey-2">Aurora</span>
-              </Link>
               {domain && (
-                <Link to={domain.path} data-testid="domain-link" className="flex items-center space-x-3">
-                  <span className="text-sap-grey-1">/</span>
-                  <span className="font-semibold text-lg text-sap-grey-2">{domain.name}</span>
+                <Link to={domain.path} data-testid="domain-link" className="text-theme-high capitalize">
+                  {domain.name}
                 </Link>
               )}
               {project && (
-                <>
-                  <span className="text-sap-grey-1">/</span>
-                  <span className="font-semibold text-lg text-sap-grey-2">{project.name}</span>
-                </>
+                <Link
+                  to={project.path + "/compute/$"}
+                  data-testid="domain-link"
+                  className="text-theme-high capitalize "
+                >
+                  {project.name}
+                </Link>
               )}
-            </div>
-            <div className="flex items-center space-x-4">
               {items.map(({ route, label }, index) => (
-                <Link key={index} to={route} className="text-sap-grey-2 hover:text-sap-grey-2 font-medium">
+                <Link className="text-theme-high" key={index} to={route}>
                   {label}
                 </Link>
               ))}
               <UserMenu />
-              <span>Jane Doe</span>
+
               <Button size="small">Log Out</Button>
             </div>
           </div>

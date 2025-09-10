@@ -45,10 +45,10 @@ export function ServerGroupListView({ serverGroups }: ServerGroupListViewProps) 
     <div>
       {serverGroups && serverGroups.length > 0 ? (
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse border border-[#30363d] text-gray-300">
+          <table className="w-full ">
             {/* Table Header */}
-            <thead className="bg-[#21262d]">
-              <tr className="text-gray-400 border-b border-[#30363d]">
+            <thead>
+              <tr>
                 <th className="p-3">Group Name</th>
                 <th className="p-3">Policy</th>
                 <th className="p-3">Members</th>
@@ -59,11 +59,8 @@ export function ServerGroupListView({ serverGroups }: ServerGroupListViewProps) 
 
             {/* Table Body */}
             <tbody>
-              {serverGroups.map((group, index) => (
-                <tr
-                  key={group.id}
-                  className={`hover:bg-[#1e2531] ${index !== serverGroups.length - 1 ? "border-b border-[#30363d]" : ""}`}
-                >
+              {serverGroups.map((group) => (
+                <tr key={group.id}>
                   <td className="p-3">{group.name}</td>
                   <td className="p-3">{renderPolicy(group.policies?.[0])}</td>
                   <td className="p-3">{renderMembersCount(group)}</td>
@@ -73,7 +70,6 @@ export function ServerGroupListView({ serverGroups }: ServerGroupListViewProps) 
                   <td className="p-3">
                     <div className="flex space-x-3 justify-end">
                       <Button
-                        className="hover:bg-gray-600"
                         onClick={() => {
                           const toastProps: Omit<ToastProps, "id"> = {
                             title: "Group Details",
@@ -90,7 +86,6 @@ export function ServerGroupListView({ serverGroups }: ServerGroupListViewProps) 
                         Details
                       </Button>
                       <Button
-                        className="hover:bg-gray-600"
                         onClick={() => {
                           const toastProps: Omit<ToastProps, "id"> = {
                             title: "Launch Instance",
@@ -108,7 +103,6 @@ export function ServerGroupListView({ serverGroups }: ServerGroupListViewProps) 
                       </Button>
                       <Button
                         variant="primary-danger"
-                        className="hover:bg-red-500"
                         onClick={() => {
                           const toastProps: Omit<ToastProps, "id"> = {
                             title: "Delete Server Group",
@@ -132,7 +126,7 @@ export function ServerGroupListView({ serverGroups }: ServerGroupListViewProps) 
           </table>
         </div>
       ) : (
-        <p className="text-gray-400">No server groups available.</p>
+        <p>No server groups available.</p>
       )}
     </div>
   )

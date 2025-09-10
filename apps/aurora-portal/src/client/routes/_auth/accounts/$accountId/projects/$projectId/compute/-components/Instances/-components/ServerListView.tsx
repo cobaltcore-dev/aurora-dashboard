@@ -11,10 +11,10 @@ export function ServerListView({ servers }: ServerListViewProps) {
     <div>
       {servers && servers.length > 0 ? (
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse border border-[#30363d] text-gray-300">
+          <table className="w-full text-left">
             {/* Table Header */}
-            <thead className="bg-[#21262d]">
-              <tr className="text-gray-400 border-b border-[#30363d]">
+            <thead>
+              <tr>
                 <th className="p-3">Server Name</th>
                 <th className="p-3">Status</th>
                 <th className="p-3">IPv4</th>
@@ -28,20 +28,17 @@ export function ServerListView({ servers }: ServerListViewProps) {
 
             {/* Table Body */}
             <tbody>
-              {servers.map((server, index) => (
-                <tr
-                  key={server.id}
-                  className={`hover:bg-[#1e2531] ${index !== servers.length - 1 ? "border-b border-[#30363d]" : ""}`}
-                >
+              {servers.map((server) => (
+                <tr key={server.id}>
                   <td className="p-3">{server.name}</td>
 
                   {/* Status with Icon */}
                   <td className="p-3">
                     <div className="flex items-center space-x-2">
                       {server.status === "ACTIVE" ? (
-                        <Icon icon="success" data-testid="icon-success" color="jn-text-theme-success" />
+                        <Icon icon="success" data-testid="icon-success" color="text-theme-success" />
                       ) : server.status === "SHUTOFF" ? (
-                        <Icon icon="danger" data-testid="icon-danger" color="jn-text-theme-danger" />
+                        <Icon icon="danger" data-testid="icon-danger" color="text-theme-danger" />
                       ) : (
                         <p>{server.status}</p>
                       )}
@@ -63,7 +60,6 @@ export function ServerListView({ servers }: ServerListViewProps) {
                     {/* Action Buttons */}
                     <div className=" flex space-x-3 justify-end mt-4">
                       <Button
-                        className="hover:bg-gray-600"
                         onClick={() => {
                           const toastProps: Omit<ToastProps, "id"> = {
                             title: "All great you are awesome",
@@ -80,7 +76,6 @@ export function ServerListView({ servers }: ServerListViewProps) {
                         Create
                       </Button>
                       <Button
-                        className=" hover:bg-gray-600"
                         onClick={() => {
                           const toastProps: Omit<ToastProps, "id"> = {
                             title: "All ok you are good",
@@ -98,7 +93,6 @@ export function ServerListView({ servers }: ServerListViewProps) {
                       </Button>
                       <Button
                         variant="primary-danger"
-                        className=" hover:bg-red-500"
                         onClick={() => {
                           const toastProps: Omit<ToastProps, "id"> = {
                             title: "This is a danger error",
@@ -122,7 +116,7 @@ export function ServerListView({ servers }: ServerListViewProps) {
           </table>
         </div>
       ) : (
-        <p className="text-gray-400">No servers available.</p>
+        <p>No servers available.</p>
       )}
     </div>
   )

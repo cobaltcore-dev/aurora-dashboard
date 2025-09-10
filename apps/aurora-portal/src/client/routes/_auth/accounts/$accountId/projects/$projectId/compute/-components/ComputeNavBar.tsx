@@ -31,12 +31,8 @@ export const ComputeSideNavBar = () => {
           <Link
             key={path}
             to={path}
-            className={`w-full text-base font-medium px-4 py-3 rounded-md transition text-justify
-              ${
-                location.pathname === path
-                  ? "bg-juno-grey-blue-3 text-white shadow-md"
-                  : "text-juno-blue-1 hover:bg-juno-grey-blue-4 hover:text-white"
-              }`}
+            className={`w-full text-base font-medium px-4 py-3 rounded-md transition text-justify hover:text-theme-light
+              ${location.pathname === path ? "text-theme-accent" : "text-theme-default"}`}
           >
             {label}
           </Link>

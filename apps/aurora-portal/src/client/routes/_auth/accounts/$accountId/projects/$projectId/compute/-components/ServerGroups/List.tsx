@@ -12,7 +12,7 @@ interface ServerGroupsContainerProps {
 const ServerGroupsContainer = ({ getServerGroupsPromise }: ServerGroupsContainerProps) => {
   const serverGroups = use(getServerGroupsPromise)
   if (!serverGroups || serverGroups.length === 0) {
-    return <p className="text-gray-400">No server groups available.</p>
+    return <p>No server groups available.</p>
   }
 
   return <ServerGroupListView serverGroups={serverGroups} />
@@ -27,7 +27,7 @@ export function ServerGroups({ client, project }: ServerGroupsProps) {
   const getServerGroupsPromise = client.compute.getServerGroupsByProjectId.query({ projectId: project })
 
   return (
-    <Suspense fallback={<div className="p-4 text-center text-gray-400">Loading server groups...</div>}>
+    <Suspense fallback={<div className="p-4 text-center ">Loading server groups...</div>}>
       <ServerGroupsContainer getServerGroupsPromise={getServerGroupsPromise} />
     </Suspense>
   )

@@ -1,4 +1,3 @@
-// KeyPairListView.tsx - Component to display key pairs
 import { ToastProps, auroraToast, sonnerToast } from "@/client/components/NotificationCenter/AuroraToast"
 import type { Keypair } from "@/server/Compute/types/keypair"
 import { Button } from "@cloudoperators/juno-ui-components"
@@ -21,7 +20,7 @@ export function KeyPairListView({ keyPairs }: KeyPairListViewProps) {
 
     return (
       <div className="flex items-center space-x-2">
-        <Icon icon="info" color="jn-text-theme-info" />
+        <Icon icon="info" color="text-theme-info" />
         <span>{type.toUpperCase()}</span>
       </div>
     )
@@ -40,10 +39,10 @@ export function KeyPairListView({ keyPairs }: KeyPairListViewProps) {
     <div>
       {keyPairs && keyPairs.length > 0 ? (
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse border border-[#30363d] text-gray-300">
+          <table className="w-full ">
             {/* Table Header */}
-            <thead className="bg-[#21262d]">
-              <tr className="text-gray-400 border-b border-[#30363d]">
+            <thead>
+              <tr>
                 <th className="p-3">Key Name</th>
                 <th className="p-3">Type</th>
                 <th className="p-3">Fingerprint</th>
@@ -54,11 +53,8 @@ export function KeyPairListView({ keyPairs }: KeyPairListViewProps) {
 
             {/* Table Body */}
             <tbody>
-              {keyPairs.map((keyPair, index) => (
-                <tr
-                  key={keyPair.id || keyPair.name}
-                  className={`hover:bg-[#1e2531] ${index !== keyPairs.length - 1 ? "border-b border-[#30363d]" : ""}`}
-                >
+              {keyPairs.map((keyPair) => (
+                <tr key={keyPair.id || keyPair.name}>
                   <td className="p-3">{keyPair.name}</td>
                   <td className="p-3">{renderKeyType(keyPair.type)}</td>
                   <td className="p-3 font-mono text-sm">{formatFingerprint(keyPair.fingerprint)}</td>
@@ -68,7 +64,6 @@ export function KeyPairListView({ keyPairs }: KeyPairListViewProps) {
                   <td className="p-3">
                     <div className="flex space-x-3 justify-end">
                       <Button
-                        className="hover:bg-gray-600"
                         onClick={() => {
                           const toastProps: Omit<ToastProps, "id"> = {
                             title: "Launch Instance",
@@ -85,7 +80,6 @@ export function KeyPairListView({ keyPairs }: KeyPairListViewProps) {
                         Use
                       </Button>
                       <Button
-                        className="hover:bg-gray-600"
                         onClick={() => {
                           // Copy key to clipboard
                           navigator.clipboard.writeText(keyPair.public_key || "")
@@ -105,7 +99,6 @@ export function KeyPairListView({ keyPairs }: KeyPairListViewProps) {
                       </Button>
                       <Button
                         variant="primary-danger"
-                        className="hover:bg-red-500"
                         onClick={() => {
                           const toastProps: Omit<ToastProps, "id"> = {
                             title: "Delete Key Pair",
@@ -129,7 +122,7 @@ export function KeyPairListView({ keyPairs }: KeyPairListViewProps) {
           </table>
         </div>
       ) : (
-        <p className="text-gray-400">No key pairs available.</p>
+        <p>No key pairs available.</p>
       )}
     </div>
   )
