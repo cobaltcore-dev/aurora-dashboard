@@ -33,13 +33,14 @@ export function applyImageQueryParams(queryParams: URLSearchParams, input: Omit<
     updated_at,
   } = input
 
-  // Sorting parameters - use either classic syntax (sort_key + sort_dir) or new syntax (sort)
+  // Sorting parameters - always use the new sort syntax
   if (sort) {
     queryParams.append("sort", sort)
   } else {
-    // Default to classic syntax (always applied due to defaults)
-    queryParams.append("sort_key", sort_key)
-    queryParams.append("sort_dir", sort_dir)
+    // Construct sort parameter from sort_key and sort_dir (using defaults if not provided)
+    const sortKey = sort_key || "created_at"
+    const sortDir = sort_dir || "desc"
+    queryParams.append("sort", `${sortKey}:${sortDir}`)
   }
 
   // Pagination parameters

@@ -542,9 +542,6 @@ describe("imageRouter", () => {
       expect(imageHelpers.applyImageQueryParams).toHaveBeenCalledWith(expect.any(URLSearchParams), {
         name: "test-image",
         status: "active",
-        // Default sort parameters to be included from the schema
-        sort_dir: "desc",
-        sort_key: "created_at",
       })
     })
   })

@@ -45,9 +45,7 @@ describe("imageHelpers", () => {
 
       applyImageQueryParams(queryParams, input)
 
-      expect(queryParams.get("sort_key")).toBe("created_at")
-      expect(queryParams.get("sort_dir")).toBe("desc")
-      expect(queryParams.has("sort")).toBe(false)
+      expect(queryParams.get("sort")).toBe("created_at:desc")
     })
 
     it("should apply pagination parameters", () => {
@@ -172,8 +170,7 @@ describe("imageHelpers", () => {
       expect(queryParams.has("name")).toBe(false)
       expect(queryParams.has("limit")).toBe(false)
       expect(queryParams.has("protected")).toBe(false)
-      expect(queryParams.get("sort_key")).toBe("name")
-      expect(queryParams.get("sort_dir")).toBe("asc")
+      expect(queryParams.get("sort")).toBe("name:asc")
     })
   })
 

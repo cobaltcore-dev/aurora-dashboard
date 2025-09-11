@@ -322,10 +322,6 @@ describe("Glance Image Schema Validation", () => {
         const input = { projectId }
         const result = listImagesInputSchema.safeParse(input)
         expect(result.success).toBe(true)
-        if (result.success) {
-          expect(result.data.sort_key).toBe("created_at")
-          expect(result.data.sort_dir).toBe("desc")
-        }
       })
 
       it("should validate complete list images input", () => {

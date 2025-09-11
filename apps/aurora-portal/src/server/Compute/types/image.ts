@@ -211,8 +211,8 @@ export const listImagesInputSchema = z.object({
   projectId: z.string(),
 
   // Sorting parameters
-  sort_key: sortKeySchema.optional().default("created_at"),
-  sort_dir: sortDirSchema.optional().default("desc"),
+  sort_key: sortKeySchema.optional(),
+  sort_dir: sortDirSchema.optional(),
   sort: z.string().optional(), // Alternative sort syntax: "name:asc,status:desc"
 
   // Pagination parameters
