@@ -1,44 +1,42 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest"
 import { cloudProfilesRouter } from "./cloudProfilesRouter"
 import { CloudProfile } from "../types/cloudProfile"
-import { client } from "../client"
 import { CloudProfileApiResponse } from "../types/cloudProfileApiSchema"
 
 import { createCallerFactory, router } from "../../trpc"
 import { AuroraPortalContext } from "../../context"
 
-// Mock the K8s client
-vi.mock("../client", () => ({
-  client: {
-    get: vi.fn(),
-    post: vi.fn(),
-    put: vi.fn(),
-    delete: vi.fn(),
-    patch: vi.fn(),
-    WATCH_ADDED: "ADDED",
-    WATCH_MODIFIED: "MODIFIED",
-    WATCH_DELETED: "DELETED",
-    WATCH_ERROR: "ERROR",
-    watch: vi.fn().mockReturnValue({
-      on: vi.fn(),
-      off: vi.fn(),
-      close: vi.fn(),
-    }),
-    head: vi.fn(),
-    refreshToken: vi.fn(),
-    currentToken: vi.fn(),
-  },
-}))
-
-const mockClient = vi.mocked(client)
-
+const mockClient = {
+  get: vi.fn(),
+  post: vi.fn(),
+  put: vi.fn(),
+  del: vi.fn(),
+  patch: vi.fn(),
+  head: vi.fn(),
+  availableEndpoints: vi.fn(),
+}
 // Create tRPC caller
 const createCaller = createCallerFactory(router(cloudProfilesRouter))
-const caller = createCaller({} as AuroraPortalContext)
 
 describe("cloudProfilesRouter", () => {
+  let caller: ReturnType<typeof createCaller>
   beforeEach(() => {
     vi.clearAllMocks()
+
+    const mockOpestackSession = {
+      getToken: vi.fn(() => ({ tokenData: { project: { id: "test-project" } }, authToken: "test-auth-token" })),
+      service: vi.fn(() => mockClient),
+    }
+
+    // Mock context with all required functions
+    const mockContext = {
+      createSession: vi.fn().mockResolvedValue(mockOpestackSession),
+      rescopeSession: vi.fn().mockResolvedValue(mockOpestackSession), // Mock the rescoped session
+      terminateSession: vi.fn().mockResolvedValue({}), // Mock the terminated session
+      validateSession: vi.fn().mockResolvedValue(true), // Mock the validated session
+      openstack: Promise.resolve(mockOpestackSession),
+    }
+    caller = createCaller(mockContext as unknown as AuroraPortalContext)
   })
 
   beforeEach(() => {
@@ -235,7 +233,7 @@ describe("cloudProfilesRouter", () => {
 
     it("should successfully fetch and convert cloud profiles", async () => {
       // Arrange
-      vi.mocked(mockClient.get).mockResolvedValue(validApiResponseMock)
+      vi.mocked(mockClient.get).mockResolvedValue({ ok: true, json: vi.fn().mockResolvedValue(validApiResponseMock) })
 
       // Act
       const result = await caller.getCloudProfiles()

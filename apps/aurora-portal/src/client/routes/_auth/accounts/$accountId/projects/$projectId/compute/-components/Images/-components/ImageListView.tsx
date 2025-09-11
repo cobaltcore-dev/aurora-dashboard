@@ -77,7 +77,9 @@ export function ImageListView({ images }: ImagePageProps) {
       {/* Header with Add Button */}
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-semibold ">Images</h2>
-        <Button onClick={handleCreateImage}>Add New Image</Button>
+        <Button onClick={handleCreateImage} variant="primary" icon="addCircle">
+          Add New Image
+        </Button>
       </div>
 
       {/* Images Table */}

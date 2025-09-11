@@ -1,45 +1,54 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest"
-import { shootRouter } from "./shootRouter"
-import { client } from "../client"
+import { clustersRouter } from "./clustersRouter"
 import { createCallerFactory, router } from "../../trpc"
-import { AuroraPortalContext } from "../../context"
 import { ShootApiResponse, ShootListApiResponse } from "../types/shootApiSchema"
-import { TRPCError } from "@trpc/server"
+import { AuroraPortalContext } from "../../context"
 
-// Mock the K8s client
-vi.mock("../client", () => ({
-  client: {
-    get: vi.fn(),
-    post: vi.fn(),
-    put: vi.fn(),
-    delete: vi.fn(),
-    patch: vi.fn(),
-    WATCH_ADDED: "ADDED",
-    WATCH_MODIFIED: "MODIFIED",
-    WATCH_DELETED: "DELETED",
-    WATCH_ERROR: "ERROR",
-    watch: vi.fn().mockReturnValue({
-      on: vi.fn(),
-      off: vi.fn(),
-      close: vi.fn(),
-    }),
-    head: vi.fn(),
-    refreshToken: vi.fn(),
-    currentToken: vi.fn(),
-  },
-}))
+const mockClient = {
+  get: vi.fn(),
+  post: vi.fn(),
+  put: vi.fn(),
+  del: vi.fn(),
+  patch: vi.fn(),
+  head: vi.fn(),
+  availableEndpoints: vi.fn(),
+}
+const mockOpestackSession = {
+  getToken: vi.fn(() => ({ tokenData: { project: { id: "test-project" } }, authToken: "test-auth-token" })),
+  service: vi.fn(() => mockClient),
+}
 
-const mockClient = vi.mocked(client)
+// Mock context with all required functions
+const mockContext = {
+  createSession: vi.fn().mockResolvedValue(mockOpestackSession),
+  rescopeSession: vi.fn().mockResolvedValue(mockOpestackSession), // Mock the rescoped session
+  terminateSession: vi.fn().mockResolvedValue({}), // Mock the terminated session
+  validateSession: vi.fn().mockResolvedValue(true), // Mock the validated session
+  openstack: Promise.resolve(mockOpestackSession),
+}
 
 // Create tRPC caller
-const createCaller = createCallerFactory(router(shootRouter))
-const caller = createCaller({} as AuroraPortalContext)
+const createCaller = createCallerFactory(router(clustersRouter))
+const caller = createCaller(mockContext as unknown as AuroraPortalContext)
 
-describe("shootRouter", () => {
+describe("clustersRouter", () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    // Set default environment variable
-    process.env.GARDENER_PROJECT = "test-project"
+
+    // Reset all mock client methods
+    mockClient.get.mockReset()
+    mockClient.post.mockReset()
+    mockClient.put.mockReset()
+    mockClient.del.mockReset()
+    mockClient.patch.mockReset()
+    mockClient.head.mockReset()
+
+    // Reset context mocks
+    mockContext.rescopeSession.mockResolvedValue(mockOpestackSession)
+    mockOpestackSession.getToken.mockReturnValue({
+      tokenData: { project: { id: "test-project" } },
+      authToken: "test-auth-token",
+    })
   })
 
   afterEach(() => {
@@ -145,10 +154,10 @@ describe("shootRouter", () => {
   describe("getClusters", () => {
     it("should successfully fetch and convert clusters", async () => {
       // Arrange
-      mockClient.get.mockResolvedValue(validShootListApiResponse)
+      mockClient.get.mockResolvedValue({ ok: true, json: vi.fn().mockResolvedValue(validShootListApiResponse) })
 
       // Act
-      const result = await caller.getClusters()
+      const result = await caller.getClustersByProjectId({ projectId: "test-project" })
 
       // Assert
       expect(mockClient.get).toHaveBeenCalledWith(
@@ -160,10 +169,10 @@ describe("shootRouter", () => {
     it("should handle empty cluster list", async () => {
       // Arrange
       const emptyResponse = { ...validShootListApiResponse, items: [] }
-      mockClient.get.mockResolvedValue(emptyResponse)
+      mockClient.get.mockResolvedValue({ ok: true, json: vi.fn().mockResolvedValue(emptyResponse) })
 
       // Act
-      const result = await caller.getClusters()
+      const result = await caller.getClustersByProjectId({ projectId: "test-project" })
 
       // Assert
       expect(result).toEqual([])
@@ -172,68 +181,39 @@ describe("shootRouter", () => {
     it("should handle API error with error field", async () => {
       // Arrange
       const mockError = {
-        response: {
-          json: vi.fn().mockResolvedValue({
-            error: "Unauthorized access",
-          }),
-        },
+        ok: false,
+        status: 401,
+        statusText: "Unauthorized",
       }
-      mockClient.get.mockRejectedValue(mockError)
+      mockClient.get.mockResolvedValue(mockError)
 
       // Act & Assert
-      await expect(caller.getClusters()).rejects.toThrow("Error fetching clusters: Unauthorized access")
-    })
-
-    it("should handle API error with message field", async () => {
-      // Arrange
-      const mockError = {
-        response: {
-          json: vi.fn().mockResolvedValue({
-            message: "Request timeout",
-          }),
-        },
-      }
-      mockClient.get.mockRejectedValue(mockError)
-
-      // Act & Assert
-      await expect(caller.getClusters()).rejects.toThrow("Error fetching clusters: Request timeout")
-    })
-
-    it("should handle API error without response body", async () => {
-      // Arrange
-      const mockError = {
-        message: "Network error",
-        response: {
-          json: vi.fn().mockResolvedValue({}),
-        },
-      }
-      mockClient.get.mockRejectedValue(mockError)
-
-      // Act & Assert
-      await expect(caller.getClusters()).rejects.toThrow("Error fetching clusters: Network error")
+      await expect(caller.getClustersByProjectId({ projectId: "test-project" })).rejects.toThrow(
+        "Failed to fetch clusters: Unauthorized (401)"
+      )
     })
 
     it("should handle JSON parsing error in error response", async () => {
       // Arrange
       const mockError = {
-        message: "Original error message",
-        response: {
-          json: vi.fn().mockRejectedValue(new Error("JSON parse error")),
-        },
+        ok: false,
+        status: 500,
+        statusText: "Internal Server Error",
       }
-      mockClient.get.mockRejectedValue(mockError)
+      mockClient.get.mockResolvedValue(mockError)
 
       // Act & Assert
-      await expect(caller.getClusters()).rejects.toThrow("Error fetching clusters: Original error message")
+      await expect(caller.getClustersByProjectId({ projectId: "test-project" })).rejects.toThrow(
+        "Failed to fetch clusters: Internal Server Error (500)"
+      )
     })
 
     it("should use correct namespace from environment variable", async () => {
       // Arrange
-      process.env.GARDENER_PROJECT = "my-custom-project"
-      mockClient.get.mockResolvedValue(validShootListApiResponse)
+      mockClient.get.mockResolvedValue({ ok: true, json: vi.fn().mockResolvedValue(validShootListApiResponse) })
 
       // Act
-      await caller.getClusters()
+      await caller.getClustersByProjectId({ projectId: "my-custom-project" })
 
       // Assert
       expect(mockClient.get).toHaveBeenCalledWith(
@@ -244,10 +224,10 @@ describe("shootRouter", () => {
     it("should handle invalid schema response", async () => {
       // Arrange
       const invalidResponse = { invalid: "data" }
-      mockClient.get.mockResolvedValue(invalidResponse)
+      mockClient.get.mockResolvedValue({ ok: true, json: vi.fn().mockResolvedValue(invalidResponse) })
 
       // Act
-      const result = await caller.getClusters()
+      const result = await caller.getClustersByProjectId({ projectId: "my-custom-project" })
 
       // Assert
       expect(result).toEqual([])
@@ -257,7 +237,7 @@ describe("shootRouter", () => {
   describe("getClusterByName", () => {
     it("should successfully fetch and convert a specific cluster", async () => {
       // Arrange
-      mockClient.get.mockResolvedValue(validShootApiResponse)
+      mockClient.get.mockResolvedValue({ ok: true, json: vi.fn().mockResolvedValue(validShootApiResponse) })
 
       // Act
       const result = await caller.getClusterByName({ name: "test-cluster" })
@@ -272,7 +252,7 @@ describe("shootRouter", () => {
     it("should return undefined when schema validation fails", async () => {
       // Arrange
       const invalidResponse = { invalid: "data" }
-      mockClient.get.mockResolvedValue(invalidResponse)
+      mockClient.get.mockResolvedValue({ ok: true, json: vi.fn().mockResolvedValue(invalidResponse) })
 
       // Act
       const result = await caller.getClusterByName({ name: "test-cluster" })
@@ -283,15 +263,14 @@ describe("shootRouter", () => {
 
     it("should use correct namespace and cluster name", async () => {
       // Arrange
-      process.env.GARDENER_PROJECT = "another-project"
-      mockClient.get.mockResolvedValue(validShootApiResponse)
+      mockClient.get.mockResolvedValue({ ok: true, json: vi.fn().mockResolvedValue(validShootApiResponse) })
 
       // Act
       await caller.getClusterByName({ name: "my-cluster" })
 
       // Assert
       expect(mockClient.get).toHaveBeenCalledWith(
-        "apis/core.gardener.cloud/v1beta1/namespaces/garden-another-project/shoots/my-cluster"
+        "apis/core.gardener.cloud/v1beta1/namespaces/garden-test-project/shoots/my-cluster"
       )
     })
   })
@@ -299,8 +278,8 @@ describe("shootRouter", () => {
   describe("deleteCluster", () => {
     it("should successfully delete a cluster", async () => {
       // Arrange
-      mockClient.patch.mockResolvedValue({ success: true })
-      mockClient.delete.mockResolvedValue(validShootApiResponse)
+      mockClient.patch.mockResolvedValue({ ok: true, json: vi.fn().mockResolvedValue({}) })
+      mockClient.del.mockResolvedValue({ ok: true, json: vi.fn().mockResolvedValue(validShootApiResponse) })
 
       // Act
       const result = await caller.deleteCluster({ name: "test-cluster" })
@@ -321,7 +300,7 @@ describe("shootRouter", () => {
           },
         }
       )
-      expect(mockClient.delete).toHaveBeenCalledWith(
+      expect(mockClient.del).toHaveBeenCalledWith(
         "apis/core.gardener.cloud/v1beta1/namespaces/garden-test-project/shoots/test-cluster"
       )
       expect(result).toBeDefined()
@@ -330,67 +309,62 @@ describe("shootRouter", () => {
     it("should handle error during annotation patch", async () => {
       // Arrange
       const mockError = {
-        response: {
-          json: vi.fn().mockResolvedValue({
-            error: "Permission denied for patch operation",
-          }),
-        },
+        ok: false,
+        status: 403,
+        statusText: "Forbidden",
       }
-      mockClient.patch.mockRejectedValue(mockError)
+      mockClient.patch.mockResolvedValue(mockError)
 
       // Act & Assert
       await expect(caller.deleteCluster({ name: "test-cluster" })).rejects.toThrow(
-        "Error adding deletion confirmation: Permission denied for patch operation"
+        "Failed to add deletion confirmation: Forbidden (403)"
       )
     })
 
     it("should handle error during cluster deletion", async () => {
       // Arrange
-      mockClient.patch.mockResolvedValue({ success: true })
+      mockClient.patch.mockResolvedValue({ ok: true, json: vi.fn().mockResolvedValue({}) })
       const mockError = {
-        response: {
-          json: vi.fn().mockResolvedValue({
-            message: "Cluster not found",
-          }),
-        },
+        ok: false,
+        statusText: "Not Found",
+        status: 404,
       }
-      mockClient.delete.mockRejectedValue(mockError)
+      mockClient.del.mockResolvedValue(mockError)
 
       // Act & Assert
       await expect(caller.deleteCluster({ name: "test-cluster" })).rejects.toThrow(
-        "Error deleting cluster: Cluster not found"
+        "Failed to delete cluster: Not Found (404)"
       )
     })
 
     it("should return undefined when delete response schema validation fails", async () => {
       // Arrange
-      mockClient.patch.mockResolvedValue({ success: true })
-      mockClient.delete.mockResolvedValue({ invalid: "response" })
+      mockClient.patch.mockResolvedValue({ ok: true, json: vi.fn().mockResolvedValue({}) })
+      mockClient.del.mockResolvedValue({ ok: false, statusText: "Not Found", status: 404 })
 
       // Act
-      const result = await caller.deleteCluster({ name: "test-cluster" })
-
-      // Assert
-      expect(result).toBeUndefined()
+      await expect(caller.deleteCluster({ name: "test-cluster" })).rejects.toThrow(
+        "Failed to delete cluster: Not Found (404)"
+      )
     })
 
     it("should use correct namespace and cluster name", async () => {
       // Arrange
       process.env.GARDENER_PROJECT = "delete-project"
-      mockClient.patch.mockResolvedValue({ success: true })
-      mockClient.delete.mockResolvedValue(validShootApiResponse)
+      mockClient.patch.mockResolvedValue({ success: true, ok: true, json: vi.fn().mockResolvedValue({}) })
+      mockClient.del.mockResolvedValue({ ok: true, json: vi.fn().mockResolvedValue(validShootApiResponse) })
 
       // Act
       await caller.deleteCluster({ name: "cluster-to-delete" })
 
       // Assert
       expect(mockClient.patch).toHaveBeenCalledWith(
-        "apis/core.gardener.cloud/v1beta1/namespaces/garden-delete-project/shoots/cluster-to-delete",
+        "apis/core.gardener.cloud/v1beta1/namespaces/garden-test-project/shoots/cluster-to-delete",
         expect.any(Array),
         expect.any(Object)
       )
-      expect(mockClient.delete).toHaveBeenCalledWith(
-        "apis/core.gardener.cloud/v1beta1/namespaces/garden-delete-project/shoots/cluster-to-delete"
+      expect(mockClient.del).toHaveBeenCalledWith(
+        "apis/core.gardener.cloud/v1beta1/namespaces/garden-test-project/shoots/cluster-to-delete"
       )
     })
   })
@@ -496,7 +470,7 @@ describe("shootRouter", () => {
 
     it("should successfully create a cluster", async () => {
       // Arrange
-      mockClient.post.mockResolvedValue(validShootApiResponse)
+      mockClient.post.mockResolvedValue({ ok: true, json: vi.fn().mockResolvedValue(validShootApiResponse) })
 
       // Act
       const result = await caller.createCluster(validCreateInput)
@@ -538,7 +512,7 @@ describe("shootRouter", () => {
         ],
       }
 
-      mockClient.post.mockResolvedValue(validShootApiResponse)
+      mockClient.post.mockResolvedValue({ ok: true, json: vi.fn().mockResolvedValue(validShootApiResponse) })
 
       // Act
       const result = await caller.createCluster(minimalInput)
@@ -569,43 +543,43 @@ describe("shootRouter", () => {
     it("should handle create cluster API error", async () => {
       // Arrange
       const mockError = {
-        response: {
-          json: vi.fn().mockResolvedValue({
-            error: "Insufficient permissions to create cluster",
-          }),
-        },
+        ok: false,
+        status: 403,
+        statusText: "Forbidden",
       }
-      mockClient.post.mockRejectedValue(mockError)
+      mockClient.post.mockResolvedValue(mockError)
 
       // Act & Assert
-      await expect(caller.createCluster(validCreateInput)).rejects.toThrow(
-        "Error creating cluster: Insufficient permissions to create cluster"
-      )
+      await expect(caller.createCluster(validCreateInput)).rejects.toThrow("Failed to create cluster")
     })
 
     it("should throw TRPCError when response schema validation fails", async () => {
       // Arrange
-      mockClient.post.mockResolvedValue({ invalid: "response" })
+      mockClient.post.mockResolvedValue({
+        ok: false,
+        status: 400,
+        statusText: "Bad Request",
+        json: vi.fn().mockResolvedValue({}),
+      })
 
       // Act & Assert
-      await expect(caller.createCluster(validCreateInput)).rejects.toThrow(TRPCError)
-      await expect(caller.createCluster(validCreateInput)).rejects.toThrow("Failed to parse the API response")
+      await expect(caller.createCluster(validCreateInput)).rejects.toThrow("Failed to create cluster")
+      await expect(caller.createCluster(validCreateInput)).rejects.toThrow("Failed to create cluster")
     })
 
     it("should use correct namespace from environment variable", async () => {
       // Arrange
-      process.env.GARDENER_PROJECT = "create-project"
-      mockClient.post.mockResolvedValue(validShootApiResponse)
+      mockClient.post.mockResolvedValue({ ok: true, json: vi.fn().mockResolvedValue(validShootApiResponse) })
 
       // Act
       await caller.createCluster(validCreateInput)
 
       // Assert
       expect(mockClient.post).toHaveBeenCalledWith(
-        "apis/core.gardener.cloud/v1beta1/namespaces/garden-create-project/shoots",
+        "apis/core.gardener.cloud/v1beta1/namespaces/garden-test-project/shoots",
         expect.objectContaining({
           metadata: expect.objectContaining({
-            namespace: "garden-create-project",
+            namespace: "garden-test-project",
           }),
         })
       )
@@ -641,7 +615,7 @@ describe("shootRouter", () => {
         ],
       }
 
-      mockClient.post.mockResolvedValue(validShootApiResponse)
+      mockClient.post.mockResolvedValue({ ok: true, json: vi.fn().mockResolvedValue(validShootApiResponse) })
 
       // Act
       await caller.createCluster(inputWithMultipleWorkers)

@@ -1,3 +1,4 @@
+import { ContentHeading } from "@cloudoperators/juno-ui-components/index"
 import { useLocation, useParams, Link } from "@tanstack/react-router"
 
 export const ComputeSideNavBar = () => {
@@ -23,6 +24,7 @@ export const ComputeSideNavBar = () => {
 
   return (
     <div className="w-full flex flex-col items-start px-4">
+      <ContentHeading>Compute</ContentHeading>
       {/* Navigation */}
       <nav className="w-full flex flex-col rounded-lg items-start ">
         {links.map(({ path, label }) => (
