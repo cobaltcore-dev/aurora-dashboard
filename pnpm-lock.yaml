@@ -57,6 +57,9 @@ importers:
 
   apps/aurora-portal:
     dependencies:
+      '@cobaltcore-dev/policy-engine':
+        specifier: workspace:*
+        version: link:../../packages/policy-engine
       '@cobaltcore-dev/signal-openstack':
         specifier: workspace:*
         version: link:../../packages/signal-openstack

@@ -104,6 +104,7 @@ function evaluateOperator(node: OperatorNode, context: EvaluationContext): boole
       if (!node.right) {
         throw new Error(`${node.operator.toUpperCase()} operator requires a right operand`)
       }
+
       return !evaluateNode(node.right, context)
 
     default:
@@ -126,7 +127,6 @@ function evaluateExpression(node: ExpressionNode, context: EvaluationContext): b
   if (expression === "false") {
     return false
   }
-
   // Parse key:value expressions
   const colonIndex = expression.indexOf(":")
   if (colonIndex === -1) {
@@ -188,10 +188,12 @@ function evaluateExpression(node: ExpressionNode, context: EvaluationContext): b
 function substituteParameters(value: string, params: PolicyCheckParams): string {
   // Handle %(param.path)s substitution
   const paramPattern = /%\(([^)]+)\)s/g
-
   return value.replace(paramPattern, (match, paramPath) => {
     const paramValue = getNestedValue(params, paramPath)
-    return paramValue !== undefined ? String(paramValue) : match
+    if (paramValue === undefined || paramValue === null) {
+      return "null"
+    }
+    return String(paramValue)
   })
 }
 
@@ -265,20 +267,40 @@ function evaluateIsAdmin(value: string, context: EvaluationContext): boolean {
 }
 
 function evaluateContextMatch(key: string, value: string, context: EvaluationContext): boolean {
-  const contextValue = context.context?.[key]
+  let contextValue = context.context?.[key]
 
-  // Handle null values
+  // Strip quotes from contextValue if present
+  if (
+    typeof contextValue === "string" &&
+    contextValue.startsWith("'") &&
+    contextValue.endsWith("'") &&
+    contextValue.length >= 2
+  ) {
+    contextValue = contextValue.slice(1, -1)
+  }
+
+  // Strip quotes from value if present
+  if (typeof value === "string" && value.startsWith("'") && value.endsWith("'") && value.length >= 2) {
+    value = value.slice(1, -1)
+  }
+
+  // Handle null values (after quote stripping)
   if (value === "null") {
     return contextValue === null || contextValue === undefined
   }
 
-  // Handle 'all' specifically for system_scope
+  // Handle 'all' specifically for system_scope (after quote stripping)
   if (key === "system_scope" && value === "all") {
     return contextValue === "all"
   }
 
+  // If contextValue is null or undefined, it should not match any string
+  if (contextValue === null || contextValue === undefined) {
+    return false
+  }
+
   // Convert both to strings for comparison
-  return String(contextValue) === value
+  return String(contextValue) === String(value)
 }
 
 function evaluateNestedKeyMatch(key: string, value: string, context: EvaluationContext): boolean {

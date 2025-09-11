@@ -1,4 +1,3 @@
-// const { parse } = require("./parser")
 import { parse } from "./parser"
 
 describe("parse", () => {
@@ -9,64 +8,67 @@ describe("parse", () => {
       { type: "expression", value: "B" },
     ])
     expect(typeof result === "object").toEqual(true)
+    expect(result.ast).toBeDefined()
+    expect(result.requiredParams).toBeDefined()
+    expect(result.usedRules).toBeDefined()
   })
 
   it("A and B", () => {
-    // A and B
-    const tree = parse([
+    const result = parse([
       { type: "expression", value: "A" },
       { type: "operator", value: "and" },
       { type: "expression", value: "B" },
     ])
-    // console.log(tree)
-    expect(tree).toEqual({
+    expect(result.ast).toEqual({
       operator: "and",
-      left: { type: "expression", value: "A" },
-      right: { type: "expression", value: "B" },
+      left: { type: "expression", value: "A", requiredParams: [] },
+      right: { type: "expression", value: "B", requiredParams: [] },
+      requiredParams: [],
     })
+    expect(result.requiredParams).toEqual([])
+    expect(result.usedRules).toEqual(["A", "B"])
   })
 
   it("not A or B", () => {
-    // A and B
-    const tree = parse([
+    const result = parse([
       { type: "operator", value: "not" },
       { type: "expression", value: "A" },
       { type: "operator", value: "or" },
       { type: "expression", value: "B" },
     ])
-    // console.log(tree)
-    expect(tree).toEqual({
+    expect(result.ast).toEqual({
       operator: "or",
       left: {
         operator: "not",
-        right: { type: "expression", value: "A" },
+        right: { type: "expression", value: "A", requiredParams: [] },
+        requiredParams: [],
       },
-      right: { type: "expression", value: "B" },
+      right: { type: "expression", value: "B", requiredParams: [] },
+      requiredParams: [],
     })
   })
 
   it("not A and B", () => {
-    // A and B
-    const tree = parse([
+    const result = parse([
       { type: "operator", value: "not" },
       { type: "expression", value: "A" },
       { type: "operator", value: "and" },
       { type: "expression", value: "B" },
     ])
-    // console.log(tree)
-    expect(tree).toEqual({
+    expect(result.ast).toEqual({
       operator: "and",
       left: {
         operator: "not",
-        right: { type: "expression", value: "A" },
+        right: { type: "expression", value: "A", requiredParams: [] },
+        requiredParams: [],
       },
-      right: { type: "expression", value: "B" },
+      right: { type: "expression", value: "B", requiredParams: [] },
+      requiredParams: [],
     })
   })
 
   it("not ((((A and B)))) and (C)", () => {
-    // A and B
-    const tree = parse([
+    const result = parse([
       { type: "operator", value: "not" },
       { type: "operator", value: "(" },
       { type: "operator", value: "(" },
@@ -84,24 +86,25 @@ describe("parse", () => {
       { type: "expression", value: "C" },
       { type: "operator", value: ")" },
     ])
-    // console.log(JSON.stringify(tree, null, 2))
-    expect(tree).toEqual({
+    expect(result.ast).toEqual({
       operator: "and",
       left: {
         operator: "not",
         right: {
           operator: "and",
-          left: { type: "expression", value: "A" },
-          right: { type: "expression", value: "B" },
+          left: { type: "expression", value: "A", requiredParams: [] },
+          right: { type: "expression", value: "B", requiredParams: [] },
+          requiredParams: [],
         },
+        requiredParams: [],
       },
-      right: { type: "expression", value: "C" },
+      right: { type: "expression", value: "C", requiredParams: [] },
+      requiredParams: [],
     })
   })
 
   it("not ((A and B) and (C or D))", () => {
-    // A and B
-    const tree = parse([
+    const result = parse([
       { type: "operator", value: "not" },
       { type: "operator", value: "(" },
       { type: "operator", value: "(" },
@@ -117,70 +120,77 @@ describe("parse", () => {
       { type: "operator", value: ")" },
       { type: "operator", value: ")" },
     ])
-    // console.log(JSON.stringify(tree, null, 2))
-    expect(tree).toEqual({
+    expect(result.ast).toEqual({
       operator: "not",
       right: {
         operator: "and",
         left: {
           operator: "and",
-          left: { type: "expression", value: "A" },
-          right: { type: "expression", value: "B" },
+          left: { type: "expression", value: "A", requiredParams: [] },
+          right: { type: "expression", value: "B", requiredParams: [] },
+          requiredParams: [],
         },
         right: {
           operator: "or",
-          left: { type: "expression", value: "C" },
-          right: { type: "expression", value: "D" },
+          left: { type: "expression", value: "C", requiredParams: [] },
+          right: { type: "expression", value: "D", requiredParams: [] },
+          requiredParams: [],
         },
+        requiredParams: [],
       },
+      requiredParams: [],
     })
   })
 
   it("A or B or C", () => {
-    // A or B or C
-    expect(
-      parse([
-        { type: "expression", value: "A" },
-        { type: "operator", value: "or" },
-        { type: "expression", value: "B" },
-        { type: "operator", value: "or" },
-        { type: "expression", value: "C" },
-      ])
-    ).toEqual({
+    const result = parse([
+      { type: "expression", value: "A" },
+      { type: "operator", value: "or" },
+      { type: "expression", value: "B" },
+      { type: "operator", value: "or" },
+      { type: "expression", value: "C" },
+    ])
+
+    expect(result.ast).toEqual({
       operator: "or",
-      left: { type: "expression", value: "A" },
+      left: {
+        type: "expression",
+        value: "A",
+        requiredParams: [],
+      },
       right: {
         operator: "or",
-        left: { type: "expression", value: "B" },
-        right: { type: "expression", value: "C" },
+        left: { type: "expression", value: "B", requiredParams: [] },
+        right: { type: "expression", value: "C", requiredParams: [] },
+        requiredParams: [],
       },
+      requiredParams: [],
     })
   })
 
   it("A and B or C", () => {
-    // A and B or C
-    const tree = parse([
+    const result = parse([
       { type: "expression", value: "A" },
       { type: "operator", value: "and" },
       { type: "expression", value: "B" },
       { type: "operator", value: "or" },
       { type: "expression", value: "C" },
     ])
-    // console.log(tree)
-    expect(tree).toEqual({
+    expect(result.ast).toEqual({
       operator: "or",
       left: {
         operator: "and",
-        left: { type: "expression", value: "A" },
-        right: { type: "expression", value: "B" },
+        left: { type: "expression", value: "A", requiredParams: [] },
+        right: { type: "expression", value: "B", requiredParams: [] },
+        requiredParams: [],
       },
-      right: { type: "expression", value: "C" },
+      right: { type: "expression", value: "C", requiredParams: [] },
+      requiredParams: [],
     })
   })
 
   it("A and ( B or C )", () => {
-    // A and ( B or C )
-    const tree = parse([
+    const result = parse([
       { type: "expression", value: "A" },
       { type: "operator", value: "and" },
       { type: "operator", value: "(" },
@@ -189,22 +199,21 @@ describe("parse", () => {
       { type: "expression", value: "C" },
       { type: "operator", value: ")" },
     ])
-
-    // console.log(JSON.stringify(tree, null, 2))
-    expect(tree).toEqual({
+    expect(result.ast).toEqual({
       operator: "and",
-      left: { type: "expression", value: "A" },
+      left: { type: "expression", value: "A", requiredParams: [] },
       right: {
         operator: "or",
-        left: { type: "expression", value: "B" },
-        right: { type: "expression", value: "C" },
+        left: { type: "expression", value: "B", requiredParams: [] },
+        right: { type: "expression", value: "C", requiredParams: [] },
+        requiredParams: [],
       },
+      requiredParams: [],
     })
   })
 
   it("A or ( B and C )", () => {
-    // A and ( B or C )
-    const tree = parse([
+    const result = parse([
       { type: "expression", value: "A" },
       { type: "operator", value: "or" },
       { type: "operator", value: "(" },
@@ -213,38 +222,40 @@ describe("parse", () => {
       { type: "expression", value: "C" },
       { type: "operator", value: ")" },
     ])
-
-    // console.log(tree)
-    expect(tree).toEqual({
+    expect(result.ast).toEqual({
       operator: "or",
-      left: { type: "expression", value: "A" },
+      left: { type: "expression", value: "A", requiredParams: [] },
       right: {
         operator: "and",
-        left: { type: "expression", value: "B" },
-        right: { type: "expression", value: "C" },
+        left: { type: "expression", value: "B", requiredParams: [] },
+        right: { type: "expression", value: "C", requiredParams: [] },
+        requiredParams: [],
       },
+      requiredParams: [],
     })
   })
 
   it("A and not B", () => {
-    // A and not B
-    const tree = parse([
+    const result = parse([
       { type: "expression", value: "A" },
       { type: "operator", value: "and" },
       { type: "operator", value: "not" },
       { type: "expression", value: "B" },
     ])
-    // console.log(tree)
-    expect(tree).toEqual({
+    expect(result.ast).toEqual({
       operator: "and",
-      left: { type: "expression", value: "A" },
-      right: { operator: "not", right: { type: "expression", value: "B" } },
+      left: { type: "expression", value: "A", requiredParams: [] },
+      right: {
+        operator: "not",
+        right: { type: "expression", value: "B", requiredParams: [] },
+        requiredParams: [],
+      },
+      requiredParams: [],
     })
   })
 
   it("A and ( B or C  and ( D or E ) )", () => {
-    // A and ( B or C  and ( D or E ) )
-    const tree = parse([
+    const result = parse([
       { type: "expression", value: "A" },
       { type: "operator", value: "and" },
       { type: "operator", value: "(" },
@@ -259,30 +270,39 @@ describe("parse", () => {
       { type: "operator", value: ")" },
       { type: "operator", value: ")" },
     ])
-    // console.log(">>>>>>>>>>>>>>>>>>>>")
-    // console.log(JSON.stringify(tree, null, 2))
-    expect(tree).toEqual({
+    expect(result.ast).toEqual({
       operator: "and",
-      left: { type: "expression", value: "A" },
+      left: { type: "expression", value: "A", requiredParams: [] },
       right: {
         operator: "or",
-        left: { type: "expression", value: "B" },
+        left: {
+          type: "expression",
+          value: "B",
+          requiredParams: [],
+        },
         right: {
           operator: "and",
-          left: { type: "expression", value: "C" },
+          left: {
+            type: "expression",
+            value: "C",
+            requiredParams: [],
+          },
           right: {
             operator: "or",
-            left: { type: "expression", value: "D" },
-            right: { type: "expression", value: "E" },
+            left: { type: "expression", value: "D", requiredParams: [] },
+            right: { type: "expression", value: "E", requiredParams: [] },
+            requiredParams: [],
           },
+          requiredParams: [],
         },
+        requiredParams: [],
       },
+      requiredParams: [],
     })
   })
 
   it("A and ( (B or C)  and ( D or E ) )", () => {
-    // A and ( B or C  and ( D or E ) )
-    const tree = parse([
+    const result = parse([
       { type: "expression", value: "A" },
       { type: "operator", value: "and" },
       { type: "operator", value: "(" },
@@ -299,30 +319,31 @@ describe("parse", () => {
       { type: "operator", value: ")" },
       { type: "operator", value: ")" },
     ])
-    // console.log(">>>>>>>>>>>>>>>>>>>>")
-    // console.log(JSON.stringify(tree, null, 2))
-    expect(tree).toEqual({
+    expect(result.ast).toEqual({
       operator: "and",
-      left: { type: "expression", value: "A" },
+      left: { type: "expression", value: "A", requiredParams: [] },
       right: {
         operator: "and",
         left: {
           operator: "or",
-          left: { type: "expression", value: "B" },
-          right: { type: "expression", value: "C" },
+          left: { type: "expression", value: "B", requiredParams: [] },
+          right: { type: "expression", value: "C", requiredParams: [] },
+          requiredParams: [],
         },
         right: {
           operator: "or",
-          left: { type: "expression", value: "D" },
-          right: { type: "expression", value: "E" },
+          left: { type: "expression", value: "D", requiredParams: [] },
+          right: { type: "expression", value: "E", requiredParams: [] },
+          requiredParams: [],
         },
+        requiredParams: [],
       },
+      requiredParams: [],
     })
   })
 
   it("not not A and not (B or C)", () => {
-    // A and ( B or C  and ( D or E ) )
-    const tree = parse([
+    const result = parse([
       { type: "operator", value: "not" },
       { type: "operator", value: "not" },
       { type: "expression", value: "A" },
@@ -334,50 +355,52 @@ describe("parse", () => {
       { type: "expression", value: "C" },
       { type: "operator", value: ")" },
     ])
-    // console.log(">>>>>>>>>>>>>>>>>>>>")
-    // console.log(JSON.stringify(tree, null, 2))
-    expect(tree).toEqual({
+    expect(result.ast).toEqual({
       operator: "and",
       left: {
         operator: "not",
         right: {
           operator: "not",
-          right: { type: "expression", value: "A" },
+          right: { type: "expression", value: "A", requiredParams: [] },
+          requiredParams: [],
         },
+        requiredParams: [],
       },
       right: {
         operator: "not",
         right: {
           operator: "or",
-          left: { type: "expression", value: "B" },
-          right: { type: "expression", value: "C" },
+          left: { type: "expression", value: "B", requiredParams: [] },
+          right: { type: "expression", value: "C", requiredParams: [] },
+          requiredParams: [],
         },
+        requiredParams: [],
       },
+      requiredParams: [],
     })
   })
 
   it("not A and B", () => {
-    // A and ( B or C  and ( D or E ) )
-    const tree = parse([
+    const result = parse([
       { type: "operator", value: "not" },
       { type: "expression", value: "A" },
       { type: "operator", value: "and" },
       { type: "expression", value: "B" },
     ])
-    // console.log(">>>>>>>>>>>>>>>>>>>>")
-    // console.log(JSON.stringify(tree, null, 2))
-    expect(tree).toEqual({
+    expect(result.ast).toEqual({
       operator: "and",
       left: {
         operator: "not",
-        right: { type: "expression", value: "A" },
+        right: { type: "expression", value: "A", requiredParams: [] },
+        requiredParams: [],
       },
-      right: { type: "expression", value: "B" },
+      right: { type: "expression", value: "B", requiredParams: [] },
+      requiredParams: [],
     })
   })
 
   it("rule:admin_required and (token.is_admin_project:True or domain_id:'ccadmin')", () => {
-    const tree = parse([
+    const result = parse([
       { type: "expression", value: "rule:admin_required" },
       { type: "operator", value: "and" },
       { type: "operator", value: "(" },
@@ -386,34 +409,36 @@ describe("parse", () => {
       { type: "expression", value: "domain_id:'ccadmin'" },
       { type: "operator", value: ")" },
     ])
-    // console.log(">>>>>>>>>>>>>>>>>>>>")
-    // console.log(JSON.stringify(tree, null, 2))
-    expect(tree).toEqual({
+    expect(result.ast).toEqual({
       operator: "and",
       left: {
         type: "expression",
         value: "rule:admin_required",
+        requiredParams: [],
       },
       right: {
-        left: { type: "expression", value: "token.is_admin_project:True" },
+        left: { type: "expression", value: "token.is_admin_project:True", requiredParams: [] },
         operator: "or",
-        right: { type: "expression", value: "domain_id:'ccadmin'" },
+        right: { type: "expression", value: "domain_id:'ccadmin'", requiredParams: [] },
+        requiredParams: [],
       },
+      requiredParams: [],
     })
+    expect(result.usedRules).toContain("admin_required")
   })
 
-  it("A)", () => {
-    const tree = parse([{ type: "expression", value: "A" }])
-    // console.log(">>>>>>>>>>>>>>>>>>>>")
-    // console.log(JSON.stringify(tree, null, 2))
-    expect(tree).toEqual({
+  it("A", () => {
+    const result = parse([{ type: "expression", value: "A" }])
+    expect(result.ast).toEqual({
       type: "expression",
       value: "A",
+      requiredParams: [],
     })
+    expect(result.usedRules).toEqual(["A"])
   })
 
   it("@ and (! or B)", () => {
-    const tree = parse([
+    const result = parse([
       { type: "expression", value: "@" },
       { type: "operator", value: "and" },
       { type: "operator", value: "(" },
@@ -422,39 +447,38 @@ describe("parse", () => {
       { type: "expression", value: "B" },
       { type: "operator", value: ")" },
     ])
-    // console.log(">>>>>>>>>>>>>>>>>>>>")
-    // console.log(JSON.stringify(tree, null, 2))
-    expect(tree).toEqual({
+    expect(result.ast).toEqual({
       operator: "and",
       left: {
         type: "expression",
         value: "@",
+        requiredParams: [],
       },
       right: {
-        left: { type: "expression", value: "!" },
+        left: { type: "expression", value: "!", requiredParams: [] },
         operator: "or",
-        right: { type: "expression", value: "B" },
+        right: { type: "expression", value: "B", requiredParams: [] },
+        requiredParams: [],
       },
+      requiredParams: [],
     })
   })
 
   it("@", () => {
-    const tree = parse([{ type: "expression", value: "@" }])
-    // console.log(">>>>>>>>>>>>>>>>>>>>")
-    // console.log(JSON.stringify(tree, null, 2))
-    expect(tree).toEqual({
+    const result = parse([{ type: "expression", value: "@" }])
+    expect(result.ast).toEqual({
       type: "expression",
       value: "@",
+      requiredParams: [],
     })
   })
 
   it("!", () => {
-    const tree = parse([{ type: "expression", value: "!" }])
-    // console.log(">>>>>>>>>>>>>>>>>>>>")
-    // console.log(JSON.stringify(tree, null, 2))
-    expect(tree).toEqual({
+    const result = parse([{ type: "expression", value: "!" }])
+    expect(result.ast).toEqual({
       type: "expression",
       value: "!",
+      requiredParams: [],
     })
   })
 

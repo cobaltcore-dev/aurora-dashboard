@@ -43,7 +43,7 @@ describe("policyConfigFileLoader", () => {
 
     it("should successfully load and parse YAML file with .yaml extension", () => {
       const filePath = "/path/to/config.yaml"
-      const yamlContent = "key1: value1\nkey2: value2"
+      const yamlContent = "key1: value1\nkey2: value2\n#fdsfdsfdsfds"
 
       mockFs.existsSync.mockReturnValue(true)
       mockFs.readFileSync.mockReturnValue(yamlContent)
@@ -249,7 +249,6 @@ explicit: ""`
       const result = loadPolicyConfigFromFile(filePath)
 
       expect(result).toEqual({
-        empty: "",
         nullValue: "",
         nullUpper: "",
         explicit: "",

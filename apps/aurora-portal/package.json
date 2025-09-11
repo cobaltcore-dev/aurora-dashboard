@@ -22,6 +22,7 @@
   },
   "dependencies": {
     "@cobaltcore-dev/signal-openstack": "workspace:*",
+    "@cobaltcore-dev/policy-engine": "workspace:*",
     "@fastify/cookie": "^11.0.2",
     "@fastify/csrf-protection": "^7.1.0",
     "@fastify/helmet": "^13.0.1",
