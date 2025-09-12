@@ -3,6 +3,7 @@ import ServerListView from "./-components/ServerListView"
 import { Suspense, use } from "react"
 import { Server } from "@/server/Compute/types/server"
 import { TrpcClient } from "@/client/trpcClient"
+import { Button } from "@cloudoperators/juno-ui-components/index"
 
 interface InstanceContainerProps {
   getServersPromise: Promise<Server[] | undefined>
@@ -30,6 +31,14 @@ export const Instances = ({
 
   return (
     <Suspense fallback={<div className="p-4 text-center text-gray-400">Loading instances...</div>}>
+      <Button
+        onClick={async () => {
+          const canList = await client.compute.canListServers.query()
+          alert(`Permission to list instances: ${canList ? "Granted" : "Denied"}`)
+        }}
+      >
+        Can List Instances
+      </Button>
       <InstanceContainer getServersPromise={getServersPromise} viewMode={viewMode} />
     </Suspense>
   )

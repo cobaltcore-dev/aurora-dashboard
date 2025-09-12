@@ -6,7 +6,7 @@
   "scripts": {
     "build": "pnpm build:client && pnpm build:server",
     "build:client": "vite build --mode=production",
-    "build:server": "tsc -p tsconfig.server.json",
+    "build:server": "tsc -p tsconfig.server.json && tsc-alias -p tsconfig.server.json",
     "check-i18n": "lingui extract --clean && lingui compile --strict --typescript --verbose",
     "clean": "rm -rf dist && rm -rf node_modules && rm -rf .turbo",
     "clean:cache": "rm -rf .turbo",
@@ -21,8 +21,8 @@
     "typecheck": "tsc --project tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@cobaltcore-dev/signal-openstack": "workspace:*",
     "@cobaltcore-dev/policy-engine": "workspace:*",
+    "@cobaltcore-dev/signal-openstack": "workspace:*",
     "@fastify/cookie": "^11.0.2",
     "@fastify/csrf-protection": "^7.1.0",
     "@fastify/helmet": "^13.0.1",
@@ -81,6 +81,7 @@
     "postcss": "^8.4.47",
     "prettier": "^3.4.2",
     "tailwindcss": "^4.1.7",
+    "tsc-alias": "^1.8.16",
     "typescript": "^5.6.2",
     "vite": "^7.1.5",
     "vite-plugin-svgr": "^4.3.0",
