@@ -27,7 +27,7 @@ Retrieves a list of images with optional filtering and sorting.
 | `projectId`        | string  | OpenStack project ID                                                     | Required     |
 | `sort_key`         | enum    | Sort field (`name`, `status`, `created_at`, etc.)                        | `created_at` |
 | `sort_dir`         | enum    | Sort direction (`asc`, `desc`)                                           | `desc`       |
-| `sort`             | string  | Alternative sort syntax (e.g., `name:asc,status:desc`)                   | -            |
+| `sort`             | string  | **Preferred** sort syntax (e.g., `name:asc`, `created_at:desc,name:asc`) | -            |
 | `limit`            | number  | Maximum number of results (1-1000)                                       | -            |
 | `marker`           | string  | Pagination marker (image ID)                                             | -            |
 | `name`             | string  | Filter by image name                                                     | -            |
@@ -48,16 +48,54 @@ Retrieves a list of images with optional filtering and sorting.
 | `created_at`       | string  | Filter by creation time (format: `operator:ISO8601_time`)                | -            |
 | `updated_at`       | string  | Filter by update time (format: `operator:ISO8601_time`)                  | -            |
 
-#### Example Request
+#### Sorting Behavior
+
+The API supports two sorting syntaxes:
+
+1. **Modern syntax (recommended)**: Use the `sort` parameter with format `field:direction`
+   - Single field: `sort: "name:asc"`
+   - Multiple fields: `sort: "name:asc,created_at:desc"`
+
+2. **Legacy syntax**: Use separate `sort_key` and `sort_dir` parameters
+   - This is automatically converted to the modern syntax internally
+
+**Note**: The system defaults to `created_at:desc` if no sorting is specified.
+
+#### Example Requests
 
 ```typescript
-const images = await client.compute.image.listImages.query({
+// Using modern sort syntax (recommended)
+const imagesSorted = await client.compute.image.listImages.query({
+  projectId: "550e8400-e29b-41d4-a716-446655440000",
+  sort: "name:asc",
+  status: "active",
+  visibility: "private",
+  limit: 10,
+})
+
+// Multi-field sorting
+const imagesMultiSort = await client.compute.image.listImages.query({
+  projectId: "550e8400-e29b-41d4-a716-446655440000",
+  sort: "status:asc,name:asc,created_at:desc",
+  visibility: "public",
+})
+
+// Using legacy syntax (still supported)
+const imagesLegacy = await client.compute.image.listImages.query({
   projectId: "550e8400-e29b-41d4-a716-446655440000",
   sort_key: "name",
   sort_dir: "asc",
   status: "active",
-  visibility: "private",
-  limit: 10,
+})
+
+// Filtering examples
+const filteredImages = await client.compute.image.listImages.query({
+  projectId: "550e8400-e29b-41d4-a716-446655440000",
+  sort: "created_at:desc",
+  os_type: "linux",
+  disk_format: "qcow2",
+  size_min: 1000000000, // 1GB minimum
+  tags: "production",
 })
 ```
 
@@ -87,6 +125,7 @@ Retrieves images with full pagination support including next/first page URLs.
 ```typescript
 const paginatedImages = await client.compute.image.listImagesWithPagination.query({
   projectId: "550e8400-e29b-41d4-a716-446655440000",
+  sort: "name:asc",
   limit: 25,
   visibility: "public",
 })
@@ -681,3 +720,5 @@ All endpoints return `undefined` or `false` on error, with detailed error loggin
 ## OpenStack Glance API Reference
 
 This BFF layer maps directly to the [OpenStack Glance Image Service API v2](https://docs.openstack.org/api-ref/image/v2/). All operations respect OpenStack's authentication, authorization, and project scoping mechanisms.
+
+The API automatically converts legacy `sort_key`/`sort_dir` parameters to the modern `sort` syntax that OpenStack Glance expects, ensuring compatibility with different OpenStack deployments.
