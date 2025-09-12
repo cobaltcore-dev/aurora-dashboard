@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, Mock } from "vitest"
 import { TRPCError } from "@trpc/server"
-import { AuroraPortalContext } from "@/server/context"
+import { AuroraPortalContext } from "../../context"
 import { imageRouter } from "./imageRouter"
 import * as imageHelpers from "../helpers/imageHelpers"
 import { GlanceImage, ImageMember } from "../types/image"
