@@ -43,7 +43,7 @@ export const EditImageModal: React.FC<EditImageModalProps> = ({ isOpen, onClose,
       }}
       cancelButtonLabel="Cancel"
       confirmButtonLabel="Save Changes"
-      data-test-id="dialog"
+      data-testid="dialog"
     >
       <Form>
         <FormSection>

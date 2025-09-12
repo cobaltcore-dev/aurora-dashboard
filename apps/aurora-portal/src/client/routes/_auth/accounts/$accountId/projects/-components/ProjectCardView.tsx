@@ -18,26 +18,16 @@ export function ProjectCard({ project }: ProjectCardProps) {
       className="min-h-50 rounded-lg shadow-md hover:bg-theme-background-lvl-2 p-6"
       onClick={() => navigate({ to: gardenerRootPath })}
     >
-      <div className="w-full ">
-        <div className="flex justify-between items-center w-full ">
-          <ContentHeading className="text-theme-accent capitalize ">{project.name}</ContentHeading>
-          <div
-            className="ml-auto"
-            data-testid="project-card-menu"
-            onMouseDown={(e) => e.stopPropagation()} // Stops route change
-            onClick={(e) => e.stopPropagation()} // Ensures it doesn't trigger navigation
-          ></div>
-        </div>
+      <div className="w-full">
+        <ContentHeading className="text-theme-accent capitalize">{project.name}</ContentHeading>
 
-        <div className="flex items-center space-x-2 mt-2">
-          {project.enabled ? (
-            <Badge icon text="Active" variant="success" />
-          ) : (
-            <Badge icon text="Disabled" variant="danger" />
-          )}
-        </div>
+        {project.enabled ? (
+          <Badge icon text="Active" variant="success" className="mt-1" />
+        ) : (
+          <Badge icon text="Disabled" variant="danger" />
+        )}
 
-        <p className="truncate mt-2 pr-4">{project.description}</p>
+        <p className="mt-4 pr-4 leading-relaxed line-clamp-3">{project.description}</p>
       </div>
     </Box>
   )

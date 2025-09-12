@@ -66,21 +66,6 @@ describe("ProjectListView", () => {
     expect(navigateSpy).toHaveBeenCalledTimes(1)
   })
 
-  test("clicking the popup menu does NOT trigger navigation", async () => {
-    const router = createTestRouter(<ProjectListView projects={projects} />)
-
-    // Spy on router navigation
-    const navigateSpy = vi.spyOn(router, "navigate")
-
-    render(<RouterProvider router={router} />)
-
-    const popupButton = screen.getByTestId("project-card-menu")
-    await fireEvent.click(popupButton)
-
-    // Verify navigation was not called
-    expect(navigateSpy).not.toHaveBeenCalled()
-  })
-
   test("clicking the row navigates correctly", async () => {
     const router = createTestRouter(<ProjectListView projects={projects} />)
 

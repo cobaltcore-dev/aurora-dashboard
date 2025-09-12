@@ -13,23 +13,23 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: src/client/routes/about.tsx:49
+#: src/client/routes/about.tsx:48
 msgid "<0>Effortless Resource Provisioning:</0> Quickly provision, configure, and deploy resources like servers, networks, and volumes with just a few clicks."
 msgstr "<0>Mühelose Ressourcenbereitstellung:</0> Stellen Sie Ressourcen wie Server, Netzwerke und Volumes schnell bereit, konfigurieren Sie diese und setzen Sie sie mit nur wenigen Klicks ein."
 
-#: src/client/routes/about.tsx:67
+#: src/client/routes/about.tsx:64
 msgid "<0>Enhanced Productivity:</0> By reducing operational complexity, Aurora helps your team focus on what truly matters—innovating and driving business success."
 msgstr "<0>Erhöhte Produktivität:</0> Durch die Reduzierung der betrieblichen Komplexität hilft Aurora Ihrem Team, sich auf das Wesentliche zu konzentrieren – Innovationen voranzutreiben und Geschäftserfolg zu sichern."
 
-#: src/client/routes/about.tsx:97
+#: src/client/routes/about.tsx:92
 msgid "<0>Future-Ready:</0> Aurora is designed to evolve with the latest trends in cloud technology, ensuring your solution is always cutting-edge."
 msgstr "<0>Zukunftssicher:</0> Aurora ist darauf ausgelegt, sich mit den neuesten Trends in der Cloud-Technologie weiterzuentwickeln und stellt so sicher, dass Ihre Lösung immer auf dem neuesten Stand ist."
 
-#: src/client/routes/about.tsx:58
+#: src/client/routes/about.tsx:56
 msgid "<0>Optimized Scalability:</0> Built for businesses of all sizes, Aurora grows with you, supporting simple environments and intricate multi-cloud setups alike."
 msgstr "<0>Optimierte Skalierbarkeit:</0> Aurora ist für Unternehmen jeder Größe konzipiert und wächst mit Ihnen mit, unterstützt einfache Umgebungen und komplexe Multi-Cloud-Setups gleichermaßen."
 
-#: src/client/routes/about.tsx:88
+#: src/client/routes/about.tsx:84
 msgid "<0>Secure & Reliable:</0> Your data and operations are safeguarded with enterprise-grade security and robust reliability."
 msgstr "<0>Sicher & Zuverlässig:</0> Ihre Daten und Operationen sind mit Sicherheitsstandards auf Unternehmensebene und robuster Zuverlässigkeit geschützt."
 
@@ -41,7 +41,7 @@ msgstr "<0>Vereinheitlichtes Cloud-Management:</0> Konsolidiert alle Ihre Cloud-
 msgid "A flavor with this ID or name already exists. Please use different values."
 msgstr "Ein Flavor mit dieser ID oder diesem Namen existiert bereits. Bitte verwenden Sie andere Werte."
 
-#: src/client/routes/about.tsx:13
+#: src/client/routes/about.tsx:14
 msgid "About Aurora Dashboard"
 msgstr "Über das Aurora-Dashboard"
 
@@ -53,22 +53,21 @@ msgstr "Nach dem Fortfahren hat Ihr Projekt keinen Zugriff mehr auf die <0>{clus
 msgid "An unexpected error occurred. Please try again."
 msgstr "Ein unerwarteter Fehler ist aufgetreten. Bitte versuchen Sie es erneut."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FilterToolbar.tsx:71
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FilterToolbar.tsx:61
 msgid "Ascending"
 msgstr "Aufsteigend"
 
-#: src/client/routes/about.tsx:27
+#: src/client/routes/about.tsx:28
 msgid "At Aurora, our mission is to provide a centralized platform that unifies cloud management. We aim to simplify the complexities of provisioning, configuring, and scaling resources across diverse cloud environments while enabling seamless growth for your business."
 msgstr "Bei Aurora ist es unsere Mission, eine zentrale Plattform bereitzustellen, die das Cloud-Management vereinheitlicht. Wir streben danach, die Komplexitäten der Bereitstellung, Konfiguration und Skalierung von Ressourcen über verschiedene Cloud-Umgebungen hinweg zu vereinfachen und gleichzeitig ein nahtloses Wachstum für Ihr Unternehmen zu ermöglichen."
 
-#: src/client/routes/about.tsx:78
+#: src/client/routes/about.tsx:75
 msgid "Aurora Dashboard is more than just a tool—it's your partner in navigating the cloud. Whether you're a small startup or a global enterprise, Aurora provides the flexibility, power, and simplicity you need to achieve your goals."
 msgstr "Das Aurora-Dashboard ist mehr als nur ein Werkzeug – es ist Ihr Partner bei der Navigation in der Cloud. Egal, ob Sie ein kleines Startup oder ein globales Unternehmen sind, Aurora bietet Ihnen die Flexibilität, Leistung und Einfachheit, die Sie benötigen, um Ihre Ziele zu erreichen."
 
-#: src/client/routes/index.tsx:27
+#: src/client/routes/index.tsx:26
 msgid "Aurora empowers you with robust tools to streamline your cloud management effortlessly. Experience a seamless way to provision, configure, and scale your resources across OpenStack environments."
 msgstr "Aurora bietet Ihnen robuste Tools, um Ihre Cloud-Verwaltung nahtlos zu optimieren. Erleben Sie eine mühelose Möglichkeit, Ihre Ressourcen in OpenStack-Umgebungen bereitzustellen, zu konfigurieren und zu skalieren."
-
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail/SettingsSection.tsx:44
 msgid "Auto Update"
@@ -84,7 +83,7 @@ msgstr "Zurück"
 msgid "Cancel"
 msgstr "Abbrechen"
 
-#: src/client/routes/index.tsx:39
+#: src/client/routes/index.tsx:38
 msgid "Check out our source code on GitHub!"
 msgstr "Schauen Sie sich unseren Quellcode auf GitHub an!"
 
@@ -144,7 +143,7 @@ msgstr "Support kontaktieren"
 msgid "Create Cluster"
 msgstr "Cluster erstellen"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FilterToolbar.tsx:80
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FilterToolbar.tsx:70
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/CreateFlavorModal.tsx:131
 msgid "Create Flavor"
 msgstr "Flavor erstellen"
@@ -167,7 +166,7 @@ msgstr "Cluster löschen"
 msgid "Delete Flavor"
 msgstr "Flavor löschen"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FilterToolbar.tsx:72
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FilterToolbar.tsx:62
 msgid "Descending"
 msgstr "Absteigend"
 
@@ -187,7 +186,7 @@ msgstr "Disk"
 msgid "Disk (GiB)"
 msgstr "Disk (GiB)"
 
-#: src/client/routes/index.tsx:47
+#: src/client/routes/index.tsx:46
 msgid "Documentation"
 msgstr "Dokumentation"
 
@@ -203,11 +202,11 @@ msgstr "Jeder Worker-Knoten wird je nach Arbeitslast automatisch zwischen der mi
 msgid "Each worker pool will automatically scale between its minimum and maximum node counts based on workload demands. Ensure your maximum node counts align with your resource quotas."
 msgstr "Jeder Worker-Pool skaliert je nach Arbeitslast automatisch zwischen der minimalen und maximalen Knotenzahl. Stelle sicher, dass deine maximale Knotenzahl mit deinen Ressourcenkontingenten übereinstimmt."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FilterToolbar.tsx:52
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FilterToolbar.tsx:42
 msgid "Enter search term or regex"
 msgstr "Suchbegriff oder Regex eingeben"
 
-#: src/client/routes/index.tsx:60
+#: src/client/routes/index.tsx:59
 msgid "Enter the Cloud"
 msgstr "Die Cloud betreten"
 
@@ -223,7 +222,7 @@ msgstr "Geben Sie den Domain ein"
 msgid "Enter your username"
 msgstr "Geben Sie Ihren Benutzernamen ein"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FilterToolbar.tsx:66
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FilterToolbar.tsx:56
 msgid "Ephemeral Disk"
 msgstr "Ephemeral Disk"
 
@@ -268,7 +267,7 @@ msgstr "Fehler beim Abrufen der Flavors vom Server."
 msgid "Filters"
 msgstr "Filter"
 
-#: src/client/routes/index.tsx:50
+#: src/client/routes/index.tsx:49
 msgid "Find detailed guides and references in our docs."
 msgstr "Finden Sie detaillierte Anleitungen und Referenzen in unserer Dokumentation."
 
@@ -300,11 +299,11 @@ msgstr "Der Flavor-Service ist für dieses Projekt nicht verfügbar."
 msgid "Floating IP Pool"
 msgstr "Floating IP Pool"
 
-#: src/client/routes/about.tsx:105
+#: src/client/routes/about.tsx:100
 msgid "Get Involved"
 msgstr "Mitmachen"
 
-#: src/client/routes/index.tsx:36
+#: src/client/routes/index.tsx:35
 msgid "GitHub"
 msgstr "GitHub"
 
@@ -333,7 +332,7 @@ msgstr "Infrastruktur"
 msgid "Infrastructure Configuration"
 msgstr "Infrastruktur-Konfiguration"
 
-#: src/client/routes/about.tsx:34
+#: src/client/routes/about.tsx:35
 msgid "Key Features"
 msgstr "Hauptmerkmale"
 
@@ -384,8 +383,8 @@ msgid "Maintenance Window"
 msgstr "Wartungsfenster"
 
 #: src/client/routes/index.tsx:22
-msgid "Manage OpenStack with <0>Aurora</0> "
-msgstr "Verwalten Sie OpenStack mit <0>Aurora</0> "
+msgid "Manage OpenStack with "
+msgstr "Verwalten Sie OpenStack mit "
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail/WorkerSection.tsx:78
 msgid "Max:"
@@ -405,7 +404,7 @@ msgstr "Minimale Nodes"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail/WorkerSection.tsx:29
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:83
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FilterToolbar.tsx:62
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FilterToolbar.tsx:52
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/DeleteFlavorModal.tsx:117
 msgid "Name"
 msgstr "Name"
@@ -448,7 +447,7 @@ msgstr "Hinweis: Diese Netzwerkeinstellungen werden in Zukunft vom Kubernetes-Co
 msgid "OS Updates"
 msgstr "Betriebssystem-Updates"
 
-#: src/client/routes/about.tsx:24
+#: src/client/routes/about.tsx:25
 msgid "Our Mission"
 msgstr "Unsere Mission"
 
@@ -472,7 +471,7 @@ msgstr "Bitte versuchen Sie es erneut oder kopieren Sie manuell"
 msgid "Pods CIDR"
 msgstr "CIDR-Bereich für Pods"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FilterToolbar.tsx:64
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FilterToolbar.tsx:54
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/DeleteFlavorModal.tsx:129
 msgid "RAM"
 msgstr "RAM"
@@ -503,7 +502,7 @@ msgstr "Region"
 msgid "Retry"
 msgstr "Erneut versuchen"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FilterToolbar.tsx:65
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FilterToolbar.tsx:55
 msgid "Root Disk"
 msgstr "Root Disk"
 
@@ -516,7 +515,7 @@ msgid "Root Disk must be an integer ≥ 0."
 msgstr "Root Disk muss eine ganze Zahl ≥ 0 sein."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:101
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FilterToolbar.tsx:68
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FilterToolbar.tsx:58
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/CreateFlavorModal.tsx:252
 msgid "RX/TX Factor"
 msgstr "RX/TX Factor"
@@ -561,7 +560,7 @@ msgstr "Teilen"
 msgid "Sign In"
 msgstr "Einloggen"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FilterToolbar.tsx:61
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FilterToolbar.tsx:51
 msgid "sort by"
 msgstr "Sortieren nach"
 
@@ -577,7 +576,7 @@ msgstr "Status"
 msgid "Surge:"
 msgstr "Surge:"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FilterToolbar.tsx:67
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FilterToolbar.tsx:57
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/DeleteFlavorModal.tsx:138
 msgid "Swap"
 msgstr "Swap"
@@ -624,7 +623,7 @@ msgstr "Diese Aktion kann nicht rückgängig gemacht werden. Der Flavor wird dau
 msgid "Timezone"
 msgstr "Zeitzone"
 
-#: src/client/routes/about.tsx:114
+#: src/client/routes/about.tsx:109
 msgid "Together, we can unlock the true potential of your cloud infrastructure."
 msgstr "Gemeinsam können wir das volle Potenzial Ihrer Cloud-Infrastruktur erschließen."
 
@@ -644,7 +643,7 @@ msgstr "Benutzer C/D/I"
 msgid "vCPU"
 msgstr "vCPU"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FilterToolbar.tsx:63
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FilterToolbar.tsx:53
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/DeleteFlavorModal.tsx:125
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/CreateFlavorModal.tsx:189
 msgid "VCPUs"
@@ -658,15 +657,15 @@ msgstr "VCPUs müssen eine ganze Zahl ≥ 1 sein."
 msgid "Version"
 msgstr "Version"
 
-#: src/client/routes/index.tsx:53
+#: src/client/routes/index.tsx:52
 msgid "View Docs"
 msgstr "Dokumentation ansehen"
 
-#: src/client/routes/index.tsx:42
+#: src/client/routes/index.tsx:41
 msgid "View Repository"
 msgstr "Repository ansehen"
 
-#: src/client/routes/about.tsx:108
+#: src/client/routes/about.tsx:103
 msgid "We are building Aurora Dashboard to serve you better. Your feedback is invaluable in shaping a tool that meets the unique needs of businesses like yours. Stay connected and join us as we redefine cloud management."
 msgstr "Wir entwickeln das Aurora-Dashboard, um Ihnen einen besseren Service zu bieten. Ihr Feedback ist von unschätzbarem Wert, um ein Werkzeug zu gestalten, das den einzigartigen Bedürfnissen von Unternehmen wie Ihrem gerecht wird. Bleiben Sie in Verbindung und begleiten Sie uns, während wir das Cloud-Management neu definieren."
 
@@ -674,11 +673,11 @@ msgstr "Wir entwickeln das Aurora-Dashboard, um Ihnen einen besseren Service zu 
 msgid "Welcome back, {username}!"
 msgstr "Willkommen zurück, {username}!"
 
-#: src/client/routes/about.tsx:16
+#: src/client/routes/about.tsx:17
 msgid "Welcome to <0>Aurora Dashboard</0>, your next-generation cloud management solution. We are dedicated to simplifying how you interact with and manage your cloud infrastructure. Designed with efficiency, scalability, and usability at its core, Aurora empowers you to streamline operations and unlock the full potential of your cloud resources."
 msgstr "Willkommen beim <0>Aurora-Dashboard</0>, Ihrer Cloud-Management-Lösung der nächsten Generation. Wir sind bestrebt, die Art und Weise, wie Sie mit Ihrer Cloud-Infrastruktur interagieren und diese verwalten, zu vereinfachen. Mit Effizienz, Skalierbarkeit und Benutzerfreundlichkeit im Kern konzipiert, ermöglicht Aurora Ihnen, Prozesse zu optimieren und das volle Potenzial Ihrer Cloud-Ressourcen auszuschöpfen."
 
-#: src/client/routes/about.tsx:75
+#: src/client/routes/about.tsx:72
 msgid "Why Choose Aurora?"
 msgstr "Warum Aurora wählen?"
 

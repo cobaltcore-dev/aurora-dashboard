@@ -17,10 +17,11 @@ describe("App Translation Tests", () => {
       i18n.activate("en")
     })
 
-    const { findByText } = render(<App />, { wrapper: TestingProvider })
+    const { container } = render(<App />, { wrapper: TestingProvider })
 
-    const welcomeText = await findByText("Welcome to Aurora Dashboard")
-    expect(welcomeText).toBeInTheDocument()
+    const welcomeTitle = container.querySelector("h1")
+    expect(welcomeTitle).toBeInTheDocument()
+    expect(welcomeTitle).toHaveTextContent("Manage OpenStack with Aurora")
   })
 
   test("Content should be translated correctly in German", async () => {
@@ -28,11 +29,10 @@ describe("App Translation Tests", () => {
       i18n.activate("de")
     })
 
-    const { findByText, getByTestId } = render(<App />, { wrapper: TestingProvider })
+    const { container } = render(<App />, { wrapper: TestingProvider })
 
-    expect(getByTestId("welcome-title")).toBeInTheDocument()
-
-    const welcomeText = await findByText("Willkommen beim Aurora-Dashboard")
-    expect(welcomeText).toBeInTheDocument()
+    const welcomeTitle = container.querySelector("h1")
+    expect(welcomeTitle).toBeInTheDocument()
+    expect(welcomeTitle).toHaveTextContent("Verwalten Sie OpenStack mit Aurora")
   })
 })

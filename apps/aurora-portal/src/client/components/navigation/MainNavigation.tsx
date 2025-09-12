@@ -62,7 +62,7 @@ export function MainNavigation({ items }: NavigationProps) {
               {project && (
                 <Link
                   to={project.path + "/compute/$"}
-                  data-testid="domain-link"
+                  data-testid="project-link"
                   className="text-theme-high capitalize "
                 >
                   {project.name}
