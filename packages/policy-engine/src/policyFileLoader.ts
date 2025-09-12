@@ -53,19 +53,39 @@ function parseSimpleYaml(content: string): Record<string, string> {
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i].trim()
 
-    // Skip empty lines and comments
+    // Skip empty lines and full-line comments
     if (!line || line.startsWith("#")) {
       continue
     }
 
-    // Basic key-value parsing
-    const colonIndex = line.indexOf(":")
-    if (colonIndex === -1) {
-      continue // Skip lines without colons
+    // Find the colon that separates key from value (look for ": " pattern)
+    const colonSpaceIndex = line.indexOf(": ")
+    if (colonSpaceIndex === -1) {
+      // Fallback: look for colon at end of key (no space)
+      const colonIndex = line.indexOf(":")
+      if (colonIndex === -1) {
+        continue
+      }
+      // Check if there's content after the colon
+      const afterColon = line.substring(colonIndex + 1).trim()
+      if (!afterColon) {
+        continue
+      }
     }
 
-    const key = line.substring(0, colonIndex).trim()
-    let value = line.substring(colonIndex + 1).trim()
+    const separatorIndex = colonSpaceIndex !== -1 ? colonSpaceIndex : line.indexOf(":")
+    const key = line.substring(0, separatorIndex).trim()
+    let value = line.substring(separatorIndex + 1).trim()
+
+    // Remove inline comments (but be careful with quotes)
+    const hashIndex = value.indexOf("#")
+    if (hashIndex !== -1) {
+      const beforeHash = value.substring(0, hashIndex)
+      const quoteCount = (beforeHash.match(/"/g) || []).length
+      if (quoteCount % 2 === 0) {
+        value = value.substring(0, hashIndex).trim()
+      }
+    }
 
     // Validate key is not empty
     if (!key) {
@@ -77,7 +97,7 @@ function parseSimpleYaml(content: string): Record<string, string> {
       value = value.slice(1, -1)
     }
 
-    // Handle boolean and null values as strings (since PolicyConfig expects strings)
+    // Handle boolean and null values as strings
     if (value.toLowerCase() === "true") {
       value = "true"
     } else if (value.toLowerCase() === "false") {

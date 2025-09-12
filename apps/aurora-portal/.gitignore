@@ -15,6 +15,8 @@ tmp
 tsx-0
 src/extensions.ts
 
+src/server/permission_custom_policies
+
 aurora.config.json
 aurora-test.config.json
 
