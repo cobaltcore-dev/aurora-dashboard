@@ -39,10 +39,10 @@ describe("loadPolicyEngine", () => {
       const result = loadPolicyEngine(fileName)
 
       expect(mockFs.existsSync).toHaveBeenCalledWith(
-        expect.stringContaining("permission_custom_policies/test-policy.yaml")
+        expect.stringContaining("../../permission_custom_policies/test-policy.yaml")
       )
       expect(mockCreatePolicyEngineFromFile).toHaveBeenCalledWith(
-        expect.stringContaining("permission_custom_policies/test-policy.yaml")
+        expect.stringContaining("../../permission_custom_policies/test-policy.yaml")
       )
       expect(result).toBe(mockPolicyEngine)
     })
@@ -53,7 +53,7 @@ describe("loadPolicyEngine", () => {
 
       expect(mockPath.join).toHaveBeenCalledWith(
         expect.any(String), // __dirname
-        `./permission_custom_policies/${fileName}`
+        `../../permission_custom_policies/${fileName}`
       )
     })
 
@@ -64,7 +64,7 @@ describe("loadPolicyEngine", () => {
         mockCreatePolicyEngineFromFile.mockClear() // Clear between iterations
         loadPolicyEngine(fileName)
         expect(mockCreatePolicyEngineFromFile).toHaveBeenCalledWith(
-          expect.stringContaining(`permission_custom_policies/${fileName}`)
+          expect.stringContaining(`../../permission_custom_policies/${fileName}`)
         )
       })
     })
@@ -80,10 +80,10 @@ describe("loadPolicyEngine", () => {
       const result = loadPolicyEngine(fileName)
 
       expect(mockFs.existsSync).toHaveBeenCalledWith(
-        expect.stringContaining("permission_custom_policies/default-policy.yaml")
+        expect.stringContaining("../../permission_custom_policies/default-policy.yaml")
       )
       expect(mockCreatePolicyEngineFromFile).toHaveBeenCalledWith(
-        expect.stringContaining("permission_policies/default-policy.yaml")
+        expect.stringContaining("../../permission_policies/default-policy.yaml")
       )
       expect(result).toBe(mockPolicyEngine)
     })
@@ -93,10 +93,10 @@ describe("loadPolicyEngine", () => {
       loadPolicyEngine(fileName)
 
       // Should check custom first
-      expect(mockPath.join).toHaveBeenCalledWith(expect.any(String), `./permission_custom_policies/${fileName}`)
+      expect(mockPath.join).toHaveBeenCalledWith(expect.any(String), `../../permission_custom_policies/${fileName}`)
 
       // Then use default
-      expect(mockPath.join).toHaveBeenCalledWith(expect.any(String), `./permission_policies/${fileName}`)
+      expect(mockPath.join).toHaveBeenCalledWith(expect.any(String), `../../permission_policies/${fileName}`)
     })
 
     it("should handle different file extensions for default policies", () => {
@@ -121,11 +121,11 @@ describe("loadPolicyEngine", () => {
 
       expect(mockPath.join).toHaveBeenCalledWith(
         expect.any(String), // __dirname
-        "./permission_custom_policies/test.yaml"
+        "../../permission_custom_policies/test.yaml"
       )
       expect(mockPath.join).toHaveBeenCalledWith(
         expect.any(String), // __dirname
-        "./permission_policies/test.yaml"
+        "../../permission_policies/test.yaml"
       )
     })
 
@@ -264,8 +264,8 @@ describe("loadPolicyEngine", () => {
 
       loadPolicyEngine(fileName)
 
-      expect(mockPath.join).toHaveBeenCalledWith(expect.any(String), "./permission_custom_policies/")
-      expect(mockPath.join).toHaveBeenCalledWith(expect.any(String), "./permission_policies/")
+      expect(mockPath.join).toHaveBeenCalledWith(expect.any(String), "../../permission_custom_policies/")
+      expect(mockPath.join).toHaveBeenCalledWith(expect.any(String), "../../permission_policies/")
     })
 
     it("should handle filename with only extension", () => {
