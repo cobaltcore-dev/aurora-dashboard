@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach, Mock } from "vitest"
 import { TRPCError } from "@trpc/server"
+import { AuroraPortalContext } from "@/server/context"
 import { imageRouter } from "./imageRouter"
 import * as imageHelpers from "../helpers/imageHelpers"
 import { GlanceImage, ImageMember } from "../types/image"
@@ -54,7 +55,7 @@ const mockImageMember: ImageMember = {
 }
 
 // Mock context
-const createMockContext = (shouldFailAuth = false, shouldFailRescope = false, shouldFailGlance = false) => {
+const createMockContext = (shouldFailAuth = false, shouldFailGlance = false) => {
   const mockGlance = {
     get: vi.fn().mockResolvedValue({
       ok: true,
@@ -80,15 +81,12 @@ const createMockContext = (shouldFailAuth = false, shouldFailRescope = false, sh
     validateSession: vi.fn().mockReturnValue(!shouldFailAuth),
     createSession: vi.fn().mockResolvedValue({}),
     terminateSession: vi.fn().mockResolvedValue({}),
-    rescopeSession: vi.fn().mockResolvedValue(
-      shouldFailRescope
-        ? null
-        : {
-            service: vi.fn().mockReturnValue(shouldFailGlance ? null : mockGlance),
-          }
-    ),
+    openstack: {
+      service: vi.fn().mockReturnValue(shouldFailGlance ? null : mockGlance),
+    },
+    rescopeSession: vi.fn().mockResolvedValue({}),
     mockGlance,
-  }
+  } as unknown as AuroraPortalContext & { mockGlance: typeof mockGlance }
 }
 
 const createCaller = createCallerFactory(auroraRouter({ image: imageRouter }))
@@ -105,7 +103,7 @@ describe("imageRouter", () => {
       const mockCtx = createMockContext(true)
       const caller = createCaller(mockCtx)
 
-      const input = { projectId: "test-project-123" }
+      const input = {}
 
       await expect(caller.image.listImages(input)).rejects.toThrow(
         new TRPCError({
@@ -115,38 +113,20 @@ describe("imageRouter", () => {
       )
 
       expect(mockCtx.validateSession).toHaveBeenCalled()
-      expect(mockCtx.rescopeSession).not.toHaveBeenCalled()
     })
 
     it("should successfully list images", async () => {
       const mockCtx = createMockContext()
       const caller = createCaller(mockCtx)
 
-      const input = { projectId: "test-project-123" }
+      const input = {}
       const result = await caller.image.listImages(input)
 
       expect(mockCtx.validateSession).toHaveBeenCalled()
-      expect(mockCtx.rescopeSession).toHaveBeenCalledWith({ projectId: "test-project-123" })
       expect(imageHelpers.validateGlanceService).toHaveBeenCalled()
       expect(imageHelpers.applyImageQueryParams).toHaveBeenCalled()
       expect(mockCtx.mockGlance.get).toHaveBeenCalledWith(expect.stringContaining("v2/images?"))
       expect(result).toEqual([mockGlanceImage])
-    })
-
-    it("should throw INTERNAL_SERVER_ERROR when rescopeSession returns null", async () => {
-      const mockCtx = createMockContext(false, true)
-      const caller = createCaller(mockCtx)
-
-      const input = { projectId: "test-project-123" }
-
-      await expect(caller.image.listImages(input)).rejects.toThrow(
-        expect.objectContaining({
-          code: "INTERNAL_SERVER_ERROR",
-        })
-      )
-
-      expect(mockCtx.validateSession).toHaveBeenCalled()
-      expect(mockCtx.rescopeSession).toHaveBeenCalledWith({ projectId: "test-project-123" })
     })
 
     it("should handle API error response", async () => {
@@ -163,7 +143,7 @@ describe("imageRouter", () => {
       const mockError = new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "API Error" })
       ;(imageHelpers.mapResponseToTRPCError as Mock).mockReturnValue(mockError)
 
-      const input = { projectId: "test-project-123" }
+      const input = {}
 
       await expect(caller.image.listImages(input)).rejects.toThrow("API Error")
     })
@@ -179,7 +159,7 @@ describe("imageRouter", () => {
         json: vi.fn().mockResolvedValue(mockGlanceImage),
       })
 
-      const input = { projectId: "test-project-123", imageId: "123e4567-e89b-12d3-a456-426614174000" }
+      const input = { imageId: "123e4567-e89b-12d3-a456-426614174000" }
       const result = await caller.image.getImageById(input)
 
       expect(mockCtx.mockGlance.get).toHaveBeenCalledWith("v2/images/123e4567-e89b-12d3-a456-426614174000")
@@ -199,7 +179,7 @@ describe("imageRouter", () => {
       const mockError = new TRPCError({ code: "NOT_FOUND", message: "Image not found" })
       ;(imageHelpers.mapResponseToTRPCError as Mock).mockReturnValue(mockError)
 
-      const input = { projectId: "test-project-123", imageId: "123e4567-e89b-12d3-a456-426614174111" }
+      const input = { imageId: "123e4567-e89b-12d3-a456-426614174111" }
 
       await expect(caller.image.getImageById(input)).rejects.toThrow("Image not found")
     })
@@ -216,7 +196,6 @@ describe("imageRouter", () => {
       })
 
       const input = {
-        projectId: "test-project-123",
         name: "new-image",
         container_format: "bare" as const,
         disk_format: "qcow2" as const,
@@ -254,7 +233,6 @@ describe("imageRouter", () => {
       ;(imageHelpers.mapResponseToTRPCError as Mock).mockReturnValue(mockError)
 
       const input = {
-        projectId: "test-project-123",
         name: "new-image",
         container_format: "bare" as const,
         disk_format: "qcow2" as const,
@@ -275,7 +253,6 @@ describe("imageRouter", () => {
 
       const base64Data = btoa("test image data")
       const input = {
-        projectId: "test-project-123",
         imageId: "123e4567-e89b-12d3-a456-426614174000",
         imageData: base64Data,
         contentType: "application/octet-stream",
@@ -305,7 +282,6 @@ describe("imageRouter", () => {
 
       const base64Data = btoa("test image data")
       const input = {
-        projectId: "test-project-123",
         imageId: "123e4567-e89b-12d3-a456-426614174000",
         imageData: base64Data,
         contentType: "application/octet-stream",
@@ -327,7 +303,6 @@ describe("imageRouter", () => {
 
       const operations = [{ op: "replace" as const, path: "/name", value: "updated-name" }]
       const input = {
-        projectId: "test-project-123",
         imageId: "123e4567-e89b-12d3-a456-426614174000",
         operations,
       }
@@ -354,7 +329,6 @@ describe("imageRouter", () => {
       })
 
       const input = {
-        projectId: "test-project-123",
         imageId: "123e4567-e89b-12d3-a456-426614174000",
         visibility: "public" as const,
       }
@@ -382,7 +356,6 @@ describe("imageRouter", () => {
       ;(imageHelpers.ImageErrorHandlers.visibility as Mock).mockReturnValue(mockError)
 
       const input = {
-        projectId: "test-project-123",
         imageId: "123e4567-e89b-12d3-a456-426614174000",
         visibility: "public" as const,
       }
@@ -400,7 +373,7 @@ describe("imageRouter", () => {
         ok: true,
       })
 
-      const input = { projectId: "test-project-123", imageId: "123e4567-e89b-12d3-a456-426614174000" }
+      const input = { imageId: "123e4567-e89b-12d3-a456-426614174000" }
       const result = await caller.image.deleteImage(input)
 
       expect(mockCtx.mockGlance.del).toHaveBeenCalledWith("v2/images/123e4567-e89b-12d3-a456-426614174000")
@@ -420,7 +393,7 @@ describe("imageRouter", () => {
       const mockError = new TRPCError({ code: "NOT_FOUND", message: "Delete failed" })
       ;(imageHelpers.ImageErrorHandlers.delete as Mock).mockReturnValue(mockError)
 
-      const input = { projectId: "test-project-123", imageId: "123e4567-e89b-12d3-a456-426614174000" }
+      const input = { imageId: "123e4567-e89b-12d3-a456-426614174000" }
 
       await expect(caller.image.deleteImage(input)).rejects.toThrow("Delete failed")
     })
@@ -436,7 +409,7 @@ describe("imageRouter", () => {
         json: vi.fn().mockResolvedValue({ members: [mockImageMember] }),
       })
 
-      const input = { projectId: "test-project-123", imageId: "123e4567-e89b-12d3-a456-426614174000" }
+      const input = { imageId: "123e4567-e89b-12d3-a456-426614174000" }
       const result = await caller.image.listImageMembers(input)
 
       expect(mockCtx.mockGlance.get).toHaveBeenCalledWith("v2/images/123e4567-e89b-12d3-a456-426614174000/members")
@@ -456,7 +429,7 @@ describe("imageRouter", () => {
       const mockError = new TRPCError({ code: "NOT_FOUND", message: "List members failed" })
       ;(imageHelpers.ImageErrorHandlers.member.list as Mock).mockReturnValue(mockError)
 
-      const input = { projectId: "test-project-123", imageId: "123e4567-e89b-12d3-a456-426614174000" }
+      const input = { imageId: "123e4567-e89b-12d3-a456-426614174000" }
 
       await expect(caller.image.listImageMembers(input)).rejects.toThrow("List members failed")
     })
@@ -473,7 +446,6 @@ describe("imageRouter", () => {
       })
 
       const input = {
-        projectId: "test-project-123",
         imageId: "123e4567-e89b-12d3-a456-426614174000",
         member: "test-member-id",
       }
@@ -499,7 +471,6 @@ describe("imageRouter", () => {
       ;(imageHelpers.ImageErrorHandlers.member.create as Mock).mockReturnValue(mockError)
 
       const input = {
-        projectId: "test-project-123",
         imageId: "123e4567-e89b-12d3-a456-426614174000",
         member: "test-member-id",
       }
@@ -513,16 +484,16 @@ describe("imageRouter", () => {
       const mockCtx = createMockContext()
       const caller = createCaller(mockCtx)
 
-      await caller.image.listImages({ projectId: "test" })
+      await caller.image.listImages({})
 
       expect(imageHelpers.validateGlanceService).toHaveBeenCalled()
     })
 
     it("should handle missing glance service", async () => {
-      const mockCtx = createMockContext(false, false, true)
+      const mockCtx = createMockContext(false, true)
       const caller = createCaller(mockCtx)
 
-      const input = { projectId: "test-project-123" }
+      const input = {}
 
       await expect(caller.image.listImages(input)).rejects.toThrow()
     })
@@ -532,7 +503,6 @@ describe("imageRouter", () => {
       const caller = createCaller(mockCtx)
 
       const input = {
-        projectId: "test-project-123",
         name: "test-image",
         status: "active" as const,
       }

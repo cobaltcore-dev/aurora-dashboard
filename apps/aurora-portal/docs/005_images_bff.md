@@ -6,10 +6,6 @@ This document describes the Backend for Frontend (BFF) endpoints for the Image S
 
 All endpoints are protected procedures that require authentication and operate within a specific OpenStack project context.
 
-### Common Parameters
-
-- `projectId` (string): Required for all operations. The OpenStack project ID to scope the operation to.
-
 ## Image Management Endpoints
 
 ### List Images
@@ -24,7 +20,6 @@ Retrieves a list of images with optional filtering and sorting.
 
 | Parameter          | Type    | Description                                                              | Default      |
 | ------------------ | ------- | ------------------------------------------------------------------------ | ------------ |
-| `projectId`        | string  | OpenStack project ID                                                     | Required     |
 | `sort_key`         | enum    | Sort field (`name`, `status`, `created_at`, etc.)                        | `created_at` |
 | `sort_dir`         | enum    | Sort direction (`asc`, `desc`)                                           | `desc`       |
 | `sort`             | string  | **Preferred** sort syntax (e.g., `name:asc`, `created_at:desc,name:asc`) | -            |
@@ -53,6 +48,7 @@ Retrieves a list of images with optional filtering and sorting.
 The API supports two sorting syntaxes:
 
 1. **Modern syntax (recommended)**: Use the `sort` parameter with format `field:direction`
+
    - Single field: `sort: "name:asc"`
    - Multiple fields: `sort: "name:asc,created_at:desc"`
 
@@ -66,7 +62,6 @@ The API supports two sorting syntaxes:
 ```typescript
 // Using modern sort syntax (recommended)
 const imagesSorted = await client.compute.image.listImages.query({
-  projectId: "550e8400-e29b-41d4-a716-446655440000",
   sort: "name:asc",
   status: "active",
   visibility: "private",
@@ -75,14 +70,12 @@ const imagesSorted = await client.compute.image.listImages.query({
 
 // Multi-field sorting
 const imagesMultiSort = await client.compute.image.listImages.query({
-  projectId: "550e8400-e29b-41d4-a716-446655440000",
   sort: "status:asc,name:asc,created_at:desc",
   visibility: "public",
 })
 
 // Using legacy syntax (still supported)
 const imagesLegacy = await client.compute.image.listImages.query({
-  projectId: "550e8400-e29b-41d4-a716-446655440000",
   sort_key: "name",
   sort_dir: "asc",
   status: "active",
@@ -90,7 +83,6 @@ const imagesLegacy = await client.compute.image.listImages.query({
 
 // Filtering examples
 const filteredImages = await client.compute.image.listImages.query({
-  projectId: "550e8400-e29b-41d4-a716-446655440000",
   sort: "created_at:desc",
   os_type: "linux",
   disk_format: "qcow2",
@@ -124,7 +116,6 @@ Retrieves images with full pagination support including next/first page URLs.
 
 ```typescript
 const paginatedImages = await client.compute.image.listImagesWithPagination.query({
-  projectId: "550e8400-e29b-41d4-a716-446655440000",
   sort: "name:asc",
   limit: 25,
   visibility: "public",
@@ -132,7 +123,6 @@ const paginatedImages = await client.compute.image.listImagesWithPagination.quer
 
 // Using next page URL
 const nextPage = await client.compute.image.listImagesWithPagination.query({
-  projectId: "550e8400-e29b-41d4-a716-446655440000",
   next: paginatedImages.next,
 })
 ```
@@ -158,16 +148,14 @@ Retrieves a specific image by its UUID.
 
 #### Parameters
 
-| Parameter   | Type          | Description          |
-| ----------- | ------------- | -------------------- |
-| `projectId` | string        | OpenStack project ID |
-| `imageId`   | string (UUID) | Image UUID           |
+| Parameter | Type          | Description |
+| --------- | ------------- | ----------- |
+| `imageId` | string (UUID) | Image UUID  |
 
 #### Example Request
 
 ```typescript
 const image = await client.compute.image.getImageById.query({
-  projectId: "550e8400-e29b-41d4-a716-446655440000",
   imageId: "a85abd86-55b3-4413-a5b7-6cd8a6bd99ac",
 })
 ```
@@ -195,7 +183,6 @@ Creates a new image with metadata only (no binary data).
 
 | Parameter          | Type          | Description                             | Default   |
 | ------------------ | ------------- | --------------------------------------- | --------- |
-| `projectId`        | string        | OpenStack project ID                    | Required  |
 | `name`             | string        | Image name                              | -         |
 | `id`               | string (UUID) | Custom UUID (auto-generated if omitted) | -         |
 | `container_format` | enum          | Container format                        | -         |
@@ -227,7 +214,6 @@ Creates a new image with metadata only (no binary data).
 
 ```typescript
 const newImage = await client.compute.image.createImage.mutate({
-  projectId: "550e8400-e29b-41d4-a716-446655440000",
   name: "Ubuntu 22.04 LTS",
   container_format: "bare",
   disk_format: "qcow2",
@@ -259,7 +245,6 @@ Uploads binary data to an existing image.
 
 | Parameter     | Type                                | Description                  | Default                    |
 | ------------- | ----------------------------------- | ---------------------------- | -------------------------- |
-| `projectId`   | string                              | OpenStack project ID         | Required                   |
 | `imageId`     | string (UUID)                       | Target image UUID            | Required                   |
 | `imageData`   | ArrayBuffer \| Uint8Array \| string | Binary data or base64 string | Required                   |
 | `contentType` | string                              | MIME type                    | `application/octet-stream` |
@@ -270,7 +255,6 @@ Uploads binary data to an existing image.
 // Upload from file
 const fileData = await file.arrayBuffer()
 const success = await client.compute.image.uploadImage.mutate({
-  projectId: "550e8400-e29b-41d4-a716-446655440000",
   imageId: "a85abd86-55b3-4413-a5b7-6cd8a6bd99ac",
   imageData: fileData,
   contentType: "application/octet-stream",
@@ -278,7 +262,6 @@ const success = await client.compute.image.uploadImage.mutate({
 
 // Upload from base64
 const success = await client.compute.image.uploadImage.mutate({
-  projectId: "550e8400-e29b-41d4-a716-446655440000",
   imageId: "a85abd86-55b3-4413-a5b7-6cd8a6bd99ac",
   imageData: base64String,
   contentType: "image/qcow2",
@@ -312,7 +295,6 @@ Updates image metadata using JSON Patch operations.
 
 | Parameter    | Type                 | Description                    |
 | ------------ | -------------------- | ------------------------------ |
-| `projectId`  | string               | OpenStack project ID           |
 | `imageId`    | string (UUID)        | Image UUID                     |
 | `operations` | JSONPatchOperation[] | Array of JSON Patch operations |
 
@@ -329,7 +311,6 @@ Updates image metadata using JSON Patch operations.
 
 ```typescript
 const updatedImage = await client.compute.image.updateImage.mutate({
-  projectId: "550e8400-e29b-41d4-a716-446655440000",
   imageId: "a85abd86-55b3-4413-a5b7-6cd8a6bd99ac",
   operations: [
     {
@@ -375,7 +356,6 @@ Updates only the visibility property of an image.
 
 | Parameter    | Type          | Description                                                 |
 | ------------ | ------------- | ----------------------------------------------------------- |
-| `projectId`  | string        | OpenStack project ID                                        |
 | `imageId`    | string (UUID) | Image UUID                                                  |
 | `visibility` | enum          | New visibility (`public`, `private`, `shared`, `community`) |
 
@@ -383,7 +363,6 @@ Updates only the visibility property of an image.
 
 ```typescript
 const updatedImage = await client.compute.image.updateImageVisibility.mutate({
-  projectId: "550e8400-e29b-41d4-a716-446655440000",
   imageId: "a85abd86-55b3-4413-a5b7-6cd8a6bd99ac",
   visibility: "public",
 })
@@ -405,16 +384,14 @@ Permanently deletes an image.
 
 #### Parameters
 
-| Parameter   | Type          | Description          |
-| ----------- | ------------- | -------------------- |
-| `projectId` | string        | OpenStack project ID |
-| `imageId`   | string (UUID) | Image UUID           |
+| Parameter | Type          | Description |
+| --------- | ------------- | ----------- |
+| `imageId` | string (UUID) | Image UUID  |
 
 #### Example Request
 
 ```typescript
 const success = await client.compute.image.deleteImage.mutate({
-  projectId: "550e8400-e29b-41d4-a716-446655440000",
   imageId: "a85abd86-55b3-4413-a5b7-6cd8a6bd99ac",
 })
 ```
@@ -442,7 +419,6 @@ Deactivates an image (admin operation).
 
 ```typescript
 const success = await client.compute.image.deactivateImage.mutate({
-  projectId: "550e8400-e29b-41d4-a716-446655440000",
   imageId: "a85abd86-55b3-4413-a5b7-6cd8a6bd99ac",
 })
 ```
@@ -471,7 +447,6 @@ Reactivates a deactivated image (admin operation).
 
 ```typescript
 const success = await client.compute.image.reactivateImage.mutate({
-  projectId: "550e8400-e29b-41d4-a716-446655440000",
   imageId: "a85abd86-55b3-4413-a5b7-6cd8a6bd99ac",
 })
 ```
@@ -494,16 +469,14 @@ Retrieves all members for a shared image.
 
 #### Parameters
 
-| Parameter   | Type          | Description          |
-| ----------- | ------------- | -------------------- |
-| `projectId` | string        | OpenStack project ID |
-| `imageId`   | string (UUID) | Image UUID           |
+| Parameter | Type          | Description |
+| --------- | ------------- | ----------- |
+| `imageId` | string (UUID) | Image UUID  |
 
 #### Example Request
 
 ```typescript
 const members = await client.compute.image.listImageMembers.query({
-  projectId: "550e8400-e29b-41d4-a716-446655440000",
   imageId: "a85abd86-55b3-4413-a5b7-6cd8a6bd99ac",
 })
 ```
@@ -529,17 +502,15 @@ Retrieves a specific member of an image.
 
 #### Parameters
 
-| Parameter   | Type          | Description          |
-| ----------- | ------------- | -------------------- |
-| `projectId` | string        | OpenStack project ID |
-| `imageId`   | string (UUID) | Image UUID           |
-| `memberId`  | string        | Member project ID    |
+| Parameter  | Type          | Description       |
+| ---------- | ------------- | ----------------- |
+| `imageId`  | string (UUID) | Image UUID        |
+| `memberId` | string        | Member project ID |
 
 #### Example Request
 
 ```typescript
 const member = await client.compute.image.getImageMember.query({
-  projectId: "550e8400-e29b-41d4-a716-446655440000",
   imageId: "a85abd86-55b3-4413-a5b7-6cd8a6bd99ac",
   memberId: "660e8400-e29b-41d4-a716-446655440001",
 })
@@ -561,17 +532,15 @@ Adds a new member to a shared image.
 
 #### Parameters
 
-| Parameter   | Type          | Description                 |
-| ----------- | ------------- | --------------------------- |
-| `projectId` | string        | OpenStack project ID        |
-| `imageId`   | string (UUID) | Image UUID                  |
-| `member`    | string        | Project ID to add as member |
+| Parameter | Type          | Description                 |
+| --------- | ------------- | --------------------------- |
+| `imageId` | string (UUID) | Image UUID                  |
+| `member`  | string        | Project ID to add as member |
 
 #### Example Request
 
 ```typescript
 const newMember = await client.compute.image.createImageMember.mutate({
-  projectId: "550e8400-e29b-41d4-a716-446655440000",
   imageId: "a85abd86-55b3-4413-a5b7-6cd8a6bd99ac",
   member: "660e8400-e29b-41d4-a716-446655440001",
 })
@@ -600,18 +569,16 @@ Updates the status of an image member.
 
 #### Parameters
 
-| Parameter   | Type          | Description                                    |
-| ----------- | ------------- | ---------------------------------------------- |
-| `projectId` | string        | OpenStack project ID                           |
-| `imageId`   | string (UUID) | Image UUID                                     |
-| `memberId`  | string        | Member project ID                              |
-| `status`    | enum          | New status (`pending`, `accepted`, `rejected`) |
+| Parameter  | Type          | Description                                    |
+| ---------- | ------------- | ---------------------------------------------- |
+| `imageId`  | string (UUID) | Image UUID                                     |
+| `memberId` | string        | Member project ID                              |
+| `status`   | enum          | New status (`pending`, `accepted`, `rejected`) |
 
 #### Example Request
 
 ```typescript
 const updatedMember = await client.compute.image.updateImageMember.mutate({
-  projectId: "550e8400-e29b-41d4-a716-446655440000",
   imageId: "a85abd86-55b3-4413-a5b7-6cd8a6bd99ac",
   memberId: "660e8400-e29b-41d4-a716-446655440001",
   status: "accepted",
@@ -640,17 +607,15 @@ Removes a member from an image.
 
 #### Parameters
 
-| Parameter   | Type          | Description          |
-| ----------- | ------------- | -------------------- |
-| `projectId` | string        | OpenStack project ID |
-| `imageId`   | string (UUID) | Image UUID           |
-| `memberId`  | string        | Member project ID    |
+| Parameter  | Type          | Description       |
+| ---------- | ------------- | ----------------- |
+| `imageId`  | string (UUID) | Image UUID        |
+| `memberId` | string        | Member project ID |
 
 #### Example Request
 
 ```typescript
 const success = await client.compute.image.deleteImageMember.mutate({
-  projectId: "550e8400-e29b-41d4-a716-446655440000",
   imageId: "a85abd86-55b3-4413-a5b7-6cd8a6bd99ac",
   memberId: "660e8400-e29b-41d4-a716-446655440001",
 })

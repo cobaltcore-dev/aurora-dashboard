@@ -37,8 +37,8 @@ import {
 export const imageRouter = {
   listImages: protectedProcedure.input(listImagesInputSchema).query(async ({ input, ctx }): Promise<GlanceImage[]> => {
     return withErrorHandling(async () => {
-      const { projectId, ...queryInput } = input
-      const openstackSession = await ctx.rescopeSession({ projectId })
+      const { ...queryInput } = input
+      const openstackSession = ctx.openstack
       const glance = openstackSession?.service("glance")
 
       validateGlanceService(glance)
@@ -67,8 +67,8 @@ export const imageRouter = {
     .input(imagesPaginatedInputSchema)
     .query(async ({ input, ctx }): Promise<ImagesPaginatedResponse> => {
       return withErrorHandling(async () => {
-        const { projectId, first, next, ...queryInput } = input
-        const openstackSession = await ctx.rescopeSession({ projectId })
+        const { first, next, ...queryInput } = input
+        const openstackSession = ctx.openstack
         const glance = openstackSession?.service("glance")
 
         validateGlanceService(glance)
@@ -77,7 +77,7 @@ export const imageRouter = {
         const queryParams = new URLSearchParams()
         applyImageQueryParams(queryParams, queryInput)
 
-        const url = first || next || `v2/images?${queryParams.toString()}`
+        const url = `${first || next || "v2/images"}?${queryParams.toString()}`
         const response = await glance.get(url)
 
         if (!response?.ok) {
@@ -97,8 +97,8 @@ export const imageRouter = {
     .input(getImageByIdInputSchema)
     .query(async ({ input, ctx }): Promise<GlanceImage> => {
       return withErrorHandling(async () => {
-        const { projectId, imageId } = input
-        const openstackSession = await ctx.rescopeSession({ projectId })
+        const { imageId } = input
+        const openstackSession = await ctx.openstack
         const glance = openstackSession?.service("glance")
 
         validateGlanceService(glance)
@@ -122,8 +122,8 @@ export const imageRouter = {
     .input(createImageInputSchema)
     .mutation(async ({ input, ctx }): Promise<GlanceImage> => {
       return withErrorHandling(async () => {
-        const { projectId, ...imageData } = input
-        const openstackSession = await ctx.rescopeSession({ projectId })
+        const { ...imageData } = input
+        const openstackSession = await ctx.openstack
         const glance = openstackSession?.service("glance")
 
         validateGlanceService(glance)
@@ -147,8 +147,8 @@ export const imageRouter = {
 
   uploadImage: protectedProcedure.input(uploadImageInputSchema).mutation(async ({ input, ctx }): Promise<boolean> => {
     return withErrorHandling(async () => {
-      const { projectId, imageId, imageData, contentType } = input
-      const openstackSession = await ctx.rescopeSession({ projectId })
+      const { imageId, imageData, contentType } = input
+      const openstackSession = await ctx.openstack
       const glance = openstackSession?.service("glance")
 
       validateGlanceService(glance)
@@ -188,8 +188,8 @@ export const imageRouter = {
     .input(updateImageInputSchema)
     .mutation(async ({ input, ctx }): Promise<GlanceImage> => {
       return withErrorHandling(async () => {
-        const { projectId, imageId, operations } = input
-        const openstackSession = await ctx.rescopeSession({ projectId })
+        const { imageId, operations } = input
+        const openstackSession = await ctx.openstack
         const glance = openstackSession?.service("glance")
 
         validateGlanceService(glance)
@@ -218,8 +218,8 @@ export const imageRouter = {
     .input(updateImageVisibilityInputSchema)
     .mutation(async ({ input, ctx }): Promise<GlanceImage> => {
       return withErrorHandling(async () => {
-        const { projectId, imageId, visibility } = input
-        const openstackSession = await ctx.rescopeSession({ projectId })
+        const { imageId, visibility } = input
+        const openstackSession = await ctx.openstack
         const glance = openstackSession?.service("glance")
 
         validateGlanceService(glance)
@@ -254,8 +254,8 @@ export const imageRouter = {
 
   deleteImage: protectedProcedure.input(deleteImageInputSchema).mutation(async ({ input, ctx }): Promise<boolean> => {
     return withErrorHandling(async () => {
-      const { projectId, imageId } = input
-      const openstackSession = await ctx.rescopeSession({ projectId })
+      const { imageId } = input
+      const openstackSession = await ctx.openstack
       const glance = openstackSession?.service("glance")
 
       validateGlanceService(glance)
@@ -274,8 +274,8 @@ export const imageRouter = {
     .input(deactivateImageInputSchema)
     .mutation(async ({ input, ctx }): Promise<boolean> => {
       return withErrorHandling(async () => {
-        const { projectId, imageId } = input
-        const openstackSession = await ctx.rescopeSession({ projectId })
+        const { imageId } = input
+        const openstackSession = await ctx.openstack
         const glance = openstackSession?.service("glance")
 
         validateGlanceService(glance)
@@ -298,8 +298,8 @@ export const imageRouter = {
     .input(reactivateImageInputSchema)
     .mutation(async ({ input, ctx }): Promise<boolean> => {
       return withErrorHandling(async () => {
-        const { projectId, imageId } = input
-        const openstackSession = await ctx.rescopeSession({ projectId })
+        const { imageId } = input
+        const openstackSession = await ctx.openstack
         const glance = openstackSession?.service("glance")
 
         validateGlanceService(glance)
@@ -322,8 +322,8 @@ export const imageRouter = {
     .input(listImageMembersInputSchema)
     .query(async ({ input, ctx }): Promise<ImageMember[]> => {
       return withErrorHandling(async () => {
-        const { projectId, imageId } = input
-        const openstackSession = await ctx.rescopeSession({ projectId })
+        const { imageId } = input
+        const openstackSession = await ctx.openstack
         const glance = openstackSession?.service("glance")
 
         validateGlanceService(glance)
@@ -347,8 +347,8 @@ export const imageRouter = {
     .input(getImageMemberInputSchema)
     .query(async ({ input, ctx }): Promise<ImageMember> => {
       return withErrorHandling(async () => {
-        const { projectId, imageId, memberId } = input
-        const openstackSession = await ctx.rescopeSession({ projectId })
+        const { imageId, memberId } = input
+        const openstackSession = await ctx.openstack
         const glance = openstackSession?.service("glance")
 
         validateGlanceService(glance)
@@ -372,8 +372,8 @@ export const imageRouter = {
     .input(createImageMemberInputSchema)
     .mutation(async ({ input, ctx }): Promise<ImageMember> => {
       return withErrorHandling(async () => {
-        const { projectId, imageId, member } = input
-        const openstackSession = await ctx.rescopeSession({ projectId })
+        const { imageId, member } = input
+        const openstackSession = await ctx.openstack
         const glance = openstackSession?.service("glance")
 
         validateGlanceService(glance)
@@ -399,8 +399,8 @@ export const imageRouter = {
     .input(updateImageMemberInputSchema)
     .mutation(async ({ input, ctx }): Promise<ImageMember> => {
       return withErrorHandling(async () => {
-        const { projectId, imageId, memberId, status } = input
-        const openstackSession = await ctx.rescopeSession({ projectId })
+        const { imageId, memberId, status } = input
+        const openstackSession = await ctx.openstack
         const glance = openstackSession?.service("glance")
 
         validateGlanceService(glance)
@@ -426,8 +426,8 @@ export const imageRouter = {
     .input(deleteImageMemberInputSchema)
     .mutation(async ({ input, ctx }): Promise<boolean> => {
       return withErrorHandling(async () => {
-        const { projectId, imageId, memberId } = input
-        const openstackSession = await ctx.rescopeSession({ projectId })
+        const { imageId, memberId } = input
+        const openstackSession = await ctx.openstack
         const glance = openstackSession?.service("glance")
 
         validateGlanceService(glance)

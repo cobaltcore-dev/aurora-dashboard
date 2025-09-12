@@ -7,7 +7,6 @@ const linkSchema = z.object({
 })
 
 const baseImageInputSchema = z.object({
-  projectId: z.string(),
   imageId: z.string().uuid(),
 })
 
@@ -208,8 +207,6 @@ const osTypeFilterSchema = z.enum(["linux", "windows"])
 
 // Input schema for listing images with sorting and filtering
 export const listImagesInputSchema = z.object({
-  projectId: z.string(),
-
   // Sorting parameters
   sort_key: sortKeySchema.optional(),
   sort_dir: sortDirSchema.optional(),
@@ -264,7 +261,6 @@ export const getImageByIdInputSchema = baseImageInputSchema
 // Input schema for creating an image
 export const createImageInputSchema = z
   .object({
-    projectId: z.string(),
     // Core properties that can be set during creation
     name: z.string().optional(),
     id: z.string().uuid().optional(), // Optional UUID, API will generate if omitted

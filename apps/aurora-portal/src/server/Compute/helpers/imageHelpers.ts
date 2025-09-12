@@ -7,7 +7,7 @@ import { ListImagesInput } from "../types/image"
  * @param queryParams - URLSearchParams object to modify
  * @param input - Input object containing sorting and filtering parameters
  */
-export function applyImageQueryParams(queryParams: URLSearchParams, input: Omit<ListImagesInput, "projectId">): void {
+export function applyImageQueryParams(queryParams: URLSearchParams, input: ListImagesInput): void {
   const {
     sort_key,
     sort_dir,
