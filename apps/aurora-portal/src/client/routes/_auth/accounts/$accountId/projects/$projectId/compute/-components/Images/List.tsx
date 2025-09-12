@@ -6,7 +6,7 @@ import { ImageListView } from "./-components/ImageListView"
 const ImageListContainer = ({ getImagesPromise }: { getImagesPromise: Promise<GlanceImage[] | undefined> }) => {
   const images = use(getImagesPromise)
   if (!images || images.length === 0) {
-    return <p className="text-gray-400">No images available.</p>
+    return <p>No images available.</p>
   }
 
   return <ImageListView images={images} />
@@ -21,7 +21,7 @@ export const Images = ({ client, project }: ImagesProps) => {
   const getImagesPromise = client.compute.getImagesByProjectId.query({ projectId: project })
 
   return (
-    <Suspense fallback={<div className="p-4 text-center text-gray-400">Loading images...</div>}>
+    <Suspense fallback={<div className="p-4 text-center ">Loading images...</div>}>
       <ImageListContainer getImagesPromise={getImagesPromise} />
     </Suspense>
   )

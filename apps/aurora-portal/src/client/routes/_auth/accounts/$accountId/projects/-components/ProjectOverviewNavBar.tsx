@@ -1,6 +1,6 @@
-import { useEffect } from "react"
-import { Button, ComboBox, ComboBoxOption } from "@cloudoperators/juno-ui-components"
-import { Icon } from "@cloudoperators/juno-ui-components"
+import { useEffect, useRef, useState } from "react"
+import { Button, InputGroup, SearchInput, Stack } from "@cloudoperators/juno-ui-components"
+
 export type ViewMode = "list" | "card"
 
 type ProjectsOverviewNavBarProps = {
@@ -12,65 +12,71 @@ type ProjectsOverviewNavBarProps = {
   onSearch: (value: string) => void
 }
 
-export function ProjectsOverviewNavBar({ viewMode, setViewMode, onSearch, searchTerm }: ProjectsOverviewNavBarProps) {
-  let timer: NodeJS.Timeout | null = null
+export function ProjectsOverviewNavBar({
+  viewMode,
+  setViewMode,
+  onSearch,
+  searchTerm = "",
+}: ProjectsOverviewNavBarProps) {
+  const timerRef = useRef<NodeJS.Timeout | null>(null)
+  const [inputValue, setInputValue] = useState(searchTerm)
+
+  // because Juno dont have a uncontrolled default value we need to
+  // set input to stop laggs, if set from outside (just on loading)
+  useEffect(() => {
+    setInputValue(searchTerm)
+  }, [searchTerm])
+
   useEffect(() => {
     return () => {
-      if (timer) {
-        clearTimeout(timer)
+      if (timerRef.current) {
+        clearTimeout(timerRef.current)
       }
     }
   }, [])
+
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
-    if (timer) {
-      clearTimeout(timer)
+    setInputValue(value) // Instant UI update because of controlled value.
+
+    if (timerRef.current) {
+      clearTimeout(timerRef.current)
     }
-    timer = setTimeout(() => {
+
+    timerRef.current = setTimeout(() => {
       onSearch(value)
     }, 300)
   }
 
   return (
-    <div className="flex items-center justify-between gap-4 w-full">
-      {/* Search Input (60%) */}
-      <div className="flex-1 min-w-[60%] relative flex items-center bg-[#1c2026] border border-[#30363d] rounded-md px-3 py-2 text-gray-300">
-        <Icon icon="search" className="text-gray-400 mr-2" />
-        <input
-          type="text"
-          placeholder="Search..."
-          className="bg-transparent border-none outline-none text-white placeholder-gray-400 w-full"
-          onChange={handleSearchChange}
-          defaultValue={searchTerm}
-        />
-      </div>
+    <>
+      <Stack alignment="center" gap="8" className="mt-4 my-px px-4">
+        <Stack direction="vertical" gap="3" className="w-full">
+          <Stack gap="6" className="flex flex-wrap w-full">
+            <SearchInput
+              className="flex-grow flex-shrink-0 basis-0"
+              type="text"
+              placeholder="Search..."
+              onChange={handleSearchChange}
+              value={inputValue}
+            />
 
-      {/* Controls (30%) */}
+            <InputGroup>
+              <Button
+                variant={viewMode === "list" ? "default" : "subdued"}
+                onClick={() => setViewMode("list")}
+                icon="dns"
+              />
 
-      <div className="flex items-center gap-2 min-w-[30%] justify-end">
-        <ComboBox valueLabel={"Sorting..."}>
-          <ComboBoxOption value="name">Sort By name</ComboBoxOption>
-          <ComboBoxOption value="Date">Sort by date</ComboBoxOption>
-        </ComboBox>
-        <div className="flex items-center gap-1 bg-juno-grey-blue-7 rounded-md">
-          <Button
-            variant={viewMode === "list" ? "default" : "subdued"}
-            className="text-white text-xs flex items-center justify-center rounded"
-            onClick={() => setViewMode("list")}
-            icon="dns"
-          />
-
-          <Button
-            variant={viewMode === "card" ? "default" : "subdued"}
-            className="text-white text-xs flex items-center justify-center rounded"
-            onClick={() => setViewMode("card")}
-            icon="autoAwesomeMotion"
-          />
-        </div>
-        <ComboBox valueLabel="Add new...">
-          <ComboBoxOption value="project">Project</ComboBoxOption>
-        </ComboBox>
-      </div>
-    </div>
+              <Button
+                variant={viewMode === "card" ? "default" : "subdued"}
+                onClick={() => setViewMode("card")}
+                icon="autoAwesomeMotion"
+              />
+            </InputGroup>
+          </Stack>
+        </Stack>
+      </Stack>
+    </>
   )
 }

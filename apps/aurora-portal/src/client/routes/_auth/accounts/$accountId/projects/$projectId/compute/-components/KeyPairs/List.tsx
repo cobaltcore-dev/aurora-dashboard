@@ -11,7 +11,7 @@ interface KeyPairsContainerProps {
 const KeyPairsContainer = ({ getKeyPairsPromise }: KeyPairsContainerProps) => {
   const keyPairs = use(getKeyPairsPromise)
   if (!keyPairs || keyPairs.length === 0) {
-    return <p className="text-gray-400">No key pairs available.</p>
+    return <p>No key pairs available.</p>
   }
 
   return <KeyPairListView keyPairs={keyPairs} />
@@ -26,7 +26,7 @@ export function KeyPairs({ client, project }: KeyPairsProps) {
   const getKeyPairsPromise = client.compute.getKeypairsByProjectId.query({ projectId: project })
 
   return (
-    <Suspense fallback={<div className="p-4 text-center text-gray-400">Loading key pairs...</div>}>
+    <Suspense fallback={<div className="p-4 text-center">Loading key pairs...</div>}>
       <KeyPairsContainer getKeyPairsPromise={getKeyPairsPromise} />
     </Suspense>
   )

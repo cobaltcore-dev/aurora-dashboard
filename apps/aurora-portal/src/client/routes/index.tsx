@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router"
 import { Trans } from "@lingui/react/macro"
-import { Button } from "@cloudoperators/juno-ui-components"
+import { Button, Box, Stack, Icon } from "@cloudoperators/juno-ui-components"
 
 export const Route = createFileRoute("/")({
   component: Home,
@@ -16,93 +16,50 @@ export function Home() {
   }
 
   return (
-    <div className="min-h-screen flex items-start justify-start bg-gray-100 px-6 mt-10">
-      <div className="max-w-4xl w-full">
-        <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
-          <h1 className="text-5xl font-bold" data-testid="welcome-title">
-            <Trans>Welcome to Aurora Dashboard</Trans>
-          </h1>
-          <Button onClick={handleEnterCloud} variant="primary">
-            <span>
-              <Trans>Enter the Cloud</Trans>
-            </span>
-
-            <svg
-              className="ml-2 w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-            </svg>
-          </Button>
-        </div>
-
-        <p className="text-lg text-gray-700 leading-relaxed">
+    <div className="flex flex-col items-center justify-center px-6 py-12 h-[80vh]">
+      <div className="max-w-4xl w-full p-8">
+        <h1 className="text-5xl font-extrabold text-center mb-8 text-theme-default">
+          <Trans>Manage OpenStack with </Trans>
+          <span className="text-theme-accent">Aurora</span>
+        </h1>
+        <p className="text-lg text-theme-default leading-relaxed text-center mb-8">
           <Trans>
-            The <strong>Aurora Dashboard</strong> is on its way! Get ready for a powerful, all-in-one cloud management
-            interface designed to make managing your cloud assets simple and efficient. With tools for provisioning,
-            configuring, and scaling resources like servers, networks, and volumes, Aurora will soon bring you:
+            Aurora empowers you with robust tools to streamline your cloud management effortlessly. Experience a
+            seamless way to provision, configure, and scale your resources across OpenStack environments.
           </Trans>
         </p>
 
-        <ul className="mt-8 space-y-6 text-lg text-gray-700">
-          <li className="flex items-start">
-            <span className="text-blue-600 font-semibold text-2xl">•</span>
-            <p className="ml-4">
-              <Trans>
-                <strong>Centralized Cloud Control</strong>: Manage all your assets from one intuitive interface.
-              </Trans>
+        <Stack className="w-full flex flex-col md:flex-row justify-center mb-8" gap="4">
+          <Box className="md:w-1/2 p-6 rounded-lg shadow-md bg-theme-background-lvl-1">
+            <h2 className="text-2xl font-semibold text-theme-default">
+              <Trans>GitHub</Trans>
+            </h2>
+            <p className="text-theme-default">
+              <Trans>Check out our source code on GitHub!</Trans>
             </p>
-          </li>
-          <li className="flex items-start">
-            <span className="text-blue-600 font-semibold text-2xl">•</span>
-            <p className="ml-4">
-              <Trans>
-                <strong>Efficient Resource Management</strong>: Provision, configure, and scale resources across cloud
-                environments with ease.
-              </Trans>
+            <a href="https://github.com/cobaltcore-dev/aurora-dashboard">
+              <Trans>View Repository</Trans>
+            </a>
+          </Box>
+          <Box className="md:w-1/2 p-6 rounded-lg shadow-md bg-theme-background-lvl-1">
+            <h2 className="text-2xl font-semibold text-theme-default">
+              <Trans>Documentation</Trans>
+            </h2>
+            <p className="text-theme-default">
+              <Trans>Find detailed guides and references in our docs.</Trans>
             </p>
-          </li>
-          <li className="flex items-start">
-            <span className="text-blue-600 font-semibold text-2xl">•</span>
-            <p className="ml-4">
-              <Trans>
-                <strong>Enhanced Scalability</strong>: Seamlessly handle everything from small setups to complex,
-                multi-cloud environments.
-              </Trans>
-            </p>
-          </li>
-        </ul>
+            <a href="#">
+              <Trans>View Docs</Trans>
+            </a>
+          </Box>
+        </Stack>
 
-        <div className="mt-10 text-lg text-gray-700 flex flex-col items-center md:items-start">
-          <p>
-            <Trans>
-              Stay tuned — Aurora Dashboard is launching soon to streamline your cloud management experience!
-            </Trans>
-          </p>
-
-          <div className="mt-8 mb-4 w-full flex justify-center md:justify-start">
-            <button
-              onClick={handleEnterCloud}
-              className="py-4 px-8 bg-blue-600 hover:bg-blue-700 text-white text-lg font-bold rounded-lg shadow-xl transform transition-all hover:translate-y-[-2px] flex items-center"
-            >
-              <span>
-                <Trans>Enter the Cloud</Trans>
-              </span>
-              <svg
-                className="ml-2 w-6 h-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
-              </svg>
-            </button>
-          </div>
-        </div>
+        <Button onClick={handleEnterCloud} variant="primary" className="w-full py-4 text-lg font-bold">
+          <span>
+            <Trans>Enter the Cloud</Trans>
+          </span>
+          <Icon icon="chevronRight" onClick={function Ofe() {}} />
+        </Button>
       </div>
     </div>
   )

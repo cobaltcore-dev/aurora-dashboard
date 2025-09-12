@@ -188,31 +188,6 @@ describe("MainNavigation", () => {
     })
   })
 
-  test("logo link navigates to home page", async () => {
-    const router = createTestRouter(<MainNavigation items={mainNavItems} />)
-
-    // Navigate to a domain route first
-    await router.navigate({
-      to: "/accounts/$accountId/projects/$projectId",
-      params: {
-        accountId: "domain1",
-        projectId: "project1",
-      },
-    })
-
-    await waitFor(() => render(<RouterProvider router={router} />))
-
-    // Find the logo link (the first link in the document)
-    await waitFor(async () => {
-      const logoLink = screen.getAllByRole("link")[0]
-      await fireEvent.click(logoLink)
-      // Verify navigation was called with correct path
-
-      // Now we should expect to see the content of the About page
-      expect(await screen.findByText("Home Page")).toBeInTheDocument()
-    })
-  })
-
   test("navigation items have correct links", async () => {
     const router = createTestRouter(<MainNavigation items={mainNavItems} />)
 

@@ -1,5 +1,5 @@
 import { Project } from "@/server/Project/types/models"
-import { Icon } from "@cloudoperators/juno-ui-components"
+import { DataGrid, DataGridCell, DataGridRow, Icon } from "@cloudoperators/juno-ui-components"
 import { useNavigate } from "@tanstack/react-router"
 
 type ProjectListViewProps = {
@@ -10,45 +10,28 @@ export function ProjectListView({ projects }: ProjectListViewProps) {
   const navigate = useNavigate()
 
   return (
-    <div className="w-full border border-[#30363d] rounded-lg overflow-hidden">
+    <DataGrid className="overflow-hidden" columns={3} minContentColumns={[0]}>
       {projects?.length ? (
         projects.map((project) => {
           const domain = project?.domain_id // Assuming domain_id is the domai
           const gardenerRootPath = `/accounts/${domain}/projects/${project.id}/compute`
           return (
-            <div
-              key={project.id}
-              className="flex items-center w-full px-6 py-4 hover:bg-[#1f242b] transition-all cursor-pointer border-b border-[#30363d] last:border-0"
-              onClick={() => navigate({ to: gardenerRootPath })}
-            >
-              {/* Icon + Title (Left Side) */}
-              <div className="flex items-center space-x-3 min-w-0 w-1/3">
+            <DataGridRow key={project.id} onClick={() => navigate({ to: gardenerRootPath })}>
+              <DataGridCell>
                 {project.enabled ? (
-                  <Icon icon="checkCircle" color="jn-text-theme-success" />
+                  <Icon icon="checkCircle" color="text-theme-success" />
                 ) : (
-                  <Icon icon="info" color="jn-text-theme-danger" />
+                  <Icon icon="info" color="text-theme-danger" />
                 )}
-                <div className="text-lg font-semibold text-juno-turquoise-5 hover:underline truncate">
-                  {project.name}
-                </div>
-              </div>
-
-              {/* Description (Middle, Expands Fully) */}
-              <p className="flex-1 text-gray-300 text-base truncate">{project.description}</p>
-
-              {/* Popup Menu (Right Side, Click Prevention) */}
-              <div
-                className="ml-auto"
-                data-testid="project-card-menu"
-                onMouseDown={(e) => e.stopPropagation()} // Stops route change
-                onClick={(e) => e.stopPropagation()} // Ensures it doesn't trigger navigation
-              ></div>
-            </div>
+              </DataGridCell>
+              <DataGridCell>{project.name}</DataGridCell>
+              <DataGridCell>{project.description}</DataGridCell>
+            </DataGridRow>
           )
         })
       ) : (
-        <div className="text-gray-500 text-center py-6">No projects found</div>
+        <div className="text-center py-6">No projects found</div>
       )}
-    </div>
+    </DataGrid>
   )
 }
