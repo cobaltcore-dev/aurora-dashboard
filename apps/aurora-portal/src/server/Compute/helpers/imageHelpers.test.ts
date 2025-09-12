@@ -589,7 +589,7 @@ describe("imageHelpers", () => {
 
       expect(result).toBeInstanceOf(TRPCError)
       expect(result.code).toBe("INTERNAL_SERVER_ERROR")
-      expect(result.message).toBe("Error during test operation")
+      expect(result.message).toBe("Error during test operation: Regular error")
       expect(result.cause).toBe(originalError)
     })
 
@@ -623,7 +623,9 @@ describe("imageHelpers", () => {
       }
 
       await expect(withErrorHandling(operation, "test operation")).rejects.toThrow(TRPCError)
-      await expect(withErrorHandling(operation, "test operation")).rejects.toThrow("Error during test operation")
+      await expect(withErrorHandling(operation, "test operation")).rejects.toThrow(
+        "Error during test operation: Operation failed"
+      )
     })
 
     it("should preserve TRPCError instances", async () => {

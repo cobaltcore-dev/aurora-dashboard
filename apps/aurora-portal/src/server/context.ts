@@ -17,6 +17,10 @@ const normalizedEndpoint = identityEndpoint?.endsWith("/") ? identityEndpoint : 
 const defaultSignalOpenstackOptions = {
   interfaceName: process.env.DEFAULT_ENDPOINT_INTERFACE || "public",
   debug: process.env.NODE_ENV !== "production",
+  headers: {
+    Accept: "application/json",
+    "Content-Type": "application/json",
+  },
 }
 
 export interface AuroraPortalContext extends AuroraContext {

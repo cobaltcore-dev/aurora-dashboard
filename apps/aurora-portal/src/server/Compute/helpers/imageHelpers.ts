@@ -485,14 +485,16 @@ export function handleZodParsingError(error: ZodError, operation: string): TRPCE
  * @param operation - The operation being performed for context
  * @returns TRPCError instance
  */
-export function wrapError(error: unknown, operation: string): TRPCError {
+export function wrapError(error: Error | string, operation: string): TRPCError {
   if (error instanceof TRPCError) {
     return error
   }
 
+  const baseErrorMessage = `Error during ${operation}`
+
   return new TRPCError({
     code: "INTERNAL_SERVER_ERROR",
-    message: `Error during ${operation}`,
+    message: typeof error !== "string" && error.message ? `${baseErrorMessage}: ${error.message}` : baseErrorMessage,
     cause: error,
   })
 }
@@ -507,6 +509,6 @@ export async function withErrorHandling<T>(operation: () => Promise<T>, operatio
   try {
     return await operation()
   } catch (error) {
-    throw wrapError(error, operationName)
+    throw wrapError(error as Error, operationName)
   }
 }
