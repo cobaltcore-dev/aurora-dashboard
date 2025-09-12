@@ -57,7 +57,7 @@ function ComputeDashboard({ client }: { client: TrpcClient }) {
                   case "instances":
                     return <Instances client={client} project={project} viewMode="list" />
                   case "images":
-                    return <Images project={project} client={client} />
+                    return <Images client={client} />
                   case "keypairs":
                     return <KeyPairs project={project} client={client} />
                   case "servergroups":

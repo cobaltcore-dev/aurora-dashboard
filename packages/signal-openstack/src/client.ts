@@ -40,21 +40,43 @@ function redactSensitiveData<T>(obj: T): T {
   return redacted
 }
 
-const buildRequestUrl = function ({ base, path }: { base?: string; path?: string }): URL {
+const buildRequestUrl = function ({
+  base,
+  path,
+  searchParams,
+}: {
+  base?: string
+  path?: string
+  searchParams?: string
+}): URL {
   // If `path` is a full URL, return it
   if (path?.startsWith("http")) return new URL(path)
 
   // If `base` is not provided, we cannot construct the URL
   if (!base) throw new SignalOpenstackError("Base URL is required when path is not a full URL.")
 
-  // Construct the full URL based on the conditions
-  const baseUrl = new URL(base)
+  // If path already contains query parameters, handle it differently
+  if (path?.includes("?")) {
+    const [pathPart, queryPart] = path.split("?")
+    const requestUrl = new URL(base)
+    requestUrl.pathname = pathPart.startsWith("/") ? pathPart : `${requestUrl.pathname.replace(/\/$/, "")}/${pathPart}`
+    requestUrl.search = searchParams ? [queryPart, searchParams].join("&") : queryPart
+    return requestUrl
+  }
+
+  // Construct the full request URL based on the conditions
+  const requestUrl = new URL(base)
 
   if (path) {
-    baseUrl.pathname = path.startsWith("/") ? path : `${baseUrl.pathname.replace(/\/$/, "")}/${path}`
+    requestUrl.pathname = path.startsWith("/") ? path : `${requestUrl.pathname.replace(/\/$/, "")}/${path}`
   }
+
+  if (searchParams) {
+    requestUrl.search = searchParams
+  }
+
   // Return the constructed URL
-  return baseUrl
+  return requestUrl
 }
 
 function buildSearchParams(params: NonNullable<RequestParams["options"]>["queryParams"]): string {
@@ -69,12 +91,13 @@ function buildSearchParams(params: NonNullable<RequestParams["options"]>["queryP
 }
 
 const request = ({ method, path, options = {} }: RequestParams) => {
-  const url = buildRequestUrl({ base: options.host, path })
-  const body = options.body && JSON.stringify(options.body)
+  const url = buildRequestUrl({
+    base: options.host,
+    path,
+    searchParams: options.queryParams && buildSearchParams(options.queryParams),
+  })
 
-  if (options.queryParams) {
-    url.search = buildSearchParams(options.queryParams)
-  }
+  const body = options.body && JSON.stringify(options.body)
 
   if (options.debug) {
     const debugData = redactSensitiveData({ method, path, options, url })

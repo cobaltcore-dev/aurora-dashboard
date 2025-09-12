@@ -14,11 +14,10 @@ const ImageListContainer = ({ getImagesPromise }: { getImagesPromise: Promise<Gl
 
 interface ImagesProps {
   client: TrpcClient
-  project: string
 }
 
-export const Images = ({ client, project }: ImagesProps) => {
-  const getImagesPromise = client.compute.getImagesByProjectId.query({ projectId: project })
+export const Images = ({ client }: ImagesProps) => {
+  const getImagesPromise = client.compute.listImages.query({})
 
   return (
     <Suspense fallback={<div className="p-4 text-center ">Loading images...</div>}>
