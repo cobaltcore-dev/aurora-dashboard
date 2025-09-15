@@ -10,7 +10,7 @@ import { createCallerFactory, auroraRouter } from "../../trpc"
 vi.mock("../helpers/imageHelpers", () => ({
   applyImageQueryParams: vi.fn(),
   validateGlanceService: vi.fn(),
-  mapResponseToTRPCError: vi.fn(),
+  mapErrorResponseToTRPCError: vi.fn(),
   ImageErrorHandlers: {
     upload: vi.fn(),
     visibility: vi.fn(),
@@ -134,14 +134,12 @@ describe("imageRouter", () => {
       const caller = createCaller(mockCtx)
 
       // Mock failed response
-      mockCtx.mockGlance.get.mockResolvedValue({
-        ok: false,
-        status: 500,
-        json: vi.fn(),
+      mockCtx.mockGlance.get.mockImplementation(() => {
+        return Promise.reject(new Error("500 Internal Server Error"))
       })
 
       const mockError = new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "API Error" })
-      ;(imageHelpers.mapResponseToTRPCError as Mock).mockReturnValue(mockError)
+      ;(imageHelpers.mapErrorResponseToTRPCError as Mock).mockReturnValue(mockError)
 
       const input = {}
 
@@ -170,14 +168,12 @@ describe("imageRouter", () => {
       const mockCtx = createMockContext()
       const caller = createCaller(mockCtx)
 
-      mockCtx.mockGlance.get.mockResolvedValue({
-        ok: false,
-        status: 404,
-        json: vi.fn(),
+      mockCtx.mockGlance.get.mockImplementation(() => {
+        return Promise.reject(new Error("404 Not Found"))
       })
 
       const mockError = new TRPCError({ code: "NOT_FOUND", message: "Image not found" })
-      ;(imageHelpers.mapResponseToTRPCError as Mock).mockReturnValue(mockError)
+      ;(imageHelpers.mapErrorResponseToTRPCError as Mock).mockReturnValue(mockError)
 
       const input = { imageId: "123e4567-e89b-12d3-a456-426614174111" }
 
@@ -223,14 +219,12 @@ describe("imageRouter", () => {
       const mockCtx = createMockContext()
       const caller = createCaller(mockCtx)
 
-      mockCtx.mockGlance.post.mockResolvedValue({
-        ok: false,
-        status: 400,
-        json: vi.fn(),
+      mockCtx.mockGlance.post.mockImplementation(() => {
+        return Promise.reject(new Error("400 Bad Request"))
       })
 
       const mockError = new TRPCError({ code: "BAD_REQUEST", message: "Create failed" })
-      ;(imageHelpers.mapResponseToTRPCError as Mock).mockReturnValue(mockError)
+      ;(imageHelpers.mapErrorResponseToTRPCError as Mock).mockReturnValue(mockError)
 
       const input = {
         name: "new-image",
@@ -271,10 +265,8 @@ describe("imageRouter", () => {
       const mockCtx = createMockContext()
       const caller = createCaller(mockCtx)
 
-      mockCtx.mockGlance.put.mockResolvedValue({
-        ok: false,
-        status: 400,
-        json: vi.fn(),
+      mockCtx.mockGlance.put.mockImplementation(() => {
+        return Promise.reject(new Error("400 Bad Request"))
       })
 
       const mockError = new TRPCError({ code: "BAD_REQUEST", message: "Upload failed" })
