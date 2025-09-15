@@ -309,8 +309,8 @@ describe("imageHelpers", () => {
     })
   })
 
-  describe("mapResponseToTRPCError", () => {
-    it("should map 400 status to BAD_REQUEST", () => {
+  describe("mapErrorResponseToTRPCError", () => {
+    it("should map 400 status BAD_REQUEST", () => {
       const errorResponse = { name: "SignalOpenstackApiError", statusCode: 400, message: "Bad Request" }
       const context = { operation: "create image", imageId: "image-123" }
 
@@ -320,7 +320,7 @@ describe("imageHelpers", () => {
       expect(error.message).toBe("Failed to create image image: image-123")
     })
 
-    it("should map 403 status to FORBIDDEN", () => {
+    it("should map 403 status FORBIDDEN", () => {
       const errorResponse = { name: "SignalOpenstackApiError", statusCode: 403, message: "Forbidden" }
       const context = { operation: "delete image", imageId: "image-123" }
 
@@ -330,7 +330,7 @@ describe("imageHelpers", () => {
       expect(error.message).toBe("Access forbidden - cannot delete image image: image-123")
     })
 
-    it("should map 404 status to NOT_FOUND", () => {
+    it("should map 404 status NOT_FOUND", () => {
       const errorResponse = { name: "SignalOpenstackApiError", statusCode: 404, message: "Not Found" }
       const context = { operation: "get image", imageId: "image-123" }
 
@@ -350,7 +350,7 @@ describe("imageHelpers", () => {
       expect(error.message).toBe("Image or member not found image: image-123, member: member-456")
     })
 
-    it("should map 409 status to CONFLICT", () => {
+    it("should map 409 status CONFLICT to TRPC Error", () => {
       const errorResponse = { name: "SignalOpenstackApiError", statusCode: 409, message: "Conflict" }
       const context = { operation: "update image", imageId: "image-123" }
 
@@ -360,7 +360,7 @@ describe("imageHelpers", () => {
       expect(error.message).toBe("Conflict - update image image: image-123")
     })
 
-    it("should map 413 status to PAYLOAD_TOO_LARGE", () => {
+    it("should map 413 status PAYLOAD_TOO_LARGE", () => {
       const errorResponse = { name: "SignalOpenstackApiError", statusCode: 413, message: "Payload Too Large" }
       const context = { operation: "upload image", imageId: "image-123" }
 
@@ -370,7 +370,7 @@ describe("imageHelpers", () => {
       expect(error.message).toBe("Request entity too large image: image-123")
     })
 
-    it("should map 415 status to BAD_REQUEST", () => {
+    it("should map 415 status BAD_REQUEST", () => {
       const errorResponse = { name: "SignalOpenstackApiError", statusCode: 415, message: "Unsupported Media Type" }
       const context = { operation: "upload image", imageId: "image-123" }
 
@@ -380,7 +380,7 @@ describe("imageHelpers", () => {
       expect(error.message).toBe("Unsupported media type image: image-123")
     })
 
-    it("should map unknown status to INTERNAL_SERVER_ERROR", () => {
+    it("should map unknown status INTERNAL_SERVER_ERROR", () => {
       const errorResponse = { name: "SignalOpenstackApiError", statusCode: 500, message: "Internal Server Error" }
       const context = { operation: "create image" }
 
