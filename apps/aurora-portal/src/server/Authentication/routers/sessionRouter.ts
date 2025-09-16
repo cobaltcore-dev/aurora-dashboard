@@ -93,8 +93,10 @@ export const sessionRouter = {
       })
     }
 
-    return token?.tokenData.catalog
-      ?.filter((catalogItem) => catalogItem?.endpoints.length)
-      .map(({ name, type }) => ({ name, type }))
+    return (
+      token?.tokenData.catalog
+        ?.filter((catalogItem) => catalogItem?.endpoints.length)
+        .map(({ name, type }) => ({ name, type })) || []
+    )
   }),
 }
