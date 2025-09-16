@@ -1,4 +1,4 @@
-import { createFileRoute, ErrorComponent, useParams } from "@tanstack/react-router"
+import { createFileRoute, ErrorComponent, redirect, useParams } from "@tanstack/react-router"
 import { ErrorBoundary } from "react-error-boundary"
 import { ComputeSideNavBar } from "./-components/ComputeNavBar"
 import { Overview } from "./-components/Overview"
@@ -8,6 +8,47 @@ import { Images } from "./-components/Images/List"
 import { KeyPairs } from "./-components/KeyPairs/List"
 import { ServerGroups } from "./-components/ServerGroups/List"
 import { Flavors } from "./-components/Flavors/List"
+
+const checkServiceAvailability = (
+  availableServices: {
+    type: string
+    name: string
+  }[],
+  params: {
+    accountId: string
+    projectId: string
+    _splat?: string | undefined
+  }
+) => {
+  const { _splat: splat = "" } = params
+
+  let shouldNavigateToOverview = false
+
+  if (
+    splat === "images" &&
+    !availableServices?.find(({ name, type }) => {
+      return name === "glance" && type === "image"
+    })
+  ) {
+    shouldNavigateToOverview = true
+  }
+
+  if (
+    ["instances", "keypairs", "servergroups", "flavors"].includes(splat) &&
+    !availableServices?.find(({ name, type }) => {
+      return name === "nova" && type === "compute"
+    })
+  ) {
+    shouldNavigateToOverview = true
+  }
+
+  if (shouldNavigateToOverview) {
+    throw redirect({
+      to: "/accounts/$accountId/projects/$projectId/compute/$",
+      params: { ...params, _splat: undefined },
+    })
+  }
+}
 
 export const Route = createFileRoute("/_auth/accounts/$accountId/projects/$projectId/compute/$")({
   component: RouteComponent,
@@ -27,6 +68,12 @@ export const Route = createFileRoute("/_auth/accounts/$accountId/projects/$proje
     return {
       client: trpcClient,
     }
+  },
+  beforeLoad: async ({ context, params }) => {
+    const { trpcClient } = context
+    const availableServices = await trpcClient?.auth.getAvailableServices.query()
+
+    checkServiceAvailability(availableServices || [], params)
   },
 })
 
