@@ -1,7 +1,19 @@
-import { createFileRoute } from "@tanstack/react-router"
+import { createFileRoute, redirect } from "@tanstack/react-router"
 
 export const Route = createFileRoute("/_auth/accounts/$accountId/projects/$projectId/network/")({
   component: RouteComponent,
+  beforeLoad: async ({ context, params }) => {
+    const { trpcClient } = context
+    const { accountId } = params
+    const availableServices = await trpcClient?.auth.getAvailableServices.query()
+
+    if (!availableServices?.find(({ type }) => type === "network")) {
+      throw redirect({
+        to: "/accounts/$accountId/projects",
+        params: { accountId },
+      })
+    }
+  },
 })
 
 function RouteComponent() {

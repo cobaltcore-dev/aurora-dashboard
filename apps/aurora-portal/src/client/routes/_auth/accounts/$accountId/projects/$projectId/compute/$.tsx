@@ -20,9 +20,20 @@ const checkServiceAvailability = (
     _splat?: string | undefined
   }
 ) => {
-  const { _splat: splat = "" } = params
+  const { _splat: splat = "", accountId } = params
 
   let shouldNavigateToOverview = false
+
+  // Redirect to the "Projects Overview" page if none of compute services available
+  if (
+    !availableServices?.find(({ type }) => type === "image") &&
+    !availableServices?.find(({ type }) => type === "compute")
+  ) {
+    throw redirect({
+      to: "/accounts/$accountId/projects",
+      params: { accountId },
+    })
+  }
 
   if (splat === "images" && !availableServices?.find(({ name, type }) => type === "image" && name === "glance")) {
     shouldNavigateToOverview = true
@@ -36,7 +47,7 @@ const checkServiceAvailability = (
   }
 
   if (shouldNavigateToOverview) {
-    // Redirect to the "Compute Dashboard Overview" if service is not available
+    // Redirect to the "Compute Services Overview" page if a specific compute service is not available
     throw redirect({
       to: "/accounts/$accountId/projects/$projectId/compute/$",
       params: { ...params, _splat: undefined },
