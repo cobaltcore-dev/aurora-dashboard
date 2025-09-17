@@ -57,10 +57,11 @@ const buildRequestUrl = function ({
 
   // If path already contains query parameters, handle it differently
   if (path?.includes("?")) {
-    const [pathPart, queryPart] = path.split("?")
-    const requestUrl = new URL(base)
-    requestUrl.pathname = pathPart.startsWith("/") ? pathPart : `${requestUrl.pathname.replace(/\/$/, "")}/${pathPart}`
-    requestUrl.search = searchParams ? [queryPart, searchParams].join("&") : queryPart
+    const requestUrl = new URL(`${base}${path.startsWith("/") ? path : "/" + path}`)
+
+    // Merge search parameters from URL and request options object
+    requestUrl.search += searchParams ? `&${searchParams}` : ""
+
     return requestUrl
   }
 
