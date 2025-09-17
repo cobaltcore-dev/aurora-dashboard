@@ -2,7 +2,7 @@ import { protectedProcedure } from "../../trpc"
 import {
   applyImageQueryParams,
   validateGlanceService,
-  mapResponseToTRPCError,
+  mapErrorResponseToTRPCError,
   ImageErrorHandlers,
   handleZodParsingError,
   withErrorHandling,
@@ -48,11 +48,9 @@ export const imageRouter = {
       applyImageQueryParams(queryParams, queryInput)
 
       const url = `v2/images?${queryParams.toString()}`
-      const response = await glance.get(url)
-
-      if (!response?.ok) {
-        throw mapResponseToTRPCError(response, { operation: "list images" })
-      }
+      const response = await glance.get(url).catch((error) => {
+        throw mapErrorResponseToTRPCError(error, { operation: "list images" })
+      })
 
       const parsedData = imageResponseSchema.safeParse(await response.json())
       if (!parsedData.success) {
@@ -78,11 +76,9 @@ export const imageRouter = {
         applyImageQueryParams(queryParams, queryInput)
 
         const url = `${first || next || "v2/images"}?${queryParams.toString()}`
-        const response = await glance.get(url)
-
-        if (!response?.ok) {
-          throw mapResponseToTRPCError(response, { operation: "list images with pagination" })
-        }
+        const response = await glance.get(url).catch((error) => {
+          throw mapErrorResponseToTRPCError(error, { operation: "list images with pagination" })
+        })
 
         const parsedData = imagesPaginatedResponseSchema.safeParse(await response.json())
         if (!parsedData.success) {
@@ -98,16 +94,14 @@ export const imageRouter = {
     .query(async ({ input, ctx }): Promise<GlanceImage> => {
       return withErrorHandling(async () => {
         const { imageId } = input
-        const openstackSession = await ctx.openstack
+        const openstackSession = ctx.openstack
         const glance = openstackSession?.service("glance")
 
         validateGlanceService(glance)
 
-        const response = await glance.get(`v2/images/${imageId}`)
-
-        if (!response?.ok) {
-          throw mapResponseToTRPCError(response, { operation: "fetch image", imageId })
-        }
+        const response = await glance.get(`v2/images/${imageId}`).catch((error) => {
+          throw mapErrorResponseToTRPCError(error, { operation: "fetch image", imageId })
+        })
 
         const parsedData = imageSchema.safeParse(await response.json())
         if (!parsedData.success) {
@@ -123,18 +117,18 @@ export const imageRouter = {
     .mutation(async ({ input, ctx }): Promise<GlanceImage> => {
       return withErrorHandling(async () => {
         const { ...imageData } = input
-        const openstackSession = await ctx.openstack
+        const openstackSession = ctx.openstack
         const glance = openstackSession?.service("glance")
 
         validateGlanceService(glance)
 
-        const response = await glance.post("v2/images", {
-          json: imageData,
-        })
-
-        if (!response?.ok) {
-          throw mapResponseToTRPCError(response, { operation: "create image" })
-        }
+        const response = await glance
+          .post("v2/images", {
+            json: imageData,
+          })
+          .catch((error) => {
+            throw mapErrorResponseToTRPCError(error, { operation: "create image" })
+          })
 
         const parsedData = imageDetailResponseSchema.safeParse(await response.json())
         if (!parsedData.success) {
@@ -148,7 +142,7 @@ export const imageRouter = {
   uploadImage: protectedProcedure.input(uploadImageInputSchema).mutation(async ({ input, ctx }): Promise<boolean> => {
     return withErrorHandling(async () => {
       const { imageId, imageData, contentType } = input
-      const openstackSession = await ctx.openstack
+      const openstackSession = ctx.openstack
       const glance = openstackSession?.service("glance")
 
       validateGlanceService(glance)
@@ -169,16 +163,16 @@ export const imageRouter = {
         body = imageData
       }
 
-      const response = await glance.put(`v2/images/${imageId}/file`, {
-        body,
-        headers: {
-          "Content-Type": contentType,
-        },
-      })
-
-      if (!response?.ok) {
-        throw ImageErrorHandlers.upload(response, imageId, contentType)
-      }
+      await glance
+        .put(`v2/images/${imageId}/file`, {
+          body,
+          headers: {
+            "Content-Type": contentType,
+          },
+        })
+        .catch((error) => {
+          throw ImageErrorHandlers.upload(error, imageId, contentType)
+        })
 
       return true
     }, "upload image")
@@ -189,21 +183,21 @@ export const imageRouter = {
     .mutation(async ({ input, ctx }): Promise<GlanceImage> => {
       return withErrorHandling(async () => {
         const { imageId, operations } = input
-        const openstackSession = await ctx.openstack
+        const openstackSession = ctx.openstack
         const glance = openstackSession?.service("glance")
 
         validateGlanceService(glance)
 
-        const response = await glance.patch(`v2/images/${imageId}`, {
-          json: operations,
-          headers: {
-            "Content-Type": "application/openstack-images-v2.1-json-patch",
-          },
-        })
-
-        if (!response?.ok) {
-          throw mapResponseToTRPCError(response, { operation: "update image", imageId })
-        }
+        const response = await glance
+          .patch(`v2/images/${imageId}`, {
+            json: operations,
+            headers: {
+              "Content-Type": "application/openstack-images-v2.1-json-patch",
+            },
+          })
+          .catch((error) => {
+            throw mapErrorResponseToTRPCError(error, { operation: "update image", imageId })
+          })
 
         const parsedData = imageSchema.safeParse(await response.json())
         if (!parsedData.success) {
@@ -219,7 +213,7 @@ export const imageRouter = {
     .mutation(async ({ input, ctx }): Promise<GlanceImage> => {
       return withErrorHandling(async () => {
         const { imageId, visibility } = input
-        const openstackSession = await ctx.openstack
+        const openstackSession = ctx.openstack
         const glance = openstackSession?.service("glance")
 
         validateGlanceService(glance)
@@ -255,7 +249,7 @@ export const imageRouter = {
   deleteImage: protectedProcedure.input(deleteImageInputSchema).mutation(async ({ input, ctx }): Promise<boolean> => {
     return withErrorHandling(async () => {
       const { imageId } = input
-      const openstackSession = await ctx.openstack
+      const openstackSession = ctx.openstack
       const glance = openstackSession?.service("glance")
 
       validateGlanceService(glance)
@@ -275,20 +269,18 @@ export const imageRouter = {
     .mutation(async ({ input, ctx }): Promise<boolean> => {
       return withErrorHandling(async () => {
         const { imageId } = input
-        const openstackSession = await ctx.openstack
+        const openstackSession = ctx.openstack
         const glance = openstackSession?.service("glance")
 
         validateGlanceService(glance)
 
-        const response = await glance.post(`v2/images/${imageId}/actions/deactivate`, undefined)
-
-        if (!response?.ok) {
-          throw mapResponseToTRPCError(response, {
+        await glance.post(`v2/images/${imageId}/actions/deactivate`, undefined).catch((error) => {
+          throw mapErrorResponseToTRPCError(error, {
             operation: "deactivate image",
             imageId,
             additionalInfo: "typically admin-only operation",
           })
-        }
+        })
 
         return true
       }, "deactivate image")
@@ -299,20 +291,18 @@ export const imageRouter = {
     .mutation(async ({ input, ctx }): Promise<boolean> => {
       return withErrorHandling(async () => {
         const { imageId } = input
-        const openstackSession = await ctx.openstack
+        const openstackSession = ctx.openstack
         const glance = openstackSession?.service("glance")
 
         validateGlanceService(glance)
 
-        const response = await glance.post(`v2/images/${imageId}/actions/reactivate`, undefined)
-
-        if (!response?.ok) {
-          throw mapResponseToTRPCError(response, {
+        await glance.post(`v2/images/${imageId}/actions/reactivate`, undefined).catch((error) => {
+          throw mapErrorResponseToTRPCError(error, {
             operation: "reactivate image",
             imageId,
             additionalInfo: "typically admin-only operation",
           })
-        }
+        })
 
         return true
       }, "reactivate image")
@@ -323,7 +313,7 @@ export const imageRouter = {
     .query(async ({ input, ctx }): Promise<ImageMember[]> => {
       return withErrorHandling(async () => {
         const { imageId } = input
-        const openstackSession = await ctx.openstack
+        const openstackSession = ctx.openstack
         const glance = openstackSession?.service("glance")
 
         validateGlanceService(glance)
@@ -348,7 +338,7 @@ export const imageRouter = {
     .query(async ({ input, ctx }): Promise<ImageMember> => {
       return withErrorHandling(async () => {
         const { imageId, memberId } = input
-        const openstackSession = await ctx.openstack
+        const openstackSession = ctx.openstack
         const glance = openstackSession?.service("glance")
 
         validateGlanceService(glance)
@@ -373,7 +363,7 @@ export const imageRouter = {
     .mutation(async ({ input, ctx }): Promise<ImageMember> => {
       return withErrorHandling(async () => {
         const { imageId, member } = input
-        const openstackSession = await ctx.openstack
+        const openstackSession = ctx.openstack
         const glance = openstackSession?.service("glance")
 
         validateGlanceService(glance)
@@ -400,7 +390,7 @@ export const imageRouter = {
     .mutation(async ({ input, ctx }): Promise<ImageMember> => {
       return withErrorHandling(async () => {
         const { imageId, memberId, status } = input
-        const openstackSession = await ctx.openstack
+        const openstackSession = ctx.openstack
         const glance = openstackSession?.service("glance")
 
         validateGlanceService(glance)
@@ -427,7 +417,7 @@ export const imageRouter = {
     .mutation(async ({ input, ctx }): Promise<boolean> => {
       return withErrorHandling(async () => {
         const { imageId, memberId } = input
-        const openstackSession = await ctx.openstack
+        const openstackSession = ctx.openstack
         const glance = openstackSession?.service("glance")
 
         validateGlanceService(glance)

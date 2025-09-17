@@ -1,6 +1,7 @@
 import { TRPCError } from "@trpc/server"
 import { ZodError } from "zod"
 import { ListImagesInput } from "../types/image"
+import { SignalOpenstackApiError } from "@cobaltcore-dev/signal-openstack"
 
 /**
  * Applies sorting and filtering parameters to URLSearchParams for OpenStack Glance API calls
@@ -176,13 +177,13 @@ export function validateGlanceService(glance: unknown): asserts glance is NonNul
 }
 
 /**
- * Maps OpenStack API HTTP response status codes to appropriate TRPCError instances
- * @param response - The HTTP response from OpenStack API
+ * Maps Signal OpenStack API Error to appropriate TRPCError instances
+ * @param error - The Signal OpenStack API Error
  * @param context - Additional context for error messages (e.g., imageId, operation type)
  * @returns TRPCError instance with appropriate code and message
  */
-export function mapResponseToTRPCError(
-  response: { status?: number; statusText?: string },
+export function mapErrorResponseToTRPCError(
+  error: SignalOpenstackApiError,
   context: {
     operation: string
     imageId?: string
@@ -196,7 +197,7 @@ export function mapResponseToTRPCError(
   const memberInfo = memberId ? `, member: ${memberId}` : ""
   const extraInfo = additionalInfo ? ` - ${additionalInfo}` : ""
 
-  switch (response.status) {
+  switch (error.statusCode) {
     case 400:
       return new TRPCError({
         code: "BAD_REQUEST",
@@ -236,7 +237,7 @@ export function mapResponseToTRPCError(
     default:
       return new TRPCError({
         code: "INTERNAL_SERVER_ERROR",
-        message: `${baseMessage}: ${response.statusText || "Unknown error"}`,
+        message: `${baseMessage}: ${error.message || "Unknown error"}`,
       })
   }
 }
