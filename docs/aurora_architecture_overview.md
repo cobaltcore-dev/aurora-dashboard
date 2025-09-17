@@ -1,5 +1,12 @@
 # Aurora Dashboard – Architecture Overview
 
+This colorized diagram provides a high-level overview of Aurora's system architecture and component relationships.
+
+![Architecture Overview](Aurora-Arch.png)
+
+For a more detailed view of the specific components and their interactions, see the diagram below.
+
+
 ![Simple Arhcitecture Overview](overview.png)
 
 ## Introduction
