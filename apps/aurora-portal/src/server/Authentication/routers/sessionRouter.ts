@@ -1,5 +1,6 @@
 import { z } from "zod"
-import { publicProcedure } from "../../trpc"
+import { protectedProcedure, publicProcedure } from "../../trpc"
+import { TRPCError } from "@trpc/server"
 
 const discriminatedSchema = z.discriminatedUnion("type", [
   z.object({ type: z.literal("domain"), domainId: z.string() }),
@@ -80,5 +81,22 @@ export const sessionRouter = {
 
   terminateUserSession: publicProcedure.mutation(async ({ ctx }) => {
     ctx.terminateSession()
+  }),
+
+  getAvailableServices: protectedProcedure.query(async ({ ctx }) => {
+    const token = ctx.openstack?.getToken()
+
+    if (!token) {
+      throw new TRPCError({
+        code: "UNAUTHORIZED",
+        message: "OpenStack authentication token is required to access services",
+      })
+    }
+
+    return (
+      token?.tokenData.catalog
+        ?.filter((catalogItem) => catalogItem?.endpoints.length)
+        .map(({ name, type }) => ({ name, type })) || []
+    )
   }),
 }
