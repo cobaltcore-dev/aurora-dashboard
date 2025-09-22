@@ -5,7 +5,9 @@ import {
   DataGridRow,
   DataGridCell,
   ContentHeading,
-  Icon,
+  PopupMenu,
+  PopupMenuOptions,
+  PopupMenuItem,
 } from "@cloudoperators/juno-ui-components"
 import { Trans } from "@lingui/react/macro"
 import { DeleteFlavorModal } from "./DeleteFlavorModal"
@@ -114,7 +116,12 @@ export const FlavorListContainer = ({
             <DataGridCell>{flavor.rxtx_factor || "–"}</DataGridCell>
 
             <DataGridCell>
-              <Icon icon="deleteForever" onClick={() => openDeleteModal(flavor)} />
+              <PopupMenu>
+                <PopupMenuOptions>
+                  <PopupMenuItem label="Extra Specs" icon="info" />
+                  <PopupMenuItem icon="deleteForever" label="Delete Flavor" onClick={() => openDeleteModal(flavor)} />
+                </PopupMenuOptions>
+              </PopupMenu>
             </DataGridCell>
           </DataGridRow>
         ))}
