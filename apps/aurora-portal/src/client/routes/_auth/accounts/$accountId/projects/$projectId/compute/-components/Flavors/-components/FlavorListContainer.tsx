@@ -13,6 +13,7 @@ import { Trans } from "@lingui/react/macro"
 import { DeleteFlavorModal } from "./DeleteFlavorModal"
 import { useState } from "react"
 import { TrpcClient } from "@/client/trpcClient"
+import { EditSpecModal } from "./EditSpecModal"
 
 interface FlavorListContainerProps {
   flavors?: Flavor[]
@@ -30,21 +31,27 @@ export const FlavorListContainer = ({
   onFlavorDeleted,
 }: FlavorListContainerProps) => {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
-  const [flavorToDelete, setFlavorToDelete] = useState<Flavor | null>(null)
+  const [specModalOpen, setSpecModalOpen] = useState(false)
+  const [selectedFlavor, setSelectedFlavor] = useState<Flavor | null>(null)
 
   const openDeleteModal = (flavor: Flavor) => {
-    setFlavorToDelete(flavor)
+    setSelectedFlavor(flavor)
     setDeleteModalOpen(true)
+  }
+
+  const openSpecModal = (flavor: Flavor) => {
+    setSelectedFlavor(flavor)
+    setSpecModalOpen(true)
   }
 
   const closeDeleteModal = () => {
     setDeleteModalOpen(false)
-    setFlavorToDelete(null)
+    setSelectedFlavor(null)
   }
 
   const handleDeleteSuccess = () => {
-    if (flavorToDelete && onFlavorDeleted) {
-      onFlavorDeleted(flavorToDelete.name || "")
+    if (selectedFlavor && onFlavorDeleted) {
+      onFlavorDeleted(selectedFlavor.name || "")
     }
     closeDeleteModal()
   }
@@ -118,7 +125,7 @@ export const FlavorListContainer = ({
             <DataGridCell>
               <PopupMenu>
                 <PopupMenuOptions>
-                  <PopupMenuItem label="Extra Specs" icon="info" />
+                  <PopupMenuItem label="Extra Specs" icon="info" onClick={() => openSpecModal(flavor)} />
                   <PopupMenuItem icon="deleteForever" label="Delete Flavor" onClick={() => openDeleteModal(flavor)} />
                 </PopupMenuOptions>
               </PopupMenu>
@@ -131,8 +138,15 @@ export const FlavorListContainer = ({
         isOpen={deleteModalOpen}
         onClose={closeDeleteModal}
         project={project}
-        flavor={flavorToDelete}
+        flavor={selectedFlavor}
         onSuccess={handleDeleteSuccess}
+      />
+      <EditSpecModal
+        client={client}
+        isOpen={specModalOpen}
+        onClose={() => setSpecModalOpen(false)}
+        project={project}
+        flavor={selectedFlavor}
       />
     </>
   )
