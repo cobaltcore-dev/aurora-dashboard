@@ -34,8 +34,10 @@ export function SubNavigationLayout({
               return (
                 <>
                   {/* Inner container for hover effect */}
-                  <div className="px-3 py-2 rounded-md hover:bg-juno-grey-blue-1">
-                    <span className={`text-base ${isActive ? "font-semibold text-theme-accent" : "text-gray-700"}`}>
+                  <div className="px-3 py-2 rounded-md hover:bg-theme-background-lvl-1">
+                    <span
+                      className={`text-base ${isActive ? "font-semibold text-theme-accent" : "text-theme-default"}`}
+                    >
                       {option.label}
                     </span>
                   </div>
