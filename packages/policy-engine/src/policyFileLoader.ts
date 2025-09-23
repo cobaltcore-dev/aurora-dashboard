@@ -87,9 +87,14 @@ function parseSimpleYaml(content: string): Record<string, string> {
       }
     }
 
-    // Remove quotes from KEY
+    // Remove quotes from KEY (this was missing!)
     if ((key.startsWith('"') && key.endsWith('"')) || (key.startsWith("'") && key.endsWith("'"))) {
       key = key.slice(1, -1)
+    }
+
+    // Remove quotes from VALUE (existing code)
+    if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) {
+      value = value.slice(1, -1)
     }
 
     // Validate key is not empty
