@@ -33,7 +33,7 @@ export const Instances = ({
     <Suspense fallback={<div className="p-4 text-center text-gray-400">Loading instances...</div>}>
       <Button
         onClick={async () => {
-          const canList = await client.compute.canListServers.query()
+          const canList = await client.compute.canUser.query("servers:list")
           alert(`Permission to list instances: ${canList ? "Granted" : "Denied"}`)
         }}
       >

@@ -74,7 +74,7 @@ function parseSimpleYaml(content: string): Record<string, string> {
     }
 
     const separatorIndex = colonSpaceIndex !== -1 ? colonSpaceIndex : line.indexOf(":")
-    const key = line.substring(0, separatorIndex).trim()
+    let key = line.substring(0, separatorIndex).trim()
     let value = line.substring(separatorIndex + 1).trim()
 
     // Remove inline comments (but be careful with quotes)
@@ -85,6 +85,16 @@ function parseSimpleYaml(content: string): Record<string, string> {
       if (quoteCount % 2 === 0) {
         value = value.substring(0, hashIndex).trim()
       }
+    }
+
+    // Remove quotes from KEY (this was missing!)
+    if ((key.startsWith('"') && key.endsWith('"')) || (key.startsWith("'") && key.endsWith("'"))) {
+      key = key.slice(1, -1)
+    }
+
+    // Remove quotes from VALUE (existing code)
+    if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) {
+      value = value.slice(1, -1)
     }
 
     // Validate key is not empty
