@@ -5,7 +5,7 @@ import { ERROR_CODES } from "../../errorCodes"
 interface ComputeService {
   del(path: string): Promise<Response>
   get(path: string): Promise<Response>
-  post<T = any>(path: string, body: T): Promise<Response>
+  post<T = unknown>(path: string, body: T): Promise<Response>
 }
 
 interface CreateFlavorResponse {

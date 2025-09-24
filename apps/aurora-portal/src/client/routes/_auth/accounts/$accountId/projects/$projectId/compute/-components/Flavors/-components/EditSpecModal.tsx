@@ -62,10 +62,10 @@ export const EditSpecModal: React.FC<EditSpecModalProps> = ({ client, isOpen, on
         flavorId: flavor.id,
       })
       setExtraSpecs(specs)
-    } catch (error: any) {
+    } catch (error) {
       console.error("Failed to fetch extra specs:", error)
-      const errorMessage = error?.message
-        ? translateError(error.message)
+      const errorMessage = (error as Error)?.message
+        ? translateError((error as Error).message)
         : t`Failed to load extra specs. Please try again.`
       setGeneralError(errorMessage)
     } finally {
@@ -213,10 +213,10 @@ export const EditSpecModal: React.FC<EditSpecModalProps> = ({ client, isOpen, on
       setNewValue("")
       setIsAddingSpec(false)
       setErrors({})
-    } catch (error: any) {
+    } catch (error) {
       console.error("Failed to create extra spec:", error)
-      const errorMessage = error?.message
-        ? translateError(error.message)
+      const errorMessage = (error as Error)?.message
+        ? translateError((error as Error).message)
         : t`Failed to create extra spec. Please try again.`
       setGeneralError(errorMessage)
     } finally {
@@ -255,10 +255,10 @@ export const EditSpecModal: React.FC<EditSpecModalProps> = ({ client, isOpen, on
       })
 
       setSuccessMessage(t`Extra spec "${key}" has been deleted successfully.`)
-    } catch (error: any) {
+    } catch (error) {
       console.error("Failed to delete extra spec:", error)
-      const errorMessage = error?.message
-        ? translateError(error.message)
+      const errorMessage = (error as Error)?.message
+        ? translateError((error as Error).message)
         : t`Failed to delete extra spec "${key}". Please try again.`
       setGeneralError(errorMessage)
     } finally {
@@ -292,28 +292,6 @@ export const EditSpecModal: React.FC<EditSpecModalProps> = ({ client, isOpen, on
                 <DataGridHeadCell>{t`Value`}</DataGridHeadCell>
                 <DataGridHeadCell></DataGridHeadCell>
               </DataGridRow>
-
-              {Object.entries(extraSpecs).map(([key, value]) => (
-                <DataGridRow key={key}>
-                  <DataGridCell>{key}</DataGridCell>
-                  <DataGridCell>{value}</DataGridCell>
-                  <DataGridCell>
-                    {isDeleting === key ? (
-                      <Stack distribution="center" alignment="center">
-                        <Spinner variant="primary" />
-                      </Stack>
-                    ) : (
-                      <Button
-                        icon="deleteForever"
-                        variant="subdued"
-                        onClick={() => handleDeleteSpec(key)}
-                        title={t`Delete ${key}`}
-                        disabled={isDeleting === key}
-                      />
-                    )}
-                  </DataGridCell>
-                </DataGridRow>
-              ))}
 
               {isAddingSpec && (
                 <DataGridRow>
@@ -351,6 +329,29 @@ export const EditSpecModal: React.FC<EditSpecModalProps> = ({ client, isOpen, on
                   </DataGridCell>
                 </DataGridRow>
               )}
+
+              {Object.entries(extraSpecs).map(([key, value]) => (
+                <DataGridRow key={key}>
+                  <DataGridCell>{key}</DataGridCell>
+                  <DataGridCell>{value}</DataGridCell>
+                  <DataGridCell>
+                    {isDeleting === key ? (
+                      <Stack distribution="center" alignment="center">
+                        <Spinner variant="primary" />
+                      </Stack>
+                    ) : (
+                      <Button
+                        icon="deleteForever"
+                        variant="subdued"
+                        onClick={() => handleDeleteSpec(key)}
+                        title={t`Delete ${key}`}
+                        disabled={isDeleting === key}
+                      />
+                    )}
+                  </DataGridCell>
+                </DataGridRow>
+              ))}
+
               {(isLoading || isLoadingSpecs) && (
                 <DataGridRow>
                   <DataGridCell colSpan={3}>
@@ -368,17 +369,6 @@ export const EditSpecModal: React.FC<EditSpecModalProps> = ({ client, isOpen, on
                 </DataGridRow>
               )}
             </DataGrid>
-            {Object.keys(extraSpecs).length >= 5 && (
-              <Stack direction="horizontal" className="bg-theme-background-lvl-1 justify-end p-2">
-                <Button
-                  icon="addCircle"
-                  label={t`Add Extra Spec`}
-                  onClick={handleAddSpec}
-                  variant="primary"
-                  disabled={isAddingSpec}
-                />
-              </Stack>
-            )}
           </>
         )}
       </div>

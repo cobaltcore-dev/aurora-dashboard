@@ -107,10 +107,10 @@ export const CreateFlavorModal: React.FC<CreateFlavorModalProps> = ({
 
       onSuccess(flavorData.name)
       handleClose()
-    } catch (error: any) {
+    } catch (error) {
       console.error("Failed to create flavor:", error)
-      const errorMessage = error?.message
-        ? translateError(error.message)
+      const errorMessage = (error as Error)?.message
+        ? translateError((error as Error).message)
         : t`Failed to create flavor. Please try again.`
       setGeneralError(errorMessage)
     } finally {
