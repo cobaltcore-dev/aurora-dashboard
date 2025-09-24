@@ -41,13 +41,13 @@ const FilterToolbar: React.FC<FilterToolbarProps> = ({
           <SearchInput
             placeholder={t`Enter search term or regex`}
             value={searchTerm || ""}
-            className="w-full md:w-80 flex-shrink-0"
+            className="w-full md:w-70 flex-shrink-0"
             onInput={handleSearchChange}
             onClear={() => setSearchTerm("")}
             data-testid="search-input"
           />
           <Stack className="flex flex-row items-center">
-            <InputGroup className="flex-shrink-0 w-full md:w-80">
+            <InputGroup className="flex-shrink-0 w-full md:w-70">
               <Select onChange={handleSortByChange} value={sortBy} data-testid="sort-select" label={t`sort by`}>
                 <SelectOption value="name">{t`Name`}</SelectOption>
                 <SelectOption value="vcpus">{t`VCPUs`}</SelectOption>

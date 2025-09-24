@@ -1,11 +1,27 @@
 import { render, screen, act, fireEvent } from "@testing-library/react"
-import { describe, it, expect, beforeAll, vi } from "vitest"
+import { describe, it, expect, beforeAll, vi, beforeEach } from "vitest"
 import { DeleteFlavorModal } from "./DeleteFlavorModal"
 import { TrpcClient } from "@/client/trpcClient"
 import { I18nProvider } from "@lingui/react"
 import { ReactNode } from "react"
 import { i18n } from "@lingui/core"
 import { Flavor } from "@/server/Compute/types/flavor"
+
+vi.mock("@/hooks/useErrorTranslation", () => ({
+  useErrorTranslation: () => ({
+    translateError: vi.fn((errorCode: string) => {
+      const errorMap: Record<string, string> = {
+        DELETE_FLAVOR_UNAUTHORIZED: "You are not authorized to delete flavors. Please log in again.",
+        DELETE_FLAVOR_FORBIDDEN: "You don't have permission to delete flavors in this project.",
+        DELETE_FLAVOR_NOT_FOUND: "The flavor could not be found. It may have already been deleted.",
+        DELETE_FLAVOR_SERVER_ERROR: "Server error occurred while deleting the flavor. Please try again later.",
+        DELETE_FLAVOR_FAILED: "Failed to delete the flavor. Please try again.",
+      }
+      return errorMap[errorCode] || "An unexpected error occurred. Please try again."
+    }),
+    isRetryableError: vi.fn(() => false),
+  }),
+}))
 
 const TestingProvider = ({ children }: { children: ReactNode }) => <I18nProvider i18n={i18n}>{children}</I18nProvider>
 
@@ -133,6 +149,76 @@ describe("DeleteFlavorModal", () => {
     expect(screen.getByText("No flavor selected for deletion.")).toBeInTheDocument()
     expect(mockClient.compute.deleteFlavor.mutate).not.toHaveBeenCalled()
     expect(mockOnSuccess).not.toHaveBeenCalled()
+  })
+
+  it("displays translated error message when deletion fails", async () => {
+    const mockClientWithError = {
+      compute: {
+        deleteFlavor: {
+          mutate: vi.fn().mockRejectedValue(new Error("DELETE_FLAVOR_FORBIDDEN")),
+        },
+      },
+    } as unknown as TrpcClient
+
+    await act(async () => {
+      render(
+        <DeleteFlavorModal
+          client={mockClientWithError}
+          isOpen={true}
+          onClose={mockOnClose}
+          project="test-project"
+          flavor={mockFlavor}
+          onSuccess={mockOnSuccess}
+        />,
+        {
+          wrapper: TestingProvider,
+        }
+      )
+    })
+
+    const deleteButton = screen.getByText("Delete")
+
+    await act(async () => {
+      fireEvent.click(deleteButton)
+    })
+
+    expect(screen.getByText("You don't have permission to delete flavors in this project.")).toBeInTheDocument()
+    expect(mockOnSuccess).not.toHaveBeenCalled()
+    expect(mockOnClose).not.toHaveBeenCalled()
+  })
+
+  it("displays generic error message for unknown error codes", async () => {
+    const mockClientWithError = {
+      compute: {
+        deleteFlavor: {
+          mutate: vi.fn().mockRejectedValue(new Error("UNKNOWN_ERROR")),
+        },
+      },
+    } as unknown as TrpcClient
+
+    await act(async () => {
+      render(
+        <DeleteFlavorModal
+          client={mockClientWithError}
+          isOpen={true}
+          onClose={mockOnClose}
+          project="test-project"
+          flavor={mockFlavor}
+          onSuccess={mockOnSuccess}
+        />,
+        {
+          wrapper: TestingProvider,
+        }
+      )
+    })
+
+    const deleteButton = screen.getByText("Delete")
+
+    await act(async () => {
+      fireEvent.click(deleteButton)
+    })
+
+    expect(screen.getByText("An unexpected error occurred. Please try again.")).toBeInTheDocument()
   })
 
   it("does not render when modal is closed", () => {

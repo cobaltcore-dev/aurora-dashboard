@@ -16,6 +16,7 @@ import {
 } from "@cloudoperators/juno-ui-components"
 import { Flavor } from "@/server/Compute/types/flavor"
 import { Trans } from "@lingui/react/macro"
+import { useErrorTranslation } from "@/client/utils/useErrorTranslation"
 
 interface DeleteFlavorModalProps {
   client: TrpcClient
@@ -35,6 +36,7 @@ export const DeleteFlavorModal: React.FC<DeleteFlavorModalProps> = ({
   onSuccess,
 }) => {
   const { t } = useLingui()
+  const { translateError } = useErrorTranslation()
   const [isLoading, setIsLoading] = useState(false)
   const [generalError, setGeneralError] = useState<string | null>(null)
 
@@ -55,8 +57,12 @@ export const DeleteFlavorModal: React.FC<DeleteFlavorModalProps> = ({
       })
       onSuccess()
       handleClose()
-    } catch (error) {
-      console.error(error)
+    } catch (error: any) {
+      console.error("Failed to delete flavor:", error)
+      const errorMessage = error?.message
+        ? translateError(error.message)
+        : t`Failed to delete flavor. Please try again.`
+      setGeneralError(errorMessage)
     } finally {
       setIsLoading(false)
     }
@@ -80,16 +86,10 @@ export const DeleteFlavorModal: React.FC<DeleteFlavorModalProps> = ({
       modalFooter={
         <ModalFooter className="flex justify-end ">
           <ButtonRow>
-            <Button
-              variant="primary-danger"
-              onClick={() => {
-                onClose()
-                handleDelete()
-              }}
-            >
-              <Trans>Delete</Trans>
+            <Button variant="primary-danger" onClick={handleDelete} disabled={isLoading}>
+              {isLoading ? <Spinner size="small" /> : <Trans>Delete</Trans>}
             </Button>
-            <Button variant="default" onClick={onClose}>
+            <Button variant="default" onClick={handleClose} disabled={isLoading}>
               <Trans>Cancel</Trans>
             </Button>
           </ButtonRow>

@@ -8,6 +8,8 @@ import {
   PopupMenu,
   PopupMenuOptions,
   PopupMenuItem,
+  Spinner,
+  Stack,
 } from "@cloudoperators/juno-ui-components"
 import { Trans } from "@lingui/react/macro"
 import { DeleteFlavorModal } from "./DeleteFlavorModal"
@@ -33,7 +35,7 @@ export const FlavorListContainer = ({
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
   const [specModalOpen, setSpecModalOpen] = useState(false)
   const [selectedFlavor, setSelectedFlavor] = useState<Flavor | null>(null)
-
+  console.log(flavors)
   const openDeleteModal = (flavor: Flavor) => {
     setSelectedFlavor(flavor)
     setDeleteModalOpen(true)
@@ -59,7 +61,16 @@ export const FlavorListContainer = ({
   if (isLoading) {
     return (
       <div data-testid="loading">
-        <Trans>Loading...</Trans>
+        <div data-testid="loading">
+          <DataGridRow>
+            <DataGridCell colSpan={3}>
+              <Stack distribution="center" alignment="center">
+                <Spinner variant="primary" />
+                <Trans>Loading...</Trans>
+              </Stack>
+            </DataGridCell>
+          </DataGridRow>
+        </div>
       </div>
     )
   }
