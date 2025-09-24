@@ -52,19 +52,17 @@ const POLICY_MAPPINGS = {
 type PolicyKey = keyof typeof POLICY_MAPPINGS
 
 export const permissionRouter = {
-  canUser: protectedProcedure
-    .input(z.string())
-    .query(async ({ ctx, input }) => {
-      const policyMapping = POLICY_MAPPINGS[input as PolicyKey]
+  canUser: protectedProcedure.input(z.string()).query(async ({ ctx, input }) => {
+    const policyMapping = POLICY_MAPPINGS[input as PolicyKey]
 
-      if (!policyMapping) {
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: `Unknown permission: ${input}`,
-        })
-      }
+    if (!policyMapping) {
+      throw new TRPCError({
+        code: "BAD_REQUEST",
+        message: `Unknown permission: ${input}`,
+      })
+    }
 
-      const policy = getPolicy(ctx, policyMapping.engine)
-      return policy.check(policyMapping.rule)
-    }),
+    const policy = getPolicy(ctx, policyMapping.engine)
+    return policy.check(policyMapping.rule)
+  }),
 }
