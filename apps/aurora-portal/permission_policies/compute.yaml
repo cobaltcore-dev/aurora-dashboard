@@ -1,3 +1,4 @@
+# Openstack Nova Policy
 # Decides what is required for the 'is_admin:True' check to succeed.
 #context_is_admin: role:admin
 context_is_admin: role:cloud_compute_admin
