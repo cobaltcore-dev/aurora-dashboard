@@ -77,7 +77,7 @@ function parseSimpleYaml(content: string): Record<string, string> {
     let key = line.substring(0, separatorIndex).trim()
     let value = line.substring(separatorIndex + 1).trim()
 
-    // Remove inline comments 
+    // Remove inline comments
     const hashIndex = value.indexOf("#")
     if (hashIndex !== -1) {
       const beforeHash = value.substring(0, hashIndex)
@@ -87,12 +87,12 @@ function parseSimpleYaml(content: string): Record<string, string> {
       }
     }
 
-    // Remove quotes from KEY 
+    // Remove quotes from KEY
     if ((key.startsWith('"') && key.endsWith('"')) || (key.startsWith("'") && key.endsWith("'"))) {
       key = key.slice(1, -1)
     }
 
-    // Remove quotes from VALUE 
+    // Remove quotes from VALUE
     if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) {
       value = value.slice(1, -1)
     }
