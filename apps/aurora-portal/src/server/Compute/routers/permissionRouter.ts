@@ -53,7 +53,7 @@ type PolicyKey = keyof typeof POLICY_MAPPINGS
 
 export const permissionRouter = {
   canUser: protectedProcedure
-    .input(z.string()) // Just one string parameter
+    .input(z.string()) 
     .query(async ({ ctx, input }) => {
       const policyMapping = POLICY_MAPPINGS[input as PolicyKey]
 
