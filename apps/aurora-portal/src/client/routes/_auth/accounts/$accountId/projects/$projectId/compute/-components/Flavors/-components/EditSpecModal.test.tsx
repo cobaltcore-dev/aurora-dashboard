@@ -59,6 +59,7 @@ describe("EditSpecModal Integration", () => {
     })
 
     expect(screen.getByText("Edit Extra Specs")).toBeInTheDocument()
+    expect(screen.getByTestId("addExtraButton")).toBeInTheDocument()
   })
 
   it("handles modal close correctly", async () => {

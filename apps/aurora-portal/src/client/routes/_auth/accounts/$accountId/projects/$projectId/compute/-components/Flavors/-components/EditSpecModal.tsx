@@ -118,6 +118,7 @@ export const EditSpecModal: React.FC<EditSpecModalProps> = ({ client, isOpen, on
               <Button
                 icon="addCircle"
                 label={t`Add Extra Spec`}
+                data-testid="addExtraButton"
                 onClick={() => setIsAddingSpec(true)}
                 variant="primary"
                 disabled={isAddingSpec}
