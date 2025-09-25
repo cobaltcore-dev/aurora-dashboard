@@ -7,6 +7,15 @@ interface ComputeService {
   get(path: string): Promise<Response>
   post<T = unknown>(path: string, body: T): Promise<Response>
 }
+interface ServiceOptions {
+  [key: string]: unknown
+}
+
+interface ComputeService {
+  del(path: string, options?: ServiceOptions): Promise<Response>
+  get(path: string, options?: ServiceOptions): Promise<Response>
+  post(path: string, values: string | object | undefined, options?: ServiceOptions): Promise<Response>
+}
 
 interface CreateFlavorResponse {
   flavor: Flavor

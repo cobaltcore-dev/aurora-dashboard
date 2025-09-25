@@ -207,7 +207,7 @@ export const EditSpecModal: React.FC<EditSpecModalProps> = ({ client, isOpen, on
       })
 
       // Update local state with trimmed values
-      setExtraSpecs((prev) => ({ ...prev, [trimmedKey]: trimmedValue }))
+      setExtraSpecs((prev) => ({ [trimmedKey]: trimmedValue, ...prev }))
       setSuccessMessage(t`Extra spec "${trimmedKey}" has been added successfully.`)
       setNewKey("")
       setNewValue("")
