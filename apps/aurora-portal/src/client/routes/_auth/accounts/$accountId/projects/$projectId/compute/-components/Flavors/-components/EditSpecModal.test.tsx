@@ -61,36 +61,4 @@ describe("EditSpecModal Integration", () => {
     expect(screen.getByText("Edit Extra Specs")).toBeInTheDocument()
     expect(screen.getByTestId("addExtraButton")).toBeInTheDocument()
   })
-
-  it("handles modal close correctly", async () => {
-    const onClose = vi.fn()
-
-    await act(async () => {
-      render(
-        <EditSpecModal
-          client={mockClient}
-          isOpen={true}
-          onClose={onClose}
-          project="test-project"
-          flavor={mockFlavor}
-        />,
-        { wrapper: TestingProvider }
-      )
-    })
-  })
-
-  it("integrates add and delete workflows", async () => {
-    await act(async () => {
-      render(
-        <EditSpecModal
-          client={mockClient}
-          isOpen={true}
-          onClose={vi.fn()}
-          project="test-project"
-          flavor={mockFlavor}
-        />,
-        { wrapper: TestingProvider }
-      )
-    })
-  })
 })
