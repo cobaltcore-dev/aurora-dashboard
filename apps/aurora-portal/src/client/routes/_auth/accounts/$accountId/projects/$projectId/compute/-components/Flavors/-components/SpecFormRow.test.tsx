@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, act } from "@testing-library/react"
+import { render, screen, act } from "@testing-library/react"
 import { describe, it, expect, vi, beforeAll } from "vitest"
 import { SpecFormRow } from "./SpecFormRow"
 import { I18nProvider } from "@lingui/react"
@@ -36,10 +36,6 @@ describe("SpecFormRow", () => {
       })
     })
 
-    // Debug: Let's see what's actually rendered
-    screen.debug()
-
-    // Try different ways to find the inputs
     const keyInput = screen.getByDisplayValue("testKey")
     const valueInput = screen.getByDisplayValue("testValue")
 
@@ -61,21 +57,9 @@ describe("SpecFormRow", () => {
       })
     })
 
-    // Debug: Check what's rendered when values are empty
-    screen.debug()
-
-    // Try different selectors
-    try {
-      const keyInput = screen.getByPlaceholderText("Enter key")
-      const valueInput = screen.getByPlaceholderText("Enter value")
-      expect(keyInput).toHaveValue("")
-      expect(valueInput).toHaveValue("")
-    } catch (error) {
-      // If placeholder doesn't work, try by role
-      const inputs = screen.getAllByRole("textbox")
-      expect(inputs).toHaveLength(2)
-      expect(inputs[0]).toHaveValue("")
-      expect(inputs[1]).toHaveValue("")
-    }
+    const keyInput = screen.getByPlaceholderText("Enter key")
+    const valueInput = screen.getByPlaceholderText("Enter value")
+    expect(keyInput).toHaveValue("")
+    expect(valueInput).toHaveValue("")
   })
 })

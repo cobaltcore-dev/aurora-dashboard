@@ -1,4 +1,4 @@
-import { render, screen, act, fireEvent, waitFor } from "@testing-library/react"
+import { render, screen, act } from "@testing-library/react"
 import { describe, it, expect, beforeAll, vi, beforeEach } from "vitest"
 import { EditSpecModal } from "./EditSpecModal"
 import { TrpcClient } from "@/client/trpcClient"
