@@ -2,11 +2,6 @@ import { TRPCError } from "@trpc/server"
 import { flavorResponseSchema, Flavor, CreateFlavorInput } from "../types/flavor"
 import { ERROR_CODES } from "../../errorCodes"
 
-interface ComputeService {
-  del(path: string): Promise<Response>
-  get(path: string): Promise<Response>
-  post<T = unknown>(path: string, body: T): Promise<Response>
-}
 interface ServiceOptions {
   [key: string]: unknown
 }
