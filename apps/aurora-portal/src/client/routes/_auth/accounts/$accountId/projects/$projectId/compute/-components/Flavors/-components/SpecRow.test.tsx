@@ -24,7 +24,6 @@ describe("SpecRow", () => {
     expect(screen.getByText("cpu")).toBeInTheDocument()
     expect(screen.getByText("dedicated")).toBeInTheDocument()
 
-    // Use test-id for more reliable testing
     expect(screen.getByTestId("delete-cpu")).toBeInTheDocument()
   })
 
@@ -36,7 +35,6 @@ describe("SpecRow", () => {
     })
 
     expect(screen.queryByTestId("delete-cpu")).not.toBeInTheDocument()
-    // Check for spinner if your Spinner component has identifiable attributes
   })
 
   it("calls onDelete when delete button is clicked", async () => {
