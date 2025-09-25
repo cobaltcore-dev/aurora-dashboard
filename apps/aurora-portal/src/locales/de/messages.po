@@ -45,7 +45,7 @@ msgstr "Ein Flavor mit dieser ID oder diesem Namen existiert bereits. Bitte verw
 msgid "About Aurora Dashboard"
 msgstr "Über das Aurora-Dashboard"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:283
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:120
 msgid "Add Extra Spec"
 msgstr "Extra Spec hinzufügen"
 
@@ -82,7 +82,7 @@ msgid "Back"
 msgstr "Zurück"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/DeleteClusterDialog.tsx:47
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:327
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/SpecFormRow.tsx:41
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/DeleteFlavorModal.tsx:93
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/CreateFlavorModal.tsx:139
 msgid "Cancel"
@@ -163,9 +163,10 @@ msgstr "Neuen Flavor erstellen"
 msgid "Delete"
 msgstr "Löschen"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:347
-msgid "Delete {key}"
-msgstr "Lösche {key}"
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/SpecRow.tsx:29
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/SpecRow.tsx:30
+msgid "Delete {specKey}"
+msgstr "Lösche {specKey}"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/DeleteClusterDialog.tsx:29
 msgid "Delete Cluster"
@@ -211,11 +212,11 @@ msgstr "Jeder Worker-Knoten wird je nach Arbeitslast automatisch zwischen der mi
 msgid "Each worker pool will automatically scale between its minimum and maximum node counts based on workload demands. Ensure your maximum node counts align with your resource quotas."
 msgstr "Jeder Worker-Pool skaliert je nach Arbeitslast automatisch zwischen der minimalen und maximalen Knotenzahl. Stelle sicher, dass deine maximale Knotenzahl mit deinen Ressourcenkontingenten übereinstimmt."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:270
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:111
 msgid "Edit Extra Specs"
 msgstr "Extra Specs bearbeiten"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:303
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/SpecFormRow.tsx:23
 msgid "Enter key"
 msgstr "Key eingeben"
 
@@ -227,7 +228,7 @@ msgstr "Suchbegriff oder Regex eingeben"
 msgid "Enter the Cloud"
 msgstr "Die Cloud betreten"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:313
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/SpecFormRow.tsx:33
 msgid "Enter value"
 msgstr "Value eingeben"
 
@@ -256,13 +257,14 @@ msgstr "Ephemeral Disk (GiB)"
 msgid "Ephemeral Disk must be an integer ≥ 0."
 msgstr "Ephemeral Disk muss eine ganze Zahl ≥ 0 sein."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:257
+#. placeholder {0}: form.trimmedKey
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:63
+msgid "Extra spec \"{0}\" has been added successfully."
+msgstr "Extra-Spec \"{0}\" wurde erfolgreich hinzugefügt."
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:81
 msgid "Extra spec \"{key}\" has been deleted successfully."
 msgstr "Extra-Spec \"{key}\" wurde erfolgreich gelöscht."
-
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:211
-msgid "Extra spec \"{trimmedKey}\" has been added successfully."
-msgstr "Extra-Spec \"{trimmedKey}\" wurde erfolgreich hinzugefügt."
 
 #: src/client/utils/useErrorTranslation.ts:92
 msgid "Extra spec key is required and cannot be empty."
@@ -275,10 +277,6 @@ msgstr "Kopieren fehlgeschlagen"
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterWizard/CreateClusterDialogContent.tsx:122
 msgid "Failed to create cluster:"
 msgstr "Fehler beim Erstellen des Clusters:"
-
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:220
-msgid "Failed to create extra spec. Please try again."
-msgstr "Fehler beim Erstellen des Extra-Specs. Bitte versuchen Sie es erneut."
 
 #: src/client/utils/useErrorTranslation.ts:66
 msgid "Failed to create extra specs. Please try again."
@@ -295,10 +293,6 @@ msgstr "Fehler beim Erstellen des Flavors. Bitte versuchen Sie es erneut."
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail.tsx:44
 msgid "Failed to delete cluster: "
 msgstr "Fehler beim löschen des Clusters:"
-
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:262
-msgid "Failed to delete extra spec \"{key}\". Please try again."
-msgstr "Fehler beim Löschen der Extra-Spec \"{key}\". Bitte versuchen Sie es erneut."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/DeleteFlavorModal.tsx:64
 msgid "Failed to delete flavor. Please try again."
@@ -317,7 +311,6 @@ msgid "Failed to fetch flavors from server."
 msgstr "Fehler beim Abrufen der Flavors vom Server."
 
 #: src/client/utils/useErrorTranslation.ts:80
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:69
 msgid "Failed to load extra specs. Please try again."
 msgstr "Fehler beim Laden der Extra-Specs. Bitte versuchen Sie es erneut."
 
@@ -340,11 +333,6 @@ msgstr "Flavor \"{flavorName}\" wurde erfolgreich gelöscht."
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/CreateFlavorModal.tsx:160
 msgid "Flavor ID"
 msgstr "Flavor ID"
-
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:194
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:238
-msgid "Flavor ID is missing."
-msgstr "Flavor-ID fehlt."
 
 #: src/client/utils/useErrorTranslation.ts:48
 msgid "Flavor ID is required and cannot be empty."
@@ -395,21 +383,13 @@ msgstr "Infrastruktur"
 msgid "Infrastructure Configuration"
 msgstr "Infrastruktur-Konfiguration"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:291
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:130
 msgid "Key"
 msgstr "Key"
-
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:82
-msgid "Key already exists."
-msgstr "Key existiert bereits."
 
 #: src/client/routes/about.tsx:35
 msgid "Key Features"
 msgstr "Hauptmerkmale"
-
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:79
-msgid "Key is required."
-msgstr "Key ist erforderlich."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail/ClusterOverviewSection.tsx:76
 msgid "Kubernetes"
@@ -502,7 +482,7 @@ msgstr "Netzwerkkonfiguration"
 msgid "Next"
 msgstr "Weiter"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:367
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:103
 msgid "No extra specs found. Click \"Add Extra Spec\" to create one."
 msgstr "Keine Extra Specs gefunden. Klicken Sie auf \"Extra Spec hinzufügen\", um eine zu erstellen."
 
@@ -534,7 +514,7 @@ msgstr "Unsere Mission"
 msgid "Password"
 msgstr "Passwort"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:189
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:56
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/CreateFlavorModal.tsx:94
 msgid "Please fix the validation errors below."
 msgstr "Bitte korrigieren Sie die Validierungsfehler unten."
@@ -604,7 +584,7 @@ msgstr "RX/TX Factor"
 msgid "RX/TX Factor must be an integer ≥ 1."
 msgstr "RX/TX Faktor muss eine ganze Zahl ≥ 1 sein."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:324
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/SpecFormRow.tsx:40
 msgid "Save Extra Spec"
 msgstr "Extra Spec speichern"
 
@@ -760,13 +740,9 @@ msgstr "Unbekannter Fehler"
 msgid "User C/D/I"
 msgstr "Benutzer C/D/I"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:292
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:131
 msgid "Value"
 msgstr "Value"
-
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:91
-msgid "Value is required."
-msgstr "Ein Wert ist erforderlich."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:106
 msgid "vCPU"
