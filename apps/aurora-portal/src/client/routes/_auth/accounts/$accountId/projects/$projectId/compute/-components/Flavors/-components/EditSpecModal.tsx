@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react"
+import React, { useState, useEffect } from "react"
 import { TrpcClient } from "@/client/trpcClient"
 import { useLingui } from "@lingui/react/macro"
 import { useErrorTranslation } from "@/client/utils/useErrorTranslation"
@@ -44,14 +44,14 @@ export const EditSpecModal: React.FC<EditSpecModalProps> = ({ client, isOpen, on
     }
   }, [isOpen, flavor?.id, extraSpecs.fetchExtraSpecs])
 
-  const handleClose = useCallback(() => {
+  const handleClose = () => {
     setMessage(null)
     form.reset()
     setIsAddingSpec(false)
     onClose()
-  }, [form, onClose])
+  }
 
-  const handleSave = useCallback(async () => {
+  const handleSave = async () => {
     if (!form.validate()) {
       setMessage({ text: t`Please fix the validation errors below.`, type: "error" })
       return
@@ -59,8 +59,9 @@ export const EditSpecModal: React.FC<EditSpecModalProps> = ({ client, isOpen, on
 
     try {
       await extraSpecs.addExtraSpec(form.trimmedKey, form.trimmedValue)
+      const addedKey = form.trimmedKey
       setMessage({
-        text: t`Extra spec "${form.trimmedKey}" has been added successfully.`,
+        text: t`Extra spec "${addedKey}" has been added successfully.`,
         type: "success",
       })
       form.reset()
@@ -71,25 +72,22 @@ export const EditSpecModal: React.FC<EditSpecModalProps> = ({ client, isOpen, on
         type: "error",
       })
     }
-  }, [form, extraSpecs, translateError, t])
+  }
 
-  const handleDelete = useCallback(
-    async (key: string) => {
-      try {
-        setIsDeleting(key)
-        await extraSpecs.deleteExtraSpec(key)
-        setMessage({ text: t`Extra spec "${key}" has been deleted successfully.`, type: "success" })
-      } catch (error) {
-        setMessage({
-          text: translateError(error instanceof Error ? error.message : `Failed to delete extra spec "${key}"`),
-          type: "error",
-        })
-      } finally {
-        setIsDeleting(null)
-      }
-    },
-    [extraSpecs, translateError, t]
-  )
+  const handleDelete = async (key: string) => {
+    try {
+      setIsDeleting(key)
+      await extraSpecs.deleteExtraSpec(key)
+      setMessage({ text: t`Extra spec "${key}" has been deleted successfully.`, type: "success" })
+    } catch (error) {
+      setMessage({
+        text: translateError(error instanceof Error ? error.message : `Failed to delete extra spec "${key}"`),
+        type: "error",
+      })
+    } finally {
+      setIsDeleting(null)
+    }
+  }
 
   const renderMessage = () => {
     if (!message) return null
