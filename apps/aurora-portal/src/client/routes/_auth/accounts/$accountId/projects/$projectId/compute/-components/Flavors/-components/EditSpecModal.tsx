@@ -89,12 +89,6 @@ export const EditSpecModal: React.FC<EditSpecModalProps> = ({ client, isOpen, on
     }
   }
 
-  const renderMessage = () => {
-    if (!message) return null
-
-    return <Message onDismiss={() => setMessage(null)} text={message.text} variant={message.type} className="mb-4" />
-  }
-
   const renderEmptyState = () => (
     <DataGridRow>
       <DataGridCell colSpan={3} className="text-center py-4 text-theme-default">
@@ -108,7 +102,9 @@ export const EditSpecModal: React.FC<EditSpecModalProps> = ({ client, isOpen, on
   return (
     <Modal onCancel={handleClose} title={t`Edit Extra Specs`} open={isOpen} size="large">
       <div>
-        {renderMessage()}
+        {message && (
+          <Message onDismiss={() => setMessage(null)} text={message.text} variant={message.type} className="mb-4" />
+        )}
 
         {flavor && (
           <>
