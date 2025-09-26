@@ -14,8 +14,6 @@ import {
   Spinner,
 } from "@cloudoperators/juno-ui-components"
 import { Flavor } from "@/server/Compute/types/flavor"
-import { useExtraSpecs } from "./useExtraSpecs"
-import { useSpecForm } from "./useSpecForm"
 import { SpecFormRow } from "./SpecFormRow"
 import { SpecRow } from "./SpecRow"
 
@@ -31,40 +29,105 @@ export const EditSpecModal: React.FC<EditSpecModalProps> = ({ client, isOpen, on
   const { t } = useLingui()
   const { translateError } = useErrorTranslation()
 
-  const extraSpecs = useExtraSpecs(client, project, flavor?.id)
-  const form = useSpecForm(Object.keys(extraSpecs.extraSpecs))
+  // Extra specs state
+  const [extraSpecs, setExtraSpecs] = useState<Record<string, string>>({})
+  const [isLoading, setIsLoading] = useState(false)
 
+  // Form state
+  const [key, setKey] = useState("")
+  const [value, setValue] = useState("")
+  const [errors, setErrors] = useState<{ key?: string; value?: string }>({})
+
+  // UI state
   const [isAddingSpec, setIsAddingSpec] = useState(false)
   const [isDeleting, setIsDeleting] = useState<string | null>(null)
   const [message, setMessage] = useState<{ text: string; type: "error" | "success" } | null>(null)
 
+  // Fetch extra specs
+  const fetchExtraSpecs = async () => {
+    if (!flavor?.id) return
+
+    try {
+      setIsLoading(true)
+      const specs = await client.compute.getExtraSpecs.query({
+        projectId: project,
+        flavorId: flavor.id,
+      })
+      setExtraSpecs(specs)
+    } catch (err) {
+      setMessage({
+        text: translateError(err instanceof Error ? err.message : "Failed to fetch extra specs"),
+        type: "error",
+      })
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   useEffect(() => {
     if (isOpen && flavor?.id) {
-      extraSpecs.fetchExtraSpecs()
+      fetchExtraSpecs()
     }
-  }, [isOpen, flavor?.id, extraSpecs.fetchExtraSpecs])
+  }, [isOpen, flavor?.id])
+
+  // Form validation
+  const validateForm = () => {
+    const trimmedKey = key.trim()
+    const trimmedValue = value.trim()
+    const newErrors: { key?: string; value?: string } = {}
+
+    if (!trimmedKey) {
+      newErrors.key = "Key is required."
+    } else if (Object.keys(extraSpecs).includes(trimmedKey)) {
+      newErrors.key = "Key already exists."
+    }
+
+    if (!trimmedValue) {
+      newErrors.value = "Value is required."
+    }
+
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
+
+  // Reset form
+  const resetForm = () => {
+    setKey("")
+    setValue("")
+    setErrors({})
+  }
 
   const handleClose = () => {
     setMessage(null)
-    form.reset()
+    resetForm()
     setIsAddingSpec(false)
     onClose()
   }
 
   const handleSave = async () => {
-    if (!form.validate()) {
+    if (!validateForm()) {
       setMessage({ text: t`Please fix the validation errors below.`, type: "error" })
       return
     }
 
+    if (!flavor?.id) return
+
     try {
-      await extraSpecs.addExtraSpec(form.trimmedKey, form.trimmedValue)
-      const addedKey = form.trimmedKey
+      const trimmedKey = key.trim()
+      const trimmedValue = value.trim()
+
+      await client.compute.createExtraSpecs.mutate({
+        projectId: project,
+        flavorId: flavor.id,
+        extra_specs: { [trimmedKey]: trimmedValue },
+      })
+
+      setExtraSpecs((prev) => ({ [trimmedKey]: trimmedValue, ...prev }))
       setMessage({
-        text: t`Extra spec "${addedKey}" has been added successfully.`,
+        text: t`Extra spec "${trimmedKey}" has been added successfully.`,
         type: "success",
       })
-      form.reset()
+      resetForm()
       setIsAddingSpec(false)
     } catch (error) {
       setMessage({
@@ -74,14 +137,26 @@ export const EditSpecModal: React.FC<EditSpecModalProps> = ({ client, isOpen, on
     }
   }
 
-  const handleDelete = async (key: string) => {
+  const handleDelete = async (keyToDelete: string) => {
+    if (!flavor?.id) return
+
     try {
-      setIsDeleting(key)
-      await extraSpecs.deleteExtraSpec(key)
-      setMessage({ text: t`Extra spec "${key}" has been deleted successfully.`, type: "success" })
+      setIsDeleting(keyToDelete)
+      await client.compute.deleteExtraSpec.mutate({
+        projectId: project,
+        flavorId: flavor.id,
+        key: keyToDelete,
+      })
+
+      setExtraSpecs((prev) => {
+        const newSpecs = { ...prev }
+        delete newSpecs[keyToDelete]
+        return newSpecs
+      })
+      setMessage({ text: t`Extra spec "${keyToDelete}" has been deleted successfully.`, type: "success" })
     } catch (error) {
       setMessage({
-        text: translateError(error instanceof Error ? error.message : `Failed to delete extra spec "${key}"`),
+        text: translateError(error instanceof Error ? error.message : `Failed to delete extra spec "${keyToDelete}"`),
         type: "error",
       })
     } finally {
@@ -89,15 +164,17 @@ export const EditSpecModal: React.FC<EditSpecModalProps> = ({ client, isOpen, on
     }
   }
 
-  const renderEmptyState = () => (
-    <DataGridRow>
-      <DataGridCell colSpan={3} className="text-center py-4 text-theme-default">
-        {t`No extra specs found. Click "Add Extra Spec" to create one.`}
-      </DataGridCell>
-    </DataGridRow>
-  )
+  const handleKeyChange = (newKey: string) => {
+    setKey(newKey)
+    if (errors.key) setErrors((prev) => ({ ...prev, key: undefined }))
+  }
 
-  const shouldShowEmptyState = !extraSpecs.isLoading && Object.keys(extraSpecs.extraSpecs).length === 0 && !isAddingSpec
+  const handleValueChange = (newValue: string) => {
+    setValue(newValue)
+    if (errors.value) setErrors((prev) => ({ ...prev, value: undefined }))
+  }
+
+  const shouldShowEmptyState = !isLoading && Object.keys(extraSpecs).length === 0 && !isAddingSpec
 
   return (
     <Modal onCancel={handleClose} title={t`Edit Extra Specs`} open={isOpen} size="large">
@@ -128,28 +205,32 @@ export const EditSpecModal: React.FC<EditSpecModalProps> = ({ client, isOpen, on
 
               {isAddingSpec && (
                 <SpecFormRow
-                  form={form}
-                  isLoading={extraSpecs.isLoading}
+                  specKey={key} // Pass as specKey instead of key
+                  value={value}
+                  errors={errors}
+                  isLoading={isLoading}
+                  onKeyChange={handleKeyChange}
+                  onValueChange={handleValueChange}
                   onSave={handleSave}
                   onCancel={() => {
-                    form.reset()
+                    resetForm()
                     setIsAddingSpec(false)
                     setMessage(null)
                   }}
                 />
               )}
 
-              {Object.entries(extraSpecs.extraSpecs).map(([key, value]) => (
+              {Object.entries(extraSpecs).map(([specKey, specValue]) => (
                 <SpecRow
-                  key={key}
-                  specKey={key}
-                  value={value}
-                  isDeleting={isDeleting === key}
-                  onDelete={() => handleDelete(key)}
+                  key={specKey}
+                  specKey={specKey}
+                  value={specValue}
+                  isDeleting={isDeleting === specKey}
+                  onDelete={() => handleDelete(specKey)}
                 />
               ))}
 
-              {extraSpecs.isLoading && (
+              {isLoading && (
                 <DataGridRow>
                   <DataGridCell colSpan={3}>
                     <Stack distribution="center" alignment="center">
@@ -158,7 +239,14 @@ export const EditSpecModal: React.FC<EditSpecModalProps> = ({ client, isOpen, on
                   </DataGridCell>
                 </DataGridRow>
               )}
-              {shouldShowEmptyState && renderEmptyState()}
+
+              {shouldShowEmptyState && (
+                <DataGridRow>
+                  <DataGridCell colSpan={3} className="text-center py-4 text-theme-default">
+                    {t`No extra specs found. Click "Add Extra Spec" to create one.`}
+                  </DataGridCell>
+                </DataGridRow>
+              )}
             </DataGrid>
           </>
         )}
