@@ -1,6 +1,14 @@
 import { protectedProcedure } from "../../trpc"
 import { z } from "zod"
-import { createFlavor, fetchFlavors, filterAndSortFlavors, deleteFlavor } from "../helpers/flavorHelpers"
+import {
+  createFlavor,
+  fetchFlavors,
+  filterAndSortFlavors,
+  deleteFlavor,
+  createExtraSpecs,
+  getExtraSpecs,
+  deleteExtraSpec,
+} from "../helpers/flavorHelpers"
 import { Flavor } from "../types/flavor"
 import { TRPCError } from "@trpc/server"
 import { ERROR_CODES } from "../../errorCodes"
@@ -121,6 +129,111 @@ export const flavorRouter = {
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: ERROR_CODES.DELETE_FLAVOR_FAILED,
+          cause: error,
+        })
+      }
+    }),
+  createExtraSpecs: protectedProcedure
+    .input(
+      z.object({
+        projectId: z.string(),
+        flavorId: z.string(),
+        extra_specs: z.record(z.string(), z.string()),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      try {
+        const { projectId, flavorId, extra_specs } = input
+
+        const openstackSession = await ctx.rescopeSession({ projectId })
+        const compute = openstackSession?.service("compute")
+        if (!compute) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: ERROR_CODES.COMPUTE_SERVICE_UNAVAILABLE,
+          })
+        }
+
+        const result = await createExtraSpecs(compute, flavorId, extra_specs)
+        return result
+      } catch (error) {
+        if (error instanceof TRPCError) {
+          throw error
+        }
+
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: ERROR_CODES.CREATE_EXTRA_SPECS_FAILED,
+          cause: error,
+        })
+      }
+    }),
+  getExtraSpecs: protectedProcedure
+    .input(
+      z.object({
+        projectId: z.string(),
+        flavorId: z.string(),
+      })
+    )
+    .query(async ({ input, ctx }) => {
+      try {
+        const { projectId, flavorId } = input
+
+        const openstackSession = await ctx.rescopeSession({ projectId })
+        const compute = openstackSession?.service("compute")
+        if (!compute) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: ERROR_CODES.COMPUTE_SERVICE_UNAVAILABLE,
+          })
+        }
+
+        const result = await getExtraSpecs(compute, flavorId)
+        return result
+      } catch (error) {
+        if (error instanceof TRPCError) {
+          throw error
+        }
+
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: ERROR_CODES.GET_EXTRA_SPECS_FAILED,
+          cause: error,
+        })
+      }
+    }),
+
+  deleteExtraSpec: protectedProcedure
+    .input(
+      z.object({
+        projectId: z.string(),
+        flavorId: z.string(),
+        key: z.string(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      try {
+        const { projectId, flavorId, key } = input
+
+        const openstackSession = await ctx.rescopeSession({ projectId })
+        const compute = openstackSession?.service("compute")
+        if (!compute) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: ERROR_CODES.COMPUTE_SERVICE_UNAVAILABLE,
+          })
+        }
+
+        await deleteExtraSpec(compute, flavorId, key)
+        return { success: true, message: "Extra spec deleted successfully" }
+      } catch (error) {
+        if (error instanceof TRPCError) {
+          throw error
+        }
+
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: ERROR_CODES.DELETE_EXTRA_SPEC_FAILED,
           cause: error,
         })
       }

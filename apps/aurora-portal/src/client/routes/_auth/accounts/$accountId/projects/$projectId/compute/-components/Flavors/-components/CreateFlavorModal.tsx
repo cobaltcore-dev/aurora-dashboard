@@ -14,6 +14,7 @@ import {
 import { Flavor } from "@/server/Compute/types/flavor"
 import { validateField, FlavorFormField, FieldErrors } from "./flavorValidation"
 import { cleanFlavorData } from "./flavorValidation"
+import { useErrorTranslation } from "@/client/utils/useErrorTranslation"
 
 interface CreateFlavorModalProps {
   client: TrpcClient
@@ -31,6 +32,7 @@ export const CreateFlavorModal: React.FC<CreateFlavorModalProps> = ({
   onSuccess,
 }) => {
   const { t } = useLingui()
+  const { translateError } = useErrorTranslation()
   const [newFlavor, setNewFlavor] = useState<Partial<Flavor>>({})
   const [errors, setErrors] = useState<FieldErrors>({})
   const [isLoading, setIsLoading] = useState(false)
@@ -106,8 +108,10 @@ export const CreateFlavorModal: React.FC<CreateFlavorModalProps> = ({
       onSuccess(flavorData.name)
       handleClose()
     } catch (error) {
-      console.error(error)
-      setGeneralError(t`Failed to create flavor. Please try again.`)
+      const errorMessage = (error as Error)?.message
+        ? translateError((error as Error).message)
+        : t`Failed to create flavor. Please try again.`
+      setGeneralError(errorMessage)
     } finally {
       setIsLoading(false)
     }

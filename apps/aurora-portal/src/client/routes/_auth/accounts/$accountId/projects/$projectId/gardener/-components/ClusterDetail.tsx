@@ -43,7 +43,6 @@ const ClusterDetailPage: React.FC<PeakDetailPageProps> = ({ cluster, isDeleteAll
     } catch (error) {
       const errorString = t`Failed to delete cluster: ` + (error instanceof Error ? error.message : "Unknown error")
       setErrorMessage(errorString)
-      console.error(errorString)
     } finally {
       setDeleteClusterModal(false)
     }
