@@ -45,7 +45,7 @@ msgstr "Ein Flavor mit dieser ID oder diesem Namen existiert bereits. Bitte verw
 msgid "About Aurora Dashboard"
 msgstr "Über das Aurora-Dashboard"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:120
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:114
 msgid "Add Extra Spec"
 msgstr "Extra Spec hinzufügen"
 
@@ -83,8 +83,8 @@ msgstr "Zurück"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/DeleteClusterDialog.tsx:47
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/SpecFormRow.tsx:41
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/DeleteFlavorModal.tsx:93
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/CreateFlavorModal.tsx:139
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/DeleteFlavorModal.tsx:92
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/CreateFlavorModal.tsx:138
 msgid "Cancel"
 msgstr "Abbrechen"
 
@@ -112,7 +112,7 @@ msgstr "Cluster erfolgreich erstellt"
 msgid "Cluster deleted successfully"
 msgstr "Cluster erfolgreich gelöscht"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail.tsx:75
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail.tsx:74
 msgid "Cluster details copied to clipboard!"
 msgstr "Cluster-Details erfolgreich kopiert!"
 
@@ -128,7 +128,7 @@ msgstr "Cluster Name"
 msgid "Cluster name is required"
 msgstr "Cluster Name ist erforderlich"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail.tsx:116
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail.tsx:115
 msgid "Clusters"
 msgstr "Cluster"
 
@@ -149,17 +149,17 @@ msgid "Create Cluster"
 msgstr "Cluster erstellen"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FilterToolbar.tsx:70
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/CreateFlavorModal.tsx:136
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/CreateFlavorModal.tsx:135
 msgid "Create Flavor"
 msgstr "Flavor erstellen"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/CreateFlavorModal.tsx:140
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/CreateFlavorModal.tsx:139
 msgid "Create New Flavor"
 msgstr "Neuen Flavor erstellen"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/DeleteClusterDialog.tsx:44
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail/DetailLayout.tsx:69
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/DeleteFlavorModal.tsx:90
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/DeleteFlavorModal.tsx:89
 msgid "Delete"
 msgstr "Löschen"
 
@@ -172,7 +172,7 @@ msgstr "Lösche {specKey}"
 msgid "Delete Cluster"
 msgstr "Cluster löschen"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/DeleteFlavorModal.tsx:83
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/DeleteFlavorModal.tsx:82
 msgid "Delete Flavor"
 msgstr "Flavor löschen"
 
@@ -180,7 +180,7 @@ msgstr "Flavor löschen"
 msgid "Descending"
 msgstr "Absteigend"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/CreateFlavorModal.tsx:183
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/CreateFlavorModal.tsx:182
 msgid "Description"
 msgstr "Beschreibung"
 
@@ -188,11 +188,11 @@ msgstr "Beschreibung"
 msgid "Description must be less than 65535 characters."
 msgstr "Die Beschreibung muss weniger als 65535 Zeichen haben."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/DeleteFlavorModal.tsx:133
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/DeleteFlavorModal.tsx:132
 msgid "Disk"
 msgstr "Disk"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/CreateFlavorModal.tsx:220
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/CreateFlavorModal.tsx:219
 msgid "Disk (GiB)"
 msgstr "Disk (GiB)"
 
@@ -212,7 +212,7 @@ msgstr "Jeder Worker-Knoten wird je nach Arbeitslast automatisch zwischen der mi
 msgid "Each worker pool will automatically scale between its minimum and maximum node counts based on workload demands. Ensure your maximum node counts align with your resource quotas."
 msgstr "Jeder Worker-Pool skaliert je nach Arbeitslast automatisch zwischen der minimalen und maximalen Knotenzahl. Stelle sicher, dass deine maximale Knotenzahl mit deinen Ressourcenkontingenten übereinstimmt."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:111
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:103
 msgid "Edit Extra Specs"
 msgstr "Extra Specs bearbeiten"
 
@@ -249,7 +249,7 @@ msgid "Ephemeral Disk"
 msgstr "Ephemeral Disk"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:115
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/CreateFlavorModal.tsx:233
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/CreateFlavorModal.tsx:232
 msgid "Ephemeral Disk (GiB)"
 msgstr "Ephemeral Disk (GiB)"
 
@@ -257,10 +257,9 @@ msgstr "Ephemeral Disk (GiB)"
 msgid "Ephemeral Disk must be an integer ≥ 0."
 msgstr "Ephemeral Disk muss eine ganze Zahl ≥ 0 sein."
 
-#. placeholder {0}: form.trimmedKey
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:63
-msgid "Extra spec \"{0}\" has been added successfully."
-msgstr "Extra-Spec \"{0}\" wurde erfolgreich hinzugefügt."
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:64
+msgid "Extra spec \"{addedKey}\" has been added successfully."
+msgstr "Extra-Spec  \"{addedKey}\" wurde erfolgreich hinzugefügt."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:81
 msgid "Extra spec \"{key}\" has been deleted successfully."
@@ -270,7 +269,7 @@ msgstr "Extra-Spec \"{key}\" wurde erfolgreich gelöscht."
 msgid "Extra spec key is required and cannot be empty."
 msgstr "Der Key für die Extra-Spec ist erforderlich und darf nicht leer sein."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail.tsx:93
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail.tsx:92
 msgid "Failed to copy to clipboard"
 msgstr "Kopieren fehlgeschlagen"
 
@@ -282,7 +281,7 @@ msgstr "Fehler beim Erstellen des Clusters:"
 msgid "Failed to create extra specs. Please try again."
 msgstr "Fehler beim Erstellen des Extra-Specs. Bitte versuchen Sie es erneut."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/CreateFlavorModal.tsx:114
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/CreateFlavorModal.tsx:113
 msgid "Failed to create flavor. Please try again."
 msgstr "Fehler beim Erstellen des Flavors. Bitte versuchen Sie es erneut."
 
@@ -294,7 +293,7 @@ msgstr "Fehler beim Erstellen des Flavors. Bitte versuchen Sie es erneut."
 msgid "Failed to delete cluster: "
 msgstr "Fehler beim löschen des Clusters:"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/DeleteFlavorModal.tsx:64
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/DeleteFlavorModal.tsx:63
 msgid "Failed to delete flavor. Please try again."
 msgstr "Fehler beim Löschen des Flavors. Bitte versuchen Sie es erneut."
 
@@ -322,15 +321,15 @@ msgstr "Filter"
 msgid "Find detailed guides and references in our docs."
 msgstr "Finden Sie detaillierte Anleitungen und Referenzen in unserer Dokumentation."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/List.tsx:82
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/List.tsx:80
 msgid "Flavor \"{flavorName}\" has been successfully created."
 msgstr "Flavor \"{flavorName}\" wurde erfolgreich erstellt."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/List.tsx:77
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/List.tsx:75
 msgid "Flavor \"{flavorName}\" has been successfully deleted."
 msgstr "Flavor \"{flavorName}\" wurde erfolgreich gelöscht."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/CreateFlavorModal.tsx:160
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/CreateFlavorModal.tsx:159
 msgid "Flavor ID"
 msgstr "Flavor ID"
 
@@ -338,7 +337,7 @@ msgstr "Flavor ID"
 msgid "Flavor ID is required and cannot be empty."
 msgstr "Flavor-ID ist erforderlich und darf nicht leer sein"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/CreateFlavorModal.tsx:171
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/CreateFlavorModal.tsx:170
 msgid "Flavor Name"
 msgstr "Flavor Name"
 
@@ -358,7 +357,7 @@ msgstr "Mitmachen"
 msgid "GitHub"
 msgstr "GitHub"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/DeleteFlavorModal.tsx:121
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/DeleteFlavorModal.tsx:120
 msgid "ID"
 msgstr "ID"
 
@@ -383,7 +382,7 @@ msgstr "Infrastruktur"
 msgid "Infrastructure Configuration"
 msgstr "Infrastruktur-Konfiguration"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:130
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:124
 msgid "Key"
 msgstr "Key"
 
@@ -460,7 +459,7 @@ msgstr "Minimale Nodes"
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail/WorkerSection.tsx:29
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:103
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FilterToolbar.tsx:52
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/DeleteFlavorModal.tsx:117
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/DeleteFlavorModal.tsx:116
 msgid "Name"
 msgstr "Name"
 
@@ -482,7 +481,7 @@ msgstr "Netzwerkkonfiguration"
 msgid "Next"
 msgstr "Weiter"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:103
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:95
 msgid "No extra specs found. Click \"Add Extra Spec\" to create one."
 msgstr "Keine Extra Specs gefunden. Klicken Sie auf \"Extra Spec hinzufügen\", um eine zu erstellen."
 
@@ -523,7 +522,7 @@ msgstr "Bitte korrigieren Sie die Validierungsfehler unten."
 msgid "Please review all configurations carefully before creating the cluster. Once created, some settings cannot be changed."
 msgstr "Bitte überprüfe alle Konfigurationen sorgfältig, bevor du den Cluster erstellst. Nach der Erstellung können einige Einstellungen nicht mehr geändert werden."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail.tsx:96
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail.tsx:95
 msgid "Please try again or copy manually"
 msgstr "Bitte versuchen Sie es erneut oder kopieren Sie manuell"
 
@@ -532,12 +531,12 @@ msgid "Pods CIDR"
 msgstr "CIDR-Bereich für Pods"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FilterToolbar.tsx:54
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/DeleteFlavorModal.tsx:129
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/DeleteFlavorModal.tsx:128
 msgid "RAM"
 msgstr "RAM"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:109
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/CreateFlavorModal.tsx:207
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/CreateFlavorModal.tsx:206
 msgid "RAM (MiB)"
 msgstr "RAM (MiB)"
 
@@ -545,7 +544,7 @@ msgstr "RAM (MiB)"
 msgid "RAM must be an integer ≥ 128 MB."
 msgstr "RAM muss eine ganze Zahl ≥ 128 MB sein."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail.tsx:134
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail.tsx:133
 msgid "Raw JSON Data for"
 msgstr "JSON-Rohdaten für"
 
@@ -557,8 +556,8 @@ msgstr "Bereitschaft"
 msgid "Region"
 msgstr "Region"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/List.tsx:134
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/List.tsx:166
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/List.tsx:132
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/List.tsx:164
 msgid "Retry"
 msgstr "Erneut versuchen"
 
@@ -576,7 +575,7 @@ msgstr "Root Disk muss eine ganze Zahl ≥ 0 sein."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:121
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FilterToolbar.tsx:58
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/CreateFlavorModal.tsx:257
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/CreateFlavorModal.tsx:256
 msgid "RX/TX Factor"
 msgstr "RX/TX Factor"
 
@@ -658,12 +657,12 @@ msgid "Surge:"
 msgstr "Surge:"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FilterToolbar.tsx:57
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/DeleteFlavorModal.tsx:138
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/DeleteFlavorModal.tsx:137
 msgid "Swap"
 msgstr "Swap"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:118
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/CreateFlavorModal.tsx:245
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/CreateFlavorModal.tsx:244
 msgid "Swap (MiB)"
 msgstr "Swap (MiB)"
 
@@ -712,7 +711,7 @@ msgstr "Keine Flavors verfügbar. Filtern Sie neu oder erstellen Sie einen neuen
 msgid "This action cannot be undone. The cluster will be permanently deleted."
 msgstr "Diese Aktion kann nicht rückgängig gemacht werden. Der Cluster wird dauerhaft gelöscht."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/DeleteFlavorModal.tsx:109
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/DeleteFlavorModal.tsx:108
 msgid "This action cannot be undone. The flavor will be permanently deleted."
 msgstr "Diese Aktion kann nicht rückgängig gemacht werden. Der Flavor wird dauerhaft gelöscht."
 
@@ -740,7 +739,7 @@ msgstr "Unbekannter Fehler"
 msgid "User C/D/I"
 msgstr "Benutzer C/D/I"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:131
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:125
 msgid "Value"
 msgstr "Value"
 
@@ -749,8 +748,8 @@ msgid "vCPU"
 msgstr "vCPU"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FilterToolbar.tsx:53
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/DeleteFlavorModal.tsx:125
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/CreateFlavorModal.tsx:194
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/DeleteFlavorModal.tsx:124
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/CreateFlavorModal.tsx:193
 msgid "VCPUs"
 msgstr "VCPUs"
 
@@ -830,7 +829,7 @@ msgstr "Sie sind nicht berechtigt, Flavors zu löschen. Bitte melden Sie sich er
 msgid "You are not authorized to view extra specs. Please log in again."
 msgstr "Sie sind nicht berechtigt, Extra Specs anzusehen. Bitte melden Sie sich erneut an."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail.tsx:78
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail.tsx:77
 msgid "You can now share this information with your team"
 msgstr "Sie können diese Informationen nun mit Ihrem Team teilen"
 
