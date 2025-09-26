@@ -45,7 +45,7 @@ msgstr "A flavor with this ID or name already exists. Please use different value
 msgid "About Aurora Dashboard"
 msgstr "About Aurora Dashboard"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:114
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:191
 msgid "Add Extra Spec"
 msgstr "Add Extra Spec"
 
@@ -82,7 +82,7 @@ msgid "Back"
 msgstr "Back"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/DeleteClusterDialog.tsx:47
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/SpecFormRow.tsx:41
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/SpecFormRow.tsx:51
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/DeleteFlavorModal.tsx:92
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/CreateFlavorModal.tsx:138
 msgid "Cancel"
@@ -212,11 +212,11 @@ msgstr "Each worker nodes will automatically scale between its minimum and maxim
 msgid "Each worker pool will automatically scale between its minimum and maximum node counts based on workload demands. Ensure your maximum node counts align with your resource quotas."
 msgstr "Each worker pool will automatically scale between its minimum and maximum node counts based on workload demands. Ensure your maximum node counts align with your resource quotas."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:103
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:180
 msgid "Edit Extra Specs"
 msgstr "Edit Extra Specs"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/SpecFormRow.tsx:23
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/SpecFormRow.tsx:34
 msgid "Enter key"
 msgstr "Enter key"
 
@@ -228,7 +228,7 @@ msgstr "Enter search term or regex"
 msgid "Enter the Cloud"
 msgstr "Enter the Cloud"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/SpecFormRow.tsx:33
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/SpecFormRow.tsx:43
 msgid "Enter value"
 msgstr "Enter value"
 
@@ -257,13 +257,13 @@ msgstr "Ephemeral Disk (GiB)"
 msgid "Ephemeral Disk must be an integer ≥ 0."
 msgstr "Ephemeral Disk must be an integer ≥ 0."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:64
-msgid "Extra spec \"{addedKey}\" has been added successfully."
-msgstr "Extra spec \"{addedKey}\" has been added successfully."
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:156
+msgid "Extra spec \"{keyToDelete}\" has been deleted successfully."
+msgstr "Extra spec \"{keyToDelete}\" has been deleted successfully."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:81
-msgid "Extra spec \"{key}\" has been deleted successfully."
-msgstr "Extra spec \"{key}\" has been deleted successfully."
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:127
+msgid "Extra spec \"{trimmedKey}\" has been added successfully."
+msgstr "Extra spec \"{trimmedKey}\" has been added successfully."
 
 #: src/client/utils/useErrorTranslation.ts:92
 msgid "Extra spec key is required and cannot be empty."
@@ -382,7 +382,7 @@ msgstr "Infrastructure"
 msgid "Infrastructure Configuration"
 msgstr "Infrastructure Configuration"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:124
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:201
 msgid "Key"
 msgstr "Key"
 
@@ -481,7 +481,7 @@ msgstr "Network Configuration"
 msgid "Next"
 msgstr "Next"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:95
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:246
 msgid "No extra specs found. Click \"Add Extra Spec\" to create one."
 msgstr "No extra specs found. Click \"Add Extra Spec\" to create one."
 
@@ -513,7 +513,7 @@ msgstr "Our Mission"
 msgid "Password"
 msgstr "Password"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:56
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:109
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/CreateFlavorModal.tsx:94
 msgid "Please fix the validation errors below."
 msgstr "Please fix the validation errors below."
@@ -583,7 +583,7 @@ msgstr "RX/TX Factor"
 msgid "RX/TX Factor must be an integer ≥ 1."
 msgstr "RX/TX Factor must be an integer ≥ 1."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/SpecFormRow.tsx:40
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/SpecFormRow.tsx:50
 msgid "Save Extra Spec"
 msgstr "Save Extra Spec"
 
@@ -739,7 +739,7 @@ msgstr "Unknown error"
 msgid "User C/D/I"
 msgstr "User C/D/I"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:125
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:202
 msgid "Value"
 msgstr "Value"
 
