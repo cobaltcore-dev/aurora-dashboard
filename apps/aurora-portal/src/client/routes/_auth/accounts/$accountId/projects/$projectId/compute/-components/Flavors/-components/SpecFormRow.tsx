@@ -3,7 +3,7 @@ import { useLingui } from "@lingui/react/macro"
 import { DataGridRow, DataGridCell, TextInput, ButtonRow, Button } from "@cloudoperators/juno-ui-components"
 
 interface SpecFormRowProps {
-  specKey: string // Renamed from 'key' to 'specKey'
+  specKey: string
   value: string
   errors: { key?: string; value?: string }
   isLoading: boolean
@@ -14,7 +14,7 @@ interface SpecFormRowProps {
 }
 
 export const SpecFormRow: React.FC<SpecFormRowProps> = ({
-  specKey, // Use specKey instead of key
+  specKey,
   value,
   errors,
   isLoading,
@@ -29,7 +29,7 @@ export const SpecFormRow: React.FC<SpecFormRowProps> = ({
     <DataGridRow>
       <DataGridCell className="pl-0">
         <TextInput
-          value={specKey} // Use specKey here
+          value={specKey}
           onChange={(e) => onKeyChange(e.target.value)}
           placeholder={t`Enter key`}
           errortext={errors.key}
