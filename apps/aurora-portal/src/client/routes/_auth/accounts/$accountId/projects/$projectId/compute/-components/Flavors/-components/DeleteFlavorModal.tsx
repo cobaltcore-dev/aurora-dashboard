@@ -88,7 +88,7 @@ export const DeleteFlavorModal: React.FC<DeleteFlavorModalProps> = ({
             <Button variant="primary-danger" onClick={handleDelete} disabled={isLoading}>
               {isLoading ? <Spinner size="small" /> : <Trans>Delete</Trans>}
             </Button>
-            <Button variant="default" onClick={handleClose} disabled={isLoading}>
+            <Button variant="default" onClick={handleClose}>
               <Trans>Cancel</Trans>
             </Button>
           </ButtonRow>
