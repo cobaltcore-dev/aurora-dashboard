@@ -90,7 +90,7 @@ export const EditSpecModal: React.FC<EditSpecModalProps> = ({ client, isOpen, on
     return Object.keys(newErrors).length === 0
   }
 
-  // Reset form
+  // Handlers and stuff
   const resetForm = () => {
     setKey("")
     setValue("")
@@ -205,7 +205,7 @@ export const EditSpecModal: React.FC<EditSpecModalProps> = ({ client, isOpen, on
 
               {isAddingSpec && (
                 <SpecFormRow
-                  specKey={key} // Pass as specKey instead of key
+                  specKey={key}
                   value={value}
                   errors={errors}
                   isLoading={isLoading}
