@@ -39,8 +39,6 @@ export const Flavors = ({ client, project }: FlavorsProps) => {
   const [createModalOpen, setCreateModalOpen] = useState(false)
 
   const handleError = (err: unknown) => {
-    console.error(err)
-
     let errorCode = "UNKNOWN_ERROR"
 
     if (err && typeof err === "object" && "message" in err) {

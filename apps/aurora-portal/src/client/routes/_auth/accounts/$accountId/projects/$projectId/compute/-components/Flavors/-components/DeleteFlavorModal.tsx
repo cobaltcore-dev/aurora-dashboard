@@ -58,7 +58,6 @@ export const DeleteFlavorModal: React.FC<DeleteFlavorModalProps> = ({
       onSuccess()
       handleClose()
     } catch (error) {
-      console.error("Failed to delete flavor:", error)
       const errorMessage = (error as Error)?.message
         ? translateError((error as Error).message)
         : t`Failed to delete flavor. Please try again.`
