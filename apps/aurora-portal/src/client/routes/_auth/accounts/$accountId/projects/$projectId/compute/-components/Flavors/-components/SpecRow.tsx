@@ -7,12 +7,13 @@ interface SpecRowProps {
   value: string
   isDeleting: boolean
   onDelete: () => void
+  canDelete?: boolean
 }
 
-export const SpecRow: React.FC<SpecRowProps> = ({ specKey, value, isDeleting, onDelete }) => {
+export const SpecRow: React.FC<SpecRowProps> = ({ specKey, value, isDeleting, onDelete, canDelete }) => {
   const { t } = useLingui()
   const [confirm, setConfirm] = useState(false)
-
+  console.log("candel", canDelete)
   useEffect(() => {
     if (confirm) {
       const timer = setTimeout(() => {
@@ -29,6 +30,9 @@ export const SpecRow: React.FC<SpecRowProps> = ({ specKey, value, isDeleting, on
   }
 
   const button = () => {
+    if (!canDelete) {
+      return <></>
+    }
     if (confirm) {
       return (
         <Button

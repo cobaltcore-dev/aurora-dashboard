@@ -37,6 +37,43 @@ export const Flavors = ({ client, project }: FlavorsProps) => {
   const [isLoading, setIsLoading] = useState(true)
   const [refetchTrigger, setRefetchTrigger] = useState(0)
   const [createModalOpen, setCreateModalOpen] = useState(false)
+  const [canCreateFlavor, setCanCreateFlavor] = useState(false)
+  const [canDeleteFlavor, setCanDeleteFlavor] = useState(false)
+
+  const checkPermissionsFlavor = async () => {
+    try {
+      const resCreate = await client.compute.canUser.query("flavors:create")
+      setCanCreateFlavor(resCreate)
+
+      const resDelete = await client.compute.canUser.query("flavors:delete")
+      setCanDeleteFlavor(resDelete)
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
+  useEffect(() => {
+    const fetchFlavors = async () => {
+      try {
+        setIsLoading(true)
+        setError(undefined)
+        const data = await client.compute.getFlavorsByProjectId.query({
+          projectId: project,
+          sortBy,
+          sortDirection,
+          searchTerm,
+        })
+        setFlavors(data)
+      } catch (err) {
+        handleError(err)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchFlavors()
+    checkPermissionsFlavor()
+  }, [client, project, sortBy, sortDirection, searchTerm, refetchTrigger])
 
   const handleError = (err: unknown) => {
     let errorCode = "UNKNOWN_ERROR"
@@ -80,28 +117,6 @@ export const Flavors = ({ client, project }: FlavorsProps) => {
     handleSuccess(t`Flavor "${flavorName}" has been successfully created.`)
     refetchFlavors()
   }
-
-  useEffect(() => {
-    const fetchFlavors = async () => {
-      try {
-        setIsLoading(true)
-        setError(undefined)
-        const data = await client.compute.getFlavorsByProjectId.query({
-          projectId: project,
-          sortBy,
-          sortDirection,
-          searchTerm,
-        })
-        setFlavors(data)
-      } catch (err) {
-        handleError(err)
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    fetchFlavors()
-  }, [client, project, sortBy, sortDirection, searchTerm, refetchTrigger])
 
   const handleSortByChange = (value: string | number | string[] | undefined) => {
     if (value && typeof value === "string") {
@@ -175,6 +190,7 @@ export const Flavors = ({ client, project }: FlavorsProps) => {
         sortDirection={sortDirection}
         handleSortDirectionChange={handleSortDirectionChange}
         setCreateModalOpen={setCreateModalOpen}
+        canCreateFlavor={canCreateFlavor}
       />
 
       <FlavorListContainer
@@ -183,6 +199,7 @@ export const Flavors = ({ client, project }: FlavorsProps) => {
         client={client}
         project={project}
         onFlavorDeleted={handleFlavorDeleted}
+        canDeleteFlavor={canDeleteFlavor}
       />
     </div>
   )

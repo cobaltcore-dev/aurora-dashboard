@@ -28,22 +28,36 @@ interface EditSpecModalProps {
 export const EditSpecModal: React.FC<EditSpecModalProps> = ({ client, isOpen, onClose, project, flavor }) => {
   const { t } = useLingui()
   const { translateError } = useErrorTranslation()
+  const [canCreate, setCanCreate] = useState(false)
+  const [canDelete, setCanDelete] = useState(false)
 
-  // Extra specs state
   const [extraSpecs, setExtraSpecs] = useState<Record<string, string>>({})
   const [isLoading, setIsLoading] = useState(false)
-
-  // Form state
   const [key, setKey] = useState("")
   const [value, setValue] = useState("")
   const [errors, setErrors] = useState<{ key?: string; value?: string }>({})
-
-  // UI state
   const [isAddingSpec, setIsAddingSpec] = useState(false)
   const [isDeleting, setIsDeleting] = useState<string | null>(null)
   const [message, setMessage] = useState<{ text: string; type: "error" | "success" } | null>(null)
 
-  // Fetch extra specs
+  useEffect(() => {
+    if (isOpen && flavor?.id) {
+      fetchExtraSpecs()
+      checkCanCreateFlavor()
+    }
+  }, [isOpen, flavor?.id])
+
+  const checkCanCreateFlavor = async () => {
+    try {
+      const res = await client.compute.canUser.query("flavor_specs:create")
+      setCanCreate(res)
+      const resDel = await client.compute.canUser.query("flavor_specs:delete")
+      setCanDelete(resDel)
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
   const fetchExtraSpecs = async () => {
     if (!flavor?.id) return
 
@@ -64,13 +78,6 @@ export const EditSpecModal: React.FC<EditSpecModalProps> = ({ client, isOpen, on
     }
   }
 
-  useEffect(() => {
-    if (isOpen && flavor?.id) {
-      fetchExtraSpecs()
-    }
-  }, [isOpen, flavor?.id])
-
-  // Form validation
   const validateForm = () => {
     const trimmedKey = key.trim()
     const trimmedValue = value.trim()
@@ -90,7 +97,6 @@ export const EditSpecModal: React.FC<EditSpecModalProps> = ({ client, isOpen, on
     return Object.keys(newErrors).length === 0
   }
 
-  // Handlers and stuff
   const resetForm = () => {
     setKey("")
     setValue("")
@@ -185,16 +191,18 @@ export const EditSpecModal: React.FC<EditSpecModalProps> = ({ client, isOpen, on
 
         {flavor && (
           <>
-            <Stack direction="horizontal" className="bg-theme-background-lvl-1 justify-end p-2">
-              <Button
-                icon="addCircle"
-                label={t`Add Extra Spec`}
-                data-testid="addExtraButton"
-                onClick={() => setIsAddingSpec(true)}
-                variant="primary"
-                disabled={isAddingSpec}
-              />
-            </Stack>
+            {canCreate && (
+              <Stack direction="horizontal" className="bg-theme-background-lvl-1 justify-end p-2">
+                <Button
+                  icon="addCircle"
+                  label={t`Add Extra Spec`}
+                  data-testid="addExtraButton"
+                  onClick={() => setIsAddingSpec(true)}
+                  variant="primary"
+                  disabled={isAddingSpec}
+                />
+              </Stack>
+            )}
 
             <DataGrid columns={3}>
               <DataGridRow>
@@ -227,6 +235,7 @@ export const EditSpecModal: React.FC<EditSpecModalProps> = ({ client, isOpen, on
                   value={specValue}
                   isDeleting={isDeleting === specKey}
                   onDelete={() => handleDelete(specKey)}
+                  canDelete={canDelete}
                 />
               ))}
 

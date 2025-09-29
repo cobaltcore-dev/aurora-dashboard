@@ -24,7 +24,7 @@ describe("SpecRow", () => {
 
   it("renders spec data correctly", async () => {
     await act(async () => {
-      render(<SpecRow specKey="cpu" value="dedicated" isDeleting={false} onDelete={vi.fn()} />, {
+      render(<SpecRow specKey="cpu" value="dedicated" isDeleting={false} onDelete={vi.fn()} canDelete={true} />, {
         wrapper: TestingProvider,
       })
     })
@@ -34,9 +34,33 @@ describe("SpecRow", () => {
     expect(screen.getByTestId("delete-cpu")).toBeInTheDocument()
   })
 
+  it("does not show delete button when canDelete is false", async () => {
+    await act(async () => {
+      render(<SpecRow specKey="cpu" value="dedicated" isDeleting={false} onDelete={vi.fn()} canDelete={false} />, {
+        wrapper: TestingProvider,
+      })
+    })
+
+    expect(screen.getByText("cpu")).toBeInTheDocument()
+    expect(screen.getByText("dedicated")).toBeInTheDocument()
+    expect(screen.queryByTestId("delete-cpu")).not.toBeInTheDocument()
+  })
+
+  it("does not show delete button when canDelete prop is not provided", async () => {
+    await act(async () => {
+      render(<SpecRow specKey="cpu" value="dedicated" isDeleting={false} onDelete={vi.fn()} />, {
+        wrapper: TestingProvider,
+      })
+    })
+
+    expect(screen.getByText("cpu")).toBeInTheDocument()
+    expect(screen.getByText("dedicated")).toBeInTheDocument()
+    expect(screen.queryByTestId("delete-cpu")).not.toBeInTheDocument()
+  })
+
   it("shows spinner when deleting", async () => {
     await act(async () => {
-      render(<SpecRow specKey="cpu" value="dedicated" isDeleting={true} onDelete={vi.fn()} />, {
+      render(<SpecRow specKey="cpu" value="dedicated" isDeleting={true} onDelete={vi.fn()} canDelete={true} />, {
         wrapper: TestingProvider,
       })
     })
@@ -48,7 +72,7 @@ describe("SpecRow", () => {
     const onDelete = vi.fn()
 
     await act(async () => {
-      render(<SpecRow specKey="cpu" value="dedicated" isDeleting={false} onDelete={onDelete} />, {
+      render(<SpecRow specKey="cpu" value="dedicated" isDeleting={false} onDelete={onDelete} canDelete={true} />, {
         wrapper: TestingProvider,
       })
     })
@@ -60,10 +84,8 @@ describe("SpecRow", () => {
     })
 
     expect(screen.queryByTestId("delete-cpu")).not.toBeInTheDocument()
-
     expect(screen.getByTestId("confirm-deletion")).toBeInTheDocument()
     expect(screen.getByText("Delete")).toBeInTheDocument()
-
     expect(onDelete).not.toHaveBeenCalled()
   })
 
@@ -71,7 +93,7 @@ describe("SpecRow", () => {
     const onDelete = vi.fn()
 
     await act(async () => {
-      render(<SpecRow specKey="cpu" value="dedicated" isDeleting={false} onDelete={onDelete} />, {
+      render(<SpecRow specKey="cpu" value="dedicated" isDeleting={false} onDelete={onDelete} canDelete={true} />, {
         wrapper: TestingProvider,
       })
     })
@@ -87,7 +109,6 @@ describe("SpecRow", () => {
     })
 
     expect(onDelete).toHaveBeenCalledTimes(1)
-
     expect(screen.queryByTestId("confirm-deletion")).not.toBeInTheDocument()
     expect(screen.getByTestId("delete-cpu")).toBeInTheDocument()
   })
@@ -96,7 +117,7 @@ describe("SpecRow", () => {
     const onDelete = vi.fn()
 
     await act(async () => {
-      render(<SpecRow specKey="cpu" value="dedicated" isDeleting={false} onDelete={onDelete} />, {
+      render(<SpecRow specKey="cpu" value="dedicated" isDeleting={false} onDelete={onDelete} canDelete={true} />, {
         wrapper: TestingProvider,
       })
     })
@@ -115,7 +136,6 @@ describe("SpecRow", () => {
 
     expect(screen.queryByTestId("confirm-deletion")).not.toBeInTheDocument()
     expect(screen.getByTestId("delete-cpu")).toBeInTheDocument()
-
     expect(onDelete).not.toHaveBeenCalled()
   })
 
@@ -123,7 +143,7 @@ describe("SpecRow", () => {
     const onDelete = vi.fn()
 
     await act(async () => {
-      render(<SpecRow specKey="cpu" value="dedicated" isDeleting={false} onDelete={onDelete} />, {
+      render(<SpecRow specKey="cpu" value="dedicated" isDeleting={false} onDelete={onDelete} canDelete={true} />, {
         wrapper: TestingProvider,
       })
     })
@@ -155,7 +175,7 @@ describe("SpecRow", () => {
 
   it("has correct accessibility attributes for delete button", async () => {
     await act(async () => {
-      render(<SpecRow specKey="cpu" value="dedicated" isDeleting={false} onDelete={vi.fn()} />, {
+      render(<SpecRow specKey="cpu" value="dedicated" isDeleting={false} onDelete={vi.fn()} canDelete={true} />, {
         wrapper: TestingProvider,
       })
     })
@@ -167,7 +187,7 @@ describe("SpecRow", () => {
 
   it("has correct accessibility attributes for confirmation button", async () => {
     await act(async () => {
-      render(<SpecRow specKey="cpu" value="dedicated" isDeleting={false} onDelete={vi.fn()} />, {
+      render(<SpecRow specKey="cpu" value="dedicated" isDeleting={false} onDelete={vi.fn()} canDelete={true} />, {
         wrapper: TestingProvider,
       })
     })
@@ -184,9 +204,12 @@ describe("SpecRow", () => {
 
   it("handles different spec keys correctly", async () => {
     await act(async () => {
-      render(<SpecRow specKey="hw:mem_page_size" value="large" isDeleting={false} onDelete={vi.fn()} />, {
-        wrapper: TestingProvider,
-      })
+      render(
+        <SpecRow specKey="hw:mem_page_size" value="large" isDeleting={false} onDelete={vi.fn()} canDelete={true} />,
+        {
+          wrapper: TestingProvider,
+        }
+      )
     })
 
     expect(screen.getByText("hw:mem_page_size")).toBeInTheDocument()
@@ -196,7 +219,7 @@ describe("SpecRow", () => {
 
   it("disables buttons when isDeleting is true", async () => {
     await act(async () => {
-      render(<SpecRow specKey="cpu" value="dedicated" isDeleting={true} onDelete={vi.fn()} />, {
+      render(<SpecRow specKey="cpu" value="dedicated" isDeleting={true} onDelete={vi.fn()} canDelete={true} />, {
         wrapper: TestingProvider,
       })
     })
@@ -210,7 +233,7 @@ describe("SpecRow", () => {
 
     const { rerender } = render(
       <TestingProvider>
-        <SpecRow specKey="cpu" value="dedicated" isDeleting={false} onDelete={onDelete} />
+        <SpecRow specKey="cpu" value="dedicated" isDeleting={false} onDelete={onDelete} canDelete={true} />
       </TestingProvider>
     )
 
@@ -224,12 +247,54 @@ describe("SpecRow", () => {
     await act(async () => {
       rerender(
         <TestingProvider>
-          <SpecRow specKey="cpu" value="dedicated" isDeleting={true} onDelete={onDelete} />
+          <SpecRow specKey="cpu" value="dedicated" isDeleting={true} onDelete={onDelete} canDelete={true} />
         </TestingProvider>
       )
     })
 
     expect(screen.queryByTestId("confirm-deletion")).not.toBeInTheDocument()
     expect(screen.queryByTestId("delete-cpu")).not.toBeInTheDocument()
+  })
+
+  it("hides confirmation button when canDelete becomes false", async () => {
+    const onDelete = vi.fn()
+
+    const { rerender } = render(
+      <TestingProvider>
+        <SpecRow specKey="cpu" value="dedicated" isDeleting={false} onDelete={onDelete} canDelete={true} />
+      </TestingProvider>
+    )
+
+    const deleteButton = screen.getByTestId("delete-cpu")
+    await act(async () => {
+      fireEvent.click(deleteButton)
+    })
+
+    expect(screen.getByTestId("confirm-deletion")).toBeInTheDocument()
+
+    await act(async () => {
+      rerender(
+        <TestingProvider>
+          <SpecRow specKey="cpu" value="dedicated" isDeleting={false} onDelete={onDelete} canDelete={false} />
+        </TestingProvider>
+      )
+    })
+
+    expect(screen.queryByTestId("confirm-deletion")).not.toBeInTheDocument()
+    expect(screen.queryByTestId("delete-cpu")).not.toBeInTheDocument()
+  })
+
+  it("does not trigger delete flow when canDelete is false", async () => {
+    const onDelete = vi.fn()
+
+    await act(async () => {
+      render(<SpecRow specKey="cpu" value="dedicated" isDeleting={false} onDelete={onDelete} canDelete={false} />, {
+        wrapper: TestingProvider,
+      })
+    })
+
+    expect(screen.queryByTestId("delete-cpu")).not.toBeInTheDocument()
+
+    expect(onDelete).not.toHaveBeenCalled()
   })
 })
