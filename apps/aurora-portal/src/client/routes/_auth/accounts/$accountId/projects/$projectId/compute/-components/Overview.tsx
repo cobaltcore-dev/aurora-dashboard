@@ -9,7 +9,7 @@ interface OverviewContainerProps {
 }
 const OverviewContainer = ({ getDataPromise }: OverviewContainerProps) => {
   const [servers, images] = use(getDataPromise)
-  if (!servers && !images) return <div className="p-4 text-center text-gray-400">No data found</div>
+  if (!servers && !images) return <div className="p-4 text-center">No data found</div>
 
   // Calculate server statistics
   const activeServers = servers?.filter((server) => server.status === "ACTIVE")?.length || 0

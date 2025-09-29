@@ -13,7 +13,7 @@ interface InstanceContainerProps {
 const InstanceContainer = ({ getServersPromise, viewMode }: InstanceContainerProps) => {
   const servers = use(getServersPromise)
 
-  if (!servers) return <div className="p-4 text-center text-gray-400">No instances found</div>
+  if (!servers) return <div className="p-4 text-center">No instances found</div>
 
   return viewMode === "list" ? <ServerListView servers={servers} /> : <ServerCardView servers={servers} />
 }
@@ -30,7 +30,7 @@ export const Instances = ({
   const getServersPromise = client.compute.getServersByProjectId.query({ projectId: project })
 
   return (
-    <Suspense fallback={<div className="p-4 text-center text-gray-400">Loading instances...</div>}>
+    <Suspense fallback={<div className="p-4 text-center">Loading instances...</div>}>
       <Button
         onClick={async () => {
           const canList = await client.compute.canUser.query("servers:list")
