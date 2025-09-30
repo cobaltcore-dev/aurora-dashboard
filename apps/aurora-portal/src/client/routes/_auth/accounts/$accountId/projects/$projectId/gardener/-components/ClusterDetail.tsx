@@ -37,7 +37,6 @@ const ClusterDetailPage: React.FC<PeakDetailPageProps> = ({ cluster, isDeleteAll
       await trpcClient?.gardener.deleteCluster.mutate({
         name: deletedClusterName!,
       })
-      console.log(t`Cluster deleted successfully`)
       setDeleteClusterModal(false)
       handleBack()
     } catch (error) {
