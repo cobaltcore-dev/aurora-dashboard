@@ -57,15 +57,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const timeUntilExpiry = expiresAt.getTime() - Date.now()
 
       if (timeUntilExpiry <= 0) {
-        // Token already expired
-        console.log("Token expired on load, logging out")
         logout()
         return
       }
 
       // Set timer for automatic logout
       logoutTimerRef.current = setTimeout(() => {
-        console.log("Session expired, logging out")
         logout()
       }, timeUntilExpiry)
     }

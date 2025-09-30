@@ -13,7 +13,6 @@ interface SpecRowProps {
 export const SpecRow: React.FC<SpecRowProps> = ({ specKey, value, isDeleting, onDelete, canDelete }) => {
   const { t } = useLingui()
   const [confirm, setConfirm] = useState(false)
-  console.log("candel", canDelete)
   useEffect(() => {
     if (confirm) {
       const timer = setTimeout(() => {
