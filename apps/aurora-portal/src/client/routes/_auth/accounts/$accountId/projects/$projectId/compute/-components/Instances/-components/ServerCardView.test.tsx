@@ -1,7 +1,12 @@
-import { describe, it, expect } from "vitest"
-import { render, screen } from "@testing-library/react"
+import { describe, it, expect, beforeAll } from "vitest"
+import { render, screen, act } from "@testing-library/react"
 import { ServerCardView } from "./ServerCardView"
 import type { Server } from "@/server/Compute/types/server"
+import { I18nProvider } from "@lingui/react"
+import { i18n } from "@lingui/core"
+import { ReactNode } from "react"
+
+const TestingProvider = ({ children }: { children: ReactNode }) => <I18nProvider i18n={i18n}>{children}</I18nProvider>
 
 const mockServers: Server[] = [
   {
@@ -37,15 +42,29 @@ const mockServers: Server[] = [
 ]
 
 describe("ServerCardView", () => {
-  it("renders a list of servers with correct names", () => {
-    render(<ServerCardView servers={mockServers} />)
+  beforeAll(async () => {
+    await act(async () => {
+      i18n.activate("en")
+    })
+  })
+
+  it("renders a list of servers with correct names", async () => {
+    await act(async () => {
+      render(<ServerCardView servers={mockServers} />, {
+        wrapper: TestingProvider,
+      })
+    })
 
     expect(screen.getByText("Cache Server")).toBeInTheDocument()
     expect(screen.getByText("Development Server")).toBeInTheDocument()
   })
 
-  it("renders correct status icons for ACTIVE and SHUTOFF servers", () => {
-    render(<ServerCardView servers={mockServers} />)
+  it("renders correct status icons for ACTIVE and SHUTOFF servers", async () => {
+    await act(async () => {
+      render(<ServerCardView servers={mockServers} />, {
+        wrapper: TestingProvider,
+      })
+    })
 
     // "ACTIVE" should have a success icon
     expect(screen.getByTestId("icon-success")).toBeInTheDocument()
@@ -54,8 +73,12 @@ describe("ServerCardView", () => {
     expect(screen.getByTestId("icon-danger")).toBeInTheDocument()
   })
 
-  it("displays server details correctly", () => {
-    render(<ServerCardView servers={mockServers} />)
+  it("displays server details correctly", async () => {
+    await act(async () => {
+      render(<ServerCardView servers={mockServers} />, {
+        wrapper: TestingProvider,
+      })
+    })
 
     expect(screen.getByText("192.168.1.90")).toBeInTheDocument()
     expect(screen.getByText("fe80::9")).toBeInTheDocument()
@@ -70,15 +93,23 @@ describe("ServerCardView", () => {
     expect(screen.getByText("60 GB")).toBeInTheDocument()
   })
 
-  it("renders server roles correctly", () => {
-    render(<ServerCardView servers={mockServers} />)
+  it("renders server roles correctly", async () => {
+    await act(async () => {
+      render(<ServerCardView servers={mockServers} />, {
+        wrapper: TestingProvider,
+      })
+    })
 
     expect(screen.getByText("Server Role: Cache")).toBeInTheDocument()
     expect(screen.getByText("Server Role: Development")).toBeInTheDocument()
   })
 
-  it("shows 'No servers available' when the list is empty", () => {
-    render(<ServerCardView servers={[]} />)
+  it("shows 'No servers available' when the list is empty", async () => {
+    await act(async () => {
+      render(<ServerCardView servers={[]} />, {
+        wrapper: TestingProvider,
+      })
+    })
 
     expect(screen.getByText("No servers available.")).toBeInTheDocument()
   })
