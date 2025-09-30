@@ -2,6 +2,7 @@ import { ToastProps, auroraToast, sonnerToast } from "@/client/components/Notifi
 import type { ServerGroup } from "@/server/Compute/types/serverGroup"
 import { Button } from "@cloudoperators/juno-ui-components"
 import { Icon } from "@cloudoperators/juno-ui-components"
+import { Trans } from "@lingui/react/macro"
 
 interface ServerGroupListViewProps {
   serverGroups: ServerGroup[]
@@ -49,11 +50,21 @@ export function ServerGroupListView({ serverGroups }: ServerGroupListViewProps) 
             {/* Table Header */}
             <thead>
               <tr>
-                <th className="p-3">Group Name</th>
-                <th className="p-3">Policy</th>
-                <th className="p-3">Members</th>
-                <th className="p-3">Created</th>
-                <th className="p-3 flex justify-center">Actions</th>
+                <th className="p-3">
+                  <Trans>Group Name</Trans>
+                </th>
+                <th className="p-3">
+                  <Trans>Policy</Trans>
+                </th>
+                <th className="p-3">
+                  <Trans>Members</Trans>
+                </th>
+                <th className="p-3">
+                  <Trans>Created</Trans>
+                </th>
+                <th className="p-3 flex justify-center">
+                  <Trans>Actions</Trans>
+                </th>
               </tr>
             </thead>
 
@@ -126,7 +137,9 @@ export function ServerGroupListView({ serverGroups }: ServerGroupListViewProps) 
           </table>
         </div>
       ) : (
-        <p>No server groups available.</p>
+        <p>
+          <Trans>No server groups available.</Trans>
+        </p>
       )}
     </div>
   )

@@ -6,6 +6,7 @@ import styles from "./index.css?inline"
 import { i18n } from "@lingui/core"
 import { I18nProvider } from "@lingui/react"
 import { ErrorBoundary } from "react-error-boundary"
+import { Trans } from "@lingui/react/macro"
 
 type AppProps = {
   theme?: "theme-dark" | "theme-light"
@@ -14,9 +15,13 @@ const App = (props: AppProps) => (
   <ErrorBoundary
     fallbackRender={({ error, resetErrorBoundary }) => (
       <div role="alert" style={{ padding: 24 }}>
-        <p>Something went wrong:</p>
+        <p>
+          <Trans>Something went wrong:</Trans>
+        </p>
         <pre style={{ color: "red" }}>{error.message}</pre>
-        <button onClick={resetErrorBoundary}>Try again</button>
+        <button onClick={resetErrorBoundary}>
+          <Trans>Try again</Trans>
+        </button>
       </div>
     )}
   >

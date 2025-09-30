@@ -3,6 +3,7 @@ import { Suspense, use } from "react"
 import { Server } from "@/server/Compute/types/server"
 import { GlanceImage } from "@/server/Compute/types/image"
 import { TrpcClient } from "@/client/trpcClient"
+import { Trans } from "@lingui/react/macro"
 
 interface OverviewContainerProps {
   getDataPromise: Promise<[Server[] | undefined, GlanceImage[] | undefined]>
@@ -107,7 +108,13 @@ export function Overview({ client, project }: OverviewProps) {
   ])
 
   return (
-    <Suspense fallback={<div className="p-4 text-center">Loading data...</div>}>
+    <Suspense
+      fallback={
+        <div className="p-4 text-center">
+          <Trans>Loading...</Trans>
+        </div>
+      }
+    >
       <OverviewContainer getDataPromise={getDataPromise} />
     </Suspense>
   )

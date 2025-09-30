@@ -2,6 +2,7 @@ import type { Server } from "@/server/Compute/types/server"
 import { Pill } from "@cloudoperators/juno-ui-components"
 import { Button } from "@cloudoperators/juno-ui-components"
 import { Icon } from "@cloudoperators/juno-ui-components"
+import { Trans } from "@lingui/react/macro"
 type ServerListViewProps = {
   servers: Server[] | undefined
 }
@@ -36,12 +37,18 @@ export function ServerCard({ server }: ServerCardProps) {
       <Pill pillKeyLabel="Disk:" pillValue={server?.flavor?.disk ? `${server?.flavor?.disk} GB` : "N/A"} />
 
       {/* Server Metadata */}
-      <p className="text-sm">Server Role: {server?.metadata?.["Server Role"] ?? "Unknown Role"}</p>
+      <p className="text-sm">
+        <Trans>Server Role:</Trans> {server?.metadata?.["Server Role"] ?? "Unknown Role"}
+      </p>
 
       {/* Action Buttons */}
       <div className="flex space-x-3 mt-4">
-        <Button className="bg-gray-700 hover:bg-gray-600">View Details</Button>
-        <Button className="bg-red-600 hover:bg-red-500">Restart</Button>
+        <Button>
+          <Trans>View Details</Trans>
+        </Button>
+        <Button variant="primary-danger">
+          <Trans>Restart</Trans>
+        </Button>
       </div>
     </div>
   )
