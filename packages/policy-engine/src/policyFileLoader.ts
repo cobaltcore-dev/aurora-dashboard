@@ -87,7 +87,7 @@ function parseSimpleYaml(content: string): Record<string, string> {
       }
     }
 
-    // Remove quotes from KEY (this was missing!)
+    // Remove quotes from KEY
     if ((key.startsWith('"') && key.endsWith('"')) || (key.startsWith("'") && key.endsWith("'"))) {
       key = key.slice(1, -1)
     }
@@ -97,7 +97,7 @@ function parseSimpleYaml(content: string): Record<string, string> {
       throw new Error(`Invalid YAML: empty key on line ${i + 1}`)
     }
 
-    // Remove quotes from VALUE (existing code)
+    // Remove quotes from VALUE
     if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) {
       value = value.slice(1, -1)
     }
