@@ -4,17 +4,24 @@ import { createCallerFactory, router } from "../../trpc"
 import { AuroraPortalContext } from "../../context"
 import { TRPCError } from "@trpc/server"
 
+interface MockPolicyEngineModule {
+  loadPolicyEngine: ReturnType<typeof vi.fn>
+  __mockPolicyCheck: ReturnType<typeof vi.fn>
+  __mockPolicy: ReturnType<typeof vi.fn>
+}
+
 vi.mock("@/server/policyEngineLoader", () => {
   const mockPolicyCheck = vi.fn()
   const mockPolicy = vi.fn(() => ({
     check: mockPolicyCheck,
   }))
-  const mockPolicyEngine = {
+
+  const mockLoadPolicyEngine = vi.fn(() => ({
     policy: mockPolicy,
-  }
+  }))
 
   return {
-    loadPolicyEngine: vi.fn(() => mockPolicyEngine),
+    loadPolicyEngine: mockLoadPolicyEngine,
     __mockPolicyCheck: mockPolicyCheck,
     __mockPolicy: mockPolicy,
   }
@@ -30,9 +37,9 @@ describe("permissionRouter", () => {
   beforeEach(async () => {
     vi.clearAllMocks()
 
-    const policyEngineModule = await import("@/server/policyEngineLoader")
-    mockPolicyCheck = (policyEngineModule as any).__mockPolicyCheck
-    mockPolicy = (policyEngineModule as any).__mockPolicy
+    const policyEngineModule = (await import("@/server/policyEngineLoader")) as unknown as MockPolicyEngineModule
+    mockPolicyCheck = policyEngineModule.__mockPolicyCheck
+    mockPolicy = policyEngineModule.__mockPolicy
 
     const mockOpenstackSession = {
       getToken: vi.fn(() => ({
