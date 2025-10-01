@@ -92,17 +92,12 @@ function parseSimpleYaml(content: string): Record<string, string> {
       key = key.slice(1, -1)
     }
 
-    // Remove quotes from VALUE (existing code)
-    if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) {
-      value = value.slice(1, -1)
-    }
-
     // Validate key is not empty
     if (!key) {
       throw new Error(`Invalid YAML: empty key on line ${i + 1}`)
     }
 
-    // Remove quotes if present
+    // Remove quotes from VALUE (existing code)
     if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) {
       value = value.slice(1, -1)
     }
