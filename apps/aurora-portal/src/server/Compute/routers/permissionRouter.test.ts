@@ -1,4 +1,3 @@
-// permissionRouter.test.ts
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest"
 import { TRPCError } from "@trpc/server"
 import { createCallerFactory, router } from "../../trpc"
@@ -14,7 +13,7 @@ describe("permissionRouter", () => {
   beforeEach(() => {
     vi.clearAllMocks()
 
-    // Create mock context - this is the boundary between your system and external dependencies
+    // Create mock context - this is the boundary between the router and the rest of the system
     const mockOpenstackSession = {
       getToken: vi.fn(() => ({
         tokenData: {
