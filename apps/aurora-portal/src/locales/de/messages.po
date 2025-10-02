@@ -50,7 +50,7 @@ msgstr "Über das Aurora-Dashboard"
 msgid "Actions"
 msgstr "Aktionen"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:198
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:193
 msgid "Add Extra Spec"
 msgstr "Extra Spec hinzufügen"
 
@@ -113,11 +113,7 @@ msgstr "Cluster-Konfiguration"
 msgid "Cluster created successfully"
 msgstr "Cluster erfolgreich erstellt"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail.tsx:40
-msgid "Cluster deleted successfully"
-msgstr "Cluster erfolgreich gelöscht"
-
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail.tsx:74
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail.tsx:73
 msgid "Cluster details copied to clipboard!"
 msgstr "Cluster-Details erfolgreich kopiert!"
 
@@ -133,7 +129,7 @@ msgstr "Cluster Name"
 msgid "Cluster name is required"
 msgstr "Cluster Name ist erforderlich"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail.tsx:115
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail.tsx:114
 msgid "Clusters"
 msgstr "Cluster"
 
@@ -178,15 +174,15 @@ msgstr "Erstellt"
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/DeleteClusterDialog.tsx:44
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail/DetailLayout.tsx:69
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/KeyPairs/-components/KeyPairListView.tsx:126
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/SpecRow.tsx:40
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/SpecRow.tsx:41
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/SpecRow.tsx:42
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/SpecRow.tsx:46
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/SpecRow.tsx:45
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/DeleteFlavorModal.tsx:89
 msgid "Delete"
 msgstr "Löschen"
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/SpecRow.tsx:53
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/SpecRow.tsx:54
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/SpecRow.tsx:55
 msgid "Delete {specKey}"
 msgstr "Lösche {specKey}"
 
@@ -234,7 +230,7 @@ msgstr "Jeder Worker-Knoten wird je nach Arbeitslast automatisch zwischen der mi
 msgid "Each worker pool will automatically scale between its minimum and maximum node counts based on workload demands. Ensure your maximum node counts align with your resource quotas."
 msgstr "Jeder Worker-Pool skaliert je nach Arbeitslast automatisch zwischen der minimalen und maximalen Knotenzahl. Stelle sicher, dass deine maximale Knotenzahl mit deinen Ressourcenkontingenten übereinstimmt."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:186
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:284
 msgid "Edit Extra Specs"
 msgstr "Extra Specs bearbeiten"
 
@@ -283,7 +279,7 @@ msgstr "Ephemeral Disk muss eine ganze Zahl ≥ 0 sein."
 msgid "Extra spec \"{keyToDelete}\" has been deleted successfully."
 msgstr "Extra spec \"{keyToDelete}\" wurde erfolgreich gelöscht."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:133
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:134
 msgid "Extra spec \"{trimmedKey}\" has been added successfully."
 msgstr "Extra spec \"{trimmedKey}\" wurde erfolgreich hinzugefügt."
 
@@ -291,7 +287,7 @@ msgstr "Extra spec \"{trimmedKey}\" wurde erfolgreich hinzugefügt."
 msgid "Extra spec key is required and cannot be empty."
 msgstr "Der Key für die Extra-Spec ist erforderlich und darf nicht leer sein."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail.tsx:92
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail.tsx:91
 msgid "Failed to copy to clipboard"
 msgstr "Kopieren fehlgeschlagen"
 
@@ -311,7 +307,7 @@ msgstr "Fehler beim Erstellen des Flavors. Bitte versuchen Sie es erneut."
 msgid "Failed to create the flavor. Please try again."
 msgstr "Fehler beim Erstellen des Flavors. Bitte versuchen Sie es erneut."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail.tsx:44
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail.tsx:43
 msgid "Failed to delete cluster: "
 msgstr "Fehler beim löschen des Clusters:"
 
@@ -335,6 +331,10 @@ msgstr "Fehler beim Abrufen der Flavors vom Server."
 msgid "Failed to load extra specs. Please try again."
 msgstr "Fehler beim Laden der Extra-Specs. Bitte versuchen Sie es erneut."
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/List.tsx:209
+msgid "Failed to load flavors"
+msgstr "Fehler beim Laden der Flavors"
+
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/Filters/FilterSelect.tsx:55
 msgid "Filters"
 msgstr "Filter"
@@ -347,11 +347,11 @@ msgstr "Finden Sie detaillierte Anleitungen und Referenzen in unserer Dokumentat
 msgid "Fingerprint"
 msgstr "Fingerprint"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/List.tsx:117
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/List.tsx:136
 msgid "Flavor \"{flavorName}\" has been successfully created."
 msgstr "Flavor \"{flavorName}\" wurde erfolgreich erstellt."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/List.tsx:112
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/List.tsx:127
 msgid "Flavor \"{flavorName}\" has been successfully deleted."
 msgstr "Flavor \"{flavorName}\" wurde erfolgreich gelöscht."
 
@@ -412,7 +412,7 @@ msgstr "Infrastruktur"
 msgid "Infrastructure Configuration"
 msgstr "Infrastruktur-Konfiguration"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:209
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:204
 msgid "Key"
 msgstr "Key"
 
@@ -521,7 +521,7 @@ msgstr "Netzwerkkonfiguration"
 msgid "Next"
 msgstr "Weiter"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:255
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:240
 msgid "No extra specs found. Click \"Add Extra Spec\" to create one."
 msgstr "Keine Extra Specs gefunden. Klicken Sie auf \"Extra Spec hinzufügen\", um eine zu erstellen."
 
@@ -571,7 +571,7 @@ msgstr "Bitte korrigieren Sie die Validierungsfehler unten."
 msgid "Please review all configurations carefully before creating the cluster. Once created, some settings cannot be changed."
 msgstr "Bitte überprüfe alle Konfigurationen sorgfältig, bevor du den Cluster erstellst. Nach der Erstellung können einige Einstellungen nicht mehr geändert werden."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail.tsx:95
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail.tsx:94
 msgid "Please try again or copy manually"
 msgstr "Bitte versuchen Sie es erneut oder kopieren Sie manuell"
 
@@ -597,7 +597,7 @@ msgstr "RAM (MiB)"
 msgid "RAM must be an integer ≥ 128 MB."
 msgstr "RAM muss eine ganze Zahl ≥ 128 MB sein."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail.tsx:133
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail.tsx:132
 msgid "Raw JSON Data for"
 msgstr "JSON-Rohdaten für"
 
@@ -613,8 +613,7 @@ msgstr "Region"
 msgid "Restart"
 msgstr "Neustart"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/List.tsx:147
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/List.tsx:179
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/List.tsx:211
 msgid "Retry"
 msgstr "Erneut versuchen"
 
@@ -812,7 +811,7 @@ msgstr "Unbekannter Fehler"
 msgid "User C/D/I"
 msgstr "Benutzer C/D/I"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:210
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:205
 msgid "Value"
 msgstr "Value"
 
@@ -906,7 +905,7 @@ msgstr "Sie sind nicht berechtigt, Flavors zu löschen. Bitte melden Sie sich er
 msgid "You are not authorized to view extra specs. Please log in again."
 msgstr "Sie sind nicht berechtigt, Extra Specs anzusehen. Bitte melden Sie sich erneut an."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail.tsx:77
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail.tsx:76
 msgid "You can now share this information with your team"
 msgstr "Sie können diese Informationen nun mit Ihrem Team teilen"
 
