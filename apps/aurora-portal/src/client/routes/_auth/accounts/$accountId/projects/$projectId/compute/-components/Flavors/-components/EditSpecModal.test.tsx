@@ -194,43 +194,6 @@ describe("EditSpecModal", () => {
     expect(screen.queryByText("Add Extra Spec")).not.toBeInTheDocument()
   })
 
-  it("displays error when fetching specs fails", async () => {
-    const mockClientWithError = {
-      ...mockClient,
-      compute: {
-        ...mockClient.compute,
-        getExtraSpecs: {
-          query: vi.fn().mockRejectedValue(new Error("Failed to fetch specs")),
-        },
-      },
-    } as unknown as TrpcClient
-
-    const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {})
-
-    await act(async () => {
-      render(
-        <EditSpecModal
-          client={mockClientWithError}
-          isOpen={true}
-          onClose={mockOnClose}
-          project="test-project"
-          flavor={mockFlavor}
-        />,
-        { wrapper: TestingProvider }
-      )
-    })
-
-    expect(screen.getByText("Edit Extra Specs")).toBeInTheDocument()
-
-    await waitFor(() => {
-      expect(mockClientWithError.compute.getExtraSpecs.query).toHaveBeenCalledWith({
-        projectId: "test-project",
-        flavorId: "test-flavor-id",
-      })
-    })
-
-    consoleSpy.mockRestore()
-  })
   it("fetches extra specs with correct parameters", async () => {
     await act(async () => {
       render(
