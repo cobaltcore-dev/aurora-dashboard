@@ -7,12 +7,6 @@ import { ReactNode } from "react"
 import { i18n } from "@lingui/core"
 import { Flavor } from "@/server/Compute/types/flavor"
 
-vi.mock("@/client/utils/useErrorTranslation", () => ({
-  useErrorTranslation: () => ({
-    translateError: vi.fn((error: string) => `Translated: ${error}`),
-  }),
-}))
-
 const TestingProvider = ({ children }: { children: ReactNode }) => <I18nProvider i18n={i18n}>{children}</I18nProvider>
 
 describe("EditSpecModal", () => {
@@ -188,7 +182,7 @@ describe("EditSpecModal", () => {
     })
   })
 
-  it("handles null flavor gracefully", async () => {
+  it("handles null flavor with not rendering", async () => {
     await act(async () => {
       render(
         <EditSpecModal client={mockClient} isOpen={true} onClose={mockOnClose} project="test-project" flavor={null} />,
@@ -196,7 +190,7 @@ describe("EditSpecModal", () => {
       )
     })
 
-    expect(screen.getByText("Edit Extra Specs")).toBeInTheDocument()
+    expect(screen.queryByText("Edit Extra Specs")).not.toBeInTheDocument()
     expect(screen.queryByText("Add Extra Spec")).not.toBeInTheDocument()
   })
 
@@ -211,6 +205,8 @@ describe("EditSpecModal", () => {
       },
     } as unknown as TrpcClient
 
+    const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {})
+
     await act(async () => {
       render(
         <EditSpecModal
@@ -224,11 +220,17 @@ describe("EditSpecModal", () => {
       )
     })
 
-    await waitFor(() => {
-      expect(screen.getByText("Translated: Failed to fetch specs")).toBeInTheDocument()
-    })
-  })
+    expect(screen.getByText("Edit Extra Specs")).toBeInTheDocument()
 
+    await waitFor(() => {
+      expect(mockClientWithError.compute.getExtraSpecs.query).toHaveBeenCalledWith({
+        projectId: "test-project",
+        flavorId: "test-flavor-id",
+      })
+    })
+
+    consoleSpy.mockRestore()
+  })
   it("fetches extra specs with correct parameters", async () => {
     await act(async () => {
       render(

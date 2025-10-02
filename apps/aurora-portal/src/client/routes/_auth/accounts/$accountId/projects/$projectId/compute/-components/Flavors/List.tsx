@@ -1,186 +1,83 @@
-import { useState, useEffect } from "react"
+import { use, Suspense, useState, startTransition } from "react"
 import { useLingui } from "@lingui/react/macro"
 import { TrpcClient } from "@/client/trpcClient"
 import { Flavor } from "@/server/Compute/types/flavor"
 import { Message, Button } from "@cloudoperators/juno-ui-components"
-import { useErrorTranslation } from "@/client/utils/useErrorTranslation"
 import FilterToolbar from "./-components/FilterToolbar"
 import { FlavorListContainer } from "./-components/FlavorListContainer"
 import { CreateFlavorModal } from "./-components/CreateFlavorModal"
+import { ErrorBoundary } from "react-error-boundary"
 
 interface FlavorsProps {
   client: TrpcClient
   project: string
 }
 
-interface ErrorState {
-  message: string
-  code: string
-  isRetryable: boolean
+const createFlavorsPromise = (
+  client: TrpcClient,
+  project: string,
+  sortBy: string,
+  sortDirection: string,
+  searchTerm: string
+) => {
+  return client.compute.getFlavorsByProjectId.query({
+    projectId: project,
+    sortBy,
+    sortDirection,
+    searchTerm,
+  })
 }
 
-interface SuccessState {
-  message: string
-  timestamp: number
+const createPermissionsPromise = (client: TrpcClient) => {
+  return Promise.all([
+    client.compute.canUser.query("flavors:create"),
+    client.compute.canUser.query("flavors:delete"),
+  ]).then(([canCreate, canDelete]) => ({ canCreate, canDelete }))
 }
 
-export const Flavors = ({ client, project }: FlavorsProps) => {
-  const { t } = useLingui()
-  const { translateError, isRetryableError } = useErrorTranslation()
-
-  const [sortBy, setSortBy] = useState("name")
-  const [sortDirection, setSortDirection] = useState("asc")
-  const [searchTerm, setSearchTerm] = useState("")
-  const [flavors, setFlavors] = useState<Flavor[] | undefined>(undefined)
-  const [error, setError] = useState<ErrorState | undefined>(undefined)
-  const [success, setSuccess] = useState<SuccessState | undefined>(undefined)
-  const [isLoading, setIsLoading] = useState(true)
-  const [refetchTrigger, setRefetchTrigger] = useState(0)
-  const [createModalOpen, setCreateModalOpen] = useState(false)
-  const [canCreateFlavor, setCanCreateFlavor] = useState(false)
-  const [canDeleteFlavor, setCanDeleteFlavor] = useState(false)
-
-  const checkPermissionsFlavor = async () => {
-    try {
-      const resCreate = await client.compute.canUser.query("flavors:create")
-      setCanCreateFlavor(resCreate)
-
-      const resDelete = await client.compute.canUser.query("flavors:delete")
-      setCanDeleteFlavor(resDelete)
-    } catch (err) {
-      console.error(err)
-    }
-  }
-
-  useEffect(() => {
-    const fetchFlavors = async () => {
-      try {
-        setIsLoading(true)
-        setError(undefined)
-        const data = await client.compute.getFlavorsByProjectId.query({
-          projectId: project,
-          sortBy,
-          sortDirection,
-          searchTerm,
-        })
-        setFlavors(data)
-      } catch (err) {
-        handleError(err)
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    fetchFlavors()
-    checkPermissionsFlavor()
-  }, [client, project, sortBy, sortDirection, searchTerm, refetchTrigger])
-
-  const handleError = (err: unknown) => {
-    let errorCode = "UNKNOWN_ERROR"
-
-    if (err && typeof err === "object" && "message" in err) {
-      const errorMessage = err.message
-      if (typeof errorMessage === "string" && errorMessage.startsWith("FLAVORS_")) {
-        errorCode = errorMessage
-      }
-    }
-
-    setError({
-      message: translateError(errorCode),
-      code: errorCode,
-      isRetryable: isRetryableError(errorCode),
-    })
-  }
-
-  const handleSuccess = (message: string) => {
-    setSuccess({
-      message,
-      timestamp: Date.now(),
-    })
-
-    setTimeout(() => {
-      setSuccess(undefined)
-    }, 5000)
-  }
-
-  const refetchFlavors = () => {
-    setError(undefined)
-    setRefetchTrigger((prev) => prev + 1)
-  }
-
-  const handleFlavorDeleted = (flavorName: string) => {
-    handleSuccess(t`Flavor "${flavorName}" has been successfully deleted.`)
-    refetchFlavors()
-  }
-
-  const handleFlavorCreated = (flavorName: string) => {
-    handleSuccess(t`Flavor "${flavorName}" has been successfully created.`)
-    refetchFlavors()
-  }
-
-  const handleSortByChange = (value: string | number | string[] | undefined) => {
-    if (value && typeof value === "string") {
-      setSortBy(value)
-    }
-  }
-
-  const handleSortDirectionChange = (value: string | number | string[] | undefined) => {
-    if (value && typeof value === "string") {
-      setSortDirection(value)
-    }
-  }
-
-  const dismissError = () => {
-    setError(undefined)
-  }
-
-  const dismissSuccess = () => {
-    setSuccess(undefined)
-  }
-
-  if (error && !isLoading) {
-    return (
-      <div className="error-container">
-        <Message text={error.message} variant="error" onDismiss={dismissError} />
-        {error.isRetryable && (
-          <Button onClick={refetchFlavors} variant="primary" className="mt-4">
-            {t`Retry`}
-          </Button>
-        )}
-      </div>
-    )
-  }
+function FlavorsContent({
+  flavorsPromise,
+  permissionsPromise,
+  client,
+  project,
+  onFlavorDeleted,
+  onFlavorCreated,
+  searchTerm,
+  setSearchTerm,
+  sortBy,
+  handleSortByChange,
+  sortDirection,
+  handleSortDirectionChange,
+  createModalOpen,
+  setCreateModalOpen,
+}: {
+  flavorsPromise: Promise<Flavor[]>
+  permissionsPromise: Promise<{ canCreate: boolean; canDelete: boolean }>
+  client: TrpcClient
+  project: string
+  onFlavorDeleted: (name: string) => void
+  onFlavorCreated: (name: string) => void
+  searchTerm: string
+  setSearchTerm: (term: string) => void
+  sortBy: string
+  handleSortByChange: (value: string | number | string[] | undefined) => void
+  sortDirection: string
+  handleSortDirectionChange: (value: string | number | string[] | undefined) => void
+  createModalOpen: boolean
+  setCreateModalOpen: (open: boolean) => void
+}) {
+  const flavors = use(flavorsPromise)
+  const permissions = use(permissionsPromise)
 
   return (
-    <div className="relative">
+    <>
       <CreateFlavorModal
         client={client}
         isOpen={createModalOpen}
         project={project}
         onClose={() => setCreateModalOpen(false)}
-        onSuccess={handleFlavorCreated}
+        onSuccess={onFlavorCreated}
       />
-
-      {success && (
-        <Message
-          className="absolute -top-14 left-0 right-0 z-50 "
-          text={success.message}
-          variant="success"
-          onDismiss={dismissSuccess}
-          dismissible
-        />
-      )}
-
-      {error && (
-        <div className="absolute -top-14 left-0 right-0 z-50 ">
-          <Message text={error.message} variant="error" onDismiss={dismissError} />
-          {error.isRetryable && (
-            <Button onClick={refetchFlavors} variant="primary" size="small" className="mt-2">
-              {t`Retry`}
-            </Button>
-          )}
-        </div>
-      )}
 
       <FilterToolbar
         searchTerm={searchTerm}
@@ -190,17 +87,129 @@ export const Flavors = ({ client, project }: FlavorsProps) => {
         sortDirection={sortDirection}
         handleSortDirectionChange={handleSortDirectionChange}
         setCreateModalOpen={setCreateModalOpen}
-        canCreateFlavor={canCreateFlavor}
+        canCreateFlavor={permissions.canCreate}
       />
 
       <FlavorListContainer
         flavors={flavors}
-        isLoading={isLoading}
+        isLoading={false}
         client={client}
         project={project}
-        onFlavorDeleted={handleFlavorDeleted}
-        canDeleteFlavor={canDeleteFlavor}
+        onFlavorDeleted={onFlavorDeleted}
+        canDeleteFlavor={permissions.canDelete}
       />
+    </>
+  )
+}
+
+export const Flavors = ({ client, project }: FlavorsProps) => {
+  const { t } = useLingui()
+
+  const [sortBy, setSortBy] = useState("name")
+  const [sortDirection, setSortDirection] = useState("asc")
+  const [searchTerm, setSearchTerm] = useState("")
+  const [success, setSuccess] = useState<{ message: string; timestamp: number } | undefined>()
+  const [createModalOpen, setCreateModalOpen] = useState(false)
+
+  const [flavorsPromise, setFlavorsPromise] = useState(() =>
+    createFlavorsPromise(client, project, sortBy, sortDirection, searchTerm)
+  )
+  const [permissionsPromise] = useState(() => createPermissionsPromise(client))
+
+  const refetchFlavors = () => {
+    startTransition(() => {
+      setFlavorsPromise(createFlavorsPromise(client, project, sortBy, sortDirection, searchTerm))
+    })
+  }
+
+  const handleFlavorDeleted = (flavorName: string) => {
+    setSuccess({
+      message: t`Flavor "${flavorName}" has been successfully deleted.`,
+      timestamp: Date.now(),
+    })
+    setTimeout(() => setSuccess(undefined), 5000)
+    refetchFlavors()
+  }
+
+  const handleFlavorCreated = (flavorName: string) => {
+    setSuccess({
+      message: t`Flavor "${flavorName}" has been successfully created.`,
+      timestamp: Date.now(),
+    })
+    setTimeout(() => setSuccess(undefined), 5000)
+    refetchFlavors()
+  }
+
+  const handleSortByChange = (value: string | number | string[] | undefined) => {
+    if (value && typeof value === "string") {
+      setSortBy(value)
+      startTransition(() => {
+        setFlavorsPromise(createFlavorsPromise(client, project, value, sortDirection, searchTerm))
+      })
+    }
+  }
+
+  const handleSortDirectionChange = (value: string | number | string[] | undefined) => {
+    if (value && typeof value === "string") {
+      setSortDirection(value)
+      startTransition(() => {
+        setFlavorsPromise(createFlavorsPromise(client, project, sortBy, value, searchTerm))
+      })
+    }
+  }
+
+  const handleSearchChange = (term: string) => {
+    setSearchTerm(term)
+    startTransition(() => {
+      setFlavorsPromise(createFlavorsPromise(client, project, sortBy, sortDirection, term))
+    })
+  }
+
+  return (
+    <div className="relative">
+      {success && (
+        <Message
+          className="absolute -top-14 left-0 right-0 z-50"
+          text={success.message}
+          variant="success"
+          onDismiss={() => setSuccess(undefined)}
+          dismissible
+        />
+      )}
+
+      <Suspense fallback={<div>Loading flavors...</div>}>
+        <ErrorBoundary fallback={<ErrorFallback onRetry={refetchFlavors} />}>
+          <FlavorsContent
+            flavorsPromise={flavorsPromise}
+            permissionsPromise={permissionsPromise}
+            client={client}
+            project={project}
+            onFlavorDeleted={handleFlavorDeleted}
+            onFlavorCreated={handleFlavorCreated}
+            searchTerm={searchTerm}
+            setSearchTerm={handleSearchChange}
+            sortBy={sortBy}
+            handleSortByChange={handleSortByChange}
+            sortDirection={sortDirection}
+            handleSortDirectionChange={handleSortDirectionChange}
+            createModalOpen={createModalOpen}
+            setCreateModalOpen={setCreateModalOpen}
+          />
+        </ErrorBoundary>
+      </Suspense>
+    </div>
+  )
+}
+
+function ErrorFallback({ onRetry }: { onRetry: () => void }) {
+  const { t } = useLingui()
+
+  return (
+    <div className="error-container">
+      <Message text={t`Failed to load flavors`} variant="error" />
+      <Button onClick={onRetry} variant="primary" className="mt-4">
+        {t`Retry`}
+      </Button>
     </div>
   )
 }
