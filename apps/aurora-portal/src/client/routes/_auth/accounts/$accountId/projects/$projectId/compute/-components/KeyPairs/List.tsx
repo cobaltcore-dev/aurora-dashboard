@@ -35,7 +35,7 @@ export function KeyPairs({ client, project }: KeyPairsProps) {
     <Suspense
       fallback={
         <Stack className="fixed inset-0" distribution="center" alignment="center" direction="vertical">
-          <Spinner variant="primary" size="large" className="m-2" />
+          <Spinner variant="primary" size="large" className="mb-2" />
           <Trans>Loading Key Pairs...</Trans>
         </Stack>
       }
