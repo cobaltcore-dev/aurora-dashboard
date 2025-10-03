@@ -16,7 +16,7 @@ const getPolicy = (ctx: AuroraPortalContext, policyEngineName: "compute" | "imag
   const policyEngine = policyEngineName === "compute" ? computePolicyEngine : imagePolicyEngine
 
   return policyEngine.policy(token.tokenData, {
-    debug: false,
+    debug: true,
     defaultParams: { project_id: token.tokenData.project?.id },
   })
 }
@@ -61,7 +61,6 @@ export const permissionRouter = {
         message: `Unknown permission: ${input}`,
       })
     }
-
     const policy = getPolicy(ctx, policyMapping.engine)
     return policy.check(policyMapping.rule)
   }),

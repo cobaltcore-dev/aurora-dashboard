@@ -23,6 +23,7 @@ interface FlavorListContainerProps {
   client: TrpcClient
   project: string
   onFlavorDeleted?: (flavorName: string) => void
+  canDeleteFlavor?: boolean
 }
 
 export const FlavorListContainer = ({
@@ -31,11 +32,12 @@ export const FlavorListContainer = ({
   client,
   project,
   onFlavorDeleted,
+  canDeleteFlavor,
 }: FlavorListContainerProps) => {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
   const [specModalOpen, setSpecModalOpen] = useState(false)
   const [selectedFlavor, setSelectedFlavor] = useState<Flavor | null>(null)
-  console.log(flavors)
+
   const openDeleteModal = (flavor: Flavor) => {
     setSelectedFlavor(flavor)
     setDeleteModalOpen(true)
@@ -137,7 +139,9 @@ export const FlavorListContainer = ({
               <PopupMenu>
                 <PopupMenuOptions>
                   <PopupMenuItem label="Extra Specs" icon="info" onClick={() => openSpecModal(flavor)} />
-                  <PopupMenuItem icon="deleteForever" label="Delete Flavor" onClick={() => openDeleteModal(flavor)} />
+                  {canDeleteFlavor && (
+                    <PopupMenuItem icon="deleteForever" label="Delete Flavor" onClick={() => openDeleteModal(flavor)} />
+                  )}
                 </PopupMenuOptions>
               </PopupMenu>
             </DataGridCell>

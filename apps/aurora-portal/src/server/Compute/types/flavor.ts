@@ -9,7 +9,7 @@ export const flavorSchema = z.object({
   "OS-FLV-DISABLED:disabled": z.boolean().optional(),
   "OS-FLV-EXT-DATA:ephemeral": z.number().optional(),
   "os-flavor-access:is_public": z.boolean().optional(),
-  id: z.string().optional(),
+  id: z.string(),
   name: z.string(),
   vcpus: z.number(),
   ram: z.number(),

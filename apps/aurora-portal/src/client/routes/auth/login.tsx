@@ -166,9 +166,9 @@ export function AuthLoginPage() {
           </Button>
         </form>
 
-        <p className="text-center text-sm text-gray-400 mt-4">
+        <p className="text-center text-sm mt-4">
           <Trans>Need help?</Trans>{" "}
-          <a href="#" className="text-blue-500 hover:underline">
+          <a href="#">
             <Trans>Contact support</Trans>
           </a>
         </p>

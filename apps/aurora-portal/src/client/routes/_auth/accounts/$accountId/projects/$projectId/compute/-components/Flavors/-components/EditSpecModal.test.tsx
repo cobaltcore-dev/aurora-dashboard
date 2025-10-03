@@ -1,185 +1,238 @@
-import { render, screen, act, fireEvent } from "@testing-library/react"
-import { describe, it, expect, vi, beforeEach } from "vitest"
-import { SpecFormRow } from "./SpecFormRow"
+import { render, screen, act, waitFor } from "@testing-library/react"
+import { describe, it, expect, beforeAll, vi, beforeEach } from "vitest"
+import { EditSpecModal } from "./EditSpecModal"
+import { TrpcClient } from "@/client/trpcClient"
 import { I18nProvider } from "@lingui/react"
-import { i18n } from "@lingui/core"
 import { ReactNode } from "react"
+import { i18n } from "@lingui/core"
+import { Flavor } from "@/server/Compute/types/flavor"
 
 const TestingProvider = ({ children }: { children: ReactNode }) => <I18nProvider i18n={i18n}>{children}</I18nProvider>
 
-describe("SpecFormRow", () => {
-  beforeEach(async () => {
-    vi.clearAllMocks()
+describe("EditSpecModal", () => {
+  beforeAll(async () => {
     await act(async () => {
       i18n.activate("en")
     })
   })
 
-  const createDefaultProps = () => ({
-    specKey: "testKey",
-    value: "testValue",
-    errors: {} as { key?: string; value?: string },
-    isLoading: false,
-    onKeyChange: vi.fn(),
-    onValueChange: vi.fn(),
-    onSave: vi.fn(),
-    onCancel: vi.fn(),
-  })
-
-  it("renders form inputs correctly", () => {
-    const props = createDefaultProps()
-
-    render(<SpecFormRow {...props} />, {
-      wrapper: TestingProvider,
-    })
-
-    const keyInput = screen.getByDisplayValue("testKey")
-    const valueInput = screen.getByDisplayValue("testValue")
-
-    expect(keyInput).toBeInTheDocument()
-    expect(valueInput).toBeInTheDocument()
-  })
-
-  it("handles empty key and value", () => {
-    const props = {
-      ...createDefaultProps(),
-      specKey: "",
-      value: "",
-    }
-
-    render(<SpecFormRow {...props} />, {
-      wrapper: TestingProvider,
-    })
-
-    const keyInput = screen.getByPlaceholderText("Enter key")
-    const valueInput = screen.getByPlaceholderText("Enter value")
-
-    expect(keyInput).toHaveValue("")
-    expect(valueInput).toHaveValue("")
-  })
-
-  it("displays validation errors", () => {
-    const props = {
-      ...createDefaultProps(),
-      errors: {
-        key: "Key is required.",
-        value: "Value is required.",
+  const mockClient = {
+    compute: {
+      canUser: {
+        query: vi.fn().mockResolvedValue(true),
       },
-    }
+      getExtraSpecs: {
+        query: vi.fn().mockResolvedValue({}),
+      },
+      createExtraSpecs: {
+        mutate: vi.fn().mockResolvedValue({ success: true }),
+      },
+      deleteExtraSpec: {
+        mutate: vi.fn().mockResolvedValue({ success: true }),
+      },
+    },
+  } as unknown as TrpcClient
 
-    render(<SpecFormRow {...props} />, {
-      wrapper: TestingProvider,
-    })
+  const mockFlavor: Flavor = {
+    id: "test-flavor-id",
+    name: "Test Flavor",
+    vcpus: 2,
+    ram: 1024,
+    disk: 10,
+  }
 
-    expect(screen.getByText("Key is required.")).toBeInTheDocument()
-    expect(screen.getByText("Value is required.")).toBeInTheDocument()
+  const mockOnClose = vi.fn()
+
+  beforeEach(() => {
+    vi.clearAllMocks()
   })
 
-  it("calls onKeyChange when key input changes", () => {
-    const props = createDefaultProps()
-
-    render(<SpecFormRow {...props} />, {
-      wrapper: TestingProvider,
+  it("renders the modal when open", async () => {
+    await act(async () => {
+      render(
+        <EditSpecModal
+          client={mockClient}
+          isOpen={true}
+          onClose={mockOnClose}
+          project="test-project"
+          flavor={mockFlavor}
+        />,
+        { wrapper: TestingProvider }
+      )
     })
 
-    const keyInput = screen.getByDisplayValue("testKey")
-    fireEvent.change(keyInput, { target: { value: "newKey" } })
-
-    expect(props.onKeyChange).toHaveBeenCalledWith("newKey")
-    expect(props.onKeyChange).toHaveBeenCalledTimes(1)
+    expect(screen.getByText("Edit Extra Specs")).toBeInTheDocument()
   })
 
-  it("calls onValueChange when value input changes", () => {
-    const props = createDefaultProps()
+  it("does not render when modal is closed", () => {
+    render(
+      <EditSpecModal
+        client={mockClient}
+        isOpen={false}
+        onClose={mockOnClose}
+        project="test-project"
+        flavor={mockFlavor}
+      />,
+      { wrapper: TestingProvider }
+    )
 
-    render(<SpecFormRow {...props} />, {
-      wrapper: TestingProvider,
-    })
-
-    const valueInput = screen.getByDisplayValue("testValue")
-    fireEvent.change(valueInput, { target: { value: "newValue" } })
-
-    expect(props.onValueChange).toHaveBeenCalledWith("newValue")
-    expect(props.onValueChange).toHaveBeenCalledTimes(1)
+    expect(screen.queryByText("Edit Extra Specs")).not.toBeInTheDocument()
   })
 
-  it("verifies button mapping - primary should be save, non-primary should be cancel", () => {
-    const props = createDefaultProps()
-
-    const { container } = render(<SpecFormRow {...props} />, {
-      wrapper: TestingProvider,
+  it("shows add button when user has create permissions", async () => {
+    await act(async () => {
+      render(
+        <EditSpecModal
+          client={mockClient}
+          isOpen={true}
+          onClose={mockOnClose}
+          project="test-project"
+          flavor={mockFlavor}
+        />,
+        { wrapper: TestingProvider }
+      )
     })
 
-    const buttons = container.querySelectorAll("button")
-    const primaryButton = Array.from(buttons).find((btn) => btn.classList.contains("juno-button-primary"))
-    const nonPrimaryButton = Array.from(buttons).find((btn) => !btn.classList.contains("juno-button-primary"))
-
-    expect(primaryButton).toBeTruthy()
-    expect(nonPrimaryButton).toBeTruthy()
-    expect(primaryButton?.getAttribute("title")).toBe("Save Extra Spec")
-    expect(nonPrimaryButton?.getAttribute("title")).toBe("Cancel")
+    await waitFor(() => {
+      const addSpecButton = screen.getByRole("button", { name: /Add Extra Spec/i })
+      expect(addSpecButton).toBeInTheDocument()
+    })
   })
 
-  it("calls onSave when save button is clicked", () => {
-    const props = createDefaultProps()
+  it("hides add button when user lacks create permissions", async () => {
+    const mockClientNoPermission = {
+      ...mockClient,
+      compute: {
+        ...mockClient.compute,
+        canUser: {
+          query: vi.fn().mockResolvedValue(false),
+        },
+      },
+    } as unknown as TrpcClient
 
-    const { container } = render(<SpecFormRow {...props} />, {
-      wrapper: TestingProvider,
+    await act(async () => {
+      render(
+        <EditSpecModal
+          client={mockClientNoPermission}
+          isOpen={true}
+          onClose={mockOnClose}
+          project="test-project"
+          flavor={mockFlavor}
+        />,
+        { wrapper: TestingProvider }
+      )
     })
 
-    const buttons = container.querySelectorAll("button")
-    const saveButton = Array.from(buttons).find((btn) => btn.getAttribute("title") === "Save Extra Spec")
-
-    expect(saveButton).toBeTruthy()
-    fireEvent.click(saveButton!)
-    expect(props.onSave).toHaveBeenCalledTimes(1)
+    await waitFor(() => {
+      expect(screen.queryByText("Add Extra Spec")).not.toBeInTheDocument()
+    })
   })
 
-  it("calls onCancel when cancel button is clicked", () => {
-    const props = createDefaultProps()
+  it("displays existing extra specs", async () => {
+    const mockClientWithSpecs = {
+      ...mockClient,
+      compute: {
+        ...mockClient.compute,
+        getExtraSpecs: {
+          query: vi.fn().mockResolvedValue({
+            "hw:cpu_policy": "dedicated",
+            "hw:mem_page_size": "large",
+          }),
+        },
+      },
+    } as unknown as TrpcClient
 
-    const { container } = render(<SpecFormRow {...props} />, {
-      wrapper: TestingProvider,
+    await act(async () => {
+      render(
+        <EditSpecModal
+          client={mockClientWithSpecs}
+          isOpen={true}
+          onClose={mockOnClose}
+          project="test-project"
+          flavor={mockFlavor}
+        />,
+        { wrapper: TestingProvider }
+      )
     })
 
-    const buttons = container.querySelectorAll("button")
-    const cancelButton = Array.from(buttons).find((btn) => btn.getAttribute("title") === "Cancel")
-
-    expect(cancelButton).toBeTruthy()
-    fireEvent.click(cancelButton!)
-    expect(props.onCancel).toHaveBeenCalledTimes(1)
+    await waitFor(() => {
+      expect(screen.getByText("hw:cpu_policy")).toBeInTheDocument()
+      expect(screen.getByText("dedicated")).toBeInTheDocument()
+      expect(screen.getByText("hw:mem_page_size")).toBeInTheDocument()
+      expect(screen.getByText("large")).toBeInTheDocument()
+    })
   })
 
-  it("disables buttons when loading", () => {
-    const props = {
-      ...createDefaultProps(),
-      isLoading: true,
-    }
-
-    const { container } = render(<SpecFormRow {...props} />, {
-      wrapper: TestingProvider,
+  it("shows empty state when no specs exist", async () => {
+    await act(async () => {
+      render(
+        <EditSpecModal
+          client={mockClient}
+          isOpen={true}
+          onClose={mockOnClose}
+          project="test-project"
+          flavor={mockFlavor}
+        />,
+        { wrapper: TestingProvider }
+      )
     })
 
-    const buttons = container.querySelectorAll("button")
-    const saveButton = Array.from(buttons).find((btn) => btn.getAttribute("title") === "Save Extra Spec")
-    const cancelButton = Array.from(buttons).find((btn) => btn.getAttribute("title") === "Cancel")
-
-    expect(saveButton).toBeDisabled()
-    expect(cancelButton).toBeDisabled()
+    await waitFor(() => {
+      expect(screen.getByText('No extra specs found. Click "Add Extra Spec" to create one.')).toBeInTheDocument()
+    })
   })
 
-  it("enables buttons when not loading", () => {
-    const props = createDefaultProps()
-
-    const { container } = render(<SpecFormRow {...props} />, {
-      wrapper: TestingProvider,
+  it("handles null flavor with not rendering", async () => {
+    await act(async () => {
+      render(
+        <EditSpecModal client={mockClient} isOpen={true} onClose={mockOnClose} project="test-project" flavor={null} />,
+        { wrapper: TestingProvider }
+      )
     })
 
-    const buttons = container.querySelectorAll("button")
-    const saveButton = Array.from(buttons).find((btn) => btn.getAttribute("title") === "Save Extra Spec")
-    const cancelButton = Array.from(buttons).find((btn) => btn.getAttribute("title") === "Cancel")
+    expect(screen.queryByText("Edit Extra Specs")).not.toBeInTheDocument()
+    expect(screen.queryByText("Add Extra Spec")).not.toBeInTheDocument()
+  })
 
-    expect(saveButton).toBeEnabled()
-    expect(cancelButton).toBeEnabled()
+  it("fetches extra specs with correct parameters", async () => {
+    await act(async () => {
+      render(
+        <EditSpecModal
+          client={mockClient}
+          isOpen={true}
+          onClose={mockOnClose}
+          project="test-project"
+          flavor={mockFlavor}
+        />,
+        { wrapper: TestingProvider }
+      )
+    })
+
+    await waitFor(() => {
+      expect(mockClient.compute.getExtraSpecs.query).toHaveBeenCalledWith({
+        projectId: "test-project",
+        flavorId: "test-flavor-id",
+      })
+    })
+  })
+
+  it("checks user permissions on mount", async () => {
+    await act(async () => {
+      render(
+        <EditSpecModal
+          client={mockClient}
+          isOpen={true}
+          onClose={mockOnClose}
+          project="test-project"
+          flavor={mockFlavor}
+        />,
+        { wrapper: TestingProvider }
+      )
+    })
+
+    await waitFor(() => {
+      expect(mockClient.compute.canUser.query).toHaveBeenCalledWith("flavor_specs:create")
+      expect(mockClient.compute.canUser.query).toHaveBeenCalledWith("flavor_specs:delete")
+    })
   })
 })
