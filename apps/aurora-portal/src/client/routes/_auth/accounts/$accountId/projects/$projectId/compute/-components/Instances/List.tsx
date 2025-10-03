@@ -3,7 +3,7 @@ import ServerListView from "./-components/ServerListView"
 import { Suspense, use } from "react"
 import { Server } from "@/server/Compute/types/server"
 import { TrpcClient } from "@/client/trpcClient"
-import { Button } from "@cloudoperators/juno-ui-components/index"
+import { Button, Spinner, Stack } from "@cloudoperators/juno-ui-components/index"
 import { Trans } from "@lingui/react/macro"
 
 interface InstanceContainerProps {
@@ -33,9 +33,10 @@ export const Instances = ({
   return (
     <Suspense
       fallback={
-        <div className="p-4 text-center ">
-          <Trans>Loading instances...</Trans>
-        </div>
+        <Stack className="fixed inset-0" distribution="center" alignment="center" direction="vertical">
+          <Spinner variant="primary" size="large" className="m-2" />
+          <Trans>Loading Instances...</Trans>
+        </Stack>
       }
     >
       <Button

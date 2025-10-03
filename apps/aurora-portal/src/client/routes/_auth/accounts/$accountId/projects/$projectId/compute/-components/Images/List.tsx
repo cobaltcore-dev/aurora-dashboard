@@ -3,6 +3,7 @@ import { GlanceImage } from "@/server/Compute/types/image"
 import { TrpcClient } from "@/client/trpcClient"
 import { ImageListView } from "./-components/ImageListView"
 import { Trans } from "@lingui/react/macro"
+import { Spinner, Stack } from "@cloudoperators/juno-ui-components/index"
 
 const ImageListContainer = ({ getImagesPromise }: { getImagesPromise: Promise<GlanceImage[] | undefined> }) => {
   const images = use(getImagesPromise)
@@ -23,9 +24,10 @@ export const Images = ({ client }: ImagesProps) => {
   return (
     <Suspense
       fallback={
-        <div className="p-4 text-center ">
-          <Trans>Loading images...</Trans>
-        </div>
+        <Stack className="fixed inset-0" distribution="center" alignment="center" direction="vertical">
+          <Spinner variant="primary" size="large" className="m-2" />
+          <Trans>Loading Images...</Trans>
+        </Stack>
       }
     >
       <ImageListContainer getImagesPromise={getImagesPromise} />

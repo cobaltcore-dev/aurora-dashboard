@@ -1,5 +1,5 @@
 import { use, Suspense, useState, startTransition } from "react"
-import { useLingui } from "@lingui/react/macro"
+import { Trans, useLingui } from "@lingui/react/macro"
 import { TrpcClient } from "@/client/trpcClient"
 import { Flavor } from "@/server/Compute/types/flavor"
 import { Message, Button, Stack, Spinner } from "@cloudoperators/juno-ui-components"
@@ -179,8 +179,9 @@ export const Flavors = ({ client, project }: FlavorsProps) => {
 
       <Suspense
         fallback={
-          <Stack className="fixed inset-0" distribution="center" alignment="center">
-            <Spinner variant="primary" size="large" />
+          <Stack className="fixed inset-0" distribution="center" alignment="center" direction="vertical">
+            <Spinner variant="primary" size="large" className="m-2" />
+            <Trans>Loading Flavors...</Trans>
           </Stack>
         }
       >

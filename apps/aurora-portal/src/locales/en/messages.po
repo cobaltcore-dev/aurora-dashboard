@@ -342,7 +342,7 @@ msgstr "Failed to fetch flavors from server."
 msgid "Failed to load extra specs. Please try again."
 msgstr "Failed to load extra specs. Please try again."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/List.tsx:215
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/List.tsx:216
 msgid "Failed to load flavors"
 msgstr "Failed to load flavors"
 
@@ -475,25 +475,32 @@ msgstr "Kubernetes Version"
 msgid "List View"
 msgstr "List View"
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/List.tsx:184
+msgid "Loading Flavors..."
+msgstr "Loading Flavors..."
+
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/CreateClusterDialog.tsx:30
 msgid "Loading Gardener..."
 msgstr "Loading Gardener..."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/List.tsx:27
-msgid "Loading images..."
-msgstr "Loading images..."
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/List.tsx:29
+msgid "Loading Images..."
+msgstr "Loading Images..."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Instances/List.tsx:37
-msgid "Loading instances..."
-msgstr "Loading instances..."
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Instances/List.tsx:38
+msgid "Loading Instances..."
+msgstr "Loading Instances..."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/ServerGroups/List.tsx:33
-msgid "Loading server groups..."
-msgstr "Loading server groups..."
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/KeyPairs/List.tsx:39
+msgid "Loading Key Pairs..."
+msgstr "Loading Key Pairs..."
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/ServerGroups/List.tsx:35
+msgid "Loading Server Groups..."
+msgstr "Loading Server Groups..."
 
 #: src/client/routes/auth/login.tsx:165
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Overview.tsx:114
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/KeyPairs/List.tsx:37
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:73
 msgid "Loading..."
 msgstr "Loading..."
@@ -580,12 +587,12 @@ msgstr "No flavor selected for deletion."
 msgid "No flavors found"
 msgstr "No flavors found"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/KeyPairs/List.tsx:17
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/KeyPairs/List.tsx:18
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/KeyPairs/-components/KeyPairListView.tsx:137
 msgid "No key pairs available."
 msgstr "No key pairs available."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/ServerGroups/List.tsx:15
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/ServerGroups/List.tsx:16
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/ServerGroups/components/ServerGroupListView.tsx:141
 msgid "No server groups available."
 msgstr "No server groups available."
@@ -671,7 +678,7 @@ msgstr "Region"
 msgid "Restart"
 msgstr "Restart"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/List.tsx:217
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/List.tsx:218
 msgid "Retry"
 msgstr "Retry"
 

@@ -4,6 +4,7 @@ import { ServerGroupListView } from "./components/ServerGroupListView"
 import type { ServerGroup } from "@/server/Compute/types/serverGroup"
 import { Suspense, use } from "react"
 import { Trans } from "@lingui/react/macro"
+import { Spinner, Stack } from "@cloudoperators/juno-ui-components/index"
 
 interface ServerGroupsContainerProps {
   getServerGroupsPromise: Promise<ServerGroup[] | undefined>
@@ -29,9 +30,10 @@ export function ServerGroups({ client, project }: ServerGroupsProps) {
   return (
     <Suspense
       fallback={
-        <div className="p-4 text-center ">
-          <Trans>Loading server groups...</Trans>
-        </div>
+        <Stack className="fixed inset-0" distribution="center" alignment="center" direction="vertical">
+          <Spinner variant="primary" size="large" className="m-2" />
+          <Trans>Loading Server Groups...</Trans>
+        </Stack>
       }
     >
       <ServerGroupsContainer getServerGroupsPromise={getServerGroupsPromise} />
