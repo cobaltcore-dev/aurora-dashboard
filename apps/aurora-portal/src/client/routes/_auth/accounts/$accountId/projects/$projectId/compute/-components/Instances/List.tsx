@@ -4,6 +4,7 @@ import { Suspense, use } from "react"
 import { Server } from "@/server/Compute/types/server"
 import { TrpcClient } from "@/client/trpcClient"
 import { Button } from "@cloudoperators/juno-ui-components/index"
+import { Trans } from "@lingui/react/macro"
 
 interface InstanceContainerProps {
   getServersPromise: Promise<Server[] | undefined>
@@ -30,7 +31,13 @@ export const Instances = ({
   const getServersPromise = client.compute.getServersByProjectId.query({ projectId: project })
 
   return (
-    <Suspense fallback={<div className="p-4 text-center">Loading instances...</div>}>
+    <Suspense
+      fallback={
+        <div className="p-4 text-center ">
+          <Trans>Loading instances...</Trans>
+        </div>
+      }
+    >
       <Button
         onClick={async () => {
           const canList = await client.compute.canUser.query("servers:list")

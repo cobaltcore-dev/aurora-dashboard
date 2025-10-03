@@ -47,6 +47,7 @@ msgstr "Über das Aurora-Dashboard"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/ServerGroups/components/ServerGroupListView.tsx:66
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/KeyPairs/-components/KeyPairListView.tsx:60
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Instances/-components/ServerListView.tsx:27
 msgid "Actions"
 msgstr "Aktionen"
 
@@ -153,6 +154,10 @@ msgstr "Support kontaktieren"
 msgid "Copy"
 msgstr "Kopieren"
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Instances/-components/ServerListView.tsx:24
+msgid "CPU"
+msgstr "CPU"
+
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/CreateClusterDialog.tsx:25
 msgid "Create Cluster"
 msgstr "Cluster erstellen"
@@ -190,6 +195,7 @@ msgstr "Lösche {specKey}"
 msgid "Delete Cluster"
 msgstr "Cluster löschen"
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:147
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/DeleteFlavorModal.tsx:82
 msgid "Delete Flavor"
 msgstr "Flavor löschen"
@@ -206,6 +212,7 @@ msgstr "Beschreibung"
 msgid "Description must be less than 65535 characters."
 msgstr "Die Beschreibung muss weniger als 65535 Zeichen haben."
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Instances/-components/ServerListView.tsx:26
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/DeleteFlavorModal.tsx:132
 msgid "Disk"
 msgstr "Disk"
@@ -266,7 +273,7 @@ msgstr "Geben Sie Ihren Benutzernamen ein"
 msgid "Ephemeral Disk"
 msgstr "Ephemeral Disk"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:117
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:119
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/CreateFlavorModal.tsx:232
 msgid "Ephemeral Disk (GiB)"
 msgstr "Ephemeral Disk (GiB)"
@@ -286,6 +293,10 @@ msgstr "Extra spec \"{trimmedKey}\" wurde erfolgreich hinzugefügt."
 #: src/client/utils/useErrorTranslation.ts:92
 msgid "Extra spec key is required and cannot be empty."
 msgstr "Der Key für die Extra-Spec ist erforderlich und darf nicht leer sein."
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:143
+msgid "Extra Specs"
+msgstr "Extra Specs"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail.tsx:91
 msgid "Failed to copy to clipboard"
@@ -331,7 +342,7 @@ msgstr "Fehler beim Abrufen der Flavors vom Server."
 msgid "Failed to load extra specs. Please try again."
 msgstr "Fehler beim Laden der Extra-Specs. Bitte versuchen Sie es erneut."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/List.tsx:209
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/List.tsx:215
 msgid "Failed to load flavors"
 msgstr "Fehler beim Laden der Flavors"
 
@@ -371,6 +382,10 @@ msgstr "Flavor Name"
 msgid "Flavor service is not available for this project."
 msgstr "Der Flavor-Service ist für dieses Projekt nicht verfügbar."
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/ComputeNavBar.tsx:23
+msgid "Flavors"
+msgstr "Flavors"
+
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterWizard/InfrastructureStep.tsx:47
 msgid "Floating IP Pool"
 msgstr "Floating IP Pool"
@@ -403,6 +418,10 @@ msgstr "Image"
 msgid "Image Version"
 msgstr "Image Version"
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/ComputeNavBar.tsx:20
+msgid "Images"
+msgstr "Images"
+
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail/ClusterOverviewSection.tsx:58
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail/ClusterOverviewSection.tsx:61
 msgid "Infrastructure"
@@ -411,6 +430,18 @@ msgstr "Infrastruktur"
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterWizard/ReviewStep.tsx:67
 msgid "Infrastructure Configuration"
 msgstr "Infrastruktur-Konfiguration"
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/ComputeNavBar.tsx:19
+msgid "Instances"
+msgstr "Instanzen"
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Instances/-components/ServerListView.tsx:22
+msgid "IPv4"
+msgstr "IPv4"
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Instances/-components/ServerListView.tsx:23
+msgid "IPv6"
+msgstr "IPv6"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:204
 msgid "Key"
@@ -423,6 +454,10 @@ msgstr "Hauptmerkmale"
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/KeyPairs/-components/KeyPairListView.tsx:48
 msgid "Key Name"
 msgstr "Keyname"
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/ComputeNavBar.tsx:21
+msgid "Key Pairs"
+msgstr "Key Pairs"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail/ClusterOverviewSection.tsx:76
 msgid "Kubernetes"
@@ -444,10 +479,22 @@ msgstr "Tabellenansicht"
 msgid "Loading Gardener..."
 msgstr "Lädt Gardener..."
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/List.tsx:27
+msgid "Loading images..."
+msgstr "Lädt images..."
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Instances/List.tsx:37
+msgid "Loading instances..."
+msgstr "Lädt Instanzen"
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/ServerGroups/List.tsx:33
+msgid "Loading server groups..."
+msgstr "Lädt Servergruppen"
+
 #: src/client/routes/auth/login.tsx:165
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Overview.tsx:114
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/KeyPairs/List.tsx:37
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:71
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:73
 msgid "Loading..."
 msgstr "Lädt..."
 
@@ -497,7 +544,7 @@ msgid "Minimum Nodes"
 msgstr "Minimale Nodes"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail/WorkerSection.tsx:29
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:105
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:107
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FilterToolbar.tsx:54
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/DeleteFlavorModal.tsx:116
 msgid "Name"
@@ -529,7 +576,7 @@ msgstr "Keine Extra Specs gefunden. Klicken Sie auf \"Extra Spec hinzufügen\", 
 msgid "No flavor selected for deletion."
 msgstr "Kein Flavor für die Löschung ausgewählt."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:86
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:88
 msgid "No flavors found"
 msgstr "No flavors found"
 
@@ -538,9 +585,14 @@ msgstr "No flavors found"
 msgid "No key pairs available."
 msgstr "Keine Keypaare verfügbar"
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/ServerGroups/List.tsx:15
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/ServerGroups/components/ServerGroupListView.tsx:141
 msgid "No server groups available."
 msgstr "Keine Servergruppen verfügbar"
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Instances/-components/ServerListView.tsx:122
+msgid "No servers available."
+msgstr "Keine Server verfügbar"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterWizard/InfrastructureStep.tsx:97
 msgid "Nodes CIDR"
@@ -557,6 +609,10 @@ msgstr "Betriebssystem-Updates"
 #: src/client/routes/about.tsx:25
 msgid "Our Mission"
 msgstr "Unsere Mission"
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/ComputeNavBar.tsx:18
+msgid "Overview"
+msgstr "Übersicht"
 
 #: src/client/routes/auth/login.tsx:144
 msgid "Password"
@@ -583,12 +639,13 @@ msgstr "CIDR-Bereich für Pods"
 msgid "Policy"
 msgstr "Richtlinie"
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Instances/-components/ServerListView.tsx:25
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FilterToolbar.tsx:56
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/DeleteFlavorModal.tsx:128
 msgid "RAM"
 msgstr "RAM"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:111
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:113
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/CreateFlavorModal.tsx:206
 msgid "RAM (MiB)"
 msgstr "RAM (MiB)"
@@ -609,11 +666,12 @@ msgstr "Bereitschaft"
 msgid "Region"
 msgstr "Region"
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Instances/-components/ServerListView.tsx:111
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Instances/-components/ServerCardView.tsx:50
 msgid "Restart"
 msgstr "Neustart"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/List.tsx:211
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/List.tsx:217
 msgid "Retry"
 msgstr "Erneut versuchen"
 
@@ -621,7 +679,7 @@ msgstr "Erneut versuchen"
 msgid "Root Disk"
 msgstr "Root Disk"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:114
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:116
 msgid "Root Disk (GiB)"
 msgstr "Root Disk (GiB)"
 
@@ -629,7 +687,7 @@ msgstr "Root Disk (GiB)"
 msgid "Root Disk must be an integer ≥ 0."
 msgstr "Root Disk muss eine ganze Zahl ≥ 0 sein."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:123
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:125
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FilterToolbar.tsx:60
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/CreateFlavorModal.tsx:256
 msgid "RX/TX Factor"
@@ -651,6 +709,10 @@ msgstr "Scaling"
 msgid "Search clusters..."
 msgstr "Cluster durchsuchen..."
 
+#: src/client/routes/_auth/accounts/$accountId/projects/-components/ProjectOverviewNavBar.tsx:60
+msgid "Search..."
+msgstr "Suchen..."
+
 #: src/client/utils/useErrorTranslation.ts:62
 msgid "Server error occurred while creating extra specs. Please try again later."
 msgstr "Beim Erstellen von Extra Specs ist ein Serverfehler aufgetreten. Bitte versuchen Sie es später erneut."
@@ -671,9 +733,17 @@ msgstr "Beim Löschen des Flavors ist ein Serverfehler aufgetreten. Bitte versuc
 msgid "Server error occurred while fetching extra specs. Please try again later."
 msgstr "Beim Abrufen der Extra Specs ist ein Serverfehler aufgetreten. Bitte versuchen Sie es später erneut."
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/ComputeNavBar.tsx:22
+msgid "Server Groups"
+msgstr "Servergruppen"
+
 #: src/client/utils/useErrorTranslation.ts:16
 msgid "Server is experiencing issues. Please try again later."
 msgstr "Der Server hat Probleme. Bitte versuchen Sie es später erneut."
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Instances/-components/ServerListView.tsx:20
+msgid "Server Name"
+msgstr "Servername"
 
 #: src/client/utils/useErrorTranslation.ts:64
 #: src/client/utils/useErrorTranslation.ts:78
@@ -713,6 +783,7 @@ msgid "Start Time"
 msgstr "Startzeit"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail/ClusterOverviewSection.tsx:67
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Instances/-components/ServerListView.tsx:21
 msgid "Status"
 msgstr "Status"
 
@@ -725,7 +796,7 @@ msgstr "Surge:"
 msgid "Swap"
 msgstr "Swap"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:120
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:122
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/CreateFlavorModal.tsx:244
 msgid "Swap (MiB)"
 msgstr "Swap (MiB)"
@@ -767,7 +838,7 @@ msgstr "Die angegebenen Flavor-Daten sind ungültig. Bitte überprüfen Sie Ihre
 msgid "The floating IP pool to use for the cluster's external network access"
 msgstr "Der Floating-IP-Pool, der für den externen Netzwerkzugang des Clusters verwendet wird."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:89
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:91
 msgid "There are no flavors available for this project with the current filters applied. Try adjusting your filter criteria or create a new flavor."
 msgstr "Keine Flavors verfügbar. Filtern Sie neu oder erstellen Sie einen neuen Flavor."
 
@@ -815,7 +886,7 @@ msgstr "Benutzer C/D/I"
 msgid "Value"
 msgstr "Value"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:108
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:110
 msgid "vCPU"
 msgstr "vCPU"
 
