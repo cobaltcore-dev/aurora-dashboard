@@ -15,12 +15,12 @@ export const ComputeSideNavBar = () => {
   const computeRootPath = `/accounts/${domain}/projects/${projectId}/compute`
 
   const links = [
-    { path: computeRootPath, label: "Overview" },
-    { path: `${computeRootPath}/instances`, label: "Instances" },
-    { path: `${computeRootPath}/images`, label: "Images" },
-    { path: `${computeRootPath}/keypairs`, label: "Key Pairs" },
-    { path: `${computeRootPath}/servergroups`, label: "Server Groups" },
-    { path: `${computeRootPath}/flavors`, label: "Flavors" },
+    { path: computeRootPath, label: <Trans>Overview</Trans> },
+    { path: `${computeRootPath}/instances`, label: <Trans>Instances</Trans> },
+    { path: `${computeRootPath}/images`, label: <Trans>Images</Trans> },
+    { path: `${computeRootPath}/keypairs`, label: <Trans>Key Pairs</Trans> },
+    { path: `${computeRootPath}/servergroups`, label: <Trans>Server Groups</Trans> },
+    { path: `${computeRootPath}/flavors`, label: <Trans>Flavors</Trans> },
   ]
 
   return (

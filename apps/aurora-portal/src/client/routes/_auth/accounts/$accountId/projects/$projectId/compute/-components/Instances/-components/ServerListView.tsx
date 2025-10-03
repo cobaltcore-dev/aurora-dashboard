@@ -2,11 +2,13 @@ import { ToastProps, auroraToast, sonnerToast } from "@/client/components/Notifi
 import type { Server } from "@/server/Compute/types/server"
 import { Button } from "@cloudoperators/juno-ui-components"
 import { Icon } from "@cloudoperators/juno-ui-components"
+import { Trans, useLingui } from "@lingui/react/macro"
 type ServerListViewProps = {
   servers: Server[] | undefined
 }
 
 export function ServerListView({ servers }: ServerListViewProps) {
+  const { t } = useLingui()
   return (
     <div>
       {servers && servers.length > 0 ? (
@@ -15,14 +17,14 @@ export function ServerListView({ servers }: ServerListViewProps) {
             {/* Table Header */}
             <thead>
               <tr>
-                <th className="p-3">Server Name</th>
-                <th className="p-3">Status</th>
-                <th className="p-3">IPv4</th>
-                <th className="p-3">IPv6</th>
-                <th className="p-3">CPU</th>
-                <th className="p-3">RAM</th>
-                <th className="p-3">Disk</th>
-                <th className="p-3 flex justify-center">Actions</th>
+                <th className="p-3">{t`Server Name`}</th>
+                <th className="p-3">{t`Status`}</th>
+                <th className="p-3">{t`IPv4`}</th>
+                <th className="p-3">{t`IPv6`}</th>
+                <th className="p-3">{t`CPU`}</th>
+                <th className="p-3">{t`RAM`}</th>
+                <th className="p-3">{t`Disk`}</th>
+                <th className="p-3 flex justify-center">{t`Actions`}</th>
               </tr>
             </thead>
 
@@ -106,7 +108,7 @@ export function ServerListView({ servers }: ServerListViewProps) {
                           auroraToast(toastProps)
                         }}
                       >
-                        Restart
+                        <Trans>Restart</Trans>
                       </Button>
                     </div>
                   </td>
@@ -116,7 +118,9 @@ export function ServerListView({ servers }: ServerListViewProps) {
           </table>
         </div>
       ) : (
-        <p>No servers available.</p>
+        <p>
+          <Trans>No servers available.</Trans>
+        </p>
       )}
     </div>
   )

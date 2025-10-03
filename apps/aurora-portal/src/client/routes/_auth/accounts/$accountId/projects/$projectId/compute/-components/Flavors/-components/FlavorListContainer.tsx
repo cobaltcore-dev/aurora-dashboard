@@ -12,6 +12,7 @@ import {
   Stack,
 } from "@cloudoperators/juno-ui-components"
 import { Trans } from "@lingui/react/macro"
+import { useLingui } from "@lingui/react/macro"
 import { DeleteFlavorModal } from "./DeleteFlavorModal"
 import { useState } from "react"
 import { TrpcClient } from "@/client/trpcClient"
@@ -34,6 +35,7 @@ export const FlavorListContainer = ({
   onFlavorDeleted,
   canDeleteFlavor,
 }: FlavorListContainerProps) => {
+  const { t } = useLingui()
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
   const [specModalOpen, setSpecModalOpen] = useState(false)
   const [selectedFlavor, setSelectedFlavor] = useState<Flavor | null>(null)
@@ -138,9 +140,13 @@ export const FlavorListContainer = ({
             <DataGridCell>
               <PopupMenu>
                 <PopupMenuOptions>
-                  <PopupMenuItem label="Extra Specs" icon="info" onClick={() => openSpecModal(flavor)} />
+                  <PopupMenuItem label={t`Extra Specs`} icon="info" onClick={() => openSpecModal(flavor)} />
                   {canDeleteFlavor && (
-                    <PopupMenuItem icon="deleteForever" label="Delete Flavor" onClick={() => openDeleteModal(flavor)} />
+                    <PopupMenuItem
+                      icon="deleteForever"
+                      label={t`Delete Flavor`}
+                      onClick={() => openDeleteModal(flavor)}
+                    />
                   )}
                 </PopupMenuOptions>
               </PopupMenu>

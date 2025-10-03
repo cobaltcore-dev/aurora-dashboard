@@ -1,7 +1,12 @@
-import { describe, it, expect } from "vitest"
-import { render, screen } from "@testing-library/react"
+import { describe, it, expect, beforeAll } from "vitest"
+import { render, screen, act } from "@testing-library/react"
 import { ServerListView } from "./ServerListView"
 import type { Server } from "@/server/Compute/types/server"
+import { I18nProvider } from "@lingui/react"
+import { ReactNode } from "react"
+import { i18n } from "@lingui/core"
+
+const TestingProvider = ({ children }: { children: ReactNode }) => <I18nProvider i18n={i18n}>{children}</I18nProvider>
 
 const mockServers: Server[] = [
   {
@@ -37,15 +42,29 @@ const mockServers: Server[] = [
 ]
 
 describe("ServerListView", () => {
-  it("renders a table with server names", () => {
-    render(<ServerListView servers={mockServers} />)
+  beforeAll(async () => {
+    await act(async () => {
+      i18n.activate("en")
+    })
+  })
+
+  it("renders a table with server names", async () => {
+    await act(async () => {
+      render(<ServerListView servers={mockServers} />, {
+        wrapper: TestingProvider,
+      })
+    })
 
     expect(screen.getByText("Cache Server")).toBeInTheDocument()
     expect(screen.getByText("Development Server")).toBeInTheDocument()
   })
 
-  it("displays the correct server status with icons", () => {
-    render(<ServerListView servers={mockServers} />)
+  it("displays the correct server status with icons", async () => {
+    await act(async () => {
+      render(<ServerListView servers={mockServers} />, {
+        wrapper: TestingProvider,
+      })
+    })
 
     // "ACTIVE" should have a success icon
     expect(screen.getByTestId("icon-success")).toBeInTheDocument()
@@ -57,8 +76,12 @@ describe("ServerListView", () => {
     expect(screen.getByText("SHUTOFF")).toBeInTheDocument()
   })
 
-  it("displays correct IPv4 and IPv6 addresses", () => {
-    render(<ServerListView servers={mockServers} />)
+  it("displays correct IPv4 and IPv6 addresses", async () => {
+    await act(async () => {
+      render(<ServerListView servers={mockServers} />, {
+        wrapper: TestingProvider,
+      })
+    })
 
     expect(screen.getByText("192.168.1.90")).toBeInTheDocument()
     expect(screen.getByText("fe80::9")).toBeInTheDocument()
@@ -67,8 +90,12 @@ describe("ServerListView", () => {
     expect(screen.getByText("fe80::A")).toBeInTheDocument()
   })
 
-  it("displays correct CPU, RAM, and disk details", () => {
-    render(<ServerListView servers={mockServers} />)
+  it("displays correct CPU, RAM, and disk details", async () => {
+    await act(async () => {
+      render(<ServerListView servers={mockServers} />, {
+        wrapper: TestingProvider,
+      })
+    })
 
     expect(screen.getByText("4")).toBeInTheDocument()
     expect(screen.getByText("8192 MB")).toBeInTheDocument()
@@ -79,8 +106,12 @@ describe("ServerListView", () => {
     expect(screen.getByText("60 GB")).toBeInTheDocument()
   })
 
-  it("renders action buttons for each server", () => {
-    render(<ServerListView servers={mockServers} />)
+  it("renders action buttons for each server", async () => {
+    await act(async () => {
+      render(<ServerListView servers={mockServers} />, {
+        wrapper: TestingProvider,
+      })
+    })
 
     const viewButtons = screen.getAllByRole("button", { name: "View" })
     const restartButtons = screen.getAllByRole("button", { name: "Restart" })
@@ -89,8 +120,12 @@ describe("ServerListView", () => {
     expect(restartButtons.length).toBe(2)
   })
 
-  it("shows 'No servers available' when the list is empty", () => {
-    render(<ServerListView servers={[]} />)
+  it("shows 'No servers available' when the list is empty", async () => {
+    await act(async () => {
+      render(<ServerListView servers={[]} />, {
+        wrapper: TestingProvider,
+      })
+    })
 
     expect(screen.getByText("No servers available.")).toBeInTheDocument()
   })
