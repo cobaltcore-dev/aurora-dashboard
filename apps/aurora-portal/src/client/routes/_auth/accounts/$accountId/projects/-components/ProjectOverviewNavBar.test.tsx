@@ -1,7 +1,16 @@
 import { render, screen, fireEvent, act } from "@testing-library/react"
-import { vi, describe, it, expect, beforeEach, afterEach } from "vitest"
+import { vi, describe, it, expect, beforeAll, beforeEach, afterEach } from "vitest"
 import { ProjectsOverviewNavBar } from "./ProjectOverviewNavBar"
 import { PortalProvider } from "@cloudoperators/juno-ui-components/index"
+import { I18nProvider } from "@lingui/react"
+import { ReactNode } from "react"
+import { i18n } from "@lingui/core"
+
+const TestingProvider = ({ children }: { children: ReactNode }) => (
+  <PortalProvider>
+    <I18nProvider i18n={i18n}>{children}</I18nProvider>
+  </PortalProvider>
+)
 
 describe("ProjectOverviewNavBar", () => {
   const defaultProps = {
@@ -9,6 +18,12 @@ describe("ProjectOverviewNavBar", () => {
     setViewMode: vi.fn(),
     onSearch: vi.fn(),
   }
+
+  beforeAll(async () => {
+    await act(async () => {
+      i18n.activate("en")
+    })
+  })
 
   beforeEach(() => {
     vi.useFakeTimers()
@@ -19,21 +34,25 @@ describe("ProjectOverviewNavBar", () => {
     vi.useRealTimers()
   })
 
-  it("renders correctly with initial search term", () => {
-    render(
-      <PortalProvider>
-        <ProjectsOverviewNavBar {...defaultProps} searchTerm="initial search" />
-      </PortalProvider>
-    )
+  it("renders correctly with initial search term", async () => {
+    await act(async () => {
+      render(
+        <TestingProvider>
+          <ProjectsOverviewNavBar {...defaultProps} searchTerm="initial search" />
+        </TestingProvider>
+      )
+    })
     expect(screen.getByPlaceholderText("Search...")).toHaveValue("initial search")
   })
 
-  it("updates local search term immediately on input change", () => {
-    render(
-      <PortalProvider>
-        <ProjectsOverviewNavBar {...defaultProps} />
-      </PortalProvider>
-    )
+  it("updates local search term immediately on input change", async () => {
+    await act(async () => {
+      render(
+        <TestingProvider>
+          <ProjectsOverviewNavBar {...defaultProps} />
+        </TestingProvider>
+      )
+    })
 
     const searchInput = screen.getByPlaceholderText("Search...")
     fireEvent.change(searchInput, { target: { value: "test" } })
@@ -41,12 +60,14 @@ describe("ProjectOverviewNavBar", () => {
     expect(searchInput).toHaveValue("test")
   })
 
-  it("debounces search callback", () => {
-    render(
-      <PortalProvider>
-        <ProjectsOverviewNavBar {...defaultProps} />
-      </PortalProvider>
-    )
+  it("debounces search callback", async () => {
+    await act(async () => {
+      render(
+        <TestingProvider>
+          <ProjectsOverviewNavBar {...defaultProps} />
+        </TestingProvider>
+      )
+    })
 
     const searchInput = screen.getByPlaceholderText("Search...")
     fireEvent.change(searchInput, { target: { value: "test" } })
@@ -62,12 +83,15 @@ describe("ProjectOverviewNavBar", () => {
     expect(defaultProps.onSearch).toHaveBeenCalledTimes(1)
   })
 
-  it("clears previous timeout when typing quickly", () => {
-    render(
-      <PortalProvider>
-        <ProjectsOverviewNavBar {...defaultProps} />
-      </PortalProvider>
-    )
+  it("clears previous timeout when typing quickly", async () => {
+    await act(async () => {
+      render(
+        <TestingProvider>
+          <ProjectsOverviewNavBar {...defaultProps} />
+        </TestingProvider>
+      )
+    })
+
     const searchInput = screen.getByPlaceholderText("Search...")
 
     fireEvent.change(searchInput, { target: { value: "te" } })
