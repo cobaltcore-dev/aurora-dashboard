@@ -9,7 +9,7 @@ i18n.load({
   en: messages,
   de: messagesDe,
 })
-i18n.activate("de")
+i18n.activate("en")
 
 const container = document.getElementById("app")!
 createRoot(container).render(
