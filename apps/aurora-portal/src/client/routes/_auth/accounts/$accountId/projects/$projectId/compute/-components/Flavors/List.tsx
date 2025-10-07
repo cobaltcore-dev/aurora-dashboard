@@ -1,8 +1,8 @@
 import { use, Suspense, useState, startTransition } from "react"
-import { useLingui } from "@lingui/react/macro"
+import { Trans, useLingui } from "@lingui/react/macro"
 import { TrpcClient } from "@/client/trpcClient"
 import { Flavor } from "@/server/Compute/types/flavor"
-import { Message, Button } from "@cloudoperators/juno-ui-components"
+import { Message, Button, Stack, Spinner } from "@cloudoperators/juno-ui-components"
 import FilterToolbar from "./-components/FilterToolbar"
 import { FlavorListContainer } from "./-components/FlavorListContainer"
 import { CreateFlavorModal } from "./-components/CreateFlavorModal"
@@ -177,7 +177,14 @@ export const Flavors = ({ client, project }: FlavorsProps) => {
         />
       )}
 
-      <Suspense fallback={<div>Loading flavors...</div>}>
+      <Suspense
+        fallback={
+          <Stack className="fixed inset-0" distribution="center" alignment="center" direction="vertical">
+            <Spinner variant="primary" size="large" className="mb-2" />
+            <Trans>Loading Flavors...</Trans>
+          </Stack>
+        }
+      >
         <ErrorBoundary fallback={<ErrorFallback onRetry={refetchFlavors} />}>
           <FlavorsContent
             flavorsPromise={flavorsPromise}
