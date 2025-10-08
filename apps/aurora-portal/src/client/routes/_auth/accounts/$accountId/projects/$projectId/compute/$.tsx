@@ -1,8 +1,9 @@
 import { createFileRoute, ErrorComponent, redirect, useParams } from "@tanstack/react-router"
+import { getServiceIndex } from "@/server/Authentication/helpers"
+import { TrpcClient } from "@/client/trpcClient"
 import { ErrorBoundary } from "react-error-boundary"
 import { ComputeSideNavBar } from "./-components/ComputeNavBar"
 import { Overview } from "./-components/Overview"
-import { TrpcClient } from "@/client/trpcClient"
 import { Instances } from "./-components/Instances/List"
 import { Images } from "./-components/Images/List"
 import { KeyPairs } from "./-components/KeyPairs/List"
@@ -24,25 +25,21 @@ const checkServiceAvailability = (
 
   let shouldNavigateToOverview = false
 
+  const serviceIndex = getServiceIndex(availableServices)
+
   // Redirect to the "Projects Overview" page if none of compute services available
-  if (
-    !availableServices?.find(({ type }) => type === "image") &&
-    !availableServices?.find(({ type }) => type === "compute")
-  ) {
+  if (!serviceIndex["image"] && !serviceIndex["compute"]) {
     throw redirect({
       to: "/accounts/$accountId/projects",
       params: { accountId },
     })
   }
 
-  if (splat === "images" && !availableServices?.find(({ name, type }) => type === "image" && name === "glance")) {
+  if (splat === "images" && !serviceIndex["image"]["glance"]) {
     shouldNavigateToOverview = true
   }
 
-  if (
-    ["instances", "keypairs", "servergroups", "flavors"].includes(splat) &&
-    !availableServices?.find(({ name, type }) => type === "compute" && name === "nova")
-  ) {
+  if (["instances", "keypairs", "servergroups", "flavors"].includes(splat) && !serviceIndex["compute"]["nova"]) {
     shouldNavigateToOverview = true
   }
 

@@ -1,3 +1,4 @@
+import { getServiceIndex } from "@/server/Authentication/helpers"
 import { createFileRoute, redirect } from "@tanstack/react-router"
 
 export const Route = createFileRoute("/_auth/accounts/$accountId/projects/$projectId/network/")({
@@ -7,7 +8,9 @@ export const Route = createFileRoute("/_auth/accounts/$accountId/projects/$proje
     const { accountId } = params
     const availableServices = await trpcClient?.auth.getAvailableServices.query()
 
-    if (!availableServices?.find(({ type }) => type === "network")) {
+    const serviceIndex = getServiceIndex(availableServices || [])
+
+    if (!serviceIndex["network"]) {
       throw redirect({
         to: "/accounts/$accountId/projects",
         params: { accountId },

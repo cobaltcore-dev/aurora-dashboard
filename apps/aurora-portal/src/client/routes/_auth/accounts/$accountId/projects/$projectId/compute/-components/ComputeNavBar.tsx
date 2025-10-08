@@ -1,3 +1,4 @@
+import { getServiceIndex } from "@/server/Authentication/helpers"
 import { ContentHeading } from "@cloudoperators/juno-ui-components/index"
 import { useLocation, useParams, Link } from "@tanstack/react-router"
 
@@ -20,13 +21,13 @@ export const ComputeSideNavBar = ({
 
   const computeRootPath = `/accounts/${domain}/projects/${projectId}/compute`
 
+  const serviceIndex = getServiceIndex(availableServices)
+
   const getComputeNavigationLinks = () => {
     return [
       { path: computeRootPath, label: "Overview" },
-      ...(availableServices.find(({ type, name }) => type === "image" && name === "glance")
-        ? [{ path: `${computeRootPath}/images`, label: "Images" }]
-        : []),
-      ...(availableServices.find(({ type, name }) => type === "compute" && name === "nova")
+      ...(serviceIndex["image"]["glance"] ? [{ path: `${computeRootPath}/images`, label: "Images" }] : []),
+      ...(serviceIndex["compute"]["nova"]
         ? [
             { path: `${computeRootPath}/instances`, label: "Instances" },
             { path: `${computeRootPath}/keypairs`, label: "Key Pairs" },
