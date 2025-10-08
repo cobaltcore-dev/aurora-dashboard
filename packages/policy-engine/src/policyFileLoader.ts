@@ -74,10 +74,10 @@ function parseSimpleYaml(content: string): Record<string, string> {
     }
 
     const separatorIndex = colonSpaceIndex !== -1 ? colonSpaceIndex : line.indexOf(":")
-    const key = line.substring(0, separatorIndex).trim()
+    let key = line.substring(0, separatorIndex).trim()
     let value = line.substring(separatorIndex + 1).trim()
 
-    // Remove inline comments (but be careful with quotes)
+    // Remove inline comments
     const hashIndex = value.indexOf("#")
     if (hashIndex !== -1) {
       const beforeHash = value.substring(0, hashIndex)
@@ -87,12 +87,17 @@ function parseSimpleYaml(content: string): Record<string, string> {
       }
     }
 
+    // Remove quotes from KEY
+    if ((key.startsWith('"') && key.endsWith('"')) || (key.startsWith("'") && key.endsWith("'"))) {
+      key = key.slice(1, -1)
+    }
+
     // Validate key is not empty
     if (!key) {
       throw new Error(`Invalid YAML: empty key on line ${i + 1}`)
     }
 
-    // Remove quotes if present
+    // Remove quotes from VALUE
     if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) {
       value = value.slice(1, -1)
     }

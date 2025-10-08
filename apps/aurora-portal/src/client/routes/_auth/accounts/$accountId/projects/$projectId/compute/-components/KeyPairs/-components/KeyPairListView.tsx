@@ -2,6 +2,7 @@ import { ToastProps, auroraToast, sonnerToast } from "@/client/components/Notifi
 import type { Keypair } from "@/server/Compute/types/keypair"
 import { Button } from "@cloudoperators/juno-ui-components"
 import { Icon } from "@cloudoperators/juno-ui-components"
+import { Trans } from "@lingui/react/macro"
 
 interface KeyPairListViewProps {
   keyPairs: Keypair[]
@@ -43,11 +44,21 @@ export function KeyPairListView({ keyPairs }: KeyPairListViewProps) {
             {/* Table Header */}
             <thead>
               <tr>
-                <th className="p-3">Key Name</th>
-                <th className="p-3">Type</th>
-                <th className="p-3">Fingerprint</th>
-                <th className="p-3">Created</th>
-                <th className="p-3 flex justify-center">Actions</th>
+                <th className="p-3">
+                  <Trans>Key Name</Trans>
+                </th>
+                <th className="p-3">
+                  <Trans>Type</Trans>
+                </th>
+                <th className="p-3">
+                  <Trans>Fingerprint</Trans>
+                </th>
+                <th className="p-3">
+                  <Trans>Created</Trans>
+                </th>
+                <th className="p-3 flex justify-center">
+                  <Trans>Actions</Trans>
+                </th>
               </tr>
             </thead>
 
@@ -95,7 +106,7 @@ export function KeyPairListView({ keyPairs }: KeyPairListViewProps) {
                           auroraToast(toastProps)
                         }}
                       >
-                        Copy
+                        <Trans>Copy</Trans>
                       </Button>
                       <Button
                         variant="primary-danger"
@@ -112,7 +123,7 @@ export function KeyPairListView({ keyPairs }: KeyPairListViewProps) {
                           auroraToast(toastProps)
                         }}
                       >
-                        Delete
+                        <Trans>Delete</Trans>
                       </Button>
                     </div>
                   </td>
@@ -122,7 +133,9 @@ export function KeyPairListView({ keyPairs }: KeyPairListViewProps) {
           </table>
         </div>
       ) : (
-        <p>No key pairs available.</p>
+        <p>
+          <Trans>No key pairs available.</Trans>
+        </p>
       )}
     </div>
   )

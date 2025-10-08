@@ -26,7 +26,9 @@ export function SignalOpenstackService(
 ) {
   // this functions builds the client parameters based on the service options and the client options
   // It allows to override the service options with the client options
-  const clientParams = async (clientOptions?: SignalOpenstackOptions): Promise<ActionOptions> => {
+  const clientParams = async (
+    clientOptions?: SignalOpenstackOptions & ServiceActionOptions
+  ): Promise<ActionOptions> => {
     if (token === undefined || token === null) throw new SignalOpenstackError("No valid token available")
 
     const {
@@ -34,6 +36,7 @@ export function SignalOpenstackService(
       region,
       headers,
       debug,
+      queryParams,
     } = {
       ...serviceOptions,
       ...clientOptions,
@@ -53,6 +56,7 @@ export function SignalOpenstackService(
       host: serviceEndpoint,
       headers: { ...headers, "X-Auth-Token": token.authToken },
       debug,
+      queryParams,
     }
   }
 

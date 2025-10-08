@@ -2,10 +2,14 @@ import { TRPCError } from "@trpc/server"
 import { flavorResponseSchema, Flavor, CreateFlavorInput } from "../types/flavor"
 import { ERROR_CODES } from "../../errorCodes"
 
+interface ServiceOptions {
+  [key: string]: unknown
+}
+
 interface ComputeService {
-  del(path: string): Promise<Response>
-  get(path: string): Promise<Response>
-  post(path: string, body: { flavor: CreateFlavorInput }): Promise<Response> // Updated to accept body
+  del(path: string, options?: ServiceOptions): Promise<Response>
+  get(path: string, options?: ServiceOptions): Promise<Response>
+  post(path: string, values: string | object | undefined, options?: ServiceOptions): Promise<Response>
 }
 
 interface CreateFlavorResponse {
@@ -41,6 +45,36 @@ const DELETE_FLAVOR_STATUS_MAP: Record<number, { code: TRPCErrorCode; message: s
   500: { code: "INTERNAL_SERVER_ERROR", message: ERROR_CODES.DELETE_FLAVOR_SERVER_ERROR },
   502: { code: "INTERNAL_SERVER_ERROR", message: ERROR_CODES.DELETE_FLAVOR_SERVER_ERROR },
   503: { code: "INTERNAL_SERVER_ERROR", message: ERROR_CODES.DELETE_FLAVOR_SERVER_ERROR },
+}
+
+const CREATE_EXTRA_SPECS_STATUS_MAP: Record<number, { code: TRPCErrorCode; message: string }> = {
+  400: { code: "BAD_REQUEST", message: ERROR_CODES.CREATE_EXTRA_SPECS_INVALID_DATA },
+  401: { code: "UNAUTHORIZED", message: ERROR_CODES.CREATE_EXTRA_SPECS_UNAUTHORIZED },
+  403: { code: "FORBIDDEN", message: ERROR_CODES.CREATE_EXTRA_SPECS_FORBIDDEN },
+  404: { code: "NOT_FOUND", message: ERROR_CODES.CREATE_EXTRA_SPECS_NOT_FOUND },
+  409: { code: "CONFLICT", message: ERROR_CODES.CREATE_EXTRA_SPECS_CONFLICT },
+  500: { code: "INTERNAL_SERVER_ERROR", message: ERROR_CODES.CREATE_EXTRA_SPECS_SERVER_ERROR },
+  502: { code: "INTERNAL_SERVER_ERROR", message: ERROR_CODES.CREATE_EXTRA_SPECS_SERVER_ERROR },
+  503: { code: "INTERNAL_SERVER_ERROR", message: ERROR_CODES.CREATE_EXTRA_SPECS_SERVER_ERROR },
+}
+
+const GET_EXTRA_SPECS_STATUS_MAP: Record<number, { code: TRPCErrorCode; message: string }> = {
+  401: { code: "UNAUTHORIZED", message: ERROR_CODES.GET_EXTRA_SPECS_UNAUTHORIZED },
+  403: { code: "FORBIDDEN", message: ERROR_CODES.GET_EXTRA_SPECS_FORBIDDEN },
+  404: { code: "NOT_FOUND", message: ERROR_CODES.GET_EXTRA_SPECS_NOT_FOUND },
+  500: { code: "INTERNAL_SERVER_ERROR", message: ERROR_CODES.GET_EXTRA_SPECS_SERVER_ERROR },
+  502: { code: "INTERNAL_SERVER_ERROR", message: ERROR_CODES.GET_EXTRA_SPECS_SERVER_ERROR },
+  503: { code: "INTERNAL_SERVER_ERROR", message: ERROR_CODES.GET_EXTRA_SPECS_SERVER_ERROR },
+}
+
+const DELETE_EXTRA_SPEC_STATUS_MAP: Record<number, { code: TRPCErrorCode; message: string }> = {
+  400: { code: "BAD_REQUEST", message: ERROR_CODES.DELETE_EXTRA_SPEC_INVALID_KEY },
+  401: { code: "UNAUTHORIZED", message: ERROR_CODES.DELETE_EXTRA_SPEC_UNAUTHORIZED },
+  403: { code: "FORBIDDEN", message: ERROR_CODES.DELETE_EXTRA_SPEC_FORBIDDEN },
+  404: { code: "NOT_FOUND", message: ERROR_CODES.DELETE_EXTRA_SPEC_NOT_FOUND },
+  500: { code: "INTERNAL_SERVER_ERROR", message: ERROR_CODES.DELETE_EXTRA_SPEC_SERVER_ERROR },
+  502: { code: "INTERNAL_SERVER_ERROR", message: ERROR_CODES.DELETE_EXTRA_SPEC_SERVER_ERROR },
+  503: { code: "INTERNAL_SERVER_ERROR", message: ERROR_CODES.DELETE_EXTRA_SPEC_SERVER_ERROR },
 }
 
 function handleHttpError(
@@ -159,6 +193,80 @@ export async function deleteFlavor(compute: ComputeService, flavorId: string): P
     throw new TRPCError({
       code: "INTERNAL_SERVER_ERROR",
       message: ERROR_CODES.DELETE_FLAVOR_FAILED,
+      cause: error,
+    })
+  }
+}
+export async function createExtraSpecs(
+  compute: ComputeService,
+  flavorId: string,
+  extra_specs: Record<string, string>
+): Promise<Record<string, string>> {
+  try {
+    const response = await compute.post(`flavors/${flavorId}/os-extra_specs`, {
+      extra_specs: extra_specs,
+    })
+
+    if (!response.ok) {
+      handleHttpError(response, CREATE_EXTRA_SPECS_STATUS_MAP, ERROR_CODES.CREATE_EXTRA_SPECS_FAILED)
+    }
+
+    const rawData = await response.text()
+    const jsonData = JSON.parse(rawData)
+
+    return jsonData.extra_specs
+  } catch (error) {
+    if (error instanceof TRPCError) {
+      throw error
+    }
+
+    throw new TRPCError({
+      code: "INTERNAL_SERVER_ERROR",
+      message: ERROR_CODES.CREATE_EXTRA_SPECS_FAILED,
+      cause: error,
+    })
+  }
+}
+export async function getExtraSpecs(compute: ComputeService, flavorId: string): Promise<Record<string, string>> {
+  try {
+    const response = await compute.get(`flavors/${flavorId}/os-extra_specs`)
+
+    if (!response.ok) {
+      handleHttpError(response, GET_EXTRA_SPECS_STATUS_MAP, ERROR_CODES.GET_EXTRA_SPECS_FAILED)
+    }
+
+    const rawData = await response.text()
+    const jsonData = JSON.parse(rawData)
+
+    return jsonData.extra_specs || {}
+  } catch (error) {
+    if (error instanceof TRPCError) {
+      throw error
+    }
+
+    throw new TRPCError({
+      code: "INTERNAL_SERVER_ERROR",
+      message: ERROR_CODES.GET_EXTRA_SPECS_FAILED,
+      cause: error,
+    })
+  }
+}
+
+export async function deleteExtraSpec(compute: ComputeService, flavorId: string, key: string): Promise<void> {
+  try {
+    const response = await compute.del(`flavors/${flavorId}/os-extra_specs/${key}`)
+
+    if (!response.ok) {
+      handleHttpError(response, DELETE_EXTRA_SPEC_STATUS_MAP, ERROR_CODES.DELETE_EXTRA_SPEC_FAILED)
+    }
+  } catch (error) {
+    if (error instanceof TRPCError) {
+      throw error
+    }
+
+    throw new TRPCError({
+      code: "INTERNAL_SERVER_ERROR",
+      message: ERROR_CODES.DELETE_EXTRA_SPEC_FAILED,
       cause: error,
     })
   }

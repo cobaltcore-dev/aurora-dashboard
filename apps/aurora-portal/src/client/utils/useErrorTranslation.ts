@@ -5,7 +5,7 @@ export const useErrorTranslation = () => {
 
   const translateError = (errorCode: string): string => {
     switch (errorCode) {
-      //List Flavor
+      // List Flavor
       case "FLAVORS_UNAUTHORIZED":
         return t`Your session has expired. Please log in again.`
       case "FLAVORS_FORBIDDEN":
@@ -18,6 +18,7 @@ export const useErrorTranslation = () => {
         return t`Failed to fetch flavors from server.`
       case "FLAVORS_PARSE_ERROR":
         return t`Server returned unexpected data format.`
+
       // Create Flavor
       case "CREATE_FLAVOR_INVALID_DATA":
         return t`The flavor data provided is invalid. Please check your input.`
@@ -45,6 +46,52 @@ export const useErrorTranslation = () => {
         return t`Failed to delete the flavor. Please try again.`
       case "DELETE_FLAVOR_INVALID_ID":
         return t`Flavor ID is required and cannot be empty.`
+
+      // Create Extra Specs
+      case "CREATE_EXTRA_SPECS_UNAUTHORIZED":
+        return t`You are not authorized to create extra specs. Please log in again.`
+      case "CREATE_EXTRA_SPECS_FORBIDDEN":
+        return t`You don't have permission to create extra specs for this flavor.`
+      case "CREATE_EXTRA_SPECS_NOT_FOUND":
+        return t`The flavor could not be found. It may have been deleted.`
+      case "CREATE_EXTRA_SPECS_CONFLICT":
+        return t`This extra spec keys already exist. Please use different keys.`
+      case "CREATE_EXTRA_SPECS_INVALID_DATA":
+        return t`The extra spec data provided is invalid. Please check your input.`
+      case "CREATE_EXTRA_SPECS_SERVER_ERROR":
+        return t`Server error occurred while creating extra specs. Please try again later.`
+      case "CREATE_EXTRA_SPECS_PARSE_ERROR":
+        return t`Server returned unexpected data format for extra specs.`
+      case "CREATE_EXTRA_SPECS_FAILED":
+        return t`Failed to create extra specs. Please try again.`
+
+      // Get Extra Specs
+      case "GET_EXTRA_SPECS_UNAUTHORIZED":
+        return t`You are not authorized to view extra specs. Please log in again.`
+      case "GET_EXTRA_SPECS_FORBIDDEN":
+        return t`You don't have permission to view extra specs for this flavor.`
+      case "GET_EXTRA_SPECS_NOT_FOUND":
+        return t`The flavor could not be found or has no extra specs.`
+      case "GET_EXTRA_SPECS_SERVER_ERROR":
+        return t`Server error occurred while fetching extra specs. Please try again later.`
+      case "GET_EXTRA_SPECS_PARSE_ERROR":
+        return t`Server returned unexpected data format for extra specs.`
+      case "GET_EXTRA_SPECS_FAILED":
+        return t`Failed to load extra specs. Please try again.`
+
+      // Delete Extra Spec
+      case "DELETE_EXTRA_SPEC_UNAUTHORIZED":
+        return t`You are not authorized to delete extra specs. Please log in again.`
+      case "DELETE_EXTRA_SPEC_FORBIDDEN":
+        return t`You don't have permission to delete extra specs for this flavor.`
+      case "DELETE_EXTRA_SPEC_NOT_FOUND":
+        return t`The extra spec could not be found. It may have already been deleted.`
+      case "DELETE_EXTRA_SPEC_SERVER_ERROR":
+        return t`Server error occurred while deleting the extra spec. Please try again later.`
+      case "DELETE_EXTRA_SPEC_INVALID_KEY":
+        return t`Extra spec key is required and cannot be empty.`
+      case "DELETE_EXTRA_SPEC_FAILED":
+        return t`Failed to delete the extra spec. Please try again.`
 
       // Service Connection Errors
       case "COMPUTE_SERVICE_UNAVAILABLE":

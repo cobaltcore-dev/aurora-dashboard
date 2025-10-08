@@ -12,6 +12,9 @@ vi.mock("../helpers/flavorHelpers", () => ({
   includesSearchTerm: vi.fn(),
   createFlavor: vi.fn(),
   deleteFlavor: vi.fn(),
+  createExtraSpecs: vi.fn(),
+  getExtraSpecs: vi.fn(),
+  deleteExtraSpec: vi.fn(),
 }))
 
 const createMockContext = (shouldFailAuth = false, shouldFailRescope = false, shouldFailCompute = false) => ({
@@ -33,6 +36,10 @@ const createMockContext = (shouldFailAuth = false, shouldFailRescope = false, sh
                   post: vi.fn().mockResolvedValue({
                     ok: true,
                     text: vi.fn().mockResolvedValue('{"flavor": {}}'),
+                  }),
+                  del: vi.fn().mockResolvedValue({
+                    ok: true,
+                    status: 204,
                   }),
                 }
           ),
@@ -533,6 +540,465 @@ describe("flavorRouter", () => {
         expect(result).toEqual({
           success: true,
           message: "Flavor deleted successfully",
+        })
+      }
+    })
+  })
+  describe("createExtraSpecs", () => {
+    const validCreateExtraSpecsInput = {
+      projectId: "test-project-123",
+      flavorId: "test-flavor-id",
+      extra_specs: {
+        cpu: "dedicated",
+        "hw:mem_page_size": "large",
+      },
+    }
+
+    const mockCreatedExtraSpecs = {
+      cpu: "dedicated",
+      "hw:mem_page_size": "large",
+    }
+
+    it("should throw UNAUTHORIZED when session validation fails", async () => {
+      const mockCtx = createMockContext(true)
+      const caller = createCaller(mockCtx)
+
+      await expect(caller.flavor.createExtraSpecs(validCreateExtraSpecsInput)).rejects.toThrow(
+        new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "The session is invalid",
+        })
+      )
+
+      expect(flavorHelpers.createExtraSpecs).not.toHaveBeenCalled()
+    })
+
+    it("should successfully create extra specs and return the result", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      vi.mocked(flavorHelpers.createExtraSpecs).mockResolvedValue(mockCreatedExtraSpecs)
+
+      const result = await caller.flavor.createExtraSpecs(validCreateExtraSpecsInput)
+
+      expect(mockCtx.rescopeSession).toHaveBeenCalledWith({ projectId: "test-project-123" })
+      expect(flavorHelpers.createExtraSpecs).toHaveBeenCalledWith(
+        expect.objectContaining({ post: expect.any(Function) }),
+        "test-flavor-id",
+        {
+          cpu: "dedicated",
+          "hw:mem_page_size": "large",
+        }
+      )
+      expect(result).toEqual(mockCreatedExtraSpecs)
+    })
+
+    it("should throw INTERNAL_SERVER_ERROR when compute service is unavailable", async () => {
+      const mockCtx = createMockContext(false, false, true)
+      const caller = createCaller(mockCtx)
+
+      await expect(caller.flavor.createExtraSpecs(validCreateExtraSpecsInput)).rejects.toThrow(
+        new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: ERROR_CODES.COMPUTE_SERVICE_UNAVAILABLE,
+        })
+      )
+
+      expect(flavorHelpers.createExtraSpecs).not.toHaveBeenCalled()
+    })
+
+    it("should re-throw TRPCErrors from createExtraSpecs helper", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      const helperError = new TRPCError({
+        code: "CONFLICT",
+        message: ERROR_CODES.CREATE_EXTRA_SPECS_CONFLICT,
+      })
+      vi.mocked(flavorHelpers.createExtraSpecs).mockRejectedValue(helperError)
+
+      await expect(caller.flavor.createExtraSpecs(validCreateExtraSpecsInput)).rejects.toThrow(helperError)
+    })
+
+    it("should wrap non-TRPC errors from createExtraSpecs helper", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      const genericError = new Error("Something went wrong")
+      vi.mocked(flavorHelpers.createExtraSpecs).mockRejectedValue(genericError)
+
+      await expect(caller.flavor.createExtraSpecs(validCreateExtraSpecsInput)).rejects.toThrow(
+        new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: ERROR_CODES.CREATE_EXTRA_SPECS_FAILED,
+          cause: genericError,
+        })
+      )
+    })
+
+    it("should handle empty extra specs object", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      vi.mocked(flavorHelpers.createExtraSpecs).mockResolvedValue({})
+
+      const input = {
+        projectId: "test-project-123",
+        flavorId: "test-flavor-id",
+        extra_specs: {},
+      }
+
+      const result = await caller.flavor.createExtraSpecs(input)
+
+      expect(flavorHelpers.createExtraSpecs).toHaveBeenCalledWith(
+        expect.objectContaining({ post: expect.any(Function) }),
+        "test-flavor-id",
+        {}
+      )
+      expect(result).toEqual({})
+    })
+
+    it("should handle various extra spec key formats", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      const complexExtraSpecs = {
+        cpu: "dedicated",
+        "hw:mem_page_size": "large",
+        "quota:vif_outbound_average": "1000",
+        "hw_numa:numa_nodes": "2",
+        "aggregate_instance_extra_specs:ssd": "true",
+      }
+
+      vi.mocked(flavorHelpers.createExtraSpecs).mockResolvedValue(complexExtraSpecs)
+
+      const input = {
+        projectId: "test-project-123",
+        flavorId: "test-flavor-id",
+        extra_specs: complexExtraSpecs,
+      }
+
+      const result = await caller.flavor.createExtraSpecs(input)
+
+      expect(flavorHelpers.createExtraSpecs).toHaveBeenCalledWith(
+        expect.objectContaining({ post: expect.any(Function) }),
+        "test-flavor-id",
+        complexExtraSpecs
+      )
+      expect(result).toEqual(complexExtraSpecs)
+    })
+  })
+
+  describe("getExtraSpecs", () => {
+    const validGetExtraSpecsInput = {
+      projectId: "test-project-123",
+      flavorId: "test-flavor-id",
+    }
+
+    const mockExtraSpecs = {
+      cpu: "dedicated",
+      "hw:mem_page_size": "large",
+      "quota:vif_outbound_average": "1000",
+    }
+
+    it("should throw UNAUTHORIZED when session validation fails", async () => {
+      const mockCtx = createMockContext(true)
+      const caller = createCaller(mockCtx)
+
+      await expect(caller.flavor.getExtraSpecs(validGetExtraSpecsInput)).rejects.toThrow(
+        new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "The session is invalid",
+        })
+      )
+
+      expect(flavorHelpers.getExtraSpecs).not.toHaveBeenCalled()
+    })
+
+    it("should successfully get extra specs and return the result", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      vi.mocked(flavorHelpers.getExtraSpecs).mockResolvedValue(mockExtraSpecs)
+
+      const result = await caller.flavor.getExtraSpecs(validGetExtraSpecsInput)
+
+      expect(mockCtx.rescopeSession).toHaveBeenCalledWith({ projectId: "test-project-123" })
+      expect(flavorHelpers.getExtraSpecs).toHaveBeenCalledWith(
+        expect.objectContaining({ get: expect.any(Function) }),
+        "test-flavor-id"
+      )
+      expect(result).toEqual(mockExtraSpecs)
+    })
+
+    it("should return empty object when no extra specs exist", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      vi.mocked(flavorHelpers.getExtraSpecs).mockResolvedValue({})
+
+      const result = await caller.flavor.getExtraSpecs(validGetExtraSpecsInput)
+
+      expect(result).toEqual({})
+    })
+
+    it("should throw INTERNAL_SERVER_ERROR when compute service is unavailable", async () => {
+      const mockCtx = createMockContext(false, false, true)
+      const caller = createCaller(mockCtx)
+
+      await expect(caller.flavor.getExtraSpecs(validGetExtraSpecsInput)).rejects.toThrow(
+        new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: ERROR_CODES.COMPUTE_SERVICE_UNAVAILABLE,
+        })
+      )
+
+      expect(flavorHelpers.getExtraSpecs).not.toHaveBeenCalled()
+    })
+
+    it("should re-throw TRPCErrors from getExtraSpecs helper", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      const helperError = new TRPCError({
+        code: "NOT_FOUND",
+        message: ERROR_CODES.GET_EXTRA_SPECS_NOT_FOUND,
+      })
+      vi.mocked(flavorHelpers.getExtraSpecs).mockRejectedValue(helperError)
+
+      await expect(caller.flavor.getExtraSpecs(validGetExtraSpecsInput)).rejects.toThrow(helperError)
+    })
+
+    it("should wrap non-TRPC errors from getExtraSpecs helper", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      const genericError = new Error("Something went wrong")
+      vi.mocked(flavorHelpers.getExtraSpecs).mockRejectedValue(genericError)
+
+      await expect(caller.flavor.getExtraSpecs(validGetExtraSpecsInput)).rejects.toThrow(
+        new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: ERROR_CODES.GET_EXTRA_SPECS_FAILED,
+          cause: genericError,
+        })
+      )
+    })
+
+    it("should handle different flavor ID formats", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      vi.mocked(flavorHelpers.getExtraSpecs).mockResolvedValue(mockExtraSpecs)
+
+      const testFlavorIds = [
+        "simple-id",
+        "uuid-12345678-1234-1234-1234-123456789012",
+        "flavor_with_underscores",
+        "123456789",
+      ]
+
+      for (const flavorId of testFlavorIds) {
+        vi.clearAllMocks()
+        vi.mocked(flavorHelpers.getExtraSpecs).mockResolvedValue(mockExtraSpecs)
+
+        const input = {
+          projectId: "test-project-123",
+          flavorId,
+        }
+
+        const result = await caller.flavor.getExtraSpecs(input)
+
+        expect(flavorHelpers.getExtraSpecs).toHaveBeenCalledWith(
+          expect.objectContaining({ get: expect.any(Function) }),
+          flavorId
+        )
+        expect(result).toEqual(mockExtraSpecs)
+      }
+    })
+  })
+
+  describe("deleteExtraSpec", () => {
+    const validDeleteExtraSpecInput = {
+      projectId: "test-project-123",
+      flavorId: "test-flavor-id",
+      key: "cpu",
+    }
+
+    it("should throw UNAUTHORIZED when session validation fails", async () => {
+      const mockCtx = createMockContext(true)
+      const caller = createCaller(mockCtx)
+
+      await expect(caller.flavor.deleteExtraSpec(validDeleteExtraSpecInput)).rejects.toThrow(
+        new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "The session is invalid",
+        })
+      )
+
+      expect(flavorHelpers.deleteExtraSpec).not.toHaveBeenCalled()
+    })
+
+    it("should successfully delete an extra spec", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      vi.mocked(flavorHelpers.deleteExtraSpec).mockResolvedValue(undefined)
+
+      const result = await caller.flavor.deleteExtraSpec(validDeleteExtraSpecInput)
+
+      expect(mockCtx.rescopeSession).toHaveBeenCalledWith({ projectId: "test-project-123" })
+      expect(flavorHelpers.deleteExtraSpec).toHaveBeenCalledWith(
+        expect.objectContaining({ del: expect.any(Function) }),
+        "test-flavor-id",
+        "cpu"
+      )
+      expect(result).toEqual({
+        success: true,
+        message: "Extra spec deleted successfully",
+      })
+    })
+
+    it("should throw INTERNAL_SERVER_ERROR when compute service is unavailable", async () => {
+      const mockCtx = createMockContext(false, false, true)
+      const caller = createCaller(mockCtx)
+
+      await expect(caller.flavor.deleteExtraSpec(validDeleteExtraSpecInput)).rejects.toThrow(
+        new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: ERROR_CODES.COMPUTE_SERVICE_UNAVAILABLE,
+        })
+      )
+
+      expect(flavorHelpers.deleteExtraSpec).not.toHaveBeenCalled()
+    })
+
+    it("should re-throw TRPCErrors from deleteExtraSpec helper", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      const helperError = new TRPCError({
+        code: "NOT_FOUND",
+        message: ERROR_CODES.DELETE_EXTRA_SPEC_NOT_FOUND,
+      })
+      vi.mocked(flavorHelpers.deleteExtraSpec).mockRejectedValue(helperError)
+
+      await expect(caller.flavor.deleteExtraSpec(validDeleteExtraSpecInput)).rejects.toThrow(helperError)
+    })
+
+    it("should wrap non-TRPC errors from deleteExtraSpec helper", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      const genericError = new Error("Something went wrong")
+      vi.mocked(flavorHelpers.deleteExtraSpec).mockRejectedValue(genericError)
+
+      await expect(caller.flavor.deleteExtraSpec(validDeleteExtraSpecInput)).rejects.toThrow(
+        new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: ERROR_CODES.DELETE_EXTRA_SPEC_FAILED,
+          cause: genericError,
+        })
+      )
+    })
+
+    it("should handle various extra spec key formats", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      vi.mocked(flavorHelpers.deleteExtraSpec).mockResolvedValue(undefined)
+
+      const testKeys = [
+        "cpu",
+        "hw:mem_page_size",
+        "quota:vif_outbound_average",
+        "hw_numa:numa_nodes",
+        "aggregate_instance_extra_specs:ssd",
+        "os:type",
+      ]
+
+      for (const key of testKeys) {
+        vi.clearAllMocks()
+        vi.mocked(flavorHelpers.deleteExtraSpec).mockResolvedValue(undefined)
+
+        const input = {
+          projectId: "test-project-123",
+          flavorId: "test-flavor-id",
+          key,
+        }
+
+        const result = await caller.flavor.deleteExtraSpec(input)
+
+        expect(flavorHelpers.deleteExtraSpec).toHaveBeenCalledWith(
+          expect.objectContaining({ del: expect.any(Function) }),
+          "test-flavor-id",
+          key
+        )
+        expect(result).toEqual({
+          success: true,
+          message: "Extra spec deleted successfully",
+        })
+      }
+    })
+
+    it("should handle forbidden deletion error", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      const forbiddenError = new TRPCError({
+        code: "FORBIDDEN",
+        message: ERROR_CODES.DELETE_EXTRA_SPEC_FORBIDDEN,
+      })
+      vi.mocked(flavorHelpers.deleteExtraSpec).mockRejectedValue(forbiddenError)
+
+      await expect(caller.flavor.deleteExtraSpec(validDeleteExtraSpecInput)).rejects.toThrow(forbiddenError)
+    })
+
+    it("should handle invalid key error", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      const invalidKeyError = new TRPCError({
+        code: "BAD_REQUEST",
+        message: ERROR_CODES.DELETE_EXTRA_SPEC_INVALID_KEY,
+      })
+      vi.mocked(flavorHelpers.deleteExtraSpec).mockRejectedValue(invalidKeyError)
+
+      await expect(caller.flavor.deleteExtraSpec(validDeleteExtraSpecInput)).rejects.toThrow(invalidKeyError)
+    })
+
+    it("should handle different flavor ID and key combinations", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      vi.mocked(flavorHelpers.deleteExtraSpec).mockResolvedValue(undefined)
+
+      const testCases = [
+        { flavorId: "flavor-1", key: "cpu" },
+        { flavorId: "uuid-12345678-1234-1234-1234-123456789012", key: "hw:mem_page_size" },
+        { flavorId: "complex_flavor_name", key: "aggregate_instance_extra_specs:ssd" },
+      ]
+
+      for (const testCase of testCases) {
+        vi.clearAllMocks()
+        vi.mocked(flavorHelpers.deleteExtraSpec).mockResolvedValue(undefined)
+
+        const input = {
+          projectId: "test-project-123",
+          flavorId: testCase.flavorId,
+          key: testCase.key,
+        }
+
+        const result = await caller.flavor.deleteExtraSpec(input)
+
+        expect(flavorHelpers.deleteExtraSpec).toHaveBeenCalledWith(
+          expect.objectContaining({ del: expect.any(Function) }),
+          testCase.flavorId,
+          testCase.key
+        )
+        expect(result).toEqual({
+          success: true,
+          message: "Extra spec deleted successfully",
         })
       }
     })

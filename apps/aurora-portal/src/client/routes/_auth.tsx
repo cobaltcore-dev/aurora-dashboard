@@ -20,9 +20,7 @@ export const Route = createFileRoute("/_auth")({
 })
 
 function RouteComponent() {
-  const { user } = useAuth()
-
-  console.log("Auth Data:", user)
+  useAuth()
 
   return <Outlet /> // This is where child routes will render
 }

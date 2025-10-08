@@ -58,7 +58,7 @@ export function Home() {
           <span>
             <Trans>Enter the Cloud</Trans>
           </span>
-          <Icon icon="chevronRight" onClick={function Ofe() {}} />
+          <Icon icon="chevronRight" />
         </Button>
       </div>
     </div>

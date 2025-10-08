@@ -3,13 +3,14 @@ import { Suspense, use } from "react"
 import { Server } from "@/server/Compute/types/server"
 import { GlanceImage } from "@/server/Compute/types/image"
 import { TrpcClient } from "@/client/trpcClient"
+import { Trans } from "@lingui/react/macro"
 
 interface OverviewContainerProps {
   getDataPromise: Promise<[Server[] | undefined, GlanceImage[] | undefined]>
 }
 const OverviewContainer = ({ getDataPromise }: OverviewContainerProps) => {
   const [servers, images] = use(getDataPromise)
-  if (!servers && !images) return <div className="p-4 text-center text-gray-400">No data found</div>
+  if (!servers && !images) return <div className="p-4 text-center">No data found</div>
 
   // Calculate server statistics
   const activeServers = servers?.filter((server) => server.status === "ACTIVE")?.length || 0
@@ -107,7 +108,13 @@ export function Overview({ client, project }: OverviewProps) {
   ])
 
   return (
-    <Suspense fallback={<div className="p-4 text-center">Loading data...</div>}>
+    <Suspense
+      fallback={
+        <div className="p-4 text-center">
+          <Trans>Loading...</Trans>
+        </div>
+      }
+    >
       <OverviewContainer getDataPromise={getDataPromise} />
     </Suspense>
   )

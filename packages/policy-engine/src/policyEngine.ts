@@ -59,7 +59,7 @@ export const KeystoneTokenPayloadSchema = z
           id: z.string(),
           name: z.string(),
         }),
-        password_expires_at: z.string().optional(),
+        password_expires_at: z.string().optional().nullable(),
       })
       .optional(),
     is_admin_project: z.boolean().optional(),

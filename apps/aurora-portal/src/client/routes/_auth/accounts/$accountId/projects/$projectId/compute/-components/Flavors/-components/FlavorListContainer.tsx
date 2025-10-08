@@ -5,12 +5,18 @@ import {
   DataGridRow,
   DataGridCell,
   ContentHeading,
-  Icon,
+  PopupMenu,
+  PopupMenuOptions,
+  PopupMenuItem,
+  Spinner,
+  Stack,
 } from "@cloudoperators/juno-ui-components"
 import { Trans } from "@lingui/react/macro"
+import { useLingui } from "@lingui/react/macro"
 import { DeleteFlavorModal } from "./DeleteFlavorModal"
 import { useState } from "react"
 import { TrpcClient } from "@/client/trpcClient"
+import { EditSpecModal } from "./EditSpecModal"
 
 interface FlavorListContainerProps {
   flavors?: Flavor[]
@@ -18,6 +24,7 @@ interface FlavorListContainerProps {
   client: TrpcClient
   project: string
   onFlavorDeleted?: (flavorName: string) => void
+  canDeleteFlavor?: boolean
 }
 
 export const FlavorListContainer = ({
@@ -26,23 +33,31 @@ export const FlavorListContainer = ({
   client,
   project,
   onFlavorDeleted,
+  canDeleteFlavor,
 }: FlavorListContainerProps) => {
+  const { t } = useLingui()
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
-  const [flavorToDelete, setFlavorToDelete] = useState<Flavor | null>(null)
+  const [specModalOpen, setSpecModalOpen] = useState(false)
+  const [selectedFlavor, setSelectedFlavor] = useState<Flavor | null>(null)
 
   const openDeleteModal = (flavor: Flavor) => {
-    setFlavorToDelete(flavor)
+    setSelectedFlavor(flavor)
     setDeleteModalOpen(true)
+  }
+
+  const openSpecModal = (flavor: Flavor) => {
+    setSelectedFlavor(flavor)
+    setSpecModalOpen(true)
   }
 
   const closeDeleteModal = () => {
     setDeleteModalOpen(false)
-    setFlavorToDelete(null)
+    setSelectedFlavor(null)
   }
 
   const handleDeleteSuccess = () => {
-    if (flavorToDelete && onFlavorDeleted) {
-      onFlavorDeleted(flavorToDelete.name || "")
+    if (selectedFlavor && onFlavorDeleted) {
+      onFlavorDeleted(selectedFlavor.name || "")
     }
     closeDeleteModal()
   }
@@ -50,7 +65,16 @@ export const FlavorListContainer = ({
   if (isLoading) {
     return (
       <div data-testid="loading">
-        <Trans>Loading...</Trans>
+        <div data-testid="loading">
+          <DataGridRow>
+            <DataGridCell colSpan={3}>
+              <Stack distribution="center" alignment="center">
+                <Spinner variant="primary" />
+                <Trans>Loading...</Trans>
+              </Stack>
+            </DataGridCell>
+          </DataGridRow>
+        </div>
       </div>
     )
   }
@@ -114,7 +138,18 @@ export const FlavorListContainer = ({
             <DataGridCell>{flavor.rxtx_factor || "–"}</DataGridCell>
 
             <DataGridCell>
-              <Icon icon="deleteForever" onClick={() => openDeleteModal(flavor)} />
+              <PopupMenu>
+                <PopupMenuOptions>
+                  <PopupMenuItem label={t`Extra Specs`} icon="info" onClick={() => openSpecModal(flavor)} />
+                  {canDeleteFlavor && (
+                    <PopupMenuItem
+                      icon="deleteForever"
+                      label={t`Delete Flavor`}
+                      onClick={() => openDeleteModal(flavor)}
+                    />
+                  )}
+                </PopupMenuOptions>
+              </PopupMenu>
             </DataGridCell>
           </DataGridRow>
         ))}
@@ -124,8 +159,15 @@ export const FlavorListContainer = ({
         isOpen={deleteModalOpen}
         onClose={closeDeleteModal}
         project={project}
-        flavor={flavorToDelete}
+        flavor={selectedFlavor}
         onSuccess={handleDeleteSuccess}
+      />
+      <EditSpecModal
+        client={client}
+        isOpen={specModalOpen}
+        onClose={() => setSpecModalOpen(false)}
+        project={project}
+        flavor={selectedFlavor}
       />
     </>
   )

@@ -7,7 +7,7 @@ import {
   buildNextPageUrl,
   getLastImageMarker,
   validateGlanceService,
-  mapResponseToTRPCError,
+  mapErrorResponseToTRPCError,
   ImageErrorHandlers,
   handleZodParsingError,
   wrapError,
@@ -309,106 +309,106 @@ describe("imageHelpers", () => {
     })
   })
 
-  describe("mapResponseToTRPCError", () => {
-    it("should map 400 status to BAD_REQUEST", () => {
-      const response = { status: 400, statusText: "Bad Request" }
+  describe("mapErrorResponseToTRPCError", () => {
+    it("should map 400 status BAD_REQUEST", () => {
+      const errorResponse = { name: "SignalOpenstackApiError", statusCode: 400, message: "Bad Request" }
       const context = { operation: "create image", imageId: "image-123" }
 
-      const error = mapResponseToTRPCError(response, context)
+      const error = mapErrorResponseToTRPCError(errorResponse, context)
 
       expect(error.code).toBe("BAD_REQUEST")
       expect(error.message).toBe("Failed to create image image: image-123")
     })
 
-    it("should map 403 status to FORBIDDEN", () => {
-      const response = { status: 403, statusText: "Forbidden" }
+    it("should map 403 status FORBIDDEN", () => {
+      const errorResponse = { name: "SignalOpenstackApiError", statusCode: 403, message: "Forbidden" }
       const context = { operation: "delete image", imageId: "image-123" }
 
-      const error = mapResponseToTRPCError(response, context)
+      const error = mapErrorResponseToTRPCError(errorResponse, context)
 
       expect(error.code).toBe("FORBIDDEN")
       expect(error.message).toBe("Access forbidden - cannot delete image image: image-123")
     })
 
-    it("should map 404 status to NOT_FOUND", () => {
-      const response = { status: 404, statusText: "Not Found" }
+    it("should map 404 status NOT_FOUND", () => {
+      const errorResponse = { name: "SignalOpenstackApiError", statusCode: 404, message: "Not Found" }
       const context = { operation: "get image", imageId: "image-123" }
 
-      const error = mapResponseToTRPCError(response, context)
+      const error = mapErrorResponseToTRPCError(errorResponse, context)
 
       expect(error.code).toBe("NOT_FOUND")
       expect(error.message).toBe("Image not found image: image-123")
     })
 
     it("should map 404 status with member info", () => {
-      const response = { status: 404, statusText: "Not Found" }
+      const errorResponse = { name: "SignalOpenstackApiError", statusCode: 404, message: "Not Found" }
       const context = { operation: "get member", imageId: "image-123", memberId: "member-456" }
 
-      const error = mapResponseToTRPCError(response, context)
+      const error = mapErrorResponseToTRPCError(errorResponse, context)
 
       expect(error.code).toBe("NOT_FOUND")
       expect(error.message).toBe("Image or member not found image: image-123, member: member-456")
     })
 
-    it("should map 409 status to CONFLICT", () => {
-      const response = { status: 409, statusText: "Conflict" }
+    it("should map 409 status CONFLICT to TRPC Error", () => {
+      const errorResponse = { name: "SignalOpenstackApiError", statusCode: 409, message: "Conflict" }
       const context = { operation: "update image", imageId: "image-123" }
 
-      const error = mapResponseToTRPCError(response, context)
+      const error = mapErrorResponseToTRPCError(errorResponse, context)
 
       expect(error.code).toBe("CONFLICT")
       expect(error.message).toBe("Conflict - update image image: image-123")
     })
 
-    it("should map 413 status to PAYLOAD_TOO_LARGE", () => {
-      const response = { status: 413, statusText: "Payload Too Large" }
+    it("should map 413 status PAYLOAD_TOO_LARGE", () => {
+      const errorResponse = { name: "SignalOpenstackApiError", statusCode: 413, message: "Payload Too Large" }
       const context = { operation: "upload image", imageId: "image-123" }
 
-      const error = mapResponseToTRPCError(response, context)
+      const error = mapErrorResponseToTRPCError(errorResponse, context)
 
       expect(error.code).toBe("PAYLOAD_TOO_LARGE")
       expect(error.message).toBe("Request entity too large image: image-123")
     })
 
-    it("should map 415 status to BAD_REQUEST", () => {
-      const response = { status: 415, statusText: "Unsupported Media Type" }
+    it("should map 415 status BAD_REQUEST", () => {
+      const errorResponse = { name: "SignalOpenstackApiError", statusCode: 415, message: "Unsupported Media Type" }
       const context = { operation: "upload image", imageId: "image-123" }
 
-      const error = mapResponseToTRPCError(response, context)
+      const error = mapErrorResponseToTRPCError(errorResponse, context)
 
       expect(error.code).toBe("BAD_REQUEST")
       expect(error.message).toBe("Unsupported media type image: image-123")
     })
 
-    it("should map unknown status to INTERNAL_SERVER_ERROR", () => {
-      const response = { status: 500, statusText: "Internal Server Error" }
+    it("should map unknown status INTERNAL_SERVER_ERROR", () => {
+      const errorResponse = { name: "SignalOpenstackApiError", statusCode: 500, message: "Internal Server Error" }
       const context = { operation: "create image" }
 
-      const error = mapResponseToTRPCError(response, context)
+      const error = mapErrorResponseToTRPCError(errorResponse, context)
 
       expect(error.code).toBe("INTERNAL_SERVER_ERROR")
       expect(error.message).toBe("Failed to create image: Internal Server Error")
     })
 
-    it("should handle missing statusText", () => {
-      const response = { status: 500 }
+    it("should handle missing status text", () => {
+      const errorResponse = { name: "SignalOpenstackApiError", statusCode: 500, message: "" }
       const context = { operation: "create image" }
 
-      const error = mapResponseToTRPCError(response, context)
+      const error = mapErrorResponseToTRPCError(errorResponse, context)
 
       expect(error.code).toBe("INTERNAL_SERVER_ERROR")
       expect(error.message).toBe("Failed to create image: Unknown error")
     })
 
     it("should include additional info when provided", () => {
-      const response = { status: 400, statusText: "Bad Request" }
+      const errorResponse = { name: "SignalOpenstackApiError", statusCode: 400, message: "Bad Request" }
       const context = {
         operation: "create image",
         imageId: "image-123",
         additionalInfo: "Invalid disk format",
       }
 
-      const error = mapResponseToTRPCError(response, context)
+      const error = mapErrorResponseToTRPCError(errorResponse, context)
 
       expect(error.message).toBe("Failed to create image image: image-123 - Invalid disk format")
     })

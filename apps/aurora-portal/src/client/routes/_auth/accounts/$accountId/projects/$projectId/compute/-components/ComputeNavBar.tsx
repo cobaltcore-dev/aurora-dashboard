@@ -1,5 +1,6 @@
 import { getServiceIndex } from "@/server/Authentication/helpers"
 import { ContentHeading } from "@cloudoperators/juno-ui-components/index"
+import { Trans } from "@lingui/react/macro"
 import { useLocation, useParams, Link } from "@tanstack/react-router"
 
 export const ComputeSideNavBar = ({
@@ -25,14 +26,14 @@ export const ComputeSideNavBar = ({
 
   const getComputeNavigationLinks = () => {
     return [
-      { path: computeRootPath, label: "Overview" },
-      ...(serviceIndex["image"]["glance"] ? [{ path: `${computeRootPath}/images`, label: "Images" }] : []),
+      { path: computeRootPath, label: <Trans>Overview</Trans> },
+      ...(serviceIndex["image"]["glance"] ? [{ path: `${computeRootPath}/images`, label: <Trans>Images</Trans> }] : []),
       ...(serviceIndex["compute"]["nova"]
         ? [
-            { path: `${computeRootPath}/instances`, label: "Instances" },
-            { path: `${computeRootPath}/keypairs`, label: "Key Pairs" },
-            { path: `${computeRootPath}/servergroups`, label: "Server Groups" },
-            { path: `${computeRootPath}/flavors`, label: "Flavors" },
+            { path: `${computeRootPath}/instances`, label: <Trans>Instances</Trans> },
+            { path: `${computeRootPath}/keypairs`, label: <Trans>Key Pairs</Trans> },
+            { path: `${computeRootPath}/servergroups`, label: <Trans>Server Groups</Trans> },
+            { path: `${computeRootPath}/flavors`, label: <Trans>Flavors</Trans> },
           ]
         : []),
     ]
@@ -42,7 +43,9 @@ export const ComputeSideNavBar = ({
 
   return (
     <div className="w-full flex flex-col items-start px-4">
-      <ContentHeading>Compute</ContentHeading>
+      <ContentHeading>
+        <Trans>Compute</Trans>
+      </ContentHeading>
       {/* Navigation */}
       <nav className="w-full flex flex-col rounded-lg items-start ">
         {links.map(({ path, label }) => (

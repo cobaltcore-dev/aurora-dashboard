@@ -111,7 +111,7 @@ function ComputeDashboard({
       <div className="col-span-9 flex flex-col gap-4">
         <div className="w-full">
           {project ? (
-            <ErrorBoundary fallback={<div className="p-4 text-center text-gray-400">Error loading component</div>}>
+            <ErrorBoundary fallback={<div className="p-4 text-center">Error loading component</div>}>
               {(() => {
                 switch (splat) {
                   case "instances":

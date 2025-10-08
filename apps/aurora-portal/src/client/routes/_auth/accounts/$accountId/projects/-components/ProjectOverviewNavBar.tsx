@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react"
 import { Button, InputGroup, SearchInput, Stack } from "@cloudoperators/juno-ui-components"
-
+import { useLingui } from "@lingui/react/macro"
 export type ViewMode = "list" | "card"
 
 type ProjectsOverviewNavBarProps = {
@@ -18,6 +18,7 @@ export function ProjectsOverviewNavBar({
   onSearch,
   searchTerm = "",
 }: ProjectsOverviewNavBarProps) {
+  const { t } = useLingui()
   const timerRef = useRef<NodeJS.Timeout | null>(null)
   const [inputValue, setInputValue] = useState(searchTerm)
 
@@ -56,7 +57,7 @@ export function ProjectsOverviewNavBar({
             <SearchInput
               className="flex-grow flex-shrink-0 basis-0"
               type="text"
-              placeholder="Search..."
+              placeholder={t`Search...`}
               onChange={handleSearchChange}
               value={inputValue}
             />
