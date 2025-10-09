@@ -1,5 +1,13 @@
 import React, { useState } from "react"
-import { Stack, Select, SelectOption, InputGroup, SearchInput, Button } from "@cloudoperators/juno-ui-components"
+import {
+  Stack,
+  Select,
+  SelectOption,
+  SortButton,
+  InputGroup,
+  SearchInput,
+  Button,
+} from "@cloudoperators/juno-ui-components"
 import { useLingui } from "@lingui/react/macro"
 
 interface FilterToolbarProps {
@@ -7,8 +15,8 @@ interface FilterToolbarProps {
   setSearchTerm: (_term: string) => void
   sortBy: string
   handleSortByChange: (_term: string | number | string[] | undefined) => void
-  sortDirection: string
-  handleSortDirectionChange: (_term: string | number | string[] | undefined) => void
+  sortDirection: "asc" | "desc"
+  handleSortDirectionChange: (_term: "asc" | "desc") => void
   setCreateModalOpen: (_bool: boolean) => void
   canCreateFlavor?: boolean
 }
@@ -59,10 +67,10 @@ const FilterToolbar: React.FC<FilterToolbarProps> = ({
                 <SelectOption value="swap">{t`Swap`}</SelectOption>
                 <SelectOption value="rxtx_factor">{t`RX/TX Factor`}</SelectOption>
               </Select>
-              <Select onChange={handleSortDirectionChange} value={sortDirection} data-testid="direction-select">
-                <SelectOption value="asc">{t`Ascending`}</SelectOption>
-                <SelectOption value="desc">{t`Descending`}</SelectOption>
-              </Select>
+              <SortButton
+                order={sortDirection}
+                onOrderChange={(order: string) => handleSortDirectionChange(order as "asc" | "desc")}
+              />
             </InputGroup>
           </Stack>
           {canCreateFlavor && (

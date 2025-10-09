@@ -15,7 +15,7 @@ describe("FilterToolbar", () => {
     sortDirection: "asc",
     handleSortDirectionChange: vi.fn(),
     setCreateModalOpen: vi.fn(),
-  }
+  } as const
 
   beforeEach(() => {
     vi.clearAllMocks()

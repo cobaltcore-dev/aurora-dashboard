@@ -61,8 +61,8 @@ function FlavorsContent({
   setSearchTerm: (term: string) => void
   sortBy: string
   handleSortByChange: (value: string | number | string[] | undefined) => void
-  sortDirection: string
-  handleSortDirectionChange: (value: string | number | string[] | undefined) => void
+  sortDirection: "asc" | "desc"
+  handleSortDirectionChange: (value: "asc" | "desc") => void
   createModalOpen: boolean
   setCreateModalOpen: (open: boolean) => void
 }) {
@@ -106,7 +106,7 @@ export const Flavors = ({ client, project }: FlavorsProps) => {
   const { t } = useLingui()
 
   const [sortBy, setSortBy] = useState("name")
-  const [sortDirection, setSortDirection] = useState("asc")
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc")
   const [searchTerm, setSearchTerm] = useState("")
   const [success, setSuccess] = useState<{ message: string; timestamp: number } | undefined>()
   const [createModalOpen, setCreateModalOpen] = useState(false)
@@ -149,13 +149,11 @@ export const Flavors = ({ client, project }: FlavorsProps) => {
     }
   }
 
-  const handleSortDirectionChange = (value: string | number | string[] | undefined) => {
-    if (value && typeof value === "string") {
-      setSortDirection(value)
-      startTransition(() => {
-        setFlavorsPromise(createFlavorsPromise(client, project, sortBy, value, searchTerm))
-      })
-    }
+  const handleSortDirectionChange = (value: "asc" | "desc") => {
+    setSortDirection(value)
+    startTransition(() => {
+      setFlavorsPromise(createFlavorsPromise(client, project, sortBy, value, searchTerm))
+    })
   }
 
   const handleSearchChange = (term: string) => {
