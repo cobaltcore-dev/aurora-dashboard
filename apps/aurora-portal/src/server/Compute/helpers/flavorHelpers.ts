@@ -16,6 +16,15 @@ interface CreateFlavorResponse {
   flavor: Flavor
 }
 
+interface FlavorAccess {
+  flavor_id: string
+  tenant_id: string
+}
+
+interface FlavorAccessResponse {
+  flavor_access: FlavorAccess[]
+}
+
 type TRPCErrorConfig = ConstructorParameters<typeof TRPCError>[0]
 type TRPCErrorCode = TRPCErrorConfig["code"]
 
@@ -75,6 +84,15 @@ const DELETE_EXTRA_SPEC_STATUS_MAP: Record<number, { code: TRPCErrorCode; messag
   500: { code: "INTERNAL_SERVER_ERROR", message: ERROR_CODES.DELETE_EXTRA_SPEC_SERVER_ERROR },
   502: { code: "INTERNAL_SERVER_ERROR", message: ERROR_CODES.DELETE_EXTRA_SPEC_SERVER_ERROR },
   503: { code: "INTERNAL_SERVER_ERROR", message: ERROR_CODES.DELETE_EXTRA_SPEC_SERVER_ERROR },
+}
+
+const GET_FLAVOR_ACCESS_STATUS_MAP: Record<number, { code: TRPCErrorCode; message: string }> = {
+  401: { code: "UNAUTHORIZED", message: ERROR_CODES.GET_FLAVOR_ACCESS_UNAUTHORIZED },
+  403: { code: "FORBIDDEN", message: ERROR_CODES.GET_FLAVOR_ACCESS_FORBIDDEN },
+  404: { code: "NOT_FOUND", message: ERROR_CODES.GET_FLAVOR_ACCESS_NOT_FOUND },
+  500: { code: "INTERNAL_SERVER_ERROR", message: ERROR_CODES.GET_FLAVOR_ACCESS_SERVER_ERROR },
+  502: { code: "INTERNAL_SERVER_ERROR", message: ERROR_CODES.GET_FLAVOR_ACCESS_SERVER_ERROR },
+  503: { code: "INTERNAL_SERVER_ERROR", message: ERROR_CODES.GET_FLAVOR_ACCESS_SERVER_ERROR },
 }
 
 function handleHttpError(
@@ -267,6 +285,30 @@ export async function deleteExtraSpec(compute: ComputeService, flavorId: string,
     throw new TRPCError({
       code: "INTERNAL_SERVER_ERROR",
       message: ERROR_CODES.DELETE_EXTRA_SPEC_FAILED,
+      cause: error,
+    })
+  }
+}
+export async function getFlavorAccess(compute: ComputeService, flavorId: string): Promise<FlavorAccess[]> {
+  try {
+    const response = await compute.get(`flavors/${flavorId}/os-flavor-access`)
+
+    if (!response.ok) {
+      handleHttpError(response, GET_FLAVOR_ACCESS_STATUS_MAP, ERROR_CODES.GET_FLAVOR_ACCESS_FAILED)
+    }
+
+    const rawData = await response.text()
+    const jsonData = JSON.parse(rawData) as FlavorAccessResponse
+
+    return jsonData.flavor_access || []
+  } catch (error) {
+    if (error instanceof TRPCError) {
+      throw error
+    }
+
+    throw new TRPCError({
+      code: "INTERNAL_SERVER_ERROR",
+      message: ERROR_CODES.GET_FLAVOR_ACCESS_FAILED,
       cause: error,
     })
   }

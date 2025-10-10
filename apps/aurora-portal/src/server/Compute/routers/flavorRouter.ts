@@ -8,6 +8,7 @@ import {
   createExtraSpecs,
   getExtraSpecs,
   deleteExtraSpec,
+  getFlavorAccess,
 } from "../helpers/flavorHelpers"
 import { Flavor } from "../types/flavor"
 import { TRPCError } from "@trpc/server"
@@ -63,6 +64,7 @@ export const flavorRouter = {
           swap: z.number().optional(),
           rxtx_factor: z.number().optional(),
           "OS-FLV-EXT-DATA:ephemeral": z.number().optional(),
+          "os-flavor-access:is_public": z.boolean().optional(),
         }),
       })
     )
@@ -234,6 +236,58 @@ export const flavorRouter = {
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: ERROR_CODES.DELETE_EXTRA_SPEC_FAILED,
+          cause: error,
+        })
+      }
+    }),
+  getFlavorAccess: protectedProcedure
+    .input(
+      z.object({
+        projectId: z.string(),
+        flavorId: z.string(),
+      })
+    )
+    .query(async ({ input, ctx }) => {
+      try {
+        const { projectId, flavorId } = input
+
+        const openstackSession = await ctx.rescopeSession({ projectId })
+        const compute = openstackSession?.service("compute")
+        if (!compute) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: ERROR_CODES.COMPUTE_SERVICE_UNAVAILABLE,
+          })
+        }
+
+        // First, get the flavor details to check if it's public
+        const flavorResponse = await compute.get(`flavors/${flavorId}`)
+        if (!flavorResponse.ok) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: ERROR_CODES.GET_FLAVOR_ACCESS_NOT_FOUND,
+          })
+        }
+
+        const flavorData = await flavorResponse.json()
+        const isPublic = flavorData.flavor["os-flavor-access:is_public"]
+
+        // If flavor is public, return empty array since public flavors don't have access restrictions
+        if (isPublic !== false) {
+          return []
+        }
+
+        // Only call the access API for private flavors
+        const result = await getFlavorAccess(compute, flavorId)
+        return result
+      } catch (error) {
+        if (error instanceof TRPCError) {
+          throw error
+        }
+
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: ERROR_CODES.GET_FLAVOR_ACCESS_FAILED,
           cause: error,
         })
       }

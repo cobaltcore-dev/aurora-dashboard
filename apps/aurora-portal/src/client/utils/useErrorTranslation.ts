@@ -93,6 +93,18 @@ export const useErrorTranslation = () => {
       case "DELETE_EXTRA_SPEC_FAILED":
         return t`Failed to delete the extra spec. Please try again.`
 
+      // Get Flavor Access
+      case "GET_FLAVOR_ACCESS_UNAUTHORIZED":
+        return t`You are not authorized to access flavor access information. Please log in again.`
+      case "GET_FLAVOR_ACCESS_FORBIDDEN":
+        return t`You don't have permission to access flavor access information for this flavor.`
+      case "GET_FLAVOR_ACCESS_NOT_FOUND":
+        return t`The flavor could not be found. It may have been deleted.`
+      case "GET_FLAVOR_ACCESS_SERVER_ERROR":
+        return t`Server error occurred while fetching flavor access information. Please try again later.`
+      case "GET_FLAVOR_ACCESS_FAILED":
+        return t`Failed to fetch flavor access information. Please try again.`
+
       // Service Connection Errors
       case "COMPUTE_SERVICE_UNAVAILABLE":
         return t`The compute service is currently unavailable for this project. Please try again later.`
