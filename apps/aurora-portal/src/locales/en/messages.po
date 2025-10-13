@@ -88,6 +88,7 @@ msgid "Back"
 msgstr "Back"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/DeleteClusterDialog.tsx:47
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImageModal.tsx:60
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/SpecFormRow.tsx:51
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/DeleteFlavorModal.tsx:92
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/CreateFlavorModal.tsx:138
@@ -138,7 +139,7 @@ msgstr "Clusters"
 msgid "Code View"
 msgstr "Code View"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/ComputeNavBar.tsx:29
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/ComputeNavBar.tsx:47
 msgid "Compute"
 msgstr "Compute"
 
@@ -173,12 +174,14 @@ msgstr "Create New Flavor"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/ServerGroups/components/ServerGroupListView.tsx:63
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/KeyPairs/-components/KeyPairListView.tsx:57
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImageModal.tsx:122
 msgid "Created"
 msgstr "Created"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/DeleteClusterDialog.tsx:44
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail/DetailLayout.tsx:69
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/KeyPairs/-components/KeyPairListView.tsx:126
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImageModal.tsx:57
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/SpecRow.tsx:40
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/SpecRow.tsx:41
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/SpecRow.tsx:45
@@ -220,6 +223,10 @@ msgstr "Disk"
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/CreateFlavorModal.tsx:219
 msgid "Disk (GiB)"
 msgstr "Disk (GiB)"
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImageModal.tsx:108
+msgid "Disk Format"
+msgstr "Disk Format"
 
 #: src/client/routes/index.tsx:46
 msgid "Documentation"
@@ -382,7 +389,7 @@ msgstr "Flavor Name"
 msgid "Flavor service is not available for this project."
 msgstr "Flavor service is not available for this project."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/ComputeNavBar.tsx:23
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/ComputeNavBar.tsx:36
 msgid "Flavors"
 msgstr "Flavors"
 
@@ -402,6 +409,10 @@ msgstr "GitHub"
 msgid "Group Name"
 msgstr "Group Name"
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImageModal.tsx:86
+msgid "Id"
+msgstr "Id"
+
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/DeleteFlavorModal.tsx:120
 msgid "ID"
 msgstr "ID"
@@ -418,7 +429,7 @@ msgstr "Image"
 msgid "Image Version"
 msgstr "Image Version"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/ComputeNavBar.tsx:20
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/ComputeNavBar.tsx:30
 msgid "Images"
 msgstr "Images"
 
@@ -431,7 +442,7 @@ msgstr "Infrastructure"
 msgid "Infrastructure Configuration"
 msgstr "Infrastructure Configuration"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/ComputeNavBar.tsx:19
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/ComputeNavBar.tsx:33
 msgid "Instances"
 msgstr "Instances"
 
@@ -455,7 +466,7 @@ msgstr "Key Features"
 msgid "Key Name"
 msgstr "Key Name"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/ComputeNavBar.tsx:21
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/ComputeNavBar.tsx:34
 msgid "Key Pairs"
 msgstr "Key Pairs"
 
@@ -483,7 +494,7 @@ msgstr "Loading Flavors..."
 msgid "Loading Gardener..."
 msgstr "Loading Gardener..."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/List.tsx:29
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/List.tsx:35
 msgid "Loading Images..."
 msgstr "Loading Images..."
 
@@ -550,7 +561,12 @@ msgstr "Min:"
 msgid "Minimum Nodes"
 msgstr "Minimum Nodes"
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImageModal.tsx:109
+msgid "N/A"
+msgstr "N/A"
+
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail/WorkerSection.tsx:29
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImageModal.tsx:82
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:107
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FilterToolbar.tsx:54
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/DeleteFlavorModal.tsx:116
@@ -609,6 +625,10 @@ msgstr "Nodes CIDR"
 msgid "Note: These network settings will be prefilled by the Kubernetes controller in the future."
 msgstr "Note: These network settings will be prefilled by the Kubernetes controller in the future."
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImageModal.tsx:113
+msgid "OS Type"
+msgstr "OS Type"
+
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail/SettingsSection.tsx:47
 msgid "OS Updates"
 msgstr "OS Updates"
@@ -617,7 +637,7 @@ msgstr "OS Updates"
 msgid "Our Mission"
 msgstr "Our Mission"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/ComputeNavBar.tsx:18
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/ComputeNavBar.tsx:29
 msgid "Overview"
 msgstr "Overview"
 
@@ -740,7 +760,7 @@ msgstr "Server error occurred while deleting the flavor. Please try again later.
 msgid "Server error occurred while fetching extra specs. Please try again later."
 msgstr "Server error occurred while fetching extra specs. Please try again later."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/ComputeNavBar.tsx:22
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/ComputeNavBar.tsx:35
 msgid "Server Groups"
 msgstr "Server Groups"
 
@@ -777,6 +797,10 @@ msgstr "Share"
 msgid "Sign In"
 msgstr "Sign In"
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImageModal.tsx:102
+msgid "Size"
+msgstr "Size"
+
 #: src/client/App.tsx:19
 msgid "Something went wrong:"
 msgstr "Something went wrong:"
@@ -791,6 +815,7 @@ msgstr "Start Time"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail/ClusterOverviewSection.tsx:67
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Instances/-components/ServerListView.tsx:21
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImageModal.tsx:90
 msgid "Status"
 msgstr "Status"
 
@@ -857,6 +882,10 @@ msgstr "This action cannot be undone. The cluster will be permanently deleted."
 msgid "This action cannot be undone. The flavor will be permanently deleted."
 msgstr "This action cannot be undone. The flavor will be permanently deleted."
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImageModal.tsx:74
+msgid "This action cannot be undone. The image will be permanently deleted."
+msgstr "This action cannot be undone. The image will be permanently deleted."
+
 #: src/client/utils/useErrorTranslation.ts:58
 msgid "This extra spec keys already exist. Please use different keys."
 msgstr "This extra spec keys already exist. Please use different keys."
@@ -884,6 +913,10 @@ msgstr "Unable to connect to the compute service. Please check your connection a
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterWizard/CreateClusterDialogContent.tsx:122
 msgid "Unknown error"
 msgstr "Unknown error"
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImageModal.tsx:83
+msgid "Unnamed"
+msgstr "Unnamed"
 
 #: src/client/routes/auth/login.tsx:129
 msgid "User C/D/I"
@@ -922,6 +955,10 @@ msgstr "View Docs"
 #: src/client/routes/index.tsx:41
 msgid "View Repository"
 msgstr "View Repository"
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImageModal.tsx:96
+msgid "Visibility"
+msgstr "Visibility"
 
 #: src/client/routes/about.tsx:103
 msgid "We are building Aurora Dashboard to serve you better. Your feedback is invaluable in shaping a tool that meets the unique needs of businesses like yours. Stay connected and join us as we redefine cloud management."

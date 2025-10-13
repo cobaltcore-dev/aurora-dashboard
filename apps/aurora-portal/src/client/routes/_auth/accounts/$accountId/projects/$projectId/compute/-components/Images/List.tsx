@@ -5,13 +5,19 @@ import { ImageListView } from "./-components/ImageListView"
 import { Trans } from "@lingui/react/macro"
 import { Spinner, Stack } from "@cloudoperators/juno-ui-components/index"
 
-const ImageListContainer = ({ getImagesPromise }: { getImagesPromise: Promise<GlanceImage[] | undefined> }) => {
+const ImageListContainer = ({
+  getImagesPromise,
+  client,
+}: {
+  getImagesPromise: Promise<GlanceImage[] | undefined>
+  client: TrpcClient
+}) => {
   const images = use(getImagesPromise)
   if (!images || images.length === 0) {
     return <p>No images available.</p>
   }
 
-  return <ImageListView images={images} />
+  return <ImageListView images={images} client={client} />
 }
 
 interface ImagesProps {
@@ -30,7 +36,7 @@ export const Images = ({ client }: ImagesProps) => {
         </Stack>
       }
     >
-      <ImageListContainer getImagesPromise={getImagesPromise} />
+      <ImageListContainer getImagesPromise={getImagesPromise} client={client} />
     </Suspense>
   )
 }

@@ -1,80 +1,31 @@
-// export default ImagesPage
 import { ToastProps, auroraToast, sonnerToast } from "@/client/components/NotificationCenter/AuroraToast"
 import { Button } from "@cloudoperators/juno-ui-components"
 import { Icon } from "@cloudoperators/juno-ui-components"
 import { GlanceImage } from "@/server/Compute/types/image"
+import { StatusBadge } from "./StatusBadge"
+import { VisibilityBadge } from "./VisibilityBadge"
+import { SizeDisplay } from "./SizeDisplay"
 
-// Utility function to format bytes
-function formatBytes(bytes: number, decimals = 2) {
-  if (bytes === 0) return "0 Bytes"
-
-  const k = 1024
-  const dm = decimals < 0 ? 0 : decimals
-  const sizes = ["Bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"]
-
-  const i = Math.floor(Math.log(bytes) / Math.log(k))
-
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i]
-}
-
-// Helper function to format status with appropriate icon
-const renderStatus = (status: string | undefined) => {
-  if (!status) return <span>Unknown</span>
-
-  return (
-    <div className="flex items-center space-x-2">
-      {status === "active" ? (
-        <Icon icon="success" color="jn-text-theme-success" />
-      ) : status === "deleted" || status === "killed" ? (
-        <Icon icon="danger" color="jn-text-theme-danger" />
-      ) : status === "queued" || status === "saving" || status === "importing" ? (
-        <Icon icon="info" color="jn-text-theme-warning" />
-      ) : (
-        <Icon icon="info" color="jn-text-theme-info" />
-      )}
-      <span>{status}</span>
-    </div>
-  )
-}
-
-// Helper function to format visibility with appropriate icon
-const renderVisibility = (visibility: string | undefined) => {
-  if (!visibility) return <span>Unknown</span>
-
-  return (
-    <div className="flex items-center space-x-2">
-      {visibility === "public" ? (
-        <Icon icon="info" color="jn-text-theme-info" />
-      ) : visibility === "private" ? (
-        <Icon icon="info" color="jn-text-theme-warning" />
-      ) : visibility === "shared" ? (
-        <Icon icon="info" color="jn-text-theme-success" />
-      ) : (
-        <span>{visibility}</span>
-      )}
-      <span>{visibility}</span>
-    </div>
-  )
-}
 interface ImageTableRowProps {
   image: GlanceImage
   onEdit: (image: GlanceImage) => void
   onDelete: (image: GlanceImage) => void
   isLast: boolean
 }
-// Helper function to format size
-const formatSize = (size: number | undefined) => {
-  if (size === undefined) return "N/A"
-  return formatBytes(size)
-}
 
 export function ImageTableRow({ image, onEdit, onDelete, isLast }: ImageTableRowProps) {
   return (
     <tr key={image.id} className={`hover:bg-[#1e2531] ${!isLast ? "border-b border-[#30363d]" : ""}`}>
       <td className="p-3">{image.name || "Unnamed"}</td>
-      <td className="p-3">{renderStatus(image.status)}</td>
-      <td className="p-3">{renderVisibility(image.visibility)}</td>
-      <td className="p-3">{formatSize(image.size)}</td>
+      <td className="p-3">
+        <StatusBadge status={image.status} />
+      </td>
+      <td className="p-3">
+        <VisibilityBadge visibility={image.visibility} />
+      </td>
+      <td className="p-3">
+        <SizeDisplay size={image.size} />
+      </td>
       <td className="p-3">{image.disk_format || "N/A"}</td>
       <td className="p-3">
         {image.os_type ? (
