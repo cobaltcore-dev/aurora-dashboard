@@ -105,6 +105,38 @@ export const useErrorTranslation = () => {
       case "GET_FLAVOR_ACCESS_FAILED":
         return t`Failed to fetch flavor access information. Please try again.`
 
+      // Add Tenant Access
+      case "ADD_TENANT_ACCESS_FAILED":
+        return t`Failed to add tenant access to flavor. Please try again.`
+      case "ADD_TENANT_ACCESS_INVALID_DATA":
+        return t`The tenant ID provided is invalid. Please check your input.`
+      case "ADD_TENANT_ACCESS_UNAUTHORIZED":
+        return t`You are not authorized to add tenant access. Please log in again.`
+      case "ADD_TENANT_ACCESS_FORBIDDEN":
+        return t`You don't have permission to add tenant access to this flavor.`
+      case "ADD_TENANT_ACCESS_NOT_FOUND":
+        return t`The flavor or tenant could not be found. Please verify they exist.`
+      case "ADD_TENANT_ACCESS_CONFLICT":
+        return t`This tenant already has access to the flavor.`
+      case "ADD_TENANT_ACCESS_SERVER_ERROR":
+        return t`Server error occurred while adding tenant access. Please try again later.`
+
+      // Remove Tenant Access
+      case "REMOVE_TENANT_ACCESS_FAILED":
+        return t`Failed to remove tenant access from flavor. Please try again.`
+      case "REMOVE_TENANT_ACCESS_INVALID_DATA":
+        return t`The tenant ID provided is invalid. Please check your input.`
+      case "REMOVE_TENANT_ACCESS_UNAUTHORIZED":
+        return t`You are not authorized to remove tenant access. Please log in again.`
+      case "REMOVE_TENANT_ACCESS_FORBIDDEN":
+        return t`You don't have permission to remove tenant access from this flavor.`
+      case "REMOVE_TENANT_ACCESS_NOT_FOUND":
+        return t`The flavor or tenant could not be found. It may have already been removed.`
+      case "REMOVE_TENANT_ACCESS_CONFLICT":
+        return t`This tenant does not have access to the flavor.`
+      case "REMOVE_TENANT_ACCESS_SERVER_ERROR":
+        return t`Server error occurred while removing tenant access. Please try again later.`
+
       // Service Connection Errors
       case "COMPUTE_SERVICE_UNAVAILABLE":
         return t`The compute service is currently unavailable for this project. Please try again later.`

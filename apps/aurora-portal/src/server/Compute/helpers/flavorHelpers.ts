@@ -1,16 +1,7 @@
 import { TRPCError } from "@trpc/server"
 import { flavorResponseSchema, Flavor, CreateFlavorInput } from "../types/flavor"
 import { ERROR_CODES } from "../../errorCodes"
-
-interface ServiceOptions {
-  [key: string]: unknown
-}
-
-interface ComputeService {
-  del(path: string, options?: ServiceOptions): Promise<Response>
-  get(path: string, options?: ServiceOptions): Promise<Response>
-  post(path: string, values: string | object | undefined, options?: ServiceOptions): Promise<Response>
-}
+import { SignalOpenstackServiceType } from "@cobaltcore-dev/signal-openstack"
 
 interface CreateFlavorResponse {
   flavor: Flavor
@@ -95,6 +86,28 @@ const GET_FLAVOR_ACCESS_STATUS_MAP: Record<number, { code: TRPCErrorCode; messag
   503: { code: "INTERNAL_SERVER_ERROR", message: ERROR_CODES.GET_FLAVOR_ACCESS_SERVER_ERROR },
 }
 
+const ADD_TENANT_ACCESS_STATUS_MAP: Record<number, { code: TRPCErrorCode; message: string }> = {
+  400: { code: "BAD_REQUEST", message: ERROR_CODES.ADD_TENANT_ACCESS_INVALID_DATA },
+  401: { code: "UNAUTHORIZED", message: ERROR_CODES.ADD_TENANT_ACCESS_UNAUTHORIZED },
+  403: { code: "FORBIDDEN", message: ERROR_CODES.ADD_TENANT_ACCESS_FORBIDDEN },
+  404: { code: "NOT_FOUND", message: ERROR_CODES.ADD_TENANT_ACCESS_NOT_FOUND },
+  409: { code: "CONFLICT", message: ERROR_CODES.ADD_TENANT_ACCESS_CONFLICT },
+  500: { code: "INTERNAL_SERVER_ERROR", message: ERROR_CODES.ADD_TENANT_ACCESS_SERVER_ERROR },
+  502: { code: "INTERNAL_SERVER_ERROR", message: ERROR_CODES.ADD_TENANT_ACCESS_SERVER_ERROR },
+  503: { code: "INTERNAL_SERVER_ERROR", message: ERROR_CODES.ADD_TENANT_ACCESS_SERVER_ERROR },
+}
+
+const REMOVE_TENANT_ACCESS_STATUS_MAP: Record<number, { code: TRPCErrorCode; message: string }> = {
+  400: { code: "BAD_REQUEST", message: ERROR_CODES.REMOVE_TENANT_ACCESS_INVALID_DATA },
+  401: { code: "UNAUTHORIZED", message: ERROR_CODES.REMOVE_TENANT_ACCESS_UNAUTHORIZED },
+  403: { code: "FORBIDDEN", message: ERROR_CODES.REMOVE_TENANT_ACCESS_FORBIDDEN },
+  404: { code: "NOT_FOUND", message: ERROR_CODES.REMOVE_TENANT_ACCESS_NOT_FOUND },
+  409: { code: "CONFLICT", message: ERROR_CODES.REMOVE_TENANT_ACCESS_CONFLICT },
+  500: { code: "INTERNAL_SERVER_ERROR", message: ERROR_CODES.REMOVE_TENANT_ACCESS_SERVER_ERROR },
+  502: { code: "INTERNAL_SERVER_ERROR", message: ERROR_CODES.REMOVE_TENANT_ACCESS_SERVER_ERROR },
+  503: { code: "INTERNAL_SERVER_ERROR", message: ERROR_CODES.REMOVE_TENANT_ACCESS_SERVER_ERROR },
+}
+
 function handleHttpError(
   response: Response,
   statusMap: Record<number, { code: TRPCErrorCode; message: string }>,
@@ -116,8 +129,8 @@ export function includesSearchTerm(flavor: Flavor, searchTerm: string): boolean 
   return searchableValues.some((value) => value != null && typeof value === "string" && regex.test(value))
 }
 
-export async function fetchFlavors(compute: ComputeService): Promise<Flavor[]> {
-  const response = await compute.get("flavors/detail")
+export async function fetchFlavors(compute: SignalOpenstackServiceType, isPublic: string): Promise<Flavor[]> {
+  const response = await compute.get("flavors/detail", { queryParams: { is_public: isPublic } })
 
   if (!response.ok) {
     handleHttpError(response, FETCH_FLAVORS_STATUS_MAP, ERROR_CODES.FLAVORS_FETCH_FAILED)
@@ -165,7 +178,10 @@ export function filterAndSortFlavors(
 
   return result
 }
-export async function createFlavor(compute: ComputeService, flavorData: CreateFlavorInput): Promise<Flavor> {
+export async function createFlavor(
+  compute: SignalOpenstackServiceType,
+  flavorData: CreateFlavorInput
+): Promise<Flavor> {
   const requestBody = {
     flavor: flavorData,
   }
@@ -189,7 +205,7 @@ export async function createFlavor(compute: ComputeService, flavorData: CreateFl
     })
   }
 }
-export async function deleteFlavor(compute: ComputeService, flavorId: string): Promise<void> {
+export async function deleteFlavor(compute: SignalOpenstackServiceType, flavorId: string): Promise<void> {
   if (!flavorId || flavorId.trim() === "") {
     throw new TRPCError({
       code: "BAD_REQUEST",
@@ -216,7 +232,7 @@ export async function deleteFlavor(compute: ComputeService, flavorId: string): P
   }
 }
 export async function createExtraSpecs(
-  compute: ComputeService,
+  compute: SignalOpenstackServiceType,
   flavorId: string,
   extra_specs: Record<string, string>
 ): Promise<Record<string, string>> {
@@ -245,7 +261,10 @@ export async function createExtraSpecs(
     })
   }
 }
-export async function getExtraSpecs(compute: ComputeService, flavorId: string): Promise<Record<string, string>> {
+export async function getExtraSpecs(
+  compute: SignalOpenstackServiceType,
+  flavorId: string
+): Promise<Record<string, string>> {
   try {
     const response = await compute.get(`flavors/${flavorId}/os-extra_specs`)
 
@@ -270,7 +289,11 @@ export async function getExtraSpecs(compute: ComputeService, flavorId: string): 
   }
 }
 
-export async function deleteExtraSpec(compute: ComputeService, flavorId: string, key: string): Promise<void> {
+export async function deleteExtraSpec(
+  compute: SignalOpenstackServiceType,
+  flavorId: string,
+  key: string
+): Promise<void> {
   try {
     const response = await compute.del(`flavors/${flavorId}/os-extra_specs/${key}`)
 
@@ -289,7 +312,7 @@ export async function deleteExtraSpec(compute: ComputeService, flavorId: string,
     })
   }
 }
-export async function getFlavorAccess(compute: ComputeService, flavorId: string): Promise<FlavorAccess[]> {
+export async function getFlavorAccess(compute: SignalOpenstackServiceType, flavorId: string): Promise<FlavorAccess[]> {
   try {
     const response = await compute.get(`flavors/${flavorId}/os-flavor-access`)
 
@@ -309,6 +332,75 @@ export async function getFlavorAccess(compute: ComputeService, flavorId: string)
     throw new TRPCError({
       code: "INTERNAL_SERVER_ERROR",
       message: ERROR_CODES.GET_FLAVOR_ACCESS_FAILED,
+      cause: error,
+    })
+  }
+}
+export async function addTenantAccess(
+  compute: SignalOpenstackServiceType,
+  flavorId: string,
+  tenantId: string
+): Promise<FlavorAccess[]> {
+  try {
+    const requestBody = {
+      addTenantAccess: {
+        tenant: tenantId,
+      },
+    }
+
+    const response = await compute.post(`flavors/${flavorId}/action`, requestBody)
+
+    if (!response.ok) {
+      handleHttpError(response, ADD_TENANT_ACCESS_STATUS_MAP, ERROR_CODES.ADD_TENANT_ACCESS_FAILED)
+    }
+
+    const rawData = await response.text()
+    const jsonData = JSON.parse(rawData) as FlavorAccessResponse
+
+    return jsonData.flavor_access || []
+  } catch (error) {
+    if (error instanceof TRPCError) {
+      throw error
+    }
+
+    throw new TRPCError({
+      code: "INTERNAL_SERVER_ERROR",
+      message: ERROR_CODES.ADD_TENANT_ACCESS_FAILED,
+      cause: error,
+    })
+  }
+}
+
+export async function removeTenantAccess(
+  compute: SignalOpenstackServiceType,
+  flavorId: string,
+  tenantId: string
+): Promise<FlavorAccess[]> {
+  try {
+    const requestBody = {
+      removeTenantAccess: {
+        tenant: tenantId,
+      },
+    }
+
+    const response = await compute.post(`flavors/${flavorId}/action`, requestBody)
+
+    if (!response.ok) {
+      handleHttpError(response, REMOVE_TENANT_ACCESS_STATUS_MAP, ERROR_CODES.REMOVE_TENANT_ACCESS_FAILED)
+    }
+
+    const rawData = await response.text()
+    const jsonData = JSON.parse(rawData) as FlavorAccessResponse
+
+    return jsonData.flavor_access || []
+  } catch (error) {
+    if (error instanceof TRPCError) {
+      throw error
+    }
+
+    throw new TRPCError({
+      code: "INTERNAL_SERVER_ERROR",
+      message: ERROR_CODES.REMOVE_TENANT_ACCESS_FAILED,
       cause: error,
     })
   }

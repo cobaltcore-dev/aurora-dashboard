@@ -11,8 +11,11 @@ import {
   DataGridCell,
   Stack,
   Spinner,
+  Button,
 } from "@cloudoperators/juno-ui-components"
 import { Flavor } from "@/server/Compute/types/flavor"
+import { TenantAccessFormRow } from "./TenantAccessFormRow"
+import { TenantAccessRow } from "./TenantAccessRow"
 
 interface ManageAccessProps {
   client: TrpcClient
@@ -44,7 +47,7 @@ const createFlavorAccessPromise = (client: TrpcClient, project: string, flavorId
 function AccessLoading() {
   return (
     <DataGridRow>
-      <DataGridCell colSpan={2}>
+      <DataGridCell colSpan={3}>
         <Stack distribution="center" alignment="center">
           <Spinner variant="primary" />
         </Stack>
@@ -60,6 +63,8 @@ function AccessContent({
   project,
   flavor,
   onAccessUpdate,
+  isAddingAccess,
+  setIsAddingAccess,
   setMessage,
 }: {
   permissionsPromise: Promise<{ canAdd: boolean; canRemove: boolean }>
@@ -68,6 +73,8 @@ function AccessContent({
   project: string
   flavor: Flavor
   onAccessUpdate: (access: FlavorAccess[]) => void
+  isAddingAccess: boolean
+  setIsAddingAccess: (adding: boolean) => void
   setMessage: (msg: { text: string; type: "error" | "success" } | null) => void
 }) {
   const { t } = useLingui()
@@ -77,31 +84,177 @@ function AccessContent({
   const initialFlavorAccess = use(flavorAccessPromise)
 
   const [flavorAccess, setFlavorAccess] = useState(initialFlavorAccess)
+  const [tenantId, setTenantId] = useState("")
+  const [errors, setErrors] = useState<{ tenantId?: string }>({})
+  const [deletingTenants, setDeletingTenants] = useState<Set<string>>(new Set())
+  const [isLoading, setIsLoading] = useState(false)
 
   const isPublicFlavor = flavor["os-flavor-access:is_public"] !== false
-  const shouldShowEmptyState = flavorAccess.length === 0
+  const shouldShowEmptyState = flavorAccess.length === 0 && !isAddingAccess
 
-  return (
-    <>
-      <DataGrid columns={2}>
+  const validateForm = () => {
+    const trimmedTenantId = tenantId.trim()
+    const newErrors: { tenantId?: string } = {}
+
+    if (!trimmedTenantId) {
+      newErrors.tenantId = "Tenant ID is required."
+    } else if (flavorAccess.some((access) => access.tenant_id === trimmedTenantId)) {
+      newErrors.tenantId = "This tenant already has access to this flavor."
+    }
+
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
+
+  const resetForm = () => {
+    setTenantId("")
+    setErrors({})
+  }
+
+  const handleSave = async () => {
+    if (!validateForm()) {
+      setMessage({ text: t`Please fix the validation errors below.`, type: "error" })
+      return
+    }
+
+    setIsLoading(true)
+    try {
+      const trimmedTenantId = tenantId.trim()
+
+      const updatedAccess = await client.compute.addTenantAccess.mutate({
+        projectId: project,
+        flavorId: flavor.id,
+        tenantId: trimmedTenantId,
+      })
+
+      setFlavorAccess(updatedAccess)
+      onAccessUpdate(updatedAccess)
+
+      setMessage({
+        text: t`Tenant access for "${trimmedTenantId}" has been added successfully.`,
+        type: "success",
+      })
+      resetForm()
+      setIsAddingAccess(false)
+    } catch (error: any) {
+      setMessage({
+        text: translateError(error?.message || "Failed to add tenant access"),
+        type: "error",
+      })
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleRemoveTenant = async (tenantIdToRemove: string) => {
+    setDeletingTenants((prev) => new Set(prev).add(tenantIdToRemove))
+
+    try {
+      const updatedAccess = await client.compute.removeTenantAccess.mutate({
+        projectId: project,
+        flavorId: flavor.id,
+        tenantId: tenantIdToRemove,
+      })
+
+      setFlavorAccess(updatedAccess)
+      onAccessUpdate(updatedAccess)
+      setMessage({
+        text: t`Tenant access for "${tenantIdToRemove}" has been removed successfully.`,
+        type: "success",
+      })
+    } catch (error: any) {
+      setMessage({
+        text: translateError(error?.message || `Failed to remove tenant access for "${tenantIdToRemove}"`),
+        type: "error",
+      })
+    } finally {
+      setDeletingTenants((prev) => {
+        const newSet = new Set(prev)
+        newSet.delete(tenantIdToRemove)
+        return newSet
+      })
+    }
+  }
+
+  const handleTenantIdChange = (newTenantId: string) => {
+    setTenantId(newTenantId)
+    if (errors.tenantId) setErrors((prev) => ({ ...prev, tenantId: undefined }))
+  }
+
+  // Update local state when access is updated externally
+  React.useEffect(() => {
+    setFlavorAccess(initialFlavorAccess)
+  }, [initialFlavorAccess])
+
+  // Don't show add button for public flavors
+  if (isPublicFlavor) {
+    return (
+      <DataGrid columns={3}>
         <DataGridRow>
           <DataGridHeadCell>{t`Flavor ID`}</DataGridHeadCell>
           <DataGridHeadCell>{t`Tenant ID`}</DataGridHeadCell>
         </DataGridRow>
+        <DataGridRow>
+          <DataGridCell colSpan={3} className="text-center py-4 text-theme-default">
+            {t`This is a public flavor. All tenants have access to it.`}
+          </DataGridCell>
+        </DataGridRow>
+      </DataGrid>
+    )
+  }
+
+  return (
+    <>
+      {permissions.canAdd && (
+        <Stack direction="horizontal" className="bg-theme-background-lvl-1 justify-end p-2">
+          <Button
+            icon="addCircle"
+            label={t`Add Tenant Access`}
+            data-testid="addTenantButton"
+            onClick={() => setIsAddingAccess(true)}
+            variant="primary"
+            disabled={isAddingAccess}
+          />
+        </Stack>
+      )}
+
+      <DataGrid columns={3}>
+        <DataGridRow>
+          <DataGridHeadCell>{t`Flavor ID`}</DataGridHeadCell>
+          <DataGridHeadCell>{t`Tenant ID`}</DataGridHeadCell>
+          <DataGridHeadCell></DataGridHeadCell>
+        </DataGridRow>
+
+        {isAddingAccess && (
+          <TenantAccessFormRow
+            tenantId={tenantId}
+            flavorId={flavor.id}
+            errors={errors}
+            isLoading={isLoading}
+            onTenantIdChange={handleTenantIdChange}
+            onSave={handleSave}
+            onCancel={() => {
+              resetForm()
+              setIsAddingAccess(false)
+              setMessage(null)
+            }}
+          />
+        )}
 
         {flavorAccess.map((access, index) => (
-          <DataGridRow key={`${access.flavor_id}-${access.tenant_id}-${index}`}>
-            <DataGridCell>{access.flavor_id}</DataGridCell>
-            <DataGridCell>{access.tenant_id}</DataGridCell>
-          </DataGridRow>
+          <TenantAccessRow
+            key={`${access.flavor_id}-${access.tenant_id}-${index}`}
+            access={access}
+            isDeleting={deletingTenants.has(access.tenant_id)}
+            onDelete={() => handleRemoveTenant(access.tenant_id)}
+            canDelete={permissions.canRemove}
+          />
         ))}
 
         {shouldShowEmptyState && (
           <DataGridRow>
-            <DataGridCell colSpan={2} className="text-center py-4 text-theme-default">
-              {isPublicFlavor
-                ? t`This is a public flavor. All tenants have access to it.`
-                : t`No specific tenant access configured for this private flavor.`}
+            <DataGridCell colSpan={permissions.canRemove ? 3 : 2} className="text-center py-4 text-theme-default">
+              {t`No specific tenant access configured for this private flavor. Click "Add Tenant Access" to grant access.`}
             </DataGridCell>
           </DataGridRow>
         )}
@@ -114,6 +267,7 @@ export const ManageAccessModal: React.FC<ManageAccessProps> = ({ client, isOpen,
   const { t } = useLingui()
 
   const [message, setMessage] = useState<{ text: string; type: "error" | "success" } | null>(null)
+  const [isAddingAccess, setIsAddingAccess] = useState(false)
   const [flavorAccessPromise, setFlavorAccessPromise] = useState<Promise<FlavorAccess[]> | null>(null)
 
   const permissionsPromise = React.useMemo(() => (isOpen ? createPermissionsPromise(client) : null), [client, isOpen])
@@ -128,6 +282,7 @@ export const ManageAccessModal: React.FC<ManageAccessProps> = ({ client, isOpen,
 
   const handleClose = () => {
     setMessage(null)
+    setIsAddingAccess(false)
     setFlavorAccessPromise(null)
     onClose()
   }
@@ -143,7 +298,7 @@ export const ManageAccessModal: React.FC<ManageAccessProps> = ({ client, isOpen,
   }
 
   return (
-    <Modal onCancel={handleClose} title={t`Manage Access`} open={isOpen} size="large">
+    <Modal onCancel={handleClose} title={t`Manage Access - ${flavor.name}`} open={isOpen} size="large">
       <div>
         {message && (
           <Message onDismiss={() => setMessage(null)} text={message.text} variant={message.type} className="mb-4" />
@@ -157,6 +312,8 @@ export const ManageAccessModal: React.FC<ManageAccessProps> = ({ client, isOpen,
             project={project}
             flavor={flavor}
             onAccessUpdate={handleAccessUpdate}
+            isAddingAccess={isAddingAccess}
+            setIsAddingAccess={setIsAddingAccess}
             setMessage={setMessage}
           />
         </Suspense>
