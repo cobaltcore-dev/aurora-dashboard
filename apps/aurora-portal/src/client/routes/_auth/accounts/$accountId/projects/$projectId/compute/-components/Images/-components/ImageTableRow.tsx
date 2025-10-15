@@ -26,32 +26,34 @@ interface ImageTableRowProps {
 
 export function ImageTableRow({ image, permissions, onEdit, onDelete }: ImageTableRowProps) {
   const { t } = useLingui()
+  const { id, name, status, visibility, size, disk_format, os_type, os_distro, created_at } = image
+  const imageName = name || t`Unnamed`
 
   return (
-    <DataGridRow key={image.id} data-testid={`image-row-${image.id}`}>
-      <DataGridCell>{image.name || t`Unnamed`}</DataGridCell>
+    <DataGridRow key={id} data-testid={`image-row-${id}`}>
+      <DataGridCell>{imageName}</DataGridCell>
       <DataGridCell>
-        <StatusBadge status={image.status} />
+        <StatusBadge status={status} />
       </DataGridCell>
       <DataGridCell>
-        <VisibilityBadge visibility={image.visibility} />
+        <VisibilityBadge visibility={visibility} />
       </DataGridCell>
       <DataGridCell>
-        <SizeDisplay size={image.size} />
+        <SizeDisplay size={size} />
       </DataGridCell>
-      <DataGridCell>{image.disk_format || t`N/A`}</DataGridCell>
+      <DataGridCell>{disk_format || t`N/A`}</DataGridCell>
       <DataGridCell>
-        {image.os_type ? (
+        {os_type ? (
           <div className="flex items-center space-x-2">
             <Icon icon={"info"} color="jn-text-theme-info" />
-            <span>{image.os_type}</span>
-            {image.os_distro && <span className="text-xs text-gray-400">({image.os_distro})</span>}
+            <span>{os_type}</span>
+            {os_distro && <span className="text-xs text-gray-400">({os_distro})</span>}
           </div>
         ) : (
           "N/A"
         )}
       </DataGridCell>
-      <DataGridCell>{image.created_at ? new Date(image.created_at).toLocaleDateString() : "N/A"}</DataGridCell>
+      <DataGridCell>{created_at ? new Date(created_at).toLocaleDateString() : "N/A"}</DataGridCell>
 
       <DataGridCell>
         <PopupMenu>
@@ -61,7 +63,7 @@ export function ImageTableRow({ image, permissions, onEdit, onDelete }: ImageTab
               onClick={() => {
                 const toastProps: Omit<ToastProps, "id"> = {
                   title: t`Launch Instance`,
-                  description: t`Launching instance from image "${image.name || t`Unnamed`}"`,
+                  description: t`Launching instance from image "${imageName}"`,
                   variant: "success",
                   button: {
                     label: t`Dismiss`,
