@@ -1,6 +1,13 @@
 import { ToastProps, auroraToast, sonnerToast } from "@/client/components/NotificationCenter/AuroraToast"
-import { Button } from "@cloudoperators/juno-ui-components"
-import { Icon } from "@cloudoperators/juno-ui-components"
+import {
+  DataGridCell,
+  DataGridRow,
+  PopupMenu,
+  PopupMenuItem,
+  PopupMenuOptions,
+  Icon,
+} from "@cloudoperators/juno-ui-components"
+import { useLingui } from "@lingui/react/macro"
 import { GlanceImage } from "@/server/Compute/types/image"
 import { StatusBadge } from "./StatusBadge"
 import { VisibilityBadge } from "./VisibilityBadge"
@@ -10,24 +17,30 @@ interface ImageTableRowProps {
   image: GlanceImage
   onEdit: (image: GlanceImage) => void
   onDelete: (image: GlanceImage) => void
-  isLast: boolean
+  permissions: {
+    canCreate: boolean
+    canDelete: boolean
+    canEdit: boolean
+  }
 }
 
-export function ImageTableRow({ image, onEdit, onDelete, isLast }: ImageTableRowProps) {
+export function ImageTableRow({ image, permissions, onEdit, onDelete }: ImageTableRowProps) {
+  const { t } = useLingui()
+
   return (
-    <tr key={image.id} className={`hover:bg-[#1e2531] ${!isLast ? "border-b border-[#30363d]" : ""}`}>
-      <td className="p-3">{image.name || "Unnamed"}</td>
-      <td className="p-3">
+    <DataGridRow key={image.id} data-testid={`image-row-${image.id}`}>
+      <DataGridCell>{image.name || t`Unnamed`}</DataGridCell>
+      <DataGridCell>
         <StatusBadge status={image.status} />
-      </td>
-      <td className="p-3">
+      </DataGridCell>
+      <DataGridCell>
         <VisibilityBadge visibility={image.visibility} />
-      </td>
-      <td className="p-3">
+      </DataGridCell>
+      <DataGridCell>
         <SizeDisplay size={image.size} />
-      </td>
-      <td className="p-3">{image.disk_format || "N/A"}</td>
-      <td className="p-3">
+      </DataGridCell>
+      <DataGridCell>{image.disk_format || t`N/A`}</DataGridCell>
+      <DataGridCell>
         {image.os_type ? (
           <div className="flex items-center space-x-2">
             <Icon icon={"info"} color="jn-text-theme-info" />
@@ -37,36 +50,34 @@ export function ImageTableRow({ image, onEdit, onDelete, isLast }: ImageTableRow
         ) : (
           "N/A"
         )}
-      </td>
-      <td className="p-3">{image.created_at ? new Date(image.created_at).toLocaleDateString() : "N/A"}</td>
-      {/* Action Buttons */}
-      <td className="p-3">
-        <div className="flex space-x-3 mt-4 justify-end">
-          <Button
-            className="text-blue-500 hover:text-blue-400 hover:bg-blue-500/20"
-            onClick={() => {
-              const toastProps: Omit<ToastProps, "id"> = {
-                title: "Launch Instance",
-                description: `Launching instance from image "${image.name || "Unnamed"}"`,
-                variant: "success",
-                button: {
-                  label: "Dismiss",
-                  onClick: () => sonnerToast.dismiss(),
-                },
-              }
-              auroraToast(toastProps)
-            }}
-          >
-            Launch
-          </Button>
-          <Button className="hover:bg-gray-600" onClick={() => onEdit(image)}>
-            Edit
-          </Button>
-          <Button variant="primary-danger" className="hover:bg-red-500" onClick={() => onDelete(image)}>
-            Delete
-          </Button>
-        </div>
-      </td>
-    </tr>
+      </DataGridCell>
+      <DataGridCell>{image.created_at ? new Date(image.created_at).toLocaleDateString() : "N/A"}</DataGridCell>
+
+      <DataGridCell>
+        <PopupMenu>
+          <PopupMenuOptions>
+            <PopupMenuItem
+              label={t`Launch`}
+              onClick={() => {
+                const toastProps: Omit<ToastProps, "id"> = {
+                  title: t`Launch Instance`,
+                  description: t`Launching instance from image "${image.name || t`Unnamed`}"`,
+                  variant: "success",
+                  button: {
+                    label: t`Dismiss`,
+                    onClick: () => sonnerToast.dismiss(),
+                  },
+                }
+                auroraToast(toastProps)
+              }}
+            />
+            {permissions.canEdit && <PopupMenuItem icon="edit" label={t`Edit`} onClick={() => onEdit(image)} />}
+            {permissions.canDelete && (
+              <PopupMenuItem icon="deleteForever" label={t`Delete`} onClick={() => onDelete(image)} />
+            )}
+          </PopupMenuOptions>
+        </PopupMenu>
+      </DataGridCell>
+    </DataGridRow>
   )
 }

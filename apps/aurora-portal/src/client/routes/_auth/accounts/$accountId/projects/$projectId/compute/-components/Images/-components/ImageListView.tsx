@@ -1,7 +1,15 @@
 import type { GlanceImage } from "@/server/Compute/types/image"
-import { Button } from "@cloudoperators/juno-ui-components"
+import {
+  Button,
+  ContentHeading,
+  DataGrid,
+  DataGridCell,
+  DataGridHeadCell,
+  DataGridRow,
+} from "@cloudoperators/juno-ui-components"
 import { TrpcClient } from "@/client/trpcClient"
 import { TRPCError } from "@trpc/server"
+import { Trans } from "@lingui/react/macro"
 
 import { useState } from "react"
 import { EditImageModal } from "./EditImageModal"
@@ -12,10 +20,15 @@ import { CreateImageModal } from "./CreateImageModal"
 
 interface ImagePageProps {
   images: GlanceImage[]
+  permissions: {
+    canCreate: boolean
+    canDelete: boolean
+    canEdit: boolean
+  }
   client: TrpcClient
 }
 
-export function ImageListView({ images, client }: ImagePageProps) {
+export function ImageListView({ images, permissions, client }: ImagePageProps) {
   const [editModalOpen, setEditModalOpen] = useState(false)
   const [createModalOpen, setCreateModalOpen] = useState(false)
 
@@ -112,45 +125,71 @@ export function ImageListView({ images, client }: ImagePageProps) {
       {/* Header with Add Button */}
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-semibold ">Images</h2>
-        <Button onClick={openCreateModal} variant="primary" icon="addCircle">
-          Add New Image
-        </Button>
+        {permissions.canCreate && (
+          <Button onClick={openCreateModal} variant="primary" icon="addCircle">
+            Add New Image
+          </Button>
+        )}
       </div>
 
       {/* Images Table */}
       {cachedImages.length > 0 ? (
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse border border-[#30363d] ">
+        <>
+          <DataGrid columns={8} minContentColumns={[7]} className="images" data-testid="images-table">
             {/* Table Header */}
-            <thead className="bg-[#21262d]">
-              <tr className=" border-b border-[#30363d]">
-                <th className="p-3">Image Name</th>
-                <th className="p-3">Status</th>
-                <th className="p-3">Visibility</th>
-                <th className="p-3">Size</th>
-                <th className="p-3">Disk Format</th>
-                <th className="p-3">OS Type</th>
-                <th className="p-3">Created</th>
-                <th className="p-3 flex justify-center">Actions</th>
-              </tr>
-            </thead>
+            <DataGridRow>
+              <DataGridHeadCell>
+                <Trans>Image Name</Trans>
+              </DataGridHeadCell>
+              <DataGridHeadCell>
+                <Trans>Status</Trans>
+              </DataGridHeadCell>
+              <DataGridHeadCell>
+                <Trans>Visibility</Trans>
+              </DataGridHeadCell>
+              <DataGridHeadCell>
+                <Trans>Size</Trans>
+              </DataGridHeadCell>
+              <DataGridHeadCell>
+                <Trans>Disk Format</Trans>
+              </DataGridHeadCell>
+              <DataGridHeadCell>
+                <Trans>OS Type</Trans>
+              </DataGridHeadCell>
+              <DataGridHeadCell>
+                <Trans>Created</Trans>
+              </DataGridHeadCell>
+              <DataGridHeadCell></DataGridHeadCell>
+            </DataGridRow>
 
             {/* Table Body */}
-            <tbody>
-              {cachedImages.map((image, index) => (
-                <ImageTableRow
-                  image={image}
-                  key={image.id}
-                  onEdit={openEditModal}
-                  onDelete={openDeleteModal}
-                  isLast={index === images.length - 1}
-                />
-              ))}
-            </tbody>
-          </table>
-        </div>
+            {cachedImages.map((image) => (
+              <ImageTableRow
+                image={image}
+                key={image.id}
+                permissions={permissions}
+                onEdit={openEditModal}
+                onDelete={openDeleteModal}
+              />
+            ))}
+          </DataGrid>
+        </>
       ) : (
-        <p>No images available.</p>
+        <DataGrid columns={7} className="flavors" data-testid="no-flavors">
+          <DataGridRow>
+            <DataGridCell colSpan={7}>
+              <ContentHeading>
+                <Trans>No images found</Trans>
+              </ContentHeading>
+              <p>
+                <Trans>
+                  There are no images available for this project with the current filters applied. Try adjusting your
+                  filter criteria or create a new image.
+                </Trans>
+              </p>
+            </DataGridCell>
+          </DataGridRow>
+        </DataGrid>
       )}
       {selectedImage && (
         <EditImageModal

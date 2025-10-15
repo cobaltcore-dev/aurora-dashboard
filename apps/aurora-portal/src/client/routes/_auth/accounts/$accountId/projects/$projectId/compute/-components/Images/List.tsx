@@ -7,17 +7,21 @@ import { Spinner, Stack } from "@cloudoperators/juno-ui-components/index"
 
 const ImageListContainer = ({
   getImagesPromise,
+  getPermissionsPromise,
   client,
 }: {
   getImagesPromise: Promise<GlanceImage[] | undefined>
+  getPermissionsPromise: Promise<{
+    canCreate: boolean
+    canDelete: boolean
+    canEdit: boolean
+  }>
   client: TrpcClient
 }) => {
+  const permissions = use(getPermissionsPromise)
   const images = use(getImagesPromise)
-  if (!images || images.length === 0) {
-    return <p>No images available.</p>
-  }
 
-  return <ImageListView images={images} client={client} />
+  return <ImageListView images={images || []} permissions={permissions} client={client} />
 }
 
 interface ImagesProps {
@@ -26,6 +30,12 @@ interface ImagesProps {
 
 export const Images = ({ client }: ImagesProps) => {
   const getImagesPromise = client.compute.listImages.query({})
+
+  const getPermissionsPromise = Promise.all([
+    client.compute.canUser.query("images:create"),
+    client.compute.canUser.query("images:delete"),
+    client.compute.canUser.query("images:update"),
+  ]).then(([canCreate, canDelete, canEdit]) => ({ canCreate, canDelete, canEdit }))
 
   return (
     <Suspense
@@ -36,7 +46,11 @@ export const Images = ({ client }: ImagesProps) => {
         </Stack>
       }
     >
-      <ImageListContainer getImagesPromise={getImagesPromise} client={client} />
+      <ImageListContainer
+        getImagesPromise={getImagesPromise}
+        getPermissionsPromise={getPermissionsPromise}
+        client={client}
+      />
     </Suspense>
   )
 }
