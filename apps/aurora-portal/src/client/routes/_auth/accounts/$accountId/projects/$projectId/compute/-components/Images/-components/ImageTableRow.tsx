@@ -17,6 +17,7 @@ interface ImageTableRowProps {
   image: GlanceImage
   onEdit: (image: GlanceImage) => void
   onDelete: (image: GlanceImage) => void
+  onActivationStatusChange: (image: GlanceImage) => void
   permissions: {
     canCreate: boolean
     canDelete: boolean
@@ -24,7 +25,7 @@ interface ImageTableRowProps {
   }
 }
 
-export function ImageTableRow({ image, permissions, onEdit, onDelete }: ImageTableRowProps) {
+export function ImageTableRow({ image, permissions, onEdit, onDelete, onActivationStatusChange }: ImageTableRowProps) {
   const { t } = useLingui()
   const { id, name, status, visibility, size, disk_format, os_type, os_distro, created_at } = image
   const imageName = name || t`Unnamed`
@@ -72,6 +73,10 @@ export function ImageTableRow({ image, permissions, onEdit, onDelete }: ImageTab
                 }
                 auroraToast(toastProps)
               }}
+            />
+            <PopupMenuItem
+              label={image.status === "deactivated" ? t`Re-activate` : t`Deactivate`}
+              onClick={() => onActivationStatusChange(image)}
             />
             {permissions.canEdit && <PopupMenuItem icon="edit" label={t`Edit`} onClick={() => onEdit(image)} />}
             {permissions.canDelete && (

@@ -6,6 +6,8 @@ import {
   DataGridCell,
   DataGridHeadCell,
   DataGridRow,
+  Spinner,
+  Stack,
 } from "@cloudoperators/juno-ui-components"
 import { TrpcClient } from "@/client/trpcClient"
 import { TRPCError } from "@trpc/server"
@@ -80,6 +82,7 @@ export function ImageListView({ images, permissions, client }: ImagePageProps) {
         imageId: deletedImage.id,
       })
 
+      // TODO: Replace it with react query capabilities
       setCachedImages(cachedImages.filter((image) => deletedImage.id !== image.id))
 
       auroraToast({
@@ -107,10 +110,60 @@ export function ImageListView({ images, permissions, client }: ImagePageProps) {
       setIsLoading(false)
     }
   }
+
+  const handleActivationStatusChange = async (updatedImage: GlanceImage) => {
+    try {
+      setIsLoading(true)
+
+      const action =
+        updatedImage.status === "deactivated" ? client.compute.reactivateImage : client.compute.deactivateImage
+
+      await action.mutate({
+        imageId: updatedImage.id,
+      })
+
+      // TODO: Replace it with react query capabilities
+      setCachedImages(
+        cachedImages.map((image) => {
+          if (updatedImage.id === image.id) {
+            return { ...image, status: image.status === "deactivated" ? "active" : "deactivated" }
+          }
+
+          return image
+        })
+      )
+
+      auroraToast({
+        title: "Image Instance",
+        description: `Image instance "${updatedImage.name || "Unnamed"}" has been ${updatedImage.status === "deactivated" ? "re-activated" : "deactivated"}`,
+        variant: "success",
+        button: {
+          label: "Ok",
+          onClick: () => sonnerToast.dismiss(),
+        },
+      })
+    } catch (error) {
+      const { message } = error as TRPCError
+
+      auroraToast({
+        title: `Unable to ${updatedImage.status === "deactivated" ? "Re-activate" : "Deactivate"} Image`,
+        description: `The image ${updatedImage.id} could not be deleted: ${message}`,
+        variant: "error",
+        button: {
+          label: "Ok",
+          onClick: () => sonnerToast.dismiss(),
+        },
+      })
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   const openEditModal = (image: GlanceImage) => {
     setSelectedImage(image)
     setEditModalOpen(true)
   }
+
   const openCreateModal = () => {
     setCreateModalOpen(true)
   }
@@ -120,8 +173,25 @@ export function ImageListView({ images, permissions, client }: ImagePageProps) {
     setDeleteModalOpen(true)
   }
 
+  if (isLoading) {
+    return (
+      <div data-testid="loading">
+        <div data-testid="loading">
+          <DataGridRow>
+            <DataGridCell colSpan={3}>
+              <Stack distribution="center" alignment="center">
+                <Spinner variant="primary" />
+                <Trans>Loading...</Trans>
+              </Stack>
+            </DataGridCell>
+          </DataGridRow>
+        </div>
+      </div>
+    )
+  }
+
   return (
-    <div className="container mx-auto px-4 py-6">
+    <>
       {/* Header with Add Button */}
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-semibold ">Images</h2>
@@ -170,6 +240,7 @@ export function ImageListView({ images, permissions, client }: ImagePageProps) {
                 permissions={permissions}
                 onEdit={openEditModal}
                 onDelete={openDeleteModal}
+                onActivationStatusChange={handleActivationStatusChange}
               />
             ))}
           </DataGrid>
@@ -209,6 +280,6 @@ export function ImageListView({ images, permissions, client }: ImagePageProps) {
         />
       )}
       <CreateImageModal isOpen={createModalOpen} onClose={() => setCreateModalOpen(false)} onCreate={handleCreate} />
-    </div>
+    </>
   )
 }
