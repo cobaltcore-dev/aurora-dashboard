@@ -15,7 +15,7 @@ import { trpcReact } from "@/client/trpcClient"
 import { TRPCError } from "@trpc/server"
 import { Trans, useLingui } from "@lingui/react/macro"
 
-import { useState } from "react"
+import { useState, useEffect, useRef } from "react"
 import { EditImageModal } from "./EditImageModal"
 import { ImageTableRow } from "./ImageTableRow"
 import { DeleteImageModal } from "./DeleteImageModal"
@@ -28,9 +28,20 @@ interface ImagePageProps {
     canDelete: boolean
     canEdit: boolean
   }
+  hasNextPage?: boolean
+  isFetchingNextPage?: boolean
+  isFetching?: boolean
+  fetchNextPage?: () => void
 }
 
-export function ImageListView({ images, permissions }: ImagePageProps) {
+export function ImageListView({
+  images,
+  permissions,
+  hasNextPage,
+  isFetchingNextPage,
+  isFetching,
+  fetchNextPage,
+}: ImagePageProps) {
   const { t } = useLingui()
 
   const [toastData, setToastData] = useState<ToastProps | null>(null)
@@ -39,23 +50,43 @@ export function ImageListView({ images, permissions }: ImagePageProps) {
   const [selectedImage, setSelectedImage] = useState<GlanceImage | null>(null)
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
 
+  // Intersection Observer for infinite scroll
+  const loadMoreRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!loadMoreRef.current || !hasNextPage || isFetchingNextPage) return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
+          fetchNextPage?.()
+        }
+      },
+      { threshold: 0.5 }
+    )
+
+    observer.observe(loadMoreRef.current)
+
+    return () => observer.disconnect()
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage])
+
   const utils = trpcReact.useUtils()
 
   const deleteImageMutation = trpcReact.compute.deleteImage.useMutation({
     onSuccess: () => {
-      utils.compute.listImages.invalidate()
+      utils.compute.listImagesWithPagination.invalidate()
     },
   })
 
   const deactivateImageMutation = trpcReact.compute.deactivateImage.useMutation({
     onSuccess: () => {
-      utils.compute.listImages.invalidate()
+      utils.compute.listImagesWithPagination.invalidate()
     },
   })
 
   const reactivateImageMutation = trpcReact.compute.reactivateImage.useMutation({
     onSuccess: () => {
-      utils.compute.listImages.invalidate()
+      utils.compute.listImagesWithPagination.invalidate()
     },
   })
 
@@ -85,7 +116,7 @@ export function ImageListView({ images, permissions }: ImagePageProps) {
       onDismiss: handleToastDismiss,
     })
 
-    utils.compute.listImages.invalidate()
+    utils.compute.listImagesWithPagination.invalidate()
   }
 
   const handleCreate = (newImage: Partial<GlanceImage>) => {
@@ -109,7 +140,7 @@ export function ImageListView({ images, permissions }: ImagePageProps) {
       onDismiss: handleToastDismiss,
     })
 
-    utils.compute.listImages.invalidate()
+    utils.compute.listImagesWithPagination.invalidate()
   }
 
   const handleDelete = async (deletedImage: GlanceImage) => {
@@ -328,6 +359,35 @@ export function ImageListView({ images, permissions }: ImagePageProps) {
               />
             ))}
           </DataGrid>
+
+          {/* Infinite Scroll Trigger */}
+          {hasNextPage && (
+            <div ref={loadMoreRef} className="py-4">
+              <Stack distribution="center" alignment="center">
+                {isFetchingNextPage ? (
+                  <>
+                    <Spinner variant="primary" size="small" />
+                    <Trans>Loading more...</Trans>
+                  </>
+                ) : (
+                  <Button
+                    onClick={() => fetchNextPage?.()}
+                    variant="subdued"
+                    disabled={!hasNextPage || isFetchingNextPage}
+                  >
+                    <Trans>Load More</Trans>
+                  </Button>
+                )}
+              </Stack>
+            </div>
+          )}
+          {isFetching && !isFetchingNextPage && (
+            <div className="py-2">
+              <Stack distribution="center" alignment="center">
+                <Trans>Fetching...</Trans>
+              </Stack>
+            </div>
+          )}
         </>
       ) : (
         <DataGrid columns={7} className="flavors" data-testid="no-flavors">
