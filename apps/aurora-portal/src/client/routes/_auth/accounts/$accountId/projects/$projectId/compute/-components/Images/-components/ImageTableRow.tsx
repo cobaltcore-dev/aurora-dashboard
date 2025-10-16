@@ -1,4 +1,3 @@
-import { ToastProps, auroraToast, sonnerToast } from "@/client/components/NotificationCenter/AuroraToast"
 import {
   DataGridCell,
   DataGridRow,
@@ -17,6 +16,7 @@ interface ImageTableRowProps {
   image: GlanceImage
   onEdit: (image: GlanceImage) => void
   onDelete: (image: GlanceImage) => void
+  onLaunch: (image: GlanceImage) => void
   onActivationStatusChange: (image: GlanceImage) => void
   permissions: {
     canCreate: boolean
@@ -25,7 +25,14 @@ interface ImageTableRowProps {
   }
 }
 
-export function ImageTableRow({ image, permissions, onEdit, onDelete, onActivationStatusChange }: ImageTableRowProps) {
+export function ImageTableRow({
+  image,
+  permissions,
+  onEdit,
+  onDelete,
+  onLaunch,
+  onActivationStatusChange,
+}: ImageTableRowProps) {
   const { t } = useLingui()
   const { id, name, status, visibility, size, disk_format, os_type, os_distro, created_at } = image
   const imageName = name || t`Unnamed`
@@ -59,21 +66,7 @@ export function ImageTableRow({ image, permissions, onEdit, onDelete, onActivati
       <DataGridCell>
         <PopupMenu>
           <PopupMenuOptions>
-            <PopupMenuItem
-              label={t`Launch`}
-              onClick={() => {
-                const toastProps: Omit<ToastProps, "id"> = {
-                  title: t`Launch Instance`,
-                  description: t`Launching instance from image "${imageName}"`,
-                  variant: "success",
-                  button: {
-                    label: t`Dismiss`,
-                    onClick: () => sonnerToast.dismiss(),
-                  },
-                }
-                auroraToast(toastProps)
-              }}
-            />
+            <PopupMenuItem label={t`Launch`} onClick={() => onLaunch(image)} />
             <PopupMenuItem
               label={image.status === "deactivated" ? t`Re-activate` : t`Deactivate`}
               onClick={() => onActivationStatusChange(image)}

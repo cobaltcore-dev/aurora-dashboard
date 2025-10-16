@@ -8,15 +8,16 @@ import {
   DataGridRow,
   Spinner,
   Stack,
+  Toast,
+  ToastProps,
 } from "@cloudoperators/juno-ui-components"
 import { TrpcClient } from "@/client/trpcClient"
 import { TRPCError } from "@trpc/server"
-import { Trans } from "@lingui/react/macro"
+import { Trans, useLingui } from "@lingui/react/macro"
 
 import { useState } from "react"
 import { EditImageModal } from "./EditImageModal"
 import { ImageTableRow } from "./ImageTableRow"
-import { auroraToast, sonnerToast, ToastProps } from "@/client/components/NotificationCenter/AuroraToast"
 import { DeleteImageModal } from "./DeleteImageModal"
 import { CreateImageModal } from "./CreateImageModal"
 
@@ -31,6 +32,10 @@ interface ImagePageProps {
 }
 
 export function ImageListView({ images, permissions, client }: ImagePageProps) {
+  const { t } = useLingui()
+
+  const [toastData, setToastData] = useState<ToastProps | null>(null)
+
   const [editModalOpen, setEditModalOpen] = useState(false)
   const [createModalOpen, setCreateModalOpen] = useState(false)
 
@@ -45,73 +50,133 @@ export function ImageListView({ images, permissions, client }: ImagePageProps) {
 
   const [isLoading, setIsLoading] = useState(false)
 
+  const handleToastDismiss = () => setToastData(null)
+
   const handleSaveEdit = (updatedImage: GlanceImage) => {
     setEditModalOpen(false)
-    const toastProps: Omit<ToastProps, "id"> = {
-      title: "Image Instance",
-      description: `Image instance "${updatedImage.name || "Unnamed"}" has been updated`,
+    const imageName = updatedImage.name || t`Unnamed`
+
+    setToastData({
       variant: "success",
-      button: {
-        label: "Confirm",
-        onClick: () => sonnerToast.dismiss(),
-      },
-    }
-    auroraToast(toastProps)
+      children: (
+        <Stack direction="vertical" gap="1.5">
+          <span>
+            <Trans>Image Instance</Trans>
+          </span>
+          <span className="text-theme-light">
+            <Trans>Image instance "{imageName}" has been updated</Trans>
+          </span>
+        </Stack>
+      ),
+      autoDismiss: true,
+      autoDismissTimeout: 3000,
+      onDismiss: handleToastDismiss,
+    })
   }
 
   const handleCreate = (newImage: Partial<GlanceImage>) => {
     setCreateModalOpen(false)
-    const toastProps: Omit<ToastProps, "id"> = {
-      title: "Image Instance",
-      description: `Image instance "${newImage.name || "Unnamed"}" has been created`,
+    const imageName = newImage.name || t`Unnamed`
+
+    setToastData({
       variant: "success",
-      button: {
-        label: "Confirm",
-        onClick: () => sonnerToast.dismiss(),
-      },
-    }
-    auroraToast(toastProps)
+      children: (
+        <Stack direction="vertical" gap="1.5">
+          <span>
+            <Trans>Image Instance</Trans>
+          </span>
+          <span className="text-theme-light">
+            <Trans>Image instance "{imageName}" has been created</Trans>
+          </span>
+        </Stack>
+      ),
+      autoDismiss: true,
+      autoDismissTimeout: 3000,
+      onDismiss: handleToastDismiss,
+    })
   }
   const handleDelete = async (deletedImage: GlanceImage) => {
     setEditModalOpen(false)
+    const imageName = deletedImage.name || t`Unnamed`
+    const imageId = deletedImage.id
 
     try {
       setIsLoading(true)
 
       await client.compute.deleteImage.mutate({
-        imageId: deletedImage.id,
+        imageId,
       })
 
       // TODO: Replace it with react query capabilities
-      setCachedImages(cachedImages.filter((image) => deletedImage.id !== image.id))
+      setCachedImages(cachedImages.filter((image) => imageId !== image.id))
 
-      auroraToast({
-        title: "Image Instance",
-        description: `Image instance "${deletedImage.name || "Unnamed"}" has been deleted`,
+      setToastData({
         variant: "success",
-        button: {
-          label: "Ok",
-          onClick: () => sonnerToast.dismiss(),
-        },
+        children: (
+          <Stack direction="vertical" gap="1.5">
+            <span>
+              <Trans>Image Instance</Trans>
+            </span>
+            <span className="text-theme-light">
+              <Trans>Image instance "{imageName}" has been deleted</Trans>
+            </span>
+          </Stack>
+        ),
+        autoDismiss: true,
+        autoDismissTimeout: 3000,
+        onDismiss: handleToastDismiss,
       })
     } catch (error) {
       const { message } = error as TRPCError
 
-      auroraToast({
-        title: "Unable to Delete Image",
-        description: `The image ${deletedImage.id} could not be deleted: ${message}`,
+      setToastData({
         variant: "error",
-        button: {
-          label: "Ok",
-          onClick: () => sonnerToast.dismiss(),
-        },
+        children: (
+          <Stack direction="vertical" gap="1.5">
+            <span>
+              <Trans>Unable to Delete Image</Trans>
+            </span>
+            <span className="text-theme-light">
+              <Trans>
+                The image "{imageId}" could not be deleted: {message}
+              </Trans>
+            </span>
+          </Stack>
+        ),
+        autoDismiss: true,
+        autoDismissTimeout: 3000,
+        onDismiss: handleToastDismiss,
       })
     } finally {
       setIsLoading(false)
     }
   }
 
+  const handleLaunch = (image: GlanceImage) => {
+    const imageName = image.name || t`Unnamed`
+
+    setToastData({
+      variant: "success",
+      children: (
+        <Stack direction="vertical" gap="1.5">
+          <span>
+            <Trans>Launch Instance</Trans>
+          </span>
+          <span className="text-theme-light">
+            <Trans>Launching instance from image "{imageName}"</Trans>
+          </span>
+        </Stack>
+      ),
+      autoDismiss: true,
+      autoDismissTimeout: 3000,
+      onDismiss: handleToastDismiss,
+    })
+  }
+
   const handleActivationStatusChange = async (updatedImage: GlanceImage) => {
+    const imageName = updatedImage.name || t`Unnamed`
+    const imageId = updatedImage.id
+
     try {
       setIsLoading(true)
 
@@ -119,13 +184,13 @@ export function ImageListView({ images, permissions, client }: ImagePageProps) {
         updatedImage.status === "deactivated" ? client.compute.reactivateImage : client.compute.deactivateImage
 
       await action.mutate({
-        imageId: updatedImage.id,
+        imageId,
       })
 
       // TODO: Replace it with react query capabilities
       setCachedImages(
         cachedImages.map((image) => {
-          if (updatedImage.id === image.id) {
+          if (imageId === image.id) {
             return { ...image, status: image.status === "deactivated" ? "active" : "deactivated" }
           }
 
@@ -133,26 +198,56 @@ export function ImageListView({ images, permissions, client }: ImagePageProps) {
         })
       )
 
-      auroraToast({
-        title: "Image Instance",
-        description: `Image instance "${updatedImage.name || "Unnamed"}" has been ${updatedImage.status === "deactivated" ? "re-activated" : "deactivated"}`,
+      setToastData({
         variant: "success",
-        button: {
-          label: "Ok",
-          onClick: () => sonnerToast.dismiss(),
-        },
+        children: (
+          <Stack direction="vertical" gap="1.5">
+            <span>
+              <Trans>Image Instance</Trans>
+            </span>
+            <span className="text-theme-light">
+              {updatedImage.status === "deactivated" ? (
+                <Trans>Image instance "{imageName}" has been re-activated</Trans>
+              ) : (
+                <Trans>Image instance "{imageName}" has been deactivated</Trans>
+              )}
+            </span>
+          </Stack>
+        ),
+        autoDismiss: true,
+        autoDismissTimeout: 3000,
+        onDismiss: handleToastDismiss,
       })
     } catch (error) {
       const { message } = error as TRPCError
 
-      auroraToast({
-        title: `Unable to ${updatedImage.status === "deactivated" ? "Re-activate" : "Deactivate"} Image`,
-        description: `The image ${updatedImage.id} could not be deleted: ${message}`,
+      setToastData({
         variant: "error",
-        button: {
-          label: "Ok",
-          onClick: () => sonnerToast.dismiss(),
-        },
+        children: (
+          <Stack direction="vertical" gap="1.5">
+            <span>
+              {updatedImage.status === "deactivated" ? (
+                <Trans>Unable to Re-activate Image</Trans>
+              ) : (
+                <Trans>Unable to Deactivate Image</Trans>
+              )}
+            </span>
+            <span className="text-theme-light">
+              {updatedImage.status === "deactivated" ? (
+                <Trans>
+                  The image "{imageId}" could not be re-activated: {message}
+                </Trans>
+              ) : (
+                <Trans>
+                  The image "{imageId}" could not be deactivated: {message}
+                </Trans>
+              )}
+            </span>
+          </Stack>
+        ),
+        autoDismiss: true,
+        autoDismissTimeout: 3000,
+        onDismiss: handleToastDismiss,
       })
     } finally {
       setIsLoading(false)
@@ -240,6 +335,7 @@ export function ImageListView({ images, permissions, client }: ImagePageProps) {
                 permissions={permissions}
                 onEdit={openEditModal}
                 onDelete={openDeleteModal}
+                onLaunch={handleLaunch}
                 onActivationStatusChange={handleActivationStatusChange}
               />
             ))}
@@ -280,6 +376,9 @@ export function ImageListView({ images, permissions, client }: ImagePageProps) {
         />
       )}
       <CreateImageModal isOpen={createModalOpen} onClose={() => setCreateModalOpen(false)} onCreate={handleCreate} />
+      {toastData && (
+        <Toast {...toastData} className="fixed top-5 right-5 z-50 border border-theme-light rounded-lg shadow-lg" />
+      )}
     </>
   )
 }
