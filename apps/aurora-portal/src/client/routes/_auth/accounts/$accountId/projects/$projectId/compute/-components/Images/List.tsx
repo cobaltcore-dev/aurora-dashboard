@@ -1,56 +1,31 @@
-import { Suspense, use } from "react"
-import { GlanceImage } from "@/server/Compute/types/image"
-import { TrpcClient } from "@/client/trpcClient"
+import { trpcReact } from "@/client/trpcClient"
 import { ImageListView } from "./-components/ImageListView"
 import { Trans } from "@lingui/react/macro"
 import { Spinner, Stack } from "@cloudoperators/juno-ui-components/index"
 
-const ImageListContainer = ({
-  getImagesPromise,
-  getPermissionsPromise,
-  client,
-}: {
-  getImagesPromise: Promise<GlanceImage[] | undefined>
-  getPermissionsPromise: Promise<{
-    canCreate: boolean
-    canDelete: boolean
-    canEdit: boolean
-  }>
-  client: TrpcClient
-}) => {
-  const permissions = use(getPermissionsPromise)
-  const images = use(getImagesPromise)
+export const Images = () => {
+  const { data: images, isLoading: imagesLoading } = trpcReact.compute.listImages.useQuery({})
 
-  return <ImageListView images={images || []} permissions={permissions} client={client} />
-}
+  const { data: canCreate, isLoading: canCreateLoading } = trpcReact.compute.canUser.useQuery("images:create")
+  const { data: canDelete, isLoading: canDeleteLoading } = trpcReact.compute.canUser.useQuery("images:delete")
+  const { data: canEdit, isLoading: canEditLoading } = trpcReact.compute.canUser.useQuery("images:update")
 
-interface ImagesProps {
-  client: TrpcClient
-}
+  const isLoading = imagesLoading || canCreateLoading || canDeleteLoading || canEditLoading
 
-export const Images = ({ client }: ImagesProps) => {
-  const getImagesPromise = client.compute.listImages.query({})
+  if (isLoading) {
+    return (
+      <Stack className="fixed inset-0" distribution="center" alignment="center" direction="vertical">
+        <Spinner variant="primary" size="large" className="mb-2" />
+        <Trans>Loading Images...</Trans>
+      </Stack>
+    )
+  }
 
-  const getPermissionsPromise = Promise.all([
-    client.compute.canUser.query("images:create"),
-    client.compute.canUser.query("images:delete"),
-    client.compute.canUser.query("images:update"),
-  ]).then(([canCreate, canDelete, canEdit]) => ({ canCreate, canDelete, canEdit }))
+  const permissions = {
+    canCreate: canCreate ?? false,
+    canDelete: canDelete ?? false,
+    canEdit: canEdit ?? false,
+  }
 
-  return (
-    <Suspense
-      fallback={
-        <Stack className="fixed inset-0" distribution="center" alignment="center" direction="vertical">
-          <Spinner variant="primary" size="large" className="mb-2" />
-          <Trans>Loading Images...</Trans>
-        </Stack>
-      }
-    >
-      <ImageListContainer
-        getImagesPromise={getImagesPromise}
-        getPermissionsPromise={getPermissionsPromise}
-        client={client}
-      />
-    </Suspense>
-  )
+  return <ImageListView images={images || []} permissions={permissions} />
 }

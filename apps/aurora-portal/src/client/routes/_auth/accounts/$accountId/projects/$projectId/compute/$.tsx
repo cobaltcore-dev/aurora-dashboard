@@ -117,7 +117,7 @@ function ComputeDashboard({
                   case "instances":
                     return <Instances client={client} project={project} viewMode="list" />
                   case "images":
-                    return <Images client={client} />
+                    return <Images />
                   case "keypairs":
                     return <KeyPairs project={project} client={client} />
                   case "servergroups":

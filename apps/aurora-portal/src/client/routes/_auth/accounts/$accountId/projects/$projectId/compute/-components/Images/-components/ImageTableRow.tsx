@@ -67,10 +67,12 @@ export function ImageTableRow({
         <PopupMenu>
           <PopupMenuOptions>
             <PopupMenuItem label={t`Launch`} onClick={() => onLaunch(image)} />
-            <PopupMenuItem
-              label={image.status === "deactivated" ? t`Re-activate` : t`Deactivate`}
-              onClick={() => onActivationStatusChange(image)}
-            />
+            {permissions.canEdit && (
+              <PopupMenuItem
+                label={image.status === "deactivated" ? t`Re-activate` : t`Deactivate`}
+                onClick={() => onActivationStatusChange(image)}
+              />
+            )}
             {permissions.canEdit && <PopupMenuItem icon="edit" label={t`Edit`} onClick={() => onEdit(image)} />}
             {permissions.canDelete && (
               <PopupMenuItem icon="deleteForever" label={t`Delete`} onClick={() => onDelete(image)} />

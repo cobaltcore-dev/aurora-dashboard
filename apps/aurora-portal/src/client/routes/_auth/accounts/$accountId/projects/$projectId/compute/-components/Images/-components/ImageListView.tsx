@@ -11,7 +11,7 @@ import {
   Toast,
   ToastProps,
 } from "@cloudoperators/juno-ui-components"
-import { TrpcClient } from "@/client/trpcClient"
+import { trpcReact } from "@/client/trpcClient"
 import { TRPCError } from "@trpc/server"
 import { Trans, useLingui } from "@lingui/react/macro"
 
@@ -28,27 +28,39 @@ interface ImagePageProps {
     canDelete: boolean
     canEdit: boolean
   }
-  client: TrpcClient
 }
 
-export function ImageListView({ images, permissions, client }: ImagePageProps) {
+export function ImageListView({ images, permissions }: ImagePageProps) {
   const { t } = useLingui()
 
   const [toastData, setToastData] = useState<ToastProps | null>(null)
-
   const [editModalOpen, setEditModalOpen] = useState(false)
   const [createModalOpen, setCreateModalOpen] = useState(false)
-
   const [selectedImage, setSelectedImage] = useState<GlanceImage | null>(null)
-
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
 
-  // TODO: Replace it with react query capabilities
-  // Local state to track the current list of images, caching them to reduce redundant requests
-  // and allowing optimistic updates without refetching from the server
-  const [cachedImages, setCachedImages] = useState(images)
+  const utils = trpcReact.useUtils()
 
-  const [isLoading, setIsLoading] = useState(false)
+  const deleteImageMutation = trpcReact.compute.deleteImage.useMutation({
+    onSuccess: () => {
+      utils.compute.listImages.invalidate()
+    },
+  })
+
+  const deactivateImageMutation = trpcReact.compute.deactivateImage.useMutation({
+    onSuccess: () => {
+      utils.compute.listImages.invalidate()
+    },
+  })
+
+  const reactivateImageMutation = trpcReact.compute.reactivateImage.useMutation({
+    onSuccess: () => {
+      utils.compute.listImages.invalidate()
+    },
+  })
+
+  const isLoading =
+    deleteImageMutation.isPending || deactivateImageMutation.isPending || reactivateImageMutation.isPending
 
   const handleToastDismiss = () => setToastData(null)
 
@@ -72,6 +84,8 @@ export function ImageListView({ images, permissions, client }: ImagePageProps) {
       autoDismissTimeout: 3000,
       onDismiss: handleToastDismiss,
     })
+
+    utils.compute.listImages.invalidate()
   }
 
   const handleCreate = (newImage: Partial<GlanceImage>) => {
@@ -94,21 +108,17 @@ export function ImageListView({ images, permissions, client }: ImagePageProps) {
       autoDismissTimeout: 3000,
       onDismiss: handleToastDismiss,
     })
+
+    utils.compute.listImages.invalidate()
   }
+
   const handleDelete = async (deletedImage: GlanceImage) => {
     setEditModalOpen(false)
     const imageName = deletedImage.name || t`Unnamed`
     const imageId = deletedImage.id
 
     try {
-      setIsLoading(true)
-
-      await client.compute.deleteImage.mutate({
-        imageId,
-      })
-
-      // TODO: Replace it with react query capabilities
-      setCachedImages(cachedImages.filter((image) => imageId !== image.id))
+      await deleteImageMutation.mutateAsync({ imageId })
 
       setToastData({
         variant: "success",
@@ -147,8 +157,6 @@ export function ImageListView({ images, permissions, client }: ImagePageProps) {
         autoDismissTimeout: 3000,
         onDismiss: handleToastDismiss,
       })
-    } finally {
-      setIsLoading(false)
     }
   }
 
@@ -178,25 +186,9 @@ export function ImageListView({ images, permissions, client }: ImagePageProps) {
     const imageId = updatedImage.id
 
     try {
-      setIsLoading(true)
+      const mutation = updatedImage.status === "deactivated" ? reactivateImageMutation : deactivateImageMutation
 
-      const action =
-        updatedImage.status === "deactivated" ? client.compute.reactivateImage : client.compute.deactivateImage
-
-      await action.mutate({
-        imageId,
-      })
-
-      // TODO: Replace it with react query capabilities
-      setCachedImages(
-        cachedImages.map((image) => {
-          if (imageId === image.id) {
-            return { ...image, status: image.status === "deactivated" ? "active" : "deactivated" }
-          }
-
-          return image
-        })
-      )
+      await mutation.mutateAsync({ imageId })
 
       setToastData({
         variant: "success",
@@ -249,8 +241,6 @@ export function ImageListView({ images, permissions, client }: ImagePageProps) {
         autoDismissTimeout: 3000,
         onDismiss: handleToastDismiss,
       })
-    } finally {
-      setIsLoading(false)
     }
   }
 
@@ -271,16 +261,14 @@ export function ImageListView({ images, permissions, client }: ImagePageProps) {
   if (isLoading) {
     return (
       <div data-testid="loading">
-        <div data-testid="loading">
-          <DataGridRow>
-            <DataGridCell colSpan={3}>
-              <Stack distribution="center" alignment="center">
-                <Spinner variant="primary" />
-                <Trans>Loading...</Trans>
-              </Stack>
-            </DataGridCell>
-          </DataGridRow>
-        </div>
+        <DataGridRow>
+          <DataGridCell colSpan={3}>
+            <Stack distribution="center" alignment="center">
+              <Spinner variant="primary" />
+              <Trans>Loading...</Trans>
+            </Stack>
+          </DataGridCell>
+        </DataGridRow>
       </div>
     )
   }
@@ -298,7 +286,7 @@ export function ImageListView({ images, permissions, client }: ImagePageProps) {
       </div>
 
       {/* Images Table */}
-      {cachedImages.length > 0 ? (
+      {images.length > 0 ? (
         <>
           <DataGrid columns={8} minContentColumns={[7]} className="images" data-testid="images-table">
             {/* Table Header */}
@@ -328,7 +316,7 @@ export function ImageListView({ images, permissions, client }: ImagePageProps) {
             </DataGridRow>
 
             {/* Table Body */}
-            {cachedImages.map((image) => (
+            {images.map((image) => (
               <ImageTableRow
                 image={image}
                 key={image.id}
