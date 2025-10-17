@@ -11,12 +11,11 @@ export const Images = () => {
     // If pageParam exists, only pass 'next' (it already contains limit and other params)
     // Otherwise, pass the initial query params with limit
     const params = pageParam ? { next: pageParam } : { limit: 15 }
-
-    return await utils.compute.listImagesWithPagination.fetch(params)
+    return await utils.client.compute.listImagesWithPagination.query(params)
   }
 
   const { data, error, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage, status } = useInfiniteQuery({
-    queryKey: ["images"],
+    queryKey: [["compute", "listImagesWithPagination"], { input: { limit: 15 }, type: "query" }],
     queryFn: fetchImages,
     getNextPageParam: (lastPage) => {
       // Return the full next URL from the API response

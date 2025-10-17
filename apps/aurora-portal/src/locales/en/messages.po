@@ -300,7 +300,7 @@ msgstr "Ephemeral Disk (GiB)"
 msgid "Ephemeral Disk must be an integer ≥ 0."
 msgstr "Ephemeral Disk must be an integer ≥ 0."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/List.tsx:46
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/List.tsx:45
 msgid "Error: {errorMessage}"
 msgstr "Error: {errorMessage}"
 
@@ -560,7 +560,7 @@ msgstr "Loading Flavors..."
 msgid "Loading Gardener..."
 msgstr "Loading Gardener..."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/List.tsx:36
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/List.tsx:35
 msgid "Loading Images..."
 msgstr "Loading Images..."
 
