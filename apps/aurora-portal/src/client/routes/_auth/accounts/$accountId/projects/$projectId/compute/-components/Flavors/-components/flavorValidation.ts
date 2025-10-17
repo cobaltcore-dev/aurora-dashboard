@@ -4,7 +4,7 @@ import { Flavor } from "@/server/Compute/types/flavor"
 
 export const validateField = (
   field: FlavorFormField,
-  value: string | number | null | undefined,
+  value: string | number | boolean | null | undefined,
   t: (descriptor: MessageDescriptor) => string
 ): string | undefined => {
   switch (field) {
@@ -62,6 +62,19 @@ export const validateField = (
       return !isNaN(ephemeral) && ephemeral >= 0 ? undefined : t(msg`Ephemeral Disk must be an integer ≥ 0.`)
     }
 
+    case "os-flavor-access:is_public": {
+      if (value === undefined || value === null) {
+        return undefined
+      }
+      if (typeof value === "boolean") {
+        return undefined
+      }
+      if (typeof value === "string" && (value === "true" || value === "false")) {
+        return undefined
+      }
+      return t(msg`Invalid value for public flavor setting.`)
+    }
+
     default:
       return undefined
   }
@@ -77,6 +90,7 @@ export type FlavorFormField =
   | "description"
   | "rxtx_factor"
   | "OS-FLV-EXT-DATA:ephemeral"
+  | "os-flavor-access:is_public"
 
 export interface FieldErrors {
   id?: string
@@ -88,6 +102,7 @@ export interface FieldErrors {
   rxtx_factor?: string
   description?: string
   "OS-FLV-EXT-DATA:ephemeral"?: string
+  "os-flavor-access:is_public"?: string
 }
 
 export const cleanFlavorData = (flavor: Partial<Flavor>) => {
@@ -101,6 +116,7 @@ export const cleanFlavorData = (flavor: Partial<Flavor>) => {
     swap?: number
     rxtx_factor?: number
     description?: string
+    "os-flavor-access:is_public"?: boolean
   } = {
     name: String(flavor.name),
     vcpus: Number(flavor.vcpus),
@@ -134,6 +150,10 @@ export const cleanFlavorData = (flavor: Partial<Flavor>) => {
 
   if (isValidNumber(flavor["OS-FLV-EXT-DATA:ephemeral"])) {
     result["OS-FLV-EXT-DATA:ephemeral"] = Number(flavor["OS-FLV-EXT-DATA:ephemeral"])
+  }
+
+  if (flavor["os-flavor-access:is_public"] !== undefined) {
+    result["os-flavor-access:is_public"] = Boolean(flavor["os-flavor-access:is_public"])
   }
 
   return result

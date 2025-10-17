@@ -142,7 +142,16 @@ describe("flavorRouter", () => {
 
       expect(mockCtx.validateSession).toHaveBeenCalled()
       expect(mockCtx.rescopeSession).toHaveBeenCalledWith({ projectId: "test-project-123" })
-      expect(flavorHelpers.fetchFlavors).toHaveBeenCalledWith(expect.objectContaining({ get: expect.any(Function) }))
+
+      expect(flavorHelpers.fetchFlavors).toHaveBeenCalledWith(
+        expect.objectContaining({
+          get: expect.any(Function),
+          post: expect.any(Function),
+          del: expect.any(Function),
+        }),
+        expect.any(String)
+      )
+
       expect(flavorHelpers.filterAndSortFlavors).toHaveBeenCalledWith(mockFlavors, "m1", "name", "desc")
       expect(result).toEqual(filteredAndSortedFlavors)
     })
@@ -159,6 +168,15 @@ describe("flavorRouter", () => {
       }
 
       const result = await caller.flavor.getFlavorsByProjectId(input)
+
+      expect(flavorHelpers.fetchFlavors).toHaveBeenCalledWith(
+        expect.objectContaining({
+          get: expect.any(Function),
+          post: expect.any(Function),
+          del: expect.any(Function),
+        }),
+        expect.any(String)
+      )
 
       expect(flavorHelpers.filterAndSortFlavors).toHaveBeenCalledWith(mockFlavors, "", "name", "asc")
       expect(result).toEqual(mockFlavors)

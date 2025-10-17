@@ -8,6 +8,9 @@ import {
   createExtraSpecs,
   getExtraSpecs,
   deleteExtraSpec,
+  getFlavorAccess,
+  addTenantAccess,
+  removeTenantAccess,
 } from "../helpers/flavorHelpers"
 import { Flavor } from "../types/flavor"
 import { TRPCError } from "@trpc/server"
@@ -21,11 +24,12 @@ export const flavorRouter = {
         sortBy: z.string().optional().default("name"),
         sortDirection: z.string().optional().default("asc"),
         searchTerm: z.string().optional().default(""),
+        isPublic: z.string().optional().default("None"),
       })
     )
     .query(async ({ input, ctx }) => {
       try {
-        const { projectId, sortBy, sortDirection, searchTerm } = input
+        const { projectId, sortBy, sortDirection, searchTerm, isPublic } = input
 
         const openstackSession = await ctx.rescopeSession({ projectId })
         const compute = openstackSession?.service("compute")
@@ -35,7 +39,7 @@ export const flavorRouter = {
             message: ERROR_CODES.COMPUTE_SERVICE_UNAVAILABLE,
           })
         }
-        const flavors = await fetchFlavors(compute)
+        const flavors = await fetchFlavors(compute, isPublic)
 
         return filterAndSortFlavors(flavors, searchTerm, sortBy as keyof Flavor, sortDirection)
       } catch (error) {
@@ -63,6 +67,7 @@ export const flavorRouter = {
           swap: z.number().optional(),
           rxtx_factor: z.number().optional(),
           "OS-FLV-EXT-DATA:ephemeral": z.number().optional(),
+          "os-flavor-access:is_public": z.boolean().optional(),
         }),
       })
     )
@@ -234,6 +239,129 @@ export const flavorRouter = {
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: ERROR_CODES.DELETE_EXTRA_SPEC_FAILED,
+          cause: error,
+        })
+      }
+    }),
+  getFlavorAccess: protectedProcedure
+    .input(
+      z.object({
+        projectId: z.string(),
+        flavorId: z.string(),
+      })
+    )
+    .query(async ({ input, ctx }) => {
+      try {
+        const { projectId, flavorId } = input
+
+        const openstackSession = await ctx.rescopeSession({ projectId })
+        const compute = openstackSession?.service("compute")
+        if (!compute) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: ERROR_CODES.COMPUTE_SERVICE_UNAVAILABLE,
+          })
+        }
+
+        // First, get the flavor details to check if it's public
+        const flavorResponse = await compute.get(`flavors/${flavorId}`)
+        if (!flavorResponse.ok) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: ERROR_CODES.GET_FLAVOR_ACCESS_NOT_FOUND,
+          })
+        }
+
+        const flavorData = await flavorResponse.json()
+        const isPublic = flavorData.flavor["os-flavor-access:is_public"]
+
+        // If flavor is public, return empty array since public flavors don't have access restrictions
+        if (isPublic !== false) {
+          return []
+        }
+
+        // Only call the access API for private flavors
+        const result = await getFlavorAccess(compute, flavorId)
+        return result
+      } catch (error) {
+        if (error instanceof TRPCError) {
+          throw error
+        }
+
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: ERROR_CODES.GET_FLAVOR_ACCESS_FAILED,
+          cause: error,
+        })
+      }
+    }),
+  addTenantAccess: protectedProcedure
+    .input(
+      z.object({
+        projectId: z.string(),
+        flavorId: z.string(),
+        tenantId: z.string(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      try {
+        const { projectId, flavorId, tenantId } = input
+
+        const openstackSession = await ctx.rescopeSession({ projectId })
+        const compute = openstackSession?.service("compute")
+        if (!compute) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: ERROR_CODES.COMPUTE_SERVICE_UNAVAILABLE,
+          })
+        }
+
+        const result = await addTenantAccess(compute, flavorId, tenantId)
+        return result
+      } catch (error) {
+        if (error instanceof TRPCError) {
+          throw error
+        }
+
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: ERROR_CODES.ADD_TENANT_ACCESS_FAILED,
+          cause: error,
+        })
+      }
+    }),
+
+  removeTenantAccess: protectedProcedure
+    .input(
+      z.object({
+        projectId: z.string(),
+        flavorId: z.string(),
+        tenantId: z.string(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      try {
+        const { projectId, flavorId, tenantId } = input
+
+        const openstackSession = await ctx.rescopeSession({ projectId })
+        const compute = openstackSession?.service("compute")
+        if (!compute) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: ERROR_CODES.COMPUTE_SERVICE_UNAVAILABLE,
+          })
+        }
+
+        const result = await removeTenantAccess(compute, flavorId, tenantId)
+        return result
+      } catch (error) {
+        if (error instanceof TRPCError) {
+          throw error
+        }
+
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: ERROR_CODES.REMOVE_TENANT_ACCESS_FAILED,
           cause: error,
         })
       }

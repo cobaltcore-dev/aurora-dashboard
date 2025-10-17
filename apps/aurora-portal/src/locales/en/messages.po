@@ -59,13 +59,9 @@ msgstr "Add Extra Spec"
 msgid "After continuing, your project will no longer have access to the <0>{clusterName}</0> resources."
 msgstr "After continuing, your project will no longer have access to the <0>{clusterName}</0> resources."
 
-#: src/client/utils/useErrorTranslation.ts:103
+#: src/client/utils/useErrorTranslation.ts:115
 msgid "An unexpected error occurred. Please try again."
 msgstr "An unexpected error occurred. Please try again."
-
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FilterToolbar.tsx:63
-msgid "Ascending"
-msgstr "Ascending"
 
 #: src/client/routes/about.tsx:28
 msgid "At Aurora, our mission is to provide a centralized platform that unifies cloud management. We aim to simplify the complexities of provisioning, configuring, and scaling resources across diverse cloud environments while enabling seamless growth for your business."
@@ -162,7 +158,7 @@ msgstr "CPU"
 msgid "Create Cluster"
 msgstr "Create Cluster"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FilterToolbar.tsx:72
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FilterToolbar.tsx:80
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/CreateFlavorModal.tsx:135
 msgid "Create Flavor"
 msgstr "Create Flavor"
@@ -195,14 +191,10 @@ msgstr "Delete {specKey}"
 msgid "Delete Cluster"
 msgstr "Delete Cluster"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:147
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:164
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/DeleteFlavorModal.tsx:82
 msgid "Delete Flavor"
 msgstr "Delete Flavor"
-
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FilterToolbar.tsx:64
-msgid "Descending"
-msgstr "Descending"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/CreateFlavorModal.tsx:182
 msgid "Description"
@@ -245,7 +237,7 @@ msgstr "Edit Extra Specs"
 msgid "Enter key"
 msgstr "Enter key"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FilterToolbar.tsx:44
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FilterToolbar.tsx:52
 msgid "Enter search term or regex"
 msgstr "Enter search term or regex"
 
@@ -269,11 +261,11 @@ msgstr "Enter your domain"
 msgid "Enter your username"
 msgstr "Enter your username"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FilterToolbar.tsx:58
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FilterToolbar.tsx:66
 msgid "Ephemeral Disk"
 msgstr "Ephemeral Disk"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:119
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:128
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/CreateFlavorModal.tsx:232
 msgid "Ephemeral Disk (GiB)"
 msgstr "Ephemeral Disk (GiB)"
@@ -294,7 +286,7 @@ msgstr "Extra spec \"{trimmedKey}\" has been added successfully."
 msgid "Extra spec key is required and cannot be empty."
 msgstr "Extra spec key is required and cannot be empty."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:143
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:152
 msgid "Extra Specs"
 msgstr "Extra Specs"
 
@@ -334,6 +326,10 @@ msgstr "Failed to delete the extra spec. Please try again."
 msgid "Failed to delete the flavor. Please try again."
 msgstr "Failed to delete the flavor. Please try again."
 
+#: src/client/utils/useErrorTranslation.ts:106
+msgid "Failed to fetch flavor access information. Please try again."
+msgstr "Failed to fetch flavor access information. Please try again."
+
 #: src/client/utils/useErrorTranslation.ts:18
 msgid "Failed to fetch flavors from server."
 msgstr "Failed to fetch flavors from server."
@@ -358,14 +354,15 @@ msgstr "Find detailed guides and references in our docs."
 msgid "Fingerprint"
 msgstr "Fingerprint"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/List.tsx:136
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/List.tsx:138
 msgid "Flavor \"{flavorName}\" has been successfully created."
 msgstr "Flavor \"{flavorName}\" has been successfully created."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/List.tsx:127
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/List.tsx:129
 msgid "Flavor \"{flavorName}\" has been successfully deleted."
 msgstr "Flavor \"{flavorName}\" has been successfully deleted."
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/ManageAccessModal.tsx:87
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/CreateFlavorModal.tsx:159
 msgid "Flavor ID"
 msgstr "Flavor ID"
@@ -501,7 +498,7 @@ msgstr "Loading Server Groups..."
 
 #: src/client/routes/auth/login.tsx:165
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Overview.tsx:114
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:73
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:82
 msgid "Loading..."
 msgstr "Loading..."
 
@@ -525,6 +522,11 @@ msgstr "Machine Type"
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail/SettingsSection.tsx:24
 msgid "Maintenance Window"
 msgstr "Maintenance Window"
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/ManageAccessModal.tsx:143
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:156
+msgid "Manage Access"
+msgstr "Manage Access"
 
 #: src/client/routes/index.tsx:22
 msgid "Manage OpenStack with "
@@ -551,8 +553,8 @@ msgid "Minimum Nodes"
 msgstr "Minimum Nodes"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail/WorkerSection.tsx:29
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:107
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FilterToolbar.tsx:54
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:116
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FilterToolbar.tsx:62
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/DeleteFlavorModal.tsx:116
 msgid "Name"
 msgstr "Name"
@@ -583,7 +585,7 @@ msgstr "No extra specs found. Click \"Add Extra Spec\" to create one."
 msgid "No flavor selected for deletion."
 msgstr "No flavor selected for deletion."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:88
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:97
 msgid "No flavors found"
 msgstr "No flavors found"
 
@@ -600,6 +602,10 @@ msgstr "No server groups available."
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Instances/-components/ServerListView.tsx:122
 msgid "No servers available."
 msgstr "No servers available."
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/ManageAccessModal.tsx:101
+msgid "No tenant access found for this flavor."
+msgstr "No tenant access found for this flavor."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterWizard/InfrastructureStep.tsx:97
 msgid "Nodes CIDR"
@@ -647,12 +653,12 @@ msgid "Policy"
 msgstr "Policy"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Instances/-components/ServerListView.tsx:25
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FilterToolbar.tsx:56
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FilterToolbar.tsx:64
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/DeleteFlavorModal.tsx:128
 msgid "RAM"
 msgstr "RAM"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:113
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:122
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/CreateFlavorModal.tsx:206
 msgid "RAM (MiB)"
 msgstr "RAM (MiB)"
@@ -682,11 +688,11 @@ msgstr "Restart"
 msgid "Retry"
 msgstr "Retry"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FilterToolbar.tsx:57
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FilterToolbar.tsx:65
 msgid "Root Disk"
 msgstr "Root Disk"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:116
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:125
 msgid "Root Disk (GiB)"
 msgstr "Root Disk (GiB)"
 
@@ -694,8 +700,8 @@ msgstr "Root Disk (GiB)"
 msgid "Root Disk must be an integer ≥ 0."
 msgstr "Root Disk must be an integer ≥ 0."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:125
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FilterToolbar.tsx:60
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:134
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FilterToolbar.tsx:68
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/CreateFlavorModal.tsx:256
 msgid "RX/TX Factor"
 msgstr "RX/TX Factor"
@@ -740,6 +746,10 @@ msgstr "Server error occurred while deleting the flavor. Please try again later.
 msgid "Server error occurred while fetching extra specs. Please try again later."
 msgstr "Server error occurred while fetching extra specs. Please try again later."
 
+#: src/client/utils/useErrorTranslation.ts:104
+msgid "Server error occurred while fetching flavor access information. Please try again later."
+msgstr "Server error occurred while fetching flavor access information. Please try again later."
+
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/ComputeNavBar.tsx:22
 msgid "Server Groups"
 msgstr "Server Groups"
@@ -781,7 +791,7 @@ msgstr "Sign In"
 msgid "Something went wrong:"
 msgstr "Something went wrong:"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FilterToolbar.tsx:53
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FilterToolbar.tsx:61
 msgid "sort by"
 msgstr "sort by"
 
@@ -798,12 +808,12 @@ msgstr "Status"
 msgid "Surge:"
 msgstr "Surge:"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FilterToolbar.tsx:59
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FilterToolbar.tsx:67
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/DeleteFlavorModal.tsx:137
 msgid "Swap"
 msgstr "Swap"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:122
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:131
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/CreateFlavorModal.tsx:244
 msgid "Swap (MiB)"
 msgstr "Swap (MiB)"
@@ -812,7 +822,11 @@ msgstr "Swap (MiB)"
 msgid "Swap Disk must be an integer ≥ 0."
 msgstr "Swap Disk must be an integer ≥ 0."
 
-#: src/client/utils/useErrorTranslation.ts:98
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/ManageAccessModal.tsx:88
+msgid "Tenant ID"
+msgstr "Tenant ID"
+
+#: src/client/utils/useErrorTranslation.ts:110
 msgid "The compute service is currently unavailable for this project. Please try again later."
 msgstr "The compute service is currently unavailable for this project. Please try again later."
 
@@ -833,6 +847,7 @@ msgid "The flavor could not be found. It may have already been deleted."
 msgstr "The flavor could not be found. It may have already been deleted."
 
 #: src/client/utils/useErrorTranslation.ts:56
+#: src/client/utils/useErrorTranslation.ts:102
 msgid "The flavor could not be found. It may have been deleted."
 msgstr "The flavor could not be found. It may have been deleted."
 
@@ -845,7 +860,7 @@ msgstr "The flavor data provided is invalid. Please check your input."
 msgid "The floating IP pool to use for the cluster's external network access"
 msgstr "The floating IP pool to use for the cluster's external network access"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:91
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:100
 msgid "There are no flavors available for this project with the current filters applied. Try adjusting your filter criteria or create a new flavor."
 msgstr "There are no flavors available for this project with the current filters applied. Try adjusting your filter criteria or create a new flavor."
 
@@ -877,7 +892,7 @@ msgstr "Try again"
 msgid "Type"
 msgstr "Type"
 
-#: src/client/utils/useErrorTranslation.ts:100
+#: src/client/utils/useErrorTranslation.ts:112
 msgid "Unable to connect to the compute service. Please check your connection and try again."
 msgstr "Unable to connect to the compute service. Please check your connection and try again."
 
@@ -893,11 +908,11 @@ msgstr "User C/D/I"
 msgid "Value"
 msgstr "Value"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:110
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:119
 msgid "vCPU"
 msgstr "vCPU"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FilterToolbar.tsx:55
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FilterToolbar.tsx:63
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/DeleteFlavorModal.tsx:124
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/CreateFlavorModal.tsx:193
 msgid "VCPUs"
@@ -963,6 +978,10 @@ msgstr "Would you like to remove the <0>{clusterName}</0> from your project?"
 msgid "You are already signed in."
 msgstr "You are already signed in."
 
+#: src/client/utils/useErrorTranslation.ts:98
+msgid "You are not authorized to access flavor access information. Please log in again."
+msgstr "You are not authorized to access flavor access information. Please log in again."
+
 #: src/client/utils/useErrorTranslation.ts:52
 msgid "You are not authorized to create extra specs. Please log in again."
 msgstr "You are not authorized to create extra specs. Please log in again."
@@ -986,6 +1005,10 @@ msgstr "You are not authorized to view extra specs. Please log in again."
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail.tsx:76
 msgid "You can now share this information with your team"
 msgstr "You can now share this information with your team"
+
+#: src/client/utils/useErrorTranslation.ts:100
+msgid "You don't have permission to access flavor access information for this flavor."
+msgstr "You don't have permission to access flavor access information for this flavor."
 
 #: src/client/utils/useErrorTranslation.ts:12
 msgid "You don't have permission to access flavors for this project."
