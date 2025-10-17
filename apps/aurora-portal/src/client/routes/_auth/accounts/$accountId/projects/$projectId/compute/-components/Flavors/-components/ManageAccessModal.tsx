@@ -1,4 +1,4 @@
-import React, { use, Suspense, useState, startTransition } from "react"
+import React, { use, Suspense, useState, startTransition, useEffect } from "react"
 import { TrpcClient } from "@/client/trpcClient"
 import { useLingui } from "@lingui/react/macro"
 import { useErrorTranslation } from "@/client/utils/useErrorTranslation"
@@ -81,9 +81,8 @@ function AccessContent({
   const { translateError } = useErrorTranslation()
 
   const permissions = use(permissionsPromise)
-  const initialFlavorAccess = use(flavorAccessPromise)
+  const flavorAccess = use(flavorAccessPromise) // Direkt verwenden - React 19 macht es reaktiv
 
-  const [flavorAccess, setFlavorAccess] = useState(initialFlavorAccess)
   const [tenantId, setTenantId] = useState("")
   const [errors, setErrors] = useState<{ tenantId?: string }>({})
   const [deletingTenants, setDeletingTenants] = useState<Set<string>>(new Set())
@@ -127,7 +126,6 @@ function AccessContent({
         tenantId: trimmedTenantId,
       })
 
-      setFlavorAccess(updatedAccess)
       onAccessUpdate(updatedAccess)
 
       setMessage({
@@ -136,9 +134,11 @@ function AccessContent({
       })
       resetForm()
       setIsAddingAccess(false)
-    } catch (error: any) {
+    } catch (error) {
+      const errorMessage = (error as Error)?.message || "Failed to add tenant access"
+
       setMessage({
-        text: translateError(error?.message || "Failed to add tenant access"),
+        text: translateError(errorMessage || "Failed to add tenant access"),
         type: "error",
       })
     } finally {
@@ -156,15 +156,16 @@ function AccessContent({
         tenantId: tenantIdToRemove,
       })
 
-      setFlavorAccess(updatedAccess)
       onAccessUpdate(updatedAccess)
       setMessage({
         text: t`Tenant access for "${tenantIdToRemove}" has been removed successfully.`,
         type: "success",
       })
-    } catch (error: any) {
+    } catch (error) {
+      const errorMessage = (error as Error)?.message || "Failed to remove tenant access"
+
       setMessage({
-        text: translateError(error?.message || `Failed to remove tenant access for "${tenantIdToRemove}"`),
+        text: translateError(errorMessage || `Failed to remove tenant access for "${tenantIdToRemove}"`),
         type: "error",
       })
     } finally {
@@ -181,18 +182,13 @@ function AccessContent({
     if (errors.tenantId) setErrors((prev) => ({ ...prev, tenantId: undefined }))
   }
 
-  // Update local state when access is updated externally
-  React.useEffect(() => {
-    setFlavorAccess(initialFlavorAccess)
-  }, [initialFlavorAccess])
-
-  // Don't show add button for public flavors
   if (isPublicFlavor) {
     return (
       <DataGrid columns={3}>
         <DataGridRow>
           <DataGridHeadCell>{t`Flavor ID`}</DataGridHeadCell>
           <DataGridHeadCell>{t`Tenant ID`}</DataGridHeadCell>
+          <DataGridHeadCell> </DataGridHeadCell>
         </DataGridRow>
         <DataGridRow>
           <DataGridCell colSpan={3} className="text-center py-4 text-theme-default">
@@ -243,7 +239,7 @@ function AccessContent({
 
         {flavorAccess.map((access, index) => (
           <TenantAccessRow
-            key={`${access.flavor_id}-${access.tenant_id}-${index}`}
+            key={`${access.tenant_id}-${index}`}
             access={access}
             isDeleting={deletingTenants.has(access.tenant_id)}
             onDelete={() => handleRemoveTenant(access.tenant_id)}
@@ -253,7 +249,7 @@ function AccessContent({
 
         {shouldShowEmptyState && (
           <DataGridRow>
-            <DataGridCell colSpan={permissions.canRemove ? 3 : 2} className="text-center py-4 text-theme-default">
+            <DataGridCell colSpan={3} className="text-center py-4 text-theme-default">
               {t`No specific tenant access configured for this private flavor. Click "Add Tenant Access" to grant access.`}
             </DataGridCell>
           </DataGridRow>
@@ -272,7 +268,7 @@ export const ManageAccessModal: React.FC<ManageAccessProps> = ({ client, isOpen,
 
   const permissionsPromise = React.useMemo(() => (isOpen ? createPermissionsPromise(client) : null), [client, isOpen])
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (isOpen && flavor?.id) {
       startTransition(() => {
         setFlavorAccessPromise(createFlavorAccessPromise(client, project, flavor.id))

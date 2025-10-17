@@ -112,6 +112,7 @@ describe("CreateFlavorModal", () => {
         vcpus: 4,
         ram: 2048,
         disk: 20,
+        "os-flavor-access:is_public": true,
       },
     })
     expect(mockOnSuccess).toHaveBeenCalledWith("TestFlavor")

@@ -160,9 +160,13 @@ describe("fetchFlavors", () => {
       del: vi.fn(),
     }
 
-    const flavors = await fetchFlavors(mockCompute)
+    const flavors = await fetchFlavors(mockCompute, "true")
     expect(flavors).toEqual(mockFlavors)
-    expect(mockCompute.get).toHaveBeenCalledWith("flavors/detail")
+    expect(mockCompute.get).toHaveBeenCalledWith("flavors/detail", {
+      queryParams: {
+        is_public: "true",
+      },
+    })
   })
 
   it("should throw PARSE_ERROR if Zod parsing fails", async () => {
@@ -175,7 +179,7 @@ describe("fetchFlavors", () => {
       del: vi.fn(),
     }
 
-    await expect(fetchFlavors(mockCompute)).rejects.toThrow(
+    await expect(fetchFlavors(mockCompute, "true")).rejects.toThrow(
       new TRPCError({
         code: "PARSE_ERROR",
         message: ERROR_CODES.FLAVORS_PARSE_ERROR,
@@ -193,7 +197,7 @@ describe("fetchFlavors", () => {
       del: vi.fn(),
     }
 
-    await expect(fetchFlavors(mockCompute)).rejects.toThrow(
+    await expect(fetchFlavors(mockCompute, "true")).rejects.toThrow(
       new TRPCError({
         code: "UNAUTHORIZED",
         message: ERROR_CODES.FLAVORS_UNAUTHORIZED,
@@ -211,7 +215,7 @@ describe("fetchFlavors", () => {
       del: vi.fn(),
     }
 
-    await expect(fetchFlavors(mockCompute)).rejects.toThrow(
+    await expect(fetchFlavors(mockCompute, "true")).rejects.toThrow(
       new TRPCError({
         code: "FORBIDDEN",
         message: ERROR_CODES.FLAVORS_FORBIDDEN,
@@ -229,7 +233,7 @@ describe("fetchFlavors", () => {
       del: vi.fn(),
     }
 
-    await expect(fetchFlavors(mockCompute)).rejects.toThrow(
+    await expect(fetchFlavors(mockCompute, "true")).rejects.toThrow(
       new TRPCError({
         code: "NOT_FOUND",
         message: ERROR_CODES.FLAVORS_NOT_FOUND,
@@ -247,7 +251,7 @@ describe("fetchFlavors", () => {
       del: vi.fn(),
     }
 
-    await expect(fetchFlavors(mockCompute)).rejects.toThrow(
+    await expect(fetchFlavors(mockCompute, "true")).rejects.toThrow(
       new TRPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: ERROR_CODES.FLAVORS_SERVER_ERROR,
@@ -265,7 +269,7 @@ describe("fetchFlavors", () => {
       del: vi.fn(),
     }
 
-    await expect(fetchFlavors(mockCompute)).rejects.toThrow(
+    await expect(fetchFlavors(mockCompute, "true")).rejects.toThrow(
       new TRPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: ERROR_CODES.FLAVORS_SERVER_ERROR,
@@ -283,7 +287,7 @@ describe("fetchFlavors", () => {
       del: vi.fn(),
     }
 
-    await expect(fetchFlavors(mockCompute)).rejects.toThrow(
+    await expect(fetchFlavors(mockCompute, "true")).rejects.toThrow(
       new TRPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: ERROR_CODES.FLAVORS_SERVER_ERROR,
@@ -301,7 +305,7 @@ describe("fetchFlavors", () => {
       del: vi.fn(),
     }
 
-    await expect(fetchFlavors(mockCompute)).rejects.toThrow(
+    await expect(fetchFlavors(mockCompute, "true")).rejects.toThrow(
       new TRPCError({
         code: "BAD_REQUEST",
         message: ERROR_CODES.FLAVORS_FETCH_FAILED,

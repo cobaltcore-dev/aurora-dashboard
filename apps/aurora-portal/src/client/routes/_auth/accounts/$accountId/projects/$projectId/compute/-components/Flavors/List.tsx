@@ -167,25 +167,25 @@ export const Flavors = ({ client, project }: FlavorsProps) => {
 
   return (
     <div className="relative">
-      {success && (
-        <Message
-          className="absolute -top-14 left-0 right-0 z-50"
-          text={success.message}
-          variant="success"
-          onDismiss={() => setSuccess(undefined)}
-          dismissible
-        />
-      )}
+      <ErrorBoundary fallback={<ErrorFallback onRetry={refetchFlavors} />}>
+        {success && (
+          <Message
+            className="absolute -top-14 left-0 right-0 z-50"
+            text={success.message}
+            variant="success"
+            onDismiss={() => setSuccess(undefined)}
+            dismissible
+          />
+        )}
 
-      <Suspense
-        fallback={
-          <Stack className="fixed inset-0" distribution="center" alignment="center" direction="vertical">
-            <Spinner variant="primary" size="large" className="mb-2" />
-            <Trans>Loading Flavors...</Trans>
-          </Stack>
-        }
-      >
-        <ErrorBoundary fallback={<ErrorFallback onRetry={refetchFlavors} />}>
+        <Suspense
+          fallback={
+            <Stack className="fixed inset-0" distribution="center" alignment="center" direction="vertical">
+              <Spinner variant="primary" size="large" className="mb-2" />
+              <Trans>Loading Flavors...</Trans>
+            </Stack>
+          }
+        >
           <FlavorsContent
             flavorsPromise={flavorsPromise}
             permissionsPromise={permissionsPromise}
@@ -202,8 +202,8 @@ export const Flavors = ({ client, project }: FlavorsProps) => {
             createModalOpen={createModalOpen}
             setCreateModalOpen={setCreateModalOpen}
           />
-        </ErrorBoundary>
-      </Suspense>
+        </Suspense>
+      </ErrorBoundary>
     </div>
   )
 }

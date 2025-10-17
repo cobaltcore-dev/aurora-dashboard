@@ -68,6 +68,7 @@ const FilterToolbar: React.FC<FilterToolbarProps> = ({
                 <SelectOption value="rxtx_factor">{t`RX/TX Factor`}</SelectOption>
               </Select>
               <SortButton
+                data-testid="direction-toggle"
                 order={sortDirection}
                 onOrderChange={(order: string) => handleSortDirectionChange(order as "asc" | "desc")}
               />

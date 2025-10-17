@@ -1,10 +1,11 @@
 import { useState, useCallback } from "react"
-import { createFileRoute, redirect, useRouter, useRouterState } from "@tanstack/react-router"
+import { createFileRoute, redirect, useRouterState } from "@tanstack/react-router"
 import { useAuth } from "../../store/AuthProvider"
 import { z } from "zod"
 import { trpcClient } from "../../trpcClient"
 import { Trans, useLingui } from "@lingui/react/macro"
-import { Button, ContentHeading } from "@cloudoperators/juno-ui-components"
+import { Button, ContentHeading, Message } from "@cloudoperators/juno-ui-components"
+import { useErrorTranslation } from "../../utils/useErrorTranslation" // Adjust the import path as needed
 
 export const Route = createFileRoute("/auth/login")({
   validateSearch: z.object({
@@ -41,17 +42,20 @@ const textinputstyles = `
 
 export function AuthLoginPage() {
   const { isAuthenticated, user, login } = useAuth()
-  const router = useRouter()
   const isLoading = useRouterState({ select: (s) => s.isLoading })
   const navigate = Route.useNavigate()
   const search = Route.useSearch()
   const { t } = useLingui()
+  const { translateError } = useErrorTranslation()
 
   const [form, setForm] = useState({ domainName: "", user: "", password: "" })
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [loginError, setLoginError] = useState<string | null>(null)
 
   const signin = useCallback(async () => {
     setIsSubmitting(true)
+    setLoginError(null) // Clear any previous errors
+
     try {
       const token = await trpcClient.auth.createUserSession.mutate(form)
       login(token.user, token.expires_at)
@@ -62,17 +66,28 @@ export function AuthLoginPage() {
     } catch (error) {
       login(null)
       console.error("Error logging in: ", error)
+
+      // Handle different types of errors
+      const errorMessage = (error as Error)?.message
+        ? translateError((error as Error).message)
+        : t`Login failed. Please check your credentials and try again.`
+
+      setLoginError(errorMessage)
     } finally {
       setIsSubmitting(false)
     }
-  }, [form, router, navigate, search.redirect])
+  }, [form, login, navigate, search.redirect, t, translateError])
+
+  const dismissError = () => {
+    setLoginError(null)
+  }
 
   const isLoggingIn = isLoading || isSubmitting
 
   if (isAuthenticated) {
     const username = user?.name
     return (
-      <div className="flex h-[80vh]items-center justify-center">
+      <div className="flex h-[80vh] items-center justify-center">
         <div className="max-w-md w-full text-center shadow-lg rounded-lg p-6 border border-gray-300">
           <h2 className="text-xl font-semibold">
             <Trans>Welcome back, {username}!</Trans>
@@ -86,12 +101,21 @@ export function AuthLoginPage() {
   }
 
   return (
-    <div className="flex h-[80vh] items-center justify-center">
-      <div className="w-full max-w-md shadow-lg rounded-lg p-6 border border-gray-700 bg-gray-900">
-        <ContentHeading className="text-center ">
+    <div className="flex h-[80vh] items-center justify-center ">
+      <div className="w-full max-w-md shadow-lg rounded-lg p-6 border border-theme-light relative">
+        {loginError && (
+          <Message
+            onDismiss={dismissError}
+            text={loginError}
+            variant="error"
+            className="absolute -top-14 left-0 right-0 z-50"
+          />
+        )}
+
+        <ContentHeading className="text-center">
           <Trans>Login to Your Account</Trans>
         </ContentHeading>
-        <p className=" text-center  mb-6">
+        <p className="text-center mb-6">
           <Trans>Enter your credentials to access your account</Trans>
         </p>
 
@@ -118,12 +142,14 @@ export function AuthLoginPage() {
               type="text"
               placeholder={t`Enter your domain`}
               className={textinputstyles}
-              onChange={(e) => setForm({ ...form, domainName: e.target.value })}
+              onChange={(e) => {
+                setForm({ ...form, domainName: e.target.value })
+                if (loginError) setLoginError(null)
+              }}
               required
             />
           </div>
 
-          {/* User Input */}
           <div className="flex flex-col">
             <label htmlFor="user" className="text-gray-300 font-medium">
               <Trans>User C/D/I</Trans>
@@ -133,7 +159,11 @@ export function AuthLoginPage() {
               type="text"
               placeholder={t`Enter your username`}
               className={textinputstyles}
-              onChange={(e) => setForm({ ...form, user: e.target.value })}
+              onChange={(e) => {
+                setForm({ ...form, user: e.target.value })
+                // Clear error when user starts typing
+                if (loginError) setLoginError(null)
+              }}
               required
             />
           </div>
@@ -148,12 +178,14 @@ export function AuthLoginPage() {
               type="password"
               required
               className={textinputstyles}
-              onChange={(e) => setForm({ ...form, password: e.target.value })}
+              onChange={(e) => {
+                setForm({ ...form, password: e.target.value })
+                if (loginError) setLoginError(null)
+              }}
               onKeyUp={(e) => e.key === "Enter" && signin()}
             />
           </div>
 
-          {/* Sign In Button */}
           <Button
             className="w-full"
             disabled={isLoggingIn}

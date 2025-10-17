@@ -27,7 +27,6 @@ describe("FilterToolbar", () => {
 
     expect(screen.getByTestId("search-input")).toBeInTheDocument()
     expect(screen.getByTestId("sort-select")).toBeInTheDocument()
-    expect(screen.getByTestId("direction-select")).toBeInTheDocument()
   })
 
   it("shows create button when user can create flavors", () => {
@@ -82,11 +81,8 @@ describe("FilterToolbar", () => {
   it("handles sort direction changes", async () => {
     render(<FilterToolbar {...defaultProps} />, { wrapper: TestWrapper })
 
-    const directionSelect = screen.getByTestId("direction-select")
+    const directionSelect = screen.getByTestId("direction-toggle")
     fireEvent.click(directionSelect)
-
-    const descendingOption = await screen.findByText("Descending")
-    fireEvent.click(descendingOption)
 
     expect(defaultProps.handleSortDirectionChange).toHaveBeenCalledWith("desc")
   })
