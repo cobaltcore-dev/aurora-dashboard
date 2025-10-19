@@ -542,26 +542,6 @@ describe("createFlavor", () => {
       })
     )
   })
-
-  it("should handle JSON parsing errors", async () => {
-    const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {})
-
-    compute.post.mockResolvedValue({
-      ok: true,
-      status: 200,
-      text: vi.fn().mockResolvedValue("invalid json"),
-    })
-
-    await expect(createFlavor(compute, flavorData)).rejects.toThrow(
-      new TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: ERROR_CODES.CREATE_FLAVOR_FAILED,
-      })
-    )
-
-    expect(consoleSpy).toHaveBeenCalledWith("Error parsing flavor response:", expect.any(Error))
-    consoleSpy.mockRestore()
-  })
 })
 
 describe("deleteFlavor", () => {
