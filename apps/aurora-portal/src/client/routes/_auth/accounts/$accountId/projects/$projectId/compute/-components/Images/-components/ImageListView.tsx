@@ -20,6 +20,7 @@ import { EditImageModal } from "./EditImageModal"
 import { ImageTableRow } from "./ImageTableRow"
 import { DeleteImageModal } from "./DeleteImageModal"
 import { CreateImageModal } from "./CreateImageModal"
+import { NotificationText } from "./NotificationText"
 
 interface ImagePageProps {
   images: GlanceImage[]
@@ -102,14 +103,10 @@ export function ImageListView({
     setToastData({
       variant: "success",
       children: (
-        <Stack direction="vertical" gap="1.5">
-          <span>
-            <Trans>Image Instance</Trans>
-          </span>
-          <span className="text-theme-light">
-            <Trans>Image instance "{imageName}" has been updated</Trans>
-          </span>
-        </Stack>
+        <NotificationText
+          title={<Trans>Image Instance</Trans>}
+          description={<Trans>Image instance "{imageName}" has been updated</Trans>}
+        />
       ),
       autoDismiss: true,
       autoDismissTimeout: 3000,
@@ -126,14 +123,10 @@ export function ImageListView({
     setToastData({
       variant: "success",
       children: (
-        <Stack direction="vertical" gap="1.5">
-          <span>
-            <Trans>Image Instance</Trans>
-          </span>
-          <span className="text-theme-light">
-            <Trans>Image instance "{imageName}" has been created</Trans>
-          </span>
-        </Stack>
+        <NotificationText
+          title={<Trans>Image Instance</Trans>}
+          description={<Trans>Image instance "{imageName}" has been created</Trans>}
+        />
       ),
       autoDismiss: true,
       autoDismissTimeout: 3000,
@@ -154,14 +147,10 @@ export function ImageListView({
       setToastData({
         variant: "success",
         children: (
-          <Stack direction="vertical" gap="1.5">
-            <span>
-              <Trans>Image Instance</Trans>
-            </span>
-            <span className="text-theme-light">
-              <Trans>Image instance "{imageName}" has been deleted</Trans>
-            </span>
-          </Stack>
+          <NotificationText
+            title={<Trans>Image Instance</Trans>}
+            description={<Trans>Image instance "{imageName}" has been deleted</Trans>}
+          />
         ),
         autoDismiss: true,
         autoDismissTimeout: 3000,
@@ -173,16 +162,14 @@ export function ImageListView({
       setToastData({
         variant: "error",
         children: (
-          <Stack direction="vertical" gap="1.5">
-            <span>
-              <Trans>Unable to Delete Image</Trans>
-            </span>
-            <span className="text-theme-light">
+          <NotificationText
+            title={<Trans>Unable to Delete Image</Trans>}
+            description={
               <Trans>
                 The image "{imageId}" could not be deleted: {message}
               </Trans>
-            </span>
-          </Stack>
+            }
+          />
         ),
         autoDismiss: true,
         autoDismissTimeout: 3000,
@@ -197,14 +184,10 @@ export function ImageListView({
     setToastData({
       variant: "success",
       children: (
-        <Stack direction="vertical" gap="1.5">
-          <span>
-            <Trans>Launch Instance</Trans>
-          </span>
-          <span className="text-theme-light">
-            <Trans>Launching instance from image "{imageName}"</Trans>
-          </span>
-        </Stack>
+        <NotificationText
+          title={<Trans>Launch Instance</Trans>}
+          description={<Trans>Launching instance from image "{imageName}"</Trans>}
+        />
       ),
       autoDismiss: true,
       autoDismissTimeout: 3000,
@@ -224,18 +207,16 @@ export function ImageListView({
       setToastData({
         variant: "success",
         children: (
-          <Stack direction="vertical" gap="1.5">
-            <span>
-              <Trans>Image Instance</Trans>
-            </span>
-            <span className="text-theme-light">
-              {updatedImage.status === "deactivated" ? (
+          <NotificationText
+            title={<Trans>Image Instance</Trans>}
+            description={
+              updatedImage.status === "deactivated" ? (
                 <Trans>Image instance "{imageName}" has been re-activated</Trans>
               ) : (
                 <Trans>Image instance "{imageName}" has been deactivated</Trans>
-              )}
-            </span>
-          </Stack>
+              )
+            }
+          />
         ),
         autoDismiss: true,
         autoDismissTimeout: 3000,
@@ -247,16 +228,16 @@ export function ImageListView({
       setToastData({
         variant: "error",
         children: (
-          <Stack direction="vertical" gap="1.5">
-            <span>
-              {updatedImage.status === "deactivated" ? (
+          <NotificationText
+            title={
+              updatedImage.status === "deactivated" ? (
                 <Trans>Unable to Re-activate Image</Trans>
               ) : (
                 <Trans>Unable to Deactivate Image</Trans>
-              )}
-            </span>
-            <span className="text-theme-light">
-              {updatedImage.status === "deactivated" ? (
+              )
+            }
+            description={
+              updatedImage.status === "deactivated" ? (
                 <Trans>
                   The image "{imageId}" could not be re-activated: {message}
                 </Trans>
@@ -264,9 +245,9 @@ export function ImageListView({
                 <Trans>
                   The image "{imageId}" could not be deactivated: {message}
                 </Trans>
-              )}
-            </span>
-          </Stack>
+              )
+            }
+          />
         ),
         autoDismiss: true,
         autoDismissTimeout: 3000,

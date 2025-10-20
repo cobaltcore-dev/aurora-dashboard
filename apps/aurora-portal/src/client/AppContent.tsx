@@ -1,13 +1,10 @@
 // AppContent.tsx
 import { useState } from "react"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
-import { httpBatchLink } from "@trpc/client"
-import { trpcReact, trpcClient } from "./trpcClient"
+import { trpcReact, trpcClient, createTrpcReactClient } from "./trpcClient"
 import { RouterProvider } from "@tanstack/react-router"
 import { router } from "./router"
 import { useAuth } from "./store/AuthProvider"
-
-declare const BFF_ENDPOINT: string
 
 export function AppContent() {
   const auth = useAuth()
@@ -24,21 +21,7 @@ export function AppContent() {
       })
   )
 
-  const [trpcReactClient] = useState(() =>
-    trpcReact.createClient({
-      links: [
-        httpBatchLink({
-          url: BFF_ENDPOINT,
-          async headers() {
-            const { csrfToken } = await fetch("/csrf-token").then((res) => res.json())
-            return {
-              "x-csrf-token": csrfToken,
-            }
-          },
-        }),
-      ],
-    })
-  )
+  const [trpcReactClient] = useState(() => createTrpcReactClient())
 
   return (
     <trpcReact.Provider client={trpcReactClient} queryClient={queryClient}>

@@ -9,9 +9,14 @@ const getLinks = () => [
   httpBatchLink({
     url: BFF_ENDPOINT,
     async headers() {
-      const { csrfToken } = await fetch("/csrf-token").then((res) => res.json())
-      return {
-        "x-csrf-token": csrfToken,
+      try {
+        const { csrfToken } = await fetch("/csrf-token").then((res) => res.json())
+        return {
+          "x-csrf-token": csrfToken,
+        }
+      } catch (error) {
+        console.error("Failed to fetch CSRF token:", error)
+        return {}
       }
     },
   }),
@@ -19,6 +24,7 @@ const getLinks = () => [
 
 // React Query client (for hooks like useQuery/useMutation)
 export const trpcReact = createTRPCReact<AuroraRouter>()
+export const createTrpcReactClient = () => trpcReact.createClient({ links: getLinks() })
 
 // Vanilla client (for .query() and .mutate())
 export const trpcClient = createTRPCClient<AuroraRouter>({
