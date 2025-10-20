@@ -558,10 +558,9 @@ msgstr "Maintenance Window"
 msgid "Manage Access"
 msgstr "Manage Access"
 
-#. placeholder {0}: flavor.name
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/ManageAccessModal.tsx:297
-msgid "Manage Access - {0}"
-msgstr "Manage Access - {0}"
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/ManageAccessModal.tsx:298
+msgid "Manage Access - {flavorName}"
+msgstr "Manage Access - {flavorName}"
 
 #: src/client/routes/index.tsx:22
 msgid "Manage OpenStack with "
@@ -723,11 +722,10 @@ msgstr "Region"
 msgid "Remove"
 msgstr "Remove"
 
-#. placeholder {0}: access.tenant_id
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/TenantAccessRow.tsx:58
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/TenantAccessRow.tsx:59
-msgid "Remove access for {0}"
-msgstr "Remove access for {0}"
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/TenantAccessRow.tsx:60
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/TenantAccessRow.tsx:61
+msgid "Remove access for {tenantId}"
+msgstr "Remove access for {tenantId}"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/TenantAccessRow.tsx:45
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/TenantAccessRow.tsx:46
