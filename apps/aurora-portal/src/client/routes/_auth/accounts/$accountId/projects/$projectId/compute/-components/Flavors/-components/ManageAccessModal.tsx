@@ -292,9 +292,10 @@ export const ManageAccessModal: React.FC<ManageAccessProps> = ({ client, isOpen,
   if (!isOpen || !flavor || !permissionsPromise || !flavorAccessPromise) {
     return null
   }
+  const flavorName = flavor.name
 
   return (
-    <Modal onCancel={handleClose} title={t`Manage Access - ${flavor.name}`} open={isOpen} size="large">
+    <Modal onCancel={handleClose} title={t`Manage Access - ${flavorName}`} open={isOpen} size="large">
       <div>
         {message && (
           <Message onDismiss={() => setMessage(null)} text={message.text} variant={message.type} className="mb-4" />

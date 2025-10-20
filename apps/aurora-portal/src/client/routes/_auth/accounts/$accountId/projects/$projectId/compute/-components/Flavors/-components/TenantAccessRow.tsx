@@ -51,13 +51,15 @@ export const TenantAccessRow: React.FC<TenantAccessRowProps> = ({ access, isDele
         </Button>
       )
     } else {
+      const tenantId = access.tenant_id
+
       return (
         <Button
           icon="deleteForever"
           onClick={() => setConfirm(true)}
-          title={t`Remove access for ${access.tenant_id}`}
-          aria-label={t`Remove access for ${access.tenant_id}`}
-          data-testid={`remove-${access.tenant_id}`}
+          title={t`Remove access for ${tenantId}`}
+          aria-label={t`Remove access for ${tenantId}`}
+          data-testid={`remove-${tenantId}`}
           disabled={isDeleting}
         />
       )
