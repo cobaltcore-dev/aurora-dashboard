@@ -204,7 +204,6 @@ function AccessContent({
       {permissions.canAdd && (
         <Stack direction="horizontal" className="bg-theme-background-lvl-1 justify-end p-2">
           <Button
-            icon="addCircle"
             label={t`Add Tenant Access`}
             data-testid="addTenantButton"
             onClick={() => setIsAddingAccess(true)}
@@ -295,7 +294,7 @@ export const ManageAccessModal: React.FC<ManageAccessProps> = ({ client, isOpen,
   const flavorName = flavor.name
 
   return (
-    <Modal onCancel={handleClose} title={t`Manage Access - ${flavorName}`} open={isOpen} size="large">
+    <Modal onCancel={handleClose} title={t`Manage Access - ${flavorName}`} open={isOpen} size="xl">
       <div>
         {message && (
           <Message onDismiss={() => setMessage(null)} text={message.text} variant={message.type} className="mb-4" />

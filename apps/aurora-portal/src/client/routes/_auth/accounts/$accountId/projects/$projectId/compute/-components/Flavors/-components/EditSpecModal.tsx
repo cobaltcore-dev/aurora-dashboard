@@ -189,7 +189,6 @@ function EditSpecContent({
       {permissions.canCreate && (
         <Stack direction="horizontal" className="bg-theme-background-lvl-1 justify-end p-2">
           <Button
-            icon="addCircle"
             label={t`Add Extra Spec`}
             data-testid="addExtraButton"
             onClick={() => setIsAddingSpec(true)}

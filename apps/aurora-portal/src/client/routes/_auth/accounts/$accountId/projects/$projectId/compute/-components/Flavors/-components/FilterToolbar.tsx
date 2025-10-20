@@ -77,7 +77,6 @@ const FilterToolbar: React.FC<FilterToolbarProps> = ({
           {canCreateFlavor && (
             <Stack direction="horizontal" className="flex-grow items-center justify-end">
               <Button
-                icon="addCircle"
                 label={t`Create Flavor`}
                 onClick={() => {
                   setCreateModalOpen(true)
