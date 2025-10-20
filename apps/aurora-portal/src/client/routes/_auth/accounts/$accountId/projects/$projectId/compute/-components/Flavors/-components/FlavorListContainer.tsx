@@ -149,21 +149,13 @@ export const FlavorListContainer = ({
             <DataGridCell>
               <PopupMenu>
                 <PopupMenuOptions>
-                  <PopupMenuItem label={t`Extra Specs`} icon="info" onClick={() => openSpecModal(flavor)} />
+                  <PopupMenuItem label={t`Extra Specs`} onClick={() => openSpecModal(flavor)} />
 
                   {canMangageAccess && (
-                    <PopupMenuItem
-                      label={t`Manage Access`}
-                      icon="manageAccounts"
-                      onClick={() => openAccessModal(flavor)}
-                    />
+                    <PopupMenuItem label={t`Manage Access`} onClick={() => openAccessModal(flavor)} />
                   )}
                   {canDeleteFlavor && (
-                    <PopupMenuItem
-                      icon="deleteForever"
-                      label={t`Delete Flavor`}
-                      onClick={() => openDeleteModal(flavor)}
-                    />
+                    <PopupMenuItem label={t`Delete Flavor`} onClick={() => openDeleteModal(flavor)} />
                   )}
                 </PopupMenuOptions>
               </PopupMenu>

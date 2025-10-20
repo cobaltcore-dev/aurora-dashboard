@@ -48,16 +48,8 @@ const FilterToolbar: React.FC<FilterToolbarProps> = ({
     <Stack alignment="center" gap="8" className="bg-theme-background-lvl-1 p-4 my-px">
       <Stack direction="vertical" gap="3" className="w-full">
         <Stack gap="6" className="flex flex-row items-center flex-wrap w-full">
-          <SearchInput
-            placeholder={t`Enter search term or regex`}
-            value={searchTerm || ""}
-            className="w-full md:w-70 flex-shrink-0"
-            onInput={handleSearchChange}
-            onClear={() => setSearchTerm("")}
-            data-testid="search-input"
-          />
           <Stack className="flex flex-row items-center">
-            <InputGroup className="flex-shrink-0 w-full md:w-70">
+            <InputGroup className="flex-shrink-0 w-full md:w-60">
               <Select onChange={handleSortByChange} value={sortBy} data-testid="sort-select" label={t`sort by`}>
                 <SelectOption value="name">{t`Name`}</SelectOption>
                 <SelectOption value="vcpus">{t`VCPUs`}</SelectOption>
@@ -74,6 +66,14 @@ const FilterToolbar: React.FC<FilterToolbarProps> = ({
               />
             </InputGroup>
           </Stack>
+          <SearchInput
+            placeholder={t`Enter search term or regex`}
+            value={searchTerm || ""}
+            className="w-full md:w-70 flex-shrink-0"
+            onInput={handleSearchChange}
+            onClear={() => setSearchTerm("")}
+            data-testid="search-input"
+          />
           {canCreateFlavor && (
             <Stack direction="horizontal" className="flex-grow items-center justify-end">
               <Button

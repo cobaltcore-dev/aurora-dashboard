@@ -172,7 +172,7 @@ export const Flavors = ({ client, project }: FlavorsProps) => {
           <Message
             className="absolute -top-14 left-0 right-0 z-50"
             text={success.message}
-            variant="success"
+            variant="info"
             onDismiss={() => setSuccess(undefined)}
             dismissible
           />
