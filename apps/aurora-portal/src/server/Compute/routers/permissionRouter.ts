@@ -51,17 +51,43 @@ const POLICY_MAPPINGS = {
 
 type PolicyKey = keyof typeof POLICY_MAPPINGS
 
-export const permissionRouter = {
-  canUser: protectedProcedure.input(z.string()).query(async ({ ctx, input }) => {
-    const policyMapping = POLICY_MAPPINGS[input as PolicyKey]
+// Helper function to validate a single permission
+const validatePermission = (permission: string): PolicyKey => {
+  const policyMapping = POLICY_MAPPINGS[permission as PolicyKey]
+  if (!policyMapping) {
+    throw new TRPCError({
+      code: "BAD_REQUEST",
+      message: `Unknown permission: ${permission}`,
+    })
+  }
+  return permission as PolicyKey
+}
 
-    if (!policyMapping) {
-      throw new TRPCError({
-        code: "BAD_REQUEST",
-        message: `Unknown permission: ${input}`,
-      })
+// Helper function to check a single permission
+const checkSinglePermission = (ctx: AuroraPortalContext, permission: PolicyKey): boolean => {
+  const policyMapping = POLICY_MAPPINGS[permission]
+  const policy = getPolicy(ctx, policyMapping.engine)
+  return policy.check(policyMapping.rule)
+}
+
+export const permissionRouter = {
+  canUser: protectedProcedure.input(z.string()).query(async ({ ctx, input }): Promise<boolean> => {
+    const validatedPermission = validatePermission(input)
+    return checkSinglePermission(ctx, validatedPermission)
+  }),
+
+  canUserBulk: protectedProcedure.input(z.array(z.string())).query(async ({ ctx, input }): Promise<boolean[]> => {
+    // Return empty array for empty input
+    if (input.length === 0) {
+      return []
     }
-    const policy = getPolicy(ctx, policyMapping.engine)
-    return policy.check(policyMapping.rule)
+
+    // Validate all permissions first (fail fast on invalid permissions)
+    const validatedPermissions = input.map((permission) => validatePermission(permission))
+
+    // Check all permissions and return results in the same order
+    const results: boolean[] = validatedPermissions.map((permission) => checkSinglePermission(ctx, permission))
+
+    return results
   }),
 }
