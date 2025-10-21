@@ -50,10 +50,6 @@ export const CreateFlavorModal: React.FC<CreateFlavorModalProps> = ({
         [name]: type === "checkbox" ? checked : value,
       }
 
-      if (type === "checkbox") {
-        console.log("New flavor state:", newState)
-      }
-
       return newState
     })
     if (generalError) setGeneralError(null)
@@ -119,9 +115,6 @@ export const CreateFlavorModal: React.FC<CreateFlavorModalProps> = ({
       setIsLoading(true)
 
       const flavorData = cleanFlavorData(newFlavor)
-
-      console.log("Cleaned flavor data before API call:", flavorData)
-      console.log("Cleaned is_public value:", flavorData["os-flavor-access:is_public"])
 
       await client.compute.createFlavor.mutate({
         projectId: project,

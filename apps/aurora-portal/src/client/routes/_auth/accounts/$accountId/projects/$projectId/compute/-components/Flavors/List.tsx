@@ -29,11 +29,9 @@ const createFlavorsPromise = (
 }
 
 const createPermissionsPromise = (client: TrpcClient) => {
-  return Promise.all([
-    client.compute.canUser.query("flavors:create"),
-    client.compute.canUser.query("flavors:delete"),
-    client.compute.canUser.query("flavors:list_projects"),
-  ]).then(([canCreate, canDelete, canMangageAccess]) => ({ canCreate, canDelete, canMangageAccess }))
+  return client.compute.canUserBulk
+    .query(["flavors:create", "flavors:delete", "flavors:list_projects"])
+    .then(([canCreate, canDelete, canManageAccess]) => ({ canCreate, canDelete, canManageAccess }))
 }
 
 function FlavorsContent({
@@ -53,7 +51,7 @@ function FlavorsContent({
   setCreateModalOpen,
 }: {
   flavorsPromise: Promise<Flavor[]>
-  permissionsPromise: Promise<{ canCreate: boolean; canDelete: boolean; canMangageAccess: boolean }>
+  permissionsPromise: Promise<{ canCreate: boolean; canDelete: boolean; canManageAccess: boolean }>
   client: TrpcClient
   project: string
   onFlavorDeleted: (name: string) => void
@@ -98,7 +96,7 @@ function FlavorsContent({
         project={project}
         onFlavorDeleted={onFlavorDeleted}
         canDeleteFlavor={permissions.canDelete}
-        canMangageAccess={permissions.canMangageAccess}
+        canMangageAccess={permissions.canManageAccess}
       />
     </>
   )
