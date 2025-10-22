@@ -29,10 +29,9 @@ const createFlavorsPromise = (
 }
 
 const createPermissionsPromise = (client: TrpcClient) => {
-  return Promise.all([
-    client.compute.canUser.query("flavors:create"),
-    client.compute.canUser.query("flavors:delete"),
-  ]).then(([canCreate, canDelete]) => ({ canCreate, canDelete }))
+  return client.compute.canUserBulk
+    .query(["flavors:create", "flavors:delete", "flavors:list_projects"])
+    .then(([canCreate, canDelete, canManageAccess]) => ({ canCreate, canDelete, canManageAccess }))
 }
 
 function FlavorsContent({
@@ -52,7 +51,7 @@ function FlavorsContent({
   setCreateModalOpen,
 }: {
   flavorsPromise: Promise<Flavor[]>
-  permissionsPromise: Promise<{ canCreate: boolean; canDelete: boolean }>
+  permissionsPromise: Promise<{ canCreate: boolean; canDelete: boolean; canManageAccess: boolean }>
   client: TrpcClient
   project: string
   onFlavorDeleted: (name: string) => void
@@ -61,8 +60,8 @@ function FlavorsContent({
   setSearchTerm: (term: string) => void
   sortBy: string
   handleSortByChange: (value: string | number | string[] | undefined) => void
-  sortDirection: string
-  handleSortDirectionChange: (value: string | number | string[] | undefined) => void
+  sortDirection: "asc" | "desc"
+  handleSortDirectionChange: (value: "asc" | "desc") => void
   createModalOpen: boolean
   setCreateModalOpen: (open: boolean) => void
 }) {
@@ -97,6 +96,7 @@ function FlavorsContent({
         project={project}
         onFlavorDeleted={onFlavorDeleted}
         canDeleteFlavor={permissions.canDelete}
+        canMangageAccess={permissions.canManageAccess}
       />
     </>
   )
@@ -106,7 +106,7 @@ export const Flavors = ({ client, project }: FlavorsProps) => {
   const { t } = useLingui()
 
   const [sortBy, setSortBy] = useState("name")
-  const [sortDirection, setSortDirection] = useState("asc")
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc")
   const [searchTerm, setSearchTerm] = useState("")
   const [success, setSuccess] = useState<{ message: string; timestamp: number } | undefined>()
   const [createModalOpen, setCreateModalOpen] = useState(false)
@@ -149,13 +149,11 @@ export const Flavors = ({ client, project }: FlavorsProps) => {
     }
   }
 
-  const handleSortDirectionChange = (value: string | number | string[] | undefined) => {
-    if (value && typeof value === "string") {
-      setSortDirection(value)
-      startTransition(() => {
-        setFlavorsPromise(createFlavorsPromise(client, project, sortBy, value, searchTerm))
-      })
-    }
+  const handleSortDirectionChange = (value: "asc" | "desc") => {
+    setSortDirection(value)
+    startTransition(() => {
+      setFlavorsPromise(createFlavorsPromise(client, project, sortBy, value, searchTerm))
+    })
   }
 
   const handleSearchChange = (term: string) => {
@@ -167,25 +165,25 @@ export const Flavors = ({ client, project }: FlavorsProps) => {
 
   return (
     <div className="relative">
-      {success && (
-        <Message
-          className="absolute -top-14 left-0 right-0 z-50"
-          text={success.message}
-          variant="success"
-          onDismiss={() => setSuccess(undefined)}
-          dismissible
-        />
-      )}
+      <ErrorBoundary fallback={<ErrorFallback onRetry={refetchFlavors} />}>
+        {success && (
+          <Message
+            className="absolute -top-14 left-0 right-0 z-50"
+            text={success.message}
+            variant="info"
+            onDismiss={() => setSuccess(undefined)}
+            dismissible
+          />
+        )}
 
-      <Suspense
-        fallback={
-          <Stack className="fixed inset-0" distribution="center" alignment="center" direction="vertical">
-            <Spinner variant="primary" size="large" className="mb-2" />
-            <Trans>Loading Flavors...</Trans>
-          </Stack>
-        }
-      >
-        <ErrorBoundary fallback={<ErrorFallback onRetry={refetchFlavors} />}>
+        <Suspense
+          fallback={
+            <Stack className="fixed inset-0" distribution="center" alignment="center" direction="vertical">
+              <Spinner variant="primary" size="large" className="mb-2" />
+              <Trans>Loading Flavors...</Trans>
+            </Stack>
+          }
+        >
           <FlavorsContent
             flavorsPromise={flavorsPromise}
             permissionsPromise={permissionsPromise}
@@ -202,8 +200,8 @@ export const Flavors = ({ client, project }: FlavorsProps) => {
             createModalOpen={createModalOpen}
             setCreateModalOpen={setCreateModalOpen}
           />
-        </ErrorBoundary>
-      </Suspense>
+        </Suspense>
+      </ErrorBoundary>
     </div>
   )
 }

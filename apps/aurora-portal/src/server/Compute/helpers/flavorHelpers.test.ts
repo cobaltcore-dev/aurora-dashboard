@@ -1,6 +1,7 @@
-import { describe, it, expect, vi, beforeEach } from "vitest"
+import { describe, it, expect, vi, beforeEach, Mock } from "vitest"
 import { TRPCError } from "@trpc/server"
 import { CreateFlavorInput, Flavor } from "../types/flavor"
+import { SignalOpenstackServiceType } from "@cobaltcore-dev/signal-openstack"
 import {
   includesSearchTerm,
   fetchFlavors,
@@ -10,8 +11,30 @@ import {
   createExtraSpecs,
   getExtraSpecs,
   deleteExtraSpec,
+  getFlavorAccess,
+  addTenantAccess,
+  removeTenantAccess,
 } from "./flavorHelpers"
 import { ERROR_CODES } from "../../errorCodes"
+
+// Create a proper mock for SignalOpenstackServiceType
+const createMockCompute = () => {
+  return {
+    availableEndpoints: vi.fn(() => []),
+    head: vi.fn(),
+    get: vi.fn(),
+    post: vi.fn(),
+    put: vi.fn(),
+    del: vi.fn(),
+  } as {
+    availableEndpoints: Mock
+    head: Mock
+    get: Mock
+    post: Mock
+    put: Mock
+    del: Mock
+  } & SignalOpenstackServiceType
+}
 
 const mockFlavors: Flavor[] = [
   {
@@ -151,31 +174,29 @@ describe("includesSearchTerm", () => {
 
 describe("fetchFlavors", () => {
   it("should return flavors if response is valid", async () => {
-    const mockCompute = {
-      get: vi.fn().mockResolvedValue({
-        ok: true,
-        text: vi.fn().mockResolvedValue(JSON.stringify({ flavors: mockFlavors })),
-      }),
-      post: vi.fn(),
-      del: vi.fn(),
-    }
+    const mockCompute = createMockCompute()
+    mockCompute.get.mockResolvedValue({
+      ok: true,
+      text: vi.fn().mockResolvedValue(JSON.stringify({ flavors: mockFlavors })),
+    })
 
-    const flavors = await fetchFlavors(mockCompute)
+    const flavors = await fetchFlavors(mockCompute, "true")
     expect(flavors).toEqual(mockFlavors)
-    expect(mockCompute.get).toHaveBeenCalledWith("flavors/detail")
+    expect(mockCompute.get).toHaveBeenCalledWith("flavors/detail", {
+      queryParams: {
+        is_public: "true",
+      },
+    })
   })
 
   it("should throw PARSE_ERROR if Zod parsing fails", async () => {
-    const mockCompute = {
-      get: vi.fn().mockResolvedValue({
-        ok: true,
-        text: vi.fn().mockResolvedValue(JSON.stringify({ invalid: "data" })),
-      }),
-      post: vi.fn(),
-      del: vi.fn(),
-    }
+    const mockCompute = createMockCompute()
+    mockCompute.get.mockResolvedValue({
+      ok: true,
+      text: vi.fn().mockResolvedValue(JSON.stringify({ invalid: "data" })),
+    })
 
-    await expect(fetchFlavors(mockCompute)).rejects.toThrow(
+    await expect(fetchFlavors(mockCompute, "true")).rejects.toThrow(
       new TRPCError({
         code: "PARSE_ERROR",
         message: ERROR_CODES.FLAVORS_PARSE_ERROR,
@@ -184,16 +205,13 @@ describe("fetchFlavors", () => {
   })
 
   it("should throw UNAUTHORIZED for 401 status", async () => {
-    const mockCompute = {
-      get: vi.fn().mockResolvedValue({
-        ok: false,
-        status: 401,
-      }),
-      post: vi.fn(),
-      del: vi.fn(),
-    }
+    const mockCompute = createMockCompute()
+    mockCompute.get.mockResolvedValue({
+      ok: false,
+      status: 401,
+    })
 
-    await expect(fetchFlavors(mockCompute)).rejects.toThrow(
+    await expect(fetchFlavors(mockCompute, "true")).rejects.toThrow(
       new TRPCError({
         code: "UNAUTHORIZED",
         message: ERROR_CODES.FLAVORS_UNAUTHORIZED,
@@ -202,16 +220,13 @@ describe("fetchFlavors", () => {
   })
 
   it("should throw FORBIDDEN for 403 status", async () => {
-    const mockCompute = {
-      get: vi.fn().mockResolvedValue({
-        ok: false,
-        status: 403,
-      }),
-      post: vi.fn(),
-      del: vi.fn(),
-    }
+    const mockCompute = createMockCompute()
+    mockCompute.get.mockResolvedValue({
+      ok: false,
+      status: 403,
+    })
 
-    await expect(fetchFlavors(mockCompute)).rejects.toThrow(
+    await expect(fetchFlavors(mockCompute, "true")).rejects.toThrow(
       new TRPCError({
         code: "FORBIDDEN",
         message: ERROR_CODES.FLAVORS_FORBIDDEN,
@@ -220,16 +235,13 @@ describe("fetchFlavors", () => {
   })
 
   it("should throw NOT_FOUND for 404 status", async () => {
-    const mockCompute = {
-      get: vi.fn().mockResolvedValue({
-        ok: false,
-        status: 404,
-      }),
-      post: vi.fn(),
-      del: vi.fn(),
-    }
+    const mockCompute = createMockCompute()
+    mockCompute.get.mockResolvedValue({
+      ok: false,
+      status: 404,
+    })
 
-    await expect(fetchFlavors(mockCompute)).rejects.toThrow(
+    await expect(fetchFlavors(mockCompute, "true")).rejects.toThrow(
       new TRPCError({
         code: "NOT_FOUND",
         message: ERROR_CODES.FLAVORS_NOT_FOUND,
@@ -238,16 +250,13 @@ describe("fetchFlavors", () => {
   })
 
   it("should throw INTERNAL_SERVER_ERROR for 500 status", async () => {
-    const mockCompute = {
-      get: vi.fn().mockResolvedValue({
-        ok: false,
-        status: 500,
-      }),
-      post: vi.fn(),
-      del: vi.fn(),
-    }
+    const mockCompute = createMockCompute()
+    mockCompute.get.mockResolvedValue({
+      ok: false,
+      status: 500,
+    })
 
-    await expect(fetchFlavors(mockCompute)).rejects.toThrow(
+    await expect(fetchFlavors(mockCompute, "true")).rejects.toThrow(
       new TRPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: ERROR_CODES.FLAVORS_SERVER_ERROR,
@@ -256,16 +265,13 @@ describe("fetchFlavors", () => {
   })
 
   it("should throw INTERNAL_SERVER_ERROR for 502 status", async () => {
-    const mockCompute = {
-      get: vi.fn().mockResolvedValue({
-        ok: false,
-        status: 502,
-      }),
-      post: vi.fn(),
-      del: vi.fn(),
-    }
+    const mockCompute = createMockCompute()
+    mockCompute.get.mockResolvedValue({
+      ok: false,
+      status: 502,
+    })
 
-    await expect(fetchFlavors(mockCompute)).rejects.toThrow(
+    await expect(fetchFlavors(mockCompute, "true")).rejects.toThrow(
       new TRPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: ERROR_CODES.FLAVORS_SERVER_ERROR,
@@ -274,16 +280,13 @@ describe("fetchFlavors", () => {
   })
 
   it("should throw INTERNAL_SERVER_ERROR for 503 status", async () => {
-    const mockCompute = {
-      get: vi.fn().mockResolvedValue({
-        ok: false,
-        status: 503,
-      }),
-      post: vi.fn(),
-      del: vi.fn(),
-    }
+    const mockCompute = createMockCompute()
+    mockCompute.get.mockResolvedValue({
+      ok: false,
+      status: 503,
+    })
 
-    await expect(fetchFlavors(mockCompute)).rejects.toThrow(
+    await expect(fetchFlavors(mockCompute, "true")).rejects.toThrow(
       new TRPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: ERROR_CODES.FLAVORS_SERVER_ERROR,
@@ -292,16 +295,13 @@ describe("fetchFlavors", () => {
   })
 
   it("should throw BAD_REQUEST for unknown status codes", async () => {
-    const mockCompute = {
-      get: vi.fn().mockResolvedValue({
-        ok: false,
-        status: 418,
-      }),
-      post: vi.fn(),
-      del: vi.fn(),
-    }
+    const mockCompute = createMockCompute()
+    mockCompute.get.mockResolvedValue({
+      ok: false,
+      status: 418,
+    })
 
-    await expect(fetchFlavors(mockCompute)).rejects.toThrow(
+    await expect(fetchFlavors(mockCompute, "true")).rejects.toThrow(
       new TRPCError({
         code: "BAD_REQUEST",
         message: ERROR_CODES.FLAVORS_FETCH_FAILED,
@@ -391,12 +391,9 @@ describe("filterAndSortFlavors", () => {
     expect(result[1].name).toBe("another-flavor")
   })
 })
+
 describe("createFlavor", () => {
-  const compute = {
-    post: vi.fn(),
-    get: vi.fn(),
-    del: vi.fn(),
-  }
+  let compute: ReturnType<typeof createMockCompute>
 
   const flavorData: CreateFlavorInput = {
     name: "test-flavor2",
@@ -419,7 +416,7 @@ describe("createFlavor", () => {
   }
 
   beforeEach(() => {
-    vi.clearAllMocks()
+    compute = createMockCompute()
   })
 
   it("should return the created flavor if response is valid", async () => {
@@ -548,16 +545,11 @@ describe("createFlavor", () => {
 })
 
 describe("deleteFlavor", () => {
-  const compute = {
-    post: vi.fn(),
-    get: vi.fn(),
-    del: vi.fn(),
-  }
-
+  let compute: ReturnType<typeof createMockCompute>
   const flavorId = "test-flavor-id"
 
   beforeEach(() => {
-    vi.clearAllMocks()
+    compute = createMockCompute()
   })
 
   it("should successfully delete a flavor", async () => {
@@ -666,9 +658,9 @@ describe("deleteFlavor", () => {
     )
 
     expect(consoleSpy).toHaveBeenCalledWith(`Failed to delete flavor ${flavorId}:`, networkError)
-
     consoleSpy.mockRestore()
   })
+
   it("should throw error on empty string flavorId", async () => {
     const originalError = new TRPCError({
       code: "BAD_REQUEST",
@@ -678,19 +670,25 @@ describe("deleteFlavor", () => {
     await expect(deleteFlavor(compute, "")).rejects.toThrow(originalError)
     expect(compute.del).not.toHaveBeenCalled()
   })
-})
-describe("createExtraSpecs", () => {
-  const compute = {
-    post: vi.fn(),
-    get: vi.fn(),
-    del: vi.fn(),
-  }
 
+  it("should throw error on whitespace-only flavorId", async () => {
+    const originalError = new TRPCError({
+      code: "BAD_REQUEST",
+      message: ERROR_CODES.DELETE_FLAVOR_INVALID_ID,
+    })
+
+    await expect(deleteFlavor(compute, "   ")).rejects.toThrow(originalError)
+    expect(compute.del).not.toHaveBeenCalled()
+  })
+})
+
+describe("createExtraSpecs", () => {
+  let compute: ReturnType<typeof createMockCompute>
   const flavorId = "test-flavor-id"
   const extraSpecs = { cpu: "dedicated", "hw:mem_page_size": "large" }
 
   beforeEach(() => {
-    vi.clearAllMocks()
+    compute = createMockCompute()
   })
 
   it("should return created extra specs if response is valid", async () => {
@@ -875,17 +873,12 @@ describe("createExtraSpecs", () => {
 })
 
 describe("getExtraSpecs", () => {
-  const compute = {
-    post: vi.fn(),
-    get: vi.fn(),
-    del: vi.fn(),
-  }
-
+  let compute: ReturnType<typeof createMockCompute>
   const flavorId = "test-flavor-id"
   const extraSpecs = { cpu: "dedicated", "hw:mem_page_size": "large" }
 
   beforeEach(() => {
-    vi.clearAllMocks()
+    compute = createMockCompute()
   })
 
   it("should return extra specs if response is valid", async () => {
@@ -1041,27 +1034,22 @@ describe("getExtraSpecs", () => {
       text: vi.fn().mockResolvedValue("invalid json"),
     })
 
-    await expect(createExtraSpecs(compute, flavorId, extraSpecs)).rejects.toThrow(
+    await expect(getExtraSpecs(compute, flavorId)).rejects.toThrow(
       expect.objectContaining({
         code: "INTERNAL_SERVER_ERROR",
-        message: ERROR_CODES.CREATE_EXTRA_SPECS_FAILED,
+        message: ERROR_CODES.GET_EXTRA_SPECS_FAILED,
       })
     )
   })
 })
 
 describe("deleteExtraSpec", () => {
-  const compute = {
-    post: vi.fn(),
-    get: vi.fn(),
-    del: vi.fn(),
-  }
-
+  let compute: ReturnType<typeof createMockCompute>
   const flavorId = "test-flavor-id"
   const specKey = "cpu"
 
   beforeEach(() => {
-    vi.clearAllMocks()
+    compute = createMockCompute()
   })
 
   it("should successfully delete an extra spec", async () => {
@@ -1206,6 +1194,429 @@ describe("deleteExtraSpec", () => {
       new TRPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: ERROR_CODES.DELETE_EXTRA_SPEC_FAILED,
+        cause: networkError,
+      })
+    )
+  })
+})
+
+describe("getFlavorAccess", () => {
+  let compute: ReturnType<typeof createMockCompute>
+  const flavorId = "test-flavor-id"
+  const mockFlavorAccess = [
+    { flavor_id: "test-flavor-id", tenant_id: "tenant-1" },
+    { flavor_id: "test-flavor-id", tenant_id: "tenant-2" },
+  ]
+
+  beforeEach(() => {
+    compute = createMockCompute()
+  })
+
+  it("should return flavor access if response is valid", async () => {
+    compute.get.mockResolvedValue({
+      ok: true,
+      status: 200,
+      text: vi.fn().mockResolvedValue(JSON.stringify({ flavor_access: mockFlavorAccess })),
+    })
+
+    const result = await getFlavorAccess(compute, flavorId)
+    expect(result).toEqual(mockFlavorAccess)
+    expect(compute.get).toHaveBeenCalledWith(`flavors/${flavorId}/os-flavor-access`)
+  })
+
+  it("should return empty array if flavor_access is null or undefined", async () => {
+    compute.get.mockResolvedValue({
+      ok: true,
+      status: 200,
+      text: vi.fn().mockResolvedValue(JSON.stringify({})),
+    })
+
+    const result = await getFlavorAccess(compute, flavorId)
+    expect(result).toEqual([])
+  })
+
+  it("should throw UNAUTHORIZED for 401 status", async () => {
+    compute.get.mockResolvedValue({
+      ok: false,
+      status: 401,
+    })
+
+    await expect(getFlavorAccess(compute, flavorId)).rejects.toThrow(
+      new TRPCError({
+        code: "UNAUTHORIZED",
+        message: ERROR_CODES.GET_FLAVOR_ACCESS_UNAUTHORIZED,
+      })
+    )
+  })
+
+  it("should throw FORBIDDEN for 403 status", async () => {
+    compute.get.mockResolvedValue({
+      ok: false,
+      status: 403,
+    })
+
+    await expect(getFlavorAccess(compute, flavorId)).rejects.toThrow(
+      new TRPCError({
+        code: "FORBIDDEN",
+        message: ERROR_CODES.GET_FLAVOR_ACCESS_FORBIDDEN,
+      })
+    )
+  })
+
+  it("should throw NOT_FOUND for 404 status", async () => {
+    compute.get.mockResolvedValue({
+      ok: false,
+      status: 404,
+    })
+
+    await expect(getFlavorAccess(compute, flavorId)).rejects.toThrow(
+      new TRPCError({
+        code: "NOT_FOUND",
+        message: ERROR_CODES.GET_FLAVOR_ACCESS_NOT_FOUND,
+      })
+    )
+  })
+
+  it("should throw INTERNAL_SERVER_ERROR for 500 status", async () => {
+    compute.get.mockResolvedValue({
+      ok: false,
+      status: 500,
+    })
+
+    await expect(getFlavorAccess(compute, flavorId)).rejects.toThrow(
+      new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: ERROR_CODES.GET_FLAVOR_ACCESS_SERVER_ERROR,
+      })
+    )
+  })
+
+  it("should throw BAD_REQUEST for unknown status codes", async () => {
+    compute.get.mockResolvedValue({
+      ok: false,
+      status: 418,
+    })
+
+    await expect(getFlavorAccess(compute, flavorId)).rejects.toThrow(
+      new TRPCError({
+        code: "BAD_REQUEST",
+        message: ERROR_CODES.GET_FLAVOR_ACCESS_FAILED,
+      })
+    )
+  })
+
+  it("should wrap non-TRPC errors in INTERNAL_SERVER_ERROR", async () => {
+    const networkError = new Error("Network connection failed")
+
+    compute.get.mockRejectedValue(networkError)
+
+    await expect(getFlavorAccess(compute, flavorId)).rejects.toThrow(
+      new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: ERROR_CODES.GET_FLAVOR_ACCESS_FAILED,
+        cause: networkError,
+      })
+    )
+  })
+})
+
+describe("addTenantAccess", () => {
+  let compute: ReturnType<typeof createMockCompute>
+  const flavorId = "test-flavor-id"
+  const tenantId = "test-tenant-id"
+  const mockFlavorAccess = [
+    { flavor_id: "test-flavor-id", tenant_id: "tenant-1" },
+    { flavor_id: "test-flavor-id", tenant_id: "test-tenant-id" },
+  ]
+
+  beforeEach(() => {
+    compute = createMockCompute()
+  })
+
+  it("should return updated flavor access if response is valid", async () => {
+    compute.post.mockResolvedValue({
+      ok: true,
+      status: 200,
+      text: vi.fn().mockResolvedValue(JSON.stringify({ flavor_access: mockFlavorAccess })),
+    })
+
+    const result = await addTenantAccess(compute, flavorId, tenantId)
+    expect(result).toEqual(mockFlavorAccess)
+    expect(compute.post).toHaveBeenCalledWith(`flavors/${flavorId}/action`, {
+      addTenantAccess: {
+        tenant: tenantId,
+      },
+    })
+  })
+
+  it("should return empty array if flavor_access is null or undefined", async () => {
+    compute.post.mockResolvedValue({
+      ok: true,
+      status: 200,
+      text: vi.fn().mockResolvedValue(JSON.stringify({})),
+    })
+
+    const result = await addTenantAccess(compute, flavorId, tenantId)
+    expect(result).toEqual([])
+  })
+
+  it("should throw BAD_REQUEST for 400 status", async () => {
+    compute.post.mockResolvedValue({
+      ok: false,
+      status: 400,
+    })
+
+    await expect(addTenantAccess(compute, flavorId, tenantId)).rejects.toThrow(
+      new TRPCError({
+        code: "BAD_REQUEST",
+        message: ERROR_CODES.ADD_TENANT_ACCESS_INVALID_DATA,
+      })
+    )
+  })
+
+  it("should throw UNAUTHORIZED for 401 status", async () => {
+    compute.post.mockResolvedValue({
+      ok: false,
+      status: 401,
+    })
+
+    await expect(addTenantAccess(compute, flavorId, tenantId)).rejects.toThrow(
+      new TRPCError({
+        code: "UNAUTHORIZED",
+        message: ERROR_CODES.ADD_TENANT_ACCESS_UNAUTHORIZED,
+      })
+    )
+  })
+
+  it("should throw FORBIDDEN for 403 status", async () => {
+    compute.post.mockResolvedValue({
+      ok: false,
+      status: 403,
+    })
+
+    await expect(addTenantAccess(compute, flavorId, tenantId)).rejects.toThrow(
+      new TRPCError({
+        code: "FORBIDDEN",
+        message: ERROR_CODES.ADD_TENANT_ACCESS_FORBIDDEN,
+      })
+    )
+  })
+
+  it("should throw NOT_FOUND for 404 status", async () => {
+    compute.post.mockResolvedValue({
+      ok: false,
+      status: 404,
+    })
+
+    await expect(addTenantAccess(compute, flavorId, tenantId)).rejects.toThrow(
+      new TRPCError({
+        code: "NOT_FOUND",
+        message: ERROR_CODES.ADD_TENANT_ACCESS_NOT_FOUND,
+      })
+    )
+  })
+
+  it("should throw CONFLICT for 409 status", async () => {
+    compute.post.mockResolvedValue({
+      ok: false,
+      status: 409,
+    })
+
+    await expect(addTenantAccess(compute, flavorId, tenantId)).rejects.toThrow(
+      new TRPCError({
+        code: "CONFLICT",
+        message: ERROR_CODES.ADD_TENANT_ACCESS_CONFLICT,
+      })
+    )
+  })
+
+  it("should throw INTERNAL_SERVER_ERROR for 500 status", async () => {
+    compute.post.mockResolvedValue({
+      ok: false,
+      status: 500,
+    })
+
+    await expect(addTenantAccess(compute, flavorId, tenantId)).rejects.toThrow(
+      new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: ERROR_CODES.ADD_TENANT_ACCESS_SERVER_ERROR,
+      })
+    )
+  })
+
+  it("should throw BAD_REQUEST for unknown status codes", async () => {
+    compute.post.mockResolvedValue({
+      ok: false,
+      status: 418,
+    })
+
+    await expect(addTenantAccess(compute, flavorId, tenantId)).rejects.toThrow(
+      new TRPCError({
+        code: "BAD_REQUEST",
+        message: ERROR_CODES.ADD_TENANT_ACCESS_FAILED,
+      })
+    )
+  })
+
+  it("should wrap non-TRPC errors in INTERNAL_SERVER_ERROR", async () => {
+    const networkError = new Error("Network connection failed")
+
+    compute.post.mockRejectedValue(networkError)
+
+    await expect(addTenantAccess(compute, flavorId, tenantId)).rejects.toThrow(
+      new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: ERROR_CODES.ADD_TENANT_ACCESS_FAILED,
+        cause: networkError,
+      })
+    )
+  })
+})
+
+describe("removeTenantAccess", () => {
+  let compute: ReturnType<typeof createMockCompute>
+  const flavorId = "test-flavor-id"
+  const tenantId = "test-tenant-id"
+  const mockFlavorAccess = [{ flavor_id: "test-flavor-id", tenant_id: "tenant-1" }]
+
+  beforeEach(() => {
+    compute = createMockCompute()
+  })
+
+  it("should return updated flavor access if response is valid", async () => {
+    compute.post.mockResolvedValue({
+      ok: true,
+      status: 200,
+      text: vi.fn().mockResolvedValue(JSON.stringify({ flavor_access: mockFlavorAccess })),
+    })
+
+    const result = await removeTenantAccess(compute, flavorId, tenantId)
+    expect(result).toEqual(mockFlavorAccess)
+    expect(compute.post).toHaveBeenCalledWith(`flavors/${flavorId}/action`, {
+      removeTenantAccess: {
+        tenant: tenantId,
+      },
+    })
+  })
+
+  it("should return empty array if flavor_access is null or undefined", async () => {
+    compute.post.mockResolvedValue({
+      ok: true,
+      status: 200,
+      text: vi.fn().mockResolvedValue(JSON.stringify({})),
+    })
+
+    const result = await removeTenantAccess(compute, flavorId, tenantId)
+    expect(result).toEqual([])
+  })
+
+  it("should throw BAD_REQUEST for 400 status", async () => {
+    compute.post.mockResolvedValue({
+      ok: false,
+      status: 400,
+    })
+
+    await expect(removeTenantAccess(compute, flavorId, tenantId)).rejects.toThrow(
+      new TRPCError({
+        code: "BAD_REQUEST",
+        message: ERROR_CODES.REMOVE_TENANT_ACCESS_INVALID_DATA,
+      })
+    )
+  })
+
+  it("should throw UNAUTHORIZED for 401 status", async () => {
+    compute.post.mockResolvedValue({
+      ok: false,
+      status: 401,
+    })
+
+    await expect(removeTenantAccess(compute, flavorId, tenantId)).rejects.toThrow(
+      new TRPCError({
+        code: "UNAUTHORIZED",
+        message: ERROR_CODES.REMOVE_TENANT_ACCESS_UNAUTHORIZED,
+      })
+    )
+  })
+
+  it("should throw FORBIDDEN for 403 status", async () => {
+    compute.post.mockResolvedValue({
+      ok: false,
+      status: 403,
+    })
+
+    await expect(removeTenantAccess(compute, flavorId, tenantId)).rejects.toThrow(
+      new TRPCError({
+        code: "FORBIDDEN",
+        message: ERROR_CODES.REMOVE_TENANT_ACCESS_FORBIDDEN,
+      })
+    )
+  })
+
+  it("should throw NOT_FOUND for 404 status", async () => {
+    compute.post.mockResolvedValue({
+      ok: false,
+      status: 404,
+    })
+
+    await expect(removeTenantAccess(compute, flavorId, tenantId)).rejects.toThrow(
+      new TRPCError({
+        code: "NOT_FOUND",
+        message: ERROR_CODES.REMOVE_TENANT_ACCESS_NOT_FOUND,
+      })
+    )
+  })
+
+  it("should throw CONFLICT for 409 status", async () => {
+    compute.post.mockResolvedValue({
+      ok: false,
+      status: 409,
+    })
+
+    await expect(removeTenantAccess(compute, flavorId, tenantId)).rejects.toThrow(
+      new TRPCError({
+        code: "CONFLICT",
+        message: ERROR_CODES.REMOVE_TENANT_ACCESS_CONFLICT,
+      })
+    )
+  })
+
+  it("should throw INTERNAL_SERVER_ERROR for 500 status", async () => {
+    compute.post.mockResolvedValue({
+      ok: false,
+      status: 500,
+    })
+
+    await expect(removeTenantAccess(compute, flavorId, tenantId)).rejects.toThrow(
+      new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: ERROR_CODES.REMOVE_TENANT_ACCESS_SERVER_ERROR,
+      })
+    )
+  })
+
+  it("should throw BAD_REQUEST for unknown status codes", async () => {
+    compute.post.mockResolvedValue({
+      ok: false,
+      status: 418,
+    })
+
+    await expect(removeTenantAccess(compute, flavorId, tenantId)).rejects.toThrow(
+      new TRPCError({
+        code: "BAD_REQUEST",
+        message: ERROR_CODES.REMOVE_TENANT_ACCESS_FAILED,
+      })
+    )
+  })
+
+  it("should wrap non-TRPC errors in INTERNAL_SERVER_ERROR", async () => {
+    const networkError = new Error("Network connection failed")
+
+    compute.post.mockRejectedValue(networkError)
+
+    await expect(removeTenantAccess(compute, flavorId, tenantId)).rejects.toThrow(
+      new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: ERROR_CODES.REMOVE_TENANT_ACCESS_FAILED,
         cause: networkError,
       })
     )

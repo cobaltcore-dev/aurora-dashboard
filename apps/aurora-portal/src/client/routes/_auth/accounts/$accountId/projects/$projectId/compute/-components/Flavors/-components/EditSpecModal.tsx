@@ -70,8 +70,8 @@ function EditSpecContent({
   onSpecsUpdate: (specs: Record<string, string>) => void
   isAddingSpec: boolean
   setIsAddingSpec: (adding: boolean) => void
-  message: { text: string; type: "error" | "success" } | null
-  setMessage: (msg: { text: string; type: "error" | "success" } | null) => void
+  message: { text: string; type: "error" | "info" } | null
+  setMessage: (msg: { text: string; type: "error" | "info" } | null) => void
 }) {
   const { t } = useLingui()
   const { translateError } = useErrorTranslation()
@@ -132,7 +132,7 @@ function EditSpecContent({
 
       setMessage({
         text: t`Extra spec "${trimmedKey}" has been added successfully.`,
-        type: "success",
+        type: "info",
       })
       resetForm()
       setIsAddingSpec(false)
@@ -160,7 +160,7 @@ function EditSpecContent({
 
       setMessage({
         text: t`Extra spec "${keyToDelete}" has been deleted successfully.`,
-        type: "success",
+        type: "info",
       })
     } catch (error) {
       setMessage({
@@ -189,7 +189,6 @@ function EditSpecContent({
       {permissions.canCreate && (
         <Stack direction="horizontal" className="bg-theme-background-lvl-1 justify-end p-2">
           <Button
-            icon="addCircle"
             label={t`Add Extra Spec`}
             data-testid="addExtraButton"
             onClick={() => setIsAddingSpec(true)}
@@ -249,7 +248,7 @@ function EditSpecContent({
 export const EditSpecModal: React.FC<EditSpecModalProps> = ({ client, isOpen, onClose, project, flavor }) => {
   const { t } = useLingui()
 
-  const [message, setMessage] = useState<{ text: string; type: "error" | "success" } | null>(null)
+  const [message, setMessage] = useState<{ text: string; type: "error" | "info" } | null>(null)
   const [isAddingSpec, setIsAddingSpec] = useState(false)
   const [extraSpecsPromise, setExtraSpecsPromise] = useState<Promise<Record<string, string>> | null>(null)
 
