@@ -1,10 +1,10 @@
+import { Link, useParams, useNavigate } from "@tanstack/react-router"
 import {
   DataGridCell,
   DataGridRow,
   PopupMenu,
   PopupMenuItem,
   PopupMenuOptions,
-  Icon,
 } from "@cloudoperators/juno-ui-components"
 import { useLingui } from "@lingui/react/macro"
 import { GlanceImage } from "@/server/Compute/types/image"
@@ -16,7 +16,6 @@ interface ImageTableRowProps {
   image: GlanceImage
   onEdit: (image: GlanceImage) => void
   onDelete: (image: GlanceImage) => void
-  onLaunch: (image: GlanceImage) => void
   onActivationStatusChange: (image: GlanceImage) => void
   permissions: {
     canCreate: boolean
@@ -25,48 +24,52 @@ interface ImageTableRowProps {
   }
 }
 
-export function ImageTableRow({
-  image,
-  permissions,
-  onEdit,
-  onDelete,
-  onLaunch,
-  onActivationStatusChange,
-}: ImageTableRowProps) {
+export function ImageTableRow({ image, permissions, onEdit, onDelete, onActivationStatusChange }: ImageTableRowProps) {
   const { t } = useLingui()
-  const { id, name, status, visibility, size, disk_format, os_type, os_distro, created_at } = image
+  const { id, name, status, visibility, size, disk_format, created_at } = image
   const imageName = name || t`Unnamed`
+
+  const { accountId, projectId } = useParams({
+    from: "/_auth/accounts/$accountId/projects/$projectId/compute/$",
+  })
+  const navigate = useNavigate()
 
   return (
     <DataGridRow key={id} data-testid={`image-row-${id}`}>
-      <DataGridCell>{imageName}</DataGridCell>
+      <DataGridCell>
+        <Link
+          to="/accounts/$accountId/projects/$projectId/compute/images/$imageId"
+          params={{ projectId, accountId, imageId: id }}
+          className="text-theme-default hover:text-theme-link"
+        >
+          {imageName}
+        </Link>
+      </DataGridCell>
       <DataGridCell>
         <StatusBadge status={status} />
       </DataGridCell>
       <DataGridCell>
         <VisibilityBadge visibility={visibility} />
       </DataGridCell>
+      <DataGridCell>{image.protected ? t`Yes` : t`No`}</DataGridCell>
       <DataGridCell>
         <SizeDisplay size={size} />
       </DataGridCell>
       <DataGridCell>{disk_format || t`N/A`}</DataGridCell>
-      <DataGridCell>
-        {os_type ? (
-          <div className="flex items-center space-x-2">
-            <Icon icon={"info"} color="jn-text-theme-info" />
-            <span>{os_type}</span>
-            {os_distro && <span className="text-xs text-gray-400">({os_distro})</span>}
-          </div>
-        ) : (
-          "N/A"
-        )}
-      </DataGridCell>
-      <DataGridCell>{created_at ? new Date(created_at).toLocaleDateString() : "N/A"}</DataGridCell>
+      <DataGridCell>{created_at ? new Date(created_at).toLocaleDateString() : t`N/A`}</DataGridCell>
 
       <DataGridCell>
         <PopupMenu>
           <PopupMenuOptions>
-            <PopupMenuItem label={t`Launch`} onClick={() => onLaunch(image)} />
+            <PopupMenuItem
+              label={t`Show Details`}
+              onClick={() =>
+                navigate({
+                  to: "/accounts/$accountId/projects/$projectId/compute/images/$imageId",
+                  params: { accountId, projectId, imageId: id },
+                })
+              }
+            />
             {permissions.canEdit && (
               <PopupMenuItem
                 label={image.status === "deactivated" ? t`Re-activate` : t`Deactivate`}
