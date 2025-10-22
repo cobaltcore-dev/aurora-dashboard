@@ -75,7 +75,7 @@ function AccessContent({
   onAccessUpdate: (access: FlavorAccess[]) => void
   isAddingAccess: boolean
   setIsAddingAccess: (adding: boolean) => void
-  setMessage: (msg: { text: string; type: "error" | "success" } | null) => void
+  setMessage: (msg: { text: string; type: "error" | "info" } | null) => void
 }) {
   const { t } = useLingui()
   const { translateError } = useErrorTranslation()
@@ -130,7 +130,7 @@ function AccessContent({
 
       setMessage({
         text: t`Tenant access for "${trimmedTenantId}" has been added successfully.`,
-        type: "success",
+        type: "info",
       })
       resetForm()
       setIsAddingAccess(false)
@@ -159,7 +159,7 @@ function AccessContent({
       onAccessUpdate(updatedAccess)
       setMessage({
         text: t`Tenant access for "${tenantIdToRemove}" has been removed successfully.`,
-        type: "success",
+        type: "info",
       })
     } catch (error) {
       const errorMessage = (error as Error)?.message || "Failed to remove tenant access"
@@ -261,7 +261,7 @@ function AccessContent({
 export const ManageAccessModal: React.FC<ManageAccessProps> = ({ client, isOpen, onClose, project, flavor }) => {
   const { t } = useLingui()
 
-  const [message, setMessage] = useState<{ text: string; type: "error" | "success" } | null>(null)
+  const [message, setMessage] = useState<{ text: string; type: "error" | "info" } | null>(null)
   const [isAddingAccess, setIsAddingAccess] = useState(false)
   const [flavorAccessPromise, setFlavorAccessPromise] = useState<Promise<FlavorAccess[]> | null>(null)
 
