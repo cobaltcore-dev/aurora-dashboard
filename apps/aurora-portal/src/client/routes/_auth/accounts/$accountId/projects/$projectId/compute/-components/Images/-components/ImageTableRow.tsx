@@ -76,9 +76,9 @@ export function ImageTableRow({ image, permissions, onEdit, onDelete, onActivati
                 onClick={() => onActivationStatusChange(image)}
               />
             )}
-            {permissions.canEdit && <PopupMenuItem icon="edit" label={t`Edit`} onClick={() => onEdit(image)} />}
-            {permissions.canDelete && (
-              <PopupMenuItem icon="deleteForever" label={t`Delete`} onClick={() => onDelete(image)} />
+            {permissions.canEdit && <PopupMenuItem label={t`Edit`} onClick={() => onEdit(image)} />}
+            {permissions.canDelete && !image.protected && (
+              <PopupMenuItem label={t`Delete`} onClick={() => onDelete(image)} />
             )}
           </PopupMenuOptions>
         </PopupMenu>

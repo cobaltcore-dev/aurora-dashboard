@@ -379,10 +379,11 @@ export function ImageListView({
       )}
       {selectedImage && (
         <DeleteImageModal
+          image={selectedImage}
           isOpen={deleteModalOpen}
           isLoading={isLoading}
+          isDisabled={!selectedImage.protected && permissions.canDelete}
           onClose={() => setDeleteModalOpen(false)}
-          image={selectedImage}
           onDelete={handleDelete}
         />
       )}
