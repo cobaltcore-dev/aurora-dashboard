@@ -121,7 +121,7 @@ export const DeleteImageModal: React.FC<DeleteImageModalProps> = ({ isOpen, isLo
               <DataGridRow>
                 <DataGridHeadCell>{t`Created`}</DataGridHeadCell>
                 <DataGridCell>
-                  {image.created_at ? new Date(image.created_at).toLocaleDateString() : "N/A"}
+                  {image.created_at ? new Date(image.created_at).toLocaleDateString() : t`N/A`}
                 </DataGridCell>
               </DataGridRow>
             </DataGrid>
