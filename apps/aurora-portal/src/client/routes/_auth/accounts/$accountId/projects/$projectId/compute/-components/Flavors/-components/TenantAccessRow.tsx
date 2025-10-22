@@ -76,7 +76,9 @@ export const TenantAccessRow: React.FC<TenantAccessRowProps> = ({ access, isDele
             <Spinner variant="primary" />
           </Stack>
         ) : (
-          button()
+          <Stack distribution="end" alignment="end">
+            {button()}
+          </Stack>
         )}
       </DataGridCell>
     </DataGridRow>

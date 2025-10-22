@@ -69,7 +69,9 @@ export const SpecRow: React.FC<SpecRowProps> = ({ specKey, value, isDeleting, on
             <Spinner variant="primary" />
           </Stack>
         ) : (
-          button()
+          <Stack distribution="end" alignment="end">
+            {button()}
+          </Stack>
         )}
       </DataGridCell>
     </DataGridRow>
