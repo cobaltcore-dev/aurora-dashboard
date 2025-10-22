@@ -10,6 +10,7 @@ import {
   Message,
   Spinner,
   Stack,
+  Checkbox,
 } from "@cloudoperators/juno-ui-components"
 import { Flavor } from "@/server/Compute/types/flavor"
 import { validateField, FlavorFormField, FieldErrors } from "./flavorValidation"
@@ -33,17 +34,24 @@ export const CreateFlavorModal: React.FC<CreateFlavorModalProps> = ({
 }) => {
   const { t } = useLingui()
   const { translateError } = useErrorTranslation()
-  const [newFlavor, setNewFlavor] = useState<Partial<Flavor>>({})
+  const [newFlavor, setNewFlavor] = useState<Partial<Flavor>>({
+    "os-flavor-access:is_public": true,
+  })
   const [errors, setErrors] = useState<FieldErrors>({})
   const [isLoading, setIsLoading] = useState(false)
   const [generalError, setGeneralError] = useState<string | null>(null)
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target
-    setNewFlavor((prev) => ({
-      ...prev,
-      [name]: value,
-    }))
+    const { name, value, type, checked } = e.target
+
+    setNewFlavor((prev) => {
+      const newState = {
+        ...prev,
+        [name]: type === "checkbox" ? checked : value,
+      }
+
+      return newState
+    })
     if (generalError) setGeneralError(null)
   }
 
@@ -78,9 +86,17 @@ export const CreateFlavorModal: React.FC<CreateFlavorModalProps> = ({
       }
     })
 
-    const optionalFields: FlavorFormField[] = ["id", "swap", "OS-FLV-EXT-DATA:ephemeral", "rxtx_factor", "description"]
+    const optionalFields: FlavorFormField[] = [
+      "id",
+      "swap",
+      "OS-FLV-EXT-DATA:ephemeral",
+      "rxtx_factor",
+      "description",
+      "os-flavor-access:is_public",
+    ]
     optionalFields.forEach((key) => {
       const value = newFlavor[key]
+
       if (value !== undefined && value !== "" && value !== null) {
         const error = validateField(key, value, t)
         if (error) {
@@ -118,7 +134,9 @@ export const CreateFlavorModal: React.FC<CreateFlavorModalProps> = ({
   }
 
   const handleClose = () => {
-    setNewFlavor({})
+    setNewFlavor({
+      "os-flavor-access:is_public": true,
+    })
     setErrors({})
     setGeneralError(null)
     onClose()
@@ -260,6 +278,15 @@ export const CreateFlavorModal: React.FC<CreateFlavorModalProps> = ({
                 onBlur={handleBlur}
                 errortext={errors.rxtx_factor}
                 type="number"
+              />
+            </FormRow>
+            <FormRow>
+              <Checkbox
+                name="os-flavor-access:is_public"
+                label={t`Public Flavor`}
+                helptext={t`If checked, this flavor will be available to all tenants. If unchecked, access must be explicitly granted to specific tenants.`}
+                checked={!!newFlavor["os-flavor-access:is_public"]}
+                onChange={handleInputChange}
               />
             </FormRow>
           </FormSection>

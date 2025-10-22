@@ -17,6 +17,7 @@ import { DeleteFlavorModal } from "./DeleteFlavorModal"
 import { useState } from "react"
 import { TrpcClient } from "@/client/trpcClient"
 import { EditSpecModal } from "./EditSpecModal"
+import { ManageAccessModal } from "./ManageAccessModal"
 
 interface FlavorListContainerProps {
   flavors?: Flavor[]
@@ -25,6 +26,7 @@ interface FlavorListContainerProps {
   project: string
   onFlavorDeleted?: (flavorName: string) => void
   canDeleteFlavor?: boolean
+  canMangageAccess?: boolean
 }
 
 export const FlavorListContainer = ({
@@ -34,10 +36,12 @@ export const FlavorListContainer = ({
   project,
   onFlavorDeleted,
   canDeleteFlavor,
+  canMangageAccess,
 }: FlavorListContainerProps) => {
   const { t } = useLingui()
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
   const [specModalOpen, setSpecModalOpen] = useState(false)
+  const [accessModalOpen, setAccessModalOpen] = useState(false)
   const [selectedFlavor, setSelectedFlavor] = useState<Flavor | null>(null)
 
   const openDeleteModal = (flavor: Flavor) => {
@@ -48,6 +52,11 @@ export const FlavorListContainer = ({
   const openSpecModal = (flavor: Flavor) => {
     setSelectedFlavor(flavor)
     setSpecModalOpen(true)
+  }
+
+  const openAccessModal = (flavor: Flavor) => {
+    setSelectedFlavor(flavor)
+    setAccessModalOpen(true)
   }
 
   const closeDeleteModal = () => {
@@ -140,13 +149,13 @@ export const FlavorListContainer = ({
             <DataGridCell>
               <PopupMenu>
                 <PopupMenuOptions>
-                  <PopupMenuItem label={t`Extra Specs`} icon="info" onClick={() => openSpecModal(flavor)} />
+                  <PopupMenuItem label={t`Extra Specs`} onClick={() => openSpecModal(flavor)} />
+
+                  {canMangageAccess && (
+                    <PopupMenuItem label={t`Manage Access`} onClick={() => openAccessModal(flavor)} />
+                  )}
                   {canDeleteFlavor && (
-                    <PopupMenuItem
-                      icon="deleteForever"
-                      label={t`Delete Flavor`}
-                      onClick={() => openDeleteModal(flavor)}
-                    />
+                    <PopupMenuItem label={t`Delete Flavor`} onClick={() => openDeleteModal(flavor)} />
                   )}
                 </PopupMenuOptions>
               </PopupMenu>
@@ -166,6 +175,14 @@ export const FlavorListContainer = ({
         client={client}
         isOpen={specModalOpen}
         onClose={() => setSpecModalOpen(false)}
+        project={project}
+        flavor={selectedFlavor}
+      />
+
+      <ManageAccessModal
+        client={client}
+        isOpen={accessModalOpen}
+        onClose={() => setAccessModalOpen(false)}
         project={project}
         flavor={selectedFlavor}
       />

@@ -1,5 +1,13 @@
 import React, { useState } from "react"
-import { Stack, Select, SelectOption, InputGroup, SearchInput, Button } from "@cloudoperators/juno-ui-components"
+import {
+  Stack,
+  Select,
+  SelectOption,
+  SortButton,
+  InputGroup,
+  SearchInput,
+  Button,
+} from "@cloudoperators/juno-ui-components"
 import { useLingui } from "@lingui/react/macro"
 
 interface FilterToolbarProps {
@@ -7,8 +15,8 @@ interface FilterToolbarProps {
   setSearchTerm: (_term: string) => void
   sortBy: string
   handleSortByChange: (_term: string | number | string[] | undefined) => void
-  sortDirection: string
-  handleSortDirectionChange: (_term: string | number | string[] | undefined) => void
+  sortDirection: "asc" | "desc"
+  handleSortDirectionChange: (_term: "asc" | "desc") => void
   setCreateModalOpen: (_bool: boolean) => void
   canCreateFlavor?: boolean
 }
@@ -40,16 +48,8 @@ const FilterToolbar: React.FC<FilterToolbarProps> = ({
     <Stack alignment="center" gap="8" className="bg-theme-background-lvl-1 p-4 my-px">
       <Stack direction="vertical" gap="3" className="w-full">
         <Stack gap="6" className="flex flex-row items-center flex-wrap w-full">
-          <SearchInput
-            placeholder={t`Enter search term or regex`}
-            value={searchTerm || ""}
-            className="w-full md:w-70 flex-shrink-0"
-            onInput={handleSearchChange}
-            onClear={() => setSearchTerm("")}
-            data-testid="search-input"
-          />
           <Stack className="flex flex-row items-center">
-            <InputGroup className="flex-shrink-0 w-full md:w-70">
+            <InputGroup className="flex-shrink-0 w-full md:w-60">
               <Select onChange={handleSortByChange} value={sortBy} data-testid="sort-select" label={t`sort by`}>
                 <SelectOption value="name">{t`Name`}</SelectOption>
                 <SelectOption value="vcpus">{t`VCPUs`}</SelectOption>
@@ -59,16 +59,24 @@ const FilterToolbar: React.FC<FilterToolbarProps> = ({
                 <SelectOption value="swap">{t`Swap`}</SelectOption>
                 <SelectOption value="rxtx_factor">{t`RX/TX Factor`}</SelectOption>
               </Select>
-              <Select onChange={handleSortDirectionChange} value={sortDirection} data-testid="direction-select">
-                <SelectOption value="asc">{t`Ascending`}</SelectOption>
-                <SelectOption value="desc">{t`Descending`}</SelectOption>
-              </Select>
+              <SortButton
+                data-testid="direction-toggle"
+                order={sortDirection}
+                onOrderChange={(order: string) => handleSortDirectionChange(order as "asc" | "desc")}
+              />
             </InputGroup>
           </Stack>
+          <SearchInput
+            placeholder={t`Enter search term or regex`}
+            value={searchTerm || ""}
+            className="w-full md:w-70 flex-shrink-0"
+            onInput={handleSearchChange}
+            onClear={() => setSearchTerm("")}
+            data-testid="search-input"
+          />
           {canCreateFlavor && (
             <Stack direction="horizontal" className="flex-grow items-center justify-end">
               <Button
-                icon="addCircle"
                 label={t`Create Flavor`}
                 onClick={() => {
                   setCreateModalOpen(true)

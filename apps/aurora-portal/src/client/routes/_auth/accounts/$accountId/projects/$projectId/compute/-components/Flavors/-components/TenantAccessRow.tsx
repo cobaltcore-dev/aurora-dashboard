@@ -2,17 +2,22 @@ import React, { useState, useEffect } from "react"
 import { useLingui } from "@lingui/react/macro"
 import { DataGridRow, DataGridCell, Button, Stack, Spinner } from "@cloudoperators/juno-ui-components"
 
-interface SpecRowProps {
-  specKey: string
-  value: string
-  isDeleting: boolean
-  onDelete: () => void
-  canDelete?: boolean
+interface FlavorAccess {
+  flavor_id: string
+  tenant_id: string
 }
 
-export const SpecRow: React.FC<SpecRowProps> = ({ specKey, value, isDeleting, onDelete, canDelete }) => {
+interface TenantAccessRowProps {
+  access: FlavorAccess
+  isDeleting: boolean
+  onDelete: () => void
+  canDelete: boolean
+}
+
+export const TenantAccessRow: React.FC<TenantAccessRowProps> = ({ access, isDeleting, onDelete, canDelete }) => {
   const { t } = useLingui()
   const [confirm, setConfirm] = useState(false)
+
   useEffect(() => {
     if (confirm) {
       const timer = setTimeout(() => {
@@ -37,22 +42,24 @@ export const SpecRow: React.FC<SpecRowProps> = ({ specKey, value, isDeleting, on
         <Button
           variant="primary-danger"
           onClick={handleConfirmDelete}
-          title={t`Delete`}
-          aria-label={t`Delete`}
-          data-testid="confirm-deletion"
+          title={t`Remove tenant access`}
+          aria-label={t`Remove tenant access`}
+          data-testid="confirm-removal"
           disabled={isDeleting}
         >
-          {t`Delete`}
+          {t`Remove`}
         </Button>
       )
     } else {
+      const tenantId = access.tenant_id
+
       return (
         <Button
           icon="deleteForever"
           onClick={() => setConfirm(true)}
-          title={t`Delete ${specKey}`}
-          aria-label={t`Delete ${specKey}`}
-          data-testid={`delete-${specKey}`}
+          title={t`Remove access for ${tenantId}`}
+          aria-label={t`Remove access for ${tenantId}`}
+          data-testid={`remove-${tenantId}`}
           disabled={isDeleting}
         />
       )
@@ -61,8 +68,8 @@ export const SpecRow: React.FC<SpecRowProps> = ({ specKey, value, isDeleting, on
 
   return (
     <DataGridRow>
-      <DataGridCell>{specKey}</DataGridCell>
-      <DataGridCell>{value}</DataGridCell>
+      <DataGridCell>{access.flavor_id}</DataGridCell>
+      <DataGridCell className="break-all">{access.tenant_id}</DataGridCell>
       <DataGridCell>
         {isDeleting ? (
           <Stack distribution="center" alignment="center">
