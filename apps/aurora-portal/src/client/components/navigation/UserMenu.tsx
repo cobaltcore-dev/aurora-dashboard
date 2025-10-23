@@ -22,7 +22,7 @@ export function UserMenu() {
 
   return (
     <div className="relative" ref={menuRef} tabIndex={0} onBlur={handleBlur}>
-      <button onClick={toggleMenu} className="p-2 rounded-full">
+      <button onClick={toggleMenu} className="py-2 rounded-full">
         <Icon color="jn-global-text" name="accountCircle" className="w-6 h-6" />
       </button>
       {isOpen && (
