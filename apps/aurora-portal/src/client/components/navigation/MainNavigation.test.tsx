@@ -1,5 +1,8 @@
-import { describe, test, expect, vi } from "vitest"
-import { render, screen, fireEvent, waitFor } from "@testing-library/react"
+import { describe, test, expect, vi, beforeAll } from "vitest"
+import { render, screen, fireEvent, waitFor, act } from "@testing-library/react"
+import { i18n } from "@lingui/core"
+import { I18nProvider } from "@lingui/react"
+import { ReactNode } from "react"
 import { MainNavigation } from "./MainNavigation"
 import {
   createRootRoute,
@@ -9,6 +12,13 @@ import {
   Outlet,
   createMemoryHistory,
 } from "@tanstack/react-router"
+
+beforeAll(() => {
+  // Initialize i18n with a default locale if needed
+  if (!i18n.locale) {
+    i18n.activate("en")
+  }
+})
 
 // Mock the UserMenu component
 vi.mock("./UserMenu", () => ({
@@ -20,6 +30,9 @@ vi.mock("../../assets/logo.svg?react", () => ({
   default: () => <div data-testid="aurora-logo">Logo</div>,
 }))
 
+// Testing provider that wraps components with i18n
+const TestingProvider = ({ children }: { children: ReactNode }) => <I18nProvider i18n={i18n}>{children}</I18nProvider>
+
 describe("MainNavigation", () => {
   // Helper function to create a test router with route loaders that include crumb data
   const createTestRouter = (Component: React.JSX.Element) => {
@@ -29,10 +42,12 @@ describe("MainNavigation", () => {
 
     const rootRoute = createRootRoute({
       component: () => (
-        <div>
-          {Component}
-          <Outlet />
-        </div>
+        <TestingProvider>
+          <div>
+            {Component}
+            <Outlet />
+          </div>
+        </TestingProvider>
       ),
     })
 
@@ -108,7 +123,11 @@ describe("MainNavigation", () => {
     { route: "/about", label: "About" },
   ]
 
-  test("renders logo and navigation items", async () => {
+  test("renders logo and navigation items in English", async () => {
+    await act(async () => {
+      i18n.activate("en")
+    })
+
     const router = createTestRouter(<MainNavigation items={mainNavItems} />)
 
     await waitFor(() => render(<RouterProvider router={router} />))
@@ -126,6 +145,10 @@ describe("MainNavigation", () => {
   })
 
   test("renders domain name when route includes domain data", async () => {
+    await act(async () => {
+      i18n.activate("en")
+    })
+
     const router = createTestRouter(<MainNavigation items={mainNavItems} />)
 
     // Navigate to a domain route first using the correct syntax with params
@@ -144,6 +167,10 @@ describe("MainNavigation", () => {
   })
 
   test("renders project name when route includes project data", async () => {
+    await act(async () => {
+      i18n.activate("en")
+    })
+
     const router = createTestRouter(<MainNavigation items={mainNavItems} />)
 
     // Navigate to a project route with the correct syntax using params
@@ -165,6 +192,10 @@ describe("MainNavigation", () => {
   })
 
   test("domain link navigates to projects page", async () => {
+    await act(async () => {
+      i18n.activate("en")
+    })
+
     const router = createTestRouter(<MainNavigation items={mainNavItems} />)
 
     // Navigate to a domain route first
@@ -178,7 +209,6 @@ describe("MainNavigation", () => {
 
     await waitFor(() => render(<RouterProvider router={router} />))
 
-    // Clean the navigation spy before the test
     // Click on the domain link
     await waitFor(async () => {
       const domainLink = screen.getByTestId("domain-link")
@@ -189,17 +219,17 @@ describe("MainNavigation", () => {
   })
 
   test("navigation items have correct links", async () => {
-    const router = createTestRouter(<MainNavigation items={mainNavItems} />)
+    await act(async () => {
+      i18n.activate("en")
+    })
 
-    // Spy on router navigation
+    const router = createTestRouter(<MainNavigation items={mainNavItems} />)
 
     await waitFor(() => render(<RouterProvider router={router} />))
 
-    // Find the logo link (the first link in the document)
     await waitFor(async () => {
       const aboutLink = screen.getByText("About")
       await fireEvent.click(aboutLink)
-      // Verify navigation was called with correct path
 
       // Now we should expect to see the content of the About page
       expect(await screen.queryByText("About Page Content")).toBeInTheDocument()
@@ -207,6 +237,10 @@ describe("MainNavigation", () => {
   })
 
   test("renders custom navigation items when provided", async () => {
+    await act(async () => {
+      i18n.activate("en")
+    })
+
     const customItems = [
       { route: "/dashboard", label: "Dashboard" },
       { route: "/settings", label: "Settings" },
