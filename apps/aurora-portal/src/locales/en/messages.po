@@ -92,8 +92,8 @@ msgstr "Auto Update"
 msgid "Back"
 msgstr "Back"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId.tsx:55
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId.tsx:69
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId.tsx:80
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId.tsx:94
 msgid "Back to Images"
 msgstr "Back to Images"
 
@@ -328,7 +328,7 @@ msgstr "Ephemeral Disk (GiB)"
 msgid "Ephemeral Disk must be an integer ≥ 0."
 msgstr "Ephemeral Disk must be an integer ≥ 0."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId.tsx:51
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId.tsx:76
 msgid "Error loading image"
 msgstr "Error loading image"
 
@@ -546,7 +546,7 @@ msgstr "Image instance \"{imageName}\" has been updated"
 msgid "Image Name"
 msgstr "Image Name"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId.tsx:66
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId.tsx:91
 msgid "Image not found"
 msgstr "Image not found"
 
@@ -554,6 +554,7 @@ msgstr "Image not found"
 msgid "Image Version"
 msgstr "Image Version"
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId.tsx:116
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/ComputeNavBar.tsx:30
 msgid "Images"
 msgstr "Images"
@@ -627,7 +628,7 @@ msgstr "Loading Flavors..."
 msgid "Loading Gardener..."
 msgstr "Loading Gardener..."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId.tsx:39
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId.tsx:64
 msgid "Loading Image Details..."
 msgstr "Loading Image Details..."
 
@@ -834,6 +835,7 @@ msgstr "OS Updates"
 msgid "Our Mission"
 msgstr "Our Mission"
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId.tsx:113
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/ComputeNavBar.tsx:29
 msgid "Overview"
 msgstr "Overview"
@@ -1247,7 +1249,7 @@ msgstr "Unable to Re-activate Image"
 msgid "Unknown error"
 msgstr "Unknown error"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId.tsx:87
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId.tsx:122
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageTableRow.tsx:30
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:121
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImageModal.tsx:91
