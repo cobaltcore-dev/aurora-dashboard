@@ -288,6 +288,10 @@ msgstr "Ephemeral Disk (GiB)"
 msgid "Ephemeral Disk must be an integer ≥ 0."
 msgstr "Ephemeral Disk muss eine ganze Zahl ≥ 0 sein."
 
+#: src/client/components/Auth/SessionExpirationTimer.tsx:14
+msgid "expired!"
+msgstr ""
+
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:162
 msgid "Extra spec \"{keyToDelete}\" has been deleted successfully."
 msgstr "Extra spec \"{keyToDelete}\" wurde erfolgreich gelöscht."
@@ -422,6 +426,14 @@ msgstr "GitHub"
 msgid "Group Name"
 msgstr "Gruppenname"
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/index.tsx:26
+msgid "Hello \"/accounts/$accountId/projects_/$projectId/network/\"!"
+msgstr ""
+
+#: src/client/routes/_auth/aurora.tsx:16
+msgid "Hi"
+msgstr ""
+
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/DeleteFlavorModal.tsx:120
 msgid "ID"
 msgstr "ID"
@@ -533,6 +545,10 @@ msgstr "Lädt Servergruppen"
 msgid "Loading..."
 msgstr "Lädt..."
 
+#: src/client/components/navigation/MainNavigation.tsx:80
+msgid "Log Out"
+msgstr ""
+
 #: src/client/routes/auth/login.tsx:73
 msgid "Login failed. Please check your credentials and try again."
 msgstr "Anmeldung fehlgeschlagen. Bitte überprüfen Sie Ihre Anmeldeinformationen und versuchen Sie es erneut."
@@ -631,6 +647,14 @@ msgstr "No flavors found"
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/KeyPairs/-components/KeyPairListView.tsx:137
 msgid "No key pairs available."
 msgstr "Keine Keypaare verfügbar"
+
+#: src/client/routes/_auth/accounts/$accountId/projects/-components/ProjectCardView.tsx:45
+msgid "No projects available."
+msgstr ""
+
+#: src/client/routes/_auth/accounts/$accountId/projects/-components/ProjectListView.tsx:35
+msgid "No projects found"
+msgstr ""
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/ServerGroups/List.tsx:16
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/ServerGroups/components/ServerGroupListView.tsx:141
@@ -853,8 +877,13 @@ msgid "Share"
 msgstr "Teilen"
 
 #: src/client/routes/auth/login.tsx:197
+#: src/client/components/Auth/AuthMenu.tsx:49
 msgid "Sign In"
 msgstr "Einloggen"
+
+#: src/client/components/Auth/AuthMenu.tsx:40
+msgid "Sign Out"
+msgstr ""
 
 #: src/client/App.tsx:19
 msgid "Something went wrong:"
@@ -1084,6 +1113,10 @@ msgstr "Möchtest du <0>{clusterName}</0> aus deinem Projekt entfernen?"
 #: src/client/routes/auth/login.tsx:96
 msgid "You are already signed in."
 msgstr "Sie sind bereits angemeldet."
+
+#: src/client/routes/_auth/aurora.tsx:19
+msgid "You are currently on the dashboard route."
+msgstr ""
 
 #: src/client/utils/useErrorTranslation.ts:98
 msgid "You are not authorized to access flavor access information. Please log in again."
