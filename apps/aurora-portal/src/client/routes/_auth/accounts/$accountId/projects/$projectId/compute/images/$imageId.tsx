@@ -6,13 +6,38 @@ import {
   Spinner,
   ContentHeading,
 } from "@cloudoperators/juno-ui-components/index"
-import { createFileRoute, useNavigate, useParams } from "@tanstack/react-router"
+import { createFileRoute, redirect, useNavigate, useParams } from "@tanstack/react-router"
+import { Trans, useLingui } from "@lingui/react/macro"
+import { getServiceIndex } from "@/server/Authentication/helpers"
 import { trpcReact } from "@/client/trpcClient"
 import { ImageDetailsView } from "../-components/Images/-components/ImageDetailsView"
-import { Trans, useLingui } from "@lingui/react/macro"
 
 export const Route = createFileRoute("/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId")({
   component: RouteComponent,
+  beforeLoad: async ({ context, params }) => {
+    const { trpcClient } = context
+    const { accountId } = params
+
+    const availableServices = (await trpcClient?.auth.getAvailableServices.query()) || []
+
+    const serviceIndex = getServiceIndex(availableServices)
+
+    // Redirect to the "Projects Overview" page if none of compute services available
+    if (!serviceIndex["image"] && !serviceIndex["compute"]) {
+      throw redirect({
+        to: "/accounts/$accountId/projects",
+        params: { accountId },
+      })
+    }
+
+    if (!serviceIndex["image"]["glance"]) {
+      // Redirect to the "Compute Services Overview" page if the "Glance" service is not available
+      throw redirect({
+        to: "/accounts/$accountId/projects/$projectId/compute/$",
+        params: { ...params, _splat: undefined },
+      })
+    }
+  },
 })
 
 function RouteComponent() {
