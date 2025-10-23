@@ -103,7 +103,17 @@ function RouteComponent() {
       <div className="max-w-7xl mx-auto">
         <Stack direction="vertical">
           <Breadcrumb className="my-6">
-            <BreadcrumbItem onClick={handleBack} label="Images" />
+            <BreadcrumbItem
+              onClick={() => {
+                navigate({
+                  to: "/accounts/$accountId/projects/$projectId/compute/$",
+                  params: { accountId, projectId, _splat: undefined },
+                })
+              }}
+              label={t`Overview`}
+              icon="home"
+            />
+            <BreadcrumbItem onClick={handleBack} label={t`Images`} />
             <BreadcrumbItem active label={image.id} />
           </Breadcrumb>
 
