@@ -1,6 +1,6 @@
 import { createRouter } from "@tanstack/react-router"
 import { routeTree } from "./routeTree.gen"
-import { trpcClient } from "./trpcClient"
+import { trpcClient, trpcReact } from "./trpcClient"
 
 declare module "@tanstack/react-router" {
   interface Register {
@@ -11,6 +11,7 @@ declare module "@tanstack/react-router" {
 export const router = createRouter({
   routeTree,
   context: {
+    trpcReact,
     trpcClient,
     auth: undefined!,
   },
