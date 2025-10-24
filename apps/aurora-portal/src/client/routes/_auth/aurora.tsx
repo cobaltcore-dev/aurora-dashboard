@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router"
 
 import { useAuth } from "../../store/AuthProvider"
+import { Trans } from "@lingui/react/macro"
 
 export const Route = createFileRoute("/_auth/aurora")({
   component: DashboardPage,
@@ -11,8 +12,12 @@ function DashboardPage() {
 
   return (
     <div className="grid gap-2 p-2">
-      <p>Hi {user?.name}</p>
-      <p>You are currently on the dashboard route.</p>
+      <p>
+        <Trans>Hi</Trans> {user?.name}
+      </p>
+      <p>
+        <Trans>You are currently on the dashboard route.</Trans>
+      </p>
     </div>
   )
 }

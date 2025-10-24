@@ -1,6 +1,7 @@
 import { useNavigate } from "@tanstack/react-router"
 import { Project } from "@/server/Project/types/models"
 import { Badge, Box, ContentHeading } from "@cloudoperators/juno-ui-components"
+import { Trans } from "@lingui/react/macro"
 
 type ProjectCardProps = {
   project: Project
@@ -40,7 +41,9 @@ export function ProjectCardView({ projects }: ProjectCardViewProps) {
         {projects?.length ? (
           projects.map((project) => <ProjectCard key={project.id} project={project} />)
         ) : (
-          <p className="text-center ">No projects available.</p>
+          <p className="text-center ">
+            <Trans>No projects available.</Trans>
+          </p>
         )}
       </div>
     </div>
