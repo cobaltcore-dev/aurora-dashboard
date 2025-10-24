@@ -3,13 +3,12 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React from "react"
 import { cleanup, render, screen, act } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import { i18n } from "@lingui/core"
 import { I18nProvider } from "@lingui/react"
-import { Filters, FiltersProps } from "./index"
+import { ListToolbar, ListToolbarProps } from "./index"
 
 const filters = [
   {
@@ -34,18 +33,18 @@ const filterSettings = {
   searchTerm: "",
 }
 
-const renderShell = ({ filters, filterSettings, onFilterChange }: FiltersProps) => ({
+const renderShell = ({ filters, filterSettings, onFilterChange }: ListToolbarProps) => ({
   user: userEvent.setup({ delay: 0 }),
   ...render(
     <I18nProvider i18n={i18n}>
       <PortalProvider>
-        <Filters filters={filters} filterSettings={filterSettings} onFilterChange={onFilterChange} />
+        <ListToolbar filters={filters} filterSettings={filterSettings} onFilterChange={onFilterChange} />
       </PortalProvider>
     </I18nProvider>
   ),
 })
 
-describe("Filters", () => {
+describe("ListToolbar", () => {
   beforeEach(async () => {
     await act(async () => {
       i18n.activate("en")

@@ -4,11 +4,12 @@ import React, { useState } from "react"
 import { Button } from "@cloudoperators/juno-ui-components/index"
 import { Cluster } from "@/server/Gardener/types/cluster"
 
+import { FilterSettings } from "@/client/components/ListToolbar/types"
+import { ListToolbar } from "@/client/components/ListToolbar"
+
 import { ClusterTable } from "../-components/ClusterTable"
 import CreateClusterWizard from "../-components/CreateClusterDialog"
-
-import { Filters } from "../-components/Filters"
-import { FilterSettings } from "../-components/Filters/types"
+import { Trans, useLingui } from "@lingui/react/macro"
 
 export const Route = createFileRoute("/_auth/accounts/$accountId/projects/$projectId/gardener/clusters/")({
   component: RouteComponent,
@@ -27,6 +28,7 @@ export const Route = createFileRoute("/_auth/accounts/$accountId/projects/$proje
 })
 
 function RouteComponent() {
+  const { t } = useLingui()
   const { clusters, trpcClient, permissions } = useLoaderData({ from: Route.id })
   const router = useRouter()
   const [filterSettings, setFilterSettings] = useState<FilterSettings>({})
@@ -99,12 +101,12 @@ function RouteComponent() {
           <div className="flex gap-2 mt-4 sm:mt-0">
             <Button onClick={handleRefresh}>
               <RefreshCw className={`h-4 w-4 mr-2`} />
-              Refresh
+              <Trans>Refresh</Trans>
             </Button>
             {permissions?.create && (
               <Button onClick={handleCreateWizzard} variant="primary">
                 <Plus className="h-4 w-4 mr-2" />
-                New Cluster
+                <Trans>New Cluster</Trans>
               </Button>
             )}
           </div>
@@ -112,21 +114,22 @@ function RouteComponent() {
 
         {/* Main content container */}
         <div>
-          <Filters
+          <ListToolbar
             filters={[
               {
-                displayName: "Status",
+                displayName: t`Status`,
                 filterName: "status",
                 values: statuses,
               },
               {
-                displayName: "Kubernetes Version",
+                displayName: t`Kubernetes Version`,
                 filterName: "version",
                 values: versions,
               },
             ]}
             filterSettings={filterSettings}
             onFilterChange={setFilterSettings}
+            searchInputProps={{ placeholder: t`Search clusters...` }}
           />
 
           <ClusterTable clusters={filteredAndSortedClusters} filteredCount={clusters?.length || 0} />
