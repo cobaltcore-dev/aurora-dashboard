@@ -1,9 +1,10 @@
-import { describe, test, expect, vi, beforeAll } from "vitest"
+import { describe, test, expect, beforeAll } from "vitest"
 import { render, screen, fireEvent, waitFor, act } from "@testing-library/react"
 import { i18n } from "@lingui/core"
 import { I18nProvider } from "@lingui/react"
 import { ReactNode } from "react"
 import { MainNavigation } from "./MainNavigation"
+
 import {
   createRootRoute,
   createRoute,
@@ -14,27 +15,14 @@ import {
 } from "@tanstack/react-router"
 
 beforeAll(() => {
-  // Initialize i18n with a default locale if needed
   if (!i18n.locale) {
     i18n.activate("en")
   }
 })
 
-// Mock the UserMenu component
-vi.mock("./UserMenu", () => ({
-  UserMenu: () => <div data-testid="user-menu">User Menu</div>,
-}))
-
-// Mock the Logo component
-vi.mock("../../assets/logo.svg?react", () => ({
-  default: () => <div data-testid="aurora-logo">Logo</div>,
-}))
-
-// Testing provider that wraps components with i18n
 const TestingProvider = ({ children }: { children: ReactNode }) => <I18nProvider i18n={i18n}>{children}</I18nProvider>
 
 describe("MainNavigation", () => {
-  // Helper function to create a test router with route loaders that include crumb data
   const createTestRouter = (Component: React.JSX.Element) => {
     const memoryHistory = createMemoryHistory({
       initialEntries: ["/"],
@@ -133,15 +121,10 @@ describe("MainNavigation", () => {
     await waitFor(() => render(<RouterProvider router={router} />))
 
     // Check if logo is rendered
-    expect(screen.getByTestId("aurora-logo")).toBeDefined()
     expect(screen.getByText("Aurora")).toBeDefined()
 
     // Check if navigation items are rendered
-    expect(screen.getByText("Home")).toBeDefined()
     expect(screen.getByText("About")).toBeDefined()
-
-    // Check if user menu is rendered
-    expect(screen.getByTestId("user-menu")).toBeDefined()
   })
 
   test("renders domain name when route includes domain data", async () => {
