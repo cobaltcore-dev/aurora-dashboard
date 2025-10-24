@@ -41,6 +41,10 @@ msgstr "<0>Vereinheitlichtes Cloud-Management:</0> Konsolidiert alle Ihre Cloud-
 msgid "A flavor with this ID or name already exists. Please use different values."
 msgstr "Ein Flavor mit dieser ID oder diesem Namen existiert bereits. Bitte verwenden Sie andere Werte."
 
+#: src/client/components/navigation/SubNavigationLayout.tsx:20
+msgid "About"
+msgstr ""
+
 #: src/client/routes/about.tsx:14
 msgid "About Aurora Dashboard"
 msgstr "Über das Aurora-Dashboard"
@@ -306,6 +310,10 @@ msgstr "Ephemeral Disk muss eine ganze Zahl ≥ 0 sein."
 msgid "Error: {errorMessage}"
 msgstr "Fehler: {errorMessage}"
 
+#: src/client/components/Auth/SessionExpirationTimer.tsx:14
+msgid "expired!"
+msgstr ""
+
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:162
 msgid "Extra spec \"{keyToDelete}\" has been deleted successfully."
 msgstr "Extra spec \"{keyToDelete}\" wurde erfolgreich gelöscht."
@@ -443,6 +451,14 @@ msgstr "GitHub"
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/ServerGroups/components/ServerGroupListView.tsx:54
 msgid "Group Name"
 msgstr "Gruppenname"
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/index.tsx:26
+msgid "Hello \"/accounts/$accountId/projects_/$projectId/network/\"!"
+msgstr ""
+
+#: src/client/routes/_auth/aurora.tsx:16
+msgid "Hi"
+msgstr ""
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImageModal.tsx:86
 msgid "Id"
@@ -611,6 +627,10 @@ msgstr "Lädt Servergruppen"
 msgid "Loading..."
 msgstr "Lädt..."
 
+#: src/client/components/navigation/MainNavigation.tsx:80
+msgid "Log Out"
+msgstr ""
+
 #: src/client/routes/auth/login.tsx:73
 msgid "Login failed. Please check your credentials and try again."
 msgstr "Anmeldung fehlgeschlagen. Bitte überprüfen Sie Ihre Anmeldeinformationen und versuchen Sie es erneut."
@@ -720,6 +740,14 @@ msgstr "Keine Images gefunden"
 msgid "No key pairs available."
 msgstr "Keine Keypaare verfügbar"
 
+#: src/client/routes/_auth/accounts/$accountId/projects/-components/ProjectCardView.tsx:45
+msgid "No projects available."
+msgstr ""
+
+#: src/client/routes/_auth/accounts/$accountId/projects/-components/ProjectListView.tsx:35
+msgid "No projects found"
+msgstr ""
+
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/ServerGroups/List.tsx:16
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/ServerGroups/components/ServerGroupListView.tsx:141
 msgid "No server groups available."
@@ -783,6 +811,10 @@ msgstr "CIDR-Bereich für Pods"
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/ServerGroups/components/ServerGroupListView.tsx:57
 msgid "Policy"
 msgstr "Richtlinie"
+
+#: src/client/routes/_auth/accounts/$accountId/projects/-components/AccountSubNavigation.tsx:12
+msgid "Projects Overview"
+msgstr ""
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/CreateFlavorModal.tsx:286
 msgid "Public Flavor"
@@ -946,8 +978,13 @@ msgid "Share"
 msgstr "Teilen"
 
 #: src/client/routes/auth/login.tsx:197
+#: src/client/components/Auth/AuthMenu.tsx:49
 msgid "Sign In"
 msgstr "Einloggen"
+
+#: src/client/components/Auth/AuthMenu.tsx:40
+msgid "Sign Out"
+msgstr ""
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:316
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImageModal.tsx:102
@@ -1192,6 +1229,10 @@ msgstr "Sichtbarkeit"
 msgid "We are building Aurora Dashboard to serve you better. Your feedback is invaluable in shaping a tool that meets the unique needs of businesses like yours. Stay connected and join us as we redefine cloud management."
 msgstr "Wir entwickeln das Aurora-Dashboard, um Ihnen einen besseren Service zu bieten. Ihr Feedback ist von unschätzbarem Wert, um ein Werkzeug zu gestalten, das den einzigartigen Bedürfnissen von Unternehmen wie Ihrem gerecht wird. Bleiben Sie in Verbindung und begleiten Sie uns, während wir das Cloud-Management neu definieren."
 
+#: src/client/components/navigation/SubNavigationLayout.tsx:16
+msgid "Welcome"
+msgstr ""
+
 #: src/client/routes/auth/login.tsx:93
 msgid "Welcome back, {username}!"
 msgstr "Willkommen zurück, {username}!"
@@ -1227,6 +1268,10 @@ msgstr "Möchtest du <0>{clusterName}</0> aus deinem Projekt entfernen?"
 #: src/client/routes/auth/login.tsx:96
 msgid "You are already signed in."
 msgstr "Sie sind bereits angemeldet."
+
+#: src/client/routes/_auth/aurora.tsx:19
+msgid "You are currently on the dashboard route."
+msgstr ""
 
 #: src/client/utils/useErrorTranslation.ts:98
 msgid "You are not authorized to access flavor access information. Please log in again."

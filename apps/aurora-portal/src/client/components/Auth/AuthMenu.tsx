@@ -6,6 +6,7 @@ import { SessionExpirationTimer } from "./SessionExpirationTimer"
 import { useAuth } from "../../store/AuthProvider"
 import { useCallback } from "react"
 import { useNavigate } from "@tanstack/react-router"
+import { Trans } from "@lingui/react/macro"
 
 export function AuthMenu(props: { authClient: TrpcClient["auth"] }) {
   const [isLoading, setIsLoading] = useState(false)
@@ -36,7 +37,7 @@ export function AuthMenu(props: { authClient: TrpcClient["auth"] }) {
       <div className="flex flex-col items-center">
         <div className="mt-1 mb-3 text-sm font-medium">{user?.name}</div>
         <Button disabled={isLoading} variant="default" onClick={signout}>
-          Sign Out
+          <Trans>Sign Out</Trans>
         </Button>
         {expiresAt && <SessionExpirationTimer sessionExpired={expiresAt} logout={signout} />}
       </div>
@@ -45,7 +46,7 @@ export function AuthMenu(props: { authClient: TrpcClient["auth"] }) {
 
   return (
     <Button disabled={isLoading} onClick={login} className="w-full">
-      Sign In
+      <Trans>Sign In</Trans>
     </Button>
   )
 }
