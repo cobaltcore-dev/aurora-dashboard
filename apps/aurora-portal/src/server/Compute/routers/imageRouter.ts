@@ -75,7 +75,7 @@ export const imageRouter = {
         const queryParams = new URLSearchParams()
         applyImageQueryParams(queryParams, queryInput)
 
-        const url = `${first || next || "v2/images"}?${queryParams.toString()}`
+        const url = first || next || `v2/images?${queryParams.toString()}`
         const response = await glance.get(url).catch((error) => {
           throw mapErrorResponseToTRPCError(error, { operation: "list images with pagination" })
         })
