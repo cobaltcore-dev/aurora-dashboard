@@ -1,7 +1,7 @@
 // AppContent.tsx
 import { useState } from "react"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
-import { trpcReact, trpcClient, createTrpcReactClient } from "./trpcClient"
+import { trpcReact, trpcClient, trpcReactClient } from "./trpcClient"
 import { RouterProvider } from "@tanstack/react-router"
 import { router } from "./router"
 import { useAuth } from "./store/AuthProvider"
@@ -21,10 +21,10 @@ export function AppContent() {
       })
   )
 
-  const [trpcReactClient] = useState(() => createTrpcReactClient())
+  const [reactClient] = useState(() => trpcReactClient)
 
   return (
-    <trpcReact.Provider client={trpcReactClient} queryClient={queryClient}>
+    <trpcReact.Provider client={reactClient} queryClient={queryClient}>
       <QueryClientProvider client={queryClient}>
         <div className="content">
           <RouterProvider context={{ trpcReact, trpcClient, auth }} router={router} />
