@@ -5,7 +5,7 @@ import { Spinner, Stack, PageFooter } from "@cloudoperators/juno-ui-components"
 import { MainNavigation } from "../components/navigation/MainNavigation"
 import { NavigationItem } from "../components/navigation/types"
 
-import { TrpcClient } from "../trpcClient"
+import { TrpcClient, TrpcReact } from "../trpcClient"
 import { AuthContext } from "../store/AuthProvider"
 import { useEffect, useState } from "react"
 
@@ -14,6 +14,7 @@ interface NavigationLayoutProps {
 }
 
 interface MyRouterContext {
+  trpcReact?: TrpcReact
   trpcClient?: TrpcClient
   auth?: AuthContext
 }

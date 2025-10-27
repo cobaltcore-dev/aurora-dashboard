@@ -93,6 +93,7 @@ msgid "Back"
 msgstr "Back"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/DeleteClusterDialog.tsx:47
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImageModal.tsx:60
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/TenantAccessFormRow.tsx:41
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/SpecFormRow.tsx:51
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/DeleteFlavorModal.tsx:92
@@ -179,12 +180,20 @@ msgstr "Create New Flavor"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/ServerGroups/components/ServerGroupListView.tsx:63
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/KeyPairs/-components/KeyPairListView.tsx:57
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:325
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImageModal.tsx:122
 msgid "Created"
 msgstr "Created"
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageTableRow.tsx:72
+msgid "Deactivate"
+msgstr "Deactivate"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/DeleteClusterDialog.tsx:44
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail/DetailLayout.tsx:69
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/KeyPairs/-components/KeyPairListView.tsx:126
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageTableRow.tsx:78
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImageModal.tsx:57
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/SpecRow.tsx:40
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/SpecRow.tsx:41
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/SpecRow.tsx:45
@@ -223,6 +232,11 @@ msgstr "Disk"
 msgid "Disk (GiB)"
 msgstr "Disk (GiB)"
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:319
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImageModal.tsx:108
+msgid "Disk Format"
+msgstr "Disk Format"
+
 #: src/client/routes/index.tsx:46
 msgid "Documentation"
 msgstr "Documentation"
@@ -238,6 +252,10 @@ msgstr "Each worker nodes will automatically scale between its minimum and maxim
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterWizard/WorkerNodesStep.tsx:67
 msgid "Each worker pool will automatically scale between its minimum and maximum node counts based on workload demands. Ensure your maximum node counts align with your resource quotas."
 msgstr "Each worker pool will automatically scale between its minimum and maximum node counts based on workload demands. Ensure your maximum node counts align with your resource quotas."
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageTableRow.tsx:76
+msgid "Edit"
+msgstr "Edit"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:283
 msgid "Edit Extra Specs"
@@ -287,6 +305,10 @@ msgstr "Ephemeral Disk (GiB)"
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/flavorValidation.ts:62
 msgid "Ephemeral Disk must be an integer ≥ 0."
 msgstr "Ephemeral Disk must be an integer ≥ 0."
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/List.tsx:45
+msgid "Error: {errorMessage}"
+msgstr "Error: {errorMessage}"
 
 #: src/client/components/Auth/SessionExpirationTimer.tsx:14
 msgid "expired!"
@@ -368,6 +390,10 @@ msgstr "Failed to load flavors"
 msgid "Failed to remove tenant access from flavor. Please try again."
 msgstr "Failed to remove tenant access from flavor. Please try again."
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:368
+msgid "Fetching..."
+msgstr "Fetching..."
+
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/Filters/FilterSelect.tsx:55
 msgid "Filters"
 msgstr "Filters"
@@ -434,6 +460,10 @@ msgstr "Hello \"/accounts/$accountId/projects_/$projectId/network/\"!"
 msgid "Hi"
 msgstr "Hi"
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImageModal.tsx:86
+msgid "Id"
+msgstr "Id"
+
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/DeleteFlavorModal.tsx:120
 msgid "ID"
 msgstr "ID"
@@ -449,6 +479,37 @@ msgstr "If checked, this flavor will be available to all tenants. If unchecked, 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail/WorkerSection.tsx:35
 msgid "Image"
 msgstr "Image"
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:107
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:127
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:151
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:211
+msgid "Image Instance"
+msgstr "Image Instance"
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:128
+msgid "Image instance \"{imageName}\" has been created"
+msgstr "Image instance \"{imageName}\" has been created"
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:216
+msgid "Image instance \"{imageName}\" has been deactivated"
+msgstr "Image instance \"{imageName}\" has been deactivated"
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:152
+msgid "Image instance \"{imageName}\" has been deleted"
+msgstr "Image instance \"{imageName}\" has been deleted"
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:214
+msgid "Image instance \"{imageName}\" has been re-activated"
+msgstr "Image instance \"{imageName}\" has been re-activated"
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:108
+msgid "Image instance \"{imageName}\" has been updated"
+msgstr "Image instance \"{imageName}\" has been updated"
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:307
+msgid "Image Name"
+msgstr "Image Name"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterWizard/WorkerPool.tsx:110
 msgid "Image Version"
@@ -511,9 +572,25 @@ msgstr "Kubernetes Updates"
 msgid "Kubernetes Version"
 msgstr "Kubernetes Version"
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageTableRow.tsx:69
+msgid "Launch"
+msgstr "Launch"
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:188
+msgid "Launch Instance"
+msgstr "Launch Instance"
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:189
+msgid "Launching instance from image \"{imageName}\""
+msgstr "Launching instance from image \"{imageName}\""
+
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail/ViewToggleButtons.tsx:36
 msgid "List View"
 msgstr "List View"
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:359
+msgid "Load More"
+msgstr "Load More"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/List.tsx:183
 msgid "Loading Flavors..."
@@ -523,7 +600,7 @@ msgstr "Loading Flavors..."
 msgid "Loading Gardener..."
 msgstr "Loading Gardener..."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/List.tsx:29
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/List.tsx:35
 msgid "Loading Images..."
 msgstr "Loading Images..."
 
@@ -535,12 +612,17 @@ msgstr "Loading Instances..."
 msgid "Loading Key Pairs..."
 msgstr "Loading Key Pairs..."
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:351
+msgid "Loading more..."
+msgstr "Loading more..."
+
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/ServerGroups/List.tsx:35
 msgid "Loading Server Groups..."
 msgstr "Loading Server Groups..."
 
 #: src/client/routes/auth/login.tsx:197
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Overview.tsx:114
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:280
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:82
 msgid "Loading..."
 msgstr "Loading..."
@@ -606,7 +688,13 @@ msgstr "Min:"
 msgid "Minimum Nodes"
 msgstr "Minimum Nodes"
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageTableRow.tsx:52
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImageModal.tsx:109
+msgid "N/A"
+msgstr "N/A"
+
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail/WorkerSection.tsx:29
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImageModal.tsx:82
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:116
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FilterToolbar.tsx:54
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/DeleteFlavorModal.tsx:116
@@ -643,6 +731,10 @@ msgstr "No flavor selected for deletion."
 msgid "No flavors found"
 msgstr "No flavors found"
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:378
+msgid "No images found"
+msgstr "No images found"
+
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/KeyPairs/List.tsx:18
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/KeyPairs/-components/KeyPairListView.tsx:137
 msgid "No key pairs available."
@@ -676,6 +768,11 @@ msgstr "Nodes CIDR"
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterWizard/InfrastructureStep.tsx:124
 msgid "Note: These network settings will be prefilled by the Kubernetes controller in the future."
 msgstr "Note: These network settings will be prefilled by the Kubernetes controller in the future."
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:322
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImageModal.tsx:113
+msgid "OS Type"
+msgstr "OS Type"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail/SettingsSection.tsx:47
 msgid "OS Updates"
@@ -741,6 +838,10 @@ msgstr "RAM must be an integer ≥ 128 MB."
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail.tsx:132
 msgid "Raw JSON Data for"
 msgstr "Raw JSON Data for"
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageTableRow.tsx:72
+msgid "Re-activate"
+msgstr "Re-activate"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail/ClusterOverviewSection.tsx:83
 msgid "Readiness"
@@ -885,6 +986,11 @@ msgstr "Sign In"
 msgid "Sign Out"
 msgstr "Sign Out"
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:316
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImageModal.tsx:102
+msgid "Size"
+msgstr "Size"
+
 #: src/client/App.tsx:19
 msgid "Something went wrong:"
 msgstr "Something went wrong:"
@@ -899,6 +1005,8 @@ msgstr "Start Time"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail/ClusterOverviewSection.tsx:67
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Instances/-components/ServerListView.tsx:21
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:310
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImageModal.tsx:90
 msgid "Status"
 msgstr "Status"
 
@@ -975,6 +1083,18 @@ msgstr "The flavor or tenant could not be found. Please verify they exist."
 msgid "The floating IP pool to use for the cluster's external network access"
 msgstr "The floating IP pool to use for the cluster's external network access"
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:245
+msgid "The image \"{imageId}\" could not be deactivated: {message}"
+msgstr "The image \"{imageId}\" could not be deactivated: {message}"
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:168
+msgid "The image \"{imageId}\" could not be deleted: {message}"
+msgstr "The image \"{imageId}\" could not be deleted: {message}"
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:241
+msgid "The image \"{imageId}\" could not be re-activated: {message}"
+msgstr "The image \"{imageId}\" could not be re-activated: {message}"
+
 #: src/client/utils/useErrorTranslation.ts:112
 #: src/client/utils/useErrorTranslation.ts:128
 msgid "The tenant ID provided is invalid. Please check your input."
@@ -984,6 +1104,10 @@ msgstr "The tenant ID provided is invalid. Please check your input."
 msgid "There are no flavors available for this project with the current filters applied. Try adjusting your filter criteria or create a new flavor."
 msgstr "There are no flavors available for this project with the current filters applied. Try adjusting your filter criteria or create a new flavor."
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:381
+msgid "There are no images available for this project with the current filters applied. Try adjusting your filter criteria or create a new image."
+msgstr "There are no images available for this project with the current filters applied. Try adjusting your filter criteria or create a new image."
+
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/DeleteClusterDialog.tsx:56
 msgid "This action cannot be undone. The cluster will be permanently deleted."
 msgstr "This action cannot be undone. The cluster will be permanently deleted."
@@ -991,6 +1115,10 @@ msgstr "This action cannot be undone. The cluster will be permanently deleted."
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/DeleteFlavorModal.tsx:108
 msgid "This action cannot be undone. The flavor will be permanently deleted."
 msgstr "This action cannot be undone. The flavor will be permanently deleted."
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImageModal.tsx:74
+msgid "This action cannot be undone. The image will be permanently deleted."
+msgstr "This action cannot be undone. The image will be permanently deleted."
 
 #: src/client/utils/useErrorTranslation.ts:58
 msgid "This extra spec keys already exist. Please use different keys."
@@ -1028,9 +1156,31 @@ msgstr "Type"
 msgid "Unable to connect to the compute service. Please check your connection and try again."
 msgstr "Unable to connect to the compute service. Please check your connection and try again."
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:236
+msgid "Unable to Deactivate Image"
+msgstr "Unable to Deactivate Image"
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:166
+msgid "Unable to Delete Image"
+msgstr "Unable to Delete Image"
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:234
+msgid "Unable to Re-activate Image"
+msgstr "Unable to Re-activate Image"
+
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterWizard/CreateClusterDialogContent.tsx:122
 msgid "Unknown error"
 msgstr "Unknown error"
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageTableRow.tsx:38
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:101
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:121
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:141
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:182
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:199
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImageModal.tsx:83
+msgid "Unnamed"
+msgstr "Unnamed"
 
 #: src/client/routes/auth/login.tsx:155
 msgid "User C/D/I"
@@ -1069,6 +1219,11 @@ msgstr "View Docs"
 #: src/client/routes/index.tsx:41
 msgid "View Repository"
 msgstr "View Repository"
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:313
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImageModal.tsx:96
+msgid "Visibility"
+msgstr "Visibility"
 
 #: src/client/routes/about.tsx:103
 msgid "We are building Aurora Dashboard to serve you better. Your feedback is invaluable in shaping a tool that meets the unique needs of businesses like yours. Stay connected and join us as we redefine cloud management."
