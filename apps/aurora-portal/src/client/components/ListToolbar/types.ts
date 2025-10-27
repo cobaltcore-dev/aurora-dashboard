@@ -12,5 +12,5 @@ export type Filter = {
 
 export type FilterSettings = {
   selectedFilters?: SelectedFilter[]
-  searchTerm?: string
+  filters: Filter[]
 }

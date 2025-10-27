@@ -31,7 +31,26 @@ function RouteComponent() {
   const { t } = useLingui()
   const { clusters, trpcClient, permissions } = useLoaderData({ from: Route.id })
   const router = useRouter()
-  const [filterSettings, setFilterSettings] = useState<FilterSettings>({})
+  // Get unique providers, regions and statuses from clusters
+  const versions = [...new Set(clusters?.map((cluster: Cluster) => cluster.version) || [])]
+  const statuses = [...new Set(clusters?.map((cluster: Cluster) => cluster.status) || [])]
+
+  const [filterSettings, setFilterSettings] = useState<FilterSettings>({
+    filters: [
+      {
+        displayName: t`Status`,
+        filterName: "status",
+        values: statuses,
+      },
+      {
+        displayName: t`Kubernetes Version`,
+        filterName: "version",
+        values: versions,
+      },
+    ],
+  })
+
+  const [searchTerm, setSearchTerm] = useState("")
 
   const [createWizardModal, setCreateWizardModal] = useState(false)
 
@@ -54,8 +73,6 @@ function RouteComponent() {
   }
 
   const getClustersBySearchTerm = (clusters: Cluster[] = []) => {
-    const { searchTerm = "" } = filterSettings
-
     return (
       clusters.filter((cluster: Cluster) => {
         if (searchTerm.length) {
@@ -70,10 +87,6 @@ function RouteComponent() {
       }) || []
     )
   }
-
-  // Get unique providers, regions and statuses from clusters
-  const versions = [...new Set(clusters?.map((cluster: Cluster) => cluster.version) || [])]
-  const statuses = [...new Set(clusters?.map((cluster: Cluster) => cluster.status) || [])]
 
   // Filter clusters based on search and filter criteria
   // Update your filtered and sorted clusters
@@ -115,20 +128,10 @@ function RouteComponent() {
         {/* Main content container */}
         <div>
           <ListToolbar
-            filters={[
-              {
-                displayName: t`Status`,
-                filterName: "status",
-                values: statuses,
-              },
-              {
-                displayName: t`Kubernetes Version`,
-                filterName: "version",
-                values: versions,
-              },
-            ]}
             filterSettings={filterSettings}
-            onFilterChange={setFilterSettings}
+            searchTerm={searchTerm}
+            onFilter={setFilterSettings}
+            onSearch={setSearchTerm}
             searchInputProps={{ placeholder: t`Search clusters...` }}
           />
 

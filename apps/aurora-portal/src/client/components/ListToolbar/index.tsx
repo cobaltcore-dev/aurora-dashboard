@@ -3,24 +3,29 @@ import { InputGroup, SearchInput, SearchInputProps, Stack, StackProps } from "@c
 import { useLingui } from "@lingui/react/macro"
 import { SelectedFilters } from "./SelectedFilters"
 import { FiltersInput, FiltersInputProps } from "./FiltersInput"
-import { Filter, FilterSettings, SelectedFilter } from "./types"
+import { FilterSettings, SelectedFilter } from "./types"
 
 export type ListToolbarProps = {
   /**
-   * Array of available filter definitions. Each filter contains a name, display name,
-   * and possible values that can be selected.
-   */
-  filters: Filter[]
-  /**
-   * Current filter settings containing selected filters and search term.
-   * This represents the complete filter state of the list.
+   * Current filter state containing both selected filters and available filter definitions.
+   * Includes the array of currently active filters and the list of all possible filter options.
    */
   filterSettings: FilterSettings
   /**
-   * Callback function invoked when filter settings change (filter added/removed or search term updated).
-   * Receives the updated filter settings object.
+   * Callback function invoked when filters change (filter added, removed, or cleared).
+   * Receives the updated FilterSettings object with the new filter state.
    */
-  onFilterChange: (filterSettings: FilterSettings) => void
+  onFilter: (filterSettings: FilterSettings) => void
+  /**
+   * Current search term value displayed in the search input field.
+   * Controls the text input state for searching/filtering list items.
+   */
+  searchTerm: string
+  /**
+   * Callback function invoked when the search term changes.
+   * Receives the updated search term string as the user types or clears the search.
+   */
+  onSearch: (searchTerm: string) => void
   /**
    * Optional props to customize the Stack wrapper component that contains the entire toolbar.
    * Allows customization of layout, spacing, and styling.
@@ -58,9 +63,10 @@ export type ListToolbarProps = {
  * - Fully customizable sub-components via prop spreading
  */
 export const ListToolbar = ({
-  filters,
   filterSettings,
-  onFilterChange,
+  onFilter,
+  searchTerm,
+  onSearch,
   listToolbarWrapperProps = {},
   filtersInputProps = {},
   searchInputProps = {},
@@ -69,14 +75,14 @@ export const ListToolbar = ({
 
   const handleFilterDelete = useCallback(
     (filterToRemove: SelectedFilter) => {
-      onFilterChange({
+      onFilter({
         ...filterSettings,
         selectedFilters: filterSettings.selectedFilters?.filter(
           (filter) => !(filter.name === filterToRemove.name && filter.value === filterToRemove.value)
         ),
       })
     },
-    [filterSettings, onFilterChange]
+    [filterSettings, onFilter]
   )
 
   const handleSelect = (selectedFilter: SelectedFilter) => {
@@ -85,7 +91,7 @@ export const ListToolbar = ({
     )
     // Only add the filter if it does not already exist
     if (!filterExists) {
-      onFilterChange({
+      onFilter({
         ...filterSettings,
         selectedFilters: [...(filterSettings.selectedFilters || []), selectedFilter],
       })
@@ -107,10 +113,10 @@ export const ListToolbar = ({
    * Connects the filters data and handles filter selection and clearing.
    */
   const getDefaultFiltersInputProps = (): FiltersInputProps => ({
-    filters,
+    filters: filterSettings.filters,
     onChange: handleSelect,
     onClear: () =>
-      onFilterChange({
+      onFilter({
         ...filterSettings,
         selectedFilters: [],
       }),
@@ -124,18 +130,9 @@ export const ListToolbar = ({
     placeholder: t`Search...`,
     className: "w-64 ml-auto",
     "data-testid": "searchbar",
-    value: filterSettings.searchTerm,
-    onSearch: (searchTerm) => {
-      onFilterChange({
-        ...filterSettings,
-        searchTerm,
-      })
-    },
-    onClear: () =>
-      onFilterChange({
-        ...filterSettings,
-        searchTerm: "",
-      }),
+    value: searchTerm,
+    onSearch,
+    onClear: () => onSearch(""),
   })
 
   return (

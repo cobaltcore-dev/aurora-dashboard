@@ -31,14 +31,17 @@ const filters = [
 const filterSettings = {
   selectedFilters: [],
   searchTerm: "",
+  filters,
 }
 
-const renderShell = ({ filters, filterSettings, onFilterChange }: ListToolbarProps) => ({
+const searchTerm = ""
+
+const renderShell = ({ filterSettings, onFilter, onSearch, searchTerm }: ListToolbarProps) => ({
   user: userEvent.setup({ delay: 0 }),
   ...render(
     <I18nProvider i18n={i18n}>
       <PortalProvider>
-        <ListToolbar filters={filters} filterSettings={filterSettings} onFilterChange={onFilterChange} />
+        <ListToolbar filterSettings={filterSettings} searchTerm={searchTerm} onFilter={onFilter} onSearch={onSearch} />
       </PortalProvider>
     </I18nProvider>
   ),
@@ -57,30 +60,25 @@ describe("ListToolbar", () => {
   })
 
   it("renders the component with search, select and combobox", async () => {
-    renderShell({ filters, filterSettings, onFilterChange: vi.fn() })
+    renderShell({ filterSettings, searchTerm, onFilter: vi.fn(), onSearch: vi.fn() })
     expect(await screen.findByTestId("select-filterValue")).toBeInTheDocument()
     expect(await screen.findByTestId("combobox-filterValue")).toBeInTheDocument()
     expect(await screen.findByTestId("searchbar")).toBeInTheDocument()
   })
 
-  it("should allow filtering by text", async () => {
-    const onFilterChangeSpy = vi.fn()
-    const { user } = renderShell({ filters, filterSettings, onFilterChange: onFilterChangeSpy })
+  it("should allow searching by text", async () => {
+    const onSearchSpy = vi.fn()
+    const { user } = renderShell({ filterSettings, searchTerm, onFilter: vi.fn(), onSearch: onSearchSpy })
     const searchbox = await screen.findByRole("searchbox")
     await user.type(searchbox, "Europe")
     const searchButton = await screen.findByRole("button", { name: "Search" })
     await user.click(searchButton)
-    expect(onFilterChangeSpy).toHaveBeenLastCalledWith(
-      expect.objectContaining({
-        selectedFilters: [],
-        searchTerm: "Europe",
-      })
-    )
+    expect(onSearchSpy).toHaveBeenLastCalledWith("Europe")
   })
 
   it("should select filter and filter value", async () => {
     const onFilterChangeSpy = vi.fn()
-    const { user } = renderShell({ filters, filterSettings, onFilterChange: onFilterChangeSpy })
+    const { user } = renderShell({ filterSettings, searchTerm, onFilter: onFilterChangeSpy, onSearch: vi.fn() })
 
     const filterSelect = await screen.findByTestId("select-filterValue")
     await user.click(filterSelect)
@@ -95,6 +93,7 @@ describe("ListToolbar", () => {
 
     expect(onFilterChangeSpy).toHaveBeenLastCalledWith(
       expect.objectContaining({
+        filters,
         selectedFilters: [{ name: "region", value: "Europe" }],
         searchTerm: "",
       })
