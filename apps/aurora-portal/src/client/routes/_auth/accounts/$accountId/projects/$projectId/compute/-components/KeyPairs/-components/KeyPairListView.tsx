@@ -1,6 +1,4 @@
-import { ToastProps, auroraToast, sonnerToast } from "@/client/components/NotificationCenter/AuroraToast"
 import type { Keypair } from "@/server/Compute/types/keypair"
-import { Button } from "@cloudoperators/juno-ui-components"
 import { Icon } from "@cloudoperators/juno-ui-components"
 import { Trans } from "@lingui/react/macro"
 
@@ -56,9 +54,6 @@ export function KeyPairListView({ keyPairs }: KeyPairListViewProps) {
                 <th className="p-3">
                   <Trans>Created</Trans>
                 </th>
-                <th className="p-3 flex justify-center">
-                  <Trans>Actions</Trans>
-                </th>
               </tr>
             </thead>
 
@@ -70,63 +65,6 @@ export function KeyPairListView({ keyPairs }: KeyPairListViewProps) {
                   <td className="p-3">{renderKeyType(keyPair.type)}</td>
                   <td className="p-3 font-mono text-sm">{formatFingerprint(keyPair.fingerprint)}</td>
                   <td className="p-3">{formatDate(keyPair.created_at)}</td>
-
-                  {/* Action Buttons */}
-                  <td className="p-3">
-                    <div className="flex space-x-3 justify-end">
-                      <Button
-                        onClick={() => {
-                          const toastProps: Omit<ToastProps, "id"> = {
-                            title: "Launch Instance",
-                            description: `Launch instance using key "${keyPair.name}"`,
-                            variant: "success",
-                            button: {
-                              label: "Dismiss",
-                              onClick: () => sonnerToast.dismiss(),
-                            },
-                          }
-                          auroraToast(toastProps)
-                        }}
-                      >
-                        Use
-                      </Button>
-                      <Button
-                        onClick={() => {
-                          // Copy key to clipboard
-                          navigator.clipboard.writeText(keyPair.public_key || "")
-                          const toastProps: Omit<ToastProps, "id"> = {
-                            title: "Public Key Copied",
-                            description: `Public key for "${keyPair.name}" copied to clipboard`,
-                            variant: "info",
-                            button: {
-                              label: "Close",
-                              onClick: () => sonnerToast.dismiss(),
-                            },
-                          }
-                          auroraToast(toastProps)
-                        }}
-                      >
-                        <Trans>Copy</Trans>
-                      </Button>
-                      <Button
-                        variant="primary-danger"
-                        onClick={() => {
-                          const toastProps: Omit<ToastProps, "id"> = {
-                            title: "Delete Key Pair",
-                            description: `Are you sure you want to delete "${keyPair.name}"? This action cannot be undone.`,
-                            variant: "error",
-                            button: {
-                              label: "Cancel",
-                              onClick: () => sonnerToast.dismiss(),
-                            },
-                          }
-                          auroraToast(toastProps)
-                        }}
-                      >
-                        <Trans>Delete</Trans>
-                      </Button>
-                    </div>
-                  </td>
                 </tr>
               ))}
             </tbody>

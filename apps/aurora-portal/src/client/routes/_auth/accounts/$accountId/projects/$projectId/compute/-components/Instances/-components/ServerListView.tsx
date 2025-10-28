@@ -1,6 +1,4 @@
-import { ToastProps, auroraToast, sonnerToast } from "@/client/components/NotificationCenter/AuroraToast"
 import type { Server } from "@/server/Compute/types/server"
-import { Button } from "@cloudoperators/juno-ui-components"
 import { Icon } from "@cloudoperators/juno-ui-components"
 import { Trans, useLingui } from "@lingui/react/macro"
 type ServerListViewProps = {
@@ -56,62 +54,6 @@ export function ServerListView({ servers }: ServerListViewProps) {
                   <td className="p-3">{server?.flavor?.vcpus}</td>
                   <td className="p-3">{server?.flavor?.ram} MB</td>
                   <td className="p-3">{server?.flavor?.disk} GB</td>
-
-                  {/* Action Buttons */}
-                  <td className="p-3">
-                    {/* Action Buttons */}
-                    <div className=" flex space-x-3 justify-end mt-4">
-                      <Button
-                        onClick={() => {
-                          const toastProps: Omit<ToastProps, "id"> = {
-                            title: "All great you are awesome",
-                            description: "Is this not amazing folks?",
-                            variant: "success",
-                            button: {
-                              label: "Dismiss",
-                              onClick: () => sonnerToast.dismiss(),
-                            },
-                          }
-                          auroraToast(toastProps)
-                        }}
-                      >
-                        Create
-                      </Button>
-                      <Button
-                        onClick={() => {
-                          const toastProps: Omit<ToastProps, "id"> = {
-                            title: "All ok you are good",
-                            description: "It is info",
-                            variant: "info",
-                            button: {
-                              label: "Dismiss",
-                              onClick: () => sonnerToast.dismiss(),
-                            },
-                          }
-                          auroraToast(toastProps)
-                        }}
-                      >
-                        View
-                      </Button>
-                      <Button
-                        variant="primary-danger"
-                        onClick={() => {
-                          const toastProps: Omit<ToastProps, "id"> = {
-                            title: "This is a danger error",
-                            description: "You are on a bad side check logs",
-                            variant: "error",
-                            button: {
-                              label: "Check",
-                              onClick: () => sonnerToast.dismiss(),
-                            },
-                          }
-                          auroraToast(toastProps)
-                        }}
-                      >
-                        <Trans>Restart</Trans>
-                      </Button>
-                    </div>
-                  </td>
                 </tr>
               ))}
             </tbody>
