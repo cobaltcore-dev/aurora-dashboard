@@ -12,36 +12,31 @@ import { SelectedFilters } from "./SelectedFilters"
 import { FiltersInput, FiltersInputProps } from "./FiltersInput"
 import { SortInput, SortInputProps } from "./SortInput"
 import { FilterSettings, SelectedFilter, SortSettings } from "./types"
+import { cn } from "@/client/utils/cn"
 
 export type ListToolbarProps = {
   /**
-   * Current filter state containing both selected filters and available filter definitions.
-   * Includes the array of currently active filters and the list of all possible filter options.
+   * Current filter state containing both the array of active filters and available filter definitions.
    */
   filterSettings: FilterSettings
   /**
-   * Callback function invoked when filters change (filter added, removed, or cleared).
-   * Receives the updated FilterSettings object with the new filter state.
+   * Callback function invoked when filters change (added, removed, or cleared).
    */
   onFilter: (filterSettings: FilterSettings) => void
   /**
-   * Current sort configuration including the selected sort field and sort direction (ascending/descending).
-   * Controls which field to sort by and the order of sorting.
+   * Current sort configuration including the sort field and direction (ascending/descending).
    */
   sortSettings?: SortSettings
   /**
    * Callback function invoked when the sort configuration changes.
-   * Receives the updated SortSettings object with the new sort field and/or direction.
    */
   onSort?: (sortSettings: SortSettings) => void
   /**
-   * Current search term value displayed in the search input field.
-   * Controls the text input state for searching/filtering list items.
+   * Current search term value for filtering list items.
    */
   searchTerm: string
   /**
    * Callback function invoked when the search term changes.
-   * Receives the updated search term string as the user types or clears the search.
    */
   onSearch: (searchTerm: string) => void
   /**
@@ -51,9 +46,9 @@ export type ListToolbarProps = {
   listToolbarWrapperProps?: StackProps
   /**
    * Optional props to customize the FiltersInput component.
-   * Excludes 'filters', 'onChange', and 'onClear' props as these are managed internally.
+   * Excludes 'filters' and 'onChange' props as these are managed internally.
    */
-  filtersInputProps?: Omit<FiltersInputProps, "filters" | "onChange" | "onClear">
+  filtersInputProps?: Omit<FiltersInputProps, "filters" | "onChange">
   /**
    * Optional props to customize the SortInput component.
    * Excludes 'options', 'sortBy', 'sortDirection', 'onSortByChange' and 'onSortDirectionChange' props as these are managed internally.
@@ -134,58 +129,74 @@ export const ListToolbar = ({
   }
 
   /**
-   * Returns default props for the main toolbar Stack wrapper.
-   * Sets up vertical layout with consistent spacing and background styling.
+   * Merges default props with user-provided props for the main toolbar Stack wrapper.
+   * Applies vertical layout, consistent spacing, and background styling while preserving custom overrides.
    */
-  const getDefaultListToolbarWrapperProps = (): StackProps => ({
-    direction: "vertical",
-    gap: "4",
-    className: "bg-theme-background-lvl-1 py-2 px-4",
-  })
+  const getDefaultListToolbarWrapperProps = (): StackProps => {
+    const { className, ...restProps } = listToolbarWrapperProps
+
+    return {
+      direction: "vertical",
+      gap: "4",
+      className: cn("bg-theme-background-lvl-1 py-2 px-4", className),
+      ...restProps,
+    }
+  }
 
   /**
-   * Returns default props for the FiltersInput component.
-   * Connects the filters data and handles filter selection and clearing.
+   * Merges default props with user-provided props for the FiltersInput component.
+   * Connects filter settings and change handlers while preserving custom overrides.
    */
-  const getDefaultFiltersInputProps = (): FiltersInputProps => ({
-    filters: filterSettings.filters,
-    onChange: handleSelect,
-  })
+  const getDefaultFiltersInputProps = (): FiltersInputProps => {
+    return {
+      filters: filterSettings.filters,
+      onChange: handleSelect,
+      ...filtersInputProps,
+    }
+  }
 
   /**
-   * Returns default props for the SortInput component.
-   * Connects the sort settings and handles sort changes.
+   * Merges default props with user-provided props for the SortInput component.
+   * Connects sort settings and change handlers while preserving custom overrides.
    */
-  const getDefaultSortInputProps = (): SortInputProps =>
-    onSort && sortSettings
+  const getDefaultSortInputProps = (): SortInputProps => {
+    return onSort && sortSettings
       ? {
           options: sortSettings.options,
           sortBy: sortSettings.sortBy,
           sortDirection: sortSettings.sortDirection || "asc",
-          onSortByChange: (param) => onSort({ ...sortSettings, sortBy: param }),
+          onSortByChange: (param) =>
+            onSort({ ...sortSettings, sortBy: param, sortDirection: sortSettings.sortDirection || "asc" }),
           onSortDirectionChange: (direction: "asc" | "desc") => onSort({ ...sortSettings, sortDirection: direction }),
+          ...sortInputProps,
         }
       : ({} as SortInputProps)
+  }
 
   /**
-   * Returns default props for the SearchInput component.
-   * Manages search term state and provides search/clear functionality.
+   * Merges default props with user-provided props for the SearchInput component.
+   * Applies default placeholder, styling, and search handlers while preserving custom overrides.
    */
-  const getDefaultSearchInputProps = (): SearchInputProps & { "data-testid"?: string } => ({
-    placeholder: t`Search...`,
-    className: "w-64 ml-auto",
-    "data-testid": "searchbar",
-    value: searchTerm,
-    onSearch,
-    onClear: () => onSearch(""),
-  })
+  const getDefaultSearchInputProps = (): SearchInputProps & { "data-testid"?: string } => {
+    const { className, ...restProps } = searchInputProps
+
+    return {
+      placeholder: t`Search...`,
+      className: cn("w-64 ml-auto", className),
+      "data-testid": "searchbar",
+      value: searchTerm,
+      onSearch,
+      onClear: () => onSearch(""),
+      ...restProps,
+    }
+  }
 
   return (
-    <Stack {...getDefaultListToolbarWrapperProps()} {...listToolbarWrapperProps}>
+    <Stack {...getDefaultListToolbarWrapperProps()}>
       <InputGroup>
-        <FiltersInput {...getDefaultFiltersInputProps()} {...filtersInputProps} />
-        {onSort && sortSettings && <SortInput {...getDefaultSortInputProps()} {...sortInputProps} />}
-        <SearchInput {...getDefaultSearchInputProps()} {...searchInputProps} />
+        <FiltersInput {...getDefaultFiltersInputProps()} />
+        {onSort && sortSettings && <SortInput {...getDefaultSortInputProps()} />}
+        <SearchInput {...getDefaultSearchInputProps()} />
       </InputGroup>
       {filterSettings.selectedFilters && filterSettings.selectedFilters.length > 0 && (
         <SelectedFilters

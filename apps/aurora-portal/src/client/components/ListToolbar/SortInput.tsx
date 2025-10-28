@@ -1,4 +1,5 @@
 import React from "react"
+import { cn } from "@/client/utils/cn"
 import {
   Stack,
   Select,
@@ -17,9 +18,9 @@ import { SortOption } from "./types"
  * Props for the SortInput component
  */
 export interface SortInputProps {
-  /** Current sort key/field being used (e.g., "name", "vcpus", "created_at") */
+  /** Current sort field being used (e.g., "name", "vcpus", "created_at") */
   sortBy?: string | number | string[]
-  /** Callback fired when the user selects a different sort option */
+  /** Callback fired when the user selects a different sort field */
   onSortByChange: (param?: string | number | string[]) => void
   /** Current sort direction: "asc" for ascending, "desc" for descending */
   sortDirection: "asc" | "desc"
@@ -27,27 +28,23 @@ export interface SortInputProps {
   onSortDirectionChange: (direction: "asc" | "desc") => void
   /** Array of available sort options to display in the dropdown */
   options: SortOption[]
-  /** Optional props to customize the Stack wrapper component that contains the input elements */
+  /** Optional props to customize the Stack wrapper component */
   sortWrapperProps?: StackProps
-  /** Optional props to customize the InputGroup component that wraps the Select and SortButton */
+  /** Optional props to customize the InputGroup component */
   inputGroupProps?: InputGroupProps
-  /** Optional props to customize the Select component used for choosing the sort field */
+  /** Optional props to customize the Select component for choosing the sort field */
   selectInputProps?: SelectProps
-  /** Optional props to customize the SortButton component used for toggling sort direction */
+  /** Optional props to customize the SortButton component for toggling sort direction */
   sortButtonProps?: ButtonProps
 }
 
 /**
  * SortInput Component
  *
- * A reusable component that combines a dropdown select for choosing sort fields
+ * A controlled component combining a dropdown select for choosing sort fields
  * with a direction toggle button for ascending/descending order.
  *
- * This component is fully controlled - it receives the current sort state via props
- * and notifies the parent component of changes through callback functions.
- *
- * The component provides several customization points through props that allow
- * overriding default behavior and styling of individual sub-components.
+ * Fully customizable sub-components via prop spreading.
  */
 export const SortInput: React.FC<SortInputProps> = ({
   sortBy,
@@ -63,10 +60,34 @@ export const SortInput: React.FC<SortInputProps> = ({
   const { t } = useLingui()
 
   /**
-   * Returns default props for the Select component (sort field selector)
-   * Merges default configuration with any custom props passed via selectInputProps
-   *
-   * @returns Props object for the Select component including data-testid for testing
+   * Merges default props with user-provided props for the Stack wrapper.
+   * Applies default layout and spacing while preserving custom overrides.
+   */
+  const getDefaultSortWrapperProps = (): StackProps => {
+    const { className, ...restProps } = sortWrapperProps
+
+    return {
+      className: cn("flex flex-row items-center ml-4", className),
+      ...restProps,
+    }
+  }
+
+  /**
+   * Merges default props with user-provided props for the InputGroup component.
+   * Applies responsive width styling while preserving custom overrides.
+   */
+  const getDefaultInputGroupProps = (): InputGroupProps => {
+    const { className, ...restProps } = inputGroupProps
+
+    return {
+      className: cn("flex-shrink-0 w-full md:w-60", className),
+      ...restProps,
+    }
+  }
+
+  /**
+   * Merges default props with user-provided props for the Select component.
+   * Connects sort field selection handlers while preserving custom overrides.
    */
   const getDefaultSelectProps = (): SelectProps & { "data-testid"?: string } => ({
     onChange: onSortByChange,
@@ -77,10 +98,8 @@ export const SortInput: React.FC<SortInputProps> = ({
   })
 
   /**
-   * Returns default props for the SortButton component (direction toggle)
-   * Merges default configuration with any custom props passed via sortButtonProps
-   *
-   * @returns Props object for the SortButton component including data-testid and order handlers
+   * Merges default props with user-provided props for the SortButton component.
+   * Connects sort direction toggle handlers while preserving custom overrides.
    */
   const getDefaultSortButtonProps = (): ButtonProps & {
     "data-testid"?: string
@@ -94,8 +113,8 @@ export const SortInput: React.FC<SortInputProps> = ({
   })
 
   return (
-    <Stack className={`flex flex-row items-center`} {...sortWrapperProps}>
-      <InputGroup className="flex-shrink-0 w-full md:w-60" {...inputGroupProps}>
+    <Stack {...getDefaultSortWrapperProps()}>
+      <InputGroup {...getDefaultInputGroupProps()}>
         <Select {...getDefaultSelectProps()}>
           {options.map((option) => (
             <SelectOption key={option.value} value={option.value}>

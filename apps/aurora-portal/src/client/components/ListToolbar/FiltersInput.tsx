@@ -12,17 +12,18 @@ import {
 } from "@cloudoperators/juno-ui-components"
 import { Filter, SelectedFilter } from "./types"
 import { useLingui } from "@lingui/react/macro"
+import { cn } from "@/client/utils/cn"
 
 export type FiltersInputProps = {
-  /** Array of available filters that can be selected. Each filter contains a name, display name, and possible values. */
+  /** Array of available filters that can be selected */
   filters: Filter[]
-  /** Callback function invoked when a filter value is selected. Receives the selected filter object containing name and value. */
+  /** Callback function invoked when a complete filter (name + value) is selected */
   onChange: (filter: SelectedFilter) => void
-  /** Optional props to customize the Stack wrapper component that contains the input elements. */
+  /** Optional props to customize the Stack wrapper component */
   filterWrapperProps?: StackProps
-  /** Optional props to customize the Select component used for choosing the filter name/type. */
+  /** Optional props to customize the Select component for choosing the filter type */
   selectInputProps?: SelectProps
-  /** Optional props to customize the ComboBox component used for entering/selecting the filter value. */
+  /** Optional props to customize the ComboBox component for entering the filter value */
   comboBoxInputProps?: ComboBoxProps
 }
 
@@ -42,13 +43,12 @@ function isEmpty(value: unknown) {
 /**
  * FiltersInput Component
  *
- * A composite input component for selecting and applying filters. It consists of:
- * - A Select dropdown for choosing the filter type/name
- * - A ComboBox for entering or selecting the filter value (dynamically populated based on selected filter)
- * - A "Clear all" button to reset all applied filters
+ * A composite input component for selecting and applying filters, consisting of:
+ * - Select dropdown for choosing the filter type
+ * - ComboBox for entering the filter value (dynamically populated based on selected filter)
  *
- * The component manages internal state for the currently selected filter name and value,
- * and calls the `onChange` callback when a complete filter (name + value) is selected.
+ * Manages internal state for the selected filter name and value, calling onChange
+ * when a complete filter is selected.
  */
 export const FiltersInput = ({
   filters,
@@ -85,36 +85,58 @@ export const FiltersInput = ({
   )
 
   /**
-   * Returns default props for the Select component (filter name selector)
-   * Includes default styling, labels, and change handlers
+   * Merges default props with user-provided props for the Stack wrapper.
+   * Applies default alignment and spacing while preserving custom overrides.
    */
-  const getDefaultSelectProps = (): SelectProps & { "data-testid"?: string } => ({
-    className: "filter-label-select w-64 mb-0",
-    name: "filter",
-    "data-testid": "select-filterValue",
-    label: t`Filters`,
-    value: selectedFilterName,
-    onChange: (value: string | number | string[] | undefined) => {
-      setSelectedFilterName(String(value))
-    },
-  })
+  const getDefaultFilterWrapperProps = (): StackProps => {
+    return {
+      alignment: "center",
+      gap: "8",
+      ...filterWrapperProps,
+    }
+  }
 
   /**
-   * Returns default props for the ComboBox component (filter value input)
-   * Includes default styling, disabled state based on filter selection, and change handlers
+   * Merges default props with user-provided props for the Select component.
+   * Connects filter type selection handlers while preserving custom overrides.
    */
-  const getDefaultComboBoxProps = (): ComboBoxProps & { "data-testid"?: string } => ({
-    className: "filter-value-select w-48 bg-theme-background-lvl-0",
-    name: "filterValue",
-    "data-testid": "combobox-filterValue",
-    value: selectedFilterValue,
-    disabled: !selectedFilterName,
-    onChange: handleValueChange,
-  })
+  const getDefaultSelectProps = (): SelectProps & { "data-testid"?: string } => {
+    const { className, ...restPros } = selectInputProps
+
+    return {
+      className: cn("filter-label-select w-64 mb-0", className),
+      name: "filter",
+      "data-testid": "select-filterValue",
+      label: t`Filters`,
+      value: selectedFilterName,
+      onChange: (value: string | number | string[] | undefined) => {
+        setSelectedFilterName(String(value))
+      },
+      ...restPros,
+    }
+  }
+
+  /**
+   * Merges default props with user-provided props for the ComboBox component.
+   * Applies default styling, disabled state, and change handlers while preserving custom overrides.
+   */
+  const getDefaultComboBoxProps = (): ComboBoxProps & { "data-testid"?: string } => {
+    const { className, ...restProps } = comboBoxInputProps
+
+    return {
+      className: cn("filter-value-select w-48 bg-theme-background-lvl-0", className),
+      name: "filterValue",
+      "data-testid": "combobox-filterValue",
+      value: selectedFilterValue,
+      disabled: !selectedFilterName,
+      onChange: handleValueChange,
+      ...restProps,
+    }
+  }
 
   return (
     <>
-      <Stack alignment="center" gap="8" {...filterWrapperProps}>
+      <Stack {...getDefaultFilterWrapperProps()}>
         <InputGroup>
           {/* Filter name/type selector */}
           <Select {...getDefaultSelectProps()} {...selectInputProps}>
@@ -123,7 +145,7 @@ export const FiltersInput = ({
             ))}
           </Select>
           {/* Filter value input/selector - dynamically populated based on selected filter */}
-          <ComboBox {...getDefaultComboBoxProps()} {...comboBoxInputProps}>
+          <ComboBox {...getDefaultComboBoxProps()}>
             {filterValues?.map((value) => (
               <ComboBoxOption value={value} key={value} label={value} data-testid={value} />
             ))}

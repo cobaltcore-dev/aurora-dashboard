@@ -1,12 +1,11 @@
 import { useLingui } from "@lingui/react/macro"
 import { Pill, Stack, Button, ButtonProps } from "@cloudoperators/juno-ui-components"
 import { SelectedFilter } from "./types"
+import { cn } from "@/client/utils/cn"
 
 export type SelectedFiltersProps = {
   /**
-   * Array of currently selected/active filters to be displayed as pills.
-   * Each filter contains a name (filter type) and value.
-   * Optional - when undefined or empty, no pills are rendered.
+   * Array of currently active filters to be displayed as closeable pills.
    */
   selectedFilters: SelectedFilter[]
 
@@ -14,24 +13,23 @@ export type SelectedFiltersProps = {
   clearButtonProps?: ButtonProps
 
   /**
-   * Callback function invoked when a user clicks the close button on a filter pill.
-   * Receives the filter object that should be removed.
+   * Callback function invoked when a user removes an individual filter pill.
    */
   onDelete: (filter: SelectedFilter) => void
 
-  /** Callback function invoked when the "Clear all" button is clicked to reset all filters. */
+  /**
+   * Callback function invoked when the "Clear all" button is clicked.
+   */
   onClear: () => void
 }
 
 /**
  * SelectedFilters Component
  *
- * Displays a collection of currently active filters as closeable pill components.
- * Each pill shows the filter name and value, with a close button that allows users
- * to remove individual filters.
+ * Displays currently active filters as closeable pill components with individual
+ * remove buttons and an optional "Clear all" button (shown when 2+ filters are active).
  *
- * The pills are arranged in a flexible, wrapping stack layout that adapts to
- * available space, making it suitable for displaying varying numbers of filters.
+ * The pills are arranged in a flexible, wrapping layout that adapts to available space.
  */
 export const SelectedFilters = ({
   selectedFilters,
@@ -42,15 +40,20 @@ export const SelectedFilters = ({
   const { t } = useLingui()
 
   /**
-   * Returns default props for the "Clear all" Button component
-   * Includes default label, styling, and click handler
+   * Merges default props with user-provided props for the "Clear all" Button component.
+   * Applies default label, styling, and click handler while preserving custom overrides.
    */
-  const getDefaultClearButtonProps = (): ButtonProps => ({
-    label: t`Clear all`,
-    className: "ml-4",
-    onClick: onClear,
-    variant: "subdued",
-  })
+  const getDefaultClearButtonProps = (): ButtonProps => {
+    const { className, ...restProps } = clearButtonProps
+
+    return {
+      label: t`Clear all`,
+      className: cn("ml-2", className),
+      onClick: onClear,
+      variant: "subdued",
+      ...restProps,
+    }
+  }
 
   return (
     <Stack gap="2" wrap={true} alignment="center">
@@ -65,7 +68,7 @@ export const SelectedFilters = ({
         />
       ))}
       {/* Button to clear all applied filters */}
-      {selectedFilters.length > 1 && <Button {...getDefaultClearButtonProps()} {...clearButtonProps} />}
+      {selectedFilters.length > 1 && <Button {...getDefaultClearButtonProps()} />}
     </Stack>
   )
 }

@@ -113,7 +113,7 @@ msgstr "Check out our source code on GitHub!"
 msgid "Checksum"
 msgstr "Checksum"
 
-#: src/client/components/ListToolbar/SelectedFilters.tsx:49
+#: src/client/components/ListToolbar/SelectedFilters.tsx:50
 msgid "Clear all"
 msgstr "Clear all"
 
@@ -184,7 +184,7 @@ msgstr "Create Flavor"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/CreateFlavorModal.tsx:157
 msgid "Create New Flavor"
-msgstr "Create New Flavor"
+msgstr "Create New Flavor<<<<<<< HEAD"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/ServerGroups/components/ServerGroupListView.tsx:61
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/KeyPairs/-components/KeyPairListView.tsx:55
@@ -193,6 +193,7 @@ msgstr "Create New Flavor"
 msgid "Created"
 msgstr "Created"
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/List.tsx:34
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageDetailsView.tsx:69
 msgid "Created At"
 msgstr "Created At"
@@ -326,7 +327,7 @@ msgstr "Ephemeral Disk must be an integer ≥ 0."
 msgid "Error loading image"
 msgstr "Error loading image"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/List.tsx:45
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/List.tsx:140
 msgid "Error: {errorMessage}"
 msgstr "Error: {errorMessage}"
 
@@ -418,7 +419,7 @@ msgstr "False"
 msgid "Fetching..."
 msgstr "Fetching..."
 
-#: src/client/components/ListToolbar/FiltersInput.tsx:95
+#: src/client/components/ListToolbar/FiltersInput.tsx:110
 msgid "Filters"
 msgstr "Filters"
 
@@ -604,6 +605,7 @@ msgstr "Kubernetes Updates"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/clusters/index.tsx:46
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterWizard/BasicInfoStep.tsx:36
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/List.tsx:22
 msgid "Kubernetes Version"
 msgstr "Kubernetes Version"
 
@@ -627,7 +629,7 @@ msgstr "Loading Gardener..."
 msgid "Loading Image Details..."
 msgstr "Loading Image Details..."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/List.tsx:35
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/List.tsx:130
 msgid "Loading Images..."
 msgstr "Loading Images..."
 
@@ -733,6 +735,7 @@ msgid "N/A"
 msgstr "N/A"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail/WorkerSection.tsx:29
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/List.tsx:42
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageDetailsView.tsx:33
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImageModal.tsx:90
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:116
@@ -867,11 +870,11 @@ msgstr "Pods CIDR"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/ServerGroups/components/ServerGroupListView.tsx:55
 msgid "Policy"
-msgstr "Policy<<<<<<< HEAD"
+msgstr "Policy<<<<<<< HEAD<<<<<<< HEAD"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/-components/AccountSubNavigation.tsx:12
 msgid "Projects Overview"
-msgstr "Projects Overview"
+msgstr "Projects Overview=======>>>>>>> 400f318 (feat(aurora-portal): implement image table sorting and update component description comments)"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:299
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageDetailsView.tsx:99
@@ -974,7 +977,7 @@ msgid "Search clusters..."
 msgstr "Search clusters..."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/-components/ProjectOverviewNavBar.tsx:60
-#: src/client/components/ListToolbar/index.tsx:136
+#: src/client/components/ListToolbar/index.tsx:184
 msgid "Search..."
 msgstr "Search..."
 
@@ -1054,12 +1057,13 @@ msgstr "Show Details"
 #: src/client/routes/auth/login.tsx:197
 #: src/client/components/Auth/AuthMenu.tsx:49
 msgid "Sign In"
-msgstr "Sign In<<<<<<< HEAD"
+msgstr "Sign In<<<<<<< HEAD<<<<<<< HEAD"
 
 #: src/client/components/Auth/AuthMenu.tsx:40
 msgid "Sign Out"
-msgstr "Sign Out"
+msgstr "Sign Out======="
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/List.tsx:46
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:302
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageDetailsView.tsx:43
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImageModal.tsx:110
@@ -1074,6 +1078,10 @@ msgstr "Something went wrong:"
 msgid "sort by"
 msgstr "sort by"
 
+#: src/client/components/ListToolbar/SortInput.tsx:96
+msgid "Sort by"
+msgstr "Sort by"
+
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail/SettingsSection.tsx:27
 msgid "Start Time"
 msgstr "Start Time"
@@ -1081,6 +1089,8 @@ msgstr "Start Time"
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/clusters/index.tsx:41
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail/ClusterOverviewSection.tsx:67
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Instances/-components/ServerListView.tsx:19
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/List.tsx:17
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/List.tsx:50
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:293
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageDetailsView.tsx:37
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImageModal.tsx:98
@@ -1260,6 +1270,7 @@ msgstr "Unknown error"
 msgid "Unnamed"
 msgstr "Unnamed"
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/List.tsx:38
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageDetailsView.tsx:73
 msgid "Updated At"
 msgstr "Updated At"
