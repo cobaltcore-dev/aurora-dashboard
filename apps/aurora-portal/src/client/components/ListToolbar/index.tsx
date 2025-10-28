@@ -1,5 +1,12 @@
 import { useCallback } from "react"
-import { InputGroup, SearchInput, SearchInputProps, Stack, StackProps } from "@cloudoperators/juno-ui-components"
+import {
+  ButtonProps,
+  InputGroup,
+  SearchInput,
+  SearchInputProps,
+  Stack,
+  StackProps,
+} from "@cloudoperators/juno-ui-components"
 import { useLingui } from "@lingui/react/macro"
 import { SelectedFilters } from "./SelectedFilters"
 import { FiltersInput, FiltersInputProps } from "./FiltersInput"
@@ -41,6 +48,9 @@ export type ListToolbarProps = {
    * Excludes 'value', 'onSearch', and 'onClear' props as these are managed internally.
    */
   searchInputProps?: Omit<SearchInputProps, "value" | "onSearch" | "onClear">
+
+  /** Optional props to customize the "Clear all" Button component. */
+  clearButtonProps?: ButtonProps
 }
 
 /**
@@ -70,6 +80,7 @@ export const ListToolbar = ({
   listToolbarWrapperProps = {},
   filtersInputProps = {},
   searchInputProps = {},
+  clearButtonProps = {},
 }: ListToolbarProps) => {
   const { t } = useLingui()
 
@@ -115,11 +126,6 @@ export const ListToolbar = ({
   const getDefaultFiltersInputProps = (): FiltersInputProps => ({
     filters: filterSettings.filters,
     onChange: handleSelect,
-    onClear: () =>
-      onFilter({
-        ...filterSettings,
-        selectedFilters: [],
-      }),
   })
 
   /**
@@ -142,7 +148,17 @@ export const ListToolbar = ({
         <SearchInput {...getDefaultSearchInputProps()} {...searchInputProps} />
       </InputGroup>
       {filterSettings.selectedFilters && filterSettings.selectedFilters.length > 0 && (
-        <SelectedFilters selectedFilters={filterSettings.selectedFilters} onDelete={handleFilterDelete} />
+        <SelectedFilters
+          selectedFilters={filterSettings.selectedFilters}
+          clearButtonProps={clearButtonProps}
+          onDelete={handleFilterDelete}
+          onClear={() =>
+            onFilter({
+              ...filterSettings,
+              selectedFilters: [],
+            })
+          }
+        />
       )}
     </Stack>
   )

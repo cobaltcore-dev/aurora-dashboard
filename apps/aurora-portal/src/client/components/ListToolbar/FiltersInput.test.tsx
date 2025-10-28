@@ -30,7 +30,6 @@ const mockFilters = [
 ]
 
 const mockOnChange = vi.fn()
-const mockOnClear = vi.fn()
 
 describe("FiltersInput", () => {
   beforeEach(async () => {
@@ -47,7 +46,7 @@ describe("FiltersInput", () => {
     return render(
       <I18nProvider i18n={i18n}>
         <PortalProvider>
-          <FiltersInput filters={mockFilters} onChange={mockOnChange} onClear={mockOnClear} {...props} />
+          <FiltersInput filters={mockFilters} onChange={mockOnChange} {...props} />
         </PortalProvider>
       </I18nProvider>
     )
@@ -61,13 +60,6 @@ describe("FiltersInput", () => {
 
     const valueComboBox = await screen.findByTestId("combobox-filterValue")
     expect(valueComboBox).toBeInTheDocument()
-  })
-
-  it("should render the Clear all button", async () => {
-    setup()
-
-    const clearButton = await screen.findByText("Clear all")
-    expect(clearButton).toBeInTheDocument()
   })
 
   it("displays all filter options in the select dropdown", async () => {
@@ -114,17 +106,6 @@ describe("FiltersInput", () => {
       name: "status",
       value: "Active",
     })
-  })
-
-  it("should call onClear when Clear all button is clicked", async () => {
-    const user = userEvent.setup({ delay: 0 })
-
-    setup()
-
-    const clearButton = await screen.findByText("Clear all")
-    await user.click(clearButton)
-
-    expect(mockOnClear).toHaveBeenCalledTimes(1)
   })
 
   it("should disable combobox when no filter is selected", async () => {
@@ -205,18 +186,6 @@ describe("FiltersInput", () => {
     expect(comboBoxInput).toHaveClass("custom-combobox-class")
   })
 
-  it("should apply custom clearButtonProps", async () => {
-    setup({
-      clearButtonProps: {
-        className: "custom-clear-button",
-        variant: "primary",
-      },
-    })
-
-    const clearButton = await screen.findByText("Clear all")
-    expect(clearButton).toHaveClass("custom-clear-button")
-  })
-
   it("should handle filters with empty values array", async () => {
     const user = userEvent.setup({ delay: 0 })
 
@@ -231,7 +200,7 @@ describe("FiltersInput", () => {
     render(
       <I18nProvider i18n={i18n}>
         <PortalProvider>
-          <FiltersInput filters={filtersWithEmpty} onChange={mockOnChange} onClear={mockOnClear} />
+          <FiltersInput filters={filtersWithEmpty} onChange={mockOnChange} />
         </PortalProvider>
       </I18nProvider>
     )
@@ -261,7 +230,7 @@ describe("FiltersInput", () => {
     render(
       <I18nProvider i18n={i18n}>
         <PortalProvider>
-          <FiltersInput filters={filtersWithEmptyStrings} onChange={mockOnChange} onClear={mockOnClear} />
+          <FiltersInput filters={filtersWithEmptyStrings} onChange={mockOnChange} />
         </PortalProvider>
       </I18nProvider>
     )

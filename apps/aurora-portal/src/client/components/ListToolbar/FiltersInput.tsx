@@ -9,8 +9,6 @@ import {
   SelectProps,
   Stack,
   StackProps,
-  Button,
-  ButtonProps,
 } from "@cloudoperators/juno-ui-components"
 import { Filter, SelectedFilter } from "./types"
 import { useLingui } from "@lingui/react/macro"
@@ -20,16 +18,12 @@ export type FiltersInputProps = {
   filters: Filter[]
   /** Callback function invoked when a filter value is selected. Receives the selected filter object containing name and value. */
   onChange: (filter: SelectedFilter) => void
-  /** Callback function invoked when the "Clear all" button is clicked to reset all filters. */
-  onClear: () => void
   /** Optional props to customize the Stack wrapper component that contains the input elements. */
   inputWrapperProps?: StackProps
   /** Optional props to customize the Select component used for choosing the filter name/type. */
   selectInputProps?: SelectProps
   /** Optional props to customize the ComboBox component used for entering/selecting the filter value. */
   comboBoxInputProps?: ComboBoxProps
-  /** Optional props to customize the "Clear all" Button component. */
-  clearButtonProps?: ButtonProps
 }
 
 /**
@@ -59,11 +53,9 @@ function isEmpty(value: unknown) {
 export const FiltersInput = ({
   filters,
   onChange,
-  onClear,
   inputWrapperProps = {},
   selectInputProps = {},
   comboBoxInputProps = {},
-  clearButtonProps = {},
 }: FiltersInputProps) => {
   const { t } = useLingui()
 
@@ -120,17 +112,6 @@ export const FiltersInput = ({
     onChange: handleValueChange,
   })
 
-  /**
-   * Returns default props for the "Clear all" Button component
-   * Includes default label, styling, and click handler
-   */
-  const getDefaultClearButtonProps = (): ButtonProps => ({
-    label: t`Clear all`,
-    className: "ml-4",
-    onClick: onClear,
-    variant: "subdued",
-  })
-
   return (
     <>
       <Stack alignment="center" gap="8" {...inputWrapperProps}>
@@ -149,8 +130,6 @@ export const FiltersInput = ({
           </ComboBox>
         </InputGroup>
       </Stack>
-      {/* Button to clear all applied filters */}
-      <Button {...getDefaultClearButtonProps()} {...clearButtonProps} />
     </>
   )
 }

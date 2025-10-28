@@ -49,9 +49,8 @@ msgstr ""
 msgid "About Aurora Dashboard"
 msgstr "Über das Aurora-Dashboard"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/ServerGroups/components/ServerGroupListView.tsx:66
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/KeyPairs/-components/KeyPairListView.tsx:60
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Instances/-components/ServerListView.tsx:27
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/ServerGroups/components/ServerGroupListView.tsx:64
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Instances/-components/ServerListView.tsx:25
 msgid "Actions"
 msgstr "Aktionen"
 
@@ -114,7 +113,7 @@ msgstr "Schauen Sie sich unseren Quellcode auf GitHub an!"
 msgid "Checksum"
 msgstr "Prüfsumme"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/Filters/index.tsx:47
+#: src/client/components/ListToolbar/SelectedFilters.tsx:49
 msgid "Clear all"
 msgstr "Alle Filter löschen"
 
@@ -170,11 +169,7 @@ msgstr "Support kontaktieren"
 msgid "Container Format"
 msgstr "Container-Format"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/KeyPairs/-components/KeyPairListView.tsx:109
-msgid "Copy"
-msgstr "Kopieren"
-
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Instances/-components/ServerListView.tsx:24
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Instances/-components/ServerListView.tsx:22
 msgid "CPU"
 msgstr "CPU"
 
@@ -191,8 +186,8 @@ msgstr "Flavor erstellen"
 msgid "Create New Flavor"
 msgstr "Neuen Flavor erstellen"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/ServerGroups/components/ServerGroupListView.tsx:63
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/KeyPairs/-components/KeyPairListView.tsx:57
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/ServerGroups/components/ServerGroupListView.tsx:61
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/KeyPairs/-components/KeyPairListView.tsx:55
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:308
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImageModal.tsx:130
 msgid "Created"
@@ -212,7 +207,6 @@ msgstr "Deaktivieren"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/DeleteClusterDialog.tsx:44
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail/DetailLayout.tsx:69
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/KeyPairs/-components/KeyPairListView.tsx:126
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageTableRow.tsx:81
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImageModal.tsx:65
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/SpecRow.tsx:40
@@ -244,7 +238,7 @@ msgstr "Beschreibung"
 msgid "Description must be less than 65535 characters."
 msgstr "Die Beschreibung muss weniger als 65535 Zeichen haben."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Instances/-components/ServerListView.tsx:26
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Instances/-components/ServerListView.tsx:24
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/DeleteFlavorModal.tsx:132
 msgid "Disk"
 msgstr "Disk"
@@ -424,7 +418,7 @@ msgstr "False"
 msgid "Fetching..."
 msgstr "Wird abgerufen..."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/Filters/FilterSelect.tsx:55
+#: src/client/components/ListToolbar/FiltersInput.tsx:95
 msgid "Filters"
 msgstr "Filter"
 
@@ -432,7 +426,7 @@ msgstr "Filter"
 msgid "Find detailed guides and references in our docs."
 msgstr "Finden Sie detaillierte Anleitungen und Referenzen in unserer Dokumentation."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/KeyPairs/-components/KeyPairListView.tsx:54
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/KeyPairs/-components/KeyPairListView.tsx:52
 msgid "Fingerprint"
 msgstr "Fingerprint"
 
@@ -482,7 +476,7 @@ msgstr "Mitmachen"
 msgid "GitHub"
 msgstr "GitHub"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/ServerGroups/components/ServerGroupListView.tsx:54
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/ServerGroups/components/ServerGroupListView.tsx:52
 msgid "Group Name"
 msgstr "Gruppenname"
 
@@ -576,11 +570,11 @@ msgstr "Instanzen"
 msgid "Invalid value for public flavor setting."
 msgstr "Ungültiger Wert für die Einstellung des öffentlichen Flavors."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Instances/-components/ServerListView.tsx:22
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Instances/-components/ServerListView.tsx:20
 msgid "IPv4"
 msgstr "IPv4"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Instances/-components/ServerListView.tsx:23
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Instances/-components/ServerListView.tsx:21
 msgid "IPv6"
 msgstr "IPv6"
 
@@ -592,7 +586,7 @@ msgstr "Key"
 msgid "Key Features"
 msgstr "Hauptmerkmale"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/KeyPairs/-components/KeyPairListView.tsx:48
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/KeyPairs/-components/KeyPairListView.tsx:46
 msgid "Key Name"
 msgstr "Keyname"
 
@@ -608,6 +602,7 @@ msgstr "Kubernetes"
 msgid "Kubernetes Updates"
 msgstr "Kubernetes Updates"
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/clusters/index.tsx:46
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterWizard/BasicInfoStep.tsx:36
 msgid "Kubernetes Version"
 msgstr "Kubernetes Version"
@@ -708,7 +703,7 @@ msgstr "Max:"
 msgid "Maximum Nodes"
 msgstr "Maximale Nodes"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/ServerGroups/components/ServerGroupListView.tsx:60
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/ServerGroups/components/ServerGroupListView.tsx:58
 msgid "Members"
 msgstr "Members"
 
@@ -759,6 +754,10 @@ msgstr "Benötigen Sie Hilfe?"
 msgid "Network Configuration"
 msgstr "Netzwerkkonfiguration"
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/clusters/index.tsx:122
+msgid "New Cluster"
+msgstr "Neuer Cluster"
+
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterWizard/WizardActions.tsx:33
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterWizard/WizardActions.tsx:48
 msgid "Next"
@@ -790,7 +789,7 @@ msgid "No images found"
 msgstr "Keine Images gefunden"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/KeyPairs/List.tsx:18
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/KeyPairs/-components/KeyPairListView.tsx:137
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/KeyPairs/-components/KeyPairListView.tsx:76
 msgid "No key pairs available."
 msgstr "Keine Keypaare verfügbar"
 
@@ -803,11 +802,11 @@ msgid "No projects found"
 msgstr ""
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/ServerGroups/List.tsx:16
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/ServerGroups/components/ServerGroupListView.tsx:141
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/ServerGroups/components/ServerGroupListView.tsx:85
 msgid "No server groups available."
 msgstr "Keine Servergruppen verfügbar"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Instances/-components/ServerListView.tsx:122
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Instances/-components/ServerListView.tsx:65
 msgid "No servers available."
 msgstr "Keine Server verfügbar"
 
@@ -866,9 +865,9 @@ msgstr "Bitte versuchen Sie es erneut oder kopieren Sie manuell"
 msgid "Pods CIDR"
 msgstr "CIDR-Bereich für Pods"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/ServerGroups/components/ServerGroupListView.tsx:57
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/ServerGroups/components/ServerGroupListView.tsx:55
 msgid "Policy"
-msgstr "Richtlinie"
+msgstr "Richtlinie<<<<<<< HEAD"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/-components/AccountSubNavigation.tsx:12
 msgid "Projects Overview"
@@ -883,7 +882,7 @@ msgstr "Geschützt"
 msgid "Public Flavor"
 msgstr "Öffentlicher Flavor"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Instances/-components/ServerListView.tsx:25
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Instances/-components/ServerListView.tsx:23
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FilterToolbar.tsx:56
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/DeleteFlavorModal.tsx:128
 msgid "RAM"
@@ -910,6 +909,10 @@ msgstr "Reaktivieren"
 msgid "Readiness"
 msgstr "Bereitschaft"
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/clusters/index.tsx:117
+msgid "Refresh"
+msgstr "Aktualisieren"
+
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail/ClusterOverviewSection.tsx:72
 msgid "Region"
 msgstr "Region"
@@ -928,7 +931,6 @@ msgstr "Zugriff entfernen für {tenantId}"
 msgid "Remove tenant access"
 msgstr "Projektzugriff entfernen"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Instances/-components/ServerListView.tsx:111
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Instances/-components/ServerCardView.tsx:50
 msgid "Restart"
 msgstr "Neustart"
@@ -967,11 +969,12 @@ msgstr "Extra Spec speichern"
 msgid "Scaling"
 msgstr "Scaling"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/Filters/index.tsx:58
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/clusters/index.tsx:135
 msgid "Search clusters..."
 msgstr "Cluster durchsuchen..."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/-components/ProjectOverviewNavBar.tsx:60
+#: src/client/components/ListToolbar/index.tsx:136
 msgid "Search..."
 msgstr "Suchen..."
 
@@ -1019,7 +1022,7 @@ msgstr "Servergruppen"
 msgid "Server is experiencing issues. Please try again later."
 msgstr "Der Server hat Probleme. Bitte versuchen Sie es später erneut."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Instances/-components/ServerListView.tsx:20
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Instances/-components/ServerListView.tsx:18
 msgid "Server Name"
 msgstr "Servername"
 
@@ -1051,7 +1054,7 @@ msgstr "Details anzeigen"
 #: src/client/routes/auth/login.tsx:197
 #: src/client/components/Auth/AuthMenu.tsx:49
 msgid "Sign In"
-msgstr "Einloggen"
+msgstr "Einloggen<<<<<<< HEAD"
 
 #: src/client/components/Auth/AuthMenu.tsx:40
 msgid "Sign Out"
@@ -1075,8 +1078,9 @@ msgstr "Sortieren nach"
 msgid "Start Time"
 msgstr "Startzeit"
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/clusters/index.tsx:41
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail/ClusterOverviewSection.tsx:67
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Instances/-components/ServerListView.tsx:21
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Instances/-components/ServerListView.tsx:19
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:293
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageDetailsView.tsx:37
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImageModal.tsx:98
@@ -1225,7 +1229,7 @@ msgstr "True"
 msgid "Try again"
 msgstr "Erneut versuchen"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/KeyPairs/-components/KeyPairListView.tsx:51
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/KeyPairs/-components/KeyPairListView.tsx:49
 msgid "Type"
 msgstr "Typ"
 
