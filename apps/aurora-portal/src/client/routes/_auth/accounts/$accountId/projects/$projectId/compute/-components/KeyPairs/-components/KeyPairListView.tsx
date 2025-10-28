@@ -65,6 +65,7 @@ export function KeyPairListView({ keyPairs }: KeyPairListViewProps) {
                   <td className="p-3">{renderKeyType(keyPair.type)}</td>
                   <td className="p-3 font-mono text-sm">{formatFingerprint(keyPair.fingerprint)}</td>
                   <td className="p-3">{formatDate(keyPair.created_at)}</td>
+                  <td></td>
                 </tr>
               ))}
             </tbody>

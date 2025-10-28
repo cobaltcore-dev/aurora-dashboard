@@ -54,6 +54,7 @@ export function ServerListView({ servers }: ServerListViewProps) {
                   <td className="p-3">{server?.flavor?.vcpus}</td>
                   <td className="p-3">{server?.flavor?.ram} MB</td>
                   <td className="p-3">{server?.flavor?.disk} GB</td>
+                  <td></td>
                 </tr>
               ))}
             </tbody>

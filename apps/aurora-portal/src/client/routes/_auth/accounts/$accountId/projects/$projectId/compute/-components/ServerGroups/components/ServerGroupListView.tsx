@@ -74,6 +74,7 @@ export function ServerGroupListView({ serverGroups }: ServerGroupListViewProps) 
                   <td className="p-3">{renderPolicy(group.policies?.[0])}</td>
                   <td className="p-3">{renderMembersCount(group)}</td>
                   <td className="p-3">{formatDate(group.created_at)}</td>
+                  <td></td>
                 </tr>
               ))}
             </tbody>
