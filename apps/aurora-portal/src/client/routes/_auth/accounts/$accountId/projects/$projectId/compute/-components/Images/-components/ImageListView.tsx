@@ -98,7 +98,7 @@ export function ImageListView({
 
   const handleSaveEdit = (updatedImage: GlanceImage) => {
     setEditModalOpen(false)
-    const imageName = updatedImage.name || t`Unnamed`
+    const imageName = updatedImage.name || updatedImage.id
 
     setToastData({
       variant: "success",
@@ -138,7 +138,7 @@ export function ImageListView({
 
   const handleDelete = async (deletedImage: GlanceImage) => {
     setEditModalOpen(false)
-    const imageName = deletedImage.name || t`Unnamed`
+    const imageName = deletedImage.name || deletedImage.id
     const imageId = deletedImage.id
 
     try {
@@ -178,25 +178,8 @@ export function ImageListView({
     }
   }
 
-  const handleLaunch = (image: GlanceImage) => {
-    const imageName = image.name || t`Unnamed`
-
-    setToastData({
-      variant: "success",
-      children: (
-        <NotificationText
-          title={<Trans>Launch Instance</Trans>}
-          description={<Trans>Launching instance from image "{imageName}"</Trans>}
-        />
-      ),
-      autoDismiss: true,
-      autoDismissTimeout: 3000,
-      onDismiss: handleToastDismiss,
-    })
-  }
-
   const handleActivationStatusChange = async (updatedImage: GlanceImage) => {
-    const imageName = updatedImage.name || t`Unnamed`
+    const imageName = updatedImage.name || updatedImage.id
     const imageId = updatedImage.id
 
     try {
@@ -313,13 +296,13 @@ export function ImageListView({
                 <Trans>Visibility</Trans>
               </DataGridHeadCell>
               <DataGridHeadCell>
+                <Trans>Protected</Trans>
+              </DataGridHeadCell>
+              <DataGridHeadCell>
                 <Trans>Size</Trans>
               </DataGridHeadCell>
               <DataGridHeadCell>
                 <Trans>Disk Format</Trans>
-              </DataGridHeadCell>
-              <DataGridHeadCell>
-                <Trans>OS Type</Trans>
               </DataGridHeadCell>
               <DataGridHeadCell>
                 <Trans>Created</Trans>
@@ -335,7 +318,6 @@ export function ImageListView({
                 permissions={permissions}
                 onEdit={openEditModal}
                 onDelete={openDeleteModal}
-                onLaunch={handleLaunch}
                 onActivationStatusChange={handleActivationStatusChange}
               />
             ))}
@@ -397,10 +379,11 @@ export function ImageListView({
       )}
       {selectedImage && (
         <DeleteImageModal
+          image={selectedImage}
           isOpen={deleteModalOpen}
           isLoading={isLoading}
+          isDisabled={!selectedImage.protected && permissions.canDelete}
           onClose={() => setDeleteModalOpen(false)}
-          image={selectedImage}
           onDelete={handleDelete}
         />
       )}

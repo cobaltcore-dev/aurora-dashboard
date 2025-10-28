@@ -19,14 +19,22 @@ import { StatusBadge } from "./StatusBadge"
 import { VisibilityBadge } from "./VisibilityBadge"
 import { SizeDisplay } from "./SizeDisplay"
 interface DeleteImageModalProps {
+  image: GlanceImage
   isOpen: boolean
   isLoading: boolean
+  isDisabled: boolean
   onClose: () => void
-  image: GlanceImage
   onDelete: (updatedImage: GlanceImage) => void
 }
 
-export const DeleteImageModal: React.FC<DeleteImageModalProps> = ({ isOpen, isLoading, onClose, image, onDelete }) => {
+export const DeleteImageModal: React.FC<DeleteImageModalProps> = ({
+  image,
+  isOpen,
+  isLoading,
+  isDisabled,
+  onClose,
+  onDelete,
+}) => {
   if (!image) return null
 
   const { t } = useLingui()
@@ -51,7 +59,7 @@ export const DeleteImageModal: React.FC<DeleteImageModalProps> = ({ isOpen, isLo
                 handleDelete(e)
                 onClose()
               }}
-              disabled={isLoading}
+              disabled={isLoading || isDisabled}
               data-testid={`delete-image-button`}
             >
               {isLoading ? <Spinner size="small" /> : <Trans>Delete</Trans>}
@@ -121,7 +129,7 @@ export const DeleteImageModal: React.FC<DeleteImageModalProps> = ({ isOpen, isLo
               <DataGridRow>
                 <DataGridHeadCell>{t`Created`}</DataGridHeadCell>
                 <DataGridCell>
-                  {image.created_at ? new Date(image.created_at).toLocaleDateString() : "N/A"}
+                  {image.created_at ? new Date(image.created_at).toLocaleDateString() : t`N/A`}
                 </DataGridCell>
               </DataGridRow>
             </DataGrid>

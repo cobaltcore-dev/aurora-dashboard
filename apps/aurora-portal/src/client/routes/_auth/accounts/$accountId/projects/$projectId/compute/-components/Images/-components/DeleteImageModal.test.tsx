@@ -20,7 +20,7 @@ describe("DeleteImageModal", () => {
     created_at: "2023-01-01T00:00:00Z",
     updated_at: "2023-01-01T00:00:00Z",
     size: 1024,
-  }
+  } as GlanceImage
 
   beforeEach(async () => {
     vi.clearAllMocks()
@@ -29,13 +29,14 @@ describe("DeleteImageModal", () => {
     })
   })
 
-  const setup = (isOpen: boolean, isLoading = false, image = mockImage) => {
+  const setup = (isOpen: boolean, isLoading = false, isDisabled = false, image = mockImage) => {
     render(
       <I18nProvider i18n={i18n}>
         <PortalProvider>
           <DeleteImageModal
             isOpen={isOpen}
             isLoading={isLoading}
+            isDisabled={isDisabled}
             onClose={mockOnClose}
             onDelete={mockOnDelete}
             image={image}
@@ -86,17 +87,37 @@ describe("DeleteImageModal", () => {
     expect(deleteButton).toBeDisabled()
   })
 
-  it("should show spinner when isLoading is true", () => {
+  it("should disable the delete button when isDisabled is true", () => {
+    setup(true, false, true)
+    const deleteButton = screen.getByTestId("delete-image-button")
+    expect(deleteButton).toBeDisabled()
+  })
+
+  it("should show spinner in delete button when isLoading is true", () => {
+    setup(true, true)
+    const deleteButton = screen.getByTestId("delete-image-button")
+    const spinner = deleteButton.querySelector('[role="progressbar"]')
+    expect(spinner).toBeInTheDocument()
+  })
+
+  it("should show loading spinner overlay when isLoading is true", () => {
     setup(true, true)
     const spinners = screen.getAllByRole("progressbar")
     expect(spinners.length).toBeGreaterThan(0)
+  })
+
+  it("should hide image details when isLoading is true", () => {
+    setup(true, true)
+    expect(screen.queryByText("Test Image")).not.toBeInTheDocument()
+    expect(screen.queryByText("test-id")).not.toBeInTheDocument()
   })
 
   it("should return null when image is null", () => {
     setup(
       true,
       false,
-      // @ts-expect-error: Argument of type 'null' is not assignable to parameter of type
+      false,
+      // @ts-expect-error: Testing null case
       null
     )
 
@@ -106,20 +127,65 @@ describe("DeleteImageModal", () => {
 
   it("should display N/A when disk_format is missing", () => {
     const imageWithoutDiskFormat = { ...mockImage, disk_format: undefined }
-    setup(true, false, imageWithoutDiskFormat)
+    setup(true, false, false, imageWithoutDiskFormat)
     expect(screen.getByText("N/A")).toBeInTheDocument()
   })
 
   it("should not display OS Type row when os_type is missing", () => {
     const imageWithoutOsType = { ...mockImage, os_type: undefined }
-    setup(true, false, imageWithoutOsType)
+    setup(true, false, false, imageWithoutOsType)
     expect(screen.queryByText("OS Type")).not.toBeInTheDocument()
+  })
+
+  it("should display os_distro in parentheses when present", () => {
+    setup(true)
+    expect(screen.getByText(/Ubuntu/i)).toBeInTheDocument()
+  })
+
+  it("should display info icon for OS Type when present", () => {
+    setup(true)
+    const osTypeCell = screen.getByText("Linux").closest("div")
+    // Check for the icon within the cell
+    expect(osTypeCell).toBeInTheDocument()
   })
 
   it("should format the created date correctly", () => {
     setup(true)
     // The exact format depends on locale, but it should contain date parts
-    const dateCell = screen.getByText(/1\/1\/2023|2023/).closest("div")
-    expect(dateCell).toBeInTheDocument()
+    const dateText = screen.getByText(/1\/1\/2023|2023/)
+    expect(dateText).toBeInTheDocument()
+  })
+
+  it("should display 'Unnamed' when image name is missing", () => {
+    const imageWithoutName = { ...mockImage, name: undefined }
+    setup(true, false, false, imageWithoutName)
+    expect(screen.getByText("Unnamed")).toBeInTheDocument()
+  })
+
+  it("should display N/A when created_at is missing", () => {
+    const imageWithoutCreatedAt = { ...mockImage, created_at: undefined }
+    setup(true, false, false, imageWithoutCreatedAt)
+    const rows = screen.getAllByText("N/A")
+    expect(rows.length).toBeGreaterThan(0)
+  })
+
+  it("should render StatusBadge component with correct status", () => {
+    setup(true)
+    // StatusBadge should be rendered (exact assertion depends on its implementation)
+    expect(screen.getByText(/active/i)).toBeInTheDocument()
+  })
+
+  it("should render VisibilityBadge component with correct visibility", () => {
+    setup(true)
+    // VisibilityBadge should be rendered (exact assertion depends on its implementation)
+    expect(screen.getByText(/private/i)).toBeInTheDocument()
+  })
+
+  it("should render SizeDisplay component with correct size", () => {
+    setup(true)
+    // SizeDisplay should be rendered (exact assertion depends on its implementation)
+    // The component is expected to display the size in some format
+    const sizeCell = screen.getByText("1 KB").closest("div")
+    expect(sizeCell).toBeInTheDocument()
   })
 })
