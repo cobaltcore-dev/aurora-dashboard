@@ -153,7 +153,7 @@ describe("FiltersInput", () => {
 
   it("should apply custom inputWrapperProps", async () => {
     setup({
-      inputWrapperProps: {
+      filterWrapperProps: {
         "data-testid": "custom-wrapper",
         className: "custom-wrapper-class",
       },

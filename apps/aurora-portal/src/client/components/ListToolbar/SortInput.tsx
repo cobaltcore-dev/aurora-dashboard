@@ -11,29 +11,20 @@ import {
   ButtonProps,
 } from "@cloudoperators/juno-ui-components"
 import { useLingui } from "@lingui/react/macro"
-
-/**
- * Represents a single option in the sort dropdown
- */
-export interface SortOption {
-  /** The value to be used when this option is selected (e.g., "name", "vcpus", "created_at") */
-  value: string
-  /** The display label for this option - can be any string for display purposes */
-  label: string
-}
+import { SortOption } from "./types"
 
 /**
  * Props for the SortInput component
  */
-interface SortInputProps {
+export interface SortInputProps {
   /** Current sort key/field being used (e.g., "name", "vcpus", "created_at") */
-  sortBy: string
+  sortBy?: string | number | string[]
   /** Callback fired when the user selects a different sort option */
-  onSortByChange: (_term: string | number | string[] | undefined) => void
+  onSortByChange: (param?: string | number | string[]) => void
   /** Current sort direction: "asc" for ascending, "desc" for descending */
   sortDirection: "asc" | "desc"
   /** Callback fired when the user toggles the sort direction */
-  onSortDirectionChange: (_direction: "asc" | "desc") => void
+  onSortDirectionChange: (direction: "asc" | "desc") => void
   /** Array of available sort options to display in the dropdown */
   options: SortOption[]
   /** Optional props to customize the Stack wrapper component that contains the input elements */
@@ -58,7 +49,7 @@ interface SortInputProps {
  * The component provides several customization points through props that allow
  * overriding default behavior and styling of individual sub-components.
  */
-const SortInput: React.FC<SortInputProps> = ({
+export const SortInput: React.FC<SortInputProps> = ({
   sortBy,
   onSortByChange,
   sortDirection,
@@ -117,5 +108,3 @@ const SortInput: React.FC<SortInputProps> = ({
     </Stack>
   )
 }
-
-export default SortInput

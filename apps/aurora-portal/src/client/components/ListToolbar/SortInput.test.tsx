@@ -3,7 +3,8 @@ import { describe, it, expect, vi, beforeEach } from "vitest"
 import { I18nProvider } from "@lingui/react"
 import { i18n } from "@lingui/core"
 import { PortalProvider } from "@cloudoperators/juno-ui-components"
-import SortInput, { SortOption } from "./SortInput"
+import { SortInput } from "./SortInput"
+import { SortOption } from "./types"
 
 const TestWrapper = ({ children }: { children: React.ReactNode }) => (
   <I18nProvider i18n={i18n}>

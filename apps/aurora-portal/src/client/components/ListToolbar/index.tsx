@@ -10,7 +10,8 @@ import {
 import { useLingui } from "@lingui/react/macro"
 import { SelectedFilters } from "./SelectedFilters"
 import { FiltersInput, FiltersInputProps } from "./FiltersInput"
-import { FilterSettings, SelectedFilter } from "./types"
+import { SortInput, SortInputProps } from "./SortInput"
+import { FilterSettings, SelectedFilter, SortSettings } from "./types"
 
 export type ListToolbarProps = {
   /**
@@ -23,6 +24,16 @@ export type ListToolbarProps = {
    * Receives the updated FilterSettings object with the new filter state.
    */
   onFilter: (filterSettings: FilterSettings) => void
+  /**
+   * Current sort configuration including the selected sort field and sort direction (ascending/descending).
+   * Controls which field to sort by and the order of sorting.
+   */
+  sortSettings?: SortSettings
+  /**
+   * Callback function invoked when the sort configuration changes.
+   * Receives the updated SortSettings object with the new sort field and/or direction.
+   */
+  onSort?: (sortSettings: SortSettings) => void
   /**
    * Current search term value displayed in the search input field.
    * Controls the text input state for searching/filtering list items.
@@ -44,6 +55,14 @@ export type ListToolbarProps = {
    */
   filtersInputProps?: Omit<FiltersInputProps, "filters" | "onChange" | "onClear">
   /**
+   * Optional props to customize the SortInput component.
+   * Excludes 'options', 'sortBy', 'sortDirection', 'onSortByChange' and 'onSortDirectionChange' props as these are managed internally.
+   */
+  sortInputProps?: Omit<
+    SortInputProps,
+    "options" | "sortBy" | "sortDirection" | "onSortByChange" | "onSortDirectionChange"
+  >
+  /**
    * Optional props to customize the SearchInput component.
    * Excludes 'value', 'onSearch', and 'onClear' props as these are managed internally.
    */
@@ -56,29 +75,34 @@ export type ListToolbarProps = {
 /**
  * ListToolbar Component
  *
- * A comprehensive toolbar component for filtering and searching list data. It provides:
+ * A comprehensive toolbar component for filtering, sorting, and searching list data. It provides:
  * - Filter selection interface (filter type + value)
+ * - Sort selection interface (sort field + direction)
  * - Search input field
  * - Visual display of currently active filters as removable pills
  * - Clear all functionality
  *
- * The component manages the interaction between filter inputs and displays the current
- * filter state, allowing users to add, remove, and clear filters, as well as perform
+ * The component manages the interaction between filter inputs, sort controls, and displays the current
+ * filter state, allowing users to add, remove, and clear filters, change sort order, as well as perform
  * text-based searches.
  *
  * **Features:**
  * - Prevents duplicate filters from being added
  * - Displays active filters as closeable pills
- * - Integrates search functionality alongside filters
+ * - Provides sort field and direction controls
+ * - Integrates search functionality alongside filters and sorting
  * - Fully customizable sub-components via prop spreading
  */
 export const ListToolbar = ({
   filterSettings,
   onFilter,
+  sortSettings,
+  onSort,
   searchTerm,
   onSearch,
   listToolbarWrapperProps = {},
   filtersInputProps = {},
+  sortInputProps = {},
   searchInputProps = {},
   clearButtonProps = {},
 }: ListToolbarProps) => {
@@ -129,6 +153,21 @@ export const ListToolbar = ({
   })
 
   /**
+   * Returns default props for the SortInput component.
+   * Connects the sort settings and handles sort changes.
+   */
+  const getDefaultSortInputProps = (): SortInputProps =>
+    onSort && sortSettings
+      ? {
+          options: sortSettings.options,
+          sortBy: sortSettings.sortBy,
+          sortDirection: sortSettings.sortDirection || "asc",
+          onSortByChange: (param) => onSort({ ...sortSettings, sortBy: param }),
+          onSortDirectionChange: (direction: "asc" | "desc") => onSort({ ...sortSettings, sortDirection: direction }),
+        }
+      : ({} as SortInputProps)
+
+  /**
    * Returns default props for the SearchInput component.
    * Manages search term state and provides search/clear functionality.
    */
@@ -145,6 +184,7 @@ export const ListToolbar = ({
     <Stack {...getDefaultListToolbarWrapperProps()} {...listToolbarWrapperProps}>
       <InputGroup>
         <FiltersInput {...getDefaultFiltersInputProps()} {...filtersInputProps} />
+        {onSort && sortSettings && <SortInput {...getDefaultSortInputProps()} {...sortInputProps} />}
         <SearchInput {...getDefaultSearchInputProps()} {...searchInputProps} />
       </InputGroup>
       {filterSettings.selectedFilters && filterSettings.selectedFilters.length > 0 && (

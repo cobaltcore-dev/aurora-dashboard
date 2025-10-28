@@ -34,14 +34,31 @@ const filterSettings = {
   filters,
 }
 
+const sortSettings = {
+  sortBy: "name",
+  sortDirection: "asc" as const,
+  options: [
+    { value: "name", label: "Name" },
+    { value: "date", label: "Date" },
+    { value: "status", label: "Status" },
+  ],
+}
+
 const searchTerm = ""
 
-const renderShell = ({ filterSettings, onFilter, onSearch, searchTerm }: ListToolbarProps) => ({
+const renderShell = ({ filterSettings, sortSettings, onFilter, onSort, onSearch, searchTerm }: ListToolbarProps) => ({
   user: userEvent.setup({ delay: 0 }),
   ...render(
     <I18nProvider i18n={i18n}>
       <PortalProvider>
-        <ListToolbar filterSettings={filterSettings} searchTerm={searchTerm} onFilter={onFilter} onSearch={onSearch} />
+        <ListToolbar
+          filterSettings={filterSettings}
+          sortSettings={sortSettings}
+          searchTerm={searchTerm}
+          onFilter={onFilter}
+          onSort={onSort}
+          onSearch={onSearch}
+        />
       </PortalProvider>
     </I18nProvider>
   ),
@@ -63,6 +80,15 @@ describe("ListToolbar", () => {
     renderShell({ filterSettings, searchTerm, onFilter: vi.fn(), onSearch: vi.fn() })
     expect(await screen.findByTestId("select-filterValue")).toBeInTheDocument()
     expect(await screen.findByTestId("combobox-filterValue")).toBeInTheDocument()
+    expect(await screen.findByTestId("searchbar")).toBeInTheDocument()
+  })
+
+  it("renders the component with sort controls when sortSettings and onSort are provided", async () => {
+    renderShell({ filterSettings, sortSettings, searchTerm, onFilter: vi.fn(), onSort: vi.fn(), onSearch: vi.fn() })
+    expect(await screen.findByTestId("select-filterValue")).toBeInTheDocument()
+    expect(await screen.findByTestId("combobox-filterValue")).toBeInTheDocument()
+    expect(await screen.findByTestId("sort-select")).toBeInTheDocument()
+    expect(await screen.findByTestId("direction-toggle")).toBeInTheDocument()
     expect(await screen.findByTestId("searchbar")).toBeInTheDocument()
   })
 
@@ -96,6 +122,51 @@ describe("ListToolbar", () => {
         filters,
         selectedFilters: [{ name: "region", value: "Europe" }],
         searchTerm: "",
+      })
+    )
+  })
+
+  it("should change sort field", async () => {
+    const onSortSpy = vi.fn()
+    const { user } = renderShell({
+      filterSettings,
+      sortSettings,
+      searchTerm,
+      onFilter: vi.fn(),
+      onSort: onSortSpy,
+      onSearch: vi.fn(),
+    })
+
+    const sortSelect = await screen.findByTestId("sort-select")
+    await user.click(sortSelect)
+    await user.click(await screen.findByText("Date"))
+
+    expect(onSortSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        sortBy: "date",
+        sortDirection: "asc",
+      })
+    )
+  })
+
+  it("should toggle sort direction", async () => {
+    const onSortSpy = vi.fn()
+    const { user } = renderShell({
+      filterSettings,
+      sortSettings,
+      searchTerm,
+      onFilter: vi.fn(),
+      onSort: onSortSpy,
+      onSearch: vi.fn(),
+    })
+
+    const directionButton = await screen.findByTestId("direction-toggle")
+    await user.click(directionButton)
+
+    expect(onSortSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        sortBy: "name",
+        sortDirection: "desc",
       })
     )
   })

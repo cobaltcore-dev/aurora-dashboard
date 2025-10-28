@@ -14,3 +14,14 @@ export type FilterSettings = {
   selectedFilters?: SelectedFilter[]
   filters: Filter[]
 }
+
+export type SortOption = {
+  value: string
+  label: string
+}
+
+export type SortSettings = {
+  options: SortOption[]
+  sortBy?: string | number | string[]
+  sortDirection?: "asc" | "desc"
+}
