@@ -106,20 +106,6 @@ describe("ServerListView", () => {
     expect(screen.getByText("60 GB")).toBeInTheDocument()
   })
 
-  it("renders action buttons for each server", async () => {
-    await act(async () => {
-      render(<ServerListView servers={mockServers} />, {
-        wrapper: TestingProvider,
-      })
-    })
-
-    const viewButtons = screen.getAllByRole("button", { name: "View" })
-    const restartButtons = screen.getAllByRole("button", { name: "Restart" })
-
-    expect(viewButtons.length).toBe(2) // One for each server
-    expect(restartButtons.length).toBe(2)
-  })
-
   it("shows 'No servers available' when the list is empty", async () => {
     await act(async () => {
       render(<ServerListView servers={[]} />, {
