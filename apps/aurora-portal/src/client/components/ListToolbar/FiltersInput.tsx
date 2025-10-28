@@ -19,7 +19,7 @@ export type FiltersInputProps = {
   /** Callback function invoked when a filter value is selected. Receives the selected filter object containing name and value. */
   onChange: (filter: SelectedFilter) => void
   /** Optional props to customize the Stack wrapper component that contains the input elements. */
-  inputWrapperProps?: StackProps
+  filterWrapperProps?: StackProps
   /** Optional props to customize the Select component used for choosing the filter name/type. */
   selectInputProps?: SelectProps
   /** Optional props to customize the ComboBox component used for entering/selecting the filter value. */
@@ -53,7 +53,7 @@ function isEmpty(value: unknown) {
 export const FiltersInput = ({
   filters,
   onChange,
-  inputWrapperProps = {},
+  filterWrapperProps = {},
   selectInputProps = {},
   comboBoxInputProps = {},
 }: FiltersInputProps) => {
@@ -114,7 +114,7 @@ export const FiltersInput = ({
 
   return (
     <>
-      <Stack alignment="center" gap="8" {...inputWrapperProps}>
+      <Stack alignment="center" gap="8" {...filterWrapperProps}>
         <InputGroup>
           {/* Filter name/type selector */}
           <Select {...getDefaultSelectProps()} {...selectInputProps}>
