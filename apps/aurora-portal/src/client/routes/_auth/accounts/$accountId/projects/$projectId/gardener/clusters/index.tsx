@@ -41,11 +41,13 @@ function RouteComponent() {
         displayName: t`Status`,
         filterName: "status",
         values: statuses,
+        supportsMultiValue: true,
       },
       {
         displayName: t`Kubernetes Version`,
         filterName: "version",
         values: versions,
+        supportsMultiValue: true,
       },
     ],
   })

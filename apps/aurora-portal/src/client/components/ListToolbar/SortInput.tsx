@@ -1,4 +1,5 @@
 import React from "react"
+import { useLingui } from "@lingui/react/macro"
 import { cn } from "@/client/utils/cn"
 import {
   Stack,
@@ -11,7 +12,6 @@ import {
   SelectProps,
   ButtonProps,
 } from "@cloudoperators/juno-ui-components"
-import { useLingui } from "@lingui/react/macro"
 import { SortOption } from "./types"
 
 /**
@@ -67,7 +67,7 @@ export const SortInput: React.FC<SortInputProps> = ({
     const { className, ...restProps } = sortWrapperProps
 
     return {
-      className: cn("flex flex-row items-center ml-4", className),
+      className: cn("flex flex-row items-center", className),
       ...restProps,
     }
   }

@@ -1,18 +1,11 @@
 import { useCallback } from "react"
-import {
-  ButtonProps,
-  InputGroup,
-  SearchInput,
-  SearchInputProps,
-  Stack,
-  StackProps,
-} from "@cloudoperators/juno-ui-components"
 import { useLingui } from "@lingui/react/macro"
+import { cn } from "@/client/utils/cn"
+import { ButtonProps, SearchInput, SearchInputProps, Stack, StackProps } from "@cloudoperators/juno-ui-components"
 import { SelectedFilters } from "./SelectedFilters"
 import { FiltersInput, FiltersInputProps } from "./FiltersInput"
 import { SortInput, SortInputProps } from "./SortInput"
 import { FilterSettings, SelectedFilter, SortSettings } from "./types"
-import { cn } from "@/client/utils/cn"
 
 export type ListToolbarProps = {
   /**
@@ -44,6 +37,11 @@ export type ListToolbarProps = {
    * Allows customization of layout, spacing, and styling.
    */
   listToolbarWrapperProps?: StackProps
+  /**
+   * Optional props to customize the Stack component that contains the filter, sort, and search controls.
+   * Allows customization of the horizontal layout, alignment, and spacing of the control elements.
+   */
+  controlsStackProps?: StackProps
   /**
    * Optional props to customize the FiltersInput component.
    * Excludes 'filters' and 'onChange' props as these are managed internally.
@@ -96,6 +94,7 @@ export const ListToolbar = ({
   searchTerm,
   onSearch,
   listToolbarWrapperProps = {},
+  controlsStackProps = {},
   filtersInputProps = {},
   sortInputProps = {},
   searchInputProps = {},
@@ -119,12 +118,28 @@ export const ListToolbar = ({
     const filterExists = filterSettings.selectedFilters?.some(
       (filter) => filter.name === selectedFilter.name && filter.value === selectedFilter.value
     )
+
     // Only add the filter if it does not already exist
     if (!filterExists) {
-      onFilter({
-        ...filterSettings,
-        selectedFilters: [...(filterSettings.selectedFilters || []), selectedFilter],
-      })
+      // Check if this filter type supports selecting multiple values (e.g., status=in:active,queued)
+      const supportsMultiValue = filterSettings.filters.find(
+        (filter) => selectedFilter.name === filter.filterName
+      )?.supportsMultiValue
+
+      return supportsMultiValue
+        ? onFilter({
+            // Multi-value filter: Add to existing selections (allows multiple values for same filter)
+            ...filterSettings,
+            selectedFilters: [...(filterSettings.selectedFilters || []), selectedFilter],
+          })
+        : onFilter({
+            // Single-value filter: Replace all existing selections (only one value allowed)
+            ...filterSettings,
+            selectedFilters: [
+              ...(filterSettings.selectedFilters || []).filter((filter) => filter.name !== selectedFilter.name),
+              selectedFilter,
+            ],
+          })
     }
   }
 
@@ -139,6 +154,21 @@ export const ListToolbar = ({
       direction: "vertical",
       gap: "4",
       className: cn("bg-theme-background-lvl-1 py-2 px-4", className),
+      ...restProps,
+    }
+  }
+
+  /**
+   * Merges default props with user-provided props for the controls Stack wrapper.
+   * Applies horizontal flex layout with center alignment, wrapping behavior, and full width
+   * while preserving custom overrides.
+   */
+  const getDefaultControlsStackProps = (): StackProps => {
+    const { className, ...restProps } = controlsStackProps
+
+    return {
+      className: cn("flex flex-row items-center flex-wrap w-full", className),
+      gap: "4",
       ...restProps,
     }
   }
@@ -193,11 +223,11 @@ export const ListToolbar = ({
 
   return (
     <Stack {...getDefaultListToolbarWrapperProps()}>
-      <InputGroup>
+      <Stack {...getDefaultControlsStackProps()}>
         <FiltersInput {...getDefaultFiltersInputProps()} />
         {onSort && sortSettings && <SortInput {...getDefaultSortInputProps()} />}
         <SearchInput {...getDefaultSearchInputProps()} />
-      </InputGroup>
+      </Stack>
       {filterSettings.selectedFilters && filterSettings.selectedFilters.length > 0 && (
         <SelectedFilters
           selectedFilters={filterSettings.selectedFilters}

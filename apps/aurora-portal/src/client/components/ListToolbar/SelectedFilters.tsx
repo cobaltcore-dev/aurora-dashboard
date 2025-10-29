@@ -1,7 +1,7 @@
 import { useLingui } from "@lingui/react/macro"
+import { cn } from "@/client/utils/cn"
 import { Pill, Stack, Button, ButtonProps } from "@cloudoperators/juno-ui-components"
 import { SelectedFilter } from "./types"
-import { cn } from "@/client/utils/cn"
 
 export type SelectedFiltersProps = {
   /**

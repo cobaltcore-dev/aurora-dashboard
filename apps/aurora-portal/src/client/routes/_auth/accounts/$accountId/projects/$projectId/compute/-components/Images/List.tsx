@@ -6,22 +6,42 @@ import { Spinner, Stack } from "@cloudoperators/juno-ui-components/index"
 import { ListToolbar } from "@/client/components/ListToolbar"
 import { FilterSettings, SortSettings } from "@/client/components/ListToolbar/types"
 import { ImageListView } from "./-components/ImageListView"
+import { CONTAINER_FORMATS, DISK_FORMATS, IMAGE_STATUSES, IMAGE_VISIBILITY } from "../../-constants/filters"
 
 export const Images = () => {
   const { t } = useLingui()
 
   const [filterSettings, setFilterSettings] = useState<FilterSettings>({
-    // TODO: Replace with available image filters
     filters: [
       {
         displayName: t`Status`,
         filterName: "status",
-        values: ["1", "2", "3", "4"],
+        values: Object.values(IMAGE_STATUSES),
+        supportsMultiValue: true, // ✅ Can use: status=in:active,queued
       },
       {
-        displayName: t`Kubernetes Version`,
-        filterName: "version",
-        values: ["a", "b", "c", "d"],
+        displayName: t`Visibility`,
+        filterName: "visibility",
+        values: Object.values(IMAGE_VISIBILITY),
+        supportsMultiValue: false, // ❌ Cannot use 'in' operator
+      },
+      {
+        displayName: t`Disk Format`,
+        filterName: "disk_format",
+        values: Object.values(DISK_FORMATS),
+        supportsMultiValue: true, // ✅ Can use: disk_format=in:qcow2,raw
+      },
+      {
+        displayName: t`Container Format`,
+        filterName: "container_format",
+        values: Object.values(CONTAINER_FORMATS),
+        supportsMultiValue: true, // ✅ Can use: container_format=in:bare,ovf
+      },
+      {
+        displayName: t`Protected`,
+        filterName: "protected",
+        values: ["true", "false"],
+        supportsMultiValue: false, // ❌ Cannot use 'in' operator
       },
     ],
   })
@@ -54,11 +74,6 @@ export const Images = () => {
     sortBy: "created_at",
     sortDirection: "desc",
   })
-
-  // TODO: Remove console logs
-  console.log("filter settings: ", filterSettings)
-  console.log("search term: ", searchTerm)
-  console.log("sort settings: ", sortSettings)
 
   const utils = trpcReact.useUtils()
 
@@ -153,16 +168,6 @@ export const Images = () => {
 
   return (
     <>
-      {images.length ? (
-        <ListToolbar
-          sortSettings={sortSettings}
-          filterSettings={filterSettings}
-          searchTerm={searchTerm}
-          onSort={setSortSettings}
-          onFilter={setFilterSettings}
-          onSearch={setSearchTerm}
-        />
-      ) : null}
       <ImageListView
         images={images}
         permissions={permissions}
@@ -170,7 +175,20 @@ export const Images = () => {
         isFetchingNextPage={isFetchingNextPage}
         fetchNextPage={fetchNextPage}
         isFetching={isFetching}
-      />
+      >
+        {images.length ? (
+          <ListToolbar
+            sortSettings={sortSettings}
+            filterSettings={filterSettings}
+            searchTerm={searchTerm}
+            onSort={setSortSettings}
+            onFilter={setFilterSettings}
+            onSearch={setSearchTerm}
+            filtersInputProps={{ selectInputProps: { className: "w-48" } }}
+            sortInputProps={{ inputGroupProps: { className: "md:w-48" } }}
+          />
+        ) : null}
+      </ImageListView>
     </>
   )
 }

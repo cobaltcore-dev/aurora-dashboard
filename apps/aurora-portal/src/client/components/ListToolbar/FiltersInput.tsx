@@ -1,4 +1,6 @@
 import { useCallback, useState } from "react"
+import { useLingui } from "@lingui/react/macro"
+import { cn } from "@/client/utils/cn"
 import {
   InputGroup,
   ComboBox,
@@ -11,8 +13,6 @@ import {
   StackProps,
 } from "@cloudoperators/juno-ui-components"
 import { Filter, SelectedFilter } from "./types"
-import { useLingui } from "@lingui/react/macro"
-import { cn } from "@/client/utils/cn"
 
 export type FiltersInputProps = {
   /** Array of available filters that can be selected */
