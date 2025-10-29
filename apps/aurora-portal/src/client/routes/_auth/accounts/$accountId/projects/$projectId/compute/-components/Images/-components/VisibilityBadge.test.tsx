@@ -56,16 +56,16 @@ describe("VisibilityBadge", () => {
       expect(screen.queryByTestId(/^icon-/)).not.toBeInTheDocument()
 
       // Should find two instances of the text (one in conditional, one always displayed)
-      const textElements = screen.getAllByText("community")
-      expect(textElements).toHaveLength(2)
+      const textElement = screen.getByText("community")
+      expect(textElement).toBeInTheDocument()
     })
 
     it("should render only text for unknown visibility values", () => {
       render(<VisibilityBadge visibility="custom-visibility" />)
 
       expect(screen.queryByTestId(/^icon-/)).not.toBeInTheDocument()
-      const textElements = screen.getAllByText("custom-visibility")
-      expect(textElements).toHaveLength(2)
+      const textElement = screen.getByText("custom-visibility")
+      expect(textElement).toBeInTheDocument()
     })
   })
 
@@ -92,16 +92,14 @@ describe("VisibilityBadge", () => {
   describe("text rendering consistency", () => {
     it("should render visibility text once for unknown types", () => {
       render(<VisibilityBadge visibility="custom" />)
-      const textElements = screen.getAllByText("custom")
-      // One from the conditional span, one from the always-rendered span
-      expect(textElements).toHaveLength(2)
+      const textElement = screen.getByText("custom")
+      expect(textElement).toBeInTheDocument()
     })
 
     it("should render visibility text once for known types", () => {
       render(<VisibilityBadge visibility="public" />)
-      const textElements = screen.getAllByText("public")
-      // Only one instance because icon renders instead of text in conditional
-      expect(textElements).toHaveLength(1)
+      const textElement = screen.getByText("public")
+      expect(textElement).toBeInTheDocument()
     })
   })
 })

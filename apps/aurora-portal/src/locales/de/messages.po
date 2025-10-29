@@ -185,7 +185,7 @@ msgstr "Flavor erstellen"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/CreateFlavorModal.tsx:157
 msgid "Create New Flavor"
-msgstr "Neuen Flavor erstellen<<<<<<< HEAD<<<<<<< HEAD"
+msgstr "Neuen Flavor erstellen"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/ServerGroups/components/ServerGroupListView.tsx:61
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/KeyPairs/-components/KeyPairListView.tsx:55
@@ -329,7 +329,7 @@ msgstr "Ephemeral Disk muss eine ganze Zahl ≥ 0 sein."
 msgid "Error loading image"
 msgstr "Fehler beim Laden des Images"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/List.tsx:155
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/List.tsx:189
 msgid "Error: {errorMessage}"
 msgstr "Fehler: {errorMessage}"
 
@@ -630,7 +630,7 @@ msgstr "Lädt Gardener..."
 msgid "Loading Image Details..."
 msgstr "Image-Details werden geladen..."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/List.tsx:145
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/List.tsx:179
 msgid "Loading Images..."
 msgstr "Lädt Images..."
 
@@ -871,11 +871,11 @@ msgstr "CIDR-Bereich für Pods"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/ServerGroups/components/ServerGroupListView.tsx:55
 msgid "Policy"
-msgstr "Richtlinie<<<<<<< HEAD<<<<<<< HEAD"
+msgstr "Richtlinie"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/-components/AccountSubNavigation.tsx:12
 msgid "Projects Overview"
-msgstr "=======>>>>>>> 400f318 (feat(aurora-portal): implement image table sorting and update component description comments)"
+msgstr ""
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/List.tsx:41
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:300
@@ -1059,11 +1059,11 @@ msgstr "Details anzeigen"
 #: src/client/routes/auth/login.tsx:197
 #: src/client/components/Auth/AuthMenu.tsx:49
 msgid "Sign In"
-msgstr "Einloggen<<<<<<< HEAD<<<<<<< HEAD"
+msgstr "Einloggen"
 
 #: src/client/components/Auth/AuthMenu.tsx:40
 msgid "Sign Out"
-msgstr "======="
+msgstr ""
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/List.tsx:66
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:303

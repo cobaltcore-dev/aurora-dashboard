@@ -15,9 +15,7 @@ export function VisibilityBadge({ visibility }: VisibilityBadgeProps) {
         <Icon icon="info" color="jn-text-theme-warning" data-testid="icon-warning" />
       ) : visibility === "shared" ? (
         <Icon icon="info" color="jn-text-theme-success" data-testid="icon-success" />
-      ) : (
-        <span>{visibility}</span>
-      )}
+      ) : null}
       <span>{visibility}</span>
     </div>
   )
