@@ -27,11 +27,11 @@ export type ListToolbarProps = {
   /**
    * Current search term value for filtering list items.
    */
-  searchTerm: string
+  searchTerm?: string
   /**
    * Callback function invoked when the search term changes.
    */
-  onSearch: (searchTerm: string) => void
+  onSearch?: (searchTerm: string) => void
   /**
    * Optional props to customize the Stack wrapper component that contains the entire toolbar.
    * Allows customization of layout, spacing, and styling.
@@ -210,15 +210,17 @@ export const ListToolbar = ({
   const getDefaultSearchInputProps = (): SearchInputProps & { "data-testid"?: string } => {
     const { className, ...restProps } = searchInputProps
 
-    return {
-      placeholder: t`Search...`,
-      className: cn("w-64 ml-auto", className),
-      "data-testid": "searchbar",
-      value: searchTerm,
-      onSearch,
-      onClear: () => onSearch(""),
-      ...restProps,
-    }
+    return onSearch
+      ? {
+          placeholder: t`Search...`,
+          className: cn("w-64 ml-auto", className),
+          "data-testid": "searchbar",
+          value: searchTerm,
+          onSearch,
+          onClear: () => onSearch(""),
+          ...restProps,
+        }
+      : {}
   }
 
   return (
@@ -226,7 +228,7 @@ export const ListToolbar = ({
       <Stack {...getDefaultControlsStackProps()}>
         <FiltersInput {...getDefaultFiltersInputProps()} />
         {onSort && sortSettings && <SortInput {...getDefaultSortInputProps()} />}
-        <SearchInput {...getDefaultSearchInputProps()} />
+        {onSearch && <SearchInput {...getDefaultSearchInputProps()} />}
       </Stack>
       {filterSettings.selectedFilters && filterSettings.selectedFilters.length > 0 && (
         <SelectedFilters
