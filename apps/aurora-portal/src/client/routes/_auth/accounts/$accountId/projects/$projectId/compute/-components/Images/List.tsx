@@ -78,31 +78,65 @@ export const Images = () => {
   const utils = trpcReact.useUtils()
 
   /**
-   * Fetches images with pagination and sorting
+   * Builds filter parameters from current filter settings
+   * Handles both single-value and multi-value filters based on supportsMultiValue flag
    *
-   * OpenStack Glance API supports two sorting syntaxes:
+   * @returns Object with filter parameters for the API request
+   */
+  const buildFilterParams = (): Record<string, string> => {
+    const params: Record<string, string> = {}
+
+    if (!filterSettings.selectedFilters?.length) return params
+
+    // Group selected filters by filter name
+    const filterGroups = filterSettings.selectedFilters
+      .filter((sf) => !sf.inactive) // Exclude inactive filters
+      .reduce(
+        (acc, sf) => {
+          if (!acc[sf.name]) acc[sf.name] = []
+          acc[sf.name].push(sf.value)
+          return acc
+        },
+        {} as Record<string, string[]>
+      )
+
+    // Build parameters based on whether filter supports multiple values
+    Object.entries(filterGroups).forEach(([filterName, values]) => {
+      const filterDef = filterSettings.filters.find((f) => f.filterName === filterName)
+
+      if (filterDef?.supportsMultiValue && values.length > 1) {
+        // Multi-value filter: use 'in' operator (e.g., status=in:active,queued)
+        params[filterName] = `in:${values.join(",")}`
+      } else {
+        // Single-value filter or only one value selected (e.g., visibility=public)
+        params[filterName] = values[0]
+      }
+    })
+
+    return params
+  }
+
+  /**
+   * Fetches images with pagination, sorting, and filtering
    *
-   * 1. New syntax (recommended): sort=field:direction
-   *    Example: sort=name:asc or sort=created_at:desc
-   *
-   * 2. Classic syntax: sort_key=field&sort_dir=direction
-   *    Example: sort_key=name&sort_dir=asc
-   *
-   * This implementation uses the new syntax for cleaner URLs
+   * OpenStack Glance API supports:
+   * - Sorting: sort=field:direction (new syntax) or sort_key & sort_dir (classic)
+   * - Filtering: Direct comparison (name=value) or 'in' operator (name=in:value1,value2)
+   * - Search: name parameter for text search
    */
   const fetchImages = async ({ pageParam }: { pageParam?: string }) => {
     // If pageParam exists, only pass 'next' (it already contains limit and other params)
-    // Otherwise, pass the initial query params with limit and sort parameters
+    // Otherwise, pass the initial query params with limit, sort, filter, and search parameters
     const params = pageParam
       ? { next: pageParam }
       : {
           limit: 15,
-          // New syntax (recommended): sort=field:direction
+          // Sorting: use new syntax for cleaner URLs
           sort: `${sortSettings.sortBy}:${sortSettings.sortDirection}`,
-
-          // Alternative: Classic syntax (uncomment to use)
-          // sort_key: sortSettings.sortBy,
-          // sort_dir: sortSettings.sortDirection,
+          // Filters: add all active filter parameters
+          ...buildFilterParams(),
+          // Search: add name filter if search term exists
+          ...(searchTerm && { name: searchTerm }),
         }
 
     return await utils.client.compute.listImagesWithPagination.query(params)
@@ -110,8 +144,8 @@ export const Images = () => {
 
   const { data, error, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage, status } = useInfiniteQuery({
     /**
-     * Query key includes sort settings to trigger refetch when sorting changes
-     * This ensures the data is re-fetched whenever the user changes sort field or direction
+     * Query key includes sort, filter, and search settings to trigger refetch when they change
+     * This ensures the data is re-fetched whenever the user changes any filter, sort, or search
      */
     queryKey: [
       ["compute", "listImagesWithPagination"],
@@ -119,8 +153,8 @@ export const Images = () => {
         input: {
           limit: 15,
           sort: `${sortSettings.sortBy}:${sortSettings.sortDirection}`,
-          // Note: searchTerm and filterSettings could also be added here
-          // to refetch when those change as well
+          filters: buildFilterParams(),
+          search: searchTerm,
         },
         type: "query",
       },
@@ -128,7 +162,7 @@ export const Images = () => {
     queryFn: fetchImages,
     getNextPageParam: (lastPage) => {
       // Return the full next URL from the API response
-      // The next URL should already include the sort parameters from the initial request
+      // The next URL should already include the sort and filter parameters from the initial request
       return lastPage.next ?? undefined
     },
     initialPageParam: undefined,
@@ -167,28 +201,26 @@ export const Images = () => {
   const images = data.pages.flatMap((page) => page.images)
 
   return (
-    <>
-      <ImageListView
-        images={images}
-        permissions={permissions}
-        hasNextPage={hasNextPage}
-        isFetchingNextPage={isFetchingNextPage}
-        fetchNextPage={fetchNextPage}
-        isFetching={isFetching}
-      >
-        {images.length ? (
-          <ListToolbar
-            sortSettings={sortSettings}
-            filterSettings={filterSettings}
-            searchTerm={searchTerm}
-            onSort={setSortSettings}
-            onFilter={setFilterSettings}
-            onSearch={setSearchTerm}
-            filtersInputProps={{ selectInputProps: { className: "w-48" } }}
-            sortInputProps={{ inputGroupProps: { className: "md:w-48" } }}
-          />
-        ) : null}
-      </ImageListView>
-    </>
+    <ImageListView
+      images={images}
+      permissions={permissions}
+      hasNextPage={hasNextPage}
+      isFetchingNextPage={isFetchingNextPage}
+      fetchNextPage={fetchNextPage}
+      isFetching={isFetching}
+    >
+      {images.length ? (
+        <ListToolbar
+          sortSettings={sortSettings}
+          filterSettings={filterSettings}
+          searchTerm={searchTerm}
+          onSort={setSortSettings}
+          onFilter={setFilterSettings}
+          onSearch={setSearchTerm}
+          filtersInputProps={{ selectInputProps: { className: "w-48" } }}
+          sortInputProps={{ inputGroupProps: { className: "md:w-48" } }}
+        />
+      ) : null}
+    </ImageListView>
   )
 }
