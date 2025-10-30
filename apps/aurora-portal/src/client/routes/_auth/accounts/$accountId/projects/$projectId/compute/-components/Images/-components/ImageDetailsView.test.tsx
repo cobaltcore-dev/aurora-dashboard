@@ -231,12 +231,11 @@ describe("ImageDetailsView", () => {
       const customVisibilityImage = { ...mockImage, visibility: "community" }
       setup(<SecuritySection image={customVisibilityImage} />)
 
-      // Custom visibility shows text (appears twice - once in conditional, once always)
-      const textElements = screen.getAllByText("community")
-      expect(textElements.length).toBe(2)
+      const textElement = screen.getByText("community")
+      expect(textElement).toBeInTheDocument()
 
       // Verify it's in a flex container
-      const visibilityContainer = textElements[0].parentElement
+      const visibilityContainer = textElement.parentElement
       expect(visibilityContainer).toHaveClass("flex", "items-center", "space-x-2")
     })
   })

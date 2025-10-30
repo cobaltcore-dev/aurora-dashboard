@@ -1,3 +1,4 @@
+import { useState, useEffect, useRef, ReactNode } from "react"
 import type { GlanceImage } from "@/server/Compute/types/image"
 import {
   Button,
@@ -14,8 +15,6 @@ import {
 import { trpcReact } from "@/client/trpcClient"
 import { TRPCError } from "@trpc/server"
 import { Trans, useLingui } from "@lingui/react/macro"
-
-import { useState, useEffect, useRef } from "react"
 import { EditImageModal } from "./EditImageModal"
 import { ImageTableRow } from "./ImageTableRow"
 import { DeleteImageModal } from "./DeleteImageModal"
@@ -33,6 +32,7 @@ interface ImagePageProps {
   isFetchingNextPage?: boolean
   isFetching?: boolean
   fetchNextPage?: () => void
+  children?: ReactNode
 }
 
 export function ImageListView({
@@ -42,6 +42,7 @@ export function ImageListView({
   isFetchingNextPage,
   isFetching,
   fetchNextPage,
+  children,
 }: ImagePageProps) {
   const { t } = useLingui()
 
@@ -279,7 +280,7 @@ export function ImageListView({
           </Button>
         )}
       </div>
-
+      <>{children}</>
       {/* Images Table */}
       {images.length > 0 ? (
         <>
