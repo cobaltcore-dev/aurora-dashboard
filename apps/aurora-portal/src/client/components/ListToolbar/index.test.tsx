@@ -76,11 +76,13 @@ describe("ListToolbar", () => {
     vi.clearAllMocks()
   })
 
-  it("renders the component with search, select and combobox", async () => {
+  it("renders the component with search, select and combobox (without sort controls)", async () => {
     renderShell({ filterSettings, searchTerm, onFilter: vi.fn(), onSearch: vi.fn() })
     expect(await screen.findByTestId("select-filterValue")).toBeInTheDocument()
     expect(await screen.findByTestId("combobox-filterValue")).toBeInTheDocument()
     expect(await screen.findByTestId("searchbar")).toBeInTheDocument()
+    expect(screen.queryByTestId("sort-select")).not.toBeInTheDocument()
+    expect(screen.queryByTestId("direction-toggle")).not.toBeInTheDocument()
   })
 
   it("renders the component with sort controls when sortSettings and onSort are provided", async () => {
@@ -90,6 +92,24 @@ describe("ListToolbar", () => {
     expect(await screen.findByTestId("sort-select")).toBeInTheDocument()
     expect(await screen.findByTestId("direction-toggle")).toBeInTheDocument()
     expect(await screen.findByTestId("searchbar")).toBeInTheDocument()
+  })
+
+  it("renders the component without search when onSearch is not provided", async () => {
+    renderShell({ filterSettings, sortSettings, onFilter: vi.fn(), onSort: vi.fn() })
+    expect(await screen.findByTestId("select-filterValue")).toBeInTheDocument()
+    expect(await screen.findByTestId("combobox-filterValue")).toBeInTheDocument()
+    expect(await screen.findByTestId("sort-select")).toBeInTheDocument()
+    expect(await screen.findByTestId("direction-toggle")).toBeInTheDocument()
+    expect(screen.queryByTestId("searchbar")).not.toBeInTheDocument()
+  })
+
+  it("renders only filters when neither sort nor search are provided", async () => {
+    renderShell({ filterSettings, onFilter: vi.fn() })
+    expect(await screen.findByTestId("select-filterValue")).toBeInTheDocument()
+    expect(await screen.findByTestId("combobox-filterValue")).toBeInTheDocument()
+    expect(screen.queryByTestId("sort-select")).not.toBeInTheDocument()
+    expect(screen.queryByTestId("direction-toggle")).not.toBeInTheDocument()
+    expect(screen.queryByTestId("searchbar")).not.toBeInTheDocument()
   })
 
   it("should allow searching by text", async () => {
