@@ -1,6 +1,5 @@
 import { AppShell, AppShellProvider } from "@cloudoperators/juno-ui-components"
 import { AppContent } from "./AppContent"
-import { Toaster } from "sonner"
 import { AuthProvider } from "./store/AuthProvider"
 import styles from "./index.css?inline"
 import { i18n } from "@lingui/core"
@@ -29,7 +28,6 @@ const App = (props: AppProps) => (
       <AppShellProvider shadowRoot={false} theme={`${props.theme ? props.theme : "theme-dark"}`}>
         <AppShell topNavigation={false} pageHeader={true} embedded={true}>
           <style>{styles.toString()}</style>
-          <Toaster theme="dark" position="top-center" />
           <AuthProvider>
             <AppContent />
           </AuthProvider>
