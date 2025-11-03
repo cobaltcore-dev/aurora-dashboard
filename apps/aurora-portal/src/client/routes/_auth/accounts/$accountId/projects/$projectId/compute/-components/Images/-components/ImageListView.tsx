@@ -3,6 +3,7 @@ import type { GlanceImage } from "@/server/Compute/types/image"
 import {
   Button,
   ButtonProps,
+  Checkbox,
   ContentHeading,
   DataGrid,
   DataGridCell,
@@ -229,7 +230,7 @@ export function ImageListView({
             title={<Trans>Image Instance</Trans>}
             description={
               updatedImage.status === "deactivated" ? (
-                <Trans>Image instance "{imageName}" has been re-activated</Trans>
+                <Trans>Image instance "{imageName}" has been activated</Trans>
               ) : (
                 <Trans>Image instance "{imageName}" has been deactivated</Trans>
               )
@@ -348,7 +349,18 @@ export function ImageListView({
           <DataGrid columns={9} minContentColumns={[7]} className="images" data-testid="images-table">
             {/* Table Header */}
             <DataGridRow>
-              <DataGridHeadCell />
+              <DataGridHeadCell>
+                <Checkbox
+                  checked={selectedImages.length === images.length}
+                  onChange={() => {
+                    if (selectedImages.length === images.length) {
+                      return setSelectedImages([])
+                    }
+
+                    return setSelectedImages(images.map((image) => image.id))
+                  }}
+                />
+              </DataGridHeadCell>
               <DataGridHeadCell>
                 <Trans>Image Name</Trans>
               </DataGridHeadCell>

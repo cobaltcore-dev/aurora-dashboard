@@ -120,28 +120,12 @@ describe("ImageDetailsView", () => {
       expect(screen.getByText("N/A")).toBeInTheDocument()
     })
 
-    it("should render StatusBadge with danger icon for deleted status", () => {
+    it("should render status with correct text value", () => {
       const deletedImage = { ...mockImage, status: "deleted" }
       setup(<GeneralImageData image={deletedImage} />)
 
       // Verify the status text is rendered
       expect(screen.getByText("deleted")).toBeInTheDocument()
-
-      // Verify it's in a flex container (StatusBadge structure)
-      const statusContainer = screen.getByText("deleted").parentElement
-      expect(statusContainer).toHaveClass("flex", "items-center", "space-x-2")
-    })
-
-    it("should render StatusBadge with warning icon for queued status", () => {
-      const queuedImage = { ...mockImage, status: "queued" }
-      setup(<GeneralImageData image={queuedImage} />)
-
-      // Verify the status text is rendered
-      expect(screen.getByText("queued")).toBeInTheDocument()
-
-      // Verify it's in a flex container (StatusBadge structure)
-      const statusContainer = screen.getByText("queued").parentElement
-      expect(statusContainer).toHaveClass("flex", "items-center", "space-x-2")
     })
 
     it("should render SizeDisplay as N/A when size is undefined", () => {
@@ -165,15 +149,11 @@ describe("ImageDetailsView", () => {
       expect(screen.getByText(mockImage.checksum!)).toBeInTheDocument()
     })
 
-    it("should render VisibilityBadge component with correct visibility", () => {
+    it("should render visibility with correct text value", () => {
       setup(<SecuritySection image={mockImage} />)
 
-      // VisibilityBadge shows icon and visibility text for public visibility
+      // Verify the visibility text is rendered
       expect(screen.getByText(`${mockImage.visibility}`)).toBeInTheDocument()
-
-      // Verify it's in a flex container (VisibilityBadge structure)
-      const visibilityContainer = screen.getByText(`${mockImage.visibility}`).parentElement
-      expect(visibilityContainer).toHaveClass("flex", "items-center", "space-x-2")
     })
 
     it("should display Yes when protected is true", () => {
@@ -201,42 +181,6 @@ describe("ImageDetailsView", () => {
 
       expect(screen.getByText("Checksum")).toBeInTheDocument()
       expect(screen.getByText(mockImage.checksum!)).toBeInTheDocument()
-    })
-
-    it("should render VisibilityBadge with warning icon for private visibility", () => {
-      const privateImage = { ...mockImage, visibility: "private" }
-      setup(<SecuritySection image={privateImage} />)
-
-      // Verify the visibility text is rendered
-      expect(screen.getByText("private")).toBeInTheDocument()
-
-      // Verify it's in a flex container (VisibilityBadge structure)
-      const visibilityContainer = screen.getByText("private").parentElement
-      expect(visibilityContainer).toHaveClass("flex", "items-center", "space-x-2")
-    })
-
-    it("should render VisibilityBadge with success icon for shared visibility", () => {
-      const sharedImage = { ...mockImage, visibility: "shared" }
-      setup(<SecuritySection image={sharedImage} />)
-
-      // Verify the visibility text is rendered
-      expect(screen.getByText("shared")).toBeInTheDocument()
-
-      // Verify it's in a flex container (VisibilityBadge structure)
-      const visibilityContainer = screen.getByText("shared").parentElement
-      expect(visibilityContainer).toHaveClass("flex", "items-center", "space-x-2")
-    })
-
-    it("should render VisibilityBadge with text only for custom visibility", () => {
-      const customVisibilityImage = { ...mockImage, visibility: "community" }
-      setup(<SecuritySection image={customVisibilityImage} />)
-
-      const textElement = screen.getByText("community")
-      expect(textElement).toBeInTheDocument()
-
-      // Verify it's in a flex container
-      const visibilityContainer = textElement.parentElement
-      expect(visibilityContainer).toHaveClass("flex", "items-center", "space-x-2")
     })
   })
 
@@ -393,23 +337,6 @@ describe("ImageDetailsView", () => {
       expect(screen.getByText(`${mockImage.owner}`)).toBeInTheDocument()
     })
 
-    it("should integrate StatusBadge, SizeDisplay, and VisibilityBadge correctly", () => {
-      setup(<ImageDetailsView image={mockImage} />)
-
-      // Verify StatusBadge integration - active status is rendered
-      expect(screen.getByText("active")).toBeInTheDocument()
-      const statusContainer = screen.getByText("active").parentElement
-      expect(statusContainer).toHaveClass("flex", "items-center", "space-x-2")
-
-      // Verify SizeDisplay integration (2147483648 bytes = 2 GB)
-      expect(screen.getByText("2 GB")).toBeInTheDocument()
-
-      // Verify VisibilityBadge integration - public visibility is rendered
-      expect(screen.getByText("public")).toBeInTheDocument()
-      const visibilityContainer = screen.getByText("public").parentElement
-      expect(visibilityContainer).toHaveClass("flex", "items-center", "space-x-2")
-    })
-
     it("should render complete image details with all component integrations", () => {
       const complexImage = {
         ...mockImage,
@@ -422,15 +349,11 @@ describe("ImageDetailsView", () => {
 
       setup(<ImageDetailsView image={complexImage} />)
 
-      // StatusBadge shows queued status
+      // Status text shows queued status
       expect(screen.getByText("queued")).toBeInTheDocument()
-      const statusContainer = screen.getByText("queued").parentElement
-      expect(statusContainer).toHaveClass("flex", "items-center", "space-x-2")
 
-      // VisibilityBadge shows private visibility
+      // Visibility text shows private visibility
       expect(screen.getByText("private")).toBeInTheDocument()
-      const visibilityContainer = screen.getByText("private").parentElement
-      expect(visibilityContainer).toHaveClass("flex", "items-center", "space-x-2")
 
       // SizeDisplay formats size correctly
       expect(screen.getByText("1 GB")).toBeInTheDocument()

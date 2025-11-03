@@ -9,8 +9,6 @@ import {
 } from "@cloudoperators/juno-ui-components"
 import { useLingui } from "@lingui/react/macro"
 import { GlanceImage } from "@/server/Compute/types/image"
-import { StatusBadge } from "./StatusBadge"
-import { VisibilityBadge } from "./VisibilityBadge"
 import { SizeDisplay } from "./SizeDisplay"
 
 interface ImageTableRowProps {
@@ -59,12 +57,8 @@ export function ImageTableRow({
           {imageName}
         </Link>
       </DataGridCell>
-      <DataGridCell>
-        <StatusBadge status={status} />
-      </DataGridCell>
-      <DataGridCell>
-        <VisibilityBadge visibility={visibility} />
-      </DataGridCell>
+      <DataGridCell>{status}</DataGridCell>
+      <DataGridCell>{visibility}</DataGridCell>
       <DataGridCell>{image.protected ? t`Yes` : t`No`}</DataGridCell>
       <DataGridCell>
         <SizeDisplay size={size} />

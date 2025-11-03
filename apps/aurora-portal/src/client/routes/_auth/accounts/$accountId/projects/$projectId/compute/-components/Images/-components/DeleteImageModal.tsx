@@ -15,8 +15,6 @@ import {
   Spinner,
   Stack,
 } from "@cloudoperators/juno-ui-components"
-import { StatusBadge } from "./StatusBadge"
-import { VisibilityBadge } from "./VisibilityBadge"
 import { SizeDisplay } from "./SizeDisplay"
 interface DeleteImageModalProps {
   image: GlanceImage
@@ -96,15 +94,11 @@ export const DeleteImageModal: React.FC<DeleteImageModalProps> = ({
               </DataGridRow>
               <DataGridRow>
                 <DataGridHeadCell>{t`Status`}</DataGridHeadCell>
-                <DataGridCell>
-                  <StatusBadge status={image.status} />
-                </DataGridCell>
+                <DataGridCell>{image.status}</DataGridCell>
               </DataGridRow>
               <DataGridRow>
                 <DataGridHeadCell>{t`Visibility`}</DataGridHeadCell>
-                <DataGridCell>
-                  <VisibilityBadge visibility={image.visibility} />
-                </DataGridCell>
+                <DataGridCell>{image.visibility}</DataGridCell>
               </DataGridRow>
               <DataGridRow>
                 <DataGridHeadCell>{t`Size`}</DataGridHeadCell>
