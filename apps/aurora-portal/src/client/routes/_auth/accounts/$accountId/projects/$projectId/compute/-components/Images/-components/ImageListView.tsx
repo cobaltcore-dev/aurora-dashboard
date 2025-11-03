@@ -26,7 +26,7 @@ import { ImageTableRow } from "./ImageTableRow"
 import { DeleteImageModal } from "./DeleteImageModal"
 import { CreateImageModal } from "./CreateImageModal"
 import { NotificationText } from "./NotificationText"
-import { DeleteImagesModal } from "./DeleteAllImagesModal"
+import { DeleteImagesModal } from "./DeleteImagesModal"
 import { DeactivateImagesModal } from "./DeactivateImagesModal"
 import { ActivateImagesModal } from "./ActivateImagesModal"
 
