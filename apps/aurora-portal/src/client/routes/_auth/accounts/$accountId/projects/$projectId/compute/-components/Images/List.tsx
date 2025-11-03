@@ -209,18 +209,16 @@ export const Images = () => {
       fetchNextPage={fetchNextPage}
       isFetching={isFetching}
     >
-      {images.length ? (
-        <ListToolbar
-          sortSettings={sortSettings}
-          filterSettings={filterSettings}
-          searchTerm={searchTerm}
-          onSort={setSortSettings}
-          onFilter={setFilterSettings}
-          onSearch={setSearchTerm}
-          filtersInputProps={{ selectInputProps: { className: "w-48" } }}
-          sortInputProps={{ inputGroupProps: { className: "md:w-48" } }}
-        />
-      ) : null}
+      <ListToolbar
+        sortSettings={sortSettings}
+        filterSettings={filterSettings}
+        searchTerm={searchTerm}
+        onSort={setSortSettings}
+        onFilter={setFilterSettings}
+        onSearch={setSearchTerm}
+        filtersInputProps={{ selectInputProps: { className: "w-48" } }}
+        sortInputProps={{ inputGroupProps: { className: "md:w-48" } }}
+      />
     </ImageListView>
   )
 }
