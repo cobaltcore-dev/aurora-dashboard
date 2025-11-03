@@ -32,6 +32,10 @@ import {
   imageMembersResponseSchema,
   imageMemberSchema,
   ImageMember,
+  deleteImagesInputSchema,
+  activateImagesInputSchema,
+  deactivateImagesInputSchema,
+  BulkOperationResult,
 } from "../types/image"
 
 export const imageRouter = {
@@ -430,5 +434,175 @@ export const imageRouter = {
 
         return true
       }, "delete image member")
+    }),
+
+  deleteImages: protectedProcedure
+    .input(deleteImagesInputSchema)
+    .mutation(async ({ input, ctx }): Promise<BulkOperationResult> => {
+      return withErrorHandling(async () => {
+        const { imageIds } = input
+        const openstackSession = ctx.openstack
+        const glance = openstackSession?.service("glance")
+
+        validateGlanceService(glance)
+
+        const results: BulkOperationResult = {
+          successful: [],
+          failed: [],
+        }
+
+        // Process deletions in parallel using Promise.allSettled
+        const deletePromises = imageIds.map(async (imageId) => {
+          try {
+            const response = await glance.del(`v2/images/${imageId}`)
+
+            if (!response?.ok) {
+              return {
+                status: "failed" as const,
+                imageId,
+                error: `Failed to delete image: ${response?.status || "Unknown error"}`,
+              }
+            }
+            return { status: "success" as const, imageId }
+          } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : "Unknown error"
+            return {
+              status: "failed" as const,
+              imageId,
+              error: `Failed to delete image: ${errorMessage}`,
+            }
+          }
+        })
+
+        const settledResults = await Promise.allSettled(deletePromises)
+
+        // Process settled results
+        settledResults.forEach((result) => {
+          if (result.status === "fulfilled") {
+            const value = result.value
+            if (value.status === "success") {
+              results.successful.push(value.imageId)
+            } else {
+              results.failed.push({ imageId: value.imageId, error: value.error })
+            }
+          } else {
+            // Handle rejection from Promise.allSettled (shouldn't happen with try-catch inside)
+            results.failed.push({
+              imageId: "unknown",
+              error: `Unexpected error: ${result.reason}`,
+            })
+          }
+        })
+
+        return results
+      }, "delete images")
+    }),
+
+  activateImages: protectedProcedure
+    .input(activateImagesInputSchema)
+    .mutation(async ({ input, ctx }): Promise<BulkOperationResult> => {
+      return withErrorHandling(async () => {
+        const { imageIds } = input
+        const openstackSession = ctx.openstack
+        const glance = openstackSession?.service("glance")
+
+        validateGlanceService(glance)
+
+        const results: BulkOperationResult = {
+          successful: [],
+          failed: [],
+        }
+
+        // Process activations in parallel using Promise.allSettled
+        const activatePromises = imageIds.map(async (imageId) => {
+          try {
+            await glance.post(`v2/images/${imageId}/actions/reactivate`, undefined)
+            return { status: "success" as const, imageId }
+          } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : "Unknown error"
+            return {
+              status: "failed" as const,
+              imageId,
+              error: `Failed to activate image: ${errorMessage}`,
+            }
+          }
+        })
+
+        const settledResults = await Promise.allSettled(activatePromises)
+
+        // Process settled results
+        settledResults.forEach((result) => {
+          if (result.status === "fulfilled") {
+            const value = result.value
+            if (value.status === "success") {
+              results.successful.push(value.imageId)
+            } else {
+              results.failed.push({ imageId: value.imageId, error: value.error })
+            }
+          } else {
+            // Handle rejection from Promise.allSettled (shouldn't happen with try-catch inside)
+            results.failed.push({
+              imageId: "unknown",
+              error: `Unexpected error: ${result.reason}`,
+            })
+          }
+        })
+
+        return results
+      }, "activate images")
+    }),
+
+  deactivateImages: protectedProcedure
+    .input(deactivateImagesInputSchema)
+    .mutation(async ({ input, ctx }): Promise<BulkOperationResult> => {
+      return withErrorHandling(async () => {
+        const { imageIds } = input
+        const openstackSession = ctx.openstack
+        const glance = openstackSession?.service("glance")
+
+        validateGlanceService(glance)
+
+        const results: BulkOperationResult = {
+          successful: [],
+          failed: [],
+        }
+
+        // Process deactivations in parallel using Promise.allSettled
+        const deactivatePromises = imageIds.map(async (imageId) => {
+          try {
+            await glance.post(`v2/images/${imageId}/actions/deactivate`, undefined)
+            return { status: "success" as const, imageId }
+          } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : "Unknown error"
+            return {
+              status: "failed" as const,
+              imageId,
+              error: `Failed to deactivate image: ${errorMessage}`,
+            }
+          }
+        })
+
+        const settledResults = await Promise.allSettled(deactivatePromises)
+
+        // Process settled results
+        settledResults.forEach((result) => {
+          if (result.status === "fulfilled") {
+            const value = result.value
+            if (value.status === "success") {
+              results.successful.push(value.imageId)
+            } else {
+              results.failed.push({ imageId: value.imageId, error: value.error })
+            }
+          } else {
+            // Handle rejection from Promise.allSettled (shouldn't happen with try-catch inside)
+            results.failed.push({
+              imageId: "unknown",
+              error: `Unexpected error: ${result.reason}`,
+            })
+          }
+        })
+
+        return results
+      }, "deactivate images")
     }),
 }

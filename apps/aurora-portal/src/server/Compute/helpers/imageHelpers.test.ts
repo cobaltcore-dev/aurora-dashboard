@@ -1,6 +1,7 @@
-import { describe, it, expect, beforeEach } from "vitest"
+import { describe, it, expect, beforeEach, vi } from "vitest"
 import { TRPCError } from "@trpc/server"
 import { ZodError } from "zod"
+import { BulkOperationResult, ListImagesInput } from "../types/image"
 import {
   applyImageQueryParams,
   parsePaginationLink,
@@ -12,8 +13,12 @@ import {
   handleZodParsingError,
   wrapError,
   withErrorHandling,
+  formatBulkOperationError,
+  validateBulkImageIds,
+  createBulkOperationSummary,
+  chunkArray,
+  processBulkOperation,
 } from "./imageHelpers"
-import { ListImagesInput } from "../types/image"
 
 describe("imageHelpers", () => {
   describe("applyImageQueryParams", () => {
@@ -650,6 +655,239 @@ describe("imageHelpers", () => {
       const result = await withErrorHandling(operation, "test operation")
 
       expect(result).toBe("async result")
+    })
+  })
+
+  describe("Bulk Operation Helpers", () => {
+    describe("formatBulkOperationError", () => {
+      it("should format TRPCError correctly", () => {
+        const error = new TRPCError({ code: "NOT_FOUND", message: "Image not found" })
+        const result = formatBulkOperationError("image-123", error, "delete")
+
+        expect(result).toBe("Image not found")
+      })
+
+      it("should format Error correctly", () => {
+        const error = new Error("Network timeout")
+        const result = formatBulkOperationError("image-123", error, "delete")
+
+        expect(result).toBe("Failed to delete image: Network timeout")
+      })
+
+      it("should format string error correctly", () => {
+        const result = formatBulkOperationError("image-123", "Permission denied", "activate")
+
+        expect(result).toBe("Failed to activate image: Permission denied")
+      })
+
+      it("should handle unknown error types", () => {
+        const result = formatBulkOperationError("image-123", { unknown: "error" }, "deactivate")
+
+        expect(result).toBe("Failed to deactivate image: Unknown error")
+      })
+    })
+
+    describe("validateBulkImageIds", () => {
+      it("should not throw for non-empty array", () => {
+        expect(() => validateBulkImageIds(["image-1"], "delete")).not.toThrow()
+        expect(() => validateBulkImageIds(["image-1", "image-2"], "activate")).not.toThrow()
+      })
+
+      it("should throw TRPCError for empty array", () => {
+        expect(() => validateBulkImageIds([], "delete")).toThrow(TRPCError)
+        expect(() => validateBulkImageIds([], "delete")).toThrow("Cannot delete - at least one image ID is required")
+      })
+
+      it("should include operation in error message", () => {
+        expect(() => validateBulkImageIds([], "activate")).toThrow(
+          "Cannot activate - at least one image ID is required"
+        )
+      })
+    })
+
+    describe("createBulkOperationSummary", () => {
+      it("should create summary for all successful operations", () => {
+        const result: BulkOperationResult = {
+          successful: ["image-1", "image-2", "image-3"],
+          failed: [],
+        }
+
+        const summary = createBulkOperationSummary(result, "deleted")
+
+        expect(summary).toBe("Successfully deleted all 3 image(s)")
+      })
+
+      it("should create summary for all failed operations", () => {
+        const result: BulkOperationResult = {
+          successful: [],
+          failed: [
+            { imageId: "image-1", error: "Error 1" },
+            { imageId: "image-2", error: "Error 2" },
+          ],
+        }
+
+        const summary = createBulkOperationSummary(result, "deleted")
+
+        expect(summary).toBe("Failed to delete all 2 image(s)")
+      })
+
+      it("should create summary for partial success", () => {
+        const result: BulkOperationResult = {
+          successful: ["image-1", "image-2"],
+          failed: [{ imageId: "image-3", error: "Error" }],
+        }
+
+        const summary = createBulkOperationSummary(result, "activated")
+
+        expect(summary).toBe("Partially activated 2/3 image(s) (67% success rate)")
+      })
+
+      it("should handle 50% success rate", () => {
+        const result: BulkOperationResult = {
+          successful: ["image-1"],
+          failed: [{ imageId: "image-2", error: "Error" }],
+        }
+
+        const summary = createBulkOperationSummary(result, "deactivated")
+
+        expect(summary).toBe("Partially deactivated 1/2 image(s) (50% success rate)")
+      })
+
+      it("should handle empty result", () => {
+        const result: BulkOperationResult = {
+          successful: [],
+          failed: [],
+        }
+
+        const summary = createBulkOperationSummary(result, "deleted")
+
+        expect(summary).toContain("Failed to delete all 0 image(s)")
+      })
+    })
+
+    describe("chunkArray", () => {
+      it("should chunk array into specified sizes", () => {
+        const array = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+        const chunks = chunkArray(array, 3)
+
+        expect(chunks).toEqual([
+          [1, 2, 3],
+          [4, 5, 6],
+          [7, 8, 9],
+        ])
+      })
+
+      it("should handle array not evenly divisible by chunk size", () => {
+        const array = [1, 2, 3, 4, 5]
+        const chunks = chunkArray(array, 2)
+
+        expect(chunks).toEqual([[1, 2], [3, 4], [5]])
+      })
+
+      it("should handle chunk size larger than array", () => {
+        const array = [1, 2, 3]
+        const chunks = chunkArray(array, 10)
+
+        expect(chunks).toEqual([[1, 2, 3]])
+      })
+
+      it("should handle empty array", () => {
+        const array: number[] = []
+        const chunks = chunkArray(array, 5)
+
+        expect(chunks).toEqual([])
+      })
+
+      it("should handle chunk size of 1", () => {
+        const array = [1, 2, 3]
+        const chunks = chunkArray(array, 1)
+
+        expect(chunks).toEqual([[1], [2], [3]])
+      })
+    })
+
+    describe("processBulkOperation", () => {
+      it("should process all items successfully", async () => {
+        const items = [{ id: "item-1" }, { id: "item-2" }, { id: "item-3" }]
+        const processor = vi.fn().mockResolvedValue(undefined)
+
+        const result = await processBulkOperation(items, processor)
+
+        expect(processor).toHaveBeenCalledTimes(3)
+        expect(result.successful).toEqual(["item-1", "item-2", "item-3"])
+        expect(result.failed).toEqual([])
+      })
+
+      it("should handle partial failures", async () => {
+        const items = [{ id: "item-1" }, { id: "item-2" }, { id: "item-3" }]
+        const processor = vi
+          .fn()
+          .mockResolvedValueOnce(undefined)
+          .mockRejectedValueOnce(new Error("Failed"))
+          .mockResolvedValueOnce(undefined)
+
+        const result = await processBulkOperation(items, processor)
+
+        expect(result.successful).toEqual(["item-1", "item-3"])
+        expect(result.failed).toHaveLength(1)
+        expect(result.failed[0].imageId).toBe("item-2")
+        expect(result.failed[0].error).toBe("Failed")
+      })
+
+      it("should process in chunks when chunkSize is specified", async () => {
+        const items = [{ id: "item-1" }, { id: "item-2" }, { id: "item-3" }, { id: "item-4" }]
+        const processor = vi.fn().mockResolvedValue(undefined)
+
+        const result = await processBulkOperation(items, processor, { chunkSize: 2 })
+
+        expect(processor).toHaveBeenCalledTimes(4)
+        expect(result.successful).toEqual(["item-1", "item-2", "item-3", "item-4"])
+        expect(result.failed).toEqual([])
+      })
+
+      it("should add delay between chunks when specified", async () => {
+        const items = [{ id: "item-1" }, { id: "item-2" }, { id: "item-3" }]
+        const processor = vi.fn().mockResolvedValue(undefined)
+
+        const startTime = Date.now()
+        await processBulkOperation(items, processor, { chunkSize: 1, delayBetweenChunks: 10 })
+        const duration = Date.now() - startTime
+
+        expect(processor).toHaveBeenCalledTimes(3)
+        // Should take at least 20ms (2 delays of 10ms each between 3 chunks)
+        expect(duration).toBeGreaterThanOrEqual(15)
+      })
+
+      it("should handle all failures in chunked processing", async () => {
+        const items = [{ id: "item-1" }, { id: "item-2" }]
+        const processor = vi.fn().mockRejectedValue(new Error("Always fails"))
+
+        const result = await processBulkOperation(items, processor, { chunkSize: 1 })
+
+        expect(result.successful).toEqual([])
+        expect(result.failed).toHaveLength(2)
+      })
+
+      it("should handle empty items array", async () => {
+        const items: Array<{ id: string }> = []
+        const processor = vi.fn()
+
+        const result = await processBulkOperation(items, processor)
+
+        expect(processor).not.toHaveBeenCalled()
+        expect(result.successful).toEqual([])
+        expect(result.failed).toEqual([])
+      })
+
+      it("should handle processor throwing non-Error objects", async () => {
+        const items = [{ id: "item-1" }]
+        const processor = vi.fn().mockRejectedValue("String error")
+
+        const result = await processBulkOperation(items, processor)
+
+        expect(result.failed).toHaveLength(1)
+        expect(result.failed[0].error).toBe("Unknown error")
+      })
     })
   })
 })

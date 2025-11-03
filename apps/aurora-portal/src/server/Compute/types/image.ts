@@ -327,6 +327,30 @@ export const deleteImageInputSchema = baseImageInputSchema
 export const deactivateImageInputSchema = baseImageInputSchema
 export const reactivateImageInputSchema = baseImageInputSchema
 
+// Bulk operation input schemas
+export const deleteImagesInputSchema = z.object({
+  imageIds: z.array(z.string().uuid()).min(1, "At least one image ID is required"),
+})
+
+export const activateImagesInputSchema = z.object({
+  imageIds: z.array(z.string().uuid()).min(1, "At least one image ID is required"),
+})
+
+export const deactivateImagesInputSchema = z.object({
+  imageIds: z.array(z.string().uuid()).min(1, "At least one image ID is required"),
+})
+
+// Bulk operation result schema
+export const bulkOperationResultSchema = z.object({
+  successful: z.array(z.string()),
+  failed: z.array(
+    z.object({
+      imageId: z.string(),
+      error: z.string(),
+    })
+  ),
+})
+
 // Response schemas
 export const imageResponseSchema = z.object({
   images: z.array(imageSchema),
@@ -368,3 +392,7 @@ export type SortKey = z.infer<typeof sortKeySchema>
 export type SortDir = z.infer<typeof sortDirSchema>
 export type ImageVisibility = z.infer<typeof imageVisibilityEnumSchema>
 export type ImagesPaginatedResponse = z.infer<typeof imagesPaginatedResponseSchema>
+export type DeleteImagesInput = z.infer<typeof deleteImagesInputSchema>
+export type ActivateImagesInput = z.infer<typeof activateImagesInputSchema>
+export type DeactivateImagesInput = z.infer<typeof deactivateImagesInputSchema>
+export type BulkOperationResult = z.infer<typeof bulkOperationResultSchema>

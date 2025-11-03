@@ -1,6 +1,6 @@
 import { TRPCError } from "@trpc/server"
 import { ZodError } from "zod"
-import { ListImagesInput } from "../types/image"
+import { BulkOperationResult, ListImagesInput } from "../types/image"
 import { SignalOpenstackApiError } from "@cobaltcore-dev/signal-openstack"
 
 /**
@@ -512,4 +512,168 @@ export async function withErrorHandling<T>(operation: () => Promise<T>, operatio
   } catch (error) {
     throw wrapError(error as Error, operationName)
   }
+}
+
+/**
+ * Helper to format bulk operation error messages
+ * @param imageId - The image ID that failed
+ * @param error - The error that occurred
+ * @param operation - The operation being performed (e.g., "delete", "activate")
+ * @returns Formatted error message
+ */
+export function formatBulkOperationError(imageId: string, error: unknown, operation: string): string {
+  if (error instanceof TRPCError) {
+    return error.message
+  }
+  if (error instanceof Error) {
+    return `Failed to ${operation} image: ${error.message}`
+  }
+  if (typeof error === "string") {
+    return `Failed to ${operation} image: ${error}`
+  }
+  return `Failed to ${operation} image: Unknown error`
+}
+
+/**
+ * Validates that an array of image IDs is not empty
+ * @param imageIds - Array of image IDs to validate
+ * @param operation - The operation being performed for error context
+ * @throws TRPCError if array is empty
+ */
+export function validateBulkImageIds(imageIds: string[], operation: string): void {
+  if (imageIds.length === 0) {
+    throw new TRPCError({
+      code: "BAD_REQUEST",
+      message: `Cannot ${operation} - at least one image ID is required`,
+    })
+  }
+}
+
+/**
+ * Creates a summary message for bulk operation results
+ * @param result - The bulk operation result
+ * @param operation - The operation performed (e.g., "deleted", "activated")
+ * @returns Summary string
+ */
+export function createBulkOperationSummary(result: BulkOperationResult, operation: string): string {
+  const total = result.successful.length + result.failed.length
+  const successRate = total > 0 ? Math.round((result.successful.length / total) * 100) : 0
+
+  // Handle edge case where there are no items at all
+  if (total === 0) {
+    return `Failed to ${operation.replace(/ed$/, "e")} all 0 image(s)`
+  }
+
+  if (result.failed.length === 0) {
+    return `Successfully ${operation} all ${result.successful.length} image(s)`
+  } else if (result.successful.length === 0) {
+    return `Failed to ${operation.replace(/ed$/, "e")} all ${result.failed.length} image(s)`
+  } else {
+    return `Partially ${operation} ${result.successful.length}/${total} image(s) (${successRate}% success rate)`
+  }
+}
+
+/**
+ * Chunks an array into smaller arrays of specified size
+ * Useful for processing large batches in smaller groups
+ * @param array - Array to chunk
+ * @param size - Size of each chunk
+ * @returns Array of chunks
+ */
+export function chunkArray<T>(array: T[], size: number): T[][] {
+  const chunks: T[][] = []
+  for (let i = 0; i < array.length; i += size) {
+    chunks.push(array.slice(i, i + size))
+  }
+  return chunks
+}
+
+/**
+ * Processes bulk operations with optional chunking and rate limiting
+ * @param items - Items to process
+ * @param processor - Async function to process each item
+ * @param options - Processing options
+ * @returns BulkOperationResult with successful and failed items
+ */
+export async function processBulkOperation<T extends { id: string }>(
+  items: T[],
+  processor: (item: T) => Promise<void>,
+  options: {
+    chunkSize?: number
+    delayBetweenChunks?: number
+  } = {}
+): Promise<BulkOperationResult> {
+  const { chunkSize, delayBetweenChunks } = options
+  const results: BulkOperationResult = {
+    successful: [],
+    failed: [],
+  }
+
+  // If chunking is enabled, process in chunks
+  if (chunkSize && chunkSize > 0) {
+    const chunks = chunkArray(items, chunkSize)
+
+    for (let i = 0; i < chunks.length; i++) {
+      const chunk = chunks[i]
+      const chunkPromises = chunk.map(async (item) => {
+        try {
+          await processor(item)
+          return { status: "success" as const, id: item.id }
+        } catch (error) {
+          return {
+            status: "failed" as const,
+            id: item.id,
+            error: error instanceof Error ? error.message : "Unknown error",
+          }
+        }
+      })
+
+      const chunkResults = await Promise.allSettled(chunkPromises)
+
+      chunkResults.forEach((result) => {
+        if (result.status === "fulfilled") {
+          const value = result.value
+          if (value.status === "success") {
+            results.successful.push(value.id)
+          } else {
+            results.failed.push({ imageId: value.id, error: value.error })
+          }
+        }
+      })
+
+      // Add delay between chunks if specified
+      if (delayBetweenChunks && i < chunks.length - 1) {
+        await new Promise((resolve) => setTimeout(resolve, delayBetweenChunks))
+      }
+    }
+  } else {
+    // Process all items in parallel
+    const promises = items.map(async (item) => {
+      try {
+        await processor(item)
+        return { status: "success" as const, id: item.id }
+      } catch (error) {
+        return {
+          status: "failed" as const,
+          id: item.id,
+          error: error instanceof Error ? error.message : "Unknown error",
+        }
+      }
+    })
+
+    const settledResults = await Promise.allSettled(promises)
+
+    settledResults.forEach((result) => {
+      if (result.status === "fulfilled") {
+        const value = result.value
+        if (value.status === "success") {
+          results.successful.push(value.id)
+        } else {
+          results.failed.push({ imageId: value.id, error: value.error })
+        }
+      }
+    })
+  }
+
+  return results
 }
