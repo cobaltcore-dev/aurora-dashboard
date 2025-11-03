@@ -25,10 +25,19 @@ import { EditImageModal } from "./EditImageModal"
 import { ImageTableRow } from "./ImageTableRow"
 import { DeleteImageModal } from "./DeleteImageModal"
 import { CreateImageModal } from "./CreateImageModal"
-import { NotificationText } from "./NotificationText"
 import { DeleteImagesModal } from "./DeleteImagesModal"
 import { DeactivateImagesModal } from "./DeactivateImagesModal"
 import { ActivateImagesModal } from "./ActivateImagesModal"
+import {
+  getImageUpdatedToast,
+  getImageCreatedToast,
+  getImageDeletedToast,
+  getImageDeleteErrorToast,
+  getImageActivatedToast,
+  getImageDeactivatedToast,
+  getImageActivationErrorToast,
+  getImageDeactivationErrorToast,
+} from "./ImageToastNotifications"
 
 interface ImagePageProps {
   images: GlanceImage[]
@@ -136,18 +145,7 @@ export function ImageListView({
     setEditModalOpen(false)
     const imageName = updatedImage.name || updatedImage.id
 
-    setToastData({
-      variant: "success",
-      children: (
-        <NotificationText
-          title={<Trans>Image Instance</Trans>}
-          description={<Trans>Image instance "{imageName}" has been updated</Trans>}
-        />
-      ),
-      autoDismiss: true,
-      autoDismissTimeout: 3000,
-      onDismiss: handleToastDismiss,
-    })
+    setToastData(getImageUpdatedToast(imageName, { onDismiss: handleToastDismiss }))
 
     utils.compute.listImagesWithPagination.invalidate()
   }
@@ -156,18 +154,7 @@ export function ImageListView({
     setCreateModalOpen(false)
     const imageName = newImage.name || t`Unnamed`
 
-    setToastData({
-      variant: "success",
-      children: (
-        <NotificationText
-          title={<Trans>Image Instance</Trans>}
-          description={<Trans>Image instance "{imageName}" has been created</Trans>}
-        />
-      ),
-      autoDismiss: true,
-      autoDismissTimeout: 3000,
-      onDismiss: handleToastDismiss,
-    })
+    setToastData(getImageCreatedToast(imageName, { onDismiss: handleToastDismiss }))
 
     utils.compute.listImagesWithPagination.invalidate()
   }
@@ -180,37 +167,11 @@ export function ImageListView({
     try {
       await deleteImageMutation.mutateAsync({ imageId })
 
-      setToastData({
-        variant: "success",
-        children: (
-          <NotificationText
-            title={<Trans>Image Instance</Trans>}
-            description={<Trans>Image instance "{imageName}" has been deleted</Trans>}
-          />
-        ),
-        autoDismiss: true,
-        autoDismissTimeout: 3000,
-        onDismiss: handleToastDismiss,
-      })
+      setToastData(getImageDeletedToast(imageName, { onDismiss: handleToastDismiss }))
     } catch (error) {
       const { message } = error as TRPCError
 
-      setToastData({
-        variant: "error",
-        children: (
-          <NotificationText
-            title={<Trans>Unable to Delete Image</Trans>}
-            description={
-              <Trans>
-                The image "{imageId}" could not be deleted: {message}
-              </Trans>
-            }
-          />
-        ),
-        autoDismiss: true,
-        autoDismissTimeout: 3000,
-        onDismiss: handleToastDismiss,
-      })
+      setToastData(getImageDeleteErrorToast(imageId, message, { onDismiss: handleToastDismiss }))
     }
   }
 
@@ -223,55 +184,21 @@ export function ImageListView({
 
       await mutation.mutateAsync({ imageId })
 
-      setToastData({
-        variant: "success",
-        children: (
-          <NotificationText
-            title={<Trans>Image Instance</Trans>}
-            description={
-              updatedImage.status === "deactivated" ? (
-                <Trans>Image instance "{imageName}" has been activated</Trans>
-              ) : (
-                <Trans>Image instance "{imageName}" has been deactivated</Trans>
-              )
-            }
-          />
-        ),
-        autoDismiss: true,
-        autoDismissTimeout: 3000,
-        onDismiss: handleToastDismiss,
-      })
+      const toast =
+        updatedImage.status === "deactivated"
+          ? getImageActivatedToast(imageName, { onDismiss: handleToastDismiss })
+          : getImageDeactivatedToast(imageName, { onDismiss: handleToastDismiss })
+
+      setToastData(toast)
     } catch (error) {
       const { message } = error as TRPCError
 
-      setToastData({
-        variant: "error",
-        children: (
-          <NotificationText
-            title={
-              updatedImage.status === "deactivated" ? (
-                <Trans>Unable to Re-activate Image</Trans>
-              ) : (
-                <Trans>Unable to Deactivate Image</Trans>
-              )
-            }
-            description={
-              updatedImage.status === "deactivated" ? (
-                <Trans>
-                  The image "{imageId}" could not be re-activated: {message}
-                </Trans>
-              ) : (
-                <Trans>
-                  The image "{imageId}" could not be deactivated: {message}
-                </Trans>
-              )
-            }
-          />
-        ),
-        autoDismiss: true,
-        autoDismissTimeout: 3000,
-        onDismiss: handleToastDismiss,
-      })
+      const toast =
+        updatedImage.status === "deactivated"
+          ? getImageActivationErrorToast(imageId, message, { onDismiss: handleToastDismiss })
+          : getImageDeactivationErrorToast(imageId, message, { onDismiss: handleToastDismiss })
+
+      setToastData(toast)
     }
   }
 
