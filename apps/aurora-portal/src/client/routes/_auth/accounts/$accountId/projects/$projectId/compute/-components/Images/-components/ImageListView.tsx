@@ -1,12 +1,17 @@
-import { useState, useEffect, useRef, ReactNode } from "react"
+import { useState, useEffect, useRef, ReactNode, forwardRef } from "react"
 import type { GlanceImage } from "@/server/Compute/types/image"
 import {
   Button,
+  ButtonProps,
   ContentHeading,
   DataGrid,
   DataGridCell,
   DataGridHeadCell,
   DataGridRow,
+  PopupMenu,
+  PopupMenuItem,
+  PopupMenuOptions,
+  PopupMenuToggle,
   Spinner,
   Stack,
   Toast,
@@ -20,6 +25,9 @@ import { ImageTableRow } from "./ImageTableRow"
 import { DeleteImageModal } from "./DeleteImageModal"
 import { CreateImageModal } from "./CreateImageModal"
 import { NotificationText } from "./NotificationText"
+import { DeleteImagesModal } from "./DeleteAllImagesModal"
+import { DeactivateImagesModal } from "./DeactivateImagesModal"
+import { ActivateImagesModal } from "./ActivateImagesModal"
 
 interface ImagePageProps {
   images: GlanceImage[]
@@ -47,10 +55,36 @@ export function ImageListView({
   const { t } = useLingui()
 
   const [toastData, setToastData] = useState<ToastProps | null>(null)
+
   const [editModalOpen, setEditModalOpen] = useState(false)
   const [createModalOpen, setCreateModalOpen] = useState(false)
-  const [selectedImage, setSelectedImage] = useState<GlanceImage | null>(null)
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
+
+  const [deleteAllModalOpen, setDeleteAllModalOpen] = useState(false)
+  const [deactivateAllModalOpen, setDeactivateAllModalOpen] = useState(false)
+  const [activateAllModalOpen, setActivateAllModalOpen] = useState(false)
+
+  const [selectedImage, setSelectedImage] = useState<GlanceImage | null>(null)
+  const [selectedImages, setSelectedImages] = useState<Array<string>>([])
+
+  const deletableImages = selectedImages.filter((imageId) => !images.find((image) => image.id === imageId)?.protected)
+  const protectedImages = selectedImages.filter((imageId) => images.find((image) => image.id === imageId)?.protected)
+  const activeImages = selectedImages.filter(
+    (imageId) => images.find((image) => image.id === imageId)?.status === "active"
+  )
+  const deactivatedImages = selectedImages.filter(
+    (imageId) => images.find((image) => image.id === imageId)?.status === "deactivated"
+  )
+
+  const isDeleteAllDisabled =
+    !permissions.canDelete ||
+    images.filter((image) => selectedImages.includes(image.id)).every((image) => image.protected)
+  const isDeactivateAllDisabled =
+    !permissions.canEdit ||
+    images.filter((image) => selectedImages.includes(image.id)).every((image) => image.status === "deactivated")
+  const isActivateAllDisabled =
+    !permissions.canEdit ||
+    images.filter((image) => selectedImages.includes(image.id)).every((image) => image.status === "active")
 
   // Intersection Observer for infinite scroll
   const loadMoreRef = useRef<HTMLDivElement>(null)
@@ -272,21 +306,49 @@ export function ImageListView({
   return (
     <>
       {/* Header with Add Button */}
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-semibold ">Images</h2>
+      <Stack distribution="end" alignment="center" gap="4" className="mb-6">
+        {selectedImages.length > 0 && (
+          <PopupMenu>
+            <PopupMenuToggle
+              as={forwardRef<HTMLButtonElement, ButtonProps>(({ onClick = undefined, ...props }, ref) => (
+                <Button variant="subdued" icon="moreVert" ref={ref} onClick={onClick} {...props}>
+                  More Actions
+                </Button>
+              ))}
+            />
+            <PopupMenuOptions>
+              <PopupMenuItem
+                disabled={isDeleteAllDisabled}
+                label={t`Delete All`}
+                onClick={() => setDeleteAllModalOpen(true)}
+              />
+              <PopupMenuItem
+                disabled={isDeactivateAllDisabled}
+                label={t`Deactivate All`}
+                onClick={() => setDeactivateAllModalOpen(true)}
+              />
+              <PopupMenuItem
+                disabled={isActivateAllDisabled}
+                label={t`Activate All`}
+                onClick={() => setActivateAllModalOpen(true)}
+              />
+            </PopupMenuOptions>
+          </PopupMenu>
+        )}
         {permissions.canCreate && (
           <Button onClick={openCreateModal} variant="primary" icon="addCircle">
-            Add New Image
+            Create Image
           </Button>
         )}
-      </div>
+      </Stack>
       <>{children}</>
       {/* Images Table */}
       {images.length > 0 ? (
         <>
-          <DataGrid columns={8} minContentColumns={[7]} className="images" data-testid="images-table">
+          <DataGrid columns={9} minContentColumns={[7]} className="images" data-testid="images-table">
             {/* Table Header */}
             <DataGridRow>
+              <DataGridHeadCell />
               <DataGridHeadCell>
                 <Trans>Image Name</Trans>
               </DataGridHeadCell>
@@ -308,17 +370,27 @@ export function ImageListView({
               <DataGridHeadCell>
                 <Trans>Created</Trans>
               </DataGridHeadCell>
-              <DataGridHeadCell></DataGridHeadCell>
+              <DataGridHeadCell />
             </DataGridRow>
 
             {/* Table Body */}
             {images.map((image) => (
               <ImageTableRow
                 image={image}
+                isSelected={!!selectedImages.find((imageId) => imageId === image.id)}
                 key={image.id}
                 permissions={permissions}
                 onEdit={openEditModal}
                 onDelete={openDeleteModal}
+                onSelect={(image: GlanceImage) => {
+                  const isImageSelected = !!selectedImages.find((imageId) => imageId === image.id)
+
+                  if (isImageSelected) {
+                    return setSelectedImages(selectedImages.filter((imageId) => imageId !== image.id))
+                  }
+
+                  setSelectedImages([...selectedImages, image.id])
+                }}
                 onActivationStatusChange={handleActivationStatusChange}
               />
             ))}
@@ -354,7 +426,7 @@ export function ImageListView({
           )}
         </>
       ) : (
-        <DataGrid columns={7} className="flavors" data-testid="no-flavors">
+        <DataGrid columns={7} className="images" data-testid="no-images">
           <DataGridRow>
             <DataGridCell colSpan={7}>
               <ContentHeading>
@@ -387,6 +459,46 @@ export function ImageListView({
           onClose={() => setDeleteModalOpen(false)}
           onDelete={handleDelete}
         />
+      )}
+      {selectedImages && (
+        <>
+          <DeleteImagesModal
+            isOpen={deleteAllModalOpen}
+            deletableImages={deletableImages}
+            protectedImages={protectedImages}
+            isLoading={isLoading}
+            isDisabled={isDeleteAllDisabled}
+            onClose={() => setDeleteAllModalOpen(false)}
+            onDelete={(deletableImages: Array<string>) =>
+              // TODO: Replace it
+              console.log(`Images will be deleted! ${JSON.stringify(deletableImages)}`)
+            }
+          />
+          <DeactivateImagesModal
+            isOpen={deactivateAllModalOpen}
+            activeImages={activeImages}
+            deactivatedImages={deactivatedImages}
+            isLoading={isLoading}
+            isDisabled={isDeactivateAllDisabled}
+            onClose={() => setDeactivateAllModalOpen(false)}
+            onDeactivate={(activeImages: Array<string>) =>
+              // TODO: Replace it
+              console.log(`Images will be deactivated! ${JSON.stringify(activeImages)}`)
+            }
+          />
+          <ActivateImagesModal
+            isOpen={activateAllModalOpen}
+            deactivatedImages={deactivatedImages}
+            activeImages={activeImages}
+            isLoading={isLoading}
+            isDisabled={isActivateAllDisabled}
+            onClose={() => setActivateAllModalOpen(false)}
+            onActivate={(deactivatedImages: Array<string>) =>
+              // TODO: Replace it
+              console.log(`Images will be activated! ${JSON.stringify(deactivatedImages)}`)
+            }
+          />
+        </>
       )}
       <CreateImageModal isOpen={createModalOpen} onClose={() => setCreateModalOpen(false)} onCreate={handleCreate} />
       {toastData && (
