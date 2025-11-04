@@ -205,6 +205,13 @@ const diskFormatFilterSchema = z.enum([
 
 const osTypeFilterSchema = z.enum(["linux", "windows"])
 
+// Helper to allow single value or 'in:' operator string for multi-value filters
+const multiValueFilter = <T extends z.ZodTypeAny>(enumSchema: T) =>
+  z.union([
+    enumSchema, // Single value: "active"
+    z.string(), // 'in:' operator: "in:active,queued"
+  ])
+
 // Input schema for listing images with sorting and filtering
 export const listImagesInputSchema = z.object({
   // Sorting parameters
@@ -218,14 +225,15 @@ export const listImagesInputSchema = z.object({
 
   // Basic filtering parameters
   name: z.string().optional(),
-  status: statusFilterSchema.optional(),
-  visibility: imageVisibilityFilterSchema.optional(),
+  // Multi-value filter support for status
+  status: multiValueFilter(statusFilterSchema).optional(),
+  visibility: imageVisibilityFilterSchema.optional(), // Single-value only
   owner: z.string().optional(),
   protected: z.boolean().optional(),
 
-  // Format filtering
-  container_format: containerFormatFilterSchema.optional(),
-  disk_format: diskFormatFilterSchema.optional(),
+  // Format filtering with multi-value support
+  container_format: multiValueFilter(containerFormatFilterSchema).optional(),
+  disk_format: multiValueFilter(diskFormatFilterSchema).optional(),
 
   // Size filtering (in bytes)
   size_min: z.number().optional(),
