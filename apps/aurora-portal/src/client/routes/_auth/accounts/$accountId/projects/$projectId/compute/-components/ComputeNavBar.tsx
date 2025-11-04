@@ -54,7 +54,7 @@ export const ComputeSideNavBar = ({
       <SideNavigation ariaLabel="Compute Side Navigation" onActiveItemChange={() => {}}>
         <SideNavigationList>
           {links.map(({ path, label }) => (
-            <SideNavigationItem key={path} href={path} label={label} />
+            <SideNavigationItem key={path} href={path} label={label} selected={location.pathname === path} />
           ))}
         </SideNavigationList>
       </SideNavigation>
