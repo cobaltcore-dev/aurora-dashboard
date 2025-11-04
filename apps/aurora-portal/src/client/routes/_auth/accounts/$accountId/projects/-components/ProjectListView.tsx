@@ -1,5 +1,6 @@
 import { Project } from "@/server/Project/types/models"
 import { DataGrid, DataGridCell, DataGridRow, Icon } from "@cloudoperators/juno-ui-components"
+import { Trans } from "@lingui/react/macro"
 import { useNavigate } from "@tanstack/react-router"
 
 type ProjectListViewProps = {
@@ -13,7 +14,7 @@ export function ProjectListView({ projects }: ProjectListViewProps) {
     <DataGrid className="overflow-hidden" columns={3} minContentColumns={[0]}>
       {projects?.length ? (
         projects.map((project) => {
-          const domain = project?.domain_id // Assuming domain_id is the domai
+          const domain = project?.domain_id
           const gardenerRootPath = `/accounts/${domain}/projects/${project.id}/compute`
           return (
             <DataGridRow key={project.id} onClick={() => navigate({ to: gardenerRootPath })}>
@@ -30,7 +31,9 @@ export function ProjectListView({ projects }: ProjectListViewProps) {
           )
         })
       ) : (
-        <div className="text-center py-6">No projects found</div>
+        <div className="text-center py-6">
+          <Trans>No projects found</Trans>
+        </div>
       )}
     </DataGrid>
   )

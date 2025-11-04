@@ -1,6 +1,4 @@
-import { ToastProps, auroraToast, sonnerToast } from "@/client/components/NotificationCenter/AuroraToast"
 import type { ServerGroup } from "@/server/Compute/types/serverGroup"
-import { Button } from "@cloudoperators/juno-ui-components"
 import { Icon } from "@cloudoperators/juno-ui-components"
 import { Trans } from "@lingui/react/macro"
 
@@ -76,61 +74,7 @@ export function ServerGroupListView({ serverGroups }: ServerGroupListViewProps) 
                   <td className="p-3">{renderPolicy(group.policies?.[0])}</td>
                   <td className="p-3">{renderMembersCount(group)}</td>
                   <td className="p-3">{formatDate(group.created_at)}</td>
-
-                  {/* Action Buttons */}
-                  <td className="p-3">
-                    <div className="flex space-x-3 justify-end">
-                      <Button
-                        onClick={() => {
-                          const toastProps: Omit<ToastProps, "id"> = {
-                            title: "Group Details",
-                            description: `Viewing details for server group "${group.name}"`,
-                            variant: "info",
-                            button: {
-                              label: "Close",
-                              onClick: () => sonnerToast.dismiss(),
-                            },
-                          }
-                          auroraToast(toastProps)
-                        }}
-                      >
-                        Details
-                      </Button>
-                      <Button
-                        onClick={() => {
-                          const toastProps: Omit<ToastProps, "id"> = {
-                            title: "Launch Instance",
-                            description: `Launch instance in server group "${group.name}"`,
-                            variant: "success",
-                            button: {
-                              label: "Dismiss",
-                              onClick: () => sonnerToast.dismiss(),
-                            },
-                          }
-                          auroraToast(toastProps)
-                        }}
-                      >
-                        Launch
-                      </Button>
-                      <Button
-                        variant="primary-danger"
-                        onClick={() => {
-                          const toastProps: Omit<ToastProps, "id"> = {
-                            title: "Delete Server Group",
-                            description: `Are you sure you want to delete "${group.name}"? This action cannot be undone.`,
-                            variant: "error",
-                            button: {
-                              label: "Cancel",
-                              onClick: () => sonnerToast.dismiss(),
-                            },
-                          }
-                          auroraToast(toastProps)
-                        }}
-                      >
-                        Delete
-                      </Button>
-                    </div>
-                  </td>
+                  <td></td>
                 </tr>
               ))}
             </tbody>

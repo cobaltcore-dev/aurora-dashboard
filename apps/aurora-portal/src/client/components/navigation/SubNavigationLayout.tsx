@@ -1,30 +1,34 @@
-import { Link, linkOptions } from "@tanstack/react-router"
-
-const defaultOptions = [
-  linkOptions({
-    to: "/",
-    label: "Welcome",
-  }),
-  linkOptions({
-    to: "/about",
-    label: "About",
-    activeOptions: { exact: true },
-  }),
-]
+import { Link } from "@tanstack/react-router"
+import { useLingui } from "@lingui/react/macro"
 
 export function SubNavigationLayout({
-  options = defaultOptions,
+  options,
   params,
 }: {
   options?: Array<{ to: string; label: string }>
   params?: Record<string, unknown>
 }) {
+  const { t } = useLingui()
+
+  const defaultOptions = [
+    {
+      to: "/",
+      label: t`Welcome`,
+    },
+    {
+      to: "/about",
+      label: t`About`,
+    },
+  ]
+
+  const navigationOptions = options || defaultOptions
+
   return (
     <div className="flex items-center px-3 bg-gray-50 shadow-sm w-full relative">
-      {options.map((option) => {
+      {navigationOptions.map((option) => {
         return (
           <Link
-            {...option}
+            to={option.to}
             params={params}
             key={option.to}
             activeProps={{ className: `active` }}

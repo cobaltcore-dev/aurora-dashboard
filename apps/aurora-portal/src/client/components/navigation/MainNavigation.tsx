@@ -5,6 +5,7 @@ import { UserMenu } from "./UserMenu"
 import { PageHeader, Button } from "@cloudoperators/juno-ui-components/index"
 import React from "react"
 import { useNavigate } from "@tanstack/react-router"
+import { Trans } from "@lingui/react/macro"
 
 interface NavigationProps {
   items: NavigationItem[]

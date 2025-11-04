@@ -1,7 +1,12 @@
 import { getServiceIndex } from "@/server/Authentication/helpers"
-import { ContentHeading } from "@cloudoperators/juno-ui-components/index"
-import { Trans } from "@lingui/react/macro"
-import { useLocation, useParams, Link } from "@tanstack/react-router"
+import {
+  ContentHeading,
+  SideNavigation,
+  SideNavigationList,
+  SideNavigationItem,
+} from "@cloudoperators/juno-ui-components/index"
+import { Trans, useLingui } from "@lingui/react/macro"
+import { useParams } from "@tanstack/react-router"
 
 export const ComputeSideNavBar = ({
   availableServices,
@@ -11,7 +16,7 @@ export const ComputeSideNavBar = ({
     name: string
   }[]
 }) => {
-  const location = useLocation()
+  const { t } = useLingui()
 
   const { projectId, domain } = useParams({
     from: "/_auth/accounts/$accountId/projects/$projectId/compute/$",
@@ -26,14 +31,14 @@ export const ComputeSideNavBar = ({
 
   const getComputeNavigationLinks = () => {
     return [
-      { path: computeRootPath, label: <Trans>Overview</Trans> },
-      ...(serviceIndex["image"]["glance"] ? [{ path: `${computeRootPath}/images`, label: <Trans>Images</Trans> }] : []),
+      // { path: computeRootPath, label: t`Overview` },
+      ...(serviceIndex["image"]["glance"] ? [{ path: `${computeRootPath}/images`, label: t`Images` }] : []),
       ...(serviceIndex["compute"]["nova"]
         ? [
-            { path: `${computeRootPath}/instances`, label: <Trans>Instances</Trans> },
-            { path: `${computeRootPath}/keypairs`, label: <Trans>Key Pairs</Trans> },
-            { path: `${computeRootPath}/servergroups`, label: <Trans>Server Groups</Trans> },
-            { path: `${computeRootPath}/flavors`, label: <Trans>Flavors</Trans> },
+            // { path: `${computeRootPath}/instances`, label: t`Instances` },
+            // { path: `${computeRootPath}/keypairs`, label: t`Key Pairs` },
+            // { path: `${computeRootPath}/servergroups`, label: t`Server Groups` },
+            { path: `${computeRootPath}/flavors`, label: t`Flavors` },
           ]
         : []),
     ]
@@ -46,19 +51,13 @@ export const ComputeSideNavBar = ({
       <ContentHeading>
         <Trans>Compute</Trans>
       </ContentHeading>
-      {/* Navigation */}
-      <nav className="w-full flex flex-col rounded-lg items-start ">
-        {links.map(({ path, label }) => (
-          <Link
-            key={path}
-            to={path}
-            className={`w-full text-base font-medium px-4 py-3 rounded-md transition text-justify hover:text-theme-light
-              ${location.pathname === path ? "text-theme-accent" : "text-theme-default"}`}
-          >
-            {label}
-          </Link>
-        ))}
-      </nav>
+      <SideNavigation ariaLabel="Compute Side Navigation" onActiveItemChange={() => {}}>
+        <SideNavigationList>
+          {links.map(({ path, label }) => (
+            <SideNavigationItem key={path} href={path} label={label} selected={location.pathname === path} />
+          ))}
+        </SideNavigationList>
+      </SideNavigation>
     </div>
   )
 }

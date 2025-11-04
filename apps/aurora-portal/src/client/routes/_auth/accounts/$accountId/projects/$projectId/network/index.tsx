@@ -1,4 +1,5 @@
 import { getServiceIndex } from "@/server/Authentication/helpers"
+import { Trans } from "@lingui/react/macro"
 import { createFileRoute, redirect } from "@tanstack/react-router"
 
 export const Route = createFileRoute("/_auth/accounts/$accountId/projects/$projectId/network/")({
@@ -20,5 +21,9 @@ export const Route = createFileRoute("/_auth/accounts/$accountId/projects/$proje
 })
 
 function RouteComponent() {
-  return <div>Hello "/accounts/$accountId/projects_/$projectId/network/"!</div>
+  return (
+    <div>
+      <Trans>Hello "/accounts/$accountId/projects_/$projectId/network/"!</Trans>
+    </div>
+  )
 }
