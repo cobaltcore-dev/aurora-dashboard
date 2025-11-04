@@ -62,7 +62,7 @@ const FilterToolbar: React.FC<FilterToolbarProps> = ({
               <SortButton
                 data-testid="direction-toggle"
                 order={sortDirection}
-                onOrderChange={(order: string) => handleSortDirectionChange(order as "asc" | "desc")}
+                onChange={(order) => handleSortDirectionChange(order)}
               />
             </InputGroup>
           </Stack>
