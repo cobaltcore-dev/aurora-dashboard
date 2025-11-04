@@ -601,9 +601,10 @@ export async function processBulkOperation<T extends { id: string }>(
   options: {
     chunkSize?: number
     delayBetweenChunks?: number
+    operation?: string // Operation name for error messages (e.g., "delete", "activate")
   } = {}
 ): Promise<BulkOperationResult> {
-  const { chunkSize, delayBetweenChunks } = options
+  const { chunkSize, delayBetweenChunks, operation = "process" } = options
   const results: BulkOperationResult = {
     successful: [],
     failed: [],
@@ -623,7 +624,7 @@ export async function processBulkOperation<T extends { id: string }>(
           return {
             status: "failed" as const,
             id: item.id,
-            error: error instanceof Error ? error.message : "Unknown error",
+            error: formatBulkOperationError(item.id, error, operation),
           }
         }
       })
@@ -656,7 +657,7 @@ export async function processBulkOperation<T extends { id: string }>(
         return {
           status: "failed" as const,
           id: item.id,
-          error: error instanceof Error ? error.message : "Unknown error",
+          error: formatBulkOperationError(item.id, error, operation),
         }
       }
     })

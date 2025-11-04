@@ -453,13 +453,17 @@ export const imageRouter = {
         const items = imageIds.map((id) => ({ id }))
 
         // Use helper to process deletions in parallel
-        return await processBulkOperation(items, async (item) => {
-          const response = await glance.del(`v2/images/${item.id}`)
+        return await processBulkOperation(
+          items,
+          async (item) => {
+            const response = await glance.del(`v2/images/${item.id}`)
 
-          if (!response?.ok) {
-            throw new Error(`Failed to delete image: ${response?.status || "Unknown error"}`)
-          }
-        })
+            if (!response?.ok) {
+              throw new Error(`${response?.status || "Unknown error"}`)
+            }
+          },
+          { operation: "delete" }
+        )
       }, "delete images")
     }),
 
@@ -478,9 +482,13 @@ export const imageRouter = {
         const items = imageIds.map((id) => ({ id }))
 
         // Use helper to process activations in parallel
-        return await processBulkOperation(items, async (item) => {
-          await glance.post(`v2/images/${item.id}/actions/reactivate`, undefined)
-        })
+        return await processBulkOperation(
+          items,
+          async (item) => {
+            await glance.post(`v2/images/${item.id}/actions/reactivate`, undefined)
+          },
+          { operation: "activate" }
+        )
       }, "activate images")
     }),
 
@@ -499,9 +507,13 @@ export const imageRouter = {
         const items = imageIds.map((id) => ({ id }))
 
         // Use helper to process deactivations in parallel
-        return await processBulkOperation(items, async (item) => {
-          await glance.post(`v2/images/${item.id}/actions/deactivate`, undefined)
-        })
+        return await processBulkOperation(
+          items,
+          async (item) => {
+            await glance.post(`v2/images/${item.id}/actions/deactivate`, undefined)
+          },
+          { operation: "deactivate" }
+        )
       }, "deactivate images")
     }),
 }

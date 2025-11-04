@@ -831,7 +831,7 @@ describe("imageHelpers", () => {
         expect(result.successful).toEqual(["item-1", "item-3"])
         expect(result.failed).toHaveLength(1)
         expect(result.failed[0].imageId).toBe("item-2")
-        expect(result.failed[0].error).toBe("Failed")
+        expect(result.failed[0].error).toBe("Failed to process image: Failed")
       })
 
       it("should process in chunks when chunkSize is specified", async () => {
@@ -886,7 +886,27 @@ describe("imageHelpers", () => {
         const result = await processBulkOperation(items, processor)
 
         expect(result.failed).toHaveLength(1)
-        expect(result.failed[0].error).toBe("Unknown error")
+        expect(result.failed[0].error).toBe("Failed to process image: String error")
+      })
+
+      it("should use custom operation name in error messages", async () => {
+        const items = [{ id: "item-1" }]
+        const processor = vi.fn().mockRejectedValue(new Error("Network timeout"))
+
+        const result = await processBulkOperation(items, processor, { operation: "delete" })
+
+        expect(result.failed).toHaveLength(1)
+        expect(result.failed[0].error).toBe("Failed to delete image: Network timeout")
+      })
+
+      it("should default to 'process' operation when not specified", async () => {
+        const items = [{ id: "item-1" }]
+        const processor = vi.fn().mockRejectedValue(new Error("Test error"))
+
+        const result = await processBulkOperation(items, processor)
+
+        expect(result.failed).toHaveLength(1)
+        expect(result.failed[0].error).toBe("Failed to process image: Test error")
       })
     })
   })
