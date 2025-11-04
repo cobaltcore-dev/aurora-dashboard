@@ -9,7 +9,7 @@ interface DeactivateImagesModalProps {
   isLoading: boolean
   isDisabled: boolean
   onClose: () => void
-  onDeactivate: (activatedImages: Array<string>) => void
+  onDeactivate: (activeImages: Array<string>) => void
 }
 
 export const DeactivateImagesModal: React.FC<DeactivateImagesModalProps> = ({

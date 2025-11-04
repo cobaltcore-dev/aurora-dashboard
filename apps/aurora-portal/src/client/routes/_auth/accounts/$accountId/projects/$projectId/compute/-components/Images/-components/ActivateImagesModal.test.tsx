@@ -96,7 +96,7 @@ describe("ActivateImagesModal", () => {
     const activateButton = screen.getByRole("button", { name: /Activate/i })
     fireEvent.click(activateButton)
     expect(mockOnActivate).toHaveBeenCalledTimes(1)
-    expect(mockOnActivate).toHaveBeenCalledWith(mockActiveImages)
+    expect(mockOnActivate).toHaveBeenCalledWith(mockDeactivatedImages)
     expect(mockOnClose).toHaveBeenCalledTimes(1)
   })
 
@@ -167,13 +167,13 @@ describe("ActivateImagesModal", () => {
     expect(screen.queryByText(/Images to be activated/i)).not.toBeInTheDocument()
   })
 
-  it("should pass activeImages to onActivate, not deactivatedImages", () => {
+  it("should pass deactivatedImgs to onActivate, not deactivatedImages", () => {
     const activeImgs = ["active-1", "active-2"]
     const deactivatedImgs = ["deactivated-1", "deactivated-2"]
     setup(true, false, false, deactivatedImgs, activeImgs)
     const activateButton = screen.getByRole("button", { name: /Activate/i })
     fireEvent.click(activateButton)
-    expect(mockOnActivate).toHaveBeenCalledWith(activeImgs)
+    expect(mockOnActivate).toHaveBeenCalledWith(deactivatedImgs)
   })
 
   it("should render with single image correctly", () => {

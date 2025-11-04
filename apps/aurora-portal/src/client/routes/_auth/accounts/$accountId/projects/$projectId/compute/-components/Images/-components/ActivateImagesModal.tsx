@@ -9,7 +9,7 @@ interface ActivateImagesModalProps {
   isLoading: boolean
   isDisabled: boolean
   onClose: () => void
-  onActivate: (activatedImages: Array<string>) => void
+  onActivate: (deactivatedImages: Array<string>) => void
 }
 
 export const ActivateImagesModal: React.FC<ActivateImagesModalProps> = ({
@@ -28,7 +28,7 @@ export const ActivateImagesModal: React.FC<ActivateImagesModalProps> = ({
 
   const handleActivate = (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault()
-    onActivate(activeImages)
+    onActivate(deactivatedImages)
   }
 
   return (

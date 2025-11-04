@@ -122,3 +122,191 @@ export const getImageDeactivationErrorToast = (imageId: string, message: string,
   autoDismissTimeout: config.autoDismissTimeout ?? 3000,
   onDismiss: config.onDismiss,
 })
+
+// Bulk operation toasts
+export const getBulkDeleteSuccessToast = (
+  successCount: number,
+  totalCount: number,
+  config: ToastConfig
+): ToastProps => ({
+  variant: "success",
+  children: (
+    <NotificationText
+      title={<Trans>Images Deleted</Trans>}
+      description={
+        <Trans>
+          Successfully deleted {successCount} of {totalCount} image(s)
+        </Trans>
+      }
+    />
+  ),
+  autoDismiss: true,
+  autoDismissTimeout: config.autoDismissTimeout ?? 3000,
+  onDismiss: config.onDismiss,
+})
+
+export const getBulkDeleteErrorToast = (failedCount: number, totalCount: number, config: ToastConfig): ToastProps => ({
+  variant: "error",
+  children: (
+    <NotificationText
+      title={<Trans>Failed to Delete Images</Trans>}
+      description={
+        <Trans>
+          Failed to delete {failedCount} of {totalCount} image(s). Some images may be protected or in use.
+        </Trans>
+      }
+    />
+  ),
+  autoDismiss: true,
+  autoDismissTimeout: config.autoDismissTimeout ?? 5000,
+  onDismiss: config.onDismiss,
+})
+
+export const getBulkDeletePartialToast = (
+  successCount: number,
+  failedCount: number,
+  config: ToastConfig
+): ToastProps => ({
+  variant: "warning",
+  children: (
+    <NotificationText
+      title={<Trans>Partial Delete Success</Trans>}
+      description={
+        <Trans>
+          Deleted {successCount} image(s), but {failedCount} image(s) could not be deleted.
+        </Trans>
+      }
+    />
+  ),
+  autoDismiss: true,
+  autoDismissTimeout: config.autoDismissTimeout ?? 5000,
+  onDismiss: config.onDismiss,
+})
+
+export const getBulkActivateSuccessToast = (
+  successCount: number,
+  totalCount: number,
+  config: ToastConfig
+): ToastProps => ({
+  variant: "success",
+  children: (
+    <NotificationText
+      title={<Trans>Images Activated</Trans>}
+      description={
+        <Trans>
+          Successfully activated {successCount} of {totalCount} image(s)
+        </Trans>
+      }
+    />
+  ),
+  autoDismiss: true,
+  autoDismissTimeout: config.autoDismissTimeout ?? 3000,
+  onDismiss: config.onDismiss,
+})
+
+export const getBulkActivateErrorToast = (
+  failedCount: number,
+  totalCount: number,
+  config: ToastConfig
+): ToastProps => ({
+  variant: "error",
+  children: (
+    <NotificationText
+      title={<Trans>Failed to Activate Images</Trans>}
+      description={
+        <Trans>
+          Failed to activate {failedCount} of {totalCount} image(s). Some images may already be active or in an invalid
+          state.
+        </Trans>
+      }
+    />
+  ),
+  autoDismiss: true,
+  autoDismissTimeout: config.autoDismissTimeout ?? 5000,
+  onDismiss: config.onDismiss,
+})
+
+export const getBulkActivatePartialToast = (
+  successCount: number,
+  failedCount: number,
+  config: ToastConfig
+): ToastProps => ({
+  variant: "warning",
+  children: (
+    <NotificationText
+      title={<Trans>Partial Activation Success</Trans>}
+      description={
+        <Trans>
+          Activated {successCount} image(s), but {failedCount} image(s) could not be activated.
+        </Trans>
+      }
+    />
+  ),
+  autoDismiss: true,
+  autoDismissTimeout: config.autoDismissTimeout ?? 5000,
+  onDismiss: config.onDismiss,
+})
+
+export const getBulkDeactivateSuccessToast = (
+  successCount: number,
+  totalCount: number,
+  config: ToastConfig
+): ToastProps => ({
+  variant: "success",
+  children: (
+    <NotificationText
+      title={<Trans>Images Deactivated</Trans>}
+      description={
+        <Trans>
+          Successfully deactivated {successCount} of {totalCount} image(s)
+        </Trans>
+      }
+    />
+  ),
+  autoDismiss: true,
+  autoDismissTimeout: config.autoDismissTimeout ?? 3000,
+  onDismiss: config.onDismiss,
+})
+
+export const getBulkDeactivateErrorToast = (
+  failedCount: number,
+  totalCount: number,
+  config: ToastConfig
+): ToastProps => ({
+  variant: "error",
+  children: (
+    <NotificationText
+      title={<Trans>Failed to Deactivate Images</Trans>}
+      description={
+        <Trans>
+          Failed to deactivate {failedCount} of {totalCount} image(s). Some images may already be deactivated or in an
+          invalid state.
+        </Trans>
+      }
+    />
+  ),
+  autoDismiss: true,
+  autoDismissTimeout: config.autoDismissTimeout ?? 5000,
+  onDismiss: config.onDismiss,
+})
+
+export const getBulkDeactivatePartialToast = (
+  successCount: number,
+  failedCount: number,
+  config: ToastConfig
+): ToastProps => ({
+  variant: "warning",
+  children: (
+    <NotificationText
+      title={<Trans>Partial Deactivation Success</Trans>}
+      description={
+        <Trans>
+          Deactivated {successCount} image(s), but {failedCount} image(s) could not be deactivated.
+        </Trans>
+      }
+    />
+  ),
+  autoDismiss: true,
+  autoDismissTimeout: config.autoDismissTimeout ?? 5000,
+  onDismiss: config.onDismiss,
+})

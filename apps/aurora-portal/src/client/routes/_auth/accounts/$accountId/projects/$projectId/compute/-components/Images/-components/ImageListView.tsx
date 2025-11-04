@@ -37,6 +37,15 @@ import {
   getImageDeactivatedToast,
   getImageActivationErrorToast,
   getImageDeactivationErrorToast,
+  getBulkDeleteSuccessToast,
+  getBulkDeleteErrorToast,
+  getBulkDeletePartialToast,
+  getBulkActivateSuccessToast,
+  getBulkActivateErrorToast,
+  getBulkActivatePartialToast,
+  getBulkDeactivateSuccessToast,
+  getBulkDeactivateErrorToast,
+  getBulkDeactivatePartialToast,
 } from "./ImageToastNotifications"
 
 interface ImagePageProps {
@@ -136,8 +145,34 @@ export function ImageListView({
     },
   })
 
+  const deleteImagesMutation = trpcReact.compute.deleteImages.useMutation({
+    onSuccess: () => {
+      utils.compute.listImagesWithPagination.invalidate()
+      setSelectedImages([])
+    },
+  })
+
+  const activateImagesMutation = trpcReact.compute.activateImages.useMutation({
+    onSuccess: () => {
+      utils.compute.listImagesWithPagination.invalidate()
+      setSelectedImages([])
+    },
+  })
+
+  const deactivateImagesMutation = trpcReact.compute.deactivateImages.useMutation({
+    onSuccess: () => {
+      utils.compute.listImagesWithPagination.invalidate()
+      setSelectedImages([])
+    },
+  })
+
   const isLoading =
-    deleteImageMutation.isPending || deactivateImageMutation.isPending || reactivateImageMutation.isPending
+    deleteImageMutation.isPending ||
+    deactivateImageMutation.isPending ||
+    reactivateImageMutation.isPending ||
+    deleteImagesMutation.isPending ||
+    activateImagesMutation.isPending ||
+    deactivateImagesMutation.isPending
 
   const handleToastDismiss = () => setToastData(null)
 
@@ -214,6 +249,96 @@ export function ImageListView({
   const openDeleteModal = (image: GlanceImage) => {
     setSelectedImage(image)
     setDeleteModalOpen(true)
+  }
+
+  const handleBulkDelete = async (imageIds: Array<string>) => {
+    setDeleteAllModalOpen(false)
+
+    try {
+      const result = await deleteImagesMutation.mutateAsync({ imageIds })
+
+      const successCount = result.successful.length
+      const failedCount = result.failed.length
+      const totalCount = imageIds.length
+
+      if (failedCount === 0) {
+        setToastData(getBulkDeleteSuccessToast(successCount, totalCount, { onDismiss: handleToastDismiss }))
+      } else if (successCount === 0) {
+        setToastData(getBulkDeleteErrorToast(failedCount, totalCount, { onDismiss: handleToastDismiss }))
+      } else {
+        setToastData(getBulkDeletePartialToast(successCount, failedCount, { onDismiss: handleToastDismiss }))
+      }
+    } catch (error) {
+      const { message } = error as TRPCError
+
+      console.debug("Bulk delete error: ", message)
+
+      setToastData(
+        getBulkDeleteErrorToast(imageIds.length, imageIds.length, {
+          onDismiss: handleToastDismiss,
+        })
+      )
+    }
+  }
+
+  const handleBulkActivate = async (imageIds: Array<string>) => {
+    setActivateAllModalOpen(false)
+
+    try {
+      const result = await activateImagesMutation.mutateAsync({ imageIds })
+
+      const successCount = result.successful.length
+      const failedCount = result.failed.length
+      const totalCount = imageIds.length
+
+      if (failedCount === 0) {
+        setToastData(getBulkActivateSuccessToast(successCount, totalCount, { onDismiss: handleToastDismiss }))
+      } else if (successCount === 0) {
+        setToastData(getBulkActivateErrorToast(failedCount, totalCount, { onDismiss: handleToastDismiss }))
+      } else {
+        setToastData(getBulkActivatePartialToast(successCount, failedCount, { onDismiss: handleToastDismiss }))
+      }
+    } catch (error) {
+      const { message } = error as TRPCError
+
+      console.debug("Bulk activate error: ", message)
+
+      setToastData(
+        getBulkActivateErrorToast(imageIds.length, imageIds.length, {
+          onDismiss: handleToastDismiss,
+        })
+      )
+    }
+  }
+
+  const handleBulkDeactivate = async (imageIds: Array<string>) => {
+    setDeactivateAllModalOpen(false)
+
+    try {
+      const result = await deactivateImagesMutation.mutateAsync({ imageIds })
+
+      const successCount = result.successful.length
+      const failedCount = result.failed.length
+      const totalCount = imageIds.length
+
+      if (failedCount === 0) {
+        setToastData(getBulkDeactivateSuccessToast(successCount, totalCount, { onDismiss: handleToastDismiss }))
+      } else if (successCount === 0) {
+        setToastData(getBulkDeactivateErrorToast(failedCount, totalCount, { onDismiss: handleToastDismiss }))
+      } else {
+        setToastData(getBulkDeactivatePartialToast(successCount, failedCount, { onDismiss: handleToastDismiss }))
+      }
+    } catch (error) {
+      const { message } = error as TRPCError
+
+      console.debug("Bulk deactivate error: ", message)
+
+      setToastData(
+        getBulkDeactivateErrorToast(imageIds.length, imageIds.length, {
+          onDismiss: handleToastDismiss,
+        })
+      )
+    }
   }
 
   if (isLoading) {
@@ -408,10 +533,7 @@ export function ImageListView({
             isLoading={isLoading}
             isDisabled={isDeleteAllDisabled}
             onClose={() => setDeleteAllModalOpen(false)}
-            onDelete={(deletableImages: Array<string>) =>
-              // TODO: Replace it
-              console.log(`Images will be deleted! ${JSON.stringify(deletableImages)}`)
-            }
+            onDelete={handleBulkDelete}
           />
           <DeactivateImagesModal
             isOpen={deactivateAllModalOpen}
@@ -420,10 +542,7 @@ export function ImageListView({
             isLoading={isLoading}
             isDisabled={isDeactivateAllDisabled}
             onClose={() => setDeactivateAllModalOpen(false)}
-            onDeactivate={(activeImages: Array<string>) =>
-              // TODO: Replace it
-              console.log(`Images will be deactivated! ${JSON.stringify(activeImages)}`)
-            }
+            onDeactivate={handleBulkDeactivate}
           />
           <ActivateImagesModal
             isOpen={activateAllModalOpen}
@@ -432,10 +551,7 @@ export function ImageListView({
             isLoading={isLoading}
             isDisabled={isActivateAllDisabled}
             onClose={() => setActivateAllModalOpen(false)}
-            onActivate={(deactivatedImages: Array<string>) =>
-              // TODO: Replace it
-              console.log(`Images will be activated! ${JSON.stringify(deactivatedImages)}`)
-            }
+            onActivate={handleBulkActivate}
           />
         </>
       )}
