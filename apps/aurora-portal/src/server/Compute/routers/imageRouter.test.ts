@@ -95,6 +95,11 @@ const createMockContext = (shouldFailAuth = false, shouldFailGlance = false) => 
 
 const createCaller = createCallerFactory(auroraRouter({ image: imageRouter }))
 
+// Helper function to generate valid UUIDs for testing
+const generateTestUUID = (id: number): string => {
+  return `00000000-0000-0000-0000-${String(id).padStart(12, "0")}`
+}
+
 describe("imageRouter", () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -494,6 +499,369 @@ describe("imageRouter", () => {
         name: "test-image",
         status: "active",
       })
+    })
+  })
+
+  describe("deleteImages", () => {
+    it("should delete multiple images successfully", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      mockCtx.mockGlance.del.mockResolvedValue({
+        ok: true,
+      })
+
+      const imageIds = [generateTestUUID(1), generateTestUUID(2), generateTestUUID(3)]
+      const input = { imageIds }
+
+      const result = await caller.image.deleteImages(input)
+
+      expect(mockCtx.mockGlance.del).toHaveBeenCalledTimes(3)
+      expect(mockCtx.mockGlance.del).toHaveBeenCalledWith(`v2/images/${imageIds[0]}`)
+      expect(mockCtx.mockGlance.del).toHaveBeenCalledWith(`v2/images/${imageIds[1]}`)
+      expect(mockCtx.mockGlance.del).toHaveBeenCalledWith(`v2/images/${imageIds[2]}`)
+      expect(result.successful).toEqual(imageIds)
+      expect(result.failed).toEqual([])
+    })
+
+    it("should handle partial failures when deleting multiple images", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      mockCtx.mockGlance.del
+        .mockResolvedValueOnce({ ok: true })
+        .mockResolvedValueOnce({ ok: false, status: 403 })
+        .mockResolvedValueOnce({ ok: true })
+
+      const imageIds = [generateTestUUID(1), generateTestUUID(2), generateTestUUID(3)]
+      const input = { imageIds }
+
+      const result = await caller.image.deleteImages(input)
+
+      expect(result.successful).toEqual([imageIds[0], imageIds[2]])
+      expect(result.failed).toHaveLength(1)
+      expect(result.failed[0].imageId).toBe(imageIds[1])
+      expect(result.failed[0].error).toContain("403")
+    })
+
+    it("should handle exceptions when deleting images", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      mockCtx.mockGlance.del
+        .mockResolvedValueOnce({ ok: true })
+        .mockRejectedValueOnce(new Error("Network error"))
+        .mockResolvedValueOnce({ ok: true })
+
+      const imageIds = [generateTestUUID(1), generateTestUUID(2), generateTestUUID(3)]
+      const input = { imageIds }
+
+      const result = await caller.image.deleteImages(input)
+
+      expect(result.successful).toEqual([imageIds[0], imageIds[2]])
+      expect(result.failed).toHaveLength(1)
+      expect(result.failed[0].imageId).toBe(imageIds[1])
+      expect(result.failed[0].error).toContain("Network error")
+    })
+
+    it("should validate input requires at least one image ID", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      const input = {
+        imageIds: [],
+      }
+
+      await expect(caller.image.deleteImages(input)).rejects.toThrow()
+    })
+
+    it("should handle all images failing to delete", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      mockCtx.mockGlance.del.mockResolvedValue({
+        ok: false,
+        status: 500,
+      })
+
+      const imageIds = [generateTestUUID(1), generateTestUUID(2)]
+      const input = { imageIds }
+
+      const result = await caller.image.deleteImages(input)
+
+      expect(result.successful).toEqual([])
+      expect(result.failed).toHaveLength(2)
+    })
+  })
+
+  describe("activateImages", () => {
+    it("should activate multiple images successfully", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      mockCtx.mockGlance.post.mockResolvedValue({
+        ok: true,
+      })
+
+      const imageIds = [generateTestUUID(1), generateTestUUID(2), generateTestUUID(3)]
+      const input = { imageIds }
+
+      const result = await caller.image.activateImages(input)
+
+      expect(mockCtx.mockGlance.post).toHaveBeenCalledTimes(3)
+      expect(mockCtx.mockGlance.post).toHaveBeenCalledWith(`v2/images/${imageIds[0]}/actions/reactivate`, undefined)
+      expect(mockCtx.mockGlance.post).toHaveBeenCalledWith(`v2/images/${imageIds[1]}/actions/reactivate`, undefined)
+      expect(mockCtx.mockGlance.post).toHaveBeenCalledWith(`v2/images/${imageIds[2]}/actions/reactivate`, undefined)
+      expect(result.successful).toEqual(imageIds)
+      expect(result.failed).toEqual([])
+    })
+
+    it("should handle partial failures when activating multiple images", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      mockCtx.mockGlance.post
+        .mockResolvedValueOnce({ ok: true })
+        .mockRejectedValueOnce(new Error("Permission denied"))
+        .mockResolvedValueOnce({ ok: true })
+
+      const imageIds = [generateTestUUID(1), generateTestUUID(2), generateTestUUID(3)]
+      const input = { imageIds }
+
+      const result = await caller.image.activateImages(input)
+
+      expect(result.successful).toEqual([imageIds[0], imageIds[2]])
+      expect(result.failed).toHaveLength(1)
+      expect(result.failed[0].imageId).toBe(imageIds[1])
+      expect(result.failed[0].error).toContain("Permission denied")
+    })
+
+    it("should validate input requires at least one image ID", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      const input = {
+        imageIds: [],
+      }
+
+      await expect(caller.image.activateImages(input)).rejects.toThrow()
+    })
+
+    it("should handle all images failing to activate", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      mockCtx.mockGlance.post.mockRejectedValue(new Error("Activation failed"))
+
+      const imageIds = [generateTestUUID(1), generateTestUUID(2)]
+      const input = { imageIds }
+
+      const result = await caller.image.activateImages(input)
+
+      expect(result.successful).toEqual([])
+      expect(result.failed).toHaveLength(2)
+      expect(result.failed[0].error).toContain("Activation failed")
+      expect(result.failed[1].error).toContain("Activation failed")
+    })
+
+    it("should process images in parallel", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      const callTimes: number[] = []
+      mockCtx.mockGlance.post.mockImplementation(() => {
+        callTimes.push(Date.now())
+        return Promise.resolve({ ok: true })
+      })
+
+      const imageIds = [generateTestUUID(1), generateTestUUID(2), generateTestUUID(3)]
+      const input = { imageIds }
+
+      await caller.image.activateImages(input)
+
+      // All calls should happen at approximately the same time (parallel)
+      expect(mockCtx.mockGlance.post).toHaveBeenCalledTimes(3)
+      expect(mockCtx.mockGlance.post).toHaveBeenCalledWith(`v2/images/${imageIds[0]}/actions/reactivate`, undefined)
+      expect(mockCtx.mockGlance.post).toHaveBeenCalledWith(`v2/images/${imageIds[1]}/actions/reactivate`, undefined)
+      expect(mockCtx.mockGlance.post).toHaveBeenCalledWith(`v2/images/${imageIds[2]}/actions/reactivate`, undefined)
+    })
+  })
+
+  describe("deactivateImages", () => {
+    it("should deactivate multiple images successfully", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      mockCtx.mockGlance.post.mockResolvedValue({
+        ok: true,
+      })
+
+      const imageIds = [generateTestUUID(1), generateTestUUID(2), generateTestUUID(3)]
+      const input = { imageIds }
+
+      const result = await caller.image.deactivateImages(input)
+
+      expect(mockCtx.mockGlance.post).toHaveBeenCalledTimes(3)
+      expect(mockCtx.mockGlance.post).toHaveBeenCalledWith(`v2/images/${imageIds[0]}/actions/deactivate`, undefined)
+      expect(mockCtx.mockGlance.post).toHaveBeenCalledWith(`v2/images/${imageIds[1]}/actions/deactivate`, undefined)
+      expect(mockCtx.mockGlance.post).toHaveBeenCalledWith(`v2/images/${imageIds[2]}/actions/deactivate`, undefined)
+      expect(result.successful).toEqual(imageIds)
+      expect(result.failed).toEqual([])
+    })
+
+    it("should handle partial failures when deactivating multiple images", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      mockCtx.mockGlance.post
+        .mockResolvedValueOnce({ ok: true })
+        .mockRejectedValueOnce(new Error("Image is protected"))
+        .mockResolvedValueOnce({ ok: true })
+
+      const imageIds = [generateTestUUID(1), generateTestUUID(2), generateTestUUID(3)]
+      const input = { imageIds }
+
+      const result = await caller.image.deactivateImages(input)
+
+      expect(result.successful).toEqual([imageIds[0], imageIds[2]])
+      expect(result.failed).toHaveLength(1)
+      expect(result.failed[0].imageId).toBe(imageIds[1])
+      expect(result.failed[0].error).toContain("Image is protected")
+    })
+
+    it("should validate input requires at least one image ID", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      const input = {
+        imageIds: [],
+      }
+
+      await expect(caller.image.deactivateImages(input)).rejects.toThrow()
+    })
+
+    it("should handle all images failing to deactivate", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      mockCtx.mockGlance.post.mockRejectedValue(new Error("Deactivation failed"))
+
+      const imageIds = [generateTestUUID(1), generateTestUUID(2)]
+      const input = { imageIds }
+
+      const result = await caller.image.deactivateImages(input)
+
+      expect(result.successful).toEqual([])
+      expect(result.failed).toHaveLength(2)
+      expect(result.failed[0].error).toContain("Deactivation failed")
+      expect(result.failed[1].error).toContain("Deactivation failed")
+    })
+
+    it("should process images in parallel", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      const callTimes: number[] = []
+      mockCtx.mockGlance.post.mockImplementation(() => {
+        callTimes.push(Date.now())
+        return Promise.resolve({ ok: true })
+      })
+
+      const imageIds = [generateTestUUID(1), generateTestUUID(2), generateTestUUID(3)]
+      const input = { imageIds }
+
+      await caller.image.deactivateImages(input)
+
+      // All calls should happen at approximately the same time (parallel)
+      expect(mockCtx.mockGlance.post).toHaveBeenCalledTimes(3)
+      expect(mockCtx.mockGlance.post).toHaveBeenCalledWith(`v2/images/${imageIds[0]}/actions/deactivate`, undefined)
+      expect(mockCtx.mockGlance.post).toHaveBeenCalledWith(`v2/images/${imageIds[1]}/actions/deactivate`, undefined)
+      expect(mockCtx.mockGlance.post).toHaveBeenCalledWith(`v2/images/${imageIds[2]}/actions/deactivate`, undefined)
+    })
+
+    it("should handle mixed error types", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      mockCtx.mockGlance.post
+        .mockResolvedValueOnce({ ok: true })
+        .mockRejectedValueOnce(new Error("Network timeout"))
+        .mockRejectedValueOnce({ message: "Invalid state" })
+
+      const imageIds = [generateTestUUID(1), generateTestUUID(2), generateTestUUID(3)]
+      const input = { imageIds }
+
+      const result = await caller.image.deactivateImages(input)
+
+      expect(result.successful).toEqual([imageIds[0]])
+      expect(result.failed).toHaveLength(2)
+      expect(result.failed[0].error).toContain("Network timeout")
+      expect(result.failed[1].error).toContain("Unknown error")
+    })
+  })
+
+  describe("Bulk operations - common behavior", () => {
+    it("should validate glance service for bulk operations", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      await caller.image.deleteImages({ imageIds: [generateTestUUID(1)] })
+
+      expect(imageHelpers.validateGlanceService).toHaveBeenCalled()
+    })
+
+    it("should handle unauthorized session for bulk operations", async () => {
+      const mockCtx = createMockContext(true)
+      const caller = createCaller(mockCtx)
+
+      const input = { imageIds: ["image-1"] }
+
+      await expect(caller.image.deleteImages(input)).rejects.toThrow(
+        new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "The session is invalid",
+        })
+      )
+    })
+
+    it("should handle missing glance service for bulk operations", async () => {
+      const mockCtx = createMockContext(false, true)
+      const caller = createCaller(mockCtx)
+
+      const input = { imageIds: ["image-1"] }
+
+      await expect(caller.image.activateImages(input)).rejects.toThrow()
+    })
+
+    it("should work with single image ID", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      mockCtx.mockGlance.del.mockResolvedValue({ ok: true })
+
+      const imageId = generateTestUUID(1)
+      const input = { imageIds: [imageId] }
+      const result = await caller.image.deleteImages(input)
+
+      expect(result.successful).toEqual([imageId])
+      expect(result.failed).toEqual([])
+    })
+
+    it("should handle large batch of images", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      mockCtx.mockGlance.post.mockResolvedValue({ ok: true })
+
+      // Generate valid UUIDs for testing
+      const imageIds = Array.from({ length: 50 }, (_, i) => `00000000-0000-0000-0000-${String(i).padStart(12, "0")}`)
+      const input = { imageIds }
+
+      const result = await caller.image.activateImages(input)
+
+      expect(mockCtx.mockGlance.post).toHaveBeenCalledTimes(50)
+      expect(result.successful).toHaveLength(50)
+      expect(result.failed).toEqual([])
     })
   })
 })

@@ -1,12 +1,18 @@
-import { useState, useEffect, useRef, ReactNode } from "react"
+import { useState, useEffect, useRef, ReactNode, forwardRef } from "react"
 import type { GlanceImage } from "@/server/Compute/types/image"
 import {
   Button,
+  ButtonProps,
+  Checkbox,
   ContentHeading,
   DataGrid,
   DataGridCell,
   DataGridHeadCell,
   DataGridRow,
+  PopupMenu,
+  PopupMenuItem,
+  PopupMenuOptions,
+  PopupMenuToggle,
   Spinner,
   Stack,
   Toast,
@@ -19,7 +25,28 @@ import { EditImageModal } from "./EditImageModal"
 import { ImageTableRow } from "./ImageTableRow"
 import { DeleteImageModal } from "./DeleteImageModal"
 import { CreateImageModal } from "./CreateImageModal"
-import { NotificationText } from "./NotificationText"
+import { DeleteImagesModal } from "./DeleteImagesModal"
+import { DeactivateImagesModal } from "./DeactivateImagesModal"
+import { ActivateImagesModal } from "./ActivateImagesModal"
+import {
+  getImageUpdatedToast,
+  getImageCreatedToast,
+  getImageDeletedToast,
+  getImageDeleteErrorToast,
+  getImageActivatedToast,
+  getImageDeactivatedToast,
+  getImageActivationErrorToast,
+  getImageDeactivationErrorToast,
+  getBulkDeleteSuccessToast,
+  getBulkDeleteErrorToast,
+  getBulkDeletePartialToast,
+  getBulkActivateSuccessToast,
+  getBulkActivateErrorToast,
+  getBulkActivatePartialToast,
+  getBulkDeactivateSuccessToast,
+  getBulkDeactivateErrorToast,
+  getBulkDeactivatePartialToast,
+} from "./ImageToastNotifications"
 
 interface ImagePageProps {
   images: GlanceImage[]
@@ -47,10 +74,36 @@ export function ImageListView({
   const { t } = useLingui()
 
   const [toastData, setToastData] = useState<ToastProps | null>(null)
+
   const [editModalOpen, setEditModalOpen] = useState(false)
   const [createModalOpen, setCreateModalOpen] = useState(false)
-  const [selectedImage, setSelectedImage] = useState<GlanceImage | null>(null)
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
+
+  const [deleteAllModalOpen, setDeleteAllModalOpen] = useState(false)
+  const [deactivateAllModalOpen, setDeactivateAllModalOpen] = useState(false)
+  const [activateAllModalOpen, setActivateAllModalOpen] = useState(false)
+
+  const [selectedImage, setSelectedImage] = useState<GlanceImage | null>(null)
+  const [selectedImages, setSelectedImages] = useState<Array<string>>([])
+
+  const deletableImages = selectedImages.filter((imageId) => !images.find((image) => image.id === imageId)?.protected)
+  const protectedImages = selectedImages.filter((imageId) => images.find((image) => image.id === imageId)?.protected)
+  const activeImages = selectedImages.filter(
+    (imageId) => images.find((image) => image.id === imageId)?.status === "active"
+  )
+  const deactivatedImages = selectedImages.filter(
+    (imageId) => images.find((image) => image.id === imageId)?.status === "deactivated"
+  )
+
+  const isDeleteAllDisabled =
+    !permissions.canDelete ||
+    images.filter((image) => selectedImages.includes(image.id)).every((image) => image.protected)
+  const isDeactivateAllDisabled =
+    !permissions.canEdit ||
+    images.filter((image) => selectedImages.includes(image.id)).every((image) => image.status === "deactivated")
+  const isActivateAllDisabled =
+    !permissions.canEdit ||
+    images.filter((image) => selectedImages.includes(image.id)).every((image) => image.status === "active")
 
   // Intersection Observer for infinite scroll
   const loadMoreRef = useRef<HTMLDivElement>(null)
@@ -92,8 +145,34 @@ export function ImageListView({
     },
   })
 
+  const deleteImagesMutation = trpcReact.compute.deleteImages.useMutation({
+    onSuccess: () => {
+      utils.compute.listImagesWithPagination.invalidate()
+      setSelectedImages([])
+    },
+  })
+
+  const activateImagesMutation = trpcReact.compute.activateImages.useMutation({
+    onSuccess: () => {
+      utils.compute.listImagesWithPagination.invalidate()
+      setSelectedImages([])
+    },
+  })
+
+  const deactivateImagesMutation = trpcReact.compute.deactivateImages.useMutation({
+    onSuccess: () => {
+      utils.compute.listImagesWithPagination.invalidate()
+      setSelectedImages([])
+    },
+  })
+
   const isLoading =
-    deleteImageMutation.isPending || deactivateImageMutation.isPending || reactivateImageMutation.isPending
+    deleteImageMutation.isPending ||
+    deactivateImageMutation.isPending ||
+    reactivateImageMutation.isPending ||
+    deleteImagesMutation.isPending ||
+    activateImagesMutation.isPending ||
+    deactivateImagesMutation.isPending
 
   const handleToastDismiss = () => setToastData(null)
 
@@ -101,18 +180,7 @@ export function ImageListView({
     setEditModalOpen(false)
     const imageName = updatedImage.name || updatedImage.id
 
-    setToastData({
-      variant: "success",
-      children: (
-        <NotificationText
-          title={<Trans>Image Instance</Trans>}
-          description={<Trans>Image instance "{imageName}" has been updated</Trans>}
-        />
-      ),
-      autoDismiss: true,
-      autoDismissTimeout: 3000,
-      onDismiss: handleToastDismiss,
-    })
+    setToastData(getImageUpdatedToast(imageName, { onDismiss: handleToastDismiss }))
 
     utils.compute.listImagesWithPagination.invalidate()
   }
@@ -121,18 +189,7 @@ export function ImageListView({
     setCreateModalOpen(false)
     const imageName = newImage.name || t`Unnamed`
 
-    setToastData({
-      variant: "success",
-      children: (
-        <NotificationText
-          title={<Trans>Image Instance</Trans>}
-          description={<Trans>Image instance "{imageName}" has been created</Trans>}
-        />
-      ),
-      autoDismiss: true,
-      autoDismissTimeout: 3000,
-      onDismiss: handleToastDismiss,
-    })
+    setToastData(getImageCreatedToast(imageName, { onDismiss: handleToastDismiss }))
 
     utils.compute.listImagesWithPagination.invalidate()
   }
@@ -145,37 +202,11 @@ export function ImageListView({
     try {
       await deleteImageMutation.mutateAsync({ imageId })
 
-      setToastData({
-        variant: "success",
-        children: (
-          <NotificationText
-            title={<Trans>Image Instance</Trans>}
-            description={<Trans>Image instance "{imageName}" has been deleted</Trans>}
-          />
-        ),
-        autoDismiss: true,
-        autoDismissTimeout: 3000,
-        onDismiss: handleToastDismiss,
-      })
+      setToastData(getImageDeletedToast(imageName, { onDismiss: handleToastDismiss }))
     } catch (error) {
       const { message } = error as TRPCError
 
-      setToastData({
-        variant: "error",
-        children: (
-          <NotificationText
-            title={<Trans>Unable to Delete Image</Trans>}
-            description={
-              <Trans>
-                The image "{imageId}" could not be deleted: {message}
-              </Trans>
-            }
-          />
-        ),
-        autoDismiss: true,
-        autoDismissTimeout: 3000,
-        onDismiss: handleToastDismiss,
-      })
+      setToastData(getImageDeleteErrorToast(imageId, message, { onDismiss: handleToastDismiss }))
     }
   }
 
@@ -188,55 +219,21 @@ export function ImageListView({
 
       await mutation.mutateAsync({ imageId })
 
-      setToastData({
-        variant: "success",
-        children: (
-          <NotificationText
-            title={<Trans>Image Instance</Trans>}
-            description={
-              updatedImage.status === "deactivated" ? (
-                <Trans>Image instance "{imageName}" has been re-activated</Trans>
-              ) : (
-                <Trans>Image instance "{imageName}" has been deactivated</Trans>
-              )
-            }
-          />
-        ),
-        autoDismiss: true,
-        autoDismissTimeout: 3000,
-        onDismiss: handleToastDismiss,
-      })
+      const toast =
+        updatedImage.status === "deactivated"
+          ? getImageActivatedToast(imageName, { onDismiss: handleToastDismiss })
+          : getImageDeactivatedToast(imageName, { onDismiss: handleToastDismiss })
+
+      setToastData(toast)
     } catch (error) {
       const { message } = error as TRPCError
 
-      setToastData({
-        variant: "error",
-        children: (
-          <NotificationText
-            title={
-              updatedImage.status === "deactivated" ? (
-                <Trans>Unable to Re-activate Image</Trans>
-              ) : (
-                <Trans>Unable to Deactivate Image</Trans>
-              )
-            }
-            description={
-              updatedImage.status === "deactivated" ? (
-                <Trans>
-                  The image "{imageId}" could not be re-activated: {message}
-                </Trans>
-              ) : (
-                <Trans>
-                  The image "{imageId}" could not be deactivated: {message}
-                </Trans>
-              )
-            }
-          />
-        ),
-        autoDismiss: true,
-        autoDismissTimeout: 3000,
-        onDismiss: handleToastDismiss,
-      })
+      const toast =
+        updatedImage.status === "deactivated"
+          ? getImageActivationErrorToast(imageId, message, { onDismiss: handleToastDismiss })
+          : getImageDeactivationErrorToast(imageId, message, { onDismiss: handleToastDismiss })
+
+      setToastData(toast)
     }
   }
 
@@ -252,6 +249,96 @@ export function ImageListView({
   const openDeleteModal = (image: GlanceImage) => {
     setSelectedImage(image)
     setDeleteModalOpen(true)
+  }
+
+  const handleBulkDelete = async (imageIds: Array<string>) => {
+    setDeleteAllModalOpen(false)
+
+    try {
+      const result = await deleteImagesMutation.mutateAsync({ imageIds })
+
+      const successCount = result.successful.length
+      const failedCount = result.failed.length
+      const totalCount = imageIds.length
+
+      if (failedCount === 0) {
+        setToastData(getBulkDeleteSuccessToast(successCount, totalCount, { onDismiss: handleToastDismiss }))
+      } else if (successCount === 0) {
+        setToastData(getBulkDeleteErrorToast(failedCount, totalCount, { onDismiss: handleToastDismiss }))
+      } else {
+        setToastData(getBulkDeletePartialToast(successCount, failedCount, { onDismiss: handleToastDismiss }))
+      }
+    } catch (error) {
+      const { message } = error as TRPCError
+
+      console.debug("Bulk delete error: ", message)
+
+      setToastData(
+        getBulkDeleteErrorToast(imageIds.length, imageIds.length, {
+          onDismiss: handleToastDismiss,
+        })
+      )
+    }
+  }
+
+  const handleBulkActivate = async (imageIds: Array<string>) => {
+    setActivateAllModalOpen(false)
+
+    try {
+      const result = await activateImagesMutation.mutateAsync({ imageIds })
+
+      const successCount = result.successful.length
+      const failedCount = result.failed.length
+      const totalCount = imageIds.length
+
+      if (failedCount === 0) {
+        setToastData(getBulkActivateSuccessToast(successCount, totalCount, { onDismiss: handleToastDismiss }))
+      } else if (successCount === 0) {
+        setToastData(getBulkActivateErrorToast(failedCount, totalCount, { onDismiss: handleToastDismiss }))
+      } else {
+        setToastData(getBulkActivatePartialToast(successCount, failedCount, { onDismiss: handleToastDismiss }))
+      }
+    } catch (error) {
+      const { message } = error as TRPCError
+
+      console.debug("Bulk activate error: ", message)
+
+      setToastData(
+        getBulkActivateErrorToast(imageIds.length, imageIds.length, {
+          onDismiss: handleToastDismiss,
+        })
+      )
+    }
+  }
+
+  const handleBulkDeactivate = async (imageIds: Array<string>) => {
+    setDeactivateAllModalOpen(false)
+
+    try {
+      const result = await deactivateImagesMutation.mutateAsync({ imageIds })
+
+      const successCount = result.successful.length
+      const failedCount = result.failed.length
+      const totalCount = imageIds.length
+
+      if (failedCount === 0) {
+        setToastData(getBulkDeactivateSuccessToast(successCount, totalCount, { onDismiss: handleToastDismiss }))
+      } else if (successCount === 0) {
+        setToastData(getBulkDeactivateErrorToast(failedCount, totalCount, { onDismiss: handleToastDismiss }))
+      } else {
+        setToastData(getBulkDeactivatePartialToast(successCount, failedCount, { onDismiss: handleToastDismiss }))
+      }
+    } catch (error) {
+      const { message } = error as TRPCError
+
+      console.debug("Bulk deactivate error: ", message)
+
+      setToastData(
+        getBulkDeactivateErrorToast(imageIds.length, imageIds.length, {
+          onDismiss: handleToastDismiss,
+        })
+      )
+    }
   }
 
   if (isLoading) {
@@ -272,21 +359,60 @@ export function ImageListView({
   return (
     <>
       {/* Header with Add Button */}
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-semibold ">Images</h2>
+      <Stack distribution="end" alignment="center" gap="4" className="mb-6">
+        {selectedImages.length > 0 && (
+          <PopupMenu>
+            <PopupMenuToggle
+              as={forwardRef<HTMLButtonElement, ButtonProps>(({ onClick = undefined, ...props }, ref) => (
+                <Button variant="subdued" icon="moreVert" ref={ref} onClick={onClick} {...props}>
+                  More Actions
+                </Button>
+              ))}
+            />
+            <PopupMenuOptions>
+              <PopupMenuItem
+                disabled={isDeleteAllDisabled}
+                label={t`Delete All`}
+                onClick={() => setDeleteAllModalOpen(true)}
+              />
+              <PopupMenuItem
+                disabled={isDeactivateAllDisabled}
+                label={t`Deactivate All`}
+                onClick={() => setDeactivateAllModalOpen(true)}
+              />
+              <PopupMenuItem
+                disabled={isActivateAllDisabled}
+                label={t`Activate All`}
+                onClick={() => setActivateAllModalOpen(true)}
+              />
+            </PopupMenuOptions>
+          </PopupMenu>
+        )}
         {permissions.canCreate && (
           <Button onClick={openCreateModal} variant="primary" icon="addCircle">
-            Add New Image
+            Create Image
           </Button>
         )}
-      </div>
+      </Stack>
       <>{children}</>
       {/* Images Table */}
       {images.length > 0 ? (
         <>
-          <DataGrid columns={8} minContentColumns={[7]} className="images" data-testid="images-table">
+          <DataGrid columns={9} minContentColumns={[7]} className="images" data-testid="images-table">
             {/* Table Header */}
             <DataGridRow>
+              <DataGridHeadCell>
+                <Checkbox
+                  checked={selectedImages.length === images.length}
+                  onChange={() => {
+                    if (selectedImages.length === images.length) {
+                      return setSelectedImages([])
+                    }
+
+                    return setSelectedImages(images.map((image) => image.id))
+                  }}
+                />
+              </DataGridHeadCell>
               <DataGridHeadCell>
                 <Trans>Image Name</Trans>
               </DataGridHeadCell>
@@ -308,17 +434,27 @@ export function ImageListView({
               <DataGridHeadCell>
                 <Trans>Created</Trans>
               </DataGridHeadCell>
-              <DataGridHeadCell></DataGridHeadCell>
+              <DataGridHeadCell />
             </DataGridRow>
 
             {/* Table Body */}
             {images.map((image) => (
               <ImageTableRow
                 image={image}
+                isSelected={!!selectedImages.find((imageId) => imageId === image.id)}
                 key={image.id}
                 permissions={permissions}
                 onEdit={openEditModal}
                 onDelete={openDeleteModal}
+                onSelect={(image: GlanceImage) => {
+                  const isImageSelected = !!selectedImages.find((imageId) => imageId === image.id)
+
+                  if (isImageSelected) {
+                    return setSelectedImages(selectedImages.filter((imageId) => imageId !== image.id))
+                  }
+
+                  setSelectedImages([...selectedImages, image.id])
+                }}
                 onActivationStatusChange={handleActivationStatusChange}
               />
             ))}
@@ -354,7 +490,7 @@ export function ImageListView({
           )}
         </>
       ) : (
-        <DataGrid columns={7} className="flavors" data-testid="no-flavors">
+        <DataGrid columns={7} className="images" data-testid="no-images">
           <DataGridRow>
             <DataGridCell colSpan={7}>
               <ContentHeading>
@@ -387,6 +523,37 @@ export function ImageListView({
           onClose={() => setDeleteModalOpen(false)}
           onDelete={handleDelete}
         />
+      )}
+      {selectedImages && (
+        <>
+          <DeleteImagesModal
+            isOpen={deleteAllModalOpen}
+            deletableImages={deletableImages}
+            protectedImages={protectedImages}
+            isLoading={isLoading}
+            isDisabled={isDeleteAllDisabled}
+            onClose={() => setDeleteAllModalOpen(false)}
+            onDelete={handleBulkDelete}
+          />
+          <DeactivateImagesModal
+            isOpen={deactivateAllModalOpen}
+            activeImages={activeImages}
+            deactivatedImages={deactivatedImages}
+            isLoading={isLoading}
+            isDisabled={isDeactivateAllDisabled}
+            onClose={() => setDeactivateAllModalOpen(false)}
+            onDeactivate={handleBulkDeactivate}
+          />
+          <ActivateImagesModal
+            isOpen={activateAllModalOpen}
+            deactivatedImages={deactivatedImages}
+            activeImages={activeImages}
+            isLoading={isLoading}
+            isDisabled={isActivateAllDisabled}
+            onClose={() => setActivateAllModalOpen(false)}
+            onActivate={handleBulkActivate}
+          />
+        </>
       )}
       <CreateImageModal isOpen={createModalOpen} onClose={() => setCreateModalOpen(false)} onCreate={handleCreate} />
       {toastData && (

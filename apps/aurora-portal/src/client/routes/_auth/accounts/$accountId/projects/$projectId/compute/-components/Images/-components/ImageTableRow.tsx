@@ -1,5 +1,6 @@
 import { Link, useParams, useNavigate } from "@tanstack/react-router"
 import {
+  Checkbox,
   DataGridCell,
   DataGridRow,
   PopupMenu,
@@ -8,14 +9,14 @@ import {
 } from "@cloudoperators/juno-ui-components"
 import { useLingui } from "@lingui/react/macro"
 import { GlanceImage } from "@/server/Compute/types/image"
-import { StatusBadge } from "./StatusBadge"
-import { VisibilityBadge } from "./VisibilityBadge"
 import { SizeDisplay } from "./SizeDisplay"
 
 interface ImageTableRowProps {
   image: GlanceImage
+  isSelected: boolean
   onEdit: (image: GlanceImage) => void
   onDelete: (image: GlanceImage) => void
+  onSelect: (image: GlanceImage) => void
   onActivationStatusChange: (image: GlanceImage) => void
   permissions: {
     canCreate: boolean
@@ -24,7 +25,15 @@ interface ImageTableRowProps {
   }
 }
 
-export function ImageTableRow({ image, permissions, onEdit, onDelete, onActivationStatusChange }: ImageTableRowProps) {
+export function ImageTableRow({
+  image,
+  isSelected,
+  permissions,
+  onEdit,
+  onDelete,
+  onSelect,
+  onActivationStatusChange,
+}: ImageTableRowProps) {
   const { t } = useLingui()
   const { id, name, status, visibility, size, disk_format, created_at } = image
   const imageName = name || t`Unnamed`
@@ -37,6 +46,9 @@ export function ImageTableRow({ image, permissions, onEdit, onDelete, onActivati
   return (
     <DataGridRow key={id} data-testid={`image-row-${id}`}>
       <DataGridCell>
+        <Checkbox checked={isSelected} onChange={() => onSelect(image)} />
+      </DataGridCell>
+      <DataGridCell>
         <Link
           to="/accounts/$accountId/projects/$projectId/compute/images/$imageId"
           params={{ projectId, accountId, imageId: id }}
@@ -45,12 +57,8 @@ export function ImageTableRow({ image, permissions, onEdit, onDelete, onActivati
           {imageName}
         </Link>
       </DataGridCell>
-      <DataGridCell>
-        <StatusBadge status={status} />
-      </DataGridCell>
-      <DataGridCell>
-        <VisibilityBadge visibility={visibility} />
-      </DataGridCell>
+      <DataGridCell>{status}</DataGridCell>
+      <DataGridCell>{visibility}</DataGridCell>
       <DataGridCell>{image.protected ? t`Yes` : t`No`}</DataGridCell>
       <DataGridCell>
         <SizeDisplay size={size} />
@@ -72,7 +80,7 @@ export function ImageTableRow({ image, permissions, onEdit, onDelete, onActivati
             />
             {permissions.canEdit && (
               <PopupMenuItem
-                label={image.status === "deactivated" ? t`Re-activate` : t`Deactivate`}
+                label={image.status === "deactivated" ? t`Activate` : t`Deactivate`}
                 onClick={() => onActivationStatusChange(image)}
               />
             )}

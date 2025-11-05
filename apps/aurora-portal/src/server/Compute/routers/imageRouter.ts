@@ -6,6 +6,8 @@ import {
   ImageErrorHandlers,
   handleZodParsingError,
   withErrorHandling,
+  validateBulkImageIds,
+  processBulkOperation,
 } from "../helpers/imageHelpers"
 import {
   imageResponseSchema,
@@ -32,6 +34,10 @@ import {
   imageMembersResponseSchema,
   imageMemberSchema,
   ImageMember,
+  deleteImagesInputSchema,
+  activateImagesInputSchema,
+  deactivateImagesInputSchema,
+  BulkOperationResult,
 } from "../types/image"
 
 export const imageRouter = {
@@ -430,5 +436,84 @@ export const imageRouter = {
 
         return true
       }, "delete image member")
+    }),
+
+  deleteImages: protectedProcedure
+    .input(deleteImagesInputSchema)
+    .mutation(async ({ input, ctx }): Promise<BulkOperationResult> => {
+      return withErrorHandling(async () => {
+        const { imageIds } = input
+        const openstackSession = ctx.openstack
+        const glance = openstackSession?.service("glance")
+
+        validateGlanceService(glance)
+        validateBulkImageIds(imageIds, "delete images")
+
+        // Transform imageIds to items with id property for processBulkOperation
+        const items = imageIds.map((id) => ({ id }))
+
+        // Use helper to process deletions in parallel
+        return await processBulkOperation(
+          items,
+          async (item) => {
+            const response = await glance.del(`v2/images/${item.id}`)
+
+            if (!response?.ok) {
+              throw new Error(`${response?.status || "Unknown error"}`)
+            }
+          },
+          { operation: "delete" }
+        )
+      }, "delete images")
+    }),
+
+  activateImages: protectedProcedure
+    .input(activateImagesInputSchema)
+    .mutation(async ({ input, ctx }): Promise<BulkOperationResult> => {
+      return withErrorHandling(async () => {
+        const { imageIds } = input
+        const openstackSession = ctx.openstack
+        const glance = openstackSession?.service("glance")
+
+        validateGlanceService(glance)
+        validateBulkImageIds(imageIds, "activate images")
+
+        // Transform imageIds to items with id property for processBulkOperation
+        const items = imageIds.map((id) => ({ id }))
+
+        // Use helper to process activations in parallel
+        return await processBulkOperation(
+          items,
+          async (item) => {
+            await glance.post(`v2/images/${item.id}/actions/reactivate`, undefined)
+          },
+          { operation: "activate" }
+        )
+      }, "activate images")
+    }),
+
+  deactivateImages: protectedProcedure
+    .input(deactivateImagesInputSchema)
+    .mutation(async ({ input, ctx }): Promise<BulkOperationResult> => {
+      return withErrorHandling(async () => {
+        const { imageIds } = input
+        const openstackSession = ctx.openstack
+        const glance = openstackSession?.service("glance")
+
+        validateGlanceService(glance)
+        validateBulkImageIds(imageIds, "deactivate images")
+
+        // Transform imageIds to items with id property for processBulkOperation
+        const items = imageIds.map((id) => ({ id }))
+
+        // Use helper to process deactivations in parallel
+        return await processBulkOperation(
+          items,
+          async (item) => {
+            await glance.post(`v2/images/${item.id}/actions/deactivate`, undefined)
+          },
+          { operation: "deactivate" }
+        )
+      }, "deactivate images")
     }),
 }

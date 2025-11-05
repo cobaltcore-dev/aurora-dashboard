@@ -25,6 +25,10 @@ import {
   createImageMemberInputSchema,
   updateImageMemberInputSchema,
   deleteImageMemberInputSchema,
+  deleteImagesInputSchema,
+  activateImagesInputSchema,
+  deactivateImagesInputSchema,
+  bulkOperationResultSchema,
 } from "./image"
 
 describe("Glance Image Schema Validation", () => {
@@ -667,6 +671,650 @@ describe("Glance Image Schema Validation", () => {
         tags: [longTag],
       }
       const result = createImageInputSchema.safeParse(input)
+      expect(result.success).toBe(false)
+    })
+  })
+
+  describe("Bulk Operations", () => {
+    const validUUIDs = [
+      "123e4567-e89b-12d3-a456-426614174000",
+      "223e4567-e89b-12d3-a456-426614174001",
+      "323e4567-e89b-12d3-a456-426614174002",
+    ]
+
+    describe("Delete Images", () => {
+      it("should validate delete images input with multiple IDs", () => {
+        const input = { imageIds: validUUIDs }
+        const result = deleteImagesInputSchema.safeParse(input)
+        expect(result.success).toBe(true)
+      })
+
+      it("should validate delete images input with single ID", () => {
+        const input = { imageIds: [validUUIDs[0]] }
+        const result = deleteImagesInputSchema.safeParse(input)
+        expect(result.success).toBe(true)
+      })
+
+      it("should reject empty imageIds array", () => {
+        const input = { imageIds: [] }
+        const result = deleteImagesInputSchema.safeParse(input)
+        expect(result.success).toBe(false)
+      })
+
+      it("should reject invalid UUID in imageIds", () => {
+        const input = { imageIds: ["invalid-uuid"] }
+        const result = deleteImagesInputSchema.safeParse(input)
+        expect(result.success).toBe(false)
+      })
+
+      it("should reject when imageIds is missing", () => {
+        const input = {}
+        const result = deleteImagesInputSchema.safeParse(input)
+        expect(result.success).toBe(false)
+      })
+    })
+
+    describe("Activate Images", () => {
+      it("should validate activate images input", () => {
+        const input = { imageIds: validUUIDs }
+        const result = activateImagesInputSchema.safeParse(input)
+        expect(result.success).toBe(true)
+      })
+
+      it("should reject empty array", () => {
+        const input = { imageIds: [] }
+        const result = activateImagesInputSchema.safeParse(input)
+        expect(result.success).toBe(false)
+      })
+
+      it("should reject mixed valid and invalid UUIDs", () => {
+        const input = { imageIds: [validUUIDs[0], "not-a-uuid"] }
+        const result = activateImagesInputSchema.safeParse(input)
+        expect(result.success).toBe(false)
+      })
+    })
+
+    describe("Deactivate Images", () => {
+      it("should validate deactivate images input", () => {
+        const input = { imageIds: validUUIDs }
+        const result = deactivateImagesInputSchema.safeParse(input)
+        expect(result.success).toBe(true)
+      })
+
+      it("should reject empty array", () => {
+        const input = { imageIds: [] }
+        const result = deactivateImagesInputSchema.safeParse(input)
+        expect(result.success).toBe(false)
+      })
+    })
+
+    describe("Bulk Operation Result", () => {
+      it("should validate successful bulk operation result", () => {
+        const result = {
+          successful: validUUIDs,
+          failed: [],
+        }
+        const parsed = bulkOperationResultSchema.safeParse(result)
+        expect(parsed.success).toBe(true)
+      })
+
+      it("should validate partial success bulk operation result", () => {
+        const result = {
+          successful: [validUUIDs[0]],
+          failed: [
+            { imageId: validUUIDs[1], error: "Image not found" },
+            { imageId: validUUIDs[2], error: "Permission denied" },
+          ],
+        }
+        const parsed = bulkOperationResultSchema.safeParse(result)
+        expect(parsed.success).toBe(true)
+      })
+
+      it("should validate all failed bulk operation result", () => {
+        const result = {
+          successful: [],
+          failed: validUUIDs.map((id) => ({
+            imageId: id,
+            error: "Operation failed",
+          })),
+        }
+        const parsed = bulkOperationResultSchema.safeParse(result)
+        expect(parsed.success).toBe(true)
+      })
+
+      it("should reject missing successful field", () => {
+        const result = {
+          failed: [],
+        }
+        const parsed = bulkOperationResultSchema.safeParse(result)
+        expect(parsed.success).toBe(false)
+      })
+
+      it("should reject missing failed field", () => {
+        const result = {
+          successful: [],
+        }
+        const parsed = bulkOperationResultSchema.safeParse(result)
+        expect(parsed.success).toBe(false)
+      })
+
+      it("should reject failed items without error field", () => {
+        const result = {
+          successful: [],
+          failed: [{ imageId: validUUIDs[0] }],
+        }
+        const parsed = bulkOperationResultSchema.safeParse(result)
+        expect(parsed.success).toBe(false)
+      })
+    })
+  })
+
+  describe("Sort Schemas", () => {
+    describe("Sort Key", () => {
+      it("should validate all sort key values", () => {
+        const validSortKeys = [
+          "name",
+          "status",
+          "container_format",
+          "disk_format",
+          "size",
+          "id",
+          "created_at",
+          "updated_at",
+          "min_disk",
+          "min_ram",
+          "owner",
+          "protected",
+          "visibility",
+        ]
+
+        for (const key of validSortKeys) {
+          const result = sortKeySchema.safeParse(key)
+          expect(result.success).toBe(true)
+        }
+      })
+
+      it("should reject invalid sort key", () => {
+        const result = sortKeySchema.safeParse("invalid_key")
+        expect(result.success).toBe(false)
+      })
+    })
+
+    describe("Sort Direction", () => {
+      it("should validate asc sort direction", () => {
+        const result = sortDirSchema.safeParse("asc")
+        expect(result.success).toBe(true)
+      })
+
+      it("should validate desc sort direction", () => {
+        const result = sortDirSchema.safeParse("desc")
+        expect(result.success).toBe(true)
+      })
+
+      it("should reject invalid sort direction", () => {
+        const result = sortDirSchema.safeParse("ascending")
+        expect(result.success).toBe(false)
+      })
+    })
+  })
+
+  describe("Multi-Value Filters", () => {
+    describe("Status Filter", () => {
+      it("should validate single status value", () => {
+        const input = { status: "active" }
+        const result = listImagesInputSchema.safeParse(input)
+        expect(result.success).toBe(true)
+      })
+
+      it("should validate multi-value status with 'in:' operator", () => {
+        const input = { status: "in:active,queued,saving" }
+        const result = listImagesInputSchema.safeParse(input)
+        expect(result.success).toBe(true)
+      })
+
+      it("should validate all valid status values", () => {
+        const statuses = [
+          "queued",
+          "saving",
+          "active",
+          "killed",
+          "deleted",
+          "pending_delete",
+          "deactivated",
+          "uploading",
+          "importing",
+        ]
+
+        for (const status of statuses) {
+          const result = listImagesInputSchema.safeParse({ status })
+          expect(result.success).toBe(true)
+        }
+      })
+    })
+
+    describe("Container Format Filter", () => {
+      it("should validate single container format", () => {
+        const input = { container_format: "bare" }
+        const result = listImagesInputSchema.safeParse(input)
+        expect(result.success).toBe(true)
+      })
+
+      it("should validate multi-value container format", () => {
+        const input = { container_format: "in:bare,ovf,ova" }
+        const result = listImagesInputSchema.safeParse(input)
+        expect(result.success).toBe(true)
+      })
+
+      it("should validate all container format values", () => {
+        const formats = ["bare", "ovf", "ova", "docker", "ami", "ari", "aki", "compressed"]
+
+        for (const format of formats) {
+          const result = listImagesInputSchema.safeParse({ container_format: format })
+          expect(result.success).toBe(true)
+        }
+      })
+    })
+
+    describe("Disk Format Filter", () => {
+      it("should validate single disk format", () => {
+        const input = { disk_format: "qcow2" }
+        const result = listImagesInputSchema.safeParse(input)
+        expect(result.success).toBe(true)
+      })
+
+      it("should validate multi-value disk format", () => {
+        const input = { disk_format: "in:qcow2,raw,vmdk" }
+        const result = listImagesInputSchema.safeParse(input)
+        expect(result.success).toBe(true)
+      })
+
+      it("should validate all disk format values", () => {
+        const formats = ["ami", "ari", "aki", "vhd", "vhdx", "vmdk", "raw", "qcow2", "vdi", "iso", "ploop"]
+
+        for (const format of formats) {
+          const result = listImagesInputSchema.safeParse({ disk_format: format })
+          expect(result.success).toBe(true)
+        }
+      })
+    })
+  })
+
+  describe("Advanced List Images Filtering", () => {
+    it("should validate visibility filter with 'all'", () => {
+      const input = { visibility: "all" }
+      const result = listImagesInputSchema.safeParse(input)
+      expect(result.success).toBe(true)
+    })
+
+    it("should validate all visibility filter values", () => {
+      const visibilities = ["public", "private", "shared", "community", "all"]
+
+      for (const visibility of visibilities) {
+        const result = listImagesInputSchema.safeParse({ visibility })
+        expect(result.success).toBe(true)
+      }
+    })
+
+    it("should validate size range filters", () => {
+      const input = {
+        size_min: 1073741824, // 1GB
+        size_max: 10737418240, // 10GB
+      }
+      const result = listImagesInputSchema.safeParse(input)
+      expect(result.success).toBe(true)
+    })
+
+    it("should validate min_ram and min_disk filters", () => {
+      const input = {
+        min_ram: 2048,
+        min_disk: 20,
+      }
+      const result = listImagesInputSchema.safeParse(input)
+      expect(result.success).toBe(true)
+    })
+
+    it("should validate tag filter", () => {
+      const input = { tag: "ubuntu" }
+      const result = listImagesInputSchema.safeParse(input)
+      expect(result.success).toBe(true)
+    })
+
+    it("should validate os_type filter", () => {
+      const osTypes = ["linux", "windows"]
+
+      for (const osType of osTypes) {
+        const result = listImagesInputSchema.safeParse({ os_type: osType })
+        expect(result.success).toBe(true)
+      }
+    })
+
+    it("should validate os_hidden filter", () => {
+      const inputs = [{ os_hidden: true }, { os_hidden: false }]
+
+      for (const input of inputs) {
+        const result = listImagesInputSchema.safeParse(input)
+        expect(result.success).toBe(true)
+      }
+    })
+
+    it("should validate member_status filter", () => {
+      const statuses = ["pending", "accepted", "rejected", "all"]
+
+      for (const status of statuses) {
+        const result = listImagesInputSchema.safeParse({ member_status: status })
+        expect(result.success).toBe(true)
+      }
+    })
+
+    it("should validate created_at filter with operator", () => {
+      const input = { created_at: "gte:2025-01-01T00:00:00Z" }
+      const result = listImagesInputSchema.safeParse(input)
+      expect(result.success).toBe(true)
+    })
+
+    it("should validate updated_at filter with operator", () => {
+      const input = { updated_at: "lte:2025-12-31T23:59:59Z" }
+      const result = listImagesInputSchema.safeParse(input)
+      expect(result.success).toBe(true)
+    })
+
+    it("should validate owner filter", () => {
+      const input = { owner: "project-123" }
+      const result = listImagesInputSchema.safeParse(input)
+      expect(result.success).toBe(true)
+    })
+
+    it("should validate protected filter", () => {
+      const inputs = [{ protected: true }, { protected: false }]
+
+      for (const input of inputs) {
+        const result = listImagesInputSchema.safeParse(input)
+        expect(result.success).toBe(true)
+      }
+    })
+
+    it("should validate combined filters", () => {
+      const input = {
+        name: "Ubuntu",
+        status: "in:active,queued",
+        visibility: "public",
+        disk_format: "qcow2",
+        size_min: 1073741824,
+        size_max: 5368709120,
+        os_type: "linux",
+        tag: "lts",
+        sort_key: "created_at",
+        sort_dir: "desc",
+        limit: 50,
+      }
+      const result = listImagesInputSchema.safeParse(input)
+      expect(result.success).toBe(true)
+    })
+
+    it("should validate alternative sort syntax", () => {
+      const input = { sort: "name:asc,created_at:desc" }
+      const result = listImagesInputSchema.safeParse(input)
+      expect(result.success).toBe(true)
+    })
+
+    it("should reject limit below 1", () => {
+      const input = { limit: 0 }
+      const result = listImagesInputSchema.safeParse(input)
+      expect(result.success).toBe(false)
+    })
+
+    it("should reject limit above 1000", () => {
+      const input = { limit: 1001 }
+      const result = listImagesInputSchema.safeParse(input)
+      expect(result.success).toBe(false)
+    })
+
+    it("should validate marker for pagination", () => {
+      const input = {
+        limit: 100,
+        marker: "123e4567-e89b-12d3-a456-426614174000",
+      }
+      const result = listImagesInputSchema.safeParse(input)
+      expect(result.success).toBe(true)
+    })
+  })
+
+  describe("JSON Patch Operations Edge Cases", () => {
+    const imageId = "123e4567-e89b-12d3-a456-426614174000"
+
+    it("should validate move operation with from field", () => {
+      const input = {
+        imageId,
+        operations: [{ op: "move" as const, path: "/new-path", from: "/old-path" }],
+      }
+      const result = updateImageInputSchema.safeParse(input)
+      expect(result.success).toBe(true)
+    })
+
+    it("should validate copy operation with from field", () => {
+      const input = {
+        imageId,
+        operations: [{ op: "copy" as const, path: "/new-path", from: "/source-path" }],
+      }
+      const result = updateImageInputSchema.safeParse(input)
+      expect(result.success).toBe(true)
+    })
+
+    it("should validate test operation", () => {
+      const input = {
+        imageId,
+        operations: [{ op: "test" as const, path: "/name", value: "Expected Name" }],
+      }
+      const result = updateImageInputSchema.safeParse(input)
+      expect(result.success).toBe(true)
+    })
+
+    it("should validate remove operation without value", () => {
+      const input = {
+        imageId,
+        operations: [{ op: "remove" as const, path: "/old-property" }],
+      }
+      const result = updateImageInputSchema.safeParse(input)
+      expect(result.success).toBe(true)
+    })
+
+    it("should validate multiple operations in single request", () => {
+      const input = {
+        imageId,
+        operations: [
+          { op: "replace" as const, path: "/name", value: "New Name" },
+          { op: "add" as const, path: "/tags/-", value: "new-tag" },
+          { op: "remove" as const, path: "/old-property" },
+          { op: "replace" as const, path: "/visibility", value: "public" },
+        ],
+      }
+      const result = updateImageInputSchema.safeParse(input)
+      expect(result.success).toBe(true)
+    })
+
+    it("should validate operations on nested paths", () => {
+      const input = {
+        imageId,
+        operations: [{ op: "replace" as const, path: "/metadata/key", value: "new-value" }],
+      }
+      const result = updateImageInputSchema.safeParse(input)
+      expect(result.success).toBe(true)
+    })
+
+    it("should validate array index operations", () => {
+      const input = {
+        imageId,
+        operations: [
+          { op: "add" as const, path: "/tags/0", value: "first-tag" },
+          { op: "remove" as const, path: "/tags/1" },
+        ],
+      }
+      const result = updateImageInputSchema.safeParse(input)
+      expect(result.success).toBe(true)
+    })
+  })
+
+  describe("Upload Image Data Types", () => {
+    const imageId = "123e4567-e89b-12d3-a456-426614174000"
+
+    it("should validate upload with ArrayBuffer", () => {
+      const buffer = new ArrayBuffer(1024)
+      const input = {
+        imageId,
+        imageData: buffer,
+      }
+      const result = uploadImageInputSchema.safeParse(input)
+      expect(result.success).toBe(true)
+    })
+
+    it("should validate upload with custom content type", () => {
+      const input = {
+        imageId,
+        imageData: new Uint8Array([1, 2, 3]),
+        contentType: "application/x-raw-disk",
+      }
+      const result = uploadImageInputSchema.safeParse(input)
+      expect(result.success).toBe(true)
+    })
+
+    it("should reject upload without imageData", () => {
+      const input = { imageId }
+      const result = uploadImageInputSchema.safeParse(input)
+      expect(result.success).toBe(false)
+    })
+
+    it("should reject upload without imageId", () => {
+      const input = { imageData: new Uint8Array([1, 2, 3]) }
+      const result = uploadImageInputSchema.safeParse(input)
+      expect(result.success).toBe(false)
+    })
+  })
+
+  describe("Create Image Custom Properties", () => {
+    it("should allow custom string properties via catchall", () => {
+      const input = {
+        name: "Custom Image",
+        custom_key1: "value1",
+        custom_key2: "value2",
+        another_property: "another_value",
+      }
+      const result = createImageInputSchema.safeParse(input)
+      expect(result.success).toBe(true)
+    })
+
+    it("should reject non-string custom properties", () => {
+      const input = {
+        name: "Custom Image",
+        custom_number: 123, // Should be string per catchall
+      }
+      const result = createImageInputSchema.safeParse(input)
+      expect(result.success).toBe(false)
+    })
+
+    it("should validate with all hardware properties", () => {
+      const input = {
+        hw_disk_bus: "virtio",
+        hw_scsi_model: "virtio-scsi",
+        hw_serial: "ds=nocloud-net",
+        hw_qemu_guest_agent: true,
+        hw_vif_model: "virtio",
+        hw_rng_model: "virtio",
+        hw_machine_type: "pc-i440fx-2.11",
+      }
+      const result = createImageInputSchema.safeParse(input)
+      expect(result.success).toBe(true)
+    })
+  })
+
+  describe("Image Member Operations Edge Cases", () => {
+    const imageId = "123e4567-e89b-12d3-a456-426614174000"
+
+    it("should reject get member input with invalid UUID", () => {
+      const input = {
+        imageId: "not-a-uuid",
+        memberId: "member-123",
+      }
+      const result = getImageMemberInputSchema.safeParse(input)
+      expect(result.success).toBe(false)
+    })
+
+    it("should validate update member with all status values", () => {
+      const statuses = ["pending", "accepted", "rejected"] as const
+
+      for (const status of statuses) {
+        const input = { imageId, memberId: "member-123", status }
+        const result = updateImageMemberInputSchema.safeParse(input)
+        expect(result.success).toBe(true)
+      }
+    })
+
+    it("should reject update member with invalid status", () => {
+      const input = {
+        imageId,
+        memberId: "member-123",
+        status: "invalid",
+      }
+      const result = updateImageMemberInputSchema.safeParse(input)
+      expect(result.success).toBe(false)
+    })
+
+    it("should validate create member with project ID", () => {
+      const input = {
+        imageId,
+        member: "project-456",
+      }
+      const result = createImageMemberInputSchema.safeParse(input)
+      expect(result.success).toBe(true)
+    })
+
+    it("should reject create member without member field", () => {
+      const input = { imageId }
+      const result = createImageMemberInputSchema.safeParse(input)
+      expect(result.success).toBe(false)
+    })
+  })
+
+  describe("Response Schema Edge Cases", () => {
+    it("should validate empty images array", () => {
+      const response = { images: [] }
+      const result = imageResponseSchema.safeParse(response)
+      expect(result.success).toBe(true)
+    })
+
+    it("should validate paginated response without next link", () => {
+      const response = {
+        images: [{ id: "123e4567-e89b-12d3-a456-426614174000" }],
+        first: "http://example.com/v2/images",
+      }
+      const result = imagesPaginatedResponseSchema.safeParse(response)
+      expect(result.success).toBe(true)
+    })
+
+    it("should validate image members response with empty members", () => {
+      const response = { members: [] }
+      const result = imageMembersResponseSchema.safeParse(response)
+      expect(result.success).toBe(true)
+    })
+
+    it("should validate image member schema", () => {
+      const member = {
+        member_id: "project-123",
+        image_id: "123e4567-e89b-12d3-a456-426614174000",
+        status: "accepted",
+        created_at: "2025-01-01T00:00:00Z",
+        updated_at: "2025-01-02T00:00:00Z",
+        schema: "/v2/schemas/member",
+      }
+      const result = imageMemberSchema.safeParse(member)
+      expect(result.success).toBe(true)
+    })
+
+    it("should reject image member without required fields", () => {
+      const member = {
+        member_id: "project-123",
+        // missing image_id, status, created_at, updated_at
+      }
+      const result = imageMemberSchema.safeParse(member)
       expect(result.success).toBe(false)
     })
   })

@@ -35,7 +35,7 @@ export interface SortInputProps {
   /** Optional props to customize the Select component for choosing the sort field */
   selectInputProps?: SelectProps
   /** Optional props to customize the SortButton component for toggling sort direction */
-  sortButtonProps?: ButtonProps
+  sortButtonProps?: Omit<ButtonProps, "onChange">
 }
 
 /**
@@ -101,14 +101,14 @@ export const SortInput: React.FC<SortInputProps> = ({
    * Merges default props with user-provided props for the SortButton component.
    * Connects sort direction toggle handlers while preserving custom overrides.
    */
-  const getDefaultSortButtonProps = (): ButtonProps & {
+  const getDefaultSortButtonProps = (): Omit<ButtonProps, "onChange"> & {
     "data-testid"?: string
     order: "asc" | "desc"
-    onOrderChange: (order: string) => void
+    onChange: (order: "asc" | "desc") => void
   } => ({
     "data-testid": "direction-toggle",
     order: sortDirection,
-    onOrderChange: (order: string) => onSortDirectionChange(order as "asc" | "desc"),
+    onChange: onSortDirectionChange,
     ...sortButtonProps,
   })
 

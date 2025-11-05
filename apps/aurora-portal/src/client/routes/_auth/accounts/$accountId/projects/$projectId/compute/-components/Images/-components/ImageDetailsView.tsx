@@ -10,9 +10,7 @@ import {
 } from "@cloudoperators/juno-ui-components"
 import { useLingui } from "@lingui/react/macro"
 import { GlanceImage } from "@/server/Compute/types/image"
-import { StatusBadge } from "./StatusBadge"
 import { SizeDisplay } from "./SizeDisplay"
-import { VisibilityBadge } from "./VisibilityBadge"
 
 interface ImageDetailsViewProps {
   image: GlanceImage
@@ -35,9 +33,7 @@ export const GeneralImageData: React.FC<ImageDetailsViewProps> = ({ image }) => 
         </DataGridRow>
         <DataGridRow>
           <DataGridHeadCell>{t`Status`}</DataGridHeadCell>
-          <DataGridCell>
-            <StatusBadge status={image.status} />
-          </DataGridCell>
+          <DataGridCell>{image.status}</DataGridCell>
         </DataGridRow>
         <DataGridRow>
           <DataGridHeadCell>{t`Size`}</DataGridHeadCell>
@@ -91,9 +87,7 @@ export const SecuritySection: React.FC<ImageDetailsViewProps> = ({ image }) => {
         </DataGridRow>
         <DataGridRow>
           <DataGridHeadCell>{t`Visibility`}</DataGridHeadCell>
-          <DataGridCell>
-            <VisibilityBadge visibility={image.visibility} />
-          </DataGridCell>
+          <DataGridCell>{image.visibility}</DataGridCell>
         </DataGridRow>
         <DataGridRow>
           <DataGridHeadCell>{t`Protected`}</DataGridHeadCell>
