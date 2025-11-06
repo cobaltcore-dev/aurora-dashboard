@@ -202,7 +202,6 @@ export const EditImageMetadataModal: React.FC<EditImageMetadataModalProps> = ({
   }
 
   const handleCancelEdit = (index: number) => {
-    // const entry = metadata[index]
     setMetadata(
       metadata.map((e, i) =>
         i === index
@@ -250,9 +249,12 @@ export const EditImageMetadataModal: React.FC<EditImageMetadataModalProps> = ({
   const handleSubmit = () => {
     // Convert metadata array to object
     const metadataObject: Record<string, string> = {}
-    metadata.forEach((entry) => {
-      metadataObject[entry.key] = entry.value
-    })
+    metadata
+      // Exclude entries without updates (new added or edited)
+      .filter((entry) => entry.isNew || entry.value !== entry.originalValue || entry.key !== entry.originalKey)
+      .forEach((entry) => {
+        metadataObject[entry.key] = entry.value
+      })
 
     onSave(metadataObject)
   }
@@ -278,7 +280,14 @@ export const EditImageMetadataModal: React.FC<EditImageMetadataModalProps> = ({
             <Button
               variant="primary"
               onClick={handleSubmit}
-              disabled={isLoading || metadata.some((e) => e.isEditing) || isAddingNew}
+              disabled={
+                isLoading ||
+                isAddingNew ||
+                metadata.some((e) => e.isEditing) ||
+                metadata.every(
+                  (entry) => !entry.isNew && entry.key === entry.originalKey && entry.value === entry.originalValue
+                )
+              }
               data-testid="save-metadata-button"
             >
               {isLoading ? <Spinner size="small" /> : <Trans>Save Changes</Trans>}

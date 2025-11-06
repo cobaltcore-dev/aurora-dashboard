@@ -36,8 +36,6 @@ describe("EditImageMetadataModal", () => {
     status: "active",
     visibility: "private",
     disk_format: "qcow2",
-    os_type: "Linux",
-    os_distro: "Ubuntu",
     created_at: "2023-01-01T00:00:00Z",
     updated_at: "2023-01-01T00:00:00Z",
     size: 1024,
@@ -46,6 +44,8 @@ describe("EditImageMetadataModal", () => {
     min_disk: 10,
     min_ram: 512,
     // Custom metadata that should be editable
+    os_type: "Linux",
+    os_distro: "Ubuntu",
     os_version: "22.04",
     architecture: "x86_64",
     app_version: "1.2.3",
@@ -375,22 +375,93 @@ describe("EditImageMetadataModal", () => {
     })
   })
 
-  test("calls onSave with metadata object when Save Changes is clicked", async () => {
+  test("save button is disabled when there are no changes", async () => {
     renderMetadataModal(true, mockOnClose, mockImage, mockOnSave)
 
     const saveButton = screen.getByTestId("save-metadata-button")
+
+    await waitFor(() => {
+      expect(saveButton).toBeDisabled()
+    })
+  })
+
+  test("calls onSave with only changed metadata when Save Changes is clicked", async () => {
+    renderMetadataModal(true, mockOnClose, mockImage, mockOnSave)
+
+    // Edit a property
+    const editButton = screen.getByTestId("edit-os_version")
+    await act(async () => {
+      fireEvent.click(editButton)
+    })
+
+    const input = screen.getByDisplayValue("22.04")
+    await act(async () => {
+      fireEvent.change(input, { target: { value: "24.04" } })
+    })
+
+    const saveButtons = screen.getAllByTitle("Save")
+    await act(async () => {
+      fireEvent.click(saveButtons[0])
+    })
+
+    // Now the save button should be enabled
+    const saveButton = screen.getByTestId("save-metadata-button")
+    await waitFor(() => {
+      expect(saveButton).not.toBeDisabled()
+    })
+
+    // Click the main Save Changes button
     await act(async () => {
       fireEvent.click(saveButton)
     })
 
     await waitFor(() => {
       expect(mockOnSave).toHaveBeenCalledTimes(1)
+      // Should only include the changed property
       expect(mockOnSave).toHaveBeenCalledWith({
-        os_distro: "Ubuntu",
-        os_type: "Linux",
-        os_version: "22.04",
-        architecture: "x86_64",
-        app_version: "1.2.3",
+        os_version: "24.04",
+      })
+    })
+  })
+
+  test("calls onSave with new properties when added", async () => {
+    renderMetadataModal(true, mockOnClose, mockImage, mockOnSave)
+
+    // Add a new property
+    const addButton = screen.getByRole("button", { name: /add property/i })
+    await act(async () => {
+      fireEvent.click(addButton)
+    })
+
+    const keyInput = screen.getByPlaceholderText("property_key")
+    const valueInput = screen.getByPlaceholderText("Value")
+
+    await act(async () => {
+      fireEvent.change(keyInput, { target: { value: "new_prop" } })
+      fireEvent.change(valueInput, { target: { value: "new_value" } })
+    })
+
+    const saveButtons = screen.getAllByTitle("Save")
+    await act(async () => {
+      fireEvent.click(saveButtons[0])
+    })
+
+    // Now the save button should be enabled
+    const saveButton = screen.getByTestId("save-metadata-button")
+    await waitFor(() => {
+      expect(saveButton).not.toBeDisabled()
+    })
+
+    // Click the main Save Changes button
+    await act(async () => {
+      fireEvent.click(saveButton)
+    })
+
+    await waitFor(() => {
+      expect(mockOnSave).toHaveBeenCalledTimes(1)
+      // Should only include the new property
+      expect(mockOnSave).toHaveBeenCalledWith({
+        new_prop: "new_value",
       })
     })
   })
@@ -410,7 +481,8 @@ describe("EditImageMetadataModal", () => {
     renderMetadataModal(true, mockOnClose, mockImage, mockOnSave)
 
     const saveButton = screen.getByTestId("save-metadata-button")
-    expect(saveButton).not.toBeDisabled()
+    // Initially disabled because no changes
+    expect(saveButton).toBeDisabled()
 
     // Start editing
     const editButtons = screen.getAllByTitle("Edit")
