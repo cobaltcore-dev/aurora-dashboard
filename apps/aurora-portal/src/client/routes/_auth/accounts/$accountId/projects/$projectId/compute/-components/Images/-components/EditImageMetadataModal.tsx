@@ -33,8 +33,6 @@ const EXCLUDED_PROPERTIES = new Set([
   "protected",
   "min_disk",
   "min_ram",
-  "min-disk",
-  "min-ram",
   // Immutable properties
   "id",
   "status",
@@ -112,6 +110,10 @@ export const EditImageMetadataModal: React.FC<EditImageMetadataModalProps> = ({
   const [isAddingNew, setIsAddingNew] = useState(false)
   const [newKey, setNewKey] = useState("")
   const [newValue, setNewValue] = useState("")
+
+  const isSubmitDisabled = metadata.every(
+    (entry) => !entry.isNew && entry.key === entry.originalKey && entry.value === entry.originalValue
+  )
 
   const validateKey = (key: string, originalKey?: string): string | null => {
     if (!key || key.trim() === "") {
@@ -257,6 +259,7 @@ export const EditImageMetadataModal: React.FC<EditImageMetadataModalProps> = ({
       })
 
     onSave(metadataObject)
+    handleClose()
   }
 
   const handleClose = () => {
@@ -280,14 +283,7 @@ export const EditImageMetadataModal: React.FC<EditImageMetadataModalProps> = ({
             <Button
               variant="primary"
               onClick={handleSubmit}
-              disabled={
-                isLoading ||
-                isAddingNew ||
-                metadata.some((e) => e.isEditing) ||
-                metadata.every(
-                  (entry) => !entry.isNew && entry.key === entry.originalKey && entry.value === entry.originalValue
-                )
-              }
+              disabled={isLoading || isAddingNew || metadata.some((e) => e.isEditing) || isSubmitDisabled}
               data-testid="save-metadata-button"
             >
               {isLoading ? <Spinner size="small" /> : <Trans>Save Changes</Trans>}

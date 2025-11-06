@@ -113,16 +113,10 @@ describe("EditImageDetailsModal", () => {
       expect(mockOnSave).toHaveBeenCalledTimes(1)
     })
 
-    expect(mockOnSave).toHaveBeenCalledWith(
-      expect.objectContaining({
-        name: "Updated Image Name",
-        tags: mockImage.tags,
-        visibility: mockImage.visibility,
-        protected: mockImage.protected,
-        min_disk: mockImage.min_disk,
-        min_ram: mockImage.min_ram,
-      })
-    )
+    // Should only include the changed property
+    expect(mockOnSave).toHaveBeenCalledWith({
+      name: "Updated Image Name",
+    })
   })
 
   test("updates tags when input changes", async () => {
@@ -140,11 +134,11 @@ describe("EditImageDetailsModal", () => {
       expect(mockOnSave).toHaveBeenCalledTimes(1)
     })
 
-    expect(mockOnSave).toHaveBeenCalledWith(
-      expect.objectContaining({
-        tags: ["staging", "ubuntu", "test"],
-      })
-    )
+    // Should only include the changed property
+    // Note: Order doesn't matter as tags are compared with sorting
+    expect(mockOnSave).toHaveBeenCalledWith({
+      tags: ["staging", "ubuntu", "test"],
+    })
   })
 
   test("updates visibility when select changes", async () => {
@@ -165,11 +159,9 @@ describe("EditImageDetailsModal", () => {
       expect(mockOnSave).toHaveBeenCalledTimes(1)
     })
 
-    expect(mockOnSave).toHaveBeenCalledWith(
-      expect.objectContaining({
-        visibility: "public",
-      })
-    )
+    expect(mockOnSave).toHaveBeenCalledWith({
+      visibility: "public",
+    })
   })
 
   test("updates protected checkbox when clicked", async () => {
@@ -186,11 +178,9 @@ describe("EditImageDetailsModal", () => {
       expect(mockOnSave).toHaveBeenCalledTimes(1)
     })
 
-    expect(mockOnSave).toHaveBeenCalledWith(
-      expect.objectContaining({
-        protected: true,
-      })
-    )
+    expect(mockOnSave).toHaveBeenCalledWith({
+      protected: true,
+    })
   })
 
   test("updates min_disk when input changes", async () => {
@@ -208,11 +198,9 @@ describe("EditImageDetailsModal", () => {
       expect(mockOnSave).toHaveBeenCalledTimes(1)
     })
 
-    expect(mockOnSave).toHaveBeenCalledWith(
-      expect.objectContaining({
-        min_disk: 20,
-      })
-    )
+    expect(mockOnSave).toHaveBeenCalledWith({
+      min_disk: 20,
+    })
   })
 
   test("updates min_ram when input changes", async () => {
@@ -230,11 +218,9 @@ describe("EditImageDetailsModal", () => {
       expect(mockOnSave).toHaveBeenCalledTimes(1)
     })
 
-    expect(mockOnSave).toHaveBeenCalledWith(
-      expect.objectContaining({
-        min_ram: 1024,
-      })
-    )
+    expect(mockOnSave).toHaveBeenCalledWith({
+      min_ram: 1024,
+    })
   })
 
   test("validates required name field", async () => {
@@ -348,11 +334,9 @@ describe("EditImageDetailsModal", () => {
       expect(mockOnSave).toHaveBeenCalledTimes(1)
     })
 
-    expect(mockOnSave).toHaveBeenCalledWith(
-      expect.objectContaining({
-        tags: [],
-      })
-    )
+    expect(mockOnSave).toHaveBeenCalledWith({
+      tags: [],
+    })
   })
 
   test("parses tags with extra spaces correctly", async () => {
@@ -370,11 +354,9 @@ describe("EditImageDetailsModal", () => {
       expect(mockOnSave).toHaveBeenCalledTimes(1)
     })
 
-    expect(mockOnSave).toHaveBeenCalledWith(
-      expect.objectContaining({
-        tags: ["tag1", "tag2", "tag3"],
-      })
-    )
+    expect(mockOnSave).toHaveBeenCalledWith({
+      tags: ["tag1", "tag2", "tag3"],
+    })
   })
 
   test("calls onSave with Partial<GlanceImage> instead of full GlanceImage", async () => {
@@ -392,20 +374,71 @@ describe("EditImageDetailsModal", () => {
       expect(mockOnSave).toHaveBeenCalledTimes(1)
     })
 
-    // Should only include the updatable properties, not the full image
+    // Should only include changed properties
     const calledWith = mockOnSave.mock.calls[0][0]
     expect(calledWith).toEqual({
       name: "New Name",
-      tags: mockImage.tags,
-      visibility: mockImage.visibility,
-      protected: mockImage.protected,
-      min_disk: mockImage.min_disk,
-      min_ram: mockImage.min_ram,
     })
 
     // Should NOT include properties like id, status, disk_format, etc.
     expect(calledWith).not.toHaveProperty("id")
     expect(calledWith).not.toHaveProperty("status")
     expect(calledWith).not.toHaveProperty("disk_format")
+  })
+
+  test("does not send unchanged properties", async () => {
+    const user = userEvent.setup()
+    renderEditModal(true, mockOnClose, mockImage, mockOnSave)
+
+    // Change only the name
+    const nameInput = screen.getByLabelText("Image Name")
+    await user.clear(nameInput)
+    await user.type(nameInput, "New Name")
+
+    const saveButton = screen.getByTestId("save-image-updates-button")
+    await user.click(saveButton)
+
+    await waitFor(() => {
+      expect(mockOnSave).toHaveBeenCalledTimes(1)
+    })
+
+    // Should only include the changed property
+    const calledWith = mockOnSave.mock.calls[0][0]
+    expect(calledWith).toEqual({
+      name: "New Name",
+    })
+
+    // Should NOT include unchanged properties
+    expect(calledWith).not.toHaveProperty("tags")
+    expect(calledWith).not.toHaveProperty("visibility")
+    expect(calledWith).not.toHaveProperty("protected")
+    expect(calledWith).not.toHaveProperty("min_disk")
+    expect(calledWith).not.toHaveProperty("min_ram")
+  })
+
+  test("sends multiple changed properties", async () => {
+    const user = userEvent.setup()
+    renderEditModal(true, mockOnClose, mockImage, mockOnSave)
+
+    // Change name and protected
+    const nameInput = screen.getByLabelText("Image Name")
+    await user.clear(nameInput)
+    await user.type(nameInput, "New Name")
+
+    const protectedCheckbox = screen.getByLabelText("Protected")
+    await user.click(protectedCheckbox)
+
+    const saveButton = screen.getByTestId("save-image-updates-button")
+    await user.click(saveButton)
+
+    await waitFor(() => {
+      expect(mockOnSave).toHaveBeenCalledTimes(1)
+    })
+
+    // Should include both changed properties
+    expect(mockOnSave).toHaveBeenCalledWith({
+      name: "New Name",
+      protected: true,
+    })
   })
 })

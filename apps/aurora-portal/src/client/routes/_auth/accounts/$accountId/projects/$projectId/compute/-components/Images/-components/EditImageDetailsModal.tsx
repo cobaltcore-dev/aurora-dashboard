@@ -57,6 +57,22 @@ export const EditImageDetailsModal: React.FC<EditImageDetailsModalProps> = ({
   const [tagsInput, setTagsInput] = useState<string>(image.tags?.join(", ") || "")
   const [errors, setErrors] = useState<{ [key: string]: string }>({})
 
+  // Helper function to compare arrays
+  const arraysEqual = (a: string[], b: string[]) => {
+    if (a.length !== b.length) return false
+    const sortedA = [...a].sort()
+    const sortedB = [...b].sort()
+    return sortedA.every((val, index) => val === sortedB[index])
+  }
+
+  const isSubmitDisabled =
+    image.name === properties.name &&
+    arraysEqual(image.tags || [], properties.tags) &&
+    image.visibility === properties.visibility &&
+    image.protected === properties.protected &&
+    image.min_disk === properties.min_disk &&
+    image.min_ram === properties.min_ram
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target
 
@@ -155,12 +171,13 @@ export const EditImageDetailsModal: React.FC<EditImageDetailsModalProps> = ({
 
     // Prepare updated properties
     const updatedProperties: Partial<GlanceImage> = {
-      name: properties.name.trim(),
-      tags: properties.tags,
-      visibility: properties.visibility,
-      protected: properties.protected,
-      min_disk: properties.min_disk,
-      min_ram: properties.min_ram,
+      // Exclude entries without updates
+      ...(image.name !== properties.name.trim() ? { name: properties.name.trim() } : {}),
+      ...(!arraysEqual(image.tags || [], properties.tags) ? { tags: properties.tags } : {}),
+      ...(image.visibility !== properties.visibility ? { visibility: properties.visibility } : {}),
+      ...(image.protected !== properties.protected ? { protected: properties.protected } : {}),
+      ...(image.min_disk !== properties.min_disk ? { min_disk: properties.min_disk } : {}),
+      ...(image.min_ram !== properties.min_ram ? { min_ram: properties.min_ram } : {}),
     }
 
     onSave(updatedProperties)
@@ -185,7 +202,7 @@ export const EditImageDetailsModal: React.FC<EditImageDetailsModalProps> = ({
               onClick={(e) => {
                 handleSubmit(e)
               }}
-              disabled={isLoading}
+              disabled={isLoading || isSubmitDisabled}
               data-testid="save-image-updates-button"
             >
               {isLoading ? <Spinner size="small" /> : <Trans>Save Changes</Trans>}
