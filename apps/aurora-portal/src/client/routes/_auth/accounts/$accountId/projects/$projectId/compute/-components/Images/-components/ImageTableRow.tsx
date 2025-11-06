@@ -14,7 +14,8 @@ import { SizeDisplay } from "./SizeDisplay"
 interface ImageTableRowProps {
   image: GlanceImage
   isSelected: boolean
-  onEdit: (image: GlanceImage) => void
+  onEditDetails: (image: GlanceImage) => void
+  onEditMetadata: (image: GlanceImage) => void
   onDelete: (image: GlanceImage) => void
   onSelect: (image: GlanceImage) => void
   onActivationStatusChange: (image: GlanceImage) => void
@@ -29,7 +30,8 @@ export function ImageTableRow({
   image,
   isSelected,
   permissions,
-  onEdit,
+  onEditDetails,
+  onEditMetadata,
   onDelete,
   onSelect,
   onActivationStatusChange,
@@ -79,12 +81,15 @@ export function ImageTableRow({
               }
             />
             {permissions.canEdit && (
-              <PopupMenuItem
-                label={image.status === "deactivated" ? t`Activate` : t`Deactivate`}
-                onClick={() => onActivationStatusChange(image)}
-              />
+              <>
+                <PopupMenuItem label={t`Edit Details`} onClick={() => onEditDetails(image)} />
+                <PopupMenuItem label={t`Edit Metadata`} onClick={() => onEditMetadata(image)} />
+                <PopupMenuItem
+                  label={image.status === "deactivated" ? t`Activate` : t`Deactivate`}
+                  onClick={() => onActivationStatusChange(image)}
+                />
+              </>
             )}
-            {permissions.canEdit && <PopupMenuItem label={t`Edit`} onClick={() => onEdit(image)} />}
             {permissions.canDelete && !image.protected && (
               <PopupMenuItem label={t`Delete`} onClick={() => onDelete(image)} />
             )}

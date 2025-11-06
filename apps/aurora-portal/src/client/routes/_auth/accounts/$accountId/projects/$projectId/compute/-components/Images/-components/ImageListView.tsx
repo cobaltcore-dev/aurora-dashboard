@@ -21,7 +21,8 @@ import {
 import { trpcReact } from "@/client/trpcClient"
 import { TRPCError } from "@trpc/server"
 import { Trans, useLingui } from "@lingui/react/macro"
-import { EditImageModal } from "./EditImageModal"
+import { EditImageDetailsModal } from "./EditImageDetailsModal"
+import { EditImageMetadataModal } from "./EditImageMetadataModal"
 import { ImageTableRow } from "./ImageTableRow"
 import { DeleteImageModal } from "./DeleteImageModal"
 import { CreateImageModal } from "./CreateImageModal"
@@ -75,7 +76,8 @@ export function ImageListView({
 
   const [toastData, setToastData] = useState<ToastProps | null>(null)
 
-  const [editModalOpen, setEditModalOpen] = useState(false)
+  const [editDetailsModalOpen, setEditDetailsModalOpen] = useState(false)
+  const [editMetadataModalOpen, setEditMetadataModalOpen] = useState(false)
   const [createModalOpen, setCreateModalOpen] = useState(false)
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
 
@@ -176,9 +178,11 @@ export function ImageListView({
 
   const handleToastDismiss = () => setToastData(null)
 
-  const handleSaveEdit = (updatedImage: GlanceImage) => {
-    setEditModalOpen(false)
-    const imageName = updatedImage.name || updatedImage.id
+  const handleSaveEdit = (updatedProperties: Partial<GlanceImage>) => {
+    setEditDetailsModalOpen(false)
+    setEditMetadataModalOpen(false)
+
+    const imageName = updatedProperties.name || updatedProperties.id || ""
 
     setToastData(getImageUpdatedToast(imageName, { onDismiss: handleToastDismiss }))
 
@@ -195,7 +199,9 @@ export function ImageListView({
   }
 
   const handleDelete = async (deletedImage: GlanceImage) => {
-    setEditModalOpen(false)
+    setEditDetailsModalOpen(false)
+    setEditMetadataModalOpen(false)
+
     const imageName = deletedImage.name || deletedImage.id
     const imageId = deletedImage.id
 
@@ -237,9 +243,14 @@ export function ImageListView({
     }
   }
 
-  const openEditModal = (image: GlanceImage) => {
+  const openEditDetailsModal = (image: GlanceImage) => {
     setSelectedImage(image)
-    setEditModalOpen(true)
+    setEditDetailsModalOpen(true)
+  }
+
+  const openEditMetadataModal = (image: GlanceImage) => {
+    setSelectedImage(image)
+    setEditMetadataModalOpen(true)
   }
 
   const openCreateModal = () => {
@@ -271,7 +282,7 @@ export function ImageListView({
     } catch (error) {
       const { message } = error as TRPCError
 
-      console.debug("Bulk delete error: ", message)
+      console.log("Bulk delete error: ", message)
 
       setToastData(
         getBulkDeleteErrorToast(imageIds.length, imageIds.length, {
@@ -301,7 +312,7 @@ export function ImageListView({
     } catch (error) {
       const { message } = error as TRPCError
 
-      console.debug("Bulk activate error: ", message)
+      console.log("Bulk activate error: ", message)
 
       setToastData(
         getBulkActivateErrorToast(imageIds.length, imageIds.length, {
@@ -331,7 +342,7 @@ export function ImageListView({
     } catch (error) {
       const { message } = error as TRPCError
 
-      console.debug("Bulk deactivate error: ", message)
+      console.log("Bulk deactivate error: ", message)
 
       setToastData(
         getBulkDeactivateErrorToast(imageIds.length, imageIds.length, {
@@ -444,7 +455,8 @@ export function ImageListView({
                 isSelected={!!selectedImages.find((imageId) => imageId === image.id)}
                 key={image.id}
                 permissions={permissions}
-                onEdit={openEditModal}
+                onEditDetails={openEditDetailsModal}
+                onEditMetadata={openEditMetadataModal}
                 onDelete={openDeleteModal}
                 onSelect={(image: GlanceImage) => {
                   const isImageSelected = !!selectedImages.find((imageId) => imageId === image.id)
@@ -507,9 +519,17 @@ export function ImageListView({
         </DataGrid>
       )}
       {selectedImage && (
-        <EditImageModal
-          isOpen={editModalOpen}
-          onClose={() => setEditModalOpen(false)}
+        <EditImageDetailsModal
+          isOpen={editDetailsModalOpen}
+          onClose={() => setEditDetailsModalOpen(false)}
+          image={selectedImage}
+          onSave={handleSaveEdit}
+        />
+      )}
+      {selectedImage && (
+        <EditImageMetadataModal
+          isOpen={editMetadataModalOpen}
+          onClose={() => setEditMetadataModalOpen(false)}
           image={selectedImage}
           onSave={handleSaveEdit}
         />
