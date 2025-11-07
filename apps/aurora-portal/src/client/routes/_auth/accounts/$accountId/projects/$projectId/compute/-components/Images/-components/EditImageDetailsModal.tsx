@@ -15,6 +15,7 @@ import {
   Spinner,
   Stack,
   ModalFooter,
+  Pill,
 } from "@cloudoperators/juno-ui-components"
 import { GlanceImage } from "@/server/Compute/types/image"
 
@@ -54,7 +55,7 @@ export const EditImageDetailsModal: React.FC<EditImageDetailsModalProps> = ({
     min_ram: image.min_ram || 0,
   })
 
-  const [tagsInput, setTagsInput] = useState<string>(image.tags?.join(", ") || "")
+  const [tagsInput, setTagsInput] = useState<string>("")
   const [errors, setErrors] = useState<{ [key: string]: string }>({})
 
   // Helper function to compare arrays
@@ -128,18 +129,41 @@ export const EditImageDetailsModal: React.FC<EditImageDetailsModalProps> = ({
   }
 
   const handleTagsInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value
-    setTagsInput(value)
+    setTagsInput(e.target.value)
+  }
 
-    // Parse tags from comma-separated string
-    const parsedTags = value
-      .split(",")
-      .map((tag) => tag.trim())
-      .filter((tag) => tag.length > 0)
+  const handleAddTag = () => {
+    const trimmedTag = tagsInput.trim()
 
+    if (trimmedTag === "") return
+
+    // Check if tag already exists
+    if (properties.tags.includes(trimmedTag)) {
+      setTagsInput("")
+      return
+    }
+
+    // Add tag to properties
     setProperties((prev) => ({
       ...prev,
-      tags: parsedTags,
+      tags: [...prev.tags, trimmedTag],
+    }))
+
+    // Clear input
+    setTagsInput("")
+  }
+
+  const handleTagKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault()
+      handleAddTag()
+    }
+  }
+
+  const handleRemoveTag = (tagToRemove: string) => {
+    setProperties((prev) => ({
+      ...prev,
+      tags: prev.tags.filter((tag) => tag !== tagToRemove),
     }))
   }
 
@@ -236,15 +260,35 @@ export const EditImageDetailsModal: React.FC<EditImageDetailsModalProps> = ({
               />
             </FormRow>
 
-            <FormRow className="mb-4">
-              <TextInput
-                id="tags"
-                name="tags"
-                label={t`Tags`}
-                value={tagsInput}
-                onChange={handleTagsInputChange}
-                helptext={t`Enter tags separated by commas (e.g., production, linux, ubuntu)`}
-              />
+            <FormRow className="my-6">
+              <div className="w-full">
+                <Stack gap="2" direction="horizontal" alignment="start">
+                  <div className="flex-1">
+                    <TextInput
+                      id="tags"
+                      name="tags"
+                      label={t`Tags`}
+                      value={tagsInput}
+                      onChange={handleTagsInputChange}
+                      onKeyDown={handleTagKeyPress}
+                      helptext={t`Enter a tag and press Enter or click Add`}
+                      placeholder={t`e.g., production, linux, ubuntu`}
+                    />
+                  </div>
+                  <Button variant="primary" onClick={handleAddTag} disabled={isLoading || tagsInput.trim() === ""}>
+                    <Trans>Add</Trans>
+                  </Button>
+                </Stack>
+
+                {/* Display added tags as pills */}
+                {properties.tags.length > 0 && (
+                  <Stack gap="2" wrap={true} alignment="center" className="mt-3">
+                    {properties.tags.map((tag) => (
+                      <Pill key={tag} closeable pillKey="" pillValue={tag} onClose={() => handleRemoveTag(tag)} />
+                    ))}
+                  </Stack>
+                )}
+              </div>
             </FormRow>
 
             <FormRow className="mb-4">

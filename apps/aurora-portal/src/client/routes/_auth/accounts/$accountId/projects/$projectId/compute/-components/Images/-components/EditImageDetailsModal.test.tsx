@@ -81,11 +81,15 @@ describe("EditImageDetailsModal", () => {
 
     await waitFor(() => {
       expect(nameInput.value).toBe(mockImage.name)
-      expect(tagsInput.value).toBe("production, linux")
+      expect(tagsInput.value).toBe("") // Tags input should be empty (tags shown as pills)
       expect(protectedCheckbox.checked).toBe(false)
       expect(minDiskInput.value).toBe("10")
       expect(minRamInput.value).toBe("512")
     })
+
+    // Check that existing tags are displayed as pills
+    expect(screen.getByText("production")).toBeDefined()
+    expect(screen.getByText("linux")).toBeDefined()
   })
 
   test("calls onClose when Cancel button is clicked", async () => {
@@ -124,8 +128,30 @@ describe("EditImageDetailsModal", () => {
     renderEditModal(true, mockOnClose, mockImage, mockOnSave)
 
     const tagsInput = screen.getByLabelText("Tags")
-    await user.clear(tagsInput)
-    await user.type(tagsInput, "staging, ubuntu, test")
+    const addButton = screen.getByText("Add")
+
+    // Remove existing tags first by clicking their close buttons
+    const productionPill = screen.getByText("production").closest(".juno-pill")
+    const linuxPill = screen.getByText("linux").closest(".juno-pill")
+
+    if (productionPill) {
+      const closeButton = productionPill.querySelector("button")
+      if (closeButton) await user.click(closeButton)
+    }
+    if (linuxPill) {
+      const closeButton = linuxPill.querySelector("button")
+      if (closeButton) await user.click(closeButton)
+    }
+
+    // Add new tags one by one
+    await user.type(tagsInput, "staging")
+    await user.click(addButton)
+
+    await user.type(tagsInput, "ubuntu")
+    await user.click(addButton)
+
+    await user.type(tagsInput, "test")
+    await user.click(addButton)
 
     const saveButton = screen.getByTestId("save-image-updates-button")
     await user.click(saveButton)
@@ -135,7 +161,6 @@ describe("EditImageDetailsModal", () => {
     })
 
     // Should only include the changed property
-    // Note: Order doesn't matter as tags are compared with sorting
     expect(mockOnSave).toHaveBeenCalledWith({
       tags: ["staging", "ubuntu", "test"],
     })
@@ -324,8 +349,18 @@ describe("EditImageDetailsModal", () => {
     const user = userEvent.setup()
     renderEditModal(true, mockOnClose, mockImage, mockOnSave)
 
-    const tagsInput = screen.getByLabelText("Tags")
-    await user.clear(tagsInput)
+    // Remove existing tags by clicking their close buttons
+    const productionPill = screen.getByText("production").closest(".juno-pill")
+    const linuxPill = screen.getByText("linux").closest(".juno-pill")
+
+    if (productionPill) {
+      const closeButton = productionPill.querySelector("button")
+      if (closeButton) await user.click(closeButton)
+    }
+    if (linuxPill) {
+      const closeButton = linuxPill.querySelector("button")
+      if (closeButton) await user.click(closeButton)
+    }
 
     const saveButton = screen.getByTestId("save-image-updates-button")
     await user.click(saveButton)
@@ -344,8 +379,30 @@ describe("EditImageDetailsModal", () => {
     renderEditModal(true, mockOnClose, mockImage, mockOnSave)
 
     const tagsInput = screen.getByLabelText("Tags")
-    await user.clear(tagsInput)
-    await user.type(tagsInput, "  tag1  ,  tag2  ,  tag3  ")
+    const addButton = screen.getByText("Add")
+
+    // Remove existing tags first
+    const productionPill = screen.getByText("production").closest(".juno-pill")
+    const linuxPill = screen.getByText("linux").closest(".juno-pill")
+
+    if (productionPill) {
+      const closeButton = productionPill.querySelector("button")
+      if (closeButton) await user.click(closeButton)
+    }
+    if (linuxPill) {
+      const closeButton = linuxPill.querySelector("button")
+      if (closeButton) await user.click(closeButton)
+    }
+
+    // Add tags with extra spaces - they should be trimmed
+    await user.type(tagsInput, "  tag1  ")
+    await user.click(addButton)
+
+    await user.type(tagsInput, "  tag2  ")
+    await user.click(addButton)
+
+    await user.type(tagsInput, "  tag3  ")
+    await user.click(addButton)
 
     const saveButton = screen.getByTestId("save-image-updates-button")
     await user.click(saveButton)
@@ -357,6 +414,90 @@ describe("EditImageDetailsModal", () => {
     expect(mockOnSave).toHaveBeenCalledWith({
       tags: ["tag1", "tag2", "tag3"],
     })
+  })
+
+  test("adds tag when Enter key is pressed", async () => {
+    const user = userEvent.setup()
+    renderEditModal(true, mockOnClose, mockImage, mockOnSave)
+
+    const tagsInput = screen.getByLabelText("Tags")
+
+    // Add a tag by pressing Enter
+    await user.type(tagsInput, "newtag{Enter}")
+
+    // Check that the tag appears as a pill
+    await waitFor(() => {
+      expect(screen.getByText("newtag")).toBeDefined()
+    })
+
+    // Input should be cleared
+    expect((tagsInput as HTMLInputElement).value).toBe("")
+  })
+
+  test("Add button is disabled when input is empty", async () => {
+    renderEditModal(true, mockOnClose, mockImage, mockOnSave)
+
+    const addButton = screen.getByText("Add") as HTMLButtonElement
+
+    // Button should be disabled initially (empty input)
+    expect(addButton.disabled).toBe(true)
+  })
+
+  test("Add button is enabled when input has text", async () => {
+    const user = userEvent.setup()
+    renderEditModal(true, mockOnClose, mockImage, mockOnSave)
+
+    const tagsInput = screen.getByLabelText("Tags")
+    const addButton = screen.getByText("Add") as HTMLButtonElement
+
+    await user.type(tagsInput, "test")
+
+    await waitFor(() => {
+      expect(addButton.disabled).toBe(false)
+    })
+  })
+
+  test("does not add duplicate tags", async () => {
+    const user = userEvent.setup()
+    renderEditModal(true, mockOnClose, mockImage, mockOnSave)
+
+    const tagsInput = screen.getByLabelText("Tags")
+    const addButton = screen.getByText("Add")
+
+    // Try to add a tag that already exists
+    await user.type(tagsInput, "production")
+    await user.click(addButton)
+
+    // Should still only have one "production" pill
+    const productionPills = screen.getAllByText("production")
+    expect(productionPills.length).toBe(1)
+
+    // Input should be cleared
+    expect((tagsInput as HTMLInputElement).value).toBe("")
+  })
+
+  test("removes tag when pill close button is clicked", async () => {
+    const user = userEvent.setup()
+    renderEditModal(true, mockOnClose, mockImage, mockOnSave)
+
+    // Find the production tag pill and click its close button
+    const productionPill = screen.getByText("production").closest(".juno-pill")
+    expect(productionPill).toBeDefined()
+
+    const closeButton = productionPill?.querySelector("button")
+    expect(closeButton).toBeDefined()
+
+    if (closeButton) {
+      await user.click(closeButton)
+    }
+
+    // Tag should be removed
+    await waitFor(() => {
+      expect(screen.queryByText("production")).toBeNull()
+    })
+
+    // Linux tag should still be present
+    expect(screen.getByText("linux")).toBeDefined()
   })
 
   test("calls onSave with Partial<GlanceImage> instead of full GlanceImage", async () => {
