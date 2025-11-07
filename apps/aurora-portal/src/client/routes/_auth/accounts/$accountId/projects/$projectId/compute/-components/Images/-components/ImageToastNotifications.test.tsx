@@ -4,6 +4,7 @@ import { I18nProvider } from "@lingui/react"
 import { i18n } from "@lingui/core"
 import {
   getImageUpdatedToast,
+  getImageUpdateErrorToast,
   getImageCreatedToast,
   getImageDeletedToast,
   getImageDeleteErrorToast,
@@ -58,6 +59,64 @@ describe("ImageToastNotifications", () => {
       const toast = getImageUpdatedToast("test", { onDismiss: mockOnDismiss, autoDismissTimeout: 5000 })
 
       expect(toast.autoDismissTimeout).toBe(5000)
+    })
+  })
+
+  describe("getImageUpdateErrorToast", () => {
+    it("should return error toast with correct structure", () => {
+      const imageName = "failed-image"
+      const message = "Invalid metadata format"
+      const toast = getImageUpdateErrorToast(imageName, message, defaultConfig)
+
+      expect(toast.variant).toBe("error")
+      expect(toast.autoDismiss).toBe(true)
+      expect(toast.autoDismissTimeout).toBe(5000)
+      expect(toast.onDismiss).toBe(mockOnDismiss)
+      expect(toast.children).toBeDefined()
+    })
+
+    it("should render correct error message content", () => {
+      const imageName = "failed-image"
+      const message = "Invalid metadata format"
+      const toast = getImageUpdateErrorToast(imageName, message, defaultConfig)
+
+      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+
+      expect(screen.getByText("Unable to Update Image")).toBeInTheDocument()
+      expect(screen.getByText(/failed-image/)).toBeInTheDocument()
+      expect(screen.getByText(/could not be updated/)).toBeInTheDocument()
+      expect(screen.getByText(/Invalid metadata format/)).toBeInTheDocument()
+    })
+
+    it("should handle different error messages", () => {
+      const imageName = "test-image"
+      const message = "Network timeout occurred"
+      const toast = getImageUpdateErrorToast(imageName, message, defaultConfig)
+
+      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+
+      expect(screen.getByText(/Network timeout occurred/)).toBeInTheDocument()
+    })
+
+    it("should use custom autoDismissTimeout when provided", () => {
+      const toast = getImageUpdateErrorToast("test", "error", {
+        onDismiss: mockOnDismiss,
+        autoDismissTimeout: 10000,
+      })
+
+      expect(toast.autoDismissTimeout).toBe(10000)
+    })
+
+    it("should handle long error messages", () => {
+      const imageName = "test-image"
+      const longMessage =
+        "Failed to update image: The request media type application/json is not supported by this server"
+      const toast = getImageUpdateErrorToast(imageName, longMessage, defaultConfig)
+
+      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+
+      expect(screen.getByText(/Failed to update image/)).toBeInTheDocument()
+      expect(screen.getByText(/application\/json is not supported/)).toBeInTheDocument()
     })
   })
 

@@ -21,7 +21,7 @@ interface EditImageMetadataModalProps {
   isOpen: boolean
   isLoading?: boolean
   onClose: () => void
-  onSave: (metadata: Record<string, string>) => void
+  onSave: (metadata: Record<string, string | null>) => void
 }
 
 // Properties that should be excluded from metadata editing
@@ -111,9 +111,9 @@ export const EditImageMetadataModal: React.FC<EditImageMetadataModalProps> = ({
   const [newKey, setNewKey] = useState("")
   const [newValue, setNewValue] = useState("")
 
-  const isSubmitDisabled = metadata.every(
-    (entry) => !entry.isNew && entry.key === entry.originalKey && entry.value === entry.originalValue
-  )
+  const isSubmitDisabled =
+    metadata.every((entry) => !entry.isNew && entry.key === entry.originalKey && entry.value === entry.originalValue) &&
+    getInitialMetadata().length === metadata.length
 
   const validateKey = (key: string, originalKey?: string): string | null => {
     if (!key || key.trim() === "") {
@@ -156,8 +156,6 @@ export const EditImageMetadataModal: React.FC<EditImageMetadataModalProps> = ({
         value: newValue.trim(),
         isNew: true,
         isEditing: false,
-        originalKey: newKey.trim(),
-        originalValue: newValue.trim(),
       },
     ])
 
@@ -176,9 +174,7 @@ export const EditImageMetadataModal: React.FC<EditImageMetadataModalProps> = ({
 
   const handleEdit = (index: number) => {
     setMetadata(
-      metadata.map((entry, i) =>
-        i === index ? { ...entry, isEditing: true, originalValue: entry.value } : { ...entry, isEditing: false }
-      )
+      metadata.map((entry, i) => (i === index ? { ...entry, isEditing: true } : { ...entry, isEditing: false }))
     )
     setIsAddingNew(false)
   }
@@ -251,6 +247,17 @@ export const EditImageMetadataModal: React.FC<EditImageMetadataModalProps> = ({
   const handleSubmit = () => {
     // Convert metadata array to object
     const metadataObject: Record<string, string> = {}
+
+    const removedEntries = Object.fromEntries(
+      getInitialMetadata()
+        .filter(
+          (entry) =>
+            !metadata.map((item) => item.originalKey).includes(entry.originalKey) ||
+            !metadata.map((item) => item.key).includes(entry.key)
+        )
+        .map((entry) => [entry.key, null])
+    )
+
     metadata
       // Exclude entries without updates (new added or edited)
       .filter((entry) => entry.isNew || entry.value !== entry.originalValue || entry.key !== entry.originalKey)
@@ -258,7 +265,7 @@ export const EditImageMetadataModal: React.FC<EditImageMetadataModalProps> = ({
         metadataObject[entry.key] = entry.value
       })
 
-    onSave(metadataObject)
+    onSave({ ...metadataObject, ...removedEntries })
     handleClose()
   }
 

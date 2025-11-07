@@ -31,6 +31,7 @@ import { DeactivateImagesModal } from "./DeactivateImagesModal"
 import { ActivateImagesModal } from "./ActivateImagesModal"
 import {
   getImageUpdatedToast,
+  getImageUpdateErrorToast,
   getImageCreatedToast,
   getImageDeletedToast,
   getImageDeleteErrorToast,
@@ -168,25 +169,84 @@ export function ImageListView({
     },
   })
 
+  const updateImageMutation = trpcReact.compute.updateImage.useMutation({
+    onSuccess: () => {
+      utils.compute.listImagesWithPagination.invalidate()
+    },
+  })
+
   const isLoading =
     deleteImageMutation.isPending ||
     deactivateImageMutation.isPending ||
     reactivateImageMutation.isPending ||
     deleteImagesMutation.isPending ||
     activateImagesMutation.isPending ||
-    deactivateImagesMutation.isPending
+    deactivateImagesMutation.isPending ||
+    updateImageMutation.isPending
 
   const handleToastDismiss = () => setToastData(null)
 
-  const handleSaveEdit = (updatedProperties: Partial<GlanceImage>) => {
-    setEditDetailsModalOpen(false)
-    setEditMetadataModalOpen(false)
+  /**
+   * Converts partial image properties to OpenStack JSON Patch operations
+   * Determines whether to use 'add', 'replace', or 'remove' based on original image state
+   */
+  const convertToJsonPatchOperations = (
+    updatedProperties: Partial<GlanceImage>,
+    originalImage: GlanceImage
+  ): Array<{ op: "add" | "replace" | "remove"; path: string; value?: unknown }> => {
+    const operations: Array<{ op: "add" | "replace" | "remove"; path: string; value?: unknown }> = []
 
-    const imageName = updatedProperties.name || updatedProperties.id || ""
+    Object.entries(updatedProperties).forEach(([key, value]) => {
+      const path = `/${key}`
 
-    setToastData(getImageUpdatedToast(imageName, { onDismiss: handleToastDismiss }))
+      if (value === null || value === undefined) {
+        // Remove operation for null/undefined values (only if property exists)
+        if (key in originalImage) {
+          operations.push({ op: "remove", path })
+        }
+      } else {
+        // Check if property exists in original image
+        const propertyExists = key in originalImage
 
-    utils.compute.listImagesWithPagination.invalidate()
+        if (propertyExists) {
+          // Use 'replace' for existing properties
+          operations.push({ op: "replace", path, value })
+        } else {
+          // Use 'add' for new properties
+          operations.push({ op: "add", path, value })
+        }
+      }
+    })
+
+    return operations
+  }
+
+  const handleSaveEdit = async (updatedProperties: Partial<GlanceImage>) => {
+    if (!selectedImage) return
+
+    const imageId = selectedImage.id
+    const imageName = updatedProperties.name || selectedImage.name || imageId
+
+    try {
+      // Convert updated properties to JSON Patch operations
+      // Pass the original image to determine correct operation types (add/replace/remove)
+      const operations = convertToJsonPatchOperations(updatedProperties, selectedImage)
+
+      // Call the update mutation
+      await updateImageMutation.mutateAsync({ imageId, operations })
+
+      // Close modals and show success toast
+      setEditDetailsModalOpen(false)
+      setEditMetadataModalOpen(false)
+      setToastData(getImageUpdatedToast(imageName, { onDismiss: handleToastDismiss }))
+    } catch (error) {
+      const { message } = error as TRPCError
+
+      // Show error toast but keep modal open so user can retry
+      setToastData(getImageUpdateErrorToast(imageName, message, { onDismiss: handleToastDismiss }))
+    }
+
+    setSelectedImage(null)
   }
 
   const handleCreate = (newImage: Partial<GlanceImage>) => {
@@ -214,6 +274,8 @@ export function ImageListView({
 
       setToastData(getImageDeleteErrorToast(imageId, message, { onDismiss: handleToastDismiss }))
     }
+
+    setSelectedImage(null)
   }
 
   const handleActivationStatusChange = async (updatedImage: GlanceImage) => {
@@ -260,6 +322,21 @@ export function ImageListView({
   const openDeleteModal = (image: GlanceImage) => {
     setSelectedImage(image)
     setDeleteModalOpen(true)
+  }
+
+  const closeEditDetailsModal = () => {
+    setSelectedImage(null)
+    setEditDetailsModalOpen(false)
+  }
+
+  const closeEditMetadataModal = () => {
+    setSelectedImage(null)
+    setEditMetadataModalOpen(false)
+  }
+
+  const closeDeleteModal = () => {
+    setSelectedImage(null)
+    setDeleteModalOpen(false)
   }
 
   const handleBulkDelete = async (imageIds: Array<string>) => {
@@ -521,17 +598,19 @@ export function ImageListView({
       {selectedImage && (
         <EditImageDetailsModal
           isOpen={editDetailsModalOpen}
-          onClose={() => setEditDetailsModalOpen(false)}
+          onClose={closeEditDetailsModal}
           image={selectedImage}
           onSave={handleSaveEdit}
+          isLoading={updateImageMutation.isPending}
         />
       )}
       {selectedImage && (
         <EditImageMetadataModal
           isOpen={editMetadataModalOpen}
-          onClose={() => setEditMetadataModalOpen(false)}
+          onClose={closeEditMetadataModal}
           image={selectedImage}
           onSave={handleSaveEdit}
+          isLoading={updateImageMutation.isPending}
         />
       )}
       {selectedImage && (
@@ -540,7 +619,7 @@ export function ImageListView({
           isOpen={deleteModalOpen}
           isLoading={isLoading}
           isDisabled={!selectedImage.protected && permissions.canDelete}
-          onClose={() => setDeleteModalOpen(false)}
+          onClose={closeDeleteModal}
           onDelete={handleDelete}
         />
       )}

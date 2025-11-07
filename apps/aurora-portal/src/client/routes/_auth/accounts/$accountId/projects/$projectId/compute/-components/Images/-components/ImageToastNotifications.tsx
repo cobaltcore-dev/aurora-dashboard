@@ -20,6 +20,23 @@ export const getImageUpdatedToast = (imageName: string, config: ToastConfig): To
   onDismiss: config.onDismiss,
 })
 
+export const getImageUpdateErrorToast = (imageName: string, message: string, config: ToastConfig): ToastProps => ({
+  variant: "error",
+  children: (
+    <NotificationText
+      title={<Trans>Unable to Update Image</Trans>}
+      description={
+        <Trans>
+          The image "{imageName}" could not be updated: {message}
+        </Trans>
+      }
+    />
+  ),
+  autoDismiss: true,
+  autoDismissTimeout: config.autoDismissTimeout ?? 5000,
+  onDismiss: config.onDismiss,
+})
+
 export const getImageCreatedToast = (imageName: string, config: ToastConfig): ToastProps => ({
   variant: "success",
   children: (

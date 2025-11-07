@@ -194,13 +194,20 @@ export const imageRouter = {
 
         validateGlanceService(glance)
 
+        // Correct signature: patch(path, values, options)
+        // - path: the API endpoint
+        // - values: the body content (will be JSON.stringified by client)
+        // - options: request options including headers
         const response = await glance
-          .patch(`v2/images/${imageId}`, {
-            json: operations,
-            headers: {
-              "Content-Type": "application/openstack-images-v2.1-json-patch",
-            },
-          })
+          .patch(
+            `v2/images/${imageId}`,
+            operations, // Pass operations array directly as the body
+            {
+              headers: {
+                "Content-Type": "application/openstack-images-v2.1-json-patch",
+              },
+            }
+          )
           .catch((error) => {
             throw mapErrorResponseToTRPCError(error, { operation: "update image", imageId })
           })
@@ -232,12 +239,16 @@ export const imageRouter = {
           },
         ]
 
-        const response = await glance.patch(`v2/images/${imageId}`, {
-          json: operations,
-          headers: {
-            "Content-Type": "application/openstack-images-v2.1-json-patch",
-          },
-        })
+        // Correct signature: patch(path, values, options)
+        const response = await glance.patch(
+          `v2/images/${imageId}`,
+          operations, // Pass operations array directly
+          {
+            headers: {
+              "Content-Type": "application/openstack-images-v2.1-json-patch",
+            },
+          }
+        )
 
         if (!response?.ok) {
           throw ImageErrorHandlers.visibility(response, imageId, visibility)
