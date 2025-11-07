@@ -139,12 +139,14 @@ export function ImageListView({
   const deactivateImageMutation = trpcReact.compute.deactivateImage.useMutation({
     onSuccess: () => {
       utils.compute.listImagesWithPagination.invalidate()
+      utils.compute.getImageById.invalidate()
     },
   })
 
   const reactivateImageMutation = trpcReact.compute.reactivateImage.useMutation({
     onSuccess: () => {
       utils.compute.listImagesWithPagination.invalidate()
+      utils.compute.getImageById.invalidate()
     },
   })
 
@@ -172,6 +174,7 @@ export function ImageListView({
   const updateImageMutation = trpcReact.compute.updateImage.useMutation({
     onSuccess: () => {
       utils.compute.listImagesWithPagination.invalidate()
+      utils.compute.getImageById.invalidate()
     },
   })
 
