@@ -1,12 +1,9 @@
 import { describe, it, expect, beforeEach, vi } from "vitest"
 import { TRPCError } from "@trpc/server"
 import { ZodError } from "zod"
-import { BulkOperationResult, ListImagesInput } from "../types/image"
+import { ListImagesInput } from "../types/image"
 import {
   applyImageQueryParams,
-  parsePaginationLink,
-  buildNextPageUrl,
-  getLastImageMarker,
   validateGlanceService,
   mapErrorResponseToTRPCError,
   ImageErrorHandlers,
@@ -15,7 +12,6 @@ import {
   withErrorHandling,
   formatBulkOperationError,
   validateBulkImageIds,
-  createBulkOperationSummary,
   chunkArray,
   processBulkOperation,
 } from "./imageHelpers"
@@ -176,123 +172,6 @@ describe("imageHelpers", () => {
       expect(queryParams.has("limit")).toBe(false)
       expect(queryParams.has("protected")).toBe(false)
       expect(queryParams.get("sort")).toBe("name:asc")
-    })
-  })
-
-  describe("parsePaginationLink", () => {
-    it("should parse a valid pagination URL", () => {
-      const url = "https://api.example.com/v2/images?marker=image-123&limit=25"
-      const result = parsePaginationLink(url)
-
-      expect(result).toEqual({
-        marker: "image-123",
-        limit: 25,
-      })
-    })
-
-    it("should handle URL with only marker", () => {
-      const url = "https://api.example.com/v2/images?marker=image-456"
-      const result = parsePaginationLink(url)
-
-      expect(result).toEqual({
-        marker: "image-456",
-        limit: undefined,
-      })
-    })
-
-    it("should handle URL with only limit", () => {
-      const url = "https://api.example.com/v2/images?limit=50"
-      const result = parsePaginationLink(url)
-
-      expect(result).toEqual({
-        marker: undefined,
-        limit: 50,
-      })
-    })
-
-    it("should handle URL with no pagination params", () => {
-      const url = "https://api.example.com/v2/images"
-      const result = parsePaginationLink(url)
-
-      expect(result).toEqual({
-        marker: undefined,
-        limit: undefined,
-      })
-    })
-
-    it("should return null for invalid URL", () => {
-      const invalidUrl = "not-a-valid-url"
-      const result = parsePaginationLink(invalidUrl)
-
-      expect(result).toBeNull()
-    })
-
-    it("should handle URL with invalid limit value", () => {
-      const url = "https://api.example.com/v2/images?marker=image-123&limit=invalid"
-      const result = parsePaginationLink(url)
-
-      expect(result).toEqual({
-        marker: "image-123",
-        limit: NaN,
-      })
-    })
-  })
-
-  describe("buildNextPageUrl", () => {
-    it("should build next page URL with marker", () => {
-      const baseUrl = "/v2/images"
-      const currentParams = new URLSearchParams("limit=25&status=active")
-      const nextMarker = "image-456"
-
-      const result = buildNextPageUrl(baseUrl, currentParams, nextMarker)
-
-      expect(result).toBe("/v2/images?limit=25&status=active&marker=image-456")
-    })
-
-    it("should replace existing marker", () => {
-      const baseUrl = "/v2/images"
-      const currentParams = new URLSearchParams("limit=25&marker=old-marker")
-      const nextMarker = "new-marker"
-
-      const result = buildNextPageUrl(baseUrl, currentParams, nextMarker)
-
-      expect(result).toBe("/v2/images?limit=25&marker=new-marker")
-    })
-
-    it("should handle empty current params", () => {
-      const baseUrl = "/v2/images"
-      const currentParams = new URLSearchParams()
-      const nextMarker = "image-123"
-
-      const result = buildNextPageUrl(baseUrl, currentParams, nextMarker)
-
-      expect(result).toBe("/v2/images?marker=image-123")
-    })
-  })
-
-  describe("getLastImageMarker", () => {
-    it("should return the ID of the last image", () => {
-      const images = [{ id: "image-1" }, { id: "image-2" }, { id: "image-3" }]
-
-      const result = getLastImageMarker(images)
-
-      expect(result).toBe("image-3")
-    })
-
-    it("should return undefined for empty array", () => {
-      const images: Array<{ id: string }> = []
-
-      const result = getLastImageMarker(images)
-
-      expect(result).toBeUndefined()
-    })
-
-    it("should return the ID for single image array", () => {
-      const images = [{ id: "single-image" }]
-
-      const result = getLastImageMarker(images)
-
-      expect(result).toBe("single-image")
     })
   })
 
@@ -702,66 +581,6 @@ describe("imageHelpers", () => {
         expect(() => validateBulkImageIds([], "activate")).toThrow(
           "Cannot activate - at least one image ID is required"
         )
-      })
-    })
-
-    describe("createBulkOperationSummary", () => {
-      it("should create summary for all successful operations", () => {
-        const result: BulkOperationResult = {
-          successful: ["image-1", "image-2", "image-3"],
-          failed: [],
-        }
-
-        const summary = createBulkOperationSummary(result, "deleted")
-
-        expect(summary).toBe("Successfully deleted all 3 image(s)")
-      })
-
-      it("should create summary for all failed operations", () => {
-        const result: BulkOperationResult = {
-          successful: [],
-          failed: [
-            { imageId: "image-1", error: "Error 1" },
-            { imageId: "image-2", error: "Error 2" },
-          ],
-        }
-
-        const summary = createBulkOperationSummary(result, "deleted")
-
-        expect(summary).toBe("Failed to delete all 2 image(s)")
-      })
-
-      it("should create summary for partial success", () => {
-        const result: BulkOperationResult = {
-          successful: ["image-1", "image-2"],
-          failed: [{ imageId: "image-3", error: "Error" }],
-        }
-
-        const summary = createBulkOperationSummary(result, "activated")
-
-        expect(summary).toBe("Partially activated 2/3 image(s) (67% success rate)")
-      })
-
-      it("should handle 50% success rate", () => {
-        const result: BulkOperationResult = {
-          successful: ["image-1"],
-          failed: [{ imageId: "image-2", error: "Error" }],
-        }
-
-        const summary = createBulkOperationSummary(result, "deactivated")
-
-        expect(summary).toBe("Partially deactivated 1/2 image(s) (50% success rate)")
-      })
-
-      it("should handle empty result", () => {
-        const result: BulkOperationResult = {
-          successful: [],
-          failed: [],
-        }
-
-        const summary = createBulkOperationSummary(result, "deleted")
-
-        expect(summary).toContain("Failed to delete all 0 image(s)")
       })
     })
 
