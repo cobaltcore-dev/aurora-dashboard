@@ -21,12 +21,12 @@ export function ErrorPage({ statusCode, message, onHomeClick, onBackClick, title
         <ButtonRow className="mt-6">
           {onBackClick && (
             <Button onClick={onBackClick} variant="primary">
-              <Trans id="go_back">Go Back</Trans>
+              <Trans>Back</Trans>
             </Button>
           )}
           {onHomeClick && (
             <Button onClick={onHomeClick}>
-              <Trans id="go_to_home">Home</Trans>
+              <Trans>Home</Trans>
             </Button>
           )}
         </ButtonRow>

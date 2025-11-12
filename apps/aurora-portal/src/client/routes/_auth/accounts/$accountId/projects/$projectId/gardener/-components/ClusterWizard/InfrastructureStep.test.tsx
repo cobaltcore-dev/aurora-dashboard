@@ -28,12 +28,6 @@ describe("InfrastructureStep", () => {
     )
   }
 
-  beforeEach(async () => {
-    await act(async () => {
-      i18n.activate("en")
-    })
-  })
-
   const defaultProps = {
     formData: defaultFormData,
     onFormDataChange: vi.fn(),

@@ -649,13 +649,10 @@ describe("deleteFlavor", () => {
 
     compute.del.mockRejectedValue(networkError)
 
-    await expect(deleteFlavor(compute, flavorId)).rejects.toThrow(
-      new TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: ERROR_CODES.DELETE_FLAVOR_FAILED,
-        cause: networkError,
-      })
-    )
+    await expect(deleteFlavor(compute, flavorId)).rejects.toMatchObject({
+      code: "INTERNAL_SERVER_ERROR",
+      message: ERROR_CODES.DELETE_FLAVOR_FAILED,
+    })
 
     expect(consoleSpy).toHaveBeenCalledWith(`Failed to delete flavor ${flavorId}:`, networkError)
     consoleSpy.mockRestore()
@@ -851,7 +848,6 @@ describe("createExtraSpecs", () => {
       new TRPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: ERROR_CODES.CREATE_EXTRA_SPECS_FAILED,
-        cause: networkError,
       })
     )
   })
@@ -1022,7 +1018,6 @@ describe("getExtraSpecs", () => {
       new TRPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: ERROR_CODES.GET_EXTRA_SPECS_FAILED,
-        cause: networkError,
       })
     )
   })
@@ -1194,7 +1189,6 @@ describe("deleteExtraSpec", () => {
       new TRPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: ERROR_CODES.DELETE_EXTRA_SPEC_FAILED,
-        cause: networkError,
       })
     )
   })
@@ -1314,7 +1308,6 @@ describe("getFlavorAccess", () => {
       new TRPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: ERROR_CODES.GET_FLAVOR_ACCESS_FAILED,
-        cause: networkError,
       })
     )
   })
@@ -1467,7 +1460,6 @@ describe("addTenantAccess", () => {
       new TRPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: ERROR_CODES.ADD_TENANT_ACCESS_FAILED,
-        cause: networkError,
       })
     )
   })
@@ -1617,7 +1609,6 @@ describe("removeTenantAccess", () => {
       new TRPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: ERROR_CODES.REMOVE_TENANT_ACCESS_FAILED,
-        cause: networkError,
       })
     )
   })

@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from "vitest"
 import { i18n } from "@lingui/core"
 import { I18nProvider } from "@lingui/react"
-import { render, screen, act } from "@testing-library/react"
+import { render, screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import { SelectedFilters, SelectedFiltersProps } from "./SelectedFilters"
@@ -16,12 +16,6 @@ describe("SelectedFilters", () => {
     { name: "category", value: "cloud" },
     { name: "region", value: "us-east-1" },
   ]
-
-  beforeEach(async () => {
-    await act(async () => {
-      i18n.activate("en")
-    })
-  })
 
   afterEach(() => {
     vi.clearAllMocks()

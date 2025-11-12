@@ -1,4 +1,4 @@
-import { render, screen, act } from "@testing-library/react"
+import { render, screen } from "@testing-library/react"
 import { describe, it, expect } from "vitest"
 import { Cluster } from "@/server/Gardener/types/cluster"
 import { i18n } from "@lingui/core"
@@ -14,12 +14,6 @@ const setup = (workers: Cluster["workers"]) => {
 }
 
 describe("WorkerSection", () => {
-  beforeEach(async () => {
-    await act(async () => {
-      i18n.activate("en")
-    })
-  })
-
   it('renders "No worker nodes configured" message when workers array is empty', () => {
     const workers: Cluster["workers"] = []
     setup(workers)

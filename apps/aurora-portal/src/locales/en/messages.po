@@ -124,6 +124,11 @@ msgstr "Aurora empowers you with robust tools to streamline your cloud managemen
 msgid "Auto Update"
 msgstr "Auto Update"
 
+#. js-lingui-explicit-id
+#: src/client/components/Error/ErrorPage.tsx:24
+msgid "go_back"
+msgstr "Back"
+
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterWizard/WizardActions.tsx:29
 msgid "Back"
 msgstr "Back"
@@ -588,6 +593,11 @@ msgstr "Hello \"/accounts/$accountId/projects_/$projectId/network/\"!"
 #: src/client/routes/_auth/aurora.tsx:16
 msgid "Hi"
 msgstr "Hi"
+
+#. js-lingui-explicit-id
+#: src/client/components/Error/ErrorPage.tsx:29
+msgid "go_to_home"
+msgstr "Home"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImageModal.tsx:92
 msgid "Id"
@@ -1210,7 +1220,7 @@ msgstr "Sign Out"
 msgid "Size"
 msgstr "Size"
 
-#: src/client/App.tsx:19
+#: src/client/App.tsx:18
 msgid "Something went wrong:"
 msgstr "Something went wrong:"
 
@@ -1387,7 +1397,7 @@ msgstr "Together, we can unlock the true potential of your cloud infrastructure.
 msgid "True"
 msgstr "True"
 
-#: src/client/App.tsx:23
+#: src/client/App.tsx:22
 msgid "Try again"
 msgstr "Try again"
 

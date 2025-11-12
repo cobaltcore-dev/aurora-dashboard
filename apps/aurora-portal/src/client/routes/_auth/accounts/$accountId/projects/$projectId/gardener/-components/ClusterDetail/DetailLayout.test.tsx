@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, act } from "@testing-library/react"
+import { render, screen, fireEvent } from "@testing-library/react"
 import { describe, it, expect, vi } from "vitest"
 import { i18n } from "@lingui/core"
 import { I18nProvider } from "@lingui/react"
@@ -52,12 +52,6 @@ describe("DetailLayout", () => {
     setDeleteClusterModal: vi.fn(),
     setDeleteClusterName: vi.fn(),
   }
-
-  beforeEach(async () => {
-    await act(async () => {
-      i18n.activate("en")
-    })
-  })
 
   afterEach(() => {
     vi.clearAllMocks()
