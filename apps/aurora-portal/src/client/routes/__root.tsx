@@ -6,8 +6,8 @@ import { NavigationItem } from "../components/navigation/types"
 import { TrpcClient, TrpcReact } from "../trpcClient"
 import { AuthContext } from "../store/AuthProvider"
 import { useEffect, useState } from "react"
-import { ErrorBoundary } from "../ErrorBoundry"
-import { NotFound } from "../NotFound"
+import { ErrorBoundary } from "../components/Error/ErrorBoundry"
+import { NotFound } from "../components/Error/NotFound"
 
 interface NavigationLayoutProps {
   mainNavItems?: NavigationItem[]
