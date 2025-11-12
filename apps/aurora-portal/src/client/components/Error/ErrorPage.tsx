@@ -1,6 +1,6 @@
 import { Button, ButtonRow, ContentHeading, PageHeader, Stack } from "@cloudoperators/juno-ui-components/index"
 import { Trans } from "@lingui/react/macro"
-import Logo from "./assets/logo.svg?react"
+import Logo from "../../assets/logo.svg?react"
 
 interface ErrorPageProps {
   statusCode?: number
