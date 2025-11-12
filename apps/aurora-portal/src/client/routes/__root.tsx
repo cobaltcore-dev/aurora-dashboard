@@ -1,4 +1,4 @@
-import { Outlet, createRootRouteWithContext, useRouterState, useNavigate } from "@tanstack/react-router"
+import { Outlet, createRootRouteWithContext, useRouterState, useNavigate, useRouter } from "@tanstack/react-router"
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools"
 import { Spinner, Stack, PageFooter } from "@cloudoperators/juno-ui-components"
 import { MainNavigation } from "../components/navigation/MainNavigation"
@@ -7,6 +7,8 @@ import { ErrorPage } from "../ErrorPage"
 import { TrpcClient, TrpcReact } from "../trpcClient"
 import { AuthContext } from "../store/AuthProvider"
 import { useEffect, useState } from "react"
+import { ErrorBoundary } from "../ErrorBoundry"
+import { NotFound } from "../NotFound"
 
 interface NavigationLayoutProps {
   mainNavItems?: NavigationItem[]
@@ -20,32 +22,8 @@ interface MyRouterContext {
 
 export const Route = createRootRouteWithContext<MyRouterContext>()({
   component: AuroraLayout,
-
-  notFoundComponent: () => {
-    const navigate = useNavigate()
-    return (
-      <ErrorPage
-        statusCode={404}
-        title="Page Not Found"
-        message="The page you're looking for doesn't exist."
-        onHomeClick={() => navigate({ to: "/" })}
-        showHeader={false}
-      />
-    )
-  },
-
-  errorComponent: ({ error }) => {
-    const navigate = useNavigate()
-    return (
-      <ErrorPage
-        statusCode={500}
-        title="Something went wrong"
-        message={error?.message || "An unexpected error occurred."}
-        onHomeClick={() => navigate({ to: "/" })}
-        showHeader={true}
-      />
-    )
-  },
+  notFoundComponent: NotFound,
+  errorComponent: ErrorBoundary,
 })
 
 function AuroraLayout({ mainNavItems = [] }: NavigationLayoutProps) {

@@ -1,4 +1,4 @@
-import { Button, ContentHeading, PageHeader, Stack } from "@cloudoperators/juno-ui-components/index"
+import { Button, ButtonRow, ContentHeading, PageHeader, Stack } from "@cloudoperators/juno-ui-components/index"
 import { Trans } from "@lingui/react/macro"
 import Logo from "./assets/logo.svg?react"
 
@@ -6,20 +6,30 @@ interface ErrorPageProps {
   statusCode?: number
   message: string
   onHomeClick?: () => void
+  onBackClick?: () => void
   title: string
   showHeader?: boolean
 }
 
-export function ErrorPage({ statusCode, message, onHomeClick, title, showHeader = true }: ErrorPageProps) {
+export function ErrorPage({ statusCode, message, onHomeClick, onBackClick, title, showHeader = true }: ErrorPageProps) {
   const content = (
     <Stack direction="vertical" alignment="center" distribution="center" className="py-20">
-      {statusCode && <div className="text-6xl font-bold text-theme-danger mb-4">{statusCode}</div>}
+      {statusCode && <div className="text-6xl font-bold text-theme-danger">{statusCode}</div>}
       <ContentHeading>{title}</ContentHeading>
-      <p className="">{message}</p>
-      {onHomeClick && (
-        <Button onClick={onHomeClick} variant="primary" className="mt-4">
-          <Trans id="go_to_home">Go to Home</Trans>
-        </Button>
+      <p>{message}</p>
+      {(onBackClick || onHomeClick) && (
+        <ButtonRow className="mt-6">
+          {onBackClick && (
+            <Button onClick={onBackClick} variant="primary">
+              <Trans id="go_back">Go Back</Trans>
+            </Button>
+          )}
+          {onHomeClick && (
+            <Button onClick={onHomeClick}>
+              <Trans id="go_to_home">Home</Trans>
+            </Button>
+          )}
+        </ButtonRow>
       )}
     </Stack>
   )
