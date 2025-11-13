@@ -8,6 +8,16 @@ declare const BFF_ENDPOINT: string
 const getLinks = () => [
   httpBatchLink({
     url: BFF_ENDPOINT,
+    async fetch(url, options) {
+      const response = await fetch(url, options)
+
+      if (response.status === 401) {
+        window.location.href = "/auth/login"
+      }
+
+      return response
+    },
+
     async headers() {
       try {
         const { csrfToken } = await fetch("/csrf-token").then((res) => res.json())
