@@ -117,52 +117,6 @@ export function applyImageQueryParams(queryParams: URLSearchParams, input: ListI
 }
 
 /**
- * Utility function to parse pagination links from OpenStack Glance API response
- * @param linkUrl - Full URL with pagination parameters
- * @returns Extracted marker and other pagination info, or null if not parseable
- */
-export function parsePaginationLink(linkUrl: string): { marker?: string; limit?: number } | null {
-  try {
-    const url = new URL(linkUrl)
-    const marker = url.searchParams.get("marker")
-    const limitStr = url.searchParams.get("limit")
-
-    return {
-      marker: marker || undefined,
-      limit: limitStr ? parseInt(limitStr, 10) : undefined,
-    }
-  } catch {
-    return null
-  }
-}
-
-/**
- * Constructs next page URL for pagination by combining base URL with current parameters and next marker
- * @param baseUrl - The base API URL (e.g., "/v2/images")
- * @param currentParams - Current query parameters
- * @param nextMarker - The marker for the next page
- * @returns Full URL for next page
- */
-export function buildNextPageUrl(baseUrl: string, currentParams: URLSearchParams, nextMarker: string): string {
-  const nextParams = new URLSearchParams(currentParams)
-  nextParams.set("marker", nextMarker)
-  return `${baseUrl}?${nextParams.toString()}`
-}
-
-/**
- * Extracts marker from the last image in the current page
- * Useful for manual pagination when API doesn't provide next link
- * @param images - Array of images from current page
- * @returns The ID of the last image, or undefined if no images
- */
-export function getLastImageMarker(images: Array<{ id: string }>): string | undefined {
-  if (images.length === 0) {
-    return undefined
-  }
-  return images[images.length - 1].id
-}
-
-/**
  * Validates that the OpenStack Glance service is available
  * @param glance - The OpenStack Glance service instance
  * @throws TRPCError if service is not available
@@ -546,30 +500,6 @@ export function validateBulkImageIds(imageIds: string[], operation: string): voi
       code: "BAD_REQUEST",
       message: `Cannot ${operation} - at least one image ID is required`,
     })
-  }
-}
-
-/**
- * Creates a summary message for bulk operation results
- * @param result - The bulk operation result
- * @param operation - The operation performed (e.g., "deleted", "activated")
- * @returns Summary string
- */
-export function createBulkOperationSummary(result: BulkOperationResult, operation: string): string {
-  const total = result.successful.length + result.failed.length
-  const successRate = total > 0 ? Math.round((result.successful.length / total) * 100) : 0
-
-  // Handle edge case where there are no items at all
-  if (total === 0) {
-    return `Failed to ${operation.replace(/ed$/, "e")} all 0 image(s)`
-  }
-
-  if (result.failed.length === 0) {
-    return `Successfully ${operation} all ${result.successful.length} image(s)`
-  } else if (result.successful.length === 0) {
-    return `Failed to ${operation.replace(/ed$/, "e")} all ${result.failed.length} image(s)`
-  } else {
-    return `Partially ${operation} ${result.successful.length}/${total} image(s) (${successRate}% success rate)`
   }
 }
 

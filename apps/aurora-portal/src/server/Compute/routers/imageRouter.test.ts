@@ -295,10 +295,13 @@ describe("imageRouter", () => {
 
       const result = await caller.image.updateImage(input)
 
-      expect(mockCtx.mockGlance.patch).toHaveBeenCalledWith("v2/images/123e4567-e89b-12d3-a456-426614174000", {
-        json: operations,
-        headers: { "Content-Type": "application/openstack-images-v2.1-json-patch" },
-      })
+      expect(mockCtx.mockGlance.patch).toHaveBeenCalledWith(
+        "v2/images/123e4567-e89b-12d3-a456-426614174000",
+        operations,
+        {
+          headers: { "Content-Type": "application/openstack-images-v2.1-json-patch" },
+        }
+      )
       expect(result).toEqual(mockGlanceImage)
     })
   })
@@ -321,10 +324,13 @@ describe("imageRouter", () => {
 
       const result = await caller.image.updateImageVisibility(input)
 
-      expect(mockCtx.mockGlance.patch).toHaveBeenCalledWith("v2/images/123e4567-e89b-12d3-a456-426614174000", {
-        json: [{ op: "replace", path: "/visibility", value: "public" }],
-        headers: { "Content-Type": "application/openstack-images-v2.1-json-patch" },
-      })
+      expect(mockCtx.mockGlance.patch).toHaveBeenCalledWith(
+        "v2/images/123e4567-e89b-12d3-a456-426614174000",
+        [{ op: "replace", path: "/visibility", value: "public" }],
+        {
+          headers: { "Content-Type": "application/openstack-images-v2.1-json-patch" },
+        }
+      )
       expect(result).toEqual(updatedImage)
     })
 

@@ -65,54 +65,56 @@ const osTypeSchema = z.union([
 ])
 
 // Main image schema
-export const imageSchema = z.object({
-  id: z.string(),
-  name: z.string().optional().nullable(),
-  status: imageStatusSchema.optional(),
-  visibility: imageVisibilitySchema.optional(),
-  protected: z.boolean().optional(),
-  checksum: z.string().optional().nullable(),
-  container_format: containerFormatSchema.optional().nullable(),
-  disk_format: diskFormatSchema.optional().nullable(),
-  min_ram: z.number().optional(),
-  min_disk: z.number().optional(),
-  size: z.number().optional(),
-  virtual_size: z.number().optional().nullable(),
-  created_at: z.string().optional(),
-  updated_at: z.string().optional(),
-  deleted_at: z.string().optional().nullable(),
-  owner: z.string().optional().nullable(),
-  os_hidden: z.boolean().optional(),
-  os_hash_algo: z.string().optional().nullable(),
-  os_hash_value: z.string().optional().nullable(),
-  schema: z.string().optional(),
-  metadata: z.record(z.string()).optional(),
-  file: z.string().optional(),
-  self: z.string().optional(),
-  tags: z.array(z.string()).optional(),
-  direct_url: z.string().optional().nullable(),
-  hw_disk_bus: z.string().optional().nullable(),
-  hw_scsi_model: z.string().optional().nullable(),
-  hw_serial: z.string().optional().nullable(),
-  hw_qemu_guest_agent: z.boolean().optional(),
-  hw_vif_model: z.string().optional().nullable(),
-  hw_rng_model: z.string().optional().nullable(),
-  hw_machine_type: z.string().optional().nullable(),
-  os_type: osTypeSchema.optional().nullable(),
-  os_distro: z.string().optional().nullable(),
-  os_version: z.string().optional().nullable(),
-  os_require_quiesce: z.boolean().optional(),
-  links: z.array(linkSchema).optional(),
-  members: z.array(z.string()).optional(),
-  locations: z
-    .array(
-      z.object({
-        url: z.string(),
-        metadata: z.record(z.any()).optional(),
-      })
-    )
-    .optional(),
-})
+export const imageSchema = z
+  .object({
+    id: z.string(),
+    name: z.string().optional().nullable(),
+    status: imageStatusSchema.optional(),
+    visibility: imageVisibilitySchema.optional(),
+    protected: z.boolean().optional(),
+    checksum: z.string().optional().nullable(),
+    container_format: containerFormatSchema.optional().nullable(),
+    disk_format: diskFormatSchema.optional().nullable(),
+    min_ram: z.number().optional(),
+    min_disk: z.number().optional(),
+    size: z.number().optional(),
+    virtual_size: z.number().optional().nullable(),
+    created_at: z.string().optional(),
+    updated_at: z.string().optional(),
+    deleted_at: z.string().optional().nullable(),
+    owner: z.string().optional().nullable(),
+    os_hidden: z.boolean().optional(),
+    os_hash_algo: z.string().optional().nullable(),
+    os_hash_value: z.string().optional().nullable(),
+    schema: z.string().optional(),
+    metadata: z.record(z.string()).optional(),
+    file: z.string().optional(),
+    self: z.string().optional(),
+    tags: z.array(z.string()).optional(),
+    direct_url: z.string().optional().nullable(),
+    hw_disk_bus: z.string().optional().nullable(),
+    hw_scsi_model: z.string().optional().nullable(),
+    hw_serial: z.string().optional().nullable(),
+    hw_qemu_guest_agent: z.boolean().optional(),
+    hw_vif_model: z.string().optional().nullable(),
+    hw_rng_model: z.string().optional().nullable(),
+    hw_machine_type: z.string().optional().nullable(),
+    os_type: osTypeSchema.optional().nullable(),
+    os_distro: z.string().optional().nullable(),
+    os_version: z.string().optional().nullable(),
+    os_require_quiesce: z.boolean().optional(),
+    links: z.array(linkSchema).optional(),
+    members: z.array(z.string()).optional(),
+    locations: z
+      .array(
+        z.object({
+          url: z.string(),
+          metadata: z.record(z.any()).optional(),
+        })
+      )
+      .optional(),
+  })
+  .passthrough() // Allow custom metadata properties not defined in schema
 
 // Image Member Schemas
 export const memberStatusSchema = z.enum(["pending", "accepted", "rejected"])
