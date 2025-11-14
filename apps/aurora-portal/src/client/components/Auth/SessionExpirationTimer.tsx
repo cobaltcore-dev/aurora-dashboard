@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react"
-import { useLingui } from "@lingui/react/macro"
 
 export function SessionExpirationTimer(props: { className?: string; sessionExpired: Date; logout?: () => void }) {
   const [timeLeft, setTimeLeft] = useState<string>("")
@@ -8,10 +7,9 @@ export function SessionExpirationTimer(props: { className?: string; sessionExpir
     const updateCountdown = () => {
       const now = new Date()
       const timeDiff = props.sessionExpired.getTime() - now.getTime()
-      const { t } = useLingui()
 
       if (timeDiff <= 0) {
-        setTimeLeft(t`expired!`)
+        setTimeLeft(`expired!`)
         return
       }
 
