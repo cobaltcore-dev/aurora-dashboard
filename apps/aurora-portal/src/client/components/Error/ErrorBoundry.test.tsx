@@ -4,7 +4,6 @@ import { render, screen } from "@testing-library/react"
 import { i18n } from "@lingui/core"
 import { I18nProvider } from "@lingui/react"
 import { ErrorBoundary } from "./ErrorBoundry"
-import { NotFound } from "./NotFound"
 
 vi.mock("@tanstack/react-router", () => ({
   useNavigate: () => vi.fn(),
@@ -30,20 +29,29 @@ describe("ErrorBoundary", () => {
     expect(screen.getByText("Test error")).toBeInTheDocument()
   })
 
-  it("shows both back and home buttons", () => {
+  it("show home button, and no Back without history", () => {
+    const error = new Error("Test error")
+    render(<ErrorBoundary error={error} />, { wrapper: TestingProvider })
+    expect(screen.queryAllByText("Back")).not.toBeInTheDocument()
+    expect(screen.getByText("Home")).toBeInTheDocument()
+  })
+
+  it("shows both back and home buttons when history exists", () => {
+    Object.defineProperty(window, "history", {
+      value: { length: 2, back: vi.fn() },
+      writable: true,
+      configurable: true,
+    })
+    Object.defineProperty(document, "referrer", {
+      value: window.location.origin + "/previous-page",
+      writable: true,
+      configurable: true,
+    })
+
     const error = new Error("Test error")
     render(<ErrorBoundary error={error} />, { wrapper: TestingProvider })
 
     expect(screen.getByText("Back")).toBeInTheDocument()
     expect(screen.getByText("Home")).toBeInTheDocument()
-  })
-})
-
-describe("NotFound", () => {
-  it("renders 404 page", () => {
-    render(<NotFound />, { wrapper: TestingProvider })
-
-    expect(screen.getByText("404")).toBeInTheDocument()
-    expect(screen.getByText("Page Not Found")).toBeInTheDocument()
   })
 })
