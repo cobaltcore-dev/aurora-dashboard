@@ -1,4 +1,4 @@
-import { Button, ButtonRow, ContentHeading, PageHeader, Stack } from "@cloudoperators/juno-ui-components/index"
+import { Button, ButtonRow, ContentHeading, PageHeader, Container } from "@cloudoperators/juno-ui-components/index"
 import { Trans } from "@lingui/react/macro"
 import Logo from "../../assets/logo.svg?react"
 
@@ -13,7 +13,7 @@ interface ErrorPageProps {
 
 export function ErrorPage({ statusCode, message, onHomeClick, onBackClick, title, showHeader = true }: ErrorPageProps) {
   const content = (
-    <Stack direction="vertical" alignment="center" distribution="center" className="py-20">
+    <Container className="flex flex-col items-center justify-center py-12 px-6 sm:px-12 md:px-20">
       {statusCode && <div className="text-6xl font-bold text-theme-high">{statusCode}</div>}
       <ContentHeading>{title}</ContentHeading>
       <p>{message}</p>
@@ -31,7 +31,7 @@ export function ErrorPage({ statusCode, message, onHomeClick, onBackClick, title
           )}
         </ButtonRow>
       )}
-    </Stack>
+    </Container>
   )
 
   // For 500 errors that bypass layout - needs own header
