@@ -1,16 +1,29 @@
 import { useNavigate, useRouter } from "@tanstack/react-router"
 import { ErrorPage } from "./ErrorPage"
+import { useEffect, useState } from "react"
 
 export function ErrorBoundary({ error }: { error: Error }) {
   const navigate = useNavigate()
   const router = useRouter()
+  const [hasHistory, setHasHistory] = useState(false)
+
+  useEffect(() => {
+    const hasRealHistory =
+      window.history.length > 1 &&
+      document.referrer !== "" &&
+      new URL(document.referrer).origin === window.location.origin
+
+    setHasHistory(hasRealHistory)
+  }, [])
 
   const handleBack = () => {
-    if (window.history.length > 1) {
+    if (hasHistory) {
       router.history.back()
-    } else {
-      navigate({ to: "/" })
     }
+  }
+
+  const handleHome = () => {
+    navigate({ to: "/" })
   }
 
   return (
@@ -18,8 +31,8 @@ export function ErrorBoundary({ error }: { error: Error }) {
       statusCode={500}
       title="Something went wrong"
       message={error?.message || "An unexpected error occurred."}
-      onBackClick={handleBack}
-      onHomeClick={() => navigate({ to: "/" })}
+      onBackClick={hasHistory ? handleBack : undefined}
+      onHomeClick={handleHome}
       showHeader={true}
     />
   )

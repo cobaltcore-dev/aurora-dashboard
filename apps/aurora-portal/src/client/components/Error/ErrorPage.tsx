@@ -34,7 +34,6 @@ export function ErrorPage({ statusCode, message, onHomeClick, onBackClick, title
     </Container>
   )
 
-  // For 500 errors that bypass layout - needs own header
   if (showHeader) {
     return (
       <>
