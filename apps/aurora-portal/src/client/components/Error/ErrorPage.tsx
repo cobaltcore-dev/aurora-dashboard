@@ -14,7 +14,7 @@ interface ErrorPageProps {
 export function ErrorPage({ statusCode, message, onHomeClick, onBackClick, title, showHeader = true }: ErrorPageProps) {
   const content = (
     <Stack direction="vertical" alignment="center" distribution="center" className="py-20">
-      {statusCode && <div className="text-6xl font-bold text-theme-danger">{statusCode}</div>}
+      {statusCode && <div className="text-6xl font-bold text-theme-high">{statusCode}</div>}
       <ContentHeading>{title}</ContentHeading>
       <p>{message}</p>
       {(onBackClick || onHomeClick) && (
