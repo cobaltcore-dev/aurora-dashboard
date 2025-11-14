@@ -32,7 +32,7 @@ describe("ErrorBoundary", () => {
   it("show home button, and no Back without history", () => {
     const error = new Error("Test error")
     render(<ErrorBoundary error={error} />, { wrapper: TestingProvider })
-    expect(screen.queryAllByText("Back")).not.toBeInTheDocument()
+    expect(screen.queryByText("Back")).not.toBeInTheDocument()
     expect(screen.getByText("Home")).toBeInTheDocument()
   })
 
