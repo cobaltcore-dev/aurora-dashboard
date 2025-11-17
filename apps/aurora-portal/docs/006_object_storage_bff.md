@@ -12,7 +12,7 @@ All endpoints, parameters, headers, and response codes match the official specif
 
 ## Files Created
 
-### 1. `object-storage.ts` - Zod Schemas
+### 1. `objectStorage.ts` - Zod Schemas
 
 Comprehensive Zod schemas for type-safe validation of:
 
@@ -21,7 +21,7 @@ Comprehensive Zod schemas for type-safe validation of:
 - **Object operations**: Upload/download/copy/delete objects, manage object metadata
 - **Bulk operations**: Bulk delete for multiple objects
 
-### 2. `object-storageHelpers.ts` - Helper Functions
+### 2. `objectStorageHelpers.ts` - Helper Functions
 
 Utility functions including:
 
@@ -31,7 +31,7 @@ Utility functions including:
 - Header builders (`buildAccountMetadataHeaders`, `buildContainerMetadataHeaders`, `buildObjectMetadataHeaders`)
 - Error handling (`mapErrorResponseToTRPCError`, `handleZodParsingError`, `withErrorHandling`)
 
-### 3. `object-storageRouter.ts` - tRPC Router
+### 3. `objectStorageRouter.ts` - tRPC Router
 
 Complete tRPC router with procedures for:
 
@@ -201,7 +201,7 @@ Account (Project/Tenant)
 ### 1. Add to your tRPC router
 
 ```typescript
-import { objectStorageRouter } from "./routes/object-storageRouter"
+import { objectStorageRouter } from "./routes/objectStorageRouter"
 
 export const appRouter = createTRPCRouter({
   // ... existing routers
@@ -216,15 +216,15 @@ The router expects `ctx.openstack` to be available with a `service("swift")` met
 ### 3. Import types as needed
 
 ```typescript
-import type { ContainerSummary, ObjectMetadata, AccountInfo } from "./types/object-storage"
+import type { ContainerSummary, ObjectMetadata, AccountInfo } from "./types/objectStorage"
 ```
 
-## Differences from Glance Implementation
+## Implementation Features
 
-1. **Service Name**: Uses `swift` instead of `glance`
+1. **Service Name**: Uses `swift`
 2. **URL Structure**: Swift uses path-based hierarchy (`/account/container/object`)
 3. **Metadata Headers**: Different header prefixes (`X-Account-Meta-`, `X-Container-Meta-`, `X-Object-Meta-`)
-4. **Binary Data**: More emphasis on binary content handling for objects
+4. **Binary Data**: Strong emphasis on binary content handling for objects
 5. **HTTP Methods**: Swift uses COPY method for object copying
 6. **Response Codes**: 204 No Content for empty listings instead of 200
 
@@ -235,7 +235,6 @@ This implementation follows:
 - OpenStack Swift API v1 specification
 - REST best practices
 - TypeScript/tRPC conventions
-- The pattern established by the Glance Image Service example
 
 ## HTTP Response Codes
 
