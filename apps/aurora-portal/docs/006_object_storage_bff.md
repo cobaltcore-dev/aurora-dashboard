@@ -16,10 +16,13 @@ All endpoints, parameters, headers, and response codes match the official specif
 
 Comprehensive Zod schemas for type-safe validation of:
 
+- **Service operations**: Service info and capabilities
 - **Account operations**: List containers, manage account metadata
 - **Container operations**: Create/list/update/delete containers, manage container metadata
 - **Object operations**: Upload/download/copy/delete objects, manage object metadata
 - **Bulk operations**: Bulk delete for multiple objects
+- **Folder operations**: Create, list, move, and delete pseudo-folders
+- **Temporary URLs**: Generate time-limited signed URLs
 
 ### 2. `objectStorageHelpers.ts` - Helper Functions
 
@@ -30,10 +33,16 @@ Utility functions including:
 - Header parsers (`parseAccountInfo`, `parseContainerInfo`, `parseObjectMetadata`)
 - Header builders (`buildAccountMetadataHeaders`, `buildContainerMetadataHeaders`, `buildObjectMetadataHeaders`)
 - Error handling (`mapErrorResponseToTRPCError`, `handleZodParsingError`, `withErrorHandling`)
+- **Folder helpers** (`parseBreadcrumb`, `normalizeFolderPath`, `isFolderMarker`, `extractFolders`)
+- **Temporary URL helpers** (`generateTempUrlSignature`, `constructTempUrl`)
 
 ### 3. `objectStorageRouter.ts` - tRPC Router
 
 Complete tRPC router with procedures for:
+
+#### Service Operations
+
+- `getServiceInfo` - Get Swift service capabilities and configuration from `/info` endpoint
 
 #### Account Operations
 
@@ -63,6 +72,17 @@ Complete tRPC router with procedures for:
 
 - `bulkDelete` - Delete up to 10,000 objects in a single request
 
+#### Folder Operations
+
+- `createFolder` - Create a pseudo-folder with zero-byte marker object
+- `listFolderContents` - List folders and objects at the current level with hierarchy
+- `moveFolder` - Move a folder by copying all objects and deleting originals
+- `deleteFolder` - Delete a folder recursively or non-recursively
+
+#### Temporary URL Operations
+
+- `generateTempUrl` - Generate time-limited signed URL for secure object access
+
 ## Key Features
 
 ### 1. Type Safety
@@ -85,11 +105,13 @@ Full support for:
 
 ### 4. Advanced Features
 
+- **Service Discovery**: Query Swift capabilities via `/info` endpoint
+- **Pseudo-Folders**: Create and manage hierarchical folder structures
+- **Temporary URLs**: Generate time-limited signed URLs with HMAC-SHA256
 - **Pagination**: Marker-based pagination for large listings
 - **Filtering**: Prefix, delimiter, and range-based filtering
 - **Large Objects**: Support for static and dynamic large objects
 - **Symlinks**: Support for symlink objects
-- **Temporary URLs**: Support for temp URL keys
 - **ACLs**: Container-level access control lists
 - **Versioning**: Container versioning support
 - **Quotas**: Account and container quota support
@@ -179,6 +201,74 @@ const result = await trpc.objectStorage.bulkDelete.mutate({
 console.log(`Deleted: ${result.numberDeleted}`)
 console.log(`Not found: ${result.numberNotFound}`)
 console.log(`Errors:`, result.errors)
+```
+
+### Get Service Info
+
+```typescript
+const info = await trpc.objectStorage.getServiceInfo.query()
+
+console.log("Max file size:", info.swift.max_file_size)
+console.log("Max bulk deletes:", info.swift.bulk_delete?.max_deletes_per_request)
+console.log("Policies:", info.swift.policies)
+console.log("Container listing limit:", info.swift.container_listing_limit)
+```
+
+### Folder Management
+
+```typescript
+// Create folder
+await trpc.objectStorage.createFolder.mutate({
+  container: "documents",
+  folderPath: "projects/2024/",
+  metadata: {
+    created_by: "user123",
+  },
+})
+
+// List folder contents
+const { folders, objects } = await trpc.objectStorage.listFolderContents.query({
+  container: "documents",
+  folderPath: "projects/",
+})
+
+console.log("Subfolders:", folders) // [{ name: "2024", path: "projects/2024/" }]
+console.log("Files:", objects) // Array of ObjectSummary
+
+// Move folder
+const movedCount = await trpc.objectStorage.moveFolder.mutate({
+  container: "documents",
+  sourcePath: "projects/2024/",
+  destinationPath: "archive/2024/",
+})
+
+console.log(`Moved ${movedCount} objects`)
+
+// Delete folder recursively
+const deletedCount = await trpc.objectStorage.deleteFolder.mutate({
+  container: "documents",
+  folderPath: "temp/",
+  recursive: true,
+})
+
+console.log(`Deleted ${deletedCount} objects`)
+```
+
+### Generate Temporary URL
+
+```typescript
+const tempUrl = await trpc.objectStorage.generateTempUrl.mutate({
+  container: "documents",
+  object: "report.pdf",
+  method: "GET",
+  expiresIn: 3600, // 1 hour
+  filename: "Q4_Report.pdf", // Optional: force download with specific name
+})
+
+console.log("Temporary URL:", tempUrl.url)
+console.log("Expires at:", new Date(tempUrl.expiresAt * 1000))
+
+// Share this URL - it's valid for 1 hour without authentication
 ```
 
 ## API Hierarchy
@@ -331,18 +421,86 @@ All operations include comprehensive error handling:
 2. **Partial Downloads**: Use `range` parameter for partial object downloads
 3. **Metadata Only**: Use HEAD operations (`getObjectMetadata`) when you don't need content
 4. **Bulk Operations**: Use `bulkDelete` for deleting multiple objects efficiently
+5. **Folder Navigation**: Use `delimiter="/"` for hierarchical folder browsing
+
+## Extended Capabilities
+
+### Service Discovery
+
+Query the Swift service to discover available features, limits, and configuration:
+
+```typescript
+const info = await trpc.objectStorage.getServiceInfo.query()
+```
+
+Returns information about:
+
+- Maximum file sizes and object name lengths
+- Available storage policies
+- Bulk operation limits
+- Large object configuration (SLO settings)
+- Temporary URL support
+- Container and account listing limits
+
+### Pseudo-Hierarchical Folders
+
+Manage folder-like structures using Swift's delimiter and prefix features:
+
+**Key Features:**
+
+- Zero-byte marker objects with trailing `/` for folder representation
+- Breadcrumb navigation helpers for path parsing
+- Recursive and non-recursive deletion options
+- Move operations using copy + delete pattern
+- Content-Type: `application/directory` for folder markers
+
+**Helper Functions:**
+
+- `parseBreadcrumb(path)` - Convert path to breadcrumb segments
+- `normalizeFolderPath(path)` - Ensure trailing slash
+- `isFolderMarker(name, bytes)` - Detect folder markers
+- `extractFolders(objects, prefix)` - Get folder names from object list
+
+### Temporary URL Generation
+
+Generate time-limited, cryptographically signed URLs for secure object access without authentication:
+
+**Features:**
+
+- HMAC-SHA256 signature algorithm
+- Configurable expiration time
+- Supports GET, PUT, POST, DELETE methods
+- Optional Content-Disposition filename parameter
+- Works with account-level or container-level temp URL keys
+
+**Security:**
+
+- Requires temp URL key configured on account or container
+- Signature prevents URL tampering
+- Time-based expiration enforced by Swift
+- No authentication required for URL access
+
+**Use Cases:**
+
+- Share files with external parties
+- Temporary upload permissions
+- Time-limited download links
+- Direct browser uploads without exposing credentials
 
 ## Next Steps
 
-1. Add support for Large Object operations (SLO/DLO)
-2. Implement temporary URL generation helper
-3. Add support for container synchronization
-4. Implement form POST for browser uploads
-5. Add support for archive extraction (tar files)
-6. Implement CORS configuration helpers
+1. Add support for chunked/resumable uploads for large files
+2. Add support for container synchronization
+3. Implement form POST for browser uploads
+4. Add support for archive extraction (tar files)
+5. Implement CORS configuration helpers
+6. Add support for Static Large Object (SLO) manifest operations
 
 ## References
 
 - [OpenStack Swift API Documentation](https://docs.openstack.org/api-ref/object-store/)
 - [OpenStack Swift Overview](https://docs.openstack.org/swift/latest/api/object_api_v1_overview.html)
 - [Swift Large Objects](https://docs.openstack.org/swift/latest/api/large_objects.html)
+- [Swift Temporary URLs](https://docs.openstack.org/swift/latest/api/temporary_url_middleware.html)
+- [Swift Pseudo-Hierarchical Folders](https://docs.openstack.org/swift/latest/api/pseudo-hierarchical-folders-directories.html)
+- [Swift Discoverability (/info endpoint)](https://docs.openstack.org/swift/latest/api/discoverability.html)

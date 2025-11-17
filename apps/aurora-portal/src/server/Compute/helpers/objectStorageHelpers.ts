@@ -617,3 +617,132 @@ export async function withErrorHandling<T>(operation: () => Promise<T>, operatio
     throw wrapError(error as Error, operationName)
   }
 }
+
+// ============================================================================
+// FOLDER HELPERS (PSEUDO-HIERARCHICAL)
+// ============================================================================
+
+/**
+ * Parses a folder path into breadcrumb segments
+ * @param folderPath - The folder path to parse (e.g., "documents/2024/reports/")
+ * @returns Array of breadcrumb segments with names and paths
+ */
+export function parseBreadcrumb(folderPath: string): Array<{ name: string; path: string }> {
+  if (!folderPath || folderPath === "/") return []
+
+  const segments = folderPath.split("/").filter(Boolean)
+  return segments.map((segment, index) => ({
+    name: segment,
+    path: segments.slice(0, index + 1).join("/") + "/",
+  }))
+}
+
+/**
+ * Extracts folders from object list based on delimiter
+ * @param objects - List of objects from Swift API
+ * @param prefix - Current prefix/folder path
+ * @returns Array of folder names
+ */
+export function extractFolders(objects: { name: string }[], prefix: string = ""): string[] {
+  const folders = new Set<string>()
+  const prefixLength = prefix.length
+
+  objects.forEach((obj) => {
+    const relativePath = obj.name.substring(prefixLength)
+    const slashIndex = relativePath.indexOf("/")
+
+    if (slashIndex > 0) {
+      folders.add(relativePath.substring(0, slashIndex))
+    }
+  })
+
+  return Array.from(folders).sort()
+}
+
+/**
+ * Ensures a folder path ends with a trailing slash
+ * @param path - The path to normalize
+ * @returns Normalized path with trailing slash
+ */
+export function normalizeFolderPath(path: string): string {
+  if (!path) return ""
+  return path.endsWith("/") ? path : `${path}/`
+}
+
+/**
+ * Checks if an object name represents a folder marker (zero-byte object with trailing /)
+ * @param name - Object name
+ * @param bytes - Object size in bytes
+ * @returns True if it's a folder marker
+ */
+export function isFolderMarker(name: string, bytes: number): boolean {
+  return name.endsWith("/") && bytes === 0
+}
+
+// ============================================================================
+// TEMPORARY URL HELPERS
+// ============================================================================
+
+/**
+ * Generates a temporary URL signature using HMAC-SHA256
+ * @param key - The temp URL key (from account or container)
+ * @param method - HTTP method (GET, PUT, etc.)
+ * @param expires - Unix timestamp when URL expires
+ * @param path - Full path to the object
+ * @returns HMAC signature
+ */
+export async function generateTempUrlSignature(
+  key: string,
+  method: string,
+  expires: number,
+  path: string
+): Promise<string> {
+  // Swift uses HMAC-SHA1 or HMAC-SHA256 for temp URL signatures
+  // Format: HMAC(key, "METHOD\nEXPIRES\nPATH")
+  const message = `${method}\n${expires}\n${path}`
+
+  // Use Web Crypto API for HMAC-SHA256
+  const encoder = new TextEncoder()
+  const keyData = encoder.encode(key)
+  const messageData = encoder.encode(message)
+
+  const cryptoKey = await crypto.subtle.importKey("raw", keyData, { name: "HMAC", hash: "SHA-256" }, false, ["sign"])
+
+  const signature = await crypto.subtle.sign("HMAC", cryptoKey, messageData)
+
+  // Convert to hex string
+  return Array.from(new Uint8Array(signature))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("")
+}
+
+/**
+ * Constructs a temporary URL for object access
+ * @param swiftUrl - Base Swift URL
+ * @param containerPath - Path to container
+ * @param objectPath - Path to object
+ * @param signature - HMAC signature
+ * @param expires - Unix timestamp
+ * @param filename - Optional Content-Disposition filename
+ * @returns Complete temporary URL
+ */
+export function constructTempUrl(
+  swiftUrl: string,
+  containerPath: string,
+  objectPath: string,
+  signature: string,
+  expires: number,
+  filename?: string
+): string {
+  const fullPath = `${containerPath}/${encodeURIComponent(objectPath)}`
+  const url = new URL(fullPath, swiftUrl)
+
+  url.searchParams.append("temp_url_sig", signature)
+  url.searchParams.append("temp_url_expires", expires.toString())
+
+  if (filename) {
+    url.searchParams.append("filename", filename)
+  }
+
+  return url.toString()
+}

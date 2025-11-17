@@ -1,3 +1,4 @@
+import { TRPCError } from "@trpc/server"
 import { protectedProcedure } from "../../trpc"
 import {
   validateSwiftService,
@@ -12,6 +13,10 @@ import {
   mapErrorResponseToTRPCError,
   handleZodParsingError,
   withErrorHandling,
+  normalizeFolderPath,
+  isFolderMarker,
+  generateTempUrlSignature,
+  constructTempUrl,
 } from "../helpers/objectStorageHelpers"
 import {
   listContainersInputSchema,
@@ -39,9 +44,46 @@ import {
   ObjectMetadata,
   ObjectContentResponse,
   BulkDeleteResult,
+  serviceInfoSchema,
+  ServiceInfo,
+  createFolderInputSchema,
+  listFolderContentsInputSchema,
+  FolderContents,
+  moveFolderInputSchema,
+  deleteFolderInputSchema,
+  TempUrl,
+  generateTempUrlInputSchema,
 } from "../types/objectStorage"
 
 export const objectStorageRouter = {
+  // ============================================================================
+  // SERVICE OPERATIONS
+  // ============================================================================
+
+  /**
+   * Gets Swift service information and capabilities from /info endpoint
+   * This provides information about supported features, limits, and configuration
+   */
+  getServiceInfo: protectedProcedure.query(async ({ ctx }): Promise<ServiceInfo> => {
+    return withErrorHandling(async () => {
+      const openstackSession = ctx.openstack
+      const swift = openstackSession?.service("swift")
+
+      validateSwiftService(swift)
+
+      const response = await swift.get("/info").catch((error) => {
+        throw mapErrorResponseToTRPCError(error, { operation: "get service info" })
+      })
+
+      const parsedData = serviceInfoSchema.safeParse(await response.json())
+      if (!parsedData.success) {
+        throw handleZodParsingError(parsedData.error, "get service info")
+      }
+
+      return parsedData.data
+    }, "get service info")
+  }),
+
   // ============================================================================
   // ACCOUNT OPERATIONS
   // ============================================================================
@@ -679,5 +721,370 @@ export const objectStorageRouter = {
             })) || [],
         }
       }, "bulk delete objects")
+    }),
+
+  // ============================================================================
+  // FOLDER OPERATIONS (PSEUDO-HIERARCHICAL)
+  // ============================================================================
+
+  /**
+   * Creates a pseudo-folder by creating a zero-byte marker object
+   * Folder paths should end with a trailing slash (e.g., "documents/2024/")
+   */
+  createFolder: protectedProcedure.input(createFolderInputSchema).mutation(async ({ input, ctx }): Promise<boolean> => {
+    return withErrorHandling(async () => {
+      const { account, container, folderPath, metadata } = input
+      const openstackSession = ctx.openstack
+      const swift = openstackSession?.service("swift")
+
+      validateSwiftService(swift)
+
+      // Ensure folder path ends with /
+      const normalizedPath = normalizeFolderPath(folderPath)
+
+      const headers: Record<string, string> = {
+        "Content-Type": "application/directory",
+        "Content-Length": "0",
+      }
+
+      // Add custom metadata if provided
+      if (metadata) {
+        Object.entries(metadata).forEach(([key, value]) => {
+          headers[`X-Object-Meta-${key}`] = value
+        })
+      }
+
+      const accountPath = account || ""
+      const url = accountPath
+        ? `${accountPath}/${encodeURIComponent(container)}/${encodeURIComponent(normalizedPath)}`
+        : `${encodeURIComponent(container)}/${encodeURIComponent(normalizedPath)}`
+
+      await swift
+        .put(url, {
+          headers,
+          body: new ArrayBuffer(0), // Zero-byte object
+        })
+        .catch((error) => {
+          throw mapErrorResponseToTRPCError(error, { operation: "create folder", container, object: normalizedPath })
+        })
+
+      return true
+    }, "create folder")
+  }),
+
+  /**
+   * Lists folder contents (folders and objects at current level)
+   * Uses delimiter="/" to get pseudo-hierarchical folder structure
+   */
+  listFolderContents: protectedProcedure
+    .input(listFolderContentsInputSchema)
+    .query(async ({ input, ctx }): Promise<FolderContents> => {
+      return withErrorHandling(async () => {
+        const { account, container, folderPath, limit, marker } = input
+        const openstackSession = ctx.openstack
+        const swift = openstackSession?.service("swift")
+
+        validateSwiftService(swift)
+
+        // Build query parameters with delimiter for folder structure
+        const queryParams = new URLSearchParams()
+        queryParams.append("format", "json")
+        queryParams.append("delimiter", "/")
+
+        if (folderPath) {
+          queryParams.append("prefix", normalizeFolderPath(folderPath))
+        }
+        if (limit !== undefined) {
+          queryParams.append("limit", limit.toString())
+        }
+        if (marker) {
+          queryParams.append("marker", marker)
+        }
+
+        const accountPath = account || ""
+        const url = accountPath
+          ? `${accountPath}/${encodeURIComponent(container)}?${queryParams.toString()}`
+          : `${encodeURIComponent(container)}?${queryParams.toString()}`
+
+        const response = await swift.get(url).catch((error) => {
+          throw mapErrorResponseToTRPCError(error, { operation: "list folder contents", container })
+        })
+
+        // Handle empty response
+        if (response.status === 204) {
+          return { folders: [], objects: [] }
+        }
+
+        const data = await response.json()
+        const prefix = folderPath ? normalizeFolderPath(folderPath) : ""
+
+        // Separate folders (subdir entries) from objects
+        const folders: Array<{ name: string; path: string }> = []
+        const objects: ObjectSummary[] = []
+
+        // Swift API returns either subdir entries (folders) or object entries
+        type SwiftListItem =
+          | { subdir: string }
+          | {
+              name: string
+              hash: string
+              bytes: number
+              content_type: string
+              last_modified: string
+              symlink_path?: string
+            }
+
+        data.forEach((item: SwiftListItem) => {
+          if ("subdir" in item) {
+            // This is a folder
+            const folderName = item.subdir.substring(prefix.length).replace(/\/$/, "")
+            folders.push({
+              name: folderName,
+              path: item.subdir,
+            })
+          } else {
+            // This is an object
+            // Filter out folder marker objects (zero-byte objects with trailing /)
+            if (!isFolderMarker(item.name, item.bytes)) {
+              objects.push({
+                name: item.name,
+                hash: item.hash,
+                bytes: item.bytes,
+                content_type: item.content_type,
+                last_modified: item.last_modified,
+                symlink_path: item.symlink_path,
+              })
+            }
+          }
+        })
+
+        return { folders, objects }
+      }, "list folder contents")
+    }),
+
+  /**
+   * Moves a folder by copying all objects with the source prefix to the destination
+   * This operation can take time for folders with many objects
+   */
+  moveFolder: protectedProcedure.input(moveFolderInputSchema).mutation(async ({ input, ctx }): Promise<number> => {
+    return withErrorHandling(async () => {
+      const { account, container, sourcePath, destinationPath, destinationContainer } = input
+      const openstackSession = ctx.openstack
+      const swift = openstackSession?.service("swift")
+
+      validateSwiftService(swift)
+
+      const normalizedSource = normalizeFolderPath(sourcePath)
+      const normalizedDest = normalizeFolderPath(destinationPath)
+      const destContainer = destinationContainer || container
+
+      // List all objects with source prefix
+      const queryParams = new URLSearchParams()
+      queryParams.append("format", "json")
+      queryParams.append("prefix", normalizedSource)
+
+      const accountPath = account || ""
+      const listUrl = accountPath
+        ? `${accountPath}/${encodeURIComponent(container)}?${queryParams.toString()}`
+        : `${encodeURIComponent(container)}?${queryParams.toString()}`
+
+      const listResponse = await swift.get(listUrl).catch((error) => {
+        throw mapErrorResponseToTRPCError(error, { operation: "list objects for move", container })
+      })
+
+      if (listResponse.status === 204) {
+        return 0 // No objects to move
+      }
+
+      const objects: ObjectSummary[] = await listResponse.json()
+      let movedCount = 0
+
+      // Copy each object to new location
+      for (const obj of objects) {
+        const relativePath = obj.name.substring(normalizedSource.length)
+        const newObjectName = normalizedDest + relativePath
+
+        // Copy object
+        const copyHeaders: Record<string, string> = {
+          "X-Copy-From": `/${encodeURIComponent(container)}/${encodeURIComponent(obj.name)}`,
+          "Content-Length": "0",
+        }
+
+        if (destinationContainer && destinationContainer !== container) {
+          copyHeaders["X-Copy-From-Account"] = account || ""
+        }
+
+        const destUrl = accountPath
+          ? `${accountPath}/${encodeURIComponent(destContainer)}/${encodeURIComponent(newObjectName)}`
+          : `${encodeURIComponent(destContainer)}/${encodeURIComponent(newObjectName)}`
+
+        await swift
+          .put(destUrl, {
+            headers: copyHeaders,
+            body: new ArrayBuffer(0),
+          })
+          .catch((error) => {
+            throw mapErrorResponseToTRPCError(error, {
+              operation: "copy object during folder move",
+              container: destContainer,
+              object: newObjectName,
+            })
+          })
+
+        movedCount++
+      }
+
+      // Delete original objects using bulk delete
+      const objectPaths = objects.map((obj: ObjectSummary) => `/${container}/${obj.name}`)
+
+      if (objectPaths.length > 0) {
+        const bulkDeleteUrl = accountPath ? `${accountPath}?bulk-delete` : "?bulk-delete"
+        const body = objectPaths.join("\n")
+
+        await swift
+          .post(bulkDeleteUrl, {
+            body,
+            headers: {
+              "Content-Type": "text/plain",
+            },
+          })
+          .catch((error) => {
+            throw mapErrorResponseToTRPCError(error, { operation: "delete original objects after move" })
+          })
+      }
+
+      return movedCount
+    }, "move folder")
+  }),
+
+  /**
+   * Deletes a folder by deleting all objects with the folder prefix
+   * Uses bulk delete for efficiency
+   */
+  deleteFolder: protectedProcedure.input(deleteFolderInputSchema).mutation(async ({ input, ctx }): Promise<number> => {
+    return withErrorHandling(async () => {
+      const { account, container, folderPath, recursive } = input
+      const openstackSession = ctx.openstack
+      const swift = openstackSession?.service("swift")
+
+      validateSwiftService(swift)
+
+      const normalizedPath = normalizeFolderPath(folderPath)
+
+      // List all objects with folder prefix
+      const queryParams = new URLSearchParams()
+      queryParams.append("format", "json")
+      queryParams.append("prefix", normalizedPath)
+
+      if (!recursive) {
+        // Only delete objects at this level (use delimiter)
+        queryParams.append("delimiter", "/")
+      }
+
+      const accountPath = account || ""
+      const listUrl = accountPath
+        ? `${accountPath}/${encodeURIComponent(container)}?${queryParams.toString()}`
+        : `${encodeURIComponent(container)}?${queryParams.toString()}`
+
+      const listResponse = await swift.get(listUrl).catch((error) => {
+        throw mapErrorResponseToTRPCError(error, { operation: "list objects for deletion", container })
+      })
+
+      if (listResponse.status === 204) {
+        return 0 // No objects to delete
+      }
+
+      const objects: ObjectSummary[] = await listResponse.json()
+      const objectPaths = objects.map((obj) => `/${container}/${obj.name}`)
+
+      if (objectPaths.length === 0) {
+        return 0
+      }
+
+      // Use bulk delete
+      const bulkDeleteUrl = accountPath ? `${accountPath}?bulk-delete` : "?bulk-delete"
+      const body = objectPaths.join("\n")
+
+      const response = await swift
+        .post(bulkDeleteUrl, {
+          body,
+          headers: {
+            "Content-Type": "text/plain",
+          },
+        })
+        .catch((error) => {
+          throw mapErrorResponseToTRPCError(error, { operation: "bulk delete folder contents" })
+        })
+
+      const result = await response.json()
+      return result["Number Deleted"] || 0
+    }, "delete folder")
+  }),
+
+  // ============================================================================
+  // TEMPORARY URL OPERATIONS
+  // ============================================================================
+
+  /**
+   * Generates a temporary URL for time-limited object access
+   * Requires temp URL key to be configured at account or container level
+   */
+  generateTempUrl: protectedProcedure
+    .input(generateTempUrlInputSchema)
+    .mutation(async ({ input, ctx }): Promise<TempUrl> => {
+      return withErrorHandling(async () => {
+        const { account, container, object, method, expiresIn, filename } = input
+        const openstackSession = ctx.openstack
+        const swift = openstackSession?.service("swift")
+
+        validateSwiftService(swift)
+
+        // Get account or container metadata to retrieve temp URL key
+        const accountPath = account || ""
+        const metadataUrl = accountPath
+          ? `${accountPath}/${encodeURIComponent(container)}`
+          : encodeURIComponent(container)
+
+        const metadataResponse = await swift.head(metadataUrl).catch((error) => {
+          throw mapErrorResponseToTRPCError(error, { operation: "get temp URL key", container })
+        })
+
+        // Try container-level key first, then account-level
+        const tempUrlKey =
+          metadataResponse.headers.get("x-container-meta-temp-url-key") ||
+          metadataResponse.headers.get("x-account-meta-temp-url-key")
+
+        if (!tempUrlKey) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Temp URL key not configured for this account or container",
+          })
+        }
+
+        // Calculate expiration timestamp
+        const now = Math.floor(Date.now() / 1000)
+        const expiresAt = now + expiresIn
+
+        // Build the path for signature calculation
+        const objectPath = accountPath
+          ? `/${accountPath}/${container}/${object}`
+          : `/v1/AUTH_${account || ""}/${container}/${object}`
+
+        // Generate signature
+        const signature = await generateTempUrlSignature(tempUrlKey, method, expiresAt, objectPath)
+
+        // Get Swift base URL from the service endpoints
+        const endpoints = swift.availableEndpoints()
+        const publicEndpoint = endpoints?.find((ep) => ep.interface === "public")
+        const swiftBaseUrl = publicEndpoint?.url || ""
+
+        // Construct the temporary URL
+        const tempUrl = constructTempUrl(swiftBaseUrl, accountPath || container, object, signature, expiresAt, filename)
+
+        return {
+          url: tempUrl,
+          expiresAt,
+        }
+      }, "generate temp URL")
     }),
 }

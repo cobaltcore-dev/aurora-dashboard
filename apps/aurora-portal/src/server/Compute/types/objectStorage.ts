@@ -1,6 +1,84 @@
 import { z } from "zod"
 
 // ============================================================================
+// SERVICE INFO SCHEMAS
+// ============================================================================
+
+// Service capabilities schema (from /info endpoint)
+export const serviceInfoSchema = z.object({
+  swift: z
+    .object({
+      version: z.string().optional(),
+      // Core capabilities
+      allow_account_management: z.boolean().optional(),
+      account_autocreate: z.boolean().optional(),
+
+      // Storage policies
+      policies: z
+        .array(
+          z.object({
+            name: z.string(),
+            default: z.boolean().optional(),
+          })
+        )
+        .optional(),
+
+      // Bulk operations
+      bulk_delete: z
+        .object({
+          max_deletes_per_request: z.number(),
+          max_failed_deletes: z.number(),
+        })
+        .optional(),
+
+      bulk_upload: z
+        .object({
+          max_containers_per_extraction: z.number(),
+          max_failed_extractions: z.number(),
+        })
+        .optional(),
+
+      // Quotas
+      container_quotas: z.object({}).optional(),
+      account_quotas: z.object({}).optional(),
+
+      // Large objects
+      slo: z
+        .object({
+          max_manifest_segments: z.number(),
+          max_manifest_size: z.number(),
+          min_segment_size: z.number(),
+        })
+        .optional(),
+
+      // Temporary URLs
+      tempurl: z
+        .object({
+          methods: z.array(z.string()),
+        })
+        .optional(),
+
+      // Listing limits
+      container_listing_limit: z.number().optional(),
+      account_listing_limit: z.number().optional(),
+      max_container_name_length: z.number().optional(),
+      max_object_name_length: z.number().optional(),
+      max_file_size: z.number().optional(),
+      max_meta_name_length: z.number().optional(),
+      max_meta_value_length: z.number().optional(),
+      max_meta_count: z.number().optional(),
+      max_meta_overall_size: z.number().optional(),
+      max_header_size: z.number().optional(),
+
+      // Additional features
+      container_sync: z.object({}).optional(),
+      symlink: z.object({}).optional(),
+      versioned_writes: z.object({}).optional(),
+    })
+    .passthrough(), // Allow additional unknown fields
+})
+
+// ============================================================================
 // COMMON SCHEMAS
 // ============================================================================
 
@@ -269,6 +347,64 @@ export const bulkDeleteResultSchema = z.object({
 })
 
 // ============================================================================
+// FOLDER OPERATIONS SCHEMAS (PSEUDO-HIERARCHICAL)
+// ============================================================================
+
+// Create folder input schema
+export const createFolderInputSchema = baseContainerInputSchema.extend({
+  folderPath: z.string().min(1), // e.g., "documents/2024/reports/" (should end with /)
+  metadata: z.record(z.string()).optional(),
+})
+
+// List folder contents input schema
+export const listFolderContentsInputSchema = baseContainerInputSchema.extend({
+  folderPath: z.string().optional(), // Empty string or undefined for root level
+  limit: z.number().min(1).max(10000).optional(),
+  marker: z.string().optional(),
+})
+
+// Folder contents response schema
+export const folderContentsSchema = z.object({
+  folders: z.array(
+    z.object({
+      name: z.string(), // Just the folder name
+      path: z.string(), // Full path with trailing /
+    })
+  ),
+  objects: z.array(objectSummarySchema),
+})
+
+// Move folder input schema
+export const moveFolderInputSchema = baseContainerInputSchema.extend({
+  sourcePath: z.string().min(1),
+  destinationPath: z.string().min(1),
+  destinationContainer: z.string().optional(),
+})
+
+// Delete folder input schema
+export const deleteFolderInputSchema = baseContainerInputSchema.extend({
+  folderPath: z.string().min(1),
+  recursive: z.boolean().optional().default(true),
+})
+
+// ============================================================================
+// TEMPORARY URL SCHEMAS
+// ============================================================================
+
+// Generate temporary URL input schema
+export const generateTempUrlInputSchema = baseObjectInputSchema.extend({
+  method: z.enum(["GET", "PUT", "POST", "DELETE"]),
+  expiresIn: z.number().min(1), // seconds
+  filename: z.string().optional(), // Optional Content-Disposition filename
+})
+
+// Temporary URL response schema
+export const tempUrlSchema = z.object({
+  url: z.string(),
+  expiresAt: z.number(), // Unix timestamp
+})
+
+// ============================================================================
 // RESPONSE SCHEMAS
 // ============================================================================
 
@@ -288,10 +424,20 @@ export const objectContentResponseSchema = z.object({
   metadata: objectMetadataSchema,
 })
 
+// Service info response
+export const serviceInfoResponseSchema = serviceInfoSchema
+
+// Folder contents response
+export const folderContentsResponseSchema = folderContentsSchema
+
+// Temporary URL response
+export const tempUrlResponseSchema = tempUrlSchema
+
 // ============================================================================
 // TYPE EXPORTS
 // ============================================================================
 
+export type ServiceInfo = z.infer<typeof serviceInfoSchema>
 export type AccountInfo = z.infer<typeof accountInfoSchema>
 export type AccountMetadata = z.infer<typeof accountMetadataSchema>
 export type ContainerSummary = z.infer<typeof containerSummarySchema>
@@ -300,6 +446,8 @@ export type ContainerMetadata = z.infer<typeof containerMetadataSchema>
 export type ObjectSummary = z.infer<typeof objectSummarySchema>
 export type ObjectMetadata = z.infer<typeof objectMetadataSchema>
 export type ObjectContentResponse = z.infer<typeof objectContentResponseSchema>
+export type FolderContents = z.infer<typeof folderContentsSchema>
+export type TempUrl = z.infer<typeof tempUrlSchema>
 
 export type ListContainersInput = z.infer<typeof listContainersInputSchema>
 export type UpdateAccountMetadataInput = z.infer<typeof updateAccountMetadataInputSchema>
@@ -321,3 +469,10 @@ export type GetObjectMetadataInput = z.infer<typeof getObjectMetadataInputSchema
 
 export type BulkDeleteInput = z.infer<typeof bulkDeleteInputSchema>
 export type BulkDeleteResult = z.infer<typeof bulkDeleteResultSchema>
+
+export type CreateFolderInput = z.infer<typeof createFolderInputSchema>
+export type ListFolderContentsInput = z.infer<typeof listFolderContentsInputSchema>
+export type MoveFolderInput = z.infer<typeof moveFolderInputSchema>
+export type DeleteFolderInput = z.infer<typeof deleteFolderInputSchema>
+
+export type GenerateTempUrlInput = z.infer<typeof generateTempUrlInputSchema>
