@@ -1,4 +1,4 @@
-import { render, screen, act } from "@testing-library/react"
+import { render, screen } from "@testing-library/react"
 import { expect, describe, it } from "vitest"
 import { i18n } from "@lingui/core"
 import { I18nProvider } from "@lingui/react"
@@ -45,12 +45,6 @@ describe("ReviewStep", () => {
       </I18nProvider>
     )
   }
-
-  beforeEach(async () => {
-    await act(async () => {
-      i18n.activate("en")
-    })
-  })
 
   it("renders without crashing", () => {
     setup(defaultFormData)

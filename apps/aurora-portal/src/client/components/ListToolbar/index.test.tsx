@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { cleanup, render, screen, act } from "@testing-library/react"
+import { cleanup, render, screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import { i18n } from "@lingui/core"
@@ -65,12 +65,6 @@ const renderShell = ({ filterSettings, sortSettings, onFilter, onSort, onSearch,
 })
 
 describe("ListToolbar", () => {
-  beforeEach(async () => {
-    await act(async () => {
-      i18n.activate("en")
-    })
-  })
-
   afterEach(() => {
     cleanup()
     vi.clearAllMocks()

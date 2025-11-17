@@ -1,13 +1,13 @@
 import { Outlet, createRootRouteWithContext, useRouterState } from "@tanstack/react-router"
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools"
 import { Spinner, Stack, PageFooter } from "@cloudoperators/juno-ui-components"
-// NavigationLayout.tsx
 import { MainNavigation } from "../components/navigation/MainNavigation"
 import { NavigationItem } from "../components/navigation/types"
-
 import { TrpcClient, TrpcReact } from "../trpcClient"
 import { AuthContext } from "../store/AuthProvider"
 import { useEffect, useState } from "react"
+import { ErrorBoundary } from "../components/Error/ErrorBoundry"
+import { NotFound } from "../components/Error/NotFound"
 
 interface NavigationLayoutProps {
   mainNavItems?: NavigationItem[]
@@ -21,6 +21,8 @@ interface MyRouterContext {
 
 export const Route = createRootRouteWithContext<MyRouterContext>()({
   component: AuroraLayout,
+  notFoundComponent: NotFound,
+  errorComponent: ErrorBoundary,
 })
 
 function AuroraLayout({ mainNavItems = [] }: NavigationLayoutProps) {

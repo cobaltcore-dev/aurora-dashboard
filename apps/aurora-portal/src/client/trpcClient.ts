@@ -8,6 +8,7 @@ declare const BFF_ENDPOINT: string
 const getLinks = () => [
   httpBatchLink({
     url: BFF_ENDPOINT,
+
     async headers() {
       try {
         const { csrfToken } = await fetch("/csrf-token").then((res) => res.json())

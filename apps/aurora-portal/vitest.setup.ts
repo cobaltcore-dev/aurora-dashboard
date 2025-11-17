@@ -24,8 +24,9 @@ beforeAll(() => {
     en: messages,
     de: deMessages,
   })
-  beforeEach(() => {
-    // Reset to default language before each test to avoid interference
-    i18n.activate("en")
-  })
+})
+
+beforeEach(() => {
+  // Reset to default language before each test to avoid interference
+  i18n.activate("en")
 })

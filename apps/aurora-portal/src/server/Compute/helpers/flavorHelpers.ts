@@ -19,6 +19,23 @@ interface FlavorAccessResponse {
 type TRPCErrorConfig = ConstructorParameters<typeof TRPCError>[0]
 type TRPCErrorCode = TRPCErrorConfig["code"]
 
+// Type guard for errors with statusCode
+interface ErrorWithStatus {
+  statusCode?: number
+  status?: number
+}
+
+function isErrorWithStatus(error: unknown): error is ErrorWithStatus {
+  return typeof error === "object" && error !== null && ("statusCode" in error || "status" in error)
+}
+
+function getStatusCodeFromError(error: unknown): number | undefined {
+  if (isErrorWithStatus(error)) {
+    return error.statusCode ?? error.status
+  }
+  return undefined
+}
+
 const FETCH_FLAVORS_STATUS_MAP: Record<number, { code: TRPCErrorCode; message: string }> = {
   401: { code: "UNAUTHORIZED", message: ERROR_CODES.FLAVORS_UNAUTHORIZED },
   403: { code: "FORBIDDEN", message: ERROR_CODES.FLAVORS_FORBIDDEN },
@@ -109,11 +126,17 @@ const REMOVE_TENANT_ACCESS_STATUS_MAP: Record<number, { code: TRPCErrorCode; mes
 }
 
 function handleHttpError(
-  response: Response,
+  statusCode: number | undefined,
   statusMap: Record<number, { code: TRPCErrorCode; message: string }>,
   defaultMessage: string
 ): never {
-  const statusCode = response.status
+  if (statusCode === undefined) {
+    throw new TRPCError({
+      code: "INTERNAL_SERVER_ERROR",
+      message: defaultMessage,
+    })
+  }
+
   const errorConfig = statusMap[statusCode] || {
     code: "BAD_REQUEST" as TRPCErrorCode,
     message: defaultMessage,
@@ -127,28 +150,6 @@ export function includesSearchTerm(flavor: Flavor, searchTerm: string): boolean 
   const searchableValues = [flavor.id, flavor.name, flavor.description]
 
   return searchableValues.some((value) => value != null && typeof value === "string" && regex.test(value))
-}
-
-export async function fetchFlavors(compute: SignalOpenstackServiceType, isPublic: string): Promise<Flavor[]> {
-  const response = await compute.get("flavors/detail", { queryParams: { is_public: isPublic } })
-
-  if (!response.ok) {
-    handleHttpError(response, FETCH_FLAVORS_STATUS_MAP, ERROR_CODES.FLAVORS_FETCH_FAILED)
-  }
-
-  const rawData = await response.text()
-  const jsonData = JSON.parse(rawData)
-
-  const parsedData = flavorResponseSchema.safeParse(jsonData)
-
-  if (!parsedData.success) {
-    throw new TRPCError({
-      code: "PARSE_ERROR",
-      message: ERROR_CODES.FLAVORS_PARSE_ERROR,
-    })
-  }
-
-  return parsedData.data.flavors
 }
 
 export function filterAndSortFlavors(
@@ -178,18 +179,63 @@ export function filterAndSortFlavors(
 
   return result
 }
+
+export async function fetchFlavors(compute: SignalOpenstackServiceType, isPublic: string): Promise<Flavor[]> {
+  let response
+
+  try {
+    response = await compute.get("flavors/detail", { queryParams: { is_public: isPublic } })
+  } catch (error) {
+    if (error instanceof TRPCError) throw error
+
+    const statusCode = getStatusCodeFromError(error)
+    handleHttpError(statusCode, FETCH_FLAVORS_STATUS_MAP, ERROR_CODES.FLAVORS_FETCH_FAILED)
+  }
+
+  if (!response.ok) {
+    handleHttpError(response.status, FETCH_FLAVORS_STATUS_MAP, ERROR_CODES.FLAVORS_FETCH_FAILED)
+  }
+
+  try {
+    const rawData = await response.text()
+    const jsonData = JSON.parse(rawData)
+    const parsedData = flavorResponseSchema.safeParse(jsonData)
+
+    if (!parsedData.success) {
+      throw new TRPCError({
+        code: "PARSE_ERROR",
+        message: ERROR_CODES.FLAVORS_PARSE_ERROR,
+      })
+    }
+    return parsedData.data.flavors
+  } catch (error) {
+    if (error instanceof TRPCError) throw error
+
+    throw new TRPCError({
+      code: "PARSE_ERROR",
+      message: ERROR_CODES.FLAVORS_PARSE_ERROR,
+    })
+  }
+}
+
 export async function createFlavor(
   compute: SignalOpenstackServiceType,
   flavorData: CreateFlavorInput
 ): Promise<Flavor> {
-  const requestBody = {
-    flavor: flavorData,
+  const requestBody = { flavor: flavorData }
+  let response
+
+  try {
+    response = await compute.post("flavors", requestBody)
+  } catch (error) {
+    if (error instanceof TRPCError) throw error
+
+    const statusCode = getStatusCodeFromError(error)
+    handleHttpError(statusCode, CREATE_FLAVOR_STATUS_MAP, ERROR_CODES.CREATE_FLAVOR_FAILED)
   }
 
-  const response = await compute.post("flavors", requestBody)
-
   if (!response.ok) {
-    handleHttpError(response, CREATE_FLAVOR_STATUS_MAP, ERROR_CODES.CREATE_FLAVOR_FAILED)
+    handleHttpError(response.status, CREATE_FLAVOR_STATUS_MAP, ERROR_CODES.CREATE_FLAVOR_FAILED)
   }
 
   try {
@@ -205,6 +251,7 @@ export async function createFlavor(
     })
   }
 }
+
 export async function deleteFlavor(compute: SignalOpenstackServiceType, flavorId: string): Promise<void> {
   if (!flavorId || flavorId.trim() === "") {
     throw new TRPCError({
@@ -212,16 +259,13 @@ export async function deleteFlavor(compute: SignalOpenstackServiceType, flavorId
       message: ERROR_CODES.DELETE_FLAVOR_INVALID_ID,
     })
   }
-  try {
-    const response = await compute.del(`flavors/${flavorId}`)
 
-    if (!response.ok) {
-      handleHttpError(response, DELETE_FLAVOR_STATUS_MAP, ERROR_CODES.DELETE_FLAVOR_FAILED)
-    }
+  let response
+
+  try {
+    response = await compute.del(`flavors/${flavorId}`)
   } catch (error) {
-    if (error instanceof TRPCError) {
-      throw error
-    }
+    if (error instanceof TRPCError) throw error
 
     console.error(`Failed to delete flavor ${flavorId}:`, error)
     throw new TRPCError({
@@ -230,30 +274,39 @@ export async function deleteFlavor(compute: SignalOpenstackServiceType, flavorId
       cause: error,
     })
   }
+
+  if (!response.ok) {
+    handleHttpError(response.status, DELETE_FLAVOR_STATUS_MAP, ERROR_CODES.DELETE_FLAVOR_FAILED)
+  }
 }
+
 export async function createExtraSpecs(
   compute: SignalOpenstackServiceType,
   flavorId: string,
   extra_specs: Record<string, string>
 ): Promise<Record<string, string>> {
+  let response
+
   try {
-    const response = await compute.post(`flavors/${flavorId}/os-extra_specs`, {
+    response = await compute.post(`flavors/${flavorId}/os-extra_specs`, {
       extra_specs: extra_specs,
     })
+  } catch (error) {
+    if (error instanceof TRPCError) throw error
 
-    if (!response.ok) {
-      handleHttpError(response, CREATE_EXTRA_SPECS_STATUS_MAP, ERROR_CODES.CREATE_EXTRA_SPECS_FAILED)
-    }
+    const statusCode = getStatusCodeFromError(error)
+    handleHttpError(statusCode, CREATE_EXTRA_SPECS_STATUS_MAP, ERROR_CODES.CREATE_EXTRA_SPECS_FAILED)
+  }
 
+  if (!response.ok) {
+    handleHttpError(response.status, CREATE_EXTRA_SPECS_STATUS_MAP, ERROR_CODES.CREATE_EXTRA_SPECS_FAILED)
+  }
+
+  try {
     const rawData = await response.text()
     const jsonData = JSON.parse(rawData)
-
     return jsonData.extra_specs
   } catch (error) {
-    if (error instanceof TRPCError) {
-      throw error
-    }
-
     throw new TRPCError({
       code: "INTERNAL_SERVER_ERROR",
       message: ERROR_CODES.CREATE_EXTRA_SPECS_FAILED,
@@ -261,26 +314,31 @@ export async function createExtraSpecs(
     })
   }
 }
+
 export async function getExtraSpecs(
   compute: SignalOpenstackServiceType,
   flavorId: string
 ): Promise<Record<string, string>> {
+  let response
+
   try {
-    const response = await compute.get(`flavors/${flavorId}/os-extra_specs`)
+    response = await compute.get(`flavors/${flavorId}/os-extra_specs`)
+  } catch (error) {
+    if (error instanceof TRPCError) throw error
 
-    if (!response.ok) {
-      handleHttpError(response, GET_EXTRA_SPECS_STATUS_MAP, ERROR_CODES.GET_EXTRA_SPECS_FAILED)
-    }
+    const statusCode = getStatusCodeFromError(error)
+    handleHttpError(statusCode, GET_EXTRA_SPECS_STATUS_MAP, ERROR_CODES.GET_EXTRA_SPECS_FAILED)
+  }
 
+  if (!response.ok) {
+    handleHttpError(response.status, GET_EXTRA_SPECS_STATUS_MAP, ERROR_CODES.GET_EXTRA_SPECS_FAILED)
+  }
+
+  try {
     const rawData = await response.text()
     const jsonData = JSON.parse(rawData)
-
     return jsonData.extra_specs || {}
   } catch (error) {
-    if (error instanceof TRPCError) {
-      throw error
-    }
-
     throw new TRPCError({
       code: "INTERNAL_SERVER_ERROR",
       message: ERROR_CODES.GET_EXTRA_SPECS_FAILED,
@@ -294,41 +352,43 @@ export async function deleteExtraSpec(
   flavorId: string,
   key: string
 ): Promise<void> {
+  let response
+
   try {
-    const response = await compute.del(`flavors/${flavorId}/os-extra_specs/${key}`)
-
-    if (!response.ok) {
-      handleHttpError(response, DELETE_EXTRA_SPEC_STATUS_MAP, ERROR_CODES.DELETE_EXTRA_SPEC_FAILED)
-    }
+    response = await compute.del(`flavors/${flavorId}/os-extra_specs/${key}`)
   } catch (error) {
-    if (error instanceof TRPCError) {
-      throw error
-    }
+    if (error instanceof TRPCError) throw error
 
-    throw new TRPCError({
-      code: "INTERNAL_SERVER_ERROR",
-      message: ERROR_CODES.DELETE_EXTRA_SPEC_FAILED,
-      cause: error,
-    })
+    const statusCode = getStatusCodeFromError(error)
+    handleHttpError(statusCode, DELETE_EXTRA_SPEC_STATUS_MAP, ERROR_CODES.DELETE_EXTRA_SPEC_FAILED)
+  }
+
+  if (!response.ok) {
+    handleHttpError(response.status, DELETE_EXTRA_SPEC_STATUS_MAP, ERROR_CODES.DELETE_EXTRA_SPEC_FAILED)
   }
 }
+
 export async function getFlavorAccess(compute: SignalOpenstackServiceType, flavorId: string): Promise<FlavorAccess[]> {
+  let response
+
   try {
-    const response = await compute.get(`flavors/${flavorId}/os-flavor-access`)
+    response = await compute.get(`flavors/${flavorId}/os-flavor-access`)
+  } catch (error) {
+    if (error instanceof TRPCError) throw error
 
-    if (!response.ok) {
-      handleHttpError(response, GET_FLAVOR_ACCESS_STATUS_MAP, ERROR_CODES.GET_FLAVOR_ACCESS_FAILED)
-    }
+    const statusCode = getStatusCodeFromError(error)
+    handleHttpError(statusCode, GET_FLAVOR_ACCESS_STATUS_MAP, ERROR_CODES.GET_FLAVOR_ACCESS_FAILED)
+  }
 
+  if (!response.ok) {
+    handleHttpError(response.status, GET_FLAVOR_ACCESS_STATUS_MAP, ERROR_CODES.GET_FLAVOR_ACCESS_FAILED)
+  }
+
+  try {
     const rawData = await response.text()
     const jsonData = JSON.parse(rawData) as FlavorAccessResponse
-
     return jsonData.flavor_access || []
   } catch (error) {
-    if (error instanceof TRPCError) {
-      throw error
-    }
-
     throw new TRPCError({
       code: "INTERNAL_SERVER_ERROR",
       message: ERROR_CODES.GET_FLAVOR_ACCESS_FAILED,
@@ -336,33 +396,37 @@ export async function getFlavorAccess(compute: SignalOpenstackServiceType, flavo
     })
   }
 }
+
 export async function addTenantAccess(
   compute: SignalOpenstackServiceType,
   flavorId: string,
   tenantId: string
 ): Promise<FlavorAccess[]> {
+  let response
+
   try {
     const requestBody = {
       addTenantAccess: {
         tenant: tenantId,
       },
     }
+    response = await compute.post(`flavors/${flavorId}/action`, requestBody)
+  } catch (error) {
+    if (error instanceof TRPCError) throw error
 
-    const response = await compute.post(`flavors/${flavorId}/action`, requestBody)
+    const statusCode = getStatusCodeFromError(error)
+    handleHttpError(statusCode, ADD_TENANT_ACCESS_STATUS_MAP, ERROR_CODES.ADD_TENANT_ACCESS_FAILED)
+  }
 
-    if (!response.ok) {
-      handleHttpError(response, ADD_TENANT_ACCESS_STATUS_MAP, ERROR_CODES.ADD_TENANT_ACCESS_FAILED)
-    }
+  if (!response.ok) {
+    handleHttpError(response.status, ADD_TENANT_ACCESS_STATUS_MAP, ERROR_CODES.ADD_TENANT_ACCESS_FAILED)
+  }
 
+  try {
     const rawData = await response.text()
     const jsonData = JSON.parse(rawData) as FlavorAccessResponse
-
     return jsonData.flavor_access || []
   } catch (error) {
-    if (error instanceof TRPCError) {
-      throw error
-    }
-
     throw new TRPCError({
       code: "INTERNAL_SERVER_ERROR",
       message: ERROR_CODES.ADD_TENANT_ACCESS_FAILED,
@@ -376,28 +440,31 @@ export async function removeTenantAccess(
   flavorId: string,
   tenantId: string
 ): Promise<FlavorAccess[]> {
+  let response
+
   try {
     const requestBody = {
       removeTenantAccess: {
         tenant: tenantId,
       },
     }
+    response = await compute.post(`flavors/${flavorId}/action`, requestBody)
+  } catch (error) {
+    if (error instanceof TRPCError) throw error
 
-    const response = await compute.post(`flavors/${flavorId}/action`, requestBody)
+    const statusCode = getStatusCodeFromError(error)
+    handleHttpError(statusCode, REMOVE_TENANT_ACCESS_STATUS_MAP, ERROR_CODES.REMOVE_TENANT_ACCESS_FAILED)
+  }
 
-    if (!response.ok) {
-      handleHttpError(response, REMOVE_TENANT_ACCESS_STATUS_MAP, ERROR_CODES.REMOVE_TENANT_ACCESS_FAILED)
-    }
+  if (!response.ok) {
+    handleHttpError(response.status, REMOVE_TENANT_ACCESS_STATUS_MAP, ERROR_CODES.REMOVE_TENANT_ACCESS_FAILED)
+  }
 
+  try {
     const rawData = await response.text()
     const jsonData = JSON.parse(rawData) as FlavorAccessResponse
-
     return jsonData.flavor_access || []
   } catch (error) {
-    if (error instanceof TRPCError) {
-      throw error
-    }
-
     throw new TRPCError({
       code: "INTERNAL_SERVER_ERROR",
       message: ERROR_CODES.REMOVE_TENANT_ACCESS_FAILED,

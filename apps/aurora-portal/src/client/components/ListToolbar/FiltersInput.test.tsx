@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest"
+import { describe, it, expect, vi, afterEach } from "vitest"
 import { render, screen, act } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { i18n } from "@lingui/core"
@@ -32,12 +32,6 @@ const mockFilters = [
 const mockOnChange = vi.fn()
 
 describe("FiltersInput", () => {
-  beforeEach(async () => {
-    await act(async () => {
-      i18n.activate("en")
-    })
-  })
-
   afterEach(() => {
     vi.clearAllMocks()
   })
