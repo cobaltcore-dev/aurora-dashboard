@@ -630,6 +630,170 @@ Returns `boolean` - `true` on success, `false` on failure.
 - **404**: Image or member not found
 - **403**: Access forbidden (must be image owner)
 
+## Bulk Image Operations
+
+These endpoints support performing operations on multiple images in parallel, with detailed tracking of successes and failures.
+
+### Delete Images (Bulk)
+
+Deletes multiple images in parallel.
+
+**Endpoint:** `deleteImages`  
+**Method:** Mutation  
+**Input Schema:** `deleteImagesInputSchema`
+
+#### Parameters
+
+| Parameter  | Type             | Description          |
+| ---------- | ---------------- | -------------------- |
+| `imageIds` | string[] (UUIDs) | Array of image UUIDs |
+
+#### Example Request
+
+```typescript
+const result = await client.compute.image.deleteImages.mutate({
+  imageIds: [
+    "a85abd86-55b3-4413-a5b7-6cd8a6bd99ac",
+    "b95abd86-55b3-4413-a5b7-6cd8a6bd99ad",
+    "c95abd86-55b3-4413-a5b7-6cd8a6bd99ae",
+  ],
+})
+```
+
+#### Response
+
+Returns `BulkOperationResult` with:
+
+- `successful`: Array of image IDs that were successfully deleted
+- `failed`: Array of objects containing `id` and `error` for failed deletions
+
+```typescript
+interface BulkOperationResult {
+  successful: string[]
+  failed: Array<{ id: string; error: string }>
+}
+```
+
+#### Example Response
+
+```typescript
+{
+  successful: [
+    "a85abd86-55b3-4413-a5b7-6cd8a6bd99ac",
+    "b95abd86-55b3-4413-a5b7-6cd8a6bd99ad",
+  ],
+  failed: [
+    {
+      id: "c95abd86-55b3-4413-a5b7-6cd8a6bd99ae",
+      error: "404",
+    },
+  ],
+}
+```
+
+---
+
+### Activate Images (Bulk)
+
+Reactivates multiple deactivated images in parallel.
+
+**Endpoint:** `activateImages`  
+**Method:** Mutation  
+**Input Schema:** `activateImagesInputSchema`
+
+#### Parameters
+
+| Parameter  | Type             | Description          |
+| ---------- | ---------------- | -------------------- |
+| `imageIds` | string[] (UUIDs) | Array of image UUIDs |
+
+#### Example Request
+
+```typescript
+const result = await client.compute.image.activateImages.mutate({
+  imageIds: ["a85abd86-55b3-4413-a5b7-6cd8a6bd99ac", "b95abd86-55b3-4413-a5b7-6cd8a6bd99ad"],
+})
+```
+
+#### Response
+
+Returns `BulkOperationResult` with:
+
+- `successful`: Array of image IDs that were successfully activated
+- `failed`: Array of objects containing `id` and `error` for failed activations
+
+#### Example Response
+
+```typescript
+{
+  successful: [
+    "a85abd86-55b3-4413-a5b7-6cd8a6bd99ac",
+    "b95abd86-55b3-4413-a5b7-6cd8a6bd99ad",
+  ],
+  failed: [],
+}
+```
+
+#### Notes
+
+- This operation calls the `reactivate` action on each image
+- Only works on deactivated images (status `deactivated`)
+- Typically requires admin privileges
+
+---
+
+### Deactivate Images (Bulk)
+
+Deactivates multiple images in parallel.
+
+**Endpoint:** `deactivateImages`  
+**Method:** Mutation  
+**Input Schema:** `deactivateImagesInputSchema`
+
+#### Parameters
+
+| Parameter  | Type             | Description          |
+| ---------- | ---------------- | -------------------- |
+| `imageIds` | string[] (UUIDs) | Array of image UUIDs |
+
+#### Example Request
+
+```typescript
+const result = await client.compute.image.deactivateImages.mutate({
+  imageIds: [
+    "a85abd86-55b3-4413-a5b7-6cd8a6bd99ac",
+    "b95abd86-55b3-4413-a5b7-6cd8a6bd99ad",
+    "c95abd86-55b3-4413-a5b7-6cd8a6bd99ae",
+  ],
+})
+```
+
+#### Response
+
+Returns `BulkOperationResult` with:
+
+- `successful`: Array of image IDs that were successfully deactivated
+- `failed`: Array of objects containing `id` and `error` for failed deactivations
+
+#### Example Response
+
+```typescript
+{
+  successful: [
+    "a85abd86-55b3-4413-a5b7-6cd8a6bd99ac",
+    "b95abd86-55b3-4413-a5b7-6cd8a6bd99ad",
+    "c95abd86-55b3-4413-a5b7-6cd8a6bd99ae",
+  ],
+  failed: [],
+}
+```
+
+#### Notes
+
+- Deactivated images cannot be used but are not deleted
+- Typically requires admin privileges
+- Use `activateImages` to restore deactivated images
+
 ## Data Types
 
 ### GlanceImage
@@ -670,6 +834,19 @@ interface ImageMember {
   schema?: string
 }
 ```
+
+### BulkOperationResult
+
+Result of bulk operations (delete, activate, deactivate images).
+
+```typescript
+interface BulkOperationResult {
+  successful: string[]
+  failed: Array<{ id: string; error: string }>
+}
+```
+
+The `successful` array contains image IDs that completed the operation successfully. The `failed` array contains objects with the image `id` and `error` message for operations that failed.
 
 ## Error Handling
 
