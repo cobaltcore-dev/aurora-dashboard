@@ -3,7 +3,6 @@ import { useState } from "react"
 import { ProjectsOverviewNavBar, ViewMode } from "./-components/ProjectOverviewNavBar"
 import { ProjectCardView } from "./-components/ProjectCardView"
 import { ProjectListView } from "./-components/ProjectListView"
-import { AccountSubNavigation } from "./-components/AccountSubNavigation"
 import { z } from "zod"
 
 const searchSchema = z.object({
