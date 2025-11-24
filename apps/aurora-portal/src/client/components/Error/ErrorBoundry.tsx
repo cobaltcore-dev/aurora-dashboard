@@ -1,39 +1,87 @@
-import { useNavigate, useRouter } from "@tanstack/react-router"
+import { useNavigate, useRouter, ErrorComponentProps } from "@tanstack/react-router"
 import { ErrorPage } from "./ErrorPage"
-import { useEffect, useState } from "react"
 
-export function ErrorBoundary({ error }: { error: Error }) {
-  const navigate = useNavigate()
-  const router = useRouter()
-  const [hasHistory, setHasHistory] = useState(false)
+function getStatusCodeFromError(error: Error): number {
+  if (!error || typeof error !== "object") {
+    return 500
+  }
 
-  useEffect(() => {
-    const hasRealHistory =
-      window.history.length > 1 &&
-      document.referrer !== "" &&
-      new URL(document.referrer).origin === window.location.origin
+  if (typeof error === "object" && error !== null) {
+    if ("statusCode" in error && typeof error.statusCode === "number") {
+      return error.statusCode
+    }
 
-    setHasHistory(hasRealHistory)
-  }, [])
-
-  const handleBack = () => {
-    if (hasHistory) {
-      router.history.back()
+    if ("status" in error && typeof error.status === "number") {
+      return error.status
     }
   }
 
-  const handleHome = () => {
-    navigate({ to: "/" })
+  return 500
+}
+
+function getTitleFromStatusCode(statusCode: number): string {
+  switch (statusCode) {
+    case 400:
+      return "Bad Request"
+    case 401:
+      return "Unauthorized"
+    case 403:
+      return "Forbidden"
+    case 404:
+      return "Not Found"
+    case 500:
+      return "Internal Server Error"
+    case 502:
+      return "Bad Gateway"
+    case 503:
+      return "Service Unavailable"
+    default:
+      return "Something went wrong"
   }
+}
+
+export function ErrorBoundary({ error, reset }: ErrorComponentProps) {
+  let navigate: ReturnType<typeof useNavigate> | undefined
+  let router: ReturnType<typeof useRouter> | undefined
+
+  try {
+    navigate = useNavigate()
+    router = useRouter()
+  } catch (e) {
+    console.warn("Router context not available in ErrorBoundary", e)
+  }
+
+  const hasHistory =
+    router &&
+    window.history.length > 1 &&
+    document.referrer !== "" &&
+    new URL(document.referrer).origin === window.location.origin
+
+  const statusCode = getStatusCodeFromError(error)
+  const title = getTitleFromStatusCode(statusCode)
+
+  const handleBack =
+    hasHistory && router
+      ? () => {
+          router.history.back()
+        }
+      : undefined
+
+  const handleHome = navigate
+    ? () => {
+        navigate({ to: "/" })
+      }
+    : undefined
 
   return (
     <ErrorPage
-      statusCode={500}
-      title="Something went wrong"
+      statusCode={statusCode}
+      title={title}
       message={error?.message || "An unexpected error occurred."}
-      onBackClick={hasHistory ? handleBack : undefined}
+      onBackClick={handleBack}
       onHomeClick={handleHome}
       showHeader={true}
+      reset={reset}
     />
   )
 }
