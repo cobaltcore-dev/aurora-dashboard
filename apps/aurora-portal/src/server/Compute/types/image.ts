@@ -77,7 +77,7 @@ export const imageSchema = z
     disk_format: diskFormatSchema.optional().nullable(),
     min_ram: z.number().optional(),
     min_disk: z.number().optional(),
-    size: z.number().optional(),
+    size: z.number().optional().nullable(),
     virtual_size: z.number().optional().nullable(),
     created_at: z.string().optional(),
     updated_at: z.string().optional(),

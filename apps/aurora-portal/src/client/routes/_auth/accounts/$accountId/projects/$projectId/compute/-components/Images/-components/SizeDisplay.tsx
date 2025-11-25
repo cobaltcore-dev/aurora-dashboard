@@ -1,5 +1,5 @@
-function formatBytes(bytes: number, decimals = 2) {
-  if (bytes === 0) return "0 Bytes"
+function formatBytes(bytes: number | null, decimals = 2) {
+  if (bytes === 0 || !bytes) return "0 Bytes"
 
   const k = 1024
   const dm = decimals < 0 ? 0 : decimals
@@ -11,7 +11,7 @@ function formatBytes(bytes: number, decimals = 2) {
 }
 
 interface SizeDisplayProps {
-  size: number | undefined
+  size: number | null | undefined
 }
 
 export function SizeDisplay({ size }: SizeDisplayProps) {
