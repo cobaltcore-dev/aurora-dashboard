@@ -1,11 +1,12 @@
 import { createRouter } from "@tanstack/react-router"
 import { routeTree } from "./routeTree.gen"
+import { trpcClient, trpcReact } from "./trpcClient"
 
 export const router = createRouter({
   routeTree,
   context: {
-    trpcReact: undefined!,
-    trpcClient: undefined!,
+    trpcReact,
+    trpcClient,
     auth: undefined!,
     navItems: [],
   },

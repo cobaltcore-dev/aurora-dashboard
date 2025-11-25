@@ -10,20 +10,20 @@ import { NotFound } from "../components/Error/NotFound"
 import { NavigationItem } from "../components/navigation/types"
 import styles from "../index.css?inline"
 
-interface MyRouterContext {
+interface RouterContext {
   trpcReact: TrpcReact
   trpcClient: TrpcClient
   auth: AuthContext
   navItems: NavigationItem[]
 }
 
-export const Route = createRootRouteWithContext<MyRouterContext>()({
-  component: RootLayout,
+export const Route = createRootRouteWithContext<RouterContext>()({
+  component: AuroraLayout,
   notFoundComponent: NotFound,
   errorComponent: ErrorBoundary,
 })
 
-function RootLayout() {
+function AuroraLayout() {
   const { navItems } = Route.useRouteContext()
   const routerState = useRouterState()
   const isNavigating =

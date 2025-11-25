@@ -3,7 +3,7 @@ import { AppShell } from "@cloudoperators/juno-ui-components"
 import { ComputeSideNavBar } from "./$projectId/compute/-components/ComputeNavBar"
 
 export const Route = createFileRoute("/_auth/accounts/$accountId/projects/$projectId")({
-  component: ProjectLayout,
+  component: RouteComponent,
   loader: async (options) => {
     const { context, params } = options
     const data = await context.trpcClient?.auth.setCurrentScope.mutate({
@@ -21,7 +21,7 @@ export const Route = createFileRoute("/_auth/accounts/$accountId/projects/$proje
   },
 })
 
-function ProjectLayout() {
+function RouteComponent() {
   const { availableServices } = useLoaderData({ from: Route.id })
   const location = useLocation()
 
