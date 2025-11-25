@@ -30,7 +30,7 @@ export function ErrorPage({
   reset,
 }: ErrorPageProps) {
   const content = (
-    <Container className="flex flex-col items-center justify-center py-12 px-6 sm:px-12 md:px-20 ">
+    <Container className="flex flex-col items-center justify-center py-12 px-6 sm:px-12 md:px-20 max-w-3xl mx-auto min-h-full">
       {statusCode && <div className="text-6xl font-bold text-theme-high">{statusCode}</div>}
       <ContentHeading>{title}</ContentHeading>
       <p>{message}</p>
@@ -69,6 +69,7 @@ export function ErrorPage({
               logo={<Logo className="w-6 h-6 fill-theme-accent" title="Aurora" />}
             />
           }
+          className="min-h-screen"
         >
           {content}
         </AppShell>
