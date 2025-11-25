@@ -16,8 +16,8 @@ export function Home() {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center px-6 py-12 h-[80vh]">
-      <div className="max-w-4xl w-full p-8">
+    <div className="flex flex-col items-center justify-center ">
+      <div className="max-w-4xl p-8">
         <h1 className="text-5xl font-extrabold text-center mb-8 text-theme-default">
           <Trans>Manage OpenStack with </Trans>
           <span className="text-theme-accent">Aurora</span>

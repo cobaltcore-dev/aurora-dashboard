@@ -87,21 +87,17 @@ export function AuthLoginPage() {
   if (isAuthenticated) {
     const username = user?.name
     return (
-      <div className="flex h-[80vh] items-center justify-center">
-        <div className="max-w-md w-full text-center shadow-lg rounded-lg p-6 border border-gray-300">
-          <h2 className="text-xl font-semibold">
-            <Trans>Welcome back, {username}!</Trans>
-          </h2>
-          <p className="text-gray-500">
-            <Trans>You are already signed in.</Trans>
-          </p>
-        </div>
+      <div className="max-w-md w-full justify-center mt-8 shadow-lg rounded-lg p-6 border border-theme-light">
+        <h2 className="text-xl font-semibold">
+          <Trans>Welcome back, {username}!</Trans>
+        </h2>
+        <Trans>You are already signed in.</Trans>
       </div>
     )
   }
 
   return (
-    <div className="flex h-[80vh] items-center justify-center ">
+    <div className="flex justify-center mt-8">
       <div className="w-full max-w-md shadow-lg rounded-lg p-6 border border-theme-light relative">
         {loginError && (
           <Message

@@ -23,7 +23,15 @@ describe("ErrorBoundary", () => {
 
   it("renders error message", () => {
     const error = new Error("Test error")
-    render(<ErrorBoundary error={error} />, { wrapper: TestingProvider })
+    render(
+      <ErrorBoundary
+        error={error}
+        reset={function (): void {
+          throw new Error("Function not implemented.")
+        }}
+      />,
+      { wrapper: TestingProvider }
+    )
 
     expect(screen.getByText("500")).toBeInTheDocument()
     expect(screen.getByText("Test error")).toBeInTheDocument()
@@ -31,7 +39,15 @@ describe("ErrorBoundary", () => {
 
   it("show home button, and no Back without history", () => {
     const error = new Error("Test error")
-    render(<ErrorBoundary error={error} />, { wrapper: TestingProvider })
+    render(
+      <ErrorBoundary
+        error={error}
+        reset={function (): void {
+          throw new Error("Function not implemented.")
+        }}
+      />,
+      { wrapper: TestingProvider }
+    )
     expect(screen.queryByText("Back")).not.toBeInTheDocument()
     expect(screen.getByText("Home")).toBeInTheDocument()
   })
@@ -49,7 +65,15 @@ describe("ErrorBoundary", () => {
     })
 
     const error = new Error("Test error")
-    render(<ErrorBoundary error={error} />, { wrapper: TestingProvider })
+    render(
+      <ErrorBoundary
+        error={error}
+        reset={function (): void {
+          throw new Error("Function not implemented.")
+        }}
+      />,
+      { wrapper: TestingProvider }
+    )
 
     expect(screen.getByText("Back")).toBeInTheDocument()
     expect(screen.getByText("Home")).toBeInTheDocument()

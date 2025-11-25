@@ -1,5 +1,6 @@
-import { createFileRoute, Outlet, useLoaderData } from "@tanstack/react-router"
-import { ProjectSubNavigation } from "./-components/ProjectSubNavigation"
+import { createFileRoute, Outlet, useLoaderData, useLocation } from "@tanstack/react-router"
+import { AppShell } from "@cloudoperators/juno-ui-components"
+import { ComputeSideNavBar } from "./$projectId/compute/-components/ComputeNavBar"
 
 export const Route = createFileRoute("/_auth/accounts/$accountId/projects/$projectId")({
   component: RouteComponent,
@@ -22,15 +23,30 @@ export const Route = createFileRoute("/_auth/accounts/$accountId/projects/$proje
 
 function RouteComponent() {
   const { availableServices } = useLoaderData({ from: Route.id })
+  const location = useLocation()
+
+  // Determine which sidebar to show based on the current path
+  const getSideNavigation = () => {
+    const pathSegments = location.pathname.split("/").filter(Boolean)
+    const section = pathSegments[4] // compute, storage, network, etc.
+
+    switch (section) {
+      case "compute":
+        return <ComputeSideNavBar availableServices={availableServices!} />
+      // case 'storage':
+      //   return <StorageSideNavBar availableServices={availableServices!} />
+      // case 'network':
+      //   return <NetworkSideNavBar availableServices={availableServices!} />
+      default:
+        return null
+    }
+  }
 
   return (
     <div>
-      <div className="w-full flex">
-        <ProjectSubNavigation availableServices={availableServices!} />
-      </div>
-      <div className="py-4 pl-4 h-full">
-        <Outlet /> {/* This is where child routes will render */}
-      </div>
+      <AppShell embedded sideNavigation={getSideNavigation()}>
+        <Outlet />
+      </AppShell>
     </div>
   )
 }

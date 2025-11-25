@@ -1,11 +1,6 @@
 import { getServiceIndex } from "@/server/Authentication/helpers"
-import {
-  ContentHeading,
-  SideNavigation,
-  SideNavigationList,
-  SideNavigationItem,
-} from "@cloudoperators/juno-ui-components/index"
-import { Trans, useLingui } from "@lingui/react/macro"
+import { SideNavigation, SideNavigationList, SideNavigationItem } from "@cloudoperators/juno-ui-components/index"
+import { useLingui } from "@lingui/react/macro"
 import { useParams } from "@tanstack/react-router"
 
 export const ComputeSideNavBar = ({
@@ -31,7 +26,7 @@ export const ComputeSideNavBar = ({
 
   const getComputeNavigationLinks = () => {
     return [
-      // { path: computeRootPath, label: t`Overview` },
+      { path: computeRootPath, label: t`Overview` },
       ...(serviceIndex["image"]["glance"] ? [{ path: `${computeRootPath}/images`, label: t`Images` }] : []),
       ...(serviceIndex["compute"]["nova"]
         ? [
@@ -47,17 +42,12 @@ export const ComputeSideNavBar = ({
   const links = getComputeNavigationLinks()
 
   return (
-    <div className="w-full flex flex-col items-start px-4">
-      <ContentHeading>
-        <Trans>Compute</Trans>
-      </ContentHeading>
-      <SideNavigation ariaLabel="Compute Side Navigation" onActiveItemChange={() => {}}>
-        <SideNavigationList>
-          {links.map(({ path, label }) => (
-            <SideNavigationItem key={path} href={path} label={label} selected={location.pathname === path} />
-          ))}
-        </SideNavigationList>
-      </SideNavigation>
-    </div>
+    <SideNavigation ariaLabel="Compute Side Navigation" onActiveItemChange={() => {}}>
+      <SideNavigationList>
+        {links.map(({ path, label }) => (
+          <SideNavigationItem key={path} href={path} label={label} selected={location.pathname === path} />
+        ))}
+      </SideNavigationList>
+    </SideNavigation>
   )
 }
