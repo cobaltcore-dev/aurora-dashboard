@@ -99,33 +99,27 @@ function RouteComponent() {
 
   // Render success state
   return (
-    <div className="min-h-screen p-6">
-      <div className="max-w-7xl mx-auto">
-        <Stack direction="vertical">
-          <Breadcrumb className="my-6">
-            <BreadcrumbItem
-              onClick={() => {
-                navigate({
-                  to: "/accounts/$accountId/projects/$projectId/compute/$",
-                  params: { accountId, projectId, _splat: undefined },
-                })
-              }}
-              label={t`Overview`}
-              icon="home"
-            />
-            <BreadcrumbItem onClick={handleBack} label={t`Images`} />
-            <BreadcrumbItem active label={image.id} />
-          </Breadcrumb>
+    <Stack direction="vertical">
+      <Breadcrumb className="my-6">
+        <BreadcrumbItem
+          onClick={() => {
+            navigate({
+              to: "/accounts/$accountId/projects/$projectId/compute/$",
+              params: { accountId, projectId, _splat: undefined },
+            })
+          }}
+          label={t`Overview`}
+          icon="home"
+        />
+        <BreadcrumbItem onClick={handleBack} label={t`Images`} />
+        <BreadcrumbItem active label={image.id} />
+      </Breadcrumb>
 
-          <Stack direction="vertical" distribution="between">
-            <ContentHeading className="text-2xl font-bold text-theme-highest">
-              {image.name || t`Unnamed`}
-            </ContentHeading>
-          </Stack>
+      <Stack direction="vertical" distribution="between">
+        <ContentHeading className="text-2xl font-bold text-theme-highest">{image.name || t`Unnamed`}</ContentHeading>
+      </Stack>
 
-          <ImageDetailsView image={image} />
-        </Stack>
-      </div>
-    </div>
+      <ImageDetailsView image={image} />
+    </Stack>
   )
 }
