@@ -36,7 +36,7 @@ export function AuthMenu(props: { authClient: TrpcClient["auth"] }) {
     return (
       <div className="flex flex-col items-center">
         <div className="mt-1 mb-3 text-sm font-medium">{user?.name}</div>
-        <Button disabled={isLoading} variant="default" onClick={signout}>
+        <Button disabled={isLoading} variant="default" size="small" onClick={signout}>
           <Trans>Sign Out</Trans>
         </Button>
         {expiresAt && <SessionExpirationTimer sessionExpired={expiresAt} logout={signout} />}
