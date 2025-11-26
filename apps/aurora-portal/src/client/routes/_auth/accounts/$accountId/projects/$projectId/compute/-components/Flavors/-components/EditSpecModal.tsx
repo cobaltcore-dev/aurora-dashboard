@@ -189,7 +189,7 @@ function EditSpecContent({
       {permissions.canCreate && (
         <Stack direction="horizontal" className="bg-theme-background-lvl-1 justify-end p-2">
           <Button
-            label={t`Add Extra Spec`}
+            label={t`Add Metadata`}
             data-testid="addExtraButton"
             onClick={() => setIsAddingSpec(true)}
             variant="primary"
@@ -236,7 +236,7 @@ function EditSpecContent({
         {shouldShowEmptyState && (
           <DataGridRow>
             <DataGridCell colSpan={3} className="text-center py-4 text-theme-default">
-              {t`No extra specs found. Click "Add Extra Spec" to create one.`}
+              {t`No extra specs found. Click "Add Metadata" to create one.`}
             </DataGridCell>
           </DataGridRow>
         )}

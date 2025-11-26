@@ -61,7 +61,7 @@ describe("EditSpecModal", () => {
       )
     })
 
-    expect(screen.getByText("Edit Extra Specs")).toBeInTheDocument()
+    expect(screen.getByText("Edit Metadata")).toBeInTheDocument()
   })
 
   it("does not render when modal is closed", () => {
@@ -76,7 +76,7 @@ describe("EditSpecModal", () => {
       { wrapper: TestingProvider }
     )
 
-    expect(screen.queryByText("Edit Extra Specs")).not.toBeInTheDocument()
+    expect(screen.queryByText("Edit Metadata")).not.toBeInTheDocument()
   })
 
   it("shows add button when user has create permissions", async () => {
@@ -94,7 +94,7 @@ describe("EditSpecModal", () => {
     })
 
     await waitFor(() => {
-      const addSpecButton = screen.getByRole("button", { name: /Add Extra Spec/i })
+      const addSpecButton = screen.getByRole("button", { name: /Add Metadata/i })
       expect(addSpecButton).toBeInTheDocument()
     })
   })
@@ -124,7 +124,7 @@ describe("EditSpecModal", () => {
     })
 
     await waitFor(() => {
-      expect(screen.queryByText("Add Extra Spec")).not.toBeInTheDocument()
+      expect(screen.queryByText("Add Metadata")).not.toBeInTheDocument()
     })
   })
 
@@ -178,7 +178,7 @@ describe("EditSpecModal", () => {
     })
 
     await waitFor(() => {
-      expect(screen.getByText('No extra specs found. Click "Add Extra Spec" to create one.')).toBeInTheDocument()
+      expect(screen.getByText('No extra specs found. Click "Add Metadata" to create one.')).toBeInTheDocument()
     })
   })
 
@@ -190,8 +190,8 @@ describe("EditSpecModal", () => {
       )
     })
 
-    expect(screen.queryByText("Edit Extra Specs")).not.toBeInTheDocument()
-    expect(screen.queryByText("Add Extra Spec")).not.toBeInTheDocument()
+    expect(screen.queryByText("Edit Metadata")).not.toBeInTheDocument()
+    expect(screen.queryByText("Add Metadata")).not.toBeInTheDocument()
   })
 
   it("fetches extra specs with correct parameters", async () => {
