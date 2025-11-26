@@ -506,10 +506,10 @@ export function ImageListView({
                 />
               </DataGridHeadCell>
               <DataGridHeadCell>
-                <Trans>Image Name</Trans>
+                <Trans>Status</Trans>
               </DataGridHeadCell>
               <DataGridHeadCell>
-                <Trans>Status</Trans>
+                <Trans>Image Name</Trans>
               </DataGridHeadCell>
               <DataGridHeadCell>
                 <Trans>Visibility</Trans>
