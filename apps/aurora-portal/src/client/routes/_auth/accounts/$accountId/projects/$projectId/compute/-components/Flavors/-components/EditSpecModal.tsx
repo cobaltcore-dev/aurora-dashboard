@@ -131,7 +131,7 @@ function EditSpecContent({
       onSpecsUpdate(newSpecs)
 
       setMessage({
-        text: t`Extra spec "${trimmedKey}" has been added successfully.`,
+        text: t`Metadata "${trimmedKey}" has been added successfully.`,
         type: "info",
       })
       resetForm()
@@ -159,7 +159,7 @@ function EditSpecContent({
       onSpecsUpdate(newSpecs)
 
       setMessage({
-        text: t`Extra spec "${keyToDelete}" has been deleted successfully.`,
+        text: t`Metadata "${keyToDelete}" has been deleted successfully.`,
         type: "info",
       })
     } catch (error) {
@@ -280,7 +280,7 @@ export const EditSpecModal: React.FC<EditSpecModalProps> = ({ client, isOpen, on
   }
 
   return (
-    <Modal onCancel={handleClose} title={t`Edit Extra Specs`} open={isOpen} size="large">
+    <Modal onCancel={handleClose} title={t`Edit Metadata`} open={isOpen} size="large">
       <div>
         {message && (
           <Message onDismiss={() => setMessage(null)} text={message.text} variant={message.type} className="mb-4" />

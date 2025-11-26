@@ -318,6 +318,7 @@ export function ImageListView({
     setEditMetadataModalOpen(true)
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const openCreateModal = () => {
     setCreateModalOpen(true)
   }
@@ -479,11 +480,11 @@ export function ImageListView({
             </PopupMenuOptions>
           </PopupMenu>
         )}
-        {permissions.canCreate && (
-          <Button onClick={openCreateModal} variant="primary" icon="addCircle">
+        {/* {permissions.canCreate && (
+          <Button onClick={openCreateModal} variant="primary">
             Create Image
           </Button>
-        )}
+        )} */}
       </Stack>
       <>{children}</>
       {/* Images Table */}
