@@ -17,12 +17,14 @@ export const Route = createFileRoute("/_auth/accounts/$accountId/projects/$proje
       crumbDomain: { path: `/accounts/${params.accountId}/projects`, name: data?.domain?.name },
       crumbProject: data?.project,
       availableServices,
+      accountId: params.accountId,
+      projectId: params.projectId,
     }
   },
 })
 
 function RouteComponent() {
-  const { availableServices } = useLoaderData({ from: Route.id })
+  const { availableServices, accountId, projectId } = useLoaderData({ from: Route.id })
   const location = useLocation()
 
   // Determine which sidebar to show based on the current path
@@ -32,7 +34,7 @@ function RouteComponent() {
 
     switch (section) {
       case "compute":
-        return <ComputeSideNavBar availableServices={availableServices!} />
+        return <ComputeSideNavBar availableServices={availableServices!} accountId={accountId} projectId={projectId} />
       // case 'storage':
       //   return <StorageSideNavBar availableServices={availableServices!} />
       // case 'network':
