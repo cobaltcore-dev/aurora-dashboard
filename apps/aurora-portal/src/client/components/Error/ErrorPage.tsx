@@ -70,6 +70,7 @@ export function ErrorPage({
             />
           }
           className="min-h-screen"
+          fullWidthContent
         >
           {content}
         </AppShell>
