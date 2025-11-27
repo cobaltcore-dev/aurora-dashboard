@@ -252,13 +252,17 @@ export function ImageListView({
     setSelectedImage(null)
   }
 
-  const handleCreate = (newImage: Partial<GlanceImage>) => {
+  const handleCreate = (newImage: Partial<GlanceImage>, file: File) => {
     setCreateModalOpen(false)
     const imageName = newImage.name || t`Unnamed`
 
     setToastData(getImageCreatedToast(imageName, { onDismiss: handleToastDismiss }))
 
+    console.log("Uploaded File: ", file)
+
     utils.compute.listImagesWithPagination.invalidate()
+
+    return Promise.resolve()
   }
 
   const handleDelete = async (deletedImage: GlanceImage) => {

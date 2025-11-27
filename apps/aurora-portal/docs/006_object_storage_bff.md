@@ -10,6 +10,40 @@ This implementation has been verified against the official OpenStack Swift API d
 
 All endpoints, parameters, headers, and response codes match the official specification.
 
+## 📌 Important Note on API Versioning
+
+The OpenStack Swift service client automatically handles API versioning. When you call `openstackSession.service("swift")`, the SDK returns a client configured with the correct endpoint including the API version (e.g., `/v1/AUTH_account`).
+
+Therefore, the router uses **relative paths** without explicit version prefixes:
+
+```typescript
+// Account operations
+swift.get("?format=json") // → /v1/AUTH_account?format=json
+
+// Container operations
+swift.get("container") // → /v1/AUTH_account/container
+
+// Object operations
+swift.get("container/object") // → /v1/AUTH_account/container/object
+
+// Service info (special case: no version, no auth required)
+swift.get("/info") // → /info
+```
+
+**The SDK handles:**
+
+- ✅ Authentication and token management
+- ✅ Service discovery and endpoint resolution
+- ✅ API versioning (`/v1/`)
+- ✅ Account ID prefix (`AUTH_account`)
+
+**The router handles:**
+
+- ✅ Business logic and data transformation
+- ✅ Input validation with Zod schemas
+- ✅ Error handling and mapping
+- ✅ Type safety with TypeScript
+
 ## Files Created
 
 ### 1. `objectStorage.ts` - Zod Schemas
