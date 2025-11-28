@@ -26,9 +26,7 @@ export function SignalOpenstackService(
 ) {
   // this functions builds the client parameters based on the service options and the client options
   // It allows to override the service options with the client options
-  const clientParams = async (
-    clientOptions?: SignalOpenstackOptions & ServiceActionOptions
-  ): Promise<ActionOptions> => {
+  const clientParams = (clientOptions?: SignalOpenstackOptions & ServiceActionOptions): ActionOptions => {
     if (token === undefined || token === null) throw new SignalOpenstackError("No valid token available")
 
     const {
@@ -68,23 +66,39 @@ export function SignalOpenstackService(
   // expose the public functions
   return {
     availableEndpoints,
-    head: async (path: ActionPath, options?: ServiceActionOptions) =>
-      clientParams(options).then((params) => client.head(path, params)),
+    head: async (path: ActionPath, options?: ServiceActionOptions) => client.head(path, clientParams(options)),
 
-    get: async (path: ActionPath, options?: ServiceActionOptions) =>
-      clientParams(options).then((params) => client.get(path, params)),
+    get: async (path: ActionPath, options?: ServiceActionOptions) => client.get(path, clientParams(options)),
 
     post: async (path: ActionPath, values: ActionBody, options?: ServiceActionOptions) =>
-      clientParams(options).then((params) => client.post(path, values, { ...params })),
+      client.post(path, values, { ...clientParams(options) }),
 
     put: async (path: ActionPath, values: ActionBody, options?: ServiceActionOptions) =>
-      clientParams(options).then((params) => client.put(path, values, { ...params })),
+      client.put(path, values, { ...clientParams(options) }),
 
     patch: async (path: ActionPath, values: ActionBody, options?: ServiceActionOptions) =>
-      clientParams(options).then((params) => client.patch(path, values, { ...params })),
+      client.patch(path, values, { ...clientParams(options) }),
 
-    del: async (path: ActionPath, options?: ServiceActionOptions) =>
-      clientParams(options).then((params) => client.del(path, params)),
+    del: async (path: ActionPath, options?: ServiceActionOptions) => client.del(path, clientParams(options)),
+
+    // Cancellable methods
+    cancellableHead: (path: ActionPath, options?: ServiceActionOptions) =>
+      client.cancellableHead(path, clientParams(options)),
+
+    cancellableGet: (path: ActionPath, options?: ServiceActionOptions) =>
+      client.cancellableGet(path, clientParams(options)),
+
+    cancellablePost: (path: ActionPath, values: ActionBody, options?: ServiceActionOptions) =>
+      client.cancellablePost(path, values, { ...clientParams(options) }),
+
+    cancellablePut: (path: ActionPath, values: ActionBody, options?: ServiceActionOptions) =>
+      client.cancellablePut(path, values, { ...clientParams(options) }),
+
+    cancellablePatch: (path: ActionPath, values: ActionBody, options?: ServiceActionOptions) =>
+      client.cancellablePatch(path, values, { ...clientParams(options) }),
+
+    cancellableDel: (path: ActionPath, options?: ServiceActionOptions) =>
+      client.cancellableDel(path, clientParams(options)),
   }
 }
 
