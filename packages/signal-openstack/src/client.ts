@@ -7,37 +7,55 @@ interface RequestParams {
   options?: {
     host?: string
     headers?: Record<string, string>
-    body?: string | object
+    body?: string | object | FormData | Blob | ArrayBuffer
     queryParams?: Record<string, string | string[] | number | boolean | null | undefined>
+    signal?: AbortSignal
     debug?: boolean
   }
 }
 
 function redactSensitiveData<T>(obj: T): T {
   const sensitiveKeys: string[] = ["password", "token", "secret", "key", "auth_token"]
-  const redacted: T = JSON.parse(JSON.stringify(obj))
 
-  function redactRecursive(item: unknown): void {
-    if (typeof item === "object" && item !== null && !Array.isArray(item)) {
-      const objectItem = item as Record<string, unknown>
-      for (const [key, value] of Object.entries(objectItem)) {
-        if (sensitiveKeys.some((sensitive: string) => key.toLowerCase().includes(sensitive))) {
-          objectItem[key] = "*****"
-        } else if (typeof value === "object" && value !== null) {
-          redactRecursive(value)
-        }
-      }
-    } else if (Array.isArray(item)) {
-      item.forEach((element) => {
-        if (typeof element === "object" && element !== null) {
-          redactRecursive(element)
-        }
+  // Handle non-serializable objects
+  try {
+    const redacted: T = JSON.parse(
+      JSON.stringify(obj, (key, value) => {
+        // Handle special types
+        if (value instanceof FormData) return "[FormData]"
+        if (value instanceof Blob) return "[Blob]"
+        if (value instanceof ArrayBuffer) return "[ArrayBuffer]"
+        if (value instanceof AbortSignal) return "[AbortSignal]"
+        return value
       })
-    }
-  }
+    )
 
-  redactRecursive(redacted)
-  return redacted
+    function redactRecursive(item: unknown): void {
+      if (typeof item === "object" && item !== null && !Array.isArray(item)) {
+        const objectItem = item as Record<string, unknown>
+        for (const [key, value] of Object.entries(objectItem)) {
+          if (sensitiveKeys.some((sensitive: string) => key.toLowerCase().includes(sensitive))) {
+            objectItem[key] = "*****"
+          } else if (typeof value === "object" && value !== null) {
+            redactRecursive(value)
+          }
+        }
+      } else if (Array.isArray(item)) {
+        item.forEach((element) => {
+          if (typeof element === "object" && element !== null) {
+            redactRecursive(element)
+          }
+        })
+      }
+    }
+
+    redactRecursive(redacted)
+    return redacted
+  } catch (error) {
+    console.warn("Redaction failed:", error)
+    // Fallback if serialization fails
+    return obj
+  }
 }
 
 const buildRequestUrl = function ({
@@ -98,18 +116,29 @@ const request = ({ method, path, options = {} }: RequestParams) => {
     searchParams: options.queryParams && buildSearchParams(options.queryParams),
   })
 
-  const body = options.body && JSON.stringify(options.body)
+  let body: string | FormData | Blob | ArrayBuffer | undefined
+  const headers = { ...options.headers }
+
+  if (options.body) {
+    if (options.body instanceof FormData || options.body instanceof Blob || options.body instanceof ArrayBuffer) {
+      body = options.body
+    } else if (typeof options.body === "string") {
+      body = options.body
+    } else {
+      body = JSON.stringify(options.body)
+      // Only set Content-Type if not already provided
+      if (!headers["Content-Type"] && !headers["content-type"]) {
+        headers["Content-Type"] = "application/json"
+      }
+    }
+  }
 
   if (options.debug) {
     const debugData = redactSensitiveData({ method, path, options, url })
     console.debug(`===Signal Openstack Debug: `, JSON.stringify(debugData, null, 2))
   }
 
-  return fetch(url.toString(), {
-    headers: { ...options.headers },
-    method,
-    body,
-  })
+  return fetch(url.toString(), { headers, method, body, signal: options.signal })
     .then(async (response) => {
       if (response.ok) {
         return response
@@ -120,8 +149,41 @@ const request = ({ method, path, options = {} }: RequestParams) => {
       }
     })
     .catch((error) => {
+      // Handle abort specifically
+      if (error.name === "AbortError") {
+        throw new SignalOpenstackError("Request canceled")
+      }
+      // If it's already our error type, just rethrow it
+      if (error instanceof SignalOpenstackApiError || error instanceof SignalOpenstackError) {
+        throw error
+      }
+      // Only wrap unknown errors
       throw new SignalOpenstackApiError(error.message, 500)
     })
+}
+
+export interface CancellableRequest<T = Response> {
+  promise: Promise<T>
+  cancel: () => void
+}
+
+// New cancellable wrapper
+function cancellableRequest({ method, path, options = {} }: RequestParams): CancellableRequest {
+  const abortController = new AbortController()
+
+  const promise = request({
+    method,
+    path,
+    options: {
+      ...options,
+      signal: abortController.signal,
+    },
+  })
+
+  return {
+    promise,
+    cancel: () => abortController.abort(),
+  }
 }
 
 export type ActionOptions = Omit<RequestParams["options"], "body">
@@ -132,22 +194,45 @@ export function get(path: ActionPath, options?: ActionOptions) {
   return request({ method: "GET", path, options })
 }
 
+export function cancellableGet(path: ActionPath, options?: ActionOptions): CancellableRequest {
+  return cancellableRequest({ method: "GET", path, options })
+}
+
 export function head(path: ActionPath, options?: ActionOptions) {
   return request({ method: "HEAD", path, options })
 }
 
+export function cancellableHead(path: ActionPath, options?: ActionOptions): CancellableRequest {
+  return cancellableRequest({ method: "HEAD", path, options })
+}
+
 export function del(path: ActionPath, options?: ActionOptions) {
   return request({ method: "DELETE", path, options })
+}
+export function cancellableDel(path: ActionPath, options?: ActionOptions): CancellableRequest {
+  return cancellableRequest({ method: "DELETE", path, options })
 }
 
 export function post(path: ActionPath, values: ActionBody, options?: ActionOptions) {
   return request({ method: "POST", path, options: { ...options, body: values } })
 }
 
+export function cancellablePost(path: ActionPath, values: ActionBody, options?: ActionOptions): CancellableRequest {
+  return cancellableRequest({ method: "POST", path, options: { ...options, body: values } })
+}
+
 export function put(path: ActionPath, values: ActionBody, options?: ActionOptions) {
   return request({ method: "PUT", path, options: { ...options, body: values } })
 }
 
+export function cancellablePut(path: ActionPath, values: ActionBody, options?: ActionOptions): CancellableRequest {
+  return cancellableRequest({ method: "PUT", path, options: { ...options, body: values } })
+}
+
 export function patch(path: ActionPath, values: ActionBody, options?: ActionOptions) {
   return request({ method: "PATCH", path, options: { ...options, body: values } })
+}
+
+export function cancellablePatch(path: ActionPath, values: ActionBody, options?: ActionOptions): CancellableRequest {
+  return cancellableRequest({ method: "PATCH", path, options: { ...options, body: values } })
 }

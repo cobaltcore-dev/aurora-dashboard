@@ -1,4 +1,5 @@
 export { SignalOpenstackSession } from "./session"
+export type { CancellableRequest } from "./client"
 export type { SignalOpenstackServiceType } from "./service"
 export type { SignalOpenstackSessionType } from "./session"
 export type { AuthConfig, AuthSchema } from "./auth-config"
