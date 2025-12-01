@@ -1,4 +1,4 @@
-import { useCallback } from "react"
+import { ReactNode, useCallback } from "react"
 import { useLingui } from "@lingui/react/macro"
 import { cn } from "@/client/utils/cn"
 import { ButtonProps, SearchInput, SearchInputProps, Stack, StackProps } from "@cloudoperators/juno-ui-components"
@@ -32,16 +32,7 @@ export type ListToolbarProps = {
    * Callback function invoked when the search term changes.
    */
   onSearch?: (searchTerm: string) => void
-  /**
-   * Optional props to customize the Stack wrapper component that contains the entire toolbar.
-   * Allows customization of layout, spacing, and styling.
-   */
-  listToolbarWrapperProps?: StackProps
-  /**
-   * Optional props to customize the Stack component that contains the filter, sort, and search controls.
-   * Allows customization of the horizontal layout, alignment, and spacing of the control elements.
-   */
-  controlsStackProps?: StackProps
+
   /**
    * Optional props to customize the FiltersInput component.
    * Excludes 'filters' and 'onChange' props as these are managed internally.
@@ -63,6 +54,12 @@ export type ListToolbarProps = {
 
   /** Optional props to customize the "Clear all" Button component. */
   clearButtonProps?: ButtonProps
+
+  /**
+   * Optional actions to be displayed at the end of the toolbar (e.g., bulk actions, create buttons)
+   * These will be rendered in a Stack with proper spacing and alignment
+   */
+  actions?: ReactNode
 }
 
 /**
@@ -93,12 +90,11 @@ export const ListToolbar = ({
   onSort,
   searchTerm,
   onSearch,
-  listToolbarWrapperProps = {},
-  controlsStackProps = {},
   filtersInputProps = {},
   sortInputProps = {},
   searchInputProps = {},
   clearButtonProps = {},
+  actions,
 }: ListToolbarProps) => {
   const { t } = useLingui()
 
@@ -140,36 +136,6 @@ export const ListToolbar = ({
               selectedFilter,
             ],
           })
-    }
-  }
-
-  /**
-   * Merges default props with user-provided props for the main toolbar Stack wrapper.
-   * Applies vertical layout, consistent spacing, and background styling while preserving custom overrides.
-   */
-  const getDefaultListToolbarWrapperProps = (): StackProps => {
-    const { className, ...restProps } = listToolbarWrapperProps
-
-    return {
-      direction: "vertical",
-      gap: "4",
-      className: cn("bg-theme-background-lvl-1 py-2 px-4", className),
-      ...restProps,
-    }
-  }
-
-  /**
-   * Merges default props with user-provided props for the controls Stack wrapper.
-   * Applies horizontal flex layout with center alignment, wrapping behavior, and full width
-   * while preserving custom overrides.
-   */
-  const getDefaultControlsStackProps = (): StackProps => {
-    const { className, ...restProps } = controlsStackProps
-
-    return {
-      className: cn("flex flex-row items-center flex-wrap w-full", className),
-      gap: "4",
-      ...restProps,
     }
   }
 
@@ -224,12 +190,19 @@ export const ListToolbar = ({
   }
 
   return (
-    <Stack {...getDefaultListToolbarWrapperProps()}>
-      <Stack {...getDefaultControlsStackProps()}>
-        <FiltersInput {...getDefaultFiltersInputProps()} />
-        {onSort && sortSettings && <SortInput {...getDefaultSortInputProps()} />}
-        {onSearch && <SearchInput {...getDefaultSearchInputProps()} />}
-      </Stack>
+    <Stack
+      alignment="center"
+      gap="6"
+      className="bg-theme-background-lvl-1 p-4 flex flex-row items-center flex-wrap w-full"
+    >
+      {actions && (
+        <Stack direction="horizontal" className="flex-grow items-center justify-end w-full">
+          {actions}
+        </Stack>
+      )}
+      <FiltersInput {...getDefaultFiltersInputProps()} />
+      {onSort && sortSettings && <SortInput {...getDefaultSortInputProps()} />}
+      {onSearch && <SearchInput {...getDefaultSearchInputProps()} />}
       {filterSettings.selectedFilters && filterSettings.selectedFilters.length > 0 && (
         <SelectedFilters
           selectedFilters={filterSettings.selectedFilters}

@@ -1,8 +1,17 @@
-import { useState } from "react"
+import { forwardRef, useState } from "react"
 import { useInfiniteQuery } from "@tanstack/react-query"
 import { trpcReact } from "@/client/trpcClient"
 import { Trans, useLingui } from "@lingui/react/macro"
-import { Spinner, Stack } from "@cloudoperators/juno-ui-components/index"
+import {
+  Spinner,
+  Stack,
+  PopupMenu,
+  PopupMenuItem,
+  PopupMenuToggle,
+  PopupMenuOptions,
+  Button,
+  ButtonProps,
+} from "@cloudoperators/juno-ui-components/index"
 import { ListToolbar } from "@/client/components/ListToolbar"
 import { FilterSettings, SortSettings } from "@/client/components/ListToolbar/types"
 import { ImageListView } from "./-components/ImageListView"
@@ -10,6 +19,11 @@ import { CONTAINER_FORMATS, DISK_FORMATS, IMAGE_STATUSES, IMAGE_VISIBILITY } fro
 
 export const Images = () => {
   const { t } = useLingui()
+
+  const [selectedImages, setSelectedImages] = useState<Array<string>>([])
+  const [deleteAllModalOpen, setDeleteAllModalOpen] = useState(false)
+  const [deactivateAllModalOpen, setDeactivateAllModalOpen] = useState(false)
+  const [activateAllModalOpen, setActivateAllModalOpen] = useState(false)
 
   const [filterSettings, setFilterSettings] = useState<FilterSettings>({
     filters: [
@@ -200,6 +214,24 @@ export const Images = () => {
   // Flatten all pages into a single array
   const images = data.pages.flatMap((page) => page.images)
 
+  const deletableImages = selectedImages.filter((imageId) => !images.find((image) => image.id === imageId)?.protected)
+  const protectedImages = selectedImages.filter((imageId) => images.find((image) => image.id === imageId)?.protected)
+  const activeImages = selectedImages.filter(
+    (imageId) => images.find((image) => image.id === imageId)?.status === "active"
+  )
+  const deactivatedImages = selectedImages.filter(
+    (imageId) => images.find((image) => image.id === imageId)?.status === "deactivated"
+  )
+
+  const isDeleteAllDisabled =
+    !permissions.canDelete ||
+    images.filter((image) => selectedImages.includes(image.id)).every((image) => image.protected)
+  const isDeactivateAllDisabled =
+    !permissions.canEdit ||
+    images.filter((image) => selectedImages.includes(image.id)).every((image) => image.status === "deactivated")
+  const isActivateAllDisabled =
+    !permissions.canEdit ||
+    images.filter((image) => selectedImages.includes(image.id)).every((image) => image.status === "active")
   return (
     <ImageListView
       images={images}
@@ -208,6 +240,18 @@ export const Images = () => {
       isFetchingNextPage={isFetchingNextPage}
       fetchNextPage={fetchNextPage}
       isFetching={isFetching}
+      selectedImages={selectedImages}
+      setSelectedImages={setSelectedImages}
+      deleteAllModalOpen={deleteAllModalOpen}
+      setDeleteAllModalOpen={setDeleteAllModalOpen}
+      deactivateAllModalOpen={deactivateAllModalOpen}
+      setDeactivateAllModalOpen={setDeactivateAllModalOpen}
+      activateAllModalOpen={activateAllModalOpen}
+      setActivateAllModalOpen={setActivateAllModalOpen}
+      deletableImages={deletableImages}
+      protectedImages={protectedImages}
+      activeImages={activeImages}
+      deactivatedImages={deactivatedImages}
     >
       <ListToolbar
         sortSettings={sortSettings}
@@ -218,6 +262,36 @@ export const Images = () => {
         onSearch={setSearchTerm}
         filtersInputProps={{ selectInputProps: { className: "w-48" } }}
         sortInputProps={{ inputGroupProps: { className: "md:w-48" } }}
+        actions={
+          selectedImages.length > 0 ? (
+            <PopupMenu>
+              <PopupMenuToggle
+                as={forwardRef<HTMLButtonElement, ButtonProps>(({ onClick = undefined, ...props }, ref) => (
+                  <Button variant="subdued" icon="moreVert" ref={ref} onClick={onClick} {...props}>
+                    {t`More Actions`}
+                  </Button>
+                ))}
+              />
+              <PopupMenuOptions>
+                <PopupMenuItem
+                  disabled={isDeleteAllDisabled}
+                  label={t`Delete All`}
+                  onClick={() => setDeleteAllModalOpen(true)}
+                />
+                <PopupMenuItem
+                  disabled={isDeactivateAllDisabled}
+                  label={t`Deactivate All`}
+                  onClick={() => setDeactivateAllModalOpen(true)}
+                />
+                <PopupMenuItem
+                  disabled={isActivateAllDisabled}
+                  label={t`Activate All`}
+                  onClick={() => setActivateAllModalOpen(true)}
+                />
+              </PopupMenuOptions>
+            </PopupMenu>
+          ) : null
+        }
       />
     </ImageListView>
   )

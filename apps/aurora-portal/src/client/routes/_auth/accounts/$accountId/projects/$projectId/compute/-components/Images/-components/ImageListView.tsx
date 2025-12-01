@@ -1,18 +1,13 @@
-import { useState, useEffect, useRef, ReactNode, forwardRef } from "react"
+import { useState, useEffect, useRef, ReactNode } from "react"
 import type { GlanceImage } from "@/server/Compute/types/image"
 import {
   Button,
-  ButtonProps,
   Checkbox,
   ContentHeading,
   DataGrid,
   DataGridCell,
   DataGridHeadCell,
   DataGridRow,
-  PopupMenu,
-  PopupMenuItem,
-  PopupMenuOptions,
-  PopupMenuToggle,
   Spinner,
   Stack,
   Toast,
@@ -62,6 +57,18 @@ interface ImagePageProps {
   isFetching?: boolean
   fetchNextPage?: () => void
   children?: ReactNode
+  selectedImages: Array<string>
+  setSelectedImages: (images: Array<string>) => void
+  deleteAllModalOpen: boolean
+  setDeleteAllModalOpen: (open: boolean) => void
+  deactivateAllModalOpen: boolean
+  setDeactivateAllModalOpen: (open: boolean) => void
+  activateAllModalOpen: boolean
+  setActivateAllModalOpen: (open: boolean) => void
+  deletableImages: Array<string>
+  protectedImages: Array<string>
+  activeImages: Array<string>
+  deactivatedImages: Array<string>
 }
 
 export function ImageListView({
@@ -72,6 +79,18 @@ export function ImageListView({
   isFetching,
   fetchNextPage,
   children,
+  selectedImages,
+  setSelectedImages,
+  deleteAllModalOpen,
+  setDeleteAllModalOpen,
+  deactivateAllModalOpen,
+  setDeactivateAllModalOpen,
+  activateAllModalOpen,
+  setActivateAllModalOpen,
+  deletableImages,
+  protectedImages,
+  activeImages,
+  deactivatedImages,
 }: ImagePageProps) {
   const { t } = useLingui()
 
@@ -81,32 +100,7 @@ export function ImageListView({
   const [editMetadataModalOpen, setEditMetadataModalOpen] = useState(false)
   const [createModalOpen, setCreateModalOpen] = useState(false)
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
-
-  const [deleteAllModalOpen, setDeleteAllModalOpen] = useState(false)
-  const [deactivateAllModalOpen, setDeactivateAllModalOpen] = useState(false)
-  const [activateAllModalOpen, setActivateAllModalOpen] = useState(false)
-
   const [selectedImage, setSelectedImage] = useState<GlanceImage | null>(null)
-  const [selectedImages, setSelectedImages] = useState<Array<string>>([])
-
-  const deletableImages = selectedImages.filter((imageId) => !images.find((image) => image.id === imageId)?.protected)
-  const protectedImages = selectedImages.filter((imageId) => images.find((image) => image.id === imageId)?.protected)
-  const activeImages = selectedImages.filter(
-    (imageId) => images.find((image) => image.id === imageId)?.status === "active"
-  )
-  const deactivatedImages = selectedImages.filter(
-    (imageId) => images.find((image) => image.id === imageId)?.status === "deactivated"
-  )
-
-  const isDeleteAllDisabled =
-    !permissions.canDelete ||
-    images.filter((image) => selectedImages.includes(image.id)).every((image) => image.protected)
-  const isDeactivateAllDisabled =
-    !permissions.canEdit ||
-    images.filter((image) => selectedImages.includes(image.id)).every((image) => image.status === "deactivated")
-  const isActivateAllDisabled =
-    !permissions.canEdit ||
-    images.filter((image) => selectedImages.includes(image.id)).every((image) => image.status === "active")
 
   // Intersection Observer for infinite scroll
   const loadMoreRef = useRef<HTMLDivElement>(null)
@@ -450,42 +444,6 @@ export function ImageListView({
 
   return (
     <>
-      {/* Header with Add Button */}
-      <Stack distribution="end" alignment="center" gap="4" className="mb-6">
-        {selectedImages.length > 0 && (
-          <PopupMenu>
-            <PopupMenuToggle
-              as={forwardRef<HTMLButtonElement, ButtonProps>(({ onClick = undefined, ...props }, ref) => (
-                <Button variant="subdued" icon="moreVert" ref={ref} onClick={onClick} {...props}>
-                  More Actions
-                </Button>
-              ))}
-            />
-            <PopupMenuOptions>
-              <PopupMenuItem
-                disabled={isDeleteAllDisabled}
-                label={t`Delete All`}
-                onClick={() => setDeleteAllModalOpen(true)}
-              />
-              <PopupMenuItem
-                disabled={isDeactivateAllDisabled}
-                label={t`Deactivate All`}
-                onClick={() => setDeactivateAllModalOpen(true)}
-              />
-              <PopupMenuItem
-                disabled={isActivateAllDisabled}
-                label={t`Activate All`}
-                onClick={() => setActivateAllModalOpen(true)}
-              />
-            </PopupMenuOptions>
-          </PopupMenu>
-        )}
-        {/* {permissions.canCreate && (
-          <Button onClick={openCreateModal} variant="primary">
-            Create Image
-          </Button>
-        )} */}
-      </Stack>
       <>{children}</>
       {/* Images Table */}
       {images.length > 0 ? (
@@ -634,7 +592,6 @@ export function ImageListView({
             deletableImages={deletableImages}
             protectedImages={protectedImages}
             isLoading={isLoading}
-            isDisabled={isDeleteAllDisabled}
             onClose={() => setDeleteAllModalOpen(false)}
             onDelete={handleBulkDelete}
           />
@@ -643,7 +600,6 @@ export function ImageListView({
             activeImages={activeImages}
             deactivatedImages={deactivatedImages}
             isLoading={isLoading}
-            isDisabled={isDeactivateAllDisabled}
             onClose={() => setDeactivateAllModalOpen(false)}
             onDeactivate={handleBulkDeactivate}
           />
@@ -652,7 +608,6 @@ export function ImageListView({
             deactivatedImages={deactivatedImages}
             activeImages={activeImages}
             isLoading={isLoading}
-            isDisabled={isActivateAllDisabled}
             onClose={() => setActivateAllModalOpen(false)}
             onActivate={handleBulkActivate}
           />

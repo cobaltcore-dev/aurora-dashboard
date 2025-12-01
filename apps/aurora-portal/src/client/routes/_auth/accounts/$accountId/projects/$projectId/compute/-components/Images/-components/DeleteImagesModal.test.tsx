@@ -21,7 +21,6 @@ describe("DeleteImagesModal", () => {
   const setup = (
     isOpen: boolean,
     isLoading = false,
-    isDisabled = false,
     deletableImages = mockDeletableImages,
     protectedImages = [] as Array<string>
   ) => {
@@ -31,7 +30,6 @@ describe("DeleteImagesModal", () => {
           <DeleteImagesModal
             isOpen={isOpen}
             isLoading={isLoading}
-            isDisabled={isDisabled}
             onClose={mockOnClose}
             onDelete={mockOnDelete}
             deletableImages={deletableImages}
@@ -66,19 +64,19 @@ describe("DeleteImagesModal", () => {
   })
 
   it("should display protected images section when protectedImages is not empty", () => {
-    setup(true, false, false, mockDeletableImages, mockProtectedImages)
+    setup(true, false, mockDeletableImages, mockProtectedImages)
     expect(screen.getByText(/Protected images \(cannot be deleted\)/i)).toBeInTheDocument()
   })
 
   it("should display all protected image IDs in the protected section", () => {
-    setup(true, false, false, mockDeletableImages, mockProtectedImages)
+    setup(true, false, mockDeletableImages, mockProtectedImages)
     mockProtectedImages.forEach((imageId) => {
       expect(screen.getByText(imageId)).toBeInTheDocument()
     })
   })
 
   it("should not display protected images section when protectedImages is empty", () => {
-    setup(true, false, false, mockDeletableImages, [])
+    setup(true, false, mockDeletableImages, [])
     expect(screen.queryByText(/Protected images \(cannot be deleted\)/i)).not.toBeInTheDocument()
   })
 
@@ -90,7 +88,7 @@ describe("DeleteImagesModal", () => {
   })
 
   it("should call onDelete and onClose when the delete button is clicked", () => {
-    setup(true, false, false, mockDeletableImages, mockProtectedImages)
+    setup(true, false, mockDeletableImages, mockProtectedImages)
     const deleteButton = screen.getByRole("button", { name: /Delete/i })
     fireEvent.click(deleteButton)
     expect(mockOnDelete).toHaveBeenCalledTimes(1)
@@ -100,12 +98,6 @@ describe("DeleteImagesModal", () => {
 
   it("should disable the delete button when isLoading is true", () => {
     setup(true, true)
-    const deleteButton = screen.getByTestId("delete-image-button")
-    expect(deleteButton).toBeDisabled()
-  })
-
-  it("should disable the delete button when isDisabled is true", () => {
-    setup(true, false, true)
     const deleteButton = screen.getByTestId("delete-image-button")
     expect(deleteButton).toBeDisabled()
   })
@@ -132,7 +124,7 @@ describe("DeleteImagesModal", () => {
   })
 
   it("should display summary with correct counts", () => {
-    setup(true, false, false, mockDeletableImages, mockProtectedImages)
+    setup(true, false, mockDeletableImages, mockProtectedImages)
     expect(screen.getByText("Images to delete:")).toBeInTheDocument()
     expect(screen.getByText("3")).toBeInTheDocument()
     expect(screen.getByText(/Protected \(will be skipped\):/i)).toBeInTheDocument()
@@ -140,7 +132,7 @@ describe("DeleteImagesModal", () => {
   })
 
   it("should display only deletable count in summary when no protected images", () => {
-    setup(true, false, false, mockDeletableImages, [])
+    setup(true, false, mockDeletableImages, [])
     expect(screen.getByText("Images to delete:")).toBeInTheDocument()
     expect(screen.getByText("3")).toBeInTheDocument()
     expect(screen.queryByText(/Protected \(will be skipped\):/i)).not.toBeInTheDocument()
@@ -159,28 +151,28 @@ describe("DeleteImagesModal", () => {
   })
 
   it("should handle empty deletableImages array", () => {
-    setup(true, false, false, [], mockProtectedImages)
+    setup(true, false, [], mockProtectedImages)
     expect(screen.queryByText(/Images to be deleted/i)).not.toBeInTheDocument()
   })
 
   it("should pass deletableImages to onDelete, not protectedImages", () => {
     const deletableImgs = ["deletable-1", "deletable-2"]
     const protectedImgs = ["protected-1", "protected-2"]
-    setup(true, false, false, deletableImgs, protectedImgs)
+    setup(true, false, deletableImgs, protectedImgs)
     const deleteButton = screen.getByRole("button", { name: /Delete/i })
     fireEvent.click(deleteButton)
     expect(mockOnDelete).toHaveBeenCalledWith(deletableImgs)
   })
 
   it("should render with single image correctly", () => {
-    setup(true, false, false, ["single-image"], [])
+    setup(true, false, ["single-image"], [])
     expect(screen.getByText(/You are about to delete 1 image\(s\)/i)).toBeInTheDocument()
     expect(screen.getByText("single-image")).toBeInTheDocument()
   })
 
   it("should have scrollable container for long image lists", () => {
     const manyImages = Array.from({ length: 20 }, (_, i) => `image-${i}`)
-    setup(true, false, false, manyImages, [])
+    setup(true, false, manyImages, [])
     const listContainer = screen.getByText("image-0").closest(".overflow-y-auto")
     expect(listContainer).toBeInTheDocument()
     expect(listContainer).toHaveClass("max-h-24")
@@ -203,7 +195,7 @@ describe("DeleteImagesModal", () => {
   })
 
   it("should handle mixed deletable and protected images", () => {
-    setup(true, false, false, mockDeletableImages, mockProtectedImages)
+    setup(true, false, mockDeletableImages, mockProtectedImages)
 
     // Check deletable section
     expect(screen.getByText(/Images to be deleted \(3\)/i)).toBeInTheDocument()

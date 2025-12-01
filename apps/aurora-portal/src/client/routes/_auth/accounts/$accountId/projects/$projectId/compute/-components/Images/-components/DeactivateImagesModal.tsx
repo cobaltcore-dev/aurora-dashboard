@@ -7,7 +7,6 @@ interface DeactivateImagesModalProps {
   deactivatedImages: Array<string>
   isOpen: boolean
   isLoading: boolean
-  isDisabled: boolean
   onClose: () => void
   onDeactivate: (activeImages: Array<string>) => void
 }
@@ -17,7 +16,6 @@ export const DeactivateImagesModal: React.FC<DeactivateImagesModalProps> = ({
   deactivatedImages,
   isOpen,
   isLoading,
-  isDisabled,
   onClose,
   onDeactivate,
 }) => {
@@ -46,7 +44,7 @@ export const DeactivateImagesModal: React.FC<DeactivateImagesModalProps> = ({
                 handleDeactivate(e)
                 onClose()
               }}
-              disabled={isLoading || isDisabled}
+              disabled={isLoading}
               data-testid={`deactivate-image-button`}
             >
               {isLoading ? <Spinner size="small" /> : <Trans>Deactivate</Trans>}
