@@ -56,7 +56,7 @@ export const SelectedFilters = ({
   }
 
   return (
-    <Stack gap="2" wrap={true} alignment="center">
+    <Stack gap="2" wrap={true} alignment="start" distribution="start">
       {/* Render a closeable pill for each selected filter */}
       {selectedFilters.map((filter) => (
         <Pill
@@ -67,8 +67,7 @@ export const SelectedFilters = ({
           onClose={() => onDelete(filter)}
         />
       ))}
-      {/* Button to clear all applied filters */}
-      {selectedFilters.length > 1 && <Button {...getDefaultClearButtonProps()} />}
+      {selectedFilters.length > 5 && <Button {...getDefaultClearButtonProps()} />}
     </Stack>
   )
 }

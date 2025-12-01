@@ -2,12 +2,10 @@ import React from "react"
 import { useLingui } from "@lingui/react/macro"
 import { cn } from "@/client/utils/cn"
 import {
-  Stack,
   Select,
   SelectOption,
   SortButton,
   InputGroup,
-  StackProps,
   InputGroupProps,
   SelectProps,
   ButtonProps,
@@ -28,8 +26,6 @@ export interface SortInputProps {
   onSortDirectionChange: (direction: "asc" | "desc") => void
   /** Array of available sort options to display in the dropdown */
   options: SortOption[]
-  /** Optional props to customize the Stack wrapper component */
-  sortWrapperProps?: StackProps
   /** Optional props to customize the InputGroup component */
   inputGroupProps?: InputGroupProps
   /** Optional props to customize the Select component for choosing the sort field */
@@ -52,25 +48,11 @@ export const SortInput: React.FC<SortInputProps> = ({
   sortDirection,
   onSortDirectionChange,
   options,
-  sortWrapperProps = {},
   inputGroupProps = {},
   selectInputProps = {},
   sortButtonProps = {},
 }) => {
   const { t } = useLingui()
-
-  /**
-   * Merges default props with user-provided props for the Stack wrapper.
-   * Applies default layout and spacing while preserving custom overrides.
-   */
-  const getDefaultSortWrapperProps = (): StackProps => {
-    const { className, ...restProps } = sortWrapperProps
-
-    return {
-      className: cn("flex flex-row items-center", className),
-      ...restProps,
-    }
-  }
 
   /**
    * Merges default props with user-provided props for the InputGroup component.
@@ -80,7 +62,7 @@ export const SortInput: React.FC<SortInputProps> = ({
     const { className, ...restProps } = inputGroupProps
 
     return {
-      className: cn("flex-shrink-0 w-full md:w-60", className),
+      className: cn("flex-shrink-0", className),
       ...restProps,
     }
   }
@@ -113,17 +95,15 @@ export const SortInput: React.FC<SortInputProps> = ({
   })
 
   return (
-    <Stack {...getDefaultSortWrapperProps()}>
-      <InputGroup {...getDefaultInputGroupProps()}>
-        <Select {...getDefaultSelectProps()}>
-          {options.map((option) => (
-            <SelectOption key={option.value} value={option.value}>
-              {option.label}
-            </SelectOption>
-          ))}
-        </Select>
-        <SortButton {...getDefaultSortButtonProps()} />
-      </InputGroup>
-    </Stack>
+    <InputGroup {...getDefaultInputGroupProps()}>
+      <Select {...getDefaultSelectProps()}>
+        {options.map((option) => (
+          <SelectOption key={option.value} value={option.value}>
+            {option.label}
+          </SelectOption>
+        ))}
+      </Select>
+      <SortButton {...getDefaultSortButtonProps()} />
+    </InputGroup>
   )
 }

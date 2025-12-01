@@ -9,7 +9,6 @@ import {
   SelectOption,
   Select,
   SelectProps,
-  Stack,
   StackProps,
 } from "@cloudoperators/juno-ui-components"
 import { Filter, SelectedFilter } from "./types"
@@ -53,7 +52,6 @@ function isEmpty(value: unknown) {
 export const FiltersInput = ({
   filters,
   onChange,
-  filterWrapperProps = {},
   selectInputProps = {},
   comboBoxInputProps = {},
 }: FiltersInputProps) => {
@@ -83,19 +81,6 @@ export const FiltersInput = ({
     },
     [selectedFilterName, setSelectedFilterValue, onChange]
   )
-
-  /**
-   * Merges default props with user-provided props for the Stack wrapper.
-   * Applies default alignment and spacing while preserving custom overrides.
-   */
-  const getDefaultFilterWrapperProps = (): StackProps => {
-    return {
-      alignment: "center",
-      gap: "8",
-      ...filterWrapperProps,
-    }
-  }
-
   /**
    * Merges default props with user-provided props for the Select component.
    * Connects filter type selection handlers while preserving custom overrides.
@@ -104,7 +89,7 @@ export const FiltersInput = ({
     const { className, ...restPros } = selectInputProps
 
     return {
-      className: cn("filter-label-select w-64 mb-0", className),
+      className: cn("filter-label-select flex-1 min-w-0", className),
       name: "filter",
       "data-testid": "select-filterValue",
       label: t`Filters`,
@@ -124,7 +109,7 @@ export const FiltersInput = ({
     const { className, ...restProps } = comboBoxInputProps
 
     return {
-      className: cn("filter-value-select w-48 bg-theme-background-lvl-0", className),
+      className: cn("filter-value-select bg-theme-background-lvl-0 flex-1 min-w-0", className),
       name: "filterValue",
       "data-testid": "combobox-filterValue",
       value: selectedFilterValue,
@@ -135,23 +120,21 @@ export const FiltersInput = ({
   }
 
   return (
-    <>
-      <Stack {...getDefaultFilterWrapperProps()}>
-        <InputGroup>
-          {/* Filter name/type selector */}
-          <Select {...getDefaultSelectProps()} {...selectInputProps}>
-            {filters?.map(({ displayName, filterName }) => (
-              <SelectOption value={filterName} label={displayName} key={filterName} data-testid={filterName} />
-            ))}
-          </Select>
-          {/* Filter value input/selector - dynamically populated based on selected filter */}
-          <ComboBox {...getDefaultComboBoxProps()}>
-            {filterValues?.map((value) => (
-              <ComboBoxOption value={value} key={value} label={value} data-testid={value} />
-            ))}
-          </ComboBox>
-        </InputGroup>
-      </Stack>
-    </>
+    <InputGroup className="flex flex-row">
+      <Select {...getDefaultSelectProps()} {...selectInputProps}>
+        {filters?.map(({ displayName, filterName }) => (
+          <SelectOption
+            value={filterName}
+            label={displayName}
+            key={filterName}
+            data-testid={filterName}
+            className="flex-shrink"
+          />
+        ))}
+      </Select>
+      <ComboBox {...getDefaultComboBoxProps()}>
+        {filterValues?.map((value) => <ComboBoxOption value={value} key={value} label={value} data-testid={value} />)}
+      </ComboBox>
+    </InputGroup>
   )
 }

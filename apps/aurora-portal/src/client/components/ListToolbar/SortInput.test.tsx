@@ -83,15 +83,6 @@ describe("SortInput", () => {
       // For descending, the icon should change
       expect(directionButton.querySelector("svg")).toBeInTheDocument()
     })
-
-    it("applies custom className when provided", () => {
-      const { container } = render(<SortInput {...defaultProps} sortWrapperProps={{ className: "custom-class" }} />, {
-        wrapper: TestWrapper,
-      })
-
-      const stackElement = container.querySelector(".custom-class")
-      expect(stackElement).toBeInTheDocument()
-    })
   })
 
   describe("Sort By Changes", () => {

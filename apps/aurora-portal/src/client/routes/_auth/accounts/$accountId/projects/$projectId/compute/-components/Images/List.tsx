@@ -260,14 +260,12 @@ export const Images = () => {
         onSort={setSortSettings}
         onFilter={setFilterSettings}
         onSearch={setSearchTerm}
-        filtersInputProps={{ selectInputProps: { className: "w-48" } }}
-        sortInputProps={{ inputGroupProps: { className: "md:w-48" } }}
         actions={
           selectedImages.length > 0 ? (
             <PopupMenu>
               <PopupMenuToggle
                 as={forwardRef<HTMLButtonElement, ButtonProps>(({ onClick = undefined, ...props }, ref) => (
-                  <Button variant="subdued" icon="moreVert" ref={ref} onClick={onClick} {...props}>
+                  <Button icon="moreVert" ref={ref} onClick={onClick} {...props}>
                     {t`More Actions`}
                   </Button>
                 ))}
