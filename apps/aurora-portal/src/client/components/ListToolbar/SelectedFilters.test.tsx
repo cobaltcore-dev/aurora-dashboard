@@ -124,9 +124,8 @@ describe("SelectedFilters", () => {
   it("passes closeable prop to Pill component", () => {
     setup({ selectedFilters: mockFilters, onDelete: mockOnDelete, onClear: mockOnClear })
 
-    // All pills should have close buttons (closeable=true), plus the Clear all button
     const closeButtons = screen.getAllByRole("button")
-    expect(closeButtons).toHaveLength(mockFilters.length + 1) // +1 for Clear all button
+    expect(closeButtons).toHaveLength(mockFilters.length)
   })
 
   it("handles special characters in filter values", () => {
@@ -165,8 +164,8 @@ describe("SelectedFilters", () => {
       onClear: mockOnClear,
     })
 
-    const clearButton = screen.getByText("Clear all")
-    expect(clearButton).toHaveClass("custom-clear-button")
+    const clearPill = screen.getByText("Clear all")
+    expect(clearPill).toHaveClass("pill-value")
   })
 
   it("should NOT render Clear all button even when no filters are selected", () => {

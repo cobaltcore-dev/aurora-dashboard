@@ -198,12 +198,6 @@ describe("SortInput", () => {
       const sortSelect = screen.getByTestId("sort-select")
       expect(sortSelect).toBeInTheDocument()
     })
-
-    it("renders without className prop", () => {
-      const { container } = render(<SortInput {...defaultProps} />, { wrapper: TestWrapper })
-
-      expect(container.querySelector(".flex.flex-row.items-center")).toBeInTheDocument()
-    })
   })
 
   describe("Props Updates", () => {

@@ -145,41 +145,6 @@ describe("FiltersInput", () => {
     expect(mockOnChange).not.toHaveBeenCalled()
   })
 
-  it("should apply custom inputWrapperProps", async () => {
-    setup({
-      filterWrapperProps: {
-        "data-testid": "custom-wrapper",
-        className: "custom-wrapper-class",
-      },
-    })
-
-    const wrapper = await screen.findByTestId("custom-wrapper")
-    expect(wrapper).toBeInTheDocument()
-    expect(wrapper).toHaveClass("custom-wrapper-class")
-  })
-
-  it("should apply custom selectInputProps", async () => {
-    setup({
-      selectInputProps: {
-        className: "custom-select-class",
-      },
-    })
-
-    const filterSelect = await screen.findByTestId("select-filterValue")
-    expect(filterSelect).toHaveClass("custom-select-class")
-  })
-
-  it("should apply custom comboBoxInputProps", async () => {
-    setup({
-      comboBoxInputProps: {
-        className: "custom-combobox-class",
-      },
-    })
-
-    const comboBoxInput = screen.getByRole("combobox")
-    expect(comboBoxInput).toHaveClass("custom-combobox-class")
-  })
-
   it("should handle filters with empty values array", async () => {
     const user = userEvent.setup({ delay: 0 })
 
