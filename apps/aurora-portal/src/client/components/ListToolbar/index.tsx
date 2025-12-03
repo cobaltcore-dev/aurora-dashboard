@@ -107,7 +107,7 @@ export const ListToolbar = ({
           options: sortSettings.options,
           sortBy: sortSettings.sortBy,
           sortDirection: sortSettings.sortDirection || "asc",
-          onSortByChange: (param) =>
+          onSortByChange: (param: string | number | string[] | undefined) =>
             onSort({ ...sortSettings, sortBy: param, sortDirection: sortSettings.sortDirection || "asc" }),
           onSortDirectionChange: (direction: "asc" | "desc") => onSort({ ...sortSettings, sortDirection: direction }),
         }
