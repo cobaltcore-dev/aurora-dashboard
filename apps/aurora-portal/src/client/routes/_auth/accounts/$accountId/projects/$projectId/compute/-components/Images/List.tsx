@@ -1,4 +1,4 @@
-import { forwardRef, useState } from "react"
+import { forwardRef, useState, startTransition } from "react"
 import { useInfiniteQuery } from "@tanstack/react-query"
 import { trpcReact } from "@/client/trpcClient"
 import { Trans, useLingui } from "@lingui/react/macro"
@@ -31,31 +31,31 @@ export const Images = () => {
         displayName: t`Status`,
         filterName: "status",
         values: Object.values(IMAGE_STATUSES),
-        supportsMultiValue: true, // ✅ Can use: status=in:active,queued
+        supportsMultiValue: true,
       },
       {
         displayName: t`Visibility`,
         filterName: "visibility",
         values: Object.values(IMAGE_VISIBILITY),
-        supportsMultiValue: false, // ❌ Cannot use 'in' operator
+        supportsMultiValue: false,
       },
       {
         displayName: t`Disk Format`,
         filterName: "disk_format",
         values: Object.values(DISK_FORMATS),
-        supportsMultiValue: true, // ✅ Can use: disk_format=in:qcow2,raw
+        supportsMultiValue: true,
       },
       {
         displayName: t`Container Format`,
         filterName: "container_format",
         values: Object.values(CONTAINER_FORMATS),
-        supportsMultiValue: true, // ✅ Can use: container_format=in:bare,ovf
+        supportsMultiValue: true,
       },
       {
         displayName: t`Protected`,
         filterName: "protected",
         values: ["true", "false"],
-        supportsMultiValue: false, // ❌ Cannot use 'in' operator
+        supportsMultiValue: false,
       },
     ],
   })
@@ -102,9 +102,9 @@ export const Images = () => {
 
     if (!filterSettings.selectedFilters?.length) return params
 
-    // Group selected filters by filter name
+    // Group selected filters by filter name, excluding inactive ofc.
     const filterGroups = filterSettings.selectedFilters
-      .filter((sf) => !sf.inactive) // Exclude inactive filters
+      .filter((sf) => !sf.inactive)
       .reduce(
         (acc, sf) => {
           if (!acc[sf.name]) acc[sf.name] = []
@@ -119,10 +119,8 @@ export const Images = () => {
       const filterDef = filterSettings.filters.find((f) => f.filterName === filterName)
 
       if (filterDef?.supportsMultiValue && values.length > 1) {
-        // Multi-value filter: use 'in' operator (e.g., status=in:active,queued)
         params[filterName] = `in:${values.join(",")}`
       } else {
-        // Single-value filter or only one value selected (e.g., visibility=public)
         params[filterName] = values[0]
       }
     })
@@ -145,11 +143,8 @@ export const Images = () => {
       ? { next: pageParam }
       : {
           limit: 15,
-          // Sorting: use new syntax for cleaner URLs
           sort: `${sortSettings.sortBy}:${sortSettings.sortDirection}`,
-          // Filters: add all active filter parameters
           ...buildFilterParams(),
-          // Search: add name filter if search term exists
           ...(searchTerm && { name: searchTerm }),
         }
 
@@ -174,9 +169,8 @@ export const Images = () => {
       },
     ],
     queryFn: fetchImages,
+    placeholderData: (previousData) => previousData, // Keeps old data during refetch
     getNextPageParam: (lastPage) => {
-      // Return the full next URL from the API response
-      // The next URL should already include the sort and filter parameters from the initial request
       return lastPage.next ?? undefined
     },
     initialPageParam: undefined,
@@ -186,7 +180,8 @@ export const Images = () => {
   const { data: canDelete } = trpcReact.compute.canUser.useQuery("images:delete")
   const { data: canEdit } = trpcReact.compute.canUser.useQuery("images:update")
 
-  if (status === "pending") {
+  // Show spinner ONLY on initial load, not on filter/sort changes - while old data is shown
+  if (status === "pending" && !data) {
     return (
       <Stack className="fixed inset-0" distribution="center" alignment="center" direction="vertical">
         <Spinner variant="primary" size="large" className="mb-2" />
@@ -232,6 +227,27 @@ export const Images = () => {
   const isActivateAllDisabled =
     !permissions.canEdit ||
     images.filter((image) => selectedImages.includes(image.id)).every((image) => image.status === "active")
+
+  // Wrapped handlers for smooth transitions
+  const handleSortChange = (newSortSettings: SortSettings) => {
+    startTransition(() => {
+      setSortSettings(newSortSettings)
+    })
+  }
+
+  const handleFilterChange = (newFilterSettings: FilterSettings) => {
+    startTransition(() => {
+      setFilterSettings(newFilterSettings)
+    })
+  }
+
+  const handleSearchChange = (term: string | number | string[] | undefined) => {
+    const searchValue = typeof term === "string" ? term : ""
+    startTransition(() => {
+      setSearchTerm(searchValue)
+    })
+  }
+
   return (
     <ImageListView
       images={images}
@@ -257,9 +273,9 @@ export const Images = () => {
         sortSettings={sortSettings}
         filterSettings={filterSettings}
         searchTerm={searchTerm}
-        onSort={setSortSettings}
-        onFilter={setFilterSettings}
-        onSearch={setSearchTerm}
+        onSort={handleSortChange}
+        onFilter={handleFilterChange}
+        onSearch={handleSearchChange}
         actions={
           selectedImages.length === 0 ? (
             <Button icon="moreVert" disabled>
