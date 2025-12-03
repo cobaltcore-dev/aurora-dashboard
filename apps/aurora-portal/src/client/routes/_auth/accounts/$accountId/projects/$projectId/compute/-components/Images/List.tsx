@@ -261,7 +261,11 @@ export const Images = () => {
         onFilter={setFilterSettings}
         onSearch={setSearchTerm}
         actions={
-          selectedImages.length > 0 ? (
+          selectedImages.length === 0 ? (
+            <Button icon="moreVert" disabled>
+              {t`More Actions`}
+            </Button>
+          ) : (
             <PopupMenu>
               <PopupMenuToggle
                 as={forwardRef<HTMLButtonElement, ButtonProps>(({ onClick = undefined, ...props }, ref) => (
@@ -288,7 +292,7 @@ export const Images = () => {
                 />
               </PopupMenuOptions>
             </PopupMenu>
-          ) : null
+          )
         }
       />
     </ImageListView>
