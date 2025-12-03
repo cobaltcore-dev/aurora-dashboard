@@ -163,10 +163,6 @@ describe("SelectedFilters", () => {
       selectedFilters: mockFilters,
       onDelete: mockOnDelete,
       onClear: mockOnClear,
-      clearButtonProps: {
-        className: "custom-clear-button",
-        variant: "primary",
-      },
     })
 
     const clearButton = screen.getByText("Clear all")
