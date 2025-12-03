@@ -1,7 +1,7 @@
 import { ReactNode, useCallback, useRef, useEffect } from "react"
 import { useLingui } from "@lingui/react/macro"
 import { cn } from "@/client/utils/cn"
-import { ButtonProps, SearchInput, SearchInputProps, Stack } from "@cloudoperators/juno-ui-components"
+import { SearchInput, SearchInputProps, Stack } from "@cloudoperators/juno-ui-components"
 import { SelectedFilters } from "./SelectedFilters"
 import { FiltersInput, FiltersInputProps } from "./FiltersInput"
 import { SortInput, SortInputProps } from "./SortInput"
@@ -20,7 +20,6 @@ export type ListToolbarProps = {
     "options" | "sortBy" | "sortDirection" | "onSortByChange" | "onSortDirectionChange"
   >
   searchInputProps?: Omit<SearchInputProps, "value" | "onSearch" | "onClear">
-  clearButtonProps?: ButtonProps
   actions?: ReactNode
 }
 
@@ -34,7 +33,6 @@ export const ListToolbar = ({
   filtersInputProps = {},
   sortInputProps = {},
   searchInputProps = {},
-  clearButtonProps = {},
   actions,
 }: ListToolbarProps) => {
   const { t } = useLingui()
@@ -206,17 +204,18 @@ export const ListToolbar = ({
       </div>
 
       {filterSettings?.selectedFilters && filterSettings.selectedFilters.length > 0 && onFilter && (
-        <SelectedFilters
-          selectedFilters={filterSettings.selectedFilters}
-          clearButtonProps={clearButtonProps}
-          onDelete={handleFilterDelete}
-          onClear={() =>
-            onFilter({
-              ...filterSettings,
-              selectedFilters: [],
-            })
-          }
-        />
+        <div className="w-full">
+          <SelectedFilters
+            selectedFilters={filterSettings.selectedFilters}
+            onDelete={handleFilterDelete}
+            onClear={() =>
+              onFilter({
+                ...filterSettings,
+                selectedFilters: [],
+              })
+            }
+          />
+        </div>
       )}
     </Stack>
   )
