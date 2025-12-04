@@ -287,7 +287,7 @@ export const createImageInputSchema = z
     os_distro: z.string().optional(),
     os_version: z.string().optional(),
     architecture: z.string().optional(),
-    os_hidden: z.boolean().optional().default(false),
+    os_hidden: z.boolean().optional(),
     // Hardware properties
     hw_disk_bus: z.string().optional(),
     hw_scsi_model: z.string().optional(),
@@ -356,10 +356,6 @@ export const bulkOperationResultSchema = z.object({
 // Response schemas
 export const imageResponseSchema = z.object({
   images: z.array(imageSchema),
-})
-
-export const imageDetailResponseSchema = z.object({
-  image: imageSchema,
 })
 
 // Schema for paginated images response (includes pagination links)

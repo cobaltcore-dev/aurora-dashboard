@@ -1,25 +1,41 @@
 import { createTRPCReact } from "@trpc/react-query"
-import { createTRPCClient, httpBatchLink } from "@trpc/client"
+import { createTRPCClient, httpBatchLink, httpLink, splitLink, isNonJsonSerializable } from "@trpc/client"
 import type { AuroraRouter } from "../server/routers"
 
 declare const BFF_ENDPOINT: string
 
-// Shared link configuration
-const getLinks = () => [
-  httpBatchLink({
-    url: BFF_ENDPOINT,
+// CSRF headers factory
+const getCsrfHeaders = async () => {
+  try {
+    const { csrfToken } = await fetch("/csrf-token").then((res) => res.json())
+    return {
+      "x-csrf-token": csrfToken,
+    }
+  } catch (error) {
+    console.error("Failed to fetch CSRF token:", error)
+    return {}
+  }
+}
 
-    async headers() {
-      try {
-        const { csrfToken } = await fetch("/csrf-token").then((res) => res.json())
-        return {
-          "x-csrf-token": csrfToken,
-        }
-      } catch (error) {
-        console.error("Failed to fetch CSRF token:", error)
-        return {}
-      }
-    },
+// Shared link configuration with splitLink for non-JSON data support
+const getLinks = () => [
+  splitLink({
+    // Check if the input contains non-JSON serializable data
+    condition: (op) => isNonJsonSerializable(op.input),
+    // Use httpLink for FormData, Blob, ArrayBuffer, etc.
+    true: httpLink({
+      url: BFF_ENDPOINT,
+      async headers() {
+        return getCsrfHeaders()
+      },
+    }),
+    // Use httpBatchLink for regular JSON data (batching for performance)
+    false: httpBatchLink({
+      url: BFF_ENDPOINT,
+      async headers() {
+        return getCsrfHeaders()
+      },
+    }),
   }),
 ]
 

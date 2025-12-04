@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, ReactNode, forwardRef } from "react"
-import type { GlanceImage } from "@/server/Compute/types/image"
+import type { CreateImageInput, GlanceImage } from "@/server/Compute/types/image"
 import {
   Button,
   ButtonProps,
@@ -178,6 +178,14 @@ export function ImageListView({
     },
   })
 
+  const createImageMutation = trpcReact.compute.createImage.useMutation({
+    onSuccess: () => {
+      utils.compute.listImagesWithPagination.invalidate()
+    },
+  })
+
+  const uploadImageMutation = trpcReact.compute.uploadImage.useMutation()
+
   const isLoading =
     deleteImageMutation.isPending ||
     deactivateImageMutation.isPending ||
@@ -185,7 +193,9 @@ export function ImageListView({
     deleteImagesMutation.isPending ||
     activateImagesMutation.isPending ||
     deactivateImagesMutation.isPending ||
-    updateImageMutation.isPending
+    updateImageMutation.isPending ||
+    createImageMutation.isPending ||
+    uploadImageMutation.isPending
 
   const handleToastDismiss = () => setToastData(null)
 
@@ -252,17 +262,33 @@ export function ImageListView({
     setSelectedImage(null)
   }
 
-  const handleCreate = (newImage: Partial<GlanceImage>, file: File) => {
-    setCreateModalOpen(false)
-    const imageName = newImage.name || t`Unnamed`
+  const handleCreate = async (imageData: CreateImageInput, file: File) => {
+    const imageName = imageData.name || "Unnamed"
 
-    setToastData(getImageCreatedToast(imageName, { onDismiss: handleToastDismiss }))
+    try {
+      // Step 1: Create image
+      const createdImage = await createImageMutation.mutateAsync(imageData)
 
-    console.log("Uploaded File: ", file)
+      // Step 2: Convert file to binary
+      const fileAsArrayBuffer = await file.arrayBuffer()
 
-    utils.compute.listImagesWithPagination.invalidate()
+      // Step 3: Upload file
+      await uploadImageMutation.mutateAsync({
+        imageId: createdImage.id,
+        imageData: fileAsArrayBuffer,
+        contentType: file.type || "application/octet-stream",
+      })
 
-    return Promise.resolve()
+      // Step 4: ONLY THEN close modal and show success
+      setCreateModalOpen(false)
+
+      // Show success notification
+      setToastData(getImageCreatedToast(imageName, { onDismiss: handleToastDismiss }))
+    } catch (error) {
+      const { message } = error as TRPCError
+      // Show error notification, modal stays open
+      setToastData(getImageUpdateErrorToast(imageName, message, { onDismiss: handleToastDismiss }))
+    }
   }
 
   const handleDelete = async (deletedImage: GlanceImage) => {
@@ -625,7 +651,7 @@ export function ImageListView({
           image={selectedImage}
           isOpen={deleteModalOpen}
           isLoading={isLoading}
-          isDisabled={!selectedImage.protected && permissions.canDelete}
+          isDisabled={selectedImage.protected || !permissions.canDelete}
           onClose={closeDeleteModal}
           onDelete={handleDelete}
         />

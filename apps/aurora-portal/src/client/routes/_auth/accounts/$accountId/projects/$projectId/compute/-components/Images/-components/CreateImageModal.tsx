@@ -16,12 +16,12 @@ import {
   ModalFooter,
   Pill,
 } from "@cloudoperators/juno-ui-components"
-import { GlanceImage } from "@/server/Compute/types/image"
+import { CreateImageInput } from "@/server/Compute/types/image"
 
 interface CreateImageModalProps {
   isOpen: boolean
   onClose: () => void
-  onCreate: (imageData: Partial<GlanceImage>, file: File) => Promise<void>
+  onCreate: (imageData: CreateImageInput, file: File) => Promise<void>
   isLoading?: boolean
 }
 
@@ -191,7 +191,7 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({ isOpen, onCl
     }
 
     // Prepare image data without the file (file is uploaded separately)
-    const imageData: Partial<GlanceImage> = {
+    const imageData = {
       name: properties.name.trim(),
       tags: properties.tags,
       visibility: properties.visibility,
@@ -201,7 +201,7 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({ isOpen, onCl
       min_ram: properties.min_ram,
       os_type: properties.os_type.trim() || undefined,
       os_distro: properties.os_distro.trim() || undefined,
-    }
+    } as CreateImageInput
 
     // Call onCreate with imageData and file as separate arguments
     // File will be uploaded after image is created
