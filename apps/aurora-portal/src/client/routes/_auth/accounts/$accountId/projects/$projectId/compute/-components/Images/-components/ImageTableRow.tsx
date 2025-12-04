@@ -50,6 +50,8 @@ export function ImageTableRow({
       <DataGridCell>
         <Checkbox checked={isSelected} onChange={() => onSelect(image)} />
       </DataGridCell>
+
+      <DataGridCell>{status}</DataGridCell>
       <DataGridCell>
         <Link
           to="/accounts/$accountId/projects/$projectId/compute/images/$imageId"
@@ -59,7 +61,6 @@ export function ImageTableRow({
           {imageName}
         </Link>
       </DataGridCell>
-      <DataGridCell>{status}</DataGridCell>
       <DataGridCell>{visibility}</DataGridCell>
       <DataGridCell>{image.protected ? t`Yes` : t`No`}</DataGridCell>
       <DataGridCell>

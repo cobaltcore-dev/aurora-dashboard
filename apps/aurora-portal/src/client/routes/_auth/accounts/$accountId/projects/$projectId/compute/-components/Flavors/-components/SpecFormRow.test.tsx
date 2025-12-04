@@ -116,7 +116,7 @@ describe("SpecFormRow", () => {
 
     expect(primaryButton).toBeTruthy()
     expect(nonPrimaryButton).toBeTruthy()
-    expect(primaryButton?.getAttribute("title")).toBe("Save Extra Spec")
+    expect(primaryButton?.getAttribute("title")).toBe("Save Metadata")
     expect(nonPrimaryButton?.getAttribute("title")).toBe("Cancel")
   })
 
@@ -128,7 +128,7 @@ describe("SpecFormRow", () => {
     })
 
     const buttons = container.querySelectorAll("button")
-    const saveButton = Array.from(buttons).find((btn) => btn.getAttribute("title") === "Save Extra Spec")
+    const saveButton = Array.from(buttons).find((btn) => btn.getAttribute("title") === "Save Metadata")
 
     expect(saveButton).toBeTruthy()
     fireEvent.click(saveButton!)
@@ -161,7 +161,7 @@ describe("SpecFormRow", () => {
     })
 
     const buttons = container.querySelectorAll("button")
-    const saveButton = Array.from(buttons).find((btn) => btn.getAttribute("title") === "Save Extra Spec")
+    const saveButton = Array.from(buttons).find((btn) => btn.getAttribute("title") === "Save Metadata")
     const cancelButton = Array.from(buttons).find((btn) => btn.getAttribute("title") === "Cancel")
 
     expect(saveButton).toBeDisabled()
@@ -176,7 +176,7 @@ describe("SpecFormRow", () => {
     })
 
     const buttons = container.querySelectorAll("button")
-    const saveButton = Array.from(buttons).find((btn) => btn.getAttribute("title") === "Save Extra Spec")
+    const saveButton = Array.from(buttons).find((btn) => btn.getAttribute("title") === "Save Metadata")
     const cancelButton = Array.from(buttons).find((btn) => btn.getAttribute("title") === "Cancel")
 
     expect(saveButton).toBeEnabled()

@@ -131,7 +131,7 @@ function EditSpecContent({
       onSpecsUpdate(newSpecs)
 
       setMessage({
-        text: t`Extra spec "${trimmedKey}" has been added successfully.`,
+        text: t`Metadata "${trimmedKey}" has been added successfully.`,
         type: "info",
       })
       resetForm()
@@ -159,7 +159,7 @@ function EditSpecContent({
       onSpecsUpdate(newSpecs)
 
       setMessage({
-        text: t`Extra spec "${keyToDelete}" has been deleted successfully.`,
+        text: t`Metadata "${keyToDelete}" has been deleted successfully.`,
         type: "info",
       })
     } catch (error) {
@@ -189,7 +189,7 @@ function EditSpecContent({
       {permissions.canCreate && (
         <Stack direction="horizontal" className="bg-theme-background-lvl-1 justify-end p-2">
           <Button
-            label={t`Add Extra Spec`}
+            label={t`Add Metadata`}
             data-testid="addExtraButton"
             onClick={() => setIsAddingSpec(true)}
             variant="primary"
@@ -236,7 +236,7 @@ function EditSpecContent({
         {shouldShowEmptyState && (
           <DataGridRow>
             <DataGridCell colSpan={3} className="text-center py-4 text-theme-default">
-              {t`No extra specs found. Click "Add Extra Spec" to create one.`}
+              {t`No extra specs found. Click "Add Metadata" to create one.`}
             </DataGridCell>
           </DataGridRow>
         )}
@@ -280,7 +280,7 @@ export const EditSpecModal: React.FC<EditSpecModalProps> = ({ client, isOpen, on
   }
 
   return (
-    <Modal onCancel={handleClose} title={t`Edit Extra Specs`} open={isOpen} size="large">
+    <Modal onCancel={handleClose} title={t`Edit Metadata`} open={isOpen} size="large">
       <div>
         {message && (
           <Message onDismiss={() => setMessage(null)} text={message.text} variant={message.type} className="mb-4" />

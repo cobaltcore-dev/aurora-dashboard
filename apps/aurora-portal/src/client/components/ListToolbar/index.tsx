@@ -1,91 +1,22 @@
-import { useCallback } from "react"
+import { ReactNode, useCallback, useRef, useEffect } from "react"
 import { useLingui } from "@lingui/react/macro"
-import { cn } from "@/client/utils/cn"
-import { ButtonProps, SearchInput, SearchInputProps, Stack, StackProps } from "@cloudoperators/juno-ui-components"
+import { SearchInput, SearchInputProps, Stack } from "@cloudoperators/juno-ui-components"
 import { SelectedFilters } from "./SelectedFilters"
-import { FiltersInput, FiltersInputProps } from "./FiltersInput"
-import { SortInput, SortInputProps } from "./SortInput"
+import { FiltersInput } from "./FiltersInput"
+import { SortInput } from "./SortInput"
 import { FilterSettings, SelectedFilter, SortSettings } from "./types"
 
 export type ListToolbarProps = {
-  /**
-   * Current filter state containing both the array of active filters and available filter definitions.
-   */
-  filterSettings: FilterSettings
-  /**
-   * Callback function invoked when filters change (added, removed, or cleared).
-   */
-  onFilter: (filterSettings: FilterSettings) => void
-  /**
-   * Current sort configuration including the sort field and direction (ascending/descending).
-   */
+  filterSettings?: FilterSettings
+  onFilter?: (filterSettings: FilterSettings) => void
   sortSettings?: SortSettings
-  /**
-   * Callback function invoked when the sort configuration changes.
-   */
   onSort?: (sortSettings: SortSettings) => void
-  /**
-   * Current search term value for filtering list items.
-   */
   searchTerm?: string
-  /**
-   * Callback function invoked when the search term changes.
-   */
   onSearch?: (searchTerm: string) => void
-  /**
-   * Optional props to customize the Stack wrapper component that contains the entire toolbar.
-   * Allows customization of layout, spacing, and styling.
-   */
-  listToolbarWrapperProps?: StackProps
-  /**
-   * Optional props to customize the Stack component that contains the filter, sort, and search controls.
-   * Allows customization of the horizontal layout, alignment, and spacing of the control elements.
-   */
-  controlsStackProps?: StackProps
-  /**
-   * Optional props to customize the FiltersInput component.
-   * Excludes 'filters' and 'onChange' props as these are managed internally.
-   */
-  filtersInputProps?: Omit<FiltersInputProps, "filters" | "onChange">
-  /**
-   * Optional props to customize the SortInput component.
-   * Excludes 'options', 'sortBy', 'sortDirection', 'onSortByChange' and 'onSortDirectionChange' props as these are managed internally.
-   */
-  sortInputProps?: Omit<
-    SortInputProps,
-    "options" | "sortBy" | "sortDirection" | "onSortByChange" | "onSortDirectionChange"
-  >
-  /**
-   * Optional props to customize the SearchInput component.
-   * Excludes 'value', 'onSearch', and 'onClear' props as these are managed internally.
-   */
-  searchInputProps?: Omit<SearchInputProps, "value" | "onSearch" | "onClear">
-
-  /** Optional props to customize the "Clear all" Button component. */
-  clearButtonProps?: ButtonProps
+  searchInputProps?: Omit<SearchInputProps, "value" | "onSearch" | "onClear" | "onInput">
+  actions?: ReactNode
 }
 
-/**
- * ListToolbar Component
- *
- * A comprehensive toolbar component for filtering, sorting, and searching list data. It provides:
- * - Filter selection interface (filter type + value)
- * - Sort selection interface (sort field + direction)
- * - Search input field
- * - Visual display of currently active filters as removable pills
- * - Clear all functionality
- *
- * The component manages the interaction between filter inputs, sort controls, and displays the current
- * filter state, allowing users to add, remove, and clear filters, change sort order, as well as perform
- * text-based searches.
- *
- * **Features:**
- * - Prevents duplicate filters from being added
- * - Displays active filters as closeable pills
- * - Provides sort field and direction controls
- * - Integrates search functionality alongside filters and sorting
- * - Fully customizable sub-components via prop spreading
- */
 export const ListToolbar = ({
   filterSettings,
   onFilter,
@@ -93,17 +24,24 @@ export const ListToolbar = ({
   onSort,
   searchTerm,
   onSearch,
-  listToolbarWrapperProps = {},
-  controlsStackProps = {},
-  filtersInputProps = {},
-  sortInputProps = {},
   searchInputProps = {},
-  clearButtonProps = {},
+  actions,
 }: ListToolbarProps) => {
   const { t } = useLingui()
 
+  const debounceTimerRef = useRef<number | undefined>(undefined)
+
+  useEffect(() => {
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current)
+      }
+    }
+  }, [])
+
   const handleFilterDelete = useCallback(
     (filterToRemove: SelectedFilter) => {
+      if (!onFilter || !filterSettings) return
       onFilter({
         ...filterSettings,
         selectedFilters: filterSettings.selectedFilters?.filter(
@@ -115,133 +53,105 @@ export const ListToolbar = ({
   )
 
   const handleSelect = (selectedFilter: SelectedFilter) => {
+    if (!onFilter || !filterSettings) return
     const filterExists = filterSettings.selectedFilters?.some(
       (filter) => filter.name === selectedFilter.name && filter.value === selectedFilter.value
     )
+    if (filterExists) return
 
-    // Only add the filter if it does not already exist
-    if (!filterExists) {
-      // Check if this filter type supports selecting multiple values (e.g., status=in:active,queued)
-      const supportsMultiValue = filterSettings.filters.find(
-        (filter) => selectedFilter.name === filter.filterName
-      )?.supportsMultiValue
+    const supportsMultiValue = filterSettings.filters.find(
+      (filter) => selectedFilter.name === filter.filterName
+    )?.supportsMultiValue
 
-      return supportsMultiValue
-        ? onFilter({
-            // Multi-value filter: Add to existing selections (allows multiple values for same filter)
-            ...filterSettings,
-            selectedFilters: [...(filterSettings.selectedFilters || []), selectedFilter],
-          })
-        : onFilter({
-            // Single-value filter: Replace all existing selections (only one value allowed)
-            ...filterSettings,
-            selectedFilters: [
-              ...(filterSettings.selectedFilters || []).filter((filter) => filter.name !== selectedFilter.name),
-              selectedFilter,
-            ],
-          })
-    }
+    const newSelected = supportsMultiValue
+      ? [...(filterSettings.selectedFilters || []), selectedFilter]
+      : [
+          ...(filterSettings.selectedFilters || []).filter((filter) => filter.name !== selectedFilter.name),
+          selectedFilter,
+        ]
+
+    onFilter({ ...filterSettings, selectedFilters: newSelected })
   }
 
-  /**
-   * Merges default props with user-provided props for the main toolbar Stack wrapper.
-   * Applies vertical layout, consistent spacing, and background styling while preserving custom overrides.
-   */
-  const getDefaultListToolbarWrapperProps = (): StackProps => {
-    const { className, ...restProps } = listToolbarWrapperProps
+  const handleSearch = useCallback(
+    (value: string | number | string[] | undefined) => {
+      const searchValue = typeof value === "string" ? value : ""
 
-    return {
-      direction: "vertical",
-      gap: "4",
-      className: cn("bg-theme-background-lvl-1 py-2 px-4", className),
-      ...restProps,
-    }
-  }
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current)
+      }
 
-  /**
-   * Merges default props with user-provided props for the controls Stack wrapper.
-   * Applies horizontal flex layout with center alignment, wrapping behavior, and full width
-   * while preserving custom overrides.
-   */
-  const getDefaultControlsStackProps = (): StackProps => {
-    const { className, ...restProps } = controlsStackProps
+      onSearch?.(searchValue)
+    },
+    [onSearch]
+  )
 
-    return {
-      className: cn("flex flex-row items-center flex-wrap w-full", className),
-      gap: "4",
-      ...restProps,
-    }
-  }
+  const handleSearchInput = useCallback(
+    (event: React.FormEvent<HTMLInputElement>) => {
+      const searchValue = event.currentTarget.value
+      if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current)
+      debounceTimerRef.current = window.setTimeout(() => onSearch?.(searchValue), 500)
+    },
+    [onSearch]
+  )
 
-  /**
-   * Merges default props with user-provided props for the FiltersInput component.
-   * Connects filter settings and change handlers while preserving custom overrides.
-   */
-  const getDefaultFiltersInputProps = (): FiltersInputProps => {
-    return {
-      filters: filterSettings.filters,
-      onChange: handleSelect,
-      ...filtersInputProps,
-    }
-  }
+  const handleSearchClear = useCallback(() => {
+    if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current)
+    onSearch?.("")
+  }, [onSearch])
 
-  /**
-   * Merges default props with user-provided props for the SortInput component.
-   * Connects sort settings and change handlers while preserving custom overrides.
-   */
-  const getDefaultSortInputProps = (): SortInputProps => {
-    return onSort && sortSettings
+  const filtersProps = filterSettings && onFilter ? { filters: filterSettings.filters, onChange: handleSelect } : null
+  const sortProps =
+    sortSettings && onSort
       ? {
           options: sortSettings.options,
           sortBy: sortSettings.sortBy,
           sortDirection: sortSettings.sortDirection || "asc",
-          onSortByChange: (param) =>
+          onSortByChange: (param: string | number | string[] | undefined) =>
             onSort({ ...sortSettings, sortBy: param, sortDirection: sortSettings.sortDirection || "asc" }),
           onSortDirectionChange: (direction: "asc" | "desc") => onSort({ ...sortSettings, sortDirection: direction }),
-          ...sortInputProps,
         }
-      : ({} as SortInputProps)
-  }
+      : null
 
-  /**
-   * Merges default props with user-provided props for the SearchInput component.
-   * Applies default placeholder, styling, and search handlers while preserving custom overrides.
-   */
-  const getDefaultSearchInputProps = (): SearchInputProps & { "data-testid"?: string } => {
-    const { className, ...restProps } = searchInputProps
-
-    return onSearch
-      ? {
-          placeholder: t`Search...`,
-          className: cn("w-64 ml-auto", className),
-          "data-testid": "searchbar",
-          value: searchTerm,
-          onSearch,
-          onClear: () => onSearch(""),
-          ...restProps,
-        }
-      : {}
-  }
+  const searchProps: (SearchInputProps & { "data-testid"?: string }) | null = onSearch
+    ? {
+        placeholder: t`Search...`,
+        "data-testid": "searchbar",
+        value: searchTerm,
+        onInput: handleSearchInput,
+        onClear: handleSearchClear,
+        onSearch: handleSearch,
+        ...searchInputProps,
+      }
+    : null
 
   return (
-    <Stack {...getDefaultListToolbarWrapperProps()}>
-      <Stack {...getDefaultControlsStackProps()}>
-        <FiltersInput {...getDefaultFiltersInputProps()} />
-        {onSort && sortSettings && <SortInput {...getDefaultSortInputProps()} />}
-        {onSearch && <SearchInput {...getDefaultSearchInputProps()} />}
-      </Stack>
-      {filterSettings.selectedFilters && filterSettings.selectedFilters.length > 0 && (
-        <SelectedFilters
-          selectedFilters={filterSettings.selectedFilters}
-          clearButtonProps={clearButtonProps}
-          onDelete={handleFilterDelete}
-          onClear={() =>
-            onFilter({
-              ...filterSettings,
-              selectedFilters: [],
-            })
-          }
-        />
+    <Stack alignment="center" gap="6" className="bg-theme-background-lvl-1 p-4 flex flex-col w-full">
+      {actions && (
+        <Stack direction="horizontal" className="w-full justify-end">
+          {actions}
+        </Stack>
+      )}
+
+      <div className="flex w-full flex-col flex-wrap items-center gap-4 md:flex-row">
+        {filtersProps && <FiltersInput {...filtersProps} />}
+        {sortProps && <SortInput {...sortProps} />}
+
+        {searchProps && (
+          <div className="w-full md:w-auto md:ml-auto">
+            <SearchInput {...searchProps} />
+          </div>
+        )}
+      </div>
+
+      {filterSettings?.selectedFilters && filterSettings.selectedFilters.length > 0 && onFilter && (
+        <div className="w-full">
+          <SelectedFilters
+            selectedFilters={filterSettings.selectedFilters}
+            onDelete={handleFilterDelete}
+            onClear={() => onFilter({ ...filterSettings, selectedFilters: [] })}
+          />
+        </div>
       )}
     </Stack>
   )
