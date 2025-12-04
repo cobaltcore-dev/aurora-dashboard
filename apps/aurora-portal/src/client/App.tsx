@@ -4,7 +4,7 @@ import { RouterProvider } from "@tanstack/react-router"
 import { AuthProvider, useAuth } from "./store/AuthProvider"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { trpcReact, trpcClient, trpcReactClient } from "./trpcClient"
-import { useState, useMemo } from "react"
+import { useState, useMemo, useRef } from "react"
 import { i18n } from "@lingui/core"
 import { I18nProvider } from "@lingui/react"
 import { ErrorBoundary } from "react-error-boundary"
@@ -16,6 +16,8 @@ type AppProps = {
 }
 
 const navItems: NavigationItem[] = [{ route: "/about", label: "About" }]
+
+const currentTheme = (localStorage.getItem("aurora-theme") || "theme-light") as "theme-dark" | "theme-light"
 
 const App = (props: AppProps) => {
   const [queryClient] = useState(
@@ -29,8 +31,17 @@ const App = (props: AppProps) => {
         },
       })
   )
+  const themeRef = useRef<HTMLDivElement>(null)
 
   const [reactClient] = useState(() => trpcReactClient)
+
+  const handleThemeToggle = (newTheme: string) => {
+    if (themeRef.current) {
+      themeRef.current.parentElement?.classList.remove("theme-light", "theme-dark")
+      themeRef.current.parentElement?.classList.add(newTheme)
+      localStorage.setItem("aurora-theme", newTheme)
+    }
+  }
 
   return (
     <ErrorBoundary
@@ -47,11 +58,12 @@ const App = (props: AppProps) => {
       )}
     >
       <I18nProvider i18n={i18n}>
-        <AppShellProvider shadowRoot={false} theme={props.theme || "theme-dark"}>
+        <AppShellProvider shadowRoot={false} theme={props.theme || currentTheme || "theme-light"}>
+          <span ref={themeRef}></span>
           <trpcReact.Provider client={reactClient} queryClient={queryClient}>
             <QueryClientProvider client={queryClient}>
               <AuthProvider>
-                <AppInner navItems={navItems} />
+                <AppInner navItems={navItems} handleThemeToggle={handleThemeToggle} />
               </AuthProvider>
             </QueryClientProvider>
           </trpcReact.Provider>
@@ -61,10 +73,16 @@ const App = (props: AppProps) => {
   )
 }
 
-function AppInner({ navItems }: { navItems: NavigationItem[] }) {
+function AppInner({
+  navItems,
+  handleThemeToggle,
+}: {
+  navItems: NavigationItem[]
+  handleThemeToggle: (theme: string) => void
+}) {
   const auth = useAuth()
 
-  const routerContext = useMemo(() => ({ trpcReact, trpcClient, auth, navItems }), [auth, navItems])
+  const routerContext = useMemo(() => ({ trpcReact, trpcClient, auth, navItems, handleThemeToggle }), [auth, navItems])
 
   return <RouterProvider router={router} context={routerContext} />
 }

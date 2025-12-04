@@ -20,7 +20,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
       onClick={() => navigate({ to: gardenerRootPath })}
     >
       <div className="w-full">
-        <ContentHeading className="text-theme-accent capitalize">{project.name}</ContentHeading>
+        <ContentHeading className="text-theme-accent">{project.name}</ContentHeading>
 
         {project.enabled ? (
           <Badge icon text="Active" variant="success" className="mt-1" />

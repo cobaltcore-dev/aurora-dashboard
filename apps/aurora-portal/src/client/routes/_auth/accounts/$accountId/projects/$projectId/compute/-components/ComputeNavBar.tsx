@@ -1,26 +1,19 @@
 import { getServiceIndex } from "@/server/Authentication/helpers"
 import { SideNavigation, SideNavigationList, SideNavigationItem } from "@cloudoperators/juno-ui-components/index"
 import { useLingui } from "@lingui/react/macro"
-import { useParams } from "@tanstack/react-router"
 
-export const ComputeSideNavBar = ({
-  availableServices,
-}: {
+interface ComputeSideNavBarProps {
+  accountId: string
+  projectId: string
   availableServices: {
     type: string
     name: string
   }[]
-}) => {
+}
+export const ComputeSideNavBar = ({ accountId, projectId, availableServices }: ComputeSideNavBarProps) => {
   const { t } = useLingui()
 
-  const { projectId, domain } = useParams({
-    from: "/_auth/accounts/$accountId/projects/$projectId/compute/$",
-    select: (params) => {
-      return { projectId: params.projectId, domain: params.accountId }
-    },
-  })
-
-  const computeRootPath = `/accounts/${domain}/projects/${projectId}/compute`
+  const computeRootPath = `/accounts/${accountId}/projects/${projectId}/compute`
 
   const serviceIndex = getServiceIndex(availableServices)
 
@@ -38,7 +31,6 @@ export const ComputeSideNavBar = ({
         : []),
     ]
   }
-
   const links = getComputeNavigationLinks()
 
   return (

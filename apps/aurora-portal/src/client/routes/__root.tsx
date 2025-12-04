@@ -15,6 +15,7 @@ interface RouterContext {
   trpcClient: TrpcClient
   auth: AuthContext
   navItems: NavigationItem[]
+  handleThemeToggle?: (theme: string) => void
 }
 
 export const Route = createRootRouteWithContext<RouterContext>()({
@@ -24,7 +25,7 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 })
 
 function AuroraLayout() {
-  const { navItems } = Route.useRouteContext()
+  const { navItems, handleThemeToggle } = Route.useRouteContext()
   const routerState = useRouterState()
   const isNavigating =
     routerState.status === "pending" && routerState.location.pathname !== routerState?.resolvedLocation?.pathname
@@ -42,7 +43,8 @@ function AuroraLayout() {
   return (
     <>
       <style>{styles.toString()}</style>
-      <AppShell pageHeader={<MainNavigation items={navItems} />}>
+
+      <AppShell pageHeader={<MainNavigation items={navItems} handleThemeToggle={handleThemeToggle} />} fullWidthContent>
         <Outlet />
         {isLoading && (
           <Stack className="fixed inset-0" distribution="center" alignment="center">

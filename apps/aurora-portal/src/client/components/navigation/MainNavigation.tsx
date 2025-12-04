@@ -4,12 +4,11 @@ import { NavigationItem } from "./types"
 
 import { isMatch, Link, MakeRouteMatchUnion, useRouterState } from "@tanstack/react-router"
 import { UserMenu } from "./UserMenu"
-import { PageHeader, Button } from "@cloudoperators/juno-ui-components/index"
-import { useNavigate } from "@tanstack/react-router"
-import { Trans } from "@lingui/react/macro"
+import { PageHeader, ThemeToggle } from "@cloudoperators/juno-ui-components/index"
 
 interface NavigationProps {
   items: NavigationItem[]
+  handleThemeToggle?: (theme: string) => void
 }
 
 function getDomain(matches: MakeRouteMatchUnion[]) {
@@ -34,42 +33,49 @@ function getProject(matches: MakeRouteMatchUnion[]) {
   }
 }
 
-export function MainNavigation({ items }: NavigationProps) {
-  const navigate = useNavigate()
+export function MainNavigation({ items, handleThemeToggle }: NavigationProps) {
   const matches = useRouterState({ select: (s) => s.matches })
   const domain = getDomain(matches)
   const project = getProject(matches)
 
-  const handleHeaderClick = () => {
-    navigate({ to: "/" })
-  }
-
   return (
     <PageHeader
-      applicationName="Aurora"
-      onClick={handleHeaderClick}
-      logo={<Logo className="w-6 h-6 fill-theme-accent " title="Aurora" />}
+      logo={
+        <div className="flex items-center space-x-2 flex-nowrap">
+          <Link to="/" className="flex items-center space-x-2 flex-nowrap">
+            <Logo className="w-6 h-6 fill-theme-accent flex-shrink-0" title="Aurora" />
+            <span className="flex-shrink-0">Aurora</span>
+          </Link>
+          {domain && (
+            <>
+              <span className="flex-shrink-0 text-theme-high/40">/</span>
+              <Link to={domain.path} data-testid="domain-link" className="text-theme-high flex-shrink-0">
+                {domain.name}
+              </Link>
+            </>
+          )}
+          {project && (
+            <>
+              <span className="flex-shrink-0 text-theme-high/40">/</span>
+              <Link
+                to={project.path + "/compute/$"}
+                data-testid="project-link"
+                className="text-theme-high flex-shrink-0"
+              >
+                {project.name}
+              </Link>
+            </>
+          )}
+        </div>
+      }
     >
-      {domain && (
-        <Link to={domain.path} data-testid="domain-link" className="text-theme-high capitalize">
-          {domain.name}
-        </Link>
-      )}
-      {project && (
-        <Link to={project.path + "/compute/$"} data-testid="project-link" className="text-theme-high capitalize ">
-          {project.name}
-        </Link>
-      )}
       {items.map(({ route, label }, index) => (
         <Link className="text-theme-high" key={index} to={route}>
           {label}
         </Link>
       ))}
+      <ThemeToggle onToggleTheme={(newTheme: string) => handleThemeToggle?.(newTheme)} />
       <UserMenu />
-
-      <Button size="small">
-        <Trans>Log Out</Trans>
-      </Button>
     </PageHeader>
   )
 }
