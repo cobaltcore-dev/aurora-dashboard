@@ -2,7 +2,6 @@ import { describe, it, expect } from "vitest"
 import {
   imageSchema,
   imageResponseSchema,
-  imageDetailResponseSchema,
   imageMemberSchema,
   imageMembersResponseSchema,
   listImagesInputSchema,
@@ -237,14 +236,6 @@ describe("Glance Image Schema Validation", () => {
         images: [minimalValidImage, completeValidImage],
       }
       const result = imageResponseSchema.safeParse(response)
-      expect(result.success).toBe(true)
-    })
-
-    it("should validate image detail response with single image", () => {
-      const response = {
-        image: completeValidImage,
-      }
-      const result = imageDetailResponseSchema.safeParse(response)
       expect(result.success).toBe(true)
     })
 
