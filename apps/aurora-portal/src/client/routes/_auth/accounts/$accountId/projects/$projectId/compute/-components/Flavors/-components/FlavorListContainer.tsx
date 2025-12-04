@@ -18,6 +18,7 @@ import { useState } from "react"
 import { TrpcClient } from "@/client/trpcClient"
 import { EditSpecModal } from "./EditSpecModal"
 import { ManageAccessModal } from "./ManageAccessModal"
+import { Link } from "@tanstack/react-router"
 
 interface FlavorListContainerProps {
   flavors?: Flavor[]
@@ -138,7 +139,15 @@ export const FlavorListContainer = ({
 
         {flavors.map((flavor) => (
           <DataGridRow key={flavor.id} data-testid={`flavor-row-${flavor.id}`}>
-            <DataGridCell>{flavor.name || flavor.id}</DataGridCell>
+            <DataGridCell>
+              <Link
+                to="/accounts/$accountId/projects/$projectId/compute/flavors/$flavorId"
+                params={{ projectId: project, flavorId: flavor.id }}
+                className="text-theme-default hover:text-theme-link"
+              >
+                {flavor.name || flavor.id}
+              </Link>
+            </DataGridCell>
             <DataGridCell>{flavor.vcpus || "–"}</DataGridCell>
             <DataGridCell>{flavor.ram || "–"}</DataGridCell>
             <DataGridCell>{flavor.disk || "–"}</DataGridCell>
