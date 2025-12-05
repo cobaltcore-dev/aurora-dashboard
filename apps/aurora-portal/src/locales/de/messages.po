@@ -45,10 +45,6 @@ msgstr "Ein Flavor mit dieser ID oder diesem Namen existiert bereits. Bitte verw
 msgid "A property with this key already exists"
 msgstr "Eine Eigenschaft mit diesem Schlüssel existiert bereits"
 
-#: src/client/components/navigation/SubNavigationLayout.tsx:20
-msgid "About"
-msgstr ""
-
 #: src/client/routes/about.tsx:14
 msgid "About Aurora Dashboard"
 msgstr "Über das Aurora-Dashboard"
@@ -64,7 +60,7 @@ msgstr "Aktionen"
 msgid "Activate"
 msgstr "Aktivieren"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:473
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:477
 msgid "Activate All"
 msgstr "Alle aktivieren"
 
@@ -80,9 +76,13 @@ msgstr "{successCount} Image(s) aktiviert, aber {failedCount} Image(s) konnten n
 msgid "Activated images will become available for launching new instances and creating volumes. This action will restore full functionality to the selected images."
 msgstr "Aktivierte Images werden zum Starten neuer Instanzen und Erstellen von Volumes verfügbar. Diese Aktion stellt die volle Funktionalität der ausgewählten Images wieder her."
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageDetailsModal.tsx:279
+msgid "Add"
+msgstr ""
+
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:192
-msgid "Add Extra Spec"
-msgstr "Extra Spec hinzufügen"
+msgid "Add Metadata"
+msgstr "Metadata hinzufügen"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageMetadataModal.tsx:323
 msgid "Add Property"
@@ -133,12 +133,8 @@ msgstr "Aurora bietet Ihnen robuste Tools, um Ihre Cloud-Verwaltung nahtlos zu o
 msgid "Auto Update"
 msgstr "Auto-Update"
 
-#. js-lingui-explicit-id
-#: src/client/components/Error/ErrorPage.tsx:24
-msgid "go_back"
-msgstr ""
-
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterWizard/WizardActions.tsx:29
+#: src/client/components/Error/ErrorPage.tsx:41
 msgid "Back"
 msgstr "Zurück"
 
@@ -149,7 +145,7 @@ msgstr "Zurück zu Images"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/DeleteClusterDialog.tsx:47
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageMetadataModal.tsx:299
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageDetailsModal.tsx:211
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageDetailsModal.tsx:235
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImagesModal.tsx:55
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImageModal.tsx:66
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeactivateImagesModal.tsx:55
@@ -165,7 +161,7 @@ msgstr "Abbrechen"
 msgid "Changes to metadata will be saved when you click \"Save Changes\". Make sure all properties are correctly configured before saving."
 msgstr "Änderungen an den Metadaten werden gespeichert, wenn Sie auf \"Änderungen speichern\" klicken. Stellen Sie sicher, dass alle Eigenschaften korrekt konfiguriert sind, bevor Sie speichern."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageDetailsModal.tsx:310
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageDetailsModal.tsx:354
 msgid "Changes to these properties will affect how this image can be used and who can access it."
 msgstr "Änderungen an diesen Eigenschaften beeinflussen, wie dieses Image verwendet werden kann und wer darauf zugreifen kann."
 
@@ -217,19 +213,15 @@ msgstr "Cluster"
 msgid "Code View"
 msgstr "Code-Ansicht"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageDetailsModal.tsx:261
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageDetailsModal.tsx:305
 msgid "Community"
 msgstr "Community"
-
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/ComputeNavBar.tsx:52
-msgid "Compute"
-msgstr "Compute"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterWizard/WorkerNodesStep.tsx:77
 msgid "Configure the worker pools for your cluster. These settings determine the compute resources available for your workloads."
 msgstr "Konfiguriere die Worker-Pools für deinen Cluster. Diese Einstellungen bestimmen die Rechenressourcen, die für deine Workloads verfügbar sind."
 
-#: src/client/routes/auth/login.tsx:204
+#: src/client/routes/auth/login.tsx:200
 msgid "Contact support"
 msgstr "Support kontaktieren"
 
@@ -257,7 +249,7 @@ msgstr "Neuen Flavor erstellen"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/ServerGroups/components/ServerGroupListView.tsx:61
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/KeyPairs/-components/KeyPairListView.tsx:55
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:523
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:527
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImageModal.tsx:124
 msgid "Created"
 msgstr "Erstellt"
@@ -280,7 +272,7 @@ msgstr "Benutzerdefinierte Eigenschaften / Metadaten"
 msgid "Deactivate"
 msgstr "Deaktivieren"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:468
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:472
 msgid "Deactivate All"
 msgstr "Alle deaktivieren"
 
@@ -314,7 +306,7 @@ msgstr "Löschen"
 msgid "Delete {specKey}"
 msgstr "Lösche {specKey}"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:463
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:467
 msgid "Delete All"
 msgstr "Alle löschen"
 
@@ -362,7 +354,7 @@ msgid "Disk (GiB)"
 msgstr "Disk (GiB)"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/List.tsx:29
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:520
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:524
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageDetailsView.tsx:53
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImageModal.tsx:110
 msgid "Disk Format"
@@ -372,9 +364,13 @@ msgstr "Festplattenformat"
 msgid "Documentation"
 msgstr "Dokumentation"
 
-#: src/client/routes/auth/login.tsx:138
+#: src/client/routes/auth/login.tsx:134
 msgid "Domain"
 msgstr "Domain"
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageDetailsModal.tsx:275
+msgid "e.g., production, linux, ubuntu"
+msgstr ""
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterWizard/InfrastructureStep.tsx:36
 msgid "Each worker nodes will automatically scale between its minimum and maximum number of nodes based on the workload demands. Ensure your maximum node counts allign with your resouce quotas."
@@ -392,11 +388,7 @@ msgstr "Bearbeiten"
 msgid "Edit Details"
 msgstr "Details bearbeiten"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:283
-msgid "Edit Extra Specs"
-msgstr "Extra Specs bearbeiten"
-
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageDetailsModal.tsx:196
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageDetailsModal.tsx:220
 msgid "Edit Image Details"
 msgstr "Image-Details bearbeiten"
 
@@ -405,8 +397,13 @@ msgid "Edit Image Metadata"
 msgstr "Image-Metadaten bearbeiten"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageTableRow.tsx:86
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:283
 msgid "Edit Metadata"
 msgstr "Metadaten bearbeiten"
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageDetailsModal.tsx:274
+msgid "Enter a tag and press Enter or click Add"
+msgstr ""
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/SpecFormRow.tsx:34
 msgid "Enter key"
@@ -415,10 +412,6 @@ msgstr "Key eingeben"
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FilterToolbar.tsx:66
 msgid "Enter search term or regex"
 msgstr "Suchbegriff oder Regex eingeben"
-
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageDetailsModal.tsx:246
-msgid "Enter tags separated by commas (e.g., production, linux, ubuntu)"
-msgstr "Geben Sie Tags durch Kommas getrennt ein (z. B. production, linux, ubuntu)"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/TenantAccessFormRow.tsx:33
 msgid "Enter tenant ID"
@@ -432,15 +425,15 @@ msgstr "Die Cloud betreten"
 msgid "Enter value"
 msgstr "Value eingeben"
 
-#: src/client/routes/auth/login.tsx:119
+#: src/client/routes/auth/login.tsx:115
 msgid "Enter your credentials to access your account"
 msgstr "Geben Sie Ihre Anmeldedaten ein, um auf Ihr Konto zuzugreifen."
 
-#: src/client/routes/auth/login.tsx:143
+#: src/client/routes/auth/login.tsx:139
 msgid "Enter your domain"
 msgstr "Geben Sie den Domain ein"
 
-#: src/client/routes/auth/login.tsx:160
+#: src/client/routes/auth/login.tsx:156
 msgid "Enter your username"
 msgstr "Geben Sie Ihren Benutzernamen ein"
 
@@ -465,25 +458,9 @@ msgstr "Fehler beim Laden des Images"
 msgid "Error: {errorMessage}"
 msgstr "Fehler: {errorMessage}"
 
-#: src/client/components/Auth/SessionExpirationTimer.tsx:14
-msgid "expired!"
-msgstr ""
-
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:162
-msgid "Extra spec \"{keyToDelete}\" has been deleted successfully."
-msgstr "Extra spec \"{keyToDelete}\" wurde erfolgreich gelöscht."
-
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:134
-msgid "Extra spec \"{trimmedKey}\" has been added successfully."
-msgstr "Extra spec \"{trimmedKey}\" wurde erfolgreich hinzugefügt."
-
 #: src/client/utils/useErrorTranslation.ts:92
 msgid "Extra spec key is required and cannot be empty."
 msgstr "Der Key für die Extra-Spec ist erforderlich und darf nicht leer sein."
-
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:152
-msgid "Extra Specs"
-msgstr "Extra Specs"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageToastNotifications.tsx:234
 msgid "Failed to activate {failedCount} of {totalCount} image(s). Some images may already be active or in an invalid state."
@@ -573,7 +550,7 @@ msgstr "Fehler beim Entfernen des Mandantenzugriffs vom Flavor. Bitte versuchen 
 msgid "False"
 msgstr "False"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:576
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:580
 msgid "Fetching..."
 msgstr "Wird abgerufen..."
 
@@ -615,7 +592,7 @@ msgstr "Flavor Name"
 msgid "Flavor service is not available for this project."
 msgstr "Der Flavor-Service ist für dieses Projekt nicht verfügbar."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/ComputeNavBar.tsx:41
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/ComputeNavBar.tsx:36
 msgid "Flavors"
 msgstr "Flavors"
 
@@ -647,9 +624,8 @@ msgstr ""
 msgid "Hi"
 msgstr ""
 
-#. js-lingui-explicit-id
-#: src/client/components/Error/ErrorPage.tsx:29
-msgid "go_to_home"
+#: src/client/components/Error/ErrorPage.tsx:46
+msgid "Home"
 msgstr ""
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImageModal.tsx:92
@@ -701,12 +677,12 @@ msgstr "Image-Instanz \"{imageName}\" wurde gelöscht"
 msgid "Image instance \"{imageName}\" has been updated"
 msgstr "Image-Instanz \"{imageName}\" wurde aktualisiert"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:505
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageDetailsModal.tsx:231
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:509
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageDetailsModal.tsx:255
 msgid "Image Name"
 msgstr "Image-Name"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageDetailsModal.tsx:150
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageDetailsModal.tsx:174
 msgid "Image name is required"
 msgstr "Image-Name ist erforderlich"
 
@@ -719,7 +695,7 @@ msgid "Image Version"
 msgstr "Image Version"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId.tsx:116
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/ComputeNavBar.tsx:35
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/ComputeNavBar.tsx:30
 msgid "Images"
 msgstr "Images"
 
@@ -813,7 +789,7 @@ msgstr "Kubernetes Version"
 msgid "List View"
 msgstr "Tabellenansicht"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:567
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:571
 msgid "Load More"
 msgstr "Mehr laden"
 
@@ -841,7 +817,7 @@ msgstr "Lädt Instanzen..."
 msgid "Loading Key Pairs..."
 msgstr "Lädt Key Pairs..."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:559
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:563
 msgid "Loading more..."
 msgstr "Weitere werden geladen..."
 
@@ -849,22 +825,18 @@ msgstr "Weitere werden geladen..."
 msgid "Loading Server Groups..."
 msgstr "Lädt Servergruppen"
 
-#: src/client/routes/auth/login.tsx:197
+#: src/client/routes/auth/login.tsx:193
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Overview.tsx:114
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:439
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:443
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:82
 msgid "Loading..."
 msgstr "Lädt..."
-
-#: src/client/components/navigation/MainNavigation.tsx:80
-msgid "Log Out"
-msgstr ""
 
 #: src/client/routes/auth/login.tsx:73
 msgid "Login failed. Please check your credentials and try again."
 msgstr "Anmeldung fehlgeschlagen. Bitte überprüfen Sie Ihre Anmeldeinformationen und versuchen Sie es erneut."
 
-#: src/client/routes/auth/login.tsx:116
+#: src/client/routes/auth/login.tsx:112
 msgid "Login to Your Account"
 msgstr "Bei Ihrem Konto anmelden"
 
@@ -909,6 +881,18 @@ msgstr "Maximale Nodes"
 msgid "Members"
 msgstr "Members"
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:152
+msgid "Metadata"
+msgstr "Metadata"
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:162
+msgid "Metadata \"{keyToDelete}\" has been deleted successfully."
+msgstr ""
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:134
+msgid "Metadata \"{trimmedKey}\" has been added successfully."
+msgstr ""
+
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail/WorkerSection.tsx:78
 msgid "Min:"
 msgstr "Min:"
@@ -921,15 +905,15 @@ msgstr "Min. Disk"
 msgid "Min. RAM"
 msgstr "Min. RAM"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageDetailsModal.tsx:283
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageDetailsModal.tsx:327
 msgid "Minimum Disk (GB)"
 msgstr "Minimale Festplatte (GB)"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageDetailsModal.tsx:154
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageDetailsModal.tsx:178
 msgid "Minimum disk must be 0 or greater"
 msgstr "Minimale Festplatte muss 0 oder größer sein"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageDetailsModal.tsx:287
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageDetailsModal.tsx:331
 msgid "Minimum disk size required to boot this image"
 msgstr "Minimale Festplattengröße, die zum Booten dieses Images erforderlich ist"
 
@@ -937,15 +921,15 @@ msgstr "Minimale Festplattengröße, die zum Booten dieses Images erforderlich i
 msgid "Minimum Nodes"
 msgstr "Minimale Nodes"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageDetailsModal.tsx:297
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageDetailsModal.tsx:341
 msgid "Minimum RAM (MB)"
 msgstr "Minimaler RAM (MB)"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageDetailsModal.tsx:158
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageDetailsModal.tsx:182
 msgid "Minimum RAM must be 0 or greater"
 msgstr "Minimaler RAM muss 0 oder größer sein"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageDetailsModal.tsx:301
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageDetailsModal.tsx:345
 msgid "Minimum RAM required to boot this image"
 msgstr "Minimaler RAM, der zum Booten dieses Images erforderlich ist"
 
@@ -972,7 +956,7 @@ msgstr "Name"
 msgid "Name must be 2-50 characters long."
 msgstr "Der Name muss 2-50 Zeichen lang sein."
 
-#: src/client/routes/auth/login.tsx:202
+#: src/client/routes/auth/login.tsx:198
 msgid "Need help?"
 msgstr "Benötigen Sie Hilfe?"
 
@@ -1004,8 +988,8 @@ msgid "No custom properties defined"
 msgstr "Keine benutzerdefinierten Eigenschaften definiert"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:239
-msgid "No extra specs found. Click \"Add Extra Spec\" to create one."
-msgstr "Keine Extra Specs gefunden. Klicken Sie auf \"Extra Spec hinzufügen\", um eine zu erstellen."
+msgid "No extra specs found. Click \"Add Metadata\" to create one."
+msgstr "Keine Metadata gefunden. Klicken Sie auf \"Metadata hinzufügen\", um eine zu erstellen."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/DeleteFlavorModal.tsx:45
 msgid "No flavor selected for deletion."
@@ -1015,7 +999,7 @@ msgstr "Kein Flavor für die Löschung ausgewählt."
 msgid "No flavors found"
 msgstr "No flavors found"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:586
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:590
 msgid "No images found"
 msgstr "Keine Images gefunden"
 
@@ -1066,6 +1050,7 @@ msgid "Our Mission"
 msgstr "Unsere Mission"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId.tsx:113
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/ComputeNavBar.tsx:29
 msgid "Overview"
 msgstr "Übersicht"
 
@@ -1085,7 +1070,7 @@ msgstr "Teilweise erfolgreich deaktiviert"
 msgid "Partial Delete Success"
 msgstr "Teilweise erfolgreich gelöscht"
 
-#: src/client/routes/auth/login.tsx:174
+#: src/client/routes/auth/login.tsx:170
 msgid "Password"
 msgstr "Passwort"
 
@@ -1111,13 +1096,9 @@ msgstr "CIDR-Bereich für Pods"
 msgid "Policy"
 msgstr "Richtlinie"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageDetailsModal.tsx:259
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageDetailsModal.tsx:303
 msgid "Private"
 msgstr "Privat"
-
-#: src/client/routes/_auth/accounts/$accountId/projects/-components/AccountSubNavigation.tsx:12
-msgid "Projects Overview"
-msgstr ""
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageMetadataModal.tsx:334
 msgid "Property Key"
@@ -1127,14 +1108,14 @@ msgstr "Eigenschaftsschlüssel"
 msgid "property_key"
 msgstr "eigenschaftsschlüssel"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageDetailsModal.tsx:272
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageDetailsModal.tsx:316
 msgid "Protect this image from being deleted"
 msgstr "Dieses Image vor dem Löschen schützen"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/List.tsx:41
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:514
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:518
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageDetailsView.tsx:93
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageDetailsModal.tsx:269
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageDetailsModal.tsx:313
 msgid "Protected"
 msgstr "Geschützt"
 
@@ -1146,7 +1127,7 @@ msgstr "Geschützt (wird übersprungen):"
 msgid "Protected images (cannot be deleted)"
 msgstr "Geschützte Images (können nicht gelöscht werden)"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageDetailsModal.tsx:258
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageDetailsModal.tsx:302
 msgid "Public"
 msgstr "Öffentlich"
 
@@ -1235,13 +1216,13 @@ msgid "Save"
 msgstr "Speichern"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageMetadataModal.tsx:296
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageDetailsModal.tsx:208
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageDetailsModal.tsx:232
 msgid "Save Changes"
 msgstr "Änderungen speichern"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/SpecFormRow.tsx:50
-msgid "Save Extra Spec"
-msgstr "Extra Spec speichern"
+msgid "Save Metadata"
+msgstr "Metadata speichern"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail/WorkerSection.tsx:38
 msgid "Scaling"
@@ -1266,7 +1247,7 @@ msgstr "Ein Serverfehler ist aufgetreten, während der Projektzugriff hinzugefü
 
 #: src/client/utils/useErrorTranslation.ts:62
 msgid "Server error occurred while creating extra specs. Please try again later."
-msgstr "Beim Erstellen von Extra Specs ist ein Serverfehler aufgetreten. Bitte versuchen Sie es später erneut."
+msgstr "Beim Erstellen von Metadata ist ein Serverfehler aufgetreten. Bitte versuchen Sie es später erneut."
 
 #: src/client/utils/useErrorTranslation.ts:32
 msgid "Server error occurred while creating the flavor. Please try again later."
@@ -1274,7 +1255,7 @@ msgstr "Es ist ein Serverfehler beim Erstellen des Flavors aufgetreten. Bitte ve
 
 #: src/client/utils/useErrorTranslation.ts:90
 msgid "Server error occurred while deleting the extra spec. Please try again later."
-msgstr "Beim Löschen des Extra Specs ist ein Serverfehler aufgetreten. Bitte versuchen Sie es später erneut."
+msgstr "Beim Löschen des Metadata ist ein Serverfehler aufgetreten. Bitte versuchen Sie es später erneut."
 
 #: src/client/utils/useErrorTranslation.ts:44
 msgid "Server error occurred while deleting the flavor. Please try again later."
@@ -1282,7 +1263,7 @@ msgstr "Beim Löschen des Flavors ist ein Serverfehler aufgetreten. Bitte versuc
 
 #: src/client/utils/useErrorTranslation.ts:76
 msgid "Server error occurred while fetching extra specs. Please try again later."
-msgstr "Beim Abrufen der Extra Specs ist ein Serverfehler aufgetreten. Bitte versuchen Sie es später erneut."
+msgstr "Beim Abrufen der Metadata ist ein Serverfehler aufgetreten. Bitte versuchen Sie es später erneut."
 
 #: src/client/utils/useErrorTranslation.ts:104
 msgid "Server error occurred while fetching flavor access information. Please try again later."
@@ -1303,7 +1284,7 @@ msgstr "Servername"
 #: src/client/utils/useErrorTranslation.ts:64
 #: src/client/utils/useErrorTranslation.ts:78
 msgid "Server returned unexpected data format for extra specs."
-msgstr "Der Server hat ein unerwartetes Datenformat für die Extra Specs zurückgegeben."
+msgstr "Der Server hat ein unerwartetes Datenformat für die Metadata zurückgegeben."
 
 #: src/client/utils/useErrorTranslation.ts:20
 msgid "Server returned unexpected data format."
@@ -1321,7 +1302,7 @@ msgstr "CIDR-Bereich für Services"
 msgid "Share"
 msgstr "Teilen"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageDetailsModal.tsx:260
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageDetailsModal.tsx:304
 msgid "Shared"
 msgstr "Geteilt"
 
@@ -1329,7 +1310,7 @@ msgstr "Geteilt"
 msgid "Show Details"
 msgstr "Details anzeigen"
 
-#: src/client/routes/auth/login.tsx:197
+#: src/client/routes/auth/login.tsx:193
 #: src/client/components/Auth/AuthMenu.tsx:49
 msgid "Sign In"
 msgstr "Einloggen"
@@ -1339,13 +1320,13 @@ msgid "Sign Out"
 msgstr ""
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/List.tsx:66
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:517
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:521
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageDetailsView.tsx:39
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImageModal.tsx:104
 msgid "Size"
 msgstr "Größe"
 
-#: src/client/App.tsx:18
+#: src/client/App.tsx:51
 msgid "Something went wrong:"
 msgstr "Etwas ist schiefgelaufen."
 
@@ -1366,7 +1347,7 @@ msgstr "Startzeit"
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Instances/-components/ServerListView.tsx:19
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/List.tsx:17
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/List.tsx:70
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:508
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:512
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageDetailsView.tsx:35
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImageModal.tsx:96
 msgid "Status"
@@ -1402,7 +1383,7 @@ msgstr "Swap (MiB)"
 msgid "Swap Disk must be an integer ≥ 0."
 msgstr "Swap-Disk muss eine ganze Zahl ≥ 0 sein."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageDetailsModal.tsx:243
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageDetailsModal.tsx:270
 msgid "Tags"
 msgstr "Tags"
 
@@ -1425,15 +1406,15 @@ msgstr "Der Compute-Dienst ist für dieses Projekt derzeit nicht verfügbar. Bit
 
 #: src/client/utils/useErrorTranslation.ts:88
 msgid "The extra spec could not be found. It may have already been deleted."
-msgstr "Das Extra Spec konnte nicht gefunden werden. Möglicherweise wurde es bereits gelöscht."
+msgstr "Das Metadata konnte nicht gefunden werden. Möglicherweise wurde es bereits gelöscht."
 
 #: src/client/utils/useErrorTranslation.ts:60
 msgid "The extra spec data provided is invalid. Please check your input."
-msgstr "Die bereitgestellten Extra Spec-Daten sind ungültig. Bitte überprüfen Sie Ihre Eingabe."
+msgstr "Die bereitgestellten Metadata-Daten sind ungültig. Bitte überprüfen Sie Ihre Eingabe."
 
 #: src/client/utils/useErrorTranslation.ts:74
 msgid "The flavor could not be found or has no extra specs."
-msgstr "Der Flavor konnte nicht gefunden werden oder hat keine Extra Specs."
+msgstr "Der Flavor konnte nicht gefunden werden oder hat keine Metadata."
 
 #: src/client/utils/useErrorTranslation.ts:42
 msgid "The flavor could not be found. It may have already been deleted."
@@ -1486,7 +1467,7 @@ msgstr "Die angegebene Projekt-ID ist ungültig. Bitte überprüfen Sie Ihre Ein
 msgid "There are no flavors available for this project with the current filters applied. Try adjusting your filter criteria or create a new flavor."
 msgstr "Keine Flavors verfügbar. Filtern Sie neu oder erstellen Sie einen neuen Flavor."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:589
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:593
 msgid "There are no images available for this project with the current filters applied. Try adjusting your filter criteria or create a new image."
 msgstr "Keine Images verfügbar. Filtern Sie neu oder erstellen Sie ein neues Image."
 
@@ -1504,7 +1485,7 @@ msgstr "Diese Aktion kann nicht rückgängig gemacht werden. Das Image wird daue
 
 #: src/client/utils/useErrorTranslation.ts:58
 msgid "This extra spec keys already exist. Please use different keys."
-msgstr "Dieser Extra Spec-Key existiert bereits. Bitte verwenden Sie einen anderen Key."
+msgstr "Dieser Metadata-Key existiert bereits. Bitte verwenden Sie einen anderen Key."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/ManageAccessModal.tsx:195
 msgid "This is a public flavor. All tenants have access to it."
@@ -1534,9 +1515,13 @@ msgstr "Gemeinsam können wir das volle Potenzial Ihrer Cloud-Infrastruktur ersc
 msgid "True"
 msgstr "True"
 
-#: src/client/App.tsx:22
+#: src/client/App.tsx:55
 msgid "Try again"
 msgstr "Erneut versuchen"
+
+#: src/client/components/Error/ErrorPage.tsx:52
+msgid "Try Again"
+msgstr ""
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/KeyPairs/-components/KeyPairListView.tsx:49
 msgid "Type"
@@ -1568,7 +1553,7 @@ msgstr "Unbekannter Fehler"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId.tsx:122
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageTableRow.tsx:41
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:254
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:257
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImageModal.tsx:89
 msgid "Unnamed"
 msgstr "Unbenannt"
@@ -1578,7 +1563,7 @@ msgstr "Unbenannt"
 msgid "Updated At"
 msgstr "Aktualisiert am"
 
-#: src/client/routes/auth/login.tsx:155
+#: src/client/routes/auth/login.tsx:151
 msgid "User C/D/I"
 msgstr "Benutzer C/D/I"
 
@@ -1624,9 +1609,9 @@ msgid "View Repository"
 msgstr "Repository ansehen"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/List.tsx:23
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:511
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:515
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageDetailsView.tsx:89
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageDetailsModal.tsx:254
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageDetailsModal.tsx:298
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImageModal.tsx:100
 msgid "Visibility"
 msgstr "Sichtbarkeit"
@@ -1635,11 +1620,7 @@ msgstr "Sichtbarkeit"
 msgid "We are building Aurora Dashboard to serve you better. Your feedback is invaluable in shaping a tool that meets the unique needs of businesses like yours. Stay connected and join us as we redefine cloud management."
 msgstr "Wir entwickeln das Aurora-Dashboard, um Ihnen einen besseren Service zu bieten. Ihr Feedback ist von unschätzbarem Wert, um ein Werkzeug zu gestalten, das den einzigartigen Bedürfnissen von Unternehmen wie Ihrem gerecht wird. Bleiben Sie in Verbindung und begleiten Sie uns, während wir das Cloud-Management neu definieren."
 
-#: src/client/components/navigation/SubNavigationLayout.tsx:16
-msgid "Welcome"
-msgstr ""
-
-#: src/client/routes/auth/login.tsx:93
+#: src/client/routes/auth/login.tsx:92
 msgid "Welcome back, {username}!"
 msgstr "Willkommen zurück, {username}!"
 
@@ -1688,7 +1669,7 @@ msgstr "Sie sind dabei, {activeCount} Image(s) zu deaktivieren. Deaktivierte Ima
 msgid "You are about to delete {deletableCount} image(s). This action cannot be undone."
 msgstr "Sie sind dabei, {deletableCount} Image(s) zu löschen. Diese Aktion kann nicht rückgängig gemacht werden."
 
-#: src/client/routes/auth/login.tsx:96
+#: src/client/routes/auth/login.tsx:94
 msgid "You are already signed in."
 msgstr "Sie sind bereits angemeldet."
 
@@ -1706,7 +1687,7 @@ msgstr "Sie sind nicht berechtigt, Projektzugriffe hinzuzufügen. Bitte melden S
 
 #: src/client/utils/useErrorTranslation.ts:52
 msgid "You are not authorized to create extra specs. Please log in again."
-msgstr "Sie sind nicht berechtigt, Extra Specs zu erstellen. Bitte melden Sie sich erneut an."
+msgstr "Sie sind nicht berechtigt, Metadata zu erstellen. Bitte melden Sie sich erneut an."
 
 #: src/client/utils/useErrorTranslation.ts:26
 msgid "You are not authorized to create flavors. Please log in again."
@@ -1714,7 +1695,7 @@ msgstr "Willkommen zurück, {username}!"
 
 #: src/client/utils/useErrorTranslation.ts:84
 msgid "You are not authorized to delete extra specs. Please log in again."
-msgstr "Sie sind nicht berechtigt, Extra Specs zu löschen. Bitte melden Sie sich erneut an."
+msgstr "Sie sind nicht berechtigt, Metadata zu löschen. Bitte melden Sie sich erneut an."
 
 #: src/client/utils/useErrorTranslation.ts:38
 msgid "You are not authorized to delete flavors. Please log in again."
@@ -1726,7 +1707,7 @@ msgstr "Sie sind nicht berechtigt, Projektzugriffe zu entfernen. Bitte melden Si
 
 #: src/client/utils/useErrorTranslation.ts:70
 msgid "You are not authorized to view extra specs. Please log in again."
-msgstr "Sie sind nicht berechtigt, Extra Specs anzusehen. Bitte melden Sie sich erneut an."
+msgstr "Sie sind nicht berechtigt, Metadata anzusehen. Bitte melden Sie sich erneut an."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail.tsx:76
 msgid "You can now share this information with your team"
@@ -1746,7 +1727,7 @@ msgstr "Sie haben keine Berechtigung, diesem Flavor Projektzugriffe hinzuzufüge
 
 #: src/client/utils/useErrorTranslation.ts:54
 msgid "You don't have permission to create extra specs for this flavor."
-msgstr "Sie haben keine Berechtigung, Extra Specs für diesen Flavor zu erstellen."
+msgstr "Sie haben keine Berechtigung, Metadata für diesen Flavor zu erstellen."
 
 #: src/client/utils/useErrorTranslation.ts:28
 msgid "You don't have permission to create flavors in this project."
@@ -1754,7 +1735,7 @@ msgstr "Sie sind nicht berechtigt, Flavors zu erstellen. Bitte melden Sie sich e
 
 #: src/client/utils/useErrorTranslation.ts:86
 msgid "You don't have permission to delete extra specs for this flavor."
-msgstr "Sie haben keine Berechtigung, Extra Specs für diesen Flavor zu löschen."
+msgstr "Sie haben keine Berechtigung, Metadata für diesen Flavor zu löschen."
 
 #: src/client/utils/useErrorTranslation.ts:40
 msgid "You don't have permission to delete flavors in this project."
@@ -1766,9 +1747,9 @@ msgstr "Sie haben keine Berechtigung, Projektzugriffe von diesem Flavor zu entfe
 
 #: src/client/utils/useErrorTranslation.ts:72
 msgid "You don't have permission to view extra specs for this flavor."
-msgstr "Sie haben keine Berechtigung, Extra Specs für diesen Flavor anzusehen."
+msgstr "Sie haben keine Berechtigung, Metadata für diesen Flavor anzusehen."
 
-#: src/client/routes/auth/login.tsx:124
+#: src/client/routes/auth/login.tsx:120
 msgid "You need to login to access this page."
 msgstr "Sie müssen sich anmelden, um auf diese Seite zuzugreifen."
 

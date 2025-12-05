@@ -1,8 +1,17 @@
-import { useState } from "react"
+import { forwardRef, useState, startTransition } from "react"
 import { useInfiniteQuery } from "@tanstack/react-query"
 import { trpcReact } from "@/client/trpcClient"
 import { Trans, useLingui } from "@lingui/react/macro"
-import { Spinner, Stack } from "@cloudoperators/juno-ui-components/index"
+import {
+  Spinner,
+  Stack,
+  PopupMenu,
+  PopupMenuItem,
+  PopupMenuToggle,
+  PopupMenuOptions,
+  Button,
+  ButtonProps,
+} from "@cloudoperators/juno-ui-components/index"
 import { ListToolbar } from "@/client/components/ListToolbar"
 import { FilterSettings, SortSettings } from "@/client/components/ListToolbar/types"
 import { ImageListView } from "./-components/ImageListView"
@@ -11,37 +20,42 @@ import { CONTAINER_FORMATS, DISK_FORMATS, IMAGE_STATUSES, IMAGE_VISIBILITY } fro
 export const Images = () => {
   const { t } = useLingui()
 
+  const [selectedImages, setSelectedImages] = useState<Array<string>>([])
+  const [deleteAllModalOpen, setDeleteAllModalOpen] = useState(false)
+  const [deactivateAllModalOpen, setDeactivateAllModalOpen] = useState(false)
+  const [activateAllModalOpen, setActivateAllModalOpen] = useState(false)
+
   const [filterSettings, setFilterSettings] = useState<FilterSettings>({
     filters: [
       {
         displayName: t`Status`,
         filterName: "status",
         values: Object.values(IMAGE_STATUSES),
-        supportsMultiValue: true, // ✅ Can use: status=in:active,queued
+        supportsMultiValue: true,
       },
       {
         displayName: t`Visibility`,
         filterName: "visibility",
         values: Object.values(IMAGE_VISIBILITY),
-        supportsMultiValue: false, // ❌ Cannot use 'in' operator
+        supportsMultiValue: false,
       },
       {
         displayName: t`Disk Format`,
         filterName: "disk_format",
         values: Object.values(DISK_FORMATS),
-        supportsMultiValue: true, // ✅ Can use: disk_format=in:qcow2,raw
+        supportsMultiValue: true,
       },
       {
         displayName: t`Container Format`,
         filterName: "container_format",
         values: Object.values(CONTAINER_FORMATS),
-        supportsMultiValue: true, // ✅ Can use: container_format=in:bare,ovf
+        supportsMultiValue: true,
       },
       {
         displayName: t`Protected`,
         filterName: "protected",
         values: ["true", "false"],
-        supportsMultiValue: false, // ❌ Cannot use 'in' operator
+        supportsMultiValue: false,
       },
     ],
   })
@@ -88,9 +102,9 @@ export const Images = () => {
 
     if (!filterSettings.selectedFilters?.length) return params
 
-    // Group selected filters by filter name
+    // Group selected filters by filter name, excluding inactive ofc.
     const filterGroups = filterSettings.selectedFilters
-      .filter((sf) => !sf.inactive) // Exclude inactive filters
+      .filter((sf) => !sf.inactive)
       .reduce(
         (acc, sf) => {
           if (!acc[sf.name]) acc[sf.name] = []
@@ -105,10 +119,8 @@ export const Images = () => {
       const filterDef = filterSettings.filters.find((f) => f.filterName === filterName)
 
       if (filterDef?.supportsMultiValue && values.length > 1) {
-        // Multi-value filter: use 'in' operator (e.g., status=in:active,queued)
         params[filterName] = `in:${values.join(",")}`
       } else {
-        // Single-value filter or only one value selected (e.g., visibility=public)
         params[filterName] = values[0]
       }
     })
@@ -131,11 +143,8 @@ export const Images = () => {
       ? { next: pageParam }
       : {
           limit: 15,
-          // Sorting: use new syntax for cleaner URLs
           sort: `${sortSettings.sortBy}:${sortSettings.sortDirection}`,
-          // Filters: add all active filter parameters
           ...buildFilterParams(),
-          // Search: add name filter if search term exists
           ...(searchTerm && { name: searchTerm }),
         }
 
@@ -160,9 +169,8 @@ export const Images = () => {
       },
     ],
     queryFn: fetchImages,
+    placeholderData: (previousData) => previousData, // Keeps old data during refetch
     getNextPageParam: (lastPage) => {
-      // Return the full next URL from the API response
-      // The next URL should already include the sort and filter parameters from the initial request
       return lastPage.next ?? undefined
     },
     initialPageParam: undefined,
@@ -172,7 +180,8 @@ export const Images = () => {
   const { data: canDelete } = trpcReact.compute.canUser.useQuery("images:delete")
   const { data: canEdit } = trpcReact.compute.canUser.useQuery("images:update")
 
-  if (status === "pending") {
+  // Show spinner ONLY on initial load, not on filter/sort changes - while old data is shown
+  if (status === "pending" && !data) {
     return (
       <Stack className="fixed inset-0" distribution="center" alignment="center" direction="vertical">
         <Spinner variant="primary" size="large" className="mb-2" />
@@ -200,6 +209,45 @@ export const Images = () => {
   // Flatten all pages into a single array
   const images = data.pages.flatMap((page) => page.images)
 
+  const deletableImages = selectedImages.filter((imageId) => !images.find((image) => image.id === imageId)?.protected)
+  const protectedImages = selectedImages.filter((imageId) => images.find((image) => image.id === imageId)?.protected)
+  const activeImages = selectedImages.filter(
+    (imageId) => images.find((image) => image.id === imageId)?.status === "active"
+  )
+  const deactivatedImages = selectedImages.filter(
+    (imageId) => images.find((image) => image.id === imageId)?.status === "deactivated"
+  )
+
+  const isDeleteAllDisabled =
+    !permissions.canDelete ||
+    images.filter((image) => selectedImages.includes(image.id)).every((image) => image.protected)
+  const isDeactivateAllDisabled =
+    !permissions.canEdit ||
+    images.filter((image) => selectedImages.includes(image.id)).every((image) => image.status === "deactivated")
+  const isActivateAllDisabled =
+    !permissions.canEdit ||
+    images.filter((image) => selectedImages.includes(image.id)).every((image) => image.status === "active")
+
+  // Wrapped handlers for smooth transitions
+  const handleSortChange = (newSortSettings: SortSettings) => {
+    startTransition(() => {
+      setSortSettings(newSortSettings)
+    })
+  }
+
+  const handleFilterChange = (newFilterSettings: FilterSettings) => {
+    startTransition(() => {
+      setFilterSettings(newFilterSettings)
+    })
+  }
+
+  const handleSearchChange = (term: string | number | string[] | undefined) => {
+    const searchValue = typeof term === "string" ? term : ""
+    startTransition(() => {
+      setSearchTerm(searchValue)
+    })
+  }
+
   return (
     <ImageListView
       images={images}
@@ -208,16 +256,60 @@ export const Images = () => {
       isFetchingNextPage={isFetchingNextPage}
       fetchNextPage={fetchNextPage}
       isFetching={isFetching}
+      selectedImages={selectedImages}
+      setSelectedImages={setSelectedImages}
+      deleteAllModalOpen={deleteAllModalOpen}
+      setDeleteAllModalOpen={setDeleteAllModalOpen}
+      deactivateAllModalOpen={deactivateAllModalOpen}
+      setDeactivateAllModalOpen={setDeactivateAllModalOpen}
+      activateAllModalOpen={activateAllModalOpen}
+      setActivateAllModalOpen={setActivateAllModalOpen}
+      deletableImages={deletableImages}
+      protectedImages={protectedImages}
+      activeImages={activeImages}
+      deactivatedImages={deactivatedImages}
     >
       <ListToolbar
         sortSettings={sortSettings}
         filterSettings={filterSettings}
         searchTerm={searchTerm}
-        onSort={setSortSettings}
-        onFilter={setFilterSettings}
-        onSearch={setSearchTerm}
-        filtersInputProps={{ selectInputProps: { className: "w-48" } }}
-        sortInputProps={{ inputGroupProps: { className: "md:w-48" } }}
+        onSort={handleSortChange}
+        onFilter={handleFilterChange}
+        onSearch={handleSearchChange}
+        actions={
+          selectedImages.length === 0 ? (
+            <Button icon="moreVert" disabled>
+              {t`More Actions`}
+            </Button>
+          ) : (
+            <PopupMenu>
+              <PopupMenuToggle
+                as={forwardRef<HTMLButtonElement, ButtonProps>(({ onClick = undefined, ...props }, ref) => (
+                  <Button icon="moreVert" ref={ref} onClick={onClick} {...props}>
+                    {t`More Actions`}
+                  </Button>
+                ))}
+              />
+              <PopupMenuOptions>
+                <PopupMenuItem
+                  disabled={isDeleteAllDisabled}
+                  label={t`Delete All`}
+                  onClick={() => setDeleteAllModalOpen(true)}
+                />
+                <PopupMenuItem
+                  disabled={isDeactivateAllDisabled}
+                  label={t`Deactivate All`}
+                  onClick={() => setDeactivateAllModalOpen(true)}
+                />
+                <PopupMenuItem
+                  disabled={isActivateAllDisabled}
+                  label={t`Activate All`}
+                  onClick={() => setActivateAllModalOpen(true)}
+                />
+              </PopupMenuOptions>
+            </PopupMenu>
+          )
+        }
       />
     </ImageListView>
   )

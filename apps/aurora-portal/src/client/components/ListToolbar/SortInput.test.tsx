@@ -83,15 +83,6 @@ describe("SortInput", () => {
       // For descending, the icon should change
       expect(directionButton.querySelector("svg")).toBeInTheDocument()
     })
-
-    it("applies custom className when provided", () => {
-      const { container } = render(<SortInput {...defaultProps} sortWrapperProps={{ className: "custom-class" }} />, {
-        wrapper: TestWrapper,
-      })
-
-      const stackElement = container.querySelector(".custom-class")
-      expect(stackElement).toBeInTheDocument()
-    })
   })
 
   describe("Sort By Changes", () => {
@@ -206,12 +197,6 @@ describe("SortInput", () => {
       // Component should still render even with non-existent sortBy value
       const sortSelect = screen.getByTestId("sort-select")
       expect(sortSelect).toBeInTheDocument()
-    })
-
-    it("renders without className prop", () => {
-      const { container } = render(<SortInput {...defaultProps} />, { wrapper: TestWrapper })
-
-      expect(container.querySelector(".flex.flex-row.items-center")).toBeInTheDocument()
     })
   })
 

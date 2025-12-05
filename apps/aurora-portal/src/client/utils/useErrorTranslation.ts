@@ -47,7 +47,7 @@ export const useErrorTranslation = () => {
       case "DELETE_FLAVOR_INVALID_ID":
         return t`Flavor ID is required and cannot be empty.`
 
-      // Create Extra Specs
+      // Create Metadata
       case "CREATE_EXTRA_SPECS_UNAUTHORIZED":
         return t`You are not authorized to create extra specs. Please log in again.`
       case "CREATE_EXTRA_SPECS_FORBIDDEN":
@@ -65,7 +65,7 @@ export const useErrorTranslation = () => {
       case "CREATE_EXTRA_SPECS_FAILED":
         return t`Failed to create extra specs. Please try again.`
 
-      // Get Extra Specs
+      // Get Metadata
       case "GET_EXTRA_SPECS_UNAUTHORIZED":
         return t`You are not authorized to view extra specs. Please log in again.`
       case "GET_EXTRA_SPECS_FORBIDDEN":
@@ -79,7 +79,7 @@ export const useErrorTranslation = () => {
       case "GET_EXTRA_SPECS_FAILED":
         return t`Failed to load extra specs. Please try again.`
 
-      // Delete Extra Spec
+      // Delete Metadata
       case "DELETE_EXTRA_SPEC_UNAUTHORIZED":
         return t`You are not authorized to delete extra specs. Please log in again.`
       case "DELETE_EXTRA_SPEC_FORBIDDEN":

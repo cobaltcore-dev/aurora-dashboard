@@ -3,13 +3,12 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { cleanup, render, screen } from "@testing-library/react"
+import { cleanup, render, screen, fireEvent } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import { i18n } from "@lingui/core"
 import { I18nProvider } from "@lingui/react"
 import { ListToolbar, ListToolbarProps } from "./index"
-
 const filters = [
   {
     displayName: "Category",
@@ -183,5 +182,25 @@ describe("ListToolbar", () => {
         sortDirection: "desc",
       })
     )
+  })
+
+  it("should debounce search input and call onSearch only once after 500ms", () => {
+    vi.useFakeTimers()
+
+    const onSearchSpy = vi.fn()
+    renderShell({ onSearch: onSearchSpy })
+
+    const searchbox = screen.getByRole("searchbox")
+
+    fireEvent.input(searchbox, { target: { value: "test" } })
+
+    expect(onSearchSpy).not.toHaveBeenCalled()
+
+    vi.advanceTimersByTime(500)
+
+    expect(onSearchSpy).toHaveBeenCalledTimes(1)
+    expect(onSearchSpy).toHaveBeenLastCalledWith("test")
+
+    vi.useRealTimers()
   })
 })

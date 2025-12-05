@@ -21,7 +21,6 @@ describe("ActivateImagesModal", () => {
   const setup = (
     isOpen: boolean,
     isLoading = false,
-    isDisabled = false,
     deactivatedImages = mockDeactivatedImages,
     activeImages = [] as Array<string>
   ) => {
@@ -31,7 +30,6 @@ describe("ActivateImagesModal", () => {
           <ActivateImagesModal
             isOpen={isOpen}
             isLoading={isLoading}
-            isDisabled={isDisabled}
             onClose={mockOnClose}
             onActivate={mockOnActivate}
             deactivatedImages={deactivatedImages}
@@ -66,21 +64,21 @@ describe("ActivateImagesModal", () => {
   })
 
   it("should display already active images section when activeImages is not empty", () => {
-    setup(true, false, false, mockDeactivatedImages, mockActiveImages)
+    setup(true, false, mockDeactivatedImages, mockActiveImages)
     const headings = screen.getAllByText(/Already active \(will be skipped\)/i)
     expect(headings.length).toBeGreaterThan(0)
     expect(headings[0]).toBeInTheDocument()
   })
 
   it("should display all active image IDs in the skipped section", () => {
-    setup(true, false, false, mockDeactivatedImages, mockActiveImages)
+    setup(true, false, mockDeactivatedImages, mockActiveImages)
     mockActiveImages.forEach((imageId) => {
       expect(screen.getByText(imageId)).toBeInTheDocument()
     })
   })
 
   it("should not display already active images section when activeImages is empty", () => {
-    setup(true, false, false, mockDeactivatedImages, [])
+    setup(true, false, mockDeactivatedImages, [])
     expect(screen.queryByText(/Already active \(will be skipped\)/i)).not.toBeInTheDocument()
   })
 
@@ -92,24 +90,12 @@ describe("ActivateImagesModal", () => {
   })
 
   it("should call onActivate and onClose when the activate button is clicked", () => {
-    setup(true, false, false, mockDeactivatedImages, mockActiveImages)
+    setup(true, false, mockDeactivatedImages, mockActiveImages)
     const activateButton = screen.getByRole("button", { name: /Activate/i })
     fireEvent.click(activateButton)
     expect(mockOnActivate).toHaveBeenCalledTimes(1)
     expect(mockOnActivate).toHaveBeenCalledWith(mockDeactivatedImages)
     expect(mockOnClose).toHaveBeenCalledTimes(1)
-  })
-
-  it("should disable the activate button when isLoading is true", () => {
-    setup(true, true)
-    const activateButton = screen.getByTestId("activate-image-button")
-    expect(activateButton).toBeDisabled()
-  })
-
-  it("should disable the activate button when isDisabled is true", () => {
-    setup(true, false, true)
-    const activateButton = screen.getByTestId("activate-image-button")
-    expect(activateButton).toBeDisabled()
   })
 
   it("should show spinner in activate button when isLoading is true", () => {
@@ -134,7 +120,7 @@ describe("ActivateImagesModal", () => {
   })
 
   it("should display summary with correct counts", () => {
-    setup(true, false, false, mockDeactivatedImages, mockActiveImages)
+    setup(true, false, mockDeactivatedImages, mockActiveImages)
     expect(screen.getByText("Images to activate:")).toBeInTheDocument()
     expect(screen.getByText("3")).toBeInTheDocument()
     expect(screen.getByText(/Already active \(will be skipped\):/i)).toBeInTheDocument()
@@ -142,7 +128,7 @@ describe("ActivateImagesModal", () => {
   })
 
   it("should display only deactivated count in summary when no active images", () => {
-    setup(true, false, false, mockDeactivatedImages, [])
+    setup(true, false, mockDeactivatedImages, [])
     expect(screen.getByText("Images to activate:")).toBeInTheDocument()
     expect(screen.getByText("3")).toBeInTheDocument()
     expect(screen.queryByText(/Already active \(will be skipped\):/i)).not.toBeInTheDocument()
@@ -163,28 +149,28 @@ describe("ActivateImagesModal", () => {
   })
 
   it("should handle empty deactivatedImages array", () => {
-    setup(true, false, false, [], mockActiveImages)
+    setup(true, false, [], mockActiveImages)
     expect(screen.queryByText(/Images to be activated/i)).not.toBeInTheDocument()
   })
 
   it("should pass deactivatedImgs to onActivate, not deactivatedImages", () => {
     const activeImgs = ["active-1", "active-2"]
     const deactivatedImgs = ["deactivated-1", "deactivated-2"]
-    setup(true, false, false, deactivatedImgs, activeImgs)
+    setup(true, false, deactivatedImgs, activeImgs)
     const activateButton = screen.getByRole("button", { name: /Activate/i })
     fireEvent.click(activateButton)
     expect(mockOnActivate).toHaveBeenCalledWith(deactivatedImgs)
   })
 
   it("should render with single image correctly", () => {
-    setup(true, false, false, ["single-image"], [])
+    setup(true, false, ["single-image"], [])
     expect(screen.getByText(/You are about to activate 1 image\(s\)/i)).toBeInTheDocument()
     expect(screen.getByText("single-image")).toBeInTheDocument()
   })
 
   it("should have scrollable container for long image lists", () => {
     const manyImages = Array.from({ length: 20 }, (_, i) => `image-${i}`)
-    setup(true, false, false, manyImages, [])
+    setup(true, false, manyImages, [])
     const listContainer = screen.getByText("image-0").closest(".overflow-y-auto")
     expect(listContainer).toBeInTheDocument()
     expect(listContainer).toHaveClass("max-h-24")
