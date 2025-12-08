@@ -129,7 +129,6 @@ export const FlavorListContainer = ({
           <DataGridHeadCell>
             <Trans>Root Disk (GiB)</Trans>
           </DataGridHeadCell>
-
           <DataGridHeadCell>
             <Trans>Swap (MiB)</Trans>
           </DataGridHeadCell>
@@ -149,7 +148,8 @@ export const FlavorListContainer = ({
             </DataGridCell>
             <DataGridCell>{flavor.vcpus || "–"}</DataGridCell>
             <DataGridCell>{flavor.ram || "–"}</DataGridCell>
-            <DataGridCell>{flavor.disk || "–"}</DataGridCell> <DataGridCell>{flavor.swap || "–"}</DataGridCell>
+            <DataGridCell>{flavor.disk || "–"}</DataGridCell>
+            <DataGridCell>{flavor.swap || "–"}</DataGridCell>
             <DataGridCell>
               <PopupMenu>
                 <PopupMenuOptions>
