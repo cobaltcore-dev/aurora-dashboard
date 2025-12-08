@@ -60,7 +60,7 @@ export function MainNavigation({ items, handleThemeToggle }: NavigationProps) {
               <Link
                 to={project.path + "/compute/$"}
                 data-testid="project-link"
-                className="text-theme-high flex-shrink-0 capitalize"
+                className="text-theme-high flex-shrink-0 "
               >
                 {project.name}
               </Link>
