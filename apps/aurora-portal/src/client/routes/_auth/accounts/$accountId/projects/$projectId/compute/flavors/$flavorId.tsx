@@ -1,16 +1,11 @@
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  Button,
-  Stack,
-  Spinner,
-  ContentHeading,
-} from "@cloudoperators/juno-ui-components/index"
+import { Breadcrumb, BreadcrumbItem, Stack, Spinner, ContentHeading } from "@cloudoperators/juno-ui-components/index"
 import { createFileRoute, redirect, useNavigate, useParams } from "@tanstack/react-router"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { getServiceIndex } from "@/server/Authentication/helpers"
 import { trpcReact } from "@/client/trpcClient"
-import { ImageDetailsView } from "../-components/Images/-components/ImageDetailsView"
+import { FlavorDetailsView } from "./-components/FlavorDetailsView"
+import { ErrorPage } from "@/client/components/Error/ErrorPage"
+import { useErrorTranslation } from "@/client/utils/useErrorTranslation"
 
 export const Route = createFileRoute("/_auth/accounts/$accountId/projects/$projectId/compute/flavors/$flavorId")({
   component: RouteComponent,
@@ -22,102 +17,112 @@ export const Route = createFileRoute("/_auth/accounts/$accountId/projects/$proje
 
     const serviceIndex = getServiceIndex(availableServices)
 
-    // Redirect to the "Projects Overview" page if none of compute services available
     if (!serviceIndex["flavor"] && !serviceIndex["compute"]) {
       throw redirect({
         to: "/accounts/$accountId/projects",
         params: { accountId },
       })
     }
-
-    if (!serviceIndex["image"]["glance"]) {
-      // Redirect to the "Compute Services Overview" page if the "Glance" service is not available
-      throw redirect({
-        to: "/accounts/$accountId/projects/$projectId/compute/$",
-        params: { ...params, _splat: undefined },
-      })
-    }
   },
 })
 
 function RouteComponent() {
-  const { projectId, flavorId } = useParams({
+  const { accountId, projectId, flavorId } = useParams({
     from: "/_auth/accounts/$accountId/projects/$projectId/compute/flavors/$flavorId",
   })
   const navigate = useNavigate()
-  // const { t } = useLingui()
+  const { t } = useLingui()
+  const { translateError, isRetryableError } = useErrorTranslation()
 
-  // const { data: image, status, error } = trpcReact.compute.getImageById.useQuery({ imageId: imageId })
+  const {
+    data: flavor,
+    status,
+    error,
+    refetch,
+  } = trpcReact.compute.getFlavorById.useQuery({
+    projectId,
+    flavorId,
+  })
 
-  // const handleBack = () => {
-  //   navigate({
-  //     to: "/accounts/$accountId/projects/$projectId/compute/$",
-  //     params: { projectId, _splat: "images" },
-  //   })
-  // }
+  const handleBack = () => {
+    navigate({
+      to: "/accounts/$accountId/projects/$projectId/compute/$",
+      params: { accountId, projectId, _splat: "flavors" },
+    })
+  }
 
-  // // Handle loading state
-  // if (status === "pending") {
-  //   return (
-  //     <Stack className="fixed inset-0" distribution="center" alignment="center" direction="vertical">
-  //       <Spinner variant="primary" size="large" className="mb-2" />
-  //       <Trans>Loading Image Details...</Trans>
-  //     </Stack>
-  //   )
-  // }
+  const handleHome = () => {
+    navigate({
+      to: "/accounts/$accountId/projects/$projectId/compute/$",
+      params: { accountId, projectId, _splat: undefined },
+    })
+  }
 
-  // // Handle error state
-  // if (status === "error") {
-  //   const errorMessage = error?.message || "Unknown error"
+  const handleRetry = () => {
+    refetch()
+  }
 
-  //   return (
-  //     <Stack className="fixed inset-0" distribution="center" alignment="center" direction="vertical" gap="5">
-  //       <p className="text-theme-error font-semibold">
-  //         <Trans>Error loading image</Trans>
-  //       </p>
-  //       <p className="text-theme-hight">{errorMessage}</p>
-  //       <Button onClick={handleBack} variant="primary">
-  //         <Trans>Back to Images</Trans>
-  //       </Button>
-  //     </Stack>
-  //   )
-  // }
+  if (status === "pending") {
+    return (
+      <Stack className="fixed inset-0" distribution="center" alignment="center" direction="vertical">
+        <Spinner variant="primary" size="large" className="mb-2" />
+        <Trans>Loading Flavor Details...</Trans>
+      </Stack>
+    )
+  }
 
-  // // Handle no data state
-  // if (!image) {
-  //   return (
-  //     <Stack className="fixed inset-0" distribution="center" alignment="center" direction="vertical" gap="5">
-  //       <p className="text-theme-hight">
-  //         <Trans>Image not found</Trans>
-  //       </p>
-  //       <Button onClick={handleBack} variant="primary">
-  //         <Trans>Back to Images</Trans>
-  //       </Button>
-  //     </Stack>
-  //   )
-  // }
+  if (status === "error") {
+    const errorCode = error?.message || "UNKNOWN_ERROR"
+    const translatedError = translateError(errorCode)
+    const canRetry = isRetryableError(errorCode)
 
-  // Render success state
+    const getStatusCode = (code: string): number | undefined => {
+      if (code.includes("UNAUTHORIZED")) return 401
+      if (code.includes("FORBIDDEN")) return 403
+      if (code.includes("NOT_FOUND")) return 404
+      if (code.includes("SERVER_ERROR")) return 500
+      return undefined
+    }
+
+    return (
+      <ErrorPage
+        statusCode={getStatusCode(errorCode)}
+        title={t`Error Loading Flavor`}
+        message={translatedError}
+        onBackClick={handleBack}
+        onHomeClick={handleHome}
+        reset={canRetry ? handleRetry : undefined}
+        showHeader={false}
+      />
+    )
+  }
+
+  if (!flavor) {
+    return (
+      <ErrorPage
+        statusCode={404}
+        title={t`Flavor Not Found`}
+        message={t`The requested flavor could not be found. It may have been deleted or you may not have access to it.`}
+        onBackClick={handleBack}
+        onHomeClick={handleHome}
+        showHeader={false}
+      />
+    )
+  }
+
   return (
     <Stack direction="vertical">
-      {/* <Breadcrumb className="my-6">
-        <BreadcrumbItem
-          onClick={() => {
-            navigate({
-              to: "/accounts/$accountId/projects/$projectId/compute/$",
-              params: { projectId, accountId },
-            })
-          }}
-          label={t`Overview`}
-          icon="home"
-        />
-        <BreadcrumbItem onClick={handleBack} label={t`Images`} />
-        <BreadcrumbItem active label={flavorId} />
-      </Breadcrumb> */}
+      <Breadcrumb className="my-6">
+        <BreadcrumbItem onClick={handleHome} label={t`Overview`} icon="home" />
+        <BreadcrumbItem onClick={handleBack} label={t`Flavors`} />
+        <BreadcrumbItem active label={flavor.name || flavorId} />
+      </Breadcrumb>
 
       <Stack direction="vertical" distribution="between">
-        <ContentHeading className="text-2xl font-bold text-theme-highest">{flavorId}</ContentHeading>
+        <ContentHeading className="text-2xl font-bold text-theme-highest">{flavor.name || flavorId}</ContentHeading>
       </Stack>
+
+      <FlavorDetailsView flavor={flavor} />
     </Stack>
   )
 }

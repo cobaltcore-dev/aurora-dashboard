@@ -19,6 +19,22 @@ export const useErrorTranslation = () => {
       case "FLAVORS_PARSE_ERROR":
         return t`Server returned unexpected data format.`
 
+      // Get flavor
+      case "GET_FLAVOR_DETAILS_UNAUTHORIZED":
+        return t`You are not authorized to view flavor details. Please log in again.`
+      case "GET_FLAVOR_DETAILS_FORBIDDEN":
+        return t`You don't have permission to view this flavor's details.`
+      case "GET_FLAVOR_DETAILS_NOT_FOUND":
+        return t`The flavor could not be found. It may have been deleted.`
+      case "GET_FLAVOR_DETAILS_SERVER_ERROR":
+        return t`Server error occurred while fetching flavor details. Please try again later.`
+      case "GET_FLAVOR_DETAILS_INVALID_ID":
+        return t`Flavor ID is required and cannot be empty.`
+      case "GET_FLAVOR_DETAILS_PARSE_ERROR":
+        return t`Server returned unexpected data format for flavor details.`
+      case "GET_FLAVOR_DETAILS_FAILED":
+        return t`Failed to load flavor details. Please try again.`
+
       // Create Flavor
       case "CREATE_FLAVOR_INVALID_DATA":
         return t`The flavor data provided is invalid. Please check your input.`

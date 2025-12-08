@@ -18,7 +18,7 @@ import { useState } from "react"
 import { TrpcClient } from "@/client/trpcClient"
 import { EditSpecModal } from "./EditSpecModal"
 import { ManageAccessModal } from "./ManageAccessModal"
-import { Link } from "@tanstack/react-router"
+import { Link, useParams } from "@tanstack/react-router"
 
 interface FlavorListContainerProps {
   flavors?: Flavor[]
@@ -44,6 +44,10 @@ export const FlavorListContainer = ({
   const [specModalOpen, setSpecModalOpen] = useState(false)
   const [accessModalOpen, setAccessModalOpen] = useState(false)
   const [selectedFlavor, setSelectedFlavor] = useState<Flavor | null>(null)
+
+  const { accountId, projectId } = useParams({
+    from: "/_auth/accounts/$accountId/projects/$projectId/compute/$",
+  })
 
   const openDeleteModal = (flavor: Flavor) => {
     setSelectedFlavor(flavor)
@@ -142,7 +146,7 @@ export const FlavorListContainer = ({
             <DataGridCell>
               <Link
                 to="/accounts/$accountId/projects/$projectId/compute/flavors/$flavorId"
-                params={{ projectId: project, flavorId: flavor.id }}
+                params={{ projectId: projectId, accountId: accountId, flavorId: flavor.id }}
                 className="text-theme-default hover:text-theme-link"
               >
                 {flavor.name || flavor.id}
