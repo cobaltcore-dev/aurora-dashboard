@@ -40,10 +40,10 @@ export function MainNavigation({ items, handleThemeToggle }: NavigationProps) {
 
   return (
     <PageHeader
-      logo={
+      logo={<Logo className="w-6 h-6 fill-theme-accent flex-shrink-0" title="Aurora" />}
+      applicationName={
         <div className="flex items-center space-x-2 flex-nowrap">
           <Link to="/" className="flex items-center space-x-2 flex-nowrap">
-            <Logo className="w-6 h-6 fill-theme-accent flex-shrink-0" title="Aurora" />
             <span className="flex-shrink-0 text-theme-high ">Aurora</span>
           </Link>
           {domain && (

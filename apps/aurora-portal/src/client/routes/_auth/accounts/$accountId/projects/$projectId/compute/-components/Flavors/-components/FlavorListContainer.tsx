@@ -115,7 +115,7 @@ export const FlavorListContainer = ({
 
   return (
     <>
-      <DataGrid columns={8} minContentColumns={[7]} className="flavors" data-testid="flavors-table">
+      <DataGrid columns={6} minContentColumns={[5]} className="flavors" data-testid="flavors-table">
         <DataGridRow>
           <DataGridHeadCell>
             <Trans>Name</Trans>
@@ -129,14 +129,9 @@ export const FlavorListContainer = ({
           <DataGridHeadCell>
             <Trans>Root Disk (GiB)</Trans>
           </DataGridHeadCell>
-          <DataGridHeadCell>
-            <Trans>Ephemeral Disk (GiB)</Trans>
-          </DataGridHeadCell>
+
           <DataGridHeadCell>
             <Trans>Swap (MiB)</Trans>
-          </DataGridHeadCell>
-          <DataGridHeadCell>
-            <Trans>RX/TX Factor</Trans>
           </DataGridHeadCell>
           <DataGridHeadCell></DataGridHeadCell>
         </DataGridRow>
@@ -154,14 +149,19 @@ export const FlavorListContainer = ({
             </DataGridCell>
             <DataGridCell>{flavor.vcpus || "–"}</DataGridCell>
             <DataGridCell>{flavor.ram || "–"}</DataGridCell>
-            <DataGridCell>{flavor.disk || "–"}</DataGridCell>
-            <DataGridCell>{flavor["OS-FLV-EXT-DATA:ephemeral"] || "–"}</DataGridCell>
-            <DataGridCell>{flavor.swap || "–"}</DataGridCell>
-            <DataGridCell>{flavor.rxtx_factor || "–"}</DataGridCell>
-
+            <DataGridCell>{flavor.disk || "–"}</DataGridCell> <DataGridCell>{flavor.swap || "–"}</DataGridCell>
             <DataGridCell>
               <PopupMenu>
                 <PopupMenuOptions>
+                  <PopupMenuItem>
+                    <Link
+                      to="/accounts/$accountId/projects/$projectId/compute/flavors/$flavorId"
+                      params={{ projectId: projectId, accountId: accountId, flavorId: flavor.id }}
+                      className="text-theme-default "
+                    >
+                      {t`Details`}
+                    </Link>
+                  </PopupMenuItem>
                   <PopupMenuItem label={t`Metadata`} onClick={() => openSpecModal(flavor)} />
 
                   {canMangageAccess && (

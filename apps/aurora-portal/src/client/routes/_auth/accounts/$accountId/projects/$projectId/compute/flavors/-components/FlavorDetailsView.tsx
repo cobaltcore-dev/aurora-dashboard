@@ -1,4 +1,11 @@
-import { Stack, DataGrid, DataGridRow, DataGridCell } from "@cloudoperators/juno-ui-components/index"
+import {
+  Stack,
+  DataGrid,
+  DataGridRow,
+  DataGridCell,
+  DataGridHeadCell,
+  ContentHeading,
+} from "@cloudoperators/juno-ui-components/index"
 import { Trans } from "@lingui/react/macro"
 import type { Flavor } from "@/server/Compute/types/flavor"
 
@@ -14,113 +21,110 @@ export function FlavorDetailsView({ flavor }: FlavorDetailsViewProps) {
 
   return (
     <Stack direction="vertical" gap="6" className="mt-6">
-      {/* Basic Information */}
       <Stack direction="vertical" gap="2">
-        <h3 className="text-lg font-semibold text-theme-highest">
+        <ContentHeading>
           <Trans>Basic Information</Trans>
-        </h3>
+        </ContentHeading>
         <DataGrid columns={2}>
           <DataGridRow>
-            <DataGridCell className="font-medium">
+            <DataGridHeadCell>
               <Trans>ID</Trans>
-            </DataGridCell>
+            </DataGridHeadCell>
             <DataGridCell>{flavor.id}</DataGridCell>
           </DataGridRow>
 
           <DataGridRow>
-            <DataGridCell className="font-medium">
+            <DataGridHeadCell>
               <Trans>Name</Trans>
-            </DataGridCell>
+            </DataGridHeadCell>
             <DataGridCell>{flavor.name}</DataGridCell>
           </DataGridRow>
 
           {flavor.description && (
             <DataGridRow>
-              <DataGridCell className="font-medium">
+              <DataGridHeadCell>
                 <Trans>Description</Trans>
-              </DataGridCell>
+              </DataGridHeadCell>
               <DataGridCell>{flavor.description}</DataGridCell>
             </DataGridRow>
           )}
 
           <DataGridRow>
-            <DataGridCell className="font-medium">
+            <DataGridHeadCell>
               <Trans>Public</Trans>
-            </DataGridCell>
+            </DataGridHeadCell>
             <DataGridCell>{flavor["os-flavor-access:is_public"] ? <Trans>Yes</Trans> : <Trans>No</Trans>}</DataGridCell>
           </DataGridRow>
 
           <DataGridRow>
-            <DataGridCell className="font-medium">
+            <DataGridHeadCell>
               <Trans>Disabled</Trans>
-            </DataGridCell>
+            </DataGridHeadCell>
             <DataGridCell>{flavor["OS-FLV-DISABLED:disabled"] ? <Trans>Yes</Trans> : <Trans>No</Trans>}</DataGridCell>
           </DataGridRow>
         </DataGrid>
       </Stack>
 
-      {/* Hardware Specifications */}
       <Stack direction="vertical" gap="2">
-        <h3 className="text-lg font-semibold text-theme-highest">
+        <ContentHeading>
           <Trans>Hardware Specifications</Trans>
-        </h3>
+        </ContentHeading>
         <DataGrid columns={2}>
           <DataGridRow>
-            <DataGridCell className="font-medium">
+            <DataGridHeadCell>
               <Trans>VCPUs</Trans>
-            </DataGridCell>
+            </DataGridHeadCell>
             <DataGridCell>{flavor.vcpus}</DataGridCell>
           </DataGridRow>
 
           <DataGridRow>
-            <DataGridCell className="font-medium">
+            <DataGridHeadCell>
               <Trans>RAM</Trans>
-            </DataGridCell>
+            </DataGridHeadCell>
             <DataGridCell>{formatBytes(flavor.ram, "MiB")}</DataGridCell>
           </DataGridRow>
 
           <DataGridRow>
-            <DataGridCell className="font-medium">
+            <DataGridHeadCell>
               <Trans>Disk</Trans>
-            </DataGridCell>
+            </DataGridHeadCell>
             <DataGridCell>{formatBytes(flavor.disk, "GiB")}</DataGridCell>
           </DataGridRow>
 
           <DataGridRow>
-            <DataGridCell className="font-medium">
+            <DataGridHeadCell>
               <Trans>Ephemeral Disk</Trans>
-            </DataGridCell>
+            </DataGridHeadCell>
             <DataGridCell>{formatBytes(flavor["OS-FLV-EXT-DATA:ephemeral"] || 0, "GiB")}</DataGridCell>
           </DataGridRow>
 
           <DataGridRow>
-            <DataGridCell className="font-medium">
+            <DataGridHeadCell>
               <Trans>Swap</Trans>
-            </DataGridCell>
+            </DataGridHeadCell>
             <DataGridCell>
               {flavor.swap === 0 || flavor.swap === "" ? <Trans>None</Trans> : formatBytes(Number(flavor.swap), "MiB")}
             </DataGridCell>
           </DataGridRow>
 
           <DataGridRow>
-            <DataGridCell className="font-medium">
+            <DataGridHeadCell>
               <Trans>RX/TX Factor</Trans>
-            </DataGridCell>
+            </DataGridHeadCell>
             <DataGridCell>{flavor.rxtx_factor}</DataGridCell>
           </DataGridRow>
         </DataGrid>
       </Stack>
 
-      {/* Extra Specs */}
       {flavor.extra_specs && Object.keys(flavor.extra_specs).length > 0 && (
         <Stack direction="vertical" gap="2">
-          <h3 className="text-lg font-semibold text-theme-highest">
+          <ContentHeading>
             <Trans>Extra Specs</Trans>
-          </h3>
+          </ContentHeading>
           <DataGrid columns={2}>
             {Object.entries(flavor.extra_specs).map(([key, value]) => (
               <DataGridRow key={key}>
-                <DataGridCell className="font-medium">{key}</DataGridCell>
+                <DataGridHeadCell>{key}</DataGridHeadCell>
                 <DataGridCell>{value}</DataGridCell>
               </DataGridRow>
             ))}
