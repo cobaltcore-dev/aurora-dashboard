@@ -37,7 +37,7 @@ msgstr "<0>Secure & Reliable:</0> Your data and operations are safeguarded with 
 msgid "<0>Unified Cloud Management:</0> Consolidates all your cloud assets into one intuitive interface."
 msgstr "<0>Unified Cloud Management:</0> Consolidates all your cloud assets into one intuitive interface."
 
-#: src/client/utils/useErrorTranslation.ts:30
+#: src/client/utils/useErrorTranslation.ts:46
 msgid "A flavor with this ID or name already exists. Please use different values."
 msgstr "A flavor with this ID or name already exists. Please use different values."
 
@@ -55,16 +55,16 @@ msgstr "About Aurora Dashboard"
 msgid "Actions"
 msgstr "Actions"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageTableRow.tsx:88
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ActivateImagesModal.tsx:52
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageTableRow.tsx:89
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ActivateImagesModal.tsx:50
 msgid "Activate"
 msgstr "Activate"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:477
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/List.tsx:306
 msgid "Activate All"
 msgstr "Activate All"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ActivateImagesModal.tsx:38
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ActivateImagesModal.tsx:36
 msgid "Activate Images"
 msgstr "Activate Images"
 
@@ -72,7 +72,7 @@ msgstr "Activate Images"
 msgid "Activated {successCount} image(s), but {failedCount} image(s) could not be activated."
 msgstr "Activated {successCount} image(s), but {failedCount} image(s) could not be activated."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ActivateImagesModal.tsx:136
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ActivateImagesModal.tsx:134
 msgid "Activated images will become available for launching new instances and creating volumes. This action will restore full functionality to the selected images."
 msgstr "Activated images will become available for launching new instances and creating volumes. This action will restore full functionality to the selected images."
 
@@ -97,23 +97,23 @@ msgstr "Add Tenant Access"
 msgid "After continuing, your project will no longer have access to the <0>{clusterName}</0> resources."
 msgstr "After continuing, your project will no longer have access to the <0>{clusterName}</0> resources."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ActivateImagesModal.tsx:100
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ActivateImagesModal.tsx:98
 msgid "Already active (will be skipped)"
 msgstr "Already active (will be skipped)"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ActivateImagesModal.tsx:127
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ActivateImagesModal.tsx:125
 msgid "Already active (will be skipped):"
 msgstr "Already active (will be skipped):"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeactivateImagesModal.tsx:100
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeactivateImagesModal.tsx:98
 msgid "Already deactivated (will be skipped)"
 msgstr "Already deactivated (will be skipped)"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeactivateImagesModal.tsx:127
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeactivateImagesModal.tsx:125
 msgid "Already deactivated (will be skipped):"
 msgstr "Already deactivated (will be skipped):"
 
-#: src/client/utils/useErrorTranslation.ts:147
+#: src/client/utils/useErrorTranslation.ts:163
 msgid "An unexpected error occurred. Please try again."
 msgstr "An unexpected error occurred. Please try again."
 
@@ -143,13 +143,17 @@ msgstr "Back"
 msgid "Back to Images"
 msgstr "Back to Images"
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/flavors/-components/FlavorDetailsView.tsx:26
+msgid "Basic Information"
+msgstr "Basic Information"
+
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/DeleteClusterDialog.tsx:47
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageMetadataModal.tsx:299
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageDetailsModal.tsx:235
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImagesModal.tsx:55
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImagesModal.tsx:53
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImageModal.tsx:66
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeactivateImagesModal.tsx:55
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ActivateImagesModal.tsx:55
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeactivateImagesModal.tsx:53
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ActivateImagesModal.tsx:53
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/TenantAccessFormRow.tsx:41
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/SpecFormRow.tsx:51
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/DeleteFlavorModal.tsx:92
@@ -173,7 +177,7 @@ msgstr "Check out our source code on GitHub!"
 msgid "Checksum"
 msgstr "Checksum"
 
-#: src/client/components/ListToolbar/SelectedFilters.tsx:50
+#: src/client/components/ListToolbar/SelectedFilters.tsx:45
 msgid "Clear all"
 msgstr "Clear all"
 
@@ -225,7 +229,7 @@ msgstr "Configure the worker pools for your cluster. These settings determine th
 msgid "Contact support"
 msgstr "Contact support"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/List.tsx:35
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/List.tsx:49
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageDetailsView.tsx:59
 msgid "Container Format"
 msgstr "Container Format"
@@ -238,7 +242,7 @@ msgstr "CPU"
 msgid "Create Cluster"
 msgstr "Create Cluster"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FilterToolbar.tsx:76
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/List.tsx:90
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/CreateFlavorModal.tsx:153
 msgid "Create Flavor"
 msgstr "Create Flavor"
@@ -249,12 +253,12 @@ msgstr "Create New Flavor"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/ServerGroups/components/ServerGroupListView.tsx:61
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/KeyPairs/-components/KeyPairListView.tsx:55
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:527
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:485
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImageModal.tsx:124
 msgid "Created"
 msgstr "Created"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/List.tsx:54
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/List.tsx:68
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageDetailsView.tsx:65
 msgid "Created At"
 msgstr "Created At"
@@ -267,16 +271,16 @@ msgstr "Custom metadata properties can be used to store additional information a
 msgid "Custom Properties / Metadata"
 msgstr "Custom Properties / Metadata"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageTableRow.tsx:88
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeactivateImagesModal.tsx:52
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageTableRow.tsx:89
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeactivateImagesModal.tsx:50
 msgid "Deactivate"
 msgstr "Deactivate"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:472
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/List.tsx:301
 msgid "Deactivate All"
 msgstr "Deactivate All"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeactivateImagesModal.tsx:38
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeactivateImagesModal.tsx:36
 msgid "Deactivate Images"
 msgstr "Deactivate Images"
 
@@ -284,15 +288,15 @@ msgstr "Deactivate Images"
 msgid "Deactivated {successCount} image(s), but {failedCount} image(s) could not be deactivated."
 msgstr "Deactivated {successCount} image(s), but {failedCount} image(s) could not be deactivated."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeactivateImagesModal.tsx:136
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeactivateImagesModal.tsx:134
 msgid "Deactivated images will not be available for launching new instances or creating volumes. Existing instances using these images will not be affected. You can reactivate images later if needed."
 msgstr "Deactivated images will not be available for launching new instances or creating volumes. Existing instances using these images will not be affected. You can reactivate images later if needed."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/DeleteClusterDialog.tsx:44
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail/DetailLayout.tsx:69
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageTableRow.tsx:94
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageTableRow.tsx:95
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageMetadataModal.tsx:446
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImagesModal.tsx:52
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImagesModal.tsx:50
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImageModal.tsx:63
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/SpecRow.tsx:40
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/SpecRow.tsx:41
@@ -306,7 +310,7 @@ msgstr "Delete"
 msgid "Delete {specKey}"
 msgstr "Delete {specKey}"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:467
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/List.tsx:296
 msgid "Delete All"
 msgstr "Delete All"
 
@@ -314,12 +318,12 @@ msgstr "Delete All"
 msgid "Delete Cluster"
 msgstr "Delete Cluster"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:158
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:171
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/DeleteFlavorModal.tsx:82
 msgid "Delete Flavor"
 msgstr "Delete Flavor"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImagesModal.tsx:38
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImagesModal.tsx:36
 msgid "Delete Images"
 msgstr "Delete Images"
 
@@ -327,10 +331,11 @@ msgstr "Delete Images"
 msgid "Deleted {successCount} image(s), but {failedCount} image(s) could not be deleted."
 msgstr "Deleted {successCount} image(s), but {failedCount} image(s) could not be deleted."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImagesModal.tsx:136
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImagesModal.tsx:134
 msgid "Deleting images will affect any instances or volumes that depend on them. Ensure these images are no longer in use before proceeding."
 msgstr "Deleting images will affect any instances or volumes that depend on them. Ensure these images are no longer in use before proceeding."
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/flavors/-components/FlavorDetailsView.tsx:46
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/CreateFlavorModal.tsx:200
 msgid "Description"
 msgstr "Description"
@@ -339,11 +344,16 @@ msgstr "Description"
 msgid "Description must be less than 65535 characters."
 msgstr "Description must be less than 65535 characters."
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/flavors/-components/FlavorDetailsView.tsx:61
+msgid "Disabled"
+msgstr "Disabled"
+
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageMetadataModal.tsx:380
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageMetadataModal.tsx:426
 msgid "Discard"
 msgstr "Discard"
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/flavors/-components/FlavorDetailsView.tsx:89
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Instances/-components/ServerListView.tsx:24
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/DeleteFlavorModal.tsx:132
 msgid "Disk"
@@ -353,8 +363,8 @@ msgstr "Disk"
 msgid "Disk (GiB)"
 msgstr "Disk (GiB)"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/List.tsx:29
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:524
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/List.tsx:43
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:482
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageDetailsView.tsx:53
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImageModal.tsx:110
 msgid "Disk Format"
@@ -384,7 +394,7 @@ msgstr "Each worker pool will automatically scale between its minimum and maximu
 msgid "Edit"
 msgstr "Edit"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageTableRow.tsx:85
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageTableRow.tsx:86
 msgid "Edit Details"
 msgstr "Edit Details"
 
@@ -396,7 +406,7 @@ msgstr "Edit Image Details"
 msgid "Edit Image Metadata"
 msgstr "Edit Image Metadata"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageTableRow.tsx:86
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageTableRow.tsx:87
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:283
 msgid "Edit Metadata"
 msgstr "Edit Metadata"
@@ -408,10 +418,6 @@ msgstr "Enter a tag and press Enter or click Add"
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/SpecFormRow.tsx:34
 msgid "Enter key"
 msgstr "Enter key"
-
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FilterToolbar.tsx:66
-msgid "Enter search term or regex"
-msgstr "Enter search term or regex"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/TenantAccessFormRow.tsx:33
 msgid "Enter tenant ID"
@@ -437,11 +443,12 @@ msgstr "Enter your domain"
 msgid "Enter your username"
 msgstr "Enter your username"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FilterToolbar.tsx:58
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/flavors/-components/FlavorDetailsView.tsx:96
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/List.tsx:115
 msgid "Ephemeral Disk"
 msgstr "Ephemeral Disk"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:128
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:133
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/CreateFlavorModal.tsx:250
 msgid "Ephemeral Disk (GiB)"
 msgstr "Ephemeral Disk (GiB)"
@@ -450,17 +457,25 @@ msgstr "Ephemeral Disk (GiB)"
 msgid "Ephemeral Disk must be an integer ≥ 0."
 msgstr "Ephemeral Disk must be an integer ≥ 0."
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/flavors/$flavorId.tsx:90
+msgid "Error Loading Flavor"
+msgstr "Error Loading Flavor"
+
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId.tsx:76
 msgid "Error loading image"
 msgstr "Error loading image"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/List.tsx:189
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/List.tsx:198
 msgid "Error: {errorMessage}"
 msgstr "Error: {errorMessage}"
 
-#: src/client/utils/useErrorTranslation.ts:92
+#: src/client/utils/useErrorTranslation.ts:108
 msgid "Extra spec key is required and cannot be empty."
 msgstr "Extra spec key is required and cannot be empty."
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/flavors/-components/FlavorDetailsView.tsx:122
+msgid "Extra Specs"
+msgstr "Extra Specs"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageToastNotifications.tsx:234
 msgid "Failed to activate {failedCount} of {totalCount} image(s). Some images may already be active or in an invalid state."
@@ -470,7 +485,7 @@ msgstr "Failed to activate {failedCount} of {totalCount} image(s). Some images m
 msgid "Failed to Activate Images"
 msgstr "Failed to Activate Images"
 
-#: src/client/utils/useErrorTranslation.ts:110
+#: src/client/utils/useErrorTranslation.ts:126
 msgid "Failed to add tenant access to flavor. Please try again."
 msgstr "Failed to add tenant access to flavor. Please try again."
 
@@ -482,7 +497,7 @@ msgstr "Failed to copy to clipboard"
 msgid "Failed to create cluster:"
 msgstr "Failed to create cluster:"
 
-#: src/client/utils/useErrorTranslation.ts:66
+#: src/client/utils/useErrorTranslation.ts:82
 msgid "Failed to create extra specs. Please try again."
 msgstr "Failed to create extra specs. Please try again."
 
@@ -490,7 +505,7 @@ msgstr "Failed to create extra specs. Please try again."
 msgid "Failed to create flavor. Please try again."
 msgstr "Failed to create flavor. Please try again."
 
-#: src/client/utils/useErrorTranslation.ts:34
+#: src/client/utils/useErrorTranslation.ts:50
 msgid "Failed to create the flavor. Please try again."
 msgstr "Failed to create the flavor. Please try again."
 
@@ -518,15 +533,15 @@ msgstr "Failed to delete flavor. Please try again."
 msgid "Failed to Delete Images"
 msgstr "Failed to Delete Images"
 
-#: src/client/utils/useErrorTranslation.ts:94
+#: src/client/utils/useErrorTranslation.ts:110
 msgid "Failed to delete the extra spec. Please try again."
 msgstr "Failed to delete the extra spec. Please try again."
 
-#: src/client/utils/useErrorTranslation.ts:46
+#: src/client/utils/useErrorTranslation.ts:62
 msgid "Failed to delete the flavor. Please try again."
 msgstr "Failed to delete the flavor. Please try again."
 
-#: src/client/utils/useErrorTranslation.ts:106
+#: src/client/utils/useErrorTranslation.ts:122
 msgid "Failed to fetch flavor access information. Please try again."
 msgstr "Failed to fetch flavor access information. Please try again."
 
@@ -534,15 +549,15 @@ msgstr "Failed to fetch flavor access information. Please try again."
 msgid "Failed to fetch flavors from server."
 msgstr "Failed to fetch flavors from server."
 
-#: src/client/utils/useErrorTranslation.ts:80
+#: src/client/utils/useErrorTranslation.ts:96
 msgid "Failed to load extra specs. Please try again."
 msgstr "Failed to load extra specs. Please try again."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/List.tsx:214
-msgid "Failed to load flavors"
-msgstr "Failed to load flavors"
+#: src/client/utils/useErrorTranslation.ts:36
+msgid "Failed to load flavor details. Please try again."
+msgstr "Failed to load flavor details. Please try again."
 
-#: src/client/utils/useErrorTranslation.ts:126
+#: src/client/utils/useErrorTranslation.ts:142
 msgid "Failed to remove tenant access from flavor. Please try again."
 msgstr "Failed to remove tenant access from flavor. Please try again."
 
@@ -550,11 +565,11 @@ msgstr "Failed to remove tenant access from flavor. Please try again."
 msgid "False"
 msgstr "False"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:580
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:538
 msgid "Fetching..."
 msgstr "Fetching..."
 
-#: src/client/components/ListToolbar/FiltersInput.tsx:110
+#: src/client/components/ListToolbar/FiltersInput.tsx:57
 msgid "Filters"
 msgstr "Filters"
 
@@ -566,11 +581,11 @@ msgstr "Find detailed guides and references in our docs."
 msgid "Fingerprint"
 msgstr "Fingerprint"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/List.tsx:136
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/List.tsx:151
 msgid "Flavor \"{flavorName}\" has been successfully created."
 msgstr "Flavor \"{flavorName}\" has been successfully created."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/List.tsx:127
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/List.tsx:142
 msgid "Flavor \"{flavorName}\" has been successfully deleted."
 msgstr "Flavor \"{flavorName}\" has been successfully deleted."
 
@@ -580,7 +595,8 @@ msgstr "Flavor \"{flavorName}\" has been successfully deleted."
 msgid "Flavor ID"
 msgstr "Flavor ID"
 
-#: src/client/utils/useErrorTranslation.ts:48
+#: src/client/utils/useErrorTranslation.ts:32
+#: src/client/utils/useErrorTranslation.ts:64
 msgid "Flavor ID is required and cannot be empty."
 msgstr "Flavor ID is required and cannot be empty."
 
@@ -588,11 +604,16 @@ msgstr "Flavor ID is required and cannot be empty."
 msgid "Flavor Name"
 msgstr "Flavor Name"
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/flavors/$flavorId.tsx:104
+msgid "Flavor Not Found"
+msgstr "Flavor Not Found"
+
 #: src/client/utils/useErrorTranslation.ts:14
 msgid "Flavor service is not available for this project."
 msgstr "Flavor service is not available for this project."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/ComputeNavBar.tsx:36
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/flavors/$flavorId.tsx:117
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/ComputeNavBar.tsx:29
 msgid "Flavors"
 msgstr "Flavors"
 
@@ -616,6 +637,10 @@ msgstr "GitHub"
 msgid "Group Name"
 msgstr "Group Name"
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/flavors/-components/FlavorDetailsView.tsx:70
+msgid "Hardware Specifications"
+msgstr "Hardware Specifications"
+
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/index.tsx:26
 msgid "Hello \"/accounts/$accountId/projects_/$projectId/network/\"!"
 msgstr "Hello \"/accounts/$accountId/projects_/$projectId/network/\"!"
@@ -632,6 +657,7 @@ msgstr "Home"
 msgid "Id"
 msgstr "Id"
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/flavors/-components/FlavorDetailsView.tsx:31
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageDetailsView.tsx:27
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/DeleteFlavorModal.tsx:120
 msgid "ID"
@@ -677,7 +703,7 @@ msgstr "Image instance \"{imageName}\" has been deleted"
 msgid "Image instance \"{imageName}\" has been updated"
 msgstr "Image instance \"{imageName}\" has been updated"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:509
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:470
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageDetailsModal.tsx:255
 msgid "Image Name"
 msgstr "Image Name"
@@ -694,8 +720,8 @@ msgstr "Image not found"
 msgid "Image Version"
 msgstr "Image Version"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId.tsx:116
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/ComputeNavBar.tsx:30
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId.tsx:114
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/ComputeNavBar.tsx:23
 msgid "Images"
 msgstr "Images"
 
@@ -711,27 +737,27 @@ msgstr "Images Deactivated"
 msgid "Images Deleted"
 msgstr "Images Deleted"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ActivateImagesModal.tsx:119
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ActivateImagesModal.tsx:117
 msgid "Images to activate:"
 msgstr "Images to activate:"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ActivateImagesModal.tsx:81
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ActivateImagesModal.tsx:79
 msgid "Images to be activated ({deactivatedCount})"
 msgstr "Images to be activated ({deactivatedCount})"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeactivateImagesModal.tsx:81
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeactivateImagesModal.tsx:79
 msgid "Images to be deactivated ({activeCount})"
 msgstr "Images to be deactivated ({activeCount})"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImagesModal.tsx:81
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImagesModal.tsx:79
 msgid "Images to be deleted ({deletableCount})"
 msgstr "Images to be deleted ({deletableCount})"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeactivateImagesModal.tsx:119
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeactivateImagesModal.tsx:117
 msgid "Images to deactivate:"
 msgstr "Images to deactivate:"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImagesModal.tsx:119
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImagesModal.tsx:117
 msgid "Images to delete:"
 msgstr "Images to delete:"
 
@@ -789,11 +815,15 @@ msgstr "Kubernetes Version"
 msgid "List View"
 msgstr "List View"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:571
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:529
 msgid "Load More"
 msgstr "Load More"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/List.tsx:183
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/flavors/$flavorId.tsx:69
+msgid "Loading Flavor Details..."
+msgstr "Loading Flavor Details..."
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/List.tsx:198
 msgid "Loading Flavors..."
 msgstr "Loading Flavors..."
 
@@ -805,7 +835,7 @@ msgstr "Loading Gardener..."
 msgid "Loading Image Details..."
 msgstr "Loading Image Details..."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/List.tsx:179
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/List.tsx:188
 msgid "Loading Images..."
 msgstr "Loading Images..."
 
@@ -817,7 +847,7 @@ msgstr "Loading Instances..."
 msgid "Loading Key Pairs..."
 msgstr "Loading Key Pairs..."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:563
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:521
 msgid "Loading more..."
 msgstr "Loading more..."
 
@@ -827,8 +857,8 @@ msgstr "Loading Server Groups..."
 
 #: src/client/routes/auth/login.tsx:193
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Overview.tsx:114
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:443
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:82
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:437
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:87
 msgid "Loading..."
 msgstr "Loading..."
 
@@ -857,7 +887,7 @@ msgstr "Machine Type"
 msgid "Maintenance Window"
 msgstr "Maintenance Window"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:155
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:168
 msgid "Manage Access"
 msgstr "Manage Access"
 
@@ -881,7 +911,7 @@ msgstr "Maximum Nodes"
 msgid "Members"
 msgstr "Members"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:152
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:165
 msgid "Metadata"
 msgstr "Metadata"
 
@@ -933,8 +963,13 @@ msgstr "Minimum RAM must be 0 or greater"
 msgid "Minimum RAM required to boot this image"
 msgstr "Minimum RAM required to boot this image"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageTableRow.tsx:68
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/List.tsx:282
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/List.tsx:289
+msgid "More Actions"
+msgstr "More Actions"
+
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageTableRow.tsx:69
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageTableRow.tsx:70
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageDetailsView.tsx:66
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageDetailsView.tsx:70
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImageModal.tsx:111
@@ -943,11 +978,12 @@ msgid "N/A"
 msgstr "N/A"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail/WorkerSection.tsx:29
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/List.tsx:62
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/flavors/-components/FlavorDetailsView.tsx:38
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/List.tsx:76
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageDetailsView.tsx:31
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImageModal.tsx:88
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:116
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FilterToolbar.tsx:54
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/List.tsx:111
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:121
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/DeleteFlavorModal.tsx:116
 msgid "Name"
 msgstr "Name"
@@ -974,7 +1010,9 @@ msgstr "New Cluster"
 msgid "Next"
 msgstr "Next"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageTableRow.tsx:64
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/flavors/-components/FlavorDetailsView.tsx:56
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/flavors/-components/FlavorDetailsView.tsx:63
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageTableRow.tsx:65
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageDetailsView.tsx:94
 msgid "No"
 msgstr "No"
@@ -995,11 +1033,11 @@ msgstr "No extra specs found. Click \"Add Metadata\" to create one."
 msgid "No flavor selected for deletion."
 msgstr "No flavor selected for deletion."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:97
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:102
 msgid "No flavors found"
 msgstr "No flavors found"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:590
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:548
 msgid "No images found"
 msgstr "No images found"
 
@@ -1033,6 +1071,10 @@ msgstr "No specific tenant access configured for this private flavor. Click \"Ad
 msgid "Nodes CIDR"
 msgstr "Nodes CIDR"
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/flavors/-components/FlavorDetailsView.tsx:106
+msgid "None"
+msgstr "None"
+
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterWizard/InfrastructureStep.tsx:124
 msgid "Note: These network settings will be prefilled by the Kubernetes controller in the future."
 msgstr "Note: These network settings will be prefilled by the Kubernetes controller in the future."
@@ -1049,8 +1091,9 @@ msgstr "OS Updates"
 msgid "Our Mission"
 msgstr "Our Mission"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId.tsx:113
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/ComputeNavBar.tsx:29
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId.tsx:111
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/flavors/$flavorId.tsx:116
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/ComputeNavBar.tsx:22
 msgid "Overview"
 msgstr "Overview"
 
@@ -1112,21 +1155,22 @@ msgstr "property_key"
 msgid "Protect this image from being deleted"
 msgstr "Protect this image from being deleted"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/List.tsx:41
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:518
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/List.tsx:55
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:476
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageDetailsView.tsx:93
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageDetailsModal.tsx:313
 msgid "Protected"
 msgstr "Protected"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImagesModal.tsx:127
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImagesModal.tsx:125
 msgid "Protected (will be skipped):"
 msgstr "Protected (will be skipped):"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImagesModal.tsx:100
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImagesModal.tsx:98
 msgid "Protected images (cannot be deleted)"
 msgstr "Protected images (cannot be deleted)"
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/flavors/-components/FlavorDetailsView.tsx:54
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageDetailsModal.tsx:302
 msgid "Public"
 msgstr "Public"
@@ -1135,13 +1179,14 @@ msgstr "Public"
 msgid "Public Flavor"
 msgstr "Public Flavor"
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/flavors/-components/FlavorDetailsView.tsx:82
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Instances/-components/ServerListView.tsx:23
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FilterToolbar.tsx:56
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/List.tsx:113
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/DeleteFlavorModal.tsx:128
 msgid "RAM"
 msgstr "RAM"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:122
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:127
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/CreateFlavorModal.tsx:224
 msgid "RAM (MiB)"
 msgstr "RAM (MiB)"
@@ -1184,15 +1229,11 @@ msgstr "Remove tenant access"
 msgid "Restart"
 msgstr "Restart"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/List.tsx:216
-msgid "Retry"
-msgstr "Retry"
-
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FilterToolbar.tsx:57
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/List.tsx:114
 msgid "Root Disk"
 msgstr "Root Disk"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:125
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:130
 msgid "Root Disk (GiB)"
 msgstr "Root Disk (GiB)"
 
@@ -1200,8 +1241,9 @@ msgstr "Root Disk (GiB)"
 msgid "Root Disk must be an integer ≥ 0."
 msgstr "Root Disk must be an integer ≥ 0."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:134
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FilterToolbar.tsx:60
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/flavors/-components/FlavorDetailsView.tsx:112
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/List.tsx:117
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:139
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/CreateFlavorModal.tsx:274
 msgid "RX/TX Factor"
 msgstr "RX/TX Factor"
@@ -1233,7 +1275,7 @@ msgid "Search clusters..."
 msgstr "Search clusters..."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/-components/ProjectOverviewNavBar.tsx:60
-#: src/client/components/ListToolbar/index.tsx:215
+#: src/client/components/ListToolbar/index.tsx:118
 msgid "Search..."
 msgstr "Search..."
 
@@ -1241,35 +1283,39 @@ msgstr "Search..."
 msgid "Security"
 msgstr "Security"
 
-#: src/client/utils/useErrorTranslation.ts:122
+#: src/client/utils/useErrorTranslation.ts:138
 msgid "Server error occurred while adding tenant access. Please try again later."
 msgstr "Server error occurred while adding tenant access. Please try again later."
 
-#: src/client/utils/useErrorTranslation.ts:62
+#: src/client/utils/useErrorTranslation.ts:78
 msgid "Server error occurred while creating extra specs. Please try again later."
 msgstr "Server error occurred while creating extra specs. Please try again later."
 
-#: src/client/utils/useErrorTranslation.ts:32
+#: src/client/utils/useErrorTranslation.ts:48
 msgid "Server error occurred while creating the flavor. Please try again later."
 msgstr "Server error occurred while creating the flavor. Please try again later."
 
-#: src/client/utils/useErrorTranslation.ts:90
+#: src/client/utils/useErrorTranslation.ts:106
 msgid "Server error occurred while deleting the extra spec. Please try again later."
 msgstr "Server error occurred while deleting the extra spec. Please try again later."
 
-#: src/client/utils/useErrorTranslation.ts:44
+#: src/client/utils/useErrorTranslation.ts:60
 msgid "Server error occurred while deleting the flavor. Please try again later."
 msgstr "Server error occurred while deleting the flavor. Please try again later."
 
-#: src/client/utils/useErrorTranslation.ts:76
+#: src/client/utils/useErrorTranslation.ts:92
 msgid "Server error occurred while fetching extra specs. Please try again later."
 msgstr "Server error occurred while fetching extra specs. Please try again later."
 
-#: src/client/utils/useErrorTranslation.ts:104
+#: src/client/utils/useErrorTranslation.ts:120
 msgid "Server error occurred while fetching flavor access information. Please try again later."
 msgstr "Server error occurred while fetching flavor access information. Please try again later."
 
-#: src/client/utils/useErrorTranslation.ts:138
+#: src/client/utils/useErrorTranslation.ts:30
+msgid "Server error occurred while fetching flavor details. Please try again later."
+msgstr "Server error occurred while fetching flavor details. Please try again later."
+
+#: src/client/utils/useErrorTranslation.ts:154
 msgid "Server error occurred while removing tenant access. Please try again later."
 msgstr "Server error occurred while removing tenant access. Please try again later."
 
@@ -1281,10 +1327,14 @@ msgstr "Server is experiencing issues. Please try again later."
 msgid "Server Name"
 msgstr "Server Name"
 
-#: src/client/utils/useErrorTranslation.ts:64
-#: src/client/utils/useErrorTranslation.ts:78
+#: src/client/utils/useErrorTranslation.ts:80
+#: src/client/utils/useErrorTranslation.ts:94
 msgid "Server returned unexpected data format for extra specs."
 msgstr "Server returned unexpected data format for extra specs."
+
+#: src/client/utils/useErrorTranslation.ts:34
+msgid "Server returned unexpected data format for flavor details."
+msgstr "Server returned unexpected data format for flavor details."
 
 #: src/client/utils/useErrorTranslation.ts:20
 msgid "Server returned unexpected data format."
@@ -1306,7 +1356,7 @@ msgstr "Share"
 msgid "Shared"
 msgstr "Shared"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageTableRow.tsx:75
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageTableRow.tsx:76
 msgid "Show Details"
 msgstr "Show Details"
 
@@ -1319,8 +1369,8 @@ msgstr "Sign In"
 msgid "Sign Out"
 msgstr "Sign Out"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/List.tsx:66
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:521
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/List.tsx:80
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:479
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageDetailsView.tsx:39
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImageModal.tsx:104
 msgid "Size"
@@ -1330,11 +1380,7 @@ msgstr "Size"
 msgid "Something went wrong:"
 msgstr "Something went wrong:"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FilterToolbar.tsx:53
-msgid "sort by"
-msgstr "sort by"
-
-#: src/client/components/ListToolbar/SortInput.tsx:96
+#: src/client/components/ListToolbar/SortInput.tsx:35
 msgid "Sort by"
 msgstr "Sort by"
 
@@ -1345,9 +1391,9 @@ msgstr "Start Time"
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/clusters/index.tsx:41
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail/ClusterOverviewSection.tsx:67
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Instances/-components/ServerListView.tsx:19
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/List.tsx:17
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/List.tsx:70
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:512
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/List.tsx:31
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/List.tsx:84
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:467
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageDetailsView.tsx:35
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImageModal.tsx:96
 msgid "Status"
@@ -1369,12 +1415,13 @@ msgstr "Successfully deleted {successCount} of {totalCount} image(s)"
 msgid "Surge:"
 msgstr "Surge:"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FilterToolbar.tsx:59
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/flavors/-components/FlavorDetailsView.tsx:103
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/List.tsx:116
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/DeleteFlavorModal.tsx:137
 msgid "Swap"
 msgstr "Swap"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:131
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:136
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/CreateFlavorModal.tsx:262
 msgid "Swap (MiB)"
 msgstr "Swap (MiB)"
@@ -1400,40 +1447,41 @@ msgstr "Tenant access for \"{trimmedTenantId}\" has been added successfully."
 msgid "Tenant ID"
 msgstr "Tenant ID"
 
-#: src/client/utils/useErrorTranslation.ts:142
+#: src/client/utils/useErrorTranslation.ts:158
 msgid "The compute service is currently unavailable for this project. Please try again later."
 msgstr "The compute service is currently unavailable for this project. Please try again later."
 
-#: src/client/utils/useErrorTranslation.ts:88
+#: src/client/utils/useErrorTranslation.ts:104
 msgid "The extra spec could not be found. It may have already been deleted."
 msgstr "The extra spec could not be found. It may have already been deleted."
 
-#: src/client/utils/useErrorTranslation.ts:60
+#: src/client/utils/useErrorTranslation.ts:76
 msgid "The extra spec data provided is invalid. Please check your input."
 msgstr "The extra spec data provided is invalid. Please check your input."
 
-#: src/client/utils/useErrorTranslation.ts:74
+#: src/client/utils/useErrorTranslation.ts:90
 msgid "The flavor could not be found or has no extra specs."
 msgstr "The flavor could not be found or has no extra specs."
 
-#: src/client/utils/useErrorTranslation.ts:42
+#: src/client/utils/useErrorTranslation.ts:58
 msgid "The flavor could not be found. It may have already been deleted."
 msgstr "The flavor could not be found. It may have already been deleted."
 
-#: src/client/utils/useErrorTranslation.ts:56
-#: src/client/utils/useErrorTranslation.ts:102
+#: src/client/utils/useErrorTranslation.ts:28
+#: src/client/utils/useErrorTranslation.ts:72
+#: src/client/utils/useErrorTranslation.ts:118
 msgid "The flavor could not be found. It may have been deleted."
 msgstr "The flavor could not be found. It may have been deleted."
 
-#: src/client/utils/useErrorTranslation.ts:24
+#: src/client/utils/useErrorTranslation.ts:40
 msgid "The flavor data provided is invalid. Please check your input."
 msgstr "The flavor data provided is invalid. Please check your input."
 
-#: src/client/utils/useErrorTranslation.ts:134
+#: src/client/utils/useErrorTranslation.ts:150
 msgid "The flavor or tenant could not be found. It may have already been removed."
 msgstr "The flavor or tenant could not be found. It may have already been removed."
 
-#: src/client/utils/useErrorTranslation.ts:118
+#: src/client/utils/useErrorTranslation.ts:134
 msgid "The flavor or tenant could not be found. Please verify they exist."
 msgstr "The flavor or tenant could not be found. Please verify they exist."
 
@@ -1458,16 +1506,20 @@ msgstr "The image \"{imageId}\" could not be re-activated: {message}"
 msgid "The image \"{imageName}\" could not be updated: {message}"
 msgstr "The image \"{imageName}\" could not be updated: {message}"
 
-#: src/client/utils/useErrorTranslation.ts:112
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/flavors/$flavorId.tsx:105
+msgid "The requested flavor could not be found. It may have been deleted or you may not have access to it."
+msgstr "The requested flavor could not be found. It may have been deleted or you may not have access to it."
+
 #: src/client/utils/useErrorTranslation.ts:128
+#: src/client/utils/useErrorTranslation.ts:144
 msgid "The tenant ID provided is invalid. Please check your input."
 msgstr "The tenant ID provided is invalid. Please check your input."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:100
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:105
 msgid "There are no flavors available for this project with the current filters applied. Try adjusting your filter criteria or create a new flavor."
 msgstr "There are no flavors available for this project with the current filters applied. Try adjusting your filter criteria or create a new flavor."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:593
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:551
 msgid "There are no images available for this project with the current filters applied. Try adjusting your filter criteria or create a new image."
 msgstr "There are no images available for this project with the current filters applied. Try adjusting your filter criteria or create a new image."
 
@@ -1483,7 +1535,7 @@ msgstr "This action cannot be undone. The flavor will be permanently deleted."
 msgid "This action cannot be undone. The image will be permanently deleted."
 msgstr "This action cannot be undone. The image will be permanently deleted."
 
-#: src/client/utils/useErrorTranslation.ts:58
+#: src/client/utils/useErrorTranslation.ts:74
 msgid "This extra spec keys already exist. Please use different keys."
 msgstr "This extra spec keys already exist. Please use different keys."
 
@@ -1495,11 +1547,11 @@ msgstr "This is a public flavor. All tenants have access to it."
 msgid "This property is reserved and cannot be modified"
 msgstr "This property is reserved and cannot be modified"
 
-#: src/client/utils/useErrorTranslation.ts:120
+#: src/client/utils/useErrorTranslation.ts:136
 msgid "This tenant already has access to the flavor."
 msgstr "This tenant already has access to the flavor."
 
-#: src/client/utils/useErrorTranslation.ts:136
+#: src/client/utils/useErrorTranslation.ts:152
 msgid "This tenant does not have access to the flavor."
 msgstr "This tenant does not have access to the flavor."
 
@@ -1527,7 +1579,7 @@ msgstr "Try Again"
 msgid "Type"
 msgstr "Type"
 
-#: src/client/utils/useErrorTranslation.ts:144
+#: src/client/utils/useErrorTranslation.ts:160
 msgid "Unable to connect to the compute service. Please check your connection and try again."
 msgstr "Unable to connect to the compute service. Please check your connection and try again."
 
@@ -1551,14 +1603,14 @@ msgstr "Unable to Update Image"
 msgid "Unknown error"
 msgstr "Unknown error"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId.tsx:122
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId.tsx:119
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageTableRow.tsx:41
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:257
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:251
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImageModal.tsx:89
 msgid "Unnamed"
 msgstr "Unnamed"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/List.tsx:58
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/List.tsx:72
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageDetailsView.tsx:69
 msgid "Updated At"
 msgstr "Updated At"
@@ -1578,11 +1630,12 @@ msgstr "Value"
 msgid "Value is required"
 msgstr "Value is required"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:119
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:124
 msgid "vCPU"
 msgstr "vCPU"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FilterToolbar.tsx:55
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/flavors/-components/FlavorDetailsView.tsx:75
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/List.tsx:112
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/DeleteFlavorModal.tsx:124
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/CreateFlavorModal.tsx:211
 msgid "VCPUs"
@@ -1608,8 +1661,8 @@ msgstr "View Docs"
 msgid "View Repository"
 msgstr "View Repository"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/List.tsx:23
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:515
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/List.tsx:37
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:473
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageDetailsView.tsx:89
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageDetailsModal.tsx:298
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImageModal.tsx:100
@@ -1652,20 +1705,22 @@ msgstr "Workers"
 msgid "Would you like to remove the <0>{clusterName}</0> from your project?"
 msgstr "Would you like to remove the <0>{clusterName}</0> from your project?"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageTableRow.tsx:64
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/flavors/-components/FlavorDetailsView.tsx:56
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/flavors/-components/FlavorDetailsView.tsx:63
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageTableRow.tsx:65
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageDetailsView.tsx:94
 msgid "Yes"
 msgstr "Yes"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ActivateImagesModal.tsx:73
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ActivateImagesModal.tsx:71
 msgid "You are about to activate {deactivatedCount} image(s). Activated images will be available for launching new instances."
 msgstr "You are about to activate {deactivatedCount} image(s). Activated images will be available for launching new instances."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeactivateImagesModal.tsx:73
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeactivateImagesModal.tsx:71
 msgid "You are about to deactivate {activeCount} image(s). Deactivated images cannot be used to launch new instances."
 msgstr "You are about to deactivate {activeCount} image(s). Deactivated images cannot be used to launch new instances."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImagesModal.tsx:73
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImagesModal.tsx:71
 msgid "You are about to delete {deletableCount} image(s). This action cannot be undone."
 msgstr "You are about to delete {deletableCount} image(s). This action cannot be undone."
 
@@ -1677,43 +1732,47 @@ msgstr "You are already signed in."
 msgid "You are currently on the dashboard route."
 msgstr "You are currently on the dashboard route."
 
-#: src/client/utils/useErrorTranslation.ts:98
+#: src/client/utils/useErrorTranslation.ts:114
 msgid "You are not authorized to access flavor access information. Please log in again."
 msgstr "You are not authorized to access flavor access information. Please log in again."
 
-#: src/client/utils/useErrorTranslation.ts:114
+#: src/client/utils/useErrorTranslation.ts:130
 msgid "You are not authorized to add tenant access. Please log in again."
 msgstr "You are not authorized to add tenant access. Please log in again."
 
-#: src/client/utils/useErrorTranslation.ts:52
+#: src/client/utils/useErrorTranslation.ts:68
 msgid "You are not authorized to create extra specs. Please log in again."
 msgstr "You are not authorized to create extra specs. Please log in again."
 
-#: src/client/utils/useErrorTranslation.ts:26
+#: src/client/utils/useErrorTranslation.ts:42
 msgid "You are not authorized to create flavors. Please log in again."
 msgstr "You are not authorized to create flavors. Please log in again."
 
-#: src/client/utils/useErrorTranslation.ts:84
+#: src/client/utils/useErrorTranslation.ts:100
 msgid "You are not authorized to delete extra specs. Please log in again."
 msgstr "You are not authorized to delete extra specs. Please log in again."
 
-#: src/client/utils/useErrorTranslation.ts:38
+#: src/client/utils/useErrorTranslation.ts:54
 msgid "You are not authorized to delete flavors. Please log in again."
 msgstr "You are not authorized to delete flavors. Please log in again."
 
-#: src/client/utils/useErrorTranslation.ts:130
+#: src/client/utils/useErrorTranslation.ts:146
 msgid "You are not authorized to remove tenant access. Please log in again."
 msgstr "You are not authorized to remove tenant access. Please log in again."
 
-#: src/client/utils/useErrorTranslation.ts:70
+#: src/client/utils/useErrorTranslation.ts:86
 msgid "You are not authorized to view extra specs. Please log in again."
 msgstr "You are not authorized to view extra specs. Please log in again."
+
+#: src/client/utils/useErrorTranslation.ts:24
+msgid "You are not authorized to view flavor details. Please log in again."
+msgstr "You are not authorized to view flavor details. Please log in again."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail.tsx:76
 msgid "You can now share this information with your team"
 msgstr "You can now share this information with your team"
 
-#: src/client/utils/useErrorTranslation.ts:100
+#: src/client/utils/useErrorTranslation.ts:116
 msgid "You don't have permission to access flavor access information for this flavor."
 msgstr "You don't have permission to access flavor access information for this flavor."
 
@@ -1721,33 +1780,37 @@ msgstr "You don't have permission to access flavor access information for this f
 msgid "You don't have permission to access flavors for this project."
 msgstr "You don't have permission to access flavors for this project."
 
-#: src/client/utils/useErrorTranslation.ts:116
+#: src/client/utils/useErrorTranslation.ts:132
 msgid "You don't have permission to add tenant access to this flavor."
 msgstr "You don't have permission to add tenant access to this flavor."
 
-#: src/client/utils/useErrorTranslation.ts:54
+#: src/client/utils/useErrorTranslation.ts:70
 msgid "You don't have permission to create extra specs for this flavor."
 msgstr "You don't have permission to create extra specs for this flavor."
 
-#: src/client/utils/useErrorTranslation.ts:28
+#: src/client/utils/useErrorTranslation.ts:44
 msgid "You don't have permission to create flavors in this project."
 msgstr "You don't have permission to create flavors in this project."
 
-#: src/client/utils/useErrorTranslation.ts:86
+#: src/client/utils/useErrorTranslation.ts:102
 msgid "You don't have permission to delete extra specs for this flavor."
 msgstr "You don't have permission to delete extra specs for this flavor."
 
-#: src/client/utils/useErrorTranslation.ts:40
+#: src/client/utils/useErrorTranslation.ts:56
 msgid "You don't have permission to delete flavors in this project."
 msgstr "You don't have permission to delete flavors in this project."
 
-#: src/client/utils/useErrorTranslation.ts:132
+#: src/client/utils/useErrorTranslation.ts:148
 msgid "You don't have permission to remove tenant access from this flavor."
 msgstr "You don't have permission to remove tenant access from this flavor."
 
-#: src/client/utils/useErrorTranslation.ts:72
+#: src/client/utils/useErrorTranslation.ts:88
 msgid "You don't have permission to view extra specs for this flavor."
 msgstr "You don't have permission to view extra specs for this flavor."
+
+#: src/client/utils/useErrorTranslation.ts:26
+msgid "You don't have permission to view this flavor's details."
+msgstr "You don't have permission to view this flavor's details."
 
 #: src/client/routes/auth/login.tsx:120
 msgid "You need to login to access this page."

@@ -448,7 +448,7 @@ export function ImageListView({
       {/* Images Table */}
       {images.length > 0 ? (
         <>
-          <DataGrid columns={9} minContentColumns={[7]} className="images" data-testid="images-table">
+          <DataGrid columns={9} minContentColumns={[0, 8]} className="images" data-testid="images-table">
             {/* Table Header */}
             <DataGridRow>
               <DataGridHeadCell>
@@ -541,7 +541,7 @@ export function ImageListView({
           )}
         </>
       ) : (
-        <DataGrid columns={7} className="images" data-testid="no-images">
+        <DataGrid columns={7} minContentColumns={[0, 6]} className="images" data-testid="no-images">
           <DataGridRow>
             <DataGridCell colSpan={7}>
               <ContentHeading>

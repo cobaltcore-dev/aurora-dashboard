@@ -11,12 +11,47 @@ import {
   getFlavorAccess,
   addTenantAccess,
   removeTenantAccess,
+  getFlavorById,
 } from "../helpers/flavorHelpers"
 import { Flavor } from "../types/flavor"
 import { TRPCError } from "@trpc/server"
 import { ERROR_CODES } from "../../errorCodes"
 
 export const flavorRouter = {
+  getFlavorById: protectedProcedure
+    .input(
+      z.object({
+        projectId: z.string(),
+        flavorId: z.string(),
+      })
+    )
+    .query(async ({ input, ctx }) => {
+      try {
+        const { projectId, flavorId } = input
+
+        const openstackSession = await ctx.rescopeSession({ projectId })
+        const compute = openstackSession?.service("compute")
+        if (!compute) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: ERROR_CODES.COMPUTE_SERVICE_UNAVAILABLE,
+          })
+        }
+
+        const flavor = await getFlavorById(compute, flavorId)
+        return flavor
+      } catch (error) {
+        if (error instanceof TRPCError) {
+          throw error
+        }
+
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: ERROR_CODES.GET_FLAVOR_DETAILS_FAILED,
+          cause: error,
+        })
+      }
+    }),
   getFlavorsByProjectId: protectedProcedure
     .input(
       z.object({
