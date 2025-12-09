@@ -230,7 +230,7 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({ isOpen, onCl
               onClick={(e) => {
                 handleSubmit(e)
               }}
-              disabled={isSubmitDisabled}
+              disabled={isSubmitDisabled || isLoading}
               data-testid="create-image-button"
             >
               {isLoading ? <Spinner size="small" /> : <Trans>Create Image</Trans>}
@@ -289,7 +289,7 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({ isOpen, onCl
                       type="file"
                       className="hidden"
                       onChange={handleFileChange}
-                      accept=".qcow2,.raw,.vmdk,.vhd,.vhdx,.vdi,.ami,.ari,.aki,.iso,.ploop"
+                      accept=".qcow2,.raw,.vmdk,.vhd,.vhdx,.vdi,.ami,.ari,.aki,.iso,.ploop,.img"
                       disabled={isLoading}
                     />
                   </label>
@@ -310,6 +310,7 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({ isOpen, onCl
                       type="button"
                       onClick={() => setSelectedFile(null)}
                       className="text-red-600 hover:text-red-800 font-medium"
+                      disabled={isLoading}
                     >
                       {t`Remove`}
                     </button>
@@ -332,6 +333,7 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({ isOpen, onCl
                 required
                 errortext={errors.name}
                 placeholder={t`Ubuntu 22.04 LTS`}
+                disabled={isLoading}
               />
             </FormRow>
 
@@ -348,6 +350,7 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({ isOpen, onCl
                       onKeyDown={handleTagKeyPress}
                       helptext={t`Press Enter to add`}
                       placeholder={t`production, linux`}
+                      disabled={isLoading}
                     />
                   </div>
 
@@ -373,6 +376,8 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({ isOpen, onCl
                 label={t`Visibility`}
                 value={properties.visibility}
                 onChange={(value) => handleSelectChange("visibility", value)}
+                disabled={isLoading}
+                loading={isLoading}
               >
                 <SelectOption value="public" label={t`Public`} />
                 <SelectOption value="private" label={t`Private`} />
@@ -388,6 +393,8 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({ isOpen, onCl
                 label={t`Disk Format`}
                 value={properties.disk_format}
                 onChange={(value) => handleSelectChange("disk_format", value)}
+                disabled={isLoading}
+                loading={isLoading}
               >
                 <SelectOption value="qcow2" label="QCOW2 - QEMU Emulator" />
                 <SelectOption value="raw" label="Raw" />
@@ -411,6 +418,7 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({ isOpen, onCl
                 checked={properties.protected}
                 onChange={handleInputChange}
                 helptext={t`Prevent accidental deletion`}
+                disabled={isLoading}
               />
             </FormRow>
           </FormSection>
@@ -427,6 +435,7 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({ isOpen, onCl
                     value={properties.os_type}
                     onChange={handleInputChange}
                     placeholder={t`Linux, Windows`}
+                    disabled={isLoading}
                   />
                 </div>
                 <div className="flex-1">
@@ -437,6 +446,7 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({ isOpen, onCl
                     value={properties.os_distro}
                     onChange={handleInputChange}
                     placeholder={t`Ubuntu, CentOS`}
+                    disabled={isLoading}
                   />
                 </div>
               </Stack>
@@ -457,6 +467,7 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({ isOpen, onCl
                     onChange={(e) => handleNumericChange("min_disk", e.target.value)}
                     helptext={t`Boot size`}
                     errortext={errors.min_disk}
+                    disabled={isLoading}
                   />
                 </div>
                 <div className="flex-1">
@@ -469,6 +480,7 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({ isOpen, onCl
                     onChange={(e) => handleNumericChange("min_ram", e.target.value)}
                     helptext={t`Boot RAM`}
                     errortext={errors.min_ram}
+                    disabled={isLoading}
                   />
                 </div>
               </Stack>

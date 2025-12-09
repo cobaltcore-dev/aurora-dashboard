@@ -274,7 +274,7 @@ export const createImageInputSchema = z
     // Core properties that can be set during creation
     name: z.string().optional(),
     id: z.string().uuid().optional(), // Optional UUID, API will generate if omitted
-    container_format: containerFormatSchema.optional(),
+    container_format: containerFormatSchema.optional().default("bare"),
     disk_format: diskFormatSchema.optional(),
     visibility: imageVisibilityEnumSchema.optional().default("private"),
     protected: z.boolean().optional().default(false),

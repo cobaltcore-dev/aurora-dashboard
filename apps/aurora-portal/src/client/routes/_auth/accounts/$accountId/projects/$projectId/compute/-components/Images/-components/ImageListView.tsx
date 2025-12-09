@@ -89,6 +89,8 @@ export function ImageListView({
   const [selectedImage, setSelectedImage] = useState<GlanceImage | null>(null)
   const [selectedImages, setSelectedImages] = useState<Array<string>>([])
 
+  const [isCreateInProgress, setCreateInProgress] = useState(false)
+
   const deletableImages = selectedImages.filter((imageId) => !images.find((image) => image.id === imageId)?.protected)
   const protectedImages = selectedImages.filter((imageId) => images.find((image) => image.id === imageId)?.protected)
   const activeImages = selectedImages.filter(
@@ -193,9 +195,7 @@ export function ImageListView({
     deleteImagesMutation.isPending ||
     activateImagesMutation.isPending ||
     deactivateImagesMutation.isPending ||
-    updateImageMutation.isPending ||
-    createImageMutation.isPending ||
-    uploadImageMutation.isPending
+    updateImageMutation.isPending
 
   const handleToastDismiss = () => setToastData(null)
 
@@ -266,28 +266,39 @@ export function ImageListView({
     const imageName = imageData.name || "Unnamed"
 
     try {
-      // Step 1: Create image
+      setCreateInProgress(true)
+
+      // Step 1: Create image (via tRPC)
       const createdImage = await createImageMutation.mutateAsync(imageData)
 
-      // Step 2: Convert file to binary
-      const fileAsArrayBuffer = await file.arrayBuffer()
+      // Step 2: Create FormData WITH file
+      const formData = new FormData()
+      formData.append("imageId", createdImage.id)
+      formData.append("file", file)
 
-      // Step 3: Upload file
-      await uploadImageMutation.mutateAsync({
-        imageId: createdImage.id,
-        imageData: fileAsArrayBuffer,
-        contentType: file.type || "application/octet-stream",
+      // Step 3: Upload file (via HTTP)
+      const { csrfToken } = await fetch("/csrf-token").then((res) => res.json())
+
+      const response = await fetch("/polaris-bff/upload-image", {
+        method: "POST",
+        body: formData,
+        headers: { "x-csrf-token": csrfToken },
       })
+
+      if (!response.ok) throw new Error("Upload failed")
 
       // Step 4: ONLY THEN close modal and show success
       setCreateModalOpen(false)
 
-      // Show success notification
+      // Show success notification and re-fetch image list
       setToastData(getImageCreatedToast(imageName, { onDismiss: handleToastDismiss }))
+      utils.compute.listImagesWithPagination.invalidate()
     } catch (error) {
       const { message } = error as TRPCError
       // Show error notification, modal stays open
       setToastData(getImageUpdateErrorToast(imageName, message, { onDismiss: handleToastDismiss }))
+    } finally {
+      setCreateInProgress(false)
     }
   }
 
@@ -687,7 +698,12 @@ export function ImageListView({
           />
         </>
       )}
-      <CreateImageModal isOpen={createModalOpen} onClose={() => setCreateModalOpen(false)} onCreate={handleCreate} />
+      <CreateImageModal
+        isOpen={createModalOpen}
+        onClose={() => setCreateModalOpen(false)}
+        onCreate={handleCreate}
+        isLoading={createImageMutation.isPending || uploadImageMutation.isPending || isCreateInProgress}
+      />
       {toastData && (
         <Toast {...toastData} className="fixed top-5 right-5 z-50 border border-theme-light rounded-lg shadow-lg" />
       )}
