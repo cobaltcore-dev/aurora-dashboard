@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react"
-import { vi, describe, it, expect, beforeAll } from "vitest"
+import { describe, it, expect, beforeAll } from "vitest"
 import { FlavorDetailsView } from "./FlavorDetailsView"
 import { PortalProvider } from "@cloudoperators/juno-ui-components/index"
 import { I18nProvider } from "@lingui/react"
