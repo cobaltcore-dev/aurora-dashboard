@@ -7,7 +7,6 @@ interface DeleteImagesModalProps {
   protectedImages: Array<string>
   isOpen: boolean
   isLoading: boolean
-  isDisabled: boolean
   onClose: () => void
   onDelete: (deletableImages: Array<string>) => void
 }
@@ -17,7 +16,6 @@ export const DeleteImagesModal: React.FC<DeleteImagesModalProps> = ({
   protectedImages,
   isOpen,
   isLoading,
-  isDisabled,
   onClose,
   onDelete,
 }) => {
@@ -46,7 +44,7 @@ export const DeleteImagesModal: React.FC<DeleteImagesModalProps> = ({
                 handleDelete(e)
                 onClose()
               }}
-              disabled={isLoading || isDisabled}
+              disabled={isLoading}
               data-testid={`delete-image-button`}
             >
               {isLoading ? <Spinner size="small" /> : <Trans>Delete</Trans>}

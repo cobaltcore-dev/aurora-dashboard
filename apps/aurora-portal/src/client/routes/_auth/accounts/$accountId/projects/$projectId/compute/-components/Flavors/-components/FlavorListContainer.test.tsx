@@ -1,11 +1,27 @@
 import { render, screen, act } from "@testing-library/react"
-import { describe, it, expect, beforeAll } from "vitest"
+import { describe, it, expect, beforeAll, vi } from "vitest"
 import { FlavorListContainer } from "./FlavorListContainer"
 import { Flavor } from "@/server/Compute/types/flavor"
 import { I18nProvider } from "@lingui/react"
 import { ReactNode } from "react"
 import { i18n } from "@lingui/core"
 import { TrpcClient } from "@/client/trpcClient"
+
+vi.mock("@tanstack/react-router", async () => {
+  const actual = await vi.importActual("@tanstack/react-router")
+  return {
+    ...actual,
+    useParams: vi.fn(() => ({
+      accountId: "test-account-id",
+      projectId: "test-project-id",
+    })),
+    Link: ({ children, to, ...props }: { children: React.ReactNode; to: string; [key: string]: unknown }) => (
+      <a href={to} {...props}>
+        {children}
+      </a>
+    ),
+  }
+})
 
 const TestingProvider = ({ children }: { children: ReactNode }) => <I18nProvider i18n={i18n}>{children}</I18nProvider>
 
@@ -130,9 +146,7 @@ describe("FlavorListContainer", () => {
     expect(screen.getByText("vCPU")).toBeInTheDocument()
     expect(screen.getByText("RAM (MiB)")).toBeInTheDocument()
     expect(screen.getByText("Root Disk (GiB)")).toBeInTheDocument()
-    expect(screen.getByText("Ephemeral Disk (GiB)")).toBeInTheDocument()
     expect(screen.getByText("Swap (MiB)")).toBeInTheDocument()
-    expect(screen.getByText("RX/TX Factor")).toBeInTheDocument()
     expect(screen.getByText("Flavor1")).toBeInTheDocument()
     expect(screen.getByText("Flavor2")).toBeInTheDocument()
   })

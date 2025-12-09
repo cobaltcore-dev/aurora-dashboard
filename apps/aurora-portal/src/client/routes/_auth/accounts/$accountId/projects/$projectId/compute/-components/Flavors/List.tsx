@@ -3,14 +3,20 @@ import { Trans, useLingui } from "@lingui/react/macro"
 import { TrpcClient } from "@/client/trpcClient"
 import { Flavor } from "@/server/Compute/types/flavor"
 import { Message, Button, Stack, Spinner } from "@cloudoperators/juno-ui-components"
-import FilterToolbar from "./-components/FilterToolbar"
+import { ListToolbar } from "@/client/components/ListToolbar"
+import { SortSettings } from "@/client/components/ListToolbar/types"
 import { FlavorListContainer } from "./-components/FlavorListContainer"
 import { CreateFlavorModal } from "./-components/CreateFlavorModal"
-import { ErrorBoundary } from "react-error-boundary"
 
 interface FlavorsProps {
   client: TrpcClient
   project: string
+}
+
+type RequiredSortSettings = {
+  options: SortSettings["options"]
+  sortBy: string
+  sortDirection: "asc" | "desc"
 }
 
 const createFlavorsPromise = (
@@ -43,10 +49,8 @@ function FlavorsContent({
   onFlavorCreated,
   searchTerm,
   setSearchTerm,
-  sortBy,
-  handleSortByChange,
-  sortDirection,
-  handleSortDirectionChange,
+  sortSettings,
+  handleSortChange,
   createModalOpen,
   setCreateModalOpen,
 }: {
@@ -58,13 +62,12 @@ function FlavorsContent({
   onFlavorCreated: (name: string) => void
   searchTerm: string
   setSearchTerm: (term: string) => void
-  sortBy: string
-  handleSortByChange: (value: string | number | string[] | undefined) => void
-  sortDirection: "asc" | "desc"
-  handleSortDirectionChange: (value: "asc" | "desc") => void
+  sortSettings: SortSettings
+  handleSortChange: (settings: SortSettings) => void
   createModalOpen: boolean
   setCreateModalOpen: (open: boolean) => void
 }) {
+  const { t } = useLingui()
   const flavors = use(flavorsPromise)
   const permissions = use(permissionsPromise)
 
@@ -78,15 +81,14 @@ function FlavorsContent({
         onSuccess={onFlavorCreated}
       />
 
-      <FilterToolbar
+      <ListToolbar
+        sortSettings={sortSettings}
         searchTerm={searchTerm}
-        setSearchTerm={setSearchTerm}
-        sortBy={sortBy}
-        handleSortByChange={handleSortByChange}
-        sortDirection={sortDirection}
-        handleSortDirectionChange={handleSortDirectionChange}
-        setCreateModalOpen={setCreateModalOpen}
-        canCreateFlavor={permissions.canCreate}
+        onSort={handleSortChange}
+        onSearch={setSearchTerm}
+        actions={
+          permissions.canCreate ? <Button label={t`Create Flavor`} onClick={() => setCreateModalOpen(true)} /> : null
+        }
       />
 
       <FlavorListContainer
@@ -101,24 +103,35 @@ function FlavorsContent({
     </>
   )
 }
-
 export const Flavors = ({ client, project }: FlavorsProps) => {
   const { t } = useLingui()
 
-  const [sortBy, setSortBy] = useState("name")
-  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc")
+  const [sortSettings, setSortSettings] = useState<RequiredSortSettings>({
+    options: [
+      { label: t`Name`, value: "name" },
+      { label: t`VCPUs`, value: "vcpus" },
+      { label: t`RAM`, value: "ram" },
+      { label: t`Root Disk`, value: "disk" },
+      { label: t`Swap`, value: "swap" },
+    ],
+    sortBy: "name",
+    sortDirection: "asc",
+  })
+
   const [searchTerm, setSearchTerm] = useState("")
   const [success, setSuccess] = useState<{ message: string; timestamp: number } | undefined>()
   const [createModalOpen, setCreateModalOpen] = useState(false)
 
   const [flavorsPromise, setFlavorsPromise] = useState(() =>
-    createFlavorsPromise(client, project, sortBy, sortDirection, searchTerm)
+    createFlavorsPromise(client, project, sortSettings.sortBy, sortSettings.sortDirection, searchTerm)
   )
   const [permissionsPromise] = useState(() => createPermissionsPromise(client))
 
   const refetchFlavors = () => {
     startTransition(() => {
-      setFlavorsPromise(createFlavorsPromise(client, project, sortBy, sortDirection, searchTerm))
+      setFlavorsPromise(
+        createFlavorsPromise(client, project, sortSettings.sortBy, sortSettings.sortDirection, searchTerm)
+      )
     })
   }
 
@@ -140,81 +153,65 @@ export const Flavors = ({ client, project }: FlavorsProps) => {
     refetchFlavors()
   }
 
-  const handleSortByChange = (value: string | number | string[] | undefined) => {
-    if (value && typeof value === "string") {
-      setSortBy(value)
-      startTransition(() => {
-        setFlavorsPromise(createFlavorsPromise(client, project, value, sortDirection, searchTerm))
-      })
+  const handleSortChange = (newSortSettings: SortSettings) => {
+    const settings: RequiredSortSettings = {
+      options: newSortSettings.options,
+      sortBy: newSortSettings.sortBy?.toString() || "name",
+      sortDirection: newSortSettings.sortDirection || "asc",
     }
-  }
 
-  const handleSortDirectionChange = (value: "asc" | "desc") => {
-    setSortDirection(value)
+    setSortSettings(settings)
     startTransition(() => {
-      setFlavorsPromise(createFlavorsPromise(client, project, sortBy, value, searchTerm))
+      setFlavorsPromise(createFlavorsPromise(client, project, settings.sortBy, settings.sortDirection, searchTerm))
     })
   }
 
-  const handleSearchChange = (term: string) => {
-    setSearchTerm(term)
+  const handleSearchChange = (term: string | number | string[] | undefined) => {
+    const searchValue = typeof term === "string" ? term : ""
+    setSearchTerm(searchValue)
+
     startTransition(() => {
-      setFlavorsPromise(createFlavorsPromise(client, project, sortBy, sortDirection, term))
+      setFlavorsPromise(
+        createFlavorsPromise(client, project, sortSettings.sortBy, sortSettings.sortDirection, searchValue)
+      )
     })
   }
 
   return (
     <div className="relative">
-      <ErrorBoundary fallback={<ErrorFallback onRetry={refetchFlavors} />}>
-        {success && (
-          <Message
-            className="absolute -top-14 left-0 right-0 z-50"
-            text={success.message}
-            variant="info"
-            onDismiss={() => setSuccess(undefined)}
-            dismissible
-          />
-        )}
+      {success && (
+        <Message
+          className="absolute -top-14 left-0 right-0 z-50"
+          text={success.message}
+          variant="info"
+          onDismiss={() => setSuccess(undefined)}
+          dismissible
+        />
+      )}
 
-        <Suspense
-          fallback={
-            <Stack className="fixed inset-0" distribution="center" alignment="center" direction="vertical">
-              <Spinner variant="primary" size="large" className="mb-2" />
-              <Trans>Loading Flavors...</Trans>
-            </Stack>
-          }
-        >
-          <FlavorsContent
-            flavorsPromise={flavorsPromise}
-            permissionsPromise={permissionsPromise}
-            client={client}
-            project={project}
-            onFlavorDeleted={handleFlavorDeleted}
-            onFlavorCreated={handleFlavorCreated}
-            searchTerm={searchTerm}
-            setSearchTerm={handleSearchChange}
-            sortBy={sortBy}
-            handleSortByChange={handleSortByChange}
-            sortDirection={sortDirection}
-            handleSortDirectionChange={handleSortDirectionChange}
-            createModalOpen={createModalOpen}
-            setCreateModalOpen={setCreateModalOpen}
-          />
-        </Suspense>
-      </ErrorBoundary>
-    </div>
-  )
-}
-
-function ErrorFallback({ onRetry }: { onRetry: () => void }) {
-  const { t } = useLingui()
-
-  return (
-    <div className="error-container">
-      <Message text={t`Failed to load flavors`} variant="error" />
-      <Button onClick={onRetry} variant="primary" className="mt-4">
-        {t`Retry`}
-      </Button>
+      <Suspense
+        fallback={
+          <Stack className="fixed inset-0" distribution="center" alignment="center" direction="vertical">
+            <Spinner variant="primary" size="large" className="mb-2" />
+            <Trans>Loading Flavors...</Trans>
+          </Stack>
+        }
+      >
+        <FlavorsContent
+          flavorsPromise={flavorsPromise}
+          permissionsPromise={permissionsPromise}
+          client={client}
+          project={project}
+          onFlavorDeleted={handleFlavorDeleted}
+          onFlavorCreated={handleFlavorCreated}
+          searchTerm={searchTerm}
+          setSearchTerm={handleSearchChange}
+          sortSettings={sortSettings}
+          handleSortChange={handleSortChange}
+          createModalOpen={createModalOpen}
+          setCreateModalOpen={setCreateModalOpen}
+        />
+      </Suspense>
     </div>
   )
 }

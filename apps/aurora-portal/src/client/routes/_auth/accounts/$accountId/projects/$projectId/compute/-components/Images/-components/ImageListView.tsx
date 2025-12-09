@@ -1,18 +1,13 @@
-import { useState, useEffect, useRef, ReactNode, forwardRef } from "react"
+import { useState, useEffect, useRef, ReactNode } from "react"
 import type { CreateImageInput, GlanceImage } from "@/server/Compute/types/image"
 import {
   Button,
-  ButtonProps,
   Checkbox,
   ContentHeading,
   DataGrid,
   DataGridCell,
   DataGridHeadCell,
   DataGridRow,
-  PopupMenu,
-  PopupMenuItem,
-  PopupMenuOptions,
-  PopupMenuToggle,
   Spinner,
   Stack,
   Toast,
@@ -20,7 +15,7 @@ import {
 } from "@cloudoperators/juno-ui-components"
 import { trpcReact } from "@/client/trpcClient"
 import { TRPCError } from "@trpc/server"
-import { Trans, useLingui } from "@lingui/react/macro"
+import { Trans } from "@lingui/react/macro"
 import { EditImageDetailsModal } from "./EditImageDetailsModal"
 import { EditImageMetadataModal } from "./EditImageMetadataModal"
 import { ImageTableRow } from "./ImageTableRow"
@@ -62,6 +57,18 @@ interface ImagePageProps {
   isFetching?: boolean
   fetchNextPage?: () => void
   children?: ReactNode
+  selectedImages: Array<string>
+  setSelectedImages: (images: Array<string>) => void
+  deleteAllModalOpen: boolean
+  setDeleteAllModalOpen: (open: boolean) => void
+  deactivateAllModalOpen: boolean
+  setDeactivateAllModalOpen: (open: boolean) => void
+  activateAllModalOpen: boolean
+  setActivateAllModalOpen: (open: boolean) => void
+  deletableImages: Array<string>
+  protectedImages: Array<string>
+  activeImages: Array<string>
+  deactivatedImages: Array<string>
 }
 
 export function ImageListView({
@@ -72,43 +79,27 @@ export function ImageListView({
   isFetching,
   fetchNextPage,
   children,
+  selectedImages,
+  setSelectedImages,
+  deleteAllModalOpen,
+  setDeleteAllModalOpen,
+  deactivateAllModalOpen,
+  setDeactivateAllModalOpen,
+  activateAllModalOpen,
+  setActivateAllModalOpen,
+  deletableImages,
+  protectedImages,
+  activeImages,
+  deactivatedImages,
 }: ImagePageProps) {
-  const { t } = useLingui()
-
   const [toastData, setToastData] = useState<ToastProps | null>(null)
 
   const [editDetailsModalOpen, setEditDetailsModalOpen] = useState(false)
   const [editMetadataModalOpen, setEditMetadataModalOpen] = useState(false)
   const [createModalOpen, setCreateModalOpen] = useState(false)
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
-
-  const [deleteAllModalOpen, setDeleteAllModalOpen] = useState(false)
-  const [deactivateAllModalOpen, setDeactivateAllModalOpen] = useState(false)
-  const [activateAllModalOpen, setActivateAllModalOpen] = useState(false)
-
   const [selectedImage, setSelectedImage] = useState<GlanceImage | null>(null)
-  const [selectedImages, setSelectedImages] = useState<Array<string>>([])
-
   const [isCreateInProgress, setCreateInProgress] = useState(false)
-
-  const deletableImages = selectedImages.filter((imageId) => !images.find((image) => image.id === imageId)?.protected)
-  const protectedImages = selectedImages.filter((imageId) => images.find((image) => image.id === imageId)?.protected)
-  const activeImages = selectedImages.filter(
-    (imageId) => images.find((image) => image.id === imageId)?.status === "active"
-  )
-  const deactivatedImages = selectedImages.filter(
-    (imageId) => images.find((image) => image.id === imageId)?.status === "deactivated"
-  )
-
-  const isDeleteAllDisabled =
-    !permissions.canDelete ||
-    images.filter((image) => selectedImages.includes(image.id)).every((image) => image.protected)
-  const isDeactivateAllDisabled =
-    !permissions.canEdit ||
-    images.filter((image) => selectedImages.includes(image.id)).every((image) => image.status === "deactivated")
-  const isActivateAllDisabled =
-    !permissions.canEdit ||
-    images.filter((image) => selectedImages.includes(image.id)).every((image) => image.status === "active")
 
   // Intersection Observer for infinite scroll
   const loadMoreRef = useRef<HTMLDivElement>(null)
@@ -359,6 +350,7 @@ export function ImageListView({
     setEditMetadataModalOpen(true)
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const openCreateModal = () => {
     setCreateModalOpen(true)
   }
@@ -490,47 +482,11 @@ export function ImageListView({
 
   return (
     <>
-      {/* Header with Add Button */}
-      <Stack distribution="end" alignment="center" gap="4" className="mb-6">
-        {selectedImages.length > 0 && (
-          <PopupMenu>
-            <PopupMenuToggle
-              as={forwardRef<HTMLButtonElement, ButtonProps>(({ onClick = undefined, ...props }, ref) => (
-                <Button variant="subdued" icon="moreVert" ref={ref} onClick={onClick} {...props}>
-                  More Actions
-                </Button>
-              ))}
-            />
-            <PopupMenuOptions>
-              <PopupMenuItem
-                disabled={isDeleteAllDisabled}
-                label={t`Delete All`}
-                onClick={() => setDeleteAllModalOpen(true)}
-              />
-              <PopupMenuItem
-                disabled={isDeactivateAllDisabled}
-                label={t`Deactivate All`}
-                onClick={() => setDeactivateAllModalOpen(true)}
-              />
-              <PopupMenuItem
-                disabled={isActivateAllDisabled}
-                label={t`Activate All`}
-                onClick={() => setActivateAllModalOpen(true)}
-              />
-            </PopupMenuOptions>
-          </PopupMenu>
-        )}
-        {permissions.canCreate && (
-          <Button onClick={openCreateModal} variant="primary" icon="addCircle">
-            Create Image
-          </Button>
-        )}
-      </Stack>
       <>{children}</>
       {/* Images Table */}
       {images.length > 0 ? (
         <>
-          <DataGrid columns={9} minContentColumns={[7]} className="images" data-testid="images-table">
+          <DataGrid columns={9} minContentColumns={[0, 8]} className="images" data-testid="images-table">
             {/* Table Header */}
             <DataGridRow>
               <DataGridHeadCell>
@@ -546,10 +502,10 @@ export function ImageListView({
                 />
               </DataGridHeadCell>
               <DataGridHeadCell>
-                <Trans>Image Name</Trans>
+                <Trans>Status</Trans>
               </DataGridHeadCell>
               <DataGridHeadCell>
-                <Trans>Status</Trans>
+                <Trans>Image Name</Trans>
               </DataGridHeadCell>
               <DataGridHeadCell>
                 <Trans>Visibility</Trans>
@@ -623,7 +579,7 @@ export function ImageListView({
           )}
         </>
       ) : (
-        <DataGrid columns={7} className="images" data-testid="no-images">
+        <DataGrid columns={7} minContentColumns={[0, 6]} className="images" data-testid="no-images">
           <DataGridRow>
             <DataGridCell colSpan={7}>
               <ContentHeading>
@@ -674,7 +630,6 @@ export function ImageListView({
             deletableImages={deletableImages}
             protectedImages={protectedImages}
             isLoading={isLoading}
-            isDisabled={isDeleteAllDisabled}
             onClose={() => setDeleteAllModalOpen(false)}
             onDelete={handleBulkDelete}
           />
@@ -683,7 +638,6 @@ export function ImageListView({
             activeImages={activeImages}
             deactivatedImages={deactivatedImages}
             isLoading={isLoading}
-            isDisabled={isDeactivateAllDisabled}
             onClose={() => setDeactivateAllModalOpen(false)}
             onDeactivate={handleBulkDeactivate}
           />
@@ -692,7 +646,6 @@ export function ImageListView({
             deactivatedImages={deactivatedImages}
             activeImages={activeImages}
             isLoading={isLoading}
-            isDisabled={isActivateAllDisabled}
             onClose={() => setActivateAllModalOpen(false)}
             onActivate={handleBulkActivate}
           />

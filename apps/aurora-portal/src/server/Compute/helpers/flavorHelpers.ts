@@ -36,6 +36,15 @@ function getStatusCodeFromError(error: unknown): number | undefined {
   return undefined
 }
 
+const GET_FLAVOR_DETAILS_STATUS_MAP: Record<number, { code: TRPCErrorCode; message: string }> = {
+  401: { code: "UNAUTHORIZED", message: ERROR_CODES.GET_FLAVOR_DETAILS_UNAUTHORIZED },
+  403: { code: "FORBIDDEN", message: ERROR_CODES.GET_FLAVOR_DETAILS_FORBIDDEN },
+  404: { code: "NOT_FOUND", message: ERROR_CODES.GET_FLAVOR_DETAILS_NOT_FOUND },
+  500: { code: "INTERNAL_SERVER_ERROR", message: ERROR_CODES.GET_FLAVOR_DETAILS_SERVER_ERROR },
+  502: { code: "INTERNAL_SERVER_ERROR", message: ERROR_CODES.GET_FLAVOR_DETAILS_SERVER_ERROR },
+  503: { code: "INTERNAL_SERVER_ERROR", message: ERROR_CODES.GET_FLAVOR_DETAILS_SERVER_ERROR },
+}
+
 const FETCH_FLAVORS_STATUS_MAP: Record<number, { code: TRPCErrorCode; message: string }> = {
   401: { code: "UNAUTHORIZED", message: ERROR_CODES.FLAVORS_UNAUTHORIZED },
   403: { code: "FORBIDDEN", message: ERROR_CODES.FLAVORS_FORBIDDEN },
@@ -178,6 +187,52 @@ export function filterAndSortFlavors(
   })
 
   return result
+}
+
+export async function getFlavorById(compute: SignalOpenstackServiceType, flavorId: string): Promise<Flavor> {
+  if (!flavorId || flavorId.trim() === "") {
+    throw new TRPCError({
+      code: "BAD_REQUEST",
+      message: ERROR_CODES.GET_FLAVOR_DETAILS_INVALID_ID,
+    })
+  }
+
+  let response
+
+  try {
+    response = await compute.get(`flavors/${flavorId}`)
+  } catch (error) {
+    if (error instanceof TRPCError) throw error
+
+    const statusCode = getStatusCodeFromError(error)
+    handleHttpError(statusCode, GET_FLAVOR_DETAILS_STATUS_MAP, ERROR_CODES.GET_FLAVOR_DETAILS_FAILED)
+  }
+
+  if (!response.ok) {
+    handleHttpError(response.status, GET_FLAVOR_DETAILS_STATUS_MAP, ERROR_CODES.GET_FLAVOR_DETAILS_FAILED)
+  }
+
+  try {
+    const rawData = await response.text()
+    const jsonData = JSON.parse(rawData)
+
+    if (!jsonData.flavor) {
+      throw new TRPCError({
+        code: "PARSE_ERROR",
+        message: ERROR_CODES.GET_FLAVOR_DETAILS_PARSE_ERROR,
+      })
+    }
+
+    return jsonData.flavor as Flavor
+  } catch (error) {
+    if (error instanceof TRPCError) throw error
+
+    throw new TRPCError({
+      code: "PARSE_ERROR",
+      message: ERROR_CODES.GET_FLAVOR_DETAILS_PARSE_ERROR,
+      cause: error,
+    })
+  }
 }
 
 export async function fetchFlavors(compute: SignalOpenstackServiceType, isPublic: string): Promise<Flavor[]> {

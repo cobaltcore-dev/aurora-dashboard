@@ -47,7 +47,7 @@ export const SpecFormRow: React.FC<SpecFormRowProps> = ({
       </DataGridCell>
       <DataGridCell>
         <ButtonRow>
-          <Button icon="check" onClick={onSave} variant="primary" title={t`Save Extra Spec`} disabled={isLoading} />
+          <Button icon="check" onClick={onSave} variant="primary" title={t`Save Metadata`} disabled={isLoading} />
           <Button icon="cancel" onClick={onCancel} title={t`Cancel`} disabled={isLoading} />
         </ButtonRow>
       </DataGridCell>
