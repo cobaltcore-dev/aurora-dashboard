@@ -231,7 +231,7 @@ export const listImagesInputSchema = z.object({
   status: multiValueFilter(statusFilterSchema).optional(),
   visibility: imageVisibilityFilterSchema.optional(), // Single-value only
   owner: z.string().optional(),
-  protected: z.boolean().optional(),
+  protected: z.string().optional(),
 
   // Format filtering with multi-value support
   container_format: multiValueFilter(containerFormatFilterSchema).optional(),

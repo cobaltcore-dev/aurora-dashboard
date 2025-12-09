@@ -85,7 +85,7 @@ describe("imageHelpers", () => {
 
     it("should apply boolean parameters correctly", () => {
       const input: Omit<ListImagesInput, "projectId"> = {
-        protected: true,
+        protected: "true",
         os_hidden: false,
         sort_key: "name",
         sort_dir: "asc",
