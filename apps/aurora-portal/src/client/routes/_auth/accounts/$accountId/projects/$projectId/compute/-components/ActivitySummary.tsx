@@ -89,7 +89,6 @@ interface ActivityData {
   }
 }
 
-// Updated ActivitySummary component with memory circle
 export function ActivitySummary({ activityData }: { activityData: ActivityData }) {
   return (
     <Stack distribution="center" alignment="center" direction="vertical">
