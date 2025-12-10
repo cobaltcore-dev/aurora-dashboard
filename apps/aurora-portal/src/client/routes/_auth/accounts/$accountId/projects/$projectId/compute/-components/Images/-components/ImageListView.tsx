@@ -14,7 +14,9 @@ import {
   ToastProps,
 } from "@cloudoperators/juno-ui-components"
 import { trpcReact } from "@/client/trpcClient"
-import { TRPCError } from "@trpc/server"
+import { TRPCClientError } from "@trpc/client"
+import { InferrableClientTypes } from "@trpc/server/unstable-core-do-not-import"
+import { FastifyError } from "fastify"
 import { Trans } from "@lingui/react/macro"
 import { EditImageDetailsModal } from "./EditImageDetailsModal"
 import { EditImageMetadataModal } from "./EditImageMetadataModal"
@@ -43,6 +45,8 @@ import {
   getBulkDeactivateSuccessToast,
   getBulkDeactivateErrorToast,
   getBulkDeactivatePartialToast,
+  getImageCreateErrorToast,
+  getImageFileUploadErrorToast,
 } from "./ImageToastNotifications"
 
 interface ImagePageProps {
@@ -244,7 +248,7 @@ export function ImageListView({
       setEditMetadataModalOpen(false)
       setToastData(getImageUpdatedToast(imageName, { onDismiss: handleToastDismiss }))
     } catch (error) {
-      const { message } = error as TRPCError
+      const { message } = error as TRPCClientError<InferrableClientTypes>
 
       // Show error toast but keep modal open so user can retry
       setToastData(getImageUpdateErrorToast(imageName, message, { onDismiss: handleToastDismiss }))
@@ -276,20 +280,29 @@ export function ImageListView({
         headers: { "x-csrf-token": csrfToken },
       })
 
-      if (!response.ok) throw new Error("Upload failed")
+      if (!response.ok) {
+        const { message } = await response.json()
 
-      // Step 4: ONLY THEN close modal and show success
-      setCreateModalOpen(false)
+        throw new Error(message)
+      }
 
       // Show success notification and re-fetch image list
       setToastData(getImageCreatedToast(imageName, { onDismiss: handleToastDismiss }))
       utils.compute.listImagesWithPagination.invalidate()
     } catch (error) {
-      const { message } = error as TRPCError
-      // Show error notification, modal stays open
-      setToastData(getImageUpdateErrorToast(imageName, message, { onDismiss: handleToastDismiss }))
+      // Show error notification based on failure point
+      if (error instanceof TRPCClientError && error.data.path === "compute.createImage") {
+        setToastData(getImageCreateErrorToast(imageName, error.message, { onDismiss: handleToastDismiss }))
+      } else {
+        // File upload failed
+        const { message } = error as FastifyError
+
+        setToastData(getImageFileUploadErrorToast(file.name, message, { onDismiss: handleToastDismiss }))
+      }
     } finally {
+      // Complete creation and close modal
       setCreateInProgress(false)
+      setCreateModalOpen(false)
     }
   }
 
@@ -305,7 +318,7 @@ export function ImageListView({
 
       setToastData(getImageDeletedToast(imageName, { onDismiss: handleToastDismiss }))
     } catch (error) {
-      const { message } = error as TRPCError
+      const { message } = error as TRPCClientError<InferrableClientTypes>
 
       setToastData(getImageDeleteErrorToast(imageId, message, { onDismiss: handleToastDismiss }))
     }
@@ -329,7 +342,7 @@ export function ImageListView({
 
       setToastData(toast)
     } catch (error) {
-      const { message } = error as TRPCError
+      const { message } = error as TRPCClientError<InferrableClientTypes>
 
       const toast =
         updatedImage.status === "deactivated"
@@ -393,7 +406,7 @@ export function ImageListView({
         setToastData(getBulkDeletePartialToast(successCount, failedCount, { onDismiss: handleToastDismiss }))
       }
     } catch (error) {
-      const { message } = error as TRPCError
+      const { message } = error as TRPCClientError<InferrableClientTypes>
 
       console.log("Bulk delete error: ", message)
 
@@ -423,7 +436,7 @@ export function ImageListView({
         setToastData(getBulkActivatePartialToast(successCount, failedCount, { onDismiss: handleToastDismiss }))
       }
     } catch (error) {
-      const { message } = error as TRPCError
+      const { message } = error as TRPCClientError<InferrableClientTypes>
 
       console.log("Bulk activate error: ", message)
 
@@ -453,7 +466,7 @@ export function ImageListView({
         setToastData(getBulkDeactivatePartialToast(successCount, failedCount, { onDismiss: handleToastDismiss }))
       }
     } catch (error) {
-      const { message } = error as TRPCError
+      const { message } = error as TRPCClientError<InferrableClientTypes>
 
       console.log("Bulk deactivate error: ", message)
 

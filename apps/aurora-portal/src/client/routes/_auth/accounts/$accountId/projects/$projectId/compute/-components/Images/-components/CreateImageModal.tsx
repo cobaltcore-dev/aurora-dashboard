@@ -183,7 +183,7 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({ isOpen, onCl
     return Object.keys(newErrors).length === 0
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
     if (!validateForm()) {
@@ -205,7 +205,8 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({ isOpen, onCl
 
     // Call onCreate with imageData and file as separate arguments
     // File will be uploaded after image is created
-    onCreate(imageData, selectedFile!)
+    await onCreate(imageData, selectedFile!)
+    handleClose()
   }
 
   const handleClose = () => {

@@ -57,7 +57,7 @@ async function startServer() {
       const ctx = await createContext({ req: request, res: reply } as CreateFastifyContextOptions)
 
       if (!ctx.validateSession()) {
-        return reply.code(401).send({ error: "Unauthorized" })
+        return reply.code(401).send({ message: "Unauthorized" })
       }
 
       // Parse multipart form data with file size limit
@@ -68,7 +68,7 @@ async function startServer() {
       })
 
       if (!data) {
-        return reply.code(400).send({ error: "No file" })
+        return reply.code(400).send({ message: "No file" })
       }
 
       // Extract additional fields from request
@@ -76,14 +76,14 @@ async function startServer() {
       const imageId = (fields.imageId as MultipartValue)?.value
 
       if (!imageId) {
-        return reply.code(400).send({ error: "No imageId provided" })
+        return reply.code(400).send({ message: "No imageId provided" })
       }
 
       // Upload to Glance
       const glance = ctx.openstack?.service("glance")
 
       if (!glance) {
-        return reply.code(500).send({ error: "Glance service unavailable" })
+        return reply.code(500).send({ message: "Glance service unavailable" })
       }
 
       const webStream = Readable.toWeb(data.file)
@@ -95,7 +95,6 @@ async function startServer() {
           headers: {
             Accept: "application/json",
             "Content-Type": "application/octet-stream",
-            // "Content-Length": `${data.file.bytesRead}`, // Size from stream
           },
         }
       )
@@ -108,10 +107,10 @@ async function startServer() {
 
       // Handle file size limit specifically
       if (code === "FST_REQ_FILE_TOO_LARGE") {
-        return reply.code(413).send({ error: "File too large", maxSize: "1GB" })
+        return reply.code(413).send({ message: "File too large", maxSize: "1GB" })
       }
 
-      return reply.code(500).send({ error: message })
+      return reply.code(500).send({ message })
     }
   })
 
