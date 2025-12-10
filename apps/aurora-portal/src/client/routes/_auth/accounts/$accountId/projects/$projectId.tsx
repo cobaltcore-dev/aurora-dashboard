@@ -46,9 +46,7 @@ function RouteComponent() {
 
   return (
     <AppShell embedded sideNavigation={getSideNavigation()} className="h-min-screen">
-      <div className="mx-2">
-        <Outlet />
-      </div>
+      <Outlet />
     </AppShell>
   )
 }
