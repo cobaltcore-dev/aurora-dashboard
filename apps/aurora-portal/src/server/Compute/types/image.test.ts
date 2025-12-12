@@ -328,7 +328,7 @@ describe("Glance Image Schema Validation", () => {
           status: "active" as const,
           visibility: "public" as const,
           owner: "project-456",
-          protected: true,
+          protected: "true",
           container_format: "bare" as const,
           disk_format: "qcow2" as const,
           size_min: 1000000,
@@ -1016,7 +1016,7 @@ describe("Glance Image Schema Validation", () => {
     })
 
     it("should validate protected filter", () => {
-      const inputs = [{ protected: true }, { protected: false }]
+      const inputs = [{ protected: "true" }, { protected: "false" }]
 
       for (const input of inputs) {
         const result = listImagesInputSchema.safeParse(input)

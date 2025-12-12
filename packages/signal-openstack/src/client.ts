@@ -164,9 +164,9 @@ const request = ({ method, path, options = {} }: RequestParams) => {
           const parsedError = parseErrorObject(errorObject)
           throw new SignalOpenstackApiError(parsedError || response.statusText, response.status)
         } else {
-          const errorText = await response.text()
+          const errorText = response.text ? await response.text() : ""
 
-          throw new SignalOpenstackApiError(errorText.substring(0, 500), response.status)
+          throw new SignalOpenstackApiError(errorText.substring(0, 500) || response.statusText, response.status)
         }
       }
     })

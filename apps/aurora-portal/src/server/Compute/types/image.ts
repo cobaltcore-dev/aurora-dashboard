@@ -287,7 +287,7 @@ export const createImageInputSchema = z
     os_distro: z.string().optional(),
     os_version: z.string().optional(),
     architecture: z.string().optional(),
-    os_hidden: z.boolean().optional(),
+    os_hidden: z.boolean().optional().default(false),
     // Hardware properties
     hw_disk_bus: z.string().optional(),
     hw_scsi_model: z.string().optional(),
