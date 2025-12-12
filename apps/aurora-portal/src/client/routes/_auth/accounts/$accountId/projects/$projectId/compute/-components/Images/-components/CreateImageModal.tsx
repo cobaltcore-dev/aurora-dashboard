@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useState, useMemo } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import {
   Modal,
@@ -17,6 +17,11 @@ import {
   Pill,
 } from "@cloudoperators/juno-ui-components"
 import { CreateImageInput } from "@/server/Compute/types/image"
+import {
+  getCompatibleContainerFormats,
+  getDefaultContainerFormat,
+  isValidFormatCombination,
+} from "@/server/Compute/helpers/imageHelpers"
 
 interface CreateImageModalProps {
   isOpen: boolean
@@ -29,7 +34,8 @@ interface ImageProperties {
   name: string
   tags: string[]
   visibility: string
-  disk_format: string
+  disk_format?: string
+  container_format?: string
   protected: boolean
   min_disk: number
   min_ram: number
@@ -41,7 +47,8 @@ const defaultImageValues: ImageProperties = {
   name: "",
   tags: [],
   visibility: "private",
-  disk_format: "qcow2",
+  disk_format: undefined,
+  container_format: undefined,
   protected: false,
   min_disk: 0,
   min_ram: 0,
@@ -57,7 +64,10 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({ isOpen, onCl
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [errors, setErrors] = useState<{ [key: string]: string }>({})
 
-  const isSubmitDisabled = !properties.name.trim() || !selectedFile || isLoading
+  // Get compatible container formats for current disk_format
+  const compatibleContainerFormats = useMemo(() => {
+    return properties.disk_format ? getCompatibleContainerFormats(properties.disk_format) : []
+  }, [properties.disk_format])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target
@@ -77,10 +87,22 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({ isOpen, onCl
   }
 
   const handleSelectChange = (name: string, value: string | number | string[] | undefined) => {
-    setProperties((prev) => ({
-      ...prev,
-      [name]: value,
-    }))
+    if (name === "disk_format") {
+      // When disk_format changes, auto-update container_format to the default
+      const newDiskFormat = value as string
+      const recommended = getDefaultContainerFormat(newDiskFormat)
+
+      setProperties((prev) => ({
+        ...prev,
+        disk_format: newDiskFormat,
+        container_format: recommended,
+      }))
+    } else {
+      setProperties((prev) => ({
+        ...prev,
+        [name]: value,
+      }))
+    }
 
     if (errors[name]) {
       setErrors((prev) => {
@@ -171,6 +193,21 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({ isOpen, onCl
       newErrors.file = t`Image file is required`
     }
 
+    if (!properties.disk_format || properties.disk_format.trim() === "") {
+      newErrors.disk_format = t`Disk format is required`
+    }
+
+    if (!properties.container_format || properties.container_format.trim() === "") {
+      newErrors.container_format = t`Container format is required`
+    }
+
+    // Validate format combination
+    if (properties.disk_format && properties.container_format) {
+      if (!isValidFormatCombination(properties.disk_format, properties.container_format)) {
+        newErrors.container_format = t`Invalid format combination for selected disk format`
+      }
+    }
+
     if (properties.min_disk < 0) {
       newErrors.min_disk = t`Minimum disk must be 0 or greater`
     }
@@ -196,6 +233,7 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({ isOpen, onCl
       tags: properties.tags,
       visibility: properties.visibility,
       disk_format: properties.disk_format,
+      container_format: properties.container_format,
       protected: properties.protected,
       min_disk: properties.min_disk,
       min_ram: properties.min_ram,
@@ -231,7 +269,7 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({ isOpen, onCl
               onClick={(e) => {
                 handleSubmit(e)
               }}
-              disabled={isSubmitDisabled || isLoading}
+              disabled={isLoading}
               data-testid="create-image-button"
             >
               {isLoading ? <Spinner size="small" /> : <Trans>Create Image</Trans>}
@@ -388,27 +426,50 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({ isOpen, onCl
             </FormRow>
 
             <FormRow className="mb-6">
-              <Select
-                id="disk_format"
-                name="disk_format"
-                label={t`Disk Format`}
-                value={properties.disk_format}
-                onChange={(value) => handleSelectChange("disk_format", value)}
-                disabled={isLoading}
-                loading={isLoading}
-              >
-                <SelectOption value="qcow2" label="QCOW2 - QEMU Emulator" />
-                <SelectOption value="raw" label="Raw" />
-                <SelectOption value="vmdk" label="VMDK - Virtual Machine Disk" />
-                <SelectOption value="vhd" label="VHD - Virtual Hard Disk" />
-                <SelectOption value="vhdx" label="VHDX - Virtual Hard Disk Extended" />
-                <SelectOption value="vdi" label="VDI - Virtual Disk Image" />
-                <SelectOption value="ami" label="AMI - Amazon Machine Image" />
-                <SelectOption value="ari" label="ARI - Amazon Ramdisk Image" />
-                <SelectOption value="aki" label="AKI - Amazon Kernel Image" />
-                <SelectOption value="iso" label="ISO - Optical Disk Image" />
-                <SelectOption value="ploop" label="PLOOP - Virtuozzo/Parallels Loopback Disk" />
-              </Select>
+              <Stack direction="horizontal" gap="3" distribution="evenly" className="w-full">
+                <div className="flex-1">
+                  <Select
+                    id="disk_format"
+                    name="disk_format"
+                    label={t`Disk Format`}
+                    value={properties.disk_format}
+                    onChange={(value) => handleSelectChange("disk_format", value)}
+                    disabled={isLoading}
+                    loading={isLoading}
+                    required
+                    errortext={errors.disk_format}
+                  >
+                    <SelectOption value="qcow2" label="QCOW2 - QEMU Emulator" />
+                    <SelectOption value="raw" label="Raw" />
+                    <SelectOption value="vmdk" label="VMDK - Virtual Machine Disk" />
+                    <SelectOption value="vhd" label="VHD - Virtual Hard Disk" />
+                    <SelectOption value="vhdx" label="VHDX - Virtual Hard Disk Extended" />
+                    <SelectOption value="vdi" label="VDI - Virtual Disk Image" />
+                    <SelectOption value="ami" label="AMI - Amazon Machine Image" />
+                    <SelectOption value="ari" label="ARI - Amazon Ramdisk Image" />
+                    <SelectOption value="aki" label="AKI - Amazon Kernel Image" />
+                    <SelectOption value="iso" label="ISO - Optical Disk Image" />
+                    <SelectOption value="ploop" label="PLOOP - Virtuozzo/Parallels Loopback Disk" />
+                  </Select>
+                </div>
+                <div className="flex-1">
+                  <Select
+                    id="container_format"
+                    name="container_format"
+                    label={t`Container Format`}
+                    value={properties.container_format}
+                    onChange={(value) => handleSelectChange("container_format", value)}
+                    disabled={isLoading || !properties.disk_format || !compatibleContainerFormats.length}
+                    required
+                    errortext={errors.container_format}
+                    helptext={!compatibleContainerFormats.length && t`Select disk format first`}
+                  >
+                    {compatibleContainerFormats.map((format) => (
+                      <SelectOption key={format} value={format} label={format.toUpperCase()} />
+                    ))}
+                  </Select>
+                </div>
+              </Stack>
             </FormRow>
 
             <FormRow className="mb-0">

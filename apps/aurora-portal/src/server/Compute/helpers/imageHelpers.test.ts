@@ -14,6 +14,11 @@ import {
   validateBulkImageIds,
   chunkArray,
   processBulkOperation,
+  diskFormatCompatibility,
+  defaultContainerFormat,
+  getCompatibleContainerFormats,
+  getDefaultContainerFormat,
+  isValidFormatCombination,
 } from "./imageHelpers"
 
 describe("imageHelpers", () => {
@@ -726,6 +731,225 @@ describe("imageHelpers", () => {
 
         expect(result.failed).toHaveLength(1)
         expect(result.failed[0].error).toBe("Failed to process image: Test error")
+      })
+    })
+  })
+
+  describe("Format Mapping Helpers", () => {
+    describe("diskFormatCompatibility", () => {
+      it("should have compatibility data for all disk formats", () => {
+        expect(diskFormatCompatibility).toBeDefined()
+        expect(Object.keys(diskFormatCompatibility).length).toBeGreaterThan(0)
+      })
+
+      it("should have qcow2 compatible with bare, ova, docker", () => {
+        expect(diskFormatCompatibility.qcow2).toEqual(["bare", "ova", "docker"])
+      })
+
+      it("should have iso only compatible with bare", () => {
+        expect(diskFormatCompatibility.iso).toEqual(["bare"])
+      })
+
+      it("should have ami only compatible with ami container", () => {
+        expect(diskFormatCompatibility.ami).toEqual(["ami"])
+      })
+
+      it("should have aki only compatible with aki container", () => {
+        expect(diskFormatCompatibility.aki).toEqual(["aki"])
+      })
+
+      it("should have ari only compatible with ari container", () => {
+        expect(diskFormatCompatibility.ari).toEqual(["ari"])
+      })
+
+      it("should have vmdk compatible with bare and ova", () => {
+        expect(diskFormatCompatibility.vmdk).toEqual(["bare", "ova"])
+      })
+
+      it("should have raw compatible with bare, ova, docker", () => {
+        expect(diskFormatCompatibility.raw).toEqual(["bare", "ova", "docker"])
+      })
+    })
+
+    describe("defaultContainerFormat", () => {
+      it("should have default format for all disk formats", () => {
+        expect(defaultContainerFormat).toBeDefined()
+        expect(Object.keys(defaultContainerFormat).length).toBeGreaterThan(0)
+      })
+
+      it("should have bare as default for qcow2", () => {
+        expect(defaultContainerFormat.qcow2).toBe("bare")
+      })
+
+      it("should have bare as default for raw", () => {
+        expect(defaultContainerFormat.raw).toBe("bare")
+      })
+
+      it("should have bare as default for vmdk", () => {
+        expect(defaultContainerFormat.vmdk).toBe("bare")
+      })
+
+      it("should have bare as default for iso", () => {
+        expect(defaultContainerFormat.iso).toBe("bare")
+      })
+
+      it("should have ami as default for ami disk format", () => {
+        expect(defaultContainerFormat.ami).toBe("ami")
+      })
+
+      it("should have aki as default for aki disk format", () => {
+        expect(defaultContainerFormat.aki).toBe("aki")
+      })
+
+      it("should have ari as default for ari disk format", () => {
+        expect(defaultContainerFormat.ari).toBe("ari")
+      })
+    })
+
+    describe("getCompatibleContainerFormats", () => {
+      it("should return compatible formats for qcow2", () => {
+        const formats = getCompatibleContainerFormats("qcow2")
+        expect(formats).toEqual(["bare", "ova", "docker"])
+      })
+
+      it("should return compatible formats for vmdk", () => {
+        const formats = getCompatibleContainerFormats("vmdk")
+        expect(formats).toEqual(["bare", "ova"])
+      })
+
+      it("should return compatible formats for iso", () => {
+        const formats = getCompatibleContainerFormats("iso")
+        expect(formats).toEqual(["bare"])
+      })
+
+      it("should return empty array for unknown disk format", () => {
+        const formats = getCompatibleContainerFormats("unknown-format")
+        expect(formats).toEqual([])
+      })
+
+      it("should return ami for ami disk format", () => {
+        const formats = getCompatibleContainerFormats("ami")
+        expect(formats).toEqual(["ami"])
+      })
+
+      it("should return only one option for special Amazon formats", () => {
+        expect(getCompatibleContainerFormats("aki")).toEqual(["aki"])
+        expect(getCompatibleContainerFormats("ari")).toEqual(["ari"])
+      })
+
+      it("should handle case sensitivity", () => {
+        const formats = getCompatibleContainerFormats("QCOW2")
+        expect(formats).toEqual([])
+      })
+    })
+
+    describe("getDefaultContainerFormat", () => {
+      it("should return bare for qcow2", () => {
+        expect(getDefaultContainerFormat("qcow2")).toBe("bare")
+      })
+
+      it("should return bare for raw", () => {
+        expect(getDefaultContainerFormat("raw")).toBe("bare")
+      })
+
+      it("should return bare for vmdk", () => {
+        expect(getDefaultContainerFormat("vmdk")).toBe("bare")
+      })
+
+      it("should return ami for ami disk format", () => {
+        expect(getDefaultContainerFormat("ami")).toBe("ami")
+      })
+
+      it("should return aki for aki disk format", () => {
+        expect(getDefaultContainerFormat("aki")).toBe("aki")
+      })
+
+      it("should return ari for ari disk format", () => {
+        expect(getDefaultContainerFormat("ari")).toBe("ari")
+      })
+
+      it("should return empty string for unknown disk format", () => {
+        expect(getDefaultContainerFormat("unknown-format")).toBe("")
+      })
+
+      it("should return bare as most common default", () => {
+        const formats = ["qcow2", "raw", "vmdk", "vhd", "vhdx", "vdi", "iso", "ploop"]
+        formats.forEach((format) => {
+          expect(getDefaultContainerFormat(format)).toBe("bare")
+        })
+      })
+    })
+
+    describe("isValidFormatCombination", () => {
+      it("should validate qcow2 with bare", () => {
+        expect(isValidFormatCombination("qcow2", "bare")).toBe(true)
+      })
+
+      it("should validate qcow2 with ova", () => {
+        expect(isValidFormatCombination("qcow2", "ova")).toBe(true)
+      })
+
+      it("should validate qcow2 with docker", () => {
+        expect(isValidFormatCombination("qcow2", "docker")).toBe(true)
+      })
+
+      it("should reject qcow2 with ami", () => {
+        expect(isValidFormatCombination("qcow2", "ami")).toBe(false)
+      })
+
+      it("should validate iso with bare", () => {
+        expect(isValidFormatCombination("iso", "bare")).toBe(true)
+      })
+
+      it("should reject iso with ova", () => {
+        expect(isValidFormatCombination("iso", "ova")).toBe(false)
+      })
+
+      it("should reject iso with docker", () => {
+        expect(isValidFormatCombination("iso", "docker")).toBe(false)
+      })
+
+      it("should validate ami with ami", () => {
+        expect(isValidFormatCombination("ami", "ami")).toBe(true)
+      })
+
+      it("should reject ami with bare", () => {
+        expect(isValidFormatCombination("ami", "bare")).toBe(false)
+      })
+
+      it("should validate vmdk with bare and ova", () => {
+        expect(isValidFormatCombination("vmdk", "bare")).toBe(true)
+        expect(isValidFormatCombination("vmdk", "ova")).toBe(true)
+      })
+
+      it("should reject vmdk with docker", () => {
+        expect(isValidFormatCombination("vmdk", "docker")).toBe(false)
+      })
+
+      it("should handle unknown disk format", () => {
+        expect(isValidFormatCombination("unknown", "bare")).toBe(false)
+      })
+
+      it("should validate all Amazon special formats", () => {
+        expect(isValidFormatCombination("ami", "ami")).toBe(true)
+        expect(isValidFormatCombination("aki", "aki")).toBe(true)
+        expect(isValidFormatCombination("ari", "ari")).toBe(true)
+      })
+
+      it("should reject cross-amazon format combinations", () => {
+        expect(isValidFormatCombination("ami", "aki")).toBe(false)
+        expect(isValidFormatCombination("aki", "ari")).toBe(false)
+        expect(isValidFormatCombination("ari", "ami")).toBe(false)
+      })
+
+      it("should work with all hypervisor formats", () => {
+        // Hyper-V family
+        expect(isValidFormatCombination("vhd", "bare")).toBe(true)
+        expect(isValidFormatCombination("vhdx", "bare")).toBe(true)
+        // VirtualBox
+        expect(isValidFormatCombination("vdi", "bare")).toBe(true)
+        // Parallels
+        expect(isValidFormatCombination("ploop", "bare")).toBe(true)
       })
     })
   })
