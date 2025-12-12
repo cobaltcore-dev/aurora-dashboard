@@ -1,10 +1,9 @@
 import Logo from "../../assets/logo.svg?react"
-
 import { NavigationItem } from "./types"
-
 import { isMatch, Link, MakeRouteMatchUnion, useRouterState } from "@tanstack/react-router"
 import { UserMenu } from "./UserMenu"
 import { PageHeader, ThemeToggle } from "@cloudoperators/juno-ui-components/index"
+import { LanguageSelect } from "./LanguageSelect"
 
 interface NavigationProps {
   items: NavigationItem[]
@@ -74,6 +73,7 @@ export function MainNavigation({ items, handleThemeToggle }: NavigationProps) {
           {label}
         </Link>
       ))}
+      <LanguageSelect />
       <ThemeToggle onToggleTheme={(newTheme: string) => handleThemeToggle?.(newTheme)} />
       <UserMenu />
     </PageHeader>

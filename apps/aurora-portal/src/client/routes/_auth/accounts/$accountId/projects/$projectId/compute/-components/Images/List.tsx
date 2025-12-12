@@ -17,6 +17,15 @@ import { FilterSettings, SortSettings } from "@/client/components/ListToolbar/ty
 import { ImageListView } from "./-components/ImageListView"
 import { CONTAINER_FORMATS, DISK_FORMATS, IMAGE_STATUSES, IMAGE_VISIBILITY } from "../../-constants/filters"
 
+// Define the custom toggle button component outside
+const MoreActionsButton = forwardRef<HTMLButtonElement, ButtonProps>(({ onClick, ...props }, ref) => (
+  <Button icon="moreVert" ref={ref} onClick={onClick} {...props}>
+    <Trans>More Actions</Trans>
+  </Button>
+))
+
+MoreActionsButton.displayName = "MoreActionsButton"
+
 export const Images = () => {
   const { t } = useLingui()
 
@@ -228,7 +237,6 @@ export const Images = () => {
     !permissions.canEdit ||
     images.filter((image) => selectedImages.includes(image.id)).every((image) => image.status === "active")
 
-  // Wrapped handlers for smooth transitions
   const handleSortChange = (newSortSettings: SortSettings) => {
     startTransition(() => {
       setSortSettings(newSortSettings)
@@ -283,13 +291,7 @@ export const Images = () => {
             </Button>
           ) : (
             <PopupMenu>
-              <PopupMenuToggle
-                as={forwardRef<HTMLButtonElement, ButtonProps>(({ onClick = undefined, ...props }, ref) => (
-                  <Button icon="moreVert" ref={ref} onClick={onClick} {...props}>
-                    {t`More Actions`}
-                  </Button>
-                ))}
-              />
+              <PopupMenuToggle as={MoreActionsButton} />
               <PopupMenuOptions>
                 <PopupMenuItem
                   disabled={isDeleteAllDisabled}
