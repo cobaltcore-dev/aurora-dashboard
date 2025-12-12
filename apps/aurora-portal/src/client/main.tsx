@@ -9,7 +9,9 @@ i18n.load({
   en: messages,
   de: messagesDe,
 })
-i18n.activate("en")
+
+const savedLocale = localStorage.getItem("aurora-locale") || "en"
+i18n.activate(savedLocale)
 
 const container = document.getElementById("app")!
 createRoot(container).render(
