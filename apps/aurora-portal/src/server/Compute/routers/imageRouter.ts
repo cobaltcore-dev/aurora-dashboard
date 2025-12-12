@@ -17,7 +17,6 @@ import {
   uploadImageInputSchema,
   updateImageInputSchema,
   updateImageVisibilityInputSchema,
-  imageDetailResponseSchema,
   deleteImageInputSchema,
   listImagesInputSchema,
   imagesPaginatedResponseSchema,
@@ -128,20 +127,16 @@ export const imageRouter = {
 
         validateGlanceService(glance)
 
-        const response = await glance
-          .post("v2/images", {
-            json: imageData,
-          })
-          .catch((error) => {
-            throw mapErrorResponseToTRPCError(error, { operation: "create image" })
-          })
+        const response = await glance.post("v2/images", imageData).catch((error) => {
+          throw mapErrorResponseToTRPCError(error, { operation: "create image" })
+        })
 
-        const parsedData = imageDetailResponseSchema.safeParse(await response.json())
+        const parsedData = imageSchema.safeParse(await response.json())
         if (!parsedData.success) {
           throw handleZodParsingError(parsedData.error, "create image")
         }
 
-        return parsedData.data.image
+        return parsedData.data
       }, "create image")
     }),
 

@@ -80,6 +80,8 @@ describe("session", () => {
           },
         },
       }),
+      duplex: "half",
+      signal: undefined,
     })
   })
 
@@ -95,6 +97,9 @@ describe("session", () => {
         "X-Subject-Token": "token",
       },
       method: "GET",
+      body: undefined,
+      duplex: "half",
+      signal: undefined,
     })
   })
 
@@ -122,6 +127,8 @@ describe("session", () => {
           },
         },
       }),
+      duplex: "half",
+      signal: undefined,
     })
   })
 
@@ -201,6 +208,8 @@ describe("session", () => {
           scope: { project: { id: "project" } },
         },
       }),
+      duplex: "half",
+      signal: undefined,
     })
   })
 
@@ -218,6 +227,9 @@ describe("session", () => {
     expect(fetch).toHaveBeenCalledWith("http://localhost/v3/auth/tokens", {
       method: "GET",
       headers: { "Content-Type": "application/json", "X-Auth-Token": "token", "X-Subject-Token": "token" },
+      body: undefined,
+      duplex: "half",
+      signal: undefined,
     })
   })
 
@@ -254,6 +266,8 @@ describe("session", () => {
           scope: { project: { id: "project" } },
         },
       }),
+      duplex: "half",
+      signal: undefined,
     })
   })
 })

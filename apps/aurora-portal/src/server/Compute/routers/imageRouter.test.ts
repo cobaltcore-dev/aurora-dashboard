@@ -187,7 +187,7 @@ describe("imageRouter", () => {
 
       mockCtx.mockGlance.post.mockResolvedValue({
         ok: true,
-        json: vi.fn().mockResolvedValue({ image: mockGlanceImage }),
+        json: vi.fn().mockResolvedValue(mockGlanceImage),
       })
 
       const input = {
@@ -198,18 +198,16 @@ describe("imageRouter", () => {
       const result = await caller.image.createImage(input)
 
       expect(mockCtx.mockGlance.post).toHaveBeenCalledWith("v2/images", {
-        json: {
-          name: "new-image",
-          container_format: "bare",
-          disk_format: "qcow2",
-          // Default values added from the schema
-          min_disk: 0,
-          min_ram: 0,
-          os_hidden: false,
-          protected: false,
-          tags: [],
-          visibility: "private",
-        },
+        name: "new-image",
+        container_format: "bare",
+        disk_format: "qcow2",
+        // Default values added from the schema
+        min_disk: 0,
+        min_ram: 0,
+        os_hidden: false,
+        protected: false,
+        tags: [],
+        visibility: "private",
       })
       expect(result).toEqual(mockGlanceImage)
     })

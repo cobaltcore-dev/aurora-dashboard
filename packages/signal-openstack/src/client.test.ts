@@ -5,7 +5,7 @@ import { Mock } from "vitest"
 describe("client", () => {
   describe("GET", () => {
     beforeEach(() => {
-      global.fetch = vi.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve({}) })
+      global.fetch = vi.fn().mockResolvedValue({ ok: true, json: () => vi.fn().mockResolvedValue({}) })
     })
     it("should respond to get", async () => {
       expect(client.get).toBeDefined()
@@ -20,6 +20,7 @@ describe("client", () => {
         method: "GET",
         body: undefined,
         signal: undefined,
+        duplex: "half",
       })
     })
     it("should call fetch with path as a full url", async () => {
@@ -29,6 +30,7 @@ describe("client", () => {
         method: "GET",
         body: undefined,
         signal: undefined,
+        duplex: "half",
       })
     })
     it("should call fetch with the correct options", async () => {
@@ -38,6 +40,7 @@ describe("client", () => {
         method: "GET",
         body: undefined,
         signal: undefined,
+        duplex: "half",
       })
     })
     it("should call fetch with the correct absolute path", async () => {
@@ -47,6 +50,7 @@ describe("client", () => {
         method: "GET",
         body: undefined,
         signal: undefined,
+        duplex: "half",
       })
     })
     it("should call fetch with the correct relative path", async () => {
@@ -56,17 +60,25 @@ describe("client", () => {
         method: "GET",
         body: undefined,
         signal: undefined,
+        duplex: "half",
       })
     })
     it("should throw an error if the response is not ok", async () => {
-      global.fetch = vi.fn().mockResolvedValue({ ok: false, statusText: "error", status: 500, json: vi.fn() })
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: false,
+        statusText: "error",
+        status: 500,
+        json: vi.fn(),
+        text: vi.fn().mockResolvedValue(""),
+        headers: { get: vi.fn().mockReturnValue(null) },
+      })
       await expect(client.get("/", { host: "http://localhost" })).rejects.toThrow("error")
     })
   })
 
   describe("cancellableGet", () => {
     beforeEach(() => {
-      global.fetch = vi.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve({}) })
+      global.fetch = vi.fn().mockResolvedValue({ ok: true, json: () => vi.fn().mockResolvedValue({}) })
       // Don't mock AbortController globally - use real one
     })
 
@@ -156,7 +168,7 @@ describe("client", () => {
 
           // Simulate long operation
           setTimeout(() => {
-            resolve({ ok: true, json: () => Promise.resolve({}) })
+            resolve({ ok: true, json: () => vi.fn().mockResolvedValue({}) })
           }, 1000)
         })
       })
@@ -173,7 +185,7 @@ describe("client", () => {
 
   describe("HEAD", () => {
     beforeEach(() => {
-      global.fetch = vi.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve({}) })
+      global.fetch = vi.fn().mockResolvedValue({ ok: true, json: () => vi.fn().mockResolvedValue({}) })
     })
     it("should respond to head", async () => {
       expect(client.head).toBeDefined()
@@ -182,13 +194,14 @@ describe("client", () => {
       expect(client.head("/", { host: "http://localhost" })).toBeInstanceOf(Promise)
     })
     it("should call fetch with the correct method", async () => {
-      global.fetch = vi.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve({}) })
+      global.fetch = vi.fn().mockResolvedValue({ ok: true, json: () => vi.fn().mockResolvedValue({}) })
       await client.head("/", { host: "http://localhost" })
       expect(global.fetch).toHaveBeenCalledWith("http://localhost/", {
         headers: {},
         method: "HEAD",
         body: undefined,
         signal: undefined,
+        duplex: "half",
       })
     })
     it("should call fetch with the correct options", async () => {
@@ -198,6 +211,7 @@ describe("client", () => {
         method: "HEAD",
         body: undefined,
         signal: undefined,
+        duplex: "half",
       })
     })
     it("should call fetch with the correct absolute path", async () => {
@@ -207,6 +221,7 @@ describe("client", () => {
         method: "HEAD",
         body: undefined,
         signal: undefined,
+        duplex: "half",
       })
     })
     it("should call fetch with the correct relative path", async () => {
@@ -216,10 +231,18 @@ describe("client", () => {
         method: "HEAD",
         body: undefined,
         signal: undefined,
+        duplex: "half",
       })
     })
     it("should throw an error if the response is not ok", async () => {
-      global.fetch = vi.fn().mockResolvedValue({ ok: false, statusText: "error", status: 500, json: vi.fn() })
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: false,
+        statusText: "error",
+        status: 500,
+        json: vi.fn(),
+        text: vi.fn().mockResolvedValue(""),
+        headers: { get: vi.fn().mockReturnValue(null) },
+      })
       await expect(client.head("/", { host: "http://localhost" })).rejects.toThrow("error")
     })
     it("should return a promise", async () => {
@@ -232,6 +255,7 @@ describe("client", () => {
         method: "HEAD",
         body: undefined,
         signal: undefined,
+        duplex: "half",
       })
     })
     it("should call fetch with path as a full url", async () => {
@@ -241,6 +265,7 @@ describe("client", () => {
         method: "HEAD",
         body: undefined,
         signal: undefined,
+        duplex: "half",
       })
     })
     it("should call fetch with the correct options", async () => {
@@ -250,6 +275,7 @@ describe("client", () => {
         method: "HEAD",
         body: undefined,
         signal: undefined,
+        duplex: "half",
       })
     })
     it("should call fetch with the correct absolute path", async () => {
@@ -259,6 +285,7 @@ describe("client", () => {
         method: "HEAD",
         body: undefined,
         signal: undefined,
+        duplex: "half",
       })
     })
     it("should call fetch with the correct relative path", async () => {
@@ -268,17 +295,25 @@ describe("client", () => {
         method: "HEAD",
         body: undefined,
         signal: undefined,
+        duplex: "half",
       })
     })
     it("should throw an error if the response is not ok", async () => {
-      global.fetch = vi.fn().mockResolvedValue({ ok: false, statusText: "error", status: 500, json: vi.fn() })
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: false,
+        statusText: "error",
+        status: 500,
+        json: vi.fn(),
+        text: vi.fn().mockResolvedValue(""),
+        headers: { get: vi.fn().mockReturnValue(null) },
+      })
       await expect(client.head("/", { host: "http://localhost" })).rejects.toThrow("error")
     })
   })
 
   describe("cancellableHead", () => {
     beforeEach(() => {
-      global.fetch = vi.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve({}) })
+      global.fetch = vi.fn().mockResolvedValue({ ok: true, json: () => vi.fn().mockResolvedValue({}) })
     })
 
     it("should be defined", () => {
@@ -305,7 +340,7 @@ describe("client", () => {
 
   describe("DEL", () => {
     beforeEach(() => {
-      global.fetch = vi.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve({}) })
+      global.fetch = vi.fn().mockResolvedValue({ ok: true, json: () => vi.fn().mockResolvedValue({}) })
     })
     it("should respond to del", async () => {
       expect(client.del).toBeDefined()
@@ -314,13 +349,14 @@ describe("client", () => {
       expect(client.del("http://loclahost", {})).toBeInstanceOf(Promise)
     })
     it("should call fetch with the correct method", async () => {
-      global.fetch = vi.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve({}) })
+      global.fetch = vi.fn().mockResolvedValue({ ok: true, json: () => vi.fn().mockResolvedValue({}) })
       await client.del("/", { host: "http://localhost" })
       expect(global.fetch).toHaveBeenCalledWith("http://localhost/", {
         headers: {},
         method: "DELETE",
         body: undefined,
         signal: undefined,
+        duplex: "half",
       })
     })
     it("should call fetch with the correct options", async () => {
@@ -330,6 +366,7 @@ describe("client", () => {
         method: "DELETE",
         body: undefined,
         signal: undefined,
+        duplex: "half",
       })
     })
     it("should call fetch with the correct absolute path", async () => {
@@ -339,6 +376,7 @@ describe("client", () => {
         method: "DELETE",
         body: undefined,
         signal: undefined,
+        duplex: "half",
       })
     })
     it("should call fetch with the correct relative path", async () => {
@@ -348,15 +386,23 @@ describe("client", () => {
         method: "DELETE",
         body: undefined,
         signal: undefined,
+        duplex: "half",
       })
     })
     it("should throw an error if the response is not ok", async () => {
-      global.fetch = vi.fn().mockResolvedValue({ ok: false, statusText: "error", status: 500, json: vi.fn() })
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: false,
+        statusText: "error",
+        status: 500,
+        json: vi.fn(),
+        text: vi.fn().mockResolvedValue(""),
+        headers: { get: vi.fn().mockReturnValue(null) },
+      })
       await expect(client.del("/", { host: "http://localhost" })).rejects.toThrow("error")
     })
     it("should log debug info", async () => {
       console.debug = vi.fn()
-      global.fetch = vi.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve({}) })
+      global.fetch = vi.fn().mockResolvedValue({ ok: true, json: () => vi.fn().mockResolvedValue({}) })
       await client.del("/", { host: "http://localhost", debug: true })
       expect(console.debug).toHaveBeenCalledWith(
         "===Signal Openstack Debug: ",
@@ -379,7 +425,7 @@ describe("client", () => {
 
   describe("cancellableDel", () => {
     beforeEach(() => {
-      global.fetch = vi.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve({}) })
+      global.fetch = vi.fn().mockResolvedValue({ ok: true, json: () => vi.fn().mockResolvedValue({}) })
     })
 
     it("should be defined", () => {
@@ -404,7 +450,7 @@ describe("client", () => {
 
   describe("cancellablePost", () => {
     beforeEach(() => {
-      global.fetch = vi.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve({}) })
+      global.fetch = vi.fn().mockResolvedValue({ ok: true, json: () => vi.fn().mockResolvedValue({}) })
     })
 
     it("should be defined", () => {
@@ -489,7 +535,7 @@ describe("client", () => {
 
   describe("cancellablePut", () => {
     beforeEach(() => {
-      global.fetch = vi.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve({}) })
+      global.fetch = vi.fn().mockResolvedValue({ ok: true, json: () => vi.fn().mockResolvedValue({}) })
     })
 
     it("should be defined", () => {
@@ -526,7 +572,7 @@ describe("client", () => {
 
   describe("cancellablePatch", () => {
     beforeEach(() => {
-      global.fetch = vi.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve({}) })
+      global.fetch = vi.fn().mockResolvedValue({ ok: true, json: () => vi.fn().mockResolvedValue({}) })
     })
 
     it("should be defined", () => {
@@ -554,30 +600,32 @@ describe("client", () => {
 
   describe("options->queryParams", () => {
     it("should call fetch with search params", () => {
-      global.fetch = vi.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve({}) })
+      global.fetch = vi.fn().mockResolvedValue({ ok: true, json: () => vi.fn().mockResolvedValue({}) })
       client.get("/", { host: "http://localhost", queryParams: { test: "test", region: "region2" } })
       expect(global.fetch).toHaveBeenCalledWith("http://localhost/?test=test&region=region2", {
         headers: {},
         method: "GET",
         body: undefined,
         signal: undefined,
+        duplex: "half",
       })
     })
     it("should convert array and call fetch with search params", () => {
-      global.fetch = vi.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve({}) })
+      global.fetch = vi.fn().mockResolvedValue({ ok: true, json: () => vi.fn().mockResolvedValue({}) })
       client.get("/", { host: "http://localhost", queryParams: { test: ["test", "test2"] } })
       expect(global.fetch).toHaveBeenCalledWith("http://localhost/?test=test&test=test2", {
         headers: {},
         method: "GET",
         body: undefined,
         signal: undefined,
+        duplex: "half",
       })
     })
   })
 
   describe("File upload scenarios", () => {
     beforeEach(() => {
-      global.fetch = vi.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve({}) })
+      global.fetch = vi.fn().mockResolvedValue({ ok: true, json: () => vi.fn().mockResolvedValue({}) })
     })
 
     it("should not set Content-Type header for FormData", () => {

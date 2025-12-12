@@ -231,7 +231,7 @@ export const listImagesInputSchema = z.object({
   status: multiValueFilter(statusFilterSchema).optional(),
   visibility: imageVisibilityFilterSchema.optional(), // Single-value only
   owner: z.string().optional(),
-  protected: z.boolean().optional(),
+  protected: z.string().optional(),
 
   // Format filtering with multi-value support
   container_format: multiValueFilter(containerFormatFilterSchema).optional(),
@@ -274,7 +274,7 @@ export const createImageInputSchema = z
     // Core properties that can be set during creation
     name: z.string().optional(),
     id: z.string().uuid().optional(), // Optional UUID, API will generate if omitted
-    container_format: containerFormatSchema.optional(),
+    container_format: containerFormatSchema.optional().default("bare"),
     disk_format: diskFormatSchema.optional(),
     visibility: imageVisibilityEnumSchema.optional().default("private"),
     protected: z.boolean().optional().default(false),
@@ -356,10 +356,6 @@ export const bulkOperationResultSchema = z.object({
 // Response schemas
 export const imageResponseSchema = z.object({
   images: z.array(imageSchema),
-})
-
-export const imageDetailResponseSchema = z.object({
-  image: imageSchema,
 })
 
 // Schema for paginated images response (includes pagination links)
