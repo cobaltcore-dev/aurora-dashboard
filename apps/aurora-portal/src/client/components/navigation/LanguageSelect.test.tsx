@@ -2,12 +2,23 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react"
 import { I18nProvider } from "@lingui/react"
 import { i18n } from "@lingui/core"
 import { LanguageSelect } from "./LanguageSelect"
-import { saveLanguagePreference, getLanguagePreference } from "@/client/utils/languageDetection"
+import { saveLanguagePreference } from "@/client/utils/languageDetection"
 import { vi, describe, it, expect, beforeEach, afterEach } from "vitest"
+
+// Define the ToggleButton props interface
+interface MockToggleButtonProps {
+  value: string
+  options: string[]
+  onChange: (value: string) => void
+  "aria-label"?: string
+  className?: string
+}
 
 // Mock the utility functions
 vi.mock("@/client/utils/languageDetection", async () => {
-  const actual = await vi.importActual("@/client/utils/languageDetection")
+  const actual = await vi.importActual<typeof import("@/client/utils/languageDetection")>(
+    "@/client/utils/languageDetection"
+  )
   return {
     ...actual,
     saveLanguagePreference: vi.fn(),
@@ -17,7 +28,7 @@ vi.mock("@/client/utils/languageDetection", async () => {
 
 // Mock the ToggleButton component to simplify testing
 vi.mock("@cloudoperators/juno-ui-components", () => ({
-  ToggleButton: ({ value, options, onChange, ...props }: any) => (
+  ToggleButton: ({ value, options, onChange, ...props }: MockToggleButtonProps) => (
     <div data-testid="toggle-button" {...props}>
       <span data-testid="current-value">{value}</span>
       <div data-testid="options">
@@ -35,7 +46,6 @@ describe("LanguageSelect", () => {
   const mockSaveLanguagePreference = vi.mocked(saveLanguagePreference)
 
   beforeEach(() => {
-    // Setup i18n with English as default
     i18n.loadAndActivate({ locale: "en", messages: {} })
     vi.clearAllMocks()
   })
@@ -117,7 +127,6 @@ describe("LanguageSelect", () => {
       fireEvent.click(deButton)
 
       await waitFor(() => {
-        // Should call activate with lowercase 'de', not uppercase 'DE'
         expect(activateSpy).toHaveBeenCalledWith("de")
       })
     })
@@ -125,7 +134,7 @@ describe("LanguageSelect", () => {
 
   describe("Error handling", () => {
     it("handles saveLanguagePreference errors gracefully", async () => {
-      const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {})
+      const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => undefined)
       mockSaveLanguagePreference.mockImplementationOnce(() => {
         throw new Error("Storage failed")
       })
@@ -140,36 +149,6 @@ describe("LanguageSelect", () => {
       })
 
       consoleErrorSpy.mockRestore()
-    })
-  })
-
-  describe("Input validation", () => {
-    it("ignores invalid language codes", () => {
-      renderWithI18n()
-      const activateSpy = vi.spyOn(i18n, "activate")
-
-      // Simulate invalid language selection (though UI shouldn't allow this)
-      const component = screen.getByTestId("toggle-button")
-      const onChange = component.querySelector('[data-testid="options"]')?.parentElement
-
-      // Manually trigger with invalid value
-      fireEvent.click(screen.getByTestId("option-EN"))
-      const buttons = screen.getAllByRole("button")
-
-      // Create a fake button for invalid locale
-      const fakeInvalidButton = document.createElement("button")
-      fakeInvalidButton.onclick = () => {
-        // Simulate the handleLanguageChange being called with invalid value
-        const locale = "xx".toLowerCase()
-        if (!["en", "de"].includes(locale)) {
-          return // Should exit early
-        }
-        i18n.activate(locale)
-      }
-      fakeInvalidButton.click()
-
-      // i18n.activate should not be called with invalid locale
-      expect(activateSpy).not.toHaveBeenCalledWith("xx")
     })
   })
 
