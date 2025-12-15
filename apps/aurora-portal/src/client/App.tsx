@@ -58,7 +58,7 @@ const App = (props: AppProps) => {
       )}
     >
       <I18nProvider i18n={i18n}>
-        <AppShellProvider shadowRoot={false} theme={props.theme || currentTheme || "theme-light"}>
+        <AppShellProvider shadowRoot={false} theme={props.theme || currentTheme || "theme-dark"}>
           <span ref={themeRef}></span>
           <trpcReact.Provider client={reactClient} queryClient={queryClient}>
             <QueryClientProvider client={queryClient}>
