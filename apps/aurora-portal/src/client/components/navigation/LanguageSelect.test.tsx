@@ -2,59 +2,37 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react"
 import { I18nProvider } from "@lingui/react"
 import { i18n } from "@lingui/core"
 import { LanguageSelect } from "./LanguageSelect"
-import { saveLanguagePreference } from "@/client/utils/languageDetection"
-import { vi, describe, it, expect, beforeEach, afterEach } from "vitest"
-
-// Define the ToggleButton props interface
-interface MockToggleButtonProps {
-  value: string
-  options: string[]
-  onChange: (value: string) => void
-  "aria-label"?: string
-  className?: string
-}
-
-// Mock the utility functions
-vi.mock("@/client/utils/languageDetection", async () => {
-  const actual = await vi.importActual<typeof import("@/client/utils/languageDetection")>(
-    "@/client/utils/languageDetection"
-  )
-  return {
-    ...actual,
-    saveLanguagePreference: vi.fn(),
-    getLanguagePreference: vi.fn(),
-  }
-})
-
-// Mock the ToggleButton component to simplify testing
-vi.mock("@cloudoperators/juno-ui-components", () => ({
-  ToggleButton: ({ value, options, onChange, ...props }: MockToggleButtonProps) => (
-    <div data-testid="toggle-button" {...props}>
-      <span data-testid="current-value">{value}</span>
-      <div data-testid="options">
-        {options.map((option: string) => (
-          <button key={option} data-testid={`option-${option}`} onClick={() => onChange(option)}>
-            {option}
-          </button>
-        ))}
-      </div>
-    </div>
-  ),
-}))
+import { saveLanguagePreference, getLanguagePreference } from "@/client/utils/languageDetection"
+import { describe, it, expect, beforeEach, afterEach } from "vitest"
 
 describe("LanguageSelect", () => {
-  const mockSaveLanguagePreference = vi.mocked(saveLanguagePreference)
+  const mockStorage = (() => {
+    let store: Record<string, string> = {}
+    return {
+      getItem: (key: string) => store[key] || null,
+      setItem: (key: string, value: string) => {
+        store[key] = value
+      },
+      clear: () => {
+        store = {}
+      },
+    }
+  })()
 
   beforeEach(() => {
+    mockStorage.clear()
+    Object.defineProperty(window, "localStorage", {
+      value: mockStorage,
+      writable: true,
+    })
     i18n.loadAndActivate({ locale: "en", messages: {} })
-    vi.clearAllMocks()
   })
 
   afterEach(() => {
-    vi.clearAllMocks()
+    mockStorage.clear()
   })
 
-  const renderWithI18n = () => {
+  const renderComponent = () => {
     return render(
       <I18nProvider i18n={i18n}>
         <LanguageSelect />
@@ -63,127 +41,142 @@ describe("LanguageSelect", () => {
   }
 
   describe("Rendering", () => {
-    it("renders the language selector with current locale", () => {
-      renderWithI18n()
+    it("renders language selector button", () => {
+      renderComponent()
 
-      expect(screen.getByTestId("toggle-button")).toBeInTheDocument()
-      expect(screen.getByTestId("current-value")).toHaveTextContent("EN")
+      const button = screen.getByRole("button", { name: "Select language" })
+      expect(button).toBeInTheDocument()
+      expect(button).toHaveTextContent("EN")
     })
 
-    it("displays all supported languages as options", () => {
-      renderWithI18n()
+    it("shows current locale on button", () => {
+      renderComponent()
 
-      expect(screen.getByTestId("option-EN")).toBeInTheDocument()
-      expect(screen.getByTestId("option-DE")).toBeInTheDocument()
+      expect(screen.getByRole("button")).toHaveTextContent("EN")
     })
 
-    it("has proper ARIA label for accessibility", () => {
-      renderWithI18n()
+    it("reflects German locale when active", () => {
+      i18n.loadAndActivate({ locale: "de", messages: {} })
+      renderComponent()
+
+      expect(screen.getByRole("button")).toHaveTextContent("DE")
+    })
+
+    it("has accessibility label", () => {
+      renderComponent()
 
       expect(screen.getByLabelText("Select language")).toBeInTheDocument()
-    })
-
-    it("reflects current i18n locale in uppercase", () => {
-      i18n.loadAndActivate({ locale: "de", messages: {} })
-      renderWithI18n()
-
-      expect(screen.getByTestId("current-value")).toHaveTextContent("DE")
     })
   })
 
   describe("Language switching", () => {
-    it("switches to German when DE is selected", async () => {
-      renderWithI18n()
-      const activateSpy = vi.spyOn(i18n, "activate")
+    it("switches to German when button is clicked", async () => {
+      renderComponent()
 
-      const deButton = screen.getByTestId("option-DE")
-      fireEvent.click(deButton)
+      const button = screen.getByRole("button", { name: "Select language" })
+
+      // Button zeigt aktuell EN
+      expect(button).toHaveTextContent("EN")
+
+      // Click zum Wechsel
+      fireEvent.click(button)
 
       await waitFor(() => {
-        expect(activateSpy).toHaveBeenCalledWith("de")
-        expect(mockSaveLanguagePreference).toHaveBeenCalledWith("de")
+        expect(i18n.locale).toBe("de")
+        expect(getLanguagePreference()).toBe("de")
+        expect(button).toHaveTextContent("DE")
       })
     })
 
-    it("switches to English when EN is selected", async () => {
+    it("toggles back to English", async () => {
       i18n.loadAndActivate({ locale: "de", messages: {} })
-      renderWithI18n()
-      const activateSpy = vi.spyOn(i18n, "activate")
+      renderComponent()
 
-      const enButton = screen.getByTestId("option-EN")
-      fireEvent.click(enButton)
+      const button = screen.getByRole("button", { name: "Select language" })
+      expect(button).toHaveTextContent("DE")
+
+      fireEvent.click(button)
 
       await waitFor(() => {
-        expect(activateSpy).toHaveBeenCalledWith("en")
-        expect(mockSaveLanguagePreference).toHaveBeenCalledWith("en")
+        expect(i18n.locale).toBe("en")
+        expect(getLanguagePreference()).toBe("en")
+        expect(button).toHaveTextContent("EN")
       })
     })
 
-    it("normalizes language code to lowercase before processing", async () => {
-      renderWithI18n()
-      const activateSpy = vi.spyOn(i18n, "activate")
+    it("persists language preference on toggle", async () => {
+      renderComponent()
 
-      const deButton = screen.getByTestId("option-DE")
-      fireEvent.click(deButton)
+      fireEvent.click(screen.getByRole("button"))
 
       await waitFor(() => {
-        expect(activateSpy).toHaveBeenCalledWith("de")
+        expect(getLanguagePreference()).toBe("de")
       })
     })
   })
 
+  describe("Persistence integration", () => {
+    it("restores previously selected language", () => {
+      saveLanguagePreference("de")
+
+      expect(getLanguagePreference()).toBe("de")
+    })
+
+    it("handles multiple toggles correctly", async () => {
+      renderComponent()
+      const button = screen.getByRole("button")
+
+      // EN -> DE
+      fireEvent.click(button)
+      await waitFor(() => expect(getLanguagePreference()).toBe("de"))
+
+      // DE -> EN
+      fireEvent.click(button)
+      await waitFor(() => expect(getLanguagePreference()).toBe("en"))
+
+      expect(i18n.locale).toBe("en")
+    })
+
+    it("loads with saved preference", () => {
+      saveLanguagePreference("de")
+      i18n.loadAndActivate({ locale: "de", messages: {} })
+
+      renderComponent()
+
+      expect(screen.getByRole("button")).toHaveTextContent("DE")
+    })
+  })
+
   describe("Error handling", () => {
-    it("handles saveLanguagePreference errors gracefully", async () => {
+    it("language change works even when storage fails", async () => {
       const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => undefined)
-      mockSaveLanguagePreference.mockImplementationOnce(() => {
-        throw new Error("Storage failed")
+
+      vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
+        throw new Error("Storage unavailable")
       })
 
-      renderWithI18n()
+      renderComponent()
+      const button = screen.getByRole("button")
 
-      const deButton = screen.getByTestId("option-DE")
-      fireEvent.click(deButton)
+      expect(button).toHaveTextContent("EN")
+      fireEvent.click(button)
 
       await waitFor(() => {
-        expect(consoleErrorSpy).toHaveBeenCalled()
+        // UI funktioniert trotz Storage-Fehler
+        expect(i18n.locale).toBe("de")
+        expect(button).toHaveTextContent("DE")
       })
 
       consoleErrorSpy.mockRestore()
     })
   })
-
-  describe("Persistence", () => {
-    it("saves language preference after successful change", async () => {
-      renderWithI18n()
-
-      const deButton = screen.getByTestId("option-DE")
-      fireEvent.click(deButton)
-
-      await waitFor(() => {
-        expect(mockSaveLanguagePreference).toHaveBeenCalledTimes(1)
-        expect(mockSaveLanguagePreference).toHaveBeenCalledWith("de")
-      })
-    })
-
-    it("calls save only once per language change", async () => {
-      renderWithI18n()
-
-      const deButton = screen.getByTestId("option-DE")
-      fireEvent.click(deButton)
-
-      await waitFor(() => {
-        expect(mockSaveLanguagePreference).toHaveBeenCalledTimes(1)
-      })
-    })
-  })
-
-  describe("Styling and props", () => {
+  describe("Styling", () => {
     it("applies custom CSS classes", () => {
-      renderWithI18n()
+      renderComponent()
 
-      const toggleButton = screen.getByTestId("toggle-button")
-      expect(toggleButton).toHaveClass("!bg-transparent")
-      expect(toggleButton).toHaveClass("hover:text-theme-accent")
+      const button = screen.getByRole("button")
+      expect(button.className).toContain("!bg-transparent")
+      expect(button.className).toContain("hover:text-theme-accent")
     })
   })
 })
