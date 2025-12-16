@@ -1,5 +1,5 @@
 import { createFileRoute, Outlet, useLoaderData, useLocation } from "@tanstack/react-router"
-import { AppShell } from "@cloudoperators/juno-ui-components"
+import { AppShell, Container } from "@cloudoperators/juno-ui-components"
 import { ComputeSideNavBar } from "./$projectId/compute/-components/ComputeNavBar"
 
 export const Route = createFileRoute("/_auth/accounts/$accountId/projects/$projectId")({
@@ -45,10 +45,10 @@ function RouteComponent() {
   }
 
   return (
-    <AppShell embedded sideNavigation={getSideNavigation()} className="h-min-screen">
-      <div className="mx-2">
+    <AppShell embedded sideNavigation={getSideNavigation()} className="h-min-screen ">
+      <Container>
         <Outlet />
-      </div>
+      </Container>
     </AppShell>
   )
 }

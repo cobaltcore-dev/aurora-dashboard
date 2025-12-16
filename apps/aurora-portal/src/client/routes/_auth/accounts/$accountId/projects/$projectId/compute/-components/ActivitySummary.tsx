@@ -1,3 +1,4 @@
+import { ContentHeading, Stack } from "@cloudoperators/juno-ui-components/index"
 import React from "react"
 
 interface ActivityRingProps {
@@ -88,11 +89,10 @@ interface ActivityData {
   }
 }
 
-// Updated ActivitySummary component with memory circle
 export function ActivitySummary({ activityData }: { activityData: ActivityData }) {
   return (
-    <div className="bg-gray-800 rounded-xl p-6 mb-8 shadow-lg">
-      <h2 className="text-xl font-semibold mb-6">Activity Summary</h2>
+    <Stack distribution="center" alignment="center" direction="vertical">
+      <ContentHeading className="text-xl font-semibold my-6">Activity Summary</ContentHeading>
       <div className="flex flex-wrap justify-start gap-16">
         <ActivityRing
           progress={(activityData.instances.current / activityData.instances.quota) * 100}
@@ -123,6 +123,6 @@ export function ActivitySummary({ activityData }: { activityData: ActivityData }
           size={120}
         />
       </div>
-    </div>
+    </Stack>
   )
 }

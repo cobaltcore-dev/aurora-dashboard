@@ -344,6 +344,10 @@ msgstr "Description"
 msgid "Description must be less than 65535 characters."
 msgstr "Description must be less than 65535 characters."
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:162
+msgid "Details"
+msgstr "Details"
+
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/flavors/-components/FlavorDetailsView.tsx:61
 msgid "Disabled"
 msgstr "Disabled"
@@ -444,11 +448,9 @@ msgid "Enter your username"
 msgstr "Enter your username"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/flavors/-components/FlavorDetailsView.tsx:96
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/List.tsx:115
 msgid "Ephemeral Disk"
 msgstr "Ephemeral Disk"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:133
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/CreateFlavorModal.tsx:250
 msgid "Ephemeral Disk (GiB)"
 msgstr "Ephemeral Disk (GiB)"
@@ -581,11 +583,11 @@ msgstr "Find detailed guides and references in our docs."
 msgid "Fingerprint"
 msgstr "Fingerprint"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/List.tsx:151
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/List.tsx:149
 msgid "Flavor \"{flavorName}\" has been successfully created."
 msgstr "Flavor \"{flavorName}\" has been successfully created."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/List.tsx:142
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/List.tsx:140
 msgid "Flavor \"{flavorName}\" has been successfully deleted."
 msgstr "Flavor \"{flavorName}\" has been successfully deleted."
 
@@ -823,7 +825,7 @@ msgstr "Load More"
 msgid "Loading Flavor Details..."
 msgstr "Loading Flavor Details..."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/List.tsx:198
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/List.tsx:196
 msgid "Loading Flavors..."
 msgstr "Loading Flavors..."
 
@@ -1242,8 +1244,6 @@ msgid "Root Disk must be an integer ≥ 0."
 msgstr "Root Disk must be an integer ≥ 0."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/flavors/-components/FlavorDetailsView.tsx:112
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/List.tsx:117
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:139
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/CreateFlavorModal.tsx:274
 msgid "RX/TX Factor"
 msgstr "RX/TX Factor"
@@ -1416,12 +1416,12 @@ msgid "Surge:"
 msgstr "Surge:"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/flavors/-components/FlavorDetailsView.tsx:103
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/List.tsx:116
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/List.tsx:115
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/DeleteFlavorModal.tsx:137
 msgid "Swap"
 msgstr "Swap"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:136
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:133
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/CreateFlavorModal.tsx:262
 msgid "Swap (MiB)"
 msgstr "Swap (MiB)"
