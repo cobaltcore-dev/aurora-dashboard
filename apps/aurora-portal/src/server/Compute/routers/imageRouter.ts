@@ -155,7 +155,7 @@ export const imageRouter = {
       const webStream = Readable.toWeb(Readable.from(Buffer.from(fileBuffer)))
 
       await glance
-        .put(`v2/images/${formFields?.imageId}/file`, webStream, {
+        .put(`v2/images/${imageId}/file`, webStream, {
           headers: {
             Accept: "application/json",
             "Content-Type": "application/octet-stream",

@@ -5,6 +5,7 @@ import { ListImagesInput } from "../types/image"
 import {
   applyImageQueryParams,
   validateGlanceService,
+  validateUploadInput,
   mapErrorResponseToTRPCError,
   ImageErrorHandlers,
   handleZodParsingError,
@@ -300,6 +301,422 @@ describe("imageHelpers", () => {
       const error = mapErrorResponseToTRPCError(errorResponse, context)
 
       expect(error.message).toBe("Failed to create image image: image-123 - Invalid disk format")
+    })
+  })
+
+  describe("validateUploadInput", () => {
+    describe("Valid inputs", () => {
+      it("should validate correct imageId and fileBuffer", () => {
+        const imageId = "550e8400-e29b-41d4-a716-446655440000"
+        const fileBuffer = Buffer.from("image data")
+
+        const result = validateUploadInput(imageId, fileBuffer)
+
+        expect(result.imageId).toBe(imageId)
+        expect(result.fileBuffer).toBe(fileBuffer)
+      })
+
+      it("should trim whitespace from imageId", () => {
+        const imageId = "  image-123  "
+        const fileBuffer = Buffer.from("data")
+
+        const result = validateUploadInput(imageId, fileBuffer)
+
+        expect(result.imageId).toBe("image-123")
+      })
+
+      it("should handle large fileBuffer", () => {
+        const imageId = "image-123"
+        const largeBuffer = Buffer.alloc(1024 * 1024 * 1024) // 1GB
+
+        const result = validateUploadInput(imageId, largeBuffer)
+
+        expect(result.fileBuffer).toBe(largeBuffer)
+        expect(result.fileBuffer.length).toBe(1024 * 1024 * 1024)
+      })
+
+      it("should handle small fileBuffer with single byte", () => {
+        const imageId = "image-123"
+        const singleByteBuffer = Buffer.from([1])
+
+        const result = validateUploadInput(imageId, singleByteBuffer)
+
+        expect(result.fileBuffer.length).toBe(1)
+      })
+
+      it("should handle UUID format imageId", () => {
+        const imageId = "550e8400-e29b-41d4-a716-446655440000"
+        const fileBuffer = Buffer.from("test")
+
+        const result = validateUploadInput(imageId, fileBuffer)
+
+        expect(result.imageId).toBe(imageId)
+      })
+
+      it("should handle alphanumeric imageId", () => {
+        const imageId = "image-abc123xyz789"
+        const fileBuffer = Buffer.from("data")
+
+        const result = validateUploadInput(imageId, fileBuffer)
+
+        expect(result.imageId).toBe(imageId)
+      })
+    })
+
+    describe("ImageId validation - missing/falsy values", () => {
+      it("should throw BAD_REQUEST for null imageId", () => {
+        const fileBuffer = Buffer.from("data")
+
+        expect(() => validateUploadInput(null, fileBuffer)).toThrow(TRPCError)
+        expect(() => validateUploadInput(null, fileBuffer)).toThrow("imageId is required")
+      })
+
+      it("should throw BAD_REQUEST for undefined imageId", () => {
+        const fileBuffer = Buffer.from("data")
+
+        expect(() => validateUploadInput(undefined, fileBuffer)).toThrow(TRPCError)
+        expect(() => validateUploadInput(undefined, fileBuffer)).toThrow("imageId is required")
+      })
+
+      it("should throw BAD_REQUEST for empty string imageId", () => {
+        const fileBuffer = Buffer.from("data")
+
+        expect(() => validateUploadInput("", fileBuffer)).toThrow(TRPCError)
+        expect(() => validateUploadInput("", fileBuffer)).toThrow("imageId is required")
+      })
+
+      it("should throw BAD_REQUEST for whitespace-only imageId", () => {
+        const fileBuffer = Buffer.from("data")
+
+        expect(() => validateUploadInput("   ", fileBuffer)).toThrow(TRPCError)
+        expect(() => validateUploadInput("   ", fileBuffer)).toThrow("imageId cannot be empty")
+      })
+
+      it("should throw BAD_REQUEST for false imageId", () => {
+        const fileBuffer = Buffer.from("data")
+
+        expect(() => validateUploadInput(false, fileBuffer)).toThrow(TRPCError)
+        expect(() => validateUploadInput(false, fileBuffer)).toThrow("imageId is required")
+      })
+
+      it("should throw BAD_REQUEST for zero imageId", () => {
+        const fileBuffer = Buffer.from("data")
+
+        expect(() => validateUploadInput(0, fileBuffer)).toThrow(TRPCError)
+        expect(() => validateUploadInput(0, fileBuffer)).toThrow("imageId is required")
+      })
+    })
+
+    describe("ImageId validation - type checking", () => {
+      it("should throw BAD_REQUEST for number imageId", () => {
+        const fileBuffer = Buffer.from("data")
+
+        expect(() => validateUploadInput(123, fileBuffer)).toThrow(TRPCError)
+        expect(() => validateUploadInput(123, fileBuffer)).toThrow("imageId must be a string")
+      })
+
+      it("should throw BAD_REQUEST for object imageId", () => {
+        const fileBuffer = Buffer.from("data")
+
+        expect(() => validateUploadInput({ id: "image-123" }, fileBuffer)).toThrow(TRPCError)
+        expect(() => validateUploadInput({ id: "image-123" }, fileBuffer)).toThrow("imageId must be a string")
+      })
+
+      it("should throw BAD_REQUEST for array imageId", () => {
+        const fileBuffer = Buffer.from("data")
+
+        expect(() => validateUploadInput(["image-123"], fileBuffer)).toThrow(TRPCError)
+        expect(() => validateUploadInput(["image-123"], fileBuffer)).toThrow("imageId must be a string")
+      })
+
+      it("should throw BAD_REQUEST for boolean imageId", () => {
+        const fileBuffer = Buffer.from("data")
+
+        expect(() => validateUploadInput(true, fileBuffer)).toThrow(TRPCError)
+        expect(() => validateUploadInput(true, fileBuffer)).toThrow("imageId must be a string")
+      })
+    })
+
+    describe("FileBuffer validation - missing/falsy values", () => {
+      it("should throw BAD_REQUEST for null fileBuffer", () => {
+        const imageId = "image-123"
+
+        expect(() => validateUploadInput(imageId, null)).toThrow(TRPCError)
+        expect(() => validateUploadInput(imageId, null)).toThrow("File not uploaded")
+      })
+
+      it("should throw BAD_REQUEST for undefined fileBuffer", () => {
+        const imageId = "image-123"
+
+        expect(() => validateUploadInput(imageId, undefined)).toThrow(TRPCError)
+        expect(() => validateUploadInput(imageId, undefined)).toThrow("File not uploaded")
+      })
+
+      it("should throw BAD_REQUEST for false fileBuffer", () => {
+        const imageId = "image-123"
+
+        expect(() => validateUploadInput(imageId, false)).toThrow(TRPCError)
+        expect(() => validateUploadInput(imageId, false)).toThrow("File not uploaded")
+      })
+
+      it("should throw BAD_REQUEST for zero fileBuffer", () => {
+        const imageId = "image-123"
+
+        expect(() => validateUploadInput(imageId, 0)).toThrow(TRPCError)
+        expect(() => validateUploadInput(imageId, 0)).toThrow("File not uploaded")
+      })
+    })
+
+    describe("FileBuffer validation - type checking", () => {
+      it("should throw INTERNAL_SERVER_ERROR for string fileBuffer", () => {
+        const imageId = "image-123"
+
+        expect(() => validateUploadInput(imageId, "not a buffer")).toThrow(TRPCError)
+        expect(() => validateUploadInput(imageId, "not a buffer")).toThrow("Invalid file format")
+      })
+
+      it("should throw INTERNAL_SERVER_ERROR for number fileBuffer", () => {
+        const imageId = "image-123"
+
+        expect(() => validateUploadInput(imageId, 12345)).toThrow(TRPCError)
+        expect(() => validateUploadInput(imageId, 12345)).toThrow("Invalid file format")
+      })
+
+      it("should throw INTERNAL_SERVER_ERROR for object fileBuffer", () => {
+        const imageId = "image-123"
+
+        expect(() => validateUploadInput(imageId, { data: "file" })).toThrow(TRPCError)
+        expect(() => validateUploadInput(imageId, { data: "file" })).toThrow("Invalid file format")
+      })
+
+      it("should throw INTERNAL_SERVER_ERROR for array fileBuffer", () => {
+        const imageId = "image-123"
+
+        expect(() => validateUploadInput(imageId, [1, 2, 3])).toThrow(TRPCError)
+        expect(() => validateUploadInput(imageId, [1, 2, 3])).toThrow("Invalid file format")
+      })
+
+      it("should throw INTERNAL_SERVER_ERROR for Uint8Array fileBuffer", () => {
+        const imageId = "image-123"
+        const uint8Array = new Uint8Array([1, 2, 3])
+
+        expect(() => validateUploadInput(imageId, uint8Array)).toThrow(TRPCError)
+        expect(() => validateUploadInput(imageId, uint8Array)).toThrow("Invalid file format")
+      })
+
+      it("should throw INTERNAL_SERVER_ERROR for ArrayBuffer fileBuffer", () => {
+        const imageId = "image-123"
+        const arrayBuffer = new ArrayBuffer(10)
+
+        expect(() => validateUploadInput(imageId, arrayBuffer)).toThrow(TRPCError)
+        expect(() => validateUploadInput(imageId, arrayBuffer)).toThrow("Invalid file format")
+      })
+    })
+
+    describe("FileBuffer validation - empty buffer", () => {
+      it("should throw BAD_REQUEST for empty Buffer", () => {
+        const imageId = "image-123"
+        const emptyBuffer = Buffer.from("")
+
+        expect(() => validateUploadInput(imageId, emptyBuffer)).toThrow(TRPCError)
+        expect(() => validateUploadInput(imageId, emptyBuffer)).toThrow("File is empty")
+      })
+
+      it("should throw BAD_REQUEST for zero-length allocated Buffer", () => {
+        const imageId = "image-123"
+        const emptyBuffer = Buffer.alloc(0)
+
+        expect(() => validateUploadInput(imageId, emptyBuffer)).toThrow(TRPCError)
+        expect(() => validateUploadInput(imageId, emptyBuffer)).toThrow("File is empty")
+      })
+    })
+
+    describe("Error codes validation", () => {
+      it("should throw TRPCError with BAD_REQUEST code for missing imageId", () => {
+        const fileBuffer = Buffer.from("data")
+        let thrownError: TRPCError | undefined
+
+        try {
+          validateUploadInput(null, fileBuffer)
+        } catch (error) {
+          thrownError = error as TRPCError
+        }
+
+        expect(thrownError).toBeInstanceOf(TRPCError)
+        expect(thrownError?.code).toBe("BAD_REQUEST")
+      })
+
+      it("should throw TRPCError with BAD_REQUEST code for invalid imageId type", () => {
+        const fileBuffer = Buffer.from("data")
+        let thrownError: TRPCError | undefined
+
+        try {
+          validateUploadInput(123, fileBuffer)
+        } catch (error) {
+          thrownError = error as TRPCError
+        }
+
+        expect(thrownError).toBeInstanceOf(TRPCError)
+        expect(thrownError?.code).toBe("BAD_REQUEST")
+      })
+
+      it("should throw TRPCError with BAD_REQUEST code for missing fileBuffer", () => {
+        const imageId = "image-123"
+        let thrownError: TRPCError | undefined
+
+        try {
+          validateUploadInput(imageId, null)
+        } catch (error) {
+          thrownError = error as TRPCError
+        }
+
+        expect(thrownError).toBeInstanceOf(TRPCError)
+        expect(thrownError?.code).toBe("BAD_REQUEST")
+      })
+
+      it("should throw TRPCError with INTERNAL_SERVER_ERROR code for invalid fileBuffer type", () => {
+        const imageId = "image-123"
+        let thrownError: TRPCError | undefined
+
+        try {
+          validateUploadInput(imageId, "not a buffer")
+        } catch (error) {
+          thrownError = error as TRPCError
+        }
+
+        expect(thrownError).toBeInstanceOf(TRPCError)
+        expect(thrownError?.code).toBe("INTERNAL_SERVER_ERROR")
+      })
+
+      it("should throw TRPCError with BAD_REQUEST code for empty fileBuffer", () => {
+        const imageId = "image-123"
+        let thrownError: TRPCError | undefined
+
+        try {
+          validateUploadInput(imageId, Buffer.from(""))
+        } catch (error) {
+          thrownError = error as TRPCError
+        }
+
+        expect(thrownError).toBeInstanceOf(TRPCError)
+        expect(thrownError?.code).toBe("BAD_REQUEST")
+      })
+    })
+
+    describe("Edge cases", () => {
+      it("should handle imageId with special characters", () => {
+        const imageId = "image-123!@#$%"
+        const fileBuffer = Buffer.from("data")
+
+        const result = validateUploadInput(imageId, fileBuffer)
+
+        expect(result.imageId).toBe(imageId)
+      })
+
+      it("should handle imageId with unicode characters", () => {
+        const imageId = "image-🎉-emoji"
+        const fileBuffer = Buffer.from("data")
+
+        const result = validateUploadInput(imageId, fileBuffer)
+
+        expect(result.imageId).toBe(imageId)
+      })
+
+      it("should handle very long imageId", () => {
+        const imageId = "a".repeat(1000)
+        const fileBuffer = Buffer.from("data")
+
+        const result = validateUploadInput(imageId, fileBuffer)
+
+        expect(result.imageId).toBe(imageId)
+        expect(result.imageId.length).toBe(1000)
+      })
+
+      it("should handle fileBuffer created from different sources", () => {
+        const imageId = "image-123"
+
+        // From string
+        const buffer1 = Buffer.from("test data", "utf-8")
+        expect(() => validateUploadInput(imageId, buffer1)).not.toThrow()
+
+        // From array
+        const buffer2 = Buffer.from([1, 2, 3, 4])
+        expect(() => validateUploadInput(imageId, buffer2)).not.toThrow()
+
+        // Allocated
+        const buffer3 = Buffer.alloc(100)
+        expect(() => validateUploadInput(imageId, buffer3)).not.toThrow()
+      })
+
+      it("should handle imageId with leading/trailing tabs and newlines", () => {
+        const imageId = "\t\n  image-123  \n\t"
+        const fileBuffer = Buffer.from("data")
+
+        const result = validateUploadInput(imageId, fileBuffer)
+
+        expect(result.imageId).toBe("image-123")
+      })
+
+      it("should validate both parameters before returning", () => {
+        const imageId = "image-123"
+        const fileBuffer = Buffer.from("test")
+
+        const result = validateUploadInput(imageId, fileBuffer)
+
+        expect(result).toBeDefined()
+        expect(result).toHaveProperty("imageId")
+        expect(result).toHaveProperty("fileBuffer")
+        expect(typeof result.imageId).toBe("string")
+        expect(Buffer.isBuffer(result.fileBuffer)).toBe(true)
+      })
+    })
+
+    describe("Order of validation", () => {
+      it("should validate imageId before fileBuffer", () => {
+        // Both invalid - should fail on imageId first
+        expect(() => validateUploadInput(null, null)).toThrow("imageId is required")
+        expect(() => validateUploadInput(123, Buffer.from(""))).toThrow("imageId must be a string")
+        expect(() => validateUploadInput("   ", Buffer.from(""))).toThrow("imageId cannot be empty")
+      })
+
+      it("should validate fileBuffer after imageId is valid", () => {
+        // Valid imageId, invalid fileBuffer
+        expect(() => validateUploadInput("image-123", null)).toThrow("File not uploaded")
+        expect(() => validateUploadInput("image-123", "not a buffer")).toThrow("Invalid file format")
+        expect(() => validateUploadInput("image-123", Buffer.from(""))).toThrow("File is empty")
+      })
+    })
+
+    describe("Return value validation", () => {
+      it("should return object with imageId and fileBuffer properties", () => {
+        const imageId = "image-123"
+        const fileBuffer = Buffer.from("data")
+
+        const result = validateUploadInput(imageId, fileBuffer)
+
+        expect(Object.keys(result)).toEqual(["imageId", "fileBuffer"])
+      })
+
+      it("should not modify the original fileBuffer", () => {
+        const imageId = "image-123"
+        const fileBuffer = Buffer.from("test data")
+        const originalLength = fileBuffer.length
+
+        const result = validateUploadInput(imageId, fileBuffer)
+
+        expect(result.fileBuffer).toBe(fileBuffer)
+        expect(result.fileBuffer.length).toBe(originalLength)
+      })
+
+      it("should trim imageId but return new trimmed string", () => {
+        const imageId = "  image-123  "
+        const fileBuffer = Buffer.from("data")
+
+        const result = validateUploadInput(imageId, fileBuffer)
+
+        expect(result.imageId).toBe("image-123")
+        expect(result.imageId).not.toBe(imageId)
+      })
     })
   })
 

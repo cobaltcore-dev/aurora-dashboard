@@ -229,49 +229,322 @@ describe("imageRouter", () => {
   })
 
   describe("uploadImage", () => {
-    it("should upload image with base64 data successfully", async () => {
+    it("should upload image with multipart file data successfully", async () => {
       const mockCtx = createMockContext()
+      const imageBuffer = Buffer.from("test image data")
+      const imageId = "123e4567-e89b-12d3-a456-426614174000"
+
+      // Mock the multipart context with uploadedFile and formFields
+      mockCtx.uploadedFile = {
+        filename: "test-image.iso",
+        mimetype: "application/octet-stream",
+        buffer: imageBuffer,
+      }
+      mockCtx.formFields = {
+        imageId,
+      }
+
       const caller = createCaller(mockCtx)
 
       mockCtx.mockGlance.put.mockResolvedValue({
         ok: true,
       })
 
-      const base64Data = btoa("test image data")
-      const input = {
-        imageId: "123e4567-e89b-12d3-a456-426614174000",
-        imageData: base64Data,
-        contentType: "application/octet-stream",
-      }
+      const result = await caller.image.uploadImage()
 
-      const result = await caller.image.uploadImage(input)
-
-      expect(mockCtx.mockGlance.put).toHaveBeenCalledWith("v2/images/123e4567-e89b-12d3-a456-426614174000/file", {
-        body: expect.any(ArrayBuffer),
-        headers: { "Content-Type": "application/octet-stream" },
-      })
-      expect(result).toBe(true)
+      expect(mockCtx.mockGlance.put).toHaveBeenCalledWith(
+        `v2/images/${imageId}/file`,
+        expect.any(Object), // Web stream
+        {
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/octet-stream",
+          },
+        }
+      )
+      expect(result).toEqual({ success: true, imageId })
     })
 
-    it("should handle upload error", async () => {
+    it("should validate imageId is provided", async () => {
       const mockCtx = createMockContext()
+      const imageBuffer = Buffer.from("test image data")
+
+      // Missing imageId in formFields
+      mockCtx.uploadedFile = {
+        filename: "test-image.iso",
+        mimetype: "application/octet-stream",
+        buffer: imageBuffer,
+      }
+      mockCtx.formFields = {}
+
       const caller = createCaller(mockCtx)
 
-      mockCtx.mockGlance.put.mockImplementation(() => {
-        return Promise.reject(new Error("400 Bad Request"))
-      })
+      await expect(caller.image.uploadImage()).rejects.toThrow("imageId is required")
+    })
 
-      const mockError = new TRPCError({ code: "BAD_REQUEST", message: "Upload failed" })
-      ;(imageHelpers.ImageErrorHandlers.upload as Mock).mockReturnValue(mockError)
+    it("should validate file buffer is provided", async () => {
+      const mockCtx = createMockContext()
+      const imageId = "123e4567-e89b-12d3-a456-426614174000"
 
-      const base64Data = btoa("test image data")
-      const input = {
-        imageId: "123e4567-e89b-12d3-a456-426614174000",
-        imageData: base64Data,
-        contentType: "application/octet-stream",
+      // Missing uploadedFile
+      mockCtx.uploadedFile = undefined
+      mockCtx.formFields = { imageId }
+
+      const caller = createCaller(mockCtx)
+
+      await expect(caller.image.uploadImage()).rejects.toThrow("File not uploaded")
+    })
+
+    it("should validate file buffer is not empty", async () => {
+      const mockCtx = createMockContext()
+      const imageId = "123e4567-e89b-12d3-a456-426614174000"
+
+      // Empty buffer
+      mockCtx.uploadedFile = {
+        filename: "empty-image.iso",
+        mimetype: "application/octet-stream",
+        buffer: Buffer.from(""),
+      }
+      mockCtx.formFields = { imageId }
+
+      const caller = createCaller(mockCtx)
+
+      await expect(caller.image.uploadImage()).rejects.toThrow("File is empty")
+    })
+
+    it("should trim whitespace from imageId", async () => {
+      const mockCtx = createMockContext()
+      const imageBuffer = Buffer.from("test image data")
+      const imageId = "123e4567-e89b-12d3-a456-426614174000"
+
+      // ImageId with whitespace
+      mockCtx.uploadedFile = {
+        filename: "test-image.iso",
+        mimetype: "application/octet-stream",
+        buffer: imageBuffer,
+      }
+      mockCtx.formFields = {
+        imageId: `  ${imageId}  `,
       }
 
-      await expect(caller.image.uploadImage(input)).rejects.toThrow("Upload failed")
+      const caller = createCaller(mockCtx)
+
+      mockCtx.mockGlance.put.mockResolvedValue({ ok: true })
+
+      const result = await caller.image.uploadImage()
+
+      expect(mockCtx.mockGlance.put).toHaveBeenCalledWith(
+        `v2/images/${imageId}/file`,
+        expect.any(Object),
+        expect.any(Object)
+      )
+      expect(result.imageId).toBe(imageId)
+    })
+
+    it("should handle Glance upload error - not found", async () => {
+      const mockCtx = createMockContext()
+      const imageBuffer = Buffer.from("test image data")
+      const imageId = "123e4567-e89b-12d3-a456-426614174000"
+
+      mockCtx.uploadedFile = {
+        filename: "test-image.iso",
+        mimetype: "application/octet-stream",
+        buffer: imageBuffer,
+      }
+      mockCtx.formFields = { imageId }
+
+      const caller = createCaller(mockCtx)
+
+      // Mock Glance error
+      mockCtx.mockGlance.put.mockRejectedValue({ status: 404, message: "Image not found" })
+
+      const mockError = new TRPCError({ code: "NOT_FOUND", message: "Image not found" })
+      ;(imageHelpers.ImageErrorHandlers.upload as Mock).mockReturnValue(mockError)
+
+      await expect(caller.image.uploadImage()).rejects.toThrow("Image not found")
+    })
+
+    it("should handle Glance permission error - forbidden", async () => {
+      const mockCtx = createMockContext()
+      const imageBuffer = Buffer.from("test image data")
+      const imageId = "123e4567-e89b-12d3-a456-426614174000"
+
+      mockCtx.uploadedFile = {
+        filename: "test-image.iso",
+        mimetype: "application/octet-stream",
+        buffer: imageBuffer,
+      }
+      mockCtx.formFields = { imageId }
+
+      const caller = createCaller(mockCtx)
+
+      // Mock permission error
+      mockCtx.mockGlance.put.mockRejectedValue({ status: 403, message: "Access forbidden" })
+
+      const mockError = new TRPCError({ code: "FORBIDDEN", message: "Cannot upload to protected image" })
+      ;(imageHelpers.ImageErrorHandlers.upload as Mock).mockReturnValue(mockError)
+
+      await expect(caller.image.uploadImage()).rejects.toThrow("Cannot upload to protected image")
+    })
+
+    it("should handle Glance state error - conflict", async () => {
+      const mockCtx = createMockContext()
+      const imageBuffer = Buffer.from("test image data")
+      const imageId = "123e4567-e89b-12d3-a456-426614174000"
+
+      mockCtx.uploadedFile = {
+        filename: "test-image.iso",
+        mimetype: "application/octet-stream",
+        buffer: imageBuffer,
+      }
+      mockCtx.formFields = { imageId }
+
+      const caller = createCaller(mockCtx)
+
+      // Mock state error
+      mockCtx.mockGlance.put.mockRejectedValue({ status: 409, message: "Invalid image state" })
+
+      const mockError = new TRPCError({
+        code: "CONFLICT",
+        message: "Image is not in a valid state for upload",
+      })
+      ;(imageHelpers.ImageErrorHandlers.upload as Mock).mockReturnValue(mockError)
+
+      await expect(caller.image.uploadImage()).rejects.toThrow("Image is not in a valid state for upload")
+    })
+
+    it("should handle large file upload (100MB)", async () => {
+      const mockCtx = createMockContext()
+      // 100MB file
+      const largeBuffer = Buffer.alloc(100 * 1024 * 1024)
+      const imageId = "123e4567-e89b-12d3-a456-426614174000"
+
+      mockCtx.uploadedFile = {
+        filename: "large-image.iso",
+        mimetype: "application/octet-stream",
+        buffer: largeBuffer,
+      }
+      mockCtx.formFields = { imageId }
+
+      const caller = createCaller(mockCtx)
+
+      mockCtx.mockGlance.put.mockResolvedValue({ ok: true })
+
+      const result = await caller.image.uploadImage()
+
+      expect(mockCtx.mockGlance.put).toHaveBeenCalled()
+      expect(result).toEqual({ success: true, imageId })
+    })
+
+    it("should validate glance service is available", async () => {
+      const mockCtx = createMockContext(false, true)
+      const imageBuffer = Buffer.from("test image data")
+      const imageId = "123e4567-e89b-12d3-a456-426614174000"
+
+      mockCtx.uploadedFile = {
+        filename: "test-image.iso",
+        mimetype: "application/octet-stream",
+        buffer: imageBuffer,
+      }
+      mockCtx.formFields = { imageId }
+
+      const caller = createCaller(mockCtx)
+
+      await expect(caller.image.uploadImage()).rejects.toThrow()
+    })
+
+    it("should return both success flag and imageId", async () => {
+      const mockCtx = createMockContext()
+      const imageBuffer = Buffer.from("test image data")
+      const imageId = "123e4567-e89b-12d3-a456-426614174000"
+
+      mockCtx.uploadedFile = {
+        filename: "test-image.iso",
+        mimetype: "application/octet-stream",
+        buffer: imageBuffer,
+      }
+      mockCtx.formFields = { imageId }
+
+      const caller = createCaller(mockCtx)
+
+      mockCtx.mockGlance.put.mockResolvedValue({ ok: true })
+
+      const result = await caller.image.uploadImage()
+
+      expect(result).toHaveProperty("success")
+      expect(result).toHaveProperty("imageId")
+      expect(result.success).toBe(true)
+      expect(result.imageId).toBe(imageId)
+    })
+
+    it("should use web stream for Glance upload", async () => {
+      const mockCtx = createMockContext()
+      const imageBuffer = Buffer.from("test image data")
+      const imageId = "123e4567-e89b-12d3-a456-426614174000"
+
+      mockCtx.uploadedFile = {
+        filename: "test-image.iso",
+        mimetype: "application/octet-stream",
+        buffer: imageBuffer,
+      }
+      mockCtx.formFields = { imageId }
+
+      const caller = createCaller(mockCtx)
+
+      mockCtx.mockGlance.put.mockResolvedValue({ ok: true })
+
+      await caller.image.uploadImage()
+
+      // Verify Glance.put was called with stream (second argument)
+      expect(mockCtx.mockGlance.put).toHaveBeenCalledWith(
+        `v2/images/${imageId}/file`,
+        expect.any(Object), // Stream object (ReadableStream from web API)
+        {
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/octet-stream",
+          },
+        }
+      )
+    })
+
+    it("should handle imageId type validation", async () => {
+      const mockCtx = createMockContext()
+      const imageBuffer = Buffer.from("test image data")
+
+      // ImageId as number instead of string
+      mockCtx.uploadedFile = {
+        filename: "test-image.iso",
+        mimetype: "application/octet-stream",
+        buffer: imageBuffer,
+      }
+      mockCtx.formFields = {
+        imageId: 12345, // Wrong type
+      }
+
+      const caller = createCaller(mockCtx)
+
+      await expect(caller.image.uploadImage()).rejects.toThrow("imageId must be a string")
+    })
+
+    it("should handle buffer type validation", async () => {
+      const mockCtx = createMockContext()
+      const imageId = "123e4567-e89b-12d3-a456-426614174000"
+
+      // FileBuffer as string instead of Buffer
+      mockCtx.uploadedFile = {
+        filename: "test-image.iso",
+        mimetype: "application/octet-stream",
+        // @ts-expect-error Intentionally passing wrong type (string instead of Buffer)
+        // to test runtime validation in validateUploadInput. TypeScript knows buffer
+        // should be Buffer, but we want to verify the function handles type errors at runtime.
+        buffer: "not a buffer", // Wrong type
+      }
+      mockCtx.formFields = { imageId }
+
+      const caller = createCaller(mockCtx)
+
+      await expect(caller.image.uploadImage()).rejects.toThrow("Invalid file format")
     })
   })
 
