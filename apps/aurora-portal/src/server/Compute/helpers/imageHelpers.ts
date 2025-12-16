@@ -131,6 +131,68 @@ export function validateGlanceService(glance: unknown): asserts glance is NonNul
 }
 
 /**
+ * Validates image upload input parameters before uploading to OpenStack Glance
+ *
+ * @param imageId - The OpenStack image ID (typically UUID)
+ * @param fileBuffer - The file data as a Buffer
+ *
+ * @returns { imageId: string (trimmed), fileBuffer: Buffer }
+ *
+ * @throws TRPCError(BAD_REQUEST) if imageId/file missing, invalid, or empty
+ * @throws TRPCError(INTERNAL_SERVER_ERROR) if fileBuffer is not a Buffer instance
+ */
+export function validateUploadInput(imageId: unknown, fileBuffer: unknown): { imageId: string; fileBuffer: Buffer } {
+  // Validate imageId
+  if (!imageId) {
+    throw new TRPCError({
+      code: "BAD_REQUEST",
+      message: "imageId is required",
+    })
+  }
+
+  if (typeof imageId !== "string") {
+    throw new TRPCError({
+      code: "BAD_REQUEST",
+      message: "imageId must be a string",
+    })
+  }
+
+  if (imageId.trim() === "") {
+    throw new TRPCError({
+      code: "BAD_REQUEST",
+      message: "imageId cannot be empty",
+    })
+  }
+
+  // Validate fileBuffer
+  if (!fileBuffer) {
+    throw new TRPCError({
+      code: "BAD_REQUEST",
+      message: "File not uploaded",
+    })
+  }
+
+  if (!(fileBuffer instanceof Buffer)) {
+    throw new TRPCError({
+      code: "INTERNAL_SERVER_ERROR",
+      message: "Invalid file format",
+    })
+  }
+
+  if (fileBuffer.length === 0) {
+    throw new TRPCError({
+      code: "BAD_REQUEST",
+      message: "File is empty",
+    })
+  }
+
+  return {
+    imageId: imageId.trim(),
+    fileBuffer,
+  }
+}
+
+/**
  * Maps Signal OpenStack API Error to appropriate TRPCError instances
  * @param error - The Signal OpenStack API Error
  * @param context - Additional context for error messages (e.g., imageId, operation type)

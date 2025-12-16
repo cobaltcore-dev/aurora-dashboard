@@ -1,4 +1,5 @@
-import Fastify, { FastifyError } from "fastify"
+import "./types"
+import Fastify, { FastifyError, FastifyRequest } from "fastify"
 import FastifyStatic from "@fastify/static"
 import FastifyVite from "@fastify/vite"
 import FastifyCookie from "@fastify/cookie"
@@ -45,12 +46,43 @@ async function startServer() {
     },
   })
 
+  server.addHook("preHandler", async (request: FastifyRequest /* reply: FastifyReply */) => {
+    const contentType = request.headers["content-type"] || ""
+    if (!contentType.includes("multipart")) return
+
+    const fields: Record<string, unknown> = {}
+
+    // Use request.parts() to iterate ALL parts
+    for await (const part of request.parts()) {
+      if (part.type === "field") {
+        // Handle field
+        fields[part.fieldname] = part.value
+      } else if (part.type === "file") {
+        // Handle file
+        const chunks: Buffer[] = []
+
+        for await (const chunk of part.file) {
+          chunks.push(chunk)
+        }
+
+        request.uploadedFile = {
+          filename: part.filename,
+          mimetype: part.mimetype,
+          buffer: Buffer.concat(chunks), // ← Store file as buffer
+        }
+      }
+    }
+    // Store fields on request
+    request.formFields = fields
+  })
+
   // Add support for application/octet-stream content type
   server.addContentTypeParser("application/octet-stream", { parseAs: "buffer" }, (req, body, done) => {
     done(null, body)
   })
 
-  // Custom file upload endpoint (before tRPC registration)
+  // FALLBACK: Direct HTTP endpoint for image file uploads
+  // Use this if you encounter issues with multipart upload via tRPC
   server.post(`${BFF_ENDPOINT}/upload-image`, async (request, reply) => {
     try {
       // Reuse tRPC context for authentication check

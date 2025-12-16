@@ -1,3 +1,4 @@
+import { Readable } from "node:stream"
 import { protectedProcedure } from "../../trpc"
 import {
   applyImageQueryParams,
@@ -8,13 +9,13 @@ import {
   withErrorHandling,
   validateBulkImageIds,
   processBulkOperation,
+  validateUploadInput,
 } from "../helpers/imageHelpers"
 import {
   imageResponseSchema,
   imageSchema,
   GlanceImage,
   createImageInputSchema,
-  uploadImageInputSchema,
   updateImageInputSchema,
   updateImageVisibilityInputSchema,
   deleteImageInputSchema,
@@ -140,42 +141,31 @@ export const imageRouter = {
       }, "create image")
     }),
 
-  uploadImage: protectedProcedure.input(uploadImageInputSchema).mutation(async ({ input, ctx }): Promise<boolean> => {
+  uploadImage: protectedProcedure.mutation(async (opts): Promise<{ success: boolean; imageId: string }> => {
     return withErrorHandling(async () => {
-      const { imageId, imageData, contentType } = input
-      const openstackSession = ctx.openstack
+      const { uploadedFile, formFields } = opts.ctx
+
+      const { imageId, fileBuffer } = validateUploadInput(formFields?.imageId, uploadedFile?.buffer)
+
+      const openstackSession = opts.ctx.openstack
       const glance = openstackSession?.service("glance")
 
       validateGlanceService(glance)
 
-      // Convert the image data to the appropriate format for the request
-      let body: ArrayBuffer | string
-      if (typeof imageData === "string") {
-        // If it's a base64 string, convert to ArrayBuffer
-        const binaryString = atob(imageData)
-        const bytes = new Uint8Array(binaryString.length)
-        for (let i = 0; i < binaryString.length; i++) {
-          bytes[i] = binaryString.charCodeAt(i)
-        }
-        body = bytes.buffer
-      } else if (imageData instanceof Uint8Array) {
-        body = imageData.buffer
-      } else {
-        body = imageData
-      }
+      const webStream = Readable.toWeb(Readable.from(Buffer.from(fileBuffer)))
 
       await glance
-        .put(`v2/images/${imageId}/file`, {
-          body,
+        .put(`v2/images/${formFields?.imageId}/file`, webStream, {
           headers: {
-            "Content-Type": contentType,
+            Accept: "application/json",
+            "Content-Type": "application/octet-stream",
           },
         })
         .catch((error) => {
-          throw ImageErrorHandlers.upload(error, imageId, contentType)
+          throw ImageErrorHandlers.upload(error, imageId, "application/octet-stream")
         })
 
-      return true
+      return { success: true, imageId }
     }, "upload image")
   }),
 

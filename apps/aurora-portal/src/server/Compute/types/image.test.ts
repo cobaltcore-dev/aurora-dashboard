@@ -7,7 +7,6 @@ import {
   listImagesInputSchema,
   getImageByIdInputSchema,
   createImageInputSchema,
-  uploadImageInputSchema,
   updateImageInputSchema,
   updateImageVisibilityInputSchema,
   deleteImageInputSchema,
@@ -506,30 +505,6 @@ describe("Glance Image Schema Validation", () => {
         for (const visibility of validVisibilities) {
           const result = imageVisibilityEnumSchema.safeParse(visibility)
           expect(result.success).toBe(true)
-        }
-      })
-    })
-
-    describe("Upload Image Input", () => {
-      it("should validate upload image input with Uint8Array", () => {
-        const input = {
-          imageId,
-          imageData: new Uint8Array([1, 2, 3, 4, 5]),
-          contentType: "application/octet-stream",
-        }
-        const result = uploadImageInputSchema.safeParse(input)
-        expect(result.success).toBe(true)
-      })
-
-      it("should validate upload image input with string data", () => {
-        const input = {
-          imageId,
-          imageData: "base64-encoded-data",
-        }
-        const result = uploadImageInputSchema.safeParse(input)
-        expect(result.success).toBe(true)
-        if (result.success) {
-          expect(result.data.contentType).toBe("application/octet-stream")
         }
       })
     })
@@ -1142,42 +1117,6 @@ describe("Glance Image Schema Validation", () => {
       }
       const result = updateImageInputSchema.safeParse(input)
       expect(result.success).toBe(true)
-    })
-  })
-
-  describe("Upload Image Data Types", () => {
-    const imageId = "123e4567-e89b-12d3-a456-426614174000"
-
-    it("should validate upload with ArrayBuffer", () => {
-      const buffer = new ArrayBuffer(1024)
-      const input = {
-        imageId,
-        imageData: buffer,
-      }
-      const result = uploadImageInputSchema.safeParse(input)
-      expect(result.success).toBe(true)
-    })
-
-    it("should validate upload with custom content type", () => {
-      const input = {
-        imageId,
-        imageData: new Uint8Array([1, 2, 3]),
-        contentType: "application/x-raw-disk",
-      }
-      const result = uploadImageInputSchema.safeParse(input)
-      expect(result.success).toBe(true)
-    })
-
-    it("should reject upload without imageData", () => {
-      const input = { imageId }
-      const result = uploadImageInputSchema.safeParse(input)
-      expect(result.success).toBe(false)
-    })
-
-    it("should reject upload without imageId", () => {
-      const input = { imageData: new Uint8Array([1, 2, 3]) }
-      const result = uploadImageInputSchema.safeParse(input)
-      expect(result.success).toBe(false)
     })
   })
 

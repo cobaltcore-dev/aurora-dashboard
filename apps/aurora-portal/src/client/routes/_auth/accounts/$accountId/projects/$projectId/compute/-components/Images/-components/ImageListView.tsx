@@ -263,7 +263,7 @@ export function ImageListView({
     try {
       setCreateInProgress(true)
 
-      // Step 1: Create image (via tRPC)
+      // Step 1: Create image
       const createdImage = await createImageMutation.mutateAsync(imageData)
 
       // Step 2: Create FormData WITH file
@@ -271,20 +271,13 @@ export function ImageListView({
       formData.append("imageId", createdImage.id)
       formData.append("file", file)
 
-      // Step 3: Upload file (via HTTP)
-      const { csrfToken } = await fetch("/csrf-token").then((res) => res.json())
+      // Step 3: Upload file
+      // FormData is handled by Fastify's multipart hook before reaching tRPC input validation.
+      // The tRPC client sends FormData as HTTP POST body, which Fastify processes and stores
+      // in request context, so we don't use tRPC input validator for multipart.
 
-      const response = await fetch("/polaris-bff/upload-image", {
-        method: "POST",
-        body: formData,
-        headers: { "x-csrf-token": csrfToken },
-      })
-
-      if (!response.ok) {
-        const { message } = await response.json()
-
-        throw new Error(message)
-      }
+      // @ts-expect-error Argument of type 'FormData' is not assignable to parameter of type 'void'.ts(2345)
+      await uploadImageMutation.mutateAsync(formData)
 
       // Show success notification and re-fetch image list
       setToastData(getImageCreatedToast(imageName, { onDismiss: handleToastDismiss }))

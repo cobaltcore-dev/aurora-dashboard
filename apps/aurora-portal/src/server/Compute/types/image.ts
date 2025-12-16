@@ -300,12 +300,6 @@ export const createImageInputSchema = z
   })
   .catchall(z.string())
 
-// Input schema for uploading image data to an existing image
-export const uploadImageInputSchema = baseImageInputSchema.extend({
-  imageData: z.instanceof(ArrayBuffer).or(z.instanceof(Uint8Array)).or(z.string()), // Binary data or base64 string
-  contentType: z.string().optional().default("application/octet-stream"), // MIME type of the image data
-})
-
 // JSON Patch operation schema for updating images
 const jsonPatchOperationSchema = z.object({
   op: z.enum(["add", "remove", "replace", "move", "copy", "test"]),
@@ -378,7 +372,6 @@ export type DeleteImageMemberInput = z.infer<typeof deleteImageMemberInputSchema
 export type ImageMembersResponse = z.infer<typeof imageMembersResponseSchema>
 export type GetImageByIdInput = z.infer<typeof getImageByIdInputSchema>
 export type CreateImageInput = z.infer<typeof createImageInputSchema>
-export type UploadImageInput = z.infer<typeof uploadImageInputSchema>
 export type UpdateImageInput = z.infer<typeof updateImageInputSchema>
 export type UpdateImageVisibilityInput = z.infer<typeof updateImageVisibilityInputSchema>
 export type DeleteImageInput = z.infer<typeof deleteImageInputSchema>
