@@ -27,7 +27,7 @@ const server = Fastify({
   logger: true,
   // Increase ALL limits
   maxParamLength: 5000,
-  bodyLimit: 1024 * 1024 * 1024, // 1GB body limit
+  bodyLimit: 2 * 1024 * 1024 * 1024, // 2GB body limit
   requestTimeout: 600000, // 10 minutes (600 seconds)
   keepAliveTimeout: 600000, // 10 minutes keep-alive
 })
@@ -41,7 +41,7 @@ async function startServer() {
   // Register multipart/form-data support - MUST be before tRPC
   await server.register(FastifyMultipart, {
     limits: {
-      fileSize: 1024 * 1024 * 1024, // 1GB body limit
+      fileSize: 2 * 1024 * 1024 * 1024, // 2GB body limit
       files: 10, // max 10 files per request
     },
   })
@@ -95,7 +95,7 @@ async function startServer() {
       // Parse multipart form data with file size limit
       const data = await request.file({
         limits: {
-          fileSize: 1024 * 1024 * 1024, // 1GB max
+          fileSize: 2 * 1024 * 1024 * 1024, // 2GB max
         },
       })
 
@@ -139,7 +139,7 @@ async function startServer() {
 
       // Handle file size limit specifically
       if (code === "FST_REQ_FILE_TOO_LARGE") {
-        return reply.code(413).send({ message: "File too large", maxSize: "1GB" })
+        return reply.code(413).send({ message: "File too large", maxSize: "2GB" })
       }
 
       return reply.code(500).send({ message })
