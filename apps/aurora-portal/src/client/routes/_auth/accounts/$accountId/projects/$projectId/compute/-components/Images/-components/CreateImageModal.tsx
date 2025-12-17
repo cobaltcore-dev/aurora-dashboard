@@ -63,6 +63,7 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({ isOpen, onCl
   const [tagsInput, setTagsInput] = useState<string>("")
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [errors, setErrors] = useState<{ [key: string]: string }>({})
+  const [isDragging, setIsDragging] = useState<boolean>(false)
 
   // Get compatible container formats for current disk_format
   const compatibleContainerFormats = useMemo(() => {
@@ -142,6 +143,62 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({ isOpen, onCl
           delete newErrors.file
           return newErrors
         })
+      }
+    }
+  }
+
+  const handleDragOver = (e: React.DragEvent<HTMLLabelElement>) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDragging(true)
+  }
+
+  const handleDragLeave = (e: React.DragEvent<HTMLLabelElement>) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDragging(false)
+  }
+
+  const handleDrop = (e: React.DragEvent<HTMLLabelElement>) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDragging(false)
+
+    const droppedFiles = e.dataTransfer.files
+    if (droppedFiles && droppedFiles.length > 0) {
+      const file = droppedFiles[0]
+      // Validate file type
+      const validExtensions = [
+        ".qcow2",
+        ".raw",
+        ".vmdk",
+        ".vhd",
+        ".vhdx",
+        ".vdi",
+        ".ami",
+        ".ari",
+        ".aki",
+        ".iso",
+        ".ploop",
+        ".img",
+      ]
+      const fileName = file.name.toLowerCase()
+      const isValidFile = validExtensions.some((ext) => fileName.endsWith(ext))
+
+      if (isValidFile) {
+        setSelectedFile(file)
+        if (errors.file) {
+          setErrors((prev) => {
+            const newErrors = { ...prev }
+            delete newErrors.file
+            return newErrors
+          })
+        }
+      } else {
+        setErrors((prev) => ({
+          ...prev,
+          file: t`Invalid file format. Supported formats: ${validExtensions.join(", ")}`,
+        }))
       }
     }
   }
@@ -300,11 +357,16 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({ isOpen, onCl
                 <div className="flex items-center justify-center w-full">
                   <label
                     htmlFor="image-file"
-                    className="flex flex-col items-center justify-center w-full h-24 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors"
+                    onDragOver={handleDragOver}
+                    onDragLeave={handleDragLeave}
+                    onDrop={handleDrop}
+                    className={`flex flex-col items-center justify-center w-full h-24 border-2 border-dashed rounded-lg cursor-pointer transition-all ${
+                      isDragging ? "border-blue-500 bg-blue-50" : "border-gray-300 bg-gray-50 hover:bg-gray-100"
+                    } ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
                   >
                     <div className="flex flex-col items-center justify-center pt-3 pb-3">
                       <svg
-                        className="w-6 h-6 mb-1 text-gray-500"
+                        className={`w-6 h-6 mb-1 transition-colors ${isDragging ? "text-blue-500" : "text-gray-500"}`}
                         aria-hidden="true"
                         xmlns="http://www.w3.org/2000/svg"
                         fill="none"
@@ -318,8 +380,16 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({ isOpen, onCl
                           d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 5.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
                         />
                       </svg>
-                      <p className="text-xs text-gray-500">
-                        <span className="font-semibold">{t`Click to upload`}</span> {t`or drag and drop`}
+                      <p
+                        className={`text-xs transition-colors ${isDragging ? "text-blue-600 font-semibold" : "text-gray-500"}`}
+                      >
+                        {isDragging ? (
+                          <span>{t`Drop your image file here`}</span>
+                        ) : (
+                          <>
+                            <span className="font-semibold">{t`Click to upload`}</span> {t`or drag and drop`}
+                          </>
+                        )}
                       </p>
                       <p className="text-xs text-gray-400">{t`QCOW2, Raw, VMDK, VHD, VHDX, VDI, AMI, ARI, AKI, ISO, PLOOP`}</p>
                     </div>
