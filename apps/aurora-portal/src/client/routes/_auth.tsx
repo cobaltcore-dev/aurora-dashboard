@@ -1,5 +1,6 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router"
 import { useAuth } from "../store/AuthProvider"
+import { InactivityModal } from "../components/Auth/InactivityModal"
 
 export const Route = createFileRoute("/_auth")({
   component: RouteComponent,
@@ -7,10 +8,11 @@ export const Route = createFileRoute("/_auth")({
     if (!context.auth?.isAuthenticated) {
       const token = await context.trpcClient?.auth.getCurrentUserSession.query()
       if (!token) {
+        // Speichere den vollständigen Pfad für Redirect
         throw redirect({
           to: "/auth/login",
           search: {
-            redirect: location.href,
+            redirect: location.pathname + location.search + location.hash,
           },
         })
       }
@@ -22,5 +24,10 @@ export const Route = createFileRoute("/_auth")({
 function RouteComponent() {
   useAuth()
 
-  return <Outlet /> // This is where child routes will render
+  return (
+    <>
+      <InactivityModal />
+      <Outlet />
+    </>
+  )
 }

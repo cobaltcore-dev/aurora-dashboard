@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react"
+import { useNavigate, useRouterState } from "@tanstack/react-router"
 
 export function SessionExpirationTimer(props: { className?: string; sessionExpired: Date; logout?: () => void }) {
   const [timeLeft, setTimeLeft] = useState<string>("")
+  const navigate = useNavigate()
+  const location = useRouterState({ select: (s) => s.location })
 
   useEffect(() => {
     const updateCountdown = () => {
@@ -30,18 +33,34 @@ export function SessionExpirationTimer(props: { className?: string; sessionExpir
 
     // auto logout when session expires
     let logoutTimer: NodeJS.Timeout
-    // only set the timer if the logout function is provided
     if (props.logout) {
       const delay = props.sessionExpired.getTime() - Date.now()
-      if (delay < 0) props.logout()
-      else logoutTimer = setTimeout(props.logout, delay)
+      if (delay < 0) {
+        props.logout()
+        navigate({
+          to: "/auth/login",
+          search: {
+            redirect: location.href,
+          },
+        })
+      } else {
+        logoutTimer = setTimeout(() => {
+          props.logout?.()
+          navigate({
+            to: "/auth/login",
+            search: {
+              redirect: location.href,
+            },
+          })
+        }, delay)
+      }
     }
 
     return () => {
       clearInterval(intervalId)
       clearTimeout(logoutTimer)
     }
-  }, [props.sessionExpired])
+  }, [props.sessionExpired, props.logout, navigate, location])
 
   return <div className={`text-xs pt-2 pb-2 text-theme-light ${props.className || ""}`}>{timeLeft}</div>
 }

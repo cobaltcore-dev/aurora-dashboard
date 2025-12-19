@@ -8,6 +8,7 @@ import { ErrorBoundary } from "../components/Error/ErrorBoundry"
 import { NotFound } from "../components/Error/NotFound"
 import { NavigationItem } from "../components/navigation/types"
 import styles from "../index.css?inline"
+import { InactivityModal } from "../components/Auth/InactivityModal"
 
 interface RouterContext {
   trpcReact: TrpcReact
@@ -34,6 +35,7 @@ function AuroraLayout() {
       <style>{styles.toString()}</style>
 
       <AppShell pageHeader={<MainNavigation items={navItems} handleThemeToggle={handleThemeToggle} />} fullWidthContent>
+        <InactivityModal />
         <Outlet />
         {isNavigating && (
           <Stack className="fixed inset-0" distribution="center" alignment="center">
