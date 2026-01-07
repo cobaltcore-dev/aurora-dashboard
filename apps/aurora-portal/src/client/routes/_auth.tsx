@@ -24,6 +24,5 @@ export const Route = createFileRoute("/_auth")({
 function RouteComponent() {
   useAuth()
 
-  // ✅ Modal wurde entfernt - ist jetzt in App.tsx
   return <Outlet />
 }
