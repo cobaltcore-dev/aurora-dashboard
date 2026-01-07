@@ -21,12 +21,10 @@ export function InactivityModal() {
       disableCancelButton
       size="small"
     >
-      <div className="space-y-4">
-        <p>{message}</p>
-        <p>
-          <Trans>Please log in again to continue.</Trans>
-        </p>
-      </div>
+      <p>{message}</p>
+      <p>
+        <Trans>Please log in again to continue.</Trans>
+      </p>
     </Modal>
   )
 }
