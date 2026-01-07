@@ -67,10 +67,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // For inactive/expired: Show modal instead of direct navigation
       if (reason === "inactive" || reason === "expired") {
         const currentPath = window.location.pathname + window.location.search
-
-        console.log("Logout reason:", reason)
-        console.log("Current path:", currentPath)
-
         if (currentPath && currentPath.startsWith("/")) {
           setRedirectAfterModal(currentPath)
         }
@@ -90,7 +86,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     clearInactivityTimer()
 
     inactivityTimerRef.current = setTimeout(() => {
-      console.log("Inactivity timeout triggered")
       logout("inactive")
     }, INACTIVITY_TIMEOUT)
   }, [isAuthenticated, clearInactivityTimer, logout])
@@ -126,7 +121,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       logoutTimerRef.current = setTimeout(() => {
-        console.log("Token expiration timeout triggered")
         logout("expired")
       }, timeUntilExpiry)
     }
