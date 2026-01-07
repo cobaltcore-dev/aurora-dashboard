@@ -356,8 +356,7 @@ export function ImageListView({
       }
     } catch (error) {
       const { message } = error as TRPCError
-
-      console.log("Bulk delete error: ", message)
+      console.error(message)
 
       setToastData(
         getBulkDeleteErrorToast(imageIds.length, imageIds.length, {
@@ -386,8 +385,7 @@ export function ImageListView({
       }
     } catch (error) {
       const { message } = error as TRPCError
-
-      console.log("Bulk activate error: ", message)
+      console.error(message)
 
       setToastData(
         getBulkActivateErrorToast(imageIds.length, imageIds.length, {
@@ -416,8 +414,7 @@ export function ImageListView({
       }
     } catch (error) {
       const { message } = error as TRPCError
-
-      console.log("Bulk deactivate error: ", message)
+      console.error(message)
 
       setToastData(
         getBulkDeactivateErrorToast(imageIds.length, imageIds.length, {

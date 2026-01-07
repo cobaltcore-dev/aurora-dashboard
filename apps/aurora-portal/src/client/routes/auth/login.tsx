@@ -14,7 +14,14 @@ export const Route = createFileRoute("/auth/login")({
   beforeLoad: ({ context, search }) => {
     if (context.auth?.isAuthenticated) {
       const savedRedirect = sessionStorage.getItem("redirect_after_login")
-      const redirectTo = savedRedirect || search.redirect || `/accounts/${context.auth.user?.domain.id}/projects`
+
+      let redirectTo = `/accounts/${context.auth.user?.domain.id}/projects`
+
+      if (savedRedirect && typeof savedRedirect === "string" && savedRedirect.startsWith("/")) {
+        redirectTo = savedRedirect
+      } else if (search.redirect && typeof search.redirect === "string" && search.redirect.startsWith("/")) {
+        redirectTo = search.redirect
+      }
 
       throw redirect({ to: redirectTo })
     }
@@ -62,24 +69,28 @@ export function AuthLoginPage() {
     try {
       const token = await trpcClient.auth.createUserSession.mutate(form)
 
-      // ✅ Erst login aufrufen (setzt user state und startet Timer)
       await login(token.user, token.expires_at)
 
-      // ✅ Dann redirect-Pfad bestimmen
       const savedRedirect = sessionStorage.getItem("redirect_after_login")
-      const redirectTo = savedRedirect || search.redirect || `/accounts/${token.user.domain.id}/projects`
+      const searchRedirect = search.redirect
+      const defaultRedirect = `/accounts/${token.user.domain.id}/projects`
 
-      // ✅ Cleanup der sessionStorage
+      let redirectTo = defaultRedirect
+
+      if (savedRedirect && typeof savedRedirect === "string" && savedRedirect.startsWith("/")) {
+        redirectTo = savedRedirect
+      } else if (searchRedirect && typeof searchRedirect === "string" && searchRedirect.startsWith("/")) {
+        redirectTo = searchRedirect
+      }
+
       sessionStorage.removeItem("redirect_after_login")
       sessionStorage.removeItem("logout_reason")
 
-      // ✅ Navigate mit replace: true (entfernt Login-Page aus History)
       await navigate({
         to: redirectTo,
         replace: true,
       })
     } catch (error) {
-      // ✅ Bei Fehler: login(null) um State zu clearen
       await login(null)
       console.error("Error logging in: ", error)
 

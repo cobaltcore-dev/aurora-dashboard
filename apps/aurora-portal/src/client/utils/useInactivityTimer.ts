@@ -1,7 +1,7 @@
 import { useEffect, useRef, useCallback } from "react"
 
 interface UseInactivityTimerProps {
-  timeout: number // in milliseconds
+  timeout: number
   onInactive: () => void
   enabled?: boolean
 }

@@ -1,8 +1,8 @@
-import React, { useEffect, useRef, useCallback } from "react"
+import React, { useEffect, useRef, useCallback, useState } from "react"
 import { TokenData } from "../../server/Authentication/types/models"
 import { router } from "../router"
 
-type User = TokenData["user"] | null
+export type User = TokenData["user"] | null
 
 export interface AuthContext {
   isAuthenticated: boolean
@@ -11,23 +11,27 @@ export interface AuthContext {
   user?: User
   expiresAt?: Date
   logoutReason?: "inactive" | "expired" | "manual"
+  showInactivityModal: boolean
+  closeInactivityModal: () => void
+  redirectAfterModal?: string
 }
 
 const AuthContext = React.createContext<AuthContext | null>(null)
 
-const INACTIVITY_TIMEOUT = 30 * 1000 // 30s
+const INACTIVITY_TIMEOUT = 60 * 60 * 1000 // 60 minutes
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = React.useState<User | null>(null)
   const [expiresAt, setExpiresAt] = React.useState<Date | undefined>(undefined)
   const [logoutReason, setLogoutReason] = React.useState<"inactive" | "expired" | "manual" | undefined>(undefined)
+  const [showInactivityModal, setShowInactivityModal] = useState(false)
+  const [redirectAfterModal, setRedirectAfterModal] = useState<string | undefined>(undefined)
 
   const logoutTimerRef = useRef<NodeJS.Timeout | null>(null)
   const inactivityTimerRef = useRef<NodeJS.Timeout | null>(null)
 
   const isAuthenticated = !!user
 
-  // Function to clear logout timer
   const clearLogoutTimer = useCallback(() => {
     if (logoutTimerRef.current) {
       clearTimeout(logoutTimerRef.current)
@@ -42,42 +46,62 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [])
 
+  const closeInactivityModal = useCallback(() => {
+    setShowInactivityModal(false)
+
+    router.navigate({
+      to: "/auth/login",
+      search: redirectAfterModal ? { redirect: redirectAfterModal } : undefined,
+    })
+  }, [redirectAfterModal])
+
   const logout = useCallback(
     async (reason: "inactive" | "expired" | "manual" = "manual") => {
       clearLogoutTimer()
       clearInactivityTimer()
 
-      if (reason === "inactive" || reason === "expired") {
-        const currentPath = window.location.pathname + window.location.search + window.location.hash
-        sessionStorage.setItem("redirect_after_login", currentPath)
-        sessionStorage.setItem("logout_reason", reason)
-      }
-
       setUser(null)
       setExpiresAt(undefined)
       setLogoutReason(reason)
 
-      router.invalidate()
+      // For inactive/expired: Show modal instead of direct navigation
+      if (reason === "inactive" || reason === "expired") {
+        const currentPath = window.location.pathname + window.location.search
+
+        console.log("Logout reason:", reason)
+        console.log("Current path:", currentPath)
+
+        if (currentPath && currentPath.startsWith("/")) {
+          setRedirectAfterModal(currentPath)
+        }
+
+        setShowInactivityModal(true)
+      } else {
+        // Manual logout: direct navigation
+        router.invalidate()
+      }
     },
     [clearLogoutTimer, clearInactivityTimer]
   )
+
   const resetInactivityTimer = useCallback(() => {
     if (!isAuthenticated) return
 
     clearInactivityTimer()
 
     inactivityTimerRef.current = setTimeout(() => {
+      console.log("Inactivity timeout triggered")
       logout("inactive")
     }, INACTIVITY_TIMEOUT)
   }, [isAuthenticated, clearInactivityTimer, logout])
 
-  // Login function
   const login = useCallback(
     async (user: User, expires_at?: string) => {
       setUser(user)
       setLogoutReason(undefined)
+      setShowInactivityModal(false)
+      setRedirectAfterModal(undefined)
 
-      // Set expiration if provided
       if (expires_at) {
         const expiration = new Date(expires_at)
         setExpiresAt(expiration)
@@ -85,13 +109,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setExpiresAt(undefined)
       }
 
-      // Start inactivity timer after login
       resetInactivityTimer()
     },
     [resetInactivityTimer]
   )
 
-  // Effect to handle session expiration based on token
   useEffect(() => {
     clearLogoutTimer()
 
@@ -103,8 +125,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return
       }
 
-      // Set timer for automatic logout when token expires
       logoutTimerRef.current = setTimeout(() => {
+        console.log("Token expiration timeout triggered")
         logout("expired")
       }, timeUntilExpiry)
     }
@@ -114,7 +136,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [user, expiresAt, logout, clearLogoutTimer])
 
-  // Effect to setup inactivity detection
   useEffect(() => {
     if (!isAuthenticated) {
       clearInactivityTimer()
@@ -127,10 +148,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       resetInactivityTimer()
     }
 
-    // Initialize inactivity timer
     resetInactivityTimer()
 
-    // Add event listeners
     events.forEach((event) => {
       document.addEventListener(event, handleActivity, true)
     })
@@ -152,6 +171,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         logout,
         expiresAt,
         logoutReason,
+        showInactivityModal,
+        closeInactivityModal,
+        redirectAfterModal,
       }}
     >
       {children}
