@@ -7,7 +7,7 @@ interface RequestParams {
   options?: {
     host?: string
     headers?: Record<string, string>
-    body?: string | object | FormData | Blob | ArrayBuffer
+    body?: string | object | FormData | Blob | ArrayBuffer | ReadableStream
     queryParams?: Record<string, string | string[] | number | boolean | null | undefined>
     signal?: AbortSignal
     debug?: boolean
@@ -22,6 +22,7 @@ function redactSensitiveData<T>(obj: T): T {
     const redacted: T = JSON.parse(
       JSON.stringify(obj, (key, value) => {
         // Handle special types
+        if (value instanceof ReadableStream) return "[ReadableStream]"
         if (value instanceof FormData) return "[FormData]"
         if (value instanceof Blob) return "[Blob]"
         if (value instanceof ArrayBuffer) return "[ArrayBuffer]"
@@ -116,11 +117,16 @@ const request = ({ method, path, options = {} }: RequestParams) => {
     searchParams: options.queryParams && buildSearchParams(options.queryParams),
   })
 
-  let body: string | FormData | Blob | ArrayBuffer | undefined
+  let body: string | FormData | Blob | ArrayBuffer | ReadableStream | undefined
   const headers = { ...options.headers }
 
   if (options.body) {
-    if (options.body instanceof FormData || options.body instanceof Blob || options.body instanceof ArrayBuffer) {
+    if (
+      (typeof ReadableStream !== "undefined" && options.body instanceof ReadableStream) ||
+      options.body instanceof FormData ||
+      options.body instanceof Blob ||
+      options.body instanceof ArrayBuffer
+    ) {
       body = options.body
     } else if (typeof options.body === "string") {
       body = options.body
@@ -138,14 +144,30 @@ const request = ({ method, path, options = {} }: RequestParams) => {
     console.debug(`===Signal Openstack Debug: `, JSON.stringify(debugData, null, 2))
   }
 
-  return fetch(url.toString(), { headers, method, body, signal: options.signal })
+  return fetch(url.toString(), {
+    headers,
+    method,
+    body,
+    signal: options.signal,
+    // ✅ Enable duplex for streaming uploads
+    //@ts-expect-error No overload matches this call.
+    duplex: "half", // TypeScript types don't include duplex yet
+  })
     .then(async (response) => {
       if (response.ok) {
         return response
       } else {
-        const errorObject = await response.json()
-        const parsedError = parseErrorObject(errorObject)
-        throw new SignalOpenstackApiError(parsedError || response.statusText, response.status)
+        const contentType = response.headers.get("content-type")
+
+        if (contentType?.includes("application/json")) {
+          const errorObject = await response.json()
+          const parsedError = parseErrorObject(errorObject)
+          throw new SignalOpenstackApiError(parsedError || response.statusText, response.status)
+        } else {
+          const errorText = response.text ? await response.text() : ""
+
+          throw new SignalOpenstackApiError(errorText.substring(0, 500) || response.statusText, response.status)
+        }
       }
     })
     .catch((error) => {

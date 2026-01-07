@@ -235,51 +235,75 @@ Returns `GlanceImage` or `undefined` on error.
 
 ### Upload Image Data
 
-Uploads binary data to an existing image.
+Uploads binary data to an existing image. Two methods are available:
+
+#### Method 1: tRPC Mutation
 
 **Endpoint:** `uploadImage`  
 **Method:** Mutation  
 **Input Schema:** `uploadImageInputSchema`
 
-#### Parameters
+Use this for uploading files via tRPC protocol.
 
-| Parameter     | Type                                | Description                  | Default                    |
-| ------------- | ----------------------------------- | ---------------------------- | -------------------------- |
-| `imageId`     | string (UUID)                       | Target image UUID            | Required                   |
-| `imageData`   | ArrayBuffer \| Uint8Array \| string | Binary data or base64 string | Required                   |
-| `contentType` | string                              | MIME type                    | `application/octet-stream` |
+#### Method 2: HTTP Endpoint (Fallback)
 
-#### Example Request
+**Endpoint:** `POST /polaris-bff/upload-image`  
+**Method:** HTTP POST  
+**Content-Type:** multipart/form-data
+
+Alternative HTTP endpoint available as additional option for file uploads.
+
+#### Parameters (Both Methods)
+
+| Parameter | Type   | Description                                 |
+| --------- | ------ | ------------------------------------------- |
+| `imageId` | string | UUID of the target image (must be `queued`) |
+| `file`    | File   | Binary image data                           |
+
+#### Example Request (tRPC)
 
 ```typescript
-// Upload from file
-const fileData = await file.arrayBuffer()
-const success = await client.compute.image.uploadImage.mutate({
-  imageId: "a85abd86-55b3-4413-a5b7-6cd8a6bd99ac",
-  imageData: fileData,
-  contentType: "application/octet-stream",
-})
-
-// Upload from base64
-const success = await client.compute.image.uploadImage.mutate({
-  imageId: "a85abd86-55b3-4413-a5b7-6cd8a6bd99ac",
-  imageData: base64String,
-  contentType: "image/qcow2",
+const result = await client.compute.image.uploadImage.mutate({
+  // File upload handling via tRPC client
 })
 ```
 
-#### Response
+#### Example Request (HTTP Fallback)
 
-Returns `boolean` - `true` on success, `false` on failure.
+```typescript
+const fileInput = document.getElementById("imageFile") as HTMLInputElement
+const file = fileInput.files?.[0]
+const imageId = "a85abd86-55b3-4413-a5b7-6cd8a6bd99ac"
+
+if (file) {
+  const formData = new FormData()
+  formData.append("file", file)
+  formData.append("imageId", imageId)
+
+  const response = await fetch("/polaris-bff/upload-image", {
+    method: "POST",
+    body: formData,
+  })
+
+  if (response.ok) {
+    const result = await response.json() // { success: true, imageId }
+  }
+}
+```
+
+#### Response (Both Methods)
+
+Returns `{ success: boolean; imageId: string }` on success.
 
 #### Error Handling
 
+- **400**: Invalid upload data or missing imageId
+- **403**: Access forbidden - cannot upload to image
 - **404**: Image not found
-- **403**: Access forbidden
-- **409**: Image not in valid state (must be `queued`)
-- **400**: Invalid data or headers
-- **413**: Image data too large
+- **409**: Image not in valid state for upload (must be `queued`)
+- **413**: File data too large
 - **415**: Unsupported content type
+- **500**: Upload failed or service unavailable
 
 ---
 

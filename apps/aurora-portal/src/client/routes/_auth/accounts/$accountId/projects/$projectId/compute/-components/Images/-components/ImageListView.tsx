@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, ReactNode } from "react"
-import type { GlanceImage } from "@/server/Compute/types/image"
+import type { CreateImageInput, GlanceImage } from "@/server/Compute/types/image"
 import {
   Button,
   Checkbox,
@@ -14,8 +14,10 @@ import {
   ToastProps,
 } from "@cloudoperators/juno-ui-components"
 import { trpcReact } from "@/client/trpcClient"
-import { TRPCError } from "@trpc/server"
-import { Trans, useLingui } from "@lingui/react/macro"
+import { TRPCClientError } from "@trpc/client"
+import { InferrableClientTypes } from "@trpc/server/unstable-core-do-not-import"
+import { FastifyError } from "fastify"
+import { Trans } from "@lingui/react/macro"
 import { EditImageDetailsModal } from "./EditImageDetailsModal"
 import { EditImageMetadataModal } from "./EditImageMetadataModal"
 import { ImageTableRow } from "./ImageTableRow"
@@ -43,6 +45,8 @@ import {
   getBulkDeactivateSuccessToast,
   getBulkDeactivateErrorToast,
   getBulkDeactivatePartialToast,
+  getImageCreateErrorToast,
+  getImageFileUploadErrorToast,
 } from "./ImageToastNotifications"
 
 interface ImagePageProps {
@@ -92,8 +96,6 @@ export function ImageListView({
   activeImages,
   deactivatedImages,
 }: ImagePageProps) {
-  const { t } = useLingui()
-
   const [toastData, setToastData] = useState<ToastProps | null>(null)
 
   const [editDetailsModalOpen, setEditDetailsModalOpen] = useState(false)
@@ -101,6 +103,7 @@ export function ImageListView({
   const [createModalOpen, setCreateModalOpen] = useState(false)
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
   const [selectedImage, setSelectedImage] = useState<GlanceImage | null>(null)
+  const [isCreateInProgress, setCreateInProgress] = useState(false)
 
   // Intersection Observer for infinite scroll
   const loadMoreRef = useRef<HTMLDivElement>(null)
@@ -172,6 +175,14 @@ export function ImageListView({
     },
   })
 
+  const createImageMutation = trpcReact.compute.createImage.useMutation({
+    onSuccess: () => {
+      utils.compute.listImagesWithPagination.invalidate()
+    },
+  })
+
+  const uploadImageMutation = trpcReact.compute.uploadImage.useMutation()
+
   const isLoading =
     deleteImageMutation.isPending ||
     deactivateImageMutation.isPending ||
@@ -237,7 +248,7 @@ export function ImageListView({
       setEditMetadataModalOpen(false)
       setToastData(getImageUpdatedToast(imageName, { onDismiss: handleToastDismiss }))
     } catch (error) {
-      const { message } = error as TRPCError
+      const { message } = error as TRPCClientError<InferrableClientTypes>
 
       // Show error toast but keep modal open so user can retry
       setToastData(getImageUpdateErrorToast(imageName, message, { onDismiss: handleToastDismiss }))
@@ -246,13 +257,46 @@ export function ImageListView({
     setSelectedImage(null)
   }
 
-  const handleCreate = (newImage: Partial<GlanceImage>) => {
-    setCreateModalOpen(false)
-    const imageName = newImage.name || t`Unnamed`
+  const handleCreate = async (imageData: CreateImageInput, file: File) => {
+    const imageName = imageData.name || "Unnamed"
 
-    setToastData(getImageCreatedToast(imageName, { onDismiss: handleToastDismiss }))
+    try {
+      setCreateInProgress(true)
 
-    utils.compute.listImagesWithPagination.invalidate()
+      // Step 1: Create image
+      const createdImage = await createImageMutation.mutateAsync(imageData)
+
+      // Step 2: Create FormData WITH file
+      const formData = new FormData()
+      formData.append("imageId", createdImage.id)
+      formData.append("file", file)
+
+      // Step 3: Upload file
+      // FormData is handled by Fastify's multipart hook before reaching tRPC input validation.
+      // The tRPC client sends FormData as HTTP POST body, which Fastify processes and stores
+      // in request context, so we don't use tRPC input validator for multipart.
+
+      // @ts-expect-error Argument of type 'FormData' is not assignable to parameter of type 'void'.ts(2345)
+      await uploadImageMutation.mutateAsync(formData)
+
+      // Show success notification and re-fetch image list
+      setToastData(getImageCreatedToast(imageName, { onDismiss: handleToastDismiss }))
+      utils.compute.listImagesWithPagination.invalidate()
+    } catch (error) {
+      // Show error notification based on failure point
+      if (error instanceof TRPCClientError && error.data.path === "compute.createImage") {
+        setToastData(getImageCreateErrorToast(imageName, error.message, { onDismiss: handleToastDismiss }))
+      } else {
+        // File upload failed
+        const { message } = error as FastifyError
+
+        setToastData(getImageFileUploadErrorToast(file.name, message, { onDismiss: handleToastDismiss }))
+      }
+    } finally {
+      // Complete creation and close modal
+      setCreateInProgress(false)
+      setCreateModalOpen(false)
+    }
   }
 
   const handleDelete = async (deletedImage: GlanceImage) => {
@@ -267,7 +311,7 @@ export function ImageListView({
 
       setToastData(getImageDeletedToast(imageName, { onDismiss: handleToastDismiss }))
     } catch (error) {
-      const { message } = error as TRPCError
+      const { message } = error as TRPCClientError<InferrableClientTypes>
 
       setToastData(getImageDeleteErrorToast(imageId, message, { onDismiss: handleToastDismiss }))
     }
@@ -291,7 +335,7 @@ export function ImageListView({
 
       setToastData(toast)
     } catch (error) {
-      const { message } = error as TRPCError
+      const { message } = error as TRPCClientError<InferrableClientTypes>
 
       const toast =
         updatedImage.status === "deactivated"
@@ -355,7 +399,7 @@ export function ImageListView({
         setToastData(getBulkDeletePartialToast(successCount, failedCount, { onDismiss: handleToastDismiss }))
       }
     } catch (error) {
-      const { message } = error as TRPCError
+      const { message } = error as TRPCClientError<InferrableClientTypes>
 
       console.log("Bulk delete error: ", message)
 
@@ -385,7 +429,7 @@ export function ImageListView({
         setToastData(getBulkActivatePartialToast(successCount, failedCount, { onDismiss: handleToastDismiss }))
       }
     } catch (error) {
-      const { message } = error as TRPCError
+      const { message } = error as TRPCClientError<InferrableClientTypes>
 
       console.log("Bulk activate error: ", message)
 
@@ -415,7 +459,7 @@ export function ImageListView({
         setToastData(getBulkDeactivatePartialToast(successCount, failedCount, { onDismiss: handleToastDismiss }))
       }
     } catch (error) {
-      const { message } = error as TRPCError
+      const { message } = error as TRPCClientError<InferrableClientTypes>
 
       console.log("Bulk deactivate error: ", message)
 
@@ -580,7 +624,7 @@ export function ImageListView({
           image={selectedImage}
           isOpen={deleteModalOpen}
           isLoading={isLoading}
-          isDisabled={!selectedImage.protected && permissions.canDelete}
+          isDisabled={selectedImage.protected || !permissions.canDelete}
           onClose={closeDeleteModal}
           onDelete={handleDelete}
         />
@@ -613,7 +657,12 @@ export function ImageListView({
           />
         </>
       )}
-      <CreateImageModal isOpen={createModalOpen} onClose={() => setCreateModalOpen(false)} onCreate={handleCreate} />
+      <CreateImageModal
+        isOpen={createModalOpen}
+        onClose={() => setCreateModalOpen(false)}
+        onCreate={handleCreate}
+        isLoading={createImageMutation.isPending || uploadImageMutation.isPending || isCreateInProgress}
+      />
       {toastData && (
         <Toast {...toastData} className="fixed top-5 right-5 z-50 border border-theme-light rounded-lg shadow-lg" />
       )}

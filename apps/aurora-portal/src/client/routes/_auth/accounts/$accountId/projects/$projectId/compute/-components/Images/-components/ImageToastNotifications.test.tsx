@@ -6,6 +6,8 @@ import {
   getImageUpdatedToast,
   getImageUpdateErrorToast,
   getImageCreatedToast,
+  getImageCreateErrorToast,
+  getImageFileUploadErrorToast,
   getImageDeletedToast,
   getImageDeleteErrorToast,
   getImageActivatedToast,
@@ -147,6 +149,143 @@ describe("ImageToastNotifications", () => {
       const toast = getImageCreatedToast("test", { onDismiss: mockOnDismiss, autoDismissTimeout: 10000 })
 
       expect(toast.autoDismissTimeout).toBe(10000)
+    })
+  })
+
+  describe("getImageCreateErrorToast", () => {
+    it("should return error toast with correct structure", () => {
+      const imageName = "failed-image"
+      const message = "Invalid file format"
+      const toast = getImageCreateErrorToast(imageName, message, defaultConfig)
+
+      expect(toast.variant).toBe("error")
+      expect(toast.autoDismiss).toBe(true)
+      expect(toast.autoDismissTimeout).toBe(5000)
+      expect(toast.onDismiss).toBe(mockOnDismiss)
+      expect(toast.children).toBeDefined()
+    })
+
+    it("should render correct error message content", () => {
+      const imageName = "failed-image"
+      const message = "Invalid file format"
+      const toast = getImageCreateErrorToast(imageName, message, defaultConfig)
+
+      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+
+      expect(screen.getByText("Unable to Create Image")).toBeInTheDocument()
+      expect(screen.getByText(/failed-image/)).toBeInTheDocument()
+      expect(screen.getByText(/could not be created/)).toBeInTheDocument()
+      expect(screen.getByText(/Invalid file format/)).toBeInTheDocument()
+    })
+
+    it("should handle different error messages", () => {
+      const imageName = "test-image"
+      const message = "Storage quota exceeded"
+      const toast = getImageCreateErrorToast(imageName, message, defaultConfig)
+
+      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+
+      expect(screen.getByText(/Storage quota exceeded/)).toBeInTheDocument()
+    })
+
+    it("should use custom autoDismissTimeout when provided", () => {
+      const toast = getImageCreateErrorToast("test", "error", {
+        onDismiss: mockOnDismiss,
+        autoDismissTimeout: 10000,
+      })
+
+      expect(toast.autoDismissTimeout).toBe(10000)
+    })
+
+    it("should handle long error messages", () => {
+      const imageName = "test-image"
+      const longMessage = "Failed to create image: The file exceeds the maximum allowed size of 10GB"
+      const toast = getImageCreateErrorToast(imageName, longMessage, defaultConfig)
+
+      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+
+      expect(screen.getByText(/Failed to create image/)).toBeInTheDocument()
+      expect(screen.getByText(/exceeds the maximum allowed size/)).toBeInTheDocument()
+    })
+  })
+
+  describe("getImageFileUploadErrorToast", () => {
+    it("should return error toast with correct structure", () => {
+      const fileName = "large-image.qcow2"
+      const message = "Network timeout"
+      const toast = getImageFileUploadErrorToast(fileName, message, defaultConfig)
+
+      expect(toast.variant).toBe("error")
+      expect(toast.autoDismiss).toBe(true)
+      expect(toast.autoDismissTimeout).toBe(5000)
+      expect(toast.onDismiss).toBe(mockOnDismiss)
+      expect(toast.children).toBeDefined()
+    })
+
+    it("should render correct error message content", () => {
+      const fileName = "image.qcow2"
+      const message = "Connection lost"
+      const toast = getImageFileUploadErrorToast(fileName, message, defaultConfig)
+
+      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+
+      expect(screen.getByText("Unable to Upload Image File")).toBeInTheDocument()
+      expect(screen.getByText(/image\.qcow2/)).toBeInTheDocument()
+      expect(screen.getByText(/Failed to upload file/)).toBeInTheDocument()
+      expect(screen.getByText(/Connection lost/)).toBeInTheDocument()
+    })
+
+    it("should handle different error messages", () => {
+      const fileName = "test-image.img"
+      const message = "Insufficient disk space"
+      const toast = getImageFileUploadErrorToast(fileName, message, defaultConfig)
+
+      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+
+      expect(screen.getByText(/Insufficient disk space/)).toBeInTheDocument()
+    })
+
+    it("should handle file names with special characters", () => {
+      const fileName = "my-image_v2.1.qcow2"
+      const message = "Upload failed"
+      const toast = getImageFileUploadErrorToast(fileName, message, defaultConfig)
+
+      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+
+      expect(screen.getByText(/my-image_v2\.1\.qcow2/)).toBeInTheDocument()
+    })
+
+    it("should use custom autoDismissTimeout when provided", () => {
+      const toast = getImageFileUploadErrorToast("file.img", "error", {
+        onDismiss: mockOnDismiss,
+        autoDismissTimeout: 8000,
+      })
+
+      expect(toast.autoDismissTimeout).toBe(8000)
+    })
+
+    it("should handle long error messages", () => {
+      const fileName = "large-image.qcow2"
+      const longMessage =
+        "Failed to upload file: Request entity too large. The file size exceeds the maximum allowed limit of 50GB per upload"
+      const toast = getImageFileUploadErrorToast(fileName, longMessage, defaultConfig)
+
+      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+
+      expect(screen.getByText(/Failed to upload file/)).toBeInTheDocument()
+      expect(screen.getByText(/exceeds the maximum allowed limit/)).toBeInTheDocument()
+    })
+
+    it("should handle empty error message", () => {
+      const fileName = "image.qcow2"
+      const message = ""
+      const toast = getImageFileUploadErrorToast(fileName, message, defaultConfig)
+
+      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+
+      expect(screen.getByText(/image\.qcow2/)).toBeInTheDocument()
+      // Should still render title even with empty message
+      expect(screen.getByText("Unable to Upload Image File")).toBeInTheDocument()
     })
   })
 
