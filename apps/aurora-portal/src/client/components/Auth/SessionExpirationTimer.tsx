@@ -34,13 +34,15 @@ export function SessionExpirationTimer(props: { className?: string; sessionExpir
     // auto logout when session expires
     let logoutTimer: NodeJS.Timeout
     if (props.logout) {
+      const redirectPath = location.pathname ? location.pathname : ""
+
       const delay = props.sessionExpired.getTime() - Date.now()
       if (delay < 0) {
         props.logout()
         navigate({
           to: "/auth/login",
           search: {
-            redirect: location.href,
+            redirect: redirectPath,
           },
         })
       } else {
@@ -49,7 +51,7 @@ export function SessionExpirationTimer(props: { className?: string; sessionExpir
           navigate({
             to: "/auth/login",
             search: {
-              redirect: location.href,
+              redirect: redirectPath,
             },
           })
         }, delay)

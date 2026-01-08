@@ -7,13 +7,11 @@ export const Route = createFileRoute("/_auth")({
     if (!context.auth?.isAuthenticated) {
       const token = await context.trpcClient?.auth.getCurrentUserSession.query()
       if (!token) {
-        const redirectPath = location.pathname + location.search
+        const redirectPath = location.pathname ? location.pathname : ""
 
         throw redirect({
           to: "/auth/login",
-          search: {
-            redirect: redirectPath,
-          },
+          search: { redirect: redirectPath },
         })
       }
       context.auth?.login(token.user, token.expires_at)
