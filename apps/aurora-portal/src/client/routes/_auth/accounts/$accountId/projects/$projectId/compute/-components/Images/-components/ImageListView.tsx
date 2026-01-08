@@ -104,6 +104,7 @@ export function ImageListView({
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
   const [selectedImage, setSelectedImage] = useState<GlanceImage | null>(null)
   const [isCreateInProgress, setCreateInProgress] = useState(false)
+  const [uploadId, setUploadId] = useState<string | null>(null)
 
   // Intersection Observer for infinite scroll
   const loadMoreRef = useRef<HTMLDivElement>(null)
@@ -182,6 +183,27 @@ export function ImageListView({
   })
 
   const uploadImageMutation = trpcReact.compute.uploadImage.useMutation()
+
+  const { data } = trpcReact.compute.getUploadProgress.useQuery(
+    { uploadId },
+    {
+      enabled: uploadImageMutation.isPending && !!uploadId, // Only poll while uploading
+      refetchInterval: uploadImageMutation.isPending ? 50 : false, // Poll every 50ms
+      refetchIntervalInBackground: true,
+      staleTime: 0, // Always fetch fresh
+      gcTime: 0, // Don't cache
+    }
+  )
+
+  const progressPercent = data?.total ? Math.round((data.uploaded / data.total) * 100) : 0
+
+  // TODO: Remove it later
+  console.log("upload progress: ", {
+    uploaded: data?.uploaded || 0,
+    total: data?.total || 0,
+    percent: progressPercent,
+    isPending: uploadImageMutation.isPending,
+  })
 
   const isLoading =
     deleteImageMutation.isPending ||
@@ -271,6 +293,8 @@ export function ImageListView({
       formData.append("imageId", createdImage.id)
       formData.append("file", file)
 
+      setUploadId(createdImage.id)
+
       // Step 3: Upload file
       // FormData is handled by Fastify's multipart hook before reaching tRPC input validation.
       // The tRPC client sends FormData as HTTP POST body, which Fastify processes and stores
@@ -296,6 +320,7 @@ export function ImageListView({
       // Complete creation and close modal
       setCreateInProgress(false)
       setCreateModalOpen(false)
+      setUploadId(null)
     }
   }
 

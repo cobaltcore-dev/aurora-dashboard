@@ -1,4 +1,3 @@
-import { Readable } from "node:stream"
 import { protectedProcedure } from "../../trpc"
 import {
   applyImageQueryParams,
@@ -39,6 +38,10 @@ import {
   deactivateImagesInputSchema,
   BulkOperationResult,
 } from "../types/image"
+import { z } from "zod"
+
+// Store upload progress
+const uploadProgress = new Map<string, { uploaded: number; total: number }>()
 
 export const imageRouter = {
   listImages: protectedProcedure.input(listImagesInputSchema).query(async ({ input, ctx }): Promise<GlanceImage[]> => {
@@ -152,10 +155,40 @@ export const imageRouter = {
 
       validateGlanceService(glance)
 
-      const webStream = Readable.toWeb(Readable.from(Buffer.from(fileBuffer)))
+      uploadProgress.set(imageId, { uploaded: 0, total: fileBuffer.length })
+
+      const progress = uploadProgress.get(imageId)!
+
+      const CHUNK_SIZE = 64 * 1024 // 64KB
+
+      // Create a custom ReadableStream that emits buffer in chunks
+      const uploadStream = new ReadableStream({
+        async start(controller) {
+          try {
+            let offset = 0
+
+            while (offset < fileBuffer.length) {
+              const chunk = fileBuffer.slice(offset, offset + CHUNK_SIZE)
+              progress.uploaded += chunk.length
+
+              console.log(`Uploading chunk: ${progress.uploaded} / ${fileBuffer.length}`)
+
+              controller.enqueue(chunk)
+              offset += CHUNK_SIZE
+
+              // Yield control to allow progress queries to run between chunks
+              await new Promise((resolve) => setTimeout(resolve, 0))
+            }
+
+            controller.close()
+          } catch (error) {
+            controller.error(error)
+          }
+        },
+      })
 
       await glance
-        .put(`v2/images/${imageId}/file`, webStream, {
+        .put(`v2/images/${imageId}/file`, uploadStream, {
           headers: {
             Accept: "application/json",
             "Content-Type": "application/octet-stream",
@@ -164,9 +197,20 @@ export const imageRouter = {
         .catch((error) => {
           throw ImageErrorHandlers.upload(error, imageId, "application/octet-stream")
         })
+        .finally(() => {
+          uploadProgress.delete(imageId)
+        })
 
       return { success: true, imageId }
     }, "upload image")
+  }),
+
+  getUploadProgress: protectedProcedure.input(z.object({ uploadId: z.string().nullable() })).query(({ input }) => {
+    if (!input.uploadId) {
+      return
+    }
+
+    return uploadProgress.get(input.uploadId) || null
   }),
 
   updateImage: protectedProcedure
