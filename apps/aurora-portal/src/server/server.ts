@@ -1,13 +1,16 @@
-import Fastify from "fastify"
+import "./types"
+import Fastify, { FastifyError, FastifyRequest } from "fastify"
 import FastifyStatic from "@fastify/static"
 import FastifyVite from "@fastify/vite"
 import FastifyCookie from "@fastify/cookie"
 import FastifyHelmet from "@fastify/helmet"
-import { FastifyTRPCPluginOptions, fastifyTRPCPlugin } from "@trpc/server/adapters/fastify"
+import FastifyMultipart, { MultipartFields, MultipartValue } from "@fastify/multipart"
+import { CreateFastifyContextOptions, FastifyTRPCPluginOptions, fastifyTRPCPlugin } from "@trpc/server/adapters/fastify"
 import { appRouter, AuroraRouter } from "./routers" // tRPC router
 import { createContext } from "./context"
 import * as dotenv from "dotenv"
 import path from "path"
+import { Readable } from "node:stream"
 import { ZodError } from "zod"
 import { AuroraFastifySessionFromToken, AuroraFastifyCsrfProtection } from "./aurora-fastify-plugins"
 
@@ -22,13 +25,125 @@ const BFF_ENDPOINT = process.env.BFF_ENDPOINT || "/polaris-bff"
 // Initialize Fastify server
 const server = Fastify({
   logger: true,
-  maxParamLength: 5000, // Increased limit for handling large requests
+  // Increase ALL limits
+  maxParamLength: 5000,
+  bodyLimit: 2 * 1024 * 1024 * 1024, // 2GB body limit
+  requestTimeout: 600000, // 10 minutes (600 seconds)
+  keepAliveTimeout: 600000, // 10 minutes keep-alive
 })
 
 async function startServer() {
   // Register cookie middleware - required for session management and CSRF
   server.register(FastifyCookie, {
     secret: undefined, // Should be set to a secure value in production
+  })
+
+  // Register multipart/form-data support - MUST be before tRPC
+  await server.register(FastifyMultipart, {
+    limits: {
+      fileSize: 2 * 1024 * 1024 * 1024, // 2GB body limit
+      files: 10, // max 10 files per request
+    },
+  })
+
+  server.addHook("preHandler", async (request: FastifyRequest /* reply: FastifyReply */) => {
+    const contentType = request.headers["content-type"] || ""
+    if (!contentType.includes("multipart")) return
+
+    const fields: Record<string, unknown> = {}
+
+    // Use request.parts() to iterate ALL parts
+    for await (const part of request.parts()) {
+      if (part.type === "field") {
+        // Handle field
+        fields[part.fieldname] = part.value
+      } else if (part.type === "file") {
+        // Handle file
+        const chunks: Buffer[] = []
+
+        for await (const chunk of part.file) {
+          chunks.push(chunk)
+        }
+
+        request.uploadedFile = {
+          filename: part.filename,
+          mimetype: part.mimetype,
+          buffer: Buffer.concat(chunks), // ← Store file as buffer
+        }
+      }
+    }
+    // Store fields on request
+    request.formFields = fields
+  })
+
+  // Add support for application/octet-stream content type
+  server.addContentTypeParser("application/octet-stream", { parseAs: "buffer" }, (req, body, done) => {
+    done(null, body)
+  })
+
+  // FALLBACK: Direct HTTP endpoint for image file uploads
+  // Use this if you encounter issues with multipart upload via tRPC
+  server.post(`${BFF_ENDPOINT}/upload-image`, async (request, reply) => {
+    try {
+      // Reuse tRPC context for authentication check
+      const ctx = await createContext({ req: request, res: reply } as CreateFastifyContextOptions)
+
+      if (!ctx.validateSession()) {
+        return reply.code(401).send({ message: "Unauthorized" })
+      }
+
+      // Parse multipart form data with file size limit
+      const data = await request.file({
+        limits: {
+          fileSize: 2 * 1024 * 1024 * 1024, // 2GB max
+        },
+      })
+
+      if (!data) {
+        return reply.code(400).send({ message: "No file" })
+      }
+
+      // Extract additional fields from request
+      const fields: MultipartFields = data.fields
+      const imageId = (fields.imageId as MultipartValue)?.value
+
+      if (!imageId) {
+        return reply.code(400).send({ message: "No imageId provided" })
+      }
+
+      // Upload to Glance
+      const glance = ctx.openstack?.service("glance")
+
+      if (!glance) {
+        return reply.code(500).send({ message: "Glance service unavailable" })
+      }
+
+      const webStream = Readable.toWeb(data.file)
+
+      await glance.put(
+        `v2/images/${imageId}/file`,
+        webStream, // ← Stream the file directly to Glance
+        {
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/octet-stream",
+          },
+        }
+      )
+
+      return reply.send({ success: true, imageId })
+    } catch (error) {
+      request.log.error(error)
+
+      const { code, message } = error as FastifyError
+
+      // Handle file size limit specifically
+      if (code === "FST_REQ_FILE_TOO_LARGE") {
+        return reply.code(413).send({ message: "File too large", maxSize: "2GB" })
+      }
+
+      return reply.code(500).send({ message })
+    }
   })
 
   // Register session restoration plugin

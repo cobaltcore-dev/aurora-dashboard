@@ -231,7 +231,7 @@ export const listImagesInputSchema = z.object({
   status: multiValueFilter(statusFilterSchema).optional(),
   visibility: imageVisibilityFilterSchema.optional(), // Single-value only
   owner: z.string().optional(),
-  protected: z.boolean().optional(),
+  protected: z.string().optional(),
 
   // Format filtering with multi-value support
   container_format: multiValueFilter(containerFormatFilterSchema).optional(),
@@ -274,7 +274,7 @@ export const createImageInputSchema = z
     // Core properties that can be set during creation
     name: z.string().optional(),
     id: z.string().uuid().optional(), // Optional UUID, API will generate if omitted
-    container_format: containerFormatSchema.optional(),
+    container_format: containerFormatSchema.optional().default("bare"),
     disk_format: diskFormatSchema.optional(),
     visibility: imageVisibilityEnumSchema.optional().default("private"),
     protected: z.boolean().optional().default(false),
@@ -299,12 +299,6 @@ export const createImageInputSchema = z
     // Allow additional custom properties as strings
   })
   .catchall(z.string())
-
-// Input schema for uploading image data to an existing image
-export const uploadImageInputSchema = baseImageInputSchema.extend({
-  imageData: z.instanceof(ArrayBuffer).or(z.instanceof(Uint8Array)).or(z.string()), // Binary data or base64 string
-  contentType: z.string().optional().default("application/octet-stream"), // MIME type of the image data
-})
 
 // JSON Patch operation schema for updating images
 const jsonPatchOperationSchema = z.object({
@@ -358,10 +352,6 @@ export const imageResponseSchema = z.object({
   images: z.array(imageSchema),
 })
 
-export const imageDetailResponseSchema = z.object({
-  image: imageSchema,
-})
-
 // Schema for paginated images response (includes pagination links)
 export const imagesPaginatedResponseSchema = z.object({
   images: z.array(imageSchema),
@@ -382,7 +372,6 @@ export type DeleteImageMemberInput = z.infer<typeof deleteImageMemberInputSchema
 export type ImageMembersResponse = z.infer<typeof imageMembersResponseSchema>
 export type GetImageByIdInput = z.infer<typeof getImageByIdInputSchema>
 export type CreateImageInput = z.infer<typeof createImageInputSchema>
-export type UploadImageInput = z.infer<typeof uploadImageInputSchema>
 export type UpdateImageInput = z.infer<typeof updateImageInputSchema>
 export type UpdateImageVisibilityInput = z.infer<typeof updateImageVisibilityInputSchema>
 export type DeleteImageInput = z.infer<typeof deleteImageInputSchema>

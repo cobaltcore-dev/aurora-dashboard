@@ -131,6 +131,68 @@ export function validateGlanceService(glance: unknown): asserts glance is NonNul
 }
 
 /**
+ * Validates image upload input parameters before uploading to OpenStack Glance
+ *
+ * @param imageId - The OpenStack image ID (typically UUID)
+ * @param fileBuffer - The file data as a Buffer
+ *
+ * @returns { imageId: string (trimmed), fileBuffer: Buffer }
+ *
+ * @throws TRPCError(BAD_REQUEST) if imageId/file missing, invalid, or empty
+ * @throws TRPCError(INTERNAL_SERVER_ERROR) if fileBuffer is not a Buffer instance
+ */
+export function validateUploadInput(imageId: unknown, fileBuffer: unknown): { imageId: string; fileBuffer: Buffer } {
+  // Validate imageId
+  if (!imageId) {
+    throw new TRPCError({
+      code: "BAD_REQUEST",
+      message: "imageId is required",
+    })
+  }
+
+  if (typeof imageId !== "string") {
+    throw new TRPCError({
+      code: "BAD_REQUEST",
+      message: "imageId must be a string",
+    })
+  }
+
+  if (imageId.trim() === "") {
+    throw new TRPCError({
+      code: "BAD_REQUEST",
+      message: "imageId cannot be empty",
+    })
+  }
+
+  // Validate fileBuffer
+  if (!fileBuffer) {
+    throw new TRPCError({
+      code: "BAD_REQUEST",
+      message: "File not uploaded",
+    })
+  }
+
+  if (!(fileBuffer instanceof Buffer)) {
+    throw new TRPCError({
+      code: "INTERNAL_SERVER_ERROR",
+      message: "Invalid file format",
+    })
+  }
+
+  if (fileBuffer.length === 0) {
+    throw new TRPCError({
+      code: "BAD_REQUEST",
+      message: "File is empty",
+    })
+  }
+
+  return {
+    imageId: imageId.trim(),
+    fileBuffer,
+  }
+}
+
+/**
  * Maps Signal OpenStack API Error to appropriate TRPCError instances
  * @param error - The Signal OpenStack API Error
  * @param context - Additional context for error messages (e.g., imageId, operation type)
@@ -607,4 +669,151 @@ export async function processBulkOperation<T extends { id: string }>(
   }
 
   return results
+}
+
+/**
+ * OpenStack Glance Image Format Compatibility Matrix
+ * Official reference: https://docs.openstack.org/glance/latest/
+ *
+ * disk_format: The actual format of the underlying virtual machine image
+ * container_format: The container format used to encapsulate the disk image
+ */
+
+/**
+ * Official OpenStack Glance compatibility matrix
+ * Maps each disk_format to its compatible container_formats
+ *
+ * Reference table:
+ * ┌────────────┬──────────────────────────────────┬─────────────┐
+ * │disk_format │ compatible container_formats     │ Recommended │
+ * ├────────────┼──────────────────────────────────┼─────────────┤
+ * │ qcow2      │ bare, ova, docker                │ bare        │
+ * │ raw        │ bare, ova, docker                │ bare        │
+ * │ vmdk       │ bare, ova                        │ bare        │
+ * │ vhd        │ bare, ova                        │ bare        │
+ * │ vhdx       │ bare, ova                        │ bare        │
+ * │ vdi        │ bare, ova                        │ bare        │
+ * │ iso        │ bare                             │ bare        │
+ * │ ami        │ ami                              │ ami         │
+ * │ aki        │ aki                              │ aki         │
+ * │ ari        │ ari                              │ ari         │
+ * │ ploop      │ bare                             │ bare        │
+ * └────────────┴──────────────────────────────────┴─────────────┘
+ */
+export const diskFormatCompatibility: Record<string, string[]> = {
+  // QEMU Emulator - Recommended for OpenStack/KVM
+  qcow2: ["bare", "ova", "docker"],
+
+  // Uncompressed disk image
+  raw: ["bare", "ova", "docker"],
+
+  // VMware Virtual Machine Disk format
+  vmdk: ["bare", "ova"],
+
+  // Microsoft Virtual Hard Disk format
+  vhd: ["bare", "ova"],
+
+  // Microsoft Virtual Hard Disk Extended format
+  vhdx: ["bare", "ova"],
+
+  // Oracle VirtualBox Virtual Disk Image
+  vdi: ["bare", "ova"],
+
+  // Optical Disk Image - only bare container
+  iso: ["bare"],
+
+  // Amazon Machine Image - only ami container
+  ami: ["ami"],
+
+  // Amazon Kernel Image - only aki container
+  aki: ["aki"],
+
+  // Amazon Ramdisk Image - only ari container
+  ari: ["ari"],
+
+  // Virtuozzo/Parallels Loopback Disk
+  ploop: ["bare"],
+}
+
+/**
+ * Default (recommended) container_format for each disk_format
+ * These are the best practice selections based on OpenStack documentation
+ */
+export const defaultContainerFormat: Record<string, string> = {
+  // QEMU - Recommended bare for OpenStack KVM deployments
+  qcow2: "bare",
+
+  // Raw - Bare is most compatible
+  raw: "bare",
+
+  // VMware - Bare for OpenStack compatibility
+  vmdk: "bare",
+
+  // Hyper-V - Bare for OpenStack compatibility
+  vhd: "bare",
+
+  // Hyper-V Extended - Bare for OpenStack compatibility
+  vhdx: "bare",
+
+  // VirtualBox - Bare for OpenStack compatibility
+  vdi: "bare",
+
+  // ISO - Only bare available
+  iso: "bare",
+
+  // Amazon - Only ami available
+  ami: "ami",
+
+  // Amazon - Only aki available
+  aki: "aki",
+
+  // Amazon - Only ari available
+  ari: "ari",
+
+  // Parallels - Bare is the only option
+  ploop: "bare",
+}
+
+/**
+ * Get all compatible container formats for a given disk format
+ * @param diskFormat - The disk format to check
+ * @returns Array of compatible container formats, empty array if disk_format not found
+ *
+ * @example
+ * getCompatibleContainerFormats('qcow2') // Returns: ['bare', 'ova', 'docker']
+ * getCompatibleContainerFormats('iso')   // Returns: ['bare']
+ * getCompatibleContainerFormats('ami')   // Returns: ['ami']
+ */
+export function getCompatibleContainerFormats(diskFormat: string): string[] {
+  return diskFormatCompatibility[diskFormat] || []
+}
+
+/**
+ * Get the recommended (default) container format for a given disk format
+ * @param diskFormat - The disk format to check
+ * @returns The recommended container format, or empty string if disk_format not found
+ *
+ * @example
+ * getDefaultContainerFormat('qcow2') // Returns: 'bare'
+ * getDefaultContainerFormat('vmdk')  // Returns: 'bare'
+ * getDefaultContainerFormat('ami')   // Returns: 'ami'
+ */
+export function getDefaultContainerFormat(diskFormat: string): string {
+  return defaultContainerFormat[diskFormat] || ""
+}
+
+/**
+ * Check if a disk_format and container_format combination is valid
+ * @param diskFormat - The disk format to validate
+ * @param containerFormat - The container format to validate
+ * @returns true if the combination is valid, false otherwise
+ *
+ * @example
+ * isValidFormatCombination('qcow2', 'bare')   // Returns: true
+ * isValidFormatCombination('qcow2', 'ova')    // Returns: true
+ * isValidFormatCombination('iso', 'docker')   // Returns: false
+ */
+export function isValidFormatCombination(diskFormat: string, containerFormat: string): boolean {
+  const compatible = getCompatibleContainerFormats(diskFormat)
+  return compatible.includes(containerFormat)
 }

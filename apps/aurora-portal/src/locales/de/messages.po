@@ -68,7 +68,7 @@ msgstr "Alle aktivieren"
 msgid "Activate Images"
 msgstr "Images aktivieren"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageToastNotifications.tsx:256
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageToastNotifications.tsx:290
 msgid "Activated {successCount} image(s), but {failedCount} image(s) could not be activated."
 msgstr "{successCount} Image(s) aktiviert, aber {failedCount} Image(s) konnten nicht aktiviert werden."
 
@@ -77,8 +77,9 @@ msgid "Activated images will become available for launching new instances and cr
 msgstr "Aktivierte Images werden zum Starten neuer Instanzen und Erstellen von Volumes verfügbar. Diese Aktion stellt die volle Funktionalität der ausgewählten Images wieder her."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageDetailsModal.tsx:279
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/CreateImageModal.tsx:397
 msgid "Add"
-msgstr ""
+msgstr "Hinzufügen"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:192
 msgid "Add Metadata"
@@ -147,12 +148,21 @@ msgstr "Zurück zu Images"
 msgid "Basic Information"
 msgstr ""
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/CreateImageModal.tsx:543
+msgid "Boot RAM"
+msgstr "Boot-RAM"
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/CreateImageModal.tsx:530
+msgid "Boot size"
+msgstr "Boot-Größe"
+
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/DeleteClusterDialog.tsx:47
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageMetadataModal.tsx:299
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageDetailsModal.tsx:235
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImagesModal.tsx:53
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImageModal.tsx:66
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeactivateImagesModal.tsx:53
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/CreateImageModal.tsx:278
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ActivateImagesModal.tsx:53
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/TenantAccessFormRow.tsx:41
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/SpecFormRow.tsx:51
@@ -180,6 +190,10 @@ msgstr "Prüfsumme"
 #: src/client/components/ListToolbar/SelectedFilters.tsx:45
 msgid "Clear all"
 msgstr "Alle Filter löschen"
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/CreateImageModal.tsx:322
+msgid "Click to upload"
+msgstr "Zum Hochladen klicken"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterWizard/BasicInfoStep.tsx:75
 msgid "Cloud Profile"
@@ -218,6 +232,7 @@ msgid "Code View"
 msgstr "Code-Ansicht"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageDetailsModal.tsx:305
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/CreateImageModal.tsx:424
 msgid "Community"
 msgstr "Community"
 
@@ -231,8 +246,13 @@ msgstr "Support kontaktieren"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/List.tsx:58
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageDetailsView.tsx:59
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/CreateImageModal.tsx:459
 msgid "Container Format"
 msgstr "Container-Format"
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/CreateImageModal.tsx:201
+msgid "Container format is required"
+msgstr "Container-Format ist erforderlich"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Instances/-components/ServerListView.tsx:22
 msgid "CPU"
@@ -247,13 +267,21 @@ msgstr "Cluster erstellen"
 msgid "Create Flavor"
 msgstr "Flavor erstellen"
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/CreateImageModal.tsx:275
+msgid "Create Image"
+msgstr "Image erstellen"
+
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/CreateFlavorModal.tsx:157
 msgid "Create New Flavor"
 msgstr "Neuen Flavor erstellen"
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/CreateImageModal.tsx:263
+msgid "Create New Image"
+msgstr "Neues Image erstellen"
+
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/ServerGroups/components/ServerGroupListView.tsx:61
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/KeyPairs/-components/KeyPairListView.tsx:55
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:479
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:534
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImageModal.tsx:124
 msgid "Created"
 msgstr "Erstellt"
@@ -284,7 +312,7 @@ msgstr "Alle deaktivieren"
 msgid "Deactivate Images"
 msgstr "Images deaktivieren"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageToastNotifications.tsx:320
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageToastNotifications.tsx:354
 msgid "Deactivated {successCount} image(s), but {failedCount} image(s) could not be deactivated."
 msgstr "{successCount} Image(s) deaktiviert, aber {failedCount} Image(s) konnten nicht deaktiviert werden."
 
@@ -327,7 +355,7 @@ msgstr "Flavor löschen"
 msgid "Delete Images"
 msgstr "Images löschen"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageToastNotifications.tsx:192
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageToastNotifications.tsx:226
 msgid "Deleted {successCount} image(s), but {failedCount} image(s) could not be deleted."
 msgstr "{successCount} Image(s) gelöscht, aber {failedCount} Image(s) konnten nicht gelöscht werden."
 
@@ -368,11 +396,16 @@ msgid "Disk (GiB)"
 msgstr "Disk (GiB)"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/List.tsx:52
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:476
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:531
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageDetailsView.tsx:53
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImageModal.tsx:110
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/CreateImageModal.tsx:434
 msgid "Disk Format"
 msgstr "Festplattenformat"
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/CreateImageModal.tsx:197
+msgid "Disk format is required"
+msgstr "Festplattenformat ist erforderlich"
 
 #: src/client/routes/index.tsx:46
 msgid "Documentation"
@@ -384,7 +417,7 @@ msgstr "Domain"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageDetailsModal.tsx:275
 msgid "e.g., production, linux, ubuntu"
-msgstr ""
+msgstr "z. B. production, linux, ubuntu"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterWizard/InfrastructureStep.tsx:36
 msgid "Each worker nodes will automatically scale between its minimum and maximum number of nodes based on the workload demands. Ensure your maximum node counts allign with your resouce quotas."
@@ -417,7 +450,7 @@ msgstr "Metadaten bearbeiten"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageDetailsModal.tsx:274
 msgid "Enter a tag and press Enter or click Add"
-msgstr ""
+msgstr "Geben Sie ein Tag ein und drücken Sie Enter oder klicken Sie auf Hinzufügen"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/SpecFormRow.tsx:34
 msgid "Enter key"
@@ -479,11 +512,11 @@ msgstr "Der Key für die Extra-Spec ist erforderlich und darf nicht leer sein."
 msgid "Extra Specs"
 msgstr ""
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageToastNotifications.tsx:234
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageToastNotifications.tsx:268
 msgid "Failed to activate {failedCount} of {totalCount} image(s). Some images may already be active or in an invalid state."
 msgstr "{failedCount} von {totalCount} Image(s) konnten nicht aktiviert werden. Einige Images sind möglicherweise bereits aktiv oder in einem ungültigen Zustand."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageToastNotifications.tsx:232
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageToastNotifications.tsx:266
 msgid "Failed to Activate Images"
 msgstr "Fehler beim Aktivieren der Images"
 
@@ -511,15 +544,15 @@ msgstr "Fehler beim Erstellen des Flavors. Bitte versuchen Sie es erneut."
 msgid "Failed to create the flavor. Please try again."
 msgstr "Fehler beim Erstellen des Flavors. Bitte versuchen Sie es erneut."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageToastNotifications.tsx:298
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageToastNotifications.tsx:332
 msgid "Failed to deactivate {failedCount} of {totalCount} image(s). Some images may already be deactivated or in an invalid state."
 msgstr "{failedCount} von {totalCount} Image(s) konnten nicht deaktiviert werden. Einige Images sind möglicherweise bereits deaktiviert oder in einem ungültigen Zustand."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageToastNotifications.tsx:296
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageToastNotifications.tsx:330
 msgid "Failed to Deactivate Images"
 msgstr "Fehler beim Deaktivieren der Images"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageToastNotifications.tsx:171
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageToastNotifications.tsx:205
 msgid "Failed to delete {failedCount} of {totalCount} image(s). Some images may be protected or in use."
 msgstr "{failedCount} von {totalCount} Image(s) konnten nicht gelöscht werden. Einige Images sind möglicherweise geschützt oder werden verwendet."
 
@@ -531,7 +564,7 @@ msgstr "Fehler beim löschen des Clusters:"
 msgid "Failed to delete flavor. Please try again."
 msgstr "Fehler beim Löschen des Flavors. Bitte versuchen Sie es erneut."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageToastNotifications.tsx:169
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageToastNotifications.tsx:203
 msgid "Failed to Delete Images"
 msgstr "Fehler beim Löschen der Images"
 
@@ -563,11 +596,15 @@ msgstr ""
 msgid "Failed to remove tenant access from flavor. Please try again."
 msgstr "Fehler beim Entfernen des Mandantenzugriffs vom Flavor. Bitte versuchen Sie es erneut."
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageToastNotifications.tsx:76
+msgid "Failed to upload file \"{fileName}\": {message}"
+msgstr "Fehler beim Hochladen der Datei \"{fileName}\": {message}"
+
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageDetailsView.tsx:152
 msgid "False"
 msgstr "False"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:532
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:587
 msgid "Fetching..."
 msgstr "Wird abgerufen..."
 
@@ -677,15 +714,23 @@ msgstr "Wenn diese Option aktiviert ist, wird dieser Flavor für alle Projekte v
 msgid "Image"
 msgstr "Image"
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/CreateImageModal.tsx:297
+msgid "Image File"
+msgstr "Image-Datei"
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/CreateImageModal.tsx:193
+msgid "Image file is required"
+msgstr "Image-Datei ist erforderlich"
+
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageToastNotifications.tsx:14
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageToastNotifications.tsx:44
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageToastNotifications.tsx:57
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageToastNotifications.tsx:87
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageToastNotifications.tsx:100
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageToastNotifications.tsx:91
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageToastNotifications.tsx:121
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageToastNotifications.tsx:134
 msgid "Image Instance"
 msgstr "Image-Instanz"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageToastNotifications.tsx:88
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageToastNotifications.tsx:122
 msgid "Image instance \"{imageName}\" has been activated"
 msgstr "Image-Instanz \"{imageName}\" wurde aktiviert"
 
@@ -693,11 +738,11 @@ msgstr "Image-Instanz \"{imageName}\" wurde aktiviert"
 msgid "Image instance \"{imageName}\" has been created"
 msgstr "Image-Instanz \"{imageName}\" wurde erstellt"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageToastNotifications.tsx:101
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageToastNotifications.tsx:135
 msgid "Image instance \"{imageName}\" has been deactivated"
 msgstr "Image-Instanz \"{imageName}\" wurde deaktiviert"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageToastNotifications.tsx:58
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageToastNotifications.tsx:92
 msgid "Image instance \"{imageName}\" has been deleted"
 msgstr "Image-Instanz \"{imageName}\" wurde gelöscht"
 
@@ -705,12 +750,14 @@ msgstr "Image-Instanz \"{imageName}\" wurde gelöscht"
 msgid "Image instance \"{imageName}\" has been updated"
 msgstr "Image-Instanz \"{imageName}\" wurde aktualisiert"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:464
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:519
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageDetailsModal.tsx:255
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/CreateImageModal.tsx:369
 msgid "Image Name"
 msgstr "Image-Name"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageDetailsModal.tsx:174
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/CreateImageModal.tsx:189
 msgid "Image name is required"
 msgstr "Image-Name ist erforderlich"
 
@@ -727,15 +774,15 @@ msgstr "Image Version"
 msgid "Images"
 msgstr "Images"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageToastNotifications.tsx:211
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageToastNotifications.tsx:245
 msgid "Images Activated"
 msgstr "Images aktiviert"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageToastNotifications.tsx:275
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageToastNotifications.tsx:309
 msgid "Images Deactivated"
 msgstr "Images deaktiviert"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageToastNotifications.tsx:152
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageToastNotifications.tsx:186
 msgid "Images Deleted"
 msgstr "Images gelöscht"
 
@@ -775,6 +822,10 @@ msgstr "Infrastruktur"
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterWizard/ReviewStep.tsx:67
 msgid "Infrastructure Configuration"
 msgstr "Infrastruktur-Konfiguration"
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/CreateImageModal.tsx:207
+msgid "Invalid format combination for selected disk format"
+msgstr "Ungültige Formatkombination für das ausgewählte Festplattenformat"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/flavorValidation.ts:75
 msgid "Invalid value for public flavor setting."
@@ -817,11 +868,15 @@ msgstr "Kubernetes Updates"
 msgid "Kubernetes Version"
 msgstr "Kubernetes Version"
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/CreateImageModal.tsx:499
+msgid "Linux, Windows"
+msgstr "Linux, Windows"
+
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail/ViewToggleButtons.tsx:36
 msgid "List View"
 msgstr "Tabellenansicht"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:523
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:578
 msgid "Load More"
 msgstr "Mehr laden"
 
@@ -853,7 +908,7 @@ msgstr "Lädt Instanzen..."
 msgid "Loading Key Pairs..."
 msgstr "Lädt Key Pairs..."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:515
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:570
 msgid "Loading more..."
 msgstr "Weitere werden geladen..."
 
@@ -863,7 +918,7 @@ msgstr "Lädt Servergruppen"
 
 #: src/client/routes/auth/login.tsx:223
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Overview.tsx:114
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:431
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:481
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:87
 msgid "Loading..."
 msgstr "Lädt..."
@@ -929,6 +984,14 @@ msgstr ""
 msgid "Metadata \"{trimmedKey}\" has been added successfully."
 msgstr ""
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/CreateImageModal.tsx:526
+msgid "Min Disk (GB)"
+msgstr "Min. Disk (GB)"
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/CreateImageModal.tsx:539
+msgid "Min RAM (MB)"
+msgstr "Min. RAM (MB)"
+
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail/WorkerSection.tsx:78
 msgid "Min:"
 msgstr "Min:"
@@ -946,6 +1009,7 @@ msgid "Minimum Disk (GB)"
 msgstr "Minimale Festplatte (GB)"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageDetailsModal.tsx:178
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/CreateImageModal.tsx:212
 msgid "Minimum disk must be 0 or greater"
 msgstr "Minimale Festplatte muss 0 oder größer sein"
 
@@ -962,6 +1026,7 @@ msgid "Minimum RAM (MB)"
 msgstr "Minimaler RAM (MB)"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageDetailsModal.tsx:182
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/CreateImageModal.tsx:216
 msgid "Minimum RAM must be 0 or greater"
 msgstr "Minimaler RAM muss 0 oder größer sein"
 
@@ -972,7 +1037,7 @@ msgstr "Minimaler RAM, der zum Booten dieses Images erforderlich ist"
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/List.tsx:23
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/List.tsx:290
 msgid "More Actions"
-msgstr ""
+msgstr "Weitere Aktionen"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageTableRow.tsx:69
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageTableRow.tsx:70
@@ -1043,7 +1108,7 @@ msgstr "Kein Flavor für die Löschung ausgewählt."
 msgid "No flavors found"
 msgstr "No flavors found"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:542
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:597
 msgid "No images found"
 msgstr "Keine Images gefunden"
 
@@ -1085,11 +1150,16 @@ msgstr ""
 msgid "Note: These network settings will be prefilled by the Kubernetes controller in the future."
 msgstr "Hinweis: Diese Netzwerkeinstellungen werden in Zukunft vom Kubernetes-Controller automatisch vorausgefüllt."
 
-#: src/client/components/Auth/InactivityModal.tsx:20
-msgid "OK"
-msgstr ""
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/CreateImageModal.tsx:322
+msgid "or drag and drop"
+msgstr "oder per Drag & Drop"
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/CreateImageModal.tsx:507
+msgid "OS Distribution"
+msgstr "OS-Distribution"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImageModal.tsx:115
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/CreateImageModal.tsx:496
 msgid "OS Type"
 msgstr "OS-Typ"
 
@@ -1111,15 +1181,15 @@ msgstr "Übersicht"
 msgid "Owner"
 msgstr "Eigentümer"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageToastNotifications.tsx:254
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageToastNotifications.tsx:288
 msgid "Partial Activation Success"
 msgstr "Teilweise erfolgreich aktiviert"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageToastNotifications.tsx:318
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageToastNotifications.tsx:352
 msgid "Partial Deactivation Success"
 msgstr "Teilweise erfolgreich deaktiviert"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageToastNotifications.tsx:190
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageToastNotifications.tsx:224
 msgid "Partial Delete Success"
 msgstr "Teilweise erfolgreich gelöscht"
 
@@ -1153,9 +1223,22 @@ msgstr "CIDR-Bereich für Pods"
 msgid "Policy"
 msgstr "Richtlinie"
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/CreateImageModal.tsx:390
+msgid "Press Enter to add"
+msgstr "Enter drücken zum Hinzufügen"
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/CreateImageModal.tsx:482
+msgid "Prevent accidental deletion"
+msgstr "Versehentliches Löschen verhindern"
+
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageDetailsModal.tsx:303
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/CreateImageModal.tsx:422
 msgid "Private"
 msgstr "Privat"
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/CreateImageModal.tsx:391
+msgid "production, linux"
+msgstr "production, linux"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageMetadataModal.tsx:334
 msgid "Property Key"
@@ -1170,9 +1253,10 @@ msgid "Protect this image from being deleted"
 msgstr "Dieses Image vor dem Löschen schützen"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/List.tsx:64
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:470
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:525
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageDetailsView.tsx:93
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageDetailsModal.tsx:313
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/CreateImageModal.tsx:479
 msgid "Protected"
 msgstr "Geschützt"
 
@@ -1186,12 +1270,17 @@ msgstr "Geschützte Images (können nicht gelöscht werden)"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/flavors/-components/FlavorDetailsView.tsx:54
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageDetailsModal.tsx:302
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/CreateImageModal.tsx:421
 msgid "Public"
 msgstr "Öffentlich"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/CreateFlavorModal.tsx:286
 msgid "Public Flavor"
 msgstr "Öffentlicher Flavor"
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/CreateImageModal.tsx:324
+msgid "QCOW2, Raw, VMDK, VHD, VHDX, VDI, AMI, ARI, AKI, ISO, PLOOP"
+msgstr "QCOW2, Raw, VMDK, VHD, VHDX, VDI, AMI, ARI, AKI, ISO, PLOOP"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/flavors/-components/FlavorDetailsView.tsx:82
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Instances/-components/ServerListView.tsx:23
@@ -1225,6 +1314,7 @@ msgstr "Aktualisieren"
 msgid "Region"
 msgstr "Region"
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/CreateImageModal.tsx:354
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/TenantAccessRow.tsx:50
 msgid "Remove"
 msgstr "Entfernen"
@@ -1294,6 +1384,10 @@ msgstr "Suchen..."
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageDetailsView.tsx:82
 msgid "Security"
 msgstr "Sicherheit"
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/CreateImageModal.tsx:465
+msgid "Select disk format first"
+msgstr "Wählen Sie zuerst das Festplattenformat"
 
 #: src/client/utils/useErrorTranslation.ts:138
 msgid "Server error occurred while adding tenant access. Please try again later."
@@ -1369,6 +1463,7 @@ msgid "Share"
 msgstr "Teilen"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageDetailsModal.tsx:304
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/CreateImageModal.tsx:423
 msgid "Shared"
 msgstr "Geteilt"
 
@@ -1386,7 +1481,7 @@ msgid "Sign Out"
 msgstr ""
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/List.tsx:89
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:473
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:528
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageDetailsView.tsx:39
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImageModal.tsx:104
 msgid "Size"
@@ -1409,21 +1504,21 @@ msgstr "Startzeit"
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Instances/-components/ServerListView.tsx:19
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/List.tsx:40
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/List.tsx:93
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:461
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:516
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageDetailsView.tsx:35
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImageModal.tsx:96
 msgid "Status"
 msgstr "Status"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageToastNotifications.tsx:213
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageToastNotifications.tsx:247
 msgid "Successfully activated {successCount} of {totalCount} image(s)"
 msgstr "{successCount} von {totalCount} Image(s) erfolgreich aktiviert"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageToastNotifications.tsx:277
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageToastNotifications.tsx:311
 msgid "Successfully deactivated {successCount} of {totalCount} image(s)"
 msgstr "{successCount} von {totalCount} Image(s) erfolgreich deaktiviert"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageToastNotifications.tsx:154
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageToastNotifications.tsx:188
 msgid "Successfully deleted {successCount} of {totalCount} image(s)"
 msgstr "{successCount} von {totalCount} Image(s) erfolgreich gelöscht"
 
@@ -1447,6 +1542,7 @@ msgid "Swap Disk must be an integer ≥ 0."
 msgstr "Swap-Disk muss eine ganze Zahl ≥ 0 sein."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageDetailsModal.tsx:270
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/CreateImageModal.tsx:386
 msgid "Tags"
 msgstr "Tags"
 
@@ -1506,17 +1602,21 @@ msgstr "Der Flavor oder das Projekt konnte nicht gefunden werden. Bitte überpr�
 msgid "The floating IP pool to use for the cluster's external network access"
 msgstr "Der Floating-IP-Pool, der für den externen Netzwerkzugang des Clusters verwendet wird."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageToastNotifications.tsx:132
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageToastNotifications.tsx:166
 msgid "The image \"{imageId}\" could not be deactivated: {message}"
 msgstr "Das Image \"{imageId}\" konnte nicht deaktiviert werden: {message}"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageToastNotifications.tsx:72
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageToastNotifications.tsx:106
 msgid "The image \"{imageId}\" could not be deleted: {message}"
 msgstr "Das Image \"{imageId}\" konnte nicht gelöscht werden: {message}"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageToastNotifications.tsx:115
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageToastNotifications.tsx:149
 msgid "The image \"{imageId}\" could not be re-activated: {message}"
 msgstr "Das Image \"{imageId}\" konnte nicht reaktiviert werden: {message}"
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageToastNotifications.tsx:59
+msgid "The image \"{imageName}\" could not be created: {message}"
+msgstr "Das Image \"{imageName}\" konnte nicht erstellt werden: {message}"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageToastNotifications.tsx:29
 msgid "The image \"{imageName}\" could not be updated: {message}"
@@ -1535,7 +1635,7 @@ msgstr "Die angegebene Projekt-ID ist ungültig. Bitte überprüfen Sie Ihre Ein
 msgid "There are no flavors available for this project with the current filters applied. Try adjusting your filter criteria or create a new flavor."
 msgstr "Keine Flavors verfügbar. Filtern Sie neu oder erstellen Sie einen neuen Flavor."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:545
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:600
 msgid "There are no images available for this project with the current filters applied. Try adjusting your filter criteria or create a new image."
 msgstr "Keine Images verfügbar. Filtern Sie neu oder erstellen Sie ein neues Image."
 
@@ -1595,19 +1695,31 @@ msgstr ""
 msgid "Type"
 msgstr "Typ"
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/CreateImageModal.tsx:374
+msgid "Ubuntu 22.04 LTS"
+msgstr "Ubuntu 22.04 LTS"
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/CreateImageModal.tsx:510
+msgid "Ubuntu, CentOS"
+msgstr "Ubuntu, CentOS"
+
 #: src/client/utils/useErrorTranslation.ts:160
 msgid "Unable to connect to the compute service. Please check your connection and try again."
 msgstr "Die bereitgestellten Flavor-Daten sind ungültig. Bitte überprüfen Sie Ihre Eingabe."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageToastNotifications.tsx:130
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageToastNotifications.tsx:57
+msgid "Unable to Create Image"
+msgstr "Image kann nicht erstellt werden"
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageToastNotifications.tsx:164
 msgid "Unable to Deactivate Image"
 msgstr "Image kann nicht deaktiviert werden"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageToastNotifications.tsx:70
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageToastNotifications.tsx:104
 msgid "Unable to Delete Image"
 msgstr "Image kann nicht gelöscht werden"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageToastNotifications.tsx:113
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageToastNotifications.tsx:147
 msgid "Unable to Re-activate Image"
 msgstr "Image kann nicht reaktiviert werden"
 
@@ -1615,13 +1727,16 @@ msgstr "Image kann nicht reaktiviert werden"
 msgid "Unable to Update Image"
 msgstr "Image kann nicht aktualisiert werden"
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageToastNotifications.tsx:74
+msgid "Unable to Upload Image File"
+msgstr "Image-Datei kann nicht hochgeladen werden"
+
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterWizard/CreateClusterDialogContent.tsx:122
 msgid "Unknown error"
 msgstr "Unbekannter Fehler"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId.tsx:119
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageTableRow.tsx:41
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:251
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImageModal.tsx:89
 msgid "Unnamed"
 msgstr "Unbenannt"
@@ -1678,10 +1793,11 @@ msgid "View Repository"
 msgstr "Repository ansehen"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/List.tsx:46
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:467
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:522
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageDetailsView.tsx:89
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageDetailsModal.tsx:298
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImageModal.tsx:100
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/CreateImageModal.tsx:415
 msgid "Visibility"
 msgstr "Sichtbarkeit"
 

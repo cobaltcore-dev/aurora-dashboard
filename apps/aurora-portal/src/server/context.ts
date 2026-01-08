@@ -30,6 +30,8 @@ export interface AuroraPortalContext extends AuroraContext {
     domainId?: string
   }) => Promise<Awaited<SignalOpenstackSessionType | null>>
   terminateSession: () => Promise<void>
+  uploadedFile?: { filename: string; mimetype: string; buffer: Buffer<ArrayBufferLike> }
+  formFields?: Record<string, unknown>
 }
 
 export async function createContext(opts: CreateFastifyContextOptions): Promise<AuroraPortalContext> {
@@ -126,5 +128,7 @@ export async function createContext(opts: CreateFastifyContextOptions): Promise<
     terminateSession,
     validateSession,
     openstack: openstackSession,
+    uploadedFile: opts.req.uploadedFile,
+    formFields: opts.req.formFields || {},
   }
 }
