@@ -187,26 +187,17 @@ export function ImageListView({
 
   const uploadImageMutation = trpcReact.compute.uploadImage.useMutation()
 
-  const { data } = trpcReact.compute.getUploadProgress.useQuery(
-    { uploadId },
+  const { data } = trpcReact.compute.watchUploadProgress.useSubscription(
+    { uploadId: uploadId || "" },
     {
-      enabled: uploadImageMutation.isPending && !!uploadId, // Only poll while uploading
-      refetchInterval: uploadImageMutation.isPending ? 50 : false, // Poll every 50ms
-      refetchIntervalInBackground: true,
-      staleTime: 0, // Always fetch fresh
-      gcTime: 0, // Don't cache
+      enabled: !!uploadId && uploadImageMutation.isPending,
+      onData: (data) => {
+        console.log(`Upload: ${data.percent}%`)
+      },
     }
   )
 
-  const uploadProgressPercent = data?.total ? Math.round((data.uploaded / data.total) * 100) : 0
-
-  // TODO: Remove it later
-  console.log("upload progress: ", {
-    uploaded: data?.uploaded || 0,
-    total: data?.total || 0,
-    percent: uploadProgressPercent,
-    isPending: uploadImageMutation.isPending,
-  })
+  console.log("uploaded subscription data: ", data)
 
   const isLoading =
     deleteImageMutation.isPending ||
@@ -690,6 +681,8 @@ export function ImageListView({
         onClose={() => setCreateModalOpen(false)}
         onCreate={handleCreate}
         isLoading={createImageMutation.isPending || uploadImageMutation.isPending || isCreateInProgress}
+        isUploadPending={uploadImageMutation.isPending && !!uploadId}
+        uploadProgressPercent={data?.percent}
       />
       {toastData && (
         <Toast {...toastData} className="fixed top-5 right-5 z-50 border border-theme-light rounded-lg shadow-lg" />

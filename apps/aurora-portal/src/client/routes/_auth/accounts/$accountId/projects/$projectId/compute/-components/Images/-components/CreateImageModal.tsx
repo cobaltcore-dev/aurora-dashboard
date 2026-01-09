@@ -28,7 +28,8 @@ interface CreateImageModalProps {
   onClose: () => void
   onCreate: (imageData: CreateImageInput, file: File) => Promise<void>
   isLoading?: boolean
-  uploadProgressPercent: number
+  isUploadPending?: boolean
+  uploadProgressPercent?: number
 }
 
 interface ImageProperties {
@@ -62,6 +63,7 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({
   onClose,
   onCreate,
   isLoading = false,
+  isUploadPending = false,
   uploadProgressPercent,
 }) => {
   const { t } = useLingui()
@@ -348,6 +350,7 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({
       {isLoading && !uploadProgressPercent && (
         <Stack distribution="center" alignment="center" className="mt-4">
           <Spinner variant="primary" />
+          {isUploadPending && <Trans>Pending upload...</Trans>}
         </Stack>
       )}
 

@@ -1,5 +1,12 @@
 import { createTRPCReact } from "@trpc/react-query"
-import { createTRPCClient, httpBatchLink, httpLink, splitLink, isNonJsonSerializable } from "@trpc/client"
+import {
+  createTRPCClient,
+  httpBatchLink,
+  httpLink,
+  splitLink,
+  isNonJsonSerializable,
+  unstable_httpSubscriptionLink,
+} from "@trpc/client"
 import type { AuroraRouter } from "../server/routers"
 
 declare const BFF_ENDPOINT: string
@@ -17,29 +24,42 @@ const getCsrfHeaders = async () => {
   }
 }
 
-// Shared link configuration with splitLink for non-JSON data support
+// Shared link configuration with nested splitLink for subscriptions + non-JSON data
 const getLinks = () => [
   splitLink({
-    // Check if the input contains non-JSON serializable data
-    condition: (op) => isNonJsonSerializable(op.input),
-    // Use httpLink for FormData, Blob, ArrayBuffer, etc.
-    true: httpLink({
+    // First check: is it a subscription?
+    condition: (op) => op.type === "subscription",
+    // Use HTTP subscription link for subscriptions (long-polling)
+    true: unstable_httpSubscriptionLink({
       url: BFF_ENDPOINT,
-      async headers() {
-        return getCsrfHeaders()
+      // Callback to populate headers
+      eventSourceOptions: async () => {
+        return { headers: await getCsrfHeaders() }
       },
     }),
-    // Use httpBatchLink for regular JSON data (batching for performance)
-    false: httpBatchLink({
-      url: BFF_ENDPOINT,
-      async headers() {
-        return getCsrfHeaders()
-      },
+    // For non-subscriptions, check for non-JSON data
+    false: splitLink({
+      // Check if the input contains non-JSON serializable data (FormData, Blob, etc.)
+      condition: (op) => isNonJsonSerializable(op.input),
+      // Use httpLink for FormData, Blob, ArrayBuffer, etc.
+      true: httpLink({
+        url: BFF_ENDPOINT,
+        async headers() {
+          return getCsrfHeaders()
+        },
+      }),
+      // Use httpBatchLink for regular JSON data (batching for performance)
+      false: httpBatchLink({
+        url: BFF_ENDPOINT,
+        async headers() {
+          return getCsrfHeaders()
+        },
+      }),
     }),
   }),
 ]
 
-// React Query client (for hooks like useQuery/useMutation)
+// React Query client (for hooks like useQuery/useMutation/useSubscription)
 export const trpcReact = createTRPCReact<AuroraRouter>()
 export const trpcReactClient = trpcReact.createClient({ links: getLinks() })
 

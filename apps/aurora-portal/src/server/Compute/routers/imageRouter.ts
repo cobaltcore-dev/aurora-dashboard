@@ -1,3 +1,4 @@
+import { observable } from "@trpc/server/observable"
 import { protectedProcedure } from "../../trpc"
 import {
   applyImageQueryParams,
@@ -203,12 +204,26 @@ export const imageRouter = {
     }, "upload image")
   }),
 
-  getUploadProgress: protectedProcedure.input(z.object({ uploadId: z.string().nullable() })).query(({ input }) => {
-    if (!input.uploadId) {
-      return
-    }
+  watchUploadProgress: protectedProcedure.input(z.object({ uploadId: z.string() })).subscription(({ input }) => {
+    return observable<{ uploaded: number; total: number; percent: number }>((emit) => {
+      const checkProgress = () => {
+        const progress = uploadProgress.get(input.uploadId)
+        if (progress) {
+          emit.next({
+            ...progress,
+            percent: Math.round((progress.uploaded / progress.total) * 100),
+          })
+        }
+      }
 
-    return uploadProgress.get(input.uploadId) || null
+      // Check immediately
+      checkProgress()
+
+      // Then poll
+      const interval = setInterval(checkProgress, 50)
+
+      return () => clearInterval(interval)
+    })
   }),
 
   updateImage: protectedProcedure
