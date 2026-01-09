@@ -168,10 +168,8 @@ export const imageRouter = {
             let offset = 0
 
             while (offset < fileBuffer.length) {
-              const chunk = fileBuffer.slice(offset, offset + CHUNK_SIZE)
+              const chunk = fileBuffer.subarray(offset, offset + CHUNK_SIZE)
               progress.uploaded += chunk.length
-
-              console.log(`Uploading chunk: ${progress.uploaded} / ${fileBuffer.length}`)
 
               controller.enqueue(chunk)
               offset += CHUNK_SIZE

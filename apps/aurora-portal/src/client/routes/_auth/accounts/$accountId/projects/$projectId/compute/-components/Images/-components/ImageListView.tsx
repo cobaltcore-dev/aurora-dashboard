@@ -69,6 +69,8 @@ interface ImagePageProps {
   setDeactivateAllModalOpen: (open: boolean) => void
   activateAllModalOpen: boolean
   setActivateAllModalOpen: (open: boolean) => void
+  createModalOpen: boolean
+  setCreateModalOpen: (open: boolean) => void
   deletableImages: Array<string>
   protectedImages: Array<string>
   activeImages: Array<string>
@@ -91,6 +93,8 @@ export function ImageListView({
   setDeactivateAllModalOpen,
   activateAllModalOpen,
   setActivateAllModalOpen,
+  createModalOpen,
+  setCreateModalOpen,
   deletableImages,
   protectedImages,
   activeImages,
@@ -100,7 +104,6 @@ export function ImageListView({
 
   const [editDetailsModalOpen, setEditDetailsModalOpen] = useState(false)
   const [editMetadataModalOpen, setEditMetadataModalOpen] = useState(false)
-  const [createModalOpen, setCreateModalOpen] = useState(false)
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
   const [selectedImage, setSelectedImage] = useState<GlanceImage | null>(null)
   const [isCreateInProgress, setCreateInProgress] = useState(false)
@@ -195,13 +198,13 @@ export function ImageListView({
     }
   )
 
-  const progressPercent = data?.total ? Math.round((data.uploaded / data.total) * 100) : 0
+  const uploadProgressPercent = data?.total ? Math.round((data.uploaded / data.total) * 100) : 0
 
   // TODO: Remove it later
   console.log("upload progress: ", {
     uploaded: data?.uploaded || 0,
     total: data?.total || 0,
-    percent: progressPercent,
+    percent: uploadProgressPercent,
     isPending: uploadImageMutation.isPending,
   })
 

@@ -30,6 +30,7 @@ export const Images = () => {
   const { t } = useLingui()
 
   const [selectedImages, setSelectedImages] = useState<Array<string>>([])
+  const [createModalOpen, setCreateModalOpen] = useState(false)
   const [deleteAllModalOpen, setDeleteAllModalOpen] = useState(false)
   const [deactivateAllModalOpen, setDeactivateAllModalOpen] = useState(false)
   const [activateAllModalOpen, setActivateAllModalOpen] = useState(false)
@@ -272,6 +273,8 @@ export const Images = () => {
       setDeactivateAllModalOpen={setDeactivateAllModalOpen}
       activateAllModalOpen={activateAllModalOpen}
       setActivateAllModalOpen={setActivateAllModalOpen}
+      createModalOpen={createModalOpen}
+      setCreateModalOpen={setCreateModalOpen}
       deletableImages={deletableImages}
       protectedImages={protectedImages}
       activeImages={activeImages}
@@ -285,32 +288,39 @@ export const Images = () => {
         onFilter={handleFilterChange}
         onSearch={handleSearchChange}
         actions={
-          selectedImages.length === 0 ? (
-            <Button icon="moreVert" disabled>
-              {t`More Actions`}
-            </Button>
-          ) : (
-            <PopupMenu>
-              <PopupMenuToggle as={MoreActionsButton} />
-              <PopupMenuOptions>
-                <PopupMenuItem
-                  disabled={isDeleteAllDisabled}
-                  label={t`Delete All`}
-                  onClick={() => setDeleteAllModalOpen(true)}
-                />
-                <PopupMenuItem
-                  disabled={isDeactivateAllDisabled}
-                  label={t`Deactivate All`}
-                  onClick={() => setDeactivateAllModalOpen(true)}
-                />
-                <PopupMenuItem
-                  disabled={isActivateAllDisabled}
-                  label={t`Activate All`}
-                  onClick={() => setActivateAllModalOpen(true)}
-                />
-              </PopupMenuOptions>
-            </PopupMenu>
-          )
+          <Stack gap="2">
+            {permissions.canCreate && (
+              <Button onClick={() => setCreateModalOpen(true)} variant="primary">
+                Create Image
+              </Button>
+            )}
+            {selectedImages.length === 0 ? (
+              <Button icon="moreVert" disabled>
+                {t`More Actions`}
+              </Button>
+            ) : (
+              <PopupMenu>
+                <PopupMenuToggle as={MoreActionsButton} />
+                <PopupMenuOptions>
+                  <PopupMenuItem
+                    disabled={isDeleteAllDisabled}
+                    label={t`Delete All`}
+                    onClick={() => setDeleteAllModalOpen(true)}
+                  />
+                  <PopupMenuItem
+                    disabled={isDeactivateAllDisabled}
+                    label={t`Deactivate All`}
+                    onClick={() => setDeactivateAllModalOpen(true)}
+                  />
+                  <PopupMenuItem
+                    disabled={isActivateAllDisabled}
+                    label={t`Activate All`}
+                    onClick={() => setActivateAllModalOpen(true)}
+                  />
+                </PopupMenuOptions>
+              </PopupMenu>
+            )}
+          </Stack>
         }
       />
     </ImageListView>
