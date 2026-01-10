@@ -1,10 +1,14 @@
 import { useEffect, useState } from "react"
 import { useNavigate, useRouterState } from "@tanstack/react-router"
 
-export function SessionExpirationTimer(props: { className?: string; sessionExpired: Date; logout?: () => void }) {
+export function SessionExpirationTimer(props: {
+  className?: string
+  sessionExpired: Date
+  logout: () => Promise<void>
+}) {
   const [timeLeft, setTimeLeft] = useState<string>("")
   const navigate = useNavigate()
-  const location = useRouterState({ select: (s) => s.location })
+  const pathname = useRouterState({ select: (s) => s.location.pathname })
 
   useEffect(() => {
     const updateCountdown = () => {
@@ -31,38 +35,39 @@ export function SessionExpirationTimer(props: { className?: string; sessionExpir
     updateCountdown()
     const intervalId = setInterval(updateCountdown, 1000)
 
-    // auto logout when session expires
-    let logoutTimer: NodeJS.Timeout
-    if (props.logout) {
-      const redirectPath = location.pathname ? location.pathname : ""
+    const delay = props.sessionExpired.getTime() - Date.now()
 
-      const delay = props.sessionExpired.getTime() - Date.now()
-      if (delay < 0) {
-        props.logout()
+    const handleExpiration = async () => {
+      try {
+        await props.logout()
+      } catch (error) {
+        console.error("Error during session expiration logout: ", error)
+      }
+
+      // Only navigate if not already on login page
+      if (pathname !== "/auth/login") {
         navigate({
           to: "/auth/login",
           search: {
-            redirect: redirectPath,
+            redirect: pathname || undefined,
           },
         })
-      } else {
-        logoutTimer = setTimeout(() => {
-          props.logout?.()
-          navigate({
-            to: "/auth/login",
-            search: {
-              redirect: redirectPath,
-            },
-          })
-        }, delay)
       }
+    }
+
+    let logoutTimer: NodeJS.Timeout | undefined
+
+    if (delay <= 0) {
+      handleExpiration()
+    } else {
+      logoutTimer = setTimeout(handleExpiration, delay)
     }
 
     return () => {
       clearInterval(intervalId)
-      clearTimeout(logoutTimer)
+      if (logoutTimer) clearTimeout(logoutTimer)
     }
-  }, [props.sessionExpired, props.logout, navigate, location])
+  }, [props.sessionExpired, props.logout, navigate, pathname])
 
   return <div className={`text-xs pt-2 pb-2 text-theme-light ${props.className || ""}`}>{timeLeft}</div>
 }

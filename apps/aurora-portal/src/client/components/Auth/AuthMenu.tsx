@@ -23,7 +23,11 @@ export function AuthMenu(props: { authClient: TrpcClient["auth"] }) {
     } catch (error) {
       console.error("Error logging out: ", error)
     } finally {
-      await logout("manual")
+      try {
+        await logout("manual")
+      } catch (error) {
+        console.error("Error during logout: ", error)
+      }
       setIsLoading(false)
       await navigate({ to: "/" })
     }
