@@ -193,6 +193,7 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({
       ]
       const fileName = file.name.toLowerCase()
       const isValidFile = validExtensions.some((ext) => fileName.endsWith(ext))
+      const supportedFileFormats = validExtensions.join(", ")
 
       if (isValidFile) {
         setSelectedFile(file)
@@ -206,7 +207,7 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({
       } else {
         setErrors((prev) => ({
           ...prev,
-          file: t`Invalid file format. Supported formats: ${validExtensions.join(", ")}`,
+          file: t`Invalid file format. Supported formats: ${supportedFileFormats}`,
         }))
       }
     }
