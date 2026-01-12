@@ -350,7 +350,8 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({
       {isLoading && !uploadProgressPercent && (
         <Stack distribution="center" alignment="center" className="mt-4">
           <Spinner variant="primary" />
-          {isUploadPending && <Trans>Pending upload...</Trans>}
+          {!isUploadPending && <Trans>Creating image...</Trans>}
+          {isUploadPending && <Trans>Pending file upload...</Trans>}
         </Stack>
       )}
 
