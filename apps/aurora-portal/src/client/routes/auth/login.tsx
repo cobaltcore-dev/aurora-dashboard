@@ -5,7 +5,7 @@ import { z } from "zod"
 import { trpcClient } from "../../trpcClient"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { Button, ContentHeading, Message } from "@cloudoperators/juno-ui-components"
-import { useErrorTranslation } from "../../utils/useErrorTranslation" // Adjust the import path as needed
+import { useErrorTranslation } from "../../utils/useErrorTranslation"
 
 export const Route = createFileRoute("/auth/login")({
   validateSearch: z.object({
@@ -13,7 +13,17 @@ export const Route = createFileRoute("/auth/login")({
   }),
   beforeLoad: ({ context, search }) => {
     if (context.auth?.isAuthenticated) {
-      throw redirect({ to: search.redirect || `/accounts/${context.auth.user?.domain.id}/projects` })
+      const savedRedirect = sessionStorage.getItem("redirect_after_login")
+
+      let redirectTo = `/accounts/${context.auth.user?.domain.id}/projects`
+
+      if (savedRedirect && typeof savedRedirect === "string" && savedRedirect.startsWith("/")) {
+        redirectTo = savedRedirect
+      } else if (search.redirect && typeof search.redirect === "string" && search.redirect.startsWith("/")) {
+        redirectTo = search.redirect
+      }
+
+      throw redirect({ to: redirectTo })
     }
     return {
       trpcClient: context.trpcClient,
@@ -54,20 +64,36 @@ export function AuthLoginPage() {
 
   const signin = useCallback(async () => {
     setIsSubmitting(true)
-    setLoginError(null) // Clear any previous errors
+    setLoginError(null)
 
     try {
       const token = await trpcClient.auth.createUserSession.mutate(form)
-      login(token.user, token.expires_at)
-      // Wait for auth state to update before navigation
+
+      await login(token.user, token.expires_at)
+
+      const savedRedirect = sessionStorage.getItem("redirect_after_login")
+      const searchRedirect = search.redirect
+      const defaultRedirect = `/accounts/${token.user.domain.id}/projects`
+
+      let redirectTo = defaultRedirect
+
+      if (savedRedirect && typeof savedRedirect === "string" && savedRedirect.startsWith("/")) {
+        redirectTo = savedRedirect
+      } else if (searchRedirect && typeof searchRedirect === "string" && searchRedirect.startsWith("/")) {
+        redirectTo = searchRedirect
+      }
+
+      sessionStorage.removeItem("redirect_after_login")
+      sessionStorage.removeItem("logout_reason")
+
       await navigate({
-        to: search.redirect || token.user.domain.id ? `/accounts/${token.user.domain.id}/projects` : "/",
+        to: redirectTo,
+        replace: true,
       })
     } catch (error) {
-      login(null)
+      await login(null)
       console.error("Error logging in: ", error)
 
-      // Handle different types of errors
       const errorMessage = (error as Error)?.message
         ? translateError((error as Error).message)
         : t`Login failed. Please check your credentials and try again.`
@@ -96,6 +122,9 @@ export function AuthLoginPage() {
     )
   }
 
+  const logoutReason = sessionStorage.getItem("logout_reason")
+  const wasInactive = logoutReason === "inactive" || logoutReason === "expired"
+
   return (
     <div className="flex justify-center mt-8">
       <div className="w-full max-w-md shadow-lg rounded-lg p-6 border border-theme-light relative">
@@ -115,9 +144,13 @@ export function AuthLoginPage() {
           <Trans>Enter your credentials to access your account</Trans>
         </p>
 
-        {search.redirect && (
+        {(search.redirect || wasInactive) && (
           <p className="text-red-500 text-sm mb-4 text-center">
-            <Trans>You need to login to access this page.</Trans>
+            {wasInactive ? (
+              <Trans>Your session expired. Please login again.</Trans>
+            ) : (
+              <Trans>You need to login to access this page.</Trans>
+            )}
           </p>
         )}
 
@@ -128,7 +161,6 @@ export function AuthLoginPage() {
             signin()
           }}
         >
-          {/* Domain Input */}
           <div className="flex flex-col">
             <label htmlFor="domain" className="text-gray-300 font-medium">
               <Trans>Domain</Trans>
@@ -157,14 +189,12 @@ export function AuthLoginPage() {
               className={textinputstyles}
               onChange={(e) => {
                 setForm({ ...form, user: e.target.value })
-                // Clear error when user starts typing
                 if (loginError) setLoginError(null)
               }}
               required
             />
           </div>
 
-          {/* Password Input */}
           <div className="flex flex-col">
             <label htmlFor="password" className="text-gray-300 font-medium">
               <Trans>Password</Trans>

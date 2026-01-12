@@ -7,11 +7,11 @@ export const Route = createFileRoute("/_auth")({
     if (!context.auth?.isAuthenticated) {
       const token = await context.trpcClient?.auth.getCurrentUserSession.query()
       if (!token) {
+        const redirectPath = location.pathname ? location.pathname : ""
+
         throw redirect({
           to: "/auth/login",
-          search: {
-            redirect: location.href,
-          },
+          search: { redirect: redirectPath },
         })
       }
       context.auth?.login(token.user, token.expires_at)
@@ -22,5 +22,5 @@ export const Route = createFileRoute("/_auth")({
 function RouteComponent() {
   useAuth()
 
-  return <Outlet /> // This is where child routes will render
+  return <Outlet />
 }

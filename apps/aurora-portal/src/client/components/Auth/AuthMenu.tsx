@@ -1,10 +1,8 @@
-import { useState } from "react"
-
+import { useState, useCallback } from "react"
 import { TrpcClient } from "../../trpcClient"
 import { Button } from "@cloudoperators/juno-ui-components"
 import { SessionExpirationTimer } from "./SessionExpirationTimer"
 import { useAuth } from "../../store/AuthProvider"
-import { useCallback } from "react"
 import { useNavigate } from "@tanstack/react-router"
 import { Trans } from "@lingui/react/macro"
 
@@ -18,19 +16,21 @@ export function AuthMenu(props: { authClient: TrpcClient["auth"] }) {
   }
 
   const signout = useCallback(async () => {
+    setIsLoading(true)
     try {
       await props.authClient.terminateUserSession.mutate()
-      logout()
-
-      // Wait for auth state to update before navigation
-      await navigate({ to: "/" })
     } catch (error) {
-      console.error("Error logginout in: ", error)
+      console.error("Error logging out: ", error)
     } finally {
+      try {
+        await logout("manual")
+      } catch (error) {
+        console.error("Error during logout: ", error)
+      }
       setIsLoading(false)
-      logout()
+      await navigate({ to: "/" })
     }
-  }, [navigate])
+  }, [props.authClient, logout, navigate])
 
   if (isAuthenticated) {
     return (
@@ -39,7 +39,7 @@ export function AuthMenu(props: { authClient: TrpcClient["auth"] }) {
         <Button disabled={isLoading} variant="default" size="small" onClick={signout}>
           <Trans>Sign Out</Trans>
         </Button>
-        {expiresAt && <SessionExpirationTimer sessionExpired={expiresAt} logout={signout} />}
+        {expiresAt && <SessionExpirationTimer sessionExpired={expiresAt} logout={() => logout("expired")} />}
       </div>
     )
   }

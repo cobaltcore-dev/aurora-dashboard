@@ -4,6 +4,7 @@ import { RouterProvider } from "@tanstack/react-router"
 import { AuthProvider, useAuth } from "./store/AuthProvider"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { trpcReact, trpcClient, trpcReactClient } from "./trpcClient"
+import { InactivityModal } from "./components/Auth/InactivityModal"
 import { useState, useMemo, useRef } from "react"
 import { i18n } from "@lingui/core"
 import { I18nProvider } from "@lingui/react"
@@ -63,6 +64,7 @@ const App = (props: AppProps) => {
           <trpcReact.Provider client={reactClient} queryClient={queryClient}>
             <QueryClientProvider client={queryClient}>
               <AuthProvider>
+                <InactivityModal />
                 <AppInner navItems={navItems} handleThemeToggle={handleThemeToggle} />
               </AuthProvider>
             </QueryClientProvider>

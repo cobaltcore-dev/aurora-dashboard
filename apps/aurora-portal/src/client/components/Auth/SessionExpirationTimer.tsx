@@ -1,7 +1,14 @@
 import { useEffect, useState } from "react"
+import { useNavigate, useRouterState } from "@tanstack/react-router"
 
-export function SessionExpirationTimer(props: { className?: string; sessionExpired: Date; logout?: () => void }) {
+export function SessionExpirationTimer(props: {
+  className?: string
+  sessionExpired: Date
+  logout: () => Promise<void>
+}) {
   const [timeLeft, setTimeLeft] = useState<string>("")
+  const navigate = useNavigate()
+  const pathname = useRouterState({ select: (s) => s.location.pathname })
 
   useEffect(() => {
     const updateCountdown = () => {
@@ -28,20 +35,39 @@ export function SessionExpirationTimer(props: { className?: string; sessionExpir
     updateCountdown()
     const intervalId = setInterval(updateCountdown, 1000)
 
-    // auto logout when session expires
-    let logoutTimer: NodeJS.Timeout
-    // only set the timer if the logout function is provided
-    if (props.logout) {
-      const delay = props.sessionExpired.getTime() - Date.now()
-      if (delay < 0) props.logout()
-      else logoutTimer = setTimeout(props.logout, delay)
+    const delay = props.sessionExpired.getTime() - Date.now()
+
+    const handleExpiration = async () => {
+      try {
+        await props.logout()
+      } catch (error) {
+        console.error("Error during session expiration logout: ", error)
+      }
+
+      // Only navigate if not already on login page
+      if (pathname !== "/auth/login") {
+        navigate({
+          to: "/auth/login",
+          search: {
+            redirect: pathname || undefined,
+          },
+        })
+      }
+    }
+
+    let logoutTimer: NodeJS.Timeout | undefined
+
+    if (delay <= 0) {
+      handleExpiration()
+    } else {
+      logoutTimer = setTimeout(handleExpiration, delay)
     }
 
     return () => {
       clearInterval(intervalId)
-      clearTimeout(logoutTimer)
+      if (logoutTimer) clearTimeout(logoutTimer)
     }
-  }, [props.sessionExpired])
+  }, [props.sessionExpired, props.logout, navigate, pathname])
 
   return <div className={`text-xs pt-2 pb-2 text-theme-light ${props.className || ""}`}>{timeLeft}</div>
 }

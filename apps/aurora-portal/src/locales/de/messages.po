@@ -240,7 +240,7 @@ msgstr "Community"
 msgid "Configure the worker pools for your cluster. These settings determine the compute resources available for your workloads."
 msgstr "Konfiguriere die Worker-Pools für deinen Cluster. Diese Einstellungen bestimmen die Rechenressourcen, die für deine Workloads verfügbar sind."
 
-#: src/client/routes/auth/login.tsx:200
+#: src/client/routes/auth/login.tsx:230
 msgid "Contact support"
 msgstr "Support kontaktieren"
 
@@ -411,7 +411,7 @@ msgstr "Festplattenformat ist erforderlich"
 msgid "Documentation"
 msgstr "Dokumentation"
 
-#: src/client/routes/auth/login.tsx:134
+#: src/client/routes/auth/login.tsx:166
 msgid "Domain"
 msgstr "Domain"
 
@@ -468,15 +468,15 @@ msgstr "Die Cloud betreten"
 msgid "Enter value"
 msgstr "Value eingeben"
 
-#: src/client/routes/auth/login.tsx:115
+#: src/client/routes/auth/login.tsx:144
 msgid "Enter your credentials to access your account"
 msgstr "Geben Sie Ihre Anmeldedaten ein, um auf Ihr Konto zuzugreifen."
 
-#: src/client/routes/auth/login.tsx:139
+#: src/client/routes/auth/login.tsx:171
 msgid "Enter your domain"
 msgstr "Geben Sie den Domain ein"
 
-#: src/client/routes/auth/login.tsx:156
+#: src/client/routes/auth/login.tsx:188
 msgid "Enter your username"
 msgstr "Geben Sie Ihren Benutzernamen ein"
 
@@ -810,6 +810,10 @@ msgstr "Zu deaktivierende Images:"
 msgid "Images to delete:"
 msgstr "Zu löschende Images:"
 
+#: src/client/components/Auth/InactivityModal.tsx:11
+msgid "Inactivity Timeout"
+msgstr ""
+
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail/ClusterOverviewSection.tsx:58
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail/ClusterOverviewSection.tsx:61
 msgid "Infrastructure"
@@ -912,18 +916,18 @@ msgstr "Weitere werden geladen..."
 msgid "Loading Server Groups..."
 msgstr "Lädt Servergruppen"
 
-#: src/client/routes/auth/login.tsx:193
+#: src/client/routes/auth/login.tsx:223
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Overview.tsx:114
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:481
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:87
 msgid "Loading..."
 msgstr "Lädt..."
 
-#: src/client/routes/auth/login.tsx:73
+#: src/client/routes/auth/login.tsx:99
 msgid "Login failed. Please check your credentials and try again."
 msgstr "Anmeldung fehlgeschlagen. Bitte überprüfen Sie Ihre Anmeldeinformationen und versuchen Sie es erneut."
 
-#: src/client/routes/auth/login.tsx:112
+#: src/client/routes/auth/login.tsx:141
 msgid "Login to Your Account"
 msgstr "Bei Ihrem Konto anmelden"
 
@@ -1059,7 +1063,7 @@ msgstr "Name"
 msgid "Name must be 2-50 characters long."
 msgstr "Der Name muss 2-50 Zeichen lang sein."
 
-#: src/client/routes/auth/login.tsx:198
+#: src/client/routes/auth/login.tsx:228
 msgid "Need help?"
 msgstr "Benötigen Sie Hilfe?"
 
@@ -1189,7 +1193,7 @@ msgstr "Teilweise erfolgreich deaktiviert"
 msgid "Partial Delete Success"
 msgstr "Teilweise erfolgreich gelöscht"
 
-#: src/client/routes/auth/login.tsx:170
+#: src/client/routes/auth/login.tsx:200
 msgid "Password"
 msgstr "Passwort"
 
@@ -1198,6 +1202,10 @@ msgstr "Passwort"
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/CreateFlavorModal.tsx:110
 msgid "Please fix the validation errors below."
 msgstr "Bitte korrigieren Sie die Validierungsfehler unten."
+
+#: src/client/components/Auth/InactivityModal.tsx:27
+msgid "Please log in again to continue."
+msgstr ""
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterWizard/ReviewStep.tsx:124
 msgid "Please review all configurations carefully before creating the cluster. Once created, some settings cannot be changed."
@@ -1446,6 +1454,10 @@ msgstr "Serverrolle:"
 msgid "Services CIDR"
 msgstr "CIDR-Bereich für Services"
 
+#: src/client/components/Auth/InactivityModal.tsx:11
+msgid "Session Expired"
+msgstr ""
+
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail/DetailLayout.tsx:78
 msgid "Share"
 msgstr "Teilen"
@@ -1459,12 +1471,12 @@ msgstr "Geteilt"
 msgid "Show Details"
 msgstr "Details anzeigen"
 
-#: src/client/routes/auth/login.tsx:193
-#: src/client/components/Auth/AuthMenu.tsx:49
+#: src/client/routes/auth/login.tsx:223
+#: src/client/components/Auth/AuthMenu.tsx:46
 msgid "Sign In"
 msgstr "Einloggen"
 
-#: src/client/components/Auth/AuthMenu.tsx:40
+#: src/client/components/Auth/AuthMenu.tsx:37
 msgid "Sign Out"
 msgstr ""
 
@@ -1475,7 +1487,7 @@ msgstr ""
 msgid "Size"
 msgstr "Größe"
 
-#: src/client/App.tsx:51
+#: src/client/App.tsx:52
 msgid "Something went wrong:"
 msgstr "Etwas ist schiefgelaufen."
 
@@ -1671,7 +1683,7 @@ msgstr "Gemeinsam können wir das volle Potenzial Ihrer Cloud-Infrastruktur ersc
 msgid "True"
 msgstr "True"
 
-#: src/client/App.tsx:55
+#: src/client/App.tsx:56
 msgid "Try again"
 msgstr "Erneut versuchen"
 
@@ -1734,7 +1746,7 @@ msgstr "Unbenannt"
 msgid "Updated At"
 msgstr "Aktualisiert am"
 
-#: src/client/routes/auth/login.tsx:151
+#: src/client/routes/auth/login.tsx:183
 msgid "User C/D/I"
 msgstr "Benutzer C/D/I"
 
@@ -1793,7 +1805,7 @@ msgstr "Sichtbarkeit"
 msgid "We are building Aurora Dashboard to serve you better. Your feedback is invaluable in shaping a tool that meets the unique needs of businesses like yours. Stay connected and join us as we redefine cloud management."
 msgstr "Wir entwickeln das Aurora-Dashboard, um Ihnen einen besseren Service zu bieten. Ihr Feedback ist von unschätzbarem Wert, um ein Werkzeug zu gestalten, das den einzigartigen Bedürfnissen von Unternehmen wie Ihrem gerecht wird. Bleiben Sie in Verbindung und begleiten Sie uns, während wir das Cloud-Management neu definieren."
 
-#: src/client/routes/auth/login.tsx:92
+#: src/client/routes/auth/login.tsx:118
 msgid "Welcome back, {username}!"
 msgstr "Willkommen zurück, {username}!"
 
@@ -1844,7 +1856,7 @@ msgstr "Sie sind dabei, {activeCount} Image(s) zu deaktivieren. Deaktivierte Ima
 msgid "You are about to delete {deletableCount} image(s). This action cannot be undone."
 msgstr "Sie sind dabei, {deletableCount} Image(s) zu löschen. Diese Aktion kann nicht rückgängig gemacht werden."
 
-#: src/client/routes/auth/login.tsx:94
+#: src/client/routes/auth/login.tsx:120
 msgid "You are already signed in."
 msgstr "Sie sind bereits angemeldet."
 
@@ -1932,9 +1944,21 @@ msgstr "Sie haben keine Berechtigung, Metadata für diesen Flavor anzusehen."
 msgid "You don't have permission to view this flavor's details."
 msgstr ""
 
-#: src/client/routes/auth/login.tsx:120
+#: src/client/components/Auth/InactivityModal.tsx:13
+msgid "You have been logged out due to inactivity."
+msgstr ""
+
+#: src/client/routes/auth/login.tsx:152
 msgid "You need to login to access this page."
 msgstr "Sie müssen sich anmelden, um auf diese Seite zuzugreifen."
+
+#: src/client/routes/auth/login.tsx:150
+msgid "Your session expired. Please login again."
+msgstr ""
+
+#: src/client/components/Auth/InactivityModal.tsx:13
+msgid "Your session has expired."
+msgstr ""
 
 #: src/client/utils/useErrorTranslation.ts:10
 msgid "Your session has expired. Please log in again."
