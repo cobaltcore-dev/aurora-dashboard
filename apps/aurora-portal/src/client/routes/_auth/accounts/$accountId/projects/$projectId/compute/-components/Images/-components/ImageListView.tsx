@@ -192,12 +192,10 @@ export function ImageListView({
     {
       enabled: !!uploadId && uploadImageMutation.isPending,
       onData: (data) => {
-        console.log(`Upload: ${data.percent}%`)
+        console.log(`Upload: ${data?.percent}%`)
       },
     }
   )
-
-  console.log("uploaded subscription data: ", data)
 
   const isLoading =
     deleteImageMutation.isPending ||

@@ -1,4 +1,5 @@
-import { observable } from "@trpc/server/observable"
+import { z } from "zod"
+import EventEmitter from "node:events"
 import { protectedProcedure } from "../../trpc"
 import {
   applyImageQueryParams,
@@ -39,10 +40,13 @@ import {
   deactivateImagesInputSchema,
   BulkOperationResult,
 } from "../types/image"
-import { z } from "zod"
+
+// Create a global event emitter for upload progress
+const uploadProgressEmitter = new EventEmitter()
 
 // Store upload progress
-const uploadProgress = new Map<string, { uploaded: number; total: number }>()
+type UploadProgress = { uploaded: number; total: number; percent?: number }
+const uploadProgress = new Map<string, UploadProgress>()
 
 export const imageRouter = {
   listImages: protectedProcedure.input(listImagesInputSchema).query(async ({ input, ctx }): Promise<GlanceImage[]> => {
@@ -172,6 +176,13 @@ export const imageRouter = {
               const chunk = fileBuffer.subarray(offset, offset + CHUNK_SIZE)
               progress.uploaded += chunk.length
 
+              // Emit progress event for real-time updates
+              uploadProgressEmitter.emit(`progress:${imageId}`, {
+                uploaded: progress.uploaded,
+                total: progress.total,
+                percent: Math.round((progress.uploaded / progress.total) * 100),
+              })
+
               controller.enqueue(chunk)
               offset += CHUNK_SIZE
 
@@ -180,8 +191,10 @@ export const imageRouter = {
             }
 
             controller.close()
+            uploadProgressEmitter.emit(`progress:${imageId}:complete`)
           } catch (error) {
             controller.error(error)
+            uploadProgressEmitter.emit(`progress:${imageId}:error`, error)
           }
         },
       })
@@ -204,26 +217,62 @@ export const imageRouter = {
     }, "upload image")
   }),
 
-  watchUploadProgress: protectedProcedure.input(z.object({ uploadId: z.string() })).subscription(({ input }) => {
-    return observable<{ uploaded: number; total: number; percent: number }>((emit) => {
-      const checkProgress = () => {
-        const progress = uploadProgress.get(input.uploadId)
-        if (progress) {
-          emit.next({
-            ...progress,
-            percent: Math.round((progress.uploaded / progress.total) * 100),
+  watchUploadProgress: protectedProcedure.input(z.object({ uploadId: z.string() })).subscription(async function* ({
+    input,
+  }) {
+    const uploadId = input.uploadId
+
+    // Emit current progress state immediately (no delay)
+    const current = uploadProgress.get(uploadId)
+    if (current) {
+      yield {
+        ...current,
+        percent: Math.round((current.uploaded / current.total) * 100),
+      }
+    }
+
+    // Create a queue to bridge EventEmitter events to async generator
+    const queue: Array<UploadProgress> = []
+    let isComplete = false
+    let waitResolver: ((value?: unknown) => void) | null = null
+
+    const onProgress = (data: UploadProgress) => {
+      queue.push(data)
+      // Wake up the generator immediately when event arrives
+      waitResolver?.()
+      waitResolver = null
+    }
+
+    const onComplete = () => {
+      isComplete = true
+      waitResolver?.()
+      waitResolver = null
+    }
+
+    // Listen to events from upload chunks (real-time, no polling)
+    uploadProgressEmitter.on(`progress:${uploadId}`, onProgress)
+    uploadProgressEmitter.on(`progress:${uploadId}:complete`, onComplete)
+
+    try {
+      // Yield queued events as they arrive
+      while (!isComplete || queue.length > 0) {
+        // Yield all queued events
+        while (queue.length > 0) {
+          yield queue.shift()
+        }
+
+        // Wait for next event without timeout (truly real-time)
+        if (!isComplete) {
+          await new Promise((resolve) => {
+            waitResolver = resolve
           })
         }
       }
-
-      // Check immediately
-      checkProgress()
-
-      // Then poll
-      const interval = setInterval(checkProgress, 50)
-
-      return () => clearInterval(interval)
-    })
+    } finally {
+      // Cleanup listeners
+      uploadProgressEmitter.off(`progress:${uploadId}`, onProgress)
+      uploadProgressEmitter.off(`progress:${uploadId}:complete`, onComplete)
+    }
   }),
 
   updateImage: protectedProcedure
