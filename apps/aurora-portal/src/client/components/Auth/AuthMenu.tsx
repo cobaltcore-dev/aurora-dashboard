@@ -1,9 +1,8 @@
-import { useState } from "react"
+import { useState, useCallback } from "react"
 import { TrpcClient } from "../../trpcClient"
 import { Button } from "@cloudoperators/juno-ui-components"
 import { SessionExpirationTimer } from "./SessionExpirationTimer"
 import { useAuth } from "../../store/AuthProvider"
-import { useCallback } from "react"
 import { useNavigate } from "@tanstack/react-router"
 import { Trans } from "@lingui/react/macro"
 
