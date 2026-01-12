@@ -16,7 +16,7 @@ permissions:
 env:
   HUSKY: 0
   NODE_VERSION: "20"
-  PNPM_VERSION: "10.3.0" # match with the set in packageManager within package.json
+  PNPM_VERSION: "10.27.0" # match with the set in packageManager within package.json
 
 jobs:
   install-deps:
@@ -72,8 +72,8 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           pnpm-version: ${{ env.PNPM_VERSION }}
 
-      - name: Run 
-        run: pnpm run check-i18n 
+      - name: Run
+        run: pnpm run check-i18n
 
   type-check:
     needs: install-deps
