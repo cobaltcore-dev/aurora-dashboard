@@ -69,6 +69,8 @@ interface ImagePageProps {
   setDeactivateAllModalOpen: (open: boolean) => void
   activateAllModalOpen: boolean
   setActivateAllModalOpen: (open: boolean) => void
+  createModalOpen: boolean
+  setCreateModalOpen: (open: boolean) => void
   deletableImages: Array<string>
   protectedImages: Array<string>
   activeImages: Array<string>
@@ -91,6 +93,8 @@ export function ImageListView({
   setDeactivateAllModalOpen,
   activateAllModalOpen,
   setActivateAllModalOpen,
+  createModalOpen,
+  setCreateModalOpen,
   deletableImages,
   protectedImages,
   activeImages,
@@ -100,10 +104,10 @@ export function ImageListView({
 
   const [editDetailsModalOpen, setEditDetailsModalOpen] = useState(false)
   const [editMetadataModalOpen, setEditMetadataModalOpen] = useState(false)
-  const [createModalOpen, setCreateModalOpen] = useState(false)
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
   const [selectedImage, setSelectedImage] = useState<GlanceImage | null>(null)
   const [isCreateInProgress, setCreateInProgress] = useState(false)
+  const [uploadId, setUploadId] = useState<string | null>(null)
 
   // Intersection Observer for infinite scroll
   const loadMoreRef = useRef<HTMLDivElement>(null)
@@ -182,6 +186,16 @@ export function ImageListView({
   })
 
   const uploadImageMutation = trpcReact.compute.uploadImage.useMutation()
+
+  const { data } = trpcReact.compute.watchUploadProgress.useSubscription(
+    { uploadId: uploadId || "" },
+    {
+      enabled: !!uploadId && uploadImageMutation.isPending,
+      onData: (data) => {
+        console.log(`Upload: ${data?.percent}%`)
+      },
+    }
+  )
 
   const isLoading =
     deleteImageMutation.isPending ||
@@ -271,6 +285,8 @@ export function ImageListView({
       formData.append("imageId", createdImage.id)
       formData.append("file", file)
 
+      setUploadId(createdImage.id)
+
       // Step 3: Upload file
       // FormData is handled by Fastify's multipart hook before reaching tRPC input validation.
       // The tRPC client sends FormData as HTTP POST body, which Fastify processes and stores
@@ -296,6 +312,7 @@ export function ImageListView({
       // Complete creation and close modal
       setCreateInProgress(false)
       setCreateModalOpen(false)
+      setUploadId(null)
     }
   }
 
@@ -662,6 +679,8 @@ export function ImageListView({
         onClose={() => setCreateModalOpen(false)}
         onCreate={handleCreate}
         isLoading={createImageMutation.isPending || uploadImageMutation.isPending || isCreateInProgress}
+        isUploadPending={uploadImageMutation.isPending && !!uploadId}
+        uploadProgressPercent={data?.percent}
       />
       {toastData && (
         <Toast {...toastData} className="fixed top-5 right-5 z-50 border border-theme-light rounded-lg shadow-lg" />

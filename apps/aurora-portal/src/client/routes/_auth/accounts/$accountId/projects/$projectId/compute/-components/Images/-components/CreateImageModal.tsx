@@ -28,6 +28,8 @@ interface CreateImageModalProps {
   onClose: () => void
   onCreate: (imageData: CreateImageInput, file: File) => Promise<void>
   isLoading?: boolean
+  isUploadPending?: boolean
+  uploadProgressPercent?: number
 }
 
 interface ImageProperties {
@@ -56,7 +58,14 @@ const defaultImageValues: ImageProperties = {
   os_distro: "",
 }
 
-export const CreateImageModal: React.FC<CreateImageModalProps> = ({ isOpen, onClose, onCreate, isLoading = false }) => {
+export const CreateImageModal: React.FC<CreateImageModalProps> = ({
+  isOpen,
+  onClose,
+  onCreate,
+  isLoading = false,
+  isUploadPending = false,
+  uploadProgressPercent,
+}) => {
   const { t } = useLingui()
 
   const [properties, setProperties] = useState<ImageProperties>({ ...defaultImageValues })
@@ -184,6 +193,7 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({ isOpen, onCl
       ]
       const fileName = file.name.toLowerCase()
       const isValidFile = validExtensions.some((ext) => fileName.endsWith(ext))
+      const supportedFileFormats = validExtensions.join(", ")
 
       if (isValidFile) {
         setSelectedFile(file)
@@ -197,7 +207,7 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({ isOpen, onCl
       } else {
         setErrors((prev) => ({
           ...prev,
-          file: t`Invalid file format. Supported formats: ${validExtensions.join(", ")}`,
+          file: t`Invalid file format. Supported formats: ${supportedFileFormats}`,
         }))
       }
     }
@@ -338,10 +348,23 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({ isOpen, onCl
         </ModalFooter>
       }
     >
-      {isLoading && (
-        <Stack distribution="center" alignment="center">
+      {isLoading && !uploadProgressPercent && (
+        <Stack distribution="center" alignment="center" className="mt-4">
           <Spinner variant="primary" />
+          {!isUploadPending && <Trans>Creating image...</Trans>}
+          {isUploadPending && <Trans>Pending file upload...</Trans>}
         </Stack>
+      )}
+
+      {isLoading && !!uploadProgressPercent && (
+        <div className="w-full bg-neutral-quaternary rounded-full mt-4">
+          <div
+            className={`bg-theme-info text-xs font-medium text-white text-center p-0.5 leading-none rounded-full h-4 flex items-center justify-center`}
+            style={{ width: `${uploadProgressPercent}%` }}
+          >
+            {uploadProgressPercent}%
+          </div>
+        </div>
       )}
 
       {!isLoading && (

@@ -6,11 +6,25 @@ import { I18nProvider } from "@lingui/react"
 import userEvent from "@testing-library/user-event"
 import { CreateImageModal } from "./CreateImageModal"
 
-const renderImageModal = (isOpen = true, onClose = vi.fn(), onCreate = vi.fn()) => {
+const renderImageModal = (
+  isOpen = true,
+  onClose = vi.fn(),
+  onCreate = vi.fn(),
+  isLoading = false,
+  isUploadPending = false,
+  uploadProgressPercent?: number
+) => {
   return render(
     <I18nProvider i18n={i18n}>
       <PortalProvider>
-        <CreateImageModal isOpen={isOpen} onClose={onClose} onCreate={onCreate} />
+        <CreateImageModal
+          isOpen={isOpen}
+          onClose={onClose}
+          onCreate={onCreate}
+          isLoading={isLoading}
+          isUploadPending={isUploadPending}
+          uploadProgressPercent={uploadProgressPercent}
+        />
       </PortalProvider>
     </I18nProvider>
   )
@@ -510,12 +524,18 @@ describe("CreateImageModal", () => {
       expect(mockOnClose).toHaveBeenCalled()
     })
 
-    test("should display spinner while loading", async () => {
+    test("should display spinner while loading without upload progress", async () => {
       await act(async () => {
         render(
           <I18nProvider i18n={i18n}>
             <PortalProvider>
-              <CreateImageModal isOpen={true} onClose={mockOnClose} onCreate={mockOnCreate} isLoading={true} />
+              <CreateImageModal
+                isOpen={true}
+                onClose={mockOnClose}
+                onCreate={mockOnCreate}
+                isLoading={true}
+                isUploadPending={false}
+              />
             </PortalProvider>
           </I18nProvider>
         )
@@ -523,6 +543,125 @@ describe("CreateImageModal", () => {
 
       const spinners = screen.getAllByRole("progressbar")
       expect(spinners.length).toBeGreaterThan(0)
+      expect(screen.getByText("Creating image...")).toBeInTheDocument()
+    })
+
+    test("should display 'Creating image...' message when isLoading is true without progress", async () => {
+      await act(async () => {
+        render(
+          <I18nProvider i18n={i18n}>
+            <PortalProvider>
+              <CreateImageModal
+                isOpen={true}
+                onClose={mockOnClose}
+                onCreate={mockOnCreate}
+                isLoading={true}
+                isUploadPending={false}
+                uploadProgressPercent={undefined}
+              />
+            </PortalProvider>
+          </I18nProvider>
+        )
+      })
+
+      // Verify the "Creating image..." message is displayed
+      expect(screen.getByText("Creating image...")).toBeInTheDocument()
+
+      // Verify the spinner is shown
+      const spinners = screen.getAllByRole("progressbar")
+      expect(spinners.length).toBeGreaterThan(0)
+
+      // Verify the form is not shown
+      expect(screen.queryByLabelText(/^Image Name$/)).not.toBeInTheDocument()
+
+      // Verify the progress bar is not shown
+      const progressBar = document.querySelector(".bg-theme-info")
+      expect(progressBar).not.toBeInTheDocument()
+    })
+
+    test("should display spinner with pending upload message when isUploadPending is true", async () => {
+      await act(async () => {
+        render(
+          <I18nProvider i18n={i18n}>
+            <PortalProvider>
+              <CreateImageModal
+                isOpen={true}
+                onClose={mockOnClose}
+                onCreate={mockOnCreate}
+                isLoading={true}
+                isUploadPending={true}
+              />
+            </PortalProvider>
+          </I18nProvider>
+        )
+      })
+
+      const spinners = screen.getAllByRole("progressbar")
+      expect(spinners.length).toBeGreaterThan(0)
+      expect(screen.getByText("Pending file upload...")).toBeInTheDocument()
+    })
+
+    test("should display upload progress bar when uploadProgressPercent is provided", async () => {
+      await act(async () => {
+        render(
+          <I18nProvider i18n={i18n}>
+            <PortalProvider>
+              <CreateImageModal
+                isOpen={true}
+                onClose={mockOnClose}
+                onCreate={mockOnCreate}
+                isLoading={true}
+                isUploadPending={true}
+                uploadProgressPercent={45}
+              />
+            </PortalProvider>
+          </I18nProvider>
+        )
+      })
+
+      expect(screen.getByText("45%")).toBeInTheDocument()
+    })
+
+    test("should display progress bar at 1% when uploadProgressPercent is 1", async () => {
+      await act(async () => {
+        render(
+          <I18nProvider i18n={i18n}>
+            <PortalProvider>
+              <CreateImageModal
+                isOpen={true}
+                onClose={mockOnClose}
+                onCreate={mockOnCreate}
+                isLoading={true}
+                isUploadPending={true}
+                uploadProgressPercent={1}
+              />
+            </PortalProvider>
+          </I18nProvider>
+        )
+      })
+
+      expect(screen.getByText("1%")).toBeInTheDocument()
+    })
+
+    test("should display progress bar at 100% when uploadProgressPercent is 100", async () => {
+      await act(async () => {
+        render(
+          <I18nProvider i18n={i18n}>
+            <PortalProvider>
+              <CreateImageModal
+                isOpen={true}
+                onClose={mockOnClose}
+                onCreate={mockOnCreate}
+                isLoading={true}
+                isUploadPending={true}
+                uploadProgressPercent={100}
+              />
+            </PortalProvider>
+          </I18nProvider>
+        )
+      })
+
+      expect(screen.getByText("100%")).toBeInTheDocument()
     })
   })
 })

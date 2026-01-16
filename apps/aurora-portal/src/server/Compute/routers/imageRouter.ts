@@ -1,4 +1,5 @@
-import { Readable } from "node:stream"
+import { z } from "zod"
+import EventEmitter from "node:events"
 import { protectedProcedure } from "../../trpc"
 import {
   applyImageQueryParams,
@@ -39,6 +40,13 @@ import {
   deactivateImagesInputSchema,
   BulkOperationResult,
 } from "../types/image"
+
+// Create a global event emitter for upload progress
+const uploadProgressEmitter = new EventEmitter()
+
+// Store upload progress
+type UploadProgress = { uploaded: number; total: number; percent?: number }
+const uploadProgress = new Map<string, UploadProgress>()
 
 export const imageRouter = {
   listImages: protectedProcedure.input(listImagesInputSchema).query(async ({ input, ctx }): Promise<GlanceImage[]> => {
@@ -152,10 +160,47 @@ export const imageRouter = {
 
       validateGlanceService(glance)
 
-      const webStream = Readable.toWeb(Readable.from(Buffer.from(fileBuffer)))
+      uploadProgress.set(imageId, { uploaded: 0, total: fileBuffer.length })
+
+      const progress = uploadProgress.get(imageId)!
+
+      const CHUNK_SIZE = 64 * 1024 // 64KB
+
+      // Create a custom ReadableStream that emits buffer in chunks
+      const uploadStream = new ReadableStream({
+        async start(controller) {
+          try {
+            let offset = 0
+
+            while (offset < fileBuffer.length) {
+              const chunk = fileBuffer.subarray(offset, offset + CHUNK_SIZE)
+              progress.uploaded += chunk.length
+
+              // Emit progress event for real-time updates
+              uploadProgressEmitter.emit(`progress:${imageId}`, {
+                uploaded: progress.uploaded,
+                total: progress.total,
+                percent: Math.round((progress.uploaded / progress.total) * 100),
+              })
+
+              controller.enqueue(chunk)
+              offset += CHUNK_SIZE
+
+              // Yield control to allow progress queries to run between chunks
+              await new Promise((resolve) => setTimeout(resolve, 0))
+            }
+
+            controller.close()
+            uploadProgressEmitter.emit(`progress:${imageId}:complete`)
+          } catch (error) {
+            controller.error(error)
+            uploadProgressEmitter.emit(`progress:${imageId}:error`, error)
+          }
+        },
+      })
 
       await glance
-        .put(`v2/images/${imageId}/file`, webStream, {
+        .put(`v2/images/${imageId}/file`, uploadStream, {
           headers: {
             Accept: "application/json",
             "Content-Type": "application/octet-stream",
@@ -164,9 +209,70 @@ export const imageRouter = {
         .catch((error) => {
           throw ImageErrorHandlers.upload(error, imageId, "application/octet-stream")
         })
+        .finally(() => {
+          uploadProgress.delete(imageId)
+        })
 
       return { success: true, imageId }
     }, "upload image")
+  }),
+
+  watchUploadProgress: protectedProcedure.input(z.object({ uploadId: z.string() })).subscription(async function* ({
+    input,
+  }) {
+    const uploadId = input.uploadId
+
+    // Emit current progress state immediately (no delay)
+    const current = uploadProgress.get(uploadId)
+    if (current) {
+      yield {
+        ...current,
+        percent: Math.round((current.uploaded / current.total) * 100),
+      }
+    }
+
+    // Create a queue to bridge EventEmitter events to async generator
+    const queue: Array<UploadProgress> = []
+    let isComplete = false
+    let waitResolver: ((value?: unknown) => void) | null = null
+
+    const onProgress = (data: UploadProgress) => {
+      queue.push(data)
+      // Wake up the generator immediately when event arrives
+      waitResolver?.()
+      waitResolver = null
+    }
+
+    const onComplete = () => {
+      isComplete = true
+      waitResolver?.()
+      waitResolver = null
+    }
+
+    // Listen to events from upload chunks (real-time, no polling)
+    uploadProgressEmitter.on(`progress:${uploadId}`, onProgress)
+    uploadProgressEmitter.on(`progress:${uploadId}:complete`, onComplete)
+
+    try {
+      // Yield queued events as they arrive
+      while (!isComplete || queue.length > 0) {
+        // Yield all queued events
+        while (queue.length > 0) {
+          yield queue.shift()
+        }
+
+        // Wait for next event without timeout (truly real-time)
+        if (!isComplete) {
+          await new Promise((resolve) => {
+            waitResolver = resolve
+          })
+        }
+      }
+    } finally {
+      // Cleanup listeners
+      uploadProgressEmitter.off(`progress:${uploadId}`, onProgress)
+      uploadProgressEmitter.off(`progress:${uploadId}:complete`, onComplete)
+    }
   }),
 
   updateImage: protectedProcedure
