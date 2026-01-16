@@ -15,7 +15,13 @@ import {
 import { ListToolbar } from "@/client/components/ListToolbar"
 import { FilterSettings, SortSettings } from "@/client/components/ListToolbar/types"
 import { ImageListView } from "./-components/ImageListView"
-import { CONTAINER_FORMATS, DISK_FORMATS, IMAGE_STATUSES, IMAGE_VISIBILITY } from "../../-constants/filters"
+import {
+  CONTAINER_FORMATS,
+  DISK_FORMATS,
+  IMAGE_STATUSES,
+  IMAGE_VISIBILITY,
+  MEMBER_STATUSES,
+} from "../../-constants/filters"
 
 // Define the custom toggle button component outside
 const MoreActionsButton = forwardRef<HTMLButtonElement, ButtonProps>(({ onClick, ...props }, ref) => (
@@ -34,6 +40,7 @@ export const Images = () => {
   const [deleteAllModalOpen, setDeleteAllModalOpen] = useState(false)
   const [deactivateAllModalOpen, setDeactivateAllModalOpen] = useState(false)
   const [activateAllModalOpen, setActivateAllModalOpen] = useState(false)
+  const [shouldShowSuggestedImages, setShowSuggestedImages] = useState(false)
 
   const [filterSettings, setFilterSettings] = useState<FilterSettings>({
     filters: [
@@ -188,7 +195,10 @@ export const Images = () => {
 
   const { data: canCreate } = trpcReact.compute.canUser.useQuery("images:create")
   const { data: canDelete } = trpcReact.compute.canUser.useQuery("images:delete")
-  const { data: canEdit } = trpcReact.compute.canUser.useQuery("images:update")
+  const { data: canUpdate } = trpcReact.compute.canUser.useQuery("images:update")
+  const { data: canCreateMember } = trpcReact.compute.canUser.useQuery("images:create_member")
+  const { data: canDeleteMember } = trpcReact.compute.canUser.useQuery("images:delete_member")
+  const { data: canUpdateMember = true } = trpcReact.compute.canUser.useQuery("images:update_member")
 
   // Show spinner ONLY on initial load, not on filter/sort changes - while old data is shown
   if (status === "pending" && !data) {
@@ -213,7 +223,10 @@ export const Images = () => {
   const permissions = {
     canCreate: canCreate ?? false,
     canDelete: canDelete ?? false,
-    canEdit: canEdit ?? false,
+    canUpdate: canUpdate ?? false,
+    canCreateMember: canCreateMember ?? false,
+    canDeleteMember: canDeleteMember ?? false,
+    canUpdateMember: canUpdateMember ?? false,
   }
 
   // Flatten all pages into a single array
@@ -232,10 +245,10 @@ export const Images = () => {
     !permissions.canDelete ||
     images.filter((image) => selectedImages.includes(image.id)).every((image) => image.protected)
   const isDeactivateAllDisabled =
-    !permissions.canEdit ||
+    !permissions.canUpdate ||
     images.filter((image) => selectedImages.includes(image.id)).every((image) => image.status === "deactivated")
   const isActivateAllDisabled =
-    !permissions.canEdit ||
+    !permissions.canUpdate ||
     images.filter((image) => selectedImages.includes(image.id)).every((image) => image.status === "active")
 
   const handleSortChange = (newSortSettings: SortSettings) => {
@@ -247,6 +260,29 @@ export const Images = () => {
   const handleFilterChange = (newFilterSettings: FilterSettings) => {
     startTransition(() => {
       setFilterSettings(newFilterSettings)
+    })
+  }
+
+  const showSuggestedImages = () => {
+    startTransition(() => {
+      setShowSuggestedImages(true)
+      setFilterSettings({
+        ...filterSettings,
+        selectedFilters: [
+          { name: "visibility", value: IMAGE_VISIBILITY.SHARED },
+          { name: "member_status", value: MEMBER_STATUSES.PENDING },
+        ],
+      })
+    })
+  }
+
+  const showAllImages = () => {
+    startTransition(() => {
+      setShowSuggestedImages(false)
+      setFilterSettings({
+        ...filterSettings,
+        selectedFilters: [],
+      })
     })
   }
 
@@ -279,6 +315,7 @@ export const Images = () => {
       protectedImages={protectedImages}
       activeImages={activeImages}
       deactivatedImages={deactivatedImages}
+      shouldShowSuggestedImages={shouldShowSuggestedImages}
     >
       <ListToolbar
         sortSettings={sortSettings}
@@ -288,39 +325,48 @@ export const Images = () => {
         onFilter={handleFilterChange}
         onSearch={handleSearchChange}
         actions={
-          <Stack gap="2">
-            {permissions.canCreate && (
-              <Button onClick={() => setCreateModalOpen(true)} variant="primary">
-                Create Image
-              </Button>
-            )}
-            {selectedImages.length === 0 ? (
-              <Button icon="moreVert" disabled>
-                {t`More Actions`}
-              </Button>
-            ) : (
-              <PopupMenu>
-                <PopupMenuToggle as={MoreActionsButton} />
-                <PopupMenuOptions>
-                  <PopupMenuItem
-                    disabled={isDeleteAllDisabled}
-                    label={t`Delete All`}
-                    onClick={() => setDeleteAllModalOpen(true)}
-                  />
-                  <PopupMenuItem
-                    disabled={isDeactivateAllDisabled}
-                    label={t`Deactivate All`}
-                    onClick={() => setDeactivateAllModalOpen(true)}
-                  />
-                  <PopupMenuItem
-                    disabled={isActivateAllDisabled}
-                    label={t`Activate All`}
-                    onClick={() => setActivateAllModalOpen(true)}
-                  />
-                </PopupMenuOptions>
-              </PopupMenu>
-            )}
-          </Stack>
+          <>
+            <div className="w-full md:w-auto md:mr-auto">
+              {!shouldShowSuggestedImages ? (
+                <Button onClick={showSuggestedImages}>{t`Suggested Images`}</Button>
+              ) : (
+                <Button onClick={showAllImages}>{t`All Images`}</Button>
+              )}
+            </div>
+            <Stack gap="2">
+              {permissions.canCreate && (
+                <Button onClick={() => setCreateModalOpen(true)} variant="primary">
+                  Create Image
+                </Button>
+              )}
+              {selectedImages.length === 0 ? (
+                <Button icon="moreVert" disabled>
+                  {t`More Actions`}
+                </Button>
+              ) : (
+                <PopupMenu>
+                  <PopupMenuToggle as={MoreActionsButton} />
+                  <PopupMenuOptions>
+                    <PopupMenuItem
+                      disabled={isDeleteAllDisabled}
+                      label={t`Delete All`}
+                      onClick={() => setDeleteAllModalOpen(true)}
+                    />
+                    <PopupMenuItem
+                      disabled={isDeactivateAllDisabled}
+                      label={t`Deactivate All`}
+                      onClick={() => setDeactivateAllModalOpen(true)}
+                    />
+                    <PopupMenuItem
+                      disabled={isActivateAllDisabled}
+                      label={t`Activate All`}
+                      onClick={() => setActivateAllModalOpen(true)}
+                    />
+                  </PopupMenuOptions>
+                </PopupMenu>
+              )}
+            </Stack>
+          </>
         }
       />
     </ImageListView>

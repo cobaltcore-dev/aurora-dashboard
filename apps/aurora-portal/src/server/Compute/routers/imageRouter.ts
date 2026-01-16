@@ -476,9 +476,7 @@ export const imageRouter = {
 
         validateGlanceService(glance)
 
-        const response = await glance.post(`v2/images/${imageId}/members`, {
-          json: { member },
-        })
+        const response = await glance.post(`v2/images/${imageId}/members`, { member })
 
         if (!response?.ok) {
           throw ImageErrorHandlers.member.create(response, imageId, member)
@@ -503,9 +501,7 @@ export const imageRouter = {
 
         validateGlanceService(glance)
 
-        const response = await glance.put(`v2/images/${imageId}/members/${memberId}`, {
-          json: { status },
-        })
+        const response = await glance.put(`v2/images/${imageId}/members/${memberId}`, { status })
 
         if (!response?.ok) {
           throw ImageErrorHandlers.member.update(response, imageId, memberId, status)

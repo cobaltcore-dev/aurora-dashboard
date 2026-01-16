@@ -19,11 +19,17 @@ interface ImageTableRowProps {
   onDelete: (image: GlanceImage) => void
   onSelect: (image: GlanceImage) => void
   onActivationStatusChange: (image: GlanceImage) => void
+  onManageAccess: (image: GlanceImage) => void
+  onConfirmAccess: (image: GlanceImage) => void
   permissions: {
     canCreate: boolean
     canDelete: boolean
-    canEdit: boolean
+    canUpdate: boolean
+    canCreateMember: boolean
+    canDeleteMember: boolean
+    canUpdateMember: boolean
   }
+  shouldShowSuggestedImages: boolean
 }
 
 export function ImageTableRow({
@@ -35,15 +41,20 @@ export function ImageTableRow({
   onDelete,
   onSelect,
   onActivationStatusChange,
+  onManageAccess,
+  onConfirmAccess,
+  shouldShowSuggestedImages,
 }: ImageTableRowProps) {
   const { t } = useLingui()
-  const { id, name, status, visibility, size, disk_format, created_at } = image
+  const { id, name, status, visibility, size, disk_format, created_at, owner } = image
   const imageName = name || t`Unnamed`
 
   const { accountId, projectId } = useParams({
     from: "/_auth/accounts/$accountId/projects/$projectId/compute/$",
   })
   const navigate = useNavigate()
+
+  const isImageOwner = projectId === owner
 
   return (
     <DataGridRow key={id} data-testid={`image-row-${id}`}>
@@ -81,7 +92,7 @@ export function ImageTableRow({
                 })
               }
             />
-            {permissions.canEdit && (
+            {permissions.canUpdate && (
               <>
                 <PopupMenuItem label={t`Edit Details`} onClick={() => onEditDetails(image)} />
                 <PopupMenuItem label={t`Edit Metadata`} onClick={() => onEditMetadata(image)} />
@@ -89,6 +100,19 @@ export function ImageTableRow({
                   label={image.status === "deactivated" ? t`Activate` : t`Deactivate`}
                   onClick={() => onActivationStatusChange(image)}
                 />
+                {image.visibility === "shared" && (
+                  <>
+                    {isImageOwner && (permissions.canCreateMember || permissions.canDeleteMember) && (
+                      <PopupMenuItem label={t`Manage Access`} onClick={() => onManageAccess(image)} />
+                    )}
+                    {!isImageOwner && permissions.canUpdateMember && (
+                      <PopupMenuItem
+                        label={shouldShowSuggestedImages ? t`Confirm Access` : t`Review Access`}
+                        onClick={() => onConfirmAccess(image)}
+                      />
+                    )}
+                  </>
+                )}
               </>
             )}
             {permissions.canDelete && !image.protected && (

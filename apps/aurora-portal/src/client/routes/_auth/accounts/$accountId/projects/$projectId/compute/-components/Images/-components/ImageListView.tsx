@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, ReactNode } from "react"
+import { useParams } from "@tanstack/react-router"
 import type { CreateImageInput, GlanceImage } from "@/server/Compute/types/image"
 import {
   Button,
@@ -48,13 +49,18 @@ import {
   getImageCreateErrorToast,
   getImageFileUploadErrorToast,
 } from "./ImageToastNotifications"
+import { ManageImageAccessModal } from "./ManageImageAccessModal "
+import { ConfirmImageAccessModal } from "./ConfirmImageAccessModal"
 
 interface ImagePageProps {
   images: GlanceImage[]
   permissions: {
     canCreate: boolean
     canDelete: boolean
-    canEdit: boolean
+    canUpdate: boolean
+    canCreateMember: boolean
+    canDeleteMember: boolean
+    canUpdateMember: boolean
   }
   hasNextPage?: boolean
   isFetchingNextPage?: boolean
@@ -75,6 +81,7 @@ interface ImagePageProps {
   protectedImages: Array<string>
   activeImages: Array<string>
   deactivatedImages: Array<string>
+  shouldShowSuggestedImages: boolean
 }
 
 export function ImageListView({
@@ -99,12 +106,19 @@ export function ImageListView({
   protectedImages,
   activeImages,
   deactivatedImages,
+  shouldShowSuggestedImages,
 }: ImagePageProps) {
+  const { projectId } = useParams({
+    from: "/_auth/accounts/$accountId/projects/$projectId/compute/$",
+  })
+
   const [toastData, setToastData] = useState<ToastProps | null>(null)
 
   const [editDetailsModalOpen, setEditDetailsModalOpen] = useState(false)
   const [editMetadataModalOpen, setEditMetadataModalOpen] = useState(false)
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
+  const [manageAccessModalOpen, setManageAccessModalOpen] = useState(false)
+  const [confirmAccessModalOpen, setConfirmAccessModalOpen] = useState(false)
   const [selectedImage, setSelectedImage] = useState<GlanceImage | null>(null)
   const [isCreateInProgress, setCreateInProgress] = useState(false)
   const [uploadId, setUploadId] = useState<string | null>(null)
@@ -373,14 +387,19 @@ export function ImageListView({
     setEditMetadataModalOpen(true)
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const openCreateModal = () => {
-    setCreateModalOpen(true)
-  }
-
   const openDeleteModal = (image: GlanceImage) => {
     setSelectedImage(image)
     setDeleteModalOpen(true)
+  }
+
+  const openManageAccessModal = (image: GlanceImage) => {
+    setSelectedImage(image)
+    setManageAccessModalOpen(true)
+  }
+
+  const openConfirmAccessModal = (image: GlanceImage) => {
+    setSelectedImage(image)
+    setConfirmAccessModalOpen(true)
   }
 
   const closeEditDetailsModal = () => {
@@ -396,6 +415,16 @@ export function ImageListView({
   const closeDeleteModal = () => {
     setSelectedImage(null)
     setDeleteModalOpen(false)
+  }
+
+  const closeManageAccessModal = () => {
+    setSelectedImage(null)
+    setManageAccessModalOpen(false)
+  }
+
+  const closeConfirmAccessModal = () => {
+    setSelectedImage(null)
+    setConfirmAccessModalOpen(false)
   }
 
   const handleBulkDelete = async (imageIds: Array<string>) => {
@@ -558,6 +587,8 @@ export function ImageListView({
                 onEditDetails={openEditDetailsModal}
                 onEditMetadata={openEditMetadataModal}
                 onDelete={openDeleteModal}
+                onManageAccess={openManageAccessModal}
+                onConfirmAccess={openConfirmAccessModal}
                 onSelect={(image: GlanceImage) => {
                   const isImageSelected = !!selectedImages.find((imageId) => imageId === image.id)
 
@@ -568,6 +599,7 @@ export function ImageListView({
                   setSelectedImages([...selectedImages, image.id])
                 }}
                 onActivationStatusChange={handleActivationStatusChange}
+                shouldShowSuggestedImages={shouldShowSuggestedImages}
               />
             ))}
           </DataGrid>
@@ -619,33 +651,46 @@ export function ImageListView({
         </DataGrid>
       )}
       {selectedImage && (
-        <EditImageDetailsModal
-          isOpen={editDetailsModalOpen}
-          onClose={closeEditDetailsModal}
-          image={selectedImage}
-          onSave={handleSaveEdit}
-          isLoading={updateImageMutation.isPending}
-        />
+        <>
+          <EditImageDetailsModal
+            isOpen={editDetailsModalOpen}
+            onClose={closeEditDetailsModal}
+            image={selectedImage}
+            onSave={handleSaveEdit}
+            isLoading={updateImageMutation.isPending}
+          />
+          <EditImageMetadataModal
+            isOpen={editMetadataModalOpen}
+            onClose={closeEditMetadataModal}
+            image={selectedImage}
+            onSave={handleSaveEdit}
+            isLoading={updateImageMutation.isPending}
+          />
+          <DeleteImageModal
+            image={selectedImage}
+            isOpen={deleteModalOpen}
+            isLoading={isLoading}
+            isDisabled={selectedImage.protected || !permissions.canDelete}
+            onClose={closeDeleteModal}
+            onDelete={handleDelete}
+          />
+          <ManageImageAccessModal
+            image={selectedImage}
+            isOpen={manageAccessModalOpen}
+            onClose={closeManageAccessModal}
+            permissions={permissions}
+          />
+          <ConfirmImageAccessModal
+            image={selectedImage}
+            isOpen={confirmAccessModalOpen}
+            onClose={closeConfirmAccessModal}
+            memberId={projectId}
+            permissions={permissions}
+            setMessage={setToastData}
+          />
+        </>
       )}
-      {selectedImage && (
-        <EditImageMetadataModal
-          isOpen={editMetadataModalOpen}
-          onClose={closeEditMetadataModal}
-          image={selectedImage}
-          onSave={handleSaveEdit}
-          isLoading={updateImageMutation.isPending}
-        />
-      )}
-      {selectedImage && (
-        <DeleteImageModal
-          image={selectedImage}
-          isOpen={deleteModalOpen}
-          isLoading={isLoading}
-          isDisabled={selectedImage.protected || !permissions.canDelete}
-          onClose={closeDeleteModal}
-          onDelete={handleDelete}
-        />
-      )}
+
       {selectedImages && (
         <>
           <DeleteImagesModal
