@@ -26,10 +26,8 @@ export const projectRouter = {
       })
     )
     .query(async ({ ctx, input }): Promise<Project[] | undefined> => {
-      const token = ctx.openstack?.getToken()
-      const domainId = token?.tokenData?.project?.domain?.id || token?.tokenData?.user?.domain?.id
-      const openstackSession = await ctx.rescopeSession({ domainId: domainId })
-      const identityService = openstackSession?.service("identity")
+      const identityService = ctx.openstack?.service("identity")
+
       const parsedData = projectsResponseSchema.safeParse(
         await identityService?.get("auth/projects").then((res) => res.json())
       )
