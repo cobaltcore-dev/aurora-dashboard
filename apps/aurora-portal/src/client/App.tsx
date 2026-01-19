@@ -11,7 +11,6 @@ import { I18nProvider } from "@lingui/react"
 import { ErrorBoundary } from "react-error-boundary"
 import { Trans } from "@lingui/react/macro"
 import { NavigationItem } from "./components/navigation/types"
-import "./christmas"
 
 type AppProps = {
   theme?: "theme-dark" | "theme-light"
