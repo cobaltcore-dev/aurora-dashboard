@@ -27,7 +27,7 @@ const server = Fastify({
   logger: true,
   // Increase ALL limits
   maxParamLength: 5000,
-  bodyLimit: 2 * 1024 * 1024 * 1024, // 2GB body limit
+  bodyLimit: 5 * 1024 * 1024 * 1024, // 5GB body limit
   requestTimeout: 600000, // 10 minutes (600 seconds)
   keepAliveTimeout: 600000, // 10 minutes keep-alive
 })
@@ -41,7 +41,7 @@ async function startServer() {
   // Register multipart/form-data support - MUST be before tRPC
   await server.register(FastifyMultipart, {
     limits: {
-      fileSize: 2 * 1024 * 1024 * 1024, // 2GB body limit
+      fileSize: 5 * 1024 * 1024 * 1024, // 5GB body limit
       files: 10, // max 10 files per request
     },
   })
@@ -95,7 +95,7 @@ async function startServer() {
       // Parse multipart form data with file size limit
       const data = await request.file({
         limits: {
-          fileSize: 2 * 1024 * 1024 * 1024, // 2GB max
+          fileSize: 5 * 1024 * 1024 * 1024, // 5GB max
         },
       })
 
