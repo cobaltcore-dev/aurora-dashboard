@@ -361,3 +361,30 @@ export const getBulkDeactivatePartialToast = (
   autoDismissTimeout: config.autoDismissTimeout ?? 5000,
   onDismiss: config.onDismiss,
 })
+
+// Image access toasts
+export const getImageAccessStatusUpdatedToast = (newStatus: string, config: ToastConfig): ToastProps => ({
+  variant: "info",
+  children: (
+    <NotificationText
+      title={<Trans>Access Status</Trans>}
+      description={<Trans>Access status updated to "{newStatus}".</Trans>}
+    />
+  ),
+  autoDismiss: true,
+  autoDismissTimeout: config.autoDismissTimeout ?? 5000,
+  onDismiss: config.onDismiss,
+})
+
+export const getImageAccessStatusErrorToast = (errorMessage: string, config: ToastConfig): ToastProps => ({
+  variant: "error",
+  children: (
+    <NotificationText
+      title={<Trans>Access Status</Trans>}
+      description={errorMessage || <Trans>Failed to update access status</Trans>}
+    />
+  ),
+  autoDismiss: true,
+  autoDismissTimeout: config.autoDismissTimeout ?? 5000,
+  onDismiss: config.onDismiss,
+})

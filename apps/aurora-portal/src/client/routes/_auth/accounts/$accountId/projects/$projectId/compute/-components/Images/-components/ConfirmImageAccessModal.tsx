@@ -16,7 +16,7 @@ import { trpcReact } from "@/client/trpcClient"
 import { TRPCClientError } from "@trpc/client"
 import { InferrableClientTypes } from "@trpc/server/unstable-core-do-not-import"
 import { MEMBER_STATUSES } from "../../../-constants/filters"
-import { NotificationText } from "./NotificationText"
+import { getImageAccessStatusUpdatedToast, getImageAccessStatusErrorToast } from "./ImageToastNotifications"
 
 interface ConfirmImageAccessProps {
   isOpen: boolean
@@ -69,25 +69,19 @@ export const ConfirmImageAccessModal: React.FC<ConfirmImageAccessProps> = ({
         status: newStatus,
       })
 
-      setMessage({
-        children: (
-          <NotificationText title={t`Access Status`} description={t`Access status updated to "${newStatus}".`} />
-        ),
-        variant: "info",
-        autoDismiss: true,
-        autoDismissTimeout: 5000,
-        onDismiss: () => setMessage(null),
-      })
+      setMessage(
+        getImageAccessStatusUpdatedToast(newStatus, {
+          onDismiss: () => setMessage(null),
+        })
+      )
     } catch (error) {
-      const errorMessage =
-        (error as TRPCClientError<InferrableClientTypes>)?.message || t`Failed to update access status`
-      setMessage({
-        children: <NotificationText title={t`Access Status`} description={errorMessage} />,
-        variant: "error",
-        autoDismiss: true,
-        autoDismissTimeout: 5000,
-        onDismiss: () => setMessage(null),
-      })
+      const errorMessage = (error as TRPCClientError<InferrableClientTypes>)?.message
+
+      setMessage(
+        getImageAccessStatusErrorToast(errorMessage, {
+          onDismiss: () => setMessage(null),
+        })
+      )
     } finally {
       handleClose()
     }
@@ -198,29 +192,28 @@ export const ConfirmImageAccessModal: React.FC<ConfirmImageAccessProps> = ({
         </div>
 
         {/* Description/Instructions */}
-        <>
-          {isPending && (
-            <Message
-              text={t`This image has been shared with your project. Please confirm whether you want to accept or reject access. Once you accept, the image will be visible in your project's image list.`}
-              variant="info"
-              className="mb-6"
-            />
-          )}
-          {!isPending && memberData.status === MEMBER_STATUSES.ACCEPTED && (
-            <Message
-              text={t`Your project has accepted access to this image. You can revoke access at any time.`}
-              variant="info"
-              className="mb-6"
-            />
-          )}
-          {!isPending && memberData.status === MEMBER_STATUSES.REJECTED && (
-            <Message
-              text={t`Your project has rejected access to this image. You can change your decision and accept it, or request access again from the owner.`}
-              variant="info"
-              className="mb-6"
-            />
-          )}
-        </>
+        {isPending && (
+          <Message
+            text={t`This image has been shared with your project. Please confirm whether you want to accept or reject access. Once you accept, the image will be visible in your project's image list.`}
+            variant="info"
+            className="mb-6"
+          />
+        )}
+        {!isPending && memberData.status === MEMBER_STATUSES.ACCEPTED && (
+          <Message
+            text={t`Your project has accepted access to this image. You can revoke access at any time.`}
+            variant="info"
+            className="mb-6"
+          />
+        )}
+        {!isPending && memberData.status === MEMBER_STATUSES.REJECTED && (
+          <Message
+            text={t`Your project has rejected access to this image. You can change your decision and accept it, or request access again from the owner.`}
+            variant="info"
+            className="mb-6"
+          />
+        )}
+
         {/* Action Buttons */}
         {canUpdateMember && (
           <Stack direction="horizontal" className="justify-end gap-2">

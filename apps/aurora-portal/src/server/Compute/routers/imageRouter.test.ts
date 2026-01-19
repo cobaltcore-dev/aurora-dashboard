@@ -715,7 +715,7 @@ describe("imageRouter", () => {
       const result = await caller.image.createImageMember(input)
 
       expect(mockCtx.mockGlance.post).toHaveBeenCalledWith("v2/images/123e4567-e89b-12d3-a456-426614174000/members", {
-        json: { member: "test-member-id" },
+        member: "test-member-id",
       })
       expect(result).toEqual(mockImageMember)
     })
