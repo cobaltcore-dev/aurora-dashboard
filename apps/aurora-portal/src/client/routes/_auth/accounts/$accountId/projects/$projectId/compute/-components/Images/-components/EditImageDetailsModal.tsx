@@ -18,6 +18,7 @@ import {
   Pill,
 } from "@cloudoperators/juno-ui-components"
 import { GlanceImage } from "@/server/Compute/types/image"
+import { IMAGE_VISIBILITY } from "../../../-constants/filters"
 
 interface EditImageDetailsModalProps {
   image: GlanceImage
@@ -49,7 +50,7 @@ export const EditImageDetailsModal: React.FC<EditImageDetailsModalProps> = ({
   const [properties, setProperties] = useState<ImageProperties>({
     name: image.name || "",
     tags: image.tags || [],
-    visibility: image.visibility || "private",
+    visibility: image.visibility || IMAGE_VISIBILITY.PRIVATE,
     protected: image.protected || false,
     min_disk: image.min_disk || 0,
     min_ram: image.min_ram || 0,
@@ -299,10 +300,10 @@ export const EditImageDetailsModal: React.FC<EditImageDetailsModalProps> = ({
                 value={properties.visibility}
                 onChange={(value) => handleSelectChange("visibility", value)}
               >
-                <SelectOption value="public" label={t`Public`} />
-                <SelectOption value="private" label={t`Private`} />
-                <SelectOption value="shared" label={t`Shared`} />
-                <SelectOption value="community" label={t`Community`} />
+                <SelectOption value={IMAGE_VISIBILITY.PUBLIC} label={t`Public`} />
+                <SelectOption value={IMAGE_VISIBILITY.PRIVATE} label={t`Private`} />
+                <SelectOption value={IMAGE_VISIBILITY.SHARED} label={t`Shared`} />
+                <SelectOption value={IMAGE_VISIBILITY.COMMUNITY} label={t`Community`} />
               </Select>
             </FormRow>
 

@@ -388,3 +388,46 @@ export const getImageAccessStatusErrorToast = (errorMessage: string, config: Toa
   autoDismissTimeout: config.autoDismissTimeout ?? 5000,
   onDismiss: config.onDismiss,
 })
+
+// Image visibility toasts
+export const getImageVisibilityUpdatedToast = (
+  imageName: string,
+  visibility: string,
+  config: ToastConfig
+): ToastProps => ({
+  variant: "success",
+  children: (
+    <NotificationText
+      title={<Trans>Image Visibility</Trans>}
+      description={
+        <Trans>
+          Image "{imageName}" visibility updated to {visibility}
+        </Trans>
+      }
+    />
+  ),
+  autoDismiss: true,
+  autoDismissTimeout: config.autoDismissTimeout ?? 3000,
+  onDismiss: config.onDismiss,
+})
+
+export const getImageVisibilityUpdateErrorToast = (
+  imageName: string,
+  message: string,
+  config: ToastConfig
+): ToastProps => ({
+  variant: "error",
+  children: (
+    <NotificationText
+      title={<Trans>Unable to Update Image Visibility</Trans>}
+      description={
+        <Trans>
+          Failed to update visibility for "{imageName}": {message}
+        </Trans>
+      }
+    />
+  ),
+  autoDismiss: true,
+  autoDismissTimeout: config.autoDismissTimeout ?? 5000,
+  onDismiss: config.onDismiss,
+})

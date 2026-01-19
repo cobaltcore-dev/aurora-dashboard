@@ -22,6 +22,7 @@ import {
   getDefaultContainerFormat,
   isValidFormatCombination,
 } from "@/server/Compute/helpers/imageHelpers"
+import { DISK_FORMATS, IMAGE_VISIBILITY } from "../../../-constants/filters"
 
 interface CreateImageModalProps {
   isOpen: boolean
@@ -48,7 +49,7 @@ interface ImageProperties {
 const defaultImageValues: ImageProperties = {
   name: "",
   tags: [],
-  visibility: "private",
+  visibility: IMAGE_VISIBILITY.PRIVATE,
   disk_format: undefined,
   container_format: undefined,
   protected: false,
@@ -511,10 +512,10 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({
                 disabled={isLoading}
                 loading={isLoading}
               >
-                <SelectOption value="public" label={t`Public`} />
-                <SelectOption value="private" label={t`Private`} />
-                <SelectOption value="shared" label={t`Shared`} />
-                <SelectOption value="community" label={t`Community`} />
+                <SelectOption value={IMAGE_VISIBILITY.PUBLIC} label={t`Public`} />
+                <SelectOption value={IMAGE_VISIBILITY.PRIVATE} label={t`Private`} />
+                <SelectOption value={IMAGE_VISIBILITY.SHARED} label={t`Shared`} />
+                <SelectOption value={IMAGE_VISIBILITY.COMMUNITY} label={t`Community`} />
               </Select>
             </FormRow>
 
@@ -532,17 +533,17 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({
                     required
                     errortext={errors.disk_format}
                   >
-                    <SelectOption value="qcow2" label="QCOW2 - QEMU Emulator" />
-                    <SelectOption value="raw" label="Raw" />
-                    <SelectOption value="vmdk" label="VMDK - Virtual Machine Disk" />
-                    <SelectOption value="vhd" label="VHD - Virtual Hard Disk" />
-                    <SelectOption value="vhdx" label="VHDX - Virtual Hard Disk Extended" />
-                    <SelectOption value="vdi" label="VDI - Virtual Disk Image" />
-                    <SelectOption value="ami" label="AMI - Amazon Machine Image" />
-                    <SelectOption value="ari" label="ARI - Amazon Ramdisk Image" />
-                    <SelectOption value="aki" label="AKI - Amazon Kernel Image" />
-                    <SelectOption value="iso" label="ISO - Optical Disk Image" />
-                    <SelectOption value="ploop" label="PLOOP - Virtuozzo/Parallels Loopback Disk" />
+                    <SelectOption value={DISK_FORMATS.QCOW2} label="QCOW2 - QEMU Emulator" />
+                    <SelectOption value={DISK_FORMATS.RAW} label="Raw" />
+                    <SelectOption value={DISK_FORMATS.VMDK} label="VMDK - Virtual Machine Disk" />
+                    <SelectOption value={DISK_FORMATS.VHD} label="VHD - Virtual Hard Disk" />
+                    <SelectOption value={DISK_FORMATS.VHDX} label="VHDX - Virtual Hard Disk Extended" />
+                    <SelectOption value={DISK_FORMATS.VDI} label="VDI - Virtual Disk Image" />
+                    <SelectOption value={DISK_FORMATS.AMI} label="AMI - Amazon Machine Image" />
+                    <SelectOption value={DISK_FORMATS.ARI} label="ARI - Amazon Ramdisk Image" />
+                    <SelectOption value={DISK_FORMATS.AKI} label="AKI - Amazon Kernel Image" />
+                    <SelectOption value={DISK_FORMATS.ISO} label="ISO - Optical Disk Image" />
+                    <SelectOption value={DISK_FORMATS.PLOOP} label="PLOOP - Virtuozzo/Parallels Loopback Disk" />
                   </Select>
                 </div>
                 <div className="flex-1">

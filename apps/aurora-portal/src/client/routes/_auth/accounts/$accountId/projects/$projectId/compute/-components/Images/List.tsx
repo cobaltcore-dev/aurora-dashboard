@@ -235,10 +235,10 @@ export const Images = () => {
   const deletableImages = selectedImages.filter((imageId) => !images.find((image) => image.id === imageId)?.protected)
   const protectedImages = selectedImages.filter((imageId) => images.find((image) => image.id === imageId)?.protected)
   const activeImages = selectedImages.filter(
-    (imageId) => images.find((image) => image.id === imageId)?.status === "active"
+    (imageId) => images.find((image) => image.id === imageId)?.status === IMAGE_STATUSES.ACTIVE
   )
   const deactivatedImages = selectedImages.filter(
-    (imageId) => images.find((image) => image.id === imageId)?.status === "deactivated"
+    (imageId) => images.find((image) => image.id === imageId)?.status === IMAGE_STATUSES.DEACTIVATED
   )
 
   const isDeleteAllDisabled =
@@ -246,10 +246,12 @@ export const Images = () => {
     images.filter((image) => selectedImages.includes(image.id)).every((image) => image.protected)
   const isDeactivateAllDisabled =
     !permissions.canUpdate ||
-    images.filter((image) => selectedImages.includes(image.id)).every((image) => image.status === "deactivated")
+    images
+      .filter((image) => selectedImages.includes(image.id))
+      .every((image) => image.status === IMAGE_STATUSES.DEACTIVATED)
   const isActivateAllDisabled =
     !permissions.canUpdate ||
-    images.filter((image) => selectedImages.includes(image.id)).every((image) => image.status === "active")
+    images.filter((image) => selectedImages.includes(image.id)).every((image) => image.status === IMAGE_STATUSES.ACTIVE)
 
   const handleSortChange = (newSortSettings: SortSettings) => {
     startTransition(() => {

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, ReactNode } from "react"
 import { useParams } from "@tanstack/react-router"
-import type { CreateImageInput, GlanceImage } from "@/server/Compute/types/image"
+import type { CreateImageInput, GlanceImage, ImageVisibility } from "@/server/Compute/types/image"
 import {
   Button,
   Checkbox,
@@ -19,6 +19,7 @@ import { TRPCClientError } from "@trpc/client"
 import { InferrableClientTypes } from "@trpc/server/unstable-core-do-not-import"
 import { FastifyError } from "fastify"
 import { Trans } from "@lingui/react/macro"
+import { t } from "@lingui/core/macro"
 import { EditImageDetailsModal } from "./EditImageDetailsModal"
 import { EditImageMetadataModal } from "./EditImageMetadataModal"
 import { ImageTableRow } from "./ImageTableRow"
@@ -48,6 +49,8 @@ import {
   getBulkDeactivatePartialToast,
   getImageCreateErrorToast,
   getImageFileUploadErrorToast,
+  getImageVisibilityUpdatedToast,
+  getImageVisibilityUpdateErrorToast,
 } from "./ImageToastNotifications"
 import { ManageImageAccessModal } from "./ManageImageAccessModal "
 import { ConfirmImageAccessModal } from "./ConfirmImageAccessModal"
@@ -201,6 +204,13 @@ export function ImageListView({
 
   const uploadImageMutation = trpcReact.compute.uploadImage.useMutation()
 
+  const updateImageVisibilityMutation = trpcReact.compute.updateImageVisibility.useMutation({
+    onSuccess: () => {
+      utils.compute.listImagesWithPagination.invalidate()
+      utils.compute.getImageById.invalidate()
+    },
+  })
+
   const { data } = trpcReact.compute.watchUploadProgress.useSubscription(
     { uploadId: uploadId || "" },
     {
@@ -218,9 +228,34 @@ export function ImageListView({
     deleteImagesMutation.isPending ||
     activateImagesMutation.isPending ||
     deactivateImagesMutation.isPending ||
-    updateImageMutation.isPending
+    updateImageMutation.isPending ||
+    updateImageVisibilityMutation.isPending
 
   const handleToastDismiss = () => setToastData(null)
+
+  const handleUpdateImageVisibility = async (imageId: string, newVisibility: ImageVisibility, imageName: string) => {
+    try {
+      await updateImageVisibilityMutation.mutateAsync({
+        imageId,
+        visibility: newVisibility,
+      })
+
+      setToastData(
+        getImageVisibilityUpdatedToast(imageName, newVisibility, {
+          onDismiss: handleToastDismiss,
+        })
+      )
+    } catch (error) {
+      const errorMessage =
+        (error as TRPCClientError<InferrableClientTypes>)?.message || t`Failed to update visibility to ${newVisibility}`
+
+      setToastData(
+        getImageVisibilityUpdateErrorToast(imageName, errorMessage, {
+          onDismiss: handleToastDismiss,
+        })
+      )
+    }
+  }
 
   /**
    * Converts partial image properties to OpenStack JSON Patch operations
@@ -599,6 +634,7 @@ export function ImageListView({
                   setSelectedImages([...selectedImages, image.id])
                 }}
                 onActivationStatusChange={handleActivationStatusChange}
+                onUpdateVisibility={handleUpdateImageVisibility}
                 shouldShowSuggestedImages={shouldShowSuggestedImages}
               />
             ))}

@@ -25,6 +25,8 @@ import {
   getBulkDeactivatePartialToast,
   getImageAccessStatusUpdatedToast,
   getImageAccessStatusErrorToast,
+  getImageVisibilityUpdatedToast,
+  getImageVisibilityUpdateErrorToast,
 } from "./ImageToastNotifications"
 
 describe("ImageToastNotifications", () => {
@@ -1002,6 +1004,122 @@ describe("ImageToastNotifications", () => {
         const longErrorMessage =
           "Failed to update access status: The server returned an unexpected response. Please try again later."
         const toast = getImageAccessStatusErrorToast(longErrorMessage, defaultConfig)
+
+        render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+
+        expect(screen.getByText(longErrorMessage)).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe("Image Visibility Toasts", () => {
+    describe("getImageVisibilityUpdatedToast", () => {
+      it("should return success toast with correct structure", () => {
+        const toast = getImageVisibilityUpdatedToast("test-image", "public", defaultConfig)
+
+        expect(toast.variant).toBe("success")
+        expect(toast.autoDismiss).toBe(true)
+        expect(toast.autoDismissTimeout).toBe(3000)
+        expect(toast.onDismiss).toBe(mockOnDismiss)
+        expect(toast.children).toBeDefined()
+      })
+
+      it("should render correct message content", () => {
+        const imageName = "test-image"
+        const visibility = "public"
+        const toast = getImageVisibilityUpdatedToast(imageName, visibility, defaultConfig)
+
+        render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+
+        expect(screen.getByText("Image Visibility")).toBeInTheDocument()
+        expect(screen.getByText(/test-image/)).toBeInTheDocument()
+        expect(screen.getByText(/public/)).toBeInTheDocument()
+      })
+
+      it("should handle different visibility values", () => {
+        const visibilities = ["public", "private", "shared"]
+        const imageName = "test-image"
+
+        visibilities.forEach((visibility) => {
+          const { unmount } = render(
+            <I18nProvider i18n={i18n}>
+              {getImageVisibilityUpdatedToast(imageName, visibility, defaultConfig).children}
+            </I18nProvider>
+          )
+
+          expect(screen.getByText(new RegExp(visibility))).toBeInTheDocument()
+          unmount()
+        })
+      })
+
+      it("should use custom autoDismissTimeout when provided", () => {
+        const toast = getImageVisibilityUpdatedToast("test-image", "public", {
+          onDismiss: mockOnDismiss,
+          autoDismissTimeout: 8000,
+        })
+
+        expect(toast.autoDismissTimeout).toBe(8000)
+      })
+    })
+
+    describe("getImageVisibilityUpdateErrorToast", () => {
+      it("should return error toast with correct structure", () => {
+        const toast = getImageVisibilityUpdateErrorToast("test-image", "Permission denied", defaultConfig)
+
+        expect(toast.variant).toBe("error")
+        expect(toast.autoDismiss).toBe(true)
+        expect(toast.autoDismissTimeout).toBe(5000)
+        expect(toast.onDismiss).toBe(mockOnDismiss)
+        expect(toast.children).toBeDefined()
+      })
+
+      it("should render correct error message content", () => {
+        const imageName = "test-image"
+        const errorMessage = "Permission denied"
+        const toast = getImageVisibilityUpdateErrorToast(imageName, errorMessage, defaultConfig)
+
+        render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+
+        expect(screen.getByText("Unable to Update Image Visibility")).toBeInTheDocument()
+        expect(screen.getByText(/test-image/)).toBeInTheDocument()
+        expect(screen.getByText(/Permission denied/)).toBeInTheDocument()
+      })
+
+      it("should handle different error messages", () => {
+        const imageName = "test-image"
+        const errorMessages = ["Permission denied", "Image not found", "Server error"]
+
+        errorMessages.forEach((errorMessage) => {
+          const { unmount } = render(
+            <I18nProvider i18n={i18n}>
+              {getImageVisibilityUpdateErrorToast(imageName, errorMessage, defaultConfig).children}
+            </I18nProvider>
+          )
+
+          expect(
+            screen.getByText(`Failed to update visibility for "${imageName}": ${errorMessage}`)
+          ).toBeInTheDocument()
+          unmount()
+        })
+      })
+
+      it("should use custom autoDismissTimeout when provided", () => {
+        const toast = getImageVisibilityUpdateErrorToast("test-image", "Error", {
+          onDismiss: mockOnDismiss,
+          autoDismissTimeout: 10000,
+        })
+
+        expect(toast.autoDismissTimeout).toBe(10000)
+      })
+
+      it("should handle long error messages", () => {
+        const imageName = "test-image"
+        const longErrorMessage = `Failed to update visibility for "${imageName}": The server returned an unexpected response. Please try again later.`
+        const toast = getImageVisibilityUpdateErrorToast(
+          imageName,
+          "The server returned an unexpected response. Please try again later.",
+          defaultConfig
+        )
 
         render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
 

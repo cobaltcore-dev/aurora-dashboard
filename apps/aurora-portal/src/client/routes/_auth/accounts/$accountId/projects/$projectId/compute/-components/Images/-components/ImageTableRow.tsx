@@ -8,8 +8,9 @@ import {
   PopupMenuOptions,
 } from "@cloudoperators/juno-ui-components"
 import { useLingui } from "@lingui/react/macro"
-import { GlanceImage } from "@/server/Compute/types/image"
+import { GlanceImage, ImageVisibility } from "@/server/Compute/types/image"
 import { SizeDisplay } from "./SizeDisplay"
+import { IMAGE_STATUSES, IMAGE_VISIBILITY } from "../../../-constants/filters"
 
 interface ImageTableRowProps {
   image: GlanceImage
@@ -21,6 +22,7 @@ interface ImageTableRowProps {
   onActivationStatusChange: (image: GlanceImage) => void
   onManageAccess: (image: GlanceImage) => void
   onConfirmAccess: (image: GlanceImage) => void
+  onUpdateVisibility: (imageId: string, newVisibility: ImageVisibility, imageName: string) => Promise<void>
   permissions: {
     canCreate: boolean
     canDelete: boolean
@@ -43,6 +45,7 @@ export function ImageTableRow({
   onActivationStatusChange,
   onManageAccess,
   onConfirmAccess,
+  onUpdateVisibility,
   shouldShowSuggestedImages,
 }: ImageTableRowProps) {
   const { t } = useLingui()
@@ -97,10 +100,10 @@ export function ImageTableRow({
                 <PopupMenuItem label={t`Edit Details`} onClick={() => onEditDetails(image)} />
                 <PopupMenuItem label={t`Edit Metadata`} onClick={() => onEditMetadata(image)} />
                 <PopupMenuItem
-                  label={image.status === "deactivated" ? t`Activate` : t`Deactivate`}
+                  label={image.status === IMAGE_STATUSES.DEACTIVATED ? t`Activate` : t`Deactivate`}
                   onClick={() => onActivationStatusChange(image)}
                 />
-                {image.visibility === "shared" && (
+                {image.visibility === IMAGE_VISIBILITY.SHARED && (
                   <>
                     {isImageOwner && (permissions.canCreateMember || permissions.canDeleteMember) && (
                       <PopupMenuItem label={t`Manage Access`} onClick={() => onManageAccess(image)} />
@@ -112,6 +115,12 @@ export function ImageTableRow({
                       />
                     )}
                   </>
+                )}
+                {image.visibility === IMAGE_VISIBILITY.PRIVATE && (
+                  <PopupMenuItem
+                    label={t`Set to "Shared"`}
+                    onClick={() => onUpdateVisibility(image.id, IMAGE_VISIBILITY.SHARED, imageName)}
+                  />
                 )}
               </>
             )}
