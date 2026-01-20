@@ -80,6 +80,22 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({
     return properties.disk_format ? getCompatibleContainerFormats(properties.disk_format) : []
   }, [properties.disk_format])
 
+  const validExtensions = [
+    ".qcow2",
+    ".raw",
+    ".vmdk",
+    ".vhd",
+    ".vhdx",
+    ".vdi",
+    ".ami",
+    ".ari",
+    ".aki",
+    ".iso",
+    ".ploop",
+    ".img",
+  ]
+  const supportedFileFormats = validExtensions.join(", ")
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target
 
@@ -175,26 +191,13 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({
     setIsDragging(false)
 
     const droppedFiles = e.dataTransfer.files
+
     if (droppedFiles && droppedFiles.length > 0) {
       const file = droppedFiles[0]
+
       // Validate file type
-      const validExtensions = [
-        ".qcow2",
-        ".raw",
-        ".vmdk",
-        ".vhd",
-        ".vhdx",
-        ".vdi",
-        ".ami",
-        ".ari",
-        ".aki",
-        ".iso",
-        ".ploop",
-        ".img",
-      ]
       const fileName = file.name.toLowerCase()
       const isValidFile = validExtensions.some((ext) => fileName.endsWith(ext))
-      const supportedFileFormats = validExtensions.join(", ")
 
       if (isValidFile) {
         setSelectedFile(file)
@@ -422,7 +425,7 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({
                       type="file"
                       className="hidden"
                       onChange={handleFileChange}
-                      accept=".qcow2,.raw,.vmdk,.vhd,.vhdx,.vdi,.ami,.ari,.aki,.iso,.ploop,.img"
+                      accept={supportedFileFormats}
                       disabled={isLoading}
                     />
                   </label>

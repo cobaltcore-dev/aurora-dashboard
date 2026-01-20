@@ -54,6 +54,7 @@ import {
 } from "./ImageToastNotifications"
 import { ManageImageAccessModal } from "./ManageImageAccessModal "
 import { ConfirmImageAccessModal } from "./ConfirmImageAccessModal"
+import { IMAGE_STATUSES } from "../../../-constants/filters"
 
 interface ImagePageProps {
   images: GlanceImage[]
@@ -390,12 +391,13 @@ export function ImageListView({
     const imageId = updatedImage.id
 
     try {
-      const mutation = updatedImage.status === "deactivated" ? reactivateImageMutation : deactivateImageMutation
+      const mutation =
+        updatedImage.status === IMAGE_STATUSES.DEACTIVATED ? reactivateImageMutation : deactivateImageMutation
 
       await mutation.mutateAsync({ imageId })
 
       const toast =
-        updatedImage.status === "deactivated"
+        updatedImage.status === IMAGE_STATUSES.DEACTIVATED
           ? getImageActivatedToast(imageName, { onDismiss: handleToastDismiss })
           : getImageDeactivatedToast(imageName, { onDismiss: handleToastDismiss })
 
@@ -404,7 +406,7 @@ export function ImageListView({
       const { message } = error as TRPCClientError<InferrableClientTypes>
 
       const toast =
-        updatedImage.status === "deactivated"
+        updatedImage.status === IMAGE_STATUSES.DEACTIVATED
           ? getImageActivationErrorToast(imageId, message, { onDismiss: handleToastDismiss })
           : getImageDeactivationErrorToast(imageId, message, { onDismiss: handleToastDismiss })
 
