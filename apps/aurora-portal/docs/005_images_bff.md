@@ -247,7 +247,7 @@ Use this for uploading files via tRPC protocol with support for real-time progre
 
 **Features:**
 
-- Chunked upload with 64KB chunks for optimal performance
+- Chunked upload for optimal performance
 - Real-time progress events emitted during upload
 - Non-blocking progress tracking (generator yields between chunks)
 - Automatic cleanup of progress tracking after upload completes
@@ -720,7 +720,7 @@ function ImageUploadWithProgress() {
 #### Notes
 
 - The subscription emits the **current progress state immediately** when subscribed (if upload is active)
-- Progress updates are emitted for each 64KB chunk uploaded
+- Progress updates are emitted for each chunk uploaded
 - The subscription automatically completes when the upload finishes
 - If the upload errors, an error event is emitted and the subscription closes
 - Multiple subscriptions to the same uploadId are independent (each receives their own stream)

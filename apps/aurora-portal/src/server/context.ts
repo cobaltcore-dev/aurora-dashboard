@@ -23,6 +23,17 @@ const defaultSignalOpenstackOptions = {
   },
 }
 
+export interface FilePartData {
+  filename: string
+  mimetype: string
+  encoding: string
+  file: NodeJS.ReadableStream
+}
+
+export interface FormFieldData {
+  [key: string]: string | string[]
+}
+
 export interface AuroraPortalContext extends AuroraContext {
   createSession: (params: { user: string; password: string; domain: string }) => SignalOpenstackSessionType
   rescopeSession: (scope: {
@@ -30,8 +41,15 @@ export interface AuroraPortalContext extends AuroraContext {
     domainId?: string
   }) => Promise<Awaited<SignalOpenstackSessionType | null>>
   terminateSession: () => Promise<void>
-  uploadedFile?: { filename: string; mimetype: string; buffer: Buffer<ArrayBufferLike> }
-  formFields?: Record<string, unknown>
+  // Stream-based multipart data
+  getMultipartData: () => AsyncGenerator<
+    | { type: "field"; fieldname: string; value: string }
+    | { type: "file"; filename: string; mimetype: string; encoding: string; file: NodeJS.ReadableStream },
+    void,
+    unknown
+  >
+  formFields?: FormFieldData
+  uploadedFileStream?: FilePartData
 }
 
 export async function createContext(opts: CreateFastifyContextOptions): Promise<AuroraPortalContext> {
@@ -122,13 +140,42 @@ export async function createContext(opts: CreateFastifyContextOptions): Promise<
     }
   }
 
+  // Lazy multipart parsing - returns async generator
+  // This allows consuming parts on-demand without buffering
+  const getMultipartData = async function* () {
+    const contentType = opts.req.headers["content-type"] || ""
+
+    // Only parse multipart if content-type indicates it
+    if (!contentType.includes("multipart")) {
+      return
+    }
+
+    // Iterate through all parts of the multipart request
+    for await (const part of opts.req.parts()) {
+      if (part.type === "field") {
+        yield {
+          type: "field" as const,
+          fieldname: part.fieldname,
+          value: String(part.value), // Cast unknown to string
+        }
+      } else if (part.type === "file") {
+        yield {
+          type: "file" as const,
+          filename: part.filename,
+          mimetype: part.mimetype,
+          encoding: part.encoding,
+          file: part.file as NodeJS.ReadableStream, // Cast BusboyFileStream to NodeJS.ReadableStream
+        }
+      }
+    }
+  }
+
   return {
     createSession,
     rescopeSession,
     terminateSession,
     validateSession,
     openstack: openstackSession,
-    uploadedFile: opts.req.uploadedFile,
-    formFields: opts.req.formFields || {},
+    getMultipartData,
   }
 }

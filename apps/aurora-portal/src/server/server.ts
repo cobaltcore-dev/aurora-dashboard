@@ -1,5 +1,5 @@
 import "./types"
-import Fastify, { FastifyError, FastifyRequest } from "fastify"
+import Fastify, { FastifyError } from "fastify"
 import FastifyStatic from "@fastify/static"
 import FastifyVite from "@fastify/vite"
 import FastifyCookie from "@fastify/cookie"
@@ -38,42 +38,12 @@ async function startServer() {
     secret: undefined, // Should be set to a secure value in production
   })
 
-  // Register multipart/form-data support - MUST be before tRPC
+  // Register multipart/form-data support
   await server.register(FastifyMultipart, {
     limits: {
-      fileSize: 5 * 1024 * 1024 * 1024, // 5GB body limit
+      fileSize: 5 * 1024 * 1024 * 1024, // 5GB max per file
       files: 10, // max 10 files per request
     },
-  })
-
-  server.addHook("preHandler", async (request: FastifyRequest /* reply: FastifyReply */) => {
-    const contentType = request.headers["content-type"] || ""
-    if (!contentType.includes("multipart")) return
-
-    const fields: Record<string, unknown> = {}
-
-    // Use request.parts() to iterate ALL parts
-    for await (const part of request.parts()) {
-      if (part.type === "field") {
-        // Handle field
-        fields[part.fieldname] = part.value
-      } else if (part.type === "file") {
-        // Handle file
-        const chunks: Buffer[] = []
-
-        for await (const chunk of part.file) {
-          chunks.push(chunk)
-        }
-
-        request.uploadedFile = {
-          filename: part.filename,
-          mimetype: part.mimetype,
-          buffer: Buffer.concat(chunks), // ← Store file as buffer
-        }
-      }
-    }
-    // Store fields on request
-    request.formFields = fields
   })
 
   // Add support for application/octet-stream content type
@@ -81,9 +51,9 @@ async function startServer() {
     done(null, body)
   })
 
-  // FALLBACK: Direct HTTP endpoint for image file uploads
-  // Use this if you encounter issues with multipart upload via tRPC
-  server.post(`${BFF_ENDPOINT}/upload-image`, async (request, reply) => {
+  // OPTIONAL: Direct HTTP endpoint for image file uploads (without tRPC)
+  // Use this if you need a fallback or alternative upload method
+  server.post(`${BFF_ENDPOINT}/upload-image-direct`, async (request, reply) => {
     try {
       // Reuse tRPC context for authentication check
       const ctx = await createContext({ req: request, res: reply } as CreateFastifyContextOptions)
@@ -139,7 +109,7 @@ async function startServer() {
 
       // Handle file size limit specifically
       if (code === "FST_REQ_FILE_TOO_LARGE") {
-        return reply.code(413).send({ message: "File too large", maxSize: "2GB" })
+        return reply.code(413).send({ message: "File too large", maxSize: "5GB" })
       }
 
       return reply.code(500).send({ message })

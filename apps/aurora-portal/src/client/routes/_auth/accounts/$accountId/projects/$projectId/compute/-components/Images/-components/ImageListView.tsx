@@ -333,6 +333,7 @@ export function ImageListView({
       // Step 2: Create FormData WITH file
       const formData = new FormData()
       formData.append("imageId", createdImage.id)
+      formData.append("fileSize", `${file.size}`)
       formData.append("file", file)
 
       setUploadId(createdImage.id)
