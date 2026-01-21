@@ -919,7 +919,7 @@ describe("imageHelpers", () => {
   describe("ImageErrorHandlers", () => {
     describe("upload", () => {
       it("should handle 404 error for upload", () => {
-        const response = { status: 404 }
+        const response = { statusCode: 404 }
         const imageId = "image-123"
 
         const error = ImageErrorHandlers.upload(response, imageId)
@@ -929,7 +929,7 @@ describe("imageHelpers", () => {
       })
 
       it("should handle 403 error for upload", () => {
-        const response = { status: 403 }
+        const response = { statusCode: 403 }
         const imageId = "image-123"
 
         const error = ImageErrorHandlers.upload(response, imageId)
@@ -939,7 +939,7 @@ describe("imageHelpers", () => {
       })
 
       it("should handle 409 error for upload", () => {
-        const response = { status: 409 }
+        const response = { statusCode: 409 }
         const imageId = "image-123"
 
         const error = ImageErrorHandlers.upload(response, imageId)
@@ -949,7 +949,7 @@ describe("imageHelpers", () => {
       })
 
       it("should handle 415 error with content type", () => {
-        const response = { status: 415 }
+        const response = { statusCode: 415 }
         const imageId = "image-123"
         const contentType = "application/pdf"
 

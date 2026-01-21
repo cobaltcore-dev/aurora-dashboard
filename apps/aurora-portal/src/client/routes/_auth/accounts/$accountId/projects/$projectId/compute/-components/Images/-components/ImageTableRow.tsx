@@ -32,6 +32,8 @@ interface ImageTableRowProps {
     canUpdateMember: boolean
   }
   shouldShowSuggestedImages: boolean
+  uploadId?: string | null
+  uploadProgressPercent?: number
 }
 
 export function ImageTableRow({
@@ -47,6 +49,8 @@ export function ImageTableRow({
   onConfirmAccess,
   onUpdateVisibility,
   shouldShowSuggestedImages,
+  uploadId,
+  uploadProgressPercent,
 }: ImageTableRowProps) {
   const { t } = useLingui()
   const { id, name, status, visibility, size, disk_format, created_at, owner } = image
@@ -78,7 +82,7 @@ export function ImageTableRow({
       <DataGridCell>{visibility}</DataGridCell>
       <DataGridCell>{image.protected ? t`Yes` : t`No`}</DataGridCell>
       <DataGridCell>
-        <SizeDisplay size={size} />
+        {uploadId && uploadId === id ? `${uploadProgressPercent}%` : <SizeDisplay size={size} />}
       </DataGridCell>
       <DataGridCell>{disk_format || t`N/A`}</DataGridCell>
       <DataGridCell>{created_at ? new Date(created_at).toLocaleDateString() : t`N/A`}</DataGridCell>

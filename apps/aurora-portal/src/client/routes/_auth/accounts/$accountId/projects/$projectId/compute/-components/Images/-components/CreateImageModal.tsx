@@ -452,7 +452,7 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({
                     </button>
                   </div>
                 )}
-                {errors.file && <p className="text-red-600 text-xs mt-1">{errors.file}</p>}
+                {errors.file && <p className="text-red-600 text-xs mt-1 text-theme-error">{errors.file}</p>}
               </div>
             </FormRow>
           </FormSection>

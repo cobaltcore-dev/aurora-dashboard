@@ -290,8 +290,8 @@ export const ImageErrorHandlers = {
   /**
    * Handles errors specific to image upload operations
    */
-  upload: (response: { status?: number; statusText?: string }, imageId: string, contentType?: string) => {
-    switch (response.status) {
+  upload: (response: { statusCode?: number; message?: string }, imageId: string, contentType?: string) => {
+    switch (response.statusCode) {
       case 404:
         return new TRPCError({
           code: "NOT_FOUND",
@@ -325,7 +325,7 @@ export const ImageErrorHandlers = {
       default:
         return new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
-          message: `Failed to upload image: ${response.statusText || "Unknown error"}`,
+          message: `Failed to upload image: ${response.message || "Unknown error"}`,
         })
     }
   },

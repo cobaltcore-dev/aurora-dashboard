@@ -1,4 +1,5 @@
 import { z } from "zod"
+import { SignalOpenstackApiError } from "@cobaltcore-dev/signal-openstack"
 import EventEmitter from "node:events"
 import { Readable, Transform } from "node:stream"
 import { protectedProcedure } from "../../trpc"
@@ -226,7 +227,6 @@ export const imageRouter = {
         // Upload to Glance with progress tracking
         await glance.put(`v2/images/${validatedImageId}/file`, webStream, {
           headers: {
-            Accept: "application/json",
             "Content-Type": "application/octet-stream",
           },
         })
@@ -242,7 +242,7 @@ export const imageRouter = {
         // Emit error event for subscriptions
         uploadProgressEmitter.emit(`progress:${validatedImageId}:error`, error)
 
-        throw ImageErrorHandlers.upload(error as Response, validatedImageId, "application/octet-stream")
+        throw ImageErrorHandlers.upload(error as SignalOpenstackApiError, validatedImageId, "application/octet-stream")
       } finally {
         // Always cleanup progress tracking
         uploadProgress.delete(validatedImageId)

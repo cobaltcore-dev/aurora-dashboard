@@ -26,9 +26,10 @@ export const getImageUpdateErrorToast = (imageName: string, message: string, con
     <NotificationText
       title={<Trans>Unable to Update Image</Trans>}
       description={
-        <Trans>
-          The image "{imageName}" could not be updated: {message}
-        </Trans>
+        <>
+          <Trans>The image "{imageName}" could not be updated: </Trans>
+          {message}
+        </>
       }
     />
   ),
@@ -56,9 +57,10 @@ export const getImageCreateErrorToast = (imageName: string, message: string, con
     <NotificationText
       title={<Trans>Unable to Create Image</Trans>}
       description={
-        <Trans>
-          The image "{imageName}" could not be created: {message}
-        </Trans>
+        <>
+          <Trans>The image "{imageName}" could not be created: </Trans>
+          {message}
+        </>
       }
     />
   ),
@@ -73,9 +75,10 @@ export const getImageFileUploadErrorToast = (fileName: string, message: string, 
     <NotificationText
       title={<Trans>Unable to Upload Image File</Trans>}
       description={
-        <Trans>
-          Failed to upload file "{fileName}": {message}
-        </Trans>
+        <>
+          <Trans>Failed to upload file "{fileName}": </Trans>
+          {message}
+        </>
       }
     />
   ),
@@ -421,9 +424,10 @@ export const getImageVisibilityUpdateErrorToast = (
     <NotificationText
       title={<Trans>Unable to Update Image Visibility</Trans>}
       description={
-        <Trans>
-          Failed to update visibility for "{imageName}": {message}
-        </Trans>
+        <>
+          <Trans>Failed to update visibility for "{imageName}": </Trans>
+          {message}
+        </>
       }
     />
   ),

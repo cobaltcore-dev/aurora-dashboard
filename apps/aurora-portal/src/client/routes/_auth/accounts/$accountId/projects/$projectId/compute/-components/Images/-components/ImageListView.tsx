@@ -219,6 +219,11 @@ export function ImageListView({
       onData: (data) => {
         console.log(`Upload: ${data?.percent}%`)
       },
+      onComplete() {
+        if (!manageAccessModalOpen && !toastData && uploadId && uploadImageMutation.isSuccess) {
+          setToastData(getImageCreatedToast(uploadId, { onDismiss: handleToastDismiss }))
+        }
+      },
     }
   )
 
@@ -639,6 +644,8 @@ export function ImageListView({
                 onActivationStatusChange={handleActivationStatusChange}
                 onUpdateVisibility={handleUpdateImageVisibility}
                 shouldShowSuggestedImages={shouldShowSuggestedImages}
+                uploadId={uploadId}
+                uploadProgressPercent={data?.percent}
               />
             ))}
           </DataGrid>
@@ -760,7 +767,13 @@ export function ImageListView({
       )}
       <CreateImageModal
         isOpen={createModalOpen}
-        onClose={() => setCreateModalOpen(false)}
+        onClose={() => {
+          if (uploadId) {
+            utils.compute.listImagesWithPagination.invalidate()
+          }
+
+          setCreateModalOpen(false)
+        }}
         onCreate={handleCreate}
         isLoading={createImageMutation.isPending || uploadImageMutation.isPending || isCreateInProgress}
         isUploadPending={uploadImageMutation.isPending && !!uploadId}
