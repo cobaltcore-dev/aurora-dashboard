@@ -3,6 +3,8 @@ import { useState } from "react"
 import { ProjectsOverviewNavBar, ViewMode } from "./-components/ProjectOverviewNavBar"
 import { ProjectCardView } from "./-components/ProjectCardView"
 import { ProjectListView } from "./-components/ProjectListView"
+import { Message } from "@cloudoperators/juno-ui-components"
+
 import { z } from "zod"
 
 const searchSchema = z.object({
@@ -21,12 +23,15 @@ export const Route = createFileRoute("/_auth/accounts/$accountId/projects/")({
     return <p>Projects not found</p>
   },
   beforeLoad: async ({ context, params }) => {
-    const data = await context.trpcClient?.auth.setCurrentScope.mutate({
-      type: "domain",
-      domainId: params.accountId || "",
-    })
+    const data = await context.trpcClient?.auth.setCurrentScope
+      .mutate({
+        type: "domain",
+        domainId: params.accountId || "",
+      })
+      .catch(() => null)
     return {
-      crumbDomain: { path: `/accounts/${params.accountId}/projects`, name: data?.domain?.name },
+      userHasAccountAccess: !!data,
+      crumbDomain: { path: `/accounts/${params.accountId}/projects`, name: data?.domain?.name || "Projects" },
     }
   },
 
@@ -36,12 +41,13 @@ export const Route = createFileRoute("/_auth/accounts/$accountId/projects/")({
     search: search.search || "",
   }),
 
-  loader: async ({ context, deps }) => {
+  loader: async ({ context, params, deps }) => {
     const projects = await context.trpcClient?.project.searchProjects.query({
       search: deps.search,
     })
-
     return {
+      accountId: params.accountId,
+      userHasAccountAccess: context.userHasAccountAccess,
       projects,
       crumbDomain: context.crumbDomain,
     }
@@ -50,7 +56,7 @@ export const Route = createFileRoute("/_auth/accounts/$accountId/projects/")({
 
 export function ProjectsOverview() {
   const [viewMode, setViewMode] = useState<ViewMode>("card")
-  const { projects } = Route.useLoaderData()
+  const { accountId, userHasAccountAccess, projects } = Route.useLoaderData()
   const { search = "" } = Route.useSearch()
   const navigate = Route.useNavigate()
 
@@ -64,6 +70,13 @@ export function ProjectsOverview() {
   return (
     <div>
       <div className="h-full w-full 2xl:w-5/8 xl:w-2/3 lg:w-3/4 mx-auto max-w-full p-4">
+        {!userHasAccountAccess && (
+          <div className="px-4">
+            <Message variant="info">
+              You do not have access to {accountId} account. Only projects you have access to will be shown.
+            </Message>
+          </div>
+        )}
         <div className="w-full mx-auto">
           <ProjectsOverviewNavBar
             viewMode={viewMode}

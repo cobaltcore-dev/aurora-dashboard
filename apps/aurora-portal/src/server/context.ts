@@ -71,11 +71,6 @@ export async function createContext(opts: CreateFastifyContextOptions): Promise<
             methods: ["password"],
             password: { user: { name: params.user, password: params.password, domain: { name: params.domain } } },
           },
-          scope: {
-            domain: {
-              name: params.domain,
-            },
-          },
         },
       },
       defaultSignalOpenstackOptions
