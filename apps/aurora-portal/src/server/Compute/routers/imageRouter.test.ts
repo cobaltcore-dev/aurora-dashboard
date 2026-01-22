@@ -81,16 +81,28 @@ const createMockContext = (shouldFailAuth = false, shouldFailGlance = false) => 
     }),
   }
 
+  const mockOpenstack = {
+    service: vi.fn().mockReturnValue(shouldFailGlance ? null : mockGlance),
+    getToken: vi.fn().mockReturnValue({
+      tokenData: {
+        project: {
+          id: "default-project-id",
+        },
+      },
+    }),
+  }
+
   return {
     validateSession: vi.fn().mockReturnValue(!shouldFailAuth),
     createSession: vi.fn().mockResolvedValue({}),
     terminateSession: vi.fn().mockResolvedValue({}),
-    openstack: {
-      service: vi.fn().mockReturnValue(shouldFailGlance ? null : mockGlance),
-    },
+    openstack: mockOpenstack,
     rescopeSession: vi.fn().mockResolvedValue({}),
     mockGlance,
-  } as unknown as AuroraPortalContext & { mockGlance: typeof mockGlance }
+  } as unknown as AuroraPortalContext & {
+    mockGlance: typeof mockGlance
+    openstack: typeof mockOpenstack
+  }
 }
 
 const createCaller = createCallerFactory(auroraRouter({ image: imageRouter }))
@@ -1347,6 +1359,758 @@ describe("imageRouter", () => {
       expect(mockCtx.mockGlance.post).toHaveBeenCalledTimes(50)
       expect(result.successful).toHaveLength(50)
       expect(result.failed).toEqual([])
+    })
+  })
+
+  describe("listSharedImagesByMemberStatus", () => {
+    const currentProjectId = generateTestUUID(999)
+    const ownerProjectId = generateTestUUID(1)
+    const anotherOwnerProjectId = generateTestUUID(2)
+
+    const sharedImageWithPendingStatus: GlanceImage = {
+      ...mockGlanceImage,
+      id: generateTestUUID(10),
+      name: "shared-image-pending",
+      visibility: "shared",
+      owner: ownerProjectId,
+    }
+
+    const sharedImageWithAcceptedStatus: GlanceImage = {
+      ...mockGlanceImage,
+      id: generateTestUUID(11),
+      name: "shared-image-accepted",
+      visibility: "shared",
+      owner: anotherOwnerProjectId,
+    }
+
+    const sharedImageWithRejectedStatus: GlanceImage = {
+      ...mockGlanceImage,
+      id: generateTestUUID(12),
+      name: "shared-image-rejected",
+      visibility: "shared",
+      owner: generateTestUUID(3),
+    }
+
+    const memberWithPendingStatus: ImageMember = {
+      ...mockImageMember,
+      status: "pending",
+      image_id: sharedImageWithPendingStatus.id,
+      member_id: currentProjectId,
+    }
+
+    const memberWithAcceptedStatus: ImageMember = {
+      ...mockImageMember,
+      status: "accepted",
+      image_id: sharedImageWithAcceptedStatus.id,
+      member_id: currentProjectId,
+    }
+
+    const memberWithRejectedStatus: ImageMember = {
+      ...mockImageMember,
+      status: "rejected",
+      image_id: sharedImageWithRejectedStatus.id,
+      member_id: currentProjectId,
+    }
+
+    beforeEach(() => {
+      vi.clearAllMocks()
+    })
+
+    describe("Authentication & Authorization", () => {
+      it("should throw UNAUTHORIZED when token is missing", async () => {
+        const mockCtx = createMockContext()
+        const caller = createCaller(mockCtx)
+
+        mockCtx.openstack.getToken = vi.fn().mockReturnValue(null)
+
+        await expect(caller.image.listSharedImagesByMemberStatus({ memberStatus: "pending" })).rejects.toThrow(
+          new TRPCError({
+            code: "UNAUTHORIZED",
+            message: "No valid OpenStack token found",
+          })
+        )
+      })
+
+      it("should throw UNAUTHORIZED when projectId is missing from token", async () => {
+        const mockCtx = createMockContext()
+        const caller = createCaller(mockCtx)
+
+        mockCtx.openstack.getToken = vi.fn().mockReturnValue({
+          tokenData: { project: null },
+        })
+
+        await expect(caller.image.listSharedImagesByMemberStatus({ memberStatus: "accepted" })).rejects.toThrow(
+          new TRPCError({
+            code: "UNAUTHORIZED",
+            message: "Unable to determine current project ID from OpenStack token",
+          })
+        )
+      })
+
+      it("should validate glance service availability", async () => {
+        const mockCtx = createMockContext(false, true)
+        const caller = createCaller(mockCtx)
+
+        mockCtx.openstack.getToken = vi.fn().mockReturnValue({
+          tokenData: { project: { id: currentProjectId } },
+        })
+
+        await expect(caller.image.listSharedImagesByMemberStatus({ memberStatus: "pending" })).rejects.toThrow()
+
+        expect(imageHelpers.validateGlanceService).toHaveBeenCalled()
+      })
+    })
+
+    describe("API Query Parameters", () => {
+      it("should include visibility=shared in query parameters", async () => {
+        const mockCtx = createMockContext()
+        const caller = createCaller(mockCtx)
+
+        mockCtx.openstack.getToken = vi.fn().mockReturnValue({
+          tokenData: { project: { id: currentProjectId } },
+        })
+
+        mockCtx.mockGlance.get.mockResolvedValueOnce({
+          ok: true,
+          json: vi.fn().mockResolvedValue({ images: [] }),
+        })
+
+        await caller.image.listSharedImagesByMemberStatus({ memberStatus: "pending" })
+
+        expect(mockCtx.mockGlance.get).toHaveBeenCalledWith(expect.stringContaining("visibility=shared"))
+      })
+
+      it("should include member_status parameter in query for pending status", async () => {
+        const mockCtx = createMockContext()
+        const caller = createCaller(mockCtx)
+
+        mockCtx.openstack.getToken = vi.fn().mockReturnValue({
+          tokenData: { project: { id: currentProjectId } },
+        })
+
+        mockCtx.mockGlance.get.mockResolvedValueOnce({
+          ok: true,
+          json: vi.fn().mockResolvedValue({ images: [] }),
+        })
+
+        await caller.image.listSharedImagesByMemberStatus({ memberStatus: "pending" })
+
+        expect(mockCtx.mockGlance.get).toHaveBeenCalledWith(expect.stringContaining("member_status=pending"))
+      })
+
+      it("should include member_status parameter for accepted status", async () => {
+        const mockCtx = createMockContext()
+        const caller = createCaller(mockCtx)
+
+        mockCtx.openstack.getToken = vi.fn().mockReturnValue({
+          tokenData: { project: { id: currentProjectId } },
+        })
+
+        mockCtx.mockGlance.get.mockResolvedValueOnce({
+          ok: true,
+          json: vi.fn().mockResolvedValue({ images: [] }),
+        })
+
+        await caller.image.listSharedImagesByMemberStatus({ memberStatus: "accepted" })
+
+        expect(mockCtx.mockGlance.get).toHaveBeenCalledWith(expect.stringContaining("member_status=accepted"))
+      })
+
+      it("should include member_status parameter for rejected status", async () => {
+        const mockCtx = createMockContext()
+        const caller = createCaller(mockCtx)
+
+        mockCtx.openstack.getToken = vi.fn().mockReturnValue({
+          tokenData: { project: { id: currentProjectId } },
+        })
+
+        mockCtx.mockGlance.get.mockResolvedValueOnce({
+          ok: true,
+          json: vi.fn().mockResolvedValue({ images: [] }),
+        })
+
+        await caller.image.listSharedImagesByMemberStatus({ memberStatus: "rejected" })
+
+        expect(mockCtx.mockGlance.get).toHaveBeenCalledWith(expect.stringContaining("member_status=rejected"))
+      })
+    })
+
+    describe("Empty Result Handling", () => {
+      it("should return empty array when no shared images exist", async () => {
+        const mockCtx = createMockContext()
+        const caller = createCaller(mockCtx)
+
+        mockCtx.openstack.getToken = vi.fn().mockReturnValue({
+          tokenData: { project: { id: currentProjectId } },
+        })
+
+        mockCtx.mockGlance.get.mockResolvedValueOnce({
+          ok: true,
+          json: vi.fn().mockResolvedValue({ images: [] }),
+        })
+
+        const result = await caller.image.listSharedImagesByMemberStatus({ memberStatus: "pending" })
+
+        expect(result).toEqual([])
+      })
+
+      it("should return empty array when all images are owned by current project", async () => {
+        const mockCtx = createMockContext()
+        const caller = createCaller(mockCtx)
+
+        mockCtx.openstack.getToken = vi.fn().mockReturnValue({
+          tokenData: { project: { id: currentProjectId } },
+        })
+
+        const ownedImage: GlanceImage = {
+          ...sharedImageWithPendingStatus,
+          owner: currentProjectId,
+        }
+
+        mockCtx.mockGlance.get.mockResolvedValueOnce({
+          ok: true,
+          json: vi.fn().mockResolvedValue({ images: [ownedImage] }),
+        })
+
+        const result = await caller.image.listSharedImagesByMemberStatus({ memberStatus: "pending" })
+
+        expect(result).toEqual([])
+      })
+    })
+
+    describe("Owner Filtering", () => {
+      it("should filter out images owned by current project", async () => {
+        const mockCtx = createMockContext()
+        const caller = createCaller(mockCtx)
+
+        mockCtx.openstack.getToken = vi.fn().mockReturnValue({
+          tokenData: { project: { id: currentProjectId } },
+        })
+
+        const ownedImage: GlanceImage = {
+          ...sharedImageWithPendingStatus,
+          id: generateTestUUID(20),
+          owner: currentProjectId,
+        }
+
+        mockCtx.mockGlance.get.mockResolvedValueOnce({
+          ok: true,
+          json: vi.fn().mockResolvedValue({
+            images: [sharedImageWithPendingStatus, ownedImage, sharedImageWithAcceptedStatus],
+          }),
+        })
+
+        // Mock member responses for non-owned images
+        mockCtx.mockGlance.get.mockResolvedValueOnce({
+          ok: true,
+          json: vi.fn().mockResolvedValue(memberWithPendingStatus),
+        })
+
+        mockCtx.mockGlance.get.mockResolvedValueOnce({
+          ok: true,
+          json: vi.fn().mockResolvedValue(memberWithPendingStatus),
+        })
+
+        const result = await caller.image.listSharedImagesByMemberStatus({ memberStatus: "pending" })
+
+        // Should not include the owned image
+        expect(result.every((img) => img.owner !== currentProjectId)).toBe(true)
+        expect(result).toContainEqual(expect.objectContaining({ id: sharedImageWithPendingStatus.id }))
+      })
+
+      it("should include images from multiple different owners", async () => {
+        const mockCtx = createMockContext()
+        const caller = createCaller(mockCtx)
+
+        mockCtx.openstack.getToken = vi.fn().mockReturnValue({
+          tokenData: { project: { id: currentProjectId } },
+        })
+
+        mockCtx.mockGlance.get.mockResolvedValueOnce({
+          ok: true,
+          json: vi.fn().mockResolvedValue({
+            images: [sharedImageWithAcceptedStatus, sharedImageWithRejectedStatus],
+          }),
+        })
+
+        // Mock member responses
+        mockCtx.mockGlance.get.mockResolvedValueOnce({
+          ok: true,
+          json: vi.fn().mockResolvedValue(memberWithAcceptedStatus),
+        })
+
+        mockCtx.mockGlance.get.mockResolvedValueOnce({
+          ok: true,
+          json: vi.fn().mockResolvedValue(memberWithAcceptedStatus),
+        })
+
+        const result = await caller.image.listSharedImagesByMemberStatus({ memberStatus: "accepted" })
+
+        expect(result).toHaveLength(2)
+      })
+    })
+
+    describe("Member Status Filtering", () => {
+      it("should return only images with pending member status", async () => {
+        const mockCtx = createMockContext()
+        const caller = createCaller(mockCtx)
+
+        mockCtx.openstack.getToken = vi.fn().mockReturnValue({
+          tokenData: { project: { id: currentProjectId } },
+        })
+
+        mockCtx.mockGlance.get.mockResolvedValueOnce({
+          ok: true,
+          json: vi.fn().mockResolvedValue({
+            images: [sharedImageWithPendingStatus, sharedImageWithAcceptedStatus, sharedImageWithRejectedStatus],
+          }),
+        })
+
+        // Mock member responses
+        mockCtx.mockGlance.get.mockResolvedValueOnce({
+          ok: true,
+          json: vi.fn().mockResolvedValue(memberWithPendingStatus),
+        })
+
+        mockCtx.mockGlance.get.mockResolvedValueOnce({
+          ok: true,
+          json: vi.fn().mockResolvedValue(memberWithAcceptedStatus),
+        })
+
+        mockCtx.mockGlance.get.mockResolvedValueOnce({
+          ok: true,
+          json: vi.fn().mockResolvedValue(memberWithRejectedStatus),
+        })
+
+        const result = await caller.image.listSharedImagesByMemberStatus({ memberStatus: "pending" })
+
+        expect(result).toHaveLength(1)
+        expect(result[0].id).toBe(sharedImageWithPendingStatus.id)
+      })
+
+      it("should return only images with accepted member status", async () => {
+        const mockCtx = createMockContext()
+        const caller = createCaller(mockCtx)
+
+        mockCtx.openstack.getToken = vi.fn().mockReturnValue({
+          tokenData: { project: { id: currentProjectId } },
+        })
+
+        mockCtx.mockGlance.get.mockResolvedValueOnce({
+          ok: true,
+          json: vi.fn().mockResolvedValue({
+            images: [sharedImageWithPendingStatus, sharedImageWithAcceptedStatus, sharedImageWithRejectedStatus],
+          }),
+        })
+
+        // Mock member responses
+        mockCtx.mockGlance.get.mockResolvedValueOnce({
+          ok: true,
+          json: vi.fn().mockResolvedValue(memberWithPendingStatus),
+        })
+
+        mockCtx.mockGlance.get.mockResolvedValueOnce({
+          ok: true,
+          json: vi.fn().mockResolvedValue(memberWithAcceptedStatus),
+        })
+
+        mockCtx.mockGlance.get.mockResolvedValueOnce({
+          ok: true,
+          json: vi.fn().mockResolvedValue(memberWithRejectedStatus),
+        })
+
+        const result = await caller.image.listSharedImagesByMemberStatus({ memberStatus: "accepted" })
+
+        expect(result).toHaveLength(1)
+        expect(result[0].id).toBe(sharedImageWithAcceptedStatus.id)
+      })
+
+      it("should return only images with rejected member status", async () => {
+        const mockCtx = createMockContext()
+        const caller = createCaller(mockCtx)
+
+        mockCtx.openstack.getToken = vi.fn().mockReturnValue({
+          tokenData: { project: { id: currentProjectId } },
+        })
+
+        mockCtx.mockGlance.get.mockResolvedValueOnce({
+          ok: true,
+          json: vi.fn().mockResolvedValue({
+            images: [sharedImageWithPendingStatus, sharedImageWithAcceptedStatus, sharedImageWithRejectedStatus],
+          }),
+        })
+
+        // Mock member responses
+        mockCtx.mockGlance.get.mockResolvedValueOnce({
+          ok: true,
+          json: vi.fn().mockResolvedValue(memberWithPendingStatus),
+        })
+
+        mockCtx.mockGlance.get.mockResolvedValueOnce({
+          ok: true,
+          json: vi.fn().mockResolvedValue(memberWithAcceptedStatus),
+        })
+
+        mockCtx.mockGlance.get.mockResolvedValueOnce({
+          ok: true,
+          json: vi.fn().mockResolvedValue(memberWithRejectedStatus),
+        })
+
+        const result = await caller.image.listSharedImagesByMemberStatus({ memberStatus: "rejected" })
+
+        expect(result).toHaveLength(1)
+        expect(result[0].id).toBe(sharedImageWithRejectedStatus.id)
+      })
+    })
+
+    describe("Member Data Fetching", () => {
+      it("should fetch member data for each shared image using the current projectId", async () => {
+        const mockCtx = createMockContext()
+        const caller = createCaller(mockCtx)
+
+        mockCtx.openstack.getToken = vi.fn().mockReturnValue({
+          tokenData: { project: { id: currentProjectId } },
+        })
+
+        mockCtx.mockGlance.get.mockResolvedValueOnce({
+          ok: true,
+          json: vi.fn().mockResolvedValue({
+            images: [sharedImageWithAcceptedStatus],
+          }),
+        })
+
+        mockCtx.mockGlance.get.mockResolvedValueOnce({
+          ok: true,
+          json: vi.fn().mockResolvedValue(memberWithAcceptedStatus),
+        })
+
+        await caller.image.listSharedImagesByMemberStatus({ memberStatus: "accepted" })
+
+        expect(mockCtx.mockGlance.get).toHaveBeenCalledWith(
+          `v2/images/${sharedImageWithAcceptedStatus.id}/members/${currentProjectId}`
+        )
+      })
+
+      it("should use Promise.all for parallel member data fetching", async () => {
+        const mockCtx = createMockContext()
+        const caller = createCaller(mockCtx)
+
+        mockCtx.openstack.getToken = vi.fn().mockReturnValue({
+          tokenData: { project: { id: currentProjectId } },
+        })
+
+        mockCtx.mockGlance.get.mockResolvedValueOnce({
+          ok: true,
+          json: vi.fn().mockResolvedValue({
+            images: [sharedImageWithAcceptedStatus, sharedImageWithPendingStatus],
+          }),
+        })
+
+        const callTimes: number[] = []
+        mockCtx.mockGlance.get.mockImplementation(() => {
+          callTimes.push(Date.now())
+          return Promise.resolve({
+            ok: true,
+            json: vi.fn().mockResolvedValue(memberWithAcceptedStatus),
+          })
+        })
+
+        await caller.image.listSharedImagesByMemberStatus({ memberStatus: "accepted" })
+
+        // Should have called for both member data at nearly the same time (parallel)
+        expect(callTimes.length).toBeGreaterThanOrEqual(2)
+      })
+
+      it("should handle missing member data gracefully (404 response)", async () => {
+        const mockCtx = createMockContext()
+        const caller = createCaller(mockCtx)
+
+        mockCtx.openstack.getToken = vi.fn().mockReturnValue({
+          tokenData: { project: { id: currentProjectId } },
+        })
+
+        mockCtx.mockGlance.get.mockResolvedValueOnce({
+          ok: true,
+          json: vi.fn().mockResolvedValue({
+            images: [sharedImageWithAcceptedStatus],
+          }),
+        })
+
+        // Mock 404 response for member data
+        mockCtx.mockGlance.get.mockResolvedValueOnce({
+          ok: false,
+        })
+
+        const result = await caller.image.listSharedImagesByMemberStatus({ memberStatus: "accepted" })
+
+        // Should return empty since member data doesn't match the requested status
+        expect(result).toEqual([])
+      })
+
+      it("should handle member fetch errors gracefully", async () => {
+        const mockCtx = createMockContext()
+        const caller = createCaller(mockCtx)
+
+        mockCtx.openstack.getToken = vi.fn().mockReturnValue({
+          tokenData: { project: { id: currentProjectId } },
+        })
+
+        mockCtx.mockGlance.get.mockResolvedValueOnce({
+          ok: true,
+          json: vi.fn().mockResolvedValue({
+            images: [sharedImageWithAcceptedStatus, sharedImageWithPendingStatus],
+          }),
+        })
+
+        // First member request throws error, second succeeds
+        mockCtx.mockGlance.get.mockRejectedValueOnce(new Error("Network error"))
+
+        mockCtx.mockGlance.get.mockResolvedValueOnce({
+          ok: true,
+          json: vi.fn().mockResolvedValue(memberWithAcceptedStatus),
+        })
+
+        const result = await caller.image.listSharedImagesByMemberStatus({ memberStatus: "accepted" })
+
+        // Should return only the second image since first one failed to fetch
+        expect(result).toHaveLength(1)
+        expect(result[0].id).toBe(sharedImageWithPendingStatus.id)
+      })
+
+      it("should handle invalid member data (parsing error) gracefully", async () => {
+        const mockCtx = createMockContext()
+        const caller = createCaller(mockCtx)
+
+        mockCtx.openstack.getToken = vi.fn().mockReturnValue({
+          tokenData: { project: { id: currentProjectId } },
+        })
+
+        mockCtx.mockGlance.get.mockResolvedValueOnce({
+          ok: true,
+          json: vi.fn().mockResolvedValue({
+            images: [sharedImageWithAcceptedStatus],
+          }),
+        })
+
+        // Mock response with invalid data
+        mockCtx.mockGlance.get.mockResolvedValueOnce({
+          ok: true,
+          json: vi.fn().mockResolvedValue({ invalid: "data" }),
+        })
+
+        const result = await caller.image.listSharedImagesByMemberStatus({ memberStatus: "accepted" })
+
+        // Should return empty since parsing failed
+        expect(result).toEqual([])
+      })
+    })
+
+    describe("Complex Scenarios", () => {
+      it("should handle multiple images with all different statuses", async () => {
+        const mockCtx = createMockContext()
+        const caller = createCaller(mockCtx)
+
+        mockCtx.openstack.getToken = vi.fn().mockReturnValue({
+          tokenData: { project: { id: currentProjectId } },
+        })
+
+        const image1 = { ...sharedImageWithPendingStatus, id: generateTestUUID(101) }
+        const image2 = { ...sharedImageWithAcceptedStatus, id: generateTestUUID(102) }
+        const image3 = { ...sharedImageWithRejectedStatus, id: generateTestUUID(103) }
+        const image4 = { ...sharedImageWithPendingStatus, id: generateTestUUID(104) }
+
+        const allImages = [image1, image2, image3, image4]
+
+        // Setup for first call (pending)
+        mockCtx.mockGlance.get.mockResolvedValueOnce({
+          ok: true,
+          json: vi.fn().mockResolvedValue({ images: allImages }),
+        })
+
+        // Mock member responses for first call (pending)
+        mockCtx.mockGlance.get.mockResolvedValueOnce({
+          ok: true,
+          json: vi.fn().mockResolvedValue({ ...memberWithPendingStatus, image_id: image1.id }),
+        })
+
+        mockCtx.mockGlance.get.mockResolvedValueOnce({
+          ok: true,
+          json: vi.fn().mockResolvedValue({ ...memberWithAcceptedStatus, image_id: image2.id }),
+        })
+
+        mockCtx.mockGlance.get.mockResolvedValueOnce({
+          ok: true,
+          json: vi.fn().mockResolvedValue({ ...memberWithRejectedStatus, image_id: image3.id }),
+        })
+
+        mockCtx.mockGlance.get.mockResolvedValueOnce({
+          ok: true,
+          json: vi.fn().mockResolvedValue({ ...memberWithPendingStatus, image_id: image4.id }),
+        })
+
+        // Setup for second call (accepted)
+        mockCtx.mockGlance.get.mockResolvedValueOnce({
+          ok: true,
+          json: vi.fn().mockResolvedValue({ images: allImages }),
+        })
+
+        // Mock member responses for second call (accepted)
+        mockCtx.mockGlance.get.mockResolvedValueOnce({
+          ok: true,
+          json: vi.fn().mockResolvedValue({ ...memberWithPendingStatus, image_id: image1.id }),
+        })
+
+        mockCtx.mockGlance.get.mockResolvedValueOnce({
+          ok: true,
+          json: vi.fn().mockResolvedValue({ ...memberWithAcceptedStatus, image_id: image2.id }),
+        })
+
+        mockCtx.mockGlance.get.mockResolvedValueOnce({
+          ok: true,
+          json: vi.fn().mockResolvedValue({ ...memberWithRejectedStatus, image_id: image3.id }),
+        })
+
+        mockCtx.mockGlance.get.mockResolvedValueOnce({
+          ok: true,
+          json: vi.fn().mockResolvedValue({ ...memberWithPendingStatus, image_id: image4.id }),
+        })
+
+        // Setup for third call (rejected)
+        mockCtx.mockGlance.get.mockResolvedValueOnce({
+          ok: true,
+          json: vi.fn().mockResolvedValue({ images: allImages }),
+        })
+
+        // Mock member responses for third call (rejected)
+        mockCtx.mockGlance.get.mockResolvedValueOnce({
+          ok: true,
+          json: vi.fn().mockResolvedValue({ ...memberWithPendingStatus, image_id: image1.id }),
+        })
+
+        mockCtx.mockGlance.get.mockResolvedValueOnce({
+          ok: true,
+          json: vi.fn().mockResolvedValue({ ...memberWithAcceptedStatus, image_id: image2.id }),
+        })
+
+        mockCtx.mockGlance.get.mockResolvedValueOnce({
+          ok: true,
+          json: vi.fn().mockResolvedValue({ ...memberWithRejectedStatus, image_id: image3.id }),
+        })
+
+        mockCtx.mockGlance.get.mockResolvedValueOnce({
+          ok: true,
+          json: vi.fn().mockResolvedValue({ ...memberWithPendingStatus, image_id: image4.id }),
+        })
+
+        const resultPending = await caller.image.listSharedImagesByMemberStatus({ memberStatus: "pending" })
+        const resultAccepted = await caller.image.listSharedImagesByMemberStatus({ memberStatus: "accepted" })
+        const resultRejected = await caller.image.listSharedImagesByMemberStatus({ memberStatus: "rejected" })
+
+        expect(resultPending).toHaveLength(2)
+        expect(resultAccepted).toHaveLength(1)
+        expect(resultRejected).toHaveLength(1)
+      })
+
+      it("should handle large batch of images", async () => {
+        const mockCtx = createMockContext()
+        const caller = createCaller(mockCtx)
+
+        mockCtx.openstack.getToken = vi.fn().mockReturnValue({
+          tokenData: { project: { id: currentProjectId } },
+        })
+
+        // Generate 20 images
+        const images = Array.from({ length: 20 }, (_, i) => ({
+          ...sharedImageWithAcceptedStatus,
+          id: generateTestUUID(200 + i),
+          owner: generateTestUUID(100 + i),
+        }))
+
+        mockCtx.mockGlance.get.mockResolvedValueOnce({
+          ok: true,
+          json: vi.fn().mockResolvedValue({ images }),
+        })
+
+        // Mock all member responses with accepted status
+        images.forEach(() => {
+          mockCtx.mockGlance.get.mockResolvedValueOnce({
+            ok: true,
+            json: vi.fn().mockResolvedValue(memberWithAcceptedStatus),
+          })
+        })
+
+        const result = await caller.image.listSharedImagesByMemberStatus({ memberStatus: "accepted" })
+
+        expect(result).toHaveLength(20)
+        // Verify all member fetch calls were made
+        expect(mockCtx.mockGlance.get).toHaveBeenCalledTimes(21) // 1 for images + 20 for members
+      })
+
+      it("should preserve image data when filtering", async () => {
+        const mockCtx = createMockContext()
+        const caller = createCaller(mockCtx)
+
+        mockCtx.openstack.getToken = vi.fn().mockReturnValue({
+          tokenData: { project: { id: currentProjectId } },
+        })
+
+        const imageWithMetadata: GlanceImage = {
+          ...sharedImageWithAcceptedStatus,
+          size: 5368709120,
+          min_disk: 10,
+          min_ram: 2048,
+          tags: ["test", "image"],
+          disk_format: "qcow2",
+          container_format: "bare",
+        }
+
+        mockCtx.mockGlance.get.mockResolvedValueOnce({
+          ok: true,
+          json: vi.fn().mockResolvedValue({ images: [imageWithMetadata] }),
+        })
+
+        mockCtx.mockGlance.get.mockResolvedValueOnce({
+          ok: true,
+          json: vi.fn().mockResolvedValue(memberWithAcceptedStatus),
+        })
+
+        const result = await caller.image.listSharedImagesByMemberStatus({ memberStatus: "accepted" })
+
+        expect(result[0]).toEqual(imageWithMetadata)
+        expect(result[0].size).toBe(5368709120)
+        expect(result[0].tags).toEqual(["test", "image"])
+      })
+    })
+
+    describe("Error Handling", () => {
+      it("should handle API error when fetching images", async () => {
+        const mockCtx = createMockContext()
+        const caller = createCaller(mockCtx)
+
+        mockCtx.openstack.getToken = vi.fn().mockReturnValue({
+          tokenData: { project: { id: currentProjectId } },
+        })
+
+        mockCtx.mockGlance.get.mockRejectedValueOnce({ statusCode: 500, message: "Internal Server Error" })
+
+        await expect(caller.image.listSharedImagesByMemberStatus({ memberStatus: "pending" })).rejects.toThrow()
+      })
+
+      it("should handle invalid response schema when fetching images", async () => {
+        const mockCtx = createMockContext()
+        const caller = createCaller(mockCtx)
+
+        mockCtx.openstack.getToken = vi.fn().mockReturnValue({
+          tokenData: { project: { id: currentProjectId } },
+        })
+
+        mockCtx.mockGlance.get.mockResolvedValueOnce({
+          ok: true,
+          json: vi.fn().mockResolvedValue({ invalid: "response" }),
+        })
+
+        await expect(caller.image.listSharedImagesByMemberStatus({ memberStatus: "accepted" })).rejects.toThrow()
+      })
     })
   })
 })
