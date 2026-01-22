@@ -1245,6 +1245,143 @@ Returns `BulkOperationResult` with:
 - Typically requires admin privileges
 - Use `activateImages` to restore deactivated images
 
+---
+
+### List Shared Images by Member Status
+
+Retrieves shared images filtered by their member status (pending, accepted, or rejected) for the current project. This endpoint:
+
+1. Fetches all shared images from OpenStack
+2. Filters out images owned by the current project
+3. Retrieves member data for each shared image in parallel
+4. Returns only images matching the requested member status
+
+**Endpoint:** `listSharedImagesByMemberStatus`  
+**Method:** Query  
+**Input Schema:** `{ memberStatus: "pending" | "accepted" | "rejected" }`
+
+#### Parameters
+
+| Parameter      | Type                                     | Description                                         | Required |
+| -------------- | ---------------------------------------- | --------------------------------------------------- | -------- |
+| `memberStatus` | enum (`pending`, `accepted`, `rejected`) | Filter by the project's member status for the image | Yes      |
+
+#### How It Works
+
+**Step 1: Fetch Shared Images**
+
+- Queries the Glance API with `visibility=shared` and `member_status={memberStatus}` parameters
+
+**Step 2: Filter by Owner**
+
+- Removes images owned by the current project (you cannot be a member of your own images)
+- Only processes images from other projects
+
+**Step 3: Fetch Member Data (Parallel)**
+
+- For each shared image, fetches the member record for the current project
+- Uses `Promise.all()` for parallel execution
+- Gracefully handles missing member records (404 responses)
+
+**Step 4: Filter by Member Status**
+
+- Matches images where the member status exactly equals the requested status
+- Validates member data and filters out invalid/unparseable records
+
+#### Example Requests
+
+```typescript
+// Get images shared with me that are pending acceptance
+const pendingImages = await client.compute.image.listSharedImagesByMemberStatus.query({
+  memberStatus: "pending",
+})
+
+// Get images I've already accepted
+const acceptedImages = await client.compute.image.listSharedImagesByMemberStatus.query({
+  memberStatus: "accepted",
+})
+
+// Get images I've rejected
+const rejectedImages = await client.compute.image.listSharedImagesByMemberStatus.query({
+  memberStatus: "rejected",
+})
+```
+
+#### Response
+
+Returns `GlanceImage[]` - An array of images filtered by the requested member status.
+
+```typescript
+;[
+  {
+    id: "a85abd86-55b3-4413-a5b7-6cd8a6bd99ac",
+    name: "Ubuntu 22.04 LTS",
+    status: "active",
+    visibility: "shared",
+    owner: "660e8400-e29b-41d4-a716-446655440000",
+    disk_format: "qcow2",
+    container_format: "bare",
+    size: 2147483648,
+    // ... additional image properties
+  },
+  // ... more images
+]
+```
+
+#### Error Handling
+
+- **401/403**: Unauthorized or forbidden access
+- **500**: Internal server error during image or member data fetching
+- Returns empty array `[]` if:
+  - No shared images exist
+  - All shared images are owned by the current project
+  - No images match the requested member status
+  - Member data fetch fails for all images
+
+#### Performance Notes
+
+- Member data is fetched in **parallel** using `Promise.all()` for optimal performance
+- Network errors during individual member data fetches are handled gracefully
+- Failed member data requests return `null` and are filtered out
+- Typical response time depends on the number of shared images and network latency
+
+#### Use Cases
+
+**1. Pending Invitations Dashboard**
+
+```typescript
+const pendingSharedImages = await client.compute.image.listSharedImagesByMemberStatus.query({
+  memberStatus: "pending",
+})
+// Display images waiting for project acceptance
+```
+
+**2. Accepted Images Management**
+
+```typescript
+const myAcceptedImages = await client.compute.image.listSharedImagesByMemberStatus.query({
+  memberStatus: "accepted",
+})
+// Use these images for launching instances
+```
+
+**3. Rejected Images Review**
+
+```typescript
+const rejectedImages = await client.compute.image.listSharedImagesByMemberStatus.query({
+  memberStatus: "rejected",
+})
+// Review images that were previously rejected
+```
+
+#### Authorization
+
+- Requires valid OpenStack authentication
+- Returns only images shared with the current project
+- Owner project information is preserved in the response
+
+---
+
 ## Data Types
 
 ### GlanceImage
