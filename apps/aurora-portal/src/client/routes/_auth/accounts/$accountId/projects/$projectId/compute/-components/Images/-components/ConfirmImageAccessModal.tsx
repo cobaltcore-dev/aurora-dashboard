@@ -52,6 +52,7 @@ export const ConfirmImageAccessModal: React.FC<ConfirmImageAccessProps> = ({
       utils.compute.getImageMember.invalidate({ imageId: image?.id || "", memberId: memberId || "" })
       utils.compute.listImageMembers.invalidate({ imageId: image?.id || "" })
       utils.compute.listImagesWithPagination.invalidate()
+      utils.compute.listSharedImagesByMemberStatus.invalidate()
     },
   })
 
