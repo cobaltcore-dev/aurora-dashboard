@@ -8,8 +8,8 @@ const computePolicyEngine = loadPolicyEngine("compute.yaml")
 const imagePolicyEngine = loadPolicyEngine("image.yaml")
 
 const getPolicy = (ctx: AuroraPortalContext, policyEngineName: "compute" | "image") => {
-  const openstaSession = ctx.openstack
-  const token = openstaSession?.getToken()
+  const openstackSession = ctx.openstack
+  const token = openstackSession?.getToken()
   if (!token) {
     throw new TRPCError({ code: "UNAUTHORIZED", message: "No valid OpenStack token found" })
   }

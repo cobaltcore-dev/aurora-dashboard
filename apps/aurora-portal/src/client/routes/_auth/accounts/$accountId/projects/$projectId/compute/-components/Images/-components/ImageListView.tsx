@@ -58,6 +58,8 @@ import { IMAGE_STATUSES } from "../../../-constants/filters"
 
 interface ImagePageProps {
   images: GlanceImage[]
+  suggestedImages: GlanceImage[]
+  acceptedImages: GlanceImage[]
   permissions: {
     canCreate: boolean
     canDelete: boolean
@@ -85,11 +87,12 @@ interface ImagePageProps {
   protectedImages: Array<string>
   activeImages: Array<string>
   deactivatedImages: Array<string>
-  shouldShowSuggestedImages: boolean
 }
 
 export function ImageListView({
   images,
+  suggestedImages,
+  acceptedImages,
   permissions,
   hasNextPage,
   isFetchingNextPage,
@@ -110,7 +113,6 @@ export function ImageListView({
   protectedImages,
   activeImages,
   deactivatedImages,
-  shouldShowSuggestedImages,
 }: ImagePageProps) {
   const { projectId } = useParams({
     from: "/_auth/accounts/$accountId/projects/$projectId/compute/$",
@@ -625,6 +627,8 @@ export function ImageListView({
               <ImageTableRow
                 image={image}
                 isSelected={!!selectedImages.find((imageId) => imageId === image.id)}
+                isPending={!!suggestedImages.find(({ id: imageId }) => imageId === image.id)}
+                isAccepted={!!acceptedImages.find(({ id: imageId }) => imageId === image.id)}
                 key={image.id}
                 permissions={permissions}
                 onEditDetails={openEditDetailsModal}
@@ -643,7 +647,6 @@ export function ImageListView({
                 }}
                 onActivationStatusChange={handleActivationStatusChange}
                 onUpdateVisibility={handleUpdateImageVisibility}
-                shouldShowSuggestedImages={shouldShowSuggestedImages}
                 uploadId={uploadId}
                 uploadProgressPercent={data?.percent}
               />

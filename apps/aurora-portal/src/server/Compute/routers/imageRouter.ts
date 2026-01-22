@@ -41,7 +41,9 @@ import {
   activateImagesInputSchema,
   deactivateImagesInputSchema,
   BulkOperationResult,
+  memberStatusSchema,
 } from "../types/image"
+import { TRPCError } from "@trpc/server"
 
 // Create a global event emitter for upload progress
 const uploadProgressEmitter = new EventEmitter()
@@ -675,5 +677,81 @@ export const imageRouter = {
           { operation: "deactivate" }
         )
       }, "deactivate images")
+    }),
+
+  listSharedImagesByMemberStatus: protectedProcedure
+    .input(z.object({ memberStatus: memberStatusSchema }))
+    .query(async ({ ctx, input }): Promise<GlanceImage[]> => {
+      return withErrorHandling(async () => {
+        const memberStatus = input.memberStatus
+
+        const openstackSession = ctx.openstack
+        const glance = openstackSession?.service("glance")
+
+        validateGlanceService(glance)
+
+        // Get current project ID from token
+        const token = openstackSession?.getToken()
+
+        if (!token) {
+          throw new TRPCError({ code: "UNAUTHORIZED", message: "No valid OpenStack token found" })
+        }
+
+        const projectId = token.tokenData.project?.id
+
+        if (!projectId) {
+          throw new TRPCError({
+            code: "UNAUTHORIZED",
+            message: "Unable to determine current project ID from OpenStack token",
+          })
+        }
+
+        // Step 1: Fetch all images with visibility=shared and member_status=("pending" | "accepted" | "rejected")
+        const queryParams = new URLSearchParams()
+        queryParams.append("visibility", "shared")
+        queryParams.append("member_status", memberStatus)
+
+        const url = `v2/images?${queryParams.toString()}`
+        const response = await glance.get(url).catch((error) => {
+          throw mapErrorResponseToTRPCError(error, { operation: "list shared images by member status" })
+        })
+
+        const parsedData = imageResponseSchema.safeParse(await response.json())
+        if (!parsedData.success) {
+          throw handleZodParsingError(parsedData.error, "list shared images by member status")
+        }
+
+        // Step 2: Filter out images owned by current project
+        const sharedImages = parsedData.data.images.filter((image) => image.owner !== projectId)
+
+        if (sharedImages.length === 0) {
+          return []
+        }
+
+        // Step 3: Fetch member data for all remaining images using Promise.all
+        const imageMembersPromises = sharedImages.map(
+          (image) =>
+            glance
+              .get(`v2/images/${image.id}/members/${projectId}`)
+              .then(async (response) => {
+                if (response?.ok) {
+                  const parsed = imageMemberSchema.safeParse(await response.json())
+                  return parsed.success ? parsed.data : null
+                }
+                return null
+              })
+              .catch(() => null) // Handle cases where the image member doesn't exist
+        )
+
+        const imageMembers = await Promise.all(imageMembersPromises)
+
+        // Step 4: Filter images by member_status
+        const filteredImages = sharedImages.filter((image, index) => {
+          const member = imageMembers[index]
+          return member?.status === memberStatus
+        })
+
+        return filteredImages
+      }, "list shared images by member status")
     }),
 }

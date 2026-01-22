@@ -14,6 +14,8 @@ import { IMAGE_STATUSES, IMAGE_VISIBILITY } from "../../../-constants/filters"
 
 interface ImageTableRowProps {
   image: GlanceImage
+  isPending: boolean
+  isAccepted: boolean
   isSelected: boolean
   onEditDetails: (image: GlanceImage) => void
   onEditMetadata: (image: GlanceImage) => void
@@ -31,7 +33,6 @@ interface ImageTableRowProps {
     canDeleteMember: boolean
     canUpdateMember: boolean
   }
-  shouldShowSuggestedImages: boolean
   uploadId?: string | null
   uploadProgressPercent?: number
 }
@@ -39,6 +40,8 @@ interface ImageTableRowProps {
 export function ImageTableRow({
   image,
   isSelected,
+  isPending,
+  isAccepted,
   permissions,
   onEditDetails,
   onEditMetadata,
@@ -48,7 +51,6 @@ export function ImageTableRow({
   onManageAccess,
   onConfirmAccess,
   onUpdateVisibility,
-  shouldShowSuggestedImages,
   uploadId,
   uploadProgressPercent,
 }: ImageTableRowProps) {
@@ -112,9 +114,9 @@ export function ImageTableRow({
                     {isImageOwner && (permissions.canCreateMember || permissions.canDeleteMember) && (
                       <PopupMenuItem label={t`Manage Access`} onClick={() => onManageAccess(image)} />
                     )}
-                    {!isImageOwner && permissions.canUpdateMember && (
+                    {(isPending || isAccepted) && permissions.canUpdateMember && (
                       <PopupMenuItem
-                        label={shouldShowSuggestedImages ? t`Confirm Access` : t`Review Access`}
+                        label={isPending ? t`Confirm Access` : t`Review Access`}
                         onClick={() => onConfirmAccess(image)}
                       />
                     )}

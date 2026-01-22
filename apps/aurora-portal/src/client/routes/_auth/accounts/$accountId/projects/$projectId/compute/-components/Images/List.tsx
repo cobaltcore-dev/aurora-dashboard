@@ -41,6 +41,7 @@ export const Images = () => {
   const [deactivateAllModalOpen, setDeactivateAllModalOpen] = useState(false)
   const [activateAllModalOpen, setActivateAllModalOpen] = useState(false)
   const [shouldShowSuggestedImages, setShowSuggestedImages] = useState(false)
+  const [shouldShowAcceptedImages, setShowAcceptedImages] = useState(false)
 
   const [filterSettings, setFilterSettings] = useState<FilterSettings>({
     filters: [
@@ -193,6 +194,19 @@ export const Images = () => {
     initialPageParam: undefined,
   })
 
+  const { data: suggestedImages, isLoading: suggestedImagesLoading } =
+    trpcReact.compute.listSharedImagesByMemberStatus.useQuery({
+      memberStatus: MEMBER_STATUSES.PENDING,
+    })
+
+  const { data: acceptedImages, isLoading: acceptedImagesLoading } =
+    trpcReact.compute.listSharedImagesByMemberStatus.useQuery({
+      memberStatus: MEMBER_STATUSES.ACCEPTED,
+    })
+
+  const suggestedImagesCount = suggestedImages?.length || 0
+  const acceptedImagesCount = acceptedImages?.length || 0
+
   const { data: canCreate } = trpcReact.compute.canUser.useQuery("images:create")
   const { data: canDelete } = trpcReact.compute.canUser.useQuery("images:delete")
   const { data: canUpdate } = trpcReact.compute.canUser.useQuery("images:update")
@@ -268,12 +282,21 @@ export const Images = () => {
   const showSuggestedImages = () => {
     startTransition(() => {
       setShowSuggestedImages(true)
+      setShowAcceptedImages(false)
       setFilterSettings({
         ...filterSettings,
-        selectedFilters: [
-          { name: "visibility", value: IMAGE_VISIBILITY.SHARED },
-          { name: "member_status", value: MEMBER_STATUSES.PENDING },
-        ],
+        selectedFilters: [],
+      })
+    })
+  }
+
+  const showAcceptedImages = () => {
+    startTransition(() => {
+      setShowSuggestedImages(false)
+      setShowAcceptedImages(true)
+      setFilterSettings({
+        ...filterSettings,
+        selectedFilters: [],
       })
     })
   }
@@ -281,6 +304,7 @@ export const Images = () => {
   const showAllImages = () => {
     startTransition(() => {
       setShowSuggestedImages(false)
+      setShowAcceptedImages(false)
       setFilterSettings({
         ...filterSettings,
         selectedFilters: [],
@@ -295,9 +319,23 @@ export const Images = () => {
     })
   }
 
+  const getImages = () => {
+    if (shouldShowSuggestedImages) {
+      return suggestedImages
+    }
+
+    if (shouldShowAcceptedImages) {
+      return acceptedImages
+    }
+
+    return images
+  }
+
   return (
     <ImageListView
-      images={images}
+      images={getImages()}
+      suggestedImages={suggestedImages}
+      acceptedImages={acceptedImages}
       permissions={permissions}
       hasNextPage={hasNextPage}
       isFetchingNextPage={isFetchingNextPage}
@@ -317,7 +355,6 @@ export const Images = () => {
       protectedImages={protectedImages}
       activeImages={activeImages}
       deactivatedImages={deactivatedImages}
-      shouldShowSuggestedImages={shouldShowSuggestedImages}
     >
       <ListToolbar
         sortSettings={sortSettings}
@@ -329,9 +366,7 @@ export const Images = () => {
         actions={
           <>
             <div className="w-full md:w-auto md:mr-auto">
-              {!shouldShowSuggestedImages ? (
-                <Button onClick={showSuggestedImages}>{t`Suggested Images`}</Button>
-              ) : (
+              {(shouldShowSuggestedImages || shouldShowAcceptedImages) && (
                 <Button onClick={showAllImages}>{t`All Images`}</Button>
               )}
             </div>
@@ -341,32 +376,37 @@ export const Images = () => {
                   Create Image
                 </Button>
               )}
-              {selectedImages.length === 0 ? (
-                <Button icon="moreVert" disabled>
-                  {t`More Actions`}
-                </Button>
-              ) : (
-                <PopupMenu>
-                  <PopupMenuToggle as={MoreActionsButton} />
-                  <PopupMenuOptions>
-                    <PopupMenuItem
-                      disabled={isDeleteAllDisabled}
-                      label={t`Delete All`}
-                      onClick={() => setDeleteAllModalOpen(true)}
-                    />
-                    <PopupMenuItem
-                      disabled={isDeactivateAllDisabled}
-                      label={t`Deactivate All`}
-                      onClick={() => setDeactivateAllModalOpen(true)}
-                    />
-                    <PopupMenuItem
-                      disabled={isActivateAllDisabled}
-                      label={t`Activate All`}
-                      onClick={() => setActivateAllModalOpen(true)}
-                    />
-                  </PopupMenuOptions>
-                </PopupMenu>
-              )}
+
+              <PopupMenu>
+                <PopupMenuToggle as={MoreActionsButton} />
+                <PopupMenuOptions>
+                  <PopupMenuItem
+                    disabled={isDeleteAllDisabled}
+                    label={t`Delete All`}
+                    onClick={() => setDeleteAllModalOpen(true)}
+                  />
+                  <PopupMenuItem
+                    disabled={isDeactivateAllDisabled}
+                    label={t`Deactivate All`}
+                    onClick={() => setDeactivateAllModalOpen(true)}
+                  />
+                  <PopupMenuItem
+                    disabled={isActivateAllDisabled}
+                    label={t`Activate All`}
+                    onClick={() => setActivateAllModalOpen(true)}
+                  />
+                  <PopupMenuItem
+                    disabled={!suggestedImagesCount || suggestedImagesLoading}
+                    label={t`Show Suggested Images (${suggestedImagesCount})`}
+                    onClick={showSuggestedImages}
+                  />
+                  <PopupMenuItem
+                    disabled={!acceptedImagesCount || acceptedImagesLoading}
+                    label={t`Show Accepted Images (${acceptedImagesCount})`}
+                    onClick={showAcceptedImages}
+                  />
+                </PopupMenuOptions>
+              </PopupMenu>
             </Stack>
           </>
         }
