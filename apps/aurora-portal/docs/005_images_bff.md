@@ -235,15 +235,23 @@ Returns `GlanceImage` or `undefined` on error.
 
 ### Upload Image Data
 
-Uploads binary data to an existing image. Two methods are available:
+Uploads binary data to an existing image with real-time progress tracking support. Two methods are available:
 
-#### Method 1: tRPC Mutation
+#### Method 1: tRPC Mutation with Real-Time Progress
 
 **Endpoint:** `uploadImage`  
 **Method:** Mutation  
 **Input Schema:** `uploadImageInputSchema`
 
-Use this for uploading files via tRPC protocol.
+Use this for uploading files via tRPC protocol with support for real-time progress tracking via the `watchUploadProgress` subscription.
+
+**Features:**
+
+- Chunked upload for optimal performance
+- Real-time progress events emitted during upload
+- Non-blocking progress tracking (generator yields between chunks)
+- Automatic cleanup of progress tracking after upload completes
+- Full error handling and event propagation
 
 #### Method 2: HTTP Endpoint (Fallback)
 
@@ -251,7 +259,7 @@ Use this for uploading files via tRPC protocol.
 **Method:** HTTP POST  
 **Content-Type:** multipart/form-data
 
-Alternative HTTP endpoint available as additional option for file uploads.
+Alternative HTTP endpoint available as additional option for file uploads (does not support real-time progress).
 
 #### Parameters (Both Methods)
 
@@ -260,12 +268,145 @@ Alternative HTTP endpoint available as additional option for file uploads.
 | `imageId` | string | UUID of the target image (must be `queued`) |
 | `file`    | File   | Binary image data                           |
 
-#### Example Request (tRPC)
+#### Upload Progress Tracking
+
+When using the tRPC `uploadImage` mutation, you can track real-time progress using the `watchUploadProgress` subscription:
+
+**Progress Data Structure:**
 
 ```typescript
-const result = await client.compute.image.uploadImage.mutate({
-  // File upload handling via tRPC client
-})
+interface UploadProgress {
+  uploaded: number // Bytes uploaded so far
+  total: number // Total bytes to upload
+  percent: number // Percentage complete (0-100)
+}
+```
+
+#### Example Request (tRPC React with Progress Tracking)
+
+```typescript
+function ImageUploadForm() {
+  const [uploadId, setUploadId] = useState<string | null>(null)
+  const uploadMutation = trpcReact.compute.uploadImage.useMutation()
+
+  // Watch progress in real-time - subscription auto-manages lifecycle
+  const { data: progress } = trpcReact.compute.watchUploadProgress.useSubscription(
+    { uploadId: uploadId || "" },
+    {
+      enabled: !!uploadId && uploadMutation.isPending,
+      onData: (data) => {
+        if (data?.percent !== undefined) {
+          console.log(`Upload progress: ${data.percent}% (${data.uploaded}/${data.total} bytes)`)
+          updateProgressBar(data.percent)
+        }
+      },
+    }
+  )
+
+  const handleUpload = async (imageId: string, file: File) => {
+    setUploadId(imageId)
+    try {
+      const result = await uploadMutation.mutateAsync({
+        imageId,
+        file,
+      })
+      console.log("Upload result:", result)
+    } finally {
+      setUploadId(null)
+    }
+  }
+
+  return (
+    <div>
+      <input
+        type="file"
+        onChange={(e) => {
+          const file = e.target.files?.[0]
+          if (file) {
+            handleUpload("image-uuid", file)
+          }
+        }}
+      />
+      {uploadMutation.isPending && progress && (
+        <progress value={progress.percent ?? 0} max={100} />
+      )}
+      <span>{progress?.percent ?? 0}% complete</span>
+    </div>
+  )
+}
+```
+
+#### React Component Example (Complete)
+
+```typescript
+function ImageUploadComponent() {
+  const [uploadId, setUploadId] = useState<string | null>(null)
+  const uploadMutation = trpcReact.compute.uploadImage.useMutation()
+
+  // Subscribe to progress updates - enabled during upload
+  const { data: progress } = trpcReact.compute.watchUploadProgress.useSubscription(
+    { uploadId: uploadId || "" },
+    {
+      enabled: !!uploadId && uploadMutation.isPending,
+      onData: (data) => {
+        if (data?.percent !== undefined) {
+          console.log(`Upload: ${data.percent}%`)
+        }
+      },
+    }
+  )
+
+  const handleUpload = async (imageId: string, file: File) => {
+    setUploadId(imageId)
+    try {
+      const result = await uploadMutation.mutateAsync({
+        imageId,
+        file,
+      })
+      console.log("Upload complete:", result)
+    } finally {
+      setUploadId(null)
+    }
+  }
+
+  return (
+    <div className="upload-container">
+      <input
+        type="file"
+        id="file-input"
+        onChange={(e) => {
+          const file = e.target.files?.[0]
+          if (file) {
+            handleUpload("image-uuid", file)
+          }
+        }}
+        disabled={uploadMutation.isPending}
+      />
+
+      {uploadMutation.isPending && progress && (
+        <div className="progress-section">
+          <progress
+            value={progress.percent ?? 0}
+            max={100}
+          />
+          <span>
+            {progress.percent}% ({formatBytes(progress.uploaded)} / {formatBytes(progress.total)})
+          </span>
+        </div>
+      )}
+
+      {uploadMutation.isSuccess && (
+        <div className="success-message">Upload completed successfully</div>
+      )}
+
+      {uploadMutation.isError && (
+        <div className="error-message">
+          Upload failed: {uploadMutation.error.message}
+        </div>
+      )}
+    </div>
+  )
+}
 ```
 
 #### Example Request (HTTP Fallback)
@@ -291,7 +432,7 @@ if (file) {
 }
 ```
 
-#### Response (Both Methods)
+#### Response
 
 Returns `{ success: boolean; imageId: string }` on success.
 
@@ -304,6 +445,292 @@ Returns `{ success: boolean; imageId: string }` on success.
 - **413**: File data too large
 - **415**: Unsupported content type
 - **500**: Upload failed or service unavailable
+
+---
+
+### Watch Upload Progress
+
+Subscribes to real-time upload progress events for an ongoing image upload.
+
+**Endpoint:** `watchUploadProgress`  
+**Method:** Subscription  
+**Input Schema:** `{ uploadId: string }`
+
+Provides real-time progress updates as file chunks are uploaded. This subscription emits progress data immediately when subscribed, then continues emitting updates as chunks are uploaded until the upload completes.
+
+#### Features
+
+- **Immediate Initial State**: Returns current progress immediately upon subscription (no delay)
+- **Event-Driven Updates**: Updates emitted in real-time without polling
+- **Non-Blocking**: Progresses between chunks without blocking the upload stream
+- **Automatic Cleanup**: Listeners are cleaned up when subscription ends
+- **Complete Event**: Emits completion signal when upload finishes
+
+#### Parameters
+
+| Parameter  | Type   | Description                                                             |
+| ---------- | ------ | ----------------------------------------------------------------------- |
+| `uploadId` | string | UUID of the image being uploaded (matches the imageId from uploadImage) |
+
+#### Response Data
+
+Yields `UploadProgress` objects as upload progresses:
+
+```typescript
+interface UploadProgress {
+  uploaded: number // Bytes uploaded so far
+  total: number // Total bytes to upload
+  percent: number // Percentage complete (0-100, rounded)
+}
+```
+
+#### Example Usage (React Hook)
+
+```typescript
+// Using tRPC React useSubscription hook
+function UploadProgressDisplay({ uploadId }: { uploadId: string }) {
+  const { data: progress, isError } = trpcReact.compute.watchUploadProgress.useSubscription(
+    { uploadId },
+    {
+      enabled: !!uploadId,
+      onData: (data) => {
+        console.log(`${data?.percent}% (${data?.uploaded}/${data?.total} bytes)`)
+      },
+    }
+  )
+
+  if (isError) {
+    return <div className="error">Progress tracking failed</div>
+  }
+
+  if (progress) {
+    return (
+      <div className="progress">
+        <progress value={progress.percent} max={100} />
+        <span>{progress.percent}%</span>
+      </div>
+    )
+  }
+
+  return <div>Waiting for upload...</div>
+}
+```
+
+#### Complete React Integration Example
+
+```typescript
+function ImageUploadComponent() {
+  const [uploadId, setUploadId] = useState<string | null>(null)
+  const uploadImageMutation = trpcReact.compute.uploadImage.useMutation()
+
+  // Watch upload progress - subscription auto-manages lifecycle via enabled
+  const { data: progress } = trpcReact.compute.watchUploadProgress.useSubscription(
+    { uploadId: uploadId || "" },
+    {
+      enabled: !!uploadId && uploadImageMutation.isPending,
+      onData: (data) => {
+        console.log(`Upload: ${data?.percent}%`)
+      },
+    }
+  )
+
+  const handleUpload = async (imageId: string, file: File) => {
+    setUploadId(imageId)
+
+    try {
+      const result = await uploadImageMutation.mutateAsync({
+        imageId,
+        file,
+      })
+      console.log("Upload complete:", result)
+    } finally {
+      setUploadId(null)
+    }
+  }
+
+  return (
+    <div>
+      <input
+        type="file"
+        onChange={(e) => {
+          const file = e.target.files?.[0]
+          if (file) {
+            handleUpload("image-uuid", file)
+          }
+        }}
+      />
+
+      {uploadImageMutation.isPending && progress && (
+        <div className="progress-container">
+          <progress value={progress.percent ?? 0} max={100} />
+          <span>
+            {progress.percent}% ({formatBytes(progress.uploaded)} / {formatBytes(progress.total)})
+          </span>
+        </div>
+      )}
+
+      {uploadImageMutation.isSuccess && (
+        <div className="success">Upload completed successfully</div>
+      )}
+
+      {uploadImageMutation.isError && (
+        <div className="error">Upload failed: {uploadImageMutation.error.message}</div>
+      )}
+    </div>
+  )
+}
+```
+
+#### Advanced Example with Error States
+
+```typescript
+function useUploadWithProgress(imageId: string, file: File | null) {
+  const [uploadId, setUploadId] = useState<string | null>(null)
+  const uploadMutation = trpcReact.compute.uploadImage.useMutation()
+
+  // Subscribe to progress updates
+  const { data: progress, isError: isProgressError } =
+    trpcReact.compute.watchUploadProgress.useSubscription(
+      { uploadId: uploadId || "" },
+      {
+        enabled: !!uploadId && uploadMutation.isPending,
+      }
+    )
+
+  const startUpload = useCallback(async () => {
+    if (!file) return
+
+    setUploadId(imageId)
+    try {
+      await uploadMutation.mutateAsync({
+        imageId,
+        file,
+      })
+    } finally {
+      setUploadId(null)
+    }
+  }, [imageId, file, uploadMutation])
+
+  return {
+    startUpload,
+    progress,
+    isUploading: uploadMutation.isPending,
+    isSuccess: uploadMutation.isSuccess,
+    isError: uploadMutation.isError || isProgressError,
+    error: uploadMutation.error,
+  }
+}
+
+// Usage in component
+function UploadForm() {
+  const [file, setFile] = useState<File | null>(null)
+  const { startUpload, progress, isUploading, isSuccess, isError, error } =
+    useUploadWithProgress("image-uuid", file)
+
+  return (
+    <div>
+      <input
+        type="file"
+        onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+      />
+
+      <button onClick={startUpload} disabled={!file || isUploading}>
+        {isUploading ? "Uploading..." : "Upload"}
+      </button>
+
+      {isUploading && progress && (
+        <div className="progress-bar">
+          <div style={{ width: `${progress.percent}%` }}>
+            {progress.percent}%
+          </div>
+        </div>
+      )}
+
+      {isSuccess && <p className="success">Upload completed!</p>}
+      {isError && <p className="error">Error: {error?.message}</p>}
+    </div>
+  )
+}
+```
+
+#### Integration Pattern with Upload Mutation (Concurrent)
+
+The recommended pattern is to use `useSubscription` with the `enabled` parameter to keep subscription active during upload:
+
+```typescript
+function ImageUploadWithProgress() {
+  const [imageId, setImageId] = useState<string | null>(null)
+  const uploadMutation = trpcReact.compute.uploadImage.useMutation()
+
+  // Subscription automatically manages lifecycle through enabled parameter
+  // It activates when upload starts and deactivates when upload completes
+  const { data: progress } = trpcReact.compute.watchUploadProgress.useSubscription(
+    { uploadId: imageId || "" },
+    {
+      enabled: !!imageId && uploadMutation.isPending,
+      onData: (data) => {
+        if (data?.percent) {
+          console.log(`Progress: ${data.percent}%`)
+        }
+      },
+    }
+  )
+
+  const handleUpload = async (imageId: string, file: File) => {
+    setImageId(imageId)
+    try {
+      await uploadMutation.mutateAsync({
+        imageId,
+        file,
+      })
+    } finally {
+      setImageId(null)
+    }
+  }
+
+  return (
+    <div>
+      <button
+        onClick={() => {
+          const fileInput = document.getElementById("fileInput") as HTMLInputElement
+          const file = fileInput.files?.[0]
+          if (file) {
+            handleUpload("image-id", file)
+          }
+        }}
+        disabled={uploadMutation.isPending}
+      >
+        {uploadMutation.isPending ? "Uploading..." : "Upload Image"}
+      </button>
+
+      <input id="fileInput" type="file" disabled={uploadMutation.isPending} />
+
+      {uploadMutation.isPending && progress && (
+        <ProgressBar
+          percent={progress.percent ?? 0}
+          uploaded={progress.uploaded}
+          total={progress.total}
+        />
+      )}
+    </div>
+  )
+}
+```
+
+#### Notes
+
+- The subscription emits the **current progress state immediately** when subscribed (if upload is active)
+- Progress updates are emitted for each chunk uploaded
+- The subscription automatically completes when the upload finishes
+- If the upload errors, an error event is emitted and the subscription closes
+- Multiple subscriptions to the same uploadId are independent (each receives their own stream)
+- Progress data is cleaned up from server memory after upload completes
+
+**tRPC React Integration Notes:**
+
+- Use the `enabled` parameter to control subscription lifecycle - the subscription activates when `enabled` is true and deactivates when it becomes false
+- Combine with `uploadImage` mutation's `isPending` state: `enabled: !!uploadId && uploadMutation.isPending`
+- The subscription automatically cleans up when the component unmounts or when `enabled` becomes false
 
 ---
 
@@ -817,6 +1244,143 @@ Returns `BulkOperationResult` with:
 - Deactivated images cannot be used but are not deleted
 - Typically requires admin privileges
 - Use `activateImages` to restore deactivated images
+
+---
+
+### List Shared Images by Member Status
+
+Retrieves shared images filtered by their member status (pending, accepted, or rejected) for the current project. This endpoint:
+
+1. Fetches all shared images from OpenStack
+2. Filters out images owned by the current project
+3. Retrieves member data for each shared image in parallel
+4. Returns only images matching the requested member status
+
+**Endpoint:** `listSharedImagesByMemberStatus`  
+**Method:** Query  
+**Input Schema:** `{ memberStatus: "pending" | "accepted" | "rejected" }`
+
+#### Parameters
+
+| Parameter      | Type                                     | Description                                         | Required |
+| -------------- | ---------------------------------------- | --------------------------------------------------- | -------- |
+| `memberStatus` | enum (`pending`, `accepted`, `rejected`) | Filter by the project's member status for the image | Yes      |
+
+#### How It Works
+
+**Step 1: Fetch Shared Images**
+
+- Queries the Glance API with `visibility=shared` and `member_status={memberStatus}` parameters
+
+**Step 2: Filter by Owner**
+
+- Removes images owned by the current project (you cannot be a member of your own images)
+- Only processes images from other projects
+
+**Step 3: Fetch Member Data (Parallel)**
+
+- For each shared image, fetches the member record for the current project
+- Uses `Promise.all()` for parallel execution
+- Gracefully handles missing member records (404 responses)
+
+**Step 4: Filter by Member Status**
+
+- Matches images where the member status exactly equals the requested status
+- Validates member data and filters out invalid/unparseable records
+
+#### Example Requests
+
+```typescript
+// Get images shared with me that are pending acceptance
+const pendingImages = await client.compute.image.listSharedImagesByMemberStatus.query({
+  memberStatus: "pending",
+})
+
+// Get images I've already accepted
+const acceptedImages = await client.compute.image.listSharedImagesByMemberStatus.query({
+  memberStatus: "accepted",
+})
+
+// Get images I've rejected
+const rejectedImages = await client.compute.image.listSharedImagesByMemberStatus.query({
+  memberStatus: "rejected",
+})
+```
+
+#### Response
+
+Returns `GlanceImage[]` - An array of images filtered by the requested member status.
+
+```typescript
+;[
+  {
+    id: "a85abd86-55b3-4413-a5b7-6cd8a6bd99ac",
+    name: "Ubuntu 22.04 LTS",
+    status: "active",
+    visibility: "shared",
+    owner: "660e8400-e29b-41d4-a716-446655440000",
+    disk_format: "qcow2",
+    container_format: "bare",
+    size: 2147483648,
+    // ... additional image properties
+  },
+  // ... more images
+]
+```
+
+#### Error Handling
+
+- **401/403**: Unauthorized or forbidden access
+- **500**: Internal server error during image or member data fetching
+- Returns empty array `[]` if:
+  - No shared images exist
+  - All shared images are owned by the current project
+  - No images match the requested member status
+  - Member data fetch fails for all images
+
+#### Performance Notes
+
+- Member data is fetched in **parallel** using `Promise.all()` for optimal performance
+- Network errors during individual member data fetches are handled gracefully
+- Failed member data requests return `null` and are filtered out
+- Typical response time depends on the number of shared images and network latency
+
+#### Use Cases
+
+**1. Pending Invitations Dashboard**
+
+```typescript
+const pendingSharedImages = await client.compute.image.listSharedImagesByMemberStatus.query({
+  memberStatus: "pending",
+})
+// Display images waiting for project acceptance
+```
+
+**2. Accepted Images Management**
+
+```typescript
+const myAcceptedImages = await client.compute.image.listSharedImagesByMemberStatus.query({
+  memberStatus: "accepted",
+})
+// Use these images for launching instances
+```
+
+**3. Rejected Images Review**
+
+```typescript
+const rejectedImages = await client.compute.image.listSharedImagesByMemberStatus.query({
+  memberStatus: "rejected",
+})
+// Review images that were previously rejected
+```
+
+#### Authorization
+
+- Requires valid OpenStack authentication
+- Returns only images shared with the current project
+- Owner project information is preserved in the response
+
+---
 
 ## Data Types
 

@@ -31,6 +31,7 @@ describe("permissionsRouter", () => {
       rescopeSession: vi.fn().mockResolvedValue(mockOpestackSession), // Mock the rescoped session
       terminateSession: vi.fn().mockResolvedValue({}), // Mock the terminated session
       validateSession: vi.fn().mockResolvedValue(true), // Mock the validated session
+      getMultipartData: vi.fn().mockResolvedValue({}),
     }
     caller = createCaller(mockContext)
   })

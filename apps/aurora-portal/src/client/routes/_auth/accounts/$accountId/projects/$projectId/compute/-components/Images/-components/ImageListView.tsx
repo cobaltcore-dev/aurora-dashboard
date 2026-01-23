@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, ReactNode } from "react"
-import type { CreateImageInput, GlanceImage } from "@/server/Compute/types/image"
+import { useParams } from "@tanstack/react-router"
+import type { CreateImageInput, GlanceImage, ImageVisibility } from "@/server/Compute/types/image"
 import {
   Button,
   Checkbox,
@@ -18,6 +19,7 @@ import { TRPCClientError } from "@trpc/client"
 import { InferrableClientTypes } from "@trpc/server/unstable-core-do-not-import"
 import { FastifyError } from "fastify"
 import { Trans } from "@lingui/react/macro"
+import { t } from "@lingui/core/macro"
 import { EditImageDetailsModal } from "./EditImageDetailsModal"
 import { EditImageMetadataModal } from "./EditImageMetadataModal"
 import { ImageTableRow } from "./ImageTableRow"
@@ -47,14 +49,24 @@ import {
   getBulkDeactivatePartialToast,
   getImageCreateErrorToast,
   getImageFileUploadErrorToast,
+  getImageVisibilityUpdatedToast,
+  getImageVisibilityUpdateErrorToast,
 } from "./ImageToastNotifications"
+import { ManageImageAccessModal } from "./ManageImageAccessModal "
+import { ConfirmImageAccessModal } from "./ConfirmImageAccessModal"
+import { IMAGE_STATUSES } from "../../../-constants/filters"
 
 interface ImagePageProps {
   images: GlanceImage[]
+  suggestedImages: GlanceImage[]
+  acceptedImages: GlanceImage[]
   permissions: {
     canCreate: boolean
     canDelete: boolean
-    canEdit: boolean
+    canUpdate: boolean
+    canCreateMember: boolean
+    canDeleteMember: boolean
+    canUpdateMember: boolean
   }
   hasNextPage?: boolean
   isFetchingNextPage?: boolean
@@ -79,6 +91,8 @@ interface ImagePageProps {
 
 export function ImageListView({
   images,
+  suggestedImages,
+  acceptedImages,
   permissions,
   hasNextPage,
   isFetchingNextPage,
@@ -100,11 +114,17 @@ export function ImageListView({
   activeImages,
   deactivatedImages,
 }: ImagePageProps) {
+  const { projectId } = useParams({
+    from: "/_auth/accounts/$accountId/projects/$projectId/compute/$",
+  })
+
   const [toastData, setToastData] = useState<ToastProps | null>(null)
 
   const [editDetailsModalOpen, setEditDetailsModalOpen] = useState(false)
   const [editMetadataModalOpen, setEditMetadataModalOpen] = useState(false)
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
+  const [manageAccessModalOpen, setManageAccessModalOpen] = useState(false)
+  const [confirmAccessModalOpen, setConfirmAccessModalOpen] = useState(false)
   const [selectedImage, setSelectedImage] = useState<GlanceImage | null>(null)
   const [isCreateInProgress, setCreateInProgress] = useState(false)
   const [uploadId, setUploadId] = useState<string | null>(null)
@@ -187,12 +207,24 @@ export function ImageListView({
 
   const uploadImageMutation = trpcReact.compute.uploadImage.useMutation()
 
+  const updateImageVisibilityMutation = trpcReact.compute.updateImageVisibility.useMutation({
+    onSuccess: () => {
+      utils.compute.listImagesWithPagination.invalidate()
+      utils.compute.getImageById.invalidate()
+    },
+  })
+
   const { data } = trpcReact.compute.watchUploadProgress.useSubscription(
     { uploadId: uploadId || "" },
     {
       enabled: !!uploadId && uploadImageMutation.isPending,
       onData: (data) => {
         console.log(`Upload: ${data?.percent}%`)
+      },
+      onComplete() {
+        if (!manageAccessModalOpen && !toastData && uploadId && uploadImageMutation.isSuccess) {
+          setToastData(getImageCreatedToast(uploadId, { onDismiss: handleToastDismiss }))
+        }
       },
     }
   )
@@ -204,9 +236,34 @@ export function ImageListView({
     deleteImagesMutation.isPending ||
     activateImagesMutation.isPending ||
     deactivateImagesMutation.isPending ||
-    updateImageMutation.isPending
+    updateImageMutation.isPending ||
+    updateImageVisibilityMutation.isPending
 
   const handleToastDismiss = () => setToastData(null)
+
+  const handleUpdateImageVisibility = async (imageId: string, newVisibility: ImageVisibility, imageName: string) => {
+    try {
+      await updateImageVisibilityMutation.mutateAsync({
+        imageId,
+        visibility: newVisibility,
+      })
+
+      setToastData(
+        getImageVisibilityUpdatedToast(imageName, newVisibility, {
+          onDismiss: handleToastDismiss,
+        })
+      )
+    } catch (error) {
+      const errorMessage =
+        (error as TRPCClientError<InferrableClientTypes>)?.message || t`Failed to update visibility to ${newVisibility}`
+
+      setToastData(
+        getImageVisibilityUpdateErrorToast(imageName, errorMessage, {
+          onDismiss: handleToastDismiss,
+        })
+      )
+    }
+  }
 
   /**
    * Converts partial image properties to OpenStack JSON Patch operations
@@ -283,6 +340,7 @@ export function ImageListView({
       // Step 2: Create FormData WITH file
       const formData = new FormData()
       formData.append("imageId", createdImage.id)
+      formData.append("fileSize", `${file.size}`)
       formData.append("file", file)
 
       setUploadId(createdImage.id)
@@ -341,12 +399,13 @@ export function ImageListView({
     const imageId = updatedImage.id
 
     try {
-      const mutation = updatedImage.status === "deactivated" ? reactivateImageMutation : deactivateImageMutation
+      const mutation =
+        updatedImage.status === IMAGE_STATUSES.DEACTIVATED ? reactivateImageMutation : deactivateImageMutation
 
       await mutation.mutateAsync({ imageId })
 
       const toast =
-        updatedImage.status === "deactivated"
+        updatedImage.status === IMAGE_STATUSES.DEACTIVATED
           ? getImageActivatedToast(imageName, { onDismiss: handleToastDismiss })
           : getImageDeactivatedToast(imageName, { onDismiss: handleToastDismiss })
 
@@ -355,7 +414,7 @@ export function ImageListView({
       const { message } = error as TRPCClientError<InferrableClientTypes>
 
       const toast =
-        updatedImage.status === "deactivated"
+        updatedImage.status === IMAGE_STATUSES.DEACTIVATED
           ? getImageActivationErrorToast(imageId, message, { onDismiss: handleToastDismiss })
           : getImageDeactivationErrorToast(imageId, message, { onDismiss: handleToastDismiss })
 
@@ -373,14 +432,19 @@ export function ImageListView({
     setEditMetadataModalOpen(true)
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const openCreateModal = () => {
-    setCreateModalOpen(true)
-  }
-
   const openDeleteModal = (image: GlanceImage) => {
     setSelectedImage(image)
     setDeleteModalOpen(true)
+  }
+
+  const openManageAccessModal = (image: GlanceImage) => {
+    setSelectedImage(image)
+    setManageAccessModalOpen(true)
+  }
+
+  const openConfirmAccessModal = (image: GlanceImage) => {
+    setSelectedImage(image)
+    setConfirmAccessModalOpen(true)
   }
 
   const closeEditDetailsModal = () => {
@@ -396,6 +460,16 @@ export function ImageListView({
   const closeDeleteModal = () => {
     setSelectedImage(null)
     setDeleteModalOpen(false)
+  }
+
+  const closeManageAccessModal = () => {
+    setSelectedImage(null)
+    setManageAccessModalOpen(false)
+  }
+
+  const closeConfirmAccessModal = () => {
+    setSelectedImage(null)
+    setConfirmAccessModalOpen(false)
   }
 
   const handleBulkDelete = async (imageIds: Array<string>) => {
@@ -553,11 +627,15 @@ export function ImageListView({
               <ImageTableRow
                 image={image}
                 isSelected={!!selectedImages.find((imageId) => imageId === image.id)}
+                isPending={!!suggestedImages.find(({ id: imageId }) => imageId === image.id)}
+                isAccepted={!!acceptedImages.find(({ id: imageId }) => imageId === image.id)}
                 key={image.id}
                 permissions={permissions}
                 onEditDetails={openEditDetailsModal}
                 onEditMetadata={openEditMetadataModal}
                 onDelete={openDeleteModal}
+                onManageAccess={openManageAccessModal}
+                onConfirmAccess={openConfirmAccessModal}
                 onSelect={(image: GlanceImage) => {
                   const isImageSelected = !!selectedImages.find((imageId) => imageId === image.id)
 
@@ -568,6 +646,9 @@ export function ImageListView({
                   setSelectedImages([...selectedImages, image.id])
                 }}
                 onActivationStatusChange={handleActivationStatusChange}
+                onUpdateVisibility={handleUpdateImageVisibility}
+                uploadId={uploadId}
+                uploadProgressPercent={data?.percent}
               />
             ))}
           </DataGrid>
@@ -619,33 +700,46 @@ export function ImageListView({
         </DataGrid>
       )}
       {selectedImage && (
-        <EditImageDetailsModal
-          isOpen={editDetailsModalOpen}
-          onClose={closeEditDetailsModal}
-          image={selectedImage}
-          onSave={handleSaveEdit}
-          isLoading={updateImageMutation.isPending}
-        />
+        <>
+          <EditImageDetailsModal
+            isOpen={editDetailsModalOpen}
+            onClose={closeEditDetailsModal}
+            image={selectedImage}
+            onSave={handleSaveEdit}
+            isLoading={updateImageMutation.isPending}
+          />
+          <EditImageMetadataModal
+            isOpen={editMetadataModalOpen}
+            onClose={closeEditMetadataModal}
+            image={selectedImage}
+            onSave={handleSaveEdit}
+            isLoading={updateImageMutation.isPending}
+          />
+          <DeleteImageModal
+            image={selectedImage}
+            isOpen={deleteModalOpen}
+            isLoading={isLoading}
+            isDisabled={selectedImage.protected || !permissions.canDelete}
+            onClose={closeDeleteModal}
+            onDelete={handleDelete}
+          />
+          <ManageImageAccessModal
+            image={selectedImage}
+            isOpen={manageAccessModalOpen}
+            onClose={closeManageAccessModal}
+            permissions={permissions}
+          />
+          <ConfirmImageAccessModal
+            image={selectedImage}
+            isOpen={confirmAccessModalOpen}
+            onClose={closeConfirmAccessModal}
+            memberId={projectId}
+            permissions={permissions}
+            setMessage={setToastData}
+          />
+        </>
       )}
-      {selectedImage && (
-        <EditImageMetadataModal
-          isOpen={editMetadataModalOpen}
-          onClose={closeEditMetadataModal}
-          image={selectedImage}
-          onSave={handleSaveEdit}
-          isLoading={updateImageMutation.isPending}
-        />
-      )}
-      {selectedImage && (
-        <DeleteImageModal
-          image={selectedImage}
-          isOpen={deleteModalOpen}
-          isLoading={isLoading}
-          isDisabled={selectedImage.protected || !permissions.canDelete}
-          onClose={closeDeleteModal}
-          onDelete={handleDelete}
-        />
-      )}
+
       {selectedImages && (
         <>
           <DeleteImagesModal
@@ -676,7 +770,13 @@ export function ImageListView({
       )}
       <CreateImageModal
         isOpen={createModalOpen}
-        onClose={() => setCreateModalOpen(false)}
+        onClose={() => {
+          if (uploadId) {
+            utils.compute.listImagesWithPagination.invalidate()
+          }
+
+          setCreateModalOpen(false)
+        }}
         onCreate={handleCreate}
         isLoading={createImageMutation.isPending || uploadImageMutation.isPending || isCreateInProgress}
         isUploadPending={uploadImageMutation.isPending && !!uploadId}

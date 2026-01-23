@@ -15,7 +15,13 @@ import {
 import { ListToolbar } from "@/client/components/ListToolbar"
 import { FilterSettings, SortSettings } from "@/client/components/ListToolbar/types"
 import { ImageListView } from "./-components/ImageListView"
-import { CONTAINER_FORMATS, DISK_FORMATS, IMAGE_STATUSES, IMAGE_VISIBILITY } from "../../-constants/filters"
+import {
+  CONTAINER_FORMATS,
+  DISK_FORMATS,
+  IMAGE_STATUSES,
+  IMAGE_VISIBILITY,
+  MEMBER_STATUSES,
+} from "../../-constants/filters"
 
 // Define the custom toggle button component outside
 const MoreActionsButton = forwardRef<HTMLButtonElement, ButtonProps>(({ onClick, ...props }, ref) => (
@@ -34,6 +40,8 @@ export const Images = () => {
   const [deleteAllModalOpen, setDeleteAllModalOpen] = useState(false)
   const [deactivateAllModalOpen, setDeactivateAllModalOpen] = useState(false)
   const [activateAllModalOpen, setActivateAllModalOpen] = useState(false)
+  const [shouldShowSuggestedImages, setShowSuggestedImages] = useState(false)
+  const [shouldShowAcceptedImages, setShowAcceptedImages] = useState(false)
 
   const [filterSettings, setFilterSettings] = useState<FilterSettings>({
     filters: [
@@ -186,9 +194,25 @@ export const Images = () => {
     initialPageParam: undefined,
   })
 
+  const { data: suggestedImages, isLoading: suggestedImagesLoading } =
+    trpcReact.compute.listSharedImagesByMemberStatus.useQuery({
+      memberStatus: MEMBER_STATUSES.PENDING,
+    })
+
+  const { data: acceptedImages, isLoading: acceptedImagesLoading } =
+    trpcReact.compute.listSharedImagesByMemberStatus.useQuery({
+      memberStatus: MEMBER_STATUSES.ACCEPTED,
+    })
+
+  const suggestedImagesCount = suggestedImages?.length || 0
+  const acceptedImagesCount = acceptedImages?.length || 0
+
   const { data: canCreate } = trpcReact.compute.canUser.useQuery("images:create")
   const { data: canDelete } = trpcReact.compute.canUser.useQuery("images:delete")
-  const { data: canEdit } = trpcReact.compute.canUser.useQuery("images:update")
+  const { data: canUpdate } = trpcReact.compute.canUser.useQuery("images:update")
+  const { data: canCreateMember } = trpcReact.compute.canUser.useQuery("images:create_member")
+  const { data: canDeleteMember } = trpcReact.compute.canUser.useQuery("images:delete_member")
+  const { data: canUpdateMember = true } = trpcReact.compute.canUser.useQuery("images:update_member")
 
   // Show spinner ONLY on initial load, not on filter/sort changes - while old data is shown
   if (status === "pending" && !data) {
@@ -213,7 +237,10 @@ export const Images = () => {
   const permissions = {
     canCreate: canCreate ?? false,
     canDelete: canDelete ?? false,
-    canEdit: canEdit ?? false,
+    canUpdate: canUpdate ?? false,
+    canCreateMember: canCreateMember ?? false,
+    canDeleteMember: canDeleteMember ?? false,
+    canUpdateMember: canUpdateMember ?? false,
   }
 
   // Flatten all pages into a single array
@@ -222,21 +249,23 @@ export const Images = () => {
   const deletableImages = selectedImages.filter((imageId) => !images.find((image) => image.id === imageId)?.protected)
   const protectedImages = selectedImages.filter((imageId) => images.find((image) => image.id === imageId)?.protected)
   const activeImages = selectedImages.filter(
-    (imageId) => images.find((image) => image.id === imageId)?.status === "active"
+    (imageId) => images.find((image) => image.id === imageId)?.status === IMAGE_STATUSES.ACTIVE
   )
   const deactivatedImages = selectedImages.filter(
-    (imageId) => images.find((image) => image.id === imageId)?.status === "deactivated"
+    (imageId) => images.find((image) => image.id === imageId)?.status === IMAGE_STATUSES.DEACTIVATED
   )
 
   const isDeleteAllDisabled =
     !permissions.canDelete ||
     images.filter((image) => selectedImages.includes(image.id)).every((image) => image.protected)
   const isDeactivateAllDisabled =
-    !permissions.canEdit ||
-    images.filter((image) => selectedImages.includes(image.id)).every((image) => image.status === "deactivated")
+    !permissions.canUpdate ||
+    images
+      .filter((image) => selectedImages.includes(image.id))
+      .every((image) => image.status === IMAGE_STATUSES.DEACTIVATED)
   const isActivateAllDisabled =
-    !permissions.canEdit ||
-    images.filter((image) => selectedImages.includes(image.id)).every((image) => image.status === "active")
+    !permissions.canUpdate ||
+    images.filter((image) => selectedImages.includes(image.id)).every((image) => image.status === IMAGE_STATUSES.ACTIVE)
 
   const handleSortChange = (newSortSettings: SortSettings) => {
     startTransition(() => {
@@ -250,6 +279,39 @@ export const Images = () => {
     })
   }
 
+  const showSuggestedImages = () => {
+    startTransition(() => {
+      setShowSuggestedImages(true)
+      setShowAcceptedImages(false)
+      setFilterSettings({
+        ...filterSettings,
+        selectedFilters: [],
+      })
+    })
+  }
+
+  const showAcceptedImages = () => {
+    startTransition(() => {
+      setShowSuggestedImages(false)
+      setShowAcceptedImages(true)
+      setFilterSettings({
+        ...filterSettings,
+        selectedFilters: [],
+      })
+    })
+  }
+
+  const showAllImages = () => {
+    startTransition(() => {
+      setShowSuggestedImages(false)
+      setShowAcceptedImages(false)
+      setFilterSettings({
+        ...filterSettings,
+        selectedFilters: [],
+      })
+    })
+  }
+
   const handleSearchChange = (term: string | number | string[] | undefined) => {
     const searchValue = typeof term === "string" ? term : ""
     startTransition(() => {
@@ -257,9 +319,23 @@ export const Images = () => {
     })
   }
 
+  const getImages = () => {
+    if (shouldShowSuggestedImages) {
+      return suggestedImages
+    }
+
+    if (shouldShowAcceptedImages) {
+      return acceptedImages
+    }
+
+    return images
+  }
+
   return (
     <ImageListView
-      images={images}
+      images={getImages()}
+      suggestedImages={suggestedImages}
+      acceptedImages={acceptedImages}
       permissions={permissions}
       hasNextPage={hasNextPage}
       isFetchingNextPage={isFetchingNextPage}
@@ -288,17 +364,19 @@ export const Images = () => {
         onFilter={handleFilterChange}
         onSearch={handleSearchChange}
         actions={
-          <Stack gap="2">
-            {permissions.canCreate && (
-              <Button onClick={() => setCreateModalOpen(true)} variant="primary">
-                Create Image
-              </Button>
-            )}
-            {selectedImages.length === 0 ? (
-              <Button icon="moreVert" disabled>
-                {t`More Actions`}
-              </Button>
-            ) : (
+          <>
+            <div className="w-full md:w-auto md:mr-auto">
+              {(shouldShowSuggestedImages || shouldShowAcceptedImages) && (
+                <Button onClick={showAllImages}>{t`All Images`}</Button>
+              )}
+            </div>
+            <Stack gap="2">
+              {permissions.canCreate && (
+                <Button onClick={() => setCreateModalOpen(true)} variant="primary">
+                  Create Image
+                </Button>
+              )}
+
               <PopupMenu>
                 <PopupMenuToggle as={MoreActionsButton} />
                 <PopupMenuOptions>
@@ -317,10 +395,20 @@ export const Images = () => {
                     label={t`Activate All`}
                     onClick={() => setActivateAllModalOpen(true)}
                   />
+                  <PopupMenuItem
+                    disabled={!suggestedImagesCount || suggestedImagesLoading}
+                    label={t`Show Suggested Images (${suggestedImagesCount})`}
+                    onClick={showSuggestedImages}
+                  />
+                  <PopupMenuItem
+                    disabled={!acceptedImagesCount || acceptedImagesLoading}
+                    label={t`Show Accepted Images (${acceptedImagesCount})`}
+                    onClick={showAcceptedImages}
+                  />
                 </PopupMenuOptions>
               </PopupMenu>
-            )}
-          </Stack>
+            </Stack>
+          </>
         }
       />
     </ImageListView>

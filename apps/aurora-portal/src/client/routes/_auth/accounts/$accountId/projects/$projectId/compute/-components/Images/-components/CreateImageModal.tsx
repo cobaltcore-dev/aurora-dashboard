@@ -22,6 +22,7 @@ import {
   getDefaultContainerFormat,
   isValidFormatCombination,
 } from "@/server/Compute/helpers/imageHelpers"
+import { DISK_FORMATS, IMAGE_VISIBILITY } from "../../../-constants/filters"
 
 interface CreateImageModalProps {
   isOpen: boolean
@@ -48,7 +49,7 @@ interface ImageProperties {
 const defaultImageValues: ImageProperties = {
   name: "",
   tags: [],
-  visibility: "private",
+  visibility: IMAGE_VISIBILITY.PRIVATE,
   disk_format: undefined,
   container_format: undefined,
   protected: false,
@@ -78,6 +79,22 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({
   const compatibleContainerFormats = useMemo(() => {
     return properties.disk_format ? getCompatibleContainerFormats(properties.disk_format) : []
   }, [properties.disk_format])
+
+  const validExtensions = [
+    ".qcow2",
+    ".raw",
+    ".vmdk",
+    ".vhd",
+    ".vhdx",
+    ".vdi",
+    ".ami",
+    ".ari",
+    ".aki",
+    ".iso",
+    ".ploop",
+    ".img",
+  ]
+  const supportedFileFormats = validExtensions.join(", ")
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target
@@ -174,26 +191,13 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({
     setIsDragging(false)
 
     const droppedFiles = e.dataTransfer.files
+
     if (droppedFiles && droppedFiles.length > 0) {
       const file = droppedFiles[0]
+
       // Validate file type
-      const validExtensions = [
-        ".qcow2",
-        ".raw",
-        ".vmdk",
-        ".vhd",
-        ".vhdx",
-        ".vdi",
-        ".ami",
-        ".ari",
-        ".aki",
-        ".iso",
-        ".ploop",
-        ".img",
-      ]
       const fileName = file.name.toLowerCase()
       const isValidFile = validExtensions.some((ext) => fileName.endsWith(ext))
-      const supportedFileFormats = validExtensions.join(", ")
 
       if (isValidFile) {
         setSelectedFile(file)
@@ -421,7 +425,7 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({
                       type="file"
                       className="hidden"
                       onChange={handleFileChange}
-                      accept=".qcow2,.raw,.vmdk,.vhd,.vhdx,.vdi,.ami,.ari,.aki,.iso,.ploop,.img"
+                      accept={supportedFileFormats}
                       disabled={isLoading}
                     />
                   </label>
@@ -448,7 +452,7 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({
                     </button>
                   </div>
                 )}
-                {errors.file && <p className="text-red-600 text-xs mt-1">{errors.file}</p>}
+                {errors.file && <p className="text-red-600 text-xs mt-1 text-theme-error">{errors.file}</p>}
               </div>
             </FormRow>
           </FormSection>
@@ -511,10 +515,10 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({
                 disabled={isLoading}
                 loading={isLoading}
               >
-                <SelectOption value="public" label={t`Public`} />
-                <SelectOption value="private" label={t`Private`} />
-                <SelectOption value="shared" label={t`Shared`} />
-                <SelectOption value="community" label={t`Community`} />
+                <SelectOption value={IMAGE_VISIBILITY.PUBLIC} label={t`Public`} />
+                <SelectOption value={IMAGE_VISIBILITY.PRIVATE} label={t`Private`} />
+                <SelectOption value={IMAGE_VISIBILITY.SHARED} label={t`Shared`} />
+                <SelectOption value={IMAGE_VISIBILITY.COMMUNITY} label={t`Community`} />
               </Select>
             </FormRow>
 
@@ -532,17 +536,17 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({
                     required
                     errortext={errors.disk_format}
                   >
-                    <SelectOption value="qcow2" label="QCOW2 - QEMU Emulator" />
-                    <SelectOption value="raw" label="Raw" />
-                    <SelectOption value="vmdk" label="VMDK - Virtual Machine Disk" />
-                    <SelectOption value="vhd" label="VHD - Virtual Hard Disk" />
-                    <SelectOption value="vhdx" label="VHDX - Virtual Hard Disk Extended" />
-                    <SelectOption value="vdi" label="VDI - Virtual Disk Image" />
-                    <SelectOption value="ami" label="AMI - Amazon Machine Image" />
-                    <SelectOption value="ari" label="ARI - Amazon Ramdisk Image" />
-                    <SelectOption value="aki" label="AKI - Amazon Kernel Image" />
-                    <SelectOption value="iso" label="ISO - Optical Disk Image" />
-                    <SelectOption value="ploop" label="PLOOP - Virtuozzo/Parallels Loopback Disk" />
+                    <SelectOption value={DISK_FORMATS.QCOW2} label="QCOW2 - QEMU Emulator" />
+                    <SelectOption value={DISK_FORMATS.RAW} label="Raw" />
+                    <SelectOption value={DISK_FORMATS.VMDK} label="VMDK - Virtual Machine Disk" />
+                    <SelectOption value={DISK_FORMATS.VHD} label="VHD - Virtual Hard Disk" />
+                    <SelectOption value={DISK_FORMATS.VHDX} label="VHDX - Virtual Hard Disk Extended" />
+                    <SelectOption value={DISK_FORMATS.VDI} label="VDI - Virtual Disk Image" />
+                    <SelectOption value={DISK_FORMATS.AMI} label="AMI - Amazon Machine Image" />
+                    <SelectOption value={DISK_FORMATS.ARI} label="ARI - Amazon Ramdisk Image" />
+                    <SelectOption value={DISK_FORMATS.AKI} label="AKI - Amazon Kernel Image" />
+                    <SelectOption value={DISK_FORMATS.ISO} label="ISO - Optical Disk Image" />
+                    <SelectOption value={DISK_FORMATS.PLOOP} label="PLOOP - Virtuozzo/Parallels Loopback Disk" />
                   </Select>
                 </div>
                 <div className="flex-1">

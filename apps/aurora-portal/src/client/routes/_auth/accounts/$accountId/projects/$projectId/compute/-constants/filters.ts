@@ -1,4 +1,19 @@
 /**
+ * OpenStack Glance image member status values
+ * Reference: https://docs.openstack.org/glance/latest/user/glanceapi.html#image-sharing
+ */
+export const MEMBER_STATUSES = {
+  /** Initial status when image is shared; member hasn't responded */
+  PENDING: "pending",
+  /** Member has accepted the shared image; appears in their image list */
+  ACCEPTED: "accepted",
+  /** Member has explicitly rejected the shared image; won't appear in their list */
+  REJECTED: "rejected",
+  /** Special filter value: returns members in all states (pending, accepted, rejected) */
+  ALL: "all",
+} as const
+
+/**
  * OpenStack Glance image lifecycle states
  */
 export const IMAGE_STATUSES = {
@@ -81,6 +96,9 @@ export const CONTAINER_FORMATS = {
   /** Docker container image */
   DOCKER: "docker",
 } as const
+
+/** Valid image member status values */
+export type MemberStatus = (typeof MEMBER_STATUSES)[keyof typeof MEMBER_STATUSES]
 
 /** Valid image lifecycle status values */
 export type ImageStatus = (typeof IMAGE_STATUSES)[keyof typeof IMAGE_STATUSES]

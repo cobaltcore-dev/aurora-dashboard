@@ -1,5 +1,7 @@
 import { z } from "zod"
+import { SignalOpenstackApiError } from "@cobaltcore-dev/signal-openstack"
 import EventEmitter from "node:events"
+import { Readable, Transform } from "node:stream"
 import { protectedProcedure } from "../../trpc"
 import {
   applyImageQueryParams,
@@ -39,7 +41,9 @@ import {
   activateImagesInputSchema,
   deactivateImagesInputSchema,
   BulkOperationResult,
+  memberStatusSchema,
 } from "../types/image"
+import { TRPCError } from "@trpc/server"
 
 // Create a global event emitter for upload progress
 const uploadProgressEmitter = new EventEmitter()
@@ -149,71 +153,102 @@ export const imageRouter = {
       }, "create image")
     }),
 
-  uploadImage: protectedProcedure.mutation(async (opts): Promise<{ success: boolean; imageId: string }> => {
+  uploadImage: protectedProcedure.mutation(async ({ ctx }): Promise<{ success: boolean; imageId: string }> => {
     return withErrorHandling(async () => {
-      const { uploadedFile, formFields } = opts.ctx
+      const glance = ctx.openstack?.service("glance")
 
-      const { imageId, fileBuffer } = validateUploadInput(formFields?.imageId, uploadedFile?.buffer)
-
-      const openstackSession = opts.ctx.openstack
-      const glance = openstackSession?.service("glance")
-
+      // Validate Glance service is available
       validateGlanceService(glance)
 
-      uploadProgress.set(imageId, { uploaded: 0, total: fileBuffer.length })
+      const parts = ctx.getMultipartData()
+      let imageId: string | undefined
+      let fileSize: number | undefined
+      let fileStream: NodeJS.ReadableStream | undefined
+      const metadata: Record<string, string> = {}
 
-      const progress = uploadProgress.get(imageId)!
-
-      const CHUNK_SIZE = 64 * 1024 // 64KB
-
-      // Create a custom ReadableStream that emits buffer in chunks
-      const uploadStream = new ReadableStream({
-        async start(controller) {
-          try {
-            let offset = 0
-
-            while (offset < fileBuffer.length) {
-              const chunk = fileBuffer.subarray(offset, offset + CHUNK_SIZE)
-              progress.uploaded += chunk.length
-
-              // Emit progress event for real-time updates
-              uploadProgressEmitter.emit(`progress:${imageId}`, {
-                uploaded: progress.uploaded,
-                total: progress.total,
-                percent: Math.round((progress.uploaded / progress.total) * 100),
-              })
-
-              controller.enqueue(chunk)
-              offset += CHUNK_SIZE
-
-              // Yield control to allow progress queries to run between chunks
-              await new Promise((resolve) => setTimeout(resolve, 0))
-            }
-
-            controller.close()
-            uploadProgressEmitter.emit(`progress:${imageId}:complete`)
-          } catch (error) {
-            controller.error(error)
-            uploadProgressEmitter.emit(`progress:${imageId}:error`, error)
+      // Consume parts one by one
+      for await (const part of parts) {
+        if (part.type === "field") {
+          switch (part.fieldname) {
+            case "imageId":
+              imageId = part.value
+              break
+            case "fileSize":
+              fileSize = parseInt(part.value, 10)
+              break
+            default:
+              metadata[part.fieldname] = part.value
           }
-        },
+        } else if (part.type === "file") {
+          fileStream = part.file
+          // Note: We break here because we found the file
+          // The file is expected to be the last part in the multipart form data (FormData append order is preserved)
+          break
+        }
+      }
+
+      // Validate required inputs (imageId, file size and type)
+      const { validatedImageId, validatedFileSize, validatedFile } = validateUploadInput(imageId, fileSize, fileStream)
+
+      // Initialize progress tracking
+      uploadProgress.set(validatedImageId, {
+        uploaded: 0,
+        total: validatedFileSize,
       })
 
-      await glance
-        .put(`v2/images/${imageId}/file`, uploadStream, {
+      try {
+        const progress = uploadProgress.get(validatedImageId)!
+
+        // Create a Transform stream to track progress
+        // This doesn't buffer - it just observes chunks as they flow through
+        const progressTracker = new Transform({
+          async transform(chunk: Buffer, encoding, callback) {
+            progress.uploaded += chunk.length
+
+            // Emit progress event for real-time subscription updates
+            uploadProgressEmitter.emit(`progress:${validatedImageId}`, {
+              uploaded: progress.uploaded,
+              total: progress.total,
+              percent: progress.total > 0 ? Math.round((progress.uploaded / progress.total) * 100) : 0,
+            })
+
+            // Yield control to allow progress subscriptions to run between chunks
+            // This is important for real-time updates without blocking
+            await new Promise((resolve) => setTimeout(resolve, 0))
+
+            // Pass the chunk through unmodified
+            callback(null, chunk)
+          },
+        })
+
+        // Convert Node.js stream to Web Stream API
+        // Pipe through progress tracker before converting
+        const trackedStream = validatedFile.pipe(progressTracker)
+        const webStream = Readable.toWeb(trackedStream)
+
+        // Upload to Glance with progress tracking
+        await glance.put(`v2/images/${validatedImageId}/file`, webStream, {
           headers: {
-            Accept: "application/json",
             "Content-Type": "application/octet-stream",
           },
         })
-        .catch((error) => {
-          throw ImageErrorHandlers.upload(error, imageId, "application/octet-stream")
-        })
-        .finally(() => {
-          uploadProgress.delete(imageId)
-        })
 
-      return { success: true, imageId }
+        // Emit completion event
+        uploadProgressEmitter.emit(`progress:${validatedImageId}:complete`)
+
+        return {
+          success: true,
+          imageId: validatedImageId,
+        }
+      } catch (error) {
+        // Emit error event for subscriptions
+        uploadProgressEmitter.emit(`progress:${validatedImageId}:error`, error)
+
+        throw ImageErrorHandlers.upload(error as SignalOpenstackApiError, validatedImageId, "application/octet-stream")
+      } finally {
+        // Always cleanup progress tracking
+        uploadProgress.delete(validatedImageId)
+      }
     }, "upload image")
   }),
 
@@ -227,13 +262,15 @@ export const imageRouter = {
     if (current) {
       yield {
         ...current,
-        percent: Math.round((current.uploaded / current.total) * 100),
+        percent: current.total > 0 ? Math.round((current.uploaded / current.total) * 100) : 0,
       }
     }
 
     // Create a queue to bridge EventEmitter events to async generator
     const queue: Array<UploadProgress> = []
     let isComplete = false
+    let isError = false
+    let error: Error | undefined
     let waitResolver: ((value?: unknown) => void) | null = null
 
     const onProgress = (data: UploadProgress) => {
@@ -249,29 +286,56 @@ export const imageRouter = {
       waitResolver = null
     }
 
+    const onError = (err: unknown) => {
+      isError = true
+      error = err instanceof Error ? err : new Error(String(err))
+      waitResolver?.()
+      waitResolver = null
+    }
+
     // Listen to events from upload chunks (real-time, no polling)
     uploadProgressEmitter.on(`progress:${uploadId}`, onProgress)
     uploadProgressEmitter.on(`progress:${uploadId}:complete`, onComplete)
+    uploadProgressEmitter.on(`progress:${uploadId}:error`, onError)
 
     try {
       // Yield queued events as they arrive
-      while (!isComplete || queue.length > 0) {
-        // Yield all queued events
+      while (!isComplete && !isError) {
+        // Yield all queued events first
         while (queue.length > 0) {
-          yield queue.shift()
+          const progress = queue.shift()!
+          yield {
+            ...progress,
+            percent: progress.total > 0 ? Math.round((progress.uploaded / progress.total) * 100) : 0,
+          }
         }
 
         // Wait for next event without timeout (truly real-time)
-        if (!isComplete) {
+        if (!isComplete && !isError) {
           await new Promise((resolve) => {
             waitResolver = resolve
           })
         }
       }
+
+      // Yield any final queued events
+      while (queue.length > 0) {
+        const progress = queue.shift()!
+        yield {
+          ...progress,
+          percent: progress.total > 0 ? Math.round((progress.uploaded / progress.total) * 100) : 0,
+        }
+      }
+
+      // If there was an error, throw it
+      if (isError && error) {
+        throw error
+      }
     } finally {
       // Cleanup listeners
       uploadProgressEmitter.off(`progress:${uploadId}`, onProgress)
       uploadProgressEmitter.off(`progress:${uploadId}:complete`, onComplete)
+      uploadProgressEmitter.off(`progress:${uploadId}:error`, onError)
     }
   }),
 
@@ -476,9 +540,7 @@ export const imageRouter = {
 
         validateGlanceService(glance)
 
-        const response = await glance.post(`v2/images/${imageId}/members`, {
-          json: { member },
-        })
+        const response = await glance.post(`v2/images/${imageId}/members`, { member })
 
         if (!response?.ok) {
           throw ImageErrorHandlers.member.create(response, imageId, member)
@@ -503,9 +565,7 @@ export const imageRouter = {
 
         validateGlanceService(glance)
 
-        const response = await glance.put(`v2/images/${imageId}/members/${memberId}`, {
-          json: { status },
-        })
+        const response = await glance.put(`v2/images/${imageId}/members/${memberId}`, { status })
 
         if (!response?.ok) {
           throw ImageErrorHandlers.member.update(response, imageId, memberId, status)
@@ -617,5 +677,81 @@ export const imageRouter = {
           { operation: "deactivate" }
         )
       }, "deactivate images")
+    }),
+
+  listSharedImagesByMemberStatus: protectedProcedure
+    .input(z.object({ memberStatus: memberStatusSchema }))
+    .query(async ({ ctx, input }): Promise<GlanceImage[]> => {
+      return withErrorHandling(async () => {
+        const memberStatus = input.memberStatus
+
+        const openstackSession = ctx.openstack
+        const glance = openstackSession?.service("glance")
+
+        validateGlanceService(glance)
+
+        // Get current project ID from token
+        const token = openstackSession?.getToken()
+
+        if (!token) {
+          throw new TRPCError({ code: "UNAUTHORIZED", message: "No valid OpenStack token found" })
+        }
+
+        const projectId = token.tokenData.project?.id
+
+        if (!projectId) {
+          throw new TRPCError({
+            code: "UNAUTHORIZED",
+            message: "Unable to determine current project ID from OpenStack token",
+          })
+        }
+
+        // Step 1: Fetch all images with visibility=shared and member_status=("pending" | "accepted" | "rejected")
+        const queryParams = new URLSearchParams()
+        queryParams.append("visibility", "shared")
+        queryParams.append("member_status", memberStatus)
+
+        const url = `v2/images?${queryParams.toString()}`
+        const response = await glance.get(url).catch((error) => {
+          throw mapErrorResponseToTRPCError(error, { operation: "list shared images by member status" })
+        })
+
+        const parsedData = imageResponseSchema.safeParse(await response.json())
+        if (!parsedData.success) {
+          throw handleZodParsingError(parsedData.error, "list shared images by member status")
+        }
+
+        // Step 2: Filter out images owned by current project
+        const sharedImages = parsedData.data.images.filter((image) => image.owner !== projectId)
+
+        if (sharedImages.length === 0) {
+          return []
+        }
+
+        // Step 3: Fetch member data for all remaining images using Promise.all
+        const imageMembersPromises = sharedImages.map(
+          (image) =>
+            glance
+              .get(`v2/images/${image.id}/members/${projectId}`)
+              .then(async (response) => {
+                if (response?.ok) {
+                  const parsed = imageMemberSchema.safeParse(await response.json())
+                  return parsed.success ? parsed.data : null
+                }
+                return null
+              })
+              .catch(() => null) // Handle cases where the image member doesn't exist
+        )
+
+        const imageMembers = await Promise.all(imageMembersPromises)
+
+        // Step 4: Filter images by member_status
+        const filteredImages = sharedImages.filter((image, index) => {
+          const member = imageMembers[index]
+          return member?.status === memberStatus
+        })
+
+        return filteredImages
+      }, "list shared images by member status")
     }),
 }

@@ -26,9 +26,10 @@ export const getImageUpdateErrorToast = (imageName: string, message: string, con
     <NotificationText
       title={<Trans>Unable to Update Image</Trans>}
       description={
-        <Trans>
-          The image "{imageName}" could not be updated: {message}
-        </Trans>
+        <>
+          <Trans>The image "{imageName}" could not be updated: </Trans>
+          {message}
+        </>
       }
     />
   ),
@@ -56,9 +57,10 @@ export const getImageCreateErrorToast = (imageName: string, message: string, con
     <NotificationText
       title={<Trans>Unable to Create Image</Trans>}
       description={
-        <Trans>
-          The image "{imageName}" could not be created: {message}
-        </Trans>
+        <>
+          <Trans>The image "{imageName}" could not be created: </Trans>
+          {message}
+        </>
       }
     />
   ),
@@ -73,9 +75,10 @@ export const getImageFileUploadErrorToast = (fileName: string, message: string, 
     <NotificationText
       title={<Trans>Unable to Upload Image File</Trans>}
       description={
-        <Trans>
-          Failed to upload file "{fileName}": {message}
-        </Trans>
+        <>
+          <Trans>Failed to upload file "{fileName}": </Trans>
+          {message}
+        </>
       }
     />
   ),
@@ -354,6 +357,77 @@ export const getBulkDeactivatePartialToast = (
         <Trans>
           Deactivated {successCount} image(s), but {failedCount} image(s) could not be deactivated.
         </Trans>
+      }
+    />
+  ),
+  autoDismiss: true,
+  autoDismissTimeout: config.autoDismissTimeout ?? 5000,
+  onDismiss: config.onDismiss,
+})
+
+// Image access toasts
+export const getImageAccessStatusUpdatedToast = (newStatus: string, config: ToastConfig): ToastProps => ({
+  variant: "info",
+  children: (
+    <NotificationText
+      title={<Trans>Access Status</Trans>}
+      description={<Trans>Access status updated to "{newStatus}".</Trans>}
+    />
+  ),
+  autoDismiss: true,
+  autoDismissTimeout: config.autoDismissTimeout ?? 5000,
+  onDismiss: config.onDismiss,
+})
+
+export const getImageAccessStatusErrorToast = (errorMessage: string, config: ToastConfig): ToastProps => ({
+  variant: "error",
+  children: (
+    <NotificationText
+      title={<Trans>Access Status</Trans>}
+      description={errorMessage || <Trans>Failed to update access status</Trans>}
+    />
+  ),
+  autoDismiss: true,
+  autoDismissTimeout: config.autoDismissTimeout ?? 5000,
+  onDismiss: config.onDismiss,
+})
+
+// Image visibility toasts
+export const getImageVisibilityUpdatedToast = (
+  imageName: string,
+  visibility: string,
+  config: ToastConfig
+): ToastProps => ({
+  variant: "success",
+  children: (
+    <NotificationText
+      title={<Trans>Image Visibility</Trans>}
+      description={
+        <Trans>
+          Image "{imageName}" visibility updated to {visibility}
+        </Trans>
+      }
+    />
+  ),
+  autoDismiss: true,
+  autoDismissTimeout: config.autoDismissTimeout ?? 3000,
+  onDismiss: config.onDismiss,
+})
+
+export const getImageVisibilityUpdateErrorToast = (
+  imageName: string,
+  message: string,
+  config: ToastConfig
+): ToastProps => ({
+  variant: "error",
+  children: (
+    <NotificationText
+      title={<Trans>Unable to Update Image Visibility</Trans>}
+      description={
+        <>
+          <Trans>Failed to update visibility for "{imageName}": </Trans>
+          {message}
+        </>
       }
     />
   ),

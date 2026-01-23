@@ -8,8 +8,8 @@ const computePolicyEngine = loadPolicyEngine("compute.yaml")
 const imagePolicyEngine = loadPolicyEngine("image.yaml")
 
 const getPolicy = (ctx: AuroraPortalContext, policyEngineName: "compute" | "image") => {
-  const openstaSession = ctx.openstack
-  const token = openstaSession?.getToken()
+  const openstackSession = ctx.openstack
+  const token = openstackSession?.getToken()
   if (!token) {
     throw new TRPCError({ code: "UNAUTHORIZED", message: "No valid OpenStack token found" })
   }
@@ -47,6 +47,9 @@ const POLICY_MAPPINGS = {
   "images:create": { engine: "image", rule: "add_image" },
   "images:delete": { engine: "image", rule: "delete_image" },
   "images:update": { engine: "image", rule: "modify_image" },
+  "images:create_member": { engine: "image", rule: "add_member" },
+  "images:delete_member": { engine: "image", rule: "delete_member" },
+  "images:update_member": { engine: "image", rule: "modify_member" },
 } as const
 
 type PolicyKey = keyof typeof POLICY_MAPPINGS
