@@ -63,7 +63,7 @@
     "@lingui/cli": "^5.3.3",
     "@lingui/swc-plugin": "^5.5.2",
     "@lingui/vite-plugin": "^5.3.3",
-    "@tailwindcss/vite": "^4.1.7",
+    "@tailwindcss/vite": "^4.1.18",
     "@tanstack/react-router-devtools": "^1.115.2",
     "@tanstack/router-plugin": "^1.115.2",
     "@testing-library/jest-dom": "^6.6.3",
