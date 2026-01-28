@@ -56,6 +56,15 @@ function RouteComponent() {
     })
   }
 
+  // Helper function with proper type guard for image.name
+  // Handles cases where name might be null, undefined, empty string, or wrong type
+  const getImageName = (): React.ReactNode => {
+    if (image && typeof image.name === "string" && image.name.trim()) {
+      return image.name
+    }
+    return <Trans>Unnamed</Trans>
+  }
+
   // Handle loading state
   if (status === "pending") {
     return (
@@ -116,7 +125,7 @@ function RouteComponent() {
       </Breadcrumb>
 
       <Stack direction="vertical" distribution="between">
-        <ContentHeading className="text-2xl font-bold text-theme-highest">{image.name || t`Unnamed`}</ContentHeading>
+        <ContentHeading className="text-2xl font-bold text-theme-highest">{getImageName()}</ContentHeading>
       </Stack>
 
       <ImageDetailsView image={image} />
