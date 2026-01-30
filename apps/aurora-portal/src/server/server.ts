@@ -26,10 +26,12 @@ const BFF_ENDPOINT = process.env.BFF_ENDPOINT || "/polaris-bff"
 const server = Fastify({
   logger: true,
   // Increase ALL limits
-  maxParamLength: 5000,
   bodyLimit: 5 * 1024 * 1024 * 1024, // 5GB body limit
   requestTimeout: 600000, // 10 minutes (600 seconds)
   keepAliveTimeout: 600000, // 10 minutes keep-alive
+  routerOptions: {
+    maxParamLength: 5000,
+  },
 })
 
 async function startServer() {
