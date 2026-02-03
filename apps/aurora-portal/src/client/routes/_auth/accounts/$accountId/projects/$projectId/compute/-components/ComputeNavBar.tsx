@@ -29,6 +29,7 @@ export const ComputeSideNavBar = ({ accountId, projectId, availableServices }: C
             { path: `${computeRootPath}/flavors`, label: t`Flavors` },
           ]
         : []),
+      ...[{ path: `${computeRootPath}/objectstorage`, label: t`Object Storage` }],
     ]
   }
   const links = getComputeNavigationLinks()

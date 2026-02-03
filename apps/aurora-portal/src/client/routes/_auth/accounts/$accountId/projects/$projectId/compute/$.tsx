@@ -8,6 +8,7 @@ import { Images } from "./-components/Images/List"
 import { KeyPairs } from "./-components/KeyPairs/List"
 import { ServerGroups } from "./-components/ServerGroups/List"
 import { Flavors } from "./-components/Flavors/List"
+import { ObjectStorage } from "./-components/ObjectStorage/List"
 
 const checkServiceAvailability = (
   availableServices: {
@@ -106,6 +107,8 @@ function ComputeDashboard({ client }: { client: TrpcClient }) {
                 return <ServerGroups project={project} client={client} />
               case "flavors":
                 return <Flavors project={project} client={client} />
+              case "objectstorage":
+                return <ObjectStorage />
               default:
                 return <Overview project={project} client={client} />
             }
