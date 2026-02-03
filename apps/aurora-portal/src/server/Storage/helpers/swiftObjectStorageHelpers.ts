@@ -6,7 +6,7 @@ import {
   AccountInfo,
   ContainerInfo,
   ObjectMetadata,
-} from "../types/objectStorage"
+} from "../types/swiftObjectStorage"
 import { SignalOpenstackApiError } from "@cobaltcore-dev/signal-openstack"
 
 /**

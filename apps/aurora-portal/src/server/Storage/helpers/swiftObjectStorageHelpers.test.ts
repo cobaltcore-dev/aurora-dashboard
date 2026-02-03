@@ -15,10 +15,10 @@ import {
   handleZodParsingError,
   wrapError,
   withErrorHandling,
-} from "./objectStorageHelpers"
-import type { ListContainersInput, ListObjectsInput } from "../types/objectStorage"
+} from "./swiftObjectStorageHelpers"
+import type { ListContainersInput, ListObjectsInput } from "../types/swiftObjectStorage"
 
-describe("objectStorageHelpers", () => {
+describe("swiftObjectStorageHelpers", () => {
   describe("validateSwiftService", () => {
     it("should not throw when service is provided", () => {
       const mockService = { endpoint: "https://swift.example.com" }

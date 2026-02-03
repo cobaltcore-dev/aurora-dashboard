@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach, Mock } from "vitest"
 import { TRPCError } from "@trpc/server"
 import { AuroraPortalContext } from "../../context"
-import { objectStorageRouter } from "./objectStorageRouter"
-import * as objectStorageHelpers from "../helpers/objectStorageHelpers"
+import { swiftObjectStorageRouter } from "./swiftObjectStorageRouter"
+import * as objectStorageHelpers from "../helpers/swiftObjectStorageHelpers"
 import {
   ContainerSummary,
   ObjectSummary,
@@ -10,7 +10,7 @@ import {
   ContainerInfo,
   ObjectMetadata,
   ServiceInfo,
-} from "../types/objectStorage"
+} from "../types/swiftObjectStorage"
 import { createCallerFactory, auroraRouter } from "../../trpc"
 
 // Mock the helpers
@@ -134,9 +134,9 @@ const createMockContext = (shouldFailAuth = false, shouldFailSwift = false) => {
   } as unknown as AuroraPortalContext & { mockSwift: typeof mockSwift }
 }
 
-const createCaller = createCallerFactory(auroraRouter({ objectStorage: objectStorageRouter }))
+const createCaller = createCallerFactory(auroraRouter({ objectStorage: swiftObjectStorageRouter }))
 
-describe("objectStorageRouter", () => {
+describe("swiftObjectStorageRouter", () => {
   beforeEach(() => {
     vi.clearAllMocks()
     // Reset withErrorHandling to pass through by default

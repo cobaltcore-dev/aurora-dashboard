@@ -35,7 +35,7 @@ import {
   containerInfoResponseSchema,
   objectMetadataResponseSchema,
   objectContentResponseSchema,
-} from "./objectStorage"
+} from "./swiftObjectStorage"
 
 describe("Swift Object Storage Schema Validation", () => {
   // Common test data
