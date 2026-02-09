@@ -4,13 +4,7 @@ import { ListToolbar } from "@/client/components/ListToolbar"
 import { SortSettings } from "@/client/components/ListToolbar/types"
 import { ContainerListView } from "./-components/ContainerListView"
 import { mockAccountContainers } from "./-components/containersList.mock"
-
-interface Container {
-  count: number
-  bytes: number
-  name: string
-  last_modified: string
-}
+import { ContainerSummary } from "@/server/Storage/types/swiftObjectStorage"
 
 type RequiredSortSettings = {
   options: SortSettings["options"]
@@ -35,7 +29,7 @@ export const ObjectStorage = () => {
   const [searchTerm, setSearchTerm] = useState("")
 
   // Sort containers based on sort settings
-  const sortContainers = (containers: Container[]): Container[] => {
+  const sortContainers = (containers: ContainerSummary[]): ContainerSummary[] => {
     return [...containers].sort((a, b) => {
       let comparison = 0
 
