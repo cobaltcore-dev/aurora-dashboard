@@ -5,7 +5,7 @@ import {
   httpLink,
   splitLink,
   isNonJsonSerializable,
-  unstable_httpSubscriptionLink,
+  httpSubscriptionLink,
 } from "@trpc/client"
 import type { AuroraRouter } from "../server/routers"
 
@@ -30,7 +30,7 @@ const getLinks = () => [
     // First check: is it a subscription?
     condition: (op) => op.type === "subscription",
     // Use HTTP subscription link for subscriptions (long-polling)
-    true: unstable_httpSubscriptionLink({
+    true: httpSubscriptionLink({
       url: BFF_ENDPOINT,
       // Callback to populate headers
       eventSourceOptions: async () => {

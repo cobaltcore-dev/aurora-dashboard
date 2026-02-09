@@ -26,10 +26,12 @@ const BFF_ENDPOINT = process.env.BFF_ENDPOINT || "/polaris-bff"
 const server = Fastify({
   logger: true,
   // Increase ALL limits
-  maxParamLength: 5000,
   bodyLimit: 5 * 1024 * 1024 * 1024, // 5GB body limit
   requestTimeout: 600000, // 10 minutes (600 seconds)
   keepAliveTimeout: 600000, // 10 minutes keep-alive
+  routerOptions: {
+    maxParamLength: 5000,
+  },
 })
 
 async function startServer() {
@@ -187,10 +189,24 @@ async function startServer() {
 
   // Global error handler
   await server.setErrorHandler((error, request, reply) => {
-    reply.status(error.statusCode || 500).send({
-      status: error.code || "Internal Server Error",
-      message: error.message || "Internal Server Error",
-    })
+    // Type guard: check if error is an Error instance
+    if (error instanceof Error) {
+      const fastifyError = error as FastifyError
+      const statusCode = fastifyError.statusCode || 500
+      const code = fastifyError.code || "Internal Server Error"
+      const message = error.message || "Internal Server Error"
+
+      reply.status(statusCode).send({
+        status: code,
+        message: message,
+      })
+    } else {
+      // Fallback for truly unknown errors
+      reply.status(500).send({
+        status: "Internal Server Error",
+        message: "An unexpected error occurred",
+      })
+    }
   })
 
   // Start the server

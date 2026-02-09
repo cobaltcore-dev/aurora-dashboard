@@ -54,7 +54,7 @@ export const Route = createFileRoute("/_auth/accounts/$accountId/projects/")({
   },
 })
 
-export function ProjectsOverview() {
+function ProjectsOverview() {
   const [viewMode, setViewMode] = useState<ViewMode>("card")
   const { accountId, userHasAccountAccess, projects } = Route.useLoaderData()
   const { search = "" } = Route.useSearch()
