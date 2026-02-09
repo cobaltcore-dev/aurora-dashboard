@@ -46,17 +46,21 @@ const App = (props: AppProps) => {
 
   return (
     <ErrorBoundary
-      fallbackRender={({ error, resetErrorBoundary }) => (
-        <div role="alert" style={{ padding: 24 }}>
-          <p>
-            <Trans>Something went wrong:</Trans>
-          </p>
-          <pre style={{ color: "red" }}>{error.message}</pre>
-          <button onClick={resetErrorBoundary}>
-            <Trans>Try again</Trans>
-          </button>
-        </div>
-      )}
+      fallbackRender={({ error, resetErrorBoundary }) => {
+        const { message } = error as Error
+
+        return (
+          <div role="alert" style={{ padding: 24 }}>
+            <p>
+              <Trans>Something went wrong:</Trans>
+            </p>
+            {message && <pre style={{ color: "red" }}>{message}</pre>}
+            <button onClick={resetErrorBoundary}>
+              <Trans>Try again</Trans>
+            </button>
+          </div>
+        )
+      }}
     >
       <I18nProvider i18n={i18n}>
         <AppShellProvider shadowRoot={false} theme={props.theme || currentTheme || "theme-dark"}>

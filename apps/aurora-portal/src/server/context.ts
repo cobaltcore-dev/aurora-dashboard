@@ -137,6 +137,10 @@ export async function createContext(opts: CreateFastifyContextOptions): Promise<
 
   // Lazy multipart parsing - returns async generator
   // This allows consuming parts on-demand without buffering
+  // TODO: Add first-class support for multipart/form-data requests, enabling FormData inputs (e.g., for file uploads)
+  // to be passed through and processed reliably with Fastify-based servers.
+  // fix(server): fastify form-data type #6974: https://github.com/trpc/trpc/pull/6974
+  // https://github.com/trpc/trpc/releases/tag/v11.8.1
   const getMultipartData = async function* () {
     const contentType = opts.req.headers["content-type"] || ""
 

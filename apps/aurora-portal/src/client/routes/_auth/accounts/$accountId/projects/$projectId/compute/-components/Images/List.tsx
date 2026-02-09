@@ -169,30 +169,31 @@ export const Images = () => {
     return await utils.client.compute.listImagesWithPagination.query(params)
   }
 
-  const { data, error, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage, status } = useInfiniteQuery({
-    /**
-     * Query key includes sort, filter, and search settings to trigger refetch when they change
-     * This ensures the data is re-fetched whenever the user changes any filter, sort, or search
-     */
-    queryKey: [
-      ["compute", "listImagesWithPagination"],
-      {
-        input: {
-          limit: 15,
-          sort: `${sortSettings.sortBy}:${sortSettings.sortDirection}`,
-          filters: buildFilterParams(),
-          search: searchTerm,
+  const { data, error, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage, isPending, isError } =
+    useInfiniteQuery({
+      /**
+       * Query key includes sort, filter, and search settings to trigger refetch when they change
+       * This ensures the data is re-fetched whenever the user changes any filter, sort, or search
+       */
+      queryKey: [
+        ["compute", "listImagesWithPagination"],
+        {
+          input: {
+            limit: 15,
+            sort: `${sortSettings.sortBy}:${sortSettings.sortDirection}`,
+            filters: buildFilterParams(),
+            search: searchTerm,
+          },
+          type: "query",
         },
-        type: "query",
+      ],
+      queryFn: fetchImages,
+      placeholderData: (previousData) => previousData, // Keeps old data during refetch
+      initialPageParam: undefined as string | undefined,
+      getNextPageParam: (lastPage) => {
+        return lastPage.next
       },
-    ],
-    queryFn: fetchImages,
-    placeholderData: (previousData) => previousData, // Keeps old data during refetch
-    getNextPageParam: (lastPage) => {
-      return lastPage.next ?? undefined
-    },
-    initialPageParam: undefined,
-  })
+    })
 
   const { data: suggestedImages, isLoading: suggestedImagesLoading } =
     trpcReact.compute.listSharedImagesByMemberStatus.useQuery({
@@ -214,8 +215,7 @@ export const Images = () => {
   const { data: canDeleteMember } = trpcReact.compute.canUser.useQuery("images:delete_member")
   const { data: canUpdateMember = true } = trpcReact.compute.canUser.useQuery("images:update_member")
 
-  // Show spinner ONLY on initial load, not on filter/sort changes - while old data is shown
-  if (status === "pending" && !data) {
+  if (isPending && !data) {
     return (
       <Stack className="fixed inset-0" distribution="center" alignment="center" direction="vertical">
         <Spinner variant="primary" size="large" className="mb-2" />
@@ -224,8 +224,8 @@ export const Images = () => {
     )
   }
 
-  if (status === "error") {
-    const errorMessage = error.message
+  if (isError) {
+    const errorMessage = error?.message
 
     return (
       <Stack className="fixed inset-0" distribution="center" alignment="center" direction="vertical">
@@ -321,11 +321,11 @@ export const Images = () => {
 
   const getImages = () => {
     if (shouldShowSuggestedImages) {
-      return suggestedImages
+      return suggestedImages ?? []
     }
 
     if (shouldShowAcceptedImages) {
-      return acceptedImages
+      return acceptedImages ?? []
     }
 
     return images
@@ -334,8 +334,8 @@ export const Images = () => {
   return (
     <ImageListView
       images={getImages()}
-      suggestedImages={suggestedImages}
-      acceptedImages={acceptedImages}
+      suggestedImages={suggestedImages ?? []}
+      acceptedImages={acceptedImages ?? []}
       permissions={permissions}
       hasNextPage={hasNextPage}
       isFetchingNextPage={isFetchingNextPage}
