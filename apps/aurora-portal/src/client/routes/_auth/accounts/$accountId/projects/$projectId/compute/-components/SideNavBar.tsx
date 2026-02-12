@@ -3,7 +3,7 @@ import { getServiceIndex } from "@/server/Authentication/helpers"
 import { SideNavigation, SideNavigationList, SideNavigationItem } from "@cloudoperators/juno-ui-components/index"
 import { useLingui } from "@lingui/react/macro"
 
-interface ComputeSideNavBarProps {
+interface SideNavBarProps {
   accountId: string
   projectId: string
   availableServices: {
@@ -12,7 +12,7 @@ interface ComputeSideNavBarProps {
   }[]
 }
 
-export const ComputeSideNavBar = ({ accountId, projectId, availableServices }: ComputeSideNavBarProps) => {
+export const SideNavBar = ({ accountId, projectId, availableServices }: SideNavBarProps) => {
   const { t } = useLingui()
   const location = useLocation()
   const navigate = useNavigate()
@@ -25,14 +25,7 @@ export const ComputeSideNavBar = ({ accountId, projectId, availableServices }: C
     return [
       { path: computeRootPath, label: t`Overview` },
       ...(serviceIndex["image"]["glance"] ? [{ path: `${computeRootPath}/images`, label: t`Images` }] : []),
-      ...(serviceIndex["compute"]["nova"]
-        ? [
-            // { path: `${computeRootPath}/instances`, label: t`Instances` },
-            // { path: `${computeRootPath}/keypairs`, label: t`Key Pairs` },
-            // { path: `${computeRootPath}/servergroups`, label: t`Server Groups` },
-            { path: `${computeRootPath}/flavors`, label: t`Flavors` },
-          ]
-        : []),
+      ...(serviceIndex["compute"]["nova"] ? [{ path: `${computeRootPath}/flavors`, label: t`Flavors` }] : []),
     ]
   }
 
