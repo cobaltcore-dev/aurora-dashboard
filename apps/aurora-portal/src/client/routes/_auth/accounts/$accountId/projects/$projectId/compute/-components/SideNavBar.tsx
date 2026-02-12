@@ -38,14 +38,16 @@ export const SideNavBar = ({ accountId, projectId, availableServices }: SideNavB
   return (
     <SideNavigation ariaLabel="Compute Side Navigation" onActiveItemChange={() => {}}>
       <SideNavigationList>
-        {links.map(({ path, label }) => (
-          <SideNavigationItem
-            key={path}
-            onClick={() => handleNavigate(path)}
-            label={label}
-            selected={location.pathname === path}
-          />
-        ))}
+        <SideNavigationItem label="Compute">
+          {links.map(({ path, label }) => (
+            <SideNavigationItem
+              key={path}
+              onClick={() => handleNavigate(path)}
+              label={label}
+              selected={location.pathname === path}
+            />
+          ))}
+        </SideNavigationItem>
       </SideNavigationList>
     </SideNavigation>
   )
