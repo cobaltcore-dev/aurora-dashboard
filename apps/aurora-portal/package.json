@@ -57,7 +57,7 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
-    "@cloudoperators/juno-ui-components": "^5.11.0",
+    "@cloudoperators/juno-ui-components": "^6.0.0",
     "@cobaltcore-dev/aurora-config": "workspace:*",
     "@fastify/vite": "^8.4.1",
     "@lingui/cli": "^5.9.0",
