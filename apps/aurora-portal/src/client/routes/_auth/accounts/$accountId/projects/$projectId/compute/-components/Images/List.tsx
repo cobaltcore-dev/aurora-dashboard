@@ -229,7 +229,7 @@ export const Images = () => {
 
     return (
       <Stack className="fixed inset-0" distribution="center" alignment="center" direction="vertical">
-        <Trans>Error: {errorMessage}</Trans>
+        <Trans>Error loading images: {errorMessage}</Trans>
       </Stack>
     )
   }

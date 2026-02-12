@@ -1,10 +1,11 @@
 import { useState, startTransition } from "react"
-import { useLingui } from "@lingui/react/macro"
+import { Trans, useLingui } from "@lingui/react/macro"
 import { ListToolbar } from "@/client/components/ListToolbar"
 import { SortSettings } from "@/client/components/ListToolbar/types"
-import { ContainerListView } from "./-components/ContainerListView"
-import { mockAccountContainers } from "./-components/containersList.mock"
 import { ContainerSummary } from "@/server/Storage/types/swiftObjectStorage"
+import { trpcReact } from "@/client/trpcClient"
+import { Spinner, Stack } from "@cloudoperators/juno-ui-components"
+import { ContainerListView } from "./-components/ContainerListView"
 
 type RequiredSortSettings = {
   options: SortSettings["options"]
@@ -28,6 +29,15 @@ export const ObjectStorage = () => {
 
   const [searchTerm, setSearchTerm] = useState("")
 
+  // Fetch containers from tRPC
+  const {
+    data: containers,
+    isLoading,
+    error,
+  } = trpcReact.objectStorage.listContainers.useQuery({
+    format: "json",
+  })
+
   // Sort containers based on sort settings
   const sortContainers = (containers: ContainerSummary[]): ContainerSummary[] => {
     return [...containers].sort((a, b) => {
@@ -44,6 +54,9 @@ export const ObjectStorage = () => {
           comparison = a.bytes - b.bytes
           break
         case "last_modified":
+          if (!a.last_modified || !b.last_modified) {
+            return a.last_modified ? -1 : 1
+          }
           comparison = new Date(a.last_modified).getTime() - new Date(b.last_modified).getTime()
           break
         default:
@@ -55,7 +68,7 @@ export const ObjectStorage = () => {
   }
 
   // Filter containers based on search term
-  const filteredContainers = mockAccountContainers.filter((container) =>
+  const filteredContainers = (containers || []).filter((container) =>
     container.name.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
@@ -79,6 +92,27 @@ export const ObjectStorage = () => {
     startTransition(() => {
       setSortSettings(settings)
     })
+  }
+
+  // Handle loading state
+  if (isLoading) {
+    return (
+      <Stack className="fixed inset-0" distribution="center" alignment="center" direction="vertical">
+        <Spinner variant="primary" size="large" className="mb-2" />
+        <Trans>Loading Containers...</Trans>
+      </Stack>
+    )
+  }
+
+  // Handle error state
+  if (error) {
+    const errorMessage = error.message
+
+    return (
+      <Stack className="fixed inset-0" distribution="center" alignment="center" direction="vertical">
+        <Trans>Error loading containers: {errorMessage}</Trans>
+      </Stack>
+    )
   }
 
   return (
