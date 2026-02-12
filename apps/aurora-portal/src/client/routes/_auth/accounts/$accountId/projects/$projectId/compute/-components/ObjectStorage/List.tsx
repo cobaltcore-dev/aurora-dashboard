@@ -7,16 +7,10 @@ import { trpcReact } from "@/client/trpcClient"
 import { Spinner, Stack } from "@cloudoperators/juno-ui-components"
 import { ContainerListView } from "./-components/ContainerListView"
 
-type RequiredSortSettings = {
-  options: SortSettings["options"]
-  sortBy: string
-  sortDirection: "asc" | "desc"
-}
-
 export const ObjectStorage = () => {
   const { t } = useLingui()
 
-  const [sortSettings, setSortSettings] = useState<RequiredSortSettings>({
+  const [sortSettings, setSortSettings] = useState<SortSettings>({
     options: [
       { label: t`Name`, value: "name" },
       { label: t`Object Count`, value: "count" },
@@ -83,7 +77,7 @@ export const ObjectStorage = () => {
   }
 
   const handleSortChange = (newSortSettings: SortSettings) => {
-    const settings: RequiredSortSettings = {
+    const settings: SortSettings = {
       options: newSortSettings.options,
       sortBy: newSortSettings.sortBy?.toString() || "name",
       sortDirection: newSortSettings.sortDirection || "asc",
@@ -110,7 +104,7 @@ export const ObjectStorage = () => {
 
     return (
       <Stack className="fixed inset-0" distribution="center" alignment="center" direction="vertical">
-        <Trans>Error loading containers: {errorMessage}</Trans>
+        <Trans>Error Loading Containers: {errorMessage}</Trans>
       </Stack>
     )
   }
