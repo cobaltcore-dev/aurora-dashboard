@@ -23,16 +23,16 @@
     "release:dry": "semantic-release --dry-run"
   },
   "devDependencies": {
-    "@commitlint/cli": "^19.5.0",
-    "@commitlint/config-conventional": "^19.5.0",
+    "@commitlint/cli": "^20.3.1",
+    "@commitlint/config-conventional": "^20.3.1",
     "@semantic-release/changelog": "^6.0.3",
     "@semantic-release/commit-analyzer": "^13.0.0",
     "@semantic-release/github": "^11.0.0",
     "@semantic-release/release-notes-generator": "^14.0.1",
     "commitizen": "^4.3.1",
     "conventional-changelog-conventionalcommits": "^8.0.0",
-    "cz-customizable": "^7.5.0",
-    "eslint": "^9.14.0",
+    "cz-customizable": "^7.5.1",
+    "eslint": "^9.39.2",
     "husky": "^9.1.6",
     "prettier": "^3.2.5",
     "semantic-release": "^24.2.0",
@@ -40,7 +40,7 @@
   },
   "packageManager": "pnpm@10.28.0",
   "dependencies": {
-    "pnpm": "^10.28.0"
+    "pnpm": "^10.28.2"
   },
   "config": {
     "commitizen": {

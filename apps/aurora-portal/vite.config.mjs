@@ -12,7 +12,7 @@ import { lingui } from "@lingui/vite-plugin"
 dotenv.config()
 
 export const BFF_ENDPOINT = process.env.BFF_ENDPOINT || "/polaris-bff"
-import { TanStackRouterVite } from "@tanstack/router-plugin/vite"
+import { tanstackRouter } from "@tanstack/router-plugin/vite"
 
 export default defineConfig(({ mode }) => ({
   root: "./src/client",
@@ -26,11 +26,11 @@ export default defineConfig(({ mode }) => ({
   },
   plugins: [
     tailwindcss(),
-    TanStackRouterVite({
+    tanstackRouter({
       target: "react",
       autoCodeSplitting: true,
-      generatedRouteTree: "./src/client/routeTree.gen.ts",
-      routesDirectory: "./src/client/routes",
+      routesDirectory: "./routes",
+      generatedRouteTree: "./routeTree.gen.ts",
     }),
     mode !== "production" && viteFastify(),
     react({

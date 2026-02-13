@@ -169,8 +169,8 @@ msgstr "Auto Update"
 msgid "Back"
 msgstr "Back"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId.tsx:80
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId.tsx:94
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId.tsx:89
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId.tsx:103
 msgid "Back to Images"
 msgstr "Back to Images"
 
@@ -552,7 +552,7 @@ msgstr "Ephemeral Disk must be an integer ≥ 0."
 msgid "Error Loading Flavor"
 msgstr "Error Loading Flavor"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId.tsx:76
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId.tsx:85
 msgid "Error loading image"
 msgstr "Error loading image"
 
@@ -732,7 +732,7 @@ msgid "Flavor service is not available for this project."
 msgstr "Flavor service is not available for this project."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/flavors/$flavorId.tsx:117
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/ComputeNavBar.tsx:29
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/ComputeNavBar.tsx:33
 msgid "Flavors"
 msgstr "Flavors"
 
@@ -852,7 +852,7 @@ msgstr "Image Name"
 msgid "Image name is required"
 msgstr "Image name is required"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId.tsx:91
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId.tsx:100
 msgid "Image not found"
 msgstr "Image not found"
 
@@ -864,8 +864,8 @@ msgstr "Image Version"
 msgid "Image Visibility"
 msgstr "Image Visibility"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId.tsx:114
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/ComputeNavBar.tsx:23
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId.tsx:123
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/ComputeNavBar.tsx:27
 msgid "Images"
 msgstr "Images"
 
@@ -991,7 +991,7 @@ msgstr "Loading Flavors..."
 msgid "Loading Gardener..."
 msgstr "Loading Gardener..."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId.tsx:64
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId.tsx:73
 msgid "Loading Image Details..."
 msgstr "Loading Image Details..."
 
@@ -1302,9 +1302,9 @@ msgstr "OS Updates"
 msgid "Our Mission"
 msgstr "Our Mission"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId.tsx:111
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId.tsx:120
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/flavors/$flavorId.tsx:116
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/ComputeNavBar.tsx:22
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/ComputeNavBar.tsx:26
 msgid "Overview"
 msgstr "Overview"
 
@@ -1680,7 +1680,7 @@ msgstr "Sign Out"
 msgid "Size"
 msgstr "Size"
 
-#: src/client/App.tsx:52
+#: src/client/App.tsx:55
 msgid "Something went wrong:"
 msgstr "Something went wrong:"
 
@@ -1891,7 +1891,7 @@ msgstr "Together, we can unlock the true potential of your cloud infrastructure.
 msgid "True"
 msgstr "True"
 
-#: src/client/App.tsx:56
+#: src/client/App.tsx:59
 msgid "Try again"
 msgstr "Try again"
 
@@ -1947,7 +1947,7 @@ msgstr "Unable to Upload Image File"
 msgid "Unknown error"
 msgstr "Unknown error"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId.tsx:119
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId.tsx:65
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageTableRow.tsx:59
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImageModal.tsx:89
 msgid "Unnamed"
