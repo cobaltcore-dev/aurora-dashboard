@@ -1,8 +1,10 @@
 import { networkRouter } from "./networkrouter"
+import { securityGroupRouter } from "./securityGroupRouter"
 import { auroraRouter } from "../../trpc"
 
-export const authRouters = {
-  auth: auroraRouter({
+export const networkRouters = {
+  network: auroraRouter({
     ...networkRouter,
+    ...securityGroupRouter,
   }),
 }
