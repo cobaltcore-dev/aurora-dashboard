@@ -1,8 +1,10 @@
-import { swiftObjectStorageRouter } from "./swiftObjectStorageRouter"
+import { swiftRouter } from "./swiftRouter"
 import { auroraRouter } from "../../trpc"
 
 export const objectStorageRouters = {
-  objectStorage: auroraRouter({
-    ...swiftObjectStorageRouter,
-  }),
+  storage: {
+    swift: auroraRouter({
+      ...swiftRouter,
+    }),
+  },
 }

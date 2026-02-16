@@ -17,7 +17,7 @@ import {
   isFolderMarker,
   generateTempUrlSignature,
   constructTempUrl,
-} from "../helpers/swiftObjectStorageHelpers"
+} from "../helpers/swiftHelpers"
 import {
   listContainersInputSchema,
   updateAccountMetadataInputSchema,
@@ -53,9 +53,8 @@ import {
   deleteFolderInputSchema,
   TempUrl,
   generateTempUrlInputSchema,
-} from "../types/swiftObjectStorage"
-
-export const swiftObjectStorageRouter = {
+} from "../types/swift"
+export const swiftRouter = {
   // ============================================================================
   // SERVICE OPERATIONS
   // ============================================================================

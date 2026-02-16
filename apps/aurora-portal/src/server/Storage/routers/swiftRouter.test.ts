@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach, Mock } from "vitest"
 import { TRPCError } from "@trpc/server"
 import { AuroraPortalContext } from "../../context"
-import { swiftObjectStorageRouter } from "./swiftObjectStorageRouter"
-import * as swiftObjectStorageHelpers from "../helpers/swiftObjectStorageHelpers"
+import { swiftRouter } from "./swiftRouter"
+import * as swiftHelpers from "../helpers/swiftHelpers"
 import {
   ContainerSummary,
   ObjectSummary,
@@ -10,11 +10,11 @@ import {
   ContainerInfo,
   ObjectMetadata,
   ServiceInfo,
-} from "../types/swiftObjectStorage"
+} from "../types/swift"
 import { createCallerFactory, auroraRouter } from "../../trpc"
 
 // Mock the helpers
-vi.mock("../helpers/swiftObjectStorageHelpers", async (importOriginal) => {
+vi.mock("../helpers/swiftHelpers", async (importOriginal) => {
   const actual: object = await importOriginal()
 
   return {
@@ -134,18 +134,18 @@ const createMockContext = (shouldFailAuth = false, shouldFailSwift = false) => {
   } as unknown as AuroraPortalContext & { mockSwift: typeof mockSwift }
 }
 
-const createCaller = createCallerFactory(auroraRouter({ objectStorage: swiftObjectStorageRouter }))
+const createCaller = createCallerFactory(auroraRouter({ storage: { swift: swiftRouter } }))
 
-describe("swiftObjectStorageRouter", () => {
+describe("swiftRouter", () => {
   beforeEach(() => {
     vi.clearAllMocks()
     // Reset withErrorHandling to pass through by default
-    ;(swiftObjectStorageHelpers.withErrorHandling as Mock).mockImplementation((fn) => fn())
+    ;(swiftHelpers.withErrorHandling as Mock).mockImplementation((fn) => fn())
     // Reset parseObjectMetadata to return mock data
-    ;(swiftObjectStorageHelpers.parseObjectMetadata as Mock).mockReturnValue(mockObjectMetadata)
+    ;(swiftHelpers.parseObjectMetadata as Mock).mockReturnValue(mockObjectMetadata)
     // Reset parse functions
-    ;(swiftObjectStorageHelpers.parseAccountInfo as Mock).mockReturnValue(mockAccountInfo)
-    ;(swiftObjectStorageHelpers.parseContainerInfo as Mock).mockReturnValue(mockContainerInfo)
+    ;(swiftHelpers.parseAccountInfo as Mock).mockReturnValue(mockAccountInfo)
+    ;(swiftHelpers.parseContainerInfo as Mock).mockReturnValue(mockContainerInfo)
   })
 
   // ============================================================================
@@ -157,7 +157,7 @@ describe("swiftObjectStorageRouter", () => {
       const mockCtx = createMockContext(true)
       const caller = createCaller(mockCtx)
 
-      await expect(caller.objectStorage.getServiceInfo()).rejects.toThrow(
+      await expect(caller.storage.swift.getServiceInfo()).rejects.toThrow(
         new TRPCError({
           code: "UNAUTHORIZED",
           message: "The session is invalid",
@@ -176,10 +176,10 @@ describe("swiftObjectStorageRouter", () => {
         json: vi.fn().mockResolvedValue(mockServiceInfo),
       })
 
-      const result = await caller.objectStorage.getServiceInfo()
+      const result = await caller.storage.swift.getServiceInfo()
 
       expect(mockCtx.validateSession).toHaveBeenCalled()
-      expect(swiftObjectStorageHelpers.validateSwiftService).toHaveBeenCalled()
+      expect(swiftHelpers.validateSwiftService).toHaveBeenCalled()
       expect(mockCtx.mockSwift.get).toHaveBeenCalledWith("/info")
       expect(result).toEqual(mockServiceInfo)
     })
@@ -190,7 +190,7 @@ describe("swiftObjectStorageRouter", () => {
 
       mockCtx.mockSwift.get.mockRejectedValue({ statusCode: 500, message: "Internal Server Error" })
 
-      await expect(caller.objectStorage.getServiceInfo()).rejects.toThrow()
+      await expect(caller.storage.swift.getServiceInfo()).rejects.toThrow()
     })
   })
 
@@ -203,7 +203,7 @@ describe("swiftObjectStorageRouter", () => {
       const mockCtx = createMockContext(true)
       const caller = createCaller(mockCtx)
 
-      await expect(caller.objectStorage.listContainers({ format: "json" })).rejects.toThrow(
+      await expect(caller.storage.swift.listContainers({ format: "json" })).rejects.toThrow(
         new TRPCError({
           code: "UNAUTHORIZED",
           message: "The session is invalid",
@@ -221,11 +221,11 @@ describe("swiftObjectStorageRouter", () => {
       })
 
       const input = { format: "json" as const }
-      const result = await caller.objectStorage.listContainers(input)
+      const result = await caller.storage.swift.listContainers(input)
 
       expect(mockCtx.validateSession).toHaveBeenCalled()
-      expect(swiftObjectStorageHelpers.validateSwiftService).toHaveBeenCalled()
-      expect(swiftObjectStorageHelpers.applyContainerQueryParams).toHaveBeenCalled()
+      expect(swiftHelpers.validateSwiftService).toHaveBeenCalled()
+      expect(swiftHelpers.applyContainerQueryParams).toHaveBeenCalled()
       expect(mockCtx.mockSwift.get).toHaveBeenCalled()
       expect(result).toEqual([mockContainerSummary])
     })
@@ -239,9 +239,9 @@ describe("swiftObjectStorageRouter", () => {
         json: vi.fn().mockResolvedValue([mockContainerSummary]),
       })
 
-      await caller.objectStorage.listContainers({ limit: 100, format: "json" })
+      await caller.storage.swift.listContainers({ limit: 100, format: "json" })
 
-      expect(swiftObjectStorageHelpers.applyContainerQueryParams).toHaveBeenCalled()
+      expect(swiftHelpers.applyContainerQueryParams).toHaveBeenCalled()
     })
 
     it("should handle API error response", async () => {
@@ -250,7 +250,7 @@ describe("swiftObjectStorageRouter", () => {
 
       mockCtx.mockSwift.get.mockRejectedValue({ statusCode: 500, message: "Internal Server Error" })
 
-      await expect(caller.objectStorage.listContainers({ format: "json" })).rejects.toThrow()
+      await expect(caller.storage.swift.listContainers({ format: "json" })).rejects.toThrow()
     })
   })
 
@@ -259,12 +259,12 @@ describe("swiftObjectStorageRouter", () => {
       const mockCtx = createMockContext()
       const caller = createCaller(mockCtx)
 
-      ;(swiftObjectStorageHelpers.parseAccountInfo as Mock).mockReturnValue(mockAccountInfo)
+      ;(swiftHelpers.parseAccountInfo as Mock).mockReturnValue(mockAccountInfo)
 
-      const result = await caller.objectStorage.getAccountMetadata({})
+      const result = await caller.storage.swift.getAccountMetadata({})
 
       expect(mockCtx.mockSwift.head).toHaveBeenCalled()
-      expect(swiftObjectStorageHelpers.parseAccountInfo).toHaveBeenCalled()
+      expect(swiftHelpers.parseAccountInfo).toHaveBeenCalled()
       expect(result).toEqual(mockAccountInfo)
     })
 
@@ -272,9 +272,9 @@ describe("swiftObjectStorageRouter", () => {
       const mockCtx = createMockContext()
       const caller = createCaller(mockCtx)
 
-      ;(swiftObjectStorageHelpers.parseAccountInfo as Mock).mockReturnValue(mockAccountInfo)
+      ;(swiftHelpers.parseAccountInfo as Mock).mockReturnValue(mockAccountInfo)
 
-      await caller.objectStorage.getAccountMetadata({ xNewest: true })
+      await caller.storage.swift.getAccountMetadata({ xNewest: true })
 
       expect(mockCtx.mockSwift.head).toHaveBeenCalledWith(
         expect.any(String),
@@ -296,9 +296,9 @@ describe("swiftObjectStorageRouter", () => {
         metadata: { project: "new-project" },
       }
 
-      const result = await caller.objectStorage.updateAccountMetadata(input)
+      const result = await caller.storage.swift.updateAccountMetadata(input)
 
-      expect(swiftObjectStorageHelpers.buildAccountMetadataHeaders).toHaveBeenCalled()
+      expect(swiftHelpers.buildAccountMetadataHeaders).toHaveBeenCalled()
       expect(mockCtx.mockSwift.post).toHaveBeenCalled()
       expect(result).toBe(true)
     })
@@ -312,14 +312,9 @@ describe("swiftObjectStorageRouter", () => {
         removeMetadata: ["oldKey"],
       }
 
-      await caller.objectStorage.updateAccountMetadata(input)
+      await caller.storage.swift.updateAccountMetadata(input)
 
-      expect(swiftObjectStorageHelpers.buildAccountMetadataHeaders).toHaveBeenCalledWith(
-        {},
-        ["oldKey"],
-        undefined,
-        undefined
-      )
+      expect(swiftHelpers.buildAccountMetadataHeaders).toHaveBeenCalledWith({}, ["oldKey"], undefined, undefined)
     })
   })
 
@@ -328,7 +323,7 @@ describe("swiftObjectStorageRouter", () => {
       const mockCtx = createMockContext()
       const caller = createCaller(mockCtx)
 
-      const result = await caller.objectStorage.deleteAccount({})
+      const result = await caller.storage.swift.deleteAccount({})
 
       expect(mockCtx.mockSwift.del).toHaveBeenCalled()
       expect(result).toBe(true)
@@ -350,10 +345,10 @@ describe("swiftObjectStorageRouter", () => {
       })
 
       const input = { container: "test-container", format: "json" as const }
-      const result = await caller.objectStorage.listObjects(input)
+      const result = await caller.storage.swift.listObjects(input)
 
-      expect(swiftObjectStorageHelpers.validateSwiftService).toHaveBeenCalled()
-      expect(swiftObjectStorageHelpers.applyObjectQueryParams).toHaveBeenCalled()
+      expect(swiftHelpers.validateSwiftService).toHaveBeenCalled()
+      expect(swiftHelpers.applyObjectQueryParams).toHaveBeenCalled()
       expect(mockCtx.mockSwift.get).toHaveBeenCalled()
       expect(result).toEqual([mockObjectSummary])
     })
@@ -367,13 +362,13 @@ describe("swiftObjectStorageRouter", () => {
         json: vi.fn().mockResolvedValue([mockObjectSummary]),
       })
 
-      await caller.objectStorage.listObjects({
+      await caller.storage.swift.listObjects({
         container: "test-container",
         prefix: "logs/",
         format: "json",
       })
 
-      expect(swiftObjectStorageHelpers.applyObjectQueryParams).toHaveBeenCalled()
+      expect(swiftHelpers.applyObjectQueryParams).toHaveBeenCalled()
     })
   })
 
@@ -383,9 +378,9 @@ describe("swiftObjectStorageRouter", () => {
       const caller = createCaller(mockCtx)
 
       const input = { container: "new-container" }
-      const result = await caller.objectStorage.createContainer(input)
+      const result = await caller.storage.swift.createContainer(input)
 
-      expect(swiftObjectStorageHelpers.buildContainerMetadataHeaders).toHaveBeenCalled()
+      expect(swiftHelpers.buildContainerMetadataHeaders).toHaveBeenCalled()
       expect(mockCtx.mockSwift.put).toHaveBeenCalled()
       expect(result).toBe(true)
     })
@@ -399,9 +394,9 @@ describe("swiftObjectStorageRouter", () => {
         metadata: { project: "test" },
       }
 
-      await caller.objectStorage.createContainer(input)
+      await caller.storage.swift.createContainer(input)
 
-      expect(swiftObjectStorageHelpers.buildContainerMetadataHeaders).toHaveBeenCalledWith(
+      expect(swiftHelpers.buildContainerMetadataHeaders).toHaveBeenCalledWith(
         expect.objectContaining({
           metadata: { project: "test" },
         })
@@ -414,13 +409,13 @@ describe("swiftObjectStorageRouter", () => {
       const mockCtx = createMockContext()
       const caller = createCaller(mockCtx)
 
-      ;(swiftObjectStorageHelpers.parseContainerInfo as Mock).mockReturnValue(mockContainerInfo)
+      ;(swiftHelpers.parseContainerInfo as Mock).mockReturnValue(mockContainerInfo)
 
       const input = { container: "test-container" }
-      const result = await caller.objectStorage.getContainerMetadata(input)
+      const result = await caller.storage.swift.getContainerMetadata(input)
 
       expect(mockCtx.mockSwift.head).toHaveBeenCalled()
-      expect(swiftObjectStorageHelpers.parseContainerInfo).toHaveBeenCalled()
+      expect(swiftHelpers.parseContainerInfo).toHaveBeenCalled()
       expect(result).toEqual(mockContainerInfo)
     })
   })
@@ -435,9 +430,9 @@ describe("swiftObjectStorageRouter", () => {
         metadata: { environment: "production" },
       }
 
-      const result = await caller.objectStorage.updateContainerMetadata(input)
+      const result = await caller.storage.swift.updateContainerMetadata(input)
 
-      expect(swiftObjectStorageHelpers.buildContainerMetadataHeaders).toHaveBeenCalled()
+      expect(swiftHelpers.buildContainerMetadataHeaders).toHaveBeenCalled()
       expect(mockCtx.mockSwift.post).toHaveBeenCalled()
       expect(result).toBe(true)
     })
@@ -449,7 +444,7 @@ describe("swiftObjectStorageRouter", () => {
       const caller = createCaller(mockCtx)
 
       const input = { container: "test-container" }
-      const result = await caller.objectStorage.deleteContainer(input)
+      const result = await caller.storage.swift.deleteContainer(input)
 
       expect(mockCtx.mockSwift.del).toHaveBeenCalled()
       expect(result).toBe(true)
@@ -463,7 +458,7 @@ describe("swiftObjectStorageRouter", () => {
 
       const input = { container: "non-empty-container" }
 
-      await expect(caller.objectStorage.deleteContainer(input)).rejects.toThrow()
+      await expect(caller.storage.swift.deleteContainer(input)).rejects.toThrow()
     })
   })
 
@@ -485,10 +480,10 @@ describe("swiftObjectStorageRouter", () => {
         }),
         arrayBuffer: vi.fn().mockResolvedValue(mockBuffer),
       })
-      ;(swiftObjectStorageHelpers.parseObjectMetadata as Mock).mockReturnValue(mockObjectMetadata)
+      ;(swiftHelpers.parseObjectMetadata as Mock).mockReturnValue(mockObjectMetadata)
 
       const input = { container: "test-container", object: "test-object.txt" }
-      const result = await caller.objectStorage.getObject(input)
+      const result = await caller.storage.swift.getObject(input)
 
       expect(mockCtx.mockSwift.get).toHaveBeenCalled()
       expect(result.content).toEqual(mockBuffer)
@@ -505,9 +500,9 @@ describe("swiftObjectStorageRouter", () => {
         headers: new Headers(),
         arrayBuffer: vi.fn().mockResolvedValue(mockBuffer),
       })
-      ;(swiftObjectStorageHelpers.parseObjectMetadata as Mock).mockReturnValue(mockObjectMetadata)
+      ;(swiftHelpers.parseObjectMetadata as Mock).mockReturnValue(mockObjectMetadata)
 
-      await caller.objectStorage.getObject({
+      await caller.storage.swift.getObject({
         container: "test-container",
         object: "test-object.txt",
         range: "bytes=0-1023",
@@ -536,9 +531,9 @@ describe("swiftObjectStorageRouter", () => {
         content: buffer,
       }
 
-      const result = await caller.objectStorage.createObject(input)
+      const result = await caller.storage.swift.createObject(input)
 
-      expect(swiftObjectStorageHelpers.buildObjectMetadataHeaders).toHaveBeenCalled()
+      expect(swiftHelpers.buildObjectMetadataHeaders).toHaveBeenCalled()
       expect(mockCtx.mockSwift.put).toHaveBeenCalled()
       expect(result).toEqual(mockObjectMetadata)
     })
@@ -554,7 +549,7 @@ describe("swiftObjectStorageRouter", () => {
         content: base64Data,
       }
 
-      await caller.objectStorage.createObject(input)
+      await caller.storage.swift.createObject(input)
 
       expect(mockCtx.mockSwift.put).toHaveBeenCalled()
     })
@@ -570,9 +565,9 @@ describe("swiftObjectStorageRouter", () => {
         metadata: { author: "John" },
       }
 
-      await caller.objectStorage.createObject(input)
+      await caller.storage.swift.createObject(input)
 
-      expect(swiftObjectStorageHelpers.buildObjectMetadataHeaders).toHaveBeenCalledWith(
+      expect(swiftHelpers.buildObjectMetadataHeaders).toHaveBeenCalledWith(
         expect.objectContaining({
           metadata: { author: "John" },
         })
@@ -585,13 +580,13 @@ describe("swiftObjectStorageRouter", () => {
       const mockCtx = createMockContext()
       const caller = createCaller(mockCtx)
 
-      ;(swiftObjectStorageHelpers.parseObjectMetadata as Mock).mockReturnValue(mockObjectMetadata)
+      ;(swiftHelpers.parseObjectMetadata as Mock).mockReturnValue(mockObjectMetadata)
 
       const input = { container: "test-container", object: "test-object.txt" }
-      const result = await caller.objectStorage.getObjectMetadata(input)
+      const result = await caller.storage.swift.getObjectMetadata(input)
 
       expect(mockCtx.mockSwift.head).toHaveBeenCalled()
-      expect(swiftObjectStorageHelpers.parseObjectMetadata).toHaveBeenCalled()
+      expect(swiftHelpers.parseObjectMetadata).toHaveBeenCalled()
       expect(result).toEqual(mockObjectMetadata)
     })
   })
@@ -607,9 +602,9 @@ describe("swiftObjectStorageRouter", () => {
         metadata: { version: "2.0" },
       }
 
-      const result = await caller.objectStorage.updateObjectMetadata(input)
+      const result = await caller.storage.swift.updateObjectMetadata(input)
 
-      expect(swiftObjectStorageHelpers.buildObjectMetadataHeaders).toHaveBeenCalled()
+      expect(swiftHelpers.buildObjectMetadataHeaders).toHaveBeenCalled()
       expect(mockCtx.mockSwift.post).toHaveBeenCalled()
       expect(result).toBe(true)
     })
@@ -628,7 +623,7 @@ describe("swiftObjectStorageRouter", () => {
           ETag: "xyz789",
         }),
       })
-      ;(swiftObjectStorageHelpers.parseObjectMetadata as Mock).mockReturnValue(mockObjectMetadata)
+      ;(swiftHelpers.parseObjectMetadata as Mock).mockReturnValue(mockObjectMetadata)
 
       const input = {
         container: "source-container",
@@ -636,7 +631,7 @@ describe("swiftObjectStorageRouter", () => {
         destination: "/dest-container/dest-object.txt",
       }
 
-      const result = await caller.objectStorage.copyObject(input)
+      const result = await caller.storage.swift.copyObject(input)
 
       expect(mockCtx.mockSwift.put).toHaveBeenCalledWith(
         expect.stringContaining("dest-container/dest-object.txt"),
@@ -660,7 +655,7 @@ describe("swiftObjectStorageRouter", () => {
         destinationAccount: "AUTH_other",
       }
 
-      await caller.objectStorage.copyObject(input)
+      await caller.storage.swift.copyObject(input)
 
       expect(mockCtx.mockSwift.put).toHaveBeenCalledWith(
         expect.stringContaining("dest-object.txt"),
@@ -679,7 +674,7 @@ describe("swiftObjectStorageRouter", () => {
       const caller = createCaller(mockCtx)
 
       const input = { container: "test-container", object: "test-object.txt" }
-      const result = await caller.objectStorage.deleteObject(input)
+      const result = await caller.storage.swift.deleteObject(input)
 
       expect(mockCtx.mockSwift.del).toHaveBeenCalled()
       expect(result).toBe(true)
@@ -695,7 +690,7 @@ describe("swiftObjectStorageRouter", () => {
         multipartManifest: "delete" as const,
       }
 
-      await caller.objectStorage.deleteObject(input)
+      await caller.storage.swift.deleteObject(input)
 
       expect(mockCtx.mockSwift.del).toHaveBeenCalledWith(expect.stringContaining("multipart-manifest=delete"))
     })
@@ -723,7 +718,7 @@ describe("swiftObjectStorageRouter", () => {
         objects: ["/container/obj1.txt", "/container/obj2.txt", "/container/obj3.txt"],
       }
 
-      const result = await caller.objectStorage.bulkDelete(input)
+      const result = await caller.storage.swift.bulkDelete(input)
 
       expect(mockCtx.mockSwift.post).toHaveBeenCalledWith(expect.stringContaining("bulk-delete"), expect.any(Object))
       expect(result.numberDeleted).toBe(3)
@@ -748,7 +743,7 @@ describe("swiftObjectStorageRouter", () => {
         objects: ["/container/obj1.txt", "/container/obj2.txt", "/container/protected.txt"],
       }
 
-      const result = await caller.objectStorage.bulkDelete(input)
+      const result = await caller.storage.swift.bulkDelete(input)
 
       expect(result.numberDeleted).toBe(2)
       expect(result.errors).toHaveLength(1)
@@ -765,12 +760,12 @@ describe("swiftObjectStorageRouter", () => {
       const mockCtx = createMockContext()
       const caller = createCaller(mockCtx)
 
-      ;(swiftObjectStorageHelpers.normalizeFolderPath as Mock).mockReturnValue("test-folder/")
+      ;(swiftHelpers.normalizeFolderPath as Mock).mockReturnValue("test-folder/")
 
       const input = { container: "test-container", folderPath: "test-folder" }
-      const result = await caller.objectStorage.createFolder(input)
+      const result = await caller.storage.swift.createFolder(input)
 
-      expect(swiftObjectStorageHelpers.normalizeFolderPath).toHaveBeenCalledWith("test-folder")
+      expect(swiftHelpers.normalizeFolderPath).toHaveBeenCalledWith("test-folder")
       expect(mockCtx.mockSwift.put).toHaveBeenCalledWith(
         expect.stringContaining("test-container"),
         expect.objectContaining({
@@ -790,8 +785,8 @@ describe("swiftObjectStorageRouter", () => {
       const mockCtx = createMockContext()
       const caller = createCaller(mockCtx)
 
-      ;(swiftObjectStorageHelpers.normalizeFolderPath as Mock).mockReturnValue("folder/")
-      ;(swiftObjectStorageHelpers.isFolderMarker as Mock).mockReturnValue(false)
+      ;(swiftHelpers.normalizeFolderPath as Mock).mockReturnValue("folder/")
+      ;(swiftHelpers.isFolderMarker as Mock).mockReturnValue(false)
 
       mockCtx.mockSwift.get.mockResolvedValue({
         ok: true,
@@ -799,7 +794,7 @@ describe("swiftObjectStorageRouter", () => {
       })
 
       const input = { container: "test-container", folderPath: "folder" }
-      const result = await caller.objectStorage.listFolderContents(input)
+      const result = await caller.storage.swift.listFolderContents(input)
 
       expect(result.objects).toBeDefined()
       expect(result.folders).toBeDefined()
@@ -809,8 +804,8 @@ describe("swiftObjectStorageRouter", () => {
       const mockCtx = createMockContext()
       const caller = createCaller(mockCtx)
 
-      ;(swiftObjectStorageHelpers.normalizeFolderPath as Mock).mockReturnValue("")
-      ;(swiftObjectStorageHelpers.isFolderMarker as Mock).mockImplementation((name, bytes) => {
+      ;(swiftHelpers.normalizeFolderPath as Mock).mockReturnValue("")
+      ;(swiftHelpers.isFolderMarker as Mock).mockImplementation((name, bytes) => {
         return name.endsWith("/") && bytes === 0
       })
 
@@ -829,7 +824,7 @@ describe("swiftObjectStorageRouter", () => {
       })
 
       const input = { container: "test-container" }
-      const result = await caller.objectStorage.listFolderContents(input)
+      const result = await caller.storage.swift.listFolderContents(input)
 
       expect(result.folders.length).toBeGreaterThan(0)
       expect(result.objects.length).toBeGreaterThan(0)
@@ -841,9 +836,7 @@ describe("swiftObjectStorageRouter", () => {
       const mockCtx = createMockContext()
       const caller = createCaller(mockCtx)
 
-      ;(swiftObjectStorageHelpers.normalizeFolderPath as Mock)
-        .mockReturnValueOnce("old-folder/")
-        .mockReturnValueOnce("new-folder/")
+      ;(swiftHelpers.normalizeFolderPath as Mock).mockReturnValueOnce("old-folder/").mockReturnValueOnce("new-folder/")
 
       mockCtx.mockSwift.get.mockResolvedValue({
         ok: true,
@@ -859,7 +852,7 @@ describe("swiftObjectStorageRouter", () => {
         destinationPath: "new-folder",
       }
 
-      const result = await caller.objectStorage.moveFolder(input)
+      const result = await caller.storage.swift.moveFolder(input)
 
       expect(result).toBeGreaterThan(0)
       expect(mockCtx.mockSwift.put).toHaveBeenCalled() // For copies
@@ -872,7 +865,7 @@ describe("swiftObjectStorageRouter", () => {
       const mockCtx = createMockContext()
       const caller = createCaller(mockCtx)
 
-      ;(swiftObjectStorageHelpers.normalizeFolderPath as Mock).mockReturnValue("folder/")
+      ;(swiftHelpers.normalizeFolderPath as Mock).mockReturnValue("folder/")
 
       mockCtx.mockSwift.get.mockResolvedValue({
         ok: true,
@@ -892,7 +885,7 @@ describe("swiftObjectStorageRouter", () => {
       })
 
       const input = { container: "test-container", folderPath: "folder" }
-      const result = await caller.objectStorage.deleteFolder(input)
+      const result = await caller.storage.swift.deleteFolder(input)
 
       expect(result).toBe(2)
       expect(mockCtx.mockSwift.post).toHaveBeenCalledWith(expect.stringContaining("bulk-delete"), expect.any(Object))
@@ -922,10 +915,10 @@ describe("swiftObjectStorageRouter", () => {
         expiresIn: 3600,
       }
 
-      const result = await caller.objectStorage.generateTempUrl(input)
+      const result = await caller.storage.swift.generateTempUrl(input)
 
-      expect(swiftObjectStorageHelpers.generateTempUrlSignature).toHaveBeenCalled()
-      expect(swiftObjectStorageHelpers.constructTempUrl).toHaveBeenCalled()
+      expect(swiftHelpers.generateTempUrlSignature).toHaveBeenCalled()
+      expect(swiftHelpers.constructTempUrl).toHaveBeenCalled()
       expect(result.url).toBeDefined()
       expect(result.expiresAt).toBeDefined()
     })
@@ -946,7 +939,7 @@ describe("swiftObjectStorageRouter", () => {
         expiresIn: 3600,
       }
 
-      await expect(caller.objectStorage.generateTempUrl(input)).rejects.toThrow(
+      await expect(caller.storage.swift.generateTempUrl(input)).rejects.toThrow(
         new TRPCError({
           code: "BAD_REQUEST",
           message: "Temp URL key not configured for this account or container",
@@ -964,14 +957,14 @@ describe("swiftObjectStorageRouter", () => {
       const mockCtx = createMockContext(false, true)
       const caller = createCaller(mockCtx)
 
-      ;(swiftObjectStorageHelpers.validateSwiftService as Mock).mockImplementation(() => {
+      ;(swiftHelpers.validateSwiftService as Mock).mockImplementation(() => {
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "Failed to initialize OpenStack Swift (Object Storage) service",
         })
       })
 
-      await expect(caller.objectStorage.listContainers({ format: "json" })).rejects.toThrow(
+      await expect(caller.storage.swift.listContainers({ format: "json" })).rejects.toThrow(
         "Failed to initialize OpenStack Swift (Object Storage) service"
       )
     })
@@ -982,7 +975,7 @@ describe("swiftObjectStorageRouter", () => {
 
       mockCtx.mockSwift.get.mockRejectedValue(new Error("Network timeout"))
 
-      await expect(caller.objectStorage.listContainers({ format: "json" })).rejects.toThrow()
+      await expect(caller.storage.swift.listContainers({ format: "json" })).rejects.toThrow()
     })
 
     it("should handle 404 not found errors", async () => {
@@ -992,7 +985,7 @@ describe("swiftObjectStorageRouter", () => {
       const mockError = { statusCode: 404, message: "Not Found" }
       mockCtx.mockSwift.get.mockRejectedValue(mockError)
 
-      await expect(caller.objectStorage.getObject({ container: "test", object: "missing.txt" })).rejects.toThrow()
+      await expect(caller.storage.swift.getObject({ container: "test", object: "missing.txt" })).rejects.toThrow()
     })
   })
 })

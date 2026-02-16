@@ -2,12 +2,12 @@ import { useState, startTransition } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { ListToolbar } from "@/client/components/ListToolbar"
 import { SortSettings } from "@/client/components/ListToolbar/types"
-import { ContainerSummary } from "@/server/Storage/types/swiftObjectStorage"
+import { ContainerSummary } from "@/server/Storage/types/swift"
 import { trpcReact } from "@/client/trpcClient"
 import { Spinner, Stack } from "@cloudoperators/juno-ui-components"
 import { ContainerListView } from "./-components/ContainerListView"
 
-export const ObjectStorage = () => {
+export const SwiftObjectStorage = () => {
   const { t } = useLingui()
 
   const [sortSettings, setSortSettings] = useState<SortSettings>({
@@ -28,7 +28,7 @@ export const ObjectStorage = () => {
     data: containers,
     isLoading,
     error,
-  } = trpcReact.objectStorage.listContainers.useQuery({
+  } = trpcReact.storage.swift.listContainers.useQuery({
     format: "json",
   })
 

@@ -1,12 +1,6 @@
 import { TRPCError } from "@trpc/server"
 import { ZodError } from "zod"
-import {
-  ListContainersInput,
-  ListObjectsInput,
-  AccountInfo,
-  ContainerInfo,
-  ObjectMetadata,
-} from "../types/swiftObjectStorage"
+import { ListContainersInput, ListObjectsInput, AccountInfo, ContainerInfo, ObjectMetadata } from "../types/swift"
 import { SignalOpenstackApiError } from "@cobaltcore-dev/signal-openstack"
 
 /**

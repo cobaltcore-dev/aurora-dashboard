@@ -2,7 +2,7 @@ import { useRef, useEffect, useState } from "react"
 import { useVirtualizer } from "@tanstack/react-virtual"
 import { DataGrid, DataGridHeadCell, DataGridRow, DataGridCell } from "@cloudoperators/juno-ui-components"
 import { Trans, useLingui } from "@lingui/react/macro"
-import { ContainerSummary } from "@/server/Storage/types/swiftObjectStorage"
+import { ContainerSummary } from "@/server/Storage/types/swift"
 
 interface ContainerListViewProps {
   containers: ContainerSummary[]
