@@ -1,17 +1,17 @@
 import { describe, it, expect } from "vitest"
 import {
-  FloatingIPStatusSchema,
+  FloatingIpStatusSchema,
   PortDetailsSchema,
   PortForwardingSchema,
-  FloatingIPSchema,
-  FloatingIPsResponseSchema,
-  FloatingIPsQueryParametersSchema,
+  FloatingIpSchema,
+  FloatingIpResponseSchema,
+  FloatingIpQueryParametersSchema,
   ISO8601TimestampSchema,
 } from "./floatingIp"
 
 describe("OpenStack Floating IP Schema Validation", () => {
   // Minimal valid objects
-  const minimalValidFloatingIP = {
+  const minimalValidFloatingIp = {
     id: "fip-123",
     router_id: null,
     revision_number: 1,
@@ -63,7 +63,7 @@ describe("OpenStack Floating IP Schema Validation", () => {
     description: "Port forwarding for app server",
   }
 
-  const completeValidFloatingIP = {
+  const completeValidFloatingIp = {
     id: "fip-456",
     router_id: "router-1",
     description: "Production floating IP",
@@ -103,23 +103,23 @@ describe("OpenStack Floating IP Schema Validation", () => {
     })
   })
 
-  describe("FloatingIPStatusSchema", () => {
+  describe("FloatingIpStatusSchema", () => {
     it("should validate ACTIVE status", () => {
-      expect(FloatingIPStatusSchema.safeParse("ACTIVE").success).toBe(true)
+      expect(FloatingIpStatusSchema.safeParse("ACTIVE").success).toBe(true)
     })
 
     it("should validate DOWN status", () => {
-      expect(FloatingIPStatusSchema.safeParse("DOWN").success).toBe(true)
+      expect(FloatingIpStatusSchema.safeParse("DOWN").success).toBe(true)
     })
 
     it("should validate ERROR status", () => {
-      expect(FloatingIPStatusSchema.safeParse("ERROR").success).toBe(true)
+      expect(FloatingIpStatusSchema.safeParse("ERROR").success).toBe(true)
     })
 
     it("should reject invalid status", () => {
-      expect(FloatingIPStatusSchema.safeParse("INVALID").success).toBe(false)
-      expect(FloatingIPStatusSchema.safeParse("active").success).toBe(false)
-      expect(FloatingIPStatusSchema.safeParse("").success).toBe(false)
+      expect(FloatingIpStatusSchema.safeParse("INVALID").success).toBe(false)
+      expect(FloatingIpStatusSchema.safeParse("active").success).toBe(false)
+      expect(FloatingIpStatusSchema.safeParse("").success).toBe(false)
     })
   })
 
@@ -215,24 +215,24 @@ describe("OpenStack Floating IP Schema Validation", () => {
     })
   })
 
-  describe("FloatingIPSchema", () => {
+  describe("FloatingIpSchema", () => {
     it("should validate a minimal valid floating IP", () => {
-      expect(FloatingIPSchema.safeParse(minimalValidFloatingIP).success).toBe(true)
+      expect(FloatingIpSchema.safeParse(minimalValidFloatingIp).success).toBe(true)
     })
 
     it("should validate a complete valid floating IP", () => {
-      expect(FloatingIPSchema.safeParse(completeValidFloatingIP).success).toBe(true)
+      expect(FloatingIpSchema.safeParse(completeValidFloatingIp).success).toBe(true)
     })
 
     it("should reject floating IP without required fields", () => {
-      const result = FloatingIPSchema.safeParse({ id: "fip-1" })
+      const result = FloatingIpSchema.safeParse({ id: "fip-1" })
       expect(result.success).toBe(false)
     })
 
     it("should reject floating IP without id", () => {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { id, ...withoutId } = minimalValidFloatingIP
-      const result = FloatingIPSchema.safeParse(withoutId)
+      const { id, ...withoutId } = minimalValidFloatingIp
+      const result = FloatingIpSchema.safeParse(withoutId)
       expect(result.success).toBe(false)
       if (!result.success) {
         expect(result.error.issues.some((issue) => issue.path.includes("id"))).toBe(true)
@@ -240,194 +240,194 @@ describe("OpenStack Floating IP Schema Validation", () => {
     })
 
     it("should validate null for nullable router_id", () => {
-      expect(FloatingIPSchema.safeParse({ ...minimalValidFloatingIP, router_id: null }).success).toBe(true)
-      expect(FloatingIPSchema.safeParse({ ...minimalValidFloatingIP, router_id: "router-1" }).success).toBe(true)
+      expect(FloatingIpSchema.safeParse({ ...minimalValidFloatingIp, router_id: null }).success).toBe(true)
+      expect(FloatingIpSchema.safeParse({ ...minimalValidFloatingIp, router_id: "router-1" }).success).toBe(true)
     })
 
     it("should validate null for nullable fixed_ip_address", () => {
-      expect(FloatingIPSchema.safeParse({ ...minimalValidFloatingIP, fixed_ip_address: null }).success).toBe(true)
-      expect(FloatingIPSchema.safeParse({ ...minimalValidFloatingIP, fixed_ip_address: "10.0.0.5" }).success).toBe(true)
+      expect(FloatingIpSchema.safeParse({ ...minimalValidFloatingIp, fixed_ip_address: null }).success).toBe(true)
+      expect(FloatingIpSchema.safeParse({ ...minimalValidFloatingIp, fixed_ip_address: "10.0.0.5" }).success).toBe(true)
     })
 
     it("should validate null for nullable port_id", () => {
-      expect(FloatingIPSchema.safeParse({ ...minimalValidFloatingIP, port_id: null }).success).toBe(true)
-      expect(FloatingIPSchema.safeParse({ ...minimalValidFloatingIP, port_id: "port-123" }).success).toBe(true)
+      expect(FloatingIpSchema.safeParse({ ...minimalValidFloatingIp, port_id: null }).success).toBe(true)
+      expect(FloatingIpSchema.safeParse({ ...minimalValidFloatingIp, port_id: "port-123" }).success).toBe(true)
     })
 
     it("should validate null for nullable port_details", () => {
-      expect(FloatingIPSchema.safeParse({ ...minimalValidFloatingIP, port_details: null }).success).toBe(true)
+      expect(FloatingIpSchema.safeParse({ ...minimalValidFloatingIp, port_details: null }).success).toBe(true)
       expect(
-        FloatingIPSchema.safeParse({ ...minimalValidFloatingIP, port_details: minimalValidPortDetails }).success
+        FloatingIpSchema.safeParse({ ...minimalValidFloatingIp, port_details: minimalValidPortDetails }).success
       ).toBe(true)
     })
 
     it("should allow port_details to be omitted (optional)", () => {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { port_details: _portDetails, ...withoutPortDetails } = { ...minimalValidFloatingIP, port_details: null }
-      expect(FloatingIPSchema.safeParse(withoutPortDetails).success).toBe(true)
+      const { port_details: _portDetails, ...withoutPortDetails } = { ...minimalValidFloatingIp, port_details: null }
+      expect(FloatingIpSchema.safeParse(withoutPortDetails).success).toBe(true)
     })
 
     it("should validate null and undefined for nullable/optional description", () => {
-      expect(FloatingIPSchema.safeParse({ ...minimalValidFloatingIP, description: null }).success).toBe(true)
-      expect(FloatingIPSchema.safeParse({ ...minimalValidFloatingIP, description: "Test FIP" }).success).toBe(true)
+      expect(FloatingIpSchema.safeParse({ ...minimalValidFloatingIp, description: null }).success).toBe(true)
+      expect(FloatingIpSchema.safeParse({ ...minimalValidFloatingIp, description: "Test FIP" }).success).toBe(true)
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { description: _description, ...withoutDescription } = { ...minimalValidFloatingIP, description: null }
-      expect(FloatingIPSchema.safeParse(withoutDescription).success).toBe(true)
+      const { description: _description, ...withoutDescription } = { ...minimalValidFloatingIp, description: null }
+      expect(FloatingIpSchema.safeParse(withoutDescription).success).toBe(true)
     })
 
     it("should validate all status values", () => {
-      expect(FloatingIPSchema.safeParse({ ...minimalValidFloatingIP, status: "ACTIVE" }).success).toBe(true)
-      expect(FloatingIPSchema.safeParse({ ...minimalValidFloatingIP, status: "DOWN" }).success).toBe(true)
-      expect(FloatingIPSchema.safeParse({ ...minimalValidFloatingIP, status: "ERROR" }).success).toBe(true)
+      expect(FloatingIpSchema.safeParse({ ...minimalValidFloatingIp, status: "ACTIVE" }).success).toBe(true)
+      expect(FloatingIpSchema.safeParse({ ...minimalValidFloatingIp, status: "DOWN" }).success).toBe(true)
+      expect(FloatingIpSchema.safeParse({ ...minimalValidFloatingIp, status: "ERROR" }).success).toBe(true)
     })
 
     it("should validate empty arrays for tags and port_forwardings", () => {
-      expect(FloatingIPSchema.safeParse({ ...minimalValidFloatingIP, tags: [] }).success).toBe(true)
-      expect(FloatingIPSchema.safeParse({ ...minimalValidFloatingIP, port_forwardings: [] }).success).toBe(true)
+      expect(FloatingIpSchema.safeParse({ ...minimalValidFloatingIp, tags: [] }).success).toBe(true)
+      expect(FloatingIpSchema.safeParse({ ...minimalValidFloatingIp, port_forwardings: [] }).success).toBe(true)
     })
 
     it("should allow tags to be omitted (optional)", () => {
-      const withoutTags = { ...minimalValidFloatingIP }
-      expect(FloatingIPSchema.safeParse(withoutTags).success).toBe(true)
+      const withoutTags = { ...minimalValidFloatingIp }
+      expect(FloatingIpSchema.safeParse(withoutTags).success).toBe(true)
     })
 
     it("should validate nullish values for port_forwardings", () => {
-      expect(FloatingIPSchema.safeParse({ ...minimalValidFloatingIP, port_forwardings: null }).success).toBe(true)
-      expect(FloatingIPSchema.safeParse({ ...minimalValidFloatingIP, port_forwardings: undefined }).success).toBe(true)
-      const withoutPortForwardings = { ...minimalValidFloatingIP }
-      expect(FloatingIPSchema.safeParse(withoutPortForwardings).success).toBe(true)
+      expect(FloatingIpSchema.safeParse({ ...minimalValidFloatingIp, port_forwardings: null }).success).toBe(true)
+      expect(FloatingIpSchema.safeParse({ ...minimalValidFloatingIp, port_forwardings: undefined }).success).toBe(true)
+      const withoutPortForwardings = { ...minimalValidFloatingIp }
+      expect(FloatingIpSchema.safeParse(withoutPortForwardings).success).toBe(true)
     })
 
     it("should validate tags array with multiple values", () => {
-      expect(FloatingIPSchema.safeParse({ ...minimalValidFloatingIP, tags: ["tag1", "tag2", "tag3"] }).success).toBe(
+      expect(FloatingIpSchema.safeParse({ ...minimalValidFloatingIp, tags: ["tag1", "tag2", "tag3"] }).success).toBe(
         true
       )
     })
 
     it("should validate port_forwardings array with multiple rules", () => {
       expect(
-        FloatingIPSchema.safeParse({
-          ...minimalValidFloatingIP,
+        FloatingIpSchema.safeParse({
+          ...minimalValidFloatingIp,
           port_forwardings: [minimalValidPortForwarding, completeValidPortForwarding],
         }).success
       ).toBe(true)
     })
 
     it("should validate optional distributed field", () => {
-      expect(FloatingIPSchema.safeParse({ ...minimalValidFloatingIP, distributed: true }).success).toBe(true)
-      expect(FloatingIPSchema.safeParse({ ...minimalValidFloatingIP, distributed: false }).success).toBe(true)
+      expect(FloatingIpSchema.safeParse({ ...minimalValidFloatingIp, distributed: true }).success).toBe(true)
+      expect(FloatingIpSchema.safeParse({ ...minimalValidFloatingIp, distributed: false }).success).toBe(true)
     })
 
     it("should validate optional DNS fields", () => {
-      expect(FloatingIPSchema.safeParse({ ...minimalValidFloatingIP, dns_domain: "example.com." }).success).toBe(true)
-      expect(FloatingIPSchema.safeParse({ ...minimalValidFloatingIP, dns_name: "server1" }).success).toBe(true)
+      expect(FloatingIpSchema.safeParse({ ...minimalValidFloatingIp, dns_domain: "example.com." }).success).toBe(true)
+      expect(FloatingIpSchema.safeParse({ ...minimalValidFloatingIp, dns_name: "server1" }).success).toBe(true)
     })
 
     it("should validate optional timestamp fields", () => {
       expect(
-        FloatingIPSchema.safeParse({ ...minimalValidFloatingIP, created_at: "2025-01-15T10:00:00Z" }).success
+        FloatingIpSchema.safeParse({ ...minimalValidFloatingIp, created_at: "2025-01-15T10:00:00Z" }).success
       ).toBe(true)
       expect(
-        FloatingIPSchema.safeParse({ ...minimalValidFloatingIP, updated_at: "2025-01-15T11:00:00Z" }).success
+        FloatingIpSchema.safeParse({ ...minimalValidFloatingIp, updated_at: "2025-01-15T11:00:00Z" }).success
       ).toBe(true)
     })
 
     it("should validate optional QoS fields", () => {
-      expect(FloatingIPSchema.safeParse({ ...minimalValidFloatingIP, qos_policy_id: "qos-1" }).success).toBe(true)
+      expect(FloatingIpSchema.safeParse({ ...minimalValidFloatingIp, qos_policy_id: "qos-1" }).success).toBe(true)
       expect(
-        FloatingIPSchema.safeParse({ ...minimalValidFloatingIP, qos_network_policy_id: "qos-net-1" }).success
+        FloatingIpSchema.safeParse({ ...minimalValidFloatingIp, qos_network_policy_id: "qos-net-1" }).success
       ).toBe(true)
     })
 
     it("should validate revision_number as number", () => {
-      expect(FloatingIPSchema.safeParse({ ...minimalValidFloatingIP, revision_number: 0 }).success).toBe(true)
-      expect(FloatingIPSchema.safeParse({ ...minimalValidFloatingIP, revision_number: 100 }).success).toBe(true)
+      expect(FloatingIpSchema.safeParse({ ...minimalValidFloatingIp, revision_number: 0 }).success).toBe(true)
+      expect(FloatingIpSchema.safeParse({ ...minimalValidFloatingIp, revision_number: 100 }).success).toBe(true)
     })
 
     it("should validate floating IP with associated port and fixed IP", () => {
       const associated = {
-        ...minimalValidFloatingIP,
+        ...minimalValidFloatingIp,
         router_id: "router-1",
         port_id: "port-123",
         fixed_ip_address: "10.0.0.5",
         port_details: minimalValidPortDetails,
       }
-      expect(FloatingIPSchema.safeParse(associated).success).toBe(true)
+      expect(FloatingIpSchema.safeParse(associated).success).toBe(true)
     })
 
     it("should validate floating IP in different states", () => {
       // Unassociated floating IP
       const unassociated = {
-        ...minimalValidFloatingIP,
+        ...minimalValidFloatingIp,
         router_id: null,
         port_id: null,
         fixed_ip_address: null,
         port_details: null,
         status: "DOWN" as const,
       }
-      expect(FloatingIPSchema.safeParse(unassociated).success).toBe(true)
+      expect(FloatingIpSchema.safeParse(unassociated).success).toBe(true)
 
       // Associated floating IP
       const associated = {
-        ...minimalValidFloatingIP,
+        ...minimalValidFloatingIp,
         router_id: "router-1",
         port_id: "port-123",
         fixed_ip_address: "10.0.0.5",
         status: "ACTIVE" as const,
       }
-      expect(FloatingIPSchema.safeParse(associated).success).toBe(true)
+      expect(FloatingIpSchema.safeParse(associated).success).toBe(true)
 
       // Error state floating IP
       const errorState = {
-        ...minimalValidFloatingIP,
+        ...minimalValidFloatingIp,
         status: "ERROR" as const,
       }
-      expect(FloatingIPSchema.safeParse(errorState).success).toBe(true)
+      expect(FloatingIpSchema.safeParse(errorState).success).toBe(true)
     })
   })
 
-  describe("FloatingIPsResponseSchema", () => {
+  describe("FloatingIpResponseSchema", () => {
     it("should validate list response with one floating IP", () => {
-      expect(FloatingIPsResponseSchema.safeParse({ floatingips: [minimalValidFloatingIP] }).success).toBe(true)
+      expect(FloatingIpResponseSchema.safeParse({ floatingips: [minimalValidFloatingIp] }).success).toBe(true)
     })
 
     it("should validate list response with multiple floating IPs", () => {
       expect(
-        FloatingIPsResponseSchema.safeParse({
-          floatingips: [minimalValidFloatingIP, completeValidFloatingIP],
+        FloatingIpResponseSchema.safeParse({
+          floatingips: [minimalValidFloatingIp, completeValidFloatingIp],
         }).success
       ).toBe(true)
     })
 
     it("should validate empty floatingips array", () => {
-      expect(FloatingIPsResponseSchema.safeParse({ floatingips: [] }).success).toBe(true)
+      expect(FloatingIpResponseSchema.safeParse({ floatingips: [] }).success).toBe(true)
     })
 
     it("should reject response without floatingips key", () => {
-      expect(FloatingIPsResponseSchema.safeParse({}).success).toBe(false)
+      expect(FloatingIpResponseSchema.safeParse({}).success).toBe(false)
     })
 
     it("should reject response with null floatingips", () => {
-      expect(FloatingIPsResponseSchema.safeParse({ floatingips: null }).success).toBe(false)
+      expect(FloatingIpResponseSchema.safeParse({ floatingips: null }).success).toBe(false)
     })
 
     it("should reject response with invalid floating IP in array", () => {
-      const result = FloatingIPsResponseSchema.safeParse({
+      const result = FloatingIpResponseSchema.safeParse({
         floatingips: [{ id: "fip-1" }], // Missing required fields
       })
       expect(result.success).toBe(false)
     })
   })
 
-  describe("FloatingIPsQueryParametersSchema", () => {
+  describe("FloatingIpQueryParametersSchema", () => {
     it("should validate empty query parameters (all optional)", () => {
-      expect(FloatingIPsQueryParametersSchema.safeParse({}).success).toBe(true)
+      expect(FloatingIpQueryParametersSchema.safeParse({}).success).toBe(true)
     })
 
     it("should validate query with single filter", () => {
-      expect(FloatingIPsQueryParametersSchema.safeParse({ id: "fip-123" }).success).toBe(true)
-      expect(FloatingIPsQueryParametersSchema.safeParse({ floating_ip_address: "203.0.113.10" }).success).toBe(true)
-      expect(FloatingIPsQueryParametersSchema.safeParse({ status: "ACTIVE" }).success).toBe(true)
+      expect(FloatingIpQueryParametersSchema.safeParse({ id: "fip-123" }).success).toBe(true)
+      expect(FloatingIpQueryParametersSchema.safeParse({ floating_ip_address: "203.0.113.10" }).success).toBe(true)
+      expect(FloatingIpQueryParametersSchema.safeParse({ status: "ACTIVE" }).success).toBe(true)
     })
 
     it("should validate query with multiple filters", () => {
@@ -436,26 +436,26 @@ describe("OpenStack Floating IP Schema Validation", () => {
         floating_network_id: "net-external-1",
         status: "ACTIVE" as const,
       }
-      expect(FloatingIPsQueryParametersSchema.safeParse(query).success).toBe(true)
+      expect(FloatingIpQueryParametersSchema.safeParse(query).success).toBe(true)
     })
 
     it("should validate nullable router_id filter", () => {
-      expect(FloatingIPsQueryParametersSchema.safeParse({ router_id: null }).success).toBe(true)
-      expect(FloatingIPsQueryParametersSchema.safeParse({ router_id: "router-1" }).success).toBe(true)
+      expect(FloatingIpQueryParametersSchema.safeParse({ router_id: null }).success).toBe(true)
+      expect(FloatingIpQueryParametersSchema.safeParse({ router_id: "router-1" }).success).toBe(true)
     })
 
     it("should validate nullable port_id filter", () => {
-      expect(FloatingIPsQueryParametersSchema.safeParse({ port_id: null }).success).toBe(true)
-      expect(FloatingIPsQueryParametersSchema.safeParse({ port_id: "port-123" }).success).toBe(true)
+      expect(FloatingIpQueryParametersSchema.safeParse({ port_id: null }).success).toBe(true)
+      expect(FloatingIpQueryParametersSchema.safeParse({ port_id: "port-123" }).success).toBe(true)
     })
 
     it("should validate sort parameters", () => {
-      expect(FloatingIPsQueryParametersSchema.safeParse({ sort_dir: "asc" }).success).toBe(true)
-      expect(FloatingIPsQueryParametersSchema.safeParse({ sort_dir: "desc" }).success).toBe(true)
+      expect(FloatingIpQueryParametersSchema.safeParse({ sort_dir: "asc" }).success).toBe(true)
+      expect(FloatingIpQueryParametersSchema.safeParse({ sort_dir: "desc" }).success).toBe(true)
     })
 
     it("should reject invalid sort_dir", () => {
-      expect(FloatingIPsQueryParametersSchema.safeParse({ sort_dir: "invalid" }).success).toBe(false)
+      expect(FloatingIpQueryParametersSchema.safeParse({ sort_dir: "invalid" }).success).toBe(false)
     })
 
     it("should validate all sort_key options", () => {
@@ -470,38 +470,38 @@ describe("OpenStack Floating IP Schema Validation", () => {
         "project_id",
       ]
       validSortKeys.forEach((key) => {
-        expect(FloatingIPsQueryParametersSchema.safeParse({ sort_key: key }).success).toBe(true)
+        expect(FloatingIpQueryParametersSchema.safeParse({ sort_key: key }).success).toBe(true)
       })
     })
 
     it("should reject invalid sort_key", () => {
-      expect(FloatingIPsQueryParametersSchema.safeParse({ sort_key: "invalid_key" }).success).toBe(false)
+      expect(FloatingIpQueryParametersSchema.safeParse({ sort_key: "invalid_key" }).success).toBe(false)
     })
 
     it("should validate tag filters", () => {
-      expect(FloatingIPsQueryParametersSchema.safeParse({ tags: ["tag1", "tag2"] }).success).toBe(true)
-      expect(FloatingIPsQueryParametersSchema.safeParse({ "tags-any": "tag1,tag2" }).success).toBe(true)
-      expect(FloatingIPsQueryParametersSchema.safeParse({ "not-tags": "tag1,tag2" }).success).toBe(true)
-      expect(FloatingIPsQueryParametersSchema.safeParse({ "not-tags-any": "tag1,tag2" }).success).toBe(true)
+      expect(FloatingIpQueryParametersSchema.safeParse({ tags: ["tag1", "tag2"] }).success).toBe(true)
+      expect(FloatingIpQueryParametersSchema.safeParse({ "tags-any": "tag1,tag2" }).success).toBe(true)
+      expect(FloatingIpQueryParametersSchema.safeParse({ "not-tags": "tag1,tag2" }).success).toBe(true)
+      expect(FloatingIpQueryParametersSchema.safeParse({ "not-tags-any": "tag1,tag2" }).success).toBe(true)
     })
 
     it("should validate tags as array of strings", () => {
-      expect(FloatingIPsQueryParametersSchema.safeParse({ tags: [] }).success).toBe(true)
-      expect(FloatingIPsQueryParametersSchema.safeParse({ tags: ["production"] }).success).toBe(true)
-      expect(FloatingIPsQueryParametersSchema.safeParse({ tags: ["prod", "web", "critical"] }).success).toBe(true)
+      expect(FloatingIpQueryParametersSchema.safeParse({ tags: [] }).success).toBe(true)
+      expect(FloatingIpQueryParametersSchema.safeParse({ tags: ["production"] }).success).toBe(true)
+      expect(FloatingIpQueryParametersSchema.safeParse({ tags: ["prod", "web", "critical"] }).success).toBe(true)
     })
 
     it("should validate nullable description filter", () => {
-      expect(FloatingIPsQueryParametersSchema.safeParse({ description: null }).success).toBe(true)
-      expect(FloatingIPsQueryParametersSchema.safeParse({ description: "Test" }).success).toBe(true)
+      expect(FloatingIpQueryParametersSchema.safeParse({ description: null }).success).toBe(true)
+      expect(FloatingIpQueryParametersSchema.safeParse({ description: "Test" }).success).toBe(true)
     })
 
     it("should validate fields parameter as string", () => {
-      expect(FloatingIPsQueryParametersSchema.safeParse({ fields: "id,floating_ip_address" }).success).toBe(true)
+      expect(FloatingIpQueryParametersSchema.safeParse({ fields: "id,floating_ip_address" }).success).toBe(true)
     })
 
     it("should validate fields parameter as array", () => {
-      expect(FloatingIPsQueryParametersSchema.safeParse({ fields: ["id", "floating_ip_address"] }).success).toBe(true)
+      expect(FloatingIpQueryParametersSchema.safeParse({ fields: ["id", "floating_ip_address"] }).success).toBe(true)
     })
 
     it("should validate pagination parameters", () => {
@@ -510,12 +510,12 @@ describe("OpenStack Floating IP Schema Validation", () => {
         marker: "fip-last",
         page_reverse: false,
       }
-      expect(FloatingIPsQueryParametersSchema.safeParse(query).success).toBe(true)
+      expect(FloatingIpQueryParametersSchema.safeParse(query).success).toBe(true)
     })
 
     it("should validate page_reverse as boolean", () => {
-      expect(FloatingIPsQueryParametersSchema.safeParse({ page_reverse: true }).success).toBe(true)
-      expect(FloatingIPsQueryParametersSchema.safeParse({ page_reverse: false }).success).toBe(true)
+      expect(FloatingIpQueryParametersSchema.safeParse({ page_reverse: true }).success).toBe(true)
+      expect(FloatingIpQueryParametersSchema.safeParse({ page_reverse: false }).success).toBe(true)
     })
 
     it("should validate complete query with all parameters", () => {
@@ -542,33 +542,33 @@ describe("OpenStack Floating IP Schema Validation", () => {
         marker: "fip-marker",
         page_reverse: false,
       }
-      expect(FloatingIPsQueryParametersSchema.safeParse(query).success).toBe(true)
+      expect(FloatingIpQueryParametersSchema.safeParse(query).success).toBe(true)
     })
 
     it("should validate status filter with all valid values", () => {
-      expect(FloatingIPsQueryParametersSchema.safeParse({ status: "ACTIVE" }).success).toBe(true)
-      expect(FloatingIPsQueryParametersSchema.safeParse({ status: "DOWN" }).success).toBe(true)
-      expect(FloatingIPsQueryParametersSchema.safeParse({ status: "ERROR" }).success).toBe(true)
+      expect(FloatingIpQueryParametersSchema.safeParse({ status: "ACTIVE" }).success).toBe(true)
+      expect(FloatingIpQueryParametersSchema.safeParse({ status: "DOWN" }).success).toBe(true)
+      expect(FloatingIpQueryParametersSchema.safeParse({ status: "ERROR" }).success).toBe(true)
     })
 
     it("should reject invalid status filter", () => {
-      expect(FloatingIPsQueryParametersSchema.safeParse({ status: "INVALID" }).success).toBe(false)
+      expect(FloatingIpQueryParametersSchema.safeParse({ status: "INVALID" }).success).toBe(false)
     })
 
     it("should validate revision_number as number", () => {
-      expect(FloatingIPsQueryParametersSchema.safeParse({ revision_number: 0 }).success).toBe(true)
-      expect(FloatingIPsQueryParametersSchema.safeParse({ revision_number: 999 }).success).toBe(true)
+      expect(FloatingIpQueryParametersSchema.safeParse({ revision_number: 0 }).success).toBe(true)
+      expect(FloatingIpQueryParametersSchema.safeParse({ revision_number: 999 }).success).toBe(true)
     })
 
     it("should validate limit as number", () => {
-      expect(FloatingIPsQueryParametersSchema.safeParse({ limit: 1 }).success).toBe(true)
-      expect(FloatingIPsQueryParametersSchema.safeParse({ limit: 1000 }).success).toBe(true)
+      expect(FloatingIpQueryParametersSchema.safeParse({ limit: 1 }).success).toBe(true)
+      expect(FloatingIpQueryParametersSchema.safeParse({ limit: 1000 }).success).toBe(true)
     })
 
     it("should validate real-world filtering scenarios", () => {
       // Find unassociated floating IPs
       expect(
-        FloatingIPsQueryParametersSchema.safeParse({
+        FloatingIpQueryParametersSchema.safeParse({
           router_id: null,
           port_id: null,
           status: "DOWN" as const,
@@ -577,7 +577,7 @@ describe("OpenStack Floating IP Schema Validation", () => {
 
       // Find floating IPs for specific project
       expect(
-        FloatingIPsQueryParametersSchema.safeParse({
+        FloatingIpQueryParametersSchema.safeParse({
           project_id: "project-1",
           sort_key: "created_at" as const,
           sort_dir: "desc" as const,
@@ -586,7 +586,7 @@ describe("OpenStack Floating IP Schema Validation", () => {
 
       // Find floating IPs by network
       expect(
-        FloatingIPsQueryParametersSchema.safeParse({
+        FloatingIpQueryParametersSchema.safeParse({
           floating_network_id: "net-external-1",
           limit: 50,
         }).success
@@ -594,7 +594,7 @@ describe("OpenStack Floating IP Schema Validation", () => {
 
       // Find active floating IPs with tags
       expect(
-        FloatingIPsQueryParametersSchema.safeParse({
+        FloatingIpQueryParametersSchema.safeParse({
           status: "ACTIVE" as const,
           tags: ["production"],
         }).success

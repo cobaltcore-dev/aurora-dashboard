@@ -3,7 +3,7 @@ import { z } from "zod"
 /** ISO8601 timestamp string (UTC format) */
 export const ISO8601TimestampSchema = z.string().brand("ISO8601Timestamp")
 /** The status of the floating IP. Values are ACTIVE, DOWN and ERROR. */
-export const FloatingIPStatusSchema = z.enum(["ACTIVE", "DOWN", "ERROR"])
+export const FloatingIpStatusSchema = z.enum(["ACTIVE", "DOWN", "ERROR"])
 
 /**
  * Represents the details of a port associated with a floating IP.
@@ -12,7 +12,7 @@ export const FloatingIPStatusSchema = z.enum(["ACTIVE", "DOWN", "ERROR"])
  */
 export const PortDetailsSchema = z.object({
   /** The status of the port */
-  status: FloatingIPStatusSchema,
+  status: FloatingIpStatusSchema,
   /** The name of the port */
   name: z.string(),
   /** Administrative state of the port (true = UP, false = DOWN) */
@@ -67,7 +67,7 @@ export const PortForwardingSchema = z.object({
  * - `standard-attr-timestamp`: adds created_at and updated_at
  * - `standard-attr-tag`: adds tags
  */
-export const FloatingIPSchema = z.object({
+export const FloatingIpSchema = z.object({
   /** The ID of the router for the floating IP (null if not associated) */
   router_id: z.string().nullable(),
   /** A human-readable description for the resource */
@@ -99,7 +99,7 @@ export const FloatingIPSchema = z.object({
   /** The ID of the floating IP address */
   id: z.string(),
   /** The status of the floating IP */
-  status: FloatingIPStatusSchema,
+  status: FloatingIpStatusSchema,
   /** The information of the associated port (null if not associated, requires fip-port-details extension) */
   port_details: PortDetailsSchema.nullable().optional(),
   /** The list of tags on the resource (requires standard-attr-tag extension) */
@@ -116,9 +116,9 @@ export const FloatingIPSchema = z.object({
  * Floating IPs list response wrapper.
  * Contains an array of floating IP objects.
  */
-export const FloatingIPsResponseSchema = z.object({
+export const FloatingIpResponseSchema = z.object({
   /** A list of floating IP objects */
-  floatingips: z.array(FloatingIPSchema),
+  floatingips: z.array(FloatingIpSchema),
 })
 
 /**
@@ -126,13 +126,13 @@ export const FloatingIPsResponseSchema = z.object({
  * Supports filtering by various attributes.
  * See https://docs.openstack.org/api-ref/network/v2/index.html#list-floating-ips
  */
-export const FloatingIPsQueryParametersSchema = z.object({
+export const FloatingIpQueryParametersSchema = z.object({
   /** Filter by the ID of the floating IP */
   id: z.string().optional(),
   /** Filter by the ID of the router for the floating IP */
   router_id: z.string().nullable().optional(),
   /** Filter by the status of the floating IP */
-  status: FloatingIPStatusSchema.optional(),
+  status: FloatingIpStatusSchema.optional(),
   /** Filter by the ID of the project that owns the resource */
   tenant_id: z.string().optional(),
   /** Filter by the ID of the project that owns the resource */
@@ -183,9 +183,9 @@ export const FloatingIPsQueryParametersSchema = z.object({
 })
 
 export type ISO8601Timestamp = z.infer<typeof ISO8601TimestampSchema>
-export type FloatingIPStatus = z.infer<typeof FloatingIPStatusSchema>
+export type FloatingIpStatus = z.infer<typeof FloatingIpStatusSchema>
 export type PortDetails = z.infer<typeof PortDetailsSchema>
 export type PortForwarding = z.infer<typeof PortForwardingSchema>
-export type FloatingIP = z.infer<typeof FloatingIPSchema>
-export type FloatingIPsResponse = z.infer<typeof FloatingIPsResponseSchema>
-export type FloatingIPsQueryParameters = z.infer<typeof FloatingIPsQueryParametersSchema>
+export type FloatingIp = z.infer<typeof FloatingIpSchema>
+export type FloatingIpResponse = z.infer<typeof FloatingIpResponseSchema>
+export type FloatingIpQueryParameters = z.infer<typeof FloatingIpQueryParametersSchema>
