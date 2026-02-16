@@ -15,7 +15,7 @@ export const BFF_ENDPOINT = process.env.BFF_ENDPOINT || "/polaris-bff"
 import { tanstackRouter } from "@tanstack/router-plugin/vite"
 
 export default defineConfig(({ mode }) => ({
-  root: "./src/client",
+  root: mode !== "test" ? "./src/client" : "./",
   build: {
     outDir: "../../dist/client", // Output directory for the client
     sourcemap: true, // Optional: Generate sourcemaps,
@@ -26,12 +26,13 @@ export default defineConfig(({ mode }) => ({
   },
   plugins: [
     tailwindcss(),
-    tanstackRouter({
-      target: "react",
-      autoCodeSplitting: true,
-      routesDirectory: "./routes",
-      generatedRouteTree: "./routeTree.gen.ts",
-    }),
+    mode !== "test" &&
+      tanstackRouter({
+        target: "react",
+        autoCodeSplitting: true,
+        routesDirectory: "./routes",
+        generatedRouteTree: "./routeTree.gen.ts",
+      }),
     mode !== "production" && viteFastify(),
     react({
       plugins: [["@lingui/swc-plugin", {}]],
