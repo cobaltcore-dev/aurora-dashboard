@@ -2,6 +2,7 @@ import { useLocation, useNavigate } from "@tanstack/react-router"
 import { getServiceIndex } from "@/server/Authentication/helpers"
 import { SideNavigation, SideNavigationList, SideNavigationItem } from "@cloudoperators/juno-ui-components/index"
 import { useLingui } from "@lingui/react/macro"
+import { ServiceInfo as SwiftServiceInfo } from "@/server/Storage/types/swift"
 
 interface ComputeSideNavBarProps {
   accountId: string
@@ -10,9 +11,15 @@ interface ComputeSideNavBarProps {
     type: string
     name: string
   }[]
+  storageServiceCapabilities: SwiftServiceInfo
 }
 
-export const ComputeSideNavBar = ({ accountId, projectId, availableServices }: ComputeSideNavBarProps) => {
+export const ComputeSideNavBar = ({
+  accountId,
+  projectId,
+  availableServices,
+  storageServiceCapabilities,
+}: ComputeSideNavBarProps) => {
   const { t } = useLingui()
   const location = useLocation()
   const navigate = useNavigate()
@@ -33,7 +40,10 @@ export const ComputeSideNavBar = ({ accountId, projectId, availableServices }: C
             { path: `${computeRootPath}/flavors`, label: t`Flavors` },
           ]
         : []),
-      ...[{ path: `${computeRootPath}/objectstorage`, label: t`Object Storage` }],
+      // TODO: Remove once object storage is moved to /storage layout with its own navigation
+      ...(storageServiceCapabilities?.swift?.version
+        ? [{ path: `${computeRootPath}/objectstorage`, label: t`Object Storage` }]
+        : []),
     ]
   }
 
