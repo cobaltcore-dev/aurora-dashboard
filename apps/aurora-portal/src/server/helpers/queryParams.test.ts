@@ -3,34 +3,30 @@ import { appendQueryParamsFromObject } from "./queryParams"
 
 describe("appendQueryParamsFromObject", () => {
   it("skips undefined and null", () => {
-    const q = new URLSearchParams()
-    appendQueryParamsFromObject(q, { a: undefined, b: null, c: "ok" })
+    const input = { a: undefined, b: null, c: "ok" }
+    const q = appendQueryParamsFromObject(input)
     expect(q.toString()).toBe("c=ok")
   })
 
   it("appends string and number as-is", () => {
-    const q = new URLSearchParams()
-    appendQueryParamsFromObject(q, { name: "foo", limit: 10 })
+    const input = { name: "foo", limit: 10 }
+    const q = appendQueryParamsFromObject(input)
     expect(q.get("name")).toBe("foo")
     expect(q.get("limit")).toBe("10")
   })
 
   it("serializes boolean to true/false", () => {
-    const q = new URLSearchParams()
-    appendQueryParamsFromObject(q, { shared: true, page_reverse: false })
+    const input = { shared: true, page_reverse: false }
+    const q = appendQueryParamsFromObject(input)
     expect(q.get("shared")).toBe("true")
     expect(q.get("page_reverse")).toBe("false")
   })
 
   it("uses keyMap for param names", () => {
-    const q = new URLSearchParams()
-    appendQueryParamsFromObject(
-      q,
-      { tags_any: "x", not_tags: "y" },
-      {
-        keyMap: { tags_any: "tags-any", not_tags: "not-tags" },
-      }
-    )
+    const input = { tags_any: "x", not_tags: "y" }
+    const q = appendQueryParamsFromObject(input, {
+      keyMap: { tags_any: "tags-any", not_tags: "not-tags" },
+    })
     expect(q.get("tags-any")).toBe("x")
     expect(q.get("not-tags")).toBe("y")
     expect(q.has("tags_any")).toBe(false)
@@ -38,7 +34,6 @@ describe("appendQueryParamsFromObject", () => {
   })
 
   it("matches Neutron list security groups usage", () => {
-    const q = new URLSearchParams()
     const input = {
       limit: 20,
       sort_key: "name",
@@ -50,7 +45,7 @@ describe("appendQueryParamsFromObject", () => {
       marker: undefined,
       description: undefined,
     }
-    appendQueryParamsFromObject(q, input, {
+    const q = appendQueryParamsFromObject(input, {
       keyMap: { tags_any: "tags-any", not_tags: "not-tags", not_tags_any: "not-tags-any" },
     })
     expect(q.get("limit")).toBe("20")

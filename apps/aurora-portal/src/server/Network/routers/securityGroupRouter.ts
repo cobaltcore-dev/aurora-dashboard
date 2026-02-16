@@ -31,8 +31,7 @@ export const securityGroupRouter = {
       }
 
       return withErrorHandling(async () => {
-        const queryParams = new URLSearchParams()
-        appendQueryParamsFromObject(queryParams, input as Record<string, unknown>, {
+        const queryParams = appendQueryParamsFromObject(input, {
           keyMap: LIST_SECURITY_GROUPS_QUERY_KEY_MAP,
         })
 
@@ -41,7 +40,6 @@ export const securityGroupRouter = {
 
         const response = await network.get(url)
         const data = await response.json()
-
         const parsed = securityGroupsResponseSchema.safeParse(data)
 
         if (!parsed.success) {
@@ -51,7 +49,6 @@ export const securityGroupRouter = {
             message: "Failed to parse security groups response from OpenStack",
           })
         }
-
         return parsed.data.security_groups
       }, "list security groups")
     }),
