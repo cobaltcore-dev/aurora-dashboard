@@ -140,7 +140,7 @@ export const ContainerListView = ({ containers }: ContainerListViewProps) => {
               >
                 <DataGridCell>{container.name}</DataGridCell>
                 <DataGridCell>{container.count.toLocaleString()}</DataGridCell>
-                <DataGridCell>{formatDate(container.last_modified)}</DataGridCell>
+                <DataGridCell>{container.last_modified ? formatDate(container.last_modified) : t`N/A`}</DataGridCell>
                 <DataGridCell>{formatBytes(container.bytes)}</DataGridCell>
               </div>
             )

@@ -117,7 +117,7 @@ export const containerSummarySchema = z.object({
   name: z.string(),
   count: z.number(), // Number of objects in container
   bytes: z.number(), // Total bytes used by container
-  last_modified: z.string(),
+  last_modified: z.string().optional(),
 })
 
 // List containers input schema
