@@ -35,6 +35,7 @@ export default defineConfig(({ mode }) => {
           autoCodeSplitting: true,
           routesDirectory: "./routes",
           generatedRouteTree: "./routeTree.gen.ts",
+          quoteStyle: "double",
         }),
       mode !== "production" && viteFastify(),
       react({
