@@ -5,7 +5,6 @@ const config = viteConfig({ mode: "test" }) // Use the vite config for test envi
 
 export default defineConfig({
   ...config,
-  plugins: config.plugins.filter((plugin) => plugin?.name !== "tanstack-router"),
   test: {
     globals: true,
     environment: "jsdom",
