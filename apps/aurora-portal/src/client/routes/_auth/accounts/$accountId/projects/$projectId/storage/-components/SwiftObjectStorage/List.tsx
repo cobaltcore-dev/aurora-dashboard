@@ -32,6 +32,20 @@ export const SwiftObjectStorage = () => {
     format: "json",
   })
 
+  // Fetch account metadata for quota information
+  const { data: accountInfo } = trpcReact.storage.swift.getAccountMetadata.useQuery({})
+
+  // Format bytes to human-readable size
+  const formatBytes = (bytes: number): string => {
+    if (bytes === 0) return "0 B"
+
+    const k = 1024
+    const sizes = ["B", "KiB", "MiB", "GiB", "TiB", "PiB"]
+    const i = Math.floor(Math.log(bytes) / Math.log(k))
+
+    return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`
+  }
+
   // Sort containers based on sort settings
   const sortContainers = (containers: ContainerSummary[]): ContainerSummary[] => {
     return [...containers].sort((a, b) => {
@@ -109,6 +123,11 @@ export const SwiftObjectStorage = () => {
     )
   }
 
+  // Calculate quota information
+  const bytesUsed = accountInfo?.bytesUsed || 0
+  const quotaBytes = accountInfo?.quotaBytes || 0
+  const remainingBytes = quotaBytes > 0 ? quotaBytes - bytesUsed : 0
+
   return (
     <div className="relative">
       <ListToolbar
@@ -116,8 +135,22 @@ export const SwiftObjectStorage = () => {
         searchTerm={searchTerm}
         onSort={handleSortChange}
         onSearch={handleSearchChange}
+        actions={
+          <>
+            {accountInfo && quotaBytes > 0 && (
+              <div className="flex flex-col items-end gap-1 text-sm">
+                <div className="text-theme-default">
+                  <Trans>Remaining Quota:</Trans>{" "}
+                  <span className="font-semibold">{formatBytes(remainingBytes)} Capacity</span>
+                </div>
+                <div className="text-theme-light">
+                  <Trans>Space Used:</Trans> {formatBytes(bytesUsed)} / {formatBytes(quotaBytes)}
+                </div>
+              </div>
+            )}
+          </>
+        }
       />
-
       <ContainerListView containers={sortedContainers} />
     </div>
   )
