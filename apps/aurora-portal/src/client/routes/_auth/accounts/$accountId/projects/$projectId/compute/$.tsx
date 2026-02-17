@@ -8,6 +8,7 @@ import { Images } from "./-components/Images/List"
 import { KeyPairs } from "./-components/KeyPairs/List"
 import { ServerGroups } from "./-components/ServerGroups/List"
 import { Flavors } from "./-components/Flavors/List"
+import { SecurityGroups } from "./-components/SecurityGroups/List"
 
 const checkServiceAvailability = (
   availableServices: {
@@ -26,19 +27,23 @@ const checkServiceAvailability = (
 
   const serviceIndex = getServiceIndex(availableServices)
 
-  // Redirect to the "Projects Overview" page if none of compute services available
-  if (!serviceIndex["image"] && !serviceIndex["compute"]) {
+  // Redirect to the "Projects Overview" page if none of compute/network services available
+  if (!serviceIndex["image"] && !serviceIndex["compute"] && !serviceIndex["network"]) {
     throw redirect({
       to: "/accounts/$accountId/projects",
       params: { accountId },
     })
   }
 
-  if (splat === "images" && !serviceIndex["image"]["glance"]) {
+  if (splat === "images" && !serviceIndex["image"]?.["glance"]) {
     shouldNavigateToOverview = true
   }
 
-  if (["instances", "keypairs", "servergroups", "flavors"].includes(splat) && !serviceIndex["compute"]["nova"]) {
+  if (["instances", "keypairs", "servergroups", "flavors"].includes(splat) && !serviceIndex["compute"]?.["nova"]) {
+    shouldNavigateToOverview = true
+  }
+
+  if (splat === "securitygroups" && !serviceIndex["network"]) {
     shouldNavigateToOverview = true
   }
 
@@ -106,6 +111,8 @@ function ComputeDashboard({ client }: { client: TrpcClient }) {
                 return <ServerGroups project={project} client={client} />
               case "flavors":
                 return <Flavors project={project} client={client} />
+              case "securitygroups":
+                return <SecurityGroups />
               default:
                 return <Overview project={project} client={client} />
             }
