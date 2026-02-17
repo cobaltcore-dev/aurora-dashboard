@@ -73,6 +73,9 @@ export const ContainerListView = ({ containers }: ContainerListViewProps) => {
   // Define column template
   const gridColumnTemplate = "minmax(200px, 2fr) minmax(100px, 1fr) minmax(180px, 2fr) minmax(100px, 1fr)"
 
+  const allContainersCount = containers.length
+  const virtualizedContainersCount = rowVirtualizer.getVirtualItems().length
+
   return (
     <div className="relative">
       {/* Table Header with scrollbar padding */}
@@ -151,7 +154,7 @@ export const ContainerListView = ({ containers }: ContainerListViewProps) => {
       {/* Footer with count */}
       <div className="py-2 px-4 text-sm text-theme-light border-t border-theme-background-lvl-2">
         <Trans>
-          Showing {rowVirtualizer.getVirtualItems().length} of {containers.length} containers
+          Showing {virtualizedContainersCount} of {allContainersCount} containers
         </Trans>
       </div>
     </div>
