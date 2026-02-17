@@ -2,7 +2,6 @@ import { useLocation, useNavigate } from "@tanstack/react-router"
 import { getServiceIndex } from "@/server/Authentication/helpers"
 import { SideNavigation, SideNavigationList, SideNavigationItem } from "@cloudoperators/juno-ui-components/index"
 import { useLingui } from "@lingui/react/macro"
-import { ServiceInfo as SwiftServiceInfo } from "@/server/Storage/types/swift"
 
 interface ComputeSideNavBarProps {
   accountId: string
@@ -11,15 +10,9 @@ interface ComputeSideNavBarProps {
     type: string
     name: string
   }[]
-  storageServiceCapabilities: SwiftServiceInfo
 }
 
-export const ComputeSideNavBar = ({
-  accountId,
-  projectId,
-  availableServices,
-  storageServiceCapabilities,
-}: ComputeSideNavBarProps) => {
+export const ComputeSideNavBar = ({ accountId, projectId, availableServices }: ComputeSideNavBarProps) => {
   const { t } = useLingui()
   const location = useLocation()
   const navigate = useNavigate()
@@ -28,11 +21,14 @@ export const ComputeSideNavBar = ({
 
   const serviceIndex = getServiceIndex(availableServices)
 
+  console.log("available services: ", availableServices)
+  console.log("service index: ", serviceIndex)
+
   const getComputeNavigationLinks = () => {
     return [
       { path: computeRootPath, label: t`Overview` },
-      ...(serviceIndex["image"]["glance"] ? [{ path: `${computeRootPath}/images`, label: t`Images` }] : []),
-      ...(serviceIndex["compute"]["nova"]
+      ...(serviceIndex?.["image"]?.["glance"] ? [{ path: `${computeRootPath}/images`, label: t`Images` }] : []),
+      ...(serviceIndex?.["compute"]?.["nova"]
         ? [
             // { path: `${computeRootPath}/instances`, label: t`Instances` },
             // { path: `${computeRootPath}/keypairs`, label: t`Key Pairs` },
@@ -41,7 +37,7 @@ export const ComputeSideNavBar = ({
           ]
         : []),
       // TODO: Remove once object storage is moved to /storage layout with its own navigation
-      ...(storageServiceCapabilities?.swift?.version
+      ...(serviceIndex?.["object-store"]?.["swift"]
         ? [{ path: `${computeRootPath}/objectstorage`, label: t`Object Storage` }]
         : []),
     ]

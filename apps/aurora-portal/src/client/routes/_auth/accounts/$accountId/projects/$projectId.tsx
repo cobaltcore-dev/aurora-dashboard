@@ -12,17 +12,11 @@ export const Route = createFileRoute("/_auth/accounts/$accountId/projects/$proje
     })
     const availableServices = await context.trpcClient?.auth.getAvailableServices.query()
 
-    // TODO: Move to storage layout loader once object storage gets its own route
-    const swiftServiceInfo = (await context.trpcClient?.storage.swift.getServiceInfo.query()) || {}
-
     return {
       trpcClient: context.trpcClient,
       crumbDomain: { path: `/accounts/${params.accountId}/projects`, name: data?.domain?.name },
       crumbProject: data?.project,
       availableServices,
-      storageServiceCapabilities: {
-        ...swiftServiceInfo,
-      },
       accountId: params.accountId,
       projectId: params.projectId,
     }
@@ -30,7 +24,7 @@ export const Route = createFileRoute("/_auth/accounts/$accountId/projects/$proje
 })
 
 function RouteComponent() {
-  const { availableServices, accountId, projectId, storageServiceCapabilities } = useLoaderData({ from: Route.id })
+  const { availableServices, accountId, projectId } = useLoaderData({ from: Route.id })
   const location = useLocation()
 
   // Determine which sidebar to show based on the current path
@@ -40,14 +34,7 @@ function RouteComponent() {
 
     switch (section) {
       case "compute":
-        return (
-          <ComputeSideNavBar
-            availableServices={availableServices!}
-            accountId={accountId}
-            projectId={projectId}
-            storageServiceCapabilities={storageServiceCapabilities}
-          />
-        )
+        return <ComputeSideNavBar availableServices={availableServices!} accountId={accountId} projectId={projectId} />
       // TODO: Add storage case with StorageSideNavBar when object storage is separated
       // case 'storage':
       //   return <StorageSideNavBar availableServices={availableServices!} />
