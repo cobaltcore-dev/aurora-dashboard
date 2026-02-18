@@ -31,6 +31,8 @@ export const SecurityGroupListContainer = ({
   const { t } = useLingui()
   const [modalComponent, setModalComponent] = useState<React.ReactElement | null>(null)
 
+  const formatDate = (date: string | null | undefined) => (date ? new Date(date).toLocaleDateString() : t`N/A`)
+
   const handleEdit = (sg: SecurityGroup) => {
     setModalComponent(
       <EditSecurityGroupModal
@@ -105,29 +107,23 @@ export const SecurityGroupListContainer = ({
     )
   }
 
+  const BooleanIcon = ({ value }: { value: boolean | undefined }) => (
+    <Icon icon={value ? "check" : "close"} color={value ? "text-theme-success" : "text-theme-error"} />
+  )
+
   // Data grid with security groups
   return (
     <>
-      <DataGrid columns={6} className="security-groups">
+      <DataGrid columns={7}>
         <DataGridRow>
           <DataGridHeadCell>
             <Trans>Name</Trans>/<Trans>Id</Trans>
           </DataGridHeadCell>
-          <DataGridHeadCell>
-            <Trans>Description</Trans>
-          </DataGridHeadCell>
-          <DataGridHeadCell>
-            <Trans>Rules</Trans>
-          </DataGridHeadCell>
-          <DataGridHeadCell>
-            <Trans>Stateful</Trans>
-          </DataGridHeadCell>
-          <DataGridHeadCell>
-            <Trans>Created At</Trans>
-          </DataGridHeadCell>
-          <DataGridHeadCell>
-            <Trans>Actions</Trans>
-          </DataGridHeadCell>
+          {["Description", "Owning Project", "Stateful", "Shared", "Created At", "Actions"].map((label) => (
+            <DataGridHeadCell key={label}>
+              <Trans>{label}</Trans>
+            </DataGridHeadCell>
+          ))}
         </DataGridRow>
         {securityGroups.map((sg) => (
           <DataGridRow
@@ -142,15 +138,15 @@ export const SecurityGroupListContainer = ({
               </div>
             </DataGridCell>
             <DataGridCell>{sg.description || t`—`}</DataGridCell>
-            <DataGridCell>{sg.security_group_rules?.length || 0}</DataGridCell>
+            <DataGridCell>{sg.project_id}</DataGridCell>
             <DataGridCell>
-              {sg.stateful ? (
-                <Icon icon="check" color="text-theme-success" />
-              ) : (
-                <Icon icon="close" color="text-theme-error" />
-              )}
+              <BooleanIcon value={sg.stateful} />
             </DataGridCell>
-            <DataGridCell>{sg.created_at ? new Date(sg.created_at).toLocaleDateString() : t`N/A`}</DataGridCell>
+            <DataGridCell>
+              <BooleanIcon value={sg.shared} />
+            </DataGridCell>
+
+            <DataGridCell>{formatDate(sg.created_at)}</DataGridCell>
             <DataGridCell onClick={(e) => e.stopPropagation()}>
               <div className="flex gap-2">
                 <Button size="small" variant="subdued" icon="edit" onClick={() => handleEdit(sg)} title={t`Edit`} />
@@ -174,7 +170,7 @@ export const SecurityGroupListContainer = ({
         ))}
       </DataGrid>
 
-      {modalComponent && modalComponent}
+      {modalComponent}
     </>
   )
 }
