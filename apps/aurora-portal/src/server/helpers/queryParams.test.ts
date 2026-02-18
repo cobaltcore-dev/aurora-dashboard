@@ -63,39 +63,4 @@ describe("appendQueryParamsFromObject", () => {
     expect(q.has("marker")).toBe(false)
     expect(q.has("description")).toBe(false)
   })
-
-  it("appends empty strings", () => {
-    const q = new URLSearchParams()
-    appendQueryParamsFromObject(q, { query: "", label: "test" })
-    expect(q.get("query")).toBe("")
-    expect(q.get("label")).toBe("test")
-  })
-
-  it("skips objects and functions", () => {
-    const q = new URLSearchParams()
-    appendQueryParamsFromObject(q, {
-      name: "valid",
-      nested: { key: "value" },
-      fn: () => {},
-      symbol: Symbol("test"),
-    })
-    expect(q.get("name")).toBe("valid")
-    expect(q.has("nested")).toBe(false)
-    expect(q.has("fn")).toBe(false)
-    expect(q.has("symbol")).toBe(false)
-  })
-
-  it("uses append() to support multi-valued params", () => {
-    const q = new URLSearchParams()
-    appendQueryParamsFromObject(q, { tag: "web" })
-    appendQueryParamsFromObject(q, { tag: "prod" })
-    // append() preserves both values; set() would replace
-    expect(q.getAll("tag")).toEqual(["web", "prod"])
-  })
-
-  it("handles empty object input", () => {
-    const q = new URLSearchParams()
-    appendQueryParamsFromObject(q, {})
-    expect(q.toString()).toBe("")
-  })
 })

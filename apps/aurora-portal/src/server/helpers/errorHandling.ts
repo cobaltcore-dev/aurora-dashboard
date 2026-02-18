@@ -1,14 +1,12 @@
 import { TRPCError } from "@trpc/server"
 
 /**
- * Converts a caught error into a TRPCError for the client.
- * - TRPCErrors are rethrown as-is (e.g., from explicit throws in the operation)
- * - Other errors (network failures, JSON parse errors, etc.) are wrapped as INTERNAL_SERVER_ERROR
- *   with the original error preserved as `cause`
- * - If error is a string, it's included in the message; otherwise the Error's message is used if available
+ * Converts a caught error into a TRPCError for the client. Used by withErrorHandling so that
+ * any non-TRPCError (network failure, JSON parse, etc.) is turned into a consistent INTERNAL_SERVER_ERROR
+ * with message and cause, while TRPCErrors (e.g. from explicit throws in the operation) are rethrown as-is.
  *
  * @param error - The error to handle
- * @param operation - The operation being performed, for context in error message
+ * @param operation - The operation being performed for context
  * @returns TRPCError instance
  */
 export function wrapError(error: Error | string, operation: string): TRPCError {
@@ -20,12 +18,7 @@ export function wrapError(error: Error | string, operation: string): TRPCError {
 
   return new TRPCError({
     code: "INTERNAL_SERVER_ERROR",
-    message:
-      typeof error === "string"
-        ? `${baseErrorMessage}: ${error}`
-        : error.message
-          ? `${baseErrorMessage}: ${error.message}`
-          : baseErrorMessage,
+    message: typeof error !== "string" && error.message ? `${baseErrorMessage}: ${error.message}` : baseErrorMessage,
     cause: error,
   })
 }
@@ -43,6 +36,6 @@ export async function withErrorHandling<T>(operation: () => Promise<T>, operatio
   try {
     return await operation()
   } catch (error) {
-    throw wrapError(error as Error | string, operationName)
+    throw wrapError(error as Error, operationName)
   }
 }

@@ -54,16 +54,18 @@ const AuthAccountsIndexRoute = AuthAccountsIndexRouteImport.update({
   path: "/accounts/",
   getParentRoute: () => AuthRoute,
 } as any)
-const AuthAccountsAccountIdProjectsIndexRoute = AuthAccountsAccountIdProjectsIndexRouteImport.update({
-  id: "/accounts/$accountId/projects/",
-  path: "/accounts/$accountId/projects/",
-  getParentRoute: () => AuthRoute,
-} as any)
-const AuthAccountsAccountIdProjectsProjectIdRoute = AuthAccountsAccountIdProjectsProjectIdRouteImport.update({
-  id: "/accounts/$accountId/projects/$projectId",
-  path: "/accounts/$accountId/projects/$projectId",
-  getParentRoute: () => AuthRoute,
-} as any)
+const AuthAccountsAccountIdProjectsIndexRoute =
+  AuthAccountsAccountIdProjectsIndexRouteImport.update({
+    id: "/accounts/$accountId/projects/",
+    path: "/accounts/$accountId/projects/",
+    getParentRoute: () => AuthRoute,
+  } as any)
+const AuthAccountsAccountIdProjectsProjectIdRoute =
+  AuthAccountsAccountIdProjectsProjectIdRouteImport.update({
+    id: "/accounts/$accountId/projects/$projectId",
+    path: "/accounts/$accountId/projects/$projectId",
+    getParentRoute: () => AuthRoute,
+  } as any)
 const AuthAccountsAccountIdProjectsProjectIdNetworkIndexRoute =
   AuthAccountsAccountIdProjectsProjectIdNetworkIndexRouteImport.update({
     id: "/network/",
@@ -83,17 +85,21 @@ const AuthAccountsAccountIdProjectsProjectIdComputeSplatRoute =
     getParentRoute: () => AuthAccountsAccountIdProjectsProjectIdRoute,
   } as any)
 const AuthAccountsAccountIdProjectsProjectIdGardenerClustersIndexRoute =
-  AuthAccountsAccountIdProjectsProjectIdGardenerClustersIndexRouteImport.update({
-    id: "/gardener/clusters/",
-    path: "/gardener/clusters/",
-    getParentRoute: () => AuthAccountsAccountIdProjectsProjectIdRoute,
-  } as any)
+  AuthAccountsAccountIdProjectsProjectIdGardenerClustersIndexRouteImport.update(
+    {
+      id: "/gardener/clusters/",
+      path: "/gardener/clusters/",
+      getParentRoute: () => AuthAccountsAccountIdProjectsProjectIdRoute,
+    } as any,
+  )
 const AuthAccountsAccountIdProjectsProjectIdGardenerClustersClusterNameRoute =
-  AuthAccountsAccountIdProjectsProjectIdGardenerClustersClusterNameRouteImport.update({
-    id: "/gardener/clusters/$clusterName",
-    path: "/gardener/clusters/$clusterName",
-    getParentRoute: () => AuthAccountsAccountIdProjectsProjectIdRoute,
-  } as any)
+  AuthAccountsAccountIdProjectsProjectIdGardenerClustersClusterNameRouteImport.update(
+    {
+      id: "/gardener/clusters/$clusterName",
+      path: "/gardener/clusters/$clusterName",
+      getParentRoute: () => AuthAccountsAccountIdProjectsProjectIdRoute,
+    } as any,
+  )
 const AuthAccountsAccountIdProjectsProjectIdComputeImagesImageIdRoute =
   AuthAccountsAccountIdProjectsProjectIdComputeImagesImageIdRouteImport.update({
     id: "/compute/images/$imageId",
@@ -101,11 +107,13 @@ const AuthAccountsAccountIdProjectsProjectIdComputeImagesImageIdRoute =
     getParentRoute: () => AuthAccountsAccountIdProjectsProjectIdRoute,
   } as any)
 const AuthAccountsAccountIdProjectsProjectIdComputeFlavorsFlavorIdRoute =
-  AuthAccountsAccountIdProjectsProjectIdComputeFlavorsFlavorIdRouteImport.update({
-    id: "/compute/flavors/$flavorId",
-    path: "/compute/flavors/$flavorId",
-    getParentRoute: () => AuthAccountsAccountIdProjectsProjectIdRoute,
-  } as any)
+  AuthAccountsAccountIdProjectsProjectIdComputeFlavorsFlavorIdRouteImport.update(
+    {
+      id: "/compute/flavors/$flavorId",
+      path: "/compute/flavors/$flavorId",
+      getParentRoute: () => AuthAccountsAccountIdProjectsProjectIdRoute,
+    } as any,
+  )
 
 export interface FileRoutesByFullPath {
   "/": typeof IndexRoute
@@ -336,22 +344,28 @@ interface AuthAccountsAccountIdProjectsProjectIdRouteChildren {
   AuthAccountsAccountIdProjectsProjectIdGardenerClustersIndexRoute: typeof AuthAccountsAccountIdProjectsProjectIdGardenerClustersIndexRoute
 }
 
-const AuthAccountsAccountIdProjectsProjectIdRouteChildren: AuthAccountsAccountIdProjectsProjectIdRouteChildren = {
-  AuthAccountsAccountIdProjectsProjectIdComputeSplatRoute: AuthAccountsAccountIdProjectsProjectIdComputeSplatRoute,
-  AuthAccountsAccountIdProjectsProjectIdGardenerIndexRoute: AuthAccountsAccountIdProjectsProjectIdGardenerIndexRoute,
-  AuthAccountsAccountIdProjectsProjectIdNetworkIndexRoute: AuthAccountsAccountIdProjectsProjectIdNetworkIndexRoute,
-  AuthAccountsAccountIdProjectsProjectIdComputeFlavorsFlavorIdRoute:
-    AuthAccountsAccountIdProjectsProjectIdComputeFlavorsFlavorIdRoute,
-  AuthAccountsAccountIdProjectsProjectIdComputeImagesImageIdRoute:
-    AuthAccountsAccountIdProjectsProjectIdComputeImagesImageIdRoute,
-  AuthAccountsAccountIdProjectsProjectIdGardenerClustersClusterNameRoute:
-    AuthAccountsAccountIdProjectsProjectIdGardenerClustersClusterNameRoute,
-  AuthAccountsAccountIdProjectsProjectIdGardenerClustersIndexRoute:
-    AuthAccountsAccountIdProjectsProjectIdGardenerClustersIndexRoute,
-}
+const AuthAccountsAccountIdProjectsProjectIdRouteChildren: AuthAccountsAccountIdProjectsProjectIdRouteChildren =
+  {
+    AuthAccountsAccountIdProjectsProjectIdComputeSplatRoute:
+      AuthAccountsAccountIdProjectsProjectIdComputeSplatRoute,
+    AuthAccountsAccountIdProjectsProjectIdGardenerIndexRoute:
+      AuthAccountsAccountIdProjectsProjectIdGardenerIndexRoute,
+    AuthAccountsAccountIdProjectsProjectIdNetworkIndexRoute:
+      AuthAccountsAccountIdProjectsProjectIdNetworkIndexRoute,
+    AuthAccountsAccountIdProjectsProjectIdComputeFlavorsFlavorIdRoute:
+      AuthAccountsAccountIdProjectsProjectIdComputeFlavorsFlavorIdRoute,
+    AuthAccountsAccountIdProjectsProjectIdComputeImagesImageIdRoute:
+      AuthAccountsAccountIdProjectsProjectIdComputeImagesImageIdRoute,
+    AuthAccountsAccountIdProjectsProjectIdGardenerClustersClusterNameRoute:
+      AuthAccountsAccountIdProjectsProjectIdGardenerClustersClusterNameRoute,
+    AuthAccountsAccountIdProjectsProjectIdGardenerClustersIndexRoute:
+      AuthAccountsAccountIdProjectsProjectIdGardenerClustersIndexRoute,
+  }
 
 const AuthAccountsAccountIdProjectsProjectIdRouteWithChildren =
-  AuthAccountsAccountIdProjectsProjectIdRoute._addFileChildren(AuthAccountsAccountIdProjectsProjectIdRouteChildren)
+  AuthAccountsAccountIdProjectsProjectIdRoute._addFileChildren(
+    AuthAccountsAccountIdProjectsProjectIdRouteChildren,
+  )
 
 interface AuthRouteChildren {
   AuthAuroraRoute: typeof AuthAuroraRoute
@@ -363,8 +377,10 @@ interface AuthRouteChildren {
 const AuthRouteChildren: AuthRouteChildren = {
   AuthAuroraRoute: AuthAuroraRoute,
   AuthAccountsIndexRoute: AuthAccountsIndexRoute,
-  AuthAccountsAccountIdProjectsProjectIdRoute: AuthAccountsAccountIdProjectsProjectIdRouteWithChildren,
-  AuthAccountsAccountIdProjectsIndexRoute: AuthAccountsAccountIdProjectsIndexRoute,
+  AuthAccountsAccountIdProjectsProjectIdRoute:
+    AuthAccountsAccountIdProjectsProjectIdRouteWithChildren,
+  AuthAccountsAccountIdProjectsIndexRoute:
+    AuthAccountsAccountIdProjectsIndexRoute,
 }
 
 const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
@@ -375,4 +391,6 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   AuthLoginRoute: AuthLoginRoute,
 }
-export const routeTree = rootRouteImport._addFileChildren(rootRouteChildren)._addFileTypes<FileRouteTypes>()
+export const routeTree = rootRouteImport
+  ._addFileChildren(rootRouteChildren)
+  ._addFileTypes<FileRouteTypes>()
