@@ -3,7 +3,7 @@ import { useVirtualizer } from "@tanstack/react-virtual"
 import { DataGrid, DataGridHeadCell, DataGridRow, DataGridCell } from "@cloudoperators/juno-ui-components"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { ContainerSummary } from "@/server/Storage/types/swift"
-import { formatBytesDecimal } from "@/client/utils/formatBytes"
+import { formatBytesBinary } from "@/client/utils/formatBytes"
 
 interface ContainerListViewProps {
   containers: ContainerSummary[]
@@ -134,7 +134,7 @@ export const ContainerListView = ({ containers }: ContainerListViewProps) => {
                 <DataGridCell>{container.name}</DataGridCell>
                 <DataGridCell>{container.count.toLocaleString()}</DataGridCell>
                 <DataGridCell>{container.last_modified ? formatDate(container.last_modified) : t`N/A`}</DataGridCell>
-                <DataGridCell>{formatBytesDecimal(container.bytes)}</DataGridCell>
+                <DataGridCell>{formatBytesBinary(container.bytes)}</DataGridCell>
               </div>
             )
           })}
