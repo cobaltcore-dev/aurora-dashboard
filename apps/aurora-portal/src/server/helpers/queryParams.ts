@@ -20,7 +20,6 @@ export interface AppendQueryParamsOptions {
  * - string: used as-is (empty string is appended)
  * - other: skipped
  *
- * @param queryParams - URLSearchParams to mutate
  * @param source - Object whose enumerable properties to append (e.g. validated tRPC input)
  * @param options - Optional key mapping for query param names
  */

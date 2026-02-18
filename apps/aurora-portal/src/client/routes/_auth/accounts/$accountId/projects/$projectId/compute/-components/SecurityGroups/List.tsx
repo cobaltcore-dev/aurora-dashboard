@@ -2,8 +2,9 @@ import { useState, startTransition } from "react"
 import { useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import { ListToolbar } from "@/client/components/ListToolbar"
-import { SortSettings } from "@/client/components/ListToolbar/types"
+import { SortSettings, FilterSettings } from "@/client/components/ListToolbar/types"
 import { SecurityGroupListContainer } from "./-components/SecurityGroupListContainer"
+import { SECURITY_GROUP_SHARED } from "./constants"
 
 type RequiredSortSettings = {
   options: SortSettings["options"]
@@ -20,7 +21,34 @@ export const SecurityGroups = () => {
     sortDirection: "asc",
   })
 
+  const [filterSettings, setFilterSettings] = useState<FilterSettings>({
+    filters: [
+      {
+        displayName: t`Shared`,
+        filterName: "shared",
+        values: Object.values(SECURITY_GROUP_SHARED),
+        supportsMultiValue: false,
+      },
+    ],
+  })
+
   const [searchTerm, setSearchTerm] = useState("")
+
+  /**
+   * Builds filter parameters from current filter settings
+   */
+  const buildFilterParams = (): Record<string, string | boolean> => {
+    const params: Record<string, string | boolean> = {}
+
+    if (!filterSettings.selectedFilters?.length) return params
+
+    filterSettings.selectedFilters
+      .filter((sf) => !sf.inactive)
+      .forEach((sf) => {
+        params[sf.name] = Boolean(sf.value)
+      })
+    return params
+  }
 
   const {
     data: securityGroups = [],
@@ -30,6 +58,7 @@ export const SecurityGroups = () => {
   } = trpcReact.network.list.useQuery({
     sort_key: sortSettings.sortBy,
     sort_dir: sortSettings.sortDirection,
+    ...buildFilterParams(),
     ...(searchTerm ? { name: searchTerm } : {}),
   })
 
@@ -40,6 +69,12 @@ export const SecurityGroups = () => {
       sortDirection: (newSortSettings.sortDirection as "asc" | "desc") || "asc",
     }
     setSortSettings(settings)
+  }
+
+  const handleFilterChange = (newFilterSettings: FilterSettings) => {
+    startTransition(() => {
+      setFilterSettings(newFilterSettings)
+    })
   }
 
   const handleSearchChange = (term: string | number | string[] | undefined) => {
@@ -53,8 +88,10 @@ export const SecurityGroups = () => {
     <div className="relative">
       <ListToolbar
         sortSettings={sortSettings}
+        filterSettings={filterSettings}
         searchTerm={searchTerm}
         onSort={handleSortChange}
+        onFilter={handleFilterChange}
         onSearch={handleSearchChange}
       />
 
