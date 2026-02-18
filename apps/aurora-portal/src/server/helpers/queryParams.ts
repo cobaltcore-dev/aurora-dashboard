@@ -19,15 +19,14 @@ export interface AppendQueryParamsOptions {
  * - string: used as-is (empty string is appended)
  * - other: skipped
  *
- * @param queryParams - URLSearchParams to mutate
  * @param source - Object whose enumerable properties to append (e.g. validated tRPC input)
  * @param options - Optional key mapping for query param names
  */
 export function appendQueryParamsFromObject(
-  queryParams: URLSearchParams,
   source: Record<string, unknown>,
   options?: AppendQueryParamsOptions
-): void {
+): URLSearchParams {
+  const queryParams = new URLSearchParams()
   const { keyMap } = options ?? {}
 
   for (const [key, value] of Object.entries(source)) {
@@ -40,6 +39,6 @@ export function appendQueryParamsFromObject(
     } else if (typeof value === "number" || typeof value === "string") {
       queryParams.append(paramName, String(value))
     }
-    // skip objects, symbols, etc.
   }
+  return queryParams
 }

@@ -22,9 +22,7 @@ export const floatingIpRouter = {
       }
 
       return withErrorHandling(async () => {
-        const queryParams = new URLSearchParams()
-        appendQueryParamsFromObject(queryParams, input as Record<string, unknown>)
-
+        const queryParams = appendQueryParamsFromObject(input as Record<string, unknown>)
         const queryString = queryParams.toString()
         const url = queryString ? `v2.0/floatingips?${queryString}` : "v2.0/floatingips"
 
