@@ -35,6 +35,7 @@ function RouteComponent() {
     switch (section) {
       case "compute":
         return <ComputeSideNavBar availableServices={availableServices!} accountId={accountId} projectId={projectId} />
+      // TODO: Add storage case with StorageSideNavBar when object storage is separated
       // case 'storage':
       //   return <StorageSideNavBar availableServices={availableServices!} />
       // case 'network':

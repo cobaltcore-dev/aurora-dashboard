@@ -46,7 +46,7 @@ swift.get("/info") // → /info
 
 ## Files Created
 
-### 1. `objectStorage.ts` - Zod Schemas
+### 1. `swift.ts` - Zod Schemas
 
 Comprehensive Zod schemas for type-safe validation of:
 
@@ -58,7 +58,7 @@ Comprehensive Zod schemas for type-safe validation of:
 - **Folder operations**: Create, list, move, and delete pseudo-folders
 - **Temporary URLs**: Generate time-limited signed URLs
 
-### 2. `objectStorageHelpers.ts` - Helper Functions
+### 2. `swiftHelpers.ts` - Helper Functions
 
 Utility functions including:
 
@@ -70,7 +70,7 @@ Utility functions including:
 - **Folder helpers** (`parseBreadcrumb`, `normalizeFolderPath`, `isFolderMarker`, `extractFolders`)
 - **Temporary URL helpers** (`generateTempUrlSignature`, `constructTempUrl`)
 
-### 3. `objectStorageRouter.ts` - tRPC Router
+### 3. `swiftRouter.ts` - tRPC Router
 
 Complete tRPC router with procedures for:
 
@@ -163,7 +163,7 @@ Proper handling of binary data for object uploads/downloads:
 ### List Containers
 
 ```typescript
-const containers = await trpc.objectStorage.listContainers.query({
+const containers = await trpc.storage.swift.listContainers.query({
   limit: 100,
   prefix: "backup-",
   format: "json",
@@ -173,7 +173,7 @@ const containers = await trpc.objectStorage.listContainers.query({
 ### Create Container with Metadata
 
 ```typescript
-await trpc.objectStorage.createContainer.mutate({
+await trpc.storage.swift.createContainer.mutate({
   container: "my-container",
   metadata: {
     project: "demo",
@@ -187,7 +187,7 @@ await trpc.objectStorage.createContainer.mutate({
 ### Upload Object
 
 ```typescript
-const metadata = await trpc.objectStorage.createObject.mutate({
+const metadata = await trpc.storage.swift.createObject.mutate({
   container: "my-container",
   object: "document.pdf",
   content: fileBuffer, // ArrayBuffer or Uint8Array
@@ -203,7 +203,7 @@ const metadata = await trpc.objectStorage.createObject.mutate({
 ### Download Object
 
 ```typescript
-const { content, metadata } = await trpc.objectStorage.getObject.query({
+const { content, metadata } = await trpc.storage.swift.getObject.query({
   container: "my-container",
   object: "document.pdf",
   range: "bytes=0-1023", // Download first 1KB only
@@ -213,7 +213,7 @@ const { content, metadata } = await trpc.objectStorage.getObject.query({
 ### Copy Object
 
 ```typescript
-await trpc.objectStorage.copyObject.mutate({
+await trpc.storage.swift.copyObject.mutate({
   container: "source-container",
   object: "file.txt",
   destination: "/destination-container/file-copy.txt",
@@ -228,7 +228,7 @@ await trpc.objectStorage.copyObject.mutate({
 ### Bulk Delete
 
 ```typescript
-const result = await trpc.objectStorage.bulkDelete.mutate({
+const result = await trpc.storage.swift.bulkDelete.mutate({
   objects: ["/container1/object1.txt", "/container1/object2.txt", "/container2/object3.txt"],
 })
 
@@ -240,7 +240,7 @@ console.log(`Errors:`, result.errors)
 ### Get Service Info
 
 ```typescript
-const info = await trpc.objectStorage.getServiceInfo.query()
+const info = await trpc.storage.swift.getServiceInfo.query()
 
 console.log("Max file size:", info.swift.max_file_size)
 console.log("Max bulk deletes:", info.swift.bulk_delete?.max_deletes_per_request)
@@ -252,7 +252,7 @@ console.log("Container listing limit:", info.swift.container_listing_limit)
 
 ```typescript
 // Create folder
-await trpc.objectStorage.createFolder.mutate({
+await trpc.storage.swift.createFolder.mutate({
   container: "documents",
   folderPath: "projects/2024/",
   metadata: {
@@ -261,7 +261,7 @@ await trpc.objectStorage.createFolder.mutate({
 })
 
 // List folder contents
-const { folders, objects } = await trpc.objectStorage.listFolderContents.query({
+const { folders, objects } = await trpc.storage.swift.listFolderContents.query({
   container: "documents",
   folderPath: "projects/",
 })
@@ -270,7 +270,7 @@ console.log("Subfolders:", folders) // [{ name: "2024", path: "projects/2024/" }
 console.log("Files:", objects) // Array of ObjectSummary
 
 // Move folder
-const movedCount = await trpc.objectStorage.moveFolder.mutate({
+const movedCount = await trpc.storage.swift.moveFolder.mutate({
   container: "documents",
   sourcePath: "projects/2024/",
   destinationPath: "archive/2024/",
@@ -279,7 +279,7 @@ const movedCount = await trpc.objectStorage.moveFolder.mutate({
 console.log(`Moved ${movedCount} objects`)
 
 // Delete folder recursively
-const deletedCount = await trpc.objectStorage.deleteFolder.mutate({
+const deletedCount = await trpc.storage.swift.deleteFolder.mutate({
   container: "documents",
   folderPath: "temp/",
   recursive: true,
@@ -291,7 +291,7 @@ console.log(`Deleted ${deletedCount} objects`)
 ### Generate Temporary URL
 
 ```typescript
-const tempUrl = await trpc.objectStorage.generateTempUrl.mutate({
+const tempUrl = await trpc.storage.swift.generateTempUrl.mutate({
   container: "documents",
   object: "report.pdf",
   method: "GET",
@@ -325,11 +325,13 @@ Account (Project/Tenant)
 ### 1. Add to your tRPC router
 
 ```typescript
-import { objectStorageRouter } from "./routes/objectStorageRouter"
+import { swiftRouter } from "./routes/swiftRouter"
 
 export const appRouter = createTRPCRouter({
   // ... existing routers
-  objectStorage: createTRPCRouter(objectStorageRouter),
+  storage: {
+    swift: createTRPCRouter(swiftRouter),
+  },
 })
 ```
 
@@ -340,7 +342,7 @@ The router expects `ctx.openstack` to be available with a `service("swift")` met
 ### 3. Import types as needed
 
 ```typescript
-import type { ContainerSummary, ObjectMetadata, AccountInfo } from "./types/objectStorage"
+import type { ContainerSummary, ObjectMetadata, AccountInfo } from "./types/swift"
 ```
 
 ## Implementation Features
@@ -464,7 +466,7 @@ All operations include comprehensive error handling:
 Query the Swift service to discover available features, limits, and configuration:
 
 ```typescript
-const info = await trpc.objectStorage.getServiceInfo.query()
+const info = await trpc.storage.swift.getServiceInfo.query()
 ```
 
 Returns information about:
