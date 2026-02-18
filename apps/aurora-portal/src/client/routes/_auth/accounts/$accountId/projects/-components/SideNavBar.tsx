@@ -3,7 +3,7 @@ import { getServiceIndex } from "@/server/Authentication/helpers"
 import { SideNavigation, SideNavigationList, SideNavigationItem } from "@cloudoperators/juno-ui-components/index"
 import { useLingui } from "@lingui/react/macro"
 
-interface ComputeSideNavBarProps {
+interface SideNavBarProps {
   accountId: string
   projectId: string
   availableServices: {
@@ -12,7 +12,7 @@ interface ComputeSideNavBarProps {
   }[]
 }
 
-export const ComputeSideNavBar = ({ accountId, projectId, availableServices }: ComputeSideNavBarProps) => {
+export const SideNavBar = ({ accountId, projectId, availableServices }: SideNavBarProps) => {
   const { t } = useLingui()
   const location = useLocation()
   const navigate = useNavigate()
@@ -49,14 +49,16 @@ export const ComputeSideNavBar = ({ accountId, projectId, availableServices }: C
   return (
     <SideNavigation ariaLabel="Compute Side Navigation" onActiveItemChange={() => {}}>
       <SideNavigationList>
-        {links.map(({ path, label }) => (
-          <SideNavigationItem
-            key={path}
-            onClick={() => handleNavigate(path)}
-            label={label}
-            selected={location.pathname === path}
-          />
-        ))}
+        <SideNavigationItem label="Compute">
+          {links.map(({ path, label }) => (
+            <SideNavigationItem
+              key={path}
+              onClick={() => handleNavigate(path)}
+              label={label}
+              selected={location.pathname === path}
+            />
+          ))}
+        </SideNavigationItem>
       </SideNavigationList>
     </SideNavigation>
   )
