@@ -30,8 +30,9 @@ describe("wrapError", () => {
     const error = "Something went wrong"
     const result = wrapError(error, "validateInput")
     expect(result.code).toBe("INTERNAL_SERVER_ERROR")
-    expect(result.message).toBe("Error during validateInput: Something went wrong")
-    expect(result.cause).toBe(error)
+    expect(result.message).toBe("Error during validateInput")
+    expect(result.cause).toBeInstanceOf(Error)
+    expect((result.cause as Error).message).toBe(error)
   })
 
   it("handles custom Error subclasses", () => {
@@ -90,7 +91,7 @@ describe("withErrorHandling", () => {
       await withErrorHandling(operation, "validate")
     } catch (error) {
       expect(error).toBeInstanceOf(TRPCError)
-      expect((error as TRPCError).message).toBe("Error during validate: Validation failed")
+      expect((error as TRPCError).message).toBe("Error during validate")
     }
   })
 
