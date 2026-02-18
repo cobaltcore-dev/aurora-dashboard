@@ -19,7 +19,7 @@ describe("DeleteImageModal", () => {
     os_distro: "Ubuntu",
     created_at: "2023-01-01T00:00:00Z",
     updated_at: "2023-01-01T00:00:00Z",
-    size: 1024,
+    size: 1000, // 1.00 KB under decimal (SI) formatting
   } as GlanceImage
 
   beforeEach(async () => {
