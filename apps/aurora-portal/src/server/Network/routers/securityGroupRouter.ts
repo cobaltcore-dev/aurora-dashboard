@@ -31,8 +31,7 @@ export const securityGroupRouter = {
       }
 
       return withErrorHandling(async () => {
-        const queryParams = new URLSearchParams()
-        appendQueryParamsFromObject(queryParams, input as Record<string, unknown>, {
+        const queryParams = appendQueryParamsFromObject(input as Record<string, unknown>, {
           keyMap: LIST_SECURITY_GROUPS_QUERY_KEY_MAP,
         })
 

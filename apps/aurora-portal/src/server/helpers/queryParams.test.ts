@@ -3,29 +3,24 @@ import { appendQueryParamsFromObject } from "./queryParams"
 
 describe("appendQueryParamsFromObject", () => {
   it("skips undefined and null", () => {
-    const q = new URLSearchParams()
-    appendQueryParamsFromObject(q, { a: undefined, b: null, c: "ok" })
+    const q = appendQueryParamsFromObject({ a: undefined, b: null, c: "ok" })
     expect(q.toString()).toBe("c=ok")
   })
 
   it("appends string and number as-is", () => {
-    const q = new URLSearchParams()
-    appendQueryParamsFromObject(q, { name: "foo", limit: 10 })
+    const q = appendQueryParamsFromObject({ name: "foo", limit: 10 })
     expect(q.get("name")).toBe("foo")
     expect(q.get("limit")).toBe("10")
   })
 
   it("serializes boolean to true/false", () => {
-    const q = new URLSearchParams()
-    appendQueryParamsFromObject(q, { shared: true, page_reverse: false })
+    const q = appendQueryParamsFromObject({ shared: true, page_reverse: false })
     expect(q.get("shared")).toBe("true")
     expect(q.get("page_reverse")).toBe("false")
   })
 
   it("uses keyMap for param names", () => {
-    const q = new URLSearchParams()
-    appendQueryParamsFromObject(
-      q,
+    const q = appendQueryParamsFromObject(
       { tags_any: "x", not_tags: "y" },
       {
         keyMap: { tags_any: "tags-any", not_tags: "not-tags" },
@@ -38,7 +33,6 @@ describe("appendQueryParamsFromObject", () => {
   })
 
   it("matches Neutron list security groups usage", () => {
-    const q = new URLSearchParams()
     const input = {
       limit: 20,
       sort_key: "name",
@@ -50,7 +44,7 @@ describe("appendQueryParamsFromObject", () => {
       marker: undefined,
       description: undefined,
     }
-    appendQueryParamsFromObject(q, input, {
+    const q = appendQueryParamsFromObject(input, {
       keyMap: { tags_any: "tags-any", not_tags: "not-tags", not_tags_any: "not-tags-any" },
     })
     expect(q.get("limit")).toBe("20")
