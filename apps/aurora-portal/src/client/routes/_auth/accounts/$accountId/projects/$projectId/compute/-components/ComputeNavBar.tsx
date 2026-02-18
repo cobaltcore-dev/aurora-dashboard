@@ -21,9 +21,6 @@ export const ComputeSideNavBar = ({ accountId, projectId, availableServices }: C
 
   const serviceIndex = getServiceIndex(availableServices)
 
-  console.log("available services: ", availableServices)
-  console.log("service index: ", serviceIndex)
-
   const getComputeNavigationLinks = () => {
     return [
       { path: computeRootPath, label: t`Overview` },
