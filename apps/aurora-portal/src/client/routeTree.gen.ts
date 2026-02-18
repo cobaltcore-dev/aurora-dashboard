@@ -361,8 +361,28 @@ const AuthAccountsAccountIdProjectsProjectIdRouteChildren: AuthAccountsAccountId
     AuthAccountsAccountIdProjectsProjectIdGardenerClustersIndexRoute:
       AuthAccountsAccountIdProjectsProjectIdGardenerClustersIndexRoute,
   }
+const AuthAccountsAccountIdProjectsProjectIdRouteChildren: AuthAccountsAccountIdProjectsProjectIdRouteChildren =
+  {
+    AuthAccountsAccountIdProjectsProjectIdComputeSplatRoute:
+      AuthAccountsAccountIdProjectsProjectIdComputeSplatRoute,
+    AuthAccountsAccountIdProjectsProjectIdGardenerIndexRoute:
+      AuthAccountsAccountIdProjectsProjectIdGardenerIndexRoute,
+    AuthAccountsAccountIdProjectsProjectIdNetworkIndexRoute:
+      AuthAccountsAccountIdProjectsProjectIdNetworkIndexRoute,
+    AuthAccountsAccountIdProjectsProjectIdComputeFlavorsFlavorIdRoute:
+      AuthAccountsAccountIdProjectsProjectIdComputeFlavorsFlavorIdRoute,
+    AuthAccountsAccountIdProjectsProjectIdComputeImagesImageIdRoute:
+      AuthAccountsAccountIdProjectsProjectIdComputeImagesImageIdRoute,
+    AuthAccountsAccountIdProjectsProjectIdGardenerClustersClusterNameRoute:
+      AuthAccountsAccountIdProjectsProjectIdGardenerClustersClusterNameRoute,
+    AuthAccountsAccountIdProjectsProjectIdGardenerClustersIndexRoute:
+      AuthAccountsAccountIdProjectsProjectIdGardenerClustersIndexRoute,
+  }
 
 const AuthAccountsAccountIdProjectsProjectIdRouteWithChildren =
+  AuthAccountsAccountIdProjectsProjectIdRoute._addFileChildren(
+    AuthAccountsAccountIdProjectsProjectIdRouteChildren,
+  )
   AuthAccountsAccountIdProjectsProjectIdRoute._addFileChildren(
     AuthAccountsAccountIdProjectsProjectIdRouteChildren,
   )
@@ -381,6 +401,10 @@ const AuthRouteChildren: AuthRouteChildren = {
     AuthAccountsAccountIdProjectsProjectIdRouteWithChildren,
   AuthAccountsAccountIdProjectsIndexRoute:
     AuthAccountsAccountIdProjectsIndexRoute,
+  AuthAccountsAccountIdProjectsProjectIdRoute:
+    AuthAccountsAccountIdProjectsProjectIdRouteWithChildren,
+  AuthAccountsAccountIdProjectsIndexRoute:
+    AuthAccountsAccountIdProjectsIndexRoute,
 }
 
 const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
@@ -391,6 +415,9 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   AuthLoginRoute: AuthLoginRoute,
 }
+export const routeTree = rootRouteImport
+  ._addFileChildren(rootRouteChildren)
+  ._addFileTypes<FileRouteTypes>()
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
