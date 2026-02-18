@@ -3,6 +3,7 @@ import { useVirtualizer } from "@tanstack/react-virtual"
 import { DataGrid, DataGridHeadCell, DataGridRow, DataGridCell } from "@cloudoperators/juno-ui-components"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { ContainerSummary } from "@/server/Storage/types/swift"
+import { formatBytesDecimal } from "@/client/utils/formatBytes"
 
 interface ContainerListViewProps {
   containers: ContainerSummary[]
@@ -20,17 +21,6 @@ export const ContainerListView = ({ containers }: ContainerListViewProps) => {
       setScrollbarWidth(width)
     }
   }, [containers.length])
-
-  // Format bytes to human-readable size
-  const formatBytes = (bytes: number): string => {
-    if (bytes === 0) return "0 B"
-
-    const k = 1024
-    const sizes = ["B", "KB", "MB", "GB", "TB"]
-    const i = Math.floor(Math.log(bytes) / Math.log(k))
-
-    return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`
-  }
 
   // Format date to localized string
   const formatDate = (dateString: string): string => {
@@ -144,7 +134,7 @@ export const ContainerListView = ({ containers }: ContainerListViewProps) => {
                 <DataGridCell>{container.name}</DataGridCell>
                 <DataGridCell>{container.count.toLocaleString()}</DataGridCell>
                 <DataGridCell>{container.last_modified ? formatDate(container.last_modified) : t`N/A`}</DataGridCell>
-                <DataGridCell>{formatBytes(container.bytes)}</DataGridCell>
+                <DataGridCell>{formatBytesDecimal(container.bytes)}</DataGridCell>
               </div>
             )
           })}

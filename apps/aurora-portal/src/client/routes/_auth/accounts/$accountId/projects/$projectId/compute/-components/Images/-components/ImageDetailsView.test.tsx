@@ -14,7 +14,7 @@ describe("ImageDetailsView", () => {
     name: "Ubuntu 22.04 LTS",
     status: "active",
     visibility: "public",
-    size: 2147483648,
+    size: 2000000000, // 2.00 GB under decimal (SI) formatting
     disk_format: "qcow2",
     container_format: "bare",
     min_disk: 10,
@@ -74,7 +74,7 @@ describe("ImageDetailsView", () => {
     it("should render SizeDisplay component with correct size", () => {
       setup(<GeneralImageData image={mockImage} />)
 
-      // SizeDisplay formats 2147483648 bytes as "2 GB"
+      // SizeDisplay formats 2_000_000_000 bytes as "2 GB" (decimal/SI)
       expect(screen.getByText("2 GB")).toBeInTheDocument()
     })
 
@@ -342,7 +342,7 @@ describe("ImageDetailsView", () => {
         ...mockImage,
         status: "queued",
         visibility: "private",
-        size: 1073741824, // 1 GB
+        size: 1000000000, // 1.00 GB under decimal (SI) formatting
         custom_property: "custom value",
         os_version: "22.04",
       }
