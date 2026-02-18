@@ -67,7 +67,7 @@ const createCaller = createCallerFactory(
   })
 )
 
-describe("floatingIpRouter.listFloatingIPs", () => {
+describe("floatingIpRouter.list", () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })
@@ -76,7 +76,7 @@ describe("floatingIpRouter.listFloatingIPs", () => {
     const ctx = createMockContext()
     const caller = createCaller(ctx)
 
-    const result = await caller.floatingIp.listFloatingIPs({})
+    const result = await caller.floatingIp.list({})
 
     expect(Array.isArray(result)).toBe(true)
     expect(result.length).toBe(2)
@@ -100,7 +100,7 @@ describe("floatingIpRouter.listFloatingIPs", () => {
     const ctx = createMockContext({ invalidSession: true })
     const caller = createCaller(ctx)
 
-    await expect(caller.floatingIp.listFloatingIPs({})).rejects.toThrow(
+    await expect(caller.floatingIp.list({})).rejects.toThrow(
       new TRPCError({
         code: "UNAUTHORIZED",
         message: "The session is invalid",
@@ -112,7 +112,7 @@ describe("floatingIpRouter.listFloatingIPs", () => {
     const ctx = createMockContext({ noNetworkService: true })
     const caller = createCaller(ctx)
 
-    await expect(caller.floatingIp.listFloatingIPs({})).rejects.toThrow(
+    await expect(caller.floatingIp.list({})).rejects.toThrow(
       new TRPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: "Network service is not available",
@@ -124,7 +124,7 @@ describe("floatingIpRouter.listFloatingIPs", () => {
     const ctx = createMockContext({ parseError: true })
     const caller = createCaller(ctx)
 
-    await expect(caller.floatingIp.listFloatingIPs({})).rejects.toThrow(
+    await expect(caller.floatingIp.list({})).rejects.toThrow(
       new TRPCError({
         code: "PARSE_ERROR",
         message: "Failed to parse floating IPs response from OpenStack",
@@ -136,7 +136,7 @@ describe("floatingIpRouter.listFloatingIPs", () => {
     const ctx = createMockContext()
     const caller = createCaller(ctx)
 
-    const result = await caller.floatingIp.listFloatingIPs({
+    const result = await caller.floatingIp.list({
       limit: 10,
       marker: "fip-1",
       page_reverse: false,
@@ -150,7 +150,7 @@ describe("floatingIpRouter.listFloatingIPs", () => {
     const ctx = createMockContext()
     const caller = createCaller(ctx)
 
-    const result = await caller.floatingIp.listFloatingIPs({
+    const result = await caller.floatingIp.list({
       sort_key: "floating_ip_address",
       sort_dir: "asc",
     })
@@ -163,7 +163,7 @@ describe("floatingIpRouter.listFloatingIPs", () => {
     const ctx = createMockContext()
     const caller = createCaller(ctx)
 
-    const result = await caller.floatingIp.listFloatingIPs({
+    const result = await caller.floatingIp.list({
       status: "ACTIVE",
       floating_network_id: "net-1",
       project_id: "proj-1",
@@ -177,7 +177,7 @@ describe("floatingIpRouter.listFloatingIPs", () => {
     const ctx = createMockContext()
     const caller = createCaller(ctx)
 
-    const result = await caller.floatingIp.listFloatingIPs({
+    const result = await caller.floatingIp.list({
       limit: 20,
       marker: "fip-0",
       page_reverse: false,
@@ -218,7 +218,7 @@ describe("floatingIpRouter.listFloatingIPs", () => {
     } as unknown as AuroraPortalContext
 
     const caller = createCaller(ctx)
-    const result = await caller.floatingIp.listFloatingIPs({})
+    const result = await caller.floatingIp.list({})
 
     expect(Array.isArray(result)).toBe(true)
     expect(result.length).toBe(0)

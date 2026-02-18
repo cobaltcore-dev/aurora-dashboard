@@ -11,7 +11,7 @@ import { FloatingIpQueryParametersSchema, FloatingIp, FloatingIpResponseSchema }
  * - list: GET /v2.0/floatingips with pagination, sorting and filtering support.
  */
 export const floatingIpRouter = {
-  listFloatingIPs: protectedProcedure
+  list: protectedProcedure
     .input(FloatingIpQueryParametersSchema)
     .query(async ({ input, ctx }): Promise<FloatingIp[]> => {
       const openstackSession = ctx.openstack
