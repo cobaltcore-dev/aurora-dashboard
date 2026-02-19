@@ -1,10 +1,18 @@
 import { useRef, useEffect, useState } from "react"
 import { useVirtualizer } from "@tanstack/react-virtual"
-import { DataGrid, DataGridHeadCell, DataGridRow, DataGridCell } from "@cloudoperators/juno-ui-components"
+import {
+  DataGrid,
+  DataGridHeadCell,
+  DataGridRow,
+  DataGridCell,
+  Toast,
+  ToastProps,
+} from "@cloudoperators/juno-ui-components"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { ContainerSummary } from "@/server/Storage/types/swift"
 import { formatBytesBinary } from "@/client/utils/formatBytes"
 import { CreateContainerModal } from "./CreateContainerModal"
+import { getContainerCreatedToast, getContainerCreateErrorToast } from "./ContainerToastNotifications"
 
 interface ContainerListViewProps {
   containers: ContainerSummary[]
@@ -16,6 +24,17 @@ export const ContainerListView = ({ containers, createModalOpen, setCreateModalO
   const { t } = useLingui()
   const parentRef = useRef<HTMLDivElement>(null)
   const [scrollbarWidth, setScrollbarWidth] = useState(0)
+  const [toastData, setToastData] = useState<ToastProps | null>(null)
+
+  const handleToastDismiss = () => setToastData(null)
+
+  const handleCreateSuccess = (containerName: string) => {
+    setToastData(getContainerCreatedToast(containerName, { onDismiss: handleToastDismiss }))
+  }
+
+  const handleCreateError = (containerName: string, errorMessage: string) => {
+    setToastData(getContainerCreateErrorToast(containerName, errorMessage, { onDismiss: handleToastDismiss }))
+  }
 
   // Calculate scrollbar width
   useEffect(() => {
@@ -62,7 +81,16 @@ export const ContainerListView = ({ containers, createModalOpen, setCreateModalO
           </DataGridRow>
         </DataGrid>
 
-        <CreateContainerModal isOpen={createModalOpen} onClose={() => setCreateModalOpen(false)} />
+        <CreateContainerModal
+          isOpen={createModalOpen}
+          onClose={() => setCreateModalOpen(false)}
+          onSuccess={handleCreateSuccess}
+          onError={handleCreateError}
+        />
+
+        {toastData && (
+          <Toast {...toastData} className="fixed top-5 right-5 z-50 border border-theme-light rounded-lg shadow-lg" />
+        )}
       </>
     )
   }
@@ -157,7 +185,16 @@ export const ContainerListView = ({ containers, createModalOpen, setCreateModalO
         </div>
       </div>
 
-      <CreateContainerModal isOpen={createModalOpen} onClose={() => setCreateModalOpen(false)} />
+      <CreateContainerModal
+        isOpen={createModalOpen}
+        onClose={() => setCreateModalOpen(false)}
+        onSuccess={handleCreateSuccess}
+        onError={handleCreateError}
+      />
+
+      {toastData && (
+        <Toast {...toastData} className="fixed top-5 right-5 z-50 border border-theme-light rounded-lg shadow-lg" />
+      )}
     </>
   )
 }

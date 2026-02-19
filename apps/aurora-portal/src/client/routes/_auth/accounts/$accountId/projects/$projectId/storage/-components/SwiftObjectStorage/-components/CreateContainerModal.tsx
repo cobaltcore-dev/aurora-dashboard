@@ -6,10 +6,11 @@ import { Modal, TextInput, Stack, Message } from "@cloudoperators/juno-ui-compon
 interface CreateContainerModalProps {
   isOpen: boolean
   onClose: () => void
-  onSuccess?: () => void
+  onSuccess?: (containerName: string) => void
+  onError?: (containerName: string, errorMessage: string) => void
 }
 
-export const CreateContainerModal = ({ isOpen, onClose, onSuccess }: CreateContainerModalProps) => {
+export const CreateContainerModal = ({ isOpen, onClose, onSuccess, onError }: CreateContainerModalProps) => {
   const { t } = useLingui()
   const [containerName, setContainerName] = useState("")
   const [nameError, setNameError] = useState<string | null>(null)
@@ -18,10 +19,15 @@ export const CreateContainerModal = ({ isOpen, onClose, onSuccess }: CreateConta
 
   const createContainerMutation = trpcReact.storage.swift.createContainer.useMutation({
     onSuccess: () => {
-      // Invalidate and refetch containers list
       utils.storage.swift.listContainers.invalidate()
+      const name = containerName.trim()
+      onSuccess?.(name)
+    },
+    onError: (error) => {
+      onError?.(containerName.trim(), error.message)
+    },
+    onSettled: () => {
       handleClose()
-      onSuccess?.()
     },
   })
 
@@ -57,10 +63,7 @@ export const CreateContainerModal = ({ isOpen, onClose, onSuccess }: CreateConta
 
   const handleSubmit = () => {
     if (!validateName(containerName)) return
-
-    createContainerMutation.mutate({
-      container: containerName.trim(),
-    })
+    createContainerMutation.mutate({ container: containerName.trim() })
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -82,33 +85,25 @@ export const CreateContainerModal = ({ isOpen, onClose, onSuccess }: CreateConta
       size="small"
       disableConfirmButton={createContainerMutation.isPending || !containerName.trim()}
     >
-      <Stack direction="vertical" gap="4">
-        {createContainerMutation.isError && (
-          <div className="text-theme-danger text-sm p-2 rounded bg-theme-background-lvl-2">
-            {createContainerMutation.error?.message || t`Failed to create container`}
-          </div>
-        )}
-
-        <Stack direction="vertical" gap="4">
-          <TextInput
-            label={t`Container name`}
-            required
-            value={containerName}
-            onChange={handleNameChange}
-            onKeyDown={handleKeyDown}
-            invalid={!!nameError}
-            errortext={nameError || undefined}
-            disabled={createContainerMutation.isPending}
-            autoFocus
-            placeholder={t`Enter container name`}
-          />
-          <Message variant="info">
-            <Trans>
-              Inside a project, objects are stored in containers. Containers are where you define access permissions and
-              quotas.
-            </Trans>
-          </Message>
-        </Stack>
+      <Stack direction="vertical" gap="6">
+        <TextInput
+          label={t`Container name`}
+          required
+          value={containerName}
+          onChange={handleNameChange}
+          onKeyDown={handleKeyDown}
+          invalid={!!nameError}
+          errortext={nameError || undefined}
+          disabled={createContainerMutation.isPending}
+          autoFocus
+          placeholder={t`Enter container name`}
+        />
+        <Message variant="info">
+          <Trans>
+            Inside a project, objects are stored in containers. Containers are where you define access permissions and
+            quotas.
+          </Trans>
+        </Message>
       </Stack>
     </Modal>
   )
