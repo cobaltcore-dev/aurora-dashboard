@@ -12,6 +12,10 @@ export const Route = createFileRoute("/_auth/accounts/$accountId/projects/$proje
     })
     const availableServices = await context.trpcClient?.auth.getAvailableServices.query()
 
+    const projects = await context.trpcClient?.project.searchProjects.query({ search: "" })
+
+    const projectNameById = Object.fromEntries(projects?.map((p) => [p.id, p.name]) || [])
+
     return {
       trpcClient: context.trpcClient,
       crumbDomain: { path: `/accounts/${params.accountId}/projects`, name: data?.domain?.name },
@@ -19,6 +23,8 @@ export const Route = createFileRoute("/_auth/accounts/$accountId/projects/$proje
       availableServices,
       accountId: params.accountId,
       projectId: params.projectId,
+      projects,
+      projectNameById,
     }
   },
 })

@@ -45,7 +45,11 @@ export const SecurityGroups = () => {
     filterSettings.selectedFilters
       .filter((sf) => !sf.inactive)
       .forEach((sf) => {
-        params[sf.name] = Boolean(sf.value)
+        if (sf.value === "true" || sf.value === "false") {
+          params[sf.name] = sf.value === "true"
+          return
+        }
+        params[sf.name] = sf.value
       })
     return params
   }

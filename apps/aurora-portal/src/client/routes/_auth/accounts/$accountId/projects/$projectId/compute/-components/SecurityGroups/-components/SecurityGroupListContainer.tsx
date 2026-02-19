@@ -14,6 +14,7 @@ import { Trans, useLingui } from "@lingui/react/macro"
 import type { SecurityGroup } from "@/server/Network/types/securityGroup"
 import { EditSecurityGroupModal } from "./-modals/EditSecurityGroupModal"
 import { AccessControlModal } from "./-modals/AccessControlModal"
+import { useLoaderData } from "@tanstack/react-router"
 
 interface SecurityGroupListContainerProps {
   securityGroups: SecurityGroup[]
@@ -30,9 +31,9 @@ export const SecurityGroupListContainer = ({
 }: SecurityGroupListContainerProps) => {
   const { t } = useLingui()
   const [modalComponent, setModalComponent] = useState<React.ReactElement | null>(null)
+  const { projectNameById } = useLoaderData({ from: "/_auth/accounts/$accountId/projects/$projectId" })
 
   const formatDate = (date: string | null | undefined) => (date ? new Date(date).toLocaleDateString() : t`N/A`)
-
   const handleEdit = (sg: SecurityGroup) => {
     setModalComponent(
       <EditSecurityGroupModal
@@ -125,49 +126,52 @@ export const SecurityGroupListContainer = ({
             </DataGridHeadCell>
           ))}
         </DataGridRow>
-        {securityGroups.map((sg) => (
-          <DataGridRow
-            key={sg.id}
-            className="cursor-pointer hover:bg-theme-background-lvl-1"
-            onClick={() => handleViewDetails(sg)}
-          >
-            <DataGridCell>
-              <div>
-                <p className="text-md">{sg.name}</p>
-                <p className="text-xs text-theme-secondary">{sg.id}</p>
-              </div>
-            </DataGridCell>
-            <DataGridCell>{sg.description || t`—`}</DataGridCell>
-            <DataGridCell>{sg.project_id}</DataGridCell>
-            <DataGridCell>
-              <BooleanIcon value={sg.stateful} />
-            </DataGridCell>
-            <DataGridCell>
-              <BooleanIcon value={sg.shared} />
-            </DataGridCell>
+        {securityGroups.map((sg) => {
+          const projectName = sg.project_id ? projectNameById?.[sg.project_id] : t`-`
+          return (
+            <DataGridRow
+              key={sg.id}
+              className="cursor-pointer hover:bg-theme-background-lvl-1"
+              onClick={() => handleViewDetails(sg)}
+            >
+              <DataGridCell>
+                <div>
+                  <p className="text-md">{sg.name}</p>
+                  <p className="text-xs text-theme-secondary">{sg.id}</p>
+                </div>
+              </DataGridCell>
+              <DataGridCell>{sg.description || t`—`}</DataGridCell>
+              <DataGridCell>{projectName}</DataGridCell>
+              <DataGridCell>
+                <BooleanIcon value={sg.stateful} />
+              </DataGridCell>
+              <DataGridCell>
+                <BooleanIcon value={sg.shared} />
+              </DataGridCell>
 
-            <DataGridCell>{formatDate(sg.created_at)}</DataGridCell>
-            <DataGridCell onClick={(e) => e.stopPropagation()}>
-              <div className="flex gap-2">
-                <Button size="small" variant="subdued" icon="edit" onClick={() => handleEdit(sg)} title={t`Edit`} />
-                {/* <Button
-                  size="small"
-                  variant="subdued"
-                  icon="deleteForever"
-                  onClick={() => handleDelete(sg)}
-                  title={t`Delete`}
-                /> */}
-                <Button
-                  size="small"
-                  variant="subdued"
-                  icon="severityHigh"
-                  onClick={() => handleAccessControl(sg)}
-                  title={t`Access Control`}
-                />
-              </div>
-            </DataGridCell>
-          </DataGridRow>
-        ))}
+              <DataGridCell>{formatDate(sg.created_at)}</DataGridCell>
+              <DataGridCell onClick={(e) => e.stopPropagation()}>
+                <div className="flex gap-2">
+                  <Button size="small" variant="subdued" icon="edit" onClick={() => handleEdit(sg)} title={t`Edit`} />
+                  {/* <Button
+                    size="small"
+                    variant="subdued"
+                    icon="deleteForever"
+                    onClick={() => handleDelete(sg)}
+                    title={t`Delete`}
+                  /> */}
+                  <Button
+                    size="small"
+                    variant="subdued"
+                    icon="severityHigh"
+                    onClick={() => handleAccessControl(sg)}
+                    title={t`Access Control`}
+                  />
+                </div>
+              </DataGridCell>
+            </DataGridRow>
+          )
+        })}
       </DataGrid>
 
       {modalComponent}
