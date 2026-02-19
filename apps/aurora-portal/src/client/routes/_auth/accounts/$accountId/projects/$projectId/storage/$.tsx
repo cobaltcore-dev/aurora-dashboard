@@ -3,7 +3,7 @@ import { getServiceIndex } from "@/server/Authentication/helpers"
 import { ErrorBoundary } from "react-error-boundary"
 import { SwiftObjectStorage } from "./-components/SwiftObjectStorage/List"
 
-const checkServiceAvailability = (
+export const checkServiceAvailability = (
   availableServices: {
     type: string
     name: string
@@ -26,7 +26,7 @@ const checkServiceAvailability = (
     })
   }
 
-  // Redirect to storage overview if specific service not available
+  // Redirect to default if specific service not available
   if (splat === "objectstorage" && !serviceIndex["object-store"]["swift"]) {
     throw redirect({
       to: "/accounts/$accountId/projects/$projectId/storage/$",
@@ -81,6 +81,7 @@ function StorageDashboard() {
               case "objectstorage":
                 return <SwiftObjectStorage />
               default:
+                // An default Overview could be added
                 return <SwiftObjectStorage />
             }
           })()}
