@@ -18,6 +18,7 @@ export const SideNavBar = ({ accountId, projectId, availableServices }: SideNavB
   const navigate = useNavigate()
 
   const computeRootPath = `/accounts/${accountId}/projects/${projectId}/compute`
+  const storageRootPath = `/accounts/${accountId}/projects/${projectId}/storage`
 
   const serviceIndex = getServiceIndex(availableServices)
 
@@ -33,32 +34,54 @@ export const SideNavBar = ({ accountId, projectId, availableServices }: SideNavB
             { path: `${computeRootPath}/flavors`, label: t`Flavors` },
           ]
         : []),
-      // TODO: Remove once object storage is moved to /storage layout with its own navigation
+    ]
+  }
+
+  const getStorageNavigationLinks = () => {
+    return [
       ...(serviceIndex?.["object-store"]?.["swift"]
-        ? [{ path: `${computeRootPath}/objectstorage`, label: t`Object Storage` }]
+        ? [{ path: `${storageRootPath}/objectstorage`, label: t`Object Storage` }]
         : []),
     ]
   }
 
-  const links = getComputeNavigationLinks()
+  const computeLinks = getComputeNavigationLinks()
+  const storageLinks = getStorageNavigationLinks()
 
   const handleNavigate = (path: string) => {
     navigate({ to: path })
   }
 
   return (
-    <SideNavigation ariaLabel="Compute Side Navigation" onActiveItemChange={() => {}}>
+    <SideNavigation ariaLabel="Project Side Navigation" onActiveItemChange={() => {}}>
       <SideNavigationList>
-        <SideNavigationItem label="Compute">
-          {links.map(({ path, label }) => (
-            <SideNavigationItem
-              key={path}
-              onClick={() => handleNavigate(path)}
-              label={label}
-              selected={location.pathname === path}
-            />
-          ))}
-        </SideNavigationItem>
+        <>
+          {computeLinks.length > 0 && (
+            <SideNavigationItem label="Compute">
+              {computeLinks.map(({ path, label }) => (
+                <SideNavigationItem
+                  key={path}
+                  onClick={() => handleNavigate(path)}
+                  label={label}
+                  selected={location.pathname === path}
+                />
+              ))}
+            </SideNavigationItem>
+          )}
+
+          {storageLinks.length > 0 && (
+            <SideNavigationItem label="Storage">
+              {storageLinks.map(({ path, label }) => (
+                <SideNavigationItem
+                  key={path}
+                  onClick={() => handleNavigate(path)}
+                  label={label}
+                  selected={location.pathname === path}
+                />
+              ))}
+            </SideNavigationItem>
+          )}
+        </>
       </SideNavigationList>
     </SideNavigation>
   )
