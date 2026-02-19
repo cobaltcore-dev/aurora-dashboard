@@ -54,6 +54,13 @@ export const SecurityGroups = () => {
     return params
   }
 
+  // TODO: replace with trpc.network.canUser when security group permissions are available
+  const permissions = {
+    canUpdate: true,
+    canDelete: false,
+    canManageAccess: true,
+  }
+
   const {
     data: securityGroups = [],
     isLoading,
@@ -104,6 +111,7 @@ export const SecurityGroups = () => {
         isLoading={isLoading}
         isError={isError}
         error={error}
+        permissions={permissions}
       />
     </div>
   )
