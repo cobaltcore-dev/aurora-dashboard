@@ -5,11 +5,13 @@ import { SortSettings } from "@/client/components/ListToolbar/types"
 import { ContainerSummary } from "@/server/Storage/types/swift"
 import { trpcReact } from "@/client/trpcClient"
 import { formatBytesBinary } from "@/client/utils/formatBytes"
-import { Spinner, Stack } from "@cloudoperators/juno-ui-components"
+import { Button, Spinner, Stack } from "@cloudoperators/juno-ui-components"
 import { ContainerListView } from "./-components/ContainerListView"
 
 export const SwiftObjectStorage = () => {
   const { t } = useLingui()
+
+  const [createModalOpen, setCreateModalOpen] = useState(false)
 
   const [sortSettings, setSortSettings] = useState<SortSettings>({
     options: [
@@ -126,9 +128,9 @@ export const SwiftObjectStorage = () => {
         onSort={handleSortChange}
         onSearch={handleSearchChange}
         actions={
-          <>
+          <Stack direction="vertical" alignment="end" gap="4">
             {accountInfo && quotaBytes > 0 && (
-              <div className="flex flex-col items-end gap-1 text-sm">
+              <Stack direction="vertical" alignment="end" gap="1" className="text-sm">
                 <div className="text-theme-default">
                   <Trans>Remaining Quota:</Trans>{" "}
                   <span className="font-semibold">{formatBytesBinary(remainingBytes)} Capacity</span>
@@ -136,12 +138,20 @@ export const SwiftObjectStorage = () => {
                 <div className="text-theme-light">
                   <Trans>Space Used:</Trans> {formatBytesBinary(bytesUsed)} / {formatBytesBinary(quotaBytes)}
                 </div>
-              </div>
+              </Stack>
             )}
-          </>
+            <Button variant="primary" onClick={() => setCreateModalOpen(true)}>
+              <Trans>Create Container</Trans>
+            </Button>
+          </Stack>
         }
       />
-      <ContainerListView containers={sortedContainers} />
+
+      <ContainerListView
+        containers={sortedContainers}
+        createModalOpen={createModalOpen}
+        setCreateModalOpen={setCreateModalOpen}
+      />
     </div>
   )
 }
