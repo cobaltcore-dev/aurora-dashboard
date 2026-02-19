@@ -8,9 +8,16 @@ interface CreateContainerModalProps {
   onClose: () => void
   onSuccess?: (containerName: string) => void
   onError?: (containerName: string, errorMessage: string) => void
+  maxContainerNameLength?: number
 }
 
-export const CreateContainerModal = ({ isOpen, onClose, onSuccess, onError }: CreateContainerModalProps) => {
+export const CreateContainerModal = ({
+  isOpen,
+  onClose,
+  onSuccess,
+  onError,
+  maxContainerNameLength = 256,
+}: CreateContainerModalProps) => {
   const { t } = useLingui()
   const [containerName, setContainerName] = useState("")
   const [nameError, setNameError] = useState<string | null>(null)
@@ -43,8 +50,8 @@ export const CreateContainerModal = ({ isOpen, onClose, onSuccess, onError }: Cr
       setNameError(t`Container name is required`)
       return false
     }
-    if (name.length > 256) {
-      setNameError(t`Container name must be 256 characters or fewer`)
+    if (name.length > maxContainerNameLength) {
+      setNameError(t`Container name must be ${maxContainerNameLength} characters or fewer`)
       return false
     }
     if (name.includes("/")) {

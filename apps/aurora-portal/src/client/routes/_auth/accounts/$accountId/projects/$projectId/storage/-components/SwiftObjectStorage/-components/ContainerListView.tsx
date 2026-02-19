@@ -18,9 +18,15 @@ interface ContainerListViewProps {
   containers: ContainerSummary[]
   createModalOpen: boolean
   setCreateModalOpen: (open: boolean) => void
+  maxContainerNameLength?: number
 }
 
-export const ContainerListView = ({ containers, createModalOpen, setCreateModalOpen }: ContainerListViewProps) => {
+export const ContainerListView = ({
+  containers,
+  createModalOpen,
+  setCreateModalOpen,
+  maxContainerNameLength,
+}: ContainerListViewProps) => {
   const { t } = useLingui()
   const parentRef = useRef<HTMLDivElement>(null)
   const [scrollbarWidth, setScrollbarWidth] = useState(0)
@@ -86,6 +92,7 @@ export const ContainerListView = ({ containers, createModalOpen, setCreateModalO
           onClose={() => setCreateModalOpen(false)}
           onSuccess={handleCreateSuccess}
           onError={handleCreateError}
+          maxContainerNameLength={maxContainerNameLength}
         />
 
         {toastData && (

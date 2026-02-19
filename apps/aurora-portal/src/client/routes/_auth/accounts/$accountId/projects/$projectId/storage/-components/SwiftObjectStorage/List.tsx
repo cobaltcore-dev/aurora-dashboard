@@ -38,6 +38,12 @@ export const SwiftObjectStorage = () => {
   // Fetch account metadata for quota information
   const { data: accountInfo } = trpcReact.storage.swift.getAccountMetadata.useQuery({})
 
+  // Fetch Swift service info
+  const { data: serviceInfo } = trpcReact.storage.swift.getServiceInfo.useQuery()
+
+  console.log("service info: ", serviceInfo)
+  console.log("account info: ", accountInfo)
+
   // Sort containers based on sort settings
   const sortContainers = (containers: ContainerSummary[]): ContainerSummary[] => {
     return [...containers].sort((a, b) => {
@@ -151,6 +157,7 @@ export const SwiftObjectStorage = () => {
         containers={sortedContainers}
         createModalOpen={createModalOpen}
         setCreateModalOpen={setCreateModalOpen}
+        maxContainerNameLength={serviceInfo?.swift?.max_container_name_length}
       />
     </div>
   )
