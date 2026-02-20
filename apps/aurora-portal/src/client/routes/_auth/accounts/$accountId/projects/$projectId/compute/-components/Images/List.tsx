@@ -171,7 +171,7 @@ export const Images = () => {
 
   const { data, error, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage, isPending, isError } =
     useInfiniteQuery({
-      /**l
+      /**
        * Query key includes sort, filter, and search settings to trigger refetch when they change
        * This ensures the data is re-fetched whenever the user changes any filter, sort, or search
        */
