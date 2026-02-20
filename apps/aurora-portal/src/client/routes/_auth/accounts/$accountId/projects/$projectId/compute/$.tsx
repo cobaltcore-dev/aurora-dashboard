@@ -42,10 +42,6 @@ const checkServiceAvailability = (
     shouldNavigateToOverview = true
   }
 
-  if (splat === "securitygroups" && !serviceIndex["network"]) {
-    shouldNavigateToOverview = true
-  }
-
   if (shouldNavigateToOverview) {
     // Redirect to the "Compute Services Overview" page if a specific compute service is not available
     throw redirect({

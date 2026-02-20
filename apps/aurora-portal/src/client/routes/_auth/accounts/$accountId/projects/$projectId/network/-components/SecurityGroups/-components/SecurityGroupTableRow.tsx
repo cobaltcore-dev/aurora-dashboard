@@ -38,7 +38,7 @@ export function SecurityGroupTableRow({
       onViewDetails(sg)
     }
     // Placeholder: when detail route exists
-    // navigate({ to: "/accounts/$accountId/projects/$projectId/compute/security-groups/$securityGroupId", params: { accountId, projectId, securityGroupId: sg.id } })
+    // navigate({ to: "/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId", ... })
   }
 
   return (
@@ -69,7 +69,7 @@ export function SecurityGroupTableRow({
             {permissions.canManageAccess && (
               <PopupMenuItem label={t`Access Control`} onClick={() => onAccessControl(sg)} />
             )}
-            {permissions.canDelete && <PopupMenuItem label={t`Delete`} onClick={() => {}} disabled />}
+            {permissions.canDelete && <PopupMenuItem label={t`Delete`} onClick={() => { }} disabled />}
           </PopupMenuOptions>
         </PopupMenu>
       </DataGridCell>
