@@ -3,7 +3,7 @@ import { getServiceIndex } from "@/server/Authentication/helpers"
 import { SideNavigation, SideNavigationList, SideNavigationItem } from "@cloudoperators/juno-ui-components/index"
 import { useLingui } from "@lingui/react/macro"
 
-interface ComputeSideNavBarProps {
+interface SideNavBarProps {
   accountId: string
   projectId: string
   availableServices: {
@@ -12,12 +12,13 @@ interface ComputeSideNavBarProps {
   }[]
 }
 
-export const ComputeSideNavBar = ({ accountId, projectId, availableServices }: ComputeSideNavBarProps) => {
+export const SideNavBar = ({ accountId, projectId, availableServices }: SideNavBarProps) => {
   const { t } = useLingui()
   const location = useLocation()
   const navigate = useNavigate()
 
   const computeRootPath = `/accounts/${accountId}/projects/${projectId}/compute`
+  const storageRootPath = `/accounts/${accountId}/projects/${projectId}/storage`
 
   const serviceIndex = getServiceIndex(availableServices)
 
@@ -34,30 +35,54 @@ export const ComputeSideNavBar = ({ accountId, projectId, availableServices }: C
             { path: `${computeRootPath}/flavors`, label: t`Flavors` },
           ]
         : []),
-      // TODO: Remove once object storage is moved to /storage layout with its own navigation
+    ]
+  }
+
+  const getStorageNavigationLinks = () => {
+    return [
       ...(serviceIndex?.["object-store"]?.["swift"]
-        ? [{ path: `${computeRootPath}/objectstorage`, label: t`Object Storage` }]
+        ? [{ path: `${storageRootPath}/objectstorage`, label: t`Object Storage` }]
         : []),
     ]
   }
 
-  const links = getComputeNavigationLinks()
+  const computeLinks = getComputeNavigationLinks()
+  const storageLinks = getStorageNavigationLinks()
 
   const handleNavigate = (path: string) => {
     navigate({ to: path })
   }
 
   return (
-    <SideNavigation ariaLabel="Compute Side Navigation" onActiveItemChange={() => {}}>
+    <SideNavigation ariaLabel="Project Side Navigation" onActiveItemChange={() => {}}>
       <SideNavigationList>
-        {links.map(({ path, label }) => (
-          <SideNavigationItem
-            key={path}
-            onClick={() => handleNavigate(path)}
-            label={label}
-            selected={location.pathname === path}
-          />
-        ))}
+        <>
+          {computeLinks.length > 0 && (
+            <SideNavigationItem label="Compute">
+              {computeLinks.map(({ path, label }) => (
+                <SideNavigationItem
+                  key={path}
+                  onClick={() => handleNavigate(path)}
+                  label={label}
+                  selected={location.pathname === path}
+                />
+              ))}
+            </SideNavigationItem>
+          )}
+
+          {storageLinks.length > 0 && (
+            <SideNavigationItem label="Storage">
+              {storageLinks.map(({ path, label }) => (
+                <SideNavigationItem
+                  key={path}
+                  onClick={() => handleNavigate(path)}
+                  label={label}
+                  selected={location.pathname === path}
+                />
+              ))}
+            </SideNavigationItem>
+          )}
+        </>
       </SideNavigationList>
     </SideNavigation>
   )

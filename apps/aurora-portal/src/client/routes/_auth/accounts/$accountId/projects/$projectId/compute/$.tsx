@@ -8,8 +8,6 @@ import { Images } from "./-components/Images/List"
 import { KeyPairs } from "./-components/KeyPairs/List"
 import { ServerGroups } from "./-components/ServerGroups/List"
 import { Flavors } from "./-components/Flavors/List"
-import { SwiftObjectStorage } from "../storage/-components/SwiftObjectStorage/List"
-import { SecurityGroups } from "./-components/SecurityGroups/List"
 
 const checkServiceAvailability = (
   availableServices: {
@@ -56,6 +54,7 @@ const checkServiceAvailability = (
     })
   }
 }
+
 export const Route = createFileRoute("/_auth/accounts/$accountId/projects/$projectId/compute/$")({
   component: RouteComponent,
   errorComponent: ({ error }) => {
@@ -65,7 +64,7 @@ export const Route = createFileRoute("/_auth/accounts/$accountId/projects/$proje
     return <ErrorComponent error={error} />
   },
   notFoundComponent: () => {
-    return <p>Project not found</p>
+    return <p>Compute service not found</p>
   },
   loader: async ({ context }) => {
     const { trpcClient } = context
@@ -112,10 +111,6 @@ function ComputeDashboard({ client }: { client: TrpcClient }) {
                 return <ServerGroups project={project} client={client} />
               case "flavors":
                 return <Flavors project={project} client={client} />
-              case "objectstorage":
-                return <SwiftObjectStorage />
-              case "securitygroups":
-                return <SecurityGroups />
               default:
                 return <Overview project={project} client={client} />
             }

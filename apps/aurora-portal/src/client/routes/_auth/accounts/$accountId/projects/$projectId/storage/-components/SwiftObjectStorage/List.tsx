@@ -4,6 +4,7 @@ import { ListToolbar } from "@/client/components/ListToolbar"
 import { SortSettings } from "@/client/components/ListToolbar/types"
 import { ContainerSummary } from "@/server/Storage/types/swift"
 import { trpcReact } from "@/client/trpcClient"
+import { formatBytesBinary } from "@/client/utils/formatBytes"
 import { Spinner, Stack } from "@cloudoperators/juno-ui-components"
 import { ContainerListView } from "./-components/ContainerListView"
 
@@ -34,17 +35,6 @@ export const SwiftObjectStorage = () => {
 
   // Fetch account metadata for quota information
   const { data: accountInfo } = trpcReact.storage.swift.getAccountMetadata.useQuery({})
-
-  // Format bytes to human-readable size
-  const formatBytes = (bytes: number): string => {
-    if (bytes === 0) return "0 B"
-
-    const k = 1024
-    const sizes = ["B", "KiB", "MiB", "GiB", "TiB", "PiB"]
-    const i = Math.floor(Math.log(bytes) / Math.log(k))
-
-    return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`
-  }
 
   // Sort containers based on sort settings
   const sortContainers = (containers: ContainerSummary[]): ContainerSummary[] => {
@@ -141,10 +131,10 @@ export const SwiftObjectStorage = () => {
               <div className="flex flex-col items-end gap-1 text-sm">
                 <div className="text-theme-default">
                   <Trans>Remaining Quota:</Trans>{" "}
-                  <span className="font-semibold">{formatBytes(remainingBytes)} Capacity</span>
+                  <span className="font-semibold">{formatBytesBinary(remainingBytes)} Capacity</span>
                 </div>
                 <div className="text-theme-light">
-                  <Trans>Space Used:</Trans> {formatBytes(bytesUsed)} / {formatBytes(quotaBytes)}
+                  <Trans>Space Used:</Trans> {formatBytesBinary(bytesUsed)} / {formatBytesBinary(quotaBytes)}
                 </div>
               </div>
             )}
