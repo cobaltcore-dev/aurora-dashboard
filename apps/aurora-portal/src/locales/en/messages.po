@@ -739,7 +739,7 @@ msgstr "Flavor Not Found"
 msgid "Flavor service is not available for this project."
 msgstr "Flavor service is not available for this project."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/ComputeNavBar.tsx:36
+#: src/client/routes/_auth/accounts/$accountId/projects/-components/SideNavBar.tsx:34
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/flavors/$flavorId.tsx:117
 msgid "Flavors"
 msgstr "Flavors"
@@ -872,7 +872,7 @@ msgstr "Image Version"
 msgid "Image Visibility"
 msgstr "Image Visibility"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/ComputeNavBar.tsx:30
+#: src/client/routes/_auth/accounts/$accountId/projects/-components/SideNavBar.tsx:28
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId.tsx:123
 msgid "Images"
 msgstr "Images"
@@ -1306,7 +1306,7 @@ msgstr "Note: These network settings will be prefilled by the Kubernetes control
 msgid "Object Count"
 msgstr "Object Count"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/ComputeNavBar.tsx:41
+#: src/client/routes/_auth/accounts/$accountId/projects/-components/SideNavBar.tsx:43
 msgid "Object Storage"
 msgstr "Object Storage"
 
@@ -1335,7 +1335,7 @@ msgstr "OS Updates"
 msgid "Our Mission"
 msgstr "Our Mission"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/ComputeNavBar.tsx:29
+#: src/client/routes/_auth/accounts/$accountId/projects/-components/SideNavBar.tsx:27
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/flavors/$flavorId.tsx:116
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId.tsx:120
 msgid "Overview"
