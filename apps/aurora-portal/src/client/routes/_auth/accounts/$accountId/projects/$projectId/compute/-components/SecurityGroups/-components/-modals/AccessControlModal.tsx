@@ -1,3 +1,4 @@
+// TODO: Implement the Access Control Modal for managing security group rules
 import type { SecurityGroup } from "@/server/Network/types/securityGroup"
 import { FC } from "react"
 
@@ -10,5 +11,5 @@ interface AccessControlModalProps {
 export const AccessControlModal: FC<AccessControlModalProps> = () => {
   // const { t } = useLingui()
 
-  return <div>Access Modal</div>
+  return <div></div>
 }

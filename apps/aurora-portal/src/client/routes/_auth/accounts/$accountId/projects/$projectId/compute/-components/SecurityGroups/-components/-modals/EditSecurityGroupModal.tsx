@@ -1,3 +1,4 @@
+//TODO: implement edit security group modal
 import type { SecurityGroup } from "@/server/Network/types/securityGroup"
 import { FC } from "react"
 
@@ -10,5 +11,5 @@ interface EditSecurityGroupModalProps {
 export const EditSecurityGroupModal: FC<EditSecurityGroupModalProps> = () => {
   // const { t } = useLingui()
 
-  return <div>Edit Modal</div>
+  return <div></div>
 }
