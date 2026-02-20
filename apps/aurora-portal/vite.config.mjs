@@ -36,12 +36,13 @@ export default defineConfig(({ mode }) => {
           routesDirectory: "./routes",
           generatedRouteTree: "./routeTree.gen.ts",
           quoteStyle: "double",
+          routeFileIgnorePrefix: "-",
+          routeFileIgnorePattern: "test",
         }),
       mode !== "production" && viteFastify(),
       react({
         plugins: [["@lingui/swc-plugin", {}]],
       }),
-
       lingui(),
       svgr(),
       tsconfigPaths(),

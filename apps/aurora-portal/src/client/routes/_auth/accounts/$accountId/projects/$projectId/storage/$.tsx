@@ -27,7 +27,7 @@ export const checkServiceAvailability = (
   }
 
   // Redirect to default if specific service not available
-  if (splat === "objectstorage" && !serviceIndex["object-store"]["swift"]) {
+  if (splat === "swift" && !serviceIndex["object-store"]["swift"]) {
     throw redirect({
       to: "/accounts/$accountId/projects/$projectId/storage/$",
       params: { ...params, _splat: undefined },
@@ -78,7 +78,7 @@ function StorageDashboard() {
         <ErrorBoundary fallback={<div className="p-4 text-center">Error loading component</div>}>
           {(() => {
             switch (splat) {
-              case "objectstorage":
+              case "swift":
                 return <SwiftObjectStorage />
               default:
                 // An default Overview could be added
