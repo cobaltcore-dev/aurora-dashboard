@@ -390,8 +390,7 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({
                     onDrop={handleDrop}
                     className={cn(
                       "flex h-24 w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed transition-all",
-                      isDragging ? "border-blue-500 bg-blue-50" : "border-gray-300 bg-gray-50 hover:bg-gray-100",
-                      isLoading && "cursor-not-allowed opacity-50"
+                      isDragging ? "border-blue-500 bg-blue-50" : "border-gray-300 bg-gray-50 hover:bg-gray-100"
                     )}
                   >
                     <div className="flex flex-col items-center justify-center pt-3 pb-3">
