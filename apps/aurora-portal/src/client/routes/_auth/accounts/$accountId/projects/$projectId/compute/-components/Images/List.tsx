@@ -365,7 +365,7 @@ export const Images = () => {
         onSearch={handleSearchChange}
         actions={
           <>
-            <div className="w-full md:w-auto md:mr-auto">
+            <div className="w-full md:mr-auto md:w-auto">
               {(shouldShowSuggestedImages || shouldShowAcceptedImages) && (
                 <Button onClick={showAllImages}>{t`All Images`}</Button>
               )}

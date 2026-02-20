@@ -235,7 +235,7 @@ function EditSpecContent({
 
         {shouldShowEmptyState && (
           <DataGridRow>
-            <DataGridCell colSpan={3} className="text-center py-4 text-theme-default">
+            <DataGridCell colSpan={3} className="text-theme-default py-4 text-center">
               {t`No extra specs found. Click "Add Metadata" to create one.`}
             </DataGridCell>
           </DataGridRow>

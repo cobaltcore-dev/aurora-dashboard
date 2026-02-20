@@ -31,7 +31,7 @@ export function ProjectListView({ projects }: ProjectListViewProps) {
           )
         })
       ) : (
-        <div className="text-center py-6">
+        <div className="py-6 text-center">
           <Trans>No projects found</Trans>
         </div>
       )}

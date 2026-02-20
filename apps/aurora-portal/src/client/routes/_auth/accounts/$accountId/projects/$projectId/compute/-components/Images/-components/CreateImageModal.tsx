@@ -23,6 +23,7 @@ import {
   isValidFormatCombination,
 } from "@/server/Compute/helpers/imageHelpers"
 import { DISK_FORMATS, IMAGE_VISIBILITY } from "../../../-constants/filters"
+import { cn } from "@/client/utils/cn"
 
 interface CreateImageModalProps {
   isOpen: boolean
@@ -361,9 +362,9 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({
       )}
 
       {isLoading && !!uploadProgressPercent && (
-        <div className="w-full bg-neutral-quaternary rounded-full mt-4">
+        <div className="bg-neutral-quaternary mt-4 w-full rounded-full">
           <div
-            className={`bg-theme-info text-xs font-medium text-white text-center p-0.5 leading-none rounded-full h-4 flex items-center justify-center`}
+            className="bg-theme-info flex h-4 items-center justify-center rounded-full p-0.5 text-center text-xs leading-none font-medium text-white"
             style={{ width: `${uploadProgressPercent}%` }}
           >
             {uploadProgressPercent}%
@@ -377,23 +378,25 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({
           <FormSection className="mb-6">
             <FormRow>
               <div className="w-full">
-                <label htmlFor="image-file" className="block text-sm font-medium text-gray-900 mb-2">
+                <label htmlFor="image-file" className="mb-2 block text-sm font-medium text-gray-900">
                   {t`Image File`}
-                  <span className="text-red-500 ml-1">*</span>
+                  <span className="ml-1 text-red-500">*</span>
                 </label>
-                <div className="flex items-center justify-center w-full">
+                <div className="flex w-full items-center justify-center">
                   <label
                     htmlFor="image-file"
                     onDragOver={handleDragOver}
                     onDragLeave={handleDragLeave}
                     onDrop={handleDrop}
-                    className={`flex flex-col items-center justify-center w-full h-24 border-2 border-dashed rounded-lg cursor-pointer transition-all ${
-                      isDragging ? "border-blue-500 bg-blue-50" : "border-gray-300 bg-gray-50 hover:bg-gray-100"
-                    } ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
+                    className={cn(
+                      "flex h-24 w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed transition-all",
+                      isDragging ? "border-blue-500 bg-blue-50" : "border-gray-300 bg-gray-50 hover:bg-gray-100",
+                      isLoading && "cursor-not-allowed opacity-50"
+                    )}
                   >
                     <div className="flex flex-col items-center justify-center pt-3 pb-3">
                       <svg
-                        className={`w-6 h-6 mb-1 transition-colors ${isDragging ? "text-blue-500" : "text-gray-500"}`}
+                        className={cn("mb-1 h-6 w-6 transition-colors", isDragging ? "text-blue-500" : "text-gray-500")}
                         aria-hidden="true"
                         xmlns="http://www.w3.org/2000/svg"
                         fill="none"
@@ -408,7 +411,10 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({
                         />
                       </svg>
                       <p
-                        className={`text-xs transition-colors ${isDragging ? "text-blue-600 font-semibold" : "text-gray-500"}`}
+                        className={cn(
+                          "text-xs transition-colors",
+                          isDragging ? "font-semibold text-blue-600" : "text-gray-500"
+                        )}
                       >
                         {isDragging ? (
                           <span>{t`Drop your image file here`}</span>
@@ -431,9 +437,9 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({
                   </label>
                 </div>
                 {selectedFile && (
-                  <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded-lg flex items-center justify-between text-xs">
+                  <div className="mt-2 flex items-center justify-between rounded-lg border border-green-200 bg-green-50 p-2 text-xs">
                     <div className="flex items-center">
-                      <svg className="w-4 h-4 text-green-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                      <svg className="mr-2 h-4 w-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
                         <path
                           fillRule="evenodd"
                           d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
@@ -445,14 +451,14 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({
                     <button
                       type="button"
                       onClick={() => setSelectedFile(null)}
-                      className="text-red-600 hover:text-red-800 font-medium"
+                      className="font-medium text-red-600 hover:text-red-800"
                       disabled={isLoading}
                     >
                       {t`Remove`}
                     </button>
                   </div>
                 )}
-                {errors.file && <p className="text-red-600 text-xs mt-1 text-theme-error">{errors.file}</p>}
+                {errors.file && <p className="text-theme-error mt-1 text-xs text-red-600">{errors.file}</p>}
               </div>
             </FormRow>
           </FormSection>

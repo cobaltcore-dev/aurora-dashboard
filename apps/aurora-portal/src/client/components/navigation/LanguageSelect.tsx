@@ -31,7 +31,7 @@ export function LanguageSelect() {
       options={displayLanguages}
       onChange={handleLanguageChange}
       aria-label="Select language"
-      className="!bg-transparent hover:text-theme-accent"
+      className="hover:text-theme-accent !bg-transparent"
     />
   )
 }

@@ -30,8 +30,8 @@ export function ErrorPage({
   reset,
 }: ErrorPageProps) {
   const content = (
-    <Container className="flex flex-col items-center justify-center py-12 px-6 sm:px-12 md:px-20 max-w-3xl mx-auto min-h-full">
-      {statusCode && <div className="text-6xl font-bold text-theme-high">{statusCode}</div>}
+    <Container className="mx-auto flex min-h-full max-w-3xl flex-col items-center justify-center px-6 py-12 sm:px-12 md:px-20">
+      {statusCode && <div className="text-theme-high text-6xl font-bold">{statusCode}</div>}
       <ContentHeading>{title}</ContentHeading>
       <p>{message}</p>
       {(onBackClick || onHomeClick || reset) && (
@@ -66,7 +66,7 @@ export function ErrorPage({
             <PageHeader
               applicationName="Aurora"
               onClick={onHomeClick}
-              logo={<Logo className="w-6 h-6 fill-theme-accent" title="Aurora" />}
+              logo={<Logo className="fill-theme-accent h-6 w-6" title="Aurora" />}
             />
           }
           className="min-h-screen"
