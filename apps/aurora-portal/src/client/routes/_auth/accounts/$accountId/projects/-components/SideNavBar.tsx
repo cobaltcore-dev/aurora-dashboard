@@ -29,20 +29,18 @@ export const SideNavBar = ({ accountId, projectId, availableServices }: SideNavB
       ...(serviceIndex["image"]?.["glance"] ? [{ path: `${computeRootPath}/images`, label: t`Images` }] : []),
       ...(serviceIndex?.["compute"]?.["nova"]
         ? [
-          // { path: `${computeRootPath}/instances`, label: t`Instances` },
-          // { path: `${computeRootPath}/keypairs`, label: t`Key Pairs` },
-          // { path: `${computeRootPath}/servergroups`, label: t`Server Groups` },
-          { path: `${computeRootPath}/flavors`, label: t`Flavors` },
-        ]
+            // { path: `${computeRootPath}/instances`, label: t`Instances` },
+            // { path: `${computeRootPath}/keypairs`, label: t`Key Pairs` },
+            // { path: `${computeRootPath}/servergroups`, label: t`Server Groups` },
+            { path: `${computeRootPath}/flavors`, label: t`Flavors` },
+          ]
         : []),
     ]
   }
 
   const getNetworkNavigationLinks = () => {
     return [
-      ...(serviceIndex["network"]
-        ? [{ path: `${networkRootPath}/securitygroups`, label: t`Security Groups` }]
-        : []),
+      ...(serviceIndex["network"] ? [{ path: `${networkRootPath}/securitygroups`, label: t`Security Groups` }] : []),
     ]
   }
 
@@ -63,7 +61,7 @@ export const SideNavBar = ({ accountId, projectId, availableServices }: SideNavB
   }
 
   return (
-    <SideNavigation ariaLabel="Project Side Navigation" onActiveItemChange={() => { }}>
+    <SideNavigation ariaLabel="Project Side Navigation" onActiveItemChange={() => {}}>
       <SideNavigationList>
         <>
           {computeLinks.length > 0 && (

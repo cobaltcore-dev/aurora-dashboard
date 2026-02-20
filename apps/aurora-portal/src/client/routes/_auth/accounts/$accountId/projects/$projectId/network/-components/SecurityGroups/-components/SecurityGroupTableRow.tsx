@@ -69,7 +69,7 @@ export function SecurityGroupTableRow({
             {permissions.canManageAccess && (
               <PopupMenuItem label={t`Access Control`} onClick={() => onAccessControl(sg)} />
             )}
-            {permissions.canDelete && <PopupMenuItem label={t`Delete`} onClick={() => { }} disabled />}
+            {permissions.canDelete && <PopupMenuItem label={t`Delete`} onClick={() => {}} disabled />}
           </PopupMenuOptions>
         </PopupMenu>
       </DataGridCell>
