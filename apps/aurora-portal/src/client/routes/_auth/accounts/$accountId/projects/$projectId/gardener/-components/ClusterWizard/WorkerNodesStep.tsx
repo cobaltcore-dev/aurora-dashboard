@@ -70,10 +70,10 @@ export const WorkerNodesStep: React.FC<WorkerNodesStepProps> = ({ formData, onWo
         </Trans>
       </Message>
       <div>
-        <h2 className="text-lg font-medium text-theme-high mb-2 text-left">
+        <h2 className="text-theme-high mb-2 text-left text-lg font-medium">
           <Trans>Worker Configuration</Trans>
         </h2>
-        <p className="text-sm text-theme-light text-left">
+        <p className="text-theme-light text-left text-sm">
           <Trans>
             Configure the worker pools for your cluster. These settings determine the compute resources available for
             your workloads.

@@ -16,7 +16,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
   const gardenerRootPath = `/accounts/${domain}/projects/${project.id}/compute`
   return (
     <Box
-      className="min-h-50 rounded-lg shadow-md hover:bg-theme-background-lvl-2 p-6"
+      className="hover:bg-theme-background-lvl-2 min-h-50 rounded-lg p-6 shadow-md"
       onClick={() => navigate({ to: gardenerRootPath })}
     >
       <div className="w-full">
@@ -28,20 +28,20 @@ export function ProjectCard({ project }: ProjectCardProps) {
           <Badge icon text="Disabled" variant="danger" />
         )}
 
-        <p className="mt-4 pr-4 leading-relaxed line-clamp-3">{project.description}</p>
+        <p className="mt-4 line-clamp-3 pr-4 leading-relaxed">{project.description}</p>
       </div>
     </Box>
   )
 }
 export function ProjectCardView({ projects }: ProjectCardViewProps) {
   return (
-    <div className="h-full w-full max-w-[95vw] mx-auto px-4">
+    <div className="mx-auto h-full w-full max-w-[95vw] px-4">
       {/* Adaptive Grid: max 3 columns, adjusts on smaller screens */}
-      <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {projects?.length ? (
           projects.map((project) => <ProjectCard key={project.id} project={project} />)
         ) : (
-          <p className="text-center ">
+          <p className="text-center">
             <Trans>No projects available.</Trans>
           </p>
         )}

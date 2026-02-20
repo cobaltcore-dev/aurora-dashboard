@@ -126,7 +126,7 @@ export const ListToolbar = ({
     : null
 
   return (
-    <Stack alignment="center" gap="6" className="bg-theme-background-lvl-1 p-4 flex flex-col w-full">
+    <Stack alignment="center" gap="6" className="bg-theme-background-lvl-1 flex w-full flex-col p-4">
       {actions && (
         <Stack direction="horizontal" className="w-full justify-end">
           {actions}
@@ -138,7 +138,7 @@ export const ListToolbar = ({
         {sortProps && <SortInput {...sortProps} />}
 
         {searchProps && (
-          <div className="w-full md:w-auto md:ml-auto">
+          <div className="w-full md:ml-auto md:w-auto">
             <SearchInput {...searchProps} />
           </div>
         )}

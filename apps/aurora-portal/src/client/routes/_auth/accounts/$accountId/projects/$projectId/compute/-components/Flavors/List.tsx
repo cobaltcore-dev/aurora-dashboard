@@ -181,7 +181,7 @@ export const Flavors = ({ client, project }: FlavorsProps) => {
     <div className="relative">
       {success && (
         <Message
-          className="absolute -top-14 left-0 right-0 z-50"
+          className="absolute -top-14 right-0 left-0 z-50"
           text={success.message}
           variant="info"
           onDismiss={() => setSuccess(undefined)}

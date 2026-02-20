@@ -188,7 +188,7 @@ function MembersContent({
           <DataGridHeadCell></DataGridHeadCell>
         </DataGridRow>
         <DataGridRow>
-          <DataGridCell colSpan={4} className="text-center py-4 text-theme-default">
+          <DataGridCell colSpan={4} className="text-theme-default py-4 text-center">
             {t`This is a public image. All users have access to it. Explicit sharing is not needed.`}
           </DataGridCell>
         </DataGridRow>
@@ -246,7 +246,7 @@ function MembersContent({
 
         {shouldShowEmptyState && !isAddingMember && (
           <DataGridRow>
-            <DataGridCell colSpan={4} className="text-center py-4 text-theme-default">
+            <DataGridCell colSpan={4} className="text-theme-default py-4 text-center">
               {t`No projects have access to this image yet. Click "Add Project Access" to grant access.`}
             </DataGridCell>
           </DataGridRow>

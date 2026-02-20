@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
 import { useNavigate, useRouterState } from "@tanstack/react-router"
+import { cn } from "@/client/utils/cn"
 
 export function SessionExpirationTimer(props: {
   className?: string
@@ -69,5 +70,5 @@ export function SessionExpirationTimer(props: {
     }
   }, [props.sessionExpired, props.logout, navigate, pathname])
 
-  return <div className={`text-xs pt-2 pb-2 text-theme-light ${props.className || ""}`}>{timeLeft}</div>
+  return <div className={cn("text-theme-light pt-2 pb-2 text-xs", props.className)}>{timeLeft}</div>
 }

@@ -32,7 +32,7 @@ export const DeleteClusterDialog: React.FC<DeleteClusterGardenerDialogProps> = (
         onClose()
       }}
       modalFooter={
-        <ModalFooter className="flex justify-end ">
+        <ModalFooter className="flex justify-end">
           <ButtonRow>
             <Button
               variant="primary-danger"

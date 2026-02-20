@@ -69,7 +69,7 @@ function ProjectsOverview() {
 
   return (
     <div>
-      <div className="h-full w-full 2xl:w-5/8 xl:w-2/3 lg:w-3/4 mx-auto max-w-full p-4">
+      <div className="mx-auto h-full w-full max-w-full p-4 lg:w-3/4 xl:w-2/3 2xl:w-5/8">
         {!userHasAccountAccess && (
           <div className="px-4">
             <Message variant="info">
@@ -77,7 +77,7 @@ function ProjectsOverview() {
             </Message>
           </div>
         )}
-        <div className="w-full mx-auto">
+        <div className="mx-auto w-full">
           <ProjectsOverviewNavBar
             viewMode={viewMode}
             setViewMode={setViewMode}

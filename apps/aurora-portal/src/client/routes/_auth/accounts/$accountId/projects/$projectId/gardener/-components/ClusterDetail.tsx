@@ -106,7 +106,7 @@ const ClusterDetailPage: React.FC<PeakDetailPageProps> = ({ cluster, isDeleteAll
 
   return (
     <div className="min-h-screen p-6">
-      <div className="max-w-7xl mx-auto">
+      <div className="mx-auto max-w-7xl">
         {errorMessage && <Message text={errorMessage} variant="error" />}
         <DetailLayout
           title={cluster.name}
@@ -123,7 +123,7 @@ const ClusterDetailPage: React.FC<PeakDetailPageProps> = ({ cluster, isDeleteAll
           toggleView={() => setIsJsonView(!isJsonView)}
         >
           {isJsonView ? (
-            <Box className="border border-gray-300 rounded-lg shadow-lg p-6">
+            <Box className="rounded-lg border border-gray-300 p-6 shadow-lg">
               <CodeBlock size="large">
                 <JsonViewer
                   data={cluster}
@@ -143,7 +143,7 @@ const ClusterDetailPage: React.FC<PeakDetailPageProps> = ({ cluster, isDeleteAll
             </Stack>
           )}
           {toastData && (
-            <Toast {...toastData} className="fixed top-5 right-5 z-50 border border-theme-light rounded-lg shadow-lg" />
+            <Toast {...toastData} className="border-theme-light fixed top-5 right-5 z-50 rounded-lg border shadow-lg" />
           )}
         </DetailLayout>
       </div>

@@ -92,7 +92,7 @@ interface ActivityData {
 export function ActivitySummary({ activityData }: { activityData: ActivityData }) {
   return (
     <Stack distribution="center" alignment="center" direction="vertical">
-      <ContentHeading className="text-xl font-semibold my-6">Activity Summary</ContentHeading>
+      <ContentHeading className="my-6 text-xl font-semibold">Activity Summary</ContentHeading>
       <div className="flex flex-wrap justify-start gap-16">
         <ActivityRing
           progress={(activityData.instances.current / activityData.instances.quota) * 100}

@@ -119,7 +119,7 @@ function RouteComponent() {
       </Breadcrumb>
 
       <Stack direction="vertical" distribution="between">
-        <ContentHeading className="text-2xl font-bold text-theme-highest">{flavor.name || flavorId}</ContentHeading>
+        <ContentHeading className="text-theme-highest text-2xl font-bold">{flavor.name || flavorId}</ContentHeading>
       </Stack>
 
       <FlavorDetailsView flavor={flavor} />

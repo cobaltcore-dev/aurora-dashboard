@@ -191,7 +191,7 @@ function AccessContent({
           <DataGridHeadCell> </DataGridHeadCell>
         </DataGridRow>
         <DataGridRow>
-          <DataGridCell colSpan={3} className="text-center py-4 text-theme-default">
+          <DataGridCell colSpan={3} className="text-theme-default py-4 text-center">
             {t`This is a public flavor. All tenants have access to it.`}
           </DataGridCell>
         </DataGridRow>
@@ -248,7 +248,7 @@ function AccessContent({
 
         {shouldShowEmptyState && (
           <DataGridRow>
-            <DataGridCell colSpan={3} className="text-center py-4 text-theme-default">
+            <DataGridCell colSpan={3} className="text-theme-default py-4 text-center">
               {t`No specific tenant access configured for this private flavor. Click "Add Tenant Access" to grant access.`}
             </DataGridCell>
           </DataGridRow>

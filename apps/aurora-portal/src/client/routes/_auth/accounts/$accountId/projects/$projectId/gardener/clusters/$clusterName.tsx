@@ -19,7 +19,7 @@ export const Route = createFileRoute("/_auth/accounts/$accountId/projects/$proje
 function RouteComponent() {
   const { cluster, permissions } = Route.useLoaderData()
   return (
-    <div className="h-full ">
+    <div className="h-full">
       {cluster && <ClusterDetail cluster={cluster} isDeleteAllowed={!!permissions?.delete} />}
     </div>
   )

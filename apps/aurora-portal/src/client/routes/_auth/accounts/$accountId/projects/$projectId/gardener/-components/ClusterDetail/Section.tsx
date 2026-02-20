@@ -10,7 +10,7 @@ interface SectionProps {
 const Section: React.FC<SectionProps> = ({ title, rows, className = "" }) => {
   const displayedTitle =
     typeof title === "string" ? (
-      <h3 className={"text-xl font-semibold leading-none tracking-tight text-theme-highest"}>{title}</h3>
+      <h3 className="text-theme-highest text-xl leading-none font-semibold tracking-tight">{title}</h3>
     ) : (
       title
     )

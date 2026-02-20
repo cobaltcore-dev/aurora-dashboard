@@ -59,8 +59,8 @@ const DetailLayout: React.FC<DetailLayoutProps> = ({
 
       <Stack distribution="between">
         <Stack direction="vertical" distribution="between" className="my-6">
-          <ContentHeading className="text-2xl font-bold text-theme-highest">{title}</ContentHeading>
-          {description && <p className="text-theme-default text-sm mt-1">{description}</p>}
+          <ContentHeading className="text-theme-highest text-2xl font-bold">{title}</ContentHeading>
+          {description && <p className="text-theme-default mt-1 text-sm">{description}</p>}
         </Stack>
         <Stack direction="vertical" distribution="center">
           <ButtonRow>

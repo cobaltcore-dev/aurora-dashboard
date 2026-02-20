@@ -51,11 +51,11 @@ export function ProjectsOverviewNavBar({
 
   return (
     <>
-      <Stack alignment="center" gap="8" className="mt-4 my-px px-4">
+      <Stack alignment="center" gap="8" className="my-px mt-4 px-4">
         <Stack direction="vertical" gap="3" className="w-full">
-          <Stack gap="6" className="flex flex-wrap w-full">
+          <Stack gap="6" className="flex w-full flex-wrap">
             <SearchInput
-              className="flex-grow flex-shrink-0 basis-0"
+              className="flex-shrink-0 flex-grow basis-0"
               type="text"
               placeholder={t`Search...`}
               onChange={handleSearchChange}

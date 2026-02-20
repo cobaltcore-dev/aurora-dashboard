@@ -13,7 +13,7 @@ type ServerCardProps = {
 
 export function ServerCard({ server }: ServerCardProps) {
   return (
-    <div className="bg-[#161b22] rounded-xl shadow-lg p-5 flex flex-col items-start space-y-4 border border-[#30363d] text-gray-300">
+    <div className="flex flex-col items-start space-y-4 rounded-xl border border-[#30363d] bg-[#161b22] p-5 text-gray-300 shadow-lg">
       {/* Server Name */}
       <h3 className="text-xl font-semibold text-white">{server.name}</h3>
 
@@ -42,7 +42,7 @@ export function ServerCard({ server }: ServerCardProps) {
       </p>
 
       {/* Action Buttons */}
-      <div className="flex space-x-3 mt-4">
+      <div className="mt-4 flex space-x-3">
         <Button>
           <Trans>View Details</Trans>
         </Button>
@@ -56,13 +56,13 @@ export function ServerCard({ server }: ServerCardProps) {
 
 export function ServerCardView({ servers }: ServerListViewProps) {
   return (
-    <div className="h-full w-full max-w-[95vw] mx-auto">
+    <div className="mx-auto h-full w-full max-w-[95vw]">
       {/* Adaptive Grid */}
       <div className="grid gap-6" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))" }}>
         {servers?.length ? (
           servers.map((server) => <ServerCard key={server.id} server={server} />)
         ) : (
-          <p className="text-gray-400 text-center col-span-full">No servers available.</p>
+          <p className="col-span-full text-center text-gray-400">No servers available.</p>
         )}
       </div>
     </div>

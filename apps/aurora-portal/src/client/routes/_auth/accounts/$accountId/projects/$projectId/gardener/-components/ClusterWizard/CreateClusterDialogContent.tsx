@@ -192,7 +192,7 @@ export const CreateClusterDialogContent: React.FC<{
       />
 
       {toastData && (
-        <Toast {...toastData} className="fixed top-5 right-5 z-50 border border-theme-light rounded-lg shadow-lg" />
+        <Toast {...toastData} className="border-theme-light fixed top-5 right-5 z-50 rounded-lg border shadow-lg" />
       )}
     </div>
   )

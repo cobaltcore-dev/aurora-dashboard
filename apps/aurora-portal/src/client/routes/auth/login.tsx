@@ -113,7 +113,7 @@ export function AuthLoginPage() {
   if (isAuthenticated) {
     const username = user?.name
     return (
-      <div className="max-w-md w-full justify-center mt-8 shadow-lg rounded-lg p-6 border border-theme-light">
+      <div className="border-theme-light mt-8 w-full max-w-md justify-center rounded-lg border p-6 shadow-lg">
         <h2 className="text-xl font-semibold">
           <Trans>Welcome back, {username}!</Trans>
         </h2>
@@ -126,26 +126,26 @@ export function AuthLoginPage() {
   const wasInactive = logoutReason === "inactive" || logoutReason === "expired"
 
   return (
-    <div className="flex justify-center mt-8">
-      <div className="w-full max-w-md shadow-lg rounded-lg p-6 border border-theme-light relative">
+    <div className="mt-8 flex justify-center">
+      <div className="border-theme-light relative w-full max-w-md rounded-lg border p-6 shadow-lg">
         {loginError && (
           <Message
             onDismiss={dismissError}
             text={loginError}
             variant="error"
-            className="absolute -top-14 left-0 right-0 z-50"
+            className="absolute -top-14 right-0 left-0 z-50"
           />
         )}
 
         <ContentHeading className="text-center">
           <Trans>Login to Your Account</Trans>
         </ContentHeading>
-        <p className="text-center mb-6">
+        <p className="mb-6 text-center">
           <Trans>Enter your credentials to access your account</Trans>
         </p>
 
         {(search.redirect || wasInactive) && (
-          <p className="text-red-500 text-sm mb-4 text-center">
+          <p className="mb-4 text-center text-sm text-red-500">
             {wasInactive ? (
               <Trans>Your session expired. Please login again.</Trans>
             ) : (
@@ -162,7 +162,7 @@ export function AuthLoginPage() {
           }}
         >
           <div className="flex flex-col">
-            <label htmlFor="domain" className="text-gray-300 font-medium">
+            <label htmlFor="domain" className="font-medium text-gray-300">
               <Trans>Domain</Trans>
             </label>
             <input
@@ -179,7 +179,7 @@ export function AuthLoginPage() {
           </div>
 
           <div className="flex flex-col">
-            <label htmlFor="user" className="text-gray-300 font-medium">
+            <label htmlFor="user" className="font-medium text-gray-300">
               <Trans>User C/D/I</Trans>
             </label>
             <input
@@ -196,7 +196,7 @@ export function AuthLoginPage() {
           </div>
 
           <div className="flex flex-col">
-            <label htmlFor="password" className="text-gray-300 font-medium">
+            <label htmlFor="password" className="font-medium text-gray-300">
               <Trans>Password</Trans>
             </label>
             <input
@@ -224,7 +224,7 @@ export function AuthLoginPage() {
           </Button>
         </form>
 
-        <p className="text-center text-sm mt-4">
+        <p className="mt-4 text-center text-sm">
           <Trans>Need help?</Trans>{" "}
           <a href="#">
             <Trans>Contact support</Trans>
