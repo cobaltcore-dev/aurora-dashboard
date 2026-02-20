@@ -8,6 +8,7 @@ import { Images } from "./-components/Images/List"
 import { KeyPairs } from "./-components/KeyPairs/List"
 import { ServerGroups } from "./-components/ServerGroups/List"
 import { Flavors } from "./-components/Flavors/List"
+import { SwiftObjectStorage } from "../storage/-components/SwiftObjectStorage/List"
 import { SecurityGroups } from "./-components/SecurityGroups/List"
 
 const checkServiceAvailability = (
@@ -111,6 +112,8 @@ function ComputeDashboard({ client }: { client: TrpcClient }) {
                 return <ServerGroups project={project} client={client} />
               case "flavors":
                 return <Flavors project={project} client={client} />
+              case "objectstorage":
+                return <SwiftObjectStorage />
               case "securitygroups":
                 return <SecurityGroups />
               default:

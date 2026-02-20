@@ -24,7 +24,9 @@ export function wrapError(error: Error | string, operation: string): TRPCError {
 }
 
 /**
- * Wraps an async operation with consistent error handling: rethrows TRPCError as-is, wraps other errors via wrapError.
+ * Higher-order function to wrap async operations with consistent error handling.
+ * Catches any error thrown during operation execution and passes it through wrapError,
+ * ensuring all errors are normalized to TRPCError before reaching the client.
  *
  * @param operation - The async operation to perform
  * @param operationName - Name of the operation for error context

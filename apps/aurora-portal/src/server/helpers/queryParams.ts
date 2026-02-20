@@ -2,7 +2,6 @@
  * Reusable helpers for building URL query strings from plain objects.
  * Use from any BFF router (Neutron, Glance, Swift, etc.) to avoid repetitive if/append blocks.
  */
-
 export interface AppendQueryParamsOptions {
   /**
    * Map source object keys to query param names (e.g. tags_any -> "tags-any" for Neutron).
