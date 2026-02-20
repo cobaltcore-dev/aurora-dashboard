@@ -26,19 +26,19 @@ const checkServiceAvailability = (
 
   const serviceIndex = getServiceIndex(availableServices)
 
-  // Redirect to the "Projects Overview" page if none of compute services available
-  if (!serviceIndex["image"] && !serviceIndex["compute"]) {
+  // Redirect to the "Projects Overview" page if none of compute/network services available
+  if (!serviceIndex["image"] && !serviceIndex["compute"] && !serviceIndex["network"]) {
     throw redirect({
       to: "/accounts/$accountId/projects",
       params: { accountId },
     })
   }
 
-  if (splat === "images" && !serviceIndex["image"]["glance"]) {
+  if (splat === "images" && !serviceIndex["image"]?.["glance"]) {
     shouldNavigateToOverview = true
   }
 
-  if (["instances", "keypairs", "servergroups", "flavors"].includes(splat) && !serviceIndex["compute"]["nova"]) {
+  if (["instances", "keypairs", "servergroups", "flavors"].includes(splat) && !serviceIndex["compute"]?.["nova"]) {
     shouldNavigateToOverview = true
   }
 

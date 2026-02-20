@@ -18,6 +18,7 @@ export const SideNavBar = ({ accountId, projectId, availableServices }: SideNavB
   const navigate = useNavigate()
 
   const computeRootPath = `/accounts/${accountId}/projects/${projectId}/compute`
+  const networkRootPath = `/accounts/${accountId}/projects/${projectId}/network`
   const storageRootPath = `/accounts/${accountId}/projects/${projectId}/storage`
 
   const serviceIndex = getServiceIndex(availableServices)
@@ -25,7 +26,7 @@ export const SideNavBar = ({ accountId, projectId, availableServices }: SideNavB
   const getComputeNavigationLinks = () => {
     return [
       { path: computeRootPath, label: t`Overview` },
-      ...(serviceIndex?.["image"]?.["glance"] ? [{ path: `${computeRootPath}/images`, label: t`Images` }] : []),
+      ...(serviceIndex["image"]?.["glance"] ? [{ path: `${computeRootPath}/images`, label: t`Images` }] : []),
       ...(serviceIndex?.["compute"]?.["nova"]
         ? [
             // { path: `${computeRootPath}/instances`, label: t`Instances` },
@@ -34,6 +35,12 @@ export const SideNavBar = ({ accountId, projectId, availableServices }: SideNavB
             { path: `${computeRootPath}/flavors`, label: t`Flavors` },
           ]
         : []),
+    ]
+  }
+
+  const getNetworkNavigationLinks = () => {
+    return [
+      ...(serviceIndex["network"] ? [{ path: `${networkRootPath}/securitygroups`, label: t`Security Groups` }] : []),
     ]
   }
 
@@ -46,6 +53,7 @@ export const SideNavBar = ({ accountId, projectId, availableServices }: SideNavB
   }
 
   const computeLinks = getComputeNavigationLinks()
+  const networkLinks = getNetworkNavigationLinks()
   const storageLinks = getStorageNavigationLinks()
 
   const handleNavigate = (path: string) => {
@@ -59,6 +67,19 @@ export const SideNavBar = ({ accountId, projectId, availableServices }: SideNavB
           {computeLinks.length > 0 && (
             <SideNavigationItem label="Compute">
               {computeLinks.map(({ path, label }) => (
+                <SideNavigationItem
+                  key={path}
+                  onClick={() => handleNavigate(path)}
+                  label={label}
+                  selected={location.pathname === path}
+                />
+              ))}
+            </SideNavigationItem>
+          )}
+
+          {networkLinks.length > 0 && (
+            <SideNavigationItem label="Network">
+              {networkLinks.map(({ path, label }) => (
                 <SideNavigationItem
                   key={path}
                   onClick={() => handleNavigate(path)}
