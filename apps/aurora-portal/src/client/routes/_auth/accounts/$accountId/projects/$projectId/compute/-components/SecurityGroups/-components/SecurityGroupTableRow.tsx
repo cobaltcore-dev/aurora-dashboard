@@ -1,12 +1,11 @@
 import {
   DataGridCell,
   DataGridRow,
-  Icon,
   PopupMenu,
   PopupMenuItem,
   PopupMenuOptions,
 } from "@cloudoperators/juno-ui-components"
-import { useLingui } from "@lingui/react/macro"
+import { useLingui, Trans } from "@lingui/react/macro"
 import type { SecurityGroup } from "@/server/Network/types/securityGroup"
 
 export interface SecurityGroupPermissions {
@@ -17,27 +16,22 @@ export interface SecurityGroupPermissions {
 
 interface SecurityGroupTableRowProps {
   securityGroup: SecurityGroup
-  projectName: string
   permissions: SecurityGroupPermissions
   onEdit: (sg: SecurityGroup) => void
   onAccessControl: (sg: SecurityGroup) => void
   onViewDetails?: (sg: SecurityGroup) => void
 }
 
-const BooleanIcon = ({ value }: { value: boolean | undefined }) => (
-  <Icon icon={value ? "check" : "close"} color={value ? "text-theme-success" : "text-theme-error"} />
-)
-
 export function SecurityGroupTableRow({
   securityGroup: sg,
-  projectName,
   permissions,
   onEdit,
   onAccessControl,
   onViewDetails,
 }: SecurityGroupTableRowProps) {
   const { t } = useLingui()
-  const formatDate = (date: string | null | undefined) => (date ? new Date(date).toLocaleDateString() : t`N/A`)
+
+  const BooleanValue = ({ value }: { value: boolean | undefined }) => <span>{value ? t`Yes` : t`No`}</span>
 
   const handleShowDetails = () => {
     if (onViewDetails) {
@@ -56,14 +50,17 @@ export function SecurityGroupTableRow({
         </div>
       </DataGridCell>
       <DataGridCell>{sg.description || t`—`}</DataGridCell>
-      <DataGridCell>{projectName}</DataGridCell>
       <DataGridCell>
-        <BooleanIcon value={sg.stateful} />
+        <BooleanValue value={sg.shared} />
+        {sg.shared && (
+          <p>
+            <Trans>Owner</Trans>: <span className="text-xs text-theme-secondary">{sg.project_id}</span>
+          </p>
+        )}
       </DataGridCell>
       <DataGridCell>
-        <BooleanIcon value={sg.shared} />
+        <BooleanValue value={sg.stateful} />
       </DataGridCell>
-      <DataGridCell>{formatDate(sg.created_at)}</DataGridCell>
       <DataGridCell onClick={(e) => e.stopPropagation()}>
         <PopupMenu>
           <PopupMenuOptions>

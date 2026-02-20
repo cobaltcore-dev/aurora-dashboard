@@ -13,7 +13,6 @@ import type { SecurityGroup } from "@/server/Network/types/securityGroup"
 import { EditSecurityGroupModal } from "./-modals/EditSecurityGroupModal"
 import { AccessControlModal } from "./-modals/AccessControlModal"
 import { SecurityGroupTableRow, type SecurityGroupPermissions } from "./SecurityGroupTableRow"
-import { useLoaderData } from "@tanstack/react-router"
 
 interface SecurityGroupListContainerProps {
   securityGroups: SecurityGroup[]
@@ -34,7 +33,6 @@ export const SecurityGroupListContainer = ({
   const [selectedSecurityGroup, setSelectedSecurityGroup] = useState<SecurityGroup | null>(null)
   const [editModalOpen, setEditModalOpen] = useState(false)
   const [accessControlModalOpen, setAccessControlModalOpen] = useState(false)
-  const { projectNameById } = useLoaderData({ from: "/_auth/accounts/$accountId/projects/$projectId" })
 
   const handleEdit = (sg: SecurityGroup) => {
     setSelectedSecurityGroup(sg)
@@ -102,22 +100,17 @@ export const SecurityGroupListContainer = ({
 
   return (
     <>
-      <DataGrid columns={7}>
+      <DataGrid columns={5}>
         <DataGridRow>
-          <DataGridHeadCell>
-            <Trans>Name</Trans>/<Trans>Id</Trans>
-          </DataGridHeadCell>
-          {[t`Description`, t`Owning Project`, t`Stateful`, t`Shared`, t`Created At`, t`Actions`].map((label) => (
+          {[t`Name`, t`Description`, t`Shared`, t`Stateful`, ""].map((label) => (
             <DataGridHeadCell key={label}>{label}</DataGridHeadCell>
           ))}
         </DataGridRow>
         {securityGroups.map((sg) => {
-          const projectName = sg.project_id ? (projectNameById?.[sg.project_id] ?? t`-`) : t`-`
           return (
             <SecurityGroupTableRow
               key={sg.id}
               securityGroup={sg}
-              projectName={projectName}
               permissions={permissions}
               onEdit={handleEdit}
               onAccessControl={handleAccessControl}

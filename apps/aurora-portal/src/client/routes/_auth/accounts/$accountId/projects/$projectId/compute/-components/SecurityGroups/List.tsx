@@ -16,7 +16,10 @@ export const SecurityGroups = () => {
   const { t } = useLingui()
 
   const [sortSettings, setSortSettings] = useState<RequiredSortSettings>({
-    options: [{ label: t`Name`, value: "name" }],
+    options: [
+      { label: t`Name`, value: "name" },
+      { label: t`Project id`, value: "project_id" },
+    ],
     sortBy: "name",
     sortDirection: "asc",
   })
