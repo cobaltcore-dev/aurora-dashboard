@@ -318,7 +318,7 @@ export const EditImageMetadataModal: React.FC<EditImageMetadataModalProps> = ({
           />
 
           {/* Add New Button */}
-          <Stack direction="horizontal" className="jn:bg-theme-background-lvl-1 justify-end p-2 mb-4">
+          <Stack direction="horizontal" className="jn:bg-theme-background-lvl-1 mb-4 justify-end p-2">
             <Button
               label={t`Add Property`}
               onClick={() => setIsAddingNew(true)}
@@ -394,7 +394,7 @@ export const EditImageMetadataModal: React.FC<EditImageMetadataModalProps> = ({
                       errortext={errors[`edit-${index}`]}
                     />
                   ) : (
-                    <span className="jn:text-theme-high font-mono block truncate max-w-xs" title={entry.key}>
+                    <span className="jn:text-theme-high block max-w-xs truncate font-mono" title={entry.key}>
                       {entry.key}
                     </span>
                   )}
@@ -403,7 +403,7 @@ export const EditImageMetadataModal: React.FC<EditImageMetadataModalProps> = ({
                   {entry.isEditing ? (
                     <TextInput value={entry.value} onChange={(e) => handleValueChange(index, e.target.value)} />
                   ) : (
-                    <span className="jn:text-theme-default block truncate max-w-md" title={entry.value}>
+                    <span className="jn:text-theme-default block max-w-md truncate" title={entry.value}>
                       {entry.value}
                     </span>
                   )}
@@ -455,7 +455,7 @@ export const EditImageMetadataModal: React.FC<EditImageMetadataModalProps> = ({
             {/* Empty State */}
             {metadata.length === 0 && !isAddingNew && (
               <DataGridRow>
-                <DataGridCell colSpan={3} className="text-center py-8 jn:text-theme-light">
+                <DataGridCell colSpan={3} className="jn:text-theme-light py-8 text-center">
                   <Stack alignment="center">
                     <span>{t`No custom metadata properties found. Click "Add Property" to create one.`}</span>
                   </Stack>

@@ -157,7 +157,7 @@ export const FlavorListContainer = ({
                     <Link
                       to="/accounts/$accountId/projects/$projectId/compute/flavors/$flavorId"
                       params={{ projectId: projectId, accountId: accountId, flavorId: flavor.id }}
-                      className="text-theme-default "
+                      className="text-theme-default"
                     >
                       {t`Details`}
                     </Link>

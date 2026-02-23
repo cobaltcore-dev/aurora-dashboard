@@ -36,7 +36,7 @@ export const ActivateImagesModal: React.FC<ActivateImagesModalProps> = ({
       title={t`Activate Images`}
       open={isOpen}
       modalFooter={
-        <ModalFooter className="flex justify-end ">
+        <ModalFooter className="flex justify-end">
           <ButtonRow>
             <Button
               variant="primary-danger"
@@ -75,10 +75,10 @@ export const ActivateImagesModal: React.FC<ActivateImagesModalProps> = ({
 
               {/* Images to be activated */}
               <div className="mb-6">
-                <h3 className="jn:text-theme-high font-semibold mb-3">
+                <h3 className="jn:text-theme-high mb-3 font-semibold">
                   <Trans>Images to be activated ({deactivatedCount})</Trans>
                 </h3>
-                <div className="jn:bg-theme-background-lvl-1 rounded p-4 max-h-24 overflow-y-auto">
+                <div className="jn:bg-theme-background-lvl-1 max-h-24 overflow-y-auto rounded p-4">
                   <ul className="space-y-2">
                     {deactivatedImages.map((imageId) => (
                       <li key={imageId} className="jn:text-theme-default font-mono">
@@ -94,10 +94,10 @@ export const ActivateImagesModal: React.FC<ActivateImagesModalProps> = ({
           {/* Already active images (if any) */}
           {activeCount > 0 && (
             <div className="mb-6">
-              <h3 className="jn:text-theme-high font-semibold mb-3">
+              <h3 className="jn:text-theme-high mb-3 font-semibold">
                 <Trans>Already active (will be skipped)</Trans>
               </h3>
-              <div className="jn:bg-theme-warning/10 border border-yellow-500/20 rounded p-4 max-h-24 overflow-y-auto">
+              <div className="jn:bg-theme-warning/10 max-h-24 overflow-y-auto rounded border border-yellow-500/20 p-4">
                 <ul className="space-y-2">
                   {activeImages.map((imageId) => (
                     <li key={imageId} className="jn:text-theme-default font-mono">
@@ -110,9 +110,9 @@ export const ActivateImagesModal: React.FC<ActivateImagesModalProps> = ({
           )}
 
           {/* Summary */}
-          <div className="jn:bg-theme-background-lvl-2 rounded p-4 mb-6">
+          <div className="jn:bg-theme-background-lvl-2 mb-6 rounded p-4">
             {deactivatedCount > 0 && (
-              <div className="flex justify-between  mb-2">
+              <div className="mb-2 flex justify-between">
                 <span className="jn:text-theme-default">
                   <Trans>Images to activate:</Trans>
                 </span>
@@ -120,7 +120,7 @@ export const ActivateImagesModal: React.FC<ActivateImagesModalProps> = ({
               </div>
             )}
             {activeCount > 0 && (
-              <div className="flex justify-between ">
+              <div className="flex justify-between">
                 <span className="jn:text-theme-default">
                   <Trans>Already active (will be skipped):</Trans>
                 </span>

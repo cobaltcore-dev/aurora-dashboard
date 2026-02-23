@@ -22,7 +22,7 @@ export function ServerListView({ servers }: ServerListViewProps) {
                 <th className="p-3">{t`CPU`}</th>
                 <th className="p-3">{t`RAM`}</th>
                 <th className="p-3">{t`Disk`}</th>
-                <th className="p-3 flex justify-center">{t`Actions`}</th>
+                <th className="flex justify-center p-3">{t`Actions`}</th>
               </tr>
             </thead>
 

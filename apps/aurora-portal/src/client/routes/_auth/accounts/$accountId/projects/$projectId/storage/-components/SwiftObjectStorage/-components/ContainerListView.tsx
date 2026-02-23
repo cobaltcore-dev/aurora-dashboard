@@ -69,36 +69,22 @@ export const ContainerListView = ({
 
   if (!containers || containers.length === 0) {
     return (
-      <>
-        <DataGrid columns={4} className="containers" data-testid="no-containers">
-          <DataGridRow>
-            <DataGridCell colSpan={4}>
-              <div className="text-center py-8">
-                <h3 className="text-lg font-semibold">
-                  <Trans>No containers found</Trans>
-                </h3>
-                <p className="text-theme-light mt-2">
-                  <Trans>
-                    There are no containers available with the current search criteria. Try adjusting your search term.
-                  </Trans>
-                </p>
-              </div>
-            </DataGridCell>
-          </DataGridRow>
-        </DataGrid>
-
-        <CreateContainerModal
-          isOpen={createModalOpen}
-          onClose={() => setCreateModalOpen(false)}
-          onSuccess={handleCreateSuccess}
-          onError={handleCreateError}
-          maxContainerNameLength={maxContainerNameLength}
-        />
-
-        {toastData && (
-          <Toast {...toastData} className="fixed top-5 right-5 z-50 border border-theme-light rounded-lg shadow-lg" />
-        )}
-      </>
+      <DataGrid columns={4} className="containers" data-testid="no-containers">
+        <DataGridRow>
+          <DataGridCell colSpan={4}>
+            <div className="py-8 text-center">
+              <h3 className="text-lg font-semibold">
+                <Trans>No containers found</Trans>
+              </h3>
+              <p className="text-theme-light mt-2">
+                <Trans>
+                  There are no containers available with the current search criteria. Try adjusting your search term.
+                </Trans>
+              </p>
+            </div>
+          </DataGridCell>
+        </DataGridRow>
+      </DataGrid>
     )
   }
 
@@ -185,7 +171,7 @@ export const ContainerListView = ({
         </div>
 
         {/* Footer with count */}
-        <div className="py-2 px-4 text-sm text-theme-light border-t border-theme-background-lvl-2">
+        <div className="text-theme-light border-theme-background-lvl-2 border-t px-4 py-2 text-sm">
           <Trans>
             Showing {virtualizedContainersCount} of {allContainersCount} containers
           </Trans>
@@ -197,10 +183,11 @@ export const ContainerListView = ({
         onClose={() => setCreateModalOpen(false)}
         onSuccess={handleCreateSuccess}
         onError={handleCreateError}
+        maxContainerNameLength={maxContainerNameLength}
       />
 
       {toastData && (
-        <Toast {...toastData} className="fixed top-5 right-5 z-50 border border-theme-light rounded-lg shadow-lg" />
+        <Toast {...toastData} className="border-theme-light fixed top-5 right-5 z-50 rounded-lg border shadow-lg" />
       )}
     </>
   )
