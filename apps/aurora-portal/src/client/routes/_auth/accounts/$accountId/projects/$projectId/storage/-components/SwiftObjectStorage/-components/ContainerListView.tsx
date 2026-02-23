@@ -44,7 +44,7 @@ export const ContainerListView = ({ containers }: ContainerListViewProps) => {
       <DataGrid columns={4} className="containers" data-testid="no-containers">
         <DataGridRow>
           <DataGridCell colSpan={4}>
-            <div className="text-center py-8">
+            <div className="py-8 text-center">
               <h3 className="text-lg font-semibold">
                 <Trans>No containers found</Trans>
               </h3>
@@ -142,7 +142,7 @@ export const ContainerListView = ({ containers }: ContainerListViewProps) => {
       </div>
 
       {/* Footer with count */}
-      <div className="py-2 px-4 text-sm text-theme-light border-t border-theme-background-lvl-2">
+      <div className="text-theme-light border-theme-background-lvl-2 border-t px-4 py-2 text-sm">
         <Trans>
           Showing {virtualizedContainersCount} of {allContainersCount} containers
         </Trans>

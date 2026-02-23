@@ -35,8 +35,8 @@ export const WorkerPool: React.FC<WorkerPoolProps> = ({
 }) => {
   return (
     <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <h3 className="text-lg font-medium text-theme-high text-left">Worker Pools</h3>
+      <div className="flex items-center justify-between">
+        <h3 className="text-theme-high text-left text-lg font-medium">Worker Pools</h3>
         <Button onClick={onAddWorker} variant="subdued">
           Add Worker Pool
         </Button>
@@ -54,9 +54,9 @@ export const WorkerPool: React.FC<WorkerPoolProps> = ({
         const availableVersions = selectedImage?.versions || []
 
         return (
-          <div key={index} className="p-4 border border-theme-box-default rounded-lg space-y-6">
-            <div className="flex justify-between items-center">
-              <h4 className="text-theme-high font-medium text-left">Worker Pool #{index + 1}</h4>
+          <div key={index} className="border-theme-box-default space-y-6 rounded-lg border p-4">
+            <div className="flex items-center justify-between">
+              <h4 className="text-theme-high text-left font-medium">Worker Pool #{index + 1}</h4>
               {workers.length > 1 && (
                 <Button onClick={() => onRemoveWorker(index)} variant="subdued">
                   <Icon icon="close" color="text-theme-danger" className="h-4 w-4" />
@@ -73,7 +73,7 @@ export const WorkerPool: React.FC<WorkerPoolProps> = ({
                 name="workerMachineType"
                 value={worker.machineType}
                 onChange={(e) => onWorkerChange(index, "workerMachineType", e?.toString() || "")}
-                className="w-full h-10 px-3 border border-theme-box-default text-theme-light rounded-md"
+                className="border-theme-box-default text-theme-light h-10 w-full rounded-md border px-3"
               >
                 {machineTypes.map((machine) => (
                   <SelectOption key={machine.name} value={machine.name} data-testid={machine.name}>
@@ -93,7 +93,7 @@ export const WorkerPool: React.FC<WorkerPoolProps> = ({
                   name="workerImageMachineType"
                   value={worker.machineImage.name}
                   onChange={(e) => handleMachineImageChange("name", e?.toString() || "")}
-                  className="w-full h-10 px-3 border border-theme-box-default text-theme-light rounded-md"
+                  className="border-theme-box-default text-theme-light h-10 w-full rounded-md border px-3"
                 >
                   {machineImages.map((image) => (
                     <SelectOption key={image.name} value={image.name} data-testid={image.name}>
@@ -110,7 +110,7 @@ export const WorkerPool: React.FC<WorkerPoolProps> = ({
                   label={t`Image Version`}
                   name="workerImageMachineVersion"
                   onChange={(e) => handleMachineImageChange("version", e?.toString() || "")}
-                  className="w-full h-10 px-3 border border-theme-box-default text-theme-light rounded-md"
+                  className="border-theme-box-default text-theme-light h-10 w-full rounded-md border px-3"
                 >
                   {availableVersions.map((version) => (
                     <SelectOption key={version} value={version} data-testid={version}>
@@ -131,7 +131,7 @@ export const WorkerPool: React.FC<WorkerPoolProps> = ({
                   id={`worker-min-${index}`}
                   onChange={(e) => onWorkerChange(index, "minimum", parseInt(e.target.value))}
                   value={worker.minimum}
-                  className="w-full h-10 px-3  border border-theme-box-default text-theme-light rounded-md"
+                  className="border-theme-box-default text-theme-light h-10 w-full rounded-md border px-3"
                 />
               </FormRow>
 
@@ -143,7 +143,7 @@ export const WorkerPool: React.FC<WorkerPoolProps> = ({
                   value={worker.maximum}
                   id={`worker-max-${index}`}
                   onChange={(e) => onWorkerChange(index, "maximum", parseInt(e.target.value))}
-                  className="w-full h-10 px-3 border border-theme-box-default text-theme-light rounded-md"
+                  className="border-theme-box-default text-theme-light h-10 w-full rounded-md border px-3"
                 />
               </FormRow>
             </div>
@@ -155,7 +155,7 @@ export const WorkerPool: React.FC<WorkerPoolProps> = ({
                   <div key={zone} className="flex items-center space-x-2">
                     <Checkbox
                       checked={worker.zones.includes(zone)}
-                      className="h-4 w-4 rounded border-theme-box-default text-juno-blue-7 focus:ring-juno-blue  focus:ring-offset-juno-grey-blue-2"
+                      className="border-theme-box-default text-juno-blue-7 focus:ring-juno-blue focus:ring-offset-juno-grey-blue-2 h-4 w-4 rounded"
                       label={zone}
                       id={`zone-${index}-${zone}`}
                       value={zone}

@@ -16,22 +16,22 @@ export function Home() {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center ">
+    <div className="flex flex-col items-center justify-center">
       <div className="max-w-4xl p-8">
-        <h1 className="text-5xl font-extrabold text-center mb-8 text-theme-default">
+        <h1 className="text-theme-default mb-8 text-center text-5xl font-extrabold">
           <Trans>Manage OpenStack with </Trans>
           <span className="text-theme-accent">Aurora</span>
         </h1>
-        <p className="text-lg text-theme-default leading-relaxed text-center mb-8">
+        <p className="text-theme-default mb-8 text-center text-lg leading-relaxed">
           <Trans>
             Aurora empowers you with robust tools to streamline your cloud management effortlessly. Experience a
             seamless way to provision, configure, and scale your resources across OpenStack environments.
           </Trans>
         </p>
 
-        <Stack className="w-full flex flex-col md:flex-row justify-center mb-8" gap="4">
-          <Box className="md:w-1/2 p-6 rounded-lg shadow-md bg-theme-background-lvl-1">
-            <h2 className="text-2xl font-semibold text-theme-default">
+        <Stack className="mb-8 flex w-full flex-col justify-center md:flex-row" gap="4">
+          <Box className="bg-theme-background-lvl-1 rounded-lg p-6 shadow-md md:w-1/2">
+            <h2 className="text-theme-default text-2xl font-semibold">
               <Trans>GitHub</Trans>
             </h2>
             <p className="text-theme-default">
@@ -41,8 +41,8 @@ export function Home() {
               <Trans>View Repository</Trans>
             </a>
           </Box>
-          <Box className="md:w-1/2 p-6 rounded-lg shadow-md bg-theme-background-lvl-1">
-            <h2 className="text-2xl font-semibold text-theme-default">
+          <Box className="bg-theme-background-lvl-1 rounded-lg p-6 shadow-md md:w-1/2">
+            <h2 className="text-theme-default text-2xl font-semibold">
               <Trans>Documentation</Trans>
             </h2>
             <p className="text-theme-default">

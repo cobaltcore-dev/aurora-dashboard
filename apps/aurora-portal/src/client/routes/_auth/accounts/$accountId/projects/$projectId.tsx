@@ -30,7 +30,7 @@ function RouteComponent() {
     <AppShell
       embedded
       sideNavigation={<SideNavBar availableServices={availableServices!} accountId={accountId} projectId={projectId} />}
-      className="h-min-screen "
+      className="h-min-screen"
     >
       <Container>
         <Outlet />
