@@ -162,7 +162,7 @@ describe("SideNavBar", () => {
         const storageSection = screen.getByText("Storage")
         fireEvent.click(storageSection)
 
-        expect(screen.getByText("Object Storage Swift")).toBeInTheDocument()
+        expect(screen.getByText("Swift")).toBeInTheDocument()
       })
 
       it("does not render Storage section when swift service is unavailable", () => {
@@ -234,7 +234,7 @@ describe("SideNavBar", () => {
         const storageSection = screen.getByText("Storage")
         fireEvent.click(storageSection)
 
-        const objectStorageLink = screen.getByText("Object Storage Swift")
+        const objectStorageLink = screen.getByText("Swift")
         fireEvent.click(objectStorageLink)
 
         expect(mockNavigate).toHaveBeenCalledWith({
