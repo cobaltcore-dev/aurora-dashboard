@@ -163,6 +163,200 @@ describe("imageRouter", () => {
     })
   })
 
+  describe("listImagesWithPagination", () => {
+    it("should list images with pagination successfully", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      mockCtx.mockGlance.get.mockResolvedValue({
+        ok: true,
+        json: vi.fn().mockResolvedValue({
+          images: [mockGlanceImage],
+          first: "/v2/images?sort=created_at:desc",
+          next: "/v2/images?sort=created_at:desc&marker=abc",
+          schema: "/v2/schemas/images",
+        }),
+      })
+
+      const input = {}
+      const result = await caller.image.listImagesWithPagination(input)
+
+      expect(imageHelpers.validateGlanceService).toHaveBeenCalled()
+      expect(imageHelpers.applyImageQueryParams).toHaveBeenCalled()
+      expect(mockCtx.mockGlance.get).toHaveBeenCalledWith(expect.stringContaining("v2/images?"))
+      expect(result.images).toEqual([mockGlanceImage])
+    })
+
+    it("should use `first` URL when provided, ignoring built query params", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      const firstUrl = "/v2/images?sort=name:asc&limit=10"
+      mockCtx.mockGlance.get.mockResolvedValue({
+        ok: true,
+        json: vi.fn().mockResolvedValue({
+          images: [mockGlanceImage],
+          schema: "/v2/schemas/images",
+        }),
+      })
+
+      const input = { first: firstUrl }
+      await caller.image.listImagesWithPagination(input)
+
+      expect(mockCtx.mockGlance.get).toHaveBeenCalledWith(firstUrl)
+    })
+
+    it("should use `next` URL when provided (and no `first`)", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      const nextUrl = "/v2/images?sort=created_at:desc&marker=some-marker-id"
+      mockCtx.mockGlance.get.mockResolvedValue({
+        ok: true,
+        json: vi.fn().mockResolvedValue({
+          images: [mockGlanceImage],
+          schema: "/v2/schemas/images",
+        }),
+      })
+
+      const input = { next: nextUrl }
+      await caller.image.listImagesWithPagination(input)
+
+      expect(mockCtx.mockGlance.get).toHaveBeenCalledWith(nextUrl)
+    })
+
+    it("should not include name in the API URL query string", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      mockCtx.mockGlance.get.mockResolvedValue({
+        ok: true,
+        json: vi.fn().mockResolvedValue({
+          images: [mockGlanceImage],
+          schema: "/v2/schemas/images",
+        }),
+      })
+
+      await caller.image.listImagesWithPagination({ name: "ubuntu" })
+
+      const calledUrl: string = mockCtx.mockGlance.get.mock.calls[0][0]
+      expect(calledUrl).not.toContain("name=ubuntu")
+    })
+
+    it("should filter images by name client-side (substring match)", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      const ubuntuImage = { ...mockGlanceImage, id: generateTestUUID(1), name: "ubuntu-22.04-lts" }
+      const centosImage = { ...mockGlanceImage, id: generateTestUUID(2), name: "centos-stream-9" }
+      const debianImage = { ...mockGlanceImage, id: generateTestUUID(3), name: "debian-12-bookworm" }
+
+      mockCtx.mockGlance.get.mockResolvedValue({
+        ok: true,
+        json: vi.fn().mockResolvedValue({
+          images: [ubuntuImage, centosImage, debianImage],
+          schema: "/v2/schemas/images",
+        }),
+      })
+
+      const result = await caller.image.listImagesWithPagination({ name: "ubuntu" })
+
+      expect(result.images).toHaveLength(1)
+      expect(result.images[0].name).toBe("ubuntu-22.04-lts")
+    })
+
+    it("should filter images by name client-side (case-insensitive)", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      const ubuntuImage = { ...mockGlanceImage, id: generateTestUUID(1), name: "Ubuntu-22.04-LTS" }
+      const centosImage = { ...mockGlanceImage, id: generateTestUUID(2), name: "centos-stream-9" }
+
+      mockCtx.mockGlance.get.mockResolvedValue({
+        ok: true,
+        json: vi.fn().mockResolvedValue({
+          images: [ubuntuImage, centosImage],
+          schema: "/v2/schemas/images",
+        }),
+      })
+
+      const result = await caller.image.listImagesWithPagination({ name: "ubuntu" })
+
+      expect(result.images).toHaveLength(1)
+      expect(result.images[0].name).toBe("Ubuntu-22.04-LTS")
+    })
+
+    it("should return empty images array when no names match the filter", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      mockCtx.mockGlance.get.mockResolvedValue({
+        ok: true,
+        json: vi.fn().mockResolvedValue({
+          images: [mockGlanceImage], // name is "test-image"
+          schema: "/v2/schemas/images",
+        }),
+      })
+
+      const result = await caller.image.listImagesWithPagination({ name: "nonexistent" })
+
+      expect(result.images).toHaveLength(0)
+    })
+
+    it("should return all images when no name filter is provided", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      const image1 = { ...mockGlanceImage, id: generateTestUUID(1), name: "ubuntu" }
+      const image2 = { ...mockGlanceImage, id: generateTestUUID(2), name: "centos" }
+
+      mockCtx.mockGlance.get.mockResolvedValue({
+        ok: true,
+        json: vi.fn().mockResolvedValue({
+          images: [image1, image2],
+          schema: "/v2/schemas/images",
+        }),
+      })
+
+      const result = await caller.image.listImagesWithPagination({})
+
+      expect(result.images).toHaveLength(2)
+    })
+
+    it("should handle images with null/undefined names during name filtering", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      const namedImage = { ...mockGlanceImage, id: generateTestUUID(1), name: "ubuntu-22.04" }
+      const unnamedImage = { ...mockGlanceImage, id: generateTestUUID(2), name: undefined }
+
+      mockCtx.mockGlance.get.mockResolvedValue({
+        ok: true,
+        json: vi.fn().mockResolvedValue({
+          images: [namedImage, unnamedImage],
+          schema: "/v2/schemas/images",
+        }),
+      })
+
+      const result = await caller.image.listImagesWithPagination({ name: "ubuntu" })
+
+      // Only the named image should match; the undefined-name image should be excluded
+      expect(result.images).toHaveLength(1)
+      expect(result.images[0].id).toBe(generateTestUUID(1))
+    })
+
+    it("should handle API error", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      mockCtx.mockGlance.get.mockRejectedValue({ statusCode: 500, message: "Internal Server Error" })
+
+      await expect(caller.image.listImagesWithPagination({})).rejects.toThrow(
+        "Failed to list images with pagination: Internal Server Error"
+      )
+    })
+  })
+
   describe("getImageById", () => {
     it("should get image by ID successfully", async () => {
       const mockCtx = createMockContext()

@@ -90,6 +90,9 @@ export const imageRouter = {
         validateGlanceService(glance)
 
         // Build query parameters using utility function
+        // Note: `name` is intentionally excluded from the URL — OpenStack Glance API only
+        // supports exact name matches, not wildcard/substring filtering. Name filtering is
+        // applied server-side below after fetching results.
         const queryParams = new URLSearchParams()
         applyImageQueryParams(queryParams, queryInput)
 
@@ -103,7 +106,14 @@ export const imageRouter = {
           throw handleZodParsingError(parsedData.error, "list images with pagination")
         }
 
-        return parsedData.data
+        // Apply server-side name filtering (case-insensitive substring match)
+        const result = parsedData.data
+        if (queryInput.name) {
+          const nameLower = queryInput.name.toLowerCase()
+          result.images = result.images.filter((image) => image.name?.toLowerCase().includes(nameLower))
+        }
+
+        return result
       }, "list images with pagination")
     }),
 

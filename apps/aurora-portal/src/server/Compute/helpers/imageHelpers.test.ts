@@ -69,7 +69,7 @@ describe("imageHelpers", () => {
       expect(queryParams.get("marker")).toBe("image-123")
     })
 
-    it("should apply basic filtering parameters", () => {
+    it("should apply basic filtering parameters (excluding name)", () => {
       const input: Omit<ListImagesInput, "projectId"> = {
         name: "ubuntu",
         status: "active",
@@ -82,11 +82,25 @@ describe("imageHelpers", () => {
 
       applyImageQueryParams(queryParams, input)
 
-      expect(queryParams.get("name")).toBe("ubuntu")
+      // `name` is intentionally excluded from URL params — OpenStack Glance only supports
+      // exact name matches, not wildcard/substring filtering. Client-side filtering is used instead.
+      expect(queryParams.has("name")).toBe(false)
       expect(queryParams.get("status")).toBe("active")
       expect(queryParams.get("visibility")).toBe("public")
       expect(queryParams.get("owner")).toBe("tenant-123")
       expect(queryParams.get("member_status")).toBe("accepted")
+    })
+
+    it("should not add name to URL even when name is provided", () => {
+      const input: Omit<ListImagesInput, "projectId"> = {
+        name: "ubuntu-22.04",
+        sort_key: "name",
+        sort_dir: "asc",
+      }
+
+      applyImageQueryParams(queryParams, input)
+
+      expect(queryParams.has("name")).toBe(false)
     })
 
     it("should apply boolean parameters correctly", () => {
@@ -174,6 +188,7 @@ describe("imageHelpers", () => {
 
       applyImageQueryParams(queryParams, input)
 
+      // `name` is never added to URL params regardless (even if defined) — excluded by design
       expect(queryParams.has("name")).toBe(false)
       expect(queryParams.has("limit")).toBe(false)
       expect(queryParams.has("protected")).toBe(false)
