@@ -46,7 +46,7 @@ export function SecurityGroupTableRow({
       <DataGridCell>
         <div>
           <p className="text-md">{sg.name}</p>
-          <p className="text-xs text-theme-secondary">{sg.id}</p>
+          <p className="text-theme-secondary text-xs">{sg.id}</p>
         </div>
       </DataGridCell>
       <DataGridCell>{sg.description || t`—`}</DataGridCell>
@@ -54,7 +54,7 @@ export function SecurityGroupTableRow({
         <BooleanValue value={sg.shared} />
         {sg.shared && (
           <p>
-            <Trans>Owner</Trans>: <span className="text-xs text-theme-secondary">{sg.project_id}</span>
+            <Trans>Owner</Trans>: <span className="text-theme-secondary text-xs">{sg.project_id}</span>
           </p>
         )}
       </DataGridCell>
