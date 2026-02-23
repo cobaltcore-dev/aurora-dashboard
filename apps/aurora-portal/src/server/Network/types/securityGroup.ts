@@ -39,6 +39,10 @@ export const securityGroupsResponseSchema = z.object({
   security_groups: z.array(securityGroupSchema),
 })
 
+export const securityGroupResponseSchema = z.object({
+  security_group: securityGroupSchema,
+})
+
 const sortDirSchema = z.enum(["asc", "desc"])
 
 export const listSecurityGroupsInputSchema = z.object({
@@ -65,7 +69,13 @@ export const listSecurityGroupsInputSchema = z.object({
   not_tags_any: z.string().optional(),
 })
 
+export const getSecurityGroupByIdInputSchema = z.object({
+  securityGroupId: z.string(),
+})
+
 export type SecurityGroupRule = z.infer<typeof securityGroupRuleSchema>
 export type SecurityGroup = z.infer<typeof securityGroupSchema>
 export type SecurityGroupsResponse = z.infer<typeof securityGroupsResponseSchema>
+export type SecurityGroupResponse = z.infer<typeof securityGroupResponseSchema>
 export type ListSecurityGroupsInput = z.infer<typeof listSecurityGroupsInputSchema>
+export type GetSecurityGroupByIdInput = z.infer<typeof getSecurityGroupByIdInputSchema>

@@ -1,7 +1,13 @@
 import { TRPCError } from "@trpc/server"
 import { protectedProcedure } from "../../trpc"
 import { appendQueryParamsFromObject } from "../../helpers/queryParams"
-import { listSecurityGroupsInputSchema, securityGroupsResponseSchema, SecurityGroup } from "../types/securityGroup"
+import {
+  listSecurityGroupsInputSchema,
+  securityGroupsResponseSchema,
+  SecurityGroup,
+  getSecurityGroupByIdInputSchema,
+  securityGroupResponseSchema,
+} from "../types/securityGroup"
 import { withErrorHandling } from "../../helpers/errorHandling"
 
 const LIST_SECURITY_GROUPS_QUERY_KEY_MAP: Record<string, string> = {
@@ -15,6 +21,7 @@ const LIST_SECURITY_GROUPS_QUERY_KEY_MAP: Record<string, string> = {
  *
  * Currently exposes:
  * - list: GET /v2.0/security-groups with pagination, sorting and basic filtering support.
+ * - getById: GET /v2.0/security-groups/{security_group_id} to fetch a single security group with rules.
  */
 export const securityGroupRouter = {
   list: protectedProcedure
@@ -51,5 +58,36 @@ export const securityGroupRouter = {
         }
         return parsed.data.security_groups
       }, "list security groups")
+    }),
+
+  getById: protectedProcedure
+    .input(getSecurityGroupByIdInputSchema)
+    .query(async ({ input, ctx }): Promise<SecurityGroup> => {
+      return withErrorHandling(async () => {
+        const { securityGroupId } = input
+        const openstackSession = ctx.openstack
+        const network = openstackSession?.service("network")
+
+        if (!network) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Network service is not available",
+          })
+        }
+
+        const response = await network.get(`v2.0/security-groups/${securityGroupId}`)
+        const data = await response.json()
+        const parsed = securityGroupResponseSchema.safeParse(data)
+
+        if (!parsed.success) {
+          console.error("Zod Parsing Error in securityGroupRouter.getById:", parsed.error.format())
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Failed to parse security group response from OpenStack",
+          })
+        }
+
+        return parsed.data.security_group
+      }, "fetch security group by ID")
     }),
 }
