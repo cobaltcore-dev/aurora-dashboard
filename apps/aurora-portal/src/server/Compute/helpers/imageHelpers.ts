@@ -1,6 +1,6 @@
 import { TRPCError } from "@trpc/server"
 import { ZodError } from "zod"
-import { BulkOperationResult, ListImagesInput } from "../types/image"
+import { BulkOperationResult, GlanceImage, ListImagesInput } from "../types/image"
 import { SignalOpenstackApiError } from "@cobaltcore-dev/signal-openstack"
 
 /**
@@ -113,6 +113,21 @@ export function applyImageQueryParams(queryParams: URLSearchParams, input: ListI
   if (updated_at) {
     queryParams.append("updated_at", updated_at)
   }
+}
+
+/**
+ * Filters a list of images by name using a case-insensitive substring match.
+ * Used in place of the OpenStack Glance `name` query parameter, which only supports
+ * exact matches and does not allow wildcard or substring filtering.
+ *
+ * @param images - Array of GlanceImage objects to filter
+ * @param name - Substring to match against each image's name (case-insensitive)
+ * @returns Filtered array of images whose names contain the given substring
+ */
+export function filterImagesByName(images: GlanceImage[], name: string | undefined): GlanceImage[] {
+  if (!name) return images
+  const nameLower = name.toLowerCase()
+  return images.filter((image) => image.name?.toLowerCase().includes(nameLower))
 }
 
 /**

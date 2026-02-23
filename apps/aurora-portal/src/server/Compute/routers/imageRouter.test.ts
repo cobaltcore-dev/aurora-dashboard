@@ -28,6 +28,11 @@ vi.mock("../helpers/imageHelpers", async (importOriginal) => {
     },
     handleZodParsingError: vi.fn(),
     withErrorHandling: vi.fn((fn) => fn()),
+    filterImagesByName: vi.fn((images: GlanceImage[], name?: string) => {
+      if (!name) return images
+      const nameLower = name.toLowerCase()
+      return images.filter((image) => image.name?.toLowerCase().includes(nameLower))
+    }),
   }
 })
 
@@ -161,6 +166,56 @@ describe("imageRouter", () => {
 
       await expect(caller.image.listImages(input)).rejects.toThrow("Failed to list images: Internal Server Error")
     })
+
+    it("should apply server-side name filtering via filterImagesByName", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      const ubuntuImage = { ...mockGlanceImage, id: generateTestUUID(1), name: "ubuntu-22.04" }
+      const centosImage = { ...mockGlanceImage, id: generateTestUUID(2), name: "centos-stream-9" }
+
+      mockCtx.mockGlance.get.mockResolvedValue({
+        ok: true,
+        json: vi.fn().mockResolvedValue({ images: [ubuntuImage, centosImage] }),
+      })
+
+      const result = await caller.image.listImages({ name: "ubuntu" })
+
+      expect(imageHelpers.filterImagesByName).toHaveBeenCalledWith([ubuntuImage, centosImage], "ubuntu")
+      expect(result).toEqual([ubuntuImage])
+    })
+
+    it("should not include name in the API URL query string", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      mockCtx.mockGlance.get.mockResolvedValue({
+        ok: true,
+        json: vi.fn().mockResolvedValue({ images: [mockGlanceImage] }),
+      })
+
+      await caller.image.listImages({ name: "ubuntu" })
+
+      const calledUrl: string = mockCtx.mockGlance.get.mock.calls[0][0]
+      expect(calledUrl).not.toContain("name=ubuntu")
+    })
+
+    it("should return all images when no name filter is provided", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      const image1 = { ...mockGlanceImage, id: generateTestUUID(1), name: "ubuntu" }
+      const image2 = { ...mockGlanceImage, id: generateTestUUID(2), name: "centos" }
+
+      mockCtx.mockGlance.get.mockResolvedValue({
+        ok: true,
+        json: vi.fn().mockResolvedValue({ images: [image1, image2] }),
+      })
+
+      const result = await caller.image.listImages({})
+
+      expect(result).toHaveLength(2)
+    })
   })
 
   describe("listImagesWithPagination", () => {
@@ -243,7 +298,7 @@ describe("imageRouter", () => {
       expect(calledUrl).not.toContain("name=ubuntu")
     })
 
-    it("should filter images by name client-side (substring match)", async () => {
+    it("should filter images by name client-side via filterImagesByName (substring match)", async () => {
       const mockCtx = createMockContext()
       const caller = createCaller(mockCtx)
 
@@ -261,6 +316,7 @@ describe("imageRouter", () => {
 
       const result = await caller.image.listImagesWithPagination({ name: "ubuntu" })
 
+      expect(imageHelpers.filterImagesByName).toHaveBeenCalledWith([ubuntuImage, centosImage, debianImage], "ubuntu")
       expect(result.images).toHaveLength(1)
       expect(result.images[0].name).toBe("ubuntu-22.04-lts")
     })

@@ -5,6 +5,7 @@ import { Readable, Transform } from "node:stream"
 import { protectedProcedure } from "../../trpc"
 import {
   applyImageQueryParams,
+  filterImagesByName,
   validateGlanceService,
   mapErrorResponseToTRPCError,
   ImageErrorHandlers,
@@ -75,7 +76,7 @@ export const imageRouter = {
         throw handleZodParsingError(parsedData.error, "list images")
       }
 
-      return parsedData.data.images
+      return filterImagesByName(parsedData.data.images, queryInput.name)
     }, "list images")
   }),
 
@@ -106,12 +107,10 @@ export const imageRouter = {
           throw handleZodParsingError(parsedData.error, "list images with pagination")
         }
 
-        // Apply server-side name filtering (case-insensitive substring match)
         const result = parsedData.data
-        if (queryInput.name) {
-          const nameLower = queryInput.name.toLowerCase()
-          result.images = result.images.filter((image) => image.name?.toLowerCase().includes(nameLower))
-        }
+
+        // Apply server-side name filtering (case-insensitive substring match)
+        result.images = filterImagesByName(result.images, queryInput.name)
 
         return result
       }, "list images with pagination")
