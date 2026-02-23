@@ -3,7 +3,7 @@ import { protectedProcedure } from "../../trpc"
 import { appendQueryParamsFromObject } from "../../helpers/queryParams"
 import { listSecurityGroupsInputSchema, securityGroupsResponseSchema, SecurityGroup } from "../types/securityGroup"
 import { withErrorHandling } from "../../helpers/errorHandling"
-import { filterBySearchBFF } from "../../helpers/filterBySearchBFF"
+import { filterBySearchParams } from "../../helpers/filterBySearchParams"
 
 const LIST_SECURITY_GROUPS_QUERY_KEY_MAP: Record<string, string> = {
   tags_any: "tags-any",
@@ -57,7 +57,7 @@ export const securityGroupRouter = {
 
         const securityGroups = parsed.data.security_groups
 
-        return filterBySearchBFF(securityGroups, searchTerm)
+        return filterBySearchParams(securityGroups, searchTerm)
       }, "list security groups")
     }),
 }

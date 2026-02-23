@@ -11,7 +11,7 @@ type SearchableField = "name" | "description" | "id"
  * @param searchFields - Optional array of fields to search within (defaults to name, description, and id)
  * @returns Filtered array of security groups that match the search term
  */
-export function filterBySearchBFF(
+export function filterBySearchParams(
   securityGroups: SecurityGroup[],
   searchTerm: string | undefined,
   searchFields: SearchableField[] = ["name", "description", "id"]
