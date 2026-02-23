@@ -18,30 +18,30 @@ Retrieves a list of images with optional filtering and sorting.
 
 #### Parameters
 
-| Parameter          | Type    | Description                                                              | Default      |
-| ------------------ | ------- | ------------------------------------------------------------------------ | ------------ |
-| `sort_key`         | enum    | Sort field (`name`, `status`, `created_at`, etc.)                        | `created_at` |
-| `sort_dir`         | enum    | Sort direction (`asc`, `desc`)                                           | `desc`       |
-| `sort`             | string  | **Preferred** sort syntax (e.g., `name:asc`, `created_at:desc,name:asc`) | -            |
-| `limit`            | number  | Maximum number of results (1-1000)                                       | -            |
-| `marker`           | string  | Pagination marker (image ID)                                             | -            |
-| `name`             | string  | Filter by image name                                                     | -            |
-| `status`           | enum    | Filter by status (`queued`, `active`, `deleted`, etc.)                   | -            |
-| `visibility`       | enum    | Filter by visibility (`public`, `private`, `shared`, `community`, `all`) | -            |
-| `owner`            | string  | Filter by owner (project ID)                                             | -            |
-| `protected`        | boolean | Filter by protection status                                              | -            |
-| `container_format` | enum    | Filter by container format (`bare`, `ovf`, `docker`, etc.)               | -            |
-| `disk_format`      | enum    | Filter by disk format (`qcow2`, `raw`, `vmdk`, etc.)                     | -            |
-| `size_min`         | number  | Minimum size in bytes                                                    | -            |
-| `size_max`         | number  | Maximum size in bytes                                                    | -            |
-| `min_ram`          | number  | Minimum RAM requirement in MB                                            | -            |
-| `min_disk`         | number  | Minimum disk requirement in GB                                           | -            |
-| `tag`              | string  | Filter by tag                                                            | -            |
-| `os_type`          | enum    | Filter by OS type (`linux`, `windows`)                                   | -            |
-| `os_hidden`        | boolean | Filter by OS hidden status                                               | -            |
-| `member_status`    | enum    | Filter by member status (`pending`, `accepted`, `rejected`, `all`)       | -            |
-| `created_at`       | string  | Filter by creation time (format: `operator:ISO8601_time`)                | -            |
-| `updated_at`       | string  | Filter by update time (format: `operator:ISO8601_time`)                  | -            |
+| Parameter          | Type    | Description                                                                  | Default      |
+| ------------------ | ------- | ---------------------------------------------------------------------------- | ------------ |
+| `sort_key`         | enum    | Sort field (`name`, `status`, `created_at`, etc.)                            | `created_at` |
+| `sort_dir`         | enum    | Sort direction (`asc`, `desc`)                                               | `desc`       |
+| `sort`             | string  | **Preferred** sort syntax (e.g., `name:asc`, `created_at:desc,name:asc`)     | -            |
+| `limit`            | number  | Maximum number of results (1-1000)                                           | -            |
+| `marker`           | string  | Pagination marker (image ID)                                                 | -            |
+| `name`             | string  | Search by image name (case-insensitive substring match, applied server-side) | -            |
+| `status`           | enum    | Filter by status (`queued`, `active`, `deleted`, etc.)                       | -            |
+| `visibility`       | enum    | Filter by visibility (`public`, `private`, `shared`, `community`, `all`)     | -            |
+| `owner`            | string  | Filter by owner (project ID)                                                 | -            |
+| `protected`        | boolean | Filter by protection status                                                  | -            |
+| `container_format` | enum    | Filter by container format (`bare`, `ovf`, `docker`, etc.)                   | -            |
+| `disk_format`      | enum    | Filter by disk format (`qcow2`, `raw`, `vmdk`, etc.)                         | -            |
+| `size_min`         | number  | Minimum size in bytes                                                        | -            |
+| `size_max`         | number  | Maximum size in bytes                                                        | -            |
+| `min_ram`          | number  | Minimum RAM requirement in MB                                                | -            |
+| `min_disk`         | number  | Minimum disk requirement in GB                                               | -            |
+| `tag`              | string  | Filter by tag                                                                | -            |
+| `os_type`          | enum    | Filter by OS type (`linux`, `windows`)                                       | -            |
+| `os_hidden`        | boolean | Filter by OS hidden status                                                   | -            |
+| `member_status`    | enum    | Filter by member status (`pending`, `accepted`, `rejected`, `all`)           | -            |
+| `created_at`       | string  | Filter by creation time (format: `operator:ISO8601_time`)                    | -            |
+| `updated_at`       | string  | Filter by update time (format: `operator:ISO8601_time`)                      | -            |
 
 #### Sorting Behavior
 
@@ -56,6 +56,12 @@ The API supports two sorting syntaxes:
    - This is automatically converted to the modern syntax internally
 
 **Note**: The system defaults to `created_at:desc` if no sorting is specified.
+
+#### Name Filtering Behavior
+
+> **Important:** The OpenStack Glance API only supports **exact name matches** — it does not support wildcards or substring filtering. To provide meaningful search functionality, the `name` parameter is **never forwarded to the OpenStack API**. Instead, filtering is applied server-side in the BFF layer after fetching results using a **case-insensitive substring match**.
+>
+> This means `name: "ubuntu"` will match `"ubuntu-22.04-lts"`, `"Ubuntu-Minimal"`, etc.
 
 #### Example Requests
 
@@ -89,6 +95,13 @@ const filteredImages = await client.compute.image.listImages.query({
   size_min: 1000000000, // 1GB minimum
   tags: "production",
 })
+
+// Name search — case-insensitive substring match, filtering applied in BFF layer
+// Matches "ubuntu-22.04-lts", "Ubuntu-Minimal-22.04", etc.
+const searchResults = await client.compute.image.listImages.query({
+  sort: "name:asc",
+  name: "ubuntu",
+})
 ```
 
 #### Response
@@ -112,6 +125,8 @@ Retrieves images with full pagination support including next/first page URLs.
 | `first`   | string | URL for the first page |
 | `next`    | string | URL for the next page  |
 
+> **Note on `name` filtering:** Like `listImages`, the `name` parameter is applied as a **server-side substring filter** in the BFF layer and is not forwarded to the OpenStack API. When using pagination with a `name` filter, the filter is re-applied on each page of results. For full-dataset name search without pagination side effects, prefer using `listImages` directly.
+
 #### Example Request
 
 ```typescript
@@ -124,6 +139,13 @@ const paginatedImages = await client.compute.image.listImagesWithPagination.quer
 // Using next page URL
 const nextPage = await client.compute.image.listImagesWithPagination.query({
   next: paginatedImages.next,
+})
+
+// With name search — filtered server-side on each page
+const searchPage = await client.compute.image.listImagesWithPagination.query({
+  sort: "name:asc",
+  limit: 25,
+  name: "ubuntu",
 })
 ```
 
