@@ -63,6 +63,9 @@ export const listSecurityGroupsInputSchema = z.object({
   tags_any: z.string().optional(),
   not_tags: z.string().optional(),
   not_tags_any: z.string().optional(),
+
+  // BFF-side search (filtered in BFF layer, not sent to OpenStack)
+  searchTerm: z.string().optional(),
 })
 
 export type SecurityGroupRule = z.infer<typeof securityGroupRuleSchema>
