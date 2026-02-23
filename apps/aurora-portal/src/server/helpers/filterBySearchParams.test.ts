@@ -44,19 +44,19 @@ describe("filterBySearchParams", () => {
 
   describe("returns all security groups", () => {
     it("when searchTerm is undefined", () => {
-      const result = filterBySearchParams(mockSecurityGroups, undefined)
+      const result = filterBySearchParams(mockSecurityGroups, undefined, ["name", "description", "id"])
       expect(result.length).toBe(4)
       expect(result).toEqual(mockSecurityGroups)
     })
 
     it("when searchTerm is empty string", () => {
-      const result = filterBySearchParams(mockSecurityGroups, "")
+      const result = filterBySearchParams(mockSecurityGroups, "", ["name", "description", "id"])
       expect(result.length).toBe(4)
       expect(result).toEqual(mockSecurityGroups)
     })
 
     it("when searchTerm is only whitespace", () => {
-      const result = filterBySearchParams(mockSecurityGroups, "   ")
+      const result = filterBySearchParams(mockSecurityGroups, "   ", ["name", "description", "id"])
       expect(result.length).toBe(4)
       expect(result).toEqual(mockSecurityGroups)
     })
@@ -64,19 +64,19 @@ describe("filterBySearchParams", () => {
 
   describe("filters by name", () => {
     it("finds exact match in name", () => {
-      const result = filterBySearchParams(mockSecurityGroups, "web-server")
+      const result = filterBySearchParams(mockSecurityGroups, "web-server", ["name", "description", "id"])
       expect(result.length).toBe(1)
       expect(result[0].name).toBe("web-server")
     })
 
     it("finds partial match in name", () => {
-      const result = filterBySearchParams(mockSecurityGroups, "web")
+      const result = filterBySearchParams(mockSecurityGroups, "web", ["name", "description", "id"])
       expect(result.length).toBe(1)
       expect(result[0].name).toBe("web-server")
     })
 
     it("is case-insensitive for name search", () => {
-      const result = filterBySearchParams(mockSecurityGroups, "WEB")
+      const result = filterBySearchParams(mockSecurityGroups, "WEB", ["name", "description", "id"])
       expect(result.length).toBe(1)
       expect(result[0].name).toBe("web-server")
     })
@@ -84,19 +84,19 @@ describe("filterBySearchParams", () => {
 
   describe("filters by description", () => {
     it("finds exact match in description", () => {
-      const result = filterBySearchParams(mockSecurityGroups, "Gateway for API services")
+      const result = filterBySearchParams(mockSecurityGroups, "Gateway for API services", ["name", "description", "id"])
       expect(result.length).toBe(1)
       expect(result[0].name).toBe("api-gateway")
     })
 
     it("finds partial match in description", () => {
-      const result = filterBySearchParams(mockSecurityGroups, "gateway")
+      const result = filterBySearchParams(mockSecurityGroups, "gateway", ["name", "description", "id"])
       expect(result.length).toBe(1)
       expect(result[0].name).toBe("api-gateway")
     })
 
     it("is case-insensitive for description search", () => {
-      const result = filterBySearchParams(mockSecurityGroups, "GATEWAY")
+      const result = filterBySearchParams(mockSecurityGroups, "GATEWAY", ["name", "description", "id"])
       expect(result.length).toBe(1)
       expect(result[0].name).toBe("api-gateway")
     })
@@ -104,25 +104,25 @@ describe("filterBySearchParams", () => {
 
   describe("filters by id", () => {
     it("finds exact match in id", () => {
-      const result = filterBySearchParams(mockSecurityGroups, "sg-12345")
+      const result = filterBySearchParams(mockSecurityGroups, "sg-12345", ["name", "description", "id"])
       expect(result.length).toBe(1)
       expect(result[0].name).toBe("web-server")
     })
 
     it("finds partial match in id", () => {
-      const result = filterBySearchParams(mockSecurityGroups, "12345")
+      const result = filterBySearchParams(mockSecurityGroups, "12345", ["name", "description", "id"])
       expect(result.length).toBe(1)
       expect(result[0].name).toBe("web-server")
     })
 
     it("finds partial match with sg- prefix", () => {
-      const result = filterBySearchParams(mockSecurityGroups, "sg-678")
+      const result = filterBySearchParams(mockSecurityGroups, "sg-678", ["name", "description", "id"])
       expect(result.length).toBe(1)
       expect(result[0].name).toBe("database")
     })
 
     it("is case-insensitive for id search", () => {
-      const result = filterBySearchParams(mockSecurityGroups, "SG-ABCDE")
+      const result = filterBySearchParams(mockSecurityGroups, "SG-ABCDE", ["name", "description", "id"])
       expect(result.length).toBe(1)
       expect(result[0].name).toBe("api-gateway")
     })
@@ -130,7 +130,7 @@ describe("filterBySearchParams", () => {
 
   describe("handles multiple matches", () => {
     it("returns multiple results when searchTerm matches multiple security groups", () => {
-      const result = filterBySearchParams(mockSecurityGroups, "server")
+      const result = filterBySearchParams(mockSecurityGroups, "server", ["name", "description", "id"])
       expect(result.length).toBe(2)
       const names = result.map((sg) => sg.name).sort()
       expect(names).toEqual(["database", "web-server"])
@@ -138,7 +138,7 @@ describe("filterBySearchParams", () => {
 
     it("matches across different fields", () => {
       // "default" appears in both name and description of different groups
-      const result = filterBySearchParams(mockSecurityGroups, "default")
+      const result = filterBySearchParams(mockSecurityGroups, "default", ["name", "description", "id"])
       expect(result.length).toBe(1)
       expect(result[0].name).toBe("default")
     })
@@ -146,13 +146,13 @@ describe("filterBySearchParams", () => {
 
   describe("handles no matches", () => {
     it("returns empty array when searchTerm matches nothing", () => {
-      const result = filterBySearchParams(mockSecurityGroups, "nonexistent")
+      const result = filterBySearchParams(mockSecurityGroups, "nonexistent", ["name", "description", "id"])
       expect(result.length).toBe(0)
       expect(result).toEqual([])
     })
 
     it("returns empty array for gibberish search term", () => {
-      const result = filterBySearchParams(mockSecurityGroups, "xyzabc123notfound")
+      const result = filterBySearchParams(mockSecurityGroups, "xyzabc123notfound", ["name", "description", "id"])
       expect(result.length).toBe(0)
       expect(result).toEqual([])
     })
@@ -160,7 +160,7 @@ describe("filterBySearchParams", () => {
 
   describe("handles edge cases", () => {
     it("trims whitespace from searchTerm", () => {
-      const result = filterBySearchParams(mockSecurityGroups, "  web  ")
+      const result = filterBySearchParams(mockSecurityGroups, "  web  ", ["name", "description", "id"])
       expect(result.length).toBe(1)
       expect(result[0].name).toBe("web-server")
     })
@@ -178,7 +178,7 @@ describe("filterBySearchParams", () => {
         },
       ]
 
-      const result = filterBySearchParams(groupsWithNull, "null")
+      const result = filterBySearchParams(groupsWithNull, "null", ["name", "description", "id"])
       expect(result.length).toBe(1)
       expect(result[0].id).toBe("sg-null")
     })
@@ -196,13 +196,13 @@ describe("filterBySearchParams", () => {
         },
       ]
 
-      const result = filterBySearchParams(groupsWithNull, "no-description")
+      const result = filterBySearchParams(groupsWithNull, "no-description", ["name", "description", "id"])
       expect(result.length).toBe(1)
       expect(result[0].name).toBe("no-description")
     })
 
     it("handles empty array input", () => {
-      const result = filterBySearchParams([], "web")
+      const result = filterBySearchParams([], "web", ["name", "description", "id"])
       expect(result.length).toBe(0)
       expect(result).toEqual([])
     })
@@ -210,13 +210,13 @@ describe("filterBySearchParams", () => {
 
   describe("special characters", () => {
     it("handles search terms with hyphens", () => {
-      const result = filterBySearchParams(mockSecurityGroups, "web-server")
+      const result = filterBySearchParams(mockSecurityGroups, "web-server", ["name", "description", "id"])
       expect(result.length).toBe(1)
       expect(result[0].name).toBe("web-server")
     })
 
     it("handles search terms with numbers", () => {
-      const result = filterBySearchParams(mockSecurityGroups, "12345")
+      const result = filterBySearchParams(mockSecurityGroups, "12345", ["name", "description", "id"])
       expect(result.length).toBe(1)
       expect(result[0].id).toBe("sg-12345")
     })

@@ -57,7 +57,7 @@ export const securityGroupRouter = {
 
         const securityGroups = parsed.data.security_groups
 
-        return filterBySearchParams(securityGroups, searchTerm)
+        return filterBySearchParams(securityGroups, searchTerm, ["name", "description", "id"])
       }, "list security groups")
     }),
 }

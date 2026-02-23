@@ -1,7 +1,3 @@
-import type { SecurityGroup } from "../Network/types/securityGroup"
-
-type SearchableField = "name" | "description" | "id"
-
 /**
  * Filters security groups by search term.
  * Searches across name, description, and id fields (case-insensitive).
@@ -11,20 +7,21 @@ type SearchableField = "name" | "description" | "id"
  * @param searchFields - Optional array of fields to search within (defaults to name, description, and id)
  * @returns Filtered array of security groups that match the search term
  */
-export function filterBySearchParams(
-  securityGroups: SecurityGroup[],
+export function filterBySearchParams<T extends Record<string, unknown>>(
+  securityGroups: T[],
   searchTerm: string | undefined,
-  searchFields: SearchableField[] = ["name", "description", "id"]
-): SecurityGroup[] {
-  // Return all if no search term provided
+  searchFields: (keyof T)[]
+): T[] {
   if (!searchTerm || !searchTerm.trim()) {
     return securityGroups
   }
 
   const searchLower = searchTerm.toLowerCase().trim()
 
-  return securityGroups.filter((sg) => {
-    const res = searchFields.map((field) => sg?.[field]?.toLowerCase().includes(searchLower)).filter(Boolean)
-    return res.length > 0
-  })
+  return securityGroups.filter((item) =>
+    searchFields.some((field) => {
+      const value = item[field]
+      return typeof value === "string" && value.toLowerCase().includes(searchLower)
+    })
+  )
 }
