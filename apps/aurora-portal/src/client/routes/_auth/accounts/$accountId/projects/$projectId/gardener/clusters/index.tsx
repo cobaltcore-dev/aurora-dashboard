@@ -104,23 +104,23 @@ function RouteComponent() {
   }
 
   return (
-    <div className="min-h-screen bg-theme-background-lvl-0">
-      <div className="max-w-7xl mx-auto">
+    <div className="bg-theme-background-lvl-0 min-h-screen">
+      <div className="mx-auto max-w-7xl">
         {/* Header with title */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center px-4 py-6">
+        <div className="flex flex-col items-start justify-between px-4 py-6 sm:flex-row sm:items-center">
           <div>
-            <h1 className="text-2xl font-bold text-theme-high mb-1">Kubernetes Clusters</h1>
+            <h1 className="text-theme-high mb-1 text-2xl font-bold">Kubernetes Clusters</h1>
             <p className="text-theme-light">Manage your VM-based Kubernetes deployments</p>
           </div>
 
-          <div className="flex gap-2 mt-4 sm:mt-0">
+          <div className="mt-4 flex gap-2 sm:mt-0">
             <Button onClick={handleRefresh}>
-              <RefreshCw className={`h-4 w-4 mr-2`} />
+              <RefreshCw className="mr-2 h-4 w-4" />
               <Trans>Refresh</Trans>
             </Button>
             {permissions?.create && (
               <Button onClick={handleCreateWizzard} variant="primary">
-                <Plus className="h-4 w-4 mr-2" />
+                <Plus className="mr-2 h-4 w-4" />
                 <Trans>New Cluster</Trans>
               </Button>
             )}

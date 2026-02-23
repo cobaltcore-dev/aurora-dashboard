@@ -105,7 +105,7 @@ export const ConfirmImageAccessModal: React.FC<ConfirmImageAccessProps> = ({
   if (isMemberLoading) {
     return (
       <Modal onCancel={handleClose} title={modalTitle} open={isOpen} size="large">
-        <div className="flex justify-center items-center py-8">
+        <div className="flex items-center justify-center py-8">
           <Spinner variant="primary" />
         </div>
       </Modal>
@@ -148,45 +148,45 @@ export const ConfirmImageAccessModal: React.FC<ConfirmImageAccessProps> = ({
     <Modal onCancel={handleClose} title={modalTitle} open={isOpen} size="large">
       <div>
         {/* Member and Image Details */}
-        <div className="mb-6 bg-theme-background-lvl-1 rounded p-4 space-y-4">
+        <div className="bg-theme-background-lvl-1 mb-6 space-y-4 rounded p-4">
           {/* Image Info */}
           <div>
-            <h4 className="text-xs font-semibold text-theme-secondary uppercase tracking-wide mb-1">{t`Image`}</h4>
-            <p className="text-sm break-all font-medium">{image.name || image.id}</p>
-            <p className="text-xs font-mono text-theme-secondary break-all mt-1">{image.id}</p>
+            <h4 className="text-theme-secondary mb-1 text-xs font-semibold tracking-wide uppercase">{t`Image`}</h4>
+            <p className="text-sm font-medium break-all">{image.name || image.id}</p>
+            <p className="text-theme-secondary mt-1 font-mono text-xs break-all">{image.id}</p>
           </div>
 
           {/* Project/Member Info */}
           <div>
-            <h4 className="text-xs font-semibold text-theme-secondary uppercase tracking-wide mb-1">{t`Project ID`}</h4>
-            <p className="text-xs font-mono break-all text-theme-default">{memberData.member_id}</p>
+            <h4 className="text-theme-secondary mb-1 text-xs font-semibold tracking-wide uppercase">{t`Project ID`}</h4>
+            <p className="text-theme-default font-mono text-xs break-all">{memberData.member_id}</p>
           </div>
 
           {/* Status */}
           <div>
-            <h4 className="text-xs font-semibold text-theme-secondary uppercase tracking-wide mb-1">
+            <h4 className="text-theme-secondary mb-1 text-xs font-semibold tracking-wide uppercase">
               {t`Current Status`}
             </h4>
             <Badge text={memberData.status} variant={getStatusBadgeVariant(memberData.status)} />
           </div>
 
           {/* Timestamps */}
-          <div className="grid grid-cols-2 gap-4 pt-2 border-t border-theme-background-lvl-2">
+          <div className="border-theme-background-lvl-2 grid grid-cols-2 gap-4 border-t pt-2">
             {memberData.created_at && (
               <div>
-                <h4 className="text-xs font-semibold text-theme-secondary uppercase tracking-wide mb-1">
+                <h4 className="text-theme-secondary mb-1 text-xs font-semibold tracking-wide uppercase">
                   {t`Created`}
                 </h4>
-                <p className="text-xs text-theme-secondary">{formatTimestamp(memberData.created_at)}</p>
+                <p className="text-theme-secondary text-xs">{formatTimestamp(memberData.created_at)}</p>
               </div>
             )}
 
             {memberData.updated_at && (
               <div>
-                <h4 className="text-xs font-semibold text-theme-secondary uppercase tracking-wide mb-1">
+                <h4 className="text-theme-secondary mb-1 text-xs font-semibold tracking-wide uppercase">
                   {t`Updated`}
                 </h4>
-                <p className="text-xs text-theme-secondary">{formatTimestamp(memberData.updated_at)}</p>
+                <p className="text-theme-secondary text-xs">{formatTimestamp(memberData.updated_at)}</p>
               </div>
             )}
           </div>
@@ -264,8 +264,8 @@ export const ConfirmImageAccessModal: React.FC<ConfirmImageAccessProps> = ({
         )}
 
         {!canUpdateMember && (
-          <div className="p-4 bg-theme-background-lvl-2 rounded">
-            <p className="text-sm text-theme-secondary">{t`You don't have permission to modify access for this image.`}</p>
+          <div className="bg-theme-background-lvl-2 rounded p-4">
+            <p className="text-theme-secondary text-sm">{t`You don't have permission to modify access for this image.`}</p>
           </div>
         )}
       </div>

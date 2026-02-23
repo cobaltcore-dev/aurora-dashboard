@@ -37,7 +37,7 @@ export const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
           id="kubeVersion"
           name="kubeVersion"
           value={formData.kubernetesVersion}
-          className="w-full h-10 px-3"
+          className="h-10 w-full px-3"
           onChange={(e) => onFormDataChange("kubernetesVersion", e?.toString() || "")}
           truncateOptions
         >
@@ -56,7 +56,7 @@ export const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
           data-testid="region"
           value={formData.region}
           onChange={(e) => onFormDataChange("region", e?.toString() || "")}
-          className="w-full h-10 px-3 rounded-md appearance-none"
+          className="h-10 w-full appearance-none rounded-md px-3"
           truncateOptions
         >
           <SelectOption value="eu-de-1">eu-de-1 (Germany)</SelectOption>
@@ -76,7 +76,7 @@ export const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
           type={"text"}
           id="cloudProfile"
           value={formData.cloudProfileName}
-          className="w-full h-10 px-3 rounded-md"
+          className="h-10 w-full rounded-md px-3"
           readOnly
         />
       </FormRow>
@@ -90,7 +90,7 @@ export const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
           name="credentialsBinding"
           value={formData.credentialsBindingName}
           onChange={(e) => onFormDataChange("credentialsBindingName", e?.toString() || "")}
-          className="w-full h-10 px-3 rounded-md appearance-none"
+          className="h-10 w-full appearance-none rounded-md px-3"
           truncateOptions
         >
           <SelectOption value="app-cred-openstack">app-cred-openstack</SelectOption>

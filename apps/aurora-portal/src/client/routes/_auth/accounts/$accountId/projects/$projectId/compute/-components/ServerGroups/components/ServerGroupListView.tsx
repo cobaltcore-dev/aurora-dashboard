@@ -44,7 +44,7 @@ export function ServerGroupListView({ serverGroups }: ServerGroupListViewProps) 
     <div>
       {serverGroups && serverGroups.length > 0 ? (
         <div className="overflow-x-auto">
-          <table className="w-full ">
+          <table className="w-full">
             {/* Table Header */}
             <thead>
               <tr>
@@ -60,7 +60,7 @@ export function ServerGroupListView({ serverGroups }: ServerGroupListViewProps) 
                 <th className="p-3">
                   <Trans>Created</Trans>
                 </th>
-                <th className="p-3 flex justify-center">
+                <th className="flex justify-center p-3">
                   <Trans>Actions</Trans>
                 </th>
               </tr>

@@ -48,7 +48,7 @@ export const InfrastructureStep: React.FC<InfrastructureStepProps> = ({
             name="floatingPool"
             value={formData.infrastructure.floatingPoolName}
             onChange={(e) => handleInfrastructureChange("floatingPoolName", e?.toString() || "")}
-            className="w-full h-10 px-3 rounded-md appearance-none"
+            className="h-10 w-full appearance-none rounded-md px-3"
             truncateOptions
           >
             {availableFloatingPools.length > 0 ? (
@@ -65,14 +65,14 @@ export const InfrastructureStep: React.FC<InfrastructureStepProps> = ({
             )}
           </Select>
 
-          <p className="text-xs text-theme-light mt-1 text-left">
+          <p className="text-theme-light mt-1 text-left text-xs">
             <Trans>The floating IP pool to use for the cluster's external network access</Trans>
           </p>
         </FormRow>
 
         {/* Network Configuration Section */}
         <div className="space-y-4">
-          <h3 className="text-lg font-medium  text-theme-high text-left">
+          <h3 className="text-theme-high text-left text-lg font-medium">
             <Trans>Network Configuration</Trans>
           </h3>
           <div className="space-y-6">
@@ -85,9 +85,9 @@ export const InfrastructureStep: React.FC<InfrastructureStepProps> = ({
                 placeholder="100.64.0.0/12"
                 onChange={(e) => handleNetworkingChange("pods", e.target.value)}
                 value={formData.networking.pods}
-                className="w-full h-10 px-3 rounded-md"
+                className="h-10 w-full rounded-md px-3"
               />
-              <p className="text-xs text-theme-light mt-1 text-left">
+              <p className="text-theme-light mt-1 text-left text-xs">
                 <Trans>The floating IP pool to use for the cluster's external network access</Trans>
               </p>
             </FormRow>
@@ -100,9 +100,9 @@ export const InfrastructureStep: React.FC<InfrastructureStepProps> = ({
                 placeholder="10.180.0.0/16"
                 onChange={(e) => handleNetworkingChange("nodes", e.target.value)}
                 value={formData.networking.nodes}
-                className="w-full h-10 px-3 rounded-md"
+                className="h-10 w-full rounded-md px-3"
               />
-              <p className="text-xs text-theme-light mt-1 text-left">IP range for node network</p>
+              <p className="text-theme-light mt-1 text-left text-xs">IP range for node network</p>
             </FormRow>
 
             {/* Services CIDR */}
@@ -114,13 +114,13 @@ export const InfrastructureStep: React.FC<InfrastructureStepProps> = ({
                 placeholder="100.104.0.0/13"
                 onChange={(e) => handleNetworkingChange("services", e.target.value)}
                 value={formData.networking.services}
-                className="w-full h-10 px-3 rounded-md"
+                className="h-10 w-full rounded-md px-3"
               />
-              <p className="text-xs text-theme-light mt-1 text-left">IP range for service network</p>
+              <p className="text-theme-light mt-1 text-left text-xs">IP range for service network</p>
             </FormRow>
           </div>
 
-          <p className="text-sm text-theme-light mt-4 text-left">
+          <p className="text-theme-light mt-4 text-left text-sm">
             <Trans>Note: These network settings will be prefilled by the Kubernetes controller in the future.</Trans>
           </p>
         </div>

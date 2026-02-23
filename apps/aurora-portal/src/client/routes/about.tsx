@@ -8,12 +8,12 @@ export const Route = createFileRoute("/about")({
 
 function About() {
   return (
-    <Container className="flex flex-col items-center justify-center py-12 px-6 sm:px-12 md:px-20">
-      <div className="w-full lg:w-2/3 mx-auto">
-        <ContentHeading className="text-center mb-6">
+    <Container className="flex flex-col items-center justify-center px-6 py-12 sm:px-12 md:px-20">
+      <div className="mx-auto w-full lg:w-2/3">
+        <ContentHeading className="mb-6 text-center">
           <Trans>About Aurora Dashboard</Trans>
         </ContentHeading>
-        <p className="text-center mb-8">
+        <p className="mb-8 text-center">
           <Trans>
             Welcome to <strong>Aurora Dashboard</strong>, your next-generation cloud management solution. We are
             dedicated to simplifying how you interact with and manage your cloud infrastructure. Designed with
@@ -21,20 +21,20 @@ function About() {
             the full potential of your cloud resources.
           </Trans>
         </p>
-        <ContentHeading className="text-center mb-4">
+        <ContentHeading className="mb-4 text-center">
           <Trans>Our Mission</Trans>
         </ContentHeading>
-        <p className="text-center mb-8">
+        <p className="mb-8 text-center">
           <Trans>
             At Aurora, our mission is to provide a centralized platform that unifies cloud management. We aim to
             simplify the complexities of provisioning, configuring, and scaling resources across diverse cloud
             environments while enabling seamless growth for your business.
           </Trans>
         </p>
-        <ContentHeading className="text-center mb-4">
+        <ContentHeading className="mb-4 text-center">
           <Trans>Key Features</Trans>
         </ContentHeading>
-        <ul className="list-disc pl-6 mb-8 space-y-4">
+        <ul className="mb-8 list-disc space-y-4 pl-6">
           <li>
             <p>
               <Trans>
@@ -68,17 +68,17 @@ function About() {
             </p>
           </li>
         </ul>
-        <ContentHeading className="text-center mb-4">
+        <ContentHeading className="mb-4 text-center">
           <Trans>Why Choose Aurora?</Trans>
         </ContentHeading>
-        <p className="text-center mb-8">
+        <p className="mb-8 text-center">
           <Trans>
             Aurora Dashboard is more than just a tool—it's your partner in navigating the cloud. Whether you're a small
             startup or a global enterprise, Aurora provides the flexibility, power, and simplicity you need to achieve
             your goals.
           </Trans>
         </p>
-        <ul className="list-disc pl-6 mb-8 space-y-4">
+        <ul className="mb-8 list-disc space-y-4 pl-6">
           <li>
             <p>
               <Trans>
@@ -96,10 +96,10 @@ function About() {
             </p>
           </li>
         </ul>
-        <ContentHeading className="text-center mb-4">
+        <ContentHeading className="mb-4 text-center">
           <Trans>Get Involved</Trans>
         </ContentHeading>
-        <p className="text-center mb-6">
+        <p className="mb-6 text-center">
           <Trans>
             We are building Aurora Dashboard to serve you better. Your feedback is invaluable in shaping a tool that
             meets the unique needs of businesses like yours. Stay connected and join us as we redefine cloud management.
