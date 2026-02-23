@@ -1,7 +1,7 @@
 // components/CreateClusterWizard/WizardProgress.tsx
 import React from "react"
-import { cn } from "../../-utils/cn"
 import { Icon } from "@cloudoperators/juno-ui-components"
+import { cn } from "@/client/utils/cn"
 
 interface WizardProgressProps {
   steps: Array<{ title: string; description: string }>
@@ -12,13 +12,13 @@ interface WizardProgressProps {
 export const WizardProgress: React.FC<WizardProgressProps> = ({ steps, currentStep, onStepClick }) => {
   return (
     <div className="mb-6" data-testid="wizard-progress-container">
-      <div className="flex justify-between mb-3 px-1">
+      <div className="mb-3 flex justify-between px-1">
         {steps.map((step, index) => (
-          <div key={step.title} className={`flex-1 ${index < steps.length - 1 ? "pr-6" : ""}`}>
+          <div key={step.title} className={cn("flex-1", index < steps.length - 1 && "pr-6")}>
             <div
               className={cn(
-                "flex items-start p-2 rounded-md transition-colors duration-150 ease-in-out",
-                index <= currentStep ? "cursor-pointer opacity-100" : "opacity-40 cursor-not-allowed",
+                "flex items-start rounded-md p-2 transition-colors duration-150 ease-in-out",
+                index <= currentStep ? "cursor-pointer opacity-100" : "cursor-not-allowed opacity-40",
                 index < currentStep && index <= currentStep ? "hover:bg-theme-background-lvl-0" : ""
               )}
               onClick={() => onStepClick(index)}
@@ -27,15 +27,15 @@ export const WizardProgress: React.FC<WizardProgressProps> = ({ steps, currentSt
               aria-disabled={index > currentStep}
               aria-label={`Go to step ${index + 1}: ${step.title}${index > currentStep ? " (not available yet)" : ""}`}
             >
-              <div className="flex-shrink-0 mt-1">
+              <div className="mt-1 flex-shrink-0">
                 <div
                   className={cn(
-                    "flex items-center justify-center h-6 w-6 rounded-full mr-3 text-sm font-semibold transition-colors duration-150",
+                    "mr-3 flex h-6 w-6 items-center justify-center rounded-full text-sm font-semibold transition-colors duration-150",
                     currentStep > index
                       ? "text-theme-success shadow-sm"
                       : currentStep === index
                         ? "bg-theme-info text-theme-light shadow-md"
-                        : "text-theme-light border border-theme-box-default"
+                        : "text-theme-light border-theme-box-default border"
                   )}
                 >
                   {currentStep > index ? (
@@ -48,7 +48,7 @@ export const WizardProgress: React.FC<WizardProgressProps> = ({ steps, currentSt
               <div className="w-full min-w-0">
                 <p
                   className={cn(
-                    "text-sm font-medium text-left transition-colors duration-150",
+                    "text-left text-sm font-medium transition-colors duration-150",
                     currentStep >= index ? "text-theme-light" : "text-theme-default"
                   )}
                 >
@@ -56,7 +56,7 @@ export const WizardProgress: React.FC<WizardProgressProps> = ({ steps, currentSt
                 </p>
                 <p
                   className={cn(
-                    "text-xs line-clamp-2 text-left transition-colors duration-150",
+                    "line-clamp-2 text-left text-xs transition-colors duration-150",
                     currentStep >= index ? "text-theme-default" : "text-theme-default opacity-50"
                   )}
                 >

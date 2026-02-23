@@ -1,5 +1,7 @@
 import { createFileRoute, Outlet, useLoaderData } from "@tanstack/react-router"
+import { createFileRoute, Outlet, useLoaderData } from "@tanstack/react-router"
 import { AppShell, Container } from "@cloudoperators/juno-ui-components"
+import { SideNavBar } from "./-components/SideNavBar"
 import { SideNavBar } from "./-components/SideNavBar"
 
 export const Route = createFileRoute("/_auth/accounts/$accountId/projects/$projectId")({
@@ -30,7 +32,7 @@ function RouteComponent() {
     <AppShell
       embedded
       sideNavigation={<SideNavBar availableServices={availableServices!} accountId={accountId} projectId={projectId} />}
-      className="h-min-screen "
+      className="h-min-screen"
     >
       <Container>
         <Outlet />

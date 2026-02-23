@@ -125,7 +125,7 @@ function RouteComponent() {
       </Breadcrumb>
 
       <Stack direction="vertical" distribution="between">
-        <ContentHeading className="text-2xl font-bold text-theme-highest">{getImageName()}</ContentHeading>
+        <ContentHeading className="text-theme-highest text-2xl font-bold">{getImageName()}</ContentHeading>
       </Stack>
 
       <ImageDetailsView image={image} />

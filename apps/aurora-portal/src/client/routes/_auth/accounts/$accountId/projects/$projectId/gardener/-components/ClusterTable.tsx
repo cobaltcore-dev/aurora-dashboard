@@ -10,7 +10,7 @@ export const ClusterTable: React.FC<{
   return (
     <div className="w-full">
       {/* Header with summary */}
-      <Stack className="bg-theme-background-lvl-1 py-2 px-4 my-0">
+      <Stack className="bg-theme-background-lvl-1 my-0 px-4 py-2">
         <Stack gap="1" className="w-1/2">
           <span className="text-theme-high">{clusters.length}</span> <span>out of</span>
           <span className="text-theme-high">{filteredCount}</span> clusters

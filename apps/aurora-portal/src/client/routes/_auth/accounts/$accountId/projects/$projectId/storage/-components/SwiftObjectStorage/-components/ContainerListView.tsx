@@ -3,6 +3,7 @@ import { useVirtualizer } from "@tanstack/react-virtual"
 import { DataGrid, DataGridHeadCell, DataGridRow, DataGridCell } from "@cloudoperators/juno-ui-components"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { ContainerSummary } from "@/server/Storage/types/swift"
+import { formatBytesBinary } from "@/client/utils/formatBytes"
 
 interface ContainerListViewProps {
   containers: ContainerSummary[]
@@ -20,17 +21,6 @@ export const ContainerListView = ({ containers }: ContainerListViewProps) => {
       setScrollbarWidth(width)
     }
   }, [containers.length])
-
-  // Format bytes to human-readable size
-  const formatBytes = (bytes: number): string => {
-    if (bytes === 0) return "0 B"
-
-    const k = 1024
-    const sizes = ["B", "KB", "MB", "GB", "TB"]
-    const i = Math.floor(Math.log(bytes) / Math.log(k))
-
-    return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`
-  }
 
   // Format date to localized string
   const formatDate = (dateString: string): string => {
@@ -54,7 +44,7 @@ export const ContainerListView = ({ containers }: ContainerListViewProps) => {
       <DataGrid columns={4} className="containers" data-testid="no-containers">
         <DataGridRow>
           <DataGridCell colSpan={4}>
-            <div className="text-center py-8">
+            <div className="py-8 text-center">
               <h3 className="text-lg font-semibold">
                 <Trans>No containers found</Trans>
               </h3>
@@ -144,7 +134,7 @@ export const ContainerListView = ({ containers }: ContainerListViewProps) => {
                 <DataGridCell>{container.name}</DataGridCell>
                 <DataGridCell>{container.count.toLocaleString()}</DataGridCell>
                 <DataGridCell>{container.last_modified ? formatDate(container.last_modified) : t`N/A`}</DataGridCell>
-                <DataGridCell>{formatBytes(container.bytes)}</DataGridCell>
+                <DataGridCell>{formatBytesBinary(container.bytes)}</DataGridCell>
               </div>
             )
           })}
@@ -152,7 +142,7 @@ export const ContainerListView = ({ containers }: ContainerListViewProps) => {
       </div>
 
       {/* Footer with count */}
-      <div className="py-2 px-4 text-sm text-theme-light border-t border-theme-background-lvl-2">
+      <div className="text-theme-light border-theme-background-lvl-2 border-t px-4 py-2 text-sm">
         <Trans>
           Showing {virtualizedContainersCount} of {allContainersCount} containers
         </Trans>
