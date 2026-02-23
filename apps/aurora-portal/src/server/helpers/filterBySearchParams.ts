@@ -1,11 +1,16 @@
 /**
- * Filters security groups by search term.
- * Searches across name, description, and id fields (case-insensitive).
+ * Filters an array of objects by a search term across specified fields.
+ * Searches are case-insensitive and match substrings.
  *
- * @param items - Array of security groups to filter
- * @param searchTerm - Search term to match against name, description, or id
- * @param searchFields - Optional array of fields to search within (defaults to name, description, and id)
- * @returns Filtered array of security groups that match the search term
+ * @param items - Array of objects to filter
+ * @param searchTerm - Search term to match against specified fields
+ * @param searchFields - Fields to search within
+ * @returns Filtered array of items that match the search term in any of the specified fields
+ *
+ * @example
+ * filterBySearchParams(securityGroups, "web", ["name", "description", "id"])
+ * filterBySearchParams(images, "ubuntu", ["name"])
+ * filterBySearchParams(users, "john", ["name", "email"])
  */
 export function filterBySearchParams<T extends Record<string, unknown>>(
   items: T[],
