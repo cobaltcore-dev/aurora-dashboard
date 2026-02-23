@@ -1,8 +1,34 @@
-import { createFileRoute, Outlet, useLoaderData } from "@tanstack/react-router"
-import { createFileRoute, Outlet, useLoaderData } from "@tanstack/react-router"
-import { AppShell, Container } from "@cloudoperators/juno-ui-components"
+import { createFileRoute, Outlet, useLoaderData, useMatches } from "@tanstack/react-router"
+import { AppShell, Container, Stack } from "@cloudoperators/juno-ui-components"
 import { SideNavBar } from "./-components/SideNavBar"
-import { SideNavBar } from "./-components/SideNavBar"
+import { ProjectInfoBox } from "@/client/components/ProjectInfoBox"
+
+// Helper to generate page title from route
+const getPageTitle = (pathname: string): string => {
+  const segments = pathname.split("/").filter(Boolean)
+
+  // Find the service and specific page (e.g., compute/images)
+  const serviceIndex = segments.findIndex((s) => ["compute", "storage", "network"].includes(s))
+
+  if (serviceIndex === -1) return "Overview"
+
+  const service = segments[serviceIndex]
+  const page = segments[serviceIndex + 1]
+
+  if (!page || page === "$") {
+    // Capitalize service name
+    return service.charAt(0).toUpperCase() + service.slice(1)
+  }
+
+  // Capitalize and format the page name (e.g., "keypairs" -> "Key Pairs")
+  return page
+    .split(/[-_]/)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ")
+    .replace(/servergroups/i, "Server Groups")
+    .replace(/keypairs/i, "Key Pairs")
+    .replace(/objectstorage/i, "Object Storage")
+}
 
 export const Route = createFileRoute("/_auth/accounts/$accountId/projects/$projectId")({
   component: RouteComponent,
@@ -26,7 +52,10 @@ export const Route = createFileRoute("/_auth/accounts/$accountId/projects/$proje
 })
 
 function RouteComponent() {
-  const { availableServices, accountId, projectId } = useLoaderData({ from: Route.id })
+  const { availableServices, accountId, projectId, crumbProject } = useLoaderData({ from: Route.id })
+  const matches = useMatches()
+  const currentPath = matches[matches.length - 1]?.pathname || ""
+  const pageTitle = getPageTitle(currentPath)
 
   return (
     <AppShell
@@ -35,7 +64,25 @@ function RouteComponent() {
       className="h-min-screen"
     >
       <Container>
-        <Outlet />
+        <h1 className="mb-6 text-3xl font-bold">{pageTitle}</h1>
+
+        <Stack direction="vertical" distribution="start" alignment="stretch" className="xl:flex-row" gap="6">
+          {/* Main content area */}
+          <div className="min-w-0 flex-1">
+            <Outlet />
+          </div>
+
+          {/* Info box - only shows on xl screens */}
+          <aside className="flex-shrink-0 xl:w-80 2xl:w-96">
+            <ProjectInfoBox
+              projectInfo={{
+                id: projectId,
+                name: crumbProject?.name || projectId,
+                description: "",
+              }}
+            />
+          </aside>
+        </Stack>
       </Container>
     </AppShell>
   )
