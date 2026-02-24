@@ -127,7 +127,7 @@ export const ContainerListView = ({
           ref={parentRef}
           className="overflow-auto"
           style={{
-            height: "calc(100vh - 455px)", // Dynamic height based on viewport
+            height: "calc(100vh - 425px)", // Dynamic height based on viewport
             // minHeight: "400px", // Minimum height for usability
             // maxHeight: "800px", // Maximum height to prevent overflow
           }}
