@@ -154,7 +154,9 @@ const createTestRouter = (Component: ReactElement) => {
 
   const routeTree = rootRoute.addChildren([
     accountsRoute.addChildren([
-      projectsRoute.addChildren([networkRoute.addChildren([securityGroupsRoute.addChildren([securityGroupDetailsRoute])])]),
+      projectsRoute.addChildren([
+        networkRoute.addChildren([securityGroupsRoute.addChildren([securityGroupDetailsRoute])]),
+      ]),
     ]),
   ])
 
