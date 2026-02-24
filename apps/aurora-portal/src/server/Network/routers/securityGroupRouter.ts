@@ -68,7 +68,7 @@ export const securityGroupRouter = {
       }, "list security groups")
     }),
 
-  getById: protectedProcedure
+  getSecurityGroupById: protectedProcedure
     .input(getSecurityGroupByIdInputSchema)
     .query(async ({ input, ctx }): Promise<SecurityGroup> => {
       return withErrorHandling(async () => {

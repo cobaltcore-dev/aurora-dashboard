@@ -40,7 +40,7 @@ export const SideNavBar = ({ accountId, projectId, availableServices }: SideNavB
 
   const getNetworkNavigationLinks = () => {
     return [
-      ...(serviceIndex["network"] ? [{ path: `${networkRootPath}/securitygroups`, label: t`Security Groups` }] : []),
+      ...(serviceIndex["network"] ? [{ path: `${networkRootPath}/security-groups`, label: t`Security Groups` }] : []),
     ]
   }
 
