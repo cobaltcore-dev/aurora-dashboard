@@ -49,7 +49,7 @@ export const DeleteImageModal: React.FC<DeleteImageModalProps> = ({
       title="Delete Image"
       open={isOpen}
       modalFooter={
-        <ModalFooter className="flex justify-end ">
+        <ModalFooter className="flex justify-end">
           <ButtonRow>
             <Button
               variant="primary-danger"

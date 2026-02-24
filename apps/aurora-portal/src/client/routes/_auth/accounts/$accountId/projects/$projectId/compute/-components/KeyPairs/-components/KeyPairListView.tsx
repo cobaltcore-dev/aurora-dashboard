@@ -38,7 +38,7 @@ export function KeyPairListView({ keyPairs }: KeyPairListViewProps) {
     <div>
       {keyPairs && keyPairs.length > 0 ? (
         <div className="overflow-x-auto">
-          <table className="w-full ">
+          <table className="w-full">
             {/* Table Header */}
             <thead>
               <tr>

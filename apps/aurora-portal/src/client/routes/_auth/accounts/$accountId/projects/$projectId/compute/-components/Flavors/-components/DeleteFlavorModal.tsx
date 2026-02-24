@@ -83,7 +83,7 @@ export const DeleteFlavorModal: React.FC<DeleteFlavorModalProps> = ({
       open={isOpen}
       onConfirm={handleDelete}
       modalFooter={
-        <ModalFooter className="flex justify-end ">
+        <ModalFooter className="flex justify-end">
           <ButtonRow>
             <Button variant="primary-danger" onClick={handleDelete} disabled={isLoading}>
               {isLoading ? <Spinner size="small" /> : <Trans>Delete</Trans>}

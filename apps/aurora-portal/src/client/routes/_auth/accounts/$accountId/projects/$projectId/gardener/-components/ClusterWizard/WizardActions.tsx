@@ -23,7 +23,7 @@ export const WizardActions: React.FC<WizardActionsProps> = ({
   onSubmit,
 }) => {
   return (
-    <ModalFooter className="flex justify-end gap-3 px-8 mt-8">
+    <ModalFooter className="mt-8 flex justify-end gap-3 px-8">
       <ButtonRow>
         <Button onClick={onPrev} disabled={currentStep === 0} variant="default">
           <Trans>Back</Trans>

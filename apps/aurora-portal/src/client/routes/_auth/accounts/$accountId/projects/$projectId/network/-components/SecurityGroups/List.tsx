@@ -73,7 +73,7 @@ export const SecurityGroups = () => {
     sort_key: sortSettings.sortBy,
     sort_dir: sortSettings.sortDirection,
     ...buildFilterParams(),
-    ...(searchTerm ? { name: searchTerm } : {}),
+    ...(searchTerm ? { searchTerm } : {}),
   })
 
   const handleSortChange = (newSortSettings: SortSettings) => {

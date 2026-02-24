@@ -23,11 +23,11 @@ export function UserMenu() {
   return (
     <div className="relative" ref={menuRef} tabIndex={0} onBlur={handleBlur}>
       <button onClick={toggleMenu} className="align-middle">
-        <Icon color="jn-global-text" icon="accountCircle" className="w-6 h-6" />
+        <Icon color="jn-global-text" icon="accountCircle" className="h-6 w-6" />
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-48 bg-theme-background-lvl-1 shadow-lg rounded-lg p-4 z-50">
+        <div className="bg-theme-background-lvl-1 absolute right-0 z-50 mt-2 w-48 rounded-lg p-4 shadow-lg">
           <AuthMenu authClient={trpcClient["auth"]} />
         </div>
       )}

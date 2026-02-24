@@ -39,15 +39,15 @@ export function MainNavigation({ items, handleThemeToggle }: NavigationProps) {
 
   return (
     <PageHeader
-      logo={<Logo className="w-6 h-6 fill-theme-accent flex-shrink-0" title="Aurora" />}
+      logo={<Logo className="fill-theme-accent h-6 w-6 flex-shrink-0" title="Aurora" />}
       applicationName={
-        <div className="flex items-center space-x-2 flex-nowrap">
-          <Link to="/" className="flex items-center space-x-2 flex-nowrap">
-            <span className="flex-shrink-0 text-theme-high ">Aurora</span>
+        <div className="flex flex-nowrap items-center space-x-2">
+          <Link to="/" className="flex flex-nowrap items-center space-x-2">
+            <span className="text-theme-high flex-shrink-0">Aurora</span>
           </Link>
           {domain && (
             <>
-              <span className="flex-shrink-0 text-theme-high/40">/</span>
+              <span className="text-theme-high/40 flex-shrink-0">/</span>
               <Link to={domain.path} data-testid="domain-link" className="text-theme-high flex-shrink-0">
                 {domain.name}
               </Link>
@@ -55,11 +55,11 @@ export function MainNavigation({ items, handleThemeToggle }: NavigationProps) {
           )}
           {project && (
             <>
-              <span className="flex-shrink-0 text-theme-high/40 ">/</span>
+              <span className="text-theme-high/40 flex-shrink-0">/</span>
               <Link
                 to={project.path + "/compute/$"}
                 data-testid="project-link"
-                className="text-theme-high flex-shrink-0 "
+                className="text-theme-high flex-shrink-0"
               >
                 {project.name}
               </Link>

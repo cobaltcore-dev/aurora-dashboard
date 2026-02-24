@@ -9,6 +9,7 @@ import {
   securityGroupResponseSchema,
 } from "../types/securityGroup"
 import { withErrorHandling } from "../../helpers/errorHandling"
+import { filterBySearchParams } from "../../helpers/filterBySearchParams"
 
 const LIST_SECURITY_GROUPS_QUERY_KEY_MAP: Record<string, string> = {
   tags_any: "tags-any",
@@ -22,6 +23,7 @@ const LIST_SECURITY_GROUPS_QUERY_KEY_MAP: Record<string, string> = {
  * Currently exposes:
  * - list: GET /v2.0/security-groups with pagination, sorting and basic filtering support.
  * - getById: GET /v2.0/security-groups/{security_group_id} to fetch a single security group with rules.
+ *   Includes BFF-side search filtering by name, description, or id.
  */
 export const securityGroupRouter = {
   list: protectedProcedure
@@ -38,7 +40,10 @@ export const securityGroupRouter = {
       }
 
       return withErrorHandling(async () => {
-        const queryParams = appendQueryParamsFromObject(input, {
+        // Extract searchTerm from input before building query params
+        const { searchTerm, ...openstackParams } = input
+
+        const queryParams = appendQueryParamsFromObject(openstackParams, {
           keyMap: LIST_SECURITY_GROUPS_QUERY_KEY_MAP,
         })
 
@@ -56,7 +61,10 @@ export const securityGroupRouter = {
             message: "Failed to parse security groups response from OpenStack",
           })
         }
-        return parsed.data.security_groups
+
+        const securityGroups = parsed.data.security_groups
+
+        return filterBySearchParams(securityGroups, searchTerm, ["name", "description", "id"])
       }, "list security groups")
     }),
 
