@@ -5,6 +5,7 @@ import { Readable, Transform } from "node:stream"
 import { protectedProcedure } from "../../trpc"
 import {
   applyImageQueryParams,
+  filterImagesByName,
   validateGlanceService,
   mapErrorResponseToTRPCError,
   ImageErrorHandlers,
@@ -75,7 +76,7 @@ export const imageRouter = {
         throw handleZodParsingError(parsedData.error, "list images")
       }
 
-      return parsedData.data.images
+      return filterImagesByName(parsedData.data.images, queryInput.name)
     }, "list images")
   }),
 
@@ -90,6 +91,9 @@ export const imageRouter = {
         validateGlanceService(glance)
 
         // Build query parameters using utility function
+        // Note: `name` is intentionally excluded from the URL — OpenStack Glance API only
+        // supports exact name matches, not wildcard/substring filtering. Name filtering is
+        // applied server-side below after fetching results.
         const queryParams = new URLSearchParams()
         applyImageQueryParams(queryParams, queryInput)
 
@@ -103,7 +107,12 @@ export const imageRouter = {
           throw handleZodParsingError(parsedData.error, "list images with pagination")
         }
 
-        return parsedData.data
+        const result = parsedData.data
+
+        // Apply server-side name filtering (case-insensitive substring match)
+        result.images = filterImagesByName(result.images, queryInput.name)
+
+        return result
       }, "list images with pagination")
     }),
 
