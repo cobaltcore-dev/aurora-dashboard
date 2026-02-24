@@ -28,11 +28,6 @@ vi.mock("../helpers/imageHelpers", async (importOriginal) => {
     },
     handleZodParsingError: vi.fn(),
     withErrorHandling: vi.fn((fn) => fn()),
-    filterImagesByName: vi.fn((images: GlanceImage[], name?: string) => {
-      if (!name) return images
-      const nameLower = name.toLowerCase()
-      return images.filter((image) => image.name?.toLowerCase().includes(nameLower))
-    }),
   }
 })
 
@@ -167,7 +162,7 @@ describe("imageRouter", () => {
       await expect(caller.image.listImages(input)).rejects.toThrow("Failed to list images: Internal Server Error")
     })
 
-    it("should apply server-side name filtering via filterImagesByName", async () => {
+    it("should apply server-side name filtering", async () => {
       const mockCtx = createMockContext()
       const caller = createCaller(mockCtx)
 
@@ -181,7 +176,6 @@ describe("imageRouter", () => {
 
       const result = await caller.image.listImages({ name: "ubuntu" })
 
-      expect(imageHelpers.filterImagesByName).toHaveBeenCalledWith([ubuntuImage, centosImage], "ubuntu")
       expect(result).toEqual([ubuntuImage])
     })
 
@@ -298,7 +292,7 @@ describe("imageRouter", () => {
       expect(calledUrl).not.toContain("name=ubuntu")
     })
 
-    it("should filter images by name client-side via filterImagesByName (substring match)", async () => {
+    it("should filter images by name client-side (substring match)", async () => {
       const mockCtx = createMockContext()
       const caller = createCaller(mockCtx)
 
@@ -314,11 +308,10 @@ describe("imageRouter", () => {
         }),
       })
 
-      const result = await caller.image.listImagesWithPagination({ name: "ubuntu" })
+      const result = await caller.image.listImages({ name: "ubuntu" })
 
-      expect(imageHelpers.filterImagesByName).toHaveBeenCalledWith([ubuntuImage, centosImage, debianImage], "ubuntu")
-      expect(result.images).toHaveLength(1)
-      expect(result.images[0].name).toBe("ubuntu-22.04-lts")
+      expect(result).toHaveLength(1)
+      expect(result[0].name).toBe("ubuntu-22.04-lts")
     })
 
     it("should filter images by name client-side (case-insensitive)", async () => {

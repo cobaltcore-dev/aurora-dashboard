@@ -1,11 +1,12 @@
 import { z } from "zod"
 import { SignalOpenstackApiError } from "@cobaltcore-dev/signal-openstack"
+import { TRPCError } from "@trpc/server"
+import { filterBySearchParams } from "@/server/helpers/filterBySearchParams"
 import EventEmitter from "node:events"
 import { Readable, Transform } from "node:stream"
 import { protectedProcedure } from "../../trpc"
 import {
   applyImageQueryParams,
-  filterImagesByName,
   validateGlanceService,
   mapErrorResponseToTRPCError,
   ImageErrorHandlers,
@@ -44,7 +45,6 @@ import {
   BulkOperationResult,
   memberStatusSchema,
 } from "../types/image"
-import { TRPCError } from "@trpc/server"
 
 // Create a global event emitter for upload progress
 const uploadProgressEmitter = new EventEmitter()
@@ -76,7 +76,7 @@ export const imageRouter = {
         throw handleZodParsingError(parsedData.error, "list images")
       }
 
-      return filterImagesByName(parsedData.data.images, queryInput.name)
+      return filterBySearchParams(parsedData.data.images, queryInput.name, ["name"])
     }, "list images")
   }),
 
@@ -110,7 +110,7 @@ export const imageRouter = {
         const result = parsedData.data
 
         // Apply server-side name filtering (case-insensitive substring match)
-        result.images = filterImagesByName(result.images, queryInput.name)
+        result.images = filterBySearchParams(result.images, queryInput.name, ["name"])
 
         return result
       }, "list images with pagination")
