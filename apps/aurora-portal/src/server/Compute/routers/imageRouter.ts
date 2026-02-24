@@ -54,31 +54,33 @@ type UploadProgress = { uploaded: number; total: number; percent?: number }
 const uploadProgress = new Map<string, UploadProgress>()
 
 export const imageRouter = {
-  listImages: protectedProcedure.input(listImagesInputSchema).query(async ({ input, ctx }): Promise<GlanceImage[]> => {
-    return withErrorHandling(async () => {
-      const { ...queryInput } = input
-      const openstackSession = ctx.openstack
-      const glance = openstackSession?.service("glance")
+  listImagesWithSearch: protectedProcedure
+    .input(listImagesInputSchema)
+    .query(async ({ input, ctx }): Promise<GlanceImage[]> => {
+      return withErrorHandling(async () => {
+        const { ...queryInput } = input
+        const openstackSession = ctx.openstack
+        const glance = openstackSession?.service("glance")
 
-      validateGlanceService(glance)
+        validateGlanceService(glance)
 
-      // Build query parameters using utility function
-      const queryParams = new URLSearchParams()
-      applyImageQueryParams(queryParams, queryInput)
+        // Build query parameters using utility function
+        const queryParams = new URLSearchParams()
+        applyImageQueryParams(queryParams, queryInput)
 
-      const url = `v2/images?${queryParams.toString()}`
-      const response = await glance.get(url).catch((error) => {
-        throw mapErrorResponseToTRPCError(error, { operation: "list images" })
-      })
+        const url = `v2/images?${queryParams.toString()}`
+        const response = await glance.get(url).catch((error) => {
+          throw mapErrorResponseToTRPCError(error, { operation: "list images" })
+        })
 
-      const parsedData = imageResponseSchema.safeParse(await response.json())
-      if (!parsedData.success) {
-        throw handleZodParsingError(parsedData.error, "list images")
-      }
+        const parsedData = imageResponseSchema.safeParse(await response.json())
+        if (!parsedData.success) {
+          throw handleZodParsingError(parsedData.error, "list images")
+        }
 
-      return filterBySearchParams(parsedData.data.images, queryInput.name, ["name"])
-    }, "list images")
-  }),
+        return filterBySearchParams(parsedData.data.images, queryInput.name, ["name"])
+      }, "list images")
+    }),
 
   listImagesWithPagination: protectedProcedure
     .input(imagesPaginatedInputSchema)

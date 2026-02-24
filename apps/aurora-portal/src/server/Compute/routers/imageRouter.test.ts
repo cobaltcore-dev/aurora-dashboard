@@ -119,14 +119,14 @@ describe("imageRouter", () => {
     ;(imageHelpers.withErrorHandling as Mock).mockImplementation((fn) => fn())
   })
 
-  describe("listImages", () => {
+  describe("listImagesWithSearch", () => {
     it("should throw UNAUTHORIZED when session validation fails", async () => {
       const mockCtx = createMockContext(true)
       const caller = createCaller(mockCtx)
 
       const input = {}
 
-      await expect(caller.image.listImages(input)).rejects.toThrow(
+      await expect(caller.image.listImagesWithSearch(input)).rejects.toThrow(
         new TRPCError({
           code: "UNAUTHORIZED",
           message: "The session is invalid",
@@ -141,7 +141,7 @@ describe("imageRouter", () => {
       const caller = createCaller(mockCtx)
 
       const input = {}
-      const result = await caller.image.listImages(input)
+      const result = await caller.image.listImagesWithSearch(input)
 
       expect(mockCtx.validateSession).toHaveBeenCalled()
       expect(imageHelpers.validateGlanceService).toHaveBeenCalled()
@@ -159,7 +159,9 @@ describe("imageRouter", () => {
 
       const input = {}
 
-      await expect(caller.image.listImages(input)).rejects.toThrow("Failed to list images: Internal Server Error")
+      await expect(caller.image.listImagesWithSearch(input)).rejects.toThrow(
+        "Failed to list images: Internal Server Error"
+      )
     })
 
     it("should apply server-side name filtering", async () => {
@@ -174,7 +176,7 @@ describe("imageRouter", () => {
         json: vi.fn().mockResolvedValue({ images: [ubuntuImage, centosImage] }),
       })
 
-      const result = await caller.image.listImages({ name: "ubuntu" })
+      const result = await caller.image.listImagesWithSearch({ name: "ubuntu" })
 
       expect(result).toEqual([ubuntuImage])
     })
@@ -188,7 +190,7 @@ describe("imageRouter", () => {
         json: vi.fn().mockResolvedValue({ images: [mockGlanceImage] }),
       })
 
-      await caller.image.listImages({ name: "ubuntu" })
+      await caller.image.listImagesWithSearch({ name: "ubuntu" })
 
       const calledUrl: string = mockCtx.mockGlance.get.mock.calls[0][0]
       expect(calledUrl).not.toContain("name=ubuntu")
@@ -206,9 +208,31 @@ describe("imageRouter", () => {
         json: vi.fn().mockResolvedValue({ images: [image1, image2] }),
       })
 
-      const result = await caller.image.listImages({})
+      const result = await caller.image.listImagesWithSearch({})
 
       expect(result).toHaveLength(2)
+    })
+
+    it("should filter images by name server-side (substring match)", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      const ubuntuImage = { ...mockGlanceImage, id: generateTestUUID(1), name: "ubuntu-22.04-lts" }
+      const centosImage = { ...mockGlanceImage, id: generateTestUUID(2), name: "centos-stream-9" }
+      const debianImage = { ...mockGlanceImage, id: generateTestUUID(3), name: "debian-12-bookworm" }
+
+      mockCtx.mockGlance.get.mockResolvedValue({
+        ok: true,
+        json: vi.fn().mockResolvedValue({
+          images: [ubuntuImage, centosImage, debianImage],
+          schema: "/v2/schemas/images",
+        }),
+      })
+
+      const result = await caller.image.listImagesWithSearch({ name: "ubuntu" })
+
+      expect(result).toHaveLength(1)
+      expect(result[0].name).toBe("ubuntu-22.04-lts")
     })
   })
 
@@ -290,28 +314,6 @@ describe("imageRouter", () => {
 
       const calledUrl: string = mockCtx.mockGlance.get.mock.calls[0][0]
       expect(calledUrl).not.toContain("name=ubuntu")
-    })
-
-    it("should filter images by name client-side (substring match)", async () => {
-      const mockCtx = createMockContext()
-      const caller = createCaller(mockCtx)
-
-      const ubuntuImage = { ...mockGlanceImage, id: generateTestUUID(1), name: "ubuntu-22.04-lts" }
-      const centosImage = { ...mockGlanceImage, id: generateTestUUID(2), name: "centos-stream-9" }
-      const debianImage = { ...mockGlanceImage, id: generateTestUUID(3), name: "debian-12-bookworm" }
-
-      mockCtx.mockGlance.get.mockResolvedValue({
-        ok: true,
-        json: vi.fn().mockResolvedValue({
-          images: [ubuntuImage, centosImage, debianImage],
-          schema: "/v2/schemas/images",
-        }),
-      })
-
-      const result = await caller.image.listImages({ name: "ubuntu" })
-
-      expect(result).toHaveLength(1)
-      expect(result[0].name).toBe("ubuntu-22.04-lts")
     })
 
     it("should filter images by name client-side (case-insensitive)", async () => {
@@ -1210,7 +1212,7 @@ describe("imageRouter", () => {
       const mockCtx = createMockContext()
       const caller = createCaller(mockCtx)
 
-      await caller.image.listImages({})
+      await caller.image.listImagesWithSearch({})
 
       expect(imageHelpers.validateGlanceService).toHaveBeenCalled()
     })
@@ -1221,7 +1223,7 @@ describe("imageRouter", () => {
 
       const input = {}
 
-      await expect(caller.image.listImages(input)).rejects.toThrow()
+      await expect(caller.image.listImagesWithSearch(input)).rejects.toThrow()
     })
 
     it("should apply query parameters correctly", async () => {
@@ -1233,7 +1235,7 @@ describe("imageRouter", () => {
         status: "active" as const,
       }
 
-      await caller.image.listImages(input)
+      await caller.image.listImagesWithSearch(input)
 
       expect(imageHelpers.applyImageQueryParams).toHaveBeenCalledWith(expect.any(URLSearchParams), {
         name: "test-image",

@@ -8,11 +8,11 @@ All endpoints are protected procedures that require authentication and operate w
 
 ## Image Management Endpoints
 
-### List Images
+### List Images with Search
 
 Retrieves a list of images with optional filtering and sorting.
 
-**Endpoint:** `listImages`  
+**Endpoint:** `listImagesWithSearch`  
 **Method:** Query  
 **Input Schema:** `listImagesInputSchema`
 
@@ -67,7 +67,7 @@ The API supports two sorting syntaxes:
 
 ```typescript
 // Using modern sort syntax (recommended)
-const imagesSorted = await client.compute.image.listImages.query({
+const imagesSorted = await client.compute.image.listImagesWithSearch.query({
   sort: "name:asc",
   status: "active",
   visibility: "private",
@@ -75,20 +75,20 @@ const imagesSorted = await client.compute.image.listImages.query({
 })
 
 // Multi-field sorting
-const imagesMultiSort = await client.compute.image.listImages.query({
+const imagesMultiSort = await client.compute.image.listImagesWithSearch.query({
   sort: "status:asc,name:asc,created_at:desc",
   visibility: "public",
 })
 
 // Using legacy syntax (still supported)
-const imagesLegacy = await client.compute.image.listImages.query({
+const imagesLegacy = await client.compute.image.listImagesWithSearch.query({
   sort_key: "name",
   sort_dir: "asc",
   status: "active",
 })
 
 // Filtering examples
-const filteredImages = await client.compute.image.listImages.query({
+const filteredImages = await client.compute.image.listImagesWithSearch.query({
   sort: "created_at:desc",
   os_type: "linux",
   disk_format: "qcow2",
@@ -98,7 +98,7 @@ const filteredImages = await client.compute.image.listImages.query({
 
 // Name search — case-insensitive substring match, filtering applied in BFF layer
 // Matches "ubuntu-22.04-lts", "Ubuntu-Minimal-22.04", etc.
-const searchResults = await client.compute.image.listImages.query({
+const searchResults = await client.compute.image.listImagesWithSearch.query({
   sort: "name:asc",
   name: "ubuntu",
 })
