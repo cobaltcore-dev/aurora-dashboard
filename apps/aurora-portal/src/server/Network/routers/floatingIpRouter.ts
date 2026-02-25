@@ -3,12 +3,14 @@ import { protectedProcedure } from "@/server/trpc"
 import { withErrorHandling } from "@/server/helpers/errorHandling"
 import { appendQueryParamsFromObject } from "@/server/helpers/queryParams"
 import { FloatingIpQueryParametersSchema, FloatingIp, FloatingIpResponseSchema } from "../types/floatingIp"
+import { filterBySearchParams } from "../../helpers/filterBySearchParams"
 
 /**
  * tRPC router for OpenStack Neutron Floating IPs.
  *
  * Currently exposes:
  * - list: GET /v2.0/floatingips with pagination, sorting and filtering support.
+ *   Inludes BFF-side search filtering by specific fields.
  */
 export const floatingIpRouter = {
   list: protectedProcedure
@@ -22,13 +24,14 @@ export const floatingIpRouter = {
       }
 
       return withErrorHandling(async () => {
-        const queryParams = appendQueryParamsFromObject(input as Record<string, unknown>)
+        // Extract searchTerm from input before building query params
+        const { searchTerm, ...openstackParams } = input
+        const queryParams = appendQueryParamsFromObject(openstackParams)
         const queryString = queryParams.toString()
         const url = queryString ? `v2.0/floatingips?${queryString}` : "v2.0/floatingips"
 
         const response = await network.get(url)
         const data = await response.json()
-
         const parsed = FloatingIpResponseSchema.safeParse(data)
 
         if (!parsed.success) {
@@ -38,7 +41,8 @@ export const floatingIpRouter = {
             message: "Failed to parse floating IPs response from OpenStack",
           })
         }
-        return parsed.data.floatingips
-      }, "list floating IPs")
+        const floatingIps = parsed.data.floatingips
+        return filterBySearchParams(floatingIps, searchTerm, ["description"])
+      }, "list floating ips")
     }),
 }
