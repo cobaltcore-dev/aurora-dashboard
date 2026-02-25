@@ -1,9 +1,13 @@
 import { useState, startTransition } from "react"
-import { useLingui } from "@lingui/react/macro"
+import { Trans, useLingui } from "@lingui/react/macro"
+import { useNavigate, useParams } from "@tanstack/react-router"
+import { Button } from "@cloudoperators/juno-ui-components"
 import { trpcReact } from "@/client/trpcClient"
 import { ListToolbar } from "@/client/components/ListToolbar"
 import { SortSettings, FilterSettings } from "@/client/components/ListToolbar/types"
 import { SecurityGroupListContainer } from "./-components/SecurityGroupListContainer"
+import { CreateSecurityGroupModal } from "./-components/-modals/CreateSecurityGroupModal"
+import { CreateSecurityGroupInput } from "@/server/Network/types/securityGroup"
 import { SECURITY_GROUP_SHARED } from "./constants"
 
 type RequiredSortSettings = {
@@ -14,6 +18,10 @@ type RequiredSortSettings = {
 
 export const SecurityGroups = () => {
   const { t } = useLingui()
+  const navigate = useNavigate()
+  const { accountId, projectId } = useParams({ strict: false })
+
+  const [createModalOpen, setCreateModalOpen] = useState(false)
 
   const [sortSettings, setSortSettings] = useState<RequiredSortSettings>({
     options: [
@@ -36,6 +44,8 @@ export const SecurityGroups = () => {
   })
 
   const [searchTerm, setSearchTerm] = useState("")
+
+  const utils = trpcReact.useUtils()
 
   /**
    * Builds filter parameters from current filter settings
@@ -76,6 +86,29 @@ export const SecurityGroups = () => {
     ...(searchTerm ? { searchTerm } : {}),
   })
 
+  const createSecurityGroupMutation = trpcReact.network.create.useMutation({
+    onSuccess: (createdSecurityGroup) => {
+      // Invalidate and refetch the security groups list
+      utils.network.list.invalidate()
+
+      // Navigate to the details page of the newly created security group
+      if (accountId && projectId) {
+        navigate({
+          to: "/accounts/$accountId/projects/$projectId/network/security-groups/$securityGroupId",
+          params: {
+            accountId,
+            projectId,
+            securityGroupId: createdSecurityGroup.id,
+          },
+        })
+      }
+    },
+  })
+
+  const handleCreateSecurityGroup = async (securityGroupData: CreateSecurityGroupInput) => {
+    await createSecurityGroupMutation.mutateAsync(securityGroupData)
+  }
+
   const handleSortChange = (newSortSettings: SortSettings) => {
     const settings: RequiredSortSettings = {
       options: newSortSettings.options ?? sortSettings.options,
@@ -107,6 +140,13 @@ export const SecurityGroups = () => {
         onSort={handleSortChange}
         onFilter={handleFilterChange}
         onSearch={handleSearchChange}
+        actions={
+          permissions.canUpdate && (
+            <Button onClick={() => setCreateModalOpen(true)} variant="primary">
+              <Trans>Create Security Group</Trans>
+            </Button>
+          )
+        }
       />
 
       <SecurityGroupListContainer
@@ -115,6 +155,13 @@ export const SecurityGroups = () => {
         isError={isError}
         error={error}
         permissions={permissions}
+      />
+
+      <CreateSecurityGroupModal
+        isOpen={createModalOpen}
+        onClose={() => setCreateModalOpen(false)}
+        onCreate={handleCreateSecurityGroup}
+        isLoading={createSecurityGroupMutation.isPending}
       />
     </div>
   )
