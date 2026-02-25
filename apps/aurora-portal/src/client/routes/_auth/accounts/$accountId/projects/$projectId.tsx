@@ -64,24 +64,19 @@ function RouteComponent() {
       className="h-min-screen"
     >
       <Container>
-        <h1 className="mb-6 text-3xl font-bold">{pageTitle}</h1>
-
         <Stack direction="vertical" distribution="start" alignment="stretch" className="xl:flex-row" gap="6">
           {/* Main content area */}
           <div className="min-w-0 flex-1">
-            <Outlet />
-          </div>
-
-          {/* Info box - only shows on xl screens */}
-          <aside className="flex-shrink-0 xl:w-80 2xl:w-96">
             <ProjectInfoBox
+              pageTitle={pageTitle}
               projectInfo={{
                 id: projectId,
                 name: crumbProject?.name || projectId,
-                description: "",
+                domain: crumbProject?.domain,
               }}
             />
-          </aside>
+            <Outlet />
+          </div>
         </Stack>
       </Container>
     </AppShell>

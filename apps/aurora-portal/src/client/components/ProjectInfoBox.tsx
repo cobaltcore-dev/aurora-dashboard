@@ -1,34 +1,45 @@
-import { Box, ContentHeading, Stack } from "@cloudoperators/juno-ui-components"
+import { ContentHeading, Stack } from "@cloudoperators/juno-ui-components"
 
 interface ProjectInfoBoxProps {
+  pageTitle: string
   projectInfo: {
     id: string
     name: string
     description?: string
+    domain?: {
+      name?: string
+    }
   }
 }
 
-export function ProjectInfoBox({ projectInfo }: ProjectInfoBoxProps) {
+export function ProjectInfoBox({ projectInfo, pageTitle }: ProjectInfoBoxProps) {
   return (
-    <Box className="m-0 overflow-hidden">
-      <ContentHeading>Project Info</ContentHeading>
+    <Stack direction="horizontal" alignment="stretch" className="my-6">
+      <ContentHeading className="text-2xl font-semibold">{pageTitle}</ContentHeading>
 
-      <Stack direction="vertical" gap="2">
+      <Stack direction="vertical" className="ml-auto">
         <div>
-          <span className="text-theme-high font-semibold">Project ID</span>
-          <p className="truncate">{projectInfo.id}</p>
+          <p className="text-theme-light truncate">
+            <span className="text-theme-light font-semibold">Project ID: </span>
+            {projectInfo.id}
+          </p>
         </div>
         <div>
-          <span className="text-theme-high font-semibold">Project Name</span>
-          <p>{projectInfo.name}</p>
+          <p className="text-theme-light truncate">
+            <span className="font-semibold">Project Name: </span>
+            {projectInfo.name}
+          </p>
         </div>
-        {projectInfo.description && (
+
+        {projectInfo.domain?.name && (
           <div>
-            <span className="text-theme-high font-semibold">Description</span>
-            <p>{projectInfo.description}</p>
+            <p className="text-theme-light truncate">
+              <span className="text-theme-light font-semibold">Domain Name: </span>
+              {projectInfo.domain?.name}
+            </p>
           </div>
         )}
       </Stack>
-    </Box>
+    </Stack>
   )
 }
