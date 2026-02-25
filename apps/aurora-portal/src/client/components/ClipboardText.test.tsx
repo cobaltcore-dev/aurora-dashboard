@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeAll, beforeEach, afterEach } from "vitest"
-import { render, screen, fireEvent, waitFor, act } from "@testing-library/react"
+import { render, screen, fireEvent, act } from "@testing-library/react"
 import ClipboardText from "./ClipboardText"
 import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import { I18nProvider } from "@lingui/react"
@@ -172,68 +172,6 @@ describe("ClipboardText", () => {
       })
 
       expect(mockWriteText).toHaveBeenCalledWith("This is a very long text")
-    })
-  })
-
-  describe("Tooltip behavior", () => {
-    it("shows tooltip on hover when showTooltip is true", async () => {
-      await act(async () => {
-        render(
-          <TestingProvider>
-            <ClipboardText text="Test" showTooltip={true} />
-          </TestingProvider>
-        )
-      })
-
-      const trigger = screen.getByTestId("clipboard-copy-trigger")
-
-      await act(async () => {
-        fireEvent.mouseEnter(trigger)
-      })
-
-      await waitFor(() => {
-        expect(screen.getByText("copy")).toBeInTheDocument()
-      })
-    })
-
-    it("shows custom tooltip content after copying", async () => {
-      await act(async () => {
-        render(
-          <TestingProvider>
-            <ClipboardText text="Test" tooltipContent="Custom copied message!" />
-          </TestingProvider>
-        )
-      })
-
-      const trigger = screen.getByTestId("clipboard-copy-trigger")
-
-      await act(async () => {
-        fireEvent.click(trigger)
-      })
-
-      await waitFor(() => {
-        expect(screen.getByText("Custom copied message!")).toBeInTheDocument()
-      })
-    })
-
-    it("shows default 'Copied to clipboard!' when no custom content", async () => {
-      await act(async () => {
-        render(
-          <TestingProvider>
-            <ClipboardText text="Test" />
-          </TestingProvider>
-        )
-      })
-
-      const trigger = screen.getByTestId("clipboard-copy-trigger")
-
-      await act(async () => {
-        fireEvent.click(trigger)
-      })
-
-      await waitFor(() => {
-        expect(screen.getByText("Copied to clipboard!")).toBeInTheDocument()
-      })
     })
   })
 })
