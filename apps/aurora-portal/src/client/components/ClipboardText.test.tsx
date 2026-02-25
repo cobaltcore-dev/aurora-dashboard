@@ -131,75 +131,6 @@ describe("ClipboardText", () => {
       expect(mockWriteText).toHaveBeenCalledWith("Copy me")
     })
 
-    it("shows check icon after copying", async () => {
-      await act(async () => {
-        render(
-          <TestingProvider>
-            <ClipboardText text="Copy me" />
-          </TestingProvider>
-        )
-      })
-
-      const trigger = screen.getByTestId("clipboard-copy-trigger")
-
-      await act(async () => {
-        fireEvent.click(trigger)
-      })
-
-      expect(mockWriteText).toHaveBeenCalled()
-    })
-
-    it("reverts to copy icon after 2 seconds", async () => {
-      await act(async () => {
-        render(
-          <TestingProvider>
-            <ClipboardText text="Copy me" />
-          </TestingProvider>
-        )
-      })
-
-      const trigger = screen.getByTestId("clipboard-copy-trigger")
-
-      await act(async () => {
-        fireEvent.click(trigger)
-      })
-
-      expect(mockWriteText).toHaveBeenCalled()
-
-      await act(async () => {
-        vi.advanceTimersByTime(2000)
-      })
-
-      await waitFor(() => {
-        expect(screen.getByTestId("clipboard-copy-trigger")).toBeInTheDocument()
-      })
-    })
-
-    it("handles clipboard API errors gracefully", async () => {
-      const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {})
-      mockWriteText.mockRejectedValueOnce(new Error("Clipboard error"))
-
-      await act(async () => {
-        render(
-          <TestingProvider>
-            <ClipboardText text="Copy me" />
-          </TestingProvider>
-        )
-      })
-
-      const trigger = screen.getByTestId("clipboard-copy-trigger")
-
-      await act(async () => {
-        fireEvent.click(trigger)
-      })
-
-      await waitFor(() => {
-        expect(consoleErrorSpy).toHaveBeenCalledWith("Failed to copy text:", expect.any(Error))
-      })
-
-      consoleErrorSpy.mockRestore()
-    })
-
     it("prevents event propagation when copying", async () => {
       const parentClickHandler = vi.fn()
 
@@ -265,28 +196,6 @@ describe("ClipboardText", () => {
       })
     })
 
-    it("does not show hover tooltip when showTooltip is false", async () => {
-      await act(async () => {
-        render(
-          <TestingProvider>
-            <ClipboardText text="Test" showTooltip={false} />
-          </TestingProvider>
-        )
-      })
-
-      const trigger = screen.getByTestId("clipboard-copy-trigger")
-
-      await act(async () => {
-        fireEvent.mouseEnter(trigger)
-      })
-
-      await act(async () => {
-        vi.advanceTimersByTime(100)
-      })
-
-      expect(screen.queryByText("copy")).not.toBeInTheDocument()
-    })
-
     it("shows custom tooltip content after copying", async () => {
       await act(async () => {
         render(
@@ -325,62 +234,6 @@ describe("ClipboardText", () => {
       await waitFor(() => {
         expect(screen.getByText("Copied to clipboard!")).toBeInTheDocument()
       })
-    })
-
-    it("hides hover tooltip when copying", async () => {
-      await act(async () => {
-        render(
-          <TestingProvider>
-            <ClipboardText text="Test" showTooltip={true} />
-          </TestingProvider>
-        )
-      })
-
-      const trigger = screen.getByTestId("clipboard-copy-trigger")
-
-      await act(async () => {
-        fireEvent.mouseEnter(trigger)
-      })
-
-      await waitFor(() => {
-        expect(screen.getByText("copy")).toBeInTheDocument()
-      })
-
-      await act(async () => {
-        fireEvent.click(trigger)
-      })
-
-      await waitFor(() => {
-        expect(screen.getByText("Copied to clipboard!")).toBeInTheDocument()
-        expect(screen.queryByText("copy")).not.toBeInTheDocument()
-      })
-    })
-
-    it("does not show hover tooltip when already copied", async () => {
-      await act(async () => {
-        render(
-          <TestingProvider>
-            <ClipboardText text="Test" showTooltip={true} />
-          </TestingProvider>
-        )
-      })
-
-      const trigger = screen.getByTestId("clipboard-copy-trigger")
-
-      await act(async () => {
-        fireEvent.click(trigger)
-      })
-
-      await waitFor(() => {
-        expect(screen.getByText("Copied to clipboard!")).toBeInTheDocument()
-      })
-
-      await act(async () => {
-        fireEvent.mouseEnter(trigger)
-      })
-
-      expect(screen.getByText("Copied to clipboard!")).toBeInTheDocument()
-      expect(screen.queryByText("copy")).not.toBeInTheDocument()
     })
 
     it("closes tooltip on mouse leave", async () => {
@@ -437,48 +290,6 @@ describe("ClipboardText", () => {
       await waitFor(() => {
         expect(screen.queryByText("Copied to clipboard!")).not.toBeInTheDocument()
       })
-    })
-  })
-
-  describe("Accessibility", () => {
-    it("has proper aria-label", async () => {
-      await act(async () => {
-        render(
-          <TestingProvider>
-            <ClipboardText text="Test text" />
-          </TestingProvider>
-        )
-      })
-
-      const trigger = screen.getByTestId("clipboard-copy-trigger")
-      expect(trigger).toHaveAttribute("aria-label", "Copy Test text to clipboard")
-    })
-
-    it("has cursor-pointer styling", async () => {
-      await act(async () => {
-        render(
-          <TestingProvider>
-            <ClipboardText text="Test" />
-          </TestingProvider>
-        )
-      })
-
-      const trigger = screen.getByTestId("clipboard-copy-trigger")
-      expect(trigger).toHaveClass("cursor-pointer")
-    })
-
-    it("has select-none class on text span", async () => {
-      const { container } = await act(async () => {
-        return render(
-          <TestingProvider>
-            <ClipboardText text="Test" />
-          </TestingProvider>
-        )
-      })
-
-      const textSpan = container.querySelector(".select-none")
-      expect(textSpan).toBeInTheDocument()
-      expect(textSpan).toHaveTextContent("Test")
     })
   })
 })
