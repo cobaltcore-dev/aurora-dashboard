@@ -1,4 +1,5 @@
 import { ContentHeading, Stack } from "@cloudoperators/juno-ui-components"
+import { Trans } from "@lingui/react/macro"
 
 interface ProjectInfoBoxProps {
   pageTitle: string
@@ -20,13 +21,17 @@ export function ProjectInfoBox({ projectInfo, pageTitle }: ProjectInfoBoxProps) 
       <Stack direction="vertical" className="ml-auto">
         <div>
           <p className="text-theme-light truncate">
-            <span className="text-theme-light font-semibold">Project ID: </span>
+            <span className="text-theme-light font-semibold">
+              <Trans>Project ID</Trans>:{" "}
+            </span>
             {projectInfo.id}
           </p>
         </div>
         <div>
           <p className="text-theme-light truncate">
-            <span className="font-semibold">Project Name: </span>
+            <span className="font-semibold">
+              <Trans>Project Name</Trans>:{" "}
+            </span>
             {projectInfo.name}
           </p>
         </div>
@@ -34,7 +39,9 @@ export function ProjectInfoBox({ projectInfo, pageTitle }: ProjectInfoBoxProps) 
         {projectInfo.domain?.name && (
           <div>
             <p className="text-theme-light truncate">
-              <span className="text-theme-light font-semibold">Domain Name: </span>
+              <span className="text-theme-light font-semibold">
+                <Trans>Domain Name</Trans>:{" "}
+              </span>
               {projectInfo.domain?.name}
             </p>
           </div>
