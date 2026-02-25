@@ -1,7 +1,7 @@
 import { createFileRoute, Outlet, useLoaderData, useMatches } from "@tanstack/react-router"
 import { AppShell, Container, Stack } from "@cloudoperators/juno-ui-components"
 import { SideNavBar } from "./-components/SideNavBar"
-import { ProjectInfoBox } from "@/client/components/ProjectInfoBox"
+import { ProjectInfoBox } from "@/client/components/ProjectView/ProjectInfoBox"
 
 // Helper to generate page title from route
 const getPageTitle = (pathname: string): string => {

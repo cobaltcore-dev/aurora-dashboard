@@ -1,6 +1,6 @@
 import { ContentHeading, Stack } from "@cloudoperators/juno-ui-components"
 import { Trans } from "@lingui/react/macro"
-
+import ClipboardText from "../ClipboardText"
 interface ProjectInfoBoxProps {
   pageTitle: string
   projectInfo: {
@@ -24,7 +24,7 @@ export function ProjectInfoBox({ projectInfo, pageTitle }: ProjectInfoBoxProps) 
             <span className="text-theme-light font-semibold">
               <Trans>Project ID</Trans>:{" "}
             </span>
-            {projectInfo.id}
+            <ClipboardText text={projectInfo.id} truncateAt={15} />
           </p>
         </div>
         <div>

@@ -297,6 +297,18 @@ msgstr "Container format is required"
 msgid "Container Name"
 msgstr "Container Name"
 
+#: src/client/components/ClipboardText.tsx:46
+msgid "Copied to clipboard!"
+msgstr "Copied to clipboard!"
+
+#: src/client/components/ClipboardText.tsx:48
+msgid "Copy"
+msgstr "Copy"
+
+#: src/client/components/ClipboardText.tsx:60
+msgid "Copy {text} to clipboard"
+msgstr "Copy {text} to clipboard"
+
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Instances/-components/ServerListView.tsx:22
 msgid "CPU"
 msgstr "CPU"
@@ -467,7 +479,7 @@ msgstr "Documentation"
 msgid "Domain"
 msgstr "Domain"
 
-#: src/client/components/ProjectInfoBox.tsx:43
+#: src/client/components/ProjectView/ProjectInfoBox.tsx:43
 msgid "Domain Name"
 msgstr "Domain Name"
 
@@ -1421,14 +1433,14 @@ msgstr "Private"
 msgid "production, linux"
 msgstr "production, linux"
 
-#: src/client/components/ProjectInfoBox.tsx:25
+#: src/client/components/ProjectView/ProjectInfoBox.tsx:25
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ConfirmImageAccessModal.tsx:161
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ManageImageAccessModal .tsx:172
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ManageImageAccessModal .tsx:186
 msgid "Project ID"
 msgstr "Project ID"
 
-#: src/client/components/ProjectInfoBox.tsx:33
+#: src/client/components/ProjectView/ProjectInfoBox.tsx:33
 msgid "Project Name"
 msgstr "Project Name"
 
