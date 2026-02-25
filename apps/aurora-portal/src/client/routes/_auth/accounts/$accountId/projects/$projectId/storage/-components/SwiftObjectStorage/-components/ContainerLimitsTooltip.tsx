@@ -44,16 +44,21 @@ export const ContainerLimitsTooltip = ({ serviceInfo, accountInfo }: ContainerLi
 
   const swift = serviceInfo?.swift
 
-  const capabilities: string[] = []
-  if (swift?.account_quotas) capabilities.push(t`Account quotas`)
-  if (swift?.container_quotas) capabilities.push(t`Container quotas`)
-  if (swift?.bulk_delete) capabilities.push(t`Efficient bulk deletion`)
-  if (swift?.bulk_upload) capabilities.push(t`Bulk upload of archive files`)
-  if (swift?.slo) capabilities.push(t`Static large object support`)
-  if (swift?.container_sync) capabilities.push(t`Container syncing`)
-  if (swift?.tempurl) capabilities.push(t`Temporary URLs`)
-  if (swift?.symlink) capabilities.push(t`Symlinks`)
-  if (swift?.versioned_writes) capabilities.push(t`Versioned writes`)
+  const capabilityMap = {
+    account_quotas: t`Account quotas`,
+    container_quotas: t`Container quotas`,
+    bulk_delete: t`Efficient bulk deletion`,
+    bulk_upload: t`Bulk upload of archive files`,
+    slo: t`Static large object support`,
+    container_sync: t`Container syncing`,
+    tempurl: t`Temporary URLs`,
+    symlink: t`Symlinks`,
+    versioned_writes: t`Versioned writes`,
+  } as const
+
+  const capabilities = Object.entries(capabilityMap)
+    .filter(([key]) => swift?.[key as keyof typeof swift])
+    .map(([, label]) => label)
 
   return (
     <div className="relative z-10">

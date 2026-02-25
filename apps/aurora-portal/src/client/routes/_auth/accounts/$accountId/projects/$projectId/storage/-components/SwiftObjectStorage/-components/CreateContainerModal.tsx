@@ -93,6 +93,12 @@ export const CreateContainerModal = ({
       disableConfirmButton={createContainerMutation.isPending || !containerName.trim()}
     >
       <Stack direction="vertical" gap="6">
+        <Message variant="info">
+          <Trans>
+            Inside a project, objects are stored in containers. Containers are where you define access permissions and
+            quotas.
+          </Trans>
+        </Message>
         <TextInput
           label={t`Container name`}
           required
@@ -105,12 +111,6 @@ export const CreateContainerModal = ({
           autoFocus
           placeholder={t`Enter container name`}
         />
-        <Message variant="info">
-          <Trans>
-            Inside a project, objects are stored in containers. Containers are where you define access permissions and
-            quotas.
-          </Trans>
-        </Message>
       </Stack>
     </Modal>
   )
