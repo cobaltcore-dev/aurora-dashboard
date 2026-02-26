@@ -2,6 +2,12 @@ import { FilterSettings, SortOption, SortSettings } from "@/client/components/Li
 import { startTransition, useState } from "react"
 
 /**
+ * Sort direction enumeration
+ * Used across all sort-enabled list views
+ */
+export type SortDirection = "asc" | "desc"
+
+/**
  * Generic required sort settings with guaranteed non-optional properties
  * Used by components to maintain a fully-defined sort state
  *
@@ -14,7 +20,7 @@ import { startTransition, useState } from "react"
  * // For security groups
  * type SecurityGroupListSortSettings = ListSortConfig<"name" | "project_id">
  */
-export type ListSortConfig<K extends string = string> = {
+export type ListSortConfig<T extends string = string> = {
   /**
    * Array of available sort options to display in the UI
    */
@@ -22,18 +28,12 @@ export type ListSortConfig<K extends string = string> = {
   /**
    * The currently selected sort field (guaranteed to be one of the available options)
    */
-  sortBy: K
+  sortBy: T
   /**
    * The currently active sort direction (guaranteed to be either "asc" or "desc")
    */
-  sortDirection: "asc" | "desc"
+  sortDirection: SortDirection
 }
-//
-/**
- * Sort direction enumeration
- * Used across all sort-enabled list views
- */
-export type SortDirection = "asc" | "desc"
 
 /**
  * Configuration options for the useListWithFiltering hook
@@ -55,7 +55,6 @@ export interface UseListWithFilteringOptions<T extends string> {
 export interface UseListWithFilteringReturn<T extends string> {
   // State
   searchTerm: string
-  // replace list sort config (and K with T)
   sortSettings: ListSortConfig<T>
   filterSettings: FilterSettings
 
@@ -94,26 +93,19 @@ export function useListWithFiltering<T extends string>({
   sortOptions,
   filterSettings: initialFilterSettings,
 }: UseListWithFilteringOptions<T>): UseListWithFilteringReturn<T> {
-  // Search state
+  // Search
   const [searchTerm, setSearchTerm] = useState("")
-
-  // Sort state
-  const [sortSettings, setSortSettings] = useState<ListSortConfig<T>>({
-    options: sortOptions,
-    sortBy: defaultSortKey,
-    sortDirection: defaultSortDir,
-  })
-
-  // Filter state
-  const [filterSettings, setFilterSettings] = useState<FilterSettings>(initialFilterSettings)
-
-  // Search handler
   const handleSearchChange = (term: string | number | string[] | undefined) => {
     const searchValue = typeof term === "string" ? term : ""
     startTransition(() => setSearchTerm(searchValue))
   }
 
-  // Sort handler
+  // Sort
+  const [sortSettings, setSortSettings] = useState<ListSortConfig<T>>({
+    options: sortOptions,
+    sortBy: defaultSortKey,
+    sortDirection: defaultSortDir,
+  })
   const handleSortChange = (newSortSettings: SortSettings) => {
     const settings: ListSortConfig<T> = {
       options: newSortSettings.options ?? sortSettings.options,
@@ -123,11 +115,10 @@ export function useListWithFiltering<T extends string>({
     setSortSettings(settings)
   }
 
-  // Filter handler
+  // Filter
+  const [filterSettings, setFilterSettings] = useState<FilterSettings>(initialFilterSettings)
   const handleFilterChange = (newFilterSettings: FilterSettings) => {
-    startTransition(() => {
-      setFilterSettings(newFilterSettings)
-    })
+    startTransition(() => setFilterSettings(newFilterSettings))
   }
 
   return {
