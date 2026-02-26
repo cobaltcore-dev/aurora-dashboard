@@ -174,4 +174,138 @@ describe("ClipboardText", () => {
       expect(mockWriteText).toHaveBeenCalledWith("This is a very long text")
     })
   })
+  describe("Tooltip behavior", () => {
+    it("shows 'Copy' tooltip on hover", async () => {
+      await act(async () => {
+        render(
+          <TestingProvider>
+            <ClipboardText text="Test text" />
+          </TestingProvider>
+        )
+      })
+
+      const trigger = screen.getByTestId("clipboard-copy-trigger")
+
+      await act(async () => {
+        fireEvent.mouseEnter(trigger)
+      })
+
+      // Query by role tooltip to avoid the SVG title
+      const tooltip = screen.getByRole("tooltip")
+      expect(tooltip).toHaveTextContent("Copy")
+    })
+
+    it("shows 'Copied to clipboard!' tooltip after copying", async () => {
+      await act(async () => {
+        render(
+          <TestingProvider>
+            <ClipboardText text="Test text" />
+          </TestingProvider>
+        )
+      })
+
+      const trigger = screen.getByTestId("clipboard-copy-trigger")
+
+      await act(async () => {
+        fireEvent.click(trigger)
+      })
+
+      const tooltip = screen.getByRole("tooltip")
+      expect(tooltip).toHaveTextContent("Copied to clipboard!")
+    })
+
+    it("shows custom tooltip content when provided", async () => {
+      await act(async () => {
+        render(
+          <TestingProvider>
+            <ClipboardText text="Test text" tooltipContent="Custom copied message!" />
+          </TestingProvider>
+        )
+      })
+
+      const trigger = screen.getByTestId("clipboard-copy-trigger")
+
+      await act(async () => {
+        fireEvent.click(trigger)
+      })
+
+      const tooltip = screen.getByRole("tooltip")
+      expect(tooltip).toHaveTextContent("Custom copied message!")
+    })
+
+    it("hides tooltip when showTooltip is false", async () => {
+      await act(async () => {
+        render(
+          <TestingProvider>
+            <ClipboardText text="Test text" showTooltip={false} />
+          </TestingProvider>
+        )
+      })
+
+      const trigger = screen.getByTestId("clipboard-copy-trigger")
+
+      await act(async () => {
+        fireEvent.mouseEnter(trigger)
+      })
+
+      // Tooltip role should not exist
+      expect(screen.queryByRole("tooltip")).not.toBeInTheDocument()
+    })
+
+    it("hides 'Copy' tooltip after clicking", async () => {
+      await act(async () => {
+        render(
+          <TestingProvider>
+            <ClipboardText text="Test text" />
+          </TestingProvider>
+        )
+      })
+
+      const trigger = screen.getByTestId("clipboard-copy-trigger")
+
+      // First hover to show "Copy"
+      await act(async () => {
+        fireEvent.mouseEnter(trigger)
+      })
+
+      let tooltip = screen.getByRole("tooltip")
+      expect(tooltip).toHaveTextContent("Copy")
+
+      // Click should change tooltip content
+      await act(async () => {
+        fireEvent.click(trigger)
+      })
+
+      tooltip = screen.getByRole("tooltip")
+      expect(tooltip).toHaveTextContent("Copied to clipboard!")
+      expect(tooltip).not.toHaveTextContent(/^Copy$/)
+    })
+
+    it("resets tooltip after 2 seconds", async () => {
+      await act(async () => {
+        render(
+          <TestingProvider>
+            <ClipboardText text="Test text" />
+          </TestingProvider>
+        )
+      })
+
+      const trigger = screen.getByTestId("clipboard-copy-trigger")
+
+      await act(async () => {
+        fireEvent.click(trigger)
+      })
+
+      let tooltip = screen.getByRole("tooltip")
+      expect(tooltip).toHaveTextContent("Copied to clipboard!")
+
+      // Fast-forward time
+      await act(async () => {
+        vi.advanceTimersByTime(2000)
+      })
+
+      // Tooltip should be closed after reset
+      expect(screen.queryByRole("tooltip")).not.toBeInTheDocument()
+    })
+  })
 })
