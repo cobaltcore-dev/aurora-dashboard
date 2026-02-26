@@ -1,22 +1,11 @@
 import { startTransition, useState } from "react"
 import { useLingui } from "@lingui/react/macro"
-import { FloatingIpQueryParameters } from "@/server/Network/types/floatingIp"
 import { ListToolbar } from "@/client/components/ListToolbar"
 import { trpcReact } from "@/client/trpcClient"
 import { FilterSettings, SortSettings } from "@/client/components/ListToolbar/types"
 import { FloatingIpListContainer } from "./-components/FloatingIpListContainer"
-
-type FloatingIpsSortKey = FloatingIpQueryParameters["sort_key"]
-type FloatingIpsSortDir = FloatingIpQueryParameters["sort_dir"]
-
-type RequiredSortSettings = {
-  options: SortSettings["options"]
-  sortBy: FloatingIpsSortKey
-  sortDirection: FloatingIpsSortDir
-}
-
-const DEFAULT_SORT_KEY = "fixed_ip_address"
-const DEFAULT_SORT_DIR = "asc"
+import { FloatingIpsSortDir, FloatingIpsSortKey, RequiredSortSettings } from "./types"
+import { DEFAULT_SORT_DIR, DEFAULT_SORT_KEY } from "./constants"
 
 export const FloatingIps = () => {
   const { t } = useLingui()
@@ -35,7 +24,7 @@ export const FloatingIps = () => {
       { label: t`ID`, value: "id" },
       { label: t`Router ID`, value: "router_id" },
       { label: t`Status`, value: "status" },
-      // same stuff, left here for backward compatibility in case anyone will sort by deprecated tenant id
+      // Tenant_id was kept for backward compatibility in case the deprecated tenant ID was used to sort instead of the project ID.
       { label: t`Tenant ID`, value: "tenant_id" },
       { label: t`Project ID`, value: "project_id" },
     ],
