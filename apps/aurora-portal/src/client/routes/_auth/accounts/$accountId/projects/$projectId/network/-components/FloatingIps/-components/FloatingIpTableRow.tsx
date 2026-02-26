@@ -7,20 +7,7 @@ import {
   PopupMenuOptions,
 } from "@cloudoperators/juno-ui-components"
 import { FloatingIp } from "@/server/Network/types/floatingIp"
-import { CircleCheckIcon, InfoIcon, CircleXIcon } from "lucide-react"
-
-const STATUS_MAP_TO_TEXT = {
-  ACTIVE: "Active",
-  DOWN: "Down",
-  ERROR: "Error",
-}
-
-// TODO: Replace them when designers decide on icons
-const STATUS_MAP_TO_ICON = {
-  ACTIVE: <CircleCheckIcon size={16} color="green" />,
-  DOWN: <InfoIcon size={16} color="red" />,
-  ERROR: <CircleXIcon size={16} color="yellow" />,
-}
+import { STATUS_CONFIG } from "./constants"
 
 interface FloatingIpTableRow {
   floatingIp: FloatingIp
@@ -31,8 +18,8 @@ export const FloatingIpTableRow = ({ floatingIp }: FloatingIpTableRow) => {
 
   return (
     <DataGridRow key={floatingIp.id} data-testid={`floating-ip-row-${floatingIp.id}`}>
-      <DataGridCell>{STATUS_MAP_TO_ICON[floatingIp.status]}</DataGridCell>
-      <DataGridCell>{STATUS_MAP_TO_TEXT[floatingIp.status]}</DataGridCell>
+      <DataGridCell>{STATUS_CONFIG[floatingIp.status].icon}</DataGridCell>
+      <DataGridCell>{STATUS_CONFIG[floatingIp.status].text}</DataGridCell>
       <DataGridCell>{floatingIp.floating_ip_address}</DataGridCell>
       <DataGridCell>{floatingIp.fixed_ip_address || "—"}</DataGridCell>
       <DataGridCell>{floatingIp.floating_network_id}</DataGridCell>

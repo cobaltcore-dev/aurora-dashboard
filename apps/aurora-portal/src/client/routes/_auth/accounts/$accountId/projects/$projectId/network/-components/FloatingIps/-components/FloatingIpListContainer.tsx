@@ -10,6 +10,7 @@ import {
 } from "@cloudoperators/juno-ui-components"
 import { FloatingIp } from "@/server/Network/types/floatingIp"
 import { FloatingIpTableRow } from "./FloatingIpTableRow"
+import { TABLE_COLUMNS } from "./constants"
 
 interface FloatingIpListContainerProps {
   floatingIps: FloatingIp[]
@@ -61,7 +62,7 @@ export const FloatingIpListContainer = ({ floatingIps, isLoading, isError, error
   return (
     <DataGrid columns={7}>
       <DataGridRow>
-        {["", t`Status`, t`Floating IP Address`, t`Fixed IP Address`, t`Subnet`, t`Description`, ""].map((label) => (
+        {TABLE_COLUMNS().map((label) => (
           <DataGridHeadCell key={label}>{label}</DataGridHeadCell>
         ))}
         {floatingIps.map((ip) => (

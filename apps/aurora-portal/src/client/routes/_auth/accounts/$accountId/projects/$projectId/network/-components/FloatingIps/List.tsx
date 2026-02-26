@@ -5,8 +5,10 @@ import { trpcReact } from "@/client/trpcClient"
 import { FilterSettings, SortSettings } from "@/client/components/ListToolbar/types"
 import { FloatingIpListContainer } from "./-components/FloatingIpListContainer"
 import { FloatingIpsSortDir, FloatingIpsSortKey, RequiredSortSettings } from "./types"
-import { DEFAULT_SORT_DIR, DEFAULT_SORT_KEY } from "./constants"
 import { buildFilterParams } from "../utils"
+
+export const DEFAULT_SORT_KEY = "fixed_ip_address"
+export const DEFAULT_SORT_DIR = "asc"
 
 export const FloatingIps = () => {
   const { t } = useLingui()
