@@ -3,7 +3,7 @@ import { useLingui } from "@lingui/react/macro"
 import { FloatingIpQueryParameters } from "@/server/Network/types/floatingIp"
 import { ListToolbar } from "@/client/components/ListToolbar"
 import { trpcReact } from "@/client/trpcClient"
-import { SortSettings } from "@/client/components/ListToolbar/types"
+import { FilterSettings, SortSettings } from "@/client/components/ListToolbar/types"
 import { FloatingIpListContainer } from "./-components/FloatingIpListContainer"
 
 type FloatingIpsSortKey = FloatingIpQueryParameters["sort_key"]
@@ -51,6 +51,37 @@ export const FloatingIps = () => {
     setSortSettings(settings)
   }
 
+  const [filterSettings, setFilterSettings] = useState<FilterSettings>({
+    filters: [
+      {
+        displayName: t`Status`,
+        filterName: "status",
+        values: ["ACTIVE", "DOWN", "ERROR"],
+        supportsMultiValue: false,
+      },
+    ],
+  })
+  const handleFilterChange = (newFilterSettings: FilterSettings) => {
+    startTransition(() => {
+      setFilterSettings(newFilterSettings)
+    })
+  }
+  const buildFilterParams = (): Record<string, string | boolean> => {
+    const params: Record<string, string | boolean> = {}
+
+    if (!filterSettings.selectedFilters?.length) return params
+    filterSettings.selectedFilters
+      .filter((sf) => !sf.inactive)
+      .forEach((sf) => {
+        if (sf.value === "true" || sf.value === "false") {
+          params[sf.name] = sf.value === "true"
+          return
+        }
+        params[sf.name] = sf.value
+      })
+    return params
+  }
+
   const {
     data: floatingIps = [],
     isLoading,
@@ -59,6 +90,7 @@ export const FloatingIps = () => {
   } = trpcReact.network.floatingIp.list.useQuery({
     sort_key: sortSettings.sortBy,
     sort_dir: sortSettings.sortDirection,
+    ...buildFilterParams(),
     ...(searchTerm ? { searchTerm } : {}),
   })
 
@@ -69,6 +101,8 @@ export const FloatingIps = () => {
         onSearch={handleSearchChange}
         sortSettings={sortSettings}
         onSort={handleSortChange}
+        filterSettings={filterSettings}
+        onFilter={handleFilterChange}
       />
 
       <FloatingIpListContainer floatingIps={floatingIps} isLoading={isLoading} isError={isError} error={error} />
