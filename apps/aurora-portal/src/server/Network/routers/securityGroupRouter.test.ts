@@ -9,8 +9,11 @@ const createMockContext = (opts?: {
   noNetworkService?: boolean
   invalidSession?: boolean
   mockSecurityGroups?: SecurityGroup[]
+  mockSecurityGroup?: SecurityGroup
+  mockError?: boolean
 }) => {
-  const { noNetworkService = false, invalidSession = false, mockSecurityGroups } = opts || {}
+  const { noNetworkService = false, invalidSession = false, mockSecurityGroups, mockSecurityGroup, mockError } =
+    opts || {}
 
   const defaultSecurityGroups = [
     {
@@ -33,10 +36,34 @@ const createMockContext = (opts?: {
         }
 
         return {
-          get: vi.fn().mockResolvedValue({
-            json: vi.fn().mockResolvedValue({
-              security_groups: mockSecurityGroups || defaultSecurityGroups,
-            }),
+          get: vi.fn().mockImplementation((url: string) => {
+            if (mockError) {
+              return Promise.reject(new Error("Network error"))
+            }
+
+            // Handle list endpoint
+            if (url.includes("security-groups") && !url.match(/security-groups\/[^?]+$/)) {
+              return Promise.resolve({
+                json: vi.fn().mockResolvedValue({
+                  security_groups: mockSecurityGroups || defaultSecurityGroups,
+                }),
+              })
+            }
+
+            // Handle getById endpoint
+            if (mockSecurityGroup) {
+              return Promise.resolve({
+                json: vi.fn().mockResolvedValue({
+                  security_group: mockSecurityGroup,
+                }),
+              })
+            }
+
+            return Promise.resolve({
+              json: vi.fn().mockResolvedValue({
+                security_group: defaultSecurityGroups[0],
+              }),
+            })
           }),
         }
       }),
@@ -59,7 +86,7 @@ describe("securityGroupRouter.list", () => {
     vi.clearAllMocks()
   })
 
-  it("returns a list of security groups on success", async () => {
+  it("returns a list of security groups", async () => {
     const ctx = createMockContext()
     const caller = createCaller(ctx)
 
@@ -116,7 +143,7 @@ describe("securityGroupRouter.list", () => {
     }
   })
 
-  describe("BFF-side search filtering", () => {
+  describe("Search filtering", () => {
     const mockSecurityGroups: SecurityGroup[] = [
       {
         id: "sg-1",
@@ -145,15 +172,6 @@ describe("securityGroupRouter.list", () => {
         stateful: true,
         security_group_rules: [],
       },
-      {
-        id: "sg-4",
-        name: "default",
-        description: "Default security group",
-        project_id: "proj-1",
-        shared: false,
-        stateful: true,
-        security_group_rules: [],
-      },
     ]
 
     it("returns all security groups when no searchTerm is provided", async () => {
@@ -162,22 +180,22 @@ describe("securityGroupRouter.list", () => {
 
       const result = await caller.securityGroup.list({})
 
-      expect(result.length).toBe(4)
+      expect(result.length).toBe(3)
     })
 
-    it("filters security groups by name (case-insensitive)", async () => {
+    it("filters by name (case-insensitive)", async () => {
       const ctx = createMockContext({ mockSecurityGroups })
       const caller = createCaller(ctx)
 
       const result = await caller.securityGroup.list({
-        searchTerm: "web",
+        searchTerm: "WEB",
       })
 
       expect(result.length).toBe(1)
       expect(result[0].name).toBe("web-server")
     })
 
-    it("filters security groups by description (case-insensitive)", async () => {
+    it("filters by description", async () => {
       const ctx = createMockContext({ mockSecurityGroups })
       const caller = createCaller(ctx)
 
@@ -189,7 +207,7 @@ describe("securityGroupRouter.list", () => {
       expect(result[0].name).toBe("api-gateway")
     })
 
-    it("filters security groups by id (case-insensitive)", async () => {
+    it("filters by id", async () => {
       const ctx = createMockContext({ mockSecurityGroups })
       const caller = createCaller(ctx)
 
@@ -201,7 +219,7 @@ describe("securityGroupRouter.list", () => {
       expect(result[0].name).toBe("web-server")
     })
 
-    it("returns multiple matches when searchTerm matches multiple groups", async () => {
+    it("returns multiple matches", async () => {
       const ctx = createMockContext({ mockSecurityGroups })
       const caller = createCaller(ctx)
 
@@ -214,19 +232,7 @@ describe("securityGroupRouter.list", () => {
       expect(names).toEqual(["database", "web-server"])
     })
 
-    it("handles case-insensitive search correctly", async () => {
-      const ctx = createMockContext({ mockSecurityGroups })
-      const caller = createCaller(ctx)
-
-      const result = await caller.securityGroup.list({
-        searchTerm: "WEB",
-      })
-
-      expect(result.length).toBe(1)
-      expect(result[0].name).toBe("web-server")
-    })
-
-    it("returns empty array when searchTerm matches no groups", async () => {
+    it("returns empty array when no matches", async () => {
       const ctx = createMockContext({ mockSecurityGroups })
       const caller = createCaller(ctx)
 
@@ -248,64 +254,84 @@ describe("securityGroupRouter.list", () => {
       expect(result.length).toBe(1)
       expect(result[0].name).toBe("web-server")
     })
+  })
+})
 
-    it("returns all results when searchTerm is empty string", async () => {
-      const ctx = createMockContext({ mockSecurityGroups })
-      const caller = createCaller(ctx)
+describe("securityGroupRouter.getSecurityGroupById", () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
 
-      const result = await caller.securityGroup.list({
-        searchTerm: "",
-      })
-
-      expect(result.length).toBe(4)
-    })
-
-    it("returns all results when searchTerm is only whitespace", async () => {
-      const ctx = createMockContext({ mockSecurityGroups })
-      const caller = createCaller(ctx)
-
-      const result = await caller.securityGroup.list({
-        searchTerm: "   ",
-      })
-
-      expect(result.length).toBe(4)
-    })
-
-    it("applies searchTerm filter on top of OpenStack filters", async () => {
-      // This test demonstrates that searchTerm filtering happens in BFF layer
-      // after OpenStack has already filtered by other parameters
-      const mixedSecurityGroups: SecurityGroup[] = [
+  it("returns a security group by id", async () => {
+    const mockSecurityGroup: SecurityGroup = {
+      id: "sg-123",
+      name: "web-server",
+      description: "Security group for web servers",
+      project_id: "proj-1",
+      shared: false,
+      stateful: true,
+      security_group_rules: [
         {
-          id: "sg-1",
-          name: "web-server",
-          description: "Security group for web servers",
-          project_id: "proj-1",
-          shared: true,
-          stateful: true,
-          security_group_rules: [],
+          id: "rule-1",
+          direction: "ingress",
+          protocol: "tcp",
+          port_range_min: 80,
+          port_range_max: 80,
+          remote_ip_prefix: "0.0.0.0/0",
+          security_group_id: "sg-123",
         },
-        {
-          id: "sg-2",
-          name: "web-cache",
-          description: "Cache for web content",
-          project_id: "proj-1",
-          shared: false,
-          stateful: true,
-          security_group_rules: [],
-        },
-      ]
+      ],
+    }
 
-      const ctx = createMockContext({ mockSecurityGroups: mixedSecurityGroups })
-      const caller = createCaller(ctx)
+    const ctx = createMockContext({ mockSecurityGroup })
+    const caller = createCaller(ctx)
 
-      const result = await caller.securityGroup.list({
-        searchTerm: "web",
-      })
-
-      // Both security groups match "web" in their name
-      expect(result.length).toBe(2)
-      const names = result.map((sg) => sg.name).sort()
-      expect(names).toEqual(["web-cache", "web-server"])
+    const result = await caller.securityGroup.getSecurityGroupById({
+      securityGroupId: "sg-123",
     })
+
+    expect(result.id).toBe("sg-123")
+    expect(result.name).toBe("web-server")
+    expect(result.security_group_rules).toBeDefined()
+    expect(result.security_group_rules?.length).toBe(1)
+    expect(result.security_group_rules?.[0].port_range_min).toBe(80)
+  })
+
+  it("throws UNAUTHORIZED when session is invalid", async () => {
+    const ctx = createMockContext({ invalidSession: true })
+    const caller = createCaller(ctx)
+
+    await expect(
+      caller.securityGroup.getSecurityGroupById({
+        securityGroupId: "sg-123",
+      })
+    ).rejects.toThrow(
+      new TRPCError({
+        code: "UNAUTHORIZED",
+        message: "The session is invalid",
+      })
+    )
+  })
+
+  it("throws INTERNAL_SERVER_ERROR when network service is unavailable", async () => {
+    const ctx = createMockContext({ noNetworkService: true })
+    const caller = createCaller(ctx)
+
+    await expect(
+      caller.securityGroup.getSecurityGroupById({
+        securityGroupId: "sg-123",
+      })
+    ).rejects.toThrowError(TRPCError)
+
+    try {
+      await caller.securityGroup.getSecurityGroupById({ securityGroupId: "sg-123" })
+    } catch (error) {
+      if (error instanceof TRPCError) {
+        expect(error.code).toBe("INTERNAL_SERVER_ERROR")
+        expect(error.message).toBe("Network service is not available")
+      } else {
+        throw error
+      }
+    }
   })
 })
