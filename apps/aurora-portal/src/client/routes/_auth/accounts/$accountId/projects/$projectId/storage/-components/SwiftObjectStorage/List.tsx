@@ -5,11 +5,14 @@ import { SortSettings } from "@/client/components/ListToolbar/types"
 import { ContainerSummary } from "@/server/Storage/types/swift"
 import { trpcReact } from "@/client/trpcClient"
 import { formatBytesBinary } from "@/client/utils/formatBytes"
-import { Spinner, Stack } from "@cloudoperators/juno-ui-components"
+import { Button, Spinner, Stack } from "@cloudoperators/juno-ui-components"
 import { ContainerListView } from "./-components/ContainerListView"
+import { ContainerLimitsTooltip } from "./-components/ContainerLimitsTooltip"
 
 export const SwiftObjectStorage = () => {
   const { t } = useLingui()
+
+  const [createModalOpen, setCreateModalOpen] = useState(false)
 
   const [sortSettings, setSortSettings] = useState<SortSettings>({
     options: [
@@ -35,6 +38,9 @@ export const SwiftObjectStorage = () => {
 
   // Fetch account metadata for quota information
   const { data: accountInfo } = trpcReact.storage.swift.getAccountMetadata.useQuery({})
+
+  // Fetch Swift service info
+  const { data: serviceInfo } = trpcReact.storage.swift.getServiceInfo.useQuery()
 
   // Sort containers based on sort settings
   const sortContainers = (containers: ContainerSummary[]): ContainerSummary[] => {
@@ -126,22 +132,31 @@ export const SwiftObjectStorage = () => {
         onSort={handleSortChange}
         onSearch={handleSearchChange}
         actions={
-          <>
+          <Stack direction="vertical" alignment="end" gap="4">
             {accountInfo && quotaBytes > 0 && (
-              <div className="flex flex-col items-end gap-1 text-sm">
+              <Stack direction="vertical" alignment="end" className="text-sm">
                 <div className="text-theme-default">
                   <Trans>Remaining Quota:</Trans>{" "}
                   <span className="font-semibold">{formatBytesBinary(remainingBytes)} Capacity</span>
                 </div>
-                <div className="text-theme-light">
-                  <Trans>Space Used:</Trans> {formatBytesBinary(bytesUsed)} / {formatBytesBinary(quotaBytes)}
-                </div>
-              </div>
+              </Stack>
             )}
-          </>
+            <Stack direction="horizontal" gap="4" alignment="center">
+              <ContainerLimitsTooltip serviceInfo={serviceInfo} accountInfo={accountInfo} />
+              <Button variant="primary" onClick={() => setCreateModalOpen(true)}>
+                <Trans>Create Container</Trans>
+              </Button>
+            </Stack>
+          </Stack>
         }
       />
-      <ContainerListView containers={sortedContainers} />
+
+      <ContainerListView
+        containers={sortedContainers}
+        createModalOpen={createModalOpen}
+        setCreateModalOpen={setCreateModalOpen}
+        maxContainerNameLength={serviceInfo?.swift?.max_container_name_length}
+      />
     </div>
   )
 }

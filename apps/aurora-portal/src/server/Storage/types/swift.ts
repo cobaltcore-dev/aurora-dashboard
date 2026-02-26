@@ -6,76 +6,74 @@ import { z } from "zod"
 
 // Service capabilities schema (from /info endpoint)
 export const serviceInfoSchema = z.object({
-  swift: z
-    .object({
-      version: z.string().optional(),
-      // Core capabilities
-      allow_account_management: z.boolean().optional(),
-      account_autocreate: z.boolean().optional(),
+  swift: z.object({
+    version: z.string().optional(),
+    // Core capabilities
+    allow_account_management: z.boolean().optional(),
+    account_autocreate: z.boolean().optional(),
 
-      // Storage policies
-      policies: z
-        .array(
-          z.object({
-            name: z.string(),
-            default: z.boolean().optional(),
-          })
-        )
-        .optional(),
-
-      // Bulk operations
-      bulk_delete: z
-        .object({
-          max_deletes_per_request: z.number(),
-          max_failed_deletes: z.number(),
+    // Storage policies
+    policies: z
+      .array(
+        z.object({
+          name: z.string(),
+          default: z.boolean().optional(),
         })
-        .optional(),
+      )
+      .optional(),
 
-      bulk_upload: z
-        .object({
-          max_containers_per_extraction: z.number(),
-          max_failed_extractions: z.number(),
-        })
-        .optional(),
+    // Bulk operations
+    bulk_delete: z
+      .object({
+        max_deletes_per_request: z.number(),
+        max_failed_deletes: z.number(),
+      })
+      .optional(),
 
-      // Quotas
-      container_quotas: z.object({}).optional(),
-      account_quotas: z.object({}).optional(),
+    bulk_upload: z
+      .object({
+        max_containers_per_extraction: z.number(),
+        max_failed_extractions: z.number(),
+      })
+      .optional(),
 
-      // Large objects
-      slo: z
-        .object({
-          max_manifest_segments: z.number(),
-          max_manifest_size: z.number(),
-          min_segment_size: z.number(),
-        })
-        .optional(),
+    // Quotas
+    container_quotas: z.object({}).optional(),
+    account_quotas: z.object({}).optional(),
 
-      // Temporary URLs
-      tempurl: z
-        .object({
-          methods: z.array(z.string()),
-        })
-        .optional(),
+    // Large objects
+    slo: z
+      .object({
+        max_manifest_segments: z.number(),
+        max_manifest_size: z.number(),
+        min_segment_size: z.number(),
+      })
+      .optional(),
 
-      // Listing limits
-      container_listing_limit: z.number().optional(),
-      account_listing_limit: z.number().optional(),
-      max_container_name_length: z.number().optional(),
-      max_object_name_length: z.number().optional(),
-      max_file_size: z.number().optional(),
-      max_meta_name_length: z.number().optional(),
-      max_meta_value_length: z.number().optional(),
-      max_meta_count: z.number().optional(),
-      max_meta_overall_size: z.number().optional(),
-      max_header_size: z.number().optional(),
+    // Temporary URLs
+    tempurl: z
+      .object({
+        methods: z.array(z.string()),
+      })
+      .optional(),
 
-      // Additional features
-      container_sync: z.object({}).optional(),
-      symlink: z.object({}).optional(),
-      versioned_writes: z.object({}).optional(),
-    })
-    .passthrough(), // Allow additional unknown fields
+    // Listing limits
+    container_listing_limit: z.number().optional(),
+    account_listing_limit: z.number().optional(),
+    max_container_name_length: z.number().optional(),
+    max_object_name_length: z.number().optional(),
+    max_file_size: z.number().optional(),
+    max_meta_name_length: z.number().optional(),
+    max_meta_value_length: z.number().optional(),
+    max_meta_count: z.number().optional(),
+    max_meta_overall_size: z.number().optional(),
+    max_header_size: z.number().optional(),
+
+    // Additional features
+    container_sync: z.object({}).optional(),
+    symlink: z.object({}).optional(),
+    versioned_writes: z.object({}).optional(),
+  }),
 })
 
 // ============================================================================
