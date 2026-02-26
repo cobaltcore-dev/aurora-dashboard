@@ -202,6 +202,23 @@ describe("ContainerListView", () => {
     })
   })
 
+  describe("Context menu", () => {
+    test("renders a popup menu trigger for each container row", () => {
+      renderView()
+      const menuTriggers = screen.getAllByRole("button", { name: /more/i })
+      expect(menuTriggers).toHaveLength(mockContainers.length)
+    })
+
+    test("shows Empty and Delete actions when menu is opened", async () => {
+      const user = userEvent.setup()
+      renderView()
+      const [firstMenuTrigger] = screen.getAllByRole("button", { name: /more/i })
+      await user.click(firstMenuTrigger)
+      expect(screen.getByText("Empty")).toBeInTheDocument()
+      expect(screen.getByText("Delete")).toBeInTheDocument()
+    })
+  })
+
   describe("CreateContainerModal integration", () => {
     test("does not render modal when createModalOpen is false", () => {
       renderView({ createModalOpen: false })
