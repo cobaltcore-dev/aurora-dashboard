@@ -12,8 +12,13 @@ const createMockContext = (opts?: {
   mockSecurityGroup?: SecurityGroup
   mockError?: boolean
 }) => {
-  const { noNetworkService = false, invalidSession = false, mockSecurityGroups, mockSecurityGroup, mockError } =
-    opts || {}
+  const {
+    noNetworkService = false,
+    invalidSession = false,
+    mockSecurityGroups,
+    mockSecurityGroup,
+    mockError,
+  } = opts || {}
 
   const defaultSecurityGroups = [
     {
