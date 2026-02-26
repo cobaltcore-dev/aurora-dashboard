@@ -1,11 +1,4 @@
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  Button,
-  Stack,
-  Spinner,
-  ContentHeading,
-} from "@cloudoperators/juno-ui-components/index"
+import { Breadcrumb, BreadcrumbItem, Button, Stack, Spinner } from "@cloudoperators/juno-ui-components/index"
 import { createFileRoute, redirect, useNavigate, useParams } from "@tanstack/react-router"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { getServiceIndex } from "@/server/Authentication/helpers"
@@ -56,14 +49,6 @@ function RouteComponent() {
       to: "/accounts/$accountId/projects/$projectId/network/$",
       params: { accountId, projectId, _splat: "security-groups" },
     })
-  }
-
-  // Helper function with proper type guard for securityGroup.name
-  const getSecurityGroupName = (): React.ReactNode => {
-    if (securityGroup && typeof securityGroup.name === "string" && securityGroup.name.trim()) {
-      return securityGroup.name
-    }
-    return <Trans>Unnamed</Trans>
   }
 
   // Handle loading state
@@ -124,10 +109,6 @@ function RouteComponent() {
         <BreadcrumbItem onClick={handleBack} label={t`Security Groups`} />
         <BreadcrumbItem active label={securityGroup.id} />
       </Breadcrumb>
-
-      <Stack direction="vertical" distribution="between">
-        <ContentHeading className="text-theme-highest text-2xl font-bold">{getSecurityGroupName()}</ContentHeading>
-      </Stack>
 
       <SecurityGroupDetailsView securityGroup={securityGroup} />
     </Stack>
