@@ -6,6 +6,7 @@ import { FilterSettings, SortSettings } from "@/client/components/ListToolbar/ty
 import { FloatingIpListContainer } from "./-components/FloatingIpListContainer"
 import { FloatingIpsSortDir, FloatingIpsSortKey, RequiredSortSettings } from "./types"
 import { DEFAULT_SORT_DIR, DEFAULT_SORT_KEY } from "./constants"
+import { buildFilterParams } from "../utils"
 
 export const FloatingIps = () => {
   const { t } = useLingui()
@@ -55,21 +56,6 @@ export const FloatingIps = () => {
       setFilterSettings(newFilterSettings)
     })
   }
-  const buildFilterParams = (): Record<string, string | boolean> => {
-    const params: Record<string, string | boolean> = {}
-
-    if (!filterSettings.selectedFilters?.length) return params
-    filterSettings.selectedFilters
-      .filter((sf) => !sf.inactive)
-      .forEach((sf) => {
-        if (sf.value === "true" || sf.value === "false") {
-          params[sf.name] = sf.value === "true"
-          return
-        }
-        params[sf.name] = sf.value
-      })
-    return params
-  }
 
   const {
     data: floatingIps = [],
@@ -79,7 +65,7 @@ export const FloatingIps = () => {
   } = trpcReact.network.floatingIp.list.useQuery({
     sort_key: sortSettings.sortBy,
     sort_dir: sortSettings.sortDirection,
-    ...buildFilterParams(),
+    ...buildFilterParams(filterSettings),
     ...(searchTerm ? { searchTerm } : {}),
   })
 

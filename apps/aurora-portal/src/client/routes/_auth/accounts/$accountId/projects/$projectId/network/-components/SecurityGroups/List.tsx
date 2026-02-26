@@ -5,6 +5,7 @@ import { ListToolbar } from "@/client/components/ListToolbar"
 import { SortSettings, FilterSettings } from "@/client/components/ListToolbar/types"
 import { SecurityGroupListContainer } from "./-components/SecurityGroupListContainer"
 import { SECURITY_GROUP_SHARED } from "./constants"
+import { buildFilterParams } from "../utils"
 
 type RequiredSortSettings = {
   options: SortSettings["options"]
@@ -37,26 +38,6 @@ export const SecurityGroups = () => {
 
   const [searchTerm, setSearchTerm] = useState("")
 
-  /**
-   * Builds filter parameters from current filter settings
-   */
-  const buildFilterParams = (): Record<string, string | boolean> => {
-    const params: Record<string, string | boolean> = {}
-
-    if (!filterSettings.selectedFilters?.length) return params
-
-    filterSettings.selectedFilters
-      .filter((sf) => !sf.inactive)
-      .forEach((sf) => {
-        if (sf.value === "true" || sf.value === "false") {
-          params[sf.name] = sf.value === "true"
-          return
-        }
-        params[sf.name] = sf.value
-      })
-    return params
-  }
-
   // TODO: replace with trpc.network.canUser when security group permissions are available
   const permissions = {
     canUpdate: true,
@@ -72,7 +53,7 @@ export const SecurityGroups = () => {
   } = trpcReact.network.list.useQuery({
     sort_key: sortSettings.sortBy,
     sort_dir: sortSettings.sortDirection,
-    ...buildFilterParams(),
+    ...buildFilterParams(filterSettings),
     ...(searchTerm ? { searchTerm } : {}),
   })
 
