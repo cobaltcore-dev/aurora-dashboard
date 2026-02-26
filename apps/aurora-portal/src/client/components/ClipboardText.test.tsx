@@ -296,7 +296,7 @@ describe("ClipboardText", () => {
         fireEvent.click(trigger)
       })
 
-      let tooltip = screen.getByRole("tooltip")
+      const tooltip = screen.getByRole("tooltip")
       expect(tooltip).toHaveTextContent("Copied to clipboard!")
 
       // Fast-forward time
