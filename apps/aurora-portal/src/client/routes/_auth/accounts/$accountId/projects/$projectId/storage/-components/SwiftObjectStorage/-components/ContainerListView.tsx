@@ -5,6 +5,9 @@ import {
   DataGridHeadCell,
   DataGridRow,
   DataGridCell,
+  PopupMenu,
+  PopupMenuItem,
+  PopupMenuOptions,
   Toast,
   ToastProps,
 } from "@cloudoperators/juno-ui-components"
@@ -88,8 +91,8 @@ export const ContainerListView = ({
     )
   }
 
-  // Define column template
-  const gridColumnTemplate = "minmax(200px, 2fr) minmax(100px, 1fr) minmax(180px, 2fr) minmax(100px, 1fr)"
+  // Define column template: 4 data columns + fixed 60px actions column
+  const gridColumnTemplate = "minmax(200px, 2fr) minmax(100px, 1fr) minmax(180px, 2fr) minmax(100px, 1fr) 60px"
 
   const allContainersCount = containers.length
   const virtualizedContainersCount = rowVirtualizer.getVirtualItems().length
@@ -100,7 +103,7 @@ export const ContainerListView = ({
         {/* Table Header with scrollbar padding */}
         <div style={{ paddingRight: `${scrollbarWidth}px` }}>
           <DataGrid
-            columns={4}
+            columns={5}
             gridColumnTemplate={gridColumnTemplate}
             className="containers"
             data-testid="containers-table-header"
@@ -115,9 +118,10 @@ export const ContainerListView = ({
               <DataGridHeadCell>
                 <Trans>Last Modified</Trans>
               </DataGridHeadCell>
-              <DataGridHeadCell style={{ marginRight: `-${scrollbarWidth}px` }}>
+              <DataGridHeadCell>
                 <Trans>Total Size</Trans>
               </DataGridHeadCell>
+              <DataGridHeadCell style={{ marginRight: `-${scrollbarWidth}px` }} />
             </DataGridRow>
           </DataGrid>
         </div>
@@ -164,6 +168,14 @@ export const ContainerListView = ({
                   <DataGridCell>{container.count.toLocaleString()}</DataGridCell>
                   <DataGridCell>{container.last_modified ? formatDate(container.last_modified) : t`N/A`}</DataGridCell>
                   <DataGridCell>{formatBytesBinary(container.bytes)}</DataGridCell>
+                  <DataGridCell>
+                    <PopupMenu>
+                      <PopupMenuOptions>
+                        <PopupMenuItem label={t`Empty`} onClick={() => {}} />
+                        <PopupMenuItem label={t`Delete`} onClick={() => {}} />
+                      </PopupMenuOptions>
+                    </PopupMenu>
+                  </DataGridCell>
                 </div>
               )
             })}
