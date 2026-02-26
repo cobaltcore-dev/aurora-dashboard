@@ -707,11 +707,7 @@ describe("swiftRouter", () => {
 
       mockCtx.mockSwift.post.mockResolvedValue({
         ok: true,
-        json: vi.fn().mockResolvedValue({
-          "Number Deleted": 3,
-          "Number Not Found": 0,
-          Errors: [],
-        }),
+        text: vi.fn().mockResolvedValue("Number Deleted: 3\nNumber Not Found: 0\nErrors:\n"),
       })
 
       const input = {
@@ -720,7 +716,13 @@ describe("swiftRouter", () => {
 
       const result = await caller.storage.swift.bulkDelete(input)
 
-      expect(mockCtx.mockSwift.post).toHaveBeenCalledWith(expect.stringContaining("bulk-delete"), expect.any(Object))
+      expect(mockCtx.mockSwift.post).toHaveBeenCalledWith(
+        expect.stringContaining("bulk-delete"),
+        expect.any(String),
+        expect.objectContaining({
+          headers: expect.objectContaining({ "Content-Type": "text/plain", Accept: "text/plain" }),
+        })
+      )
       expect(result.numberDeleted).toBe(3)
       expect(result.numberNotFound).toBe(0)
       expect(result.errors).toHaveLength(0)
@@ -732,11 +734,11 @@ describe("swiftRouter", () => {
 
       mockCtx.mockSwift.post.mockResolvedValue({
         ok: true,
-        json: vi.fn().mockResolvedValue({
-          "Number Deleted": 2,
-          "Number Not Found": 0,
-          Errors: [["/container/protected.txt", "403 Forbidden"]],
-        }),
+        text: vi
+          .fn()
+          .mockResolvedValue(
+            "Number Deleted: 2\nNumber Not Found: 0\nErrors:\n/container/protected.txt, 403 Forbidden\n"
+          ),
       })
 
       const input = {
@@ -748,6 +750,148 @@ describe("swiftRouter", () => {
       expect(result.numberDeleted).toBe(2)
       expect(result.errors).toHaveLength(1)
       expect(result.errors[0].path).toBe("/container/protected.txt")
+    })
+  })
+
+  // ============================================================================
+  // EMPTY CONTAINER OPERATION
+  // ============================================================================
+
+  describe("emptyContainer", () => {
+    it("should use bulk delete when bulk_delete is present in service info", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      // /info returns bulk_delete key
+      mockCtx.mockSwift.get
+        .mockResolvedValueOnce({
+          ok: true,
+          json: vi.fn().mockResolvedValue({ swift: { version: "2.37.0" }, bulk_delete: {} }),
+        })
+        // First page of objects
+        .mockResolvedValueOnce({
+          ok: true,
+          status: 200,
+          json: vi.fn().mockResolvedValue([
+            { ...mockObjectSummary, name: "file1.txt" },
+            { ...mockObjectSummary, name: "file2.txt" },
+          ]),
+        })
+        // Second page — empty, signals end of pagination
+        .mockResolvedValueOnce({
+          ok: true,
+          status: 200,
+          json: vi.fn().mockResolvedValue([]),
+        })
+
+      mockCtx.mockSwift.post.mockResolvedValue({
+        ok: true,
+        text: vi.fn().mockResolvedValue("Number Deleted: 2\nNumber Not Found: 0\nErrors:\n"),
+      })
+
+      const result = await caller.storage.swift.emptyContainer({ container: "test-container" })
+
+      expect(result).toBe(2)
+      expect(mockCtx.mockSwift.post).toHaveBeenCalledWith(
+        expect.stringContaining("bulk-delete"),
+        expect.any(String),
+        expect.objectContaining({
+          headers: expect.objectContaining({ "Content-Type": "text/plain", Accept: "text/plain" }),
+        })
+      )
+      expect(mockCtx.mockSwift.del).not.toHaveBeenCalled()
+    })
+
+    it("should fall back to individual deletes when bulk_delete is absent", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      // /info returns no bulk_delete key
+      mockCtx.mockSwift.get
+        .mockResolvedValueOnce({
+          ok: true,
+          json: vi.fn().mockResolvedValue({ swift: { version: "2.37.0" } }),
+        })
+        // First page
+        .mockResolvedValueOnce({
+          ok: true,
+          status: 200,
+          json: vi.fn().mockResolvedValue([
+            { ...mockObjectSummary, name: "file1.txt" },
+            { ...mockObjectSummary, name: "file2.txt" },
+          ]),
+        })
+        // Second page — empty
+        .mockResolvedValueOnce({
+          ok: true,
+          status: 200,
+          json: vi.fn().mockResolvedValue([]),
+        })
+
+      const result = await caller.storage.swift.emptyContainer({ container: "test-container" })
+
+      expect(result).toBe(2)
+      expect(mockCtx.mockSwift.del).toHaveBeenCalledTimes(2)
+      expect(mockCtx.mockSwift.post).not.toHaveBeenCalled()
+    })
+
+    it("should return 0 for an already empty container (204 response)", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      // /info
+      mockCtx.mockSwift.get
+        .mockResolvedValueOnce({
+          ok: true,
+          json: vi.fn().mockResolvedValue({ swift: { version: "2.37.0" } }),
+        })
+        // Container listing returns 204 No Content
+        .mockResolvedValueOnce({ ok: true, status: 204 })
+
+      const result = await caller.storage.swift.emptyContainer({ container: "empty-container" })
+
+      expect(result).toBe(0)
+      expect(mockCtx.mockSwift.del).not.toHaveBeenCalled()
+      expect(mockCtx.mockSwift.post).not.toHaveBeenCalled()
+    })
+
+    it("should paginate through multiple pages", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      mockCtx.mockSwift.get
+        .mockResolvedValueOnce({
+          ok: true,
+          json: vi.fn().mockResolvedValue({ swift: { version: "2.37.0" } }),
+        })
+        // Page 1
+        .mockResolvedValueOnce({
+          ok: true,
+          status: 200,
+          json: vi.fn().mockResolvedValue([
+            { ...mockObjectSummary, name: "file1.txt" },
+            { ...mockObjectSummary, name: "file2.txt" },
+          ]),
+        })
+        // Page 2
+        .mockResolvedValueOnce({
+          ok: true,
+          status: 200,
+          json: vi.fn().mockResolvedValue([{ ...mockObjectSummary, name: "file3.txt" }]),
+        })
+        // Page 3 — empty
+        .mockResolvedValueOnce({
+          ok: true,
+          status: 200,
+          json: vi.fn().mockResolvedValue([]),
+        })
+
+      const result = await caller.storage.swift.emptyContainer({ container: "test-container" })
+
+      expect(result).toBe(3)
+      expect(mockCtx.mockSwift.del).toHaveBeenCalledTimes(3)
+      // Second page should use marker from last item of first page
+      expect(mockCtx.mockSwift.get).toHaveBeenCalledWith(expect.stringContaining("marker=file2.txt"))
     })
   })
 
@@ -856,7 +1000,13 @@ describe("swiftRouter", () => {
 
       expect(result).toBeGreaterThan(0)
       expect(mockCtx.mockSwift.put).toHaveBeenCalled() // For copies
-      expect(mockCtx.mockSwift.post).toHaveBeenCalled() // For bulk delete
+      expect(mockCtx.mockSwift.post).toHaveBeenCalledWith(
+        expect.stringContaining("bulk-delete"),
+        expect.any(String),
+        expect.objectContaining({
+          headers: expect.objectContaining({ "Content-Type": "text/plain", Accept: "text/plain" }),
+        })
+      )
     })
   })
 
@@ -877,18 +1027,20 @@ describe("swiftRouter", () => {
 
       mockCtx.mockSwift.post.mockResolvedValue({
         ok: true,
-        json: vi.fn().mockResolvedValue({
-          "Number Deleted": 2,
-          "Number Not Found": 0,
-          Errors: [],
-        }),
+        text: vi.fn().mockResolvedValue("Number Deleted: 2\nNumber Not Found: 0\nErrors:\n"),
       })
 
       const input = { container: "test-container", folderPath: "folder" }
       const result = await caller.storage.swift.deleteFolder(input)
 
       expect(result).toBe(2)
-      expect(mockCtx.mockSwift.post).toHaveBeenCalledWith(expect.stringContaining("bulk-delete"), expect.any(Object))
+      expect(mockCtx.mockSwift.post).toHaveBeenCalledWith(
+        expect.stringContaining("bulk-delete"),
+        expect.any(String),
+        expect.objectContaining({
+          headers: expect.objectContaining({ "Content-Type": "text/plain", Accept: "text/plain" }),
+        })
+      )
     })
   })
 
