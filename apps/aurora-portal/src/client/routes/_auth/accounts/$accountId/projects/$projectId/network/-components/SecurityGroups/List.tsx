@@ -1,10 +1,10 @@
 import { useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import { ListToolbar } from "@/client/components/ListToolbar"
+import { buildFilterParams } from "@/client/utils/buildFilterParams"
+import { useListWithFiltering } from "@/client/utils/useListWithFiltering"
 import { SecurityGroupListContainer } from "./-components/SecurityGroupListContainer"
 import { SECURITY_GROUP_SHARED } from "./constants"
-import { buildFilterParams } from "../utils/buildFilterParams"
-import { useListWithFiltering } from "../utils/useListWithFiltering"
 
 type SecurityGroupSortKey = "name" | "project_id"
 

@@ -1,4 +1,4 @@
-import { CircleCheckIcon, InfoIcon, CircleXIcon } from "lucide-react"
+import { CircleCheckIcon, CircleMinusIcon, CircleAlertIcon } from "lucide-react"
 import { t } from "@lingui/core/macro"
 import { FloatingIpStatus } from "@/server/Network/types/floatingIp"
 
@@ -7,19 +7,18 @@ type FloatingIpStatusDisplay = {
   icon: React.ReactNode
 }
 
-// TODO: Replace icons when designers decide on new-icons
 export const STATUS_CONFIG: Record<FloatingIpStatus, FloatingIpStatusDisplay> = {
   ACTIVE: {
     text: "Active",
-    icon: <CircleCheckIcon size={16} color="green" />,
+    icon: <CircleCheckIcon size={16} color="white" fill="#4FB81C" />,
   },
   DOWN: {
     text: "Down",
-    icon: <InfoIcon size={16} color="red" />,
+    icon: <CircleMinusIcon size={16} color="white" fill="#969696" />,
   },
   ERROR: {
     text: "Error",
-    icon: <CircleXIcon size={16} color="yellow" />,
+    icon: <CircleAlertIcon size={16} color="white" fill="#C70000" />,
   },
 }
 

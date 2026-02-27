@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from "vitest"
 import { renderHook, act } from "@testing-library/react"
-import { useListWithFiltering, UseListWithFilteringOptions } from "./useListWithFiltering"
 import { FilterSettings, SortSettings } from "@/client/components/ListToolbar/types"
+import { useListWithFiltering, UseListWithFilteringOptions } from "./useListWithFiltering"
 
 describe("useListWithFiltering", () => {
   beforeEach(() => {

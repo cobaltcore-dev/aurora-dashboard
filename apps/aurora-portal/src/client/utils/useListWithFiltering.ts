@@ -1,5 +1,5 @@
-import { FilterSettings, SortOption, SortSettings } from "@/client/components/ListToolbar/types"
 import { startTransition, useState } from "react"
+import { FilterSettings, SortOption, SortSettings } from "@/client/components/ListToolbar/types"
 
 /**
  * Sort direction enumeration
