@@ -16,7 +16,7 @@ interface ProjectInfoBoxProps {
 export function ProjectInfoBox({ projectInfo, pageTitle }: ProjectInfoBoxProps) {
   return (
     <Stack direction="horizontal" alignment="stretch" className="my-6">
-      <ContentHeading className="text-2xl font-semibold">{pageTitle}</ContentHeading>
+      <ContentHeading className="text-theme-highest text-2xl font-bold">{pageTitle}</ContentHeading>
 
       <Stack direction="vertical" className="ml-auto">
         <div>

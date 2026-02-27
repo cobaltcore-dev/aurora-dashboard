@@ -1,4 +1,5 @@
 import { createFileRoute, ErrorComponent, redirect, useParams } from "@tanstack/react-router"
+import { Trans } from "@lingui/react/macro"
 import { getServiceIndex } from "@/server/Authentication/helpers"
 import { TrpcClient } from "@/client/trpcClient"
 import { ErrorBoundary } from "react-error-boundary"
@@ -62,9 +63,21 @@ export const Route = createFileRoute("/_auth/accounts/$accountId/projects/$proje
   notFoundComponent: () => {
     return <p>Compute service not found</p>
   },
-  loader: async ({ context }) => {
-    const { trpcClient } = context
+  loader: async ({ context, params }) => {
+    const { trpcClient, setPageTitle } = context
+    const { _splat: splat } = params
+
     const availableServices = await trpcClient?.auth.getAvailableServices.query()
+
+    const titles: Record<string, string> = {
+      instances: "Instances",
+      images: "Images",
+      keypairs: "Key Pairs",
+      servergroups: "Server Groups",
+      flavors: "Flavors",
+    }
+
+    setPageTitle(titles[splat || ""] || "Compute Overview")
 
     return {
       client: trpcClient,
@@ -94,7 +107,13 @@ function ComputeDashboard({ client }: { client: TrpcClient }) {
   return (
     <div>
       {project ? (
-        <ErrorBoundary fallback={<div className="p-4 text-center">Error loading component</div>}>
+        <ErrorBoundary
+          fallback={
+            <div className="p-4 text-center">
+              <Trans>Error loading component</Trans>
+            </div>
+          }
+        >
           {(() => {
             switch (splat) {
               case "instances":
@@ -113,7 +132,9 @@ function ComputeDashboard({ client }: { client: TrpcClient }) {
           })()}
         </ErrorBoundary>
       ) : (
-        <div className="p-4 text-center">No project selected</div>
+        <div className="p-4 text-center">
+          <Trans>No project selected</Trans>
+        </div>
       )}
     </div>
   )

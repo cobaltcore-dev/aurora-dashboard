@@ -87,8 +87,12 @@ function AppInner({
   handleThemeToggle: (theme: string) => void
 }) {
   const auth = useAuth()
+  const [pageTitle, setPageTitle] = useState("Aurora")
 
-  const routerContext = useMemo(() => ({ trpcReact, trpcClient, auth, navItems, handleThemeToggle }), [auth, navItems])
+  const routerContext = useMemo(
+    () => ({ trpcReact, trpcClient, auth, navItems, handleThemeToggle, pageTitle, setPageTitle }),
+    [auth, navItems, pageTitle]
+  )
 
   return <RouterProvider router={router} context={routerContext} />
 }

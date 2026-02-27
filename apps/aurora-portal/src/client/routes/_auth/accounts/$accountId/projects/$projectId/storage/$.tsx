@@ -2,6 +2,7 @@ import { createFileRoute, ErrorComponent, redirect, useParams } from "@tanstack/
 import { getServiceIndex } from "@/server/Authentication/helpers"
 import { ErrorBoundary } from "react-error-boundary"
 import { SwiftObjectStorage } from "./-components/SwiftObjectStorage/List"
+import { Trans } from "@lingui/react/macro"
 
 export const checkServiceAvailability = (
   availableServices: {
@@ -48,9 +49,13 @@ export const Route = createFileRoute("/_auth/accounts/$accountId/projects/$proje
   notFoundComponent: () => {
     return <p>Storage service not found</p>
   },
-  loader: async ({ context }) => {
-    const { trpcClient } = context
+  loader: async ({ context, params }) => {
+    const { trpcClient, setPageTitle } = context
+    const { _splat: splat } = params
+
     const availableServices = await trpcClient?.auth.getAvailableServices.query()
+
+    setPageTitle(splat === "objectstorage" ? "Object Storage" : "Object Storage")
 
     return {
       client: trpcClient,
@@ -75,19 +80,26 @@ function StorageDashboard() {
   return (
     <div>
       {project ? (
-        <ErrorBoundary fallback={<div className="p-4 text-center">Error loading component</div>}>
+        <ErrorBoundary
+          fallback={
+            <div className="p-4 text-center">
+              <Trans>Error loading component</Trans>
+            </div>
+          }
+        >
           {(() => {
             switch (splat) {
               case "objectstorage":
                 return <SwiftObjectStorage />
               default:
-                // An default Overview could be added
                 return <SwiftObjectStorage />
             }
           })()}
         </ErrorBoundary>
       ) : (
-        <div className="p-4 text-center">No project selected</div>
+        <div className="p-4 text-center">
+          <Trans>No project selected</Trans>
+        </div>
       )}
     </div>
   )

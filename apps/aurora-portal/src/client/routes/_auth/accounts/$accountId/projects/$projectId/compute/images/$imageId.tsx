@@ -1,11 +1,4 @@
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  Button,
-  Stack,
-  Spinner,
-  ContentHeading,
-} from "@cloudoperators/juno-ui-components/index"
+import { Breadcrumb, BreadcrumbItem, Button, Stack, Spinner } from "@cloudoperators/juno-ui-components/index"
 import { createFileRoute, redirect, useNavigate, useParams } from "@tanstack/react-router"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { getServiceIndex } from "@/server/Authentication/helpers"
@@ -56,15 +49,6 @@ function RouteComponent() {
     })
   }
 
-  // Helper function with proper type guard for image.name
-  // Handles cases where name might be null, undefined, empty string, or wrong type
-  const getImageName = (): React.ReactNode => {
-    if (image && typeof image.name === "string" && image.name.trim()) {
-      return image.name
-    }
-    return <Trans>Unnamed</Trans>
-  }
-
   // Handle loading state
   if (status === "pending") {
     return (
@@ -109,7 +93,7 @@ function RouteComponent() {
   // Render success state
   return (
     <Stack direction="vertical">
-      <Breadcrumb className="my-6">
+      <Breadcrumb>
         <BreadcrumbItem
           onClick={() => {
             navigate({
@@ -123,11 +107,6 @@ function RouteComponent() {
         <BreadcrumbItem onClick={handleBack} label={t`Images`} />
         <BreadcrumbItem active label={image.id} />
       </Breadcrumb>
-
-      <Stack direction="vertical" distribution="between">
-        <ContentHeading className="text-theme-highest text-2xl font-bold">{getImageName()}</ContentHeading>
-      </Stack>
-
       <ImageDetailsView image={image} />
     </Stack>
   )
