@@ -368,6 +368,109 @@ export const swiftRouter = {
       }, "delete container")
     }),
 
+  /**
+   * Empties a container by deleting all of its objects.
+   * Checks /info to determine if the bulk_delete middleware is enabled —
+   * if so, uses bulk delete for efficiency; otherwise falls back to individual
+   * DELETE requests. Paginates through all objects to handle large containers.
+   * Returns the total number of deleted objects.
+   */
+  emptyContainer: protectedProcedure
+    .input(deleteContainerInputSchema)
+    .mutation(async ({ input, ctx }): Promise<number> => {
+      return withErrorHandling(async () => {
+        const { account, container } = input
+        const openstackSession = ctx.openstack
+        const swift = openstackSession?.service("swift")
+
+        validateSwiftService(swift)
+
+        // Check if bulk_delete middleware is available
+        const infoResponse = await swift.get("/info").catch(() => null)
+        const serviceInfo = infoResponse ? await infoResponse.json().catch(() => ({})) : {}
+        const hasBulkDelete = "bulk_delete" in serviceInfo
+
+        const accountPath = account || ""
+        let totalDeleted = 0
+        let marker: string | undefined
+        let hasMore = true
+
+        while (hasMore) {
+          // List next page of objects
+          const queryParams = new URLSearchParams()
+          queryParams.append("format", "json")
+          if (marker) {
+            queryParams.append("marker", marker)
+          }
+
+          const listUrl = accountPath
+            ? `${accountPath}/${encodeURIComponent(container)}?${queryParams.toString()}`
+            : `${encodeURIComponent(container)}?${queryParams.toString()}`
+
+          const listResponse = await swift.get(listUrl).catch((error) => {
+            throw mapErrorResponseToTRPCError(error, { operation: "list objects for empty container", container })
+          })
+
+          if (listResponse.status === 204) {
+            break // Container is already empty
+          }
+
+          const objects: ObjectSummary[] = await listResponse.json()
+
+          if (objects.length === 0) {
+            break
+          }
+
+          if (hasBulkDelete) {
+            // Bulk delete — one request per page
+            const objectPaths = objects.map((obj) => `/${container}/${obj.name}`)
+            const bulkDeleteUrl = accountPath ? `${accountPath}?bulk-delete` : "?bulk-delete"
+            const bodyText = objectPaths.join("\n")
+
+            const bulkResponse = await swift
+              .post(bulkDeleteUrl, bodyText, {
+                headers: {
+                  "Content-Type": "text/plain",
+                  Accept: "text/plain",
+                },
+              })
+              .catch((error) => {
+                throw mapErrorResponseToTRPCError(error, {
+                  operation: "bulk delete objects for empty container",
+                  container,
+                })
+              })
+
+            const bulkResultText = await bulkResponse.text()
+            const match = bulkResultText.match(/Number Deleted:\s*(\d+)/)
+            totalDeleted += match ? parseInt(match[1], 10) : 0
+          } else {
+            // Individual deletes — guaranteed to work without any middleware
+            for (const obj of objects) {
+              const objectUrl = accountPath
+                ? `${accountPath}/${encodeURIComponent(container)}/${encodeURIComponent(obj.name)}`
+                : `${encodeURIComponent(container)}/${encodeURIComponent(obj.name)}`
+
+              await swift.del(objectUrl).catch((error) => {
+                throw mapErrorResponseToTRPCError(error, {
+                  operation: "delete object for empty container",
+                  container,
+                  object: obj.name,
+                })
+              })
+
+              totalDeleted++
+            }
+          }
+
+          marker = objects[objects.length - 1].name
+          hasMore = objects.length > 0
+        }
+
+        return totalDeleted
+      }, "empty container")
+    }),
+
   // ============================================================================
   // OBJECT OPERATIONS
   // ============================================================================
@@ -697,27 +800,39 @@ export const swiftRouter = {
         const body = objects.join("\n")
 
         const response = await swift
-          .post(url, {
-            body,
+          .post(url, body, {
             headers: {
               "Content-Type": "text/plain",
+              Accept: "text/plain",
             },
           })
           .catch((error) => {
             throw mapErrorResponseToTRPCError(error, { operation: "bulk delete objects" })
           })
 
-        const result = await response.json()
+        const resultText = await response.text()
+        const numberDeleted = parseInt(resultText.match(/Number Deleted:\s*(\d+)/)?.[1] ?? "0", 10)
+        const numberNotFound = parseInt(resultText.match(/Number Not Found:\s*(\d+)/)?.[1] ?? "0", 10)
+
+        // Parse errors: each line after "Errors:" is "PATH, STATUS_CODE STATUS_TEXT"
+        const errorsMatch = resultText.match(/Errors:\n([\s\S]*)$/)
+        const errors = errorsMatch
+          ? errorsMatch[1]
+              .split("\n")
+              .map((line) => line.trim())
+              .filter(Boolean)
+              .map((line) => {
+                const commaIdx = line.lastIndexOf(", ")
+                const path = commaIdx >= 0 ? line.substring(0, commaIdx) : line
+                const error = commaIdx >= 0 ? line.substring(commaIdx + 2) : ""
+                return { path, status: error.split(" ")[0], error }
+              })
+          : []
 
         return {
-          numberDeleted: result["Number Deleted"] || 0,
-          numberNotFound: result["Number Not Found"] || 0,
-          errors:
-            result.Errors?.map((err: [string, string]) => ({
-              path: err[0],
-              status: err[1].split(" ")[0],
-              error: err[1],
-            })) || [],
+          numberDeleted,
+          numberNotFound,
+          errors,
         }
       }, "bulk delete objects")
     }),
@@ -941,10 +1056,10 @@ export const swiftRouter = {
         const body = objectPaths.join("\n")
 
         await swift
-          .post(bulkDeleteUrl, {
-            body,
+          .post(bulkDeleteUrl, body, {
             headers: {
               "Content-Type": "text/plain",
+              Accept: "text/plain",
             },
           })
           .catch((error) => {
@@ -1005,18 +1120,19 @@ export const swiftRouter = {
       const body = objectPaths.join("\n")
 
       const response = await swift
-        .post(bulkDeleteUrl, {
-          body,
+        .post(bulkDeleteUrl, body, {
           headers: {
             "Content-Type": "text/plain",
+            Accept: "text/plain",
           },
         })
         .catch((error) => {
           throw mapErrorResponseToTRPCError(error, { operation: "bulk delete folder contents" })
         })
 
-      const result = await response.json()
-      return result["Number Deleted"] || 0
+      const bulkResultText = await response.text()
+      const match = bulkResultText.match(/Number Deleted:\s*(\d+)/)
+      return match ? parseInt(match[1], 10) : 0
     }, "delete folder")
   }),
 

@@ -92,6 +92,7 @@ Complete tRPC router with procedures for:
 - `getContainerMetadata` - Get container metadata
 - `updateContainerMetadata` - Update container metadata
 - `deleteContainer` - Delete an empty container
+- `emptyContainer` - Delete all objects in a container, returning the total number deleted
 
 #### Object Operations
 
@@ -104,7 +105,7 @@ Complete tRPC router with procedures for:
 
 #### Bulk Operations
 
-- `bulkDelete` - Delete up to 10,000 objects in a single request
+- `bulkDelete` - Delete up to 10,000 objects in a single request (requires `bulk_delete` middleware)
 
 #### Folder Operations
 
@@ -237,6 +238,21 @@ console.log(`Not found: ${result.numberNotFound}`)
 console.log(`Errors:`, result.errors)
 ```
 
+### Empty Container
+
+```typescript
+const deletedCount = await trpc.storage.swift.emptyContainer.mutate({
+  container: "my-container",
+})
+
+console.log(`Deleted ${deletedCount} objects`)
+```
+
+The endpoint automatically detects whether the `bulk_delete` middleware is enabled
+by querying `/info` at runtime. If available, bulk delete is used for efficiency
+(one request per page). Otherwise, objects are deleted individually. Either way,
+large containers are handled transparently via marker-based pagination.
+
 ### Get Service Info
 
 ```typescript
@@ -353,6 +369,8 @@ import type { ContainerSummary, ObjectMetadata, AccountInfo } from "./types/swif
 4. **Binary Data**: Strong emphasis on binary content handling for objects
 5. **HTTP Methods**: Swift uses COPY method for object copying
 6. **Response Codes**: 204 No Content for empty listings instead of 200
+7. **Bulk Delete Response Format**: The `bulk_delete` middleware on some deployments only supports `text/plain` responses. All bulk delete operations explicitly set `Accept: text/plain` and parse `Number Deleted`, `Number Not Found`, and `Errors` from the plain text body via regex rather than `response.json()`
+8. **signal-openstack `post()` Signature**: The client library's `post(path, body, options)` signature requires the request body as the second argument and options (including custom headers) as the third. Passing `{ body, headers }` as the second argument causes the entire object to be JSON-serialized as the request body
 
 ## Standards Compliance
 
@@ -457,7 +475,8 @@ All operations include comprehensive error handling:
 2. **Partial Downloads**: Use `range` parameter for partial object downloads
 3. **Metadata Only**: Use HEAD operations (`getObjectMetadata`) when you don't need content
 4. **Bulk Operations**: Use `bulkDelete` for deleting multiple objects efficiently
-5. **Folder Navigation**: Use `delimiter="/"` for hierarchical folder browsing
+5. **Empty Container**: Use `emptyContainer` to remove all objects — it auto-selects bulk delete or individual deletes based on the `/info` capability check
+6. **Folder Navigation**: Use `delimiter="/"` for hierarchical folder browsing
 
 ## Extended Capabilities
 
@@ -540,3 +559,4 @@ Generate time-limited, cryptographically signed URLs for secure object access wi
 - [Swift Temporary URLs](https://docs.openstack.org/swift/latest/api/temporary_url_middleware.html)
 - [Swift Pseudo-Hierarchical Folders](https://docs.openstack.org/swift/latest/api/pseudo-hierarchical-folders-directories.html)
 - [Swift Discoverability (/info endpoint)](https://docs.openstack.org/swift/latest/api/discoverability.html)
+- [Swift Bulk Delete](https://docs.openstack.org/swift/latest/api/bulk-delete.html)
