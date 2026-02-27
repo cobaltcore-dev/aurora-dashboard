@@ -31,7 +31,6 @@
     "@headlessui/react": "^2.2.2",
     "@lingui/core": "^5.9.0",
     "@lingui/react": "^5.9.0",
-    "@material-design-icons/svg": "^0.14.15",
     "@tanstack/react-query": "^5.90.20",
     "@tanstack/react-router": "^1.157.16",
     "@tanstack/react-virtual": "^3.13.18",

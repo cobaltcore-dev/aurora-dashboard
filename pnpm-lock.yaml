@@ -90,9 +90,6 @@ importers:
       '@lingui/react':
         specifier: ^5.9.0
         version: 5.9.0(@lingui/babel-plugin-lingui-macro@5.9.0(babel-plugin-macros@3.1.0)(typescript@5.9.3))(babel-plugin-macros@3.1.0)(react@19.1.0)
-      '@material-design-icons/svg':
-        specifier: ^0.14.15
-        version: 0.14.15
       '@tanstack/react-query':
         specifier: ^5.90.20
         version: 5.90.20(react@19.1.0)
@@ -1209,9 +1206,6 @@ packages:
   '@lukeed/ms@2.0.2':
     resolution: {integrity: sha512-9I2Zn6+NJLfaGoz9jN3lpwDgAYvfGeNYdbAIjJOqzs4Tpc+VU3Jqq4IofSUBKajiDS8k9fZIg18/z13mpk1bsA==}
     engines: {node: '>=8'}
-
-  '@material-design-icons/svg@0.14.15':
-    resolution: {integrity: sha512-6nbjwGwyJnphwQUscJAYqw1Tk6+W8KvsgOAeyVgzIFXVsHfgX5XyplTUcZ29wbcTUysMMyCUi1LYpmFKA/e61g==}
 
   '@messageformat/parser@5.1.1':
     resolution: {integrity: sha512-3p0YRGCcTUCYvBKLIxtDDyrJ0YijGIwrTRu1DT8gIviIDZru8H23+FkY6MJBzM1n9n20CiM4VeDYuBsrrwnLjg==}
@@ -6749,8 +6743,6 @@ snapshots:
       - typescript
 
   '@lukeed/ms@2.0.2': {}
-
-  '@material-design-icons/svg@0.14.15': {}
 
   '@messageformat/parser@5.1.1':
     dependencies:

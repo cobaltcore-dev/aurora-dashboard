@@ -17,7 +17,6 @@ import { Route as AuthAuroraRouteImport } from "./routes/_auth/aurora"
 import { Route as AuthAccountsIndexRouteImport } from "./routes/_auth/accounts/index"
 import { Route as AuthAccountsAccountIdProjectsIndexRouteImport } from "./routes/_auth/accounts/$accountId/projects/index"
 import { Route as AuthAccountsAccountIdProjectsProjectIdRouteImport } from "./routes/_auth/accounts/$accountId/projects/$projectId"
-import { Route as AuthAccountsAccountIdProjectsProjectIdNetworkIndexRouteImport } from "./routes/_auth/accounts/$accountId/projects/$projectId/network/index"
 import { Route as AuthAccountsAccountIdProjectsProjectIdGardenerIndexRouteImport } from "./routes/_auth/accounts/$accountId/projects/$projectId/gardener/index"
 import { Route as AuthAccountsAccountIdProjectsProjectIdStorageSplatRouteImport } from "./routes/_auth/accounts/$accountId/projects/$projectId/storage/$"
 import { Route as AuthAccountsAccountIdProjectsProjectIdNetworkSplatRouteImport } from "./routes/_auth/accounts/$accountId/projects/$projectId/network/$"
@@ -68,12 +67,6 @@ const AuthAccountsAccountIdProjectsProjectIdRoute =
     id: "/accounts/$accountId/projects/$projectId",
     path: "/accounts/$accountId/projects/$projectId",
     getParentRoute: () => AuthRoute,
-  } as any)
-const AuthAccountsAccountIdProjectsProjectIdNetworkIndexRoute =
-  AuthAccountsAccountIdProjectsProjectIdNetworkIndexRouteImport.update({
-    id: "/network/",
-    path: "/network/",
-    getParentRoute: () => AuthAccountsAccountIdProjectsProjectIdRoute,
   } as any)
 const AuthAccountsAccountIdProjectsProjectIdGardenerIndexRoute =
   AuthAccountsAccountIdProjectsProjectIdGardenerIndexRouteImport.update({
@@ -150,7 +143,6 @@ export interface FileRoutesByFullPath {
   "/accounts/$accountId/projects/$projectId/network/$": typeof AuthAccountsAccountIdProjectsProjectIdNetworkSplatRoute
   "/accounts/$accountId/projects/$projectId/storage/$": typeof AuthAccountsAccountIdProjectsProjectIdStorageSplatRoute
   "/accounts/$accountId/projects/$projectId/gardener/": typeof AuthAccountsAccountIdProjectsProjectIdGardenerIndexRoute
-  "/accounts/$accountId/projects/$projectId/network/": typeof AuthAccountsAccountIdProjectsProjectIdNetworkIndexRoute
   "/accounts/$accountId/projects/$projectId/compute/flavors/$flavorId": typeof AuthAccountsAccountIdProjectsProjectIdComputeFlavorsFlavorIdRoute
   "/accounts/$accountId/projects/$projectId/compute/images/$imageId": typeof AuthAccountsAccountIdProjectsProjectIdComputeImagesImageIdRoute
   "/accounts/$accountId/projects/$projectId/gardener/clusters/$clusterName": typeof AuthAccountsAccountIdProjectsProjectIdGardenerClustersClusterNameRoute
@@ -169,7 +161,6 @@ export interface FileRoutesByTo {
   "/accounts/$accountId/projects/$projectId/network/$": typeof AuthAccountsAccountIdProjectsProjectIdNetworkSplatRoute
   "/accounts/$accountId/projects/$projectId/storage/$": typeof AuthAccountsAccountIdProjectsProjectIdStorageSplatRoute
   "/accounts/$accountId/projects/$projectId/gardener": typeof AuthAccountsAccountIdProjectsProjectIdGardenerIndexRoute
-  "/accounts/$accountId/projects/$projectId/network": typeof AuthAccountsAccountIdProjectsProjectIdNetworkIndexRoute
   "/accounts/$accountId/projects/$projectId/compute/flavors/$flavorId": typeof AuthAccountsAccountIdProjectsProjectIdComputeFlavorsFlavorIdRoute
   "/accounts/$accountId/projects/$projectId/compute/images/$imageId": typeof AuthAccountsAccountIdProjectsProjectIdComputeImagesImageIdRoute
   "/accounts/$accountId/projects/$projectId/gardener/clusters/$clusterName": typeof AuthAccountsAccountIdProjectsProjectIdGardenerClustersClusterNameRoute
@@ -190,7 +181,6 @@ export interface FileRoutesById {
   "/_auth/accounts/$accountId/projects/$projectId/network/$": typeof AuthAccountsAccountIdProjectsProjectIdNetworkSplatRoute
   "/_auth/accounts/$accountId/projects/$projectId/storage/$": typeof AuthAccountsAccountIdProjectsProjectIdStorageSplatRoute
   "/_auth/accounts/$accountId/projects/$projectId/gardener/": typeof AuthAccountsAccountIdProjectsProjectIdGardenerIndexRoute
-  "/_auth/accounts/$accountId/projects/$projectId/network/": typeof AuthAccountsAccountIdProjectsProjectIdNetworkIndexRoute
   "/_auth/accounts/$accountId/projects/$projectId/compute/flavors/$flavorId": typeof AuthAccountsAccountIdProjectsProjectIdComputeFlavorsFlavorIdRoute
   "/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId": typeof AuthAccountsAccountIdProjectsProjectIdComputeImagesImageIdRoute
   "/_auth/accounts/$accountId/projects/$projectId/gardener/clusters/$clusterName": typeof AuthAccountsAccountIdProjectsProjectIdGardenerClustersClusterNameRoute
@@ -211,7 +201,6 @@ export interface FileRouteTypes {
     | "/accounts/$accountId/projects/$projectId/network/$"
     | "/accounts/$accountId/projects/$projectId/storage/$"
     | "/accounts/$accountId/projects/$projectId/gardener/"
-    | "/accounts/$accountId/projects/$projectId/network/"
     | "/accounts/$accountId/projects/$projectId/compute/flavors/$flavorId"
     | "/accounts/$accountId/projects/$projectId/compute/images/$imageId"
     | "/accounts/$accountId/projects/$projectId/gardener/clusters/$clusterName"
@@ -230,7 +219,6 @@ export interface FileRouteTypes {
     | "/accounts/$accountId/projects/$projectId/network/$"
     | "/accounts/$accountId/projects/$projectId/storage/$"
     | "/accounts/$accountId/projects/$projectId/gardener"
-    | "/accounts/$accountId/projects/$projectId/network"
     | "/accounts/$accountId/projects/$projectId/compute/flavors/$flavorId"
     | "/accounts/$accountId/projects/$projectId/compute/images/$imageId"
     | "/accounts/$accountId/projects/$projectId/gardener/clusters/$clusterName"
@@ -250,7 +238,6 @@ export interface FileRouteTypes {
     | "/_auth/accounts/$accountId/projects/$projectId/network/$"
     | "/_auth/accounts/$accountId/projects/$projectId/storage/$"
     | "/_auth/accounts/$accountId/projects/$projectId/gardener/"
-    | "/_auth/accounts/$accountId/projects/$projectId/network/"
     | "/_auth/accounts/$accountId/projects/$projectId/compute/flavors/$flavorId"
     | "/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId"
     | "/_auth/accounts/$accountId/projects/$projectId/gardener/clusters/$clusterName"
@@ -323,13 +310,6 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof AuthAccountsAccountIdProjectsProjectIdRouteImport
       parentRoute: typeof AuthRoute
     }
-    "/_auth/accounts/$accountId/projects/$projectId/network/": {
-      id: "/_auth/accounts/$accountId/projects/$projectId/network/"
-      path: "/network"
-      fullPath: "/accounts/$accountId/projects/$projectId/network/"
-      preLoaderRoute: typeof AuthAccountsAccountIdProjectsProjectIdNetworkIndexRouteImport
-      parentRoute: typeof AuthAccountsAccountIdProjectsProjectIdRoute
-    }
     "/_auth/accounts/$accountId/projects/$projectId/gardener/": {
       id: "/_auth/accounts/$accountId/projects/$projectId/gardener/"
       path: "/gardener"
@@ -401,7 +381,6 @@ interface AuthAccountsAccountIdProjectsProjectIdRouteChildren {
   AuthAccountsAccountIdProjectsProjectIdNetworkSplatRoute: typeof AuthAccountsAccountIdProjectsProjectIdNetworkSplatRoute
   AuthAccountsAccountIdProjectsProjectIdStorageSplatRoute: typeof AuthAccountsAccountIdProjectsProjectIdStorageSplatRoute
   AuthAccountsAccountIdProjectsProjectIdGardenerIndexRoute: typeof AuthAccountsAccountIdProjectsProjectIdGardenerIndexRoute
-  AuthAccountsAccountIdProjectsProjectIdNetworkIndexRoute: typeof AuthAccountsAccountIdProjectsProjectIdNetworkIndexRoute
   AuthAccountsAccountIdProjectsProjectIdComputeFlavorsFlavorIdRoute: typeof AuthAccountsAccountIdProjectsProjectIdComputeFlavorsFlavorIdRoute
   AuthAccountsAccountIdProjectsProjectIdComputeImagesImageIdRoute: typeof AuthAccountsAccountIdProjectsProjectIdComputeImagesImageIdRoute
   AuthAccountsAccountIdProjectsProjectIdGardenerClustersClusterNameRoute: typeof AuthAccountsAccountIdProjectsProjectIdGardenerClustersClusterNameRoute
@@ -419,8 +398,6 @@ const AuthAccountsAccountIdProjectsProjectIdRouteChildren: AuthAccountsAccountId
       AuthAccountsAccountIdProjectsProjectIdStorageSplatRoute,
     AuthAccountsAccountIdProjectsProjectIdGardenerIndexRoute:
       AuthAccountsAccountIdProjectsProjectIdGardenerIndexRoute,
-    AuthAccountsAccountIdProjectsProjectIdNetworkIndexRoute:
-      AuthAccountsAccountIdProjectsProjectIdNetworkIndexRoute,
     AuthAccountsAccountIdProjectsProjectIdComputeFlavorsFlavorIdRoute:
       AuthAccountsAccountIdProjectsProjectIdComputeFlavorsFlavorIdRoute,
     AuthAccountsAccountIdProjectsProjectIdComputeImagesImageIdRoute:
