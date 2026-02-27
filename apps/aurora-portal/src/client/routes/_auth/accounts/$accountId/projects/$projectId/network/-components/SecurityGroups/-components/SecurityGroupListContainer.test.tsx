@@ -133,7 +133,7 @@ const createTestRouter = (Component: ReactElement) => {
 
   const securityGroupsRoute = createRoute({
     getParentRoute: () => networkRoute,
-    path: "security-groups",
+    path: "securitygroups",
   })
 
   const securityGroupDetailsRoute = createRoute({

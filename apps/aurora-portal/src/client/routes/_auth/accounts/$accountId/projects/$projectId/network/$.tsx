@@ -41,7 +41,7 @@ function RouteComponent() {
   return (
     <div>
       <ErrorBoundary fallback={<div className="p-4 text-center">Error loading component</div>}>
-        {splat === "security-groups" ? <SecurityGroups /> : null}
+        {splat === "securitygroups" ? <SecurityGroups /> : null}
       </ErrorBoundary>
     </div>
   )

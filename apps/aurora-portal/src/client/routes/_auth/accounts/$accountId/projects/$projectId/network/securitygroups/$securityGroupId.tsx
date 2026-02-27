@@ -6,7 +6,7 @@ import { trpcReact } from "@/client/trpcClient"
 import { SecurityGroupDetailsView } from "../-components/SecurityGroups/-components/SecurityGroupDetailsView"
 
 export const Route = createFileRoute(
-  "/_auth/accounts/$accountId/projects/$projectId/network/security-groups/$securityGroupId"
+  "/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId"
 )({
   component: RouteComponent,
   beforeLoad: async ({ context, params }) => {
@@ -37,7 +37,7 @@ export const Route = createFileRoute(
 
 function RouteComponent() {
   const { accountId, projectId, securityGroupId } = useParams({
-    from: "/_auth/accounts/$accountId/projects/$projectId/network/security-groups/$securityGroupId",
+    from: "/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId",
   })
   const navigate = useNavigate()
   const { t } = useLingui()
@@ -47,7 +47,7 @@ function RouteComponent() {
   const handleBack = () => {
     navigate({
       to: "/accounts/$accountId/projects/$projectId/network/$",
-      params: { accountId, projectId, _splat: "security-groups" },
+      params: { accountId, projectId, _splat: "securitygroups" },
     })
   }
 

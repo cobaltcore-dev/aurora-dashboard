@@ -49,7 +49,7 @@ export const SecurityGroupListContainer = ({
 
   const handleViewDetails = (sg: SecurityGroup) => {
     navigate({
-      to: "/accounts/$accountId/projects/$projectId/network/security-groups/$securityGroupId",
+      to: "/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId",
       params: { accountId: accountId!, projectId: projectId!, securityGroupId: sg.id },
     })
   }
@@ -86,7 +86,7 @@ export const SecurityGroupListContainer = ({
   // Empty state
   if (securityGroups.length === 0) {
     return (
-      <DataGrid columns={7} className="security-groups" data-testid="no-security-groups">
+      <DataGrid columns={7} data-testid="no-security-groups">
         <DataGridRow>
           <DataGridCell colSpan={7}>
             <ContentHeading>
