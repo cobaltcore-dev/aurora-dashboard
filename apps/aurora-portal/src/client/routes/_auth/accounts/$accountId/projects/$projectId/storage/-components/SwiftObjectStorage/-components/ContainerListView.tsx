@@ -1,18 +1,46 @@
 import { useRef, useEffect, useState } from "react"
 import { useVirtualizer } from "@tanstack/react-virtual"
-import { DataGrid, DataGridHeadCell, DataGridRow, DataGridCell } from "@cloudoperators/juno-ui-components"
+import {
+  DataGrid,
+  DataGridHeadCell,
+  DataGridRow,
+  DataGridCell,
+  Toast,
+  ToastProps,
+} from "@cloudoperators/juno-ui-components"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { ContainerSummary } from "@/server/Storage/types/swift"
 import { formatBytesBinary } from "@/client/utils/formatBytes"
+import { CreateContainerModal } from "./CreateContainerModal"
+import { getContainerCreatedToast, getContainerCreateErrorToast } from "./ContainerToastNotifications"
 
 interface ContainerListViewProps {
   containers: ContainerSummary[]
+  createModalOpen: boolean
+  setCreateModalOpen: (open: boolean) => void
+  maxContainerNameLength?: number
 }
 
-export const ContainerListView = ({ containers }: ContainerListViewProps) => {
+export const ContainerListView = ({
+  containers,
+  createModalOpen,
+  setCreateModalOpen,
+  maxContainerNameLength,
+}: ContainerListViewProps) => {
   const { t } = useLingui()
   const parentRef = useRef<HTMLDivElement>(null)
   const [scrollbarWidth, setScrollbarWidth] = useState(0)
+  const [toastData, setToastData] = useState<ToastProps | null>(null)
+
+  const handleToastDismiss = () => setToastData(null)
+
+  const handleCreateSuccess = (containerName: string) => {
+    setToastData(getContainerCreatedToast(containerName, { onDismiss: handleToastDismiss }))
+  }
+
+  const handleCreateError = (containerName: string, errorMessage: string) => {
+    setToastData(getContainerCreateErrorToast(containerName, errorMessage, { onDismiss: handleToastDismiss }))
+  }
 
   // Calculate scrollbar width
   useEffect(() => {
@@ -67,86 +95,100 @@ export const ContainerListView = ({ containers }: ContainerListViewProps) => {
   const virtualizedContainersCount = rowVirtualizer.getVirtualItems().length
 
   return (
-    <div className="relative">
-      {/* Table Header with scrollbar padding */}
-      <div style={{ paddingRight: `${scrollbarWidth}px` }}>
-        <DataGrid
-          columns={4}
-          gridColumnTemplate={gridColumnTemplate}
-          className="containers"
-          data-testid="containers-table-header"
-        >
-          <DataGridRow>
-            <DataGridHeadCell>
-              <Trans>Container Name</Trans>
-            </DataGridHeadCell>
-            <DataGridHeadCell>
-              <Trans>Object Count</Trans>
-            </DataGridHeadCell>
-            <DataGridHeadCell>
-              <Trans>Last Modified</Trans>
-            </DataGridHeadCell>
-            <DataGridHeadCell style={{ marginRight: `-${scrollbarWidth}px` }}>
-              <Trans>Total Size</Trans>
-            </DataGridHeadCell>
-          </DataGridRow>
-        </DataGrid>
-      </div>
+    <>
+      <div className="relative">
+        {/* Table Header with scrollbar padding */}
+        <div style={{ paddingRight: `${scrollbarWidth}px` }}>
+          <DataGrid
+            columns={4}
+            gridColumnTemplate={gridColumnTemplate}
+            className="containers"
+            data-testid="containers-table-header"
+          >
+            <DataGridRow>
+              <DataGridHeadCell>
+                <Trans>Container Name</Trans>
+              </DataGridHeadCell>
+              <DataGridHeadCell>
+                <Trans>Object Count</Trans>
+              </DataGridHeadCell>
+              <DataGridHeadCell>
+                <Trans>Last Modified</Trans>
+              </DataGridHeadCell>
+              <DataGridHeadCell style={{ marginRight: `-${scrollbarWidth}px` }}>
+                <Trans>Total Size</Trans>
+              </DataGridHeadCell>
+            </DataGridRow>
+          </DataGrid>
+        </div>
 
-      {/* Virtualized Table Body with dynamic height */}
-      <div
-        ref={parentRef}
-        className="overflow-auto"
-        style={{
-          height: "calc(100vh - 400px)", // Dynamic height based on viewport
-          // minHeight: "400px", // Minimum height for usability
-          // maxHeight: "800px", // Maximum height to prevent overflow
-        }}
-        data-testid="containers-table-body"
-      >
+        {/* Virtualized Table Body with dynamic height */}
         <div
+          ref={parentRef}
+          className="overflow-auto"
           style={{
-            height: `${rowVirtualizer.getTotalSize()}px`,
-            width: "100%",
-            position: "relative",
+            height: "calc(100vh - 425px)", // Dynamic height based on viewport
+            // minHeight: "400px", // Minimum height for usability
+            // maxHeight: "800px", // Maximum height to prevent overflow
           }}
+          data-testid="containers-table-body"
         >
-          {rowVirtualizer.getVirtualItems().map((virtualRow) => {
-            const container = containers[virtualRow.index]
-            return (
-              <div
-                key={container.name}
-                data-index={virtualRow.index}
-                ref={rowVirtualizer.measureElement}
-                className="juno-datagrid"
-                style={{
-                  position: "absolute",
-                  top: 0,
-                  left: 0,
-                  width: "100%",
-                  transform: `translateY(${virtualRow.start}px)`,
-                  display: "grid",
-                  gridTemplateColumns: gridColumnTemplate,
-                  alignItems: "stretch",
-                }}
-                data-testid={`container-row-${container.name}`}
-              >
-                <DataGridCell>{container.name}</DataGridCell>
-                <DataGridCell>{container.count.toLocaleString()}</DataGridCell>
-                <DataGridCell>{container.last_modified ? formatDate(container.last_modified) : t`N/A`}</DataGridCell>
-                <DataGridCell>{formatBytesBinary(container.bytes)}</DataGridCell>
-              </div>
-            )
-          })}
+          <div
+            style={{
+              height: `${rowVirtualizer.getTotalSize()}px`,
+              width: "100%",
+              position: "relative",
+            }}
+          >
+            {rowVirtualizer.getVirtualItems().map((virtualRow) => {
+              const container = containers[virtualRow.index]
+              return (
+                <div
+                  key={container.name}
+                  data-index={virtualRow.index}
+                  ref={rowVirtualizer.measureElement}
+                  className="juno-datagrid"
+                  style={{
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    width: "100%",
+                    transform: `translateY(${virtualRow.start}px)`,
+                    display: "grid",
+                    gridTemplateColumns: gridColumnTemplate,
+                    alignItems: "stretch",
+                  }}
+                  data-testid={`container-row-${container.name}`}
+                >
+                  <DataGridCell>{container.name}</DataGridCell>
+                  <DataGridCell>{container.count.toLocaleString()}</DataGridCell>
+                  <DataGridCell>{container.last_modified ? formatDate(container.last_modified) : t`N/A`}</DataGridCell>
+                  <DataGridCell>{formatBytesBinary(container.bytes)}</DataGridCell>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+
+        {/* Footer with count */}
+        <div className="text-theme-light border-theme-background-lvl-2 border-t px-4 py-2 text-sm">
+          <Trans>
+            Showing {virtualizedContainersCount} of {allContainersCount} containers
+          </Trans>
         </div>
       </div>
 
-      {/* Footer with count */}
-      <div className="text-theme-light border-theme-background-lvl-2 border-t px-4 py-2 text-sm">
-        <Trans>
-          Showing {virtualizedContainersCount} of {allContainersCount} containers
-        </Trans>
-      </div>
-    </div>
+      <CreateContainerModal
+        isOpen={createModalOpen}
+        onClose={() => setCreateModalOpen(false)}
+        onSuccess={handleCreateSuccess}
+        onError={handleCreateError}
+        maxContainerNameLength={maxContainerNameLength}
+      />
+
+      {toastData && (
+        <Toast {...toastData} className="border-theme-light fixed top-5 right-5 z-50 rounded-lg border shadow-lg" />
+      )}
+    </>
   )
 }

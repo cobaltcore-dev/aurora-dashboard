@@ -1,20 +1,17 @@
-import { useState, startTransition } from "react"
+import { useState } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { useNavigate, useParams } from "@tanstack/react-router"
 import { Button } from "@cloudoperators/juno-ui-components"
 import { trpcReact } from "@/client/trpcClient"
 import { ListToolbar } from "@/client/components/ListToolbar"
-import { SortSettings, FilterSettings } from "@/client/components/ListToolbar/types"
+import { buildFilterParams } from "@/client/utils/buildFilterParams"
+import { useListWithFiltering } from "@/client/utils/useListWithFiltering"
 import { SecurityGroupListContainer } from "./-components/SecurityGroupListContainer"
 import { CreateSecurityGroupModal } from "./-components/-modals/CreateSecurityGroupModal"
 import { CreateSecurityGroupInput } from "@/server/Network/types/securityGroup"
 import { SECURITY_GROUP_SHARED } from "./constants"
 
-type RequiredSortSettings = {
-  options: SortSettings["options"]
-  sortBy: string
-  sortDirection: "asc" | "desc"
-}
+type SecurityGroupSortKey = "name" | "project_id"
 
 export const SecurityGroups = () => {
   const { t } = useLingui()
@@ -23,49 +20,27 @@ export const SecurityGroups = () => {
 
   const [createModalOpen, setCreateModalOpen] = useState(false)
 
-  const [sortSettings, setSortSettings] = useState<RequiredSortSettings>({
-    options: [
-      { label: t`Name`, value: "name" },
-      { label: t`Project id`, value: "project_id" },
-    ],
-    sortBy: "name",
-    sortDirection: "asc",
-  })
-
-  const [filterSettings, setFilterSettings] = useState<FilterSettings>({
-    filters: [
-      {
-        displayName: t`Shared`,
-        filterName: "shared",
-        values: Object.values(SECURITY_GROUP_SHARED),
-        supportsMultiValue: false,
+  const { searchTerm, sortSettings, filterSettings, handleSearchChange, handleSortChange, handleFilterChange } =
+    useListWithFiltering<SecurityGroupSortKey>({
+      defaultSortKey: "name",
+      defaultSortDir: "asc",
+      sortOptions: [
+        { label: t`Name`, value: "name" },
+        { label: t`Project id`, value: "project_id" },
+      ],
+      filterSettings: {
+        filters: [
+          {
+            displayName: t`Shared`,
+            filterName: "shared",
+            values: Object.values(SECURITY_GROUP_SHARED),
+            supportsMultiValue: false,
+          },
+        ],
       },
-    ],
-  })
-
-  const [searchTerm, setSearchTerm] = useState("")
+    })
 
   const utils = trpcReact.useUtils()
-
-  /**
-   * Builds filter parameters from current filter settings
-   */
-  const buildFilterParams = (): Record<string, string | boolean> => {
-    const params: Record<string, string | boolean> = {}
-
-    if (!filterSettings.selectedFilters?.length) return params
-
-    filterSettings.selectedFilters
-      .filter((sf) => !sf.inactive)
-      .forEach((sf) => {
-        if (sf.value === "true" || sf.value === "false") {
-          params[sf.name] = sf.value === "true"
-          return
-        }
-        params[sf.name] = sf.value
-      })
-    return params
-  }
 
   // TODO: replace with trpc.network.canUser when security group permissions are available
   const permissions = {
@@ -82,7 +57,7 @@ export const SecurityGroups = () => {
   } = trpcReact.network.list.useQuery({
     sort_key: sortSettings.sortBy,
     sort_dir: sortSettings.sortDirection,
-    ...buildFilterParams(),
+    ...buildFilterParams(filterSettings),
     ...(searchTerm ? { searchTerm } : {}),
   })
 
@@ -94,7 +69,7 @@ export const SecurityGroups = () => {
       // Navigate to the details page of the newly created security group
       if (accountId && projectId) {
         navigate({
-          to: "/accounts/$accountId/projects/$projectId/network/security-groups/$securityGroupId",
+          to: "/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId",
           params: {
             accountId,
             projectId,
@@ -107,28 +82,6 @@ export const SecurityGroups = () => {
 
   const handleCreateSecurityGroup = async (securityGroupData: CreateSecurityGroupInput) => {
     await createSecurityGroupMutation.mutateAsync(securityGroupData)
-  }
-
-  const handleSortChange = (newSortSettings: SortSettings) => {
-    const settings: RequiredSortSettings = {
-      options: newSortSettings.options ?? sortSettings.options,
-      sortBy: (newSortSettings.sortBy?.toString() as string) || "name",
-      sortDirection: (newSortSettings.sortDirection as "asc" | "desc") || "asc",
-    }
-    setSortSettings(settings)
-  }
-
-  const handleFilterChange = (newFilterSettings: FilterSettings) => {
-    startTransition(() => {
-      setFilterSettings(newFilterSettings)
-    })
-  }
-
-  const handleSearchChange = (term: string | number | string[] | undefined) => {
-    const searchValue = typeof term === "string" ? term : ""
-    startTransition(() => {
-      setSearchTerm(searchValue)
-    })
   }
 
   return (

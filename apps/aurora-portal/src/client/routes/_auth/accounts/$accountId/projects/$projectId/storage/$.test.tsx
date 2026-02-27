@@ -76,28 +76,28 @@ describe("Storage Route - checkServiceAvailability", () => {
   })
 
   describe("Object Storage Specific Checks", () => {
-    it("does not throw when swift is available and splat is objectstorage", () => {
+    it("does not throw when swift service is available and splat is equal to 'swift'", () => {
       vi.mocked(getServiceIndex).mockReturnValue({
         "object-store": {
           swift: true,
         },
       })
 
-      const params = { ...defaultParams, _splat: "objectstorage" }
+      const params = { ...defaultParams, _splat: "swift" }
 
       expect(() => {
         checkServiceAvailability(defaultServices, params)
       }).not.toThrow()
     })
 
-    it("throws redirect when swift is not available but splat is objectstorage", () => {
+    it("throws redirect when swift service is not available but splat is equal to 'swift'", () => {
       vi.mocked(getServiceIndex).mockReturnValue({
         "object-store": {
           // swift is missing/false
         },
       })
 
-      const params = { ...defaultParams, _splat: "objectstorage" }
+      const params = { ...defaultParams, _splat: "swift" }
 
       expect(() => {
         checkServiceAvailability(defaultServices, params)
@@ -140,7 +140,7 @@ describe("Storage Route - checkServiceAvailability", () => {
       const params = {
         accountId: "test-acc",
         projectId: "test-proj",
-        _splat: "objectstorage",
+        _splat: "swift",
       }
 
       try {
@@ -174,14 +174,14 @@ describe("Storage Route - checkServiceAvailability", () => {
       }).not.toThrow()
     })
 
-    it("redirects when object-store exists but swift is missing for objectstorage route", () => {
+    it("redirects when object-store exists but swift is missing for the 'swift' route", () => {
       vi.mocked(getServiceIndex).mockReturnValue({
         "object-store": {
           ceph: true,
         },
       })
 
-      const params = { ...defaultParams, _splat: "objectstorage" }
+      const params = { ...defaultParams, _splat: "swift" }
 
       expect(() => {
         checkServiceAvailability(defaultServices, params)

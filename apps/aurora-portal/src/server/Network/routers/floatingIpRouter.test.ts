@@ -5,39 +5,42 @@ import { floatingIpRouter } from "./floatingIpRouter"
 import { FloatingIp } from "../types/floatingIp"
 import { AuroraPortalContext } from "@/server/context"
 
-const createMockContext = (opts?: { noNetworkService?: boolean; invalidSession?: boolean; parseError?: boolean }) => {
-  const { noNetworkService = false, invalidSession = false, parseError = false } = opts || {}
+const createMockContext = (opts?: {
+  noNetworkService?: boolean
+  invalidSession?: boolean
+  parseError?: boolean
+  mockFloatingIps?: FloatingIp[]
+}) => {
+  const { noNetworkService = false, invalidSession = false, parseError = false, mockFloatingIps } = opts || {}
 
-  const mockFloatingIpsResponse = {
-    floatingips: [
-      {
-        id: "fip-1",
-        floating_ip_address: "192.0.2.1",
-        fixed_ip_address: "10.0.0.5",
-        port_id: "port-1",
-        router_id: "router-1",
-        project_id: "proj-1",
-        tenant_id: "proj-1",
-        floating_network_id: "net-1",
-        status: "ACTIVE" as const,
-        revision_number: 1,
-        description: "Test floating IP",
-      },
-      {
-        id: "fip-2",
-        floating_ip_address: "192.0.2.2",
-        fixed_ip_address: null,
-        port_id: null,
-        router_id: null,
-        project_id: "proj-1",
-        tenant_id: "proj-1",
-        floating_network_id: "net-1",
-        status: "DOWN" as const,
-        revision_number: 2,
-        description: null,
-      },
-    ],
-  }
+  const defaultFloatingIps: FloatingIp[] = [
+    {
+      id: "fip-1",
+      floating_ip_address: "192.0.2.1",
+      fixed_ip_address: "10.0.0.5",
+      port_id: "port-1",
+      router_id: "router-1",
+      project_id: "proj-1",
+      tenant_id: "proj-1",
+      floating_network_id: "net-1",
+      status: "ACTIVE",
+      revision_number: 1,
+      description: "Public IP for web server",
+    },
+    {
+      id: "fip-2",
+      floating_ip_address: "192.0.2.2",
+      fixed_ip_address: null,
+      port_id: null,
+      router_id: null,
+      project_id: "proj-1",
+      tenant_id: "proj-1",
+      floating_network_id: "net-1",
+      status: "DOWN",
+      revision_number: 2,
+      description: "Database access IP",
+    },
+  ]
 
   return {
     validateSession: vi.fn().mockReturnValue(!invalidSession),
@@ -49,7 +52,11 @@ const createMockContext = (opts?: { noNetworkService?: boolean; invalidSession?:
 
         return {
           get: vi.fn().mockResolvedValue({
-            json: vi.fn().mockResolvedValue(parseError ? { invalid: "data" } : mockFloatingIpsResponse),
+            json: vi
+              .fn()
+              .mockResolvedValue(
+                parseError ? { invalid: "data" } : { floatingips: mockFloatingIps || defaultFloatingIps }
+              ),
           }),
         }
       }),
@@ -222,5 +229,106 @@ describe("floatingIpRouter.list", () => {
 
     expect(Array.isArray(result)).toBe(true)
     expect(result.length).toBe(0)
+  })
+
+  describe("BFF-side search filtering", () => {
+    const mockFloatingIps: FloatingIp[] = [
+      {
+        id: "fip-1",
+        floating_ip_address: "192.0.2.1",
+        fixed_ip_address: "10.0.0.5",
+        port_id: "port-1",
+        router_id: "router-1",
+        project_id: "proj-1",
+        tenant_id: "proj-1",
+        floating_network_id: "net-1",
+        status: "ACTIVE",
+        revision_number: 1,
+        description: "Public IP for web servers",
+      },
+      {
+        id: "fip-2",
+        floating_ip_address: "192.0.2.2",
+        fixed_ip_address: null,
+        port_id: null,
+        router_id: null,
+        project_id: "proj-1",
+        tenant_id: "proj-1",
+        floating_network_id: "net-1",
+        status: "DOWN",
+        revision_number: 2,
+        description: "Database access IP",
+      },
+      {
+        id: "fip-3",
+        floating_ip_address: "192.0.2.3",
+        fixed_ip_address: null,
+        port_id: null,
+        router_id: null,
+        project_id: "proj-1",
+        tenant_id: "proj-1",
+        floating_network_id: "net-2",
+        status: "ERROR",
+        revision_number: 3,
+        description: "Staging web endpoint",
+      },
+    ]
+
+    it("returns all floating IPs when no searchTerm is provided", async () => {
+      const ctx = createMockContext({ mockFloatingIps })
+      const caller = createCaller(ctx)
+
+      const result = await caller.floatingIp.list({})
+
+      expect(result.length).toBe(3)
+    })
+
+    it("filters floating IPs by description (case-insensitive)", async () => {
+      const ctx = createMockContext({ mockFloatingIps })
+      const caller = createCaller(ctx)
+
+      const result = await caller.floatingIp.list({ searchTerm: "web" })
+
+      expect(result.length).toBe(2)
+      const ids = result.map((fip) => fip.id).sort()
+      expect(ids).toEqual(["fip-1", "fip-3"])
+    })
+
+    it("returns empty array when searchTerm matches no descriptions", async () => {
+      const ctx = createMockContext({ mockFloatingIps })
+      const caller = createCaller(ctx)
+
+      const result = await caller.floatingIp.list({ searchTerm: "nonexistent" })
+
+      expect(result.length).toBe(0)
+    })
+
+    it("trims whitespace in searchTerm", async () => {
+      const ctx = createMockContext({ mockFloatingIps })
+      const caller = createCaller(ctx)
+
+      const result = await caller.floatingIp.list({ searchTerm: "  database  " })
+
+      expect(result.length).toBe(1)
+      expect(result[0].id).toBe("fip-2")
+    })
+
+    it("returns all results when searchTerm is empty string", async () => {
+      const ctx = createMockContext({ mockFloatingIps })
+      const caller = createCaller(ctx)
+
+      const result = await caller.floatingIp.list({ searchTerm: "" })
+
+      expect(result.length).toBe(3)
+    })
+
+    it("returns all results when searchTerm is only whitespace", async () => {
+      const ctx = createMockContext({ mockFloatingIps })
+      const caller = createCaller(ctx)
+
+      const result = await caller.floatingIp.list({ searchTerm: "   " })
+
+      expect(result.length).toBe(3)
+    })
   })
 })

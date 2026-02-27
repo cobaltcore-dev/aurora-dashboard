@@ -146,54 +146,70 @@ export const Images = () => {
     return params
   }
 
+  const sharedQueryInput = {
+    sort: `${sortSettings.sortBy}:${sortSettings.sortDirection}`,
+    ...buildFilterParams(),
+  }
+
   /**
-   * Fetches images with pagination, sorting, and filtering
-   *
-   * OpenStack Glance API supports:
-   * - Sorting: sort=field:direction (new syntax) or sort_key & sort_dir (classic)
-   * - Filtering: Direct comparison (name=value) or 'in' operator (name=in:value1,value2)
-   * - Search: name parameter for text search
+   * When a search term is active, use listImagesWithSearch (flat, no pagination) so that
+   * server-side name filtering works correctly across the full result set.
+   * When no search term, use listImagesWithPagination with infinite scroll.
    */
-  const fetchImages = async ({ pageParam }: { pageParam?: string }) => {
-    // If pageParam exists, only pass 'next' (it already contains limit and other params)
-    // Otherwise, pass the initial query params with limit, sort, filter, and search parameters
-    const params = pageParam
-      ? { next: pageParam }
-      : {
-          limit: 15,
-          sort: `${sortSettings.sortBy}:${sortSettings.sortDirection}`,
-          ...buildFilterParams(),
-          ...(searchTerm && { name: searchTerm }),
-        }
+  const {
+    data: searchData,
+    isFetching: isSearchFetching,
+    isPending: isSearchPending,
+    isError: isSearchError,
+    error: searchError,
+  } = trpcReact.compute.listImagesWithSearch.useQuery(
+    { ...sharedQueryInput, name: searchTerm },
+    { enabled: !!searchTerm }
+  )
+
+  const fetchPaginatedImages = async ({ pageParam }: { pageParam?: string }) => {
+    const params = pageParam ? { next: pageParam } : { limit: 15, ...sharedQueryInput }
 
     return await utils.client.compute.listImagesWithPagination.query(params)
   }
 
-  const { data, error, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage, isPending, isError } =
-    useInfiniteQuery({
-      /**
-       * Query key includes sort, filter, and search settings to trigger refetch when they change
-       * This ensures the data is re-fetched whenever the user changes any filter, sort, or search
-       */
-      queryKey: [
-        ["compute", "listImagesWithPagination"],
-        {
-          input: {
-            limit: 15,
-            sort: `${sortSettings.sortBy}:${sortSettings.sortDirection}`,
-            filters: buildFilterParams(),
-            search: searchTerm,
-          },
-          type: "query",
+  const {
+    data: paginatedData,
+    error: paginatedError,
+    fetchNextPage,
+    hasNextPage,
+    isFetching: isPaginatedFetching,
+    isFetchingNextPage,
+    isPending: isPaginatedPending,
+    isError: isPaginatedError,
+  } = useInfiniteQuery({
+    /**
+     * Query key includes sort and filter settings to trigger refetch when they change.
+     * Search term is intentionally excluded — searching uses the listImages query above.
+     */
+    queryKey: [
+      ["compute", "listImagesWithPagination"],
+      {
+        input: {
+          limit: 15,
+          sort: `${sortSettings.sortBy}:${sortSettings.sortDirection}`,
+          filters: buildFilterParams(),
         },
-      ],
-      queryFn: fetchImages,
-      placeholderData: (previousData) => previousData, // Keeps old data during refetch
-      initialPageParam: undefined as string | undefined,
-      getNextPageParam: (lastPage) => {
-        return lastPage.next
+        type: "query",
       },
-    })
+    ],
+    queryFn: fetchPaginatedImages,
+    placeholderData: (previousData) => previousData,
+    initialPageParam: undefined as string | undefined,
+    getNextPageParam: (lastPage) => lastPage.next,
+    enabled: !searchTerm,
+  })
+
+  const data = searchTerm ? null : paginatedData
+  const error = searchTerm ? searchError : paginatedError
+  const isFetching = searchTerm ? isSearchFetching : isPaginatedFetching
+  const isPending = searchTerm ? isSearchPending : isPaginatedPending
+  const isError = searchTerm ? isSearchError : isPaginatedError
 
   const { data: suggestedImages, isLoading: suggestedImagesLoading } =
     trpcReact.compute.listSharedImagesByMemberStatus.useQuery({
@@ -243,8 +259,8 @@ export const Images = () => {
     canUpdateMember: canUpdateMember ?? false,
   }
 
-  // Flatten all pages into a single array
-  const images = data.pages.flatMap((page) => page.images)
+  // In search mode, use the flat listImages result; otherwise flatten paginated pages
+  const images = searchTerm ? (searchData ?? []) : (data?.pages.flatMap((page) => page.images) ?? [])
 
   const deletableImages = selectedImages.filter((imageId) => !images.find((image) => image.id === imageId)?.protected)
   const protectedImages = selectedImages.filter((imageId) => images.find((image) => image.id === imageId)?.protected)
@@ -337,9 +353,9 @@ export const Images = () => {
       suggestedImages={suggestedImages ?? []}
       acceptedImages={acceptedImages ?? []}
       permissions={permissions}
-      hasNextPage={hasNextPage}
-      isFetchingNextPage={isFetchingNextPage}
-      fetchNextPage={fetchNextPage}
+      hasNextPage={searchTerm ? false : hasNextPage}
+      isFetchingNextPage={searchTerm ? false : isFetchingNextPage}
+      fetchNextPage={searchTerm ? async () => {} : fetchNextPage}
       isFetching={isFetching}
       selectedImages={selectedImages}
       setSelectedImages={setSelectedImages}

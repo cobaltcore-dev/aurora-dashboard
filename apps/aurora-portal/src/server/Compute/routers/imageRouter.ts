@@ -1,5 +1,7 @@
 import { z } from "zod"
 import { SignalOpenstackApiError } from "@cobaltcore-dev/signal-openstack"
+import { TRPCError } from "@trpc/server"
+import { filterBySearchParams } from "@/server/helpers/filterBySearchParams"
 import EventEmitter from "node:events"
 import { Readable, Transform } from "node:stream"
 import { protectedProcedure } from "../../trpc"
@@ -43,7 +45,6 @@ import {
   BulkOperationResult,
   memberStatusSchema,
 } from "../types/image"
-import { TRPCError } from "@trpc/server"
 
 // Create a global event emitter for upload progress
 const uploadProgressEmitter = new EventEmitter()
@@ -53,31 +54,33 @@ type UploadProgress = { uploaded: number; total: number; percent?: number }
 const uploadProgress = new Map<string, UploadProgress>()
 
 export const imageRouter = {
-  listImages: protectedProcedure.input(listImagesInputSchema).query(async ({ input, ctx }): Promise<GlanceImage[]> => {
-    return withErrorHandling(async () => {
-      const { ...queryInput } = input
-      const openstackSession = ctx.openstack
-      const glance = openstackSession?.service("glance")
+  listImagesWithSearch: protectedProcedure
+    .input(listImagesInputSchema)
+    .query(async ({ input, ctx }): Promise<GlanceImage[]> => {
+      return withErrorHandling(async () => {
+        const { ...queryInput } = input
+        const openstackSession = ctx.openstack
+        const glance = openstackSession?.service("glance")
 
-      validateGlanceService(glance)
+        validateGlanceService(glance)
 
-      // Build query parameters using utility function
-      const queryParams = new URLSearchParams()
-      applyImageQueryParams(queryParams, queryInput)
+        // Build query parameters using utility function
+        const queryParams = new URLSearchParams()
+        applyImageQueryParams(queryParams, queryInput)
 
-      const url = `v2/images?${queryParams.toString()}`
-      const response = await glance.get(url).catch((error) => {
-        throw mapErrorResponseToTRPCError(error, { operation: "list images" })
-      })
+        const url = `v2/images?${queryParams.toString()}`
+        const response = await glance.get(url).catch((error) => {
+          throw mapErrorResponseToTRPCError(error, { operation: "list images" })
+        })
 
-      const parsedData = imageResponseSchema.safeParse(await response.json())
-      if (!parsedData.success) {
-        throw handleZodParsingError(parsedData.error, "list images")
-      }
+        const parsedData = imageResponseSchema.safeParse(await response.json())
+        if (!parsedData.success) {
+          throw handleZodParsingError(parsedData.error, "list images")
+        }
 
-      return parsedData.data.images
-    }, "list images")
-  }),
+        return filterBySearchParams(parsedData.data.images, queryInput.name, ["name"])
+      }, "list images")
+    }),
 
   listImagesWithPagination: protectedProcedure
     .input(imagesPaginatedInputSchema)
@@ -90,6 +93,9 @@ export const imageRouter = {
         validateGlanceService(glance)
 
         // Build query parameters using utility function
+        // Note: `name` is intentionally excluded from the URL — OpenStack Glance API only
+        // supports exact name matches, not wildcard/substring filtering. Name filtering is
+        // applied server-side below after fetching results.
         const queryParams = new URLSearchParams()
         applyImageQueryParams(queryParams, queryInput)
 
@@ -103,7 +109,12 @@ export const imageRouter = {
           throw handleZodParsingError(parsedData.error, "list images with pagination")
         }
 
-        return parsedData.data
+        const result = parsedData.data
+
+        // Apply server-side name filtering (case-insensitive substring match)
+        result.images = filterBySearchParams(result.images, queryInput.name, ["name"])
+
+        return result
       }, "list images with pagination")
     }),
 

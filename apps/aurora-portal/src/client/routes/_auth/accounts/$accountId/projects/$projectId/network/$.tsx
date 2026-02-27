@@ -2,6 +2,7 @@ import { createFileRoute, ErrorComponent, redirect, useParams } from "@tanstack/
 import { getServiceIndex } from "@/server/Authentication/helpers"
 import { ErrorBoundary } from "react-error-boundary"
 import { SecurityGroups } from "./-components/SecurityGroups/List"
+import { FloatingIps } from "./-components/FloatingIps/List"
 
 const checkNetworkServiceAvailability = (
   availableServices: { type: string; name: string }[],
@@ -41,7 +42,8 @@ function RouteComponent() {
   return (
     <div>
       <ErrorBoundary fallback={<div className="p-4 text-center">Error loading component</div>}>
-        {splat === "security-groups" ? <SecurityGroups /> : null}
+        {splat === "securitygroups" ? <SecurityGroups /> : null}
+        {splat === "floatingips" ? <FloatingIps /> : null}
       </ErrorBoundary>
     </div>
   )
