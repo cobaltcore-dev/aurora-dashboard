@@ -70,7 +70,7 @@ function RouteComponent() {
         <p className="text-theme-error font-semibold">
           <Trans>Error loading security group</Trans>
         </p>
-        <p className="text-theme-hight">{errorMessage}</p>
+        <p className="text-theme-highest">{errorMessage}</p>
         <Button onClick={handleBack} variant="primary">
           <Trans>Back to Security Groups</Trans>
         </Button>
@@ -82,7 +82,7 @@ function RouteComponent() {
   if (!securityGroup) {
     return (
       <Stack className="fixed inset-0" distribution="center" alignment="center" direction="vertical" gap="5">
-        <p className="text-theme-hight">
+        <p className="text-theme-highest">
           <Trans>Security group not found</Trans>
         </p>
         <Button onClick={handleBack} variant="primary">
