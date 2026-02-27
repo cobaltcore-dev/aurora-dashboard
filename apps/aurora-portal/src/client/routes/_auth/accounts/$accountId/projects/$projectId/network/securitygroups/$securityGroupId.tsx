@@ -1,18 +1,13 @@
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  Button,
-  Stack,
-  Spinner,
-  ContentHeading,
-} from "@cloudoperators/juno-ui-components/index"
+import { Breadcrumb, BreadcrumbItem, Button, Stack, Spinner } from "@cloudoperators/juno-ui-components/index"
 import { createFileRoute, redirect, useNavigate, useParams } from "@tanstack/react-router"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { getServiceIndex } from "@/server/Authentication/helpers"
 import { trpcReact } from "@/client/trpcClient"
-import { ImageDetailsView } from "../-components/Images/-components/ImageDetailsView"
+import { SecurityGroupDetailsView } from "../-components/SecurityGroups/-components/SecurityGroupDetailsView"
 
-export const Route = createFileRoute("/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId")({
+export const Route = createFileRoute(
+  "/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId"
+)({
   component: RouteComponent,
   beforeLoad: async ({ context, params }) => {
     const { trpcClient } = context
@@ -22,18 +17,18 @@ export const Route = createFileRoute("/_auth/accounts/$accountId/projects/$proje
 
     const serviceIndex = getServiceIndex(availableServices)
 
-    // Redirect to the "Projects Overview" page if none of compute services available
-    if (!serviceIndex["image"] && !serviceIndex["compute"]) {
+    // Redirect to the "Projects Overview" page if network service not available
+    if (!serviceIndex["network"]) {
       throw redirect({
         to: "/accounts/$accountId/projects",
         params: { accountId },
       })
     }
 
-    if (!serviceIndex["image"]["glance"]) {
-      // Redirect to the "Compute Services Overview" page if the "Glance" service is not available
+    if (!serviceIndex["network"]["neutron"]) {
+      // Redirect to the "Network Services Overview" page if the "Neutron" service is not available
       throw redirect({
-        to: "/accounts/$accountId/projects/$projectId/compute/$",
+        to: "/accounts/$accountId/projects/$projectId/network/$",
         params: { ...params, _splat: undefined },
       })
     }
@@ -41,28 +36,19 @@ export const Route = createFileRoute("/_auth/accounts/$accountId/projects/$proje
 })
 
 function RouteComponent() {
-  const { accountId, projectId, imageId } = useParams({
-    from: "/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId",
+  const { accountId, projectId, securityGroupId } = useParams({
+    from: "/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId",
   })
   const navigate = useNavigate()
   const { t } = useLingui()
 
-  const { data: image, status, error } = trpcReact.compute.getImageById.useQuery({ imageId: imageId })
+  const { data: securityGroup, status, error } = trpcReact.network.getSecurityGroupById.useQuery({ securityGroupId })
 
   const handleBack = () => {
     navigate({
-      to: "/accounts/$accountId/projects/$projectId/compute/$",
-      params: { accountId, projectId, _splat: "images" },
+      to: "/accounts/$accountId/projects/$projectId/network/$",
+      params: { accountId, projectId, _splat: "securitygroups" },
     })
-  }
-
-  // Helper function with proper type guard for image.name
-  // Handles cases where name might be null, undefined, empty string, or wrong type
-  const getImageName = (): React.ReactNode => {
-    if (image && typeof image.name === "string" && image.name.trim()) {
-      return image.name
-    }
-    return <Trans>Unnamed</Trans>
   }
 
   // Handle loading state
@@ -70,7 +56,7 @@ function RouteComponent() {
     return (
       <Stack className="fixed inset-0" distribution="center" alignment="center" direction="vertical">
         <Spinner variant="primary" size="large" className="mb-2" />
-        <Trans>Loading Image Details...</Trans>
+        <Trans>Loading Security Group Details...</Trans>
       </Stack>
     )
   }
@@ -82,25 +68,25 @@ function RouteComponent() {
     return (
       <Stack className="fixed inset-0" distribution="center" alignment="center" direction="vertical" gap="5">
         <p className="text-theme-error font-semibold">
-          <Trans>Error loading image</Trans>
+          <Trans>Error loading security group</Trans>
         </p>
         <p className="text-theme-highest">{errorMessage}</p>
         <Button onClick={handleBack} variant="primary">
-          <Trans>Back to Images</Trans>
+          <Trans>Back to Security Groups</Trans>
         </Button>
       </Stack>
     )
   }
 
   // Handle no data state
-  if (!image) {
+  if (!securityGroup) {
     return (
       <Stack className="fixed inset-0" distribution="center" alignment="center" direction="vertical" gap="5">
         <p className="text-theme-highest">
-          <Trans>Image not found</Trans>
+          <Trans>Security group not found</Trans>
         </p>
         <Button onClick={handleBack} variant="primary">
-          <Trans>Back to Images</Trans>
+          <Trans>Back to Security Groups</Trans>
         </Button>
       </Stack>
     )
@@ -113,22 +99,18 @@ function RouteComponent() {
         <BreadcrumbItem
           onClick={() => {
             navigate({
-              to: "/accounts/$accountId/projects/$projectId/compute/$",
+              to: "/accounts/$accountId/projects/$projectId/network/$",
               params: { accountId, projectId, _splat: undefined },
             })
           }}
           label={t`Overview`}
           icon="home"
         />
-        <BreadcrumbItem onClick={handleBack} label={t`Images`} />
-        <BreadcrumbItem active label={image.id} />
+        <BreadcrumbItem onClick={handleBack} label={t`Security Groups`} />
+        <BreadcrumbItem active label={securityGroup.id} />
       </Breadcrumb>
 
-      <Stack direction="vertical" distribution="between">
-        <ContentHeading className="text-theme-highest text-2xl font-bold">{getImageName()}</ContentHeading>
-      </Stack>
-
-      <ImageDetailsView image={image} />
+      <SecurityGroupDetailsView securityGroup={securityGroup} />
     </Stack>
   )
 }

@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import { useState } from "react"
 import {
   DataGrid,
   DataGridHeadCell,
@@ -9,6 +9,7 @@ import {
   Spinner,
 } from "@cloudoperators/juno-ui-components"
 import { Trans, useLingui } from "@lingui/react/macro"
+import { useNavigate, useParams } from "@tanstack/react-router"
 import type { SecurityGroup } from "@/server/Network/types/securityGroup"
 import { EditSecurityGroupModal } from "./-modals/EditSecurityGroupModal"
 import { AccessControlModal } from "./-modals/AccessControlModal"
@@ -30,6 +31,8 @@ export const SecurityGroupListContainer = ({
   permissions,
 }: SecurityGroupListContainerProps) => {
   const { t } = useLingui()
+  const navigate = useNavigate()
+  const { accountId, projectId } = useParams({ strict: false })
   const [selectedSecurityGroup, setSelectedSecurityGroup] = useState<SecurityGroup | null>(null)
   const [editModalOpen, setEditModalOpen] = useState(false)
   const [accessControlModalOpen, setAccessControlModalOpen] = useState(false)
@@ -44,8 +47,11 @@ export const SecurityGroupListContainer = ({
     setAccessControlModalOpen(true)
   }
 
-  const handleViewDetails = () => {
-    // Placeholder: when detail route exists, navigate like Images
+  const handleViewDetails = (sg: SecurityGroup) => {
+    navigate({
+      to: "/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId",
+      params: { accountId: accountId!, projectId: projectId!, securityGroupId: sg.id },
+    })
   }
 
   const closeEditModal = () => {
@@ -80,7 +86,7 @@ export const SecurityGroupListContainer = ({
   // Empty state
   if (securityGroups.length === 0) {
     return (
-      <DataGrid columns={7} className="security-groups" data-testid="no-security-groups">
+      <DataGrid columns={7} data-testid="no-security-groups">
         <DataGridRow>
           <DataGridCell colSpan={7}>
             <ContentHeading>
