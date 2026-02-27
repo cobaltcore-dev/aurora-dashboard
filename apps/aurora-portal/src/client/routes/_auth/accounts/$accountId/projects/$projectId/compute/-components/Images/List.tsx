@@ -152,8 +152,8 @@ export const Images = () => {
   }
 
   /**
-   * When a search term is active, use listImages (flat, no pagination) so that
-   * client-side name filtering works correctly across the full result set.
+   * When a search term is active, use listImagesWithSearch (flat, no pagination) so that
+   * server-side name filtering works correctly across the full result set.
    * When no search term, use listImagesWithPagination with infinite scroll.
    */
   const {
@@ -162,7 +162,10 @@ export const Images = () => {
     isPending: isSearchPending,
     isError: isSearchError,
     error: searchError,
-  } = trpcReact.compute.listImages.useQuery({ ...sharedQueryInput, name: searchTerm }, { enabled: !!searchTerm })
+  } = trpcReact.compute.listImagesWithSearch.useQuery(
+    { ...sharedQueryInput, name: searchTerm },
+    { enabled: !!searchTerm }
+  )
 
   const fetchPaginatedImages = async ({ pageParam }: { pageParam?: string }) => {
     const params = pageParam ? { next: pageParam } : { limit: 15, ...sharedQueryInput }

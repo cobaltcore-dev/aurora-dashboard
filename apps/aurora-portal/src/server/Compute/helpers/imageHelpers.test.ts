@@ -4,7 +4,6 @@ import { ZodError } from "zod"
 import { ListImagesInput } from "../types/image"
 import {
   applyImageQueryParams,
-  filterImagesByName,
   validateGlanceService,
   validateUploadInput,
   mapErrorResponseToTRPCError,
@@ -1361,76 +1360,6 @@ describe("imageHelpers", () => {
         expect(result.failed).toHaveLength(1)
         expect(result.failed[0].error).toBe("Failed to process image: Test error")
       })
-    })
-  })
-
-  describe("filterImagesByName", () => {
-    const baseImage = {
-      id: "123e4567-e89b-12d3-a456-426614174000",
-      status: "active" as const,
-      visibility: "public" as const,
-      size: 1024,
-      created_at: "2023-01-01T00:00:00Z",
-      updated_at: "2023-01-01T00:00:00Z",
-      min_disk: 0,
-      min_ram: 0,
-      owner: "tenant-123",
-      protected: false,
-      tags: [],
-      container_format: "bare" as const,
-      disk_format: "qcow2" as const,
-    }
-
-    const images = [
-      { ...baseImage, id: "id-1", name: "ubuntu-22.04-lts" },
-      { ...baseImage, id: "id-2", name: "centos-stream-9" },
-      { ...baseImage, id: "id-3", name: "debian-12-bookworm" },
-      { ...baseImage, id: "id-4", name: "Ubuntu-Minimal-22.04" },
-      { ...baseImage, id: "id-5", name: undefined },
-    ]
-
-    it("should return all images when name is undefined", () => {
-      const result = filterImagesByName(images, undefined)
-      expect(result).toHaveLength(5)
-      expect(result).toBe(images) // same reference — no copy made
-    })
-
-    it("should return all images when name is empty string", () => {
-      const result = filterImagesByName(images, "")
-      expect(result).toHaveLength(5)
-    })
-
-    it("should filter by substring match", () => {
-      const result = filterImagesByName(images, "centos")
-      expect(result).toHaveLength(1)
-      expect(result[0].name).toBe("centos-stream-9")
-    })
-
-    it("should match case-insensitively", () => {
-      const result = filterImagesByName(images, "ubuntu")
-      expect(result).toHaveLength(2)
-      expect(result.map((i) => i.name)).toEqual(expect.arrayContaining(["ubuntu-22.04-lts", "Ubuntu-Minimal-22.04"]))
-    })
-
-    it("should match partial name fragments", () => {
-      const result = filterImagesByName(images, "22.04")
-      expect(result).toHaveLength(2)
-    })
-
-    it("should return empty array when no images match", () => {
-      const result = filterImagesByName(images, "windows")
-      expect(result).toHaveLength(0)
-    })
-
-    it("should skip images with undefined name", () => {
-      const result = filterImagesByName(images, "ubuntu")
-      const ids = result.map((i) => i.id)
-      expect(ids).not.toContain("id-5")
-    })
-
-    it("should return empty array when input images array is empty", () => {
-      const result = filterImagesByName([], "ubuntu")
-      expect(result).toHaveLength(0)
     })
   })
 
