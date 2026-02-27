@@ -2,7 +2,8 @@ import { createFileRoute, ErrorComponent, redirect, useParams } from "@tanstack/
 import { getServiceIndex } from "@/server/Authentication/helpers"
 import { ErrorBoundary } from "react-error-boundary"
 import { SwiftObjectStorage } from "./-components/SwiftObjectStorage/List"
-import { Trans } from "@lingui/react/macro"
+import { Trans, useLingui } from "@lingui/react/macro"
+import { useEffect } from "react"
 
 export const checkServiceAvailability = (
   availableServices: {
@@ -49,13 +50,9 @@ export const Route = createFileRoute("/_auth/accounts/$accountId/projects/$proje
   notFoundComponent: () => {
     return <p>Storage service not found</p>
   },
-  loader: async ({ context, params }) => {
-    const { trpcClient, setPageTitle } = context
-    const { _splat: splat } = params
-
+  loader: async ({ context }) => {
+    const { trpcClient } = context
     const availableServices = await trpcClient?.auth.getAvailableServices.query()
-
-    setPageTitle(splat === "objectstorage" ? "Object Storage" : "Object Storage")
 
     return {
       client: trpcClient,
@@ -76,6 +73,19 @@ function StorageDashboard() {
       return { project: params.projectId, splat: params._splat }
     },
   })
+
+  const { setPageTitle } = Route.useRouteContext()
+  const { t } = useLingui()
+
+  useEffect(() => {
+    switch (splat) {
+      case "swift":
+        setPageTitle(t`Object Storage`)
+        break
+      default:
+        setPageTitle(t`Storage Overview`)
+    }
+  }, [splat, setPageTitle, t])
 
   return (
     <div>

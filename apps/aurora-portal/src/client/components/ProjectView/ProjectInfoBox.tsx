@@ -37,15 +37,15 @@ export function ProjectInfoBox({ projectInfo }: ProjectInfoBoxProps) {
 
       <Stack direction="vertical" className="ml-auto">
         <div>
-          <p className="text-theme-light truncate">
+          <div className="text-theme-light">
             <span className="text-theme-light font-semibold">
               <Trans>Project ID</Trans>:{" "}
             </span>
             <ClipboardText text={projectInfo.id} truncateAt={15} />
-          </p>
+          </div>
         </div>
         <div>
-          <p className="text-theme-light truncate">
+          <p className="text-theme-light">
             <span className="font-semibold">
               <Trans>Project Name</Trans>:{" "}
             </span>
@@ -55,7 +55,7 @@ export function ProjectInfoBox({ projectInfo }: ProjectInfoBoxProps) {
 
         {projectInfo.domain?.name && (
           <div>
-            <p className="text-theme-light truncate">
+            <p className="text-theme-light">
               <span className="text-theme-light font-semibold">
                 <Trans>Domain Name</Trans>:{" "}
               </span>

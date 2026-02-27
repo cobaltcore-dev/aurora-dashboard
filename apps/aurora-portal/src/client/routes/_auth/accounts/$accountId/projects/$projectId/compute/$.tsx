@@ -1,5 +1,5 @@
 import { createFileRoute, ErrorComponent, redirect, useParams } from "@tanstack/react-router"
-import { Trans } from "@lingui/react/macro"
+import { Trans, useLingui } from "@lingui/react/macro"
 import { getServiceIndex } from "@/server/Authentication/helpers"
 import { TrpcClient } from "@/client/trpcClient"
 import { ErrorBoundary } from "react-error-boundary"
@@ -9,6 +9,7 @@ import { Images } from "./-components/Images/List"
 import { KeyPairs } from "./-components/KeyPairs/List"
 import { ServerGroups } from "./-components/ServerGroups/List"
 import { Flavors } from "./-components/Flavors/List"
+import { useEffect } from "react"
 
 const checkServiceAvailability = (
   availableServices: {
@@ -63,21 +64,9 @@ export const Route = createFileRoute("/_auth/accounts/$accountId/projects/$proje
   notFoundComponent: () => {
     return <p>Compute service not found</p>
   },
-  loader: async ({ context, params }) => {
-    const { trpcClient, setPageTitle } = context
-    const { _splat: splat } = params
-
+  loader: async ({ context }) => {
+    const { trpcClient } = context
     const availableServices = await trpcClient?.auth.getAvailableServices.query()
-
-    const titles: Record<string, string> = {
-      instances: "Instances",
-      images: "Images",
-      keypairs: "Key Pairs",
-      servergroups: "Server Groups",
-      flavors: "Flavors",
-    }
-
-    setPageTitle(titles[splat || ""] || "Compute Overview")
 
     return {
       client: trpcClient,
@@ -103,6 +92,31 @@ function ComputeDashboard({ client }: { client: TrpcClient }) {
       return { project: params.projectId, splat: params._splat }
     },
   })
+
+  const { setPageTitle } = Route.useRouteContext()
+  const { t } = useLingui()
+
+  useEffect(() => {
+    switch (splat) {
+      case "instances":
+        setPageTitle(t`Instances`)
+        break
+      case "images":
+        setPageTitle(t`Images`)
+        break
+      case "keypairs":
+        setPageTitle(t`Key Pairs`)
+        break
+      case "servergroups":
+        setPageTitle(t`Server Groups`)
+        break
+      case "flavors":
+        setPageTitle(t`Flavors`)
+        break
+      default:
+        setPageTitle(t`Compute Overview`)
+    }
+  }, [splat, setPageTitle, t])
 
   return (
     <div>
