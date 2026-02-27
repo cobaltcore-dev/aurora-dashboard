@@ -4,6 +4,7 @@ import { Trans, useLingui } from "@lingui/react/macro"
 import { getServiceIndex } from "@/server/Authentication/helpers"
 import { trpcReact } from "@/client/trpcClient"
 import { ImageDetailsView } from "../-components/Images/-components/ImageDetailsView"
+import { useEffect } from "react"
 
 export const Route = createFileRoute("/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId")({
   component: RouteComponent,
@@ -37,10 +38,27 @@ function RouteComponent() {
   const { accountId, projectId, imageId } = useParams({
     from: "/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId",
   })
+
+  const { setPageTitle } = Route.useRouteContext()
   const navigate = useNavigate()
   const { t } = useLingui()
 
   const { data: image, status, error } = trpcReact.compute.getImageById.useQuery({ imageId: imageId })
+
+  useEffect(() => {
+    // Type-safe: name kann string | undefined | null sein
+    if (image?.name && typeof image.name === "string") {
+      setPageTitle(image.name)
+    } else if (image?.id) {
+      setPageTitle(image.id)
+    } else if (status === "error") {
+      setPageTitle(t`Error - Image Details`)
+    } else if (status === "pending") {
+      setPageTitle(t`Loading Image...`)
+    } else {
+      setPageTitle(t`Image Details`)
+    }
+  }, [image?.name, image?.id, status, setPageTitle, t])
 
   const handleBack = () => {
     navigate({
@@ -90,6 +108,9 @@ function RouteComponent() {
     )
   }
 
+  // Type-safe label für Breadcrumb
+  const displayLabel = (image.name && typeof image.name === "string" ? image.name : image.id) || t`Unknown Image`
+
   // Render success state
   return (
     <Stack direction="vertical">
@@ -105,7 +126,7 @@ function RouteComponent() {
           icon="home"
         />
         <BreadcrumbItem onClick={handleBack} label={t`Images`} />
-        <BreadcrumbItem active label={image.id} />
+        <BreadcrumbItem active label={displayLabel} />
       </Breadcrumb>
       <ImageDetailsView image={image} />
     </Stack>

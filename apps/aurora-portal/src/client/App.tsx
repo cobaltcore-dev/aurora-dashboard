@@ -5,7 +5,7 @@ import { AuthProvider, useAuth } from "./store/AuthProvider"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { trpcReact, trpcClient, trpcReactClient } from "./trpcClient"
 import { InactivityModal } from "./components/Auth/InactivityModal"
-import { useState, useMemo, useRef } from "react"
+import { useState, useRef, useCallback } from "react"
 import { i18n } from "@lingui/core"
 import { I18nProvider } from "@lingui/react"
 import { ErrorBoundary } from "react-error-boundary"
@@ -87,12 +87,29 @@ function AppInner({
   handleThemeToggle: (theme: string) => void
 }) {
   const auth = useAuth()
-  const [pageTitle, setPageTitle] = useState("Aurora")
 
-  const routerContext = useMemo(
-    () => ({ trpcReact, trpcClient, auth, navItems, handleThemeToggle, pageTitle, setPageTitle }),
-    [auth, navItems, pageTitle]
-  )
+  const pageTitleRef = useRef("Aurora")
+
+  const setPageTitle = useCallback((title: string) => {
+    pageTitleRef.current = title
+    document.title = title
+
+    window.dispatchEvent(
+      new CustomEvent("pageTitleChange", {
+        detail: { title },
+      })
+    )
+  }, [])
+
+  const routerContext = {
+    trpcReact,
+    trpcClient,
+    auth,
+    navItems,
+    handleThemeToggle,
+    setPageTitle,
+    pageTitleRef,
+  }
 
   return <RouterProvider router={router} context={routerContext} />
 }

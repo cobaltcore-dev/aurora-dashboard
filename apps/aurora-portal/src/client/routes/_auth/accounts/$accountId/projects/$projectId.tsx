@@ -26,7 +26,6 @@ export const Route = createFileRoute("/_auth/accounts/$accountId/projects/$proje
 
 function RouteComponent() {
   const { availableServices, accountId, projectId, crumbProject } = useLoaderData({ from: Route.id })
-  const { pageTitle } = Route.useRouteContext()
 
   return (
     <AppShell
@@ -39,7 +38,6 @@ function RouteComponent() {
           {/* Main content area */}
           <div className="min-w-0 flex-1">
             <ProjectInfoBox
-              pageTitle={pageTitle}
               projectInfo={{
                 id: projectId,
                 name: crumbProject?.name || projectId,

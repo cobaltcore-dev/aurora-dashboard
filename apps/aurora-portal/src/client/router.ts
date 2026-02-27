@@ -9,7 +9,7 @@ export const router = createRouter({
     trpcClient,
     auth: undefined!,
     navItems: [],
-    pageTitle: "Aurora",
+    pageTitleRef: undefined!,
     setPageTitle: undefined!,
     handleThemeToggle: undefined!,
   },

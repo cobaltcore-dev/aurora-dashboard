@@ -1,8 +1,10 @@
 import { ContentHeading, Stack } from "@cloudoperators/juno-ui-components"
 import { Trans } from "@lingui/react/macro"
 import ClipboardText from "../ClipboardText"
+import { useRouteContext } from "@tanstack/react-router"
+import { useState, useEffect } from "react"
+
 interface ProjectInfoBoxProps {
-  pageTitle: string
   projectInfo: {
     id: string
     name: string
@@ -12,11 +14,26 @@ interface ProjectInfoBoxProps {
     }
   }
 }
+export function ProjectInfoBox({ projectInfo }: ProjectInfoBoxProps) {
+  const { pageTitleRef } = useRouteContext({ from: "__root__" })
+  const [title, setTitle] = useState(pageTitleRef.current)
 
-export function ProjectInfoBox({ projectInfo, pageTitle }: ProjectInfoBoxProps) {
+  useEffect(() => {
+    const handleTitleChange = (e: CustomEvent<{ title: string }>) => {
+      setTitle(e.detail.title)
+    }
+
+    window.addEventListener("pageTitleChange", handleTitleChange as EventListener)
+    setTitle(pageTitleRef.current)
+
+    return () => {
+      window.removeEventListener("pageTitleChange", handleTitleChange as EventListener)
+    }
+  }, [pageTitleRef])
+
   return (
     <Stack direction="horizontal" alignment="stretch" className="my-6">
-      <ContentHeading className="text-theme-highest text-2xl font-bold">{pageTitle}</ContentHeading>
+      <ContentHeading className="text-theme-highest text-2xl font-bold"> {title}</ContentHeading>
 
       <Stack direction="vertical" className="ml-auto">
         <div>

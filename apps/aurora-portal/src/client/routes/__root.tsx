@@ -16,7 +16,7 @@ interface RouterContext {
   auth: AuthContext
   navItems: NavigationItem[]
   handleThemeToggle?: (theme: string) => void
-  pageTitle: string
+  pageTitleRef: React.MutableRefObject<string>
   setPageTitle: (title: string) => void
 }
 
