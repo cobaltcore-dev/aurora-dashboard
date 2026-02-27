@@ -114,7 +114,6 @@ export const securityGroupRouter = {
             message: "Network service is not available",
           })
         }
-
         const requestBody = {
           security_group: {
             name: input.name,
@@ -122,11 +121,9 @@ export const securityGroupRouter = {
             ...(input.stateful !== undefined && { stateful: input.stateful }),
           },
         }
-
-        const response = await network.post("v2.0/security-groups", {
-          body: JSON.stringify(requestBody),
-        })
+        const response = await network.post("v2.0/security-groups", requestBody)
         const data = await response.json()
+
         const parsed = securityGroupResponseSchema.safeParse(data)
 
         if (!parsed.success) {
