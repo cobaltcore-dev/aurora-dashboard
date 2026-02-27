@@ -50,3 +50,24 @@ export const getContainerEmptyErrorToast = (
   autoDismiss: false,
   ...options,
 })
+
+export const getContainerDeletedToast = (containerName: string, options?: ToastOptions): ToastProps => ({
+  title: "Container Deleted",
+  text: `Container "${containerName}" was successfully deleted.`,
+  variant: "success",
+  autoDismiss: true,
+  autoDismissTimeout: 5000,
+  ...options,
+})
+
+export const getContainerDeleteErrorToast = (
+  containerName: string,
+  errorMessage: string,
+  options?: ToastOptions
+): ToastProps => ({
+  title: "Failed to Delete Container",
+  text: `Could not delete container "${containerName}": ${errorMessage}`,
+  variant: "error",
+  autoDismiss: false,
+  ...options,
+})

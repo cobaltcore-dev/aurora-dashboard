@@ -16,11 +16,14 @@ import { ContainerSummary } from "@/server/Storage/types/swift"
 import { formatBytesBinary } from "@/client/utils/formatBytes"
 import { CreateContainerModal } from "./CreateContainerModal"
 import { EmptyContainerModal } from "./EmptyContainerModal"
+import { DeleteContainerModal } from "./DeleteContainerModal"
 import {
   getContainerCreatedToast,
   getContainerCreateErrorToast,
   getContainerEmptiedToast,
   getContainerEmptyErrorToast,
+  getContainerDeletedToast,
+  getContainerDeleteErrorToast,
 } from "./ContainerToastNotifications"
 
 interface ContainerListViewProps {
@@ -41,6 +44,7 @@ export const ContainerListView = ({
   const [scrollbarWidth, setScrollbarWidth] = useState(0)
   const [toastData, setToastData] = useState<ToastProps | null>(null)
   const [emptyModalContainer, setEmptyModalContainer] = useState<ContainerSummary | null>(null)
+  const [deleteModalContainer, setDeleteModalContainer] = useState<ContainerSummary | null>(null)
 
   const handleToastDismiss = () => setToastData(null)
 
@@ -58,6 +62,14 @@ export const ContainerListView = ({
 
   const handleEmptyError = (containerName: string, errorMessage: string) => {
     setToastData(getContainerEmptyErrorToast(containerName, errorMessage, { onDismiss: handleToastDismiss }))
+  }
+
+  const handleDeleteSuccess = (containerName: string) => {
+    setToastData(getContainerDeletedToast(containerName, { onDismiss: handleToastDismiss }))
+  }
+
+  const handleDeleteError = (containerName: string, errorMessage: string) => {
+    setToastData(getContainerDeleteErrorToast(containerName, errorMessage, { onDismiss: handleToastDismiss }))
   }
 
   // Calculate scrollbar width
@@ -191,7 +203,11 @@ export const ContainerListView = ({
                           onClick={() => setEmptyModalContainer(container)}
                           data-testid={`empty-action-${container.name}`}
                         />
-                        <PopupMenuItem label={t`Delete`} onClick={() => {}} />
+                        <PopupMenuItem
+                          label={t`Delete`}
+                          onClick={() => setDeleteModalContainer(container)}
+                          data-testid={`delete-action-${container.name}`}
+                        />
                       </PopupMenuOptions>
                     </PopupMenu>
                   </DataGridCell>
@@ -223,6 +239,14 @@ export const ContainerListView = ({
         onClose={() => setEmptyModalContainer(null)}
         onSuccess={handleEmptySuccess}
         onError={handleEmptyError}
+      />
+
+      <DeleteContainerModal
+        isOpen={deleteModalContainer !== null}
+        container={deleteModalContainer}
+        onClose={() => setDeleteModalContainer(null)}
+        onSuccess={handleDeleteSuccess}
+        onError={handleDeleteError}
       />
 
       {toastData && (

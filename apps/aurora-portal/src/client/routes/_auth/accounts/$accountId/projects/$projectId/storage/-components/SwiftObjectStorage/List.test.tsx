@@ -82,6 +82,13 @@ vi.mock("@/client/trpcClient", () => ({
             isPending: false,
           }),
         },
+        deleteContainer: {
+          useMutation: () => ({
+            mutate: vi.fn(),
+            reset: vi.fn(),
+            isPending: false,
+          }),
+        },
       },
     },
   },
