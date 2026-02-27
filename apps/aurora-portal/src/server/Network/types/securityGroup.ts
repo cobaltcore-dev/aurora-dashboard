@@ -39,6 +39,10 @@ export const securityGroupsResponseSchema = z.object({
   security_groups: z.array(securityGroupSchema),
 })
 
+export const securityGroupResponseSchema = z.object({
+  security_group: securityGroupSchema,
+})
+
 const sortDirSchema = z.enum(["asc", "desc"])
 
 export const listSecurityGroupsInputSchema = z.object({
@@ -63,9 +67,18 @@ export const listSecurityGroupsInputSchema = z.object({
   tags_any: z.string().optional(),
   not_tags: z.string().optional(),
   not_tags_any: z.string().optional(),
+
+  // BFF-side search (filtered in BFF layer, not sent to OpenStack)
+  searchTerm: z.string().optional(),
+})
+
+export const getSecurityGroupByIdInputSchema = z.object({
+  securityGroupId: z.string(),
 })
 
 export type SecurityGroupRule = z.infer<typeof securityGroupRuleSchema>
 export type SecurityGroup = z.infer<typeof securityGroupSchema>
 export type SecurityGroupsResponse = z.infer<typeof securityGroupsResponseSchema>
+export type SecurityGroupResponse = z.infer<typeof securityGroupResponseSchema>
 export type ListSecurityGroupsInput = z.infer<typeof listSecurityGroupsInputSchema>
+export type GetSecurityGroupByIdInput = z.infer<typeof getSecurityGroupByIdInputSchema>

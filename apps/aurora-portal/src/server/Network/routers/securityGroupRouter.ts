@@ -1,8 +1,15 @@
 import { TRPCError } from "@trpc/server"
 import { protectedProcedure } from "../../trpc"
 import { appendQueryParamsFromObject } from "../../helpers/queryParams"
-import { listSecurityGroupsInputSchema, securityGroupsResponseSchema, SecurityGroup } from "../types/securityGroup"
+import {
+  listSecurityGroupsInputSchema,
+  securityGroupsResponseSchema,
+  SecurityGroup,
+  getSecurityGroupByIdInputSchema,
+  securityGroupResponseSchema,
+} from "../types/securityGroup"
 import { withErrorHandling } from "../../helpers/errorHandling"
+import { filterBySearchParams } from "../../helpers/filterBySearchParams"
 
 const LIST_SECURITY_GROUPS_QUERY_KEY_MAP: Record<string, string> = {
   tags_any: "tags-any",
@@ -15,6 +22,8 @@ const LIST_SECURITY_GROUPS_QUERY_KEY_MAP: Record<string, string> = {
  *
  * Currently exposes:
  * - list: GET /v2.0/security-groups with pagination, sorting and basic filtering support.
+ * - getById: GET /v2.0/security-groups/{security_group_id} to fetch a single security group with rules.
+ *   Includes BFF-side search filtering by name, description, or id.
  */
 export const securityGroupRouter = {
   list: protectedProcedure
@@ -31,7 +40,10 @@ export const securityGroupRouter = {
       }
 
       return withErrorHandling(async () => {
-        const queryParams = appendQueryParamsFromObject(input as Record<string, unknown>, {
+        // Extract searchTerm from input before building query params
+        const { searchTerm, ...openstackParams } = input
+
+        const queryParams = appendQueryParamsFromObject(openstackParams, {
           keyMap: LIST_SECURITY_GROUPS_QUERY_KEY_MAP,
         })
 
@@ -40,7 +52,6 @@ export const securityGroupRouter = {
 
         const response = await network.get(url)
         const data = await response.json()
-
         const parsed = securityGroupsResponseSchema.safeParse(data)
 
         if (!parsed.success) {
@@ -51,7 +62,40 @@ export const securityGroupRouter = {
           })
         }
 
-        return parsed.data.security_groups
+        const securityGroups = parsed.data.security_groups
+
+        return filterBySearchParams(securityGroups, searchTerm, ["name", "description", "id"])
       }, "list security groups")
+    }),
+
+  getSecurityGroupById: protectedProcedure
+    .input(getSecurityGroupByIdInputSchema)
+    .query(async ({ input, ctx }): Promise<SecurityGroup> => {
+      return withErrorHandling(async () => {
+        const { securityGroupId } = input
+        const openstackSession = ctx.openstack
+        const network = openstackSession?.service("network")
+
+        if (!network) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Network service is not available",
+          })
+        }
+
+        const response = await network.get(`v2.0/security-groups/${securityGroupId}`)
+        const data = await response.json()
+        const parsed = securityGroupResponseSchema.safeParse(data)
+
+        if (!parsed.success) {
+          console.error("Zod Parsing Error in securityGroupRouter.getById:", parsed.error.format())
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Failed to parse security group response from OpenStack",
+          })
+        }
+
+        return parsed.data.security_group
+      }, "fetch security group by ID")
     }),
 }

@@ -15,7 +15,6 @@ export function applyImageQueryParams(queryParams: URLSearchParams, input: ListI
     sort,
     limit,
     marker,
-    name,
     status,
     visibility,
     owner,
@@ -53,9 +52,9 @@ export function applyImageQueryParams(queryParams: URLSearchParams, input: ListI
   }
 
   // Basic filtering parameters
-  if (name) {
-    queryParams.append("name", name)
-  }
+  // Note: `name` is intentionally excluded here — OpenStack Glance API does not support
+  // wildcard or substring name filtering. Name-based filtering is applied server-side
+  // after fetching results (see listImagesWithPagination procedure).
   if (status) {
     queryParams.append("status", status)
   }

@@ -180,6 +180,9 @@ export const FloatingIpQueryParametersSchema = z.object({
   marker: z.string().optional(),
   /** Pagination direction (false = ascending, true = descending) */
   page_reverse: z.boolean().optional(),
+
+  // BFF-side search (filtered in BFF layer, not sent to OpenStack)
+  searchTerm: z.string().optional(),
 })
 
 export type ISO8601Timestamp = z.infer<typeof ISO8601TimestampSchema>
