@@ -133,12 +133,19 @@ export const ListToolbar = ({
         </Stack>
       )}
 
-      <div className="flex w-full flex-col flex-wrap items-center gap-4 md:flex-row">
-        {filtersProps && <FiltersInput {...filtersProps} />}
-        {sortProps && <SortInput {...sortProps} />}
-
+      <div className="flex w-full flex-col items-stretch gap-4 md:flex-row md:items-center">
+        {filtersProps && (
+          <div className="w-full md:w-auto md:min-w-[150px]">
+            <FiltersInput {...filtersProps} />
+          </div>
+        )}
+        {sortProps && (
+          <div className="w-full md:w-auto md:min-w-[180px]">
+            <SortInput {...sortProps} />
+          </div>
+        )}
         {searchProps && (
-          <div className="w-full md:ml-auto md:w-auto">
+          <div className="w-full md:ml-auto md:w-auto md:min-w-[100px]">
             <SearchInput {...searchProps} />
           </div>
         )}
