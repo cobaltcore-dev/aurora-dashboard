@@ -75,46 +75,37 @@ vi.mock("./DeleteContainerModal", () => ({
 
 vi.mock("./ContainerToastNotifications", () => ({
   getContainerCreatedToast: vi.fn((name) => ({
-    title: "Container Created",
     text: `Container "${name}" was successfully created.`,
     variant: "success",
     autoDismiss: true,
-    autoDismissTimeout: 5000,
   })),
   getContainerCreateErrorToast: vi.fn((name, error) => ({
-    title: "Failed to Create Container",
     text: `Could not create container "${name}": ${error}`,
     variant: "error",
-    autoDismiss: false,
+    autoDismiss: true,
   })),
   getContainerEmptiedToast: vi.fn((name, deletedCount) => ({
-    title: "Container Emptied",
     text:
       deletedCount === 0
         ? `Container "${name}" was already empty.`
         : `Container "${name}" was successfully emptied. ${deletedCount} objects deleted.`,
     variant: "success",
     autoDismiss: true,
-    autoDismissTimeout: 5000,
   })),
   getContainerEmptyErrorToast: vi.fn((name, error) => ({
-    title: "Failed to Empty Container",
     text: `Could not empty container "${name}": ${error}`,
     variant: "error",
-    autoDismiss: false,
+    autoDismiss: true,
   })),
   getContainerDeletedToast: vi.fn((name) => ({
-    title: "Container Deleted",
     text: `Container "${name}" was successfully deleted.`,
     variant: "success",
     autoDismiss: true,
-    autoDismissTimeout: 5000,
   })),
   getContainerDeleteErrorToast: vi.fn((name, error) => ({
-    title: "Failed to Delete Container",
     text: `Could not delete container "${name}": ${error}`,
     variant: "error",
-    autoDismiss: false,
+    autoDismiss: true,
   })),
 }))
 

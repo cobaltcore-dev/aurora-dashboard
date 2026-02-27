@@ -1,4 +1,7 @@
-import { describe, it, expect, vi } from "vitest"
+import { describe, it, expect, vi, beforeEach } from "vitest"
+import { render, screen } from "@testing-library/react"
+import { I18nProvider } from "@lingui/react"
+import { i18n } from "@lingui/core"
 import {
   getContainerCreatedToast,
   getContainerCreateErrorToast,
@@ -8,252 +11,336 @@ import {
   getContainerDeleteErrorToast,
 } from "./ContainerToastNotifications"
 
-describe("getContainerCreatedToast", () => {
-  it("returns correct title", () => {
-    const toast = getContainerCreatedToast("my-container")
-    expect(toast.title).toBe("Container Created")
+describe("ContainerToastNotifications", () => {
+  const mockOnDismiss = vi.fn()
+  const defaultConfig = { onDismiss: mockOnDismiss }
+
+  beforeEach(() => {
+    vi.clearAllMocks()
+    i18n.activate("en")
   })
 
-  it("returns correct text with container name", () => {
-    const toast = getContainerCreatedToast("my-container")
-    expect(toast.text).toBe('Container "my-container" was successfully created.')
+  describe("getContainerCreatedToast", () => {
+    it("should return success toast with correct structure", () => {
+      const toast = getContainerCreatedToast("my-container", defaultConfig)
+
+      expect(toast.variant).toBe("success")
+      expect(toast.autoDismiss).toBe(true)
+      expect(toast.autoDismissTimeout).toBe(5000)
+      expect(toast.onDismiss).toBe(mockOnDismiss)
+      expect(toast.children).toBeDefined()
+    })
+
+    it("should render correct message content", () => {
+      const toast = getContainerCreatedToast("my-container", defaultConfig)
+      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+
+      expect(screen.getByText("Container Created")).toBeInTheDocument()
+      expect(screen.getByText(/my-container/)).toBeInTheDocument()
+      expect(screen.getByText(/was successfully created/)).toBeInTheDocument()
+    })
+
+    it("should use custom autoDismissTimeout when provided", () => {
+      const toast = getContainerCreatedToast("my-container", { onDismiss: mockOnDismiss, autoDismissTimeout: 3000 })
+      expect(toast.autoDismissTimeout).toBe(3000)
+    })
+
+    it("should handle container names with special characters", () => {
+      const toast = getContainerCreatedToast("my-container/with.special_chars", defaultConfig)
+      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+      expect(screen.getByText(/my-container\/with\.special_chars/)).toBeInTheDocument()
+    })
   })
 
-  it("returns success variant", () => {
-    const toast = getContainerCreatedToast("my-container")
-    expect(toast.variant).toBe("success")
+  describe("getContainerCreateErrorToast", () => {
+    it("should return error toast with correct structure", () => {
+      const toast = getContainerCreateErrorToast("my-container", "Conflict", defaultConfig)
+
+      expect(toast.variant).toBe("error")
+      expect(toast.autoDismiss).toBe(true)
+      expect(toast.autoDismissTimeout).toBe(5000)
+      expect(toast.onDismiss).toBe(mockOnDismiss)
+      expect(toast.children).toBeDefined()
+    })
+
+    it("should render correct error message content", () => {
+      const toast = getContainerCreateErrorToast("my-container", "Conflict", defaultConfig)
+      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+
+      expect(screen.getByText("Failed to Create Container")).toBeInTheDocument()
+      expect(screen.getByText(/my-container/)).toBeInTheDocument()
+      expect(screen.getByText(/Could not create container/)).toBeInTheDocument()
+      expect(screen.getByText(/Conflict/)).toBeInTheDocument()
+    })
+
+    it("should handle different error messages", () => {
+      const toast = getContainerCreateErrorToast("my-container", "Container already exists", defaultConfig)
+      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+      expect(screen.getByText(/Container already exists/)).toBeInTheDocument()
+    })
+
+    it("should use custom autoDismissTimeout when provided", () => {
+      const toast = getContainerCreateErrorToast("my-container", "error", {
+        onDismiss: mockOnDismiss,
+        autoDismissTimeout: 10000,
+      })
+      expect(toast.autoDismissTimeout).toBe(10000)
+    })
+
+    it("should handle long error messages", () => {
+      const longMessage = "Container name already exists in this account and cannot be created again"
+      const toast = getContainerCreateErrorToast("my-container", longMessage, defaultConfig)
+      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+      expect(screen.getByText(/Container name already exists/)).toBeInTheDocument()
+    })
   })
 
-  it("returns autoDismiss true", () => {
-    const toast = getContainerCreatedToast("my-container")
-    expect(toast.autoDismiss).toBe(true)
+  describe("getContainerEmptiedToast", () => {
+    it("should return success toast with correct structure", () => {
+      const toast = getContainerEmptiedToast("my-container", 5, defaultConfig)
+
+      expect(toast.variant).toBe("success")
+      expect(toast.autoDismiss).toBe(true)
+      expect(toast.autoDismissTimeout).toBe(5000)
+      expect(toast.onDismiss).toBe(mockOnDismiss)
+      expect(toast.children).toBeDefined()
+    })
+
+    it("should render correct message when objects were deleted", () => {
+      const toast = getContainerEmptiedToast("my-container", 5, defaultConfig)
+      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+
+      expect(screen.getByText("Container Emptied")).toBeInTheDocument()
+      expect(screen.getByText(/my-container/)).toBeInTheDocument()
+      expect(screen.getByText(/was successfully emptied/)).toBeInTheDocument()
+      expect(screen.getByText(/5 objects deleted/)).toBeInTheDocument()
+    })
+
+    it("should use singular 'object' when deletedCount is 1", () => {
+      const toast = getContainerEmptiedToast("my-container", 1, defaultConfig)
+      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+      expect(screen.getByText(/1 object deleted/)).toBeInTheDocument()
+    })
+
+    it("should render already empty message when deletedCount is 0", () => {
+      const toast = getContainerEmptiedToast("my-container", 0, defaultConfig)
+      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+
+      expect(screen.getByText("Container Emptied")).toBeInTheDocument()
+      expect(screen.getByText(/was already empty/)).toBeInTheDocument()
+    })
+
+    it("should use custom autoDismissTimeout when provided", () => {
+      const toast = getContainerEmptiedToast("my-container", 3, {
+        onDismiss: mockOnDismiss,
+        autoDismissTimeout: 3000,
+      })
+      expect(toast.autoDismissTimeout).toBe(3000)
+    })
   })
 
-  it("returns autoDismissTimeout of 5000ms", () => {
-    const toast = getContainerCreatedToast("my-container")
-    expect(toast.autoDismissTimeout).toBe(5000)
+  describe("getContainerEmptyErrorToast", () => {
+    it("should return error toast with correct structure", () => {
+      const toast = getContainerEmptyErrorToast("my-container", "Internal Server Error", defaultConfig)
+
+      expect(toast.variant).toBe("error")
+      expect(toast.autoDismiss).toBe(true)
+      expect(toast.autoDismissTimeout).toBe(5000)
+      expect(toast.onDismiss).toBe(mockOnDismiss)
+      expect(toast.children).toBeDefined()
+    })
+
+    it("should render correct error message content", () => {
+      const toast = getContainerEmptyErrorToast("my-container", "Internal Server Error", defaultConfig)
+      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+
+      expect(screen.getByText("Failed to Empty Container")).toBeInTheDocument()
+      expect(screen.getByText(/my-container/)).toBeInTheDocument()
+      expect(screen.getByText(/Could not empty container/)).toBeInTheDocument()
+      expect(screen.getByText(/Internal Server Error/)).toBeInTheDocument()
+    })
+
+    it("should handle different error messages", () => {
+      const toast = getContainerEmptyErrorToast(
+        "my-container",
+        "Bulk delete operation failed with status 500",
+        defaultConfig
+      )
+      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+      expect(screen.getByText(/Bulk delete operation failed/)).toBeInTheDocument()
+    })
+
+    it("should use custom autoDismissTimeout when provided", () => {
+      const toast = getContainerEmptyErrorToast("my-container", "error", {
+        onDismiss: mockOnDismiss,
+        autoDismissTimeout: 10000,
+      })
+      expect(toast.autoDismissTimeout).toBe(10000)
+    })
   })
 
-  it("applies onDismiss option when provided", () => {
-    const onDismiss = vi.fn()
-    const toast = getContainerCreatedToast("my-container", { onDismiss })
-    expect(toast.onDismiss).toBe(onDismiss)
+  describe("getContainerDeletedToast", () => {
+    it("should return success toast with correct structure", () => {
+      const toast = getContainerDeletedToast("my-container", defaultConfig)
+
+      expect(toast.variant).toBe("success")
+      expect(toast.autoDismiss).toBe(true)
+      expect(toast.autoDismissTimeout).toBe(5000)
+      expect(toast.onDismiss).toBe(mockOnDismiss)
+      expect(toast.children).toBeDefined()
+    })
+
+    it("should render correct message content", () => {
+      const toast = getContainerDeletedToast("my-container", defaultConfig)
+      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+
+      expect(screen.getByText("Container Deleted")).toBeInTheDocument()
+      expect(screen.getByText(/my-container/)).toBeInTheDocument()
+      expect(screen.getByText(/was successfully deleted/)).toBeInTheDocument()
+    })
+
+    it("should use custom autoDismissTimeout when provided", () => {
+      const toast = getContainerDeletedToast("my-container", { onDismiss: mockOnDismiss, autoDismissTimeout: 3000 })
+      expect(toast.autoDismissTimeout).toBe(3000)
+    })
+
+    it("should handle container names with special characters", () => {
+      const toast = getContainerDeletedToast("my-container/with.special_chars", defaultConfig)
+      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+      expect(screen.getByText(/my-container\/with\.special_chars/)).toBeInTheDocument()
+    })
   })
 
-  it("works without options", () => {
-    expect(() => getContainerCreatedToast("my-container")).not.toThrow()
+  describe("getContainerDeleteErrorToast", () => {
+    it("should return error toast with correct structure", () => {
+      const toast = getContainerDeleteErrorToast("my-container", "Not Found", defaultConfig)
+
+      expect(toast.variant).toBe("error")
+      expect(toast.autoDismiss).toBe(true)
+      expect(toast.autoDismissTimeout).toBe(5000)
+      expect(toast.onDismiss).toBe(mockOnDismiss)
+      expect(toast.children).toBeDefined()
+    })
+
+    it("should render correct error message content", () => {
+      const toast = getContainerDeleteErrorToast("my-container", "Not Found", defaultConfig)
+      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+
+      expect(screen.getByText("Failed to Delete Container")).toBeInTheDocument()
+      expect(screen.getByText(/my-container/)).toBeInTheDocument()
+      expect(screen.getByText(/Could not delete container/)).toBeInTheDocument()
+      expect(screen.getByText(/Not Found/)).toBeInTheDocument()
+    })
+
+    it("should handle different error messages", () => {
+      const toast = getContainerDeleteErrorToast(
+        "my-container",
+        "Container not found or already deleted",
+        defaultConfig
+      )
+      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+      expect(screen.getByText(/Container not found or already deleted/)).toBeInTheDocument()
+    })
+
+    it("should use custom autoDismissTimeout when provided", () => {
+      const toast = getContainerDeleteErrorToast("my-container", "error", {
+        onDismiss: mockOnDismiss,
+        autoDismissTimeout: 10000,
+      })
+      expect(toast.autoDismissTimeout).toBe(10000)
+    })
+
+    it("should handle long error messages", () => {
+      const longMessage = "Container deletion failed: The container still has active objects that could not be removed"
+      const toast = getContainerDeleteErrorToast("my-container", longMessage, defaultConfig)
+      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+      expect(screen.getByText(/Container deletion failed/)).toBeInTheDocument()
+    })
   })
 
-  it("interpolates container name with special characters", () => {
-    const toast = getContainerCreatedToast("my-container/with.special_chars")
-    expect(toast.text).toBe('Container "my-container/with.special_chars" was successfully created.')
-  })
-})
+  describe("Toast Configuration", () => {
+    it("all success toasts should have success variant and autoDismiss", () => {
+      const successToasts = [
+        getContainerCreatedToast("c", defaultConfig),
+        getContainerEmptiedToast("c", 3, defaultConfig),
+        getContainerDeletedToast("c", defaultConfig),
+      ]
+      successToasts.forEach((toast) => {
+        expect(toast.variant).toBe("success")
+        expect(toast.autoDismiss).toBe(true)
+        expect(toast.onDismiss).toBe(mockOnDismiss)
+      })
+    })
 
-describe("getContainerCreateErrorToast", () => {
-  it("returns correct title", () => {
-    const toast = getContainerCreateErrorToast("my-container", "Conflict")
-    expect(toast.title).toBe("Failed to Create Container")
-  })
+    it("all error toasts should have error variant and autoDismiss", () => {
+      const errorToasts = [
+        getContainerCreateErrorToast("c", "err", defaultConfig),
+        getContainerEmptyErrorToast("c", "err", defaultConfig),
+        getContainerDeleteErrorToast("c", "err", defaultConfig),
+      ]
+      errorToasts.forEach((toast) => {
+        expect(toast.variant).toBe("error")
+        expect(toast.autoDismiss).toBe(true)
+        expect(toast.onDismiss).toBe(mockOnDismiss)
+      })
+    })
 
-  it("returns correct text with container name and error message", () => {
-    const toast = getContainerCreateErrorToast("my-container", "Conflict")
-    expect(toast.text).toBe('Could not create container "my-container": Conflict')
-  })
+    it("should call onDismiss callback when invoked", () => {
+      const customOnDismiss = vi.fn()
+      const toast = getContainerCreatedToast("c", { onDismiss: customOnDismiss })
+      toast.onDismiss?.()
+      expect(customOnDismiss).toHaveBeenCalledTimes(1)
+    })
 
-  it("returns error variant", () => {
-    const toast = getContainerCreateErrorToast("my-container", "Conflict")
-    expect(toast.variant).toBe("error")
-  })
+    it("should accept custom autoDismissTimeout for all toast types", () => {
+      const customTimeout = 7500
+      const toasts = [
+        getContainerCreatedToast("c", { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
+        getContainerCreateErrorToast("c", "err", { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
+        getContainerEmptiedToast("c", 3, { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
+        getContainerEmptyErrorToast("c", "err", { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
+        getContainerDeletedToast("c", { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
+        getContainerDeleteErrorToast("c", "err", { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
+      ]
+      toasts.forEach((toast) => {
+        expect(toast.autoDismissTimeout).toBe(customTimeout)
+      })
+    })
 
-  it("returns autoDismiss false", () => {
-    const toast = getContainerCreateErrorToast("my-container", "Conflict")
-    expect(toast.autoDismiss).toBe(false)
-  })
-
-  it("applies onDismiss option when provided", () => {
-    const onDismiss = vi.fn()
-    const toast = getContainerCreateErrorToast("my-container", "Conflict", { onDismiss })
-    expect(toast.onDismiss).toBe(onDismiss)
-  })
-
-  it("works without options", () => {
-    expect(() => getContainerCreateErrorToast("my-container", "Conflict")).not.toThrow()
-  })
-
-  it("interpolates container name with special characters", () => {
-    const toast = getContainerCreateErrorToast("my-container/special", "Not Found")
-    expect(toast.text).toBe('Could not create container "my-container/special": Not Found')
-  })
-
-  it("includes full error message in text", () => {
-    const errorMessage = "Container name already exists in this account"
-    const toast = getContainerCreateErrorToast("my-container", errorMessage)
-    expect(toast.text).toContain(errorMessage)
-  })
-})
-
-describe("getContainerEmptiedToast", () => {
-  it("returns correct title", () => {
-    const toast = getContainerEmptiedToast("my-container", 5)
-    expect(toast.title).toBe("Container Emptied")
-  })
-
-  it("returns text with deleted count when objects were deleted", () => {
-    const toast = getContainerEmptiedToast("my-container", 5)
-    expect(toast.text).toBe('Container "my-container" was successfully emptied. 5 objects deleted.')
-  })
-
-  it("uses singular 'object' when deletedCount is 1", () => {
-    const toast = getContainerEmptiedToast("my-container", 1)
-    expect(toast.text).toBe('Container "my-container" was successfully emptied. 1 object deleted.')
-  })
-
-  it("returns already empty text when deletedCount is 0", () => {
-    const toast = getContainerEmptiedToast("my-container", 0)
-    expect(toast.text).toBe('Container "my-container" was already empty.')
+    it("all toasts should return ReactNode as children", () => {
+      const toasts = [
+        getContainerCreatedToast("c", defaultConfig),
+        getContainerCreateErrorToast("c", "err", defaultConfig),
+        getContainerEmptiedToast("c", 3, defaultConfig),
+        getContainerEmptyErrorToast("c", "err", defaultConfig),
+        getContainerDeletedToast("c", defaultConfig),
+        getContainerDeleteErrorToast("c", "err", defaultConfig),
+      ]
+      toasts.forEach((toast) => {
+        expect(toast.children).toBeTruthy()
+        expect(typeof toast.children).toBe("object")
+      })
+    })
   })
 
-  it("returns success variant", () => {
-    const toast = getContainerEmptiedToast("my-container", 3)
-    expect(toast.variant).toBe("success")
-  })
+  describe("Edge Cases", () => {
+    it("should handle empty container names", () => {
+      const toast = getContainerCreatedToast("", defaultConfig)
+      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+      expect(screen.getByText("Container Created")).toBeInTheDocument()
+    })
 
-  it("returns autoDismiss true", () => {
-    const toast = getContainerEmptiedToast("my-container", 3)
-    expect(toast.autoDismiss).toBe(true)
-  })
+    it("should handle long container names", () => {
+      const longName = "a".repeat(256)
+      const toast = getContainerDeletedToast(longName, defaultConfig)
+      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+      expect(screen.getByText(new RegExp(longName))).toBeInTheDocument()
+    })
 
-  it("returns autoDismissTimeout of 5000ms", () => {
-    const toast = getContainerEmptiedToast("my-container", 3)
-    expect(toast.autoDismissTimeout).toBe(5000)
-  })
-
-  it("applies onDismiss option when provided", () => {
-    const onDismiss = vi.fn()
-    const toast = getContainerEmptiedToast("my-container", 3, { onDismiss })
-    expect(toast.onDismiss).toBe(onDismiss)
-  })
-
-  it("works without options", () => {
-    expect(() => getContainerEmptiedToast("my-container", 3)).not.toThrow()
-  })
-})
-
-describe("getContainerEmptyErrorToast", () => {
-  it("returns correct title", () => {
-    const toast = getContainerEmptyErrorToast("my-container", "Internal Server Error")
-    expect(toast.title).toBe("Failed to Empty Container")
-  })
-
-  it("returns correct text with container name and error message", () => {
-    const toast = getContainerEmptyErrorToast("my-container", "Internal Server Error")
-    expect(toast.text).toBe('Could not empty container "my-container": Internal Server Error')
-  })
-
-  it("returns error variant", () => {
-    const toast = getContainerEmptyErrorToast("my-container", "Internal Server Error")
-    expect(toast.variant).toBe("error")
-  })
-
-  it("returns autoDismiss false", () => {
-    const toast = getContainerEmptyErrorToast("my-container", "Internal Server Error")
-    expect(toast.autoDismiss).toBe(false)
-  })
-
-  it("applies onDismiss option when provided", () => {
-    const onDismiss = vi.fn()
-    const toast = getContainerEmptyErrorToast("my-container", "Internal Server Error", { onDismiss })
-    expect(toast.onDismiss).toBe(onDismiss)
-  })
-
-  it("works without options", () => {
-    expect(() => getContainerEmptyErrorToast("my-container", "Internal Server Error")).not.toThrow()
-  })
-
-  it("includes full error message in text", () => {
-    const errorMessage = "Bulk delete operation failed with status 500"
-    const toast = getContainerEmptyErrorToast("my-container", errorMessage)
-    expect(toast.text).toContain(errorMessage)
-  })
-})
-
-describe("getContainerDeletedToast", () => {
-  it("returns correct title", () => {
-    const toast = getContainerDeletedToast("my-container")
-    expect(toast.title).toBe("Container Deleted")
-  })
-
-  it("returns correct text with container name", () => {
-    const toast = getContainerDeletedToast("my-container")
-    expect(toast.text).toBe('Container "my-container" was successfully deleted.')
-  })
-
-  it("returns success variant", () => {
-    const toast = getContainerDeletedToast("my-container")
-    expect(toast.variant).toBe("success")
-  })
-
-  it("returns autoDismiss true", () => {
-    const toast = getContainerDeletedToast("my-container")
-    expect(toast.autoDismiss).toBe(true)
-  })
-
-  it("returns autoDismissTimeout of 5000ms", () => {
-    const toast = getContainerDeletedToast("my-container")
-    expect(toast.autoDismissTimeout).toBe(5000)
-  })
-
-  it("applies onDismiss option when provided", () => {
-    const onDismiss = vi.fn()
-    const toast = getContainerDeletedToast("my-container", { onDismiss })
-    expect(toast.onDismiss).toBe(onDismiss)
-  })
-
-  it("works without options", () => {
-    expect(() => getContainerDeletedToast("my-container")).not.toThrow()
-  })
-
-  it("interpolates container name with special characters", () => {
-    const toast = getContainerDeletedToast("my-container/with.special_chars")
-    expect(toast.text).toBe('Container "my-container/with.special_chars" was successfully deleted.')
-  })
-})
-
-describe("getContainerDeleteErrorToast", () => {
-  it("returns correct title", () => {
-    const toast = getContainerDeleteErrorToast("my-container", "Not Found")
-    expect(toast.title).toBe("Failed to Delete Container")
-  })
-
-  it("returns correct text with container name and error message", () => {
-    const toast = getContainerDeleteErrorToast("my-container", "Not Found")
-    expect(toast.text).toBe('Could not delete container "my-container": Not Found')
-  })
-
-  it("returns error variant", () => {
-    const toast = getContainerDeleteErrorToast("my-container", "Not Found")
-    expect(toast.variant).toBe("error")
-  })
-
-  it("returns autoDismiss false", () => {
-    const toast = getContainerDeleteErrorToast("my-container", "Not Found")
-    expect(toast.autoDismiss).toBe(false)
-  })
-
-  it("applies onDismiss option when provided", () => {
-    const onDismiss = vi.fn()
-    const toast = getContainerDeleteErrorToast("my-container", "Not Found", { onDismiss })
-    expect(toast.onDismiss).toBe(onDismiss)
-  })
-
-  it("works without options", () => {
-    expect(() => getContainerDeleteErrorToast("my-container", "Not Found")).not.toThrow()
-  })
-
-  it("includes full error message in text", () => {
-    const errorMessage = "Container not found or already deleted"
-    const toast = getContainerDeleteErrorToast("my-container", errorMessage)
-    expect(toast.text).toContain(errorMessage)
+    it("should handle empty error messages", () => {
+      const toast = getContainerDeleteErrorToast("my-container", "", defaultConfig)
+      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+      expect(screen.getByText("Failed to Delete Container")).toBeInTheDocument()
+    })
   })
 })
