@@ -121,6 +121,10 @@ export const FloatingIpResponseSchema = z.object({
   floatingips: z.array(FloatingIpSchema),
 })
 
+export const FloatingIpByIdInputSchema = z.object({
+  floatingip_id: z.string(),
+})
+
 /**
  * Query parameters for listing floating IPs.
  * Supports filtering by various attributes.
@@ -192,3 +196,4 @@ export type PortForwarding = z.infer<typeof PortForwardingSchema>
 export type FloatingIp = z.infer<typeof FloatingIpSchema>
 export type FloatingIpResponse = z.infer<typeof FloatingIpResponseSchema>
 export type FloatingIpQueryParameters = z.infer<typeof FloatingIpQueryParametersSchema>
+export type GetFloatingIpByIdInput = z.infer<typeof FloatingIpByIdInputSchema>
