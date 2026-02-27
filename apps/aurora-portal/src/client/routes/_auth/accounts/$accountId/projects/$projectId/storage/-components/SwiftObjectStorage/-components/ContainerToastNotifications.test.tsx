@@ -1,5 +1,10 @@
 import { describe, it, expect, vi } from "vitest"
-import { getContainerCreatedToast, getContainerCreateErrorToast } from "./ContainerToastNotifications"
+import {
+  getContainerCreatedToast,
+  getContainerCreateErrorToast,
+  getContainerEmptiedToast,
+  getContainerEmptyErrorToast,
+} from "./ContainerToastNotifications"
 
 describe("getContainerCreatedToast", () => {
   it("returns correct title", () => {
@@ -82,6 +87,91 @@ describe("getContainerCreateErrorToast", () => {
   it("includes full error message in text", () => {
     const errorMessage = "Container name already exists in this account"
     const toast = getContainerCreateErrorToast("my-container", errorMessage)
+    expect(toast.text).toContain(errorMessage)
+  })
+})
+
+describe("getContainerEmptiedToast", () => {
+  it("returns correct title", () => {
+    const toast = getContainerEmptiedToast("my-container", 5)
+    expect(toast.title).toBe("Container Emptied")
+  })
+
+  it("returns text with deleted count when objects were deleted", () => {
+    const toast = getContainerEmptiedToast("my-container", 5)
+    expect(toast.text).toBe('Container "my-container" was successfully emptied. 5 objects deleted.')
+  })
+
+  it("uses singular 'object' when deletedCount is 1", () => {
+    const toast = getContainerEmptiedToast("my-container", 1)
+    expect(toast.text).toBe('Container "my-container" was successfully emptied. 1 object deleted.')
+  })
+
+  it("returns already empty text when deletedCount is 0", () => {
+    const toast = getContainerEmptiedToast("my-container", 0)
+    expect(toast.text).toBe('Container "my-container" was already empty.')
+  })
+
+  it("returns success variant", () => {
+    const toast = getContainerEmptiedToast("my-container", 3)
+    expect(toast.variant).toBe("success")
+  })
+
+  it("returns autoDismiss true", () => {
+    const toast = getContainerEmptiedToast("my-container", 3)
+    expect(toast.autoDismiss).toBe(true)
+  })
+
+  it("returns autoDismissTimeout of 5000ms", () => {
+    const toast = getContainerEmptiedToast("my-container", 3)
+    expect(toast.autoDismissTimeout).toBe(5000)
+  })
+
+  it("applies onDismiss option when provided", () => {
+    const onDismiss = vi.fn()
+    const toast = getContainerEmptiedToast("my-container", 3, { onDismiss })
+    expect(toast.onDismiss).toBe(onDismiss)
+  })
+
+  it("works without options", () => {
+    expect(() => getContainerEmptiedToast("my-container", 3)).not.toThrow()
+  })
+})
+
+describe("getContainerEmptyErrorToast", () => {
+  it("returns correct title", () => {
+    const toast = getContainerEmptyErrorToast("my-container", "Internal Server Error")
+    expect(toast.title).toBe("Failed to Empty Container")
+  })
+
+  it("returns correct text with container name and error message", () => {
+    const toast = getContainerEmptyErrorToast("my-container", "Internal Server Error")
+    expect(toast.text).toBe('Could not empty container "my-container": Internal Server Error')
+  })
+
+  it("returns error variant", () => {
+    const toast = getContainerEmptyErrorToast("my-container", "Internal Server Error")
+    expect(toast.variant).toBe("error")
+  })
+
+  it("returns autoDismiss false", () => {
+    const toast = getContainerEmptyErrorToast("my-container", "Internal Server Error")
+    expect(toast.autoDismiss).toBe(false)
+  })
+
+  it("applies onDismiss option when provided", () => {
+    const onDismiss = vi.fn()
+    const toast = getContainerEmptyErrorToast("my-container", "Internal Server Error", { onDismiss })
+    expect(toast.onDismiss).toBe(onDismiss)
+  })
+
+  it("works without options", () => {
+    expect(() => getContainerEmptyErrorToast("my-container", "Internal Server Error")).not.toThrow()
+  })
+
+  it("includes full error message in text", () => {
+    const errorMessage = "Bulk delete operation failed with status 500"
+    const toast = getContainerEmptyErrorToast("my-container", errorMessage)
     expect(toast.text).toContain(errorMessage)
   })
 })

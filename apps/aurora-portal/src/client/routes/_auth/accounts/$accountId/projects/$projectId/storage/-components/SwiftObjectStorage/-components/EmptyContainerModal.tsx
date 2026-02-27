@@ -135,7 +135,10 @@ export const EmptyContainerModal = ({ isOpen, container, onClose, onSuccess, onE
       cancelButtonLabel={showEmptyInfo ? undefined : t`Cancel`}
       size="small"
       disableConfirmButton={
-        isLoadingObjects || emptyContainerMutation.isPending || (!showEmptyInfo && !confirmName.trim())
+        isLoadingObjects ||
+        emptyContainerMutation.isPending ||
+        (!showEmptyInfo && !confirmName.trim()) ||
+        (!showEmptyInfo && confirmName !== container.name)
       }
     >
       {isLoadingObjects ? (
