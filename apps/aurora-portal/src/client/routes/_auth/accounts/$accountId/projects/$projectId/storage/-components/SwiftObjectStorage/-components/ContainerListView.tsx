@@ -5,17 +5,23 @@ import {
   DataGridHeadCell,
   DataGridRow,
   DataGridCell,
+  Toast,
+  ToastProps,
   PopupMenu,
   PopupMenuItem,
   PopupMenuOptions,
-  Toast,
-  ToastProps,
 } from "@cloudoperators/juno-ui-components"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { ContainerSummary } from "@/server/Storage/types/swift"
 import { formatBytesBinary } from "@/client/utils/formatBytes"
 import { CreateContainerModal } from "./CreateContainerModal"
-import { getContainerCreatedToast, getContainerCreateErrorToast } from "./ContainerToastNotifications"
+import { EmptyContainerModal } from "./EmptyContainerModal"
+import {
+  getContainerCreatedToast,
+  getContainerCreateErrorToast,
+  getContainerEmptiedToast,
+  getContainerEmptyErrorToast,
+} from "./ContainerToastNotifications"
 
 interface ContainerListViewProps {
   containers: ContainerSummary[]
@@ -34,6 +40,7 @@ export const ContainerListView = ({
   const parentRef = useRef<HTMLDivElement>(null)
   const [scrollbarWidth, setScrollbarWidth] = useState(0)
   const [toastData, setToastData] = useState<ToastProps | null>(null)
+  const [emptyModalContainer, setEmptyModalContainer] = useState<ContainerSummary | null>(null)
 
   const handleToastDismiss = () => setToastData(null)
 
@@ -43,6 +50,14 @@ export const ContainerListView = ({
 
   const handleCreateError = (containerName: string, errorMessage: string) => {
     setToastData(getContainerCreateErrorToast(containerName, errorMessage, { onDismiss: handleToastDismiss }))
+  }
+
+  const handleEmptySuccess = (containerName: string, deletedCount: number) => {
+    setToastData(getContainerEmptiedToast(containerName, deletedCount, { onDismiss: handleToastDismiss }))
+  }
+
+  const handleEmptyError = (containerName: string, errorMessage: string) => {
+    setToastData(getContainerEmptyErrorToast(containerName, errorMessage, { onDismiss: handleToastDismiss }))
   }
 
   // Calculate scrollbar width
@@ -91,7 +106,7 @@ export const ContainerListView = ({
     )
   }
 
-  // Define column template: 4 data columns + fixed 60px actions column
+  // Define column template — 5 columns, last one for the actions menu
   const gridColumnTemplate = "minmax(200px, 2fr) minmax(100px, 1fr) minmax(180px, 2fr) minmax(100px, 1fr) 60px"
 
   const allContainersCount = containers.length
@@ -171,7 +186,11 @@ export const ContainerListView = ({
                   <DataGridCell>
                     <PopupMenu>
                       <PopupMenuOptions>
-                        <PopupMenuItem label={t`Empty`} onClick={() => {}} />
+                        <PopupMenuItem
+                          label={t`Empty`}
+                          onClick={() => setEmptyModalContainer(container)}
+                          data-testid={`empty-action-${container.name}`}
+                        />
                         <PopupMenuItem label={t`Delete`} onClick={() => {}} />
                       </PopupMenuOptions>
                     </PopupMenu>
@@ -196,6 +215,14 @@ export const ContainerListView = ({
         onSuccess={handleCreateSuccess}
         onError={handleCreateError}
         maxContainerNameLength={maxContainerNameLength}
+      />
+
+      <EmptyContainerModal
+        isOpen={emptyModalContainer !== null}
+        container={emptyModalContainer}
+        onClose={() => setEmptyModalContainer(null)}
+        onSuccess={handleEmptySuccess}
+        onError={handleEmptyError}
       />
 
       {toastData && (
