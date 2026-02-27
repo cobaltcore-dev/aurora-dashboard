@@ -6,6 +6,17 @@ import { I18nProvider } from "@lingui/react"
 import { i18n } from "@lingui/core"
 import { ReactNode } from "react"
 
+vi.mock("@tanstack/react-router", async () => {
+  const actual = await vi.importActual("@tanstack/react-router")
+  return {
+    ...actual,
+    useRouteContext: vi.fn(() => ({
+      pageTitle: "Test Page Title",
+      pageTitleRef: { current: "Test Page Title" },
+    })),
+  }
+})
+
 const TestingProvider = ({ children }: { children: ReactNode }) => (
   <PortalProvider>
     <I18nProvider i18n={i18n}>{children}</I18nProvider>
@@ -14,7 +25,6 @@ const TestingProvider = ({ children }: { children: ReactNode }) => (
 
 describe("ProjectInfoBox", () => {
   const defaultProps = {
-    pageTitle: "Test Project",
     projectInfo: {
       id: "project-123",
       name: "My Project",
@@ -41,18 +51,6 @@ describe("ProjectInfoBox", () => {
   })
 
   describe("Rendering", () => {
-    it("renders page title", async () => {
-      await act(async () => {
-        render(
-          <TestingProvider>
-            <ProjectInfoBox {...defaultProps} />
-          </TestingProvider>
-        )
-      })
-
-      expect(screen.getByText("Test Project")).toBeInTheDocument()
-    })
-
     it("renders project ID", async () => {
       await act(async () => {
         render(
