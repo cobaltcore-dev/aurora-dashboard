@@ -5,7 +5,7 @@ import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import { i18n } from "@lingui/core"
 import { I18nProvider } from "@lingui/react"
 import { createRoute, createRootRoute, RouterProvider, createMemoryHistory, createRouter } from "@tanstack/react-router"
-import { SecurityGroupTableRow } from "./SecurityGroupTableRow"
+import { SecurityGroupTableRow, SecurityGroupPermissions } from "./SecurityGroupTableRow"
 import type { SecurityGroup } from "@/server/Network/types/securityGroup"
 
 const createTestRouter = (Component: ReactElement) => {
@@ -60,6 +60,13 @@ describe("SecurityGroupTableRow", () => {
     security_group_rules: [],
   }
 
+  const defaultPermissions: SecurityGroupPermissions = {
+    canCreate: true,
+    canUpdate: true,
+    canDelete: false,
+    canManageAccess: true,
+  }
+
   const mockOnEdit = vi.fn()
   const mockOnAccessControl = vi.fn()
   const mockOnViewDetails = vi.fn()
@@ -74,6 +81,7 @@ describe("SecurityGroupTableRow", () => {
       const router = createTestRouter(
         <SecurityGroupTableRow
           securityGroup={mockSecurityGroup}
+          permissions={defaultPermissions}
           onEdit={mockOnEdit}
           onAccessControl={mockOnAccessControl}
         />
@@ -93,6 +101,7 @@ describe("SecurityGroupTableRow", () => {
       const router = createTestRouter(
         <SecurityGroupTableRow
           securityGroup={sgWithoutDescription}
+          permissions={defaultPermissions}
           onEdit={mockOnEdit}
           onAccessControl={mockOnAccessControl}
         />
@@ -107,7 +116,7 @@ describe("SecurityGroupTableRow", () => {
     it("displays owner project when shared", async () => {
       const sharedSg = { ...mockSecurityGroup, shared: true }
       const router = createTestRouter(
-        <SecurityGroupTableRow securityGroup={sharedSg} onEdit={mockOnEdit} onAccessControl={mockOnAccessControl} />
+        <SecurityGroupTableRow securityGroup={sharedSg} permissions={defaultPermissions} onEdit={mockOnEdit} onAccessControl={mockOnAccessControl} />
       )
       render(<RouterProvider router={router} />)
 
@@ -125,6 +134,7 @@ describe("SecurityGroupTableRow", () => {
       const router = createTestRouter(
         <SecurityGroupTableRow
           securityGroup={mockSecurityGroup}
+          permissions={defaultPermissions}
           onEdit={mockOnEdit}
           onAccessControl={mockOnAccessControl}
         />
@@ -153,6 +163,7 @@ describe("SecurityGroupTableRow", () => {
       const router = createTestRouter(
         <SecurityGroupTableRow
           securityGroup={mockSecurityGroup}
+          permissions={defaultPermissions}
           onEdit={mockOnEdit}
           onAccessControl={mockOnAccessControl}
         />
@@ -181,6 +192,7 @@ describe("SecurityGroupTableRow", () => {
       const router = createTestRouter(
         <SecurityGroupTableRow
           securityGroup={mockSecurityGroup}
+          permissions={defaultPermissions}
           onEdit={mockOnEdit}
           onAccessControl={mockOnAccessControl}
           onViewDetails={mockOnViewDetails}
@@ -210,6 +222,7 @@ describe("SecurityGroupTableRow", () => {
       const router = createTestRouter(
         <SecurityGroupTableRow
           securityGroup={mockSecurityGroup}
+          permissions={defaultPermissions}
           onEdit={mockOnEdit}
           onAccessControl={mockOnAccessControl}
         />

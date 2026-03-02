@@ -7,6 +7,7 @@ import { I18nProvider } from "@lingui/react"
 import { createRoute, createRootRoute, RouterProvider, createMemoryHistory, createRouter } from "@tanstack/react-router"
 import { SecurityGroupListContainer } from "./SecurityGroupListContainer"
 import type { SecurityGroup } from "@/server/Network/types/securityGroup"
+import { SecurityGroupPermissions } from "./SecurityGroupTableRow"
 
 // Mock the modals
 vi.mock("./-modals/EditSecurityGroupModal", () => ({
@@ -96,6 +97,13 @@ const mockSecurityGroups: SecurityGroup[] = [
   },
 ]
 
+const defaultPermissions: SecurityGroupPermissions = {
+  canCreate: true,
+  canUpdate: true,
+  canDelete: false,
+  canManageAccess: true,
+}
+
 const createTestRouter = (Component: ReactElement) => {
   const memoryHistory = createMemoryHistory({
     initialEntries: ["/accounts/test-account/projects/test-project/network/"],
@@ -158,7 +166,7 @@ describe("SecurityGroupListContainer", () => {
   describe("State rendering", () => {
     it("renders loading spinner", async () => {
       const router = createTestRouter(
-        <SecurityGroupListContainer securityGroups={[]} isLoading={true} isError={false} error={null} />
+        <SecurityGroupListContainer securityGroups={[]} isLoading={true} isError={false} error={null} permissions={defaultPermissions} />
       )
       render(<RouterProvider router={router} />)
 
@@ -176,6 +184,7 @@ describe("SecurityGroupListContainer", () => {
           isLoading={false}
           isError={true}
           error={{ message: "Network error occurred" }}
+          permissions={defaultPermissions}
         />
       )
       render(<RouterProvider router={router} />)
@@ -187,7 +196,7 @@ describe("SecurityGroupListContainer", () => {
 
     it("renders default error message when error is null", async () => {
       const router = createTestRouter(
-        <SecurityGroupListContainer securityGroups={[]} isLoading={false} isError={true} error={null} />
+        <SecurityGroupListContainer securityGroups={[]} isLoading={false} isError={true} error={null} permissions={defaultPermissions} />
       )
       render(<RouterProvider router={router} />)
 
@@ -198,7 +207,7 @@ describe("SecurityGroupListContainer", () => {
 
     it("renders empty state", async () => {
       const router = createTestRouter(
-        <SecurityGroupListContainer securityGroups={[]} isLoading={false} isError={false} error={null} />
+        <SecurityGroupListContainer securityGroups={[]} isLoading={false} isError={false} error={null} permissions={defaultPermissions} />
       )
       render(<RouterProvider router={router} />)
 
@@ -218,6 +227,7 @@ describe("SecurityGroupListContainer", () => {
           isLoading={false}
           isError={false}
           error={null}
+          permissions={defaultPermissions}
         />
       )
       render(<RouterProvider router={router} />)
@@ -237,6 +247,7 @@ describe("SecurityGroupListContainer", () => {
           isLoading={false}
           isError={false}
           error={null}
+          permissions={defaultPermissions}
         />
       )
       render(<RouterProvider router={router} />)
@@ -261,6 +272,7 @@ describe("SecurityGroupListContainer", () => {
           isLoading={false}
           isError={false}
           error={null}
+          permissions={defaultPermissions}
         />
       )
       render(<RouterProvider router={router} />)
@@ -293,6 +305,7 @@ describe("SecurityGroupListContainer", () => {
           isLoading={false}
           isError={false}
           error={null}
+          permissions={defaultPermissions}
         />
       )
       render(<RouterProvider router={router} />)
@@ -334,6 +347,7 @@ describe("SecurityGroupListContainer", () => {
           isLoading={false}
           isError={false}
           error={null}
+          permissions={defaultPermissions}
         />
       )
       render(<RouterProvider router={router} />)
@@ -366,6 +380,7 @@ describe("SecurityGroupListContainer", () => {
           isLoading={false}
           isError={false}
           error={null}
+          permissions={defaultPermissions}
         />
       )
       render(<RouterProvider router={router} />)

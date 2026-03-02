@@ -42,6 +42,14 @@ export const SecurityGroups = () => {
 
   const utils = trpcReact.useUtils()
 
+  // TODO: replace with trpc.network.canUser when security group permissions are available
+  const permissions = {
+    canCreate: true,
+    canUpdate: true,
+    canDelete: false,
+    canManageAccess: true,
+  }
+
   const {
     data: securityGroups = [],
     isLoading,
@@ -87,9 +95,11 @@ export const SecurityGroups = () => {
         onFilter={handleFilterChange}
         onSearch={handleSearchChange}
         actions={
-          <Button onClick={() => setCreateModalOpen(true)} variant="primary">
-            <Trans>Create Security Group</Trans>
-          </Button>
+          permissions.canCreate && (
+            <Button onClick={() => setCreateModalOpen(true)} variant="primary">
+              <Trans>Create Security Group</Trans>
+            </Button>
+          )
         }
       />
 
@@ -98,6 +108,7 @@ export const SecurityGroups = () => {
         isLoading={isLoading}
         isError={isError}
         error={error}
+        permissions={permissions}
         onCreateClick={() => setCreateModalOpen(true)}
       />
 
