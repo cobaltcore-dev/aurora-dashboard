@@ -113,12 +113,16 @@ export const FloatingIpSchema = z.object({
 })
 
 /**
- * Query parameters to show details for a floating IP.
- * Use the fields query parameter to control which fields are returned in the response body.
- * See https://docs.openstack.org/api-ref/network/v2/index.html#show-floating-ip-details
+ * Input schema for floating IP resource identification.
+ *
+ * Used by:
+ * - GET /v2.0/floatingips/{floatingip_id} - Show floating IP details
+ * - DELETE /v2.0/floatingips/{floatingip_id} - Delete floating IP
+ * - PUT /v2.0/floatingips/{floatingip_id} - Update floating IP (future)
+ *
+ * See https://docs.openstack.org/api-ref/network/v2/index.html#floating-ips
  */
-export const GetFloatingIpByIdInputSchema = z.object({
-  // FloatingIpByIdInputSchema? (as it's used for DELETE and later will be using this for PUT)
+export const FloatingIpIdInputSchema = z.object({
   floatingip_id: z.string(),
 })
 
@@ -211,4 +215,4 @@ export type FloatingIp = z.infer<typeof FloatingIpSchema>
 export type FloatingIpResponse = z.infer<typeof FloatingIpResponseSchema>
 export type FloatingIpQueryParameters = z.infer<typeof FloatingIpQueryParametersSchema>
 export type FloatingIpDetailResponse = z.infer<typeof FloatingIpDetailResponseSchema>
-export type GetFloatingIpByIdInput = z.infer<typeof GetFloatingIpByIdInputSchema>
+export type FloatingIpIdInput = z.infer<typeof FloatingIpIdInputSchema>

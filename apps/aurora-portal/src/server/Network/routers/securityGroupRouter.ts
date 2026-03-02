@@ -10,6 +10,7 @@ import {
 } from "../types/securityGroup"
 import { withErrorHandling } from "../../helpers/errorHandling"
 import { filterBySearchParams } from "../../helpers/filterBySearchParams"
+import { validateNetworkService } from "../helpers/floatingIpHelpers"
 
 const LIST_SECURITY_GROUPS_QUERY_KEY_MAP: Record<string, string> = {
   tags_any: "tags-any",
@@ -32,12 +33,7 @@ export const securityGroupRouter = {
       const openstackSession = ctx.openstack
       const network = openstackSession?.service("network")
 
-      if (!network) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Network service is not available",
-        })
-      }
+      validateNetworkService(network)
 
       return withErrorHandling(async () => {
         // Extract searchTerm from input before building query params
@@ -76,12 +72,7 @@ export const securityGroupRouter = {
         const openstackSession = ctx.openstack
         const network = openstackSession?.service("network")
 
-        if (!network) {
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: "Network service is not available",
-          })
-        }
+        validateNetworkService(network)
 
         const response = await network.get(`v2.0/security-groups/${securityGroupId}`)
         const data = await response.json()

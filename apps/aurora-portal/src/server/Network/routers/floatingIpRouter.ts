@@ -7,9 +7,10 @@ import {
   FloatingIpQueryParametersSchema,
   FloatingIp,
   FloatingIpResponseSchema,
-  GetFloatingIpByIdInputSchema,
+  FloatingIpIdInputSchema,
   FloatingIpDetailResponseSchema,
 } from "../types/floatingIp"
+import { validateNetworkService } from "../helpers/floatingIpHelpers"
 
 /**
  * tRPC router for OpenStack Neutron Floating IPs.
@@ -18,6 +19,7 @@ import {
  * - list: GET /v2.0/floatingips List floating IPs with pagination, sorting and filtering support.
  *   Includes BFF-side search filtering by specific fields.
  * - getById: GET /v2.0/floatingips/{floatingip_id} Show floating IP details.
+ * - delete: DELETE /v2.0/floatingips/{floatingip_id} Delete floating IP.
  */
 export const floatingIpRouter = {
   list: protectedProcedure
@@ -27,9 +29,7 @@ export const floatingIpRouter = {
         const openstackSession = ctx.openstack
         const network = openstackSession?.service("network")
 
-        if (!network) {
-          throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Network service is not available" })
-        }
+        validateNetworkService(network)
 
         // Extract searchTerm from input before building query params
         const { searchTerm, ...openstackParams } = input
@@ -53,16 +53,13 @@ export const floatingIpRouter = {
       }, "list floating IPs")
     }),
   getById: protectedProcedure
-    .input(GetFloatingIpByIdInputSchema)
+    .input(FloatingIpIdInputSchema)
     .query(async ({ input, ctx }): Promise<FloatingIp | null> => {
       return withErrorHandling(async () => {
         const { floatingip_id } = input
         const openstackSession = ctx.openstack
         const network = openstackSession?.service("network")
-
-        if (!network) {
-          throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Network service is not available" })
-        }
+        validateNetworkService(network)
 
         const response = await network.get(`v2.0/floatingips/${floatingip_id}`)
         const data = await response.json()
@@ -79,25 +76,16 @@ export const floatingIpRouter = {
         return parsed.data.floatingip
       }, "show floating IP details")
     }),
-  // create the same type for delete/get/put
-  delete: protectedProcedure.input(GetFloatingIpByIdInputSchema).mutation(async ({ input, ctx }): Promise<boolean> => {
+  delete: protectedProcedure.input(FloatingIpIdInputSchema).mutation(async ({ input, ctx }): Promise<boolean> => {
     return withErrorHandling(async () => {
       const { floatingip_id } = input
       const openstackSession = ctx.openstack
       const network = openstackSession?.service("network")
-
-      // Refactor to common module
-      if (!network) {
-        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Network service is not available" })
-      }
-      // validateGlanceService(glance)
+      validateNetworkService(network)
 
       const response = await network.del(`v2.0/floatingips/${floatingip_id}`)
-
       if (!response?.ok) {
-        // same refactor
-        // throw ImageErrorHandlers.delete(response, floatingip_id)
-        console.log("123")
+        // TODO: Implement error handling using throw FloatingIpErrorHandlers.delete(response, floatingip_id)
       }
 
       return true
