@@ -7,6 +7,7 @@ import {
   ContentHeading,
   Stack,
   Spinner,
+  Button,
 } from "@cloudoperators/juno-ui-components"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { useNavigate, useParams } from "@tanstack/react-router"
@@ -21,6 +22,7 @@ interface SecurityGroupListContainerProps {
   isError: boolean
   error: { message?: string } | null
   permissions: SecurityGroupPermissions
+  onCreateClick?: () => void
 }
 
 export const SecurityGroupListContainer = ({
@@ -29,6 +31,7 @@ export const SecurityGroupListContainer = ({
   isError,
   error,
   permissions,
+  onCreateClick,
 }: SecurityGroupListContainerProps) => {
   const { t } = useLingui()
   const navigate = useNavigate()
@@ -98,6 +101,11 @@ export const SecurityGroupListContainer = ({
                 instances.
               </Trans>
             </p>
+            {permissions.canCreate && onCreateClick && (
+              <Button onClick={onCreateClick} variant="primary" className="mt-4">
+                <Trans>Create Security Group</Trans>
+              </Button>
+            )}
           </DataGridCell>
         </DataGridRow>
       </DataGrid>

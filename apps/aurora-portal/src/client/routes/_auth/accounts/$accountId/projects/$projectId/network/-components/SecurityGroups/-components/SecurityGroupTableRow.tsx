@@ -9,6 +9,7 @@ import { useLingui, Trans } from "@lingui/react/macro"
 import type { SecurityGroup } from "@/server/Network/types/securityGroup"
 
 export interface SecurityGroupPermissions {
+  canCreate: boolean
   canUpdate: boolean
   canDelete: boolean
   canManageAccess: boolean

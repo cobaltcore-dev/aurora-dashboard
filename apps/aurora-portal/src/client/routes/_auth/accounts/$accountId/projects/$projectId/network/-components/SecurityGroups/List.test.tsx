@@ -34,8 +34,36 @@ vi.mock("@/client/trpcClient", () => ({
       list: {
         useQuery: vi.fn(),
       },
+      createSecurityGroup: {
+        useMutation: vi.fn(() => ({
+          mutateAsync: vi.fn(),
+          isPending: false,
+        })),
+      },
     },
+    useUtils: vi.fn(() => ({
+      network: {
+        list: {
+          invalidate: vi.fn(),
+        },
+      },
+    })),
   },
+}))
+
+// Mock TanStack Router hooks
+vi.mock("@tanstack/react-router", async () => {
+  const actual = await vi.importActual<typeof import("@tanstack/react-router")>("@tanstack/react-router")
+  return {
+    ...actual,
+    useNavigate: () => vi.fn(),
+    useParams: () => ({ accountId: "test-account", projectId: "test-project" }),
+  }
+})
+
+// Mock CreateSecurityGroupModal
+vi.mock("./-components/-modals/CreateSecurityGroupModal", () => ({
+  CreateSecurityGroupModal: () => <div data-testid="create-modal">Create Modal</div>,
 }))
 
 // Mock SecurityGroupListContainer
@@ -51,7 +79,7 @@ vi.mock("./-components/SecurityGroupListContainer", () => ({
     isLoading: boolean
     isError: boolean
     error: { message?: string } | null
-    permissions: { canUpdate: boolean; canDelete: boolean; canManageAccess: boolean }
+    permissions: { canCreate: boolean; canUpdate: boolean; canDelete: boolean; canManageAccess: boolean }
   }) => (
     <div data-testid="security-group-list-container">
       {isLoading && <div>Loading...</div>}
@@ -146,6 +174,7 @@ describe("SecurityGroups", () => {
       const permissionsElement = screen.getByTestId("permissions")
       expect(permissionsElement.textContent).toBe(
         JSON.stringify({
+          canCreate: true,
           canUpdate: true,
           canDelete: false,
           canManageAccess: true,

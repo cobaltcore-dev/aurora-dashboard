@@ -76,9 +76,16 @@ export const getSecurityGroupByIdInputSchema = z.object({
   securityGroupId: z.string(),
 })
 
+export const createSecurityGroupInputSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  description: z.string().optional(),
+  stateful: z.boolean().optional(),
+})
+
 export type SecurityGroupRule = z.infer<typeof securityGroupRuleSchema>
 export type SecurityGroup = z.infer<typeof securityGroupSchema>
 export type SecurityGroupsResponse = z.infer<typeof securityGroupsResponseSchema>
 export type SecurityGroupResponse = z.infer<typeof securityGroupResponseSchema>
 export type ListSecurityGroupsInput = z.infer<typeof listSecurityGroupsInputSchema>
 export type GetSecurityGroupByIdInput = z.infer<typeof getSecurityGroupByIdInputSchema>
+export type CreateSecurityGroupInput = z.infer<typeof createSecurityGroupInputSchema>

@@ -61,8 +61,9 @@ describe("SecurityGroupTableRow", () => {
   }
 
   const defaultPermissions: SecurityGroupPermissions = {
+    canCreate: true,
     canUpdate: true,
-    canDelete: true,
+    canDelete: false,
     canManageAccess: true,
   }
 
@@ -339,6 +340,7 @@ describe("SecurityGroupTableRow", () => {
     it("shows only Show Details when all permissions are false", async () => {
       const user = userEvent.setup()
       const permissions: SecurityGroupPermissions = {
+        canCreate: false,
         canUpdate: false,
         canDelete: false,
         canManageAccess: false,

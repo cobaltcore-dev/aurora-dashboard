@@ -7,9 +7,12 @@ import {
   SecurityGroup,
   getSecurityGroupByIdInputSchema,
   securityGroupResponseSchema,
+  createSecurityGroupInputSchema,
 } from "../types/securityGroup"
 import { withErrorHandling } from "../../helpers/errorHandling"
 import { filterBySearchParams } from "../../helpers/filterBySearchParams"
+
+const SECURITY_GROUPS_BASE_URL = "v2.0/security-groups"
 
 const LIST_SECURITY_GROUPS_QUERY_KEY_MAP: Record<string, string> = {
   tags_any: "tags-any",
@@ -24,6 +27,7 @@ const LIST_SECURITY_GROUPS_QUERY_KEY_MAP: Record<string, string> = {
  * - list: GET /v2.0/security-groups with pagination, sorting and basic filtering support.
  * - getById: GET /v2.0/security-groups/{security_group_id} to fetch a single security group with rules.
  *   Includes BFF-side search filtering by name, description, or id.
+ * - createSecurityGroup: POST /v2.0/security-groups to create a new security group.
  */
 export const securityGroupRouter = {
   list: protectedProcedure
@@ -48,7 +52,7 @@ export const securityGroupRouter = {
         })
 
         const queryString = queryParams.toString()
-        const url = queryString ? `v2.0/security-groups?${queryString}` : "v2.0/security-groups"
+        const url = queryString ? `${SECURITY_GROUPS_BASE_URL}?${queryString}` : SECURITY_GROUPS_BASE_URL
 
         const response = await network.get(url)
         const data = await response.json()
@@ -83,7 +87,7 @@ export const securityGroupRouter = {
           })
         }
 
-        const response = await network.get(`v2.0/security-groups/${securityGroupId}`)
+        const response = await network.get(`${SECURITY_GROUPS_BASE_URL}/${securityGroupId}`)
         const data = await response.json()
         const parsed = securityGroupResponseSchema.safeParse(data)
 
@@ -97,5 +101,42 @@ export const securityGroupRouter = {
 
         return parsed.data.security_group
       }, "fetch security group by ID")
+    }),
+
+  createSecurityGroup: protectedProcedure
+    .input(createSecurityGroupInputSchema)
+    .mutation(async ({ input, ctx }): Promise<SecurityGroup> => {
+      return withErrorHandling(async () => {
+        const openstackSession = ctx.openstack
+        const network = openstackSession?.service("network")
+
+        if (!network) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Network service is not available",
+          })
+        }
+        const requestBody = {
+          security_group: {
+            name: input.name,
+            ...(input.description !== undefined && { description: input.description }),
+            ...(input.stateful !== undefined && { stateful: input.stateful }),
+          },
+        }
+        const response = await network.post(SECURITY_GROUPS_BASE_URL, requestBody)
+        const data = await response.json()
+
+        const parsed = securityGroupResponseSchema.safeParse(data)
+
+        if (!parsed.success) {
+          console.error("Zod Parsing Error in securityGroupRouter.create:", parsed.error.format())
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Failed to parse security group response from OpenStack",
+          })
+        }
+
+        return parsed.data.security_group
+      }, "create security group")
     }),
 }
