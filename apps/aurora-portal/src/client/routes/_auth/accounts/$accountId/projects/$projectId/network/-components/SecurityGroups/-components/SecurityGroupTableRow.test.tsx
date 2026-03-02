@@ -116,7 +116,12 @@ describe("SecurityGroupTableRow", () => {
     it("displays owner project when shared", async () => {
       const sharedSg = { ...mockSecurityGroup, shared: true }
       const router = createTestRouter(
-        <SecurityGroupTableRow securityGroup={sharedSg} permissions={defaultPermissions} onEdit={mockOnEdit} onAccessControl={mockOnAccessControl} />
+        <SecurityGroupTableRow
+          securityGroup={sharedSg}
+          permissions={defaultPermissions}
+          onEdit={mockOnEdit}
+          onAccessControl={mockOnAccessControl}
+        />
       )
       render(<RouterProvider router={router} />)
 
@@ -244,6 +249,127 @@ describe("SecurityGroupTableRow", () => {
       await user.click(screen.getByText("Show Details"))
 
       expect(mockOnViewDetails).not.toHaveBeenCalled()
+    })
+  })
+
+  describe("Permissions", () => {
+    it("hides Edit when canUpdate is false", async () => {
+      const user = userEvent.setup()
+      const permissions = { ...defaultPermissions, canUpdate: false }
+      const router = createTestRouter(
+        <SecurityGroupTableRow
+          securityGroup={mockSecurityGroup}
+          permissions={permissions}
+          onEdit={mockOnEdit}
+          onAccessControl={mockOnAccessControl}
+        />
+      )
+      render(<RouterProvider router={router} />)
+
+      await waitFor(() => {
+        expect(screen.getByTestId("security-group-row-sg-123")).toBeInTheDocument()
+      })
+
+      const row = screen.getByTestId("security-group-row-sg-123")
+      const popupButton = row.querySelector("button")
+      await user.click(popupButton!)
+
+      await waitFor(() => {
+        expect(screen.getByText("Show Details")).toBeInTheDocument()
+      })
+
+      expect(screen.queryByText("Edit")).not.toBeInTheDocument()
+    })
+
+    it("hides Access Control when canManageAccess is false", async () => {
+      const user = userEvent.setup()
+      const permissions = { ...defaultPermissions, canManageAccess: false }
+      const router = createTestRouter(
+        <SecurityGroupTableRow
+          securityGroup={mockSecurityGroup}
+          permissions={permissions}
+          onEdit={mockOnEdit}
+          onAccessControl={mockOnAccessControl}
+        />
+      )
+      render(<RouterProvider router={router} />)
+
+      await waitFor(() => {
+        expect(screen.getByTestId("security-group-row-sg-123")).toBeInTheDocument()
+      })
+
+      const row = screen.getByTestId("security-group-row-sg-123")
+      const popupButton = row.querySelector("button")
+      await user.click(popupButton!)
+
+      await waitFor(() => {
+        expect(screen.getByText("Show Details")).toBeInTheDocument()
+      })
+
+      expect(screen.queryByText("Access Control")).not.toBeInTheDocument()
+    })
+
+    it("hides Delete when canDelete is false", async () => {
+      const user = userEvent.setup()
+      const permissions = { ...defaultPermissions, canDelete: false }
+      const router = createTestRouter(
+        <SecurityGroupTableRow
+          securityGroup={mockSecurityGroup}
+          permissions={permissions}
+          onEdit={mockOnEdit}
+          onAccessControl={mockOnAccessControl}
+        />
+      )
+      render(<RouterProvider router={router} />)
+
+      await waitFor(() => {
+        expect(screen.getByTestId("security-group-row-sg-123")).toBeInTheDocument()
+      })
+
+      const row = screen.getByTestId("security-group-row-sg-123")
+      const popupButton = row.querySelector("button")
+      await user.click(popupButton!)
+
+      await waitFor(() => {
+        expect(screen.getByText("Show Details")).toBeInTheDocument()
+      })
+
+      expect(screen.queryByText("Delete")).not.toBeInTheDocument()
+    })
+
+    it("shows only Show Details when all permissions are false", async () => {
+      const user = userEvent.setup()
+      const permissions: SecurityGroupPermissions = {
+        canCreate: false,
+        canUpdate: false,
+        canDelete: false,
+        canManageAccess: false,
+      }
+      const router = createTestRouter(
+        <SecurityGroupTableRow
+          securityGroup={mockSecurityGroup}
+          permissions={permissions}
+          onEdit={mockOnEdit}
+          onAccessControl={mockOnAccessControl}
+        />
+      )
+      render(<RouterProvider router={router} />)
+
+      await waitFor(() => {
+        expect(screen.getByTestId("security-group-row-sg-123")).toBeInTheDocument()
+      })
+
+      const row = screen.getByTestId("security-group-row-sg-123")
+      const popupButton = row.querySelector("button")
+      await user.click(popupButton!)
+
+      await waitFor(() => {
+        expect(screen.getByText("Show Details")).toBeInTheDocument()
+      })
+
+      expect(screen.queryByText("Edit")).not.toBeInTheDocument()
+      expect(screen.queryByText("Access Control")).not.toBeInTheDocument()
+      expect(screen.queryByText("Delete")).not.toBeInTheDocument()
     })
   })
 })
