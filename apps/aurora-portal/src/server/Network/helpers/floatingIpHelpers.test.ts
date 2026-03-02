@@ -1,31 +1,6 @@
 import { describe, it, expect } from "vitest"
 import { TRPCError } from "@trpc/server"
-import { validateNetworkService, FloatingIpErrorHandlers } from "./floatingIpHelpers"
-
-describe("validateNetworkService", () => {
-  it("should not throw when network service is available", () => {
-    const mockNetwork = { get: () => {}, del: () => {} }
-    expect(() => validateNetworkService(mockNetwork)).not.toThrow()
-  })
-
-  it("should throw INTERNAL_SERVER_ERROR when network service is null", () => {
-    expect(() => validateNetworkService(null)).toThrow(
-      new TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Network service is not available",
-      })
-    )
-  })
-
-  it("should throw INTERNAL_SERVER_ERROR when network service is undefined", () => {
-    expect(() => validateNetworkService(undefined)).toThrow(
-      new TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Network service is not available",
-      })
-    )
-  })
-})
+import { FloatingIpErrorHandlers } from "./floatingIpHelpers"
 
 describe("FloatingIpErrorHandlers.list", () => {
   it("should return UNAUTHORIZED error for 401 status", () => {

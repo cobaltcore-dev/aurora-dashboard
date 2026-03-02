@@ -3,6 +3,7 @@ import { protectedProcedure } from "@/server/trpc"
 import { withErrorHandling } from "@/server/helpers/errorHandling"
 import { appendQueryParamsFromObject } from "@/server/helpers/queryParams"
 import { filterBySearchParams } from "@/server/helpers/filterBySearchParams"
+import { validateOpenstackService } from "@/server/helpers/validateOpenstackService"
 import {
   FloatingIpQueryParametersSchema,
   FloatingIp,
@@ -10,7 +11,7 @@ import {
   FloatingIpIdInputSchema,
   FloatingIpDetailResponseSchema,
 } from "../types/floatingIp"
-import { FloatingIpErrorHandlers, validateNetworkService } from "../helpers/floatingIpHelpers"
+import { FloatingIpErrorHandlers } from "../helpers/floatingIpHelpers"
 
 /**
  * tRPC router for OpenStack Neutron Floating IPs.
@@ -28,8 +29,7 @@ export const floatingIpRouter = {
       return withErrorHandling(async () => {
         const openstackSession = ctx.openstack
         const network = openstackSession?.service("network")
-
-        validateNetworkService(network)
+        validateOpenstackService(network, "network")
 
         // Extract searchTerm from input before building query params
         const { searchTerm, ...openstackParams } = input
@@ -63,7 +63,7 @@ export const floatingIpRouter = {
         const { floatingip_id } = input
         const openstackSession = ctx.openstack
         const network = openstackSession?.service("network")
-        validateNetworkService(network)
+        validateOpenstackService(network, "network")
 
         const response = await network.get(`v2.0/floatingips/${floatingip_id}`)
         if (!response.ok) {
@@ -89,7 +89,7 @@ export const floatingIpRouter = {
       const { floatingip_id } = input
       const openstackSession = ctx.openstack
       const network = openstackSession?.service("network")
-      validateNetworkService(network)
+      validateOpenstackService(network, "network")
 
       // OpenStack DELETE returns 204 No Content on success
       const response = await network.del(`v2.0/floatingips/${floatingip_id}`)

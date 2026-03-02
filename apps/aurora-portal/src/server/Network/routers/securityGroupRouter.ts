@@ -10,7 +10,7 @@ import {
 } from "../types/securityGroup"
 import { withErrorHandling } from "../../helpers/errorHandling"
 import { filterBySearchParams } from "../../helpers/filterBySearchParams"
-import { validateNetworkService } from "../helpers/floatingIpHelpers"
+import { validateOpenstackService } from "../../helpers/validateOpenstackService"
 
 const LIST_SECURITY_GROUPS_QUERY_KEY_MAP: Record<string, string> = {
   tags_any: "tags-any",
@@ -32,8 +32,7 @@ export const securityGroupRouter = {
     .query(async ({ input, ctx }): Promise<SecurityGroup[]> => {
       const openstackSession = ctx.openstack
       const network = openstackSession?.service("network")
-
-      validateNetworkService(network)
+      validateOpenstackService(network, "network")
 
       return withErrorHandling(async () => {
         // Extract searchTerm from input before building query params
@@ -71,8 +70,7 @@ export const securityGroupRouter = {
         const { securityGroupId } = input
         const openstackSession = ctx.openstack
         const network = openstackSession?.service("network")
-
-        validateNetworkService(network)
+        validateOpenstackService(network, "network")
 
         const response = await network.get(`v2.0/security-groups/${securityGroupId}`)
         const data = await response.json()
