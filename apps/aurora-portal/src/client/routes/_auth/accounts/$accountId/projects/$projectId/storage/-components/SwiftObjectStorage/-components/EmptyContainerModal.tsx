@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import {
@@ -59,14 +59,6 @@ export const EmptyContainerModal = ({ isOpen, container, onClose, onSuccess, onE
       handleClose()
     },
   })
-
-  useEffect(() => {
-    if (!isOpen) {
-      setConfirmName("")
-      setNameError(null)
-      emptyContainerMutation.reset()
-    }
-  }, [isOpen, container?.name])
 
   const handleClose = () => {
     setConfirmName("")

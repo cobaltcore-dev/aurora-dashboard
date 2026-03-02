@@ -399,33 +399,15 @@ describe("EmptyContainerModal", () => {
       expect(onClose).toHaveBeenCalled()
     })
 
-    test("resets confirm input when modal closes", async () => {
-      const { rerender } = render(
-        <I18nProvider i18n={i18n}>
-          <PortalProvider>
-            <EmptyContainerModal isOpen={true} container={makeContainer()} onClose={vi.fn()} />
-          </PortalProvider>
-        </I18nProvider>
-      )
+    test("resets state when modal is closed via Cancel", async () => {
+      const onClose = vi.fn()
       const user = userEvent.setup()
+      renderModal({ onClose })
       await user.type(screen.getByLabelText(/Type container name to confirm/i), "my-container")
-      rerender(
-        <I18nProvider i18n={i18n}>
-          <PortalProvider>
-            <EmptyContainerModal isOpen={false} container={makeContainer()} onClose={vi.fn()} />
-          </PortalProvider>
-        </I18nProvider>
-      )
-      rerender(
-        <I18nProvider i18n={i18n}>
-          <PortalProvider>
-            <EmptyContainerModal isOpen={true} container={makeContainer()} onClose={vi.fn()} />
-          </PortalProvider>
-        </I18nProvider>
-      )
-      await waitFor(() => {
-        expect(screen.getByLabelText(/Type container name to confirm/i)).toHaveValue("")
-      })
+      await user.click(screen.getByRole("button", { name: /^Cancel$/i }))
+      // handleClose resets state (calls mutation.reset) then calls onClose
+      expect(mockReset).toHaveBeenCalled()
+      expect(onClose).toHaveBeenCalled()
     })
   })
 
