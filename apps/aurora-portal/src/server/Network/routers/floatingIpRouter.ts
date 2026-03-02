@@ -79,4 +79,28 @@ export const floatingIpRouter = {
         return parsed.data.floatingip
       }, "show floating IP details")
     }),
+  // create the same type for delete/get/put
+  delete: protectedProcedure.input(GetFloatingIpByIdInputSchema).mutation(async ({ input, ctx }): Promise<boolean> => {
+    return withErrorHandling(async () => {
+      const { floatingip_id } = input
+      const openstackSession = ctx.openstack
+      const network = openstackSession?.service("network")
+
+      // Refactor to common module
+      if (!network) {
+        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Network service is not available" })
+      }
+      // validateGlanceService(glance)
+
+      const response = await network.del(`v2.0/floatingips/${floatingip_id}`)
+
+      if (!response?.ok) {
+        // same refactor
+        // throw ImageErrorHandlers.delete(response, floatingip_id)
+        console.log("123")
+      }
+
+      return true
+    }, "delete floating IP")
+  }),
 }

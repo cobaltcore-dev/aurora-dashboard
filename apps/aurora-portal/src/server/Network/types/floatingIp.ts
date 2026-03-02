@@ -118,6 +118,7 @@ export const FloatingIpSchema = z.object({
  * See https://docs.openstack.org/api-ref/network/v2/index.html#show-floating-ip-details
  */
 export const GetFloatingIpByIdInputSchema = z.object({
+  // FloatingIpByIdInputSchema? (as it's used for DELETE and later will be using this for PUT)
   floatingip_id: z.string(),
 })
 
