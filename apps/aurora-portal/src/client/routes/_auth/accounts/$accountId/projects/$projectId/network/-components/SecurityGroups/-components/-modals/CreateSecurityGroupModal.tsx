@@ -144,9 +144,8 @@ export const CreateSecurityGroupModal: React.FC<CreateSecurityGroupModalProps> =
                 onChange={handleInputChange}
                 required
                 errortext={errors.name}
-                placeholder={t`my-security-group`}
+                placeholder={t`Type name`}
                 disabled={isLoading}
-                helptext={t`A unique name for the security group`}
               />
             </FormRow>
 
@@ -157,7 +156,7 @@ export const CreateSecurityGroupModal: React.FC<CreateSecurityGroupModalProps> =
                 label={t`Description`}
                 value={properties.description}
                 onChange={handleInputChange}
-                placeholder={t`Optional description for this security group`}
+                placeholder={t`Description`}
                 disabled={isLoading}
                 rows={3}
               />
@@ -170,7 +169,6 @@ export const CreateSecurityGroupModal: React.FC<CreateSecurityGroupModalProps> =
                 label={t`Stateful`}
                 checked={properties.stateful}
                 onChange={handleInputChange}
-                helptext={t`If enabled, return traffic is automatically allowed (recommended)`}
                 disabled={isLoading}
               />
             </FormRow>

@@ -8,15 +8,8 @@ import {
 import { useLingui, Trans } from "@lingui/react/macro"
 import type { SecurityGroup } from "@/server/Network/types/securityGroup"
 
-export interface SecurityGroupPermissions {
-  canUpdate: boolean
-  canDelete: boolean
-  canManageAccess: boolean
-}
-
 interface SecurityGroupTableRowProps {
   securityGroup: SecurityGroup
-  permissions: SecurityGroupPermissions
   onEdit: (sg: SecurityGroup) => void
   onAccessControl: (sg: SecurityGroup) => void
   onViewDetails?: (sg: SecurityGroup) => void
@@ -24,7 +17,6 @@ interface SecurityGroupTableRowProps {
 
 export function SecurityGroupTableRow({
   securityGroup: sg,
-  permissions,
   onEdit,
   onAccessControl,
   onViewDetails,
@@ -65,11 +57,9 @@ export function SecurityGroupTableRow({
         <PopupMenu>
           <PopupMenuOptions>
             <PopupMenuItem label={t`Show Details`} onClick={() => handleShowDetails()} />
-            {permissions.canUpdate && <PopupMenuItem label={t`Edit`} onClick={() => onEdit(sg)} />}
-            {permissions.canManageAccess && (
-              <PopupMenuItem label={t`Access Control`} onClick={() => onAccessControl(sg)} />
-            )}
-            {permissions.canDelete && <PopupMenuItem label={t`Delete`} onClick={() => {}} disabled />}
+            <PopupMenuItem label={t`Edit`} onClick={() => onEdit(sg)} />
+            <PopupMenuItem label={t`Access Control`} onClick={() => onAccessControl(sg)} />
+            <PopupMenuItem label={t`Delete`} onClick={() => {}} disabled />
           </PopupMenuOptions>
         </PopupMenu>
       </DataGridCell>

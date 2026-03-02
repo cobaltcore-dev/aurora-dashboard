@@ -7,7 +7,6 @@ import { I18nProvider } from "@lingui/react"
 import { createRoute, createRootRoute, RouterProvider, createMemoryHistory, createRouter } from "@tanstack/react-router"
 import { SecurityGroupListContainer } from "./SecurityGroupListContainer"
 import type { SecurityGroup } from "@/server/Network/types/securityGroup"
-import type { SecurityGroupPermissions } from "./SecurityGroupTableRow"
 
 // Mock the modals
 vi.mock("./-modals/EditSecurityGroupModal", () => ({
@@ -97,12 +96,6 @@ const mockSecurityGroups: SecurityGroup[] = [
   },
 ]
 
-const defaultPermissions: SecurityGroupPermissions = {
-  canUpdate: true,
-  canDelete: false,
-  canManageAccess: true,
-}
-
 const createTestRouter = (Component: ReactElement) => {
   const memoryHistory = createMemoryHistory({
     initialEntries: ["/accounts/test-account/projects/test-project/network/"],
@@ -170,7 +163,6 @@ describe("SecurityGroupListContainer", () => {
           isLoading={true}
           isError={false}
           error={null}
-          permissions={defaultPermissions}
         />
       )
       render(<RouterProvider router={router} />)
@@ -189,7 +181,6 @@ describe("SecurityGroupListContainer", () => {
           isLoading={false}
           isError={true}
           error={{ message: "Network error occurred" }}
-          permissions={defaultPermissions}
         />
       )
       render(<RouterProvider router={router} />)
@@ -206,7 +197,6 @@ describe("SecurityGroupListContainer", () => {
           isLoading={false}
           isError={true}
           error={null}
-          permissions={defaultPermissions}
         />
       )
       render(<RouterProvider router={router} />)
@@ -223,7 +213,6 @@ describe("SecurityGroupListContainer", () => {
           isLoading={false}
           isError={false}
           error={null}
-          permissions={defaultPermissions}
         />
       )
       render(<RouterProvider router={router} />)
@@ -244,7 +233,6 @@ describe("SecurityGroupListContainer", () => {
           isLoading={false}
           isError={false}
           error={null}
-          permissions={defaultPermissions}
         />
       )
       render(<RouterProvider router={router} />)
@@ -264,7 +252,6 @@ describe("SecurityGroupListContainer", () => {
           isLoading={false}
           isError={false}
           error={null}
-          permissions={defaultPermissions}
         />
       )
       render(<RouterProvider router={router} />)
@@ -289,7 +276,6 @@ describe("SecurityGroupListContainer", () => {
           isLoading={false}
           isError={false}
           error={null}
-          permissions={defaultPermissions}
         />
       )
       render(<RouterProvider router={router} />)
@@ -322,7 +308,6 @@ describe("SecurityGroupListContainer", () => {
           isLoading={false}
           isError={false}
           error={null}
-          permissions={defaultPermissions}
         />
       )
       render(<RouterProvider router={router} />)
@@ -364,7 +349,6 @@ describe("SecurityGroupListContainer", () => {
           isLoading={false}
           isError={false}
           error={null}
-          permissions={defaultPermissions}
         />
       )
       render(<RouterProvider router={router} />)
@@ -397,7 +381,6 @@ describe("SecurityGroupListContainer", () => {
           isLoading={false}
           isError={false}
           error={null}
-          permissions={defaultPermissions}
         />
       )
       render(<RouterProvider router={router} />)

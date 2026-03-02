@@ -12,6 +12,8 @@ import {
 import { withErrorHandling } from "../../helpers/errorHandling"
 import { filterBySearchParams } from "../../helpers/filterBySearchParams"
 
+const SECURITY_GROUPS_BASE_URL = "v2.0/security-groups"
+
 const LIST_SECURITY_GROUPS_QUERY_KEY_MAP: Record<string, string> = {
   tags_any: "tags-any",
   not_tags: "not-tags",
@@ -25,7 +27,7 @@ const LIST_SECURITY_GROUPS_QUERY_KEY_MAP: Record<string, string> = {
  * - list: GET /v2.0/security-groups with pagination, sorting and basic filtering support.
  * - getById: GET /v2.0/security-groups/{security_group_id} to fetch a single security group with rules.
  *   Includes BFF-side search filtering by name, description, or id.
- * - create: POST /v2.0/security-groups to create a new security group.
+ * - createSecurityGroup: POST /v2.0/security-groups to create a new security group.
  */
 export const securityGroupRouter = {
   list: protectedProcedure
@@ -50,7 +52,7 @@ export const securityGroupRouter = {
         })
 
         const queryString = queryParams.toString()
-        const url = queryString ? `v2.0/security-groups?${queryString}` : "v2.0/security-groups"
+        const url = queryString ? `${SECURITY_GROUPS_BASE_URL}?${queryString}` : SECURITY_GROUPS_BASE_URL
 
         const response = await network.get(url)
         const data = await response.json()
@@ -85,7 +87,7 @@ export const securityGroupRouter = {
           })
         }
 
-        const response = await network.get(`v2.0/security-groups/${securityGroupId}`)
+        const response = await network.get(`${SECURITY_GROUPS_BASE_URL}/${securityGroupId}`)
         const data = await response.json()
         const parsed = securityGroupResponseSchema.safeParse(data)
 
@@ -101,7 +103,7 @@ export const securityGroupRouter = {
       }, "fetch security group by ID")
     }),
 
-  create: protectedProcedure
+  createSecurityGroup: protectedProcedure
     .input(createSecurityGroupInputSchema)
     .mutation(async ({ input, ctx }): Promise<SecurityGroup> => {
       return withErrorHandling(async () => {
@@ -121,7 +123,7 @@ export const securityGroupRouter = {
             ...(input.stateful !== undefined && { stateful: input.stateful }),
           },
         }
-        const response = await network.post("v2.0/security-groups", requestBody)
+        const response = await network.post(SECURITY_GROUPS_BASE_URL, requestBody)
         const data = await response.json()
 
         const parsed = securityGroupResponseSchema.safeParse(data)
