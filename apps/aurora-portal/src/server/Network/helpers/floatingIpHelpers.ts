@@ -19,22 +19,81 @@ export function validateNetworkService(network: unknown): asserts network is Non
  */
 export const FloatingIpErrorHandlers = {
   /**
-   * Handles errors specific to floating IP deletion
+   * Handles errors specific to floating IP list operations
+   * @param response - The HTTP response from OpenStack
+   * @returns TRPCError with appropriate code and message
    */
-  delete: (response: { status?: number; statusText?: string }, floatingIpId: string) => {
+  list: (response: { status?: number; statusText?: string }) => {
     switch (response.status) {
       case 401:
+        // 401 Unauthorized - Invalid or missing authentication
+        return new TRPCError({
+          code: "UNAUTHORIZED",
+          message: `Unauthorized access`,
+        })
+      default:
+        return new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: `Failed to fetch list: ${response.statusText || "Unknown error"}`,
+        })
+    }
+  },
+  /**
+   * Handles errors specific to floating IP retrieval by ID
+   * @param response - The HTTP response from OpenStack
+   * @param floatingIpId - The ID of the floating IP being retrieved
+   * @returns TRPCError with appropriate code and message
+   */
+  get: (response: { status?: number; statusText?: string }, floatingIpId: string) => {
+    switch (response.status) {
+      case 401:
+        // 401 Unauthorized - Invalid or missing authentication
         return new TRPCError({
           code: "UNAUTHORIZED",
           message: `Unauthorized access: ${floatingIpId}`,
         })
+      case 403:
+        // 403 Forbidden - Insufficient permissions
+        return new TRPCError({
+          code: "FORBIDDEN",
+          message: `Access forbidden to floating IP: ${floatingIpId}`,
+        })
       case 404:
+        // 404 Not Found - Floating IP resource not found
         return new TRPCError({
           code: "NOT_FOUND",
           message: `Floating IP not found: ${floatingIpId}`,
         })
 
+      default:
+        return new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: `Failed to fetch floating IP: ${response.statusText || "Unknown error"}`,
+        })
+    }
+  },
+  /**
+   * Handles errors specific to floating IP deletion
+   * @param response - The HTTP response from OpenStack
+   * @param floatingIpId - The ID of the floating IP being deleted
+   * @returns TRPCError with appropriate code and message
+   */
+  delete: (response: { status?: number; statusText?: string }, floatingIpId: string) => {
+    switch (response.status) {
+      case 401:
+        // 401 Unauthorized - Invalid or missing authentication
+        return new TRPCError({
+          code: "UNAUTHORIZED",
+          message: `Unauthorized access: ${floatingIpId}`,
+        })
+      case 404:
+        // 404 Not Found - Floating IP resource not found
+        return new TRPCError({
+          code: "NOT_FOUND",
+          message: `Floating IP not found: ${floatingIpId}`,
+        })
       case 412:
+        // 412 Precondition Failed - Revision number mismatch
         return new TRPCError({
           code: "CONFLICT",
           message: `Precondition failed - revision number mismatch: ${floatingIpId}`,
@@ -46,43 +105,4 @@ export const FloatingIpErrorHandlers = {
         })
     }
   },
-
-  // list: (response: { status?: number; statusText?: string }, imageId: string) => {
-  //   switch (response.status) {
-  //     case 404:
-  //       return new TRPCError({
-  //         code: "NOT_FOUND",
-  //         message: `Image not found: ${imageId}`,
-  //       })
-  //     case 403:
-  //       return new TRPCError({
-  //         code: "FORBIDDEN",
-  //         message: `Access forbidden - only shared images have members: ${imageId}`,
-  //       })
-  //     default:
-  //       return new TRPCError({
-  //         code: "INTERNAL_SERVER_ERROR",
-  //         message: `Failed to fetch image members: ${response.statusText || "Unknown error"}`,
-  //       })
-  //   }
-  // },
-  // get: (response: { status?: number; statusText?: string }, imageId: string, memberId: string) => {
-  //   switch (response.status) {
-  //     case 404:
-  //       return new TRPCError({
-  //         code: "NOT_FOUND",
-  //         message: `Image or member not found: ${imageId}, ${memberId}`,
-  //       })
-  //     case 403:
-  //       return new TRPCError({
-  //         code: "FORBIDDEN",
-  //         message: `Access forbidden to image member: ${imageId}, ${memberId}`,
-  //       })
-  //     default:
-  //       return new TRPCError({
-  //         code: "INTERNAL_SERVER_ERROR",
-  //         message: `Failed to fetch image member: ${response.statusText || "Unknown error"}`,
-  //       })
-  //   }
-  // },
 }

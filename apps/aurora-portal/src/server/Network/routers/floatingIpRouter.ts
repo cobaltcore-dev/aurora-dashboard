@@ -10,7 +10,7 @@ import {
   FloatingIpIdInputSchema,
   FloatingIpDetailResponseSchema,
 } from "../types/floatingIp"
-import { validateNetworkService } from "../helpers/floatingIpHelpers"
+import { FloatingIpErrorHandlers, validateNetworkService } from "../helpers/floatingIpHelpers"
 
 /**
  * tRPC router for OpenStack Neutron Floating IPs.
@@ -38,9 +38,12 @@ export const floatingIpRouter = {
         const url = queryString ? `v2.0/floatingips?${queryString}` : "v2.0/floatingips"
 
         const response = await network.get(url)
+        if (!response.ok) {
+          throw FloatingIpErrorHandlers.list(response)
+        }
+
         const data = await response.json()
         const parsed = FloatingIpResponseSchema.safeParse(data)
-
         if (!parsed.success) {
           console.error("Zod Parsing Error in floatingIpRouter.list:", parsed.error.format())
           throw new TRPCError({
@@ -49,6 +52,7 @@ export const floatingIpRouter = {
           })
         }
         const floatingIps = parsed.data.floatingips
+
         return filterBySearchParams(floatingIps, searchTerm, ["description"])
       }, "list floating IPs")
     }),
@@ -62,6 +66,10 @@ export const floatingIpRouter = {
         validateNetworkService(network)
 
         const response = await network.get(`v2.0/floatingips/${floatingip_id}`)
+        if (!response.ok) {
+          throw FloatingIpErrorHandlers.get(response, floatingip_id)
+        }
+
         const data = await response.json()
         const parsed = FloatingIpDetailResponseSchema.safeParse(data)
 
@@ -83,11 +91,13 @@ export const floatingIpRouter = {
       const network = openstackSession?.service("network")
       validateNetworkService(network)
 
+      // OpenStack DELETE returns 204 No Content on success
       const response = await network.del(`v2.0/floatingips/${floatingip_id}`)
       if (!response?.ok) {
-        // TODO: Implement error handling using throw FloatingIpErrorHandlers.delete(response, floatingip_id)
+        throw FloatingIpErrorHandlers.delete(response, floatingip_id)
       }
 
+      // Return true for all successful responses (2xx)
       return true
     }, "delete floating IP")
   }),
