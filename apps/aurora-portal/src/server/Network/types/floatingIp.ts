@@ -113,6 +113,23 @@ export const FloatingIpSchema = z.object({
 })
 
 /**
+ * Query parameters to show details for a floating IP.
+ * Use the fields query parameter to control which fields are returned in the response body.
+ * See https://docs.openstack.org/api-ref/network/v2/index.html#show-floating-ip-details
+ */
+export const GetFloatingIpByIdInputSchema = z.object({
+  floatingip_id: z.string(),
+})
+
+/**
+ * Floating IP detail response wrapper.
+ * Contains a single floating IP object.
+ */
+export const FloatingIpDetailResponseSchema = z.object({
+  floatingip: FloatingIpSchema,
+})
+
+/**
  * Floating IPs list response wrapper.
  * Contains an array of floating IP objects.
  */
@@ -192,3 +209,5 @@ export type PortForwarding = z.infer<typeof PortForwardingSchema>
 export type FloatingIp = z.infer<typeof FloatingIpSchema>
 export type FloatingIpResponse = z.infer<typeof FloatingIpResponseSchema>
 export type FloatingIpQueryParameters = z.infer<typeof FloatingIpQueryParametersSchema>
+export type FloatingIpDetailResponse = z.infer<typeof FloatingIpDetailResponseSchema>
+export type GetFloatingIpByIdInput = z.infer<typeof GetFloatingIpByIdInputSchema>
