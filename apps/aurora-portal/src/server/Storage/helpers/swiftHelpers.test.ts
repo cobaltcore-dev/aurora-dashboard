@@ -472,6 +472,30 @@ describe("swiftHelpers", () => {
       expect(result.historyLocation).toBe("history-container")
     })
 
+    it("should parse x-versions-enabled header as boolean", () => {
+      const headersTrue = new Headers({
+        "X-Container-Object-Count": "0",
+        "X-Container-Bytes-Used": "0",
+        "X-Versions-Enabled": "True",
+      })
+      expect(parseContainerInfo(headersTrue).versionsEnabled).toBe(true)
+
+      const headersFalse = new Headers({
+        "X-Container-Object-Count": "0",
+        "X-Container-Bytes-Used": "0",
+        "X-Versions-Enabled": "False",
+      })
+      expect(parseContainerInfo(headersFalse).versionsEnabled).toBe(false)
+    })
+
+    it("should leave versionsEnabled undefined when header is absent", () => {
+      const headers = new Headers({
+        "X-Container-Object-Count": "0",
+        "X-Container-Bytes-Used": "0",
+      })
+      expect(parseContainerInfo(headers).versionsEnabled).toBeUndefined()
+    })
+
     it("should parse sync headers", () => {
       const headers = new Headers({
         "X-Container-Object-Count": "10",

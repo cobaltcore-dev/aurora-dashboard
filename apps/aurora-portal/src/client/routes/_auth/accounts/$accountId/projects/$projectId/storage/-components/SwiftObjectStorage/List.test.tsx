@@ -82,6 +82,9 @@ vi.mock("@/client/trpcClient", () => ({
             isPending: false,
           }),
         },
+        getContainerMetadata: {
+          useQuery: () => ({ data: undefined }),
+        },
         deleteContainer: {
           useMutation: () => ({
             mutate: vi.fn(),

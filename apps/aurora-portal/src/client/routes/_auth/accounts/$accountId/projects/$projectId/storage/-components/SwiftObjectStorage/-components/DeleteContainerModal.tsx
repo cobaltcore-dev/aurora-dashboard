@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
-import { Modal, TextInput, Stack, Message, Spinner, Icon } from "@cloudoperators/juno-ui-components"
+import { Modal, TextInput, Stack, Message, Spinner, Icon, Checkbox } from "@cloudoperators/juno-ui-components"
 import { ContainerSummary } from "@/server/Storage/types/swift"
 
 interface DeleteContainerModalProps {
@@ -17,6 +17,7 @@ export const DeleteContainerModal = ({ isOpen, container, onClose, onSuccess, on
   const [confirmName, setConfirmName] = useState("")
   const [nameError, setNameError] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
+  const [versionsConfirmed, setVersionsConfirmed] = useState(false)
 
   const handleCopyName = () => {
     if (!container) return
@@ -33,6 +34,19 @@ export const DeleteContainerModal = ({ isOpen, container, onClose, onSuccess, on
   const { data: objects, isLoading: isLoadingObjects } = trpcReact.storage.swift.listObjects.useQuery(
     { container: container?.name ?? "", format: "json", limit: 1 },
     { enabled: isOpen && container !== null }
+  )
+
+  // Fetch container metadata to check if versioning is enabled
+  const { data: containerMetadata } = trpcReact.storage.swift.getContainerMetadata.useQuery(
+    { container: container?.name ?? "" },
+    { enabled: isOpen && container !== null }
+  )
+
+  // Swift versioning v2: x-versions-enabled header; v1: x-versions-location / x-history-location
+  const isVersioned = !!(
+    containerMetadata?.versionsEnabled ||
+    containerMetadata?.versionsLocation ||
+    containerMetadata?.historyLocation
   )
 
   const deleteContainerMutation = trpcReact.storage.swift.deleteContainer.useMutation({
@@ -52,6 +66,7 @@ export const DeleteContainerModal = ({ isOpen, container, onClose, onSuccess, on
     if (!isOpen) {
       setConfirmName("")
       setNameError(null)
+      setVersionsConfirmed(false)
       deleteContainerMutation.reset()
     }
   }, [isOpen, container?.name])
@@ -59,6 +74,7 @@ export const DeleteContainerModal = ({ isOpen, container, onClose, onSuccess, on
   const handleClose = () => {
     setConfirmName("")
     setNameError(null)
+    setVersionsConfirmed(false)
     deleteContainerMutation.reset()
     onClose()
   }
@@ -118,7 +134,10 @@ export const DeleteContainerModal = ({ isOpen, container, onClose, onSuccess, on
       cancelButtonLabel={hasObjects ? undefined : t`Cancel`}
       size="small"
       disableConfirmButton={
-        isLoadingObjects || deleteContainerMutation.isPending || (!hasObjects && confirmName !== container.name)
+        isLoadingObjects ||
+        deleteContainerMutation.isPending ||
+        (!hasObjects && confirmName !== container.name) ||
+        (!hasObjects && isVersioned && !versionsConfirmed)
       }
     >
       {isLoadingObjects ? (
@@ -139,6 +158,14 @@ export const DeleteContainerModal = ({ isOpen, container, onClose, onSuccess, on
               <strong>Are you sure?</strong> The container will be deleted. This cannot be undone.
             </Trans>
           </Message>
+          {isVersioned && (
+            <Checkbox
+              label={t`I confirm that all existing versions will also be deleted`}
+              checked={versionsConfirmed}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setVersionsConfirmed(e.target.checked)}
+              invalid={!versionsConfirmed}
+            />
+          )}
           <TextInput
             label={t`Type container name to confirm`}
             required

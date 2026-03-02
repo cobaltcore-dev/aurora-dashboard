@@ -319,6 +319,7 @@ describe("Swift Object Storage Schema Validation", () => {
         storagePolicy: "Policy-0",
         versionsLocation: "versions-container",
         historyLocation: "history-container",
+        versionsEnabled: true,
         read: ".r:*,.rlistings",
         write: "user1:*,user2:*",
         syncTo: "https://remote.swift/container",

@@ -15,6 +15,9 @@ const mockInvalidate = vi.fn()
 let mutationError: string | null = null
 let listObjectsData: ObjectSummary[] = []
 let listObjectsLoading = false
+let mockContainerMetadata:
+  | { versionsEnabled?: boolean; versionsLocation?: string; historyLocation?: string }
+  | undefined = undefined
 
 let capturedMutationOptions: {
   onSuccess?: () => void
@@ -46,6 +49,11 @@ vi.mock("@/client/trpcClient", () => ({
           useQuery: () => ({
             data: listObjectsData,
             isLoading: listObjectsLoading,
+          }),
+        },
+        getContainerMetadata: {
+          useQuery: () => ({
+            data: mockContainerMetadata,
           }),
         },
         deleteContainer: {
@@ -119,6 +127,7 @@ describe("DeleteContainerModal", () => {
     mutationError = null
     listObjectsData = []
     listObjectsLoading = false
+    mockContainerMetadata = undefined
     capturedMutationOptions = {}
     await act(async () => {
       i18n.activate("en")
@@ -253,6 +262,88 @@ describe("DeleteContainerModal", () => {
       listObjectsData = []
       renderModal({ container: makeContainer({ count: 5 }) })
       expect(screen.getByRole("button", { name: /Got it!/i })).toBeInTheDocument()
+    })
+  })
+
+  describe("Versioned container", () => {
+    beforeEach(() => {
+      listObjectsData = []
+      mockContainerMetadata = { versionsEnabled: true }
+    })
+
+    test("shows versioning checkbox when versionsEnabled is true", () => {
+      renderModal({ container: makeContainer({ count: 0 }) })
+      expect(screen.getByLabelText(/I confirm that all existing versions will also be deleted/i)).toBeInTheDocument()
+    })
+
+    test("shows versioning checkbox when container has versionsLocation (v1 API)", () => {
+      mockContainerMetadata = { versionsLocation: "versions-container" }
+      renderModal({ container: makeContainer({ count: 0 }) })
+      expect(screen.getByLabelText(/I confirm that all existing versions will also be deleted/i)).toBeInTheDocument()
+    })
+
+    test("shows versioning checkbox when container has historyLocation (v1 API)", () => {
+      mockContainerMetadata = { historyLocation: "history-container" }
+      renderModal({ container: makeContainer({ count: 0 }) })
+      expect(screen.getByLabelText(/I confirm that all existing versions will also be deleted/i)).toBeInTheDocument()
+    })
+
+    test("does not show versioning checkbox for non-versioned container", () => {
+      mockContainerMetadata = { versionsEnabled: false }
+      renderModal({ container: makeContainer({ count: 0 }) })
+      expect(
+        screen.queryByLabelText(/I confirm that all existing versions will also be deleted/i)
+      ).not.toBeInTheDocument()
+    })
+
+    test("Delete button is disabled when versioning checkbox is unchecked", async () => {
+      const user = userEvent.setup()
+      renderModal({ container: makeContainer({ count: 0 }) })
+      await user.type(screen.getByLabelText(/Type container name to confirm/i), "my-container")
+      expect(screen.getByRole("button", { name: /^Delete$/i })).toBeDisabled()
+    })
+
+    test("Delete button is enabled when name matches and versioning checkbox is checked", async () => {
+      const user = userEvent.setup()
+      renderModal({ container: makeContainer({ count: 0 }) })
+      await user.click(screen.getByLabelText(/I confirm that all existing versions will also be deleted/i))
+      await user.type(screen.getByLabelText(/Type container name to confirm/i), "my-container")
+      expect(screen.getByRole("button", { name: /^Delete$/i })).not.toBeDisabled()
+    })
+
+    test("versioning checkbox is unchecked by default", () => {
+      renderModal({ container: makeContainer({ count: 0 }) })
+      const checkbox = screen.getByLabelText(/I confirm that all existing versions will also be deleted/i)
+      expect(checkbox).not.toBeChecked()
+    })
+
+    test("resets versioning checkbox when modal closes and reopens", async () => {
+      const { rerender } = render(
+        <I18nProvider i18n={i18n}>
+          <PortalProvider>
+            <DeleteContainerModal isOpen={true} container={makeContainer({ count: 0 })} onClose={vi.fn()} />
+          </PortalProvider>
+        </I18nProvider>
+      )
+      const user = userEvent.setup()
+      await user.click(screen.getByLabelText(/I confirm that all existing versions will also be deleted/i))
+      rerender(
+        <I18nProvider i18n={i18n}>
+          <PortalProvider>
+            <DeleteContainerModal isOpen={false} container={makeContainer({ count: 0 })} onClose={vi.fn()} />
+          </PortalProvider>
+        </I18nProvider>
+      )
+      rerender(
+        <I18nProvider i18n={i18n}>
+          <PortalProvider>
+            <DeleteContainerModal isOpen={true} container={makeContainer({ count: 0 })} onClose={vi.fn()} />
+          </PortalProvider>
+        </I18nProvider>
+      )
+      await waitFor(() => {
+        expect(screen.getByLabelText(/I confirm that all existing versions will also be deleted/i)).not.toBeChecked()
+      })
     })
   })
 

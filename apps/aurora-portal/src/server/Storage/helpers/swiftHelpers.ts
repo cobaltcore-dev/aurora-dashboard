@@ -184,6 +184,11 @@ export function parseContainerInfo(headers: Headers): ContainerInfo {
     containerInfo.historyLocation = historyLocation
   }
 
+  const versionsEnabled = headers.get("x-versions-enabled")
+  if (versionsEnabled !== null) {
+    containerInfo.versionsEnabled = versionsEnabled.toLowerCase() === "true"
+  }
+
   const read = headers.get("x-container-read")
   if (read) {
     containerInfo.read = read
