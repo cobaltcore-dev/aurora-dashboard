@@ -158,12 +158,7 @@ describe("SecurityGroupListContainer", () => {
   describe("State rendering", () => {
     it("renders loading spinner", async () => {
       const router = createTestRouter(
-        <SecurityGroupListContainer
-          securityGroups={[]}
-          isLoading={true}
-          isError={false}
-          error={null}
-        />
+        <SecurityGroupListContainer securityGroups={[]} isLoading={true} isError={false} error={null} />
       )
       render(<RouterProvider router={router} />)
 
@@ -192,12 +187,7 @@ describe("SecurityGroupListContainer", () => {
 
     it("renders default error message when error is null", async () => {
       const router = createTestRouter(
-        <SecurityGroupListContainer
-          securityGroups={[]}
-          isLoading={false}
-          isError={true}
-          error={null}
-        />
+        <SecurityGroupListContainer securityGroups={[]} isLoading={false} isError={true} error={null} />
       )
       render(<RouterProvider router={router} />)
 
@@ -208,12 +198,7 @@ describe("SecurityGroupListContainer", () => {
 
     it("renders empty state", async () => {
       const router = createTestRouter(
-        <SecurityGroupListContainer
-          securityGroups={[]}
-          isLoading={false}
-          isError={false}
-          error={null}
-        />
+        <SecurityGroupListContainer securityGroups={[]} isLoading={false} isError={false} error={null} />
       )
       render(<RouterProvider router={router} />)
 
