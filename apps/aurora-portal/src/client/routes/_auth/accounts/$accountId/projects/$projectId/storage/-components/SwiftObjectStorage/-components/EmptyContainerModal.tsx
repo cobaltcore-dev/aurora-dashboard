@@ -200,9 +200,14 @@ export const EmptyContainerModal = ({ isOpen, container, onClose, onSuccess, onE
             </DataGrid>
             {container.count > actualObjectCount && (
               <p className="text-theme-light px-3 py-2 text-xs">
-                <Trans>
-                  Showing first {actualObjectCount} of {container.count} objects
-                </Trans>
+                {(() => {
+                  const total = container.count
+                  return (
+                    <Trans>
+                      Showing first {actualObjectCount} of {total} objects
+                    </Trans>
+                  )
+                })()}
               </p>
             )}
           </div>

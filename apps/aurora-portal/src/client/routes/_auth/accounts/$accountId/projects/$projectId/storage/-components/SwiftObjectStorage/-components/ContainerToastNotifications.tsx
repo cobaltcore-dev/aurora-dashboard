@@ -68,10 +68,13 @@ export const getContainerEmptiedToast = (
       description={
         deletedCount === 0 ? (
           <Trans>Container "{containerName}" was already empty.</Trans>
+        ) : deletedCount === 1 ? (
+          <Trans>
+            Container "{containerName}" was successfully emptied. {deletedCount} object deleted.
+          </Trans>
         ) : (
           <Trans>
-            Container "{containerName}" was successfully emptied. {deletedCount}{" "}
-            {deletedCount === 1 ? "object" : "objects"} deleted.
+            Container "{containerName}" was successfully emptied. {deletedCount} objects deleted.
           </Trans>
         )
       }
