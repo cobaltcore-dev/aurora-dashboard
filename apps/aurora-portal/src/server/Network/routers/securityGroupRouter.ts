@@ -11,6 +11,7 @@ import {
 } from "../types/securityGroup"
 import { withErrorHandling } from "../../helpers/errorHandling"
 import { filterBySearchParams } from "../../helpers/filterBySearchParams"
+import { validateOpenstackService } from "../../helpers/validateOpenstackService"
 
 const SECURITY_GROUPS_BASE_URL = "v2.0/security-groups"
 
@@ -35,13 +36,7 @@ export const securityGroupRouter = {
     .query(async ({ input, ctx }): Promise<SecurityGroup[]> => {
       const openstackSession = ctx.openstack
       const network = openstackSession?.service("network")
-
-      if (!network) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Network service is not available",
-        })
-      }
+      validateOpenstackService(network, "network")
 
       return withErrorHandling(async () => {
         // Extract searchTerm from input before building query params
@@ -79,13 +74,7 @@ export const securityGroupRouter = {
         const { securityGroupId } = input
         const openstackSession = ctx.openstack
         const network = openstackSession?.service("network")
-
-        if (!network) {
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: "Network service is not available",
-          })
-        }
+        validateOpenstackService(network, "network")
 
         const response = await network.get(`${SECURITY_GROUPS_BASE_URL}/${securityGroupId}`)
         const data = await response.json()
