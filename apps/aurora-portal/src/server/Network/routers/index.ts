@@ -5,6 +5,6 @@ import { auroraRouter } from "../../trpc"
 export const networkRouters = {
   network: auroraRouter({
     floatingIp: floatingIpRouter,
-    ...securityGroupRouter,
+    securityGroup: securityGroupRouter,
   }),
 }

@@ -42,7 +42,7 @@ function RouteComponent() {
   const navigate = useNavigate()
   const { t } = useLingui()
 
-  const { data: securityGroup, status, error } = trpcReact.network.getSecurityGroupById.useQuery({ securityGroupId })
+  const { data: securityGroup, status, error } = trpcReact.network.securityGroup.getById.useQuery({ securityGroupId })
 
   const handleBack = () => {
     navigate({

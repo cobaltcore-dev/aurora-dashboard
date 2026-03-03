@@ -82,6 +82,10 @@ export const createSecurityGroupInputSchema = z.object({
   stateful: z.boolean().optional(),
 })
 
+export const deleteSecurityGroupInputSchema = z.object({
+  securityGroupId: z.string(),
+})
+
 export type SecurityGroupRule = z.infer<typeof securityGroupRuleSchema>
 export type SecurityGroup = z.infer<typeof securityGroupSchema>
 export type SecurityGroupsResponse = z.infer<typeof securityGroupsResponseSchema>
@@ -89,3 +93,4 @@ export type SecurityGroupResponse = z.infer<typeof securityGroupResponseSchema>
 export type ListSecurityGroupsInput = z.infer<typeof listSecurityGroupsInputSchema>
 export type GetSecurityGroupByIdInput = z.infer<typeof getSecurityGroupByIdInputSchema>
 export type CreateSecurityGroupInput = z.infer<typeof createSecurityGroupInputSchema>
+export type DeleteSecurityGroupInput = z.infer<typeof deleteSecurityGroupInputSchema>

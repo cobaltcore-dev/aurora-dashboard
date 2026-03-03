@@ -19,6 +19,8 @@ export const SecurityGroups = () => {
   const { accountId, projectId } = useParams({ strict: false })
 
   const [createModalOpen, setCreateModalOpen] = useState(false)
+  const [deleteError, setDeleteError] = useState<string | null>(null)
+  const [createError, setCreateError] = useState<string | null>(null)
 
   const { searchTerm, sortSettings, filterSettings, handleSearchChange, handleSortChange, handleFilterChange } =
     useListWithFiltering<SecurityGroupSortKey>({
@@ -46,7 +48,7 @@ export const SecurityGroups = () => {
   const permissions = {
     canCreate: true,
     canUpdate: true,
-    canDelete: false,
+    canDelete: true,
     canManageAccess: true,
   }
 
@@ -55,17 +57,18 @@ export const SecurityGroups = () => {
     isLoading,
     isError,
     error,
-  } = trpcReact.network.list.useQuery({
+  } = trpcReact.network.securityGroup.list.useQuery({
     sort_key: sortSettings.sortBy,
     sort_dir: sortSettings.sortDirection,
     ...buildFilterParams(filterSettings),
     ...(searchTerm ? { searchTerm } : {}),
   })
 
-  const createSecurityGroupMutation = trpcReact.network.createSecurityGroup.useMutation({
+  const createSecurityGroupMutation = trpcReact.network.securityGroup.create.useMutation({
     onSuccess: (createdSecurityGroup) => {
       // Invalidate and refetch the security groups list
-      utils.network.list.invalidate()
+      utils.network.securityGroup.list.invalidate()
+      setCreateError(null)
 
       // Navigate to the details page of the newly created security group
       if (accountId && projectId) {
@@ -79,10 +82,32 @@ export const SecurityGroups = () => {
         })
       }
     },
+    onError: (error) => {
+      // Backend handles error parsing, just display the message
+      setCreateError(error.message || t`Failed to create security group`)
+    },
+  })
+
+  const deleteSecurityGroupMutation = trpcReact.network.securityGroup.delete.useMutation({
+    onSuccess: () => {
+      // Invalidate and refetch the security groups list
+      utils.network.securityGroup.list.invalidate()
+      setDeleteError(null)
+    },
+    onError: (error) => {
+      // Backend handles error parsing, just display the message
+      setDeleteError(error.message || t`Failed to delete security group`)
+    },
   })
 
   const handleCreateSecurityGroup = async (securityGroupData: CreateSecurityGroupInput) => {
+    setCreateError(null)
     await createSecurityGroupMutation.mutateAsync(securityGroupData)
+  }
+
+  const handleDeleteSecurityGroup = (securityGroupId: string) => {
+    setDeleteError(null)
+    deleteSecurityGroupMutation.mutate({ securityGroupId })
   }
 
   return (
@@ -110,6 +135,9 @@ export const SecurityGroups = () => {
         error={error}
         permissions={permissions}
         onCreateClick={() => setCreateModalOpen(true)}
+        onDeleteSecurityGroup={handleDeleteSecurityGroup}
+        isDeletingSecurityGroup={deleteSecurityGroupMutation.isPending}
+        deleteError={deleteError}
       />
 
       <CreateSecurityGroupModal
@@ -117,6 +145,7 @@ export const SecurityGroups = () => {
         onClose={() => setCreateModalOpen(false)}
         onCreate={handleCreateSecurityGroup}
         isLoading={createSecurityGroupMutation.isPending}
+        error={createError}
       />
     </div>
   )

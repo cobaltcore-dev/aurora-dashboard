@@ -12,6 +12,7 @@ import {
   Spinner,
   ModalFooter,
   Textarea,
+  Message,
 } from "@cloudoperators/juno-ui-components"
 import { CreateSecurityGroupInput } from "@/server/Network/types/securityGroup"
 
@@ -20,6 +21,7 @@ interface CreateSecurityGroupModalProps {
   onClose: () => void
   onCreate: (securityGroupData: CreateSecurityGroupInput) => Promise<void>
   isLoading?: boolean
+  error?: string | null
 }
 
 interface SecurityGroupProperties {
@@ -39,6 +41,7 @@ export const CreateSecurityGroupModal: React.FC<CreateSecurityGroupModalProps> =
   onClose,
   onCreate,
   isLoading = false,
+  error = null,
 }) => {
   const { t } = useLingui()
 
@@ -123,6 +126,13 @@ export const CreateSecurityGroupModal: React.FC<CreateSecurityGroupModalProps> =
         </ModalFooter>
       }
     >
+      {/* Error Message */}
+      {error && (
+        <Message dismissible={false} variant="error" className="mb-4">
+          {error}
+        </Message>
+      )}
+
       {isLoading && (
         <div className="mb-4 flex items-center justify-center gap-2">
           <Spinner variant="primary" />

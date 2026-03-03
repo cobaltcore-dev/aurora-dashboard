@@ -262,7 +262,7 @@ describe("securityGroupRouter.list", () => {
   })
 })
 
-describe("securityGroupRouter.getSecurityGroupById", () => {
+describe("securityGroupRouter.getById", () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })
@@ -291,7 +291,7 @@ describe("securityGroupRouter.getSecurityGroupById", () => {
     const ctx = createMockContext({ mockSecurityGroup })
     const caller = createCaller(ctx)
 
-    const result = await caller.securityGroup.getSecurityGroupById({
+    const result = await caller.securityGroup.getById({
       securityGroupId: "sg-123",
     })
 
@@ -307,7 +307,7 @@ describe("securityGroupRouter.getSecurityGroupById", () => {
     const caller = createCaller(ctx)
 
     await expect(
-      caller.securityGroup.getSecurityGroupById({
+      caller.securityGroup.getById({
         securityGroupId: "sg-123",
       })
     ).rejects.toThrow(
@@ -323,13 +323,13 @@ describe("securityGroupRouter.getSecurityGroupById", () => {
     const caller = createCaller(ctx)
 
     await expect(
-      caller.securityGroup.getSecurityGroupById({
+      caller.securityGroup.getById({
         securityGroupId: "sg-123",
       })
     ).rejects.toThrowError(TRPCError)
 
     try {
-      await caller.securityGroup.getSecurityGroupById({ securityGroupId: "sg-123" })
+      await caller.securityGroup.getById({ securityGroupId: "sg-123" })
     } catch (error) {
       if (error instanceof TRPCError) {
         expect(error.code).toBe("INTERNAL_SERVER_ERROR")
