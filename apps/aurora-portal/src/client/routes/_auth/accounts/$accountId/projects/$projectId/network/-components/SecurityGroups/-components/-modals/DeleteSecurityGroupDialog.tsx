@@ -24,6 +24,7 @@ export const DeleteSecurityGroupDialog: React.FC<DeleteSecurityGroupDialogProps>
   const [confirmationText, setConfirmationText] = useState("")
 
   const isDeleteEnabled = confirmationText.toLowerCase() === "delete"
+  const securityGroupName = securityGroup.name || securityGroup.id
 
   const handleDelete = (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault()
@@ -36,6 +37,7 @@ export const DeleteSecurityGroupDialog: React.FC<DeleteSecurityGroupDialogProps>
     setConfirmationText("")
     onClose()
   }
+
 
   return (
     <Modal
@@ -78,8 +80,7 @@ export const DeleteSecurityGroupDialog: React.FC<DeleteSecurityGroupDialogProps>
         <p className="mt-4">
           <Trans>
             Would you like to remove the security group{" "}
-            <strong className="text-theme-high font-semibold">{securityGroup.name || securityGroup.id}</strong> from
-            your project?
+            <strong className="text-theme-high font-semibold">{securityGroupName}</strong> from your project?
           </Trans>
         </p>
 

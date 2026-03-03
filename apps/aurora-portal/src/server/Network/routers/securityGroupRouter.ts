@@ -145,11 +145,29 @@ export const securityGroupRouter = {
       const network = openstackSession?.service("network")
       validateOpenstackService(network, "network")
 
-      const response = await network.del(`${SECURITY_GROUPS_BASE_URL}/${securityGroupId}`)
+      try {
+        const response = await network.del(`${SECURITY_GROUPS_BASE_URL}/${securityGroupId}`)
 
-      // Check for error responses
-      if (!response?.ok) {
-        throw SecurityGroupErrorHandlers.delete(response, securityGroupId)
+        // Check for error responses
+        if (!response?.ok) {
+          throw SecurityGroupErrorHandlers.delete(response, securityGroupId)
+        }
+      } catch (error) {
+        // If it's already a TRPCError from our handler, rethrow it
+        if (error instanceof TRPCError) {
+          throw error
+        }
+        // Otherwise, check if it's an OpenStack error with status and message
+        if (error && typeof error === "object") {
+          const err = error as { status?: number; statusText?: string; message?: string; statusCode?: number }
+          const response = {
+            status: err.status || err.statusCode || 500,
+            statusText: err.message || err.statusText || "Unknown error",
+          }
+          throw SecurityGroupErrorHandlers.delete(response, securityGroupId)
+        }
+        // For any other error, rethrow
+        throw error
       }
     }, "delete security group")
   }),
