@@ -499,12 +499,7 @@ describe("securityGroupRouter.delete", () => {
               return Promise.resolve({
                 ok: false,
                 status: responseStatus,
-                statusText:
-                  responseStatus === 409
-                    ? "Conflict"
-                    : responseStatus === 404
-                      ? "Not Found"
-                      : "Error",
+                statusText: responseStatus === 409 ? "Conflict" : responseStatus === 404 ? "Not Found" : "Error",
               })
             }),
           }
