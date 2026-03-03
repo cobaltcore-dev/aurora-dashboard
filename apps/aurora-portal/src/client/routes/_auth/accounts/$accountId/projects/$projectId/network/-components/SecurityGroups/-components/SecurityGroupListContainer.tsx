@@ -119,7 +119,6 @@ export const SecurityGroupListContainer = ({
     )
   }
 
-
   // Empty state
   if (securityGroups.length === 0) {
     return (

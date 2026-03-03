@@ -38,7 +38,6 @@ export const DeleteSecurityGroupDialog: React.FC<DeleteSecurityGroupDialogProps>
     onClose()
   }
 
-
   return (
     <Modal
       open={isOpen}
