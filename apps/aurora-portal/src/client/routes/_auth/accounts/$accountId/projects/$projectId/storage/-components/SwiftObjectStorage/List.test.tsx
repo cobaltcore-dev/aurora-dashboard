@@ -59,6 +59,9 @@ vi.mock("@/client/trpcClient", () => ({
         getServiceInfo: {
           useQuery: () => ({ data: trpcState.serviceInfo }),
         },
+        listObjects: {
+          useQuery: () => ({ data: [], isLoading: false }),
+        },
         createContainer: {
           useMutation: (options: typeof capturedMutationOptions) => {
             capturedMutationOptions = options ?? {}
@@ -71,6 +74,23 @@ vi.mock("@/client/trpcClient", () => ({
               isPending: false,
             }
           },
+        },
+        emptyContainer: {
+          useMutation: () => ({
+            mutate: vi.fn(),
+            reset: vi.fn(),
+            isPending: false,
+          }),
+        },
+        getContainerMetadata: {
+          useQuery: () => ({ data: undefined }),
+        },
+        deleteContainer: {
+          useMutation: () => ({
+            mutate: vi.fn(),
+            reset: vi.fn(),
+            isPending: false,
+          }),
         },
       },
     },
