@@ -138,21 +138,19 @@ export const securityGroupRouter = {
       }, "create security group")
     }),
 
-  delete: protectedProcedure
-    .input(deleteSecurityGroupInputSchema)
-    .mutation(async ({ input, ctx }): Promise<void> => {
-      return withErrorHandling(async () => {
-        const { securityGroupId } = input
-        const openstackSession = ctx.openstack
-        const network = openstackSession?.service("network")
-        validateOpenstackService(network, "network")
+  delete: protectedProcedure.input(deleteSecurityGroupInputSchema).mutation(async ({ input, ctx }): Promise<void> => {
+    return withErrorHandling(async () => {
+      const { securityGroupId } = input
+      const openstackSession = ctx.openstack
+      const network = openstackSession?.service("network")
+      validateOpenstackService(network, "network")
 
-        const response = await network.del(`${SECURITY_GROUPS_BASE_URL}/${securityGroupId}`)
+      const response = await network.del(`${SECURITY_GROUPS_BASE_URL}/${securityGroupId}`)
 
-        // Check for error responses
-        if (!response?.ok) {
-          throw SecurityGroupErrorHandlers.delete(response, securityGroupId)
-        }
-      }, "delete security group")
-    }),
+      // Check for error responses
+      if (!response?.ok) {
+        throw SecurityGroupErrorHandlers.delete(response, securityGroupId)
+      }
+    }, "delete security group")
+  }),
 }

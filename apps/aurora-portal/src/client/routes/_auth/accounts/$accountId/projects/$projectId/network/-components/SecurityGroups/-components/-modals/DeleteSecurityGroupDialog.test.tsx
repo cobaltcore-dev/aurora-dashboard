@@ -162,4 +162,3 @@ describe("DeleteSecurityGroupDialog", () => {
     expect(screen.getByTestId("confirm-delete-button")).toBeDisabled()
   })
 })
-

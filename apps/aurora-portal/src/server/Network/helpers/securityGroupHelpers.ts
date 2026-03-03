@@ -67,7 +67,8 @@ export const SecurityGroupErrorHandlers = {
         // Security group is in use
         return new TRPCError({
           code: "CONFLICT",
-          message: "Cannot delete security group because it is in use by one or more ports. Please remove all associations before deleting.",
+          message:
+            "Cannot delete security group because it is in use by one or more ports. Please remove all associations before deleting.",
         })
       default:
         return new TRPCError({
