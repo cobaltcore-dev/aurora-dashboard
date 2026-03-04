@@ -41,7 +41,7 @@ vi.mock("@/client/trpcClient", () => ({
             isPending: false,
           })),
         },
-        delete: {
+        deleteById: {
           useMutation: vi.fn(() => ({
             mutate: vi.fn(),
             isPending: false,
