@@ -59,6 +59,13 @@ export const EditContainerMetadataModal = ({
     { enabled: isOpen && container !== null }
   )
 
+  const isPublicAccess = info?.read === ".r:*,.rlistings"
+
+  const { data: publicUrl } = trpcReact.storage.swift.getContainerPublicUrl.useQuery(
+    { container: container?.name ?? "" },
+    { enabled: isOpen && container !== null && isPublicAccess }
+  )
+
   const utils = trpcReact.useUtils()
 
   // ── Form state ────────────────────────────────────────────────────────────
@@ -373,20 +380,34 @@ export const EditContainerMetadataModal = ({
               </div>
             </div>
 
+            {/* ── Public URL ──────────────────────────────────────────────── */}
+            {publicUrl && (
+              <div>
+                <p className="text-theme-default mb-1 text-sm font-semibold">
+                  <Trans>URL for public access</Trans>{" "}
+                  <a
+                    href={publicUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-theme-info text-xs font-normal underline"
+                  >
+                    <Trans>Open in new tab</Trans>
+                  </a>
+                </p>
+                <TextInput value={publicUrl} disabled readOnly />
+              </div>
+            )}
+
             {/* ── Static website serving ───────────────────────────────────── */}
             <div>
               <p className="text-theme-default mb-3 text-sm font-semibold">
                 <Trans>Static website serving</Trans>
               </p>
-              {info?.read !== ".r:*,.rlistings" ? (
-                <Message variant="warning">
-                  <Trans>Public read access is not enabled.</Trans>
-                </Message>
-              ) : (
+              {!isPublicAccess && (
                 <Message variant="info">
                   <Trans>
-                    Before configuring static website serving, go to <Badge variant="info">Manage Access</Badge> and
-                    enable public read access.
+                    Public read access is not enabled. Before configuring static website serving, go to{" "}
+                    <Badge variant="info">Manage Access</Badge> and enable public read access.
                   </Trans>
                 </Message>
               )}

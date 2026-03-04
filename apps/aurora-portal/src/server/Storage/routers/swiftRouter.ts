@@ -341,6 +341,28 @@ export const swiftRouter = {
     }),
 
   /**
+   * Returns the public URL for a container (derived from the service catalog public endpoint)
+   */
+  getContainerPublicUrl: protectedProcedure
+    .input(getContainerMetadataInputSchema)
+    .query(async ({ input, ctx }): Promise<string | null> => {
+      return withErrorHandling(async () => {
+        const { container } = input
+        const openstackSession = ctx.openstack
+        const swift = openstackSession?.service("swift")
+
+        validateSwiftService(swift)
+
+        const endpoints = swift.availableEndpoints()
+        const publicEndpoint = endpoints?.find((ep) => ep.interface === "public")
+        if (!publicEndpoint?.url) return null
+
+        const base = publicEndpoint.url.replace(/\/$/, "")
+        return `${base}/${encodeURIComponent(container)}/`
+      }, "get container public URL")
+    }),
+
+  /**
    * Deletes an empty container
    */
   deleteContainer: protectedProcedure
