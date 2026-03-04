@@ -495,7 +495,7 @@ export const EditContainerMetadataModal = ({
               </p>
               {isPublicAccess ? (
                 <Stack direction="vertical" gap="4">
-                  <Stack direction="horizontal" alignment="center" gap="3">
+                  <Stack direction="vertical" gap="1">
                     <Checkbox
                       label={t`Serve objects as index when file name is:`}
                       checked={!!webIndex}
@@ -505,13 +505,15 @@ export const EditContainerMetadataModal = ({
                       }}
                       disabled={isBusy}
                     />
-                    <TextInput
-                      value={webIndex}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setWebIndex(e.target.value)}
-                      placeholder="index.html"
-                      disabled={isBusy || !webIndex}
-                      className="flex-1"
-                    />
+                    <div className="pl-6">
+                      <TextInput
+                        value={webIndex}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setWebIndex(e.target.value)}
+                        placeholder="index.html"
+                        disabled={isBusy || !webIndex}
+                        className="flex-1"
+                      />
+                    </div>
                   </Stack>
                   <Stack direction="horizontal" alignment="start" gap="2">
                     <Checkbox
@@ -545,9 +547,9 @@ export const EditContainerMetadataModal = ({
               <p className="text-theme-default mb-2 text-sm font-semibold">
                 <Trans>Object versioning</Trans>
               </p>
-              <Stack direction="vertical" gap="3">
+              <Stack direction="vertical" gap="1">
                 <Checkbox
-                  label={t`Store old object versions`}
+                  label={t`Store old object versions in container:`}
                   checked={versionsEnabled}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                     setVersionsEnabled(e.target.checked)
