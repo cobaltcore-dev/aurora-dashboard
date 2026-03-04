@@ -14,6 +14,10 @@ import {
   Button,
   Checkbox,
   Badge,
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+  Icon,
 } from "@cloudoperators/juno-ui-components"
 import { ContainerSummary } from "@/server/Storage/types/swift"
 
@@ -75,6 +79,10 @@ export const EditContainerMetadataModal = ({
   const [quotaCount, setQuotaCount] = useState("")
   const [quotaCountError, setQuotaCountError] = useState<string | null>(null)
 
+  // Static website fields
+  const [webIndex, setWebIndex] = useState("")
+  const [webListings, setWebListings] = useState(false)
+
   // Versioning
   const [versionsEnabled, setVersionsEnabled] = useState(false)
 
@@ -94,6 +102,10 @@ export const EditContainerMetadataModal = ({
     setQuotaBytes(info.quotaBytes != null ? String(info.quotaBytes) : "")
     setQuotaCount(info.quotaCount != null ? String(info.quotaCount) : "")
     setVersionsEnabled(!!(info.versionsEnabled || info.versionsLocation || info.historyLocation))
+
+    const rawMetaForWeb = info.metadata ?? {}
+    setWebIndex(rawMetaForWeb["web-index"] ?? "")
+    setWebListings(rawMetaForWeb["web-listings"] === "1" || rawMetaForWeb["web-listings"] === "true")
 
     // Custom metadata — exclude reserved keys
     const rawMeta = info.metadata ?? {}
@@ -122,6 +134,8 @@ export const EditContainerMetadataModal = ({
     setQuotaBytesError(null)
     setQuotaCount("")
     setQuotaCountError(null)
+    setWebIndex("")
+    setWebListings(false)
     setVersionsEnabled(false)
     setMetadata([])
     setMetaErrors({})
@@ -270,15 +284,33 @@ export const EditContainerMetadataModal = ({
     metadata.forEach((entry) => {
       if (entry.isNew || entry.value !== entry.originalValue || entry.key !== entry.originalKey) {
         metadataToSet[entry.key] = entry.value
+        // Key was renamed — remove the old key explicitly
+        if (!entry.isNew && entry.originalKey && entry.key !== entry.originalKey) {
+          removeMetadata.push(entry.originalKey)
+        }
       }
     })
 
-    // Removed entries — keys that were in original but not in current list
+    // Deleted entries — keys that were in original but not in current list at all
     const originalKeys = Object.keys(rawMeta).filter((k) => !RESERVED_META_KEYS.has(k))
     const currentOriginalKeys = metadata.map((e) => e.originalKey).filter(Boolean) as string[]
     originalKeys.forEach((k) => {
-      if (!currentOriginalKeys.includes(k)) removeMetadata.push(k)
+      if (!currentOriginalKeys.includes(k) && !removeMetadata.includes(k)) removeMetadata.push(k)
     })
+
+    // Web index / listings — only relevant when public access is enabled
+    if (isPublicAccess) {
+      if (webIndex) {
+        metadataToSet["web-index"] = webIndex
+      } else if (info?.metadata?.["web-index"]) {
+        removeMetadata.push("web-index")
+      }
+      if (webListings) {
+        metadataToSet["web-listings"] = "1"
+      } else if (info?.metadata?.["web-listings"]) {
+        removeMetadata.push("web-listings")
+      }
+    }
 
     // Determine versioning changes
     const wasVersioned = !!(info?.versionsEnabled || info?.versionsLocation || info?.historyLocation)
@@ -305,6 +337,25 @@ export const EditContainerMetadataModal = ({
   const isBusy = isLoading || updateMutation.isPending
   const hasEditing = metadata.some((e) => e.isEditing)
 
+  const initialQuotaBytes = info?.quotaBytes != null ? String(info.quotaBytes) : ""
+  const initialQuotaCount = info?.quotaCount != null ? String(info.quotaCount) : ""
+  const initialVersionsEnabled = !!(info?.versionsEnabled || info?.versionsLocation || info?.historyLocation)
+  const initialWebIndex = info?.metadata?.["web-index"] ?? ""
+  const initialWebListings = info?.metadata?.["web-listings"] === "1" || info?.metadata?.["web-listings"] === "true"
+  const initialMetadataKeys = Object.keys(info?.metadata ?? {}).filter((k) => !RESERVED_META_KEYS.has(k))
+
+  const metadataUnchanged =
+    metadata.length === initialMetadataKeys.length &&
+    metadata.every((e) => !e.isNew && e.key === e.originalKey && e.value === e.originalValue)
+
+  const isUnchanged =
+    quotaBytes === initialQuotaBytes &&
+    quotaCount === initialQuotaCount &&
+    versionsEnabled === initialVersionsEnabled &&
+    webIndex === initialWebIndex &&
+    webListings === initialWebListings &&
+    metadataUnchanged
+
   // ── Render ────────────────────────────────────────────────────────────────
   const displayedQuotaBytes = info?.quotaBytes != null ? `${info.quotaBytes} B` : null
 
@@ -318,11 +369,11 @@ export const EditContainerMetadataModal = ({
       }
       open={isOpen}
       onCancel={handleClose}
-      confirmButtonLabel={t`Update container`}
+      confirmButtonLabel={t`Save`}
       onConfirm={handleSubmit}
       cancelButtonLabel={t`Cancel`}
       size="large"
-      disableConfirmButton={isBusy || isAddingNew || hasEditing}
+      disableConfirmButton={isBusy || isAddingNew || hasEditing || isUnchanged}
     >
       {isLoading ? (
         <Stack direction="horizontal" alignment="center" gap="2" className="py-8">
@@ -403,7 +454,44 @@ export const EditContainerMetadataModal = ({
               <p className="text-theme-default mb-3 text-sm font-semibold">
                 <Trans>Static website serving</Trans>
               </p>
-              {!isPublicAccess && (
+              {isPublicAccess ? (
+                <Stack direction="vertical" gap="4">
+                  <Stack direction="horizontal" alignment="center" gap="3">
+                    <Checkbox
+                      label={t`Serve objects as index when file name is:`}
+                      checked={!!webIndex}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                        if (!e.target.checked) setWebIndex("")
+                        else if (!webIndex) setWebIndex("index.html")
+                      }}
+                      disabled={isBusy}
+                    />
+                    <TextInput
+                      value={webIndex}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setWebIndex(e.target.value)}
+                      placeholder="index.html"
+                      disabled={isBusy || !webIndex}
+                      className="flex-1"
+                    />
+                  </Stack>
+                  <Stack direction="horizontal" alignment="start" gap="2">
+                    <Checkbox
+                      label={t`Enable file listing`}
+                      checked={webListings}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setWebListings(e.target.checked)}
+                      disabled={isBusy}
+                    />
+                    <Tooltip triggerEvent="hover">
+                      <TooltipTrigger>
+                        <Icon icon="help" size="16" className="text-theme-light cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent className="z-10 max-w-[220px]">
+                        <Trans>If there is no index file, the URL displays a list of objects in the container.</Trans>
+                      </TooltipContent>
+                    </Tooltip>
+                  </Stack>
+                </Stack>
+              ) : (
                 <Message variant="info">
                   <Trans>
                     Public read access is not enabled. Before configuring static website serving, go to{" "}
