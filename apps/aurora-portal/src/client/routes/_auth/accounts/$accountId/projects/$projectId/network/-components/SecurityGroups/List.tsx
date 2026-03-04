@@ -88,7 +88,7 @@ export const SecurityGroups = () => {
     },
   })
 
-  const deleteSecurityGroupMutation = trpcReact.network.securityGroup.delete.useMutation({
+  const deleteSecurityGroupMutation = trpcReact.network.securityGroup.deleteById.useMutation({
     onSuccess: () => {
       // Invalidate and refetch the security groups list
       utils.network.securityGroup.list.invalidate()

@@ -31,7 +31,7 @@ const LIST_SECURITY_GROUPS_QUERY_KEY_MAP: Record<string, string> = {
  * - getById: GET /v2.0/security-groups/{security_group_id} to fetch a single security group with rules.
  *   Includes BFF-side search filtering by name, description, or id.
  * - create: POST /v2.0/security-groups to create a new security group.
- * - delete: DELETE /v2.0/security-groups/{security_group_id} to delete a security group.
+ * - deleteById: DELETE /v2.0/security-groups/{security_group_id} to delete a security group.
  */
 export const securityGroupRouter = {
   list: protectedProcedure
@@ -138,36 +138,17 @@ export const securityGroupRouter = {
       }, "create security group")
     }),
 
-  delete: protectedProcedure.input(deleteSecurityGroupInputSchema).mutation(async ({ input, ctx }): Promise<void> => {
+  deleteById: protectedProcedure.input(deleteSecurityGroupInputSchema).mutation(async ({ input, ctx }): Promise<void> => {
     return withErrorHandling(async () => {
       const { securityGroupId } = input
       const openstackSession = ctx.openstack
       const network = openstackSession?.service("network")
       validateOpenstackService(network, "network")
 
-      try {
-        const response = await network.del(`${SECURITY_GROUPS_BASE_URL}/${securityGroupId}`)
+      const response = await network.del(`${SECURITY_GROUPS_BASE_URL}/${securityGroupId}`)
 
-        // Check for error responses
-        if (!response?.ok) {
-          throw SecurityGroupErrorHandlers.delete(response, securityGroupId)
-        }
-      } catch (error) {
-        // If it's already a TRPCError from our handler, rethrow it
-        if (error instanceof TRPCError) {
-          throw error
-        }
-        // Otherwise, check if it's an OpenStack error with status and message
-        if (error && typeof error === "object") {
-          const err = error as { status?: number; statusText?: string; message?: string; statusCode?: number }
-          const response = {
-            status: err.status || err.statusCode || 500,
-            statusText: err.message || err.statusText || "Unknown error",
-          }
-          throw SecurityGroupErrorHandlers.delete(response, securityGroupId)
-        }
-        // For any other error, rethrow
-        throw error
+      if (!response?.ok) {
+        throw SecurityGroupErrorHandlers.delete(response, securityGroupId)
       }
     }, "delete security group")
   }),

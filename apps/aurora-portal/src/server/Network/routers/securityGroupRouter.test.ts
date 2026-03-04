@@ -466,7 +466,7 @@ describe("securityGroupRouter.create", () => {
   })
 })
 
-describe("securityGroupRouter.delete", () => {
+describe("securityGroupRouter.deleteById", () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })
@@ -517,7 +517,7 @@ describe("securityGroupRouter.delete", () => {
     const caller = createCaller(ctx)
 
     await expect(
-      caller.securityGroup.delete({
+      caller.securityGroup.deleteById({
         securityGroupId: "sg-123",
       })
     ).resolves.not.toThrow()
@@ -528,7 +528,7 @@ describe("securityGroupRouter.delete", () => {
     const caller = createCaller(ctx)
 
     await expect(
-      caller.securityGroup.delete({
+      caller.securityGroup.deleteById({
         securityGroupId: "sg-123",
       })
     ).rejects.toThrow(/in use/)
@@ -539,7 +539,7 @@ describe("securityGroupRouter.delete", () => {
     const caller = createCaller(ctx)
 
     await expect(
-      caller.securityGroup.delete({
+      caller.securityGroup.deleteById({
         securityGroupId: "sg-nonexistent",
       })
     ).rejects.toThrow("Security group not found")
@@ -550,7 +550,7 @@ describe("securityGroupRouter.delete", () => {
     const caller = createCaller(ctx)
 
     await expect(
-      caller.securityGroup.delete({
+      caller.securityGroup.deleteById({
         securityGroupId: "sg-123",
       })
     ).rejects.toThrow(
@@ -566,7 +566,7 @@ describe("securityGroupRouter.delete", () => {
     const caller = createCaller(ctx)
 
     await expect(
-      caller.securityGroup.delete({
+      caller.securityGroup.deleteById({
         securityGroupId: "sg-123",
       })
     ).rejects.toThrow("Network service is not available")
