@@ -23,28 +23,38 @@ const createMockQueryResult = <TData,>(overrides: Partial<MockQueryResult<TData>
     isLoading: false,
     isError: false,
     error: null,
-    trpc: { path: "network.list" },
+    trpc: { path: "network.securityGroup.list" },
     ...overrides,
-  }) as ReturnType<typeof trpcReact.network.list.useQuery>
+  }) as ReturnType<typeof trpcReact.network.securityGroup.list.useQuery>
 
 // Mock the tRPC client
 vi.mock("@/client/trpcClient", () => ({
   trpcReact: {
     network: {
-      list: {
-        useQuery: vi.fn(),
-      },
-      createSecurityGroup: {
-        useMutation: vi.fn(() => ({
-          mutateAsync: vi.fn(),
-          isPending: false,
-        })),
+      securityGroup: {
+        list: {
+          useQuery: vi.fn(),
+        },
+        create: {
+          useMutation: vi.fn(() => ({
+            mutateAsync: vi.fn(),
+            isPending: false,
+          })),
+        },
+        deleteById: {
+          useMutation: vi.fn(() => ({
+            mutate: vi.fn(),
+            isPending: false,
+          })),
+        },
       },
     },
     useUtils: vi.fn(() => ({
       network: {
-        list: {
-          invalidate: vi.fn(),
+        securityGroup: {
+          list: {
+            invalidate: vi.fn(),
+          },
         },
       },
     })),
@@ -151,7 +161,7 @@ describe("SecurityGroups", () => {
 
   describe("Component rendering", () => {
     it("renders with SecurityGroupListContainer", () => {
-      vi.mocked(trpcReact.network.list.useQuery).mockReturnValue(
+      vi.mocked(trpcReact.network.securityGroup.list.useQuery).mockReturnValue(
         createMockQueryResult<SecurityGroup[]>({
           data: mockSecurityGroups,
         })
@@ -163,7 +173,7 @@ describe("SecurityGroups", () => {
     })
 
     it("passes correct default permissions", () => {
-      vi.mocked(trpcReact.network.list.useQuery).mockReturnValue(
+      vi.mocked(trpcReact.network.securityGroup.list.useQuery).mockReturnValue(
         createMockQueryResult<SecurityGroup[]>({
           data: mockSecurityGroups,
         })
@@ -176,7 +186,7 @@ describe("SecurityGroups", () => {
         JSON.stringify({
           canCreate: true,
           canUpdate: true,
-          canDelete: false,
+          canDelete: true,
           canManageAccess: true,
         })
       )
@@ -185,7 +195,7 @@ describe("SecurityGroups", () => {
 
   describe("tRPC query", () => {
     it("calls tRPC with default sort parameters", () => {
-      const mockUseQuery = vi.mocked(trpcReact.network.list.useQuery)
+      const mockUseQuery = vi.mocked(trpcReact.network.securityGroup.list.useQuery)
       mockUseQuery.mockReturnValue(createMockQueryResult<SecurityGroup[]>({ data: [] }))
 
       render(<SecurityGroups />, { wrapper: createWrapper() })
@@ -197,7 +207,7 @@ describe("SecurityGroups", () => {
     })
 
     it("passes loading state", () => {
-      vi.mocked(trpcReact.network.list.useQuery).mockReturnValue(
+      vi.mocked(trpcReact.network.securityGroup.list.useQuery).mockReturnValue(
         createMockQueryResult<SecurityGroup[]>({
           isLoading: true,
         })
@@ -209,7 +219,7 @@ describe("SecurityGroups", () => {
     })
 
     it("passes error state", () => {
-      vi.mocked(trpcReact.network.list.useQuery).mockReturnValue(
+      vi.mocked(trpcReact.network.securityGroup.list.useQuery).mockReturnValue(
         createMockQueryResult<SecurityGroup[]>({
           isError: true,
           error: { message: "Failed to fetch" },
@@ -222,7 +232,7 @@ describe("SecurityGroups", () => {
     })
 
     it("passes security groups data", () => {
-      vi.mocked(trpcReact.network.list.useQuery).mockReturnValue(
+      vi.mocked(trpcReact.network.securityGroup.list.useQuery).mockReturnValue(
         createMockQueryResult<SecurityGroup[]>({
           data: mockSecurityGroups,
         })
@@ -236,7 +246,7 @@ describe("SecurityGroups", () => {
 
   describe("Sort functionality", () => {
     it("updates sort when field changes", async () => {
-      const mockUseQuery = vi.mocked(trpcReact.network.list.useQuery)
+      const mockUseQuery = vi.mocked(trpcReact.network.securityGroup.list.useQuery)
       mockUseQuery.mockReturnValue(createMockQueryResult<SecurityGroup[]>({ data: mockSecurityGroups }))
 
       const user = userEvent.setup()
@@ -256,7 +266,7 @@ describe("SecurityGroups", () => {
     })
 
     it("toggles sort direction", async () => {
-      const mockUseQuery = vi.mocked(trpcReact.network.list.useQuery)
+      const mockUseQuery = vi.mocked(trpcReact.network.securityGroup.list.useQuery)
       mockUseQuery.mockReturnValue(createMockQueryResult<SecurityGroup[]>({ data: mockSecurityGroups }))
 
       const user = userEvent.setup()
@@ -277,7 +287,7 @@ describe("SecurityGroups", () => {
 
   describe("Filter functionality", () => {
     it("applies boolean filter to query", async () => {
-      const mockUseQuery = vi.mocked(trpcReact.network.list.useQuery)
+      const mockUseQuery = vi.mocked(trpcReact.network.securityGroup.list.useQuery)
       mockUseQuery.mockReturnValue(createMockQueryResult<SecurityGroup[]>({ data: mockSecurityGroups }))
 
       const user = userEvent.setup()
@@ -298,7 +308,7 @@ describe("SecurityGroups", () => {
     })
 
     it("converts string 'false' to boolean", async () => {
-      const mockUseQuery = vi.mocked(trpcReact.network.list.useQuery)
+      const mockUseQuery = vi.mocked(trpcReact.network.securityGroup.list.useQuery)
       mockUseQuery.mockReturnValue(createMockQueryResult<SecurityGroup[]>({ data: mockSecurityGroups }))
 
       const user = userEvent.setup()
@@ -321,7 +331,7 @@ describe("SecurityGroups", () => {
 
   describe("Search functionality", () => {
     it("includes search term in query", async () => {
-      const mockUseQuery = vi.mocked(trpcReact.network.list.useQuery)
+      const mockUseQuery = vi.mocked(trpcReact.network.securityGroup.list.useQuery)
       mockUseQuery.mockReturnValue(createMockQueryResult<SecurityGroup[]>({ data: mockSecurityGroups }))
 
       const user = userEvent.setup()
@@ -340,7 +350,7 @@ describe("SecurityGroups", () => {
     })
 
     it("excludes empty search term", () => {
-      const mockUseQuery = vi.mocked(trpcReact.network.list.useQuery)
+      const mockUseQuery = vi.mocked(trpcReact.network.securityGroup.list.useQuery)
       mockUseQuery.mockReturnValue(createMockQueryResult<SecurityGroup[]>({ data: mockSecurityGroups }))
 
       render(<SecurityGroups />, { wrapper: createWrapper() })
@@ -352,7 +362,7 @@ describe("SecurityGroups", () => {
 
   describe("Integration", () => {
     it("combines sort, filter, and search parameters", async () => {
-      const mockUseQuery = vi.mocked(trpcReact.network.list.useQuery)
+      const mockUseQuery = vi.mocked(trpcReact.network.securityGroup.list.useQuery)
       mockUseQuery.mockReturnValue(createMockQueryResult<SecurityGroup[]>({ data: mockSecurityGroups }))
 
       const user = userEvent.setup()

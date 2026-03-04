@@ -8,10 +8,12 @@ import {
   getSecurityGroupByIdInputSchema,
   securityGroupResponseSchema,
   createSecurityGroupInputSchema,
+  deleteSecurityGroupInputSchema,
 } from "../types/securityGroup"
 import { withErrorHandling } from "../../helpers/errorHandling"
 import { filterBySearchParams } from "../../helpers/filterBySearchParams"
 import { validateOpenstackService } from "../../helpers/validateOpenstackService"
+import { SecurityGroupErrorHandlers } from "../helpers/securityGroupHelpers"
 
 const SECURITY_GROUPS_BASE_URL = "v2.0/security-groups"
 
@@ -28,7 +30,8 @@ const LIST_SECURITY_GROUPS_QUERY_KEY_MAP: Record<string, string> = {
  * - list: GET /v2.0/security-groups with pagination, sorting and basic filtering support.
  * - getById: GET /v2.0/security-groups/{security_group_id} to fetch a single security group with rules.
  *   Includes BFF-side search filtering by name, description, or id.
- * - createSecurityGroup: POST /v2.0/security-groups to create a new security group.
+ * - create: POST /v2.0/security-groups to create a new security group.
+ * - deleteById: DELETE /v2.0/security-groups/{security_group_id} to delete a security group.
  */
 export const securityGroupRouter = {
   list: protectedProcedure
@@ -67,7 +70,7 @@ export const securityGroupRouter = {
       }, "list security groups")
     }),
 
-  getSecurityGroupById: protectedProcedure
+  getById: protectedProcedure
     .input(getSecurityGroupByIdInputSchema)
     .query(async ({ input, ctx }): Promise<SecurityGroup> => {
       return withErrorHandling(async () => {
@@ -92,7 +95,7 @@ export const securityGroupRouter = {
       }, "fetch security group by ID")
     }),
 
-  createSecurityGroup: protectedProcedure
+  create: protectedProcedure
     .input(createSecurityGroupInputSchema)
     .mutation(async ({ input, ctx }): Promise<SecurityGroup> => {
       return withErrorHandling(async () => {
@@ -113,6 +116,12 @@ export const securityGroupRouter = {
           },
         }
         const response = await network.post(SECURITY_GROUPS_BASE_URL, requestBody)
+
+        // Check for error responses before parsing
+        if (!response.ok) {
+          throw SecurityGroupErrorHandlers.create(response)
+        }
+
         const data = await response.json()
 
         const parsed = securityGroupResponseSchema.safeParse(data)
@@ -127,5 +136,22 @@ export const securityGroupRouter = {
 
         return parsed.data.security_group
       }, "create security group")
+    }),
+
+  deleteById: protectedProcedure
+    .input(deleteSecurityGroupInputSchema)
+    .mutation(async ({ input, ctx }): Promise<void> => {
+      return withErrorHandling(async () => {
+        const { securityGroupId } = input
+        const openstackSession = ctx.openstack
+        const network = openstackSession?.service("network")
+        validateOpenstackService(network, "network")
+
+        const response = await network.del(`${SECURITY_GROUPS_BASE_URL}/${securityGroupId}`)
+
+        if (!response?.ok) {
+          throw SecurityGroupErrorHandlers.delete(response, securityGroupId)
+        }
+      }, "delete security group")
     }),
 }
