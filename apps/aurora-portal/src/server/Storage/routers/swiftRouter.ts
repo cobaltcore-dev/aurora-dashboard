@@ -175,7 +175,7 @@ export const swiftRouter = {
         const headers = buildAccountMetadataHeaders(metadata, removeMetadata, tempUrlKey, tempUrlKey2)
         const accountPath = account || ""
 
-        await swift.post(accountPath, { headers }).catch((error) => {
+        await swift.post(accountPath, undefined, { headers }).catch((error) => {
           throw mapErrorResponseToTRPCError(error, { operation: "update account metadata" })
         })
 
@@ -277,7 +277,7 @@ export const swiftRouter = {
         const accountPath = account || ""
         const url = accountPath ? `${accountPath}/${encodeURIComponent(container)}` : encodeURIComponent(container)
 
-        await swift.put(url, { headers }).catch((error) => {
+        await swift.put(url, undefined, { headers }).catch((error) => {
           throw mapErrorResponseToTRPCError(error, { operation: "create container", container })
         })
 
@@ -332,7 +332,7 @@ export const swiftRouter = {
         const accountPath = account || ""
         const url = accountPath ? `${accountPath}/${encodeURIComponent(container)}` : encodeURIComponent(container)
 
-        await swift.post(url, { headers }).catch((error) => {
+        await swift.post(url, undefined, { headers }).catch((error) => {
           throw mapErrorResponseToTRPCError(error, { operation: "update container metadata", container })
         })
 
@@ -664,7 +664,7 @@ export const swiftRouter = {
           ? `${accountPath}/${encodeURIComponent(container)}/${encodeURIComponent(object)}`
           : `${encodeURIComponent(container)}/${encodeURIComponent(object)}`
 
-        await swift.post(url, { headers }).catch((error) => {
+        await swift.post(url, undefined, { headers }).catch((error) => {
           throw mapErrorResponseToTRPCError(error, { operation: "update object metadata", container, object })
         })
 
