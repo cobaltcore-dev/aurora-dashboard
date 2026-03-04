@@ -33,6 +33,8 @@ const RESERVED_META_KEYS = new Set([
   "web-error",
 ])
 
+const MAX_COMBO_OPTIONS = 50
+
 interface MetadataEntry {
   key: string
   value: string
@@ -91,6 +93,9 @@ export const EditContainerMetadataModal = ({
           (c) => c.name !== container?.name && c.name.toLowerCase().includes(debouncedSearch.toLowerCase())
         )
       : []
+
+  const visibleContainers = filteredContainers.slice(0, MAX_COMBO_OPTIONS)
+  const hiddenCount = filteredContainers.length - visibleContainers.length
 
   const utils = trpcReact.useUtils()
 
@@ -562,11 +567,15 @@ export const EditContainerMetadataModal = ({
                       onInputChange={handleContainerSearch}
                       placeholder={t`Type to search containers…`}
                       helptext={
-                        containerSearch.trim().length === 0 ? t`Start typing to search for a container` : undefined
+                        containerSearch.trim().length === 0
+                          ? t`Start typing to search for a container`
+                          : hiddenCount > 0
+                            ? t`Showing first ${MAX_COMBO_OPTIONS} of ${filteredContainers.length} — refine your search to narrow results`
+                            : undefined
                       }
                       disabled={isBusy}
                     >
-                      {filteredContainers.map((c) => (
+                      {visibleContainers.map((c) => (
                         <ComboBoxOption key={c.name} value={c.name}>
                           {c.name}
                         </ComboBoxOption>
