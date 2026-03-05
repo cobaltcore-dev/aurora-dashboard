@@ -108,9 +108,11 @@ export const DeleteContainerModal = ({ isOpen, container, onClose, onSuccess, on
   const hasObjects = !isLoadingObjects && (actualObjectCount > 0 || container.count > 0)
 
   const modalTitle = (
-    <span className="flex items-center gap-2">
-      <Trans>Delete container:</Trans>
-      <span>{container.name}</span>
+    <span className="flex max-w-[400px] items-center gap-2">
+      <span className="shrink-0">
+        <Trans>Delete container:</Trans>
+      </span>
+      <span className="truncate">{container.name}</span>
       {!isLoadingObjects && !hasObjects && (
         <button
           type="button"

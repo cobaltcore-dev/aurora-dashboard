@@ -101,9 +101,13 @@ export const EmptyContainerModal = ({ isOpen, container, onClose, onSuccess, onE
   const showEmptyInfo = isTrulyEmpty || isConsistencyDelay
 
   const modalTitle = (
-    <span className="flex items-center gap-2">
-      <Trans>Empty container:</Trans>
-      <span>{container.name}</span>
+    <span className="flex max-w-[400px] items-center gap-2">
+      <span className="shrink-0">
+        <Trans>Empty container:</Trans>
+      </span>
+      <span className="truncate" title={container.name}>
+        {container.name}
+      </span>
       {!isLoadingObjects && !showEmptyInfo && (
         <button
           type="button"
