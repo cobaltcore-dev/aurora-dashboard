@@ -92,10 +92,67 @@ declare -a PORTS=(
     "8774:8774:Nova (Compute):critical"
     "9292:9292:Glance (Image):critical"
     "9696:9696:Neutron (Network):critical"
-    "8776:8776:Cinder (Volume):critical"
     "8778:8778:Placement:critical"
     "6080:6080:NoVNC Console:flexible"
 )
+
+# Add additional services from .env if configured
+if [ -n "$ENABLE_SERVICES" ]; then
+    info "Additional services configured: $ENABLE_SERVICES"
+
+    # Parse comma-separated services
+    IFS=',' read -ra SERVICES <<< "$ENABLE_SERVICES"
+    for service in "${SERVICES[@]}"; do
+        service=$(echo "$service" | xargs) # trim whitespace
+
+        case "$service" in
+            cinder)
+                port=${CINDER_PORT:-8776}
+                PORTS+=("$port:8776:Cinder (Block Storage):critical")
+                ;;
+            swift)
+                port=${SWIFT_PORT:-8888}
+                if [ "$port" = "8080" ]; then
+                    warning "Swift port 8080 conflicts with Horizon!"
+                    info "Using SWIFT_PORT=8888 (set in .env to override)"
+                    port=8888
+                fi
+                PORTS+=("$port:8080:Swift (Object Storage):flexible")
+                ;;
+            heat)
+                port=${HEAT_PORT:-8004}
+                PORTS+=("$port:8004:Heat (Orchestration):critical")
+                cfn_port=${HEAT_CFN_PORT:-8000}
+                PORTS+=("$cfn_port:8000:Heat-CFN:flexible")
+                ;;
+            octavia)
+                port=${OCTAVIA_PORT:-9876}
+                PORTS+=("$port:9876:Octavia (Load Balancer):critical")
+                ;;
+            designate)
+                port=${DESIGNATE_PORT:-9001}
+                PORTS+=("$port:9001:Designate (DNS):critical")
+                ;;
+            barbican)
+                port=${BARBICAN_PORT:-9311}
+                PORTS+=("$port:9311:Barbican (Key Management):critical")
+                ;;
+            manila)
+                port=${MANILA_PORT:-8786}
+                PORTS+=("$port:8786:Manila (Shared FS):critical")
+                ;;
+            ironic)
+                port=${IRONIC_PORT:-6385}
+                PORTS+=("$port:6385:Ironic (Bare Metal):critical")
+                ;;
+            *)
+                warning "Unknown service: $service (skipping)"
+                info "Supported services: cinder, swift, heat, octavia, designate, barbican, manila, ironic"
+                ;;
+        esac
+    done
+    echo ""
+fi
 
 # Check if any socat processes are already running
 EXISTING_SOCAT=$(pgrep -f "socat.*$VM_IP" || true)
@@ -262,28 +319,52 @@ for VM_PORT in $(echo "${!PORT_MAPPINGS[@]}" | tr ' ' '\n' | sort -n); do
 
     case "$ACTUAL_VM_PORT" in
         80)
-            echo "  🌐 Horizon:    http://localhost:${WSL_PORT}/dashboard"
+            echo "  🌐 Horizon:          http://localhost:${WSL_PORT}/dashboard"
             ;;
         5000)
-            echo "  🔐 Keystone:   http://localhost:${WSL_PORT}"
+            echo "  🔐 Keystone:         http://localhost:${WSL_PORT}"
             ;;
         8774)
-            echo "  💻 Nova:       http://localhost:${WSL_PORT}"
+            echo "  💻 Nova:             http://localhost:${WSL_PORT}"
             ;;
         9292)
-            echo "  🖼️  Glance:     http://localhost:${WSL_PORT}"
+            echo "  🖼️  Glance:           http://localhost:${WSL_PORT}"
             ;;
         9696)
-            echo "  🔌 Neutron:    http://localhost:${WSL_PORT}"
+            echo "  🔌 Neutron:          http://localhost:${WSL_PORT}"
             ;;
         8776)
-            echo "  💾 Cinder:     http://localhost:${WSL_PORT}"
+            echo "  💾 Cinder:           http://localhost:${WSL_PORT}"
             ;;
         8778)
-            echo "  📍 Placement:  http://localhost:${WSL_PORT}"
+            echo "  📍 Placement:        http://localhost:${WSL_PORT}"
             ;;
         6080)
-            echo "  🖥️  NoVNC:      http://localhost:${WSL_PORT}"
+            echo "  🖥️  NoVNC:            http://localhost:${WSL_PORT}"
+            ;;
+        8080)
+            echo "  📦 Swift:            http://localhost:${WSL_PORT}"
+            ;;
+        8004)
+            echo "  🔥 Heat:             http://localhost:${WSL_PORT}"
+            ;;
+        8000)
+            echo "  🔥 Heat-CFN:         http://localhost:${WSL_PORT}"
+            ;;
+        9876)
+            echo "  ⚖️  Octavia:          http://localhost:${WSL_PORT}"
+            ;;
+        9001)
+            echo "  🌍 Designate:        http://localhost:${WSL_PORT}"
+            ;;
+        9311)
+            echo "  🔑 Barbican:         http://localhost:${WSL_PORT}"
+            ;;
+        8786)
+            echo "  📁 Manila:           http://localhost:${WSL_PORT}"
+            ;;
+        6385)
+            echo "  🔨 Ironic:           http://localhost:${WSL_PORT}"
             ;;
     esac
 done

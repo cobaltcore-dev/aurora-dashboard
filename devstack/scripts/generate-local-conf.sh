@@ -75,10 +75,54 @@ fi
 if [ -n "$ENABLE_SERVICES" ]; then
     echo "" >> /home/stack/devstack/local.conf
     echo "# Additional Services" >> /home/stack/devstack/local.conf
+
     IFS=',' read -ra SERVICES <<< "$ENABLE_SERVICES"
     for service in "${SERVICES[@]}"; do
         service=$(echo "$service" | xargs) # trim whitespace
-        echo "enable_service $service" >> /home/stack/devstack/local.conf
+
+        case "$service" in
+            cinder)
+                echo "# Cinder - Block Storage" >> /home/stack/devstack/local.conf
+                echo "enable_service c-api c-vol c-sch c-bak" >> /home/stack/devstack/local.conf
+                ;;
+            swift)
+                echo "# Swift - Object Storage" >> /home/stack/devstack/local.conf
+                echo "enable_service s-proxy s-object s-container s-account" >> /home/stack/devstack/local.conf
+                echo "SWIFT_HASH=66a3d6b56c1f479c8b4e70ab5c2000f5" >> /home/stack/devstack/local.conf
+                echo "SWIFT_REPLICAS=1" >> /home/stack/devstack/local.conf
+                echo "SWIFT_DATA_DIR=\$DEST/data/swift" >> /home/stack/devstack/local.conf
+                ;;
+            heat)
+                echo "# Heat - Orchestration" >> /home/stack/devstack/local.conf
+                echo "enable_service heat h-api h-api-cfn h-eng" >> /home/stack/devstack/local.conf
+                ;;
+            octavia)
+                echo "# Octavia - Load Balancer" >> /home/stack/devstack/local.conf
+                echo "enable_plugin octavia https://opendev.org/openstack/octavia" >> /home/stack/devstack/local.conf
+                echo "enable_service octavia o-cw o-hk o-hm o-api" >> /home/stack/devstack/local.conf
+                ;;
+            designate)
+                echo "# Designate - DNS" >> /home/stack/devstack/local.conf
+                echo "enable_plugin designate https://opendev.org/openstack/designate" >> /home/stack/devstack/local.conf
+                echo "enable_service designate designate-central designate-api designate-worker designate-producer designate-mdns" >> /home/stack/devstack/local.conf
+                ;;
+            barbican)
+                echo "# Barbican - Key Management" >> /home/stack/devstack/local.conf
+                echo "enable_plugin barbican https://opendev.org/openstack/barbican" >> /home/stack/devstack/local.conf
+                ;;
+            manila)
+                echo "# Manila - Shared Filesystems" >> /home/stack/devstack/local.conf
+                echo "enable_plugin manila https://opendev.org/openstack/manila" >> /home/stack/devstack/local.conf
+                echo "enable_service m-api m-sch m-shr m-dat" >> /home/stack/devstack/local.conf
+                ;;
+            ironic)
+                echo "# Ironic - Bare Metal" >> /home/stack/devstack/local.conf
+                echo "enable_plugin ironic https://opendev.org/openstack/ironic" >> /home/stack/devstack/local.conf
+                ;;
+            *)
+                echo "# Unknown service: $service (skipping)" >> /home/stack/devstack/local.conf
+                ;;
+        esac
     done
 fi
 

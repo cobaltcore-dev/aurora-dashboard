@@ -103,10 +103,25 @@ ENABLE_HORIZON=true
 DISABLE_TEMPEST=true
 DISABLE_DSTAT=true
 
-# Optional: Additional services (comma-separated)
-# Examples: cinder,swift,heat,barbican,designate
+# Additional OpenStack Services (comma-separated)
+# Core services (keystone, nova, neutron, glance, placement) are always enabled
+# Common optional services:
+#   - cinder: Block Storage (persistent volumes)
+#   - swift: Object Storage (S3-like)
+#   - heat: Orchestration (templates/stacks)
+#   - octavia: Load Balancer as a Service
+#   - designate: DNS as a Service
+#   - barbican: Key Management (secrets)
+#   - manila: Shared Filesystems
+#   - ironic: Bare Metal Provisioning
+#
+# Examples:
+#   ENABLE_SERVICES=cinder
+#   ENABLE_SERVICES=cinder,heat,barbican
 ENABLE_SERVICES=
 ```
+
+**See [docs/SERVICES.md](docs/SERVICES.md) for complete service list and [docs/ENABLE-SERVICES.md](docs/ENABLE-SERVICES.md) for configuration guide.**
 
 ### Ubuntu Version Options
 
@@ -208,6 +223,61 @@ vim .env  # Make changes first
 # Tail stack.sh log from VM in real-time
 ./devstack.sh logs stack-tail
 ```
+
+### Service Management
+
+```bash
+# List currently configured services
+./devstack.sh services list
+
+# Show all available services
+./devstack.sh services available
+
+# Add one or more services
+./devstack.sh services add cinder
+./devstack.sh services add cinder heat barbican
+
+# Remove one or more services
+./devstack.sh services remove swift
+./devstack.sh services remove swift manila
+
+# Set services (replaces all configured services)
+./devstack.sh services enable cinder,heat,barbican
+```
+
+**Note:** Changes to services require VM rebuild: `./devstack.sh rebuild`
+
+**Manual Configuration:**
+
+You can also manually edit `.env` to configure services:
+
+```bash
+# Edit .env file
+vim .env
+
+# Add services (comma-separated, no spaces)
+ENABLE_SERVICES=cinder,heat,barbican
+
+# Or leave empty for core services only
+ENABLE_SERVICES=
+
+# Rebuild VM to apply changes
+./devstack.sh rebuild
+```
+
+**Available Services:**
+- **cinder** - Block Storage (persistent volumes for VMs)
+- **swift** - Object Storage (S3-like storage)
+- **heat** - Orchestration (Infrastructure as Code templates)
+- **octavia** - Load Balancer as a Service
+- **designate** - DNS as a Service
+- **barbican** - Key Management (secrets and certificates)
+- **manila** - Shared Filesystems (NFS/CIFS)
+- **ironic** - Bare Metal Provisioning
+
+**Core services** (always enabled): keystone, nova, neutron, glance, placement, horizon
+
+See [docs/SERVICES.md](docs/SERVICES.md) for detailed service information.
 
 ### Debugging
 

@@ -52,6 +52,13 @@ show_help() {
     echo "  status                Show VM and DevStack status"
     echo "  info                  Show detailed VM information"
     echo ""
+    echo -e "${CYAN}Services:${NC}"
+    echo "  services list             Show configured services"
+    echo "  services available        Show all available services"
+    echo "  services add <svc>        Add service(s)"
+    echo "  services remove <svc>     Remove service(s)"
+    echo "  services enable <list>    Set services (comma-separated)"
+    echo ""
     echo -e "${CYAN}Configuration:${NC}"
     echo "  rebuild               Delete and recreate VM (keeps .env)"
     echo "  update-config         Update DevStack config without rebuilding VM"
@@ -165,6 +172,10 @@ case "$COMMAND" in
 
     debug)
         ./lib/debug.sh "$@"
+        ;;
+
+    services)
+        ./lib/services.sh "$@"
         ;;
 
     cleanup)
