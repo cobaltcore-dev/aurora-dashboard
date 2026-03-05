@@ -9,6 +9,9 @@ set -e
 debug_status() {
     local service="$1"
 
+    # Source service mapping
+    source "$(dirname "${BASH_SOURCE[0]}")/../service-map.sh"
+
     echo -e "${CYAN}=== DevStack Service Status ===${NC}"
     echo ""
 
@@ -29,16 +32,37 @@ debug_status() {
             RED="\033[0;31m"
             GREEN="\033[0;32m"
             YELLOW="\033[1;33m"
+            BLUE="\033[0;34m"
             NC="\033[0m"
 
+            # Service emoji mapping (passed from host)
+            declare -A SERVICE_EMOJI=(
+                ["keystone"]="🔐"
+                ["n-api"]="💻" ["n-cond"]="💻" ["n-sch"]="💻" ["n-cpu"]="💻"
+                ["n-novnc"]="🖥️" ["n-api-meta"]="💻" ["n-super-cond"]="💻"
+                ["n-cond-cell1"]="💻" ["n-novnc-cell1"]="🖥️"
+                ["q-svc"]="🔌" ["q-agt"]="🔌" ["q-dhcp"]="🔌" ["q-l3"]="🔌" ["q-meta"]="🔌"
+                ["g-api"]="🖼️"
+                ["placement-api"]="📍"
+                ["horizon"]="🌐"
+                ["c-api"]="💾" ["c-vol"]="💾" ["c-sch"]="💾" ["c-bak"]="💾"
+                ["s-proxy"]="📦" ["s-object"]="📦" ["s-container"]="📦" ["s-account"]="📦"
+                ["h-api"]="🔥" ["h-api-cfn"]="🔥" ["h-eng"]="🔥" ["heat"]="🔥"
+                ["o-api"]="⚖️" ["o-cw"]="⚖️" ["o-hk"]="⚖️" ["o-hm"]="⚖️" ["octavia"]="⚖️"
+                ["etcd"]="⚙️"
+            )
+
             echo -e "${GREEN}Service Status:${NC}"
-            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-            printf "%-30s %-15s %-10s\n" "SERVICE" "STATUS" "MEMORY"
-            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            printf "%-3s %-25s %-15s %-10s\n" "" "SERVICE" "STATUS" "MEMORY"
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
             for unit in $(systemctl list-units "devstack@*" --all --no-pager --no-legend | awk "{print \$1}"); do
                 service_name=$(echo $unit | sed "s/devstack@//;s/\.service//")
                 status=$(systemctl is-active $unit 2>/dev/null || echo "inactive")
+
+                # Get emoji for service
+                emoji="${SERVICE_EMOJI[$service_name]:-❓}"
 
                 # Get memory usage if active
                 mem_usage="-"
@@ -61,10 +85,10 @@ debug_status() {
                     status_colored="${RED}$status${NC}"
                 fi
 
-                printf "%-30s %-25s %-10s\n" "$service_name" "$(echo -e $status_colored)" "$mem_usage"
+                printf "%-3s %-25s %-25s %-10s\n" "$emoji" "$service_name" "$(echo -e $status_colored)" "$mem_usage"
             done
 
-            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
         '
 
         echo ""

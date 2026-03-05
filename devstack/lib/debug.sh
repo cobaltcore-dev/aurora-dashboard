@@ -196,10 +196,12 @@ case "$SUBCOMMAND" in
             fi
             echo ""
             info "Common service groups:"
-            echo "  - nova (n-api, n-cond, n-sch, n-cpu)"
-            echo "  - neutron (q-svc, q-agt, q-dhcp, q-l3, q-meta)"
-            echo "  - glance (g-api)"
-            echo "  - cinder (c-api, c-sch, c-vol)"
+            echo "  💻 nova      - Compute (n-api, n-cond, n-sch, n-cpu)"
+            echo "  🔌 neutron   - Networking (q-svc, q-agt, q-dhcp, q-l3, q-meta)"
+            echo "  🖼️  glance    - Image (g-api)"
+            echo "  💾 cinder    - Block Storage (c-api, c-sch, c-vol)"
+            echo "  🔐 keystone  - Identity"
+            echo "  📍 placement - Resource Placement"
             exit 1
         fi
         validate_service "$SERVICE"
@@ -236,12 +238,12 @@ case "$SUBCOMMAND" in
             fi
             echo ""
             info "Common API services:"
-            echo "  - nova (compute API)"
-            echo "  - neutron (networking API)"
-            echo "  - glance (image API)"
-            echo "  - cinder (volume API)"
-            echo "  - keystone (identity API)"
-            echo "  - placement (placement API)"
+            echo "  💻 nova      - Compute API (n-api)"
+            echo "  🔌 neutron   - Networking API (q-svc)"
+            echo "  🖼️  glance    - Image API (g-api)"
+            echo "  💾 cinder    - Volume API (c-api)"
+            echo "  🔐 keystone  - Identity API"
+            echo "  📍 placement - Placement API (placement-api)"
             exit 1
         fi
         validate_service "$SERVICE"
