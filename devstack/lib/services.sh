@@ -33,9 +33,15 @@ error() {
 
 # Load environment
 if [ ! -f .env ]; then
-    error ".env file not found"
-    info "Copy .env.example to .env first: cp .env.example .env"
-    exit 1
+    if [ -f .env.example ]; then
+        echo -e "${BLUE}ℹ${NC} .env file not found, creating from .env.example..."
+        cp .env.example .env
+        echo -e "${GREEN}✓${NC} .env file created with default values"
+        echo ""
+    else
+        error ".env.example not found"
+        exit 1
+    fi
 fi
 
 # Service definitions with metadata

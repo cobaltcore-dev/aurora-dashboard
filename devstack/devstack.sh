@@ -109,10 +109,22 @@ if ! command -v multipass &> /dev/null; then
     exit 1
 fi
 
-# Load environment variables if .env exists
-if [ -f .env ]; then
-    source .env
+# Create .env from .env.example if it doesn't exist
+if [ ! -f .env ]; then
+    if [ -f .env.example ]; then
+        echo -e "${BLUE}ℹ${NC} .env file not found, creating from .env.example..."
+        cp .env.example .env
+        echo -e "${GREEN}✓${NC} .env file created with default values"
+        echo -e "${YELLOW}⚠${NC} You can customize settings in .env before running setup"
+        echo ""
+    else
+        echo -e "${RED}✗${NC} .env.example not found"
+        exit 1
+    fi
 fi
+
+# Load environment variables
+source .env
 
 VM_NAME=${VM_NAME:-devstack}
 COMMAND=$1
