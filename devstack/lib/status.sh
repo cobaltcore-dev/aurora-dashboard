@@ -61,7 +61,7 @@ multipass exec "$VM_NAME" -- sudo -u stack bash -c "source /home/stack/devstack/
     echo "   └─ Password: password (or value from .env)"
     echo ""
     echo "💻 CLI Access:"
-    echo "   └─ ./devstack.sh shell"
+    echo "   └─ ./devstack shell"
     echo "   └─ source /home/stack/devstack/openrc admin admin"
     echo "   └─ openstack service list"
     echo ""

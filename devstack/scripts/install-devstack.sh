@@ -28,7 +28,7 @@ if [ -f /opt/stack/.devstack-installed ]; then
     echo "To reinstall, run:"
     echo "  cd /home/stack/devstack && ./unstack.sh && ./clean.sh"
     echo "  rm /opt/stack/.devstack-installed"
-    echo "  /tmp/install-devstack.sh"
+    echo "  /tmp/install-devstack"
     exit 0
 fi
 

@@ -163,13 +163,13 @@ More services = longer DevStack installation:
 ### Check Service Status
 
 ```bash
-./devstack.sh debug status [service]
+./devstack debug status [service]
 ```
 
 ### View Service Logs
 
 ```bash
-./devstack.sh debug logs <service>
+./devstack debug logs <service>
 ```
 
 ### Restart Services
@@ -214,7 +214,7 @@ Services accessible from Windows browser:
 
 Check logs:
 ```bash
-./devstack.sh debug logs <service>
+./devstack debug logs <service>
 ```
 
 Common issues:
@@ -254,7 +254,7 @@ Each service has an API endpoint:
 ## Best Practices
 
 1. **Start minimal** - Begin with core services, add more as needed
-2. **Monitor resources** - Check `./devstack.sh status` regularly
+2. **Monitor resources** - Check `./devstack status` regularly
 3. **Use snapshots** - Create VM snapshots after successful installation
 4. **Port planning** - Document custom ports in your `.env`
 5. **Test incrementally** - Add one service at a time when troubleshooting

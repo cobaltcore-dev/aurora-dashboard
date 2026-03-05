@@ -8,19 +8,19 @@ This guide explains how to enable additional OpenStack services in your DevStack
 
 ```bash
 # List available services
-./devstack.sh services available
+./devstack services available
 
 # Add services
-./devstack.sh services add cinder heat barbican
+./devstack services add cinder heat barbican
 
 # List configured services
-./devstack.sh services list
+./devstack services list
 
 # Remove services
-./devstack.sh services remove swift
+./devstack services remove swift
 
 # Rebuild VM to apply changes
-./devstack.sh rebuild
+./devstack rebuild
 ```
 
 ### Method 2: Manual Configuration
@@ -38,10 +38,10 @@ This guide explains how to enable additional OpenStack services in your DevStack
 3. **Build/Rebuild DevStack**:
    ```bash
    # For new installation:
-   ./devstack.sh setup
+   ./devstack setup
 
    # For existing VM:
-   ./devstack.sh rebuild
+   ./devstack rebuild
    ```
 
 4. **Start port forwarding** (WSL2 only):
@@ -55,13 +55,13 @@ This guide explains how to enable additional OpenStack services in your DevStack
 
 ```bash
 # 1. Add service using CLI
-./devstack.sh services add cinder
+./devstack services add cinder
 
 # 2. Rebuild DevStack (takes ~20 minutes)
-./devstack.sh rebuild
+./devstack rebuild
 
 # 3. Verify installation
-./devstack.sh status
+./devstack status
 
 # 4. Start port forwarding (WSL2)
 ./scripts/wsl2-port-forward.sh
@@ -81,10 +81,10 @@ vim .env
 ENABLE_SERVICES=cinder
 
 # 2. Rebuild DevStack (takes ~20 minutes)
-./devstack.sh rebuild
+./devstack rebuild
 
 # 3. Verify installation
-./devstack.sh status
+./devstack status
 
 # 4. Start port forwarding (WSL2)
 ./scripts/wsl2-port-forward.sh
@@ -99,7 +99,7 @@ ENABLE_SERVICES=cinder
 
 ```bash
 # 1. Add multiple services at once
-./devstack.sh services add cinder heat octavia barbican
+./devstack services add cinder heat octavia barbican
 
 # 2. Increase VM resources (recommended)
 vim .env
@@ -109,12 +109,12 @@ VM_MEMORY=12G
 VM_DISK=60G
 
 # 3. Rebuild
-./devstack.sh rebuild
+./devstack rebuild
 
 # 4. Wait ~30-40 minutes for installation
 
 # 5. Verify all services
-./devstack.sh debug status
+./devstack debug status
 ```
 
 ### Example 4: Full Featured Environment - Manual Method
@@ -131,12 +131,12 @@ VM_MEMORY=12G
 VM_DISK=60G
 
 # 2. Rebuild
-./devstack.sh rebuild
+./devstack rebuild
 
 # 3. Wait ~30-40 minutes for installation
 
 # 4. Verify all services
-./devstack.sh debug status
+./devstack debug status
 ```
 
 ## Available Services
@@ -155,7 +155,7 @@ See [SERVICES.md](SERVICES.md) for complete list of services.
 
 ## What Happens During Installation
 
-When you run `./devstack.sh setup` or `rebuild`:
+When you run `./devstack setup` or `rebuild`:
 
 1. **`.env` is read** - Your `ENABLE_SERVICES` setting is loaded
 2. **`local.conf` is generated** - Script `scripts/generate-local-conf.sh` creates DevStack configuration
@@ -217,20 +217,20 @@ enable_service heat h-api h-api-cfn h-eng
 
 ```bash
 # All services
-./devstack.sh debug status
+./devstack debug status
 
 # Specific service
-./devstack.sh debug status cinder
+./devstack debug status cinder
 ```
 
 ### Check Service Logs
 
 ```bash
 # View logs
-./devstack.sh debug logs c-api
+./devstack debug logs c-api
 
 # Tail logs in real-time
-./devstack.sh logs stack-tail
+./devstack logs stack-tail
 ```
 
 ### Test API Endpoints
@@ -278,34 +278,34 @@ Services accessible from Windows browser:
 **Add services:**
 ```bash
 # Add single service
-./devstack.sh services add cinder
+./devstack services add cinder
 
 # Add multiple services
-./devstack.sh services add cinder heat barbican
+./devstack services add cinder heat barbican
 ```
 
 **Remove services:**
 ```bash
 # Remove single service
-./devstack.sh services remove swift
+./devstack services remove swift
 
 # Remove multiple services
-./devstack.sh services remove swift manila
+./devstack services remove swift manila
 ```
 
 **List services:**
 ```bash
 # Show configured services
-./devstack.sh services list
+./devstack services list
 
 # Show all available services
-./devstack.sh services available
+./devstack services available
 ```
 
 **Set services (replaces all):**
 ```bash
 # Replace all configured services with new list
-./devstack.sh services enable cinder,heat
+./devstack services enable cinder,heat
 ```
 
 ### Manual Configuration
@@ -340,7 +340,7 @@ ENABLE_SERVICES=
 **Both methods require VM rebuild:**
 ```bash
 # After CLI commands or manual .env edit:
-./devstack.sh rebuild
+./devstack rebuild
 ```
 
 **Why rebuild is needed:**
@@ -355,10 +355,10 @@ ENABLE_SERVICES=
 
 ```bash
 # 1. Remove service(s)
-./devstack.sh services remove swift manila
+./devstack services remove swift manila
 
 # 2. Rebuild
-./devstack.sh rebuild
+./devstack rebuild
 ```
 
 ### Manual Method
@@ -370,7 +370,7 @@ vim .env
 # To:          ENABLE_SERVICES=cinder,heat,barbican
 
 # 2. Rebuild
-./devstack.sh rebuild
+./devstack rebuild
 ```
 
 **Note:** You cannot just disable services - DevStack needs to be rebuilt without them.
@@ -395,7 +395,7 @@ More services = more resources needed:
 
 **Check logs:**
 ```bash
-./devstack.sh logs stack
+./devstack logs stack
 # Or
 tail -f devstack-install.log
 ```
@@ -403,7 +403,7 @@ tail -f devstack-install.log
 **Common issues:**
 - Out of memory → Increase `VM_MEMORY`
 - Disk full → Increase `VM_DISK`
-- Network timeout → Retry `./devstack.sh rebuild`
+- Network timeout → Retry `./devstack rebuild`
 
 ### Service Installed but Not Running
 
@@ -444,8 +444,8 @@ VM_DISK=60G
 VM_MEMORY=12G
 
 # Rebuild
-./devstack.sh cleanup
-./devstack.sh setup
+./devstack cleanup
+./devstack setup
 ```
 
 ## Best Practices
@@ -453,10 +453,10 @@ VM_MEMORY=12G
 1. **Start minimal** - Add services one at a time
 2. **Use snapshots** - Create snapshot after successful installation:
    ```bash
-   ./devstack.sh snapshot create after-cinder
+   ./devstack snapshot create after-cinder
    ```
 3. **Test incrementally** - Verify each service works before adding more
-4. **Monitor resources** - Check `./devstack.sh status` for memory/CPU usage
+4. **Monitor resources** - Check `./devstack status` for memory/CPU usage
 5. **Keep notes** - Document which services you need in your project README
 
 ## Common Service Combinations

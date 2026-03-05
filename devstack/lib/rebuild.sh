@@ -52,7 +52,7 @@ echo ""
 # Check if VM exists
 if ! multipass list | grep -q "^${VM_NAME}"; then
     error "VM '${VM_NAME}' does not exist."
-    info "Use './devstack.sh setup' to create a new VM."
+    info "Use './devstack setup' to create a new VM."
     exit 1
 fi
 

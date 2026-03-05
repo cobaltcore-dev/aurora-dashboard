@@ -127,8 +127,8 @@ show_list() {
         echo "  📍 placement  - Resource Placement"
         echo "  🌐 horizon    - Dashboard (Web UI)"
         echo ""
-        info "Add services with: ./devstack.sh services add <service>"
-        info "See available services: ./devstack.sh services available"
+        info "Add services with: ./devstack services add <service>"
+        info "See available services: ./devstack services available"
     else
         echo -e "${CYAN}Configured Additional Services:${NC}"
         echo ""
@@ -164,7 +164,7 @@ add_services() {
 
     if [ ${#services_to_add[@]} -eq 0 ]; then
         error "No services specified"
-        info "Usage: ./devstack.sh services add <service1> [service2] [...]"
+        info "Usage: ./devstack services add <service1> [service2] [...]"
         echo ""
 
         # Get current services
@@ -192,7 +192,7 @@ add_services() {
             echo -e "${GREEN}All services are already enabled!${NC}"
         fi
         echo ""
-        info "Example: ./devstack.sh services add cinder heat"
+        info "Example: ./devstack services add cinder heat"
         exit 1
     fi
 
@@ -252,7 +252,7 @@ add_services() {
     info "Current services: $new_services"
     echo ""
     warning "VM rebuild required for changes to take effect"
-    echo "  Run: ${GREEN}./devstack.sh rebuild${NC}"
+    echo "  Run: ${GREEN}./devstack rebuild${NC}"
     echo ""
 }
 
@@ -262,8 +262,8 @@ remove_services() {
 
     if [ ${#services_to_remove[@]} -eq 0 ]; then
         error "No services specified"
-        info "Usage: ./devstack.sh services remove <service1> [service2] [...]"
-        info "Example: ./devstack.sh services remove swift manila"
+        info "Usage: ./devstack services remove <service1> [service2] [...]"
+        info "Example: ./devstack services remove swift manila"
         exit 1
     fi
 
@@ -320,7 +320,7 @@ remove_services() {
     fi
     echo ""
     warning "VM rebuild required for changes to take effect"
-    echo "  Run: ${GREEN}./devstack.sh rebuild${NC}"
+    echo "  Run: ${GREEN}./devstack rebuild${NC}"
     echo ""
 }
 
@@ -330,8 +330,8 @@ enable_services() {
 
     if [ -z "$services_list" ]; then
         error "No services specified"
-        info "Usage: ./devstack.sh services enable <service1,service2,...>"
-        info "Example: ./devstack.sh services enable cinder,heat,barbican"
+        info "Usage: ./devstack services enable <service1,service2,...>"
+        info "Example: ./devstack services enable cinder,heat,barbican"
         exit 1
     fi
 
@@ -363,7 +363,7 @@ enable_services() {
     fi
     echo ""
     warning "VM rebuild required for changes to take effect"
-    echo "  Run: ${GREEN}./devstack.sh rebuild${NC}"
+    echo "  Run: ${GREEN}./devstack rebuild${NC}"
     echo ""
 }
 
@@ -373,7 +373,7 @@ show_help() {
     echo -e "${CYAN}DevStack Services Management${NC}"
     echo ""
     echo -e "${YELLOW}Usage:${NC}"
-    echo "  ./devstack.sh services <command> [options]"
+    echo "  ./devstack services <command> [options]"
     echo ""
     echo -e "${YELLOW}Commands:${NC}"
     echo "  ${GREEN}list${NC}                         Show currently configured services"
@@ -383,17 +383,17 @@ show_help() {
     echo "  ${GREEN}enable${NC} <svc1,svc2,...>       Set services (replaces all)"
     echo ""
     echo -e "${YELLOW}Examples:${NC}"
-    echo "  ./devstack.sh services list"
-    echo "  ./devstack.sh services available"
-    echo "  ./devstack.sh services add cinder"
-    echo "  ./devstack.sh services add cinder heat barbican"
-    echo "  ./devstack.sh services remove swift"
-    echo "  ./devstack.sh services enable cinder,heat"
+    echo "  ./devstack services list"
+    echo "  ./devstack services available"
+    echo "  ./devstack services add cinder"
+    echo "  ./devstack services add cinder heat barbican"
+    echo "  ./devstack services remove swift"
+    echo "  ./devstack services enable cinder,heat"
     echo ""
     echo -e "${YELLOW}Notes:${NC}"
     echo "  - Core services (keystone, nova, neutron, glance, placement, horizon)"
     echo "    are always enabled and cannot be removed"
-    echo "  - Changes require VM rebuild: ./devstack.sh rebuild"
+    echo "  - Changes require VM rebuild: ./devstack rebuild"
     echo "  - See docs/SERVICES.md for detailed service information"
     echo ""
 }

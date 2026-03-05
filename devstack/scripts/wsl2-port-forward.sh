@@ -62,7 +62,7 @@ VM_NAME=${VM_NAME:-devstack}
 # Check if VM is running
 if ! multipass list | grep -q "^${VM_NAME}.*Running"; then
     error "VM '${VM_NAME}' is not running"
-    info "Start it with: ./devstack.sh start"
+    info "Start it with: ./devstack start"
     exit 1
 fi
 

@@ -214,7 +214,7 @@ The script will show you which alternative ports were selected in the output.
 
 **Check**:
 1. Is `wsl2-port-forward.sh` running? (Keep terminal open)
-2. Is the VM running? `./devstack.sh status`
+2. Is the VM running? `./devstack status`
 3. Is Windows Firewall blocking? (Temporarily disable to test)
 
 ### Can't Access from Other Computers
@@ -283,7 +283,7 @@ netsh interface portproxy add v4tov4 `
 | Start Windows→WSL2 forwarding | `.\scripts\windows-port-forward.ps1` (as Admin) |
 | Stop WSL2 forwarding | `Ctrl+C` or `pkill -f "socat.*devstack"` |
 | Stop Windows forwarding | `netsh interface portproxy reset` |
-| Check if VM is running | `./devstack.sh status` |
+| Check if VM is running | `./devstack status` |
 | Get VM IP | `multipass info devstack \| grep IPv4` |
 
 ---
@@ -292,7 +292,7 @@ netsh interface portproxy add v4tov4 `
 
 1. **Always start `wsl2-port-forward.sh` first** before `windows-port-forward.ps1`
 2. **Keep the WSL2 terminal open** while using DevStack
-3. **Use `./devstack.sh start`** - it will remind you about port forwarding
+3. **Use `./devstack start`** - it will remind you about port forwarding
 4. **Only use `windows-port-forward.ps1`** if you need external access
 5. **Stop port forwarding** when not using DevStack to free resources
 
@@ -353,7 +353,7 @@ Yes. When you stop and start the VM:
 2. Stop the old port forwarding: `Ctrl+C` or `sudo pkill -f "socat.*devstack"`
 3. Start new port forwarding: `./scripts/wsl2-port-forward.sh`
 
-The `./devstack.sh start` command will remind you about this.
+The `./devstack start` command will remind you about this.
 
 ### Why can't I just access the VM IP directly from Windows?
 

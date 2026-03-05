@@ -88,10 +88,10 @@ case "$ACTION" in
         error "Unknown logs action: $ACTION"
         echo ""
         echo "Usage:"
-        echo "  ./devstack.sh logs [show]      - Show last 50 lines of installation log"
-        echo "  ./devstack.sh logs tail        - Tail installation log in real-time"
-        echo "  ./devstack.sh logs stack       - Show last 50 lines of stack.sh log from VM"
-        echo "  ./devstack.sh logs stack-tail  - Tail stack.sh log from VM in real-time"
+        echo "  ./devstack logs [show]      - Show last 50 lines of installation log"
+        echo "  ./devstack logs tail        - Tail installation log in real-time"
+        echo "  ./devstack logs stack       - Show last 50 lines of stack.sh log from VM"
+        echo "  ./devstack logs stack-tail  - Tail stack.sh log from VM in real-time"
         exit 1
         ;;
 esac

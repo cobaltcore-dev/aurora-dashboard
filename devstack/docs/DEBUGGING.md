@@ -453,14 +453,14 @@ multipass restore devstack --snapshot clean-install
 # Sonst: VM neu erstellen
 multipass delete devstack
 multipass purge
-./devstack.sh setup
+./devstack setup
 ```
 
 ## 💡 Pro Tips
 
 1. **Erstelle immer Snapshots nach erfolgreicher Installation:**
    ```bash
-   ./devstack.sh snapshot create clean-install
+   ./devstack snapshot create clean-install
    ```
 
 2. **Bei Debugging: Tail mehrere Logs gleichzeitig:**

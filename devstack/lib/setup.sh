@@ -189,11 +189,11 @@ sleep 10
 # Copy scripts to VM
 info "Copying setup scripts to VM..."
 multipass transfer scripts/generate-local-conf.sh "${VM_NAME}:/tmp/"
-multipass transfer scripts/install-devstack.sh "${VM_NAME}:/tmp/"
+multipass transfer scripts/install-devstack "${VM_NAME}:/tmp/"
 
 # Make scripts executable
 multipass exec "$VM_NAME" -- chmod +x /tmp/generate-local-conf.sh
-multipass exec "$VM_NAME" -- chmod +x /tmp/install-devstack.sh
+multipass exec "$VM_NAME" -- chmod +x /tmp/install-devstack
 
 # Generate local.conf
 info "Generating DevStack local.conf..."
@@ -209,7 +209,7 @@ info "This will take approximately 15-20 minutes."
 echo ""
 
 # Start DevStack installation
-multipass exec "$VM_NAME" -- sudo -u stack /tmp/install-devstack.sh > devstack-install.log 2>&1 &
+multipass exec "$VM_NAME" -- sudo -u stack /tmp/install-devstack > devstack-install.log 2>&1 &
 INSTALL_PID=$!
 
 success "DevStack installation started (PID: $INSTALL_PID)"

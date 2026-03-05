@@ -51,12 +51,12 @@ cp .env.example .env
 vim .env
 
 # 3. Create and provision VM
-./devstack.sh setup
+./devstack setup
 
 # 4. Wait for installation (~15-20 minutes)
 
 # 5. Check status
-./devstack.sh status
+./devstack status
 
 # 6. Access Horizon
 # Get VM IP from status output, then open:
@@ -153,99 +153,99 @@ cat docs/VERSIONS.md
 
 ## Commands
 
-All commands are managed through the central `./devstack.sh` script:
+All commands are managed through the central `./devstack` script:
 
 ### VM Management
 
 ```bash
 # Create and provision new VM
-./devstack.sh setup
+./devstack setup
 
 # Start existing VM
-./devstack.sh start
+./devstack start
 
 # Stop VM
-./devstack.sh stop
+./devstack stop
 
 # Restart VM
-./devstack.sh restart
+./devstack restart
 
 # Open shell in VM
-./devstack.sh shell
+./devstack shell
 
 # Show VM and DevStack status
-./devstack.sh status
+./devstack status
 
 # Show detailed VM information
-./devstack.sh info
+./devstack info
 ```
 
 ### Configuration Management
 
 ```bash
 # Delete and recreate VM (keeps .env configuration)
-./devstack.sh rebuild
+./devstack rebuild
 
 # Update DevStack configuration without rebuilding VM
 # Updates local.conf and restarts services (~10-15 min)
 vim .env  # Make changes first
-./devstack.sh update-config
+./devstack update-config
 ```
 
 ### Snapshot Management
 
 ```bash
 # Create snapshot
-./devstack.sh snapshot create clean-install
+./devstack snapshot create clean-install
 
 # Restore from snapshot
-./devstack.sh snapshot restore clean-install
+./devstack snapshot restore clean-install
 
 # List all snapshots
-./devstack.sh snapshot list
+./devstack snapshot list
 
 # Delete snapshot
-./devstack.sh snapshot delete clean-install
+./devstack snapshot delete clean-install
 ```
 
 ### Logs
 
 ```bash
 # Show last 50 lines of installation log
-./devstack.sh logs
+./devstack logs
 
 # Tail installation log in real-time
-./devstack.sh logs tail
+./devstack logs tail
 
 # Show last 50 lines of stack.sh log from VM
-./devstack.sh logs stack
+./devstack logs stack
 
 # Tail stack.sh log from VM in real-time
-./devstack.sh logs stack-tail
+./devstack logs stack-tail
 ```
 
 ### Service Management
 
 ```bash
 # List currently configured services
-./devstack.sh services list
+./devstack services list
 
 # Show all available services
-./devstack.sh services available
+./devstack services available
 
 # Add one or more services
-./devstack.sh services add cinder
-./devstack.sh services add cinder heat barbican
+./devstack services add cinder
+./devstack services add cinder heat barbican
 
 # Remove one or more services
-./devstack.sh services remove swift
-./devstack.sh services remove swift manila
+./devstack services remove swift
+./devstack services remove swift manila
 
 # Set services (replaces all configured services)
-./devstack.sh services enable cinder,heat,barbican
+./devstack services enable cinder,heat,barbican
 ```
 
-**Note:** Changes to services require VM rebuild: `./devstack.sh rebuild`
+**Note:** Changes to services require VM rebuild: `./devstack rebuild`
 
 **Manual Configuration:**
 
@@ -262,7 +262,7 @@ ENABLE_SERVICES=cinder,heat,barbican
 ENABLE_SERVICES=
 
 # Rebuild VM to apply changes
-./devstack.sh rebuild
+./devstack rebuild
 ```
 
 **Available Services:**
@@ -283,30 +283,30 @@ See [docs/SERVICES.md](docs/SERVICES.md) for detailed service information.
 
 ```bash
 # Service-specific debugging
-./devstack.sh debug logs <service>       # Show service logs
-./devstack.sh debug status [service]     # Show service status
-./devstack.sh debug all <service>        # Complete service diagnostics
+./devstack debug logs <service>       # Show service logs
+./devstack debug status [service]     # Show service status
+./devstack debug all <service>        # Complete service diagnostics
 
 # Infrastructure debugging
-./devstack.sh debug ovs                  # OpenVSwitch diagnostics
-./devstack.sh debug api                  # Test all API endpoints
-./devstack.sh debug network              # Network diagnostics
-./devstack.sh debug compute              # Compute diagnostics
+./devstack debug ovs                  # OpenVSwitch diagnostics
+./devstack debug api                  # Test all API endpoints
+./devstack debug network              # Network diagnostics
+./devstack debug compute              # Compute diagnostics
 
 # Examples
-./devstack.sh debug logs nova            # Nova service logs
-./devstack.sh debug status               # All service status
-./devstack.sh debug all keystone         # Complete keystone diagnostics
+./devstack debug logs nova            # Nova service logs
+./devstack debug status               # All service status
+./devstack debug all keystone         # Complete keystone diagnostics
 ```
 
 ### Maintenance
 
 ```bash
 # Delete VM completely
-./devstack.sh cleanup
+./devstack cleanup
 
 # Show help
-./devstack.sh help
+./devstack help
 ```
 
 ### Direct Multipass Commands (if needed)
@@ -350,13 +350,13 @@ Get VM IP and access services:
 
 ```bash
 # Get VM IP
-./devstack.sh status
+./devstack status
 
 # Horizon Dashboard
 open http://<VM_IP>/dashboard
 
-# OpenStack CLI (via devstack.sh)
-./devstack.sh shell
+# OpenStack CLI (via devstack)
+./devstack shell
 source /opt/stack/devstack/openrc admin admin
 openstack service list
 ```
@@ -365,7 +365,7 @@ openstack service list
 
 ```bash
 # Shell into VM
-./devstack.sh shell
+./devstack shell
 
 # Source credentials
 source /opt/stack/devstack/openrc admin admin
@@ -384,11 +384,11 @@ For detailed debugging and troubleshooting, see **[docs/DEBUGGING.md](docs/DEBUG
 
 ```bash
 # Check VM and DevStack status
-./devstack.sh status
+./devstack status
 
 # Check logs
-./devstack.sh logs tail
-./devstack.sh logs stack-tail
+./devstack logs tail
+./devstack logs stack-tail
 
 # Check services
 multipass exec devstack -- systemctl status 'devstack@*'
@@ -401,22 +401,22 @@ multipass exec devstack -- sudo ovs-vsctl show
 
 **Services not starting:**
 ```bash
-./devstack.sh logs stack-tail
+./devstack logs stack-tail
 multipass exec devstack -- journalctl -u devstack@n-api -n 50
 ```
 
 **Network issues:**
 ```bash
 multipass exec devstack -- sudo ovs-vsctl show
-./devstack.sh shell
+./devstack shell
 source /home/stack/devstack/openrc admin admin
 openstack network agent list
 ```
 
 **Reset everything:**
 ```bash
-./devstack.sh cleanup
-./devstack.sh setup
+./devstack cleanup
+./devstack setup
 ```
 
 See **[docs/DEBUGGING.md](docs/DEBUGGING.md)** for comprehensive debugging guide.

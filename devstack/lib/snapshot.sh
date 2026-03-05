@@ -47,7 +47,7 @@ case "$ACTION" in
     create)
         if [ -z "$SNAPSHOT_NAME" ]; then
             error "Snapshot name required."
-            echo "Usage: ./devstack.sh snapshot create <name>"
+            echo "Usage: ./devstack snapshot create <name>"
             exit 1
         fi
 
@@ -59,7 +59,7 @@ case "$ACTION" in
     restore)
         if [ -z "$SNAPSHOT_NAME" ]; then
             error "Snapshot name required."
-            echo "Usage: ./devstack.sh snapshot restore <name>"
+            echo "Usage: ./devstack snapshot restore <name>"
             exit 1
         fi
 
@@ -77,7 +77,7 @@ case "$ACTION" in
     delete)
         if [ -z "$SNAPSHOT_NAME" ]; then
             error "Snapshot name required."
-            echo "Usage: ./devstack.sh snapshot delete <name>"
+            echo "Usage: ./devstack snapshot delete <name>"
             exit 1
         fi
 
@@ -90,10 +90,10 @@ case "$ACTION" in
         error "Unknown snapshot action: $ACTION"
         echo ""
         echo "Usage:"
-        echo "  ./devstack.sh snapshot create <name>   - Create a snapshot"
-        echo "  ./devstack.sh snapshot restore <name>  - Restore from snapshot"
-        echo "  ./devstack.sh snapshot list            - List all snapshots"
-        echo "  ./devstack.sh snapshot delete <name>   - Delete a snapshot"
+        echo "  ./devstack snapshot create <name>   - Create a snapshot"
+        echo "  ./devstack snapshot restore <name>  - Restore from snapshot"
+        echo "  ./devstack snapshot list            - List all snapshots"
+        echo "  ./devstack snapshot delete <name>   - Delete a snapshot"
         exit 1
         ;;
 esac
