@@ -15,6 +15,25 @@ BLUE='\033[0;34m'
 CYAN='\033[0;36m'
 NC='\033[0m' # No Color
 
+# Check if running under WSL2
+check_wsl2() {
+    if grep -qEi "(Microsoft|WSL)" /proc/version &> /dev/null; then
+        return 0
+    fi
+    return 1
+}
+
+# Show WSL2 port forwarding reminder
+show_wsl2_reminder() {
+    if check_wsl2; then
+        echo ""
+        echo -e "${YELLOW}⚠${NC} Running under WSL2 detected!"
+        echo -e "${BLUE}ℹ${NC} To access DevStack from Windows, start port forwarding:"
+        echo "  ./scripts/wsl2-port-forward.sh"
+        echo ""
+    fi
+}
+
 show_help() {
     echo ""
     echo "╔════════════════════════════════════════════════════════════╗"
@@ -101,6 +120,7 @@ case "$COMMAND" in
         echo -e "${BLUE}ℹ${NC} Starting VM '${VM_NAME}'..."
         multipass start "$VM_NAME"
         echo -e "${GREEN}✓${NC} VM started"
+        show_wsl2_reminder
         ;;
 
     stop)

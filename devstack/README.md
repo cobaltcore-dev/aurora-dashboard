@@ -39,7 +39,7 @@ sudo snap install multipass
 choco install multipass
 ```
 
-**Note for Windows/WSL2 users:** See [WSL2-NETWORKING.md](WSL2-NETWORKING.md) for port forwarding setup to access services from Windows host.
+**Note for Windows/WSL2 users:** See [docs/WSL2-PORT-FORWARDING.md](docs/WSL2-PORT-FORWARDING.md) for port forwarding setup to access services from Windows host.
 
 ## Quick Start
 

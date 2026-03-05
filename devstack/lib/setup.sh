@@ -28,6 +28,35 @@ error() {
     echo -e "${RED}✗${NC} $1"
 }
 
+# Check if running under WSL2
+check_wsl2() {
+    if grep -qEi "(Microsoft|WSL)" /proc/version &> /dev/null; then
+        return 0
+    fi
+    return 1
+}
+
+# Show WSL2 port forwarding reminder
+show_wsl2_reminder() {
+    echo ""
+    echo "╔════════════════════════════════════════════════════════════╗"
+    echo "║              WSL2 Port Forwarding Required                ║"
+    echo "╚════════════════════════════════════════════════════════════╝"
+    echo ""
+    warning "You are running under WSL2!"
+    echo ""
+    info "To access the DevStack services from Windows, you need to:"
+    echo ""
+    echo "  1. Start the port forwarding script:"
+    echo "     ./scripts/wsl2-port-forward.sh"
+    echo ""
+    echo "  2. Or manually forward ports in PowerShell (as Administrator):"
+    echo "     netsh interface portproxy add v4tov4 listenport=80 listenaddress=0.0.0.0 connectport=80 connectaddress=<VM_IP>"
+    echo ""
+    info "Without port forwarding, you can only access DevStack from within WSL2."
+    echo ""
+}
+
 # Load environment variables
 if [ ! -f .env ]; then
     error ".env file not found. Please copy .env.example to .env and configure it."
@@ -205,4 +234,10 @@ echo "  Horizon Dashboard: http://${VM_IP}/dashboard"
 echo "  Username: admin"
 echo "  Password: ${ADMIN_PASSWORD}"
 echo ""
+
+# Show WSL2 reminder if applicable
+if check_wsl2; then
+    show_wsl2_reminder
+fi
+
 success "Setup complete! Waiting for DevStack installation to finish..."

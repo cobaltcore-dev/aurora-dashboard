@@ -61,7 +61,7 @@ if (Test-Path $portMappingFile) {
     Write-Host "⚠ No port mapping file found, using defaults" -ForegroundColor Yellow
     # Default ports
     $portMappings = @{
-        80 = 80
+        8080 = 80
         5000 = 5000
         8774 = 8774
         9292 = 9292
@@ -73,7 +73,35 @@ if (Test-Path $portMappingFile) {
 }
 
 Write-Host ""
-Write-Host "Checking port availability on Windows..." -ForegroundColor Cyan
+Write-Host "Checking port availability..." -ForegroundColor Cyan
+Write-Host ""
+
+# Check WSL2 ports first
+Write-Host "Checking WSL2 ports..." -ForegroundColor Cyan
+$wslPortsOk = $true
+foreach ($wslPort in $portMappings.Keys) {
+    try {
+        $result = wsl bash -c "netstat -tuln 2>/dev/null | grep ':${wslPort} ' || ss -tuln 2>/dev/null | grep ':${wslPort} '"
+        if ($LASTEXITCODE -eq 0) {
+            Write-Host "⚠  Port $wslPort is in use on WSL2" -ForegroundColor Yellow
+            $wslPortsOk = $false
+        } else {
+            Write-Host "✓ Port $wslPort is available on WSL2" -ForegroundColor Green
+        }
+    } catch {
+        Write-Host "✓ Port $wslPort is available on WSL2" -ForegroundColor Green
+    }
+}
+
+if (-not $wslPortsOk) {
+    Write-Host ""
+    Write-Host "⚠  Warning: Some WSL2 ports are in use" -ForegroundColor Yellow
+    Write-Host "   Make sure wsl2-port-forward.sh is running first" -ForegroundColor Yellow
+    Write-Host ""
+}
+
+Write-Host ""
+Write-Host "Checking Windows ports..." -ForegroundColor Cyan
 Write-Host ""
 
 $forwardRules = @()
@@ -95,7 +123,7 @@ foreach ($wslPort in $portMappings.Keys) {
         Write-Host "   Using alternative port: $availablePort" -ForegroundColor Green
         $winPort = $availablePort
     } else {
-        Write-Host "✓ Port $winPort is available" -ForegroundColor Green
+        Write-Host "✓ Port $winPort is available on Windows" -ForegroundColor Green
     }
 
     $forwardRules += @{
@@ -146,7 +174,7 @@ Write-Host ""
 
 # Service mapping for display
 $serviceInfo = @{
-    80 = @{ Name = "Horizon"; Path = "/dashboard"; Icon = "🌐" }
+    8080 = @{ Name = "Horizon"; Path = "/dashboard"; Icon = "🌐" }
     5000 = @{ Name = "Keystone"; Path = ""; Icon = "🔐" }
     8774 = @{ Name = "Nova"; Path = ""; Icon = "💻" }
     9292 = @{ Name = "Glance"; Path = ""; Icon = "🖼️" }
