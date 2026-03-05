@@ -5,6 +5,9 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR/.."
 
+# Source VM check functions
+source "$SCRIPT_DIR/vm-check.sh"
+
 # Color definitions
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -36,15 +39,6 @@ if [ -f .env ]; then
 fi
 
 VM_NAME="${VM_NAME:-devstack-vm}"
-
-# Check if VM is running
-check_vm_running() {
-    if ! multipass list | grep -q "^${VM_NAME}.*Running"; then
-        error "VM '${VM_NAME}' is not running"
-        info "Start it with: ./devstack.sh start"
-        exit 1
-    fi
-}
 
 # Get list of all devstack services
 get_devstack_services() {
@@ -181,7 +175,7 @@ shift || true
 
 case "$SUBCOMMAND" in
     logs)
-        check_vm_running
+        check_vm_running "$VM_NAME" "$VM_NAME"
         SERVICE="${1:-}"
         if [ -z "$SERVICE" ]; then
             error "Service name required"
@@ -210,20 +204,20 @@ case "$SUBCOMMAND" in
         ;;
 
     status)
-        check_vm_running
+        check_vm_running "$VM_NAME"
         SERVICE="${1:-}"
         source lib/debug/status.sh
         debug_status "$SERVICE"
         ;;
 
     ovs)
-        check_vm_running
+        check_vm_running "$VM_NAME"
         source lib/debug/ovs.sh
         debug_ovs
         ;;
 
     api)
-        check_vm_running
+        check_vm_running "$VM_NAME"
         SERVICE="${1:-}"
         if [ -z "$SERVICE" ]; then
             error "Service name required"
@@ -252,20 +246,20 @@ case "$SUBCOMMAND" in
         ;;
 
     network)
-        check_vm_running
+        check_vm_running "$VM_NAME"
         INSTANCE="${1:-}"
         source lib/debug/network.sh
         debug_network "$INSTANCE"
         ;;
 
     compute)
-        check_vm_running
+        check_vm_running "$VM_NAME"
         source lib/debug/compute.sh
         debug_compute
         ;;
 
     all)
-        check_vm_running
+        check_vm_running "$VM_NAME"
         info "Running all debug checks..."
         echo ""
 

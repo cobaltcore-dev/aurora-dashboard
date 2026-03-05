@@ -159,7 +159,7 @@ case "$COMMAND" in
         ;;
 
     status)
-        ./lib/status.sh "$@"
+        ./lib/status.sh "$VM_NAME"
         ;;
 
     info)
