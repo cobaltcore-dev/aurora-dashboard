@@ -49,6 +49,15 @@ show_help() {
     echo "  logs stack            Show last 50 lines of stack.sh log from VM"
     echo "  logs stack-tail       Tail stack.sh log from VM in real-time"
     echo ""
+    echo -e "${CYAN}Debugging:${NC}"
+    echo "  debug logs <service>      Show service logs"
+    echo "  debug status [service]    Show service status"
+    echo "  debug ovs                 OpenVSwitch diagnostics"
+    echo "  debug api                 Test API endpoints"
+    echo "  debug network             Network diagnostics"
+    echo "  debug compute             Compute diagnostics"
+    echo "  debug all <service>       Complete service diagnostics"
+    echo ""
     echo -e "${CYAN}Maintenance:${NC}"
     echo "  cleanup               Delete VM completely"
     echo "  help                  Show this help"
@@ -132,6 +141,10 @@ case "$COMMAND" in
 
     logs)
         ./lib/logs.sh "$@"
+        ;;
+
+    debug)
+        ./lib/debug.sh "$@"
         ;;
 
     cleanup)

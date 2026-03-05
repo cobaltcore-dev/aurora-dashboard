@@ -209,6 +209,26 @@ vim .env  # Make changes first
 ./devstack.sh logs stack-tail
 ```
 
+### Debugging
+
+```bash
+# Service-specific debugging
+./devstack.sh debug logs <service>       # Show service logs
+./devstack.sh debug status [service]     # Show service status
+./devstack.sh debug all <service>        # Complete service diagnostics
+
+# Infrastructure debugging
+./devstack.sh debug ovs                  # OpenVSwitch diagnostics
+./devstack.sh debug api                  # Test all API endpoints
+./devstack.sh debug network              # Network diagnostics
+./devstack.sh debug compute              # Compute diagnostics
+
+# Examples
+./devstack.sh debug logs nova            # Nova service logs
+./devstack.sh debug status               # All service status
+./devstack.sh debug all keystone         # Complete keystone diagnostics
+```
+
 ### Maintenance
 
 ```bash
