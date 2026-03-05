@@ -357,8 +357,8 @@ export const EditContainerMetadataModal = ({
       quotaCount: quotaCount !== "" ? Number(quotaCount) : undefined,
       // Enable versioning with selected container, update if location changed, or remove if disabled
       versionsLocation:
-        versionsEnabled && (!wasVersioned || versionsLocation !== previousLocation)
-          ? versionsLocation || "versions"
+        versionsEnabled && (!wasVersioned || versionsLocation !== previousLocation) && versionsLocation
+          ? versionsLocation
           : undefined,
       removeVersionsLocation: !versionsEnabled && wasVersioned ? true : undefined,
     })
@@ -547,45 +547,72 @@ export const EditContainerMetadataModal = ({
               <p className="text-theme-default mb-2 text-sm font-semibold">
                 <Trans>Object versioning</Trans>
               </p>
-              <Stack direction="vertical" gap="1">
+
+              {/* Case 1: server-side versioning active, no user changes yet */}
+              {initialVersionsEnabled && versionsEnabled && !versionsLocation ? (
                 <Checkbox
-                  label={t`Store old object versions in container:`}
-                  checked={versionsEnabled}
+                  label={t`Versioning is enabled`}
+                  checked
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                    setVersionsEnabled(e.target.checked)
                     if (!e.target.checked) {
+                      setVersionsEnabled(false)
                       setVersionsLocation("")
                       setContainerSearch("")
                       setDebouncedSearch("")
                     }
                   }}
+                  disabled={true}
+                />
+              ) : !versionsEnabled && !versionsLocation ? (
+                /* Case 2: nothing enabled, nothing selected */
+                <Checkbox
+                  label={t`Store old object versions`}
+                  checked={false}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setVersionsEnabled(e.target.checked)}
                   disabled={isBusy}
                 />
-                {versionsEnabled && (
-                  <div className="pl-6">
-                    <ComboBox
-                      value={versionsLocation}
-                      onChange={(value: string) => setVersionsLocation(value)}
-                      onInputChange={handleContainerSearch}
-                      placeholder={t`Type to search containers…`}
-                      helptext={
-                        containerSearch.trim().length === 0
-                          ? t`Start typing to search for a container`
-                          : hiddenCount > 0
-                            ? t`Showing first ${MAX_COMBO_OPTIONS} of ${filteredContainers.length} — refine your search to narrow results`
-                            : undefined
+              ) : (
+                /* Case 3: checkbox checked or a container is selected */
+                <Stack direction="vertical" gap="1">
+                  <Checkbox
+                    label={t`Store old object versions in container:`}
+                    checked={versionsEnabled}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                      setVersionsEnabled(e.target.checked)
+                      if (!e.target.checked) {
+                        setVersionsLocation("")
+                        setContainerSearch("")
+                        setDebouncedSearch("")
                       }
-                      disabled={isBusy}
-                    >
-                      {visibleContainers.map((c) => (
-                        <ComboBoxOption key={c.name} value={c.name}>
-                          {c.name}
-                        </ComboBoxOption>
-                      ))}
-                    </ComboBox>
-                  </div>
-                )}
-              </Stack>
+                    }}
+                    disabled={isBusy}
+                  />
+                  {versionsEnabled && (
+                    <div className="pl-6">
+                      <ComboBox
+                        value={versionsLocation}
+                        onChange={(value: string) => setVersionsLocation(value)}
+                        onInputChange={handleContainerSearch}
+                        placeholder={t`Type to search containers…`}
+                        helptext={
+                          containerSearch.trim().length === 0
+                            ? t`Start typing to search for a container`
+                            : hiddenCount > 0
+                              ? t`Showing first ${MAX_COMBO_OPTIONS} of ${filteredContainers.length} — refine your search to narrow results`
+                              : undefined
+                        }
+                        disabled={isBusy}
+                      >
+                        {visibleContainers.map((c) => (
+                          <ComboBoxOption key={c.name} value={c.name}>
+                            {c.name}
+                          </ComboBoxOption>
+                        ))}
+                      </ComboBox>
+                    </div>
+                  )}
+                </Stack>
+              )}
             </div>
 
             {/* ── Custom Metadata ──────────────────────────────────────────── */}
