@@ -79,7 +79,7 @@ VM_DISK=40G
 # Ubuntu Version (see Ubuntu Version Options below)
 UBUNTU_VERSION=22.04
 
-# DevStack Version (see VERSIONS.md for all options)
+# DevStack Version (see docs/VERSIONS.md for all options)
 DEVSTACK_VERSION=stable/2025.1
 
 # Networking
@@ -147,8 +147,8 @@ Choose the Ubuntu version for your VM:
 # List all available versions from GitHub
 ./list-versions.sh
 
-# Or check VERSIONS.md for detailed information
-cat VERSIONS.md
+# Or check docs/VERSIONS.md for detailed information
+cat docs/VERSIONS.md
 ```
 
 ## Commands
@@ -378,7 +378,7 @@ openstack server list
 
 ## Troubleshooting
 
-For detailed debugging and troubleshooting, see **[DEBUGGING.md](DEBUGGING.md)**.
+For detailed debugging and troubleshooting, see **[docs/DEBUGGING.md](docs/DEBUGGING.md)**.
 
 ### Quick Checks
 
@@ -419,7 +419,7 @@ openstack network agent list
 ./devstack.sh setup
 ```
 
-See **[DEBUGGING.md](DEBUGGING.md)** for comprehensive debugging guide.
+See **[docs/DEBUGGING.md](docs/DEBUGGING.md)** for comprehensive debugging guide.
 
 ### Restart services
 ```bash
