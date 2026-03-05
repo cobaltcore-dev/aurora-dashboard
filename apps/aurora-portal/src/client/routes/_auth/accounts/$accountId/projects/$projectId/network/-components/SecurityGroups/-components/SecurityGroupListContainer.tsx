@@ -12,6 +12,7 @@ import {
 import { Trans, useLingui } from "@lingui/react/macro"
 import { useNavigate, useParams } from "@tanstack/react-router"
 import type { SecurityGroup } from "@/server/Network/types/securityGroup"
+import type { UpdateSecurityGroupInput } from "@/server/Network/types/securityGroup"
 import { EditSecurityGroupModal } from "./-modals/EditSecurityGroupModal"
 import { AccessControlModal } from "./-modals/AccessControlModal"
 import { DeleteSecurityGroupDialog } from "./-modals/DeleteSecurityGroupDialog"
@@ -27,6 +28,9 @@ interface SecurityGroupListContainerProps {
   onDeleteSecurityGroup?: (securityGroupId: string) => void
   isDeletingSecurityGroup?: boolean
   deleteError?: string | null
+  onUpdateSecurityGroup?: (securityGroupId: string, data: Omit<UpdateSecurityGroupInput, "securityGroupId">) => void
+  isUpdatingSecurityGroup?: boolean
+  updateError?: string | null
 }
 
 export const SecurityGroupListContainer = ({
@@ -39,6 +43,9 @@ export const SecurityGroupListContainer = ({
   onDeleteSecurityGroup,
   isDeletingSecurityGroup = false,
   deleteError = null,
+  onUpdateSecurityGroup,
+  isUpdatingSecurityGroup = false,
+  updateError = null,
 }: SecurityGroupListContainerProps) => {
   const { t } = useLingui()
   const navigate = useNavigate()
@@ -48,6 +55,7 @@ export const SecurityGroupListContainer = ({
   const [accessControlModalOpen, setAccessControlModalOpen] = useState(false)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const prevIsDeletingRef = useRef<boolean>(false)
+  const prevIsUpdatingRef = useRef<boolean>(false)
 
   const handleEdit = (sg: SecurityGroup) => {
     setSelectedSecurityGroup(sg)
@@ -99,6 +107,20 @@ export const SecurityGroupListContainer = ({
     // Update the ref for next render
     prevIsDeletingRef.current = isDeletingSecurityGroup
   }, [isDeletingSecurityGroup, deleteError, deleteDialogOpen])
+
+  // Close edit modal when update completes successfully
+  useEffect(() => {
+    // Check if update just finished (was updating before, now not updating)
+    const updateJustFinished = prevIsUpdatingRef.current && !isUpdatingSecurityGroup
+
+    // Close modal if update just finished and there's no error
+    if (updateJustFinished && editModalOpen && !updateError) {
+      closeEditModal()
+    }
+
+    // Update the ref for next render
+    prevIsUpdatingRef.current = isUpdatingSecurityGroup
+  }, [isUpdatingSecurityGroup, updateError, editModalOpen])
 
   // Loading state
   if (isLoading) {
@@ -170,7 +192,18 @@ export const SecurityGroupListContainer = ({
 
       {selectedSecurityGroup && (
         <>
-          <EditSecurityGroupModal securityGroup={selectedSecurityGroup} open={editModalOpen} onClose={closeEditModal} />
+          <EditSecurityGroupModal
+            securityGroup={selectedSecurityGroup}
+            open={editModalOpen}
+            onClose={closeEditModal}
+            onUpdate={async (id, data) => {
+              if (onUpdateSecurityGroup) {
+                await onUpdateSecurityGroup(id, data)
+              }
+            }}
+            isLoading={isUpdatingSecurityGroup}
+            error={updateError}
+          />
           <AccessControlModal
             securityGroup={selectedSecurityGroup}
             open={accessControlModalOpen}
