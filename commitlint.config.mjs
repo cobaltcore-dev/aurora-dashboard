@@ -35,6 +35,7 @@ export const scopes = [
   "ui",
   "version",
   "identity",
+  "development",
   /^ISSUE-\d+$/, // Regex pattern for ISSUE-<number>]
 ]
 
