@@ -112,7 +112,9 @@ export const DeleteContainerModal = ({ isOpen, container, onClose, onSuccess, on
       <span className="shrink-0">
         <Trans>Delete container:</Trans>
       </span>
-      <span className="truncate">{container.name}</span>
+      <span className="truncate" title={container.name}>
+        {container.name}
+      </span>
       {!isLoadingObjects && !hasObjects && (
         <button
           type="button"

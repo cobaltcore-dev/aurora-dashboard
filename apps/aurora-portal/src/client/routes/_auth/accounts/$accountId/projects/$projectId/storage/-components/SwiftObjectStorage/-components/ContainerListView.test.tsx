@@ -71,6 +71,21 @@ vi.mock("./DeleteContainerModal", () => ({
   ),
 }))
 
+// ─── Mock EditContainerMetadataModal ──────────────────────────────────────────
+
+vi.mock("./EditContainerMetadataModal", () => ({
+  EditContainerMetadataModal: vi.fn(({ isOpen, container, onClose, onSuccess, onError }) =>
+    isOpen && container ? (
+      <div data-testid="edit-container-modal">
+        <span data-testid="edit-modal-container-name">{container.name}</span>
+        <button onClick={onClose}>CloseEdit</button>
+        <button onClick={() => onSuccess?.(container.name)}>SimulateEditSuccess</button>
+        <button onClick={() => onError?.(container.name, "Update failed")}>SimulateEditError</button>
+      </div>
+    ) : null
+  ),
+}))
+
 // ─── Mock toast notification builders ────────────────────────────────────────
 
 vi.mock("./ContainerToastNotifications", () => ({

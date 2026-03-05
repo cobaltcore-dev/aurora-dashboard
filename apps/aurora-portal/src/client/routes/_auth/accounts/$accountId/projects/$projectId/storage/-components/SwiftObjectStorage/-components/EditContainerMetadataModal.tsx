@@ -407,11 +407,13 @@ export const EditContainerMetadataModal = ({
   return (
     <Modal
       title={
-        <span className="flex min-w-0 items-center gap-2">
+        <span className="flex max-w-[500px] items-center gap-2">
           <span className="shrink-0">
             <Trans>Container:</Trans>
           </span>
-          <span className="truncate">{container.name}</span>
+          <span className="truncate" title={container.name}>
+            {container.name}
+          </span>
         </span>
       }
       open={isOpen}
