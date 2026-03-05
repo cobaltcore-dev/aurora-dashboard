@@ -1,9 +1,12 @@
 import { Breadcrumb, BreadcrumbItem, Button, Stack, Spinner } from "@cloudoperators/juno-ui-components/index"
 import { createFileRoute, redirect, useNavigate, useParams } from "@tanstack/react-router"
 import { Trans, useLingui } from "@lingui/react/macro"
+import { useState } from "react"
 import { getServiceIndex } from "@/server/Authentication/helpers"
 import { trpcReact } from "@/client/trpcClient"
 import { SecurityGroupDetailsView } from "../-components/SecurityGroups/-components/SecurityGroupDetailsView"
+import { EditSecurityGroupModal } from "../-components/SecurityGroups/-components/-modals/EditSecurityGroupModal"
+import type { UpdateSecurityGroupInput } from "@/server/Network/types/securityGroup"
 
 export const Route = createFileRoute(
   "/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId"
@@ -41,8 +44,29 @@ function RouteComponent() {
   })
   const navigate = useNavigate()
   const { t } = useLingui()
+  const [editModalOpen, setEditModalOpen] = useState(false)
 
   const { data: securityGroup, status, error } = trpcReact.network.securityGroup.getById.useQuery({ securityGroupId })
+
+  const utils = trpcReact.useUtils()
+
+  const updateMutation = trpcReact.network.securityGroup.update.useMutation({
+    onSuccess: () => {
+      utils.network.securityGroup.getById.invalidate({ securityGroupId })
+      setEditModalOpen(false)
+    },
+  })
+
+  const handleEdit = () => {
+    setEditModalOpen(true)
+  }
+
+  const handleUpdate = async (id: string, data: Omit<UpdateSecurityGroupInput, "securityGroupId">) => {
+    await updateMutation.mutateAsync({
+      securityGroupId: id,
+      ...data,
+    })
+  }
 
   const handleBack = () => {
     navigate({
@@ -110,7 +134,16 @@ function RouteComponent() {
         <BreadcrumbItem active label={securityGroup.id} />
       </Breadcrumb>
 
-      <SecurityGroupDetailsView securityGroup={securityGroup} />
+      <SecurityGroupDetailsView securityGroup={securityGroup} onEdit={handleEdit} />
+
+      <EditSecurityGroupModal
+        securityGroup={securityGroup}
+        open={editModalOpen}
+        onClose={() => setEditModalOpen(false)}
+        onUpdate={handleUpdate}
+        isLoading={updateMutation.isPending}
+        error={updateMutation.error?.message || null}
+      />
     </Stack>
   )
 }
