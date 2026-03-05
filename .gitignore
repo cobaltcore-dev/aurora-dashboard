@@ -12,3 +12,8 @@ public/dist
 
 .releaserc.js.bak
 .semantic-release/
+
+AGENTS.md
+CLAUDE.md
+*playground*
+*claude
