@@ -1,0 +1,19 @@
+# Environment files
+.env
+
+# Generated files
+cloud-init.yaml
+devstack-install.log
+devstack-update.log
+.port-mapping
+
+# VM snapshots and state
+*.qcow2
+*.img
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+.DS_Store
