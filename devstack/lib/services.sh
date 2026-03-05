@@ -16,15 +16,15 @@ NC='\033[0m' # No Color
 
 # Helper functions
 info() {
-    echo -e "${BLUE}ℹ${NC} $1"
+    echo -e "${BLUE}ℹ ${NC} $1"
 }
 
 success() {
-    echo -e "${GREEN}✓${NC} $1"
+    echo -e "${GREEN}✓ ${NC} $1"
 }
 
 warning() {
-    echo -e "${YELLOW}⚠${NC} $1"
+    echo -e "${YELLOW}⚠ ${NC} $1"
 }
 
 error() {
@@ -34,9 +34,9 @@ error() {
 # Load environment
 if [ ! -f .env ]; then
     if [ -f .env.example ]; then
-        echo -e "${BLUE}ℹ${NC} .env file not found, creating from .env.example..."
+        echo -e "${BLUE}ℹ ${NC} .env file not found, creating from .env.example..."
         cp .env.example .env
-        echo -e "${GREEN}✓${NC} .env file created with default values"
+        echo -e "${GREEN}✓ ${NC} .env file created with default values"
         echo ""
     else
         error ".env.example not found"

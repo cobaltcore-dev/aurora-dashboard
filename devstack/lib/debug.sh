@@ -18,15 +18,15 @@ NC='\033[0m' # No Color
 
 # Helper functions
 info() {
-    echo -e "${BLUE}ℹ${NC} $1"
+    echo -e "${BLUE}ℹ ${NC} $1"
 }
 
 success() {
-    echo -e "${GREEN}✓${NC} $1"
+    echo -e "${GREEN}✓ ${NC} $1"
 }
 
 warning() {
-    echo -e "${YELLOW}⚠${NC} $1"
+    echo -e "${YELLOW}⚠ ${NC} $1"
 }
 
 error() {

@@ -14,11 +14,11 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 info() {
-    echo -e "${BLUE}ℹ${NC} $1"
+    echo -e "${BLUE}ℹ ${NC} $1"
 }
 
 success() {
-    echo -e "${GREEN}✓${NC} $1"
+    echo -e "${GREEN}✓ ${NC} $1"
 }
 
 error() {

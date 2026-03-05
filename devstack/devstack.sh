@@ -27,8 +27,8 @@ check_wsl2() {
 show_wsl2_reminder() {
     if check_wsl2; then
         echo ""
-        echo -e "${YELLOW}⚠${NC} Running under WSL2 detected!"
-        echo -e "${BLUE}ℹ${NC} To access DevStack from Windows, start port forwarding:"
+        echo -e "${YELLOW}⚠ ${NC} Running under WSL2 detected!"
+        echo -e "${BLUE}ℹ ${NC} To access DevStack from Windows, start port forwarding:"
         echo "  ./scripts/wsl2-port-forward.sh"
         echo ""
     fi
@@ -112,10 +112,10 @@ fi
 # Create .env from .env.example if it doesn't exist
 if [ ! -f .env ]; then
     if [ -f .env.example ]; then
-        echo -e "${BLUE}ℹ${NC} .env file not found, creating from .env.example..."
+        echo -e "${BLUE}ℹ ${NC} .env file not found, creating from .env.example..."
         cp .env.example .env
-        echo -e "${GREEN}✓${NC} .env file created with default values"
-        echo -e "${YELLOW}⚠${NC} You can customize settings in .env before running setup"
+        echo -e "${GREEN}✓ ${NC} .env file created with default values"
+        echo -e "${YELLOW}⚠ ${NC} You can customize settings in .env before running setup"
         echo ""
     else
         echo -e "${RED}✗${NC} .env.example not found"
@@ -136,22 +136,22 @@ case "$COMMAND" in
         ;;
 
     start)
-        echo -e "${BLUE}ℹ${NC} Starting VM '${VM_NAME}'..."
+        echo -e "${BLUE}ℹ ${NC} Starting VM '${VM_NAME}'..."
         multipass start "$VM_NAME"
-        echo -e "${GREEN}✓${NC} VM started"
+        echo -e "${GREEN}✓ ${NC} VM started"
         show_wsl2_reminder
         ;;
 
     stop)
-        echo -e "${BLUE}ℹ${NC} Stopping VM '${VM_NAME}'..."
+        echo -e "${BLUE}ℹ ${NC} Stopping VM '${VM_NAME}'..."
         multipass stop "$VM_NAME"
-        echo -e "${GREEN}✓${NC} VM stopped"
+        echo -e "${GREEN}✓ ${NC} VM stopped"
         ;;
 
     restart)
-        echo -e "${BLUE}ℹ${NC} Restarting VM '${VM_NAME}'..."
+        echo -e "${BLUE}ℹ ${NC} Restarting VM '${VM_NAME}'..."
         multipass restart "$VM_NAME"
-        echo -e "${GREEN}✓${NC} VM restarted"
+        echo -e "${GREEN}✓ ${NC} VM restarted"
         ;;
 
     shell)
