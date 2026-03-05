@@ -14,7 +14,6 @@ import { useNavigate, useParams } from "@tanstack/react-router"
 import type { SecurityGroup } from "@/server/Network/types/securityGroup"
 import type { UpdateSecurityGroupInput } from "@/server/Network/types/securityGroup"
 import { EditSecurityGroupModal } from "./-modals/EditSecurityGroupModal"
-import { AccessControlModal } from "./-modals/AccessControlModal"
 import { DeleteSecurityGroupDialog } from "./-modals/DeleteSecurityGroupDialog"
 import { SecurityGroupTableRow, type SecurityGroupPermissions } from "./SecurityGroupTableRow"
 
@@ -52,7 +51,6 @@ export const SecurityGroupListContainer = ({
   const { accountId, projectId } = useParams({ strict: false })
   const [selectedSecurityGroup, setSelectedSecurityGroup] = useState<SecurityGroup | null>(null)
   const [editModalOpen, setEditModalOpen] = useState(false)
-  const [accessControlModalOpen, setAccessControlModalOpen] = useState(false)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const prevIsDeletingRef = useRef<boolean>(false)
   const prevIsUpdatingRef = useRef<boolean>(false)
@@ -60,11 +58,6 @@ export const SecurityGroupListContainer = ({
   const handleEdit = (sg: SecurityGroup) => {
     setSelectedSecurityGroup(sg)
     setEditModalOpen(true)
-  }
-
-  const handleAccessControl = (sg: SecurityGroup) => {
-    setSelectedSecurityGroup(sg)
-    setAccessControlModalOpen(true)
   }
 
   const handleDelete = (sg: SecurityGroup) => {
@@ -82,11 +75,6 @@ export const SecurityGroupListContainer = ({
   const closeEditModal = () => {
     setSelectedSecurityGroup(null)
     setEditModalOpen(false)
-  }
-
-  const closeAccessControlModal = () => {
-    setSelectedSecurityGroup(null)
-    setAccessControlModalOpen(false)
   }
 
   const closeDeleteDialog = () => {
@@ -182,7 +170,6 @@ export const SecurityGroupListContainer = ({
               securityGroup={sg}
               permissions={permissions}
               onEdit={handleEdit}
-              onAccessControl={handleAccessControl}
               onDelete={handleDelete}
               onViewDetails={handleViewDetails}
             />
@@ -203,11 +190,6 @@ export const SecurityGroupListContainer = ({
             }}
             isLoading={isUpdatingSecurityGroup}
             error={updateError}
-          />
-          <AccessControlModal
-            securityGroup={selectedSecurityGroup}
-            open={accessControlModalOpen}
-            onClose={closeAccessControlModal}
           />
           <DeleteSecurityGroupDialog
             securityGroup={selectedSecurityGroup}

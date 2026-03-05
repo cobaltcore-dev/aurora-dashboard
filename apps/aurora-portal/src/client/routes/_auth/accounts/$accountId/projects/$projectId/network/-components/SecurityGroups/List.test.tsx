@@ -41,6 +41,12 @@ vi.mock("@/client/trpcClient", () => ({
             isPending: false,
           })),
         },
+        update: {
+          useMutation: vi.fn(() => ({
+            mutateAsync: vi.fn(),
+            isPending: false,
+          })),
+        },
         deleteById: {
           useMutation: vi.fn(() => ({
             mutate: vi.fn(),

@@ -66,11 +66,10 @@ describe("SecurityGroupTableRow", () => {
     canCreate: true,
     canUpdate: true,
     canDelete: false,
-    canManageAccess: true,
+    canManageAccess: false,
   }
 
   const mockOnEdit = vi.fn()
-  const mockOnAccessControl = vi.fn()
   const mockOnDelete = vi.fn()
   const mockOnViewDetails = vi.fn()
 
@@ -86,7 +85,6 @@ describe("SecurityGroupTableRow", () => {
           securityGroup={mockSecurityGroup}
           permissions={defaultPermissions}
           onEdit={mockOnEdit}
-          onAccessControl={mockOnAccessControl}
           onDelete={mockOnDelete}
         />
       )
@@ -107,7 +105,6 @@ describe("SecurityGroupTableRow", () => {
           securityGroup={sgWithoutDescription}
           permissions={defaultPermissions}
           onEdit={mockOnEdit}
-          onAccessControl={mockOnAccessControl}
           onDelete={mockOnDelete}
         />
       )
@@ -125,7 +122,6 @@ describe("SecurityGroupTableRow", () => {
           securityGroup={sharedSg}
           permissions={defaultPermissions}
           onEdit={mockOnEdit}
-          onAccessControl={mockOnAccessControl}
           onDelete={mockOnDelete}
         />
       )
@@ -147,7 +143,6 @@ describe("SecurityGroupTableRow", () => {
           securityGroup={mockSecurityGroup}
           permissions={defaultPermissions}
           onEdit={mockOnEdit}
-          onAccessControl={mockOnAccessControl}
           onDelete={mockOnDelete}
         />
       )
@@ -170,36 +165,6 @@ describe("SecurityGroupTableRow", () => {
       expect(mockOnEdit).toHaveBeenCalledWith(mockSecurityGroup)
     })
 
-    it("calls onAccessControl when clicked", async () => {
-      const user = userEvent.setup()
-      const router = createTestRouter(
-        <SecurityGroupTableRow
-          securityGroup={mockSecurityGroup}
-          permissions={defaultPermissions}
-          onEdit={mockOnEdit}
-          onAccessControl={mockOnAccessControl}
-          onDelete={mockOnDelete}
-        />
-      )
-      render(<RouterProvider router={router} />)
-
-      await waitFor(() => {
-        expect(screen.getByTestId("security-group-row-sg-123")).toBeInTheDocument()
-      })
-
-      const row = screen.getByTestId("security-group-row-sg-123")
-      const popupButton = row.querySelector("button")
-      await user.click(popupButton!)
-
-      await waitFor(() => {
-        expect(screen.getByText("Access Control")).toBeInTheDocument()
-      })
-
-      await user.click(screen.getByText("Access Control"))
-
-      expect(mockOnAccessControl).toHaveBeenCalledWith(mockSecurityGroup)
-    })
-
     it("calls onViewDetails when clicked", async () => {
       const user = userEvent.setup()
       const router = createTestRouter(
@@ -207,7 +172,6 @@ describe("SecurityGroupTableRow", () => {
           securityGroup={mockSecurityGroup}
           permissions={defaultPermissions}
           onEdit={mockOnEdit}
-          onAccessControl={mockOnAccessControl}
           onDelete={mockOnDelete}
           onViewDetails={mockOnViewDetails}
         />
@@ -238,7 +202,6 @@ describe("SecurityGroupTableRow", () => {
           securityGroup={mockSecurityGroup}
           permissions={defaultPermissions}
           onEdit={mockOnEdit}
-          onAccessControl={mockOnAccessControl}
           onDelete={mockOnDelete}
         />
       )
@@ -271,7 +234,6 @@ describe("SecurityGroupTableRow", () => {
           securityGroup={mockSecurityGroup}
           permissions={permissions}
           onEdit={mockOnEdit}
-          onAccessControl={mockOnAccessControl}
           onDelete={mockOnDelete}
         />
       )
@@ -300,7 +262,6 @@ describe("SecurityGroupTableRow", () => {
           securityGroup={mockSecurityGroup}
           permissions={permissions}
           onEdit={mockOnEdit}
-          onAccessControl={mockOnAccessControl}
           onDelete={mockOnDelete}
         />
       )
@@ -329,7 +290,6 @@ describe("SecurityGroupTableRow", () => {
           securityGroup={mockSecurityGroup}
           permissions={permissions}
           onEdit={mockOnEdit}
-          onAccessControl={mockOnAccessControl}
           onDelete={mockOnDelete}
         />
       )
@@ -363,7 +323,6 @@ describe("SecurityGroupTableRow", () => {
           securityGroup={mockSecurityGroup}
           permissions={permissions}
           onEdit={mockOnEdit}
-          onAccessControl={mockOnAccessControl}
           onDelete={mockOnDelete}
         />
       )
@@ -382,7 +341,6 @@ describe("SecurityGroupTableRow", () => {
       })
 
       expect(screen.queryByText("Edit")).not.toBeInTheDocument()
-      expect(screen.queryByText("Access Control")).not.toBeInTheDocument()
       expect(screen.queryByText("Delete")).not.toBeInTheDocument()
     })
   })
