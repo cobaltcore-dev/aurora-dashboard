@@ -62,7 +62,12 @@ export const EditContainerMetadataModal = ({
   const { t } = useLingui()
 
   // ── Query ─────────────────────────────────────────────────────────────────
-  const { data: info, isLoading } = trpcReact.storage.swift.getContainerMetadata.useQuery(
+  const {
+    data: info,
+    isLoading,
+    isError: isMetaError,
+    error: metaError,
+  } = trpcReact.storage.swift.getContainerMetadata.useQuery(
     { container: container?.name ?? "" },
     { enabled: isOpen && container !== null }
   )
@@ -372,6 +377,7 @@ export const EditContainerMetadataModal = ({
   if (!isOpen || !container) return null
 
   const isBusy = isLoading || updateMutation.isPending
+  const isMetaFailed = isMetaError && !isLoading
   const hasEditing = metadata.some((e) => e.isEditing)
 
   const initialQuotaBytes = info?.quotaBytes != null ? String(info.quotaBytes) : ""
@@ -412,12 +418,18 @@ export const EditContainerMetadataModal = ({
       onConfirm={handleSubmit}
       cancelButtonLabel={t`Cancel`}
       size="large"
-      disableConfirmButton={isBusy || isAddingNew || hasEditing || isUnchanged}
+      disableConfirmButton={isBusy || isAddingNew || hasEditing || isUnchanged || isMetaFailed}
     >
       {isLoading ? (
         <Stack direction="horizontal" alignment="center" gap="2" className="py-8">
           <Spinner size="small" />
           <Trans>Loading container properties…</Trans>
+        </Stack>
+      ) : isMetaFailed ? (
+        <Stack direction="vertical" alignment="center" gap="3" className="py-8">
+          <Message variant="danger">
+            <Trans>Failed to load container properties: {metaError?.message ?? "Unknown error"}</Trans>
+          </Message>
         </Stack>
       ) : (
         <div className="max-h-[65vh] overflow-y-auto pr-1">
