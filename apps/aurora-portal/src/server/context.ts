@@ -57,6 +57,11 @@ export async function createContext(opts: CreateFastifyContextOptions): Promise<
   const currentAuthToken = sessionCookie.get()
   let openstackSession: Awaited<SignalOpenstackSessionType> | undefined = undefined
 
+  // Debug logging
+  if (process.env.NODE_ENV !== "production") {
+    console.log("[createContext] Current auth token:", currentAuthToken ? "present" : "missing")
+  }
+
   // If we have a token, initialize the session
   if (currentAuthToken) {
     openstackSession = await SignalOpenstackSession(
@@ -70,11 +75,16 @@ export async function createContext(opts: CreateFastifyContextOptions): Promise<
         },
       },
       defaultSignalOpenstackOptions
-    ).catch(() => {
+    ).catch((err) => {
       // If the token is invalid, clear the cookie
+      console.error("[createContext] Token validation failed:", err.message)
       sessionCookie.del()
       return undefined
     })
+
+    if (process.env.NODE_ENV !== "production" && openstackSession) {
+      console.log("[createContext] Session initialized, token valid:", openstackSession.isValid())
+    }
   }
 
   const validateSession = () => openstackSession?.isValid() || false
