@@ -10,7 +10,6 @@ import { TRPCError } from "@trpc/server"
  * @returns TRPCError instance
  */
 export function wrapError(error: Error | string, operation: string): TRPCError {
-  console.debug("WrapErorr called with error:", error)
   if (error instanceof TRPCError) {
     return error
   }
