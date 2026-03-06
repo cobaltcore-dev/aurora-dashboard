@@ -49,6 +49,7 @@ const createMockContext = (opts?: {
             // Handle list endpoint
             if (url.includes("security-groups") && !url.match(/security-groups\/[^?]+$/)) {
               return Promise.resolve({
+                ok: true,
                 json: vi.fn().mockResolvedValue({
                   security_groups: mockSecurityGroups || defaultSecurityGroups,
                 }),
@@ -58,6 +59,7 @@ const createMockContext = (opts?: {
             // Handle getById endpoint
             if (mockSecurityGroup) {
               return Promise.resolve({
+                ok: true,
                 json: vi.fn().mockResolvedValue({
                   security_group: mockSecurityGroup,
                 }),
@@ -65,6 +67,7 @@ const createMockContext = (opts?: {
             }
 
             return Promise.resolve({
+              ok: true,
               json: vi.fn().mockResolvedValue({
                 security_group: defaultSecurityGroups[0],
               }),
@@ -568,6 +571,152 @@ describe("securityGroupRouter.deleteById", () => {
     await expect(
       caller.securityGroup.deleteById({
         securityGroupId: "sg-123",
+      })
+    ).rejects.toThrow("Network service is not available")
+  })
+})
+
+describe("securityGroupRouter.update", () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  const createMockContextForUpdate = (opts?: {
+    noNetworkService?: boolean
+    invalidSession?: boolean
+    responseStatus?: number
+  }) => {
+    const { noNetworkService = false, invalidSession = false, responseStatus = 200 } = opts || {}
+
+    const mockUpdatedSecurityGroup: SecurityGroup = {
+      id: "sg-123",
+      name: "updated-sg",
+      description: "Updated security group",
+      project_id: "proj-1",
+      shared: false,
+      stateful: true,
+      security_group_rules: [],
+    }
+
+    return {
+      validateSession: vi.fn().mockReturnValue(!invalidSession),
+      openstack: {
+        service: vi.fn().mockImplementation((serviceName: string) => {
+          if (serviceName !== "network" || noNetworkService) {
+            return null
+          }
+
+          return {
+            put: vi.fn().mockImplementation(() => {
+              if (responseStatus === 200) {
+                return Promise.resolve({
+                  ok: true,
+                  status: responseStatus,
+                  json: vi.fn().mockResolvedValue({
+                    security_group: mockUpdatedSecurityGroup,
+                  }),
+                })
+              }
+
+              // Mock error responses
+              return Promise.resolve({
+                ok: false,
+                status: responseStatus,
+                statusText:
+                  responseStatus === 404
+                    ? "Not Found"
+                    : responseStatus === 409
+                      ? "Cannot update stateful attribute while in use"
+                      : "Error",
+              })
+            }),
+          }
+        }),
+      },
+      createSession: vi.fn(),
+      terminateSession: vi.fn(),
+      rescopeSession: vi.fn(),
+      getMultipartData: vi.fn(),
+    } as unknown as AuroraPortalContext
+  }
+
+  it("updates a security group successfully", async () => {
+    const ctx = createMockContextForUpdate()
+    const caller = createCaller(ctx)
+
+    const result = await caller.securityGroup.update({
+      securityGroupId: "sg-123",
+      name: "updated-sg",
+      description: "Updated security group",
+    })
+
+    expect(result.id).toBe("sg-123")
+    expect(result.name).toBe("updated-sg")
+    expect(result.description).toBe("Updated security group")
+  })
+
+  it("updates a security group with partial data", async () => {
+    const ctx = createMockContextForUpdate()
+    const caller = createCaller(ctx)
+
+    const result = await caller.securityGroup.update({
+      securityGroupId: "sg-123",
+      name: "updated-name-only",
+    })
+
+    expect(result.id).toBe("sg-123")
+    expect(result.name).toBe("updated-sg")
+  })
+
+  it("throws NOT_FOUND when security group does not exist", async () => {
+    const ctx = createMockContextForUpdate({ responseStatus: 404 })
+    const caller = createCaller(ctx)
+
+    await expect(
+      caller.securityGroup.update({
+        securityGroupId: "sg-nonexistent",
+        name: "new-name",
+      })
+    ).rejects.toThrow("Security group not found")
+  })
+
+  it("throws CONFLICT when updating stateful on in-use security group", async () => {
+    const ctx = createMockContextForUpdate({ responseStatus: 409 })
+    const caller = createCaller(ctx)
+
+    await expect(
+      caller.securityGroup.update({
+        securityGroupId: "sg-123",
+        stateful: false,
+      })
+    ).rejects.toThrow(/stateful/)
+  })
+
+  it("throws UNAUTHORIZED when session is invalid", async () => {
+    const ctx = createMockContextForUpdate({ invalidSession: true })
+    const caller = createCaller(ctx)
+
+    await expect(
+      caller.securityGroup.update({
+        securityGroupId: "sg-123",
+        name: "new-name",
+      })
+    ).rejects.toThrow(
+      new TRPCError({
+        code: "UNAUTHORIZED",
+        message: "The session is invalid",
+      })
+    )
+  })
+
+  it("throws INTERNAL_SERVER_ERROR when network service is unavailable", async () => {
+    const ctx = createMockContextForUpdate({ noNetworkService: true })
+    const caller = createCaller(ctx)
+
+    await expect(
+      caller.securityGroup.update({
+        securityGroupId: "sg-123",
+        name: "new-name",
       })
     ).rejects.toThrow("Network service is not available")
   })

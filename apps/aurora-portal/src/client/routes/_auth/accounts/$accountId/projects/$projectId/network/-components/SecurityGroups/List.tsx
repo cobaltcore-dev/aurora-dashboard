@@ -8,7 +8,7 @@ import { buildFilterParams } from "@/client/utils/buildFilterParams"
 import { useListWithFiltering } from "@/client/utils/useListWithFiltering"
 import { SecurityGroupListContainer } from "./-components/SecurityGroupListContainer"
 import { CreateSecurityGroupModal } from "./-components/-modals/CreateSecurityGroupModal"
-import { CreateSecurityGroupInput } from "@/server/Network/types/securityGroup"
+import { CreateSecurityGroupInput, UpdateSecurityGroupInput } from "@/server/Network/types/securityGroup"
 import { SECURITY_GROUP_SHARED } from "./constants"
 
 type SecurityGroupSortKey = "name" | "project_id"
@@ -21,6 +21,7 @@ export const SecurityGroups = () => {
   const [createModalOpen, setCreateModalOpen] = useState(false)
   const [deleteError, setDeleteError] = useState<string | null>(null)
   const [createError, setCreateError] = useState<string | null>(null)
+  const [updateError, setUpdateError] = useState<string | null>(null)
 
   const { searchTerm, sortSettings, filterSettings, handleSearchChange, handleSortChange, handleFilterChange } =
     useListWithFiltering<SecurityGroupSortKey>({
@@ -100,6 +101,18 @@ export const SecurityGroups = () => {
     },
   })
 
+  const updateSecurityGroupMutation = trpcReact.network.securityGroup.update.useMutation({
+    onSuccess: () => {
+      // Invalidate and refetch the security groups list
+      utils.network.securityGroup.list.invalidate()
+      setUpdateError(null)
+    },
+    onError: (error) => {
+      // Backend handles error parsing, just display the message
+      setUpdateError(error.message || t`Failed to update security group`)
+    },
+  })
+
   const handleCreateSecurityGroup = async (securityGroupData: CreateSecurityGroupInput) => {
     setCreateError(null)
     await createSecurityGroupMutation.mutateAsync(securityGroupData)
@@ -108,6 +121,14 @@ export const SecurityGroups = () => {
   const handleDeleteSecurityGroup = (securityGroupId: string) => {
     setDeleteError(null)
     deleteSecurityGroupMutation.mutate({ securityGroupId })
+  }
+
+  const handleUpdateSecurityGroup = async (
+    securityGroupId: string,
+    data: Omit<UpdateSecurityGroupInput, "securityGroupId">
+  ) => {
+    setUpdateError(null)
+    await updateSecurityGroupMutation.mutateAsync({ securityGroupId, ...data })
   }
 
   return (
@@ -138,6 +159,9 @@ export const SecurityGroups = () => {
         onDeleteSecurityGroup={handleDeleteSecurityGroup}
         isDeletingSecurityGroup={deleteSecurityGroupMutation.isPending}
         deleteError={deleteError}
+        onUpdateSecurityGroup={handleUpdateSecurityGroup}
+        isUpdatingSecurityGroup={updateSecurityGroupMutation.isPending}
+        updateError={updateError}
       />
 
       <CreateSecurityGroupModal

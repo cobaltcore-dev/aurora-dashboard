@@ -1,4 +1,5 @@
 import { cleanup, render, screen } from "@testing-library/react"
+import userEvent from "@testing-library/user-event"
 import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import { i18n } from "@lingui/core"
 import { I18nProvider } from "@lingui/react"
@@ -14,7 +15,7 @@ const mockSecurityGroup: SecurityGroup = {
   created_at: "2024-01-01T00:00:00Z",
   updated_at: "2024-01-02T00:00:00Z",
   revision_number: 1,
-  tags: [],
+  tags: ["production", "web"],
   stateful: true,
   shared: false,
   security_group_rules: [],
@@ -41,19 +42,37 @@ describe("SecurityGroupDetailsView", () => {
     expect(screen.getByText("web-servers")).toBeInTheDocument()
     expect(screen.getByText("Security group for web servers")).toBeInTheDocument()
     expect(screen.getByText("project-456")).toBeInTheDocument()
+    expect(screen.getByText("production, web")).toBeInTheDocument()
   })
 
-  it("displays N/A for missing description", () => {
+  it("displays em dash for missing description", () => {
     const sgWithoutDescription = { ...mockSecurityGroup, description: null }
     render(<SecurityGroupDetailsView securityGroup={sgWithoutDescription} />, { wrapper: createWrapper() })
 
-    expect(screen.getByText("N/A")).toBeInTheDocument()
+    expect(screen.getAllByText("—").length).toBeGreaterThan(0)
   })
 
-  it("formats dates correctly", () => {
+  it("displays em dash for empty tags", () => {
+    const sgWithoutTags = { ...mockSecurityGroup, tags: [] }
+    render(<SecurityGroupDetailsView securityGroup={sgWithoutTags} />, { wrapper: createWrapper() })
+
+    expect(screen.getAllByText("—").length).toBeGreaterThan(0)
+  })
+
+  it("displays boolean values as Yes/No", () => {
     render(<SecurityGroupDetailsView securityGroup={mockSecurityGroup} />, { wrapper: createWrapper() })
 
-    const expectedDate = new Date("2024-01-01T00:00:00Z").toLocaleDateString()
-    expect(screen.getByText(expectedDate)).toBeInTheDocument()
+    expect(screen.getByText("Yes")).toBeInTheDocument()
+    expect(screen.getByText("No")).toBeInTheDocument()
+  })
+
+  it("calls onEdit when Edit button is clicked", async () => {
+    const onEdit = vi.fn()
+    render(<SecurityGroupDetailsView securityGroup={mockSecurityGroup} onEdit={onEdit} />, { wrapper: createWrapper() })
+
+    const user = userEvent.setup()
+    await user.click(screen.getByRole("button", { name: /Edit/i }))
+
+    expect(onEdit).toHaveBeenCalledTimes(1)
   })
 })

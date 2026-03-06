@@ -23,7 +23,8 @@ export const DeleteSecurityGroupDialog: React.FC<DeleteSecurityGroupDialogProps>
   const { t } = useLingui()
   const [confirmationText, setConfirmationText] = useState("")
 
-  const isDeleteEnabled = confirmationText.toLowerCase() === "delete"
+  const deleteWord = t`delete`
+  const isDeleteEnabled = confirmationText.toLowerCase() === deleteWord.toLowerCase()
   const securityGroupName = securityGroup.name || securityGroup.id
 
   const handleDelete = (e: React.MouseEvent<HTMLElement>) => {
@@ -103,7 +104,7 @@ export const DeleteSecurityGroupDialog: React.FC<DeleteSecurityGroupDialogProps>
         <div className="mt-4">
           <p className="mb-2 text-sm">
             <Trans>
-              Type <strong>delete</strong> to confirm:
+              Type <strong>{deleteWord}</strong> to confirm:
             </Trans>
           </p>
           <TextInput
@@ -111,7 +112,7 @@ export const DeleteSecurityGroupDialog: React.FC<DeleteSecurityGroupDialogProps>
             name="confirmation"
             value={confirmationText}
             onChange={(e) => setConfirmationText(e.target.value)}
-            placeholder={t`delete`}
+            placeholder={deleteWord}
             disabled={isDeleting}
             autoComplete="off"
             data-testid="delete-confirmation-input"
