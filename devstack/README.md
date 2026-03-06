@@ -27,7 +27,7 @@ Install Multipass:
 brew install multipass
 ```
 
-**Linux:**
+**Linux/WSL2 (Ubuntu):**
 ```bash
 sudo snap install multipass
 ```

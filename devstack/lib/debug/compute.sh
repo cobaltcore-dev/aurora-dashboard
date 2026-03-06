@@ -3,8 +3,14 @@
 
 set -e
 
+# Get script directory
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Source shared libraries
+source "$SCRIPT_DIR/../output.sh"
+
 # This module will be sourced by lib/debug.sh
-# VM_NAME and colors are available from parent
+# VM_NAME is available from parent
 
 debug_compute() {
     echo -e "${CYAN}=== Compute Node Debug ===${NC}"

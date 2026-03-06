@@ -5,35 +5,12 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR/.."
 
-# Source VM check functions
+# Source shared libraries
+source "$SCRIPT_DIR/output.sh"
+source "$SCRIPT_DIR/env-loader.sh"
 source "$SCRIPT_DIR/vm-check.sh"
 
-# Color definitions
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-CYAN='\033[0;36m'
-NC='\033[0m' # No Color
-
-# Helper functions
-info() {
-    echo -e "${BLUE}ℹ ${NC} $1"
-}
-
-success() {
-    echo -e "${GREEN}✓ ${NC} $1"
-}
-
-warning() {
-    echo -e "${YELLOW}⚠ ${NC} $1"
-}
-
-error() {
-    echo -e "${RED}✗${NC} $1" >&2
-}
-
-# Load environment
+# Load environment (with fallback to defaults)
 if [ -f .env ]; then
     source .env
 fi

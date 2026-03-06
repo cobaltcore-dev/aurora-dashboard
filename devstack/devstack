@@ -7,39 +7,12 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 
-# Colors for output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-CYAN='\033[0;36m'
-NC='\033[0m' # No Color
-
-# Check if running under WSL2
-check_wsl2() {
-    if grep -qEi "(Microsoft|WSL)" /proc/version &> /dev/null; then
-        return 0
-    fi
-    return 1
-}
-
-# Show WSL2 port forwarding reminder
-show_wsl2_reminder() {
-    if check_wsl2; then
-        echo ""
-        echo -e "${YELLOW}⚠ ${NC} Running under WSL2 detected!"
-        echo -e "${BLUE}ℹ ${NC} To access DevStack from Windows, start port forwarding:"
-        echo "  ./scripts/wsl2-port-forward.sh"
-        echo ""
-    fi
-}
+# Source shared libraries
+source "$SCRIPT_DIR/lib/output.sh"
+source "$SCRIPT_DIR/lib/utils.sh"
 
 show_help() {
-    echo ""
-    echo "╔════════════════════════════════════════════════════════════╗"
-    echo "║              DevStack v3 - Management CLI                  ║"
-    echo "╚════════════════════════════════════════════════════════════╝"
-    echo ""
+    print_header "DevStack v3 - Management CLI"
     echo -e "${CYAN}Usage:${NC}"
     echo "  ./devstack <command> [options]"
     echo ""
@@ -112,7 +85,7 @@ show_help() {
 
 # Check if multipass is installed
 if ! command -v multipass &> /dev/null; then
-    echo -e "${RED}✗${NC} Multipass is not installed. Please install it first:"
+    error "Multipass is not installed. Please install it first:"
     echo ""
     echo "  macOS:      brew install multipass"
     echo "  Linux/WSL2: sudo snap install multipass"
@@ -122,24 +95,27 @@ if ! command -v multipass &> /dev/null; then
     exit 1
 fi
 
+# Source environment loader
+source "$SCRIPT_DIR/lib/env-loader.sh"
+
 # Create .env from .env.example if it doesn't exist
 if [ ! -f .env ]; then
     if [ -f .env.example ]; then
-        echo -e "${BLUE}ℹ ${NC} .env file not found, creating from .env.example..."
+        info ".env file not found, creating from .env.example..."
         cp .env.example .env
-        echo -e "${GREEN}✓ ${NC} .env file created with default values"
-        echo -e "${YELLOW}⚠ ${NC} You can customize settings in .env before running setup"
+        success ".env file created with default values"
+        warning "You can customize settings in .env before running setup"
         echo ""
     else
-        echo -e "${RED}✗${NC} .env.example not found"
+        error ".env.example not found"
         exit 1
     fi
 fi
 
 # Load environment variables
-source .env
+load_env
+VM_NAME=$(get_vm_name)
 
-VM_NAME=${VM_NAME:-devstack}
 COMMAND=$1
 shift || true
 
@@ -149,22 +125,22 @@ case "$COMMAND" in
         ;;
 
     start)
-        echo -e "${BLUE}ℹ ${NC} Starting VM '${VM_NAME}'..."
+        info "Starting VM '${VM_NAME}'..."
         multipass start "$VM_NAME"
-        echo -e "${GREEN}✓ ${NC} VM started"
+        success "VM started"
         show_wsl2_reminder
         ;;
 
     stop)
-        echo -e "${BLUE}ℹ ${NC} Stopping VM '${VM_NAME}'..."
+        info "Stopping VM '${VM_NAME}'..."
         multipass stop "$VM_NAME"
-        echo -e "${GREEN}✓ ${NC} VM stopped"
+        success "VM stopped"
         ;;
 
     restart)
-        echo -e "${BLUE}ℹ ${NC} Restarting VM '${VM_NAME}'..."
+        info "Restarting VM '${VM_NAME}'..."
         multipass restart "$VM_NAME"
-        echo -e "${GREEN}✓ ${NC} VM restarted"
+        success "VM restarted"
         ;;
 
     shell)

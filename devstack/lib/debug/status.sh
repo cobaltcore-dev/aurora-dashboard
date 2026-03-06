@@ -3,14 +3,20 @@
 
 set -e
 
+# Get script directory
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Source shared libraries
+source "$SCRIPT_DIR/../output.sh"
+
 # This module will be sourced by lib/debug.sh
-# VM_NAME and colors are available from parent
+# VM_NAME is available from parent
 
 debug_status() {
     local service="$1"
 
     # Source service mapping
-    source "$(dirname "${BASH_SOURCE[0]}")/../service-map.sh"
+    source "$SCRIPT_DIR/../service-map.sh"
 
     echo -e "${CYAN}=== DevStack Service Status ===${NC}"
     echo ""

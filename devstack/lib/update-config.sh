@@ -4,53 +4,24 @@
 
 set -e
 
+# Get script directory and navigate to root
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR/.."
 
-# Colors for output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-NC='\033[0m' # No Color
-
-info() {
-    echo -e "${BLUE}ℹ ${NC} $1"
-}
-
-success() {
-    echo -e "${GREEN}✓ ${NC} $1"
-}
-
-warning() {
-    echo -e "${YELLOW}⚠ ${NC} $1"
-}
-
-error() {
-    echo -e "${RED}✗${NC} $1"
-}
+# Source shared libraries
+source "$SCRIPT_DIR/output.sh"
+source "$SCRIPT_DIR/env-loader.sh"
+source "$SCRIPT_DIR/utils.sh"
+source "$SCRIPT_DIR/vm-check.sh"
 
 # Load environment variables
-if [ ! -f .env ]; then
-    error ".env file not found."
-    exit 1
-fi
-
-source .env
+load_env_strict
 VM_NAME=${VM_NAME:-devstack}
 
-echo ""
-echo "╔════════════════════════════════════════════════════════════╗"
-echo "║          DevStack v3 - Update Configuration                ║"
-echo "╚════════════════════════════════════════════════════════════╝"
-echo ""
+print_header "DevStack v3 - Update Configuration"
 
 # Check if VM exists and is running
-if ! multipass list | grep -q "^${VM_NAME}.*Running"; then
-    error "VM '${VM_NAME}' is not running."
-    info "Start it with: ./devstack start"
-    exit 1
-fi
+require_vm_running "$VM_NAME"
 
 info "This will:"
 echo "  1. Update /tmp/devstack-env in VM with new .env values"
@@ -60,9 +31,7 @@ echo ""
 warning "This will restart all OpenStack services (~10-15 minutes)"
 echo ""
 
-read -p "Continue? (y/N): " -n 1 -r
-echo
-if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+if ! confirm "Continue?"; then
     info "Update cancelled."
     exit 0
 fi

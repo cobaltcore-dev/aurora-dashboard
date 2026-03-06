@@ -4,66 +4,17 @@
 
 set -e
 
-# Colors for output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-NC='\033[0m' # No Color
+# Get script directory
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# Helper functions
-info() {
-    echo -e "${BLUE}ℹ ${NC} $1"
-}
-
-success() {
-    echo -e "${GREEN}✓ ${NC} $1"
-}
-
-warning() {
-    echo -e "${YELLOW}⚠ ${NC} $1"
-}
-
-error() {
-    echo -e "${RED}✗${NC} $1"
-}
-
-# Check if running under WSL2
-check_wsl2() {
-    if grep -qEi "(Microsoft|WSL)" /proc/version &> /dev/null; then
-        return 0
-    fi
-    return 1
-}
-
-# Show WSL2 port forwarding reminder
-show_wsl2_reminder() {
-    echo ""
-    echo "╔════════════════════════════════════════════════════════════╗"
-    echo "║              WSL2 Port Forwarding Required                 ║"
-    echo "╚════════════════════════════════════════════════════════════╝"
-    echo ""
-    warning "You are running under WSL2!"
-    echo ""
-    info "To access the DevStack services from Windows, you need to:"
-    echo ""
-    echo "  1. Start the port forwarding script:"
-    echo "     ./scripts/wsl2-port-forward.sh"
-    echo ""
-    echo "  2. Or manually forward ports in PowerShell (as Administrator):"
-    echo "     netsh interface portproxy add v4tov4 listenport=80 listenaddress=0.0.0.0 connectport=80 connectaddress=<VM_IP>"
-    echo ""
-    info "Without port forwarding, you can only access DevStack from within WSL2."
-    echo ""
-}
+# Source shared libraries
+source "$SCRIPT_DIR/output.sh"
+source "$SCRIPT_DIR/env-loader.sh"
+source "$SCRIPT_DIR/utils.sh"
+source "$SCRIPT_DIR/vm-check.sh"
 
 # Load environment variables
-if [ ! -f .env ]; then
-    error ".env file not found. Please copy .env.example to .env and configure it."
-    exit 1
-fi
-
-source .env
+load_env_strict
 
 # Validate required variables
 if [ -z "$VM_NAME" ] || [ -z "$VM_CPUS" ] || [ -z "$VM_MEMORY" ] || [ -z "$VM_DISK" ]; then
@@ -86,11 +37,7 @@ if ! command -v multipass &> /dev/null; then
     exit 1
 fi
 
-echo ""
-echo "╔════════════════════════════════════════════════════════════╗"
-echo "║         DevStack v3 - Multipass VM Setup                   ║"
-echo "╚════════════════════════════════════════════════════════════╝"
-echo ""
+print_header "DevStack v3 - Multipass VM Setup"
 
 info "Configuration:"
 echo "  VM Name:       $VM_NAME"
@@ -103,11 +50,9 @@ echo "  Horizon:       http://${PUBLIC_IP}:${HORIZON_PORT}/dashboard"
 echo ""
 
 # Check if VM already exists
-if multipass list | grep -q "^${VM_NAME}"; then
+if vm_exists "$VM_NAME"; then
     warning "VM '${VM_NAME}' already exists."
-    read -p "Delete and recreate? (y/N): " -n 1 -r
-    echo
-    if [[ $REPLY =~ ^[Yy]$ ]]; then
+    if confirm "Delete and recreate?"; then
         info "Deleting existing VM..."
         multipass delete "$VM_NAME"
         multipass purge
@@ -214,10 +159,7 @@ INSTALL_PID=$!
 
 success "DevStack installation started (PID: $INSTALL_PID)"
 echo ""
-echo "╔════════════════════════════════════════════════════════════╗"
-echo "║  DevStack installation is running in the background        ║"
-echo "╚════════════════════════════════════════════════════════════╝"
-echo ""
+print_header "DevStack installation is running in the background"
 info "Monitor progress:"
 echo "  tail -f devstack-install.log"
 echo "  multipass exec $VM_NAME -- tail -f /opt/stack/logs/stack.sh.log"
@@ -236,8 +178,6 @@ echo "  Password: ${ADMIN_PASSWORD}"
 echo ""
 
 # Show WSL2 reminder if applicable
-if check_wsl2; then
-    show_wsl2_reminder
-fi
+show_wsl2_reminder
 
 success "Setup complete! Waiting for DevStack installation to finish..."

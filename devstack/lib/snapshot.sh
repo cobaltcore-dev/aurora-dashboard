@@ -3,42 +3,22 @@
 
 set -e
 
+# Get script directory and navigate to root
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR/.."
 
-# Colors for output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-NC='\033[0m' # No Color
-
-info() {
-    echo -e "${BLUE}ℹ ${NC} $1"
-}
-
-success() {
-    echo -e "${GREEN}✓ ${NC} $1"
-}
-
-error() {
-    echo -e "${RED}✗${NC} $1"
-}
+# Source shared libraries
+source "$SCRIPT_DIR/output.sh"
+source "$SCRIPT_DIR/env-loader.sh"
+source "$SCRIPT_DIR/utils.sh"
+source "$SCRIPT_DIR/vm-check.sh"
 
 # Load environment variables
-if [ ! -f .env ]; then
-    error ".env file not found."
-    exit 1
-fi
-
-source .env
+load_env_strict
 VM_NAME=${VM_NAME:-devstack}
 
 # Check if VM exists
-if ! multipass list | grep -q "^${VM_NAME}"; then
-    error "VM '${VM_NAME}' does not exist."
-    exit 1
-fi
+require_vm_exists "$VM_NAME"
 
 ACTION=$1
 SNAPSHOT_NAME=$2
@@ -87,11 +67,7 @@ case "$ACTION" in
         ;;
 
     cleanup)
-        echo ""
-        echo "╔════════════════════════════════════════════════════════════╗"
-        echo "║              Cleanup Automatic Snapshots                   ║"
-        echo "╚════════════════════════════════════════════════════════════╝"
-        echo ""
+        print_header "Cleanup Automatic Snapshots"
 
         # List all automatic snapshots (created by system)
         AUTO_SNAPSHOTS=$(multipass info "$VM_NAME" 2>/dev/null | grep -E "^(before-switch|before-config|before-rebuild)" | awk '{print $1}' || true)
@@ -117,9 +93,7 @@ case "$ACTION" in
         info "Total: $SNAP_COUNT automatic snapshots"
         echo ""
 
-        read -p "Delete all automatic snapshots? (y/N): " -n 1 -r
-        echo
-        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        if ! confirm "Delete all automatic snapshots?"; then
             info "Cleanup cancelled"
             exit 0
         fi

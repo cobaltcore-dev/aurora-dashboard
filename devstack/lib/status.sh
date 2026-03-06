@@ -6,7 +6,8 @@ set -e
 # Get script directory
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# Source VM check functions
+# Source shared libraries
+source "$SCRIPT_DIR/output.sh"
 source "$SCRIPT_DIR/vm-check.sh"
 
 VM_NAME=${1:-devstack}
@@ -19,7 +20,7 @@ if ! check_vm_running "$VM_NAME"; then
     exit 1
 fi
 
-echo "✅ VM is running"
+success "VM is running"
 echo ""
 
 # Check if DevStack is installed
@@ -27,7 +28,7 @@ if ! check_devstack_installed "$VM_NAME"; then
     exit 1
 fi
 
-echo "✅ DevStack is installed"
+success "DevStack is installed"
 echo ""
 
 # Get VM IP
@@ -39,7 +40,7 @@ echo ""
 echo "Checking OpenStack services..."
 multipass exec "$VM_NAME" -- sudo -u stack bash -c "source /home/stack/devstack/openrc admin admin && openstack service list" 2>/dev/null && {
     echo ""
-    echo "✅ OpenStack services are running"
+    success "OpenStack services are running"
     echo ""
     echo "╔════════════════════════════════════════════════════════════╗"
     echo "║              Service Access Information                    ║"
@@ -66,17 +67,12 @@ multipass exec "$VM_NAME" -- sudo -u stack bash -c "source /home/stack/devstack/
     echo "   └─ openstack service list"
     echo ""
 } || {
-    echo "⚠️  OpenStack services may not be fully started yet"
+    warning "OpenStack services may not be fully started yet"
     echo ""
     echo "Check logs with:"
     echo "  multipass exec $VM_NAME -- tail -f /opt/stack/logs/stack.sh.log"
 }
 
 # Show WSL2 port forwarding reminder if applicable
-if grep -qEi "(Microsoft|WSL)" /proc/version &> /dev/null; then
-    echo ""
-    echo "⚠️  Running under WSL2 detected!"
-    echo "ℹ️  To access DevStack from Windows, start port forwarding:"
-    echo "   └─ ./scripts/wsl2-port-forward.sh"
-    echo ""
-fi
+source "$SCRIPT_DIR/utils.sh"
+show_wsl2_reminder

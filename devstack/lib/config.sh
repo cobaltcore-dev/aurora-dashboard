@@ -3,51 +3,27 @@
 
 set -e
 
-# Get script directory
+# Get script directory and navigate to project root
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR/.."
 
-# Colors for output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-CYAN='\033[0;36m'
-NC='\033[0m' # No Color
+# Source shared libraries
+source "$SCRIPT_DIR/output.sh"
+source "$SCRIPT_DIR/env-loader.sh"
+source "$SCRIPT_DIR/utils.sh"
+source "$SCRIPT_DIR/vm-check.sh"
+source "$SCRIPT_DIR/snapshot-utils.sh"
 
-info() {
-    echo -e "${BLUE}ℹ ${NC} $1"
-}
-
-success() {
-    echo -e "${GREEN}✓ ${NC} $1"
-}
-
-warning() {
-    echo -e "${YELLOW}⚠ ${NC} $1"
-}
-
-error() {
-    echo -e "${RED}✗${NC} $1"
-}
-
-# Load .env
-if [ ! -f .env ]; then
-    error ".env file not found"
-    exit 1
-fi
-
-source .env
-VM_NAME=${VM_NAME:-devstack}
+# Load environment
+load_env_strict
+VM_NAME=$(get_vm_name)
 
 COMMAND=$1
 shift || true
 
 case "$COMMAND" in
     show|"")
-        echo ""
-        echo "╔════════════════════════════════════════════════════════════╗"
-        echo "║              Current VM Configuration                      ║"
+        print_header "Current VM Configuration"
         echo "╚════════════════════════════════════════════════════════════╝"
         echo ""
         echo -e "${CYAN}VM Resources:${NC}"
@@ -73,10 +49,10 @@ case "$COMMAND" in
             fi
 
             # Get actual VM specs
-            VM_INFO=$(multipass info "$VM_NAME" 2>/dev/null)
-            ACTUAL_CPUS=$(echo "$VM_INFO" | grep "CPU(s):" | awk '{print $2}')
-            ACTUAL_MEM=$(echo "$VM_INFO" | grep "Memory usage:" | awk '{print $6$7}')
-            ACTUAL_DISK=$(echo "$VM_INFO" | grep "Disk usage:" | awk '{print $6$7}')
+            VM_INFO=$(get_vm_info "$VM_NAME")
+            ACTUAL_CPUS=$(extract_vm_cpus "$VM_INFO")
+            ACTUAL_MEM=$(extract_vm_memory "$VM_INFO")
+            ACTUAL_DISK=$(extract_vm_disk "$VM_INFO")
 
             echo ""
             echo -e "${CYAN}Actual VM Resources:${NC}"
@@ -121,22 +97,22 @@ case "$COMMAND" in
 
         case "$KEY" in
             cpus)
-                sed -i "s/^VM_CPUS=.*/VM_CPUS=$VALUE/" .env
+                fix_sed "s/^VM_CPUS=.*/VM_CPUS=$VALUE/" .env
                 success "VM_CPUS set to $VALUE"
                 ;;
             memory|mem|ram)
-                sed -i "s/^VM_MEMORY=.*/VM_MEMORY=$VALUE/" .env
+                fix_sed "s/^VM_MEMORY=.*/VM_MEMORY=$VALUE/" .env
                 success "VM_MEMORY set to $VALUE"
                 ;;
             disk)
-                sed -i "s/^VM_DISK=.*/VM_DISK=$VALUE/" .env
+                fix_sed "s/^VM_DISK=.*/VM_DISK=$VALUE/" .env
                 success "VM_DISK set to $VALUE"
                 ;;
             ubuntu)
                 # Validate Ubuntu version
                 case "$VALUE" in
                     20.04|22.04|24.04|lts)
-                        sed -i "s|^UBUNTU_VERSION=.*|UBUNTU_VERSION=$VALUE|" .env
+                        fix_sed "s|^UBUNTU_VERSION=.*|UBUNTU_VERSION=$VALUE|" .env
                         success "UBUNTU_VERSION set to $VALUE"
 
                         # Show compatibility info
@@ -191,16 +167,9 @@ case "$COMMAND" in
         ;;
 
     apply)
-        echo ""
-        echo "╔════════════════════════════════════════════════════════════╗"
-        echo "║           Apply Configuration Changes                      ║"
-        echo "╚════════════════════════════════════════════════════════════╝"
-        echo ""
+        print_header "Apply Configuration Changes"
 
-        if ! multipass list 2>/dev/null | grep -q "^${VM_NAME}"; then
-            error "VM does not exist. Run './devstack setup' first."
-            exit 1
-        fi
+        require_vm_exists "$VM_NAME"
 
         warning "This will DELETE the current VM and recreate it with new settings"
         warning "All data in the VM will be LOST!"
@@ -212,54 +181,15 @@ case "$COMMAND" in
         echo "  Ubuntu:        ${UBUNTU_VERSION:-22.04}"
         echo ""
 
-        # Ask about snapshot
-        info "Create automatic safety snapshot before rebuilding?"
-        echo "  Snapshot name: before-config-apply"
-        echo ""
-        read -p "Create snapshot? (Y/n): " -n 1 -r
-        echo
-        echo
+        # Create timestamped snapshot
+        create_timestamped_snapshot "$VM_NAME" "before-config-apply"
 
-        CREATE_SNAPSHOT=true
-        if [[ $REPLY =~ ^[Nn]$ ]]; then
-            CREATE_SNAPSHOT=false
-            warning "Proceeding without snapshot - VM cannot be easily restored!"
-            echo ""
-        fi
-
-        read -p "Continue with rebuild? (y/N): " -n 1 -r
-        echo
-
-        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        if ! confirm "Continue with rebuild?"; then
             info "Cancelled"
             exit 0
         fi
 
         echo ""
-
-        # Create snapshot if requested
-        if [ "$CREATE_SNAPSHOT" = true ]; then
-            # Generate unique snapshot name with nanoseconds to avoid collisions
-            SNAPSHOT_NAME="before-config-apply-$(date +%Y%m%d-%H%M%S)-$$"
-            info "Creating snapshot: $SNAPSHOT_NAME"
-            if multipass snapshot "$VM_NAME" --name "$SNAPSHOT_NAME" >/dev/null 2>&1; then
-                success "Snapshot created: $SNAPSHOT_NAME"
-                info "To restore: ./devstack snapshot restore $SNAPSHOT_NAME"
-                echo ""
-                info "Snapshot will be kept for manual cleanup"
-                info "List snapshots: ./devstack snapshot list"
-                info "Delete old snapshots: ./devstack snapshot delete <name>"
-            else
-                error "Failed to create snapshot"
-                read -p "Continue anyway? (y/N): " -n 1 -r
-                echo
-                if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-                    info "Cancelled"
-                    exit 0
-                fi
-            fi
-            echo ""
-        fi
 
         info "Applying configuration..."
         ./lib/rebuild.sh
@@ -281,16 +211,13 @@ case "$COMMAND" in
         RESOURCE=$1
         SIZE=$2
 
-        if ! multipass list 2>/dev/null | grep -q "^${VM_NAME}"; then
-            error "VM does not exist. Run './devstack setup' first."
-            exit 1
-        fi
+        require_vm_exists "$VM_NAME"
 
         # Get current value
-        VM_INFO=$(multipass info "$VM_NAME" 2>/dev/null)
-        CURRENT_CPUS=$(echo "$VM_INFO" | grep "CPU(s):" | awk '{print $2}')
-        CURRENT_MEM=$(echo "$VM_INFO" | grep "Memory usage:" | awk '{print $6$7}')
-        CURRENT_DISK=$(echo "$VM_INFO" | grep "Disk usage:" | awk '{print $6$7}')
+        VM_INFO=$(get_vm_info "$VM_NAME")
+        CURRENT_CPUS=$(extract_vm_cpus "$VM_INFO")
+        CURRENT_MEM=$(extract_vm_memory "$VM_INFO")
+        CURRENT_DISK=$(extract_vm_disk "$VM_INFO")
 
         case "$RESOURCE" in
             cpus)
@@ -301,10 +228,8 @@ case "$COMMAND" in
                 warning "This will RESTART the VM"
                 warning "OpenStack services will be briefly unavailable"
                 echo ""
-                read -p "Continue? (y/N): " -n 1 -r
-                echo
 
-                if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+                if ! confirm "Continue?"; then
                     info "Cancelled"
                     exit 0
                 fi
@@ -316,7 +241,7 @@ case "$COMMAND" in
                 multipass set "local.$VM_NAME.cpus=$SIZE"
 
                 # Update .env
-                sed -i "s/^VM_CPUS=.*/VM_CPUS=$SIZE/" .env
+                fix_sed "s/^VM_CPUS=.*/VM_CPUS=$SIZE/" .env
 
                 info "Starting VM..."
                 multipass start "$VM_NAME"
@@ -332,10 +257,8 @@ case "$COMMAND" in
                 warning "This will RESTART the VM"
                 warning "OpenStack services will be briefly unavailable"
                 echo ""
-                read -p "Continue? (y/N): " -n 1 -r
-                echo
 
-                if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+                if ! confirm "Continue?"; then
                     info "Cancelled"
                     exit 0
                 fi
@@ -347,7 +270,7 @@ case "$COMMAND" in
                 multipass set "local.$VM_NAME.memory=$SIZE"
 
                 # Update .env
-                sed -i "s/^VM_MEMORY=.*/VM_MEMORY=$SIZE/" .env
+                fix_sed "s/^VM_MEMORY=.*/VM_MEMORY=$SIZE/" .env
 
                 info "Starting VM..."
                 multipass start "$VM_NAME"
@@ -363,10 +286,8 @@ case "$COMMAND" in
                 info "Disk can only be INCREASED, not decreased"
                 warning "This change is IRREVERSIBLE without rebuilding the VM"
                 echo ""
-                read -p "Continue? (y/N): " -n 1 -r
-                echo
 
-                if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+                if ! confirm "Continue?"; then
                     info "Cancelled"
                     exit 0
                 fi
@@ -375,7 +296,7 @@ case "$COMMAND" in
                 multipass set "local.$VM_NAME.disk=$SIZE"
 
                 # Update .env
-                sed -i "s/^VM_DISK=.*/VM_DISK=$SIZE/" .env
+                fix_sed "s/^VM_DISK=.*/VM_DISK=$SIZE/" .env
 
                 success "Disk resized to $SIZE"
                 info "VM restart not required for disk resize"

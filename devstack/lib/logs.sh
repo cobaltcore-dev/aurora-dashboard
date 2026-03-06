@@ -3,30 +3,17 @@
 
 set -e
 
+# Get script directory and navigate to root
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR/.."
 
-# Colors for output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-BLUE='\033[0;34m'
-NC='\033[0m' # No Color
-
-info() {
-    echo -e "${BLUE}ℹ ${NC} $1"
-}
-
-error() {
-    echo -e "${RED}✗${NC} $1"
-}
+# Source shared libraries
+source "$SCRIPT_DIR/output.sh"
+source "$SCRIPT_DIR/env-loader.sh"
+source "$SCRIPT_DIR/vm-check.sh"
 
 # Load environment variables
-if [ ! -f .env ]; then
-    error ".env file not found."
-    exit 1
-fi
-
-source .env
+load_env_strict
 VM_NAME=${VM_NAME:-devstack}
 
 ACTION=$1
@@ -57,10 +44,7 @@ case "$ACTION" in
 
     stack)
         # Show stack.sh log from inside VM
-        if ! multipass list | grep -q "^${VM_NAME}.*Running"; then
-            error "VM '${VM_NAME}' is not running."
-            exit 1
-        fi
+        require_vm_running "$VM_NAME"
 
         info "DevStack stack.sh log (last 50 lines):"
         echo ""
@@ -72,10 +56,7 @@ case "$ACTION" in
 
     stack-tail)
         # Tail stack.sh log from inside VM
-        if ! multipass list | grep -q "^${VM_NAME}.*Running"; then
-            error "VM '${VM_NAME}' is not running."
-            exit 1
-        fi
+        require_vm_running "$VM_NAME"
 
         info "Tailing stack.sh log from VM (Ctrl+C to exit)..."
         echo ""

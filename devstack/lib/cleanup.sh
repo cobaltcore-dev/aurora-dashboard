@@ -3,22 +3,27 @@
 
 set -e
 
+# Get script directory
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Source shared libraries
+source "$SCRIPT_DIR/output.sh"
+source "$SCRIPT_DIR/utils.sh"
+
 VM_NAME=${1:-devstack}
 
-echo "⚠️  WARNING: This will delete the VM: $VM_NAME"
+warning "WARNING: This will delete the VM: $VM_NAME"
 echo ""
-read -p "Are you sure? (y/N): " -n 1 -r
-echo
 
-if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+if ! confirm "Are you sure?"; then
     echo "Cancelled."
     exit 0
 fi
 
-echo "Deleting VM: $VM_NAME"
+info "Deleting VM: $VM_NAME"
 multipass delete "$VM_NAME"
 multipass purge
 
-echo "✅ VM deleted and purged"
+success "VM deleted and purged"
 echo ""
 echo "To recreate, run: ./setup.sh"

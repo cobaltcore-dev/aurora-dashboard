@@ -2,47 +2,17 @@
 # DevStack Services Management
 set -e
 
-# Get script directory and change to parent
+# Get script directory and navigate to project root
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR/.."
 
-# Color definitions
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-CYAN='\033[0;36m'
-NC='\033[0m' # No Color
-
-# Helper functions
-info() {
-    echo -e "${BLUE}ℹ ${NC} $1"
-}
-
-success() {
-    echo -e "${GREEN}✓ ${NC} $1"
-}
-
-warning() {
-    echo -e "${YELLOW}⚠ ${NC} $1"
-}
-
-error() {
-    echo -e "${RED}✗${NC} $1" >&2
-}
+# Source shared libraries
+source "$SCRIPT_DIR/output.sh"
+source "$SCRIPT_DIR/env-loader.sh"
+source "$SCRIPT_DIR/utils.sh"
 
 # Load environment
-if [ ! -f .env ]; then
-    if [ -f .env.example ]; then
-        echo -e "${BLUE}ℹ ${NC} .env file not found, creating from .env.example..."
-        cp .env.example .env
-        echo -e "${GREEN}✓ ${NC} .env file created with default values"
-        echo ""
-    else
-        error ".env.example not found"
-        exit 1
-    fi
-fi
+load_env
 
 # Service definitions with metadata
 declare -A SERVICE_INFO=(
@@ -69,13 +39,7 @@ update_env_services() {
     # Check if ENABLE_SERVICES exists in .env
     if grep -q "^ENABLE_SERVICES=" .env; then
         # Update existing line
-        if [[ "$OSTYPE" == "darwin"* ]]; then
-            # macOS
-            sed -i '' "s/^ENABLE_SERVICES=.*/ENABLE_SERVICES=$new_services/" .env
-        else
-            # Linux
-            sed -i "s/^ENABLE_SERVICES=.*/ENABLE_SERVICES=$new_services/" .env
-        fi
+        fix_sed "s/^ENABLE_SERVICES=.*/ENABLE_SERVICES=$new_services/" .env
     else
         # Add new line
         echo "ENABLE_SERVICES=$new_services" >> .env

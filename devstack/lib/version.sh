@@ -3,41 +3,19 @@
 
 set -e
 
-# Get script directory
+# Get script directory and navigate to root
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR/.."
 
-# Colors for output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-CYAN='\033[0;36m'
-NC='\033[0m' # No Color
+# Source shared libraries
+source "$SCRIPT_DIR/output.sh"
+source "$SCRIPT_DIR/env-loader.sh"
+source "$SCRIPT_DIR/utils.sh"
+source "$SCRIPT_DIR/vm-check.sh"
+source "$SCRIPT_DIR/snapshot-utils.sh"
 
-info() {
-    echo -e "${BLUE}ℹ ${NC} $1"
-}
-
-success() {
-    echo -e "${GREEN}✓ ${NC} $1"
-}
-
-warning() {
-    echo -e "${YELLOW}⚠ ${NC} $1"
-}
-
-error() {
-    echo -e "${RED}✗${NC} $1"
-}
-
-# Load .env
-if [ ! -f .env ]; then
-    error ".env file not found"
-    exit 1
-fi
-
-source .env
+# Load environment variables
+load_env_strict
 VM_NAME=${VM_NAME:-devstack}
 
 COMMAND=$1
@@ -45,18 +23,14 @@ shift || true
 
 case "$COMMAND" in
     show|current|"")
-        echo ""
-        echo "╔════════════════════════════════════════════════════════════╗"
-        echo "║              DevStack Version Information                  ║"
-        echo "╚════════════════════════════════════════════════════════════╝"
-        echo ""
+        print_header "DevStack Version Information"
 
         echo -e "${CYAN}Configured Version (in .env):${NC}"
         echo "  $DEVSTACK_VERSION"
         echo ""
 
         # Check if VM exists and get actual version
-        if multipass list 2>/dev/null | grep -q "^${VM_NAME}.*Running"; then
+        if vm_running "$VM_NAME"; then
             # Check if DevStack is installed
             if multipass exec "$VM_NAME" -- sudo test -d /home/stack/devstack 2>/dev/null; then
                 echo -e "${CYAN}Installed Version (in VM):${NC}"
@@ -87,11 +61,7 @@ case "$COMMAND" in
         ;;
 
     list|available)
-        echo ""
-        echo "╔════════════════════════════════════════════════════════════╗"
-        echo "║           Available DevStack Versions                      ║"
-        echo "╚════════════════════════════════════════════════════════════╝"
-        echo ""
+        print_header "Available DevStack Versions"
 
         # Version names mapping
         declare -A VERSION_NAMES
@@ -151,21 +121,10 @@ case "$COMMAND" in
 
         NEW_VERSION=$1
 
-        if ! multipass list 2>/dev/null | grep -q "^${VM_NAME}"; then
-            error "VM does not exist. Run './devstack setup' first."
-            exit 1
-        fi
+        require_vm_exists "$VM_NAME"
+        require_vm_running "$VM_NAME"
 
-        if ! multipass list 2>/dev/null | grep -q "^${VM_NAME}.*Running"; then
-            error "VM is not running. Start it with './devstack start'"
-            exit 1
-        fi
-
-        echo ""
-        echo "╔════════════════════════════════════════════════════════════╗"
-        echo "║           Switch DevStack Version                          ║"
-        echo "╚════════════════════════════════════════════════════════════╝"
-        echo ""
+        print_header "Switch DevStack Version"
 
         # Get current version
         CURRENT_VERSION=$(multipass exec "$VM_NAME" -- bash -c "cd /home/stack/devstack && git rev-parse --abbrev-ref HEAD" || echo "unknown")
@@ -193,25 +152,7 @@ case "$COMMAND" in
         info "This process takes approximately 15-20 minutes"
         echo ""
 
-        # Ask about snapshot
-        info "Create automatic safety snapshot before switching?"
-        echo "  Snapshot name: before-switch-to-$NEW_VERSION"
-        echo ""
-        read -p "Create snapshot? (Y/n): " -n 1 -r
-        echo
-        echo
-
-        CREATE_SNAPSHOT=true
-        if [[ $REPLY =~ ^[Nn]$ ]]; then
-            CREATE_SNAPSHOT=false
-            warning "Proceeding without snapshot - changes cannot be easily reverted!"
-            echo ""
-        fi
-
-        read -p "Continue with version switch? (y/N): " -n 1 -r
-        echo
-
-        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        if ! confirm "Continue with version switch?"; then
             info "Cancelled"
             exit 0
         fi
@@ -219,36 +160,9 @@ case "$COMMAND" in
         echo ""
 
         # Create snapshot if requested
-        if [ "$CREATE_SNAPSHOT" = true ]; then
-            SNAPSHOT_NAME="before-switch-to-${NEW_VERSION//\//-}"
+        create_version_snapshot "$VM_NAME" "$NEW_VERSION"
+        echo ""
 
-            # Check if snapshot already exists
-            if multipass info "$VM_NAME" 2>/dev/null | grep -q "^${SNAPSHOT_NAME}"; then
-                warning "Snapshot '$SNAPSHOT_NAME' already exists"
-                # Add timestamp to make it unique
-                SNAPSHOT_NAME="${SNAPSHOT_NAME}-$(date +%Y%m%d-%H%M%S)"
-                info "Using unique name: $SNAPSHOT_NAME"
-            fi
-
-            info "Creating snapshot: $SNAPSHOT_NAME"
-            if multipass snapshot "$VM_NAME" --name "$SNAPSHOT_NAME" >/dev/null 2>&1; then
-                success "Snapshot created: $SNAPSHOT_NAME"
-                info "To restore: ./devstack snapshot restore $SNAPSHOT_NAME"
-                echo ""
-                info "Snapshot will be kept for manual cleanup"
-                info "List snapshots: ./devstack snapshot list"
-                info "Delete old snapshots: ./devstack snapshot delete <name>"
-            else
-                error "Failed to create snapshot"
-                read -p "Continue anyway? (y/N): " -n 1 -r
-                echo
-                if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-                    info "Cancelled"
-                    exit 0
-                fi
-            fi
-            echo ""
-        fi
         info "Switching to DevStack $NEW_VERSION..."
         echo ""
 
@@ -278,7 +192,7 @@ case "$COMMAND" in
 
         # Step 5: Update .env
         info "Updating .env configuration..."
-        sed -i "s|^DEVSTACK_VERSION=.*|DEVSTACK_VERSION=$NEW_VERSION|" .env
+        fix_sed "s|^DEVSTACK_VERSION=.*|DEVSTACK_VERSION=$NEW_VERSION|" .env
         success ".env updated"
 
         # Step 6: Regenerate local.conf
