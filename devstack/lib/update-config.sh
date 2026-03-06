@@ -41,7 +41,7 @@ VM_NAME=${VM_NAME:-devstack}
 
 echo ""
 echo "╔════════════════════════════════════════════════════════════╗"
-echo "║          DevStack v3 - Update Configuration               ║"
+echo "║          DevStack v3 - Update Configuration                ║"
 echo "╚════════════════════════════════════════════════════════════╝"
 echo ""
 

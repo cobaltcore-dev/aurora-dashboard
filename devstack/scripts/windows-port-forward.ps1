@@ -5,7 +5,7 @@
 $wslIP = (wsl hostname -I).Trim()
 
 Write-Host "╔════════════════════════════════════════════════════════════╗" -ForegroundColor Cyan
-Write-Host "║        Windows to WSL2 Port Forwarding Setup              ║" -ForegroundColor Cyan
+Write-Host "║        Windows to WSL2 Port Forwarding Setup               ║" -ForegroundColor Cyan
 Write-Host "╚════════════════════════════════════════════════════════════╝" -ForegroundColor Cyan
 Write-Host ""
 Write-Host "WSL IP: $wslIP" -ForegroundColor Green
@@ -166,7 +166,7 @@ foreach ($rule in $forwardRules) {
 
 Write-Host ""
 Write-Host "╔════════════════════════════════════════════════════════════╗" -ForegroundColor Green
-Write-Host "║         Port Forwarding Configuration Complete!           ║" -ForegroundColor Green
+Write-Host "║         Port Forwarding Configuration Complete!            ║" -ForegroundColor Green
 Write-Host "╚════════════════════════════════════════════════════════════╝" -ForegroundColor Green
 Write-Host ""
 Write-Host "Services accessible from Windows:" -ForegroundColor Cyan

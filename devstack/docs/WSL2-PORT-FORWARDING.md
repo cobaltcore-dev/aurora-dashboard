@@ -51,7 +51,7 @@ External Network / Other Computers
 $ ./scripts/wsl2-port-forward.sh
 
 ╔════════════════════════════════════════════════════════════╗
-║        WSL2 to Windows Port Forwarding Setup              ║
+║        WSL2 to Windows Port Forwarding Setup               ║
 ╚════════════════════════════════════════════════════════════╝
 
 ✓ VM IP: 10.140.232.45

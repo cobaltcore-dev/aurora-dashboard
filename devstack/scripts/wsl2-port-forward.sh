@@ -30,7 +30,7 @@ error() {
 
 echo ""
 echo "╔════════════════════════════════════════════════════════════╗"
-echo "║        WSL2 to Windows Port Forwarding Setup              ║"
+echo "║        WSL2 to Windows Port Forwarding Setup               ║"
 echo "╚════════════════════════════════════════════════════════════╝"
 echo ""
 
@@ -306,7 +306,7 @@ done
 
 echo ""
 echo "╔════════════════════════════════════════════════════════════╗"
-echo "║         Port Forwarding Active!                           ║"
+echo "║         Port Forwarding Active!                            ║"
 echo "╚════════════════════════════════════════════════════════════╝"
 echo ""
 info "Services accessible from Windows browser:"

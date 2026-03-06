@@ -40,7 +40,7 @@ check_wsl2() {
 show_wsl2_reminder() {
     echo ""
     echo "╔════════════════════════════════════════════════════════════╗"
-    echo "║              WSL2 Port Forwarding Required                ║"
+    echo "║              WSL2 Port Forwarding Required                 ║"
     echo "╚════════════════════════════════════════════════════════════╝"
     echo ""
     warning "You are running under WSL2!"
@@ -88,7 +88,7 @@ fi
 
 echo ""
 echo "╔════════════════════════════════════════════════════════════╗"
-echo "║         DevStack v3 - Multipass VM Setup                  ║"
+echo "║         DevStack v3 - Multipass VM Setup                   ║"
 echo "╚════════════════════════════════════════════════════════════╝"
 echo ""
 

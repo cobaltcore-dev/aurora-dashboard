@@ -42,7 +42,7 @@ multipass exec "$VM_NAME" -- sudo -u stack bash -c "source /home/stack/devstack/
     echo "✅ OpenStack services are running"
     echo ""
     echo "╔════════════════════════════════════════════════════════════╗"
-    echo "║              Service Access Information                   ║"
+    echo "║              Service Access Information                    ║"
     echo "╚════════════════════════════════════════════════════════════╝"
     echo ""
     echo "🌐 Web Dashboard:"

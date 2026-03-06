@@ -14,7 +14,7 @@ NC='\033[0m' # No Color
 
 echo ""
 echo "╔════════════════════════════════════════════════════════════╗"
-echo "║       🚀 DevStack Installation - Educational Mode          ║"
+echo "║        DevStack Installation - Educational Mode            ║"
 echo "╚════════════════════════════════════════════════════════════╝"
 echo ""
 echo -e "${CYAN}This script will guide you through the DevStack installation"
@@ -119,7 +119,7 @@ VM_IP=$(hostname -I | awk '{print $1}')
 echo -e "${GREEN}✅ DevStack installation complete!${NC}"
 echo ""
 echo "╔════════════════════════════════════════════════════════════╗"
-echo "║              🎉 Installation Successful!                  ║"
+echo "║               Installation Successful!                     ║"
 echo "╚════════════════════════════════════════════════════════════╝"
 echo ""
 echo "📊 Access Information:"
