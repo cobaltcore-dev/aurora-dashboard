@@ -19,7 +19,7 @@ describe("SessionCookie", () => {
 
   describe("Cookie Name", () => {
     it("should use default cookie name", () => {
-      expect(SessionCookieName).toBe("aurora-session")
+      expect(SessionCookieName).toBe("dashboard-session-auth")
     })
   })
 
