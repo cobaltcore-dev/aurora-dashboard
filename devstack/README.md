@@ -45,11 +45,26 @@ choco install multipass
 
 ## Quick Start
 
+**Minimal setup (uses defaults from .env.example):**
+
+```bash
+./devstack setup
+# Wait ~15-20 minutes, then access Horizon at http://<VM_IP>/dashboard
+```
+
+**Full setup with customization:**
+
 ```bash
 # 1. Copy environment file
 cp .env.example .env
 
-# 2. (Optional) Adjust settings
+# 2. (Optional) Customize configuration
+./devstack config show              # View current settings
+./devstack config set cpus 8        # Adjust VM resources
+./devstack config set memory 16G
+./devstack version list             # Check available DevStack versions
+
+# Or edit .env directly:
 vim .env
 
 # 3. Create and provision VM
@@ -60,11 +75,15 @@ vim .env
 # 5. Check status
 ./devstack status
 
-# 6. Access Horizon
-# Get VM IP from status output, then open:
-open http://<VM_IP>/dashboard
+# 6. Access Horizon Dashboard
+# Get VM IP from status output, then open in browser:
+# http://<VM_IP>/dashboard
 # Username: admin
-# Password: password (or from .env)
+# Password: password (or custom password from .env)
+
+# 7. (WSL2 users) Start port forwarding to access from Windows
+./scripts/wsl2-port-forward.sh
+# Then access via: http://localhost:8080/dashboard
 ```
 
 ## Configuration
@@ -113,8 +132,8 @@ Choose the Ubuntu version for your VM:
 ### Checking Available Versions
 
 ```bash
-# List all available versions from GitHub
-./list-versions.sh
+# List all available versions with Ubuntu compatibility
+./devstack version list
 
 # Or check docs/VERSIONS.md for detailed information
 cat docs/VERSIONS.md
@@ -198,30 +217,108 @@ All commands are managed through the central `./devstack` script:
 
 **See [docs/VERSION-MANAGEMENT.md](docs/VERSION-MANAGEMENT.md) for detailed guide.**
 
+### Configuration Updates
+
+After changing configuration in `.env`, you can update DevStack without rebuilding the VM:
+
+```bash
+# Edit configuration
+vim .env  # Change services, passwords, or other settings
+
+# Update DevStack configuration and restart services
+./devstack update-config
+```
+
+**What `update-config` does:**
+- Updates `/tmp/devstack-env` in VM with new values
+- Regenerates `local.conf` configuration
+- Restarts DevStack (runs `unstack.sh` then `stack.sh`)
+- Takes approximately 10-15 minutes
+
+**When to use:**
+- ✅ Changing services (add/remove)
+- ✅ Changing passwords
+- ✅ Changing service configuration (ENABLE_HORIZON, DISABLE_TEMPEST, etc.)
+
+**When NOT to use (requires rebuild):**
+- ❌ Changing VM resources (CPUs, memory, disk) - use `./devstack config resize` or `config apply`
+- ❌ Changing Ubuntu version - use `./devstack config apply`
+- ❌ Changing DevStack version - use `./devstack version switch`
+
+**Alternative:** Full rebuild recreates the entire VM (~20-25 min):
+```bash
+./devstack rebuild
+```
+
 ### Service Management
 
 ```bash
-# Show configured services
+# List currently configured services
 ./devstack services list
 
 # Show all available services
 ./devstack services available
 
-# Add services
+# Add one or more services (space-separated)
 ./devstack services add cinder
-./devstack services add heat,octavia
+./devstack services add cinder heat barbican
 
-# Remove services
+# Remove one or more services (space-separated)
 ./devstack services remove swift
+./devstack services remove swift manila
 
-# Set services (replaces all)
+# Set services - replaces all configured services (comma-separated)
 ./devstack services enable cinder,heat,barbican
-
-# Update DevStack configuration without rebuilding VM
-# Updates local.conf and restarts services (~10-15 min)
-vim .env  # Make changes first
-./devstack update-config
 ```
+
+**Note:** `add` and `remove` use space-separated service names, while `enable` uses comma-separated.
+
+**Applying Service Changes:**
+
+After changing services, you have two options:
+
+1. **Quick update** (preserves VM, ~10-15 min):
+   ```bash
+   vim .env  # Make changes first
+   ./devstack update-config
+   ```
+
+2. **Full rebuild** (recreates VM, ~20-25 min):
+   ```bash
+   ./devstack rebuild
+   ```
+
+**Manual Configuration:**
+
+You can also manually edit `.env` to configure services:
+
+```bash
+# Edit .env file
+vim .env
+
+# Add services (comma-separated, no spaces)
+ENABLE_SERVICES=cinder,heat,barbican
+
+# Or leave empty for core services only
+ENABLE_SERVICES=
+
+# Apply changes
+./devstack update-config  # or ./devstack rebuild
+```
+
+**Available Services:**
+- **cinder** - Block Storage (persistent volumes for VMs)
+- **swift** - Object Storage (S3-like storage)
+- **heat** - Orchestration (Infrastructure as Code templates)
+- **octavia** - Load Balancer as a Service
+- **designate** - DNS as a Service
+- **barbican** - Key Management (secrets and certificates)
+- **manila** - Shared Filesystems (NFS/CIFS)
+- **ironic** - Bare Metal Provisioning
+
+**Core services** (always enabled): keystone, nova, neutron, glance, placement, horizon
+
+See [docs/SERVICES.md](docs/SERVICES.md) for detailed service information.
 
 ### Snapshot Management
 
@@ -259,61 +356,6 @@ vim .env  # Make changes first
 # Tail stack.sh log from VM in real-time
 ./devstack logs stack-tail
 ```
-
-### Service Management
-
-```bash
-# List currently configured services
-./devstack services list
-
-# Show all available services
-./devstack services available
-
-# Add one or more services
-./devstack services add cinder
-./devstack services add cinder heat barbican
-
-# Remove one or more services
-./devstack services remove swift
-./devstack services remove swift manila
-
-# Set services (replaces all configured services)
-./devstack services enable cinder,heat,barbican
-```
-
-**Note:** Changes to services require VM rebuild: `./devstack rebuild`
-
-**Manual Configuration:**
-
-You can also manually edit `.env` to configure services:
-
-```bash
-# Edit .env file
-vim .env
-
-# Add services (comma-separated, no spaces)
-ENABLE_SERVICES=cinder,heat,barbican
-
-# Or leave empty for core services only
-ENABLE_SERVICES=
-
-# Rebuild VM to apply changes
-./devstack rebuild
-```
-
-**Available Services:**
-- **cinder** - Block Storage (persistent volumes for VMs)
-- **swift** - Object Storage (S3-like storage)
-- **heat** - Orchestration (Infrastructure as Code templates)
-- **octavia** - Load Balancer as a Service
-- **designate** - DNS as a Service
-- **barbican** - Key Management (secrets and certificates)
-- **manila** - Shared Filesystems (NFS/CIFS)
-- **ironic** - Bare Metal Provisioning
-
-**Core services** (always enabled): keystone, nova, neutron, glance, placement, horizon
-
-See [docs/SERVICES.md](docs/SERVICES.md) for detailed service information.
 
 ### Debugging
 
@@ -393,7 +435,7 @@ open http://<VM_IP>/dashboard
 
 # OpenStack CLI (via devstack)
 ./devstack shell
-source /opt/stack/devstack/openrc admin admin
+source /home/stack/devstack/openrc admin admin
 openstack service list
 ```
 
@@ -404,7 +446,7 @@ openstack service list
 ./devstack shell
 
 # Source credentials
-source /opt/stack/devstack/openrc admin admin
+source /home/stack/devstack/openrc admin admin
 
 # Run OpenStack commands
 openstack service list
@@ -459,15 +501,16 @@ See **[docs/DEBUGGING.md](docs/DEBUGGING.md)** for comprehensive debugging guide
 
 ### Restart services
 ```bash
-multipass exec devstack -- /opt/stack/devstack/unstack.sh
-multipass exec devstack -- /opt/stack/devstack/stack.sh
+./devstack shell
+cd /home/stack/devstack
+./unstack.sh
+./stack.sh
 ```
 
 ### Reset everything
 ```bash
-multipass delete devstack
-multipass purge
-./setup.sh
+./devstack cleanup
+./devstack setup
 ```
 
 ## Snapshots
@@ -476,32 +519,49 @@ Take snapshots at important milestones:
 
 ```bash
 # After successful installation
-multipass snapshot devstack --name clean-install
+./devstack snapshot create clean-install
 
 # Before testing changes
-multipass snapshot devstack --name before-experiment
+./devstack snapshot create before-experiment
 
 # Restore to previous state
-multipass restore devstack --snapshot clean-install
+./devstack snapshot restore clean-install
+
+# List all snapshots
+./devstack snapshot list
+
+# Delete old snapshots
+./devstack snapshot delete before-experiment
 ```
+
+**Note:** Destructive operations (version switch, rebuild, config apply) automatically offer to create snapshots.
 
 ## Resource Management
 
 ### Check VM resource usage
 ```bash
-multipass info devstack
+./devstack info
 ```
 
-### Resize VM (requires recreate)
+### Resize VM
+
+**Live resize (preserves data, fast):**
 ```bash
-# Update .env with new values
+./devstack config resize cpus 8
+./devstack config resize memory 16G
+./devstack config resize disk 60G
+```
+
+**Recreate VM (applies .env changes):**
+```bash
+# Edit .env with new values
 vim .env
 
-# Recreate VM
-multipass delete devstack
-multipass purge
-./setup.sh
+# Apply changes (recreates VM)
+./devstack config apply
 ```
+
+See [docs/VM-CONFIG.md](docs/VM-CONFIG.md) for detailed configuration management.
 
 ## Platform-Specific Notes
 

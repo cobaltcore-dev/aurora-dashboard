@@ -41,12 +41,11 @@ Update configuration values in `.env`:
 
 # Set Ubuntu version
 ./devstack config set ubuntu 24.04
-
-# Set DevStack version
-./devstack config set devstack stable/2025.1
 ```
 
-**Note**: Changes to `.env` don't affect existing VMs until you apply them.
+**Note**:
+- Changes to `.env` don't affect existing VMs until you apply them.
+- To change DevStack version, use `./devstack version switch <version>` (see [VERSION-MANAGEMENT.md](VERSION-MANAGEMENT.md))
 
 ## Apply Configuration
 
@@ -136,13 +135,17 @@ Change VM resources without recreating it:
 
 ### Change DevStack Version
 
-```bash
-# Set new version
-./devstack config set devstack master
+DevStack version is managed separately via the version command:
 
-# Apply changes (recreates VM)
-./devstack config apply
+```bash
+# Show current version
+./devstack version show
+
+# Switch to different version (preserves VM, reinstalls DevStack)
+./devstack version switch stable/2025.1
 ```
+
+See [VERSION-MANAGEMENT.md](VERSION-MANAGEMENT.md) for details.
 
 ## Configuration Keys
 

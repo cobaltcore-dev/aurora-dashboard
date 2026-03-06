@@ -1,32 +1,34 @@
 # DevStack v3 - Debugging & Direct Access Guide
 
-Wenn etwas nicht funktioniert oder du direkten Zugriff auf die VM brauchst, kannst du Multipass direkt nutzen.
+When something doesn't work or you need direct VM access, you can use Multipass or the CLI debug commands directly.
 
-## 🔍 VM Zugriff
+## 🔍 VM Access
 
-### Shell-Zugriff
+### Shell Access
 
 ```bash
-# Standard Shell (als ubuntu user)
+# Standard shell (as ubuntu user)
+./devstack shell
+# or
 multipass shell devstack
 
-# Als root
+# As root
 multipass exec devstack -- sudo -i
 
-# Als stack user (für OpenStack commands)
+# As stack user (for OpenStack commands)
 multipass exec devstack -- sudo -u stack bash
 ```
 
-### Einzelne Commands ausführen
+### Execute Single Commands
 
 ```bash
-# Als ubuntu user
+# As ubuntu user
 multipass exec devstack -- <command>
 
-# Als root
+# As root
 multipass exec devstack -- sudo <command>
 
-# Als stack user
+# As stack user
 multipass exec devstack -- sudo -u stack <command>
 ```
 
@@ -35,22 +37,22 @@ multipass exec devstack -- sudo -u stack <command>
 ### Check VM Status
 
 ```bash
-# Liste aller VMs
+# Using CLI (recommended)
+./devstack status
+./devstack info
+
+# Direct multipass commands
 multipass list
-
-# Detaillierte VM Info
 multipass info devstack
-
-# VM Info im JSON Format
 multipass info devstack --format json
 ```
 
-**Was du siehst:**
+**What you see:**
 - State (Running, Stopped, etc.)
-- IPv4/IPv6 Adressen
-- Release (Ubuntu Version)
+- IPv4/IPv6 addresses
+- Release (Ubuntu version)
 - Image hash
-- CPU, Memory, Disk Nutzung
+- CPU, Memory, Disk usage
 - Mount points
 - Snapshots
 
@@ -75,23 +77,29 @@ multipass exec devstack -- ps aux | grep devstack
 ### DevStack Logs
 
 ```bash
-# Stack.sh log (Haupt-Installation)
+# Using CLI (recommended)
+./devstack logs                # Last 50 lines
+./devstack logs tail           # Follow in real-time
+./devstack logs stack          # Stack.sh log (last 50 lines)
+./devstack logs stack-tail     # Follow stack.sh log
+
+# Direct access to stack.sh log (main installation)
 multipass exec devstack -- tail -f /opt/stack/logs/stack.sh.log
 
-# Letzte 100 Zeilen
+# Last 100 lines
 multipass exec devstack -- tail -100 /opt/stack/logs/stack.sh.log
 
-# Nach Fehlern suchen
+# Search for errors
 multipass exec devstack -- grep -i error /opt/stack/logs/stack.sh.log
 
-# Service-spezifische Logs
+# Service-specific logs
 multipass exec devstack -- ls -la /opt/stack/logs/
 
-# Beispiel: Nova logs
+# Example: Nova logs
 multipass exec devstack -- tail -f /opt/stack/logs/n-api.log
 multipass exec devstack -- tail -f /opt/stack/logs/n-cpu.log
 
-# Beispiel: Neutron logs
+# Example: Neutron logs
 multipass exec devstack -- tail -f /opt/stack/logs/q-svc.log
 multipass exec devstack -- tail -f /opt/stack/logs/q-agt.log
 ```
@@ -99,10 +107,10 @@ multipass exec devstack -- tail -f /opt/stack/logs/q-agt.log
 ### System Logs
 
 ```bash
-# Systemd journal für alle DevStack services
+# Systemd journal for all DevStack services
 multipass exec devstack -- journalctl -u 'devstack@*' -f
 
-# Nur für einen Service (z.B. Nova API)
+# Only for one service (e.g. Nova API)
 multipass exec devstack -- journalctl -u devstack@n-api -f
 
 # System log
@@ -112,7 +120,7 @@ multipass exec devstack -- journalctl -f
 multipass exec devstack -- dmesg | tail -50
 ```
 
-### Cloud-init Logs (bei Setup-Problemen)
+### Cloud-init Logs (for setup problems)
 
 ```bash
 # Cloud-init status
@@ -125,7 +133,21 @@ multipass exec devstack -- cat /var/log/cloud-init-output.log
 
 ## 🔧 Service Management
 
-### Systemd Services
+### Using CLI Debug Commands
+
+```bash
+# Show service logs
+./devstack debug logs <service>       # e.g., nova, keystone, neutron
+
+# Show service status
+./devstack debug status               # All services
+./devstack debug status <service>     # Specific service
+
+# Complete service diagnostics
+./devstack debug all <service>        # Status + logs + config
+```
+
+### Systemd Services (Direct)
 
 ```bash
 # List all DevStack services
@@ -144,13 +166,13 @@ multipass exec devstack -- journalctl -u devstack@n-api -n 50
 ### DevStack Scripts
 
 ```bash
-# Als stack user in devstack directory
+# As stack user in devstack directory
 multipass exec devstack -- sudo -u stack bash -c "cd /home/stack/devstack && pwd"
 
-# Services stoppen
+# Stop services
 multipass exec devstack -- sudo -u stack bash -c "cd /home/stack/devstack && ./unstack.sh"
 
-# Services starten
+# Start services
 multipass exec devstack -- sudo -u stack bash -c "cd /home/stack/devstack && ./stack.sh"
 
 # OpenStack status
@@ -159,10 +181,23 @@ multipass exec devstack -- sudo -u stack bash -c "cd /home/stack/devstack && ./t
 
 ## 🌐 Networking
 
-### Check VM Networking
+### Using CLI Debug Commands
 
 ```bash
-# IP Adressen
+# OpenVSwitch diagnostics
+./devstack debug ovs
+
+# Network diagnostics
+./devstack debug network
+
+# Test all API endpoints
+./devstack debug api
+```
+
+### Check VM Networking (Direct)
+
+```bash
+# IP addresses
 multipass exec devstack -- ip addr show
 
 # Routing table
@@ -176,7 +211,7 @@ multipass exec devstack -- ping -c 3 google.com
 
 # Port listening
 multipass exec devstack -- sudo netstat -tulpn | grep LISTEN
-# oder
+# or
 multipass exec devstack -- sudo ss -tulpn | grep LISTEN
 ```
 
@@ -206,31 +241,31 @@ multipass exec devstack -- sudo iptables -t nat -L -n -v
 
 ## 📦 Files & Directories
 
-### Wichtige Verzeichnisse
+### Important Directories
 
 ```bash
-# DevStack Installation
+# DevStack installation
 /home/stack/devstack/          # DevStack scripts
 /opt/stack/                    # OpenStack code
-/opt/stack/logs/               # Alle logs
+/opt/stack/logs/               # All logs
 /etc/                          # Config files
 
-# Beispiele:
+# Examples:
 multipass exec devstack -- ls -la /home/stack/devstack/
 multipass exec devstack -- ls -la /opt/stack/
 multipass exec devstack -- ls -la /opt/stack/logs/
 ```
 
-### Dateien kopieren (Host <-> VM)
+### Copy Files (Host <-> VM)
 
 ```bash
-# Von Host zur VM
+# From host to VM
 multipass transfer /local/file.txt devstack:/tmp/file.txt
 
-# Von VM zum Host
+# From VM to host
 multipass transfer devstack:/tmp/file.txt /local/file.txt
 
-# Ganzes Verzeichnis
+# Entire directory
 multipass transfer -r /local/dir devstack:/tmp/dir
 ```
 
@@ -245,7 +280,7 @@ multipass exec devstack -- ls -la /etc/nova/
 multipass exec devstack -- ls -la /etc/neutron/
 multipass exec devstack -- ls -la /etc/keystone/
 
-# Beispiel: Nova config
+# Example: Nova config
 multipass exec devstack -- cat /etc/nova/nova.conf
 ```
 
@@ -255,6 +290,8 @@ multipass exec devstack -- cat /etc/nova/nova.conf
 
 ```bash
 # Check where it hangs
+./devstack logs stack-tail
+# or
 multipass exec devstack -- tail -f /opt/stack/logs/stack.sh.log
 
 # Check processes
@@ -268,7 +305,10 @@ multipass exec devstack -- free -h
 ### 2. Service Won't Start
 
 ```bash
-# Check service status
+# Using CLI
+./devstack debug all <service>
+
+# Direct check
 multipass exec devstack -- systemctl status devstack@n-api
 
 # Service logs
@@ -281,7 +321,13 @@ multipass exec devstack -- cat /etc/nova/nova.conf
 ### 3. OpenStack API Not Responding
 
 ```bash
-# Check if service is running
+# Test all APIs
+./devstack debug api
+
+# Check specific service
+./devstack debug status keystone
+
+# Direct checks
 multipass exec devstack -- systemctl status devstack@keystone
 
 # Check port
@@ -291,7 +337,7 @@ multipass exec devstack -- sudo netstat -tulpn | grep 5000
 multipass exec devstack -- curl http://localhost/identity
 
 # Check logs
-multipass exec devstack -- tail -f /opt/stack/logs/keystone.log
+./devstack debug logs keystone
 ```
 
 ### 4. Horizon Dashboard Not Accessible
@@ -308,9 +354,13 @@ multipass exec devstack -- tail -f /var/log/apache2/access.log
 multipass exec devstack -- tail -f /opt/stack/logs/horizon.log
 ```
 
-### 5. Neutron/OVS Probleme
+### 5. Neutron/OVS Problems
 
 ```bash
+# Using CLI
+./devstack debug ovs
+./devstack debug network
+
 # OVS bridges
 multipass exec devstack -- sudo ovs-vsctl show
 
@@ -318,13 +368,48 @@ multipass exec devstack -- sudo ovs-vsctl show
 multipass exec devstack -- sudo -u stack bash -c "source /home/stack/devstack/openrc admin admin && openstack network agent list"
 
 # Neutron logs
+./devstack debug logs neutron
+# or
 multipass exec devstack -- tail -f /opt/stack/logs/q-svc.log
 multipass exec devstack -- tail -f /opt/stack/logs/q-agt.log
 ```
 
+### 6. Compute Problems
+
+```bash
+# Using CLI
+./devstack debug compute
+
+# Direct checks
+./devstack debug status nova
+./devstack debug logs nova
+```
+
 ## 🔄 VM Management
 
-### VM Start/Stop/Restart
+### Using CLI (Recommended)
+
+```bash
+# Start VM
+./devstack start
+
+# Stop VM
+./devstack stop
+
+# Restart VM
+./devstack restart
+
+# Show status
+./devstack status
+
+# Show detailed info
+./devstack info
+
+# Delete VM
+./devstack cleanup
+```
+
+### Direct Multipass Commands
 
 ```bash
 # Start VM
@@ -346,51 +431,51 @@ multipass delete devstack
 multipass purge
 ```
 
-### Snapshots (direkt mit multipass)
+### Snapshots
 
 ```bash
-# Snapshot erstellen
+# Using CLI (recommended)
+./devstack snapshot create my-snapshot
+./devstack snapshot list
+./devstack snapshot restore my-snapshot
+./devstack snapshot delete my-snapshot
+
+# Direct multipass commands
 multipass snapshot devstack --name my-snapshot
-
-# List all snapshots
 multipass info devstack | grep -A 20 "Snapshots:"
-
-# Snapshot wiederherstellen
 multipass restore devstack --snapshot my-snapshot
-
-# Snapshot löschen
 multipass delete devstack.my-snapshot
 ```
 
 ### VM Recovery
 
 ```bash
-# VM aus recycle bin wiederherstellen
+# Recover VM from recycle bin
 multipass recover devstack
 
 # Check VM status after crash
 multipass list
-multipass info devstack
+./devstack status
 ```
 
 ## 🔑 OpenStack CLI Debugging
 
 ```bash
-# In VM als stack user
-multipass shell devstack
+# In VM as stack user
+./devstack shell
 sudo su - stack
 source /home/stack/devstack/openrc admin admin
 
-# Verbose output für debugging
+# Verbose output for debugging
 openstack --debug service list
 
-# Ohne Paging
+# Without paging
 openstack --fit-width service list
 
-# Als JSON (für parsing)
+# As JSON (for parsing)
 openstack service list -f json
 
-# Test einzelner Services
+# Test individual services
 openstack token issue                    # Keystone
 openstack image list                     # Glance
 openstack network list                   # Neutron
@@ -398,40 +483,40 @@ openstack server list                    # Nova
 openstack volume list                    # Cinder
 ```
 
-## 📚 Nützliche Multipass Commands
+## 📚 Useful Multipass Commands
 
 ```bash
-# Multipass Version
+# Multipass version
 multipass version
 
-# Multipass Einstellungen
+# Multipass settings
 multipass get local.driver
 
-# Verfügbare Ubuntu Images
+# Available Ubuntu images
 multipass find
 
-# VM suspend (speichert RAM state)
+# VM suspend (saves RAM state)
 multipass suspend devstack
 
-# Hilfe
+# Help
 multipass help
 multipass help <command>
 ```
 
-## 🚨 Notfall-Recovery
+## 🚨 Emergency Recovery
 
 ### VM Not Responding
 
 ```bash
-# Force stop und restart
+# Force stop and restart
 multipass stop devstack --force
 multipass start devstack
 
-# Wenn das nicht hilft: Logs vom Host anschauen
+# If that doesn't help: Check logs from host
 journalctl -u snap.multipass* -f
 ```
 
-### Multipass selbst hat Probleme
+### Multipass Itself Has Problems
 
 ```bash
 # Multipass daemon restart (Linux)
@@ -444,51 +529,50 @@ sudo journalctl -u snap.multipass* -n 100
 sudo systemctl status snap.multipass.multipassd
 ```
 
-### VM ist korrupt
+### VM is Corrupted
 
 ```bash
-# Restore von Snapshot (wenn vorhanden)
-multipass restore devstack --snapshot clean-install
+# Restore from snapshot (if available)
+./devstack snapshot restore clean-install
 
-# Sonst: VM neu erstellen
-multipass delete devstack
-multipass purge
+# Otherwise: Recreate VM
+./devstack cleanup
 ./devstack setup
 ```
 
 ## 💡 Pro Tips
 
-1. **Erstelle immer Snapshots nach erfolgreicher Installation:**
+1. **Always create snapshots after successful installation:**
    ```bash
    ./devstack snapshot create clean-install
    ```
 
-2. **Bei Debugging: Tail mehrere Logs gleichzeitig:**
+2. **For debugging: Tail multiple logs simultaneously:**
    ```bash
-   # In separaten Terminals
-   multipass exec devstack -- tail -f /opt/stack/logs/stack.sh.log
-   multipass exec devstack -- journalctl -u 'devstack@*' -f
+   # In separate terminals
+   ./devstack logs tail
+   ./devstack logs stack-tail
    ```
 
-3. **Nutze screen/tmux in der VM für persistente Sessions:**
+3. **Use screen/tmux in VM for persistent sessions:**
    ```bash
-   multipass shell devstack
-   screen  # oder tmux
+   ./devstack shell
+   screen  # or tmux
    ```
 
-4. **Logs nach Fehlern durchsuchen:**
+4. **Search logs for errors:**
    ```bash
    multipass exec devstack -- grep -r "ERROR\|CRITICAL" /opt/stack/logs/
    ```
 
-5. **Resource-Nutzung monitoren:**
+5. **Monitor resource usage:**
    ```bash
    multipass exec devstack -- htop
-   # oder
+   # or
    multipass exec devstack -- watch -n 1 'free -h && df -h'
    ```
 
-## 📖 Weiterführende Ressourcen
+## 📖 Further Resources
 
 - **Multipass Docs:** https://multipass.run/docs
 - **DevStack Docs:** https://docs.openstack.org/devstack/latest/

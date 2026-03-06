@@ -275,9 +275,14 @@ Automatic snapshots are kept for manual review. To clean up:
 ### Non-Destructive Commands
 
 These commands do NOT require confirmation:
-- `version show` - Read-only
-- `version list` - Read-only
-- `version set` - Only updates .env, does not change VM
+- `version show` - Read-only, displays current version
+- `version list` - Read-only, shows available versions
+
+**Note:** To manually set a version in `.env` without switching, edit the file directly:
+```bash
+vim .env  # Change DEVSTACK_VERSION=stable/2025.1
+```
+Then use `./devstack version switch` or `./devstack rebuild` to apply.
 
 ## Troubleshooting
 
@@ -318,11 +323,13 @@ These commands do NOT require confirmation:
 If `.env` and VM versions don't match:
 
 ```bash
-# Update .env to match VM
-./devstack version show  # Check installed version
-./devstack version set <installed-version>
+# Check installed version
+./devstack version show
 
-# Or update VM to match .env
+# Option 1: Update .env manually to match VM
+vim .env  # Edit DEVSTACK_VERSION to match installed version
+
+# Option 2: Update VM to match .env
 ./devstack version switch <configured-version>
 ```
 
@@ -370,7 +377,7 @@ done
 
 ## Related Commands
 
-- `./devstack config set devstack <version>` - Also sets version
 - `./devstack rebuild` - Rebuilds with current .env version
 - `./devstack snapshot create` - Backup before version change
 - `./devstack status` - Verify after version switch
+- `./devstack config set ubuntu <version>` - Change Ubuntu version (requires `config apply`)
