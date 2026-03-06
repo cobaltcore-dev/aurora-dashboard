@@ -11,10 +11,11 @@ describe("SessionCookie", () => {
     } as unknown as CreateFastifyContextOptions["res"]
   })
 
-  const createMockReq = (hostname: string) => ({
-    cookies: {},
-    hostname,
-  }) as CreateFastifyContextOptions["req"]
+  const createMockReq = (hostname: string) =>
+    ({
+      cookies: {},
+      hostname,
+    }) as CreateFastifyContextOptions["req"]
 
   describe("Cookie Name", () => {
     it("should use default cookie name", () => {
@@ -23,7 +24,6 @@ describe("SessionCookie", () => {
   })
 
   describe("Cookie Operations", () => {
-
     it("should set cookie with token", () => {
       const mockReq = createMockReq("aurora.qa-de-1.cloud.sap")
       const cookie = SessionCookie({ req: mockReq, res: mockRes })
