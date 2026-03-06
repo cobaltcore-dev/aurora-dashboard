@@ -37,20 +37,27 @@ show_wsl2_reminder() {
 show_help() {
     echo ""
     echo "╔════════════════════════════════════════════════════════════╗"
-    echo "║              DevStack v3 - Management CLI                 ║"
+    echo "║              DevStack v3 - Management CLI                  ║"
     echo "╚════════════════════════════════════════════════════════════╝"
     echo ""
     echo -e "${CYAN}Usage:${NC}"
     echo "  ./devstack <command> [options]"
     echo ""
     echo -e "${CYAN}VM Management:${NC}"
-    echo "  setup                 Create and provision new VM"
-    echo "  start                 Start existing VM"
-    echo "  stop                  Stop running VM"
-    echo "  restart               Restart VM"
-    echo "  shell                 Open shell in VM"
-    echo "  status                Show VM and DevStack status"
-    echo "  info                  Show detailed VM information"
+    echo "  setup                     Create and provision new VM"
+    echo "  start                     Start existing VM"
+    echo "  stop                      Stop running VM"
+    echo "  restart                   Restart VM"
+    echo "  shell                     Open shell in VM"
+    echo "  status                    Show VM and DevStack status"
+    echo "  info                      Show detailed VM information"
+    echo "  rebuild                   Delete and recreate VM (keeps .env)"
+    echo "  cleanup                   Delete VM completely"
+    echo ""
+    echo "  config show               Show current VM configuration"
+    echo "  config set <key> <val>    Set configuration value"
+    echo "  config apply              Apply configuration changes (recreates VM)"
+    echo "  config resize <res> <val> Resize running VM resources"
     echo ""
     echo -e "${CYAN}Services:${NC}"
     echo "  services list             Show configured services"
@@ -58,10 +65,7 @@ show_help() {
     echo "  services add <svc>        Add service(s)"
     echo "  services remove <svc>     Remove service(s)"
     echo "  services enable <list>    Set services (comma-separated)"
-    echo ""
-    echo -e "${CYAN}Configuration:${NC}"
-    echo "  rebuild               Delete and recreate VM (keeps .env)"
-    echo "  update-config         Update DevStack config without rebuilding VM"
+    echo "  update-config             Update DevStack config without rebuilding VM"
     echo ""
     echo -e "${CYAN}Snapshots:${NC}"
     echo "  snapshot create <name>    Create snapshot"
@@ -84,8 +88,7 @@ show_help() {
     echo "  debug compute             Compute diagnostics"
     echo "  debug all <service>       Complete service diagnostics"
     echo ""
-    echo -e "${CYAN}Maintenance:${NC}"
-    echo "  cleanup               Delete VM completely"
+    echo -e "${CYAN}Help:${NC}"
     echo "  help                  Show this help"
     echo ""
     echo -e "${CYAN}Examples:${NC}"
@@ -188,6 +191,10 @@ case "$COMMAND" in
 
     services)
         ./lib/services.sh "$@"
+        ;;
+
+    config)
+        ./lib/config.sh "$@"
         ;;
 
     cleanup)

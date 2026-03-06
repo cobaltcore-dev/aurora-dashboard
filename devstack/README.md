@@ -69,6 +69,30 @@ open http://<VM_IP>/dashboard
 
 ## Configuration
 
+Edit `.env` file or use the `./devstack config` commands.
+
+### Quick Config Management
+
+```bash
+# Show current configuration
+./devstack config show
+
+# Set VM resources
+./devstack config set cpus 8
+./devstack config set memory 16G
+./devstack config set disk 60G
+
+# Resize running VM (fast, preserves data)
+./devstack config resize cpus 8
+
+# Apply .env changes (recreates VM, slow)
+./devstack config apply
+```
+
+**See [docs/VM-CONFIG.md](docs/VM-CONFIG.md) for detailed configuration management guide.**
+
+### Manual .env Configuration
+
 Edit `.env` file:
 
 ```bash
@@ -180,13 +204,56 @@ All commands are managed through the central `./devstack` script:
 
 # Show detailed VM information
 ./devstack info
+
+# Delete and recreate VM (keeps .env)
+./devstack rebuild
+
+# Delete VM completely
+./devstack cleanup
 ```
 
-### Configuration Management
+#### VM Configuration
 
 ```bash
-# Delete and recreate VM (keeps .env configuration)
-./devstack rebuild
+# Show current VM configuration
+./devstack config show
+
+# Set configuration values in .env
+./devstack config set cpus 8
+./devstack config set memory 16G
+./devstack config set disk 60G
+./devstack config set ubuntu 24.04
+./devstack config set devstack master
+
+# Resize running VM (fast, preserves data)
+./devstack config resize cpus 8
+./devstack config resize memory 16G
+./devstack config resize disk 60G
+
+# Apply .env changes (recreates VM)
+./devstack config apply
+```
+
+**See [docs/VM-CONFIG.md](docs/VM-CONFIG.md) for detailed guide.**
+
+### Service Management
+
+```bash
+# Show configured services
+./devstack services list
+
+# Show all available services
+./devstack services available
+
+# Add services
+./devstack services add cinder
+./devstack services add heat,octavia
+
+# Remove services
+./devstack services remove swift
+
+# Set services (replaces all)
+./devstack services enable cinder,heat,barbican
 
 # Update DevStack configuration without rebuilding VM
 # Updates local.conf and restarts services (~10-15 min)
