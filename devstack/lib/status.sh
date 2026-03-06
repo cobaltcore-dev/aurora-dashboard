@@ -72,3 +72,11 @@ multipass exec "$VM_NAME" -- sudo -u stack bash -c "source /home/stack/devstack/
     echo "  multipass exec $VM_NAME -- tail -f /opt/stack/logs/stack.sh.log"
 }
 
+# Show WSL2 port forwarding reminder if applicable
+if grep -qEi "(Microsoft|WSL)" /proc/version &> /dev/null; then
+    echo ""
+    echo "⚠️  Running under WSL2 detected!"
+    echo "ℹ️  To access DevStack from Windows, start port forwarding:"
+    echo "   └─ ./scripts/wsl2-port-forward.sh"
+    echo ""
+fi
