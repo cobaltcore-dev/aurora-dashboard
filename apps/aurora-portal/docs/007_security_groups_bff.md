@@ -13,12 +13,14 @@ This implementation has been verified against the official OpenStack Neutron API
 ## Architecture Overview
 
 ### Backend (BFF Layer)
+
 - **Router**: `apps/aurora-portal/src/server/Network/routers/securityGroupRouter.ts`
 - **Types**: `apps/aurora-portal/src/server/Network/types/securityGroup.ts`
 - **Helpers**: `apps/aurora-portal/src/server/Network/helpers/securityGroupHelpers.ts`
 - **Tests**: `apps/aurora-portal/src/server/Network/routers/securityGroupRouter.test.ts`
 
 ### Frontend (React)
+
 - **List Route**: `apps/aurora-portal/src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/$.tsx` (splat routing)
 - **Details Route**: `apps/aurora-portal/src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId.tsx`
 - **Components**: `apps/aurora-portal/src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/`
@@ -36,23 +38,23 @@ Retrieves a list of security groups with optional pagination, sorting, and filte
 
 #### Parameters
 
-| Parameter | Type | Description | Default |
-|-----------|------|-------------|---------|
-| `limit` | number | Maximum number of results (1-1000) | - |
-| `marker` | string | Pagination marker (security group ID) | - |
-| `page_reverse` | boolean | Reverse pagination direction | - |
-| `sort_key` | string | Field to sort by | - |
-| `sort_dir` | enum | Sort direction (`asc`, `desc`) | - |
-| `name` | string | Filter by name | - |
-| `description` | string | Filter by description | - |
-| `project_id` | string | Filter by project ID | - |
-| `tenant_id` | string | Filter by tenant ID | - |
-| `shared` | boolean | Filter by shared status | - |
-| `tags` | string | Filter by tags (comma-separated) | - |
-| `tags_any` | string | Filter by any tags | - |
-| `not_tags` | string | Exclude tags | - |
-| `not_tags_any` | string | Exclude any tags | - |
-| `searchTerm` | string | **BFF-side** client search (filters by name, description, or ID) | - |
+| Parameter      | Type    | Description                                                      | Default |
+| -------------- | ------- | ---------------------------------------------------------------- | ------- |
+| `limit`        | number  | Maximum number of results (1-1000)                               | -       |
+| `marker`       | string  | Pagination marker (security group ID)                            | -       |
+| `page_reverse` | boolean | Reverse pagination direction                                     | -       |
+| `sort_key`     | string  | Field to sort by                                                 | -       |
+| `sort_dir`     | enum    | Sort direction (`asc`, `desc`)                                   | -       |
+| `name`         | string  | Filter by name                                                   | -       |
+| `description`  | string  | Filter by description                                            | -       |
+| `project_id`   | string  | Filter by project ID                                             | -       |
+| `tenant_id`    | string  | Filter by tenant ID                                              | -       |
+| `shared`       | boolean | Filter by shared status                                          | -       |
+| `tags`         | string  | Filter by tags (comma-separated)                                 | -       |
+| `tags_any`     | string  | Filter by any tags                                               | -       |
+| `not_tags`     | string  | Exclude tags                                                     | -       |
+| `not_tags_any` | string  | Exclude any tags                                                 | -       |
+| `searchTerm`   | string  | **BFF-side** client search (filters by name, description, or ID) | -       |
 
 #### Response
 
@@ -77,11 +79,11 @@ type SecurityGroup = {
 
 #### Error Handling
 
-| HTTP Status | tRPC Code | Message |
-|-------------|-----------|---------|
-| 401 | `UNAUTHORIZED` | Unauthorized access |
-| 403 | `FORBIDDEN` | Access forbidden |
-| 500 | `INTERNAL_SERVER_ERROR` | Failed to list security groups |
+| HTTP Status | tRPC Code               | Message                        |
+| ----------- | ----------------------- | ------------------------------ |
+| 401         | `UNAUTHORIZED`          | Unauthorized access            |
+| 403         | `FORBIDDEN`             | Access forbidden               |
+| 500         | `INTERNAL_SERVER_ERROR` | Failed to list security groups |
 
 ---
 
@@ -96,9 +98,9 @@ Retrieves a single security group with its associated rules.
 
 #### Parameters
 
-| Parameter | Type | Description | Required |
-|-----------|------|-------------|----------|
-| `securityGroupId` | string | The ID of the security group | ✅ Yes |
+| Parameter         | Type   | Description                  | Required |
+| ----------------- | ------ | ---------------------------- | -------- |
+| `securityGroupId` | string | The ID of the security group | ✅ Yes   |
 
 #### Response
 
@@ -106,12 +108,12 @@ Returns a single security group object with nested `security_group_rules`.
 
 #### Error Handling
 
-| HTTP Status | tRPC Code | Message |
-|-------------|-----------|---------|
-| 401 | `UNAUTHORIZED` | Unauthorized access |
-| 403 | `FORBIDDEN` | Access forbidden |
-| 404 | `NOT_FOUND` | Security group not found: {id} |
-| 500 | `INTERNAL_SERVER_ERROR` | Failed to fetch security group |
+| HTTP Status | tRPC Code               | Message                        |
+| ----------- | ----------------------- | ------------------------------ |
+| 401         | `UNAUTHORIZED`          | Unauthorized access            |
+| 403         | `FORBIDDEN`             | Access forbidden               |
+| 404         | `NOT_FOUND`             | Security group not found: {id} |
+| 500         | `INTERNAL_SERVER_ERROR` | Failed to fetch security group |
 
 ---
 
@@ -126,11 +128,11 @@ Creates a new security group.
 
 #### Parameters
 
-| Parameter | Type | Description | Required | Default |
-|-----------|------|-------------|----------|---------|
-| `name` | string | Security group name | ✅ Yes | - |
-| `description` | string | Security group description | No | - |
-| `stateful` | boolean | Stateful or stateless security group | No | `true` |
+| Parameter     | Type    | Description                          | Required | Default |
+| ------------- | ------- | ------------------------------------ | -------- | ------- |
+| `name`        | string  | Security group name                  | ✅ Yes   | -       |
+| `description` | string  | Security group description           | No       | -       |
+| `stateful`    | boolean | Stateful or stateless security group | No       | `true`  |
 
 #### Request Body Example
 
@@ -150,14 +152,14 @@ Returns the created security group object.
 
 #### Error Handling
 
-| HTTP Status | tRPC Code | Message |
-|-------------|-----------|---------|
-| 400 | `BAD_REQUEST` | Invalid request |
-| 401 | `UNAUTHORIZED` | Unauthorized access |
-| 403 | `FORBIDDEN` | Access forbidden |
-| 409 | `CONFLICT` | Security group already exists |
-| 413 | `BAD_REQUEST` | Quota exceeded for security groups. Please delete an existing security group or contact your administrator. |
-| 500 | `INTERNAL_SERVER_ERROR` | Failed to create security group |
+| HTTP Status | tRPC Code               | Message                                                                                                     |
+| ----------- | ----------------------- | ----------------------------------------------------------------------------------------------------------- |
+| 400         | `BAD_REQUEST`           | Invalid request                                                                                             |
+| 401         | `UNAUTHORIZED`          | Unauthorized access                                                                                         |
+| 403         | `FORBIDDEN`             | Access forbidden                                                                                            |
+| 409         | `CONFLICT`              | Security group already exists                                                                               |
+| 413         | `BAD_REQUEST`           | Quota exceeded for security groups. Please delete an existing security group or contact your administrator. |
+| 500         | `INTERNAL_SERVER_ERROR` | Failed to create security group                                                                             |
 
 ---
 
@@ -172,12 +174,12 @@ Updates an existing security group's name, description, or stateful attribute.
 
 #### Parameters
 
-| Parameter | Type | Description | Required |
-|-----------|------|-------------|----------|
-| `securityGroupId` | string | The ID of the security group | ✅ Yes |
-| `name` | string | New name | No |
-| `description` | string | New description | No |
-| `stateful` | boolean | New stateful value | No |
+| Parameter         | Type    | Description                  | Required |
+| ----------------- | ------- | ---------------------------- | -------- |
+| `securityGroupId` | string  | The ID of the security group | ✅ Yes   |
+| `name`            | string  | New name                     | No       |
+| `description`     | string  | New description              | No       |
+| `stateful`        | boolean | New stateful value           | No       |
 
 #### Important Notes
 
@@ -201,14 +203,14 @@ Returns the updated security group object.
 
 #### Error Handling
 
-| HTTP Status | tRPC Code | Message |
-|-------------|-----------|---------|
-| 400 | `BAD_REQUEST` | Invalid request |
-| 401 | `UNAUTHORIZED` | Unauthorized access |
-| 403 | `FORBIDDEN` | Access forbidden |
-| 404 | `NOT_FOUND` | Security group not found: {id} |
-| 409 | `CONFLICT` | Cannot update the 'stateful' attribute because this security group is in use by one or more ports. |
-| 500 | `INTERNAL_SERVER_ERROR` | Failed to update security group |
+| HTTP Status | tRPC Code               | Message                                                                                            |
+| ----------- | ----------------------- | -------------------------------------------------------------------------------------------------- |
+| 400         | `BAD_REQUEST`           | Invalid request                                                                                    |
+| 401         | `UNAUTHORIZED`          | Unauthorized access                                                                                |
+| 403         | `FORBIDDEN`             | Access forbidden                                                                                   |
+| 404         | `NOT_FOUND`             | Security group not found: {id}                                                                     |
+| 409         | `CONFLICT`              | Cannot update the 'stateful' attribute because this security group is in use by one or more ports. |
+| 500         | `INTERNAL_SERVER_ERROR` | Failed to update security group                                                                    |
 
 ---
 
@@ -223,9 +225,9 @@ Deletes a security group.
 
 #### Parameters
 
-| Parameter | Type | Description | Required |
-|-----------|------|-------------|----------|
-| `securityGroupId` | string | The ID of the security group to delete | ✅ Yes |
+| Parameter         | Type   | Description                            | Required |
+| ----------------- | ------ | -------------------------------------- | -------- |
+| `securityGroupId` | string | The ID of the security group to delete | ✅ Yes   |
 
 #### Important Notes
 
@@ -239,12 +241,12 @@ Returns void on success.
 
 #### Error Handling
 
-| HTTP Status | tRPC Code | Message |
-|-------------|-----------|---------|
-| 401 | `UNAUTHORIZED` | Unauthorized access |
-| 404 | `NOT_FOUND` | Security group not found: {id} |
-| 409 | `CONFLICT` | Cannot delete security group because it is in use by one or more ports. Please remove all associations before deleting. |
-| 500 | `INTERNAL_SERVER_ERROR` | Failed to delete security group |
+| HTTP Status | tRPC Code               | Message                                                                                                                 |
+| ----------- | ----------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| 401         | `UNAUTHORIZED`          | Unauthorized access                                                                                                     |
+| 404         | `NOT_FOUND`             | Security group not found: {id}                                                                                          |
+| 409         | `CONFLICT`              | Cannot delete security group because it is in use by one or more ports. Please remove all associations before deleting. |
+| 500         | `INTERNAL_SERVER_ERROR` | Failed to delete security group                                                                                         |
 
 ---
 
@@ -254,18 +256,18 @@ Returns void on success.
 
 ```typescript
 type SecurityGroup = {
-  id: string                              // Unique identifier
-  name?: string | null                    // Name of the security group
-  description?: string | null             // Description
-  tenant_id?: string | null               // Owner tenant ID (deprecated, use project_id)
-  project_id?: string | null              // Owner project ID
-  stateful?: boolean                      // Stateful (true) or stateless (false)
-  shared?: boolean                        // Whether shared with other projects
-  tags?: string[]                         // Associated tags
+  id: string // Unique identifier
+  name?: string | null // Name of the security group
+  description?: string | null // Description
+  tenant_id?: string | null // Owner tenant ID (deprecated, use project_id)
+  project_id?: string | null // Owner project ID
+  stateful?: boolean // Stateful (true) or stateless (false)
+  shared?: boolean // Whether shared with other projects
+  tags?: string[] // Associated tags
   security_group_rules?: SecurityGroupRule[] // Associated rules
-  revision_number?: number                // Revision number
-  created_at?: string                     // Creation timestamp (ISO 8601)
-  updated_at?: string | null              // Last update timestamp (ISO 8601)
+  revision_number?: number // Revision number
+  created_at?: string // Creation timestamp (ISO 8601)
+  updated_at?: string | null // Last update timestamp (ISO 8601)
 }
 ```
 
@@ -273,23 +275,23 @@ type SecurityGroup = {
 
 ```typescript
 type SecurityGroupRule = {
-  id: string                              // Unique identifier
-  direction?: "ingress" | "egress"        // Traffic direction
-  ethertype?: "IPv4" | "IPv6"             // Ethernet type
-  description?: string | null             // Rule description
-  security_group_id?: string              // Parent security group ID
-  protocol?: string | null                // Protocol (tcp, udp, icmp, etc.)
-  port_range_min?: number | null          // Minimum port number
-  port_range_max?: number | null          // Maximum port number
-  remote_ip_prefix?: string | null        // Remote IP prefix (CIDR)
-  remote_group_id?: string | null         // Remote security group ID
+  id: string // Unique identifier
+  direction?: "ingress" | "egress" // Traffic direction
+  ethertype?: "IPv4" | "IPv6" // Ethernet type
+  description?: string | null // Rule description
+  security_group_id?: string // Parent security group ID
+  protocol?: string | null // Protocol (tcp, udp, icmp, etc.)
+  port_range_min?: number | null // Minimum port number
+  port_range_max?: number | null // Maximum port number
+  remote_ip_prefix?: string | null // Remote IP prefix (CIDR)
+  remote_group_id?: string | null // Remote security group ID
   remote_address_group_id?: string | null // Remote address group ID
-  tenant_id?: string | null               // Owner tenant ID
-  project_id?: string | null              // Owner project ID
-  revision_number?: number                // Revision number
-  tags?: string[]                         // Associated tags
-  created_at?: string                     // Creation timestamp (ISO 8601)
-  updated_at?: string | null              // Last update timestamp (ISO 8601)
+  tenant_id?: string | null // Owner tenant ID
+  project_id?: string | null // Owner project ID
+  revision_number?: number // Revision number
+  tags?: string[] // Associated tags
+  created_at?: string // Creation timestamp (ISO 8601)
+  updated_at?: string | null // Last update timestamp (ISO 8601)
 }
 ```
 
@@ -321,6 +323,7 @@ Both parsers throw `TRPCError` with code `INTERNAL_SERVER_ERROR` if validation f
 ### Routes
 
 1. **List Page**: `/accounts/:accountId/projects/:projectId/network/securitygroups`
+
    - Component: `SecurityGroups` (List.tsx)
    - Features: Filtering, sorting, search, create action
 
@@ -388,11 +391,13 @@ const deleteMutation = trpcReact.network.securityGroup.deleteById.useMutation({
 ### Modals
 
 1. **CreateSecurityGroupModal**
+
    - Fields: Name (required), Description (optional), Stateful (checkbox, default true)
    - Validation: Name is required
    - Success: Navigates to details page
 
 2. **EditSecurityGroupModal**
+
    - Fields: Name, Description, Stateful
    - Pre-populated with existing values
    - Info message about stateful restrictions
@@ -407,6 +412,7 @@ const deleteMutation = trpcReact.network.securityGroup.deleteById.useMutation({
 ### Tables
 
 1. **SecurityGroupListContainer**
+
    - Columns: Name/ID, Description, Stateful, Shared/Owning Project, Created At
    - Row actions: Edit, Delete, Access Control (context menu)
    - Click row to navigate to details
@@ -427,6 +433,7 @@ const deleteMutation = trpcReact.network.securityGroup.deleteById.useMutation({
 File: `apps/aurora-portal/src/server/Network/routers/securityGroupRouter.test.ts`
 
 Tests cover:
+
 - ✅ List security groups with pagination and filtering
 - ✅ Get security group by ID
 - ✅ Create security group
@@ -437,6 +444,7 @@ Tests cover:
 ### Frontend Tests
 
 Component tests exist for:
+
 - ✅ `List.test.tsx` - List page integration
 - ✅ `CreateSecurityGroupModal.test.tsx` - Create modal component
 - ✅ `EditSecurityGroupModal.test.tsx` - Edit modal component
@@ -452,6 +460,7 @@ Component tests exist for:
 ### ✅ Completed (Part 1: Security Group Management)
 
 **Backend**:
+
 - ✅ All CRUD procedures implemented
 - ✅ Comprehensive error handling with specific messages
 - ✅ Input validation with Zod schemas
@@ -459,6 +468,7 @@ Component tests exist for:
 - ✅ Unit tests
 
 **Frontend**:
+
 - ✅ List page with filtering, sorting, search
 - ✅ Details page with loading/error states
 - ✅ Create modal with validation
@@ -470,12 +480,14 @@ Component tests exist for:
 ### 🔜 To Be Implemented
 
 **Part 2: Security Group Rules Management**:
+
 - [ ] Security group rules router (`securityGroupRuleRouter.ts`)
 - [ ] Create rule modal with dynamic form fields
 - [ ] Delete rule dialog
 - [ ] Rules table component (ingress/egress)
 
 **Part 3: RBAC Policies**:
+
 - [ ] RBAC policies router (`rbacPolicyRouter.ts`)
 - [ ] Manage sharing modal
 - [ ] RBAC policies table
@@ -509,6 +521,7 @@ Component tests exist for:
 ## OpenStack API Reference
 
 For complete API documentation, refer to:
+
 - https://docs.openstack.org/api-ref/network/v2/index.html#security-groups-security-groups
 
 ### Key API Endpoints Used
@@ -538,6 +551,7 @@ For complete API documentation, refer to:
 ## Migration Notes
 
 If migrating from legacy implementation:
+
 - The route changed from `/network/security-groups` to `/network/securitygroups` (no hyphen)
 - All operations now use tRPC instead of direct REST API calls
 - React Query handles caching automatically
