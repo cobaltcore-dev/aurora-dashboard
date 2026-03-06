@@ -9,7 +9,7 @@ export interface SessionProps {
   res: CreateFastifyContextOptions["res"]
 }
 
-export const SessionCookieName = process.env.DASHBOARD_COOKIE_NAME || "aurora-session"
+export const SessionCookieName = process.env.DASHBOARD_COOKIE_NAME || "dashboard-session-auth"
 
 // Enable cross-dashboard domain (wildcard subdomain) via environment variable
 // Default: true (enabled). Set to "false" to disable.
