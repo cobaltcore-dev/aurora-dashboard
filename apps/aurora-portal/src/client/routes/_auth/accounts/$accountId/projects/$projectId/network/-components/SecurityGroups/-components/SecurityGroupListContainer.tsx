@@ -203,6 +203,18 @@ export const SecurityGroupListContainer = ({
             isDeleting={isDeletingSecurityGroup}
             error={deleteError}
           />
+          <DeleteSecurityGroupDialog
+            securityGroup={selectedSecurityGroup}
+            isOpen={deleteDialogOpen}
+            onClose={closeDeleteDialog}
+            onDelete={(id) => {
+              if (onDeleteSecurityGroup) {
+                onDeleteSecurityGroup(id)
+              }
+            }}
+            isDeleting={isDeletingSecurityGroup}
+            error={deleteError}
+          />
         </>
       )}
     </>

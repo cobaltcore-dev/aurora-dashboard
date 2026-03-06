@@ -41,21 +41,71 @@ vi.mock("./CreateContainerModal", () => ({
   ),
 }))
 
+// ─── Mock EmptyContainerModal ────────────────────────────────────────────────
+
+vi.mock("./EmptyContainerModal", () => ({
+  EmptyContainerModal: vi.fn(({ isOpen, container, onClose, onSuccess, onError }) =>
+    isOpen && container ? (
+      <div data-testid="empty-container-modal">
+        <span data-testid="empty-modal-container-name">{container.name}</span>
+        <button onClick={onClose}>CloseEmpty</button>
+        <button onClick={() => onSuccess?.(container.name, 3)}>SimulateEmptySuccess</button>
+        <button onClick={() => onError?.(container.name, "Delete failed")}>SimulateEmptyError</button>
+      </div>
+    ) : null
+  ),
+}))
+
+// ─── Mock DeleteContainerModal ────────────────────────────────────────────────
+
+vi.mock("./DeleteContainerModal", () => ({
+  DeleteContainerModal: vi.fn(({ isOpen, container, onClose, onSuccess, onError }) =>
+    isOpen && container ? (
+      <div data-testid="delete-container-modal">
+        <span data-testid="delete-modal-container-name">{container.name}</span>
+        <button onClick={onClose}>CloseDelete</button>
+        <button onClick={() => onSuccess?.(container.name)}>SimulateDeleteSuccess</button>
+        <button onClick={() => onError?.(container.name, "Delete failed")}>SimulateDeleteError</button>
+      </div>
+    ) : null
+  ),
+}))
+
 // ─── Mock toast notification builders ────────────────────────────────────────
 
 vi.mock("./ContainerToastNotifications", () => ({
   getContainerCreatedToast: vi.fn((name) => ({
-    title: "Container Created",
     text: `Container "${name}" was successfully created.`,
     variant: "success",
     autoDismiss: true,
-    autoDismissTimeout: 5000,
   })),
   getContainerCreateErrorToast: vi.fn((name, error) => ({
-    title: "Failed to Create Container",
     text: `Could not create container "${name}": ${error}`,
     variant: "error",
-    autoDismiss: false,
+    autoDismiss: true,
+  })),
+  getContainerEmptiedToast: vi.fn((name, deletedCount) => ({
+    text:
+      deletedCount === 0
+        ? `Container "${name}" was already empty.`
+        : `Container "${name}" was successfully emptied. ${deletedCount} objects deleted.`,
+    variant: "success",
+    autoDismiss: true,
+  })),
+  getContainerEmptyErrorToast: vi.fn((name, error) => ({
+    text: `Could not empty container "${name}": ${error}`,
+    variant: "error",
+    autoDismiss: true,
+  })),
+  getContainerDeletedToast: vi.fn((name) => ({
+    text: `Container "${name}" was successfully deleted.`,
+    variant: "success",
+    autoDismiss: true,
+  })),
+  getContainerDeleteErrorToast: vi.fn((name, error) => ({
+    text: `Could not delete container "${name}": ${error}`,
+    variant: "error",
+    autoDismiss: true,
   })),
 }))
 
@@ -202,6 +252,23 @@ describe("ContainerListView", () => {
     })
   })
 
+  describe("Context menu", () => {
+    test("renders a popup menu trigger for each container row", () => {
+      renderView()
+      const menuTriggers = screen.getAllByRole("button", { name: /more/i })
+      expect(menuTriggers).toHaveLength(mockContainers.length)
+    })
+
+    test("shows Empty and Delete actions when menu is opened", async () => {
+      const user = userEvent.setup()
+      renderView()
+      const [firstMenuTrigger] = screen.getAllByRole("button", { name: /more/i })
+      await user.click(firstMenuTrigger)
+      expect(screen.getByText("Empty")).toBeInTheDocument()
+      expect(screen.getByText("Delete")).toBeInTheDocument()
+    })
+  })
+
   describe("CreateContainerModal integration", () => {
     test("does not render modal when createModalOpen is false", () => {
       renderView({ createModalOpen: false })
@@ -253,6 +320,138 @@ describe("ContainerListView", () => {
       await user.click(dismissButton)
       await waitFor(() => {
         expect(screen.queryByText(/Container "new-container" was successfully created/i)).not.toBeInTheDocument()
+      })
+    })
+  })
+
+  describe("EmptyContainerModal integration", () => {
+    // Helper: open the PopupMenu for a given container row, then click Empty
+    const openEmptyModal = async (user: ReturnType<typeof userEvent.setup>, containerName: string) => {
+      const row = screen.getByTestId(`container-row-${containerName}`)
+      const toggle = row.querySelector("button[aria-haspopup='menu']") as HTMLElement
+      await user.click(toggle)
+      await user.click(screen.getByTestId(`empty-action-${containerName}`))
+    }
+
+    test("does not render empty modal by default", () => {
+      renderView()
+      expect(screen.queryByTestId("empty-container-modal")).not.toBeInTheDocument()
+    })
+
+    test("renders empty modal when popup menu Empty action is clicked", async () => {
+      const user = userEvent.setup()
+      renderView()
+      await openEmptyModal(user, "alpha")
+      await waitFor(() => {
+        expect(screen.getByTestId("empty-container-modal")).toBeInTheDocument()
+      })
+    })
+
+    test("passes the correct container to the empty modal", async () => {
+      const user = userEvent.setup()
+      renderView()
+      await openEmptyModal(user, "alpha")
+      await waitFor(() => {
+        expect(screen.getByTestId("empty-modal-container-name")).toHaveTextContent("alpha")
+      })
+    })
+
+    test("closes empty modal when onClose is called", async () => {
+      const user = userEvent.setup()
+      renderView()
+      await openEmptyModal(user, "alpha")
+      await waitFor(() => {
+        expect(screen.getByTestId("empty-container-modal")).toBeInTheDocument()
+      })
+      await user.click(screen.getByRole("button", { name: "CloseEmpty" }))
+      await waitFor(() => {
+        expect(screen.queryByTestId("empty-container-modal")).not.toBeInTheDocument()
+      })
+    })
+
+    test("shows success toast after container is emptied", async () => {
+      const user = userEvent.setup()
+      renderView()
+      await openEmptyModal(user, "alpha")
+      await user.click(screen.getByRole("button", { name: "SimulateEmptySuccess" }))
+      await waitFor(() => {
+        expect(screen.getByText(/Container "alpha" was successfully emptied/i)).toBeInTheDocument()
+      })
+    })
+
+    test("shows error toast when emptying container fails", async () => {
+      const user = userEvent.setup()
+      renderView()
+      await openEmptyModal(user, "alpha")
+      await user.click(screen.getByRole("button", { name: "SimulateEmptyError" }))
+      await waitFor(() => {
+        expect(screen.getByText(/Could not empty container "alpha": Delete failed/i)).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe("DeleteContainerModal integration", () => {
+    // Helper: open the PopupMenu for a given container row, then click Delete
+    const openDeleteModal = async (user: ReturnType<typeof userEvent.setup>, containerName: string) => {
+      const row = screen.getByTestId(`container-row-${containerName}`)
+      const toggle = row.querySelector("button[aria-haspopup='menu']") as HTMLElement
+      await user.click(toggle)
+      await user.click(screen.getByTestId(`delete-action-${containerName}`))
+    }
+
+    test("does not render delete modal by default", () => {
+      renderView()
+      expect(screen.queryByTestId("delete-container-modal")).not.toBeInTheDocument()
+    })
+
+    test("renders delete modal when popup menu Delete action is clicked", async () => {
+      const user = userEvent.setup()
+      renderView()
+      await openDeleteModal(user, "alpha")
+      await waitFor(() => {
+        expect(screen.getByTestId("delete-container-modal")).toBeInTheDocument()
+      })
+    })
+
+    test("passes the correct container to the delete modal", async () => {
+      const user = userEvent.setup()
+      renderView()
+      await openDeleteModal(user, "beta")
+      await waitFor(() => {
+        expect(screen.getByTestId("delete-modal-container-name")).toHaveTextContent("beta")
+      })
+    })
+
+    test("closes delete modal when onClose is called", async () => {
+      const user = userEvent.setup()
+      renderView()
+      await openDeleteModal(user, "alpha")
+      await waitFor(() => {
+        expect(screen.getByTestId("delete-container-modal")).toBeInTheDocument()
+      })
+      await user.click(screen.getByRole("button", { name: "CloseDelete" }))
+      await waitFor(() => {
+        expect(screen.queryByTestId("delete-container-modal")).not.toBeInTheDocument()
+      })
+    })
+
+    test("shows success toast after container is deleted", async () => {
+      const user = userEvent.setup()
+      renderView()
+      await openDeleteModal(user, "alpha")
+      await user.click(screen.getByRole("button", { name: "SimulateDeleteSuccess" }))
+      await waitFor(() => {
+        expect(screen.getByText(/Container "alpha" was successfully deleted/i)).toBeInTheDocument()
+      })
+    })
+
+    test("shows error toast when deleting container fails", async () => {
+      const user = userEvent.setup()
+      renderView()
+      await openDeleteModal(user, "alpha")
+      await user.click(screen.getByRole("button", { name: "SimulateDeleteError" }))
+      await waitFor(() => {
+        expect(screen.getByText(/Could not delete container "alpha": Delete failed/i)).toBeInTheDocument()
       })
     })
   })
