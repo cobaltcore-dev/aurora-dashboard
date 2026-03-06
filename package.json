@@ -32,16 +32,16 @@
     "commitizen": "^4.3.1",
     "conventional-changelog-conventionalcommits": "^8.0.0",
     "cz-customizable": "^7.5.1",
-    "eslint": "^9.39.2",
+    "eslint": "^10.0.2",
     "husky": "^9.1.6",
     "prettier": "^3.2.5",
     "prettier-plugin-tailwindcss": "^0.7.2",
     "semantic-release": "^24.2.0",
     "turbo": "^2.2.3"
   },
-  "packageManager": "pnpm@10.28.0",
+  "packageManager": "pnpm@10.30.3",
   "dependencies": {
-    "pnpm": "^10.28.2"
+    "pnpm": "^10.30.3"
   },
   "config": {
     "commitizen": {
