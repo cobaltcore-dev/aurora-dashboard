@@ -41,6 +41,8 @@ choco install multipass
 
 **Note for Windows/WSL2 users:** See [docs/WSL2-PORT-FORWARDING.md](docs/WSL2-PORT-FORWARDING.md) for port forwarding setup to access services from Windows host.
 
+**Note for Docker container users in WSL2:** The same port forwarding script works for Docker containers too! See [docs/DOCKER-ACCESS.md](docs/DOCKER-ACCESS.md) for details on accessing DevStack from containers via `host.docker.internal`.
+
 ## Quick Start
 
 ```bash
