@@ -432,7 +432,10 @@ export const EditContainerMetadataModal = ({
       ) : isMetaFailed ? (
         <Stack direction="vertical" alignment="center" gap="3" className="py-8">
           <Message variant="danger">
-            <Trans>Failed to load container properties: {metaError?.message ?? "Unknown error"}</Trans>
+            {(() => {
+              const errorMessage = metaError?.message ?? "Unknown error"
+              return <Trans>Failed to load container properties: {errorMessage}</Trans>
+            })()}
           </Message>
         </Stack>
       ) : (
@@ -610,13 +613,15 @@ export const EditContainerMetadataModal = ({
                         onChange={(value: string) => setVersionsLocation(value)}
                         onInputChange={handleContainerSearch}
                         placeholder={t`Type to search containers…`}
-                        helptext={
-                          containerSearch.trim().length === 0
-                            ? t`Start typing to search for a container`
-                            : hiddenCount > 0
-                              ? t`Showing first ${MAX_COMBO_OPTIONS} of ${filteredContainers.length} — refine your search to narrow results`
-                              : undefined
-                        }
+                        helptext={(() => {
+                          if (containerSearch.trim().length === 0) return t`Start typing to search for a container`
+                          if (hiddenCount > 0) {
+                            const maxOptions = MAX_COMBO_OPTIONS
+                            const totalCount = filteredContainers.length
+                            return t`Showing first ${maxOptions} of ${totalCount} — refine your search to narrow results`
+                          }
+                          return undefined
+                        })()}
                         disabled={isBusy}
                       >
                         {visibleContainers.map((c) => (
@@ -798,11 +803,15 @@ export const EditContainerMetadataModal = ({
             </div>
 
             {/* Mutation error */}
-            {updateMutation.isError && (
-              <Message variant="danger">
-                <Trans>Failed to update container: {updateMutation.error.message}</Trans>
-              </Message>
-            )}
+            {updateMutation.isError &&
+              (() => {
+                const errorMessage = updateMutation.error.message
+                return (
+                  <Message variant="danger">
+                    <Trans>Failed to update container: {errorMessage}</Trans>
+                  </Message>
+                )
+              })()}
           </Stack>
         </div>
       )}
