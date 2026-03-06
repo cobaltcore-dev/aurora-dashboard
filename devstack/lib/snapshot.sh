@@ -86,6 +86,62 @@ case "$ACTION" in
         success "Snapshot '${SNAPSHOT_NAME}' deleted"
         ;;
 
+    cleanup)
+        echo ""
+        echo "╔════════════════════════════════════════════════════════════╗"
+        echo "║              Cleanup Automatic Snapshots                   ║"
+        echo "╚════════════════════════════════════════════════════════════╝"
+        echo ""
+
+        # List all automatic snapshots (created by system)
+        AUTO_SNAPSHOTS=$(multipass info "$VM_NAME" 2>/dev/null | grep -E "^(before-switch|before-config|before-rebuild)" | awk '{print $1}' || true)
+
+        if [ -z "$AUTO_SNAPSHOTS" ]; then
+            info "No automatic snapshots found"
+            echo ""
+            info "Automatic snapshots are prefixed with:"
+            echo "  - before-switch-to-*"
+            echo "  - before-config-apply-*"
+            echo "  - before-rebuild-*"
+            exit 0
+        fi
+
+        echo "Found automatic snapshots:"
+        echo ""
+        echo "$AUTO_SNAPSHOTS" | while read snap; do
+            echo "  • $snap"
+        done
+        echo ""
+
+        SNAP_COUNT=$(echo "$AUTO_SNAPSHOTS" | wc -l)
+        info "Total: $SNAP_COUNT automatic snapshots"
+        echo ""
+
+        read -p "Delete all automatic snapshots? (y/N): " -n 1 -r
+        echo
+        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+            info "Cleanup cancelled"
+            exit 0
+        fi
+
+        echo ""
+        info "Deleting automatic snapshots..."
+        echo ""
+
+        DELETED=0
+        echo "$AUTO_SNAPSHOTS" | while read snap; do
+            if multipass delete "${VM_NAME}.${snap}" 2>/dev/null; then
+                success "Deleted: $snap"
+                ((DELETED++)) || true
+            else
+                error "Failed to delete: $snap"
+            fi
+        done
+
+        echo ""
+        success "Cleanup complete"
+        ;;
+
     *)
         error "Unknown snapshot action: $ACTION"
         echo ""
@@ -94,6 +150,7 @@ case "$ACTION" in
         echo "  ./devstack snapshot restore <name>  - Restore from snapshot"
         echo "  ./devstack snapshot list            - List all snapshots"
         echo "  ./devstack snapshot delete <name>   - Delete a snapshot"
+        echo "  ./devstack snapshot cleanup         - Delete all automatic snapshots"
         exit 1
         ;;
 esac

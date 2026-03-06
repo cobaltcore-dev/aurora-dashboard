@@ -56,6 +56,21 @@ if ! multipass list | grep -q "^${VM_NAME}"; then
     exit 1
 fi
 
+# Ask about snapshot
+info "Create automatic safety snapshot before rebuilding?"
+echo "  Snapshot name: before-rebuild"
+echo ""
+read -p "Create snapshot? (Y/n): " -n 1 -r
+echo
+echo
+
+CREATE_SNAPSHOT=true
+if [[ $REPLY =~ ^[Nn]$ ]]; then
+    CREATE_SNAPSHOT=false
+    warning "Proceeding without snapshot - VM cannot be easily restored!"
+    echo ""
+fi
+
 read -p "Are you sure you want to rebuild? (y/N): " -n 1 -r
 echo
 if [[ ! $REPLY =~ ^[Yy]$ ]]; then
@@ -64,6 +79,31 @@ if [[ ! $REPLY =~ ^[Yy]$ ]]; then
 fi
 
 echo ""
+
+# Create snapshot if requested
+if [ "$CREATE_SNAPSHOT" = true ]; then
+    # Generate unique snapshot name with PID to avoid collisions
+    SNAPSHOT_NAME="before-rebuild-$(date +%Y%m%d-%H%M%S)-$$"
+    info "Creating snapshot: $SNAPSHOT_NAME"
+    if multipass snapshot "$VM_NAME" --name "$SNAPSHOT_NAME" >/dev/null 2>&1; then
+        success "Snapshot created: $SNAPSHOT_NAME"
+        info "To restore: ./devstack snapshot restore $SNAPSHOT_NAME"
+        echo ""
+        info "Snapshot will be kept for manual cleanup"
+        info "List snapshots: ./devstack snapshot list"
+        info "Delete old snapshots: ./devstack snapshot delete <name>"
+    else
+        error "Failed to create snapshot"
+        read -p "Continue anyway? (y/N): " -n 1 -r
+        echo
+        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+            info "Rebuild cancelled."
+            exit 0
+        fi
+    fi
+    echo ""
+fi
+
 info "Deleting existing VM..."
 multipass delete "$VM_NAME"
 multipass purge

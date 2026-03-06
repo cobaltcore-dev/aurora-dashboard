@@ -152,7 +152,8 @@ Change VM resources without recreating it:
 | `memory` | RAM allocation | `8G`, `16G`, `32G` | `resize` or `apply` |
 | `disk` | Disk size | `40G`, `60G`, `80G` | `resize` or `apply` |
 | `ubuntu` | Ubuntu version | `22.04`, `24.04` | `apply` only |
-| `devstack` | DevStack version | `stable/2025.1`, `master` | `apply` only |
+
+**Note:** To change DevStack version, use `./devstack version switch <version>` instead of config commands.
 
 ## Comparison: `resize` vs `apply`
 

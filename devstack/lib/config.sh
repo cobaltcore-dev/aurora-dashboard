@@ -106,7 +106,9 @@ case "$COMMAND" in
             echo "  memory         Amount of RAM (e.g., 8G, 16G)"
             echo "  disk           Disk size (e.g., 40G, 60G)"
             echo "  ubuntu         Ubuntu version (e.g., 22.04, 24.04)"
-            echo "  devstack       DevStack version (e.g., stable/2025.1, master)"
+            echo ""
+            info "To change DevStack version:"
+            echo "  ./devstack version switch <version>"
             echo ""
             exit 1
         fi
@@ -128,15 +130,21 @@ case "$COMMAND" in
                 success "VM_DISK set to $VALUE"
                 ;;
             ubuntu)
-                sed -i "s/^UBUNTU_VERSION=.*/UBUNTU_VERSION=$VALUE/" .env
+                sed -i "s|^UBUNTU_VERSION=.*|UBUNTU_VERSION=$VALUE|" .env
                 success "UBUNTU_VERSION set to $VALUE"
-                ;;
-            devstack)
-                sed -i "s/^DEVSTACK_VERSION=.*/DEVSTACK_VERSION=$VALUE/" .env
-                success "DEVSTACK_VERSION set to $VALUE"
                 ;;
             *)
                 error "Unknown configuration key: $KEY"
+                echo ""
+                echo "Available keys:"
+                echo "  cpus           Number of CPU cores (e.g., 4)"
+                echo "  memory         Amount of RAM (e.g., 8G, 16G)"
+                echo "  disk           Disk size (e.g., 40G, 60G)"
+                echo "  ubuntu         Ubuntu version (e.g., 22.04, 24.04)"
+                echo ""
+                info "To change DevStack version:"
+                echo "  ./devstack version switch <version>"
+                echo ""
                 exit 1
                 ;;
         esac
@@ -173,12 +181,53 @@ case "$COMMAND" in
         echo "  Ubuntu:        ${UBUNTU_VERSION:-22.04}"
         echo ""
 
-        read -p "Continue? (y/N): " -n 1 -r
+        # Ask about snapshot
+        info "Create automatic safety snapshot before rebuilding?"
+        echo "  Snapshot name: before-config-apply"
+        echo ""
+        read -p "Create snapshot? (Y/n): " -n 1 -r
+        echo
+        echo
+
+        CREATE_SNAPSHOT=true
+        if [[ $REPLY =~ ^[Nn]$ ]]; then
+            CREATE_SNAPSHOT=false
+            warning "Proceeding without snapshot - VM cannot be easily restored!"
+            echo ""
+        fi
+
+        read -p "Continue with rebuild? (y/N): " -n 1 -r
         echo
 
         if [[ ! $REPLY =~ ^[Yy]$ ]]; then
             info "Cancelled"
             exit 0
+        fi
+
+        echo ""
+
+        # Create snapshot if requested
+        if [ "$CREATE_SNAPSHOT" = true ]; then
+            # Generate unique snapshot name with nanoseconds to avoid collisions
+            SNAPSHOT_NAME="before-config-apply-$(date +%Y%m%d-%H%M%S)-$$"
+            info "Creating snapshot: $SNAPSHOT_NAME"
+            if multipass snapshot "$VM_NAME" --name "$SNAPSHOT_NAME" >/dev/null 2>&1; then
+                success "Snapshot created: $SNAPSHOT_NAME"
+                info "To restore: ./devstack snapshot restore $SNAPSHOT_NAME"
+                echo ""
+                info "Snapshot will be kept for manual cleanup"
+                info "List snapshots: ./devstack snapshot list"
+                info "Delete old snapshots: ./devstack snapshot delete <name>"
+            else
+                error "Failed to create snapshot"
+                read -p "Continue anyway? (y/N): " -n 1 -r
+                echo
+                if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+                    info "Cancelled"
+                    exit 0
+                fi
+            fi
+            echo ""
         fi
 
         info "Applying configuration..."

@@ -223,7 +223,6 @@ All commands are managed through the central `./devstack` script:
 ./devstack config set memory 16G
 ./devstack config set disk 60G
 ./devstack config set ubuntu 24.04
-./devstack config set devstack master
 
 # Resize running VM (fast, preserves data)
 ./devstack config resize cpus 8
@@ -235,6 +234,24 @@ All commands are managed through the central `./devstack` script:
 ```
 
 **See [docs/VM-CONFIG.md](docs/VM-CONFIG.md) for detailed guide.**
+
+### DevStack Version Management
+
+```bash
+# Show current version
+./devstack version show
+
+# List available versions
+./devstack version list
+
+# Switch to different version (reinstalls DevStack, preserves VM)
+./devstack version switch stable/2024.2
+./devstack version switch master
+```
+
+**Version switching preserves VM resources but reinstalls DevStack (~15-20 min).**
+
+**See [docs/VERSION-MANAGEMENT.md](docs/VERSION-MANAGEMENT.md) for detailed guide.**
 
 ### Service Management
 
@@ -275,7 +292,12 @@ vim .env  # Make changes first
 
 # Delete snapshot
 ./devstack snapshot delete clean-install
+
+# Delete all automatic snapshots (created by version switch, rebuild, etc.)
+./devstack snapshot cleanup
 ```
+
+**Note:** Destructive operations (version switch, rebuild, config apply) automatically offer to create snapshots.
 
 ### Logs
 

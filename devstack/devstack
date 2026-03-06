@@ -59,6 +59,11 @@ show_help() {
     echo "  config apply              Apply configuration changes (recreates VM)"
     echo "  config resize <res> <val> Resize running VM resources"
     echo ""
+    echo -e "${CYAN}DevStack Management:${NC}"
+    echo "  version show              Show current DevStack version"
+    echo "  version list              Show available versions"
+    echo "  version switch <ver>      Switch to different version"
+    echo ""
     echo -e "${CYAN}Services:${NC}"
     echo "  services list             Show configured services"
     echo "  services available        Show all available services"
@@ -72,6 +77,7 @@ show_help() {
     echo "  snapshot restore <name>   Restore from snapshot"
     echo "  snapshot list             List all snapshots"
     echo "  snapshot delete <name>    Delete a snapshot"
+    echo "  snapshot cleanup          Delete all automatic snapshots"
     echo ""
     echo -e "${CYAN}Logs:${NC}"
     echo "  logs [show]           Show last 50 lines of installation log"
@@ -95,6 +101,10 @@ show_help() {
     echo "  ./devstack setup"
     echo "  ./devstack status"
     echo "  ./devstack shell"
+    echo "  ./devstack config show"
+    echo "  ./devstack config resize cpus 8"
+    echo "  ./devstack version show"
+    echo "  ./devstack version switch stable/2024.2"
     echo "  ./devstack snapshot create clean-install"
     echo "  ./devstack logs tail"
     echo ""
@@ -195,6 +205,10 @@ case "$COMMAND" in
 
     config)
         ./lib/config.sh "$@"
+        ;;
+
+    version)
+        ./lib/version.sh "$@"
         ;;
 
     cleanup)
