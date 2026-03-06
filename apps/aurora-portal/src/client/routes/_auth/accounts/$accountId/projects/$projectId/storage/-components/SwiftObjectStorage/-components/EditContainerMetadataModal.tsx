@@ -382,7 +382,7 @@ export const EditContainerMetadataModal = ({
 
   const initialQuotaBytes = info?.quotaBytes != null ? String(info.quotaBytes) : ""
   const initialQuotaCount = info?.quotaCount != null ? String(info.quotaCount) : ""
-  const initialVersionsEnabled = !!(info?.versionsEnabled || info?.versionsLocation || info?.historyLocation)
+  const initialVersionsEnabled = !!info?.versionsEnabled
   const initialVersionsLocation = info?.versionsLocation || info?.historyLocation || ""
   const initialWebIndex = info?.metadata?.["web-index"] ?? ""
   const initialWebListings = info?.metadata?.["web-listings"] === "1" || info?.metadata?.["web-listings"] === "true"
@@ -568,7 +568,7 @@ export const EditContainerMetadataModal = ({
               </p>
 
               {/* Case 1: server-side versioning active, no user changes yet */}
-              {initialVersionsEnabled && versionsEnabled && !versionsLocation ? (
+              {initialVersionsEnabled && !versionsLocation ? (
                 <Checkbox
                   label={t`Versioning is enabled`}
                   checked
