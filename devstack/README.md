@@ -90,63 +90,6 @@ Edit `.env` file or use the `./devstack config` commands.
 ```
 
 **See [docs/VM-CONFIG.md](docs/VM-CONFIG.md) for detailed configuration management guide.**
-
-### Manual .env Configuration
-
-Edit `.env` file:
-
-```bash
-# VM Resources
-VM_NAME=devstack
-VM_CPUS=4
-VM_MEMORY=8G
-VM_DISK=40G
-
-# Ubuntu Version (see Ubuntu Version Options below)
-UBUNTU_VERSION=22.04
-
-# DevStack Version (see docs/VERSIONS.md for all options)
-DEVSTACK_VERSION=stable/2025.1
-
-# Networking
-PUBLIC_IP=localhost
-
-# Ports (forwarded from VM to host)
-HORIZON_PORT=8080
-KEYSTONE_PORT=5000
-NEUTRON_PORT=9696
-NOVA_PORT=8774
-GLANCE_PORT=9292
-
-# Credentials
-ADMIN_PASSWORD=password
-DATABASE_PASSWORD=password
-RABBIT_PASSWORD=password
-SERVICE_PASSWORD=password
-
-# Services
-ENABLE_HORIZON=true
-DISABLE_TEMPEST=true
-DISABLE_DSTAT=true
-
-# Additional OpenStack Services (comma-separated)
-# Core services (keystone, nova, neutron, glance, placement) are always enabled
-# Common optional services:
-#   - cinder: Block Storage (persistent volumes)
-#   - swift: Object Storage (S3-like)
-#   - heat: Orchestration (templates/stacks)
-#   - octavia: Load Balancer as a Service
-#   - designate: DNS as a Service
-#   - barbican: Key Management (secrets)
-#   - manila: Shared Filesystems
-#   - ironic: Bare Metal Provisioning
-#
-# Examples:
-#   ENABLE_SERVICES=cinder
-#   ENABLE_SERVICES=cinder,heat,barbican
-ENABLE_SERVICES=
-```
-
 **See [docs/SERVICES.md](docs/SERVICES.md) for complete service list and [docs/ENABLE-SERVICES.md](docs/ENABLE-SERVICES.md) for configuration guide.**
 
 ### Ubuntu Version Options
