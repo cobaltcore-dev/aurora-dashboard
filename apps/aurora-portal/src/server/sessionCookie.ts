@@ -50,17 +50,6 @@ export function SessionCookie({ cookieName = SessionCookieName, req, res }: Sess
     ...(cookieDomain && { domain: cookieDomain }),
   } as const
 
-  // Debug logging (can be removed later)
-  if (process.env.NODE_ENV !== "production") {
-    console.log("[SessionCookie] Config:", {
-      hostname: req.hostname,
-      cookieDomain,
-      cookieName,
-      allCookies: req.cookies,
-      targetCookie: req.cookies[cookieName],
-    })
-  }
-
   return {
     set: (content?: string | null, options?: { expires: Date }) => {
       if (!content) return
