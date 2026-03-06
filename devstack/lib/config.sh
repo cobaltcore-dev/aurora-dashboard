@@ -102,13 +102,16 @@ case "$COMMAND" in
             error "Usage: ./devstack config set <key> <value>"
             echo ""
             echo "Available keys:"
-            echo "  cpus           Number of CPU cores (e.g., 4)"
+            echo "  cpus           Number of CPU cores (e.g., 4, 8)"
             echo "  memory         Amount of RAM (e.g., 8G, 16G)"
             echo "  disk           Disk size (e.g., 40G, 60G)"
-            echo "  ubuntu         Ubuntu version (e.g., 22.04, 24.04)"
+            echo "  ubuntu         Ubuntu version (20.04, 22.04, 24.04, lts)"
             echo ""
             info "To change DevStack version:"
             echo "  ./devstack version switch <version>"
+            echo ""
+            info "Check Ubuntu compatibility:"
+            echo "  ./devstack version list"
             echo ""
             exit 1
         fi
@@ -130,20 +133,48 @@ case "$COMMAND" in
                 success "VM_DISK set to $VALUE"
                 ;;
             ubuntu)
-                sed -i "s|^UBUNTU_VERSION=.*|UBUNTU_VERSION=$VALUE|" .env
-                success "UBUNTU_VERSION set to $VALUE"
+                # Validate Ubuntu version
+                case "$VALUE" in
+                    20.04|22.04|24.04|lts)
+                        sed -i "s|^UBUNTU_VERSION=.*|UBUNTU_VERSION=$VALUE|" .env
+                        success "UBUNTU_VERSION set to $VALUE"
+
+                        # Show compatibility info
+                        echo ""
+                        info "Ubuntu LTS versions:"
+                        echo "  24.04 (Noble)  - Latest LTS, recommended for master and stable/2025.x"
+                        echo "  22.04 (Jammy)  - Stable, works with most DevStack versions"
+                        echo "  20.04 (Focal)  - Older, for legacy versions only"
+                        echo "  lts            - Auto-select latest LTS (currently 24.04)"
+                        ;;
+                    *)
+                        error "Invalid Ubuntu version: $VALUE"
+                        echo ""
+                        echo "Supported versions:"
+                        echo "  20.04    Ubuntu 20.04 LTS (Focal)"
+                        echo "  22.04    Ubuntu 22.04 LTS (Jammy)"
+                        echo "  24.04    Ubuntu 24.04 LTS (Noble)"
+                        echo "  lts      Latest LTS (auto-select)"
+                        echo ""
+                        info "Check compatibility: ./devstack version list"
+                        exit 1
+                        ;;
+                esac
                 ;;
             *)
                 error "Unknown configuration key: $KEY"
                 echo ""
                 echo "Available keys:"
-                echo "  cpus           Number of CPU cores (e.g., 4)"
+                echo "  cpus           Number of CPU cores (e.g., 4, 8)"
                 echo "  memory         Amount of RAM (e.g., 8G, 16G)"
                 echo "  disk           Disk size (e.g., 40G, 60G)"
-                echo "  ubuntu         Ubuntu version (e.g., 22.04, 24.04)"
+                echo "  ubuntu         Ubuntu version (20.04, 22.04, 24.04, lts)"
                 echo ""
                 info "To change DevStack version:"
                 echo "  ./devstack version switch <version>"
+                echo ""
+                info "Check Ubuntu compatibility:"
+                echo "  ./devstack version list"
                 echo ""
                 exit 1
                 ;;

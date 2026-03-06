@@ -222,7 +222,7 @@ All commands are managed through the central `./devstack` script:
 ./devstack config set cpus 8
 ./devstack config set memory 16G
 ./devstack config set disk 60G
-./devstack config set ubuntu 24.04
+./devstack config set ubuntu 24.04        # Supported: 20.04, 22.04, 24.04, lts
 
 # Resize running VM (fast, preserves data)
 ./devstack config resize cpus 8
@@ -232,6 +232,8 @@ All commands are managed through the central `./devstack` script:
 # Apply .env changes (recreates VM)
 ./devstack config apply
 ```
+
+**Note:** Ubuntu version changes require `config apply` (VM rebuild). Check compatibility with `./devstack version list`.
 
 **See [docs/VM-CONFIG.md](docs/VM-CONFIG.md) for detailed guide.**
 
