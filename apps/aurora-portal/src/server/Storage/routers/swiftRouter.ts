@@ -175,7 +175,7 @@ export const swiftRouter = {
         const headers = buildAccountMetadataHeaders(metadata, removeMetadata, tempUrlKey, tempUrlKey2)
         const accountPath = account || ""
 
-        await swift.post(accountPath, { headers }).catch((error) => {
+        await swift.post(accountPath, undefined, { headers }).catch((error) => {
           throw mapErrorResponseToTRPCError(error, { operation: "update account metadata" })
         })
 
@@ -277,7 +277,7 @@ export const swiftRouter = {
         const accountPath = account || ""
         const url = accountPath ? `${accountPath}/${encodeURIComponent(container)}` : encodeURIComponent(container)
 
-        await swift.put(url, { headers }).catch((error) => {
+        await swift.put(url, undefined, { headers }).catch((error) => {
           throw mapErrorResponseToTRPCError(error, { operation: "create container", container })
         })
 
@@ -332,12 +332,34 @@ export const swiftRouter = {
         const accountPath = account || ""
         const url = accountPath ? `${accountPath}/${encodeURIComponent(container)}` : encodeURIComponent(container)
 
-        await swift.post(url, { headers }).catch((error) => {
+        await swift.post(url, undefined, { headers }).catch((error) => {
           throw mapErrorResponseToTRPCError(error, { operation: "update container metadata", container })
         })
 
         return true
       }, "update container metadata")
+    }),
+
+  /**
+   * Returns the public URL for a container (derived from the service catalog public endpoint)
+   */
+  getContainerPublicUrl: protectedProcedure
+    .input(getContainerMetadataInputSchema)
+    .query(async ({ input, ctx }): Promise<string | null> => {
+      return withErrorHandling(async () => {
+        const { container } = input
+        const openstackSession = ctx.openstack
+        const swift = openstackSession?.service("swift")
+
+        validateSwiftService(swift)
+
+        const endpoints = swift.availableEndpoints()
+        const publicEndpoint = endpoints?.find((ep) => ep.interface === "public")
+        if (!publicEndpoint?.url) return null
+
+        const base = publicEndpoint.url.replace(/\/$/, "")
+        return `${base}/${encodeURIComponent(container)}/`
+      }, "get container public URL")
     }),
 
   /**
@@ -664,7 +686,7 @@ export const swiftRouter = {
           ? `${accountPath}/${encodeURIComponent(container)}/${encodeURIComponent(object)}`
           : `${encodeURIComponent(container)}/${encodeURIComponent(object)}`
 
-        await swift.post(url, { headers }).catch((error) => {
+        await swift.post(url, undefined, { headers }).catch((error) => {
           throw mapErrorResponseToTRPCError(error, { operation: "update object metadata", container, object })
         })
 

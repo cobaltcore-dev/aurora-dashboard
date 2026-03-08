@@ -17,6 +17,7 @@ import { formatBytesBinary } from "@/client/utils/formatBytes"
 import { CreateContainerModal } from "./CreateContainerModal"
 import { EmptyContainerModal } from "./EmptyContainerModal"
 import { DeleteContainerModal } from "./DeleteContainerModal"
+import { EditContainerMetadataModal } from "./EditContainerMetadataModal"
 import {
   getContainerCreatedToast,
   getContainerCreateErrorToast,
@@ -24,6 +25,8 @@ import {
   getContainerEmptyErrorToast,
   getContainerDeletedToast,
   getContainerDeleteErrorToast,
+  getContainerUpdatedToast,
+  getContainerUpdateErrorToast,
 } from "./ContainerToastNotifications"
 
 interface ContainerListViewProps {
@@ -45,6 +48,7 @@ export const ContainerListView = ({
   const [toastData, setToastData] = useState<ToastProps | null>(null)
   const [emptyModalContainer, setEmptyModalContainer] = useState<ContainerSummary | null>(null)
   const [deleteModalContainer, setDeleteModalContainer] = useState<ContainerSummary | null>(null)
+  const [propertiesModalContainer, setPropertiesModalContainer] = useState<ContainerSummary | null>(null)
 
   const handleToastDismiss = () => setToastData(null)
 
@@ -70,6 +74,14 @@ export const ContainerListView = ({
 
   const handleDeleteError = (containerName: string, errorMessage: string) => {
     setToastData(getContainerDeleteErrorToast(containerName, errorMessage, { onDismiss: handleToastDismiss }))
+  }
+
+  const handlePropertiesSuccess = (containerName: string) => {
+    setToastData(getContainerUpdatedToast(containerName, { onDismiss: handleToastDismiss }))
+  }
+
+  const handlePropertiesError = (containerName: string, errorMessage: string) => {
+    setToastData(getContainerUpdateErrorToast(containerName, errorMessage, { onDismiss: handleToastDismiss }))
   }
 
   // Calculate scrollbar width
@@ -199,6 +211,11 @@ export const ContainerListView = ({
                     <PopupMenu>
                       <PopupMenuOptions>
                         <PopupMenuItem
+                          label={t`Edit Metadata`}
+                          onClick={() => setPropertiesModalContainer(container)}
+                          data-testid={`properties-action-${container.name}`}
+                        />
+                        <PopupMenuItem
                           label={t`Empty`}
                           onClick={() => setEmptyModalContainer(container)}
                           data-testid={`empty-action-${container.name}`}
@@ -247,6 +264,14 @@ export const ContainerListView = ({
         onClose={() => setDeleteModalContainer(null)}
         onSuccess={handleDeleteSuccess}
         onError={handleDeleteError}
+      />
+
+      <EditContainerMetadataModal
+        isOpen={propertiesModalContainer !== null}
+        container={propertiesModalContainer}
+        onClose={() => setPropertiesModalContainer(null)}
+        onSuccess={handlePropertiesSuccess}
+        onError={handlePropertiesError}
       />
 
       {toastData && (
