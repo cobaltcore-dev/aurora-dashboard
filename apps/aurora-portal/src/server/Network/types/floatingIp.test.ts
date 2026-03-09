@@ -4,6 +4,10 @@ import {
   PortDetailsSchema,
   PortForwardingSchema,
   FloatingIpSchema,
+  FloatingIpCreateRequestSchema,
+  FloatingIpUpdateRequestSchema,
+  FloatingIpIdInputSchema,
+  FloatingIpListResponseSchema,
   FloatingIpResponseSchema,
   FloatingIpQueryParametersSchema,
   ISO8601TimestampSchema,
@@ -386,36 +390,217 @@ describe("OpenStack Floating IP Schema Validation", () => {
     })
   })
 
-  describe("FloatingIpResponseSchema", () => {
+  describe("FloatingIpListResponseSchema", () => {
     it("should validate list response with one floating IP", () => {
-      expect(FloatingIpResponseSchema.safeParse({ floatingips: [minimalValidFloatingIp] }).success).toBe(true)
+      expect(FloatingIpListResponseSchema.safeParse({ floatingips: [minimalValidFloatingIp] }).success).toBe(true)
     })
 
     it("should validate list response with multiple floating IPs", () => {
       expect(
-        FloatingIpResponseSchema.safeParse({
+        FloatingIpListResponseSchema.safeParse({
           floatingips: [minimalValidFloatingIp, completeValidFloatingIp],
         }).success
       ).toBe(true)
     })
 
     it("should validate empty floatingips array", () => {
-      expect(FloatingIpResponseSchema.safeParse({ floatingips: [] }).success).toBe(true)
+      expect(FloatingIpListResponseSchema.safeParse({ floatingips: [] }).success).toBe(true)
     })
 
     it("should reject response without floatingips key", () => {
-      expect(FloatingIpResponseSchema.safeParse({}).success).toBe(false)
+      expect(FloatingIpListResponseSchema.safeParse({}).success).toBe(false)
     })
 
     it("should reject response with null floatingips", () => {
-      expect(FloatingIpResponseSchema.safeParse({ floatingips: null }).success).toBe(false)
+      expect(FloatingIpListResponseSchema.safeParse({ floatingips: null }).success).toBe(false)
     })
 
     it("should reject response with invalid floating IP in array", () => {
-      const result = FloatingIpResponseSchema.safeParse({
+      const result = FloatingIpListResponseSchema.safeParse({
         floatingips: [{ id: "fip-1" }], // Missing required fields
       })
       expect(result.success).toBe(false)
+    })
+  })
+
+  describe("FloatingIpResponseSchema", () => {
+    it("should validate single floating IP response", () => {
+      expect(FloatingIpResponseSchema.safeParse({ floatingip: minimalValidFloatingIp }).success).toBe(true)
+    })
+
+    it("should reject response without floatingip key", () => {
+      expect(FloatingIpResponseSchema.safeParse({}).success).toBe(false)
+    })
+
+    it("should reject response with invalid floatingip payload", () => {
+      const result = FloatingIpResponseSchema.safeParse({ floatingip: { id: "fip-1" } })
+      expect(result.success).toBe(false)
+    })
+  })
+
+  describe("FloatingIpUpdateRequestSchema", () => {
+    it("should validate simple association request", () => {
+      const request = {
+        floatingip_id: "fip-123",
+        floatingip: {
+          port_id: "fc861431-0e6c-4842-a0ed-e2363f9bc3a8",
+        },
+      }
+
+      expect(FloatingIpUpdateRequestSchema.safeParse(request).success).toBe(true)
+    })
+
+    it("should validate disassociate request with null port_id", () => {
+      const request = {
+        floatingip_id: "fip-123",
+        floatingip: {
+          port_id: null,
+        },
+      }
+
+      expect(FloatingIpUpdateRequestSchema.safeParse(request).success).toBe(true)
+    })
+
+    it("should validate request with optional fields", () => {
+      const request = {
+        floatingip_id: "fip-123",
+        floatingip: {
+          port_id: "fc861431-0e6c-4842-a0ed-e2363f9bc3a8",
+          fixed_ip_address: "10.0.0.5",
+          description: "Updated floating IP",
+          distributed: true,
+        },
+      }
+
+      expect(FloatingIpUpdateRequestSchema.safeParse(request).success).toBe(true)
+    })
+
+    it("should reject request without floatingip_id", () => {
+      const request = {
+        floatingip: {
+          port_id: "fc861431-0e6c-4842-a0ed-e2363f9bc3a8",
+        },
+      }
+
+      expect(FloatingIpUpdateRequestSchema.safeParse(request).success).toBe(false)
+    })
+
+    it("should reject request without floatingip object", () => {
+      const request = {
+        floatingip_id: "fip-123",
+      }
+
+      expect(FloatingIpUpdateRequestSchema.safeParse(request).success).toBe(false)
+    })
+
+    it("should reject request without port_id", () => {
+      const request = {
+        floatingip_id: "fip-123",
+        floatingip: {
+          description: "Updated floating IP",
+        },
+      }
+
+      expect(FloatingIpUpdateRequestSchema.safeParse(request).success).toBe(false)
+    })
+
+    it("should reject invalid distributed type", () => {
+      const request = {
+        floatingip_id: "fip-123",
+        floatingip: {
+          port_id: "fc861431-0e6c-4842-a0ed-e2363f9bc3a8",
+          distributed: "true",
+        },
+      }
+
+      expect(FloatingIpUpdateRequestSchema.safeParse(request).success).toBe(false)
+    })
+  })
+
+  describe("FloatingIpIdInputSchema", () => {
+    it("should validate request with floatingip_id", () => {
+      expect(FloatingIpIdInputSchema.safeParse({ floatingip_id: "fip-123" }).success).toBe(true)
+    })
+
+    it("should reject request without floatingip_id", () => {
+      expect(FloatingIpIdInputSchema.safeParse({}).success).toBe(false)
+    })
+  })
+
+  describe("FloatingIpCreateRequestSchema", () => {
+    it("should validate minimal create request", () => {
+      const request = {
+        floatingip: {
+          tenant_id: "tenant-1",
+          project_id: "project-1",
+          floating_network_id: "376da547-b977-4cfe-9cba-275c80debf57",
+        },
+      }
+
+      expect(FloatingIpCreateRequestSchema.safeParse(request).success).toBe(true)
+    })
+
+    it("should validate complete create request", () => {
+      const request = {
+        floatingip: {
+          tenant_id: "tenant-1",
+          project_id: "project-1",
+          floating_network_id: "376da547-b977-4cfe-9cba-275c80debf57",
+          port_id: "ce705c24-c1ef-408a-bda3-7bbd946164ab",
+          subnet_id: "278d9507-36e7-403c-bb80-1d7093318fe6",
+          fixed_ip_address: "10.0.0.3",
+          floating_ip_address: "172.24.4.228",
+          description: "floating ip for testing",
+          dns_domain: "my-domain.org.",
+          dns_name: "myfip",
+          qos_policy_id: "29d5e02e-d5ab-4929-bee4-4a9fc12e22ae",
+          distributed: true,
+        },
+      }
+
+      expect(FloatingIpCreateRequestSchema.safeParse(request).success).toBe(true)
+    })
+
+    it("should reject request without floatingip object", () => {
+      const request = {
+        floating_network_id: "376da547-b977-4cfe-9cba-275c80debf57",
+      }
+
+      expect(FloatingIpCreateRequestSchema.safeParse(request).success).toBe(false)
+    })
+
+    it("should reject request without floating_network_id", () => {
+      const request = {
+        floatingip: {
+          tenant_id: "tenant-1",
+          project_id: "project-1",
+          description: "floating ip for testing",
+        },
+      }
+
+      expect(FloatingIpCreateRequestSchema.safeParse(request).success).toBe(false)
+    })
+
+    it("should reject request without tenant_id", () => {
+      const request = {
+        floatingip: {
+          project_id: "project-1",
+          floating_network_id: "376da547-b977-4cfe-9cba-275c80debf57",
+        },
+      }
+
+      expect(FloatingIpCreateRequestSchema.safeParse(request).success).toBe(false)
+    })
+
+    it("should reject request without project_id", () => {
+      const request = {
+        floatingip: {
+          tenant_id: "tenant-1",
+          floating_network_id: "376da547-b977-4cfe-9cba-275c80debf57",
+        },
+      }
+
+      expect(FloatingIpCreateRequestSchema.safeParse(request).success).toBe(false)
     })
   })
 
@@ -428,6 +613,7 @@ describe("OpenStack Floating IP Schema Validation", () => {
       expect(FloatingIpQueryParametersSchema.safeParse({ id: "fip-123" }).success).toBe(true)
       expect(FloatingIpQueryParametersSchema.safeParse({ floating_ip_address: "203.0.113.10" }).success).toBe(true)
       expect(FloatingIpQueryParametersSchema.safeParse({ status: "ACTIVE" }).success).toBe(true)
+      expect(FloatingIpQueryParametersSchema.safeParse({ searchTerm: "web" }).success).toBe(true)
     })
 
     it("should validate query with multiple filters", () => {
@@ -491,6 +677,10 @@ describe("OpenStack Floating IP Schema Validation", () => {
       expect(FloatingIpQueryParametersSchema.safeParse({ tags: ["prod", "web", "critical"] }).success).toBe(true)
     })
 
+    it("should reject tags as non-array type", () => {
+      expect(FloatingIpQueryParametersSchema.safeParse({ tags: "production" }).success).toBe(false)
+    })
+
     it("should validate nullable description filter", () => {
       expect(FloatingIpQueryParametersSchema.safeParse({ description: null }).success).toBe(true)
       expect(FloatingIpQueryParametersSchema.safeParse({ description: "Test" }).success).toBe(true)
@@ -502,6 +692,10 @@ describe("OpenStack Floating IP Schema Validation", () => {
 
     it("should validate fields parameter as array", () => {
       expect(FloatingIpQueryParametersSchema.safeParse({ fields: ["id", "floating_ip_address"] }).success).toBe(true)
+    })
+
+    it("should reject fields parameter with invalid type", () => {
+      expect(FloatingIpQueryParametersSchema.safeParse({ fields: 123 }).success).toBe(false)
     })
 
     it("should validate pagination parameters", () => {
