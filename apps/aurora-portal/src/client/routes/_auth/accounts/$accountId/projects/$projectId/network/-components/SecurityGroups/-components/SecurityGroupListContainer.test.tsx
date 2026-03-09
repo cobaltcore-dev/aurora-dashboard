@@ -31,27 +31,6 @@ vi.mock("./-modals/EditSecurityGroupModal", () => ({
   ),
 }))
 
-vi.mock("./-modals/AccessControlModal", () => ({
-  AccessControlModal: ({
-    securityGroup,
-    open,
-    onClose,
-  }: {
-    securityGroup: SecurityGroup
-    open: boolean
-    onClose: () => void
-  }) => (
-    <div data-testid="access-control-modal">
-      {open && (
-        <>
-          <div data-testid="access-control-modal-sg-id">{securityGroup.id}</div>
-          <button onClick={onClose}>Close Access Control</button>
-        </>
-      )}
-    </div>
-  ),
-}))
-
 const mockSecurityGroups: SecurityGroup[] = [
   {
     id: "sg-1",
@@ -101,7 +80,7 @@ const defaultPermissions: SecurityGroupPermissions = {
   canCreate: true,
   canUpdate: true,
   canDelete: false,
-  canManageAccess: true,
+  canManageAccess: false,
 }
 
 const createTestRouter = (Component: ReactElement) => {
@@ -351,81 +330,6 @@ describe("SecurityGroupListContainer", () => {
 
       await waitFor(() => {
         expect(screen.queryByTestId("edit-modal-sg-id")).not.toBeInTheDocument()
-      })
-    })
-  })
-
-  describe("Access control modal", () => {
-    it("opens access control modal", async () => {
-      const user = userEvent.setup()
-
-      const router = createTestRouter(
-        <SecurityGroupListContainer
-          securityGroups={mockSecurityGroups}
-          isLoading={false}
-          isError={false}
-          error={null}
-          permissions={defaultPermissions}
-        />
-      )
-      render(<RouterProvider router={router} />)
-
-      await waitFor(() => {
-        expect(screen.getByTestId("security-group-row-sg-1")).toBeInTheDocument()
-      })
-
-      const firstRow = screen.getByTestId("security-group-row-sg-1")
-      const popupMenuButton = firstRow.querySelector("button")
-      await user.click(popupMenuButton!)
-
-      await waitFor(() => {
-        expect(screen.getByText("Access Control")).toBeInTheDocument()
-      })
-
-      await user.click(screen.getByText("Access Control"))
-
-      await waitFor(() => {
-        expect(screen.getByTestId("access-control-modal-sg-id")).toHaveTextContent("sg-1")
-      })
-    })
-
-    it("closes access control modal", async () => {
-      const user = userEvent.setup()
-
-      const router = createTestRouter(
-        <SecurityGroupListContainer
-          securityGroups={mockSecurityGroups}
-          isLoading={false}
-          isError={false}
-          error={null}
-          permissions={defaultPermissions}
-        />
-      )
-      render(<RouterProvider router={router} />)
-
-      await waitFor(() => {
-        expect(screen.getByTestId("security-group-row-sg-1")).toBeInTheDocument()
-      })
-
-      const firstRow = screen.getByTestId("security-group-row-sg-1")
-      const popupMenuButton = firstRow.querySelector("button")
-      await user.click(popupMenuButton!)
-
-      await waitFor(() => {
-        expect(screen.getByText("Access Control")).toBeInTheDocument()
-      })
-
-      await user.click(screen.getByText("Access Control"))
-
-      await waitFor(() => {
-        expect(screen.getByTestId("access-control-modal-sg-id")).toBeInTheDocument()
-      })
-
-      const closeButton = screen.getByText("Close Access Control")
-      await user.click(closeButton)
-
-      await waitFor(() => {
-        expect(screen.queryByTestId("access-control-modal-sg-id")).not.toBeInTheDocument()
       })
     })
   })

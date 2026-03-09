@@ -19,7 +19,6 @@ interface SecurityGroupTableRowProps {
   securityGroup: SecurityGroup
   permissions: SecurityGroupPermissions
   onEdit: (sg: SecurityGroup) => void
-  onAccessControl: (sg: SecurityGroup) => void
   onDelete: (sg: SecurityGroup) => void
   onViewDetails?: (sg: SecurityGroup) => void
 }
@@ -28,7 +27,6 @@ export function SecurityGroupTableRow({
   securityGroup: sg,
   permissions,
   onEdit,
-  onAccessControl,
   onDelete,
   onViewDetails,
 }: SecurityGroupTableRowProps) {
@@ -67,9 +65,6 @@ export function SecurityGroupTableRow({
           <PopupMenuOptions>
             <PopupMenuItem label={t`Show Details`} onClick={() => handleShowDetails()} />
             {permissions.canUpdate && <PopupMenuItem label={t`Edit`} onClick={() => onEdit(sg)} />}
-            {permissions.canManageAccess && (
-              <PopupMenuItem label={t`Access Control`} onClick={() => onAccessControl(sg)} />
-            )}
             {permissions.canDelete && <PopupMenuItem label={t`Delete`} onClick={() => onDelete(sg)} />}
           </PopupMenuOptions>
         </PopupMenu>
