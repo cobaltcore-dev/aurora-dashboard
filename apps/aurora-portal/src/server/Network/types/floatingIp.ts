@@ -132,20 +132,18 @@ export const FloatingIpIdInputSchema = z.object({
  * See https://docs.openstack.org/api-ref/network/v2/index.html#create-floating-ip
  */
 export const FloatingIpCreateRequestSchema = z.object({
-  floatingip: z.object({
-    tenant_id: z.string(),
-    project_id: z.string(),
-    floating_network_id: z.string(),
-    fixed_ip_address: z.string().optional(),
-    floating_ip_address: z.string().optional(),
-    port_id: z.string().optional(),
-    subnet_id: z.string().optional(),
-    distributed: z.boolean().optional(),
-    description: z.string().optional(),
-    dns_domain: z.string().optional(),
-    dns_name: z.string().optional(),
-    qos_policy_id: z.string().optional(),
-  }),
+  tenant_id: z.string(),
+  project_id: z.string(),
+  floating_network_id: z.string(),
+  fixed_ip_address: z.string().optional(),
+  floating_ip_address: z.string().optional(),
+  port_id: z.string().optional(),
+  subnet_id: z.string().optional(),
+  distributed: z.boolean().optional(),
+  description: z.string().optional(),
+  dns_domain: z.string().optional(),
+  dns_name: z.string().optional(),
+  qos_policy_id: z.string().optional(),
 })
 
 /**

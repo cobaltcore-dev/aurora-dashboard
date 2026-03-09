@@ -1,5 +1,7 @@
 import { TRPCError } from "@trpc/server"
 
+export const FLOATING_IPS_BASE_URL = "v2.0/floatingips"
+
 export const HTTP_STATUS_CODE_TO_NAME = {
   400: "BAD_REQUEST",
   401: "UNAUTHORIZED",
