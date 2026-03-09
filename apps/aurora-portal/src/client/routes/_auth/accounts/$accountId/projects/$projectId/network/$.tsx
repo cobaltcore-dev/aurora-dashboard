@@ -4,7 +4,6 @@ import { ErrorBoundary } from "react-error-boundary"
 import { SecurityGroups } from "./-components/SecurityGroups/List"
 import { FloatingIps } from "./-components/FloatingIps/List"
 import { Trans, useLingui } from "@lingui/react/macro"
-import { useEffect } from "react"
 
 const checkNetworkServiceAvailability = (
   availableServices: { type: string; name: string }[],
@@ -53,18 +52,16 @@ function RouteComponent() {
   const { setPageTitle } = Route.useRouteContext()
   const { t } = useLingui()
 
-  useEffect(() => {
-    switch (splat) {
-      case "securitygroups":
-        setPageTitle(t`Security Groups`)
-        break
-      case "floatingips":
-        setPageTitle(t`Floating IPs`)
-        break
-      default:
-        setPageTitle(t`Network Overview`)
-    }
-  }, [splat, setPageTitle, t])
+  switch (splat) {
+    case "securitygroups":
+      setPageTitle(t`Security Groups`)
+      break
+    case "floatingips":
+      setPageTitle(t`Floating IPs`)
+      break
+    default:
+      setPageTitle(t`Network Overview`)
+  }
 
   return (
     <div>

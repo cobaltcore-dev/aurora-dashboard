@@ -3,7 +3,6 @@ import { getServiceIndex } from "@/server/Authentication/helpers"
 import { ErrorBoundary } from "react-error-boundary"
 import { SwiftObjectStorage } from "./-components/SwiftObjectStorage/List"
 import { Trans, useLingui } from "@lingui/react/macro"
-import { useEffect } from "react"
 
 export const checkServiceAvailability = (
   availableServices: {
@@ -77,15 +76,13 @@ function StorageDashboard() {
   const { setPageTitle } = Route.useRouteContext()
   const { t } = useLingui()
 
-  useEffect(() => {
-    switch (splat) {
-      case "swift":
-        setPageTitle(t`Object Storage`)
-        break
-      default:
-        setPageTitle(t`Storage Overview`)
-    }
-  }, [splat, setPageTitle, t])
+  switch (splat) {
+    case "swift":
+      setPageTitle(t`Object Storage`)
+      break
+    default:
+      setPageTitle(t`Storage Overview`)
+  }
 
   return (
     <div>

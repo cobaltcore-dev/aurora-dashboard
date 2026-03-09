@@ -9,7 +9,6 @@ import { Images } from "./-components/Images/List"
 import { KeyPairs } from "./-components/KeyPairs/List"
 import { ServerGroups } from "./-components/ServerGroups/List"
 import { Flavors } from "./-components/Flavors/List"
-import { useEffect } from "react"
 
 const checkServiceAvailability = (
   availableServices: {
@@ -96,27 +95,25 @@ function ComputeDashboard({ client }: { client: TrpcClient }) {
   const { setPageTitle } = Route.useRouteContext()
   const { t } = useLingui()
 
-  useEffect(() => {
-    switch (splat) {
-      case "instances":
-        setPageTitle(t`Instances`)
-        break
-      case "images":
-        setPageTitle(t`Images`)
-        break
-      case "keypairs":
-        setPageTitle(t`Key Pairs`)
-        break
-      case "servergroups":
-        setPageTitle(t`Server Groups`)
-        break
-      case "flavors":
-        setPageTitle(t`Flavors`)
-        break
-      default:
-        setPageTitle(t`Compute Overview`)
-    }
-  }, [splat, setPageTitle, t])
+  switch (splat) {
+    case "instances":
+      setPageTitle(t`Instances`)
+      break
+    case "images":
+      setPageTitle(t`Images`)
+      break
+    case "keypairs":
+      setPageTitle(t`Key Pairs`)
+      break
+    case "servergroups":
+      setPageTitle(t`Server Groups`)
+      break
+    case "flavors":
+      setPageTitle(t`Flavors`)
+      break
+    default:
+      setPageTitle(t`Compute Overview`)
+  }
 
   return (
     <div>
