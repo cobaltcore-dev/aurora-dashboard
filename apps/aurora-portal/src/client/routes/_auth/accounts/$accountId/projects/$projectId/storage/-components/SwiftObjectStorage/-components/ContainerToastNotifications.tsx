@@ -139,3 +139,37 @@ export const getContainerDeleteErrorToast = (
   autoDismissTimeout: config.autoDismissTimeout ?? 5000,
   onDismiss: config.onDismiss,
 })
+
+export const getContainerUpdatedToast = (containerName: string, config: ToastConfig): ToastProps => ({
+  variant: "success",
+  children: (
+    <NotificationText
+      title={<Trans>Container Updated</Trans>}
+      description={<Trans>Container "{containerName}" properties were successfully updated.</Trans>}
+    />
+  ),
+  autoDismiss: true,
+  autoDismissTimeout: config.autoDismissTimeout ?? 5000,
+  onDismiss: config.onDismiss,
+})
+
+export const getContainerUpdateErrorToast = (
+  containerName: string,
+  errorMessage: string,
+  config: ToastConfig
+): ToastProps => ({
+  variant: "error",
+  children: (
+    <NotificationText
+      title={<Trans>Failed to Update Container</Trans>}
+      description={
+        <Trans>
+          Could not update container "{containerName}": {errorMessage}
+        </Trans>
+      }
+    />
+  ),
+  autoDismiss: true,
+  autoDismissTimeout: config.autoDismissTimeout ?? 5000,
+  onDismiss: config.onDismiss,
+})
