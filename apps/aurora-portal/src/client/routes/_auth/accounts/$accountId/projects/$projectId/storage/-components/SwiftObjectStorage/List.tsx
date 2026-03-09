@@ -45,7 +45,7 @@ export const SwiftObjectStorage = () => {
   // Sort containers based on sort settings
   const sortContainers = (containers: ContainerSummary[]): ContainerSummary[] => {
     return [...containers].sort((a, b) => {
-      let comparison = 0
+      let comparison: number
 
       switch (sortSettings.sortBy) {
         case "name":

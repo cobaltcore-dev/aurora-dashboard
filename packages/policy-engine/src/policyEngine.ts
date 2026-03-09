@@ -104,7 +104,9 @@ export class PolicyEngine {
       PolicyConfigSchema.parse(config)
     } catch (error) {
       if (error instanceof ZodError) {
-        throw new Error(`(Policy configuration) ${z.treeifyError(error).errors.join("; ")}`)
+        throw new Error(`(Policy configuration) ${z.treeifyError(error).errors.join("; ")}`, {
+          cause: error,
+        })
       } else throw error
     }
 
@@ -119,7 +121,7 @@ export class PolicyEngine {
         const parseResult = parse(tokens)
         this.compiledRules.set(ruleName, parseResult)
       } catch (error) {
-        throw new Error(`Failed to compile rule '${ruleName}': ${error}`)
+        throw new Error(`Failed to compile rule '${ruleName}': ${error}`, { cause: error })
       }
     }
   }
