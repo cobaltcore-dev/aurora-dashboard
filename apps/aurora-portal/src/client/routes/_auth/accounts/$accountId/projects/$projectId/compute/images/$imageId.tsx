@@ -45,20 +45,18 @@ function RouteComponent() {
 
   const { data: image, status, error } = trpcReact.compute.getImageById.useQuery({ imageId: imageId })
 
-  useEffect(() => {
-    // Type-safe: name kann string | undefined | null sein
-    if (image?.name && typeof image.name === "string") {
-      setPageTitle(image.name)
-    } else if (image?.id) {
-      setPageTitle(image.id)
-    } else if (status === "error") {
-      setPageTitle(t`Error - Image Details`)
-    } else if (status === "pending") {
-      setPageTitle(t`Loading Image...`)
-    } else {
-      setPageTitle(t`Image Details`)
-    }
-  }, [image?.name, image?.id, status, setPageTitle, t])
+  // Type-safe: name kann string | undefined | null sein
+  if (image?.name && typeof image.name === "string") {
+    setPageTitle(image.name)
+  } else if (image?.id) {
+    setPageTitle(image.id)
+  } else if (status === "error") {
+    setPageTitle(t`Error - Image Details`)
+  } else if (status === "pending") {
+    setPageTitle(t`Loading Image...`)
+  } else {
+    setPageTitle(t`Image Details`)
+  }
 
   const handleBack = () => {
     navigate({
