@@ -180,6 +180,66 @@ describe("SessionCookie", () => {
   })
 
   describe("Domain Extraction", () => {
+    it("should set domain for Aurora dashboard hostname", () => {
+      const mockReq = createMockReq("aurora.qa-de-1.cloud.sap")
+      const cookie = SessionCookie({ req: mockReq, res: mockRes })
+
+      cookie.set("test-token")
+
+      expect(mockRes.setCookie).toHaveBeenCalledWith(
+        SessionCookieName,
+        "test-token",
+        expect.objectContaining({
+          domain: ".qa-de-1.cloud.sap",
+        })
+      )
+    })
+
+    it("should set domain for Elektra dashboard hostname", () => {
+      const mockReq = createMockReq("dashboard.qa-de-1.cloud.sap")
+      const cookie = SessionCookie({ req: mockReq, res: mockRes })
+
+      cookie.set("test-token")
+
+      expect(mockRes.setCookie).toHaveBeenCalledWith(
+        SessionCookieName,
+        "test-token",
+        expect.objectContaining({
+          domain: ".qa-de-1.cloud.sap",
+        })
+      )
+    })
+
+    it("should set domain for production hostnames", () => {
+      const mockReq = createMockReq("aurora.eu-de-1.cloud.sap")
+      const cookie = SessionCookie({ req: mockReq, res: mockRes })
+
+      cookie.set("test-token")
+
+      expect(mockRes.setCookie).toHaveBeenCalledWith(
+        SessionCookieName,
+        "test-token",
+        expect.objectContaining({
+          domain: ".eu-de-1.cloud.sap",
+        })
+      )
+    })
+
+    it("should set domain for hostnames with multiple subdomains", () => {
+      const mockReq = createMockReq("app.subdomain.example.com")
+      const cookie = SessionCookie({ req: mockReq, res: mockRes })
+
+      cookie.set("test-token")
+
+      expect(mockRes.setCookie).toHaveBeenCalledWith(
+        SessionCookieName,
+        "test-token",
+        expect.objectContaining({
+          domain: ".subdomain.example.com",
+        })
+      )
+    })
+
     it("should not set domain for localhost", () => {
       const mockReq = createMockReq("localhost")
       const cookie = SessionCookie({ req: mockReq, res: mockRes })
@@ -215,13 +275,13 @@ describe("SessionCookie", () => {
 // NOTE: Cross-dashboard domain (wildcard subdomain) is ENABLED BY DEFAULT
 // To test with the feature disabled, run:
 //
-// ENABLE_CROSS_DASHBOARD_DOMAIN=false pnpm test sessionCookie
+// ENABLE_CROSS_DASHBOARD_COOKIE=false pnpm test sessionCookie
 //
 // Default behavior (enabled):
 // - aurora.qa-de-1.cloud.sap → domain: .qa-de-1.cloud.sap
 // - dashboard.qa-de-1.cloud.sap → domain: .qa-de-1.cloud.sap
 // - Both Aurora and Elektra share the same wildcard domain
 //
-// When disabled (ENABLE_CROSS_DASHBOARD_DOMAIN=false):
+// When disabled (ENABLE_CROSS_DASHBOARD_COOKIE=false):
 // - No domain attribute is set
 // - Cookies are scoped to current subdomain only
