@@ -7,9 +7,15 @@ import {
   SecurityGroup,
   getSecurityGroupByIdInputSchema,
   securityGroupResponseSchema,
+  createSecurityGroupInputSchema,
+  deleteSecurityGroupInputSchema,
 } from "../types/securityGroup"
 import { withErrorHandling } from "../../helpers/errorHandling"
 import { filterBySearchParams } from "../../helpers/filterBySearchParams"
+import { validateOpenstackService } from "../../helpers/validateOpenstackService"
+import { SecurityGroupErrorHandlers } from "../helpers/securityGroupHelpers"
+
+const SECURITY_GROUPS_BASE_URL = "v2.0/security-groups"
 
 const LIST_SECURITY_GROUPS_QUERY_KEY_MAP: Record<string, string> = {
   tags_any: "tags-any",
@@ -24,6 +30,8 @@ const LIST_SECURITY_GROUPS_QUERY_KEY_MAP: Record<string, string> = {
  * - list: GET /v2.0/security-groups with pagination, sorting and basic filtering support.
  * - getById: GET /v2.0/security-groups/{security_group_id} to fetch a single security group with rules.
  *   Includes BFF-side search filtering by name, description, or id.
+ * - create: POST /v2.0/security-groups to create a new security group.
+ * - deleteById: DELETE /v2.0/security-groups/{security_group_id} to delete a security group.
  */
 export const securityGroupRouter = {
   list: protectedProcedure
@@ -31,13 +39,7 @@ export const securityGroupRouter = {
     .query(async ({ input, ctx }): Promise<SecurityGroup[]> => {
       const openstackSession = ctx.openstack
       const network = openstackSession?.service("network")
-
-      if (!network) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Network service is not available",
-        })
-      }
+      validateOpenstackService(network, "network")
 
       return withErrorHandling(async () => {
         // Extract searchTerm from input before building query params
@@ -48,7 +50,7 @@ export const securityGroupRouter = {
         })
 
         const queryString = queryParams.toString()
-        const url = queryString ? `v2.0/security-groups?${queryString}` : "v2.0/security-groups"
+        const url = queryString ? `${SECURITY_GROUPS_BASE_URL}?${queryString}` : SECURITY_GROUPS_BASE_URL
 
         const response = await network.get(url)
         const data = await response.json()
@@ -68,22 +70,16 @@ export const securityGroupRouter = {
       }, "list security groups")
     }),
 
-  getSecurityGroupById: protectedProcedure
+  getById: protectedProcedure
     .input(getSecurityGroupByIdInputSchema)
     .query(async ({ input, ctx }): Promise<SecurityGroup> => {
       return withErrorHandling(async () => {
         const { securityGroupId } = input
         const openstackSession = ctx.openstack
         const network = openstackSession?.service("network")
+        validateOpenstackService(network, "network")
 
-        if (!network) {
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: "Network service is not available",
-          })
-        }
-
-        const response = await network.get(`v2.0/security-groups/${securityGroupId}`)
+        const response = await network.get(`${SECURITY_GROUPS_BASE_URL}/${securityGroupId}`)
         const data = await response.json()
         const parsed = securityGroupResponseSchema.safeParse(data)
 
@@ -97,5 +93,65 @@ export const securityGroupRouter = {
 
         return parsed.data.security_group
       }, "fetch security group by ID")
+    }),
+
+  create: protectedProcedure
+    .input(createSecurityGroupInputSchema)
+    .mutation(async ({ input, ctx }): Promise<SecurityGroup> => {
+      return withErrorHandling(async () => {
+        const openstackSession = ctx.openstack
+        const network = openstackSession?.service("network")
+
+        if (!network) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Network service is not available",
+          })
+        }
+        const requestBody = {
+          security_group: {
+            name: input.name,
+            ...(input.description !== undefined && { description: input.description }),
+            ...(input.stateful !== undefined && { stateful: input.stateful }),
+          },
+        }
+        const response = await network.post(SECURITY_GROUPS_BASE_URL, requestBody)
+
+        // Check for error responses before parsing
+        if (!response.ok) {
+          throw SecurityGroupErrorHandlers.create(response)
+        }
+
+        const data = await response.json()
+
+        const parsed = securityGroupResponseSchema.safeParse(data)
+
+        if (!parsed.success) {
+          console.error("Zod Parsing Error in securityGroupRouter.create:", parsed.error.format())
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Failed to parse security group response from OpenStack",
+          })
+        }
+
+        return parsed.data.security_group
+      }, "create security group")
+    }),
+
+  deleteById: protectedProcedure
+    .input(deleteSecurityGroupInputSchema)
+    .mutation(async ({ input, ctx }): Promise<void> => {
+      return withErrorHandling(async () => {
+        const { securityGroupId } = input
+        const openstackSession = ctx.openstack
+        const network = openstackSession?.service("network")
+        validateOpenstackService(network, "network")
+
+        const response = await network.del(`${SECURITY_GROUPS_BASE_URL}/${securityGroupId}`)
+
+        if (!response?.ok) {
+          throw SecurityGroupErrorHandlers.delete(response, securityGroupId)
+        }
+      }, "delete security group")
     }),
 }

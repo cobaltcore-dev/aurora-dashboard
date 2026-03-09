@@ -9,6 +9,7 @@ import { useLingui, Trans } from "@lingui/react/macro"
 import type { SecurityGroup } from "@/server/Network/types/securityGroup"
 
 export interface SecurityGroupPermissions {
+  canCreate: boolean
   canUpdate: boolean
   canDelete: boolean
   canManageAccess: boolean
@@ -19,6 +20,7 @@ interface SecurityGroupTableRowProps {
   permissions: SecurityGroupPermissions
   onEdit: (sg: SecurityGroup) => void
   onAccessControl: (sg: SecurityGroup) => void
+  onDelete: (sg: SecurityGroup) => void
   onViewDetails?: (sg: SecurityGroup) => void
 }
 
@@ -27,6 +29,7 @@ export function SecurityGroupTableRow({
   permissions,
   onEdit,
   onAccessControl,
+  onDelete,
   onViewDetails,
 }: SecurityGroupTableRowProps) {
   const { t } = useLingui()
@@ -37,8 +40,6 @@ export function SecurityGroupTableRow({
     if (onViewDetails) {
       onViewDetails(sg)
     }
-    // Placeholder: when detail route exists
-    // navigate({ to: "/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId", ... })
   }
 
   return (
@@ -69,7 +70,7 @@ export function SecurityGroupTableRow({
             {permissions.canManageAccess && (
               <PopupMenuItem label={t`Access Control`} onClick={() => onAccessControl(sg)} />
             )}
-            {permissions.canDelete && <PopupMenuItem label={t`Delete`} onClick={() => {}} disabled />}
+            {permissions.canDelete && <PopupMenuItem label={t`Delete`} onClick={() => onDelete(sg)} />}
           </PopupMenuOptions>
         </PopupMenu>
       </DataGridCell>

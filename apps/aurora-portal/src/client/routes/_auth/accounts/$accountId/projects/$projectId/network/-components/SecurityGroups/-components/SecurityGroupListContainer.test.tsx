@@ -7,7 +7,7 @@ import { I18nProvider } from "@lingui/react"
 import { createRoute, createRootRoute, RouterProvider, createMemoryHistory, createRouter } from "@tanstack/react-router"
 import { SecurityGroupListContainer } from "./SecurityGroupListContainer"
 import type { SecurityGroup } from "@/server/Network/types/securityGroup"
-import type { SecurityGroupPermissions } from "./SecurityGroupTableRow"
+import { SecurityGroupPermissions } from "./SecurityGroupTableRow"
 
 // Mock the modals
 vi.mock("./-modals/EditSecurityGroupModal", () => ({
@@ -98,6 +98,7 @@ const mockSecurityGroups: SecurityGroup[] = [
 ]
 
 const defaultPermissions: SecurityGroupPermissions = {
+  canCreate: true,
   canUpdate: true,
   canDelete: false,
   canManageAccess: true,

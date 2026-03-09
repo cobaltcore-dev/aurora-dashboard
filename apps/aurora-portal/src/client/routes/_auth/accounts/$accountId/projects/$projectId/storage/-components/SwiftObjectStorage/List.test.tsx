@@ -41,6 +41,7 @@ vi.mock("@/client/trpcClient", () => ({
       storage: {
         swift: {
           listContainers: { invalidate: mockInvalidate },
+          getContainerMetadata: { invalidate: vi.fn() },
         },
       },
     }),
@@ -59,6 +60,12 @@ vi.mock("@/client/trpcClient", () => ({
         getServiceInfo: {
           useQuery: () => ({ data: trpcState.serviceInfo }),
         },
+        listObjects: {
+          useQuery: () => ({ data: [], isLoading: false }),
+        },
+        getContainerPublicUrl: {
+          useQuery: () => ({ data: undefined }),
+        },
         createContainer: {
           useMutation: (options: typeof capturedMutationOptions) => {
             capturedMutationOptions = options ?? {}
@@ -71,6 +78,32 @@ vi.mock("@/client/trpcClient", () => ({
               isPending: false,
             }
           },
+        },
+        updateContainerMetadata: {
+          useMutation: () => ({
+            mutate: vi.fn(),
+            reset: vi.fn(),
+            isPending: false,
+            isError: false,
+            error: null,
+          }),
+        },
+        emptyContainer: {
+          useMutation: () => ({
+            mutate: vi.fn(),
+            reset: vi.fn(),
+            isPending: false,
+          }),
+        },
+        getContainerMetadata: {
+          useQuery: () => ({ data: undefined, isLoading: false, isError: false, error: null }),
+        },
+        deleteContainer: {
+          useMutation: () => ({
+            mutate: vi.fn(),
+            reset: vi.fn(),
+            isPending: false,
+          }),
         },
       },
     },

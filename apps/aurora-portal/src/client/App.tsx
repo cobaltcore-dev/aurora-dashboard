@@ -2,7 +2,7 @@ import { AppShellProvider } from "@cloudoperators/juno-ui-components"
 import { router } from "./router"
 import { RouterProvider } from "@tanstack/react-router"
 import { AuthProvider, useAuth } from "./store/AuthProvider"
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
+import { QueryClient, QueryClientProvider, hashKey } from "@tanstack/react-query"
 import { trpcReact, trpcClient, trpcReactClient } from "./trpcClient"
 import { InactivityModal } from "./components/Auth/InactivityModal"
 import { useState, useRef, useCallback } from "react"
@@ -20,6 +20,16 @@ const navItems: NavigationItem[] = [{ route: "/about", label: "About" }]
 
 const currentTheme = (localStorage.getItem("aurora-theme") || "theme-light") as "theme-dark" | "theme-light"
 
+/**
+ * Reads the active projectId from the router state at the time the query key is hashed.
+ * This ensures each project gets its own isolated cache entries without requiring
+ * any global mutable state or changes to individual query hooks.
+ */
+const getActiveProjectId = (): string => {
+  const match = router.state.matches.findLast((m) => "projectId" in (m.params ?? {}))
+  return (match?.params as { projectId?: string })?.projectId ?? ""
+}
+
 const App = (props: AppProps) => {
   const [queryClient] = useState(
     () =>
@@ -28,6 +38,9 @@ const App = (props: AppProps) => {
           queries: {
             staleTime: 60 * 1000,
             refetchOnWindowFocus: false,
+            // Prepend the active projectId to every query hash so that
+            // switching projects never returns cached data from a previous project.
+            queryKeyHashFn: (queryKey) => hashKey([getActiveProjectId(), ...queryKey]),
           },
         },
       })

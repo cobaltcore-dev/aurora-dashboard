@@ -262,7 +262,7 @@ describe("securityGroupRouter.list", () => {
   })
 })
 
-describe("securityGroupRouter.getSecurityGroupById", () => {
+describe("securityGroupRouter.getById", () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })
@@ -291,7 +291,7 @@ describe("securityGroupRouter.getSecurityGroupById", () => {
     const ctx = createMockContext({ mockSecurityGroup })
     const caller = createCaller(ctx)
 
-    const result = await caller.securityGroup.getSecurityGroupById({
+    const result = await caller.securityGroup.getById({
       securityGroupId: "sg-123",
     })
 
@@ -307,7 +307,7 @@ describe("securityGroupRouter.getSecurityGroupById", () => {
     const caller = createCaller(ctx)
 
     await expect(
-      caller.securityGroup.getSecurityGroupById({
+      caller.securityGroup.getById({
         securityGroupId: "sg-123",
       })
     ).rejects.toThrow(
@@ -323,13 +323,13 @@ describe("securityGroupRouter.getSecurityGroupById", () => {
     const caller = createCaller(ctx)
 
     await expect(
-      caller.securityGroup.getSecurityGroupById({
+      caller.securityGroup.getById({
         securityGroupId: "sg-123",
       })
     ).rejects.toThrowError(TRPCError)
 
     try {
-      await caller.securityGroup.getSecurityGroupById({ securityGroupId: "sg-123" })
+      await caller.securityGroup.getById({ securityGroupId: "sg-123" })
     } catch (error) {
       if (error instanceof TRPCError) {
         expect(error.code).toBe("INTERNAL_SERVER_ERROR")
@@ -338,5 +338,237 @@ describe("securityGroupRouter.getSecurityGroupById", () => {
         throw error
       }
     }
+  })
+})
+
+describe("securityGroupRouter.create", () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  const createMockContextForCreate = (opts?: {
+    noNetworkService?: boolean
+    invalidSession?: boolean
+    responseStatus?: number
+  }) => {
+    const { noNetworkService = false, invalidSession = false, responseStatus = 201 } = opts || {}
+
+    const mockCreatedSecurityGroup: SecurityGroup = {
+      id: "sg-new",
+      name: "test-sg",
+      description: "Test security group",
+      project_id: "proj-1",
+      shared: false,
+      stateful: true,
+      security_group_rules: [],
+    }
+
+    return {
+      validateSession: vi.fn().mockReturnValue(!invalidSession),
+      openstack: {
+        service: vi.fn().mockImplementation((serviceName: string) => {
+          if (serviceName !== "network" || noNetworkService) {
+            return null
+          }
+
+          return {
+            post: vi.fn().mockImplementation(() => {
+              if (responseStatus === 201) {
+                return Promise.resolve({
+                  ok: true,
+                  status: responseStatus,
+                  json: vi.fn().mockResolvedValue({
+                    security_group: mockCreatedSecurityGroup,
+                  }),
+                })
+              }
+
+              // Mock error responses
+              return Promise.resolve({
+                ok: false,
+                status: responseStatus,
+                statusText: responseStatus === 413 ? "Quota exceeded" : "Error",
+              })
+            }),
+          }
+        }),
+      },
+      createSession: vi.fn(),
+      terminateSession: vi.fn(),
+      rescopeSession: vi.fn(),
+      getMultipartData: vi.fn(),
+    } as unknown as AuroraPortalContext
+  }
+
+  it("creates a security group successfully", async () => {
+    const ctx = createMockContextForCreate()
+    const caller = createCaller(ctx)
+
+    const result = await caller.securityGroup.create({
+      name: "test-sg",
+      description: "Test security group",
+      stateful: true,
+    })
+
+    expect(result.id).toBe("sg-new")
+    expect(result.name).toBe("test-sg")
+    expect(result.description).toBe("Test security group")
+  })
+
+  it("creates a security group without optional fields", async () => {
+    const ctx = createMockContextForCreate()
+    const caller = createCaller(ctx)
+
+    const result = await caller.securityGroup.create({
+      name: "minimal-sg",
+    })
+
+    expect(result.id).toBe("sg-new")
+    expect(result.name).toBe("test-sg")
+  })
+
+  it("throws error when quota is exceeded", async () => {
+    const ctx = createMockContextForCreate({ responseStatus: 413 })
+    const caller = createCaller(ctx)
+
+    await expect(
+      caller.securityGroup.create({
+        name: "test-sg",
+      })
+    ).rejects.toThrow(/Quota exceeded/)
+  })
+
+  it("throws UNAUTHORIZED when session is invalid", async () => {
+    const ctx = createMockContextForCreate({ invalidSession: true })
+    const caller = createCaller(ctx)
+
+    await expect(
+      caller.securityGroup.create({
+        name: "test-sg",
+      })
+    ).rejects.toThrow(
+      new TRPCError({
+        code: "UNAUTHORIZED",
+        message: "The session is invalid",
+      })
+    )
+  })
+
+  it("throws INTERNAL_SERVER_ERROR when network service is unavailable", async () => {
+    const ctx = createMockContextForCreate({ noNetworkService: true })
+    const caller = createCaller(ctx)
+
+    await expect(
+      caller.securityGroup.create({
+        name: "test-sg",
+      })
+    ).rejects.toThrow("Network service is not available")
+  })
+})
+
+describe("securityGroupRouter.deleteById", () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  const createMockContextForDelete = (opts?: {
+    noNetworkService?: boolean
+    invalidSession?: boolean
+    responseStatus?: number
+  }) => {
+    const { noNetworkService = false, invalidSession = false, responseStatus = 204 } = opts || {}
+
+    return {
+      validateSession: vi.fn().mockReturnValue(!invalidSession),
+      openstack: {
+        service: vi.fn().mockImplementation((serviceName: string) => {
+          if (serviceName !== "network" || noNetworkService) {
+            return null
+          }
+
+          return {
+            del: vi.fn().mockImplementation(() => {
+              if (responseStatus === 204) {
+                return Promise.resolve({
+                  ok: true,
+                  status: responseStatus,
+                })
+              }
+
+              // Mock error responses
+              return Promise.resolve({
+                ok: false,
+                status: responseStatus,
+                statusText: responseStatus === 409 ? "Conflict" : responseStatus === 404 ? "Not Found" : "Error",
+              })
+            }),
+          }
+        }),
+      },
+      createSession: vi.fn(),
+      terminateSession: vi.fn(),
+      rescopeSession: vi.fn(),
+      getMultipartData: vi.fn(),
+    } as unknown as AuroraPortalContext
+  }
+
+  it("deletes a security group successfully", async () => {
+    const ctx = createMockContextForDelete()
+    const caller = createCaller(ctx)
+
+    await expect(
+      caller.securityGroup.deleteById({
+        securityGroupId: "sg-123",
+      })
+    ).resolves.not.toThrow()
+  })
+
+  it("throws error when security group is in use", async () => {
+    const ctx = createMockContextForDelete({ responseStatus: 409 })
+    const caller = createCaller(ctx)
+
+    await expect(
+      caller.securityGroup.deleteById({
+        securityGroupId: "sg-123",
+      })
+    ).rejects.toThrow(/in use/)
+  })
+
+  it("throws NOT_FOUND when security group does not exist", async () => {
+    const ctx = createMockContextForDelete({ responseStatus: 404 })
+    const caller = createCaller(ctx)
+
+    await expect(
+      caller.securityGroup.deleteById({
+        securityGroupId: "sg-nonexistent",
+      })
+    ).rejects.toThrow("Security group not found")
+  })
+
+  it("throws UNAUTHORIZED when session is invalid", async () => {
+    const ctx = createMockContextForDelete({ invalidSession: true })
+    const caller = createCaller(ctx)
+
+    await expect(
+      caller.securityGroup.deleteById({
+        securityGroupId: "sg-123",
+      })
+    ).rejects.toThrow(
+      new TRPCError({
+        code: "UNAUTHORIZED",
+        message: "The session is invalid",
+      })
+    )
+  })
+
+  it("throws INTERNAL_SERVER_ERROR when network service is unavailable", async () => {
+    const ctx = createMockContextForDelete({ noNetworkService: true })
+    const caller = createCaller(ctx)
+
+    await expect(
+      caller.securityGroup.deleteById({
+        securityGroupId: "sg-123",
+      })
+    ).rejects.toThrow("Network service is not available")
   })
 })

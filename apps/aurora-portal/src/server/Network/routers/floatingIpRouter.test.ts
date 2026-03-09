@@ -10,8 +10,19 @@ const createMockContext = (opts?: {
   invalidSession?: boolean
   parseError?: boolean
   mockFloatingIps?: FloatingIp[]
+  mockFloatingIpDetail?: FloatingIp
+  httpStatus?: number
+  deleteSuccess?: boolean
 }) => {
-  const { noNetworkService = false, invalidSession = false, parseError = false, mockFloatingIps } = opts || {}
+  const {
+    noNetworkService = false,
+    invalidSession = false,
+    parseError = false,
+    mockFloatingIps,
+    mockFloatingIpDetail,
+    httpStatus = 200,
+    deleteSuccess = true,
+  } = opts || {}
 
   const defaultFloatingIps: FloatingIp[] = [
     {
@@ -42,6 +53,30 @@ const createMockContext = (opts?: {
     },
   ]
 
+  const networkGetMock = vi.fn().mockImplementation((url: string) => {
+    const isDetailRequest = url.startsWith("v2.0/floatingips/")
+    const responseBody = parseError
+      ? { invalid: "data" }
+      : isDetailRequest
+        ? { floatingip: mockFloatingIpDetail || defaultFloatingIps[0] }
+        : { floatingips: mockFloatingIps || defaultFloatingIps }
+
+    return Promise.resolve({
+      ok: httpStatus >= 200 && httpStatus < 300,
+      status: httpStatus,
+      statusText: httpStatus === 401 ? "Unauthorized" : httpStatus === 404 ? "Not Found" : "OK",
+      json: vi.fn().mockResolvedValue(responseBody),
+    })
+  })
+
+  const networkDelMock = vi.fn().mockImplementation(() => {
+    return Promise.resolve({
+      ok: deleteSuccess && httpStatus >= 200 && httpStatus < 300,
+      status: httpStatus,
+      statusText: httpStatus === 401 ? "Unauthorized" : httpStatus === 404 ? "Not Found" : "OK",
+    })
+  })
+
   return {
     validateSession: vi.fn().mockReturnValue(!invalidSession),
     openstack: {
@@ -51,13 +86,8 @@ const createMockContext = (opts?: {
         }
 
         return {
-          get: vi.fn().mockResolvedValue({
-            json: vi
-              .fn()
-              .mockResolvedValue(
-                parseError ? { invalid: "data" } : { floatingips: mockFloatingIps || defaultFloatingIps }
-              ),
-          }),
+          get: networkGetMock,
+          del: networkDelMock,
         }
       }),
     },
@@ -65,7 +95,12 @@ const createMockContext = (opts?: {
     terminateSession: vi.fn(),
     rescopeSession: vi.fn(),
     getMultipartData: vi.fn(),
-  } as unknown as AuroraPortalContext
+    __networkGetMock: networkGetMock,
+    __networkDelMock: networkDelMock,
+  } as unknown as AuroraPortalContext & {
+    __networkGetMock: typeof networkGetMock
+    __networkDelMock: typeof networkDelMock
+  }
 }
 
 const createCaller = createCallerFactory(
@@ -137,6 +172,13 @@ describe("floatingIpRouter.list", () => {
         message: "Failed to parse floating IPs response from OpenStack",
       })
     )
+  })
+
+  it("throws error when API returns non-ok response", async () => {
+    const ctx = createMockContext({ httpStatus: 401 })
+    const caller = createCaller(ctx)
+
+    await expect(caller.floatingIp.list({})).rejects.toThrow(TRPCError)
   })
 
   it("accepts pagination parameters", async () => {
@@ -215,9 +257,16 @@ describe("floatingIpRouter.list", () => {
 
           return {
             get: vi.fn().mockResolvedValue({
+              ok: true,
+              status: 200,
+              statusText: "OK",
               json: vi.fn().mockResolvedValue({
                 floatingips: [],
               }),
+            }),
+            del: vi.fn().mockResolvedValue({
+              ok: true,
+              status: 204,
             }),
           }
         }),
@@ -330,5 +379,130 @@ describe("floatingIpRouter.list", () => {
 
       expect(result.length).toBe(3)
     })
+  })
+})
+
+describe("floatingIpRouter.getById", () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it("calls the floating IP detail endpoint with the requested ID", async () => {
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    await caller.floatingIp.getById({ floatingip_id: "fip-123" })
+
+    expect(ctx.__networkGetMock).toHaveBeenCalledWith("v2.0/floatingips/fip-123")
+  })
+
+  it("returns a floating IP on success", async () => {
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    const result = await caller.floatingIp.getById({ floatingip_id: "fip-1" })
+
+    expect(result).not.toBeNull()
+    expect(result?.id).toBe("fip-1")
+    expect(result?.floating_ip_address).toBe("192.0.2.1")
+    expect(result?.status).toBe("ACTIVE")
+  })
+
+  it("throws UNAUTHORIZED when session is invalid", async () => {
+    const ctx = createMockContext({ invalidSession: true })
+    const caller = createCaller(ctx)
+
+    await expect(caller.floatingIp.getById({ floatingip_id: "fip-1" })).rejects.toThrow(
+      new TRPCError({
+        code: "UNAUTHORIZED",
+        message: "The session is invalid",
+      })
+    )
+  })
+
+  it("throws INTERNAL_SERVER_ERROR when network service is unavailable", async () => {
+    const ctx = createMockContext({ noNetworkService: true })
+    const caller = createCaller(ctx)
+
+    await expect(caller.floatingIp.getById({ floatingip_id: "fip-1" })).rejects.toThrow(
+      new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Network service is not available",
+      })
+    )
+  })
+
+  it("throws PARSE_ERROR when response cannot be parsed", async () => {
+    const ctx = createMockContext({ parseError: true })
+    const caller = createCaller(ctx)
+
+    await expect(caller.floatingIp.getById({ floatingip_id: "fip-1" })).rejects.toThrow(
+      new TRPCError({
+        code: "PARSE_ERROR",
+        message: "Failed to parse floating IP response from OpenStack",
+      })
+    )
+  })
+
+  it("throws error when API returns non-ok response", async () => {
+    const ctx = createMockContext({ httpStatus: 404 })
+    const caller = createCaller(ctx)
+
+    await expect(caller.floatingIp.getById({ floatingip_id: "fip-1" })).rejects.toThrow(TRPCError)
+  })
+})
+
+describe("floatingIpRouter.delete", () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it("calls the floating IP delete endpoint with the requested ID", async () => {
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    await caller.floatingIp.delete({ floatingip_id: "fip-123" })
+
+    expect(ctx.__networkDelMock).toHaveBeenCalledWith("v2.0/floatingips/fip-123")
+  })
+
+  it("returns true on successful deletion", async () => {
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    const result = await caller.floatingIp.delete({ floatingip_id: "fip-1" })
+
+    expect(result).toBe(true)
+  })
+
+  it("throws UNAUTHORIZED when session is invalid", async () => {
+    const ctx = createMockContext({ invalidSession: true })
+    const caller = createCaller(ctx)
+
+    await expect(caller.floatingIp.delete({ floatingip_id: "fip-1" })).rejects.toThrow(
+      new TRPCError({
+        code: "UNAUTHORIZED",
+        message: "The session is invalid",
+      })
+    )
+  })
+
+  it("throws INTERNAL_SERVER_ERROR when network service is unavailable", async () => {
+    const ctx = createMockContext({ noNetworkService: true })
+    const caller = createCaller(ctx)
+
+    await expect(caller.floatingIp.delete({ floatingip_id: "fip-1" })).rejects.toThrow(
+      new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Network service is not available",
+      })
+    )
+  })
+
+  it("throws error when API returns non-ok response", async () => {
+    const ctx = createMockContext({ httpStatus: 404, deleteSuccess: false })
+    const caller = createCaller(ctx)
+
+    await expect(caller.floatingIp.delete({ floatingip_id: "fip-1" })).rejects.toThrow(TRPCError)
   })
 })

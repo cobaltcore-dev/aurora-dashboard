@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect, useRef } from "react"
 import {
   DataGrid,
   DataGridHeadCell,
@@ -7,12 +7,14 @@ import {
   ContentHeading,
   Stack,
   Spinner,
+  Button,
 } from "@cloudoperators/juno-ui-components"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { useNavigate, useParams } from "@tanstack/react-router"
 import type { SecurityGroup } from "@/server/Network/types/securityGroup"
 import { EditSecurityGroupModal } from "./-modals/EditSecurityGroupModal"
 import { AccessControlModal } from "./-modals/AccessControlModal"
+import { DeleteSecurityGroupDialog } from "./-modals/DeleteSecurityGroupDialog"
 import { SecurityGroupTableRow, type SecurityGroupPermissions } from "./SecurityGroupTableRow"
 
 interface SecurityGroupListContainerProps {
@@ -21,6 +23,10 @@ interface SecurityGroupListContainerProps {
   isError: boolean
   error: { message?: string } | null
   permissions: SecurityGroupPermissions
+  onCreateClick?: () => void
+  onDeleteSecurityGroup?: (securityGroupId: string) => void
+  isDeletingSecurityGroup?: boolean
+  deleteError?: string | null
 }
 
 export const SecurityGroupListContainer = ({
@@ -29,6 +35,10 @@ export const SecurityGroupListContainer = ({
   isError,
   error,
   permissions,
+  onCreateClick,
+  onDeleteSecurityGroup,
+  isDeletingSecurityGroup = false,
+  deleteError = null,
 }: SecurityGroupListContainerProps) => {
   const { t } = useLingui()
   const navigate = useNavigate()
@@ -36,6 +46,8 @@ export const SecurityGroupListContainer = ({
   const [selectedSecurityGroup, setSelectedSecurityGroup] = useState<SecurityGroup | null>(null)
   const [editModalOpen, setEditModalOpen] = useState(false)
   const [accessControlModalOpen, setAccessControlModalOpen] = useState(false)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const prevIsDeletingRef = useRef<boolean>(false)
 
   const handleEdit = (sg: SecurityGroup) => {
     setSelectedSecurityGroup(sg)
@@ -45,6 +57,11 @@ export const SecurityGroupListContainer = ({
   const handleAccessControl = (sg: SecurityGroup) => {
     setSelectedSecurityGroup(sg)
     setAccessControlModalOpen(true)
+  }
+
+  const handleDelete = (sg: SecurityGroup) => {
+    setSelectedSecurityGroup(sg)
+    setDeleteDialogOpen(true)
   }
 
   const handleViewDetails = (sg: SecurityGroup) => {
@@ -63,6 +80,25 @@ export const SecurityGroupListContainer = ({
     setSelectedSecurityGroup(null)
     setAccessControlModalOpen(false)
   }
+
+  const closeDeleteDialog = () => {
+    setSelectedSecurityGroup(null)
+    setDeleteDialogOpen(false)
+  }
+
+  // Close delete dialog when deletion completes successfully
+  useEffect(() => {
+    // Check if deletion just finished (was deleting before, now not deleting)
+    const deletionJustFinished = prevIsDeletingRef.current && !isDeletingSecurityGroup
+
+    // Close dialog if deletion just finished and there's no error
+    if (deletionJustFinished && deleteDialogOpen && !deleteError) {
+      closeDeleteDialog()
+    }
+
+    // Update the ref for next render
+    prevIsDeletingRef.current = isDeletingSecurityGroup
+  }, [isDeletingSecurityGroup, deleteError, deleteDialogOpen])
 
   // Loading state
   if (isLoading) {
@@ -98,6 +134,11 @@ export const SecurityGroupListContainer = ({
                 instances.
               </Trans>
             </p>
+            {permissions.canCreate && onCreateClick && (
+              <Button onClick={onCreateClick} variant="primary" className="mt-4">
+                <Trans>Create Security Group</Trans>
+              </Button>
+            )}
           </DataGridCell>
         </DataGridRow>
       </DataGrid>
@@ -120,6 +161,7 @@ export const SecurityGroupListContainer = ({
               permissions={permissions}
               onEdit={handleEdit}
               onAccessControl={handleAccessControl}
+              onDelete={handleDelete}
               onViewDetails={handleViewDetails}
             />
           )
@@ -133,6 +175,18 @@ export const SecurityGroupListContainer = ({
             securityGroup={selectedSecurityGroup}
             open={accessControlModalOpen}
             onClose={closeAccessControlModal}
+          />
+          <DeleteSecurityGroupDialog
+            securityGroup={selectedSecurityGroup}
+            isOpen={deleteDialogOpen}
+            onClose={closeDeleteDialog}
+            onDelete={(id) => {
+              if (onDeleteSecurityGroup) {
+                onDeleteSecurityGroup(id)
+              }
+            }}
+            isDeleting={isDeletingSecurityGroup}
+            error={deleteError}
           />
         </>
       )}

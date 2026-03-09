@@ -7,12 +7,27 @@ import {
   DataGridCell,
   Toast,
   ToastProps,
+  PopupMenu,
+  PopupMenuItem,
+  PopupMenuOptions,
 } from "@cloudoperators/juno-ui-components"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { ContainerSummary } from "@/server/Storage/types/swift"
 import { formatBytesBinary } from "@/client/utils/formatBytes"
 import { CreateContainerModal } from "./CreateContainerModal"
-import { getContainerCreatedToast, getContainerCreateErrorToast } from "./ContainerToastNotifications"
+import { EmptyContainerModal } from "./EmptyContainerModal"
+import { DeleteContainerModal } from "./DeleteContainerModal"
+import { EditContainerMetadataModal } from "./EditContainerMetadataModal"
+import {
+  getContainerCreatedToast,
+  getContainerCreateErrorToast,
+  getContainerEmptiedToast,
+  getContainerEmptyErrorToast,
+  getContainerDeletedToast,
+  getContainerDeleteErrorToast,
+  getContainerUpdatedToast,
+  getContainerUpdateErrorToast,
+} from "./ContainerToastNotifications"
 
 interface ContainerListViewProps {
   containers: ContainerSummary[]
@@ -31,6 +46,9 @@ export const ContainerListView = ({
   const parentRef = useRef<HTMLDivElement>(null)
   const [scrollbarWidth, setScrollbarWidth] = useState(0)
   const [toastData, setToastData] = useState<ToastProps | null>(null)
+  const [emptyModalContainer, setEmptyModalContainer] = useState<ContainerSummary | null>(null)
+  const [deleteModalContainer, setDeleteModalContainer] = useState<ContainerSummary | null>(null)
+  const [propertiesModalContainer, setPropertiesModalContainer] = useState<ContainerSummary | null>(null)
 
   const handleToastDismiss = () => setToastData(null)
 
@@ -40,6 +58,30 @@ export const ContainerListView = ({
 
   const handleCreateError = (containerName: string, errorMessage: string) => {
     setToastData(getContainerCreateErrorToast(containerName, errorMessage, { onDismiss: handleToastDismiss }))
+  }
+
+  const handleEmptySuccess = (containerName: string, deletedCount: number) => {
+    setToastData(getContainerEmptiedToast(containerName, deletedCount, { onDismiss: handleToastDismiss }))
+  }
+
+  const handleEmptyError = (containerName: string, errorMessage: string) => {
+    setToastData(getContainerEmptyErrorToast(containerName, errorMessage, { onDismiss: handleToastDismiss }))
+  }
+
+  const handleDeleteSuccess = (containerName: string) => {
+    setToastData(getContainerDeletedToast(containerName, { onDismiss: handleToastDismiss }))
+  }
+
+  const handleDeleteError = (containerName: string, errorMessage: string) => {
+    setToastData(getContainerDeleteErrorToast(containerName, errorMessage, { onDismiss: handleToastDismiss }))
+  }
+
+  const handlePropertiesSuccess = (containerName: string) => {
+    setToastData(getContainerUpdatedToast(containerName, { onDismiss: handleToastDismiss }))
+  }
+
+  const handlePropertiesError = (containerName: string, errorMessage: string) => {
+    setToastData(getContainerUpdateErrorToast(containerName, errorMessage, { onDismiss: handleToastDismiss }))
   }
 
   // Calculate scrollbar width
@@ -88,8 +130,8 @@ export const ContainerListView = ({
     )
   }
 
-  // Define column template
-  const gridColumnTemplate = "minmax(200px, 2fr) minmax(100px, 1fr) minmax(180px, 2fr) minmax(100px, 1fr)"
+  // Define column template — 5 columns, last one for the actions menu
+  const gridColumnTemplate = "minmax(200px, 2fr) minmax(100px, 1fr) minmax(180px, 2fr) minmax(100px, 1fr) 60px"
 
   const allContainersCount = containers.length
   const virtualizedContainersCount = rowVirtualizer.getVirtualItems().length
@@ -100,7 +142,7 @@ export const ContainerListView = ({
         {/* Table Header with scrollbar padding */}
         <div style={{ paddingRight: `${scrollbarWidth}px` }}>
           <DataGrid
-            columns={4}
+            columns={5}
             gridColumnTemplate={gridColumnTemplate}
             className="containers"
             data-testid="containers-table-header"
@@ -115,9 +157,10 @@ export const ContainerListView = ({
               <DataGridHeadCell>
                 <Trans>Last Modified</Trans>
               </DataGridHeadCell>
-              <DataGridHeadCell style={{ marginRight: `-${scrollbarWidth}px` }}>
+              <DataGridHeadCell>
                 <Trans>Total Size</Trans>
               </DataGridHeadCell>
+              <DataGridHeadCell style={{ marginRight: `-${scrollbarWidth}px` }} />
             </DataGridRow>
           </DataGrid>
         </div>
@@ -164,6 +207,27 @@ export const ContainerListView = ({
                   <DataGridCell>{container.count.toLocaleString()}</DataGridCell>
                   <DataGridCell>{container.last_modified ? formatDate(container.last_modified) : t`N/A`}</DataGridCell>
                   <DataGridCell>{formatBytesBinary(container.bytes)}</DataGridCell>
+                  <DataGridCell>
+                    <PopupMenu>
+                      <PopupMenuOptions>
+                        <PopupMenuItem
+                          label={t`Edit Metadata`}
+                          onClick={() => setPropertiesModalContainer(container)}
+                          data-testid={`properties-action-${container.name}`}
+                        />
+                        <PopupMenuItem
+                          label={t`Empty`}
+                          onClick={() => setEmptyModalContainer(container)}
+                          data-testid={`empty-action-${container.name}`}
+                        />
+                        <PopupMenuItem
+                          label={t`Delete`}
+                          onClick={() => setDeleteModalContainer(container)}
+                          data-testid={`delete-action-${container.name}`}
+                        />
+                      </PopupMenuOptions>
+                    </PopupMenu>
+                  </DataGridCell>
                 </div>
               )
             })}
@@ -184,6 +248,30 @@ export const ContainerListView = ({
         onSuccess={handleCreateSuccess}
         onError={handleCreateError}
         maxContainerNameLength={maxContainerNameLength}
+      />
+
+      <EmptyContainerModal
+        isOpen={emptyModalContainer !== null}
+        container={emptyModalContainer}
+        onClose={() => setEmptyModalContainer(null)}
+        onSuccess={handleEmptySuccess}
+        onError={handleEmptyError}
+      />
+
+      <DeleteContainerModal
+        isOpen={deleteModalContainer !== null}
+        container={deleteModalContainer}
+        onClose={() => setDeleteModalContainer(null)}
+        onSuccess={handleDeleteSuccess}
+        onError={handleDeleteError}
+      />
+
+      <EditContainerMetadataModal
+        isOpen={propertiesModalContainer !== null}
+        container={propertiesModalContainer}
+        onClose={() => setPropertiesModalContainer(null)}
+        onSuccess={handlePropertiesSuccess}
+        onError={handlePropertiesError}
       />
 
       {toastData && (

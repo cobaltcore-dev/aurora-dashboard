@@ -8,6 +8,8 @@ import { createRoute, createRootRoute, RouterProvider, createMemoryHistory, crea
 import { SecurityGroupTableRow, SecurityGroupPermissions } from "./SecurityGroupTableRow"
 import type { SecurityGroup } from "@/server/Network/types/securityGroup"
 
+import { vi } from "vitest"
+
 const createTestRouter = (Component: ReactElement) => {
   const memoryHistory = createMemoryHistory({
     initialEntries: ["/accounts/test-account/projects/test-project/network/"],
@@ -61,13 +63,15 @@ describe("SecurityGroupTableRow", () => {
   }
 
   const defaultPermissions: SecurityGroupPermissions = {
+    canCreate: true,
     canUpdate: true,
-    canDelete: true,
+    canDelete: false,
     canManageAccess: true,
   }
 
   const mockOnEdit = vi.fn()
   const mockOnAccessControl = vi.fn()
+  const mockOnDelete = vi.fn()
   const mockOnViewDetails = vi.fn()
 
   afterEach(() => {
@@ -83,6 +87,7 @@ describe("SecurityGroupTableRow", () => {
           permissions={defaultPermissions}
           onEdit={mockOnEdit}
           onAccessControl={mockOnAccessControl}
+          onDelete={mockOnDelete}
         />
       )
       render(<RouterProvider router={router} />)
@@ -103,6 +108,7 @@ describe("SecurityGroupTableRow", () => {
           permissions={defaultPermissions}
           onEdit={mockOnEdit}
           onAccessControl={mockOnAccessControl}
+          onDelete={mockOnDelete}
         />
       )
       render(<RouterProvider router={router} />)
@@ -120,6 +126,7 @@ describe("SecurityGroupTableRow", () => {
           permissions={defaultPermissions}
           onEdit={mockOnEdit}
           onAccessControl={mockOnAccessControl}
+          onDelete={mockOnDelete}
         />
       )
       render(<RouterProvider router={router} />)
@@ -141,6 +148,7 @@ describe("SecurityGroupTableRow", () => {
           permissions={defaultPermissions}
           onEdit={mockOnEdit}
           onAccessControl={mockOnAccessControl}
+          onDelete={mockOnDelete}
         />
       )
       render(<RouterProvider router={router} />)
@@ -170,6 +178,7 @@ describe("SecurityGroupTableRow", () => {
           permissions={defaultPermissions}
           onEdit={mockOnEdit}
           onAccessControl={mockOnAccessControl}
+          onDelete={mockOnDelete}
         />
       )
       render(<RouterProvider router={router} />)
@@ -199,6 +208,7 @@ describe("SecurityGroupTableRow", () => {
           permissions={defaultPermissions}
           onEdit={mockOnEdit}
           onAccessControl={mockOnAccessControl}
+          onDelete={mockOnDelete}
           onViewDetails={mockOnViewDetails}
         />
       )
@@ -229,6 +239,7 @@ describe("SecurityGroupTableRow", () => {
           permissions={defaultPermissions}
           onEdit={mockOnEdit}
           onAccessControl={mockOnAccessControl}
+          onDelete={mockOnDelete}
         />
       )
       render(<RouterProvider router={router} />)
@@ -261,6 +272,7 @@ describe("SecurityGroupTableRow", () => {
           permissions={permissions}
           onEdit={mockOnEdit}
           onAccessControl={mockOnAccessControl}
+          onDelete={mockOnDelete}
         />
       )
       render(<RouterProvider router={router} />)
@@ -289,6 +301,7 @@ describe("SecurityGroupTableRow", () => {
           permissions={permissions}
           onEdit={mockOnEdit}
           onAccessControl={mockOnAccessControl}
+          onDelete={mockOnDelete}
         />
       )
       render(<RouterProvider router={router} />)
@@ -317,6 +330,7 @@ describe("SecurityGroupTableRow", () => {
           permissions={permissions}
           onEdit={mockOnEdit}
           onAccessControl={mockOnAccessControl}
+          onDelete={mockOnDelete}
         />
       )
       render(<RouterProvider router={router} />)
@@ -339,6 +353,7 @@ describe("SecurityGroupTableRow", () => {
     it("shows only Show Details when all permissions are false", async () => {
       const user = userEvent.setup()
       const permissions: SecurityGroupPermissions = {
+        canCreate: false,
         canUpdate: false,
         canDelete: false,
         canManageAccess: false,
@@ -349,6 +364,7 @@ describe("SecurityGroupTableRow", () => {
           permissions={permissions}
           onEdit={mockOnEdit}
           onAccessControl={mockOnAccessControl}
+          onDelete={mockOnDelete}
         />
       )
       render(<RouterProvider router={router} />)

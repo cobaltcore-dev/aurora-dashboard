@@ -163,6 +163,7 @@ export const containerInfoSchema = z.object({
   storagePolicy: z.string().optional(),
   versionsLocation: z.string().optional(),
   historyLocation: z.string().optional(),
+  versionsEnabled: z.boolean().optional(),
   read: z.string().optional(), // Read ACL
   write: z.string().optional(), // Write ACL
   syncTo: z.string().optional(),
