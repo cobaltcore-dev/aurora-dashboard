@@ -22,6 +22,12 @@ const isProduction = process.env.NODE_ENV === "production"
 const PORT = process.env.PORT || "4005"
 const BFF_ENDPOINT = process.env.BFF_ENDPOINT || "/polaris-bff"
 
+// HSTS Configuration from environment variables
+const HSTS_ENABLED = process.env.HSTS_ENABLED !== "false" // default: true
+const HSTS_MAX_AGE = parseInt(process.env.HSTS_MAX_AGE || "31536000") // default: 1 year
+const HSTS_INCLUDE_SUBDOMAINS = process.env.HSTS_INCLUDE_SUBDOMAINS === "true" // default: false
+const HSTS_PRELOAD = process.env.HSTS_PRELOAD === "true" // default: false
+
 // Initialize Fastify server
 const server = Fastify({
   logger: true,
@@ -150,8 +156,28 @@ async function startServer() {
   if (isProduction) {
     // PRODUCTION MODE
 
-    // Register security headers
-    server.register(FastifyHelmet)
+    // Register security headers with configurable HSTS
+    server.register(FastifyHelmet, {
+      hsts: HSTS_ENABLED
+        ? {
+            maxAge: HSTS_MAX_AGE,
+            includeSubDomains: HSTS_INCLUDE_SUBDOMAINS,
+            preload: HSTS_PRELOAD,
+          }
+        : false, // Completely disable HSTS if HSTS_ENABLED=false
+      contentSecurityPolicy: {
+        directives: {
+          defaultSrc: ["'self'"],
+          scriptSrc: ["'self'"],
+          styleSrc: ["'self'"],
+          imgSrc: ["'self'", "data:", "https:"],
+          connectSrc: ["'self'"],
+          objectSrc: ["'none'"],
+          baseUri: ["'self'"],
+          formAction: ["'self'"],
+        },
+      },
+    })
 
     // Serve static files from the build directory
     await server.register(FastifyStatic, {
