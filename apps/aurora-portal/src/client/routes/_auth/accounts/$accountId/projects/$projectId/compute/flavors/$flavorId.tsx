@@ -6,7 +6,6 @@ import { trpcReact } from "@/client/trpcClient"
 import { FlavorDetailsView } from "./-components/FlavorDetailsView"
 import { ErrorPage } from "@/client/components/Error/ErrorPage"
 import { useErrorTranslation } from "@/client/utils/useErrorTranslation"
-import { useEffect } from "react"
 
 export const Route = createFileRoute("/_auth/accounts/$accountId/projects/$projectId/compute/flavors/$flavorId")({
   component: RouteComponent,
@@ -46,17 +45,15 @@ function RouteComponent() {
     flavorId,
   })
 
-  useEffect(() => {
-    if (flavor?.name) {
-      setPageTitle(flavor.name)
-    } else if (status === "error") {
-      setPageTitle(t`Error - Flavor Details`)
-    } else if (status === "pending") {
-      setPageTitle(t`Loading Flavor...`)
-    } else {
-      setPageTitle(t`Flavor Details`)
-    }
-  }, [flavor?.name, status, setPageTitle, t])
+  if (flavor?.name) {
+    setPageTitle(flavor.name)
+  } else if (status === "error") {
+    setPageTitle(t`Error - Flavor Details`)
+  } else if (status === "pending") {
+    setPageTitle(t`Loading Flavor...`)
+  } else {
+    setPageTitle(t`Flavor Details`)
+  }
 
   const handleBack = () => {
     navigate({
