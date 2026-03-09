@@ -14,7 +14,8 @@ export function loadPolicyConfigFromFile(policyFilePath: string): Record<string,
     return parsedConfig
   } catch (error) {
     throw new Error(
-      `Failed to parse configuration file "${policyFilePath}": ${error instanceof Error ? error.message : "Unknown error"}`
+      `Failed to parse configuration file "${policyFilePath}": ${error instanceof Error ? error.message : "Unknown error"}`,
+      { cause: error }
     )
   }
 }
@@ -42,7 +43,9 @@ function parseJson(content: string): Record<string, string> {
   try {
     return JSON.parse(content)
   } catch (error) {
-    throw new Error(`Invalid JSON format: ${error instanceof Error ? error.message : "Unknown error"}`)
+    throw new Error(`Invalid JSON format: ${error instanceof Error ? error.message : "Unknown error"}`, {
+      cause: error,
+    })
   }
 }
 
