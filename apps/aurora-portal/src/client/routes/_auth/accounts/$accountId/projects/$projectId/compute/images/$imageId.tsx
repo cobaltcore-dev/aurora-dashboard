@@ -4,7 +4,6 @@ import { Trans, useLingui } from "@lingui/react/macro"
 import { getServiceIndex } from "@/server/Authentication/helpers"
 import { trpcReact } from "@/client/trpcClient"
 import { ImageDetailsView } from "../-components/Images/-components/ImageDetailsView"
-import { useEffect } from "react"
 
 export const Route = createFileRoute("/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId")({
   component: RouteComponent,
