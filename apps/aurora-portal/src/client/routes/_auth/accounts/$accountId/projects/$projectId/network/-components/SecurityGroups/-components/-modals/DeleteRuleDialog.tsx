@@ -40,7 +40,12 @@ export function DeleteRuleDialog({ rule, open, onClose, onConfirm, isLoading, er
       modalFooter={
         <ModalFooter className="flex justify-end">
           <ButtonRow>
-            <Button variant="primary-danger" onClick={handleConfirm} disabled={isConfirmDisabled} data-testid="confirm-delete-rule-button">
+            <Button
+              variant="primary-danger"
+              onClick={handleConfirm}
+              disabled={isConfirmDisabled}
+              data-testid="confirm-delete-rule-button"
+            >
               {isLoading ? <Trans>Deleting...</Trans> : <Trans>Delete Rule</Trans>}
             </Button>
             <Button variant="default" onClick={handleClose} disabled={isLoading}>
@@ -64,11 +69,11 @@ export function DeleteRuleDialog({ rule, open, onClose, onConfirm, isLoading, er
         )}
 
         {/* Rule Details */}
-        <div className="mt-4 mb-4 p-4 bg-theme-background-lvl-1 rounded">
+        <div className="bg-theme-background-lvl-1 mt-4 mb-4 rounded p-4">
           <p className="mb-2 font-semibold">
             <Trans>Rule Details:</Trans>
           </p>
-          <ul className="list-disc list-inside space-y-1 text-sm">
+          <ul className="list-inside list-disc space-y-1 text-sm">
             <li>
               <Trans>Direction</Trans>: {rule.direction}
             </li>

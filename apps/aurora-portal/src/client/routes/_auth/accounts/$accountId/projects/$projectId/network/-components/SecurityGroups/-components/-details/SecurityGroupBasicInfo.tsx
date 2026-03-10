@@ -1,4 +1,11 @@
-import { DataGrid, DataGridRow, DataGridCell, DataGridHeadCell, Button, ContentHeading } from "@cloudoperators/juno-ui-components"
+import {
+  DataGrid,
+  DataGridRow,
+  DataGridCell,
+  DataGridHeadCell,
+  Button,
+  ContentHeading,
+} from "@cloudoperators/juno-ui-components"
 import { Trans, useLingui } from "@lingui/react/macro"
 import type { SecurityGroup } from "@/server/Network/types/securityGroup"
 
@@ -14,7 +21,7 @@ export function SecurityGroupBasicInfo({ securityGroup, onEdit }: SecurityGroupB
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-4">
+      <div className="mb-4 flex items-center justify-between">
         <ContentHeading>{t`Security Group Basic Info`}</ContentHeading>
         {onEdit && (
           <Button variant="primary" onClick={onEdit}>

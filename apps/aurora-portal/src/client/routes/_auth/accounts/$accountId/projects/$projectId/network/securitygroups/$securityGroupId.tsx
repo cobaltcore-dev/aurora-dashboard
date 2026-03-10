@@ -45,9 +45,12 @@ function RouteComponent() {
   const { t } = useLingui()
 
   // Rules filtering using the same pattern as List page
-  const { searchTerm: rulesSearchTerm, filterSettings, handleSearchChange, handleFilterChange } = useListWithFiltering<
-    "direction"
-  >({
+  const {
+    searchTerm: rulesSearchTerm,
+    filterSettings,
+    handleSearchChange,
+    handleFilterChange,
+  } = useListWithFiltering<"direction">({
     defaultSortKey: "direction",
     defaultSortDir: "asc",
     sortOptions: [{ label: t`Direction`, value: "direction" }],

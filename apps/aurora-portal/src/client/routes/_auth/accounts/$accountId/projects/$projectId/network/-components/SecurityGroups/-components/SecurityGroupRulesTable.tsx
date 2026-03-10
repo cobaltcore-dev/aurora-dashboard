@@ -97,12 +97,13 @@ export function SecurityGroupRulesTable({
 
   const handleDirectionFilterChange = (value: string) => {
     if (onFilterChange && filterSettings) {
-      const newSelectedFilters = value === "all"
-        ? filterSettings.selectedFilters?.filter((f) => f.name !== "direction") || []
-        : [
-            ...(filterSettings.selectedFilters?.filter((f) => f.name !== "direction") || []),
-            { name: "direction", value }
-          ]
+      const newSelectedFilters =
+        value === "all"
+          ? filterSettings.selectedFilters?.filter((f) => f.name !== "direction") || []
+          : [
+              ...(filterSettings.selectedFilters?.filter((f) => f.name !== "direction") || []),
+              { name: "direction", value },
+            ]
 
       const newFilterSettings = {
         ...filterSettings,
@@ -168,7 +169,12 @@ export function SecurityGroupRulesTable({
                 <SelectOption value="egress" label={t`Egress`} />
               </Select>
 
-              <Select value={sortField} onChange={(value) => setSortField((String(value || "direction")) as SortField)} label={t`Sort by`} width="auto">
+              <Select
+                value={sortField}
+                onChange={(value) => setSortField(String(value || "direction") as SortField)}
+                label={t`Sort by`}
+                width="auto"
+              >
                 <SelectOption value="direction" label={t`Direction`} />
                 <SelectOption value="protocol" label={t`Protocol`} />
                 <SelectOption value="description" label={t`Description`} />

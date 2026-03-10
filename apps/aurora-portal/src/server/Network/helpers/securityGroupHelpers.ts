@@ -288,12 +288,7 @@ export const SecurityGroupRuleErrorHandlers = {
  * @returns The parsed data
  * @throws TRPCError if parsing fails
  */
-const parseOpenStackResponse = <T>(
-  data: unknown,
-  schema: z.ZodType<T>,
-  operation: string,
-  errorMessage: string
-): T => {
+const parseOpenStackResponse = <T>(data: unknown, schema: z.ZodType<T>, operation: string, errorMessage: string): T => {
   const parsed = schema.safeParse(data)
   if (!parsed.success) {
     console.error(`Zod Parsing Error in ${operation}:`, parsed.error.format())
