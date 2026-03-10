@@ -39,6 +39,7 @@ export function useSecurityGroupDetails({ securityGroupId }: UseSecurityGroupDet
     onSuccess: () => {
       // Invalidate the security group query to refresh the rules list
       utils.network.securityGroup.getById.invalidate({ securityGroupId })
+      utils.network.securityGroup.list.invalidate()
     },
   })
 

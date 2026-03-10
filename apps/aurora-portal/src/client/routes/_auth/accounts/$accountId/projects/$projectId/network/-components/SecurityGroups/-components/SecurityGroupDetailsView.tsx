@@ -9,7 +9,7 @@ import { SecurityGroupRulesTable } from "./SecurityGroupRulesTable"
 interface SecurityGroupDetailsViewProps {
   securityGroup: SecurityGroup
   onEdit?: () => void
-  onDeleteRule?: (ruleId: string) => void
+  onDeleteRule: (ruleId: string) => void
   isDeletingRule?: boolean
   deleteRuleError?: string | null
   // Client-side filtering
@@ -77,7 +77,7 @@ export function SecurityGroupDetailsView({
           {activeTab === "rules" && (
             <SecurityGroupRulesTable
               rules={filteredRules}
-              onDeleteRule={onDeleteRule || (() => {})}
+              onDeleteRule={onDeleteRule}
               isDeletingRule={isDeletingRule}
               deleteError={deleteRuleError}
               searchTerm={rulesSearchTerm}

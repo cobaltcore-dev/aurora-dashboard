@@ -35,7 +35,9 @@ describe("SecurityGroupDetailsView", () => {
   })
 
   it("renders all security group fields", () => {
-    render(<SecurityGroupDetailsView securityGroup={mockSecurityGroup} />, { wrapper: createWrapper() })
+    render(<SecurityGroupDetailsView securityGroup={mockSecurityGroup} onDeleteRule={() => {}} />, {
+      wrapper: createWrapper(),
+    })
 
     expect(screen.getByText("Security Group Basic Info")).toBeInTheDocument()
     expect(screen.getByText("sg-123")).toBeInTheDocument()
@@ -47,20 +49,26 @@ describe("SecurityGroupDetailsView", () => {
 
   it("displays em dash for missing description", () => {
     const sgWithoutDescription = { ...mockSecurityGroup, description: null }
-    render(<SecurityGroupDetailsView securityGroup={sgWithoutDescription} />, { wrapper: createWrapper() })
+    render(<SecurityGroupDetailsView securityGroup={sgWithoutDescription} onDeleteRule={() => {}} />, {
+      wrapper: createWrapper(),
+    })
 
     expect(screen.getAllByText("—").length).toBeGreaterThan(0)
   })
 
   it("displays em dash for empty tags", () => {
     const sgWithoutTags = { ...mockSecurityGroup, tags: [] }
-    render(<SecurityGroupDetailsView securityGroup={sgWithoutTags} />, { wrapper: createWrapper() })
+    render(<SecurityGroupDetailsView securityGroup={sgWithoutTags} onDeleteRule={() => {}} />, {
+      wrapper: createWrapper(),
+    })
 
     expect(screen.getAllByText("—").length).toBeGreaterThan(0)
   })
 
   it("displays boolean values as Yes/No", () => {
-    render(<SecurityGroupDetailsView securityGroup={mockSecurityGroup} />, { wrapper: createWrapper() })
+    render(<SecurityGroupDetailsView securityGroup={mockSecurityGroup} onDeleteRule={() => {}} />, {
+      wrapper: createWrapper(),
+    })
 
     expect(screen.getByText("Yes")).toBeInTheDocument()
     expect(screen.getByText("No")).toBeInTheDocument()
@@ -68,7 +76,10 @@ describe("SecurityGroupDetailsView", () => {
 
   it("calls onEdit when Edit button is clicked", async () => {
     const onEdit = vi.fn()
-    render(<SecurityGroupDetailsView securityGroup={mockSecurityGroup} onEdit={onEdit} />, { wrapper: createWrapper() })
+    render(
+      <SecurityGroupDetailsView securityGroup={mockSecurityGroup} onEdit={onEdit} onDeleteRule={() => {}} />,
+      { wrapper: createWrapper() }
+    )
 
     const user = userEvent.setup()
     await user.click(screen.getByRole("button", { name: /Edit/i }))
