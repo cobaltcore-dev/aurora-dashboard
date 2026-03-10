@@ -1,5 +1,17 @@
 import { TRPCError } from "@trpc/server"
 
+export const FLOATING_IPS_BASE_URL = "v2.0/floatingips"
+
+export const HTTP_STATUS_CODE_TO_NAME = {
+  400: "BAD_REQUEST",
+  401: "UNAUTHORIZED",
+  403: "FORBIDDEN",
+  404: "NOT_FOUND",
+  409: "CONFLICT",
+  412: "PRECONDITION_FAILED",
+} as const
+export const DEFAULT_ERROR_NAME = "INTERNAL_SERVER_ERROR"
+
 /**
  * Handles specific error cases for floating IP operations with custom messages
  */
@@ -13,13 +25,47 @@ export const FloatingIpErrorHandlers = {
     switch (response.status) {
       case 401:
         return new TRPCError({
-          code: "UNAUTHORIZED",
+          code: HTTP_STATUS_CODE_TO_NAME[401],
           message: `Unauthorized access`,
         })
       default:
         return new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
+          code: DEFAULT_ERROR_NAME,
           message: `Failed to fetch list: ${response.statusText || "Unknown error"}`,
+        })
+    }
+  },
+  /**
+   * Handles errors specific to floating IP creation
+   * @param response - The HTTP response from OpenStack
+   * @returns TRPCError with appropriate code and message
+   */
+  create: (response: { status?: number; statusText?: string }) => {
+    switch (response.status) {
+      case 400:
+        return new TRPCError({
+          code: HTTP_STATUS_CODE_TO_NAME[400],
+          message: "Invalid request data for creating floating IP",
+        })
+      case 401:
+        return new TRPCError({
+          code: HTTP_STATUS_CODE_TO_NAME[401],
+          message: "Unauthorized access to create floating IP",
+        })
+      case 404:
+        return new TRPCError({
+          code: HTTP_STATUS_CODE_TO_NAME[404],
+          message: "Specified resource not found for creating floating IP",
+        })
+      case 409:
+        return new TRPCError({
+          code: HTTP_STATUS_CODE_TO_NAME[409],
+          message: "Conflict - resource already exists or is in use for creating floating IP",
+        })
+      default:
+        return new TRPCError({
+          code: DEFAULT_ERROR_NAME,
+          message: `Failed to create floating IP: ${response.statusText || "Unknown error"}`,
         })
     }
   },
@@ -33,24 +79,63 @@ export const FloatingIpErrorHandlers = {
     switch (response.status) {
       case 401:
         return new TRPCError({
-          code: "UNAUTHORIZED",
+          code: HTTP_STATUS_CODE_TO_NAME[401],
           message: `Unauthorized access: ${floatingIpId}`,
         })
       case 403:
         return new TRPCError({
-          code: "FORBIDDEN",
+          code: HTTP_STATUS_CODE_TO_NAME[403],
           message: `Access forbidden to floating IP: ${floatingIpId}`,
         })
       case 404:
         return new TRPCError({
-          code: "NOT_FOUND",
+          code: HTTP_STATUS_CODE_TO_NAME[404],
           message: `Floating IP not found: ${floatingIpId}`,
         })
-
       default:
         return new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
+          code: DEFAULT_ERROR_NAME,
           message: `Failed to fetch floating IP: ${response.statusText || "Unknown error"}`,
+        })
+    }
+  },
+  /**
+   * Handles errors specific to floating IP update
+   * @param response - The HTTP response from OpenStack
+   * @param floatingIpId - The ID of the floating IP being updated
+   * @returns TRPCError with appropriate code and message
+   */
+  update: (response: { status?: number; statusText?: string }, floatingIpId: string) => {
+    switch (response.status) {
+      case 400:
+        return new TRPCError({
+          code: HTTP_STATUS_CODE_TO_NAME[400],
+          message: `Invalid request data for floating IP: ${floatingIpId}`,
+        })
+      case 401:
+        return new TRPCError({
+          code: HTTP_STATUS_CODE_TO_NAME[401],
+          message: `Unauthorized access: ${floatingIpId}`,
+        })
+      case 404:
+        return new TRPCError({
+          code: HTTP_STATUS_CODE_TO_NAME[404],
+          message: `Floating IP not found: ${floatingIpId}`,
+        })
+      case 409:
+        return new TRPCError({
+          code: HTTP_STATUS_CODE_TO_NAME[409],
+          message: `Conflict - floating IP is in use: ${floatingIpId}`,
+        })
+      case 412:
+        return new TRPCError({
+          code: HTTP_STATUS_CODE_TO_NAME[412],
+          message: `Precondition failed - revision number mismatch: ${floatingIpId}`,
+        })
+      default:
+        return new TRPCError({
+          code: DEFAULT_ERROR_NAME,
+          message: `Failed to update floating IP: ${response.statusText || "Unknown error"}`,
         })
     }
   },
@@ -64,22 +149,22 @@ export const FloatingIpErrorHandlers = {
     switch (response.status) {
       case 401:
         return new TRPCError({
-          code: "UNAUTHORIZED",
+          code: HTTP_STATUS_CODE_TO_NAME[401],
           message: `Unauthorized access: ${floatingIpId}`,
         })
       case 404:
         return new TRPCError({
-          code: "NOT_FOUND",
+          code: HTTP_STATUS_CODE_TO_NAME[404],
           message: `Floating IP not found: ${floatingIpId}`,
         })
       case 412:
         return new TRPCError({
-          code: "CONFLICT",
+          code: HTTP_STATUS_CODE_TO_NAME[412],
           message: `Precondition failed - revision number mismatch: ${floatingIpId}`,
         })
       default:
         return new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
+          code: DEFAULT_ERROR_NAME,
           message: `Failed to delete floating IP: ${response.statusText || "Unknown error"}`,
         })
     }

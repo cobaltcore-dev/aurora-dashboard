@@ -127,18 +127,57 @@ export const FloatingIpIdInputSchema = z.object({
 })
 
 /**
- * Floating IP detail response wrapper.
- * Contains a single floating IP object.
+ * Create floating IP request schema.
+ * Used by POST /v2.0/floatingips.
+ * See https://docs.openstack.org/api-ref/network/v2/index.html#create-floating-ip
  */
-export const FloatingIpDetailResponseSchema = z.object({
+export const FloatingIpCreateRequestSchema = z.object({
+  tenant_id: z.string(),
+  project_id: z.string(),
+  floating_network_id: z.string(),
+  fixed_ip_address: z.string().optional(),
+  floating_ip_address: z.string().optional(),
+  port_id: z.string().optional(),
+  subnet_id: z.string().optional(),
+  distributed: z.boolean().optional(),
+  description: z.string().optional(),
+  dns_domain: z.string().optional(),
+  dns_name: z.string().optional(),
+  qos_policy_id: z.string().optional(),
+})
+
+/**
+ * Update floating IP request schema.
+ * Used by PUT /v2.0/floatingips/{floatingip_id}.
+ * See https://docs.openstack.org/api-ref/network/v2/index.html#update-floating-ip
+ */
+export const FloatingIpUpdateRequestSchema = z.object({
+  floatingip_id: z.string(),
+  port_id: z.string().nullable(),
+  fixed_ip_address: z.string().optional(),
+  description: z.string().optional(),
+  distributed: z.boolean().optional(),
+})
+
+/**
+ * Single floating IP response wrapper.
+ * Contains one `floatingip` object.
+ *
+ * Used by:
+ * - POST /v2.0/floatingips (create)
+ * - GET /v2.0/floatingips/{floatingip_id} (show details)
+ * - PUT /v2.0/floatingips/{floatingip_id} (update)
+ */
+export const FloatingIpResponseSchema = z.object({
   floatingip: FloatingIpSchema,
 })
 
 /**
  * Floating IPs list response wrapper.
  * Contains an array of floating IP objects.
+ * Used by GET /v2.0/floatingips (list floating IPs).
  */
-export const FloatingIpResponseSchema = z.object({
+export const FloatingIpListResponseSchema = z.object({
   /** A list of floating IP objects */
   floatingips: z.array(FloatingIpSchema),
 })
@@ -212,7 +251,9 @@ export type FloatingIpStatus = z.infer<typeof FloatingIpStatusSchema>
 export type PortDetails = z.infer<typeof PortDetailsSchema>
 export type PortForwarding = z.infer<typeof PortForwardingSchema>
 export type FloatingIp = z.infer<typeof FloatingIpSchema>
-export type FloatingIpResponse = z.infer<typeof FloatingIpResponseSchema>
+export type FloatingIpListResponse = z.infer<typeof FloatingIpListResponseSchema>
 export type FloatingIpQueryParameters = z.infer<typeof FloatingIpQueryParametersSchema>
-export type FloatingIpDetailResponse = z.infer<typeof FloatingIpDetailResponseSchema>
+export type FloatingIpResponse = z.infer<typeof FloatingIpResponseSchema>
 export type FloatingIpIdInput = z.infer<typeof FloatingIpIdInputSchema>
+export type FloatingIpCreateRequest = z.infer<typeof FloatingIpCreateRequestSchema>
+export type FloatingIpUpdateRequest = z.infer<typeof FloatingIpUpdateRequestSchema>

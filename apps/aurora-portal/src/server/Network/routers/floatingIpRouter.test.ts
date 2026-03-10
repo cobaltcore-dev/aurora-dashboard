@@ -12,7 +12,9 @@ const createMockContext = (opts?: {
   mockFloatingIps?: FloatingIp[]
   mockFloatingIpDetail?: FloatingIp
   httpStatus?: number
+  createSuccess?: boolean
   deleteSuccess?: boolean
+  updateSuccess?: boolean
 }) => {
   const {
     noNetworkService = false,
@@ -21,7 +23,9 @@ const createMockContext = (opts?: {
     mockFloatingIps,
     mockFloatingIpDetail,
     httpStatus = 200,
+    createSuccess = true,
     deleteSuccess = true,
+    updateSuccess = true,
   } = opts || {}
 
   const defaultFloatingIps: FloatingIp[] = [
@@ -69,6 +73,32 @@ const createMockContext = (opts?: {
     })
   })
 
+  const networkPutMock = vi.fn().mockImplementation(() => {
+    const responseBody = parseError
+      ? { invalid: "data" }
+      : { floatingip: mockFloatingIpDetail || defaultFloatingIps[0] }
+
+    return Promise.resolve({
+      ok: updateSuccess && httpStatus >= 200 && httpStatus < 300,
+      status: httpStatus,
+      statusText: httpStatus === 401 ? "Unauthorized" : httpStatus === 404 ? "Not Found" : "OK",
+      json: vi.fn().mockResolvedValue(responseBody),
+    })
+  })
+
+  const networkPostMock = vi.fn().mockImplementation(() => {
+    const responseBody = parseError
+      ? { invalid: "data" }
+      : { floatingip: mockFloatingIpDetail || defaultFloatingIps[0] }
+
+    return Promise.resolve({
+      ok: createSuccess && httpStatus >= 200 && httpStatus < 300,
+      status: httpStatus,
+      statusText: httpStatus === 401 ? "Unauthorized" : httpStatus === 404 ? "Not Found" : "OK",
+      json: vi.fn().mockResolvedValue(responseBody),
+    })
+  })
+
   const networkDelMock = vi.fn().mockImplementation(() => {
     return Promise.resolve({
       ok: deleteSuccess && httpStatus >= 200 && httpStatus < 300,
@@ -87,6 +117,8 @@ const createMockContext = (opts?: {
 
         return {
           get: networkGetMock,
+          post: networkPostMock,
+          put: networkPutMock,
           del: networkDelMock,
         }
       }),
@@ -96,9 +128,13 @@ const createMockContext = (opts?: {
     rescopeSession: vi.fn(),
     getMultipartData: vi.fn(),
     __networkGetMock: networkGetMock,
+    __networkPostMock: networkPostMock,
+    __networkPutMock: networkPutMock,
     __networkDelMock: networkDelMock,
   } as unknown as AuroraPortalContext & {
     __networkGetMock: typeof networkGetMock
+    __networkPostMock: typeof networkPostMock
+    __networkPutMock: typeof networkPutMock
     __networkDelMock: typeof networkDelMock
   }
 }
@@ -382,6 +418,90 @@ describe("floatingIpRouter.list", () => {
   })
 })
 
+describe("floatingIpRouter.create", () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it("calls the floating IP create endpoint with request body", async () => {
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    await caller.floatingIp.create({
+      tenant_id: "tenant-1",
+      project_id: "project-1",
+      floating_network_id: "net-external-1",
+    })
+
+    expect(ctx.__networkPostMock).toHaveBeenCalledWith("v2.0/floatingips", {
+      floatingip: {
+        tenant_id: "tenant-1",
+        project_id: "project-1",
+        floating_network_id: "net-external-1",
+      },
+    })
+  })
+
+  it("returns created floating IP on success", async () => {
+    const mockFloatingIpDetail: FloatingIp = {
+      id: "fip-new",
+      floating_ip_address: "203.0.113.50",
+      fixed_ip_address: null,
+      port_id: null,
+      router_id: null,
+      project_id: "project-1",
+      tenant_id: "tenant-1",
+      floating_network_id: "net-external-1",
+      status: "DOWN",
+      revision_number: 1,
+      description: "New floating IP",
+    }
+
+    const ctx = createMockContext({ mockFloatingIpDetail })
+    const caller = createCaller(ctx)
+
+    const result = await caller.floatingIp.create({
+      tenant_id: "tenant-1",
+      project_id: "project-1",
+      floating_network_id: "net-external-1",
+    })
+
+    expect(result.id).toBe("fip-new")
+    expect(result.floating_ip_address).toBe("203.0.113.50")
+  })
+
+  it("throws PARSE_ERROR when response cannot be parsed", async () => {
+    const ctx = createMockContext({ parseError: true })
+    const caller = createCaller(ctx)
+
+    await expect(
+      caller.floatingIp.create({
+        tenant_id: "tenant-1",
+        project_id: "project-1",
+        floating_network_id: "net-external-1",
+      })
+    ).rejects.toThrow(
+      new TRPCError({
+        code: "PARSE_ERROR",
+        message: "Failed to parse created floating IP response from OpenStack",
+      })
+    )
+  })
+
+  it("throws error when API returns non-ok response", async () => {
+    const ctx = createMockContext({ httpStatus: 400, createSuccess: false })
+    const caller = createCaller(ctx)
+
+    await expect(
+      caller.floatingIp.create({
+        tenant_id: "tenant-1",
+        project_id: "project-1",
+        floating_network_id: "net-external-1",
+      })
+    ).rejects.toThrow(TRPCError)
+  })
+})
+
 describe("floatingIpRouter.getById", () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -449,6 +569,269 @@ describe("floatingIpRouter.getById", () => {
     const caller = createCaller(ctx)
 
     await expect(caller.floatingIp.getById({ floatingip_id: "fip-1" })).rejects.toThrow(TRPCError)
+  })
+})
+
+describe("floatingIpRouter.update", () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it("calls the floating IP update endpoint with the correct path and request body", async () => {
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    await caller.floatingIp.update({
+      floatingip_id: "fip-123",
+      port_id: "port-456",
+    })
+
+    expect(ctx.__networkPutMock).toHaveBeenCalledWith("v2.0/floatingips/fip-123", {
+      floatingip: {
+        port_id: "port-456",
+      },
+    })
+  })
+
+  it("updates a floating IP on success", async () => {
+    const mockFloatingIpDetail: FloatingIp = {
+      id: "fip-1",
+      floating_ip_address: "192.0.2.1",
+      fixed_ip_address: "10.0.0.10",
+      port_id: "port-456",
+      router_id: "router-1",
+      project_id: "proj-1",
+      tenant_id: "proj-1",
+      floating_network_id: "net-1",
+      status: "ACTIVE",
+      revision_number: 2,
+      description: "Updated floating IP",
+    }
+
+    const ctx = createMockContext({ mockFloatingIpDetail })
+    const caller = createCaller(ctx)
+
+    const result = await caller.floatingIp.update({
+      floatingip_id: "fip-1",
+      port_id: "port-456",
+    })
+
+    expect(result).not.toBeNull()
+    expect(result.id).toBe("fip-1")
+    expect(result.port_id).toBe("port-456")
+  })
+
+  it("disassociates a floating IP by setting port_id to null", async () => {
+    const mockFloatingIpDetail: FloatingIp = {
+      id: "fip-1",
+      floating_ip_address: "192.0.2.1",
+      fixed_ip_address: null,
+      port_id: null,
+      router_id: null,
+      project_id: "proj-1",
+      tenant_id: "proj-1",
+      floating_network_id: "net-1",
+      status: "DOWN",
+      revision_number: 3,
+      description: "Disassociated floating IP",
+    }
+
+    const ctx = createMockContext({ mockFloatingIpDetail })
+    const caller = createCaller(ctx)
+
+    const result = await caller.floatingIp.update({
+      floatingip_id: "fip-1",
+      port_id: null,
+    })
+
+    expect(result.port_id).toBeNull()
+    expect(result.fixed_ip_address).toBeNull()
+  })
+
+  it("updates floating IP with optional description field", async () => {
+    const mockFloatingIpDetail: FloatingIp = {
+      id: "fip-1",
+      floating_ip_address: "192.0.2.1",
+      fixed_ip_address: "10.0.0.5",
+      port_id: "port-1",
+      router_id: "router-1",
+      project_id: "proj-1",
+      tenant_id: "proj-1",
+      floating_network_id: "net-1",
+      status: "ACTIVE",
+      revision_number: 2,
+      description: "New description",
+    }
+
+    const ctx = createMockContext({ mockFloatingIpDetail })
+    const caller = createCaller(ctx)
+
+    const result = await caller.floatingIp.update({
+      floatingip_id: "fip-1",
+      port_id: "port-1",
+      description: "New description",
+    })
+
+    expect(result.description).toBe("New description")
+  })
+
+  it("updates floating IP with optional fixed_ip_address field", async () => {
+    const mockFloatingIpDetail: FloatingIp = {
+      id: "fip-1",
+      floating_ip_address: "192.0.2.1",
+      fixed_ip_address: "10.0.0.20",
+      port_id: "port-1",
+      router_id: "router-1",
+      project_id: "proj-1",
+      tenant_id: "proj-1",
+      floating_network_id: "net-1",
+      status: "ACTIVE",
+      revision_number: 2,
+      description: "Updated fixed IP",
+    }
+
+    const ctx = createMockContext({ mockFloatingIpDetail })
+    const caller = createCaller(ctx)
+
+    const result = await caller.floatingIp.update({
+      floatingip_id: "fip-1",
+      port_id: "port-1",
+      fixed_ip_address: "10.0.0.20",
+    })
+
+    expect(result.fixed_ip_address).toBe("10.0.0.20")
+  })
+
+  it("updates floating IP with optional distributed field", async () => {
+    const mockFloatingIpDetail: FloatingIp = {
+      id: "fip-1",
+      floating_ip_address: "192.0.2.1",
+      fixed_ip_address: "10.0.0.5",
+      port_id: "port-1",
+      router_id: "router-1",
+      project_id: "proj-1",
+      tenant_id: "proj-1",
+      floating_network_id: "net-1",
+      status: "ACTIVE",
+      revision_number: 2,
+      description: "Distributed FIP",
+      distributed: true,
+    }
+
+    const ctx = createMockContext({ mockFloatingIpDetail })
+    const caller = createCaller(ctx)
+
+    const result = await caller.floatingIp.update({
+      floatingip_id: "fip-1",
+      port_id: "port-1",
+      distributed: true,
+    })
+
+    expect(result.distributed).toBe(true)
+  })
+
+  it("updates floating IP with combined optional fields", async () => {
+    const mockFloatingIpDetail: FloatingIp = {
+      id: "fip-1",
+      floating_ip_address: "192.0.2.1",
+      fixed_ip_address: "10.0.0.20",
+      port_id: "port-1",
+      router_id: "router-1",
+      project_id: "proj-1",
+      tenant_id: "proj-1",
+      floating_network_id: "net-1",
+      status: "ACTIVE",
+      revision_number: 3,
+      description: "Fully updated FIP",
+      distributed: true,
+    }
+
+    const ctx = createMockContext({ mockFloatingIpDetail })
+    const caller = createCaller(ctx)
+
+    const result = await caller.floatingIp.update({
+      floatingip_id: "fip-1",
+      port_id: "port-1",
+      fixed_ip_address: "10.0.0.20",
+      description: "Fully updated FIP",
+      distributed: true,
+    })
+
+    expect(ctx.__networkPutMock).toHaveBeenCalledWith("v2.0/floatingips/fip-1", {
+      floatingip: {
+        port_id: "port-1",
+        fixed_ip_address: "10.0.0.20",
+        description: "Fully updated FIP",
+        distributed: true,
+      },
+    })
+
+    expect(result.description).toBe("Fully updated FIP")
+    expect(result.distributed).toBe(true)
+    expect(result.fixed_ip_address).toBe("10.0.0.20")
+  })
+
+  it("throws UNAUTHORIZED when session is invalid", async () => {
+    const ctx = createMockContext({ invalidSession: true })
+    const caller = createCaller(ctx)
+
+    await expect(
+      caller.floatingIp.update({
+        floatingip_id: "fip-1",
+        port_id: "port-456",
+      })
+    ).rejects.toThrow(
+      new TRPCError({
+        code: "UNAUTHORIZED",
+        message: "The session is invalid",
+      })
+    )
+  })
+
+  it("throws INTERNAL_SERVER_ERROR when network service is unavailable", async () => {
+    const ctx = createMockContext({ noNetworkService: true })
+    const caller = createCaller(ctx)
+
+    await expect(
+      caller.floatingIp.update({
+        floatingip_id: "fip-1",
+        port_id: "port-456",
+      })
+    ).rejects.toThrow(
+      new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Network service is not available",
+      })
+    )
+  })
+
+  it("throws PARSE_ERROR when response cannot be parsed", async () => {
+    const ctx = createMockContext({ parseError: true })
+    const caller = createCaller(ctx)
+
+    await expect(
+      caller.floatingIp.update({
+        floatingip_id: "fip-1",
+        port_id: "port-456",
+      })
+    ).rejects.toThrow(
+      new TRPCError({
+        code: "PARSE_ERROR",
+        message: "Failed to parse updated floating IP response from OpenStack",
+      })
+    )
+  })
+
+  it("throws error when API returns non-ok response", async () => {
+    const ctx = createMockContext({ httpStatus: 404, updateSuccess: false })
+    const caller = createCaller(ctx)
+
+    await expect(
+      caller.floatingIp.update({
+        floatingip_id: "fip-1",
+        port_id: "port-456",
+      })
+    ).rejects.toThrow(TRPCError)
   })
 })
 
