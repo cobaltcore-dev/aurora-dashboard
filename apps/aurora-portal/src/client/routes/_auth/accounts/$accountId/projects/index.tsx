@@ -1,4 +1,4 @@
-import { createFileRoute, ErrorComponent } from "@tanstack/react-router"
+import { createFileRoute, ErrorComponent, redirect } from "@tanstack/react-router"
 import { useState } from "react"
 import { ProjectsOverviewNavBar, ViewMode } from "./-components/ProjectOverviewNavBar"
 import { ProjectCardView } from "./-components/ProjectCardView"
@@ -28,7 +28,19 @@ export const Route = createFileRoute("/_auth/accounts/$accountId/projects/")({
         type: "domain",
         domainId: params.accountId || "",
       })
-      .catch(() => null)
+      .catch(async () => {
+        // Rescope failed - likely cross-domain token conflict
+        // Check if we have a valid session but with different domain
+        const currentSession = await context.trpcClient?.auth.getCurrentUserSession.query()
+        if (currentSession?.domain?.id && currentSession.domain.id !== params.accountId) {
+          // Token is scoped to a different domain - redirect to correct domain
+          throw redirect({
+            to: "/accounts/$accountId/projects",
+            params: { accountId: currentSession.domain.id },
+          })
+        }
+        return null
+      })
     return {
       userHasAccountAccess: !!data,
       crumbDomain: { path: `/accounts/${params.accountId}/projects`, name: data?.domain?.name || "Projects" },

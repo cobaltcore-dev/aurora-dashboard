@@ -9,18 +9,47 @@ export interface SessionProps {
   res: CreateFastifyContextOptions["res"]
 }
 
-const BFF_ENDPOINT = process.env.BFF_ENDPOINT || "/polaris-bff"
+export const SessionCookieName = process.env.DASHBOARD_COOKIE_NAME || "dashboard-session-auth"
 
-export const SessionCookieName = "aurora-session"
+// Enable cross-dashboard domain (wildcard subdomain) via environment variable
+// Default: true (enabled). Set to "false" to disable.
+const ENABLE_CROSS_DASHBOARD_DOMAIN = process.env.ENABLE_CROSS_DASHBOARD_COOKIE !== "false"
 
-const DEFAULT_COOKIE_VALUES = {
-  secure: true,
-  httpOnly: true,
-  sameSite: "strict",
-  path: BFF_ENDPOINT, // Optional: if set, must be the same for both set and del
-} as const
+/**
+ * Extract the shared domain for cross-dashboard cookie access.
+ * Examples: aurora.qa-de-1.cloud.sap → .qa-de-1.cloud.sap
+ */
+function extractCookieDomain(hostname: string): string | undefined {
+  // Only extract domain if cross-dashboard mode is enabled
+  if (!ENABLE_CROSS_DASHBOARD_DOMAIN) {
+    return undefined
+  }
+
+  // Localhost or IP addresses don't need a domain
+  if (hostname === "localhost" || /^\d+\.\d+\.\d+\.\d+$/.test(hostname)) {
+    return undefined
+  }
+
+  const parts = hostname.split(".")
+  if (parts.length >= 3) {
+    // Remove first subdomain (aurora/dashboard) and add leading dot
+    return `.${parts.slice(1).join(".")}`
+  }
+
+  return undefined
+}
 
 export function SessionCookie({ cookieName = SessionCookieName, req, res }: SessionProps) {
+  const cookieDomain = extractCookieDomain(req.hostname)
+
+  const DEFAULT_COOKIE_VALUES = {
+    secure: process.env.NODE_ENV === "production", // Only secure in production
+    httpOnly: true,
+    sameSite: "strict",
+    path: "/",
+    ...(cookieDomain && { domain: cookieDomain }),
+  } as const
+
   return {
     set: (content?: string | null, options?: { expires: Date }) => {
       if (!content) return
