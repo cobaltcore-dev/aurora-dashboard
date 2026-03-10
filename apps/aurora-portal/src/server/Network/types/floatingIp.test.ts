@@ -442,7 +442,7 @@ describe("OpenStack Floating IP Schema Validation", () => {
     it("should validate simple association request", () => {
       const request = {
         floatingip_id: "fip-123",
-          port_id: "fc861431-0e6c-4842-a0ed-e2363f9bc3a8",
+        port_id: "fc861431-0e6c-4842-a0ed-e2363f9bc3a8",
       }
 
       expect(FloatingIpUpdateRequestSchema.safeParse(request).success).toBe(true)
@@ -451,7 +451,7 @@ describe("OpenStack Floating IP Schema Validation", () => {
     it("should validate disassociate request with null port_id", () => {
       const request = {
         floatingip_id: "fip-123",
-          port_id: null,
+        port_id: null,
       }
 
       expect(FloatingIpUpdateRequestSchema.safeParse(request).success).toBe(true)
@@ -474,11 +474,10 @@ describe("OpenStack Floating IP Schema Validation", () => {
     it("should validate request with optional fields", () => {
       const request = {
         floatingip_id: "fip-123",
-          port_id: "fc861431-0e6c-4842-a0ed-e2363f9bc3a8",
-          fixed_ip_address: "10.0.0.5",
-          description: "Updated floating IP",
-          distributed: true,
-        },
+        port_id: "fc861431-0e6c-4842-a0ed-e2363f9bc3a8",
+        fixed_ip_address: "10.0.0.5",
+        description: "Updated floating IP",
+        distributed: true,
       }
 
       expect(FloatingIpUpdateRequestSchema.safeParse(request).success).toBe(true)
@@ -486,7 +485,7 @@ describe("OpenStack Floating IP Schema Validation", () => {
 
     it("should reject request without floatingip_id", () => {
       const request = {
-          port_id: "fc861431-0e6c-4842-a0ed-e2363f9bc3a8",
+        port_id: "fc861431-0e6c-4842-a0ed-e2363f9bc3a8",
       }
 
       expect(FloatingIpUpdateRequestSchema.safeParse(request).success).toBe(false)
@@ -515,7 +514,7 @@ describe("OpenStack Floating IP Schema Validation", () => {
       const request = {
         floatingip_id: "fip-123",
         port_id: "fc861431-0e6c-4842-a0ed-e2363f9bc3a8",
-          description: "Updated floating IP",
+        description: "Updated floating IP",
       }
 
       expect(FloatingIpUpdateRequestSchema.safeParse(request).success).toBe(true)
@@ -554,7 +553,7 @@ describe("OpenStack Floating IP Schema Validation", () => {
     it("should reject invalid description type", () => {
       const request = {
         floatingip_id: "fip-123",
-          port_id: "fc861431-0e6c-4842-a0ed-e2363f9bc3a8",
+        port_id: "fc861431-0e6c-4842-a0ed-e2363f9bc3a8",
         description: 123,
       }
 
@@ -575,11 +574,9 @@ describe("OpenStack Floating IP Schema Validation", () => {
   describe("FloatingIpCreateRequestSchema", () => {
     it("should validate minimal create request", () => {
       const request = {
-        floatingip: {
-          tenant_id: "tenant-1",
-          project_id: "project-1",
-          floating_network_id: "376da547-b977-4cfe-9cba-275c80debf57",
-        },
+        tenant_id: "tenant-1",
+        project_id: "project-1",
+        floating_network_id: "376da547-b977-4cfe-9cba-275c80debf57",
       }
 
       expect(FloatingIpCreateRequestSchema.safeParse(request).success).toBe(true)
@@ -587,40 +584,27 @@ describe("OpenStack Floating IP Schema Validation", () => {
 
     it("should validate complete create request", () => {
       const request = {
-        floatingip: {
-          tenant_id: "tenant-1",
-          project_id: "project-1",
-          floating_network_id: "376da547-b977-4cfe-9cba-275c80debf57",
-          port_id: "ce705c24-c1ef-408a-bda3-7bbd946164ab",
-          subnet_id: "278d9507-36e7-403c-bb80-1d7093318fe6",
-          fixed_ip_address: "10.0.0.3",
-          floating_ip_address: "172.24.4.228",
-          description: "floating ip for testing",
-          dns_domain: "my-domain.org.",
-          dns_name: "myfip",
-          qos_policy_id: "29d5e02e-d5ab-4929-bee4-4a9fc12e22ae",
-          distributed: true,
-        },
+        tenant_id: "tenant-1",
+        project_id: "project-1",
+        floating_network_id: "376da547-b977-4cfe-9cba-275c80debf57",
+        port_id: "ce705c24-c1ef-408a-bda3-7bbd946164ab",
+        subnet_id: "278d9507-36e7-403c-bb80-1d7093318fe6",
+        fixed_ip_address: "10.0.0.3",
+        floating_ip_address: "172.24.4.228",
+        description: "floating ip for testing",
+        dns_domain: "my-domain.org.",
+        dns_name: "myfip",
+        qos_policy_id: "29d5e02e-d5ab-4929-bee4-4a9fc12e22ae",
+        distributed: true,
       }
 
       expect(FloatingIpCreateRequestSchema.safeParse(request).success).toBe(true)
     })
 
-    it("should reject request without floatingip object", () => {
-      const request = {
-        floating_network_id: "376da547-b977-4cfe-9cba-275c80debf57",
-      }
-
-      expect(FloatingIpCreateRequestSchema.safeParse(request).success).toBe(false)
-    })
-
     it("should reject request without floating_network_id", () => {
       const request = {
-        floatingip: {
-          tenant_id: "tenant-1",
-          project_id: "project-1",
-          description: "floating ip for testing",
-        },
+        tenant_id: "tenant-1",
+        project_id: "project-1",
       }
 
       expect(FloatingIpCreateRequestSchema.safeParse(request).success).toBe(false)
@@ -628,10 +612,8 @@ describe("OpenStack Floating IP Schema Validation", () => {
 
     it("should reject request without tenant_id", () => {
       const request = {
-        floatingip: {
-          project_id: "project-1",
-          floating_network_id: "376da547-b977-4cfe-9cba-275c80debf57",
-        },
+        project_id: "project-1",
+        floating_network_id: "376da547-b977-4cfe-9cba-275c80debf57",
       }
 
       expect(FloatingIpCreateRequestSchema.safeParse(request).success).toBe(false)
@@ -639,10 +621,8 @@ describe("OpenStack Floating IP Schema Validation", () => {
 
     it("should reject request without project_id", () => {
       const request = {
-        floatingip: {
-          tenant_id: "tenant-1",
-          floating_network_id: "376da547-b977-4cfe-9cba-275c80debf57",
-        },
+        tenant_id: "tenant-1",
+        floating_network_id: "376da547-b977-4cfe-9cba-275c80debf57",
       }
 
       expect(FloatingIpCreateRequestSchema.safeParse(request).success).toBe(false)

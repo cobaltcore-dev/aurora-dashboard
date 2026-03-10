@@ -22,7 +22,7 @@ import { getNetworkService } from "../helpers/networkHelpers"
  * Currently exposes:
  * - list: GET /v2.0/floatingips List floating IPs with pagination, sorting and filtering support.
  *   Includes BFF-side search filtering by specific fields.
- * - !create: POST /v2.0/floatingips Create floating IP.
+ * - create: POST /v2.0/floatingips Create floating IP.
  * - getById: GET /v2.0/floatingips/{floatingip_id} Show floating IP details.
  * - update: PUT /v2.0/floatingips/{floatingip_id} Update floating IP.
  * - delete: DELETE /v2.0/floatingips/{floatingip_id} Delete floating IP.
@@ -61,7 +61,6 @@ export const floatingIpRouter = {
         return filterBySearchParams(floatingIps, searchTerm, ["description"])
       }, "list floating IPs")
     }),
-  // ADD_CREATE_HERE -
   create: protectedProcedure
     .input(FloatingIpCreateRequestSchema)
     .mutation(async ({ input, ctx }): Promise<FloatingIp> => {
@@ -84,8 +83,22 @@ export const floatingIpRouter = {
             ...(input.qos_policy_id !== undefined && { qos_policy_id: input.qos_policy_id }),
           },
         }
+        const response = await network.post(FLOATING_IPS_BASE_URL, requestBody)
+        if (!response.ok) {
+          throw FloatingIpErrorHandlers.create(response)
+        }
 
-        return // Normal response codes: 201
+        const data = await response.json()
+        const parsed = FloatingIpResponseSchema.safeParse(data)
+        if (!parsed.success) {
+          console.error("Zod Parsing Error in floatingIpRouter.create:", parsed.error.format())
+          throw new TRPCError({
+            code: "PARSE_ERROR",
+            message: "Failed to parse created floating IP response from OpenStack",
+          })
+        }
+
+        return parsed.data.floatingip
       }, "create floating IP")
     }),
   getById: protectedProcedure

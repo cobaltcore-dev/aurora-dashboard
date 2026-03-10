@@ -12,8 +12,8 @@ const createMockContext = (opts?: {
   mockFloatingIps?: FloatingIp[]
   mockFloatingIpDetail?: FloatingIp
   httpStatus?: number
-  deleteSuccess?: boolean
   createSuccess?: boolean
+  deleteSuccess?: boolean
   updateSuccess?: boolean
 }) => {
   const {
@@ -23,8 +23,8 @@ const createMockContext = (opts?: {
     mockFloatingIps,
     mockFloatingIpDetail,
     httpStatus = 200,
-    deleteSuccess = true,
     createSuccess = true,
+    deleteSuccess = true,
     updateSuccess = true,
   } = opts || {}
 
@@ -73,19 +73,6 @@ const createMockContext = (opts?: {
     })
   })
 
-  const networkPostMock = vi.fn().mockImplementation(() => {
-    const responseBody = parseError
-      ? { invalid: "data" }
-      : { floatingip: mockFloatingIpDetail || defaultFloatingIps[0] }
-
-    return Promise.resolve({
-      ok: createSuccess && httpStatus >= 200 && httpStatus < 300,
-      status: httpStatus === 201 ? 201 : httpStatus,
-      statusText: httpStatus === 401 ? "Unauthorized" : httpStatus === 400 ? "Bad Request" : "Created",
-      json: vi.fn().mockResolvedValue(responseBody),
-    })
-  })
-
   const networkPutMock = vi.fn().mockImplementation(() => {
     const responseBody = parseError
       ? { invalid: "data" }
@@ -93,6 +80,19 @@ const createMockContext = (opts?: {
 
     return Promise.resolve({
       ok: updateSuccess && httpStatus >= 200 && httpStatus < 300,
+      status: httpStatus,
+      statusText: httpStatus === 401 ? "Unauthorized" : httpStatus === 404 ? "Not Found" : "OK",
+      json: vi.fn().mockResolvedValue(responseBody),
+    })
+  })
+
+  const networkPostMock = vi.fn().mockImplementation(() => {
+    const responseBody = parseError
+      ? { invalid: "data" }
+      : { floatingip: mockFloatingIpDetail || defaultFloatingIps[0] }
+
+    return Promise.resolve({
+      ok: createSuccess && httpStatus >= 200 && httpStatus < 300,
       status: httpStatus,
       statusText: httpStatus === 401 ? "Unauthorized" : httpStatus === 404 ? "Not Found" : "OK",
       json: vi.fn().mockResolvedValue(responseBody),
@@ -415,6 +415,90 @@ describe("floatingIpRouter.list", () => {
 
       expect(result.length).toBe(3)
     })
+  })
+})
+
+describe("floatingIpRouter.create", () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it("calls the floating IP create endpoint with request body", async () => {
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    await caller.floatingIp.create({
+      tenant_id: "tenant-1",
+      project_id: "project-1",
+      floating_network_id: "net-external-1",
+    })
+
+    expect(ctx.__networkPostMock).toHaveBeenCalledWith("v2.0/floatingips", {
+      floatingip: {
+        tenant_id: "tenant-1",
+        project_id: "project-1",
+        floating_network_id: "net-external-1",
+      },
+    })
+  })
+
+  it("returns created floating IP on success", async () => {
+    const mockFloatingIpDetail: FloatingIp = {
+      id: "fip-new",
+      floating_ip_address: "203.0.113.50",
+      fixed_ip_address: null,
+      port_id: null,
+      router_id: null,
+      project_id: "project-1",
+      tenant_id: "tenant-1",
+      floating_network_id: "net-external-1",
+      status: "DOWN",
+      revision_number: 1,
+      description: "New floating IP",
+    }
+
+    const ctx = createMockContext({ mockFloatingIpDetail })
+    const caller = createCaller(ctx)
+
+    const result = await caller.floatingIp.create({
+      tenant_id: "tenant-1",
+      project_id: "project-1",
+      floating_network_id: "net-external-1",
+    })
+
+    expect(result.id).toBe("fip-new")
+    expect(result.floating_ip_address).toBe("203.0.113.50")
+  })
+
+  it("throws PARSE_ERROR when response cannot be parsed", async () => {
+    const ctx = createMockContext({ parseError: true })
+    const caller = createCaller(ctx)
+
+    await expect(
+      caller.floatingIp.create({
+        tenant_id: "tenant-1",
+        project_id: "project-1",
+        floating_network_id: "net-external-1",
+      })
+    ).rejects.toThrow(
+      new TRPCError({
+        code: "PARSE_ERROR",
+        message: "Failed to parse created floating IP response from OpenStack",
+      })
+    )
+  })
+
+  it("throws error when API returns non-ok response", async () => {
+    const ctx = createMockContext({ httpStatus: 400, createSuccess: false })
+    const caller = createCaller(ctx)
+
+    await expect(
+      caller.floatingIp.create({
+        tenant_id: "tenant-1",
+        project_id: "project-1",
+        floating_network_id: "net-external-1",
+      })
+    ).rejects.toThrow(TRPCError)
   })
 })
 
