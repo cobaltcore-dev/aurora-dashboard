@@ -24,7 +24,7 @@ import { getNetworkService } from "../helpers/networkHelpers"
  *   Includes BFF-side search filtering by specific fields.
  * - !create: POST /v2.0/floatingips Create floating IP.
  * - getById: GET /v2.0/floatingips/{floatingip_id} Show floating IP details.
- * - !update: PUT /v2.0/floatingips/{floatingip_id} Update floating IP.
+ * - update: PUT /v2.0/floatingips/{floatingip_id} Update floating IP.
  * - delete: DELETE /v2.0/floatingips/{floatingip_id} Delete floating IP.
  */
 export const floatingIpRouter = {
@@ -115,7 +115,6 @@ export const floatingIpRouter = {
         return parsed.data.floatingip
       }, "show floating IP details")
     }),
-  // FINISH_UPDATE
   update: protectedProcedure
     .input(FloatingIpUpdateRequestSchema)
     .mutation(async ({ input, ctx }): Promise<FloatingIp> => {
@@ -125,9 +124,10 @@ export const floatingIpRouter = {
 
         const requestBody = {
           floatingip: {
-            ...(updateFields.floatingip.port_id !== undefined && { port_id: updateFields.floatingip.port_id }),
-            ...(updateFields.floatingip.port_id !== undefined && { port_id: updateFields.floatingip.port_id }),
-            ...(updateFields.floatingip.port_id !== undefined && { port_id: updateFields.floatingip.port_id }),
+            port_id: input.port_id,
+            ...(updateFields.fixed_ip_address !== undefined && { fixed_ip_address: updateFields.fixed_ip_address }),
+            ...(updateFields.description !== undefined && { description: updateFields.description }),
+            ...(updateFields.distributed !== undefined && { distributed: updateFields.distributed }),
           },
         }
         const response = await network.put(`${FLOATING_IPS_BASE_URL}/${floatingip_id}`, requestBody)

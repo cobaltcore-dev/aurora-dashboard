@@ -153,12 +153,10 @@ export const FloatingIpCreateRequestSchema = z.object({
  */
 export const FloatingIpUpdateRequestSchema = z.object({
   floatingip_id: z.string(),
-  floatingip: z.object({
-    port_id: z.string().nullable(),
-    fixed_ip_address: z.string().optional(),
-    description: z.string().optional(),
-    distributed: z.boolean().optional(),
-  }),
+  port_id: z.string().nullable(),
+  fixed_ip_address: z.string().optional(),
+  description: z.string().optional(),
+  distributed: z.boolean().optional(),
 })
 
 /**

@@ -442,9 +442,7 @@ describe("OpenStack Floating IP Schema Validation", () => {
     it("should validate simple association request", () => {
       const request = {
         floatingip_id: "fip-123",
-        floatingip: {
           port_id: "fc861431-0e6c-4842-a0ed-e2363f9bc3a8",
-        },
       }
 
       expect(FloatingIpUpdateRequestSchema.safeParse(request).success).toBe(true)
@@ -453,18 +451,29 @@ describe("OpenStack Floating IP Schema Validation", () => {
     it("should validate disassociate request with null port_id", () => {
       const request = {
         floatingip_id: "fip-123",
-        floatingip: {
           port_id: null,
-        },
       }
 
       expect(FloatingIpUpdateRequestSchema.safeParse(request).success).toBe(true)
     })
 
+    it("should validate disassociation from port using floating IP id", () => {
+      const request = {
+        floatingip_id: "fip-123",
+        port_id: null,
+      }
+
+      const result = FloatingIpUpdateRequestSchema.safeParse(request)
+      expect(result.success).toBe(true)
+      if (result.success) {
+        expect(result.data.floatingip_id).toBe("fip-123")
+        expect(result.data.port_id).toBeNull()
+      }
+    })
+
     it("should validate request with optional fields", () => {
       const request = {
         floatingip_id: "fip-123",
-        floatingip: {
           port_id: "fc861431-0e6c-4842-a0ed-e2363f9bc3a8",
           fixed_ip_address: "10.0.0.5",
           description: "Updated floating IP",
@@ -477,17 +486,7 @@ describe("OpenStack Floating IP Schema Validation", () => {
 
     it("should reject request without floatingip_id", () => {
       const request = {
-        floatingip: {
           port_id: "fc861431-0e6c-4842-a0ed-e2363f9bc3a8",
-        },
-      }
-
-      expect(FloatingIpUpdateRequestSchema.safeParse(request).success).toBe(false)
-    })
-
-    it("should reject request without floatingip object", () => {
-      const request = {
-        floatingip_id: "fip-123",
       }
 
       expect(FloatingIpUpdateRequestSchema.safeParse(request).success).toBe(false)
@@ -496,21 +495,67 @@ describe("OpenStack Floating IP Schema Validation", () => {
     it("should reject request without port_id", () => {
       const request = {
         floatingip_id: "fip-123",
-        floatingip: {
-          description: "Updated floating IP",
-        },
+        description: "Updated floating IP",
       }
 
       expect(FloatingIpUpdateRequestSchema.safeParse(request).success).toBe(false)
     })
 
+    it("should validate optional fixed_ip_address field", () => {
+      const request = {
+        floatingip_id: "fip-123",
+        port_id: "fc861431-0e6c-4842-a0ed-e2363f9bc3a8",
+        fixed_ip_address: "10.0.0.5",
+      }
+
+      expect(FloatingIpUpdateRequestSchema.safeParse(request).success).toBe(true)
+    })
+
+    it("should validate optional description field", () => {
+      const request = {
+        floatingip_id: "fip-123",
+        port_id: "fc861431-0e6c-4842-a0ed-e2363f9bc3a8",
+          description: "Updated floating IP",
+      }
+
+      expect(FloatingIpUpdateRequestSchema.safeParse(request).success).toBe(true)
+    })
+
+    it("should validate optional distributed field", () => {
+      const request = {
+        floatingip_id: "fip-123",
+        port_id: "fc861431-0e6c-4842-a0ed-e2363f9bc3a8",
+        distributed: true,
+      }
+
+      expect(FloatingIpUpdateRequestSchema.safeParse(request).success).toBe(true)
+    })
+
     it("should reject invalid distributed type", () => {
       const request = {
         floatingip_id: "fip-123",
-        floatingip: {
+        port_id: "fc861431-0e6c-4842-a0ed-e2363f9bc3a8",
+        distributed: "true",
+      }
+
+      expect(FloatingIpUpdateRequestSchema.safeParse(request).success).toBe(false)
+    })
+
+    it("should reject invalid fixed_ip_address type", () => {
+      const request = {
+        floatingip_id: "fip-123",
+        port_id: "fc861431-0e6c-4842-a0ed-e2363f9bc3a8",
+        fixed_ip_address: 123,
+      }
+
+      expect(FloatingIpUpdateRequestSchema.safeParse(request).success).toBe(false)
+    })
+
+    it("should reject invalid description type", () => {
+      const request = {
+        floatingip_id: "fip-123",
           port_id: "fc861431-0e6c-4842-a0ed-e2363f9bc3a8",
-          distributed: "true",
-        },
+        description: 123,
       }
 
       expect(FloatingIpUpdateRequestSchema.safeParse(request).success).toBe(false)
