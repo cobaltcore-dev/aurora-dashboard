@@ -22,13 +22,16 @@ const isProduction = process.env.NODE_ENV === "production"
 const PORT = process.env.PORT || "4005"
 const BFF_ENDPOINT = process.env.BFF_ENDPOINT || "/polaris-bff"
 
-// Initialize Fastify server
+// HSTS Configuration from environment variables
+const HSTS_ENABLED = process.env.HSTS_ENABLED !== "false" // default: true
+const HSTS_MAX_AGE = parseInt(process.env.HSTS_MAX_AGE || "31536000") // default: 1 year
+
+// Initialize Fastify server with conditional HTTPS
 const server = Fastify({
   logger: true,
-  // Increase ALL limits
-  bodyLimit: 5 * 1024 * 1024 * 1024, // 5GB body limit
-  requestTimeout: 600000, // 10 minutes (600 seconds)
-  keepAliveTimeout: 600000, // 10 minutes keep-alive
+  bodyLimit: 5 * 1024 * 1024 * 1024,
+  requestTimeout: 600000,
+  keepAliveTimeout: 600000,
   routerOptions: {
     maxParamLength: 5000,
   },
@@ -150,8 +153,25 @@ async function startServer() {
   if (isProduction) {
     // PRODUCTION MODE
 
-    // Register security headers
-    server.register(FastifyHelmet)
+    // Register security headers with configurable HSTS
+    server.register(FastifyHelmet, {
+      hsts: HSTS_ENABLED
+        ? {
+            maxAge: HSTS_MAX_AGE,
+          }
+        : false, // Completely disable HSTS if HSTS_ENABLED=false
+      contentSecurityPolicy: {
+        directives: {
+          defaultSrc: ["'self'"],
+          scriptSrc: ["'self'"],
+          imgSrc: ["'self'", "data:", "https:"],
+          connectSrc: ["'self'"],
+          objectSrc: ["'none'"],
+          baseUri: ["'self'"],
+          formAction: ["'self'"],
+        },
+      },
+    })
 
     // Serve static files from the build directory
     await server.register(FastifyStatic, {
