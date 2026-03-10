@@ -1,4 +1,5 @@
 import { z } from "zod"
+import { SortDirSchema } from "./index"
 
 export const securityGroupRuleSchema = z.object({
   id: z.string(),
@@ -43,8 +44,6 @@ export const securityGroupResponseSchema = z.object({
   security_group: securityGroupSchema,
 })
 
-const sortDirSchema = z.enum(["asc", "desc"])
-
 export const listSecurityGroupsInputSchema = z.object({
   // Pagination
   limit: z.number().int().min(1).max(1000).optional(),
@@ -53,7 +52,7 @@ export const listSecurityGroupsInputSchema = z.object({
 
   // Sorting
   sort_key: z.string().optional(),
-  sort_dir: sortDirSchema.optional(),
+  sort_dir: SortDirSchema.optional(),
 
   // Basic filtering
   name: z.string().optional(),

@@ -10,8 +10,8 @@ import {
   FloatingIpListResponseSchema,
   FloatingIpResponseSchema,
   FloatingIpQueryParametersSchema,
-  ISO8601TimestampSchema,
 } from "./floatingIp"
+import { ISO8601TimestampSchema } from "./index"
 
 describe("OpenStack Floating IP Schema Validation", () => {
   // Minimal valid objects
