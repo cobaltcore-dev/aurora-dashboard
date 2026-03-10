@@ -1,12 +1,11 @@
 import { Breadcrumb, BreadcrumbItem, Button, Stack, Spinner } from "@cloudoperators/juno-ui-components/index"
 import { createFileRoute, redirect, useNavigate, useParams } from "@tanstack/react-router"
 import { Trans, useLingui } from "@lingui/react/macro"
-import { useState } from "react"
 import { getServiceIndex } from "@/server/Authentication/helpers"
-import { trpcReact } from "@/client/trpcClient"
 import { SecurityGroupDetailsView } from "../-components/SecurityGroups/-components/SecurityGroupDetailsView"
 import { EditSecurityGroupModal } from "../-components/SecurityGroups/-components/-modals/EditSecurityGroupModal"
-import type { UpdateSecurityGroupInput } from "@/server/Network/types/securityGroup"
+import { useSecurityGroupDetails } from "../-components/SecurityGroups/-hooks/useSecurityGroupDetails"
+import { useListWithFiltering } from "@/client/utils/useListWithFiltering"
 
 export const Route = createFileRoute(
   "/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId"
@@ -44,29 +43,51 @@ function RouteComponent() {
   })
   const navigate = useNavigate()
   const { t } = useLingui()
-  const [editModalOpen, setEditModalOpen] = useState(false)
 
-  const { data: securityGroup, status, error } = trpcReact.network.securityGroup.getById.useQuery({ securityGroupId })
-
-  const utils = trpcReact.useUtils()
-
-  const updateMutation = trpcReact.network.securityGroup.update.useMutation({
-    onSuccess: () => {
-      utils.network.securityGroup.getById.invalidate({ securityGroupId })
-      setEditModalOpen(false)
+  // Rules filtering using the same pattern as List page
+  const { searchTerm: rulesSearchTerm, filterSettings, handleSearchChange, handleFilterChange } = useListWithFiltering<
+    "direction"
+  >({
+    defaultSortKey: "direction",
+    defaultSortDir: "asc",
+    sortOptions: [{ label: t`Direction`, value: "direction" }],
+    filterSettings: {
+      filters: [
+        {
+          displayName: t`Direction`,
+          filterName: "direction",
+          values: ["all", "ingress", "egress"],
+          supportsMultiValue: false,
+        },
+      ],
     },
   })
 
-  const handleEdit = () => {
-    setEditModalOpen(true)
-  }
+  // Extract direction filter value from selectedFilters
+  const selectedDirectionFilter = filterSettings.selectedFilters?.find((f) => f.name === "direction")
+  const rulesDirection =
+    selectedDirectionFilter && selectedDirectionFilter.value !== "all"
+      ? (selectedDirectionFilter.value as "ingress" | "egress")
+      : undefined
 
-  const handleUpdate = async (id: string, data: Omit<UpdateSecurityGroupInput, "securityGroupId">) => {
-    await updateMutation.mutateAsync({
-      securityGroupId: id,
-      ...data,
-    })
-  }
+  // Use custom hook for logic
+  const {
+    securityGroup,
+    isLoading,
+    isError,
+    error,
+    isUpdating,
+    updateError,
+    isDeletingRule,
+    deleteRuleError,
+    editModalOpen,
+    handleEdit,
+    handleCloseEditModal,
+    handleUpdate,
+    handleDeleteRule,
+  } = useSecurityGroupDetails({
+    securityGroupId,
+  })
 
   const handleBack = () => {
     navigate({
@@ -76,7 +97,7 @@ function RouteComponent() {
   }
 
   // Handle loading state
-  if (status === "pending") {
+  if (isLoading) {
     return (
       <Stack className="fixed inset-0" distribution="center" alignment="center" direction="vertical">
         <Spinner variant="primary" size="large" className="mb-2" />
@@ -86,7 +107,7 @@ function RouteComponent() {
   }
 
   // Handle error state
-  if (status === "error") {
+  if (isError) {
     const errorMessage = error?.message || "Unknown error"
 
     return (
@@ -134,15 +155,26 @@ function RouteComponent() {
         <BreadcrumbItem active label={securityGroup.id} />
       </Breadcrumb>
 
-      <SecurityGroupDetailsView securityGroup={securityGroup} onEdit={handleEdit} />
+      <SecurityGroupDetailsView
+        securityGroup={securityGroup}
+        onEdit={handleEdit}
+        onDeleteRule={handleDeleteRule}
+        isDeletingRule={isDeletingRule}
+        deleteRuleError={deleteRuleError}
+        rulesSearchTerm={rulesSearchTerm}
+        onRulesSearchChange={handleSearchChange}
+        filterSettings={filterSettings}
+        onFilterChange={handleFilterChange}
+        rulesDirection={rulesDirection}
+      />
 
       <EditSecurityGroupModal
         securityGroup={securityGroup}
         open={editModalOpen}
-        onClose={() => setEditModalOpen(false)}
+        onClose={handleCloseEditModal}
         onUpdate={handleUpdate}
-        isLoading={updateMutation.isPending}
-        error={updateMutation.error?.message || null}
+        isLoading={isUpdating}
+        error={updateError}
       />
     </Stack>
   )

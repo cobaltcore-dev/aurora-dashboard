@@ -11,7 +11,7 @@ import {
 import { withErrorHandling } from "../../helpers/errorHandling"
 import { filterBySearchParams } from "../../helpers/filterBySearchParams"
 import { SecurityGroupErrorHandlers } from "../helpers/securityGroupHelpers"
-import { parseSecurityGroupResponse, parseSecurityGroupsResponse } from "../helpers/securityGroupHelpers"
+import { parseSecurityGroupResponse, parseSecurityGroupListResponse } from "../helpers/securityGroupHelpers"
 import { getNetworkService } from "../helpers/networkHelpers"
 
 const SECURITY_GROUPS_BASE_URL = "v2.0/security-groups"
@@ -58,7 +58,7 @@ export const securityGroupRouter = {
         }
 
         const data = await response.json()
-        const securityGroups = parseSecurityGroupsResponse(data, "securityGroupRouter.list")
+        const securityGroups = parseSecurityGroupListResponse(data, "securityGroupRouter.list")
 
         return filterBySearchParams(securityGroups, searchTerm, ["name", "description", "id"])
       }, "list security groups")
@@ -79,7 +79,9 @@ export const securityGroupRouter = {
         }
 
         const data = await response.json()
-        return parseSecurityGroupResponse(data, "securityGroupRouter.getById")
+        const securityGroup = parseSecurityGroupResponse(data, "securityGroupRouter.getById")
+
+        return securityGroup
       }, "fetch security group by ID")
     }),
 

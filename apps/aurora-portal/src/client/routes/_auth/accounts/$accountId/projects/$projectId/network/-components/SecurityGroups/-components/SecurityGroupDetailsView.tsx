@@ -1,66 +1,101 @@
-import { DataGrid, DataGridRow, DataGridCell, Button, Stack } from "@cloudoperators/juno-ui-components"
-import { Trans, useLingui } from "@lingui/react/macro"
+import { Container, Stack } from "@cloudoperators/juno-ui-components"
+import { Trans } from "@lingui/react/macro"
+import { useState, useMemo } from "react"
 import type { SecurityGroup } from "@/server/Network/types/securityGroup"
-import { Container, ContentHeading, DataGridHeadCell } from "@cloudoperators/juno-ui-components"
+import type { FilterSettings } from "@/client/components/ListToolbar/types"
+import { SecurityGroupHeader, SecurityGroupBasicInfo, SecurityGroupTabs, type TabType } from "./-details"
+import { SecurityGroupRulesTable } from "./SecurityGroupRulesTable"
 
 interface SecurityGroupDetailsViewProps {
   securityGroup: SecurityGroup
   onEdit?: () => void
+  onDeleteRule?: (ruleId: string) => void
+  isDeletingRule?: boolean
+  deleteRuleError?: string | null
+  // Client-side filtering
+  rulesSearchTerm?: string
+  onRulesSearchChange?: (searchTerm: string | number | string[] | undefined) => void
+  filterSettings?: FilterSettings
+  onFilterChange?: (filterSettings: FilterSettings) => void
+  rulesDirection?: "ingress" | "egress"
 }
 
-export function SecurityGroupDetailsView({ securityGroup, onEdit }: SecurityGroupDetailsViewProps) {
-  const { t } = useLingui()
+export function SecurityGroupDetailsView({
+  securityGroup,
+  onEdit,
+  onDeleteRule,
+  isDeletingRule = false,
+  deleteRuleError = null,
+  rulesSearchTerm = "",
+  onRulesSearchChange,
+  filterSettings,
+  onFilterChange,
+  rulesDirection,
+}: SecurityGroupDetailsViewProps) {
+  const [activeTab, setActiveTab] = useState<TabType>("rules")
 
-  const BooleanValue = ({ value }: { value: boolean | undefined }) => <span>{value ? t`Yes` : t`No`}</span>
+  const allRules = securityGroup.security_group_rules || []
+
+  // Client-side filtering
+  const filteredRules = useMemo(() => {
+    let filtered = allRules
+
+    // Filter by direction
+    if (rulesDirection) {
+      filtered = filtered.filter((rule) => rule.direction === rulesDirection)
+    }
+
+    // Filter by search term
+    if (rulesSearchTerm) {
+      const searchLower = rulesSearchTerm.toLowerCase()
+      filtered = filtered.filter((rule) => {
+        return (
+          rule.description?.toLowerCase().includes(searchLower) ||
+          rule.protocol?.toLowerCase().includes(searchLower) ||
+          rule.remote_ip_prefix?.toLowerCase().includes(searchLower)
+        )
+      })
+    }
+
+    return filtered
+  }, [allRules, rulesDirection, rulesSearchTerm])
 
   return (
     <Container px={false} py>
       <Stack direction="vertical" gap="4">
-        <div className="mb-2">
-          <ContentHeading>{t`Security Group Basic Info`}</ContentHeading>
-          <p className="text-theme-secondary mt-2 text-sm">
-            <Trans>
-              Configure the ingress and egress rules that control which traffic is allowed for this security group.
-            </Trans>
-          </p>
-        </div>
-        <div className="flex justify-end">
-          {onEdit && (
-            <Button variant="primary" onClick={onEdit}>
-              <Trans>Edit</Trans>
-            </Button>
+        {/* Header Section */}
+        <SecurityGroupHeader name={securityGroup.name} id={securityGroup.id} />
+
+        {/* Basic Info Section */}
+        <SecurityGroupBasicInfo securityGroup={securityGroup} onEdit={onEdit} />
+
+        {/* Tabs Navigation */}
+        <SecurityGroupTabs activeTab={activeTab} onTabChange={setActiveTab} />
+
+        {/* Tab Content */}
+        <div className="mt-6">
+          {activeTab === "rules" && (
+            <SecurityGroupRulesTable
+              rules={filteredRules}
+              onDeleteRule={onDeleteRule || (() => {})}
+              isDeletingRule={isDeletingRule}
+              deleteError={deleteRuleError}
+              searchTerm={rulesSearchTerm}
+              onSearchChange={onRulesSearchChange}
+              filterSettings={filterSettings}
+              onFilterChange={onFilterChange}
+            />
+          )}
+          {activeTab === "rbac" && (
+            <div className="py-8 text-center">
+              <p className="text-theme-secondary">
+                <Trans>RBAC Policies functionality coming soon</Trans>
+              </p>
+            </div>
           )}
         </div>
-
-        <DataGrid columns={4} gridColumnTemplate="15% 35% 15% 35%">
-          <DataGridRow>
-            <DataGridHeadCell>{t`Description`}</DataGridHeadCell>
-            <DataGridCell colSpan={3}>{securityGroup.description || t`—`}</DataGridCell>
-          </DataGridRow>
-          <DataGridRow>
-            <DataGridHeadCell>{t`ID`}</DataGridHeadCell>
-            <DataGridCell>{securityGroup.id}</DataGridCell>
-            <DataGridHeadCell>{t`Tags`}</DataGridHeadCell>
-            <DataGridCell>{securityGroup.tags?.join(", ") || t`—`}</DataGridCell>
-          </DataGridRow>
-          <DataGridRow>
-            <DataGridHeadCell>{t`Name`}</DataGridHeadCell>
-            <DataGridCell>{securityGroup.name}</DataGridCell>
-            <DataGridHeadCell>{t`Stateful`}</DataGridHeadCell>
-            <DataGridCell>
-              <BooleanValue value={securityGroup.stateful} />
-            </DataGridCell>
-          </DataGridRow>
-          <DataGridRow>
-            <DataGridHeadCell>{t`Owning Project ID`}</DataGridHeadCell>
-            <DataGridCell>{securityGroup.project_id || t`—`}</DataGridCell>
-            <DataGridHeadCell>{t`Shared`}</DataGridHeadCell>
-            <DataGridCell>
-              <BooleanValue value={securityGroup.shared} />
-            </DataGridCell>
-          </DataGridRow>
-        </DataGrid>
       </Stack>
     </Container>
   )
 }
+
