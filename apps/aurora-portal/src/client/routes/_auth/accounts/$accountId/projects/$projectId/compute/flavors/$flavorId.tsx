@@ -1,4 +1,4 @@
-import { Breadcrumb, BreadcrumbItem, Stack, Spinner, ContentHeading } from "@cloudoperators/juno-ui-components/index"
+import { Breadcrumb, BreadcrumbItem, Stack, Spinner } from "@cloudoperators/juno-ui-components/index"
 import { createFileRoute, redirect, useNavigate, useParams } from "@tanstack/react-router"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { getServiceIndex } from "@/server/Authentication/helpers"
@@ -30,6 +30,7 @@ function RouteComponent() {
   const { accountId, projectId, flavorId } = useParams({
     from: "/_auth/accounts/$accountId/projects/$projectId/compute/flavors/$flavorId",
   })
+  const { setPageTitle } = Route.useRouteContext()
   const navigate = useNavigate()
   const { t } = useLingui()
   const { translateError, isRetryableError } = useErrorTranslation()
@@ -43,6 +44,16 @@ function RouteComponent() {
     projectId,
     flavorId,
   })
+
+  if (flavor?.name) {
+    setPageTitle(flavor.name)
+  } else if (status === "error") {
+    setPageTitle(t`Error - Flavor Details`)
+  } else if (status === "pending") {
+    setPageTitle(t`Loading Flavor...`)
+  } else {
+    setPageTitle(t`Flavor Details`)
+  }
 
   const handleBack = () => {
     navigate({
@@ -112,15 +123,11 @@ function RouteComponent() {
 
   return (
     <Stack direction="vertical">
-      <Breadcrumb className="my-6">
+      <Breadcrumb>
         <BreadcrumbItem onClick={handleHome} label={t`Overview`} icon="home" />
         <BreadcrumbItem onClick={handleBack} label={t`Flavors`} />
         <BreadcrumbItem active label={flavor.name || flavorId} />
       </Breadcrumb>
-
-      <Stack direction="vertical" distribution="between">
-        <ContentHeading className="text-theme-highest text-2xl font-bold">{flavor.name || flavorId}</ContentHeading>
-      </Stack>
 
       <FlavorDetailsView flavor={flavor} />
     </Stack>

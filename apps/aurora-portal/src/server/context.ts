@@ -70,8 +70,9 @@ export async function createContext(opts: CreateFastifyContextOptions): Promise<
         },
       },
       defaultSignalOpenstackOptions
-    ).catch(() => {
+    ).catch((err) => {
       // If the token is invalid, clear the cookie
+      console.error("[createContext] Token validation failed:", err.message)
       sessionCookie.del()
       return undefined
     })

@@ -1,6 +1,7 @@
 import { createFileRoute, Outlet, useLoaderData } from "@tanstack/react-router"
-import { AppShell, Container } from "@cloudoperators/juno-ui-components"
+import { AppShell, Container, Stack } from "@cloudoperators/juno-ui-components"
 import { SideNavBar } from "./-components/SideNavBar"
+import { ProjectInfoBox } from "@/client/components/ProjectView/ProjectInfoBox"
 
 export const Route = createFileRoute("/_auth/accounts/$accountId/projects/$projectId")({
   component: RouteComponent,
@@ -24,7 +25,7 @@ export const Route = createFileRoute("/_auth/accounts/$accountId/projects/$proje
 })
 
 function RouteComponent() {
-  const { availableServices, accountId, projectId } = useLoaderData({ from: Route.id })
+  const { availableServices, accountId, projectId, crumbProject } = useLoaderData({ from: Route.id })
 
   return (
     <AppShell
@@ -33,7 +34,19 @@ function RouteComponent() {
       className="h-min-screen"
     >
       <Container>
-        <Outlet />
+        <Stack direction="vertical" distribution="start" alignment="stretch" className="xl:flex-row" gap="6">
+          {/* Main content area */}
+          <div className="min-w-0 flex-1">
+            <ProjectInfoBox
+              projectInfo={{
+                id: projectId,
+                name: crumbProject?.name || projectId,
+                domain: crumbProject?.domain,
+              }}
+            />
+            <Outlet />
+          </div>
+        </Stack>
       </Container>
     </AppShell>
   )
