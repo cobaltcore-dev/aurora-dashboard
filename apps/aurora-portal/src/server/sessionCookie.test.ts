@@ -272,16 +272,3 @@ describe("SessionCookie", () => {
   })
 })
 
-// NOTE: Cross-dashboard domain (wildcard subdomain) is ENABLED BY DEFAULT
-// To test with the feature disabled, run:
-//
-// ENABLE_CROSS_DASHBOARD_COOKIE=false pnpm test sessionCookie
-//
-// Default behavior (enabled):
-// - aurora.qa-de-1.cloud.sap → domain: .qa-de-1.cloud.sap
-// - dashboard.qa-de-1.cloud.sap → domain: .qa-de-1.cloud.sap
-// - Both Aurora and Elektra share the same wildcard domain
-//
-// When disabled (ENABLE_CROSS_DASHBOARD_COOKIE=false):
-// - No domain attribute is set
-// - Cookies are scoped to current subdomain only
