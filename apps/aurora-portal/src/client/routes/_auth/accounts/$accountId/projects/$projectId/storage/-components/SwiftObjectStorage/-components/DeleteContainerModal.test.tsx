@@ -15,9 +15,11 @@ const mockInvalidate = vi.fn()
 let mutationError: string | null = null
 let listObjectsData: ObjectSummary[] = []
 let listObjectsLoading = false
+let listObjectsError: { message: string } | null = null
 let mockContainerMetadata:
   | { versionsEnabled?: boolean; versionsLocation?: string; historyLocation?: string }
   | undefined = undefined
+let mockContainerMetadataError: { message: string } | null = null
 
 let capturedMutationOptions: {
   onSuccess?: () => void
@@ -49,11 +51,13 @@ vi.mock("@/client/trpcClient", () => ({
           useQuery: () => ({
             data: listObjectsData,
             isLoading: listObjectsLoading,
+            error: listObjectsError,
           }),
         },
         getContainerMetadata: {
           useQuery: () => ({
             data: mockContainerMetadata,
+            error: mockContainerMetadataError,
           }),
         },
         deleteContainer: {
@@ -127,7 +131,9 @@ describe("DeleteContainerModal", () => {
     mutationError = null
     listObjectsData = []
     listObjectsLoading = false
+    listObjectsError = null
     mockContainerMetadata = undefined
+    mockContainerMetadataError = null
     capturedMutationOptions = {}
     await act(async () => {
       i18n.activate("en")
@@ -173,7 +179,7 @@ describe("DeleteContainerModal", () => {
   })
 
   describe("Case 1: container is empty — allow deletion", () => {
-    test("renders danger warning message", () => {
+    test("renders warning message (Are you sure)", () => {
       renderModal()
       expect(screen.getByText(/Are you sure/i)).toBeInTheDocument()
     })
@@ -471,6 +477,39 @@ describe("DeleteContainerModal", () => {
       await waitFor(() => {
         expect(screen.getByLabelText(/Type container name to confirm/i)).toHaveValue("")
       })
+    })
+  })
+
+  describe("Fetch error banners", () => {
+    test("renders objects error banner when listObjects fails", () => {
+      listObjectsError = { message: "Resource not found container: my-container" }
+      renderModal()
+      expect(
+        screen.getByText(/Failed to load container objects: Resource not found container: my-container/i)
+      ).toBeInTheDocument()
+    })
+
+    test("renders metadata error banner when getContainerMetadata fails", () => {
+      mockContainerMetadataError = { message: "Resource not found container: my-container" }
+      renderModal()
+      expect(
+        screen.getByText(/Failed to load container properties: Resource not found container: my-container/i)
+      ).toBeInTheDocument()
+    })
+
+    test("renders both error banners when both queries fail", () => {
+      listObjectsError = { message: "Objects error" }
+      mockContainerMetadataError = { message: "Metadata error" }
+      renderModal()
+      expect(screen.getByText(/Failed to load container objects: Objects error/i)).toBeInTheDocument()
+      expect(screen.getByText(/Failed to load container properties: Metadata error/i)).toBeInTheDocument()
+    })
+
+    test("still renders modal content below error banners", () => {
+      listObjectsError = { message: "Not found" }
+      renderModal()
+      expect(screen.getByText(/Are you sure/i)).toBeInTheDocument()
+      expect(screen.getByLabelText(/Type container name to confirm/i)).toBeInTheDocument()
     })
   })
 

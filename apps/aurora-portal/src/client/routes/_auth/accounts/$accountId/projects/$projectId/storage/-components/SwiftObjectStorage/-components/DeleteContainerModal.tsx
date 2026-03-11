@@ -31,13 +31,17 @@ export const DeleteContainerModal = ({ isOpen, container, onClose, onSuccess, on
 
   // Fetch actual objects to get accurate real-time state —
   // container.count can lag due to Swift eventual consistency
-  const { data: objects, isLoading: isLoadingObjects } = trpcReact.storage.swift.listObjects.useQuery(
+  const {
+    data: objects,
+    isLoading: isLoadingObjects,
+    error: objectsError,
+  } = trpcReact.storage.swift.listObjects.useQuery(
     { container: container?.name ?? "", format: "json", limit: 1 },
     { enabled: isOpen && container !== null }
   )
 
   // Fetch container metadata to check if versioning is enabled
-  const { data: containerMetadata } = trpcReact.storage.swift.getContainerMetadata.useQuery(
+  const { data: containerMetadata, error: metaError } = trpcReact.storage.swift.getContainerMetadata.useQuery(
     { container: container?.name ?? "" },
     { enabled: isOpen && container !== null }
   )
@@ -144,6 +148,20 @@ export const DeleteContainerModal = ({ isOpen, container, onClose, onSuccess, on
         (!hasObjects && isVersioned && !versionsConfirmed)
       }
     >
+      {(objectsError || metaError) && (
+        <Stack direction="vertical" gap="2" className="mb-2">
+          {objectsError && (
+            <Message variant="danger">
+              <Trans>Failed to load container objects: {objectsError.message}</Trans>
+            </Message>
+          )}
+          {metaError && (
+            <Message variant="danger">
+              <Trans>Failed to load container properties: {metaError.message}</Trans>
+            </Message>
+          )}
+        </Stack>
+      )}
       {isLoadingObjects ? (
         <Stack direction="horizontal" alignment="center" gap="2" className="py-4">
           <Spinner size="small" />
@@ -157,7 +175,7 @@ export const DeleteContainerModal = ({ isOpen, container, onClose, onSuccess, on
       ) : (
         // ── Container is empty — allow deletion ──────────────────────────────
         <Stack direction="vertical" gap="6">
-          <Message variant="danger">
+          <Message variant="warning">
             <Trans>
               <strong>Are you sure?</strong> The container will be deleted. This cannot be undone.
             </Trans>

@@ -42,7 +42,11 @@ export const EmptyContainerModal = ({ isOpen, container, onClose, onSuccess, onE
 
   // Fetch actual objects to get accurate real-time state —
   // container.count can lag due to Swift eventual consistency
-  const { data: objects, isLoading: isLoadingObjects } = trpcReact.storage.swift.listObjects.useQuery(
+  const {
+    data: objects,
+    isLoading: isLoadingObjects,
+    error: objectsError,
+  } = trpcReact.storage.swift.listObjects.useQuery(
     { container: container?.name ?? "", format: "json", limit: 100 },
     { enabled: isOpen && container !== null }
   )
@@ -137,12 +141,17 @@ export const EmptyContainerModal = ({ isOpen, container, onClose, onSuccess, onE
         (!showEmptyInfo && confirmName !== container.name)
       }
     >
+      {objectsError && (
+        <Message variant="danger" className="mb-2">
+          <Trans>Failed to load container objects: {objectsError.message}</Trans>
+        </Message>
+      )}
       {isLoadingObjects ? (
         <Stack direction="horizontal" alignment="center" gap="2" className="py-4">
           <Spinner size="small" />
           <Trans>Loading objects...</Trans>
         </Stack>
-      ) : showEmptyInfo ? (
+      ) : showEmptyInfo && !objectsError ? (
         // ── Case 2 & 3 ──────────────────────────────────────────────────────
         <Message variant="info">
           {isTrulyEmpty ? (
@@ -154,10 +163,10 @@ export const EmptyContainerModal = ({ isOpen, container, onClose, onSuccess, onE
             </Trans>
           )}
         </Message>
-      ) : (
+      ) : !objectsError ? (
         // ── Case 1: container has objects ────────────────────────────────────
         <Stack direction="vertical" gap="6">
-          <Message variant="danger">
+          <Message variant="warning">
             <Trans>
               <strong>Are you sure?</strong> All objects in the container will be deleted. This cannot be undone.
             </Trans>
@@ -221,7 +230,7 @@ export const EmptyContainerModal = ({ isOpen, container, onClose, onSuccess, onE
             placeholder={container.name}
           />
         </Stack>
-      )}
+      ) : null}
     </Modal>
   )
 }

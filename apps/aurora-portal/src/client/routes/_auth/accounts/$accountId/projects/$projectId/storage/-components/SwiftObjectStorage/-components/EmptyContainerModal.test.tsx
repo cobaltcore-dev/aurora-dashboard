@@ -15,6 +15,7 @@ const mockInvalidate = vi.fn()
 let mutationError: string | null = null
 let listObjectsData: ObjectSummary[] = []
 let listObjectsLoading = false
+let listObjectsError: { message: string } | null = null
 
 let capturedMutationOptions: {
   onSuccess?: (deletedCount: number) => void
@@ -46,6 +47,7 @@ vi.mock("@/client/trpcClient", () => ({
           useQuery: () => ({
             data: listObjectsData,
             isLoading: listObjectsLoading,
+            error: listObjectsError,
           }),
         },
         emptyContainer: {
@@ -119,6 +121,7 @@ describe("EmptyContainerModal", () => {
     mutationError = null
     listObjectsData = [makeObject("file1.txt"), makeObject("file2.txt"), makeObject("file3.txt")]
     listObjectsLoading = false
+    listObjectsError = null
     capturedMutationOptions = {}
     await act(async () => {
       i18n.activate("en")
@@ -167,7 +170,7 @@ describe("EmptyContainerModal", () => {
   })
 
   describe("Case 1: container has objects", () => {
-    test("renders danger warning message", () => {
+    test("renders warning message (Are you sure)", () => {
       renderModal()
       expect(screen.getByText(/Are you sure/i)).toBeInTheDocument()
     })
@@ -408,6 +411,36 @@ describe("EmptyContainerModal", () => {
       // handleClose resets state (calls mutation.reset) then calls onClose
       expect(mockReset).toHaveBeenCalled()
       expect(onClose).toHaveBeenCalled()
+    })
+  })
+
+  describe("Fetch error banner", () => {
+    test("renders error banner when listObjects fails", () => {
+      listObjectsError = { message: "Resource not found container: my-container" }
+      renderModal()
+      expect(
+        screen.getByText(/Failed to load container objects: Resource not found container: my-container/i)
+      ).toBeInTheDocument()
+    })
+
+    test("does not render info message when fetch error is present (truly empty container)", () => {
+      listObjectsData = []
+      listObjectsError = { message: "Not found" }
+      renderModal({ container: makeContainer({ count: 0 }) })
+      expect(screen.queryByText(/Nothing to do. Container is already empty/i)).not.toBeInTheDocument()
+    })
+
+    test("does not render info message when fetch error is present (consistency delay)", () => {
+      listObjectsData = []
+      listObjectsError = { message: "Not found" }
+      renderModal({ container: makeContainer({ count: 5 }) })
+      expect(screen.queryByText(/object count may not have synced/i)).not.toBeInTheDocument()
+    })
+
+    test("does not render object form when fetch error is present", () => {
+      listObjectsError = { message: "Not found" }
+      renderModal()
+      expect(screen.queryByLabelText(/Type container name to confirm/i)).not.toBeInTheDocument()
     })
   })
 
