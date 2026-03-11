@@ -1,15 +1,16 @@
-import type { AuroraPortalContext } from "@/server/context"
-import { validateOpenstackService } from "@/server/helpers/validateOpenstackService"
+import { ListErrorHandler } from "./errorHandling"
 
 /**
- * Gets the network service from the OpenStack session and validates it
- * @param ctx - The tRPC context
- * @returns The validated network service
- * @throws TRPCError if session is invalid or network service is unavailable
+ * Handles specific error cases for Network operations with custom messages
  */
-export const getNetworkService = (ctx: AuroraPortalContext) => {
-  const openstackSession = ctx.openstack
-  const network = openstackSession?.service("network")
-  validateOpenstackService(network, "network")
-  return network
+export const NetworkErrorHandlers = {
+  /**
+   * Handles errors specific to Network list operations.
+   *
+   * Uses the shared WORK_IN_PROGRESS `ListErrorHandler` prototype
+   * (currently list-only and shared across Port, Network, and Floating IP).
+   * @param response - The HTTP response from OpenStack
+   * @returns TRPCError with appropriate code and message
+   */
+  list: ListErrorHandler("Network"),
 }
