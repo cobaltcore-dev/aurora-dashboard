@@ -91,6 +91,7 @@ Complete tRPC router with procedures for:
 - `createContainer` - Create a new container
 - `getContainerMetadata` - Get container metadata
 - `updateContainerMetadata` - Update container metadata
+- `getContainerPublicUrl` - Get the public URL for a container derived from the service catalog public endpoint
 - `deleteContainer` - Delete an empty container
 - `emptyContainer` - Delete all objects in a container, returning the total number deleted
 
@@ -237,6 +238,20 @@ console.log(`Deleted: ${result.numberDeleted}`)
 console.log(`Not found: ${result.numberNotFound}`)
 console.log(`Errors:`, result.errors)
 ```
+
+### Get Container Public URL
+
+```typescript
+const publicUrl = await trpc.storage.swift.getContainerPublicUrl.query({
+  container: "my-container",
+})
+
+if (publicUrl) {
+  console.log("Public URL:", publicUrl) // e.g. https://swift.example.com/v1/AUTH_xxx/my-container/
+}
+```
+
+The URL is derived from the `public` interface endpoint in the service catalog. Returns `null` if no public endpoint is available.
 
 ### Empty Container
 
