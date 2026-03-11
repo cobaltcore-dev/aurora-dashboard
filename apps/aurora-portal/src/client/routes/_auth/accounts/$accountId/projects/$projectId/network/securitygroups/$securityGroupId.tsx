@@ -47,13 +47,19 @@ function RouteComponent() {
   // Rules filtering using the same pattern as List page
   const {
     searchTerm: rulesSearchTerm,
+    sortSettings,
     filterSettings,
     handleSearchChange,
+    handleSortChange,
     handleFilterChange,
-  } = useListWithFiltering<"direction">({
+  } = useListWithFiltering<"direction" | "protocol" | "description">({
     defaultSortKey: "direction",
     defaultSortDir: "asc",
-    sortOptions: [{ label: t`Direction`, value: "direction" }],
+    sortOptions: [
+      { label: t`Direction`, value: "direction" },
+      { label: t`Protocol`, value: "protocol" },
+      { label: t`Description`, value: "description" },
+    ],
     filterSettings: {
       filters: [
         {
@@ -65,13 +71,6 @@ function RouteComponent() {
       ],
     },
   })
-
-  // Extract direction filter value from selectedFilters
-  const selectedDirectionFilter = filterSettings.selectedFilters?.find((f) => f.name === "direction")
-  const rulesDirection =
-    selectedDirectionFilter && selectedDirectionFilter.value !== "all"
-      ? (selectedDirectionFilter.value as "ingress" | "egress")
-      : undefined
 
   // Use custom hook for logic
   const {
@@ -91,6 +90,16 @@ function RouteComponent() {
   } = useSecurityGroupDetails({
     securityGroupId,
   })
+
+  // Group filter controls for SecurityGroupDetailsView
+  const filterControls = {
+    searchTerm: rulesSearchTerm,
+    onSearchChange: handleSearchChange,
+    sortSettings,
+    onSortChange: handleSortChange,
+    filterSettings,
+    onFilterChange: handleFilterChange,
+  }
 
   const handleBack = () => {
     navigate({
@@ -164,11 +173,7 @@ function RouteComponent() {
         onDeleteRule={handleDeleteRule}
         isDeletingRule={isDeletingRule}
         deleteRuleError={deleteRuleError}
-        rulesSearchTerm={rulesSearchTerm}
-        onRulesSearchChange={handleSearchChange}
-        filterSettings={filterSettings}
-        onFilterChange={handleFilterChange}
-        rulesDirection={rulesDirection}
+        filterControls={filterControls}
       />
 
       <EditSecurityGroupModal

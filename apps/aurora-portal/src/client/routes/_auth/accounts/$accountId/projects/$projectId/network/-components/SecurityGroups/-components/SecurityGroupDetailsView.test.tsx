@@ -67,10 +67,44 @@ describe("SecurityGroupDetailsView", () => {
     cleanup()
   })
 
+  const defaultFilterControls = {
+    searchTerm: "",
+    onSearchChange: vi.fn(),
+    sortSettings: {
+      sortBy: "direction" as const,
+      sortDirection: "asc" as const,
+      options: [
+        { value: "direction", label: "Direction" },
+        { value: "protocol", label: "Protocol" },
+        { value: "description", label: "Description" },
+      ],
+    },
+    onSortChange: vi.fn(),
+    filterSettings: {
+      selectedFilters: [],
+      filters: [
+        {
+          displayName: "Direction",
+          filterName: "direction",
+          values: ["all", "ingress", "egress"],
+          supportsMultiValue: false,
+        },
+      ],
+    },
+    onFilterChange: vi.fn(),
+  }
+
   it("renders all security group fields", () => {
-    render(<SecurityGroupDetailsView securityGroup={mockSecurityGroup} onDeleteRule={() => {}} />, {
-      wrapper: createWrapper(),
-    })
+    render(
+      <SecurityGroupDetailsView
+        securityGroup={mockSecurityGroup}
+        onDeleteRule={() => {}}
+        filterControls={defaultFilterControls}
+      />,
+      {
+        wrapper: createWrapper(),
+      }
+    )
 
     expect(screen.getByText("Security Group Basic Info")).toBeInTheDocument()
     expect(screen.getByText("sg-123")).toBeInTheDocument()
@@ -82,26 +116,47 @@ describe("SecurityGroupDetailsView", () => {
 
   it("displays em dash for missing description", () => {
     const sgWithoutDescription = { ...mockSecurityGroup, description: null }
-    render(<SecurityGroupDetailsView securityGroup={sgWithoutDescription} onDeleteRule={() => {}} />, {
-      wrapper: createWrapper(),
-    })
+    render(
+      <SecurityGroupDetailsView
+        securityGroup={sgWithoutDescription}
+        onDeleteRule={() => {}}
+        filterControls={defaultFilterControls}
+      />,
+      {
+        wrapper: createWrapper(),
+      }
+    )
 
     expect(screen.getAllByText("—").length).toBeGreaterThan(0)
   })
 
   it("displays em dash for empty tags", () => {
     const sgWithoutTags = { ...mockSecurityGroup, tags: [] }
-    render(<SecurityGroupDetailsView securityGroup={sgWithoutTags} onDeleteRule={() => {}} />, {
-      wrapper: createWrapper(),
-    })
+    render(
+      <SecurityGroupDetailsView
+        securityGroup={sgWithoutTags}
+        onDeleteRule={() => {}}
+        filterControls={defaultFilterControls}
+      />,
+      {
+        wrapper: createWrapper(),
+      }
+    )
 
     expect(screen.getAllByText("—").length).toBeGreaterThan(0)
   })
 
   it("displays boolean values as Yes/No", () => {
-    render(<SecurityGroupDetailsView securityGroup={mockSecurityGroup} onDeleteRule={() => {}} />, {
-      wrapper: createWrapper(),
-    })
+    render(
+      <SecurityGroupDetailsView
+        securityGroup={mockSecurityGroup}
+        onDeleteRule={() => {}}
+        filterControls={defaultFilterControls}
+      />,
+      {
+        wrapper: createWrapper(),
+      }
+    )
 
     expect(screen.getByText("Yes")).toBeInTheDocument()
     expect(screen.getByText("No")).toBeInTheDocument()
@@ -109,9 +164,17 @@ describe("SecurityGroupDetailsView", () => {
 
   it("calls onEdit when Edit button is clicked", async () => {
     const onEdit = vi.fn()
-    render(<SecurityGroupDetailsView securityGroup={mockSecurityGroup} onEdit={onEdit} onDeleteRule={() => {}} />, {
-      wrapper: createWrapper(),
-    })
+    render(
+      <SecurityGroupDetailsView
+        securityGroup={mockSecurityGroup}
+        onEdit={onEdit}
+        onDeleteRule={() => {}}
+        filterControls={defaultFilterControls}
+      />,
+      {
+        wrapper: createWrapper(),
+      }
+    )
 
     const user = userEvent.setup()
     await user.click(screen.getByRole("button", { name: /Edit/i }))
@@ -123,8 +186,20 @@ describe("SecurityGroupDetailsView", () => {
     const sgWithRules = { ...mockSecurityGroup, security_group_rules: mockRules }
 
     it("filters rules by direction - ingress", () => {
+      const filterControls = {
+        ...defaultFilterControls,
+        filterSettings: {
+          ...defaultFilterControls.filterSettings,
+          selectedFilters: [{ name: "direction", value: "ingress" }],
+        },
+      }
+
       render(
-        <SecurityGroupDetailsView securityGroup={sgWithRules} onDeleteRule={() => {}} rulesDirection="ingress" />,
+        <SecurityGroupDetailsView
+          securityGroup={sgWithRules}
+          onDeleteRule={() => {}}
+          filterControls={filterControls}
+        />,
         {
           wrapper: createWrapper(),
         }
@@ -138,9 +213,24 @@ describe("SecurityGroupDetailsView", () => {
     })
 
     it("filters rules by direction - egress", () => {
-      render(<SecurityGroupDetailsView securityGroup={sgWithRules} onDeleteRule={() => {}} rulesDirection="egress" />, {
-        wrapper: createWrapper(),
-      })
+      const filterControls = {
+        ...defaultFilterControls,
+        filterSettings: {
+          ...defaultFilterControls.filterSettings,
+          selectedFilters: [{ name: "direction", value: "egress" }],
+        },
+      }
+
+      render(
+        <SecurityGroupDetailsView
+          securityGroup={sgWithRules}
+          onDeleteRule={() => {}}
+          filterControls={filterControls}
+        />,
+        {
+          wrapper: createWrapper(),
+        }
+      )
 
       // Should show 1 egress rule
       expect(screen.getByText("HTTPS traffic")).toBeInTheDocument()
@@ -150,9 +240,21 @@ describe("SecurityGroupDetailsView", () => {
     })
 
     it("filters rules by search term - description", () => {
-      render(<SecurityGroupDetailsView securityGroup={sgWithRules} onDeleteRule={() => {}} rulesSearchTerm="HTTPS" />, {
-        wrapper: createWrapper(),
-      })
+      const filterControls = {
+        ...defaultFilterControls,
+        searchTerm: "HTTPS",
+      }
+
+      render(
+        <SecurityGroupDetailsView
+          securityGroup={sgWithRules}
+          onDeleteRule={() => {}}
+          filterControls={filterControls}
+        />,
+        {
+          wrapper: createWrapper(),
+        }
+      )
 
       // Should show only HTTPS rule
       expect(screen.getByText("HTTPS traffic")).toBeInTheDocument()
@@ -161,9 +263,21 @@ describe("SecurityGroupDetailsView", () => {
     })
 
     it("filters rules by search term - protocol", () => {
-      render(<SecurityGroupDetailsView securityGroup={sgWithRules} onDeleteRule={() => {}} rulesSearchTerm="icmp" />, {
-        wrapper: createWrapper(),
-      })
+      const filterControls = {
+        ...defaultFilterControls,
+        searchTerm: "icmp",
+      }
+
+      render(
+        <SecurityGroupDetailsView
+          securityGroup={sgWithRules}
+          onDeleteRule={() => {}}
+          filterControls={filterControls}
+        />,
+        {
+          wrapper: createWrapper(),
+        }
+      )
 
       // Should show only ICMP rule
       expect(screen.getByText("ICMP ping")).toBeInTheDocument()
@@ -172,8 +286,17 @@ describe("SecurityGroupDetailsView", () => {
     })
 
     it("filters rules by search term - IP prefix", () => {
+      const filterControls = {
+        ...defaultFilterControls,
+        searchTerm: "10.0.0",
+      }
+
       render(
-        <SecurityGroupDetailsView securityGroup={sgWithRules} onDeleteRule={() => {}} rulesSearchTerm="10.0.0" />,
+        <SecurityGroupDetailsView
+          securityGroup={sgWithRules}
+          onDeleteRule={() => {}}
+          filterControls={filterControls}
+        />,
         {
           wrapper: createWrapper(),
         }
@@ -186,12 +309,20 @@ describe("SecurityGroupDetailsView", () => {
     })
 
     it("combines direction and search filters", () => {
+      const filterControls = {
+        ...defaultFilterControls,
+        searchTerm: "HTTP",
+        filterSettings: {
+          ...defaultFilterControls.filterSettings,
+          selectedFilters: [{ name: "direction", value: "ingress" }],
+        },
+      }
+
       render(
         <SecurityGroupDetailsView
           securityGroup={sgWithRules}
           onDeleteRule={() => {}}
-          rulesDirection="ingress"
-          rulesSearchTerm="HTTP"
+          filterControls={filterControls}
         />,
         {
           wrapper: createWrapper(),
@@ -205,9 +336,16 @@ describe("SecurityGroupDetailsView", () => {
     })
 
     it("shows all rules when no filters applied", () => {
-      render(<SecurityGroupDetailsView securityGroup={sgWithRules} onDeleteRule={() => {}} />, {
-        wrapper: createWrapper(),
-      })
+      render(
+        <SecurityGroupDetailsView
+          securityGroup={sgWithRules}
+          onDeleteRule={() => {}}
+          filterControls={defaultFilterControls}
+        />,
+        {
+          wrapper: createWrapper(),
+        }
+      )
 
       // Should show all 3 rules
       expect(screen.getByText("HTTP traffic")).toBeInTheDocument()
@@ -216,8 +354,17 @@ describe("SecurityGroupDetailsView", () => {
     })
 
     it("shows empty state when filters match no rules", () => {
+      const filterControls = {
+        ...defaultFilterControls,
+        searchTerm: "nonexistent",
+      }
+
       render(
-        <SecurityGroupDetailsView securityGroup={sgWithRules} onDeleteRule={() => {}} rulesSearchTerm="nonexistent" />,
+        <SecurityGroupDetailsView
+          securityGroup={sgWithRules}
+          onDeleteRule={() => {}}
+          filterControls={filterControls}
+        />,
         {
           wrapper: createWrapper(),
         }

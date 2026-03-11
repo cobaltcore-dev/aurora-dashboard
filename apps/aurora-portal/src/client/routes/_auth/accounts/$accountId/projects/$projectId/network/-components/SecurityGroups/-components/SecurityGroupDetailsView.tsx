@@ -2,9 +2,19 @@ import { Container, Stack } from "@cloudoperators/juno-ui-components"
 import { Trans } from "@lingui/react/macro"
 import { useState, useMemo } from "react"
 import type { SecurityGroup } from "@/server/Network/types/securityGroup"
-import type { FilterSettings } from "@/client/components/ListToolbar/types"
+import type { FilterSettings, SortSettings } from "@/client/components/ListToolbar/types"
+import type { ListSortConfig } from "@/client/utils/useListWithFiltering"
 import { SecurityGroupHeader, SecurityGroupBasicInfo, SecurityGroupTabs, type TabType } from "./-details"
-import { SecurityGroupRulesTable } from "./SecurityGroupRulesTable"
+import { SecurityGroupRulesTable } from "./-details"
+
+export interface RulesFilterControls {
+  searchTerm: string
+  onSearchChange: (term: string | number | string[] | undefined) => void
+  sortSettings: ListSortConfig<"direction" | "protocol" | "description">
+  onSortChange: (settings: SortSettings) => void
+  filterSettings: FilterSettings
+  onFilterChange: (settings: FilterSettings) => void
+}
 
 interface SecurityGroupDetailsViewProps {
   securityGroup: SecurityGroup
@@ -12,12 +22,7 @@ interface SecurityGroupDetailsViewProps {
   onDeleteRule: (ruleId: string) => void
   isDeletingRule?: boolean
   deleteRuleError?: string | null
-  // Client-side filtering
-  rulesSearchTerm?: string
-  onRulesSearchChange?: (searchTerm: string | number | string[] | undefined) => void
-  filterSettings?: FilterSettings
-  onFilterChange?: (filterSettings: FilterSettings) => void
-  rulesDirection?: "ingress" | "egress"
+  filterControls: RulesFilterControls
 }
 
 export function SecurityGroupDetailsView({
@@ -26,39 +31,48 @@ export function SecurityGroupDetailsView({
   onDeleteRule,
   isDeletingRule = false,
   deleteRuleError = null,
-  rulesSearchTerm = "",
-  onRulesSearchChange,
-  filterSettings,
-  onFilterChange,
-  rulesDirection,
+  filterControls,
 }: SecurityGroupDetailsViewProps) {
   const [activeTab, setActiveTab] = useState<TabType>("rules")
 
   const allRules = securityGroup.security_group_rules || []
 
-  // Client-side filtering
-  const filteredRules = useMemo(() => {
-    let filtered = allRules
+  // Client-side filtering and sorting
+  const filteredAndSortedRules = useMemo(() => {
+    let result = allRules
+
+    // Extract direction from filterSettings locally
+    const directionFilter = filterControls.filterSettings.selectedFilters?.find((f) => f.name === "direction")?.value
 
     // Filter by direction
-    if (rulesDirection) {
-      filtered = filtered.filter((rule) => rule.direction === rulesDirection)
+    if (directionFilter && directionFilter !== "all") {
+      result = result.filter((rule) => rule.direction === directionFilter)
     }
 
     // Filter by search term
-    if (rulesSearchTerm) {
-      const searchLower = rulesSearchTerm.toLowerCase()
-      filtered = filtered.filter((rule) => {
-        return (
+    if (filterControls.searchTerm) {
+      const searchLower = filterControls.searchTerm.toLowerCase()
+      result = result.filter(
+        (rule) =>
           rule.description?.toLowerCase().includes(searchLower) ||
           rule.protocol?.toLowerCase().includes(searchLower) ||
           rule.remote_ip_prefix?.toLowerCase().includes(searchLower)
-        )
+      )
+    }
+
+    // Sort
+    if (filterControls.sortSettings.sortBy) {
+      const sortKey = filterControls.sortSettings.sortBy as "direction" | "protocol" | "description"
+      result = [...result].sort((a, b) => {
+        const aValue = (a[sortKey] || "") as string
+        const bValue = (b[sortKey] || "") as string
+        const comparison = aValue.localeCompare(bValue)
+        return filterControls.sortSettings.sortDirection === "asc" ? comparison : -comparison
       })
     }
 
-    return filtered
-  }, [allRules, rulesDirection, rulesSearchTerm])
+    return result
+  }, [allRules, filterControls])
 
   return (
     <Container px={false} py>
@@ -76,14 +90,16 @@ export function SecurityGroupDetailsView({
         <div className="mt-6">
           {activeTab === "rules" && (
             <SecurityGroupRulesTable
-              rules={filteredRules}
+              rules={filteredAndSortedRules}
               onDeleteRule={onDeleteRule}
               isDeletingRule={isDeletingRule}
               deleteError={deleteRuleError}
-              searchTerm={rulesSearchTerm}
-              onSearchChange={onRulesSearchChange}
-              filterSettings={filterSettings}
-              onFilterChange={onFilterChange}
+              searchTerm={filterControls.searchTerm}
+              onSearchChange={filterControls.onSearchChange}
+              sortSettings={filterControls.sortSettings}
+              onSortChange={filterControls.onSortChange}
+              filterSettings={filterControls.filterSettings}
+              onFilterChange={filterControls.onFilterChange}
             />
           )}
           {activeTab === "rbac" && (

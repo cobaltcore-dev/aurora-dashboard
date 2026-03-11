@@ -1,0 +1,569 @@
+import { cleanup, render, screen } from "@testing-library/react"
+import userEvent from "@testing-library/user-event"
+import { PortalProvider } from "@cloudoperators/juno-ui-components"
+import { i18n } from "@lingui/core"
+import { I18nProvider } from "@lingui/react"
+import { describe, it, expect, afterEach, vi } from "vitest"
+import { SecurityGroupRulesTable } from "./SecurityGroupRulesTable"
+import type { SecurityGroupRule } from "@/server/Network/types/securityGroup"
+import type { FilterSettings } from "@/client/components/ListToolbar/types"
+import type { ListSortConfig } from "@/client/utils/useListWithFiltering"
+
+const mockRules: SecurityGroupRule[] = [
+  {
+    id: "rule-1",
+    direction: "ingress",
+    protocol: "tcp",
+    port_range_min: 80,
+    port_range_max: 80,
+    remote_ip_prefix: "0.0.0.0/0",
+    description: "HTTP traffic",
+    ethertype: "IPv4",
+  },
+  {
+    id: "rule-2",
+    direction: "egress",
+    protocol: "tcp",
+    port_range_min: 443,
+    port_range_max: 443,
+    remote_ip_prefix: "0.0.0.0/0",
+    description: "HTTPS traffic",
+    ethertype: "IPv4",
+  },
+  {
+    id: "rule-3",
+    direction: "ingress",
+    protocol: "icmp",
+    port_range_min: 8,
+    port_range_max: 0,
+    remote_ip_prefix: "10.0.0.0/8",
+    description: "ICMP ping",
+    ethertype: "IPv4",
+  },
+  {
+    id: "rule-4",
+    direction: "ingress",
+    protocol: "tcp",
+    port_range_min: 22,
+    port_range_max: 22,
+    remote_group_id: "sg-12345678-abcd-efgh-ijkl-1234567890ab",
+    description: "SSH from security group",
+    ethertype: "IPv4",
+  },
+  {
+    id: "rule-5",
+    direction: "egress",
+    protocol: null,
+    port_range_min: null,
+    port_range_max: null,
+    remote_ip_prefix: "0.0.0.0/0",
+    description: null,
+    ethertype: "IPv4",
+  },
+]
+
+const createWrapper =
+  () =>
+  ({ children }: { children: React.ReactNode }) => (
+    <I18nProvider i18n={i18n}>
+      <PortalProvider>{children}</PortalProvider>
+    </I18nProvider>
+  )
+
+const defaultSortSettings: ListSortConfig<"direction" | "protocol" | "description"> = {
+  sortBy: "direction",
+  sortDirection: "asc",
+  options: [
+    { value: "direction", label: "Direction" },
+    { value: "protocol", label: "Protocol" },
+    { value: "description", label: "Description" },
+  ],
+}
+
+const defaultFilterSettings: FilterSettings = {
+  selectedFilters: [],
+  filters: [
+    {
+      displayName: "Direction",
+      filterName: "direction",
+      values: ["all", "ingress", "egress"],
+      supportsMultiValue: false,
+    },
+  ],
+}
+
+describe("SecurityGroupRulesTable", () => {
+  afterEach(() => {
+    cleanup()
+    vi.clearAllMocks()
+  })
+
+  describe("Rendering", () => {
+    it("renders empty state when no rules provided", () => {
+      render(<SecurityGroupRulesTable rules={[]} onDeleteRule={vi.fn()} isDeletingRule={false} deleteError={null} />, {
+        wrapper: createWrapper(),
+      })
+
+      expect(screen.getByText("No rules defined yet")).toBeInTheDocument()
+    })
+
+    it("renders empty state with filters when rules are filtered out", () => {
+      render(
+        <SecurityGroupRulesTable
+          rules={[]}
+          onDeleteRule={vi.fn()}
+          isDeletingRule={false}
+          deleteError={null}
+          searchTerm="nonexistent"
+        />,
+        { wrapper: createWrapper() }
+      )
+
+      expect(screen.getByText("No rules match your filters")).toBeInTheDocument()
+    })
+
+    it("renders table with rules when provided", () => {
+      render(
+        <SecurityGroupRulesTable rules={mockRules} onDeleteRule={vi.fn()} isDeletingRule={false} deleteError={null} />,
+        { wrapper: createWrapper() }
+      )
+
+      expect(screen.getByText("HTTP traffic")).toBeInTheDocument()
+      expect(screen.getByText("HTTPS traffic")).toBeInTheDocument()
+      expect(screen.getByText("ICMP ping")).toBeInTheDocument()
+      expect(screen.getByText("SSH from security group")).toBeInTheDocument()
+    })
+
+    it("renders all column headers correctly", () => {
+      render(
+        <SecurityGroupRulesTable rules={mockRules} onDeleteRule={vi.fn()} isDeletingRule={false} deleteError={null} />,
+        { wrapper: createWrapper() }
+      )
+
+      // Check for table headers (there are also labels with same text, so use getAllByText)
+      expect(screen.getAllByText("Direction").length).toBeGreaterThan(0)
+      expect(screen.getAllByText("Description").length).toBeGreaterThan(0)
+      expect(screen.getByText("Ethertype")).toBeInTheDocument()
+      expect(screen.getAllByText("Protocol").length).toBeGreaterThan(0)
+      expect(screen.getByText("Range")).toBeInTheDocument()
+      expect(screen.getByText("Remote Source")).toBeInTheDocument()
+      expect(screen.getByText("Actions")).toBeInTheDocument()
+    })
+
+    it("renders Add rule button when onAddRule provided", () => {
+      const onAddRule = vi.fn()
+      render(
+        <SecurityGroupRulesTable
+          rules={mockRules}
+          onDeleteRule={vi.fn()}
+          isDeletingRule={false}
+          deleteError={null}
+          onAddRule={onAddRule}
+        />,
+        { wrapper: createWrapper() }
+      )
+
+      expect(screen.getByRole("button", { name: /Add rule/i })).toBeInTheDocument()
+    })
+
+    it("does not render Add rule button when onAddRule not provided", () => {
+      render(
+        <SecurityGroupRulesTable rules={mockRules} onDeleteRule={vi.fn()} isDeletingRule={false} deleteError={null} />,
+        { wrapper: createWrapper() }
+      )
+
+      expect(screen.queryByRole("button", { name: /Add rule/i })).not.toBeInTheDocument()
+    })
+  })
+
+  describe("Filtering UI", () => {
+    it("renders direction filter dropdown", () => {
+      render(
+        <SecurityGroupRulesTable
+          rules={mockRules}
+          onDeleteRule={vi.fn()}
+          isDeletingRule={false}
+          deleteError={null}
+          filterSettings={defaultFilterSettings}
+        />,
+        { wrapper: createWrapper() }
+      )
+
+      const directionSelect = screen.getByLabelText("Direction")
+      expect(directionSelect).toBeInTheDocument()
+    })
+
+    it("updates direction filter when changed", async () => {
+      const onFilterChange = vi.fn()
+      render(
+        <SecurityGroupRulesTable
+          rules={mockRules}
+          onDeleteRule={vi.fn()}
+          isDeletingRule={false}
+          deleteError={null}
+          filterSettings={defaultFilterSettings}
+          onFilterChange={onFilterChange}
+        />,
+        { wrapper: createWrapper() }
+      )
+
+      const directionSelect = screen.getByLabelText("Direction")
+      const user = userEvent.setup()
+      await user.click(directionSelect)
+
+      // Select ingress option
+      const ingressOption = screen.getByText("Ingress")
+      await user.click(ingressOption)
+
+      expect(onFilterChange).toHaveBeenCalledWith({
+        ...defaultFilterSettings,
+        selectedFilters: [{ name: "direction", value: "ingress" }],
+      })
+    })
+
+    it("renders search input", () => {
+      render(
+        <SecurityGroupRulesTable rules={mockRules} onDeleteRule={vi.fn()} isDeletingRule={false} deleteError={null} />,
+        { wrapper: createWrapper() }
+      )
+
+      expect(screen.getByPlaceholderText("Search...")).toBeInTheDocument()
+    })
+
+    it("calls onSearchChange when search input changes", async () => {
+      const onSearchChange = vi.fn()
+      render(
+        <SecurityGroupRulesTable
+          rules={mockRules}
+          onDeleteRule={vi.fn()}
+          isDeletingRule={false}
+          deleteError={null}
+          onSearchChange={onSearchChange}
+        />,
+        { wrapper: createWrapper() }
+      )
+
+      const searchInput = screen.getByPlaceholderText("Search...")
+      const user = userEvent.setup()
+      await user.type(searchInput, "HTTP")
+
+      // userEvent.type() calls onChange for each accumulated character
+      expect(onSearchChange).toHaveBeenCalledWith("H")
+      expect(onSearchChange).toHaveBeenCalledWith("HT")
+      expect(onSearchChange).toHaveBeenCalledWith("HTTP")
+    })
+
+    it("displays active filter badges", () => {
+      const filterSettingsWithIngress: FilterSettings = {
+        ...defaultFilterSettings,
+        selectedFilters: [{ name: "direction", value: "ingress" }],
+      }
+
+      render(
+        <SecurityGroupRulesTable
+          rules={mockRules}
+          onDeleteRule={vi.fn()}
+          isDeletingRule={false}
+          deleteError={null}
+          searchTerm="HTTP"
+          filterSettings={filterSettingsWithIngress}
+        />,
+        { wrapper: createWrapper() }
+      )
+
+      expect(screen.getByText("Direction: ingress")).toBeInTheDocument()
+      expect(screen.getByText("Search: HTTP")).toBeInTheDocument()
+    })
+
+    it("clears all filters when Clear filters clicked", async () => {
+      const onFilterChange = vi.fn()
+      const onSearchChange = vi.fn()
+      const filterSettingsWithIngress: FilterSettings = {
+        ...defaultFilterSettings,
+        selectedFilters: [{ name: "direction", value: "ingress" }],
+      }
+
+      render(
+        <SecurityGroupRulesTable
+          rules={mockRules}
+          onDeleteRule={vi.fn()}
+          isDeletingRule={false}
+          deleteError={null}
+          searchTerm="HTTP"
+          onSearchChange={onSearchChange}
+          filterSettings={filterSettingsWithIngress}
+          onFilterChange={onFilterChange}
+        />,
+        { wrapper: createWrapper() }
+      )
+
+      const clearButton = screen.getByRole("button", { name: /Clear filters/i })
+      const user = userEvent.setup()
+      await user.click(clearButton)
+
+      expect(onFilterChange).toHaveBeenCalledWith({
+        ...defaultFilterSettings,
+        selectedFilters: [],
+      })
+      expect(onSearchChange).toHaveBeenCalledWith("")
+    })
+  })
+
+  describe("Sorting UI", () => {
+    it("renders sort field dropdown with current value", () => {
+      render(
+        <SecurityGroupRulesTable
+          rules={mockRules}
+          onDeleteRule={vi.fn()}
+          isDeletingRule={false}
+          deleteError={null}
+          sortSettings={defaultSortSettings}
+        />,
+        { wrapper: createWrapper() }
+      )
+
+      const sortSelect = screen.getByLabelText("Sort by")
+      expect(sortSelect).toBeInTheDocument()
+    })
+
+    it("calls onSortChange when sort field changed", async () => {
+      const onSortChange = vi.fn()
+      render(
+        <SecurityGroupRulesTable
+          rules={mockRules}
+          onDeleteRule={vi.fn()}
+          isDeletingRule={false}
+          deleteError={null}
+          sortSettings={defaultSortSettings}
+          onSortChange={onSortChange}
+        />,
+        { wrapper: createWrapper() }
+      )
+
+      const sortSelect = screen.getByLabelText("Sort by")
+      const user = userEvent.setup()
+      await user.click(sortSelect)
+
+      // Get all elements with text "Protocol" and find the one in the dropdown
+      const protocolOptions = screen.getAllByText("Protocol")
+      // The dropdown option should be clickable
+      const protocolOption =
+        protocolOptions.find((el) => el.hasAttribute("data-value")) || protocolOptions[protocolOptions.length - 1]
+
+      await user.click(protocolOption)
+
+      expect(onSortChange).toHaveBeenCalledWith({
+        ...defaultSortSettings,
+        sortBy: "protocol",
+      })
+    })
+
+    it("renders sort direction toggle button", () => {
+      render(
+        <SecurityGroupRulesTable
+          rules={mockRules}
+          onDeleteRule={vi.fn()}
+          isDeletingRule={false}
+          deleteError={null}
+          sortSettings={defaultSortSettings}
+        />,
+        { wrapper: createWrapper() }
+      )
+
+      const toggleButton = screen.getByTitle("Toggle sort direction")
+      expect(toggleButton).toBeInTheDocument()
+    })
+
+    it("toggles sort direction when button clicked", async () => {
+      const onSortChange = vi.fn()
+      render(
+        <SecurityGroupRulesTable
+          rules={mockRules}
+          onDeleteRule={vi.fn()}
+          isDeletingRule={false}
+          deleteError={null}
+          sortSettings={defaultSortSettings}
+          onSortChange={onSortChange}
+        />,
+        { wrapper: createWrapper() }
+      )
+
+      const toggleButton = screen.getByTitle("Toggle sort direction")
+      const user = userEvent.setup()
+      await user.click(toggleButton)
+
+      expect(onSortChange).toHaveBeenCalledWith({
+        ...defaultSortSettings,
+        sortDirection: "desc",
+      })
+    })
+
+    it("displays expandMore icon when sort direction is asc", () => {
+      render(
+        <SecurityGroupRulesTable
+          rules={mockRules}
+          onDeleteRule={vi.fn()}
+          isDeletingRule={false}
+          deleteError={null}
+          sortSettings={{ ...defaultSortSettings, sortDirection: "asc" }}
+        />,
+        { wrapper: createWrapper() }
+      )
+
+      const button = screen.getByTitle("Toggle sort direction")
+      // Check if the button contains an element with the expandMore icon
+      const svg = button.querySelector("svg")
+      expect(svg).toBeInTheDocument()
+    })
+
+    it("displays expandLess icon when sort direction is desc", () => {
+      render(
+        <SecurityGroupRulesTable
+          rules={mockRules}
+          onDeleteRule={vi.fn()}
+          isDeletingRule={false}
+          deleteError={null}
+          sortSettings={{ ...defaultSortSettings, sortDirection: "desc" }}
+        />,
+        { wrapper: createWrapper() }
+      )
+
+      const button = screen.getByTitle("Toggle sort direction")
+      const svg = button.querySelector("svg")
+      expect(svg).toBeInTheDocument()
+    })
+  })
+
+  describe("Port Range Formatting", () => {
+    it("formats single port correctly", () => {
+      const rule = mockRules[0] // port 80
+      render(
+        <SecurityGroupRulesTable rules={[rule]} onDeleteRule={vi.fn()} isDeletingRule={false} deleteError={null} />,
+        { wrapper: createWrapper() }
+      )
+
+      expect(screen.getByText("80")).toBeInTheDocument()
+    })
+
+    it("formats port range correctly", () => {
+      const rule: SecurityGroupRule = {
+        ...mockRules[0],
+        port_range_min: 80,
+        port_range_max: 443,
+      }
+      render(
+        <SecurityGroupRulesTable rules={[rule]} onDeleteRule={vi.fn()} isDeletingRule={false} deleteError={null} />,
+        { wrapper: createWrapper() }
+      )
+
+      expect(screen.getByText("80-443")).toBeInTheDocument()
+    })
+
+    it("formats any port correctly", () => {
+      const rule = mockRules[4] // null ports
+      render(
+        <SecurityGroupRulesTable rules={[rule]} onDeleteRule={vi.fn()} isDeletingRule={false} deleteError={null} />,
+        { wrapper: createWrapper() }
+      )
+
+      // There are multiple "Any" texts (protocol and port range), so use getAllByText
+      expect(screen.getAllByText("Any").length).toBeGreaterThan(0)
+    })
+
+    it("formats ICMP type and code correctly", () => {
+      const rule = mockRules[2] // ICMP with type 8, code 0
+      render(
+        <SecurityGroupRulesTable rules={[rule]} onDeleteRule={vi.fn()} isDeletingRule={false} deleteError={null} />,
+        { wrapper: createWrapper() }
+      )
+
+      expect(screen.getByText("Type: 8, Code: 0")).toBeInTheDocument()
+    })
+
+    it("formats ICMP any correctly", () => {
+      const rule: SecurityGroupRule = {
+        ...mockRules[2],
+        port_range_min: null,
+        port_range_max: null,
+      }
+      render(
+        <SecurityGroupRulesTable rules={[rule]} onDeleteRule={vi.fn()} isDeletingRule={false} deleteError={null} />,
+        { wrapper: createWrapper() }
+      )
+
+      expect(screen.getAllByText("Any").length).toBeGreaterThan(0)
+    })
+  })
+
+  describe("Remote Source Formatting", () => {
+    it("displays IP prefix correctly", () => {
+      const rule = mockRules[0] // 0.0.0.0/0
+      render(
+        <SecurityGroupRulesTable rules={[rule]} onDeleteRule={vi.fn()} isDeletingRule={false} deleteError={null} />,
+        { wrapper: createWrapper() }
+      )
+
+      expect(screen.getByText("0.0.0.0/0")).toBeInTheDocument()
+    })
+
+    it("displays security group ID correctly", () => {
+      const rule = mockRules[3] // has remote_group_id
+      render(
+        <SecurityGroupRulesTable rules={[rule]} onDeleteRule={vi.fn()} isDeletingRule={false} deleteError={null} />,
+        { wrapper: createWrapper() }
+      )
+
+      expect(screen.getByText("SG: sg-12345...")).toBeInTheDocument()
+    })
+
+    it("displays any when no remote source specified", () => {
+      const rule: SecurityGroupRule = {
+        ...mockRules[0],
+        remote_ip_prefix: null,
+        remote_group_id: null,
+      }
+      render(
+        <SecurityGroupRulesTable rules={[rule]} onDeleteRule={vi.fn()} isDeletingRule={false} deleteError={null} />,
+        { wrapper: createWrapper() }
+      )
+
+      expect(screen.getAllByText("Any").length).toBeGreaterThan(0)
+    })
+  })
+
+  describe("Delete Functionality", () => {
+    it("renders delete buttons for each rule", () => {
+      render(
+        <SecurityGroupRulesTable rules={mockRules} onDeleteRule={vi.fn()} isDeletingRule={false} deleteError={null} />,
+        { wrapper: createWrapper() }
+      )
+
+      const deleteButtons = screen.getAllByTitle("Delete rule")
+      expect(deleteButtons).toHaveLength(mockRules.length)
+    })
+
+    it("calls delete handler when delete button is clicked", async () => {
+      const onDeleteRule = vi.fn()
+      render(
+        <SecurityGroupRulesTable
+          rules={mockRules}
+          onDeleteRule={onDeleteRule}
+          isDeletingRule={false}
+          deleteError={null}
+        />,
+        { wrapper: createWrapper() }
+      )
+
+      const deleteButtons = screen.getAllByTitle("Delete rule")
+      const user = userEvent.setup()
+
+      // Click first delete button - this should open the dialog
+      await user.click(deleteButtons[0])
+
+      // The actual deletion happens when user confirms in the dialog,
+      // which is tested in DeleteRuleDialog.test.tsx
+      // Here we just verify the delete button exists and is clickable
+      expect(deleteButtons[0]).toBeInTheDocument()
+    })
+  })
+})

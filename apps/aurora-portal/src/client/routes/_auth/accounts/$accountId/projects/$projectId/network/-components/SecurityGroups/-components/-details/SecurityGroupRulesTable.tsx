@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import {
   DataGrid,
   DataGridHeadCell,
@@ -14,8 +14,9 @@ import {
 } from "@cloudoperators/juno-ui-components"
 import { Trans, useLingui } from "@lingui/react/macro"
 import type { SecurityGroupRule } from "@/server/Network/types/securityGroup"
-import type { FilterSettings } from "@/client/components/ListToolbar/types"
-import { DeleteRuleDialog } from "./-modals/DeleteRuleDialog"
+import type { FilterSettings, SortSettings } from "@/client/components/ListToolbar/types"
+import type { ListSortConfig } from "@/client/utils/useListWithFiltering"
+import { DeleteRuleDialog } from "../-modals/DeleteRuleDialog"
 
 interface SecurityGroupRulesTableProps {
   rules: SecurityGroupRule[]
@@ -23,15 +24,14 @@ interface SecurityGroupRulesTableProps {
   isDeletingRule: boolean
   deleteError: string | null
   onAddRule?: () => void
-  // Client-side filtering controls
+  // Client-side filtering and sorting controls
   searchTerm?: string
   onSearchChange?: (searchTerm: string | number | string[] | undefined) => void
+  sortSettings?: ListSortConfig<"direction" | "protocol" | "description">
+  onSortChange?: (sortSettings: SortSettings) => void
   filterSettings?: FilterSettings
   onFilterChange?: (filterSettings: FilterSettings) => void
 }
-
-type SortField = "direction" | "protocol" | "description"
-type SortDirection = "asc" | "desc"
 
 export function SecurityGroupRulesTable({
   rules,
@@ -41,41 +41,28 @@ export function SecurityGroupRulesTable({
   onAddRule,
   searchTerm = "",
   onSearchChange,
+  sortSettings,
+  onSortChange,
   filterSettings,
   onFilterChange,
 }: SecurityGroupRulesTableProps) {
   const { t } = useLingui()
   const [ruleToDelete, setRuleToDelete] = useState<SecurityGroupRule | null>(null)
-  const [sortField, setSortField] = useState<SortField>("direction")
-  const [sortDirection, setSortDirection] = useState<SortDirection>("asc")
+
+  // Close dialog after successful deletion
+  useEffect(() => {
+    if (ruleToDelete && !isDeletingRule && !deleteError) {
+      setRuleToDelete(null)
+    }
+  }, [isDeletingRule, deleteError, ruleToDelete])
+
+  // Extract sort values from sortSettings
+  const sortField = (sortSettings?.sortBy as string) || "direction"
+  const sortDirection = sortSettings?.sortDirection || "asc"
 
   // Extract direction filter value from selectedFilters
   const selectedDirectionFilter = filterSettings?.selectedFilters?.find((f) => f.name === "direction")
   const directionFilterValue = selectedDirectionFilter?.value || "all"
-
-  // Sort rules locally (BFF handles filtering)
-  const sortedRules = [...rules].sort((a, b) => {
-    let aValue: string | undefined
-    let bValue: string | undefined
-
-    switch (sortField) {
-      case "direction":
-        aValue = a.direction
-        bValue = b.direction
-        break
-      case "protocol":
-        aValue = a.protocol || ""
-        bValue = b.protocol || ""
-        break
-      case "description":
-        aValue = a.description || ""
-        bValue = b.description || ""
-        break
-    }
-
-    const comparison = (aValue || "").localeCompare(bValue || "")
-    return sortDirection === "asc" ? comparison : -comparison
-  })
 
   const handleDeleteClick = (rule: SecurityGroupRule) => {
     setRuleToDelete(rule)
@@ -91,8 +78,22 @@ export function SecurityGroupRulesTable({
     }
   }
 
+  const handleSortFieldChange = (value: string) => {
+    if (onSortChange && sortSettings) {
+      onSortChange({
+        ...sortSettings,
+        sortBy: value,
+      })
+    }
+  }
+
   const toggleSortDirection = () => {
-    setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"))
+    if (onSortChange && sortSettings) {
+      onSortChange({
+        ...sortSettings,
+        sortDirection: sortDirection === "asc" ? "desc" : "asc",
+      })
+    }
   }
 
   const handleDirectionFilterChange = (value: string) => {
@@ -140,17 +141,6 @@ export function SecurityGroupRulesTable({
     return `${rule.port_range_min}-${rule.port_range_max}`
   }
 
-  // Format remote source display
-  const formatRemoteSource = (rule: SecurityGroupRule): string => {
-    if (rule.remote_ip_prefix) {
-      return rule.remote_ip_prefix
-    }
-    if (rule.remote_group_id) {
-      return t`SG: ${rule.remote_group_id.substring(0, 8)}...`
-    }
-    return t`Any`
-  }
-
   return (
     <>
       <Stack direction="vertical" gap="4">
@@ -171,7 +161,7 @@ export function SecurityGroupRulesTable({
 
               <Select
                 value={sortField}
-                onChange={(value) => setSortField(String(value || "direction") as SortField)}
+                onChange={(value) => handleSortFieldChange(String(value || "direction"))}
                 label={t`Sort by`}
                 width="auto"
               >
@@ -226,8 +216,8 @@ export function SecurityGroupRulesTable({
         )}
 
         {/* Rules Table */}
-        {sortedRules.length === 0 ? (
-          <div className="py-8 text-center">
+        {rules.length === 0 ? (
+          <div className="">
             <p className="text-theme-secondary mb-4">
               {hasActiveFilters ? <Trans>No rules match your filters</Trans> : <Trans>No rules defined yet</Trans>}
             </p>
@@ -243,38 +233,30 @@ export function SecurityGroupRulesTable({
             )}
           </div>
         ) : (
-          <DataGrid columns={7} className="security-group-rules-table">
+          <DataGrid columns={6} className="security-group-rules-table">
             <DataGridRow>
               <DataGridHeadCell>{t`Direction`}</DataGridHeadCell>
               <DataGridHeadCell>{t`Description`}</DataGridHeadCell>
               <DataGridHeadCell>{t`Ethertype`}</DataGridHeadCell>
               <DataGridHeadCell>{t`Protocol`}</DataGridHeadCell>
               <DataGridHeadCell>{t`Range`}</DataGridHeadCell>
-              <DataGridHeadCell>{t`Remote Source`}</DataGridHeadCell>
               <DataGridHeadCell>{t`Actions`}</DataGridHeadCell>
             </DataGridRow>
-            {sortedRules.map((rule) => (
+            {rules.map((rule) => (
               <DataGridRow key={rule.id} data-testid={`rule-row-${rule.id}`}>
-                <DataGridCell>
-                  <Badge
-                    text={rule.direction}
-                    variant={rule.direction === "ingress" ? "info" : "success"}
-                    className="capitalize"
-                  />
-                </DataGridCell>
+                <DataGridCell>{rule.direction || t`—`}</DataGridCell>
                 <DataGridCell>{rule.description || t`—`}</DataGridCell>
                 <DataGridCell>{rule.ethertype}</DataGridCell>
                 <DataGridCell>{rule.protocol || t`Any`}</DataGridCell>
                 <DataGridCell>{formatPortRange(rule)}</DataGridCell>
-                <DataGridCell className="font-mono text-sm">{formatRemoteSource(rule)}</DataGridCell>
-                <DataGridCell>
-                  <Button
-                    icon="deleteForever"
-                    variant="subdued"
-                    size="small"
+                <DataGridCell className="items-end">
+                  <button
                     onClick={() => handleDeleteClick(rule)}
                     title={t`Delete rule`}
-                  />
+                    className="text-theme-secondary cursor-pointer justify-end border-0 bg-transparent p-1 transition-colors"
+                  >
+                    <Icon icon="deleteForever" />
+                  </button>
                 </DataGridCell>
               </DataGridRow>
             ))}
