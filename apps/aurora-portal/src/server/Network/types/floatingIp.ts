@@ -1,7 +1,6 @@
 import { z } from "zod"
+import { ISO8601TimestampSchema, SortDirSchema } from "./index"
 
-/** ISO8601 timestamp string (UTC format) */
-export const ISO8601TimestampSchema = z.string().brand("ISO8601Timestamp")
 /** The status of the floating IP. Values are ACTIVE, DOWN and ERROR. */
 export const FloatingIpStatusSchema = z.enum(["ACTIVE", "DOWN", "ERROR"])
 
@@ -211,7 +210,7 @@ export const FloatingIpQueryParametersSchema = z.object({
   /** Filter by the ID of a port associated with the floating IP */
   port_id: z.string().nullable().optional(),
   /** Sort direction (asc or desc) */
-  sort_dir: z.enum(["asc", "desc"]).optional(),
+  sort_dir: SortDirSchema.optional(),
   /** Sort key - valid keys: fixed_ip_address, floating_ip_address, floating_network_id, id, router_id, status, tenant_id, project_id */
   sort_key: z
     .enum([
@@ -246,7 +245,6 @@ export const FloatingIpQueryParametersSchema = z.object({
   searchTerm: z.string().optional(),
 })
 
-export type ISO8601Timestamp = z.infer<typeof ISO8601TimestampSchema>
 export type FloatingIpStatus = z.infer<typeof FloatingIpStatusSchema>
 export type PortDetails = z.infer<typeof PortDetailsSchema>
 export type PortForwarding = z.infer<typeof PortForwardingSchema>

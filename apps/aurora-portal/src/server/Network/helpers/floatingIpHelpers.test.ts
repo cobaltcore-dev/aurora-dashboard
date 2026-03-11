@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest"
 import { TRPCError } from "@trpc/server"
-import { DEFAULT_ERROR_NAME, FloatingIpErrorHandlers, HTTP_STATUS_CODE_TO_NAME } from "./floatingIpHelpers"
+import { FloatingIpErrorHandlers } from "./floatingIpHelpers"
+import { DEFAULT_ERROR_NAME, HTTP_STATUS_CODE_TO_NAME } from "./index"
 
 describe("FloatingIpErrorHandlers.list", () => {
   it("should return UNAUTHORIZED error for 401 status", () => {
