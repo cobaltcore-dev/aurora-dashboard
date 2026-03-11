@@ -439,7 +439,7 @@ export const EditContainerMetadataModal = ({
           </Message>
         </Stack>
       ) : (
-        <div className="max-h-[65vh] overflow-y-auto pr-1">
+        <div className="max-h-[65vh] overflow-y-auto pl-1">
           <Stack direction="vertical" gap="6">
             {/* ── Read-only stats ─────────────────────────────────────────── */}
             <div className="grid grid-cols-2 gap-4">
