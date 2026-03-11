@@ -1,7 +1,7 @@
 import { createFileRoute, ErrorComponent, redirect, useParams } from "@tanstack/react-router"
 import { getServiceIndex } from "@/server/Authentication/helpers"
 import { ErrorBoundary } from "react-error-boundary"
-import { SwiftObjectStorage } from "./-components/SwiftObjectStorage/List"
+import { SwiftObjectStorage } from "../-components/SwiftObjectStorage/List"
 import { Trans, useLingui } from "@lingui/react/macro"
 
 export const checkServiceAvailability = (
@@ -12,10 +12,11 @@ export const checkServiceAvailability = (
   params: {
     accountId: string
     projectId: string
+    provider: string
     _splat?: string | undefined
   }
 ) => {
-  const { _splat: splat = "", accountId } = params
+  const { provider, accountId } = params
 
   const serviceIndex = getServiceIndex(availableServices)
 
@@ -27,16 +28,23 @@ export const checkServiceAvailability = (
     })
   }
 
-  // Redirect to default if specific service not available
-  if (splat === "swift" && !serviceIndex["object-store"]["swift"]) {
+  // Redirect to default if specific provider not available
+  if (provider === "swift" && !serviceIndex["object-store"]["swift"]) {
     throw redirect({
-      to: "/accounts/$accountId/projects/$projectId/storage/$",
-      params: { ...params, _splat: undefined },
+      to: "/accounts/$accountId/projects/$projectId/storage/$provider/$",
+      params: { ...params, provider: "ceph", _splat: undefined },
+    })
+  }
+
+  if (provider === "ceph" && !serviceIndex["object-store"]["ceph"]) {
+    throw redirect({
+      to: "/accounts/$accountId/projects/$projectId/storage/$provider/$",
+      params: { ...params, provider: "swift", _splat: undefined },
     })
   }
 }
 
-export const Route = createFileRoute("/_auth/accounts/$accountId/projects/$projectId/storage/$")({
+export const Route = createFileRoute("/_auth/accounts/$accountId/projects/$projectId/storage/$provider/$")({
   component: () => {
     return <StorageDashboard />
   },
@@ -66,18 +74,21 @@ export const Route = createFileRoute("/_auth/accounts/$accountId/projects/$proje
 })
 
 function StorageDashboard() {
-  const { project, splat } = useParams({
-    from: "/_auth/accounts/$accountId/projects/$projectId/storage/$",
+  const { project, provider /* splat */ } = useParams({
+    from: "/_auth/accounts/$accountId/projects/$projectId/storage/$provider/$",
     select: (params) => {
-      return { project: params.projectId, splat: params._splat }
+      return { project: params.projectId, provider: params.provider /* splat: params._splat */ }
     },
   })
 
   const { setPageTitle } = Route.useRouteContext()
   const { t } = useLingui()
 
-  switch (splat) {
+  switch (provider) {
     case "swift":
+      setPageTitle(t`Object Storage`)
+      break
+    case "ceph":
       setPageTitle(t`Object Storage`)
       break
     default:
@@ -95,9 +106,11 @@ function StorageDashboard() {
           }
         >
           {(() => {
-            switch (splat) {
+            switch (provider) {
               case "swift":
                 return <SwiftObjectStorage />
+              case "ceph":
+                return <SwiftObjectStorage /> // replace with CephObjectStorage when available
               default:
                 return <SwiftObjectStorage />
             }
