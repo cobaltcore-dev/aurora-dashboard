@@ -213,88 +213,90 @@ export const PortSchema = z.object({
   /** Additional IP/MAC pairs allowed to send traffic through this port */
   allowed_address_pairs: z.array(AllowedAddressPairSchema),
   /** ID of the host where the port is bound (requires binding extension) */
-  "binding:host_id": z.string(),
+  "binding:host_id": z.string().optional(),
   /** Port binding profile; custom data passed to the bound VIF driver (requires binding extension) */
-  "binding:profile": z.record(z.string(), z.any()),
+  "binding:profile": z.record(z.string(), z.any()).optional(),
   /** VIF driver details for the bound port (requires binding extension) */
-  "binding:vif_details": z.record(BindingVifDetailsSchema),
+  "binding:vif_details": BindingVifDetailsSchema.optional(),
   /** Type of the VIF binding (requires binding extension) */
-  "binding:vif_type": z.enum([
-    "ovs",
-    "bridge",
-    "macvtap",
-    "hw_veb",
-    "hostdev_physical",
-    "vhostuser",
-    "distributed",
-    "other",
-    "unbound",
-    "binding_failed",
-  ]),
+  "binding:vif_type": z
+    .enum([
+      "ovs",
+      "bridge",
+      "macvtap",
+      "hw_veb",
+      "hostdev_physical",
+      "vhostuser",
+      "distributed",
+      "other",
+      "unbound",
+      "binding_failed",
+    ])
+    .optional(),
   /** VNIC type requested for the port (e.g. normal, direct, macvtap — requires binding extension) */
-  "binding:vnic_type": z.string(),
+  "binding:vnic_type": z.string().optional(),
   /** Time at which the port was created (UTC ISO8601, requires standard-attr-timestamp extension) */
-  created_at: z.string(),
+  created_at: z.string().optional(),
   /** Data plane status of the port (requires data-plane-status extension) */
-  data_plane_status: z.string(),
+  data_plane_status: z.string().optional(),
   /** Human-readable description of the port */
-  description: z.string(),
+  description: z.string().optional(),
   /** ID of the device (e.g. server instance, router) the port is attached to */
-  device_id: z.string(),
+  device_id: z.string().optional(),
   /** Entity type that owns the port (e.g. compute:nova, network:router_interface) */
-  device_owner: z.string(),
+  device_owner: z.string().optional(),
   /** DNS assignment entries for the port (requires dns-integration extension) */
-  dns_assignment: z.array(DnsAssignmentSchema),
+  dns_assignment: z.array(DnsAssignmentSchema).optional(),
   /** DNS domain for the port (requires dns-integration extension) */
-  dns_domain: z.string(),
+  dns_domain: z.string().optional(),
   /** DNS name for the port (requires dns-integration extension) */
-  dns_name: z.string(),
+  dns_name: z.string().optional(),
   /** Extra DHCP options applied to the port */
-  extra_dhcp_opts: z.array(ExtraDhcpOptSchema),
+  extra_dhcp_opts: z.array(ExtraDhcpOptSchema).optional(),
   /** List of fixed IPs assigned to the port */
-  fixed_ips: z.array(FixedIpSchema),
+  fixed_ips: z.array(FixedIpSchema).optional(),
   /** Admin-only TX steering hints for Open vSwitch (requires port-hints extension) */
-  hints: z.record(HintsSchema),
+  hints: HintsSchema.optional(),
   /** The ID of the port */
   id: z.string(),
   /** IP allocation mode for the port */
-  ip_allocation: z.enum(["deferred", "immediate", "none"]),
+  ip_allocation: z.enum(["deferred", "immediate", "none"]).optional(),
   /** MAC address of the port */
-  mac_address: z.string(),
+  mac_address: z.string().optional(),
   /** Human-readable name of the port */
-  name: z.string(),
+  name: z.string().optional(),
   /** ID of the network the port belongs to */
-  network_id: z.string(),
+  network_id: z.string().optional(),
   /** NUMA affinity policy for the port (requires numa-networks extension) */
   numa_affinity_policy: z.enum(["None", "required", "preferred", "legacy"]).optional(),
   /** Whether port security (anti-spoofing and security groups) is enabled */
-  port_security_enabled: z.boolean(),
+  port_security_enabled: z.boolean().optional(),
   /** ID of the project that owns the port */
-  project_id: z.string(),
+  project_id: z.string().optional(),
   /** ID of the QoS policy of the network where this port is plugged (requires qos extension) */
-  qos_network_policy_id: z.string(),
+  qos_network_policy_id: z.string().optional(),
   /** ID of the QoS policy associated directly with the port (requires qos extension) */
-  qos_policy_id: z.string(),
+  qos_policy_id: z.string().optional(),
   /** Revision number of the port (used for optimistic concurrency control) */
-  revision_number: z.number(),
+  revision_number: z.number().optional(),
   /** Placement API resource request for this port (requires port-resource-request extension) */
-  resource_request: z.record(ResourceRequestSchema).optional(),
+  resource_request: ResourceRequestSchema.optional(),
   /** Security groups applied to the port */
-  security_groups: z.array(securityGroupSchema),
+  security_groups: z.array(securityGroupSchema).optional(),
   /** Status of the port */
-  status: z.enum(["ACTIVE", "DOWN", "BUILD", "ERROR"]),
+  status: z.enum(["ACTIVE", "DOWN", "BUILD", "ERROR"]).optional(),
   /** List of tags on the port (requires standard-attr-tag extension) */
-  tags: z.array(z.string()),
+  tags: z.array(z.string()).optional(),
   /** ID of the project that owns the port (deprecated, use project_id) */
-  tenant_id: z.string(),
+  tenant_id: z.string().optional(),
   /** Time at which the port was last updated (UTC ISO8601, requires standard-attr-timestamp extension) */
-  updated_at: ISO8601TimestampSchema,
+  updated_at: ISO8601TimestampSchema.optional(),
   /** Whether uplink status propagation is enabled (requires uplink-status-propagation extension) */
-  propagate_uplink_status: z.boolean(),
+  propagate_uplink_status: z.boolean().optional(),
   /** Whether MAC learning is enabled on the port (requires mac-learning extension) */
   mac_learning_enabled: z.boolean().optional(),
   /** Whether the port is trusted (admin-only, for SR-IOV/NFV use cases) */
-  port_trusted_vif: z.boolean(),
+  port_trusted_vif: z.boolean().optional(),
 })
 
 /**

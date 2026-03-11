@@ -1,16 +1,7 @@
 import { TRPCError } from "@trpc/server"
+import { DEFAULT_ERROR_NAME, HTTP_STATUS_CODE_TO_NAME } from "./index"
 
 export const FLOATING_IPS_BASE_URL = "v2.0/floatingips"
-
-export const HTTP_STATUS_CODE_TO_NAME = {
-  400: "BAD_REQUEST",
-  401: "UNAUTHORIZED",
-  403: "FORBIDDEN",
-  404: "NOT_FOUND",
-  409: "CONFLICT",
-  412: "PRECONDITION_FAILED",
-} as const
-export const DEFAULT_ERROR_NAME = "INTERNAL_SERVER_ERROR"
 
 /**
  * Handles specific error cases for floating IP operations with custom messages
