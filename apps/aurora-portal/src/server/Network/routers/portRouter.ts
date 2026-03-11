@@ -3,7 +3,7 @@ import { protectedProcedure } from "@/server/trpc"
 import { withErrorHandling } from "@/server/helpers/errorHandling"
 import { appendQueryParamsFromObject } from "@/server/helpers/queryParams"
 import { ListAvailablePortsQuerySchema, Port, PortListResponseSchema } from "../types/port"
-import { getNetworkService } from "../helpers/networkHelpers"
+import { getNetworkService } from "../helpers/index"
 import { PortErrorHandlers } from "../helpers/portHelpers"
 
 export const PORT_BASE_URL = "v2.0/ports"
