@@ -98,6 +98,7 @@ describe("SecurityGroupDetailsView", () => {
     render(
       <SecurityGroupDetailsView
         securityGroup={mockSecurityGroup}
+        filteredAndSortedRules={mockSecurityGroup.security_group_rules || []}
         onDeleteRule={() => {}}
         filterControls={defaultFilterControls}
       />,
@@ -119,6 +120,7 @@ describe("SecurityGroupDetailsView", () => {
     render(
       <SecurityGroupDetailsView
         securityGroup={sgWithoutDescription}
+        filteredAndSortedRules={sgWithoutDescription.security_group_rules || []}
         onDeleteRule={() => {}}
         filterControls={defaultFilterControls}
       />,
@@ -135,6 +137,7 @@ describe("SecurityGroupDetailsView", () => {
     render(
       <SecurityGroupDetailsView
         securityGroup={sgWithoutTags}
+        filteredAndSortedRules={sgWithoutTags.security_group_rules || []}
         onDeleteRule={() => {}}
         filterControls={defaultFilterControls}
       />,
@@ -150,6 +153,7 @@ describe("SecurityGroupDetailsView", () => {
     render(
       <SecurityGroupDetailsView
         securityGroup={mockSecurityGroup}
+        filteredAndSortedRules={mockSecurityGroup.security_group_rules || []}
         onDeleteRule={() => {}}
         filterControls={defaultFilterControls}
       />,
@@ -167,6 +171,7 @@ describe("SecurityGroupDetailsView", () => {
     render(
       <SecurityGroupDetailsView
         securityGroup={mockSecurityGroup}
+        filteredAndSortedRules={mockSecurityGroup.security_group_rules || []}
         onEdit={onEdit}
         onDeleteRule={() => {}}
         filterControls={defaultFilterControls}
@@ -194,9 +199,13 @@ describe("SecurityGroupDetailsView", () => {
         },
       }
 
+      // Manually filter the rules for this test (mimicking what the hook does)
+      const filteredRules = mockRules.filter((rule) => rule.direction === "ingress")
+
       render(
         <SecurityGroupDetailsView
           securityGroup={sgWithRules}
+          filteredAndSortedRules={filteredRules}
           onDeleteRule={() => {}}
           filterControls={filterControls}
         />,
@@ -221,9 +230,13 @@ describe("SecurityGroupDetailsView", () => {
         },
       }
 
+      // Manually filter the rules for this test (mimicking what the hook does)
+      const filteredRules = mockRules.filter((rule) => rule.direction === "egress")
+
       render(
         <SecurityGroupDetailsView
           securityGroup={sgWithRules}
+          filteredAndSortedRules={filteredRules}
           onDeleteRule={() => {}}
           filterControls={filterControls}
         />,
@@ -245,9 +258,13 @@ describe("SecurityGroupDetailsView", () => {
         searchTerm: "HTTPS",
       }
 
+      // Manually filter the rules for this test (mimicking what the hook does)
+      const filteredRules = mockRules.filter((rule) => rule.description?.toLowerCase().includes("https"))
+
       render(
         <SecurityGroupDetailsView
           securityGroup={sgWithRules}
+          filteredAndSortedRules={filteredRules}
           onDeleteRule={() => {}}
           filterControls={filterControls}
         />,
@@ -268,9 +285,13 @@ describe("SecurityGroupDetailsView", () => {
         searchTerm: "icmp",
       }
 
+      // Manually filter the rules for this test (mimicking what the hook does)
+      const filteredRules = mockRules.filter((rule) => rule.protocol?.toLowerCase().includes("icmp"))
+
       render(
         <SecurityGroupDetailsView
           securityGroup={sgWithRules}
+          filteredAndSortedRules={filteredRules}
           onDeleteRule={() => {}}
           filterControls={filterControls}
         />,
@@ -291,9 +312,13 @@ describe("SecurityGroupDetailsView", () => {
         searchTerm: "10.0.0",
       }
 
+      // Manually filter the rules for this test (mimicking what the hook does)
+      const filteredRules = mockRules.filter((rule) => rule.remote_ip_prefix?.toLowerCase().includes("10.0.0"))
+
       render(
         <SecurityGroupDetailsView
           securityGroup={sgWithRules}
+          filteredAndSortedRules={filteredRules}
           onDeleteRule={() => {}}
           filterControls={filterControls}
         />,
@@ -318,9 +343,15 @@ describe("SecurityGroupDetailsView", () => {
         },
       }
 
+      // Manually filter the rules for this test (mimicking what the hook does)
+      const filteredRules = mockRules.filter(
+        (rule) => rule.direction === "ingress" && rule.description?.toLowerCase().includes("http")
+      )
+
       render(
         <SecurityGroupDetailsView
           securityGroup={sgWithRules}
+          filteredAndSortedRules={filteredRules}
           onDeleteRule={() => {}}
           filterControls={filterControls}
         />,
@@ -339,6 +370,7 @@ describe("SecurityGroupDetailsView", () => {
       render(
         <SecurityGroupDetailsView
           securityGroup={sgWithRules}
+          filteredAndSortedRules={mockRules}
           onDeleteRule={() => {}}
           filterControls={defaultFilterControls}
         />,
@@ -359,9 +391,13 @@ describe("SecurityGroupDetailsView", () => {
         searchTerm: "nonexistent",
       }
 
+      // Empty filtered rules
+      const filteredRules: typeof mockRules = []
+
       render(
         <SecurityGroupDetailsView
           securityGroup={sgWithRules}
+          filteredAndSortedRules={filteredRules}
           onDeleteRule={() => {}}
           filterControls={filterControls}
         />,

@@ -65,16 +65,39 @@ function RouteComponent() {
         {
           displayName: t`Direction`,
           filterName: "direction",
-          values: ["all", "ingress", "egress"],
+          values: ["ingress", "egress"],
+          supportsMultiValue: false,
+        },
+        {
+          displayName: t`Ethertype`,
+          filterName: "ethertype",
+          values: ["IPv4", "IPv6"],
+          supportsMultiValue: false,
+        },
+        {
+          displayName: t`Protocol`,
+          filterName: "protocol",
+          values: ["tcp", "udp", "icmp", "ipv6-icmp"],
           supportsMultiValue: false,
         },
       ],
     },
   })
 
-  // Use custom hook for logic
+  // Group filter controls for the hook
+  const filterControls = {
+    searchTerm: rulesSearchTerm,
+    onSearchChange: handleSearchChange,
+    sortSettings,
+    onSortChange: handleSortChange,
+    filterSettings,
+    onFilterChange: handleFilterChange,
+  }
+
+  // Use custom hook for logic (now includes filtering/sorting)
   const {
     securityGroup,
+    filteredAndSortedRules,
     isLoading,
     isError,
     error,
@@ -89,17 +112,8 @@ function RouteComponent() {
     handleDeleteRule,
   } = useSecurityGroupDetails({
     securityGroupId,
+    filterControls,
   })
-
-  // Group filter controls for SecurityGroupDetailsView
-  const filterControls = {
-    searchTerm: rulesSearchTerm,
-    onSearchChange: handleSearchChange,
-    sortSettings,
-    onSortChange: handleSortChange,
-    filterSettings,
-    onFilterChange: handleFilterChange,
-  }
 
   const handleBack = () => {
     navigate({
@@ -169,6 +183,7 @@ function RouteComponent() {
 
       <SecurityGroupDetailsView
         securityGroup={securityGroup}
+        filteredAndSortedRules={filteredAndSortedRules}
         onEdit={handleEdit}
         onDeleteRule={handleDeleteRule}
         isDeletingRule={isDeletingRule}

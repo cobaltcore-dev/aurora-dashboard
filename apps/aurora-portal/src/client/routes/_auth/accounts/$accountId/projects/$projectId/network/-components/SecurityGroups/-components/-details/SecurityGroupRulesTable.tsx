@@ -17,6 +17,7 @@ import type { SecurityGroupRule } from "@/server/Network/types/securityGroup"
 import type { FilterSettings, SortSettings } from "@/client/components/ListToolbar/types"
 import type { ListSortConfig } from "@/client/utils/useListWithFiltering"
 import { DeleteRuleDialog } from "../-modals/DeleteRuleDialog"
+import { FiltersInput } from "@/client/components/ListToolbar/FiltersInput"
 
 interface SecurityGroupRulesTableProps {
   rules: SecurityGroupRule[]
@@ -60,9 +61,8 @@ export function SecurityGroupRulesTable({
   const sortField = (sortSettings?.sortBy as string) || "direction"
   const sortDirection = sortSettings?.sortDirection || "asc"
 
-  // Extract direction filter value from selectedFilters
-  const selectedDirectionFilter = filterSettings?.selectedFilters?.find((f) => f.name === "direction")
-  const directionFilterValue = selectedDirectionFilter?.value || "all"
+  // Check if any filters are active
+  const hasActiveFilterSelections = (filterSettings?.selectedFilters?.length ?? 0) > 0
 
   const handleDeleteClick = (rule: SecurityGroupRule) => {
     setRuleToDelete(rule)
@@ -96,30 +96,50 @@ export function SecurityGroupRulesTable({
     }
   }
 
-  const handleDirectionFilterChange = (value: string) => {
+  const handleFilterSelect = (selectedFilter: { name: string; value: string }) => {
     if (onFilterChange && filterSettings) {
-      const newSelectedFilters =
-        value === "all"
-          ? filterSettings.selectedFilters?.filter((f) => f.name !== "direction") || []
-          : [
-              ...(filterSettings.selectedFilters?.filter((f) => f.name !== "direction") || []),
-              { name: "direction", value },
-            ]
+      const filterExists = filterSettings.selectedFilters?.some(
+        (filter) => filter.name === selectedFilter.name && filter.value === selectedFilter.value
+      )
+      if (filterExists) return
 
-      const newFilterSettings = {
+      const supportsMultiValue = filterSettings.filters.find(
+        (filter) => selectedFilter.name === filter.filterName
+      )?.supportsMultiValue
+
+      const newSelected = supportsMultiValue
+        ? [...(filterSettings.selectedFilters || []), selectedFilter]
+        : [
+            ...(filterSettings.selectedFilters || []).filter((filter) => filter.name !== selectedFilter.name),
+            selectedFilter,
+          ]
+
+      onFilterChange({ ...filterSettings, selectedFilters: newSelected })
+    }
+  }
+
+  const handleFilterDelete = (filterToRemove: { name: string; value: string }) => {
+    if (onFilterChange && filterSettings) {
+      onFilterChange({
         ...filterSettings,
-        selectedFilters: newSelectedFilters,
-      }
-      onFilterChange(newFilterSettings)
+        selectedFilters: filterSettings.selectedFilters?.filter(
+          (filter) => !(filter.name === filterToRemove.name && filter.value === filterToRemove.value)
+        ),
+      })
     }
   }
 
   const clearFilters = () => {
-    handleDirectionFilterChange("all")
+    if (onFilterChange && filterSettings) {
+      onFilterChange({
+        ...filterSettings,
+        selectedFilters: [],
+      })
+    }
     onSearchChange?.("")
   }
 
-  const hasActiveFilters = directionFilterValue !== "all" || searchTerm !== ""
+  const hasActiveFilters = hasActiveFilterSelections || searchTerm !== ""
 
   // Format port range display
   const formatPortRange = (rule: SecurityGroupRule): string => {
@@ -127,11 +147,11 @@ export function SecurityGroupRulesTable({
       if (rule.port_range_min !== null && rule.port_range_max !== null) {
         return t`Type: ${rule.port_range_min}, Code: ${rule.port_range_max}`
       }
-      return t`Any`
+      return t`-`
     }
 
     if (rule.port_range_min === null || rule.port_range_max === null) {
-      return t`Any`
+      return t`-`
     }
 
     if (rule.port_range_min === rule.port_range_max) {
@@ -148,16 +168,7 @@ export function SecurityGroupRulesTable({
         <Stack direction="horizontal" gap="4" alignment="center" className="mb-4">
           <div className="flex-1">
             <Stack direction="horizontal" gap="2" wrap>
-              <Select
-                value={directionFilterValue}
-                onChange={(value) => handleDirectionFilterChange(String(value || "all"))}
-                label={t`Direction`}
-                width="auto"
-              >
-                <SelectOption value="all" label={t`All`} />
-                <SelectOption value="ingress" label={t`Ingress`} />
-                <SelectOption value="egress" label={t`Egress`} />
-              </Select>
+              {filterSettings && <FiltersInput filters={filterSettings.filters} onChange={handleFilterSelect} />}
 
               <Select
                 value={sortField}
@@ -193,14 +204,19 @@ export function SecurityGroupRulesTable({
         {/* Active Filters Display */}
         {hasActiveFilters && (
           <Stack direction="horizontal" gap="2" alignment="center">
-            {directionFilterValue !== "all" && (
-              <Badge
-                text={`${t`Direction`}: ${directionFilterValue}`}
-                icon="close"
-                onClick={() => handleDirectionFilterChange("all")}
-                className="cursor-pointer"
-              />
-            )}
+            {filterSettings?.selectedFilters?.map((filter) => {
+              const filterDef = filterSettings.filters.find((f) => f.filterName === filter.name)
+              const displayName = filterDef?.displayName || filter.name
+              return (
+                <Badge
+                  key={`${filter.name}-${filter.value}`}
+                  text={`${displayName}: ${filter.value}`}
+                  icon="close"
+                  onClick={() => handleFilterDelete(filter)}
+                  className="cursor-pointer"
+                />
+              )
+            })}
             {searchTerm && (
               <Badge
                 text={`${t`Search`}: ${searchTerm}`}
@@ -217,21 +233,37 @@ export function SecurityGroupRulesTable({
 
         {/* Rules Table */}
         {rules.length === 0 ? (
-          <div className="">
-            <p className="text-theme-secondary mb-4">
-              {hasActiveFilters ? <Trans>No rules match your filters</Trans> : <Trans>No rules defined yet</Trans>}
-            </p>
+          <Stack
+            direction="vertical"
+            alignment="center"
+            distribution="center"
+            gap="6"
+            className="border-theme-background-lvl-3 bg-theme-background-lvl-1 rounded-lg border-2 border-dashed py-16"
+          >
+            <Icon icon="description" size="80" className="text-theme-disabled" />
+            <Stack direction="vertical" alignment="center" gap="2">
+              <h3 className="text-theme-high text-lg font-semibold">
+                {hasActiveFilters ? <Trans>No rules match your filters</Trans> : <Trans>No rules defined yet</Trans>}
+              </h3>
+              <p className="text-theme-light text-center text-sm">
+                {hasActiveFilters ? (
+                  <Trans>Try adjusting your filters to see more results</Trans>
+                ) : (
+                  <Trans>Add security group rules to control incoming and outgoing traffic</Trans>
+                )}
+              </p>
+            </Stack>
             {!hasActiveFilters && onAddRule && (
-              <Button variant="primary" onClick={onAddRule}>
+              <Button variant="primary" icon="addCircle" onClick={onAddRule}>
                 <Trans>Add your first rule</Trans>
               </Button>
             )}
             {hasActiveFilters && (
-              <Button variant="subdued" onClick={clearFilters}>
+              <Button variant="primary" onClick={clearFilters}>
                 <Trans>Clear filters</Trans>
               </Button>
             )}
-          </div>
+          </Stack>
         ) : (
           <DataGrid columns={6} className="security-group-rules-table">
             <DataGridRow>
@@ -247,7 +279,7 @@ export function SecurityGroupRulesTable({
                 <DataGridCell>{rule.direction || t`—`}</DataGridCell>
                 <DataGridCell>{rule.description || t`—`}</DataGridCell>
                 <DataGridCell>{rule.ethertype}</DataGridCell>
-                <DataGridCell>{rule.protocol || t`Any`}</DataGridCell>
+                <DataGridCell>{rule.protocol || t`-`}</DataGridCell>
                 <DataGridCell>{formatPortRange(rule)}</DataGridCell>
                 <DataGridCell className="items-end">
                   <button

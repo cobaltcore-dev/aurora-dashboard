@@ -143,11 +143,11 @@ describe("SecurityGroupRulesTable", () => {
       // Check for table headers (there are also labels with same text, so use getAllByText)
       expect(screen.getAllByText("Direction").length).toBeGreaterThan(0)
       expect(screen.getAllByText("Description").length).toBeGreaterThan(0)
-      expect(screen.getByText("Ethertype")).toBeInTheDocument()
+      expect(screen.getAllByText("Ethertype").length).toBeGreaterThan(0)
       expect(screen.getAllByText("Protocol").length).toBeGreaterThan(0)
       expect(screen.getByText("Range")).toBeInTheDocument()
-      expect(screen.getByText("Remote Source")).toBeInTheDocument()
       expect(screen.getByText("Actions")).toBeInTheDocument()
+      // Note: "Remote Source" column was removed in linter updates
     })
 
     it("renders Add rule button when onAddRule provided", () => {
@@ -177,7 +177,7 @@ describe("SecurityGroupRulesTable", () => {
   })
 
   describe("Filtering UI", () => {
-    it("renders direction filter dropdown", () => {
+    it("renders filter inputs when filterSettings provided", () => {
       render(
         <SecurityGroupRulesTable
           rules={mockRules}
@@ -189,11 +189,12 @@ describe("SecurityGroupRulesTable", () => {
         { wrapper: createWrapper() }
       )
 
-      const directionSelect = screen.getByLabelText("Direction")
-      expect(directionSelect).toBeInTheDocument()
+      // FiltersInput has a "Filters" label for the filter key select
+      const filterSelect = screen.getByLabelText("Filters")
+      expect(filterSelect).toBeInTheDocument()
     })
 
-    it("updates direction filter when changed", async () => {
+    it("updates filter when key and value are selected", async () => {
       const onFilterChange = vi.fn()
       render(
         <SecurityGroupRulesTable
@@ -207,14 +208,25 @@ describe("SecurityGroupRulesTable", () => {
         { wrapper: createWrapper() }
       )
 
-      const directionSelect = screen.getByLabelText("Direction")
       const user = userEvent.setup()
-      await user.click(directionSelect)
 
-      // Select ingress option
-      const ingressOption = screen.getByText("Ingress")
+      // Step 1: Click the filter key select (labeled "Filters")
+      const filterKeySelect = screen.getByLabelText("Filters")
+      await user.click(filterKeySelect)
+
+      // Step 2: Select "Direction" as the filter key (use data-testid)
+      const directionOption = screen.getByTestId("direction")
+      await user.click(directionOption)
+
+      // Step 3: The value combobox should now be enabled, click it to open options
+      const filterValueInput = screen.getByRole("combobox")
+      await user.click(filterValueInput)
+
+      // Step 4: Select the ingress option from the dropdown (use data-testid)
+      const ingressOption = screen.getByTestId("ingress")
       await user.click(ingressOption)
 
+      // Verify onFilterChange was called with the correct filter
       expect(onFilterChange).toHaveBeenCalledWith({
         ...defaultFilterSettings,
         selectedFilters: [{ name: "direction", value: "ingress" }],
@@ -485,42 +497,6 @@ describe("SecurityGroupRulesTable", () => {
         ...mockRules[2],
         port_range_min: null,
         port_range_max: null,
-      }
-      render(
-        <SecurityGroupRulesTable rules={[rule]} onDeleteRule={vi.fn()} isDeletingRule={false} deleteError={null} />,
-        { wrapper: createWrapper() }
-      )
-
-      expect(screen.getAllByText("Any").length).toBeGreaterThan(0)
-    })
-  })
-
-  describe("Remote Source Formatting", () => {
-    it("displays IP prefix correctly", () => {
-      const rule = mockRules[0] // 0.0.0.0/0
-      render(
-        <SecurityGroupRulesTable rules={[rule]} onDeleteRule={vi.fn()} isDeletingRule={false} deleteError={null} />,
-        { wrapper: createWrapper() }
-      )
-
-      expect(screen.getByText("0.0.0.0/0")).toBeInTheDocument()
-    })
-
-    it("displays security group ID correctly", () => {
-      const rule = mockRules[3] // has remote_group_id
-      render(
-        <SecurityGroupRulesTable rules={[rule]} onDeleteRule={vi.fn()} isDeletingRule={false} deleteError={null} />,
-        { wrapper: createWrapper() }
-      )
-
-      expect(screen.getByText("SG: sg-12345...")).toBeInTheDocument()
-    })
-
-    it("displays any when no remote source specified", () => {
-      const rule: SecurityGroupRule = {
-        ...mockRules[0],
-        remote_ip_prefix: null,
-        remote_group_id: null,
       }
       render(
         <SecurityGroupRulesTable rules={[rule]} onDeleteRule={vi.fn()} isDeletingRule={false} deleteError={null} />,
