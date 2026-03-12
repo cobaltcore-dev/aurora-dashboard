@@ -11,7 +11,19 @@ export function ProjectListView({ projects }: ProjectListViewProps) {
   const navigate = useNavigate()
 
   return (
-    <DataGrid className="overflow-hidden" columns={3} minContentColumns={[0]}>
+    <DataGrid className="overflow-hidden" columns={4} minContentColumns={[0]}>
+      <DataGridRow>
+        <DataGridCell></DataGridCell>
+        <DataGridCell>
+          <Trans>Name</Trans>
+        </DataGridCell>
+        <DataGridCell>
+          <Trans>Description</Trans>
+        </DataGridCell>
+        <DataGridCell>
+          <Trans>Domain ID</Trans>
+        </DataGridCell>
+      </DataGridRow>
       {projects?.length ? (
         projects.map((project) => {
           const domain = project?.domain_id
@@ -27,6 +39,9 @@ export function ProjectListView({ projects }: ProjectListViewProps) {
               </DataGridCell>
               <DataGridCell>{project.name}</DataGridCell>
               <DataGridCell>{project.description}</DataGridCell>
+              <DataGridCell className="truncate text-theme-light" title={project.domain_id || undefined}>
+                {project.domain_id || "-"}
+              </DataGridCell>
             </DataGridRow>
           )
         })

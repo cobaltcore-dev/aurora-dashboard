@@ -1,6 +1,6 @@
 import { useNavigate } from "@tanstack/react-router"
 import { Project } from "@/server/Project/types/models"
-import { Badge, Box, ContentHeading } from "@cloudoperators/juno-ui-components"
+import { Box, ContentHeading, Tooltip, TooltipTrigger, TooltipContent } from "@cloudoperators/juno-ui-components"
 import { Trans } from "@lingui/react/macro"
 
 type ProjectCardProps = {
@@ -12,38 +12,82 @@ type ProjectCardViewProps = {
 
 export function ProjectCard({ project }: ProjectCardProps) {
   const navigate = useNavigate()
-  const domain = project?.domain_id // Assuming domain_id is the domai
+  const domain = project?.domain_id
   const gardenerRootPath = `/accounts/${domain}/projects/${project.id}/compute`
+
   return (
-    <Box
-      className="hover:bg-theme-background-lvl-2 min-h-50 rounded-lg p-6 shadow-md"
-      onClick={() => navigate({ to: gardenerRootPath })}
-    >
-      <div className="w-full">
-        <ContentHeading className="text-theme-accent">{project.name}</ContentHeading>
+    <Box className="group border-theme-background-lvl-3 bg-theme-background-lvl-1 hover:border-theme-accent/30 relative flex min-h-50 flex-col overflow-hidden rounded-xl border p-6 shadow-sm transition-all duration-300 ease-in-out hover:-translate-y-1 hover:shadow-xl">
+      <div className="flex flex-1 flex-col">
+        {/* Clickable Header and Description Section */}
+        <div className="cursor-pointer" onClick={() => navigate({ to: gardenerRootPath })}>
+          {/* Header Section */}
+          <div className="mb-3 flex items-start justify-between gap-3">
+            <ContentHeading className="text-theme-accent group-hover:text-theme-accent-emphasis transition-colors duration-200">
+              {project.name}
+            </ContentHeading>
+            {/* Status indicator with tooltip */}
+            <Tooltip triggerEvent="hover">
+              <TooltipTrigger>
+                <div
+                  className={`mt-1 h-2 w-2 flex-shrink-0 rounded-full ${
+                    project.enabled ? "bg-theme-success/60" : "bg-theme-danger/60"
+                  }`}
+                />
+              </TooltipTrigger>
+              <TooltipContent>{project.enabled ? <Trans>Active</Trans> : <Trans>Disabled</Trans>}</TooltipContent>
+            </Tooltip>
+          </div>
 
-        {project.enabled ? (
-          <Badge icon text="Active" variant="success" className="mt-1" />
-        ) : (
-          <Badge icon text="Disabled" variant="danger" />
-        )}
+          {/* Description Section */}
+          {project.description && (
+            <p className="text-theme-default/90 mb-4 line-clamp-3 pr-4 leading-relaxed">{project.description}</p>
+          )}
+        </div>
 
-        <p className="mt-4 line-clamp-3 pr-4 leading-relaxed">{project.description}</p>
+        {/* Footer Section - pushed to bottom, NOT clickable for easy copying */}
+        <div className="border-theme-background-lvl-3 mt-auto space-y-2 border-t pt-4">
+          {/* Project ID */}
+          <div className="grid grid-cols-[4rem_1fr] items-center gap-2 text-xs">
+            <span className="text-theme-light font-medium">ID:</span>
+            <span className="text-theme-default/70 truncate font-mono" title={project.id}>
+              {project.id}
+            </span>
+          </div>
+
+          {/* Domain ID */}
+          {project.domain_id && (
+            <div className="grid grid-cols-[4rem_1fr] items-center gap-2 text-xs">
+              <span className="text-theme-light font-medium">Domain:</span>
+              <span className="text-theme-default/70 truncate font-mono" title={project.domain_id}>
+                {project.domain_id}
+              </span>
+            </div>
+          )}
+        </div>
       </div>
+
+      {/* Hover effect overlay */}
+      <div className="from-theme-accent/0 to-theme-accent/0 group-hover:from-theme-accent/5 pointer-events-none absolute inset-0 rounded-xl bg-gradient-to-br transition-all duration-300 group-hover:to-transparent" />
     </Box>
   )
 }
 export function ProjectCardView({ projects }: ProjectCardViewProps) {
   return (
     <div className="mx-auto h-full w-full max-w-[95vw] px-4">
-      {/* Adaptive Grid: max 3 columns, adjusts on smaller screens */}
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      {/* Adaptive Grid: fewer columns for wider cards */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 2xl:grid-cols-3">
         {projects?.length ? (
           projects.map((project) => <ProjectCard key={project.id} project={project} />)
         ) : (
-          <p className="text-center">
-            <Trans>No projects available.</Trans>
-          </p>
+          <div className="col-span-full flex flex-col items-center justify-center py-16">
+            <div className="mb-4 text-6xl opacity-20">📁</div>
+            <p className="text-theme-default text-center text-lg font-medium">
+              <Trans>No projects available.</Trans>
+            </p>
+            <p className="text-theme-light mt-2 text-center text-sm">
+              <Trans>Projects you have access to will appear here.</Trans>
+            </p>
+          </div>
         )}
       </div>
     </div>
