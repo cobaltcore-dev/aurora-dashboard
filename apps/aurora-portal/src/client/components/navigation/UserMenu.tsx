@@ -1,6 +1,6 @@
 import { useState, useRef } from "react"
 import { Icon } from "@cloudoperators/juno-ui-components"
-import { useAuth } from "../Auth/AuthProvider"
+import { useAuth } from "../../store/AuthProvider"
 import { trpcClient } from "../../trpcClient"
 import { useNavigate } from "@tanstack/react-router"
 import { Trans } from "@lingui/react/macro"
