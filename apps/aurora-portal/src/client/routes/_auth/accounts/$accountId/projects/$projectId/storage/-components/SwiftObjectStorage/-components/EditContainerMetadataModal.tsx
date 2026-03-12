@@ -490,7 +490,7 @@ export const EditContainerMetadataModal = ({
             </div>
 
             {/* ── Public URL ──────────────────────────────────────────────── */}
-            {publicUrl && (
+            {isPublicAccess && publicUrl && (
               <div>
                 <p className="text-theme-default mb-1 text-sm font-semibold">
                   <Trans>URL for public access</Trans>{" "}
