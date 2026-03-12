@@ -1,7 +1,6 @@
 import { z } from "zod"
+import { ISO8601TimestampSchema, SortDirSchema } from "./index"
 
-/** ISO8601 timestamp string (UTC format) */
-export const ISO8601TimestampSchema = z.string().brand("ISO8601Timestamp")
 /** The status of the floating IP. Values are ACTIVE, DOWN and ERROR. */
 export const FloatingIpStatusSchema = z.enum(["ACTIVE", "DOWN", "ERROR"])
 
@@ -127,18 +126,57 @@ export const FloatingIpIdInputSchema = z.object({
 })
 
 /**
- * Floating IP detail response wrapper.
- * Contains a single floating IP object.
+ * Create floating IP request schema.
+ * Used by POST /v2.0/floatingips.
+ * See https://docs.openstack.org/api-ref/network/v2/index.html#create-floating-ip
  */
-export const FloatingIpDetailResponseSchema = z.object({
+export const FloatingIpCreateRequestSchema = z.object({
+  tenant_id: z.string(),
+  project_id: z.string(),
+  floating_network_id: z.string(),
+  fixed_ip_address: z.string().optional(),
+  floating_ip_address: z.string().optional(),
+  port_id: z.string().optional(),
+  subnet_id: z.string().optional(),
+  distributed: z.boolean().optional(),
+  description: z.string().optional(),
+  dns_domain: z.string().optional(),
+  dns_name: z.string().optional(),
+  qos_policy_id: z.string().optional(),
+})
+
+/**
+ * Update floating IP request schema.
+ * Used by PUT /v2.0/floatingips/{floatingip_id}.
+ * See https://docs.openstack.org/api-ref/network/v2/index.html#update-floating-ip
+ */
+export const FloatingIpUpdateRequestSchema = z.object({
+  floatingip_id: z.string(),
+  port_id: z.string().nullable(),
+  fixed_ip_address: z.string().optional(),
+  description: z.string().optional(),
+  distributed: z.boolean().optional(),
+})
+
+/**
+ * Single floating IP response wrapper.
+ * Contains one `floatingip` object.
+ *
+ * Used by:
+ * - POST /v2.0/floatingips (create)
+ * - GET /v2.0/floatingips/{floatingip_id} (show details)
+ * - PUT /v2.0/floatingips/{floatingip_id} (update)
+ */
+export const FloatingIpResponseSchema = z.object({
   floatingip: FloatingIpSchema,
 })
 
 /**
  * Floating IPs list response wrapper.
  * Contains an array of floating IP objects.
+ * Used by GET /v2.0/floatingips (list floating IPs).
  */
-export const FloatingIpResponseSchema = z.object({
+export const FloatingIpListResponseSchema = z.object({
   /** A list of floating IP objects */
   floatingips: z.array(FloatingIpSchema),
 })
@@ -172,7 +210,7 @@ export const FloatingIpQueryParametersSchema = z.object({
   /** Filter by the ID of a port associated with the floating IP */
   port_id: z.string().nullable().optional(),
   /** Sort direction (asc or desc) */
-  sort_dir: z.enum(["asc", "desc"]).optional(),
+  sort_dir: SortDirSchema.optional(),
   /** Sort key - valid keys: fixed_ip_address, floating_ip_address, floating_network_id, id, router_id, status, tenant_id, project_id */
   sort_key: z
     .enum([
@@ -207,12 +245,13 @@ export const FloatingIpQueryParametersSchema = z.object({
   searchTerm: z.string().optional(),
 })
 
-export type ISO8601Timestamp = z.infer<typeof ISO8601TimestampSchema>
 export type FloatingIpStatus = z.infer<typeof FloatingIpStatusSchema>
 export type PortDetails = z.infer<typeof PortDetailsSchema>
 export type PortForwarding = z.infer<typeof PortForwardingSchema>
 export type FloatingIp = z.infer<typeof FloatingIpSchema>
-export type FloatingIpResponse = z.infer<typeof FloatingIpResponseSchema>
+export type FloatingIpListResponse = z.infer<typeof FloatingIpListResponseSchema>
 export type FloatingIpQueryParameters = z.infer<typeof FloatingIpQueryParametersSchema>
-export type FloatingIpDetailResponse = z.infer<typeof FloatingIpDetailResponseSchema>
+export type FloatingIpResponse = z.infer<typeof FloatingIpResponseSchema>
 export type FloatingIpIdInput = z.infer<typeof FloatingIpIdInputSchema>
+export type FloatingIpCreateRequest = z.infer<typeof FloatingIpCreateRequestSchema>
+export type FloatingIpUpdateRequest = z.infer<typeof FloatingIpUpdateRequestSchema>

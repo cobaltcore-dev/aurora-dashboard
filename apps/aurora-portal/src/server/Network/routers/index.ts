@@ -1,4 +1,5 @@
 import { floatingIpRouter } from "./floatingIpRouter"
+import { portRouter } from "./portRouter"
 import { securityGroupRouter } from "./securityGroupRouter"
 import { securityGroupRuleRouter } from "./securityGroupRuleRouter"
 import { auroraRouter } from "../../trpc"
@@ -6,6 +7,7 @@ import { auroraRouter } from "../../trpc"
 export const networkRouters = {
   network: auroraRouter({
     floatingIp: floatingIpRouter,
+    port: portRouter,
     securityGroup: securityGroupRouter,
     securityGroupRule: securityGroupRuleRouter,
   }),
