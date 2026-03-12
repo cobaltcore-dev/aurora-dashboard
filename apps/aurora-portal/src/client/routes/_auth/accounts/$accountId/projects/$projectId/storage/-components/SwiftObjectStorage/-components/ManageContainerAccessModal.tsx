@@ -210,8 +210,8 @@ export const ManageContainerAccessModal = ({
     if (!container) return
     updateMutation.mutate({
       container: container.name,
-      read: readAcl.trim() || undefined,
-      write: writeAcl.trim() || undefined,
+      read: readAcl.trim(),
+      write: writeAcl.trim(),
     })
   }
 
