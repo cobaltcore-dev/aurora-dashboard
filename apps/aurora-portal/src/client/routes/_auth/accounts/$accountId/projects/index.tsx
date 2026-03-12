@@ -84,7 +84,7 @@ function ProjectsOverview() {
     <div>
       <div className="mx-auto h-full w-full max-w-full p-4 lg:w-3/4 xl:w-2/3 2xl:w-5/8">
         {/* Page Title */}
-        <div className="mb-6 px-4">
+        <div className="mb-6 px-4 text-center">
           <ContentHeading className="text-theme-highest mb-2 text-3xl font-bold">
             <Trans>Projects</Trans>
           </ContentHeading>
