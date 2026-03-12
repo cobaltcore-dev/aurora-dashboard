@@ -1,7 +1,8 @@
-import { forwardRef, useState, startTransition } from "react"
+import { forwardRef, useState, useMemo } from "react"
 import { useInfiniteQuery } from "@tanstack/react-query"
 import { trpcReact } from "@/client/trpcClient"
 import { Trans, useLingui } from "@lingui/react/macro"
+import { useNavigate, useSearch } from "@tanstack/react-router"
 import {
   Spinner,
   Stack,
@@ -13,7 +14,7 @@ import {
   ButtonProps,
 } from "@cloudoperators/juno-ui-components/index"
 import { ListToolbar } from "@/client/components/ListToolbar"
-import { FilterSettings, SortSettings } from "@/client/components/ListToolbar/types"
+import { FilterSettings, SortSettings, SelectedFilter } from "@/client/components/ListToolbar/types"
 import { ImageListView } from "./-components/ImageListView"
 import {
   CONTAINER_FORMATS,
@@ -22,6 +23,18 @@ import {
   IMAGE_VISIBILITY,
   MEMBER_STATUSES,
 } from "../../-constants/filters"
+import { GlanceImage } from "@/server/Compute/types/image"
+
+type ImagesSearchParams = {
+  status?: string
+  visibility?: string
+  disk_format?: string
+  container_format?: string
+  protected?: string
+  search?: string
+  sortBy?: string
+  sortDirection?: "asc" | "desc"
+}
 
 // Define the custom toggle button component outside
 const MoreActionsButton = forwardRef<HTMLButtonElement, ButtonProps>(({ onClick, ...props }, ref) => (
@@ -34,6 +47,8 @@ MoreActionsButton.displayName = "MoreActionsButton"
 
 export const Images = () => {
   const { t } = useLingui()
+  const navigate = useNavigate()
+  const searchParams = useSearch({ strict: false }) as ImagesSearchParams
 
   const [selectedImages, setSelectedImages] = useState<Array<string>>([])
   const [createModalOpen, setCreateModalOpen] = useState(false)
@@ -43,69 +58,123 @@ export const Images = () => {
   const [shouldShowSuggestedImages, setShowSuggestedImages] = useState(false)
   const [shouldShowAcceptedImages, setShowAcceptedImages] = useState(false)
 
-  const [filterSettings, setFilterSettings] = useState<FilterSettings>({
-    filters: [
-      {
-        displayName: t`Status`,
-        filterName: "status",
-        values: Object.values(IMAGE_STATUSES),
-        supportsMultiValue: true,
-      },
-      {
-        displayName: t`Visibility`,
-        filterName: "visibility",
-        values: Object.values(IMAGE_VISIBILITY),
-        supportsMultiValue: false,
-      },
-      {
-        displayName: t`Disk Format`,
-        filterName: "disk_format",
-        values: Object.values(DISK_FORMATS),
-        supportsMultiValue: true,
-      },
-      {
-        displayName: t`Container Format`,
-        filterName: "container_format",
-        values: Object.values(CONTAINER_FORMATS),
-        supportsMultiValue: true,
-      },
-      {
-        displayName: t`Protected`,
-        filterName: "protected",
-        values: ["true", "false"],
-        supportsMultiValue: false,
-      },
-    ],
-  })
+  // Parse URL search params into selectedFilters array
+  const selectedFilters = useMemo((): SelectedFilter[] => {
+    const filters: SelectedFilter[] = []
 
-  const [searchTerm, setSearchTerm] = useState("")
+    // Status filter
+    if (searchParams.status) {
+      const values = searchParams.status.startsWith("in:")
+        ? searchParams.status.replace("in:", "").split(",")
+        : [searchParams.status]
+      values.forEach((value: string) => {
+        filters.push({ name: "status", value })
+      })
+    }
 
-  const [sortSettings, setSortSettings] = useState<SortSettings>({
-    options: [
-      {
-        label: t`Created At`,
-        value: "created_at",
-      },
-      {
-        label: t`Updated At`,
-        value: "updated_at",
-      },
-      {
-        label: t`Name`,
-        value: "name",
-      },
-      {
-        label: t`Size`,
-        value: "size",
-      },
-      {
-        label: t`Status`,
-        value: "status",
-      },
-    ],
-    sortBy: "created_at",
-    sortDirection: "desc",
-  })
+    // Visibility filter
+    if (searchParams.visibility) {
+      filters.push({ name: "visibility", value: searchParams.visibility })
+    }
+
+    // Disk format filter
+    if (searchParams.disk_format) {
+      const values = searchParams.disk_format.startsWith("in:")
+        ? searchParams.disk_format.replace("in:", "").split(",")
+        : [searchParams.disk_format]
+      values.forEach((value: string) => {
+        filters.push({ name: "disk_format", value })
+      })
+    }
+
+    // Container format filter
+    if (searchParams.container_format) {
+      const values = searchParams.container_format.startsWith("in:")
+        ? searchParams.container_format.replace("in:", "").split(",")
+        : [searchParams.container_format]
+      values.forEach((value: string) => {
+        filters.push({ name: "container_format", value })
+      })
+    }
+
+    // Protected filter
+    if (searchParams.protected) {
+      filters.push({ name: "protected", value: searchParams.protected })
+    }
+
+    return filters
+  }, [searchParams])
+
+  const filterSettings = useMemo(
+    (): FilterSettings => ({
+      filters: [
+        {
+          displayName: t`Status`,
+          filterName: "status",
+          values: Object.values(IMAGE_STATUSES),
+          supportsMultiValue: true,
+        },
+        {
+          displayName: t`Visibility`,
+          filterName: "visibility",
+          values: Object.values(IMAGE_VISIBILITY),
+          supportsMultiValue: false,
+        },
+        {
+          displayName: t`Disk Format`,
+          filterName: "disk_format",
+          values: Object.values(DISK_FORMATS),
+          supportsMultiValue: true,
+        },
+        {
+          displayName: t`Container Format`,
+          filterName: "container_format",
+          values: Object.values(CONTAINER_FORMATS),
+          supportsMultiValue: true,
+        },
+        {
+          displayName: t`Protected`,
+          filterName: "protected",
+          values: ["true", "false"],
+          supportsMultiValue: false,
+        },
+      ],
+      selectedFilters,
+    }),
+    [t, selectedFilters]
+  )
+
+  const searchTerm = searchParams.search || ""
+
+  const sortSettings = useMemo(
+    (): SortSettings => ({
+      options: [
+        {
+          label: t`Created At`,
+          value: "created_at",
+        },
+        {
+          label: t`Updated At`,
+          value: "updated_at",
+        },
+        {
+          label: t`Name`,
+          value: "name",
+        },
+        {
+          label: t`Size`,
+          value: "size",
+        },
+        {
+          label: t`Status`,
+          value: "status",
+        },
+      ],
+      sortBy: searchParams.sortBy || "created_at",
+      sortDirection: searchParams.sortDirection || "desc",
+    }),
+    [t, searchParams.sortBy, searchParams.sortDirection]
+  )
 
   const utils = trpcReact.useUtils()
 
@@ -262,76 +331,148 @@ export const Images = () => {
   // In search mode, use the flat listImages result; otherwise flatten paginated pages
   const images = searchTerm ? (searchData ?? []) : (data?.pages.flatMap((page) => page.images) ?? [])
 
-  const deletableImages = selectedImages.filter((imageId) => !images.find((image) => image.id === imageId)?.protected)
-  const protectedImages = selectedImages.filter((imageId) => images.find((image) => image.id === imageId)?.protected)
+  const deletableImages = selectedImages.filter(
+    (imageId) => !images.find((image: GlanceImage) => image.id === imageId)?.protected
+  )
+  const protectedImages = selectedImages.filter(
+    (imageId) => images.find((image: GlanceImage) => image.id === imageId)?.protected
+  )
   const activeImages = selectedImages.filter(
-    (imageId) => images.find((image) => image.id === imageId)?.status === IMAGE_STATUSES.ACTIVE
+    (imageId) => images.find((image: GlanceImage) => image.id === imageId)?.status === IMAGE_STATUSES.ACTIVE
   )
   const deactivatedImages = selectedImages.filter(
-    (imageId) => images.find((image) => image.id === imageId)?.status === IMAGE_STATUSES.DEACTIVATED
+    (imageId) => images.find((image: GlanceImage) => image.id === imageId)?.status === IMAGE_STATUSES.DEACTIVATED
   )
 
   const isDeleteAllDisabled =
     !permissions.canDelete ||
-    images.filter((image) => selectedImages.includes(image.id)).every((image) => image.protected)
+    images
+      .filter((image: GlanceImage) => selectedImages.includes(image.id))
+      .every((image: GlanceImage) => image.protected)
   const isDeactivateAllDisabled =
     !permissions.canUpdate ||
     images
-      .filter((image) => selectedImages.includes(image.id))
-      .every((image) => image.status === IMAGE_STATUSES.DEACTIVATED)
+      .filter((image: GlanceImage) => selectedImages.includes(image.id))
+      .every((image: GlanceImage) => image.status === IMAGE_STATUSES.DEACTIVATED)
   const isActivateAllDisabled =
     !permissions.canUpdate ||
-    images.filter((image) => selectedImages.includes(image.id)).every((image) => image.status === IMAGE_STATUSES.ACTIVE)
+    images
+      .filter((image: GlanceImage) => selectedImages.includes(image.id))
+      .every((image: GlanceImage) => image.status === IMAGE_STATUSES.ACTIVE)
 
   const handleSortChange = (newSortSettings: SortSettings) => {
-    startTransition(() => {
-      setSortSettings(newSortSettings)
+    const sortBy = typeof newSortSettings.sortBy === "string" ? newSortSettings.sortBy : undefined
+    navigate({
+      search: {
+        ...searchParams,
+        // @ts-ignore - TanStack Router doesn't infer search params correctly from splat routes
+        sortBy,
+        // @ts-ignore - TanStack Router doesn't infer search params correctly from splat routes
+        sortDirection: newSortSettings.sortDirection,
+      },
+      replace: true,
     })
   }
 
   const handleFilterChange = (newFilterSettings: FilterSettings) => {
-    startTransition(() => {
-      setFilterSettings(newFilterSettings)
+    const newSearchParams: Partial<Record<string, unknown>> = {
+      // Keep existing non-filter params
+      search: searchParams.search,
+      sortBy: searchParams.sortBy,
+      sortDirection: searchParams.sortDirection,
+    }
+
+    // Build filter params from selectedFilters
+    if (newFilterSettings.selectedFilters?.length) {
+      const filterGroups = newFilterSettings.selectedFilters
+        .filter((sf) => !sf.inactive)
+        .reduce(
+          (acc, sf) => {
+            if (!acc[sf.name]) acc[sf.name] = []
+            acc[sf.name].push(sf.value)
+            return acc
+          },
+          {} as Record<string, string[]>
+        )
+
+      Object.entries(filterGroups).forEach(([filterName, values]) => {
+        const filterDef = newFilterSettings.filters.find((f) => f.filterName === filterName)
+
+        if (filterDef?.supportsMultiValue && values.length > 1) {
+          newSearchParams[filterName] = `in:${values.join(",")}`
+        } else {
+          newSearchParams[filterName] = values[0]
+        }
+      })
+    }
+
+    navigate({
+      // @ts-ignore - TanStack Router doesn't infer search params correctly from splat routes
+      search: newSearchParams,
+      replace: true,
     })
   }
 
   const showSuggestedImages = () => {
-    startTransition(() => {
-      setShowSuggestedImages(true)
-      setShowAcceptedImages(false)
-      setFilterSettings({
-        ...filterSettings,
-        selectedFilters: [],
-      })
+    setShowSuggestedImages(true)
+    setShowAcceptedImages(false)
+    // Clear all filters from URL
+    navigate({
+      search: {
+        // @ts-ignore - TanStack Router doesn't infer search params correctly from splat routes
+        search: searchParams.search,
+        // @ts-ignore - TanStack Router doesn't infer search params correctly from splat routes
+        sortBy: searchParams.sortBy,
+        // @ts-ignore - TanStack Router doesn't infer search params correctly from splat routes
+        sortDirection: searchParams.sortDirection,
+      },
+      replace: true,
     })
   }
 
   const showAcceptedImages = () => {
-    startTransition(() => {
-      setShowSuggestedImages(false)
-      setShowAcceptedImages(true)
-      setFilterSettings({
-        ...filterSettings,
-        selectedFilters: [],
-      })
+    setShowSuggestedImages(false)
+    setShowAcceptedImages(true)
+    // Clear all filters from URL
+    navigate({
+      search: {
+        // @ts-ignore - TanStack Router doesn't infer search params correctly from splat routes
+        search: searchParams.search,
+        // @ts-ignore - TanStack Router doesn't infer search params correctly from splat routes
+        sortBy: searchParams.sortBy,
+        // @ts-ignore - TanStack Router doesn't infer search params correctly from splat routes
+        sortDirection: searchParams.sortDirection,
+      },
+      replace: true,
     })
   }
 
   const showAllImages = () => {
-    startTransition(() => {
-      setShowSuggestedImages(false)
-      setShowAcceptedImages(false)
-      setFilterSettings({
-        ...filterSettings,
-        selectedFilters: [],
-      })
+    setShowSuggestedImages(false)
+    setShowAcceptedImages(false)
+    // Clear all filters from URL
+    navigate({
+      search: {
+        // @ts-ignore - TanStack Router doesn't infer search params correctly from splat routes
+        search: searchParams.search,
+        // @ts-ignore - TanStack Router doesn't infer search params correctly from splat routes
+        sortBy: searchParams.sortBy,
+        // @ts-ignore - TanStack Router doesn't infer search params correctly from splat routes
+        sortDirection: searchParams.sortDirection,
+      },
+      replace: true,
     })
   }
 
   const handleSearchChange = (term: string | number | string[] | undefined) => {
     const searchValue = typeof term === "string" ? term : ""
-    startTransition(() => {
-      setSearchTerm(searchValue)
+    navigate({
+      search: {
+        ...searchParams,
+        // @ts-ignore - TanStack Router doesn't infer search params correctly from splat routes
+        search: searchValue || undefined,
+      },
+      replace: true,
     })
   }
 
@@ -348,30 +489,7 @@ export const Images = () => {
   }
 
   return (
-    <ImageListView
-      images={getImages()}
-      suggestedImages={suggestedImages ?? []}
-      acceptedImages={acceptedImages ?? []}
-      permissions={permissions}
-      hasNextPage={searchTerm ? false : hasNextPage}
-      isFetchingNextPage={searchTerm ? false : isFetchingNextPage}
-      fetchNextPage={searchTerm ? async () => {} : fetchNextPage}
-      isFetching={isFetching}
-      selectedImages={selectedImages}
-      setSelectedImages={setSelectedImages}
-      deleteAllModalOpen={deleteAllModalOpen}
-      setDeleteAllModalOpen={setDeleteAllModalOpen}
-      deactivateAllModalOpen={deactivateAllModalOpen}
-      setDeactivateAllModalOpen={setDeactivateAllModalOpen}
-      activateAllModalOpen={activateAllModalOpen}
-      setActivateAllModalOpen={setActivateAllModalOpen}
-      createModalOpen={createModalOpen}
-      setCreateModalOpen={setCreateModalOpen}
-      deletableImages={deletableImages}
-      protectedImages={protectedImages}
-      activeImages={activeImages}
-      deactivatedImages={deactivatedImages}
-    >
+    <>
       <ListToolbar
         sortSettings={sortSettings}
         filterSettings={filterSettings}
@@ -427,6 +545,30 @@ export const Images = () => {
           </>
         }
       />
-    </ImageListView>
+      <ImageListView
+        images={getImages()}
+        suggestedImages={suggestedImages ?? []}
+        acceptedImages={acceptedImages ?? []}
+        permissions={permissions}
+        hasNextPage={searchTerm ? false : hasNextPage}
+        isFetchingNextPage={searchTerm ? false : isFetchingNextPage}
+        fetchNextPage={searchTerm ? async () => {} : fetchNextPage}
+        isFetching={isFetching}
+        selectedImages={selectedImages}
+        setSelectedImages={setSelectedImages}
+        deleteAllModalOpen={deleteAllModalOpen}
+        setDeleteAllModalOpen={setDeleteAllModalOpen}
+        deactivateAllModalOpen={deactivateAllModalOpen}
+        setDeactivateAllModalOpen={setDeactivateAllModalOpen}
+        activateAllModalOpen={activateAllModalOpen}
+        setActivateAllModalOpen={setActivateAllModalOpen}
+        createModalOpen={createModalOpen}
+        setCreateModalOpen={setCreateModalOpen}
+        deletableImages={deletableImages}
+        protectedImages={protectedImages}
+        activeImages={activeImages}
+        deactivatedImages={deactivatedImages}
+      />
+    </>
   )
 }

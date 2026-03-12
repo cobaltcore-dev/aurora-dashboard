@@ -9,6 +9,7 @@ import { Images } from "./-components/Images/List"
 import { KeyPairs } from "./-components/KeyPairs/List"
 import { ServerGroups } from "./-components/ServerGroups/List"
 import { Flavors } from "./-components/Flavors/List"
+import { z } from "zod"
 
 const checkServiceAvailability = (
   availableServices: {
@@ -52,6 +53,23 @@ const checkServiceAvailability = (
   }
 }
 
+// Search params schema for the images page
+const imagesSearchSchema = z.object({
+  // Filters
+  status: z.string().optional(),
+  visibility: z.string().optional(),
+  disk_format: z.string().optional(),
+  container_format: z.string().optional(),
+  protected: z.string().optional(),
+
+  // Search
+  search: z.string().optional(),
+
+  // Sort
+  sortBy: z.string().optional(),
+  sortDirection: z.enum(["asc", "desc"]).optional(),
+})
+
 export const Route = createFileRoute("/_auth/accounts/$accountId/projects/$projectId/compute/$")({
   component: RouteComponent,
   errorComponent: ({ error }) => {
@@ -63,6 +81,7 @@ export const Route = createFileRoute("/_auth/accounts/$accountId/projects/$proje
   notFoundComponent: () => {
     return <p>Compute service not found</p>
   },
+  validateSearch: (search) => imagesSearchSchema.parse(search),
   loader: async ({ context }) => {
     const { trpcClient } = context
     const availableServices = await trpcClient?.auth.getAvailableServices.query()
