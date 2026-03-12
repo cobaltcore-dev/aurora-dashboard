@@ -4,7 +4,7 @@ import { useAuth } from "../../store/AuthProvider"
 import { z } from "zod"
 import { trpcClient } from "../../trpcClient"
 import { Trans, useLingui } from "@lingui/react/macro"
-import { Button, Message, Icon, Spinner } from "@cloudoperators/juno-ui-components"
+import { Button, Message, Icon } from "@cloudoperators/juno-ui-components"
 import { useErrorTranslation } from "../../utils/useErrorTranslation"
 
 export const Route = createFileRoute("/auth/login")({
@@ -237,14 +237,7 @@ export function AuthLoginPage() {
                   signin()
                 }}
               >
-                {isLoggingIn ? (
-                  <span className="flex items-center justify-center gap-2">
-                    <Spinner variant="primary" />
-                    <Trans>Signing in...</Trans>
-                  </span>
-                ) : (
-                  <Trans>Sign In</Trans>
-                )}
+                {isLoggingIn ? <Trans>Signing in...</Trans> : <Trans>Sign In</Trans>}
               </Button>
             </form>
 
