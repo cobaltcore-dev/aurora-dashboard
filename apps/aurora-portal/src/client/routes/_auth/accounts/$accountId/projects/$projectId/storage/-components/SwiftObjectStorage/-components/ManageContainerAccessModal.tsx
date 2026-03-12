@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
-import { Modal, Textarea, Stack, Message, Spinner, Checkbox, Badge } from "@cloudoperators/juno-ui-components"
+import { Modal, Textarea, Stack, Message, Spinner, Checkbox, Badge, Button } from "@cloudoperators/juno-ui-components"
 import { ContainerSummary } from "@/server/Storage/types/swift"
 
 // ── ACL parsing helpers ──────────────────────────────────────────────────────
@@ -130,6 +130,12 @@ export const ManageContainerAccessModal = ({
   const [readAcl, setReadAcl] = useState("")
   const [writeAcl, setWriteAcl] = useState("")
   const [publicRead, setPublicRead] = useState(false)
+  const [showPreview, setShowPreview] = useState(false)
+
+  // Auto-collapse preview when both ACL fields are cleared
+  useEffect(() => {
+    if (!readAcl.trim() && !writeAcl.trim()) setShowPreview(false)
+  }, [readAcl, writeAcl])
 
   // ── Query ─────────────────────────────────────────────────────────────────
   const {
@@ -181,6 +187,7 @@ export const ManageContainerAccessModal = ({
     setReadAcl("")
     setWriteAcl("")
     setPublicRead(false)
+    setShowPreview(false)
     updateMutation.reset()
     onClose()
   }
@@ -211,6 +218,7 @@ export const ManageContainerAccessModal = ({
   if (!isOpen || !container) return null
 
   const isBusy = isLoading || updateMutation.isPending
+  const hasAnyAcl = readAcl.trim().length > 0 || writeAcl.trim().length > 0
 
   const parsedReadEntries = parseAclString(readAcl)
   const parsedWriteEntries = parseAclString(writeAcl)
@@ -267,7 +275,7 @@ export const ManageContainerAccessModal = ({
                     <Textarea
                       value={readAcl}
                       onChange={handleReadAclChange}
-                      disabled={isBusy}
+                      disabled={isBusy || publicRead}
                       placeholder={t`e.g. .r:*,.rlistings`}
                       className="font-mono text-sm"
                       rows={3}
@@ -288,13 +296,26 @@ export const ManageContainerAccessModal = ({
                     </label>
                     <Textarea
                       value={writeAcl}
-                      onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setWriteAcl(e.target.value)}
+                      onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
+                        const value = e.target.value
+                        setWriteAcl(value)
+                      }}
                       disabled={isBusy}
                       placeholder={t`e.g. PROJECT_ID:USER_ID`}
                       className="font-mono text-sm"
                       rows={3}
                     />
                   </div>
+
+                  {/* ── Preview toggle button — only shown when at least one ACL is set (only shown when ACL fields have content) ──────────────────────────── */}
+                  {hasAnyAcl && (
+                    <Button
+                      label={showPreview ? t`Hide ACLs Preview` : t`Show ACLs Preview`}
+                      onClick={() => setShowPreview((v) => !v)}
+                      variant="subdued"
+                      disabled={isBusy}
+                    />
+                  )}
                 </Stack>
               </div>
 
@@ -342,7 +363,7 @@ export const ManageContainerAccessModal = ({
             </div>
 
             {/* ── Full-width parsed ACL preview ─────────────────────────────────── */}
-            {(parsedReadEntries.length > 0 || parsedWriteEntries.length > 0) && (
+            {showPreview && (parsedReadEntries.length > 0 || parsedWriteEntries.length > 0) && (
               <Stack direction="vertical" gap="4" className="mt-6">
                 {parsedReadEntries.length > 0 && (
                   <div>
