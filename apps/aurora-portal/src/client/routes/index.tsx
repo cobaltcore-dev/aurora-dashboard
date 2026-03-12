@@ -33,8 +33,7 @@ export function Home() {
           {/* Hero Section */}
           <div className="mb-16 text-center">
             <h1 className="text-theme-highest mb-6 text-6xl font-extrabold tracking-tight md:text-7xl">
-              <Trans>Manage Your Cloud with </Trans>
-              <span className="bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">Aurora</span>
+              <Trans>Manage Your Cloud with </Trans>Aurora
             </h1>
             <p className="text-theme-default mx-auto mb-10 max-w-2xl text-xl leading-relaxed">
               <Trans>
@@ -60,9 +59,6 @@ export function Home() {
           <div className="mb-12 grid gap-6 md:grid-cols-3">
             {/* Compute Card */}
             <div className="group border-theme-background-lvl-3 bg-theme-background-lvl-1/80 hover:border-theme-accent/30 relative overflow-hidden rounded-2xl border p-8 backdrop-blur-sm transition-all duration-300 hover:-translate-y-2 hover:shadow-xl">
-              <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-blue-500/20 to-blue-600/20">
-                <Icon icon="dns" size="32" className="text-blue-400" />
-              </div>
               <h3 className="text-theme-highest mb-3 text-2xl font-bold">
                 <Trans>Compute</Trans>
               </h3>
@@ -74,9 +70,6 @@ export function Home() {
 
             {/* Network Card */}
             <div className="group border-theme-background-lvl-3 bg-theme-background-lvl-1/80 hover:border-theme-accent/30 relative overflow-hidden rounded-2xl border p-8 backdrop-blur-sm transition-all duration-300 hover:-translate-y-2 hover:shadow-xl">
-              <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-purple-500/20 to-purple-600/20">
-                <Icon icon="hub" size="32" className="text-purple-400" />
-              </div>
               <h3 className="text-theme-highest mb-3 text-2xl font-bold">
                 <Trans>Network</Trans>
               </h3>
@@ -88,9 +81,6 @@ export function Home() {
 
             {/* Storage Card */}
             <div className="group border-theme-background-lvl-3 bg-theme-background-lvl-1/80 hover:border-theme-accent/30 relative overflow-hidden rounded-2xl border p-8 backdrop-blur-sm transition-all duration-300 hover:-translate-y-2 hover:shadow-xl">
-              <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-green-500/20 to-green-600/20">
-                <Icon icon="storage" size="32" className="text-green-400" />
-              </div>
               <h3 className="text-theme-highest mb-3 text-2xl font-bold">
                 <Trans>Storage</Trans>
               </h3>
