@@ -38,7 +38,7 @@ function parseAclEntry(raw: string): ParsedAclEntry {
     const [projectId] = entry.split(":")
     return {
       raw: entry,
-      label: `All users from project ${projectId}`,
+      label: `All referrers from project ${projectId}`,
       description: "",
       requiresToken: true,
     }
@@ -49,7 +49,7 @@ function parseAclEntry(raw: string): ParsedAclEntry {
     const userId = entry.slice(2)
     return {
       raw: entry,
-      label: `User ${userId} (any project)`,
+      label: `Referrer ${userId} (any project)`,
       description: "",
       requiresToken: true,
     }
@@ -60,7 +60,7 @@ function parseAclEntry(raw: string): ParsedAclEntry {
     const [projectId, userId] = entry.split(":")
     return {
       raw: entry,
-      label: `User ${userId} for project ${projectId}`,
+      label: `Referrer ${userId} for project ${projectId}`,
       description: "",
       requiresToken: true,
     }
