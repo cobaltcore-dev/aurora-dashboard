@@ -48,25 +48,10 @@ export function UserMenu() {
 
   if (!isAuthenticated) {
     return (
-      <button
-        onClick={handleLogin}
-        disabled={isLoading}
-        className="text-white hover:opacity-80 transition-opacity"
-      >
+      <button onClick={handleLogin} disabled={isLoading} className="text-white transition-opacity hover:opacity-80">
         <Icon icon="accountCircle" className="h-8 w-8" />
       </button>
     )
-  }
-
-  // Get user initials for avatar
-  const getInitials = (name: string | undefined) => {
-    if (!name) return "U"
-    return name
-      .split(" ")
-      .map((n) => n[0])
-      .join("")
-      .toUpperCase()
-      .slice(0, 2)
   }
 
   return (
@@ -77,10 +62,7 @@ export function UserMenu() {
         className="flex items-center gap-3 rounded-lg px-2 py-1 transition-colors hover:bg-white/10"
       >
         <div className="flex items-center gap-2">
-          <span className="text-white text-sm font-medium hidden md:block">{user?.name}</span>
-          <div className="bg-theme-accent flex h-8 w-8 items-center justify-center rounded-full text-sm font-semibold text-white">
-            {getInitials(user?.name)}
-          </div>
+          <span className="hidden text-sm font-medium text-white md:block">{user?.name}</span>
           <Icon icon="expandMore" className="h-5 w-5 text-white" />
         </div>
       </button>
@@ -90,12 +72,9 @@ export function UserMenu() {
         <div className="bg-theme-background-lvl-2 border-theme-background-lvl-4 absolute right-0 z-50 mt-2 w-64 rounded-xl border shadow-xl">
           {/* User Info Header */}
           <div className="border-theme-background-lvl-4 flex items-center gap-3 border-b p-4">
-            <div className="bg-theme-accent flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full text-lg font-semibold text-white">
-              {getInitials(user?.name)}
-            </div>
             <div className="min-w-0 flex-1">
               <div className="text-theme-highest truncate font-semibold">{user?.name}</div>
-              <div className="text-theme-light truncate text-sm">{user?.email || user?.username}</div>
+              <div className="text-theme-light truncate text-sm">{user?.domain?.name}</div>
             </div>
           </div>
 
@@ -109,28 +88,11 @@ export function UserMenu() {
                 // Navigate to profile when route is available
               }}
             >
-              <Icon icon="person" className="text-theme-default h-5 w-5" />
+              <Icon icon="accountCircle" className="text-theme-default h-5 w-5" />
               <span className="text-theme-default font-medium">
                 <Trans>My Profile</Trans>
               </span>
             </button>
-
-            {/* Account Settings */}
-            <button
-              className="hover:bg-theme-background-lvl-3 flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left transition-colors"
-              onClick={() => {
-                setIsOpen(false)
-                // Navigate to settings when route is available
-              }}
-            >
-              <Icon icon="settings" className="text-theme-default h-5 w-5" />
-              <span className="text-theme-default font-medium">
-                <Trans>Account Settings</Trans>
-              </span>
-            </button>
-
-            {/* Divider */}
-            <div className="border-theme-background-lvl-4 my-2 border-t" />
 
             {/* Log Out */}
             <button
@@ -138,7 +100,7 @@ export function UserMenu() {
               onClick={handleLogout}
               disabled={isLoading}
             >
-              <Icon icon="logout" className="text-theme-danger h-5 w-5" />
+              <Icon icon="exitToApp" className="text-theme-danger h-5 w-5" />
               <span className="text-theme-danger font-medium">
                 <Trans>Log Out</Trans>
               </span>
