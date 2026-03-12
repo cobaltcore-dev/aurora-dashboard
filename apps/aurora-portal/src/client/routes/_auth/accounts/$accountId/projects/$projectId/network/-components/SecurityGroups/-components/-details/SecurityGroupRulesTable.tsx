@@ -145,7 +145,9 @@ export function SecurityGroupRulesTable({
   const formatPortRange = (rule: SecurityGroupRule): string => {
     if (rule.protocol === "icmp" || rule.protocol === "ipv6-icmp") {
       if (rule.port_range_min !== null && rule.port_range_max !== null) {
-        return t`Type: ${rule.port_range_min}, Code: ${rule.port_range_max}`
+        const typeValue = rule.port_range_min
+        const codeValue = rule.port_range_max
+        return t`Type: ${typeValue}, Code: ${codeValue}`
       }
       return t`-`
     }
