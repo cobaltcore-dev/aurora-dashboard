@@ -2,6 +2,7 @@ import { useNavigate } from "@tanstack/react-router"
 import { Project } from "@/server/Project/types/models"
 import { Box, ContentHeading, Tooltip, TooltipTrigger, TooltipContent } from "@cloudoperators/juno-ui-components"
 import { Trans } from "@lingui/react/macro"
+import ClipboardText from "@/client/components/ClipboardText"
 
 type ProjectCardProps = {
   project: Project
@@ -44,23 +45,23 @@ export function ProjectCard({ project }: ProjectCardProps) {
           )}
         </div>
 
-        {/* Footer Section - pushed to bottom, NOT clickable for easy copying */}
-        <div className="border-theme-background-lvl-3 mt-auto space-y-2 border-t pt-4">
+        {/* Footer Section - pushed to bottom, with copyable IDs */}
+        <div className="border-theme-background-lvl-3 mt-auto space-y-2.5 border-t pt-4">
           {/* Project ID */}
-          <div className="grid grid-cols-[4rem_1fr] items-center gap-2 text-xs">
-            <span className="text-theme-light font-medium">ID:</span>
-            <span className="text-theme-default/70 truncate font-mono" title={project.id}>
-              {project.id}
-            </span>
+          <div className="text-theme-light flex items-start gap-2 text-xs">
+            <span className="mt-0.5 min-w-[4rem] font-medium">ID:</span>
+            <div className="min-w-0 flex-1 overflow-hidden">
+              <ClipboardText text={project.id} className="text-xs" truncateAt={24} />
+            </div>
           </div>
 
           {/* Domain ID */}
           {project.domain_id && (
-            <div className="grid grid-cols-[4rem_1fr] items-center gap-2 text-xs">
-              <span className="text-theme-light font-medium">Domain:</span>
-              <span className="text-theme-default/70 truncate font-mono" title={project.domain_id}>
-                {project.domain_id}
-              </span>
+            <div className="text-theme-light flex items-start gap-2 text-xs">
+              <span className="mt-0.5 min-w-[4rem] font-medium">Domain:</span>
+              <div className="min-w-0 flex-1 overflow-hidden">
+                <ClipboardText text={project.domain_id} className="text-xs" truncateAt={24} />
+              </div>
             </div>
           )}
         </div>

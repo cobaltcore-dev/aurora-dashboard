@@ -9,6 +9,7 @@ import {
 } from "@cloudoperators/juno-ui-components"
 import { Trans } from "@lingui/react/macro"
 import { useNavigate } from "@tanstack/react-router"
+import ClipboardText from "@/client/components/ClipboardText"
 
 type ProjectListViewProps = {
   projects: Project[] | undefined
@@ -101,14 +102,18 @@ export function ProjectListView({ projects }: ProjectListViewProps) {
               <span className="line-clamp-2">{project.description || "-"}</span>
             </DataGridCell>
 
-            {/* Project ID Column - NOT clickable for copying */}
-            <DataGridCell className="text-theme-default/70 font-mono text-xs" title={project.id}>
-              <span className="truncate">{project.id}</span>
+            {/* Project ID Column - with copy button */}
+            <DataGridCell>
+              <ClipboardText text={project.id} className="text-xs" truncateAt={24} />
             </DataGridCell>
 
-            {/* Domain ID Column - NOT clickable for copying */}
-            <DataGridCell className="text-theme-default/70 font-mono text-xs" title={project.domain_id || undefined}>
-              <span className="truncate">{project.domain_id || "-"}</span>
+            {/* Domain ID Column - with copy button */}
+            <DataGridCell>
+              {project.domain_id ? (
+                <ClipboardText text={project.domain_id} className="text-xs" truncateAt={24} />
+              ) : (
+                <span className="text-theme-default/70 truncate">-</span>
+              )}
             </DataGridCell>
           </DataGridRow>
         )
