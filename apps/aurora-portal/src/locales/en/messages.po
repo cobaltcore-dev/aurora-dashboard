@@ -56,6 +56,10 @@ msgstr "<0>Unified Cloud Management:</0> Consolidates all your cloud assets into
 msgid "A flavor with this ID or name already exists. Please use different values."
 msgstr "A flavor with this ID or name already exists. Please use different values."
 
+#: src/client/routes/index.tsx:40
+msgid "A modern dashboard to manage your cloud infrastructure effortlessly. Experience a seamless way to provision, configure, and scale your resources across cloud environments."
+msgstr "A modern dashboard to manage your cloud infrastructure effortlessly. Experience a seamless way to provision, configure, and scale your resources across cloud environments."
+
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageMetadataModal.tsx:133
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/SwiftObjectStorage/-components/EditContainerMetadataModal.tsx:223
 msgid "A property with this key already exists"
@@ -199,10 +203,6 @@ msgstr "Attach"
 msgid "Aurora Dashboard is more than just a tool—it's your partner in navigating the cloud. Whether you're a small startup or a global enterprise, Aurora provides the flexibility, power, and simplicity you need to achieve your goals."
 msgstr "Aurora Dashboard is more than just a tool—it's your partner in navigating the cloud. Whether you're a small startup or a global enterprise, Aurora provides the flexibility, power, and simplicity you need to achieve your goals."
 
-#: src/client/routes/index.tsx:42
-msgid "Aurora empowers you with robust tools to streamline your cloud management effortlessly. Experience a seamless way to provision, configure, and scale your resources across OpenStack environments."
-msgstr "Aurora empowers you with robust tools to streamline your cloud management effortlessly. Experience a seamless way to provision, configure, and scale your resources across OpenStack environments."
-
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail/SettingsSection.tsx:44
 msgid "Auto Update"
 msgstr "Auto Update"
@@ -277,7 +277,7 @@ msgstr "Changes to metadata will be saved when you click \"Save Changes\". Make 
 msgid "Changes to these properties will affect how this image can be used and who can access it."
 msgstr "Changes to these properties will affect how this image can be used and who can access it."
 
-#: src/client/routes/index.tsx:118
+#: src/client/routes/index.tsx:115
 msgid "Check out our source code on GitHub!"
 msgstr "Check out our source code on GitHub!"
 
@@ -334,7 +334,7 @@ msgstr "Code View"
 msgid "Community"
 msgstr "Community"
 
-#: src/client/routes/index.tsx:70
+#: src/client/routes/index.tsx:67
 msgid "Compute"
 msgstr "Compute"
 
@@ -342,7 +342,7 @@ msgstr "Compute"
 msgid "Compute Overview"
 msgstr "Compute Overview"
 
-#: src/client/routes/index.tsx:87
+#: src/client/routes/index.tsx:84
 msgid "Configure networks, security groups, and floating IPs effortlessly"
 msgstr "Configure networks, security groups, and floating IPs effortlessly"
 
@@ -718,7 +718,7 @@ msgstr "Disk Format"
 msgid "Disk format is required"
 msgstr "Disk format is required"
 
-#: src/client/routes/index.tsx:136
+#: src/client/routes/index.tsx:133
 msgid "Documentation"
 msgstr "Documentation"
 
@@ -820,7 +820,7 @@ msgstr "Enter member ID"
 msgid "Enter tenant ID"
 msgstr "Enter tenant ID"
 
-#: src/client/routes/index.tsx:56
+#: src/client/routes/index.tsx:53
 msgid "Enter the Cloud"
 msgstr "Enter the Cloud"
 
@@ -1062,7 +1062,7 @@ msgstr "Fetching..."
 msgid "Filters"
 msgstr "Filters"
 
-#: src/client/routes/index.tsx:140
+#: src/client/routes/index.tsx:137
 msgid "Find detailed guides and references in our docs."
 msgstr "Find detailed guides and references in our docs."
 
@@ -1142,7 +1142,7 @@ msgstr "General Image Data"
 msgid "Get Involved"
 msgstr "Get Involved"
 
-#: src/client/routes/index.tsx:114
+#: src/client/routes/index.tsx:111
 msgid "GitHub"
 msgstr "GitHub"
 
@@ -1525,13 +1525,13 @@ msgstr "Manage Access for Image - {imageName}"
 msgid "Manage and access your cloud projects across all domains"
 msgstr "Manage and access your cloud projects across all domains"
 
-#: src/client/routes/index.tsx:36
-msgid "Manage OpenStack with "
-msgstr "Manage OpenStack with "
-
-#: src/client/routes/index.tsx:73
+#: src/client/routes/index.tsx:70
 msgid "Manage virtual machines, flavors, and compute resources with ease"
 msgstr "Manage virtual machines, flavors, and compute resources with ease"
+
+#: src/client/routes/index.tsx:36
+msgid "Manage Your Cloud with "
+msgstr "Manage Your Cloud with "
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/SwiftObjectStorage/-components/ContainerLimitsTooltip.tsx:89
 msgid "Max container name length"
@@ -1720,7 +1720,7 @@ msgstr "Name must be 2-50 characters long."
 msgid "Need help?"
 msgstr "Need help?"
 
-#: src/client/routes/index.tsx:84
+#: src/client/routes/index.tsx:81
 msgid "Network"
 msgstr "Network"
 
@@ -2058,7 +2058,7 @@ msgstr "Protected (will be skipped):"
 msgid "Protected images (cannot be deleted)"
 msgstr "Protected images (cannot be deleted)"
 
-#: src/client/routes/index.tsx:101
+#: src/client/routes/index.tsx:98
 msgid "Provision volumes and manage object storage across your infrastructure"
 msgstr "Provision volumes and manage object storage across your infrastructure"
 
@@ -2444,7 +2444,7 @@ msgstr "Static website serving"
 msgid "Status"
 msgstr "Status"
 
-#: src/client/routes/index.tsx:98
+#: src/client/routes/index.tsx:95
 msgid "Storage"
 msgstr "Storage"
 
@@ -2854,11 +2854,11 @@ msgstr "Versioning is enabled"
 msgid "View Details"
 msgstr "View Details"
 
-#: src/client/routes/index.tsx:146
+#: src/client/routes/index.tsx:143
 msgid "View Docs"
 msgstr "View Docs"
 
-#: src/client/routes/index.tsx:126
+#: src/client/routes/index.tsx:123
 msgid "View Repository"
 msgstr "View Repository"
 

@@ -33,13 +33,13 @@ export function Home() {
           {/* Hero Section */}
           <div className="mb-16 text-center">
             <h1 className="text-theme-highest mb-6 text-6xl font-extrabold tracking-tight md:text-7xl">
-              <Trans>Manage OpenStack with </Trans>
+              <Trans>Manage Your Cloud with </Trans>
               <span className="bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">Aurora</span>
             </h1>
             <p className="text-theme-default mx-auto mb-10 max-w-2xl text-xl leading-relaxed">
               <Trans>
-                Aurora empowers you with robust tools to streamline your cloud management effortlessly. Experience a
-                seamless way to provision, configure, and scale your resources across OpenStack environments.
+                A modern dashboard to manage your cloud infrastructure effortlessly. Experience a seamless way to
+                provision, configure, and scale your resources across cloud environments.
               </Trans>
             </p>
 
@@ -47,7 +47,6 @@ export function Home() {
             <Button
               onClick={handleEnterCloud}
               variant="primary"
-              size="large"
               className="hover:shadow-accent/50 group transform px-8 py-4 text-lg font-bold shadow-xl transition-all duration-300 hover:scale-105 hover:shadow-2xl"
             >
               <span>
