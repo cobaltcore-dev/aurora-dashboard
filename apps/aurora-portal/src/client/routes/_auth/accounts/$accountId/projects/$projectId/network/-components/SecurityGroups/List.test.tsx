@@ -60,6 +60,11 @@ vi.mock("@/client/trpcClient", () => ({
         securityGroup: {
           list: {
             invalidate: vi.fn(),
+            setData: vi.fn(),
+          },
+          getById: {
+            invalidate: vi.fn(),
+            setData: vi.fn(),
           },
         },
       },
