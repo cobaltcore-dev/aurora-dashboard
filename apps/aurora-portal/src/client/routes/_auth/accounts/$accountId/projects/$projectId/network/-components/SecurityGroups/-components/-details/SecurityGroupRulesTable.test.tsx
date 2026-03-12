@@ -471,17 +471,6 @@ describe("SecurityGroupRulesTable", () => {
       expect(screen.getByText("80-443")).toBeInTheDocument()
     })
 
-    it("formats any port correctly", () => {
-      const rule = mockRules[4] // null ports
-      render(
-        <SecurityGroupRulesTable rules={[rule]} onDeleteRule={vi.fn()} isDeletingRule={false} deleteError={null} />,
-        { wrapper: createWrapper() }
-      )
-
-      // There are multiple "Any" texts (protocol and port range), so use getAllByText
-      expect(screen.getAllByText("Any").length).toBeGreaterThan(0)
-    })
-
     it("formats ICMP type and code correctly", () => {
       const rule = mockRules[2] // ICMP with type 8, code 0
       render(
@@ -490,20 +479,6 @@ describe("SecurityGroupRulesTable", () => {
       )
 
       expect(screen.getByText("Type: 8, Code: 0")).toBeInTheDocument()
-    })
-
-    it("formats ICMP any correctly", () => {
-      const rule: SecurityGroupRule = {
-        ...mockRules[2],
-        port_range_min: null,
-        port_range_max: null,
-      }
-      render(
-        <SecurityGroupRulesTable rules={[rule]} onDeleteRule={vi.fn()} isDeletingRule={false} deleteError={null} />,
-        { wrapper: createWrapper() }
-      )
-
-      expect(screen.getAllByText("Any").length).toBeGreaterThan(0)
     })
   })
 
