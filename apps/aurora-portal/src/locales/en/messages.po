@@ -123,6 +123,11 @@ msgstr "Activated {successCount} image(s), but {failedCount} image(s) could not 
 msgid "Activated images will become available for launching new instances and creating volumes. This action will restore full functionality to the selected images."
 msgstr "Activated images will become available for launching new instances and creating volumes. This action will restore full functionality to the selected images."
 
+#: src/client/routes/_auth/accounts/$accountId/projects/-components/ProjectCardView.tsx:38
+#: src/client/routes/_auth/accounts/$accountId/projects/-components/ProjectListView.tsx:84
+msgid "Active"
+msgstr "Active"
+
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/CreateImageModal.tsx:499
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageDetailsModal.tsx:280
 msgid "Add"
@@ -207,8 +212,8 @@ msgstr "Auto Update"
 msgid "Back"
 msgstr "Back"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId.tsx:91
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId.tsx:105
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId.tsx:88
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId.tsx:102
 msgid "Back to Images"
 msgstr "Back to Images"
 
@@ -328,6 +333,10 @@ msgstr "Code View"
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageDetailsModal.tsx:306
 msgid "Community"
 msgstr "Community"
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/$.tsx:115
+msgid "Compute Overview"
+msgstr "Compute Overview"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/SecurityGroupDetailsView.tsx:22
 msgid "Configure the ingress and egress rules that control which traffic is allowed for this security group."
@@ -641,6 +650,7 @@ msgstr "Deleting images will affect any instances or volumes that depend on them
 msgid "Deleting..."
 msgstr "Deleting..."
 
+#: src/client/routes/_auth/accounts/$accountId/projects/-components/ProjectListView.tsx:51
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/CreateFlavorModal.tsx:200
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/flavors/-components/FlavorDetailsView.tsx:46
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/FloatingIps/-components/constants.tsx:31
@@ -665,6 +675,8 @@ msgstr "Detach"
 msgid "Details"
 msgstr "Details"
 
+#: src/client/routes/_auth/accounts/$accountId/projects/-components/ProjectCardView.tsx:38
+#: src/client/routes/_auth/accounts/$accountId/projects/-components/ProjectListView.tsx:84
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/flavors/-components/FlavorDetailsView.tsx:61
 msgid "Disabled"
 msgstr "Disabled"
@@ -705,6 +717,10 @@ msgstr "Documentation"
 #: src/client/routes/auth/login.tsx:166
 msgid "Domain"
 msgstr "Domain"
+
+#: src/client/routes/_auth/accounts/$accountId/projects/-components/ProjectListView.tsx:61
+msgid "Domain ID"
+msgstr "Domain ID"
 
 #: src/client/components/ProjectView/ProjectInfoBox.tsx:60
 msgid "Domain Name"
@@ -828,11 +844,11 @@ msgstr "Ephemeral Disk (GiB)"
 msgid "Ephemeral Disk must be an integer ≥ 0."
 msgstr "Ephemeral Disk must be an integer ≥ 0."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/flavors/$flavorId.tsx:53
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/flavors/$flavorId.tsx:51
 msgid "Error - Flavor Details"
 msgstr "Error - Flavor Details"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId.tsx:55
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId.tsx:53
 msgid "Error - Image Details"
 msgstr "Error - Image Details"
 
@@ -846,11 +862,11 @@ msgstr "Error loading component"
 msgid "Error Loading Containers: {errorMessage}"
 msgstr "Error Loading Containers: {errorMessage}"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/flavors/$flavorId.tsx:104
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/flavors/$flavorId.tsx:101
 msgid "Error Loading Flavor"
 msgstr "Error Loading Flavor"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId.tsx:87
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId.tsx:84
 msgid "Error loading image"
 msgstr "Error loading image"
 
@@ -1059,7 +1075,7 @@ msgstr "Flavor \"{flavorName}\" has been successfully created."
 msgid "Flavor \"{flavorName}\" has been successfully deleted."
 msgstr "Flavor \"{flavorName}\" has been successfully deleted."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/flavors/$flavorId.tsx:57
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/flavors/$flavorId.tsx:55
 msgid "Flavor Details"
 msgstr "Flavor Details"
 
@@ -1078,7 +1094,7 @@ msgstr "Flavor ID is required and cannot be empty."
 msgid "Flavor Name"
 msgstr "Flavor Name"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/flavors/$flavorId.tsx:118
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/flavors/$flavorId.tsx:115
 msgid "Flavor Not Found"
 msgstr "Flavor Not Found"
 
@@ -1088,7 +1104,7 @@ msgstr "Flavor service is not available for this project."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/-components/SideNavBar.tsx:35
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/$.tsx:112
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/flavors/$flavorId.tsx:131
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/flavors/$flavorId.tsx:128
 msgid "Flavors"
 msgstr "Flavors"
 
@@ -1180,7 +1196,7 @@ msgstr "Image"
 msgid "Image \"{imageName}\" visibility updated to {visibility}"
 msgstr "Image \"{imageName}\" visibility updated to {visibility}"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId.tsx:59
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId.tsx:57
 msgid "Image Details"
 msgstr "Image Details"
 
@@ -1237,7 +1253,7 @@ msgstr "Image Name"
 msgid "Image name is required"
 msgstr "Image name is required"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId.tsx:102
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId.tsx:99
 msgid "Image not found"
 msgstr "Image not found"
 
@@ -1251,7 +1267,7 @@ msgstr "Image Visibility"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/-components/SideNavBar.tsx:29
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/$.tsx:103
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId.tsx:128
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId.tsx:125
 msgid "Images"
 msgstr "Images"
 
@@ -1397,11 +1413,11 @@ msgstr "Loading container properties…"
 msgid "Loading Containers..."
 msgstr "Loading Containers..."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/flavors/$flavorId.tsx:83
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/flavors/$flavorId.tsx:80
 msgid "Loading Flavor Details..."
 msgstr "Loading Flavor Details..."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/flavors/$flavorId.tsx:55
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/flavors/$flavorId.tsx:53
 msgid "Loading Flavor..."
 msgstr "Loading Flavor..."
 
@@ -1413,11 +1429,11 @@ msgstr "Loading Flavors..."
 msgid "Loading Gardener..."
 msgstr "Loading Gardener..."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId.tsx:75
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId.tsx:72
 msgid "Loading Image Details..."
 msgstr "Loading Image Details..."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId.tsx:57
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId.tsx:55
 msgid "Loading Image..."
 msgstr "Loading Image..."
 
@@ -1496,6 +1512,10 @@ msgstr "Manage Access - {flavorName}"
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ManageImageAccessModal .tsx:291
 msgid "Manage Access for Image - {imageName}"
 msgstr "Manage Access for Image - {imageName}"
+
+#: src/client/routes/_auth/accounts/$accountId/projects/index.tsx:92
+msgid "Manage and access your cloud projects across all domains"
+msgstr "Manage and access your cloud projects across all domains"
 
 #: src/client/routes/index.tsx:22
 msgid "Manage OpenStack with "
@@ -1661,6 +1681,7 @@ msgstr "Must be a non-negative integer"
 msgid "N/A"
 msgstr "N/A"
 
+#: src/client/routes/_auth/accounts/$accountId/projects/-components/ProjectListView.tsx:46
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/DeleteFlavorModal.tsx:116
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:121
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/List.tsx:111
@@ -1766,13 +1787,10 @@ msgstr "No limit"
 msgid "No project selected"
 msgstr "No project selected"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/-components/ProjectCardView.tsx:45
+#: src/client/routes/_auth/accounts/$accountId/projects/-components/ProjectCardView.tsx:86
+#: src/client/routes/_auth/accounts/$accountId/projects/-components/ProjectListView.tsx:26
 msgid "No projects available."
 msgstr "No projects available."
-
-#: src/client/routes/_auth/accounts/$accountId/projects/-components/ProjectListView.tsx:35
-msgid "No projects found"
-msgstr "No projects found"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ManageImageAccessModal .tsx:250
 msgid "No projects have access to this image yet. Click \"Add Project Access\" to grant access."
@@ -1878,8 +1896,8 @@ msgid "Our Mission"
 msgstr "Our Mission"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/-components/SideNavBar.tsx:28
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/flavors/$flavorId.tsx:116
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId.tsx:120
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/flavors/$flavorId.tsx:127
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId.tsx:122
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId.tsx:130
 msgid "Overview"
 msgstr "Overview"
@@ -1974,6 +1992,7 @@ msgid "Project id"
 msgstr "Project id"
 
 #: src/client/components/ProjectView/ProjectInfoBox.tsx:42
+#: src/client/routes/_auth/accounts/$accountId/projects/-components/ProjectListView.tsx:56
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ConfirmImageAccessModal.tsx:161
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ManageImageAccessModal .tsx:172
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ManageImageAccessModal .tsx:186
@@ -1984,6 +2003,15 @@ msgstr "Project ID"
 #: src/client/components/ProjectView/ProjectInfoBox.tsx:50
 msgid "Project Name"
 msgstr "Project Name"
+
+#: src/client/routes/_auth/accounts/$accountId/projects/index.tsx:89
+msgid "Projects"
+msgstr "Projects"
+
+#: src/client/routes/_auth/accounts/$accountId/projects/-components/ProjectCardView.tsx:89
+#: src/client/routes/_auth/accounts/$accountId/projects/-components/ProjectListView.tsx:29
+msgid "Projects you have access to will appear here."
+msgstr "Projects you have access to will appear here."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageMetadataModal.tsx:334
 msgid "Property Key"
@@ -2203,6 +2231,7 @@ msgid "Security group not found"
 msgstr "Security group not found"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/-components/SideNavBar.tsx:43
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/$.tsx:57
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId.tsx:133
 msgid "Security Groups"
 msgstr "Security Groups"
@@ -2377,6 +2406,7 @@ msgstr "Static large object support"
 msgid "Static website serving"
 msgstr "Static website serving"
 
+#: src/client/routes/_auth/accounts/$accountId/projects/-components/ProjectListView.tsx:41
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImageModal.tsx:96
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageDetailsView.tsx:35
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:602
@@ -2536,7 +2566,7 @@ msgstr "The image \"{imageName}\" could not be created: "
 msgid "The image \"{imageName}\" could not be updated: "
 msgstr "The image \"{imageName}\" could not be updated: "
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/flavors/$flavorId.tsx:119
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/flavors/$flavorId.tsx:116
 msgid "The requested flavor could not be found. It may have been deleted or you may not have access to it."
 msgstr "The requested flavor could not be found. It may have been deleted or you may not have access to it."
 
@@ -2716,7 +2746,7 @@ msgstr "Unable to Upload Image File"
 msgid "Unknown error"
 msgstr "Unknown error"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId.tsx:112
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId.tsx:109
 msgid "Unknown Image"
 msgstr "Unknown Image"
 
