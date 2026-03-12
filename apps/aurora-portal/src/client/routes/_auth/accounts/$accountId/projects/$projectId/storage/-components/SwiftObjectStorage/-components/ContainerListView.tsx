@@ -18,7 +18,7 @@ import { CreateContainerModal } from "./CreateContainerModal"
 import { EmptyContainerModal } from "./EmptyContainerModal"
 import { DeleteContainerModal } from "./DeleteContainerModal"
 import { EditContainerMetadataModal } from "./EditContainerMetadataModal"
-import { AccessControlModal } from "./AccessControlModal"
+import { ManageContainerAccessModal } from "./ManageContainerAccessModal"
 import {
   getContainerCreatedToast,
   getContainerCreateErrorToast,
@@ -291,7 +291,7 @@ export const ContainerListView = ({
         onError={handlePropertiesError}
       />
 
-      <AccessControlModal
+      <ManageContainerAccessModal
         isOpen={accessControlModalContainer !== null}
         container={accessControlModalContainer}
         onClose={() => setAccessControlModalContainer(null)}

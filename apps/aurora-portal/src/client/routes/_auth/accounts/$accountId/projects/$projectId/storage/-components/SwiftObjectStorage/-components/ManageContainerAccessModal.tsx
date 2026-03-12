@@ -110,7 +110,7 @@ function removePublicReadEntries(current: string): string {
 
 // ── Component ────────────────────────────────────────────────────────────────
 
-interface AccessControlModalProps {
+interface ManageContainerAccessModalProps {
   isOpen: boolean
   container: ContainerSummary | null
   onClose: () => void
@@ -118,7 +118,13 @@ interface AccessControlModalProps {
   onError?: (containerName: string, errorMessage: string) => void
 }
 
-export const AccessControlModal = ({ isOpen, container, onClose, onSuccess, onError }: AccessControlModalProps) => {
+export const ManageContainerAccessModal = ({
+  isOpen,
+  container,
+  onClose,
+  onSuccess,
+  onError,
+}: ManageContainerAccessModalProps) => {
   const { t } = useLingui()
 
   const [readAcl, setReadAcl] = useState("")
