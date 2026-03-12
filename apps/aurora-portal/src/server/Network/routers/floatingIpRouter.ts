@@ -13,7 +13,7 @@ import {
   FloatingIpCreateRequestSchema,
 } from "../types/floatingIp"
 import { FLOATING_IPS_BASE_URL, FloatingIpErrorHandlers } from "../helpers/floatingIpHelpers"
-import { getNetworkService } from "../helpers/networkHelpers"
+import { getNetworkService } from "../helpers/index"
 
 /**
  * tRPC router for OpenStack Neutron Floating IPs.

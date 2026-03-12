@@ -1,10 +1,11 @@
-import { TRPCError } from "@trpc/server"
 import { z } from "zod"
 import {
   securityGroupResponseSchema,
   securityGroupsResponseSchema,
   securityGroupRuleResponseSchema,
 } from "../types/securityGroup"
+import { TRPCError } from "@trpc/server"
+import { DEFAULT_ERROR_NAME, HTTP_STATUS_ERROR_MAP } from "./index"
 
 /**
  * Handles specific error cases for security group operations with custom messages
@@ -19,17 +20,17 @@ export const SecurityGroupErrorHandlers = {
     switch (response.status) {
       case 401:
         return new TRPCError({
-          code: "UNAUTHORIZED",
+          code: HTTP_STATUS_ERROR_MAP[401],
           message: "Unauthorized access",
         })
       case 403:
         return new TRPCError({
-          code: "FORBIDDEN",
+          code: HTTP_STATUS_ERROR_MAP[403],
           message: `Access forbidden: ${response.statusText || "Unknown error"}`,
         })
       default:
         return new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
+          code: DEFAULT_ERROR_NAME,
           message: `Failed to list security groups: ${response.statusText || "Unknown error"}`,
         })
     }
@@ -45,22 +46,22 @@ export const SecurityGroupErrorHandlers = {
     switch (response.status) {
       case 401:
         return new TRPCError({
-          code: "UNAUTHORIZED",
+          code: HTTP_STATUS_ERROR_MAP[401],
           message: "Unauthorized access",
         })
       case 403:
         return new TRPCError({
-          code: "FORBIDDEN",
+          code: HTTP_STATUS_ERROR_MAP[403],
           message: `Access forbidden: ${response.statusText || "Unknown error"}`,
         })
       case 404:
         return new TRPCError({
-          code: "NOT_FOUND",
+          code: HTTP_STATUS_ERROR_MAP[404],
           message: `Security group not found: ${securityGroupId}`,
         })
       default:
         return new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
+          code: DEFAULT_ERROR_NAME,
           message: `Failed to fetch security group: ${response.statusText || "Unknown error"}`,
         })
     }
@@ -75,17 +76,17 @@ export const SecurityGroupErrorHandlers = {
     switch (response.status) {
       case 401:
         return new TRPCError({
-          code: "UNAUTHORIZED",
+          code: HTTP_STATUS_ERROR_MAP[401],
           message: "Unauthorized access",
         })
       case 403:
         return new TRPCError({
-          code: "FORBIDDEN",
+          code: HTTP_STATUS_ERROR_MAP[403],
           message: `Access forbidden: ${response.statusText || "Unknown error"}`,
         })
       case 409:
         return new TRPCError({
-          code: "CONFLICT",
+          code: HTTP_STATUS_ERROR_MAP[409],
           message: `Conflict: ${response.statusText || "Security group already exists"}`,
         })
       case 413:
@@ -117,24 +118,24 @@ export const SecurityGroupErrorHandlers = {
     switch (response.status) {
       case 401:
         return new TRPCError({
-          code: "UNAUTHORIZED",
+          code: HTTP_STATUS_ERROR_MAP[401],
           message: "Unauthorized access",
         })
       case 404:
         return new TRPCError({
-          code: "NOT_FOUND",
+          code: HTTP_STATUS_ERROR_MAP[404],
           message: `Security group not found: ${securityGroupId}`,
         })
       case 409:
         // Security group is in use
         return new TRPCError({
-          code: "CONFLICT",
+          code: HTTP_STATUS_ERROR_MAP[409],
           message:
             "Cannot delete security group because it is in use by one or more ports. Please remove all associations before deleting.",
         })
       default:
         return new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
+          code: DEFAULT_ERROR_NAME,
           message: `Failed to delete security group: ${response.statusText || "Unknown error"}`,
         })
     }
@@ -160,32 +161,32 @@ export const SecurityGroupErrorHandlers = {
     switch (response.status) {
       case 401:
         return new TRPCError({
-          code: "UNAUTHORIZED",
+          code: HTTP_STATUS_ERROR_MAP[401],
           message: "Unauthorized access",
         })
       case 403:
         return new TRPCError({
-          code: "FORBIDDEN",
+          code: HTTP_STATUS_ERROR_MAP[403],
           message: `Access forbidden: ${errorMessage || "Unknown error"}`,
         })
       case 404:
         return new TRPCError({
-          code: "NOT_FOUND",
+          code: HTTP_STATUS_ERROR_MAP[404],
           message: `Security group not found: ${securityGroupId}`,
         })
       case 409:
         return new TRPCError({
-          code: "CONFLICT",
+          code: HTTP_STATUS_ERROR_MAP[409],
           message: `Conflict: ${errorMessage || "Security group conflict"}`,
         })
       case 400:
         return new TRPCError({
-          code: "BAD_REQUEST",
+          code: HTTP_STATUS_ERROR_MAP[400],
           message: `Invalid request: ${errorMessage || "Unknown error"}`,
         })
       default:
         return new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
+          code: DEFAULT_ERROR_NAME,
           message: `Failed to update security group: ${errorMessage || "Unknown error"}`,
         })
     }

@@ -1,8 +1,8 @@
 import { protectedProcedure } from "../../trpc"
 import { deleteSecurityGroupRuleInputSchema } from "../types/securityGroup"
 import { withErrorHandling } from "../../helpers/errorHandling"
-import { getNetworkService } from "../helpers/networkHelpers"
 import { SecurityGroupRuleErrorHandlers } from "../helpers/securityGroupHelpers"
+import { getNetworkService } from "../helpers/index"
 
 const SECURITY_GROUP_RULES_BASE_URL = "v2.0/security-group-rules"
 
