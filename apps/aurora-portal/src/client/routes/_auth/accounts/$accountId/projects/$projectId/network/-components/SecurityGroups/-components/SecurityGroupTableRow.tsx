@@ -60,7 +60,7 @@ export function SecurityGroupTableRow({
       <DataGridCell>
         <BooleanValue value={sg.stateful} />
       </DataGridCell>
-      <DataGridCell onClick={(e) => e.stopPropagation()}>
+      <DataGridCell onClick={(e) => e.stopPropagation()} className="items-end">
         <PopupMenu>
           <PopupMenuOptions>
             <PopupMenuItem label={t`Show Details`} onClick={() => handleShowDetails()} />

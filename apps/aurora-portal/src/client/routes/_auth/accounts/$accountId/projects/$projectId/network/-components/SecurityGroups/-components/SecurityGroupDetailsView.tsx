@@ -1,65 +1,76 @@
-import { DataGrid, DataGridRow, DataGridCell, Button, Stack } from "@cloudoperators/juno-ui-components"
-import { Trans, useLingui } from "@lingui/react/macro"
-import type { SecurityGroup } from "@/server/Network/types/securityGroup"
-import { Container, ContentHeading, DataGridHeadCell } from "@cloudoperators/juno-ui-components"
+import { Container, Stack } from "@cloudoperators/juno-ui-components"
+import { Trans } from "@lingui/react/macro"
+import { useState } from "react"
+import type { SecurityGroup, SecurityGroupRule } from "@/server/Network/types/securityGroup"
+import type { FilterSettings, SortSettings } from "@/client/components/ListToolbar/types"
+import type { ListSortConfig } from "@/client/utils/useListWithFiltering"
+import { SecurityGroupHeader, SecurityGroupBasicInfo, SecurityGroupTabs, type TabType } from "./-details"
+import { SecurityGroupRulesTable } from "./-details"
+
+export interface RulesFilterControls {
+  searchTerm: string
+  onSearchChange: (term: string | number | string[] | undefined) => void
+  sortSettings: ListSortConfig<"direction" | "protocol" | "description">
+  onSortChange: (settings: SortSettings) => void
+  filterSettings: FilterSettings
+  onFilterChange: (settings: FilterSettings) => void
+}
 
 interface SecurityGroupDetailsViewProps {
   securityGroup: SecurityGroup
+  filteredAndSortedRules: SecurityGroupRule[]
   onEdit?: () => void
+  onDeleteRule: (ruleId: string) => void
+  isDeletingRule?: boolean
+  deleteRuleError?: string | null
+  filterControls: RulesFilterControls
 }
 
-export function SecurityGroupDetailsView({ securityGroup, onEdit }: SecurityGroupDetailsViewProps) {
-  const { t } = useLingui()
-
-  const BooleanValue = ({ value }: { value: boolean | undefined }) => <span>{value ? t`Yes` : t`No`}</span>
+export function SecurityGroupDetailsView({
+  securityGroup,
+  filteredAndSortedRules,
+  onEdit,
+  onDeleteRule,
+  isDeletingRule = false,
+  deleteRuleError = null,
+  filterControls,
+}: SecurityGroupDetailsViewProps) {
+  const [activeTab, setActiveTab] = useState<TabType>("rules")
 
   return (
     <Container px={false} py>
       <Stack direction="vertical" gap="4">
-        <div className="mb-2">
-          <ContentHeading>{t`Security Group Basic Info`}</ContentHeading>
-          <p className="text-theme-secondary mt-2 text-sm">
-            <Trans>
-              Configure the ingress and egress rules that control which traffic is allowed for this security group.
-            </Trans>
-          </p>
-        </div>
-        <div className="flex justify-end">
-          {onEdit && (
-            <Button variant="primary" onClick={onEdit}>
-              <Trans>Edit</Trans>
-            </Button>
+        {/* Header Section */}
+        <SecurityGroupHeader name={securityGroup.name} id={securityGroup.id} />
+
+        {/* Basic Info Section */}
+        <SecurityGroupBasicInfo securityGroup={securityGroup} onEdit={onEdit} />
+
+        {/* Tabs Navigation */}
+        <SecurityGroupTabs activeTab={activeTab} onTabChange={setActiveTab} />
+
+        {/* Tab Content */}
+        <div className="mt-6">
+          {activeTab === "rules" && (
+            <SecurityGroupRulesTable
+              rules={filteredAndSortedRules}
+              onDeleteRule={onDeleteRule}
+              isDeletingRule={isDeletingRule}
+              deleteError={deleteRuleError}
+              searchTerm={filterControls.searchTerm}
+              onSearchChange={filterControls.onSearchChange}
+              sortSettings={filterControls.sortSettings}
+              onSortChange={filterControls.onSortChange}
+              filterSettings={filterControls.filterSettings}
+              onFilterChange={filterControls.onFilterChange}
+            />
+          )}
+          {activeTab === "rbac" && (
+            <p className="text-theme-secondary">
+              <Trans>RBAC Policies functionality coming soon</Trans>
+            </p>
           )}
         </div>
-
-        <DataGrid columns={4} gridColumnTemplate="15% 35% 15% 35%">
-          <DataGridRow>
-            <DataGridHeadCell>{t`Description`}</DataGridHeadCell>
-            <DataGridCell colSpan={3}>{securityGroup.description || t`—`}</DataGridCell>
-          </DataGridRow>
-          <DataGridRow>
-            <DataGridHeadCell>{t`ID`}</DataGridHeadCell>
-            <DataGridCell>{securityGroup.id}</DataGridCell>
-            <DataGridHeadCell>{t`Tags`}</DataGridHeadCell>
-            <DataGridCell>{securityGroup.tags?.join(", ") || t`—`}</DataGridCell>
-          </DataGridRow>
-          <DataGridRow>
-            <DataGridHeadCell>{t`Name`}</DataGridHeadCell>
-            <DataGridCell>{securityGroup.name}</DataGridCell>
-            <DataGridHeadCell>{t`Stateful`}</DataGridHeadCell>
-            <DataGridCell>
-              <BooleanValue value={securityGroup.stateful} />
-            </DataGridCell>
-          </DataGridRow>
-          <DataGridRow>
-            <DataGridHeadCell>{t`Owning Project ID`}</DataGridHeadCell>
-            <DataGridCell>{securityGroup.project_id || t`—`}</DataGridCell>
-            <DataGridHeadCell>{t`Shared`}</DataGridHeadCell>
-            <DataGridCell>
-              <BooleanValue value={securityGroup.shared} />
-            </DataGridCell>
-          </DataGridRow>
-        </DataGrid>
       </Stack>
     </Container>
   )
