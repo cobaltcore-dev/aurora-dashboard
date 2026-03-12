@@ -1,7 +1,20 @@
 import { useState, useEffect } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
-import { Modal, Textarea, Stack, Message, Spinner, Checkbox, Badge, Button } from "@cloudoperators/juno-ui-components"
+import {
+  Modal,
+  Textarea,
+  Stack,
+  Message,
+  Spinner,
+  Checkbox,
+  Badge,
+  Button,
+  Icon,
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+} from "@cloudoperators/juno-ui-components"
 import { ContainerSummary } from "@/server/Storage/types/swift"
 
 // ── ACL parsing helpers ──────────────────────────────────────────────────────
@@ -269,9 +282,7 @@ export const ManageContainerAccessModal = ({
                 <Stack direction="vertical" gap="6">
                   {/* Read ACLs */}
                   <div>
-                    <label className="text-theme-default mb-1 block text-sm font-semibold">
-                      <Trans>Read ACLs</Trans>
-                    </label>
+                    <AclFieldLabel label={t`Read ACLs`} />
                     <Textarea
                       value={readAcl}
                       onChange={handleReadAclChange}
@@ -291,9 +302,7 @@ export const ManageContainerAccessModal = ({
 
                   {/* Write ACLs */}
                   <div>
-                    <label className="text-theme-default mb-1 block text-sm font-semibold">
-                      <Trans>Write ACLs</Trans>
-                    </label>
+                    <AclFieldLabel label={t`Write ACLs`} />
                     <Textarea
                       value={writeAcl}
                       onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -444,6 +453,31 @@ function AclExample({ code, description }: AclExampleProps) {
         {code}
       </Badge>
       <p className="text-theme-light text-xs leading-relaxed">{description}</p>
+    </div>
+  )
+}
+
+// ── AclFieldLabel sub-component ──────────────────────────────────────────────
+
+interface AclFieldLabelProps {
+  label: string
+}
+
+function AclFieldLabel({ label }: AclFieldLabelProps) {
+  return (
+    <div className="mb-1 flex items-center gap-1">
+      <label className="text-theme-default text-sm font-semibold">{label}</label>
+      <Tooltip triggerEvent="hover">
+        <TooltipTrigger>
+          <Icon icon="info" size="14" className="text-theme-light cursor-help" />
+        </TooltipTrigger>
+        <TooltipContent className="z-10 max-w-[350px]">
+          <Trans>
+            Ensure ACL entries are valid — correct project IDs, user IDs, and formats are your responsibility. Invalid
+            entries may silently grant or deny unintended access.
+          </Trans>
+        </TooltipContent>
+      </Tooltip>
     </div>
   )
 }
