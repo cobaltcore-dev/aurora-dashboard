@@ -184,3 +184,64 @@ describe("networkRouter.listExternalNetworks", () => {
     })
   })
 })
+
+describe("networkRouter.listDnsDomains", () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it("returns unique non-empty dns domains on success", async () => {
+    const ctx = createMockContext({
+      mockNetworks: [
+        { dns_domain: "example.org." },
+        { dns_domain: "corp.local" },
+        { dns_domain: "example.org." },
+        { dns_domain: "" },
+        {},
+      ],
+    })
+    const caller = createCaller(ctx)
+
+    const result = await caller.network.listDnsDomains({})
+
+    expect(result).toEqual(["example.org.", "corp.local"])
+  })
+
+  it("builds query string with fields=dns_domain and filters", async () => {
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    await caller.network.listDnsDomains({
+      project_id: "project-1",
+      tenant_id: "tenant-1",
+      "router:external": true,
+    })
+
+    expect(ctx.__networkGetMock).toHaveBeenCalledTimes(1)
+    const calledUrl = ctx.__networkGetMock.mock.calls[0][0] as string
+    const [path, query] = calledUrl.split("?")
+
+    expect(path).toBe(NETWORK_BASE_URL)
+
+    const params = new URLSearchParams(query)
+    expect(params.get("fields")).toBe("dns_domain")
+    expect(params.get("project_id")).toBe("project-1")
+    expect(params.get("tenant_id")).toBe("tenant-1")
+    expect(params.get("router:external")).toBe("true")
+  })
+
+  it("throws PARSE_ERROR when dns domains response parsing fails", async () => {
+    const ctx = createMockContext({ parseError: true })
+    const caller = createCaller(ctx)
+    const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => undefined)
+
+    await expect(caller.network.listDnsDomains({})).rejects.toThrow(
+      new TRPCError({
+        code: "PARSE_ERROR",
+        message: "Failed to parse dns domains response from OpenStack",
+      })
+    )
+
+    consoleErrorSpy.mockRestore()
+  })
+})

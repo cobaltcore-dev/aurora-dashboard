@@ -52,6 +52,18 @@ export const ListExternalNetworksQuerySchema = ListNetworksQuerySchema.extend({
 })
 
 /**
+ * Query schema for listing DNS domains derived from networks:
+ * GET /v2.0/networks?fields=dns_domain
+ *
+ * Keeps only useful network-level filters for this procedure.
+ */
+export const ListDnsDomainsQuerySchema = z.object({
+  project_id: z.string().optional(),
+  tenant_id: z.string().optional(),
+  "router:external": z.boolean().optional(),
+})
+
+/**
  * Provider network segment descriptor.
  *
  * Returned for routed/provider-backed networks when segment data is exposed
@@ -116,7 +128,24 @@ export const NetworkListResponseSchema = z.object({
   networks: z.array(NetworkSchema),
 })
 
+/**
+ * Minimal network shape when requesting only `fields=dns_domain`.
+ */
+export const NetworkDnsDomainItemSchema = z.object({
+  dns_domain: z.string().optional(),
+})
+
+/**
+ * DNS-domain list response wrapper.
+ * Used by GET /v2.0/networks?fields=dns_domain.
+ */
+export const NetworkDnsDomainListResponseSchema = z.object({
+  networks: z.array(NetworkDnsDomainItemSchema),
+})
+
 export type ListNetworksQuery = z.infer<typeof ListNetworksQuerySchema>
 export type ListExternalNetworksQuery = z.infer<typeof ListExternalNetworksQuerySchema>
+export type ListDnsDomainsQuery = z.infer<typeof ListDnsDomainsQuerySchema>
 export type Network = z.infer<typeof NetworkSchema>
 export type NetworkListResponse = z.infer<typeof NetworkListResponseSchema>
+export type NetworkDnsDomainListResponse = z.infer<typeof NetworkDnsDomainListResponseSchema>

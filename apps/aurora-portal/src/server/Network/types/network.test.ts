@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest"
 import {
+  ListDnsDomainsQuerySchema,
   ListExternalNetworksQuerySchema,
   ListNetworksQuerySchema,
+  NetworkDnsDomainListResponseSchema,
   NetworkListResponseSchema,
   NetworkSchema,
 } from "./network"
@@ -102,6 +104,30 @@ describe("Network query schemas", () => {
         expect(result.data["router:external"]).toBe(true)
         expect(result.data.name).toBe("external-net")
       }
+    })
+  })
+
+  describe("ListDnsDomainsQuerySchema", () => {
+    it("should validate empty query", () => {
+      const result = ListDnsDomainsQuerySchema.safeParse({})
+
+      expect(result.success).toBe(true)
+    })
+
+    it("should validate supported filters", () => {
+      const result = ListDnsDomainsQuerySchema.safeParse({
+        project_id: "project-1",
+        tenant_id: "tenant-1",
+        "router:external": true,
+      })
+
+      expect(result.success).toBe(true)
+    })
+
+    it("should reject non-boolean router external flag", () => {
+      const result = ListDnsDomainsQuerySchema.safeParse({ "router:external": "true" })
+
+      expect(result.success).toBe(false)
     })
   })
 
@@ -225,6 +251,30 @@ describe("Network query schemas", () => {
       const result = NetworkListResponseSchema.safeParse({
         networks: [validNetwork, { ...validNetwork, id: 123 }],
       })
+
+      expect(result.success).toBe(false)
+    })
+  })
+
+  describe("NetworkDnsDomainListResponseSchema", () => {
+    it("should validate response with dns_domain values", () => {
+      const result = NetworkDnsDomainListResponseSchema.safeParse({
+        networks: [{ dns_domain: "example.org." }, { dns_domain: "corp.local" }],
+      })
+
+      expect(result.success).toBe(true)
+    })
+
+    it("should validate response when dns_domain is missing", () => {
+      const result = NetworkDnsDomainListResponseSchema.safeParse({
+        networks: [{}, { dns_domain: "example.org." }],
+      })
+
+      expect(result.success).toBe(true)
+    })
+
+    it("should reject response without networks key", () => {
+      const result = NetworkDnsDomainListResponseSchema.safeParse({})
 
       expect(result.success).toBe(false)
     })
