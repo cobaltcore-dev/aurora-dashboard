@@ -1,5 +1,5 @@
 import { TRPCError } from "@trpc/server"
-import { DEFAULT_ERROR_NAME, HTTP_STATUS_CODE_TO_NAME } from "./index"
+import { DEFAULT_ERROR_NAME, HTTP_STATUS_ERROR_MAP } from "./index"
 
 /**
  * WORK_IN_PROGRESS:
@@ -18,12 +18,12 @@ type ErrorHandler = Record<ErrorCodes, ErrorHandlerFn>
 export const DEFAULT_HANDLERS: ErrorHandler = {
   401: () =>
     new TRPCError({
-      code: HTTP_STATUS_CODE_TO_NAME[401],
+      code: HTTP_STATUS_ERROR_MAP[401],
       message: "Unauthorized access",
     }),
   403: (response) =>
     new TRPCError({
-      code: HTTP_STATUS_CODE_TO_NAME[403],
+      code: HTTP_STATUS_ERROR_MAP[403],
       message: `Access forbidden: ${response.statusText || "Unknown error"}`,
     }),
 }

@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest"
 import { TRPCError } from "@trpc/server"
-import { DEFAULT_ERROR_NAME, HTTP_STATUS_CODE_TO_NAME } from "./index"
+import { DEFAULT_ERROR_NAME, HTTP_STATUS_ERROR_MAP } from "./index"
 import { ListErrorHandler } from "./errorHandling"
 
 describe("ListErrorHandler", () => {
@@ -9,7 +9,7 @@ describe("ListErrorHandler", () => {
     const error = list({ status: 401, statusText: "Unauthorized" })
 
     expect(error).toBeInstanceOf(TRPCError)
-    expect(error.code).toBe(HTTP_STATUS_CODE_TO_NAME[401])
+    expect(error.code).toBe(HTTP_STATUS_ERROR_MAP[401])
     expect(error.message).toBe("Unauthorized access")
   })
 
@@ -17,7 +17,7 @@ describe("ListErrorHandler", () => {
     const list = ListErrorHandler("Network")
     const error = list({ status: 403, statusText: "Forbidden" })
 
-    expect(error.code).toBe(HTTP_STATUS_CODE_TO_NAME[403])
+    expect(error.code).toBe(HTTP_STATUS_ERROR_MAP[403])
     expect(error.message).toBe("Access forbidden: Forbidden")
   })
 

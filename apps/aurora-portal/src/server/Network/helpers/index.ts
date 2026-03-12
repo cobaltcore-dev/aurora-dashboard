@@ -1,7 +1,7 @@
 import type { AuroraPortalContext } from "@/server/context"
 import { validateOpenstackService } from "@/server/helpers/validateOpenstackService"
 
-export const HTTP_STATUS_CODE_TO_NAME = {
+export const HTTP_STATUS_ERROR_MAP = {
   400: "BAD_REQUEST",
   401: "UNAUTHORIZED",
   403: "FORBIDDEN",

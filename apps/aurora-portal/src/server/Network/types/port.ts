@@ -1,5 +1,5 @@
 import { z } from "zod"
-import { ISO8601TimestampSchema, SortDirSchema } from "./index"
+import { ISO8601TimestampSchema, NetworkPortStatusSchema, SortDirSchema } from "./index"
 import { securityGroupSchema } from "./securityGroup"
 
 const FixedIpFilterSchema = z.object({
@@ -284,7 +284,7 @@ export const PortSchema = z.object({
   /** Security groups applied to the port */
   security_groups: z.array(securityGroupSchema).optional(),
   /** Status of the port */
-  status: z.enum(["ACTIVE", "DOWN", "BUILD", "ERROR"]).optional(),
+  status: NetworkPortStatusSchema.optional(),
   /** List of tags on the port (requires standard-attr-tag extension) */
   tags: z.array(z.string()).optional(),
   /** ID of the project that owns the port (deprecated, use project_id) */

@@ -8,3 +8,6 @@ export const SortDirSchema = z.enum(["asc", "desc"])
 
 export type ISO8601Timestamp = z.infer<typeof ISO8601TimestampSchema>
 export type SortDir = z.infer<typeof SortDirSchema>
+
+/** The network port status. Values are ACTIVE, DOWN, BUILD and ERROR. */
+export const NetworkPortStatusSchema = z.enum(["ACTIVE", "DOWN", "BUILD", "ERROR"])
