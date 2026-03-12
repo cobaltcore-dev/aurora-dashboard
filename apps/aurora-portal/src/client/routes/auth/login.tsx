@@ -4,7 +4,7 @@ import { useAuth } from "../../store/AuthProvider"
 import { z } from "zod"
 import { trpcClient } from "../../trpcClient"
 import { Trans, useLingui } from "@lingui/react/macro"
-import { Button, ContentHeading, Message } from "@cloudoperators/juno-ui-components"
+import { Button, Message, Icon, Spinner } from "@cloudoperators/juno-ui-components"
 import { useErrorTranslation } from "../../utils/useErrorTranslation"
 
 export const Route = createFileRoute("/auth/login")({
@@ -32,23 +32,6 @@ export const Route = createFileRoute("/auth/login")({
   },
   component: AuthLoginPage,
 })
-
-const textinputstyles = `
-  jn-bg-theme-textinput
-  jn-text-theme-textinput
-  jn-text-base
-  jn-leading-4
-  jn-px-4
-  jn-h-textinput
-  jn-rounded-3px
-  focus:jn-outline-none
-  focus:jn-ring-2
-  focus:jn-ring-theme-focus
-  disabled:jn-opacity-50
-  autofill:jn-bg-theme-textinput-autofill
-  autofill:jn-text-theme-textinput-autofill
-  peer
-`
 
 export function AuthLoginPage() {
   const { isAuthenticated, user, login } = useAuth()
@@ -113,11 +96,18 @@ export function AuthLoginPage() {
   if (isAuthenticated) {
     const username = user?.name
     return (
-      <div className="border-theme-light mt-8 w-full max-w-md justify-center rounded-lg border p-6 shadow-lg">
-        <h2 className="text-xl font-semibold">
-          <Trans>Welcome back, {username}!</Trans>
-        </h2>
-        <Trans>You are already signed in.</Trans>
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="bg-theme-background-lvl-1 border-theme-background-lvl-3 w-full max-w-md rounded-2xl border p-8 shadow-xl">
+          <div className="mb-4 flex justify-center">
+            <Icon icon="checkCircle" className="text-theme-success h-16 w-16" />
+          </div>
+          <h2 className="text-theme-highest mb-2 text-center text-2xl font-bold">
+            <Trans>Welcome back, {username}!</Trans>
+          </h2>
+          <p className="text-theme-default text-center">
+            <Trans>You are already signed in.</Trans>
+          </p>
+        </div>
       </div>
     )
   }
@@ -126,110 +116,152 @@ export function AuthLoginPage() {
   const wasInactive = logoutReason === "inactive" || logoutReason === "expired"
 
   return (
-    <div className="mt-8 flex justify-center">
-      <div className="border-theme-light relative w-full max-w-md rounded-lg border p-6 shadow-lg">
-        {loginError && (
-          <Message
-            onDismiss={dismissError}
-            text={loginError}
-            variant="error"
-            className="absolute -top-14 right-0 left-0 z-50"
-          />
-        )}
+    <div className="relative min-h-screen overflow-hidden">
+      {/* Gradient Background */}
+      <div className="from-theme-background-lvl-0 via-theme-background-lvl-1 to-theme-background-lvl-2 absolute inset-0 bg-gradient-to-br" />
 
-        <ContentHeading className="text-center">
-          <Trans>Login to Your Account</Trans>
-        </ContentHeading>
-        <p className="mb-6 text-center">
-          <Trans>Enter your credentials to access your account</Trans>
-        </p>
+      {/* Animated background elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="bg-theme-accent/5 absolute top-20 -left-4 h-72 w-72 rounded-full blur-3xl" />
+        <div className="bg-theme-accent/5 absolute top-40 -right-4 h-96 w-96 rounded-full blur-3xl" />
+      </div>
 
-        {(search.redirect || wasInactive) && (
-          <p className="mb-4 text-center text-sm text-red-500">
-            {wasInactive ? (
-              <Trans>Your session expired. Please login again.</Trans>
-            ) : (
-              <Trans>You need to login to access this page.</Trans>
+      {/* Content */}
+      <div className="relative flex min-h-screen items-center justify-center px-4 py-16">
+        <div className="w-full max-w-md">
+          {/* Error Message */}
+          {loginError && (
+            <div className="mb-4">
+              <Message onDismiss={dismissError} text={loginError} variant="error" />
+            </div>
+          )}
+
+          {/* Login Card */}
+          <div className="bg-theme-background-lvl-1/80 border-theme-background-lvl-3 rounded-2xl border p-8 shadow-2xl backdrop-blur-sm">
+            {/* Header */}
+            <div className="mb-8 text-center">
+              <h1 className="text-theme-highest mb-2 text-3xl font-bold">
+                <Trans>Welcome to Aurora</Trans>
+              </h1>
+              <p className="text-theme-light text-sm">
+                <Trans>Sign in to manage your cloud infrastructure</Trans>
+              </p>
+            </div>
+
+            {/* Session expired warning */}
+            {(search.redirect || wasInactive) && (
+              <div className="bg-theme-warning/10 border-theme-warning/20 mb-6 rounded-lg border p-3">
+                <p className="text-theme-warning text-center text-sm">
+                  {wasInactive ? (
+                    <Trans>Your session expired. Please login again.</Trans>
+                  ) : (
+                    <Trans>You need to login to access this page.</Trans>
+                  )}
+                </p>
+              </div>
             )}
-          </p>
-        )}
 
-        <form
-          className="space-y-4"
-          onSubmit={(e) => {
-            e.preventDefault()
-            signin()
-          }}
-        >
-          <div className="flex flex-col">
-            <label htmlFor="domain" className="font-medium text-gray-300">
-              <Trans>Domain</Trans>
-            </label>
-            <input
-              id="domain"
-              type="text"
-              placeholder={t`Enter your domain`}
-              className={textinputstyles}
-              onChange={(e) => {
-                setForm({ ...form, domainName: e.target.value })
-                if (loginError) setLoginError(null)
+            {/* Login Form */}
+            <form
+              className="space-y-5"
+              onSubmit={(e) => {
+                e.preventDefault()
+                signin()
               }}
-              required
-            />
+            >
+              {/* Domain Field */}
+              <div>
+                <label htmlFor="domain" className="text-theme-default mb-2 block text-sm font-medium">
+                  <Trans>Domain</Trans>
+                </label>
+                <input
+                  id="domain"
+                  type="text"
+                  placeholder={t`Enter your domain`}
+                  className="bg-theme-textinput text-theme-textinput focus:ring-theme-focus w-full rounded-lg border-0 px-4 py-3 text-sm transition-shadow focus:ring-2 focus:outline-none disabled:opacity-50"
+                  onChange={(e) => {
+                    setForm({ ...form, domainName: e.target.value })
+                    if (loginError) setLoginError(null)
+                  }}
+                  required
+                  autoComplete="off"
+                />
+              </div>
+
+              {/* Username Field */}
+              <div>
+                <label htmlFor="user" className="text-theme-default mb-2 block text-sm font-medium">
+                  <Trans>Username</Trans>
+                </label>
+                <input
+                  id="user"
+                  type="text"
+                  placeholder={t`Enter your username`}
+                  className="bg-theme-textinput text-theme-textinput focus:ring-theme-focus w-full rounded-lg border-0 px-4 py-3 text-sm transition-shadow focus:ring-2 focus:outline-none disabled:opacity-50"
+                  onChange={(e) => {
+                    setForm({ ...form, user: e.target.value })
+                    if (loginError) setLoginError(null)
+                  }}
+                  required
+                  autoComplete="username"
+                />
+              </div>
+
+              {/* Password Field */}
+              <div>
+                <label htmlFor="password" className="text-theme-default mb-2 block text-sm font-medium">
+                  <Trans>Password</Trans>
+                </label>
+                <input
+                  id="password"
+                  type="password"
+                  placeholder={t`Enter your password`}
+                  className="bg-theme-textinput text-theme-textinput focus:ring-theme-focus w-full rounded-lg border-0 px-4 py-3 text-sm transition-shadow focus:ring-2 focus:outline-none disabled:opacity-50"
+                  onChange={(e) => {
+                    setForm({ ...form, password: e.target.value })
+                    if (loginError) setLoginError(null)
+                  }}
+                  onKeyUp={(e) => e.key === "Enter" && signin()}
+                  required
+                  autoComplete="current-password"
+                />
+              </div>
+
+              {/* Submit Button */}
+              <Button
+                variant="primary"
+                className="hover:shadow-accent/50 w-full py-3 font-semibold shadow-lg transition-all hover:scale-[1.02] hover:shadow-xl disabled:hover:scale-100"
+                disabled={isLoggingIn}
+                onClick={(e) => {
+                  e.preventDefault()
+                  signin()
+                }}
+              >
+                {isLoggingIn ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <Spinner variant="primary" />
+                    <Trans>Signing in...</Trans>
+                  </span>
+                ) : (
+                  <Trans>Sign In</Trans>
+                )}
+              </Button>
+            </form>
+
+            {/* Footer */}
+            <div className="mt-6 text-center">
+              <p className="text-theme-light text-sm">
+                <Trans>Need help?</Trans>{" "}
+                <a
+                  href="#"
+                  className="text-theme-accent hover:text-theme-accent-emphasis font-medium transition-colors"
+                >
+                  <Trans>Contact support</Trans>
+                </a>
+              </p>
+            </div>
           </div>
-
-          <div className="flex flex-col">
-            <label htmlFor="user" className="font-medium text-gray-300">
-              <Trans>User C/D/I</Trans>
-            </label>
-            <input
-              id="user"
-              type="text"
-              placeholder={t`Enter your username`}
-              className={textinputstyles}
-              onChange={(e) => {
-                setForm({ ...form, user: e.target.value })
-                if (loginError) setLoginError(null)
-              }}
-              required
-            />
-          </div>
-
-          <div className="flex flex-col">
-            <label htmlFor="password" className="font-medium text-gray-300">
-              <Trans>Password</Trans>
-            </label>
-            <input
-              id="password"
-              type="password"
-              required
-              className={textinputstyles}
-              onChange={(e) => {
-                setForm({ ...form, password: e.target.value })
-                if (loginError) setLoginError(null)
-              }}
-              onKeyUp={(e) => e.key === "Enter" && signin()}
-            />
-          </div>
-
-          <Button
-            className="w-full"
-            disabled={isLoggingIn}
-            onClick={(e) => {
-              e.preventDefault()
-              signin()
-            }}
-          >
-            {isLoggingIn ? <Trans>Loading...</Trans> : <Trans>Sign In</Trans>}
-          </Button>
-        </form>
-
-        <p className="mt-4 text-center text-sm">
-          <Trans>Need help?</Trans>{" "}
-          <a href="#">
-            <Trans>Contact support</Trans>
-          </a>
-        </p>
+        </div>
       </div>
     </div>
   )

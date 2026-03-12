@@ -99,10 +99,6 @@ msgstr "Account listing limit"
 msgid "Account quotas"
 msgstr "Account quotas"
 
-#: src/client/components/navigation/UserMenu.tsx:128
-msgid "Account Settings"
-msgstr "Account Settings"
-
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageMetadataModal.tsx:336
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Instances/-components/ServerListView.tsx:25
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/ServerGroups/components/ServerGroupListView.tsx:64
@@ -366,7 +362,7 @@ msgstr "Confirm Access"
 msgid "Confirm Access - {imageTitle}"
 msgstr "Confirm Access - {imageTitle}"
 
-#: src/client/routes/auth/login.tsx:230
+#: src/client/routes/auth/login.tsx:259
 msgid "Contact support"
 msgstr "Contact support"
 
@@ -726,7 +722,7 @@ msgstr "Disk format is required"
 msgid "Documentation"
 msgstr "Documentation"
 
-#: src/client/routes/auth/login.tsx:166
+#: src/client/routes/auth/login.tsx:175
 msgid "Domain"
 msgstr "Domain"
 
@@ -832,15 +828,15 @@ msgstr "Enter the Cloud"
 msgid "Enter value"
 msgstr "Enter value"
 
-#: src/client/routes/auth/login.tsx:144
-msgid "Enter your credentials to access your account"
-msgstr "Enter your credentials to access your account"
-
-#: src/client/routes/auth/login.tsx:171
+#: src/client/routes/auth/login.tsx:180
 msgid "Enter your domain"
 msgstr "Enter your domain"
 
-#: src/client/routes/auth/login.tsx:188
+#: src/client/routes/auth/login.tsx:218
+msgid "Enter your password"
+msgstr "Enter your password"
+
+#: src/client/routes/auth/login.tsx:199
 msgid "Enter your username"
 msgstr "Enter your username"
 
@@ -1483,21 +1479,16 @@ msgstr "Loading Server Groups..."
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/FloatingIps/-components/FloatingIpListContainer.tsx:29
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/SecurityGroupListContainer.tsx:118
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/SwiftObjectStorage/-components/DeleteContainerModal.tsx:150
-#: src/client/routes/auth/login.tsx:223
 msgid "Loading..."
 msgstr "Loading..."
 
-#: src/client/components/navigation/UserMenu.tsx:143
+#: src/client/components/navigation/UserMenu.tsx:106
 msgid "Log Out"
 msgstr "Log Out"
 
-#: src/client/routes/auth/login.tsx:99
+#: src/client/routes/auth/login.tsx:82
 msgid "Login failed. Please check your credentials and try again."
 msgstr "Login failed. Please check your credentials and try again."
-
-#: src/client/routes/auth/login.tsx:141
-msgid "Login to Your Account"
-msgstr "Login to Your Account"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterWizard/BasicInfoStep.tsx:27
 msgid "Lowercase alphanumeric characters, dash (-) and must start with a letter"
@@ -1689,7 +1680,7 @@ msgstr "More Actions"
 msgid "Must be a non-negative integer"
 msgstr "Must be a non-negative integer"
 
-#: src/client/components/navigation/UserMenu.tsx:114
+#: src/client/components/navigation/UserMenu.tsx:94
 msgid "My Profile"
 msgstr "My Profile"
 
@@ -1728,7 +1719,7 @@ msgstr "Name"
 msgid "Name must be 2-50 characters long."
 msgstr "Name must be 2-50 characters long."
 
-#: src/client/routes/auth/login.tsx:228
+#: src/client/routes/auth/login.tsx:254
 msgid "Need help?"
 msgstr "Need help?"
 
@@ -1951,7 +1942,7 @@ msgstr "Partial Deactivation Success"
 msgid "Partial Delete Success"
 msgstr "Partial Delete Success"
 
-#: src/client/routes/auth/login.tsx:200
+#: src/client/routes/auth/login.tsx:213
 msgid "Password"
 msgstr "Password"
 
@@ -2391,13 +2382,21 @@ msgid "Showing first {maxOptions} of {totalCount} — refine your search to narr
 msgstr "Showing first {maxOptions} of {totalCount} — refine your search to narrow results"
 
 #: src/client/components/Auth/AuthMenu.tsx:49
-#: src/client/routes/auth/login.tsx:223
+#: src/client/routes/auth/login.tsx:246
 msgid "Sign In"
 msgstr "Sign In"
+
+#: src/client/routes/auth/login.tsx:147
+msgid "Sign in to manage your cloud infrastructure"
+msgstr "Sign in to manage your cloud infrastructure"
 
 #: src/client/components/Auth/AuthMenu.tsx:40
 msgid "Sign Out"
 msgstr "Sign Out"
+
+#: src/client/routes/auth/login.tsx:243
+msgid "Signing in..."
+msgstr "Signing in..."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImageModal.tsx:104
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageDetailsView.tsx:39
@@ -2816,9 +2815,9 @@ msgstr "URL for public access"
 msgid "Used"
 msgstr "Used"
 
-#: src/client/routes/auth/login.tsx:183
-msgid "User C/D/I"
-msgstr "User C/D/I"
+#: src/client/routes/auth/login.tsx:194
+msgid "Username"
+msgstr "Username"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:204
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageMetadataModal.tsx:335
@@ -2887,13 +2886,17 @@ msgstr "Visibility"
 msgid "We are building Aurora Dashboard to serve you better. Your feedback is invaluable in shaping a tool that meets the unique needs of businesses like yours. Stay connected and join us as we redefine cloud management."
 msgstr "We are building Aurora Dashboard to serve you better. Your feedback is invaluable in shaping a tool that meets the unique needs of businesses like yours. Stay connected and join us as we redefine cloud management."
 
-#: src/client/routes/auth/login.tsx:118
+#: src/client/routes/auth/login.tsx:105
 msgid "Welcome back, {username}!"
 msgstr "Welcome back, {username}!"
 
 #: src/client/routes/about.tsx:17
 msgid "Welcome to <0>Aurora Dashboard</0>, your next-generation cloud management solution. We are dedicated to simplifying how you interact with and manage your cloud infrastructure. Designed with efficiency, scalability, and usability at its core, Aurora empowers you to streamline operations and unlock the full potential of your cloud resources."
 msgstr "Welcome to <0>Aurora Dashboard</0>, your next-generation cloud management solution. We are dedicated to simplifying how you interact with and manage your cloud infrastructure. Designed with efficiency, scalability, and usability at its core, Aurora empowers you to streamline operations and unlock the full potential of your cloud resources."
+
+#: src/client/routes/auth/login.tsx:144
+msgid "Welcome to Aurora"
+msgstr "Welcome to Aurora"
 
 #: src/client/routes/about.tsx:72
 msgid "Why Choose Aurora?"
@@ -2944,7 +2947,7 @@ msgstr "You are about to deactivate {activeCount} image(s). Deactivated images c
 msgid "You are about to delete {deletableCount} image(s). This action cannot be undone."
 msgstr "You are about to delete {deletableCount} image(s). This action cannot be undone."
 
-#: src/client/routes/auth/login.tsx:120
+#: src/client/routes/auth/login.tsx:108
 msgid "You are already signed in."
 msgstr "You are already signed in."
 
@@ -3040,7 +3043,7 @@ msgstr "You don't have permission to view this flavor's details."
 msgid "You have been logged out due to inactivity."
 msgstr "You have been logged out due to inactivity."
 
-#: src/client/routes/auth/login.tsx:152
+#: src/client/routes/auth/login.tsx:158
 msgid "You need to login to access this page."
 msgstr "You need to login to access this page."
 
@@ -3052,7 +3055,7 @@ msgstr "Your project has accepted access to this image. You can revoke access at
 msgid "Your project has rejected access to this image. You can change your decision and accept it, or request access again from the owner."
 msgstr "Your project has rejected access to this image. You can change your decision and accept it, or request access again from the owner."
 
-#: src/client/routes/auth/login.tsx:150
+#: src/client/routes/auth/login.tsx:156
 msgid "Your session expired. Please login again."
 msgstr "Your session expired. Please login again."
 
