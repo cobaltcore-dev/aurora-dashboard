@@ -56,7 +56,7 @@ msgstr "<0>Vereinheitlichtes Cloud-Management:</0> Konsolidiert alle Ihre Cloud-
 msgid "A flavor with this ID or name already exists. Please use different values."
 msgstr "Ein Flavor mit dieser ID oder diesem Namen existiert bereits. Bitte verwenden Sie andere Werte."
 
-#: src/client/routes/index.tsx:40
+#: src/client/routes/index.tsx:39
 msgid "A modern dashboard to manage your cloud infrastructure effortlessly. Experience a seamless way to provision, configure, and scale your resources across cloud environments."
 msgstr "Ein modernes Dashboard zur mühelosen Verwaltung Ihrer Cloud-Infrastruktur. Erleben Sie eine nahtlose Bereitstellung, Konfiguration und Skalierung Ihrer Ressourcen in Cloud-Umgebungen."
 
@@ -98,6 +98,10 @@ msgstr "Account-Listing-Limit"
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/SwiftObjectStorage/-components/ContainerLimitsTooltip.tsx:48
 msgid "Account quotas"
 msgstr "Account-Quotas"
+
+#: src/client/components/navigation/UserMenu.tsx:128
+msgid "Account Settings"
+msgstr "Kontoeinstellungen"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageMetadataModal.tsx:336
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Instances/-components/ServerListView.tsx:25
@@ -277,7 +281,7 @@ msgstr "Änderungen an den Metadaten werden gespeichert, wenn Sie auf \"Änderun
 msgid "Changes to these properties will affect how this image can be used and who can access it."
 msgstr "Änderungen an diesen Eigenschaften beeinflussen, wie dieses Image verwendet werden kann und wer darauf zugreifen kann."
 
-#: src/client/routes/index.tsx:115
+#: src/client/routes/index.tsx:105
 msgid "Check out our source code on GitHub!"
 msgstr "Schauen Sie sich unseren Quellcode auf GitHub an!"
 
@@ -334,7 +338,7 @@ msgstr "Code-Ansicht"
 msgid "Community"
 msgstr "Community"
 
-#: src/client/routes/index.tsx:67
+#: src/client/routes/index.tsx:63
 msgid "Compute"
 msgstr "Rechenleistung"
 
@@ -342,7 +346,7 @@ msgstr "Rechenleistung"
 msgid "Compute Overview"
 msgstr ""
 
-#: src/client/routes/index.tsx:84
+#: src/client/routes/index.tsx:77
 msgid "Configure networks, security groups, and floating IPs effortlessly"
 msgstr "Konfigurieren Sie Netzwerke, Sicherheitsgruppen und Floating IPs mühelos"
 
@@ -718,7 +722,7 @@ msgstr "Festplattenformat"
 msgid "Disk format is required"
 msgstr "Festplattenformat ist erforderlich"
 
-#: src/client/routes/index.tsx:133
+#: src/client/routes/index.tsx:123
 msgid "Documentation"
 msgstr "Dokumentation"
 
@@ -820,7 +824,7 @@ msgstr "Mitglieds-ID eingeben"
 msgid "Enter tenant ID"
 msgstr "Project ID eingeben"
 
-#: src/client/routes/index.tsx:53
+#: src/client/routes/index.tsx:52
 msgid "Enter the Cloud"
 msgstr "Die Cloud betreten"
 
@@ -1062,7 +1066,7 @@ msgstr "Wird abgerufen..."
 msgid "Filters"
 msgstr "Filter"
 
-#: src/client/routes/index.tsx:137
+#: src/client/routes/index.tsx:127
 msgid "Find detailed guides and references in our docs."
 msgstr "Finden Sie detaillierte Anleitungen und Referenzen in unserer Dokumentation."
 
@@ -1142,7 +1146,7 @@ msgstr "Allgemeine Image-Daten"
 msgid "Get Involved"
 msgstr "Mitmachen"
 
-#: src/client/routes/index.tsx:111
+#: src/client/routes/index.tsx:101
 msgid "GitHub"
 msgstr "GitHub"
 
@@ -1483,6 +1487,10 @@ msgstr "Lädt Servergruppen"
 msgid "Loading..."
 msgstr "Lädt..."
 
+#: src/client/components/navigation/UserMenu.tsx:143
+msgid "Log Out"
+msgstr "Abmelden"
+
 #: src/client/routes/auth/login.tsx:99
 msgid "Login failed. Please check your credentials and try again."
 msgstr "Anmeldung fehlgeschlagen. Bitte überprüfen Sie Ihre Anmeldeinformationen und versuchen Sie es erneut."
@@ -1525,7 +1533,7 @@ msgstr "Zugriff für Image verwalten - {imageName}"
 msgid "Manage and access your cloud projects across all domains"
 msgstr "Verwalten und greifen Sie auf Ihre Cloud-Projekte über alle Domains hinweg zu"
 
-#: src/client/routes/index.tsx:70
+#: src/client/routes/index.tsx:66
 msgid "Manage virtual machines, flavors, and compute resources with ease"
 msgstr "Verwalten Sie virtuelle Maschinen, Flavors und Rechenressourcen mit Leichtigkeit"
 
@@ -1681,6 +1689,10 @@ msgstr "Weitere Aktionen"
 msgid "Must be a non-negative integer"
 msgstr "Muss eine nicht-negative Ganzzahl sein"
 
+#: src/client/components/navigation/UserMenu.tsx:114
+msgid "My Profile"
+msgstr "Mein Profil"
+
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImageModal.tsx:111
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImageModal.tsx:126
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageDetailsView.tsx:66
@@ -1720,7 +1732,7 @@ msgstr "Der Name muss 2-50 Zeichen lang sein."
 msgid "Need help?"
 msgstr "Benötigen Sie Hilfe?"
 
-#: src/client/routes/index.tsx:81
+#: src/client/routes/index.tsx:74
 msgid "Network"
 msgstr "Netzwerk"
 
@@ -2058,7 +2070,7 @@ msgstr "Geschützt (wird übersprungen):"
 msgid "Protected images (cannot be deleted)"
 msgstr "Geschützte Images (können nicht gelöscht werden)"
 
-#: src/client/routes/index.tsx:98
+#: src/client/routes/index.tsx:88
 msgid "Provision volumes and manage object storage across your infrastructure"
 msgstr "Stellen Sie Volumes bereit und verwalten Sie Object Storage in Ihrer gesamten Infrastruktur"
 
@@ -2444,7 +2456,7 @@ msgstr "Statisches Website-Serving"
 msgid "Status"
 msgstr "Status"
 
-#: src/client/routes/index.tsx:95
+#: src/client/routes/index.tsx:85
 msgid "Storage"
 msgstr "Speicher"
 
@@ -2854,11 +2866,11 @@ msgstr "Versionierung ist aktiviert"
 msgid "View Details"
 msgstr "Details ansehen"
 
-#: src/client/routes/index.tsx:143
+#: src/client/routes/index.tsx:133
 msgid "View Docs"
 msgstr "Dokumentation ansehen"
 
-#: src/client/routes/index.tsx:123
+#: src/client/routes/index.tsx:113
 msgid "View Repository"
 msgstr "Repository ansehen"
 
