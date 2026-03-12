@@ -1,5 +1,10 @@
+import { z } from "zod"
+import {
+  securityGroupResponseSchema,
+  securityGroupsResponseSchema,
+  securityGroupRuleResponseSchema,
+} from "../types/securityGroup"
 import { TRPCError } from "@trpc/server"
-import { securityGroupResponseSchema, securityGroupsResponseSchema } from "../types/securityGroup"
 import { DEFAULT_ERROR_NAME, HTTP_STATUS_ERROR_MAP } from "./index"
 
 /**
@@ -189,6 +194,114 @@ export const SecurityGroupErrorHandlers = {
 }
 
 /**
+ * Handles specific error cases for security group rule operations with custom messages
+ */
+export const SecurityGroupRuleErrorHandlers = {
+  /**
+   * Handles errors specific to security group rule creation
+   * @param response - The HTTP response from OpenStack
+   * @returns TRPCError with appropriate code and message
+   */
+  create: (response: { status?: number; statusText?: string }) => {
+    switch (response.status) {
+      case 400:
+        return new TRPCError({
+          code: "BAD_REQUEST",
+          message: `Invalid request: ${response.statusText || "Unknown error"}`,
+        })
+      case 401:
+        return new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "Unauthorized access",
+        })
+      case 403:
+        return new TRPCError({
+          code: "FORBIDDEN",
+          message: `Access forbidden: ${response.statusText || "Unknown error"}`,
+        })
+      case 404:
+        return new TRPCError({
+          code: "NOT_FOUND",
+          message: "Security group not found",
+        })
+      case 409:
+        return new TRPCError({
+          code: "CONFLICT",
+          message: `Conflict: ${response.statusText || "Rule already exists or conflicts with existing rules"}`,
+        })
+      case 413:
+        // Quota exceeded
+        return new TRPCError({
+          code: "BAD_REQUEST",
+          message: `Quota exceeded for security group rules. Please delete an existing rule or contact your administrator to increase your quota.`,
+        })
+      default:
+        return new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: `Failed to create security group rule: ${response.statusText || "Unknown error"}`,
+        })
+    }
+  },
+
+  /**
+   * Handles errors specific to security group rule deletion
+   * @param response - The HTTP response from OpenStack
+   * @param ruleId - The ID of the rule being deleted
+   * @returns TRPCError with appropriate code and message
+   *
+   * Based on OpenStack API documentation:
+   * - Normal response: 204
+   * - Error responses: 401, 404, 412
+   */
+  delete: (response: { status?: number; statusText?: string }, ruleId: string) => {
+    switch (response.status) {
+      case 401:
+        return new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "Unauthorized access",
+        })
+      case 404:
+        return new TRPCError({
+          code: "NOT_FOUND",
+          message: `Security group rule not found: ${ruleId}`,
+        })
+      case 412:
+        // Precondition Failed - typically means the resource state doesn't match expected conditions
+        return new TRPCError({
+          code: "PRECONDITION_FAILED",
+          message: `Cannot delete security group rule: precondition failed`,
+        })
+      default:
+        return new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: `Failed to delete security group rule: ${response.statusText || "Unknown error"}`,
+        })
+    }
+  },
+}
+
+/**
+ * Generic parser for OpenStack responses with Zod schema validation
+ * @param data - The response data to parse
+ * @param schema - The Zod schema to validate against
+ * @param operation - The operation name for error context
+ * @param errorMessage - The error message to use if parsing fails
+ * @returns The parsed data
+ * @throws TRPCError if parsing fails
+ */
+const parseOpenStackResponse = <T>(data: unknown, schema: z.ZodType<T>, operation: string, errorMessage: string): T => {
+  const parsed = schema.safeParse(data)
+  if (!parsed.success) {
+    console.error(`Zod Parsing Error in ${operation}:`, parsed.error.format())
+    throw new TRPCError({
+      code: "INTERNAL_SERVER_ERROR",
+      message: errorMessage,
+    })
+  }
+  return parsed.data
+}
+
+/**
  * Parses and validates a single security group response from OpenStack
  * @param data - The response data to parse
  * @param operation - The operation name for error context
@@ -196,15 +309,13 @@ export const SecurityGroupErrorHandlers = {
  * @throws TRPCError if parsing fails
  */
 export const parseSecurityGroupResponse = (data: unknown, operation: string) => {
-  const parsed = securityGroupResponseSchema.safeParse(data)
-  if (!parsed.success) {
-    console.error(`Zod Parsing Error in ${operation}:`, parsed.error.format())
-    throw new TRPCError({
-      code: "INTERNAL_SERVER_ERROR",
-      message: "Failed to parse security group response from OpenStack",
-    })
-  }
-  return parsed.data.security_group
+  const parsed = parseOpenStackResponse(
+    data,
+    securityGroupResponseSchema,
+    operation,
+    "Failed to parse security group response from OpenStack"
+  )
+  return parsed.security_group
 }
 
 /**
@@ -214,14 +325,29 @@ export const parseSecurityGroupResponse = (data: unknown, operation: string) => 
  * @returns The parsed security groups array
  * @throws TRPCError if parsing fails
  */
-export const parseSecurityGroupsResponse = (data: unknown, operation: string) => {
-  const parsed = securityGroupsResponseSchema.safeParse(data)
-  if (!parsed.success) {
-    console.error(`Zod Parsing Error in ${operation}:`, parsed.error.format())
-    throw new TRPCError({
-      code: "INTERNAL_SERVER_ERROR",
-      message: "Failed to parse security groups response from OpenStack",
-    })
-  }
-  return parsed.data.security_groups
+export const parseSecurityGroupListResponse = (data: unknown, operation: string) => {
+  const parsed = parseOpenStackResponse(
+    data,
+    securityGroupsResponseSchema,
+    operation,
+    "Failed to parse security groups list response from OpenStack"
+  )
+  return parsed.security_groups
+}
+
+/**
+ * Parses and validates a single security group rule response from OpenStack
+ * @param data - The response data to parse
+ * @param operation - The operation name for error context
+ * @returns The parsed security group rule
+ * @throws TRPCError if parsing fails
+ */
+export const parseSecurityGroupRuleResponse = (data: unknown, operation: string) => {
+  const parsed = parseOpenStackResponse(
+    data,
+    securityGroupRuleResponseSchema,
+    operation,
+    "Failed to parse security group rule response from OpenStack"
+  )
+  return parsed.security_group_rule
 }

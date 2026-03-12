@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { useNavigate, useParams } from "@tanstack/react-router"
 import { Button } from "@cloudoperators/juno-ui-components"
@@ -64,6 +64,15 @@ export const SecurityGroups = () => {
     ...buildFilterParams(filterSettings),
     ...(searchTerm ? { searchTerm } : {}),
   })
+
+  // Cache each security group individually for instant navigation to details page
+  useEffect(() => {
+    if (securityGroups.length > 0) {
+      securityGroups.forEach((sg) => {
+        utils.network.securityGroup.getById.setData({ securityGroupId: sg.id }, sg)
+      })
+    }
+  }, [securityGroups, utils])
 
   const createSecurityGroupMutation = trpcReact.network.securityGroup.create.useMutation({
     onSuccess: (createdSecurityGroup) => {
