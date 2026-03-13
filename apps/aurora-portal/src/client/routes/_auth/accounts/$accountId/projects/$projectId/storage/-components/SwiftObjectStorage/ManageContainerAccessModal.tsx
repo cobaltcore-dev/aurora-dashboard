@@ -272,7 +272,10 @@ export const ManageContainerAccessModal = ({
           </Stack>
         ) : isMetaError ? (
           <Message variant="danger">
-            <Trans>Failed to load container ACLs: {metaError?.message}</Trans>
+            {(() => {
+              const errorMessage = metaError?.message ?? ""
+              return <Trans>Failed to load container ACLs: {errorMessage}</Trans>
+            })()}
           </Message>
         ) : (
           <>
@@ -429,7 +432,10 @@ export const ManageContainerAccessModal = ({
             {/* Mutation error */}
             {updateMutation.isError && (
               <Message variant="danger" className="mt-4">
-                <Trans>Failed to update ACLs: {updateMutation.error.message}</Trans>
+                {(() => {
+                  const errorMessage = updateMutation.error.message
+                  return <Trans>Failed to update ACLs: {errorMessage}</Trans>
+                })()}
               </Message>
             )}
           </>

@@ -152,12 +152,18 @@ export const DeleteContainerModal = ({ isOpen, container, onClose, onSuccess, on
         <Stack direction="vertical" gap="2" className="mb-2">
           {objectsError && (
             <Message variant="danger">
-              <Trans>Failed to load container objects: {objectsError.message}</Trans>
+              {(() => {
+                const errorMessage = objectsError.message
+                return <Trans>Failed to load container objects: {errorMessage}</Trans>
+              })()}
             </Message>
           )}
           {metaError && (
             <Message variant="danger">
-              <Trans>Failed to load container properties: {metaError.message}</Trans>
+              {(() => {
+                const errorMessage = metaError.message
+                return <Trans>Failed to load container properties: {errorMessage}</Trans>
+              })()}
             </Message>
           )}
         </Stack>

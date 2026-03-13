@@ -143,7 +143,10 @@ export const EmptyContainerModal = ({ isOpen, container, onClose, onSuccess, onE
     >
       {objectsError && (
         <Message variant="danger" className="mb-2">
-          <Trans>Failed to load container objects: {objectsError.message}</Trans>
+          {(() => {
+            const errorMessage = objectsError.message
+            return <Trans>Failed to load container objects: {errorMessage}</Trans>
+          })()}
         </Message>
       )}
       {isLoadingObjects ? (
