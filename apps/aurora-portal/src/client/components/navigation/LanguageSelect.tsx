@@ -7,7 +7,7 @@ const isSupportedLocale = (locale: string): locale is SupportedLocale => {
   return SUPPORTED_LOCALES.includes(locale as SupportedLocale)
 }
 
-export function LanguageSelect() {
+export function LanguageSelect({ className }: { className?: string }) {
   const { i18n: linguiInstance } = useLingui()
   const currentValue = linguiInstance.locale.toUpperCase()
   const displayLanguages = SUPPORTED_LOCALES.map((l) => l.toUpperCase())
@@ -31,7 +31,7 @@ export function LanguageSelect() {
       options={displayLanguages}
       onChange={handleLanguageChange}
       aria-label="Select language"
-      className="hover:text-theme-accent !bg-transparent"
+      className={`hover:text-theme-accent !bg-transparent ${className ?? ""}`}
     />
   )
 }
