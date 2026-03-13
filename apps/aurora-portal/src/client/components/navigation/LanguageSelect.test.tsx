@@ -32,10 +32,10 @@ describe("LanguageSelect", () => {
     mockStorage.clear()
   })
 
-  const renderComponent = () => {
+  const renderComponent = (props?: { className?: string }) => {
     return render(
       <I18nProvider i18n={i18n}>
-        <LanguageSelect />
+        <LanguageSelect {...props} />
       </I18nProvider>
     )
   }
@@ -180,11 +180,7 @@ describe("LanguageSelect", () => {
     })
 
     it("applies custom className prop", () => {
-      render(
-        <I18nProvider i18n={i18n}>
-          <LanguageSelect className="custom-class text-white" />
-        </I18nProvider>
-      )
+      renderComponent({ className: "custom-class text-white" })
 
       const button = screen.getByRole("button")
       expect(button.className).toContain("text-white")
@@ -192,11 +188,7 @@ describe("LanguageSelect", () => {
     })
 
     it("merges custom className with default classes", () => {
-      render(
-        <I18nProvider i18n={i18n}>
-          <LanguageSelect className="text-white" />
-        </I18nProvider>
-      )
+      renderComponent({ className: "text-white" })
 
       const button = screen.getByRole("button")
       // Should have both default and custom classes
