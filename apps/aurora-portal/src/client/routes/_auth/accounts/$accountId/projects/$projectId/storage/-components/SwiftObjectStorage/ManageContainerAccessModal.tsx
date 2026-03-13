@@ -171,16 +171,6 @@ export const ManageContainerAccessModal = ({
     setPublicRead(isPublicRead(read))
   }, [info])
 
-  // ── Reset when closed ────────────────────────────────────────────────────
-  useEffect(() => {
-    if (!isOpen) {
-      setReadAcl("")
-      setWriteAcl("")
-      setPublicRead(false)
-      updateMutation.reset()
-    }
-  }, [isOpen])
-
   // ── Mutation ──────────────────────────────────────────────────────────────
   const utils = trpcReact.useUtils()
 
@@ -204,6 +194,16 @@ export const ManageContainerAccessModal = ({
     updateMutation.reset()
     onClose()
   }
+
+  // ── Reset when closed ────────────────────────────────────────────────────
+  useEffect(() => {
+    if (!isOpen) {
+      setReadAcl("")
+      setWriteAcl("")
+      setPublicRead(false)
+      updateMutation.reset()
+    }
+  }, [isOpen, updateMutation])
 
   // ── Public read checkbox sync ─────────────────────────────────────────────
   const handlePublicReadChange = (e: React.ChangeEvent<HTMLInputElement>) => {
