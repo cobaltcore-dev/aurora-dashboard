@@ -312,7 +312,7 @@ The `SecurityGroupErrorHandlers` object provides specialized error handling for 
 ### Response Parsers
 
 - `parseSecurityGroupResponse(data, operation)` - Parses and validates single security group response using Zod
-- `parseSecurityGroupsResponse(data, operation)` - Parses and validates security groups list response using Zod
+- `parseSecurityGroupListResponse(data, operation)` - Parses and validates security groups list response using Zod
 
 Both parsers throw `TRPCError` with code `INTERNAL_SERVER_ERROR` if validation fails.
 

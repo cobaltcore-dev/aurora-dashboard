@@ -1,0 +1,11 @@
+import { describe, it, expect } from "vitest"
+import { PortErrorHandlers } from "./portHelpers"
+import { DEFAULT_ERROR_NAME } from "./index"
+
+describe("PortErrorHandlers.list", () => {
+  it("is wired to shared list handler", () => {
+    const error = PortErrorHandlers.list({ status: 500, statusText: "Internal Server Error" })
+    expect(error.code).toBe(DEFAULT_ERROR_NAME)
+    expect(error.message).toBe("Failed to fetch list: Port: Internal Server Error")
+  })
+})

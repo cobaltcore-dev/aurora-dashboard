@@ -3,7 +3,6 @@ import { protectedProcedure } from "@/server/trpc"
 import { withErrorHandling } from "@/server/helpers/errorHandling"
 import { appendQueryParamsFromObject } from "@/server/helpers/queryParams"
 import { filterBySearchParams } from "@/server/helpers/filterBySearchParams"
-import { validateOpenstackService } from "@/server/helpers/validateOpenstackService"
 import {
   FloatingIpQueryParametersSchema,
   FloatingIp,
@@ -14,7 +13,7 @@ import {
   FloatingIpCreateRequestSchema,
 } from "../types/floatingIp"
 import { FLOATING_IPS_BASE_URL, FloatingIpErrorHandlers } from "../helpers/floatingIpHelpers"
-import { getNetworkService } from "../helpers/networkHelpers"
+import { getNetworkService } from "../helpers/index"
 
 /**
  * tRPC router for OpenStack Neutron Floating IPs.
@@ -32,9 +31,7 @@ export const floatingIpRouter = {
     .input(FloatingIpQueryParametersSchema)
     .query(async ({ input, ctx }): Promise<FloatingIp[]> => {
       return withErrorHandling(async () => {
-        const openstackSession = ctx.openstack
-        const network = openstackSession?.service("network")
-        validateOpenstackService(network, "network")
+        const network = getNetworkService(ctx)
 
         // Extract searchTerm from input before building query params
         const { searchTerm, ...openstackParams } = input
@@ -106,9 +103,7 @@ export const floatingIpRouter = {
     .query(async ({ input, ctx }): Promise<FloatingIp | null> => {
       return withErrorHandling(async () => {
         const { floatingip_id } = input
-        const openstackSession = ctx.openstack
-        const network = openstackSession?.service("network")
-        validateOpenstackService(network, "network")
+        const network = getNetworkService(ctx)
 
         const response = await network.get(`${FLOATING_IPS_BASE_URL}/${floatingip_id}`)
         if (!response.ok) {
@@ -163,9 +158,7 @@ export const floatingIpRouter = {
   delete: protectedProcedure.input(FloatingIpIdInputSchema).mutation(async ({ input, ctx }): Promise<boolean> => {
     return withErrorHandling(async () => {
       const { floatingip_id } = input
-      const openstackSession = ctx.openstack
-      const network = openstackSession?.service("network")
-      validateOpenstackService(network, "network")
+      const network = getNetworkService(ctx)
 
       // OpenStack DELETE returns 204 No Content on success
       const response = await network.del(`${FLOATING_IPS_BASE_URL}/${floatingip_id}`)

@@ -1,4 +1,5 @@
 import { z } from "zod"
+import { SortDirSchema } from "./index"
 
 export const securityGroupRuleSchema = z.object({
   id: z.string(),
@@ -43,7 +44,9 @@ export const securityGroupResponseSchema = z.object({
   security_group: securityGroupSchema,
 })
 
-const sortDirSchema = z.enum(["asc", "desc"])
+export const securityGroupRuleResponseSchema = z.object({
+  security_group_rule: securityGroupRuleSchema,
+})
 
 export const listSecurityGroupsInputSchema = z.object({
   // Pagination
@@ -53,7 +56,7 @@ export const listSecurityGroupsInputSchema = z.object({
 
   // Sorting
   sort_key: z.string().optional(),
-  sort_dir: sortDirSchema.optional(),
+  sort_dir: SortDirSchema.optional(),
 
   // Basic filtering
   name: z.string().optional(),
@@ -93,12 +96,32 @@ export const updateSecurityGroupInputSchema = z.object({
   stateful: z.boolean().optional(),
 })
 
+export const deleteSecurityGroupRuleInputSchema = z.object({
+  ruleId: z.string(),
+})
+
+export const createSecurityGroupRuleInputSchema = z.object({
+  security_group_id: z.string(),
+  direction: z.enum(["ingress", "egress"]),
+  ethertype: z.enum(["IPv4", "IPv6"]).optional(),
+  description: z.string().optional(),
+  protocol: z.string().nullable().optional(),
+  port_range_min: z.number().nullable().optional(),
+  port_range_max: z.number().nullable().optional(),
+  remote_ip_prefix: z.string().nullable().optional(),
+  remote_group_id: z.string().nullable().optional(),
+  remote_address_group_id: z.string().nullable().optional(),
+})
+
 export type SecurityGroupRule = z.infer<typeof securityGroupRuleSchema>
 export type SecurityGroup = z.infer<typeof securityGroupSchema>
 export type SecurityGroupsResponse = z.infer<typeof securityGroupsResponseSchema>
 export type SecurityGroupResponse = z.infer<typeof securityGroupResponseSchema>
+export type SecurityGroupRuleResponse = z.infer<typeof securityGroupRuleResponseSchema>
 export type ListSecurityGroupsInput = z.infer<typeof listSecurityGroupsInputSchema>
 export type GetSecurityGroupByIdInput = z.infer<typeof getSecurityGroupByIdInputSchema>
 export type CreateSecurityGroupInput = z.infer<typeof createSecurityGroupInputSchema>
 export type DeleteSecurityGroupInput = z.infer<typeof deleteSecurityGroupInputSchema>
 export type UpdateSecurityGroupInput = z.infer<typeof updateSecurityGroupInputSchema>
+export type DeleteSecurityGroupRuleInput = z.infer<typeof deleteSecurityGroupRuleInputSchema>
+export type CreateSecurityGroupRuleInput = z.infer<typeof createSecurityGroupRuleInputSchema>
