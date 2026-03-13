@@ -124,7 +124,7 @@ export function AuthLoginPage() {
           </Stack>
 
           {loginError ? (
-            <Message variant="error" text={loginError} />
+            <Message className="text-sm" variant="error" text={loginError} />
           ) : (
             (search.redirect || wasInactive) && (
               <Message
@@ -132,6 +132,7 @@ export function AuthLoginPage() {
                 text={
                   wasInactive ? t`Your session expired. Please login again.` : t`You need to login to access this page.`
                 }
+                className="text-sm"
               />
             )
           )}
