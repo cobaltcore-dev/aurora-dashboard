@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router"
 import { Trans } from "@lingui/react/macro"
 import { Button, Box, Stack, Icon, Container } from "@cloudoperators/juno-ui-components"
-import { MdComputer, MdStorage, MdRouter, MdImage, MdTune, MdVpnKey } from "react-icons/md"
+import { MdComputer, MdStorage, MdRouter, MdImage, MdTune, MdVpnKey, MdCode, MdMenuBook } from "react-icons/md"
 
 export const Route = createFileRoute("/")({
   component: Home,
@@ -77,7 +77,7 @@ export function Home() {
               <div className="bg-theme-accent/5 absolute -top-8 -right-8 h-32 w-32 rounded-full opacity-0 blur-2xl transition-opacity group-hover:opacity-100" />
               <Stack direction="vertical" gap="4" className="relative">
                 <div className="bg-theme-accent/10 flex h-14 w-14 items-center justify-center rounded-xl transition-transform group-hover:scale-110">
-                  <Icon icon="code" size="28" className="text-theme-accent" />
+                  <MdCode size={28} className="text-theme-accent" />
                 </div>
                 <h2 className="text-2xl font-bold">
                   <Trans>Open Source</Trans>
@@ -104,7 +104,7 @@ export function Home() {
               <div className="bg-theme-accent/5 absolute -top-8 -right-8 h-32 w-32 rounded-full opacity-0 blur-2xl transition-opacity group-hover:opacity-100" />
               <Stack direction="vertical" gap="4" className="relative">
                 <div className="bg-theme-accent/10 flex h-14 w-14 items-center justify-center rounded-xl transition-transform group-hover:scale-110">
-                  <Icon icon="menuBook" size="28" className="text-theme-accent" />
+                  <MdMenuBook size={28} className="text-theme-accent" />
                 </div>
                 <h2 className="text-2xl font-bold">
                   <Trans>Documentation</Trans>
