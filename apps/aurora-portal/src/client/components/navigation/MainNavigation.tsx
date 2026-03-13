@@ -55,7 +55,11 @@ export function MainNavigation({ items, handleThemeToggle }: NavigationProps) {
           {domain && (
             <>
               <span className={cn("flex-shrink-0", textMutedClass)}>/</span>
-              <Link to={domain.path} data-testid="domain-link" className={cn("flex-shrink-0", textColorClass, textHoverClass)}>
+              <Link
+                to={domain.path}
+                data-testid="domain-link"
+                className={cn("flex-shrink-0", textColorClass, textHoverClass)}
+              >
                 {domain.name}
               </Link>
             </>
