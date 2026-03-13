@@ -4,7 +4,7 @@ import { useAuth } from "../../store/AuthProvider"
 import { z } from "zod"
 import { trpcClient } from "../../trpcClient"
 import { Trans, useLingui } from "@lingui/react/macro"
-import { Button, ContentHeading, TextInput, Container, Stack } from "@cloudoperators/juno-ui-components"
+import { Button, ContentHeading, TextInput, Container, Stack, Message } from "@cloudoperators/juno-ui-components"
 import { useErrorTranslation } from "../../utils/useErrorTranslation"
 
 export const Route = createFileRoute("/auth/login")({
@@ -124,26 +124,17 @@ export function AuthLoginPage() {
           </Stack>
 
           {loginError ? (
-            <div className="bg-theme-danger/10 border-theme-danger rounded-r border-l-4 px-4 py-3 text-sm">
-              <div className="flex items-start gap-3">
-                <span className="text-theme-danger mt-0.5">✕</span>
-                <span>{loginError}</span>
-              </div>
-            </div>
+            <Message variant="error" text={loginError} />
           ) : (
             (search.redirect || wasInactive) && (
-              <div className="bg-theme-warning/10 border-theme-warning rounded-r border-l-4 px-4 py-3 text-sm">
-                <div className="flex items-start gap-3">
-                  <span className="text-theme-warning mt-0.5">⚠</span>
-                  <span>
-                    {wasInactive ? (
-                      <Trans>Your session expired. Please login again.</Trans>
-                    ) : (
-                      <Trans>You need to login to access this page.</Trans>
-                    )}
-                  </span>
-                </div>
-              </div>
+              <Message
+                variant="warning"
+                text={
+                  wasInactive
+                    ? t`Your session expired. Please login again.`
+                    : t`You need to login to access this page.`
+                }
+              />
             )
           )}
 
