@@ -130,7 +130,7 @@ export function AuthLoginPage() {
               <Message
                 variant="warning"
                 text={
-                  wasInactive ? t`Your session expired. Please login again.` : t`You need to login to access this page.`
+                  wasInactive ? t`Your session expired. Please login again.` : t`Please log in to continue.`
                 }
                 className="text-sm"
               />
