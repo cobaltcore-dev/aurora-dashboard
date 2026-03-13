@@ -29,14 +29,46 @@ export const checkServiceAvailability = (
   }
 
   // Redirect to default if specific provider not available
-  if (provider === "swift" && !serviceIndex["object-store"]["swift"]) {
+  const hasSwift = Boolean(serviceIndex["object-store"]["swift"])
+  const hasCeph = Boolean(serviceIndex["object-store"]["ceph"])
+
+  const fallbackProvider = hasSwift ? "swift" : hasCeph ? "ceph" : null
+
+  if (provider !== "swift" && provider !== "ceph") {
+    if (!fallbackProvider) {
+      throw redirect({
+        to: "/accounts/$accountId/projects",
+        params: { accountId },
+      })
+    }
+    throw redirect({
+      to: "/accounts/$accountId/projects/$projectId/storage/$provider/$",
+      params: { ...params, provider: fallbackProvider, _splat: undefined },
+    })
+  }
+
+  if (provider === "swift" && !hasSwift) {
+    if (!hasCeph) {
+      throw redirect({
+        to: "/accounts/$accountId/projects",
+        params: { accountId },
+      })
+    }
+
     throw redirect({
       to: "/accounts/$accountId/projects/$projectId/storage/$provider/$",
       params: { ...params, provider: "ceph", _splat: undefined },
     })
   }
 
-  if (provider === "ceph" && !serviceIndex["object-store"]["ceph"]) {
+  if (provider === "ceph" && !hasCeph) {
+    if (!hasSwift) {
+      throw redirect({
+        to: "/accounts/$accountId/projects",
+        params: { accountId },
+      })
+    }
+
     throw redirect({
       to: "/accounts/$accountId/projects/$projectId/storage/$provider/$",
       params: { ...params, provider: "swift", _splat: undefined },

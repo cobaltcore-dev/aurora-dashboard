@@ -154,7 +154,7 @@ describe("Storage Route - checkServiceAvailability", () => {
 
     it("calls redirect with correct params when swift is unavailable", () => {
       vi.mocked(getServiceIndex).mockReturnValue({
-        "object-store": {},
+        "object-store": { ceph: true },
       })
 
       const params = {
