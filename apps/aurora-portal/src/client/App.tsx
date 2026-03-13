@@ -16,7 +16,9 @@ type AppProps = {
   theme?: "theme-dark" | "theme-light"
 }
 
-const navItems: NavigationItem[] = [{ route: "/about", label: "About" }]
+// Additional navigation items can be added here and will be passed to the layout via context
+// The items will appear in the main navigation bar and use internal routing (TanStack Router)
+const navItems: NavigationItem[] = []
 
 const currentTheme = (localStorage.getItem("aurora-theme") || "theme-light") as "theme-dark" | "theme-light"
 
