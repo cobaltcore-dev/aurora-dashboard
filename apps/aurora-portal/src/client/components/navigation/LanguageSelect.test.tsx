@@ -182,7 +182,7 @@ describe("LanguageSelect", () => {
     it("applies custom className prop", () => {
       render(
         <I18nProvider i18n={i18n}>
-          <LanguageSelect className="text-white custom-class" />
+          <LanguageSelect className="custom-class text-white" />
         </I18nProvider>
       )
 
