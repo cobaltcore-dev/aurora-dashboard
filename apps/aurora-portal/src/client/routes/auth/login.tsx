@@ -4,7 +4,7 @@ import { useAuth } from "../../store/AuthProvider"
 import { z } from "zod"
 import { trpcClient } from "../../trpcClient"
 import { Trans, useLingui } from "@lingui/react/macro"
-import { Button, ContentHeading, Message } from "@cloudoperators/juno-ui-components"
+import { Button, ContentHeading, TextInput, Container, Stack } from "@cloudoperators/juno-ui-components"
 import { useErrorTranslation } from "../../utils/useErrorTranslation"
 
 export const Route = createFileRoute("/auth/login")({
@@ -32,23 +32,6 @@ export const Route = createFileRoute("/auth/login")({
   },
   component: AuthLoginPage,
 })
-
-const textinputstyles = `
-  jn-bg-theme-textinput
-  jn-text-theme-textinput
-  jn-text-base
-  jn-leading-4
-  jn-px-4
-  jn-h-textinput
-  jn-rounded-3px
-  focus:jn-outline-none
-  focus:jn-ring-2
-  focus:jn-ring-theme-focus
-  disabled:jn-opacity-50
-  autofill:jn-bg-theme-textinput-autofill
-  autofill:jn-text-theme-textinput-autofill
-  peer
-`
 
 export function AuthLoginPage() {
   const { isAuthenticated, user, login } = useAuth()
@@ -104,20 +87,22 @@ export function AuthLoginPage() {
     }
   }, [form, login, navigate, search.redirect, t, translateError])
 
-  const dismissError = () => {
-    setLoginError(null)
-  }
-
   const isLoggingIn = isLoading || isSubmitting
 
   if (isAuthenticated) {
     const username = user?.name
     return (
-      <div className="border-theme-light mt-8 w-full max-w-md justify-center rounded-lg border p-6 shadow-lg">
-        <h2 className="text-xl font-semibold">
-          <Trans>Welcome back, {username}!</Trans>
-        </h2>
-        <Trans>You are already signed in.</Trans>
+      <div className="flex min-h-[80vh] items-center justify-center">
+        <Container className="w-full max-w-md p-8">
+          <Stack gap="4" direction="vertical" alignment="center">
+            <h2 className="text-2xl font-semibold">
+              <Trans>Welcome back, {username}!</Trans>
+            </h2>
+            <p className="text-theme-light">
+              <Trans>You are already signed in.</Trans>
+            </p>
+          </Stack>
+        </Container>
       </div>
     )
   }
@@ -126,111 +111,125 @@ export function AuthLoginPage() {
   const wasInactive = logoutReason === "inactive" || logoutReason === "expired"
 
   return (
-    <div className="mt-8 flex justify-center">
-      <div className="border-theme-light relative w-full max-w-md rounded-lg border p-6 shadow-lg">
-        {loginError && (
-          <Message
-            onDismiss={dismissError}
-            text={loginError}
-            variant="error"
-            className="absolute -top-14 right-0 left-0 z-50"
-          />
-        )}
+    <div className="flex min-h-[80vh] items-center justify-center px-4">
+      <Container className="relative w-full max-w-md p-8 sm:p-10">
+        <Stack gap="8" direction="vertical">
+          <Stack gap="3" direction="vertical" alignment="center">
+            <ContentHeading className="text-center text-4xl font-bold tracking-tight">
+              <Trans>Welcome to Aurora</Trans>
+            </ContentHeading>
+            <p className="text-theme-light text-center text-base">
+              <Trans>Sign in to continue to your account</Trans>
+            </p>
+          </Stack>
 
-        <ContentHeading className="text-center">
-          <Trans>Login to Your Account</Trans>
-        </ContentHeading>
-        <p className="mb-6 text-center">
-          <Trans>Enter your credentials to access your account</Trans>
-        </p>
+          {loginError ? (
+            <div className="bg-theme-danger/10 border-theme-danger rounded-r border-l-4 px-4 py-3 text-sm">
+              <div className="flex items-start gap-3">
+                <span className="text-theme-danger mt-0.5">✕</span>
+                <span>{loginError}</span>
+              </div>
+            </div>
+          ) : (
+            (search.redirect || wasInactive) && (
+              <div className="bg-theme-warning/10 border-theme-warning rounded-r border-l-4 px-4 py-3 text-sm">
+                <div className="flex items-start gap-3">
+                  <span className="text-theme-warning mt-0.5">⚠</span>
+                  <span>
+                    {wasInactive ? (
+                      <Trans>Your session expired. Please login again.</Trans>
+                    ) : (
+                      <Trans>You need to login to access this page.</Trans>
+                    )}
+                  </span>
+                </div>
+              </div>
+            )
+          )}
 
-        {(search.redirect || wasInactive) && (
-          <p className="mb-4 text-center text-sm text-red-500">
-            {wasInactive ? (
-              <Trans>Your session expired. Please login again.</Trans>
-            ) : (
-              <Trans>You need to login to access this page.</Trans>
-            )}
-          </p>
-        )}
-
-        <form
-          className="space-y-4"
-          onSubmit={(e) => {
-            e.preventDefault()
-            signin()
-          }}
-        >
-          <div className="flex flex-col">
-            <label htmlFor="domain" className="font-medium text-gray-300">
-              <Trans>Domain</Trans>
-            </label>
-            <input
-              id="domain"
-              type="text"
-              placeholder={t`Enter your domain`}
-              className={textinputstyles}
-              onChange={(e) => {
-                setForm({ ...form, domainName: e.target.value })
-                if (loginError) setLoginError(null)
-              }}
-              required
-            />
-          </div>
-
-          <div className="flex flex-col">
-            <label htmlFor="user" className="font-medium text-gray-300">
-              <Trans>User C/D/I</Trans>
-            </label>
-            <input
-              id="user"
-              type="text"
-              placeholder={t`Enter your username`}
-              className={textinputstyles}
-              onChange={(e) => {
-                setForm({ ...form, user: e.target.value })
-                if (loginError) setLoginError(null)
-              }}
-              required
-            />
-          </div>
-
-          <div className="flex flex-col">
-            <label htmlFor="password" className="font-medium text-gray-300">
-              <Trans>Password</Trans>
-            </label>
-            <input
-              id="password"
-              type="password"
-              required
-              className={textinputstyles}
-              onChange={(e) => {
-                setForm({ ...form, password: e.target.value })
-                if (loginError) setLoginError(null)
-              }}
-              onKeyUp={(e) => e.key === "Enter" && signin()}
-            />
-          </div>
-
-          <Button
-            className="w-full"
-            disabled={isLoggingIn}
-            onClick={(e) => {
+          <form
+            onSubmit={(e) => {
               e.preventDefault()
               signin()
             }}
           >
-            {isLoggingIn ? <Trans>Loading...</Trans> : <Trans>Sign In</Trans>}
-          </Button>
-        </form>
+            <Stack gap="6" direction="vertical">
+              <Stack gap="2" direction="vertical">
+                <label htmlFor="domain" className="text-sm font-semibold">
+                  <Trans>Domain</Trans>
+                </label>
+                <TextInput
+                  id="domain"
+                  type="text"
+                  placeholder={t`Enter your domain`}
+                  onChange={(e) => {
+                    setForm({ ...form, domainName: e.target.value })
+                    if (loginError) setLoginError(null)
+                  }}
+                  required
+                  autoComplete="organization"
+                />
+              </Stack>
 
-        <p className="mt-4 text-center text-sm">
-          <Trans>Need help?</Trans>{" "}
-          <a href="#">
-            <Trans>Contact support</Trans>
-          </a>
-        </p>
-      </div>
+              <Stack gap="2" direction="vertical">
+                <label htmlFor="user" className="text-sm font-semibold">
+                  <Trans>Username</Trans>
+                </label>
+                <TextInput
+                  id="user"
+                  type="text"
+                  placeholder={t`Enter your username`}
+                  onChange={(e) => {
+                    setForm({ ...form, user: e.target.value })
+                    if (loginError) setLoginError(null)
+                  }}
+                  required
+                  autoComplete="username"
+                />
+              </Stack>
+
+              <Stack gap="2" direction="vertical">
+                <label htmlFor="password" className="text-sm font-semibold">
+                  <Trans>Password</Trans>
+                </label>
+                <TextInput
+                  id="password"
+                  type="password"
+                  required
+                  placeholder={t`Enter your password`}
+                  onChange={(e) => {
+                    setForm({ ...form, password: e.target.value })
+                    if (loginError) setLoginError(null)
+                  }}
+                  onKeyUp={(e) => e.key === "Enter" && signin()}
+                  autoComplete="current-password"
+                />
+              </Stack>
+
+              <Button
+                className="mt-2 w-full py-3 text-base font-semibold"
+                variant="primary"
+                disabled={isLoggingIn}
+                onClick={(e) => {
+                  e.preventDefault()
+                  signin()
+                }}
+              >
+                {isLoggingIn ? <Trans>Signing in...</Trans> : <Trans>Sign In</Trans>}
+              </Button>
+            </Stack>
+          </form>
+
+          <div className="border-theme-background-lvl-3 border-t pt-6">
+            <p className="text-theme-light text-center text-sm">
+              <Trans>Need help?</Trans>{" "}
+              <a href="#" className="jn-text-theme-link hover:jn-underline font-medium">
+                <Trans>Contact support</Trans>
+              </a>
+            </p>
+          </div>
+        </Stack>
+      </Container>
     </div>
   )
 }
