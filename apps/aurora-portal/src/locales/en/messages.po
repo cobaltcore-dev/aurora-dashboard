@@ -32,7 +32,7 @@ msgstr "—"
 msgid "<0>Are you sure?</0> All objects in the container will be deleted. This cannot be undone."
 msgstr "<0>Are you sure?</0> All objects in the container will be deleted. This cannot be undone."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/SwiftObjectStorage/DeleteContainerModal.tsx:185
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/SwiftObjectStorage/DeleteContainerModal.tsx:188
 msgid "<0>Are you sure?</0> The container will be deleted. This cannot be undone."
 msgstr "<0>Are you sure?</0> The container will be deleted. This cannot be undone."
 
@@ -296,14 +296,14 @@ msgstr "Bulk upload of archive files"
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/DeleteSecurityGroupDialog.tsx:60
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/EditSecurityGroupModal.tsx:133
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/SwiftObjectStorage/CreateContainerModal.tsx:91
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/SwiftObjectStorage/DeleteContainerModal.tsx:142
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/SwiftObjectStorage/DeleteContainerModal.tsx:144
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/SwiftObjectStorage/EditContainerMetadataModal.tsx:423
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/SwiftObjectStorage/EmptyContainerModal.tsx:135
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/SwiftObjectStorage/ManageContainerAccessModal.tsx:255
 msgid "Cancel"
 msgstr "Cancel"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/SwiftObjectStorage/DeleteContainerModal.tsx:179
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/SwiftObjectStorage/DeleteContainerModal.tsx:182
 msgid "Cannot delete. Container contains objects. Please empty it first."
 msgstr "Cannot delete. Container contains objects. Please empty it first."
 
@@ -467,7 +467,7 @@ msgstr "Container Name"
 msgid "Container name cannot contain slashes"
 msgstr "Container name cannot contain slashes"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/SwiftObjectStorage/DeleteContainerModal.tsx:95
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/SwiftObjectStorage/DeleteContainerModal.tsx:96
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/SwiftObjectStorage/EmptyContainerModal.tsx:83
 msgid "Container name does not match"
 msgstr "Container name does not match"
@@ -504,7 +504,7 @@ msgstr "Containers"
 msgid "Copied to clipboard!"
 msgstr "Copied to clipboard!"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/SwiftObjectStorage/DeleteContainerModal.tsx:126
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/SwiftObjectStorage/DeleteContainerModal.tsx:128
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/SwiftObjectStorage/EmptyContainerModal.tsx:119
 msgid "Copied!"
 msgstr "Copied!"
@@ -517,7 +517,7 @@ msgstr "Copy"
 msgid "Copy {text} to clipboard"
 msgstr "Copy {text} to clipboard"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/SwiftObjectStorage/DeleteContainerModal.tsx:126
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/SwiftObjectStorage/DeleteContainerModal.tsx:128
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/SwiftObjectStorage/EmptyContainerModal.tsx:119
 msgid "Copy container name"
 msgstr "Copy container name"
@@ -655,7 +655,7 @@ msgstr "delete"
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/DeleteSecurityGroupDialog.tsx:57
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/SecurityGroupTableRow.tsx:68
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/SwiftObjectStorage/ContainerListView.tsx:241
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/SwiftObjectStorage/DeleteContainerModal.tsx:140
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/SwiftObjectStorage/DeleteContainerModal.tsx:142
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/SwiftObjectStorage/EditContainerMetadataModal.tsx:781
 msgid "Delete"
 msgstr "Delete"
@@ -673,7 +673,7 @@ msgstr "Delete All"
 msgid "Delete Cluster"
 msgstr "Delete Cluster"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/SwiftObjectStorage/DeleteContainerModal.tsx:117
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/SwiftObjectStorage/DeleteContainerModal.tsx:119
 msgid "Delete container:"
 msgstr "Delete container:"
 
@@ -940,7 +940,7 @@ msgstr "Error - Image Details"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/$.tsx:124
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/$.tsx:71
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/$provider/$.tsx:104
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/$provider/$.tsx:136
 msgid "Error loading component"
 msgstr "Error loading component"
 
@@ -1078,12 +1078,12 @@ msgstr "Failed to fetch flavors from server."
 msgid "Failed to load container ACLs: {errorMessage}"
 msgstr "Failed to load container ACLs: {errorMessage}"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/SwiftObjectStorage/DeleteContainerModal.tsx:157
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/SwiftObjectStorage/DeleteContainerModal.tsx:160
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/SwiftObjectStorage/EmptyContainerModal.tsx:148
 msgid "Failed to load container objects: {errorMessage}"
 msgstr "Failed to load container objects: {errorMessage}"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/SwiftObjectStorage/DeleteContainerModal.tsx:165
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/SwiftObjectStorage/DeleteContainerModal.tsx:168
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/SwiftObjectStorage/EditContainerMetadataModal.tsx:437
 msgid "Failed to load container properties: {errorMessage}"
 msgstr "Failed to load container properties: {errorMessage}"
@@ -1252,7 +1252,7 @@ msgstr "Get Involved"
 msgid "GitHub"
 msgstr "GitHub"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/SwiftObjectStorage/DeleteContainerModal.tsx:140
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/SwiftObjectStorage/DeleteContainerModal.tsx:142
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/SwiftObjectStorage/EmptyContainerModal.tsx:133
 msgid "Got it!"
 msgstr "Got it!"
@@ -1285,7 +1285,7 @@ msgstr "Hide ACLs Preview"
 msgid "Home"
 msgstr "Home"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/SwiftObjectStorage/DeleteContainerModal.tsx:191
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/SwiftObjectStorage/DeleteContainerModal.tsx:194
 msgid "I confirm that all existing versions will also be deleted"
 msgstr "I confirm that all existing versions will also be deleted"
 
@@ -1600,7 +1600,7 @@ msgstr "Loading Server Groups..."
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Overview.tsx:114
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/FloatingIps/-components/FloatingIpListContainer.tsx:29
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/SecurityGroupListContainer.tsx:118
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/SwiftObjectStorage/DeleteContainerModal.tsx:174
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/SwiftObjectStorage/DeleteContainerModal.tsx:177
 #: src/client/routes/auth/login.tsx:223
 msgid "Loading..."
 msgstr "Loading..."
@@ -1917,7 +1917,7 @@ msgid "No limit"
 msgstr "No limit"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/$.tsx:147
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/$provider/$.tsx:121
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/$provider/$.tsx:153
 msgid "No project selected"
 msgstr "No project selected"
 
@@ -1999,8 +1999,8 @@ msgstr "Object Count"
 msgid "Object count quota"
 msgstr "Object count quota"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/$provider/$.tsx:89
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/$provider/$.tsx:92
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/$provider/$.tsx:121
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/$provider/$.tsx:124
 msgid "Object Storage"
 msgstr "Object Storage"
 
@@ -2619,7 +2619,7 @@ msgstr "Static website serving"
 msgid "Status"
 msgstr "Status"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/$provider/$.tsx:95
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/$provider/$.tsx:127
 msgid "Storage Overview"
 msgstr "Storage Overview"
 
@@ -2903,7 +2903,7 @@ msgstr "Type <0>{deleteWord}</0> to confirm:"
 msgid "Type <0>delete</0> to confirm:"
 msgstr "Type <0>delete</0> to confirm:"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/SwiftObjectStorage/DeleteContainerModal.tsx:198
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/SwiftObjectStorage/DeleteContainerModal.tsx:201
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/SwiftObjectStorage/EmptyContainerModal.tsx:224
 msgid "Type container name to confirm"
 msgstr "Type container name to confirm"
