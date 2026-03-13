@@ -52,7 +52,7 @@ export function UserMenu() {
   return (
     <div className="relative" ref={menuRef} tabIndex={0} onBlur={handleBlur}>
       <button onClick={toggleMenu} className="align-middle">
-        <Icon color="jn-global-text" icon="accountCircle" className="h-6 w-6" />
+        <Icon icon="accountCircle" className="h-6 w-6 text-white" />
       </button>
 
       {isOpen && (
@@ -68,9 +68,10 @@ export function UserMenu() {
               </div>
               {/* Menu Items */}
               <div className="p-2">
-                {/* My Profile */}
-                <button
-                  className="hover:bg-theme-background-lvl-3 flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left transition-colors"
+                {/* My Profile - Disabled until route is implemented */}
+                <Button
+                  className="hover:bg-theme-background-lvl-3 flex w-full cursor-not-allowed items-center gap-3 rounded-lg px-3 py-2.5 text-left opacity-50 transition-colors"
+                  disabled
                   onClick={() => {
                     setIsOpen(false)
                     // Navigate to profile when route is available
@@ -80,11 +81,11 @@ export function UserMenu() {
                   <span className="text-theme-default font-medium">
                     <Trans>My Profile</Trans>
                   </span>
-                </button>
+                </Button>
 
                 {/* Log Out */}
-                <button
-                  className="hover:bg-theme-danger/10 flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left transition-colors"
+                <Button
+                  className="hover:bg-theme-danger/10 mt-2 flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left transition-colors"
                   onClick={handleLogout}
                   disabled={isLoading}
                 >
@@ -92,7 +93,7 @@ export function UserMenu() {
                   <span className="text-theme-danger font-medium">
                     <Trans>Log Out</Trans>
                   </span>
-                </button>
+                </Button>
                 {expiresAt && <SessionExpirationTimer sessionExpired={expiresAt} logout={() => logout("expired")} />}
               </div>
             </>
@@ -101,10 +102,10 @@ export function UserMenu() {
               <Button
                 disabled={isLoading}
                 onClick={handleLogin}
-                className="hover:bg-theme-primary/10 flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left transition-colors"
+                className="hover:bg-theme-background-lvl-3 flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left transition-colors"
               >
-                <Icon icon="manageAccounts" className="h-5 w-5" />
-                <span className="font-medium">
+                <Icon icon="manageAccounts" className="text-theme-default h-5 w-5" />
+                <span className="text-theme-default font-medium">
                   <Trans>Sign In</Trans>
                 </span>
               </Button>
