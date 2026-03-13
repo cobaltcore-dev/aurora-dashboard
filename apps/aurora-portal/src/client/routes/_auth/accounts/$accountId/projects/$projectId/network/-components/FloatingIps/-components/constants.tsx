@@ -30,4 +30,5 @@ export const TABLE_COLUMNS = () => [
   t`Subnet`,
   t`Description`,
   "", // empty column for item-actions with context menu containing "Edit Description", "Attach", "Detach" and "Release"
+  "", // empty column for the Details button to redirect the user to the details page
 ]

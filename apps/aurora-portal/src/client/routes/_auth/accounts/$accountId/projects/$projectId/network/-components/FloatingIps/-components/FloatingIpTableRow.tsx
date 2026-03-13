@@ -1,5 +1,7 @@
+import { useNavigate, useParams } from "@tanstack/react-router"
 import { useLingui } from "@lingui/react/macro"
 import {
+  Button,
   DataGridCell,
   DataGridRow,
   PopupMenu,
@@ -15,6 +17,15 @@ interface FloatingIpTableRow {
 
 export const FloatingIpTableRow = ({ floatingIp }: FloatingIpTableRow) => {
   const { t } = useLingui()
+  const navigate = useNavigate()
+  const { accountId, projectId } = useParams({ strict: false })
+
+  const navigateToDetailsPage = () => {
+    navigate({
+      to: "/accounts/$accountId/projects/$projectId/network/floatingips/$floatingIpId",
+      params: { accountId: accountId!, projectId: projectId!, floatingIpId: floatingIp.id },
+    })
+  }
 
   return (
     <DataGridRow key={floatingIp.id} data-testid={`floating-ip-row-${floatingIp.id}`}>
@@ -33,6 +44,11 @@ export const FloatingIpTableRow = ({ floatingIp }: FloatingIpTableRow) => {
             <PopupMenuItem label={t`Release`} disabled />
           </PopupMenuOptions>
         </PopupMenu>
+      </DataGridCell>
+      <DataGridCell>
+        <Button size="small" onClick={navigateToDetailsPage}>
+          {t`Details`}
+        </Button>
       </DataGridCell>
     </DataGridRow>
   )

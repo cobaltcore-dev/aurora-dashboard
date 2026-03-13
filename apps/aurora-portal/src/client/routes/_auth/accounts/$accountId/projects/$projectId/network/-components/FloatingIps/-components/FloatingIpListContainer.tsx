@@ -60,7 +60,7 @@ export const FloatingIpListContainer = ({ floatingIps, isLoading, isError, error
   }
 
   return (
-    <DataGrid columns={7}>
+    <DataGrid columns={TABLE_COLUMNS().length}>
       <DataGridRow>
         {TABLE_COLUMNS().map((label) => (
           <DataGridHeadCell key={label}>{label}</DataGridHeadCell>
