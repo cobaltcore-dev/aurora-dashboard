@@ -239,7 +239,7 @@ export const ManageContainerAccessModal = ({
   const modalTitle = (
     <span className="flex items-center gap-2">
       <Trans>Access Control for container:</Trans>
-      <span className="max-w-xs truncate font-mono" title={container.name}>
+      <span className="max-w-[250px] truncate font-mono" title={container.name}>
         {container.name}
       </span>
     </span>
@@ -256,7 +256,7 @@ export const ManageContainerAccessModal = ({
       size="large"
       disableConfirmButton={isBusy || isMetaError}
     >
-      <div className="max-h-[70vh] overflow-y-auto pl-1">
+      <div className="max-h-[70vh] overflow-y-auto pr-1 pl-1">
         {/* ── Info message ─────────────────────────────────────────────────── */}
         <Message variant="info" className="mb-4">
           <Trans>
