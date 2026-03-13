@@ -111,7 +111,7 @@ export function Home() {
                 className="text-theme-accent hover:text-theme-accent-emphasis inline-flex items-center gap-2 font-semibold transition-colors"
               >
                 <Trans>View Repository</Trans>
-                <Icon icon="arrowForward" size="18" />
+                <Icon icon="exitToApp" size="18" />
               </a>
             </div>
 
@@ -131,7 +131,7 @@ export function Home() {
                 className="text-theme-accent hover:text-theme-accent-emphasis inline-flex items-center gap-2 font-semibold transition-colors"
               >
                 <Trans>View Docs</Trans>
-                <Icon icon="arrowForward" size="18" />
+                <Icon icon="exitToApp" size="18" />
               </a>
             </div>
           </div>

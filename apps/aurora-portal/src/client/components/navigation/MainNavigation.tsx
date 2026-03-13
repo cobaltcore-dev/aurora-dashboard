@@ -39,28 +39,24 @@ export function MainNavigation({ items, handleThemeToggle }: NavigationProps) {
 
   return (
     <PageHeader
-      logo={<Logo className="fill-theme-accent h-6 w-6 flex-shrink-0" title="Aurora" />}
+      logo={<Logo className="h-6 w-6 flex-shrink-0 fill-current text-white" title="Aurora" />}
       applicationName={
         <div className="flex flex-nowrap items-center space-x-2">
           <Link to="/" className="flex flex-nowrap items-center space-x-2">
-            <span className="text-theme-high flex-shrink-0">Aurora</span>
+            <span className="flex-shrink-0 text-white">Aurora</span>
           </Link>
           {domain && (
             <>
-              <span className="text-theme-high/40 flex-shrink-0">/</span>
-              <Link to={domain.path} data-testid="domain-link" className="text-theme-high flex-shrink-0">
+              <span className="text-white0 flex-shrink-0">/</span>
+              <Link to={domain.path} data-testid="domain-link" className="flex-shrink-0 text-white">
                 {domain.name}
               </Link>
             </>
           )}
           {project && (
             <>
-              <span className="text-theme-high/40 flex-shrink-0">/</span>
-              <Link
-                to={project.path + "/compute/$"}
-                data-testid="project-link"
-                className="text-theme-high flex-shrink-0"
-              >
+              <span className="flex-shrink-0 text-white">/</span>
+              <Link to={project.path + "/compute/$"} data-testid="project-link" className="flex-shrink-0 text-white">
                 {project.name}
               </Link>
             </>
@@ -69,11 +65,11 @@ export function MainNavigation({ items, handleThemeToggle }: NavigationProps) {
       }
     >
       {items.map(({ route, label }, index) => (
-        <Link className="text-theme-high" key={index} to={route}>
+        <Link className="text-white" key={index} to={route}>
           {label}
         </Link>
       ))}
-      <LanguageSelect />
+      <LanguageSelect className="text-white" />
       <ThemeToggle onToggleTheme={(newTheme: string) => handleThemeToggle?.(newTheme)} />
       <UserMenu />
     </PageHeader>

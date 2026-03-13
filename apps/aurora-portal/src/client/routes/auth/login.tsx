@@ -137,7 +137,7 @@ export function AuthLoginPage() {
           )}
 
           {/* Login Card */}
-          <div className="bg-theme-background-lvl-1/80 border-theme-background-lvl-3 rounded-2xl border p-8 shadow-2xl backdrop-blur-sm">
+          <div className="bg-theme-background-lvl-1 border-theme-background-lvl-3 rounded-2xl border p-8 shadow-2xl">
             {/* Header */}
             <div className="mb-8 text-center">
               <h1 className="text-theme-highest mb-2 text-3xl font-bold">

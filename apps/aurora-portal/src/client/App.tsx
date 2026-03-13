@@ -16,7 +16,9 @@ type AppProps = {
   theme?: "theme-dark" | "theme-light"
 }
 
-const navItems: NavigationItem[] = [{ route: "/about", label: "About" }]
+// additional routes can be added here and will be code-split and lazy loaded automatically by the router
+// This navigation items will appear in the top navigation bar.
+const navItems: NavigationItem[] = []
 
 const currentTheme = (localStorage.getItem("aurora-theme") || "theme-light") as "theme-dark" | "theme-light"
 

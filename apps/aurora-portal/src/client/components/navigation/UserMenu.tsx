@@ -4,12 +4,13 @@ import { useAuth } from "../../store/AuthProvider"
 import { trpcClient } from "../../trpcClient"
 import { useNavigate } from "@tanstack/react-router"
 import { Trans } from "@lingui/react/macro"
+import { SessionExpirationTimer } from "../Auth/SessionExpirationTimer"
 
 export function UserMenu() {
   const [isOpen, setIsOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
-  const { isAuthenticated, user, logout } = useAuth()
+  const { isAuthenticated, user, logout, expiresAt } = useAuth()
   const navigate = useNavigate()
 
   const toggleMenu = () => {
@@ -104,6 +105,7 @@ export function UserMenu() {
               <span className="text-theme-danger font-medium">
                 <Trans>Log Out</Trans>
               </span>
+              {expiresAt && <SessionExpirationTimer sessionExpired={expiresAt} logout={() => logout("expired")} />}
             </button>
           </div>
         </div>
