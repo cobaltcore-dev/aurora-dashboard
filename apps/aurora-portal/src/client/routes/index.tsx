@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router"
 import { Trans } from "@lingui/react/macro"
 import { Button, Box, Stack, Icon, Container } from "@cloudoperators/juno-ui-components"
+import { MdComputer, MdStorage, MdRouter, MdImage, MdTune, MdVpnKey } from "react-icons/md"
 
 export const Route = createFileRoute("/")({
   component: Home,
@@ -139,7 +140,7 @@ export function Home() {
               <Box className="bg-theme-background-lvl-1 group border-theme-background-lvl-3 hover:border-theme-accent/50 rounded-xl border p-6 transition-all hover:shadow-lg">
                 <Stack direction="vertical" gap="3" alignment="center" className="text-center">
                   <div className="bg-theme-accent/10 flex h-16 w-16 items-center justify-center rounded-full transition-transform group-hover:scale-110">
-                    <Icon icon="computer" size="32" className="text-theme-accent" />
+                    <MdComputer size={32} className="text-theme-accent" />
                   </div>
                   <h4 className="text-lg font-semibold">
                     <Trans>Compute Instances</Trans>
@@ -153,7 +154,7 @@ export function Home() {
               <Box className="bg-theme-background-lvl-1 group border-theme-background-lvl-3 hover:border-theme-accent/50 rounded-xl border p-6 transition-all hover:shadow-lg">
                 <Stack direction="vertical" gap="3" alignment="center" className="text-center">
                   <div className="bg-theme-accent/10 flex h-16 w-16 items-center justify-center rounded-full transition-transform group-hover:scale-110">
-                    <Icon icon="storage" size="32" className="text-theme-accent" />
+                    <MdStorage size={32} className="text-theme-accent" />
                   </div>
                   <h4 className="text-lg font-semibold">
                     <Trans>Block Storage</Trans>
@@ -167,7 +168,7 @@ export function Home() {
               <Box className="bg-theme-background-lvl-1 group border-theme-background-lvl-3 hover:border-theme-accent/50 rounded-xl border p-6 transition-all hover:shadow-lg">
                 <Stack direction="vertical" gap="3" alignment="center" className="text-center">
                   <div className="bg-theme-accent/10 flex h-16 w-16 items-center justify-center rounded-full transition-transform group-hover:scale-110">
-                    <Icon icon="dns" size="32" className="text-theme-accent" />
+                    <MdRouter size={32} className="text-theme-accent" />
                   </div>
                   <h4 className="text-lg font-semibold">
                     <Trans>Networking</Trans>
@@ -181,7 +182,7 @@ export function Home() {
               <Box className="bg-theme-background-lvl-1 group border-theme-background-lvl-3 hover:border-theme-accent/50 rounded-xl border p-6 transition-all hover:shadow-lg">
                 <Stack direction="vertical" gap="3" alignment="center" className="text-center">
                   <div className="bg-theme-accent/10 flex h-16 w-16 items-center justify-center rounded-full transition-transform group-hover:scale-110">
-                    <Icon icon="image" size="32" className="text-theme-accent" />
+                    <MdImage size={32} className="text-theme-accent" />
                   </div>
                   <h4 className="text-lg font-semibold">
                     <Trans>Images</Trans>
@@ -195,7 +196,7 @@ export function Home() {
               <Box className="bg-theme-background-lvl-1 group border-theme-background-lvl-3 hover:border-theme-accent/50 rounded-xl border p-6 transition-all hover:shadow-lg">
                 <Stack direction="vertical" gap="3" alignment="center" className="text-center">
                   <div className="bg-theme-accent/10 flex h-16 w-16 items-center justify-center rounded-full transition-transform group-hover:scale-110">
-                    <Icon icon="tune" size="32" className="text-theme-accent" />
+                    <MdTune size={32} className="text-theme-accent" />
                   </div>
                   <h4 className="text-lg font-semibold">
                     <Trans>Flavors</Trans>
@@ -209,7 +210,7 @@ export function Home() {
               <Box className="bg-theme-background-lvl-1 group border-theme-background-lvl-3 hover:border-theme-accent/50 rounded-xl border p-6 transition-all hover:shadow-lg">
                 <Stack direction="vertical" gap="3" alignment="center" className="text-center">
                   <div className="bg-theme-accent/10 flex h-16 w-16 items-center justify-center rounded-full transition-transform group-hover:scale-110">
-                    <Icon icon="edit" size="32" className="text-theme-accent" />
+                    <MdVpnKey size={32} className="text-theme-accent" />
                   </div>
                   <h4 className="text-lg font-semibold">
                     <Trans>Key Pairs</Trans>
