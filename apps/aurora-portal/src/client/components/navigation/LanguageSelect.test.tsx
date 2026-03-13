@@ -171,12 +171,38 @@ describe("LanguageSelect", () => {
     })
   })
   describe("Styling", () => {
-    it("applies custom CSS classes", () => {
+    it("applies default CSS classes", () => {
       renderComponent()
 
       const button = screen.getByRole("button")
       expect(button.className).toContain("!bg-transparent")
       expect(button.className).toContain("hover:text-theme-accent")
+    })
+
+    it("applies custom className prop", () => {
+      render(
+        <I18nProvider i18n={i18n}>
+          <LanguageSelect className="text-white custom-class" />
+        </I18nProvider>
+      )
+
+      const button = screen.getByRole("button")
+      expect(button.className).toContain("text-white")
+      expect(button.className).toContain("custom-class")
+    })
+
+    it("merges custom className with default classes", () => {
+      render(
+        <I18nProvider i18n={i18n}>
+          <LanguageSelect className="text-white" />
+        </I18nProvider>
+      )
+
+      const button = screen.getByRole("button")
+      // Should have both default and custom classes
+      expect(button.className).toContain("!bg-transparent")
+      expect(button.className).toContain("hover:text-theme-accent")
+      expect(button.className).toContain("text-white")
     })
   })
 })
