@@ -107,13 +107,16 @@ export function Home() {
                     Get started quickly with comprehensive guides, tutorials, and API references for every feature.
                   </Trans>
                 </p>
-                <a
-                  href="#"
-                  className="text-theme-accent hover:text-theme-accent-emphasis inline-flex items-center gap-2 font-semibold transition-colors"
+                <span
+                  className="text-theme-light inline-flex items-center gap-2 font-semibold"
+                  title="Documentation coming soon"
+                  aria-disabled="true"
                 >
                   <Trans>Read the Docs</Trans>
-                  <Icon icon="exitToApp" size="18" className="transition-transform group-hover:translate-x-1" />
-                </a>
+                  <span className="text-xs opacity-60">
+                    <Trans>(Coming Soon)</Trans>
+                  </span>
+                </span>
               </Stack>
             </Box>
           </Stack>
