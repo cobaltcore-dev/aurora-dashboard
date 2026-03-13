@@ -17,7 +17,7 @@ type AppProps = {
 }
 
 // Additional navigation items can be added here and will be passed to the layout via context
-// The items will appear in the main navigation bar and can be used to link to new routes/paths within the application as needed
+// The items will appear in the main navigation bar and use internal routing (TanStack Router)
 const navItems: NavigationItem[] = []
 
 const currentTheme = (localStorage.getItem("aurora-theme") || "theme-light") as "theme-dark" | "theme-light"
