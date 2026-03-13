@@ -29,14 +29,7 @@ export function Home() {
           {/* Hero Section */}
           <Stack direction="vertical" gap="8" alignment="center" className="text-center">
             <div className="space-y-6">
-              <div className="border-theme-accent/20 bg-theme-accent/10 text-theme-accent inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium">
-                <Icon icon="cloud" size="20" />
-                <span>
-                  <Trans>OpenStack Management Platform</Trans>
-                </span>
-              </div>
-
-              <h1 className="text-6xl leading-tight font-bold tracking-tight sm:text-7xl lg:text-8xl">
+              <h1 className="text-5xl leading-tight font-bold tracking-tight sm:text-6xl lg:text-7xl">
                 <Trans>Manage OpenStack</Trans>
                 <br />
                 <Trans>with</Trans>{" "}
@@ -60,7 +53,7 @@ export function Home() {
               <Button
                 onClick={handleEnterCloud}
                 variant="primary"
-                size="large"
+                size="default"
                 className="group px-8 py-4 text-lg font-semibold shadow-lg transition-all hover:scale-105 hover:shadow-xl"
               >
                 <span>
@@ -95,7 +88,7 @@ export function Home() {
                   className="text-theme-accent hover:text-theme-accent-emphasis inline-flex items-center gap-2 font-semibold transition-colors"
                 >
                   <Trans>Explore Repository</Trans>
-                  <Icon icon="arrowForward" size="18" className="transition-transform group-hover:translate-x-1" />
+                  <Icon icon="exitToApp" size="18" className="transition-transform group-hover:translate-x-1" />
                 </a>
               </Stack>
             </Box>
@@ -119,7 +112,7 @@ export function Home() {
                   className="text-theme-accent hover:text-theme-accent-emphasis inline-flex items-center gap-2 font-semibold transition-colors"
                 >
                   <Trans>Read the Docs</Trans>
-                  <Icon icon="arrowForward" size="18" className="transition-transform group-hover:translate-x-1" />
+                  <Icon icon="exitToApp" size="18" className="transition-transform group-hover:translate-x-1" />
                 </a>
               </Stack>
             </Box>
