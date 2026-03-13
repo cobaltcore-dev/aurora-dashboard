@@ -211,7 +211,12 @@ export function AuthLoginPage() {
           <div className="border-theme-background-lvl-3 border-t pt-6">
             <p className="text-theme-light text-center text-sm">
               <Trans>Need help?</Trans>{" "}
-              <a href="#" className="jn-text-theme-link hover:jn-underline font-medium">
+              <a
+                href="https://github.com/cobaltcore-dev/aurora-dashboard/issues"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="jn-text-theme-link hover:jn-underline font-medium"
+              >
                 <Trans>Contact support</Trans>
               </a>
             </p>
