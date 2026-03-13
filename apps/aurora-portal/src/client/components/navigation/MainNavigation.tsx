@@ -12,6 +12,7 @@ interface NavigationProps {
 
 const textColorClass = "text-white"
 const textHoverClass = "hover:text-theme-accent"
+const textMutedClass = "text-white/40"
 
 function getDomain(matches: MakeRouteMatchUnion[]) {
   const domainMatch = matches.filter((match) => isMatch(match, "loaderData.crumbDomain"))[0]
@@ -50,7 +51,7 @@ export function MainNavigation({ items, handleThemeToggle }: NavigationProps) {
           </Link>
           {domain && (
             <>
-              <span className={`flex-shrink-0 ${textColorClass}/40`}>/</span>
+              <span className={`flex-shrink-0 ${textMutedClass}`}>/</span>
               <Link
                 to={domain.path}
                 data-testid="domain-link"
@@ -62,7 +63,7 @@ export function MainNavigation({ items, handleThemeToggle }: NavigationProps) {
           )}
           {project && (
             <>
-              <span className={`flex-shrink-0 ${textColorClass}/40`}>/</span>
+              <span className={`flex-shrink-0 ${textMutedClass}`}>/</span>
               <Link
                 to={project.path + "/compute/$"}
                 data-testid="project-link"
