@@ -281,6 +281,18 @@ export const Images = ({ client }: ImagesProps) => {
   )
   const [permissionsPromise] = useState(() => createPermissionsPromise(client))
 
+  // Helper to refetch images with current state
+  const refetchImages = () => {
+    startTransition(() => {
+      setImagesPromise(
+        createImagesPromise(client, sortSettings.sortBy, sortSettings.sortDirection, searchTerm, {
+          ...buildFilterParams(filterSettings.selectedFilters || [], filterSettings.filters),
+          member_status: memberStatusView === "all" ? undefined : memberStatusView,
+        })
+      )
+    })
+  }
+
   // Sync URL params to state when URL changes (for back/forward navigation)
   useEffect(() => {
     const urlFilters = parseFiltersFromUrl(searchParams)
@@ -291,22 +303,7 @@ export const Images = ({ client }: ImagesProps) => {
       sortDirection: searchParams.sortDirection || "desc",
     }))
     setSearchTerm(searchParams.search || "")
-
-    // Refetch with new URL params
-    startTransition(() => {
-      setImagesPromise(
-        createImagesPromise(
-          client,
-          searchParams.sortBy || "created_at",
-          searchParams.sortDirection || "desc",
-          searchParams.search || "",
-          {
-            ...buildFilterParams(urlFilters, filterSettings.filters),
-            member_status: memberStatusView === "all" ? undefined : memberStatusView,
-          }
-        )
-      )
-    })
+    refetchImages()
   }, [
     searchParams.status,
     searchParams.visibility,
@@ -327,7 +324,6 @@ export const Images = ({ client }: ImagesProps) => {
     }
 
     setSortSettings(settings)
-    // Type assertion needed because TanStack Router doesn't infer search params correctly for splat routes
     navigate({
       search: ((prev: ImagesSearchParams) => ({
         ...prev,
@@ -336,21 +332,11 @@ export const Images = ({ client }: ImagesProps) => {
       })) as unknown as true,
       replace: true,
     })
-
-    startTransition(() => {
-      setImagesPromise(
-        createImagesPromise(client, settings.sortBy, settings.sortDirection, searchTerm, {
-          ...buildFilterParams(filterSettings.selectedFilters || [], filterSettings.filters),
-          member_status: memberStatusView === "all" ? undefined : memberStatusView,
-        })
-      )
-    })
+    refetchImages()
   }
 
   const handleFilterChange = (newFilterSettings: FilterSettings) => {
     setFilterSettings(newFilterSettings)
-
-    // Type assertion needed because TanStack Router doesn't infer search params correctly for splat routes
     navigate({
       search: ((prev: ImagesSearchParams) =>
         buildUrlSearchParams(newFilterSettings.selectedFilters || [], newFilterSettings.filters, {
@@ -360,22 +346,12 @@ export const Images = ({ client }: ImagesProps) => {
         })) as unknown as true,
       replace: true,
     })
-
-    startTransition(() => {
-      setImagesPromise(
-        createImagesPromise(client, sortSettings.sortBy, sortSettings.sortDirection, searchTerm, {
-          ...buildFilterParams(newFilterSettings.selectedFilters || [], newFilterSettings.filters),
-          member_status: memberStatusView === "all" ? undefined : memberStatusView,
-        })
-      )
-    })
+    refetchImages()
   }
 
   const handleSearchChange = (term: string | number | string[] | undefined) => {
     const searchValue = typeof term === "string" ? term : ""
     setSearchTerm(searchValue)
-
-    // Type assertion needed because TanStack Router doesn't infer search params correctly for splat routes
     navigate({
       search: ((prev: ImagesSearchParams) => ({
         ...prev,
@@ -383,27 +359,12 @@ export const Images = ({ client }: ImagesProps) => {
       })) as unknown as true,
       replace: true,
     })
-
-    startTransition(() => {
-      setImagesPromise(
-        createImagesPromise(client, sortSettings.sortBy, sortSettings.sortDirection, searchValue, {
-          ...buildFilterParams(filterSettings.selectedFilters || [], filterSettings.filters),
-          member_status: memberStatusView === "all" ? undefined : memberStatusView,
-        })
-      )
-    })
+    refetchImages()
   }
 
   const handleMemberStatusChange = (view: "all" | "pending" | "accepted") => {
     setMemberStatusView(view)
-    startTransition(() => {
-      setImagesPromise(
-        createImagesPromise(client, sortSettings.sortBy, sortSettings.sortDirection, searchTerm, {
-          ...buildFilterParams(filterSettings.selectedFilters || [], filterSettings.filters),
-          member_status: view === "all" ? undefined : view,
-        })
-      )
-    })
+    refetchImages()
   }
 
   return (
