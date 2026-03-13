@@ -511,6 +511,40 @@ describe("DeleteContainerModal", () => {
       expect(screen.getByText(/Are you sure/i)).toBeInTheDocument()
       expect(screen.getByLabelText(/Type container name to confirm/i)).toBeInTheDocument()
     })
+
+    test("Delete button is disabled when listObjects query errors", async () => {
+      const user = userEvent.setup()
+      listObjectsError = { message: "Not found" }
+      renderModal()
+      await user.type(screen.getByLabelText(/Type container name to confirm/i), "my-container")
+      expect(screen.getByRole("button", { name: /^Delete$/i })).toBeDisabled()
+    })
+
+    test("Delete button is disabled when getContainerMetadata query errors", async () => {
+      const user = userEvent.setup()
+      mockContainerMetadataError = { message: "Not found" }
+      renderModal()
+      await user.type(screen.getByLabelText(/Type container name to confirm/i), "my-container")
+      expect(screen.getByRole("button", { name: /^Delete$/i })).toBeDisabled()
+    })
+
+    test("does not call mutate when listObjects query has errored", async () => {
+      const user = userEvent.setup()
+      listObjectsError = { message: "Not found" }
+      renderModal()
+      await user.type(screen.getByLabelText(/Type container name to confirm/i), "my-container")
+      await user.keyboard("{Enter}")
+      expect(mockMutate).not.toHaveBeenCalled()
+    })
+
+    test("does not call mutate when getContainerMetadata query has errored", async () => {
+      const user = userEvent.setup()
+      mockContainerMetadataError = { message: "Not found" }
+      renderModal()
+      await user.type(screen.getByLabelText(/Type container name to confirm/i), "my-container")
+      await user.keyboard("{Enter}")
+      expect(mockMutate).not.toHaveBeenCalled()
+    })
   })
 
   describe("Copy to clipboard", () => {

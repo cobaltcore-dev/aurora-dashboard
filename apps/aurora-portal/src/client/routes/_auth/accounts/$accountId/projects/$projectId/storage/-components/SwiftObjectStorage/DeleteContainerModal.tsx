@@ -91,6 +91,7 @@ export const DeleteContainerModal = ({ isOpen, container, onClose, onSuccess, on
 
   const handleSubmit = () => {
     if (!container) return
+    if (objectsError || metaError) return
     if (confirmName.trim() !== container.name) {
       setNameError(t`Container name does not match`)
       return
@@ -110,6 +111,7 @@ export const DeleteContainerModal = ({ isOpen, container, onClose, onSuccess, on
   // Also covers the Swift consistency delay where count > 0 but listed objects === 0:
   // we trust container.count here to avoid letting the user delete a non-empty container.
   const hasObjects = !isLoadingObjects && (actualObjectCount > 0 || container.count > 0)
+  const hasPreflightError = !!(objectsError || metaError)
 
   const modalTitle = (
     <span className="flex max-w-[400px] items-center gap-2">
@@ -143,6 +145,7 @@ export const DeleteContainerModal = ({ isOpen, container, onClose, onSuccess, on
       size="small"
       disableConfirmButton={
         isLoadingObjects ||
+        hasPreflightError ||
         deleteContainerMutation.isPending ||
         (!hasObjects && confirmName !== container.name) ||
         (!hasObjects && isVersioned && !versionsConfirmed)
