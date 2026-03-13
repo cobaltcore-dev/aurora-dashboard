@@ -217,6 +217,70 @@ export function Home() {
           </Stack>
         </Stack>
       </Container>
+
+      {/* Footer */}
+      <footer className="border-theme-background-lvl-3 relative z-10 w-full border-t">
+        <Container className="max-w-6xl py-12">
+          <Stack direction="vertical" gap="8">
+            <Stack direction="horizontal" gap="12" className="flex-col justify-between md:flex-row">
+              {/* About Section */}
+              <Stack direction="vertical" gap="3" className="flex-1">
+                <h3 className="text-lg font-semibold">
+                  <Trans>About Aurora</Trans>
+                </h3>
+                <p className="text-theme-light text-sm leading-relaxed">
+                  <Trans>
+                    An open-source OpenStack management platform built for modern cloud infrastructure teams.
+                  </Trans>
+                </p>
+              </Stack>
+
+              {/* Quick Links */}
+              <Stack direction="vertical" gap="3" className="flex-1">
+                <h3 className="text-lg font-semibold">
+                  <Trans>Quick Links</Trans>
+                </h3>
+                <Stack direction="vertical" gap="2">
+                  <a href="https://github.com/cobaltcore-dev/aurora-dashboard" target="_blank" rel="noopener noreferrer" className="text-theme-light hover:text-theme-accent text-sm transition-colors">
+                    <Trans>GitHub Repository</Trans>
+                  </a>
+                  <a href="#" className="text-theme-light hover:text-theme-accent text-sm transition-colors">
+                    <Trans>Documentation</Trans>
+                  </a>
+                  <a href="#" className="text-theme-light hover:text-theme-accent text-sm transition-colors">
+                    <Trans>API Reference</Trans>
+                  </a>
+                </Stack>
+              </Stack>
+
+              {/* Contact */}
+              <Stack direction="vertical" gap="3" className="flex-1">
+                <h3 className="text-lg font-semibold">
+                  <Trans>Contact</Trans>
+                </h3>
+                <Stack direction="vertical" gap="2">
+                  <a href="#" className="text-theme-light hover:text-theme-accent text-sm transition-colors">
+                    <Trans>Support</Trans>
+                  </a>
+                  <a href="https://github.com/cobaltcore-dev/aurora-dashboard/issues" target="_blank" rel="noopener noreferrer" className="text-theme-light hover:text-theme-accent text-sm transition-colors">
+                    <Trans>Report an Issue</Trans>
+                  </a>
+                  <a href="#" className="text-theme-light hover:text-theme-accent text-sm transition-colors">
+                    <Trans>Community</Trans>
+                  </a>
+                </Stack>
+              </Stack>
+            </Stack>
+
+            {/* Copyright */}
+            <div className="border-theme-background-lvl-3 border-t pt-6">
+              <p className="text-theme-light text-center text-sm">
+                <Trans>© 2024 Aurora Dashboard. Open source under MIT License.</Trans>
+              </p>
+            </div>
+          </Stack>
+        </Container>
+      </footer>
     </div>
   )
 }
