@@ -11,11 +11,10 @@ interface NavigationProps {
   handleThemeToggle?: (theme: string) => void
 }
 
-// Consistent text styling constants for white theme navigation
-// Using constants ensures uniform styling across all navigation elements
-const textColorClass = "text-white"
-const textHoverClass = "hover:text-theme-accent"
-const textMutedClass = "text-white/40"
+// Text colors for header elements
+const textColorClass = "text-theme-pageheader-appname-default"
+const textHoverClass = "hover:text-theme-pageheader-appname-hover"
+const textMutedClass = "text-theme-pageheader-appname-default/40"
 
 function getDomain(matches: MakeRouteMatchUnion[]) {
   const domainMatch = matches.filter((match) => isMatch(match, "loaderData.crumbDomain"))[0]
