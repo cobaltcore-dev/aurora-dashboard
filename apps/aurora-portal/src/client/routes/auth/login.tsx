@@ -129,9 +129,7 @@ export function AuthLoginPage() {
             (search.redirect || wasInactive) && (
               <Message
                 variant="warning"
-                text={
-                  wasInactive ? t`Your session expired. Please login again.` : t`Please log in to continue.`
-                }
+                text={wasInactive ? t`Your session expired. Please login again.` : t`Please log in to continue.`}
                 className="text-sm"
               />
             )
