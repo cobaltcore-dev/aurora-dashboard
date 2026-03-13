@@ -1,6 +1,5 @@
 import { TrpcClient } from "@/client/trpcClient"
 import { GlanceImage } from "@/server/Compute/types/image"
-import { MEMBER_STATUSES } from "../../-constants/filters"
 
 type ImageFilters = {
   status?: string
@@ -8,6 +7,7 @@ type ImageFilters = {
   disk_format?: string
   container_format?: string
   protected?: string
+  member_status?: "pending" | "accepted" | "rejected" | "all"
 }
 
 export const createImagesPromise = (
@@ -42,16 +42,4 @@ export const createPermissionsPromise = (client: TrpcClient) => {
       canDeleteMember,
       canUpdateMember: canUpdateMember ?? true,
     }))
-}
-
-export const createSuggestedImagesPromise = (client: TrpcClient): Promise<GlanceImage[]> => {
-  return client.compute.listSharedImagesByMemberStatus.query({
-    memberStatus: MEMBER_STATUSES.PENDING,
-  })
-}
-
-export const createAcceptedImagesPromise = (client: TrpcClient): Promise<GlanceImage[]> => {
-  return client.compute.listSharedImagesByMemberStatus.query({
-    memberStatus: MEMBER_STATUSES.ACCEPTED,
-  })
 }

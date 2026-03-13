@@ -17,12 +17,7 @@ import { FilterSettings, SortSettings } from "@/client/components/ListToolbar/ty
 import { ImageListView } from "./-components/ImageListView"
 import { CONTAINER_FORMATS, DISK_FORMATS, IMAGE_STATUSES, IMAGE_VISIBILITY } from "../../-constants/filters"
 import { parseFiltersFromUrl, buildFilterParams, buildUrlSearchParams } from "./urlHelpers"
-import {
-  createImagesPromise,
-  createPermissionsPromise,
-  createSuggestedImagesPromise,
-  createAcceptedImagesPromise,
-} from "./apiHelpers"
+import { createImagesPromise, createPermissionsPromise } from "./apiHelpers"
 
 interface ImagesProps {
   client: TrpcClient
@@ -48,8 +43,6 @@ type RequiredSortSettings = {
 function ImagesContent({
   imagesPromise,
   permissionsPromise,
-  suggestedImagesPromise,
-  acceptedImagesPromise,
   searchTerm,
   setSearchTerm,
   sortSettings,
@@ -66,11 +59,8 @@ function ImagesContent({
   setDeactivateAllModalOpen,
   activateAllModalOpen,
   setActivateAllModalOpen,
-  shouldShowSuggestedImages,
-  shouldShowAcceptedImages,
-  showSuggestedImages,
-  showAcceptedImages,
-  showAllImages,
+  memberStatusView,
+  setMemberStatusView,
 }: {
   imagesPromise: Promise<GlanceImage[]>
   permissionsPromise: Promise<{
@@ -81,8 +71,6 @@ function ImagesContent({
     canDeleteMember: boolean
     canUpdateMember: boolean
   }>
-  suggestedImagesPromise: Promise<GlanceImage[]>
-  acceptedImagesPromise: Promise<GlanceImage[]>
   searchTerm: string
   setSearchTerm: (term: string) => void
   sortSettings: SortSettings
@@ -99,54 +87,39 @@ function ImagesContent({
   setDeactivateAllModalOpen: (open: boolean) => void
   activateAllModalOpen: boolean
   setActivateAllModalOpen: (open: boolean) => void
-  shouldShowSuggestedImages: boolean
-  shouldShowAcceptedImages: boolean
-  showSuggestedImages: () => void
-  showAcceptedImages: () => void
-  showAllImages: () => void
+  memberStatusView: "all" | "pending" | "accepted"
+  setMemberStatusView: (view: "all" | "pending" | "accepted") => void
 }) {
   const { t } = useLingui()
   const images = use(imagesPromise)
   const permissions = use(permissionsPromise)
-  const suggestedImages = use(suggestedImagesPromise)
-  const acceptedImages = use(acceptedImagesPromise)
-
-  const suggestedImagesCount = suggestedImages?.length || 0
-  const acceptedImagesCount = acceptedImages?.length || 0
-
-  const displayedImages = shouldShowSuggestedImages
-    ? suggestedImages
-    : shouldShowAcceptedImages
-      ? acceptedImages
-      : images
 
   const deletableImages = selectedImages.filter(
-    (imageId) => !displayedImages.find((image: GlanceImage) => image.id === imageId)?.protected
+    (imageId) => !images.find((image: GlanceImage) => image.id === imageId)?.protected
   )
   const protectedImages = selectedImages.filter(
-    (imageId) => displayedImages.find((image: GlanceImage) => image.id === imageId)?.protected
+    (imageId) => images.find((image: GlanceImage) => image.id === imageId)?.protected
   )
   const activeImages = selectedImages.filter(
-    (imageId) => displayedImages.find((image: GlanceImage) => image.id === imageId)?.status === IMAGE_STATUSES.ACTIVE
+    (imageId) => images.find((image: GlanceImage) => image.id === imageId)?.status === IMAGE_STATUSES.ACTIVE
   )
   const deactivatedImages = selectedImages.filter(
-    (imageId) =>
-      displayedImages.find((image: GlanceImage) => image.id === imageId)?.status === IMAGE_STATUSES.DEACTIVATED
+    (imageId) => images.find((image: GlanceImage) => image.id === imageId)?.status === IMAGE_STATUSES.DEACTIVATED
   )
 
   const isDeleteAllDisabled =
     !permissions.canDelete ||
-    displayedImages
+    images
       .filter((image: GlanceImage) => selectedImages.includes(image.id))
       .every((image: GlanceImage) => image.protected)
   const isDeactivateAllDisabled =
     !permissions.canUpdate ||
-    displayedImages
+    images
       .filter((image: GlanceImage) => selectedImages.includes(image.id))
       .every((image: GlanceImage) => image.status === IMAGE_STATUSES.DEACTIVATED)
   const isActivateAllDisabled =
     !permissions.canUpdate ||
-    displayedImages
+    images
       .filter((image: GlanceImage) => selectedImages.includes(image.id))
       .every((image: GlanceImage) => image.status === IMAGE_STATUSES.ACTIVE)
 
@@ -162,8 +135,8 @@ function ImagesContent({
         actions={
           <>
             <div className="w-full md:mr-auto md:w-auto">
-              {(shouldShowSuggestedImages || shouldShowAcceptedImages) && (
-                <Button onClick={showAllImages}>{t`All Images`}</Button>
+              {memberStatusView !== "all" && (
+                <Button onClick={() => setMemberStatusView("all")}>{t`All Images`}</Button>
               )}
             </div>
             <Stack gap="2">
@@ -196,14 +169,14 @@ function ImagesContent({
                     onClick={() => setActivateAllModalOpen(true)}
                   />
                   <PopupMenuItem
-                    disabled={!suggestedImagesCount}
-                    label={t`Show Suggested Images (${suggestedImagesCount})`}
-                    onClick={showSuggestedImages}
+                    disabled={memberStatusView === "pending"}
+                    label={t`Show Suggested Images`}
+                    onClick={() => setMemberStatusView("pending")}
                   />
                   <PopupMenuItem
-                    disabled={!acceptedImagesCount}
-                    label={t`Show Accepted Images (${acceptedImagesCount})`}
-                    onClick={showAcceptedImages}
+                    disabled={memberStatusView === "accepted"}
+                    label={t`Show Accepted Images`}
+                    onClick={() => setMemberStatusView("accepted")}
                   />
                 </PopupMenuOptions>
               </PopupMenu>
@@ -212,9 +185,9 @@ function ImagesContent({
         }
       />
       <ImageListView
-        images={displayedImages}
-        suggestedImages={suggestedImages}
-        acceptedImages={acceptedImages}
+        images={images}
+        suggestedImages={[]}
+        acceptedImages={[]}
         permissions={permissions}
         hasNextPage={false}
         isFetchingNextPage={false}
@@ -298,21 +271,15 @@ export const Images = ({ client }: ImagesProps) => {
   const [deleteAllModalOpen, setDeleteAllModalOpen] = useState(false)
   const [deactivateAllModalOpen, setDeactivateAllModalOpen] = useState(false)
   const [activateAllModalOpen, setActivateAllModalOpen] = useState(false)
-  const [shouldShowSuggestedImages, setShowSuggestedImages] = useState(false)
-  const [shouldShowAcceptedImages, setShowAcceptedImages] = useState(false)
+  const [memberStatusView, setMemberStatusView] = useState<"all" | "pending" | "accepted">("all")
 
   const [imagesPromise, setImagesPromise] = useState(() =>
-    createImagesPromise(
-      client,
-      sortSettings.sortBy,
-      sortSettings.sortDirection,
-      searchTerm,
-      buildFilterParams(filterSettings.selectedFilters || [], filterSettings.filters)
-    )
+    createImagesPromise(client, sortSettings.sortBy, sortSettings.sortDirection, searchTerm, {
+      ...buildFilterParams(filterSettings.selectedFilters || [], filterSettings.filters),
+      member_status: memberStatusView === "all" ? undefined : memberStatusView,
+    })
   )
   const [permissionsPromise] = useState(() => createPermissionsPromise(client))
-  const [suggestedImagesPromise] = useState(() => createSuggestedImagesPromise(client))
-  const [acceptedImagesPromise] = useState(() => createAcceptedImagesPromise(client))
 
   // Sync URL params to state when URL changes (for back/forward navigation)
   useEffect(() => {
@@ -333,7 +300,10 @@ export const Images = ({ client }: ImagesProps) => {
           searchParams.sortBy || "created_at",
           searchParams.sortDirection || "desc",
           searchParams.search || "",
-          buildFilterParams(urlFilters, filterSettings.filters)
+          {
+            ...buildFilterParams(urlFilters, filterSettings.filters),
+            member_status: memberStatusView === "all" ? undefined : memberStatusView,
+          }
         )
       )
     })
@@ -346,6 +316,7 @@ export const Images = ({ client }: ImagesProps) => {
     searchParams.sortBy,
     searchParams.sortDirection,
     searchParams.search,
+    memberStatusView,
   ])
 
   const handleSortChange = (newSortSettings: SortSettings) => {
@@ -368,13 +339,10 @@ export const Images = ({ client }: ImagesProps) => {
 
     startTransition(() => {
       setImagesPromise(
-        createImagesPromise(
-          client,
-          settings.sortBy,
-          settings.sortDirection,
-          searchTerm,
-          buildFilterParams(filterSettings.selectedFilters || [], filterSettings.filters)
-        )
+        createImagesPromise(client, settings.sortBy, settings.sortDirection, searchTerm, {
+          ...buildFilterParams(filterSettings.selectedFilters || [], filterSettings.filters),
+          member_status: memberStatusView === "all" ? undefined : memberStatusView,
+        })
       )
     })
   }
@@ -395,13 +363,10 @@ export const Images = ({ client }: ImagesProps) => {
 
     startTransition(() => {
       setImagesPromise(
-        createImagesPromise(
-          client,
-          sortSettings.sortBy,
-          sortSettings.sortDirection,
-          searchTerm,
-          buildFilterParams(newFilterSettings.selectedFilters || [], newFilterSettings.filters)
-        )
+        createImagesPromise(client, sortSettings.sortBy, sortSettings.sortDirection, searchTerm, {
+          ...buildFilterParams(newFilterSettings.selectedFilters || [], newFilterSettings.filters),
+          member_status: memberStatusView === "all" ? undefined : memberStatusView,
+        })
       )
     })
   }
@@ -421,30 +386,24 @@ export const Images = ({ client }: ImagesProps) => {
 
     startTransition(() => {
       setImagesPromise(
-        createImagesPromise(
-          client,
-          sortSettings.sortBy,
-          sortSettings.sortDirection,
-          searchValue,
-          buildFilterParams(filterSettings.selectedFilters || [], filterSettings.filters)
-        )
+        createImagesPromise(client, sortSettings.sortBy, sortSettings.sortDirection, searchValue, {
+          ...buildFilterParams(filterSettings.selectedFilters || [], filterSettings.filters),
+          member_status: memberStatusView === "all" ? undefined : memberStatusView,
+        })
       )
     })
   }
 
-  const showSuggestedImages = () => {
-    setShowSuggestedImages(true)
-    setShowAcceptedImages(false)
-  }
-
-  const showAcceptedImages = () => {
-    setShowSuggestedImages(false)
-    setShowAcceptedImages(true)
-  }
-
-  const showAllImages = () => {
-    setShowSuggestedImages(false)
-    setShowAcceptedImages(false)
+  const handleMemberStatusChange = (view: "all" | "pending" | "accepted") => {
+    setMemberStatusView(view)
+    startTransition(() => {
+      setImagesPromise(
+        createImagesPromise(client, sortSettings.sortBy, sortSettings.sortDirection, searchTerm, {
+          ...buildFilterParams(filterSettings.selectedFilters || [], filterSettings.filters),
+          member_status: view === "all" ? undefined : view,
+        })
+      )
+    })
   }
 
   return (
@@ -460,8 +419,6 @@ export const Images = ({ client }: ImagesProps) => {
         <ImagesContent
           imagesPromise={imagesPromise}
           permissionsPromise={permissionsPromise}
-          suggestedImagesPromise={suggestedImagesPromise}
-          acceptedImagesPromise={acceptedImagesPromise}
           searchTerm={searchTerm}
           setSearchTerm={handleSearchChange}
           sortSettings={sortSettings}
@@ -478,11 +435,8 @@ export const Images = ({ client }: ImagesProps) => {
           setDeactivateAllModalOpen={setDeactivateAllModalOpen}
           activateAllModalOpen={activateAllModalOpen}
           setActivateAllModalOpen={setActivateAllModalOpen}
-          shouldShowSuggestedImages={shouldShowSuggestedImages}
-          shouldShowAcceptedImages={shouldShowAcceptedImages}
-          showSuggestedImages={showSuggestedImages}
-          showAcceptedImages={showAcceptedImages}
-          showAllImages={showAllImages}
+          memberStatusView={memberStatusView}
+          setMemberStatusView={handleMemberStatusChange}
         />
       </Suspense>
     </div>
