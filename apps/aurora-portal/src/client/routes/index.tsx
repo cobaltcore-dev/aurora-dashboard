@@ -30,7 +30,7 @@ export function Home() {
           <Stack direction="vertical" gap="8" alignment="center" className="text-center">
             <div className="space-y-6">
               <h1 className="text-5xl leading-tight font-bold tracking-tight sm:text-6xl lg:text-7xl">
-                <Trans>Manage OpenStack</Trans>
+                <Trans>Manage Your Cloud</Trans>
                 <br />
                 <Trans>with</Trans>{" "}
                 <span className="relative inline-block">
