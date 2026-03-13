@@ -53,7 +53,7 @@ const checkServiceAvailability = (
   }
 }
 
-// Search params schema for the images page
+// Search params schema for the images page (for deep linking)
 const imagesSearchSchema = z.object({
   // Filters
   status: z.string().optional(),
@@ -149,7 +149,7 @@ function ComputeDashboard({ client }: { client: TrpcClient }) {
               case "instances":
                 return <Instances client={client} project={project} viewMode="list" />
               case "images":
-                return <Images />
+                return <Images client={client} />
               case "keypairs":
                 return <KeyPairs project={project} client={client} />
               case "servergroups":
