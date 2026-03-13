@@ -415,7 +415,7 @@ msgstr "Container \"{containerName}\" war bereits leer."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/SwiftObjectStorage/ContainerToastNotifications.tsx:30
 msgid "Container \"{containerName}\" was successfully created."
-msgstr " Container \"{containerName}\" wurde erfolgreich erstellt."
+msgstr "Container \"{containerName}\" wurde erfolgreich erstellt."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/SwiftObjectStorage/ContainerToastNotifications.tsx:114
 msgid "Container \"{containerName}\" was successfully deleted."
@@ -494,7 +494,7 @@ msgstr "Container aktualisiert"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/SwiftObjectStorage/EditContainerMetadataModal.tsx:412
 msgid "Container:"
-msgstr " Container:"
+msgstr "Container:"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/SwiftObjectStorage/ContainerLimitsTooltip.tsx:73
 msgid "Containers"
