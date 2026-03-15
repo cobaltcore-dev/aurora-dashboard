@@ -86,25 +86,47 @@ export function AuthLoginPage() {
       console.error("Error logging in: ", error)
 
       // Extract and format error message
-      let errorMessage = t`Login failed. Please check your credentials and try again.`
+      let errorMessage = t`Please fill in all required fields: Domain, Username, and Password.`
 
       if (error && typeof error === "object" && "message" in error) {
         const rawMessage = (error as Error).message
 
         // Check if it's a validation error with multiple messages
         if (rawMessage.includes(",")) {
-          // Split multiple validation errors and show them as a list
+          // For validation errors, provide a helpful message
           const errors = rawMessage
             .split(",")
             .map((e) => e.trim())
             .filter((e) => e.length > 0)
-          if (errors.length > 0) {
-            errorMessage = errors.join(". ") + "."
+
+          // Check for specific validation errors and provide friendly messages
+          const hasPasswordError = errors.some((e) => e.toLowerCase().includes("password"))
+          const hasDomainError = errors.some((e) => e.toLowerCase().includes("domain"))
+          const hasUserError = errors.some((e) => e.toLowerCase().includes("name") || e.toLowerCase().includes("id"))
+
+          const missingFields = []
+          if (hasDomainError) missingFields.push(t`Domain`)
+          if (hasUserError) missingFields.push(t`Username`)
+          if (hasPasswordError) missingFields.push(t`Password`)
+
+          if (missingFields.length > 0) {
+            errorMessage = t`Please provide: ` + missingFields.join(", ")
+          } else {
+            errorMessage = t`Please fill in all required fields correctly.`
           }
         } else {
-          // Try translating single error code, fall back to raw message
+          // Try translating single error code, fall back to friendly message
           const translated = translateError(rawMessage)
-          errorMessage = translated === t`An unexpected error occurred. Please try again.` ? rawMessage : translated
+          if (translated === t`An unexpected error occurred. Please try again.`) {
+            // Check for common error patterns
+            if (rawMessage.toLowerCase().includes("unauthorized") || rawMessage.toLowerCase().includes("invalid credentials")) {
+              errorMessage = t`Invalid credentials. Please check your Domain, Username, and Password.`
+            } else {
+              errorMessage = rawMessage
+            }
+          } else {
+            errorMessage = translated
+          }
         }
       }
 
