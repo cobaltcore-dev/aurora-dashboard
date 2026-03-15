@@ -179,15 +179,7 @@ export function AuthLoginPage() {
             <Message variant="warning" text={t`Your session expired. Please login again.`} className="text-sm" />
           )}
 
-          <SignInForm
-            title={false}
-            error={loginError || false}
-            onSubmit={(e) => {
-              console.log("Form submitted!", form)
-              e.preventDefault()
-              signin()
-            }}
-          >
+          <SignInForm title={false} error={loginError || false}>
             <TextInput
               id="domain"
               type="text"
@@ -236,7 +228,6 @@ export function AuthLoginPage() {
               variant="primary"
               disabled={isLoggingIn}
               onClick={(e) => {
-                console.log("Button clicked!", form)
                 e.preventDefault()
                 signin()
               }}
