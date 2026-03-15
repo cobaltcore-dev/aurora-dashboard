@@ -4,7 +4,7 @@ import { useAuth } from "../../store/AuthProvider"
 import { z } from "zod"
 import { trpcClient } from "../../trpcClient"
 import { Trans, useLingui } from "@lingui/react/macro"
-import { Button, ContentHeading, TextInput, Container, Stack, Message } from "@cloudoperators/juno-ui-components"
+import { Button, ContentHeading, TextInput, Container, Stack, Message, Form, FormRow } from "@cloudoperators/juno-ui-components"
 import { useErrorTranslation } from "../../utils/useErrorTranslation"
 
 export const Route = createFileRoute("/auth/login")({
@@ -123,90 +123,75 @@ export function AuthLoginPage() {
             </p>
           </Stack>
 
-          {loginError ? (
-            <Message className="text-sm" variant="error" text={loginError} />
-          ) : (
-            (search.redirect || wasInactive) && (
-              <Message
-                variant="warning"
-                text={wasInactive ? t`Your session expired. Please login again.` : t`Please log in to continue.`}
-                className="text-sm"
-              />
-            )
+          {loginError && <Message className="text-sm" variant="error" text={loginError} />}
+          {!loginError && wasInactive && (
+            <Message
+              variant="warning"
+              text={t`Your session expired. Please login again.`}
+              className="text-sm"
+            />
           )}
 
-          <form
+          <Form
             onSubmit={(e) => {
               e.preventDefault()
               signin()
             }}
           >
-            <Stack gap="6" direction="vertical">
-              <Stack gap="2" direction="vertical">
-                <label htmlFor="domain" className="text-sm font-semibold">
-                  <Trans>Domain</Trans>
-                </label>
-                <TextInput
-                  id="domain"
-                  type="text"
-                  placeholder={t`Enter your domain`}
-                  onChange={(e) => {
-                    setForm({ ...form, domainName: e.target.value })
-                    if (loginError) setLoginError(null)
-                  }}
-                  required
-                  autoComplete="organization"
-                />
-              </Stack>
-
-              <Stack gap="2" direction="vertical">
-                <label htmlFor="user" className="text-sm font-semibold">
-                  <Trans>Username</Trans>
-                </label>
-                <TextInput
-                  id="user"
-                  type="text"
-                  placeholder={t`Enter your username`}
-                  onChange={(e) => {
-                    setForm({ ...form, user: e.target.value })
-                    if (loginError) setLoginError(null)
-                  }}
-                  required
-                  autoComplete="username"
-                />
-              </Stack>
-
-              <Stack gap="2" direction="vertical">
-                <label htmlFor="password" className="text-sm font-semibold">
-                  <Trans>Password</Trans>
-                </label>
-                <TextInput
-                  id="password"
-                  type="password"
-                  required
-                  placeholder={t`Enter your password`}
-                  onChange={(e) => {
-                    setForm({ ...form, password: e.target.value })
-                    if (loginError) setLoginError(null)
-                  }}
-                  onKeyUp={(e) => e.key === "Enter" && signin()}
-                  autoComplete="current-password"
-                />
-              </Stack>
-
-              <Button
-                className="mt-2 w-full py-3 text-base font-semibold"
-                variant="primary"
-                disabled={isLoggingIn}
-                onClick={(e) => {
-                  e.preventDefault()
-                  signin()
+            <FormRow>
+              <TextInput
+                id="domain"
+                type="text"
+                label={t`Domain`}
+                placeholder={t`Enter your domain`}
+                onChange={(e) => {
+                  setForm({ ...form, domainName: e.target.value })
+                  if (loginError) setLoginError(null)
                 }}
-              >
-                {isLoggingIn ? <Trans>Signing in...</Trans> : <Trans>Sign In</Trans>}
-              </Button>
-            </Stack>
-          </form>
+                required
+                autoComplete="organization"
+              />
+            </FormRow>
+
+            <FormRow>
+              <TextInput
+                id="user"
+                type="text"
+                label={t`Username`}
+                placeholder={t`Enter your username`}
+                onChange={(e) => {
+                  setForm({ ...form, user: e.target.value })
+                  if (loginError) setLoginError(null)
+                }}
+                required
+                autoComplete="username"
+              />
+            </FormRow>
+
+            <FormRow>
+              <TextInput
+                id="password"
+                type="password"
+                label={t`Password`}
+                required
+                placeholder={t`Enter your password`}
+                onChange={(e) => {
+                  setForm({ ...form, password: e.target.value })
+                  if (loginError) setLoginError(null)
+                }}
+                autoComplete="current-password"
+              />
+            </FormRow>
+
+            <Button
+              type="submit"
+              className="mt-2 w-full py-3 text-base font-semibold"
+              variant="primary"
+              disabled={isLoggingIn}
+            >
+              {isLoggingIn ? <Trans>Signing in...</Trans> : <Trans>Sign In</Trans>}
+            </Button>
+          </Form>
 
           <div className="border-theme-background-lvl-3 border-t pt-6">
             <p className="text-theme-light text-center text-sm">
@@ -215,7 +200,6 @@ export function AuthLoginPage() {
                 href="https://github.com/cobaltcore-dev/aurora-dashboard/issues"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="jn-text-theme-link hover:jn-underline font-medium"
               >
                 <Trans>Contact support</Trans>
               </a>
