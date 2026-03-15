@@ -4,7 +4,16 @@ import { useAuth } from "../../store/AuthProvider"
 import { z } from "zod"
 import { trpcClient } from "../../trpcClient"
 import { Trans, useLingui } from "@lingui/react/macro"
-import { Button, ContentHeading, TextInput, Container, Stack, Message, Form, FormRow } from "@cloudoperators/juno-ui-components"
+import {
+  Button,
+  ContentHeading,
+  TextInput,
+  Container,
+  Stack,
+  Message,
+  Form,
+  FormRow,
+} from "@cloudoperators/juno-ui-components"
 import { useErrorTranslation } from "../../utils/useErrorTranslation"
 
 export const Route = createFileRoute("/auth/login")({
@@ -125,11 +134,7 @@ export function AuthLoginPage() {
 
           {loginError && <Message className="text-sm" variant="error" text={loginError} />}
           {!loginError && wasInactive && (
-            <Message
-              variant="warning"
-              text={t`Your session expired. Please login again.`}
-              className="text-sm"
-            />
+            <Message variant="warning" text={t`Your session expired. Please login again.`} className="text-sm" />
           )}
 
           <Form
