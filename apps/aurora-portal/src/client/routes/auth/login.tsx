@@ -11,8 +11,7 @@ import {
   Container,
   Stack,
   Message,
-  Form,
-  FormRow,
+  SignInForm,
 } from "@cloudoperators/juno-ui-components"
 import { useErrorTranslation } from "../../utils/useErrorTranslation"
 
@@ -132,71 +131,66 @@ export function AuthLoginPage() {
             </p>
           </Stack>
 
-          {loginError && <Message className="text-sm" variant="error" text={loginError} />}
           {!loginError && wasInactive && (
             <Message variant="warning" text={t`Your session expired. Please login again.`} className="text-sm" />
           )}
 
-          <Form
+          <SignInForm
+            title={false}
+            error={loginError || false}
             onSubmit={(e) => {
               e.preventDefault()
               signin()
             }}
           >
-            <FormRow>
-              <TextInput
-                id="domain"
-                type="text"
-                label={t`Domain`}
-                placeholder={t`Enter your domain`}
-                onChange={(e) => {
-                  setForm({ ...form, domainName: e.target.value })
-                  if (loginError) setLoginError(null)
-                }}
-                required
-                autoComplete="organization"
-              />
-            </FormRow>
+            <TextInput
+              id="domain"
+              type="text"
+              label={t`Domain`}
+              placeholder={t`Enter your domain`}
+              onChange={(e) => {
+                setForm({ ...form, domainName: e.target.value })
+                if (loginError) setLoginError(null)
+              }}
+              required
+              autoComplete="organization"
+            />
 
-            <FormRow>
-              <TextInput
-                id="user"
-                type="text"
-                label={t`Username`}
-                placeholder={t`Enter your username`}
-                onChange={(e) => {
-                  setForm({ ...form, user: e.target.value })
-                  if (loginError) setLoginError(null)
-                }}
-                required
-                autoComplete="username"
-              />
-            </FormRow>
+            <TextInput
+              id="user"
+              type="text"
+              label={t`Username`}
+              placeholder={t`Enter your username`}
+              onChange={(e) => {
+                setForm({ ...form, user: e.target.value })
+                if (loginError) setLoginError(null)
+              }}
+              required
+              autoComplete="username"
+            />
 
-            <FormRow>
-              <TextInput
-                id="password"
-                type="password"
-                label={t`Password`}
-                required
-                placeholder={t`Enter your password`}
-                onChange={(e) => {
-                  setForm({ ...form, password: e.target.value })
-                  if (loginError) setLoginError(null)
-                }}
-                autoComplete="current-password"
-              />
-            </FormRow>
+            <TextInput
+              id="password"
+              type="password"
+              label={t`Password`}
+              required
+              placeholder={t`Enter your password`}
+              onChange={(e) => {
+                setForm({ ...form, password: e.target.value })
+                if (loginError) setLoginError(null)
+              }}
+              autoComplete="current-password"
+            />
 
             <Button
               type="submit"
-              className="mt-2 w-full py-3 text-base font-semibold"
+              className="jn:mt-4 jn:w-full"
               variant="primary"
               disabled={isLoggingIn}
             >
               {isLoggingIn ? <Trans>Signing in...</Trans> : <Trans>Sign In</Trans>}
             </Button>
-          </Form>
+          </SignInForm>
 
           <div className="border-theme-background-lvl-3 border-t pt-6">
             <p className="text-theme-light text-center text-sm">
