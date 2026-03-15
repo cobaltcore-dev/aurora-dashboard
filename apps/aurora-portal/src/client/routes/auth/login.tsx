@@ -195,7 +195,7 @@ export function AuthLoginPage() {
               placeholder={t`Enter your domain`}
               value={form.domainName}
               onChange={(e) => {
-                setForm({ ...form, domainName: e.target.value })
+                setForm((prev) => ({ ...prev, domainName: e.target.value }))
                 if (loginError) setLoginError(null)
               }}
               required
@@ -209,7 +209,7 @@ export function AuthLoginPage() {
               placeholder={t`Enter your username`}
               value={form.user}
               onChange={(e) => {
-                setForm({ ...form, user: e.target.value })
+                setForm((prev) => ({ ...prev, user: e.target.value }))
                 if (loginError) setLoginError(null)
               }}
               required
@@ -224,7 +224,7 @@ export function AuthLoginPage() {
               placeholder={t`Enter your password`}
               value={form.password}
               onChange={(e) => {
-                setForm({ ...form, password: e.target.value })
+                setForm((prev) => ({ ...prev, password: e.target.value }))
                 if (loginError) setLoginError(null)
               }}
               autoComplete="current-password"
