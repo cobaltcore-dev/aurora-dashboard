@@ -125,7 +125,9 @@ export function AuthLoginPage() {
             ) {
               errorMessage = t`Invalid credentials. Please check your Domain, Username, and Password.`
             } else {
-              errorMessage = rawMessage
+              // Don't expose raw internal error message to user
+              // Raw message is already logged via console.error above
+              errorMessage = t`An unexpected error occurred. Please try again.`
             }
           } else {
             errorMessage = translated
