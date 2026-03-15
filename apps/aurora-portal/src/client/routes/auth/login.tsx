@@ -85,9 +85,28 @@ export function AuthLoginPage() {
       await login(null)
       console.error("Error logging in: ", error)
 
-      const errorMessage = (error as Error)?.message
-        ? translateError((error as Error).message)
-        : t`Login failed. Please check your credentials and try again.`
+      // Extract and format error message
+      let errorMessage = t`Login failed. Please check your credentials and try again.`
+
+      if (error && typeof error === "object" && "message" in error) {
+        const rawMessage = (error as Error).message
+
+        // Check if it's a validation error with multiple messages
+        if (rawMessage.includes(",")) {
+          // Split multiple validation errors and show them as a list
+          const errors = rawMessage
+            .split(",")
+            .map((e) => e.trim())
+            .filter((e) => e.length > 0)
+          if (errors.length > 0) {
+            errorMessage = errors.join(". ") + "."
+          }
+        } else {
+          // Try translating single error code, fall back to raw message
+          const translated = translateError(rawMessage)
+          errorMessage = translated === t`An unexpected error occurred. Please try again.` ? rawMessage : translated
+        }
+      }
 
       setLoginError(errorMessage)
     } finally {
@@ -139,6 +158,7 @@ export function AuthLoginPage() {
             title={false}
             error={loginError || false}
             onSubmit={(e) => {
+              console.log("Form submitted!", form)
               e.preventDefault()
               signin()
             }}
@@ -148,6 +168,7 @@ export function AuthLoginPage() {
               type="text"
               label={t`Domain`}
               placeholder={t`Enter your domain`}
+              value={form.domainName}
               onChange={(e) => {
                 setForm({ ...form, domainName: e.target.value })
                 if (loginError) setLoginError(null)
@@ -161,6 +182,7 @@ export function AuthLoginPage() {
               type="text"
               label={t`Username`}
               placeholder={t`Enter your username`}
+              value={form.user}
               onChange={(e) => {
                 setForm({ ...form, user: e.target.value })
                 if (loginError) setLoginError(null)
@@ -175,6 +197,7 @@ export function AuthLoginPage() {
               label={t`Password`}
               required
               placeholder={t`Enter your password`}
+              value={form.password}
               onChange={(e) => {
                 setForm({ ...form, password: e.target.value })
                 if (loginError) setLoginError(null)
@@ -187,6 +210,11 @@ export function AuthLoginPage() {
               className="jn:mt-4 jn:w-full"
               variant="primary"
               disabled={isLoggingIn}
+              onClick={(e) => {
+                console.log("Button clicked!", form)
+                e.preventDefault()
+                signin()
+              }}
             >
               {isLoggingIn ? <Trans>Signing in...</Trans> : <Trans>Sign In</Trans>}
             </Button>
