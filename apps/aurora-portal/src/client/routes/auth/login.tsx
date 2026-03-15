@@ -119,7 +119,10 @@ export function AuthLoginPage() {
           const translated = translateError(rawMessage)
           if (translated === t`An unexpected error occurred. Please try again.`) {
             // Check for common error patterns
-            if (rawMessage.toLowerCase().includes("unauthorized") || rawMessage.toLowerCase().includes("invalid credentials")) {
+            if (
+              rawMessage.toLowerCase().includes("unauthorized") ||
+              rawMessage.toLowerCase().includes("invalid credentials")
+            ) {
               errorMessage = t`Invalid credentials. Please check your Domain, Username, and Password.`
             } else {
               errorMessage = rawMessage
