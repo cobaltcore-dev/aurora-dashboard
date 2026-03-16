@@ -40,6 +40,6 @@ export const createPermissionsPromise = (client: TrpcClient) => {
       canUpdate,
       canCreateMember,
       canDeleteMember,
-      canUpdateMember: canUpdateMember ?? true,
+      canUpdateMember: canUpdateMember ?? false,
     }))
 }

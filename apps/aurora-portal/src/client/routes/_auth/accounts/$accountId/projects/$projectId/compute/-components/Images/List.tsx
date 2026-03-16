@@ -94,33 +94,44 @@ function ImagesContent({
   const images = use(imagesPromise)
   const permissions = use(permissionsPromise)
 
-  const deletableImages = selectedImages.filter(
-    (imageId) => !images.find((image: GlanceImage) => image.id === imageId)?.protected
-  )
-  const protectedImages = selectedImages.filter(
-    (imageId) => images.find((image: GlanceImage) => image.id === imageId)?.protected
-  )
-  const activeImages = selectedImages.filter(
-    (imageId) => images.find((image: GlanceImage) => image.id === imageId)?.status === IMAGE_STATUSES.ACTIVE
-  )
-  const deactivatedImages = selectedImages.filter(
-    (imageId) => images.find((image: GlanceImage) => image.id === imageId)?.status === IMAGE_STATUSES.DEACTIVATED
-  )
+  // Only consider images that are in the current filtered/searched dataset
+  const displayedImageIds = new Set(images.map((image: GlanceImage) => image.id))
+  const validSelectedImages = selectedImages.filter((imageId) => displayedImageIds.has(imageId))
+
+  const deletableImages = validSelectedImages.filter((imageId) => {
+    const image = images.find((image: GlanceImage) => image.id === imageId)
+    return image && !image.protected
+  })
+  const protectedImages = validSelectedImages.filter((imageId) => {
+    const image = images.find((image: GlanceImage) => image.id === imageId)
+    return image && image.protected
+  })
+  const activeImages = validSelectedImages.filter((imageId) => {
+    const image = images.find((image: GlanceImage) => image.id === imageId)
+    return image && image.status === IMAGE_STATUSES.ACTIVE
+  })
+  const deactivatedImages = validSelectedImages.filter((imageId) => {
+    const image = images.find((image: GlanceImage) => image.id === imageId)
+    return image && image.status === IMAGE_STATUSES.DEACTIVATED
+  })
 
   const isDeleteAllDisabled =
     !permissions.canDelete ||
+    validSelectedImages.length === 0 ||
     images
-      .filter((image: GlanceImage) => selectedImages.includes(image.id))
+      .filter((image: GlanceImage) => validSelectedImages.includes(image.id))
       .every((image: GlanceImage) => image.protected)
   const isDeactivateAllDisabled =
     !permissions.canUpdate ||
+    validSelectedImages.length === 0 ||
     images
-      .filter((image: GlanceImage) => selectedImages.includes(image.id))
+      .filter((image: GlanceImage) => validSelectedImages.includes(image.id))
       .every((image: GlanceImage) => image.status === IMAGE_STATUSES.DEACTIVATED)
   const isActivateAllDisabled =
     !permissions.canUpdate ||
+    validSelectedImages.length === 0 ||
     images
-      .filter((image: GlanceImage) => selectedImages.includes(image.id))
+      .filter((image: GlanceImage) => validSelectedImages.includes(image.id))
       .every((image: GlanceImage) => image.status === IMAGE_STATUSES.ACTIVE)
 
   return (
@@ -186,8 +197,8 @@ function ImagesContent({
       />
       <ImageListView
         images={images}
-        suggestedImages={[]}
-        acceptedImages={[]}
+        suggestedImages={memberStatusView === "pending" ? images : []}
+        acceptedImages={memberStatusView === "accepted" ? images : []}
         permissions={permissions}
         hasNextPage={false}
         isFetchingNextPage={false}
@@ -281,29 +292,33 @@ export const Images = ({ client }: ImagesProps) => {
   )
   const [permissionsPromise] = useState(() => createPermissionsPromise(client))
 
-  // Helper to refetch images with current state
-  const refetchImages = () => {
+  // Sync URL params to state and refetch when URL changes (single source of truth)
+  useEffect(() => {
+    const urlFilters = parseFiltersFromUrl(searchParams)
+    const urlSortBy = searchParams.sortBy || "created_at"
+    const urlSortDirection = searchParams.sortDirection || "desc"
+    const urlSearchTerm = searchParams.search || ""
+
+    setFilterSettings((prev) => ({ ...prev, selectedFilters: urlFilters }))
+    setSortSettings((prev) => ({
+      ...prev,
+      sortBy: urlSortBy,
+      sortDirection: urlSortDirection,
+    }))
+    setSearchTerm(urlSearchTerm)
+
+    // Clear selection when dataset changes
+    setSelectedImages([])
+
+    // Refetch with URL state (single fetch path)
     startTransition(() => {
       setImagesPromise(
-        createImagesPromise(client, sortSettings.sortBy, sortSettings.sortDirection, searchTerm, {
-          ...buildFilterParams(filterSettings.selectedFilters || [], filterSettings.filters),
+        createImagesPromise(client, urlSortBy, urlSortDirection, urlSearchTerm, {
+          ...buildFilterParams(urlFilters || [], filterSettings.filters),
           member_status: memberStatusView === "all" ? undefined : memberStatusView,
         })
       )
     })
-  }
-
-  // Sync URL params to state when URL changes (for back/forward navigation)
-  useEffect(() => {
-    const urlFilters = parseFiltersFromUrl(searchParams)
-    setFilterSettings((prev) => ({ ...prev, selectedFilters: urlFilters }))
-    setSortSettings((prev) => ({
-      ...prev,
-      sortBy: searchParams.sortBy || "created_at",
-      sortDirection: searchParams.sortDirection || "desc",
-    }))
-    setSearchTerm(searchParams.search || "")
-    refetchImages()
   }, [
     searchParams.status,
     searchParams.visibility,
@@ -332,7 +347,6 @@ export const Images = ({ client }: ImagesProps) => {
       })) as unknown as true,
       replace: true,
     })
-    refetchImages()
   }
 
   const handleFilterChange = (newFilterSettings: FilterSettings) => {
@@ -346,7 +360,6 @@ export const Images = ({ client }: ImagesProps) => {
         })) as unknown as true,
       replace: true,
     })
-    refetchImages()
   }
 
   const handleSearchChange = (term: string | number | string[] | undefined) => {
@@ -359,12 +372,10 @@ export const Images = ({ client }: ImagesProps) => {
       })) as unknown as true,
       replace: true,
     })
-    refetchImages()
   }
 
   const handleMemberStatusChange = (view: "all" | "pending" | "accepted") => {
     setMemberStatusView(view)
-    refetchImages()
   }
 
   return (

@@ -53,20 +53,48 @@ const checkServiceAvailability = (
   }
 }
 
+// Helper to validate multi-value filters like "value" or "in:value1,value2,..."
+const multiValueEnum = (allowedValues: string[]) => {
+  return z.string().refine((val) => {
+    const values = val.startsWith("in:") ? val.replace("in:", "").split(",") : [val]
+    return values.every((v) => allowedValues.includes(v))
+  })
+}
+
 // Search params schema for the images page (for deep linking)
 const imagesSearchSchema = z.object({
-  // Filters
-  status: z.string().optional(),
-  visibility: z.string().optional(),
-  disk_format: z.string().optional(),
-  container_format: z.string().optional(),
-  protected: z.string().optional(),
+  // Filters - can be single value or "in:value1,value2,..." for multi-value
+  status: multiValueEnum([
+    "queued",
+    "saving",
+    "active",
+    "deactivated",
+    "killed",
+    "deleted",
+    "pending_delete",
+  ]).optional(),
+  visibility: z.enum(["public", "private", "shared", "community", "all"]).optional(),
+  disk_format: multiValueEnum([
+    "ami",
+    "ari",
+    "aki",
+    "vhd",
+    "vhdx",
+    "vmdk",
+    "raw",
+    "qcow2",
+    "vdi",
+    "iso",
+    "ploop",
+  ]).optional(),
+  container_format: multiValueEnum(["ami", "ari", "aki", "bare", "ovf", "ova", "docker"]).optional(),
+  protected: z.enum(["true", "false"]).optional(),
 
   // Search
   search: z.string().optional(),
 
   // Sort
-  sortBy: z.string().optional(),
+  sortBy: z.enum(["created_at", "updated_at", "name", "size", "status"]).optional(),
   sortDirection: z.enum(["asc", "desc"]).optional(),
 })
 
