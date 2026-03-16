@@ -61,6 +61,7 @@ function ImagesContent({
   setActivateAllModalOpen,
   memberStatusView,
   setMemberStatusView,
+  isFetching,
 }: {
   imagesPromise: Promise<GlanceImage[]>
   permissionsPromise: Promise<{
@@ -89,6 +90,7 @@ function ImagesContent({
   setActivateAllModalOpen: (open: boolean) => void
   memberStatusView: "all" | "pending" | "accepted"
   setMemberStatusView: (view: "all" | "pending" | "accepted") => void
+  isFetching: boolean
 }) {
   const { t } = useLingui()
   const images = use(imagesPromise)
@@ -203,7 +205,7 @@ function ImagesContent({
         hasNextPage={false}
         isFetchingNextPage={false}
         fetchNextPage={async () => {}}
-        isFetching={false}
+        isFetching={isFetching}
         selectedImages={selectedImages}
         setSelectedImages={setSelectedImages}
         deleteAllModalOpen={deleteAllModalOpen}
@@ -284,6 +286,7 @@ export const Images = ({ client }: ImagesProps) => {
   const [activateAllModalOpen, setActivateAllModalOpen] = useState(false)
   const [memberStatusView, setMemberStatusView] = useState<"all" | "pending" | "accepted">("all")
 
+  const [isFetching, setIsFetching] = useState(false)
   const [imagesPromise, setImagesPromise] = useState(() =>
     createImagesPromise(client, sortSettings.sortBy, sortSettings.sortDirection, searchTerm, {
       ...buildFilterParams(filterSettings.selectedFilters || [], filterSettings.filters),
@@ -311,13 +314,15 @@ export const Images = ({ client }: ImagesProps) => {
     setSelectedImages([])
 
     // Refetch with URL state (single fetch path)
+    setIsFetching(true)
     startTransition(() => {
-      setImagesPromise(
-        createImagesPromise(client, urlSortBy, urlSortDirection, urlSearchTerm, {
-          ...buildFilterParams(urlFilters || [], filterSettings.filters),
-          member_status: memberStatusView === "all" ? undefined : memberStatusView,
-        })
-      )
+      const newPromise = createImagesPromise(client, urlSortBy, urlSortDirection, urlSearchTerm, {
+        ...buildFilterParams(urlFilters || [], filterSettings.filters),
+        member_status: memberStatusView === "all" ? undefined : memberStatusView,
+      })
+      // Mark fetching as complete once the promise resolves
+      newPromise.finally(() => setIsFetching(false))
+      setImagesPromise(newPromise)
     })
   }, [
     searchParams.status,
@@ -409,6 +414,7 @@ export const Images = ({ client }: ImagesProps) => {
           setActivateAllModalOpen={setActivateAllModalOpen}
           memberStatusView={memberStatusView}
           setMemberStatusView={handleMemberStatusChange}
+          isFetching={isFetching}
         />
       </Suspense>
     </div>

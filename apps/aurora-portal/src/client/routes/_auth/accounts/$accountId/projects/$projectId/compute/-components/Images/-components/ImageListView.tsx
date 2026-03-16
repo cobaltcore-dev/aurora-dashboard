@@ -580,208 +580,217 @@ export function ImageListView({
   return (
     <>
       <>{children}</>
-      {/* Images Table */}
-      {images.length > 0 ? (
-        <>
-          <DataGrid columns={9} minContentColumns={[0, 8]} className="images" data-testid="images-table">
-            {/* Table Header */}
-            <DataGridRow>
-              <DataGridHeadCell>
-                <Checkbox
-                  checked={selectedImages.length === images.length}
-                  onChange={() => {
-                    if (selectedImages.length === images.length) {
-                      return setSelectedImages([])
+
+      <div className="relative">
+        {/* Loading overlay when refetching */}
+        {isFetching && !isFetchingNextPage && (
+          <div className="bg-theme-background-lvl-0/50 absolute inset-0 z-10 flex items-center justify-center backdrop-blur-sm">
+            <Stack direction="vertical" alignment="center" gap="2">
+              <Spinner variant="primary" size="large" />
+              <span className="text-theme-high font-medium">
+                <Trans>Loading images...</Trans>
+              </span>
+            </Stack>
+          </div>
+        )}
+
+        {/* Images Table */}
+        {images.length > 0 ? (
+          <>
+            <DataGrid columns={9} minContentColumns={[0, 8]} className="images" data-testid="images-table">
+              {/* Table Header */}
+              <DataGridRow>
+                <DataGridHeadCell>
+                  <Checkbox
+                    checked={selectedImages.length === images.length}
+                    onChange={() => {
+                      if (selectedImages.length === images.length) {
+                        return setSelectedImages([])
+                      }
+
+                      return setSelectedImages(images.map((image) => image.id))
+                    }}
+                  />
+                </DataGridHeadCell>
+                <DataGridHeadCell>
+                  <Trans>Status</Trans>
+                </DataGridHeadCell>
+                <DataGridHeadCell>
+                  <Trans>Image Name</Trans>
+                </DataGridHeadCell>
+                <DataGridHeadCell>
+                  <Trans>Visibility</Trans>
+                </DataGridHeadCell>
+                <DataGridHeadCell>
+                  <Trans>Protected</Trans>
+                </DataGridHeadCell>
+                <DataGridHeadCell>
+                  <Trans>Size</Trans>
+                </DataGridHeadCell>
+                <DataGridHeadCell>
+                  <Trans>Disk Format</Trans>
+                </DataGridHeadCell>
+                <DataGridHeadCell>
+                  <Trans>Created</Trans>
+                </DataGridHeadCell>
+                <DataGridHeadCell />
+              </DataGridRow>
+
+              {/* Table Body */}
+              {images.map((image) => (
+                <ImageTableRow
+                  image={image}
+                  isSelected={!!selectedImages.find((imageId) => imageId === image.id)}
+                  isPending={!!suggestedImages.find(({ id: imageId }) => imageId === image.id)}
+                  isAccepted={!!acceptedImages.find(({ id: imageId }) => imageId === image.id)}
+                  key={image.id}
+                  permissions={permissions}
+                  onEditDetails={openEditDetailsModal}
+                  onEditMetadata={openEditMetadataModal}
+                  onDelete={openDeleteModal}
+                  onManageAccess={openManageAccessModal}
+                  onConfirmAccess={openConfirmAccessModal}
+                  onSelect={(image: GlanceImage) => {
+                    const isImageSelected = !!selectedImages.find((imageId) => imageId === image.id)
+
+                    if (isImageSelected) {
+                      return setSelectedImages(selectedImages.filter((imageId) => imageId !== image.id))
                     }
 
-                    return setSelectedImages(images.map((image) => image.id))
+                    setSelectedImages([...selectedImages, image.id])
                   }}
+                  onActivationStatusChange={handleActivationStatusChange}
+                  onUpdateVisibility={handleUpdateImageVisibility}
+                  uploadId={uploadId}
+                  uploadProgressPercent={data?.percent}
                 />
-              </DataGridHeadCell>
-              <DataGridHeadCell>
-                <Trans>Status</Trans>
-              </DataGridHeadCell>
-              <DataGridHeadCell>
-                <Trans>Image Name</Trans>
-              </DataGridHeadCell>
-              <DataGridHeadCell>
-                <Trans>Visibility</Trans>
-              </DataGridHeadCell>
-              <DataGridHeadCell>
-                <Trans>Protected</Trans>
-              </DataGridHeadCell>
-              <DataGridHeadCell>
-                <Trans>Size</Trans>
-              </DataGridHeadCell>
-              <DataGridHeadCell>
-                <Trans>Disk Format</Trans>
-              </DataGridHeadCell>
-              <DataGridHeadCell>
-                <Trans>Created</Trans>
-              </DataGridHeadCell>
-              <DataGridHeadCell />
+              ))}
+            </DataGrid>
+
+            {/* Infinite Scroll Trigger */}
+            {hasNextPage && (
+              <div ref={loadMoreRef} className="py-4">
+                <Stack distribution="center" alignment="center">
+                  {isFetchingNextPage ? (
+                    <>
+                      <Spinner variant="primary" size="small" />
+                      <Trans>Loading more...</Trans>
+                    </>
+                  ) : (
+                    <Button
+                      onClick={() => fetchNextPage?.()}
+                      variant="subdued"
+                      disabled={!hasNextPage || isFetchingNextPage}
+                    >
+                      <Trans>Load More</Trans>
+                    </Button>
+                  )}
+                </Stack>
+              </div>
+            )}
+          </>
+        ) : (
+          <DataGrid columns={7} minContentColumns={[0, 6]} className="images" data-testid="no-images">
+            <DataGridRow>
+              <DataGridCell colSpan={7}>
+                <ContentHeading>
+                  <Trans>No images found</Trans>
+                </ContentHeading>
+                <p>
+                  <Trans>
+                    There are no images available for this project with the current filters applied. Try adjusting your
+                    filter criteria or create a new image.
+                  </Trans>
+                </p>
+              </DataGridCell>
             </DataGridRow>
-
-            {/* Table Body */}
-            {images.map((image) => (
-              <ImageTableRow
-                image={image}
-                isSelected={!!selectedImages.find((imageId) => imageId === image.id)}
-                isPending={!!suggestedImages.find(({ id: imageId }) => imageId === image.id)}
-                isAccepted={!!acceptedImages.find(({ id: imageId }) => imageId === image.id)}
-                key={image.id}
-                permissions={permissions}
-                onEditDetails={openEditDetailsModal}
-                onEditMetadata={openEditMetadataModal}
-                onDelete={openDeleteModal}
-                onManageAccess={openManageAccessModal}
-                onConfirmAccess={openConfirmAccessModal}
-                onSelect={(image: GlanceImage) => {
-                  const isImageSelected = !!selectedImages.find((imageId) => imageId === image.id)
-
-                  if (isImageSelected) {
-                    return setSelectedImages(selectedImages.filter((imageId) => imageId !== image.id))
-                  }
-
-                  setSelectedImages([...selectedImages, image.id])
-                }}
-                onActivationStatusChange={handleActivationStatusChange}
-                onUpdateVisibility={handleUpdateImageVisibility}
-                uploadId={uploadId}
-                uploadProgressPercent={data?.percent}
-              />
-            ))}
           </DataGrid>
+        )}
+        {selectedImage && (
+          <>
+            <EditImageDetailsModal
+              isOpen={editDetailsModalOpen}
+              onClose={closeEditDetailsModal}
+              image={selectedImage}
+              onSave={handleSaveEdit}
+              isLoading={updateImageMutation.isPending}
+            />
+            <EditImageMetadataModal
+              isOpen={editMetadataModalOpen}
+              onClose={closeEditMetadataModal}
+              image={selectedImage}
+              onSave={handleSaveEdit}
+              isLoading={updateImageMutation.isPending}
+            />
+            <DeleteImageModal
+              image={selectedImage}
+              isOpen={deleteModalOpen}
+              isLoading={isLoading}
+              isDisabled={selectedImage.protected || !permissions.canDelete}
+              onClose={closeDeleteModal}
+              onDelete={handleDelete}
+            />
+            <ManageImageAccessModal
+              image={selectedImage}
+              isOpen={manageAccessModalOpen}
+              onClose={closeManageAccessModal}
+              permissions={permissions}
+            />
+            <ConfirmImageAccessModal
+              image={selectedImage}
+              isOpen={confirmAccessModalOpen}
+              onClose={closeConfirmAccessModal}
+              memberId={projectId}
+              permissions={permissions}
+              setMessage={setToastData}
+            />
+          </>
+        )}
 
-          {/* Infinite Scroll Trigger */}
-          {hasNextPage && (
-            <div ref={loadMoreRef} className="py-4">
-              <Stack distribution="center" alignment="center">
-                {isFetchingNextPage ? (
-                  <>
-                    <Spinner variant="primary" size="small" />
-                    <Trans>Loading more...</Trans>
-                  </>
-                ) : (
-                  <Button
-                    onClick={() => fetchNextPage?.()}
-                    variant="subdued"
-                    disabled={!hasNextPage || isFetchingNextPage}
-                  >
-                    <Trans>Load More</Trans>
-                  </Button>
-                )}
-              </Stack>
-            </div>
-          )}
-          {isFetching && !isFetchingNextPage && (
-            <div className="py-2">
-              <Stack distribution="center" alignment="center">
-                <Trans>Fetching...</Trans>
-              </Stack>
-            </div>
-          )}
-        </>
-      ) : (
-        <DataGrid columns={7} minContentColumns={[0, 6]} className="images" data-testid="no-images">
-          <DataGridRow>
-            <DataGridCell colSpan={7}>
-              <ContentHeading>
-                <Trans>No images found</Trans>
-              </ContentHeading>
-              <p>
-                <Trans>
-                  There are no images available for this project with the current filters applied. Try adjusting your
-                  filter criteria or create a new image.
-                </Trans>
-              </p>
-            </DataGridCell>
-          </DataGridRow>
-        </DataGrid>
-      )}
-      {selectedImage && (
-        <>
-          <EditImageDetailsModal
-            isOpen={editDetailsModalOpen}
-            onClose={closeEditDetailsModal}
-            image={selectedImage}
-            onSave={handleSaveEdit}
-            isLoading={updateImageMutation.isPending}
-          />
-          <EditImageMetadataModal
-            isOpen={editMetadataModalOpen}
-            onClose={closeEditMetadataModal}
-            image={selectedImage}
-            onSave={handleSaveEdit}
-            isLoading={updateImageMutation.isPending}
-          />
-          <DeleteImageModal
-            image={selectedImage}
-            isOpen={deleteModalOpen}
-            isLoading={isLoading}
-            isDisabled={selectedImage.protected || !permissions.canDelete}
-            onClose={closeDeleteModal}
-            onDelete={handleDelete}
-          />
-          <ManageImageAccessModal
-            image={selectedImage}
-            isOpen={manageAccessModalOpen}
-            onClose={closeManageAccessModal}
-            permissions={permissions}
-          />
-          <ConfirmImageAccessModal
-            image={selectedImage}
-            isOpen={confirmAccessModalOpen}
-            onClose={closeConfirmAccessModal}
-            memberId={projectId}
-            permissions={permissions}
-            setMessage={setToastData}
-          />
-        </>
-      )}
+        {selectedImages && (
+          <>
+            <DeleteImagesModal
+              isOpen={deleteAllModalOpen}
+              deletableImages={deletableImages}
+              protectedImages={protectedImages}
+              isLoading={isLoading}
+              onClose={() => setDeleteAllModalOpen(false)}
+              onDelete={handleBulkDelete}
+            />
+            <DeactivateImagesModal
+              isOpen={deactivateAllModalOpen}
+              activeImages={activeImages}
+              deactivatedImages={deactivatedImages}
+              isLoading={isLoading}
+              onClose={() => setDeactivateAllModalOpen(false)}
+              onDeactivate={handleBulkDeactivate}
+            />
+            <ActivateImagesModal
+              isOpen={activateAllModalOpen}
+              deactivatedImages={deactivatedImages}
+              activeImages={activeImages}
+              isLoading={isLoading}
+              onClose={() => setActivateAllModalOpen(false)}
+              onActivate={handleBulkActivate}
+            />
+          </>
+        )}
+        <CreateImageModal
+          isOpen={createModalOpen}
+          onClose={() => {
+            if (uploadId) {
+              utils.compute.listImagesWithPagination.invalidate()
+            }
 
-      {selectedImages && (
-        <>
-          <DeleteImagesModal
-            isOpen={deleteAllModalOpen}
-            deletableImages={deletableImages}
-            protectedImages={protectedImages}
-            isLoading={isLoading}
-            onClose={() => setDeleteAllModalOpen(false)}
-            onDelete={handleBulkDelete}
-          />
-          <DeactivateImagesModal
-            isOpen={deactivateAllModalOpen}
-            activeImages={activeImages}
-            deactivatedImages={deactivatedImages}
-            isLoading={isLoading}
-            onClose={() => setDeactivateAllModalOpen(false)}
-            onDeactivate={handleBulkDeactivate}
-          />
-          <ActivateImagesModal
-            isOpen={activateAllModalOpen}
-            deactivatedImages={deactivatedImages}
-            activeImages={activeImages}
-            isLoading={isLoading}
-            onClose={() => setActivateAllModalOpen(false)}
-            onActivate={handleBulkActivate}
-          />
-        </>
-      )}
-      <CreateImageModal
-        isOpen={createModalOpen}
-        onClose={() => {
-          if (uploadId) {
-            utils.compute.listImagesWithPagination.invalidate()
-          }
+            setCreateModalOpen(false)
+          }}
+          onCreate={handleCreate}
+          isLoading={createImageMutation.isPending || uploadImageMutation.isPending || isCreateInProgress}
+          isUploadPending={uploadImageMutation.isPending && !!uploadId}
+          uploadProgressPercent={data?.percent}
+        />
+      </div>
 
-          setCreateModalOpen(false)
-        }}
-        onCreate={handleCreate}
-        isLoading={createImageMutation.isPending || uploadImageMutation.isPending || isCreateInProgress}
-        isUploadPending={uploadImageMutation.isPending && !!uploadId}
-        uploadProgressPercent={data?.percent}
-      />
       {toastData && (
         <Toast {...toastData} className="border-theme-light fixed top-5 right-5 z-50 rounded-lg border shadow-lg" />
       )}
