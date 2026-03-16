@@ -2,12 +2,13 @@ import { ToggleButton } from "@cloudoperators/juno-ui-components"
 import { i18n } from "@lingui/core"
 import { useLingui } from "@lingui/react"
 import { SUPPORTED_LOCALES, saveLanguagePreference, type SupportedLocale } from "@/client/utils/languageDetection"
+import { cn } from "@/client/utils/cn"
 
 const isSupportedLocale = (locale: string): locale is SupportedLocale => {
   return SUPPORTED_LOCALES.includes(locale as SupportedLocale)
 }
 
-export function LanguageSelect() {
+export function LanguageSelect({ className }: { className?: string }) {
   const { i18n: linguiInstance } = useLingui()
   const currentValue = linguiInstance.locale.toUpperCase()
   const displayLanguages = SUPPORTED_LOCALES.map((l) => l.toUpperCase())
@@ -31,7 +32,7 @@ export function LanguageSelect() {
       options={displayLanguages}
       onChange={handleLanguageChange}
       aria-label="Select language"
-      className="hover:text-theme-accent !bg-transparent"
+      className={cn("hover:text-theme-accent !bg-transparent", className)}
     />
   )
 }

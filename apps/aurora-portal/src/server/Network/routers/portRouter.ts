@@ -2,7 +2,7 @@ import { TRPCError } from "@trpc/server"
 import { protectedProcedure } from "@/server/trpc"
 import { withErrorHandling } from "@/server/helpers/errorHandling"
 import { ListAvailablePortsQuerySchema, Port, PortListResponseSchema } from "../types/port"
-import { getNetworkService } from "../helpers/networkHelpers"
+import { getNetworkService } from "../helpers/index"
 import { PortErrorHandlers } from "../helpers/portHelpers"
 import { buildProjectScopedQueryParams } from "@/server/helpers/projectFilterHelpers"
 

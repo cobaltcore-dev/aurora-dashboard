@@ -11,7 +11,7 @@ import { withErrorHandling } from "../../helpers/errorHandling"
 import { filterBySearchParams } from "../../helpers/filterBySearchParams"
 import { SecurityGroupErrorHandlers } from "../helpers/securityGroupHelpers"
 import { parseSecurityGroupResponse, parseSecurityGroupListResponse } from "../helpers/securityGroupHelpers"
-import { getNetworkService } from "../helpers/networkHelpers"
+import { getNetworkService } from "../helpers/index"
 import { buildProjectScopedQueryParams } from "../../helpers/projectFilterHelpers"
 
 const SECURITY_GROUPS_BASE_URL = "v2.0/security-groups"
