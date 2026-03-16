@@ -680,7 +680,7 @@ export function ImageListView({
                     <Button
                       onClick={() => fetchNextPage?.()}
                       variant="subdued"
-                      disabled={!hasNextPage || isFetchingNextPage}
+                      disabled={isFetchingNextPage}
                     >
                       <Trans>Load More</Trans>
                     </Button>
