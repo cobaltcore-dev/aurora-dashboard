@@ -202,42 +202,64 @@ export const SecurityGroupRuleErrorHandlers = {
    * @returns TRPCError with appropriate code and message
    */
   create: (response: { status?: number; statusText?: string }) => {
+    const statusText = response.statusText || "Unknown error"
+
     switch (response.status) {
       case 400:
+        // Detect specific validation errors from OpenStack
+        if (statusText.toLowerCase().includes("cidr")) {
+          return new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Invalid CIDR format. Please provide a valid IP address block (e.g., 0.0.0.0/0)",
+          })
+        }
+        if (statusText.toLowerCase().includes("port")) {
+          return new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Invalid port range. Ports must be between 1 and 65535, and min must be <= max",
+          })
+        }
         return new TRPCError({
           code: "BAD_REQUEST",
-          message: `Invalid request: ${response.statusText || "Unknown error"}`,
+          message: `Invalid request: ${statusText}`,
         })
+
       case 401:
         return new TRPCError({
           code: "UNAUTHORIZED",
           message: "Unauthorized access",
         })
+
       case 403:
         return new TRPCError({
           code: "FORBIDDEN",
-          message: `Access forbidden: ${response.statusText || "Unknown error"}`,
+          message: `Access forbidden: ${statusText}`,
         })
+
       case 404:
         return new TRPCError({
           code: "NOT_FOUND",
-          message: "Security group not found",
+          message: "Security group not found. It may have been deleted.",
         })
+
       case 409:
         return new TRPCError({
           code: "CONFLICT",
-          message: `Conflict: ${response.statusText || "Rule already exists or conflicts with existing rules"}`,
+          message: "A rule with these parameters already exists in this security group",
         })
+
       case 413:
         // Quota exceeded
         return new TRPCError({
           code: "BAD_REQUEST",
-          message: `Quota exceeded for security group rules. Please delete an existing rule or contact your administrator to increase your quota.`,
+          message:
+            "Quota exceeded for security group rules. Please delete existing rules or contact your administrator.",
         })
+
       default:
         return new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
-          message: `Failed to create security group rule: ${response.statusText || "Unknown error"}`,
+          message: `Failed to create security group rule: ${statusText}`,
         })
     }
   },

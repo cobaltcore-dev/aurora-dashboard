@@ -61,7 +61,11 @@ export const listSecurityGroupsInputSchema = z.object({
   // Basic filtering
   name: z.string().optional(),
   description: z.string().optional(),
+  // NOTE: Accepted for backward compatibility but IGNORED by server.
+  // The server always enforces filtering by the current project from the session token.
   project_id: z.string().optional(),
+  // NOTE: Accepted for backward compatibility but IGNORED by server.
+  // The server always enforces filtering by the current project from the session token.
   tenant_id: z.string().optional(),
   shared: z.boolean().optional(),
 
@@ -100,18 +104,55 @@ export const deleteSecurityGroupRuleInputSchema = z.object({
   ruleId: z.string(),
 })
 
-export const createSecurityGroupRuleInputSchema = z.object({
-  security_group_id: z.string(),
-  direction: z.enum(["ingress", "egress"]),
-  ethertype: z.enum(["IPv4", "IPv6"]).optional(),
-  description: z.string().optional(),
-  protocol: z.string().nullable().optional(),
-  port_range_min: z.number().nullable().optional(),
-  port_range_max: z.number().nullable().optional(),
-  remote_ip_prefix: z.string().nullable().optional(),
-  remote_group_id: z.string().nullable().optional(),
-  remote_address_group_id: z.string().nullable().optional(),
-})
+export const createSecurityGroupRuleInputSchema = z
+  .object({
+    security_group_id: z.string(),
+    direction: z.enum(["ingress", "egress"]),
+    ethertype: z.enum(["IPv4", "IPv6"]).default("IPv4"),
+    description: z.string().optional(),
+    protocol: z.string().nullable().optional(),
+    port_range_min: z.number().int().min(0).max(65535).nullable().optional(),
+    port_range_max: z.number().int().min(0).max(65535).nullable().optional(),
+    remote_ip_prefix: z.string().nullable().optional(),
+    remote_group_id: z.string().nullable().optional(),
+    remote_address_group_id: z.string().nullable().optional(),
+  })
+  // Validate mutual exclusivity of remote fields
+  .refine(
+    (data) => {
+      const remoteFields = [data.remote_ip_prefix, data.remote_group_id, data.remote_address_group_id].filter(Boolean)
+      return remoteFields.length <= 1
+    },
+    {
+      message: "Only one of remote_ip_prefix, remote_group_id, or remote_address_group_id can be set",
+    }
+  )
+  // Validate port range order
+  .refine(
+    (data) => {
+      if (data.port_range_min != null && data.port_range_max != null) {
+        return data.port_range_min <= data.port_range_max
+      }
+      return true
+    },
+    {
+      message: "port_range_min must be less than or equal to port_range_max",
+    }
+  )
+  // Validate CIDR format if remote_ip_prefix is provided
+  .refine(
+    (data) => {
+      if (data.remote_ip_prefix) {
+        // Basic CIDR validation regex: x.x.x.x/y or IPv6 format
+        const cidrRegex = /^(?:(?:\d{1,3}\.){3}\d{1,3}\/\d{1,2}|[0-9a-fA-F:]+\/\d{1,3})$/
+        return cidrRegex.test(data.remote_ip_prefix)
+      }
+      return true
+    },
+    {
+      message: "remote_ip_prefix must be a valid CIDR notation (e.g., 0.0.0.0/0 or ::/0)",
+    }
+  )
 
 export type SecurityGroupRule = z.infer<typeof securityGroupRuleSchema>
 export type SecurityGroup = z.infer<typeof securityGroupSchema>

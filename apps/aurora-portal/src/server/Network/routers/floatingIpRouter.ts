@@ -1,7 +1,6 @@
 import { TRPCError } from "@trpc/server"
 import { protectedProcedure } from "@/server/trpc"
 import { withErrorHandling } from "@/server/helpers/errorHandling"
-import { appendQueryParamsFromObject } from "@/server/helpers/queryParams"
 import { filterBySearchParams } from "@/server/helpers/filterBySearchParams"
 import {
   FloatingIpQueryParametersSchema,
@@ -14,6 +13,7 @@ import {
 } from "../types/floatingIp"
 import { FLOATING_IPS_BASE_URL, FloatingIpErrorHandlers } from "../helpers/floatingIpHelpers"
 import { getNetworkService } from "../helpers/networkHelpers"
+import { buildProjectScopedQueryParams } from "@/server/helpers/projectFilterHelpers"
 
 /**
  * tRPC router for OpenStack Neutron Floating IPs.
@@ -33,9 +33,9 @@ export const floatingIpRouter = {
       return withErrorHandling(async () => {
         const network = getNetworkService(ctx)
 
-        // Extract searchTerm from input before building query params
-        const { searchTerm, ...openstackParams } = input
-        const queryParams = appendQueryParamsFromObject(openstackParams)
+        // Build query params with server-enforced project filtering
+        const queryParams = buildProjectScopedQueryParams(ctx, input)
+
         const queryString = queryParams.toString()
         const url = queryString ? `${FLOATING_IPS_BASE_URL}?${queryString}` : FLOATING_IPS_BASE_URL
 
@@ -55,6 +55,8 @@ export const floatingIpRouter = {
         }
         const floatingIps = parsed.data.floatingips
 
+        // Apply BFF-side search filtering
+        const { searchTerm } = input
         return filterBySearchParams(floatingIps, searchTerm, ["description"])
       }, "list floating IPs")
     }),

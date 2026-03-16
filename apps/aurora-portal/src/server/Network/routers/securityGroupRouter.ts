@@ -1,5 +1,4 @@
 import { protectedProcedure } from "../../trpc"
-import { appendQueryParamsFromObject } from "../../helpers/queryParams"
 import {
   listSecurityGroupsInputSchema,
   SecurityGroup,
@@ -13,6 +12,7 @@ import { filterBySearchParams } from "../../helpers/filterBySearchParams"
 import { SecurityGroupErrorHandlers } from "../helpers/securityGroupHelpers"
 import { parseSecurityGroupResponse, parseSecurityGroupListResponse } from "../helpers/securityGroupHelpers"
 import { getNetworkService } from "../helpers/networkHelpers"
+import { buildProjectScopedQueryParams } from "../../helpers/projectFilterHelpers"
 
 const SECURITY_GROUPS_BASE_URL = "v2.0/security-groups"
 
@@ -40,10 +40,8 @@ export const securityGroupRouter = {
       return withErrorHandling(async () => {
         const network = getNetworkService(ctx)
 
-        // Extract searchTerm from input before building query params
-        const { searchTerm, ...openstackParams } = input
-
-        const queryParams = appendQueryParamsFromObject(openstackParams, {
+        // Build query params with server-enforced project filtering
+        const queryParams = buildProjectScopedQueryParams(ctx, input, {
           keyMap: LIST_SECURITY_GROUPS_QUERY_KEY_MAP,
         })
 
@@ -60,6 +58,8 @@ export const securityGroupRouter = {
         const data = await response.json()
         const securityGroups = parseSecurityGroupListResponse(data, "securityGroupRouter.list")
 
+        // Apply BFF-side search filtering
+        const { searchTerm } = input
         return filterBySearchParams(securityGroups, searchTerm, ["name", "description", "id"])
       }, "list security groups")
     }),
