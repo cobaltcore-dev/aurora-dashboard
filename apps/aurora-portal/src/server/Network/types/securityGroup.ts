@@ -2,6 +2,20 @@ import { z } from "zod"
 import { SortDirSchema } from "./index"
 
 /**
+ * Detects CIDR family (IPv4 or IPv6) from CIDR notation.
+ * Returns "IPv4" if CIDR contains ".", "IPv6" if contains ":", or null if neither.
+ */
+function detectCIDRFamily(cidr: string): "IPv4" | "IPv6" | null {
+  if (cidr.includes(".")) {
+    return "IPv4"
+  }
+  if (cidr.includes(":")) {
+    return "IPv6"
+  }
+  return null
+}
+
+/**
  * Validates CIDR notation for IPv4 and IPv6 addresses.
  * - IPv4: octets must be 0-255, prefix length must be 0-32
  * - IPv6: proper hexadecimal format with colons, prefix length must be 0-128
@@ -265,6 +279,21 @@ export const createSecurityGroupRuleInputSchema = z
     },
     {
       message: "remote_ip_prefix must be a valid CIDR notation (e.g., 0.0.0.0/0 or ::/0)",
+    }
+  )
+  // Validate ethertype matches CIDR family
+  .refine(
+    (data) => {
+      if (data.remote_ip_prefix != null && data.remote_ip_prefix !== "") {
+        const cidrFamily = detectCIDRFamily(data.remote_ip_prefix)
+        if (cidrFamily && cidrFamily !== data.ethertype) {
+          return false
+        }
+      }
+      return true
+    },
+    {
+      message: "ethertype must match the CIDR family (IPv4 CIDR requires ethertype=IPv4, IPv6 CIDR requires ethertype=IPv6)",
     }
   )
 

@@ -237,6 +237,7 @@ describe("OpenStack Security Group Schema Validation", () => {
       it("should accept valid IPv6 CIDR: ::/0", () => {
         const result = createSecurityGroupRuleInputSchema.safeParse({
           ...minimalValidInput,
+          ethertype: "IPv6",
           remote_ip_prefix: "::/0",
         })
         expect(result.success).toBe(true)
@@ -245,6 +246,7 @@ describe("OpenStack Security Group Schema Validation", () => {
       it("should accept valid IPv6 CIDR: 2001:db8::/32", () => {
         const result = createSecurityGroupRuleInputSchema.safeParse({
           ...minimalValidInput,
+          ethertype: "IPv6",
           remote_ip_prefix: "2001:db8::/32",
         })
         expect(result.success).toBe(true)
@@ -253,6 +255,7 @@ describe("OpenStack Security Group Schema Validation", () => {
       it("should accept valid IPv6 CIDR: fe80::/10", () => {
         const result = createSecurityGroupRuleInputSchema.safeParse({
           ...minimalValidInput,
+          ethertype: "IPv6",
           remote_ip_prefix: "fe80::/10",
         })
         expect(result.success).toBe(true)
@@ -261,6 +264,7 @@ describe("OpenStack Security Group Schema Validation", () => {
       it("should accept valid full IPv6 CIDR: 2001:0db8:85a3:0000:0000:8a2e:0370:7334/128", () => {
         const result = createSecurityGroupRuleInputSchema.safeParse({
           ...minimalValidInput,
+          ethertype: "IPv6",
           remote_ip_prefix: "2001:0db8:85a3:0000:0000:8a2e:0370:7334/128",
         })
         expect(result.success).toBe(true)
@@ -309,6 +313,58 @@ describe("OpenStack Security Group Schema Validation", () => {
           remote_ip_prefix: "2001::db8::/32",
         })
         expect(result.success).toBe(false)
+      })
+    })
+
+    describe("Cross-field validation: ethertype and CIDR family", () => {
+      it("should reject IPv4 CIDR with ethertype=IPv6", () => {
+        const result = createSecurityGroupRuleInputSchema.safeParse({
+          ...minimalValidInput,
+          ethertype: "IPv6",
+          remote_ip_prefix: "192.168.1.0/24",
+        })
+        expect(result.success).toBe(false)
+        if (!result.success) {
+          expect(result.error.issues[0].message).toContain("ethertype must match the CIDR family")
+        }
+      })
+
+      it("should reject IPv6 CIDR with ethertype=IPv4", () => {
+        const result = createSecurityGroupRuleInputSchema.safeParse({
+          ...minimalValidInput,
+          ethertype: "IPv4",
+          remote_ip_prefix: "::/0",
+        })
+        expect(result.success).toBe(false)
+        if (!result.success) {
+          expect(result.error.issues[0].message).toContain("ethertype must match the CIDR family")
+        }
+      })
+
+      it("should accept IPv4 CIDR with ethertype=IPv4 (explicit)", () => {
+        const result = createSecurityGroupRuleInputSchema.safeParse({
+          ...minimalValidInput,
+          ethertype: "IPv4",
+          remote_ip_prefix: "10.0.0.0/8",
+        })
+        expect(result.success).toBe(true)
+      })
+
+      it("should accept IPv4 CIDR with default ethertype (IPv4)", () => {
+        const result = createSecurityGroupRuleInputSchema.safeParse({
+          ...minimalValidInput,
+          remote_ip_prefix: "10.0.0.0/8",
+        })
+        expect(result.success).toBe(true)
+      })
+
+      it("should accept IPv6 CIDR with ethertype=IPv6", () => {
+        const result = createSecurityGroupRuleInputSchema.safeParse({
+          ...minimalValidInput,
+          ethertype: "IPv6",
+          remote_ip_prefix: "2001:db8::/32",
+        })
+        expect(result.success).toBe(true)
       })
     })
 
