@@ -226,8 +226,8 @@ export const createSecurityGroupRuleInputSchema = z
     ethertype: z.enum(["IPv4", "IPv6"]).default("IPv4"),
     description: z.string().optional(),
     protocol: z.string().nullable().optional(),
-    port_range_min: z.number().int().min(0).max(65535).nullable().optional(),
-    port_range_max: z.number().int().min(0).max(65535).nullable().optional(),
+    port_range_min: z.number().int().max(65535).nullable().optional(),
+    port_range_max: z.number().int().max(65535).nullable().optional(),
     // Transform empty strings to undefined for proper validation
     remote_ip_prefix: z
       .string()
@@ -257,16 +257,31 @@ export const createSecurityGroupRuleInputSchema = z
       message: "Only one of remote_ip_prefix, remote_group_id, or remote_address_group_id can be set",
     }
   )
-  // Validate port range order
+  // Validate port range order and TCP/UDP port bounds
   .refine(
     (data) => {
+      const protocol = data.protocol?.toLowerCase()
+      const isTcpUdp = protocol === "tcp" || protocol === "udp"
+
+      // For TCP/UDP, ports must be 1-65535
+      if (isTcpUdp) {
+        if (data.port_range_min != null && (data.port_range_min < 1 || data.port_range_min > 65535)) {
+          return false
+        }
+        if (data.port_range_max != null && (data.port_range_max < 1 || data.port_range_max > 65535)) {
+          return false
+        }
+      }
+
+      // Validate min <= max for all protocols
       if (data.port_range_min != null && data.port_range_max != null) {
         return data.port_range_min <= data.port_range_max
       }
+
       return true
     },
     {
-      message: "port_range_min must be less than or equal to port_range_max",
+      message: "For TCP/UDP: ports must be 1-65535. port_range_min must be less than or equal to port_range_max",
     }
   )
   // Validate CIDR format if remote_ip_prefix is provided
@@ -293,7 +308,8 @@ export const createSecurityGroupRuleInputSchema = z
       return true
     },
     {
-      message: "ethertype must match the CIDR family (IPv4 CIDR requires ethertype=IPv4, IPv6 CIDR requires ethertype=IPv6)",
+      message:
+        "ethertype must match the CIDR family (IPv4 CIDR requires ethertype=IPv4, IPv6 CIDR requires ethertype=IPv6)",
     }
   )
 

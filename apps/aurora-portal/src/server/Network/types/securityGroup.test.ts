@@ -393,5 +393,103 @@ describe("OpenStack Security Group Schema Validation", () => {
         expect(result.success).toBe(false)
       })
     })
+
+    describe("Port validation for TCP/UDP protocols", () => {
+      it("should reject port 0 for TCP protocol", () => {
+        const result = createSecurityGroupRuleInputSchema.safeParse({
+          ...minimalValidInput,
+          protocol: "tcp",
+          port_range_min: 0,
+          port_range_max: 65535,
+        })
+        expect(result.success).toBe(false)
+        if (!result.success) {
+          expect(result.error.issues[0].message).toContain("TCP/UDP")
+        }
+      })
+
+      it("should reject port 0 for UDP protocol", () => {
+        const result = createSecurityGroupRuleInputSchema.safeParse({
+          ...minimalValidInput,
+          protocol: "udp",
+          port_range_min: 1,
+          port_range_max: 0,
+        })
+        expect(result.success).toBe(false)
+        if (!result.success) {
+          expect(result.error.issues[0].message).toContain("TCP/UDP")
+        }
+      })
+
+      it("should accept port 1 for TCP protocol", () => {
+        const result = createSecurityGroupRuleInputSchema.safeParse({
+          ...minimalValidInput,
+          protocol: "tcp",
+          port_range_min: 1,
+          port_range_max: 65535,
+        })
+        expect(result.success).toBe(true)
+      })
+
+      it("should accept port 22 for TCP (SSH)", () => {
+        const result = createSecurityGroupRuleInputSchema.safeParse({
+          ...minimalValidInput,
+          protocol: "tcp",
+          port_range_min: 22,
+          port_range_max: 22,
+        })
+        expect(result.success).toBe(true)
+      })
+
+      it("should accept port 1-65535 range for UDP", () => {
+        const result = createSecurityGroupRuleInputSchema.safeParse({
+          ...minimalValidInput,
+          protocol: "udp",
+          port_range_min: 1,
+          port_range_max: 65535,
+        })
+        expect(result.success).toBe(true)
+      })
+
+      it("should allow port 0 for ICMP protocol", () => {
+        const result = createSecurityGroupRuleInputSchema.safeParse({
+          ...minimalValidInput,
+          protocol: "icmp",
+          port_range_min: 0,
+          port_range_max: 0,
+        })
+        expect(result.success).toBe(true)
+      })
+
+      it("should allow port 0 for other protocols", () => {
+        const result = createSecurityGroupRuleInputSchema.safeParse({
+          ...minimalValidInput,
+          protocol: "esp",
+          port_range_min: 0,
+          port_range_max: 0,
+        })
+        expect(result.success).toBe(true)
+      })
+
+      it("should reject when port_range_min > port_range_max", () => {
+        const result = createSecurityGroupRuleInputSchema.safeParse({
+          ...minimalValidInput,
+          protocol: "tcp",
+          port_range_min: 443,
+          port_range_max: 80,
+        })
+        expect(result.success).toBe(false)
+      })
+
+      it("should handle case-insensitive protocol matching", () => {
+        const result = createSecurityGroupRuleInputSchema.safeParse({
+          ...minimalValidInput,
+          protocol: "TCP",
+          port_range_min: 0,
+          port_range_max: 80,
+        })
+        expect(result.success).toBe(false)
+      })
+    })
   })
 })
