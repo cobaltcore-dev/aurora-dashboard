@@ -4,11 +4,17 @@ import { isMatch, Link, MakeRouteMatchUnion, useRouterState } from "@tanstack/re
 import { UserMenu } from "./UserMenu"
 import { PageHeader, ThemeToggle } from "@cloudoperators/juno-ui-components/index"
 import { LanguageSelect } from "./LanguageSelect"
+import { cn } from "@/client/utils/cn"
 
 interface NavigationProps {
   items: NavigationItem[]
   handleThemeToggle?: (theme: string) => void
 }
+
+// Text colors for header elements
+const textColorClass = "text-theme-pageheader-appname-default"
+const textHoverClass = "hover:text-theme-pageheader-appname-hover"
+const textMutedClass = "text-theme-pageheader-appname-default/40"
 
 function getDomain(matches: MakeRouteMatchUnion[]) {
   const domainMatch = matches.filter((match) => isMatch(match, "loaderData.crumbDomain"))[0]
@@ -39,27 +45,31 @@ export function MainNavigation({ items, handleThemeToggle }: NavigationProps) {
 
   return (
     <PageHeader
-      logo={<Logo className="fill-theme-accent h-6 w-6 flex-shrink-0" title="Aurora" />}
+      logo={<Logo className={cn("h-6 w-6 flex-shrink-0 fill-current", textColorClass)} title="Aurora" />}
       applicationName={
         <div className="flex flex-nowrap items-center space-x-2">
           <Link to="/" className="flex flex-nowrap items-center space-x-2">
-            <span className="text-theme-high flex-shrink-0">Aurora</span>
+            <span className={cn("flex-shrink-0", textColorClass, textHoverClass)}>Aurora</span>
           </Link>
           {domain && (
             <>
-              <span className="text-theme-high/40 flex-shrink-0">/</span>
-              <Link to={domain.path} data-testid="domain-link" className="text-theme-high flex-shrink-0">
+              <span className={cn("flex-shrink-0", textMutedClass)}>/</span>
+              <Link
+                to={domain.path}
+                data-testid="domain-link"
+                className={cn("flex-shrink-0", textColorClass, textHoverClass)}
+              >
                 {domain.name}
               </Link>
             </>
           )}
           {project && (
             <>
-              <span className="text-theme-high/40 flex-shrink-0">/</span>
+              <span className={cn("flex-shrink-0", textMutedClass)}>/</span>
               <Link
                 to={project.path + "/compute/$"}
                 data-testid="project-link"
-                className="text-theme-high flex-shrink-0"
+                className={cn("flex-shrink-0", textColorClass, textHoverClass)}
               >
                 {project.name}
               </Link>
@@ -69,11 +79,11 @@ export function MainNavigation({ items, handleThemeToggle }: NavigationProps) {
       }
     >
       {items.map(({ route, label }, index) => (
-        <Link className="text-theme-high" key={index} to={route}>
+        <Link className={cn("flex-shrink-0", textColorClass, textHoverClass)} key={index} to={route}>
           {label}
         </Link>
       ))}
-      <LanguageSelect />
+      <LanguageSelect className={textColorClass} />
       <ThemeToggle onToggleTheme={(newTheme: string) => handleThemeToggle?.(newTheme)} />
       <UserMenu />
     </PageHeader>
