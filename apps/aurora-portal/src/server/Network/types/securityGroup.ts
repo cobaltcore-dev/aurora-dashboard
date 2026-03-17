@@ -109,14 +109,29 @@ export const createSecurityGroupRuleInputSchema = z
     protocol: z.string().nullable().optional(),
     port_range_min: z.number().int().min(0).max(65535).nullable().optional(),
     port_range_max: z.number().int().min(0).max(65535).nullable().optional(),
-    remote_ip_prefix: z.string().nullable().optional(),
-    remote_group_id: z.string().nullable().optional(),
-    remote_address_group_id: z.string().nullable().optional(),
+    // Transform empty strings to undefined for proper validation
+    remote_ip_prefix: z
+      .string()
+      .nullable()
+      .optional()
+      .transform((val) => (val === "" ? undefined : val)),
+    remote_group_id: z
+      .string()
+      .nullable()
+      .optional()
+      .transform((val) => (val === "" ? undefined : val)),
+    remote_address_group_id: z
+      .string()
+      .nullable()
+      .optional()
+      .transform((val) => (val === "" ? undefined : val)),
   })
   // Validate mutual exclusivity of remote fields
   .refine(
     (data) => {
-      const remoteFields = [data.remote_ip_prefix, data.remote_group_id, data.remote_address_group_id].filter(Boolean)
+      const remoteFields = [data.remote_ip_prefix, data.remote_group_id, data.remote_address_group_id].filter(
+        (field) => field != null && field !== ""
+      )
       return remoteFields.length <= 1
     },
     {
@@ -138,7 +153,7 @@ export const createSecurityGroupRuleInputSchema = z
   // Validate CIDR format if remote_ip_prefix is provided
   .refine(
     (data) => {
-      if (data.remote_ip_prefix) {
+      if (data.remote_ip_prefix != null && data.remote_ip_prefix !== "") {
         // Basic CIDR validation regex: x.x.x.x/y or IPv6 format
         const cidrRegex = /^(?:(?:\d{1,3}\.){3}\d{1,3}\/\d{1,2}|[0-9a-fA-F:]+\/\d{1,3})$/
         return cidrRegex.test(data.remote_ip_prefix)

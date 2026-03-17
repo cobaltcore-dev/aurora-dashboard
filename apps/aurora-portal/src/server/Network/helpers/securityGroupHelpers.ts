@@ -240,7 +240,7 @@ export const SecurityGroupRuleErrorHandlers = {
       case 404:
         return new TRPCError({
           code: "NOT_FOUND",
-          message: "Security group not found. It may have been deleted.",
+          message: "Security group not found",
         })
 
       case 409:
