@@ -52,7 +52,7 @@ import {
   getImageVisibilityUpdatedToast,
   getImageVisibilityUpdateErrorToast,
 } from "./ImageToastNotifications"
-import { ManageImageAccessModal } from "./ManageImageAccessModal "
+import { ManageImageAccessModal } from "./ManageImageAccessModal"
 import { ConfirmImageAccessModal } from "./ConfirmImageAccessModal"
 import { IMAGE_STATUSES } from "../../../-constants/filters"
 
@@ -218,9 +218,6 @@ export function ImageListView({
     { uploadId: uploadId || "" },
     {
       enabled: !!uploadId && uploadImageMutation.isPending,
-      onData: (data) => {
-        console.log(`Upload: ${data?.percent}%`)
-      },
       onComplete() {
         if (!manageAccessModalOpen && !toastData && uploadId && uploadImageMutation.isSuccess) {
           setToastData(getImageCreatedToast(uploadId, { onDismiss: handleToastDismiss }))
@@ -640,7 +637,7 @@ export function ImageListView({
               {images.map((image) => (
                 <ImageTableRow
                   image={image}
-                  isSelected={!!selectedImages.find((imageId) => imageId === image.id)}
+                  isSelected={selectedImages.includes(image.id)}
                   isPending={!!suggestedImages.find(({ id: imageId }) => imageId === image.id)}
                   isAccepted={!!acceptedImages.find(({ id: imageId }) => imageId === image.id)}
                   key={image.id}
@@ -651,7 +648,7 @@ export function ImageListView({
                   onManageAccess={openManageAccessModal}
                   onConfirmAccess={openConfirmAccessModal}
                   onSelect={(image: GlanceImage) => {
-                    const isImageSelected = !!selectedImages.find((imageId) => imageId === image.id)
+                    const isImageSelected = selectedImages.includes(image.id)
 
                     if (isImageSelected) {
                       return setSelectedImages(selectedImages.filter((imageId) => imageId !== image.id))
@@ -743,34 +740,30 @@ export function ImageListView({
           </>
         )}
 
-        {selectedImages && (
-          <>
-            <DeleteImagesModal
-              isOpen={deleteAllModalOpen}
-              deletableImages={deletableImages}
-              protectedImages={protectedImages}
-              isLoading={isLoading}
-              onClose={() => setDeleteAllModalOpen(false)}
-              onDelete={handleBulkDelete}
-            />
-            <DeactivateImagesModal
-              isOpen={deactivateAllModalOpen}
-              activeImages={activeImages}
-              deactivatedImages={deactivatedImages}
-              isLoading={isLoading}
-              onClose={() => setDeactivateAllModalOpen(false)}
-              onDeactivate={handleBulkDeactivate}
-            />
-            <ActivateImagesModal
-              isOpen={activateAllModalOpen}
-              deactivatedImages={deactivatedImages}
-              activeImages={activeImages}
-              isLoading={isLoading}
-              onClose={() => setActivateAllModalOpen(false)}
-              onActivate={handleBulkActivate}
-            />
-          </>
-        )}
+        <DeleteImagesModal
+          isOpen={deleteAllModalOpen}
+          deletableImages={deletableImages}
+          protectedImages={protectedImages}
+          isLoading={isLoading}
+          onClose={() => setDeleteAllModalOpen(false)}
+          onDelete={handleBulkDelete}
+        />
+        <DeactivateImagesModal
+          isOpen={deactivateAllModalOpen}
+          activeImages={activeImages}
+          deactivatedImages={deactivatedImages}
+          isLoading={isLoading}
+          onClose={() => setDeactivateAllModalOpen(false)}
+          onDeactivate={handleBulkDeactivate}
+        />
+        <ActivateImagesModal
+          isOpen={activateAllModalOpen}
+          deactivatedImages={deactivatedImages}
+          activeImages={activeImages}
+          isLoading={isLoading}
+          onClose={() => setActivateAllModalOpen(false)}
+          onActivate={handleBulkActivate}
+        />
         <CreateImageModal
           isOpen={createModalOpen}
           onClose={() => {

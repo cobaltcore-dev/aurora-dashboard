@@ -112,7 +112,23 @@ export const Route = createFileRoute("/_auth/accounts/$accountId/projects/$proje
   notFoundComponent: () => {
     return <p>Compute service not found</p>
   },
-  validateSearch: (search) => imagesSearchSchema.parse(search),
+  validateSearch: (search) => {
+    const result = imagesSearchSchema.safeParse(search)
+    if (result.success) {
+      return result.data
+    }
+    // On parse failure, return search with invalid optional fields set to undefined
+    return {
+      status: undefined,
+      visibility: undefined,
+      disk_format: undefined,
+      container_format: undefined,
+      protected: undefined,
+      search: undefined,
+      sortBy: undefined,
+      sortDirection: undefined,
+    }
+  },
   loader: async ({ context }) => {
     const { trpcClient } = context
     const availableServices = await trpcClient?.auth.getAvailableServices.query()
