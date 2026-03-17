@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import {
   DataGrid,
   DataGridHeadCell,
@@ -63,7 +63,6 @@ export function SecurityGroupRulesTable({
 
   const handleConfirmDelete = (ruleId: string) => {
     onDeleteRule(ruleId)
-    setRuleToDelete(null)
   }
 
   const handleCloseDeleteDialog = () => {
@@ -71,6 +70,13 @@ export function SecurityGroupRulesTable({
       setRuleToDelete(null)
     }
   }
+
+  // Close dialog after successful deletion
+  useEffect(() => {
+    if (!isDeletingRule && !deleteError) {
+      setRuleToDelete(null)
+    }
+  }, [isDeletingRule, deleteError])
 
   const handleSortFieldChange = (value: string) => {
     if (onSortChange && sortSettings) {
