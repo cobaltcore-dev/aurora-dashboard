@@ -2,6 +2,7 @@ import { createFileRoute, ErrorComponent, redirect, useParams } from "@tanstack/
 import { getServiceIndex } from "@/server/Authentication/helpers"
 import { ErrorBoundary } from "react-error-boundary"
 import { Trans, useLingui } from "@lingui/react/macro"
+import { SwiftObjects } from "../../../-components/SwiftObjectStorage/ObjectList"
 
 export const checkServiceAvailability = (
   availableServices: {
@@ -145,7 +146,7 @@ function ObjectsDashboard() {
               case "swift":
                 return (
                   <div className="p-4">
-                    <Trans>Swift Objects — {containerName}</Trans>
+                    <SwiftObjects />
                   </div>
                 )
               case "ceph":

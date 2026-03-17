@@ -143,7 +143,7 @@ function StorageDashboard() {
               case "ceph":
                 return <div>Ceph Containers</div> // replace with CephContainers when available
               default:
-                return <SwiftContainers />
+                return <div>Storage Overview Page</div> // replace when available
             }
           })()}
         </ErrorBoundary>
