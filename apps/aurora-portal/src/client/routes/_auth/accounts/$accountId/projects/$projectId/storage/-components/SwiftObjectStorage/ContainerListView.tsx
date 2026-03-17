@@ -18,6 +18,7 @@ import { CreateContainerModal } from "./CreateContainerModal"
 import { EmptyContainerModal } from "./EmptyContainerModal"
 import { DeleteContainerModal } from "./DeleteContainerModal"
 import { EditContainerMetadataModal } from "./EditContainerMetadataModal"
+import { ManageContainerAccessModal } from "./ManageContainerAccessModal"
 import {
   getContainerCreatedToast,
   getContainerCreateErrorToast,
@@ -27,6 +28,8 @@ import {
   getContainerDeleteErrorToast,
   getContainerUpdatedToast,
   getContainerUpdateErrorToast,
+  getContainerAclUpdatedToast,
+  getContainerAclUpdateErrorToast,
 } from "./ContainerToastNotifications"
 
 interface ContainerListViewProps {
@@ -49,6 +52,7 @@ export const ContainerListView = ({
   const [emptyModalContainer, setEmptyModalContainer] = useState<ContainerSummary | null>(null)
   const [deleteModalContainer, setDeleteModalContainer] = useState<ContainerSummary | null>(null)
   const [propertiesModalContainer, setPropertiesModalContainer] = useState<ContainerSummary | null>(null)
+  const [accessControlModalContainer, setAccessControlModalContainer] = useState<ContainerSummary | null>(null)
 
   const handleToastDismiss = () => setToastData(null)
 
@@ -82,6 +86,14 @@ export const ContainerListView = ({
 
   const handlePropertiesError = (containerName: string, errorMessage: string) => {
     setToastData(getContainerUpdateErrorToast(containerName, errorMessage, { onDismiss: handleToastDismiss }))
+  }
+
+  const handleAclSuccess = (containerName: string) => {
+    setToastData(getContainerAclUpdatedToast(containerName, { onDismiss: handleToastDismiss }))
+  }
+
+  const handleAclError = (containerName: string, errorMessage: string) => {
+    setToastData(getContainerAclUpdateErrorToast(containerName, errorMessage, { onDismiss: handleToastDismiss }))
   }
 
   // Calculate scrollbar width
@@ -170,7 +182,7 @@ export const ContainerListView = ({
           ref={parentRef}
           className="overflow-auto"
           style={{
-            height: "calc(100vh - 425px)", // Dynamic height based on viewport
+            height: "calc(100vh - 545px)", // Dynamic height based on viewport
             // minHeight: "400px", // Minimum height for usability
             // maxHeight: "800px", // Maximum height to prevent overflow
           }}
@@ -210,6 +222,11 @@ export const ContainerListView = ({
                   <DataGridCell>
                     <PopupMenu>
                       <PopupMenuOptions>
+                        <PopupMenuItem
+                          label={t`Manage Access`}
+                          onClick={() => setAccessControlModalContainer(container)}
+                          data-testid={`access-control-action-${container.name}`}
+                        />
                         <PopupMenuItem
                           label={t`Edit Metadata`}
                           onClick={() => setPropertiesModalContainer(container)}
@@ -272,6 +289,14 @@ export const ContainerListView = ({
         onClose={() => setPropertiesModalContainer(null)}
         onSuccess={handlePropertiesSuccess}
         onError={handlePropertiesError}
+      />
+
+      <ManageContainerAccessModal
+        isOpen={accessControlModalContainer !== null}
+        container={accessControlModalContainer}
+        onClose={() => setAccessControlModalContainer(null)}
+        onSuccess={handleAclSuccess}
+        onError={handleAclError}
       />
 
       {toastData && (

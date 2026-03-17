@@ -47,7 +47,12 @@ export const SideNavBar = ({ accountId, projectId, availableServices }: SideNavB
 
   const getStorageNavigationLinks = () => {
     return [
-      ...(serviceIndex?.["object-store"]?.["swift"] ? [{ path: `${storageRootPath}/swift`, label: t`Swift` }] : []),
+      ...(serviceIndex?.["object-store"]?.["swift"]
+        ? [{ path: `${storageRootPath}/swift/containers`, label: t`Swift` }]
+        : []),
+      // ...(serviceIndex?.["object-store"]?.["ceph"]
+      //   ? [{ path: `${storageRootPath}/ceph/containers`, label: t`Ceph` }]
+      //   : []),
     ]
   }
 

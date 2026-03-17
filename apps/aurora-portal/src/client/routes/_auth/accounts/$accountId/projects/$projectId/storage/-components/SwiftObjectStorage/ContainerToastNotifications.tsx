@@ -173,3 +173,37 @@ export const getContainerUpdateErrorToast = (
   autoDismissTimeout: config.autoDismissTimeout ?? 5000,
   onDismiss: config.onDismiss,
 })
+
+export const getContainerAclUpdatedToast = (containerName: string, config: ToastConfig): ToastProps => ({
+  variant: "success",
+  children: (
+    <NotificationText
+      title={<Trans>Access Control Updated</Trans>}
+      description={<Trans>ACLs for container "{containerName}" were successfully updated.</Trans>}
+    />
+  ),
+  autoDismiss: true,
+  autoDismissTimeout: config.autoDismissTimeout ?? 5000,
+  onDismiss: config.onDismiss,
+})
+
+export const getContainerAclUpdateErrorToast = (
+  containerName: string,
+  errorMessage: string,
+  config: ToastConfig
+): ToastProps => ({
+  variant: "error",
+  children: (
+    <NotificationText
+      title={<Trans>Failed to Update Access Control</Trans>}
+      description={
+        <Trans>
+          Could not update ACLs for container "{containerName}": {errorMessage}
+        </Trans>
+      }
+    />
+  ),
+  autoDismiss: true,
+  autoDismissTimeout: config.autoDismissTimeout ?? 5000,
+  onDismiss: config.onDismiss,
+})
