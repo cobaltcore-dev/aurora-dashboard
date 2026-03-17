@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router"
 import { Trans } from "@lingui/react/macro"
 import { Button, Box, Stack, Icon, Container } from "@cloudoperators/juno-ui-components"
-import { MdComputer, MdStorage, MdRouter, MdImage, MdTune, MdVpnKey, MdCode, MdMenuBook } from "react-icons/md"
+import { MdStorage, MdRouter, MdImage, MdTune, MdCode, MdMenuBook, MdPublic } from "react-icons/md"
 
 export const Route = createFileRoute("/")({
   component: Home,
@@ -128,53 +128,11 @@ export function Home() {
                 <Trans>What You Can Manage</Trans>
               </h3>
               <p className="text-theme-light text-lg">
-                <Trans>Complete control over your OpenStack infrastructure</Trans>
+                <Trans>Powerful tools for your OpenStack infrastructure</Trans>
               </p>
             </div>
 
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              <Box className="bg-theme-background-lvl-1 group border-theme-background-lvl-3 hover:border-theme-accent/50 rounded-xl border p-6 transition-all hover:shadow-lg">
-                <Stack direction="vertical" gap="3" alignment="center" className="text-center">
-                  <div className="bg-theme-accent/10 flex h-16 w-16 items-center justify-center rounded-full transition-transform group-hover:scale-110">
-                    <MdComputer size={32} className="text-theme-accent" />
-                  </div>
-                  <h4 className="text-lg font-semibold">
-                    <Trans>Compute Instances</Trans>
-                  </h4>
-                  <p className="text-theme-light text-sm leading-relaxed">
-                    <Trans>Launch and manage virtual machines with custom flavors and configurations</Trans>
-                  </p>
-                </Stack>
-              </Box>
-
-              <Box className="bg-theme-background-lvl-1 group border-theme-background-lvl-3 hover:border-theme-accent/50 rounded-xl border p-6 transition-all hover:shadow-lg">
-                <Stack direction="vertical" gap="3" alignment="center" className="text-center">
-                  <div className="bg-theme-accent/10 flex h-16 w-16 items-center justify-center rounded-full transition-transform group-hover:scale-110">
-                    <MdStorage size={32} className="text-theme-accent" />
-                  </div>
-                  <h4 className="text-lg font-semibold">
-                    <Trans>Block Storage</Trans>
-                  </h4>
-                  <p className="text-theme-light text-sm leading-relaxed">
-                    <Trans>Create, attach, and manage persistent block storage volumes</Trans>
-                  </p>
-                </Stack>
-              </Box>
-
-              <Box className="bg-theme-background-lvl-1 group border-theme-background-lvl-3 hover:border-theme-accent/50 rounded-xl border p-6 transition-all hover:shadow-lg">
-                <Stack direction="vertical" gap="3" alignment="center" className="text-center">
-                  <div className="bg-theme-accent/10 flex h-16 w-16 items-center justify-center rounded-full transition-transform group-hover:scale-110">
-                    <MdRouter size={32} className="text-theme-accent" />
-                  </div>
-                  <h4 className="text-lg font-semibold">
-                    <Trans>Networking</Trans>
-                  </h4>
-                  <p className="text-theme-light text-sm leading-relaxed">
-                    <Trans>Configure networks, subnets, routers, and security groups</Trans>
-                  </p>
-                </Stack>
-              </Box>
-
               <Box className="bg-theme-background-lvl-1 group border-theme-background-lvl-3 hover:border-theme-accent/50 rounded-xl border p-6 transition-all hover:shadow-lg">
                 <Stack direction="vertical" gap="3" alignment="center" className="text-center">
                   <div className="bg-theme-accent/10 flex h-16 w-16 items-center justify-center rounded-full transition-transform group-hover:scale-110">
@@ -206,17 +164,49 @@ export function Home() {
               <Box className="bg-theme-background-lvl-1 group border-theme-background-lvl-3 hover:border-theme-accent/50 rounded-xl border p-6 transition-all hover:shadow-lg">
                 <Stack direction="vertical" gap="3" alignment="center" className="text-center">
                   <div className="bg-theme-accent/10 flex h-16 w-16 items-center justify-center rounded-full transition-transform group-hover:scale-110">
-                    <MdVpnKey size={32} className="text-theme-accent" />
+                    <MdRouter size={32} className="text-theme-accent" />
                   </div>
                   <h4 className="text-lg font-semibold">
-                    <Trans>Key Pairs</Trans>
+                    <Trans>Security Groups</Trans>
                   </h4>
                   <p className="text-theme-light text-sm leading-relaxed">
-                    <Trans>Manage SSH keys for secure instance access and authentication</Trans>
+                    <Trans>Configure firewall rules and network security policies</Trans>
+                  </p>
+                </Stack>
+              </Box>
+
+              <Box className="bg-theme-background-lvl-1 group border-theme-background-lvl-3 hover:border-theme-accent/50 rounded-xl border p-6 transition-all hover:shadow-lg">
+                <Stack direction="vertical" gap="3" alignment="center" className="text-center">
+                  <div className="bg-theme-accent/10 flex h-16 w-16 items-center justify-center rounded-full transition-transform group-hover:scale-110">
+                    <MdPublic size={32} className="text-theme-accent" />
+                  </div>
+                  <h4 className="text-lg font-semibold">
+                    <Trans>Floating IPs</Trans>
+                  </h4>
+                  <p className="text-theme-light text-sm leading-relaxed">
+                    <Trans>Allocate and manage public IP addresses for external connectivity</Trans>
+                  </p>
+                </Stack>
+              </Box>
+
+              <Box className="bg-theme-background-lvl-1 group border-theme-background-lvl-3 hover:border-theme-accent/50 rounded-xl border p-6 transition-all hover:shadow-lg">
+                <Stack direction="vertical" gap="3" alignment="center" className="text-center">
+                  <div className="bg-theme-accent/10 flex h-16 w-16 items-center justify-center rounded-full transition-transform group-hover:scale-110">
+                    <MdStorage size={32} className="text-theme-accent" />
+                  </div>
+                  <h4 className="text-lg font-semibold">
+                    <Trans>Object Storage</Trans>
+                  </h4>
+                  <p className="text-theme-light text-sm leading-relaxed">
+                    <Trans>Store and manage files with Swift object storage containers</Trans>
                   </p>
                 </Stack>
               </Box>
             </div>
+
+            <p className="text-theme-light text-center text-sm italic">
+              <Trans>More features coming soon as we continue to expand Aurora's capabilities</Trans>
+            </p>
           </Stack>
         </Stack>
       </Container>
