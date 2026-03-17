@@ -3,7 +3,8 @@ import { useState } from "react"
 import { ProjectsOverviewNavBar, ViewMode } from "./-components/ProjectOverviewNavBar"
 import { ProjectCardView } from "./-components/ProjectCardView"
 import { ProjectListView } from "./-components/ProjectListView"
-import { Message } from "@cloudoperators/juno-ui-components"
+import { Message, Stack, ContentHeading } from "@cloudoperators/juno-ui-components"
+import { Trans } from "@lingui/react/macro"
 
 import { z } from "zod"
 
@@ -81,9 +82,18 @@ function ProjectsOverview() {
 
   return (
     <div>
-      <div className="mx-auto h-full w-full max-w-full p-4 lg:w-3/4 xl:w-2/3 2xl:w-5/8">
+      <div className="mx-auto h-full w-full max-w-full p-6 lg:w-3/4 xl:w-2/3 2xl:w-5/8">
+        <Stack gap="2" direction="vertical" className="mx-4 mb-6">
+          <ContentHeading className="text-3xl font-bold">
+            <Trans>Projects</Trans>
+          </ContentHeading>
+          <p className="text-theme-light text-base">
+            <Trans>Manage and access your cloud projects across all domains</Trans>
+          </p>
+        </Stack>
+
         {!userHasAccountAccess && (
-          <div className="px-4">
+          <div className="mb-6">
             <Message variant="info">
               You do not have access to {accountId} account. Only projects you have access to will be shown.
             </Message>
