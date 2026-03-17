@@ -32,19 +32,19 @@ import {
   getContainerAclUpdateErrorToast,
 } from "./ContainerToastNotifications"
 
-interface ContainerListViewProps {
+interface ContainerTableViewProps {
   containers: ContainerSummary[]
   createModalOpen: boolean
   setCreateModalOpen: (open: boolean) => void
   maxContainerNameLength?: number
 }
 
-export const ContainerListView = ({
+export const ContainerTableView = ({
   containers,
   createModalOpen,
   setCreateModalOpen,
   maxContainerNameLength,
-}: ContainerListViewProps) => {
+}: ContainerTableViewProps) => {
   const { t } = useLingui()
   const parentRef = useRef<HTMLDivElement>(null)
   const [scrollbarWidth, setScrollbarWidth] = useState(0)

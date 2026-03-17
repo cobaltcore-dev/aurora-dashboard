@@ -4,7 +4,7 @@ import userEvent from "@testing-library/user-event"
 import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import { i18n } from "@lingui/core"
 import { I18nProvider } from "@lingui/react"
-import { ContainerListView } from "./ContainerListView"
+import { ContainerTableView } from "./ContainerTableView"
 import type { ContainerSummary } from "@/server/Storage/types/swift"
 
 // ─── Mock virtualizer ─────────────────────────────────────────────────────────
@@ -191,7 +191,7 @@ const renderView = ({
   render(
     <I18nProvider i18n={i18n}>
       <PortalProvider>
-        <ContainerListView
+        <ContainerTableView
           containers={containers}
           createModalOpen={createModalOpen}
           setCreateModalOpen={setCreateModalOpen}
@@ -203,7 +203,7 @@ const renderView = ({
 
 // ─── Tests ────────────────────────────────────────────────────────────────────
 
-describe("ContainerListView", () => {
+describe("ContainerTableView", () => {
   beforeEach(async () => {
     vi.clearAllMocks()
     await act(async () => {

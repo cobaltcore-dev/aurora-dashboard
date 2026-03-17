@@ -1,7 +1,7 @@
 import { createFileRoute, ErrorComponent, redirect, useParams } from "@tanstack/react-router"
 import { getServiceIndex } from "@/server/Authentication/helpers"
 import { ErrorBoundary } from "react-error-boundary"
-import { SwiftObjectStorage } from "../-components/SwiftObjectStorage/List"
+import { SwiftContainers } from "../../-components/SwiftObjectStorage/ContainerList"
 import { Trans, useLingui } from "@lingui/react/macro"
 
 export const checkServiceAvailability = (
@@ -13,7 +13,6 @@ export const checkServiceAvailability = (
     accountId: string
     projectId: string
     provider: string
-    _splat?: string | undefined
   }
 ) => {
   const { provider, accountId } = params
@@ -42,8 +41,8 @@ export const checkServiceAvailability = (
       })
     }
     throw redirect({
-      to: "/accounts/$accountId/projects/$projectId/storage/$provider/$",
-      params: { ...params, provider: fallbackProvider, _splat: undefined },
+      to: "/accounts/$accountId/projects/$projectId/storage/$provider/containers",
+      params: { ...params, provider: fallbackProvider },
     })
   }
 
@@ -56,8 +55,8 @@ export const checkServiceAvailability = (
     }
 
     throw redirect({
-      to: "/accounts/$accountId/projects/$projectId/storage/$provider/$",
-      params: { ...params, provider: "ceph", _splat: undefined },
+      to: "/accounts/$accountId/projects/$projectId/storage/$provider/containers",
+      params: { ...params, provider: "ceph" },
     })
   }
 
@@ -70,13 +69,13 @@ export const checkServiceAvailability = (
     }
 
     throw redirect({
-      to: "/accounts/$accountId/projects/$projectId/storage/$provider/$",
-      params: { ...params, provider: "swift", _splat: undefined },
+      to: "/accounts/$accountId/projects/$projectId/storage/$provider/containers",
+      params: { ...params, provider: "swift" },
     })
   }
 }
 
-export const Route = createFileRoute("/_auth/accounts/$accountId/projects/$projectId/storage/$provider/$")({
+export const Route = createFileRoute("/_auth/accounts/$accountId/projects/$projectId/storage/$provider/containers/")({
   component: () => {
     return <StorageDashboard />
   },
@@ -106,10 +105,10 @@ export const Route = createFileRoute("/_auth/accounts/$accountId/projects/$proje
 })
 
 function StorageDashboard() {
-  const { project, provider /* splat */ } = useParams({
-    from: "/_auth/accounts/$accountId/projects/$projectId/storage/$provider/$",
+  const { project, provider } = useParams({
+    from: "/_auth/accounts/$accountId/projects/$projectId/storage/$provider/containers/",
     select: (params) => {
-      return { project: params.projectId, provider: params.provider /* splat: params._splat */ }
+      return { project: params.projectId, provider: params.provider }
     },
   })
 
@@ -140,11 +139,11 @@ function StorageDashboard() {
           {(() => {
             switch (provider) {
               case "swift":
-                return <SwiftObjectStorage />
+                return <SwiftContainers />
               case "ceph":
-                return <SwiftObjectStorage /> // replace with CephObjectStorage when available
+                return <div>Ceph Containers</div> // replace with CephContainers when available
               default:
-                return <SwiftObjectStorage />
+                return <SwiftContainers />
             }
           })()}
         </ErrorBoundary>

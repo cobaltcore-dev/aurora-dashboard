@@ -4,7 +4,7 @@ import userEvent from "@testing-library/user-event"
 import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import { i18n } from "@lingui/core"
 import { I18nProvider } from "@lingui/react"
-import { SwiftObjectStorage } from "./List"
+import { SwiftContainers } from "./ContainerList"
 import type { ContainerSummary } from "@/server/Storage/types/swift"
 
 // ─── Mock tRPC ────────────────────────────────────────────────────────────────
@@ -133,14 +133,14 @@ const renderList = () =>
   render(
     <I18nProvider i18n={i18n}>
       <PortalProvider>
-        <SwiftObjectStorage />
+        <SwiftContainers />
       </PortalProvider>
     </I18nProvider>
   )
 
 // ─── Tests ────────────────────────────────────────────────────────────────────
 
-describe("SwiftObjectStorage (List)", () => {
+describe("SwiftContainers (List)", () => {
   beforeEach(async () => {
     vi.clearAllMocks()
     capturedMutationOptions = {}

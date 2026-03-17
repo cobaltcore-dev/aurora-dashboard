@@ -6,10 +6,10 @@ import { ContainerSummary } from "@/server/Storage/types/swift"
 import { trpcReact } from "@/client/trpcClient"
 import { formatBytesBinary } from "@/client/utils/formatBytes"
 import { Button, Spinner, Stack } from "@cloudoperators/juno-ui-components"
-import { ContainerListView } from "./ContainerListView"
+import { ContainerTableView } from "./ContainerTableView"
 import { ContainerLimitsTooltip } from "./ContainerLimitsTooltip"
 
-export const SwiftObjectStorage = () => {
+export const SwiftContainers = () => {
   const { t } = useLingui()
 
   const [createModalOpen, setCreateModalOpen] = useState(false)
@@ -151,7 +151,7 @@ export const SwiftObjectStorage = () => {
         }
       />
 
-      <ContainerListView
+      <ContainerTableView
         containers={sortedContainers}
         createModalOpen={createModalOpen}
         setCreateModalOpen={setCreateModalOpen}
