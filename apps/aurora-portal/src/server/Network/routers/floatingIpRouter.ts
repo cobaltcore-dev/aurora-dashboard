@@ -31,10 +31,10 @@ export const floatingIpRouter = {
     .input(FloatingIpQueryParametersSchema)
     .query(async ({ input, ctx }): Promise<FloatingIp[]> => {
       return withErrorHandling(async () => {
+        const { searchTerm, ...queryInput } = input
         const network = getNetworkService(ctx)
 
-        // Build query params from input
-        const queryParams = appendQueryParamsFromObject(input)
+        const queryParams = appendQueryParamsFromObject(queryInput)
 
         const queryString = queryParams.toString()
         const url = queryString ? `${FLOATING_IPS_BASE_URL}?${queryString}` : FLOATING_IPS_BASE_URL
@@ -55,8 +55,6 @@ export const floatingIpRouter = {
         }
         const floatingIps = parsed.data.floatingips
 
-        // Apply BFF-side search filtering
-        const { searchTerm } = input
         return filterBySearchParams(floatingIps, searchTerm, ["description"])
       }, "list floating IPs")
     }),

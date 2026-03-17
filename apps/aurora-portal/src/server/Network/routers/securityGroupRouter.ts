@@ -38,10 +38,11 @@ export const securityGroupRouter = {
     .input(listSecurityGroupsInputSchema)
     .query(async ({ input, ctx }): Promise<SecurityGroup[]> => {
       return withErrorHandling(async () => {
+        const { searchTerm, ...queryInput } = input
         const network = getNetworkService(ctx)
 
         // Build query params from input
-        const queryParams = appendQueryParamsFromObject(input, {
+        const queryParams = appendQueryParamsFromObject(queryInput, {
           keyMap: LIST_SECURITY_GROUPS_QUERY_KEY_MAP,
         })
 
@@ -58,8 +59,6 @@ export const securityGroupRouter = {
         const data = await response.json()
         const securityGroups = parseSecurityGroupListResponse(data, "securityGroupRouter.list")
 
-        // Apply BFF-side search filtering
-        const { searchTerm } = input
         return filterBySearchParams(securityGroups, searchTerm, ["name", "description", "id"])
       }, "list security groups")
     }),

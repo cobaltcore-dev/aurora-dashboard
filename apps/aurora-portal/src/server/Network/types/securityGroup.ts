@@ -1,6 +1,100 @@
 import { z } from "zod"
 import { SortDirSchema } from "./index"
 
+/**
+ * Validates CIDR notation for IPv4 and IPv6 addresses.
+ * - IPv4: octets must be 0-255, prefix length must be 0-32
+ * - IPv6: proper hexadecimal format with colons, prefix length must be 0-128
+ */
+function isValidCIDR(cidr: string): boolean {
+  const parts = cidr.split("/")
+  if (parts.length !== 2) {
+    return false
+  }
+
+  const [address, prefixStr] = parts
+  const prefix = parseInt(prefixStr, 10)
+
+  // Check if prefix is a valid number
+  if (isNaN(prefix) || prefix < 0) {
+    return false
+  }
+
+  // Check for IPv4
+  if (address.includes(".")) {
+    // Validate IPv4 address format
+    const octets = address.split(".")
+    if (octets.length !== 4) {
+      return false
+    }
+
+    // Validate each octet is 0-255
+    for (const octet of octets) {
+      const num = parseInt(octet, 10)
+      if (isNaN(num) || num < 0 || num > 255 || octet !== num.toString()) {
+        return false
+      }
+    }
+
+    // Validate prefix length for IPv4 (0-32)
+    return prefix <= 32
+  }
+
+  // Check for IPv6
+  if (address.includes(":")) {
+    // Validate prefix length for IPv6 (0-128)
+    if (prefix > 128) {
+      return false
+    }
+
+    // Basic IPv6 validation
+    // Allow :: for compressed zeros
+    const hasDoubleColon = address.includes("::")
+    const segments = address.split(":").filter((s) => s !== "")
+
+    // IPv6 should have at most 8 segments (or fewer if :: is used)
+    if (hasDoubleColon) {
+      // With ::, we can have 0-7 segments
+      if (segments.length > 7) {
+        return false
+      }
+    } else {
+      // Without ::, we must have exactly 8 segments
+      if (segments.length !== 8) {
+        return false
+      }
+    }
+
+    // Validate each segment is valid hex (0-ffff)
+    for (const segment of segments) {
+      if (segment.length === 0 || segment.length > 4) {
+        return false
+      }
+      if (!/^[0-9a-fA-F]+$/.test(segment)) {
+        return false
+      }
+    }
+
+    // Check for valid :: usage (only one occurrence)
+    const doubleColonCount = (address.match(/::/g) || []).length
+    if (doubleColonCount > 1) {
+      return false
+    }
+
+    // Check for leading/trailing single colons (invalid unless part of ::)
+    if (address.startsWith(":") && !address.startsWith("::")) {
+      return false
+    }
+    if (address.endsWith(":") && !address.endsWith("::")) {
+      return false
+    }
+
+    return true
+  }
+
+  return false
+}
+
 export const securityGroupRuleSchema = z.object({
   id: z.string(),
   direction: z.enum(["ingress", "egress"]).optional(),
@@ -154,9 +248,7 @@ export const createSecurityGroupRuleInputSchema = z
   .refine(
     (data) => {
       if (data.remote_ip_prefix != null && data.remote_ip_prefix !== "") {
-        // Basic CIDR validation regex: x.x.x.x/y or IPv6 format
-        const cidrRegex = /^(?:(?:\d{1,3}\.){3}\d{1,3}\/\d{1,2}|[0-9a-fA-F:]+\/\d{1,3})$/
-        return cidrRegex.test(data.remote_ip_prefix)
+        return isValidCIDR(data.remote_ip_prefix)
       }
       return true
     },

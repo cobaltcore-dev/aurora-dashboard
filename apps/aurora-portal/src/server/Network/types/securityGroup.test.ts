@@ -4,6 +4,7 @@ import {
   securityGroupSchema,
   securityGroupsResponseSchema,
   listSecurityGroupsInputSchema,
+  createSecurityGroupRuleInputSchema,
 } from "./securityGroup"
 
 describe("OpenStack Security Group Schema Validation", () => {
@@ -133,6 +134,208 @@ describe("OpenStack Security Group Schema Validation", () => {
     })
     it("should reject limit greater than 1000", () => {
       expect(listSecurityGroupsInputSchema.safeParse({ limit: 1001 }).success).toBe(false)
+    })
+  })
+
+  describe("createSecurityGroupRuleInputSchema - CIDR validation", () => {
+    const minimalValidInput = {
+      security_group_id: "sg-123",
+      direction: "ingress" as const,
+    }
+
+    describe("Valid IPv4 CIDR notations", () => {
+      it("should accept valid IPv4 CIDR: 0.0.0.0/0", () => {
+        const result = createSecurityGroupRuleInputSchema.safeParse({
+          ...minimalValidInput,
+          remote_ip_prefix: "0.0.0.0/0",
+        })
+        expect(result.success).toBe(true)
+      })
+
+      it("should accept valid IPv4 CIDR: 192.168.1.0/24", () => {
+        const result = createSecurityGroupRuleInputSchema.safeParse({
+          ...minimalValidInput,
+          remote_ip_prefix: "192.168.1.0/24",
+        })
+        expect(result.success).toBe(true)
+      })
+
+      it("should accept valid IPv4 CIDR: 10.0.0.1/32", () => {
+        const result = createSecurityGroupRuleInputSchema.safeParse({
+          ...minimalValidInput,
+          remote_ip_prefix: "10.0.0.1/32",
+        })
+        expect(result.success).toBe(true)
+      })
+
+      it("should accept valid IPv4 CIDR: 172.16.0.0/12", () => {
+        const result = createSecurityGroupRuleInputSchema.safeParse({
+          ...minimalValidInput,
+          remote_ip_prefix: "172.16.0.0/12",
+        })
+        expect(result.success).toBe(true)
+      })
+    })
+
+    describe("Invalid IPv4 CIDR notations", () => {
+      it("should reject IPv4 with octets > 255: 999.999.999.999/24", () => {
+        const result = createSecurityGroupRuleInputSchema.safeParse({
+          ...minimalValidInput,
+          remote_ip_prefix: "999.999.999.999/24",
+        })
+        expect(result.success).toBe(false)
+        if (!result.success) {
+          expect(result.error.issues[0].message).toContain("valid CIDR notation")
+        }
+      })
+
+      it("should reject IPv4 with prefix > 32: 192.168.1.0/99", () => {
+        const result = createSecurityGroupRuleInputSchema.safeParse({
+          ...minimalValidInput,
+          remote_ip_prefix: "192.168.1.0/99",
+        })
+        expect(result.success).toBe(false)
+        if (!result.success) {
+          expect(result.error.issues[0].message).toContain("valid CIDR notation")
+        }
+      })
+
+      it("should reject IPv4 with invalid octet: 256.1.1.1/24", () => {
+        const result = createSecurityGroupRuleInputSchema.safeParse({
+          ...minimalValidInput,
+          remote_ip_prefix: "256.1.1.1/24",
+        })
+        expect(result.success).toBe(false)
+      })
+
+      it("should reject IPv4 with leading zeros: 192.168.001.1/24", () => {
+        const result = createSecurityGroupRuleInputSchema.safeParse({
+          ...minimalValidInput,
+          remote_ip_prefix: "192.168.001.1/24",
+        })
+        expect(result.success).toBe(false)
+      })
+
+      it("should reject IPv4 without prefix: 192.168.1.0", () => {
+        const result = createSecurityGroupRuleInputSchema.safeParse({
+          ...minimalValidInput,
+          remote_ip_prefix: "192.168.1.0",
+        })
+        expect(result.success).toBe(false)
+      })
+
+      it("should reject IPv4 with incomplete octets: 192.168/24", () => {
+        const result = createSecurityGroupRuleInputSchema.safeParse({
+          ...minimalValidInput,
+          remote_ip_prefix: "192.168/24",
+        })
+        expect(result.success).toBe(false)
+      })
+    })
+
+    describe("Valid IPv6 CIDR notations", () => {
+      it("should accept valid IPv6 CIDR: ::/0", () => {
+        const result = createSecurityGroupRuleInputSchema.safeParse({
+          ...minimalValidInput,
+          remote_ip_prefix: "::/0",
+        })
+        expect(result.success).toBe(true)
+      })
+
+      it("should accept valid IPv6 CIDR: 2001:db8::/32", () => {
+        const result = createSecurityGroupRuleInputSchema.safeParse({
+          ...minimalValidInput,
+          remote_ip_prefix: "2001:db8::/32",
+        })
+        expect(result.success).toBe(true)
+      })
+
+      it("should accept valid IPv6 CIDR: fe80::/10", () => {
+        const result = createSecurityGroupRuleInputSchema.safeParse({
+          ...minimalValidInput,
+          remote_ip_prefix: "fe80::/10",
+        })
+        expect(result.success).toBe(true)
+      })
+
+      it("should accept valid full IPv6 CIDR: 2001:0db8:85a3:0000:0000:8a2e:0370:7334/128", () => {
+        const result = createSecurityGroupRuleInputSchema.safeParse({
+          ...minimalValidInput,
+          remote_ip_prefix: "2001:0db8:85a3:0000:0000:8a2e:0370:7334/128",
+        })
+        expect(result.success).toBe(true)
+      })
+    })
+
+    describe("Invalid IPv6 CIDR notations", () => {
+      it("should reject IPv6 with prefix > 128: ::/999", () => {
+        const result = createSecurityGroupRuleInputSchema.safeParse({
+          ...minimalValidInput,
+          remote_ip_prefix: "::/999",
+        })
+        expect(result.success).toBe(false)
+        if (!result.success) {
+          expect(result.error.issues[0].message).toContain("valid CIDR notation")
+        }
+      })
+
+      it("should reject IPv6 with invalid hex: gggg::/64", () => {
+        const result = createSecurityGroupRuleInputSchema.safeParse({
+          ...minimalValidInput,
+          remote_ip_prefix: "gggg::/64",
+        })
+        expect(result.success).toBe(false)
+      })
+
+      it("should reject IPv6 without prefix: 2001:db8::", () => {
+        const result = createSecurityGroupRuleInputSchema.safeParse({
+          ...minimalValidInput,
+          remote_ip_prefix: "2001:db8::",
+        })
+        expect(result.success).toBe(false)
+      })
+
+      it("should reject IPv6 with too many segments: 2001:db8:0:0:0:0:0:0:0/64", () => {
+        const result = createSecurityGroupRuleInputSchema.safeParse({
+          ...minimalValidInput,
+          remote_ip_prefix: "2001:db8:0:0:0:0:0:0:0/64",
+        })
+        expect(result.success).toBe(false)
+      })
+
+      it("should reject IPv6 with multiple :: separators: 2001::db8::/32", () => {
+        const result = createSecurityGroupRuleInputSchema.safeParse({
+          ...minimalValidInput,
+          remote_ip_prefix: "2001::db8::/32",
+        })
+        expect(result.success).toBe(false)
+      })
+    })
+
+    describe("Other CIDR validation rules", () => {
+      it("should reject empty string", () => {
+        const result = createSecurityGroupRuleInputSchema.safeParse({
+          ...minimalValidInput,
+          remote_ip_prefix: "",
+        })
+        expect(result.success).toBe(true) // Empty string is transformed to undefined
+      })
+
+      it("should reject malformed CIDR: not-an-ip/24", () => {
+        const result = createSecurityGroupRuleInputSchema.safeParse({
+          ...minimalValidInput,
+          remote_ip_prefix: "not-an-ip/24",
+        })
+        expect(result.success).toBe(false)
+      })
+
+      it("should reject CIDR without slash: 192.168.1.0", () => {
+        const result = createSecurityGroupRuleInputSchema.safeParse({
+          ...minimalValidInput,
+          remote_ip_prefix: "192.168.1.0",
+        })
+        expect(result.success).toBe(false)
+      })
     })
   })
 })
