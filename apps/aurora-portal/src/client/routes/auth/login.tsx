@@ -12,6 +12,7 @@ import {
   Stack,
   Message,
   SignInForm,
+  FormRow,
 } from "@cloudoperators/juno-ui-components"
 import { useErrorTranslation } from "../../utils/useErrorTranslation"
 
@@ -85,55 +86,9 @@ export function AuthLoginPage() {
       await login(null)
       console.error("Error logging in: ", error)
 
-      // Extract and format error message
-      let errorMessage = t`Please fill in all required fields: Domain, Username, and Password.`
-
-      if (error && typeof error === "object" && "message" in error) {
-        const rawMessage = (error as Error).message
-
-        // Check if it's a validation error with multiple messages
-        if (rawMessage.includes(",")) {
-          // For validation errors, provide a helpful message
-          const errors = rawMessage
-            .split(",")
-            .map((e) => e.trim())
-            .filter((e) => e.length > 0)
-
-          // Check for specific validation errors and provide friendly messages
-          const hasPasswordError = errors.some((e) => e.toLowerCase().includes("password"))
-          const hasDomainError = errors.some((e) => e.toLowerCase().includes("domain"))
-          const hasUserError = errors.some((e) => e.toLowerCase().includes("name") || e.toLowerCase().includes("id"))
-
-          const missingFields = []
-          if (hasDomainError) missingFields.push(t`Domain`)
-          if (hasUserError) missingFields.push(t`Username`)
-          if (hasPasswordError) missingFields.push(t`Password`)
-
-          if (missingFields.length > 0) {
-            errorMessage = t`Please provide: ` + missingFields.join(", ")
-          } else {
-            errorMessage = t`Please fill in all required fields correctly.`
-          }
-        } else {
-          // Try translating single error code, fall back to friendly message
-          const translated = translateError(rawMessage)
-          if (translated === t`An unexpected error occurred. Please try again.`) {
-            // Check for common error patterns
-            if (
-              rawMessage.toLowerCase().includes("unauthorized") ||
-              rawMessage.toLowerCase().includes("invalid credentials")
-            ) {
-              errorMessage = t`Invalid credentials. Please check your Domain, Username, and Password.`
-            } else {
-              // Don't expose raw internal error message to user
-              // Raw message is already logged via console.error above
-              errorMessage = t`An unexpected error occurred. Please try again.`
-            }
-          } else {
-            errorMessage = translated
-          }
-        }
-      }
+      const errorMessage = (error as Error)?.message
+        ? translateError((error as Error).message)
+        : t`Login failed. Please check your credentials and try again.`
 
       setLoginError(errorMessage)
     } finally {
@@ -177,62 +132,68 @@ export function AuthLoginPage() {
             </p>
           </Stack>
 
+          {loginError && <Message className="text-sm" variant="error" text={loginError} />}
           {!loginError && wasInactive && (
             <Message variant="warning" text={t`Your session expired. Please login again.`} className="text-sm" />
           )}
 
-          <SignInForm title={false} error={loginError || false}>
-            <TextInput
-              id="domain"
-              type="text"
-              label={t`Domain`}
-              placeholder={t`Enter your domain`}
-              value={form.domainName}
-              onChange={(e) => {
-                setForm((prev) => ({ ...prev, domainName: e.target.value }))
-                if (loginError) setLoginError(null)
-              }}
-              required
-              autoComplete="organization"
-            />
+          <SignInForm
+            title={false}
+            onSubmit={(e) => {
+              e.preventDefault()
+              signin()
+            }}
+          >
+            <FormRow>
+              <TextInput
+                id="domain"
+                type="text"
+                label={t`Domain`}
+                placeholder={t`Enter your domain`}
+                onChange={(e) => {
+                  setForm({ ...form, domainName: e.target.value })
+                  if (loginError) setLoginError(null)
+                }}
+                required
+                autoComplete="organization"
+              />
+            </FormRow>
 
-            <TextInput
-              id="user"
-              type="text"
-              label={t`Username`}
-              placeholder={t`Enter your username`}
-              value={form.user}
-              onChange={(e) => {
-                setForm((prev) => ({ ...prev, user: e.target.value }))
-                if (loginError) setLoginError(null)
-              }}
-              required
-              autoComplete="username"
-            />
+            <FormRow>
+              <TextInput
+                id="user"
+                type="text"
+                label={t`Username`}
+                placeholder={t`Enter your username`}
+                onChange={(e) => {
+                  setForm({ ...form, user: e.target.value })
+                  if (loginError) setLoginError(null)
+                }}
+                required
+                autoComplete="username"
+              />
+            </FormRow>
 
-            <TextInput
-              id="password"
-              type="password"
-              label={t`Password`}
-              required
-              placeholder={t`Enter your password`}
-              value={form.password}
-              onChange={(e) => {
-                setForm((prev) => ({ ...prev, password: e.target.value }))
-                if (loginError) setLoginError(null)
-              }}
-              autoComplete="current-password"
-            />
+            <FormRow>
+              <TextInput
+                id="password"
+                type="password"
+                label={t`Password`}
+                required
+                placeholder={t`Enter your password`}
+                onChange={(e) => {
+                  setForm({ ...form, password: e.target.value })
+                  if (loginError) setLoginError(null)
+                }}
+                autoComplete="current-password"
+              />
+            </FormRow>
 
             <Button
               type="submit"
-              className="jn:mt-4 jn:w-full"
               variant="primary"
+              className="mt-2 w-full py-3 text-base font-semibold"
               disabled={isLoggingIn}
-              onClick={(e) => {
-                e.preventDefault()
-                signin()
-              }}
             >
               {isLoggingIn ? <Trans>Signing in...</Trans> : <Trans>Sign In</Trans>}
             </Button>
