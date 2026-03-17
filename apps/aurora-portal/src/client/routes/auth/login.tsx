@@ -108,7 +108,7 @@ export function AuthLoginPage() {
               <Trans>Welcome back, {username}!</Trans>
             </h2>
             <p className="text-theme-light">
-              <Trans>You are already signed in.</Trans>
+              <Trans>You are being redirected to your projects...</Trans>
             </p>
           </Stack>
         </Container>
