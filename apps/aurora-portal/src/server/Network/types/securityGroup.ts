@@ -13,6 +13,12 @@ function isValidCIDR(cidr: string): boolean {
   }
 
   const [address, prefixStr] = parts
+
+  // Validate prefix is digits-only (reject "24foo", "24a", etc.)
+  if (!/^\d+$/.test(prefixStr)) {
+    return false
+  }
+
   const prefix = parseInt(prefixStr, 10)
 
   // Check if prefix is a valid number
@@ -42,6 +48,11 @@ function isValidCIDR(cidr: string): boolean {
 
   // Check for IPv6
   if (address.includes(":")) {
+    // Reject malformed triple-colon addresses (e.g., ":::")
+    if (address.includes(":::")) {
+      return false
+    }
+
     // Validate prefix length for IPv6 (0-128)
     if (prefix > 128) {
       return false
