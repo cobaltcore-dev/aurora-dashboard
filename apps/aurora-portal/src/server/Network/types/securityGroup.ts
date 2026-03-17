@@ -61,11 +61,7 @@ export const listSecurityGroupsInputSchema = z.object({
   // Basic filtering
   name: z.string().optional(),
   description: z.string().optional(),
-  // NOTE: Accepted for backward compatibility but IGNORED by server.
-  // The server always enforces filtering by the current project from the session token.
   project_id: z.string().optional(),
-  // NOTE: Accepted for backward compatibility but IGNORED by server.
-  // The server always enforces filtering by the current project from the session token.
   tenant_id: z.string().optional(),
   shared: z.boolean().optional(),
 

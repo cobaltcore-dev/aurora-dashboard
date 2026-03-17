@@ -12,7 +12,7 @@ import { filterBySearchParams } from "../../helpers/filterBySearchParams"
 import { SecurityGroupErrorHandlers } from "../helpers/securityGroupHelpers"
 import { parseSecurityGroupResponse, parseSecurityGroupListResponse } from "../helpers/securityGroupHelpers"
 import { getNetworkService } from "../helpers/index"
-import { buildProjectScopedQueryParams } from "../../helpers/projectFilterHelpers"
+import { appendQueryParamsFromObject } from "../../helpers/queryParams"
 
 const SECURITY_GROUPS_BASE_URL = "v2.0/security-groups"
 
@@ -40,8 +40,8 @@ export const securityGroupRouter = {
       return withErrorHandling(async () => {
         const network = getNetworkService(ctx)
 
-        // Build query params with server-enforced project filtering
-        const queryParams = buildProjectScopedQueryParams(ctx, input, {
+        // Build query params from input
+        const queryParams = appendQueryParamsFromObject(input, {
           keyMap: LIST_SECURITY_GROUPS_QUERY_KEY_MAP,
         })
 

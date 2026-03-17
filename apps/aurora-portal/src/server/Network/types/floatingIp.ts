@@ -193,17 +193,9 @@ export const FloatingIpQueryParametersSchema = z.object({
   router_id: z.string().nullable().optional(),
   /** Filter by the status of the floating IP */
   status: FloatingIpStatusSchema.optional(),
-  /**
-   * Filter by the ID of the project that owns the resource
-   * NOTE: Accepted for backward compatibility but IGNORED by server.
-   * The server always enforces filtering by the current project from the session token.
-   */
+  /** Filter by the ID of the project that owns the resource */
   tenant_id: z.string().optional(),
-  /**
-   * Filter by the ID of the project that owns the resource
-   * NOTE: Accepted for backward compatibility but IGNORED by server.
-   * The server always enforces filtering by the current project from the session token.
-   */
+  /** Filter by the ID of the project that owns the resource */
   project_id: z.string().optional(),
   /** Filter by the revision number of the resource */
   revision_number: z.number().optional(),

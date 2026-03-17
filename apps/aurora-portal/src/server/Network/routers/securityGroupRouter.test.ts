@@ -35,13 +35,6 @@ const createMockContext = (opts?: {
   return {
     validateSession: vi.fn().mockReturnValue(!invalidSession),
     openstack: {
-      getToken: vi.fn().mockReturnValue({
-        tokenData: {
-          project: {
-            id: "proj-1",
-          },
-        },
-      }),
       service: vi.fn().mockImplementation((serviceName: string) => {
         if (serviceName !== "network" || noNetworkService) {
           return null

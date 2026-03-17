@@ -13,7 +13,7 @@ import {
 } from "../types/floatingIp"
 import { FLOATING_IPS_BASE_URL, FloatingIpErrorHandlers } from "../helpers/floatingIpHelpers"
 import { getNetworkService } from "../helpers/index"
-import { buildProjectScopedQueryParams } from "@/server/helpers/projectFilterHelpers"
+import { appendQueryParamsFromObject } from "@/server/helpers/queryParams"
 
 /**
  * tRPC router for OpenStack Neutron Floating IPs.
@@ -33,8 +33,8 @@ export const floatingIpRouter = {
       return withErrorHandling(async () => {
         const network = getNetworkService(ctx)
 
-        // Build query params with server-enforced project filtering
-        const queryParams = buildProjectScopedQueryParams(ctx, input)
+        // Build query params from input
+        const queryParams = appendQueryParamsFromObject(input)
 
         const queryString = queryParams.toString()
         const url = queryString ? `${FLOATING_IPS_BASE_URL}?${queryString}` : FLOATING_IPS_BASE_URL
