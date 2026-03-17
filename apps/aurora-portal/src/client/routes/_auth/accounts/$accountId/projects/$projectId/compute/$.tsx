@@ -62,6 +62,7 @@ const multiValueEnum = (allowedValues: string[]) => {
 }
 
 // Search params schema for the images page (for deep linking)
+// Uses .passthrough() to allow other tabs' search params to coexist
 const imagesSearchSchema = z.object({
   // Filters - can be single value or "in:value1,value2,..." for multi-value
   status: multiValueEnum([
@@ -96,7 +97,7 @@ const imagesSearchSchema = z.object({
   // Sort
   sortBy: z.enum(["created_at", "updated_at", "name", "size", "status"]).optional(),
   sortDirection: z.enum(["asc", "desc"]).optional(),
-})
+}).passthrough()
 
 export const Route = createFileRoute("/_auth/accounts/$accountId/projects/$projectId/compute/$")({
   component: RouteComponent,
