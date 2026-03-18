@@ -41,9 +41,9 @@ export const FloatingIpListContainer = ({ floatingIps, isLoading, isError, error
 
   if (floatingIps.length === 0) {
     return (
-      <DataGrid columns={7} className="floating-ips" data-testid="no-floating-ips">
+      <DataGrid columns={TABLE_COLUMNS().length} className="floating-ips" data-testid="no-floating-ips">
         <DataGridRow>
-          <DataGridCell colSpan={7}>
+          <DataGridCell colSpan={TABLE_COLUMNS().length}>
             <ContentHeading>
               <Trans>No Floating IPs found</Trans>
             </ContentHeading>
