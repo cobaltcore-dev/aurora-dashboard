@@ -77,7 +77,7 @@ export function ImageTableRow({
       key={id}
       data-testid={`image-row-${id}`}
       onClick={handleRowClick}
-      className="cursor-pointer hover:bg-theme-background-lvl-2"
+      className="hover:bg-theme-background-lvl-2 cursor-pointer"
     >
       <DataGridCell onClick={(e) => e.stopPropagation()}>
         <Checkbox checked={isSelected} onChange={() => onSelect(image)} />

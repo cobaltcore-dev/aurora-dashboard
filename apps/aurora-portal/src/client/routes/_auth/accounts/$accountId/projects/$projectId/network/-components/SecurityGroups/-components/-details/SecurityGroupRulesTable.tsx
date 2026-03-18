@@ -11,6 +11,9 @@ import {
   Select,
   SelectOption,
   Badge,
+  PopupMenu,
+  PopupMenuItem,
+  PopupMenuOptions,
 } from "@cloudoperators/juno-ui-components"
 import { Trans, useLingui } from "@lingui/react/macro"
 import type { SecurityGroupRule } from "@/server/Network/types/securityGroup"
@@ -283,14 +286,12 @@ export function SecurityGroupRulesTable({
                 <DataGridCell>{rule.ethertype}</DataGridCell>
                 <DataGridCell>{rule.protocol || t`-`}</DataGridCell>
                 <DataGridCell>{formatPortRange(rule)}</DataGridCell>
-                <DataGridCell className="items-end">
-                  <button
-                    onClick={() => handleDeleteClick(rule)}
-                    title={t`Delete rule`}
-                    className="text-theme-secondary cursor-pointer justify-end border-0 bg-transparent p-1 transition-colors"
-                  >
-                    <Icon icon="deleteForever" />
-                  </button>
+                <DataGridCell onClick={(e) => e.stopPropagation()} className="items-end justify-end pr-0">
+                  <PopupMenu>
+                    <PopupMenuOptions>
+                      <PopupMenuItem label={t`Delete`} onClick={() => handleDeleteClick(rule)} />
+                    </PopupMenuOptions>
+                  </PopupMenu>
                 </DataGridCell>
               </DataGridRow>
             ))}
