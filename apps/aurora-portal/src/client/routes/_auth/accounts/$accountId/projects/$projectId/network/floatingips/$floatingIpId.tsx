@@ -69,7 +69,7 @@ function RouteComponent() {
     return (
       <Stack className="fixed inset-0" distribution="center" alignment="center" direction="vertical">
         <Spinner variant="primary" size="large" className="mb-2" />
-        <Trans>Loading Floating Ip Details...</Trans>
+        <Trans>Loading Floating IP Details...</Trans>
       </Stack>
     )
   }
@@ -78,11 +78,11 @@ function RouteComponent() {
     return (
       <Stack className="fixed inset-0" distribution="center" alignment="center" direction="vertical" gap="5">
         <p className="text-theme-error font-semibold">
-          <Trans>Error loading Floating Ip Details...</Trans>
+          <Trans>Error loading Floating IP Details...</Trans>
         </p>
         <p className="text-theme-highest">{error?.message || "Unknown error"}</p>
         <Button onClick={navigateToFloatingIps} variant="primary">
-          <Trans>Back to Floating Ips</Trans>
+          <Trans>Back to Floating IPs</Trans>
         </Button>
       </Stack>
     )
@@ -92,10 +92,10 @@ function RouteComponent() {
     return (
       <Stack className="fixed inset-0" distribution="center" alignment="center" direction="vertical" gap="5">
         <p className="text-theme-highest">
-          <Trans>Floating Ip not found</Trans>
+          <Trans>Floating IP not found</Trans>
         </p>
         <Button onClick={navigateToFloatingIps} variant="primary">
-          <Trans>Back to Floating Ips</Trans>
+          <Trans>Back to Floating IPs</Trans>
         </Button>
       </Stack>
     )

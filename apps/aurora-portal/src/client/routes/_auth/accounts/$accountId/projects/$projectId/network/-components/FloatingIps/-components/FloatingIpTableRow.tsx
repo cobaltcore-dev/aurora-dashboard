@@ -20,9 +20,11 @@ export const FloatingIpTableRow = ({ floatingIp }: FloatingIpTableRow) => {
   const { accountId, projectId } = useParams({ strict: false })
 
   const navigateToDetailsPage = () => {
+    if (!accountId || !projectId) return
+
     navigate({
       to: "/accounts/$accountId/projects/$projectId/network/floatingips/$floatingIpId",
-      params: { accountId: accountId!, projectId: projectId!, floatingIpId: floatingIp.id },
+      params: { accountId, projectId, floatingIpId: floatingIp.id },
     })
   }
 

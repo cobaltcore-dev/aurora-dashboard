@@ -24,7 +24,7 @@ export const FloatingIpDetailsView = ({ floatingIp }: FloatingIpDetailsViewProps
       <ContentHeading>IP: {floatingIp.floating_ip_address}</ContentHeading>
       <p className="text-theme-secondary mt-2 text-sm">
         <Trans>
-          Full lifecycle management of Floating IPs, including attachement, port association/disassociation, DNS
+          Full lifecycle management of Floating IPs, including attachment, port association/disassociation, DNS
           settings, and deletion
         </Trans>
       </p>
@@ -58,16 +58,24 @@ export const FloatingIpDetailsView = ({ floatingIp }: FloatingIpDetailsViewProps
             <DataGridRow>
               <DataGridHeadCell>{t`Project ID`}</DataGridHeadCell>
               <DataGridCell>{floatingIp.project_id || `—`}</DataGridCell>
+            </DataGridRow>
 
+            <DataGridRow>
               <DataGridHeadCell>{t`Status`}</DataGridHeadCell>
               <DataGridCell>{formatFloatingIpStatus(floatingIp.status)}</DataGridCell>
+            </DataGridRow>
 
+            <DataGridRow>
               <DataGridHeadCell>{t`Created At`}</DataGridHeadCell>
               <DataGridCell>{floatingIp.created_at || `—`}</DataGridCell>
+            </DataGridRow>
 
+            <DataGridRow>
               <DataGridHeadCell>{t`Updated At`}</DataGridHeadCell>
               <DataGridCell>{floatingIp.updated_at || `—`}</DataGridCell>
+            </DataGridRow>
 
+            <DataGridRow>
               <DataGridHeadCell>{t`Tags`}</DataGridHeadCell>
               <DataGridCell>{floatingIp.tags?.join(", ") || `—`}</DataGridCell>
             </DataGridRow>
@@ -82,7 +90,9 @@ export const FloatingIpDetailsView = ({ floatingIp }: FloatingIpDetailsViewProps
             <DataGridRow>
               <DataGridHeadCell>{t`Floating IP Address`}</DataGridHeadCell>
               <DataGridCell>{floatingIp.floating_ip_address || `—`}</DataGridCell>
+            </DataGridRow>
 
+            <DataGridRow>
               <DataGridHeadCell>{t`Floating Network`}</DataGridHeadCell>
               <DataGridCell>{floatingIp.floating_network_id || `—`}</DataGridCell>
             </DataGridRow>
@@ -95,22 +105,32 @@ export const FloatingIpDetailsView = ({ floatingIp }: FloatingIpDetailsViewProps
             )}
 
             {floatingIp.port_details && (
-              <DataGridRow>
-                <DataGridHeadCell>{t`Port Name`}</DataGridHeadCell>
-                <DataGridCell>{floatingIp.port_details.name}</DataGridCell>
+              <>
+                <DataGridRow>
+                  <DataGridHeadCell>{t`Port Name`}</DataGridHeadCell>
+                  <DataGridCell>{floatingIp.port_details.name}</DataGridCell>
+                </DataGridRow>
 
-                <DataGridHeadCell>{t`Mac_address`}</DataGridHeadCell>
-                <DataGridCell>{floatingIp.port_details.mac_address}</DataGridCell>
+                <DataGridRow>
+                  <DataGridHeadCell>{t`MAC Address`}</DataGridHeadCell>
+                  <DataGridCell>{floatingIp.port_details.mac_address}</DataGridCell>
+                </DataGridRow>
 
-                <DataGridHeadCell>{t`Network_id`}</DataGridHeadCell>
-                <DataGridCell>{floatingIp.port_details.network_id}</DataGridCell>
+                <DataGridRow>
+                  <DataGridHeadCell>{t`Network ID`}</DataGridHeadCell>
+                  <DataGridCell>{floatingIp.port_details.network_id}</DataGridCell>
+                </DataGridRow>
 
-                <DataGridHeadCell>{t`Device_owner`}</DataGridHeadCell>
-                <DataGridCell>{floatingIp.port_details.device_owner}</DataGridCell>
+                <DataGridRow>
+                  <DataGridHeadCell>{t`Device Owner`}</DataGridHeadCell>
+                  <DataGridCell>{floatingIp.port_details.device_owner}</DataGridCell>
+                </DataGridRow>
 
-                <DataGridHeadCell>{t`Device Device_ID`}</DataGridHeadCell>
-                <DataGridCell>{floatingIp.port_details.device_id}</DataGridCell>
-              </DataGridRow>
+                <DataGridRow>
+                  <DataGridHeadCell>{t`Device ID`}</DataGridHeadCell>
+                  <DataGridCell>{floatingIp.port_details.device_id}</DataGridCell>
+                </DataGridRow>
+              </>
             )}
 
             {floatingIp.router_id && (
@@ -135,7 +155,7 @@ export const FloatingIpDetailsView = ({ floatingIp }: FloatingIpDetailsViewProps
             {floatingIp.port_forwardings && (
               <DataGridRow>
                 <DataGridHeadCell>{t`Port Forwarding`}</DataGridHeadCell>
-                <DataGridCell>{floatingIp.port_forwardings.map((port) => port.id)}</DataGridCell>
+                <DataGridCell>{floatingIp.port_forwardings.map((port) => port.id).join(", ")}</DataGridCell>
               </DataGridRow>
             )}
           </DataGrid>

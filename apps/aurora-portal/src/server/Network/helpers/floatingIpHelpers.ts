@@ -54,7 +54,7 @@ export const FloatingIpErrorHandlers = {
 
   /**
    * Handles errors specific to floating IP retrieval by ID.
-   * Uses the shared WORK_IN_PROGRESS `ErrorHandler` prototype (test and update tests)
+   * Uses the shared WORK_IN_PROGRESS `ErrorHandler` prototype
    *
    * @param response - The HTTP response from OpenStack
    * @param floatingIpId - The ID of the floating IP being retrieved

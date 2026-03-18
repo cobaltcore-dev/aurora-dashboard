@@ -176,23 +176,22 @@ describe("FloatingIpTableRow", () => {
       // Open the popup menu and click Preview
       const row = screen.getByTestId(`floating-ip-row-${mockFloatingIp.id}`)
       const menuButton = row.querySelector("button")
+      expect(menuButton).toBeInTheDocument()
 
-      if (menuButton) {
-        await user.click(menuButton)
+      await user.click(menuButton!)
 
-        await waitFor(() => {
-          const previewItem = screen.getByText("Preview")
-          expect(previewItem).toBeInTheDocument()
-        })
-
+      await waitFor(() => {
         const previewItem = screen.getByText("Preview")
-        await user.click(previewItem)
+        expect(previewItem).toBeInTheDocument()
+      })
 
-        // Verify navigation occurred (the router should update the location)
-        await waitFor(() => {
-          expect(router.state.location.pathname).toContain("floatingips/fip-123")
-        })
-      }
+      const previewItem = screen.getByText("Preview")
+      await user.click(previewItem)
+
+      // Verify navigation occurred (the router should update the location)
+      await waitFor(() => {
+        expect(router.state.location.pathname).toContain("floatingips/fip-123")
+      })
     })
 
     it("renders menu items with correct labels", async () => {
@@ -207,18 +206,17 @@ describe("FloatingIpTableRow", () => {
       // Open the popup menu
       const row = screen.getByTestId(`floating-ip-row-${mockFloatingIp.id}`)
       const menuButton = row.querySelector("button")
+      expect(menuButton).toBeInTheDocument()
 
-      if (menuButton) {
-        await user.click(menuButton)
+      await user.click(menuButton!)
 
-        await waitFor(() => {
-          expect(screen.getByText("Preview")).toBeInTheDocument()
-          expect(screen.getByText("Edit Description")).toBeInTheDocument()
-          expect(screen.getByText("Attach")).toBeInTheDocument()
-          expect(screen.getByText("Detach")).toBeInTheDocument()
-          expect(screen.getByText("Release")).toBeInTheDocument()
-        })
-      }
+      await waitFor(() => {
+        expect(screen.getByText("Preview")).toBeInTheDocument()
+        expect(screen.getByText("Edit Description")).toBeInTheDocument()
+        expect(screen.getByText("Attach")).toBeInTheDocument()
+        expect(screen.getByText("Detach")).toBeInTheDocument()
+        expect(screen.getByText("Release")).toBeInTheDocument()
+      })
     })
   })
 
@@ -234,16 +232,15 @@ describe("FloatingIpTableRow", () => {
 
       const row = screen.getByTestId(`floating-ip-row-${mockFloatingIp.id}`)
       const menuButton = row.querySelector("button")
+      expect(menuButton).toBeInTheDocument()
 
       // Click should not propagate to row click event
-      if (menuButton) {
-        await user.click(menuButton)
+      await user.click(menuButton!)
 
-        // Verify popup menu opened (menu content visible)
-        await waitFor(() => {
-          expect(screen.getByText("Preview")).toBeInTheDocument()
-        })
-      }
+      // Verify popup menu opened (menu content visible)
+      await waitFor(() => {
+        expect(screen.getByText("Preview")).toBeInTheDocument()
+      })
     })
   })
 })
