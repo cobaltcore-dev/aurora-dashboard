@@ -10,7 +10,7 @@ describe("ErrorHandler for List procedures", () => {
 
     expect(error).toBeInstanceOf(TRPCError)
     expect(error.code).toBe(HTTP_STATUS_ERROR_MAP[401])
-    expect(error.message).toBe("Unauthorized access to resource: Unauthorized")
+    expect(error.message).toBe("Unauthorized access to Port: Unauthorized")
   })
 
   it("returns FORBIDDEN for 403", () => {
@@ -18,7 +18,7 @@ describe("ErrorHandler for List procedures", () => {
     const error = list({ status: 403, statusText: "Forbidden" })
 
     expect(error.code).toBe(HTTP_STATUS_ERROR_MAP[403])
-    expect(error.message).toBe("Access forbidden to resource: Forbidden")
+    expect(error.message).toBe("Access forbidden to Network: Forbidden")
   })
 
   it("returns default error for unhandled status", () => {

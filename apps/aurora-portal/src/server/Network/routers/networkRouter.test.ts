@@ -178,7 +178,7 @@ describe("networkRouter.listExternalNetworks", () => {
 
     await expect(caller.network.listExternalNetworks({})).rejects.toMatchObject({
       code: "UNAUTHORIZED",
-      message: "Unauthorized access to resource: Unauthorized",
+      message: "Unauthorized access to Network: Unauthorized",
     })
   })
 })

@@ -183,7 +183,7 @@ describe("portRouter.listAvailablePorts", () => {
 
     await expect(caller.port.listAvailablePorts({})).rejects.toMatchObject({
       code: "UNAUTHORIZED",
-      message: "Unauthorized access to resource: Unauthorized",
+      message: "Unauthorized access to Port: Unauthorized",
     })
   })
 })
