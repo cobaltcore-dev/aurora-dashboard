@@ -67,12 +67,16 @@ export const FloatingIpDetailsView = ({ floatingIp }: FloatingIpDetailsViewProps
 
             <DataGridRow>
               <DataGridHeadCell>{t`Created At`}</DataGridHeadCell>
-              <DataGridCell>{floatingIp.created_at || `—`}</DataGridCell>
+              <DataGridCell>
+                {floatingIp.created_at ? new Date(floatingIp.created_at).toLocaleString() : `—`}
+              </DataGridCell>
             </DataGridRow>
 
             <DataGridRow>
               <DataGridHeadCell>{t`Updated At`}</DataGridHeadCell>
-              <DataGridCell>{floatingIp.updated_at || `—`}</DataGridCell>
+              <DataGridCell>
+                {floatingIp.updated_at ? new Date(floatingIp.updated_at).toLocaleString() : `—`}
+              </DataGridCell>
             </DataGridRow>
 
             <DataGridRow>

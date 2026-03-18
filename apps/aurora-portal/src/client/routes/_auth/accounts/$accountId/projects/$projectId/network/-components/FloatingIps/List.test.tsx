@@ -337,9 +337,9 @@ describe("FloatingIps List", () => {
       await user.click(screen.getByTestId("ACTIVE"))
 
       // Search
-      const searchbox = screen.getByRole("searchbox")
+      const searchbox = await screen.findByRole("searchbox")
       await user.type(searchbox, "203")
-      const searchButton = screen.getByRole("button", { name: "Search" })
+      const searchButton = await screen.findByRole("button", { name: "Search" })
       await user.click(searchButton)
 
       await waitFor(() => {
