@@ -4,52 +4,57 @@ import { DEFAULT_ERROR_NAME, HTTP_STATUS_ERROR_MAP } from "./index"
 /**
  * WORK_IN_PROGRESS:
  * This shared error-handling helper is currently a prototype and is only used for
- * list operations in Port, Network, and Floating IP helpers.
+ * list / get operations in Port, Network, and Floating IP helpers.
  *
  * The goal is to extend this approach in the future and make it resource-wide
- * across all network helper operations (get/create/update/delete).
+ * across all network helper operations (create/update/delete).
  */
-
-type ErrorCodes = 401 | 403
+type ErrorCodes = 401 | 403 | 404
 type ErrorResponse = { status?: number; statusText?: string }
-type ErrorHandlerFn = (response: ErrorResponse) => TRPCError
+type ErrorHandlerFn = (response: ErrorResponse, resourceId?: string) => TRPCError
 type ErrorHandler = Record<ErrorCodes, ErrorHandlerFn>
 
+/**
+ * Creates a error handler for the current prototype resources.
+ *
+ * WORK_IN_PROGRESS:
+ * - Scope today: list handlers for Port, Network and list/get for Floating IP.
+ * - Scope later: expand to a resource-wide error-handling strategy.
+ *
+ * Default handlers (401, 403, 404) are always handled, while custom handlers
+ * can extend/override specific status codes.
+ */
 export const DEFAULT_HANDLERS: ErrorHandler = {
-  401: () =>
+  401: (response, resourceId) =>
     new TRPCError({
       code: HTTP_STATUS_ERROR_MAP[401],
-      message: "Unauthorized access",
+      message: `Unauthorized access to ${resourceId || "resource"}: ${response.statusText || "Unknown error"}`,
     }),
-  403: (response) =>
+  403: (response, resourceId) =>
     new TRPCError({
       code: HTTP_STATUS_ERROR_MAP[403],
-      message: `Access forbidden: ${response.statusText || "Unknown error"}`,
+      message: `Access forbidden to ${resourceId || "resource"}: ${response.statusText || "Unknown error"}`,
+    }),
+  404: (response, resourceId) =>
+    new TRPCError({
+      code: HTTP_STATUS_ERROR_MAP[404],
+      message: `${resourceId || "Resource"} not found: ${response.statusText || "Unknown error"}`,
     }),
 }
 
 type ResourceName = "Port" | "Network" | "Floating IP"
-/**
- * Creates a standard list error handler for the current prototype resources.
- *
- * WORK_IN_PROGRESS:
- * - Scope today: list handlers for Port, Network, Floating IP.
- * - Scope later: expand to a resource-wide error-handling strategy.
- *
- * Default handlers (401, 403) are always handled, while custom handlers
- * can extend/override specific status codes.
- */
-export const ListErrorHandler = (resourceName: ResourceName, customHandlers?: Partial<ErrorHandler>) => {
+
+export const ErrorHandler = (resourceName: ResourceName, customHandlers?: Partial<ErrorHandler>) => {
   const handlers = { ...DEFAULT_HANDLERS, ...customHandlers }
 
-  return (response: ErrorResponse) => {
+  return (response: ErrorResponse, resourceId?: string) => {
     if (response.status && handlers[response.status as ErrorCodes]) {
-      return handlers[response.status as ErrorCodes](response)
+      return handlers[response.status as ErrorCodes](response, resourceId)
     }
 
     return new TRPCError({
       code: DEFAULT_ERROR_NAME,
-      message: `Failed to fetch list: ${resourceName}: ${response.statusText || "Unknown error"}`,
+      message: `Failed to fetch ${resourceName || resourceId}: ${response.statusText || "Unknown error"}`,
     })
   }
 }

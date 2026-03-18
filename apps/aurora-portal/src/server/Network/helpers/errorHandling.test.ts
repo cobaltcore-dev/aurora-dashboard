@@ -1,11 +1,11 @@
 import { describe, it, expect } from "vitest"
 import { TRPCError } from "@trpc/server"
 import { DEFAULT_ERROR_NAME, HTTP_STATUS_ERROR_MAP } from "./index"
-import { ListErrorHandler } from "./errorHandling"
+import { ErrorHandler } from "./errorHandling"
 
-describe("ListErrorHandler", () => {
+describe("ErrorHandler for List procedures", () => {
   it("returns UNAUTHORIZED for 401", () => {
-    const list = ListErrorHandler("Port")
+    const list = ErrorHandler("Port")
     const error = list({ status: 401, statusText: "Unauthorized" })
 
     expect(error).toBeInstanceOf(TRPCError)
@@ -14,7 +14,7 @@ describe("ListErrorHandler", () => {
   })
 
   it("returns FORBIDDEN for 403", () => {
-    const list = ListErrorHandler("Network")
+    const list = ErrorHandler("Network")
     const error = list({ status: 403, statusText: "Forbidden" })
 
     expect(error.code).toBe(HTTP_STATUS_ERROR_MAP[403])
@@ -22,7 +22,7 @@ describe("ListErrorHandler", () => {
   })
 
   it("returns default error for unhandled status", () => {
-    const list = ListErrorHandler("Floating IP")
+    const list = ErrorHandler("Floating IP")
     const error = list({ status: 500, statusText: "Internal Server Error" })
 
     expect(error.code).toBe(DEFAULT_ERROR_NAME)
@@ -30,7 +30,7 @@ describe("ListErrorHandler", () => {
   })
 
   it("uses Unknown error when statusText is missing", () => {
-    const list = ListErrorHandler("Port")
+    const list = ErrorHandler("Port")
     const error = list({ status: 503 })
 
     expect(error.code).toBe(DEFAULT_ERROR_NAME)
