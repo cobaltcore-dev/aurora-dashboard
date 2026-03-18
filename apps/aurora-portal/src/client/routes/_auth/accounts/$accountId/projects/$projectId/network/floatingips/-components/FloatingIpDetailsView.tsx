@@ -57,19 +57,19 @@ export const FloatingIpDetailsView = ({ floatingIp }: FloatingIpDetailsViewProps
 
             <DataGridRow>
               <DataGridHeadCell>{t`Project ID`}</DataGridHeadCell>
-              <DataGridCell>{floatingIp.project_id}</DataGridCell>
+              <DataGridCell>{floatingIp.project_id || `—`}</DataGridCell>
 
               <DataGridHeadCell>{t`Status`}</DataGridHeadCell>
               <DataGridCell>{formatFloatingIpStatus(floatingIp.status)}</DataGridCell>
 
               <DataGridHeadCell>{t`Created At`}</DataGridHeadCell>
-              <DataGridCell>{floatingIp.created_at}</DataGridCell>
+              <DataGridCell>{floatingIp.created_at || `—`}</DataGridCell>
 
               <DataGridHeadCell>{t`Updated At`}</DataGridHeadCell>
-              <DataGridCell>{floatingIp.updated_at}</DataGridCell>
+              <DataGridCell>{floatingIp.updated_at || `—`}</DataGridCell>
 
               <DataGridHeadCell>{t`Tags`}</DataGridHeadCell>
-              <DataGridCell>{floatingIp.tags?.join(", ") || t`—`}</DataGridCell>
+              <DataGridCell>{floatingIp.tags?.join(", ") || `—`}</DataGridCell>
             </DataGridRow>
           </DataGrid>
         </Stack>
@@ -81,10 +81,10 @@ export const FloatingIpDetailsView = ({ floatingIp }: FloatingIpDetailsViewProps
           <DataGrid columns={2}>
             <DataGridRow>
               <DataGridHeadCell>{t`Floating IP Address`}</DataGridHeadCell>
-              <DataGridCell>{floatingIp.floating_ip_address}</DataGridCell>
+              <DataGridCell>{floatingIp.floating_ip_address || `—`}</DataGridCell>
 
               <DataGridHeadCell>{t`Floating Network`}</DataGridHeadCell>
-              <DataGridCell>{floatingIp.floating_network_id}</DataGridCell>
+              <DataGridCell>{floatingIp.floating_network_id || `—`}</DataGridCell>
             </DataGridRow>
 
             {floatingIp.fixed_ip_address && (
@@ -129,7 +129,7 @@ export const FloatingIpDetailsView = ({ floatingIp }: FloatingIpDetailsViewProps
 
             <DataGridRow>
               <DataGridHeadCell>{t`QoS Policy ID`}</DataGridHeadCell>
-              <DataGridCell>{floatingIp.qos_policy_id}</DataGridCell>
+              <DataGridCell>{floatingIp.qos_policy_id || `—`}</DataGridCell>
             </DataGridRow>
 
             {floatingIp.port_forwardings && (
@@ -148,12 +148,12 @@ export const FloatingIpDetailsView = ({ floatingIp }: FloatingIpDetailsViewProps
           <DataGrid columns={2}>
             <DataGridRow>
               <DataGridHeadCell>{t`DNS Domain`}</DataGridHeadCell>
-              <DataGridCell>{floatingIp.dns_domain || "—"}</DataGridCell>
+              <DataGridCell>{floatingIp.dns_domain || `—`}</DataGridCell>
             </DataGridRow>
 
             <DataGridRow>
               <DataGridHeadCell>{t`DNS Name`}</DataGridHeadCell>
-              <DataGridCell>{floatingIp.dns_name || "—"}</DataGridCell>
+              <DataGridCell>{floatingIp.dns_name || `—`}</DataGridCell>
             </DataGridRow>
           </DataGrid>
         </Stack>
