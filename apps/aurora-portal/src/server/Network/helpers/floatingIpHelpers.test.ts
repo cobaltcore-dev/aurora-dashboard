@@ -4,10 +4,18 @@ import { FloatingIpErrorHandlers } from "./floatingIpHelpers"
 import { DEFAULT_ERROR_NAME, HTTP_STATUS_ERROR_MAP } from "./index"
 
 describe("FloatingIpErrorHandlers.list", () => {
-  it("is wired to shared list handler", () => {
+  it("is wired to shared error handler", () => {
     const error = FloatingIpErrorHandlers.list({ status: 500, statusText: "Internal Server Error" })
     expect(error.code).toBe(DEFAULT_ERROR_NAME)
-    expect(error.message).toBe("Failed to fetch list: Floating IP: Internal Server Error")
+    expect(error.message).toBe("Failed to fetch Floating IP: Internal Server Error")
+  })
+})
+
+describe("FloatingIpErrorHandlers.get", () => {
+  it("is wired to shared error handler", () => {
+    const error = FloatingIpErrorHandlers.get({ status: 500, statusText: "Internal Server Error" }, "fip-test-123")
+    expect(error.code).toBe(DEFAULT_ERROR_NAME)
+    expect(error.message).toBe("Failed to fetch fip-test-123: Internal Server Error")
   })
 })
 
