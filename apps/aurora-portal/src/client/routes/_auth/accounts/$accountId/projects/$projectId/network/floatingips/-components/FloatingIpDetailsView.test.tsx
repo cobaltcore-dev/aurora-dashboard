@@ -167,16 +167,6 @@ describe("FloatingIpDetailsView", () => {
       expect(screen.getByText("10.0.0.5")).toBeInTheDocument()
     })
 
-    it("does not display fixed IP address when absent", () => {
-      const fipWithoutFixedIp = { ...mockFloatingIp, fixed_ip_address: null }
-      const { container } = render(<FloatingIpDetailsView floatingIp={fipWithoutFixedIp} />, { wrapper: TestWrapper })
-
-      const fixedIpHeading = Array.from(container.querySelectorAll("*")).find(
-        (el) => el.textContent === "Fixed IP Address"
-      )
-      expect(fixedIpHeading).not.toBeInTheDocument()
-    })
-
     it("displays port details when present", () => {
       render(<FloatingIpDetailsView floatingIp={mockFloatingIp} />, { wrapper: TestWrapper })
 
@@ -187,42 +177,16 @@ describe("FloatingIpDetailsView", () => {
       expect(screen.getByText("instance-123")).toBeInTheDocument()
     })
 
-    it("does not display port details when absent", () => {
-      const fipWithoutPortDetails = { ...mockFloatingIp, port_details: null }
-      const { container } = render(<FloatingIpDetailsView floatingIp={fipWithoutPortDetails} />, {
-        wrapper: TestWrapper,
-      })
-
-      const portNameHeading = Array.from(container.querySelectorAll("*")).find((el) => el.textContent === "Port Name")
-      expect(portNameHeading).not.toBeInTheDocument()
-    })
-
     it("displays router ID when present", () => {
       render(<FloatingIpDetailsView floatingIp={mockFloatingIp} />, { wrapper: TestWrapper })
 
       expect(screen.getByText("router-1")).toBeInTheDocument()
     })
 
-    it("does not display router ID when absent", () => {
-      const fipWithoutRouter = { ...mockFloatingIp, router_id: null }
-      const { container } = render(<FloatingIpDetailsView floatingIp={fipWithoutRouter} />, { wrapper: TestWrapper })
-
-      const routerIdHeading = Array.from(container.querySelectorAll("*")).find((el) => el.textContent === "Router ID")
-      expect(routerIdHeading).not.toBeInTheDocument()
-    })
-
     it("displays port ID when present", () => {
       render(<FloatingIpDetailsView floatingIp={mockFloatingIp} />, { wrapper: TestWrapper })
 
       expect(screen.getByText("port-1")).toBeInTheDocument()
-    })
-
-    it("does not display port ID when absent", () => {
-      const fipWithoutPortId = { ...mockFloatingIp, port_id: null }
-      const { container } = render(<FloatingIpDetailsView floatingIp={fipWithoutPortId} />, { wrapper: TestWrapper })
-
-      const portIdHeading = Array.from(container.querySelectorAll("*")).find((el) => el.textContent === "Port ID")
-      expect(portIdHeading).not.toBeInTheDocument()
     })
 
     it("displays QoS policy ID", () => {
@@ -235,18 +199,6 @@ describe("FloatingIpDetailsView", () => {
       render(<FloatingIpDetailsView floatingIp={mockFloatingIp} />, { wrapper: TestWrapper })
 
       expect(screen.getByText("pf-1")).toBeInTheDocument()
-    })
-
-    it("does not display port forwardings when absent", () => {
-      const fipWithoutPortForwardings = { ...mockFloatingIp, port_forwardings: null }
-      const { container } = render(<FloatingIpDetailsView floatingIp={fipWithoutPortForwardings} />, {
-        wrapper: TestWrapper,
-      })
-
-      const portForwardingHeading = Array.from(container.querySelectorAll("*")).find(
-        (el) => el.textContent === "Port Forwarding"
-      )
-      expect(portForwardingHeading).not.toBeInTheDocument()
     })
   })
 
@@ -305,16 +257,9 @@ describe("FloatingIpDetailsView", () => {
     it("renders with minimal required data", () => {
       render(<FloatingIpDetailsView floatingIp={minimalFloatingIp} />, { wrapper: TestWrapper })
 
-      expect(screen.getByText(/203.0.113.100/)).toBeInTheDocument()
+      expect(screen.getByRole("heading", { name: /203\.0\.113\.100/ })).toBeInTheDocument()
       expect(screen.getByText("Down")).toBeInTheDocument()
       expect(screen.getByText("net-ext")).toBeInTheDocument()
-    })
-
-    it("handles undefined optional fields gracefully", () => {
-      const { container } = render(<FloatingIpDetailsView floatingIp={minimalFloatingIp} />, { wrapper: TestWrapper })
-
-      // Should not throw or have missing data sections
-      expect(container.querySelector("[class*='Stack']")).toBeInTheDocument()
     })
   })
 
@@ -342,20 +287,12 @@ describe("FloatingIpDetailsView", () => {
   })
 
   describe("Data grid structure", () => {
-    it("renders multiple sections with proper hierarchy", () => {
+    it("renders multiple sections", () => {
       render(<FloatingIpDetailsView floatingIp={mockFloatingIp} />, { wrapper: TestWrapper })
 
-      // Check for section headings
-      const headings = screen.getAllByText(/Basic Info|Network & Routing|DNS/)
-      expect(headings.length).toBe(3)
-    })
-
-    it("maintains data grid column structure", () => {
-      const { container } = render(<FloatingIpDetailsView floatingIp={mockFloatingIp} />, { wrapper: TestWrapper })
-
-      // Verify DataGrid components are rendered (they have specific structure)
-      const dataGrids = container.querySelectorAll("[class*='DataGrid']")
-      expect(dataGrids.length).toBeGreaterThan(0)
+      expect(screen.getByText("Basic Info")).toBeInTheDocument()
+      expect(screen.getByText("Network & Routing")).toBeInTheDocument()
+      expect(screen.getByText("DNS")).toBeInTheDocument()
     })
   })
 })

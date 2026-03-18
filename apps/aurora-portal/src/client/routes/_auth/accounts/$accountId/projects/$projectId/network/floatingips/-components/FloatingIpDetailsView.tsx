@@ -140,7 +140,7 @@ export const FloatingIpDetailsView = ({ floatingIp }: FloatingIpDetailsViewProps
             )}
           </DataGrid>
         </Stack>
-
+        {/* DNS */}
         <Stack direction="vertical" gap="2">
           <ContentHeading>
             <Trans>DNS</Trans>

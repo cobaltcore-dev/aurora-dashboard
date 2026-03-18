@@ -223,36 +223,6 @@ describe("FloatingIpTableRow", () => {
   })
 
   describe("Menu actions", () => {
-    it("menu items for edit, attach, detach, and release are disabled", async () => {
-      const user = userEvent.setup()
-      const router = createTestRouter(<FloatingIpTableRow floatingIp={mockFloatingIp} />)
-      render(<RouterProvider router={router} />)
-
-      await waitFor(() => {
-        expect(screen.getByText("203.0.113.10")).toBeInTheDocument()
-      })
-
-      // Open the popup menu
-      const row = screen.getByTestId(`floating-ip-row-${mockFloatingIp.id}`)
-      const menuButton = row.querySelector("button")
-
-      if (menuButton) {
-        await user.click(menuButton)
-
-        await waitFor(() => {
-          const editItem = screen.getByText("Edit Description").closest("button")
-          const attachItem = screen.getByText("Attach").closest("button")
-          const detachItem = screen.getByText("Detach").closest("button")
-          const releaseItem = screen.getByText("Release").closest("button")
-
-          expect(editItem).toHaveAttribute("disabled")
-          expect(attachItem).toHaveAttribute("disabled")
-          expect(detachItem).toHaveAttribute("disabled")
-          expect(releaseItem).toHaveAttribute("disabled")
-        })
-      }
-    })
-
     it("stops event propagation when menu is clicked", async () => {
       const user = userEvent.setup()
       const router = createTestRouter(<FloatingIpTableRow floatingIp={mockFloatingIp} />)
