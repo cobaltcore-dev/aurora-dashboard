@@ -9,9 +9,8 @@ import {
   DataGridHeadCell,
   ContentHeading,
 } from "@cloudoperators/juno-ui-components/index"
-import type { FloatingIp, FloatingIpStatus } from "@/server/Network/types/floatingIp"
-
-const formatFloatingIpStatus = (status: FloatingIpStatus) => status.charAt(0) + status.slice(1).toLowerCase()
+import type { FloatingIp } from "@/server/Network/types/floatingIp"
+import { formatFloatingIpStatus } from "@/client/utils/formatFloatingIpStatus"
 
 interface FloatingIpDetailsViewProps {
   floatingIp: FloatingIp
