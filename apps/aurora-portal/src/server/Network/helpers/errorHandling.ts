@@ -4,27 +4,24 @@ import { DEFAULT_ERROR_NAME, HTTP_STATUS_ERROR_MAP } from "./index"
 /**
  * WORK_IN_PROGRESS:
  * This shared error-handling helper is currently a prototype and is only used for
- * list / get operations in Port, Network, and Floating IP helpers.
+ * list procedures in Port and Network helpers.
+ * list / get procedures in Floating IP
  *
  * The goal is to extend this approach in the future and make it resource-wide
- * across all network helper operations (create/update/delete).
+ * across all network procedures (create/update/delete).
  */
 type ErrorCodes = 401 | 403 | 404
 type ErrorResponse = { status?: number; statusText?: string }
 type ErrorHandlerFn = (response: ErrorResponse, resourceId?: string) => TRPCError
-type ErrorHandler = Record<ErrorCodes, ErrorHandlerFn>
+type ErrorHandlerMap = Record<ErrorCodes, ErrorHandlerFn>
 
 /**
- * Creates a error handler for the current prototype resources.
- *
- * WORK_IN_PROGRESS:
- * - Scope today: list handlers for Port, Network and list/get for Floating IP.
- * - Scope later: expand to a resource-wide error-handling strategy.
+ * Creates an error handler for the current prototype resources.
  *
  * Default handlers (401, 403, 404) are always handled, while custom handlers
  * can extend/override specific status codes.
  */
-export const DEFAULT_HANDLERS: ErrorHandler = {
+export const DEFAULT_HANDLERS: ErrorHandlerMap = {
   401: (response, resourceId) =>
     new TRPCError({
       code: HTTP_STATUS_ERROR_MAP[401],
@@ -44,7 +41,7 @@ export const DEFAULT_HANDLERS: ErrorHandler = {
 
 type ResourceName = "Port" | "Network" | "Floating IP"
 
-export const ErrorHandler = (resourceName: ResourceName, customHandlers?: Partial<ErrorHandler>) => {
+export const ErrorHandler = (resourceName: ResourceName, customHandlers?: Partial<ErrorHandlerMap>) => {
   const handlers = { ...DEFAULT_HANDLERS, ...customHandlers }
 
   return (response: ErrorResponse, resourceId?: string) => {
@@ -54,7 +51,7 @@ export const ErrorHandler = (resourceName: ResourceName, customHandlers?: Partia
 
     return new TRPCError({
       code: DEFAULT_ERROR_NAME,
-      message: `Failed to fetch ${resourceName || resourceId}: ${response.statusText || "Unknown error"}`,
+      message: `Failed to fetch ${resourceId ?? resourceName}: ${response.statusText || "Unknown error"}`,
     })
   }
 }
