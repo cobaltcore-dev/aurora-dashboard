@@ -439,7 +439,7 @@ export const EditContainerMetadataModal = ({
           </Message>
         </Stack>
       ) : (
-        <div className="max-h-[65vh] overflow-y-auto pr-1">
+        <div className="max-h-[65vh] overflow-y-auto pr-1 pl-1">
           <Stack direction="vertical" gap="6">
             {/* ── Read-only stats ─────────────────────────────────────────── */}
             <div className="grid grid-cols-2 gap-4">
@@ -490,7 +490,7 @@ export const EditContainerMetadataModal = ({
             </div>
 
             {/* ── Public URL ──────────────────────────────────────────────── */}
-            {publicUrl && (
+            {isPublicAccess && publicUrl && (
               <div>
                 <p className="text-theme-default mb-1 text-sm font-semibold">
                   <Trans>URL for public access</Trans>{" "}
