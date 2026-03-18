@@ -65,9 +65,21 @@ export function ImageTableRow({
 
   const isImageOwner = projectId === owner
 
+  const handleRowClick = () => {
+    navigate({
+      to: "/accounts/$accountId/projects/$projectId/compute/images/$imageId",
+      params: { accountId, projectId, imageId: id },
+    })
+  }
+
   return (
-    <DataGridRow key={id} data-testid={`image-row-${id}`}>
-      <DataGridCell>
+    <DataGridRow
+      key={id}
+      data-testid={`image-row-${id}`}
+      onClick={handleRowClick}
+      className="cursor-pointer hover:bg-theme-background-lvl-2"
+    >
+      <DataGridCell onClick={(e) => e.stopPropagation()}>
         <Checkbox checked={isSelected} onChange={() => onSelect(image)} />
       </DataGridCell>
 
@@ -89,7 +101,7 @@ export function ImageTableRow({
       <DataGridCell>{disk_format || t`N/A`}</DataGridCell>
       <DataGridCell>{created_at ? new Date(created_at).toLocaleDateString() : t`N/A`}</DataGridCell>
 
-      <DataGridCell>
+      <DataGridCell onClick={(e) => e.stopPropagation()}>
         <PopupMenu>
           <PopupMenuOptions>
             <PopupMenuItem

@@ -41,7 +41,12 @@ export function SecurityGroupTableRow({
   }
 
   return (
-    <DataGridRow key={sg.id} data-testid={`security-group-row-${sg.id}`}>
+    <DataGridRow
+      key={sg.id}
+      data-testid={`security-group-row-${sg.id}`}
+      onClick={handleShowDetails}
+      className="cursor-pointer hover:bg-theme-background-lvl-2"
+    >
       <DataGridCell>
         <div>
           <p className="text-md">{sg.name}</p>
