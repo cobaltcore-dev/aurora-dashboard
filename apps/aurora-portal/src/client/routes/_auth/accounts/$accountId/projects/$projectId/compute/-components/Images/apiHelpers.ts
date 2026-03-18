@@ -17,10 +17,19 @@ export const createImagesPromise = (
   searchTerm: string,
   filters: ImageFilters
 ): Promise<GlanceImage[]> => {
+  // If member_status filter is set (and not "all"), use the dedicated endpoint
+  if (filters.member_status && filters.member_status !== "all") {
+    return client.compute.listSharedImagesByMemberStatus.query({
+      memberStatus: filters.member_status,
+    })
+  }
+
+  // Otherwise use the regular search endpoint
   return client.compute.listImagesWithSearch.query({
     sort: `${sortBy}:${sortDirection}`,
     name: searchTerm || undefined,
     ...filters,
+    member_status: undefined, // Don't pass member_status to this endpoint
   })
 }
 
