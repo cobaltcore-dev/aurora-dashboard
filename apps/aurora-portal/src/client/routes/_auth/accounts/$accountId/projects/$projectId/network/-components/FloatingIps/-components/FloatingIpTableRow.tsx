@@ -22,7 +22,12 @@ export const FloatingIpTableRow = ({ floatingIp }: FloatingIpTableRow) => {
   const { t } = useLingui()
   const navigate = useNavigate()
   const utils = trpcReact.useUtils()
+  const [editModalOpen, setEditModalOpen] = useState(false)
   const { accountId, projectId } = useParams({ strict: false })
+
+  const toggleEditModal = useCallback(() => {
+    setEditModalOpen((open) => !open)
+  }, [])
 
   const updateFloatingIpMutation = trpcReact.network.floatingIp.update.useMutation({
     onSuccess: () => {
@@ -31,24 +36,19 @@ export const FloatingIpTableRow = ({ floatingIp }: FloatingIpTableRow) => {
     },
   })
 
+  const handleUpdateFloatingIp = async (floatingIpId: string, data: Omit<FloatingIpUpdateRequest, "floatingip_id">) => {
+    await updateFloatingIpMutation.mutateAsync({
+      floatingip_id: floatingIpId,
+      ...data,
+    })
+  }
+
   const navigateToDetailsPage = () => {
     if (!accountId || !projectId) return
 
     navigate({
       to: "/accounts/$accountId/projects/$projectId/network/floatingips/$floatingIpId",
       params: { accountId, projectId, floatingIpId: floatingIp.id },
-    })
-  }
-
-  const [editModalOpen, setEditModalOpen] = useState(false)
-  const toggleEditModal = useCallback(() => {
-    setEditModalOpen((open) => !open)
-  }, [])
-
-  const handleUpdateFloatingIp = async (floatingIpId: string, data: Omit<FloatingIpUpdateRequest, "floatingip_id">) => {
-    await updateFloatingIpMutation.mutateAsync({
-      floatingip_id: floatingIpId,
-      ...data,
     })
   }
 

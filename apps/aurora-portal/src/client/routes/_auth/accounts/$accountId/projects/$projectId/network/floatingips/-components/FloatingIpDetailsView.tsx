@@ -23,6 +23,11 @@ interface FloatingIpDetailsViewProps {
 export const FloatingIpDetailsView = ({ floatingIp }: FloatingIpDetailsViewProps) => {
   const { t } = useLingui()
   const utils = trpcReact.useUtils()
+  const [editModalOpen, setEditModalOpen] = useState(false)
+
+  const toggleEditModal = useCallback(() => {
+    setEditModalOpen((open) => !open)
+  }, [])
 
   const updateFloatingIpMutation = trpcReact.network.floatingIp.update.useMutation({
     onSuccess: () => {
@@ -30,11 +35,6 @@ export const FloatingIpDetailsView = ({ floatingIp }: FloatingIpDetailsViewProps
       utils.network.floatingIp.list.invalidate()
     },
   })
-
-  const [editModalOpen, setEditModalOpen] = useState(false)
-  const toggleEditModal = useCallback(() => {
-    setEditModalOpen((open) => !open)
-  }, [])
 
   const handleUpdateFloatingIp = async (floatingIpId: string, data: Omit<FloatingIpUpdateRequest, "floatingip_id">) => {
     await updateFloatingIpMutation.mutateAsync({

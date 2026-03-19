@@ -18,7 +18,7 @@ type ErrorHandlerMap = Record<ErrorCodes, ErrorHandlerFn>
 /**
  * Creates an error handler for the current prototype resources.
  *
- * Default handlers (401, 403, 404) are always handled, while custom handlers
+ * Default handlers (400, 401, 403, 404, 409, 412) are always handled, while custom handlers
  * can extend/override specific status codes.
  */
 export const DEFAULT_HANDLERS: ErrorHandlerMap = {
