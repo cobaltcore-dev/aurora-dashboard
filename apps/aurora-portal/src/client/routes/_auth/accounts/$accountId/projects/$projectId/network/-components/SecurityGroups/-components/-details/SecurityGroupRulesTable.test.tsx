@@ -150,15 +150,16 @@ describe("SecurityGroupRulesTable", () => {
       // Note: "Remote Source" column was removed in linter updates
     })
 
-    it("renders Add rule button when onAddRule provided", () => {
-      const onAddRule = vi.fn()
+    it("renders Add rule button when onCreateRule provided", () => {
+      const onCreateRule = vi.fn()
       render(
         <SecurityGroupRulesTable
           rules={mockRules}
           onDeleteRule={vi.fn()}
           isDeletingRule={false}
           deleteError={null}
-          onAddRule={onAddRule}
+          securityGroupId="sg-123"
+          onCreateRule={onCreateRule}
         />,
         { wrapper: createWrapper() }
       )
@@ -166,7 +167,7 @@ describe("SecurityGroupRulesTable", () => {
       expect(screen.getByRole("button", { name: /Add rule/i })).toBeInTheDocument()
     })
 
-    it("does not render Add rule button when onAddRule not provided", () => {
+    it("does not render Add rule button when onCreateRule not provided", () => {
       render(
         <SecurityGroupRulesTable rules={mockRules} onDeleteRule={vi.fn()} isDeletingRule={false} deleteError={null} />,
         { wrapper: createWrapper() }

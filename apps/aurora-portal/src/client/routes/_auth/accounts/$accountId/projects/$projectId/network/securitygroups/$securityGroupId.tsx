@@ -105,11 +105,14 @@ function RouteComponent() {
     updateError,
     isDeletingRule,
     deleteRuleError,
+    isCreatingRule,
+    createRuleError,
     editModalOpen,
     handleEdit,
     handleCloseEditModal,
     handleUpdate,
     handleDeleteRule,
+    handleCreateRule,
   } = useSecurityGroupDetails({
     securityGroupId,
     filterControls,
@@ -189,6 +192,9 @@ function RouteComponent() {
         isDeletingRule={isDeletingRule}
         deleteRuleError={deleteRuleError}
         filterControls={filterControls}
+        onCreateRule={handleCreateRule}
+        isCreatingRule={isCreatingRule}
+        createRuleError={createRuleError}
       />
 
       <EditSecurityGroupModal

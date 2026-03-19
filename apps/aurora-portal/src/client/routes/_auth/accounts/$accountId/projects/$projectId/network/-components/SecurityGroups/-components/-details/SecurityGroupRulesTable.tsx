@@ -16,10 +16,11 @@ import {
   PopupMenuOptions,
 } from "@cloudoperators/juno-ui-components"
 import { Trans, useLingui } from "@lingui/react/macro"
-import type { SecurityGroupRule } from "@/server/Network/types/securityGroup"
+import type { SecurityGroupRule, CreateSecurityGroupRuleInput } from "@/server/Network/types/securityGroup"
 import type { FilterSettings, SortSettings } from "@/client/components/ListToolbar/types"
 import type { ListSortConfig } from "@/client/utils/useListWithFiltering"
 import { DeleteRuleDialog } from "../-modals/DeleteRuleDialog"
+import { AddRuleModal } from "../-modals/AddRuleModal/AddRuleModal"
 import { FiltersInput } from "@/client/components/ListToolbar/FiltersInput"
 
 interface SecurityGroupRulesTableProps {
@@ -27,7 +28,6 @@ interface SecurityGroupRulesTableProps {
   onDeleteRule: (ruleId: string) => void
   isDeletingRule: boolean
   deleteError: string | null
-  onAddRule?: () => void
   // Client-side filtering and sorting controls
   searchTerm?: string
   onSearchChange?: (searchTerm: string | number | string[] | undefined) => void
@@ -35,6 +35,12 @@ interface SecurityGroupRulesTableProps {
   onSortChange?: (sortSettings: SortSettings) => void
   filterSettings?: FilterSettings
   onFilterChange?: (filterSettings: FilterSettings) => void
+  // Add rule functionality
+  securityGroupId?: string
+  onCreateRule?: (ruleData: CreateSecurityGroupRuleInput) => Promise<void>
+  isCreatingRule?: boolean
+  createRuleError?: string | null
+  availableSecurityGroups?: Array<{ id: string; name: string | null }>
 }
 
 export function SecurityGroupRulesTable({
@@ -42,16 +48,21 @@ export function SecurityGroupRulesTable({
   onDeleteRule,
   isDeletingRule,
   deleteError,
-  onAddRule,
   searchTerm = "",
   onSearchChange,
   sortSettings,
   onSortChange,
   filterSettings,
   onFilterChange,
+  securityGroupId,
+  onCreateRule,
+  isCreatingRule = false,
+  createRuleError = null,
+  availableSecurityGroups = [],
 }: SecurityGroupRulesTableProps) {
   const { t } = useLingui()
   const [ruleToDelete, setRuleToDelete] = useState<SecurityGroupRule | null>(null)
+  const [isAddRuleModalOpen, setIsAddRuleModalOpen] = useState(false)
 
   // Extract sort values from sortSettings
   const sortField = (sortSettings?.sortBy as string) || "direction"
@@ -72,6 +83,14 @@ export function SecurityGroupRulesTable({
     if (!isDeletingRule) {
       setRuleToDelete(null)
     }
+  }
+
+  const handleAddRuleClick = () => {
+    setIsAddRuleModalOpen(true)
+  }
+
+  const handleCloseAddRuleModal = () => {
+    setIsAddRuleModalOpen(false)
   }
 
   // Close dialog after successful deletion
@@ -199,8 +218,8 @@ export function SecurityGroupRulesTable({
             className="w-64"
           />
 
-          {onAddRule && (
-            <Button variant="primary" icon="addCircle" onClick={onAddRule}>
+          {onCreateRule && (
+            <Button variant="primary" icon="addCircle" onClick={handleAddRuleClick}>
               <Trans>Add rule</Trans>
             </Button>
           )}
@@ -258,8 +277,8 @@ export function SecurityGroupRulesTable({
                 )}
               </p>
             </Stack>
-            {!hasActiveFilters && onAddRule && (
-              <Button variant="primary" icon="addCircle" onClick={onAddRule}>
+            {!hasActiveFilters && onCreateRule && (
+              <Button variant="primary" icon="addCircle" onClick={handleAddRuleClick}>
                 <Trans>Add your first rule</Trans>
               </Button>
             )}
@@ -308,6 +327,19 @@ export function SecurityGroupRulesTable({
         isLoading={isDeletingRule}
         error={deleteError}
       />
+
+      {/* Add Rule Modal */}
+      {securityGroupId && onCreateRule && (
+        <AddRuleModal
+          securityGroupId={securityGroupId}
+          open={isAddRuleModalOpen}
+          onClose={handleCloseAddRuleModal}
+          onCreate={onCreateRule}
+          isLoading={isCreatingRule}
+          error={createRuleError}
+          availableSecurityGroups={availableSecurityGroups}
+        />
+      )}
     </>
   )
 }
