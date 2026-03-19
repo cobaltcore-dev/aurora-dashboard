@@ -10,7 +10,7 @@ import { DEFAULT_ERROR_NAME, HTTP_STATUS_ERROR_MAP } from "./index"
  * The goal is to extend this approach in the future and make it resource-wide
  * across all network procedures (create/update/delete).
  */
-type ErrorCodes = 401 | 403 | 404
+type ErrorCodes = 400 | 401 | 403 | 404 | 409 | 412
 type ErrorResponse = { status?: number; statusText?: string }
 type ErrorHandlerFn = (response: ErrorResponse, resourceLabel?: string) => TRPCError
 type ErrorHandlerMap = Record<ErrorCodes, ErrorHandlerFn>
@@ -22,6 +22,11 @@ type ErrorHandlerMap = Record<ErrorCodes, ErrorHandlerFn>
  * can extend/override specific status codes.
  */
 export const DEFAULT_HANDLERS: ErrorHandlerMap = {
+  400: (response, resourceLabel) =>
+    new TRPCError({
+      code: HTTP_STATUS_ERROR_MAP[400],
+      message: `Invalid request data for ${resourceLabel}: ${response.statusText || "Unknown error"}`,
+    }),
   401: (response, resourceLabel) =>
     new TRPCError({
       code: HTTP_STATUS_ERROR_MAP[401],
@@ -36,6 +41,16 @@ export const DEFAULT_HANDLERS: ErrorHandlerMap = {
     new TRPCError({
       code: HTTP_STATUS_ERROR_MAP[404],
       message: `${resourceLabel} not found: ${response.statusText || "Unknown error"}`,
+    }),
+  409: (response, resourceLabel) =>
+    new TRPCError({
+      code: HTTP_STATUS_ERROR_MAP[409],
+      message: `Conflict - ${resourceLabel} is in use: ${response.statusText || "Unknown error"}`,
+    }),
+  412: (response, resourceLabel) =>
+    new TRPCError({
+      code: HTTP_STATUS_ERROR_MAP[412],
+      message: `Precondition failed - revision number mismatch in ${resourceLabel}: ${response.statusText || "Unknown error"}`,
     }),
 }
 
@@ -53,7 +68,7 @@ export const ErrorHandler = (resourceName: ResourceName, customHandlers?: Partia
 
     return new TRPCError({
       code: DEFAULT_ERROR_NAME,
-      message: `Failed to fetch ${resourceLabel}: ${response.statusText || "Unknown error"}`,
+      message: `Failed to process ${resourceLabel}: ${response.statusText || "Unknown error"}`,
     })
   }
 }
