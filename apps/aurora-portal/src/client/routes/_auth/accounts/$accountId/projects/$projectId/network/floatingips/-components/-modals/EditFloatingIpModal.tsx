@@ -23,9 +23,7 @@ interface EditFloatingIpModalProps {
   error?: string | null
 }
 
-interface FloatingIpState {
-  description: string
-}
+const MAX_DESCRIPTION_LENGTH = 255
 
 export const EditFloatingIpModal = ({
   floatingIp,
@@ -36,46 +34,41 @@ export const EditFloatingIpModal = ({
   error = null,
 }: EditFloatingIpModalProps) => {
   const { t } = useLingui()
-
-  const [properties, setProperties] = useState<FloatingIpState>({
-    description: floatingIp.description || "",
-  })
-  const [errors, setErrors] = useState<{ [key: string]: string }>({})
+  const [isTouched, setIsTouched] = useState(false)
 
   // Update properties when floatingIp changes
   useEffect(() => {
-    setProperties({
-      description: floatingIp.description || "",
-    })
+    setIsTouched(false)
   }, [floatingIp])
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value, type } = e.target
-    const checked = (e.target as HTMLInputElement).checked
+  const normalizedDescription = descriptionFieldValue ?? ""
+  const trimmedDescription = normalizedDescription.trim()
 
-    setProperties((prev) => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked : value,
-    }))
+  const descriptionError = useMemo(() => {
+    if (!isTouched) {
+      return ""
+    }
 
-    if (errors[name]) {
-      setErrors((prev) => {
-        const newErrors = { ...prev }
-        delete newErrors[name]
-        return newErrors
-      })
+    if (!trimmedDescription) {
+      return t`Description is required`
+    }
+
+    if (normalizedDescription.length > MAX_DESCRIPTION_LENGTH) {
+      return t`Description must be ${MAX_DESCRIPTION_LENGTH} characters or less`
+    }
+
+    return ""
+  }, [isTouched, trimmedDescription, normalizedDescription.length, t])
+
+  const handleInputChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
+    setDescriptionFieldValue(e.target.value)
+    if (!isTouched) {
+      setIsTouched(true)
     }
   }
 
-  const validateForm = (): boolean => {
-    const newErrors: { [key: string]: string } = {}
-
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
-  }
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleSubmit = async () => {
+    setIsTouched(true)
 
     if (!validateForm()) {
       return
@@ -95,6 +88,10 @@ export const EditFloatingIpModal = ({
     setErrors({})
     onClose()
   }
+
+  const isDescriptionChanged = normalizedDescription !== (floatingIp.description ?? "")
+  const isDescriptionInvalid = !trimmedDescription || normalizedDescription.length > MAX_DESCRIPTION_LENGTH
+  const isSaveDisabled = isLoading || !isDescriptionChanged || isDescriptionInvalid
 
   return (
     <Modal
