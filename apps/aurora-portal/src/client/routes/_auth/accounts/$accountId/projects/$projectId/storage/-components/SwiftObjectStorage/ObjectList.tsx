@@ -1,7 +1,9 @@
 import { useRef, useEffect, useState, startTransition } from "react"
 import { useVirtualizer } from "@tanstack/react-virtual"
-import { useNavigate } from "@tanstack/react-router"
+import { useNavigate, useParams } from "@tanstack/react-router"
 import {
+  Breadcrumb,
+  BreadcrumbItem,
   DataGrid,
   DataGridHeadCell,
   DataGridRow,
@@ -125,15 +127,36 @@ function buildRows(objects: ObjectSummary[], prefix: string): BrowserRow[] {
   return [...folders, ...files]
 }
 
+// ── Breadcrumb helpers ────────────────────────────────────────────────────────
+
+/**
+ * Splits the current prefix into navigable breadcrumb segments.
+ * e.g. "a/b/c/" → [{ label: "a", prefix: "a/" }, { label: "b", prefix: "a/b/" }, { label: "c", prefix: "a/b/c/" }]
+ */
+function prefixToSegments(prefix: string): { label: string; prefix: string }[] {
+  if (!prefix) return []
+  // Remove trailing slash before splitting so we don't get a trailing empty segment
+  const parts = prefix.replace(/\/$/, "").split("/").filter(Boolean)
+  return parts.map((label, i) => ({
+    label,
+    prefix: parts.slice(0, i + 1).join("/") + "/",
+  }))
+}
+
 // ── Component ─────────────────────────────────────────────────────────────────
 
 export const SwiftObjects = () => {
   const { t } = useLingui()
   const navigate = useNavigate({ from: Route.fullPath })
 
-  const { containerName } = Route.useParams()
+  const { accountId, projectId, provider, containerName } = useParams({
+    from: "/_auth/accounts/$accountId/projects/$projectId/storage/$provider/containers/$containerName/objects/$",
+  })
   const { prefix: encodedPrefix } = Route.useSearch()
   const currentPrefix = decodePrefix(encodedPrefix)
+
+  // Breadcrumb segments derived from the current prefix
+  const prefixSegments = prefixToSegments(currentPrefix)
 
   const parentRef = useRef<HTMLDivElement>(null)
   const [scrollbarWidth, setScrollbarWidth] = useState(0)
@@ -161,6 +184,13 @@ export const SwiftObjects = () => {
   })
 
   // ── Folder navigation via search param ───────────────────────────────────
+
+  const navigateToContainers = () => {
+    navigate({
+      to: "/accounts/$accountId/projects/$projectId/storage/$provider/containers",
+      params: { accountId, projectId, provider },
+    })
+  }
 
   const navigateToPrefix = (newPrefix: string) => {
     navigate({
@@ -273,6 +303,12 @@ export const SwiftObjects = () => {
   if (sortedRows.length === 0) {
     return (
       <>
+        <ObjectsBreadcrumb
+          containerName={containerName}
+          prefixSegments={prefixSegments}
+          onContainersClick={navigateToContainers}
+          onSegmentClick={(prefix) => navigateToPrefix(prefix)}
+        />
         <ListToolbar
           sortSettings={sortSettings}
           searchTerm={searchTerm}
@@ -305,6 +341,12 @@ export const SwiftObjects = () => {
 
   return (
     <div className="relative">
+      <ObjectsBreadcrumb
+        containerName={containerName}
+        prefixSegments={prefixSegments}
+        onContainersClick={navigateToContainers}
+        onSegmentClick={(prefix) => navigateToPrefix(prefix)}
+      />
       <ListToolbar
         sortSettings={sortSettings}
         searchTerm={searchTerm}
@@ -410,6 +452,58 @@ export const SwiftObjects = () => {
           </Trans>
         </div>
       </div>
+    </div>
+  )
+}
+
+// ── ObjectsBreadcrumb ─────────────────────────────────────────────────────────
+
+interface ObjectsBreadcrumbProps {
+  containerName: string
+  prefixSegments: { label: string; prefix: string }[]
+  onContainersClick: () => void
+  onSegmentClick: (prefix: string) => void
+}
+
+function ObjectsBreadcrumb({
+  containerName,
+  prefixSegments,
+  onContainersClick,
+  onSegmentClick,
+}: ObjectsBreadcrumbProps) {
+  const { t } = useLingui()
+
+  // The last segment (deepest folder) is the active crumb — non-clickable.
+  // All segments before it are clickable navigation targets.
+  const isAtRoot = prefixSegments.length === 0
+
+  return (
+    <div className="mb-2 px-2 pt-2">
+      <Breadcrumb>
+        {/* "All containers" root — always navigates back to the container list */}
+        <BreadcrumbItem onClick={onContainersClick} label={t`All containers`} icon="dns" />
+
+        {/* Container name — active when at root prefix, clickable otherwise */}
+        <BreadcrumbItem
+          onClick={isAtRoot ? undefined : () => onSegmentClick("")}
+          active={isAtRoot}
+          label={containerName}
+          icon="autoAwesomeMosaic"
+        />
+
+        {/* One crumb per prefix segment, last one is active */}
+        {prefixSegments.map((seg, i) => {
+          const isLast = i === prefixSegments.length - 1
+          return (
+            <BreadcrumbItem
+              key={seg.prefix}
+              onClick={isLast ? undefined : () => onSegmentClick(seg.prefix)}
+              active={isLast}
+              label={seg.label}
+            />
+          )
+        })}
+      </Breadcrumb>
     </div>
   )
 }
