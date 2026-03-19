@@ -1,5 +1,4 @@
 import { protectedProcedure } from "../../trpc"
-import { appendQueryParamsFromObject } from "../../helpers/queryParams"
 import {
   listSecurityGroupsInputSchema,
   SecurityGroup,
@@ -13,6 +12,7 @@ import { filterBySearchParams } from "../../helpers/filterBySearchParams"
 import { SecurityGroupErrorHandlers } from "../helpers/securityGroupHelpers"
 import { parseSecurityGroupResponse, parseSecurityGroupListResponse } from "../helpers/securityGroupHelpers"
 import { getNetworkService } from "../helpers/index"
+import { appendQueryParamsFromObject } from "../../helpers/queryParams"
 
 const SECURITY_GROUPS_BASE_URL = "v2.0/security-groups"
 
@@ -38,12 +38,11 @@ export const securityGroupRouter = {
     .input(listSecurityGroupsInputSchema)
     .query(async ({ input, ctx }): Promise<SecurityGroup[]> => {
       return withErrorHandling(async () => {
+        const { searchTerm, ...queryInput } = input
         const network = getNetworkService(ctx)
 
-        // Extract searchTerm from input before building query params
-        const { searchTerm, ...openstackParams } = input
-
-        const queryParams = appendQueryParamsFromObject(openstackParams, {
+        // Build query params from input
+        const queryParams = appendQueryParamsFromObject(queryInput, {
           keyMap: LIST_SECURITY_GROUPS_QUERY_KEY_MAP,
         })
 

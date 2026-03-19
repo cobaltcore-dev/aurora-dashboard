@@ -319,6 +319,7 @@ describe("EditContainerMetadataModal", () => {
     })
 
     test("renders public URL input when publicUrl is available", () => {
+      mockContainerInfo = makeContainerInfo({ read: ".r:*,.rlistings" })
       mockPublicUrl = "https://swift.example.com/v1/AUTH_test/my-container/"
       renderModal()
       expect(screen.getByText(/URL for public access/i)).toBeInTheDocument()
@@ -326,6 +327,7 @@ describe("EditContainerMetadataModal", () => {
     })
 
     test("renders Open in new tab link pointing to the public URL", () => {
+      mockContainerInfo = makeContainerInfo({ read: ".r:*,.rlistings" })
       mockPublicUrl = "https://swift.example.com/v1/AUTH_test/my-container/"
       renderModal()
       const link = screen.getByRole("link", { name: /Open in new tab/i })

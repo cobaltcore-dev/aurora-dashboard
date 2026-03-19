@@ -11,6 +11,8 @@ import {
   getContainerDeleteErrorToast,
   getContainerUpdatedToast,
   getContainerUpdateErrorToast,
+  getContainerAclUpdatedToast,
+  getContainerAclUpdateErrorToast,
 } from "./ContainerToastNotifications"
 
 describe("ContainerToastNotifications", () => {
@@ -335,6 +337,82 @@ describe("ContainerToastNotifications", () => {
     })
   })
 
+  describe("getContainerAclUpdatedToast", () => {
+    it("should return success toast with correct structure", () => {
+      const toast = getContainerAclUpdatedToast("my-container", defaultConfig)
+
+      expect(toast.variant).toBe("success")
+      expect(toast.autoDismiss).toBe(true)
+      expect(toast.autoDismissTimeout).toBe(5000)
+      expect(toast.onDismiss).toBe(mockOnDismiss)
+      expect(toast.children).toBeDefined()
+    })
+
+    it("should render correct message content", () => {
+      const toast = getContainerAclUpdatedToast("my-container", defaultConfig)
+      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+
+      expect(screen.getByText("Access Control Updated")).toBeInTheDocument()
+      expect(screen.getByText(/my-container/)).toBeInTheDocument()
+      expect(screen.getByText(/ACLs for container/)).toBeInTheDocument()
+      expect(screen.getByText(/were successfully updated/)).toBeInTheDocument()
+    })
+
+    it("should use custom autoDismissTimeout when provided", () => {
+      const toast = getContainerAclUpdatedToast("my-container", { onDismiss: mockOnDismiss, autoDismissTimeout: 3000 })
+      expect(toast.autoDismissTimeout).toBe(3000)
+    })
+
+    it("should handle container names with special characters", () => {
+      const toast = getContainerAclUpdatedToast("my-container/with.special_chars", defaultConfig)
+      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+      expect(screen.getByText(/my-container\/with\.special_chars/)).toBeInTheDocument()
+    })
+  })
+
+  describe("getContainerAclUpdateErrorToast", () => {
+    it("should return error toast with correct structure", () => {
+      const toast = getContainerAclUpdateErrorToast("my-container", "Forbidden", defaultConfig)
+
+      expect(toast.variant).toBe("error")
+      expect(toast.autoDismiss).toBe(true)
+      expect(toast.autoDismissTimeout).toBe(5000)
+      expect(toast.onDismiss).toBe(mockOnDismiss)
+      expect(toast.children).toBeDefined()
+    })
+
+    it("should render correct error message content", () => {
+      const toast = getContainerAclUpdateErrorToast("my-container", "Forbidden", defaultConfig)
+      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+
+      expect(screen.getByText("Failed to Update Access Control")).toBeInTheDocument()
+      expect(screen.getByText(/my-container/)).toBeInTheDocument()
+      expect(screen.getByText(/Could not update ACLs for container/)).toBeInTheDocument()
+      expect(screen.getByText(/Forbidden/)).toBeInTheDocument()
+    })
+
+    it("should handle different error messages", () => {
+      const toast = getContainerAclUpdateErrorToast("my-container", "Invalid ACL format", defaultConfig)
+      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+      expect(screen.getByText(/Invalid ACL format/)).toBeInTheDocument()
+    })
+
+    it("should use custom autoDismissTimeout when provided", () => {
+      const toast = getContainerAclUpdateErrorToast("my-container", "error", {
+        onDismiss: mockOnDismiss,
+        autoDismissTimeout: 10000,
+      })
+      expect(toast.autoDismissTimeout).toBe(10000)
+    })
+
+    it("should handle long error messages", () => {
+      const longMessage = "ACL update failed: the provided project ID does not exist in the identity service"
+      const toast = getContainerAclUpdateErrorToast("my-container", longMessage, defaultConfig)
+      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+      expect(screen.getByText(/ACL update failed/)).toBeInTheDocument()
+    })
+  })
+
   describe("Toast Configuration", () => {
     it("all success toasts should have success variant and autoDismiss", () => {
       const successToasts = [
@@ -342,6 +420,7 @@ describe("ContainerToastNotifications", () => {
         getContainerEmptiedToast("c", 3, defaultConfig),
         getContainerDeletedToast("c", defaultConfig),
         getContainerUpdatedToast("c", defaultConfig),
+        getContainerAclUpdatedToast("c", defaultConfig),
       ]
       successToasts.forEach((toast) => {
         expect(toast.variant).toBe("success")
@@ -356,6 +435,7 @@ describe("ContainerToastNotifications", () => {
         getContainerEmptyErrorToast("c", "err", defaultConfig),
         getContainerDeleteErrorToast("c", "err", defaultConfig),
         getContainerUpdateErrorToast("c", "err", defaultConfig),
+        getContainerAclUpdateErrorToast("c", "err", defaultConfig),
       ]
       errorToasts.forEach((toast) => {
         expect(toast.variant).toBe("error")
@@ -382,6 +462,8 @@ describe("ContainerToastNotifications", () => {
         getContainerDeleteErrorToast("c", "err", { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
         getContainerUpdatedToast("c", { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
         getContainerUpdateErrorToast("c", "err", { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
+        getContainerAclUpdatedToast("c", { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
+        getContainerAclUpdateErrorToast("c", "err", { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
       ]
       toasts.forEach((toast) => {
         expect(toast.autoDismissTimeout).toBe(customTimeout)
@@ -398,6 +480,8 @@ describe("ContainerToastNotifications", () => {
         getContainerDeleteErrorToast("c", "err", defaultConfig),
         getContainerUpdatedToast("c", defaultConfig),
         getContainerUpdateErrorToast("c", "err", defaultConfig),
+        getContainerAclUpdatedToast("c", defaultConfig),
+        getContainerAclUpdateErrorToast("c", "err", defaultConfig),
       ]
       toasts.forEach((toast) => {
         expect(toast.children).toBeTruthy()
