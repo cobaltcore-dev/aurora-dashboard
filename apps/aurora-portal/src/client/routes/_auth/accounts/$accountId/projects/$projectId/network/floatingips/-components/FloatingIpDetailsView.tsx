@@ -21,7 +21,9 @@ export const FloatingIpDetailsView = ({ floatingIp }: FloatingIpDetailsViewProps
 
   return (
     <>
-      <ContentHeading>IP: {floatingIp.floating_ip_address}</ContentHeading>
+      <ContentHeading>
+        {t`IP:`} {floatingIp.floating_ip_address}
+      </ContentHeading>
       <p className="text-theme-secondary mt-2 text-sm">
         <Trans>
           Full lifecycle management of Floating IPs, including attachment, port association/disassociation, DNS
@@ -30,10 +32,10 @@ export const FloatingIpDetailsView = ({ floatingIp }: FloatingIpDetailsViewProps
       </p>
 
       <ButtonRow>
-        <Button>Edit Description</Button>
-        <Button>Attach</Button>
-        <Button>Detach</Button>
-        <Button>Release</Button>
+        <Button>{t`Edit Description`}</Button>
+        <Button>{t`Attach`}</Button>
+        <Button>{t`Detach`}</Button>
+        <Button>{t`Release`}</Button>
       </ButtonRow>
 
       <Stack direction="vertical" gap="6" className="mt-6">

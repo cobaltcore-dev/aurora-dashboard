@@ -1,6 +1,125 @@
 import { z } from "zod"
 import { SortDirSchema } from "./index"
 
+/**
+ * Detects CIDR family (IPv4 or IPv6) from CIDR notation.
+ * Returns "IPv4" if CIDR contains ".", "IPv6" if contains ":", or null if neither.
+ */
+function detectCIDRFamily(cidr: string): "IPv4" | "IPv6" | null {
+  if (cidr.includes(".")) {
+    return "IPv4"
+  }
+  if (cidr.includes(":")) {
+    return "IPv6"
+  }
+  return null
+}
+
+/**
+ * Validates CIDR notation for IPv4 and IPv6 addresses.
+ * - IPv4: octets must be 0-255, prefix length must be 0-32
+ * - IPv6: proper hexadecimal format with colons, prefix length must be 0-128
+ */
+function isValidCIDR(cidr: string): boolean {
+  const parts = cidr.split("/")
+  if (parts.length !== 2) {
+    return false
+  }
+
+  const [address, prefixStr] = parts
+
+  // Validate prefix is digits-only (reject "24foo", "24a", etc.)
+  if (!/^\d+$/.test(prefixStr)) {
+    return false
+  }
+
+  const prefix = parseInt(prefixStr, 10)
+
+  // Check if prefix is a valid number
+  if (isNaN(prefix) || prefix < 0) {
+    return false
+  }
+
+  // Check for IPv4
+  if (address.includes(".")) {
+    // Validate IPv4 address format
+    const octets = address.split(".")
+    if (octets.length !== 4) {
+      return false
+    }
+
+    // Validate each octet is 0-255
+    for (const octet of octets) {
+      const num = parseInt(octet, 10)
+      if (isNaN(num) || num < 0 || num > 255 || octet !== num.toString()) {
+        return false
+      }
+    }
+
+    // Validate prefix length for IPv4 (0-32)
+    return prefix <= 32
+  }
+
+  // Check for IPv6
+  if (address.includes(":")) {
+    // Reject malformed triple-colon addresses (e.g., ":::")
+    if (address.includes(":::")) {
+      return false
+    }
+
+    // Validate prefix length for IPv6 (0-128)
+    if (prefix > 128) {
+      return false
+    }
+
+    // Basic IPv6 validation
+    // Allow :: for compressed zeros
+    const hasDoubleColon = address.includes("::")
+    const segments = address.split(":").filter((s) => s !== "")
+
+    // IPv6 should have at most 8 segments (or fewer if :: is used)
+    if (hasDoubleColon) {
+      // With ::, we can have 0-7 segments
+      if (segments.length > 7) {
+        return false
+      }
+    } else {
+      // Without ::, we must have exactly 8 segments
+      if (segments.length !== 8) {
+        return false
+      }
+    }
+
+    // Validate each segment is valid hex (0-ffff)
+    for (const segment of segments) {
+      if (segment.length === 0 || segment.length > 4) {
+        return false
+      }
+      if (!/^[0-9a-fA-F]+$/.test(segment)) {
+        return false
+      }
+    }
+
+    // Check for valid :: usage (only one occurrence)
+    const doubleColonCount = (address.match(/::/g) || []).length
+    if (doubleColonCount > 1) {
+      return false
+    }
+
+    // Check for leading/trailing single colons (invalid unless part of ::)
+    if (address.startsWith(":") && !address.startsWith("::")) {
+      return false
+    }
+    if (address.endsWith(":") && !address.endsWith("::")) {
+      return false
+    }
+
+    return true
+  }
+
+  return false
+}
+
 export const securityGroupRuleSchema = z.object({
   id: z.string(),
   direction: z.enum(["ingress", "egress"]).optional(),
@@ -100,18 +219,99 @@ export const deleteSecurityGroupRuleInputSchema = z.object({
   ruleId: z.string(),
 })
 
-export const createSecurityGroupRuleInputSchema = z.object({
-  security_group_id: z.string(),
-  direction: z.enum(["ingress", "egress"]),
-  ethertype: z.enum(["IPv4", "IPv6"]).optional(),
-  description: z.string().optional(),
-  protocol: z.string().nullable().optional(),
-  port_range_min: z.number().nullable().optional(),
-  port_range_max: z.number().nullable().optional(),
-  remote_ip_prefix: z.string().nullable().optional(),
-  remote_group_id: z.string().nullable().optional(),
-  remote_address_group_id: z.string().nullable().optional(),
-})
+export const createSecurityGroupRuleInputSchema = z
+  .object({
+    security_group_id: z.string(),
+    direction: z.enum(["ingress", "egress"]),
+    ethertype: z.enum(["IPv4", "IPv6"]).default("IPv4"),
+    description: z.string().optional(),
+    protocol: z.string().nullable().optional(),
+    port_range_min: z.number().int().max(65535).nullable().optional(),
+    port_range_max: z.number().int().max(65535).nullable().optional(),
+    // Transform empty strings to undefined for proper validation
+    remote_ip_prefix: z
+      .string()
+      .nullable()
+      .optional()
+      .transform((val) => (val === "" ? undefined : val)),
+    remote_group_id: z
+      .string()
+      .nullable()
+      .optional()
+      .transform((val) => (val === "" ? undefined : val)),
+    remote_address_group_id: z
+      .string()
+      .nullable()
+      .optional()
+      .transform((val) => (val === "" ? undefined : val)),
+  })
+  // Validate mutual exclusivity of remote fields
+  .refine(
+    (data) => {
+      const remoteFields = [data.remote_ip_prefix, data.remote_group_id, data.remote_address_group_id].filter(
+        (field) => field != null && field !== ""
+      )
+      return remoteFields.length <= 1
+    },
+    {
+      message: "Only one of remote_ip_prefix, remote_group_id, or remote_address_group_id can be set",
+    }
+  )
+  // Validate port range order and TCP/UDP port bounds
+  .refine(
+    (data) => {
+      const protocol = data.protocol?.toLowerCase()
+      const isTcpUdp = protocol === "tcp" || protocol === "udp"
+
+      // For TCP/UDP, ports must be 1-65535
+      if (isTcpUdp) {
+        if (data.port_range_min != null && (data.port_range_min < 1 || data.port_range_min > 65535)) {
+          return false
+        }
+        if (data.port_range_max != null && (data.port_range_max < 1 || data.port_range_max > 65535)) {
+          return false
+        }
+      }
+
+      // Validate min <= max for all protocols
+      if (data.port_range_min != null && data.port_range_max != null) {
+        return data.port_range_min <= data.port_range_max
+      }
+
+      return true
+    },
+    {
+      message: "For TCP/UDP: ports must be 1-65535. port_range_min must be less than or equal to port_range_max",
+    }
+  )
+  // Validate CIDR format if remote_ip_prefix is provided
+  .refine(
+    (data) => {
+      if (data.remote_ip_prefix != null && data.remote_ip_prefix !== "") {
+        return isValidCIDR(data.remote_ip_prefix)
+      }
+      return true
+    },
+    {
+      message: "remote_ip_prefix must be a valid CIDR notation (e.g., 0.0.0.0/0 or ::/0)",
+    }
+  )
+  // Validate ethertype matches CIDR family
+  .refine(
+    (data) => {
+      if (data.remote_ip_prefix != null && data.remote_ip_prefix !== "") {
+        const cidrFamily = detectCIDRFamily(data.remote_ip_prefix)
+        if (cidrFamily && cidrFamily !== data.ethertype) {
+          return false
+        }
+      }
+      return true
+    },
+    {
+      message:
+        "ethertype must match the CIDR family (IPv4 CIDR requires ethertype=IPv4, IPv6 CIDR requires ethertype=IPv6)",
+    }
+  )
 
 export type SecurityGroupRule = z.infer<typeof securityGroupRuleSchema>
 export type SecurityGroup = z.infer<typeof securityGroupSchema>

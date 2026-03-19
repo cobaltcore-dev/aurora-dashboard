@@ -1,10 +1,10 @@
 import { TRPCError } from "@trpc/server"
 import { protectedProcedure } from "@/server/trpc"
 import { withErrorHandling } from "@/server/helpers/errorHandling"
-import { appendQueryParamsFromObject } from "@/server/helpers/queryParams"
 import { ListAvailablePortsQuerySchema, Port, PortListResponseSchema } from "../types/port"
 import { getNetworkService } from "../helpers/index"
 import { PortErrorHandlers } from "../helpers/portHelpers"
+import { appendQueryParamsFromObject } from "@/server/helpers/queryParams"
 
 export const PORT_BASE_URL = "v2.0/ports"
 
@@ -21,8 +21,9 @@ export const portRouter = {
       return withErrorHandling(async () => {
         const network = getNetworkService(ctx)
 
-        const { ...openstackParams } = input
-        const queryParams = appendQueryParamsFromObject(openstackParams)
+        // Build query params from input
+        const queryParams = appendQueryParamsFromObject(input)
+
         const queryString = queryParams.toString()
         const url = queryString ? `${PORT_BASE_URL}?${queryString}` : PORT_BASE_URL
 

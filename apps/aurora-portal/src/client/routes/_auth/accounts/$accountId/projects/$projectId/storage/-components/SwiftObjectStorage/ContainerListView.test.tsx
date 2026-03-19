@@ -86,6 +86,21 @@ vi.mock("./EditContainerMetadataModal", () => ({
   ),
 }))
 
+// ─── Mock ManageContainerAccessModal ─────────────────────────────────────────
+
+vi.mock("./ManageContainerAccessModal", () => ({
+  ManageContainerAccessModal: vi.fn(({ isOpen, container, onClose, onSuccess, onError }) =>
+    isOpen && container ? (
+      <div data-testid="manage-access-modal">
+        <span data-testid="manage-access-modal-container-name">{container.name}</span>
+        <button onClick={onClose}>CloseManageAccess</button>
+        <button onClick={() => onSuccess?.(container.name)}>SimulateAclSuccess</button>
+        <button onClick={() => onError?.(container.name, "ACL update failed")}>SimulateAclError</button>
+      </div>
+    ) : null
+  ),
+}))
+
 // ─── Mock toast notification builders ────────────────────────────────────────
 
 vi.mock("./ContainerToastNotifications", () => ({
@@ -119,6 +134,26 @@ vi.mock("./ContainerToastNotifications", () => ({
   })),
   getContainerDeleteErrorToast: vi.fn((name, error) => ({
     text: `Could not delete container "${name}": ${error}`,
+    variant: "error",
+    autoDismiss: true,
+  })),
+  getContainerUpdatedToast: vi.fn((name) => ({
+    text: `Container "${name}" properties were successfully updated.`,
+    variant: "success",
+    autoDismiss: true,
+  })),
+  getContainerUpdateErrorToast: vi.fn((name, error) => ({
+    text: `Could not update container "${name}": ${error}`,
+    variant: "error",
+    autoDismiss: true,
+  })),
+  getContainerAclUpdatedToast: vi.fn((name) => ({
+    text: `ACLs for container "${name}" were successfully updated.`,
+    variant: "success",
+    autoDismiss: true,
+  })),
+  getContainerAclUpdateErrorToast: vi.fn((name, error) => ({
+    text: `Could not update ACLs for container "${name}": ${error}`,
     variant: "error",
     autoDismiss: true,
   })),
@@ -274,11 +309,13 @@ describe("ContainerListView", () => {
       expect(menuTriggers).toHaveLength(mockContainers.length)
     })
 
-    test("shows Empty and Delete actions when menu is opened", async () => {
+    test("shows all four actions when menu is opened", async () => {
       const user = userEvent.setup()
       renderView()
       const [firstMenuTrigger] = screen.getAllByRole("button", { name: /more/i })
       await user.click(firstMenuTrigger)
+      expect(screen.getByText("Manage Access")).toBeInTheDocument()
+      expect(screen.getByText("Edit Metadata")).toBeInTheDocument()
       expect(screen.getByText("Empty")).toBeInTheDocument()
       expect(screen.getByText("Delete")).toBeInTheDocument()
     })
@@ -467,6 +504,72 @@ describe("ContainerListView", () => {
       await user.click(screen.getByRole("button", { name: "SimulateDeleteError" }))
       await waitFor(() => {
         expect(screen.getByText(/Could not delete container "alpha": Delete failed/i)).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe("ManageContainerAccessModal integration", () => {
+    // Helper: open the PopupMenu for a given container row, then click Manage Access
+    const openManageAccessModal = async (user: ReturnType<typeof userEvent.setup>, containerName: string) => {
+      const row = screen.getByTestId(`container-row-${containerName}`)
+      const toggle = row.querySelector("button[aria-haspopup='menu']") as HTMLElement
+      await user.click(toggle)
+      await user.click(screen.getByTestId(`access-control-action-${containerName}`))
+    }
+
+    test("does not render manage access modal by default", () => {
+      renderView()
+      expect(screen.queryByTestId("manage-access-modal")).not.toBeInTheDocument()
+    })
+
+    test("renders manage access modal when popup menu Manage Access action is clicked", async () => {
+      const user = userEvent.setup()
+      renderView()
+      await openManageAccessModal(user, "alpha")
+      await waitFor(() => {
+        expect(screen.getByTestId("manage-access-modal")).toBeInTheDocument()
+      })
+    })
+
+    test("passes the correct container to the manage access modal", async () => {
+      const user = userEvent.setup()
+      renderView()
+      await openManageAccessModal(user, "beta")
+      await waitFor(() => {
+        expect(screen.getByTestId("manage-access-modal-container-name")).toHaveTextContent("beta")
+      })
+    })
+
+    test("closes manage access modal when onClose is called", async () => {
+      const user = userEvent.setup()
+      renderView()
+      await openManageAccessModal(user, "alpha")
+      await waitFor(() => {
+        expect(screen.getByTestId("manage-access-modal")).toBeInTheDocument()
+      })
+      await user.click(screen.getByRole("button", { name: "CloseManageAccess" }))
+      await waitFor(() => {
+        expect(screen.queryByTestId("manage-access-modal")).not.toBeInTheDocument()
+      })
+    })
+
+    test("shows success toast after ACLs are updated", async () => {
+      const user = userEvent.setup()
+      renderView()
+      await openManageAccessModal(user, "alpha")
+      await user.click(screen.getByRole("button", { name: "SimulateAclSuccess" }))
+      await waitFor(() => {
+        expect(screen.getByText(/ACLs for container "alpha" were successfully updated/i)).toBeInTheDocument()
+      })
+    })
+
+    test("shows error toast when ACL update fails", async () => {
+      const user = userEvent.setup()
+      renderView()
+      await openManageAccessModal(user, "alpha")
+      await user.click(screen.getByRole("button", { name: "SimulateAclError" }))
+      await waitFor(() => {
+        expect(screen.getByText(/Could not update ACLs for container "alpha": ACL update failed/i)).toBeInTheDocument()
       })
     })
   })

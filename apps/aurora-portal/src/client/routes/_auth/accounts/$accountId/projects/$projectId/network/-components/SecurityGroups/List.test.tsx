@@ -212,6 +212,7 @@ describe("SecurityGroups", () => {
       render(<SecurityGroups />, { wrapper: createWrapper() })
 
       expect(mockUseQuery).toHaveBeenCalledWith({
+        project_id: "test-project",
         sort_key: "name",
         sort_dir: "asc",
       })
@@ -396,12 +397,11 @@ describe("SecurityGroups", () => {
       // Search
       const searchbox = await screen.findByRole("searchbox")
       await user.type(searchbox, "web")
-      const searchButton = await screen.findByRole("button", { name: "Search" })
-      await user.click(searchButton)
 
       await waitFor(() => {
         const lastCall = mockUseQuery.mock.calls[mockUseQuery.mock.calls.length - 1][0]
         expect(lastCall).toMatchObject({
+          project_id: "test-project",
           sort_key: "project_id",
           sort_dir: "asc",
           shared: true,

@@ -6,8 +6,8 @@ import { ContainerSummary } from "@/server/Storage/types/swift"
 import { trpcReact } from "@/client/trpcClient"
 import { formatBytesBinary } from "@/client/utils/formatBytes"
 import { Button, Spinner, Stack } from "@cloudoperators/juno-ui-components"
-import { ContainerListView } from "./-components/ContainerListView"
-import { ContainerLimitsTooltip } from "./-components/ContainerLimitsTooltip"
+import { ContainerListView } from "./ContainerListView"
+import { ContainerLimitsTooltip } from "./ContainerLimitsTooltip"
 
 export const SwiftObjectStorage = () => {
   const { t } = useLingui()

@@ -31,13 +31,17 @@ export const DeleteContainerModal = ({ isOpen, container, onClose, onSuccess, on
 
   // Fetch actual objects to get accurate real-time state —
   // container.count can lag due to Swift eventual consistency
-  const { data: objects, isLoading: isLoadingObjects } = trpcReact.storage.swift.listObjects.useQuery(
+  const {
+    data: objects,
+    isLoading: isLoadingObjects,
+    error: objectsError,
+  } = trpcReact.storage.swift.listObjects.useQuery(
     { container: container?.name ?? "", format: "json", limit: 1 },
     { enabled: isOpen && container !== null }
   )
 
   // Fetch container metadata to check if versioning is enabled
-  const { data: containerMetadata } = trpcReact.storage.swift.getContainerMetadata.useQuery(
+  const { data: containerMetadata, error: metaError } = trpcReact.storage.swift.getContainerMetadata.useQuery(
     { container: container?.name ?? "" },
     { enabled: isOpen && container !== null }
   )
@@ -87,6 +91,7 @@ export const DeleteContainerModal = ({ isOpen, container, onClose, onSuccess, on
 
   const handleSubmit = () => {
     if (!container) return
+    if (objectsError || metaError) return
     if (confirmName.trim() !== container.name) {
       setNameError(t`Container name does not match`)
       return
@@ -106,6 +111,7 @@ export const DeleteContainerModal = ({ isOpen, container, onClose, onSuccess, on
   // Also covers the Swift consistency delay where count > 0 but listed objects === 0:
   // we trust container.count here to avoid letting the user delete a non-empty container.
   const hasObjects = !isLoadingObjects && (actualObjectCount > 0 || container.count > 0)
+  const hasPreflightError = !!(objectsError || metaError)
 
   const modalTitle = (
     <span className="flex max-w-[400px] items-center gap-2">
@@ -139,11 +145,32 @@ export const DeleteContainerModal = ({ isOpen, container, onClose, onSuccess, on
       size="small"
       disableConfirmButton={
         isLoadingObjects ||
+        hasPreflightError ||
         deleteContainerMutation.isPending ||
         (!hasObjects && confirmName !== container.name) ||
         (!hasObjects && isVersioned && !versionsConfirmed)
       }
     >
+      {(objectsError || metaError) && (
+        <Stack direction="vertical" gap="2" className="mb-2">
+          {objectsError && (
+            <Message variant="danger">
+              {(() => {
+                const errorMessage = objectsError.message
+                return <Trans>Failed to load container objects: {errorMessage}</Trans>
+              })()}
+            </Message>
+          )}
+          {metaError && (
+            <Message variant="danger">
+              {(() => {
+                const errorMessage = metaError.message
+                return <Trans>Failed to load container properties: {errorMessage}</Trans>
+              })()}
+            </Message>
+          )}
+        </Stack>
+      )}
       {isLoadingObjects ? (
         <Stack direction="horizontal" alignment="center" gap="2" className="py-4">
           <Spinner size="small" />
@@ -157,7 +184,7 @@ export const DeleteContainerModal = ({ isOpen, container, onClose, onSuccess, on
       ) : (
         // ── Container is empty — allow deletion ──────────────────────────────
         <Stack direction="vertical" gap="6">
-          <Message variant="danger">
+          <Message variant="warning">
             <Trans>
               <strong>Are you sure?</strong> The container will be deleted. This cannot be undone.
             </Trans>
