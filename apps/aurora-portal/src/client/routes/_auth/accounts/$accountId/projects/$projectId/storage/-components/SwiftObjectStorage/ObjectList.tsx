@@ -372,21 +372,22 @@ export const SwiftObjects = () => {
                   data-testid={`object-row-${row.name}`}
                 >
                   {/* Name */}
-                  <DataGridCell>
+                  <DataGridCell className="min-w-0 overflow-hidden">
                     {isFolder ? (
                       <button
                         type="button"
-                        className="flex items-center gap-2 text-left hover:underline focus:outline-none"
+                        className="flex min-w-0 items-center gap-2 text-left hover:underline focus:outline-none"
                         onClick={() => navigateToPrefix(row.name)}
                         data-testid={`folder-${row.name}`}
+                        title={row.displayName}
                       >
                         <Icon icon="autoAwesomeMosaic" size="18" className="text-theme-light shrink-0" />
-                        <span>{row.displayName}</span>
+                        <span className="truncate">{row.displayName}</span>
                       </button>
                     ) : (
-                      <span className="flex items-center gap-2">
+                      <span className="flex min-w-0 items-center gap-2" title={row.displayName}>
                         <Icon icon="description" size="18" className="text-theme-light shrink-0" />
-                        <span>{row.displayName}</span>
+                        <span className="truncate">{row.displayName}</span>
                       </span>
                     )}
                   </DataGridCell>

@@ -31,6 +31,7 @@ import {
   getContainerAclUpdatedToast,
   getContainerAclUpdateErrorToast,
 } from "./ContainerToastNotifications"
+import { Link, useParams } from "@tanstack/react-router"
 
 interface ContainerTableViewProps {
   containers: ContainerSummary[]
@@ -45,6 +46,10 @@ export const ContainerTableView = ({
   setCreateModalOpen,
   maxContainerNameLength,
 }: ContainerTableViewProps) => {
+  const { accountId, projectId, provider } = useParams({
+    from: "/_auth/accounts/$accountId/projects/$projectId/storage/$provider/containers/",
+  })
+
   const { t } = useLingui()
   const parentRef = useRef<HTMLDivElement>(null)
   const [scrollbarWidth, setScrollbarWidth] = useState(0)
@@ -215,7 +220,16 @@ export const ContainerTableView = ({
                   }}
                   data-testid={`container-row-${container.name}`}
                 >
-                  <DataGridCell>{container.name}</DataGridCell>
+                  <DataGridCell className="min-w-0 overflow-hidden">
+                    <Link
+                      to="/accounts/$accountId/projects/$projectId/storage/$provider/containers/$containerName/objects/$"
+                      params={{ accountId, projectId, provider, containerName: container.name }}
+                      className="text-theme-default hover:text-theme-link block truncate"
+                      title={container.name}
+                    >
+                      {container.name}
+                    </Link>
+                  </DataGridCell>
                   <DataGridCell>{container.count.toLocaleString()}</DataGridCell>
                   <DataGridCell>{container.last_modified ? formatDate(container.last_modified) : t`N/A`}</DataGridCell>
                   <DataGridCell>{formatBytesBinary(container.bytes)}</DataGridCell>
