@@ -395,7 +395,7 @@ describe("SecurityGroups", () => {
       await user.click(screen.getByTestId("true"))
 
       // Search
-      const searchbox = screen.getByRole("searchbox")
+      const searchbox = await screen.findByRole("searchbox")
       await user.type(searchbox, "web")
 
       await waitFor(() => {

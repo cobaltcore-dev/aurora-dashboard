@@ -187,10 +187,6 @@ msgstr "Projektzugriff hinzufügen"
 msgid "Add your first rule"
 msgstr ""
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/DeleteClusterDialog.tsx:69
-msgid "After continuing, your project will no longer have access to the <0>{clusterName}</0> resources."
-msgstr "Nach dem Fortfahren hat Ihr Projekt keinen Zugriff mehr auf die <0>{clusterName}</0>-Ressourcen."
-
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/DeleteSecurityGroupDialog.tsx:89
 msgid "After continuing, your project will no longer have access to the security group and any rules associated with it."
 msgstr ""
@@ -243,12 +239,7 @@ msgstr "Das Aurora-Dashboard ist mehr als nur ein Werkzeug – es ist Ihr Partne
 msgid "Aurora empowers you with robust tools to streamline your cloud management effortlessly. Experience a seamless way to provision, configure, and scale your resources across OpenStack environments."
 msgstr "Aurora bietet Ihnen robuste Tools, um Ihre Cloud-Verwaltung nahtlos zu optimieren. Erleben Sie eine mühelose Möglichkeit, Ihre Ressourcen in OpenStack-Umgebungen bereitzustellen, zu konfigurieren und zu skalieren."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail/SettingsSection.tsx:44
-msgid "Auto Update"
-msgstr "Auto-Update"
-
 #: src/client/components/Error/ErrorPage.tsx:41
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterWizard/WizardActions.tsx:29
 msgid "Back"
 msgstr "Zurück"
 
@@ -290,7 +281,6 @@ msgstr "Bulk-Upload von Archivdateien"
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageDetailsModal.tsx:236
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageMetadataModal.tsx:299
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageMemberFormRow.tsx:42
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/DeleteClusterDialog.tsx:47
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/CreateSecurityGroupModal.tsx:123
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/DeleteRuleDialog.tsx:52
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/DeleteSecurityGroupDialog.tsx:60
@@ -340,42 +330,6 @@ msgstr ""
 msgid "Click to upload"
 msgstr "Zum Hochladen klicken"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterWizard/BasicInfoStep.tsx:75
-msgid "Cloud Profile"
-msgstr "Cloud Profil"
-
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterWizard/ReviewStep.tsx:52
-msgid "Cluster Configuration"
-msgstr "Cluster-Konfiguration"
-
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterWizard/CreateClusterDialogContent.tsx:112
-msgid "Cluster created successfully"
-msgstr "Cluster erfolgreich erstellt"
-
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail.tsx:73
-msgid "Cluster details copied to clipboard!"
-msgstr "Cluster-Details erfolgreich kopiert!"
-
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterTableRow.tsx:99
-msgid "Cluster ID copied to clipboard"
-msgstr "Cluster-ID wurde in die Zwischenablage kopiert"
-
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterWizard/BasicInfoStep.tsx:23
-msgid "Cluster Name"
-msgstr "Cluster Name"
-
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterWizard/CreateClusterDialogContent.tsx:77
-msgid "Cluster name is required"
-msgstr "Cluster Name ist erforderlich"
-
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail.tsx:114
-msgid "Clusters"
-msgstr "Cluster"
-
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail/ViewToggleButtons.tsx:45
-msgid "Code View"
-msgstr "Code-Ansicht"
-
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/CreateImageModal.tsx:526
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageDetailsModal.tsx:306
 msgid "Community"
@@ -388,10 +342,6 @@ msgstr ""
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-details/SecurityGroupHeader.tsx:14
 msgid "Configure the ingress and egress rules that control which traffic is allowed for this security group."
 msgstr ""
-
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterWizard/WorkerNodesStep.tsx:77
-msgid "Configure the worker pools for your cluster. These settings determine the compute resources available for your workloads."
-msgstr "Konfiguriere die Worker-Pools für deinen Cluster. Diese Einstellungen bestimmen die Rechenressourcen, die für deine Workloads verfügbar sind."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageTableRow.tsx:119
 msgid "Confirm Access"
@@ -550,10 +500,6 @@ msgstr "CPU"
 msgid "Create"
 msgstr "Erstellen"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/CreateClusterDialog.tsx:25
-msgid "Create Cluster"
-msgstr "Cluster erstellen"
-
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/SwiftObjectStorage/CreateContainerModal.tsx:86
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/SwiftObjectStorage/List.tsx:147
 msgid "Create Container"
@@ -579,7 +525,7 @@ msgstr "Neues Image erstellen"
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/CreateSecurityGroupModal.tsx:108
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/CreateSecurityGroupModal.tsx:120
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/SecurityGroupListContainer.tsx:149
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/List.tsx:155
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/List.tsx:156
 msgid "Create Security Group"
 msgstr ""
 
@@ -650,8 +596,6 @@ msgstr ""
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImagesModal.tsx:50
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageMetadataModal.tsx:446
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageTableRow.tsx:134
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail/DetailLayout.tsx:69
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/DeleteClusterDialog.tsx:44
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/DeleteSecurityGroupDialog.tsx:57
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/SecurityGroupTableRow.tsx:68
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/SwiftObjectStorage/ContainerListView.tsx:241
@@ -668,10 +612,6 @@ msgstr "Lösche {specKey}"
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/List.tsx:401
 msgid "Delete All"
 msgstr "Alle löschen"
-
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/DeleteClusterDialog.tsx:29
-msgid "Delete Cluster"
-msgstr "Cluster löschen"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/SwiftObjectStorage/DeleteContainerModal.tsx:119
 msgid "Delete container:"
@@ -811,14 +751,6 @@ msgstr "z. B. PROJECT_ID:USER_ID"
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageDetailsModal.tsx:276
 msgid "e.g., production, linux, ubuntu"
 msgstr "z. B. production, linux, ubuntu"
-
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterWizard/InfrastructureStep.tsx:36
-msgid "Each worker nodes will automatically scale between its minimum and maximum number of nodes based on the workload demands. Ensure your maximum node counts allign with your resouce quotas."
-msgstr "Jeder Worker-Knoten wird je nach Arbeitslast automatisch zwischen der minimalen und maximalen Knotenzahl skaliert. Stelle sicher, dass deine maximale Knotenzahl mit deinen Ressourcenkontingenten übereinstimmt."
-
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterWizard/WorkerNodesStep.tsx:67
-msgid "Each worker pool will automatically scale between its minimum and maximum node counts based on workload demands. Ensure your maximum node counts align with your resource quotas."
-msgstr "Jeder Worker-Pool skaliert je nach Arbeitslast automatisch zwischen der minimalen und maximalen Knotenzahl. Stelle sicher, dass deine maximale Knotenzahl mit deinen Ressourcenkontingenten übereinstimmt."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageMetadataModal.tsx:437
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-details/SecurityGroupBasicInfo.tsx:28
@@ -994,14 +926,6 @@ msgstr "Fehler beim Hinzufügen des Mitglieds"
 msgid "Failed to add tenant access to flavor. Please try again."
 msgstr "Fehler beim Hinzufügen des Zugriffs für das Project zum Flavor. Bitte versuchen Sie es erneut."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail.tsx:91
-msgid "Failed to copy to clipboard"
-msgstr "Kopieren fehlgeschlagen"
-
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterWizard/CreateClusterDialogContent.tsx:122
-msgid "Failed to create cluster:"
-msgstr "Fehler beim Erstellen des Clusters:"
-
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/SwiftObjectStorage/ContainerToastNotifications.tsx:46
 msgid "Failed to Create Container"
 msgstr "Fehler beim Erstellen des Containers"
@@ -1014,7 +938,7 @@ msgstr "Fehler beim Erstellen des Extra-Specs. Bitte versuchen Sie es erneut."
 msgid "Failed to create flavor. Please try again."
 msgstr "Fehler beim Erstellen des Flavors. Bitte versuchen Sie es erneut."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/List.tsx:97
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/List.tsx:98
 msgid "Failed to create security group"
 msgstr ""
 
@@ -1034,10 +958,6 @@ msgstr "Fehler beim Deaktivieren der Images"
 msgid "Failed to delete {failedCount} of {totalCount} image(s). Some images may be protected or in use."
 msgstr "{failedCount} von {totalCount} Image(s) konnten nicht gelöscht werden. Einige Images sind möglicherweise geschützt oder werden verwendet."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail.tsx:43
-msgid "Failed to delete cluster: "
-msgstr "Fehler beim löschen des Clusters:"
-
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/SwiftObjectStorage/ContainerToastNotifications.tsx:130
 msgid "Failed to Delete Container"
 msgstr "Fehler beim Löschen des Containers"
@@ -1050,7 +970,7 @@ msgstr "Fehler beim Löschen des Flavors. Bitte versuchen Sie es erneut."
 msgid "Failed to Delete Images"
 msgstr "Fehler beim Löschen der Images"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/List.tsx:109
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/List.tsx:110
 msgid "Failed to delete security group"
 msgstr ""
 
@@ -1136,7 +1056,7 @@ msgstr "Fehler beim Aktualisieren des Containers"
 msgid "Failed to update container: {errorMessage}"
 msgstr "Fehler beim Aktualisieren des Containers: {errorMessage}"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/List.tsx:121
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/List.tsx:122
 msgid "Failed to update security group"
 msgstr ""
 
@@ -1173,7 +1093,7 @@ msgid "Fingerprint"
 msgstr "Fingerprint"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/FloatingIps/-components/constants.tsx:29
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/FloatingIps/List.tsx:21
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/FloatingIps/List.tsx:23
 msgid "Fixed IP Address"
 msgstr ""
 
@@ -1219,20 +1139,16 @@ msgid "Flavors"
 msgstr "Flavors"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/FloatingIps/-components/constants.tsx:28
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/FloatingIps/List.tsx:22
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/FloatingIps/List.tsx:24
 msgid "Floating IP Address"
 msgstr ""
-
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterWizard/InfrastructureStep.tsx:47
-msgid "Floating IP Pool"
-msgstr "Floating IP Pool"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/-components/SideNavBar.tsx:44
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/$.tsx:60
 msgid "Floating IPs"
 msgstr ""
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/FloatingIps/List.tsx:23
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/FloatingIps/List.tsx:25
 msgid "Floating Network ID"
 msgstr ""
 
@@ -1296,7 +1212,7 @@ msgstr "Id"
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/DeleteFlavorModal.tsx:120
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageDetailsView.tsx:27
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/flavors/-components/FlavorDetailsView.tsx:31
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/FloatingIps/List.tsx:24
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/FloatingIps/List.tsx:26
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-details/SecurityGroupBasicInfo.tsx:39
 msgid "ID"
 msgstr "ID"
@@ -1314,7 +1230,6 @@ msgid "If there is no index file, the URL displays a list of objects in the cont
 msgstr "Wenn keine Index-Datei vorhanden ist, zeigt die URL eine Liste der Objekte im Container an."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ConfirmImageAccessModal.tsx:154
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail/WorkerSection.tsx:35
 msgid "Image"
 msgstr "Image"
 
@@ -1383,10 +1298,6 @@ msgstr "Image-Name ist erforderlich"
 msgid "Image not found"
 msgstr "Image nicht gefunden"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterWizard/WorkerPool.tsx:110
-msgid "Image Version"
-msgstr "Image Version"
-
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageToastNotifications.tsx:404
 msgid "Image Visibility"
 msgstr "Image-Sichtbarkeit"
@@ -1436,15 +1347,6 @@ msgstr "Zu löschende Images:"
 #: src/client/components/Auth/InactivityModal.tsx:11
 msgid "Inactivity Timeout"
 msgstr ""
-
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail/ClusterOverviewSection.tsx:58
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail/ClusterOverviewSection.tsx:61
-msgid "Infrastructure"
-msgstr "Infrastruktur"
-
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterWizard/ReviewStep.tsx:67
-msgid "Infrastructure Configuration"
-msgstr "Infrastruktur-Konfiguration"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/SwiftObjectStorage/CreateContainerModal.tsx:97
 msgid "Inside a project, objects are stored in containers. Containers are where you define access permissions and quotas."
@@ -1496,19 +1398,6 @@ msgstr "Keyname"
 msgid "Key Pairs"
 msgstr ""
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail/ClusterOverviewSection.tsx:76
-msgid "Kubernetes"
-msgstr "Kubernetes"
-
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail/SettingsSection.tsx:60
-msgid "Kubernetes Updates"
-msgstr "Kubernetes Updates"
-
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterWizard/BasicInfoStep.tsx:36
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/clusters/index.tsx:47
-msgid "Kubernetes Version"
-msgstr "Kubernetes Version"
-
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/SwiftObjectStorage/ContainerListView.tsx:170
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/SwiftObjectStorage/EmptyContainerModal.tsx:194
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/SwiftObjectStorage/List.tsx:22
@@ -1522,10 +1411,6 @@ msgstr "Limits"
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/CreateImageModal.tsx:601
 msgid "Linux, Windows"
 msgstr "Linux, Windows"
-
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail/ViewToggleButtons.tsx:36
-msgid "List View"
-msgstr "Tabellenansicht"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:671
 msgid "Load More"
@@ -1554,10 +1439,6 @@ msgstr ""
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/List.tsx:196
 msgid "Loading Flavors..."
 msgstr "Lädt Flavors..."
-
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/CreateClusterDialog.tsx:30
-msgid "Loading Gardener..."
-msgstr "Lädt Gardener..."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId.tsx:72
 msgid "Loading Image Details..."
@@ -1616,23 +1497,6 @@ msgstr "Anmeldung fehlgeschlagen. Bitte überprüfen Sie Ihre Anmeldeinformation
 #: src/client/routes/auth/login.tsx:141
 msgid "Login to Your Account"
 msgstr "Bei Ihrem Konto anmelden"
-
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterWizard/BasicInfoStep.tsx:27
-msgid "Lowercase alphanumeric characters, dash (-) and must start with a letter"
-msgstr "Kleinbuchstaben (alphanumerisch), Bindestrich (-) und muss mit einem Buchstaben beginnen."
-
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterWizard/WorkerPool.tsx:92
-msgid "Machine Image"
-msgstr "Machine Image"
-
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail/WorkerSection.tsx:32
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterWizard/WorkerPool.tsx:72
-msgid "Machine Type"
-msgstr "Maschinentyp"
-
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail/SettingsSection.tsx:24
-msgid "Maintenance Window"
-msgstr "Wartungsfenster"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:168
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageTableRow.tsx:115
@@ -1696,14 +1560,6 @@ msgstr "Maximale Objekt-Namenslänge"
 msgid "Max SLO segments"
 msgstr "Maximale SLO-Segmente"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail/WorkerSection.tsx:78
-msgid "Max:"
-msgstr "Max:"
-
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterWizard/WorkerPool.tsx:140
-msgid "Maximum Nodes"
-msgstr "Maximale Nodes"
-
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ManageImageAccessModal .tsx:144
 msgid "Member \"{memberIdToRemove}\" has been removed successfully."
 msgstr "Mitglied \"{memberIdToRemove}\" wurde erfolgreich entfernt."
@@ -1749,10 +1605,6 @@ msgstr "Min. Disk (GB)"
 msgid "Min RAM (MB)"
 msgstr "Min. RAM (MB)"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail/WorkerSection.tsx:78
-msgid "Min:"
-msgstr "Min:"
-
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageDetailsView.tsx:45
 msgid "Min. Disk"
 msgstr "Min. Disk"
@@ -1773,10 +1625,6 @@ msgstr "Minimale Festplatte muss 0 oder größer sein"
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageDetailsModal.tsx:332
 msgid "Minimum disk size required to boot this image"
 msgstr "Minimale Festplattengröße, die zum Booten dieses Images erforderlich ist"
-
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterWizard/WorkerPool.tsx:128
-msgid "Minimum Nodes"
-msgstr "Minimale Nodes"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageDetailsModal.tsx:342
 msgid "Minimum RAM (MB)"
@@ -1823,7 +1671,6 @@ msgstr "keine Angabe"
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageDetailsView.tsx:31
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/List.tsx:94
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/flavors/-components/FlavorDetailsView.tsx:38
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail/WorkerSection.tsx:29
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-details/SecurityGroupBasicInfo.tsx:45
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/CreateSecurityGroupModal.tsx:152
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/EditSecurityGroupModal.tsx:170
@@ -1842,24 +1689,10 @@ msgstr "Der Name muss 2-50 Zeichen lang sein."
 msgid "Need help?"
 msgstr "Benötigen Sie Hilfe?"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterWizard/InfrastructureStep.tsx:76
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterWizard/ReviewStep.tsx:78
-msgid "Network Configuration"
-msgstr "Netzwerkkonfiguration"
-
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/$.tsx:63
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/$.tsx:86
 msgid "Network Overview"
 msgstr ""
-
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/clusters/index.tsx:124
-msgid "New Cluster"
-msgstr "Neuer Cluster"
-
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterWizard/WizardActions.tsx:33
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterWizard/WizardActions.tsx:48
-msgid "Next"
-msgstr "Weiter"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageDetailsView.tsx:94
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageTableRow.tsx:85
@@ -1958,10 +1791,6 @@ msgstr "Keine Server verfügbar"
 msgid "No specific tenant access configured for this private flavor. Click \"Add Tenant Access\" to grant access."
 msgstr "Kein spezifischer Projektzugriff für diesen privaten Flavor konfiguriert. Klicken Sie auf \"Projektzugriff hinzufügen\", um Zugriff zu gewähren."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterWizard/InfrastructureStep.tsx:97
-msgid "Nodes CIDR"
-msgstr "CIDR-Bereich für Nodes"
-
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/flavors/-components/FlavorDetailsView.tsx:106
 msgid "None"
 msgstr ""
@@ -1973,10 +1802,6 @@ msgstr ""
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/EditSecurityGroupModal.tsx:148
 msgid "Note: The 'stateful' attribute cannot be changed if this security group is currently in use by one or more ports."
 msgstr ""
-
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterWizard/InfrastructureStep.tsx:124
-msgid "Note: These network settings will be prefilled by the Kubernetes controller in the future."
-msgstr "Hinweis: Diese Netzwerkeinstellungen werden in Zukunft vom Kubernetes-Controller automatisch vorausgefüllt."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/SwiftObjectStorage/EmptyContainerModal.tsx:163
 msgid "Nothing to do. Container appears empty — the object count may not have synced yet due to a recent operation."
@@ -2032,10 +1857,6 @@ msgstr "OS-Distribution"
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImageModal.tsx:115
 msgid "OS Type"
 msgstr "OS-Typ"
-
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail/SettingsSection.tsx:47
-msgid "OS Updates"
-msgstr "Betriebssystem-Updates"
 
 #: src/client/routes/about.tsx:25
 msgid "Our Mission"
@@ -2100,18 +1921,6 @@ msgstr ""
 msgid "Please note: for <0>dynamic</0> and <1>static large objects</1> only the manifests are deleted. The related segments are not deleted."
 msgstr "Bitte beachten Sie: Für <0>dynamische</0> und <1>statische große Objekte</1> werden nur die Manifeste gelöscht. Die zugehörigen Segmente werden nicht gelöscht."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterWizard/ReviewStep.tsx:124
-msgid "Please review all configurations carefully before creating the cluster. Once created, some settings cannot be changed."
-msgstr "Bitte überprüfe alle Konfigurationen sorgfältig, bevor du den Cluster erstellst. Nach der Erstellung können einige Einstellungen nicht mehr geändert werden."
-
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail.tsx:94
-msgid "Please try again or copy manually"
-msgstr "Bitte versuchen Sie es erneut oder kopieren Sie manuell"
-
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterWizard/InfrastructureStep.tsx:82
-msgid "Pods CIDR"
-msgstr "CIDR-Bereich für Pods"
-
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/ServerGroups/components/ServerGroupListView.tsx:55
 msgid "Policy"
 msgstr "Richtlinie"
@@ -2145,7 +1954,7 @@ msgstr ""
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ConfirmImageAccessModal.tsx:161
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ManageImageAccessModal .tsx:172
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ManageImageAccessModal .tsx:186
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/FloatingIps/List.tsx:29
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/FloatingIps/List.tsx:31
 msgid "Project ID"
 msgstr "Projekt-ID"
 
@@ -2236,10 +2045,6 @@ msgstr "RAM muss eine ganze Zahl ≥ 128 MB sein."
 msgid "Range"
 msgstr ""
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail.tsx:132
-msgid "Raw JSON Data for"
-msgstr "JSON-Rohdaten für"
-
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-details/SecurityGroupTabs.tsx:27
 msgid "RBAC Policies"
 msgstr ""
@@ -2252,18 +2057,6 @@ msgstr ""
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/SwiftObjectStorage/ManageContainerAccessModal.tsx:383
 msgid "Read ACLs"
 msgstr "Lese-ACLs"
-
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail/ClusterOverviewSection.tsx:83
-msgid "Readiness"
-msgstr "Bereitschaft"
-
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/clusters/index.tsx:119
-msgid "Refresh"
-msgstr "Aktualisieren"
-
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail/ClusterOverviewSection.tsx:72
-msgid "Region"
-msgstr "Region"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ConfirmImageAccessModal.tsx:224
 msgid "Reject"
@@ -2347,7 +2140,7 @@ msgstr "Root Disk (GiB)"
 msgid "Root Disk must be an integer ≥ 0."
 msgstr "Root Disk muss eine ganze Zahl ≥ 0 sein."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/FloatingIps/List.tsx:25
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/FloatingIps/List.tsx:27
 msgid "Router ID"
 msgstr ""
 
@@ -2386,17 +2179,9 @@ msgstr "Änderungen speichern"
 msgid "Save Metadata"
 msgstr "Metadata speichern"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail/WorkerSection.tsx:38
-msgid "Scaling"
-msgstr "Scaling"
-
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-details/SecurityGroupRulesTable.tsx:224
 msgid "Search"
 msgstr ""
-
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/clusters/index.tsx:137
-msgid "Search clusters..."
-msgstr "Cluster durchsuchen..."
 
 #: src/client/components/ListToolbar/index.tsx:118
 #: src/client/routes/_auth/accounts/$accountId/projects/-components/ProjectOverviewNavBar.tsx:60
@@ -2500,10 +2285,6 @@ msgstr "Der Server hat ein unerwartetes Datenformat zurückgegeben."
 msgid "Server Role:"
 msgstr "Serverrolle:"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterWizard/InfrastructureStep.tsx:111
-msgid "Services CIDR"
-msgstr "CIDR-Bereich für Services"
-
 #: src/client/components/Auth/InactivityModal.tsx:11
 msgid "Session Expired"
 msgstr ""
@@ -2515,10 +2296,6 @@ msgstr "Sitzung läuft ab in"
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageTableRow.tsx:127
 msgid "Set to \"Shared\""
 msgstr "Auf \"Geteilt\" setzen"
-
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail/DetailLayout.tsx:78
-msgid "Share"
-msgstr "Teilen"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/CreateImageModal.tsx:525
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageDetailsModal.tsx:305
@@ -2579,10 +2356,6 @@ msgstr "Etwas ist schiefgelaufen."
 msgid "Sort by"
 msgstr "Sortieren nach"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail/SettingsSection.tsx:27
-msgid "Start Time"
-msgstr "Startzeit"
-
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/SwiftObjectStorage/EditContainerMetadataModal.tsx:617
 msgid "Start typing to search for a container"
 msgstr "Beginnen Sie mit der Eingabe, um nach einem Container zu suchen"
@@ -2611,11 +2384,9 @@ msgstr "Statisches Website-Serving"
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/List.tsx:49
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/List.tsx:102
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Instances/-components/ServerListView.tsx:19
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail/ClusterOverviewSection.tsx:67
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/clusters/index.tsx:41
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/FloatingIps/-components/constants.tsx:27
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/FloatingIps/List.tsx:26
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/FloatingIps/List.tsx:34
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/FloatingIps/List.tsx:28
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/FloatingIps/List.tsx:36
 msgid "Status"
 msgstr "Status"
 
@@ -2646,10 +2417,6 @@ msgstr "{successCount} von {totalCount} Image(s) erfolgreich deaktiviert"
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageToastNotifications.tsx:191
 msgid "Successfully deleted {successCount} of {totalCount} image(s)"
 msgstr "{successCount} von {totalCount} Image(s) erfolgreich gelöscht"
-
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail/WorkerSection.tsx:78
-msgid "Surge:"
-msgstr "Surge:"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/DeleteFlavorModal.tsx:137
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/List.tsx:115
@@ -2694,7 +2461,7 @@ msgstr "Der Projektzugriff für \"{trimmedTenantId}\" wurde erfolgreich hinzugef
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/ManageAccessModal.tsx:190
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/ManageAccessModal.tsx:219
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/FloatingIps/List.tsx:28
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/FloatingIps/List.tsx:30
 msgid "Tenant ID"
 msgstr "Projekt ID"
 
@@ -2735,11 +2502,6 @@ msgstr "Der Flavor oder das Projekt konnte nicht gefunden werden. Möglicherweis
 #: src/client/utils/useErrorTranslation.ts:134
 msgid "The flavor or tenant could not be found. Please verify they exist."
 msgstr "Der Flavor oder das Projekt konnte nicht gefunden werden. Bitte überprüfen Sie, ob sie existieren."
-
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterWizard/InfrastructureStep.tsx:69
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterWizard/InfrastructureStep.tsx:91
-msgid "The floating IP pool to use for the cluster's external network access"
-msgstr "Der Floating-IP-Pool, der für den externen Netzwerkzugang des Clusters verwendet wird."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageToastNotifications.tsx:169
 msgid "The image \"{imageId}\" could not be deactivated: {message}"
@@ -2794,10 +2556,6 @@ msgstr "Keine Images verfügbar. Filtern Sie neu oder erstellen Sie ein neues Im
 msgid "There are no security groups available for this project. Security groups define firewall rules for instances."
 msgstr ""
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/DeleteClusterDialog.tsx:56
-msgid "This action cannot be undone. The cluster will be permanently deleted."
-msgstr "Diese Aktion kann nicht rückgängig gemacht werden. Der Cluster wird dauerhaft gelöscht."
-
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/DeleteFlavorModal.tsx:108
 msgid "This action cannot be undone. The flavor will be permanently deleted."
 msgstr "Diese Aktion kann nicht rückgängig gemacht werden. Der Flavor wird dauerhaft gelöscht."
@@ -2849,10 +2607,6 @@ msgstr "Dieses Projekt hat bereits Zugriff auf den Flavor."
 #: src/client/utils/useErrorTranslation.ts:152
 msgid "This tenant does not have access to the flavor."
 msgstr "Dieses Projekt hat keinen Zugriff auf den Flavor."
-
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail/SettingsSection.tsx:39
-msgid "Timezone"
-msgstr "Zeitzone"
 
 #: src/client/routes/about.tsx:109
 msgid "Together, we can unlock the true potential of your cloud infrastructure."
@@ -2961,10 +2715,6 @@ msgstr "Image-Sichtbarkeit kann nicht aktualisiert werden"
 msgid "Unable to Upload Image File"
 msgstr "Image-Datei kann nicht hochgeladen werden"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterWizard/CreateClusterDialogContent.tsx:122
-msgid "Unknown error"
-msgstr "Unbekannter Fehler"
-
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId.tsx:109
 msgid "Unknown Image"
 msgstr ""
@@ -3042,10 +2792,6 @@ msgstr "VCPUs"
 msgid "VCPUs must be an integer ≥ 1."
 msgstr "VCPUs müssen eine ganze Zahl ≥ 1 sein."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail/ClusterOverviewSection.tsx:79
-msgid "Version"
-msgstr "Version"
-
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/SwiftObjectStorage/ContainerLimitsTooltip.tsx:56
 msgid "Versioned writes"
 msgstr "Versionierte Schreibvorgänge"
@@ -3090,26 +2836,6 @@ msgstr "Willkommen beim <0>Aurora-Dashboard</0>, Ihrer Cloud-Management-Lösung 
 #: src/client/routes/about.tsx:72
 msgid "Why Choose Aurora?"
 msgstr "Warum Aurora wählen?"
-
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail/SettingsSection.tsx:32
-msgid "Window Time"
-msgstr "Zeitfenster"
-
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterWizard/WorkerNodesStep.tsx:74
-msgid "Worker Configuration"
-msgstr "Worker-Konfiguration"
-
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterWizard/ReviewStep.tsx:87
-msgid "Worker Pools"
-msgstr "Worker-Pools"
-
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail/WorkerSection.tsx:25
-msgid "Workers"
-msgstr "Workers"
-
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/DeleteClusterDialog.tsx:61
-msgid "Would you like to remove the <0>{clusterName}</0> from your project?"
-msgstr "Möchtest du <0>{clusterName}</0> aus deinem Projekt entfernen?"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/DeleteSecurityGroupDialog.tsx:81
 msgid "Would you like to remove the security group <0>{securityGroupName}</0> from your project?"
@@ -3185,10 +2911,6 @@ msgstr "Sie sind nicht berechtigt, Metadata anzusehen. Bitte melden Sie sich ern
 msgid "You are not authorized to view flavor details. Please log in again."
 msgstr ""
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail.tsx:76
-msgid "You can now share this information with your team"
-msgstr "Sie können diese Informationen nun mit Ihrem Team teilen"
-
 #: src/client/utils/useErrorTranslation.ts:116
 msgid "You don't have permission to access flavor access information for this flavor."
 msgstr "Sie haben keine Berechtigung, auf die Zugriffsinformationen für diesen Flavor zuzugreifen."
@@ -3260,7 +2982,3 @@ msgstr ""
 #: src/client/utils/useErrorTranslation.ts:10
 msgid "Your session has expired. Please log in again."
 msgstr "Ihre Sitzung ist abgelaufen. Bitte melden Sie sich erneut an."
-
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/gardener/-components/ClusterDetail/WorkerSection.tsx:41
-msgid "Zones"
-msgstr "Zonen"

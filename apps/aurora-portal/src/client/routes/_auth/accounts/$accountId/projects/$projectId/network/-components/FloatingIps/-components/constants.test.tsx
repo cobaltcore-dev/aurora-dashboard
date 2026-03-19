@@ -55,9 +55,9 @@ describe("FloatingIp constants", () => {
       expect(Array.isArray(columns)).toBe(true)
     })
 
-    it("provides 7 columns for the data grid", () => {
+    it("provides 6 columns for the data grid", () => {
       const columns = TABLE_COLUMNS()
-      expect(columns).toHaveLength(7)
+      expect(columns).toHaveLength(6)
     })
 
     it("includes status column", () => {

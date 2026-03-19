@@ -15,9 +15,9 @@ export function ProjectListView({ projects }: ProjectListViewProps) {
       {projects?.length ? (
         projects.map((project) => {
           const domain = project?.domain_id
-          const gardenerRootPath = `/accounts/${domain}/projects/${project.id}/compute`
+          const rootPath = `/accounts/${domain}/projects/${project.id}/compute`
           return (
-            <DataGridRow key={project.id} onClick={() => navigate({ to: gardenerRootPath })}>
+            <DataGridRow key={project.id} onClick={() => navigate({ to: rootPath })}>
               <DataGridCell>
                 {project.enabled ? (
                   <Icon icon="checkCircle" color="text-theme-success" />
