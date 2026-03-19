@@ -50,13 +50,6 @@ export function SecurityGroupRulesTable({
   const { t } = useLingui()
   const [ruleToDelete, setRuleToDelete] = useState<SecurityGroupRule | null>(null)
 
-  // Close dialog after successful deletion
-  useEffect(() => {
-    if (ruleToDelete && !isDeletingRule && !deleteError) {
-      setRuleToDelete(null)
-    }
-  }, [isDeletingRule, deleteError, ruleToDelete])
-
   // Extract sort values from sortSettings
   const sortField = (sortSettings?.sortBy as string) || "direction"
   const sortDirection = sortSettings?.sortDirection || "asc"
@@ -77,6 +70,13 @@ export function SecurityGroupRulesTable({
       setRuleToDelete(null)
     }
   }
+
+  // Close dialog after successful deletion
+  useEffect(() => {
+    if (!isDeletingRule && !deleteError) {
+      setRuleToDelete(null)
+    }
+  }, [isDeletingRule, deleteError])
 
   const handleSortFieldChange = (value: string) => {
     if (onSortChange && sortSettings) {

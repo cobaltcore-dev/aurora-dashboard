@@ -13,11 +13,11 @@ type ProjectCardViewProps = {
 export function ProjectCard({ project }: ProjectCardProps) {
   const navigate = useNavigate()
   const domain = project?.domain_id // Assuming domain_id is the domai
-  const gardenerRootPath = `/accounts/${domain}/projects/${project.id}/compute`
+  const rootPath = `/accounts/${domain}/projects/${project.id}/compute`
   return (
     <Box
       className="hover:bg-theme-background-lvl-2 min-h-50 rounded-lg p-6 shadow-md"
-      onClick={() => navigate({ to: gardenerRootPath })}
+      onClick={() => navigate({ to: rootPath })}
     >
       <div className="w-full">
         <ContentHeading className="text-theme-accent">{project.name}</ContentHeading>
