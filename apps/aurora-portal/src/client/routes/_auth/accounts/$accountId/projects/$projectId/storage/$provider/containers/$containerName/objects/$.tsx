@@ -2,7 +2,8 @@ import { createFileRoute, ErrorComponent, redirect, useParams } from "@tanstack/
 import { getServiceIndex } from "@/server/Authentication/helpers"
 import { ErrorBoundary } from "react-error-boundary"
 import { Trans, useLingui } from "@lingui/react/macro"
-import { SwiftObjects } from "../../../-components/SwiftObjectStorage/ObjectList"
+import { SwiftObjects } from "../../../../-components/SwiftObjectStorage/ObjectList"
+import { z } from "zod"
 
 export const checkServiceAvailability = (
   availableServices: {
@@ -42,7 +43,7 @@ export const checkServiceAvailability = (
       })
     }
     throw redirect({
-      to: "/accounts/$accountId/projects/$projectId/storage/$provider/containers/$containerName/objects",
+      to: "/accounts/$accountId/projects/$projectId/storage/$provider/containers/$containerName/objects/$",
       params: { accountId, projectId, provider: fallbackProvider, containerName },
     })
   }
@@ -56,7 +57,7 @@ export const checkServiceAvailability = (
     }
 
     throw redirect({
-      to: "/accounts/$accountId/projects/$projectId/storage/$provider/containers/$containerName/objects",
+      to: "/accounts/$accountId/projects/$projectId/storage/$provider/containers/$containerName/objects/$",
       params: { accountId, projectId, provider: "ceph", containerName },
     })
   }
@@ -70,15 +71,21 @@ export const checkServiceAvailability = (
     }
 
     throw redirect({
-      to: "/accounts/$accountId/projects/$projectId/storage/$provider/containers/$containerName/objects",
+      to: "/accounts/$accountId/projects/$projectId/storage/$provider/containers/$containerName/objects/$",
       params: { accountId, projectId, provider: "swift", containerName },
     })
   }
 }
 
+// Search params schema — prefix is base64-encoded to safely carry "/" chars in the URL
+const objectsSearchSchema = z.object({
+  prefix: z.string().optional(),
+})
+
 export const Route = createFileRoute(
-  "/_auth/accounts/$accountId/projects/$projectId/storage/$provider/containers/$containerName/objects"
+  "/_auth/accounts/$accountId/projects/$projectId/storage/$provider/containers/$containerName/objects/$"
 )({
+  validateSearch: objectsSearchSchema,
   component: () => {
     return <ObjectsDashboard />
   },
@@ -109,7 +116,7 @@ export const Route = createFileRoute(
 
 function ObjectsDashboard() {
   const { project, provider, containerName } = useParams({
-    from: "/_auth/accounts/$accountId/projects/$projectId/storage/$provider/containers/$containerName/objects",
+    from: "/_auth/accounts/$accountId/projects/$projectId/storage/$provider/containers/$containerName/objects/$",
     select: (params) => ({
       project: params.projectId,
       provider: params.provider,
@@ -144,11 +151,7 @@ function ObjectsDashboard() {
           {(() => {
             switch (provider) {
               case "swift":
-                return (
-                  <div className="p-4">
-                    <SwiftObjects />
-                  </div>
-                )
+                return <SwiftObjects />
               case "ceph":
                 return (
                   <div className="p-4">

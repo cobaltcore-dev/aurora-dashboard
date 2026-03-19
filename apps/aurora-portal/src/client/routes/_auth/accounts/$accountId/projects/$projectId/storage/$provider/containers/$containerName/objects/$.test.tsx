@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest"
 import { redirect } from "@tanstack/react-router"
 import { getServiceIndex } from "@/server/Authentication/helpers"
-import { checkServiceAvailability } from "./objects"
+import { checkServiceAvailability } from "./$"
 
 // Mock the dependencies
 vi.mock("@tanstack/react-router", async () => {
@@ -108,7 +108,7 @@ describe("Objects Route - checkServiceAvailability", () => {
 
       expect(() => {
         checkServiceAvailability(defaultServices, { ...defaultParams, provider: "swift" })
-      }).toThrow("Redirect to: /accounts/acc-1/projects/proj-1/storage/ceph/containers/my-container/objects")
+      }).toThrow("Redirect to: /accounts/acc-1/projects/proj-1/storage/ceph/containers/my-container/objects/$")
     })
 
     it("throws redirect when ceph is not available but provider is 'ceph'", () => {
@@ -120,7 +120,7 @@ describe("Objects Route - checkServiceAvailability", () => {
 
       expect(() => {
         checkServiceAvailability(defaultServices, { ...defaultParams, provider: "ceph" })
-      }).toThrow("Redirect to: /accounts/acc-1/projects/proj-1/storage/swift/containers/my-container/objects")
+      }).toThrow("Redirect to: /accounts/acc-1/projects/proj-1/storage/swift/containers/my-container/objects/$")
     })
   })
 
@@ -154,7 +154,7 @@ describe("Objects Route - checkServiceAvailability", () => {
       // The implementation passes explicit params (not a spread), so the call
       // receives exactly { accountId, projectId, provider: "ceph", containerName }.
       expect(redirect).toHaveBeenCalledWith({
-        to: "/accounts/$accountId/projects/$projectId/storage/$provider/containers/$containerName/objects",
+        to: "/accounts/$accountId/projects/$projectId/storage/$provider/containers/$containerName/objects/$",
         params: { accountId: "test-acc", projectId: "test-proj", provider: "ceph", containerName: "test-container" },
       })
     })
@@ -183,7 +183,7 @@ describe("Objects Route - checkServiceAvailability", () => {
 
       expect(() => {
         checkServiceAvailability(defaultServices, { ...defaultParams, provider: "swift" })
-      }).toThrow("Redirect to: /accounts/acc-1/projects/proj-1/storage/ceph/containers/my-container/objects")
+      }).toThrow("Redirect to: /accounts/acc-1/projects/proj-1/storage/ceph/containers/my-container/objects/$")
     })
 
     it("redirects to swift when object-store exists but ceph is missing", () => {
@@ -195,7 +195,7 @@ describe("Objects Route - checkServiceAvailability", () => {
 
       expect(() => {
         checkServiceAvailability(defaultServices, { ...defaultParams, provider: "ceph" })
-      }).toThrow("Redirect to: /accounts/acc-1/projects/proj-1/storage/swift/containers/my-container/objects")
+      }).toThrow("Redirect to: /accounts/acc-1/projects/proj-1/storage/swift/containers/my-container/objects/$")
     })
 
     it("redirects to projects when neither swift nor ceph is available", () => {
