@@ -1,4 +1,4 @@
-import { use, Suspense, useState, startTransition, useEffect } from "react"
+import { use, Suspense, useState, startTransition, useEffect, ReactNode } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { TrpcClient } from "@/client/trpcClient"
 import { GlanceImage } from "@/server/Compute/types/image"
@@ -145,13 +145,17 @@ function ImagesContent({
         onSort={handleSortChange}
         onFilter={handleFilterChange}
         onSearch={setSearchTerm}
+        tabs={{
+          items: [
+            { label: t`All Images`, value: "all" },
+            { label: t`Suggested Images`, value: "pending" },
+            { label: t`Accepted Images`, value: "accepted" },
+          ],
+          activeItem: memberStatusView,
+          onActiveItemChange: (value: ReactNode) => setMemberStatusView(value as "all" | "pending" | "accepted"),
+        }}
         actions={
           <>
-            <div className="w-full md:mr-auto md:w-auto">
-              {memberStatusView !== "all" && (
-                <Button onClick={() => setMemberStatusView("all")}>{t`All Images`}</Button>
-              )}
-            </div>
             <Stack gap="2">
               {permissions.canCreate && (
                 <Button onClick={() => setCreateModalOpen(true)} variant="primary">
@@ -180,16 +184,6 @@ function ImagesContent({
                     disabled={isActivateAllDisabled}
                     label={t`Activate All`}
                     onClick={() => setActivateAllModalOpen(true)}
-                  />
-                  <PopupMenuItem
-                    disabled={memberStatusView === "pending"}
-                    label={t`Show Suggested Images`}
-                    onClick={() => setMemberStatusView("pending")}
-                  />
-                  <PopupMenuItem
-                    disabled={memberStatusView === "accepted"}
-                    label={t`Show Accepted Images`}
-                    onClick={() => setMemberStatusView("accepted")}
                   />
                 </PopupMenuOptions>
               </PopupMenu>

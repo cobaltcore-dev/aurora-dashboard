@@ -1,6 +1,12 @@
 import { ReactNode, useCallback, useRef, useEffect } from "react"
 import { useLingui } from "@lingui/react/macro"
-import { SearchInput, SearchInputProps, Stack } from "@cloudoperators/juno-ui-components"
+import {
+  SearchInput,
+  SearchInputProps,
+  Stack,
+  TabNavigation,
+  TabNavigationItem,
+} from "@cloudoperators/juno-ui-components"
 import { SelectedFilters } from "./SelectedFilters"
 import { FiltersInput } from "./FiltersInput"
 import { SortInput } from "./SortInput"
@@ -15,6 +21,11 @@ export type ListToolbarProps = {
   onSearch?: (searchTerm: string) => void
   searchInputProps?: Omit<SearchInputProps, "value" | "onSearch" | "onClear" | "onInput">
   actions?: ReactNode
+  tabs?: {
+    items: Array<{ label: string; value: string }>
+    activeItem: string
+    onActiveItemChange: (value: ReactNode) => void
+  }
 }
 
 export const ListToolbar = ({
@@ -26,6 +37,7 @@ export const ListToolbar = ({
   onSearch,
   searchInputProps = {},
   actions,
+  tabs,
 }: ListToolbarProps) => {
   const { t } = useLingui()
 
@@ -158,6 +170,16 @@ export const ListToolbar = ({
             onDelete={handleFilterDelete}
             onClear={() => onFilter({ ...filterSettings, selectedFilters: [] })}
           />
+        </div>
+      )}
+
+      {tabs && (
+        <div className="w-full">
+          <TabNavigation activeItem={tabs.activeItem} onActiveItemChange={tabs.onActiveItemChange}>
+            {tabs.items.map((item) => (
+              <TabNavigationItem key={item.value} label={item.label} value={item.value} />
+            ))}
+          </TabNavigation>
         </div>
       )}
     </Stack>
