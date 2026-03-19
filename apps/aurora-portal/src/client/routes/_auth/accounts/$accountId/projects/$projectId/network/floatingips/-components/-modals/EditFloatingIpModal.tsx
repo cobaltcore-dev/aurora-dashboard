@@ -12,43 +12,42 @@ import {
   Textarea,
   Message,
 } from "@cloudoperators/juno-ui-components"
-import type { SecurityGroup } from "@/server/Network/types/securityGroup"
-import { UpdateSecurityGroupInput } from "@/server/Network/types/securityGroup"
+import type { FloatingIp, FloatingIpIdInput, FloatingIpUpdateRequest } from "@/server/Network/types/floatingIp"
 
-interface EditSecurityGroupModalProps {
-  securityGroup: SecurityGroup
+interface EditFloatingIpModalProps {
+  floatingIp: FloatingIp
   open: boolean
   onClose: () => void
-  onUpdate?: (securityGroupId: string, data: Omit<UpdateSecurityGroupInput, "securityGroupId">) => Promise<void>
+  onUpdate?: (floatingIpId: string, data: Omit<FloatingIpIdInput, "floatingIpId">) => Promise<void>
   isLoading?: boolean
   error?: string | null
 }
 
-interface SecurityGroupProperties {
+interface FloatingIpState {
   description: string
 }
 
-export const EditSecurityGroupModal: React.FC<EditSecurityGroupModalProps> = ({
-  securityGroup,
+export const EditFloatingIpModal = ({
+  floatingIp,
   open,
   onClose,
   onUpdate,
   isLoading = false,
   error = null,
-}) => {
+}: EditFloatingIpModalProps) => {
   const { t } = useLingui()
 
-  const [properties, setProperties] = useState<SecurityGroupProperties>({
-    description: securityGroup.description || "",
+  const [properties, setProperties] = useState<FloatingIpState>({
+    description: floatingIp.description || "",
   })
   const [errors, setErrors] = useState<{ [key: string]: string }>({})
 
-  // Update properties when securityGroup changes
+  // Update properties when floatingIp changes
   useEffect(() => {
     setProperties({
-      description: securityGroup.description || "",
+      description: floatingIp.description || "",
     })
-  }, [securityGroup])
+  }, [floatingIp])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target
@@ -83,11 +82,12 @@ export const EditSecurityGroupModal: React.FC<EditSecurityGroupModalProps> = ({
     }
 
     if (onUpdate) {
-      const updateData: Omit<UpdateSecurityGroupInput, "securityGroupId"> = {
+      const updateData: Omit<FloatingIpUpdateRequest, "floatingip_id"> = {
+        port_id: null,
         description: properties.description.trim() || undefined,
       }
 
-      await onUpdate(securityGroup.id, updateData)
+      await onUpdate(floatingIp.id, updateData)
     }
   }
 
@@ -101,7 +101,7 @@ export const EditSecurityGroupModal: React.FC<EditSecurityGroupModalProps> = ({
       open={open}
       onCancel={handleClose}
       size="large"
-      title={t`Edit Security Group`}
+      title={t`Edit Floating IP`}
       modalFooter={
         <ModalFooter className="flex justify-end">
           <ButtonRow>
@@ -111,9 +111,9 @@ export const EditSecurityGroupModal: React.FC<EditSecurityGroupModalProps> = ({
                 handleSubmit(e)
               }}
               disabled={isLoading}
-              data-testid="update-security-group-button"
+              data-testid="update-floating-ip-button"
             >
-              {isLoading ? <Spinner size="small" /> : <Trans>Update Security Group</Trans>}
+              {isLoading ? <Spinner size="small" /> : <Trans>Update Floating IP</Trans>}
             </Button>
             <Button variant="default" onClick={handleClose} disabled={isLoading}>
               <Trans>Cancel</Trans>
@@ -133,7 +133,7 @@ export const EditSecurityGroupModal: React.FC<EditSecurityGroupModalProps> = ({
         <div className="mb-4 flex items-center justify-center gap-2">
           <Spinner variant="primary" />
           <span className="text-sm text-gray-600">
-            <Trans>Updating security group...</Trans>
+            <Trans>Updating Floating IP...</Trans>
           </span>
         </div>
       )}
