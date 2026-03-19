@@ -21,11 +21,7 @@ import { Route as AuthAccountsAccountIdProjectsProjectIdNetworkSplatRouteImport 
 import { Route as AuthAccountsAccountIdProjectsProjectIdComputeSplatRouteImport } from "./routes/_auth/accounts/$accountId/projects/$projectId/compute/$"
 import { Route as AuthAccountsAccountIdProjectsProjectIdStorageProviderSplatRouteImport } from "./routes/_auth/accounts/$accountId/projects/$projectId/storage/$provider/$"
 import { Route as AuthAccountsAccountIdProjectsProjectIdNetworkSecuritygroupsSecurityGroupIdRouteImport } from "./routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId"
-<<<<<<< HEAD
 import { Route as AuthAccountsAccountIdProjectsProjectIdNetworkFloatingipsFloatingIpIdRouteImport } from "./routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/$floatingIpId"
-import { Route as AuthAccountsAccountIdProjectsProjectIdGardenerClustersClusterNameRouteImport } from "./routes/_auth/accounts/$accountId/projects/$projectId/gardener/clusters/$clusterName"
-=======
->>>>>>> c87844e (feat(aurora-portal): remove Gardener cluster management feature)
 import { Route as AuthAccountsAccountIdProjectsProjectIdComputeImagesImageIdRouteImport } from "./routes/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId"
 import { Route as AuthAccountsAccountIdProjectsProjectIdComputeFlavorsFlavorIdRouteImport } from "./routes/_auth/accounts/$accountId/projects/$projectId/compute/flavors/$flavorId"
 
@@ -96,7 +92,6 @@ const AuthAccountsAccountIdProjectsProjectIdNetworkSecuritygroupsSecurityGroupId
       getParentRoute: () => AuthAccountsAccountIdProjectsProjectIdRoute,
     } as any,
   )
-<<<<<<< HEAD
 const AuthAccountsAccountIdProjectsProjectIdNetworkFloatingipsFloatingIpIdRoute =
   AuthAccountsAccountIdProjectsProjectIdNetworkFloatingipsFloatingIpIdRouteImport.update(
     {
@@ -105,16 +100,6 @@ const AuthAccountsAccountIdProjectsProjectIdNetworkFloatingipsFloatingIpIdRoute 
       getParentRoute: () => AuthAccountsAccountIdProjectsProjectIdRoute,
     } as any,
   )
-const AuthAccountsAccountIdProjectsProjectIdGardenerClustersClusterNameRoute =
-  AuthAccountsAccountIdProjectsProjectIdGardenerClustersClusterNameRouteImport.update(
-    {
-      id: "/gardener/clusters/$clusterName",
-      path: "/gardener/clusters/$clusterName",
-      getParentRoute: () => AuthAccountsAccountIdProjectsProjectIdRoute,
-    } as any,
-  )
-=======
->>>>>>> c87844e (feat(aurora-portal): remove Gardener cluster management feature)
 const AuthAccountsAccountIdProjectsProjectIdComputeImagesImageIdRoute =
   AuthAccountsAccountIdProjectsProjectIdComputeImagesImageIdRouteImport.update({
     id: "/compute/images/$imageId",
@@ -142,11 +127,7 @@ export interface FileRoutesByFullPath {
   "/accounts/$accountId/projects/$projectId/network/$": typeof AuthAccountsAccountIdProjectsProjectIdNetworkSplatRoute
   "/accounts/$accountId/projects/$projectId/compute/flavors/$flavorId": typeof AuthAccountsAccountIdProjectsProjectIdComputeFlavorsFlavorIdRoute
   "/accounts/$accountId/projects/$projectId/compute/images/$imageId": typeof AuthAccountsAccountIdProjectsProjectIdComputeImagesImageIdRoute
-<<<<<<< HEAD
-  "/accounts/$accountId/projects/$projectId/gardener/clusters/$clusterName": typeof AuthAccountsAccountIdProjectsProjectIdGardenerClustersClusterNameRoute
   "/accounts/$accountId/projects/$projectId/network/floatingips/$floatingIpId": typeof AuthAccountsAccountIdProjectsProjectIdNetworkFloatingipsFloatingIpIdRoute
-=======
->>>>>>> c87844e (feat(aurora-portal): remove Gardener cluster management feature)
   "/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId": typeof AuthAccountsAccountIdProjectsProjectIdNetworkSecuritygroupsSecurityGroupIdRoute
   "/accounts/$accountId/projects/$projectId/storage/$provider/$": typeof AuthAccountsAccountIdProjectsProjectIdStorageProviderSplatRoute
 }
@@ -162,11 +143,7 @@ export interface FileRoutesByTo {
   "/accounts/$accountId/projects/$projectId/network/$": typeof AuthAccountsAccountIdProjectsProjectIdNetworkSplatRoute
   "/accounts/$accountId/projects/$projectId/compute/flavors/$flavorId": typeof AuthAccountsAccountIdProjectsProjectIdComputeFlavorsFlavorIdRoute
   "/accounts/$accountId/projects/$projectId/compute/images/$imageId": typeof AuthAccountsAccountIdProjectsProjectIdComputeImagesImageIdRoute
-<<<<<<< HEAD
-  "/accounts/$accountId/projects/$projectId/gardener/clusters/$clusterName": typeof AuthAccountsAccountIdProjectsProjectIdGardenerClustersClusterNameRoute
   "/accounts/$accountId/projects/$projectId/network/floatingips/$floatingIpId": typeof AuthAccountsAccountIdProjectsProjectIdNetworkFloatingipsFloatingIpIdRoute
-=======
->>>>>>> c87844e (feat(aurora-portal): remove Gardener cluster management feature)
   "/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId": typeof AuthAccountsAccountIdProjectsProjectIdNetworkSecuritygroupsSecurityGroupIdRoute
   "/accounts/$accountId/projects/$projectId/storage/$provider/$": typeof AuthAccountsAccountIdProjectsProjectIdStorageProviderSplatRoute
 }
@@ -184,11 +161,7 @@ export interface FileRoutesById {
   "/_auth/accounts/$accountId/projects/$projectId/network/$": typeof AuthAccountsAccountIdProjectsProjectIdNetworkSplatRoute
   "/_auth/accounts/$accountId/projects/$projectId/compute/flavors/$flavorId": typeof AuthAccountsAccountIdProjectsProjectIdComputeFlavorsFlavorIdRoute
   "/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId": typeof AuthAccountsAccountIdProjectsProjectIdComputeImagesImageIdRoute
-<<<<<<< HEAD
-  "/_auth/accounts/$accountId/projects/$projectId/gardener/clusters/$clusterName": typeof AuthAccountsAccountIdProjectsProjectIdGardenerClustersClusterNameRoute
   "/_auth/accounts/$accountId/projects/$projectId/network/floatingips/$floatingIpId": typeof AuthAccountsAccountIdProjectsProjectIdNetworkFloatingipsFloatingIpIdRoute
-=======
->>>>>>> c87844e (feat(aurora-portal): remove Gardener cluster management feature)
   "/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId": typeof AuthAccountsAccountIdProjectsProjectIdNetworkSecuritygroupsSecurityGroupIdRoute
   "/_auth/accounts/$accountId/projects/$projectId/storage/$provider/$": typeof AuthAccountsAccountIdProjectsProjectIdStorageProviderSplatRoute
 }
@@ -206,11 +179,7 @@ export interface FileRouteTypes {
     | "/accounts/$accountId/projects/$projectId/network/$"
     | "/accounts/$accountId/projects/$projectId/compute/flavors/$flavorId"
     | "/accounts/$accountId/projects/$projectId/compute/images/$imageId"
-<<<<<<< HEAD
-    | "/accounts/$accountId/projects/$projectId/gardener/clusters/$clusterName"
     | "/accounts/$accountId/projects/$projectId/network/floatingips/$floatingIpId"
-=======
->>>>>>> c87844e (feat(aurora-portal): remove Gardener cluster management feature)
     | "/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId"
     | "/accounts/$accountId/projects/$projectId/storage/$provider/$"
   fileRoutesByTo: FileRoutesByTo
@@ -226,11 +195,7 @@ export interface FileRouteTypes {
     | "/accounts/$accountId/projects/$projectId/network/$"
     | "/accounts/$accountId/projects/$projectId/compute/flavors/$flavorId"
     | "/accounts/$accountId/projects/$projectId/compute/images/$imageId"
-<<<<<<< HEAD
-    | "/accounts/$accountId/projects/$projectId/gardener/clusters/$clusterName"
     | "/accounts/$accountId/projects/$projectId/network/floatingips/$floatingIpId"
-=======
->>>>>>> c87844e (feat(aurora-portal): remove Gardener cluster management feature)
     | "/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId"
     | "/accounts/$accountId/projects/$projectId/storage/$provider/$"
   id:
@@ -247,11 +212,7 @@ export interface FileRouteTypes {
     | "/_auth/accounts/$accountId/projects/$projectId/network/$"
     | "/_auth/accounts/$accountId/projects/$projectId/compute/flavors/$flavorId"
     | "/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId"
-<<<<<<< HEAD
-    | "/_auth/accounts/$accountId/projects/$projectId/gardener/clusters/$clusterName"
     | "/_auth/accounts/$accountId/projects/$projectId/network/floatingips/$floatingIpId"
-=======
->>>>>>> c87844e (feat(aurora-portal): remove Gardener cluster management feature)
     | "/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId"
     | "/_auth/accounts/$accountId/projects/$projectId/storage/$provider/$"
   fileRoutesById: FileRoutesById
@@ -349,7 +310,6 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof AuthAccountsAccountIdProjectsProjectIdNetworkSecuritygroupsSecurityGroupIdRouteImport
       parentRoute: typeof AuthAccountsAccountIdProjectsProjectIdRoute
     }
-<<<<<<< HEAD
     "/_auth/accounts/$accountId/projects/$projectId/network/floatingips/$floatingIpId": {
       id: "/_auth/accounts/$accountId/projects/$projectId/network/floatingips/$floatingIpId"
       path: "/network/floatingips/$floatingIpId"
@@ -357,15 +317,6 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof AuthAccountsAccountIdProjectsProjectIdNetworkFloatingipsFloatingIpIdRouteImport
       parentRoute: typeof AuthAccountsAccountIdProjectsProjectIdRoute
     }
-    "/_auth/accounts/$accountId/projects/$projectId/gardener/clusters/$clusterName": {
-      id: "/_auth/accounts/$accountId/projects/$projectId/gardener/clusters/$clusterName"
-      path: "/gardener/clusters/$clusterName"
-      fullPath: "/accounts/$accountId/projects/$projectId/gardener/clusters/$clusterName"
-      preLoaderRoute: typeof AuthAccountsAccountIdProjectsProjectIdGardenerClustersClusterNameRouteImport
-      parentRoute: typeof AuthAccountsAccountIdProjectsProjectIdRoute
-    }
-=======
->>>>>>> c87844e (feat(aurora-portal): remove Gardener cluster management feature)
     "/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId": {
       id: "/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId"
       path: "/compute/images/$imageId"
@@ -388,11 +339,7 @@ interface AuthAccountsAccountIdProjectsProjectIdRouteChildren {
   AuthAccountsAccountIdProjectsProjectIdNetworkSplatRoute: typeof AuthAccountsAccountIdProjectsProjectIdNetworkSplatRoute
   AuthAccountsAccountIdProjectsProjectIdComputeFlavorsFlavorIdRoute: typeof AuthAccountsAccountIdProjectsProjectIdComputeFlavorsFlavorIdRoute
   AuthAccountsAccountIdProjectsProjectIdComputeImagesImageIdRoute: typeof AuthAccountsAccountIdProjectsProjectIdComputeImagesImageIdRoute
-<<<<<<< HEAD
-  AuthAccountsAccountIdProjectsProjectIdGardenerClustersClusterNameRoute: typeof AuthAccountsAccountIdProjectsProjectIdGardenerClustersClusterNameRoute
   AuthAccountsAccountIdProjectsProjectIdNetworkFloatingipsFloatingIpIdRoute: typeof AuthAccountsAccountIdProjectsProjectIdNetworkFloatingipsFloatingIpIdRoute
-=======
->>>>>>> c87844e (feat(aurora-portal): remove Gardener cluster management feature)
   AuthAccountsAccountIdProjectsProjectIdNetworkSecuritygroupsSecurityGroupIdRoute: typeof AuthAccountsAccountIdProjectsProjectIdNetworkSecuritygroupsSecurityGroupIdRoute
   AuthAccountsAccountIdProjectsProjectIdStorageProviderSplatRoute: typeof AuthAccountsAccountIdProjectsProjectIdStorageProviderSplatRoute
 }
@@ -407,13 +354,8 @@ const AuthAccountsAccountIdProjectsProjectIdRouteChildren: AuthAccountsAccountId
       AuthAccountsAccountIdProjectsProjectIdComputeFlavorsFlavorIdRoute,
     AuthAccountsAccountIdProjectsProjectIdComputeImagesImageIdRoute:
       AuthAccountsAccountIdProjectsProjectIdComputeImagesImageIdRoute,
-<<<<<<< HEAD
-    AuthAccountsAccountIdProjectsProjectIdGardenerClustersClusterNameRoute:
-      AuthAccountsAccountIdProjectsProjectIdGardenerClustersClusterNameRoute,
     AuthAccountsAccountIdProjectsProjectIdNetworkFloatingipsFloatingIpIdRoute:
       AuthAccountsAccountIdProjectsProjectIdNetworkFloatingipsFloatingIpIdRoute,
-=======
->>>>>>> c87844e (feat(aurora-portal): remove Gardener cluster management feature)
     AuthAccountsAccountIdProjectsProjectIdNetworkSecuritygroupsSecurityGroupIdRoute:
       AuthAccountsAccountIdProjectsProjectIdNetworkSecuritygroupsSecurityGroupIdRoute,
     AuthAccountsAccountIdProjectsProjectIdStorageProviderSplatRoute:
