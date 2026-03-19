@@ -202,7 +202,7 @@ export const SwiftObjects = () => {
 
   const allRows = buildRows((objects ?? []) as ObjectSummary[], currentPrefix)
 
-  const filteredRows = allRows.filter((row) => row.displayName.toLowerCase().includes(searchTerm.toLowerCase()))
+  const filteredRows = allRows.filter((row) => row.displayName.toLowerCase().includes(searchTerm.toLowerCase().trim()))
 
   const sortedRows = [...filteredRows].sort((a, b) => {
     // Folders always float to the top regardless of sort key
@@ -381,7 +381,7 @@ export const SwiftObjects = () => {
         <div
           ref={parentRef}
           className="overflow-auto"
-          style={{ height: "calc(100vh - 545px)" }}
+          style={{ height: "calc(100vh - 485px)" }}
           data-testid="objects-table-body"
         >
           <div
