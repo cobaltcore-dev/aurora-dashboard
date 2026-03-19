@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from "react"
+import { useEffect, useMemo, useState, type ChangeEvent } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import {
   Modal,
   Form,
-  FormRow,
   FormSection,
+  FormRow,
   Button,
   ButtonRow,
   Spinner,
@@ -12,13 +12,13 @@ import {
   Textarea,
   Message,
 } from "@cloudoperators/juno-ui-components"
-import type { FloatingIp, FloatingIpIdInput, FloatingIpUpdateRequest } from "@/server/Network/types/floatingIp"
+import type { FloatingIp, FloatingIpUpdateRequest } from "@/server/Network/types/floatingIp"
 
 interface EditFloatingIpModalProps {
   floatingIp: FloatingIp
   open: boolean
   onClose: () => void
-  onUpdate?: (floatingIpId: string, data: Omit<FloatingIpIdInput, "floatingIpId">) => Promise<void>
+  onUpdate?: (floatingIpId: string, data: Omit<FloatingIpUpdateRequest, "floatingip_id">) => Promise<void>
   isLoading?: boolean
   error?: string | null
 }
@@ -34,10 +34,12 @@ export const EditFloatingIpModal = ({
   error = null,
 }: EditFloatingIpModalProps) => {
   const { t } = useLingui()
+  const { floating_ip_address, description } = floatingIp
+  const [descriptionFieldValue, setDescriptionFieldValue] = useState<FloatingIp["description"]>(description)
   const [isTouched, setIsTouched] = useState(false)
 
-  // Update properties when floatingIp changes
   useEffect(() => {
+    setDescriptionFieldValue(floatingIp.description)
     setIsTouched(false)
   }, [floatingIp])
 
@@ -70,22 +72,20 @@ export const EditFloatingIpModal = ({
   const handleSubmit = async () => {
     setIsTouched(true)
 
-    if (!validateForm()) {
+    if (!onUpdate || isLoading || !trimmedDescription || normalizedDescription.length > MAX_DESCRIPTION_LENGTH) {
       return
     }
 
-    if (onUpdate) {
-      const updateData: Omit<FloatingIpUpdateRequest, "floatingip_id"> = {
-        port_id: null,
-        description: properties.description.trim() || undefined,
-      }
-
-      await onUpdate(floatingIp.id, updateData)
+    const updateData: Omit<FloatingIpUpdateRequest, "floatingip_id"> = {
+      port_id: floatingIp.port_id ?? null,
+      description: trimmedDescription,
     }
+
+    await onUpdate(floatingIp.id, updateData)
+    onClose()
   }
 
   const handleClose = () => {
-    setErrors({})
     onClose()
   }
 
@@ -98,28 +98,25 @@ export const EditFloatingIpModal = ({
       open={open}
       onCancel={handleClose}
       size="large"
-      title={t`Edit Floating IP`}
+      title={t`Edit Floating IP ${floating_ip_address}`}
       modalFooter={
         <ModalFooter className="flex justify-end">
           <ButtonRow>
-            <Button
-              variant="primary"
-              onClick={(e) => {
-                handleSubmit(e)
-              }}
-              disabled={isLoading}
-              data-testid="update-floating-ip-button"
-            >
-              {isLoading ? <Spinner size="small" /> : <Trans>Update Floating IP</Trans>}
-            </Button>
             <Button variant="default" onClick={handleClose} disabled={isLoading}>
               <Trans>Cancel</Trans>
+            </Button>
+            <Button
+              variant="primary"
+              onClick={handleSubmit}
+              disabled={isSaveDisabled}
+              data-testid="update-floating-ip-button"
+            >
+              {isLoading ? <Spinner size="small" /> : <Trans>Save</Trans>}
             </Button>
           </ButtonRow>
         </ModalFooter>
       }
     >
-      {/* Error Message */}
       {error && (
         <Message dismissible={false} variant="error" className="mb-4">
           {error}
@@ -143,11 +140,13 @@ export const EditFloatingIpModal = ({
                 id="description"
                 name="description"
                 label={t`Description`}
-                value={properties.description}
-                onChange={handleInputChange}
                 placeholder={t`Description`}
+                value={normalizedDescription}
+                onChange={handleInputChange}
                 disabled={isLoading}
-                rows={3}
+                required
+                errortext={descriptionError}
+                maxLength={MAX_DESCRIPTION_LENGTH}
               />
             </FormRow>
           </FormSection>
