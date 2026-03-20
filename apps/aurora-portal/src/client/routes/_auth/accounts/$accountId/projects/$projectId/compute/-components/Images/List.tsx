@@ -1,7 +1,7 @@
-import { use, Suspense, useState, startTransition, useEffect, ReactNode } from "react"
+import { use, Suspense, useState, startTransition, useEffect, ReactNode, useCallback } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { TrpcClient } from "@/client/trpcClient"
-import { GlanceImage } from "@/server/Compute/types/image"
+import { GlanceImage, ImagesPaginatedResponse } from "@/server/Compute/types/image"
 import { useNavigate, useSearch } from "@tanstack/react-router"
 import {
   Button,
@@ -62,8 +62,11 @@ function ImagesContent({
   memberStatusView,
   setMemberStatusView,
   isFetching,
+  hasNextPage,
+  isFetchingNextPage,
+  fetchNextPage,
 }: {
-  imagesPromise: Promise<GlanceImage[]>
+  imagesPromise: Promise<ImagesPaginatedResponse>
   permissionsPromise: Promise<{
     canCreate: boolean
     canDelete: boolean
@@ -91,10 +94,15 @@ function ImagesContent({
   memberStatusView: "all" | "pending" | "accepted"
   setMemberStatusView: (view: "all" | "pending" | "accepted") => void
   isFetching: boolean
+  hasNextPage: boolean
+  isFetchingNextPage: boolean
+  fetchNextPage: () => void
 }) {
   const { t } = useLingui()
-  const images = use(imagesPromise)
+  const imagesData = use(imagesPromise)
   const permissions = use(permissionsPromise)
+
+  const images = imagesData.images
 
   // Only consider images that are in the current filtered/searched dataset
   const displayedImageIds = new Set(images.map((image: GlanceImage) => image.id))
@@ -196,9 +204,9 @@ function ImagesContent({
         suggestedImages={memberStatusView === "pending" ? images : []}
         acceptedImages={memberStatusView === "accepted" ? images : []}
         permissions={permissions}
-        hasNextPage={false}
-        isFetchingNextPage={false}
-        fetchNextPage={async () => {}}
+        hasNextPage={hasNextPage}
+        isFetchingNextPage={isFetchingNextPage}
+        fetchNextPage={fetchNextPage}
         isFetching={isFetching}
         selectedImages={selectedImages}
         setSelectedImages={setSelectedImages}
@@ -281,6 +289,9 @@ export const Images = ({ client }: ImagesProps) => {
   const [memberStatusView, setMemberStatusView] = useState<"all" | "pending" | "accepted">("all")
 
   const [isFetching, setIsFetching] = useState(false)
+  const [isFetchingNextPage, setIsFetchingNextPage] = useState(false)
+  const [allImages, setAllImages] = useState<GlanceImage[]>([])
+  const [nextMarker, setNextMarker] = useState<string | undefined>()
   const [imagesPromise, setImagesPromise] = useState(() =>
     createImagesPromise(client, sortSettings.sortBy, sortSettings.sortDirection, searchTerm, {
       ...buildFilterParams(filterSettings.selectedFilters || [], filterSettings.filters),
@@ -288,6 +299,41 @@ export const Images = ({ client }: ImagesProps) => {
     })
   )
   const [permissionsPromise] = useState(() => createPermissionsPromise(client))
+
+  // Fetch next page
+  const fetchNextPage = useCallback(async () => {
+    if (!nextMarker || isFetchingNextPage) return
+
+    setIsFetchingNextPage(true)
+    try {
+      const result = await createImagesPromise(
+        client,
+        sortSettings.sortBy,
+        sortSettings.sortDirection,
+        searchTerm,
+        {
+          ...buildFilterParams(filterSettings.selectedFilters || [], filterSettings.filters),
+          member_status: memberStatusView === "all" ? undefined : memberStatusView,
+        },
+        nextMarker
+      )
+
+      setAllImages((prev) => [...prev, ...result.images])
+      setNextMarker(result.next)
+
+      // Update promise to include new images
+      setImagesPromise(
+        Promise.resolve({
+          images: [...allImages, ...result.images],
+          next: result.next,
+          first: undefined,
+          schema: "/v2/schemas/images",
+        })
+      )
+    } finally {
+      setIsFetchingNextPage(false)
+    }
+  }, [nextMarker, client, sortSettings, searchTerm, filterSettings, memberStatusView, allImages, isFetchingNextPage])
 
   // Sync URL params to state and refetch when URL changes (single source of truth)
   useEffect(() => {
@@ -307,6 +353,10 @@ export const Images = ({ client }: ImagesProps) => {
     // Clear selection when dataset changes
     setSelectedImages([])
 
+    // Reset pagination state
+    setAllImages([])
+    setNextMarker(undefined)
+
     // Refetch with URL state (single fetch path)
     setIsFetching(true)
     startTransition(() => {
@@ -314,8 +364,12 @@ export const Images = ({ client }: ImagesProps) => {
         ...buildFilterParams(urlFilters || [], filterSettings.filters),
         member_status: memberStatusView === "all" ? undefined : memberStatusView,
       })
-      // Mark fetching as complete once the promise resolves
-      newPromise.finally(() => setIsFetching(false))
+      // Mark fetching as complete once the promise resolves and update state
+      newPromise.then((result) => {
+        setAllImages(result.images)
+        setNextMarker(result.next)
+        setIsFetching(false)
+      })
       setImagesPromise(newPromise)
     })
   }, [
@@ -409,6 +463,9 @@ export const Images = ({ client }: ImagesProps) => {
           memberStatusView={memberStatusView}
           setMemberStatusView={handleMemberStatusChange}
           isFetching={isFetching}
+          hasNextPage={!!nextMarker}
+          isFetchingNextPage={isFetchingNextPage}
+          fetchNextPage={fetchNextPage}
         />
       </Suspense>
     </div>

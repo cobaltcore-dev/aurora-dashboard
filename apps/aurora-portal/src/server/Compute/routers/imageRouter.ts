@@ -24,7 +24,6 @@ import {
   updateImageInputSchema,
   updateImageVisibilityInputSchema,
   deleteImageInputSchema,
-  listImagesInputSchema,
   ListImagesInput,
   imagesPaginatedResponseSchema,
   ImagesPaginatedResponse,
@@ -56,32 +55,41 @@ const uploadProgress = new Map<string, UploadProgress>()
 
 export const imageRouter = {
   listImagesWithSearch: protectedProcedure
-    .input(listImagesInputSchema)
-    .query(async ({ input, ctx }): Promise<GlanceImage[]> => {
+    .input(imagesPaginatedInputSchema)
+    .query(async ({ input, ctx }): Promise<ImagesPaginatedResponse> => {
       return withErrorHandling(async () => {
-        const { ...queryInput } = input
+        const { marker, ...queryInput } = input
         const openstackSession = ctx.openstack
         const glance = openstackSession?.service("glance")
 
         validateGlanceService(glance)
 
-        // Always fetch ALL images from OpenStack (no pagination)
-        const allImages: GlanceImage[] = []
+        // Configuration for intelligent pagination
+        const FRONTEND_PAGE_SIZE = 50 // Items per frontend page
+        const OPENSTACK_PAGE_SIZE = 100 // Items per OpenStack page
+        const MIN_RESULTS_WHEN_SEARCHING = 50 // Minimum results we want when searching
+        const MAX_PAGES_TO_SEARCH = 10 // Maximum OpenStack pages to fetch when searching
 
-        // Fetch all images without filters (except sorting) - we'll filter in BFF
+        const allImages: GlanceImage[] = []
+        const hasSearchTerm = queryInput.name && queryInput.name.trim()
+
+        // Build query params
         const queryParams = new URLSearchParams()
         const minimalQuery = {
           sort_key: queryInput.sort_key,
           sort_dir: queryInput.sort_dir,
           sort: queryInput.sort,
-          limit: undefined, // Remove limit to fetch all pages
+          limit: OPENSTACK_PAGE_SIZE,
+          marker: marker,
         }
         applyImageQueryParams(queryParams, minimalQuery as ListImagesInput)
 
         let currentUrl: string | undefined = `v2/images?${queryParams.toString()}`
+        let pageCount = 0
+        let nextMarker: string | undefined
 
-        // Fetch all pages from OpenStack
-        while (currentUrl) {
+        // Fetch pages from OpenStack
+        while (currentUrl && pageCount < MAX_PAGES_TO_SEARCH) {
           const response = await glance.get(currentUrl).catch((error) => {
             throw mapErrorResponseToTRPCError(error, { operation: "list images" })
           })
@@ -92,14 +100,45 @@ export const imageRouter = {
           }
 
           allImages.push(...parsedData.data.images)
+          pageCount++
+
+          // If there's a search term, check if we have enough matching results
+          if (hasSearchTerm) {
+            // Apply BFF-side filtering to current batch
+            let filteredImages = filterBySearchParams(allImages, queryInput.name, ["name"])
+
+            // Apply other filters
+            if (queryInput.visibility && queryInput.visibility !== "all") {
+              filteredImages = filteredImages.filter((img) => img.visibility === queryInput.visibility)
+            }
+            if (queryInput.status) {
+              filteredImages = filteredImages.filter((img) => img.status === queryInput.status)
+            }
+            if (queryInput.owner) {
+              filteredImages = filteredImages.filter((img) => img.owner === queryInput.owner)
+            }
+
+            // If we have enough results, stop fetching but remember next page
+            if (filteredImages.length >= MIN_RESULTS_WHEN_SEARCHING) {
+              nextMarker = parsedData.data.next
+              break
+            }
+          }
+
+          // For non-search queries, just fetch one OpenStack page
+          if (!hasSearchTerm) {
+            nextMarker = parsedData.data.next
+            break
+          }
+
           currentUrl = parsedData.data.next
         }
 
-        // Apply BFF-side filtering
+        // Apply BFF-side filtering to all collected images
         let filteredImages = allImages
 
         // Filter by name (search)
-        if (queryInput.name && queryInput.name.trim()) {
+        if (hasSearchTerm) {
           filteredImages = filterBySearchParams(filteredImages, queryInput.name, ["name"])
         }
 
@@ -118,7 +157,22 @@ export const imageRouter = {
           filteredImages = filteredImages.filter((img) => img.owner === queryInput.owner)
         }
 
-        return filteredImages
+        // Implement frontend pagination
+        const startIndex = 0
+        const endIndex = FRONTEND_PAGE_SIZE
+        const paginatedImages = filteredImages.slice(startIndex, endIndex)
+
+        // Determine if there's a next page
+        const hasMore = filteredImages.length > FRONTEND_PAGE_SIZE || !!nextMarker
+        const nextPageMarker =
+          filteredImages.length > FRONTEND_PAGE_SIZE ? filteredImages[FRONTEND_PAGE_SIZE - 1]?.id : nextMarker
+
+        return {
+          images: paginatedImages,
+          first: undefined,
+          next: hasMore ? nextPageMarker : undefined,
+          schema: "/v2/schemas/images",
+        }
       }, "list images")
     }),
 

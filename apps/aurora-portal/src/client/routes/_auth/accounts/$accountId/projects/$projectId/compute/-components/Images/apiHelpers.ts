@@ -1,5 +1,5 @@
 import { TrpcClient } from "@/client/trpcClient"
-import { GlanceImage } from "@/server/Compute/types/image"
+import { ImagesPaginatedResponse } from "@/server/Compute/types/image"
 
 type ImageFilters = {
   status?: string
@@ -15,21 +15,31 @@ export const createImagesPromise = (
   sortBy: string,
   sortDirection: string,
   searchTerm: string,
-  filters: ImageFilters
-): Promise<GlanceImage[]> => {
+  filters: ImageFilters,
+  marker?: string
+): Promise<ImagesPaginatedResponse> => {
   // If member_status filter is set (and not "all"), use the dedicated endpoint
   if (filters.member_status && filters.member_status !== "all") {
-    return client.compute.listSharedImagesByMemberStatus.query({
-      memberStatus: filters.member_status,
-    })
+    // For member status, return all results as a single page
+    return client.compute.listSharedImagesByMemberStatus
+      .query({
+        memberStatus: filters.member_status,
+      })
+      .then((images) => ({
+        images,
+        first: undefined,
+        next: undefined,
+        schema: "/v2/schemas/images",
+      }))
   }
 
-  // Otherwise use the regular search endpoint
+  // Otherwise use the regular search endpoint with pagination
   return client.compute.listImagesWithSearch.query({
     sort: `${sortBy}:${sortDirection}`,
     name: searchTerm || undefined,
     ...filters,
     member_status: undefined, // Don't pass member_status to this endpoint
+    marker,
   })
 }
 
