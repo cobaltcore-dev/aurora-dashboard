@@ -1,4 +1,5 @@
 import { useLingui } from "@lingui/react/macro"
+import { useParams } from "@tanstack/react-router"
 import { FloatingIpQueryParameters } from "@/server/Network/types/floatingIp"
 import { ListToolbar } from "@/client/components/ListToolbar"
 import { trpcReact } from "@/client/trpcClient"
@@ -12,6 +13,7 @@ export type FloatingIpsSortKey = NonNullable<FloatingIpQueryParameters["sort_key
 
 export const FloatingIps = () => {
   const { t } = useLingui()
+  const { projectId } = useParams({ strict: false })
 
   const { searchTerm, handleSearchChange, sortSettings, handleSortChange, filterSettings, handleFilterChange } =
     useListWithFiltering<FloatingIpsSortKey>({
@@ -46,6 +48,7 @@ export const FloatingIps = () => {
     isError,
     error,
   } = trpcReact.network.floatingIp.list.useQuery({
+    project_id: projectId,
     sort_key: sortSettings.sortBy,
     sort_dir: sortSettings.sortDirection,
     ...buildFilterParams(filterSettings),

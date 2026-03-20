@@ -1,7 +1,6 @@
 import { TRPCError } from "@trpc/server"
 import { protectedProcedure } from "@/server/trpc"
 import { withErrorHandling } from "@/server/helpers/errorHandling"
-import { appendQueryParamsFromObject } from "@/server/helpers/queryParams"
 import { filterBySearchParams } from "@/server/helpers/filterBySearchParams"
 import {
   FloatingIpQueryParametersSchema,
@@ -14,6 +13,7 @@ import {
 } from "../types/floatingIp"
 import { FLOATING_IPS_BASE_URL, FloatingIpErrorHandlers } from "../helpers/floatingIpHelpers"
 import { getNetworkService } from "../helpers/index"
+import { appendQueryParamsFromObject } from "@/server/helpers/queryParams"
 
 /**
  * tRPC router for OpenStack Neutron Floating IPs.
@@ -31,11 +31,11 @@ export const floatingIpRouter = {
     .input(FloatingIpQueryParametersSchema)
     .query(async ({ input, ctx }): Promise<FloatingIp[]> => {
       return withErrorHandling(async () => {
+        const { searchTerm, ...queryInput } = input
         const network = getNetworkService(ctx)
 
-        // Extract searchTerm from input before building query params
-        const { searchTerm, ...openstackParams } = input
-        const queryParams = appendQueryParamsFromObject(openstackParams)
+        const queryParams = appendQueryParamsFromObject(queryInput)
+
         const queryString = queryParams.toString()
         const url = queryString ? `${FLOATING_IPS_BASE_URL}?${queryString}` : FLOATING_IPS_BASE_URL
 

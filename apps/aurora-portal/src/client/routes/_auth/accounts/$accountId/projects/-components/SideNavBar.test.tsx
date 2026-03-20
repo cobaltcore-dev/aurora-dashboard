@@ -238,7 +238,7 @@ describe("SideNavBar", () => {
         fireEvent.click(objectStorageLink)
 
         expect(mockNavigate).toHaveBeenCalledWith({
-          to: "/accounts/acc-1/projects/proj-1/storage/swift",
+          to: "/accounts/acc-1/projects/proj-1/storage/swift/containers",
         })
       })
 

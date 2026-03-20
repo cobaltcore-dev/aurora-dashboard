@@ -9,6 +9,11 @@ import { FloatingIps } from "./List"
 import { trpcReact } from "@/client/trpcClient"
 import type { FloatingIp } from "@/server/Network/types/floatingIp"
 
+// Mock useParams
+vi.mock("@tanstack/react-router", () => ({
+  useParams: vi.fn(() => ({ projectId: "test-project" })),
+}))
+
 // Simplified mock for tRPC useQuery - only includes properties actually used
 type MockQueryResult<TData> = {
   data: TData | undefined
@@ -147,6 +152,7 @@ describe("FloatingIps List", () => {
       render(<FloatingIps />, { wrapper: createWrapper() })
 
       expect(mockUseQuery).toHaveBeenCalledWith({
+        project_id: "test-project",
         sort_key: "fixed_ip_address",
         sort_dir: "asc",
       })
@@ -337,9 +343,9 @@ describe("FloatingIps List", () => {
       await user.click(screen.getByTestId("ACTIVE"))
 
       // Search
-      const searchbox = screen.getByRole("searchbox")
+      const searchbox = await screen.findByRole("searchbox")
       await user.type(searchbox, "203")
-      const searchButton = screen.getByRole("button", { name: "Search" })
+      const searchButton = await screen.findByRole("button", { name: "Search" })
       await user.click(searchButton)
 
       await waitFor(() => {

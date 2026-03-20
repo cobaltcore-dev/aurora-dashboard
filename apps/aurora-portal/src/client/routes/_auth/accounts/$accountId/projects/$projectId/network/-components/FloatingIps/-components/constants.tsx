@@ -20,14 +20,14 @@ export const STATUS_CONFIG: Record<FloatingIpStatus, FloatingIpStatusDisplay> = 
     text: "Error",
     icon: <CircleAlertIcon size={16} color="white" fill="#C70000" />,
   },
-}
+} as const
 
-export const TABLE_COLUMNS = () => [
-  "", // empty column for item-icons showing statuses
-  t`Status`,
-  t`Floating IP Address`,
-  t`Fixed IP Address`,
-  t`Subnet`,
-  t`Description`,
-  "", // empty column for item-actions with context menu containing "Edit Description", "Attach", "Detach" and "Release"
-]
+export const TABLE_COLUMNS = () =>
+  [
+    t`Status`,
+    t`Floating IP Address`,
+    t`Fixed IP Address`,
+    t`Subnet`,
+    t`Description`,
+    "", // empty column for item-actions with context menu containing "Preview", "Edit Description", "Attach", "Detach" and "Release"
+  ] as const

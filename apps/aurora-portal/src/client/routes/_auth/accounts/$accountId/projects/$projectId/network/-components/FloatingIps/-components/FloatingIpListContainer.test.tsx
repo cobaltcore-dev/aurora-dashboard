@@ -1,12 +1,50 @@
-import { describe, it, expect } from "vitest"
-import { render, screen } from "@testing-library/react"
+import { describe, it, expect, vi } from "vitest"
+import { render, screen, waitFor } from "@testing-library/react"
 import { I18nProvider } from "@lingui/react"
 import { i18n } from "@lingui/core"
 import { ReactNode } from "react"
+import { createRoute, createRootRoute, RouterProvider, createMemoryHistory, createRouter } from "@tanstack/react-router"
+import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import { FloatingIpListContainer } from "./FloatingIpListContainer"
 import type { FloatingIp } from "@/server/Network/types/floatingIp"
 
+vi.mock("./FloatingIpTableRow", () => ({
+  FloatingIpTableRow: ({ floatingIp }: { floatingIp: FloatingIp }) => (
+    <div role="row" data-testid={`floating-ip-row-${floatingIp.id}`}>
+      {floatingIp.floating_ip_address}
+    </div>
+  ),
+}))
+
 const TestWrapper = ({ children }: { children: ReactNode }) => <I18nProvider i18n={i18n}>{children}</I18nProvider>
+
+const createRouterWrapper = (children: ReactNode) => {
+  const memoryHistory = createMemoryHistory({
+    initialEntries: ["/accounts/test-account/projects/test-project/network/"],
+  })
+
+  const rootRoute = createRootRoute({
+    component: () => (
+      <I18nProvider i18n={i18n}>
+        <PortalProvider>{children}</PortalProvider>
+      </I18nProvider>
+    ),
+  })
+
+  const accountsRoute = createRoute({ getParentRoute: () => rootRoute, path: "accounts/$accountId" })
+  const projectsRoute = createRoute({ getParentRoute: () => accountsRoute, path: "projects/$projectId" })
+  const networkRoute = createRoute({ getParentRoute: () => projectsRoute, path: "network" })
+  const floatingIpsRoute = createRoute({ getParentRoute: () => networkRoute, path: "floatingips" })
+  const floatingIpDetailsRoute = createRoute({ getParentRoute: () => floatingIpsRoute, path: "$floatingIpId" })
+
+  const routeTree = rootRoute.addChildren([
+    accountsRoute.addChildren([
+      projectsRoute.addChildren([networkRoute.addChildren([floatingIpsRoute.addChildren([floatingIpDetailsRoute])])]),
+    ]),
+  ])
+
+  return createRouter({ routeTree, history: memoryHistory })
+}
 
 describe("FloatingIpListContainer", () => {
   describe("Loading state", () => {
@@ -120,69 +158,79 @@ describe("FloatingIpListContainer", () => {
       tags: [],
     }
 
-    it("displays table with header columns when data is present", () => {
-      render(
-        <FloatingIpListContainer floatingIps={[mockFloatingIp]} isLoading={false} isError={false} error={null} />,
-        { wrapper: TestWrapper }
+    it("displays table with header columns when data is present", async () => {
+      const router = createRouterWrapper(
+        <FloatingIpListContainer floatingIps={[mockFloatingIp]} isLoading={false} isError={false} error={null} />
       )
+      render(<RouterProvider router={router} />)
 
-      expect(screen.getByText("Status")).toBeInTheDocument()
+      await waitFor(() => {
+        expect(screen.getByText("Status")).toBeInTheDocument()
+      })
       expect(screen.getByText("Floating IP Address")).toBeInTheDocument()
       expect(screen.getByText("Fixed IP Address")).toBeInTheDocument()
     })
 
-    it("renders all table columns", () => {
-      render(
-        <FloatingIpListContainer floatingIps={[mockFloatingIp]} isLoading={false} isError={false} error={null} />,
-        { wrapper: TestWrapper }
+    it("renders all table columns", async () => {
+      const router = createRouterWrapper(
+        <FloatingIpListContainer floatingIps={[mockFloatingIp]} isLoading={false} isError={false} error={null} />
       )
+      render(<RouterProvider router={router} />)
 
-      // Check for all expected column headers
-      expect(screen.getByText("Status")).toBeInTheDocument()
+      await waitFor(() => {
+        expect(screen.getByText("Status")).toBeInTheDocument()
+      })
       expect(screen.getByText("Floating IP Address")).toBeInTheDocument()
       expect(screen.getByText("Fixed IP Address")).toBeInTheDocument()
       expect(screen.getByText("Subnet")).toBeInTheDocument()
       expect(screen.getByText("Description")).toBeInTheDocument()
     })
 
-    it("renders floating IP table rows for each item", () => {
+    it("renders floating IP table rows for each item", async () => {
       const mockFloatingIp2: FloatingIp = {
         ...mockFloatingIp,
         id: "fip-2",
         floating_ip_address: "203.0.113.20",
       }
 
-      render(
+      const router = createRouterWrapper(
         <FloatingIpListContainer
           floatingIps={[mockFloatingIp, mockFloatingIp2]}
           isLoading={false}
           isError={false}
           error={null}
-        />,
-        { wrapper: TestWrapper }
+        />
       )
+      render(<RouterProvider router={router} />)
 
-      // Based on FloatingIpTableRow implementation, these are rendered
-      expect(screen.getAllByRole("row")).toHaveLength(3) // 1 header row + 2 data rows
+      await waitFor(() => {
+        expect(screen.getAllByRole("row")).toHaveLength(3) // 1 header row + 2 data rows
+      })
     })
 
-    it("does not display error or empty message when data is present", () => {
-      render(
-        <FloatingIpListContainer floatingIps={[mockFloatingIp]} isLoading={false} isError={false} error={null} />,
-        { wrapper: TestWrapper }
+    it("does not display error or empty message when data is present", async () => {
+      const router = createRouterWrapper(
+        <FloatingIpListContainer floatingIps={[mockFloatingIp]} isLoading={false} isError={false} error={null} />
       )
+      render(<RouterProvider router={router} />)
 
+      await waitFor(() => {
+        expect(screen.getByText("203.0.113.10")).toBeInTheDocument()
+      })
       expect(screen.queryByText("No Floating IPs found")).not.toBeInTheDocument()
       expect(screen.queryByText("Failed to load Floating IPs")).not.toBeInTheDocument()
       expect(screen.queryByText("Loading...")).not.toBeInTheDocument()
     })
 
-    it("does not display error or loading when data is present", () => {
-      render(
-        <FloatingIpListContainer floatingIps={[mockFloatingIp]} isLoading={false} isError={false} error={null} />,
-        { wrapper: TestWrapper }
+    it("does not display error or loading when data is present", async () => {
+      const router = createRouterWrapper(
+        <FloatingIpListContainer floatingIps={[mockFloatingIp]} isLoading={false} isError={false} error={null} />
       )
+      render(<RouterProvider router={router} />)
 
+      await waitFor(() => {
+        expect(screen.getByText("203.0.113.10")).toBeInTheDocument()
+      })
       expect(screen.queryByText("Loading...")).not.toBeInTheDocument()
       expect(screen.queryByText("Failed to load Floating IPs")).not.toBeInTheDocument()
     })

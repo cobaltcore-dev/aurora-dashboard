@@ -136,12 +136,10 @@ describe("networkRouter.listExternalNetworks", () => {
     const ctx = createMockContext({ invalidSession: true })
     const caller = createCaller(ctx)
 
-    await expect(caller.network.listExternalNetworks({})).rejects.toThrow(
-      new TRPCError({
-        code: "UNAUTHORIZED",
-        message: "The session is invalid",
-      })
-    )
+    await expect(caller.network.listExternalNetworks({})).rejects.toMatchObject({
+      code: "UNAUTHORIZED",
+      message: "The session is invalid",
+    })
   })
 
   it("throws INTERNAL_SERVER_ERROR when network service is unavailable", async () => {
@@ -180,7 +178,7 @@ describe("networkRouter.listExternalNetworks", () => {
 
     await expect(caller.network.listExternalNetworks({})).rejects.toMatchObject({
       code: "UNAUTHORIZED",
-      message: "Unauthorized access",
+      message: "Unauthorized access to Network: Unauthorized",
     })
   })
 })
