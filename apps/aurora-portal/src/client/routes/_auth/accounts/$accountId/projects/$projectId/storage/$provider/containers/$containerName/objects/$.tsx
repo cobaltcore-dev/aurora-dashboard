@@ -2,7 +2,7 @@ import { createFileRoute, ErrorComponent, redirect, useParams } from "@tanstack/
 import { getServiceIndex } from "@/server/Authentication/helpers"
 import { ErrorBoundary } from "react-error-boundary"
 import { Trans, useLingui } from "@lingui/react/macro"
-import { SwiftObjects } from "../../../../-components/SwiftObjectStorage/ObjectList"
+import { SwiftObjects } from "../../../../-components/Swift/Objects"
 import { z } from "zod"
 
 export const checkServiceAvailability = (

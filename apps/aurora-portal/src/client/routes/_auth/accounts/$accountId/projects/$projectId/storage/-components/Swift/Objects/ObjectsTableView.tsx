@@ -3,7 +3,7 @@ import { useVirtualizer } from "@tanstack/react-virtual"
 import { DataGrid, DataGridHeadCell, DataGridRow, DataGridCell, Icon } from "@cloudoperators/juno-ui-components"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { formatBytesBinary } from "@/client/utils/formatBytes"
-import { BrowserRow } from "./ObjectList"
+import { BrowserRow } from "./"
 
 // Define column template — 3 columns: name | last modified | size
 const GRID_COLUMN_TEMPLATE = "minmax(200px, 3fr) minmax(180px, 2fr) minmax(100px, 1fr)"

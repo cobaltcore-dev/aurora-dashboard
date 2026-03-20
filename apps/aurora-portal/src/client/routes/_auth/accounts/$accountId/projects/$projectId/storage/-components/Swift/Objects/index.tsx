@@ -6,7 +6,7 @@ import { ObjectSummary } from "@/server/Storage/types/swift"
 import { ListToolbar } from "@/client/components/ListToolbar"
 import { SortSettings } from "@/client/components/ListToolbar/types"
 import { useNavigate, useParams } from "@tanstack/react-router"
-import { Route } from "../../$provider/containers/$containerName/objects/$"
+import { Route } from "../../../$provider/containers/$containerName/objects/$"
 import { ObjectsTableView } from "./ObjectsTableView"
 import { ObjectsFileNavigation } from "./ObjectsFileNavigation"
 

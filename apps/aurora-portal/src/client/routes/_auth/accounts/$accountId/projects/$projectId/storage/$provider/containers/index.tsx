@@ -1,7 +1,7 @@
 import { createFileRoute, ErrorComponent, redirect, useParams } from "@tanstack/react-router"
 import { getServiceIndex } from "@/server/Authentication/helpers"
 import { ErrorBoundary } from "react-error-boundary"
-import { SwiftContainers } from "../../-components/SwiftObjectStorage/ContainerList"
+import { SwiftContainers } from "../../-components/Swift/Containers"
 import { Trans, useLingui } from "@lingui/react/macro"
 
 export const checkServiceAvailability = (
