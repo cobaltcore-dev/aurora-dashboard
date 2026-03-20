@@ -11,10 +11,9 @@ import {
   ContentHeading,
 } from "@cloudoperators/juno-ui-components/index"
 import type { FloatingIp } from "@/server/Network/types/floatingIp"
-import type { FloatingIpUpdateRequest } from "@/server/Network/types/floatingIp"
 import { trpcReact } from "@/client/trpcClient"
 import { formatFloatingIpStatus } from "@/client/utils/formatFloatingIpStatus"
-import { EditFloatingIpModal } from "./-modals/EditFloatingIpModal"
+import { EditFloatingIpModal, FloatingIpUpdateFields } from "./-modals/EditFloatingIpModal"
 
 interface FloatingIpDetailsViewProps {
   floatingIp: FloatingIp
@@ -36,7 +35,7 @@ export const FloatingIpDetailsView = ({ floatingIp }: FloatingIpDetailsViewProps
     },
   })
 
-  const handleUpdateFloatingIp = async (floatingIpId: string, data: Omit<FloatingIpUpdateRequest, "floatingip_id">) => {
+  const handleUpdateFloatingIp = async (floatingIpId: string, data: FloatingIpUpdateFields) => {
     await updateFloatingIpMutation.mutateAsync({
       floatingip_id: floatingIpId,
       ...data,

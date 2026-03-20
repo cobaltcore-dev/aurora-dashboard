@@ -4,8 +4,8 @@ import userEvent from "@testing-library/user-event"
 import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import { i18n } from "@lingui/core"
 import { I18nProvider } from "@lingui/react"
-import { EditFloatingIpModal } from "./EditFloatingIpModal"
-import type { FloatingIp, FloatingIpUpdateRequest } from "@/server/Network/types/floatingIp"
+import { EditFloatingIpModal, FloatingIpUpdateFields } from "./EditFloatingIpModal"
+import type { FloatingIp } from "@/server/Network/types/floatingIp"
 
 const mockFloatingIp: FloatingIp = {
   id: "fip-123",
@@ -35,7 +35,7 @@ const renderModal = ({
   floatingIp?: FloatingIp
   open?: boolean
   onClose?: () => void
-  onUpdate?: (floatingIpId: string, data: Omit<FloatingIpUpdateRequest, "floatingip_id">) => Promise<void>
+  onUpdate?: (floatingIpId: string, data: FloatingIpUpdateFields) => Promise<void>
   isLoading?: boolean
   error?: string | null
 } = {}) =>

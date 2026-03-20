@@ -8,6 +8,7 @@ import { createRoute, createRootRoute, RouterProvider, createMemoryHistory, crea
 import { FloatingIpTableRow } from "./FloatingIpTableRow"
 import type { FloatingIp } from "@/server/Network/types/floatingIp"
 import { describe, it, expect, vi, afterEach, beforeEach } from "vitest"
+import { FloatingIpUpdateFields } from "../../../floatingips/-components/-modals/EditFloatingIpModal"
 
 const { mockUseUtils, mockUpdateMutation } = vi.hoisted(() => ({
   mockUseUtils: vi.fn(),
@@ -38,7 +39,7 @@ vi.mock("../../../floatingips/-components/-modals/EditFloatingIpModal", () => ({
   }: {
     open: boolean
     onClose: () => void
-    onUpdate: (floatingIpId: string, data: { description: string }) => Promise<void>
+    onUpdate: (floatingIpId: string, data: FloatingIpUpdateFields) => Promise<void>
     floatingIp: FloatingIp
     isLoading: boolean
     error: string | null
@@ -48,7 +49,13 @@ vi.mock("../../../floatingips/-components/-modals/EditFloatingIpModal", () => ({
         <span data-testid="edit-modal-loading">{isLoading ? "loading" : "idle"}</span>
         <span data-testid="edit-modal-error">{error ?? ""}</span>
         <button onClick={onClose}>Close Edit Modal</button>
-        <button onClick={() => onUpdate(floatingIp.id, { description: "Updated description" })}>Save Edit</button>
+        <button
+          onClick={() =>
+            onUpdate(floatingIp.id, { port_id: floatingIp.port_id ?? null, description: "Updated description" })
+          }
+        >
+          Save Edit
+        </button>
       </div>
     ) : null,
 }))
@@ -343,6 +350,7 @@ describe("FloatingIpTableRow", () => {
       await waitFor(() => {
         expect(mutateAsyncMock).toHaveBeenCalledWith({
           floatingip_id: mockFloatingIp.id,
+          port_id: mockFloatingIp.port_id,
           description: "Updated description",
         })
       })

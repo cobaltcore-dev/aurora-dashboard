@@ -6,6 +6,7 @@ import { i18n } from "@lingui/core"
 import { FloatingIpDetailsView } from "./FloatingIpDetailsView"
 import type { FloatingIp } from "@/server/Network/types/floatingIp"
 import { ReactNode } from "react"
+import { FloatingIpUpdateFields } from "./-modals/EditFloatingIpModal"
 
 const { mockUseUtils, mockUpdateMutation } = vi.hoisted(() => ({
   mockUseUtils: vi.fn(),
@@ -36,7 +37,7 @@ vi.mock("./-modals/EditFloatingIpModal", () => ({
   }: {
     open: boolean
     onClose: () => void
-    onUpdate: (floatingIpId: string, data: { description: string }) => Promise<void>
+    onUpdate: (floatingIpId: string, data: FloatingIpUpdateFields) => Promise<void>
     floatingIp: FloatingIp
     isLoading: boolean
     error: string | null
@@ -46,7 +47,11 @@ vi.mock("./-modals/EditFloatingIpModal", () => ({
         <span data-testid="edit-modal-loading">{isLoading ? "loading" : "idle"}</span>
         <span data-testid="edit-modal-error">{error ?? ""}</span>
         <button onClick={onClose}>Close Edit Modal</button>
-        <button onClick={() => onUpdate(floatingIp.id, { description: "Updated details description" })}>
+        <button
+          onClick={() =>
+            onUpdate(floatingIp.id, { port_id: floatingIp.port_id ?? null, description: "Updated details description" })
+          }
+        >
           Save Edit
         </button>
       </div>
@@ -178,6 +183,7 @@ describe("FloatingIpDetailsView", () => {
       await waitFor(() => {
         expect(mutateAsyncMock).toHaveBeenCalledWith({
           floatingip_id: mockFloatingIp.id,
+          port_id: mockFloatingIp.port_id,
           description: "Updated details description",
         })
       })
