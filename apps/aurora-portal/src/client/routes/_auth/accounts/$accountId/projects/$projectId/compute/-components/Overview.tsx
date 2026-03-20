@@ -1,15 +1,16 @@
 import { ActivitySummary } from "./ActivitySummary"
 import { Suspense, use } from "react"
 import { Server } from "@/server/Compute/types/server"
-import { GlanceImage } from "@/server/Compute/types/image"
+import { GlanceImage, ImagesPaginatedResponse } from "@/server/Compute/types/image"
 import { TrpcClient } from "@/client/trpcClient"
 import { Trans } from "@lingui/react/macro"
 
 interface OverviewContainerProps {
-  getDataPromise: Promise<[Server[] | undefined, GlanceImage[] | undefined]>
+  getDataPromise: Promise<[Server[] | undefined, ImagesPaginatedResponse]>
 }
 const OverviewContainer = ({ getDataPromise }: OverviewContainerProps) => {
-  const [servers, images] = use(getDataPromise)
+  const [servers, imagesResponse] = use(getDataPromise)
+  const images = imagesResponse.images
   if (!servers && !images) return <div className="p-4 text-center">No data found</div>
 
   // Calculate server statistics
