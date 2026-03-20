@@ -178,7 +178,7 @@ describe("imageRouter", () => {
 
       const result = await caller.image.listImagesWithSearch({ name: "ubuntu" })
 
-      expect(result).toEqual([ubuntuImage])
+      expect(result.images).toEqual([ubuntuImage])
     })
 
     it("should not include name in the API URL query string", async () => {
@@ -210,7 +210,7 @@ describe("imageRouter", () => {
 
       const result = await caller.image.listImagesWithSearch({})
 
-      expect(result).toHaveLength(2)
+      expect(result.images).toHaveLength(2)
     })
 
     it("should filter images by name server-side (substring match)", async () => {
@@ -231,8 +231,8 @@ describe("imageRouter", () => {
 
       const result = await caller.image.listImagesWithSearch({ name: "ubuntu" })
 
-      expect(result).toHaveLength(1)
-      expect(result[0].name).toBe("ubuntu-22.04-lts")
+      expect(result.images).toHaveLength(1)
+      expect(result.images[0].name).toBe("ubuntu-22.04-lts")
     })
   })
 
