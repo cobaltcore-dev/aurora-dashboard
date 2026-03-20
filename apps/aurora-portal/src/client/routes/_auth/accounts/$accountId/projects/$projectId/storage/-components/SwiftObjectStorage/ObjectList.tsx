@@ -167,7 +167,7 @@ export const SwiftObjects = () => {
       { label: t`Last Modified`, value: "last_modified" },
       { label: t`Size`, value: "bytes" },
     ],
-    sortBy: "name",
+    sortBy: undefined,
     sortDirection: "asc",
   })
 
@@ -204,31 +204,30 @@ export const SwiftObjects = () => {
 
   const filteredRows = allRows.filter((row) => row.displayName.toLowerCase().includes(searchTerm.toLowerCase().trim()))
 
-  const sortedRows = [...filteredRows].sort((a, b) => {
-    // Folders always float to the top regardless of sort key
-    if (a.kind !== b.kind) return a.kind === "folder" ? -1 : 1
-
-    let comparison = 0
-    switch (sortSettings.sortBy) {
-      case "name":
-        comparison = a.displayName.localeCompare(b.displayName)
-        break
-      case "last_modified": {
-        const aDate = a.kind === "object" ? a.last_modified : undefined
-        const bDate = b.kind === "object" ? b.last_modified : undefined
-        if (!aDate || !bDate) break
-        comparison = new Date(aDate).getTime() - new Date(bDate).getTime()
-        break
-      }
-      case "bytes": {
-        const aBytes = a.kind === "object" ? a.bytes : 0
-        const bBytes = b.kind === "object" ? b.bytes : 0
-        comparison = aBytes - bBytes
-        break
-      }
-    }
-    return sortSettings.sortDirection === "desc" ? -comparison : comparison
-  })
+  const sortedRows = !sortSettings.sortBy
+    ? filteredRows
+    : [...filteredRows].sort((a, b) => {
+        let comparison = 0
+        switch (sortSettings.sortBy) {
+          case "name":
+            comparison = a.displayName.localeCompare(b.displayName)
+            break
+          case "last_modified": {
+            const aDate = a.kind === "object" ? a.last_modified : undefined
+            const bDate = b.kind === "object" ? b.last_modified : undefined
+            if (!aDate || !bDate) break
+            comparison = new Date(aDate).getTime() - new Date(bDate).getTime()
+            break
+          }
+          case "bytes": {
+            const aBytes = a.kind === "object" ? a.bytes : 0
+            const bBytes = b.kind === "object" ? b.bytes : 0
+            comparison = aBytes - bBytes
+            break
+          }
+        }
+        return sortSettings.sortDirection === "desc" ? -comparison : comparison
+      })
 
   // ── Scrollbar width ───────────────────────────────────────────────────────
 
