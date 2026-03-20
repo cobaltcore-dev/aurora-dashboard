@@ -1,7 +1,7 @@
 import { ActivitySummary } from "./ActivitySummary"
 import { Suspense, use } from "react"
 import { Server } from "@/server/Compute/types/server"
-import { GlanceImage, ImagesPaginatedResponse } from "@/server/Compute/types/image"
+import { ImagesPaginatedResponse } from "@/server/Compute/types/image"
 import { TrpcClient } from "@/client/trpcClient"
 import { Trans } from "@lingui/react/macro"
 
