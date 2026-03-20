@@ -138,41 +138,7 @@ export const ListToolbar = ({
     : null
 
   return (
-    <Stack alignment="center" gap="6" className="bg-theme-background-lvl-1 flex w-full flex-col p-4">
-      {actions && (
-        <Stack direction="horizontal" className="w-full justify-end">
-          {actions}
-        </Stack>
-      )}
-
-      <div className="flex w-full flex-col items-stretch gap-4 md:flex-row md:items-center">
-        {filtersProps && (
-          <div className="w-full md:w-auto md:min-w-[150px]">
-            <FiltersInput {...filtersProps} />
-          </div>
-        )}
-        {sortProps && (
-          <div className="w-full md:w-auto md:min-w-[180px]">
-            <SortInput {...sortProps} />
-          </div>
-        )}
-        {searchProps && (
-          <div className="w-full md:ml-auto md:w-auto md:min-w-[100px]">
-            <SearchInput {...searchProps} />
-          </div>
-        )}
-      </div>
-
-      {filterSettings?.selectedFilters && filterSettings.selectedFilters.length > 0 && onFilter && (
-        <div className="w-full">
-          <SelectedFilters
-            selectedFilters={filterSettings.selectedFilters}
-            onDelete={handleFilterDelete}
-            onClear={() => onFilter({ ...filterSettings, selectedFilters: [] })}
-          />
-        </div>
-      )}
-
+    <>
       {tabs && (
         <div className="w-full">
           <TabNavigation activeItem={tabs.activeItem} onActiveItemChange={tabs.onActiveItemChange}>
@@ -182,6 +148,41 @@ export const ListToolbar = ({
           </TabNavigation>
         </div>
       )}
-    </Stack>
+      <Stack alignment="center" gap="6" className="bg-theme-background-lvl-1 flex w-full flex-col p-4">
+        {actions && (
+          <Stack direction="horizontal" className="w-full justify-end">
+            {actions}
+          </Stack>
+        )}
+
+        <div className="flex w-full flex-col items-stretch gap-4 md:flex-row md:items-center">
+          {filtersProps && (
+            <div className="w-full md:w-auto md:min-w-[150px]">
+              <FiltersInput {...filtersProps} />
+            </div>
+          )}
+          {sortProps && (
+            <div className="w-full md:w-auto md:min-w-[180px]">
+              <SortInput {...sortProps} />
+            </div>
+          )}
+          {searchProps && (
+            <div className="w-full md:ml-auto md:w-auto md:min-w-[100px]">
+              <SearchInput {...searchProps} />
+            </div>
+          )}
+        </div>
+
+        {filterSettings?.selectedFilters && filterSettings.selectedFilters.length > 0 && onFilter && (
+          <div className="w-full">
+            <SelectedFilters
+              selectedFilters={filterSettings.selectedFilters}
+              onDelete={handleFilterDelete}
+              onClear={() => onFilter({ ...filterSettings, selectedFilters: [] })}
+            />
+          </div>
+        )}
+      </Stack>
+    </>
   )
 }
