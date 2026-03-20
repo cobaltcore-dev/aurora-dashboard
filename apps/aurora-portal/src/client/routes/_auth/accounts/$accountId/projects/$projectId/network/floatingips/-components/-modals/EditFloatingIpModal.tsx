@@ -134,12 +134,11 @@ export const EditFloatingIpModal = ({
                     name={field.name}
                     value={field.state.value}
                     onChange={(e) => field.handleChange(e.target.value)}
-                    errortext={field.state.meta.errors.join(", ")}
+                    errortext={field.state.meta.errors.map((e) => e?.message).join(", ")}
                     label={t`Description`}
                     placeholder={t`Description`}
                     disabled={isLoading}
                     required
-                    maxLength={255}
                   />
                 )}
               />
