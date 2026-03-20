@@ -200,9 +200,11 @@ export const imageRouter = {
         applyImageQueryParams(queryParams, minimalQuery as ListImagesInput)
 
         let currentUrl: string | undefined = `v2/images?${queryParams.toString()}`
+        let pageCount = 0
+        const MAX_PAGES = 100 // Safety limit to prevent infinite loops
 
         // Fetch all pages from OpenStack
-        while (currentUrl) {
+        while (currentUrl && pageCount < MAX_PAGES) {
           const response = await glance.get(currentUrl).catch((error) => {
             throw mapErrorResponseToTRPCError(error, { operation: "list images with pagination" })
           })
@@ -214,6 +216,7 @@ export const imageRouter = {
 
           allImages.push(...parsedData.data.images)
           currentUrl = parsedData.data.next
+          pageCount++
         }
 
         // Apply BFF-side filtering
