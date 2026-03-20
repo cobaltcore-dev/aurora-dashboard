@@ -1,24 +1,14 @@
-import { useRef, useEffect, useState, startTransition } from "react"
-import { useVirtualizer } from "@tanstack/react-virtual"
-import { useNavigate, useParams } from "@tanstack/react-router"
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  DataGrid,
-  DataGridHeadCell,
-  DataGridRow,
-  DataGridCell,
-  Spinner,
-  Stack,
-  Icon,
-} from "@cloudoperators/juno-ui-components"
+import { useState, startTransition } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
+import { Spinner, Stack } from "@cloudoperators/juno-ui-components"
 import { trpcReact } from "@/client/trpcClient"
-import { formatBytesBinary } from "@/client/utils/formatBytes"
 import { ObjectSummary } from "@/server/Storage/types/swift"
 import { ListToolbar } from "@/client/components/ListToolbar"
 import { SortSettings } from "@/client/components/ListToolbar/types"
+import { useNavigate, useParams } from "@tanstack/react-router"
 import { Route } from "../../$provider/containers/$containerName/objects/$"
+import { ObjectsTableView } from "./ObjectsTableView"
+import { ObjectsFileNavigation } from "./ObjectsFileNavigation"
 
 // ── Prefix helpers ────────────────────────────────────────────────────────────
 
@@ -37,7 +27,7 @@ const decodePrefix = (encoded: string | undefined): string => {
 
 // ── Row types ─────────────────────────────────────────────────────────────────
 
-interface FolderRow {
+export interface FolderRow {
   kind: "folder"
   /** Full prefix key, e.g. "test/" */
   name: string
@@ -45,7 +35,7 @@ interface FolderRow {
   displayName: string
 }
 
-interface ObjectRow {
+export interface ObjectRow {
   kind: "object"
   name: string
   displayName: string
@@ -54,11 +44,11 @@ interface ObjectRow {
   content_type: string | undefined
 }
 
-type BrowserRow = FolderRow | ObjectRow
+export type BrowserRow = FolderRow | ObjectRow
 
 // ── Build folder + object rows from a flat Swift listing ──────────────────────
 
-function buildRows(objects: ObjectSummary[], prefix: string): BrowserRow[] {
+export function buildRows(objects: ObjectSummary[], prefix: string): BrowserRow[] {
   const folders: FolderRow[] = []
   const files: ObjectRow[] = []
   const seenFolders = new Set<string>()
@@ -127,23 +117,7 @@ function buildRows(objects: ObjectSummary[], prefix: string): BrowserRow[] {
   return [...folders, ...files]
 }
 
-// ── Breadcrumb helpers ────────────────────────────────────────────────────────
-
-/**
- * Splits the current prefix into navigable breadcrumb segments.
- * e.g. "a/b/c/" → [{ label: "a", prefix: "a/" }, { label: "b", prefix: "a/b/" }, { label: "c", prefix: "a/b/c/" }]
- */
-function prefixToSegments(prefix: string): { label: string; prefix: string }[] {
-  if (!prefix) return []
-  // Remove trailing slash before splitting so we don't get a trailing empty segment
-  const parts = prefix.replace(/\/$/, "").split("/").filter(Boolean)
-  return parts.map((label, i) => ({
-    label,
-    prefix: parts.slice(0, i + 1).join("/") + "/",
-  }))
-}
-
-// ── Component ─────────────────────────────────────────────────────────────────
+// ── SwiftObjects ──────────────────────────────────────────────────────────────
 
 export const SwiftObjects = () => {
   const { t } = useLingui()
@@ -154,12 +128,6 @@ export const SwiftObjects = () => {
   })
   const { prefix: encodedPrefix } = Route.useSearch()
   const currentPrefix = decodePrefix(encodedPrefix)
-
-  // Breadcrumb segments derived from the current prefix
-  const prefixSegments = prefixToSegments(currentPrefix)
-
-  const parentRef = useRef<HTMLDivElement>(null)
-  const [scrollbarWidth, setScrollbarWidth] = useState(0)
 
   const [sortSettings, setSortSettings] = useState<SortSettings>({
     options: [
@@ -229,24 +197,6 @@ export const SwiftObjects = () => {
         return sortSettings.sortDirection === "desc" ? -comparison : comparison
       })
 
-  // ── Scrollbar width ───────────────────────────────────────────────────────
-
-  useEffect(() => {
-    if (parentRef.current) {
-      const width = parentRef.current.offsetWidth - parentRef.current.clientWidth
-      setScrollbarWidth(width)
-    }
-  }, [sortedRows.length])
-
-  // ── Virtualizer ───────────────────────────────────────────────────────────
-
-  const rowVirtualizer = useVirtualizer({
-    count: sortedRows.length,
-    getScrollElement: () => parentRef.current,
-    estimateSize: () => 48,
-    overscan: 10,
-  })
-
   // ── Handlers ─────────────────────────────────────────────────────────────
 
   const handleSearchChange = (term: string | number | string[] | undefined) => {
@@ -264,16 +214,7 @@ export const SwiftObjects = () => {
     )
   }
 
-  const formatDate = (dateString: string): string => {
-    try {
-      return new Date(dateString).toLocaleString()
-    } catch {
-      return t`N/A`
-    }
-  }
-
-  // ── Loading / error ───────────────────────────────────────────────────────
-
+  // Handle loading state
   if (isLoading) {
     return (
       <Stack className="fixed inset-0" distribution="center" alignment="center" direction="vertical">
@@ -283,6 +224,7 @@ export const SwiftObjects = () => {
     )
   }
 
+  // Handle error state
   if (error) {
     return (
       <Stack className="fixed inset-0" distribution="center" alignment="center" direction="vertical">
@@ -291,60 +233,13 @@ export const SwiftObjects = () => {
     )
   }
 
-  // ── Column template: name | last modified | size ──────────────────────────
-  const gridColumnTemplate = "minmax(200px, 3fr) minmax(180px, 2fr) minmax(100px, 1fr)"
-
-  const totalCount = sortedRows.length
-  const visibleCount = rowVirtualizer.getVirtualItems().length
-
-  // ── Empty state ───────────────────────────────────────────────────────────
-
-  if (sortedRows.length === 0) {
-    return (
-      <>
-        <ObjectsBreadcrumb
-          containerName={containerName}
-          prefixSegments={prefixSegments}
-          onContainersClick={navigateToContainers}
-          onSegmentClick={(prefix) => navigateToPrefix(prefix)}
-        />
-        <ListToolbar
-          sortSettings={sortSettings}
-          searchTerm={searchTerm}
-          onSort={handleSortChange}
-          onSearch={handleSearchChange}
-        />
-        <DataGrid columns={3} className="objects" data-testid="no-objects">
-          <DataGridRow>
-            <DataGridCell colSpan={3}>
-              <div className="py-8 text-center">
-                <h3 className="text-lg font-semibold">
-                  <Trans>No objects found</Trans>
-                </h3>
-                <p className="text-theme-light mt-2">
-                  {searchTerm ? (
-                    <Trans>No objects match your search. Try adjusting your search term.</Trans>
-                  ) : (
-                    <Trans>This folder is empty.</Trans>
-                  )}
-                </p>
-              </div>
-            </DataGridCell>
-          </DataGridRow>
-        </DataGrid>
-      </>
-    )
-  }
-
-  // ── Table ─────────────────────────────────────────────────────────────────
-
   return (
     <div className="relative">
-      <ObjectsBreadcrumb
+      <ObjectsFileNavigation
         containerName={containerName}
-        prefixSegments={prefixSegments}
+        currentPrefix={currentPrefix}
         onContainersClick={navigateToContainers}
-        onSegmentClick={(prefix) => navigateToPrefix(prefix)}
+        onPrefixClick={navigateToPrefix}
       />
       <ListToolbar
         sortSettings={sortSettings}
@@ -352,157 +247,7 @@ export const SwiftObjects = () => {
         onSort={handleSortChange}
         onSearch={handleSearchChange}
       />
-
-      <div className="relative">
-        {/* Fixed header with scrollbar compensation */}
-        <div style={{ paddingRight: `${scrollbarWidth}px` }}>
-          <DataGrid
-            columns={3}
-            gridColumnTemplate={gridColumnTemplate}
-            className="objects"
-            data-testid="objects-table-header"
-          >
-            <DataGridRow>
-              <DataGridHeadCell>
-                <Trans>Object Name</Trans>
-              </DataGridHeadCell>
-              <DataGridHeadCell>
-                <Trans>Last Modified</Trans>
-              </DataGridHeadCell>
-              <DataGridHeadCell style={{ marginRight: `-${scrollbarWidth}px` }}>
-                <Trans>Size</Trans>
-              </DataGridHeadCell>
-            </DataGridRow>
-          </DataGrid>
-        </div>
-
-        {/* Virtualized body */}
-        <div
-          ref={parentRef}
-          className="overflow-auto"
-          style={{ height: "calc(100vh - 485px)" }}
-          data-testid="objects-table-body"
-        >
-          <div
-            style={{
-              height: `${rowVirtualizer.getTotalSize()}px`,
-              width: "100%",
-              position: "relative",
-            }}
-          >
-            {rowVirtualizer.getVirtualItems().map((virtualRow) => {
-              const row = sortedRows[virtualRow.index]
-              const isFolder = row.kind === "folder"
-
-              return (
-                <div
-                  key={row.name}
-                  data-index={virtualRow.index}
-                  ref={rowVirtualizer.measureElement}
-                  className="juno-datagrid"
-                  style={{
-                    position: "absolute",
-                    top: 0,
-                    left: 0,
-                    width: "100%",
-                    transform: `translateY(${virtualRow.start}px)`,
-                    display: "grid",
-                    gridTemplateColumns: gridColumnTemplate,
-                    alignItems: "stretch",
-                  }}
-                  data-testid={`object-row-${row.name}`}
-                >
-                  {/* Name */}
-                  <DataGridCell className="min-w-0 overflow-hidden">
-                    {isFolder ? (
-                      <button
-                        type="button"
-                        className="flex min-w-0 items-center gap-2 text-left hover:underline focus:outline-none"
-                        onClick={() => navigateToPrefix(row.name)}
-                        data-testid={`folder-${row.name}`}
-                        title={row.displayName}
-                      >
-                        <Icon icon="autoAwesomeMosaic" size="18" className="text-theme-light shrink-0" />
-                        <span className="truncate">{row.displayName}</span>
-                      </button>
-                    ) : (
-                      <span className="flex min-w-0 items-center gap-2" title={row.displayName}>
-                        <Icon icon="description" size="18" className="text-theme-light shrink-0" />
-                        <span className="truncate">{row.displayName}</span>
-                      </span>
-                    )}
-                  </DataGridCell>
-
-                  {/* Last Modified */}
-                  <DataGridCell>{!isFolder && row.last_modified ? formatDate(row.last_modified) : "—"}</DataGridCell>
-
-                  {/* Size */}
-                  <DataGridCell>{!isFolder ? formatBytesBinary(row.bytes) : "—"}</DataGridCell>
-                </div>
-              )
-            })}
-          </div>
-        </div>
-
-        {/* Footer */}
-        <div className="text-theme-light border-theme-background-lvl-2 border-t px-4 py-2 text-sm">
-          <Trans>
-            Showing {visibleCount} of {totalCount} items
-          </Trans>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-// ── ObjectsBreadcrumb ─────────────────────────────────────────────────────────
-
-interface ObjectsBreadcrumbProps {
-  containerName: string
-  prefixSegments: { label: string; prefix: string }[]
-  onContainersClick: () => void
-  onSegmentClick: (prefix: string) => void
-}
-
-function ObjectsBreadcrumb({
-  containerName,
-  prefixSegments,
-  onContainersClick,
-  onSegmentClick,
-}: ObjectsBreadcrumbProps) {
-  const { t } = useLingui()
-
-  // The last segment (deepest folder) is the active crumb — non-clickable.
-  // All segments before it are clickable navigation targets.
-  const isAtRoot = prefixSegments.length === 0
-
-  return (
-    <div className="mb-2 px-2 pt-2">
-      <Breadcrumb>
-        {/* "All containers" root — always navigates back to the container list */}
-        <BreadcrumbItem onClick={onContainersClick} label={t`All containers`} icon="dns" />
-
-        {/* Container name — active when at root prefix, clickable otherwise */}
-        <BreadcrumbItem
-          onClick={isAtRoot ? undefined : () => onSegmentClick("")}
-          active={isAtRoot}
-          label={containerName}
-          icon="autoAwesomeMosaic"
-        />
-
-        {/* One crumb per prefix segment, last one is active */}
-        {prefixSegments.map((seg, i) => {
-          const isLast = i === prefixSegments.length - 1
-          return (
-            <BreadcrumbItem
-              key={seg.prefix}
-              onClick={isLast ? undefined : () => onSegmentClick(seg.prefix)}
-              active={isLast}
-              label={seg.label}
-            />
-          )
-        })}
-      </Breadcrumb>
+      <ObjectsTableView rows={sortedRows} searchTerm={searchTerm} onFolderClick={navigateToPrefix} />
     </div>
   )
 }
