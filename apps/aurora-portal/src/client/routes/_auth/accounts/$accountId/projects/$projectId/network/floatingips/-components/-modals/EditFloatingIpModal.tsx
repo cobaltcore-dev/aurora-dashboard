@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState, type ChangeEvent } from "react"
+import { z } from "zod"
+import { useForm } from "@tanstack/react-form"
 import { Trans, useLingui } from "@lingui/react/macro"
 import {
   Modal,
@@ -23,7 +24,13 @@ interface EditFloatingIpModalProps {
   error?: string | null
 }
 
-const MAX_DESCRIPTION_LENGTH = 255
+const formSchema = z.object({
+  description: z
+    .string()
+    .trim()
+    .min(1, "Description must be at least 1 character.")
+    .max(255, "Description must be at most 255 characters."),
+})
 
 export const EditFloatingIpModal = ({
   floatingIp,
@@ -34,67 +41,38 @@ export const EditFloatingIpModal = ({
   error = null,
 }: EditFloatingIpModalProps) => {
   const { t } = useLingui()
-  const { floating_ip_address, description } = floatingIp
-  const [descriptionFieldValue, setDescriptionFieldValue] = useState<FloatingIp["description"]>(description)
-  const [isTouched, setIsTouched] = useState(false)
+  const { description, floating_ip_address } = floatingIp
 
-  useEffect(() => {
-    setDescriptionFieldValue(floatingIp.description)
-    setIsTouched(false)
-  }, [floatingIp])
+  const form = useForm({
+    defaultValues: {
+      description: description ?? "",
+    },
+    validators: {
+      onSubmit: formSchema,
+    },
+    onSubmit: async ({ value }) => {
+      if (!onUpdate || isLoading) {
+        return
+      }
 
-  const normalizedDescription = descriptionFieldValue ?? ""
-  const trimmedDescription = normalizedDescription.trim()
-
-  const descriptionError = useMemo(() => {
-    if (!isTouched) {
-      return ""
-    }
-
-    if (!trimmedDescription) {
-      return t`Description is required`
-    }
-
-    if (normalizedDescription.length > MAX_DESCRIPTION_LENGTH) {
-      return t`Description must be ${MAX_DESCRIPTION_LENGTH} characters or less`
-    }
-
-    return ""
-  }, [isTouched, trimmedDescription, normalizedDescription.length, t])
-
-  const handleInputChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
-    setDescriptionFieldValue(e.target.value)
-    if (!isTouched) {
-      setIsTouched(true)
-    }
-  }
-
-  const handleSubmit = async () => {
-    setIsTouched(true)
-
-    if (!onUpdate || isLoading || !trimmedDescription || normalizedDescription.length > MAX_DESCRIPTION_LENGTH) {
-      return
-    }
-
-    const updateData: Omit<FloatingIpUpdateRequest, "floatingip_id"> = {
-      port_id: floatingIp.port_id ?? null,
-      description: trimmedDescription,
-    }
-
-    await onUpdate(floatingIp.id, updateData)
-    onClose()
-  }
+      const updateData: Omit<FloatingIpUpdateRequest, "floatingip_id"> = {
+        port_id: floatingIp.port_id ?? null,
+        description: value.description.trim(),
+      }
+      await onUpdate(floatingIp.id, updateData)
+      handleClose()
+    },
+  })
 
   const handleClose = () => {
+    form.reset()
     onClose()
   }
-
-  const isDescriptionChanged = normalizedDescription !== (floatingIp.description ?? "")
-  const isDescriptionInvalid = !trimmedDescription || normalizedDescription.length > MAX_DESCRIPTION_LENGTH
-  const isSaveDisabled = isLoading || !isDescriptionChanged || isDescriptionInvalid
 
   return (
     <Modal
+      // Remount the modal when a different Floating IP is selected so TanStack Form picks up fresh defaultValues.
+      key={floatingIp.id}
       open={open}
       onCancel={handleClose}
       size="large"
@@ -102,16 +80,17 @@ export const EditFloatingIpModal = ({
       modalFooter={
         <ModalFooter className="flex justify-end">
           <ButtonRow>
-            <Button variant="default" onClick={handleClose} disabled={isLoading}>
+            <Button variant="default" onClick={handleClose} disabled={isLoading || form.state.isSubmitting}>
               <Trans>Cancel</Trans>
             </Button>
             <Button
               variant="primary"
-              onClick={handleSubmit}
-              disabled={isSaveDisabled}
+              type="submit"
+              form="edit-floating-ip-form"
+              disabled={isLoading || !form.state.isDirty || form.state.isSubmitting}
               data-testid="update-floating-ip-button"
             >
-              {isLoading ? <Spinner size="small" /> : <Trans>Save</Trans>}
+              {form.state.isSubmitting ? <Spinner size="small" /> : <Trans>Save</Trans>}
             </Button>
           </ButtonRow>
         </ModalFooter>
@@ -133,20 +112,32 @@ export const EditFloatingIpModal = ({
       )}
 
       {!isLoading && (
-        <Form className="mb-6">
+        <Form
+          className="mb-6"
+          id="edit-floating-ip-form"
+          onSubmit={(e) => {
+            e.preventDefault()
+            form.handleSubmit()
+          }}
+        >
           <FormSection className="mb-6">
             <FormRow className="mb-6">
-              <Textarea
-                id="description"
+              <form.Field
                 name="description"
-                label={t`Description`}
-                placeholder={t`Description`}
-                value={normalizedDescription}
-                onChange={handleInputChange}
-                disabled={isLoading}
-                required
-                errortext={descriptionError}
-                maxLength={MAX_DESCRIPTION_LENGTH}
+                children={(field) => (
+                  <Textarea
+                    id={field.name}
+                    name={field.name}
+                    value={field.state.value}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    errortext={field.state.meta.errors.join(", ")}
+                    label={t`Description`}
+                    placeholder={t`Description`}
+                    disabled={isLoading}
+                    required
+                    maxLength={255}
+                  />
+                )}
               />
             </FormRow>
           </FormSection>
