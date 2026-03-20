@@ -7,8 +7,10 @@ import { FloatingIpDetailsView } from "./FloatingIpDetailsView"
 import type { FloatingIp } from "@/server/Network/types/floatingIp"
 import { ReactNode } from "react"
 
-const mockUseUtils = vi.fn()
-const mockUpdateMutation = vi.fn()
+const { mockUseUtils, mockUpdateMutation } = vi.hoisted(() => ({
+  mockUseUtils: vi.fn(),
+  mockUpdateMutation: vi.fn(),
+}))
 
 vi.mock("@/client/trpcClient", () => ({
   trpcReact: {

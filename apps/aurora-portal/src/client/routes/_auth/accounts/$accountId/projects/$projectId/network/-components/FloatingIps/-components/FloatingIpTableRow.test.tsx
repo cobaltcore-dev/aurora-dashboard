@@ -9,8 +9,10 @@ import { FloatingIpTableRow } from "./FloatingIpTableRow"
 import type { FloatingIp } from "@/server/Network/types/floatingIp"
 import { describe, it, expect, vi, afterEach, beforeEach } from "vitest"
 
-const mockUseUtils = vi.fn()
-const mockUpdateMutation = vi.fn()
+const { mockUseUtils, mockUpdateMutation } = vi.hoisted(() => ({
+  mockUseUtils: vi.fn(),
+  mockUpdateMutation: vi.fn(),
+}))
 
 vi.mock("@/client/trpcClient", () => ({
   trpcReact: {
@@ -326,6 +328,10 @@ describe("FloatingIpTableRow", () => {
       const router = createTestRouter(<FloatingIpTableRow floatingIp={mockFloatingIp} />)
       render(<RouterProvider router={router} />)
 
+      await waitFor(() => {
+        expect(screen.getByTestId(`floating-ip-row-${mockFloatingIp.id}`)).toBeInTheDocument()
+      })
+
       const row = screen.getByTestId(`floating-ip-row-${mockFloatingIp.id}`)
       const menuButton = row.querySelector("button")
       expect(menuButton).toBeInTheDocument()
@@ -357,6 +363,10 @@ describe("FloatingIpTableRow", () => {
       const user = userEvent.setup()
       const router = createTestRouter(<FloatingIpTableRow floatingIp={mockFloatingIp} />)
       render(<RouterProvider router={router} />)
+
+      await waitFor(() => {
+        expect(screen.getByTestId(`floating-ip-row-${mockFloatingIp.id}`)).toBeInTheDocument()
+      })
 
       const row = screen.getByTestId(`floating-ip-row-${mockFloatingIp.id}`)
       const menuButton = row.querySelector("button")
