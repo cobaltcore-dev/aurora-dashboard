@@ -180,7 +180,7 @@ export const imageRouter = {
     .input(imagesPaginatedInputSchema)
     .query(async ({ input, ctx }): Promise<ImagesPaginatedResponse> => {
       return withErrorHandling(async () => {
-        const { ...queryInput } = input
+        const { first, next, ...queryInput } = input
         const openstackSession = ctx.openstack
         const glance = openstackSession?.service("glance")
 
@@ -199,7 +199,8 @@ export const imageRouter = {
         }
         applyImageQueryParams(queryParams, minimalQuery as ListImagesInput)
 
-        let currentUrl: string | undefined = `v2/images?${queryParams.toString()}`
+        // Use first, next, or build URL from params
+        let currentUrl: string | undefined = first || next || `v2/images?${queryParams.toString()}`
         let pageCount = 0
         const MAX_PAGES = 100 // Safety limit to prevent infinite loops
 

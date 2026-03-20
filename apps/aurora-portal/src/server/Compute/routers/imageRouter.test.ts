@@ -140,6 +140,14 @@ describe("imageRouter", () => {
       const mockCtx = createMockContext()
       const caller = createCaller(mockCtx)
 
+      mockCtx.mockGlance.get.mockResolvedValue({
+        ok: true,
+        json: vi.fn().mockResolvedValue({
+          images: [mockGlanceImage],
+          schema: "/v2/schemas/images",
+        }),
+      })
+
       const input = {}
       const result = await caller.image.listImagesWithSearch(input)
 
@@ -147,7 +155,7 @@ describe("imageRouter", () => {
       expect(imageHelpers.validateGlanceService).toHaveBeenCalled()
       expect(imageHelpers.applyImageQueryParams).toHaveBeenCalled()
       expect(mockCtx.mockGlance.get).toHaveBeenCalledWith(expect.stringContaining("v2/images?"))
-      expect(result).toEqual([mockGlanceImage])
+      expect(result.images).toEqual([mockGlanceImage])
     })
 
     it("should handle API error response", async () => {
@@ -241,12 +249,12 @@ describe("imageRouter", () => {
       const mockCtx = createMockContext()
       const caller = createCaller(mockCtx)
 
+      // Mock response without 'next' so it doesn't try to fetch more pages
       mockCtx.mockGlance.get.mockResolvedValue({
         ok: true,
         json: vi.fn().mockResolvedValue({
           images: [mockGlanceImage],
           first: "/v2/images?sort=created_at:desc",
-          next: "/v2/images?sort=created_at:desc&marker=abc",
           schema: "/v2/schemas/images",
         }),
       })
@@ -1230,17 +1238,31 @@ describe("imageRouter", () => {
       const mockCtx = createMockContext()
       const caller = createCaller(mockCtx)
 
+      mockCtx.mockGlance.get.mockResolvedValue({
+        ok: true,
+        json: vi.fn().mockResolvedValue({
+          images: [],
+          schema: "/v2/schemas/images",
+        }),
+      })
+
       const input = {
         name: "test-image",
         status: "active" as const,
+        sort: "name:asc",
       }
 
       await caller.image.listImagesWithSearch(input)
 
-      expect(imageHelpers.applyImageQueryParams).toHaveBeenCalledWith(expect.any(URLSearchParams), {
-        name: "test-image",
-        status: "active",
-      })
+      // Verify applyImageQueryParams was called with sorting params
+      // (name and status are filtered in BFF, not passed to OpenStack)
+      expect(imageHelpers.applyImageQueryParams).toHaveBeenCalledWith(
+        expect.any(URLSearchParams),
+        expect.objectContaining({
+          sort: "name:asc",
+          limit: 100,
+        })
+      )
     })
   })
 
