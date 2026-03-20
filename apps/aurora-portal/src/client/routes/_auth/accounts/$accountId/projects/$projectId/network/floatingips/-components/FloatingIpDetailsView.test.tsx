@@ -1,14 +1,63 @@
-import { describe, it, expect } from "vitest"
-import { render, screen } from "@testing-library/react"
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest"
+import { render, screen, waitFor, cleanup } from "@testing-library/react"
+import userEvent from "@testing-library/user-event"
 import { I18nProvider } from "@lingui/react"
 import { i18n } from "@lingui/core"
 import { FloatingIpDetailsView } from "./FloatingIpDetailsView"
 import type { FloatingIp } from "@/server/Network/types/floatingIp"
 import { ReactNode } from "react"
 
+const mockUseUtils = vi.fn()
+const mockUpdateMutation = vi.fn()
+
+vi.mock("@/client/trpcClient", () => ({
+  trpcReact: {
+    useUtils: mockUseUtils,
+    network: {
+      floatingIp: {
+        update: {
+          useMutation: mockUpdateMutation,
+        },
+      },
+    },
+  },
+}))
+
+vi.mock("./-modals/EditFloatingIpModal", () => ({
+  EditFloatingIpModal: ({
+    open,
+    onClose,
+    onUpdate,
+    floatingIp,
+    isLoading,
+    error,
+  }: {
+    open: boolean
+    onClose: () => void
+    onUpdate: (floatingIpId: string, data: { description: string }) => Promise<void>
+    floatingIp: FloatingIp
+    isLoading: boolean
+    error: string | null
+  }) =>
+    open ? (
+      <div data-testid="edit-floating-ip-modal">
+        <span data-testid="edit-modal-loading">{isLoading ? "loading" : "idle"}</span>
+        <span data-testid="edit-modal-error">{error ?? ""}</span>
+        <button onClick={onClose}>Close Edit Modal</button>
+        <button onClick={() => onUpdate(floatingIp.id, { description: "Updated details description" })}>
+          Save Edit
+        </button>
+      </div>
+    ) : null,
+}))
+
 const TestWrapper = ({ children }: { children: ReactNode }) => <I18nProvider i18n={i18n}>{children}</I18nProvider>
 
 describe("FloatingIpDetailsView", () => {
+  const listInvalidateMock = vi.fn()
+  const getByIdInvalidateMock = vi.fn()
+  const mutateAsyncMock = vi.fn()
+
   const mockFloatingIp: FloatingIp = {
     id: "fip-123",
     floating_ip_address: "203.0.113.10",
@@ -45,6 +94,40 @@ describe("FloatingIpDetailsView", () => {
     ],
   }
 
+  beforeEach(() => {
+    i18n.activate("en")
+
+    mockUseUtils.mockReturnValue({
+      network: {
+        floatingIp: {
+          list: {
+            invalidate: listInvalidateMock,
+          },
+          getById: {
+            invalidate: getByIdInvalidateMock,
+          },
+        },
+      },
+    })
+
+    mockUpdateMutation.mockImplementation((options?: { onSuccess?: () => void }) => {
+      mutateAsyncMock.mockImplementation(async () => {
+        await options?.onSuccess?.()
+      })
+
+      return {
+        mutateAsync: mutateAsyncMock,
+        isPending: false,
+        error: null,
+      }
+    })
+  })
+
+  afterEach(() => {
+    cleanup()
+    vi.clearAllMocks()
+  })
+
   describe("Header and description", () => {
     it("displays floating IP address in heading", () => {
       render(<FloatingIpDetailsView floatingIp={mockFloatingIp} />, { wrapper: TestWrapper })
@@ -67,6 +150,56 @@ describe("FloatingIpDetailsView", () => {
       expect(screen.getByText("Attach")).toBeInTheDocument()
       expect(screen.getByText("Detach")).toBeInTheDocument()
       expect(screen.getByText("Release")).toBeInTheDocument()
+    })
+
+    it("opens and closes edit description modal", async () => {
+      const user = userEvent.setup()
+      render(<FloatingIpDetailsView floatingIp={mockFloatingIp} />, { wrapper: TestWrapper })
+
+      await user.click(screen.getByRole("button", { name: "Edit Description" }))
+      expect(screen.getByTestId("edit-floating-ip-modal")).toBeInTheDocument()
+
+      await user.click(screen.getByRole("button", { name: "Close Edit Modal" }))
+
+      await waitFor(() => {
+        expect(screen.queryByTestId("edit-floating-ip-modal")).not.toBeInTheDocument()
+      })
+    })
+
+    it("submits update and invalidates detail and list queries", async () => {
+      const user = userEvent.setup()
+      render(<FloatingIpDetailsView floatingIp={mockFloatingIp} />, { wrapper: TestWrapper })
+
+      await user.click(screen.getByRole("button", { name: "Edit Description" }))
+      await user.click(screen.getByRole("button", { name: "Save Edit" }))
+
+      await waitFor(() => {
+        expect(mutateAsyncMock).toHaveBeenCalledWith({
+          floatingip_id: mockFloatingIp.id,
+          description: "Updated details description",
+        })
+      })
+
+      await waitFor(() => {
+        expect(getByIdInvalidateMock).toHaveBeenCalledWith({ floatingip_id: mockFloatingIp.id })
+        expect(listInvalidateMock).toHaveBeenCalled()
+      })
+    })
+
+    it("passes loading and error mutation state to edit modal", async () => {
+      mockUpdateMutation.mockReturnValue({
+        mutateAsync: vi.fn(),
+        isPending: true,
+        error: { message: "Failed to update description" },
+      })
+
+      const user = userEvent.setup()
+      render(<FloatingIpDetailsView floatingIp={mockFloatingIp} />, { wrapper: TestWrapper })
+
+      await user.click(screen.getByRole("button", { name: "Edit Description" }))
+
+      expect(screen.getByTestId("edit-modal-loading")).toHaveTextContent("loading")
+      expect(screen.getByTestId("edit-modal-error")).toHaveTextContent("Failed to update description")
     })
   })
 
