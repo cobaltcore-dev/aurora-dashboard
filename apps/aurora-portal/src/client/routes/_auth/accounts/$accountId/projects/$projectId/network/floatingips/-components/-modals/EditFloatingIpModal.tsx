@@ -79,20 +79,24 @@ export const EditFloatingIpModal = ({
       title={t`Edit Floating IP ${floating_ip_address}`}
       modalFooter={
         <ModalFooter className="flex justify-end">
-          <ButtonRow>
-            <Button variant="default" onClick={handleClose} disabled={isLoading || form.state.isSubmitting}>
-              <Trans>Cancel</Trans>
-            </Button>
-            <Button
-              variant="primary"
-              type="submit"
-              form="edit-floating-ip-form"
-              disabled={isLoading || !form.state.isDirty || form.state.isSubmitting}
-              data-testid="update-floating-ip-button"
-            >
-              {form.state.isSubmitting ? <Spinner size="small" /> : <Trans>Save</Trans>}
-            </Button>
-          </ButtonRow>
+          <form.Subscribe selector={({ isSubmitting, isDirty }) => ({ isSubmitting, isDirty })}>
+            {({ isSubmitting, isDirty }) => (
+              <ButtonRow>
+                <Button variant="default" onClick={handleClose} disabled={isLoading || isSubmitting}>
+                  <Trans>Cancel</Trans>
+                </Button>
+                <Button
+                  variant="primary"
+                  type="button"
+                  onClick={() => form.handleSubmit()}
+                  disabled={isLoading || isSubmitting || !isDirty}
+                  data-testid="update-floating-ip-button"
+                >
+                  {isSubmitting ? <Spinner size="small" /> : <Trans>Save</Trans>}
+                </Button>
+              </ButtonRow>
+            )}
+          </form.Subscribe>
         </ModalFooter>
       }
     >
