@@ -1,6 +1,12 @@
 import { useState, useEffect, useMemo } from "react"
 import { useLingui } from "@lingui/react/macro"
 import type { CreateSecurityGroupRuleInput } from "@/server/Network/types/securityGroup"
+import {
+  isValidCIDR,
+  detectCIDRFamily,
+  validatePortRange,
+  validateIcmpTypeCode,
+} from "@/server/Network/types/securityGroup"
 import { RULE_PRESETS } from "./rulePresets"
 import { DEFAULT_VALUES, type AddRuleFormValues } from "./types"
 import {
@@ -185,53 +191,61 @@ export function useAddRuleForm({ open, securityGroupId, onCreate, onClose }: Use
   const validateForm = (): boolean => {
     const newErrors: { [key: string]: string } = {}
 
-    // Port range validation for TCP/UDP
+    // Port range validation for TCP/UDP (reuses BFF validation)
     if (showPortFields) {
       if (formValues.portMode === PORT_MODE_SINGLE) {
-        const port = parseInt(formValues.portSingle, 10)
-        if (!formValues.portSingle || isNaN(port) || port < PORT_MIN || port > PORT_MAX) {
-          newErrors.portSingle = t`Port must be between ${PORT_MIN} and ${PORT_MAX}`
+        if (!formValues.portSingle) {
+          newErrors.portSingle = t`Port is required`
+        } else {
+          const port = parseInt(formValues.portSingle, 10)
+          const portValidation = validatePortRange(port, port, formValues.protocol)
+          if (!portValidation.valid) {
+            newErrors.portSingle = portValidation.error || t`Invalid port`
+          }
         }
       } else if (formValues.portMode === PORT_MODE_RANGE) {
-        const minPort = parseInt(formValues.portRangeMin, 10)
-        const maxPort = parseInt(formValues.portRangeMax, 10)
+        const minPort = formValues.portRangeMin ? parseInt(formValues.portRangeMin, 10) : null
+        const maxPort = formValues.portRangeMax ? parseInt(formValues.portRangeMax, 10) : null
 
-        if (formValues.portRangeMin && (isNaN(minPort) || minPort < PORT_MIN || minPort > PORT_MAX)) {
-          newErrors.portRangeMin = t`Port must be between ${PORT_MIN} and ${PORT_MAX}`
-        }
-
-        if (formValues.portRangeMax && (isNaN(maxPort) || maxPort < PORT_MIN || maxPort > PORT_MAX)) {
-          newErrors.portRangeMax = t`Port must be between ${PORT_MIN} and ${PORT_MAX}`
-        }
-
-        if (minPort && maxPort && minPort > maxPort) {
-          newErrors.portRangeMin = t`Min port must be less than or equal to max port`
+        const portValidation = validatePortRange(minPort, maxPort, formValues.protocol)
+        if (!portValidation.valid) {
+          newErrors.portRangeMin = portValidation.error || t`Invalid port range`
         }
       }
       // PORT_MODE_ALL doesn't need validation (always 1-65535)
     }
 
-    // ICMP validation
+    // ICMP validation (reuses BFF validation)
     if (showIcmpFields) {
-      if (formValues.icmpType) {
-        const type = parseInt(formValues.icmpType, 10)
-        if (isNaN(type) || type < ICMP_MIN || type > ICMP_MAX) {
+      const icmpType = formValues.icmpType ? parseInt(formValues.icmpType, 10) : null
+      const icmpCode = formValues.icmpCode ? parseInt(formValues.icmpCode, 10) : null
+
+      const icmpValidation = validateIcmpTypeCode(icmpType, icmpCode)
+      if (!icmpValidation.valid) {
+        // The shared function handles all validation including NaN
+        if (icmpValidation.error?.includes("type")) {
           newErrors.icmpType = t`ICMP type must be between ${ICMP_MIN} and ${ICMP_MAX}`
         }
-      }
-
-      if (formValues.icmpCode) {
-        const code = parseInt(formValues.icmpCode, 10)
-        if (isNaN(code) || code < ICMP_MIN || code > ICMP_MAX) {
+        if (icmpValidation.error?.includes("code")) {
           newErrors.icmpCode = t`ICMP code must be between ${ICMP_MIN} and ${ICMP_MAX}`
+        }
+        // Fallback for generic errors
+        if (!newErrors.icmpType && !newErrors.icmpCode) {
+          newErrors.icmpType = icmpValidation.error || t`Invalid ICMP type/code`
         }
       }
     }
 
-    // Remote CIDR validation (basic)
+    // Remote CIDR validation (comprehensive - reuses BFF validation)
     if (formValues.remoteSourceType === "cidr" && formValues.remoteCidr) {
-      if (!formValues.remoteCidr.includes("/")) {
-        newErrors.remoteCidr = t`CIDR must be in format: x.x.x.x/x or ::/x`
+      if (!isValidCIDR(formValues.remoteCidr)) {
+        newErrors.remoteCidr = t`Invalid CIDR format. Examples: 0.0.0.0/0 (IPv4) or ::/0 (IPv6)`
+      } else {
+        // Validate ethertype matches CIDR family
+        const cidrFamily = detectCIDRFamily(formValues.remoteCidr)
+        if (cidrFamily && cidrFamily !== formValues.ethertype) {
+          newErrors.remoteCidr = t`CIDR family (${cidrFamily}) must match Ethertype (${formValues.ethertype})`
+        }
       }
     }
 

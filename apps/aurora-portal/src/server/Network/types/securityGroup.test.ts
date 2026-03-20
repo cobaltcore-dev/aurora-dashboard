@@ -5,6 +5,10 @@ import {
   securityGroupsResponseSchema,
   listSecurityGroupsInputSchema,
   createSecurityGroupRuleInputSchema,
+  detectCIDRFamily,
+  isValidCIDR,
+  validatePortRange,
+  validateIcmpTypeCode,
 } from "./securityGroup"
 
 describe("OpenStack Security Group Schema Validation", () => {
@@ -489,6 +493,106 @@ describe("OpenStack Security Group Schema Validation", () => {
           port_range_max: 80,
         })
         expect(result.success).toBe(false)
+      })
+    })
+  })
+
+  describe("Validation utility functions", () => {
+    describe("detectCIDRFamily", () => {
+      it("should detect IPv4 family", () => {
+        expect(detectCIDRFamily("192.168.1.0/24")).toBe("IPv4")
+        expect(detectCIDRFamily("0.0.0.0/0")).toBe("IPv4")
+      })
+
+      it("should detect IPv6 family", () => {
+        expect(detectCIDRFamily("::/0")).toBe("IPv6")
+        expect(detectCIDRFamily("2001:db8::/32")).toBe("IPv6")
+      })
+
+      it("should return null for invalid format", () => {
+        expect(detectCIDRFamily("invalid")).toBeNull()
+        expect(detectCIDRFamily("")).toBeNull()
+      })
+    })
+
+    describe("isValidCIDR", () => {
+      it("should validate IPv4 CIDR", () => {
+        expect(isValidCIDR("0.0.0.0/0")).toBe(true)
+        expect(isValidCIDR("192.168.1.0/24")).toBe(true)
+        expect(isValidCIDR("999.999.999.999/99")).toBe(false)
+      })
+
+      it("should validate IPv6 CIDR", () => {
+        expect(isValidCIDR("::/0")).toBe(true)
+        expect(isValidCIDR("2001:db8::/32")).toBe(true)
+        expect(isValidCIDR(":::/0")).toBe(false)
+      })
+    })
+
+    describe("validatePortRange", () => {
+      it("should validate TCP ports (1-65535)", () => {
+        expect(validatePortRange(1, 65535, "tcp").valid).toBe(true)
+        expect(validatePortRange(22, 22, "tcp").valid).toBe(true)
+        expect(validatePortRange(0, 80, "tcp").valid).toBe(false)
+        expect(validatePortRange(1, 0, "tcp").valid).toBe(false)
+      })
+
+      it("should validate UDP ports (1-65535)", () => {
+        expect(validatePortRange(1, 65535, "udp").valid).toBe(true)
+        expect(validatePortRange(0, 53, "udp").valid).toBe(false)
+      })
+
+      it("should allow port 0 for non-TCP/UDP protocols", () => {
+        expect(validatePortRange(0, 0, "icmp").valid).toBe(true)
+        expect(validatePortRange(0, 100, "esp").valid).toBe(true)
+      })
+
+      it("should validate min <= max", () => {
+        expect(validatePortRange(80, 443, "tcp").valid).toBe(true)
+        expect(validatePortRange(443, 80, "tcp").valid).toBe(false)
+      })
+
+      it("should handle null/undefined gracefully", () => {
+        expect(validatePortRange(null, null, "tcp").valid).toBe(true)
+        expect(validatePortRange(undefined, 80, "tcp").valid).toBe(true)
+      })
+
+      it("should reject NaN values", () => {
+        expect(validatePortRange(NaN, 80, "tcp").valid).toBe(false)
+        expect(validatePortRange(80, NaN, "tcp").valid).toBe(false)
+        expect(validatePortRange(NaN, NaN, "tcp").valid).toBe(false)
+      })
+    })
+
+    describe("validateIcmpTypeCode", () => {
+      it("should validate ICMP type range (0-255)", () => {
+        expect(validateIcmpTypeCode(0, null).valid).toBe(true)
+        expect(validateIcmpTypeCode(255, null).valid).toBe(true)
+        expect(validateIcmpTypeCode(256, null).valid).toBe(false)
+        expect(validateIcmpTypeCode(-1, null).valid).toBe(false)
+      })
+
+      it("should validate ICMP code range (0-255)", () => {
+        expect(validateIcmpTypeCode(null, 0).valid).toBe(true)
+        expect(validateIcmpTypeCode(null, 255).valid).toBe(true)
+        expect(validateIcmpTypeCode(null, 256).valid).toBe(false)
+        expect(validateIcmpTypeCode(null, -1).valid).toBe(false)
+      })
+
+      it("should validate both type and code", () => {
+        expect(validateIcmpTypeCode(8, 0).valid).toBe(true)
+        expect(validateIcmpTypeCode(256, 256).valid).toBe(false)
+      })
+
+      it("should handle null/undefined gracefully", () => {
+        expect(validateIcmpTypeCode(null, null).valid).toBe(true)
+        expect(validateIcmpTypeCode(undefined, undefined).valid).toBe(true)
+      })
+
+      it("should reject NaN values", () => {
+        expect(validateIcmpTypeCode(NaN, null).valid).toBe(false)
+        expect(validateIcmpTypeCode(null, NaN).valid).toBe(false)
+        expect(validateIcmpTypeCode(NaN, NaN).valid).toBe(false)
       })
     })
   })

@@ -1,6 +1,6 @@
 import { Container, Stack } from "@cloudoperators/juno-ui-components"
 import { Trans } from "@lingui/react/macro"
-import { useState, useMemo } from "react"
+import { useState } from "react"
 import type {
   SecurityGroup,
   SecurityGroupRule,
@@ -10,7 +10,6 @@ import type { FilterSettings, SortSettings } from "@/client/components/ListToolb
 import type { ListSortConfig } from "@/client/utils/useListWithFiltering"
 import { SecurityGroupHeader, SecurityGroupBasicInfo, SecurityGroupTabs, type TabType } from "./-details"
 import { SecurityGroupRulesTable } from "./-details"
-import { trpcReact } from "@/client/trpcClient"
 
 export interface RulesFilterControls {
   searchTerm: string
@@ -33,6 +32,7 @@ interface SecurityGroupDetailsViewProps {
   onCreateRule?: (ruleData: CreateSecurityGroupRuleInput) => Promise<void>
   isCreatingRule?: boolean
   createRuleError?: string | null
+  availableSecurityGroups?: Array<{ id: string; name: string | null }>
 }
 
 export function SecurityGroupDetailsView({
@@ -46,19 +46,9 @@ export function SecurityGroupDetailsView({
   onCreateRule,
   isCreatingRule = false,
   createRuleError = null,
+  availableSecurityGroups = [],
 }: SecurityGroupDetailsViewProps) {
   const [activeTab, setActiveTab] = useState<TabType>("rules")
-
-  // Fetch available security groups for dropdown
-  const { data: securityGroups } = trpcReact.network.securityGroup.list.useQuery({})
-  const availableSecurityGroups = useMemo(() => {
-    return (securityGroups || [])
-      .filter((sg) => sg.id !== securityGroup.id) // Exclude current group
-      .map((sg) => ({
-        id: sg.id,
-        name: sg.name || sg.id,
-      }))
-  }, [securityGroups, securityGroup.id])
 
   return (
     <Container px={false} py>

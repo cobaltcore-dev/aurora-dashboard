@@ -101,6 +101,7 @@ describe("SecurityGroupDetailsView", () => {
         filteredAndSortedRules={mockSecurityGroup.security_group_rules || []}
         onDeleteRule={() => {}}
         filterControls={defaultFilterControls}
+        availableSecurityGroups={[]}
       />,
       {
         wrapper: createWrapper(),
@@ -123,6 +124,7 @@ describe("SecurityGroupDetailsView", () => {
         filteredAndSortedRules={sgWithoutDescription.security_group_rules || []}
         onDeleteRule={() => {}}
         filterControls={defaultFilterControls}
+        availableSecurityGroups={[]}
       />,
       {
         wrapper: createWrapper(),
@@ -140,6 +142,7 @@ describe("SecurityGroupDetailsView", () => {
         filteredAndSortedRules={sgWithoutTags.security_group_rules || []}
         onDeleteRule={() => {}}
         filterControls={defaultFilterControls}
+        availableSecurityGroups={[]}
       />,
       {
         wrapper: createWrapper(),
@@ -156,6 +159,7 @@ describe("SecurityGroupDetailsView", () => {
         filteredAndSortedRules={mockSecurityGroup.security_group_rules || []}
         onDeleteRule={() => {}}
         filterControls={defaultFilterControls}
+        availableSecurityGroups={[]}
       />,
       {
         wrapper: createWrapper(),
@@ -175,6 +179,7 @@ describe("SecurityGroupDetailsView", () => {
         onEdit={onEdit}
         onDeleteRule={() => {}}
         filterControls={defaultFilterControls}
+        availableSecurityGroups={[]}
       />,
       {
         wrapper: createWrapper(),
@@ -208,6 +213,7 @@ describe("SecurityGroupDetailsView", () => {
           filteredAndSortedRules={filteredRules}
           onDeleteRule={() => {}}
           filterControls={filterControls}
+          availableSecurityGroups={[]}
         />,
         {
           wrapper: createWrapper(),
@@ -239,6 +245,7 @@ describe("SecurityGroupDetailsView", () => {
           filteredAndSortedRules={filteredRules}
           onDeleteRule={() => {}}
           filterControls={filterControls}
+          availableSecurityGroups={[]}
         />,
         {
           wrapper: createWrapper(),
@@ -267,6 +274,7 @@ describe("SecurityGroupDetailsView", () => {
           filteredAndSortedRules={filteredRules}
           onDeleteRule={() => {}}
           filterControls={filterControls}
+          availableSecurityGroups={[]}
         />,
         {
           wrapper: createWrapper(),
@@ -294,6 +302,7 @@ describe("SecurityGroupDetailsView", () => {
           filteredAndSortedRules={filteredRules}
           onDeleteRule={() => {}}
           filterControls={filterControls}
+          availableSecurityGroups={[]}
         />,
         {
           wrapper: createWrapper(),
@@ -321,6 +330,7 @@ describe("SecurityGroupDetailsView", () => {
           filteredAndSortedRules={filteredRules}
           onDeleteRule={() => {}}
           filterControls={filterControls}
+          availableSecurityGroups={[]}
         />,
         {
           wrapper: createWrapper(),
@@ -354,6 +364,7 @@ describe("SecurityGroupDetailsView", () => {
           filteredAndSortedRules={filteredRules}
           onDeleteRule={() => {}}
           filterControls={filterControls}
+          availableSecurityGroups={[]}
         />,
         {
           wrapper: createWrapper(),
@@ -373,6 +384,7 @@ describe("SecurityGroupDetailsView", () => {
           filteredAndSortedRules={mockRules}
           onDeleteRule={() => {}}
           filterControls={defaultFilterControls}
+          availableSecurityGroups={[]}
         />,
         {
           wrapper: createWrapper(),
@@ -400,6 +412,7 @@ describe("SecurityGroupDetailsView", () => {
           filteredAndSortedRules={filteredRules}
           onDeleteRule={() => {}}
           filterControls={filterControls}
+          availableSecurityGroups={[]}
         />,
         {
           wrapper: createWrapper(),

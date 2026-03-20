@@ -1,11 +1,13 @@
 import { Breadcrumb, BreadcrumbItem, Button, Stack, Spinner } from "@cloudoperators/juno-ui-components/index"
 import { createFileRoute, redirect, useNavigate, useParams } from "@tanstack/react-router"
 import { Trans, useLingui } from "@lingui/react/macro"
+import { useMemo } from "react"
 import { getServiceIndex } from "@/server/Authentication/helpers"
 import { SecurityGroupDetailsView } from "../-components/SecurityGroups/-components/SecurityGroupDetailsView"
 import { EditSecurityGroupModal } from "../-components/SecurityGroups/-components/-modals/EditSecurityGroupModal"
 import { useSecurityGroupDetails } from "../-components/SecurityGroups/-hooks/useSecurityGroupDetails"
 import { useListWithFiltering } from "@/client/utils/useListWithFiltering"
+import { trpcReact } from "@/client/trpcClient"
 
 export const Route = createFileRoute(
   "/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId"
@@ -118,6 +120,17 @@ function RouteComponent() {
     filterControls,
   })
 
+  // Fetch available security groups for the Add Rule dropdown
+  const { data: securityGroups } = trpcReact.network.securityGroup.list.useQuery({})
+  const availableSecurityGroups = useMemo(() => {
+    return (securityGroups || [])
+      .filter((sg) => sg.id !== securityGroupId) // Exclude current group
+      .map((sg) => ({
+        id: sg.id,
+        name: sg.name || sg.id,
+      }))
+  }, [securityGroups, securityGroupId])
+
   const handleBack = () => {
     navigate({
       to: "/accounts/$accountId/projects/$projectId/network/$",
@@ -195,6 +208,7 @@ function RouteComponent() {
         onCreateRule={handleCreateRule}
         isCreatingRule={isCreatingRule}
         createRuleError={createRuleError}
+        availableSecurityGroups={availableSecurityGroups}
       />
 
       <EditSecurityGroupModal

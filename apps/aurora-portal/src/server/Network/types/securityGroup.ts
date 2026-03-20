@@ -5,7 +5,7 @@ import { SortDirSchema } from "./index"
  * Detects CIDR family (IPv4 or IPv6) from CIDR notation.
  * Returns "IPv4" if CIDR contains ".", "IPv6" if contains ":", or null if neither.
  */
-function detectCIDRFamily(cidr: string): "IPv4" | "IPv6" | null {
+export function detectCIDRFamily(cidr: string): "IPv4" | "IPv6" | null {
   if (cidr.includes(".")) {
     return "IPv4"
   }
@@ -16,11 +16,86 @@ function detectCIDRFamily(cidr: string): "IPv4" | "IPv6" | null {
 }
 
 /**
+ * Validates port numbers for security group rules.
+ * For TCP/UDP: ports must be 1-65535
+ * For other protocols: ports can be 0-65535
+ * Also validates that min <= max when both are provided.
+ * Handles NaN values by rejecting them.
+ */
+export function validatePortRange(
+  portMin: number | null | undefined,
+  portMax: number | null | undefined,
+  protocol: string | null | undefined
+): { valid: boolean; error?: string } {
+  // Check for NaN values
+  if (portMin != null && isNaN(portMin)) {
+    return { valid: false, error: "Port must be a valid number" }
+  }
+  if (portMax != null && isNaN(portMax)) {
+    return { valid: false, error: "Port must be a valid number" }
+  }
+
+  const isTcpUdp = protocol?.toLowerCase() === "tcp" || protocol?.toLowerCase() === "udp"
+
+  // For TCP/UDP, ports must be 1-65535
+  if (isTcpUdp) {
+    if (portMin != null && (portMin < 1 || portMin > 65535)) {
+      return { valid: false, error: "For TCP/UDP: port must be between 1 and 65535" }
+    }
+    if (portMax != null && (portMax < 1 || portMax > 65535)) {
+      return { valid: false, error: "For TCP/UDP: port must be between 1 and 65535" }
+    }
+  } else {
+    // For other protocols, allow 0-65535
+    if (portMin != null && (portMin < 0 || portMin > 65535)) {
+      return { valid: false, error: "Port must be between 0 and 65535" }
+    }
+    if (portMax != null && (portMax < 0 || portMax > 65535)) {
+      return { valid: false, error: "Port must be between 0 and 65535" }
+    }
+  }
+
+  // Validate min <= max for all protocols
+  if (portMin != null && portMax != null && portMin > portMax) {
+    return { valid: false, error: "port_range_min must be less than or equal to port_range_max" }
+  }
+
+  return { valid: true }
+}
+
+/**
+ * Validates ICMP type and code values (0-255 for both).
+ * Handles NaN values by rejecting them.
+ */
+export function validateIcmpTypeCode(
+  type: number | null | undefined,
+  code: number | null | undefined
+): { valid: boolean; error?: string } {
+  // Check for NaN values
+  if (type != null && isNaN(type)) {
+    return { valid: false, error: "ICMP type must be a valid number" }
+  }
+  if (code != null && isNaN(code)) {
+    return { valid: false, error: "ICMP code must be a valid number" }
+  }
+
+  if (type != null && (type < 0 || type > 255)) {
+    return { valid: false, error: "ICMP type must be between 0 and 255" }
+  }
+
+  if (code != null && (code < 0 || code > 255)) {
+    return { valid: false, error: "ICMP code must be between 0 and 255" }
+  }
+
+  return { valid: true }
+}
+
+/**
  * Validates CIDR notation for IPv4 and IPv6 addresses.
  * - IPv4: octets must be 0-255, prefix length must be 0-32
  * - IPv6: proper hexadecimal format with colons, prefix length must be 0-128
  */
-function isValidCIDR(cidr: string): boolean {
+export function isValidCIDR(cidr: string): boolean {
   const parts = cidr.split("/")
   if (parts.length !== 2) {
     return false
@@ -260,25 +335,8 @@ export const createSecurityGroupRuleInputSchema = z
   // Validate port range order and TCP/UDP port bounds
   .refine(
     (data) => {
-      const protocol = data.protocol?.toLowerCase()
-      const isTcpUdp = protocol === "tcp" || protocol === "udp"
-
-      // For TCP/UDP, ports must be 1-65535
-      if (isTcpUdp) {
-        if (data.port_range_min != null && (data.port_range_min < 1 || data.port_range_min > 65535)) {
-          return false
-        }
-        if (data.port_range_max != null && (data.port_range_max < 1 || data.port_range_max > 65535)) {
-          return false
-        }
-      }
-
-      // Validate min <= max for all protocols
-      if (data.port_range_min != null && data.port_range_max != null) {
-        return data.port_range_min <= data.port_range_max
-      }
-
-      return true
+      const result = validatePortRange(data.port_range_min, data.port_range_max, data.protocol)
+      return result.valid
     },
     {
       message: "For TCP/UDP: ports must be 1-65535. port_range_min must be less than or equal to port_range_max",
