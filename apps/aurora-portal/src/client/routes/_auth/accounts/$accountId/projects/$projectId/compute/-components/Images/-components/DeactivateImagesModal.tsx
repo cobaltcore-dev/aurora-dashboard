@@ -39,7 +39,6 @@ export const DeactivateImagesModal: React.FC<DeactivateImagesModalProps> = ({
         <ModalFooter className="flex justify-end">
           <ButtonRow>
             <Button
-              variant="primary-danger"
               onClick={(e) => {
                 handleDeactivate(e)
                 onClose()
@@ -69,7 +68,7 @@ export const DeactivateImagesModal: React.FC<DeactivateImagesModalProps> = ({
               {/* Header */}
               <Message
                 text={t`You are about to deactivate ${activeCount} image(s). Deactivated images cannot be used to launch new instances.`}
-                variant="warning"
+                variant="info"
                 className="mb-6"
               />
 
@@ -97,7 +96,7 @@ export const DeactivateImagesModal: React.FC<DeactivateImagesModalProps> = ({
               <h3 className="jn:text-theme-high mb-3 font-semibold">
                 <Trans>Already deactivated (will be skipped)</Trans>
               </h3>
-              <div className="jn:bg-theme-warning/10 max-h-24 overflow-y-auto rounded border border-yellow-500/20 p-4">
+              <div className="jn:bg-theme-background-lvl-1 max-h-24 overflow-y-auto rounded p-4">
                 <ul className="space-y-2">
                   {deactivatedImages.map((imageId) => (
                     <li key={imageId} className="jn:text-theme-default font-mono">
@@ -128,13 +127,6 @@ export const DeactivateImagesModal: React.FC<DeactivateImagesModalProps> = ({
               </div>
             )}
           </div>
-
-          {/* Info Notice */}
-          <Message
-            text={t`Deactivated images will not be available for launching new instances or creating volumes. Existing instances using these images will not be affected. You can reactivate images later if needed.`}
-            variant="info"
-            className="mb-6"
-          />
         </div>
       )}
     </Modal>

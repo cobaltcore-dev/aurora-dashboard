@@ -11,7 +11,6 @@ import {
   Checkbox,
   Button,
   ButtonRow,
-  Message,
   Spinner,
   Stack,
   ModalFooter,
@@ -349,13 +348,6 @@ export const EditImageDetailsModal: React.FC<EditImageDetailsModalProps> = ({
               />
             </FormRow>
           </FormSection>
-
-          {/* Info Notice */}
-          <Message
-            text={t`Changes to these properties will affect how this image can be used and who can access it.`}
-            variant="info"
-            className="mt-4"
-          />
         </Form>
       )}
     </Modal>

@@ -4,7 +4,6 @@ import {
   Modal,
   Button,
   ButtonRow,
-  Message,
   Spinner,
   Stack,
   ModalFooter,
@@ -310,13 +309,6 @@ export const EditImageMetadataModal: React.FC<EditImageMetadataModalProps> = ({
 
       {!isLoading && (
         <div>
-          {/* Info Message */}
-          <Message
-            text={t`Custom metadata properties can be used to store additional information about this image. Reserved properties cannot be modified here.`}
-            variant="info"
-            className="mb-6"
-          />
-
           {/* Add New Button */}
           <Stack direction="horizontal" className="jn:bg-theme-background-lvl-1 mb-4 justify-end p-2">
             <Button
