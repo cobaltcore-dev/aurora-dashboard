@@ -124,6 +124,10 @@ function ObjectsDashboard() {
     }),
   })
 
+  // Extract prefix so the ErrorBoundary can reset when the user navigates to
+  // a different folder — without this, a thrown error stays visible until reload.
+  const { prefix } = Route.useSearch()
+
   const { setPageTitle } = Route.useRouteContext()
   const { t } = useLingui()
 
@@ -142,6 +146,7 @@ function ObjectsDashboard() {
     <div>
       {project ? (
         <ErrorBoundary
+          resetKeys={[project, provider, containerName, prefix]}
           fallback={
             <div className="p-4 text-center">
               <Trans>Error loading component</Trans>
