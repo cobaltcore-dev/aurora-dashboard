@@ -12,9 +12,10 @@ import {
 import type { FloatingIp } from "@/server/Network/types/floatingIp"
 import { trpcReact } from "@/client/trpcClient"
 import { formatFloatingIpStatus } from "@/client/utils/formatFloatingIpStatus"
+import { useModal } from "../-hooks/useModal"
 import { EditFloatingIpModal, FloatingIpUpdateFields } from "./-modals/EditFloatingIpModal"
 import { DetachFloatingIpModal } from "./-modals/DetachFloatingIpModal"
-import { useModal } from "../-hooks/useModal"
+import { ReleaseFloatingIpModal } from "./-modals/ReleaseFloatingIpModal"
 
 interface FloatingIpDetailsViewProps {
   floatingIp: FloatingIp
@@ -24,6 +25,7 @@ export const FloatingIpDetailsView = ({ floatingIp }: FloatingIpDetailsViewProps
   const { t } = useLingui()
   const [editModalOpen, toggleEditModal] = useModal(false)
   const [detachModalOpen, toggleDetachModal] = useModal(false)
+  const [releaseModalOpen, toggleReleaseModal] = useModal(false)
   const utils = trpcReact.useUtils()
 
   const updateFloatingIpMutation = trpcReact.network.floatingIp.update.useMutation({
@@ -33,10 +35,22 @@ export const FloatingIpDetailsView = ({ floatingIp }: FloatingIpDetailsViewProps
     },
   })
 
+  const deleteFloatingIpMutation = trpcReact.network.floatingIp.delete.useMutation({
+    onSuccess: () => {
+      utils.network.floatingIp.list.invalidate()
+    },
+  })
+
   const handleUpdateFloatingIp = async (floatingIpId: string, data: FloatingIpUpdateFields) => {
     await updateFloatingIpMutation.mutateAsync({
       floatingip_id: floatingIpId,
       ...data,
+    })
+  }
+
+  const handleDeleteFloatingIp = async (floatingIpId: string) => {
+    await deleteFloatingIpMutation.mutateAsync({
+      floatingip_id: floatingIpId,
     })
   }
 
@@ -56,7 +70,7 @@ export const FloatingIpDetailsView = ({ floatingIp }: FloatingIpDetailsViewProps
         <Button onClick={toggleEditModal}>{t`Edit Description`}</Button>
         <Button disabled>{t`Attach`}</Button>
         <Button onClick={toggleDetachModal}>{t`Detach`}</Button>
-        <Button disabled>{t`Release`}</Button>
+        <Button onClick={toggleReleaseModal}>{t`Release`}</Button>
       </ButtonRow>
 
       <Stack direction="vertical" gap="6" className="mt-6">
@@ -225,6 +239,17 @@ export const FloatingIpDetailsView = ({ floatingIp }: FloatingIpDetailsViewProps
           onUpdate={handleUpdateFloatingIp}
           isLoading={updateFloatingIpMutation.isPending}
           error={updateFloatingIpMutation.error?.message ?? null}
+        />
+      )}
+
+      {releaseModalOpen && (
+        <ReleaseFloatingIpModal
+          floatingIp={floatingIp}
+          open={releaseModalOpen}
+          onClose={toggleReleaseModal}
+          onUpdate={handleDeleteFloatingIp}
+          isLoading={deleteFloatingIpMutation.isPending}
+          error={deleteFloatingIpMutation.error?.message ?? null}
         />
       )}
     </>

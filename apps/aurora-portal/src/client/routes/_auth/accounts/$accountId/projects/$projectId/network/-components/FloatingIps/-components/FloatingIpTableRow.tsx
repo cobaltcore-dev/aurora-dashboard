@@ -16,6 +16,7 @@ import {
 } from "../../../floatingips/-components/-modals/EditFloatingIpModal"
 import { useModal } from "../../../floatingips/-hooks/useModal"
 import { DetachFloatingIpModal } from "../../../floatingips/-components/-modals/DetachFloatingIpModal"
+import { ReleaseFloatingIpModal } from "../../../floatingips/-components/-modals/ReleaseFloatingIpModal"
 
 interface FloatingIpTableRow {
   floatingIp: FloatingIp
@@ -27,6 +28,7 @@ export const FloatingIpTableRow = ({ floatingIp }: FloatingIpTableRow) => {
   const utils = trpcReact.useUtils()
   const [editModalOpen, toggleEditModal] = useModal(false)
   const [detachModalOpen, toggleDetachModal] = useModal(false)
+  const [releaseModalOpen, toggleReleaseModal] = useModal(false)
   const { accountId, projectId } = useParams({ strict: false })
 
   const updateFloatingIpMutation = trpcReact.network.floatingIp.update.useMutation({
@@ -35,6 +37,18 @@ export const FloatingIpTableRow = ({ floatingIp }: FloatingIpTableRow) => {
       utils.network.floatingIp.getById.invalidate({ floatingip_id: floatingIp.id })
     },
   })
+
+  const deleteFloatingIpMutation = trpcReact.network.floatingIp.delete.useMutation({
+    onSuccess: () => {
+      utils.network.floatingIp.list.invalidate()
+    },
+  })
+
+  const handleDeleteFloatingIp = async (floatingIpId: string) => {
+    await deleteFloatingIpMutation.mutateAsync({
+      floatingip_id: floatingIpId,
+    })
+  }
 
   const handleUpdateFloatingIp = async (floatingIpId: string, data: FloatingIpUpdateFields) => {
     await updateFloatingIpMutation.mutateAsync({
@@ -72,7 +86,7 @@ export const FloatingIpTableRow = ({ floatingIp }: FloatingIpTableRow) => {
               <PopupMenuItem label={t`Edit Description`} onClick={toggleEditModal} />
               <PopupMenuItem label={t`Attach`} disabled />
               <PopupMenuItem label={t`Detach`} onClick={toggleDetachModal} />
-              <PopupMenuItem label={t`Release`} disabled />
+              <PopupMenuItem label={t`Release`} onClick={toggleReleaseModal} />
             </PopupMenuOptions>
           </PopupMenu>
         </DataGridCell>
@@ -97,6 +111,17 @@ export const FloatingIpTableRow = ({ floatingIp }: FloatingIpTableRow) => {
           onUpdate={handleUpdateFloatingIp}
           isLoading={updateFloatingIpMutation.isPending}
           error={updateFloatingIpMutation.error?.message ?? null}
+        />
+      )}
+
+      {releaseModalOpen && (
+        <ReleaseFloatingIpModal
+          floatingIp={floatingIp}
+          open={releaseModalOpen}
+          onClose={toggleReleaseModal}
+          onUpdate={handleDeleteFloatingIp}
+          isLoading={deleteFloatingIpMutation.isPending}
+          error={deleteFloatingIpMutation.error?.message ?? null}
         />
       )}
     </>

@@ -15,37 +15,36 @@ import {
   Stack,
 } from "@cloudoperators/juno-ui-components"
 import type { FloatingIp } from "@/server/Network/types/floatingIp"
-import { FloatingIpUpdateFields } from "./EditFloatingIpModal"
 
-interface DetachFloatingIpModalProps {
+interface ReleaseFloatingIpModalProps {
   floatingIp: FloatingIp
   open: boolean
   onClose: () => void
-  onUpdate: (floatingIpId: string, data: FloatingIpUpdateFields) => Promise<void>
+  onUpdate: (floatingIpId: string) => Promise<void>
   isLoading?: boolean
   error?: string | null
 }
 
-export const DetachFloatingIpModal = ({
+export const ReleaseFloatingIpModal = ({
   floatingIp,
   open,
   onClose,
   onUpdate,
   isLoading = false,
   error = null,
-}: DetachFloatingIpModalProps) => {
+}: ReleaseFloatingIpModalProps) => {
   const { t } = useLingui()
   const { floating_ip_address } = floatingIp
 
   const formSchema = z.object({
-    detach: z.string().refine((value) => value === "detach", {
-      message: t`Type “detach” to confirm`,
+    release: z.string().refine((value) => value === "release", {
+      message: t`Type “release” to confirm`,
     }),
   })
 
   const form = useForm({
     defaultValues: {
-      detach: "",
+      release: "",
     },
     validators: {
       onSubmit: formSchema,
@@ -53,9 +52,7 @@ export const DetachFloatingIpModal = ({
     onSubmit: async () => {
       if (isLoading) return
 
-      await onUpdate(floatingIp.id, {
-        port_id: null, // Detach by clearing the port association
-      })
+      await onUpdate(floatingIp.id)
       handleClose()
     },
   })
@@ -70,16 +67,16 @@ export const DetachFloatingIpModal = ({
       open={open}
       onCancel={handleClose}
       size="large"
-      title={t`Detach Floating IP ${floating_ip_address}`}
+      title={t`Release Floating IP ${floating_ip_address}`}
       modalFooter={
         <ModalFooter className="flex justify-end">
           <form.Subscribe
             selector={(state) => ({
               isSubmitting: state.isSubmitting,
-              detachValue: state.values.detach,
+              releaseValue: state.values.release,
             })}
           >
-            {({ isSubmitting, detachValue }) => (
+            {({ isSubmitting, releaseValue }) => (
               <ButtonRow>
                 <Button variant="default" onClick={handleClose} disabled={isLoading || isSubmitting}>
                   <Trans>Cancel</Trans>
@@ -88,10 +85,10 @@ export const DetachFloatingIpModal = ({
                   variant="primary"
                   type="button"
                   onClick={() => form.handleSubmit()}
-                  disabled={isLoading || isSubmitting || detachValue !== "detach"}
-                  data-testid="detach-floating-ip-button"
+                  disabled={isLoading || isSubmitting || releaseValue !== "release"}
+                  data-testid="release-floating-ip-button"
                 >
-                  {isSubmitting ? <Spinner size="small" /> : <Trans>Detach</Trans>}
+                  {isSubmitting ? <Spinner size="small" /> : <Trans>Release</Trans>}
                 </Button>
               </ButtonRow>
             )}
@@ -109,21 +106,18 @@ export const DetachFloatingIpModal = ({
         <div className="mb-4 flex items-center justify-center gap-2">
           <Spinner variant="primary" />
           <span className="text-sm text-gray-600">
-            <Trans>Detaching Floating IP...</Trans>
+            <Trans>Releasing Floating IP...</Trans>
           </span>
         </div>
       )}
 
       <Stack gap="2.5" direction="vertical" className="mb-2.5">
         <p>
-          <Trans>
-            Detaching this Floating IP will remove its association with the current port. The instance will no longer be
-            reachable through this address.
-          </Trans>
+          {t`Releasing Floating IP ${floating_ip_address} is permanent. The address will be removed from your project and returned to the public pool. This action cannot be undone.`}
         </p>
         <p>
           <Trans>
-            To confirm this action, type the word <strong>“detach”</strong> in the field below.
+            To confirm this action, type the word <strong>"release"</strong> in the field below.
           </Trans>
         </p>
       </Stack>
@@ -140,15 +134,15 @@ export const DetachFloatingIpModal = ({
           <FormSection className="mb-6">
             <FormRow className="mb-6">
               <form.Field
-                name="detach"
+                name="release"
                 children={(field) => (
                   <TextInput
                     id={field.name}
                     name={field.name}
                     value={field.state.value}
                     onChange={(e) => field.handleChange(e.target.value)}
-                    placeholder={t`Type "detach" to confirm`}
-                    helptext={t`The text must match “detach” in lowercase.`}
+                    placeholder={t`Type "release" to confirm`}
+                    helptext={t`The text must match “release” in lowercase.`}
                     disabled={isLoading}
                     required
                   />
@@ -161,3 +155,4 @@ export const DetachFloatingIpModal = ({
     </Modal>
   )
 }
+// END
