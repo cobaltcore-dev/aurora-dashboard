@@ -1,4 +1,4 @@
-import { FormRow, TextInput, Select, SelectOption } from "@cloudoperators/juno-ui-components"
+import { FormRow, TextInput, Select, SelectOption, RadioGroup, Radio } from "@cloudoperators/juno-ui-components"
 import { useLingui } from "@lingui/react/macro"
 import { DEFAULT_IPV4_CIDR, DEFAULT_IPV6_CIDR } from "../constants"
 
@@ -32,17 +32,19 @@ export function RemoteSourceSection({
   return (
     <>
       {/* Remote Source Type Toggle */}
-      <FormRow className="mb-6">
-        <Select
-          id="remoteSourceType"
+      <FormRow className="mb-1">
+        <RadioGroup
+          name="remoteSourceType"
           label={t`Remote Source`}
-          value={remoteSourceType}
+          selected={remoteSourceType}
           onChange={onRemoteSourceTypeChange}
           disabled={disabled}
         >
-          <SelectOption value="cidr" label={t`CIDR`} />
-          <SelectOption value="security_group" label={t`Security Group`} />
-        </Select>
+          <div className="flex gap-4">
+            <Radio value="cidr" label={t`CIDR`} />
+            <Radio value="security_group" label={t`Security Group`} />
+          </div>
+        </RadioGroup>
       </FormRow>
 
       {/* Remote CIDR (conditional) */}

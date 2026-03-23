@@ -1,4 +1,4 @@
-import { FormRow, Select, SelectOption } from "@cloudoperators/juno-ui-components"
+import { FormRow, RadioGroup, Radio } from "@cloudoperators/juno-ui-components"
 import { useLingui } from "@lingui/react/macro"
 
 interface DirectionEthertypeSectionProps {
@@ -21,26 +21,37 @@ export function DirectionEthertypeSection({
   return (
     <>
       {/* Direction */}
-      <FormRow className="mb-6">
-        <Select
-          id="direction"
+      <FormRow>
+        <RadioGroup
+          name="direction"
           label={t`Direction`}
-          value={direction}
+          selected={direction}
           onChange={onDirectionChange}
           required
           disabled={disabled}
         >
-          <SelectOption value="ingress" label={t`Ingress (Inbound)`} />
-          <SelectOption value="egress" label={t`Egress (Outbound)`} />
-        </Select>
+          <div className="flex gap-4">
+            <Radio value="ingress" label={t`Ingress`} />
+            <Radio value="egress" label={t`Egress`} />
+          </div>
+        </RadioGroup>
       </FormRow>
 
       {/* Ethertype */}
-      <FormRow className="mb-6">
-        <Select id="ethertype" label={t`IP Version`} value={ethertype} onChange={onEthertypeChange} disabled={disabled}>
-          <SelectOption value="IPv4" label="IPv4" />
-          <SelectOption value="IPv6" label="IPv6" />
-        </Select>
+      <FormRow>
+        <RadioGroup
+          name="ethertype"
+          label={t`IP Version`}
+          selected={ethertype}
+          onChange={onEthertypeChange}
+          required
+          disabled={disabled}
+        >
+          <div className="flex gap-4">
+            <Radio value="IPv4" label="IPv4" />
+            <Radio value="IPv6" label="IPv6" />
+          </div>
+        </RadioGroup>
       </FormRow>
     </>
   )
