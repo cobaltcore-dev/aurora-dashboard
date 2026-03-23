@@ -249,7 +249,6 @@ describe("imageRouter", () => {
       const mockCtx = createMockContext()
       const caller = createCaller(mockCtx)
 
-      // Mock response without 'next' so it doesn't try to fetch more pages
       mockCtx.mockGlance.get.mockResolvedValue({
         ok: true,
         json: vi.fn().mockResolvedValue({
@@ -1255,7 +1254,6 @@ describe("imageRouter", () => {
       await caller.image.listImagesWithSearch(input)
 
       // Verify applyImageQueryParams was called with sorting params
-      // (name and status are filtered in BFF, not passed to OpenStack)
       expect(imageHelpers.applyImageQueryParams).toHaveBeenCalledWith(
         expect.any(URLSearchParams),
         expect.objectContaining({

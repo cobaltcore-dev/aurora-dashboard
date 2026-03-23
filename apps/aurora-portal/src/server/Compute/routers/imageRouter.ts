@@ -65,10 +65,10 @@ export const imageRouter = {
         validateGlanceService(glance)
 
         // Configuration for intelligent pagination
-        const FRONTEND_PAGE_SIZE = 50 // Items per frontend page
-        const OPENSTACK_PAGE_SIZE = 100 // Items per OpenStack page
-        const MIN_RESULTS_WHEN_SEARCHING = 50 // Minimum results we want when searching
-        const MAX_PAGES_TO_SEARCH = 10 // Maximum OpenStack pages to fetch when searching
+        const FRONTEND_PAGE_SIZE = 50
+        const OPENSTACK_PAGE_SIZE = 100
+        const MIN_RESULTS_WHEN_SEARCHING = 50
+        const MAX_PAGES_TO_SEARCH = 10
 
         const allImages: GlanceImage[] = []
         const hasSearchTerm = queryInput.name && queryInput.name.trim()
@@ -102,7 +102,6 @@ export const imageRouter = {
           allImages.push(...parsedData.data.images)
           pageCount++
 
-          // If there's a search term, check if we have enough matching results
           if (hasSearchTerm) {
             // Apply BFF-side filtering to current batch
             let filteredImages = filterBySearchParams(allImages, queryInput.name, ["name"])
