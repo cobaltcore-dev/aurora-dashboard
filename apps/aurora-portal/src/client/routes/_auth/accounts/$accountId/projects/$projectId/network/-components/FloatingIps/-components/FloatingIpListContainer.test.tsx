@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest"
+import { describe, it, expect, vi } from "vitest"
 import { render, screen, waitFor } from "@testing-library/react"
 import { I18nProvider } from "@lingui/react"
 import { i18n } from "@lingui/core"
@@ -7,6 +7,14 @@ import { createRoute, createRootRoute, RouterProvider, createMemoryHistory, crea
 import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import { FloatingIpListContainer } from "./FloatingIpListContainer"
 import type { FloatingIp } from "@/server/Network/types/floatingIp"
+
+vi.mock("./FloatingIpTableRow", () => ({
+  FloatingIpTableRow: ({ floatingIp }: { floatingIp: FloatingIp }) => (
+    <div role="row" data-testid={`floating-ip-row-${floatingIp.id}`}>
+      {floatingIp.floating_ip_address}
+    </div>
+  ),
+}))
 
 const TestWrapper = ({ children }: { children: ReactNode }) => <I18nProvider i18n={i18n}>{children}</I18nProvider>
 
