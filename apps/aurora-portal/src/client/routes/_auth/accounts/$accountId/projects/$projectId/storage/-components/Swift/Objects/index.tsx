@@ -205,6 +205,26 @@ export const SwiftObjects = () => {
 
   // ── Handlers ─────────────────────────────────────────────────────────────
 
+  type SortKey = "name" | "last_modified" | "bytes"
+
+  const ALLOWED_SORT_KEYS: SortKey[] = ["name", "last_modified", "bytes"]
+
+  // Safely resolve the sort key from whatever ListToolbar passes — it can be a
+  // string, number index, or array. Unknown values return undefined (unsorted).
+  const resolveSortBy = (sortBy: SortSettings["sortBy"]): SortKey | undefined => {
+    if (typeof sortBy === "string") {
+      return ALLOWED_SORT_KEYS.includes(sortBy as SortKey) ? (sortBy as SortKey) : undefined
+    }
+    if (typeof sortBy === "number") {
+      return ALLOWED_SORT_KEYS[sortBy]
+    }
+    if (Array.isArray(sortBy)) {
+      const first = sortBy[0]
+      return typeof first === "string" && ALLOWED_SORT_KEYS.includes(first as SortKey) ? (first as SortKey) : undefined
+    }
+    return undefined
+  }
+
   const handleSearchChange = (term: string | number | string[] | undefined) => {
     const value = typeof term === "string" ? term : ""
     startTransition(() => setSearchTerm(value))
@@ -214,7 +234,7 @@ export const SwiftObjects = () => {
     startTransition(() =>
       setSortSettings({
         options: newSort.options,
-        sortBy: newSort.sortBy?.toString() || "name",
+        sortBy: resolveSortBy(newSort.sortBy),
         sortDirection: newSort.sortDirection || "asc",
       })
     )
