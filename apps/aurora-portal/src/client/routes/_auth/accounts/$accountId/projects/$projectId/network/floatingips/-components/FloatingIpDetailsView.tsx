@@ -1,4 +1,3 @@
-import { useState, useCallback } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import {
   Stack,
@@ -14,6 +13,8 @@ import type { FloatingIp } from "@/server/Network/types/floatingIp"
 import { trpcReact } from "@/client/trpcClient"
 import { formatFloatingIpStatus } from "@/client/utils/formatFloatingIpStatus"
 import { EditFloatingIpModal, FloatingIpUpdateFields } from "./-modals/EditFloatingIpModal"
+import { DetachFloatingIpModal } from "./-modals/DetachFloatingIpModal"
+import { useModal } from "../-hooks/useModal"
 
 interface FloatingIpDetailsViewProps {
   floatingIp: FloatingIp
@@ -21,12 +22,9 @@ interface FloatingIpDetailsViewProps {
 
 export const FloatingIpDetailsView = ({ floatingIp }: FloatingIpDetailsViewProps) => {
   const { t } = useLingui()
+  const [editModalOpen, toggleEditModal] = useModal(false)
+  const [detachModalOpen, toggleDetachModal] = useModal(false)
   const utils = trpcReact.useUtils()
-  const [editModalOpen, setEditModalOpen] = useState(false)
-
-  const toggleEditModal = useCallback(() => {
-    setEditModalOpen((open) => !open)
-  }, [])
 
   const updateFloatingIpMutation = trpcReact.network.floatingIp.update.useMutation({
     onSuccess: () => {
@@ -57,7 +55,7 @@ export const FloatingIpDetailsView = ({ floatingIp }: FloatingIpDetailsViewProps
       <ButtonRow>
         <Button onClick={toggleEditModal}>{t`Edit Description`}</Button>
         <Button disabled>{t`Attach`}</Button>
-        <Button disabled>{t`Detach`}</Button>
+        <Button onClick={toggleDetachModal}>{t`Detach`}</Button>
         <Button disabled>{t`Release`}</Button>
       </ButtonRow>
 
@@ -213,6 +211,17 @@ export const FloatingIpDetailsView = ({ floatingIp }: FloatingIpDetailsViewProps
           floatingIp={floatingIp}
           open={editModalOpen}
           onClose={toggleEditModal}
+          onUpdate={handleUpdateFloatingIp}
+          isLoading={updateFloatingIpMutation.isPending}
+          error={updateFloatingIpMutation.error?.message ?? null}
+        />
+      )}
+
+      {detachModalOpen && (
+        <DetachFloatingIpModal
+          floatingIp={floatingIp}
+          open={detachModalOpen}
+          onClose={toggleDetachModal}
           onUpdate={handleUpdateFloatingIp}
           isLoading={updateFloatingIpMutation.isPending}
           error={updateFloatingIpMutation.error?.message ?? null}

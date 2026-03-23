@@ -10,14 +10,14 @@ import {
   ButtonRow,
   Spinner,
   ModalFooter,
-  Textarea,
   Message,
+  TextInput,
+  Stack,
 } from "@cloudoperators/juno-ui-components"
-import type { FloatingIp, FloatingIpUpdateRequest } from "@/server/Network/types/floatingIp"
+import type { FloatingIp } from "@/server/Network/types/floatingIp"
+import { FloatingIpUpdateFields } from "./EditFloatingIpModal"
 
-export type FloatingIpUpdateFields = Omit<FloatingIpUpdateRequest, "floatingip_id">
-
-interface EditFloatingIpModalProps {
+interface DetachFloatingIpModalProps {
   floatingIp: FloatingIp
   open: boolean
   onClose: () => void
@@ -26,41 +26,36 @@ interface EditFloatingIpModalProps {
   error?: string | null
 }
 
-export const EditFloatingIpModal = ({
+export const DetachFloatingIpModal = ({
   floatingIp,
   open,
   onClose,
   onUpdate,
   isLoading = false,
   error = null,
-}: EditFloatingIpModalProps) => {
+}: DetachFloatingIpModalProps) => {
   const { t } = useLingui()
-  const { description, floating_ip_address } = floatingIp
+  const { floating_ip_address } = floatingIp
 
   const formSchema = z.object({
-    description: z
-      .string()
-      .trim()
-      .min(1, t`Description must be at least 1 character.`)
-      .max(255, t`Description must be at most 255 characters.`),
+    detach: z.string().refine((value) => value === "detach", {
+      message: t`Type “detach” to confirm`,
+    }),
   })
 
   const form = useForm({
     defaultValues: {
-      description: description ?? "",
+      detach: "",
     },
     validators: {
       onSubmit: formSchema,
     },
-    onSubmit: async ({ value }) => {
+    onSubmit: async () => {
       if (isLoading) return
 
-      const updateData: FloatingIpUpdateFields = {
-        // we are passing port so that port association is not lost when updating description as api requires this field
-        port_id: floatingIp.port_id,
-        description: value.description.trim(),
-      }
-      await onUpdate(floatingIp.id, updateData)
+      await onUpdate(floatingIp.id, {
+        port_id: null, // Detach by clearing the port association
+      })
       handleClose()
     },
   })
@@ -72,28 +67,31 @@ export const EditFloatingIpModal = ({
 
   return (
     <Modal
-      // Remount the modal when a different Floating IP is selected so TanStack Form picks up fresh defaultValues.
-      key={floatingIp.id}
       open={open}
       onCancel={handleClose}
       size="large"
-      title={t`Edit Floating IP ${floating_ip_address}`}
+      title={t`Detach Floating IP ${floating_ip_address}`}
       modalFooter={
         <ModalFooter className="flex justify-end">
-          <form.Subscribe selector={({ isSubmitting, isDirty }) => ({ isSubmitting, isDirty })}>
-            {({ isSubmitting, isDirty }) => (
+          <form.Subscribe
+            selector={(state) => ({
+              isSubmitting: state.isSubmitting,
+              detachValue: state.values.detach,
+            })}
+          >
+            {({ isSubmitting, detachValue }) => (
               <ButtonRow>
                 <Button variant="default" onClick={handleClose} disabled={isLoading || isSubmitting}>
                   <Trans>Cancel</Trans>
                 </Button>
                 <Button
                   variant="primary"
-                  type="button"
+                  type="submit"
                   onClick={() => form.handleSubmit()}
-                  disabled={isLoading || isSubmitting || !isDirty}
-                  data-testid="update-floating-ip-button"
+                  disabled={isLoading || isSubmitting || detachValue !== "detach"}
+                  data-testid="detach-floating-ip-button"
                 >
-                  {isSubmitting ? <Spinner size="small" /> : <Trans>Save</Trans>}
+                  {isSubmitting ? <Spinner size="small" /> : <Trans>Detach</Trans>}
                 </Button>
               </ButtonRow>
             )}
@@ -111,33 +109,40 @@ export const EditFloatingIpModal = ({
         <div className="mb-4 flex items-center justify-center gap-2">
           <Spinner variant="primary" />
           <span className="text-sm text-gray-600">
-            <Trans>Updating Floating IP...</Trans>
+            <Trans>Detaching Floating IP...</Trans>
           </span>
         </div>
       )}
 
+      <Stack gap="2.5" direction="vertical" className="mb-2.5">
+        <p>
+          <Trans>
+            Detaching this Floating IP will remove its association with the current port. The instance will no longer be
+            reachable through this address.
+          </Trans>
+        </p>
+        <p>
+          <Trans>To confirm this action, type the word “detach” in the field below.</Trans>
+        </p>
+      </Stack>
+
       {!isLoading && (
-        <Form
-          className="mb-6"
-          id="edit-floating-ip-form"
-          onSubmit={(e) => {
-            e.preventDefault()
-            form.handleSubmit()
-          }}
-        >
+        <Form className="mb-6" id="edit-floating-ip-form" onSubmit={form.handleSubmit}>
           <FormSection className="mb-6">
             <FormRow className="mb-6">
               <form.Field
-                name="description"
+                name="detach"
+                validators={{
+                  onChange: ({ value }) => value === "detach",
+                }}
                 children={(field) => (
-                  <Textarea
+                  <TextInput
                     id={field.name}
                     name={field.name}
                     value={field.state.value}
                     onChange={(e) => field.handleChange(e.target.value)}
-                    errortext={field.state.meta.errors.map((e) => e?.message).join(", ")}
-                    label={t`Description`}
-                    placeholder={t`Description`}
+                    placeholder={t`Type "detach" to confirm`}
+                    helptext={t`The text must match “detach” in lowercase.`}
                     disabled={isLoading}
                     required
                   />
