@@ -10,7 +10,6 @@ To address this question, let's first clarify the architecture of Aurora. Aurora
 Aurora Extensions can provide both parts or just one of them. However, it's important to note that both parts must follow a specific interface. The development of an extension begins with bootstrapping the **Aurora Extension Template**. This template already includes all necessary configurations and file structures. Here are some important details to consider during extension development:
 
 1. **Package.json Exports**:
-
    - The frontend part (UI) should be exported under `./client`.
    - The backend part should be exported under `./server`.
    - If only one part is relevant, the other part can be omitted.

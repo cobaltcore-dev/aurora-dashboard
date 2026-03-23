@@ -323,7 +323,6 @@ Both parsers throw `TRPCError` with code `INTERNAL_SERVER_ERROR` if validation f
 ### Routes
 
 1. **List Page**: `/accounts/:accountId/projects/:projectId/network/securitygroups`
-
    - Component: `SecurityGroups` (List.tsx)
    - Features: Filtering, sorting, search, create action
 
@@ -391,13 +390,11 @@ const deleteMutation = trpcReact.network.securityGroup.deleteById.useMutation({
 ### Modals
 
 1. **CreateSecurityGroupModal**
-
    - Fields: Name (required), Description (optional), Stateful (checkbox, default true)
    - Validation: Name is required
    - Success: Navigates to details page
 
 2. **EditSecurityGroupModal**
-
    - Fields: Name, Description, Stateful
    - Pre-populated with existing values
    - Info message about stateful restrictions
@@ -412,7 +409,6 @@ const deleteMutation = trpcReact.network.securityGroup.deleteById.useMutation({
 ### Tables
 
 1. **SecurityGroupListContainer**
-
    - Columns: Name/ID, Description, Stateful, Shared/Owning Project, Created At
    - Row actions: Edit, Delete, Access Control (context menu)
    - Click row to navigate to details
