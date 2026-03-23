@@ -68,7 +68,7 @@ export const imageRouter = {
         const FRONTEND_PAGE_SIZE = 50
         const OPENSTACK_PAGE_SIZE = 100
         const MIN_RESULTS_WHEN_SEARCHING = 50
-        const MAX_PAGES_TO_SEARCH = 10
+        const MAX_PAGES_TO_SEARCH = 1000
 
         const allImages: GlanceImage[] = []
         const hasSearchTerm = queryInput.name && queryInput.name.trim()
