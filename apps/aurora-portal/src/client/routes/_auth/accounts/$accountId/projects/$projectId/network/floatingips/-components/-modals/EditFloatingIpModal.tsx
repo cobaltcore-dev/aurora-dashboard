@@ -5,7 +5,6 @@ import {
   Modal,
   Form,
   FormSection,
-  FormRow,
   Button,
   ButtonRow,
   Spinner,
@@ -118,32 +117,30 @@ export const EditFloatingIpModal = ({
 
       {!isLoading && (
         <Form
-          className="mb-6"
+          className="mb-0"
           id="edit-floating-ip-form"
           onSubmit={(e) => {
             e.preventDefault()
             form.handleSubmit()
           }}
         >
-          <FormSection className="mb-6">
-            <FormRow className="mb-6">
-              <form.Field
-                name="description"
-                children={(field) => (
-                  <Textarea
-                    id={field.name}
-                    name={field.name}
-                    value={field.state.value}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                    errortext={field.state.meta.errors.map((e) => e?.message).join(", ")}
-                    label={t`Description`}
-                    placeholder={t`Description`}
-                    disabled={isLoading}
-                    required
-                  />
-                )}
-              />
-            </FormRow>
+          <FormSection>
+            <form.Field
+              name="description"
+              children={(field) => (
+                <Textarea
+                  id={field.name}
+                  name={field.name}
+                  value={field.state.value}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  errortext={field.state.meta.errors.map((e) => e?.message).join(", ")}
+                  label={t`Description`}
+                  placeholder={t`Description`}
+                  disabled={isLoading}
+                  required
+                />
+              )}
+            />
           </FormSection>
         </Form>
       )}

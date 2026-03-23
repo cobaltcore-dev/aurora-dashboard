@@ -5,7 +5,6 @@ import {
   Modal,
   Form,
   FormSection,
-  FormRow,
   Button,
   ButtonRow,
   Spinner,
@@ -127,35 +126,32 @@ export const ReleaseFloatingIpModal = ({
 
       {!isLoading && (
         <Form
-          className="mb-6"
-          id="edit-floating-ip-form"
+          className="mb-0"
+          id="release-floating-ip-form"
           onSubmit={(e) => {
             e.preventDefault()
             form.handleSubmit()
           }}
         >
-          <FormSection className="mb-6">
-            <FormRow className="mb-6">
-              <form.Field
-                name="release"
-                children={(field) => (
-                  <TextInput
-                    id={field.name}
-                    name={field.name}
-                    value={field.state.value}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                    placeholder={t`Type "release" to confirm`}
-                    helptext={t`The text must match “release” in lowercase.`}
-                    disabled={isLoading}
-                    required
-                  />
-                )}
-              />
-            </FormRow>
+          <FormSection>
+            <form.Field
+              name="release"
+              children={(field) => (
+                <TextInput
+                  id={field.name}
+                  name={field.name}
+                  value={field.state.value}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  placeholder={t`Type "release" to confirm`}
+                  helptext={t`The text must match “release” in lowercase.`}
+                  disabled={isLoading}
+                  required
+                />
+              )}
+            />
           </FormSection>
         </Form>
       )}
     </Modal>
   )
 }
-// END

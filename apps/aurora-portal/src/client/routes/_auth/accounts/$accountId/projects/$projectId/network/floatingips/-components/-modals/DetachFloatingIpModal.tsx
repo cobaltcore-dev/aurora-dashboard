@@ -5,7 +5,6 @@ import {
   Modal,
   Form,
   FormSection,
-  FormRow,
   Button,
   ButtonRow,
   Spinner,
@@ -130,31 +129,29 @@ export const DetachFloatingIpModal = ({
 
       {!isLoading && (
         <Form
-          className="mb-6"
-          id="edit-floating-ip-form"
+          className="mb-0"
+          id="detach-floating-ip-form"
           onSubmit={(e) => {
             e.preventDefault()
             form.handleSubmit()
           }}
         >
-          <FormSection className="mb-6">
-            <FormRow className="mb-6">
-              <form.Field
-                name="detach"
-                children={(field) => (
-                  <TextInput
-                    id={field.name}
-                    name={field.name}
-                    value={field.state.value}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                    placeholder={t`Type "detach" to confirm`}
-                    helptext={t`The text must match “detach” in lowercase.`}
-                    disabled={isLoading}
-                    required
-                  />
-                )}
-              />
-            </FormRow>
+          <FormSection>
+            <form.Field
+              name="detach"
+              children={(field) => (
+                <TextInput
+                  id={field.name}
+                  name={field.name}
+                  value={field.state.value}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  placeholder={t`Type "detach" to confirm`}
+                  helptext={t`The text must match “detach” in lowercase.`}
+                  disabled={isLoading}
+                  required
+                />
+              )}
+            />
           </FormSection>
         </Form>
       )}

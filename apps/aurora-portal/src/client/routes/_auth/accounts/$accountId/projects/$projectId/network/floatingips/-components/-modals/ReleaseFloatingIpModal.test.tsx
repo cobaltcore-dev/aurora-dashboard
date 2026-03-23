@@ -70,7 +70,7 @@ describe("ReleaseFloatingIpModal", () => {
     test("shows confirmation instructions", () => {
       renderModal()
 
-      expect(screen.getByText(/Releasing Floating IP 203.0.113.10 is permanent/i)).toBeInTheDocument()
+      expect(screen.getByText(/This action is permanent/i)).toBeInTheDocument()
       expect(screen.getByText(/type the word/i)).toBeInTheDocument()
     })
 
