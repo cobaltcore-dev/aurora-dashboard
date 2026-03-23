@@ -38,11 +38,8 @@ export const ObjectsTableView = ({ rows, searchTerm, onFolderClick }: ObjectsTab
 
   // Format date to localized string
   const formatDate = (dateString: string): string => {
-    try {
-      return new Date(dateString).toLocaleString()
-    } catch {
-      return t`N/A`
-    }
+    const d = new Date(dateString)
+    return Number.isNaN(d.getTime()) ? t`N/A` : d.toLocaleString()
   }
 
   if (rows.length === 0) {
