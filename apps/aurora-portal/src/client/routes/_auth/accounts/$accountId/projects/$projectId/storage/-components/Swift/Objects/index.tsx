@@ -232,9 +232,10 @@ export const SwiftObjects = () => {
 
   // Handle error state
   if (error) {
+    const errorMessage = error.message
     return (
       <Stack className="fixed inset-0" distribution="center" alignment="center" direction="vertical">
-        <Trans>Error Loading Objects: {error.message}</Trans>
+        <Trans>Error Loading Objects: {errorMessage}</Trans>
       </Stack>
     )
   }
