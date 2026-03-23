@@ -113,7 +113,10 @@ export const ReleaseFloatingIpModal = ({
 
       <Stack gap="2.5" direction="vertical" className="mb-2.5">
         <p>
-          {t`Releasing Floating IP ${floating_ip_address} is permanent. The address will be removed from your project and returned to the public pool. This action cannot be undone.`}
+          <Trans>
+            This action is permanent. The address will be removed from your project and returned to the public pool.
+            This action cannot be undone.
+          </Trans>
         </p>
         <p>
           <Trans>

@@ -8,9 +8,10 @@ import type { FloatingIp } from "@/server/Network/types/floatingIp"
 import { ReactNode } from "react"
 import { FloatingIpUpdateFields } from "./-modals/EditFloatingIpModal"
 
-const { mockUseUtils, mockUpdateMutation } = vi.hoisted(() => ({
+const { mockUseUtils, mockUpdateMutation, mockDeleteMutation } = vi.hoisted(() => ({
   mockUseUtils: vi.fn(),
   mockUpdateMutation: vi.fn(),
+  mockDeleteMutation: vi.fn(),
 }))
 
 vi.mock("@/client/trpcClient", () => ({
@@ -20,6 +21,9 @@ vi.mock("@/client/trpcClient", () => ({
       floatingIp: {
         update: {
           useMutation: mockUpdateMutation,
+        },
+        delete: {
+          useMutation: mockDeleteMutation,
         },
       },
     },
@@ -84,12 +88,39 @@ vi.mock("./-modals/DetachFloatingIpModal", () => ({
     ) : null,
 }))
 
+vi.mock("./-modals/ReleaseFloatingIpModal", () => ({
+  ReleaseFloatingIpModal: ({
+    open,
+    onClose,
+    onUpdate,
+    floatingIp,
+    isLoading,
+    error,
+  }: {
+    open: boolean
+    onClose: () => void
+    onUpdate: (floatingIpId: string) => Promise<void>
+    floatingIp: FloatingIp
+    isLoading: boolean
+    error: string | null
+  }) =>
+    open ? (
+      <div data-testid="release-floating-ip-modal">
+        <span data-testid="release-modal-loading">{isLoading ? "loading" : "idle"}</span>
+        <span data-testid="release-modal-error">{error ?? ""}</span>
+        <button onClick={onClose}>Close Release Modal</button>
+        <button onClick={() => onUpdate(floatingIp.id)}>Confirm Release</button>
+      </div>
+    ) : null,
+}))
+
 const TestWrapper = ({ children }: { children: ReactNode }) => <I18nProvider i18n={i18n}>{children}</I18nProvider>
 
 describe("FloatingIpDetailsView", () => {
   const listInvalidateMock = vi.fn()
   const getByIdInvalidateMock = vi.fn()
   const mutateAsyncMock = vi.fn()
+  const deleteAsyncMock = vi.fn()
 
   const mockFloatingIp: FloatingIp = {
     id: "fip-123",
@@ -150,6 +181,18 @@ describe("FloatingIpDetailsView", () => {
 
       return {
         mutateAsync: mutateAsyncMock,
+        isPending: false,
+        error: null,
+      }
+    })
+
+    mockDeleteMutation.mockImplementation((options?: { onSuccess?: () => void }) => {
+      deleteAsyncMock.mockImplementation(async () => {
+        await options?.onSuccess?.()
+      })
+
+      return {
+        mutateAsync: deleteAsyncMock,
         isPending: false,
         error: null,
       }
@@ -286,6 +329,56 @@ describe("FloatingIpDetailsView", () => {
 
       expect(screen.getByTestId("edit-modal-loading")).toHaveTextContent("loading")
       expect(screen.getByTestId("edit-modal-error")).toHaveTextContent("Failed to update description")
+    })
+  })
+
+  describe("Release modal", () => {
+    it("opens and closes release modal", async () => {
+      const user = userEvent.setup()
+      render(<FloatingIpDetailsView floatingIp={mockFloatingIp} />, { wrapper: TestWrapper })
+
+      await user.click(screen.getByRole("button", { name: "Release" }))
+      expect(screen.getByTestId("release-floating-ip-modal")).toBeInTheDocument()
+
+      await user.click(screen.getByRole("button", { name: "Close Release Modal" }))
+
+      await waitFor(() => {
+        expect(screen.queryByTestId("release-floating-ip-modal")).not.toBeInTheDocument()
+      })
+    })
+
+    it("submits delete and invalidates list query", async () => {
+      const user = userEvent.setup()
+      render(<FloatingIpDetailsView floatingIp={mockFloatingIp} />, { wrapper: TestWrapper })
+
+      await user.click(screen.getByRole("button", { name: "Release" }))
+      await user.click(screen.getByRole("button", { name: "Confirm Release" }))
+
+      await waitFor(() => {
+        expect(deleteAsyncMock).toHaveBeenCalledWith({
+          floatingip_id: mockFloatingIp.id,
+        })
+      })
+
+      await waitFor(() => {
+        expect(listInvalidateMock).toHaveBeenCalled()
+      })
+    })
+
+    it("passes loading and error mutation state to release modal", async () => {
+      mockDeleteMutation.mockReturnValue({
+        mutateAsync: vi.fn(),
+        isPending: true,
+        error: { message: "Failed to release floating IP" },
+      })
+
+      const user = userEvent.setup()
+      render(<FloatingIpDetailsView floatingIp={mockFloatingIp} />, { wrapper: TestWrapper })
+
+      await user.click(screen.getByRole("button", { name: "Release" }))
+
+      expect(screen.getByTestId("release-modal-loading")).toHaveTextContent("loading")
+      expect(screen.getByTestId("release-modal-error")).toHaveTextContent("Failed to release floating IP")
     })
   })
 
