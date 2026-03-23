@@ -96,7 +96,11 @@ export const Route = createFileRoute(
     return <ErrorComponent error={error} />
   },
   notFoundComponent: () => {
-    return <p>Storage container not found</p>
+    return (
+      <p>
+        <Trans>Storage container not found</Trans>
+      </p>
+    )
   },
   loader: async ({ context }) => {
     const { trpcClient } = context
