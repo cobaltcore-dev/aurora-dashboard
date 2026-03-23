@@ -58,6 +58,32 @@ vi.mock("./-modals/EditFloatingIpModal", () => ({
     ) : null,
 }))
 
+vi.mock("./-modals/DetachFloatingIpModal", () => ({
+  DetachFloatingIpModal: ({
+    open,
+    onClose,
+    onUpdate,
+    floatingIp,
+    isLoading,
+    error,
+  }: {
+    open: boolean
+    onClose: () => void
+    onUpdate: (floatingIpId: string, data: FloatingIpUpdateFields) => Promise<void>
+    floatingIp: FloatingIp
+    isLoading: boolean
+    error: string | null
+  }) =>
+    open ? (
+      <div data-testid="detach-floating-ip-modal">
+        <span data-testid="detach-modal-loading">{isLoading ? "loading" : "idle"}</span>
+        <span data-testid="detach-modal-error">{error ?? ""}</span>
+        <button onClick={onClose}>Close Detach Modal</button>
+        <button onClick={() => onUpdate(floatingIp.id, { port_id: null })}>Confirm Detach</button>
+      </div>
+    ) : null,
+}))
+
 const TestWrapper = ({ children }: { children: ReactNode }) => <I18nProvider i18n={i18n}>{children}</I18nProvider>
 
 describe("FloatingIpDetailsView", () => {
@@ -173,6 +199,38 @@ describe("FloatingIpDetailsView", () => {
       })
     })
 
+    it("opens and closes detach modal", async () => {
+      const user = userEvent.setup()
+      render(<FloatingIpDetailsView floatingIp={mockFloatingIp} />, { wrapper: TestWrapper })
+
+      await user.click(screen.getByRole("button", { name: "Detach" }))
+      expect(screen.getByTestId("detach-floating-ip-modal")).toBeInTheDocument()
+
+      await user.click(screen.getByRole("button", { name: "Close Detach Modal" }))
+
+      await waitFor(() => {
+        expect(screen.queryByTestId("detach-floating-ip-modal")).not.toBeInTheDocument()
+      })
+    })
+
+    it("renders only the selected modal at a time", async () => {
+      const user = userEvent.setup()
+      render(<FloatingIpDetailsView floatingIp={mockFloatingIp} />, { wrapper: TestWrapper })
+
+      await user.click(screen.getByRole("button", { name: "Edit Description" }))
+      expect(screen.getByTestId("edit-floating-ip-modal")).toBeInTheDocument()
+      expect(screen.queryByTestId("detach-floating-ip-modal")).not.toBeInTheDocument()
+
+      await user.click(screen.getByRole("button", { name: "Close Edit Modal" }))
+      await waitFor(() => {
+        expect(screen.queryByTestId("edit-floating-ip-modal")).not.toBeInTheDocument()
+      })
+
+      await user.click(screen.getByRole("button", { name: "Detach" }))
+      expect(screen.getByTestId("detach-floating-ip-modal")).toBeInTheDocument()
+      expect(screen.queryByTestId("edit-floating-ip-modal")).not.toBeInTheDocument()
+    })
+
     it("submits update and invalidates detail and list queries", async () => {
       const user = userEvent.setup()
       render(<FloatingIpDetailsView floatingIp={mockFloatingIp} />, { wrapper: TestWrapper })
@@ -185,6 +243,26 @@ describe("FloatingIpDetailsView", () => {
           floatingip_id: mockFloatingIp.id,
           port_id: mockFloatingIp.port_id,
           description: "Updated details description",
+        })
+      })
+
+      await waitFor(() => {
+        expect(getByIdInvalidateMock).toHaveBeenCalledWith({ floatingip_id: mockFloatingIp.id })
+        expect(listInvalidateMock).toHaveBeenCalled()
+      })
+    })
+
+    it("submits detach update and invalidates detail and list queries", async () => {
+      const user = userEvent.setup()
+      render(<FloatingIpDetailsView floatingIp={mockFloatingIp} />, { wrapper: TestWrapper })
+
+      await user.click(screen.getByRole("button", { name: "Detach" }))
+      await user.click(screen.getByRole("button", { name: "Confirm Detach" }))
+
+      await waitFor(() => {
+        expect(mutateAsyncMock).toHaveBeenCalledWith({
+          floatingip_id: mockFloatingIp.id,
+          port_id: null,
         })
       })
 

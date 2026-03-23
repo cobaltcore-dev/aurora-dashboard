@@ -60,6 +60,32 @@ vi.mock("../../../floatingips/-components/-modals/EditFloatingIpModal", () => ({
     ) : null,
 }))
 
+vi.mock("../../../floatingips/-components/-modals/DetachFloatingIpModal", () => ({
+  DetachFloatingIpModal: ({
+    open,
+    onClose,
+    onUpdate,
+    floatingIp,
+    isLoading,
+    error,
+  }: {
+    open: boolean
+    onClose: () => void
+    onUpdate: (floatingIpId: string, data: FloatingIpUpdateFields) => Promise<void>
+    floatingIp: FloatingIp
+    isLoading: boolean
+    error: string | null
+  }) =>
+    open ? (
+      <div data-testid="detach-floating-ip-modal">
+        <span data-testid="detach-modal-loading">{isLoading ? "loading" : "idle"}</span>
+        <span data-testid="detach-modal-error">{error ?? ""}</span>
+        <button onClick={onClose}>Close Detach Modal</button>
+        <button onClick={() => onUpdate(floatingIp.id, { port_id: null })}>Confirm Detach</button>
+      </div>
+    ) : null,
+}))
+
 const createTestRouter = (Component: ReactElement) => {
   const memoryHistory = createMemoryHistory({
     initialEntries: ["/accounts/test-account/projects/test-project/network/"],
@@ -385,6 +411,87 @@ describe("FloatingIpTableRow", () => {
 
       expect(screen.getByTestId("edit-modal-loading")).toHaveTextContent("loading")
       expect(screen.getByTestId("edit-modal-error")).toHaveTextContent("Update failed")
+    })
+
+    it("opens and closes detach modal from menu action", async () => {
+      const user = userEvent.setup()
+      const router = createTestRouter(<FloatingIpTableRow floatingIp={mockFloatingIp} />)
+      render(<RouterProvider router={router} />)
+
+      await waitFor(() => {
+        expect(screen.getByText("203.0.113.10")).toBeInTheDocument()
+      })
+
+      const row = screen.getByTestId(`floating-ip-row-${mockFloatingIp.id}`)
+      const menuButton = row.querySelector("button")
+      expect(menuButton).toBeInTheDocument()
+
+      await user.click(menuButton!)
+      await user.click(screen.getByText("Detach"))
+
+      expect(screen.getByTestId("detach-floating-ip-modal")).toBeInTheDocument()
+
+      await user.click(screen.getByText("Close Detach Modal"))
+
+      await waitFor(() => {
+        expect(screen.queryByTestId("detach-floating-ip-modal")).not.toBeInTheDocument()
+      })
+    })
+
+    it("submits detach update and invalidates floating IP queries", async () => {
+      const user = userEvent.setup()
+      const router = createTestRouter(<FloatingIpTableRow floatingIp={mockFloatingIp} />)
+      render(<RouterProvider router={router} />)
+
+      await waitFor(() => {
+        expect(screen.getByTestId(`floating-ip-row-${mockFloatingIp.id}`)).toBeInTheDocument()
+      })
+
+      const row = screen.getByTestId(`floating-ip-row-${mockFloatingIp.id}`)
+      const menuButton = row.querySelector("button")
+      expect(menuButton).toBeInTheDocument()
+
+      await user.click(menuButton!)
+      await user.click(screen.getByText("Detach"))
+      await user.click(screen.getByText("Confirm Detach"))
+
+      await waitFor(() => {
+        expect(mutateAsyncMock).toHaveBeenCalledWith({
+          floatingip_id: mockFloatingIp.id,
+          port_id: null,
+        })
+      })
+
+      await waitFor(() => {
+        expect(listInvalidateMock).toHaveBeenCalled()
+        expect(getByIdInvalidateMock).toHaveBeenCalledWith({ floatingip_id: mockFloatingIp.id })
+      })
+    })
+
+    it("passes mutation loading and error state to detach modal", async () => {
+      mockUpdateMutation.mockReturnValue({
+        mutateAsync: vi.fn(),
+        isPending: true,
+        error: { message: "Detach failed" },
+      })
+
+      const user = userEvent.setup()
+      const router = createTestRouter(<FloatingIpTableRow floatingIp={mockFloatingIp} />)
+      render(<RouterProvider router={router} />)
+
+      await waitFor(() => {
+        expect(screen.getByTestId(`floating-ip-row-${mockFloatingIp.id}`)).toBeInTheDocument()
+      })
+
+      const row = screen.getByTestId(`floating-ip-row-${mockFloatingIp.id}`)
+      const menuButton = row.querySelector("button")
+      expect(menuButton).toBeInTheDocument()
+
+      await user.click(menuButton!)
+      await user.click(screen.getByText("Detach"))
+
+      expect(screen.getByTestId("detach-modal-loading")).toHaveTextContent("loading")
+      expect(screen.getByTestId("detach-modal-error")).toHaveTextContent("Detach failed")
     })
   })
 })

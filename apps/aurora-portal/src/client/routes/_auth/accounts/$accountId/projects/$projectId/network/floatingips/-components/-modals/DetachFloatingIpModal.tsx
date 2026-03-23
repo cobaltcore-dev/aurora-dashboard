@@ -86,7 +86,7 @@ export const DetachFloatingIpModal = ({
                 </Button>
                 <Button
                   variant="primary"
-                  type="submit"
+                  type="button"
                   onClick={() => form.handleSubmit()}
                   disabled={isLoading || isSubmitting || detachValue !== "detach"}
                   data-testid="detach-floating-ip-button"
@@ -127,14 +127,18 @@ export const DetachFloatingIpModal = ({
       </Stack>
 
       {!isLoading && (
-        <Form className="mb-6" id="edit-floating-ip-form" onSubmit={form.handleSubmit}>
+        <Form
+          className="mb-6"
+          id="edit-floating-ip-form"
+          onSubmit={(e) => {
+            e.preventDefault()
+            form.handleSubmit()
+          }}
+        >
           <FormSection className="mb-6">
             <FormRow className="mb-6">
               <form.Field
                 name="detach"
-                validators={{
-                  onChange: ({ value }) => value === "detach",
-                }}
                 children={(field) => (
                   <TextInput
                     id={field.name}
