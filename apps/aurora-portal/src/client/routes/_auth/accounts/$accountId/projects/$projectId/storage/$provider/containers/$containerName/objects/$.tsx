@@ -1,4 +1,5 @@
 import { createFileRoute, ErrorComponent, redirect, useParams } from "@tanstack/react-router"
+import { useEffect } from "react"
 import { getServiceIndex } from "@/server/Authentication/helpers"
 import { ErrorBoundary } from "react-error-boundary"
 import { Trans, useLingui } from "@lingui/react/macro"
@@ -135,16 +136,11 @@ function ObjectsDashboard() {
   const { setPageTitle } = Route.useRouteContext()
   const { t } = useLingui()
 
-  switch (provider) {
-    case "swift":
-      setPageTitle(t`Object Storage`)
-      break
-    case "ceph":
-      setPageTitle(t`Object Storage`)
-      break
-    default:
-      setPageTitle(t`Storage Overview`)
-  }
+  const pageTitle = provider === "swift" || provider === "ceph" ? t`Object Storage` : t`Storage Overview`
+
+  useEffect(() => {
+    setPageTitle(pageTitle)
+  }, [pageTitle, setPageTitle])
 
   return (
     <div>
