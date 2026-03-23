@@ -186,7 +186,6 @@ describe("ObjectsTableView", () => {
   describe("Footer", () => {
     test("shows item count in footer", () => {
       renderView()
-      expect(screen.getByText(/Showing/i)).toBeInTheDocument()
       expect(screen.getByText(/4 items/i)).toBeInTheDocument()
     })
 

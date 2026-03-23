@@ -66,7 +66,6 @@ export const ObjectsTableView = ({ rows, searchTerm, onFolderClick }: ObjectsTab
   }
 
   const allCount = rows.length
-  const visibleCount = rowVirtualizer.getVirtualItems().length
 
   return (
     <div className="relative">
@@ -162,9 +161,7 @@ export const ObjectsTableView = ({ rows, searchTerm, onFolderClick }: ObjectsTab
 
       {/* Footer with count */}
       <div className="text-theme-light border-theme-background-lvl-2 border-t px-4 py-2 text-sm">
-        <Trans>
-          Showing {visibleCount} of {allCount} items
-        </Trans>
+        <Trans>{allCount} items</Trans>
       </div>
     </div>
   )
