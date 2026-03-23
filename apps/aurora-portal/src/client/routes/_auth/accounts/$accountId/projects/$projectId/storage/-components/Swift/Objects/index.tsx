@@ -13,13 +13,19 @@ import { ObjectsFileNavigation } from "./ObjectsFileNavigation"
 // ── Prefix helpers ────────────────────────────────────────────────────────────
 
 /** Encode a prefix string to a base64 search param value */
-const encodePrefix = (prefix: string): string => btoa(prefix)
-
+const encodePrefix = (prefix: string): string => {
+  // Use TextEncoder for Unicode-safe base64 encoding
+  const bytes = new TextEncoder().encode(prefix)
+  const binString = Array.from(bytes, (byte) => String.fromCodePoint(byte)).join("")
+  return btoa(binString)
+}
 /** Decode a base64 search param back to a prefix string */
 const decodePrefix = (encoded: string | undefined): string => {
   if (!encoded) return ""
   try {
-    return atob(encoded)
+    const binString = atob(encoded)
+    const bytes = Uint8Array.from(binString, (char) => char.codePointAt(0)!)
+    return new TextDecoder().decode(bytes)
   } catch {
     return ""
   }
