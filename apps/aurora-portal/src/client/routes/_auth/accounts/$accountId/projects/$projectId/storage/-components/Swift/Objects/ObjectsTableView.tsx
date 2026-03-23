@@ -136,7 +136,7 @@ export const ObjectsTableView = ({ rows, searchTerm, onFolderClick }: ObjectsTab
                   {isFolder ? (
                     <button
                       type="button"
-                      className="flex min-w-0 items-center gap-2 text-left hover:underline focus:outline-none"
+                      className="focus-visible:outline-theme-focus flex min-w-0 items-center gap-2 rounded text-left hover:underline focus-visible:outline focus-visible:outline-2"
                       onClick={() => onFolderClick(row.name)}
                       data-testid={`folder-${row.name}`}
                       title={row.displayName}
