@@ -10,10 +10,8 @@ import {
   SelectOption,
   Checkbox,
   Button,
-  ButtonRow,
   Spinner,
   Stack,
-  ModalFooter,
   Pill,
 } from "@cloudoperators/juno-ui-components"
 import { CreateImageInput } from "@/server/Compute/types/image"
@@ -333,25 +331,10 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({
       onCancel={handleClose}
       size="large"
       title={t`Create New Image`}
-      modalFooter={
-        <ModalFooter className="flex justify-end">
-          <ButtonRow>
-            <Button
-              variant="primary"
-              onClick={(e) => {
-                handleSubmit(e)
-              }}
-              disabled={isLoading}
-              data-testid="create-image-button"
-            >
-              {isLoading ? <Spinner size="small" /> : <Trans>Create Image</Trans>}
-            </Button>
-            <Button variant="default" onClick={handleClose} disabled={isLoading}>
-              <Trans>Cancel</Trans>
-            </Button>
-          </ButtonRow>
-        </ModalFooter>
-      }
+      onConfirm={handleSubmit}
+      confirmButtonLabel={t`Create Image`}
+      cancelButtonLabel={t`Cancel`}
+      disableConfirmButton={isLoading}
     >
       {isLoading && !uploadProgressPercent && (
         <Stack distribution="center" alignment="center" className="mt-4">

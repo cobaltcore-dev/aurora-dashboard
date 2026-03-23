@@ -3,15 +3,14 @@ import { Trans, useLingui } from "@lingui/react/macro"
 import {
   Modal,
   Button,
-  ButtonRow,
   Spinner,
   Stack,
-  ModalFooter,
   DataGrid,
   DataGridRow,
   DataGridHeadCell,
   DataGridCell,
   TextInput,
+  Message,
 } from "@cloudoperators/juno-ui-components"
 import { GlanceImage } from "@/server/Compute/types/image"
 
@@ -283,23 +282,10 @@ export const EditImageMetadataModal: React.FC<EditImageMetadataModalProps> = ({
       onCancel={handleClose}
       size="large"
       title={t`Edit Image Metadata`}
-      modalFooter={
-        <ModalFooter className="flex justify-end">
-          <ButtonRow>
-            <Button
-              variant="primary"
-              onClick={handleSubmit}
-              disabled={isLoading || isAddingNew || metadata.some((e) => e.isEditing) || isSubmitDisabled}
-              data-testid="save-metadata-button"
-            >
-              {isLoading ? <Spinner size="small" /> : <Trans>Save Changes</Trans>}
-            </Button>
-            <Button variant="default" onClick={handleClose} disabled={isLoading}>
-              <Trans>Cancel</Trans>
-            </Button>
-          </ButtonRow>
-        </ModalFooter>
-      }
+      onConfirm={handleSubmit}
+      confirmButtonLabel={t`Save Changes`}
+      cancelButtonLabel={t`Cancel`}
+      disableConfirmButton={isLoading || isAddingNew || metadata.some((e) => e.isEditing) || isSubmitDisabled}
     >
       {isLoading && (
         <Stack distribution="center" alignment="center">

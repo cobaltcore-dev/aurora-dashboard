@@ -10,10 +10,8 @@ import {
   SelectOption,
   Checkbox,
   Button,
-  ButtonRow,
   Spinner,
   Stack,
-  ModalFooter,
   Pill,
 } from "@cloudoperators/juno-ui-components"
 import { GlanceImage } from "@/server/Compute/types/image"
@@ -218,25 +216,10 @@ export const EditImageDetailsModal: React.FC<EditImageDetailsModalProps> = ({
       onCancel={handleClose}
       size="large"
       title={t`Edit Image Details`}
-      modalFooter={
-        <ModalFooter className="flex justify-end">
-          <ButtonRow>
-            <Button
-              variant="primary"
-              onClick={(e) => {
-                handleSubmit(e)
-              }}
-              disabled={isLoading || isSubmitDisabled}
-              data-testid="save-image-updates-button"
-            >
-              {isLoading ? <Spinner size="small" /> : <Trans>Save Changes</Trans>}
-            </Button>
-            <Button variant="default" onClick={handleClose} disabled={isLoading}>
-              <Trans>Cancel</Trans>
-            </Button>
-          </ButtonRow>
-        </ModalFooter>
-      }
+      onConfirm={handleSubmit}
+      confirmButtonLabel={t`Save Changes`}
+      cancelButtonLabel={t`Cancel`}
+      disableConfirmButton={isLoading || isSubmitDisabled}
     >
       {isLoading && (
         <Stack distribution="center" alignment="center">

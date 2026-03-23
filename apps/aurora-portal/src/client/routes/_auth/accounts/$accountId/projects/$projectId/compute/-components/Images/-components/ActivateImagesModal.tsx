@@ -1,6 +1,6 @@
 import React from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
-import { Button, ButtonRow, Message, Modal, ModalFooter, Spinner, Stack } from "@cloudoperators/juno-ui-components"
+import { Button, Message, Modal, Spinner, Stack } from "@cloudoperators/juno-ui-components"
 
 interface ActivateImagesModalProps {
   deactivatedImages: Array<string>
@@ -35,26 +35,13 @@ export const ActivateImagesModal: React.FC<ActivateImagesModalProps> = ({
       size="small"
       title={t`Activate Images`}
       open={isOpen}
-      modalFooter={
-        <ModalFooter className="flex justify-end">
-          <ButtonRow>
-            <Button
-              variant="primary-danger"
-              onClick={(e) => {
-                handleActivate(e)
-                onClose()
-              }}
-              disabled={isLoading}
-              data-testid={`activate-image-button`}
-            >
-              {isLoading ? <Spinner size="small" /> : <Trans>Activate</Trans>}
-            </Button>
-            <Button variant="default" onClick={onClose}>
-              <Trans>Cancel</Trans>
-            </Button>
-          </ButtonRow>
-        </ModalFooter>
-      }
+      onConfirm={(e) => {
+        handleActivate(e)
+        onClose()
+      }}
+      confirmButtonLabel={t`Activate`}
+      cancelButtonLabel={t`Cancel`}
+      disableConfirmButton={isLoading}
     >
       {isLoading && (
         <Stack distribution="center" alignment="center">
