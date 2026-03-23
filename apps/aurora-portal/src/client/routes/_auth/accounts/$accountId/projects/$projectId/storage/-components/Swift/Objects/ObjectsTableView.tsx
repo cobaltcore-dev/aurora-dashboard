@@ -1,7 +1,8 @@
 import { useRef, useEffect, useState } from "react"
 import { useVirtualizer } from "@tanstack/react-virtual"
-import { DataGrid, DataGridHeadCell, DataGridRow, DataGridCell, Icon } from "@cloudoperators/juno-ui-components"
+import { DataGrid, DataGridHeadCell, DataGridRow, DataGridCell } from "@cloudoperators/juno-ui-components"
 import { Trans, useLingui } from "@lingui/react/macro"
+import { MdFolder, MdDescription } from "react-icons/md"
 import { formatBytesBinary } from "@/client/utils/formatBytes"
 import { BrowserRow } from "./"
 
@@ -140,12 +141,12 @@ export const ObjectsTableView = ({ rows, searchTerm, onFolderClick }: ObjectsTab
                       data-testid={`folder-${row.name}`}
                       title={row.displayName}
                     >
-                      <Icon icon="autoAwesomeMosaic" size="18" className="text-theme-light shrink-0" />
+                      <MdFolder size={18} className="text-theme-light shrink-0" />
                       <span className="truncate">{row.displayName}</span>
                     </button>
                   ) : (
                     <span className="flex min-w-0 items-center gap-2" title={row.displayName}>
-                      <Icon icon="description" size="18" className="text-theme-light shrink-0" />
+                      <MdDescription size={18} className="text-theme-light shrink-0" />
                       <span className="truncate">{row.displayName}</span>
                     </span>
                   )}

@@ -1,5 +1,6 @@
 import { Breadcrumb, BreadcrumbItem } from "@cloudoperators/juno-ui-components"
 import { useLingui } from "@lingui/react/macro"
+import { MdStorage, MdOutlineInventory2, MdInventory2, MdFolder, MdFolderOpen } from "react-icons/md"
 
 // ── Breadcrumb helpers ────────────────────────────────────────────────────────
 
@@ -16,6 +17,9 @@ function prefixToSegments(prefix: string): { label: string; prefix: string }[] {
     prefix: parts.slice(0, i + 1).join("/") + "/",
   }))
 }
+
+// Active crumb gets a pill background to match the design — visually marks the current location.
+const activeCrumbClass = "bg-theme-background-lvl-4 rounded px-2 py-0.5"
 
 // ── ObjectsFileNavigation ─────────────────────────────────────────────────────
 
@@ -44,17 +48,43 @@ export const ObjectsFileNavigation = ({
     <div className="mb-2 px-2 pt-2">
       <Breadcrumb>
         {/* "All containers" root — always navigates back to the container list */}
-        <BreadcrumbItem onClick={onContainersClick} label={t`All containers`} icon="dns" />
+        {/* TODO: BreadcrumbItem.label is typed as string but renders ReactNode — remove cast once Juno fixes the type */}
+        <BreadcrumbItem
+          onClick={onContainersClick}
+          label={
+            (
+              <span className="flex items-center gap-1">
+                <MdStorage size={15} className="shrink-0" />
+                {t`All containers`}
+              </span>
+            ) as unknown as string
+          }
+        />
 
-        {/* Container name — active when at root prefix, clickable otherwise */}
+        {/* Container name — inventory/box icon distinguishes it from folders;
+            outlined when active (current root level), filled when navigable */}
+        {/* TODO: BreadcrumbItem.label is typed as string but renders ReactNode — remove cast once Juno fixes the type */}
         <BreadcrumbItem
           onClick={isAtRoot ? undefined : () => onPrefixClick("")}
           active={isAtRoot}
-          label={containerName}
-          icon="autoAwesomeMosaic"
+          label={
+            (
+              <span className={`flex items-center gap-1 ${isAtRoot ? activeCrumbClass : ""}`}>
+                {isAtRoot ? (
+                  <MdOutlineInventory2 size={15} className="shrink-0" />
+                ) : (
+                  <MdInventory2 size={15} className="shrink-0" />
+                )}
+                {containerName}
+              </span>
+            ) as unknown as string
+          }
         />
 
-        {/* One crumb per prefix segment, last one is active */}
+        {/* One crumb per prefix segment:
+            - intermediate segments → MdFolder (filled, clickable)
+            - last segment → MdFolderOpen (outlined, active/non-clickable) */}
+        {/* TODO: BreadcrumbItem.label is typed as string but renders ReactNode — remove cast once Juno fixes the type */}
         {prefixSegments.map((seg, i) => {
           const isLast = i === prefixSegments.length - 1
           return (
@@ -62,7 +92,18 @@ export const ObjectsFileNavigation = ({
               key={seg.prefix}
               onClick={isLast ? undefined : () => onPrefixClick(seg.prefix)}
               active={isLast}
-              label={seg.label}
+              label={
+                (
+                  <span className={`flex items-center gap-1 ${isLast ? activeCrumbClass : ""}`}>
+                    {isLast ? (
+                      <MdFolderOpen size={15} className="shrink-0" />
+                    ) : (
+                      <MdFolder size={15} className="shrink-0" />
+                    )}
+                    {seg.label}
+                  </span>
+                ) as unknown as string
+              }
             />
           )
         })}
