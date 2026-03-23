@@ -68,7 +68,7 @@ export const imageRouter = {
         const FRONTEND_PAGE_SIZE = 50
         const OPENSTACK_PAGE_SIZE = 100
         const MIN_RESULTS_WHEN_SEARCHING = 50
-        const MAX_PAGES_TO_SEARCH = 1000
+        const MAX_PAGES_TO_SEARCH = 1000 // Safety limit to prevent infinite loops
 
         const allImages: GlanceImage[] = []
         const hasSearchTerm = queryInput.name && queryInput.name.trim()
@@ -201,7 +201,7 @@ export const imageRouter = {
         // Use first, next, or build URL from params
         let currentUrl: string | undefined = first || next || `v2/images?${queryParams.toString()}`
         let pageCount = 0
-        const MAX_PAGES = 100 // Safety limit to prevent infinite loops
+        const MAX_PAGES = 1000 // Safety limit to prevent infinite loops
 
         // Fetch all pages from OpenStack
         while (currentUrl && pageCount < MAX_PAGES) {
