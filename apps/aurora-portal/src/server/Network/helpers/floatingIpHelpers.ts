@@ -64,44 +64,14 @@ export const FloatingIpErrorHandlers = {
 
   /**
    * Handles errors specific to floating IP update
+   * Uses the shared WORK_IN_PROGRESS `ErrorHandler` prototype
+   *
    * @param response - The HTTP response from OpenStack
    * @param floatingIpId - The ID of the floating IP being updated
    * @returns TRPCError with appropriate code and message
    */
-  update: (response: { status?: number; statusText?: string }, floatingIpId: string) => {
-    switch (response.status) {
-      case 400:
-        return new TRPCError({
-          code: HTTP_STATUS_ERROR_MAP[400],
-          message: `Invalid request data for floating IP: ${floatingIpId}`,
-        })
-      case 401:
-        return new TRPCError({
-          code: HTTP_STATUS_ERROR_MAP[401],
-          message: `Unauthorized access: ${floatingIpId}`,
-        })
-      case 404:
-        return new TRPCError({
-          code: HTTP_STATUS_ERROR_MAP[404],
-          message: `Floating IP not found: ${floatingIpId}`,
-        })
-      case 409:
-        return new TRPCError({
-          code: HTTP_STATUS_ERROR_MAP[409],
-          message: `Conflict - floating IP is in use: ${floatingIpId}`,
-        })
-      case 412:
-        return new TRPCError({
-          code: HTTP_STATUS_ERROR_MAP[412],
-          message: `Precondition failed - revision number mismatch: ${floatingIpId}`,
-        })
-      default:
-        return new TRPCError({
-          code: DEFAULT_ERROR_NAME,
-          message: `Failed to update floating IP: ${response.statusText || "Unknown error"}`,
-        })
-    }
-  },
+  update: ErrorHandler("Floating IP"),
+
   /**
    * Handles errors specific to floating IP deletion
    * @param response - The HTTP response from OpenStack

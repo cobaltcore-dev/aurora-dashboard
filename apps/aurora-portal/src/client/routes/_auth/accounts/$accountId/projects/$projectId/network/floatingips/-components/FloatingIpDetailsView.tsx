@@ -1,3 +1,4 @@
+import { useState, useCallback } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import {
   Stack,
@@ -10,7 +11,9 @@ import {
   ContentHeading,
 } from "@cloudoperators/juno-ui-components/index"
 import type { FloatingIp } from "@/server/Network/types/floatingIp"
+import { trpcReact } from "@/client/trpcClient"
 import { formatFloatingIpStatus } from "@/client/utils/formatFloatingIpStatus"
+import { EditFloatingIpModal, FloatingIpUpdateFields } from "./-modals/EditFloatingIpModal"
 
 interface FloatingIpDetailsViewProps {
   floatingIp: FloatingIp
@@ -18,6 +21,26 @@ interface FloatingIpDetailsViewProps {
 
 export const FloatingIpDetailsView = ({ floatingIp }: FloatingIpDetailsViewProps) => {
   const { t } = useLingui()
+  const utils = trpcReact.useUtils()
+  const [editModalOpen, setEditModalOpen] = useState(false)
+
+  const toggleEditModal = useCallback(() => {
+    setEditModalOpen((open) => !open)
+  }, [])
+
+  const updateFloatingIpMutation = trpcReact.network.floatingIp.update.useMutation({
+    onSuccess: () => {
+      utils.network.floatingIp.getById.invalidate({ floatingip_id: floatingIp.id })
+      utils.network.floatingIp.list.invalidate()
+    },
+  })
+
+  const handleUpdateFloatingIp = async (floatingIpId: string, data: FloatingIpUpdateFields) => {
+    await updateFloatingIpMutation.mutateAsync({
+      floatingip_id: floatingIpId,
+      ...data,
+    })
+  }
 
   return (
     <>
@@ -32,10 +55,10 @@ export const FloatingIpDetailsView = ({ floatingIp }: FloatingIpDetailsViewProps
       </p>
 
       <ButtonRow>
-        <Button>{t`Edit Description`}</Button>
-        <Button>{t`Attach`}</Button>
-        <Button>{t`Detach`}</Button>
-        <Button>{t`Release`}</Button>
+        <Button onClick={toggleEditModal}>{t`Edit Description`}</Button>
+        <Button disabled>{t`Attach`}</Button>
+        <Button disabled>{t`Detach`}</Button>
+        <Button disabled>{t`Release`}</Button>
       </ButtonRow>
 
       <Stack direction="vertical" gap="6" className="mt-6">
@@ -184,6 +207,17 @@ export const FloatingIpDetailsView = ({ floatingIp }: FloatingIpDetailsViewProps
           </DataGrid>
         </Stack>
       </Stack>
+
+      {editModalOpen && (
+        <EditFloatingIpModal
+          floatingIp={floatingIp}
+          open={editModalOpen}
+          onClose={toggleEditModal}
+          onUpdate={handleUpdateFloatingIp}
+          isLoading={updateFloatingIpMutation.isPending}
+          error={updateFloatingIpMutation.error?.message ?? null}
+        />
+      )}
     </>
   )
 }

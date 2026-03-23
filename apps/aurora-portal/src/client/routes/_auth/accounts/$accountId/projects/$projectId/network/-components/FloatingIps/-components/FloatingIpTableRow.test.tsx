@@ -7,7 +7,58 @@ import { I18nProvider } from "@lingui/react"
 import { createRoute, createRootRoute, RouterProvider, createMemoryHistory, createRouter } from "@tanstack/react-router"
 import { FloatingIpTableRow } from "./FloatingIpTableRow"
 import type { FloatingIp } from "@/server/Network/types/floatingIp"
-import { describe, it, expect, vi, afterEach } from "vitest"
+import { describe, it, expect, vi, afterEach, beforeEach } from "vitest"
+import { FloatingIpUpdateFields } from "../../../floatingips/-components/-modals/EditFloatingIpModal"
+
+const { mockUseUtils, mockUpdateMutation } = vi.hoisted(() => ({
+  mockUseUtils: vi.fn(),
+  mockUpdateMutation: vi.fn(),
+}))
+
+vi.mock("@/client/trpcClient", () => ({
+  trpcReact: {
+    useUtils: mockUseUtils,
+    network: {
+      floatingIp: {
+        update: {
+          useMutation: mockUpdateMutation,
+        },
+      },
+    },
+  },
+}))
+
+vi.mock("../../../floatingips/-components/-modals/EditFloatingIpModal", () => ({
+  EditFloatingIpModal: ({
+    open,
+    onClose,
+    onUpdate,
+    floatingIp,
+    isLoading,
+    error,
+  }: {
+    open: boolean
+    onClose: () => void
+    onUpdate: (floatingIpId: string, data: FloatingIpUpdateFields) => Promise<void>
+    floatingIp: FloatingIp
+    isLoading: boolean
+    error: string | null
+  }) =>
+    open ? (
+      <div data-testid="edit-floating-ip-modal">
+        <span data-testid="edit-modal-loading">{isLoading ? "loading" : "idle"}</span>
+        <span data-testid="edit-modal-error">{error ?? ""}</span>
+        <button onClick={onClose}>Close Edit Modal</button>
+        <button
+          onClick={() =>
+            onUpdate(floatingIp.id, { port_id: floatingIp.port_id ?? null, description: "Updated description" })
+          }
+        >
+          Save Edit
+        </button>
+      </div>
+    ) : null,
+}))
 
 const createTestRouter = (Component: ReactElement) => {
   const memoryHistory = createMemoryHistory({
@@ -60,6 +111,10 @@ const createTestRouter = (Component: ReactElement) => {
 }
 
 describe("FloatingIpTableRow", () => {
+  const listInvalidateMock = vi.fn()
+  const getByIdInvalidateMock = vi.fn()
+  const mutateAsyncMock = vi.fn()
+
   const mockFloatingIp: FloatingIp = {
     id: "fip-123",
     floating_ip_address: "203.0.113.10",
@@ -80,6 +135,35 @@ describe("FloatingIpTableRow", () => {
   afterEach(() => {
     cleanup()
     vi.clearAllMocks()
+  })
+
+  beforeEach(() => {
+    i18n.activate("en")
+
+    mockUseUtils.mockReturnValue({
+      network: {
+        floatingIp: {
+          list: {
+            invalidate: listInvalidateMock,
+          },
+          getById: {
+            invalidate: getByIdInvalidateMock,
+          },
+        },
+      },
+    })
+
+    mockUpdateMutation.mockImplementation((options?: { onSuccess?: () => void }) => {
+      mutateAsyncMock.mockImplementation(async () => {
+        await options?.onSuccess?.()
+      })
+
+      return {
+        mutateAsync: mutateAsyncMock,
+        isPending: false,
+        error: null,
+      }
+    })
   })
 
   describe("Rendering", () => {
@@ -220,8 +304,8 @@ describe("FloatingIpTableRow", () => {
     })
   })
 
-  describe("Menu actions", () => {
-    it("stops event propagation when menu is clicked", async () => {
+  describe("Edit modal", () => {
+    it("opens and closes edit modal from menu action", async () => {
       const user = userEvent.setup()
       const router = createTestRouter(<FloatingIpTableRow floatingIp={mockFloatingIp} />)
       render(<RouterProvider router={router} />)
@@ -234,13 +318,73 @@ describe("FloatingIpTableRow", () => {
       const menuButton = row.querySelector("button")
       expect(menuButton).toBeInTheDocument()
 
-      // Click should not propagate to row click event
       await user.click(menuButton!)
+      await user.click(screen.getByText("Edit Description"))
 
-      // Verify popup menu opened (menu content visible)
+      expect(screen.getByTestId("edit-floating-ip-modal")).toBeInTheDocument()
+
+      await user.click(screen.getByText("Close Edit Modal"))
+
       await waitFor(() => {
-        expect(screen.getByText("Preview")).toBeInTheDocument()
+        expect(screen.queryByTestId("edit-floating-ip-modal")).not.toBeInTheDocument()
       })
+    })
+
+    it("submits update and invalidates floating IP queries", async () => {
+      const user = userEvent.setup()
+      const router = createTestRouter(<FloatingIpTableRow floatingIp={mockFloatingIp} />)
+      render(<RouterProvider router={router} />)
+
+      await waitFor(() => {
+        expect(screen.getByTestId(`floating-ip-row-${mockFloatingIp.id}`)).toBeInTheDocument()
+      })
+
+      const row = screen.getByTestId(`floating-ip-row-${mockFloatingIp.id}`)
+      const menuButton = row.querySelector("button")
+      expect(menuButton).toBeInTheDocument()
+
+      await user.click(menuButton!)
+      await user.click(screen.getByText("Edit Description"))
+      await user.click(screen.getByText("Save Edit"))
+
+      await waitFor(() => {
+        expect(mutateAsyncMock).toHaveBeenCalledWith({
+          floatingip_id: mockFloatingIp.id,
+          port_id: mockFloatingIp.port_id,
+          description: "Updated description",
+        })
+      })
+
+      await waitFor(() => {
+        expect(listInvalidateMock).toHaveBeenCalled()
+        expect(getByIdInvalidateMock).toHaveBeenCalledWith({ floatingip_id: mockFloatingIp.id })
+      })
+    })
+
+    it("passes mutation loading and error state to edit modal", async () => {
+      mockUpdateMutation.mockReturnValue({
+        mutateAsync: vi.fn(),
+        isPending: true,
+        error: { message: "Update failed" },
+      })
+
+      const user = userEvent.setup()
+      const router = createTestRouter(<FloatingIpTableRow floatingIp={mockFloatingIp} />)
+      render(<RouterProvider router={router} />)
+
+      await waitFor(() => {
+        expect(screen.getByTestId(`floating-ip-row-${mockFloatingIp.id}`)).toBeInTheDocument()
+      })
+
+      const row = screen.getByTestId(`floating-ip-row-${mockFloatingIp.id}`)
+      const menuButton = row.querySelector("button")
+      expect(menuButton).toBeInTheDocument()
+
+      await user.click(menuButton!)
+      await user.click(screen.getByText("Edit Description"))
+
+      expect(screen.getByTestId("edit-modal-loading")).toHaveTextContent("loading")
+      expect(screen.getByTestId("edit-modal-error")).toHaveTextContent("Update failed")
     })
   })
 })
