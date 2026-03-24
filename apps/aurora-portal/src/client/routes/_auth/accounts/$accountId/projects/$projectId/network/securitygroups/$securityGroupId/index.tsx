@@ -169,7 +169,7 @@ function RouteComponent() {
   if (!securityGroup) {
     return (
       <Stack className="fixed inset-0" distribution="center" alignment="center" direction="vertical" gap="5">
-        <p className="text-theme-highest">
+        <p className="text-theme-secondary">
           <Trans>Security group not found</Trans>
         </p>
         <Button onClick={handleBack} variant="primary">

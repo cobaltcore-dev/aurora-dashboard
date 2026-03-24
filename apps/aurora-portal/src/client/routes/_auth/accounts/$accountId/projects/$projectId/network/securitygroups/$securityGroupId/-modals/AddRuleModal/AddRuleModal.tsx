@@ -231,7 +231,7 @@ export const AddRuleModal: React.FC<AddRuleModalProps> = ({
       {isLoading && (
         <div className="mb-4 flex items-center justify-center gap-2">
           <Spinner variant="primary" />
-          <span className="text-sm text-gray-600">
+          <span className="text-theme-secondary text-sm">
             <Trans>Creating security group rule...</Trans>
           </span>
         </div>
@@ -253,9 +253,7 @@ export const AddRuleModal: React.FC<AddRuleModalProps> = ({
 
           {/* Protocol (conditional for "Other Protocol") */}
           <form.Subscribe selector={(state) => state.values.ruleType === OTHER_PROTOCOL_RULE}>
-            {(showProtocolInput) =>
-              showProtocolInput && <ProtocolSection form={form} disabled={isLoading} />
-            }
+            {(showProtocolInput) => showProtocolInput && <ProtocolSection form={form} disabled={isLoading} />}
           </form.Subscribe>
 
           {/* Port Range (conditional for Custom TCP/UDP) */}
@@ -270,25 +268,17 @@ export const AddRuleModal: React.FC<AddRuleModalProps> = ({
 
           {/* ICMP Fields (conditional for ICMP protocols) */}
           <form.Subscribe
-            selector={(state) =>
-              state.values.protocol === "icmp" || state.values.protocol === "ipv6-icmp"
-            }
+            selector={(state) => state.values.protocol === "icmp" || state.values.protocol === "ipv6-icmp"}
           >
             {(showIcmpFields) => showIcmpFields && <IcmpSection form={form} disabled={isLoading} />}
           </form.Subscribe>
 
           {/* Remote Source (CIDR or Security Group) */}
-          <RemoteSourceSection
-            form={form}
-            disabled={isLoading}
-            availableSecurityGroups={availableSecurityGroups}
-          />
+          <RemoteSourceSection form={form} disabled={isLoading} availableSecurityGroups={availableSecurityGroups} />
 
           {/* Ethertype (conditional for Security Group remote source) */}
           <form.Subscribe selector={(state) => state.values.remoteSourceType === "security_group"}>
-            {(showEthertypeField) =>
-              showEthertypeField && <EthertypeSection form={form} disabled={isLoading} />
-            }
+            {(showEthertypeField) => showEthertypeField && <EthertypeSection form={form} disabled={isLoading} />}
           </form.Subscribe>
 
           {/* Description */}
