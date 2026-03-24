@@ -136,7 +136,7 @@ export const CreateSecurityGroupModal: React.FC<CreateSecurityGroupModalProps> =
       {isLoading && (
         <div className="mb-4 flex items-center justify-center gap-2">
           <Spinner variant="primary" />
-          <span className="text-theme-secondary text-sm">
+          <span className="text-theme-high text-sm">
             <Trans>Creating security group...</Trans>
           </span>
         </div>

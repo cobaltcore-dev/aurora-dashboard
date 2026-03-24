@@ -154,7 +154,7 @@ export const EditSecurityGroupModal: React.FC<EditSecurityGroupModalProps> = ({
       {isLoading && (
         <div className="mb-4 flex items-center justify-center gap-2">
           <Spinner variant="primary" />
-          <span className="text-theme-secondary text-sm">
+          <span className="text-theme-high text-sm">
             <Trans>Updating security group...</Trans>
           </span>
         </div>

@@ -1,4 +1,4 @@
-import { CircleCheckIcon, CircleMinusIcon, CircleAlertIcon } from "lucide-react"
+import { MdError, MdRemoveCircle, MdCheckCircle } from "react-icons/md"
 import { t } from "@lingui/core/macro"
 import { FloatingIpStatus } from "@/server/Network/types/floatingIp"
 
@@ -10,15 +10,15 @@ type FloatingIpStatusDisplay = {
 export const STATUS_CONFIG: Record<FloatingIpStatus, FloatingIpStatusDisplay> = {
   ACTIVE: {
     text: "Active",
-    icon: <CircleCheckIcon size={16} color="white" fill="#4FB81C" />,
+    icon: <MdCheckCircle size={18} color="white" fill="#4FB81C" />,
   },
   DOWN: {
     text: "Down",
-    icon: <CircleMinusIcon size={16} color="white" fill="#969696" />,
+    icon: <MdRemoveCircle size={18} color="white" fill="#969696" />,
   },
   ERROR: {
     text: "Error",
-    icon: <CircleAlertIcon size={16} color="white" fill="#C70000" />,
+    icon: <MdError size={18} color="white" fill="#C70000" />,
   },
 } as const
 
