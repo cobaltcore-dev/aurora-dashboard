@@ -48,7 +48,6 @@ Retrieves a list of images with optional filtering and sorting.
 The API supports two sorting syntaxes:
 
 1. **Modern syntax (recommended)**: Use the `sort` parameter with format `field:direction`
-
    - Single field: `sort: "name:asc"`
    - Multiple fields: `sort: "name:asc,created_at:desc"`
 
