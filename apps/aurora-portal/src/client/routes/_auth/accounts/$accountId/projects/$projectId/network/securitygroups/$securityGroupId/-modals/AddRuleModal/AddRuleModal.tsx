@@ -17,7 +17,7 @@ import { DEFAULT_VALUES } from "./types"
 import { CUSTOM_TCP_RULE, CUSTOM_UDP_RULE, OTHER_PROTOCOL_RULE } from "./constants"
 import { RULE_PRESETS } from "./rulePresets"
 import { RuleTypeSection } from "./sections/RuleTypeSection"
-import { DirectionEthertypeSection } from "./sections/DirectionEthertypeSection"
+import { DirectionSection, EthertypeSection } from "./sections/DirectionEthertypeSection"
 import { ProtocolSection } from "./sections/ProtocolSection"
 import { PortRangeSection } from "./sections/PortRangeSection"
 import { IcmpSection } from "./sections/IcmpSection"
@@ -143,6 +143,7 @@ export const AddRuleModal: React.FC<AddRuleModalProps> = ({
   // Access form values reactively for conditional field visibility
   const [ruleType, setRuleType] = React.useState(DEFAULT_VALUES.ruleType)
   const [protocol, setProtocol] = React.useState<string | null>(DEFAULT_VALUES.protocol)
+  const [remoteSourceType, setRemoteSourceType] = React.useState(DEFAULT_VALUES.remoteSourceType)
 
   // Subscribe to form changes to update local state for conditional rendering
   useEffect(() => {
@@ -150,6 +151,7 @@ export const AddRuleModal: React.FC<AddRuleModalProps> = ({
       const state = form.store.state
       setRuleType(state.values.ruleType)
       setProtocol(state.values.protocol)
+      setRemoteSourceType(state.values.remoteSourceType)
     })
 
     return () => subscription.unsubscribe()
@@ -187,6 +189,13 @@ export const AddRuleModal: React.FC<AddRuleModalProps> = ({
     }
   }, [ruleType, form])
 
+  // Auto-set ethertype to IPv4 when remote source is NOT security group
+  useEffect(() => {
+    if (remoteSourceType !== "security_group") {
+      form.setFieldValue("ethertype", "IPv4")
+    }
+  }, [remoteSourceType, form])
+
   // Determine which fields should be visible based on current form values
   const showPortFields = useMemo(() => {
     const isTcpUdp = protocol === "tcp" || protocol === "udp"
@@ -200,6 +209,10 @@ export const AddRuleModal: React.FC<AddRuleModalProps> = ({
   const showProtocolInput = useMemo(() => {
     return ruleType === OTHER_PROTOCOL_RULE
   }, [ruleType])
+
+  const showEthertypeField = useMemo(() => {
+    return remoteSourceType === "security_group"
+  }, [remoteSourceType])
 
   return (
     <Modal
@@ -258,8 +271,8 @@ export const AddRuleModal: React.FC<AddRuleModalProps> = ({
           {/* Rule Type Preset */}
           <RuleTypeSection form={form} disabled={isLoading} />
 
-          {/* Direction & Ethertype */}
-          <DirectionEthertypeSection form={form} disabled={isLoading} />
+          {/* Direction */}
+          <DirectionSection form={form} disabled={isLoading} />
 
           {/* Protocol (conditional for "Other Protocol") */}
           {showProtocolInput && <ProtocolSection form={form} disabled={isLoading} />}
@@ -272,6 +285,9 @@ export const AddRuleModal: React.FC<AddRuleModalProps> = ({
 
           {/* Remote Source (CIDR or Security Group) */}
           <RemoteSourceSection form={form} disabled={isLoading} availableSecurityGroups={availableSecurityGroups} />
+
+          {/* Ethertype (conditional for Security Group remote source) */}
+          {showEthertypeField && <EthertypeSection form={form} disabled={isLoading} />}
 
           {/* Description */}
           <DescriptionSection form={form} disabled={isLoading} />

@@ -1,14 +1,5 @@
 import { useState, useEffect, useRef } from "react"
-import {
-  DataGrid,
-  DataGridHeadCell,
-  DataGridRow,
-  DataGridCell,
-  ContentHeading,
-  Stack,
-  Spinner,
-  Button,
-} from "@cloudoperators/juno-ui-components"
+import { DataGrid, DataGridHeadCell, DataGridRow, Stack, Spinner } from "@cloudoperators/juno-ui-components"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { useNavigate, useParams } from "@tanstack/react-router"
 import type { SecurityGroup } from "@/server/Network/types/securityGroup"
@@ -38,7 +29,6 @@ export const SecurityGroupListContainer = ({
   isError,
   error,
   permissions,
-  onCreateClick,
   onDeleteSecurityGroup,
   isDeletingSecurityGroup = false,
   deleteError = null,
@@ -131,28 +121,7 @@ export const SecurityGroupListContainer = ({
 
   // Empty state
   if (securityGroups.length === 0) {
-    return (
-      <DataGrid columns={7} data-testid="no-security-groups">
-        <DataGridRow>
-          <DataGridCell colSpan={7}>
-            <ContentHeading>
-              <Trans>No security groups found</Trans>
-            </ContentHeading>
-            <p>
-              <Trans>
-                There are no security groups available for this project. Security groups define firewall rules for
-                instances.
-              </Trans>
-            </p>
-            {permissions.canCreate && onCreateClick && (
-              <Button onClick={onCreateClick} variant="primary" className="mt-4">
-                <Trans>Create Security Group</Trans>
-              </Button>
-            )}
-          </DataGridCell>
-        </DataGridRow>
-      </DataGrid>
-    )
+    return <Trans>There are no groups</Trans>
   }
 
   return (

@@ -4,7 +4,6 @@ export interface RulePreset {
   protocol: string | null
   portRangeMin: number | null
   portRangeMax: number | null
-  description: string
 }
 
 export const RULE_PRESETS: RulePreset[] = [
@@ -15,7 +14,6 @@ export const RULE_PRESETS: RulePreset[] = [
     protocol: "tcp",
     portRangeMin: null,
     portRangeMax: null,
-    description: "Custom TCP rule",
   },
   {
     value: "custom-udp",
@@ -23,7 +21,6 @@ export const RULE_PRESETS: RulePreset[] = [
     protocol: "udp",
     portRangeMin: null,
     portRangeMax: null,
-    description: "Custom UDP rule",
   },
   {
     value: "custom-icmp",
@@ -31,7 +28,6 @@ export const RULE_PRESETS: RulePreset[] = [
     protocol: "icmp",
     portRangeMin: null,
     portRangeMax: null,
-    description: "Custom ICMP rule",
   },
   {
     value: "all-tcp",
@@ -39,7 +35,6 @@ export const RULE_PRESETS: RulePreset[] = [
     protocol: "tcp",
     portRangeMin: 1,
     portRangeMax: 65535,
-    description: "All TCP ports",
   },
   {
     value: "all-udp",
@@ -47,7 +42,6 @@ export const RULE_PRESETS: RulePreset[] = [
     protocol: "udp",
     portRangeMin: 1,
     portRangeMax: 65535,
-    description: "All UDP ports",
   },
   {
     value: "all-icmp",
@@ -55,7 +49,6 @@ export const RULE_PRESETS: RulePreset[] = [
     protocol: "icmp",
     portRangeMin: null,
     portRangeMax: null,
-    description: "All ICMP traffic",
   },
   {
     value: "other-protocol",
@@ -63,25 +56,15 @@ export const RULE_PRESETS: RulePreset[] = [
     protocol: null,
     portRangeMin: null,
     portRangeMax: null,
-    description: "Custom protocol number",
   },
 
   // Common protocols
   {
-    value: "dns-tcp",
-    label: "DNS (TCP)",
+    value: "dns",
+    label: "DNS",
     protocol: "tcp",
     portRangeMin: 53,
     portRangeMax: 53,
-    description: "Domain Name System",
-  },
-  {
-    value: "dns-udp",
-    label: "DNS (UDP)",
-    protocol: "udp",
-    portRangeMin: 53,
-    portRangeMax: 53,
-    description: "Domain Name System",
   },
   {
     value: "http",
@@ -89,7 +72,6 @@ export const RULE_PRESETS: RulePreset[] = [
     protocol: "tcp",
     portRangeMin: 80,
     portRangeMax: 80,
-    description: "Web traffic",
   },
   {
     value: "https",
@@ -97,7 +79,6 @@ export const RULE_PRESETS: RulePreset[] = [
     protocol: "tcp",
     portRangeMin: 443,
     portRangeMax: 443,
-    description: "Secure web traffic",
   },
   {
     value: "imap",
@@ -105,7 +86,6 @@ export const RULE_PRESETS: RulePreset[] = [
     protocol: "tcp",
     portRangeMin: 143,
     portRangeMax: 143,
-    description: "Email retrieval",
   },
   {
     value: "imaps",
@@ -113,7 +93,6 @@ export const RULE_PRESETS: RulePreset[] = [
     protocol: "tcp",
     portRangeMin: 993,
     portRangeMax: 993,
-    description: "Secure IMAP",
   },
   {
     value: "ldap",
@@ -121,7 +100,6 @@ export const RULE_PRESETS: RulePreset[] = [
     protocol: "tcp",
     portRangeMin: 389,
     portRangeMax: 389,
-    description: "Directory services",
   },
   {
     value: "ms-sql",
@@ -129,7 +107,6 @@ export const RULE_PRESETS: RulePreset[] = [
     protocol: "tcp",
     portRangeMin: 1433,
     portRangeMax: 1433,
-    description: "Microsoft SQL Server",
   },
   {
     value: "mysql",
@@ -137,15 +114,6 @@ export const RULE_PRESETS: RulePreset[] = [
     protocol: "tcp",
     portRangeMin: 3306,
     portRangeMax: 3306,
-    description: "MySQL database",
-  },
-  {
-    value: "ntp",
-    label: "NTP",
-    protocol: "udp",
-    portRangeMin: 123,
-    portRangeMax: 123,
-    description: "Network Time Protocol",
   },
   {
     value: "pop3",
@@ -153,7 +121,6 @@ export const RULE_PRESETS: RulePreset[] = [
     protocol: "tcp",
     portRangeMin: 110,
     portRangeMax: 110,
-    description: "Email retrieval",
   },
   {
     value: "pop3s",
@@ -161,7 +128,6 @@ export const RULE_PRESETS: RulePreset[] = [
     protocol: "tcp",
     portRangeMin: 995,
     portRangeMax: 995,
-    description: "Secure POP3",
   },
   {
     value: "rdp",
@@ -169,7 +135,6 @@ export const RULE_PRESETS: RulePreset[] = [
     protocol: "tcp",
     portRangeMin: 3389,
     portRangeMax: 3389,
-    description: "Remote Desktop",
   },
   {
     value: "ssh",
@@ -177,7 +142,6 @@ export const RULE_PRESETS: RulePreset[] = [
     protocol: "tcp",
     portRangeMin: 22,
     portRangeMax: 22,
-    description: "Secure Shell",
   },
   {
     value: "smtp",
@@ -185,7 +149,6 @@ export const RULE_PRESETS: RulePreset[] = [
     protocol: "tcp",
     portRangeMin: 25,
     portRangeMax: 25,
-    description: "Email sending",
   },
   {
     value: "smtps",
@@ -193,6 +156,5 @@ export const RULE_PRESETS: RulePreset[] = [
     protocol: "tcp",
     portRangeMin: 465,
     portRangeMax: 465,
-    description: "Secure SMTP",
   },
 ]

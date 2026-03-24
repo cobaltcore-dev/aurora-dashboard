@@ -1,12 +1,6 @@
 import { z } from "zod"
 import { validatePortRange, validateIcmpTypeCode, isValidCIDR, detectCIDRFamily } from "./validationHelpers"
-import {
-  CUSTOM_TCP_RULE,
-  CUSTOM_UDP_RULE,
-  OTHER_PROTOCOL_RULE,
-  ICMP_MIN,
-  ICMP_MAX,
-} from "../constants"
+import { CUSTOM_TCP_RULE, CUSTOM_UDP_RULE, OTHER_PROTOCOL_RULE, ICMP_MIN, ICMP_MAX } from "../constants"
 
 /**
  * Zod schema for AddRuleModal form validation.

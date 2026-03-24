@@ -4,13 +4,8 @@ import {
   DataGridHeadCell,
   DataGridRow,
   DataGridCell,
-  Icon,
   Button,
   Stack,
-  TextInput,
-  Select,
-  SelectOption,
-  Badge,
   PopupMenu,
   PopupMenuItem,
   PopupMenuOptions,
@@ -21,7 +16,7 @@ import type { FilterSettings, SortSettings } from "@/client/components/ListToolb
 import type { ListSortConfig } from "@/client/utils/useListWithFiltering"
 import { DeleteRuleDialog } from "../../-modals/DeleteRuleDialog"
 import { AddRuleModal } from "../../-modals/AddRuleModal/AddRuleModal"
-import { FiltersInput } from "@/client/components/ListToolbar/FiltersInput"
+import { ListToolbar } from "@/client/components/ListToolbar"
 
 interface SecurityGroupRulesTableProps {
   rules: SecurityGroupRule[]
@@ -64,13 +59,6 @@ export function SecurityGroupRulesTable({
   const [ruleToDelete, setRuleToDelete] = useState<SecurityGroupRule | null>(null)
   const [isAddRuleModalOpen, setIsAddRuleModalOpen] = useState(false)
 
-  // Extract sort values from sortSettings
-  const sortField = (sortSettings?.sortBy as string) || "direction"
-  const sortDirection = sortSettings?.sortDirection || "asc"
-
-  // Check if any filters are active
-  const hasActiveFilterSelections = (filterSettings?.selectedFilters?.length ?? 0) > 0
-
   const handleDeleteClick = (rule: SecurityGroupRule) => {
     setRuleToDelete(rule)
   }
@@ -100,69 +88,6 @@ export function SecurityGroupRulesTable({
     }
   }, [isDeletingRule, deleteError])
 
-  const handleSortFieldChange = (value: string) => {
-    if (onSortChange && sortSettings) {
-      onSortChange({
-        ...sortSettings,
-        sortBy: value,
-      })
-    }
-  }
-
-  const toggleSortDirection = () => {
-    if (onSortChange && sortSettings) {
-      onSortChange({
-        ...sortSettings,
-        sortDirection: sortDirection === "asc" ? "desc" : "asc",
-      })
-    }
-  }
-
-  const handleFilterSelect = (selectedFilter: { name: string; value: string }) => {
-    if (onFilterChange && filterSettings) {
-      const filterExists = filterSettings.selectedFilters?.some(
-        (filter) => filter.name === selectedFilter.name && filter.value === selectedFilter.value
-      )
-      if (filterExists) return
-
-      const supportsMultiValue = filterSettings.filters.find(
-        (filter) => selectedFilter.name === filter.filterName
-      )?.supportsMultiValue
-
-      const newSelected = supportsMultiValue
-        ? [...(filterSettings.selectedFilters || []), selectedFilter]
-        : [
-            ...(filterSettings.selectedFilters || []).filter((filter) => filter.name !== selectedFilter.name),
-            selectedFilter,
-          ]
-
-      onFilterChange({ ...filterSettings, selectedFilters: newSelected })
-    }
-  }
-
-  const handleFilterDelete = (filterToRemove: { name: string; value: string }) => {
-    if (onFilterChange && filterSettings) {
-      onFilterChange({
-        ...filterSettings,
-        selectedFilters: filterSettings.selectedFilters?.filter(
-          (filter) => !(filter.name === filterToRemove.name && filter.value === filterToRemove.value)
-        ),
-      })
-    }
-  }
-
-  const clearFilters = () => {
-    if (onFilterChange && filterSettings) {
-      onFilterChange({
-        ...filterSettings,
-        selectedFilters: [],
-      })
-    }
-    onSearchChange?.("")
-  }
-
-  const hasActiveFilters = hasActiveFilterSelections || searchTerm !== ""
-
   // Format port range display
   const formatPortRange = (rule: SecurityGroupRule): string => {
     if (rule.protocol === "icmp" || rule.protocol === "ipv6-icmp") {
@@ -188,106 +113,25 @@ export function SecurityGroupRulesTable({
   return (
     <>
       <Stack direction="vertical" gap="4">
-        {/* Filters and Controls */}
-        <Stack direction="horizontal" gap="4" alignment="center" className="mb-4">
-          <div className="flex-1">
-            <Stack direction="horizontal" gap="2" wrap>
-              {filterSettings && <FiltersInput filters={filterSettings.filters} onChange={handleFilterSelect} />}
-
-              <Select
-                value={sortField}
-                onChange={(value) => handleSortFieldChange(String(value || "direction"))}
-                label={t`Sort by`}
-                width="auto"
-              >
-                <SelectOption value="direction" label={t`Direction`} />
-                <SelectOption value="protocol" label={t`Protocol`} />
-                <SelectOption value="description" label={t`Description`} />
-              </Select>
-
-              <Button variant="subdued" onClick={toggleSortDirection} title={t`Toggle sort direction`}>
-                <Icon icon={sortDirection === "asc" ? "expandMore" : "expandLess"} />
+        <ListToolbar
+          filterSettings={filterSettings}
+          onFilter={onFilterChange}
+          sortSettings={sortSettings}
+          onSort={onSortChange}
+          searchTerm={searchTerm}
+          onSearch={onSearchChange}
+          actions={
+            onCreateRule && (
+              <Button variant="primary" icon="addCircle" onClick={handleAddRuleClick}>
+                <Trans>Add rule</Trans>
               </Button>
-            </Stack>
-          </div>
-
-          <TextInput
-            placeholder={t`Search...`}
-            value={searchTerm}
-            onChange={(e) => onSearchChange?.(e.target.value)}
-            className="w-64"
-          />
-
-          {onCreateRule && (
-            <Button variant="primary" icon="addCircle" onClick={handleAddRuleClick}>
-              <Trans>Add rule</Trans>
-            </Button>
-          )}
-        </Stack>
-
-        {/* Active Filters Display */}
-        {hasActiveFilters && (
-          <Stack direction="horizontal" gap="2" alignment="center">
-            {filterSettings?.selectedFilters?.map((filter) => {
-              const filterDef = filterSettings.filters.find((f) => f.filterName === filter.name)
-              const displayName = filterDef?.displayName || filter.name
-              return (
-                <Badge
-                  key={`${filter.name}-${filter.value}`}
-                  text={`${displayName}: ${filter.value}`}
-                  icon="close"
-                  onClick={() => handleFilterDelete(filter)}
-                  className="cursor-pointer"
-                />
-              )
-            })}
-            {searchTerm && (
-              <Badge
-                text={`${t`Search`}: ${searchTerm}`}
-                icon="close"
-                onClick={() => onSearchChange?.("")}
-                className="cursor-pointer"
-              />
-            )}
-            <Button variant="subdued" size="small" onClick={clearFilters}>
-              <Trans>Clear filters</Trans>
-            </Button>
-          </Stack>
-        )}
+            )
+          }
+        />
 
         {/* Rules Table */}
         {rules.length === 0 ? (
-          <Stack
-            direction="vertical"
-            alignment="center"
-            distribution="center"
-            gap="6"
-            className="border-theme-background-lvl-3 bg-theme-background-lvl-1 rounded-lg border-2 border-dashed py-16"
-          >
-            <Icon icon="description" size="80" className="text-theme-disabled" />
-            <Stack direction="vertical" alignment="center" gap="2">
-              <h3 className="text-theme-high text-lg font-semibold">
-                {hasActiveFilters ? <Trans>No rules match your filters</Trans> : <Trans>No rules defined yet</Trans>}
-              </h3>
-              <p className="text-theme-light text-center text-sm">
-                {hasActiveFilters ? (
-                  <Trans>Try adjusting your filters to see more results</Trans>
-                ) : (
-                  <Trans>Add security group rules to control incoming and outgoing traffic</Trans>
-                )}
-              </p>
-            </Stack>
-            {!hasActiveFilters && onCreateRule && (
-              <Button variant="primary" icon="addCircle" onClick={handleAddRuleClick}>
-                <Trans>Add your first rule</Trans>
-              </Button>
-            )}
-            {hasActiveFilters && (
-              <Button variant="primary" onClick={clearFilters}>
-                <Trans>Clear filters</Trans>
-              </Button>
-            )}
-          </Stack>
+          <Trans>There are no rules for this security group</Trans>
         ) : (
           <DataGrid columns={6} className="security-group-rules-table">
             <DataGridRow>
