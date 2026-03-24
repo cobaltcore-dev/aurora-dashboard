@@ -1,6 +1,6 @@
 import React from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
-import { Button, Message, Modal, Spinner, Stack } from "@cloudoperators/juno-ui-components"
+import { Modal, Spinner, Stack } from "@cloudoperators/juno-ui-components"
 
 interface ActivateImagesModalProps {
   deactivatedImages: Array<string>
