@@ -19,8 +19,8 @@ import { Trans, useLingui } from "@lingui/react/macro"
 import type { SecurityGroupRule, CreateSecurityGroupRuleInput } from "@/server/Network/types/securityGroup"
 import type { FilterSettings, SortSettings } from "@/client/components/ListToolbar/types"
 import type { ListSortConfig } from "@/client/utils/useListWithFiltering"
-import { DeleteRuleDialog } from "../-modals/DeleteRuleDialog"
-import { AddRuleModal } from "../-modals/AddRuleModal/AddRuleModal"
+import { DeleteRuleDialog } from "../../-modals/DeleteRuleDialog"
+import { AddRuleModal } from "../../-modals/AddRuleModal/AddRuleModal"
 import { FiltersInput } from "@/client/components/ListToolbar/FiltersInput"
 
 interface SecurityGroupRulesTableProps {

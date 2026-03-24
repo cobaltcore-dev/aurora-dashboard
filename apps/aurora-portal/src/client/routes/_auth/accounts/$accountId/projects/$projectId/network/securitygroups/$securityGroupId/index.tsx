@@ -3,14 +3,14 @@ import { createFileRoute, redirect, useNavigate, useParams } from "@tanstack/rea
 import { Trans, useLingui } from "@lingui/react/macro"
 import { useMemo } from "react"
 import { getServiceIndex } from "@/server/Authentication/helpers"
-import { SecurityGroupDetailsView } from "../-components/SecurityGroups/-components/SecurityGroupDetailsView"
-import { EditSecurityGroupModal } from "../-components/SecurityGroups/-components/-modals/EditSecurityGroupModal"
-import { useSecurityGroupDetails } from "../-components/SecurityGroups/-hooks/useSecurityGroupDetails"
+import { SecurityGroupDetailsView } from "./-components/SecurityGroupDetailsView"
+import { EditSecurityGroupModal } from "../../-components/SecurityGroups/-components/-modals/EditSecurityGroupModal"
+import { useSecurityGroupDetails } from "./-hooks/useSecurityGroupDetails"
 import { useListWithFiltering } from "@/client/utils/useListWithFiltering"
 import { trpcReact } from "@/client/trpcClient"
 
 export const Route = createFileRoute(
-  "/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId"
+  "/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/"
 )({
   component: RouteComponent,
   beforeLoad: async ({ context, params }) => {
@@ -41,7 +41,7 @@ export const Route = createFileRoute(
 
 function RouteComponent() {
   const { accountId, projectId, securityGroupId } = useParams({
-    from: "/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId",
+    from: "/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/",
   })
   const navigate = useNavigate()
   const { t } = useLingui()
