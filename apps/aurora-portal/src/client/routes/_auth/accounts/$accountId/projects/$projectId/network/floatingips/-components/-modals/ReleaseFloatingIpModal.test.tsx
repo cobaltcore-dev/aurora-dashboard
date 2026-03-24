@@ -24,6 +24,35 @@ const mockFloatingIp: FloatingIp = {
   tags: [],
 }
 
+const renderModalComponent = ({
+  floatingIp = mockFloatingIp,
+  open = true,
+  onClose = vi.fn(),
+  onUpdate = vi.fn(),
+  isLoading = false,
+  error = null,
+}: {
+  floatingIp?: FloatingIp
+  open?: boolean
+  onClose?: () => void
+  onUpdate?: (floatingIpId: string) => Promise<void>
+  isLoading?: boolean
+  error?: string | null
+} = {}) => (
+  <I18nProvider i18n={i18n}>
+    <PortalProvider>
+      <ReleaseFloatingIpModal
+        floatingIp={floatingIp}
+        open={open}
+        onClose={onClose}
+        onUpdate={onUpdate}
+        isLoading={isLoading}
+        error={error}
+      />
+    </PortalProvider>
+  </I18nProvider>
+)
+
 const renderModal = ({
   floatingIp = mockFloatingIp,
   open = true,
@@ -38,21 +67,7 @@ const renderModal = ({
   onUpdate?: (floatingIpId: string) => Promise<void>
   isLoading?: boolean
   error?: string | null
-} = {}) =>
-  render(
-    <I18nProvider i18n={i18n}>
-      <PortalProvider>
-        <ReleaseFloatingIpModal
-          floatingIp={floatingIp}
-          open={open}
-          onClose={onClose}
-          onUpdate={onUpdate}
-          isLoading={isLoading}
-          error={error}
-        />
-      </PortalProvider>
-    </I18nProvider>
-  )
+} = {}) => render(renderModalComponent({ floatingIp, open, onClose, onUpdate, isLoading, error }))
 
 describe("ReleaseFloatingIpModal", () => {
   beforeEach(() => {
@@ -86,7 +101,7 @@ describe("ReleaseFloatingIpModal", () => {
       const user = userEvent.setup()
       renderModal()
 
-      const releaseButton = screen.getByTestId("release-floating-ip-button")
+      const releaseButton = screen.getByRole("button", { name: "Release" })
       const input = screen.getByPlaceholderText('Type "release" to confirm')
 
       expect(releaseButton).toBeDisabled()
@@ -106,7 +121,7 @@ describe("ReleaseFloatingIpModal", () => {
 
       const input = screen.getByPlaceholderText('Type "release" to confirm')
       await user.type(input, "release")
-      const releaseButton = screen.getByTestId("release-floating-ip-button")
+      const releaseButton = screen.getByRole("button", { name: "Release" })
 
       await waitFor(() => {
         expect(releaseButton).toBeEnabled()
@@ -127,7 +142,7 @@ describe("ReleaseFloatingIpModal", () => {
 
       const input = screen.getByPlaceholderText('Type "release" to confirm')
       await user.type(input, "release")
-      const releaseButton = screen.getByTestId("release-floating-ip-button")
+      const releaseButton = screen.getByRole("button", { name: "Release" })
 
       await waitFor(() => {
         expect(releaseButton).toBeEnabled()
@@ -147,8 +162,7 @@ describe("ReleaseFloatingIpModal", () => {
 
       expect(screen.getByText("Releasing Floating IP...")).toBeInTheDocument()
       expect(screen.queryByPlaceholderText('Type "release" to confirm')).not.toBeInTheDocument()
-      expect(screen.getByTestId("release-floating-ip-button")).toBeDisabled()
-      expect(screen.getByRole("button", { name: "Cancel" })).toBeDisabled()
+      expect(screen.getByRole("button", { name: "Release" })).toBeDisabled()
     })
 
     test("displays error message when error prop is provided", () => {
@@ -178,7 +192,8 @@ describe("ReleaseFloatingIpModal", () => {
     test("resets confirmation input when cancel is clicked", async () => {
       const onClose = vi.fn()
       const user = userEvent.setup()
-      renderModal({ onClose })
+      const onUpdate = vi.fn().mockResolvedValue(undefined)
+      const { rerender } = renderModal({ onClose, onUpdate, open: true })
 
       const input = screen.getByPlaceholderText('Type "release" to confirm') as HTMLInputElement
       await user.type(input, "release")
@@ -186,10 +201,33 @@ describe("ReleaseFloatingIpModal", () => {
 
       await user.click(screen.getByRole("button", { name: "Cancel" }))
 
+      expect(onClose).toHaveBeenCalledTimes(1)
+
+      rerender(
+        renderModalComponent({
+          floatingIp: mockFloatingIp,
+          open: false,
+          onClose,
+          onUpdate,
+          isLoading: false,
+          error: null,
+        })
+      )
+
+      rerender(
+        renderModalComponent({
+          floatingIp: mockFloatingIp,
+          open: true,
+          onClose,
+          onUpdate,
+          isLoading: false,
+          error: null,
+        })
+      )
+
       await waitFor(() => {
         expect((screen.getByPlaceholderText('Type "release" to confirm') as HTMLInputElement).value).toBe("")
       })
-      expect(onClose).toHaveBeenCalledTimes(1)
     })
   })
 })

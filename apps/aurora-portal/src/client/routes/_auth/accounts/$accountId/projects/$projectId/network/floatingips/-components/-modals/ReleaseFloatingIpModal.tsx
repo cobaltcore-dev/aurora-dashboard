@@ -1,18 +1,7 @@
 import { z } from "zod"
-import { useForm } from "@tanstack/react-form"
+import { useForm, useStore } from "@tanstack/react-form"
 import { Trans, useLingui } from "@lingui/react/macro"
-import {
-  Modal,
-  Form,
-  FormSection,
-  Button,
-  ButtonRow,
-  Spinner,
-  ModalFooter,
-  Message,
-  TextInput,
-  Stack,
-} from "@cloudoperators/juno-ui-components"
+import { Modal, Form, FormSection, Spinner, Message, TextInput, Stack } from "@cloudoperators/juno-ui-components"
 import type { FloatingIp } from "@/server/Network/types/floatingIp"
 
 interface ReleaseFloatingIpModalProps {
@@ -56,6 +45,9 @@ export const ReleaseFloatingIpModal = ({
     },
   })
 
+  // creates a reactive subscription so the component re-renders, which allows the confirm button to enable once the user types "release".
+  const canRelease = useStore(form.store, (state) => state.values.release === "release")
+
   const handleClose = () => {
     form.reset()
     onClose()
@@ -64,36 +56,13 @@ export const ReleaseFloatingIpModal = ({
   return (
     <Modal
       open={open}
-      onCancel={handleClose}
       size="large"
       title={t`Release Floating IP ${floating_ip_address}`}
-      modalFooter={
-        <ModalFooter className="flex justify-end">
-          <form.Subscribe
-            selector={(state) => ({
-              isSubmitting: state.isSubmitting,
-              releaseValue: state.values.release,
-            })}
-          >
-            {({ isSubmitting, releaseValue }) => (
-              <ButtonRow>
-                <Button variant="default" onClick={handleClose} disabled={isLoading || isSubmitting}>
-                  <Trans>Cancel</Trans>
-                </Button>
-                <Button
-                  variant="primary"
-                  type="button"
-                  onClick={() => form.handleSubmit()}
-                  disabled={isLoading || isSubmitting || releaseValue !== "release"}
-                  data-testid="release-floating-ip-button"
-                >
-                  {isSubmitting ? <Spinner size="small" /> : <Trans>Release</Trans>}
-                </Button>
-              </ButtonRow>
-            )}
-          </form.Subscribe>
-        </ModalFooter>
-      }
+      onCancel={handleClose}
+      cancelButtonLabel={t`Cancel`}
+      confirmButtonLabel={t`Release`}
+      onConfirm={form.handleSubmit}
+      disableConfirmButton={isLoading || form.state.isSubmitting || !canRelease}
     >
       {error && (
         <Message dismissible={false} variant="error" className="mb-4">
@@ -104,7 +73,7 @@ export const ReleaseFloatingIpModal = ({
       {isLoading && (
         <div className="mb-4 flex items-center justify-center gap-2">
           <Spinner variant="primary" />
-          <span className="text-sm text-gray-600">
+          <span className="text-theme-high text-sm">
             <Trans>Releasing Floating IP...</Trans>
           </span>
         </div>
