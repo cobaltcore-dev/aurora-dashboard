@@ -8,9 +8,39 @@ import { I18nProvider } from "@lingui/react"
 import { SwiftObjects } from "./"
 import type { ObjectSummary } from "@/server/Storage/types/swift"
 
+// ─── Hoisted mocks ───────────────────────────────────────────────────────────
+// vi.mock factories are hoisted to the top of the file by Vitest, so any
+// variables they reference must also be hoisted via vi.hoisted().
+
+const { mockNavigate, mockUseSearch, resetSearch } = vi.hoisted(() => {
+  let currentSearch: Record<string, string | undefined> = {
+    prefix: undefined,
+    sortBy: undefined,
+    sortDirection: undefined,
+    search: undefined,
+  }
+
+  const mockUseSearch = vi.fn(() => currentSearch)
+
+  const mockNavigate = vi.fn(({ search }: { search?: (prev: typeof currentSearch) => typeof currentSearch }) => {
+    if (typeof search === "function") {
+      currentSearch = search(currentSearch)
+      mockUseSearch.mockReturnValue(currentSearch)
+    }
+  })
+
+  return {
+    mockNavigate,
+    mockUseSearch,
+    getSearch: () => currentSearch,
+    resetSearch: () => {
+      currentSearch = { prefix: undefined, sortBy: undefined, sortDirection: undefined, search: undefined }
+      mockUseSearch.mockReturnValue(currentSearch)
+    },
+  }
+})
+
 // ─── Mock TanStack Router ─────────────────────────────────────────────────────
-// useParams, useNavigate and Route hooks all require a live router context.
-// We return stable fixture values so the component renders without a Provider.
 
 vi.mock("@tanstack/react-router", async () => {
   const actual = await vi.importActual("@tanstack/react-router")
@@ -22,16 +52,16 @@ vi.mock("@tanstack/react-router", async () => {
       provider: "swift",
       containerName: "test-container",
     })),
-    useNavigate: vi.fn(() => vi.fn()),
+    useNavigate: vi.fn(() => mockNavigate),
   }
 })
 
 // ─── Mock Route (search params + fullPath) ────────────────────────────────────
 
-vi.mock("../../../$provider/containers/$containerName/objects/$", () => ({
+vi.mock("../../../$provider/containers/$containerName/objects", () => ({
   Route: {
-    fullPath: "/_auth/accounts/$accountId/projects/$projectId/storage/$provider/containers/$containerName/objects/$",
-    useSearch: vi.fn(() => ({ prefix: undefined })),
+    fullPath: "/_auth/accounts/$accountId/projects/$projectId/storage/$provider/containers/$containerName/objects/",
+    useSearch: mockUseSearch,
     useParams: vi.fn(() => ({
       accountId: "test-account",
       projectId: "test-project",
@@ -108,6 +138,7 @@ const renderObjects = () =>
 describe("SwiftObjects (index)", () => {
   beforeEach(async () => {
     vi.clearAllMocks()
+    resetSearch()
     trpcState = { objects: mockObjects, isLoading: false, error: null }
     await act(async () => {
       i18n.activate("en")
@@ -168,47 +199,54 @@ describe("SwiftObjects (index)", () => {
   })
 
   describe("Search filtering", () => {
-    test("passes search term to ObjectsTableView", async () => {
+    test("calls navigate with search term when input changes", async () => {
       const user = userEvent.setup()
       renderObjects()
       await user.type(screen.getByPlaceholderText(/Search/i), "file-a")
       await waitFor(() => {
-        const view = screen.getByTestId("objects-table-view")
-        expect(view).toHaveAttribute("data-search", "file-a")
+        expect(mockNavigate).toHaveBeenCalled()
       })
     })
 
-    test("filters rows by search term", async () => {
-      const user = userEvent.setup()
-      renderObjects()
-      await user.type(screen.getByPlaceholderText(/Search/i), "file-a")
-      await waitFor(() => {
-        const view = screen.getByTestId("objects-table-view")
-        expect(view).toHaveAttribute("data-row-count", "1")
+    test("filters rows by search term from URL param", () => {
+      // Simulate URL already containing a search param — component reads it from
+      // Route.useSearch() on mount and passes filtered rows to ObjectsTableView.
+      mockUseSearch.mockReturnValue({
+        prefix: undefined,
+        sortBy: undefined,
+        sortDirection: undefined,
+        search: "file-a",
       })
+      renderObjects()
+      expect(screen.getByTestId("objects-table-view")).toHaveAttribute("data-row-count", "1")
     })
 
-    test("search is case-insensitive", async () => {
-      const user = userEvent.setup()
-      renderObjects()
-      await user.type(screen.getByPlaceholderText(/Search/i), "FILE-A")
-      await waitFor(() => {
-        expect(screen.getByTestId("objects-table-view")).toHaveAttribute("data-row-count", "1")
+    test("search filtering is case-insensitive", () => {
+      mockUseSearch.mockReturnValue({
+        prefix: undefined,
+        sortBy: undefined,
+        sortDirection: undefined,
+        search: "FILE-A",
       })
+      renderObjects()
+      expect(screen.getByTestId("objects-table-view")).toHaveAttribute("data-row-count", "1")
     })
 
-    test("shows all rows when search is cleared", async () => {
-      const user = userEvent.setup()
+    test("shows all rows when search param is empty", () => {
+      mockUseSearch.mockReturnValue({ prefix: undefined, sortBy: undefined, sortDirection: undefined, search: "" })
       renderObjects()
-      const input = screen.getByPlaceholderText(/Search/i)
-      await user.type(input, "file-a")
-      await waitFor(() => {
-        expect(screen.getByTestId("objects-table-view")).toHaveAttribute("data-row-count", "1")
+      expect(screen.getByTestId("objects-table-view")).toHaveAttribute("data-row-count", "3")
+    })
+
+    test("shows all rows when search param is undefined", () => {
+      mockUseSearch.mockReturnValue({
+        prefix: undefined,
+        sortBy: undefined,
+        sortDirection: undefined,
+        search: undefined,
       })
-      await user.clear(input)
-      await waitFor(() => {
-        expect(screen.getByTestId("objects-table-view")).toHaveAttribute("data-row-count", "3")
-      })
+      renderObjects()
+      expect(screen.getByTestId("objects-table-view")).toHaveAttribute("data-row-count", "3")
     })
   })
 })

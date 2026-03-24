@@ -1,4 +1,4 @@
-import { useState, startTransition } from "react"
+import { startTransition } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { Spinner, Stack } from "@cloudoperators/juno-ui-components"
 import { trpcReact } from "@/client/trpcClient"
@@ -6,7 +6,7 @@ import { ObjectSummary } from "@/server/Storage/types/swift"
 import { ListToolbar } from "@/client/components/ListToolbar"
 import { SortSettings } from "@/client/components/ListToolbar/types"
 import { useNavigate, useParams } from "@tanstack/react-router"
-import { Route } from "../../../$provider/containers/$containerName/objects/$"
+import { Route } from "../../../$provider/containers/$containerName/objects"
 import { ObjectsTableView } from "./ObjectsTableView"
 import { ObjectsFileNavigation } from "./ObjectsFileNavigation"
 
@@ -19,6 +19,7 @@ const encodePrefix = (prefix: string): string => {
   const binString = Array.from(bytes, (byte) => String.fromCodePoint(byte)).join("")
   return btoa(binString)
 }
+
 /** Decode a base64 search param back to a prefix string */
 const decodePrefix = (encoded: string | undefined): string => {
   if (!encoded) return ""
@@ -123,6 +124,28 @@ export function buildRows(objects: ObjectSummary[], prefix: string): BrowserRow[
   return [...folders, ...files]
 }
 
+// ── Sort key allowlist ────────────────────────────────────────────────────────
+
+type SortKey = "name" | "last_modified" | "bytes"
+
+const ALLOWED_SORT_KEYS: SortKey[] = ["name", "last_modified", "bytes"]
+
+// Safely resolve the sort key from whatever ListToolbar passes — it can be a
+// string, number index, or array. Unknown values return undefined (unsorted).
+const resolveSortBy = (sortBy: SortSettings["sortBy"]): SortKey | undefined => {
+  if (typeof sortBy === "string") {
+    return ALLOWED_SORT_KEYS.includes(sortBy as SortKey) ? (sortBy as SortKey) : undefined
+  }
+  if (typeof sortBy === "number") {
+    return ALLOWED_SORT_KEYS[sortBy]
+  }
+  if (Array.isArray(sortBy)) {
+    const first = sortBy[0]
+    return typeof first === "string" && ALLOWED_SORT_KEYS.includes(first as SortKey) ? (first as SortKey) : undefined
+  }
+  return undefined
+}
+
 // ── SwiftObjects ──────────────────────────────────────────────────────────────
 
 export const SwiftObjects = () => {
@@ -130,22 +153,23 @@ export const SwiftObjects = () => {
   const navigate = useNavigate({ from: Route.fullPath })
 
   const { accountId, projectId, provider, containerName } = useParams({
-    from: "/_auth/accounts/$accountId/projects/$projectId/storage/$provider/containers/$containerName/objects/$",
+    from: "/_auth/accounts/$accountId/projects/$projectId/storage/$provider/containers/$containerName/objects/",
   })
-  const { prefix: encodedPrefix } = Route.useSearch()
+
+  // All UI state is persisted in the URL search params so that sort, prefix and
+  // search survive navigation, browser back/forward, and deep links.
+  const { prefix: encodedPrefix, sortBy, sortDirection, search: searchParam = "" } = Route.useSearch()
   const currentPrefix = decodePrefix(encodedPrefix)
 
-  const [sortSettings, setSortSettings] = useState<SortSettings>({
+  const sortSettings: SortSettings = {
     options: [
       { label: t`Name`, value: "name" },
       { label: t`Last Modified`, value: "last_modified" },
       { label: t`Size`, value: "bytes" },
     ],
-    sortBy: undefined,
-    sortDirection: "asc",
-  })
-
-  const [searchTerm, setSearchTerm] = useState("")
+    sortBy: sortBy ?? undefined,
+    sortDirection: sortDirection ?? "asc",
+  }
 
   const {
     data: objects,
@@ -176,13 +200,13 @@ export const SwiftObjects = () => {
 
   const allRows = buildRows((objects ?? []) as ObjectSummary[], currentPrefix)
 
-  const filteredRows = allRows.filter((row) => row.displayName.toLowerCase().includes(searchTerm.toLowerCase().trim()))
+  const filteredRows = allRows.filter((row) => row.displayName.toLowerCase().includes(searchParam.toLowerCase().trim()))
 
-  const sortedRows = !sortSettings.sortBy
+  const sortedRows = !sortBy
     ? filteredRows
     : [...filteredRows].sort((a, b) => {
         let comparison = 0
-        switch (sortSettings.sortBy) {
+        switch (sortBy) {
           case "name":
             comparison = a.displayName.localeCompare(b.displayName)
             break
@@ -200,44 +224,32 @@ export const SwiftObjects = () => {
             break
           }
         }
-        return sortSettings.sortDirection === "desc" ? -comparison : comparison
+        return (sortDirection ?? "asc") === "desc" ? -comparison : comparison
       })
 
   // ── Handlers ─────────────────────────────────────────────────────────────
 
-  type SortKey = "name" | "last_modified" | "bytes"
-
-  const ALLOWED_SORT_KEYS: SortKey[] = ["name", "last_modified", "bytes"]
-
-  // Safely resolve the sort key from whatever ListToolbar passes — it can be a
-  // string, number index, or array. Unknown values return undefined (unsorted).
-  const resolveSortBy = (sortBy: SortSettings["sortBy"]): SortKey | undefined => {
-    if (typeof sortBy === "string") {
-      return ALLOWED_SORT_KEYS.includes(sortBy as SortKey) ? (sortBy as SortKey) : undefined
-    }
-    if (typeof sortBy === "number") {
-      return ALLOWED_SORT_KEYS[sortBy]
-    }
-    if (Array.isArray(sortBy)) {
-      const first = sortBy[0]
-      return typeof first === "string" && ALLOWED_SORT_KEYS.includes(first as SortKey) ? (first as SortKey) : undefined
-    }
-    return undefined
-  }
-
   const handleSearchChange = (term: string | number | string[] | undefined) => {
     const value = typeof term === "string" ? term : ""
-    startTransition(() => setSearchTerm(value))
+    startTransition(() => {
+      navigate({
+        search: (prev) => ({ ...prev, search: value || undefined }),
+      })
+    })
   }
 
   const handleSortChange = (newSort: SortSettings) => {
-    startTransition(() =>
-      setSortSettings({
-        options: newSort.options,
-        sortBy: resolveSortBy(newSort.sortBy),
-        sortDirection: newSort.sortDirection || "asc",
+    const resolvedSortBy = resolveSortBy(newSort.sortBy)
+    const resolvedDirection = (newSort.sortDirection as "asc" | "desc") || "asc"
+    startTransition(() => {
+      navigate({
+        search: (prev) => ({
+          ...prev,
+          sortBy: resolvedSortBy,
+          sortDirection: resolvedSortBy ? resolvedDirection : undefined,
+        }),
       })
-    )
+    })
   }
 
   // Handle loading state
@@ -270,11 +282,11 @@ export const SwiftObjects = () => {
       />
       <ListToolbar
         sortSettings={sortSettings}
-        searchTerm={searchTerm}
+        searchTerm={searchParam}
         onSort={handleSortChange}
         onSearch={handleSearchChange}
       />
-      <ObjectsTableView rows={sortedRows} searchTerm={searchTerm} onFolderClick={navigateToPrefix} />
+      <ObjectsTableView rows={sortedRows} searchTerm={searchParam} onFolderClick={navigateToPrefix} />
     </div>
   )
 }

@@ -44,7 +44,7 @@ export const checkServiceAvailability = (
       })
     }
     throw redirect({
-      to: "/accounts/$accountId/projects/$projectId/storage/$provider/containers/$containerName/objects/$",
+      to: "/accounts/$accountId/projects/$projectId/storage/$provider/containers/$containerName/objects",
       params: { accountId, projectId, provider: fallbackProvider, containerName },
     })
   }
@@ -58,7 +58,7 @@ export const checkServiceAvailability = (
     }
 
     throw redirect({
-      to: "/accounts/$accountId/projects/$projectId/storage/$provider/containers/$containerName/objects/$",
+      to: "/accounts/$accountId/projects/$projectId/storage/$provider/containers/$containerName/objects",
       params: { accountId, projectId, provider: "ceph", containerName },
     })
   }
@@ -72,19 +72,25 @@ export const checkServiceAvailability = (
     }
 
     throw redirect({
-      to: "/accounts/$accountId/projects/$projectId/storage/$provider/containers/$containerName/objects/$",
+      to: "/accounts/$accountId/projects/$projectId/storage/$provider/containers/$containerName/objects",
       params: { accountId, projectId, provider: "swift", containerName },
     })
   }
 }
 
-// Search params schema — prefix is base64-encoded to safely carry "/" chars in the URL
+// Search params schema
+// - prefix: base64-encoded current folder path, safe to carry "/" chars in the URL
+// - sortBy: active sort column key — persisted so deep links and back navigation restore sort state
+// - sortDirection: "asc" | "desc" — persisted alongside sortBy
 const objectsSearchSchema = z.object({
   prefix: z.string().optional(),
+  sortBy: z.enum(["name", "last_modified", "bytes"]).optional(),
+  sortDirection: z.enum(["asc", "desc"]).optional(),
+  search: z.string().optional(),
 })
 
 export const Route = createFileRoute(
-  "/_auth/accounts/$accountId/projects/$projectId/storage/$provider/containers/$containerName/objects/$"
+  "/_auth/accounts/$accountId/projects/$projectId/storage/$provider/containers/$containerName/objects/"
 )({
   validateSearch: objectsSearchSchema,
   component: () => {
@@ -121,7 +127,7 @@ export const Route = createFileRoute(
 
 function ObjectsDashboard() {
   const { project, provider, containerName } = useParams({
-    from: "/_auth/accounts/$accountId/projects/$projectId/storage/$provider/containers/$containerName/objects/$",
+    from: "/_auth/accounts/$accountId/projects/$projectId/storage/$provider/containers/$containerName/objects/",
     select: (params) => ({
       project: params.projectId,
       provider: params.provider,
@@ -129,9 +135,9 @@ function ObjectsDashboard() {
     }),
   })
 
-  // Extract prefix so the ErrorBoundary can reset when the user navigates to
-  // a different folder — without this, a thrown error stays visible until reload.
-  const { prefix } = Route.useSearch()
+  // Extract prefix and sort params so the ErrorBoundary can reset when the user
+  // navigates to a different folder — without this, a thrown error stays visible until reload.
+  const { prefix, sortBy, sortDirection, search } = Route.useSearch()
 
   const { setPageTitle } = Route.useRouteContext()
   const { t } = useLingui()
@@ -146,7 +152,7 @@ function ObjectsDashboard() {
     <div>
       {project ? (
         <ErrorBoundary
-          resetKeys={[project, provider, containerName, prefix]}
+          resetKeys={[project, provider, containerName, prefix, sortBy, sortDirection, search]}
           fallback={
             <div className="p-4 text-center">
               <Trans>Error loading component</Trans>

@@ -1,4 +1,5 @@
 import { createFileRoute, ErrorComponent, redirect, useParams } from "@tanstack/react-router"
+import { z } from "zod"
 import { getServiceIndex } from "@/server/Authentication/helpers"
 import { ErrorBoundary } from "react-error-boundary"
 import { SwiftContainers } from "../../-components/Swift/Containers"
@@ -75,7 +76,18 @@ export const checkServiceAvailability = (
   }
 }
 
+// Search params schema
+// - sortBy: active sort column — persisted for deep links and back navigation
+// - sortDirection: "asc" | "desc" — persisted alongside sortBy
+// - search: active filter string — persisted so deep links preserve the current search
+const containersSearchSchema = z.object({
+  sortBy: z.enum(["name", "count", "bytes", "last_modified"]).optional(),
+  sortDirection: z.enum(["asc", "desc"]).optional(),
+  search: z.string().optional(),
+})
+
 export const Route = createFileRoute("/_auth/accounts/$accountId/projects/$projectId/storage/$provider/containers/")({
+  validateSearch: containersSearchSchema,
   component: () => {
     return <StorageDashboard />
   },

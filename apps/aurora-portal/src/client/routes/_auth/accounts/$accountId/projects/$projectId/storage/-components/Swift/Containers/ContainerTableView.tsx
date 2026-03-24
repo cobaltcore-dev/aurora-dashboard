@@ -222,7 +222,7 @@ export const ContainerTableView = ({
                 >
                   <DataGridCell className="min-w-0 overflow-hidden">
                     <Link
-                      to="/accounts/$accountId/projects/$projectId/storage/$provider/containers/$containerName/objects/$"
+                      to="/accounts/$accountId/projects/$projectId/storage/$provider/containers/$containerName/objects"
                       params={{ accountId, projectId, provider, containerName: container.name }}
                       className="text-theme-default hover:text-theme-link block truncate"
                       title={container.name}
