@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from "react"
+import React, { useEffect } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { useForm } from "@tanstack/react-form"
 import {
@@ -38,7 +38,7 @@ interface AddRuleModalProps {
  * Helper function for TypeScript type inference.
  * This function is never called at runtime - it exists purely to help TypeScript
  * infer the return type of useForm for use in child components.
- * Note: Must match the actual useForm configuration (including validators) to ensure type compatibility.
+ * Note: Must include validators to match the actual form's type signature.
  */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 function createFormTypeHelper() {
@@ -140,79 +140,56 @@ export const AddRuleModal: React.FC<AddRuleModalProps> = ({
     onClose()
   }
 
-  // Access form values reactively for conditional field visibility
-  const [ruleType, setRuleType] = React.useState(DEFAULT_VALUES.ruleType)
-  const [protocol, setProtocol] = React.useState<string | null>(DEFAULT_VALUES.protocol)
-  const [remoteSourceType, setRemoteSourceType] = React.useState(DEFAULT_VALUES.remoteSourceType)
-
-  // Subscribe to form changes to update local state for conditional rendering
+  // Sync preset values to form fields when ruleType changes
   useEffect(() => {
     const subscription = form.store.subscribe(() => {
       const state = form.store.state
-      setRuleType(state.values.ruleType)
-      setProtocol(state.values.protocol)
-      setRemoteSourceType(state.values.remoteSourceType)
+      const currentRuleType = state.values.ruleType
+
+      const selectedPreset = RULE_PRESETS.find((p) => p.value === currentRuleType)
+      if (!selectedPreset) return
+
+      // Update protocol field
+      form.setFieldValue("protocol", selectedPreset.protocol)
+
+      // For TCP/UDP presets: update port fields
+      if (selectedPreset.protocol === "tcp" || selectedPreset.protocol === "udp") {
+        if (selectedPreset.portRangeMin !== null && selectedPreset.portRangeMax !== null) {
+          // Preset has predefined ports (e.g., HTTP = 80)
+          form.setFieldValue("portFrom", String(selectedPreset.portRangeMin))
+          form.setFieldValue("portTo", String(selectedPreset.portRangeMax))
+        } else {
+          // Custom rule - clear ports so user can enter them
+          form.setFieldValue("portFrom", "")
+          form.setFieldValue("portTo", "")
+        }
+      } else {
+        // Non-TCP/UDP protocols: clear port fields
+        form.setFieldValue("portFrom", "")
+        form.setFieldValue("portTo", "")
+      }
+
+      // Clear ICMP fields for non-ICMP protocols
+      if (selectedPreset.protocol !== "icmp" && selectedPreset.protocol !== "ipv6-icmp") {
+        form.setFieldValue("icmpType", "")
+        form.setFieldValue("icmpCode", "")
+      }
     })
 
     return () => subscription.unsubscribe()
   }, [form])
 
-  // Sync preset values to form fields when ruleType changes
-  useEffect(() => {
-    const selectedPreset = RULE_PRESETS.find((p) => p.value === ruleType)
-    if (!selectedPreset) return
-
-    // Update protocol field
-    form.setFieldValue("protocol", selectedPreset.protocol)
-
-    // For TCP/UDP presets: update port fields
-    if (selectedPreset.protocol === "tcp" || selectedPreset.protocol === "udp") {
-      if (selectedPreset.portRangeMin !== null && selectedPreset.portRangeMax !== null) {
-        // Preset has predefined ports (e.g., HTTP = 80)
-        form.setFieldValue("portFrom", String(selectedPreset.portRangeMin))
-        form.setFieldValue("portTo", String(selectedPreset.portRangeMax))
-      } else {
-        // Custom rule - clear ports so user can enter them
-        form.setFieldValue("portFrom", "")
-        form.setFieldValue("portTo", "")
-      }
-    } else {
-      // Non-TCP/UDP protocols: clear port fields
-      form.setFieldValue("portFrom", "")
-      form.setFieldValue("portTo", "")
-    }
-
-    // Clear ICMP fields for non-ICMP protocols
-    if (selectedPreset.protocol !== "icmp" && selectedPreset.protocol !== "ipv6-icmp") {
-      form.setFieldValue("icmpType", "")
-      form.setFieldValue("icmpCode", "")
-    }
-  }, [ruleType, form])
-
   // Auto-set ethertype to IPv4 when remote source is NOT security group
   useEffect(() => {
-    if (remoteSourceType !== "security_group") {
-      form.setFieldValue("ethertype", "IPv4")
-    }
-  }, [remoteSourceType, form])
+    const subscription = form.store.subscribe(() => {
+      const state = form.store.state
+      if (state.values.remoteSourceType !== "security_group") {
+        form.setFieldValue("ethertype", "IPv4")
+      }
+    })
 
-  // Determine which fields should be visible based on current form values
-  const showPortFields = useMemo(() => {
-    const isTcpUdp = protocol === "tcp" || protocol === "udp"
-    return isTcpUdp && [CUSTOM_TCP_RULE, CUSTOM_UDP_RULE].includes(ruleType)
-  }, [protocol, ruleType])
-
-  const showIcmpFields = useMemo(() => {
-    return protocol === "icmp" || protocol === "ipv6-icmp"
-  }, [protocol])
-
-  const showProtocolInput = useMemo(() => {
-    return ruleType === OTHER_PROTOCOL_RULE
-  }, [ruleType])
-
-  const showEthertypeField = useMemo(() => {
-    return remoteSourceType === "security_group"
-  }, [remoteSourceType])
+    return () => subscription.unsubscribe()
+  }, [form])
 
   return (
     <Modal
@@ -275,19 +252,44 @@ export const AddRuleModal: React.FC<AddRuleModalProps> = ({
           <DirectionSection form={form} disabled={isLoading} />
 
           {/* Protocol (conditional for "Other Protocol") */}
-          {showProtocolInput && <ProtocolSection form={form} disabled={isLoading} />}
+          <form.Subscribe selector={(state) => state.values.ruleType === OTHER_PROTOCOL_RULE}>
+            {(showProtocolInput) =>
+              showProtocolInput && <ProtocolSection form={form} disabled={isLoading} />
+            }
+          </form.Subscribe>
 
-          {/* Port Range (conditional for TCP/UDP) */}
-          {showPortFields && <PortRangeSection form={form} disabled={isLoading} />}
+          {/* Port Range (conditional for Custom TCP/UDP) */}
+          <form.Subscribe
+            selector={(state) => {
+              const isTcpUdp = state.values.protocol === "tcp" || state.values.protocol === "udp"
+              return isTcpUdp && [CUSTOM_TCP_RULE, CUSTOM_UDP_RULE].includes(state.values.ruleType)
+            }}
+          >
+            {(showPortFields) => showPortFields && <PortRangeSection form={form} disabled={isLoading} />}
+          </form.Subscribe>
 
-          {/* ICMP Fields (conditional for ICMP) */}
-          {showIcmpFields && <IcmpSection form={form} disabled={isLoading} />}
+          {/* ICMP Fields (conditional for ICMP protocols) */}
+          <form.Subscribe
+            selector={(state) =>
+              state.values.protocol === "icmp" || state.values.protocol === "ipv6-icmp"
+            }
+          >
+            {(showIcmpFields) => showIcmpFields && <IcmpSection form={form} disabled={isLoading} />}
+          </form.Subscribe>
 
           {/* Remote Source (CIDR or Security Group) */}
-          <RemoteSourceSection form={form} disabled={isLoading} availableSecurityGroups={availableSecurityGroups} />
+          <RemoteSourceSection
+            form={form}
+            disabled={isLoading}
+            availableSecurityGroups={availableSecurityGroups}
+          />
 
           {/* Ethertype (conditional for Security Group remote source) */}
-          {showEthertypeField && <EthertypeSection form={form} disabled={isLoading} />}
+          <form.Subscribe selector={(state) => state.values.remoteSourceType === "security_group"}>
+            {(showEthertypeField) =>
+              showEthertypeField && <EthertypeSection form={form} disabled={isLoading} />
+            }
+          </form.Subscribe>
 
           {/* Description */}
           <DescriptionSection form={form} disabled={isLoading} />
