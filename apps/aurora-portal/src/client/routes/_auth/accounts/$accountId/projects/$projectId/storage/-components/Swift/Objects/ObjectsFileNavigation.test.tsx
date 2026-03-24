@@ -109,8 +109,8 @@ describe("ObjectsFileNavigation", () => {
       // "c" is the last (active) segment — it has no onClick
       const cEl = screen.getByText("c")
       await user.click(cEl)
-      // onPrefixClick should NOT have been called for the active crumb
-      expect(onPrefixClick).not.toHaveBeenCalledWith("a/b/c/")
+      // onPrefixClick should NOT have been called at all for the active crumb
+      expect(onPrefixClick).not.toHaveBeenCalled()
     })
   })
 })
