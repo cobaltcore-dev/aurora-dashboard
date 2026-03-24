@@ -1,17 +1,7 @@
 import { z } from "zod"
-import { useForm } from "@tanstack/react-form"
+import { useForm, useStore } from "@tanstack/react-form"
 import { Trans, useLingui } from "@lingui/react/macro"
-import {
-  Modal,
-  Form,
-  FormSection,
-  Button,
-  ButtonRow,
-  Spinner,
-  ModalFooter,
-  Textarea,
-  Message,
-} from "@cloudoperators/juno-ui-components"
+import { Modal, Form, FormSection, Spinner, Textarea, Message } from "@cloudoperators/juno-ui-components"
 import type { FloatingIp, FloatingIpUpdateRequest } from "@/server/Network/types/floatingIp"
 
 export type FloatingIpUpdateFields = Omit<FloatingIpUpdateRequest, "floatingip_id">
@@ -69,36 +59,20 @@ export const EditFloatingIpModal = ({
     onClose()
   }
 
+  const enableConfirmButton = useStore(form.store, (state) => state.isSubmitting || !state.isDirty)
+
   return (
     <Modal
       // Remount the modal when a different Floating IP is selected so TanStack Form picks up fresh defaultValues.
       key={floatingIp.id}
       open={open}
-      onCancel={handleClose}
       size="large"
       title={t`Edit Floating IP ${floating_ip_address}`}
-      modalFooter={
-        <ModalFooter className="flex justify-end">
-          <form.Subscribe selector={({ isSubmitting, isDirty }) => ({ isSubmitting, isDirty })}>
-            {({ isSubmitting, isDirty }) => (
-              <ButtonRow>
-                <Button variant="default" onClick={handleClose} disabled={isLoading || isSubmitting}>
-                  <Trans>Cancel</Trans>
-                </Button>
-                <Button
-                  variant="primary"
-                  type="button"
-                  onClick={() => form.handleSubmit()}
-                  disabled={isLoading || isSubmitting || !isDirty}
-                  data-testid="update-floating-ip-button"
-                >
-                  {isSubmitting ? <Spinner size="small" /> : <Trans>Save</Trans>}
-                </Button>
-              </ButtonRow>
-            )}
-          </form.Subscribe>
-        </ModalFooter>
-      }
+      onCancel={handleClose}
+      cancelButtonLabel={t`Cancel`}
+      confirmButtonLabel={t`Save`}
+      disableConfirmButton={isLoading || enableConfirmButton}
+      onConfirm={form.handleSubmit}
     >
       {error && (
         <Message dismissible={false} variant="error" className="mb-4">
