@@ -25,6 +25,35 @@ const mockFloatingIp: FloatingIp = {
   tags: [],
 }
 
+const renderModalComponent = ({
+  floatingIp = mockFloatingIp,
+  open = true,
+  onClose = vi.fn(),
+  onUpdate = vi.fn(),
+  isLoading = false,
+  error = null,
+}: {
+  floatingIp?: FloatingIp
+  open?: boolean
+  onClose?: () => void
+  onUpdate?: (floatingIpId: string, data: FloatingIpUpdateFields) => Promise<void>
+  isLoading?: boolean
+  error?: string | null
+} = {}) => (
+  <I18nProvider i18n={i18n}>
+    <PortalProvider>
+      <DetachFloatingIpModal
+        floatingIp={floatingIp}
+        open={open}
+        onClose={onClose}
+        onUpdate={onUpdate}
+        isLoading={isLoading}
+        error={error}
+      />
+    </PortalProvider>
+  </I18nProvider>
+)
+
 const renderModal = ({
   floatingIp = mockFloatingIp,
   open = true,
@@ -39,21 +68,7 @@ const renderModal = ({
   onUpdate?: (floatingIpId: string, data: FloatingIpUpdateFields) => Promise<void>
   isLoading?: boolean
   error?: string | null
-} = {}) =>
-  render(
-    <I18nProvider i18n={i18n}>
-      <PortalProvider>
-        <DetachFloatingIpModal
-          floatingIp={floatingIp}
-          open={open}
-          onClose={onClose}
-          onUpdate={onUpdate}
-          isLoading={isLoading}
-          error={error}
-        />
-      </PortalProvider>
-    </I18nProvider>
-  )
+} = {}) => render(renderModalComponent({ floatingIp, open, onClose, onUpdate, isLoading, error }))
 
 describe("DetachFloatingIpModal", () => {
   beforeEach(() => {
@@ -87,7 +102,7 @@ describe("DetachFloatingIpModal", () => {
       const user = userEvent.setup()
       renderModal()
 
-      const detachButton = screen.getByTestId("detach-floating-ip-button")
+      const detachButton = screen.getByRole("button", { name: "Detach" })
       const input = screen.getByPlaceholderText('Type "detach" to confirm')
 
       expect(detachButton).toBeDisabled()
@@ -107,7 +122,7 @@ describe("DetachFloatingIpModal", () => {
 
       const input = screen.getByPlaceholderText('Type "detach" to confirm')
       await user.type(input, "detach")
-      const detachButton = screen.getByTestId("detach-floating-ip-button")
+      const detachButton = screen.getByRole("button", { name: "Detach" })
 
       await waitFor(() => {
         expect(detachButton).toBeEnabled()
@@ -128,7 +143,7 @@ describe("DetachFloatingIpModal", () => {
 
       const input = screen.getByPlaceholderText('Type "detach" to confirm')
       await user.type(input, "detach")
-      const detachButton = screen.getByTestId("detach-floating-ip-button")
+      const detachButton = screen.getByRole("button", { name: "Detach" })
 
       await waitFor(() => {
         expect(detachButton).toBeEnabled()
@@ -148,8 +163,7 @@ describe("DetachFloatingIpModal", () => {
 
       expect(screen.getByText("Detaching Floating IP...")).toBeInTheDocument()
       expect(screen.queryByPlaceholderText('Type "detach" to confirm')).not.toBeInTheDocument()
-      expect(screen.getByTestId("detach-floating-ip-button")).toBeDisabled()
-      expect(screen.getByRole("button", { name: "Cancel" })).toBeDisabled()
+      expect(screen.getByRole("button", { name: "Detach" })).toBeDisabled()
     })
 
     test("displays error message when error prop is provided", () => {
@@ -179,7 +193,8 @@ describe("DetachFloatingIpModal", () => {
     test("resets confirmation input when cancel is clicked", async () => {
       const onClose = vi.fn()
       const user = userEvent.setup()
-      renderModal({ onClose })
+      const onUpdate = vi.fn().mockResolvedValue(undefined)
+      const { rerender } = renderModal({ onClose, onUpdate })
 
       const input = screen.getByPlaceholderText('Type "detach" to confirm') as HTMLInputElement
       await user.type(input, "detach")
@@ -187,10 +202,33 @@ describe("DetachFloatingIpModal", () => {
 
       await user.click(screen.getByRole("button", { name: "Cancel" }))
 
+      expect(onClose).toHaveBeenCalledTimes(1)
+
+      rerender(
+        renderModalComponent({
+          floatingIp: mockFloatingIp,
+          open: false,
+          onClose,
+          onUpdate,
+          isLoading: false,
+          error: null,
+        })
+      )
+
+      rerender(
+        renderModalComponent({
+          floatingIp: mockFloatingIp,
+          open: true,
+          onClose,
+          onUpdate,
+          isLoading: false,
+          error: null,
+        })
+      )
+
       await waitFor(() => {
         expect((screen.getByPlaceholderText('Type "detach" to confirm') as HTMLInputElement).value).toBe("")
       })
-      expect(onClose).toHaveBeenCalledTimes(1)
     })
   })
 })

@@ -59,6 +59,7 @@ export const EditFloatingIpModal = ({
     onClose()
   }
 
+  // creates a reactive subscription so the component re-renders, which allows the confirm button to be enabled once the user edit description field.
   const enableConfirmButton = useStore(form.store, (state) => state.isSubmitting || !state.isDirty)
 
   return (

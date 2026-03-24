@@ -46,7 +46,7 @@ export const ReleaseFloatingIpModal = ({
   })
 
   // creates a reactive subscription so the component re-renders, which allows the confirm button to enable once the user types "release".
-  const canRelease = useStore(form.store, (state) => state.values.release === "release")
+  const canRelease = useStore(form.store, (state) => state.isSubmitting || state.values.release !== "release")
 
   const handleClose = () => {
     form.reset()
@@ -62,7 +62,7 @@ export const ReleaseFloatingIpModal = ({
       cancelButtonLabel={t`Cancel`}
       confirmButtonLabel={t`Release`}
       onConfirm={form.handleSubmit}
-      disableConfirmButton={isLoading || form.state.isSubmitting || !canRelease}
+      disableConfirmButton={isLoading || canRelease}
     >
       {error && (
         <Message dismissible={false} variant="error" className="mb-4">

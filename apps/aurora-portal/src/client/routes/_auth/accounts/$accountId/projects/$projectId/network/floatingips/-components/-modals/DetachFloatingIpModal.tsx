@@ -1,18 +1,7 @@
 import { z } from "zod"
-import { useForm } from "@tanstack/react-form"
+import { useForm, useStore } from "@tanstack/react-form"
 import { Trans, useLingui } from "@lingui/react/macro"
-import {
-  Modal,
-  Form,
-  FormSection,
-  Button,
-  ButtonRow,
-  Spinner,
-  ModalFooter,
-  Message,
-  TextInput,
-  Stack,
-} from "@cloudoperators/juno-ui-components"
+import { Modal, Form, FormSection, Spinner, Message, TextInput, Stack } from "@cloudoperators/juno-ui-components"
 import type { FloatingIp } from "@/server/Network/types/floatingIp"
 import { FloatingIpUpdateFields } from "./EditFloatingIpModal"
 
@@ -59,6 +48,9 @@ export const DetachFloatingIpModal = ({
     },
   })
 
+  // creates a reactive subscription so the component re-renders, which allows the confirm button to enable once the user types "detach".
+  const canDetach = useStore(form.store, (state) => state.isSubmitting || state.values.detach !== "detach")
+
   const handleClose = () => {
     form.reset()
     onClose()
@@ -67,36 +59,13 @@ export const DetachFloatingIpModal = ({
   return (
     <Modal
       open={open}
-      onCancel={handleClose}
       size="large"
       title={t`Detach Floating IP ${floating_ip_address}`}
-      modalFooter={
-        <ModalFooter className="flex justify-end">
-          <form.Subscribe
-            selector={(state) => ({
-              isSubmitting: state.isSubmitting,
-              detachValue: state.values.detach,
-            })}
-          >
-            {({ isSubmitting, detachValue }) => (
-              <ButtonRow>
-                <Button variant="default" onClick={handleClose} disabled={isLoading || isSubmitting}>
-                  <Trans>Cancel</Trans>
-                </Button>
-                <Button
-                  variant="primary"
-                  type="button"
-                  onClick={() => form.handleSubmit()}
-                  disabled={isLoading || isSubmitting || detachValue !== "detach"}
-                  data-testid="detach-floating-ip-button"
-                >
-                  {isSubmitting ? <Spinner size="small" /> : <Trans>Detach</Trans>}
-                </Button>
-              </ButtonRow>
-            )}
-          </form.Subscribe>
-        </ModalFooter>
-      }
+      onCancel={handleClose}
+      cancelButtonLabel={t`Cancel`}
+      confirmButtonLabel={t`Detach`}
+      onConfirm={form.handleSubmit}
+      disableConfirmButton={isLoading || canDetach}
     >
       {error && (
         <Message dismissible={false} variant="error" className="mb-4">
