@@ -5,7 +5,7 @@ import { DEFAULT_ERROR_NAME, HTTP_STATUS_ERROR_MAP } from "./index"
  * WORK_IN_PROGRESS:
  * This shared error-handling helper is currently a prototype and is only used for
  * list procedures in Port and Network helpers.
- * list / get / update / delete procedures in Floating IP
+ * All procedures in Floating IP (list, get, update, delete, create)
  *
  * The goal is to extend this approach in the future and make it resource-wide
  * across all network procedures (create/update/delete).

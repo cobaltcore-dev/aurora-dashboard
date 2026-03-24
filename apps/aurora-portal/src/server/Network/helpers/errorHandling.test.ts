@@ -225,3 +225,61 @@ describe("ErrorHandler for Delete procedures", () => {
     expect(error.message).toContain(customId)
   })
 })
+
+describe("ErrorHandler for Create procedures", () => {
+  const create = ErrorHandler("Floating IP")
+
+  it("returns BAD_REQUEST for 400", () => {
+    const response = { status: 400, statusText: "Bad Request" }
+    const error = create(response)
+
+    expect(error).toBeInstanceOf(TRPCError)
+    expect(error.code).toBe(HTTP_STATUS_ERROR_MAP[400])
+    expect(error.message).toBe("Invalid request data for Floating IP: Bad Request")
+  })
+
+  it("returns UNAUTHORIZED for 401", () => {
+    const response = { status: 401, statusText: "Unauthorized" }
+    const error = create(response)
+
+    expect(error).toBeInstanceOf(TRPCError)
+    expect(error.code).toBe(HTTP_STATUS_ERROR_MAP[401])
+    expect(error.message).toBe("Unauthorized access to Floating IP: Unauthorized")
+  })
+
+  it("returns NOT_FOUND for 404", () => {
+    const response = { status: 404, statusText: "Not Found" }
+    const error = create(response)
+
+    expect(error).toBeInstanceOf(TRPCError)
+    expect(error.code).toBe(HTTP_STATUS_ERROR_MAP[404])
+    expect(error.message).toBe("Floating IP not found: Not Found")
+  })
+
+  it("returns CONFLICT for 409", () => {
+    const response = { status: 409, statusText: "Conflict" }
+    const error = create(response)
+
+    expect(error).toBeInstanceOf(TRPCError)
+    expect(error.code).toBe(HTTP_STATUS_ERROR_MAP[409])
+    expect(error.message).toBe("Conflict - Floating IP is in use: Conflict")
+  })
+
+  it("returns default error for unhandled status", () => {
+    const response = { status: 500, statusText: "Internal Server Error" }
+    const error = create(response)
+
+    expect(error).toBeInstanceOf(TRPCError)
+    expect(error.code).toBe(DEFAULT_ERROR_NAME)
+    expect(error.message).toBe("Failed to process Floating IP: Internal Server Error")
+  })
+
+  it("returns Unknown error when statusText is missing", () => {
+    const response = { status: 503 }
+    const error = create(response)
+
+    expect(error).toBeInstanceOf(TRPCError)
+    expect(error.code).toBe(DEFAULT_ERROR_NAME)
+    expect(error.message).toBe("Failed to process Floating IP: Unknown error")
+  })
+})
