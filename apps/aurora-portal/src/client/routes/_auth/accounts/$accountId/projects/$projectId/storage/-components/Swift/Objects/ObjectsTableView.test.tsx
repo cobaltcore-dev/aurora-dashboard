@@ -156,7 +156,7 @@ describe("ObjectsTableView", () => {
       expect(screen.getByText(/1(\s*)KiB/i)).toBeInTheDocument()
     })
 
-    test("renders N/A for missing last_modified on objects", () => {
+    test("renders — for missing last_modified on objects", () => {
       renderView({ rows: [makeObject("file.txt", { last_modified: undefined })] })
       const row = screen.getByTestId("object-row-file.txt")
       expect(row).toHaveTextContent("—")
