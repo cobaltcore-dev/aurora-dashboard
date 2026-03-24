@@ -78,7 +78,7 @@ export const DeleteImageModal: React.FC<DeleteImageModalProps> = ({
         <div>
           <Message
             text={t`This action cannot be undone. The image will be permanently deleted.`}
-            variant="warning"
+            variant="danger"
             className="mb-4"
           />
 
