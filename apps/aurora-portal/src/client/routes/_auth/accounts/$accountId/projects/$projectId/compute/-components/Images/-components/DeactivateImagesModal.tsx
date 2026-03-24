@@ -53,12 +53,12 @@ export const DeactivateImagesModal: React.FC<DeactivateImagesModalProps> = ({
         <div className="my-6">
           {activeCount > 0 && (
             <>
-              {/* Header */}
-              <Message
-                text={t`You are about to deactivate ${activeCount} image(s). Deactivated images cannot be used to launch new instances.`}
-                variant="info"
-                className="mb-6"
-              />
+              <p className="mb-6">
+                <Trans>
+                  You are about to deactivate <strong>{activeCount} image(s)</strong>. Deactivated images cannot be used
+                  to launch new instances.
+                </Trans>
+              </p>
 
               {/* Images to be deactivated */}
               <div className="mb-6">
