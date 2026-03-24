@@ -4,7 +4,7 @@ import userEvent from "@testing-library/user-event"
 import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import { i18n } from "@lingui/core"
 import { I18nProvider } from "@lingui/react"
-import { ReleaseFloatingIpModal } from "./ReleaseFloatingIpModal"
+import { ReleaseFloatingIpModal, ReleaseFloatingIpModalProps } from "./ReleaseFloatingIpModal"
 import type { FloatingIp } from "@/server/Network/types/floatingIp"
 
 const mockFloatingIp: FloatingIp = {
@@ -24,6 +24,8 @@ const mockFloatingIp: FloatingIp = {
   tags: [],
 }
 
+type ReleaseFloatingIpModalRenderOptions = Partial<ReleaseFloatingIpModalProps>
+
 const renderModalComponent = ({
   floatingIp = mockFloatingIp,
   open = true,
@@ -31,14 +33,7 @@ const renderModalComponent = ({
   onUpdate = vi.fn(),
   isLoading = false,
   error = null,
-}: {
-  floatingIp?: FloatingIp
-  open?: boolean
-  onClose?: () => void
-  onUpdate?: (floatingIpId: string) => Promise<void>
-  isLoading?: boolean
-  error?: string | null
-} = {}) => (
+}: ReleaseFloatingIpModalRenderOptions = {}) => (
   <I18nProvider i18n={i18n}>
     <PortalProvider>
       <ReleaseFloatingIpModal
@@ -60,14 +55,8 @@ const renderModal = ({
   onUpdate = vi.fn(),
   isLoading = false,
   error = null,
-}: {
-  floatingIp?: FloatingIp
-  open?: boolean
-  onClose?: () => void
-  onUpdate?: (floatingIpId: string) => Promise<void>
-  isLoading?: boolean
-  error?: string | null
-} = {}) => render(renderModalComponent({ floatingIp, open, onClose, onUpdate, isLoading, error }))
+}: ReleaseFloatingIpModalRenderOptions = {}) =>
+  render(renderModalComponent({ floatingIp, open, onClose, onUpdate, isLoading, error }))
 
 describe("ReleaseFloatingIpModal", () => {
   beforeEach(() => {

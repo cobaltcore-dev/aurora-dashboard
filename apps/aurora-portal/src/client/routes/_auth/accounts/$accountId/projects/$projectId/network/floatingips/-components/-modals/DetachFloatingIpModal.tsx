@@ -5,7 +5,7 @@ import { Modal, Form, FormSection, Spinner, Message, TextInput, Stack } from "@c
 import type { FloatingIp } from "@/server/Network/types/floatingIp"
 import { FloatingIpUpdateFields } from "./EditFloatingIpModal"
 
-interface DetachFloatingIpModalProps {
+export interface DetachFloatingIpModalProps {
   floatingIp: FloatingIp
   open: boolean
   onClose: () => void
