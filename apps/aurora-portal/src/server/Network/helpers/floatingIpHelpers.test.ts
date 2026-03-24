@@ -84,60 +84,9 @@ describe("FloatingIpErrorHandlers.create", () => {
 })
 
 describe("FloatingIpErrorHandlers.delete", () => {
-  const floatingIpId = "fip-test-789"
-
-  it("should return UNAUTHORIZED error for 401 status", () => {
-    const response = { status: 401, statusText: "Unauthorized" }
-    const error = FloatingIpErrorHandlers.delete(response, floatingIpId)
-
-    expect(error).toBeInstanceOf(TRPCError)
-    expect(error.code).toBe(HTTP_STATUS_ERROR_MAP[401])
-    expect(error.message).toBe(`Unauthorized access: ${floatingIpId}`)
-  })
-
-  it("should return NOT_FOUND error for 404 status", () => {
-    const response = { status: 404, statusText: "Not Found" }
-    const error = FloatingIpErrorHandlers.delete(response, floatingIpId)
-
-    expect(error).toBeInstanceOf(TRPCError)
-    expect(error.code).toBe(HTTP_STATUS_ERROR_MAP[404])
-    expect(error.message).toBe(`Floating IP not found: ${floatingIpId}`)
-  })
-
-  it("should return PRECONDITION_FAILED error for 412 status (Precondition Failed)", () => {
-    const response = { status: 412, statusText: "Precondition Failed" }
-    const error = FloatingIpErrorHandlers.delete(response, floatingIpId)
-
-    expect(error).toBeInstanceOf(TRPCError)
-    expect(error.code).toBe(HTTP_STATUS_ERROR_MAP[412])
-    expect(error.message).toBe(`Precondition failed - revision number mismatch: ${floatingIpId}`)
-  })
-
-  it("should return INTERNAL_SERVER_ERROR for 500 status", () => {
-    const response = { status: 500, statusText: "Internal Server Error" }
-    const error = FloatingIpErrorHandlers.delete(response, floatingIpId)
-
-    expect(error).toBeInstanceOf(TRPCError)
+  it("is wired to shared error handler", () => {
+    const error = FloatingIpErrorHandlers.delete({ status: 500, statusText: "Internal Server Error" }, "fip-test-789")
     expect(error.code).toBe(DEFAULT_ERROR_NAME)
-    expect(error.message).toBe("Failed to delete floating IP: Internal Server Error")
-  })
-
-  it("should return INTERNAL_SERVER_ERROR with Unknown error when statusText is missing", () => {
-    const response = { status: 503 }
-    const error = FloatingIpErrorHandlers.delete(response, floatingIpId)
-
-    expect(error).toBeInstanceOf(TRPCError)
-    expect(error.code).toBe(DEFAULT_ERROR_NAME)
-    expect(error.message).toBe("Failed to delete floating IP: Unknown error")
-  })
-
-  it("should include floating IP ID in error messages", () => {
-    const customId = "fip-custom-999"
-    const response = { status: 404, statusText: "Not Found" }
-    const error = FloatingIpErrorHandlers.delete(response, customId)
-
-    expect(error).toBeInstanceOf(TRPCError)
-    expect(error.code).toBe(HTTP_STATUS_ERROR_MAP[404])
-    expect(error.message).toContain(customId)
+    expect(error.message).toBe("Failed to process fip-test-789: Internal Server Error")
   })
 })

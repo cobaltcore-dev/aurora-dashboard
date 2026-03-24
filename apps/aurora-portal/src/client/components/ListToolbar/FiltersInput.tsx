@@ -78,7 +78,9 @@ export const FiltersInput = ({ filters, onChange }: FiltersInputProps) => {
         ))}
       </Select>
       <ComboBox {...getComboBoxProps()}>
-        {filterValues?.map((value) => <ComboBoxOption value={value} key={value} label={value} data-testid={value} />)}
+        {filterValues?.map((value) => (
+          <ComboBoxOption value={value} key={value} label={value} data-testid={value} />
+        ))}
       </ComboBox>
     </InputGroup>
   )

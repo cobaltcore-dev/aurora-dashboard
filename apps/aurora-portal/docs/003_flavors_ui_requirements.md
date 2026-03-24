@@ -47,24 +47,20 @@ Flavors in OpenStack define the hardware configuration templates for virtual mac
 ## 5. UI Components
 
 - **Flavors Table**
-
   - Columns: Name/ID, vCPU, RAM (MB), Root Disk (GB), Ephemeral Disk (GB), Swap (MB), RX/TX Factor, Public, Actions.
   - Supports sorting and pagination.
   - Responsive layout for desktop and mobile.
 
 - **Create Flavor Modal**
-
   - Input fields: Name, vCPU, RAM, Root Disk, Ephemeral Disk, Swap Disk, RX/TX Factor.
   - Validation feedback inline.
   - Submit and Cancel controls.
 
 - **Delete Confirmation Modal**
-
   - Displays flavor name and warning about deletion.
   - Confirm and Cancel controls.
 
 - **Edit Metadata Modal**
-
   - List existing key-value metadata pairs.
   - Provide a mechanism to add new key-value pairs.
   - Provide a mechanism to remove existing pairs.
