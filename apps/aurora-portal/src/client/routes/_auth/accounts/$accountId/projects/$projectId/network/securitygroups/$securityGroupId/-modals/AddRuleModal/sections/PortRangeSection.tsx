@@ -1,6 +1,5 @@
-import { FormRow, TextInput, Select, SelectOption } from "@cloudoperators/juno-ui-components"
+import { FormRow, TextInput } from "@cloudoperators/juno-ui-components"
 import { useLingui } from "@lingui/react/macro"
-import { PORT_MIN, PORT_MAX } from "../constants"
 import type { AddRuleFormApi } from "../AddRuleModal"
 
 interface PortRangeSectionProps {
@@ -12,100 +11,47 @@ export function PortRangeSection({ form, disabled = false }: PortRangeSectionPro
   const { t } = useLingui()
 
   return (
-    <>
-      {/* Port Mode Selector */}
-      <form.Field name="portMode">
-        {(portModeField) => (
-          <FormRow className="mb-6">
-            <Select
-              id="portMode"
-              label={t`Port Configuration`}
-              value={portModeField.state.value}
-              onChange={(value) => portModeField.handleChange(String(value) as "single" | "range" | "all")}
-              disabled={disabled}
-            >
-              <SelectOption value="single" label={t`Single Port`} />
-              <SelectOption value="range" label={t`Port Range`} />
-              <SelectOption value="all" label={t`All Ports (${PORT_MIN}-${PORT_MAX})`} />
-            </Select>
-          </FormRow>
-        )}
-      </form.Field>
-
-      {/* Single Port Input */}
-      <form.Field name="portMode">
-        {(portModeField) =>
-          portModeField.state.value === "single" ? (
-            <form.Field name="portSingle">
-              {(portSingleField) => (
-                <FormRow className="mb-6">
-                  <TextInput
-                    id="portSingle"
-                    name="portSingle"
-                    label={t`Port`}
-                    value={portSingleField.state.value || ""}
-                    onChange={(e) => portSingleField.handleChange(e.target.value)}
-                    errortext={portSingleField.state.meta.errors[0]?.toString()}
-                    placeholder="8080"
-                    disabled={disabled}
-                  />
-                </FormRow>
-              )}
-            </form.Field>
-          ) : null
-        }
-      </form.Field>
-
-      {/* Port Range Inputs */}
-      <form.Field name="portMode">
-        {(portModeField) =>
-          portModeField.state.value === "range" ? (
-            <FormRow className="mb-6">
-              <div className="flex gap-4">
-                <form.Field name="portRangeMin">
-                  {(portRangeMinField) => (
-                    <TextInput
-                      id="portRangeMin"
-                      name="portRangeMin"
-                      label={t`Port Range Min`}
-                      value={portRangeMinField.state.value || ""}
-                      onChange={(e) => portRangeMinField.handleChange(e.target.value)}
-                      errortext={portRangeMinField.state.meta.errors[0]?.toString()}
-                      placeholder={String(PORT_MIN)}
-                      disabled={disabled}
-                    />
-                  )}
-                </form.Field>
-                <form.Field name="portRangeMax">
-                  {(portRangeMaxField) => (
-                    <TextInput
-                      id="portRangeMax"
-                      name="portRangeMax"
-                      label={t`Port Range Max`}
-                      value={portRangeMaxField.state.value || ""}
-                      onChange={(e) => portRangeMaxField.handleChange(e.target.value)}
-                      errortext={portRangeMaxField.state.meta.errors[0]?.toString()}
-                      placeholder={String(PORT_MAX)}
-                      disabled={disabled}
-                    />
-                  )}
-                </form.Field>
+    <FormRow className="mb-6">
+      <div className="flex items-center gap-4">
+        <form.Field name="portFrom">
+          {(portFromField) => {
+            return (
+              <div className="flex-1">
+                <TextInput
+                  id="portFrom"
+                  name="portFrom"
+                  label={t`Port (from)`}
+                  value={portFromField.state.value || ""}
+                  onChange={(e) => portFromField.handleChange(e.target.value)}
+                  errortext={portFromField.state.meta.errors[0]?.message}
+                  disabled={disabled}
+                  required
+                />
               </div>
-            </FormRow>
-          ) : null
-        }
-      </form.Field>
-
-      {/* All Ports - No Input Needed */}
-      <form.Field name="portMode">
-        {(portModeField) =>
-          portModeField.state.value === "all" ? (
-            <FormRow className="mb-6">
-              <p className="text-theme-light text-sm">{t`All ports (${PORT_MIN}-${PORT_MAX}) will be allowed`}</p>
-            </FormRow>
-          ) : null
-        }
-      </form.Field>
-    </>
+            )
+          }}
+        </form.Field>
+        <div className="text-theme-secondary flex items-center justify-center">—</div>
+        <form.Field name="portTo">
+          {(portToField) => (
+            <div className="flex-1">
+              <TextInput
+                id="portTo"
+                name="portTo"
+                label={t`Port (to)`}
+                value={portToField.state.value || ""}
+                onChange={(e) => portToField.handleChange(e.target.value)}
+                errortext={portToField.state.meta.errors[0]?.message}
+                placeholder=""
+                disabled={disabled}
+              />
+            </div>
+          )}
+        </form.Field>
+      </div>
+      <p className="text-theme-secondary mt-2 text-sm">
+        {t`Enter a single port, or define a range by also filling "Port (to)". "Port (to)" is optional.`}
+      </p>
+    </FormRow>
   )
 }

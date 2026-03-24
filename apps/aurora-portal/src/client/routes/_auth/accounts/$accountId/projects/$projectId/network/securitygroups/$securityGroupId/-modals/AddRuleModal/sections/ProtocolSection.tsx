@@ -20,7 +20,7 @@ export function ProtocolSection({ form, disabled = false }: ProtocolSectionProps
             label={t`Protocol`}
             value={field.state.value || ""}
             onChange={(e) => field.handleChange(e.target.value || null)}
-            errortext={field.state.meta.errors[0]?.toString()}
+            errortext={field.state.meta.errors[0]?.message}
             placeholder={t`tcp, udp, icmp, or protocol number`}
             disabled={disabled}
           />

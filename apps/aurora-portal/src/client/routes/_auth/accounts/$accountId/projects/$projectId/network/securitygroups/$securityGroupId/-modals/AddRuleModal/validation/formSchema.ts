@@ -4,8 +4,6 @@ import {
   CUSTOM_TCP_RULE,
   CUSTOM_UDP_RULE,
   OTHER_PROTOCOL_RULE,
-  PORT_MODE_SINGLE,
-  PORT_MODE_RANGE,
   ICMP_MIN,
   ICMP_MAX,
 } from "../constants"
@@ -35,10 +33,8 @@ export const createRuleFormSchema = z
     protocol: z.string().nullable(),
 
     // Port-related fields (strings in form, converted to numbers during validation)
-    portMode: z.enum(["single", "range", "all"]),
-    portSingle: z.string(),
-    portRangeMin: z.string(),
-    portRangeMax: z.string(),
+    portFrom: z.string(),
+    portTo: z.string(),
 
     // ICMP fields (strings in form, converted to numbers during validation)
     icmpType: z.string(),
@@ -67,67 +63,64 @@ export const createRuleFormSchema = z
 
     // Validation 2: Port validation (only if port fields are visible)
     if (showPortFields) {
-      if (data.portMode === PORT_MODE_SINGLE) {
-        // Validate single port
-        if (!data.portSingle) {
+      // Port (from) is always required
+      if (!data.portFrom) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Port (from) is required",
+          path: ["portFrom"],
+        })
+      } else {
+        const portFrom = parseInt(data.portFrom, 10)
+        if (isNaN(portFrom)) {
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
-            message: "Port is required",
-            path: ["portSingle"],
+            message: "Port must be a valid number",
+            path: ["portFrom"],
           })
         } else {
-          const port = parseInt(data.portSingle, 10)
-          if (isNaN(port)) {
-            ctx.addIssue({
-              code: z.ZodIssueCode.custom,
-              message: "Port must be a valid number",
-              path: ["portSingle"],
-            })
-          } else {
-            const result = validatePortRange(port, port, data.protocol)
+          // If Port (to) is empty, validate portFrom as single port
+          if (!data.portTo) {
+            const result = validatePortRange(portFrom, portFrom, data.protocol)
             if (!result.valid) {
               ctx.addIssue({
                 code: z.ZodIssueCode.custom,
                 message: result.error || "Invalid port",
-                path: ["portSingle"],
+                path: ["portFrom"],
               })
+            }
+          } else {
+            // Both ports are provided - validate as range
+            const portTo = parseInt(data.portTo, 10)
+            if (isNaN(portTo)) {
+              ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                message: "Port must be a valid number",
+                path: ["portTo"],
+              })
+            } else {
+              // Check that portFrom < portTo
+              if (portFrom >= portTo) {
+                ctx.addIssue({
+                  code: z.ZodIssueCode.custom,
+                  message: '"Port (from)" must be less than "Port (to)"',
+                  path: ["portFrom"],
+                })
+              } else {
+                // Validate the range
+                const result = validatePortRange(portFrom, portTo, data.protocol)
+                if (!result.valid) {
+                  ctx.addIssue({
+                    code: z.ZodIssueCode.custom,
+                    message: result.error || "Invalid port range",
+                    path: ["portFrom"],
+                  })
+                }
+              }
             }
           }
         }
-      } else if (data.portMode === PORT_MODE_RANGE) {
-        // Validate port range
-        const minPort = data.portRangeMin ? parseInt(data.portRangeMin, 10) : null
-        const maxPort = data.portRangeMax ? parseInt(data.portRangeMax, 10) : null
-
-        // Check for NaN on individual fields first
-        if (data.portRangeMin && isNaN(minPort!)) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: "Port must be a valid number",
-            path: ["portRangeMin"],
-          })
-        }
-        if (data.portRangeMax && isNaN(maxPort!)) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: "Port must be a valid number",
-            path: ["portRangeMax"],
-          })
-        }
-
-        // Only run range validation if both are valid numbers
-        if (minPort !== null && maxPort !== null && !isNaN(minPort) && !isNaN(maxPort)) {
-          const result = validatePortRange(minPort, maxPort, data.protocol)
-          if (!result.valid) {
-            ctx.addIssue({
-              code: z.ZodIssueCode.custom,
-              message: result.error || "Invalid port range",
-              path: ["portRangeMin"],
-            })
-          }
-        }
       }
-      // PORT_MODE_ALL doesn't need validation (always 1-65535)
     }
 
     // Validation 3: ICMP validation (only if ICMP protocol is selected)
@@ -148,6 +141,16 @@ export const createRuleFormSchema = z
           code: z.ZodIssueCode.custom,
           message: "ICMP code must be a valid number",
           path: ["icmpCode"],
+        })
+      }
+
+      // CRITICAL: OpenStack requires ICMP type when code is specified
+      // https://opendev.org/openstack/neutron/src/branch/master/neutron/db/securitygroups_db.py
+      if (data.icmpCode && !data.icmpType) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "ICMP type is required when ICMP code is specified",
+          path: ["icmpType"],
         })
       }
 

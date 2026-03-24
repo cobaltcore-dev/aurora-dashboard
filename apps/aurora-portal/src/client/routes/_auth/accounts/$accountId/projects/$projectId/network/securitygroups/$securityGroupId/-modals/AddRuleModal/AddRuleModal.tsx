@@ -14,8 +14,8 @@ import {
 import type { CreateSecurityGroupRuleInput } from "@/server/Network/types/securityGroup"
 import { createRuleFormSchema } from "./validation/formSchema"
 import { DEFAULT_VALUES } from "./types"
+import { CUSTOM_TCP_RULE, CUSTOM_UDP_RULE, OTHER_PROTOCOL_RULE } from "./constants"
 import { RULE_PRESETS } from "./rulePresets"
-import { PORT_MIN, PORT_MAX, CUSTOM_TCP_RULE, CUSTOM_UDP_RULE, OTHER_PROTOCOL_RULE } from "./constants"
 import { RuleTypeSection } from "./sections/RuleTypeSection"
 import { DirectionEthertypeSection } from "./sections/DirectionEthertypeSection"
 import { ProtocolSection } from "./sections/ProtocolSection"
@@ -93,20 +93,17 @@ export const AddRuleModal: React.FC<AddRuleModalProps> = ({
       // Add port range for TCP/UDP protocols
       const isTcpUdp = value.protocol === "tcp" || value.protocol === "udp"
       if (isTcpUdp) {
-        if (value.portMode === "single" && value.portSingle) {
-          const port = parseInt(value.portSingle, 10)
-          payload.port_range_min = port
-          payload.port_range_max = port
-        } else if (value.portMode === "range") {
-          if (value.portRangeMin) {
-            payload.port_range_min = parseInt(value.portRangeMin, 10)
+        if (value.portFrom) {
+          const portFrom = parseInt(value.portFrom, 10)
+          payload.port_range_min = portFrom
+
+          if (value.portTo) {
+            // Range: both portFrom and portTo are provided
+            payload.port_range_max = parseInt(value.portTo, 10)
+          } else {
+            // Single port: only portFrom is provided
+            payload.port_range_max = portFrom
           }
-          if (value.portRangeMax) {
-            payload.port_range_max = parseInt(value.portRangeMax, 10)
-          }
-        } else if (value.portMode === "all") {
-          payload.port_range_min = PORT_MIN
-          payload.port_range_max = PORT_MAX
         }
       }
 
@@ -143,34 +140,6 @@ export const AddRuleModal: React.FC<AddRuleModalProps> = ({
     onClose()
   }
 
-  // Preset auto-population: when user changes rule type to a preset, populate fields
-  useEffect(() => {
-    const subscription = form.store.subscribe(() => {
-      const state = form.store.state
-      const currentRuleType = state.values.ruleType
-
-      if (currentRuleType && currentRuleType !== "custom") {
-        const preset = RULE_PRESETS.find((p) => p.value === currentRuleType)
-        if (preset) {
-          // Only update if the values have actually changed to avoid infinite loops
-          if (
-            state.values.protocol !== preset.protocol ||
-            state.values.portRangeMin !== (preset.portRangeMin?.toString() || "") ||
-            state.values.portRangeMax !== (preset.portRangeMax?.toString() || "") ||
-            state.values.description !== preset.description
-          ) {
-            form.setFieldValue("protocol", preset.protocol)
-            form.setFieldValue("portRangeMin", preset.portRangeMin?.toString() || "")
-            form.setFieldValue("portRangeMax", preset.portRangeMax?.toString() || "")
-            form.setFieldValue("description", preset.description)
-          }
-        }
-      }
-    })
-
-    return () => subscription.unsubscribe()
-  }, [form])
-
   // Access form values reactively for conditional field visibility
   const [ruleType, setRuleType] = React.useState(DEFAULT_VALUES.ruleType)
   const [protocol, setProtocol] = React.useState<string | null>(DEFAULT_VALUES.protocol)
@@ -185,6 +154,38 @@ export const AddRuleModal: React.FC<AddRuleModalProps> = ({
 
     return () => subscription.unsubscribe()
   }, [form])
+
+  // Sync preset values to form fields when ruleType changes
+  useEffect(() => {
+    const selectedPreset = RULE_PRESETS.find((p) => p.value === ruleType)
+    if (!selectedPreset) return
+
+    // Update protocol field
+    form.setFieldValue("protocol", selectedPreset.protocol)
+
+    // For TCP/UDP presets: update port fields
+    if (selectedPreset.protocol === "tcp" || selectedPreset.protocol === "udp") {
+      if (selectedPreset.portRangeMin !== null && selectedPreset.portRangeMax !== null) {
+        // Preset has predefined ports (e.g., HTTP = 80)
+        form.setFieldValue("portFrom", String(selectedPreset.portRangeMin))
+        form.setFieldValue("portTo", String(selectedPreset.portRangeMax))
+      } else {
+        // Custom rule - clear ports so user can enter them
+        form.setFieldValue("portFrom", "")
+        form.setFieldValue("portTo", "")
+      }
+    } else {
+      // Non-TCP/UDP protocols: clear port fields
+      form.setFieldValue("portFrom", "")
+      form.setFieldValue("portTo", "")
+    }
+
+    // Clear ICMP fields for non-ICMP protocols
+    if (selectedPreset.protocol !== "icmp" && selectedPreset.protocol !== "ipv6-icmp") {
+      form.setFieldValue("icmpType", "")
+      form.setFieldValue("icmpCode", "")
+    }
+  }, [ruleType, form])
 
   // Determine which fields should be visible based on current form values
   const showPortFields = useMemo(() => {

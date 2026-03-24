@@ -49,7 +49,7 @@ export function RemoteSourceSection({ form, disabled = false, availableSecurityG
                         label={t`Remote IP Prefix`}
                         value={remoteCidrField.state.value}
                         onChange={(e) => remoteCidrField.handleChange(e.target.value)}
-                        errortext={remoteCidrField.state.meta.errors[0]?.toString()}
+                        errortext={remoteCidrField.state.meta.errors[0]?.message}
                         placeholder={ethertypeField.state.value === "IPv4" ? DEFAULT_IPV4_CIDR : DEFAULT_IPV6_CIDR}
                         disabled={disabled}
                       />

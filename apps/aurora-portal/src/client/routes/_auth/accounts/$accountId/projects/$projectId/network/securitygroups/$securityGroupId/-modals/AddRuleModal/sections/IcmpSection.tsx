@@ -21,7 +21,7 @@ export function IcmpSection({ form, disabled = false }: IcmpSectionProps) {
               label={t`ICMP Type`}
               value={icmpTypeField.state.value}
               onChange={(e) => icmpTypeField.handleChange(e.target.value)}
-              errortext={icmpTypeField.state.meta.errors[0]?.toString()}
+              errortext={icmpTypeField.state.meta.errors[0]?.message}
               placeholder={t`Leave empty for all types`}
               disabled={disabled}
             />
@@ -35,7 +35,7 @@ export function IcmpSection({ form, disabled = false }: IcmpSectionProps) {
               label={t`ICMP Code`}
               value={icmpCodeField.state.value}
               onChange={(e) => icmpCodeField.handleChange(e.target.value)}
-              errortext={icmpCodeField.state.meta.errors[0]?.toString()}
+              errortext={icmpCodeField.state.meta.errors[0]?.message}
               placeholder={t`Leave empty for all codes`}
               disabled={disabled}
             />
