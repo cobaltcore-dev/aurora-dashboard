@@ -1,4 +1,4 @@
-import React, { useEffect } from "react"
+import React from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { useForm } from "@tanstack/react-form"
 import {
@@ -15,7 +15,6 @@ import type { CreateSecurityGroupRuleInput } from "@/server/Network/types/securi
 import { createRuleFormSchema } from "./validation/formSchema"
 import { DEFAULT_VALUES } from "./types"
 import { CUSTOM_TCP_RULE, CUSTOM_UDP_RULE, OTHER_PROTOCOL_RULE } from "./constants"
-import { RULE_PRESETS } from "./rulePresets"
 import { RuleTypeSection } from "./sections/RuleTypeSection"
 import { DirectionSection, EthertypeSection } from "./sections/DirectionEthertypeSection"
 import { ProtocolSection } from "./sections/ProtocolSection"
@@ -125,115 +124,37 @@ export const AddRuleModal: React.FC<AddRuleModalProps> = ({
         payload.remote_group_id = value.remoteSecurityGroupId
       }
 
-      try {
-        await onCreate(payload)
-        handleClose()
-      } catch (err) {
-        // Error is already handled by the parent component
-        console.error("Failed to create rule:", err)
-      }
+      await onCreate(payload)
+      handleClose()
     },
   })
-
-  // Type alias for form state to use in Subscribe callbacks
-  type FormStateType = typeof form.store.state
 
   const handleClose = () => {
     form.reset()
     onClose()
   }
 
-  // Sync preset values to form fields when ruleType changes
-  useEffect(() => {
-    let previousRuleType = form.store.state.values.ruleType
-
-    const subscription = form.store.subscribe(() => {
-      const state = form.store.state
-      const currentRuleType = state.values.ruleType
-
-      // Only run when ruleType actually changes
-      if (currentRuleType === previousRuleType) {
-        return
-      }
-      previousRuleType = currentRuleType
-
-      const selectedPreset = RULE_PRESETS.find((p) => p.value === currentRuleType)
-      if (!selectedPreset) return
-
-      // Update protocol field
-      form.setFieldValue("protocol", selectedPreset.protocol)
-
-      // For TCP/UDP presets: update port fields
-      if (selectedPreset.protocol === "tcp" || selectedPreset.protocol === "udp") {
-        if (selectedPreset.portRangeMin !== null && selectedPreset.portRangeMax !== null) {
-          // Preset has predefined ports (e.g., HTTP = 80)
-          form.setFieldValue("portFrom", String(selectedPreset.portRangeMin))
-          form.setFieldValue("portTo", String(selectedPreset.portRangeMax))
-        } else {
-          // Custom rule - clear ports so user can enter them
-          form.setFieldValue("portFrom", "")
-          form.setFieldValue("portTo", "")
-        }
-      } else {
-        // Non-TCP/UDP protocols: clear port fields
-        form.setFieldValue("portFrom", "")
-        form.setFieldValue("portTo", "")
-      }
-
-      // Clear ICMP fields for non-ICMP protocols
-      if (selectedPreset.protocol !== "icmp" && selectedPreset.protocol !== "ipv6-icmp") {
-        form.setFieldValue("icmpType", "")
-        form.setFieldValue("icmpCode", "")
-      }
-    })
-
-    return () => subscription.unsubscribe()
-  }, [form])
-
-  // Auto-set ethertype to IPv4 when remote source is NOT security group
-  useEffect(() => {
-    let previousRemoteSourceType = form.store.state.values.remoteSourceType
-
-    const subscription = form.store.subscribe(() => {
-      const state = form.store.state
-      const currentRemoteSourceType = state.values.remoteSourceType
-
-      // Only run when remoteSourceType actually changes
-      if (currentRemoteSourceType === previousRemoteSourceType) {
-        return
-      }
-      previousRemoteSourceType = currentRemoteSourceType
-
-      if (currentRemoteSourceType !== "security_group") {
-        form.setFieldValue("ethertype", "IPv4")
-      }
-    })
-
-    return () => subscription.unsubscribe()
-  }, [form])
-
   return (
     <Modal
-      key={securityGroupId} // Remount modal when security group changes to reset form
       open={open}
       onCancel={handleClose}
       size="large"
       title={t`Add Security Group Rule`}
       modalFooter={
         <ModalFooter className="flex justify-end">
-          <form.Subscribe selector={({ isSubmitting }) => ({ isSubmitting })}>
-            {({ isSubmitting }: { isSubmitting: boolean }) => (
+          <form.Subscribe>
+            {(state: { isSubmitting: boolean }) => (
               <ButtonRow>
                 <Button
                   variant="primary"
                   type="button"
                   onClick={() => form.handleSubmit()}
-                  disabled={isLoading || isSubmitting}
+                  disabled={isLoading || state.isSubmitting}
                   data-testid="add-rule-button"
                 >
-                  {isSubmitting || isLoading ? <Spinner size="small" /> : <Trans>Add Rule</Trans>}
+                  {state.isSubmitting || isLoading ? <Spinner size="small" /> : <Trans>Add Rule</Trans>}
                 </Button>
-                <Button variant="default" onClick={handleClose} disabled={isLoading || isSubmitting}>
+                <Button variant="default" onClick={handleClose} disabled={isLoading || state.isSubmitting}>
                   <Trans>Cancel</Trans>
                 </Button>
               </ButtonRow>
@@ -274,14 +195,14 @@ export const AddRuleModal: React.FC<AddRuleModalProps> = ({
 
           {/* Protocol (conditional for "Other Protocol") */}
           <form.Subscribe>
-            {(state: FormStateType) =>
+            {(state: { values: { ruleType: string } }) =>
               state.values.ruleType === OTHER_PROTOCOL_RULE && <ProtocolSection form={form} disabled={isLoading} />
             }
           </form.Subscribe>
 
           {/* Port Range (conditional for Custom TCP/UDP) */}
           <form.Subscribe>
-            {(state: FormStateType) => {
+            {(state: { values: { protocol: string | null; ruleType: string } }) => {
               const isTcpUdp = state.values.protocol === "tcp" || state.values.protocol === "udp"
               const showPortFields = isTcpUdp && [CUSTOM_TCP_RULE, CUSTOM_UDP_RULE].includes(state.values.ruleType)
               return showPortFields && <PortRangeSection form={form} disabled={isLoading} />
@@ -290,7 +211,7 @@ export const AddRuleModal: React.FC<AddRuleModalProps> = ({
 
           {/* ICMP Fields (conditional for ICMP protocols) */}
           <form.Subscribe>
-            {(state: FormStateType) => {
+            {(state: { values: { protocol: string | null } }) => {
               const showIcmpFields = state.values.protocol === "icmp" || state.values.protocol === "ipv6-icmp"
               return showIcmpFields && <IcmpSection form={form} disabled={isLoading} />
             }}
@@ -301,8 +222,10 @@ export const AddRuleModal: React.FC<AddRuleModalProps> = ({
 
           {/* Ethertype (conditional for Security Group remote source) */}
           <form.Subscribe>
-            {(state: FormStateType) =>
-              state.values.remoteSourceType === "security_group" && <EthertypeSection form={form} disabled={isLoading} />
+            {(state: { values: { remoteSourceType: "cidr" | "security_group" } }) =>
+              state.values.remoteSourceType === "security_group" && (
+                <EthertypeSection form={form} disabled={isLoading} />
+              )
             }
           </form.Subscribe>
 

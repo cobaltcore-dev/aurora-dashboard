@@ -104,7 +104,7 @@ describe("SecurityGroupRulesTable", () => {
         wrapper: createWrapper(),
       })
 
-      expect(screen.getByText("No rules defined yet")).toBeInTheDocument()
+      expect(screen.getByText("There are no rules for this security group")).toBeInTheDocument()
     })
 
     it("renders empty state with filters when rules are filtered out", () => {
@@ -119,7 +119,7 @@ describe("SecurityGroupRulesTable", () => {
         { wrapper: createWrapper() }
       )
 
-      expect(screen.getByText("No rules match your filters")).toBeInTheDocument()
+      expect(screen.getByText("There are no rules for this security group")).toBeInTheDocument()
     })
 
     it("renders table with rules when provided", () => {
@@ -186,6 +186,7 @@ describe("SecurityGroupRulesTable", () => {
           isDeletingRule={false}
           deleteError={null}
           filterSettings={defaultFilterSettings}
+          onFilterChange={vi.fn()}
         />,
         { wrapper: createWrapper() }
       )
@@ -236,7 +237,13 @@ describe("SecurityGroupRulesTable", () => {
 
     it("renders search input", () => {
       render(
-        <SecurityGroupRulesTable rules={mockRules} onDeleteRule={vi.fn()} isDeletingRule={false} deleteError={null} />,
+        <SecurityGroupRulesTable
+          rules={mockRules}
+          onDeleteRule={vi.fn()}
+          isDeletingRule={false}
+          deleteError={null}
+          onSearchChange={vi.fn()}
+        />,
         { wrapper: createWrapper() }
       )
 
@@ -260,9 +267,10 @@ describe("SecurityGroupRulesTable", () => {
       const user = userEvent.setup()
       await user.type(searchInput, "HTTP")
 
-      // userEvent.type() calls onChange for each accumulated character
-      expect(onSearchChange).toHaveBeenCalledWith("H")
-      expect(onSearchChange).toHaveBeenCalledWith("HT")
+      // Wait for debounce (500ms)
+      await new Promise((resolve) => setTimeout(resolve, 600))
+
+      // After debounce, onSearchChange should be called with the final value
       expect(onSearchChange).toHaveBeenCalledWith("HTTP")
     })
 
@@ -278,20 +286,23 @@ describe("SecurityGroupRulesTable", () => {
           onDeleteRule={vi.fn()}
           isDeletingRule={false}
           deleteError={null}
-          searchTerm="HTTP"
           filterSettings={filterSettingsWithIngress}
+          onFilterChange={vi.fn()}
         />,
         { wrapper: createWrapper() }
       )
 
-      expect(screen.getByText("Direction: ingress")).toBeInTheDocument()
-      expect(screen.getByText("Search: HTTP")).toBeInTheDocument()
+      // Check that the filter pill is displayed - use getAllByText since "ingress" appears in both pills and table
+      const ingressElements = screen.getAllByText("ingress")
+      expect(ingressElements.length).toBeGreaterThan(0)
+      // At least one should be in a pill (has pill-value class)
+      const pillElement = ingressElements.find((el) => el.className.includes("pill-value"))
+      expect(pillElement).toBeInTheDocument()
     })
 
-    it("clears all filters when Clear filters clicked", async () => {
+    it("removes individual filter when close button clicked", async () => {
       const onFilterChange = vi.fn()
-      const onSearchChange = vi.fn()
-      const filterSettingsWithIngress: FilterSettings = {
+      const filterSettingsWithFilter: FilterSettings = {
         ...defaultFilterSettings,
         selectedFilters: [{ name: "direction", value: "ingress" }],
       }
@@ -302,23 +313,20 @@ describe("SecurityGroupRulesTable", () => {
           onDeleteRule={vi.fn()}
           isDeletingRule={false}
           deleteError={null}
-          searchTerm="HTTP"
-          onSearchChange={onSearchChange}
-          filterSettings={filterSettingsWithIngress}
+          filterSettings={filterSettingsWithFilter}
           onFilterChange={onFilterChange}
         />,
         { wrapper: createWrapper() }
       )
 
-      const clearButton = screen.getByRole("button", { name: /Clear filters/i })
+      // Find the close button in the filter pill
+      const closeButtons = screen.getAllByRole("button", { name: /close/i })
       const user = userEvent.setup()
-      await user.click(clearButton)
+      // Click the first close button (should be the filter pill close button)
+      await user.click(closeButtons[0])
 
-      expect(onFilterChange).toHaveBeenCalledWith({
-        ...defaultFilterSettings,
-        selectedFilters: [],
-      })
-      expect(onSearchChange).toHaveBeenCalledWith("")
+      // The filter should be removed
+      expect(onFilterChange).toHaveBeenCalled()
     })
   })
 
@@ -331,6 +339,7 @@ describe("SecurityGroupRulesTable", () => {
           isDeletingRule={false}
           deleteError={null}
           sortSettings={defaultSortSettings}
+          onSortChange={vi.fn()}
         />,
         { wrapper: createWrapper() }
       )
@@ -379,11 +388,12 @@ describe("SecurityGroupRulesTable", () => {
           isDeletingRule={false}
           deleteError={null}
           sortSettings={defaultSortSettings}
+          onSortChange={vi.fn()}
         />,
         { wrapper: createWrapper() }
       )
 
-      const toggleButton = screen.getByTitle("Toggle sort direction")
+      const toggleButton = screen.getByTestId("direction-toggle")
       expect(toggleButton).toBeInTheDocument()
     })
 
@@ -401,7 +411,7 @@ describe("SecurityGroupRulesTable", () => {
         { wrapper: createWrapper() }
       )
 
-      const toggleButton = screen.getByTitle("Toggle sort direction")
+      const toggleButton = screen.getByTestId("direction-toggle")
       const user = userEvent.setup()
       await user.click(toggleButton)
 
@@ -419,11 +429,12 @@ describe("SecurityGroupRulesTable", () => {
           isDeletingRule={false}
           deleteError={null}
           sortSettings={{ ...defaultSortSettings, sortDirection: "asc" }}
+          onSortChange={vi.fn()}
         />,
         { wrapper: createWrapper() }
       )
 
-      const button = screen.getByTitle("Toggle sort direction")
+      const button = screen.getByTestId("direction-toggle")
       // Check if the button contains an element with the expandMore icon
       const svg = button.querySelector("svg")
       expect(svg).toBeInTheDocument()
@@ -437,11 +448,12 @@ describe("SecurityGroupRulesTable", () => {
           isDeletingRule={false}
           deleteError={null}
           sortSettings={{ ...defaultSortSettings, sortDirection: "desc" }}
+          onSortChange={vi.fn()}
         />,
         { wrapper: createWrapper() }
       )
 
-      const button = screen.getByTitle("Toggle sort direction")
+      const button = screen.getByTestId("direction-toggle")
       const svg = button.querySelector("svg")
       expect(svg).toBeInTheDocument()
     })

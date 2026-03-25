@@ -46,6 +46,7 @@ export function PortRangeSection({ form, disabled = false }: PortRangeSectionPro
                     // This ensures cross-field validation (portFrom < portTo) updates immediately
                     form.validateField("portTo", "change")
                   }}
+                  invalid={portFromField.state.meta.errors.length > 0}
                   disabled={disabled}
                   required
                 />
@@ -70,6 +71,7 @@ export function PortRangeSection({ form, disabled = false }: PortRangeSectionPro
                     // This ensures cross-field validation (portFrom < portTo) updates immediately
                     form.validateField("portFrom", "change")
                   }}
+                  invalid={portToField.state.meta.errors.length > 0}
                   placeholder=""
                   disabled={isPortToDisabled}
                 />

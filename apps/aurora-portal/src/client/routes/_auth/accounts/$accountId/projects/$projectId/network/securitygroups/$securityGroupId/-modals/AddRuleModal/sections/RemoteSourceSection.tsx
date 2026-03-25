@@ -15,14 +15,22 @@ export function RemoteSourceSection({ form, disabled = false, availableSecurityG
   return (
     <>
       {/* Remote Source Type Toggle */}
-      <form.Field name="remoteSourceType">
+      <form.Field name="remoteSourceType" mode="value">
         {(remoteSourceTypeField) => (
           <FormRow className="mb-1">
             <RadioGroup
               name="remoteSourceType"
               label={t`Remote Source`}
               selected={remoteSourceTypeField.state.value}
-              onChange={(value) => remoteSourceTypeField.handleChange(String(value) as "cidr" | "security_group")}
+              onChange={(value) => {
+                const newValue = String(value) as "cidr" | "security_group"
+                remoteSourceTypeField.handleChange(newValue)
+
+                // Auto-set ethertype to IPv4 when remote source is NOT security group
+                if (newValue !== "security_group") {
+                  form.setFieldValue("ethertype", "IPv4")
+                }
+              }}
               disabled={disabled}
             >
               <div className="flex gap-4">

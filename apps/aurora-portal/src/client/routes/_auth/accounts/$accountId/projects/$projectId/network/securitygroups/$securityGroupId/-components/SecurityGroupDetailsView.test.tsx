@@ -419,7 +419,7 @@ describe("SecurityGroupDetailsView", () => {
         }
       )
 
-      expect(screen.getByText("No rules match your filters")).toBeInTheDocument()
+      expect(screen.getByText("There are no rules for this security group")).toBeInTheDocument()
     })
   })
 })

@@ -12,14 +12,47 @@ export function RuleTypeSection({ form, disabled = false }: RuleTypeSectionProps
   const { t } = useLingui()
 
   return (
-    <form.Field name="ruleType">
+    <form.Field name="ruleType" mode="value">
       {(field) => (
         <FormRow className="mb-6">
           <Select
             id="ruleType"
             label={t`Rule Type`}
             value={field.state.value}
-            onChange={(value) => field.handleChange(String(value || "ssh"))}
+            onChange={(value) => {
+              const newRuleType = String(value || "ssh")
+              field.handleChange(newRuleType)
+
+              // Update dependent fields when preset changes
+              const selectedPreset = RULE_PRESETS.find((p) => p.value === newRuleType)
+              if (!selectedPreset) return
+
+              // Update protocol field
+              form.setFieldValue("protocol", selectedPreset.protocol)
+
+              // For TCP/UDP presets: update port fields
+              if (selectedPreset.protocol === "tcp" || selectedPreset.protocol === "udp") {
+                if (selectedPreset.portRangeMin !== null && selectedPreset.portRangeMax !== null) {
+                  // Preset has predefined ports (e.g., HTTP = 80)
+                  form.setFieldValue("portFrom", String(selectedPreset.portRangeMin))
+                  form.setFieldValue("portTo", String(selectedPreset.portRangeMax))
+                } else {
+                  // Custom rule - clear ports so user can enter them
+                  form.setFieldValue("portFrom", "")
+                  form.setFieldValue("portTo", "")
+                }
+              } else {
+                // Non-TCP/UDP protocols: clear port fields
+                form.setFieldValue("portFrom", "")
+                form.setFieldValue("portTo", "")
+              }
+
+              // Clear ICMP fields for non-ICMP protocols
+              if (selectedPreset.protocol !== "icmp" && selectedPreset.protocol !== "ipv6-icmp") {
+                form.setFieldValue("icmpType", "")
+                form.setFieldValue("icmpCode", "")
+              }
+            }}
             disabled={disabled}
           >
             {RULE_PRESETS.map((preset) => (
