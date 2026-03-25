@@ -42,8 +42,6 @@ interface ImageProperties {
   protected: boolean
   min_disk: number
   min_ram: number
-  os_type: string
-  os_distro: string
 }
 
 const defaultImageValues: ImageProperties = {
@@ -55,8 +53,6 @@ const defaultImageValues: ImageProperties = {
   protected: false,
   min_disk: 0,
   min_ram: 0,
-  os_type: "",
-  os_distro: "",
 }
 
 export const CreateImageModal: React.FC<CreateImageModalProps> = ({
@@ -342,8 +338,6 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({
         protected: properties.protected,
         min_disk: properties.min_disk,
         min_ram: properties.min_ram,
-        os_type: properties.os_type.trim() || undefined,
-        os_distro: properties.os_distro.trim() || undefined,
       } as CreateImageInput
 
       // Call onCreate with imageData and file as separate arguments
@@ -625,40 +619,6 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({
                 helptext={t`Prevent accidental deletion`}
                 disabled={isLoading}
               />
-            </FormRow>
-          </FormSection>
-
-          {/* Operating System Section */}
-          <FormSection className="mb-6">
-            <FormRow className="mb-6">
-              <Stack direction="horizontal" gap="3" distribution="evenly" className="w-full">
-                <div className="flex-1">
-                  <Select
-                    id="os_type"
-                    name="os_type"
-                    label={t`OS Type`}
-                    value={properties.os_type}
-                    onChange={(value) => handleSelectChange("os_type", value)}
-                    disabled={isLoading}
-                    loading={isLoading}
-                  >
-                    <SelectOption value="" label={t`None`} />
-                    <SelectOption value="linux" label="Linux" />
-                    <SelectOption value="windows" label="Windows" />
-                  </Select>
-                </div>
-                <div className="flex-1">
-                  <TextInput
-                    id="os_distro"
-                    name="os_distro"
-                    label={t`OS Distribution`}
-                    value={properties.os_distro}
-                    onChange={handleInputChange}
-                    placeholder={t`Ubuntu, CentOS, Windows Server`}
-                    disabled={isLoading}
-                  />
-                </div>
-              </Stack>
             </FormRow>
           </FormSection>
 

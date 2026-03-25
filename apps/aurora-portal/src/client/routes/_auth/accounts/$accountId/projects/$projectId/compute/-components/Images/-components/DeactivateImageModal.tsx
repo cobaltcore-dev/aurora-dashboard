@@ -6,7 +6,6 @@ import {
   DataGridCell,
   DataGridHeadCell,
   DataGridRow,
-  Icon,
   Modal,
   Spinner,
   Stack,
@@ -93,16 +92,6 @@ export const DeactivateImageModal: React.FC<DeactivateImageModalProps> = ({
                 <DataGridHeadCell>{t`Disk Format`}</DataGridHeadCell>
                 <DataGridCell>{image.disk_format || t`N/A`}</DataGridCell>
               </DataGridRow>
-              {image.os_type && (
-                <DataGridRow>
-                  <DataGridHeadCell>{t`OS Type`}</DataGridHeadCell>
-                  <DataGridCell className="flex items-center space-x-2">
-                    <Icon icon={"info"} color="jn-text-theme-info" />
-                    <span>{image.os_type}</span>
-                  </DataGridCell>
-                  {image.os_distro && <span className="text-xs text-gray-400">({image.os_distro})</span>}
-                </DataGridRow>
-              )}
               <DataGridRow>
                 <DataGridHeadCell>{t`Created`}</DataGridHeadCell>
                 <DataGridCell>

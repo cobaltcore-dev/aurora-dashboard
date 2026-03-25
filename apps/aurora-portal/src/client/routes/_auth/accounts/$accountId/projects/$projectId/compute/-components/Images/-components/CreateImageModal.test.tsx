@@ -76,8 +76,6 @@ describe("CreateImageModal", () => {
       expect(screen.getByLabelText(/^Disk Format$/)).toBeInTheDocument()
       expect(screen.getByLabelText(/^Container Format$/)).toBeInTheDocument()
       expect(screen.getByLabelText(/^Protected$/)).toBeInTheDocument()
-      expect(screen.getByLabelText(/^OS Type$/)).toBeInTheDocument()
-      expect(screen.getByLabelText(/^OS Distribution$/)).toBeInTheDocument()
       expect(screen.getByLabelText(/Min Disk/)).toBeInTheDocument()
       expect(screen.getByLabelText(/Min RAM/)).toBeInTheDocument()
     })
@@ -452,8 +450,6 @@ describe("CreateImageModal", () => {
       const protectedCheckbox = screen.getByLabelText(/^Protected$/) as HTMLInputElement
       const minDiskInput = screen.getByLabelText(/Min Disk/) as HTMLInputElement
       const minRamInput = screen.getByLabelText(/Min RAM/) as HTMLInputElement
-      const osTypeInput = screen.getByLabelText(/^OS Type$/)
-      const osDistroInput = screen.getByLabelText(/^OS Distribution$/)
 
       await user.upload(fileInput, file)
       await user.type(nameInput, "Test Image")
@@ -466,8 +462,6 @@ describe("CreateImageModal", () => {
       await user.type(minDiskInput, "20")
       await user.clear(minRamInput)
       await user.type(minRamInput, "2048")
-      await user.type(osTypeInput, "Linux")
-      await user.type(osDistroInput, "Ubuntu")
 
       const createButton = screen.getByText("Create Image")
       await user.click(createButton)
@@ -482,8 +476,6 @@ describe("CreateImageModal", () => {
             protected: true,
             min_disk: 20,
             min_ram: 2048,
-            os_type: "Linux",
-            os_distro: "Ubuntu",
           }),
           file
         )

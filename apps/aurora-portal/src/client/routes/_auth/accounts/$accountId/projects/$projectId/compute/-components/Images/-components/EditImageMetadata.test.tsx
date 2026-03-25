@@ -44,8 +44,6 @@ describe("EditImageMetadataModal", () => {
     min_disk: 10,
     min_ram: 512,
     // Custom metadata that should be editable
-    os_type: "Linux",
-    os_distro: "Ubuntu",
     os_version: "22.04",
     architecture: "x86_64",
     app_version: "1.2.3",

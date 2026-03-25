@@ -37,8 +37,6 @@ describe("EditImageDetailsModal", () => {
     status: "active",
     visibility: "private",
     disk_format: "qcow2",
-    os_type: "Linux",
-    os_distro: "Ubuntu",
     created_at: "2023-01-01T00:00:00Z",
     updated_at: "2023-01-01T00:00:00Z",
     size: 1024,
