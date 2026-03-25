@@ -146,6 +146,16 @@ function ImagesContent({
       .filter((image: GlanceImage) => validSelectedImages.includes(image.id))
       .every((image: GlanceImage) => image.status === IMAGE_STATUSES.ACTIVE)
 
+  const memberStatusTabs = {
+    items: [
+      { label: t`All Images`, value: "all" },
+      { label: t`Suggested Images`, value: "pending" },
+      { label: t`Accepted Images`, value: "accepted" },
+    ],
+    activeItem: memberStatusView,
+    onActiveItemChange: (value: ReactNode) => setMemberStatusView(value as "all" | "pending" | "accepted"),
+  }
+
   return (
     <>
       <ListToolbar
@@ -155,15 +165,7 @@ function ImagesContent({
         onSort={handleSortChange}
         onFilter={handleFilterChange}
         onSearch={setSearchTerm}
-        tabs={{
-          items: [
-            { label: t`All Images`, value: "all" },
-            { label: t`Suggested Images`, value: "pending" },
-            { label: t`Accepted Images`, value: "accepted" },
-          ],
-          activeItem: memberStatusView,
-          onActiveItemChange: (value: ReactNode) => setMemberStatusView(value as "all" | "pending" | "accepted"),
-        }}
+        tabs={memberStatusTabs}
         actions={
           <>
             <Stack gap="2">
