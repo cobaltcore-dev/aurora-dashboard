@@ -90,9 +90,7 @@ export const DeactivateImageModal: React.FC<DeactivateImageModalProps> = ({
             </DataGridRow>
             <DataGridRow>
               <DataGridHeadCell>{t`Created`}</DataGridHeadCell>
-              <DataGridCell>
-                {image.created_at ? new Date(image.created_at).toLocaleDateString() : t`N/A`}
-              </DataGridCell>
+              <DataGridCell>{image.created_at ? new Date(image.created_at).toLocaleDateString() : t`N/A`}</DataGridCell>
             </DataGridRow>
           </DataGrid>
         </div>
