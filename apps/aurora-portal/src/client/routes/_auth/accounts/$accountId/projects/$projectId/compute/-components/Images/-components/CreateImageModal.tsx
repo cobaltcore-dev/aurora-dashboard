@@ -189,13 +189,23 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
-      setSelectedFile(file)
-      if (errors.file) {
-        setErrors((prev) => {
-          const newErrors = { ...prev }
-          delete newErrors.file
-          return newErrors
-        })
+      const fileName = file.name.toLowerCase()
+      const isValidFile = validExtensions.some((ext) => fileName.endsWith(ext))
+
+      if (isValidFile) {
+        setSelectedFile(file)
+        if (errors.file) {
+          setErrors((prev) => {
+            const newErrors = { ...prev }
+            delete newErrors.file
+            return newErrors
+          })
+        }
+      } else {
+        setErrors((prev) => ({
+          ...prev,
+          file: t`Invalid file format. Supported formats: ${supportedFileFormats}`,
+        }))
       }
     }
   }

@@ -42,10 +42,7 @@ export const DeactivateImageModal: React.FC<DeactivateImageModalProps> = ({
       size="small"
       title={t`Deactivate Image`}
       open={isOpen}
-      onConfirm={(e) => {
-        handleDeactivate(e)
-        onClose()
-      }}
+      onConfirm={handleDeactivate}
       confirmButtonLabel={t`Deactivate`}
       cancelButtonLabel={t`Cancel`}
       disableConfirmButton={isLoading}

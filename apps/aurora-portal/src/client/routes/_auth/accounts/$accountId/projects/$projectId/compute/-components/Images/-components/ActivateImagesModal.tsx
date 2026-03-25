@@ -35,10 +35,7 @@ export const ActivateImagesModal: React.FC<ActivateImagesModalProps> = ({
       size="small"
       title={t`Activate Images`}
       open={isOpen}
-      onConfirm={(e) => {
-        handleActivate(e)
-        onClose()
-      }}
+      onConfirm={handleActivate}
       confirmButtonLabel={t`Activate`}
       cancelButtonLabel={t`Cancel`}
       disableConfirmButton={isLoading}
