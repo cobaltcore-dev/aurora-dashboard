@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import {
@@ -186,6 +186,12 @@ export const ManageContainerAccessModal = ({
     },
   })
 
+  // Keep a stable ref to reset() so the cleanup effect below doesn't need
+  // updateMutation in its dependency array (the mutation object is recreated
+  // on every render, which would cause an infinite loop).
+  const resetMutationRef = useRef(updateMutation.reset)
+  resetMutationRef.current = updateMutation.reset
+
   const handleClose = () => {
     setReadAcl("")
     setWriteAcl("")
@@ -201,9 +207,9 @@ export const ManageContainerAccessModal = ({
       setReadAcl("")
       setWriteAcl("")
       setPublicRead(false)
-      updateMutation.reset()
+      resetMutationRef.current()
     }
-  }, [isOpen, updateMutation])
+  }, [isOpen])
 
   // ── Public read checkbox sync ─────────────────────────────────────────────
   const handlePublicReadChange = (e: React.ChangeEvent<HTMLInputElement>) => {

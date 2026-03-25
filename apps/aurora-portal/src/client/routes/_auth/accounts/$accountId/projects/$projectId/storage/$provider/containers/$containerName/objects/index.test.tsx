@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest"
 import { redirect } from "@tanstack/react-router"
 import { getServiceIndex } from "@/server/Authentication/helpers"
-import { checkServiceAvailability } from "./$"
+import { checkServiceAvailability } from "./"
 
 // Mock the dependencies
 vi.mock("@tanstack/react-router", async () => {
@@ -28,12 +28,12 @@ vi.mock("@/server/Authentication/helpers", () => ({
   getServiceIndex: vi.fn(),
 }))
 
-describe("Storage Route - checkServiceAvailability", () => {
+describe("Objects Route - checkServiceAvailability", () => {
   const defaultParams = {
     accountId: "acc-1",
     projectId: "proj-1",
     provider: "swift",
-    _splat: "",
+    containerName: "my-container",
   }
 
   const defaultServices = [
@@ -99,7 +99,7 @@ describe("Storage Route - checkServiceAvailability", () => {
       }).not.toThrow()
     })
 
-    it("throws redirect when swift service is not available but provider is 'swift'", () => {
+    it("throws redirect when swift is not available but provider is 'swift'", () => {
       vi.mocked(getServiceIndex).mockReturnValue({
         "object-store": {
           ceph: true,
@@ -108,10 +108,10 @@ describe("Storage Route - checkServiceAvailability", () => {
 
       expect(() => {
         checkServiceAvailability(defaultServices, { ...defaultParams, provider: "swift" })
-      }).toThrow("Redirect to: /accounts/acc-1/projects/proj-1/storage/ceph/")
+      }).toThrow("Redirect to: /accounts/acc-1/projects/proj-1/storage/ceph/containers/my-container/objects")
     })
 
-    it("throws redirect when ceph service is not available but provider is 'ceph'", () => {
+    it("throws redirect when ceph is not available but provider is 'ceph'", () => {
       vi.mocked(getServiceIndex).mockReturnValue({
         "object-store": {
           swift: true,
@@ -120,7 +120,7 @@ describe("Storage Route - checkServiceAvailability", () => {
 
       expect(() => {
         checkServiceAvailability(defaultServices, { ...defaultParams, provider: "ceph" })
-      }).toThrow("Redirect to: /accounts/acc-1/projects/proj-1/storage/swift/")
+      }).toThrow("Redirect to: /accounts/acc-1/projects/proj-1/storage/swift/containers/my-container/objects")
     })
   })
 
@@ -133,25 +133,6 @@ describe("Storage Route - checkServiceAvailability", () => {
       }).toThrow()
     })
 
-    it("handles undefined _splat parameter", () => {
-      vi.mocked(getServiceIndex).mockReturnValue({
-        "object-store": {
-          swift: true,
-        },
-      })
-
-      const params = {
-        accountId: "acc-1",
-        projectId: "proj-1",
-        provider: "swift",
-        _splat: undefined,
-      }
-
-      expect(() => {
-        checkServiceAvailability(defaultServices, params)
-      }).not.toThrow()
-    })
-
     it("calls redirect with correct params when swift is unavailable", () => {
       vi.mocked(getServiceIndex).mockReturnValue({
         "object-store": { ceph: true },
@@ -161,7 +142,7 @@ describe("Storage Route - checkServiceAvailability", () => {
         accountId: "test-acc",
         projectId: "test-proj",
         provider: "swift",
-        _splat: "",
+        containerName: "test-container",
       }
 
       try {
@@ -170,9 +151,11 @@ describe("Storage Route - checkServiceAvailability", () => {
         // Expected
       }
 
+      // The implementation passes explicit params (not a spread), so the call
+      // receives exactly { accountId, projectId, provider: "ceph", containerName }.
       expect(redirect).toHaveBeenCalledWith({
-        to: "/accounts/$accountId/projects/$projectId/storage/$provider/$",
-        params: { accountId: "test-acc", projectId: "test-proj", provider: "ceph", _splat: undefined },
+        to: "/accounts/$accountId/projects/$projectId/storage/$provider/containers/$containerName/objects",
+        params: { accountId: "test-acc", projectId: "test-proj", provider: "ceph", containerName: "test-container" },
       })
     })
   })
@@ -200,7 +183,29 @@ describe("Storage Route - checkServiceAvailability", () => {
 
       expect(() => {
         checkServiceAvailability(defaultServices, { ...defaultParams, provider: "swift" })
-      }).toThrow("Redirect to: /accounts/acc-1/projects/proj-1/storage/ceph/")
+      }).toThrow("Redirect to: /accounts/acc-1/projects/proj-1/storage/ceph/containers/my-container/objects")
+    })
+
+    it("redirects to swift when object-store exists but ceph is missing", () => {
+      vi.mocked(getServiceIndex).mockReturnValue({
+        "object-store": {
+          swift: true,
+        },
+      })
+
+      expect(() => {
+        checkServiceAvailability(defaultServices, { ...defaultParams, provider: "ceph" })
+      }).toThrow("Redirect to: /accounts/acc-1/projects/proj-1/storage/swift/containers/my-container/objects")
+    })
+
+    it("redirects to projects when neither swift nor ceph is available", () => {
+      vi.mocked(getServiceIndex).mockReturnValue({
+        "object-store": {},
+      })
+
+      expect(() => {
+        checkServiceAvailability(defaultServices, { ...defaultParams, provider: "swift" })
+      }).toThrow("Redirect to: /accounts/acc-1/projects")
     })
   })
 })

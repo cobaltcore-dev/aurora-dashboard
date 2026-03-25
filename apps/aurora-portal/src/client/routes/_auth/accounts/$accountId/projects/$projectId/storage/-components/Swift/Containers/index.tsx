@@ -6,26 +6,33 @@ import { ContainerSummary } from "@/server/Storage/types/swift"
 import { trpcReact } from "@/client/trpcClient"
 import { formatBytesBinary } from "@/client/utils/formatBytes"
 import { Button, Spinner, Stack } from "@cloudoperators/juno-ui-components"
-import { ContainerListView } from "./ContainerListView"
+import { ContainerTableView } from "./ContainerTableView"
 import { ContainerLimitsTooltip } from "./ContainerLimitsTooltip"
+import { useNavigate } from "@tanstack/react-router"
+import { Route } from "../../../$provider/containers/"
 
-export const SwiftObjectStorage = () => {
+export const SwiftContainers = () => {
   const { t } = useLingui()
+  const navigate = useNavigate({ from: Route.fullPath })
+
+  // Sort state is persisted in the URL so that sort order survives navigation,
+  // browser back/forward, and deep links.
+  // Sort and search state are persisted in the URL so they survive navigation,
+  // browser back/forward, and deep links.
+  const { sortBy, sortDirection, search: searchParam = "" } = Route.useSearch()
 
   const [createModalOpen, setCreateModalOpen] = useState(false)
 
-  const [sortSettings, setSortSettings] = useState<SortSettings>({
+  const sortSettings: SortSettings = {
     options: [
       { label: t`Name`, value: "name" },
       { label: t`Object Count`, value: "count" },
       { label: t`Total Size`, value: "bytes" },
       { label: t`Last Modified`, value: "last_modified" },
     ],
-    sortBy: "name",
-    sortDirection: "asc",
-  })
-
-  const [searchTerm, setSearchTerm] = useState("")
+    sortBy: sortBy ?? "name",
+    sortDirection: sortDirection ?? "asc",
+  }
 
   // Fetch containers from tRPC
   const {
@@ -47,7 +54,7 @@ export const SwiftObjectStorage = () => {
     return [...containers].sort((a, b) => {
       let comparison: number
 
-      switch (sortSettings.sortBy) {
+      switch (sortBy ?? "name") {
         case "name":
           comparison = a.name.localeCompare(b.name)
           break
@@ -67,34 +74,42 @@ export const SwiftObjectStorage = () => {
           comparison = a.name.localeCompare(b.name)
       }
 
-      return sortSettings.sortDirection === "desc" ? -comparison : comparison
+      return (sortDirection ?? "asc") === "desc" ? -comparison : comparison
     })
   }
 
   // Filter containers based on search term
   const filteredContainers = (containers || []).filter((container) =>
-    container.name.toLowerCase().includes(searchTerm.toLowerCase())
+    container.name.toLowerCase().includes(searchParam.toLowerCase())
   )
 
   // Apply sorting to filtered containers
   const sortedContainers = sortContainers(filteredContainers)
 
   const handleSearchChange = (term: string | number | string[] | undefined) => {
-    const searchValue = typeof term === "string" ? term : ""
+    const value = typeof term === "string" ? term : ""
     startTransition(() => {
-      setSearchTerm(searchValue)
+      navigate({
+        search: (prev) => ({ ...prev, search: value || undefined }),
+      })
     })
   }
 
   const handleSortChange = (newSortSettings: SortSettings) => {
-    const settings: SortSettings = {
-      options: newSortSettings.options,
-      sortBy: newSortSettings.sortBy?.toString() || "name",
-      sortDirection: newSortSettings.sortDirection || "asc",
-    }
-
+    const resolvedSortBy = (newSortSettings.sortBy?.toString() || "name") as
+      | "name"
+      | "count"
+      | "bytes"
+      | "last_modified"
+    const resolvedDirection = (newSortSettings.sortDirection || "asc") as "asc" | "desc"
     startTransition(() => {
-      setSortSettings(settings)
+      navigate({
+        search: (prev) => ({
+          ...prev,
+          sortBy: resolvedSortBy,
+          sortDirection: resolvedDirection,
+        }),
+      })
     })
   }
 
@@ -128,7 +143,7 @@ export const SwiftObjectStorage = () => {
     <div className="relative">
       <ListToolbar
         sortSettings={sortSettings}
-        searchTerm={searchTerm}
+        searchTerm={searchParam}
         onSort={handleSortChange}
         onSearch={handleSearchChange}
         actions={
@@ -151,7 +166,7 @@ export const SwiftObjectStorage = () => {
         }
       />
 
-      <ContainerListView
+      <ContainerTableView
         containers={sortedContainers}
         createModalOpen={createModalOpen}
         setCreateModalOpen={setCreateModalOpen}
