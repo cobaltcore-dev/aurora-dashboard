@@ -140,6 +140,14 @@ describe("imageRouter", () => {
       const mockCtx = createMockContext()
       const caller = createCaller(mockCtx)
 
+      mockCtx.mockGlance.get.mockResolvedValue({
+        ok: true,
+        json: vi.fn().mockResolvedValue({
+          images: [mockGlanceImage],
+          schema: "/v2/schemas/images",
+        }),
+      })
+
       const input = {}
       const result = await caller.image.listImagesWithSearch(input)
 
@@ -147,7 +155,7 @@ describe("imageRouter", () => {
       expect(imageHelpers.validateGlanceService).toHaveBeenCalled()
       expect(imageHelpers.applyImageQueryParams).toHaveBeenCalled()
       expect(mockCtx.mockGlance.get).toHaveBeenCalledWith(expect.stringContaining("v2/images?"))
-      expect(result).toEqual([mockGlanceImage])
+      expect(result.images).toEqual([mockGlanceImage])
     })
 
     it("should handle API error response", async () => {
@@ -178,7 +186,7 @@ describe("imageRouter", () => {
 
       const result = await caller.image.listImagesWithSearch({ name: "ubuntu" })
 
-      expect(result).toEqual([ubuntuImage])
+      expect(result.images).toEqual([ubuntuImage])
     })
 
     it("should not include name in the API URL query string", async () => {
@@ -210,7 +218,7 @@ describe("imageRouter", () => {
 
       const result = await caller.image.listImagesWithSearch({})
 
-      expect(result).toHaveLength(2)
+      expect(result.images).toHaveLength(2)
     })
 
     it("should filter images by name server-side (substring match)", async () => {
@@ -225,14 +233,112 @@ describe("imageRouter", () => {
         ok: true,
         json: vi.fn().mockResolvedValue({
           images: [ubuntuImage, centosImage, debianImage],
+          next: undefined, // Single page
           schema: "/v2/schemas/images",
         }),
       })
 
       const result = await caller.image.listImagesWithSearch({ name: "ubuntu" })
 
-      expect(result).toHaveLength(1)
-      expect(result[0].name).toBe("ubuntu-22.04-lts")
+      expect(result.images).toHaveLength(1)
+      expect(result.images[0].name).toBe("ubuntu-22.04-lts")
+    })
+
+    it("should fetch multiple pages when searching until MIN_RESULTS_WHEN_SEARCHING is met", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      // Create 3 pages with ubuntu images scattered across them
+      const page1 = Array.from({ length: 20 }, (_, i) => ({
+        ...mockGlanceImage,
+        id: generateTestUUID(i + 1),
+        name: i % 5 === 0 ? `ubuntu-${i}` : `centos-${i}`, // 4 ubuntu images
+      }))
+
+      const page2 = Array.from({ length: 20 }, (_, i) => ({
+        ...mockGlanceImage,
+        id: generateTestUUID(i + 21),
+        name: i % 4 === 0 ? `ubuntu-${i + 20}` : `debian-${i + 20}`, // 5 ubuntu images
+      }))
+
+      const page3 = Array.from({ length: 20 }, (_, i) => ({
+        ...mockGlanceImage,
+        id: generateTestUUID(i + 41),
+        name: i % 3 === 0 ? `ubuntu-${i + 40}` : `fedora-${i + 40}`, // 7 ubuntu images
+      }))
+
+      mockCtx.mockGlance.get
+        .mockResolvedValueOnce({
+          ok: true,
+          json: vi.fn().mockResolvedValue({
+            images: page1,
+            next: "/v2/images?marker=page2",
+            schema: "/v2/schemas/images",
+          }),
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: vi.fn().mockResolvedValue({
+            images: page2,
+            next: "/v2/images?marker=page3",
+            schema: "/v2/schemas/images",
+          }),
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: vi.fn().mockResolvedValue({
+            images: page3,
+            next: undefined, // Last page
+            schema: "/v2/schemas/images",
+          }),
+        })
+
+      const result = await caller.image.listImagesWithSearch({ name: "ubuntu" })
+
+      // Should fetch all 3 pages and filter for ubuntu
+      expect(mockCtx.mockGlance.get).toHaveBeenCalledTimes(3)
+      const ubuntuImages = result.images.filter((img) => img.name?.includes("ubuntu"))
+      expect(ubuntuImages.length).toBeGreaterThan(0)
+      // Should only return first 50 results (FRONTEND_PAGE_SIZE)
+      expect(result.images.length).toBeLessThanOrEqual(50)
+    })
+
+    it("should stop fetching pages when MIN_RESULTS_WHEN_SEARCHING is reached", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      // Create many pages, but only mock first 2
+      const createUbuntuPage = (startId: number) =>
+        Array.from({ length: 30 }, (_, i) => ({
+          ...mockGlanceImage,
+          id: generateTestUUID(startId + i),
+          name: `ubuntu-${startId + i}`,
+        }))
+
+      mockCtx.mockGlance.get
+        .mockResolvedValueOnce({
+          ok: true,
+          json: vi.fn().mockResolvedValue({
+            images: createUbuntuPage(1), // 30 ubuntu images
+            next: "/v2/images?marker=page2",
+            schema: "/v2/schemas/images",
+          }),
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: vi.fn().mockResolvedValue({
+            images: createUbuntuPage(31), // 30 more ubuntu images = 60 total
+            next: "/v2/images?marker=page3", // Has more pages
+            schema: "/v2/schemas/images",
+          }),
+        })
+
+      const result = await caller.image.listImagesWithSearch({ name: "ubuntu" })
+
+      // Should stop after 2 pages because we have >= 50 matching results (MIN_RESULTS_WHEN_SEARCHING)
+      expect(mockCtx.mockGlance.get).toHaveBeenCalledTimes(2)
+      expect(result.images).toHaveLength(50) // Returns FRONTEND_PAGE_SIZE
+      expect(result.next).toBeDefined() // Should have next marker for more results
     })
   })
 
@@ -241,12 +347,13 @@ describe("imageRouter", () => {
       const mockCtx = createMockContext()
       const caller = createCaller(mockCtx)
 
+      // Mock single page response (no 'next' means last page)
       mockCtx.mockGlance.get.mockResolvedValue({
         ok: true,
         json: vi.fn().mockResolvedValue({
           images: [mockGlanceImage],
           first: "/v2/images?sort=created_at:desc",
-          next: "/v2/images?sort=created_at:desc&marker=abc",
+          next: undefined, // Explicitly no next page
           schema: "/v2/schemas/images",
         }),
       })
@@ -257,7 +364,56 @@ describe("imageRouter", () => {
       expect(imageHelpers.validateGlanceService).toHaveBeenCalled()
       expect(imageHelpers.applyImageQueryParams).toHaveBeenCalled()
       expect(mockCtx.mockGlance.get).toHaveBeenCalledWith(expect.stringContaining("v2/images?"))
+      expect(mockCtx.mockGlance.get).toHaveBeenCalledTimes(1) // Only one page
       expect(result.images).toEqual([mockGlanceImage])
+    })
+
+    it("should fetch multiple pages and combine results", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      const page1Images = [
+        { ...mockGlanceImage, id: generateTestUUID(1), name: "image-1" },
+        { ...mockGlanceImage, id: generateTestUUID(2), name: "image-2" },
+      ]
+      const page2Images = [
+        { ...mockGlanceImage, id: generateTestUUID(3), name: "image-3" },
+        { ...mockGlanceImage, id: generateTestUUID(4), name: "image-4" },
+      ]
+      const page3Images = [{ ...mockGlanceImage, id: generateTestUUID(5), name: "image-5" }]
+
+      // Mock three pages of results
+      mockCtx.mockGlance.get
+        .mockResolvedValueOnce({
+          ok: true,
+          json: vi.fn().mockResolvedValue({
+            images: page1Images,
+            next: "/v2/images?marker=id-2", // Has next page
+            schema: "/v2/schemas/images",
+          }),
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: vi.fn().mockResolvedValue({
+            images: page2Images,
+            next: "/v2/images?marker=id-4", // Has next page
+            schema: "/v2/schemas/images",
+          }),
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: vi.fn().mockResolvedValue({
+            images: page3Images,
+            next: undefined, // Last page - no next
+            schema: "/v2/schemas/images",
+          }),
+        })
+
+      const result = await caller.image.listImagesWithPagination({})
+
+      expect(mockCtx.mockGlance.get).toHaveBeenCalledTimes(3)
+      expect(result.images).toHaveLength(5)
+      expect(result.images.map((img) => img.name)).toEqual(["image-1", "image-2", "image-3", "image-4", "image-5"])
     })
 
     it("should use `first` URL when provided, ignoring built query params", async () => {
@@ -405,6 +561,55 @@ describe("imageRouter", () => {
       await expect(caller.image.listImagesWithPagination({})).rejects.toThrow(
         "Failed to list images with pagination: Internal Server Error"
       )
+    })
+
+    it("should respect MAX_PAGES safety limit to prevent infinite loops", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      // Mock a response that always has a 'next' URL (simulates infinite pagination bug)
+      mockCtx.mockGlance.get.mockResolvedValue({
+        ok: true,
+        json: vi.fn().mockResolvedValue({
+          images: [mockGlanceImage],
+          next: "/v2/images?marker=endless", // Always returns a next page
+          schema: "/v2/schemas/images",
+        }),
+      })
+
+      const result = await caller.image.listImagesWithPagination({})
+
+      // Should stop after MAX_PAGES (1000) even though 'next' is always present
+      expect(mockCtx.mockGlance.get).toHaveBeenCalledTimes(1000)
+      expect(result.images).toHaveLength(1000)
+    })
+
+    it("should stop pagination when next is undefined even before MAX_PAGES", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      // Mock 5 pages, then stop
+      const mockImages = Array.from({ length: 5 }, (_, i) => ({
+        ...mockGlanceImage,
+        id: generateTestUUID(i + 1),
+      }))
+
+      mockImages.forEach((img, index) => {
+        mockCtx.mockGlance.get.mockResolvedValueOnce({
+          ok: true,
+          json: vi.fn().mockResolvedValue({
+            images: [img],
+            next: index < 4 ? `/v2/images?marker=${index + 1}` : undefined, // Last page has no 'next'
+            schema: "/v2/schemas/images",
+          }),
+        })
+      })
+
+      const result = await caller.image.listImagesWithPagination({})
+
+      // Should stop at 5 pages (not 100) because 'next' became undefined
+      expect(mockCtx.mockGlance.get).toHaveBeenCalledTimes(5)
+      expect(result.images).toHaveLength(5)
     })
   })
 
@@ -1230,17 +1435,30 @@ describe("imageRouter", () => {
       const mockCtx = createMockContext()
       const caller = createCaller(mockCtx)
 
+      mockCtx.mockGlance.get.mockResolvedValue({
+        ok: true,
+        json: vi.fn().mockResolvedValue({
+          images: [],
+          schema: "/v2/schemas/images",
+        }),
+      })
+
       const input = {
         name: "test-image",
         status: "active" as const,
+        sort: "name:asc",
       }
 
       await caller.image.listImagesWithSearch(input)
 
-      expect(imageHelpers.applyImageQueryParams).toHaveBeenCalledWith(expect.any(URLSearchParams), {
-        name: "test-image",
-        status: "active",
-      })
+      // Verify applyImageQueryParams was called with sorting params
+      expect(imageHelpers.applyImageQueryParams).toHaveBeenCalledWith(
+        expect.any(URLSearchParams),
+        expect.objectContaining({
+          sort: "name:asc",
+          limit: 100,
+        })
+      )
     })
   })
 

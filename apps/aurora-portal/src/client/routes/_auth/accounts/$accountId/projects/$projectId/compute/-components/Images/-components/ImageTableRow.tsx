@@ -1,4 +1,4 @@
-import { Link, useParams, useNavigate } from "@tanstack/react-router"
+import { useParams, useNavigate } from "@tanstack/react-router"
 import {
   Checkbox,
   DataGridCell,
@@ -65,34 +65,23 @@ export function ImageTableRow({
 
   const isImageOwner = projectId === owner
 
-  const handleRowClick = () => {
-    navigate({
-      to: "/accounts/$accountId/projects/$projectId/compute/images/$imageId",
-      params: { accountId, projectId, imageId: id },
-    })
-  }
-
   return (
     <DataGridRow
       key={id}
       data-testid={`image-row-${id}`}
-      onClick={handleRowClick}
-      className="hover:bg-theme-background-lvl-2 cursor-pointer"
+      onClick={() =>
+        navigate({
+          to: "/accounts/$accountId/projects/$projectId/compute/images/$imageId",
+          params: { accountId, projectId, imageId: id },
+        })
+      }
     >
       <DataGridCell onClick={(e) => e.stopPropagation()}>
         <Checkbox checked={isSelected} onChange={() => onSelect(image)} />
       </DataGridCell>
 
       <DataGridCell>{status}</DataGridCell>
-      <DataGridCell>
-        <Link
-          to="/accounts/$accountId/projects/$projectId/compute/images/$imageId"
-          params={{ projectId, accountId, imageId: id }}
-          className="text-theme-default hover:text-theme-link"
-        >
-          {imageName}
-        </Link>
-      </DataGridCell>
+      <DataGridCell>{imageName}</DataGridCell>
       <DataGridCell>{visibility}</DataGridCell>
       <DataGridCell>{image.protected ? t`Yes` : t`No`}</DataGridCell>
       <DataGridCell>
