@@ -1,16 +1,17 @@
 import { describe, test, expect, vi, beforeEach } from "vitest"
-import { render, screen, waitFor, act } from "@testing-library/react"
+import { render, screen, act } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import { i18n } from "@lingui/core"
 import { I18nProvider } from "@lingui/react"
 import { AddRuleModal } from "./AddRuleModal"
 import type { CreateSecurityGroupRuleInput } from "@/server/Network/types/securityGroup"
+import type { AddRuleFormApi } from "./AddRuleModal"
 
 // ─── Mock child components ────────────────────────────────────────────────────
 
 vi.mock("./sections/RuleTypeSection", () => ({
-  RuleTypeSection: ({ form }: any) => (
+  RuleTypeSection: ({ form }: { form: AddRuleFormApi }) => (
     <div data-testid="rule-type-section">
       <select data-testid="rule-type-select" onChange={(e) => form.setFieldValue("ruleType", e.target.value)}>
         <option value="ssh">SSH</option>
@@ -21,28 +22,28 @@ vi.mock("./sections/RuleTypeSection", () => ({
 }))
 
 vi.mock("./sections/DirectionEthertypeSection", () => ({
-  DirectionSection: ({ form }: any) => <div data-testid="direction-section">Direction Section</div>,
-  EthertypeSection: ({ form }: any) => <div data-testid="ethertype-section">Ethertype Section</div>,
+  DirectionSection: () => <div data-testid="direction-section">Direction Section</div>,
+  EthertypeSection: () => <div data-testid="ethertype-section">Ethertype Section</div>,
 }))
 
 vi.mock("./sections/ProtocolSection", () => ({
-  ProtocolSection: ({ form }: any) => <div data-testid="protocol-section">Protocol Section</div>,
+  ProtocolSection: () => <div data-testid="protocol-section">Protocol Section</div>,
 }))
 
 vi.mock("./sections/PortRangeSection", () => ({
-  PortRangeSection: ({ form }: any) => <div data-testid="port-range-section">Port Range Section</div>,
+  PortRangeSection: () => <div data-testid="port-range-section">Port Range Section</div>,
 }))
 
 vi.mock("./sections/IcmpSection", () => ({
-  IcmpSection: ({ form }: any) => <div data-testid="icmp-section">ICMP Section</div>,
+  IcmpSection: () => <div data-testid="icmp-section">ICMP Section</div>,
 }))
 
 vi.mock("./sections/RemoteSourceSection", () => ({
-  RemoteSourceSection: ({ form }: any) => <div data-testid="remote-source-section">Remote Source Section</div>,
+  RemoteSourceSection: () => <div data-testid="remote-source-section">Remote Source Section</div>,
 }))
 
 vi.mock("./sections/DescriptionSection", () => ({
-  DescriptionSection: ({ form }: any) => <div data-testid="description-section">Description Section</div>,
+  DescriptionSection: () => <div data-testid="description-section">Description Section</div>,
 }))
 
 // ─── Render helper ────────────────────────────────────────────────────────────
