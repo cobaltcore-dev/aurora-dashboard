@@ -311,12 +311,9 @@ describe("CreateImageModal", () => {
       await user.click(diskFormatSelect)
       await user.click(screen.getByText(/qcow2 - qemu emulator/i))
 
-      const createButton = screen.getByText("Create Image")
-      await user.click(createButton)
-
-      await waitFor(() => {
-        expect(screen.getByText("Image name is required")).toBeInTheDocument()
-      })
+      // Without a name, the Create Image button should be disabled
+      const createButton = screen.getByRole("button", { name: /Create Image/i })
+      expect(createButton).toBeDisabled()
     })
 
     test("should require image file", async () => {
@@ -330,12 +327,9 @@ describe("CreateImageModal", () => {
       await user.click(diskFormatSelect)
       await user.click(screen.getByText(/qcow2 - qemu emulator/i))
 
-      const createButton = screen.getByText("Create Image")
-      await user.click(createButton)
-
-      await waitFor(() => {
-        expect(screen.getByText("Image file is required")).toBeInTheDocument()
-      })
+      // Without a file, the Create Image button should be disabled
+      const createButton = screen.getByRole("button", { name: /Create Image/i })
+      expect(createButton).toBeDisabled()
     })
 
     test("should require disk format", async () => {
@@ -349,12 +343,9 @@ describe("CreateImageModal", () => {
       await user.upload(fileInput, file)
       await user.type(nameInput, "Test Image")
 
-      const createButton = screen.getByText("Create Image")
-      await user.click(createButton)
-
-      await waitFor(() => {
-        expect(screen.getByText("Disk format is required")).toBeInTheDocument()
-      })
+      // Without a disk format, the Create Image button should be disabled
+      const createButton = screen.getByRole("button", { name: /Create Image/i })
+      expect(createButton).toBeDisabled()
     })
 
     test("should reject negative min_disk", async () => {

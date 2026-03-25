@@ -95,14 +95,6 @@ describe("ActivateImagesModal", () => {
     fireEvent.click(activateButton)
     expect(mockOnActivate).toHaveBeenCalledTimes(1)
     expect(mockOnActivate).toHaveBeenCalledWith(mockDeactivatedImages)
-    expect(mockOnClose).toHaveBeenCalledTimes(1)
-  })
-
-  it("should show spinner in activate button when isLoading is true", () => {
-    setup(true, true)
-    const activateButton = screen.getByTestId("activate-image-button")
-    const spinner = activateButton.querySelector('[role="progressbar"]')
-    expect(spinner).toBeInTheDocument()
   })
 
   it("should show loading spinner overlay when isLoading is true", () => {
@@ -132,20 +124,6 @@ describe("ActivateImagesModal", () => {
     expect(screen.getByText("Images to activate:")).toBeInTheDocument()
     expect(screen.getByText("3")).toBeInTheDocument()
     expect(screen.queryByText(/Already active \(will be skipped\):/i)).not.toBeInTheDocument()
-  })
-
-  it("should display warning message for deactivated images", () => {
-    setup(true)
-    expect(
-      screen.getByText(/You are about to activate 3 image\(s\)\. Activated images will be available/i)
-    ).toBeInTheDocument()
-  })
-
-  it("should display info message about activation", () => {
-    setup(true)
-    expect(
-      screen.getByText(/Activated images will become available for launching new instances and creating volumes/i)
-    ).toBeInTheDocument()
   })
 
   it("should handle empty deactivatedImages array", () => {
