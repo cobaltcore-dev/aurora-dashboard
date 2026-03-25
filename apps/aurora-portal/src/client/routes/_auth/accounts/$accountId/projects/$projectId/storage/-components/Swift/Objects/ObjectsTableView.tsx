@@ -1,13 +1,21 @@
 import { useRef, useEffect, useState } from "react"
 import { useVirtualizer } from "@tanstack/react-virtual"
-import { DataGrid, DataGridHeadCell, DataGridRow, DataGridCell } from "@cloudoperators/juno-ui-components"
+import {
+  DataGrid,
+  DataGridHeadCell,
+  DataGridRow,
+  DataGridCell,
+  PopupMenu,
+  PopupMenuItem,
+  PopupMenuOptions,
+} from "@cloudoperators/juno-ui-components"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { MdFolder, MdDescription } from "react-icons/md"
 import { formatBytesBinary } from "@/client/utils/formatBytes"
 import { BrowserRow } from "./"
 
-// Define column template — 3 columns: name | last modified | size
-const GRID_COLUMN_TEMPLATE = "minmax(200px, 3fr) minmax(180px, 2fr) minmax(100px, 1fr)"
+// Define column template — 4 columns: name | last modified | size | actions
+const GRID_COLUMN_TEMPLATE = "minmax(200px, 3fr) minmax(180px, 2fr) minmax(100px, 1fr) 60px"
 
 interface ObjectsTableViewProps {
   rows: BrowserRow[]
@@ -44,9 +52,9 @@ export const ObjectsTableView = ({ rows, searchTerm, onFolderClick }: ObjectsTab
 
   if (rows.length === 0) {
     return (
-      <DataGrid columns={3} className="objects" data-testid="no-objects">
+      <DataGrid columns={4} className="objects" data-testid="no-objects">
         <DataGridRow>
-          <DataGridCell colSpan={3}>
+          <DataGridCell colSpan={4}>
             <div className="py-8 text-center">
               <h3 className="text-lg font-semibold">
                 <Trans>No objects found</Trans>
@@ -72,7 +80,7 @@ export const ObjectsTableView = ({ rows, searchTerm, onFolderClick }: ObjectsTab
       {/* Table Header with scrollbar padding */}
       <div style={{ paddingRight: `${scrollbarWidth}px` }}>
         <DataGrid
-          columns={3}
+          columns={4}
           gridColumnTemplate={GRID_COLUMN_TEMPLATE}
           className="objects"
           data-testid="objects-table-header"
@@ -84,9 +92,10 @@ export const ObjectsTableView = ({ rows, searchTerm, onFolderClick }: ObjectsTab
             <DataGridHeadCell>
               <Trans>Last Modified</Trans>
             </DataGridHeadCell>
-            <DataGridHeadCell style={{ marginRight: `-${scrollbarWidth}px` }}>
+            <DataGridHeadCell>
               <Trans>Size</Trans>
             </DataGridHeadCell>
+            <DataGridHeadCell style={{ marginRight: `-${scrollbarWidth}px` }} />
           </DataGridRow>
         </DataGrid>
       </div>
@@ -153,6 +162,70 @@ export const ObjectsTableView = ({ rows, searchTerm, onFolderClick }: ObjectsTab
 
                 {/* Size */}
                 <DataGridCell>{!isFolder ? formatBytesBinary(row.bytes) : "—"}</DataGridCell>
+
+                {/* Actions */}
+                <DataGridCell onClick={(e) => e.stopPropagation()}>
+                  <PopupMenu>
+                    <PopupMenuOptions>
+                      {isFolder ? (
+                        // Folder actions
+                        <PopupMenuItem
+                          label={t`Delete Recursively`}
+                          onClick={() => {
+                            // TODO: open DeleteFolderRecursivelyModal
+                          }}
+                          data-testid={`delete-recursively-action-${row.name}`}
+                        />
+                      ) : (
+                        // File actions
+                        <>
+                          <PopupMenuItem
+                            label={t`Download`}
+                            onClick={() => {
+                              // TODO: trigger file download
+                            }}
+                            data-testid={`download-action-${row.name}`}
+                          />
+                          <PopupMenuItem
+                            label={t`Properties`}
+                            onClick={() => {
+                              // TODO: open ObjectPropertiesModal
+                            }}
+                            data-testid={`properties-action-${row.name}`}
+                          />
+                          <PopupMenuItem
+                            label={t`Copy`}
+                            onClick={() => {
+                              // TODO: open CopyObjectModal
+                            }}
+                            data-testid={`copy-action-${row.name}`}
+                          />
+                          <PopupMenuItem
+                            label={t`Move/Rename`}
+                            onClick={() => {
+                              // TODO: open MoveRenameObjectModal
+                            }}
+                            data-testid={`move-rename-action-${row.name}`}
+                          />
+                          <PopupMenuItem
+                            label={t`Delete`}
+                            onClick={() => {
+                              // TODO: open DeleteObjectModal
+                            }}
+                            data-testid={`delete-action-${row.name}`}
+                          />
+                          <PopupMenuItem
+                            label={t`Delete (Keep Segments)`}
+                            onClick={() => {
+                              // TODO: open DeleteObjectKeepSegmentsModal
+                            }}
+                            data-testid={`delete-keep-segments-action-${row.name}`}
+                          />
+                        </>
+                      )}
+                    </PopupMenuOptions>
+                  </PopupMenu>
+                </DataGridCell>
               </div>
             )
           })}
