@@ -291,6 +291,7 @@ export const Images = ({ client }: ImagesProps) => {
   const [deactivateAllModalOpen, setDeactivateAllModalOpen] = useState(false)
   const [activateAllModalOpen, setActivateAllModalOpen] = useState(false)
   const [memberStatusView, setMemberStatusView] = useState<"all" | "pending" | "accepted">("all")
+  const memberStatusFilter = memberStatusView === "all" ? undefined : memberStatusView
 
   const [isFetching, setIsFetching] = useState(false)
   const [isFetchingNextPage, setIsFetchingNextPage] = useState(false)
@@ -299,7 +300,7 @@ export const Images = ({ client }: ImagesProps) => {
   const [imagesPromise, setImagesPromise] = useState(() =>
     createImagesPromise(client, sortSettings.sortBy, sortSettings.sortDirection, searchTerm, {
       ...buildFilterParams(filterSettings.selectedFilters || [], filterSettings.filters),
-      member_status: memberStatusView === "all" ? undefined : memberStatusView,
+      member_status: memberStatusFilter,
     })
   )
   const [permissionsPromise] = useState(() => createPermissionsPromise(client))
@@ -317,7 +318,7 @@ export const Images = ({ client }: ImagesProps) => {
         searchTerm,
         {
           ...buildFilterParams(filterSettings.selectedFilters || [], filterSettings.filters),
-          member_status: memberStatusView === "all" ? undefined : memberStatusView,
+          member_status: memberStatusFilter,
         },
         nextMarker
       )
@@ -366,7 +367,7 @@ export const Images = ({ client }: ImagesProps) => {
     startTransition(() => {
       const newPromise = createImagesPromise(client, urlSortBy, urlSortDirection, urlSearchTerm, {
         ...buildFilterParams(urlFilters || [], filterSettings.filters),
-        member_status: memberStatusView === "all" ? undefined : memberStatusView,
+        member_status: memberStatusFilter,
       })
       // Mark fetching as complete once the promise resolves and update state
       newPromise.then((result) => {
