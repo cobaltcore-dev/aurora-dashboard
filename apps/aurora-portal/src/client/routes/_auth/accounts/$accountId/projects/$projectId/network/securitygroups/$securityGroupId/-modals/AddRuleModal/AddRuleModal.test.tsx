@@ -165,12 +165,7 @@ describe("AddRuleModal", () => {
       const { rerender } = render(
         <I18nProvider i18n={i18n}>
           <PortalProvider>
-            <AddRuleModal
-              securityGroupId="sg-123"
-              open={true}
-              onClose={onClose}
-              onCreate={vi.fn()}
-            />
+            <AddRuleModal securityGroupId="sg-123" open={true} onClose={onClose} onCreate={vi.fn()} />
           </PortalProvider>
         </I18nProvider>
       )
@@ -192,12 +187,7 @@ describe("AddRuleModal", () => {
       rerender(
         <I18nProvider i18n={i18n}>
           <PortalProvider>
-            <AddRuleModal
-              securityGroupId="sg-123"
-              open={false}
-              onClose={onClose}
-              onCreate={vi.fn()}
-            />
+            <AddRuleModal securityGroupId="sg-123" open={false} onClose={onClose} onCreate={vi.fn()} />
           </PortalProvider>
         </I18nProvider>
       )
@@ -206,12 +196,7 @@ describe("AddRuleModal", () => {
       rerender(
         <I18nProvider i18n={i18n}>
           <PortalProvider>
-            <AddRuleModal
-              securityGroupId="sg-123"
-              open={true}
-              onClose={onClose}
-              onCreate={vi.fn()}
-            />
+            <AddRuleModal securityGroupId="sg-123" open={true} onClose={onClose} onCreate={vi.fn()} />
           </PortalProvider>
         </I18nProvider>
       )
