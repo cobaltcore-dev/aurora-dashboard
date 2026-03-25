@@ -40,32 +40,7 @@ type RequiredSortSettings = {
   sortDirection: "asc" | "desc"
 }
 
-function ImagesContent({
-  imagesPromise,
-  permissionsPromise,
-  searchTerm,
-  setSearchTerm,
-  sortSettings,
-  handleSortChange,
-  filterSettings,
-  handleFilterChange,
-  selectedImages,
-  setSelectedImages,
-  createModalOpen,
-  setCreateModalOpen,
-  deleteAllModalOpen,
-  setDeleteAllModalOpen,
-  deactivateAllModalOpen,
-  setDeactivateAllModalOpen,
-  activateAllModalOpen,
-  setActivateAllModalOpen,
-  memberStatusView,
-  setMemberStatusView,
-  isFetching,
-  hasNextPage,
-  isFetchingNextPage,
-  fetchNextPage,
-}: {
+type ImagesContentProps = {
   imagesPromise: ReturnType<typeof createImagesPromise>
   permissionsPromise: Promise<{
     canCreate: boolean
@@ -97,7 +72,34 @@ function ImagesContent({
   hasNextPage: boolean
   isFetchingNextPage: boolean
   fetchNextPage: () => void
-}) {
+}
+
+function ImagesContent({
+  imagesPromise,
+  permissionsPromise,
+  searchTerm,
+  setSearchTerm,
+  sortSettings,
+  handleSortChange,
+  filterSettings,
+  handleFilterChange,
+  selectedImages,
+  setSelectedImages,
+  createModalOpen,
+  setCreateModalOpen,
+  deleteAllModalOpen,
+  setDeleteAllModalOpen,
+  deactivateAllModalOpen,
+  setDeactivateAllModalOpen,
+  activateAllModalOpen,
+  setActivateAllModalOpen,
+  memberStatusView,
+  setMemberStatusView,
+  isFetching,
+  hasNextPage,
+  isFetchingNextPage,
+  fetchNextPage,
+}: ImagesContentProps) {
   const { t } = useLingui()
   const imagesData = use(imagesPromise)
   const permissions = use(permissionsPromise)
