@@ -208,7 +208,7 @@ export const ContainerTableView = ({
                   key={container.name}
                   data-index={virtualRow.index}
                   ref={rowVirtualizer.measureElement}
-                  className="juno-datagrid group hover:bg-theme-background-lvl-2 cursor-pointer"
+                  className="juno-datagrid group hover:bg-theme-background-lvl-1 cursor-pointer"
                   style={{
                     position: "absolute",
                     top: 0,
