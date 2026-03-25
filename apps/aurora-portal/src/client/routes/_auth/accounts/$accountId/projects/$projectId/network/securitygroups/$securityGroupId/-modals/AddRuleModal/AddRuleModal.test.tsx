@@ -157,20 +157,68 @@ describe("AddRuleModal", () => {
       expect(onClose).toHaveBeenCalled()
     })
 
-    test("resets form when modal is closed", async () => {
+    test("resets form when modal is closed and reopened", async () => {
       const onClose = vi.fn()
       const user = userEvent.setup()
-      renderModal({ onClose })
 
-      // Interact with form first
+      // Initial render with modal open
+      const { rerender } = render(
+        <I18nProvider i18n={i18n}>
+          <PortalProvider>
+            <AddRuleModal
+              securityGroupId="sg-123"
+              open={true}
+              onClose={onClose}
+              onCreate={vi.fn()}
+            />
+          </PortalProvider>
+        </I18nProvider>
+      )
+
+      // Interact with form - change from default "ssh" to "custom-tcp"
       const ruleTypeSelect = screen.getByTestId("rule-type-select")
-      await user.selectOptions(ruleTypeSelect, "custom-tcp")
+      expect(ruleTypeSelect).toHaveValue("ssh") // Verify default
 
-      // Close modal
+      await user.selectOptions(ruleTypeSelect, "custom-tcp")
+      expect(ruleTypeSelect).toHaveValue("custom-tcp") // Verify change
+
+      // Close modal by clicking Cancel
       const cancelButton = screen.getByRole("button", { name: /Cancel/i })
       await user.click(cancelButton)
 
       expect(onClose).toHaveBeenCalled()
+
+      // Simulate parent component closing the modal (open=false)
+      rerender(
+        <I18nProvider i18n={i18n}>
+          <PortalProvider>
+            <AddRuleModal
+              securityGroupId="sg-123"
+              open={false}
+              onClose={onClose}
+              onCreate={vi.fn()}
+            />
+          </PortalProvider>
+        </I18nProvider>
+      )
+
+      // Reopen modal (open=true) - form should be reset
+      rerender(
+        <I18nProvider i18n={i18n}>
+          <PortalProvider>
+            <AddRuleModal
+              securityGroupId="sg-123"
+              open={true}
+              onClose={onClose}
+              onCreate={vi.fn()}
+            />
+          </PortalProvider>
+        </I18nProvider>
+      )
+
+      // Verify form has reset to default values
+      const ruleTypeSelectAfterReopen = screen.getByTestId("rule-type-select")
+      expect(ruleTypeSelectAfterReopen).toHaveValue("ssh") // Should be back to default
     })
   })
 

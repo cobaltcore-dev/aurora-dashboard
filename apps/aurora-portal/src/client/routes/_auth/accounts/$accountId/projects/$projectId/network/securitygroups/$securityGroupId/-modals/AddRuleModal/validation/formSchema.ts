@@ -148,8 +148,11 @@ export const createRuleFormSchema = z
         })
       }
 
-      // Only validate ranges if values are valid numbers
-      if (icmpType !== null || icmpCode !== null) {
+      // Only validate ranges if values are valid numbers (not NaN)
+      const hasValidIcmpType = typeof icmpType === "number" && !Number.isNaN(icmpType)
+      const hasValidIcmpCode = typeof icmpCode === "number" && !Number.isNaN(icmpCode)
+
+      if (hasValidIcmpType || hasValidIcmpCode) {
         const result = validateIcmpTypeCode(icmpType, icmpCode)
         if (!result.valid) {
           // The shared function provides error messages - parse them to target specific fields
