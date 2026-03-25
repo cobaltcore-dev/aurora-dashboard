@@ -44,6 +44,12 @@ export const AllocateFloatingIpModal = ({
       .refine((value) => value === "" || ipv4Regex.test(value), {
         message: t`Must be a valid IPv4 address (for example: 172.24.4.228).`,
       }),
+    fixed_ip_address: z
+      .string()
+      .trim()
+      .refine((value) => value === "" || ipv4Regex.test(value), {
+        message: t`Fixed IP address must be a valid IPv4 address (for example: 172.24.4.228).`,
+      }),
   })
 
   const form = useForm({
@@ -51,6 +57,7 @@ export const AllocateFloatingIpModal = ({
       dns_name: "",
       description: "",
       floating_ip_address: "",
+      fixed_ip_address: "",
     },
     validators: {
       onSubmit: formSchema,
@@ -146,7 +153,7 @@ export const AllocateFloatingIpModal = ({
               )}
             />
           </FormSection>
-          <FormSection>
+          <FormSection className="mb-4">
             <form.Field
               name="floating_ip_address"
               children={(field) => (
@@ -166,7 +173,25 @@ export const AllocateFloatingIpModal = ({
             />
           </FormSection>
           {/* // + Port ID(Select) */}
-          {/* // + Fixed IP Address(TextInput) */}
+          <FormSection>
+            <form.Field
+              name="fixed_ip_address"
+              children={(field) => (
+                <TextInput
+                  id={field.name}
+                  name={field.name}
+                  value={field.state.value}
+                  onBlur={field.handleBlur}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  label={t`Fixed IP Address`}
+                  placeholder={t`Enter a fixed IP address`}
+                  helptext={t`Associates the floating IP with a fixed IP on the selected port. If the port has multiple IPs, specify fixed_ip_address; otherwise, the first fixed IP is used.`}
+                  errortext={field.state.meta.errors.map((e) => e?.message).join(", ")}
+                  disabled={isLoading}
+                />
+              )}
+            />
+          </FormSection>
         </Form>
       )}
     </Modal>
