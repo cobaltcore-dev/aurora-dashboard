@@ -10,9 +10,10 @@ import type { FloatingIp } from "@/server/Network/types/floatingIp"
 import { describe, it, expect, vi, afterEach, beforeEach } from "vitest"
 import { FloatingIpUpdateFields } from "../../../floatingips/-components/-modals/EditFloatingIpModal"
 
-const { mockUseUtils, mockUpdateMutation } = vi.hoisted(() => ({
+const { mockUseUtils, mockUpdateMutation, mockDeleteMutation } = vi.hoisted(() => ({
   mockUseUtils: vi.fn(),
   mockUpdateMutation: vi.fn(),
+  mockDeleteMutation: vi.fn(),
 }))
 
 vi.mock("@/client/trpcClient", () => ({
@@ -22,6 +23,9 @@ vi.mock("@/client/trpcClient", () => ({
       floatingIp: {
         update: {
           useMutation: mockUpdateMutation,
+        },
+        delete: {
+          useMutation: mockDeleteMutation,
         },
       },
     },
@@ -56,6 +60,58 @@ vi.mock("../../../floatingips/-components/-modals/EditFloatingIpModal", () => ({
         >
           Save Edit
         </button>
+      </div>
+    ) : null,
+}))
+
+vi.mock("../../../floatingips/-components/-modals/ReleaseFloatingIpModal", () => ({
+  ReleaseFloatingIpModal: ({
+    open,
+    onClose,
+    onUpdate,
+    floatingIp,
+    isLoading,
+    error,
+  }: {
+    open: boolean
+    onClose: () => void
+    onUpdate: (floatingIpId: string) => Promise<void>
+    floatingIp: FloatingIp
+    isLoading: boolean
+    error: string | null
+  }) =>
+    open ? (
+      <div data-testid="release-floating-ip-modal">
+        <span data-testid="release-modal-loading">{isLoading ? "loading" : "idle"}</span>
+        <span data-testid="release-modal-error">{error ?? ""}</span>
+        <button onClick={onClose}>Close Release Modal</button>
+        <button onClick={() => onUpdate(floatingIp.id)}>Confirm Release</button>
+      </div>
+    ) : null,
+}))
+
+vi.mock("../../../floatingips/-components/-modals/DetachFloatingIpModal", () => ({
+  DetachFloatingIpModal: ({
+    open,
+    onClose,
+    onUpdate,
+    floatingIp,
+    isLoading,
+    error,
+  }: {
+    open: boolean
+    onClose: () => void
+    onUpdate: (floatingIpId: string, data: FloatingIpUpdateFields) => Promise<void>
+    floatingIp: FloatingIp
+    isLoading: boolean
+    error: string | null
+  }) =>
+    open ? (
+      <div data-testid="detach-floating-ip-modal">
+        <span data-testid="detach-modal-loading">{isLoading ? "loading" : "idle"}</span>
+        <span data-testid="detach-modal-error">{error ?? ""}</span>
+        <button onClick={onClose}>Close Detach Modal</button>
+        <button onClick={() => onUpdate(floatingIp.id, { port_id: null })}>Confirm Detach</button>
       </div>
     ) : null,
 }))
@@ -114,6 +170,7 @@ describe("FloatingIpTableRow", () => {
   const listInvalidateMock = vi.fn()
   const getByIdInvalidateMock = vi.fn()
   const mutateAsyncMock = vi.fn()
+  const deleteAsyncMock = vi.fn()
 
   const mockFloatingIp: FloatingIp = {
     id: "fip-123",
@@ -160,6 +217,18 @@ describe("FloatingIpTableRow", () => {
 
       return {
         mutateAsync: mutateAsyncMock,
+        isPending: false,
+        error: null,
+      }
+    })
+
+    mockDeleteMutation.mockImplementation((options?: { onSuccess?: () => void }) => {
+      deleteAsyncMock.mockImplementation(async () => {
+        await options?.onSuccess?.()
+      })
+
+      return {
+        mutateAsync: deleteAsyncMock,
         isPending: false,
         error: null,
       }
@@ -385,6 +454,168 @@ describe("FloatingIpTableRow", () => {
 
       expect(screen.getByTestId("edit-modal-loading")).toHaveTextContent("loading")
       expect(screen.getByTestId("edit-modal-error")).toHaveTextContent("Update failed")
+    })
+
+    it("opens and closes detach modal from menu action", async () => {
+      const user = userEvent.setup()
+      const router = createTestRouter(<FloatingIpTableRow floatingIp={mockFloatingIp} />)
+      render(<RouterProvider router={router} />)
+
+      await waitFor(() => {
+        expect(screen.getByText("203.0.113.10")).toBeInTheDocument()
+      })
+
+      const row = screen.getByTestId(`floating-ip-row-${mockFloatingIp.id}`)
+      const menuButton = row.querySelector("button")
+      expect(menuButton).toBeInTheDocument()
+
+      await user.click(menuButton!)
+      await user.click(screen.getByText("Detach"))
+
+      expect(screen.getByTestId("detach-floating-ip-modal")).toBeInTheDocument()
+
+      await user.click(screen.getByText("Close Detach Modal"))
+
+      await waitFor(() => {
+        expect(screen.queryByTestId("detach-floating-ip-modal")).not.toBeInTheDocument()
+      })
+    })
+
+    it("submits detach update and invalidates floating IP queries", async () => {
+      const user = userEvent.setup()
+      const router = createTestRouter(<FloatingIpTableRow floatingIp={mockFloatingIp} />)
+      render(<RouterProvider router={router} />)
+
+      await waitFor(() => {
+        expect(screen.getByTestId(`floating-ip-row-${mockFloatingIp.id}`)).toBeInTheDocument()
+      })
+
+      const row = screen.getByTestId(`floating-ip-row-${mockFloatingIp.id}`)
+      const menuButton = row.querySelector("button")
+      expect(menuButton).toBeInTheDocument()
+
+      await user.click(menuButton!)
+      await user.click(screen.getByText("Detach"))
+      await user.click(screen.getByText("Confirm Detach"))
+
+      await waitFor(() => {
+        expect(mutateAsyncMock).toHaveBeenCalledWith({
+          floatingip_id: mockFloatingIp.id,
+          port_id: null,
+        })
+      })
+
+      await waitFor(() => {
+        expect(listInvalidateMock).toHaveBeenCalled()
+        expect(getByIdInvalidateMock).toHaveBeenCalledWith({ floatingip_id: mockFloatingIp.id })
+      })
+    })
+
+    it("passes mutation loading and error state to detach modal", async () => {
+      mockUpdateMutation.mockReturnValue({
+        mutateAsync: vi.fn(),
+        isPending: true,
+        error: { message: "Detach failed" },
+      })
+
+      const user = userEvent.setup()
+      const router = createTestRouter(<FloatingIpTableRow floatingIp={mockFloatingIp} />)
+      render(<RouterProvider router={router} />)
+
+      await waitFor(() => {
+        expect(screen.getByTestId(`floating-ip-row-${mockFloatingIp.id}`)).toBeInTheDocument()
+      })
+
+      const row = screen.getByTestId(`floating-ip-row-${mockFloatingIp.id}`)
+      const menuButton = row.querySelector("button")
+      expect(menuButton).toBeInTheDocument()
+
+      await user.click(menuButton!)
+      await user.click(screen.getByText("Detach"))
+
+      expect(screen.getByTestId("detach-modal-loading")).toHaveTextContent("loading")
+      expect(screen.getByTestId("detach-modal-error")).toHaveTextContent("Detach failed")
+    })
+  })
+
+  describe("Release modal", () => {
+    it("opens and closes release modal from menu action", async () => {
+      const user = userEvent.setup()
+      const router = createTestRouter(<FloatingIpTableRow floatingIp={mockFloatingIp} />)
+      render(<RouterProvider router={router} />)
+
+      await waitFor(() => {
+        expect(screen.getByText("203.0.113.10")).toBeInTheDocument()
+      })
+
+      const row = screen.getByTestId(`floating-ip-row-${mockFloatingIp.id}`)
+      const menuButton = row.querySelector("button")
+      expect(menuButton).toBeInTheDocument()
+
+      await user.click(menuButton!)
+      await user.click(screen.getByText("Release"))
+
+      expect(screen.getByTestId("release-floating-ip-modal")).toBeInTheDocument()
+
+      await user.click(screen.getByText("Close Release Modal"))
+
+      await waitFor(() => {
+        expect(screen.queryByTestId("release-floating-ip-modal")).not.toBeInTheDocument()
+      })
+    })
+
+    it("submits delete and invalidates floating IP list", async () => {
+      const user = userEvent.setup()
+      const router = createTestRouter(<FloatingIpTableRow floatingIp={mockFloatingIp} />)
+      render(<RouterProvider router={router} />)
+
+      await waitFor(() => {
+        expect(screen.getByTestId(`floating-ip-row-${mockFloatingIp.id}`)).toBeInTheDocument()
+      })
+
+      const row = screen.getByTestId(`floating-ip-row-${mockFloatingIp.id}`)
+      const menuButton = row.querySelector("button")
+      expect(menuButton).toBeInTheDocument()
+
+      await user.click(menuButton!)
+      await user.click(screen.getByText("Release"))
+      await user.click(screen.getByText("Confirm Release"))
+
+      await waitFor(() => {
+        expect(deleteAsyncMock).toHaveBeenCalledWith({
+          floatingip_id: mockFloatingIp.id,
+        })
+      })
+
+      await waitFor(() => {
+        expect(listInvalidateMock).toHaveBeenCalled()
+      })
+    })
+
+    it("passes mutation loading and error state to release modal", async () => {
+      mockDeleteMutation.mockReturnValue({
+        mutateAsync: vi.fn(),
+        isPending: true,
+        error: { message: "Release failed" },
+      })
+
+      const user = userEvent.setup()
+      const router = createTestRouter(<FloatingIpTableRow floatingIp={mockFloatingIp} />)
+      render(<RouterProvider router={router} />)
+
+      await waitFor(() => {
+        expect(screen.getByTestId(`floating-ip-row-${mockFloatingIp.id}`)).toBeInTheDocument()
+      })
+
+      const row = screen.getByTestId(`floating-ip-row-${mockFloatingIp.id}`)
+      const menuButton = row.querySelector("button")
+      expect(menuButton).toBeInTheDocument()
+
+      await user.click(menuButton!)
+      await user.click(screen.getByText("Release"))
+
+      expect(screen.getByTestId("release-modal-loading")).toHaveTextContent("loading")
+      expect(screen.getByTestId("release-modal-error")).toHaveTextContent("Release failed")
     })
   })
 })

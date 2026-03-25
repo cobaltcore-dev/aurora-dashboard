@@ -165,3 +165,63 @@ describe("ErrorHandler for Update procedures", () => {
     expect(error.message).toBe(`Failed to process ${floatingIpId}: Unknown error`)
   })
 })
+
+describe("ErrorHandler for Delete procedures", () => {
+  const floatingIpId = "fip-test-789"
+  const del = ErrorHandler("Floating IP")
+
+  it("returns UNAUTHORIZED for 401", () => {
+    const response = { status: 401, statusText: "Unauthorized" }
+    const error = del(response, floatingIpId)
+
+    expect(error).toBeInstanceOf(TRPCError)
+    expect(error.code).toBe(HTTP_STATUS_ERROR_MAP[401])
+    expect(error.message).toBe(`Unauthorized access to ${floatingIpId}: Unauthorized`)
+  })
+
+  it("returns NOT_FOUND for 404", () => {
+    const response = { status: 404, statusText: "Not Found" }
+    const error = del(response, floatingIpId)
+
+    expect(error).toBeInstanceOf(TRPCError)
+    expect(error.code).toBe(HTTP_STATUS_ERROR_MAP[404])
+    expect(error.message).toBe(`${floatingIpId} not found: Not Found`)
+  })
+
+  it("returns PRECONDITION_FAILED for 412", () => {
+    const response = { status: 412, statusText: "Precondition Failed" }
+    const error = del(response, floatingIpId)
+
+    expect(error).toBeInstanceOf(TRPCError)
+    expect(error.code).toBe(HTTP_STATUS_ERROR_MAP[412])
+    expect(error.message).toBe(`Precondition failed - revision number mismatch in ${floatingIpId}: Precondition Failed`)
+  })
+
+  it("returns default error for unhandled status", () => {
+    const response = { status: 500, statusText: "Internal Server Error" }
+    const error = del(response, floatingIpId)
+
+    expect(error).toBeInstanceOf(TRPCError)
+    expect(error.code).toBe(DEFAULT_ERROR_NAME)
+    expect(error.message).toBe(`Failed to process ${floatingIpId}: Internal Server Error`)
+  })
+
+  it("returns Unknown error when statusText is missing", () => {
+    const response = { status: 503 }
+    const error = del(response, floatingIpId)
+
+    expect(error).toBeInstanceOf(TRPCError)
+    expect(error.code).toBe(DEFAULT_ERROR_NAME)
+    expect(error.message).toBe(`Failed to process ${floatingIpId}: Unknown error`)
+  })
+
+  it("includes floating IP ID in error messages", () => {
+    const customId = "fip-custom-999"
+    const response = { status: 404, statusText: "Not Found" }
+    const error = del(response, customId)
+
+    expect(error).toBeInstanceOf(TRPCError)
+    expect(error.code).toBe(HTTP_STATUS_ERROR_MAP[404])
+    expect(error.message).toContain(customId)
+  })
+})
