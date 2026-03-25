@@ -58,7 +58,8 @@ export function applyImageQueryParams(queryParams: URLSearchParams, input: ListI
   if (status) {
     queryParams.append("status", status)
   }
-  if (visibility) {
+  // Only append visibility if it's not "all" (which means fetch all visibilities)
+  if (visibility && visibility !== "all") {
     queryParams.append("visibility", visibility)
   }
   if (owner) {

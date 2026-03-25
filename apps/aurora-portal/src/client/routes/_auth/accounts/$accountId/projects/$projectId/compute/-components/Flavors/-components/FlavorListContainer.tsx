@@ -18,7 +18,7 @@ import { useState } from "react"
 import { TrpcClient } from "@/client/trpcClient"
 import { EditSpecModal } from "./EditSpecModal"
 import { ManageAccessModal } from "./ManageAccessModal"
-import { Link, useParams } from "@tanstack/react-router"
+import { Link, useParams, useNavigate } from "@tanstack/react-router"
 
 interface FlavorListContainerProps {
   flavors?: Flavor[]
@@ -40,6 +40,7 @@ export const FlavorListContainer = ({
   canMangageAccess,
 }: FlavorListContainerProps) => {
   const { t } = useLingui()
+  const navigate = useNavigate()
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
   const [specModalOpen, setSpecModalOpen] = useState(false)
   const [accessModalOpen, setAccessModalOpen] = useState(false)
@@ -136,21 +137,22 @@ export const FlavorListContainer = ({
         </DataGridRow>
 
         {flavors.map((flavor) => (
-          <DataGridRow key={flavor.id} data-testid={`flavor-row-${flavor.id}`}>
-            <DataGridCell>
-              <Link
-                to="/accounts/$accountId/projects/$projectId/compute/flavors/$flavorId"
-                params={{ projectId: projectId, accountId: accountId, flavorId: flavor.id }}
-                className="text-theme-default hover:text-theme-link"
-              >
-                {flavor.name || flavor.id}
-              </Link>
-            </DataGridCell>
+          <DataGridRow
+            key={flavor.id}
+            data-testid={`flavor-row-${flavor.id}`}
+            onClick={() =>
+              navigate({
+                to: "/accounts/$accountId/projects/$projectId/compute/flavors/$flavorId",
+                params: { projectId, accountId, flavorId: flavor.id },
+              })
+            }
+          >
+            <DataGridCell>{flavor.name || flavor.id}</DataGridCell>
             <DataGridCell>{flavor.vcpus || "–"}</DataGridCell>
             <DataGridCell>{flavor.ram || "–"}</DataGridCell>
             <DataGridCell>{flavor.disk || "–"}</DataGridCell>
             <DataGridCell>{flavor.swap || "–"}</DataGridCell>
-            <DataGridCell>
+            <DataGridCell onClick={(e) => e.stopPropagation()}>
               <PopupMenu>
                 <PopupMenuOptions>
                   <PopupMenuItem>
