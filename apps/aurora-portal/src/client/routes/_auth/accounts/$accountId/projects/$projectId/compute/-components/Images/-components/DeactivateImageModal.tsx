@@ -61,42 +61,40 @@ export const DeactivateImageModal: React.FC<DeactivateImageModalProps> = ({
             </Trans>
           </p>
 
-          {image && (
-            <DataGrid columns={2}>
-              <DataGridRow>
-                <DataGridHeadCell>{t`Name`}</DataGridHeadCell>
-                <DataGridCell>{image.name || t`Unnamed`}</DataGridCell>
-              </DataGridRow>
-              <DataGridRow>
-                <DataGridHeadCell>{t`Id`}</DataGridHeadCell>
-                <DataGridCell>{image.id}</DataGridCell>
-              </DataGridRow>
-              <DataGridRow>
-                <DataGridHeadCell>{t`Status`}</DataGridHeadCell>
-                <DataGridCell>{image.status}</DataGridCell>
-              </DataGridRow>
-              <DataGridRow>
-                <DataGridHeadCell>{t`Visibility`}</DataGridHeadCell>
-                <DataGridCell>{image.visibility}</DataGridCell>
-              </DataGridRow>
-              <DataGridRow>
-                <DataGridHeadCell>{t`Size`}</DataGridHeadCell>
-                <DataGridCell>
-                  <SizeDisplay size={image.size} />
-                </DataGridCell>
-              </DataGridRow>
-              <DataGridRow>
-                <DataGridHeadCell>{t`Disk Format`}</DataGridHeadCell>
-                <DataGridCell>{image.disk_format || t`N/A`}</DataGridCell>
-              </DataGridRow>
-              <DataGridRow>
-                <DataGridHeadCell>{t`Created`}</DataGridHeadCell>
-                <DataGridCell>
-                  {image.created_at ? new Date(image.created_at).toLocaleDateString() : t`N/A`}
-                </DataGridCell>
-              </DataGridRow>
-            </DataGrid>
-          )}
+          <DataGrid columns={2}>
+            <DataGridRow>
+              <DataGridHeadCell>{t`Name`}</DataGridHeadCell>
+              <DataGridCell>{image.name || t`Unnamed`}</DataGridCell>
+            </DataGridRow>
+            <DataGridRow>
+              <DataGridHeadCell>{t`Id`}</DataGridHeadCell>
+              <DataGridCell>{image.id}</DataGridCell>
+            </DataGridRow>
+            <DataGridRow>
+              <DataGridHeadCell>{t`Status`}</DataGridHeadCell>
+              <DataGridCell>{image.status}</DataGridCell>
+            </DataGridRow>
+            <DataGridRow>
+              <DataGridHeadCell>{t`Visibility`}</DataGridHeadCell>
+              <DataGridCell>{image.visibility}</DataGridCell>
+            </DataGridRow>
+            <DataGridRow>
+              <DataGridHeadCell>{t`Size`}</DataGridHeadCell>
+              <DataGridCell>
+                <SizeDisplay size={image.size} />
+              </DataGridCell>
+            </DataGridRow>
+            <DataGridRow>
+              <DataGridHeadCell>{t`Disk Format`}</DataGridHeadCell>
+              <DataGridCell>{image.disk_format || t`N/A`}</DataGridCell>
+            </DataGridRow>
+            <DataGridRow>
+              <DataGridHeadCell>{t`Created`}</DataGridHeadCell>
+              <DataGridCell>
+                {image.created_at ? new Date(image.created_at).toLocaleDateString() : t`N/A`}
+              </DataGridCell>
+            </DataGridRow>
+          </DataGrid>
         </div>
       )}
     </Modal>
