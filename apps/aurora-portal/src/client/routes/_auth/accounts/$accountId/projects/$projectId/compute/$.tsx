@@ -9,6 +9,7 @@ import { Images } from "./-components/Images/List"
 import { KeyPairs } from "./-components/KeyPairs/List"
 import { ServerGroups } from "./-components/ServerGroups/List"
 import { Flavors } from "./-components/Flavors/List"
+import { z } from "zod"
 
 const checkServiceAvailability = (
   availableServices: {
@@ -52,6 +53,54 @@ const checkServiceAvailability = (
   }
 }
 
+// Helper to validate multi-value filters like "value" or "in:value1,value2,..."
+const multiValueEnum = (allowedValues: string[]) => {
+  return z.string().refine((val) => {
+    const values = val.startsWith("in:") ? val.replace("in:", "").split(",") : [val]
+    return values.every((v) => allowedValues.includes(v))
+  })
+}
+
+// Search params schema for the images page (for deep linking)
+// Uses .passthrough() to allow other tabs' search params to coexist
+const imagesSearchSchema = z
+  .object({
+    // Filters - can be single value or "in:value1,value2,..." for multi-value
+    status: multiValueEnum([
+      "queued",
+      "saving",
+      "active",
+      "deactivated",
+      "killed",
+      "deleted",
+      "pending_delete",
+    ]).optional(),
+    visibility: z.enum(["public", "private", "shared", "community", "all"]).optional(),
+    disk_format: multiValueEnum([
+      "ami",
+      "ari",
+      "aki",
+      "vhd",
+      "vhdx",
+      "vmdk",
+      "raw",
+      "qcow2",
+      "vdi",
+      "iso",
+      "ploop",
+    ]).optional(),
+    container_format: multiValueEnum(["ami", "ari", "aki", "bare", "ovf", "ova", "docker"]).optional(),
+    protected: z.enum(["true", "false"]).optional(),
+
+    // Search
+    search: z.string().optional(),
+
+    // Sort
+    sortBy: z.enum(["created_at", "updated_at", "name", "size", "status"]).optional(),
+    sortDirection: z.enum(["asc", "desc"]).optional(),
+  })
+  .passthrough()
+
 export const Route = createFileRoute("/_auth/accounts/$accountId/projects/$projectId/compute/$")({
   component: RouteComponent,
   errorComponent: ({ error }) => {
@@ -62,6 +111,23 @@ export const Route = createFileRoute("/_auth/accounts/$accountId/projects/$proje
   },
   notFoundComponent: () => {
     return <p>Compute service not found</p>
+  },
+  validateSearch: (search) => {
+    const result = imagesSearchSchema.safeParse(search)
+    if (result.success) {
+      return result.data
+    }
+    // On parse failure, return search with invalid optional fields set to undefined
+    return {
+      status: undefined,
+      visibility: undefined,
+      disk_format: undefined,
+      container_format: undefined,
+      protected: undefined,
+      search: undefined,
+      sortBy: undefined,
+      sortDirection: undefined,
+    }
   },
   loader: async ({ context }) => {
     const { trpcClient } = context
@@ -130,7 +196,7 @@ function ComputeDashboard({ client }: { client: TrpcClient }) {
               case "instances":
                 return <Instances client={client} project={project} viewMode="list" />
               case "images":
-                return <Images />
+                return <Images client={client} />
               case "keypairs":
                 return <KeyPairs project={project} client={client} />
               case "servergroups":
