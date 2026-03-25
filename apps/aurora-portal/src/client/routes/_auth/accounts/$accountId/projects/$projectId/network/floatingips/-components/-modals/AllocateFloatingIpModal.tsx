@@ -1,7 +1,7 @@
 import { z } from "zod"
 import { useForm } from "@tanstack/react-form"
 import { Trans, useLingui } from "@lingui/react/macro"
-import { Modal, Form, FormSection, Spinner, Message, Textarea } from "@cloudoperators/juno-ui-components"
+import { Modal, Form, FormSection, Spinner, Message, Textarea, TextInput } from "@cloudoperators/juno-ui-components"
 
 export interface AllocateFloatingIpModalProps {
   open: boolean
@@ -21,6 +21,9 @@ export interface AllocateFloatingIpModalProps {
 // + Fixed IP Address(TextInput)
 // } = DO_IT_WITH_MINIMAL_FIELD
 
+// Q: Do I need to validate ipv6?
+const ipv4Regex = /^(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}$/
+
 export const AllocateFloatingIpModal = ({
   open,
   onClose,
@@ -35,19 +38,28 @@ export const AllocateFloatingIpModal = ({
       .string()
       .trim()
       .max(255, t`Description must be at most 255 characters.`),
+    floating_ip_address: z
+      .string()
+      .trim()
+      .refine((value) => value === "" || ipv4Regex.test(value), {
+        message: t`Must be a valid IPv4 address (for example: 172.24.4.228).`,
+      }),
   })
 
   const form = useForm({
     defaultValues: {
       description: "",
+      floating_ip_address: "",
     },
     validators: {
       onSubmit: formSchema,
     },
-    onSubmit: async () => {
+    onSubmit: async ({ value }) => {
       if (isLoading) return
 
-      // await onUpdate(floatingIp.id)
+      // Use `value` for the latest validated snapshot across all fields.
+      // await onUpdate(floatingIp.id, value)
+      void value
       handleClose()
     },
   })
@@ -93,7 +105,7 @@ export const AllocateFloatingIpModal = ({
           }}
         >
           {/* add dns_name  */}
-          <FormSection>
+          <FormSection className="mb-4">
             <form.Field
               name="description"
               children={(field) => (
@@ -101,6 +113,7 @@ export const AllocateFloatingIpModal = ({
                   id={field.name}
                   name={field.name}
                   value={field.state.value}
+                  onBlur={field.handleBlur}
                   onChange={(e) => field.handleChange(e.target.value)}
                   placeholder={t`Description`}
                   errortext={field.state.meta.errors.map((e) => e?.message).join(", ")}
@@ -111,21 +124,24 @@ export const AllocateFloatingIpModal = ({
           </FormSection>
           <FormSection>
             <form.Field
-              //  add floating_ip_address
-              name="description"
+              name="floating_ip_address"
               children={(field) => (
-                <Textarea
+                <TextInput
                   id={field.name}
                   name={field.name}
                   value={field.state.value}
+                  onBlur={field.handleBlur}
                   onChange={(e) => field.handleChange(e.target.value)}
-                  placeholder={t`Description`}
+                  label={t`Floating IP Address`}
+                  placeholder={t`Enter a floating IP`}
+                  helptext={t`Enter a floating IP or leave blank to auto-assign one`}
                   errortext={field.state.meta.errors.map((e) => e?.message).join(", ")}
                   disabled={isLoading}
                 />
               )}
             />
           </FormSection>
+          {/* add port_id (select) */}
         </Form>
       )}
     </Modal>
