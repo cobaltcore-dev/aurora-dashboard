@@ -135,6 +135,9 @@ export const AddRuleModal: React.FC<AddRuleModalProps> = ({
     },
   })
 
+  // Type alias for form state to use in Subscribe callbacks
+  type FormStateType = typeof form.store.state
+
   const handleClose = () => {
     form.reset()
     onClose()
@@ -142,9 +145,17 @@ export const AddRuleModal: React.FC<AddRuleModalProps> = ({
 
   // Sync preset values to form fields when ruleType changes
   useEffect(() => {
+    let previousRuleType = form.store.state.values.ruleType
+
     const subscription = form.store.subscribe(() => {
       const state = form.store.state
       const currentRuleType = state.values.ruleType
+
+      // Only run when ruleType actually changes
+      if (currentRuleType === previousRuleType) {
+        return
+      }
+      previousRuleType = currentRuleType
 
       const selectedPreset = RULE_PRESETS.find((p) => p.value === currentRuleType)
       if (!selectedPreset) return
@@ -181,9 +192,19 @@ export const AddRuleModal: React.FC<AddRuleModalProps> = ({
 
   // Auto-set ethertype to IPv4 when remote source is NOT security group
   useEffect(() => {
+    let previousRemoteSourceType = form.store.state.values.remoteSourceType
+
     const subscription = form.store.subscribe(() => {
       const state = form.store.state
-      if (state.values.remoteSourceType !== "security_group") {
+      const currentRemoteSourceType = state.values.remoteSourceType
+
+      // Only run when remoteSourceType actually changes
+      if (currentRemoteSourceType === previousRemoteSourceType) {
+        return
+      }
+      previousRemoteSourceType = currentRemoteSourceType
+
+      if (currentRemoteSourceType !== "security_group") {
         form.setFieldValue("ethertype", "IPv4")
       }
     })
@@ -201,7 +222,7 @@ export const AddRuleModal: React.FC<AddRuleModalProps> = ({
       modalFooter={
         <ModalFooter className="flex justify-end">
           <form.Subscribe selector={({ isSubmitting }) => ({ isSubmitting })}>
-            {({ isSubmitting }) => (
+            {({ isSubmitting }: { isSubmitting: boolean }) => (
               <ButtonRow>
                 <Button
                   variant="primary"
@@ -252,33 +273,37 @@ export const AddRuleModal: React.FC<AddRuleModalProps> = ({
           <DirectionSection form={form} disabled={isLoading} />
 
           {/* Protocol (conditional for "Other Protocol") */}
-          <form.Subscribe selector={(state) => state.values.ruleType === OTHER_PROTOCOL_RULE}>
-            {(showProtocolInput) => showProtocolInput && <ProtocolSection form={form} disabled={isLoading} />}
+          <form.Subscribe>
+            {(state: FormStateType) =>
+              state.values.ruleType === OTHER_PROTOCOL_RULE && <ProtocolSection form={form} disabled={isLoading} />
+            }
           </form.Subscribe>
 
           {/* Port Range (conditional for Custom TCP/UDP) */}
-          <form.Subscribe
-            selector={(state) => {
+          <form.Subscribe>
+            {(state: FormStateType) => {
               const isTcpUdp = state.values.protocol === "tcp" || state.values.protocol === "udp"
-              return isTcpUdp && [CUSTOM_TCP_RULE, CUSTOM_UDP_RULE].includes(state.values.ruleType)
+              const showPortFields = isTcpUdp && [CUSTOM_TCP_RULE, CUSTOM_UDP_RULE].includes(state.values.ruleType)
+              return showPortFields && <PortRangeSection form={form} disabled={isLoading} />
             }}
-          >
-            {(showPortFields) => showPortFields && <PortRangeSection form={form} disabled={isLoading} />}
           </form.Subscribe>
 
           {/* ICMP Fields (conditional for ICMP protocols) */}
-          <form.Subscribe
-            selector={(state) => state.values.protocol === "icmp" || state.values.protocol === "ipv6-icmp"}
-          >
-            {(showIcmpFields) => showIcmpFields && <IcmpSection form={form} disabled={isLoading} />}
+          <form.Subscribe>
+            {(state: FormStateType) => {
+              const showIcmpFields = state.values.protocol === "icmp" || state.values.protocol === "ipv6-icmp"
+              return showIcmpFields && <IcmpSection form={form} disabled={isLoading} />
+            }}
           </form.Subscribe>
 
           {/* Remote Source (CIDR or Security Group) */}
           <RemoteSourceSection form={form} disabled={isLoading} availableSecurityGroups={availableSecurityGroups} />
 
           {/* Ethertype (conditional for Security Group remote source) */}
-          <form.Subscribe selector={(state) => state.values.remoteSourceType === "security_group"}>
-            {(showEthertypeField) => showEthertypeField && <EthertypeSection form={form} disabled={isLoading} />}
+          <form.Subscribe>
+            {(state: FormStateType) =>
+              state.values.remoteSourceType === "security_group" && <EthertypeSection form={form} disabled={isLoading} />
+            }
           </form.Subscribe>
 
           {/* Description */}
