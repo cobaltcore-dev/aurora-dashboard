@@ -24,6 +24,35 @@ const mockFloatingIp: FloatingIp = {
   tags: [],
 }
 
+const renderModalComponent = ({
+  floatingIp = mockFloatingIp,
+  open = true,
+  onClose = vi.fn(),
+  onUpdate = vi.fn(),
+  isLoading = false,
+  error = null,
+}: {
+  floatingIp?: FloatingIp
+  open?: boolean
+  onClose?: () => void
+  onUpdate?: (floatingIpId: string, data: FloatingIpUpdateFields) => Promise<void>
+  isLoading?: boolean
+  error?: string | null
+} = {}) => (
+  <I18nProvider i18n={i18n}>
+    <PortalProvider>
+      <EditFloatingIpModal
+        floatingIp={floatingIp}
+        open={open}
+        onClose={onClose}
+        onUpdate={onUpdate}
+        isLoading={isLoading}
+        error={error}
+      />
+    </PortalProvider>
+  </I18nProvider>
+)
+
 const renderModal = ({
   floatingIp = mockFloatingIp,
   open = true,
@@ -38,21 +67,7 @@ const renderModal = ({
   onUpdate?: (floatingIpId: string, data: FloatingIpUpdateFields) => Promise<void>
   isLoading?: boolean
   error?: string | null
-} = {}) =>
-  render(
-    <I18nProvider i18n={i18n}>
-      <PortalProvider>
-        <EditFloatingIpModal
-          floatingIp={floatingIp}
-          open={open}
-          onClose={onClose}
-          onUpdate={onUpdate}
-          isLoading={isLoading}
-          error={error}
-        />
-      </PortalProvider>
-    </I18nProvider>
-  )
+} = {}) => render(renderModalComponent({ floatingIp, open, onClose, onUpdate, isLoading, error }))
 
 const submitModalForm = () => {
   fireEvent.submit(document.getElementById("edit-floating-ip-form") as HTMLFormElement)
@@ -96,7 +111,7 @@ describe("EditFloatingIpModal", () => {
     test("keeps save button disabled while form is pristine", () => {
       renderModal()
 
-      expect(screen.getByTestId("update-floating-ip-button")).toBeDisabled()
+      expect(screen.getByRole("button", { name: "Save" })).toBeDisabled()
     })
 
     test("calls onUpdate with trimmed description and port_id", async () => {
@@ -149,7 +164,7 @@ describe("EditFloatingIpModal", () => {
       submitModalForm()
 
       await waitFor(() => {
-        expect(screen.getByTestId("update-floating-ip-button")).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Save" })).toBeInTheDocument()
       })
     })
   })
@@ -179,7 +194,7 @@ describe("EditFloatingIpModal", () => {
 
       expect(screen.getByText("Updating Floating IP...")).toBeInTheDocument()
       expect(screen.queryByLabelText("Description")).not.toBeInTheDocument()
-      expect(screen.getByTestId("update-floating-ip-button")).toBeDisabled()
+      expect(screen.getByRole("button", { name: "Save" })).toBeDisabled()
     })
 
     test("displays error message when error prop is provided", () => {
@@ -199,7 +214,7 @@ describe("EditFloatingIpModal", () => {
       const user = userEvent.setup()
       renderModal({ isLoading: true, onUpdate })
 
-      await user.click(screen.getByTestId("update-floating-ip-button"))
+      await user.click(screen.getByRole("button", { name: "Save" }))
 
       expect(onUpdate).not.toHaveBeenCalled()
     })
@@ -219,7 +234,7 @@ describe("EditFloatingIpModal", () => {
     test("resets description to initial value when cancel is clicked", async () => {
       const user = userEvent.setup()
       const onClose = vi.fn()
-      renderModal({ onClose })
+      const { rerender } = renderModal({ onClose })
 
       const descriptionInput = screen.getByLabelText("Description") as HTMLTextAreaElement
       await user.clear(descriptionInput)
@@ -228,10 +243,33 @@ describe("EditFloatingIpModal", () => {
 
       await user.click(screen.getByRole("button", { name: "Cancel" }))
 
+      expect(onClose).toHaveBeenCalledTimes(1)
+
+      rerender(
+        renderModalComponent({
+          floatingIp: mockFloatingIp,
+          open: false,
+          onClose,
+          onUpdate: vi.fn(),
+          isLoading: false,
+          error: null,
+        })
+      )
+
+      rerender(
+        renderModalComponent({
+          floatingIp: mockFloatingIp,
+          open: true,
+          onClose,
+          onUpdate: vi.fn(),
+          isLoading: false,
+          error: null,
+        })
+      )
+
       await waitFor(() => {
         expect((screen.getByLabelText("Description") as HTMLTextAreaElement).value).toBe("Existing description")
       })
-      expect(onClose).toHaveBeenCalledTimes(1)
     })
   })
 })

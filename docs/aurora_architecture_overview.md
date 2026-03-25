@@ -249,7 +249,6 @@ Our release process has two main steps:
 
 1. **Release Stage**  
    Triggered by the `release` command. It runs Semantic Release, which:
-
    - Analyzes commit messages using the **Conventional Commits** format
    - Decides the next version (major, minor, or patch)
    - Generates a changelog automatically
