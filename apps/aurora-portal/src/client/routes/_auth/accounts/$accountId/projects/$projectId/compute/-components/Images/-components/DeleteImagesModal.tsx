@@ -38,6 +38,9 @@ export const DeleteImagesModal: React.FC<DeleteImagesModalProps> = ({
       modalFooter={
         <ModalFooter className="flex justify-end">
           <ButtonRow>
+            <Button variant="default" onClick={onClose}>
+              <Trans>Cancel</Trans>
+            </Button>
             <Button
               variant="primary-danger"
               onClick={(e) => {
@@ -47,10 +50,7 @@ export const DeleteImagesModal: React.FC<DeleteImagesModalProps> = ({
               disabled={isLoading}
               data-testid={`delete-image-button`}
             >
-              {isLoading ? <Spinner size="small" /> : <Trans>Delete</Trans>}
-            </Button>
-            <Button variant="default" onClick={onClose}>
-              <Trans>Cancel</Trans>
+              <Trans>Delete</Trans>
             </Button>
           </ButtonRow>
         </ModalFooter>
