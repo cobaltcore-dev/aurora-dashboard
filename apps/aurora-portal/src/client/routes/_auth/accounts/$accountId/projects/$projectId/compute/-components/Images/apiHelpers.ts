@@ -1,5 +1,4 @@
 import { TrpcClient } from "@/client/trpcClient"
-import { ImagesPaginatedResponse } from "@/server/Compute/types/image"
 
 type ImageFilters = {
   status?: string
@@ -17,7 +16,7 @@ export const createImagesPromise = (
   searchTerm: string,
   filters: ImageFilters,
   marker?: string
-): Promise<ImagesPaginatedResponse> => {
+) => {
   // If member_status filter is set (and not "all"), use the dedicated endpoint
   if (filters.member_status && filters.member_status !== "all") {
     // For member status, return all results as a single page

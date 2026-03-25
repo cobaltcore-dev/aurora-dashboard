@@ -1,7 +1,7 @@
 import { use, Suspense, useState, startTransition, useEffect, ReactNode, useCallback } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { TrpcClient } from "@/client/trpcClient"
-import { GlanceImage, ImagesPaginatedResponse } from "@/server/Compute/types/image"
+import { GlanceImage } from "@/server/Compute/types/image"
 import { useNavigate, useSearch } from "@tanstack/react-router"
 import {
   Button,
@@ -66,7 +66,7 @@ function ImagesContent({
   isFetchingNextPage,
   fetchNextPage,
 }: {
-  imagesPromise: Promise<ImagesPaginatedResponse>
+  imagesPromise: ReturnType<typeof createImagesPromise>
   permissionsPromise: Promise<{
     canCreate: boolean
     canDelete: boolean
