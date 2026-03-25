@@ -11,18 +11,11 @@ export interface AllocateFloatingIpModalProps {
   error?: string | null
 }
 
-// Inside {
-// + Error(Alert)
-// + External Network(Select)
-// + DNS Domain(Select)
-// + DNS Name(Select)
-// + Floating IP Address(TextInput)
-// + Port ID(Select)
-// + Fixed IP Address(TextInput)
-// } = DO_IT_WITH_MINIMAL_FIELD
+// Inside (Error_Alert) <- Form is done
 
 // Q: Do I need to validate ipv6?
 const ipv4Regex = /^(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}$/
+const dnsNameRegex = /^([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)*[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?$/
 
 export const AllocateFloatingIpModal = ({
   open,
@@ -34,6 +27,13 @@ export const AllocateFloatingIpModal = ({
   const { t } = useLingui()
 
   const formSchema = z.object({
+    dns_name: z
+      .string()
+      .trim()
+      .max(63, t`DNS name must be at most 63 characters.`)
+      .refine((value) => value === "" || dnsNameRegex.test(value), {
+        message: t`Must be a valid PQDN or FQDN (alphanumeric and hyphens only, cannot start or end with hyphen).`,
+      }),
     description: z
       .string()
       .trim()
@@ -48,6 +48,7 @@ export const AllocateFloatingIpModal = ({
 
   const form = useForm({
     defaultValues: {
+      dns_name: "",
       description: "",
       floating_ip_address: "",
     },
@@ -104,7 +105,30 @@ export const AllocateFloatingIpModal = ({
             form.handleSubmit()
           }}
         >
-          {/* add dns_name  */}
+          {/*
+            // + External Network(Select)
+            // + DNS Domain(Select)
+          */}
+
+          <FormSection className="mb-4">
+            <form.Field
+              name="dns_name"
+              children={(field) => (
+                <TextInput
+                  id={field.name}
+                  name={field.name}
+                  value={field.state.value}
+                  onBlur={field.handleBlur}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  placeholder={t`Enter DNS name`}
+                  label={t`DNS Name`}
+                  helptext={t`Enter a valid PQDN or FQDN (max 63 characters) to associate with the floating IP. A and PTR records are created automatically.`}
+                  errortext={field.state.meta.errors.map((e) => e?.message).join(", ")}
+                  disabled={isLoading}
+                />
+              )}
+            />
+          </FormSection>
           <FormSection className="mb-4">
             <form.Field
               name="description"
@@ -141,7 +165,8 @@ export const AllocateFloatingIpModal = ({
               )}
             />
           </FormSection>
-          {/* add port_id (select) */}
+          {/* // + Port ID(Select) */}
+          {/* // + Fixed IP Address(TextInput) */}
         </Form>
       )}
     </Modal>
