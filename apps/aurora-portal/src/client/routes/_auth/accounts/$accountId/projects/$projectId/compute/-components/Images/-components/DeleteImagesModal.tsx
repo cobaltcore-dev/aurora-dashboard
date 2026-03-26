@@ -43,10 +43,7 @@ export const DeleteImagesModal: React.FC<DeleteImagesModalProps> = ({
             </Button>
             <Button
               variant="primary-danger"
-              onClick={(e) => {
-                handleDelete(e)
-                onClose()
-              }}
+              onClick={handleDelete}
               disabled={isLoading}
               data-testid={`delete-image-button`}
             >

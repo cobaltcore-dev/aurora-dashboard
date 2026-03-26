@@ -186,27 +186,31 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({
     }
   }
 
+  const validateAndSetFile = (file: File) => {
+    const fileName = file.name.toLowerCase()
+    const isValidFile = validExtensions.some((ext) => fileName.endsWith(ext))
+
+    if (isValidFile) {
+      setSelectedFile(file)
+      if (errors.file) {
+        setErrors((prev) => {
+          const newErrors = { ...prev }
+          delete newErrors.file
+          return newErrors
+        })
+      }
+    } else {
+      setErrors((prev) => ({
+        ...prev,
+        file: t`Invalid file format. Supported formats: ${supportedFileFormats}`,
+      }))
+    }
+  }
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
-      const fileName = file.name.toLowerCase()
-      const isValidFile = validExtensions.some((ext) => fileName.endsWith(ext))
-
-      if (isValidFile) {
-        setSelectedFile(file)
-        if (errors.file) {
-          setErrors((prev) => {
-            const newErrors = { ...prev }
-            delete newErrors.file
-            return newErrors
-          })
-        }
-      } else {
-        setErrors((prev) => ({
-          ...prev,
-          file: t`Invalid file format. Supported formats: ${supportedFileFormats}`,
-        }))
-      }
+      validateAndSetFile(file)
     }
   }
 
@@ -230,27 +234,7 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({
     const droppedFiles = e.dataTransfer.files
 
     if (droppedFiles && droppedFiles.length > 0) {
-      const file = droppedFiles[0]
-
-      // Validate file type
-      const fileName = file.name.toLowerCase()
-      const isValidFile = validExtensions.some((ext) => fileName.endsWith(ext))
-
-      if (isValidFile) {
-        setSelectedFile(file)
-        if (errors.file) {
-          setErrors((prev) => {
-            const newErrors = { ...prev }
-            delete newErrors.file
-            return newErrors
-          })
-        }
-      } else {
-        setErrors((prev) => ({
-          ...prev,
-          file: t`Invalid file format. Supported formats: ${supportedFileFormats}`,
-        }))
-      }
+      validateAndSetFile(droppedFiles[0])
     }
   }
 

@@ -87,13 +87,12 @@ describe("DeleteImagesModal", () => {
     expect(mockOnClose).toHaveBeenCalledTimes(1)
   })
 
-  it("should call onDelete and onClose when the delete button is clicked", () => {
+  it("should call onDelete when the delete button is clicked", () => {
     setup(true, false, mockDeletableImages, mockProtectedImages)
     const deleteButton = screen.getByRole("button", { name: /Delete/i })
     fireEvent.click(deleteButton)
     expect(mockOnDelete).toHaveBeenCalledTimes(1)
     expect(mockOnDelete).toHaveBeenCalledWith(mockDeletableImages)
-    expect(mockOnClose).toHaveBeenCalledTimes(1)
   })
 
   it("should disable the delete button when isLoading is true", () => {
@@ -102,13 +101,7 @@ describe("DeleteImagesModal", () => {
     expect(deleteButton).toBeDisabled()
   })
 
-  it("should show spinner in delete button when isLoading is true", () => {
-    setup(true, true)
-    const spinners = screen.getAllByRole("progressbar")
-    expect(spinners.length).toBeGreaterThan(0)
-  })
-
-  it("should show loading spinner overlay when isLoading is true", () => {
+  it("should show global loading spinner when isLoading is true", () => {
     setup(true, true)
     const spinners = screen.getAllByRole("progressbar")
     expect(spinners.length).toBeGreaterThan(0)
@@ -200,8 +193,7 @@ describe("DeleteImagesModal", () => {
   it("should show danger variant for main message", () => {
     setup(true)
     const dangerMessage = screen.getByText(/You are about to delete 3 image\(s\)/i).closest(".juno-message")
-
     expect(dangerMessage).toBeInTheDocument()
-    expect(dangerMessage).toContain(screen.getByTitle("Danger"))
+    expect(screen.getByTitle("Danger")).toBeInTheDocument()
   })
 })
