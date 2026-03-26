@@ -373,13 +373,15 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({
   return (
     <Modal
       open={isOpen}
-      onCancel={handleClose}
+      onCancel={isLoading ? undefined : handleClose}
       size="large"
       title={t`Create New Image`}
       onConfirm={handleSubmit}
       confirmButtonLabel={t`Create Image`}
       cancelButtonLabel={t`Cancel`}
       disableConfirmButton={isLoading || !isFormValid}
+      closeable={!isLoading}
+      closeOnEsc={!isLoading}
     >
       {isLoading && !uploadProgressPercent && (
         <Stack distribution="center" alignment="center" className="mt-4">

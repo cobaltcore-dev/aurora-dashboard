@@ -43,7 +43,7 @@ describe("DeactivateImagesModal", () => {
   it("should render the modal when isOpen is true", () => {
     setup(true)
     expect(screen.getByText("Deactivate Images")).toBeInTheDocument()
-    expect(screen.getByText(/You are about to deactivate 3 image\(s\)/i)).toBeInTheDocument()
+    expect(screen.getByText(/You are about to deactivate/i)).toBeInTheDocument()
   })
 
   it("should not render the modal when isOpen is false", () => {

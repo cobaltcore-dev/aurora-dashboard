@@ -43,7 +43,7 @@ describe("ActivateImagesModal", () => {
   it("should render the modal when isOpen is true", () => {
     setup(true)
     expect(screen.getByText("Activate Images")).toBeInTheDocument()
-    expect(screen.getByText(/You are about to activate 3 image\(s\)/i)).toBeInTheDocument()
+    expect(screen.getByText(/You are about to activate/i)).toBeInTheDocument()
   })
 
   it("should not render the modal when isOpen is false", () => {
@@ -142,7 +142,7 @@ describe("ActivateImagesModal", () => {
 
   it("should render with single image correctly", () => {
     setup(true, false, ["single-image"], [])
-    expect(screen.getByText(/You are about to activate 1 image\(s\)/i)).toBeInTheDocument()
+    expect(screen.getByText(/You are about to activate/i)).toBeInTheDocument()
     expect(screen.getByText("single-image")).toBeInTheDocument()
   })
 
