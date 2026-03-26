@@ -177,7 +177,7 @@ importers:
     devDependencies:
       '@cloudoperators/juno-ui-components':
         specifier: ^6.1.3
-        version: 6.1.3(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+        version: 6.2.0(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       '@cobaltcore-dev/aurora-config':
         specifier: workspace:*
         version: link:../../packages/config
@@ -435,8 +435,8 @@ packages:
     resolution: {integrity: sha512-LwdZHpScM4Qz8Xw2iKSzS+cfglZzJGvofQICy7W7v4caru4EaAmyUuO6BGrbyQ2mYV11W0U8j5mBhd14dd3B0A==}
     engines: {node: '>=6.9.0'}
 
-  '@cloudoperators/juno-ui-components@6.1.3':
-    resolution: {integrity: sha512-G4utbBYRTMnqza6mC1z1VuXY2HJcb3GPY6xCKhzVmKHCjVDDrvbI8Idr7/HcYt8NX/J8Bg9j993T9OP9tzNLfw==}
+  '@cloudoperators/juno-ui-components@6.2.0':
+    resolution: {integrity: sha512-zY9y1Q/9cwcxwro/cOkVSwAaXx4TLSAjtYBQCGKX1gDOSX2nwZpC4Mu/rpPDkxTS4v8fAxHHldyy+4lwkcpLQQ==}
     engines: {node: '>=20.0.0', pnpm: '>=8.0.0'}
     peerDependencies:
       react: ^19.1.0
@@ -5772,7 +5772,7 @@ snapshots:
       '@babel/helper-string-parser': 7.27.1
       '@babel/helper-validator-identifier': 7.28.5
 
-  '@cloudoperators/juno-ui-components@6.1.3(react-dom@19.2.4(react@19.2.4))(react@19.2.4)':
+  '@cloudoperators/juno-ui-components@6.2.0(react-dom@19.2.4(react@19.2.4))(react@19.2.4)':
     dependencies:
       react: 19.2.4
       react-dom: 19.2.4(react@19.2.4)
