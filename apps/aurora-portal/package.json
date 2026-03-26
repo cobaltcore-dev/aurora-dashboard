@@ -67,7 +67,7 @@
     "@tailwindcss/vite": "^4.1.18",
     "@tanstack/react-devtools": "^0.10.0",
     "@tanstack/react-form-devtools": "^0.2.19",
-    "@tanstack/react-router-devtools": "^1.157.16",
+    "@tanstack/react-router-devtools": "^1.166.11",
     "@tanstack/router-plugin": "^1.167.5",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",
