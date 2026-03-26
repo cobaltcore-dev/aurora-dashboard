@@ -3167,7 +3167,7 @@ msgstr "Sie sind nicht berechtigt, Metadata zu erstellen. Bitte melden Sie sich 
 
 #: src/client/utils/useErrorTranslation.ts:42
 msgid "You are not authorized to create flavors. Please log in again."
-msgstr "Willkommen zurück, {username}!"
+msgstr "Sie sind nicht berechtigt, Flavors zu erstellen. Bitte melden Sie sich erneut an."
 
 #: src/client/utils/useErrorTranslation.ts:100
 msgid "You are not authorized to delete extra specs. Please log in again."
