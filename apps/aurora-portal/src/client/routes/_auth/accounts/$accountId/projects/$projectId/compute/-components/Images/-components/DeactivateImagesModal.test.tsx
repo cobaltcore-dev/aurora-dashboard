@@ -98,12 +98,6 @@ describe("DeactivateImagesModal", () => {
     expect(mockOnClose).toHaveBeenCalledTimes(1)
   })
 
-  it("should show spinner in deactivate button when isLoading is true", () => {
-    setup(true, true)
-    const spinners = screen.getAllByRole("progressbar")
-    expect(spinners.length).toBeGreaterThan(0)
-  })
-
   it("should show loading spinner overlay when isLoading is true", () => {
     setup(true, true)
     const spinners = screen.getAllByRole("progressbar")

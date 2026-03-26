@@ -197,18 +197,12 @@ describe("DeleteImagesModal", () => {
     })
   })
 
-  it("should show warning variant for main message", () => {
+  it("should show danger variant for main message", () => {
     setup(true)
     const dangerMessage = screen.getByText(/You are about to delete 3 image\(s\)/i).closest(".juno-message")
 
     expect(dangerMessage).toBeInTheDocument()
     expect(dangerMessage).toContain(screen.getByTitle("Danger"))
   })
-
-  it("should show info variant for deletion impact message", () => {
-    setup(true)
-    // Info message was removed; only the danger message remains
-    const dangerMessage = screen.getByText(/You are about to delete 3 image\(s\)/i).closest(".juno-message")
-    expect(dangerMessage).toBeInTheDocument()
-  })
+  d
 })
