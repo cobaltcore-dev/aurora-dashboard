@@ -204,5 +204,4 @@ describe("DeleteImagesModal", () => {
     expect(dangerMessage).toBeInTheDocument()
     expect(dangerMessage).toContain(screen.getByTitle("Danger"))
   })
-  d
 })
