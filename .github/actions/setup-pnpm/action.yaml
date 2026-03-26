@@ -31,7 +31,7 @@ runs:
         path: |
           ~/.local/share/pnpm/store
           node_modules
-        key: ${{ runner.OS }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+        key: ${{ runner.OS }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml', '**/package.json') }}
         restore-keys: |
           ${{ runner.OS }}-pnpm-
     - name: Install Dependencies
