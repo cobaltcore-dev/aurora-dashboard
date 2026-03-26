@@ -119,10 +119,11 @@ export const createRuleFormSchema = z
 
     // Validation 3: ICMP validation (only if ICMP protocol is selected)
     if (isIcmp) {
+      // Parse values
       const icmpType = data.icmpType ? parseInt(data.icmpType, 10) : null
       const icmpCode = data.icmpCode ? parseInt(data.icmpCode, 10) : null
 
-      // Check for NaN values
+      // Step 1: Check for NaN values FIRST (early validation)
       if (data.icmpType && isNaN(icmpType!)) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
@@ -130,6 +131,7 @@ export const createRuleFormSchema = z
           path: ["icmpType"],
         })
       }
+
       if (data.icmpCode && isNaN(icmpCode!)) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
@@ -138,7 +140,7 @@ export const createRuleFormSchema = z
         })
       }
 
-      // CRITICAL: OpenStack requires ICMP type when code is specified
+      // Step 2: Check OpenStack requirement (Type required when Code is specified)
       // https://opendev.org/openstack/neutron/src/branch/master/neutron/db/securitygroups_db.py
       if (data.icmpCode && !data.icmpType) {
         ctx.addIssue({
@@ -148,14 +150,12 @@ export const createRuleFormSchema = z
         })
       }
 
-      // Only validate ranges if values are valid numbers (not NaN)
-      const hasValidIcmpType = typeof icmpType === "number" && !Number.isNaN(icmpType)
-      const hasValidIcmpCode = typeof icmpCode === "number" && !Number.isNaN(icmpCode)
-
-      if (hasValidIcmpType || hasValidIcmpCode) {
+      // Step 3: Use helper function for range validation (0-255)
+      // Now we know values are valid numbers (or null)
+      if (icmpType !== null || icmpCode !== null) {
         const result = validateIcmpTypeCode(icmpType, icmpCode)
         if (!result.valid) {
-          // The shared function provides error messages - parse them to target specific fields
+          // Parse error message to target specific fields
           if (result.error?.includes("type")) {
             ctx.addIssue({
               code: z.ZodIssueCode.custom,
@@ -168,14 +168,6 @@ export const createRuleFormSchema = z
               code: z.ZodIssueCode.custom,
               message: `ICMP code must be between ${ICMP_MIN} and ${ICMP_MAX}`,
               path: ["icmpCode"],
-            })
-          }
-          // Fallback for generic errors
-          if (!result.error?.includes("type") && !result.error?.includes("code")) {
-            ctx.addIssue({
-              code: z.ZodIssueCode.custom,
-              message: result.error || "Invalid ICMP type/code",
-              path: ["icmpType"],
             })
           }
         }

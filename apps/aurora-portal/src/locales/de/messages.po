@@ -180,15 +180,15 @@ msgstr "Eigenschaft hinzufügen"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-components/-details/SecurityGroupRulesTable.tsx:126
 msgid "Add rule"
-msgstr ""
+msgstr "Regel hinzufügen"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/AddRuleModal/AddRuleModal.tsx:155
 msgid "Add Rule"
-msgstr ""
+msgstr "Regel hinzufügen"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/AddRuleModal/AddRuleModal.tsx:142
 msgid "Add Security Group Rule"
-msgstr ""
+msgstr "Sicherheitsgruppenregel hinzufügen"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/ManageAccessModal.tsx:207
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/TenantAccessFormRow.tsx:40
@@ -197,7 +197,7 @@ msgstr "Projektzugriff hinzufügen"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/DeleteSecurityGroupDialog.tsx:89
 msgid "After continuing, your project will no longer have access to the security group and any rules associated with it."
-msgstr ""
+msgstr "Nach dem Fortfahren hat Ihr Projekt keinen Zugriff mehr auf die Sicherheitsgruppe und alle damit verbundenen Regeln."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/ObjectsFileNavigation.tsx:58
 msgid "All containers"
@@ -370,7 +370,7 @@ msgstr ""
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-components/-details/SecurityGroupHeader.tsx:14
 msgid "Configure the ingress and egress rules that control which traffic is allowed for this security group."
-msgstr ""
+msgstr "Konfigurieren Sie die Eingangs- und Ausgangsregeln, die steuern, welcher Datenverkehr für diese Sicherheitsgruppe erlaubt ist."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageTableRow.tsx:120
 msgid "Confirm Access"
@@ -577,11 +577,11 @@ msgstr "Image wird erstellt..."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/AddRuleModal/AddRuleModal.tsx:177
 msgid "Creating security group rule..."
-msgstr ""
+msgstr "Sicherheitsgruppenregel wird erstellt..."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/CreateSecurityGroupModal.tsx:140
 msgid "Creating security group..."
-msgstr ""
+msgstr "Sicherheitsgruppe wird erstellt..."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ConfirmImageAccessModal.tsx:168
 msgid "Current Status"
@@ -662,7 +662,7 @@ msgstr "Images löschen"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/DeleteRuleDialog.tsx:49
 msgid "Delete Rule"
-msgstr ""
+msgstr "Regel löschen"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/DeleteSecurityGroupDialog.tsx:47
 msgid "Delete Security Group"
@@ -670,7 +670,7 @@ msgstr ""
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/DeleteRuleDialog.tsx:39
 msgid "Delete Security Group Rule"
-msgstr ""
+msgstr "Sicherheitsgruppenregel löschen"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageToastNotifications.tsx:229
 msgid "Deleted {successCount} image(s), but {failedCount} image(s) could not be deleted."
@@ -752,7 +752,7 @@ msgstr ""
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/index.tsx:61
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/index.tsx:68
 msgid "Direction"
-msgstr ""
+msgstr "Richtung"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/flavors/-components/FlavorDetailsView.tsx:61
 msgid "Disabled"
@@ -892,7 +892,7 @@ msgstr "Stellen Sie sicher, dass ACL-Einträge gültig sind — korrekte Projekt
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/AddRuleModal/sections/PortRangeSection.tsx:93
 msgid "Enter a single port, or define a range by also filling \"Port (to)\". \"Port (to)\" is optional."
-msgstr ""
+msgstr "Geben Sie einen einzelnen Port ein oder definieren Sie einen Bereich, indem Sie auch \"Port (bis)\" ausfüllen. \"Port (bis)\" ist optional."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageDetailsModal.tsx:275
 msgid "Enter a tag and press Enter or click Add"
@@ -993,7 +993,7 @@ msgstr ""
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/DeleteRuleDialog.tsx:86
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/index.tsx:74
 msgid "Ethertype"
-msgstr ""
+msgstr "Ethertype"
 
 #: src/client/utils/useErrorTranslation.ts:108
 msgid "Extra spec key is required and cannot be empty."
@@ -1311,11 +1311,11 @@ msgstr "Ich bestätige, dass alle vorhandenen Versionen ebenfalls gelöscht werd
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/AddRuleModal/sections/IcmpSection.tsx:35
 msgid "ICMP Code"
-msgstr ""
+msgstr "ICMP-Code"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/AddRuleModal/sections/IcmpSection.tsx:21
 msgid "ICMP Type"
-msgstr ""
+msgstr "ICMP-Typ"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImageModal.tsx:92
 msgid "Id"
@@ -1955,7 +1955,7 @@ msgstr ""
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/DeleteSecurityGroupDialog.tsx:97
 msgid "Note: If this security group is currently in use by one or more ports, the deletion will fail. Please ensure no resources are using this security group before attempting to delete it."
-msgstr ""
+msgstr "Hinweis: Wenn diese Sicherheitsgruppe derzeit von einem oder mehreren Ports verwendet wird, schlägt die Löschung fehl. Bitte stellen Sie sicher, dass keine Ressourcen diese Sicherheitsgruppe verwenden, bevor Sie versuchen, sie zu löschen."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/EditSecurityGroupModal.tsx:148
 msgid "Note: The 'stateful' attribute cannot be changed if this security group is currently in use by one or more ports."
@@ -2099,11 +2099,11 @@ msgstr "Richtlinie"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/AddRuleModal/sections/PortRangeSection.tsx:34
 msgid "Port (from)"
-msgstr ""
+msgstr "Port (von)"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/AddRuleModal/sections/PortRangeSection.tsx:65
 msgid "Port (to)"
-msgstr ""
+msgstr "Port (bis)"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/FloatingIpDetailsView.tsx:198
 msgid "Port Forwarding"
@@ -2119,7 +2119,7 @@ msgstr ""
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/DeleteRuleDialog.tsx:95
 msgid "Port Range"
-msgstr ""
+msgstr "Port-Bereich"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/CreateImageModal.tsx:492
 msgid "Press Enter to add"
@@ -2194,7 +2194,7 @@ msgstr "Geschützte Images (können nicht gelöscht werden)"
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/index.tsx:62
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/index.tsx:80
 msgid "Protocol"
-msgstr ""
+msgstr "Protokoll"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/CreateImageModal.tsx:523
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageDetailsModal.tsx:303
@@ -2287,20 +2287,20 @@ msgstr "Verfügbare Quota:"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/DeleteRuleDialog.tsx:103
 msgid "Remote IP"
-msgstr ""
+msgstr "Entfernte IP"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/AddRuleModal/sections/RemoteSourceSection.tsx:57
 msgid "Remote IP Prefix"
-msgstr ""
+msgstr "Entferntes IP-Präfix"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/AddRuleModal/sections/RemoteSourceSection.tsx:82
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/DeleteRuleDialog.tsx:108
 msgid "Remote Security Group"
-msgstr ""
+msgstr "Entfernte Sicherheitsgruppe"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/AddRuleModal/sections/RemoteSourceSection.tsx:23
 msgid "Remote Source"
-msgstr ""
+msgstr "Entfernte Quelle"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/TenantAccessRow.tsx:50
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/CreateImageModal.tsx:456
@@ -2367,15 +2367,15 @@ msgstr ""
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/DeleteRuleDialog.tsx:74
 msgid "Rule Details:"
-msgstr ""
+msgstr "Regeldetails:"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/AddRuleModal/sections/RuleTypeSection.tsx:20
 msgid "Rule Type"
-msgstr ""
+msgstr "Regeltyp"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-components/-details/SecurityGroupTabs.tsx:24
 msgid "Rules"
-msgstr ""
+msgstr "Regeln"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/CreateFlavorModal.tsx:274
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/flavors/-components/FlavorDetailsView.tsx:112
@@ -2682,7 +2682,7 @@ msgstr "Tags"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/AddRuleModal/sections/ProtocolSection.tsx:24
 msgid "tcp, udp, icmp, or protocol number"
-msgstr ""
+msgstr "tcp, udp, icmp oder Protokollnummer"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ContainerLimitsTooltip.tsx:54
 msgid "Temporary URLs"
@@ -2803,7 +2803,7 @@ msgstr "Keine Images verfügbar. Filtern Sie neu oder erstellen Sie ein neues Im
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-components/-details/SecurityGroupRulesTable.tsx:134
 msgid "There are no rules for this security group"
-msgstr ""
+msgstr "Es gibt keine Regeln für diese Sicherheitsgruppe"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/DeleteFlavorModal.tsx:108
 msgid "This action cannot be undone. The flavor will be permanently deleted."
@@ -2815,7 +2815,7 @@ msgstr "Diese Aktion kann nicht rückgängig gemacht werden. Das Image wird daue
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/DeleteRuleDialog.tsx:61
 msgid "This action cannot be undone. The rule will be permanently deleted."
-msgstr ""
+msgstr "Diese Aktion kann nicht rückgängig gemacht werden. Die Regel wird dauerhaft gelöscht."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/DeleteSecurityGroupDialog.tsx:69
 msgid "This action cannot be undone. The security group will be permanently deleted."

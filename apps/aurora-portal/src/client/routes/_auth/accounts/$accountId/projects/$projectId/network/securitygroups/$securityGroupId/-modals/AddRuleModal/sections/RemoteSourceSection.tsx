@@ -82,6 +82,7 @@ export function RemoteSourceSection({ form, disabled = false, availableSecurityG
                     label={t`Remote Security Group`}
                     value={remoteSecurityGroupIdField.state.value}
                     onChange={(value) => remoteSecurityGroupIdField.handleChange(String(value))}
+                    errortext={remoteSecurityGroupIdField.state.meta.errors[0]?.message}
                     disabled={disabled}
                   >
                     <SelectOption value="" label={t`Select a security group...`} />
