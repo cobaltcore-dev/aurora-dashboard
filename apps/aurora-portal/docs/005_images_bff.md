@@ -37,8 +37,6 @@ Retrieves a list of images with optional filtering and sorting.
 | `min_ram`          | number  | Minimum RAM requirement in MB                                                | -            |
 | `min_disk`         | number  | Minimum disk requirement in GB                                               | -            |
 | `tag`              | string  | Filter by tag                                                                | -            |
-| `os_type`          | enum    | Filter by OS type (`linux`, `windows`)                                       | -            |
-| `os_hidden`        | boolean | Filter by OS hidden status                                                   | -            |
 | `member_status`    | enum    | Filter by member status (`pending`, `accepted`, `rejected`, `all`)           | -            |
 | `created_at`       | string  | Filter by creation time (format: `operator:ISO8601_time`)                    | -            |
 | `updated_at`       | string  | Filter by update time (format: `operator:ISO8601_time`)                      | -            |
@@ -89,7 +87,6 @@ const imagesLegacy = await client.compute.image.listImagesWithSearch.query({
 // Filtering examples
 const filteredImages = await client.compute.image.listImagesWithSearch.query({
   sort: "created_at:desc",
-  os_type: "linux",
   disk_format: "qcow2",
   size_min: 1000000000, // 1GB minimum
   tags: "production",
@@ -213,9 +210,6 @@ Creates a new image with metadata only (no binary data).
 | `min_ram`          | number        | Minimum RAM in MB                       | `0`       |
 | `min_disk`         | number        | Minimum disk in GB                      | `0`       |
 | `tags`             | string[]      | Image tags                              | `[]`      |
-| `os_type`          | enum          | Operating system type                   | -         |
-| `os_distro`        | string        | OS distribution                         | -         |
-| `os_version`       | string        | OS version                              | -         |
 | `architecture`     | string        | System architecture                     | -         |
 | `os_hidden`        | boolean       | Hide from OS lists                      | `false`   |
 
@@ -239,9 +233,6 @@ const newImage = await client.compute.image.createImage.mutate({
   container_format: "bare",
   disk_format: "qcow2",
   visibility: "private",
-  os_type: "linux",
-  os_distro: "ubuntu",
-  os_version: "22.04",
   min_ram: 1024,
   min_disk: 10,
   tags: ["ubuntu", "lts", "server"],

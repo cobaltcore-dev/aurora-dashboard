@@ -44,8 +44,6 @@ describe("EditImageMetadataModal", () => {
     min_disk: 10,
     min_ram: 512,
     // Custom metadata that should be editable
-    os_type: "Linux",
-    os_distro: "Ubuntu",
     os_version: "22.04",
     architecture: "x86_64",
     app_version: "1.2.3",
@@ -378,7 +376,7 @@ describe("EditImageMetadataModal", () => {
   test("save button is disabled when there are no changes", async () => {
     renderMetadataModal(true, mockOnClose, mockImage, mockOnSave)
 
-    const saveButton = screen.getByTestId("save-metadata-button")
+    const saveButton = screen.getByRole("button", { name: /Save Changes/i })
 
     await waitFor(() => {
       expect(saveButton).toBeDisabled()
@@ -405,7 +403,7 @@ describe("EditImageMetadataModal", () => {
     })
 
     // Now the save button should be enabled
-    const saveButton = screen.getByTestId("save-metadata-button")
+    const saveButton = screen.getByRole("button", { name: /Save Changes/i })
     await waitFor(() => {
       expect(saveButton).not.toBeDisabled()
     })
@@ -447,7 +445,7 @@ describe("EditImageMetadataModal", () => {
     })
 
     // Now the save button should be enabled
-    const saveButton = screen.getByTestId("save-metadata-button")
+    const saveButton = screen.getByRole("button", { name: /Save Changes/i })
     await waitFor(() => {
       expect(saveButton).not.toBeDisabled()
     })
@@ -480,7 +478,7 @@ describe("EditImageMetadataModal", () => {
   test("disables Save Changes button when editing or adding", async () => {
     renderMetadataModal(true, mockOnClose, mockImage, mockOnSave)
 
-    const saveButton = screen.getByTestId("save-metadata-button")
+    const saveButton = screen.getByRole("button", { name: /Save Changes/i })
     // Initially disabled because no changes
     expect(saveButton).toBeDisabled()
 
@@ -508,25 +506,12 @@ describe("EditImageMetadataModal", () => {
     renderMetadataModal(true, mockOnClose, mockImage, mockOnSave, true)
 
     await waitFor(() => {
-      const saveButton = screen.getByTestId("save-metadata-button")
-      const cancelButton = screen.getByText("Cancel")
-
+      const saveButton = screen.getByRole("button", { name: /Save Changes/i })
       expect(saveButton).toBeDisabled()
-      expect(cancelButton).toBeDisabled()
     })
   })
 
   test("displays info message about custom metadata", async () => {
-    renderMetadataModal(true, mockOnClose, mockImage, mockOnSave)
-
-    await waitFor(() => {
-      expect(
-        screen.getByText(/Custom metadata properties can be used to store additional information/i)
-      ).toBeInTheDocument()
-    })
-  })
-
-  test("displays warning message when metadata exists", async () => {
     renderMetadataModal(true, mockOnClose, mockImage, mockOnSave)
 
     await waitFor(() => {

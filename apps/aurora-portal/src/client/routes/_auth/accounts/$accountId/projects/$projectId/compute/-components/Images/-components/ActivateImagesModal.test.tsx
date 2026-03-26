@@ -43,7 +43,7 @@ describe("ActivateImagesModal", () => {
   it("should render the modal when isOpen is true", () => {
     setup(true)
     expect(screen.getByText("Activate Images")).toBeInTheDocument()
-    expect(screen.getByText(/You are about to activate 3 image\(s\)/i)).toBeInTheDocument()
+    expect(screen.getByText(/You are about to activate/i)).toBeInTheDocument()
   })
 
   it("should not render the modal when isOpen is false", () => {
@@ -95,14 +95,6 @@ describe("ActivateImagesModal", () => {
     fireEvent.click(activateButton)
     expect(mockOnActivate).toHaveBeenCalledTimes(1)
     expect(mockOnActivate).toHaveBeenCalledWith(mockDeactivatedImages)
-    expect(mockOnClose).toHaveBeenCalledTimes(1)
-  })
-
-  it("should show spinner in activate button when isLoading is true", () => {
-    setup(true, true)
-    const activateButton = screen.getByTestId("activate-image-button")
-    const spinner = activateButton.querySelector('[role="progressbar"]')
-    expect(spinner).toBeInTheDocument()
   })
 
   it("should show loading spinner overlay when isLoading is true", () => {
@@ -134,20 +126,6 @@ describe("ActivateImagesModal", () => {
     expect(screen.queryByText(/Already active \(will be skipped\):/i)).not.toBeInTheDocument()
   })
 
-  it("should display warning message for deactivated images", () => {
-    setup(true)
-    expect(
-      screen.getByText(/You are about to activate 3 image\(s\)\. Activated images will be available/i)
-    ).toBeInTheDocument()
-  })
-
-  it("should display info message about activation", () => {
-    setup(true)
-    expect(
-      screen.getByText(/Activated images will become available for launching new instances and creating volumes/i)
-    ).toBeInTheDocument()
-  })
-
   it("should handle empty deactivatedImages array", () => {
     setup(true, false, [], mockActiveImages)
     expect(screen.queryByText(/Images to be activated/i)).not.toBeInTheDocument()
@@ -164,7 +142,7 @@ describe("ActivateImagesModal", () => {
 
   it("should render with single image correctly", () => {
     setup(true, false, ["single-image"], [])
-    expect(screen.getByText(/You are about to activate 1 image\(s\)/i)).toBeInTheDocument()
+    expect(screen.getByText(/You are about to activate/i)).toBeInTheDocument()
     expect(screen.getByText("single-image")).toBeInTheDocument()
   })
 

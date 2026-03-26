@@ -184,17 +184,17 @@ function ImagesContent({
                 <PopupMenuOptions>
                   <PopupMenuItem
                     disabled={isDeleteAllDisabled}
-                    label={t`Delete All`}
+                    label={t`Delete Selected`}
                     onClick={() => setDeleteAllModalOpen(true)}
                   />
                   <PopupMenuItem
                     disabled={isDeactivateAllDisabled}
-                    label={t`Deactivate All`}
+                    label={t`Deactivate Selected`}
                     onClick={() => setDeactivateAllModalOpen(true)}
                   />
                   <PopupMenuItem
                     disabled={isActivateAllDisabled}
-                    label={t`Activate All`}
+                    label={t`Activate Selected`}
                     onClick={() => setActivateAllModalOpen(true)}
                   />
                 </PopupMenuOptions>
