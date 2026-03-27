@@ -1,9 +1,9 @@
+import React from "react"
 import {
   Stack,
-  DataGrid,
-  DataGridRow,
-  DataGridCell,
-  DataGridHeadCell,
+  DescriptionList,
+  DescriptionTerm,
+  DescriptionDefinition,
   ContentHeading,
 } from "@cloudoperators/juno-ui-components/index"
 import { Trans } from "@lingui/react/macro"
@@ -25,95 +25,81 @@ export function FlavorDetailsView({ flavor }: FlavorDetailsViewProps) {
         <ContentHeading>
           <Trans>Basic Information</Trans>
         </ContentHeading>
-        <DataGrid columns={2}>
-          <DataGridRow>
-            <DataGridHeadCell>
-              <Trans>ID</Trans>
-            </DataGridHeadCell>
-            <DataGridCell>{flavor.id}</DataGridCell>
-          </DataGridRow>
+        <DescriptionList alignTerms="right">
+          <DescriptionTerm>
+            <Trans>ID</Trans>
+          </DescriptionTerm>
+          <DescriptionDefinition>{flavor.id}</DescriptionDefinition>
 
-          <DataGridRow>
-            <DataGridHeadCell>
-              <Trans>Name</Trans>
-            </DataGridHeadCell>
-            <DataGridCell>{flavor.name}</DataGridCell>
-          </DataGridRow>
+          <DescriptionTerm>
+            <Trans>Name</Trans>
+          </DescriptionTerm>
+          <DescriptionDefinition>{flavor.name}</DescriptionDefinition>
 
-          {flavor.description && (
-            <DataGridRow>
-              <DataGridHeadCell>
+          {flavor.description ? (
+            <div>
+              <DescriptionTerm>
                 <Trans>Description</Trans>
-              </DataGridHeadCell>
-              <DataGridCell>{flavor.description}</DataGridCell>
-            </DataGridRow>
+              </DescriptionTerm>
+              <DescriptionDefinition>{flavor.description}</DescriptionDefinition>
+            </div>
+          ) : (
+            <div />
           )}
 
-          <DataGridRow>
-            <DataGridHeadCell>
-              <Trans>Public</Trans>
-            </DataGridHeadCell>
-            <DataGridCell>{flavor["os-flavor-access:is_public"] ? <Trans>Yes</Trans> : <Trans>No</Trans>}</DataGridCell>
-          </DataGridRow>
+          <DescriptionTerm>
+            <Trans>Public</Trans>
+          </DescriptionTerm>
+          <DescriptionDefinition>
+            {flavor["os-flavor-access:is_public"] ? <Trans>Yes</Trans> : <Trans>No</Trans>}
+          </DescriptionDefinition>
 
-          <DataGridRow>
-            <DataGridHeadCell>
-              <Trans>Disabled</Trans>
-            </DataGridHeadCell>
-            <DataGridCell>{flavor["OS-FLV-DISABLED:disabled"] ? <Trans>Yes</Trans> : <Trans>No</Trans>}</DataGridCell>
-          </DataGridRow>
-        </DataGrid>
+          <DescriptionTerm>
+            <Trans>Disabled</Trans>
+          </DescriptionTerm>
+          <DescriptionDefinition>
+            {flavor["OS-FLV-DISABLED:disabled"] ? <Trans>Yes</Trans> : <Trans>No</Trans>}
+          </DescriptionDefinition>
+        </DescriptionList>
       </Stack>
 
       <Stack direction="vertical" gap="2">
         <ContentHeading>
           <Trans>Hardware Specifications</Trans>
         </ContentHeading>
-        <DataGrid columns={2}>
-          <DataGridRow>
-            <DataGridHeadCell>
-              <Trans>VCPUs</Trans>
-            </DataGridHeadCell>
-            <DataGridCell>{flavor.vcpus}</DataGridCell>
-          </DataGridRow>
+        <DescriptionList alignTerms="right">
+          <DescriptionTerm>
+            <Trans>VCPUs</Trans>
+          </DescriptionTerm>
+          <DescriptionDefinition>{flavor.vcpus}</DescriptionDefinition>
 
-          <DataGridRow>
-            <DataGridHeadCell>
-              <Trans>RAM</Trans>
-            </DataGridHeadCell>
-            <DataGridCell>{formatBytes(flavor.ram, "MiB")}</DataGridCell>
-          </DataGridRow>
+          <DescriptionTerm>
+            <Trans>RAM</Trans>
+          </DescriptionTerm>
+          <DescriptionDefinition>{formatBytes(flavor.ram, "MiB")}</DescriptionDefinition>
 
-          <DataGridRow>
-            <DataGridHeadCell>
-              <Trans>Disk</Trans>
-            </DataGridHeadCell>
-            <DataGridCell>{formatBytes(flavor.disk, "GiB")}</DataGridCell>
-          </DataGridRow>
+          <DescriptionTerm>
+            <Trans>Disk</Trans>
+          </DescriptionTerm>
+          <DescriptionDefinition>{formatBytes(flavor.disk, "GiB")}</DescriptionDefinition>
 
-          <DataGridRow>
-            <DataGridHeadCell>
-              <Trans>Ephemeral Disk</Trans>
-            </DataGridHeadCell>
-            <DataGridCell>{formatBytes(flavor["OS-FLV-EXT-DATA:ephemeral"] || 0, "GiB")}</DataGridCell>
-          </DataGridRow>
+          <DescriptionTerm>
+            <Trans>Ephemeral Disk</Trans>
+          </DescriptionTerm>
+          <DescriptionDefinition>{formatBytes(flavor["OS-FLV-EXT-DATA:ephemeral"] || 0, "GiB")}</DescriptionDefinition>
 
-          <DataGridRow>
-            <DataGridHeadCell>
-              <Trans>Swap</Trans>
-            </DataGridHeadCell>
-            <DataGridCell>
-              {flavor.swap === 0 || flavor.swap === "" ? <Trans>None</Trans> : formatBytes(Number(flavor.swap), "MiB")}
-            </DataGridCell>
-          </DataGridRow>
+          <DescriptionTerm>
+            <Trans>Swap</Trans>
+          </DescriptionTerm>
+          <DescriptionDefinition>
+            {flavor.swap === 0 || flavor.swap === "" ? <Trans>None</Trans> : formatBytes(Number(flavor.swap), "MiB")}
+          </DescriptionDefinition>
 
-          <DataGridRow>
-            <DataGridHeadCell>
-              <Trans>RX/TX Factor</Trans>
-            </DataGridHeadCell>
-            <DataGridCell>{flavor.rxtx_factor}</DataGridCell>
-          </DataGridRow>
-        </DataGrid>
+          <DescriptionTerm>
+            <Trans>RX/TX Factor</Trans>
+          </DescriptionTerm>
+          <DescriptionDefinition>{flavor.rxtx_factor}</DescriptionDefinition>
+        </DescriptionList>
       </Stack>
 
       {flavor.extra_specs && Object.keys(flavor.extra_specs).length > 0 && (
@@ -121,14 +107,14 @@ export function FlavorDetailsView({ flavor }: FlavorDetailsViewProps) {
           <ContentHeading>
             <Trans>Extra Specs</Trans>
           </ContentHeading>
-          <DataGrid columns={2}>
+          <DescriptionList alignTerms="right">
             {Object.entries(flavor.extra_specs).map(([key, value]) => (
-              <DataGridRow key={key}>
-                <DataGridHeadCell>{key}</DataGridHeadCell>
-                <DataGridCell>{value}</DataGridCell>
-              </DataGridRow>
+              <React.Fragment key={key}>
+                <DescriptionTerm>{key}</DescriptionTerm>
+                <DescriptionDefinition>{value}</DescriptionDefinition>
+              </React.Fragment>
             ))}
-          </DataGrid>
+          </DescriptionList>
         </Stack>
       )}
     </Stack>

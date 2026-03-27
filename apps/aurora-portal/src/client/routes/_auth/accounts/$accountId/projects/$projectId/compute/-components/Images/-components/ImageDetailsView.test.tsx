@@ -300,13 +300,13 @@ describe("ImageDetailsView", () => {
       }
       const { container } = setup(<CustomPropertiesSection image={imageWithCustomProps} />)
 
-      const headCells = container.querySelectorAll("[class*='juno-datagrid-cell']")
+      const terms = container.querySelectorAll("dt")
 
-      const headCellTexts = Array.from(headCells)
-        .map((cell) => cell.textContent)
+      const termTexts = Array.from(terms)
+        .map((dt) => dt.textContent)
         .filter((text) => ["alpha_prop", "beta_prop", "zebra_prop"].includes(text || ""))
 
-      expect(headCellTexts).toEqual(["alpha_prop", "beta_prop", "zebra_prop"])
+      expect(termTexts).toEqual(["alpha_prop", "beta_prop", "zebra_prop"])
     })
   })
 
