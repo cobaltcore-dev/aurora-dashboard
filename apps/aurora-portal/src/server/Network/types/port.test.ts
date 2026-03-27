@@ -278,6 +278,44 @@ describe("Port Schemas", () => {
       expect(result.success).toBe(true)
     })
 
+    it("should parse realistic OpenStack list payload variants", () => {
+      const openstackLikePort = {
+        id: "b8d8cb9d-f337-4f34-b53a-9fa2bcf0f57b",
+        admin_state_up: true,
+        status: "DOWN",
+        project_id: "65a51966d6734c5b80ae62b0b31e5030",
+        tenant_id: "65a51966d6734c5b80ae62b0b31e5030",
+        network_id: "d8fdb5b2-134a-4f3f-96cd-97080f1c9f43",
+        name: "",
+        description: "",
+        device_id: "",
+        device_owner: "",
+        mac_address: "fa:16:3e:3b:0d:88",
+        fixed_ips: [
+          {
+            subnet_id: "f1af9f2b-b905-4a8b-a0e1-9d8e3ccf8950",
+            ip_address: "10.180.0.14",
+          },
+        ],
+        security_groups: ["d17db3a1-c7ed-4278-9dbf-9b0a64afd2fd"],
+        "binding:host_id": "",
+        "binding:vif_type": "unbound",
+        "binding:vif_details": {},
+        "binding:vnic_type": "normal",
+        "binding:profile": {},
+        resource_request: {
+          required: ["CUSTOM_VNIC_TYPE_NORMAL"],
+          resources: {
+            NET_BW_EGR_KILOBIT_PER_SEC: 1000,
+          },
+        },
+      }
+
+      const result = PortSchema.safeParse(openstackLikePort)
+
+      expect(result.success).toBe(true)
+    })
+
     it("should accept optional fields", () => {
       const minimal = {
         ...validPort,

@@ -115,12 +115,7 @@ const AllowedAddressPairSchema = z.object({
  * VIF details for a port binding.
  * Describes the plugging mechanism used by the compute host.
  */
-const BindingVifDetailsSchema = z.object({
-  /** Whether port filtering (security/anti-spoofing) is enforced */
-  port_filter: z.boolean(),
-  /** Whether OVS hybrid plugging strategy is in use */
-  ovs_hybrid_plug: z.boolean(),
-})
+const BindingVifDetailsSchema = z.record(z.string(), z.unknown())
 
 /**
  * DNS assignment entry for a port.
@@ -156,41 +151,42 @@ const FixedIpSchema = z.object({
   /** The fixed IP address assigned to the port */
   ip_address: z.string(),
   /** The ID of the subnet the IP belongs to */
-  subnet_id: z.string(),
+  subnet_id: z.string().optional(),
 })
 
 /**
  * Admin-only hints for Open vSwitch Userspace Tx packet steering.
  * See https://docs.openstack.org/api-ref/network/v2/index.html#port-hint-open-vswitch-tx-steering
  */
-const HintsSchema = z.object({
-  openvswitch: z.object({
-    other_config: z.object({
-      /** Packet steering strategy: hash-based or thread-pinned */
-      "tx-steering": z.enum(["hash", "thread"]),
-    }),
-  }),
-})
+const HintsSchema = z.record(z.string(), z.unknown())
 
 /**
  * Resource request associated with a port for the placement API.
  * Used when a port requires specific resources (e.g. SR-IOV, NUMA affinity).
  * See https://docs.openstack.org/api-ref/network/v2/index.html#port-resource-request-groups
  */
-const ResourceRequestSchema = z.object({
-  request_groups: z.array(
-    z.object({
-      /** Unique UUID identifying this request group */
-      id: z.string().uuid(),
-      /** Required traits (e.g. CUSTOM_VNIC_TYPE_NORMAL) */
-      required: z.array(z.string()),
-      /** Map of resource class name to requested amount */
-      resources: z.record(z.string(), z.number()),
-    })
-  ),
-  /** IDs of request groups that must be fulfilled from the same resource subtree */
-  same_subtree: z.array(z.string().uuid()),
-})
+const ResourceRequestSchema = z.union([
+  // New format from port-resource-request-groups extension.
+  z.object({
+    request_groups: z.array(
+      z.object({
+        /** Unique UUID identifying this request group */
+        id: z.string().uuid(),
+        /** Required traits (e.g. CUSTOM_VNIC_TYPE_NORMAL) */
+        required: z.array(z.string()),
+        /** Map of resource class name to requested amount */
+        resources: z.record(z.string(), z.number()),
+      })
+    ),
+    /** IDs of request groups that must be fulfilled from the same resource subtree */
+    same_subtree: z.array(z.string().uuid()),
+  }),
+  // Legacy format still seen in some deployments.
+  z.object({
+    required: z.array(z.string()).optional(),
+    resources: z.record(z.string(), z.number()).optional(),
+  }),
+])
 
 /**
  * Port response entity.
@@ -211,7 +207,7 @@ export const PortSchema = z.object({
   /** Administrative state of the port (true = UP, false = DOWN) */
   admin_state_up: z.boolean(),
   /** Additional IP/MAC pairs allowed to send traffic through this port */
-  allowed_address_pairs: z.array(AllowedAddressPairSchema),
+  allowed_address_pairs: z.array(AllowedAddressPairSchema).optional(),
   /** ID of the host where the port is bound (requires binding extension) */
   "binding:host_id": z.string().optional(),
   /** Port binding profile; custom data passed to the bound VIF driver (requires binding extension) */
@@ -240,11 +236,11 @@ export const PortSchema = z.object({
   /** Data plane status of the port (requires data-plane-status extension) */
   data_plane_status: z.string().optional(),
   /** Human-readable description of the port */
-  description: z.string().optional(),
+  description: z.string().nullable().optional(),
   /** ID of the device (e.g. server instance, router) the port is attached to */
-  device_id: z.string().optional(),
+  device_id: z.string().nullable().optional(),
   /** Entity type that owns the port (e.g. compute:nova, network:router_interface) */
-  device_owner: z.string().optional(),
+  device_owner: z.string().nullable().optional(),
   /** DNS assignment entries for the port (requires dns-integration extension) */
   dns_assignment: z.array(DnsAssignmentSchema).optional(),
   /** DNS domain for the port (requires dns-integration extension) */
@@ -264,7 +260,7 @@ export const PortSchema = z.object({
   /** MAC address of the port */
   mac_address: z.string().optional(),
   /** Human-readable name of the port */
-  name: z.string().optional(),
+  name: z.string().nullable().optional(),
   /** ID of the network the port belongs to */
   network_id: z.string().optional(),
   /** NUMA affinity policy for the port (requires numa-networks extension) */
@@ -274,15 +270,15 @@ export const PortSchema = z.object({
   /** ID of the project that owns the port */
   project_id: z.string().optional(),
   /** ID of the QoS policy of the network where this port is plugged (requires qos extension) */
-  qos_network_policy_id: z.string().optional(),
+  qos_network_policy_id: z.string().nullable().optional(),
   /** ID of the QoS policy associated directly with the port (requires qos extension) */
-  qos_policy_id: z.string().optional(),
+  qos_policy_id: z.string().nullable().optional(),
   /** Revision number of the port (used for optimistic concurrency control) */
   revision_number: z.number().optional(),
   /** Placement API resource request for this port (requires port-resource-request extension) */
   resource_request: ResourceRequestSchema.optional(),
   /** Security groups applied to the port */
-  security_groups: z.array(securityGroupSchema).optional(),
+  security_groups: z.array(z.union([z.string(), securityGroupSchema])).optional(),
   /** Status of the port */
   status: NetworkPortStatusSchema.optional(),
   /** List of tags on the port (requires standard-attr-tag extension) */
