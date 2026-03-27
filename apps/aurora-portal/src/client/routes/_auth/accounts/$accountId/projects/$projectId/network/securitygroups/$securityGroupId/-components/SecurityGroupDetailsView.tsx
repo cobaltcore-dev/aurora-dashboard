@@ -1,7 +1,11 @@
 import { Container, Stack } from "@cloudoperators/juno-ui-components"
 import { Trans } from "@lingui/react/macro"
 import { useState } from "react"
-import type { SecurityGroup, SecurityGroupRule } from "@/server/Network/types/securityGroup"
+import type {
+  SecurityGroup,
+  SecurityGroupRule,
+  CreateSecurityGroupRuleInput,
+} from "@/server/Network/types/securityGroup"
 import type { FilterSettings, SortSettings } from "@/client/components/ListToolbar/types"
 import type { ListSortConfig } from "@/client/utils/useListWithFiltering"
 import { SecurityGroupHeader, SecurityGroupBasicInfo, SecurityGroupTabs, type TabType } from "./-details"
@@ -24,6 +28,11 @@ interface SecurityGroupDetailsViewProps {
   isDeletingRule?: boolean
   deleteRuleError?: string | null
   filterControls: RulesFilterControls
+  // Add rule functionality - passed through to SecurityGroupRulesTable
+  onCreateRule?: (ruleData: CreateSecurityGroupRuleInput) => Promise<void>
+  isCreatingRule?: boolean
+  createRuleError?: string | null
+  availableSecurityGroups?: Array<{ id: string; name: string | null }>
 }
 
 export function SecurityGroupDetailsView({
@@ -34,6 +43,10 @@ export function SecurityGroupDetailsView({
   isDeletingRule = false,
   deleteRuleError = null,
   filterControls,
+  onCreateRule,
+  isCreatingRule = false,
+  createRuleError = null,
+  availableSecurityGroups = [],
 }: SecurityGroupDetailsViewProps) {
   const [activeTab, setActiveTab] = useState<TabType>("rules")
 
@@ -63,6 +76,11 @@ export function SecurityGroupDetailsView({
               onSortChange={filterControls.onSortChange}
               filterSettings={filterControls.filterSettings}
               onFilterChange={filterControls.onFilterChange}
+              securityGroupId={securityGroup.id}
+              onCreateRule={onCreateRule}
+              isCreatingRule={isCreatingRule}
+              createRuleError={createRuleError}
+              availableSecurityGroups={availableSecurityGroups}
             />
           )}
           {activeTab === "rbac" && (

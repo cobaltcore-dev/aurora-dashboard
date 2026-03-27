@@ -1,14 +1,16 @@
 import { Breadcrumb, BreadcrumbItem, Button, Stack, Spinner } from "@cloudoperators/juno-ui-components/index"
 import { createFileRoute, redirect, useNavigate, useParams } from "@tanstack/react-router"
 import { Trans, useLingui } from "@lingui/react/macro"
+import { useMemo } from "react"
 import { getServiceIndex } from "@/server/Authentication/helpers"
-import { SecurityGroupDetailsView } from "../-components/SecurityGroups/-components/SecurityGroupDetailsView"
-import { EditSecurityGroupModal } from "../-components/SecurityGroups/-components/-modals/EditSecurityGroupModal"
-import { useSecurityGroupDetails } from "../-components/SecurityGroups/-hooks/useSecurityGroupDetails"
+import { SecurityGroupDetailsView } from "./-components/SecurityGroupDetailsView"
+import { EditSecurityGroupModal } from "../../-components/SecurityGroups/-components/-modals/EditSecurityGroupModal"
+import { useSecurityGroupDetails } from "./-hooks/useSecurityGroupDetails"
 import { useListWithFiltering } from "@/client/utils/useListWithFiltering"
+import { trpcReact } from "@/client/trpcClient"
 
 export const Route = createFileRoute(
-  "/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId"
+  "/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/"
 )({
   component: RouteComponent,
   beforeLoad: async ({ context, params }) => {
@@ -39,7 +41,7 @@ export const Route = createFileRoute(
 
 function RouteComponent() {
   const { accountId, projectId, securityGroupId } = useParams({
-    from: "/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId",
+    from: "/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/",
   })
   const navigate = useNavigate()
   const { t } = useLingui()
@@ -105,15 +107,29 @@ function RouteComponent() {
     updateError,
     isDeletingRule,
     deleteRuleError,
+    isCreatingRule,
+    createRuleError,
     editModalOpen,
     handleEdit,
     handleCloseEditModal,
     handleUpdate,
     handleDeleteRule,
+    handleCreateRule,
   } = useSecurityGroupDetails({
     securityGroupId,
     filterControls,
   })
+
+  // Fetch available security groups for the Add Rule dropdown
+  const { data: securityGroups } = trpcReact.network.securityGroup.list.useQuery({})
+  const availableSecurityGroups = useMemo(() => {
+    return (securityGroups || [])
+      .filter((sg) => sg.id !== securityGroupId) // Exclude current group
+      .map((sg) => ({
+        id: sg.id,
+        name: sg.name || sg.id,
+      }))
+  }, [securityGroups, securityGroupId])
 
   const handleBack = () => {
     navigate({
@@ -153,7 +169,7 @@ function RouteComponent() {
   if (!securityGroup) {
     return (
       <Stack className="fixed inset-0" distribution="center" alignment="center" direction="vertical" gap="5">
-        <p className="text-theme-highest">
+        <p className="text-theme-secondary">
           <Trans>Security group not found</Trans>
         </p>
         <Button onClick={handleBack} variant="primary">
@@ -189,6 +205,10 @@ function RouteComponent() {
         isDeletingRule={isDeletingRule}
         deleteRuleError={deleteRuleError}
         filterControls={filterControls}
+        onCreateRule={handleCreateRule}
+        isCreatingRule={isCreatingRule}
+        createRuleError={createRuleError}
+        availableSecurityGroups={availableSecurityGroups}
       />
 
       <EditSecurityGroupModal
