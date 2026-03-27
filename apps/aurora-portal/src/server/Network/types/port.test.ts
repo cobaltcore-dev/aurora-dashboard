@@ -1,5 +1,11 @@
 import { describe, it, expect } from "vitest"
-import { ListAvailablePortsQuerySchema, PortListResponseSchema, PortSchema } from "./port"
+import {
+  ListAvailablePortsQuerySchema,
+  PortListResponseSchema,
+  PortSchema,
+  AvailablePortSchema,
+  AvailablePortListResponseSchema,
+} from "./port"
 
 describe("Port Schemas", () => {
   describe("ListAvailablePortsQuerySchema", () => {
@@ -594,6 +600,92 @@ describe("Port Schemas", () => {
     it("should reject non-array ports", () => {
       const response = { ports: "not-an-array" }
       const result = PortListResponseSchema.safeParse(response)
+
+      expect(result.success).toBe(false)
+    })
+  })
+
+  describe("AvailablePortSchema", () => {
+    it("should parse a port with all 3 fields", () => {
+      const result = AvailablePortSchema.safeParse({
+        id: "port-uuid",
+        name: "web-port",
+        fixed_ips: [{ ip_address: "10.0.0.5", subnet_id: "subnet-1" }],
+      })
+
+      expect(result.success).toBe(true)
+      if (result.success) {
+        expect(result.data.id).toBe("port-uuid")
+        expect(result.data.name).toBe("web-port")
+        expect(result.data.fixed_ips).toHaveLength(1)
+      }
+    })
+
+    it("should parse a port with only id (name and fixed_ips optional)", () => {
+      const result = AvailablePortSchema.safeParse({ id: "port-uuid" })
+
+      expect(result.success).toBe(true)
+    })
+
+    it("should accept null name", () => {
+      const result = AvailablePortSchema.safeParse({ id: "port-uuid", name: null })
+
+      expect(result.success).toBe(true)
+      if (result.success) {
+        expect(result.data.name).toBeNull()
+      }
+    })
+
+    it("should accept port with empty fixed_ips array", () => {
+      const result = AvailablePortSchema.safeParse({ id: "port-uuid", fixed_ips: [] })
+
+      expect(result.success).toBe(true)
+    })
+
+    it("should reject a port missing id", () => {
+      const result = AvailablePortSchema.safeParse({ name: "web-port" })
+
+      expect(result.success).toBe(false)
+    })
+
+    it("should not fail on extra fields from full port response (strip mode)", () => {
+      const result = AvailablePortSchema.safeParse({
+        id: "port-uuid",
+        name: "web-port",
+        fixed_ips: [],
+        admin_state_up: true,
+        status: "ACTIVE",
+        network_id: "net-1",
+      })
+
+      expect(result.success).toBe(true)
+    })
+  })
+
+  describe("AvailablePortListResponseSchema", () => {
+    it("should parse a valid available ports list response", () => {
+      const response = {
+        ports: [
+          { id: "port-1", name: "web-port", fixed_ips: [{ ip_address: "10.0.0.1", subnet_id: "subnet-1" }] },
+          { id: "port-2", name: null, fixed_ips: [] },
+        ],
+      }
+      const result = AvailablePortListResponseSchema.safeParse(response)
+
+      expect(result.success).toBe(true)
+      if (result.success) {
+        expect(result.data.ports).toHaveLength(2)
+      }
+    })
+
+    it("should accept empty ports array", () => {
+      const result = AvailablePortListResponseSchema.safeParse({ ports: [] })
+
+      expect(result.success).toBe(true)
+    })
+
+    it("should reject missing ports key", () => {
+      const result = AvailablePortListResponseSchema.safeParse({})
 
       expect(result.success).toBe(false)
     })

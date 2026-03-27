@@ -296,6 +296,25 @@ export const PortSchema = z.object({
 })
 
 /**
+ * Optimized port schema for listing available ports.
+ * Contains only essential fields for floating IP association:
+ * - `id`: Port identifier
+ * - `name`: Port display name
+ * - `fixed_ips`: Fixed IP assignments
+ *
+ * Used by GET /v2.0/ports with fields filter (id, name, fixed_ips).
+ * See https://docs.openstack.org/api-ref/network/v2/index.html#ports
+ */
+export const AvailablePortSchema = z.object({
+  /** The ID of the port */
+  id: z.string(),
+  /** Human-readable name of the port */
+  name: z.string().nullable().optional(),
+  /** List of fixed IPs assigned to the port */
+  fixed_ips: z.array(FixedIpSchema).optional(),
+})
+
+/**
  * Ports list response wrapper.
  * Contains an array of ports objects.
  * Used by GET /v2.0/ports (list ports).
@@ -305,7 +324,19 @@ export const PortListResponseSchema = z.object({
   ports: z.array(PortSchema),
 })
 
+/**
+ * Available ports list response wrapper.
+ * Optimized response for floating IP association featuring only essential port fields.
+ * Used by GET /v2.0/ports (list ports) with fields filter.
+ */
+export const AvailablePortListResponseSchema = z.object({
+  /** A list of available port objects */
+  ports: z.array(AvailablePortSchema),
+})
+
 export type ListPortsQuery = z.infer<typeof ListPortsQuerySchema>
 export type ListAvailablePortsQuery = z.infer<typeof ListAvailablePortsQuerySchema>
 export type Port = z.infer<typeof PortSchema>
+export type AvailablePort = z.infer<typeof AvailablePortSchema>
 export type PortListResponse = z.infer<typeof PortListResponseSchema>
+export type AvailablePortListResponse = z.infer<typeof AvailablePortListResponseSchema>
