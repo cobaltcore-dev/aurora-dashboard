@@ -17,6 +17,7 @@ import {
 import { useModal } from "../../../floatingips/-hooks/useModal"
 import { DetachFloatingIpModal } from "../../../floatingips/-components/-modals/DetachFloatingIpModal"
 import { ReleaseFloatingIpModal } from "../../../floatingips/-components/-modals/ReleaseFloatingIpModal"
+import { AssociateFloatingIpModal } from "../../../floatingips/-components/-modals/AssociateFloatingIpModal"
 
 interface FloatingIpTableRow {
   floatingIp: FloatingIp
@@ -27,6 +28,7 @@ export const FloatingIpTableRow = ({ floatingIp }: FloatingIpTableRow) => {
   const navigate = useNavigate()
   const utils = trpcReact.useUtils()
   const [editModalOpen, toggleEditModal] = useModal(false)
+  const [attachModalOpen, toggleAttachModal] = useModal(false)
   const [detachModalOpen, toggleDetachModal] = useModal(false)
   const [releaseModalOpen, toggleReleaseModal] = useModal(false)
   const { accountId, projectId } = useParams({ strict: false })
@@ -84,7 +86,7 @@ export const FloatingIpTableRow = ({ floatingIp }: FloatingIpTableRow) => {
             <PopupMenuOptions>
               <PopupMenuItem label={t`Preview`} onClick={navigateToDetailsPage} />
               <PopupMenuItem label={t`Edit Description`} onClick={toggleEditModal} />
-              <PopupMenuItem label={t`Attach`} disabled />
+              <PopupMenuItem label={t`Attach`} onClick={toggleAttachModal} />
               <PopupMenuItem label={t`Detach`} onClick={toggleDetachModal} />
               <PopupMenuItem label={t`Release`} onClick={toggleReleaseModal} />
             </PopupMenuOptions>
@@ -97,6 +99,17 @@ export const FloatingIpTableRow = ({ floatingIp }: FloatingIpTableRow) => {
           floatingIp={floatingIp}
           open={editModalOpen}
           onClose={toggleEditModal}
+          onUpdate={handleUpdateFloatingIp}
+          isLoading={updateFloatingIpMutation.isPending}
+          error={updateFloatingIpMutation.error?.message ?? null}
+        />
+      )}
+
+      {attachModalOpen && (
+        <AssociateFloatingIpModal
+          floatingIp={floatingIp}
+          open={attachModalOpen}
+          onClose={toggleAttachModal}
           onUpdate={handleUpdateFloatingIp}
           isLoading={updateFloatingIpMutation.isPending}
           error={updateFloatingIpMutation.error?.message ?? null}

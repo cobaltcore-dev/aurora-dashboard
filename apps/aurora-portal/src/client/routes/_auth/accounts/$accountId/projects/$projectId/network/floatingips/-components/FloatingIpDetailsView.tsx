@@ -16,6 +16,7 @@ import { useModal } from "../-hooks/useModal"
 import { EditFloatingIpModal, FloatingIpUpdateFields } from "./-modals/EditFloatingIpModal"
 import { DetachFloatingIpModal } from "./-modals/DetachFloatingIpModal"
 import { ReleaseFloatingIpModal } from "./-modals/ReleaseFloatingIpModal"
+import { AssociateFloatingIpModal } from "./-modals/AssociateFloatingIpModal"
 
 interface FloatingIpDetailsViewProps {
   floatingIp: FloatingIp
@@ -24,6 +25,7 @@ interface FloatingIpDetailsViewProps {
 export const FloatingIpDetailsView = ({ floatingIp }: FloatingIpDetailsViewProps) => {
   const { t } = useLingui()
   const [editModalOpen, toggleEditModal] = useModal(false)
+  const [attachModalOpen, toggleAttachModal] = useModal(false)
   const [detachModalOpen, toggleDetachModal] = useModal(false)
   const [releaseModalOpen, toggleReleaseModal] = useModal(false)
   const utils = trpcReact.useUtils()
@@ -68,7 +70,7 @@ export const FloatingIpDetailsView = ({ floatingIp }: FloatingIpDetailsViewProps
 
       <ButtonRow>
         <Button onClick={toggleEditModal}>{t`Edit Description`}</Button>
-        <Button disabled>{t`Attach`}</Button>
+        <Button onClick={toggleAttachModal}>{t`Attach`}</Button>
         <Button onClick={toggleDetachModal}>{t`Detach`}</Button>
         <Button onClick={toggleReleaseModal}>{t`Release`}</Button>
       </ButtonRow>
@@ -225,6 +227,17 @@ export const FloatingIpDetailsView = ({ floatingIp }: FloatingIpDetailsViewProps
           floatingIp={floatingIp}
           open={editModalOpen}
           onClose={toggleEditModal}
+          onUpdate={handleUpdateFloatingIp}
+          isLoading={updateFloatingIpMutation.isPending}
+          error={updateFloatingIpMutation.error?.message ?? null}
+        />
+      )}
+
+      {attachModalOpen && (
+        <AssociateFloatingIpModal
+          floatingIp={floatingIp}
+          open={attachModalOpen}
+          onClose={toggleAttachModal}
           onUpdate={handleUpdateFloatingIp}
           isLoading={updateFloatingIpMutation.isPending}
           error={updateFloatingIpMutation.error?.message ?? null}

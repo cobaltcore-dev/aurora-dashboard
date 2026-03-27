@@ -114,6 +114,32 @@ vi.mock("./-modals/ReleaseFloatingIpModal", () => ({
     ) : null,
 }))
 
+vi.mock("./-modals/AssociateFloatingIpModal", () => ({
+  AssociateFloatingIpModal: ({
+    open,
+    onClose,
+    onUpdate,
+    floatingIp,
+    isLoading,
+    error,
+  }: {
+    open: boolean
+    onClose: () => void
+    onUpdate: (floatingIpId: string, data: FloatingIpUpdateFields) => Promise<void>
+    floatingIp: FloatingIp
+    isLoading: boolean
+    error: string | null
+  }) =>
+    open ? (
+      <div data-testid="associate-floating-ip-modal">
+        <span data-testid="associate-modal-loading">{isLoading ? "loading" : "idle"}</span>
+        <span data-testid="associate-modal-error">{error ?? ""}</span>
+        <button onClick={onClose}>Close Associate Modal</button>
+        <button onClick={() => onUpdate(floatingIp.id, { port_id: "port-new" })}>Confirm Associate</button>
+      </div>
+    ) : null,
+}))
+
 const TestWrapper = ({ children }: { children: ReactNode }) => <I18nProvider i18n={i18n}>{children}</I18nProvider>
 
 describe("FloatingIpDetailsView", () => {
@@ -329,6 +355,58 @@ describe("FloatingIpDetailsView", () => {
 
       expect(screen.getByTestId("edit-modal-loading")).toHaveTextContent("loading")
       expect(screen.getByTestId("edit-modal-error")).toHaveTextContent("Failed to update description")
+    })
+  })
+
+  describe("Attach modal", () => {
+    it("opens and closes attach modal", async () => {
+      const user = userEvent.setup()
+      render(<FloatingIpDetailsView floatingIp={mockFloatingIp} />, { wrapper: TestWrapper })
+
+      await user.click(screen.getByRole("button", { name: "Attach" }))
+      expect(screen.getByTestId("associate-floating-ip-modal")).toBeInTheDocument()
+
+      await user.click(screen.getByRole("button", { name: "Close Associate Modal" }))
+
+      await waitFor(() => {
+        expect(screen.queryByTestId("associate-floating-ip-modal")).not.toBeInTheDocument()
+      })
+    })
+
+    it("submits associate update and invalidates detail and list queries", async () => {
+      const user = userEvent.setup()
+      render(<FloatingIpDetailsView floatingIp={mockFloatingIp} />, { wrapper: TestWrapper })
+
+      await user.click(screen.getByRole("button", { name: "Attach" }))
+      await user.click(screen.getByRole("button", { name: "Confirm Associate" }))
+
+      await waitFor(() => {
+        expect(mutateAsyncMock).toHaveBeenCalledWith({
+          floatingip_id: mockFloatingIp.id,
+          port_id: "port-new",
+        })
+      })
+
+      await waitFor(() => {
+        expect(getByIdInvalidateMock).toHaveBeenCalledWith({ floatingip_id: mockFloatingIp.id })
+        expect(listInvalidateMock).toHaveBeenCalled()
+      })
+    })
+
+    it("passes loading and error mutation state to associate modal", async () => {
+      mockUpdateMutation.mockReturnValue({
+        mutateAsync: vi.fn(),
+        isPending: true,
+        error: { message: "Failed to associate floating IP" },
+      })
+
+      const user = userEvent.setup()
+      render(<FloatingIpDetailsView floatingIp={mockFloatingIp} />, { wrapper: TestWrapper })
+
+      await user.click(screen.getByRole("button", { name: "Attach" }))
+
+      expect(screen.getByTestId("associate-modal-loading")).toHaveTextContent("loading")
+      expect(screen.getByTestId("associate-modal-error")).toHaveTextContent("Failed to associate floating IP")
     })
   })
 
