@@ -1,7 +1,19 @@
 import { z } from "zod"
 import { useForm } from "@tanstack/react-form"
+import { useParams } from "@tanstack/react-router"
 import { Trans, useLingui } from "@lingui/react/macro"
-import { Modal, Form, FormSection, Spinner, Message, Textarea, TextInput } from "@cloudoperators/juno-ui-components"
+import {
+  Modal,
+  Form,
+  FormSection,
+  Spinner,
+  Message,
+  Textarea,
+  TextInput,
+  Select,
+  SelectOption,
+} from "@cloudoperators/juno-ui-components"
+import { trpcReact } from "@/client/trpcClient"
 
 export interface AllocateFloatingIpModalProps {
   open: boolean
@@ -12,9 +24,12 @@ export interface AllocateFloatingIpModalProps {
 }
 
 // Inside (Error_Alert) <- Form is done
+// Fix Aurora Portal Shadow for Filters
 
-// Q: Do I need to validate ipv6?
 const ipv4Regex = /^(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}$/
+const ipv6Regex =
+  /^(([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}|(([0-9a-fA-F]{1,4}:){1,7}:)|(([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4})|(([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2})|(([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3})|(([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4})|(([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5})|([0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6}))|(:((:[0-9a-fA-F]{1,4}){1,7}|:))|(::([fF]{4}(:0{1,4})?:)?((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|(([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})))$/
+const isValidIpAddress = (value: string) => ipv4Regex.test(value) || ipv6Regex.test(value)
 const dnsNameRegex = /^([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)*[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?$/
 
 export const AllocateFloatingIpModal = ({
@@ -25,6 +40,42 @@ export const AllocateFloatingIpModal = ({
   error = null,
 }: AllocateFloatingIpModalProps) => {
   const { t } = useLingui()
+  const { projectId } = useParams({ strict: false })
+
+  const {
+    data: availablePorts = [],
+    isLoading: isPortsLoading,
+    error: portsError,
+  } = trpcReact.network.port.listAvailablePorts.useQuery(
+    {
+      project_id: projectId ?? undefined,
+    },
+    { enabled: open }
+  )
+
+  const {
+    data: externalNetworks = [],
+    isLoading: isExternalNetworksLoading,
+    error: externalNetworksError,
+  } = trpcReact.network.listExternalNetworks.useQuery(
+    {
+      project_id: projectId ?? undefined,
+    },
+    { enabled: open }
+  )
+
+  const {
+    data: dnsDomains = [],
+    isLoading: isDnsDomainsLoading,
+    error: dnsDomainsError,
+  } = trpcReact.network.listDnsDomains.useQuery(
+    {
+      project_id: projectId ?? undefined,
+    },
+    { enabled: open }
+  )
+
+  const formErrorMessage = portsError?.message ?? externalNetworksError?.message ?? dnsDomainsError?.message ?? error
 
   const formSchema = z.object({
     dns_name: z
@@ -41,14 +92,17 @@ export const AllocateFloatingIpModal = ({
     floating_ip_address: z
       .string()
       .trim()
-      .refine((value) => value === "" || ipv4Regex.test(value), {
-        message: t`Must be a valid IPv4 address (for example: 172.24.4.228).`,
+      .refine((value) => value === "" || isValidIpAddress(value), {
+        message: t`Must be a valid IPv4 or IPv6 address (for example: 172.24.4.228 or 2001:db8::1).`,
       }),
+    floating_network_id: z.string().trim(),
+    dns_domain: z.string().trim(),
+    port_id: z.string().trim(),
     fixed_ip_address: z
       .string()
       .trim()
-      .refine((value) => value === "" || ipv4Regex.test(value), {
-        message: t`Fixed IP address must be a valid IPv4 address (for example: 172.24.4.228).`,
+      .refine((value) => value === "" || isValidIpAddress(value), {
+        message: t`Fixed IP address must be a valid IPv4 or IPv6 address (for example: 172.24.4.228 or 2001:db8::1).`,
       }),
   })
 
@@ -57,6 +111,9 @@ export const AllocateFloatingIpModal = ({
       dns_name: "",
       description: "",
       floating_ip_address: "",
+      floating_network_id: "",
+      dns_domain: "",
+      port_id: "",
       fixed_ip_address: "",
     },
     validators: {
@@ -88,9 +145,9 @@ export const AllocateFloatingIpModal = ({
       onConfirm={form.handleSubmit}
       disableConfirmButton={isLoading}
     >
-      {error && (
+      {formErrorMessage && (
         <Message dismissible={false} variant="error" className="mb-4">
-          {error}
+          {formErrorMessage}
         </Message>
       )}
 
@@ -112,10 +169,52 @@ export const AllocateFloatingIpModal = ({
             form.handleSubmit()
           }}
         >
-          {/*
-            // + External Network(Select)
-            // + DNS Domain(Select)
-          */}
+          <FormSection className="mb-4">
+            <form.Field
+              name="floating_network_id"
+              children={(field) => (
+                <Select
+                  id={field.name}
+                  name={field.name}
+                  value={field.state.value}
+                  onChange={(value) => field.handleChange(String(value))}
+                  label={t`External Network`}
+                  helptext={t`Select an external network to allocate the floating IP from.`}
+                  disabled={isLoading || isExternalNetworksLoading}
+                  loading={isExternalNetworksLoading}
+                >
+                  <SelectOption value="" label={t`None (optional)`} />
+                  {externalNetworks.map((network) => {
+                    const label = network.name ? `${network.name} (${network.id})` : network.id
+                    return <SelectOption key={network.id} value={network.id} label={label} />
+                  })}
+                </Select>
+              )}
+            />
+          </FormSection>
+
+          <FormSection className="mb-4">
+            <form.Field
+              name="dns_domain"
+              children={(field) => (
+                <Select
+                  id={field.name}
+                  name={field.name}
+                  value={field.state.value}
+                  onChange={(value) => field.handleChange(String(value))}
+                  label={t`DNS Domain`}
+                  helptext={t`Select a DNS domain to use with the floating IP DNS name.`}
+                  disabled={isLoading || isDnsDomainsLoading}
+                  loading={isDnsDomainsLoading}
+                >
+                  <SelectOption value="" label={t`None (optional)`} />
+                  {dnsDomains.map((domain) => (
+                    <SelectOption key={domain} value={domain} label={domain} />
+                  ))}
+                </Select>
+              )}
+            />
+          </FormSection>
 
           <FormSection className="mb-4">
             <form.Field
@@ -172,7 +271,34 @@ export const AllocateFloatingIpModal = ({
               )}
             />
           </FormSection>
-          {/* // + Port ID(Select) */}
+          {/* form_section */}
+          <FormSection className="mb-4">
+            <form.Field
+              name="port_id"
+              children={(field) => (
+                <Select
+                  id={field.name}
+                  name={field.name}
+                  value={field.state.value}
+                  onChange={(value) => field.handleChange(String(value))}
+                  label={t`Port ID`}
+                  helptext={t`The ID of a port associated with the floating IP. To associate the floating IP with a fixed IP at creation time, specify the identifier of the internal port.`}
+                  disabled={isLoading || isPortsLoading}
+                  loading={isPortsLoading}
+                >
+                  <SelectOption value="" label={t`None (optional)`} />
+                  {availablePorts.map((port) => {
+                    const fixedIp = port.fixed_ips?.[0]?.ip_address
+                    const portLabel = port.name ? `${port.name} (${port.id})` : port.id
+                    const optionLabel = fixedIp ? `${portLabel} - ${fixedIp}` : portLabel
+
+                    return <SelectOption key={port.id} value={port.id} label={optionLabel} />
+                  })}
+                </Select>
+              )}
+            />
+          </FormSection>
+          {/* form_section */}
           <FormSection>
             <form.Field
               name="fixed_ip_address"
