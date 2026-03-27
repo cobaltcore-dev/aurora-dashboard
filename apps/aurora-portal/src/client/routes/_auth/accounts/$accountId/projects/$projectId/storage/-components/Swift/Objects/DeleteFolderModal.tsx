@@ -58,7 +58,16 @@ export const DeleteFolderModal = ({ isOpen, folder, onClose, onSuccess, onError 
 
   return (
     <Modal
-      title={t`Delete folder recursively`}
+      title={
+        <span className="flex max-w-[400px] items-center gap-1">
+          <span className="shrink-0">
+            <Trans>Delete folder:</Trans>
+          </span>
+          <span className="truncate font-mono" title={folder.displayName}>
+            {folder.displayName}
+          </span>
+        </span>
+      }
       open={isOpen}
       onCancel={handleClose}
       confirmButtonLabel={deleteFolderMutation.isPending ? t`Deleting…` : t`Delete`}

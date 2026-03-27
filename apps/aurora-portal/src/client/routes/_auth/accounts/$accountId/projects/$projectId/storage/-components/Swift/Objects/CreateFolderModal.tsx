@@ -87,9 +87,13 @@ export const CreateFolderModal = ({ isOpen, currentPrefix, onClose, onSuccess, o
   return (
     <Modal
       title={
-        <span className="flex items-center gap-1">
-          <Trans>Create folder below:</Trans>
-          <span className="font-mono">{parentPath}</span>
+        <span className="flex max-w-[400px] items-center gap-1">
+          <span className="shrink-0">
+            <Trans>Create folder below:</Trans>
+          </span>
+          <span className="truncate font-mono" title={parentPath}>
+            {parentPath}
+          </span>
         </span>
       }
       open={isOpen}

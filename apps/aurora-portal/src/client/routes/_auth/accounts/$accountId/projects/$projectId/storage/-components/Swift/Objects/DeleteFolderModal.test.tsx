@@ -127,17 +127,17 @@ describe("DeleteFolderModal", () => {
   describe("Visibility", () => {
     test("does not render when isOpen is false", () => {
       renderModal({ isOpen: false })
-      expect(screen.queryByText(/Delete folder recursively/i)).not.toBeInTheDocument()
+      expect(screen.queryByText(/Delete folder:/i)).not.toBeInTheDocument()
     })
 
     test("does not render when folder is null", () => {
       renderModal({ folder: null })
-      expect(screen.queryByText(/Delete folder recursively/i)).not.toBeInTheDocument()
+      expect(screen.queryByText(/Delete folder:/i)).not.toBeInTheDocument()
     })
 
     test("renders when isOpen is true and folder is provided", () => {
       renderModal()
-      expect(screen.getByText(/Delete folder recursively/i)).toBeInTheDocument()
+      expect(screen.getByText(/Delete folder:/i)).toBeInTheDocument()
     })
   })
 
@@ -151,7 +151,9 @@ describe("DeleteFolderModal", () => {
     test("renders warning message with folder name", () => {
       renderModal()
       expect(screen.getByText(/Are you sure\?/i)).toBeInTheDocument()
-      expect(screen.getByText(/documents/)).toBeInTheDocument()
+      // The folder name appears in the warning body as "documents" inside a <span>
+      expect(screen.getByText(/permanently deleted/i)).toBeInTheDocument()
+      expect(screen.getByText(/"documents"/)).toBeInTheDocument()
       expect(screen.getByText(/permanently deleted/i)).toBeInTheDocument()
     })
 
