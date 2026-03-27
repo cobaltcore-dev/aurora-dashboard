@@ -30,7 +30,7 @@
     "@semantic-release/github": "^11.0.0",
     "@semantic-release/release-notes-generator": "^14.0.1",
     "commitizen": "^4.3.1",
-    "conventional-changelog-conventionalcommits": "^8.0.0",
+    "conventional-changelog-conventionalcommits": "^9.0.0",
     "cz-customizable": "^7.5.1",
     "eslint": "^10.0.2",
     "husky": "^9.1.6",
@@ -56,7 +56,9 @@
       "tmp@<=0.2.3": ">=0.2.4",
       "lodash@>=4.0.0 <=4.17.22": ">=4.17.23",
       "picomatch@<2.3.2": ">=2.3.2",
-      "picomatch@>=4.0.0 <4.0.4": ">=4.0.4"
+      "picomatch@>=4.0.0 <4.0.4": ">=4.0.4",
+      "brace-expansion@<5.0.5": ">=5.0.5",
+      "handlebars@>=4.0.0 <4.7.9": ">=4.7.9"
     }
   }
 }
