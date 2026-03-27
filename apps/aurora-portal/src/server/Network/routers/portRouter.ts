@@ -23,7 +23,6 @@ export const portRouter = {
 
         // Build query params from input
         const queryParams = appendQueryParamsFromObject(input)
-
         const queryString = queryParams.toString()
         const url = queryString ? `${PORT_BASE_URL}?${queryString}` : PORT_BASE_URL
 

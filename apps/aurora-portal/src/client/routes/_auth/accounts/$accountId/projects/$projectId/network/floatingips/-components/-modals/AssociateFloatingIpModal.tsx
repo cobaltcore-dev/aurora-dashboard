@@ -1,8 +1,19 @@
 import { z } from "zod"
 import { useForm } from "@tanstack/react-form"
+import { useParams } from "@tanstack/react-router"
 import { Trans, useLingui } from "@lingui/react/macro"
-import { Modal, Form, FormSection, Spinner, Message, TextInput } from "@cloudoperators/juno-ui-components"
+import {
+  Modal,
+  Form,
+  FormSection,
+  Spinner,
+  Message,
+  TextInput,
+  Select,
+  SelectOption,
+} from "@cloudoperators/juno-ui-components"
 import type { FloatingIp } from "@/server/Network/types/floatingIp"
+import { trpcReact } from "@/client/trpcClient"
 import { FloatingIpUpdateFields } from "./EditFloatingIpModal"
 
 // Single source of truth for IPv4 validation (0-255 octet)
@@ -37,14 +48,26 @@ export const AssociateFloatingIpModal = ({
   const { floating_ip_address } = floatingIp
 
   const formSchema = z.object({
+    port_id: z.string(),
     fixed_ip_address: z
       .string()
       .trim()
-      .refine(isValidIpAddress, { message: t`Enter a valid IPv4 or IPv6 address.` }),
+      .optional()
+      .refine((value) => !value || isValidIpAddress(value), { message: t`Enter a valid IPv4 or IPv6 address.` }),
   })
+
+  const { projectId } = useParams({ strict: false })
+  const { data: availablePorts = [] } = trpcReact.network.port.listAvailablePorts.useQuery(
+    {
+      project_id: projectId,
+      tenant_id: projectId,
+    },
+    { enabled: !!projectId }
+  )
 
   const form = useForm({
     defaultValues: {
+      port_id: floatingIp.port_id ?? "",
       fixed_ip_address: "",
     },
     validators: {
@@ -54,7 +77,7 @@ export const AssociateFloatingIpModal = ({
       if (isLoading) return
 
       await onUpdate(floatingIp.id, {
-        port_id: floatingIp.port_id,
+        port_id: value.port_id,
         fixed_ip_address: value.fixed_ip_address,
       })
       handleClose()
@@ -101,6 +124,31 @@ export const AssociateFloatingIpModal = ({
             form.handleSubmit()
           }}
         >
+          <FormSection>
+            <form.Field
+              name="port_id"
+              children={(field) => (
+                <Select
+                  id={field.name}
+                  name={field.name}
+                  value={field.state.value}
+                  onChange={(value) => field.handleChange(typeof value === "string" ? value : "")}
+                  label={t`Port ID `}
+                  placeholder={t`Select port to associate`}
+                  errortext={field.state.meta.errors.map((e) => String(e?.message)).join(", ")}
+                  disabled={isLoading}
+                >
+                  {availablePorts.map((port) => (
+                    <SelectOption
+                      key={port.id}
+                      value={port.id}
+                      label={port.name ? `${port.name} (${port.id})` : port.id}
+                    />
+                  ))}
+                </Select>
+              )}
+            />
+          </FormSection>
           <FormSection>
             <form.Field
               name="fixed_ip_address"
