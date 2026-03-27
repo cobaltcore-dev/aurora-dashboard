@@ -43,8 +43,8 @@ importers:
         specifier: ^4.3.1
         version: 4.3.1(@types/node@22.19.15)(typescript@5.9.3)
       conventional-changelog-conventionalcommits:
-        specifier: ^8.0.0
-        version: 8.0.0
+        specifier: ^9.0.0
+        version: 9.3.0
       cz-customizable:
         specifier: ^7.5.1
         version: 7.5.1
@@ -2622,10 +2622,6 @@ packages:
 
   conventional-changelog-angular@8.3.0:
     resolution: {integrity: sha512-DOuBwYSqWzfwuRByY9O4oOIvDlkUCTDzfbOgcSbkY+imXXj+4tmrEFao3K+FxemClYfYnZzsvudbwrhje9VHDA==}
-    engines: {node: '>=18'}
-
-  conventional-changelog-conventionalcommits@8.0.0:
-    resolution: {integrity: sha512-eOvlTO6OcySPyyyk8pKz2dP4jjElYunj9hn9/s0OB+gapTO8zwS9UQWrZ1pmF2hFs3vw1xhonOLGcGjy/zgsuA==}
     engines: {node: '>=18'}
 
   conventional-changelog-conventionalcommits@9.3.0:
@@ -7982,10 +7978,6 @@ snapshots:
   content-disposition@1.0.1: {}
 
   conventional-changelog-angular@8.3.0:
-    dependencies:
-      compare-func: 2.0.0
-
-  conventional-changelog-conventionalcommits@8.0.0:
     dependencies:
       compare-func: 2.0.0
 
