@@ -41,11 +41,16 @@ export function SecurityGroupTableRow({
   }
 
   return (
-    <DataGridRow key={sg.id} data-testid={`security-group-row-${sg.id}`}>
+    <DataGridRow
+      key={sg.id}
+      data-testid={`security-group-row-${sg.id}`}
+      onClick={handleShowDetails}
+      className="hover:bg-theme-background-lvl-2 cursor-pointer"
+    >
       <DataGridCell>
         <div>
           <p className="text-md">{sg.name}</p>
-          <p className="text-theme-secondary text-xs">{sg.id}</p>
+          <p className="text-theme-light text-xs">{sg.id}</p>
         </div>
       </DataGridCell>
       <DataGridCell>{sg.description || t`—`}</DataGridCell>
@@ -53,14 +58,14 @@ export function SecurityGroupTableRow({
         <BooleanValue value={sg.shared} />
         {sg.shared && (
           <p>
-            <Trans>Owner</Trans>: <span className="text-theme-secondary text-xs">{sg.project_id}</span>
+            <Trans>Owner</Trans>: <span className="text-theme-light text-xs">{sg.project_id}</span>
           </p>
         )}
       </DataGridCell>
       <DataGridCell>
         <BooleanValue value={sg.stateful} />
       </DataGridCell>
-      <DataGridCell onClick={(e) => e.stopPropagation()} className="items-end">
+      <DataGridCell onClick={(e) => e.stopPropagation()} className="items-end justify-end pr-0">
         <PopupMenu>
           <PopupMenuOptions>
             <PopupMenuItem label={t`Show Details`} onClick={() => handleShowDetails()} />

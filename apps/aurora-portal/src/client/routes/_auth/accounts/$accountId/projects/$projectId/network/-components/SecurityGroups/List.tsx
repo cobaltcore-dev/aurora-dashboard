@@ -9,7 +9,12 @@ import { useListWithFiltering } from "@/client/utils/useListWithFiltering"
 import { SecurityGroupListContainer } from "./-components/SecurityGroupListContainer"
 import { CreateSecurityGroupModal } from "./-components/-modals/CreateSecurityGroupModal"
 import { CreateSecurityGroupInput, UpdateSecurityGroupInput } from "@/server/Network/types/securityGroup"
-import { SECURITY_GROUP_SHARED } from "./constants"
+
+// Security group shared filter constants
+const SECURITY_GROUP_SHARED = {
+  TRUE: "true",
+  FALSE: "false",
+} as const
 
 type SecurityGroupSortKey = "name" | "project_id"
 
