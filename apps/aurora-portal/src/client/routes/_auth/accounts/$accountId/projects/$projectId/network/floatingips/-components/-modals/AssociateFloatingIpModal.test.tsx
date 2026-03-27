@@ -1,12 +1,11 @@
 import { describe, test, expect, vi, beforeEach } from "vitest"
 import { render, screen, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
-import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import { i18n } from "@lingui/core"
 import { I18nProvider } from "@lingui/react"
-import { AssociateFloatingIpModal } from "./AssociateFloatingIpModal"
+import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import type { FloatingIp } from "@/server/Network/types/floatingIp"
-import type { FloatingIpUpdateFields } from "./EditFloatingIpModal"
+import { AssociateFloatingIpModal, AssociateFloatingIpModalProps } from "./AssociateFloatingIpModal"
 
 const mockFloatingIp: FloatingIp = {
   id: "fip-123",
@@ -25,6 +24,8 @@ const mockFloatingIp: FloatingIp = {
   tags: [],
 }
 
+type AssociateFloatingIpModalRenderOptions = Partial<AssociateFloatingIpModalProps>
+
 const renderModalComponent = ({
   floatingIp = mockFloatingIp,
   open = true,
@@ -32,14 +33,7 @@ const renderModalComponent = ({
   onUpdate = vi.fn(),
   isLoading = false,
   error = null,
-}: {
-  floatingIp?: FloatingIp
-  open?: boolean
-  onClose?: () => void
-  onUpdate?: (floatingIpId: string, data: FloatingIpUpdateFields) => Promise<void>
-  isLoading?: boolean
-  error?: string | null
-} = {}) => (
+}: AssociateFloatingIpModalRenderOptions = {}) => (
   <I18nProvider i18n={i18n}>
     <PortalProvider>
       <AssociateFloatingIpModal
@@ -61,14 +55,8 @@ const renderModal = ({
   onUpdate = vi.fn().mockResolvedValue(undefined),
   isLoading = false,
   error = null,
-}: {
-  floatingIp?: FloatingIp
-  open?: boolean
-  onClose?: () => void
-  onUpdate?: (floatingIpId: string, data: FloatingIpUpdateFields) => Promise<void>
-  isLoading?: boolean
-  error?: string | null
-} = {}) => render(renderModalComponent({ floatingIp, open, onClose, onUpdate, isLoading, error }))
+}: AssociateFloatingIpModalRenderOptions = {}) =>
+  render(renderModalComponent({ floatingIp, open, onClose, onUpdate, isLoading, error }))
 
 describe("AssociateFloatingIpModal", () => {
   beforeEach(() => {

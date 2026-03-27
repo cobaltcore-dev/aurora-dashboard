@@ -1,14 +1,17 @@
 import { ReactElement } from "react"
 import { cleanup, render, screen, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
-import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import { i18n } from "@lingui/core"
 import { I18nProvider } from "@lingui/react"
+import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import { createRoute, createRootRoute, RouterProvider, createMemoryHistory, createRouter } from "@tanstack/react-router"
-import { FloatingIpTableRow } from "./FloatingIpTableRow"
-import type { FloatingIp } from "@/server/Network/types/floatingIp"
 import { describe, it, expect, vi, afterEach, beforeEach } from "vitest"
-import { FloatingIpUpdateFields } from "../../../floatingips/-components/-modals/EditFloatingIpModal"
+import type { FloatingIp } from "@/server/Network/types/floatingIp"
+import { FloatingIpTableRow } from "./FloatingIpTableRow"
+import { EditFloatingIpModalProps } from "../../../floatingips/-components/-modals/EditFloatingIpModal"
+import { ReleaseFloatingIpModalProps } from "../../../floatingips/-components/-modals/ReleaseFloatingIpModal"
+import { DetachFloatingIpModalProps } from "../../../floatingips/-components/-modals/DetachFloatingIpModal"
+import { AssociateFloatingIpModalProps } from "../../../floatingips/-components/-modals/AssociateFloatingIpModal"
 
 const { mockUseUtils, mockUpdateMutation, mockDeleteMutation } = vi.hoisted(() => ({
   mockUseUtils: vi.fn(),
@@ -33,21 +36,7 @@ vi.mock("@/client/trpcClient", () => ({
 }))
 
 vi.mock("../../../floatingips/-components/-modals/EditFloatingIpModal", () => ({
-  EditFloatingIpModal: ({
-    open,
-    onClose,
-    onUpdate,
-    floatingIp,
-    isLoading,
-    error,
-  }: {
-    open: boolean
-    onClose: () => void
-    onUpdate: (floatingIpId: string, data: FloatingIpUpdateFields) => Promise<void>
-    floatingIp: FloatingIp
-    isLoading: boolean
-    error: string | null
-  }) =>
+  EditFloatingIpModal: ({ open, onClose, onUpdate, floatingIp, isLoading, error }: EditFloatingIpModalProps) =>
     open ? (
       <div data-testid="edit-floating-ip-modal">
         <span data-testid="edit-modal-loading">{isLoading ? "loading" : "idle"}</span>
@@ -65,21 +54,7 @@ vi.mock("../../../floatingips/-components/-modals/EditFloatingIpModal", () => ({
 }))
 
 vi.mock("../../../floatingips/-components/-modals/ReleaseFloatingIpModal", () => ({
-  ReleaseFloatingIpModal: ({
-    open,
-    onClose,
-    onUpdate,
-    floatingIp,
-    isLoading,
-    error,
-  }: {
-    open: boolean
-    onClose: () => void
-    onUpdate: (floatingIpId: string) => Promise<void>
-    floatingIp: FloatingIp
-    isLoading: boolean
-    error: string | null
-  }) =>
+  ReleaseFloatingIpModal: ({ open, onClose, onUpdate, floatingIp, isLoading, error }: ReleaseFloatingIpModalProps) =>
     open ? (
       <div data-testid="release-floating-ip-modal">
         <span data-testid="release-modal-loading">{isLoading ? "loading" : "idle"}</span>
@@ -91,21 +66,7 @@ vi.mock("../../../floatingips/-components/-modals/ReleaseFloatingIpModal", () =>
 }))
 
 vi.mock("../../../floatingips/-components/-modals/DetachFloatingIpModal", () => ({
-  DetachFloatingIpModal: ({
-    open,
-    onClose,
-    onUpdate,
-    floatingIp,
-    isLoading,
-    error,
-  }: {
-    open: boolean
-    onClose: () => void
-    onUpdate: (floatingIpId: string, data: FloatingIpUpdateFields) => Promise<void>
-    floatingIp: FloatingIp
-    isLoading: boolean
-    error: string | null
-  }) =>
+  DetachFloatingIpModal: ({ open, onClose, onUpdate, floatingIp, isLoading, error }: DetachFloatingIpModalProps) =>
     open ? (
       <div data-testid="detach-floating-ip-modal">
         <span data-testid="detach-modal-loading">{isLoading ? "loading" : "idle"}</span>
@@ -124,14 +85,7 @@ vi.mock("../../../floatingips/-components/-modals/AssociateFloatingIpModal", () 
     floatingIp,
     isLoading,
     error,
-  }: {
-    open: boolean
-    onClose: () => void
-    onUpdate: (floatingIpId: string, data: FloatingIpUpdateFields) => Promise<void>
-    floatingIp: FloatingIp
-    isLoading: boolean
-    error: string | null
-  }) =>
+  }: AssociateFloatingIpModalProps) =>
     open ? (
       <div data-testid="associate-floating-ip-modal">
         <span data-testid="associate-modal-loading">{isLoading ? "loading" : "idle"}</span>

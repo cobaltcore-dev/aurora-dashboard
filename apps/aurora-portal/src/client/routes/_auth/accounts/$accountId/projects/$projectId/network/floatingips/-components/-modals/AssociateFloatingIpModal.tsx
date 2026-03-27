@@ -16,7 +16,7 @@ const IPV6_REGEX = new RegExp(
 
 const isValidIpAddress = (value: string) => IPV4_REGEX.test(value) || IPV6_REGEX.test(value)
 
-interface AssociateFloatingIpModalProps {
+export interface AssociateFloatingIpModalProps {
   floatingIp: FloatingIp
   open: boolean
   onClose: () => void
