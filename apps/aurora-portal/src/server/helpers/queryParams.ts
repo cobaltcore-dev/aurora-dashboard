@@ -17,6 +17,7 @@ export interface AppendQueryParamsOptions {
  * - boolean: "true" | "false"
  * - number: stringified
  * - string: used as-is (empty string is appended)
+ * - array: each element appended as a separate entry with the same key (multi-value params)
  * - other: skipped
  *
  * @param source - Object whose enumerable properties to append (e.g. validated tRPC input)
@@ -38,6 +39,12 @@ export function appendQueryParamsFromObject(
       queryParams.append(paramName, value ? "true" : "false")
     } else if (typeof value === "number" || typeof value === "string") {
       queryParams.append(paramName, String(value))
+    } else if (Array.isArray(value)) {
+      for (const item of value) {
+        if (typeof item === "string" || typeof item === "number" || typeof item === "boolean") {
+          queryParams.append(paramName, String(item))
+        }
+      }
     }
   }
   return queryParams

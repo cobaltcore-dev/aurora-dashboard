@@ -5,48 +5,65 @@ import { i18n } from "@lingui/core"
 import { I18nProvider } from "@lingui/react"
 import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import type { FloatingIp } from "@/server/Network/types/floatingIp"
+import type { AvailablePort } from "@/server/Network/types/port"
+import { trpcReact } from "@/client/trpcClient"
 import { AssociateFloatingIpModal, AssociateFloatingIpModalProps } from "./AssociateFloatingIpModal"
+
+vi.mock("@tanstack/react-router", () => ({
+  useParams: vi.fn(() => ({ projectId: "test-project" })),
+}))
+
+vi.mock("@/client/trpcClient", () => ({
+  trpcReact: {
+    network: {
+      port: {
+        listAvailablePorts: {
+          useQuery: vi.fn(),
+        },
+      },
+    },
+  },
+}))
+
+const mockPorts: AvailablePort[] = [
+  {
+    id: "port-1",
+    name: "web-port",
+    fixed_ips: [{ ip_address: "10.0.0.5", subnet_id: "subnet-1" }],
+  },
+  {
+    id: "port-2",
+    name: "db-port",
+    fixed_ips: [
+      { ip_address: "10.0.0.6", subnet_id: "subnet-1" },
+      { ip_address: "10.0.0.7", subnet_id: "subnet-1" },
+    ],
+  },
+  {
+    id: "port-3",
+    name: null,
+    fixed_ips: [],
+  },
+]
 
 const mockFloatingIp: FloatingIp = {
   id: "fip-123",
   floating_ip_address: "203.0.113.10",
   fixed_ip_address: "10.0.0.5",
   floating_network_id: "net-external",
-  port_id: "port-1",
+  port_id: null,
   router_id: "router-1",
   project_id: "proj-1",
   tenant_id: "proj-1",
   status: "ACTIVE",
   dns_domain: "example.com",
   dns_name: "fip-1",
-  description: "Existing description",
+  description: "Test floating IP",
   revision_number: 1,
   tags: [],
 }
 
 type AssociateFloatingIpModalRenderOptions = Partial<AssociateFloatingIpModalProps>
-
-const renderModalComponent = ({
-  floatingIp = mockFloatingIp,
-  open = true,
-  onClose = vi.fn(),
-  onUpdate = vi.fn(),
-  isLoading = false,
-  error = null,
-}: AssociateFloatingIpModalRenderOptions = {}) => (
-  <I18nProvider i18n={i18n}>
-    <PortalProvider>
-      <AssociateFloatingIpModal
-        floatingIp={floatingIp}
-        open={open}
-        onClose={onClose}
-        onUpdate={onUpdate}
-        isLoading={isLoading}
-        error={error}
-      />
-    </PortalProvider>
-  </I18nProvider>
-)
 
 const renderModal = ({
   floatingIp = mockFloatingIp,
@@ -56,18 +73,38 @@ const renderModal = ({
   isLoading = false,
   error = null,
 }: AssociateFloatingIpModalRenderOptions = {}) =>
-  render(renderModalComponent({ floatingIp, open, onClose, onUpdate, isLoading, error }))
+  render(
+    <I18nProvider i18n={i18n}>
+      <PortalProvider>
+        <AssociateFloatingIpModal
+          floatingIp={floatingIp}
+          open={open}
+          onClose={onClose}
+          onUpdate={onUpdate}
+          isLoading={isLoading}
+          error={error}
+        />
+      </PortalProvider>
+    </I18nProvider>
+  )
 
 describe("AssociateFloatingIpModal", () => {
   beforeEach(() => {
     vi.clearAllMocks()
     i18n.activate("en")
+    vi.mocked(trpcReact.network.port.listAvailablePorts.useQuery).mockReturnValue({
+      data: mockPorts,
+      isLoading: false,
+      isError: false,
+      error: null,
+    } as ReturnType<typeof trpcReact.network.port.listAvailablePorts.useQuery>)
   })
 
-  test("renders title and fixed IP input", () => {
+  test("renders title, port select and fixed IP select", () => {
     renderModal()
 
     expect(screen.getByText("Associate Floating IP 203.0.113.10 with Port")).toBeInTheDocument()
+    expect(screen.getByLabelText("Port ID")).toBeInTheDocument()
     expect(screen.getByLabelText("Fixed IP Address")).toBeInTheDocument()
   })
 
@@ -77,63 +114,78 @@ describe("AssociateFloatingIpModal", () => {
     expect(screen.queryByText("Associate Floating IP 203.0.113.10 with Port")).not.toBeInTheDocument()
   })
 
-  test("submits with valid IPv4", async () => {
+  test("port select shows available ports from query", () => {
+    renderModal()
+
+    expect(screen.getByText("web-port (port-1)")).toBeInTheDocument()
+    expect(screen.getByText("db-port (port-2)")).toBeInTheDocument()
+    // port-3 has no name, shows id only
+    expect(screen.getByText("port-3")).toBeInTheDocument()
+  })
+
+  test("selecting a port with single IP auto-populates fixed IP and submits", async () => {
     const onUpdate = vi.fn().mockResolvedValue(undefined)
     const onClose = vi.fn()
     const user = userEvent.setup()
     renderModal({ onUpdate, onClose })
 
-    const input = screen.getByLabelText("Fixed IP Address")
-    await user.type(input, "192.168.1.10")
+    await user.click(screen.getByText("web-port (port-1)"))
     await user.click(screen.getByRole("button", { name: "Associate" }))
 
     await waitFor(() => {
       expect(onUpdate).toHaveBeenCalledWith("fip-123", {
         port_id: "port-1",
-        fixed_ip_address: "192.168.1.10",
+        fixed_ip_address: "10.0.0.5",
       })
     })
     expect(onClose).toHaveBeenCalledTimes(1)
   })
 
-  test("submits with valid IPv6", async () => {
+  test("selecting a port with multiple IPs requires manual fixed IP selection", async () => {
     const onUpdate = vi.fn().mockResolvedValue(undefined)
     const user = userEvent.setup()
     renderModal({ onUpdate })
 
-    const input = screen.getByLabelText("Fixed IP Address")
-    await user.type(input, "2001:0db8:85a3:0000:0000:8a2e:0370:7334")
+    await user.click(screen.getByText("db-port (port-2)"))
+
+    // Both IPs should be available in the fixed IP select
+    expect(screen.getByText("10.0.0.6")).toBeInTheDocument()
+    expect(screen.getByText("10.0.0.7")).toBeInTheDocument()
+
+    await user.click(screen.getByText("10.0.0.7"))
     await user.click(screen.getByRole("button", { name: "Associate" }))
 
     await waitFor(() => {
       expect(onUpdate).toHaveBeenCalledWith("fip-123", {
-        port_id: "port-1",
-        fixed_ip_address: "2001:0db8:85a3:0000:0000:8a2e:0370:7334",
+        port_id: "port-2",
+        fixed_ip_address: "10.0.0.7",
       })
     })
   })
 
-  test("does not submit with invalid IP and shows validation error", async () => {
-    const onUpdate = vi.fn().mockResolvedValue(undefined)
-    const user = userEvent.setup()
-    renderModal({ onUpdate })
+  test("fixed IP select is disabled when no port is selected", () => {
+    renderModal()
 
-    const input = screen.getByLabelText("Fixed IP Address")
-    await user.type(input, "999.999.999.999")
-    await user.click(screen.getByRole("button", { name: "Associate" }))
-
-    await waitFor(() => {
-      expect(onUpdate).not.toHaveBeenCalled()
-    })
-    expect(screen.getByText("Enter a valid IPv4 or IPv6 address.")).toBeInTheDocument()
+    const fixedIpSelect = screen.getByLabelText("Fixed IP Address")
+    expect(fixedIpSelect).toBeDisabled()
   })
 
-  test("shows loading state and disables associate action", () => {
+  test("fixed IP select is disabled when selected port has no fixed IPs", async () => {
+    const user = userEvent.setup()
+    renderModal()
+
+    await user.click(screen.getByText("port-3"))
+
+    const fixedIpSelect = screen.getByLabelText("Fixed IP Address")
+    expect(fixedIpSelect).toBeDisabled()
+  })
+
+  test("shows loading state and disables associate button", () => {
     renderModal({ isLoading: true })
 
     expect(screen.getByText("Associating Floating IP...")).toBeInTheDocument()
     expect(screen.getByRole("button", { name: "Associate" })).toBeDisabled()
-    expect(screen.queryByLabelText("Fixed IP Address")).not.toBeInTheDocument()
+    expect(screen.queryByLabelText("Port ID")).not.toBeInTheDocument()
   })
 
   test("renders API error message when provided", () => {
@@ -150,5 +202,19 @@ describe("AssociateFloatingIpModal", () => {
     await user.click(screen.getByRole("button", { name: "Cancel" }))
 
     expect(onClose).toHaveBeenCalledTimes(1)
+  })
+
+  test("shows port loading state while fetching ports", () => {
+    vi.mocked(trpcReact.network.port.listAvailablePorts.useQuery).mockReturnValue({
+      data: undefined,
+      isLoading: true,
+      isError: false,
+      error: null,
+    } as ReturnType<typeof trpcReact.network.port.listAvailablePorts.useQuery>)
+
+    renderModal()
+
+    // Port select renders but with no options
+    expect(screen.getByLabelText("Port ID")).toBeInTheDocument()
   })
 })
