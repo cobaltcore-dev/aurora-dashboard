@@ -106,6 +106,15 @@ function ImagesContent({
 
   const images = imagesData.images
 
+  const activeFilterSettings =
+    memberStatusView === "pending" || memberStatusView === "accepted"
+      ? {
+          ...filterSettings,
+          filters: filterSettings.filters.filter((f) => f.filterName !== "visibility"),
+          selectedFilters: (filterSettings.selectedFilters || []).filter((f) => f.name !== "visibility"),
+        }
+      : filterSettings
+
   // Only consider images that are in the current filtered/searched dataset
   const displayedImageIds = new Set(images.map((image: GlanceImage) => image.id))
   const validSelectedImages = selectedImages.filter((imageId) => displayedImageIds.has(imageId))
@@ -160,7 +169,7 @@ function ImagesContent({
     <>
       <ListToolbar
         sortSettings={sortSettings}
-        filterSettings={filterSettings}
+        filterSettings={activeFilterSettings}
         searchTerm={searchTerm}
         onSort={handleSortChange}
         onFilter={handleFilterChange}
@@ -317,7 +326,12 @@ export const Images = ({ client }: ImagesProps) => {
         sortSettings.sortDirection,
         searchTerm,
         {
-          ...buildFilterParams(filterSettings.selectedFilters || [], filterSettings.filters),
+          ...buildFilterParams(
+            (memberStatusView === "pending" || memberStatusView === "accepted"
+              ? (filterSettings.selectedFilters || []).filter((f) => f.name !== "visibility")
+              : filterSettings.selectedFilters || []),
+            filterSettings.filters
+          ),
           member_status: memberStatusFilter,
         },
         nextMarker
@@ -365,8 +379,12 @@ export const Images = ({ client }: ImagesProps) => {
     // Refetch with URL state (single fetch path)
     setIsFetching(true)
     startTransition(() => {
+      const effectiveFilters =
+        memberStatusView === "pending" || memberStatusView === "accepted"
+          ? (urlFilters || []).filter((f) => f.name !== "visibility")
+          : urlFilters || []
       const newPromise = createImagesPromise(client, urlSortBy, urlSortDirection, urlSearchTerm, {
-        ...buildFilterParams(urlFilters || [], filterSettings.filters),
+        ...buildFilterParams(effectiveFilters, filterSettings.filters),
         member_status: memberStatusFilter,
       })
       // Mark fetching as complete once the promise resolves and update state
