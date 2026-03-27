@@ -13,6 +13,7 @@ import { SizeDisplay } from "./SizeDisplay"
 
 interface ImageDetailsViewProps {
   image: GlanceImage
+  currentProjectId?: string
 }
 
 export const GeneralImageData: React.FC<ImageDetailsViewProps> = ({ image }) => {
@@ -66,14 +67,17 @@ export const GeneralImageData: React.FC<ImageDetailsViewProps> = ({ image }) => 
   )
 }
 
-export const SecuritySection: React.FC<ImageDetailsViewProps> = ({ image }) => {
+export const SecuritySection: React.FC<ImageDetailsViewProps> = ({ image, currentProjectId }) => {
   const { t } = useLingui()
+
+  const isSharedWithMe =
+    image.visibility === "shared" && image.owner !== undefined && image.owner !== currentProjectId
 
   return (
     <Container px={false} py>
       <ContentHeading>{t`Security`}</ContentHeading>
       <DescriptionList alignTerms="right">
-        <DescriptionTerm>{t`Owner`}</DescriptionTerm>
+        <DescriptionTerm>{isSharedWithMe ? t`Shared by Project` : t`Owner Project ID`}</DescriptionTerm>
         <DescriptionDefinition>{image.owner}</DescriptionDefinition>
 
         <DescriptionTerm>{t`Visibility`}</DescriptionTerm>
@@ -151,11 +155,11 @@ export const CustomPropertiesSection: React.FC<ImageDetailsViewProps> = ({ image
 }
 
 // Example usage component
-export const ImageDetailsView: React.FC<ImageDetailsViewProps> = ({ image }) => {
+export const ImageDetailsView: React.FC<ImageDetailsViewProps> = ({ image, currentProjectId }) => {
   return (
     <Stack direction="vertical" gap="6">
       <GeneralImageData image={image} />
-      <SecuritySection image={image} />
+      <SecuritySection image={image} currentProjectId={currentProjectId} />
       <CustomPropertiesSection image={image} />
     </Stack>
   )

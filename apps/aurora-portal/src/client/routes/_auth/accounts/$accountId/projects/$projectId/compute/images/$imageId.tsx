@@ -125,7 +125,7 @@ function RouteComponent() {
         <BreadcrumbItem onClick={handleBack} label={t`Images`} />
         <BreadcrumbItem active label={displayLabel} />
       </Breadcrumb>
-      <ImageDetailsView image={image} />
+      <ImageDetailsView image={image} currentProjectId={projectId} />
     </Stack>
   )
 }
