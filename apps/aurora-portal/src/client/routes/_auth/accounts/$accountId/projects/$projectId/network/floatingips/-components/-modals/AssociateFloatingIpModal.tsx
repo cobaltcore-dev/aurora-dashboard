@@ -49,11 +49,12 @@ export const AssociateFloatingIpModal = ({
 
   const formSchema = z.object({
     port_id: z.string(),
-    fixed_ip_address: z
-      .string()
-      .trim()
-      .optional()
-      .refine((value) => !value || isValidIpAddress(value), { message: t`Enter a valid IPv4 or IPv6 address.` }),
+    fixed_ip_address: z.string().refine(
+      (value) =>
+        // empty string passes through to handle optional semantics as defining it as .optional() causes type issues with form default values
+        !value || isValidIpAddress(value),
+      { message: t`Enter a valid IPv4 or IPv6 address.` }
+    ),
   })
 
   const { projectId } = useParams({ strict: false })
