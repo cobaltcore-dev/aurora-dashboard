@@ -86,6 +86,17 @@ vi.mock("./ObjectsFileNavigation", () => ({
   )),
 }))
 
+// CreateFolderModal uses tRPC hooks internally — mock it to keep index tests isolated.
+vi.mock("./CreateFolderModal", () => ({
+  CreateFolderModal: vi.fn(({ isOpen, onClose }) =>
+    isOpen ? (
+      <div data-testid="create-folder-modal">
+        <button onClick={onClose}>Cancel</button>
+      </div>
+    ) : null
+  ),
+}))
+
 // ─── Mock tRPC ────────────────────────────────────────────────────────────────
 
 const mockObjects: ObjectSummary[] = [
@@ -195,6 +206,34 @@ describe("SwiftObjects (index)", () => {
       // 2 files + 1 folder from mockObjects
       const view = screen.getByTestId("objects-table-view")
       expect(view).toHaveAttribute("data-row-count", "3")
+    })
+
+    test("renders Create folder button", () => {
+      renderObjects()
+      expect(screen.getByRole("button", { name: /Create Folder/i })).toBeInTheDocument()
+    })
+
+    test("Create folder modal is closed by default", () => {
+      renderObjects()
+      expect(screen.queryByTestId("create-folder-modal")).not.toBeInTheDocument()
+    })
+  })
+
+  describe("Create folder modal", () => {
+    test("opens modal when Create folder button is clicked", async () => {
+      const user = userEvent.setup()
+      renderObjects()
+      await user.click(screen.getByRole("button", { name: /Create Folder/i }))
+      expect(screen.getByTestId("create-folder-modal")).toBeInTheDocument()
+    })
+
+    test("closes modal when onClose is called", async () => {
+      const user = userEvent.setup()
+      renderObjects()
+      await user.click(screen.getByRole("button", { name: /Create Folder/i }))
+      expect(screen.getByTestId("create-folder-modal")).toBeInTheDocument()
+      await user.click(screen.getByRole("button", { name: /Cancel/i }))
+      expect(screen.queryByTestId("create-folder-modal")).not.toBeInTheDocument()
     })
   })
 
