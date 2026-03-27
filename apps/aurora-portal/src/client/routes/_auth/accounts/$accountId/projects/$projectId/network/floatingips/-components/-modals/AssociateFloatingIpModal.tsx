@@ -1,31 +1,11 @@
 import { z } from "zod"
-import { useForm } from "@tanstack/react-form"
+import { useForm, useStore } from "@tanstack/react-form"
 import { useParams } from "@tanstack/react-router"
 import { Trans, useLingui } from "@lingui/react/macro"
-import {
-  Modal,
-  Form,
-  FormSection,
-  Spinner,
-  Message,
-  TextInput,
-  Select,
-  SelectOption,
-} from "@cloudoperators/juno-ui-components"
+import { Modal, Form, FormSection, Spinner, Message, Select, SelectOption } from "@cloudoperators/juno-ui-components"
 import type { FloatingIp } from "@/server/Network/types/floatingIp"
 import { trpcReact } from "@/client/trpcClient"
 import { FloatingIpUpdateFields } from "./EditFloatingIpModal"
-
-// Single source of truth for IPv4 validation (0-255 octet)
-const IPV4_SEGMENT = "(?:25[0-5]|2[0-4]\\d|1\\d{2}|[1-9]?\\d)"
-const IPV4_REGEX = new RegExp(`^(?:${IPV4_SEGMENT}\\.){3}${IPV4_SEGMENT}$`)
-// IPv6 regex using same IPv4 segment pattern
-const IPV6_PART = `((?:${IPV4_SEGMENT})(\\.${IPV4_SEGMENT}){3})`
-const IPV6_REGEX = new RegExp(
-  `^(([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}|(([0-9a-fA-F]{1,4}:){1,7}:)|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|((?:[0-9a-fA-F]{1,4}:){1,4}:${IPV6_PART})|(::(?:ffff(?::0{1,4}){0,2})?${IPV6_PART}))$`
-)
-
-const isValidIpAddress = (value: string) => IPV4_REGEX.test(value) || IPV6_REGEX.test(value)
 
 export interface AssociateFloatingIpModalProps {
   floatingIp: FloatingIp
@@ -49,20 +29,12 @@ export const AssociateFloatingIpModal = ({
 
   const formSchema = z.object({
     port_id: z.string(),
-    fixed_ip_address: z.string().refine(
-      (value) =>
-        // empty string passes through to handle optional semantics as defining it as .optional() causes type issues with form default values
-        !value || isValidIpAddress(value),
-      { message: t`Enter a valid IPv4 or IPv6 address.` }
-    ),
+    fixed_ip_address: z.string(),
   })
 
   const { projectId } = useParams({ strict: false })
   const { data: availablePorts = [] } = trpcReact.network.port.listAvailablePorts.useQuery(
-    {
-      project_id: projectId,
-      tenant_id: projectId,
-    },
+    { project_id: projectId, tenant_id: projectId },
     { enabled: !!projectId }
   )
 
@@ -89,6 +61,10 @@ export const AssociateFloatingIpModal = ({
     form.reset()
     onClose()
   }
+
+  const currentPortId = useStore(form.store, (state) => state.values.port_id)
+  const selectedPort = availablePorts.find((port) => port.id === currentPortId)
+  const portFixedIps = selectedPort?.fixed_ips ?? []
 
   return (
     <Modal
@@ -133,7 +109,13 @@ export const AssociateFloatingIpModal = ({
                   id={field.name}
                   name={field.name}
                   value={field.state.value}
-                  onChange={(value) => field.handleChange(typeof value === "string" ? value : "")}
+                  onChange={(value) => {
+                    const portId = typeof value === "string" ? value : ""
+                    field.handleChange(portId)
+                    const port = availablePorts.find((p) => p.id === portId)
+                    const ips = port?.fixed_ips ?? []
+                    form.setFieldValue("fixed_ip_address", ips.length === 1 ? ips[0].ip_address : "")
+                  }}
                   label={t`Port ID `}
                   placeholder={t`Select port to associate`}
                   errortext={field.state.meta.errors.map((e) => String(e?.message)).join(", ")}
@@ -154,17 +136,21 @@ export const AssociateFloatingIpModal = ({
             <form.Field
               name="fixed_ip_address"
               children={(field) => (
-                <TextInput
+                <Select
                   id={field.name}
                   name={field.name}
                   value={field.state.value}
-                  onChange={(e) => field.handleChange(e.target.value)}
+                  onChange={(value) => field.handleChange(typeof value === "string" ? value : "")}
                   label={t`Fixed IP Address`}
-                  placeholder={t`Enter a Fixed IP address`}
-                  helptext={t`Associates on the selected port. If the port has multiple IPs, specify a fixed IP address; otherwise, the first IP address is used.`}
-                  errortext={field.state.meta.errors.map((e) => String(e?.message)).join(", ")}
-                  disabled={isLoading}
-                />
+                  placeholder={t`Select a fixed IP address`}
+                  helptext={t`Associates on the selected port. If the port has multiple IPs, select the desired fixed IP address.`}
+                  errortext={field.state.meta.errors.map((e) => e?.message).join(", ")}
+                  disabled={isLoading || portFixedIps.length === 0}
+                >
+                  {portFixedIps.map(({ ip_address }) => (
+                    <SelectOption key={ip_address} value={ip_address} label={ip_address} />
+                  ))}
+                </Select>
               )}
             />
           </FormSection>
