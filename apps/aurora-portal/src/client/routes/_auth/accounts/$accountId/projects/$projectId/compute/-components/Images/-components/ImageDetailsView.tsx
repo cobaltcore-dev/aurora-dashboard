@@ -70,8 +70,7 @@ export const GeneralImageData: React.FC<ImageDetailsViewProps> = ({ image }) => 
 export const SecuritySection: React.FC<ImageDetailsViewProps> = ({ image, currentProjectId }) => {
   const { t } = useLingui()
 
-  const isSharedWithMe =
-    image.visibility === "shared" && image.owner !== undefined && image.owner !== currentProjectId
+  const isSharedWithMe = image.visibility === "shared" && image.owner !== undefined && image.owner !== currentProjectId
 
   return (
     <Container px={false} py>
