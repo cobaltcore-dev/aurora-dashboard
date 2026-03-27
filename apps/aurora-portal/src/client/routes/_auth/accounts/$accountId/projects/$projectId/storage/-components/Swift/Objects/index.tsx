@@ -10,7 +10,12 @@ import { Route } from "../../../$provider/containers/$containerName/objects"
 import { ObjectsTableView } from "./ObjectsTableView"
 import { ObjectsFileNavigation } from "./ObjectsFileNavigation"
 import { CreateFolderModal } from "./CreateFolderModal"
-import { getFolderCreatedToast, getFolderCreateErrorToast } from "./ObjectToastNotifications"
+import {
+  getFolderCreatedToast,
+  getFolderCreateErrorToast,
+  getFolderDeletedToast,
+  getFolderDeleteErrorToast,
+} from "./ObjectToastNotifications"
 
 // ── Prefix helpers ────────────────────────────────────────────────────────────
 
@@ -176,6 +181,14 @@ export const SwiftObjects = () => {
     setToastData(getFolderCreateErrorToast(folderName, errorMessage, { onDismiss: handleToastDismiss }))
   }
 
+  const handleDeleteFolderSuccess = (folderName: string, deletedCount: number) => {
+    setToastData(getFolderDeletedToast(folderName, deletedCount, { onDismiss: handleToastDismiss }))
+  }
+
+  const handleDeleteFolderError = (folderName: string, errorMessage: string) => {
+    setToastData(getFolderDeleteErrorToast(folderName, errorMessage, { onDismiss: handleToastDismiss }))
+  }
+
   const sortSettings: SortSettings = {
     options: [
       { label: t`Name`, value: "name" },
@@ -301,12 +314,18 @@ export const SwiftObjects = () => {
         onSort={handleSortChange}
         onSearch={handleSearchChange}
         actions={
-          <Button variant="subdued" onClick={() => setCreateFolderModalOpen(true)}>
+          <Button variant="primary" onClick={() => setCreateFolderModalOpen(true)}>
             <Trans>Create Folder</Trans>
           </Button>
         }
       />
-      <ObjectsTableView rows={sortedRows} searchTerm={searchParam} onFolderClick={navigateToPrefix} />
+      <ObjectsTableView
+        rows={sortedRows}
+        searchTerm={searchParam}
+        onFolderClick={navigateToPrefix}
+        onDeleteFolderSuccess={handleDeleteFolderSuccess}
+        onDeleteFolderError={handleDeleteFolderError}
+      />
 
       <CreateFolderModal
         isOpen={createFolderModalOpen}

@@ -75,8 +75,14 @@ vi.mock("../../../$provider/containers/$containerName/objects", () => ({
 // We test index.tsx in isolation — child components are tested separately.
 
 vi.mock("./ObjectsTableView", () => ({
-  ObjectsTableView: vi.fn(({ rows, searchTerm }) => (
-    <div data-testid="objects-table-view" data-row-count={rows.length} data-search={searchTerm} />
+  ObjectsTableView: vi.fn(({ rows, searchTerm, onDeleteFolderSuccess, onDeleteFolderError }) => (
+    <div
+      data-testid="objects-table-view"
+      data-row-count={rows.length}
+      data-search={searchTerm}
+      data-has-delete-success={typeof onDeleteFolderSuccess === "function" ? "true" : "false"}
+      data-has-delete-error={typeof onDeleteFolderError === "function" ? "true" : "false"}
+    />
   )),
 }))
 
@@ -216,6 +222,16 @@ describe("SwiftObjects (index)", () => {
     test("Create folder modal is closed by default", () => {
       renderObjects()
       expect(screen.queryByTestId("create-folder-modal")).not.toBeInTheDocument()
+    })
+
+    test("passes onDeleteFolderSuccess callback to ObjectsTableView", () => {
+      renderObjects()
+      expect(screen.getByTestId("objects-table-view")).toHaveAttribute("data-has-delete-success", "true")
+    })
+
+    test("passes onDeleteFolderError callback to ObjectsTableView", () => {
+      renderObjects()
+      expect(screen.getByTestId("objects-table-view")).toHaveAttribute("data-has-delete-error", "true")
     })
   })
 

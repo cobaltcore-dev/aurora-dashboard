@@ -55,3 +55,49 @@ export const getFolderCreateErrorToast = (
     />
   ),
 })
+
+export const getFolderDeletedToast = (folderName: string, deletedCount: number, config: ToastConfig): ToastProps => ({
+  variant: "success",
+  autoDismiss: true,
+  autoDismissTimeout: config.autoDismissTimeout ?? 5000,
+  onDismiss: config.onDismiss,
+  children: (
+    <NotificationText
+      title={<Trans>Folder Deleted</Trans>}
+      description={
+        deletedCount === 0 ? (
+          <Trans>Folder "{folderName}" was already empty and has been removed.</Trans>
+        ) : deletedCount === 1 ? (
+          <Trans>
+            Folder "{folderName}" and {deletedCount} object were permanently deleted.
+          </Trans>
+        ) : (
+          <Trans>
+            Folder "{folderName}" and {deletedCount} objects were permanently deleted.
+          </Trans>
+        )
+      }
+    />
+  ),
+})
+
+export const getFolderDeleteErrorToast = (
+  folderName: string,
+  errorMessage: string,
+  config: ToastConfig
+): ToastProps => ({
+  variant: "error",
+  autoDismiss: true,
+  autoDismissTimeout: config.autoDismissTimeout ?? 5000,
+  onDismiss: config.onDismiss,
+  children: (
+    <NotificationText
+      title={<Trans>Failed to Delete Folder</Trans>}
+      description={
+        <Trans>
+          Could not delete folder "{folderName}": {errorMessage}
+        </Trans>
+      }
+    />
+  ),
+})
