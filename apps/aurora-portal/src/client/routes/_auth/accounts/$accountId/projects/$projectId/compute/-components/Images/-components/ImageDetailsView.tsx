@@ -82,14 +82,8 @@ export const SecuritySection: React.FC<ImageDetailsViewProps> = ({ image }) => {
         <DescriptionTerm>{t`Protected`}</DescriptionTerm>
         <DescriptionDefinition>{image.protected ? t`Yes` : t`No`}</DescriptionDefinition>
 
-        {image.checksum ? (
-          <div>
-            <DescriptionTerm>{t`Checksum`}</DescriptionTerm>
-            <DescriptionDefinition>{image.checksum}</DescriptionDefinition>
-          </div>
-        ) : (
-          <div />
-        )}
+        <DescriptionTerm>{t`Checksum`}</DescriptionTerm>
+        <DescriptionDefinition>{image?.checksum ? image.checksum : ""}</DescriptionDefinition>
       </DescriptionList>
     </Container>
   )

@@ -302,15 +302,15 @@ export const Images = ({ client }: ImagesProps) => {
   const [memberStatusView, setMemberStatusView] = useState<"all" | "pending" | "accepted">("all")
   const memberStatusFilter = memberStatusView === "all" ? undefined : memberStatusView
 
-  const [isFetching, setIsFetching] = useState(false)
+  const [isFetching, setIsFetching] = useState(true)
   const [isFetchingNextPage, setIsFetchingNextPage] = useState(false)
   const [allImages, setAllImages] = useState<GlanceImage[]>([])
   const [nextMarker, setNextMarker] = useState<string | undefined>()
-  const [imagesPromise, setImagesPromise] = useState(() =>
-    createImagesPromise(client, sortSettings.sortBy, sortSettings.sortDirection, searchTerm, {
-      ...buildFilterParams(filterSettings.selectedFilters || [], filterSettings.filters),
-      member_status: memberStatusFilter,
-    })
+  const [imagesPromise, setImagesPromise] = useState<ReturnType<typeof createImagesPromise>>(
+    () =>
+      new Promise(() => {
+        // Placeholder: replaced immediately by useEffect on mount
+      }) as ReturnType<typeof createImagesPromise>
   )
   const [permissionsPromise] = useState(() => createPermissionsPromise(client))
 
@@ -388,11 +388,17 @@ export const Images = ({ client }: ImagesProps) => {
         member_status: memberStatusFilter,
       })
       // Mark fetching as complete once the promise resolves and update state
-      newPromise.then((result) => {
-        setAllImages(result.images)
-        setNextMarker(result.next)
-        setIsFetching(false)
-      })
+      newPromise
+        .then((result) => {
+          setAllImages(result.images)
+          setNextMarker(result.next)
+        })
+        .catch(() => {
+          // Error is handled by the ErrorBoundary via use(imagesPromise)
+        })
+        .finally(() => {
+          setIsFetching(false)
+        })
       setImagesPromise(newPromise)
     })
   }, [
