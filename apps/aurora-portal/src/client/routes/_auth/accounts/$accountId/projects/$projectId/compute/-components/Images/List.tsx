@@ -327,9 +327,9 @@ export const Images = ({ client }: ImagesProps) => {
         searchTerm,
         {
           ...buildFilterParams(
-            (memberStatusView === "pending" || memberStatusView === "accepted"
+            memberStatusView === "pending" || memberStatusView === "accepted"
               ? (filterSettings.selectedFilters || []).filter((f) => f.name !== "visibility")
-              : filterSettings.selectedFilters || []),
+              : filterSettings.selectedFilters || [],
             filterSettings.filters
           ),
           member_status: memberStatusFilter,
