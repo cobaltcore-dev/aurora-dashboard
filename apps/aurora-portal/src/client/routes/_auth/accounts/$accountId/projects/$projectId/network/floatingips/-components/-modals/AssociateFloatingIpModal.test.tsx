@@ -123,6 +123,17 @@ describe("AssociateFloatingIpModal", () => {
     expect(screen.getByText("port-3")).toBeInTheDocument()
   })
 
+  test("associate button is disabled until a port is selected", async () => {
+    const user = userEvent.setup()
+    renderModal()
+
+    const associateBtn = screen.getByRole("button", { name: "Associate" })
+    expect(associateBtn).toBeDisabled()
+
+    await user.click(screen.getByText("web-port (port-1)"))
+    expect(associateBtn).toBeEnabled()
+  })
+
   test("selecting a port with single IP auto-populates fixed IP and submits", async () => {
     const onUpdate = vi.fn().mockResolvedValue(undefined)
     const onClose = vi.fn()
@@ -141,7 +152,22 @@ describe("AssociateFloatingIpModal", () => {
     expect(onClose).toHaveBeenCalledTimes(1)
   })
 
-  test("selecting a port with multiple IPs requires manual fixed IP selection", async () => {
+  test("selecting a port with multiple IPs and no fixed IP selected omits fixed_ip_address", async () => {
+    const onUpdate = vi.fn().mockResolvedValue(undefined)
+    const user = userEvent.setup()
+    renderModal({ onUpdate })
+
+    await user.click(screen.getByText("db-port (port-2)"))
+    await user.click(screen.getByRole("button", { name: "Associate" }))
+
+    await waitFor(() => {
+      expect(onUpdate).toHaveBeenCalledWith("fip-123", {
+        port_id: "port-2",
+      })
+    })
+  })
+
+  test("selecting a port with multiple IPs allows manual fixed IP selection", async () => {
     const onUpdate = vi.fn().mockResolvedValue(undefined)
     const user = userEvent.setup()
     renderModal({ onUpdate })

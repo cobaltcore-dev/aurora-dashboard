@@ -17,7 +17,7 @@ export interface AppendQueryParamsOptions {
  * - boolean: "true" | "false"
  * - number: stringified
  * - string: used as-is (empty string is appended)
- * - array: each element appended as a separate entry with the same key (multi-value params)
+ * - array of primitives (string/number/boolean): each primitive element appended as a separate entry with the same key (multi-value params); non-primitive elements (e.g. objects) are skipped
  * - other: skipped
  *
  * @param source - Object whose enumerable properties to append (e.g. validated tRPC input)

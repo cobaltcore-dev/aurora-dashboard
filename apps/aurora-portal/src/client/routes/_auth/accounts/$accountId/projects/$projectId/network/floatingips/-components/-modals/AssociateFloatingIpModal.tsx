@@ -51,7 +51,9 @@ export const AssociateFloatingIpModal = ({
 
       await onUpdate(floatingIp.id, {
         port_id: value.port_id,
-        fixed_ip_address: value.fixed_ip_address,
+        ...(value.fixed_ip_address && {
+          fixed_ip_address: value.fixed_ip_address,
+        }),
       })
       handleClose()
     },
@@ -68,6 +70,7 @@ export const AssociateFloatingIpModal = ({
 
   return (
     <Modal
+      id={floatingIp.id}
       open={open}
       size="large"
       title={t`Associate Floating IP ${floating_ip_address} with Port`}
@@ -75,7 +78,7 @@ export const AssociateFloatingIpModal = ({
       cancelButtonLabel={t`Cancel`}
       confirmButtonLabel={t`Associate`}
       onConfirm={form.handleSubmit}
-      disableConfirmButton={isLoading}
+      disableConfirmButton={isLoading || !currentPortId}
     >
       {error && (
         <Message dismissible={false} variant="error" className="mb-4">
