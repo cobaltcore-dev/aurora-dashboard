@@ -1,6 +1,6 @@
-import { startTransition } from "react"
+import { useState, startTransition } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
-import { Spinner, Stack } from "@cloudoperators/juno-ui-components"
+import { Spinner, Button, Toast, ToastProps, Stack } from "@cloudoperators/juno-ui-components"
 import { trpcReact } from "@/client/trpcClient"
 import { ObjectSummary } from "@/server/Storage/types/swift"
 import { ListToolbar } from "@/client/components/ListToolbar"
@@ -9,6 +9,8 @@ import { useNavigate, useParams } from "@tanstack/react-router"
 import { Route } from "../../../$provider/containers/$containerName/objects"
 import { ObjectsTableView } from "./ObjectsTableView"
 import { ObjectsFileNavigation } from "./ObjectsFileNavigation"
+import { CreateFolderModal } from "./CreateFolderModal"
+import { getFolderCreatedToast, getFolderCreateErrorToast } from "./ObjectToastNotifications"
 
 // ── Prefix helpers ────────────────────────────────────────────────────────────
 
@@ -161,6 +163,19 @@ export const SwiftObjects = () => {
   const { prefix: encodedPrefix, sortBy, sortDirection, search: searchParam = "" } = Route.useSearch()
   const currentPrefix = decodePrefix(encodedPrefix)
 
+  const [createFolderModalOpen, setCreateFolderModalOpen] = useState(false)
+  const [toastData, setToastData] = useState<ToastProps | null>(null)
+
+  const handleToastDismiss = () => setToastData(null)
+
+  const handleCreateFolderSuccess = (folderName: string) => {
+    setToastData(getFolderCreatedToast(folderName, { onDismiss: handleToastDismiss }))
+  }
+
+  const handleCreateFolderError = (folderName: string, errorMessage: string) => {
+    setToastData(getFolderCreateErrorToast(folderName, errorMessage, { onDismiss: handleToastDismiss }))
+  }
+
   const sortSettings: SortSettings = {
     options: [
       { label: t`Name`, value: "name" },
@@ -285,8 +300,25 @@ export const SwiftObjects = () => {
         searchTerm={searchParam}
         onSort={handleSortChange}
         onSearch={handleSearchChange}
+        actions={
+          <Button variant="subdued" onClick={() => setCreateFolderModalOpen(true)}>
+            <Trans>Create Folder</Trans>
+          </Button>
+        }
       />
       <ObjectsTableView rows={sortedRows} searchTerm={searchParam} onFolderClick={navigateToPrefix} />
+
+      <CreateFolderModal
+        isOpen={createFolderModalOpen}
+        currentPrefix={currentPrefix}
+        onClose={() => setCreateFolderModalOpen(false)}
+        onSuccess={handleCreateFolderSuccess}
+        onError={handleCreateFolderError}
+      />
+
+      {toastData && (
+        <Toast {...toastData} className="border-theme-light fixed top-5 right-5 z-50 rounded-lg border shadow-lg" />
+      )}
     </div>
   )
 }
