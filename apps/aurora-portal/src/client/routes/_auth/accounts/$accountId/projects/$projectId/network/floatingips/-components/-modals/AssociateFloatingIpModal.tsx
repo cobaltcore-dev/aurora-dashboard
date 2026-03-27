@@ -104,7 +104,7 @@ export const AssociateFloatingIpModal = ({
             form.handleSubmit()
           }}
         >
-          <FormSection>
+          <FormSection className="mb-4">
             <form.Field
               name="port_id"
               children={(field) => (
@@ -119,9 +119,9 @@ export const AssociateFloatingIpModal = ({
                     const ips = port?.fixed_ips ?? []
                     form.setFieldValue("fixed_ip_address", ips.length === 1 ? ips[0].ip_address : "")
                   }}
-                  label={t`Port ID `}
+                  label={t`Port ID`}
                   placeholder={t`Select port to associate`}
-                  errortext={field.state.meta.errors.map((e) => String(e?.message)).join(", ")}
+                  errortext={field.state.meta.errors.map((e) => e?.message).join(", ")}
                   disabled={isLoading}
                 >
                   {availablePorts.map((port) => (

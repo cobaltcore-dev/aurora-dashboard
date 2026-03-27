@@ -23,7 +23,7 @@ export const portRouter = {
 
         const queryParams = appendQueryParamsFromObject({
           ...input,
-          // Fetch only this fields, as the floating IP association only requires port_id with name and fixed_ips. This optimizes the response size and parsing.
+          // Fetch only these fields, as the floating IP association only requires port_id with name and fixed_ips. This optimizes the response size and parsing.
           fields: ["id", "name", "fixed_ips"],
         })
         const queryString = queryParams.toString()
