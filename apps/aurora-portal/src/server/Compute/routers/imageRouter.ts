@@ -24,7 +24,7 @@ import {
   updateImageInputSchema,
   updateImageVisibilityInputSchema,
   deleteImageInputSchema,
-  listImagesInputSchema,
+  ListImagesInput,
   imagesPaginatedResponseSchema,
   ImagesPaginatedResponse,
   imagesPaginatedInputSchema,
@@ -55,30 +55,123 @@ const uploadProgress = new Map<string, UploadProgress>()
 
 export const imageRouter = {
   listImagesWithSearch: protectedProcedure
-    .input(listImagesInputSchema)
-    .query(async ({ input, ctx }): Promise<GlanceImage[]> => {
+    .input(imagesPaginatedInputSchema)
+    .query(async ({ input, ctx }): Promise<ImagesPaginatedResponse> => {
       return withErrorHandling(async () => {
-        const { ...queryInput } = input
+        const { marker, ...queryInput } = input
         const openstackSession = ctx.openstack
         const glance = openstackSession?.service("glance")
 
         validateGlanceService(glance)
 
-        // Build query parameters using utility function
+        // Configuration for intelligent pagination
+        const FRONTEND_PAGE_SIZE = 50
+        const OPENSTACK_PAGE_SIZE = 100
+        const MIN_RESULTS_WHEN_SEARCHING = 50
+        const MAX_PAGES_TO_SEARCH = 1000 // Safety limit to prevent infinite loops
+
+        const allImages: GlanceImage[] = []
+        const hasSearchTerm = queryInput.name && queryInput.name.trim()
+
+        // Build query params
         const queryParams = new URLSearchParams()
-        applyImageQueryParams(queryParams, queryInput)
+        const minimalQuery = {
+          sort_key: queryInput.sort_key,
+          sort_dir: queryInput.sort_dir,
+          sort: queryInput.sort,
+          limit: OPENSTACK_PAGE_SIZE,
+          marker: marker,
+        }
+        applyImageQueryParams(queryParams, minimalQuery as ListImagesInput)
 
-        const url = `v2/images?${queryParams.toString()}`
-        const response = await glance.get(url).catch((error) => {
-          throw mapErrorResponseToTRPCError(error, { operation: "list images" })
-        })
+        let currentUrl: string | undefined = `v2/images?${queryParams.toString()}`
+        let pageCount = 0
+        let nextMarker: string | undefined
 
-        const parsedData = imageResponseSchema.safeParse(await response.json())
-        if (!parsedData.success) {
-          throw handleZodParsingError(parsedData.error, "list images")
+        // Fetch pages from OpenStack
+        while (currentUrl && pageCount < MAX_PAGES_TO_SEARCH) {
+          const response = await glance.get(currentUrl).catch((error) => {
+            throw mapErrorResponseToTRPCError(error, { operation: "list images" })
+          })
+
+          const parsedData = imagesPaginatedResponseSchema.safeParse(await response.json())
+          if (!parsedData.success) {
+            throw handleZodParsingError(parsedData.error, "list images")
+          }
+
+          allImages.push(...parsedData.data.images)
+          pageCount++
+
+          if (hasSearchTerm) {
+            // Apply BFF-side filtering to current batch
+            let filteredImages = filterBySearchParams(allImages, queryInput.name, ["name"])
+
+            // Apply other filters
+            if (queryInput.visibility && queryInput.visibility !== "all") {
+              filteredImages = filteredImages.filter((img) => img.visibility === queryInput.visibility)
+            }
+            if (queryInput.status) {
+              filteredImages = filteredImages.filter((img) => img.status === queryInput.status)
+            }
+            if (queryInput.owner) {
+              filteredImages = filteredImages.filter((img) => img.owner === queryInput.owner)
+            }
+
+            // If we have enough results, stop fetching but remember next page
+            if (filteredImages.length >= MIN_RESULTS_WHEN_SEARCHING) {
+              nextMarker = parsedData.data.next
+              break
+            }
+          }
+
+          // For non-search queries, just fetch one OpenStack page
+          if (!hasSearchTerm) {
+            nextMarker = parsedData.data.next
+            break
+          }
+
+          currentUrl = parsedData.data.next
         }
 
-        return filterBySearchParams(parsedData.data.images, queryInput.name, ["name"])
+        // Apply BFF-side filtering to all collected images
+        let filteredImages = allImages
+
+        // Filter by name (search)
+        if (hasSearchTerm) {
+          filteredImages = filterBySearchParams(filteredImages, queryInput.name, ["name"])
+        }
+
+        // Filter by visibility (unless "all")
+        if (queryInput.visibility && queryInput.visibility !== "all") {
+          filteredImages = filteredImages.filter((img) => img.visibility === queryInput.visibility)
+        }
+
+        // Filter by status
+        if (queryInput.status) {
+          filteredImages = filteredImages.filter((img) => img.status === queryInput.status)
+        }
+
+        // Filter by owner
+        if (queryInput.owner) {
+          filteredImages = filteredImages.filter((img) => img.owner === queryInput.owner)
+        }
+
+        // Implement frontend pagination
+        const startIndex = 0
+        const endIndex = FRONTEND_PAGE_SIZE
+        const paginatedImages = filteredImages.slice(startIndex, endIndex)
+
+        // Determine if there's a next page
+        const hasMore = filteredImages.length > FRONTEND_PAGE_SIZE || !!nextMarker
+        const nextPageMarker =
+          filteredImages.length > FRONTEND_PAGE_SIZE ? filteredImages[FRONTEND_PAGE_SIZE - 1]?.id : nextMarker
+
+        return {
+          images: paginatedImages,
+          first: undefined,
+          next: hasMore ? nextPageMarker : undefined,
+          schema: "/v2/schemas/images",
+        }
       }, "list images")
     }),
 
@@ -92,29 +185,70 @@ export const imageRouter = {
 
         validateGlanceService(glance)
 
-        // Build query parameters using utility function
-        // Note: `name` is intentionally excluded from the URL — OpenStack Glance API only
-        // supports exact name matches, not wildcard/substring filtering. Name filtering is
-        // applied server-side below after fetching results.
+        // Always fetch ALL images from OpenStack (no pagination)
+        const allImages: GlanceImage[] = []
+
+        // Fetch all images without filters (except sorting) - we'll filter in BFF
         const queryParams = new URLSearchParams()
-        applyImageQueryParams(queryParams, queryInput)
+        const minimalQuery = {
+          sort_key: queryInput.sort_key,
+          sort_dir: queryInput.sort_dir,
+          sort: queryInput.sort,
+          limit: undefined, // Remove limit to fetch all pages
+        }
+        applyImageQueryParams(queryParams, minimalQuery as ListImagesInput)
 
-        const url = first || next || `v2/images?${queryParams.toString()}`
-        const response = await glance.get(url).catch((error) => {
-          throw mapErrorResponseToTRPCError(error, { operation: "list images with pagination" })
-        })
+        // Use first, next, or build URL from params
+        let currentUrl: string | undefined = first || next || `v2/images?${queryParams.toString()}`
+        let pageCount = 0
+        const MAX_PAGES = 1000 // Safety limit to prevent infinite loops
 
-        const parsedData = imagesPaginatedResponseSchema.safeParse(await response.json())
-        if (!parsedData.success) {
-          throw handleZodParsingError(parsedData.error, "list images with pagination")
+        // Fetch all pages from OpenStack
+        while (currentUrl && pageCount < MAX_PAGES) {
+          const response = await glance.get(currentUrl).catch((error) => {
+            throw mapErrorResponseToTRPCError(error, { operation: "list images with pagination" })
+          })
+
+          const parsedData = imagesPaginatedResponseSchema.safeParse(await response.json())
+          if (!parsedData.success) {
+            throw handleZodParsingError(parsedData.error, "list images with pagination")
+          }
+
+          allImages.push(...parsedData.data.images)
+          currentUrl = parsedData.data.next
+          pageCount++
         }
 
-        const result = parsedData.data
+        // Apply BFF-side filtering
+        let filteredImages = allImages
 
-        // Apply server-side name filtering (case-insensitive substring match)
-        result.images = filterBySearchParams(result.images, queryInput.name, ["name"])
+        // Filter by name (search)
+        if (queryInput.name && queryInput.name.trim()) {
+          filteredImages = filterBySearchParams(filteredImages, queryInput.name, ["name"])
+        }
 
-        return result
+        // Filter by visibility (unless "all")
+        if (queryInput.visibility && queryInput.visibility !== "all") {
+          filteredImages = filteredImages.filter((img) => img.visibility === queryInput.visibility)
+        }
+
+        // Filter by status
+        if (queryInput.status) {
+          filteredImages = filteredImages.filter((img) => img.status === queryInput.status)
+        }
+
+        // Filter by owner
+        if (queryInput.owner) {
+          filteredImages = filteredImages.filter((img) => img.owner === queryInput.owner)
+        }
+
+        // Return all filtered results (no pagination)
+        return {
+          images: filteredImages,
+          first: undefined,
+          next: undefined,
+          schema: "/v2/schemas/images",
+        }
       }, "list images with pagination")
     }),
 

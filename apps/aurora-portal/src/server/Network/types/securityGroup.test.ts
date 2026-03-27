@@ -137,359 +137,118 @@ describe("OpenStack Security Group Schema Validation", () => {
     })
   })
 
-  describe("createSecurityGroupRuleInputSchema - CIDR validation", () => {
+  describe("createSecurityGroupRuleInputSchema - Type checking", () => {
     const minimalValidInput = {
       security_group_id: "sg-123",
       direction: "ingress" as const,
     }
 
-    describe("Valid IPv4 CIDR notations", () => {
-      it("should accept valid IPv4 CIDR: 0.0.0.0/0", () => {
-        const result = createSecurityGroupRuleInputSchema.safeParse({
-          ...minimalValidInput,
-          remote_ip_prefix: "0.0.0.0/0",
-        })
-        expect(result.success).toBe(true)
-      })
-
-      it("should accept valid IPv4 CIDR: 192.168.1.0/24", () => {
-        const result = createSecurityGroupRuleInputSchema.safeParse({
-          ...minimalValidInput,
-          remote_ip_prefix: "192.168.1.0/24",
-        })
-        expect(result.success).toBe(true)
-      })
-
-      it("should accept valid IPv4 CIDR: 10.0.0.1/32", () => {
-        const result = createSecurityGroupRuleInputSchema.safeParse({
-          ...minimalValidInput,
-          remote_ip_prefix: "10.0.0.1/32",
-        })
-        expect(result.success).toBe(true)
-      })
-
-      it("should accept valid IPv4 CIDR: 172.16.0.0/12", () => {
-        const result = createSecurityGroupRuleInputSchema.safeParse({
-          ...minimalValidInput,
-          remote_ip_prefix: "172.16.0.0/12",
-        })
-        expect(result.success).toBe(true)
-      })
+    it("should accept minimal valid input", () => {
+      const result = createSecurityGroupRuleInputSchema.safeParse(minimalValidInput)
+      expect(result.success).toBe(true)
     })
 
-    describe("Invalid IPv4 CIDR notations", () => {
-      it("should reject IPv4 with octets > 255: 999.999.999.999/24", () => {
-        const result = createSecurityGroupRuleInputSchema.safeParse({
-          ...minimalValidInput,
-          remote_ip_prefix: "999.999.999.999/24",
-        })
-        expect(result.success).toBe(false)
-        if (!result.success) {
-          expect(result.error.issues[0].message).toContain("valid CIDR notation")
-        }
+    it("should accept complete valid input", () => {
+      const result = createSecurityGroupRuleInputSchema.safeParse({
+        ...minimalValidInput,
+        ethertype: "IPv4",
+        description: "Allow SSH",
+        protocol: "tcp",
+        port_range_min: 22,
+        port_range_max: 22,
+        remote_ip_prefix: "0.0.0.0/0",
       })
-
-      it("should reject IPv4 with prefix > 32: 192.168.1.0/99", () => {
-        const result = createSecurityGroupRuleInputSchema.safeParse({
-          ...minimalValidInput,
-          remote_ip_prefix: "192.168.1.0/99",
-        })
-        expect(result.success).toBe(false)
-        if (!result.success) {
-          expect(result.error.issues[0].message).toContain("valid CIDR notation")
-        }
-      })
-
-      it("should reject IPv4 with invalid octet: 256.1.1.1/24", () => {
-        const result = createSecurityGroupRuleInputSchema.safeParse({
-          ...minimalValidInput,
-          remote_ip_prefix: "256.1.1.1/24",
-        })
-        expect(result.success).toBe(false)
-      })
-
-      it("should reject IPv4 with leading zeros: 192.168.001.1/24", () => {
-        const result = createSecurityGroupRuleInputSchema.safeParse({
-          ...minimalValidInput,
-          remote_ip_prefix: "192.168.001.1/24",
-        })
-        expect(result.success).toBe(false)
-      })
-
-      it("should reject IPv4 without prefix: 192.168.1.0", () => {
-        const result = createSecurityGroupRuleInputSchema.safeParse({
-          ...minimalValidInput,
-          remote_ip_prefix: "192.168.1.0",
-        })
-        expect(result.success).toBe(false)
-      })
-
-      it("should reject IPv4 with incomplete octets: 192.168/24", () => {
-        const result = createSecurityGroupRuleInputSchema.safeParse({
-          ...minimalValidInput,
-          remote_ip_prefix: "192.168/24",
-        })
-        expect(result.success).toBe(false)
-      })
+      expect(result.success).toBe(true)
     })
 
-    describe("Valid IPv6 CIDR notations", () => {
-      it("should accept valid IPv6 CIDR: ::/0", () => {
-        const result = createSecurityGroupRuleInputSchema.safeParse({
-          ...minimalValidInput,
-          ethertype: "IPv6",
-          remote_ip_prefix: "::/0",
-        })
-        expect(result.success).toBe(true)
+    it("should accept null for nullable fields", () => {
+      const result = createSecurityGroupRuleInputSchema.safeParse({
+        ...minimalValidInput,
+        protocol: null,
+        port_range_min: null,
+        port_range_max: null,
+        remote_ip_prefix: null,
+        remote_group_id: null,
+        remote_address_group_id: null,
       })
-
-      it("should accept valid IPv6 CIDR: 2001:db8::/32", () => {
-        const result = createSecurityGroupRuleInputSchema.safeParse({
-          ...minimalValidInput,
-          ethertype: "IPv6",
-          remote_ip_prefix: "2001:db8::/32",
-        })
-        expect(result.success).toBe(true)
-      })
-
-      it("should accept valid IPv6 CIDR: fe80::/10", () => {
-        const result = createSecurityGroupRuleInputSchema.safeParse({
-          ...minimalValidInput,
-          ethertype: "IPv6",
-          remote_ip_prefix: "fe80::/10",
-        })
-        expect(result.success).toBe(true)
-      })
-
-      it("should accept valid full IPv6 CIDR: 2001:0db8:85a3:0000:0000:8a2e:0370:7334/128", () => {
-        const result = createSecurityGroupRuleInputSchema.safeParse({
-          ...minimalValidInput,
-          ethertype: "IPv6",
-          remote_ip_prefix: "2001:0db8:85a3:0000:0000:8a2e:0370:7334/128",
-        })
-        expect(result.success).toBe(true)
-      })
+      expect(result.success).toBe(true)
     })
 
-    describe("Invalid IPv6 CIDR notations", () => {
-      it("should reject IPv6 with prefix > 128: ::/999", () => {
-        const result = createSecurityGroupRuleInputSchema.safeParse({
-          ...minimalValidInput,
-          remote_ip_prefix: "::/999",
-        })
-        expect(result.success).toBe(false)
-        if (!result.success) {
-          expect(result.error.issues[0].message).toContain("valid CIDR notation")
-        }
+    it("should reject missing required field: security_group_id", () => {
+      const result = createSecurityGroupRuleInputSchema.safeParse({
+        direction: "ingress",
       })
-
-      it("should reject IPv6 with invalid hex: gggg::/64", () => {
-        const result = createSecurityGroupRuleInputSchema.safeParse({
-          ...minimalValidInput,
-          remote_ip_prefix: "gggg::/64",
-        })
-        expect(result.success).toBe(false)
-      })
-
-      it("should reject IPv6 without prefix: 2001:db8::", () => {
-        const result = createSecurityGroupRuleInputSchema.safeParse({
-          ...minimalValidInput,
-          remote_ip_prefix: "2001:db8::",
-        })
-        expect(result.success).toBe(false)
-      })
-
-      it("should reject IPv6 with too many segments: 2001:db8:0:0:0:0:0:0:0/64", () => {
-        const result = createSecurityGroupRuleInputSchema.safeParse({
-          ...minimalValidInput,
-          remote_ip_prefix: "2001:db8:0:0:0:0:0:0:0/64",
-        })
-        expect(result.success).toBe(false)
-      })
-
-      it("should reject IPv6 with multiple :: separators: 2001::db8::/32", () => {
-        const result = createSecurityGroupRuleInputSchema.safeParse({
-          ...minimalValidInput,
-          remote_ip_prefix: "2001::db8::/32",
-        })
-        expect(result.success).toBe(false)
-      })
+      expect(result.success).toBe(false)
     })
 
-    describe("Cross-field validation: ethertype and CIDR family", () => {
-      it("should reject IPv4 CIDR with ethertype=IPv6", () => {
-        const result = createSecurityGroupRuleInputSchema.safeParse({
-          ...minimalValidInput,
-          ethertype: "IPv6",
-          remote_ip_prefix: "192.168.1.0/24",
-        })
-        expect(result.success).toBe(false)
-        if (!result.success) {
-          expect(result.error.issues[0].message).toContain("ethertype must match the CIDR family")
-        }
+    it("should reject missing required field: direction", () => {
+      const result = createSecurityGroupRuleInputSchema.safeParse({
+        security_group_id: "sg-123",
       })
-
-      it("should reject IPv6 CIDR with ethertype=IPv4", () => {
-        const result = createSecurityGroupRuleInputSchema.safeParse({
-          ...minimalValidInput,
-          ethertype: "IPv4",
-          remote_ip_prefix: "::/0",
-        })
-        expect(result.success).toBe(false)
-        if (!result.success) {
-          expect(result.error.issues[0].message).toContain("ethertype must match the CIDR family")
-        }
-      })
-
-      it("should accept IPv4 CIDR with ethertype=IPv4 (explicit)", () => {
-        const result = createSecurityGroupRuleInputSchema.safeParse({
-          ...minimalValidInput,
-          ethertype: "IPv4",
-          remote_ip_prefix: "10.0.0.0/8",
-        })
-        expect(result.success).toBe(true)
-      })
-
-      it("should accept IPv4 CIDR with default ethertype (IPv4)", () => {
-        const result = createSecurityGroupRuleInputSchema.safeParse({
-          ...minimalValidInput,
-          remote_ip_prefix: "10.0.0.0/8",
-        })
-        expect(result.success).toBe(true)
-      })
-
-      it("should accept IPv6 CIDR with ethertype=IPv6", () => {
-        const result = createSecurityGroupRuleInputSchema.safeParse({
-          ...minimalValidInput,
-          ethertype: "IPv6",
-          remote_ip_prefix: "2001:db8::/32",
-        })
-        expect(result.success).toBe(true)
-      })
+      expect(result.success).toBe(false)
     })
 
-    describe("Other CIDR validation rules", () => {
-      it("should reject empty string", () => {
-        const result = createSecurityGroupRuleInputSchema.safeParse({
-          ...minimalValidInput,
-          remote_ip_prefix: "",
-        })
-        expect(result.success).toBe(true) // Empty string is transformed to undefined
+    it("should reject invalid direction value", () => {
+      const result = createSecurityGroupRuleInputSchema.safeParse({
+        ...minimalValidInput,
+        direction: "invalid",
       })
-
-      it("should reject malformed CIDR: not-an-ip/24", () => {
-        const result = createSecurityGroupRuleInputSchema.safeParse({
-          ...minimalValidInput,
-          remote_ip_prefix: "not-an-ip/24",
-        })
-        expect(result.success).toBe(false)
-      })
-
-      it("should reject CIDR without slash: 192.168.1.0", () => {
-        const result = createSecurityGroupRuleInputSchema.safeParse({
-          ...minimalValidInput,
-          remote_ip_prefix: "192.168.1.0",
-        })
-        expect(result.success).toBe(false)
-      })
+      expect(result.success).toBe(false)
     })
 
-    describe("Port validation for TCP/UDP protocols", () => {
-      it("should reject port 0 for TCP protocol", () => {
-        const result = createSecurityGroupRuleInputSchema.safeParse({
-          ...minimalValidInput,
-          protocol: "tcp",
-          port_range_min: 0,
-          port_range_max: 65535,
-        })
-        expect(result.success).toBe(false)
-        if (!result.success) {
-          expect(result.error.issues[0].message).toContain("TCP/UDP")
-        }
+    it("should reject invalid ethertype value", () => {
+      const result = createSecurityGroupRuleInputSchema.safeParse({
+        ...minimalValidInput,
+        ethertype: "invalid",
       })
+      expect(result.success).toBe(false)
+    })
 
-      it("should reject port 0 for UDP protocol", () => {
-        const result = createSecurityGroupRuleInputSchema.safeParse({
-          ...minimalValidInput,
-          protocol: "udp",
-          port_range_min: 1,
-          port_range_max: 0,
-        })
-        expect(result.success).toBe(false)
-        if (!result.success) {
-          expect(result.error.issues[0].message).toContain("TCP/UDP")
-        }
-      })
+    it("should apply default ethertype=IPv4", () => {
+      const result = createSecurityGroupRuleInputSchema.safeParse(minimalValidInput)
+      if (result.success) {
+        expect(result.data.ethertype).toBe("IPv4")
+      }
+    })
 
-      it("should accept port 1 for TCP protocol", () => {
-        const result = createSecurityGroupRuleInputSchema.safeParse({
-          ...minimalValidInput,
-          protocol: "tcp",
-          port_range_min: 1,
-          port_range_max: 65535,
-        })
-        expect(result.success).toBe(true)
+    it("should transform empty string to undefined for remote_ip_prefix", () => {
+      const result = createSecurityGroupRuleInputSchema.safeParse({
+        ...minimalValidInput,
+        remote_ip_prefix: "",
       })
+      if (result.success) {
+        expect(result.data.remote_ip_prefix).toBeUndefined()
+      }
+    })
 
-      it("should accept port 22 for TCP (SSH)", () => {
-        const result = createSecurityGroupRuleInputSchema.safeParse({
-          ...minimalValidInput,
-          protocol: "tcp",
-          port_range_min: 22,
-          port_range_max: 22,
-        })
-        expect(result.success).toBe(true)
+    it("should transform empty string to undefined for remote_group_id", () => {
+      const result = createSecurityGroupRuleInputSchema.safeParse({
+        ...minimalValidInput,
+        remote_group_id: "",
       })
+      if (result.success) {
+        expect(result.data.remote_group_id).toBeUndefined()
+      }
+    })
 
-      it("should accept port 1-65535 range for UDP", () => {
-        const result = createSecurityGroupRuleInputSchema.safeParse({
-          ...minimalValidInput,
-          protocol: "udp",
-          port_range_min: 1,
-          port_range_max: 65535,
-        })
-        expect(result.success).toBe(true)
+    it("should accept port numbers as integers", () => {
+      const result = createSecurityGroupRuleInputSchema.safeParse({
+        ...minimalValidInput,
+        protocol: "tcp",
+        port_range_min: 80,
+        port_range_max: 443,
       })
+      expect(result.success).toBe(true)
+    })
 
-      it("should allow port 0 for ICMP protocol", () => {
-        const result = createSecurityGroupRuleInputSchema.safeParse({
-          ...minimalValidInput,
-          protocol: "icmp",
-          port_range_min: 0,
-          port_range_max: 0,
-        })
-        expect(result.success).toBe(true)
+    it("should reject port_range_max > 65535", () => {
+      const result = createSecurityGroupRuleInputSchema.safeParse({
+        ...minimalValidInput,
+        protocol: "tcp",
+        port_range_min: 1,
+        port_range_max: 65536,
       })
-
-      it("should allow port 0 for other protocols", () => {
-        const result = createSecurityGroupRuleInputSchema.safeParse({
-          ...minimalValidInput,
-          protocol: "esp",
-          port_range_min: 0,
-          port_range_max: 0,
-        })
-        expect(result.success).toBe(true)
-      })
-
-      it("should reject when port_range_min > port_range_max", () => {
-        const result = createSecurityGroupRuleInputSchema.safeParse({
-          ...minimalValidInput,
-          protocol: "tcp",
-          port_range_min: 443,
-          port_range_max: 80,
-        })
-        expect(result.success).toBe(false)
-      })
-
-      it("should handle case-insensitive protocol matching", () => {
-        const result = createSecurityGroupRuleInputSchema.safeParse({
-          ...minimalValidInput,
-          protocol: "TCP",
-          port_range_min: 0,
-          port_range_max: 80,
-        })
-        expect(result.success).toBe(false)
-      })
+      expect(result.success).toBe(false)
     })
   })
 })

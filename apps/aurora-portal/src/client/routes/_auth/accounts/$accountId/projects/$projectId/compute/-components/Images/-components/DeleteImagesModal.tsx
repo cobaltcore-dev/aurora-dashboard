@@ -38,19 +38,16 @@ export const DeleteImagesModal: React.FC<DeleteImagesModalProps> = ({
       modalFooter={
         <ModalFooter className="flex justify-end">
           <ButtonRow>
+            <Button variant="default" onClick={onClose}>
+              <Trans>Cancel</Trans>
+            </Button>
             <Button
               variant="primary-danger"
-              onClick={(e) => {
-                handleDelete(e)
-                onClose()
-              }}
+              onClick={handleDelete}
               disabled={isLoading}
               data-testid={`delete-image-button`}
             >
-              {isLoading ? <Spinner size="small" /> : <Trans>Delete</Trans>}
-            </Button>
-            <Button variant="default" onClick={onClose}>
-              <Trans>Cancel</Trans>
+              <Trans>Delete</Trans>
             </Button>
           </ButtonRow>
         </ModalFooter>
@@ -69,7 +66,7 @@ export const DeleteImagesModal: React.FC<DeleteImagesModalProps> = ({
               {/* Header */}
               <Message
                 text={t`You are about to delete ${deletableCount} image(s). This action cannot be undone.`}
-                variant="warning"
+                variant="danger"
                 className="mb-6"
               />
 
@@ -128,13 +125,6 @@ export const DeleteImagesModal: React.FC<DeleteImagesModalProps> = ({
               </div>
             )}
           </div>
-
-          {/* Info Notice */}
-          <Message
-            text={t`Deleting images will affect any instances or volumes that depend on them. Ensure these images are no longer in use before proceeding.`}
-            variant="info"
-            className="mb-6"
-          />
         </div>
       )}
     </Modal>
