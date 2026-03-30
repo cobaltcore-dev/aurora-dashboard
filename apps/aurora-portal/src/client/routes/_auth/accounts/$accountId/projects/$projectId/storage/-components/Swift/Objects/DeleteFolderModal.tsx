@@ -70,7 +70,7 @@ export const DeleteFolderModal = ({ isOpen, folder, onClose, onSuccess, onError 
       }
       open={isOpen}
       onCancel={handleClose}
-      confirmButtonLabel={deleteFolderMutation.isPending ? t`Deleting…` : t`Delete`}
+      confirmButtonLabel={deleteFolderMutation.isPending ? t`Deleting...` : t`Delete`}
       onConfirm={handleConfirm}
       cancelButtonLabel={t`Cancel`}
       size="small"
@@ -79,7 +79,7 @@ export const DeleteFolderModal = ({ isOpen, folder, onClose, onSuccess, onError 
       {deleteFolderMutation.isPending ? (
         <Stack direction="horizontal" alignment="center" gap="2" className="py-4">
           <Spinner size="small" />
-          <Trans>Deleting folder and all its contents…</Trans>
+          <Trans>Deleting folder and all its contents...</Trans>
         </Stack>
       ) : (
         <Stack direction="vertical" gap="4">

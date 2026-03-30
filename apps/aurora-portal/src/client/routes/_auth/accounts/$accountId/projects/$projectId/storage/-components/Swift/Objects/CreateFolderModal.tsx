@@ -98,7 +98,7 @@ export const CreateFolderModal = ({ isOpen, currentPrefix, onClose, onSuccess, o
       }
       open={isOpen}
       onCancel={handleClose}
-      confirmButtonLabel={t`Create folder`}
+      confirmButtonLabel={t`Create Folder`}
       onConfirm={handleSubmit}
       cancelButtonLabel={t`Cancel`}
       size="small"
