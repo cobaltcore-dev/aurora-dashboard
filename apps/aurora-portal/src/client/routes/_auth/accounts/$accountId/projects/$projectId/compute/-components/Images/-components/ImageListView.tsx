@@ -24,6 +24,8 @@ import { EditImageDetailsModal } from "./EditImageDetailsModal"
 import { EditImageMetadataModal } from "./EditImageMetadataModal"
 import { ImageTableRow } from "./ImageTableRow"
 import { DeleteImageModal } from "./DeleteImageModal"
+import { DeactivateImageModal } from "./DeactivateImageModal"
+import { ActivateImageModal } from "./ActivateImageModal"
 import { CreateImageModal } from "./CreateImageModal"
 import { DeleteImagesModal } from "./DeleteImagesModal"
 import { DeactivateImagesModal } from "./DeactivateImagesModal"
@@ -123,6 +125,8 @@ export function ImageListView({
   const [editDetailsModalOpen, setEditDetailsModalOpen] = useState(false)
   const [editMetadataModalOpen, setEditMetadataModalOpen] = useState(false)
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
+  const [deactivateModalOpen, setDeactivateModalOpen] = useState(false)
+  const [activateModalOpen, setActivateModalOpen] = useState(false)
   const [manageAccessModalOpen, setManageAccessModalOpen] = useState(false)
   const [confirmAccessModalOpen, setConfirmAccessModalOpen] = useState(false)
   const [selectedImage, setSelectedImage] = useState<GlanceImage | null>(null)
@@ -392,30 +396,44 @@ export function ImageListView({
   }
 
   const handleActivationStatusChange = async (updatedImage: GlanceImage) => {
-    const imageName = updatedImage.name || updatedImage.id
-    const imageId = updatedImage.id
+    if (updatedImage.status !== IMAGE_STATUSES.DEACTIVATED) {
+      // Deactivate: show confirmation modal
+      setSelectedImage(updatedImage)
+      setDeactivateModalOpen(true)
+    } else {
+      // Activate: show confirmation modal
+      setSelectedImage(updatedImage)
+      setActivateModalOpen(true)
+    }
+  }
+
+  const handleActivateSingle = async (image: GlanceImage) => {
+    const imageName = image.name || image.id
+    const imageId = image.id
 
     try {
-      const mutation =
-        updatedImage.status === IMAGE_STATUSES.DEACTIVATED ? reactivateImageMutation : deactivateImageMutation
-
-      await mutation.mutateAsync({ imageId })
-
-      const toast =
-        updatedImage.status === IMAGE_STATUSES.DEACTIVATED
-          ? getImageActivatedToast(imageName, { onDismiss: handleToastDismiss })
-          : getImageDeactivatedToast(imageName, { onDismiss: handleToastDismiss })
-
-      setToastData(toast)
+      await reactivateImageMutation.mutateAsync({ imageId })
+      setActivateModalOpen(false)
+      setSelectedImage(null)
+      setToastData(getImageActivatedToast(imageName, { onDismiss: handleToastDismiss }))
     } catch (error) {
       const { message } = error as TRPCClientError<InferrableClientTypes>
+      setToastData(getImageActivationErrorToast(imageId, message, { onDismiss: handleToastDismiss }))
+    }
+  }
 
-      const toast =
-        updatedImage.status === IMAGE_STATUSES.DEACTIVATED
-          ? getImageActivationErrorToast(imageId, message, { onDismiss: handleToastDismiss })
-          : getImageDeactivationErrorToast(imageId, message, { onDismiss: handleToastDismiss })
+  const handleDeactivateSingle = async (image: GlanceImage) => {
+    const imageName = image.name || image.id
+    const imageId = image.id
 
-      setToastData(toast)
+    try {
+      await deactivateImageMutation.mutateAsync({ imageId })
+      setDeactivateModalOpen(false)
+      setSelectedImage(null)
+      setToastData(getImageDeactivatedToast(imageName, { onDismiss: handleToastDismiss }))
+    } catch (error) {
+      const { message } = error as TRPCClientError<InferrableClientTypes>
+      setToastData(getImageDeactivationErrorToast(imageId, message, { onDismiss: handleToastDismiss }))
     }
   }
 
@@ -457,6 +475,16 @@ export function ImageListView({
   const closeDeleteModal = () => {
     setSelectedImage(null)
     setDeleteModalOpen(false)
+  }
+
+  const closeDeactivateModal = () => {
+    setSelectedImage(null)
+    setDeactivateModalOpen(false)
+  }
+
+  const closeActivateModal = () => {
+    setSelectedImage(null)
+    setActivateModalOpen(false)
   }
 
   const closeManageAccessModal = () => {
@@ -722,6 +750,20 @@ export function ImageListView({
               isDisabled={selectedImage.protected || !permissions.canDelete}
               onClose={closeDeleteModal}
               onDelete={handleDelete}
+            />
+            <DeactivateImageModal
+              image={selectedImage}
+              isOpen={deactivateModalOpen}
+              isLoading={deactivateImageMutation.isPending}
+              onClose={closeDeactivateModal}
+              onDeactivate={handleDeactivateSingle}
+            />
+            <ActivateImageModal
+              image={selectedImage}
+              isOpen={activateModalOpen}
+              isLoading={reactivateImageMutation.isPending}
+              onClose={closeActivateModal}
+              onActivate={handleActivateSingle}
             />
             <ManageImageAccessModal
               image={selectedImage}

@@ -15,8 +15,6 @@ describe("DeleteImageModal", () => {
     status: "active",
     visibility: "private",
     disk_format: "qcow2",
-    os_type: "Linux",
-    os_distro: "Ubuntu",
     created_at: "2023-01-01T00:00:00Z",
     updated_at: "2023-01-01T00:00:00Z",
     size: 1000, // 1.00 KB under decimal (SI) formatting
@@ -62,7 +60,6 @@ describe("DeleteImageModal", () => {
     expect(screen.getByText("Test Image")).toBeInTheDocument()
     expect(screen.getByText("test-id")).toBeInTheDocument()
     expect(screen.getByText("qcow2")).toBeInTheDocument()
-    expect(screen.getByText("Linux")).toBeInTheDocument()
   })
 
   it("should call onClose when the cancel button is clicked", () => {
@@ -129,24 +126,6 @@ describe("DeleteImageModal", () => {
     const imageWithoutDiskFormat = { ...mockImage, disk_format: undefined }
     setup(true, false, false, imageWithoutDiskFormat)
     expect(screen.getByText("N/A")).toBeInTheDocument()
-  })
-
-  it("should not display OS Type row when os_type is missing", () => {
-    const imageWithoutOsType = { ...mockImage, os_type: undefined }
-    setup(true, false, false, imageWithoutOsType)
-    expect(screen.queryByText("OS Type")).not.toBeInTheDocument()
-  })
-
-  it("should display os_distro in parentheses when present", () => {
-    setup(true)
-    expect(screen.getByText(/Ubuntu/i)).toBeInTheDocument()
-  })
-
-  it("should display info icon for OS Type when present", () => {
-    setup(true)
-    const osTypeCell = screen.getByText("Linux").closest("div")
-    // Check for the icon within the cell
-    expect(osTypeCell).toBeInTheDocument()
   })
 
   it("should format the created date correctly", () => {

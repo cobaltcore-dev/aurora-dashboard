@@ -3,6 +3,7 @@ import { networkRouter } from "./networkRouter"
 import { portRouter } from "./portRouter"
 import { securityGroupRouter } from "./securityGroupRouter"
 import { securityGroupRuleRouter } from "./securityGroupRuleRouter"
+import { rbacPolicyRouter } from "./rbacPolicyRouter"
 import { auroraRouter } from "../../trpc"
 
 export const networkRouters = {
@@ -12,5 +13,6 @@ export const networkRouters = {
     port: portRouter,
     securityGroup: securityGroupRouter,
     securityGroupRule: securityGroupRuleRouter,
+    rbacPolicy: rbacPolicyRouter,
   }),
 }

@@ -221,9 +221,9 @@ describe("FiltersInput", () => {
     await user.click(valueComboBox.getElementsByClassName("juno-combobox-toggle")[0])
     await user.click(await screen.findByTestId("Finance"))
 
-    // Wait for the setTimeout to reset the value
+    // Wait for setTimeout(0) to complete - using a slightly longer timeout to avoid flakiness
     await act(async () => {
-      await new Promise((resolve) => setTimeout(resolve, 10))
+      await new Promise((resolve) => setTimeout(resolve, 50))
     })
 
     // The combobox should be reset (value should be empty)

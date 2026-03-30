@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react"
 import { trpcReact } from "@/client/trpcClient"
-import type { UpdateSecurityGroupInput } from "@/server/Network/types/securityGroup"
+import type { UpdateSecurityGroupInput, CreateSecurityGroupRuleInput } from "@/server/Network/types/securityGroup"
 import type { RulesFilterControls } from "../-components/SecurityGroupDetailsView"
 
 interface UseSecurityGroupDetailsParams {
@@ -101,6 +101,14 @@ export function useSecurityGroupDetails({ securityGroupId, filterControls }: Use
     },
   })
 
+  // Create rule mutation
+  const createRuleMutation = trpcReact.network.securityGroupRule.create.useMutation({
+    onSuccess: () => {
+      utils.network.securityGroup.getById.invalidate({ securityGroupId })
+      utils.network.securityGroup.list.invalidate()
+    },
+  })
+
   // Handlers
   const handleEdit = () => {
     setEditModalOpen(true)
@@ -121,6 +129,10 @@ export function useSecurityGroupDetails({ securityGroupId, filterControls }: Use
     await deleteRuleMutation.mutateAsync({ ruleId })
   }
 
+  const handleCreateRule = async (ruleData: CreateSecurityGroupRuleInput) => {
+    await createRuleMutation.mutateAsync(ruleData)
+  }
+
   return {
     // Data
     securityGroup: securityGroupQuery.data,
@@ -136,6 +148,8 @@ export function useSecurityGroupDetails({ securityGroupId, filterControls }: Use
     updateError: updateMutation.error?.message || null,
     isDeletingRule: deleteRuleMutation.isPending,
     deleteRuleError: deleteRuleMutation.error?.message || null,
+    isCreatingRule: createRuleMutation.isPending,
+    createRuleError: createRuleMutation.error?.message || null,
 
     // Modal states
     editModalOpen,
@@ -145,5 +159,6 @@ export function useSecurityGroupDetails({ securityGroupId, filterControls }: Use
     handleCloseEditModal,
     handleUpdate,
     handleDeleteRule,
+    handleCreateRule,
   }
 }
