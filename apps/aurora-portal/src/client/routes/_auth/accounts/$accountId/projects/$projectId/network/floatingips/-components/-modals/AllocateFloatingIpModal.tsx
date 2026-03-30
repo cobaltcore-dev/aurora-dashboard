@@ -23,7 +23,6 @@ export interface AllocateFloatingIpModalProps {
   error?: string | null
 }
 
-// Inside (Error_Alert)
 const ipv4Regex = /^(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}$/
 const ipv6Regex =
   /^(([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}|(([0-9a-fA-F]{1,4}:){1,7}:)|(([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4})|(([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2})|(([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3})|(([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4})|(([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5})|([0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6}))|(:((:[0-9a-fA-F]{1,4}){1,7}|:))|(::([fF]{4}(:0{1,4})?:)?((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|(([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})))$/
@@ -54,10 +53,8 @@ export const AllocateFloatingIpModal = ({
     isLoading: isDnsDomainsLoading,
     error: dnsDomainsError,
   } = trpcReact.network.listDnsDomains.useQuery(
-    {
-      project_id: projectId ?? undefined,
-    },
-    { enabled: open }
+    { project_id: projectId, tenant_id: projectId },
+    { enabled: !!projectId }
   )
 
   const {
@@ -70,8 +67,8 @@ export const AllocateFloatingIpModal = ({
   )
 
   const formSchema = z.object({
-    floating_network_id: z.string().trim(),
-    dns_domain: z.string().trim(),
+    floating_network_id: z.string(),
+    dns_domain: z.string(),
     dns_name: z
       .string()
       .trim()
@@ -96,8 +93,8 @@ export const AllocateFloatingIpModal = ({
   const form = useForm({
     defaultValues: {
       floating_network_id: "",
-      dns_name: "",
       dns_domain: "",
+      dns_name: "",
       description: "",
       floating_ip_address: "",
       port_id: "",
@@ -125,7 +122,7 @@ export const AllocateFloatingIpModal = ({
   const selectedPort = availablePorts.find((port) => port.id === currentPortId)
   const portFixedIps = selectedPort?.fixed_ips ?? []
 
-  const formErrorMessage = (externalNetworksError?.message || portsError?.message) ?? error
+  const formErrorMessage = (externalNetworksError?.message || dnsDomainsError?.message || portsError?.message) ?? error
 
   return (
     <Modal
@@ -195,11 +192,10 @@ export const AllocateFloatingIpModal = ({
                   value={field.state.value}
                   onChange={(value) => field.handleChange(String(value))}
                   label={t`DNS Domain`}
-                  helptext={t`Select a DNS domain to use with the floating IP DNS name.`}
-                  disabled={isLoading || isDnsDomainsLoading}
+                  helptext={t`Select a DNS domain.`}
+                  disabled={isLoading || isDnsDomainsLoading || dnsDomains.length === 0}
                   loading={isDnsDomainsLoading}
                 >
-                  <SelectOption value="" label={t`None (optional)`} />
                   {dnsDomains.map((domain) => (
                     <SelectOption key={domain} value={domain} label={domain} />
                   ))}
