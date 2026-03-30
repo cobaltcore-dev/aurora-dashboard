@@ -275,28 +275,28 @@ function RouteComponent() {
                 </Button>
               </PopupMenuToggle>
               <PopupMenuOptions>
-              {permissions.canUpdate && (
-                <PopupMenuItem
-                  label={isDeactivated ? t`Activate` : t`Deactivate`}
-                  onClick={() => (isDeactivated ? setActivateModalOpen(true) : setDeactivateModalOpen(true))}
-                />
-              )}
-              {permissions.canUpdate &&
-                isShared &&
-                isImageOwner &&
-                (permissions.canCreateMember || permissions.canDeleteMember) && (
-                  <PopupMenuItem label={t`Manage Access`} onClick={() => setManageAccessModalOpen(true)} />
+                {permissions.canUpdate && (
+                  <PopupMenuItem
+                    label={isDeactivated ? t`Activate` : t`Deactivate`}
+                    onClick={() => (isDeactivated ? setActivateModalOpen(true) : setDeactivateModalOpen(true))}
+                  />
                 )}
-              {permissions.canUpdate && isShared && permissions.canUpdateMember && (
-                <PopupMenuItem label={t`Review Access`} onClick={() => setConfirmAccessModalOpen(true)} />
-              )}
-              {permissions.canUpdate && isPrivate && (
-                <PopupMenuItem label={t`Set to "Shared"`} onClick={() => handleUpdateVisibility("shared")} />
-              )}
-              {permissions.canDelete && !image.protected && (
-                <PopupMenuItem label={t`Delete`} onClick={() => setDeleteModalOpen(true)} />
-              )}
-            </PopupMenuOptions>
+                {permissions.canUpdate &&
+                  isShared &&
+                  isImageOwner &&
+                  (permissions.canCreateMember || permissions.canDeleteMember) && (
+                    <PopupMenuItem label={t`Manage Access`} onClick={() => setManageAccessModalOpen(true)} />
+                  )}
+                {permissions.canUpdate && isShared && permissions.canUpdateMember && (
+                  <PopupMenuItem label={t`Review Access`} onClick={() => setConfirmAccessModalOpen(true)} />
+                )}
+                {permissions.canUpdate && isPrivate && (
+                  <PopupMenuItem label={t`Set to "Shared"`} onClick={() => handleUpdateVisibility("shared")} />
+                )}
+                {permissions.canDelete && !image.protected && (
+                  <PopupMenuItem label={t`Delete`} onClick={() => setDeleteModalOpen(true)} />
+                )}
+              </PopupMenuOptions>
             </PopupMenu>
           )}
           {permissions.canUpdate && (
