@@ -10,11 +10,10 @@ import {
   SelectOption,
   Checkbox,
   Button,
-  ButtonRow,
   Spinner,
   Stack,
-  ModalFooter,
   Pill,
+  Message,
 } from "@cloudoperators/juno-ui-components"
 import { CreateImageInput } from "@/server/Compute/types/image"
 import {
@@ -43,8 +42,6 @@ interface ImageProperties {
   protected: boolean
   min_disk: number
   min_ram: number
-  os_type: string
-  os_distro: string
 }
 
 const defaultImageValues: ImageProperties = {
@@ -56,8 +53,6 @@ const defaultImageValues: ImageProperties = {
   protected: false,
   min_disk: 0,
   min_ram: 0,
-  os_type: "",
-  os_distro: "",
 }
 
 export const CreateImageModal: React.FC<CreateImageModalProps> = ({
@@ -75,6 +70,18 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [errors, setErrors] = useState<{ [key: string]: string }>({})
   const [isDragging, setIsDragging] = useState<boolean>(false)
+  const [generalError, setGeneralError] = useState<string | null>(null)
+
+  // Check if form is valid for submit button
+  const isFormValid =
+    properties.name.trim() !== "" &&
+    selectedFile !== null &&
+    properties.disk_format !== undefined &&
+    properties.disk_format.trim() !== "" &&
+    properties.container_format !== undefined &&
+    properties.container_format.trim() !== "" &&
+    properties.min_disk >= 0 &&
+    properties.min_ram >= 0
 
   // Get compatible container formats for current disk_format
   const compatibleContainerFormats = useMemo(() => {
@@ -111,6 +118,15 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({
         delete newErrors[name]
         return newErrors
       })
+    }
+  }
+
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    const { name, value } = e.target
+
+    // Validate on blur
+    if (name === "name" && (!value || value.trim() === "")) {
+      setErrors((prev) => ({ ...prev, name: t`Image name is required` }))
     }
   }
 
@@ -160,9 +176,21 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({
     }
   }
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (file) {
+  const handleNumericBlur = (name: string, value: number) => {
+    if (value < 0) {
+      if (name === "min_disk") {
+        setErrors((prev) => ({ ...prev, min_disk: t`Minimum disk must be 0 or greater` }))
+      } else if (name === "min_ram") {
+        setErrors((prev) => ({ ...prev, min_ram: t`Minimum RAM must be 0 or greater` }))
+      }
+    }
+  }
+
+  const validateAndSetFile = (file: File) => {
+    const fileName = file.name.toLowerCase()
+    const isValidFile = validExtensions.some((ext) => fileName.endsWith(ext))
+
+    if (isValidFile) {
       setSelectedFile(file)
       if (errors.file) {
         setErrors((prev) => {
@@ -171,6 +199,18 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({
           return newErrors
         })
       }
+    } else {
+      setErrors((prev) => ({
+        ...prev,
+        file: t`Invalid file format. Supported formats: ${supportedFileFormats}`,
+      }))
+    }
+  }
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      validateAndSetFile(file)
     }
   }
 
@@ -194,27 +234,7 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({
     const droppedFiles = e.dataTransfer.files
 
     if (droppedFiles && droppedFiles.length > 0) {
-      const file = droppedFiles[0]
-
-      // Validate file type
-      const fileName = file.name.toLowerCase()
-      const isValidFile = validExtensions.some((ext) => fileName.endsWith(ext))
-
-      if (isValidFile) {
-        setSelectedFile(file)
-        if (errors.file) {
-          setErrors((prev) => {
-            const newErrors = { ...prev }
-            delete newErrors.file
-            return newErrors
-          })
-        }
-      } else {
-        setErrors((prev) => ({
-          ...prev,
-          file: t`Invalid file format. Supported formats: ${supportedFileFormats}`,
-        }))
-      }
+      validateAndSetFile(droppedFiles[0])
     }
   }
 
@@ -294,29 +314,35 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setGeneralError(null)
 
     if (!validateForm()) {
+      setGeneralError(t`Please fix the validation errors below.`)
       return
     }
 
-    // Prepare image data without the file (file is uploaded separately)
-    const imageData = {
-      name: properties.name.trim(),
-      tags: properties.tags,
-      visibility: properties.visibility,
-      disk_format: properties.disk_format,
-      container_format: properties.container_format,
-      protected: properties.protected,
-      min_disk: properties.min_disk,
-      min_ram: properties.min_ram,
-      os_type: properties.os_type.trim() || undefined,
-      os_distro: properties.os_distro.trim() || undefined,
-    } as CreateImageInput
+    try {
+      // Prepare image data without the file (file is uploaded separately)
+      const imageData = {
+        name: properties.name.trim(),
+        tags: properties.tags,
+        visibility: properties.visibility,
+        disk_format: properties.disk_format,
+        container_format: properties.container_format,
+        protected: properties.protected,
+        min_disk: properties.min_disk,
+        min_ram: properties.min_ram,
+      } as CreateImageInput
 
-    // Call onCreate with imageData and file as separate arguments
-    // File will be uploaded after image is created
-    await onCreate(imageData, selectedFile!)
-    handleClose()
+      // Call onCreate with imageData and file as separate arguments
+      // File will be uploaded after image is created
+      await onCreate(imageData, selectedFile!)
+      handleClose()
+    } catch (error) {
+      // Display error in modal instead of toast
+      const errorMessage = error instanceof Error ? error.message : t`Failed to create image. Please try again.`
+      setGeneralError(errorMessage)
+    }
   }
 
   const handleClose = () => {
@@ -324,34 +350,22 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({
     setTagsInput("")
     setSelectedFile(null)
     setErrors({})
+    setGeneralError(null)
     onClose()
   }
 
   return (
     <Modal
       open={isOpen}
-      onCancel={handleClose}
+      onCancel={isLoading ? undefined : handleClose}
       size="large"
       title={t`Create New Image`}
-      modalFooter={
-        <ModalFooter className="flex justify-end">
-          <ButtonRow>
-            <Button
-              variant="primary"
-              onClick={(e) => {
-                handleSubmit(e)
-              }}
-              disabled={isLoading}
-              data-testid="create-image-button"
-            >
-              {isLoading ? <Spinner size="small" /> : <Trans>Create Image</Trans>}
-            </Button>
-            <Button variant="default" onClick={handleClose} disabled={isLoading}>
-              <Trans>Cancel</Trans>
-            </Button>
-          </ButtonRow>
-        </ModalFooter>
-      }
+      onConfirm={handleSubmit}
+      confirmButtonLabel={t`Create Image`}
+      cancelButtonLabel={t`Cancel`}
+      disableConfirmButton={isLoading || !isFormValid}
+      closeable={!isLoading}
+      closeOnEsc={!isLoading}
     >
       {isLoading && !uploadProgressPercent && (
         <Stack distribution="center" alignment="center" className="mt-4">
@@ -374,6 +388,12 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({
 
       {!isLoading && (
         <Form className="mb-6">
+          {generalError && (
+            <Message variant="error" className="mb-6">
+              {generalError}
+            </Message>
+          )}
+
           {/* File Upload Section */}
           <FormSection className="mb-6">
             <FormRow>
@@ -449,7 +469,17 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({
                     </div>
                     <button
                       type="button"
-                      onClick={() => setSelectedFile(null)}
+                      onClick={() => {
+                        setSelectedFile(null)
+                        // Clear file error when removing file
+                        if (errors.file) {
+                          setErrors((prev) => {
+                            const newErrors = { ...prev }
+                            delete newErrors.file
+                            return newErrors
+                          })
+                        }
+                      }}
                       className="font-medium text-red-600 hover:text-red-800"
                       disabled={isLoading}
                     >
@@ -471,6 +501,7 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({
                 label={t`Image Name`}
                 value={properties.name}
                 onChange={handleInputChange}
+                onBlur={handleBlur}
                 required
                 errortext={errors.name}
                 placeholder={t`Ubuntu 22.04 LTS`}
@@ -587,36 +618,6 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({
             </FormRow>
           </FormSection>
 
-          {/* Operating System Section */}
-          <FormSection className="mb-6">
-            <FormRow className="mb-6">
-              <Stack direction="horizontal" gap="3" distribution="evenly" className="w-full">
-                <div className="flex-1">
-                  <TextInput
-                    id="os_type"
-                    name="os_type"
-                    label={t`OS Type`}
-                    value={properties.os_type}
-                    onChange={handleInputChange}
-                    placeholder={t`Linux, Windows`}
-                    disabled={isLoading}
-                  />
-                </div>
-                <div className="flex-1">
-                  <TextInput
-                    id="os_distro"
-                    name="os_distro"
-                    label={t`OS Distribution`}
-                    value={properties.os_distro}
-                    onChange={handleInputChange}
-                    placeholder={t`Ubuntu, CentOS`}
-                    disabled={isLoading}
-                  />
-                </div>
-              </Stack>
-            </FormRow>
-          </FormSection>
-
           {/* Resource Requirements Section */}
           <FormSection className="mb-6">
             <FormRow className="mb-0">
@@ -629,6 +630,7 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({
                     type="number"
                     value={String(properties.min_disk)}
                     onChange={(e) => handleNumericChange("min_disk", e.target.value)}
+                    onBlur={() => handleNumericBlur("min_disk", properties.min_disk)}
                     helptext={t`Boot size`}
                     errortext={errors.min_disk}
                     disabled={isLoading}
@@ -642,6 +644,7 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({
                     type="number"
                     value={String(properties.min_ram)}
                     onChange={(e) => handleNumericChange("min_ram", e.target.value)}
+                    onBlur={() => handleNumericBlur("min_ram", properties.min_ram)}
                     helptext={t`Boot RAM`}
                     errortext={errors.min_ram}
                     disabled={isLoading}

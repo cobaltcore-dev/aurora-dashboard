@@ -87,13 +87,12 @@ describe("DeleteImagesModal", () => {
     expect(mockOnClose).toHaveBeenCalledTimes(1)
   })
 
-  it("should call onDelete and onClose when the delete button is clicked", () => {
+  it("should call onDelete when the delete button is clicked", () => {
     setup(true, false, mockDeletableImages, mockProtectedImages)
     const deleteButton = screen.getByRole("button", { name: /Delete/i })
     fireEvent.click(deleteButton)
     expect(mockOnDelete).toHaveBeenCalledTimes(1)
     expect(mockOnDelete).toHaveBeenCalledWith(mockDeletableImages)
-    expect(mockOnClose).toHaveBeenCalledTimes(1)
   })
 
   it("should disable the delete button when isLoading is true", () => {
@@ -102,14 +101,7 @@ describe("DeleteImagesModal", () => {
     expect(deleteButton).toBeDisabled()
   })
 
-  it("should show spinner in delete button when isLoading is true", () => {
-    setup(true, true)
-    const deleteButton = screen.getByTestId("delete-image-button")
-    const spinner = deleteButton.querySelector('[role="progressbar"]')
-    expect(spinner).toBeInTheDocument()
-  })
-
-  it("should show loading spinner overlay when isLoading is true", () => {
+  it("should show global loading spinner when isLoading is true", () => {
     setup(true, true)
     const spinners = screen.getAllByRole("progressbar")
     expect(spinners.length).toBeGreaterThan(0)
@@ -141,13 +133,6 @@ describe("DeleteImagesModal", () => {
   it("should display warning message for deletable images", () => {
     setup(true)
     expect(screen.getByText(/You are about to delete 3 image\(s\)\. This action cannot be undone/i)).toBeInTheDocument()
-  })
-
-  it("should display info message about deletion impact", () => {
-    setup(true)
-    expect(
-      screen.getByText(/Deleting images will affect any instances or volumes that depend on them/i)
-    ).toBeInTheDocument()
   })
 
   it("should handle empty deletableImages array", () => {
@@ -183,11 +168,6 @@ describe("DeleteImagesModal", () => {
     expect(screen.getByText(/This action cannot be undone/i)).toBeInTheDocument()
   })
 
-  it("should mention ensuring images are no longer in use", () => {
-    setup(true)
-    expect(screen.getByText(/Ensure these images are no longer in use before proceeding/i)).toBeInTheDocument()
-  })
-
   it("should render button with primary-danger variant", () => {
     setup(true)
     const deleteButton = screen.getByTestId("delete-image-button")
@@ -210,19 +190,10 @@ describe("DeleteImagesModal", () => {
     })
   })
 
-  it("should show warning variant for main message", () => {
+  it("should show danger variant for main message", () => {
     setup(true)
-    const warningMessage = screen.getByText(/You are about to delete 3 image\(s\)/i).closest(".juno-message")
-
-    expect(warningMessage).toBeInTheDocument()
-    expect(warningMessage).toContain(screen.getByTitle("Warning"))
-  })
-
-  it("should show info variant for deletion impact message", () => {
-    setup(true)
-    const infoMessage = screen.getByText(/Deleting images will affect/i).closest(".juno-message")
-
-    expect(infoMessage).toBeInTheDocument()
-    expect(infoMessage).toContain(screen.getByTitle("Info"))
+    const dangerMessage = screen.getByText(/You are about to delete 3 image\(s\)/i).closest(".juno-message")
+    expect(dangerMessage).toBeInTheDocument()
+    expect(screen.getByTitle("Danger")).toBeInTheDocument()
   })
 })

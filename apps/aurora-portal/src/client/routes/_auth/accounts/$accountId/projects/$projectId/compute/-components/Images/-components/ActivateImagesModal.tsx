@@ -1,6 +1,6 @@
 import React from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
-import { Button, ButtonRow, Message, Modal, ModalFooter, Spinner, Stack } from "@cloudoperators/juno-ui-components"
+import { Modal, Spinner, Stack } from "@cloudoperators/juno-ui-components"
 
 interface ActivateImagesModalProps {
   deactivatedImages: Array<string>
@@ -35,26 +35,10 @@ export const ActivateImagesModal: React.FC<ActivateImagesModalProps> = ({
       size="small"
       title={t`Activate Images`}
       open={isOpen}
-      modalFooter={
-        <ModalFooter className="flex justify-end">
-          <ButtonRow>
-            <Button
-              variant="primary-danger"
-              onClick={(e) => {
-                handleActivate(e)
-                onClose()
-              }}
-              disabled={isLoading}
-              data-testid={`activate-image-button`}
-            >
-              {isLoading ? <Spinner size="small" /> : <Trans>Activate</Trans>}
-            </Button>
-            <Button variant="default" onClick={onClose}>
-              <Trans>Cancel</Trans>
-            </Button>
-          </ButtonRow>
-        </ModalFooter>
-      }
+      onConfirm={handleActivate}
+      confirmButtonLabel={t`Activate`}
+      cancelButtonLabel={t`Cancel`}
+      disableConfirmButton={isLoading}
     >
       {isLoading && (
         <Stack distribution="center" alignment="center">
@@ -66,12 +50,12 @@ export const ActivateImagesModal: React.FC<ActivateImagesModalProps> = ({
         <div className="my-6">
           {deactivatedCount > 0 && (
             <>
-              {/* Header */}
-              <Message
-                text={t`You are about to activate ${deactivatedCount} image(s). Activated images will be available for launching new instances.`}
-                variant="warning"
-                className="mb-6"
-              />
+              <p className="mb-6">
+                <Trans>
+                  You are about to activate <strong>{deactivatedCount} image(s)</strong>. Activated images will be
+                  available for launching new instances.
+                </Trans>
+              </p>
 
               {/* Images to be activated */}
               <div className="mb-6">
@@ -128,13 +112,6 @@ export const ActivateImagesModal: React.FC<ActivateImagesModalProps> = ({
               </div>
             )}
           </div>
-
-          {/* Info Notice */}
-          <Message
-            text={t`Activated images will become available for launching new instances and creating volumes. This action will restore full functionality to the selected images.`}
-            variant="info"
-            className="mb-6"
-          />
         </div>
       )}
     </Modal>

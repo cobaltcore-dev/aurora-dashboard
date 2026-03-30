@@ -1,6 +1,6 @@
 import React from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
-import { Button, ButtonRow, Message, Modal, ModalFooter, Spinner, Stack } from "@cloudoperators/juno-ui-components"
+import { Modal, Spinner, Stack } from "@cloudoperators/juno-ui-components"
 
 interface DeactivateImagesModalProps {
   activeImages: Array<string>
@@ -35,26 +35,13 @@ export const DeactivateImagesModal: React.FC<DeactivateImagesModalProps> = ({
       size="small"
       title={t`Deactivate Images`}
       open={isOpen}
-      modalFooter={
-        <ModalFooter className="flex justify-end">
-          <ButtonRow>
-            <Button
-              variant="primary-danger"
-              onClick={(e) => {
-                handleDeactivate(e)
-                onClose()
-              }}
-              disabled={isLoading}
-              data-testid={`deactivate-image-button`}
-            >
-              {isLoading ? <Spinner size="small" /> : <Trans>Deactivate</Trans>}
-            </Button>
-            <Button variant="default" onClick={onClose}>
-              <Trans>Cancel</Trans>
-            </Button>
-          </ButtonRow>
-        </ModalFooter>
-      }
+      onConfirm={(e) => {
+        handleDeactivate(e)
+        onClose()
+      }}
+      confirmButtonLabel={t`Deactivate`}
+      cancelButtonLabel={t`Cancel`}
+      disableConfirmButton={isLoading}
     >
       {isLoading && (
         <Stack distribution="center" alignment="center">
@@ -66,12 +53,12 @@ export const DeactivateImagesModal: React.FC<DeactivateImagesModalProps> = ({
         <div className="my-6">
           {activeCount > 0 && (
             <>
-              {/* Header */}
-              <Message
-                text={t`You are about to deactivate ${activeCount} image(s). Deactivated images cannot be used to launch new instances.`}
-                variant="warning"
-                className="mb-6"
-              />
+              <p className="mb-6">
+                <Trans>
+                  You are about to deactivate <strong>{activeCount} image(s)</strong>. Deactivated images cannot be used
+                  to launch new instances.
+                </Trans>
+              </p>
 
               {/* Images to be deactivated */}
               <div className="mb-6">
@@ -97,7 +84,7 @@ export const DeactivateImagesModal: React.FC<DeactivateImagesModalProps> = ({
               <h3 className="jn:text-theme-high mb-3 font-semibold">
                 <Trans>Already deactivated (will be skipped)</Trans>
               </h3>
-              <div className="jn:bg-theme-warning/10 max-h-24 overflow-y-auto rounded border border-yellow-500/20 p-4">
+              <div className="jn:bg-theme-background-lvl-1 max-h-24 overflow-y-auto rounded p-4">
                 <ul className="space-y-2">
                   {deactivatedImages.map((imageId) => (
                     <li key={imageId} className="jn:text-theme-default font-mono">
@@ -128,13 +115,6 @@ export const DeactivateImagesModal: React.FC<DeactivateImagesModalProps> = ({
               </div>
             )}
           </div>
-
-          {/* Info Notice */}
-          <Message
-            text={t`Deactivated images will not be available for launching new instances or creating volumes. Existing instances using these images will not be affected. You can reactivate images later if needed.`}
-            variant="info"
-            className="mb-6"
-          />
         </div>
       )}
     </Modal>
