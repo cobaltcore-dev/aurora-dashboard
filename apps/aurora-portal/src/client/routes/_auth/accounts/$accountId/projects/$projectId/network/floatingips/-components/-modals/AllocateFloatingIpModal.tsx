@@ -1,5 +1,5 @@
 import { z } from "zod"
-import { useForm } from "@tanstack/react-form"
+import { useForm, useStore } from "@tanstack/react-form"
 import { useParams } from "@tanstack/react-router"
 import { Trans, useLingui } from "@lingui/react/macro"
 import {
@@ -24,8 +24,6 @@ export interface AllocateFloatingIpModalProps {
 }
 
 // Inside (Error_Alert) <- Form is done
-// Fix Aurora Portal Shadow for Filters
-
 const ipv4Regex = /^(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}$/
 const ipv6Regex =
   /^(([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}|(([0-9a-fA-F]{1,4}:){1,7}:)|(([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4})|(([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2})|(([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3})|(([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4})|(([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5})|([0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6}))|(:((:[0-9a-fA-F]{1,4}){1,7}|:))|(::([fF]{4}(:0{1,4})?:)?((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|(([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})))$/
@@ -41,17 +39,6 @@ export const AllocateFloatingIpModal = ({
 }: AllocateFloatingIpModalProps) => {
   const { t } = useLingui()
   const { projectId } = useParams({ strict: false })
-
-  const {
-    data: availablePorts = [],
-    isLoading: isPortsLoading,
-    error: portsError,
-  } = trpcReact.network.port.listAvailablePorts.useQuery(
-    {
-      project_id: projectId ?? undefined,
-    },
-    { enabled: open }
-  )
 
   const {
     data: externalNetworks = [],
@@ -75,9 +62,23 @@ export const AllocateFloatingIpModal = ({
     { enabled: open }
   )
 
-  const formErrorMessage = portsError?.message ?? externalNetworksError?.message ?? dnsDomainsError?.message ?? error
+  // refactoring_start
+  const {
+    data: availablePorts = [],
+    isLoading: isPortsLoading,
+    error: portsError,
+  } = trpcReact.network.port.listAvailablePorts.useQuery(
+    { project_id: projectId, tenant_id: projectId },
+    { enabled: !!projectId }
+  )
+
+  // const formErrorMessage = externalNetworksError?.message ?? dnsDomainsError?.message
+  const portErrorMessage = portsError?.message ?? error
+  // refactoring_end
 
   const formSchema = z.object({
+    floating_network_id: z.string().trim(),
+    dns_domain: z.string().trim(),
     dns_name: z
       .string()
       .trim()
@@ -85,6 +86,7 @@ export const AllocateFloatingIpModal = ({
       .refine((value) => value === "" || dnsNameRegex.test(value), {
         message: t`Must be a valid PQDN or FQDN (alphanumeric and hyphens only, cannot start or end with hyphen).`,
       }),
+    // refactoring_start
     description: z
       .string()
       .trim()
@@ -95,30 +97,26 @@ export const AllocateFloatingIpModal = ({
       .refine((value) => value === "" || isValidIpAddress(value), {
         message: t`Must be a valid IPv4 or IPv6 address (for example: 172.24.4.228 or 2001:db8::1).`,
       }),
-    floating_network_id: z.string().trim(),
-    dns_domain: z.string().trim(),
-    port_id: z.string().trim(),
-    fixed_ip_address: z
-      .string()
-      .trim()
-      .refine((value) => value === "" || isValidIpAddress(value), {
-        message: t`Fixed IP address must be a valid IPv4 or IPv6 address (for example: 172.24.4.228 or 2001:db8::1).`,
-      }),
+    port_id: z.string(),
+    fixed_ip_address: z.string(),
   })
 
+  // refactoring_end
   const form = useForm({
     defaultValues: {
       dns_name: "",
-      description: "",
-      floating_ip_address: "",
       floating_network_id: "",
       dns_domain: "",
+      // refactoring_start
+      description: "",
+      floating_ip_address: "",
       port_id: "",
       fixed_ip_address: "",
     },
     validators: {
       onSubmit: formSchema,
     },
+    // refactoring_end
     onSubmit: async ({ value }) => {
       if (isLoading) return
 
@@ -134,6 +132,10 @@ export const AllocateFloatingIpModal = ({
     onClose()
   }
 
+  const currentPortId = useStore(form.store, (state) => state.values.port_id)
+  const selectedPort = availablePorts.find((port) => port.id === currentPortId)
+  const portFixedIps = selectedPort?.fixed_ips ?? []
+
   return (
     <Modal
       open={open}
@@ -145,9 +147,9 @@ export const AllocateFloatingIpModal = ({
       onConfirm={form.handleSubmit}
       disableConfirmButton={isLoading}
     >
-      {formErrorMessage && (
+      {portErrorMessage && (
         <Message dismissible={false} variant="error" className="mb-4">
-          {formErrorMessage}
+          {portErrorMessage}
         </Message>
       )}
 
@@ -235,6 +237,8 @@ export const AllocateFloatingIpModal = ({
               )}
             />
           </FormSection>
+
+          {/* refactoring_end_END. */}
           <FormSection className="mb-4">
             <form.Field
               name="description"
@@ -271,7 +275,6 @@ export const AllocateFloatingIpModal = ({
               )}
             />
           </FormSection>
-          {/* form_section */}
           <FormSection className="mb-4">
             <form.Field
               name="port_id"
@@ -280,41 +283,50 @@ export const AllocateFloatingIpModal = ({
                   id={field.name}
                   name={field.name}
                   value={field.state.value}
-                  onChange={(value) => field.handleChange(String(value))}
+                  onChange={(value) => {
+                    const portId = typeof value === "string" ? value : ""
+                    field.handleChange(portId)
+                    const port = availablePorts.find((p) => p.id === portId)
+                    const ips = port?.fixed_ips ?? []
+                    form.setFieldValue("fixed_ip_address", ips.length === 1 ? ips[0].ip_address : "")
+                  }}
                   label={t`Port ID`}
-                  helptext={t`The ID of a port associated with the floating IP. To associate the floating IP with a fixed IP at creation time, specify the identifier of the internal port.`}
+                  placeholder={t`Select port to associate`}
+                  errortext={field.state.meta.errors.map((e) => e?.message).join(", ")}
                   disabled={isLoading || isPortsLoading}
                   loading={isPortsLoading}
                 >
-                  <SelectOption value="" label={t`None (optional)`} />
-                  {availablePorts.map((port) => {
-                    const fixedIp = port.fixed_ips?.[0]?.ip_address
-                    const portLabel = port.name ? `${port.name} (${port.id})` : port.id
-                    const optionLabel = fixedIp ? `${portLabel} - ${fixedIp}` : portLabel
-
-                    return <SelectOption key={port.id} value={port.id} label={optionLabel} />
-                  })}
+                  {availablePorts.map((port) => (
+                    <SelectOption
+                      key={port.id}
+                      value={port.id}
+                      label={port.name ? `${port.name} (${port.id})` : port.id}
+                    />
+                  ))}
                 </Select>
               )}
             />
           </FormSection>
-          {/* form_section */}
           <FormSection>
             <form.Field
               name="fixed_ip_address"
               children={(field) => (
-                <TextInput
+                <Select
                   id={field.name}
                   name={field.name}
                   value={field.state.value}
                   onBlur={field.handleBlur}
-                  onChange={(e) => field.handleChange(e.target.value)}
+                  onChange={(value) => field.handleChange(typeof value === "string" ? value : "")}
                   label={t`Fixed IP Address`}
-                  placeholder={t`Enter a fixed IP address`}
-                  helptext={t`Associates the floating IP with a fixed IP on the selected port. If the port has multiple IPs, specify fixed_ip_address; otherwise, the first fixed IP is used.`}
+                  placeholder={t`Select a fixed IP address`}
+                  helptext={t`Associates on the selected port. If the port has multiple IPs, select the desired fixed IP address.`}
                   errortext={field.state.meta.errors.map((e) => e?.message).join(", ")}
-                  disabled={isLoading}
-                />
+                  disabled={isLoading || portFixedIps.length === 0}
+                >
+                  {portFixedIps.map(({ ip_address }) => (
+                    <SelectOption key={ip_address} value={ip_address} label={ip_address} />
+                  ))}
+                </Select>
               )}
             />
           </FormSection>
