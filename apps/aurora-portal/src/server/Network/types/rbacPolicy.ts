@@ -26,12 +26,12 @@ export const listRBACPoliciesForSecurityGroupInputSchema = z.object({
 
 export const createRBACPolicyInputSchema = z.object({
   securityGroupId: z.string(),
-  targetTenant: z.string().min(1, "Target project ID is required"),
+  targetTenant: z.string().trim().min(1, "Target project ID is required"),
 })
 
 export const updateRBACPolicyInputSchema = z.object({
   policyId: z.string(),
-  targetTenant: z.string().min(1, "Target project ID is required"),
+  targetTenant: z.string().trim().min(1, "Target project ID is required"),
 })
 
 export const deleteRBACPolicyInputSchema = z.object({

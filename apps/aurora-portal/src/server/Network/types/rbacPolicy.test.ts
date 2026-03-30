@@ -277,7 +277,7 @@ describe("createRBACPolicyInputSchema", () => {
     }
   })
 
-  it("validates targetTenant with whitespace only", () => {
+  it("rejects targetTenant with whitespace only", () => {
     const input = {
       securityGroupId: "sg-123",
       targetTenant: "   ",
@@ -285,8 +285,10 @@ describe("createRBACPolicyInputSchema", () => {
 
     const result = createRBACPolicyInputSchema.safeParse(input)
 
-    // Zod .min(1) should reject whitespace-only strings after parsing
-    expect(result.success).toBe(true) // Zod doesn't trim by default
+    expect(result.success).toBe(false)
+    if (!result.success) {
+      expect(result.error.issues[0].message).toBe("Target project ID is required")
+    }
   })
 })
 
@@ -330,6 +332,20 @@ describe("updateRBACPolicyInputSchema", () => {
     const input = {
       policyId: "policy-123",
       targetTenant: "",
+    }
+
+    const result = updateRBACPolicyInputSchema.safeParse(input)
+
+    expect(result.success).toBe(false)
+    if (!result.success) {
+      expect(result.error.issues[0].message).toBe("Target project ID is required")
+    }
+  })
+
+  it("rejects targetTenant with whitespace only", () => {
+    const input = {
+      policyId: "policy-123",
+      targetTenant: "   ",
     }
 
     const result = updateRBACPolicyInputSchema.safeParse(input)

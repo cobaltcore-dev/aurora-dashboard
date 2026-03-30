@@ -109,7 +109,7 @@ export const rbacPolicyRouter = {
 
       const response = await network.del(`${RBAC_POLICIES_BASE_URL}/${policyId}`)
 
-      if (!response?.ok) {
+      if (!response.ok) {
         throw RBACPolicyErrorHandlers.delete(response, policyId)
       }
     }, "delete RBAC policy")
