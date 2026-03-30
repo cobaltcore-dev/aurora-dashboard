@@ -157,17 +157,17 @@ export const ListToolbar = ({
 
         <div className="flex w-full flex-col items-stretch gap-4 md:flex-row md:items-center">
           {filtersProps && (
-            <div className="w-full md:w-auto md:min-w-[150px]">
+            <div className="w-full md:w-auto md:min-w-37.5">
               <FiltersInput {...filtersProps} />
             </div>
           )}
           {sortProps && (
-            <div className="w-full md:w-auto md:min-w-[180px]">
+            <div className="w-full md:w-auto md:min-w-45">
               <SortInput {...sortProps} />
             </div>
           )}
           {searchProps && (
-            <div className="w-full md:ml-auto md:w-auto md:min-w-[100px]">
+            <div className="w-full md:ml-auto md:w-auto md:min-w-25">
               <SearchInput {...searchProps} />
             </div>
           )}

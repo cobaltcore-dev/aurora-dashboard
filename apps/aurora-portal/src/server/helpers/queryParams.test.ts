@@ -58,4 +58,49 @@ describe("appendQueryParamsFromObject", () => {
     expect(q.has("marker")).toBe(false)
     expect(q.has("description")).toBe(false)
   })
+
+  it("appends each string array item as a separate entry with the same key", () => {
+    const input = { fields: ["id", "name", "fixed_ips"] }
+    const q = appendQueryParamsFromObject(input)
+    expect(q.getAll("fields")).toEqual(["id", "name", "fixed_ips"])
+  })
+
+  it("appends each number array item as a separate entry", () => {
+    const input = { ids: [1, 2, 3] }
+    const q = appendQueryParamsFromObject(input)
+    expect(q.getAll("ids")).toEqual(["1", "2", "3"])
+  })
+
+  it("appends mixed primitive array items, skipping non-primitives", () => {
+    const input = { values: ["a", 2, true, null, undefined, { x: 1 }] as unknown[] }
+    const q = appendQueryParamsFromObject(input as Record<string, unknown>)
+    expect(q.getAll("values")).toEqual(["a", "2", "true"])
+  })
+
+  it("appends empty array as no entries", () => {
+    const input = { fields: [] as string[] }
+    const q = appendQueryParamsFromObject(input)
+    expect(q.has("fields")).toBe(false)
+  })
+
+  it("respects keyMap for array params", () => {
+    const input = { not_tags: ["internal", "deprecated"] }
+    const q = appendQueryParamsFromObject(input, { keyMap: { not_tags: "not-tags" } })
+    expect(q.getAll("not-tags")).toEqual(["internal", "deprecated"])
+    expect(q.has("not_tags")).toBe(false)
+  })
+
+  it("matches port fields filter usage", () => {
+    const input = {
+      project_id: "proj-1",
+      status: "ACTIVE",
+      admin_state_up: true,
+      fields: ["id", "name", "fixed_ips"],
+    }
+    const q = appendQueryParamsFromObject(input)
+    expect(q.get("project_id")).toBe("proj-1")
+    expect(q.get("status")).toBe("ACTIVE")
+    expect(q.get("admin_state_up")).toBe("true")
+    expect(q.getAll("fields")).toEqual(["id", "name", "fixed_ips"])
+  })
 })

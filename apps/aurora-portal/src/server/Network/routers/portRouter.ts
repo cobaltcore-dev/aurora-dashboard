@@ -1,10 +1,10 @@
 import { TRPCError } from "@trpc/server"
 import { protectedProcedure } from "@/server/trpc"
 import { withErrorHandling } from "@/server/helpers/errorHandling"
-import { ListAvailablePortsQuerySchema, Port, PortListResponseSchema } from "../types/port"
+import { appendQueryParamsFromObject } from "@/server/helpers/queryParams"
+import { ListAvailablePortsQuerySchema, AvailablePort, AvailablePortListResponseSchema } from "../types/port"
 import { getNetworkService } from "../helpers/index"
 import { PortErrorHandlers } from "../helpers/portHelpers"
-import { appendQueryParamsFromObject } from "@/server/helpers/queryParams"
 
 export const PORT_BASE_URL = "v2.0/ports"
 
@@ -17,13 +17,15 @@ export const PORT_BASE_URL = "v2.0/ports"
 export const portRouter = {
   listAvailablePorts: protectedProcedure
     .input(ListAvailablePortsQuerySchema)
-    .query(async ({ input, ctx }): Promise<Port[]> => {
+    .query(async ({ input, ctx }): Promise<AvailablePort[]> => {
       return withErrorHandling(async () => {
         const network = getNetworkService(ctx)
 
-        // Build query params from input
-        const queryParams = appendQueryParamsFromObject(input)
-
+        const queryParams = appendQueryParamsFromObject({
+          ...input,
+          // Fetch only these fields, as the floating IP association only requires port_id with name and fixed_ips. This optimizes the response size and parsing.
+          fields: ["id", "name", "fixed_ips"],
+        })
         const queryString = queryParams.toString()
         const url = queryString ? `${PORT_BASE_URL}?${queryString}` : PORT_BASE_URL
 
@@ -33,7 +35,7 @@ export const portRouter = {
         }
 
         const data = await response.json()
-        const parsed = PortListResponseSchema.safeParse(data)
+        const parsed = AvailablePortListResponseSchema.safeParse(data)
         if (!parsed.success) {
           console.error("Zod Parsing Error in portRouter.listAvailablePorts:", parsed.error.format())
           throw new TRPCError({

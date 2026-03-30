@@ -1,14 +1,17 @@
 import { ReactElement } from "react"
 import { cleanup, render, screen, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
-import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import { i18n } from "@lingui/core"
 import { I18nProvider } from "@lingui/react"
+import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import { createRoute, createRootRoute, RouterProvider, createMemoryHistory, createRouter } from "@tanstack/react-router"
-import { FloatingIpTableRow } from "./FloatingIpTableRow"
-import type { FloatingIp } from "@/server/Network/types/floatingIp"
 import { describe, it, expect, vi, afterEach, beforeEach } from "vitest"
-import { FloatingIpUpdateFields } from "../../../floatingips/-components/-modals/EditFloatingIpModal"
+import type { FloatingIp } from "@/server/Network/types/floatingIp"
+import { FloatingIpTableRow } from "./FloatingIpTableRow"
+import { EditFloatingIpModalProps } from "../../../floatingips/-components/-modals/EditFloatingIpModal"
+import { ReleaseFloatingIpModalProps } from "../../../floatingips/-components/-modals/ReleaseFloatingIpModal"
+import { DetachFloatingIpModalProps } from "../../../floatingips/-components/-modals/DetachFloatingIpModal"
+import { AssociateFloatingIpModalProps } from "../../../floatingips/-components/-modals/AssociateFloatingIpModal"
 
 const { mockUseUtils, mockUpdateMutation, mockDeleteMutation } = vi.hoisted(() => ({
   mockUseUtils: vi.fn(),
@@ -33,21 +36,7 @@ vi.mock("@/client/trpcClient", () => ({
 }))
 
 vi.mock("../../../floatingips/-components/-modals/EditFloatingIpModal", () => ({
-  EditFloatingIpModal: ({
-    open,
-    onClose,
-    onUpdate,
-    floatingIp,
-    isLoading,
-    error,
-  }: {
-    open: boolean
-    onClose: () => void
-    onUpdate: (floatingIpId: string, data: FloatingIpUpdateFields) => Promise<void>
-    floatingIp: FloatingIp
-    isLoading: boolean
-    error: string | null
-  }) =>
+  EditFloatingIpModal: ({ open, onClose, onUpdate, floatingIp, isLoading, error }: EditFloatingIpModalProps) =>
     open ? (
       <div data-testid="edit-floating-ip-modal">
         <span data-testid="edit-modal-loading">{isLoading ? "loading" : "idle"}</span>
@@ -65,21 +54,7 @@ vi.mock("../../../floatingips/-components/-modals/EditFloatingIpModal", () => ({
 }))
 
 vi.mock("../../../floatingips/-components/-modals/ReleaseFloatingIpModal", () => ({
-  ReleaseFloatingIpModal: ({
-    open,
-    onClose,
-    onUpdate,
-    floatingIp,
-    isLoading,
-    error,
-  }: {
-    open: boolean
-    onClose: () => void
-    onUpdate: (floatingIpId: string) => Promise<void>
-    floatingIp: FloatingIp
-    isLoading: boolean
-    error: string | null
-  }) =>
+  ReleaseFloatingIpModal: ({ open, onClose, onUpdate, floatingIp, isLoading, error }: ReleaseFloatingIpModalProps) =>
     open ? (
       <div data-testid="release-floating-ip-modal">
         <span data-testid="release-modal-loading">{isLoading ? "loading" : "idle"}</span>
@@ -91,27 +66,32 @@ vi.mock("../../../floatingips/-components/-modals/ReleaseFloatingIpModal", () =>
 }))
 
 vi.mock("../../../floatingips/-components/-modals/DetachFloatingIpModal", () => ({
-  DetachFloatingIpModal: ({
-    open,
-    onClose,
-    onUpdate,
-    floatingIp,
-    isLoading,
-    error,
-  }: {
-    open: boolean
-    onClose: () => void
-    onUpdate: (floatingIpId: string, data: FloatingIpUpdateFields) => Promise<void>
-    floatingIp: FloatingIp
-    isLoading: boolean
-    error: string | null
-  }) =>
+  DetachFloatingIpModal: ({ open, onClose, onUpdate, floatingIp, isLoading, error }: DetachFloatingIpModalProps) =>
     open ? (
       <div data-testid="detach-floating-ip-modal">
         <span data-testid="detach-modal-loading">{isLoading ? "loading" : "idle"}</span>
         <span data-testid="detach-modal-error">{error ?? ""}</span>
         <button onClick={onClose}>Close Detach Modal</button>
         <button onClick={() => onUpdate(floatingIp.id, { port_id: null })}>Confirm Detach</button>
+      </div>
+    ) : null,
+}))
+
+vi.mock("../../../floatingips/-components/-modals/AssociateFloatingIpModal", () => ({
+  AssociateFloatingIpModal: ({
+    open,
+    onClose,
+    onUpdate,
+    floatingIp,
+    isLoading,
+    error,
+  }: AssociateFloatingIpModalProps) =>
+    open ? (
+      <div data-testid="associate-floating-ip-modal">
+        <span data-testid="associate-modal-loading">{isLoading ? "loading" : "idle"}</span>
+        <span data-testid="associate-modal-error">{error ?? ""}</span>
+        <button onClick={onClose}>Close Associate Modal</button>
+        <button onClick={() => onUpdate(floatingIp.id, { port_id: "port-new" })}>Confirm Associate</button>
       </div>
     ) : null,
 }))
@@ -535,6 +515,89 @@ describe("FloatingIpTableRow", () => {
 
       expect(screen.getByTestId("detach-modal-loading")).toHaveTextContent("loading")
       expect(screen.getByTestId("detach-modal-error")).toHaveTextContent("Detach failed")
+    })
+  })
+
+  describe("Attach modal", () => {
+    it("opens and closes attach modal from menu action", async () => {
+      const user = userEvent.setup()
+      const router = createTestRouter(<FloatingIpTableRow floatingIp={mockFloatingIp} />)
+      render(<RouterProvider router={router} />)
+
+      await waitFor(() => {
+        expect(screen.getByText("203.0.113.10")).toBeInTheDocument()
+      })
+
+      const row = screen.getByTestId(`floating-ip-row-${mockFloatingIp.id}`)
+      const menuButton = row.querySelector("button")
+      expect(menuButton).toBeInTheDocument()
+
+      await user.click(menuButton!)
+      await user.click(screen.getByText("Attach"))
+
+      expect(screen.getByTestId("associate-floating-ip-modal")).toBeInTheDocument()
+
+      await user.click(screen.getByText("Close Associate Modal"))
+
+      await waitFor(() => {
+        expect(screen.queryByTestId("associate-floating-ip-modal")).not.toBeInTheDocument()
+      })
+    })
+
+    it("submits associate update and invalidates floating IP queries", async () => {
+      const user = userEvent.setup()
+      const router = createTestRouter(<FloatingIpTableRow floatingIp={mockFloatingIp} />)
+      render(<RouterProvider router={router} />)
+
+      await waitFor(() => {
+        expect(screen.getByTestId(`floating-ip-row-${mockFloatingIp.id}`)).toBeInTheDocument()
+      })
+
+      const row = screen.getByTestId(`floating-ip-row-${mockFloatingIp.id}`)
+      const menuButton = row.querySelector("button")
+      expect(menuButton).toBeInTheDocument()
+
+      await user.click(menuButton!)
+      await user.click(screen.getByText("Attach"))
+      await user.click(screen.getByText("Confirm Associate"))
+
+      await waitFor(() => {
+        expect(mutateAsyncMock).toHaveBeenCalledWith({
+          floatingip_id: mockFloatingIp.id,
+          port_id: "port-new",
+        })
+      })
+
+      await waitFor(() => {
+        expect(listInvalidateMock).toHaveBeenCalled()
+        expect(getByIdInvalidateMock).toHaveBeenCalledWith({ floatingip_id: mockFloatingIp.id })
+      })
+    })
+
+    it("passes mutation loading and error state to attach modal", async () => {
+      mockUpdateMutation.mockReturnValue({
+        mutateAsync: vi.fn(),
+        isPending: true,
+        error: { message: "Attach failed" },
+      })
+
+      const user = userEvent.setup()
+      const router = createTestRouter(<FloatingIpTableRow floatingIp={mockFloatingIp} />)
+      render(<RouterProvider router={router} />)
+
+      await waitFor(() => {
+        expect(screen.getByTestId(`floating-ip-row-${mockFloatingIp.id}`)).toBeInTheDocument()
+      })
+
+      const row = screen.getByTestId(`floating-ip-row-${mockFloatingIp.id}`)
+      const menuButton = row.querySelector("button")
+      expect(menuButton).toBeInTheDocument()
+
+      await user.click(menuButton!)
+      await user.click(screen.getByText("Attach"))
+
+      expect(screen.getByTestId("associate-modal-loading")).toHaveTextContent("loading")
+      expect(screen.getByTestId("associate-modal-error")).toHaveTextContent("Attach failed")
     })
   })
 
