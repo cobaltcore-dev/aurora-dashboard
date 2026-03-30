@@ -23,7 +23,7 @@ export interface AllocateFloatingIpModalProps {
   error?: string | null
 }
 
-// Inside (Error_Alert) <- Form is done
+// Inside (Error_Alert)
 const ipv4Regex = /^(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}$/
 const ipv6Regex =
   /^(([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}|(([0-9a-fA-F]{1,4}:){1,7}:)|(([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4})|(([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2})|(([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3})|(([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4})|(([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5})|([0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6}))|(:((:[0-9a-fA-F]{1,4}){1,7}|:))|(::([fF]{4}(:0{1,4})?:)?((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|(([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})))$/
@@ -45,10 +45,8 @@ export const AllocateFloatingIpModal = ({
     isLoading: isExternalNetworksLoading,
     error: externalNetworksError,
   } = trpcReact.network.listExternalNetworks.useQuery(
-    {
-      project_id: projectId ?? undefined,
-    },
-    { enabled: open }
+    { project_id: projectId, tenant_id: projectId },
+    { enabled: !!projectId }
   )
 
   const {
@@ -62,7 +60,6 @@ export const AllocateFloatingIpModal = ({
     { enabled: open }
   )
 
-  // refactoring_start
   const {
     data: availablePorts = [],
     isLoading: isPortsLoading,
@@ -71,10 +68,6 @@ export const AllocateFloatingIpModal = ({
     { project_id: projectId, tenant_id: projectId },
     { enabled: !!projectId }
   )
-
-  // const formErrorMessage = externalNetworksError?.message ?? dnsDomainsError?.message
-  const portErrorMessage = portsError?.message ?? error
-  // refactoring_end
 
   const formSchema = z.object({
     floating_network_id: z.string().trim(),
@@ -86,7 +79,6 @@ export const AllocateFloatingIpModal = ({
       .refine((value) => value === "" || dnsNameRegex.test(value), {
         message: t`Must be a valid PQDN or FQDN (alphanumeric and hyphens only, cannot start or end with hyphen).`,
       }),
-    // refactoring_start
     description: z
       .string()
       .trim()
@@ -101,13 +93,11 @@ export const AllocateFloatingIpModal = ({
     fixed_ip_address: z.string(),
   })
 
-  // refactoring_end
   const form = useForm({
     defaultValues: {
-      dns_name: "",
       floating_network_id: "",
+      dns_name: "",
       dns_domain: "",
-      // refactoring_start
       description: "",
       floating_ip_address: "",
       port_id: "",
@@ -116,7 +106,6 @@ export const AllocateFloatingIpModal = ({
     validators: {
       onSubmit: formSchema,
     },
-    // refactoring_end
     onSubmit: async ({ value }) => {
       if (isLoading) return
 
@@ -136,6 +125,8 @@ export const AllocateFloatingIpModal = ({
   const selectedPort = availablePorts.find((port) => port.id === currentPortId)
   const portFixedIps = selectedPort?.fixed_ips ?? []
 
+  const formErrorMessage = (externalNetworksError?.message || portsError?.message) ?? error
+
   return (
     <Modal
       open={open}
@@ -147,9 +138,9 @@ export const AllocateFloatingIpModal = ({
       onConfirm={form.handleSubmit}
       disableConfirmButton={isLoading}
     >
-      {portErrorMessage && (
+      {formErrorMessage && (
         <Message dismissible={false} variant="error" className="mb-4">
-          {portErrorMessage}
+          {formErrorMessage}
         </Message>
       )}
 
@@ -179,17 +170,16 @@ export const AllocateFloatingIpModal = ({
                   id={field.name}
                   name={field.name}
                   value={field.state.value}
-                  onChange={(value) => field.handleChange(String(value))}
+                  onChange={(value) => field.handleChange(typeof value === "string" ? value : "")}
                   label={t`External Network`}
-                  helptext={t`Select an external network to allocate the floating IP from.`}
-                  disabled={isLoading || isExternalNetworksLoading}
+                  helptext={t`The ID of the network associated with the floating IP.`}
+                  placeholder={t`Select an external network`}
+                  disabled={isLoading || isExternalNetworksLoading || externalNetworks.length === 0}
                   loading={isExternalNetworksLoading}
                 >
-                  <SelectOption value="" label={t`None (optional)`} />
-                  {externalNetworks.map((network) => {
-                    const label = network.name ? `${network.name} (${network.id})` : network.id
-                    return <SelectOption key={network.id} value={network.id} label={label} />
-                  })}
+                  {externalNetworks.map(({ id, name }) => (
+                    <SelectOption key={id} value={id} label={name ? `${name} (${id})` : id} />
+                  ))}
                 </Select>
               )}
             />
@@ -217,7 +207,6 @@ export const AllocateFloatingIpModal = ({
               )}
             />
           </FormSection>
-
           <FormSection className="mb-4">
             <form.Field
               name="dns_name"
@@ -237,8 +226,6 @@ export const AllocateFloatingIpModal = ({
               )}
             />
           </FormSection>
-
-          {/* refactoring_end_END. */}
           <FormSection className="mb-4">
             <form.Field
               name="description"
