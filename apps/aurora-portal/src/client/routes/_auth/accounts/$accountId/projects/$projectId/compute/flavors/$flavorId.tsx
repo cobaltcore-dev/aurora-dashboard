@@ -1,4 +1,13 @@
-import { Breadcrumb, BreadcrumbItem, Stack, Spinner } from "@cloudoperators/juno-ui-components/index"
+import {
+  Button,
+  ButtonRow,
+  Stack,
+  Spinner,
+  PopupMenu,
+  PopupMenuToggle,
+  PopupMenuOptions,
+  PopupMenuItem,
+} from "@cloudoperators/juno-ui-components/index"
 import { createFileRoute, redirect, useNavigate, useParams } from "@tanstack/react-router"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { getServiceIndex } from "@/server/Authentication/helpers"
@@ -6,6 +15,10 @@ import { trpcReact } from "@/client/trpcClient"
 import { FlavorDetailsView } from "./-components/FlavorDetailsView"
 import { ErrorPage } from "@/client/components/Error/ErrorPage"
 import { useErrorTranslation } from "@/client/utils/useErrorTranslation"
+import { EditSpecModal } from "../-components/Flavors/-components/EditSpecModal"
+import { ManageAccessModal } from "../-components/Flavors/-components/ManageAccessModal"
+import { DeleteFlavorModal } from "../-components/Flavors/-components/DeleteFlavorModal"
+import { useState } from "react"
 
 export const Route = createFileRoute("/_auth/accounts/$accountId/projects/$projectId/compute/flavors/$flavorId")({
   component: RouteComponent,
@@ -30,7 +43,7 @@ function RouteComponent() {
   const { accountId, projectId, flavorId } = useParams({
     from: "/_auth/accounts/$accountId/projects/$projectId/compute/flavors/$flavorId",
   })
-  const { setPageTitle } = Route.useRouteContext()
+  const { setPageTitle, trpcClient } = Route.useRouteContext()
   const navigate = useNavigate()
   const { t } = useLingui()
   const { translateError, isRetryableError } = useErrorTranslation()
@@ -44,6 +57,18 @@ function RouteComponent() {
     projectId,
     flavorId,
   })
+
+  const { data: permissionsData } = trpcReact.compute.canUserBulk.useQuery([
+    "flavors:delete",
+    "flavors:list_projects",
+  ])
+
+  const canDeleteFlavor = permissionsData?.[0] ?? false
+  const canManageAccess = permissionsData?.[1] ?? false
+
+  const [specModalOpen, setSpecModalOpen] = useState(false)
+  const [accessModalOpen, setAccessModalOpen] = useState(false)
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false)
 
   if (flavor?.name) {
     setPageTitle(flavor.name)
@@ -122,14 +147,59 @@ function RouteComponent() {
   }
 
   return (
-    <Stack direction="vertical">
-      <Breadcrumb>
-        <BreadcrumbItem onClick={handleHome} label={t`Overview`} icon="home" />
-        <BreadcrumbItem onClick={handleBack} label={t`Flavors`} />
-        <BreadcrumbItem active label={flavor.name || flavorId} />
-      </Breadcrumb>
+    <>
+      <Stack direction="vertical">
+        <ButtonRow>
+          <PopupMenu>
+            <PopupMenuToggle>
+              <Button icon="moreVert">
+                <Trans>More Actions</Trans>
+              </Button>
+            </PopupMenuToggle>
+            <PopupMenuOptions>
+              {canManageAccess && (
+                <PopupMenuItem label={t`Manage Access`} onClick={() => setAccessModalOpen(true)} />
+              )}
+              {canDeleteFlavor && (
+                <PopupMenuItem label={t`Delete Flavor`} onClick={() => setDeleteModalOpen(true)} />
+              )}
+            </PopupMenuOptions>
+          </PopupMenu>
+          <Button onClick={() => setSpecModalOpen(true)} variant="primary">
+            <Trans>Metadata</Trans>
+          </Button>
+        </ButtonRow>
+        <FlavorDetailsView flavor={flavor} />
+      </Stack>
 
-      <FlavorDetailsView flavor={flavor} />
-    </Stack>
+      {trpcClient && (
+        <>
+          <EditSpecModal
+            client={trpcClient}
+            isOpen={specModalOpen}
+            onClose={() => setSpecModalOpen(false)}
+            project={projectId}
+            flavor={flavor}
+          />
+
+          <ManageAccessModal
+            client={trpcClient}
+            isOpen={accessModalOpen}
+            onClose={() => setAccessModalOpen(false)}
+            project={projectId}
+            flavor={flavor}
+          />
+
+          <DeleteFlavorModal
+            client={trpcClient}
+            isOpen={deleteModalOpen}
+            onClose={() => setDeleteModalOpen(false)}
+            project={projectId}
+            flavor={flavor}
+            onSuccess={handleBack}
+          />
+        </>
+      )}
+    </>
   )
 }
