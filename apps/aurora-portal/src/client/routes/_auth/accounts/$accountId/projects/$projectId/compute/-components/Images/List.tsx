@@ -1,47 +1,252 @@
-import { forwardRef, useState, startTransition } from "react"
-import { useInfiniteQuery } from "@tanstack/react-query"
-import { trpcReact } from "@/client/trpcClient"
+import { use, Suspense, useState, startTransition, useEffect, ReactNode, useCallback } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
+import { TrpcClient } from "@/client/trpcClient"
+import { GlanceImage } from "@/server/Compute/types/image"
+import { useNavigate, useSearch } from "@tanstack/react-router"
 import {
-  Spinner,
+  Button,
   Stack,
+  Spinner,
   PopupMenu,
   PopupMenuItem,
   PopupMenuToggle,
   PopupMenuOptions,
-  Button,
-  ButtonProps,
-} from "@cloudoperators/juno-ui-components/index"
+} from "@cloudoperators/juno-ui-components"
 import { ListToolbar } from "@/client/components/ListToolbar"
 import { FilterSettings, SortSettings } from "@/client/components/ListToolbar/types"
 import { ImageListView } from "./-components/ImageListView"
-import {
-  CONTAINER_FORMATS,
-  DISK_FORMATS,
-  IMAGE_STATUSES,
-  IMAGE_VISIBILITY,
-  MEMBER_STATUSES,
-} from "../../-constants/filters"
+import { CONTAINER_FORMATS, DISK_FORMATS, IMAGE_STATUSES, IMAGE_VISIBILITY } from "../../-constants/filters"
+import { parseFiltersFromUrl, buildFilterParams, buildUrlSearchParams } from "./urlHelpers"
+import { createImagesPromise, createPermissionsPromise } from "./apiHelpers"
 
-// Define the custom toggle button component outside
-const MoreActionsButton = forwardRef<HTMLButtonElement, ButtonProps>(({ onClick, ...props }, ref) => (
-  <Button icon="moreVert" ref={ref} onClick={onClick} {...props}>
-    <Trans>More Actions</Trans>
-  </Button>
-))
+interface ImagesProps {
+  client: TrpcClient
+}
 
-MoreActionsButton.displayName = "MoreActionsButton"
+type ImagesSearchParams = {
+  status?: string
+  visibility?: string
+  disk_format?: string
+  container_format?: string
+  protected?: string
+  search?: string
+  sortBy?: string
+  sortDirection?: "asc" | "desc"
+}
 
-export const Images = () => {
+type RequiredSortSettings = {
+  options: SortSettings["options"]
+  sortBy: string
+  sortDirection: "asc" | "desc"
+}
+
+type ImagesContentProps = {
+  imagesPromise: ReturnType<typeof createImagesPromise>
+  permissionsPromise: Promise<{
+    canCreate: boolean
+    canDelete: boolean
+    canUpdate: boolean
+    canCreateMember: boolean
+    canDeleteMember: boolean
+    canUpdateMember: boolean
+  }>
+  searchTerm: string
+  setSearchTerm: (term: string) => void
+  sortSettings: SortSettings
+  handleSortChange: (settings: SortSettings) => void
+  filterSettings: FilterSettings
+  handleFilterChange: (settings: FilterSettings) => void
+  selectedImages: Array<string>
+  setSelectedImages: (images: Array<string>) => void
+  createModalOpen: boolean
+  setCreateModalOpen: (open: boolean) => void
+  deleteAllModalOpen: boolean
+  setDeleteAllModalOpen: (open: boolean) => void
+  deactivateAllModalOpen: boolean
+  setDeactivateAllModalOpen: (open: boolean) => void
+  activateAllModalOpen: boolean
+  setActivateAllModalOpen: (open: boolean) => void
+  memberStatusView: "all" | "pending" | "accepted"
+  setMemberStatusView: (view: "all" | "pending" | "accepted") => void
+  isFetching: boolean
+  hasNextPage: boolean
+  isFetchingNextPage: boolean
+  fetchNextPage: () => void
+}
+
+function ImagesContent({
+  imagesPromise,
+  permissionsPromise,
+  searchTerm,
+  setSearchTerm,
+  sortSettings,
+  handleSortChange,
+  filterSettings,
+  handleFilterChange,
+  selectedImages,
+  setSelectedImages,
+  createModalOpen,
+  setCreateModalOpen,
+  deleteAllModalOpen,
+  setDeleteAllModalOpen,
+  deactivateAllModalOpen,
+  setDeactivateAllModalOpen,
+  activateAllModalOpen,
+  setActivateAllModalOpen,
+  memberStatusView,
+  setMemberStatusView,
+  isFetching,
+  hasNextPage,
+  isFetchingNextPage,
+  fetchNextPage,
+}: ImagesContentProps) {
   const { t } = useLingui()
+  const imagesData = use(imagesPromise)
+  const permissions = use(permissionsPromise)
 
-  const [selectedImages, setSelectedImages] = useState<Array<string>>([])
-  const [createModalOpen, setCreateModalOpen] = useState(false)
-  const [deleteAllModalOpen, setDeleteAllModalOpen] = useState(false)
-  const [deactivateAllModalOpen, setDeactivateAllModalOpen] = useState(false)
-  const [activateAllModalOpen, setActivateAllModalOpen] = useState(false)
-  const [shouldShowSuggestedImages, setShowSuggestedImages] = useState(false)
-  const [shouldShowAcceptedImages, setShowAcceptedImages] = useState(false)
+  const images = imagesData.images
+
+  // Only consider images that are in the current filtered/searched dataset
+  const displayedImageIds = new Set(images.map((image: GlanceImage) => image.id))
+  const validSelectedImages = selectedImages.filter((imageId) => displayedImageIds.has(imageId))
+
+  const deletableImages = validSelectedImages.filter((imageId) => {
+    const image = images.find((image: GlanceImage) => image.id === imageId)
+    return image && !image.protected
+  })
+  const protectedImages = validSelectedImages.filter((imageId) => {
+    const image = images.find((image: GlanceImage) => image.id === imageId)
+    return image && image.protected
+  })
+  const activeImages = validSelectedImages.filter((imageId) => {
+    const image = images.find((image: GlanceImage) => image.id === imageId)
+    return image && image.status === IMAGE_STATUSES.ACTIVE
+  })
+  const deactivatedImages = validSelectedImages.filter((imageId) => {
+    const image = images.find((image: GlanceImage) => image.id === imageId)
+    return image && image.status === IMAGE_STATUSES.DEACTIVATED
+  })
+
+  const isDeleteAllDisabled =
+    !permissions.canDelete ||
+    validSelectedImages.length === 0 ||
+    images
+      .filter((image: GlanceImage) => validSelectedImages.includes(image.id))
+      .every((image: GlanceImage) => image.protected)
+  const isDeactivateAllDisabled =
+    !permissions.canUpdate ||
+    validSelectedImages.length === 0 ||
+    images
+      .filter((image: GlanceImage) => validSelectedImages.includes(image.id))
+      .every((image: GlanceImage) => image.status === IMAGE_STATUSES.DEACTIVATED)
+  const isActivateAllDisabled =
+    !permissions.canUpdate ||
+    validSelectedImages.length === 0 ||
+    images
+      .filter((image: GlanceImage) => validSelectedImages.includes(image.id))
+      .every((image: GlanceImage) => image.status === IMAGE_STATUSES.ACTIVE)
+
+  const memberStatusTabs = {
+    items: [
+      { label: t`All Images`, value: "all" },
+      { label: t`Suggested Images`, value: "pending" },
+      { label: t`Accepted Images`, value: "accepted" },
+    ],
+    activeItem: memberStatusView,
+    onActiveItemChange: (value: ReactNode) => setMemberStatusView(value as "all" | "pending" | "accepted"),
+  }
+
+  return (
+    <>
+      <ListToolbar
+        sortSettings={sortSettings}
+        filterSettings={filterSettings}
+        searchTerm={searchTerm}
+        onSort={handleSortChange}
+        onFilter={handleFilterChange}
+        onSearch={setSearchTerm}
+        tabs={memberStatusTabs}
+        actions={
+          <>
+            <Stack gap="2">
+              {permissions.canCreate && (
+                <Button onClick={() => setCreateModalOpen(true)} variant="primary">
+                  Create Image
+                </Button>
+              )}
+
+              <PopupMenu>
+                <PopupMenuToggle>
+                  <Button icon="moreVert">
+                    <Trans>More Actions</Trans>
+                  </Button>
+                </PopupMenuToggle>
+                <PopupMenuOptions>
+                  <PopupMenuItem
+                    disabled={isDeleteAllDisabled}
+                    label={t`Delete Selected`}
+                    onClick={() => setDeleteAllModalOpen(true)}
+                  />
+                  <PopupMenuItem
+                    disabled={isDeactivateAllDisabled}
+                    label={t`Deactivate Selected`}
+                    onClick={() => setDeactivateAllModalOpen(true)}
+                  />
+                  <PopupMenuItem
+                    disabled={isActivateAllDisabled}
+                    label={t`Activate Selected`}
+                    onClick={() => setActivateAllModalOpen(true)}
+                  />
+                </PopupMenuOptions>
+              </PopupMenu>
+            </Stack>
+          </>
+        }
+      />
+      <ImageListView
+        images={images}
+        suggestedImages={memberStatusView === "pending" ? images : []}
+        acceptedImages={memberStatusView === "accepted" ? images : []}
+        permissions={permissions}
+        hasNextPage={hasNextPage}
+        isFetchingNextPage={isFetchingNextPage}
+        fetchNextPage={fetchNextPage}
+        isFetching={isFetching}
+        selectedImages={selectedImages}
+        setSelectedImages={setSelectedImages}
+        deleteAllModalOpen={deleteAllModalOpen}
+        setDeleteAllModalOpen={setDeleteAllModalOpen}
+        deactivateAllModalOpen={deactivateAllModalOpen}
+        setDeactivateAllModalOpen={setDeactivateAllModalOpen}
+        activateAllModalOpen={activateAllModalOpen}
+        setActivateAllModalOpen={setActivateAllModalOpen}
+        createModalOpen={createModalOpen}
+        setCreateModalOpen={setCreateModalOpen}
+        deletableImages={deletableImages}
+        protectedImages={protectedImages}
+        activeImages={activeImages}
+        deactivatedImages={deactivatedImages}
+      />
+    </>
+  )
+}
+
+export const Images = ({ client }: ImagesProps) => {
+  const { t } = useLingui()
+  const navigate = useNavigate()
+  const searchParams = useSearch({ strict: false }) as ImagesSearchParams
+
+  const [sortSettings, setSortSettings] = useState<RequiredSortSettings>({
+    options: [
+      { label: t`Created At`, value: "created_at" },
+      { label: t`Updated At`, value: "updated_at" },
+      { label: t`Name`, value: "name" },
+      { label: t`Size`, value: "size" },
+      { label: t`Status`, value: "status" },
+    ],
+    sortBy: searchParams.sortBy || "created_at",
+    sortDirection: searchParams.sortDirection || "desc",
+  })
 
   const [filterSettings, setFilterSettings] = useState<FilterSettings>({
     filters: [
@@ -76,357 +281,198 @@ export const Images = () => {
         supportsMultiValue: false,
       },
     ],
+    selectedFilters: parseFiltersFromUrl(searchParams),
   })
 
-  const [searchTerm, setSearchTerm] = useState("")
+  const [searchTerm, setSearchTerm] = useState(searchParams.search || "")
+  const [selectedImages, setSelectedImages] = useState<Array<string>>([])
+  const [createModalOpen, setCreateModalOpen] = useState(false)
+  const [deleteAllModalOpen, setDeleteAllModalOpen] = useState(false)
+  const [deactivateAllModalOpen, setDeactivateAllModalOpen] = useState(false)
+  const [activateAllModalOpen, setActivateAllModalOpen] = useState(false)
+  const [memberStatusView, setMemberStatusView] = useState<"all" | "pending" | "accepted">("all")
+  const memberStatusFilter = memberStatusView === "all" ? undefined : memberStatusView
 
-  const [sortSettings, setSortSettings] = useState<SortSettings>({
-    options: [
-      {
-        label: t`Created At`,
-        value: "created_at",
-      },
-      {
-        label: t`Updated At`,
-        value: "updated_at",
-      },
-      {
-        label: t`Name`,
-        value: "name",
-      },
-      {
-        label: t`Size`,
-        value: "size",
-      },
-      {
-        label: t`Status`,
-        value: "status",
-      },
-    ],
-    sortBy: "created_at",
-    sortDirection: "desc",
-  })
+  const [isFetching, setIsFetching] = useState(false)
+  const [isFetchingNextPage, setIsFetchingNextPage] = useState(false)
+  const [allImages, setAllImages] = useState<GlanceImage[]>([])
+  const [nextMarker, setNextMarker] = useState<string | undefined>()
+  const [imagesPromise, setImagesPromise] = useState(() =>
+    createImagesPromise(client, sortSettings.sortBy, sortSettings.sortDirection, searchTerm, {
+      ...buildFilterParams(filterSettings.selectedFilters || [], filterSettings.filters),
+      member_status: memberStatusFilter,
+    })
+  )
+  const [permissionsPromise] = useState(() => createPermissionsPromise(client))
 
-  const utils = trpcReact.useUtils()
+  // Fetch next page
+  const fetchNextPage = useCallback(async () => {
+    if (!nextMarker || isFetchingNextPage) return
 
-  /**
-   * Builds filter parameters from current filter settings
-   * Handles both single-value and multi-value filters based on supportsMultiValue flag
-   *
-   * @returns Object with filter parameters for the API request
-   */
-  const buildFilterParams = (): Record<string, string> => {
-    const params: Record<string, string> = {}
-
-    if (!filterSettings.selectedFilters?.length) return params
-
-    // Group selected filters by filter name, excluding inactive ofc.
-    const filterGroups = filterSettings.selectedFilters
-      .filter((sf) => !sf.inactive)
-      .reduce(
-        (acc, sf) => {
-          if (!acc[sf.name]) acc[sf.name] = []
-          acc[sf.name].push(sf.value)
-          return acc
+    setIsFetchingNextPage(true)
+    try {
+      const result = await createImagesPromise(
+        client,
+        sortSettings.sortBy,
+        sortSettings.sortDirection,
+        searchTerm,
+        {
+          ...buildFilterParams(filterSettings.selectedFilters || [], filterSettings.filters),
+          member_status: memberStatusFilter,
         },
-        {} as Record<string, string[]>
+        nextMarker
       )
 
-    // Build parameters based on whether filter supports multiple values
-    Object.entries(filterGroups).forEach(([filterName, values]) => {
-      const filterDef = filterSettings.filters.find((f) => f.filterName === filterName)
+      setAllImages((prev) => [...prev, ...result.images])
+      setNextMarker(result.next)
 
-      if (filterDef?.supportsMultiValue && values.length > 1) {
-        params[filterName] = `in:${values.join(",")}`
-      } else {
-        params[filterName] = values[0]
-      }
+      // Update promise to include new images
+      setImagesPromise(
+        Promise.resolve({
+          images: [...allImages, ...result.images],
+          next: result.next,
+          first: undefined,
+          schema: "/v2/schemas/images",
+        })
+      )
+    } finally {
+      setIsFetchingNextPage(false)
+    }
+  }, [nextMarker, client, sortSettings, searchTerm, filterSettings, memberStatusView, allImages, isFetchingNextPage])
+
+  // Sync URL params to state and refetch when URL changes (single source of truth)
+  useEffect(() => {
+    const urlFilters = parseFiltersFromUrl(searchParams)
+    const urlSortBy = searchParams.sortBy || "created_at"
+    const urlSortDirection = searchParams.sortDirection || "desc"
+    const urlSearchTerm = searchParams.search || ""
+
+    setFilterSettings((prev) => ({ ...prev, selectedFilters: urlFilters }))
+    setSortSettings((prev) => ({
+      ...prev,
+      sortBy: urlSortBy,
+      sortDirection: urlSortDirection,
+    }))
+    setSearchTerm(urlSearchTerm)
+
+    // Clear selection when dataset changes
+    setSelectedImages([])
+
+    // Reset pagination state
+    setAllImages([])
+    setNextMarker(undefined)
+
+    // Refetch with URL state (single fetch path)
+    setIsFetching(true)
+    startTransition(() => {
+      const newPromise = createImagesPromise(client, urlSortBy, urlSortDirection, urlSearchTerm, {
+        ...buildFilterParams(urlFilters || [], filterSettings.filters),
+        member_status: memberStatusFilter,
+      })
+      // Mark fetching as complete once the promise resolves and update state
+      newPromise.then((result) => {
+        setAllImages(result.images)
+        setNextMarker(result.next)
+        setIsFetching(false)
+      })
+      setImagesPromise(newPromise)
     })
-
-    return params
-  }
-
-  const sharedQueryInput = {
-    sort: `${sortSettings.sortBy}:${sortSettings.sortDirection}`,
-    ...buildFilterParams(),
-  }
-
-  /**
-   * When a search term is active, use listImagesWithSearch (flat, no pagination) so that
-   * server-side name filtering works correctly across the full result set.
-   * When no search term, use listImagesWithPagination with infinite scroll.
-   */
-  const {
-    data: searchData,
-    isFetching: isSearchFetching,
-    isPending: isSearchPending,
-    isError: isSearchError,
-    error: searchError,
-  } = trpcReact.compute.listImagesWithSearch.useQuery(
-    { ...sharedQueryInput, name: searchTerm },
-    { enabled: !!searchTerm }
-  )
-
-  const fetchPaginatedImages = async ({ pageParam }: { pageParam?: string }) => {
-    const params = pageParam ? { next: pageParam } : { limit: 15, ...sharedQueryInput }
-
-    return await utils.client.compute.listImagesWithPagination.query(params)
-  }
-
-  const {
-    data: paginatedData,
-    error: paginatedError,
-    fetchNextPage,
-    hasNextPage,
-    isFetching: isPaginatedFetching,
-    isFetchingNextPage,
-    isPending: isPaginatedPending,
-    isError: isPaginatedError,
-  } = useInfiniteQuery({
-    /**
-     * Query key includes sort and filter settings to trigger refetch when they change.
-     * Search term is intentionally excluded — searching uses the listImages query above.
-     */
-    queryKey: [
-      ["compute", "listImagesWithPagination"],
-      {
-        input: {
-          limit: 15,
-          sort: `${sortSettings.sortBy}:${sortSettings.sortDirection}`,
-          filters: buildFilterParams(),
-        },
-        type: "query",
-      },
-    ],
-    queryFn: fetchPaginatedImages,
-    placeholderData: (previousData) => previousData,
-    initialPageParam: undefined as string | undefined,
-    getNextPageParam: (lastPage) => lastPage.next,
-    enabled: !searchTerm,
-  })
-
-  const data = searchTerm ? null : paginatedData
-  const error = searchTerm ? searchError : paginatedError
-  const isFetching = searchTerm ? isSearchFetching : isPaginatedFetching
-  const isPending = searchTerm ? isSearchPending : isPaginatedPending
-  const isError = searchTerm ? isSearchError : isPaginatedError
-
-  const { data: suggestedImages, isLoading: suggestedImagesLoading } =
-    trpcReact.compute.listSharedImagesByMemberStatus.useQuery({
-      memberStatus: MEMBER_STATUSES.PENDING,
-    })
-
-  const { data: acceptedImages, isLoading: acceptedImagesLoading } =
-    trpcReact.compute.listSharedImagesByMemberStatus.useQuery({
-      memberStatus: MEMBER_STATUSES.ACCEPTED,
-    })
-
-  const suggestedImagesCount = suggestedImages?.length || 0
-  const acceptedImagesCount = acceptedImages?.length || 0
-
-  const { data: canCreate } = trpcReact.compute.canUser.useQuery("images:create")
-  const { data: canDelete } = trpcReact.compute.canUser.useQuery("images:delete")
-  const { data: canUpdate } = trpcReact.compute.canUser.useQuery("images:update")
-  const { data: canCreateMember } = trpcReact.compute.canUser.useQuery("images:create_member")
-  const { data: canDeleteMember } = trpcReact.compute.canUser.useQuery("images:delete_member")
-  const { data: canUpdateMember = true } = trpcReact.compute.canUser.useQuery("images:update_member")
-
-  if (isPending && !data) {
-    return (
-      <Stack className="fixed inset-0" distribution="center" alignment="center" direction="vertical">
-        <Spinner variant="primary" size="large" className="mb-2" />
-        <Trans>Loading Images...</Trans>
-      </Stack>
-    )
-  }
-
-  if (isError) {
-    const errorMessage = error?.message
-
-    return (
-      <Stack className="fixed inset-0" distribution="center" alignment="center" direction="vertical">
-        <Trans>Error Loading Images: {errorMessage}</Trans>
-      </Stack>
-    )
-  }
-
-  const permissions = {
-    canCreate: canCreate ?? false,
-    canDelete: canDelete ?? false,
-    canUpdate: canUpdate ?? false,
-    canCreateMember: canCreateMember ?? false,
-    canDeleteMember: canDeleteMember ?? false,
-    canUpdateMember: canUpdateMember ?? false,
-  }
-
-  // In search mode, use the flat listImages result; otherwise flatten paginated pages
-  const images = searchTerm ? (searchData ?? []) : (data?.pages.flatMap((page) => page.images) ?? [])
-
-  const deletableImages = selectedImages.filter((imageId) => !images.find((image) => image.id === imageId)?.protected)
-  const protectedImages = selectedImages.filter((imageId) => images.find((image) => image.id === imageId)?.protected)
-  const activeImages = selectedImages.filter(
-    (imageId) => images.find((image) => image.id === imageId)?.status === IMAGE_STATUSES.ACTIVE
-  )
-  const deactivatedImages = selectedImages.filter(
-    (imageId) => images.find((image) => image.id === imageId)?.status === IMAGE_STATUSES.DEACTIVATED
-  )
-
-  const isDeleteAllDisabled =
-    !permissions.canDelete ||
-    images.filter((image) => selectedImages.includes(image.id)).every((image) => image.protected)
-  const isDeactivateAllDisabled =
-    !permissions.canUpdate ||
-    images
-      .filter((image) => selectedImages.includes(image.id))
-      .every((image) => image.status === IMAGE_STATUSES.DEACTIVATED)
-  const isActivateAllDisabled =
-    !permissions.canUpdate ||
-    images.filter((image) => selectedImages.includes(image.id)).every((image) => image.status === IMAGE_STATUSES.ACTIVE)
+  }, [
+    searchParams.status,
+    searchParams.visibility,
+    searchParams.disk_format,
+    searchParams.container_format,
+    searchParams.protected,
+    searchParams.sortBy,
+    searchParams.sortDirection,
+    searchParams.search,
+    memberStatusView,
+  ])
 
   const handleSortChange = (newSortSettings: SortSettings) => {
-    startTransition(() => {
-      setSortSettings(newSortSettings)
+    const settings: RequiredSortSettings = {
+      options: newSortSettings.options,
+      sortBy: newSortSettings.sortBy?.toString() || "created_at",
+      sortDirection: newSortSettings.sortDirection || "desc",
+    }
+
+    setSortSettings(settings)
+    navigate({
+      search: ((prev: ImagesSearchParams) => ({
+        ...prev,
+        sortBy: settings.sortBy,
+        sortDirection: settings.sortDirection,
+      })) as unknown as true,
+      replace: true,
     })
   }
 
   const handleFilterChange = (newFilterSettings: FilterSettings) => {
-    startTransition(() => {
-      setFilterSettings(newFilterSettings)
-    })
-  }
-
-  const showSuggestedImages = () => {
-    startTransition(() => {
-      setShowSuggestedImages(true)
-      setShowAcceptedImages(false)
-      setFilterSettings({
-        ...filterSettings,
-        selectedFilters: [],
-      })
-    })
-  }
-
-  const showAcceptedImages = () => {
-    startTransition(() => {
-      setShowSuggestedImages(false)
-      setShowAcceptedImages(true)
-      setFilterSettings({
-        ...filterSettings,
-        selectedFilters: [],
-      })
-    })
-  }
-
-  const showAllImages = () => {
-    startTransition(() => {
-      setShowSuggestedImages(false)
-      setShowAcceptedImages(false)
-      setFilterSettings({
-        ...filterSettings,
-        selectedFilters: [],
-      })
+    setFilterSettings(newFilterSettings)
+    navigate({
+      search: ((prev: ImagesSearchParams) =>
+        buildUrlSearchParams(newFilterSettings.selectedFilters || [], newFilterSettings.filters, {
+          search: prev.search,
+          sortBy: prev.sortBy,
+          sortDirection: prev.sortDirection,
+        })) as unknown as true,
+      replace: true,
     })
   }
 
   const handleSearchChange = (term: string | number | string[] | undefined) => {
     const searchValue = typeof term === "string" ? term : ""
-    startTransition(() => {
-      setSearchTerm(searchValue)
+    setSearchTerm(searchValue)
+    navigate({
+      search: ((prev: ImagesSearchParams) => ({
+        ...prev,
+        search: searchValue || undefined,
+      })) as unknown as true,
+      replace: true,
     })
   }
 
-  const getImages = () => {
-    if (shouldShowSuggestedImages) {
-      return suggestedImages ?? []
-    }
-
-    if (shouldShowAcceptedImages) {
-      return acceptedImages ?? []
-    }
-
-    return images
+  const handleMemberStatusChange = (view: "all" | "pending" | "accepted") => {
+    setMemberStatusView(view)
   }
 
   return (
-    <ImageListView
-      images={getImages()}
-      suggestedImages={suggestedImages ?? []}
-      acceptedImages={acceptedImages ?? []}
-      permissions={permissions}
-      hasNextPage={searchTerm ? false : hasNextPage}
-      isFetchingNextPage={searchTerm ? false : isFetchingNextPage}
-      fetchNextPage={searchTerm ? async () => {} : fetchNextPage}
-      isFetching={isFetching}
-      selectedImages={selectedImages}
-      setSelectedImages={setSelectedImages}
-      deleteAllModalOpen={deleteAllModalOpen}
-      setDeleteAllModalOpen={setDeleteAllModalOpen}
-      deactivateAllModalOpen={deactivateAllModalOpen}
-      setDeactivateAllModalOpen={setDeactivateAllModalOpen}
-      activateAllModalOpen={activateAllModalOpen}
-      setActivateAllModalOpen={setActivateAllModalOpen}
-      createModalOpen={createModalOpen}
-      setCreateModalOpen={setCreateModalOpen}
-      deletableImages={deletableImages}
-      protectedImages={protectedImages}
-      activeImages={activeImages}
-      deactivatedImages={deactivatedImages}
-    >
-      <ListToolbar
-        sortSettings={sortSettings}
-        filterSettings={filterSettings}
-        searchTerm={searchTerm}
-        onSort={handleSortChange}
-        onFilter={handleFilterChange}
-        onSearch={handleSearchChange}
-        actions={
-          <>
-            <div className="w-full md:mr-auto md:w-auto">
-              {(shouldShowSuggestedImages || shouldShowAcceptedImages) && (
-                <Button onClick={showAllImages}>{t`All Images`}</Button>
-              )}
-            </div>
-            <Stack gap="2">
-              {permissions.canCreate && (
-                <Button onClick={() => setCreateModalOpen(true)} variant="primary">
-                  Create Image
-                </Button>
-              )}
-
-              <PopupMenu>
-                <PopupMenuToggle as={MoreActionsButton} />
-                <PopupMenuOptions>
-                  <PopupMenuItem
-                    disabled={isDeleteAllDisabled}
-                    label={t`Delete All`}
-                    onClick={() => setDeleteAllModalOpen(true)}
-                  />
-                  <PopupMenuItem
-                    disabled={isDeactivateAllDisabled}
-                    label={t`Deactivate All`}
-                    onClick={() => setDeactivateAllModalOpen(true)}
-                  />
-                  <PopupMenuItem
-                    disabled={isActivateAllDisabled}
-                    label={t`Activate All`}
-                    onClick={() => setActivateAllModalOpen(true)}
-                  />
-                  <PopupMenuItem
-                    disabled={!suggestedImagesCount || suggestedImagesLoading}
-                    label={t`Show Suggested Images (${suggestedImagesCount})`}
-                    onClick={showSuggestedImages}
-                  />
-                  <PopupMenuItem
-                    disabled={!acceptedImagesCount || acceptedImagesLoading}
-                    label={t`Show Accepted Images (${acceptedImagesCount})`}
-                    onClick={showAcceptedImages}
-                  />
-                </PopupMenuOptions>
-              </PopupMenu>
-            </Stack>
-          </>
+    <div className="relative">
+      <Suspense
+        fallback={
+          <Stack className="fixed inset-0" distribution="center" alignment="center" direction="vertical">
+            <Spinner variant="primary" size="large" className="mb-2" />
+            <Trans>Loading Images...</Trans>
+          </Stack>
         }
-      />
-    </ImageListView>
+      >
+        <ImagesContent
+          imagesPromise={imagesPromise}
+          permissionsPromise={permissionsPromise}
+          searchTerm={searchTerm}
+          setSearchTerm={handleSearchChange}
+          sortSettings={sortSettings}
+          handleSortChange={handleSortChange}
+          filterSettings={filterSettings}
+          handleFilterChange={handleFilterChange}
+          selectedImages={selectedImages}
+          setSelectedImages={setSelectedImages}
+          createModalOpen={createModalOpen}
+          setCreateModalOpen={setCreateModalOpen}
+          deleteAllModalOpen={deleteAllModalOpen}
+          setDeleteAllModalOpen={setDeleteAllModalOpen}
+          deactivateAllModalOpen={deactivateAllModalOpen}
+          setDeactivateAllModalOpen={setDeactivateAllModalOpen}
+          activateAllModalOpen={activateAllModalOpen}
+          setActivateAllModalOpen={setActivateAllModalOpen}
+          memberStatusView={memberStatusView}
+          setMemberStatusView={handleMemberStatusChange}
+          isFetching={isFetching}
+          hasNextPage={!!nextMarker}
+          isFetchingNextPage={isFetchingNextPage}
+          fetchNextPage={fetchNextPage}
+        />
+      </Suspense>
+    </div>
   )
 }

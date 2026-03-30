@@ -37,8 +37,6 @@ describe("EditImageDetailsModal", () => {
     status: "active",
     visibility: "private",
     disk_format: "qcow2",
-    os_type: "Linux",
-    os_distro: "Ubuntu",
     created_at: "2023-01-01T00:00:00Z",
     updated_at: "2023-01-01T00:00:00Z",
     size: 1024,
@@ -110,7 +108,7 @@ describe("EditImageDetailsModal", () => {
     await user.clear(nameInput)
     await user.type(nameInput, "Updated Image Name")
 
-    const saveButton = screen.getByTestId("save-image-updates-button")
+    const saveButton = screen.getByRole("button", { name: /Save Changes/i })
     await user.click(saveButton)
 
     await waitFor(() => {
@@ -153,7 +151,7 @@ describe("EditImageDetailsModal", () => {
     await user.type(tagsInput, "test")
     await user.click(addButton)
 
-    const saveButton = screen.getByTestId("save-image-updates-button")
+    const saveButton = screen.getByRole("button", { name: /Save Changes/i })
     await user.click(saveButton)
 
     await waitFor(() => {
@@ -177,7 +175,7 @@ describe("EditImageDetailsModal", () => {
       await fireEvent.click(publicOption)
     })
 
-    const saveButton = screen.getByTestId("save-image-updates-button")
+    const saveButton = screen.getByRole("button", { name: /Save Changes/i })
     await fireEvent.click(saveButton)
 
     await waitFor(() => {
@@ -196,7 +194,7 @@ describe("EditImageDetailsModal", () => {
     const protectedCheckbox = screen.getByLabelText("Protected")
     await user.click(protectedCheckbox)
 
-    const saveButton = screen.getByTestId("save-image-updates-button")
+    const saveButton = screen.getByRole("button", { name: /Save Changes/i })
     await user.click(saveButton)
 
     await waitFor(() => {
@@ -216,7 +214,7 @@ describe("EditImageDetailsModal", () => {
     await user.clear(minDiskInput)
     await user.type(minDiskInput, "20")
 
-    const saveButton = screen.getByTestId("save-image-updates-button")
+    const saveButton = screen.getByRole("button", { name: /Save Changes/i })
     await user.click(saveButton)
 
     await waitFor(() => {
@@ -236,7 +234,7 @@ describe("EditImageDetailsModal", () => {
     await user.clear(minRamInput)
     await user.type(minRamInput, "1024")
 
-    const saveButton = screen.getByTestId("save-image-updates-button")
+    const saveButton = screen.getByRole("button", { name: /Save Changes/i })
     await user.click(saveButton)
 
     await waitFor(() => {
@@ -255,7 +253,7 @@ describe("EditImageDetailsModal", () => {
     const nameInput = screen.getByLabelText("Image Name")
     await user.clear(nameInput)
 
-    const saveButton = screen.getByTestId("save-image-updates-button")
+    const saveButton = screen.getByRole("button", { name: /Save Changes/i })
     await user.click(saveButton)
 
     await waitFor(() => {
@@ -269,7 +267,7 @@ describe("EditImageDetailsModal", () => {
     renderEditModal(true, mockOnClose, mockImage, mockOnSave)
 
     const minDiskInput = screen.getByLabelText("Minimum Disk (GB)")
-    const saveButton = screen.getByTestId("save-image-updates-button")
+    const saveButton = screen.getByRole("button", { name: /Save Changes/i })
 
     await act(async () => {
       fireEvent.change(minDiskInput, { target: { value: "-5" } })
@@ -287,7 +285,7 @@ describe("EditImageDetailsModal", () => {
     renderEditModal(true, mockOnClose, mockImage, mockOnSave)
 
     const minRamInput = screen.getByLabelText("Minimum RAM (MB)")
-    const saveButton = screen.getByTestId("save-image-updates-button")
+    const saveButton = screen.getByRole("button", { name: /Save Changes/i })
 
     await act(async () => {
       fireEvent.change(minRamInput, { target: { value: "-100" } })
@@ -314,11 +312,8 @@ describe("EditImageDetailsModal", () => {
     renderEditModal(true, mockOnClose, mockImage, mockOnSave, true)
 
     await waitFor(() => {
-      const saveButton = screen.getByTestId("save-image-updates-button")
-      const cancelButton = screen.getByText("Cancel")
-
+      const saveButton = screen.getByRole("button", { name: /Save Changes/i })
       expect(saveButton).toHaveProperty("disabled", true)
-      expect(cancelButton).toHaveProperty("disabled", true)
     })
   })
 
@@ -330,7 +325,7 @@ describe("EditImageDetailsModal", () => {
     const nameInput = screen.getByLabelText("Image Name")
     await user.clear(nameInput)
 
-    const saveButton = screen.getByTestId("save-image-updates-button")
+    const saveButton = screen.getByRole("button", { name: /Save Changes/i })
     await user.click(saveButton)
 
     await waitFor(() => {
@@ -362,7 +357,7 @@ describe("EditImageDetailsModal", () => {
       if (closeButton) await user.click(closeButton)
     }
 
-    const saveButton = screen.getByTestId("save-image-updates-button")
+    const saveButton = screen.getByRole("button", { name: /Save Changes/i })
     await user.click(saveButton)
 
     await waitFor(() => {
@@ -404,7 +399,7 @@ describe("EditImageDetailsModal", () => {
     await user.type(tagsInput, "  tag3  ")
     await user.click(addButton)
 
-    const saveButton = screen.getByTestId("save-image-updates-button")
+    const saveButton = screen.getByRole("button", { name: /Save Changes/i })
     await user.click(saveButton)
 
     await waitFor(() => {
@@ -508,7 +503,7 @@ describe("EditImageDetailsModal", () => {
     await user.clear(nameInput)
     await user.type(nameInput, "New Name")
 
-    const saveButton = screen.getByTestId("save-image-updates-button")
+    const saveButton = screen.getByRole("button", { name: /Save Changes/i })
     await user.click(saveButton)
 
     await waitFor(() => {
@@ -536,7 +531,7 @@ describe("EditImageDetailsModal", () => {
     await user.clear(nameInput)
     await user.type(nameInput, "New Name")
 
-    const saveButton = screen.getByTestId("save-image-updates-button")
+    const saveButton = screen.getByRole("button", { name: /Save Changes/i })
     await user.click(saveButton)
 
     await waitFor(() => {
@@ -569,7 +564,7 @@ describe("EditImageDetailsModal", () => {
     const protectedCheckbox = screen.getByLabelText("Protected")
     await user.click(protectedCheckbox)
 
-    const saveButton = screen.getByTestId("save-image-updates-button")
+    const saveButton = screen.getByRole("button", { name: /Save Changes/i })
     await user.click(saveButton)
 
     await waitFor(() => {

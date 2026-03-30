@@ -209,10 +209,8 @@ describe("SecurityGroupListContainer", () => {
       render(<RouterProvider router={router} />)
 
       await waitFor(() => {
-        expect(screen.getByTestId("no-security-groups")).toBeInTheDocument()
+        expect(screen.getByText("There are no groups")).toBeInTheDocument()
       })
-
-      expect(screen.getByText("No security groups found")).toBeInTheDocument()
     })
   })
 

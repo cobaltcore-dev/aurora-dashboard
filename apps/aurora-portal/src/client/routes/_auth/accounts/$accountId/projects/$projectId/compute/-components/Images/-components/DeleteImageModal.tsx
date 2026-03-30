@@ -8,7 +8,6 @@ import {
   DataGridCell,
   DataGridHeadCell,
   DataGridRow,
-  Icon,
   Message,
   Modal,
   ModalFooter,
@@ -51,6 +50,9 @@ export const DeleteImageModal: React.FC<DeleteImageModalProps> = ({
       modalFooter={
         <ModalFooter className="flex justify-end">
           <ButtonRow>
+            <Button variant="default" onClick={onClose}>
+              <Trans>Cancel</Trans>
+            </Button>
             <Button
               variant="primary-danger"
               onClick={(e) => {
@@ -61,9 +63,6 @@ export const DeleteImageModal: React.FC<DeleteImageModalProps> = ({
               data-testid={`delete-image-button`}
             >
               {isLoading ? <Spinner size="small" /> : <Trans>Delete</Trans>}
-            </Button>
-            <Button variant="default" onClick={onClose}>
-              <Trans>Cancel</Trans>
             </Button>
           </ButtonRow>
         </ModalFooter>
@@ -78,7 +77,7 @@ export const DeleteImageModal: React.FC<DeleteImageModalProps> = ({
         <div>
           <Message
             text={t`This action cannot be undone. The image will be permanently deleted.`}
-            variant="warning"
+            variant="danger"
             className="mb-4"
           />
 
@@ -110,16 +109,6 @@ export const DeleteImageModal: React.FC<DeleteImageModalProps> = ({
                 <DataGridHeadCell>{t`Disk Format`}</DataGridHeadCell>
                 <DataGridCell>{image.disk_format || t`N/A`}</DataGridCell>
               </DataGridRow>
-              {image.os_type && (
-                <DataGridRow>
-                  <DataGridHeadCell>{t`OS Type`}</DataGridHeadCell>
-                  <DataGridCell className="flex items-center space-x-2">
-                    <Icon icon={"info"} color="jn-text-theme-info" />
-                    <span>{image.os_type}</span>
-                  </DataGridCell>
-                  {image.os_distro && <span className="text-xs text-gray-400">({image.os_distro})</span>}
-                </DataGridRow>
-              )}
               <DataGridRow>
                 <DataGridHeadCell>{t`Created`}</DataGridHeadCell>
                 <DataGridCell>

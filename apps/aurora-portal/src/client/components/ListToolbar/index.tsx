@@ -1,6 +1,12 @@
 import { ReactNode, useCallback, useRef, useEffect } from "react"
 import { useLingui } from "@lingui/react/macro"
-import { SearchInput, SearchInputProps, Stack } from "@cloudoperators/juno-ui-components"
+import {
+  SearchInput,
+  SearchInputProps,
+  Stack,
+  TabNavigation,
+  TabNavigationItem,
+} from "@cloudoperators/juno-ui-components"
 import { SelectedFilters } from "./SelectedFilters"
 import { FiltersInput } from "./FiltersInput"
 import { SortInput } from "./SortInput"
@@ -15,6 +21,11 @@ export type ListToolbarProps = {
   onSearch?: (searchTerm: string) => void
   searchInputProps?: Omit<SearchInputProps, "value" | "onSearch" | "onClear" | "onInput">
   actions?: ReactNode
+  tabs?: {
+    items: Array<{ label: string; value: string }>
+    activeItem: string
+    onActiveItemChange: (value: ReactNode) => void
+  }
 }
 
 export const ListToolbar = ({
@@ -26,6 +37,7 @@ export const ListToolbar = ({
   onSearch,
   searchInputProps = {},
   actions,
+  tabs,
 }: ListToolbarProps) => {
   const { t } = useLingui()
 
@@ -126,40 +138,51 @@ export const ListToolbar = ({
     : null
 
   return (
-    <Stack alignment="center" gap="6" className="bg-theme-background-lvl-1 flex w-full flex-col p-4">
-      {actions && (
-        <Stack direction="horizontal" className="w-full justify-end">
-          {actions}
-        </Stack>
-      )}
-
-      <div className="flex w-full flex-col items-stretch gap-4 md:flex-row md:items-center">
-        {filtersProps && (
-          <div className="w-full md:w-auto md:min-w-[150px]">
-            <FiltersInput {...filtersProps} />
-          </div>
-        )}
-        {sortProps && (
-          <div className="w-full md:w-auto md:min-w-[180px]">
-            <SortInput {...sortProps} />
-          </div>
-        )}
-        {searchProps && (
-          <div className="w-full md:ml-auto md:w-auto md:min-w-[100px]">
-            <SearchInput {...searchProps} />
-          </div>
-        )}
-      </div>
-
-      {filterSettings?.selectedFilters && filterSettings.selectedFilters.length > 0 && onFilter && (
+    <>
+      {tabs && (
         <div className="w-full">
-          <SelectedFilters
-            selectedFilters={filterSettings.selectedFilters}
-            onDelete={handleFilterDelete}
-            onClear={() => onFilter({ ...filterSettings, selectedFilters: [] })}
-          />
+          <TabNavigation activeItem={tabs.activeItem} onActiveItemChange={tabs.onActiveItemChange}>
+            {tabs.items.map((item) => (
+              <TabNavigationItem key={item.value} label={item.label} value={item.value} />
+            ))}
+          </TabNavigation>
         </div>
       )}
-    </Stack>
+      <Stack alignment="center" gap="6" className="bg-theme-background-lvl-1 flex w-full flex-col p-4">
+        {actions && (
+          <Stack direction="horizontal" className="w-full justify-end">
+            {actions}
+          </Stack>
+        )}
+
+        <div className="flex w-full flex-col items-stretch gap-4 md:flex-row md:items-center">
+          {filtersProps && (
+            <div className="w-full md:w-auto md:min-w-37.5">
+              <FiltersInput {...filtersProps} />
+            </div>
+          )}
+          {sortProps && (
+            <div className="w-full md:w-auto md:min-w-45">
+              <SortInput {...sortProps} />
+            </div>
+          )}
+          {searchProps && (
+            <div className="w-full md:ml-auto md:w-auto md:min-w-25">
+              <SearchInput {...searchProps} />
+            </div>
+          )}
+        </div>
+
+        {filterSettings?.selectedFilters && filterSettings.selectedFilters.length > 0 && onFilter && (
+          <div className="w-full">
+            <SelectedFilters
+              selectedFilters={filterSettings.selectedFilters}
+              onDelete={handleFilterDelete}
+              onClear={() => onFilter({ ...filterSettings, selectedFilters: [] })}
+            />
+          </div>
+        )}
+      </Stack>
+    </>
   )
 }

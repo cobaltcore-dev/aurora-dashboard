@@ -1,11 +1,11 @@
 import { describe, test, expect, vi, beforeEach } from "vitest"
 import { render, screen, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
-import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import { i18n } from "@lingui/core"
 import { I18nProvider } from "@lingui/react"
-import { ReleaseFloatingIpModal, ReleaseFloatingIpModalProps } from "./ReleaseFloatingIpModal"
+import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import type { FloatingIp } from "@/server/Network/types/floatingIp"
+import { ReleaseFloatingIpModal, ReleaseFloatingIpModalProps } from "./ReleaseFloatingIpModal"
 
 const mockFloatingIp: FloatingIp = {
   id: "fip-123",
