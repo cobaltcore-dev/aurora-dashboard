@@ -58,10 +58,7 @@ function RouteComponent() {
     flavorId,
   })
 
-  const { data: permissionsData } = trpcReact.compute.canUserBulk.useQuery([
-    "flavors:delete",
-    "flavors:list_projects",
-  ])
+  const { data: permissionsData } = trpcReact.compute.canUserBulk.useQuery(["flavors:delete", "flavors:list_projects"])
 
   const canDeleteFlavor = permissionsData?.[0] ?? false
   const canManageAccess = permissionsData?.[1] ?? false
@@ -146,25 +143,25 @@ function RouteComponent() {
     )
   }
 
+  const hasMoreActions = canManageAccess || canDeleteFlavor
+
   return (
     <>
       <Stack direction="vertical">
         <ButtonRow>
-          <PopupMenu>
-            <PopupMenuToggle>
-              <Button icon="moreVert">
-                <Trans>More Actions</Trans>
-              </Button>
-            </PopupMenuToggle>
-            <PopupMenuOptions>
-              {canManageAccess && (
-                <PopupMenuItem label={t`Manage Access`} onClick={() => setAccessModalOpen(true)} />
-              )}
-              {canDeleteFlavor && (
-                <PopupMenuItem label={t`Delete Flavor`} onClick={() => setDeleteModalOpen(true)} />
-              )}
-            </PopupMenuOptions>
-          </PopupMenu>
+          {hasMoreActions && (
+            <PopupMenu>
+              <PopupMenuToggle>
+                <Button icon="moreVert">
+                  <Trans>More Actions</Trans>
+                </Button>
+              </PopupMenuToggle>
+              <PopupMenuOptions>
+                {canManageAccess && <PopupMenuItem label={t`Manage Access`} onClick={() => setAccessModalOpen(true)} />}
+                {canDeleteFlavor && <PopupMenuItem label={t`Delete Flavor`} onClick={() => setDeleteModalOpen(true)} />}
+              </PopupMenuOptions>
+            </PopupMenu>
+          )}
           <Button onClick={() => setSpecModalOpen(true)} variant="primary">
             <Trans>Metadata</Trans>
           </Button>

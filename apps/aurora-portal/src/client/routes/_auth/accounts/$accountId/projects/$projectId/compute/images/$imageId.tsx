@@ -260,42 +260,45 @@ function RouteComponent() {
   const isDeactivated = image.status === IMAGE_STATUSES.DEACTIVATED
   const isShared = image.visibility === IMAGE_VISIBILITY.SHARED
   const isPrivate = image.visibility === IMAGE_VISIBILITY.PRIVATE
+  const hasMoreActions = permissions.canUpdate || (permissions.canDelete && !image.protected)
 
   // Render success state
   return (
     <>
       <Stack direction="vertical">
         <ButtonRow>
-          <PopupMenu>
-            <PopupMenuToggle>
-              <Button icon="moreVert" disabled={isLoading}>
-                <Trans>More Actions</Trans>
-              </Button>
-            </PopupMenuToggle>
-            <PopupMenuOptions>
+          {hasMoreActions && (
+            <PopupMenu>
+              <PopupMenuToggle>
+                <Button icon="moreVert" disabled={isLoading}>
+                  <Trans>More Actions</Trans>
+                </Button>
+              </PopupMenuToggle>
+              <PopupMenuOptions>
               {permissions.canUpdate && (
                 <PopupMenuItem
                   label={isDeactivated ? t`Activate` : t`Deactivate`}
                   onClick={() => (isDeactivated ? setActivateModalOpen(true) : setDeactivateModalOpen(true))}
                 />
               )}
-              {permissions.canUpdate && isShared && isImageOwner && (permissions.canCreateMember || permissions.canDeleteMember) && (
-                <PopupMenuItem label={t`Manage Access`} onClick={() => setManageAccessModalOpen(true)} />
-              )}
+              {permissions.canUpdate &&
+                isShared &&
+                isImageOwner &&
+                (permissions.canCreateMember || permissions.canDeleteMember) && (
+                  <PopupMenuItem label={t`Manage Access`} onClick={() => setManageAccessModalOpen(true)} />
+                )}
               {permissions.canUpdate && isShared && permissions.canUpdateMember && (
                 <PopupMenuItem label={t`Review Access`} onClick={() => setConfirmAccessModalOpen(true)} />
               )}
               {permissions.canUpdate && isPrivate && (
-                <PopupMenuItem
-                  label={t`Set to "Shared"`}
-                  onClick={() => handleUpdateVisibility("shared")}
-                />
+                <PopupMenuItem label={t`Set to "Shared"`} onClick={() => handleUpdateVisibility("shared")} />
               )}
               {permissions.canDelete && !image.protected && (
                 <PopupMenuItem label={t`Delete`} onClick={() => setDeleteModalOpen(true)} />
               )}
             </PopupMenuOptions>
-          </PopupMenu>
+            </PopupMenu>
+          )}
           {permissions.canUpdate && (
             <Button onClick={() => setEditMetadataModalOpen(true)} disabled={isLoading}>
               <Trans>Edit Metadata</Trans>
