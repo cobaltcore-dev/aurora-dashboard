@@ -36,16 +36,10 @@ export function FlavorDetailsView({ flavor }: FlavorDetailsViewProps) {
           </DescriptionTerm>
           <DescriptionDefinition>{flavor.name}</DescriptionDefinition>
 
-          {flavor.description ? (
-            <div>
-              <DescriptionTerm>
-                <Trans>Description</Trans>
-              </DescriptionTerm>
-              <DescriptionDefinition>{flavor.description}</DescriptionDefinition>
-            </div>
-          ) : (
-            <div />
-          )}
+          <DescriptionTerm>
+            <Trans>Description</Trans>
+          </DescriptionTerm>
+          <DescriptionDefinition>{flavor?.description}</DescriptionDefinition>
 
           <DescriptionTerm>
             <Trans>Public</Trans>
