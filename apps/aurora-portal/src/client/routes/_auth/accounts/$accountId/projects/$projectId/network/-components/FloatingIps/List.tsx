@@ -1,11 +1,14 @@
 import { useLingui } from "@lingui/react/macro"
 import { useParams } from "@tanstack/react-router"
-import { FloatingIpQueryParameters } from "@/server/Network/types/floatingIp"
+import { Button } from "@cloudoperators/juno-ui-components"
+import { FloatingIpCreateRequest, FloatingIpQueryParameters } from "@/server/Network/types/floatingIp"
 import { ListToolbar } from "@/client/components/ListToolbar"
 import { trpcReact } from "@/client/trpcClient"
 import { buildFilterParams } from "@/client/utils/buildFilterParams"
 import { useListWithFiltering } from "@/client/utils/useListWithFiltering"
 import { FloatingIpListContainer } from "./-components/FloatingIpListContainer"
+import { useModal } from "../../floatingips/-hooks/useModal"
+import { AllocateFloatingIpModal } from "../../floatingips/-components/-modals/AllocateFloatingIpModal"
 
 export const DEFAULT_SORT_KEY = "fixed_ip_address"
 export const DEFAULT_SORT_DIR = "asc"
@@ -14,6 +17,8 @@ export type FloatingIpsSortKey = NonNullable<FloatingIpQueryParameters["sort_key
 export const FloatingIps = () => {
   const { t } = useLingui()
   const { projectId } = useParams({ strict: false })
+  const [allocateModalOpen, toggleAllocateModal] = useModal(false)
+  const utils = trpcReact.useUtils()
 
   const { searchTerm, handleSearchChange, sortSettings, handleSortChange, filterSettings, handleFilterChange } =
     useListWithFiltering<FloatingIpsSortKey>({
@@ -55,6 +60,14 @@ export const FloatingIps = () => {
     ...(searchTerm ? { searchTerm } : {}),
   })
 
+  const createFloatingIpMutation = trpcReact.network.floatingIp.create.useMutation({
+    onSuccess: () => utils.network.floatingIp.list.invalidate(),
+  })
+
+  const handleCreateFloatingIp = async (data: FloatingIpCreateRequest) => {
+    await createFloatingIpMutation.mutateAsync({ ...data })
+  }
+
   return (
     <div className="relative">
       <ListToolbar
@@ -64,9 +77,20 @@ export const FloatingIps = () => {
         onSort={handleSortChange}
         filterSettings={filterSettings}
         onFilter={handleFilterChange}
+        actions={<Button label={t`Allocate Floating IP`} onClick={toggleAllocateModal} />}
       />
 
       <FloatingIpListContainer floatingIps={floatingIps} isLoading={isLoading} isError={isError} error={error} />
+
+      {allocateModalOpen && (
+        <AllocateFloatingIpModal
+          open={allocateModalOpen}
+          onClose={toggleAllocateModal}
+          onUpdate={handleCreateFloatingIp}
+          isLoading={createFloatingIpMutation.isPending}
+          error={createFloatingIpMutation.error?.message ?? null}
+        />
+      )}
     </div>
   )
 }
