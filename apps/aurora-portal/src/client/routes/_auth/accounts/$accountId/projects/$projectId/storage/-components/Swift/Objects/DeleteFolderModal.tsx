@@ -27,7 +27,7 @@ export const DeleteFolderModal = ({ isOpen, folder, onClose, onSuccess, onError 
 
   const deleteFolderMutation = trpcReact.storage.swift.deleteFolder.useMutation({
     onSuccess: (deletedCount) => {
-      utils.storage.swift.listObjects.invalidate()
+      utils.storage.swift.listObjects.invalidate({ container: containerName })
       onSuccess?.(submittedFolderNameRef.current, deletedCount)
     },
     onError: (error) => {

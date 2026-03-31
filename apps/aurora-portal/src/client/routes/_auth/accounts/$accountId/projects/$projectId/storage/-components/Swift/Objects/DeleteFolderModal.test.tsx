@@ -192,12 +192,12 @@ describe("DeleteFolderModal", () => {
       })
     })
 
-    test("calls listObjects.invalidate after successful mutation", async () => {
+    test("calls listObjects.invalidate with the current container after successful mutation", async () => {
       const user = userEvent.setup()
       renderModal()
       await user.click(screen.getByRole("button", { name: /^Delete$/i }))
       await waitFor(() => {
-        expect(mockInvalidate).toHaveBeenCalled()
+        expect(mockInvalidate).toHaveBeenCalledWith({ container: "test-container" })
       })
     })
 
@@ -239,6 +239,13 @@ describe("DeleteFolderModal", () => {
 
   describe("Submitted folder name snapshot", () => {
     test("onSuccess receives correct folder name even when onSettled fires first and sets folder to null", async () => {
+      // Suppress automatic callback firing so we fully control the order —
+      // without this, mockMutate fires onSuccess synchronously on click and the
+      // manual trigger fires it a second time, making the assertion non-diagnostic.
+      mockMutate.mockImplementationOnce(() => {
+        // intentionally does not invoke any callbacks
+      })
+
       const onSuccess = vi.fn()
       const onClose = vi.fn()
       const user = userEvent.setup()
@@ -257,7 +264,9 @@ describe("DeleteFolderModal", () => {
       await act(async () => {
         capturedOptions.onSuccess?.(5)
       })
-      expect(onSuccess).toHaveBeenCalledWith("documents", 5)
+      // toHaveBeenCalledTimes(1) confirms it only fired from our manual trigger, not the mock
+      expect(onSuccess).toHaveBeenCalledTimes(1)
+      expect(onSuccess).toHaveBeenLastCalledWith("documents", 5)
     })
   })
 
