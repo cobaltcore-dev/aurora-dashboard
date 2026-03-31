@@ -279,7 +279,11 @@ export const ContainerTableView = ({
 
         {/* Footer with count */}
         <div className="text-theme-light border-theme-background-lvl-2 border-t px-4 py-2 text-sm">
-          <Trans>{allContainersCount} containers</Trans>
+          {allContainersCount === 1 ? (
+            <Trans>{allContainersCount} container</Trans>
+          ) : (
+            <Trans>{allContainersCount} containers</Trans>
+          )}
         </div>
       </div>
 

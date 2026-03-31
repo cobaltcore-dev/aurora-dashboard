@@ -369,7 +369,7 @@ describe("ContainerTableView", () => {
 
     test("footer count matches containers length", () => {
       renderView({ containers: [makeContainer("only-one")] })
-      expect(screen.getByText(/1 containers/i)).toBeInTheDocument()
+      expect(screen.getByText(/1 container$/i)).toBeInTheDocument()
     })
   })
 
