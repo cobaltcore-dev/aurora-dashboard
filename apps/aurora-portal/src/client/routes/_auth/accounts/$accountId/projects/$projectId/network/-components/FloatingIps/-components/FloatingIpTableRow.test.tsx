@@ -182,17 +182,21 @@ describe("FloatingIpTableRow", () => {
         floatingIp: {
           list: {
             invalidate: listInvalidateMock,
+            cancel: vi.fn().mockResolvedValue(undefined),
           },
           getById: {
             invalidate: getByIdInvalidateMock,
+            cancel: vi.fn().mockResolvedValue(undefined),
+            getData: vi.fn().mockReturnValue(undefined),
+            setData: vi.fn(),
           },
         },
       },
     })
 
-    mockUpdateMutation.mockImplementation((options?: { onSuccess?: () => void }) => {
-      mutateAsyncMock.mockImplementation(async () => {
-        await options?.onSuccess?.()
+    mockUpdateMutation.mockImplementation((options?: { onSettled?: (data: unknown, error: unknown, variables: unknown) => void }) => {
+      mutateAsyncMock.mockImplementation(async (variables: unknown) => {
+        await options?.onSettled?.(undefined, null, variables)
       })
 
       return {
@@ -202,9 +206,9 @@ describe("FloatingIpTableRow", () => {
       }
     })
 
-    mockDeleteMutation.mockImplementation((options?: { onSuccess?: () => void }) => {
+    mockDeleteMutation.mockImplementation((options?: { onSettled?: () => void }) => {
       deleteAsyncMock.mockImplementation(async () => {
-        await options?.onSuccess?.()
+        await options?.onSettled?.()
       })
 
       return {
