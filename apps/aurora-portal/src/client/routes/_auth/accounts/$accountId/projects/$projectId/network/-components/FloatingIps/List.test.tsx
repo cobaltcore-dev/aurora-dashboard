@@ -7,7 +7,8 @@ import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { FloatingIps } from "./List"
 import { trpcReact } from "@/client/trpcClient"
-import type { FloatingIp } from "@/server/Network/types/floatingIp"
+import type { FloatingIp, FloatingIpCreateRequest } from "@/server/Network/types/floatingIp"
+import type { AllocateFloatingIpModalProps } from "../../floatingips/-components/-modals/AllocateFloatingIpModal"
 
 // Mock useParams
 vi.mock("@tanstack/react-router", () => ({
@@ -33,17 +34,58 @@ const createMockQueryResult = <TData,>(overrides: Partial<MockQueryResult<TData>
     ...overrides,
   }) as ReturnType<typeof trpcReact.network.floatingIp.list.useQuery>
 
+// Simplified mock for tRPC useMutation
+type MockMutationResult = {
+  mutateAsync: (data: FloatingIpCreateRequest) => Promise<void>
+  isPending: boolean
+  error: { message: string } | null
+}
+
+const createMockMutationResult = (overrides: Partial<MockMutationResult> = {}) =>
+  ({
+    mutateAsync: vi.fn().mockResolvedValue(undefined),
+    isPending: false,
+    error: null,
+    ...overrides,
+  }) as unknown as ReturnType<typeof trpcReact.network.floatingIp.create.useMutation>
+
 // Mock the tRPC client
 vi.mock("@/client/trpcClient", () => ({
   trpcReact: {
+    useUtils: vi.fn(),
     network: {
       floatingIp: {
         list: {
           useQuery: vi.fn(),
         },
+        create: {
+          useMutation: vi.fn(),
+        },
       },
     },
   },
+}))
+
+// Mock AllocateFloatingIpModal to avoid its internal tRPC calls
+vi.mock("../../floatingips/-components/-modals/AllocateFloatingIpModal", () => ({
+  AllocateFloatingIpModal: ({ open, onClose, onUpdate, isLoading, error }: AllocateFloatingIpModalProps) =>
+    open ? (
+      <div data-testid="allocate-modal">
+        <button data-testid="modal-close" onClick={onClose}>
+          Close
+        </button>
+        <button
+          data-testid="modal-submit"
+          onClick={() =>
+            onUpdate({ floating_network_id: "net-1", tenant_id: "test-project", project_id: "test-project" })
+          }
+        >
+          Submit
+        </button>
+        {isLoading && <div data-testid="modal-loading">Loading</div>}
+        {error && <div data-testid="modal-error">{error}</div>}
+      </div>
+    ) : null,
 }))
 
 // Mock FloatingIpListContainer
@@ -128,6 +170,16 @@ describe("FloatingIps List", () => {
 
   beforeEach(() => {
     i18n.activate("en")
+    vi.mocked(trpcReact.network.floatingIp.create.useMutation).mockReturnValue(createMockMutationResult())
+    vi.mocked(trpcReact.useUtils).mockReturnValue({
+      network: {
+        floatingIp: {
+          list: {
+            invalidate: vi.fn(),
+          },
+        },
+      },
+    } as unknown as ReturnType<typeof trpcReact.useUtils>)
   })
 
   describe("Component rendering", () => {
@@ -309,6 +361,100 @@ describe("FloatingIps List", () => {
 
       const initialCall = mockUseQuery.mock.calls[0][0] as Record<string, unknown>
       expect("searchTerm" in initialCall).toBe(false)
+    })
+  })
+
+  describe("Mutation and modal", () => {
+    it("renders the Allocate Floating IP button", () => {
+      vi.mocked(trpcReact.network.floatingIp.list.useQuery).mockReturnValue(
+        createMockQueryResult<FloatingIp[]>({ data: [] })
+      )
+
+      render(<FloatingIps />, { wrapper: createWrapper() })
+
+      expect(screen.getByRole("button", { name: /Allocate Floating IP/i })).toBeInTheDocument()
+    })
+
+    it("opens the modal when the Allocate Floating IP button is clicked", async () => {
+      vi.mocked(trpcReact.network.floatingIp.list.useQuery).mockReturnValue(
+        createMockQueryResult<FloatingIp[]>({ data: [] })
+      )
+
+      const user = userEvent.setup()
+      render(<FloatingIps />, { wrapper: createWrapper() })
+
+      expect(screen.queryByTestId("allocate-modal")).not.toBeInTheDocument()
+      await user.click(screen.getByRole("button", { name: /Allocate Floating IP/i }))
+      expect(screen.getByTestId("allocate-modal")).toBeInTheDocument()
+    })
+
+    it("closes the modal when onClose is called", async () => {
+      vi.mocked(trpcReact.network.floatingIp.list.useQuery).mockReturnValue(
+        createMockQueryResult<FloatingIp[]>({ data: [] })
+      )
+
+      const user = userEvent.setup()
+      render(<FloatingIps />, { wrapper: createWrapper() })
+
+      await user.click(screen.getByRole("button", { name: /Allocate Floating IP/i }))
+      expect(screen.getByTestId("allocate-modal")).toBeInTheDocument()
+
+      await user.click(screen.getByTestId("modal-close"))
+      expect(screen.queryByTestId("allocate-modal")).not.toBeInTheDocument()
+    })
+
+    it("calls create mutation when modal is submitted", async () => {
+      vi.mocked(trpcReact.network.floatingIp.list.useQuery).mockReturnValue(
+        createMockQueryResult<FloatingIp[]>({ data: [] })
+      )
+      const mockMutateAsync = vi.fn().mockResolvedValue(undefined)
+      vi.mocked(trpcReact.network.floatingIp.create.useMutation).mockReturnValue(
+        createMockMutationResult({ mutateAsync: mockMutateAsync })
+      )
+
+      const user = userEvent.setup()
+      render(<FloatingIps />, { wrapper: createWrapper() })
+
+      await user.click(screen.getByRole("button", { name: /Allocate Floating IP/i }))
+      await user.click(screen.getByTestId("modal-submit"))
+
+      expect(mockMutateAsync).toHaveBeenCalledWith({
+        floating_network_id: "net-1",
+        tenant_id: "test-project",
+        project_id: "test-project",
+      })
+    })
+
+    it("passes isPending state to modal as isLoading", async () => {
+      vi.mocked(trpcReact.network.floatingIp.list.useQuery).mockReturnValue(
+        createMockQueryResult<FloatingIp[]>({ data: [] })
+      )
+      vi.mocked(trpcReact.network.floatingIp.create.useMutation).mockReturnValue(
+        createMockMutationResult({ isPending: true })
+      )
+
+      const user = userEvent.setup()
+      render(<FloatingIps />, { wrapper: createWrapper() })
+
+      await user.click(screen.getByRole("button", { name: /Allocate Floating IP/i }))
+
+      expect(screen.getByTestId("modal-loading")).toBeInTheDocument()
+    })
+
+    it("passes mutation error message to modal error prop", async () => {
+      vi.mocked(trpcReact.network.floatingIp.list.useQuery).mockReturnValue(
+        createMockQueryResult<FloatingIp[]>({ data: [] })
+      )
+      vi.mocked(trpcReact.network.floatingIp.create.useMutation).mockReturnValue(
+        createMockMutationResult({ error: { message: "Failed to create floating IP" } })
+      )
+
+      const user = userEvent.setup()
+      render(<FloatingIps />, { wrapper: createWrapper() })
+
+      await user.click(screen.getByRole("button", { name: /Allocate Floating IP/i }))
+
+      expect(screen.getByTestId("modal-error")).toHaveTextContent("Failed to create floating IP")
     })
   })
 
