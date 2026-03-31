@@ -308,8 +308,13 @@ describe("CreateFolderModal", () => {
 
   describe("Submitted name snapshot", () => {
     test("onSuccess receives correct name even when onSettled fires and clears state first", async () => {
-      // Manually control callback order: fire onSettled (→ handleClose → clears folderName)
-      // before onSuccess to prove the snapshot is unaffected.
+      // Suppress the automatic callback firing for this test so we can control
+      // the order manually — without this, mockMutate fires onSuccess synchronously
+      // before our manual ordering, making the assertion non-diagnostic.
+      mockMutate.mockImplementationOnce(() => {
+        // intentionally does not invoke any callbacks
+      })
+
       const onSuccess = vi.fn()
       const onClose = vi.fn()
       const user = userEvent.setup()
@@ -325,11 +330,13 @@ describe("CreateFolderModal", () => {
       })
       expect(onClose).toHaveBeenCalled()
 
-      // Now fire onSuccess — submittedName must still be "my-folder", not ""
+      // Now fire onSuccess — submittedNameRef.current must still be "my-folder", not ""
       await act(async () => {
         capturedOptions.onSuccess?.()
       })
-      expect(onSuccess).toHaveBeenCalledWith("my-folder")
+      // toHaveBeenCalledTimes(1) confirms it only fired from our manual trigger, not the mock
+      expect(onSuccess).toHaveBeenCalledTimes(1)
+      expect(onSuccess).toHaveBeenLastCalledWith("my-folder")
     })
   })
 
