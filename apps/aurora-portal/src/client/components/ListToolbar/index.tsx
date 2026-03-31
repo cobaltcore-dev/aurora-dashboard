@@ -1,5 +1,5 @@
 import { ReactNode, useCallback, useRef, useEffect } from "react"
-import { useLingui } from "@lingui/react/macro"
+import { Trans, useLingui } from "@lingui/react/macro"
 import {
   SearchInput,
   SearchInputProps,
@@ -26,6 +26,12 @@ export type ListToolbarProps = {
     activeItem: string
     onActiveItemChange: (value: ReactNode) => void
   }
+  // Count information
+  totalCount?: number
+  itemName?: string // e.g. "items", "users", "projects" - used in count display
+  filteredCount?: number
+  // Last updated timestamp
+  lastUpdated?: Date | string
 }
 
 export const ListToolbar = ({
@@ -38,6 +44,10 @@ export const ListToolbar = ({
   searchInputProps = {},
   actions,
   tabs,
+  totalCount,
+  filteredCount,
+  itemName = "items",
+  lastUpdated,
 }: ListToolbarProps) => {
   const { t } = useLingui()
 
@@ -50,6 +60,15 @@ export const ListToolbar = ({
       }
     }
   }, [])
+
+  // Format last updated time
+  const formatLastUpdated = (date: Date | string | undefined): string => {
+    if (!date) return ""
+    const dateObj = typeof date === "string" ? new Date(date) : date
+    return dateObj.toLocaleString()
+  }
+
+  const showCountInfo = totalCount !== undefined && filteredCount !== undefined
 
   const handleFilterDelete = useCallback(
     (filterToRemove: SelectedFilter) => {
@@ -183,6 +202,25 @@ export const ListToolbar = ({
           </div>
         )}
       </Stack>
+      {/* Count and Last Updated Info */}
+      {(showCountInfo || lastUpdated) && (
+        <div className="text-theme-secondary flex w-full items-center justify-between text-sm">
+          <div className="flex items-center gap-4">
+            {showCountInfo && (
+              <span>
+                <Trans>
+                  Showing {filteredCount} of {totalCount} {itemName}
+                </Trans>
+              </span>
+            )}
+            {lastUpdated && (
+              <span>
+                <Trans>Last updated: {formatLastUpdated(lastUpdated)}</Trans>
+              </span>
+            )}
+          </div>
+        </div>
+      )}
     </>
   )
 }

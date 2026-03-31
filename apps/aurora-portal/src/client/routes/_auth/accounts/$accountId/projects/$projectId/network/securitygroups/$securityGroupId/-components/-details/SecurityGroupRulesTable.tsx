@@ -19,7 +19,8 @@ import { AddRuleModal } from "../../-modals/AddRuleModal/AddRuleModal"
 import { ListToolbar } from "@/client/components/ListToolbar"
 
 interface SecurityGroupRulesTableProps {
-  rules: SecurityGroupRule[]
+  rules: SecurityGroupRule[] // Filtered rules
+  totalRulesCount?: number // Total rules count before filtering
   onDeleteRule: (ruleId: string) => void
   isDeletingRule: boolean
   deleteError: string | null
@@ -40,6 +41,7 @@ interface SecurityGroupRulesTableProps {
 
 export function SecurityGroupRulesTable({
   rules,
+  totalRulesCount,
   onDeleteRule,
   isDeletingRule,
   deleteError,
@@ -114,6 +116,9 @@ export function SecurityGroupRulesTable({
     <>
       <Stack direction="vertical" gap="4">
         <ListToolbar
+          totalCount={totalRulesCount ?? rules.length}
+          filteredCount={rules.length}
+          itemName={t`rules`}
           filterSettings={filterSettings}
           onFilter={onFilterChange}
           sortSettings={sortSettings}
