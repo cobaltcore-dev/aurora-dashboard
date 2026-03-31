@@ -66,10 +66,10 @@ export const getFolderDeletedToast = (folderName: string, deletedCount: number, 
       title={<Trans>Folder Deleted</Trans>}
       description={
         deletedCount === 0 ? (
-          <Trans>Folder "{folderName}" was already empty and has been removed.</Trans>
+          <Trans>Folder "{folderName}" was permanently deleted.</Trans>
         ) : deletedCount === 1 ? (
           <Trans>
-            Folder "{folderName}" and {deletedCount} object were permanently deleted.
+            Folder "{folderName}" and {deletedCount} object was permanently deleted.
           </Trans>
         ) : (
           <Trans>

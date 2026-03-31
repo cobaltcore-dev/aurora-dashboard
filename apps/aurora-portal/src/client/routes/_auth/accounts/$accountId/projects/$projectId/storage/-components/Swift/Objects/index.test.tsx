@@ -74,16 +74,22 @@ vi.mock("../../../$provider/containers/$containerName/objects", () => ({
 // ─── Mock child components ────────────────────────────────────────────────────
 // We test index.tsx in isolation — child components are tested separately.
 
+// Capture the latest onDeleteFolderSuccess so tests can invoke it directly
+let capturedOnDeleteFolderSuccess: ((folderName: string, deletedCount: number) => void) | undefined
+
 vi.mock("./ObjectsTableView", () => ({
-  ObjectsTableView: vi.fn(({ rows, searchTerm, onDeleteFolderSuccess, onDeleteFolderError }) => (
-    <div
-      data-testid="objects-table-view"
-      data-row-count={rows.length}
-      data-search={searchTerm}
-      data-has-delete-success={typeof onDeleteFolderSuccess === "function" ? "true" : "false"}
-      data-has-delete-error={typeof onDeleteFolderError === "function" ? "true" : "false"}
-    />
-  )),
+  ObjectsTableView: vi.fn(({ rows, searchTerm, onDeleteFolderSuccess, onDeleteFolderError }) => {
+    capturedOnDeleteFolderSuccess = onDeleteFolderSuccess
+    return (
+      <div
+        data-testid="objects-table-view"
+        data-row-count={rows.length}
+        data-search={searchTerm}
+        data-has-delete-success={typeof onDeleteFolderSuccess === "function" ? "true" : "false"}
+        data-has-delete-error={typeof onDeleteFolderError === "function" ? "true" : "false"}
+      />
+    )
+  }),
 }))
 
 vi.mock("./ObjectsFileNavigation", () => ({
@@ -122,6 +128,13 @@ let trpcState = {
   isLoading: false,
   error: null as { message: string } | null,
 }
+
+vi.mock("./ObjectToastNotifications", () => ({
+  getFolderCreatedToast: vi.fn(() => ({ variant: "success", children: null })),
+  getFolderCreateErrorToast: vi.fn(() => ({ variant: "error", children: null })),
+  getFolderDeletedToast: vi.fn(() => ({ variant: "success", children: null })),
+  getFolderDeleteErrorToast: vi.fn(() => ({ variant: "error", children: null })),
+}))
 
 vi.mock("@/client/trpcClient", () => ({
   trpcReact: {
@@ -232,6 +245,17 @@ describe("SwiftObjects (index)", () => {
     test("passes onDeleteFolderError callback to ObjectsTableView", () => {
       renderObjects()
       expect(screen.getByTestId("objects-table-view")).toHaveAttribute("data-has-delete-error", "true")
+    })
+
+    test("subtracts 1 from deletedCount before passing to getFolderDeletedToast", async () => {
+      const { getFolderDeletedToast } = await import("./ObjectToastNotifications")
+      renderObjects()
+      // Simulate ObjectsTableView calling onDeleteFolderSuccess with Swift's raw count (includes placeholder)
+      await act(async () => {
+        capturedOnDeleteFolderSuccess?.("my-folder", 4)
+      })
+      // nestedCount = 4 - 1 = 3 should be passed to the toast factory
+      expect(getFolderDeletedToast).toHaveBeenCalledWith("my-folder", 3, expect.any(Object))
     })
   })
 

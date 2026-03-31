@@ -182,7 +182,10 @@ export const SwiftObjects = () => {
   }
 
   const handleDeleteFolderSuccess = (folderName: string, deletedCount: number) => {
-    setToastData(getFolderDeletedToast(folderName, deletedCount, { onDismiss: handleToastDismiss }))
+    // Swift counts the zero-byte folder placeholder itself as a deleted object,
+    // so subtract 1 to report only the nested content to the user.
+    const nestedCount = Math.max(0, deletedCount - 1)
+    setToastData(getFolderDeletedToast(folderName, nestedCount, { onDismiss: handleToastDismiss }))
   }
 
   const handleDeleteFolderError = (folderName: string, errorMessage: string) => {

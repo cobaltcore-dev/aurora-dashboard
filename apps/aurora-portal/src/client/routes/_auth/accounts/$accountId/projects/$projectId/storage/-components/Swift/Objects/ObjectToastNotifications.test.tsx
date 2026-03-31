@@ -128,14 +128,14 @@ describe("ObjectToastNotifications", () => {
     it("renders singular message when exactly 1 object was deleted", () => {
       const toast = getFolderDeletedToast("my-folder", 1, defaultConfig)
       render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
-      expect(screen.getByText(/1 object were permanently deleted/)).toBeInTheDocument()
+      expect(screen.getByText(/1 object was permanently deleted/)).toBeInTheDocument()
     })
 
-    it("renders already-empty message when deletedCount is 0", () => {
+    it("renders deleted message when deletedCount is 0", () => {
       const toast = getFolderDeletedToast("my-folder", 0, defaultConfig)
       render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
       expect(screen.getByText("Folder Deleted")).toBeInTheDocument()
-      expect(screen.getByText(/was already empty/)).toBeInTheDocument()
+      expect(screen.getByText(/was permanently deleted/)).toBeInTheDocument()
     })
 
     it("uses custom autoDismissTimeout when provided", () => {
