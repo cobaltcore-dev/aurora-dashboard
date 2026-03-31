@@ -128,6 +128,7 @@ export const AllocateFloatingIpModal = ({
   }
 
   const currentPortId = useStore(form.store, (state) => state.values.port_id)
+  const currentFloatingNetworkId = useStore(form.store, (state) => state.values.floating_network_id)
   const selectedPort = availablePorts.find((port) => port.id === currentPortId)
   const portFixedIps = selectedPort?.fixed_ips ?? []
 
@@ -142,7 +143,7 @@ export const AllocateFloatingIpModal = ({
       cancelButtonLabel={t`Cancel`}
       confirmButtonLabel={t`Allocate`}
       onConfirm={form.handleSubmit}
-      disableConfirmButton={isLoading || !floatingNetworkId}
+      disableConfirmButton={isLoading || !currentFloatingNetworkId}
     >
       {formErrorMessage && (
         <Message dismissible={false} variant="error" className="mb-4">
