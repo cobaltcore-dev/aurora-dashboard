@@ -62,7 +62,7 @@ export function AddRBACPolicyModal({ isOpen, onClose, securityGroupId }: AddRBAC
     onClose()
   }
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setError(null)
 
@@ -82,7 +82,7 @@ export function AddRBACPolicyModal({ isOpen, onClose, securityGroupId }: AddRBAC
       return
     }
 
-    await createMutation.mutateAsync({
+    createMutation.mutate({
       securityGroupId,
       targetTenant: trimmedValue,
     })
