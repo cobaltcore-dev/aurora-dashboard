@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useRef } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import { Modal, TextInput, Stack, Message } from "@cloudoperators/juno-ui-components"
@@ -23,14 +23,17 @@ export const CreateFolderModal = ({ isOpen, currentPrefix, onClose, onSuccess, o
 
   const utils = trpcReact.useUtils()
 
+  // useRef so the submitted name survives re-renders triggered by
+  // createFolderMutation.reset() inside handleClose() before onSuccess/onError fire.
+  const submittedNameRef = useRef("")
+
   const createFolderMutation = trpcReact.storage.swift.createFolder.useMutation({
     onSuccess: () => {
       utils.storage.swift.listObjects.invalidate()
-      const name = folderName.trim()
-      onSuccess?.(name)
+      onSuccess?.(submittedNameRef.current)
     },
     onError: (error) => {
-      onError?.(folderName.trim(), error.message)
+      onError?.(submittedNameRef.current, error.message)
     },
     onSettled: () => {
       handleClose()
@@ -70,8 +73,8 @@ export const CreateFolderModal = ({ isOpen, currentPrefix, onClose, onSuccess, o
 
   const handleSubmit = () => {
     if (!validateName(folderName)) return
-    // Folder path = currentPrefix + folderName + trailing slash
-    const folderPath = `${currentPrefix}${folderName.trim()}/`
+    submittedNameRef.current = folderName.trim()
+    const folderPath = `${currentPrefix}${submittedNameRef.current}/`
     createFolderMutation.mutate({ container: containerName, folderPath })
   }
 

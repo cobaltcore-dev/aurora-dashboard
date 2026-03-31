@@ -306,6 +306,33 @@ describe("CreateFolderModal", () => {
     })
   })
 
+  describe("Submitted name snapshot", () => {
+    test("onSuccess receives correct name even when onSettled fires and clears state first", async () => {
+      // Manually control callback order: fire onSettled (→ handleClose → clears folderName)
+      // before onSuccess to prove the snapshot is unaffected.
+      const onSuccess = vi.fn()
+      const onClose = vi.fn()
+      const user = userEvent.setup()
+      renderModal({ onSuccess, onClose })
+
+      await user.type(screen.getByLabelText(/Type container name/i), "my-folder")
+      await user.click(screen.getByRole("button", { name: /Create folder/i }))
+      expect(mockMutate).toHaveBeenCalled()
+
+      // Simulate the race: fire onSettled first, which calls handleClose and clears folderName
+      await act(async () => {
+        capturedOptions.onSettled?.()
+      })
+      expect(onClose).toHaveBeenCalled()
+
+      // Now fire onSuccess — submittedName must still be "my-folder", not ""
+      await act(async () => {
+        capturedOptions.onSuccess?.()
+      })
+      expect(onSuccess).toHaveBeenCalledWith("my-folder")
+    })
+  })
+
   describe("Cancel / close", () => {
     test("calls onClose when Cancel button is clicked", async () => {
       const onClose = vi.fn()
