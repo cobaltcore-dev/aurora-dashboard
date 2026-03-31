@@ -24,7 +24,7 @@ const mockFloatingIp: FloatingIp = {
   tags: [],
 }
 
-export type ReleaseFloatingIpModalRenderOptions = Partial<ReleaseFloatingIpModalProps>
+type ReleaseFloatingIpModalRenderOptions = Partial<ReleaseFloatingIpModalProps>
 
 const renderModalComponent = ({
   floatingIp = mockFloatingIp,
