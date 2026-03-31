@@ -1,7 +1,7 @@
 import { useLingui } from "@lingui/react/macro"
 import { useParams } from "@tanstack/react-router"
 import { Button } from "@cloudoperators/juno-ui-components"
-import { FloatingIpQueryParameters } from "@/server/Network/types/floatingIp"
+import { FloatingIpCreateRequest, FloatingIpQueryParameters } from "@/server/Network/types/floatingIp"
 import { ListToolbar } from "@/client/components/ListToolbar"
 import { trpcReact } from "@/client/trpcClient"
 import { buildFilterParams } from "@/client/utils/buildFilterParams"
@@ -61,16 +61,11 @@ export const FloatingIps = () => {
   })
 
   const createFloatingIpMutation = trpcReact.network.floatingIp.create.useMutation({
-    onSuccess: () => {
-      utils.network.floatingIp.list.invalidate()
-    },
+    onSuccess: () => utils.network.floatingIp.list.invalidate(),
   })
-  const handleCreateFloatingIp = async () => {
-    await createFloatingIpMutation.mutateAsync({
-      tenant_id: projectId ?? "",
-      project_id: projectId ?? "",
-      floating_network_id: "net-external", // TODO: Allow user to select external network
-    })
+
+  const handleCreateFloatingIp = async (data: FloatingIpCreateRequest) => {
+    await createFloatingIpMutation.mutateAsync({ ...data })
   }
 
   return (
@@ -82,7 +77,6 @@ export const FloatingIps = () => {
         onSort={handleSortChange}
         filterSettings={filterSettings}
         onFilter={handleFilterChange}
-        // Q: Do I need to set up permissions for create (and other operations)?
         actions={<Button label={t`Allocate Floating IP`} onClick={toggleAllocateModal} />}
       />
 
@@ -90,9 +84,11 @@ export const FloatingIps = () => {
 
       {allocateModalOpen && (
         <AllocateFloatingIpModal
-          // A: Resolve props
           open={allocateModalOpen}
           onClose={toggleAllocateModal}
+          onUpdate={handleCreateFloatingIp}
+          isLoading={createFloatingIpMutation.isPending}
+          error={createFloatingIpMutation.error?.message ?? null}
         />
       )}
     </div>

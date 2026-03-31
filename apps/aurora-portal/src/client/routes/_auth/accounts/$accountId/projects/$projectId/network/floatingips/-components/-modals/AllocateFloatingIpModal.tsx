@@ -13,12 +13,13 @@ import {
   Select,
   SelectOption,
 } from "@cloudoperators/juno-ui-components"
+import { FloatingIpCreateRequest } from "@/server/Network/types/floatingIp"
 import { trpcReact } from "@/client/trpcClient"
 
 export interface AllocateFloatingIpModalProps {
   open: boolean
   onClose: () => void
-  onUpdate: (floatingIpId: string) => Promise<void>
+  onUpdate: (data: FloatingIpCreateRequest) => Promise<void>
   isLoading?: boolean
   error?: string | null
 }
@@ -32,7 +33,7 @@ const dnsNameRegex = /^([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)*[a-zA-Z0-
 export const AllocateFloatingIpModal = ({
   open,
   onClose,
-  // onUpdate, -> validate list
+  onUpdate,
   isLoading = false,
   error = null,
 }: AllocateFloatingIpModalProps) => {
@@ -106,9 +107,17 @@ export const AllocateFloatingIpModal = ({
     onSubmit: async ({ value }) => {
       if (isLoading) return
 
-      // Use `value` for the latest validated snapshot across all fields.
-      // await onUpdate(floatingIp.id, value)
-      void value
+      await onUpdate({
+        project_id: projectId ?? "",
+        tenant_id: projectId ?? "",
+        floating_network_id: value.floating_network_id,
+        ...(value.dns_domain && { dns_domain: value.dns_domain }),
+        ...(value.dns_name && { dns_name: value.dns_name }),
+        ...(value.description && { description: value.description }),
+        ...(value.floating_ip_address && { floating_ip_address: value.floating_ip_address }),
+        ...(value.port_id && { port_id: value.port_id }),
+        ...(value.fixed_ip_address && { fixed_ip_address: value.fixed_ip_address }),
+      })
       handleClose()
     },
   })
@@ -133,7 +142,7 @@ export const AllocateFloatingIpModal = ({
       cancelButtonLabel={t`Cancel`}
       confirmButtonLabel={t`Allocate`}
       onConfirm={form.handleSubmit}
-      disableConfirmButton={isLoading}
+      disableConfirmButton={isLoading || !floatingNetworkId}
     >
       {formErrorMessage && (
         <Message dismissible={false} variant="error" className="mb-4">
@@ -213,8 +222,8 @@ export const AllocateFloatingIpModal = ({
                   value={field.state.value}
                   onBlur={field.handleBlur}
                   onChange={(e) => field.handleChange(e.target.value)}
-                  placeholder={t`Enter DNS name`}
                   label={t`DNS Name`}
+                  placeholder={t`Enter DNS name`}
                   helptext={t`Enter a valid PQDN or FQDN (max 63 characters) to associate with the floating IP. A and PTR records are created automatically.`}
                   errortext={field.state.meta.errors.map((e) => e?.message).join(", ")}
                   disabled={isLoading}
