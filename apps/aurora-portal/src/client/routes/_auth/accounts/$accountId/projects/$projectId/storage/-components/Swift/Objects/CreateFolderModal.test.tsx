@@ -133,7 +133,7 @@ describe("CreateFolderModal", () => {
   describe("Form rendering", () => {
     test("renders folder name input", () => {
       renderModal()
-      expect(screen.getByLabelText(/Type container name/i)).toBeInTheDocument()
+      expect(screen.getByLabelText(/Folder name/i)).toBeInTheDocument()
     })
 
     test("renders Create folder and Cancel buttons", () => {
@@ -155,7 +155,7 @@ describe("CreateFolderModal", () => {
     test("Create folder button is enabled when folder name is entered", async () => {
       const user = userEvent.setup()
       renderModal()
-      await user.type(screen.getByLabelText(/Type container name/i), "my-folder")
+      await user.type(screen.getByLabelText(/Folder name/i), "my-folder")
       expect(screen.getByRole("button", { name: /Create folder/i })).not.toBeDisabled()
     })
 
@@ -174,7 +174,7 @@ describe("CreateFolderModal", () => {
     test("shows error when submitting with empty name", async () => {
       const user = userEvent.setup()
       renderModal()
-      const input = screen.getByLabelText(/Type container name/i)
+      const input = screen.getByLabelText(/Folder name/i)
       await user.type(input, "a")
       await user.clear(input)
       await user.keyboard("{Enter}")
@@ -186,7 +186,7 @@ describe("CreateFolderModal", () => {
     test("shows error when name contains a slash", async () => {
       const user = userEvent.setup()
       renderModal()
-      await user.type(screen.getByLabelText(/Type container name/i), "invalid/name")
+      await user.type(screen.getByLabelText(/Folder name/i), "invalid/name")
       await user.keyboard("{Enter}")
       await waitFor(() => {
         expect(screen.getByText(/cannot contain slashes/i)).toBeInTheDocument()
@@ -197,7 +197,7 @@ describe("CreateFolderModal", () => {
       const user = userEvent.setup()
       renderModal()
       // userEvent preserves leading spaces
-      await user.type(screen.getByLabelText(/Type container name/i), " leading")
+      await user.type(screen.getByLabelText(/Folder name/i), " leading")
       await user.keyboard("{Enter}")
       await waitFor(() => {
         expect(screen.getByText(/leading or trailing whitespace/i)).toBeInTheDocument()
@@ -207,7 +207,7 @@ describe("CreateFolderModal", () => {
     test("shows error when name has trailing whitespace", async () => {
       const user = userEvent.setup()
       renderModal()
-      await user.type(screen.getByLabelText(/Type container name/i), "trailing ")
+      await user.type(screen.getByLabelText(/Folder name/i), "trailing ")
       await user.keyboard("{Enter}")
       await waitFor(() => {
         expect(screen.getByText(/leading or trailing whitespace/i)).toBeInTheDocument()
@@ -217,7 +217,7 @@ describe("CreateFolderModal", () => {
     test("clears validation error when valid name is entered after error", async () => {
       const user = userEvent.setup()
       renderModal()
-      const input = screen.getByLabelText(/Type container name/i)
+      const input = screen.getByLabelText(/Folder name/i)
       await user.type(input, "bad/name")
       await user.keyboard("{Enter}")
       await waitFor(() => {
@@ -235,7 +235,7 @@ describe("CreateFolderModal", () => {
     test("calls mutate with correct folder path at root level", async () => {
       const user = userEvent.setup()
       renderModal({ currentPrefix: "" })
-      await user.type(screen.getByLabelText(/Type container name/i), "my-folder")
+      await user.type(screen.getByLabelText(/Folder name/i), "my-folder")
       await user.click(screen.getByRole("button", { name: /Create folder/i }))
       expect(mockMutate).toHaveBeenCalledWith({
         container: "test-container",
@@ -246,7 +246,7 @@ describe("CreateFolderModal", () => {
     test("calls mutate with correct folder path inside a subfolder", async () => {
       const user = userEvent.setup()
       renderModal({ currentPrefix: "documents/" })
-      await user.type(screen.getByLabelText(/Type container name/i), "reports")
+      await user.type(screen.getByLabelText(/Folder name/i), "reports")
       await user.click(screen.getByRole("button", { name: /Create folder/i }))
       expect(mockMutate).toHaveBeenCalledWith({
         container: "test-container",
@@ -257,7 +257,7 @@ describe("CreateFolderModal", () => {
     test("calls mutate on Enter key press", async () => {
       const user = userEvent.setup()
       renderModal()
-      await user.type(screen.getByLabelText(/Type container name/i), "my-folder")
+      await user.type(screen.getByLabelText(/Folder name/i), "my-folder")
       await user.keyboard("{Enter}")
       expect(mockMutate).toHaveBeenCalled()
     })
@@ -266,7 +266,7 @@ describe("CreateFolderModal", () => {
       const onSuccess = vi.fn()
       const user = userEvent.setup()
       renderModal({ onSuccess })
-      await user.type(screen.getByLabelText(/Type container name/i), "my-folder")
+      await user.type(screen.getByLabelText(/Folder name/i), "my-folder")
       await user.click(screen.getByRole("button", { name: /Create folder/i }))
       await waitFor(() => {
         expect(onSuccess).toHaveBeenCalledWith("my-folder")
@@ -276,7 +276,7 @@ describe("CreateFolderModal", () => {
     test("calls listObjects.invalidate after successful mutation", async () => {
       const user = userEvent.setup()
       renderModal()
-      await user.type(screen.getByLabelText(/Type container name/i), "my-folder")
+      await user.type(screen.getByLabelText(/Folder name/i), "my-folder")
       await user.click(screen.getByRole("button", { name: /Create folder/i }))
       await waitFor(() => {
         expect(mockInvalidate).toHaveBeenCalled()
@@ -286,7 +286,7 @@ describe("CreateFolderModal", () => {
     test("does not submit when name is only whitespace", async () => {
       const user = userEvent.setup()
       renderModal()
-      await user.type(screen.getByLabelText(/Type container name/i), "   ")
+      await user.type(screen.getByLabelText(/Folder name/i), "   ")
       await user.keyboard("{Enter}")
       expect(mockMutate).not.toHaveBeenCalled()
     })
@@ -298,7 +298,7 @@ describe("CreateFolderModal", () => {
       const onError = vi.fn()
       const user = userEvent.setup()
       renderModal({ onError })
-      await user.type(screen.getByLabelText(/Type container name/i), "my-folder")
+      await user.type(screen.getByLabelText(/Folder name/i), "my-folder")
       await user.click(screen.getByRole("button", { name: /Create folder/i }))
       await waitFor(() => {
         expect(onError).toHaveBeenCalledWith("my-folder", "Object already exists")
@@ -315,7 +315,7 @@ describe("CreateFolderModal", () => {
       const user = userEvent.setup()
       renderModal({ onSuccess, onClose })
 
-      await user.type(screen.getByLabelText(/Type container name/i), "my-folder")
+      await user.type(screen.getByLabelText(/Folder name/i), "my-folder")
       await user.click(screen.getByRole("button", { name: /Create folder/i }))
       expect(mockMutate).toHaveBeenCalled()
 
@@ -346,7 +346,7 @@ describe("CreateFolderModal", () => {
       const onClose = vi.fn()
       const user = userEvent.setup()
       renderModal({ onClose })
-      await user.type(screen.getByLabelText(/Type container name/i), "my-folder")
+      await user.type(screen.getByLabelText(/Folder name/i), "my-folder")
       await user.click(screen.getByRole("button", { name: /Cancel/i }))
       expect(onClose).toHaveBeenCalled()
     })

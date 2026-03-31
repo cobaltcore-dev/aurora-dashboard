@@ -115,7 +115,7 @@ export const CreateFolderModal = ({ isOpen, currentPrefix, onClose, onSuccess, o
           </Trans>
         </Message>
         <TextInput
-          label={t`Type container name`}
+          label={t`Folder name`}
           required
           value={folderName}
           onChange={handleNameChange}
