@@ -203,6 +203,13 @@ export const ContainerTableView = ({
           >
             {rowVirtualizer.getVirtualItems().map((virtualRow) => {
               const container = containers[virtualRow.index]
+
+              const handleRowNavigate = () =>
+                navigate({
+                  to: "/accounts/$accountId/projects/$projectId/storage/$provider/containers/$containerName/objects",
+                  params: { accountId, projectId, provider, containerName: container.name },
+                })
+
               return (
                 <div
                   key={container.name}
@@ -220,12 +227,15 @@ export const ContainerTableView = ({
                     alignItems: "stretch",
                   }}
                   data-testid={`container-row-${container.name}`}
-                  onClick={() =>
-                    navigate({
-                      to: "/accounts/$accountId/projects/$projectId/storage/$provider/containers/$containerName/objects",
-                      params: { accountId, projectId, provider, containerName: container.name },
-                    })
-                  }
+                  role="link"
+                  tabIndex={0}
+                  onClick={handleRowNavigate}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault()
+                      handleRowNavigate()
+                    }
+                  }}
                 >
                   <DataGridCell className="min-w-0 overflow-hidden">
                     <span className="block truncate" title={container.name}>

@@ -318,6 +318,39 @@ describe("ContainerTableView", () => {
       })
     })
 
+    test("pressing Enter on a focused container row calls navigate", async () => {
+      const user = userEvent.setup()
+      renderView()
+      const row = screen.getByTestId("container-row-alpha")
+      row.focus()
+      await user.keyboard("{Enter}")
+      expect(mockNavigateFn).toHaveBeenCalledWith({
+        to: "/accounts/$accountId/projects/$projectId/storage/$provider/containers/$containerName/objects",
+        params: { accountId: "test-account", projectId: "test-project", provider: "swift", containerName: "alpha" },
+      })
+    })
+
+    test("pressing Space on a focused container row calls navigate", async () => {
+      const user = userEvent.setup()
+      renderView()
+      const row = screen.getByTestId("container-row-alpha")
+      row.focus()
+      await user.keyboard(" ")
+      expect(mockNavigateFn).toHaveBeenCalledWith({
+        to: "/accounts/$accountId/projects/$projectId/storage/$provider/containers/$containerName/objects",
+        params: { accountId: "test-account", projectId: "test-project", provider: "swift", containerName: "alpha" },
+      })
+    })
+
+    test("container rows have tabIndex 0 and role link", () => {
+      renderView()
+      mockContainers.forEach((c) => {
+        const row = screen.getByTestId(`container-row-${c.name}`)
+        expect(row).toHaveAttribute("tabindex", "0")
+        expect(row).toHaveAttribute("role", "link")
+      })
+    })
+
     test("clicking the popup menu does not trigger row navigation", async () => {
       const user = userEvent.setup()
       renderView()
