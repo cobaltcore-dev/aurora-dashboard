@@ -150,8 +150,9 @@ export function ImageTableRow({
                     />
                   </>
                 )}
-                {isAccepted && !isPending && (
-                  confirmRevoke ? (
+                {isAccepted &&
+                  !isPending &&
+                  (confirmRevoke ? (
                     <Button
                       size="small"
                       variant="primary-danger"
@@ -162,13 +163,8 @@ export function ImageTableRow({
                       }}
                     />
                   ) : (
-                    <Button
-                      size="small"
-                      label={t`Revoke`}
-                      onClick={() => setConfirmRevoke(true)}
-                    />
-                  )
-                )}
+                    <Button size="small" label={t`Revoke`} onClick={() => setConfirmRevoke(true)} />
+                  ))}
               </>
             )}
           </Stack>
@@ -194,7 +190,8 @@ export function ImageTableRow({
                     label={image.status === IMAGE_STATUSES.DEACTIVATED ? t`Activate` : t`Deactivate`}
                     onClick={() => onActivationStatusChange(image)}
                   />
-                  {image.visibility === IMAGE_VISIBILITY.SHARED && isImageOwner &&
+                  {image.visibility === IMAGE_VISIBILITY.SHARED &&
+                    isImageOwner &&
                     (permissions.canCreateMember || permissions.canDeleteMember) && (
                       <PopupMenuItem label={t`Manage Access`} onClick={() => onManageAccess(image)} />
                     )}

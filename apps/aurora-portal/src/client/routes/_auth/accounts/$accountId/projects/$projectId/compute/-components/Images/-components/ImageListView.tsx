@@ -114,7 +114,6 @@ export function ImageListView({
   activeImages,
   deactivatedImages,
 }: ImagePageProps) {
-
   const [toastData, setToastData] = useState<ToastProps | null>(null)
 
   const [editDetailsModalOpen, setEditDetailsModalOpen] = useState(false)
