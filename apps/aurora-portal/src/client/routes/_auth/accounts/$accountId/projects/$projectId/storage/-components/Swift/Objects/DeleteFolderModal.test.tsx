@@ -237,6 +237,30 @@ describe("DeleteFolderModal", () => {
     })
   })
 
+  describe("Submitted folder name snapshot", () => {
+    test("onSuccess receives correct folder name even when onSettled fires first and sets folder to null", async () => {
+      const onSuccess = vi.fn()
+      const onClose = vi.fn()
+      const user = userEvent.setup()
+      renderModal({ onSuccess, onClose })
+
+      await user.click(screen.getByRole("button", { name: /^Delete$/i }))
+      expect(mockMutate).toHaveBeenCalled()
+
+      // Simulate the race: fire onSettled first (→ handleClose → reset → re-render with folder=null)
+      await act(async () => {
+        capturedOptions.onSettled?.()
+      })
+      expect(onClose).toHaveBeenCalled()
+
+      // Now fire onSuccess — submittedFolderNameRef.current must still be "documents", not ""
+      await act(async () => {
+        capturedOptions.onSuccess?.(5)
+      })
+      expect(onSuccess).toHaveBeenCalledWith("documents", 5)
+    })
+  })
+
   describe("Cancel / close", () => {
     test("calls onClose when Cancel button is clicked", async () => {
       const onClose = vi.fn()

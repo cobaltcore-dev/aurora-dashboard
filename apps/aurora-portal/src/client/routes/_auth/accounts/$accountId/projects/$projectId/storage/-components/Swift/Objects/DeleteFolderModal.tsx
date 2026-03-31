@@ -1,4 +1,4 @@
-import { useEffect } from "react"
+import { useEffect, useRef } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import { Modal, Message, Stack, Spinner } from "@cloudoperators/juno-ui-components"
@@ -21,13 +21,17 @@ export const DeleteFolderModal = ({ isOpen, folder, onClose, onSuccess, onError 
 
   const utils = trpcReact.useUtils()
 
+  // useRef so the folder display name survives re-renders triggered by
+  // deleteFolderMutation.reset() inside handleClose() before onSuccess/onError fire.
+  const submittedFolderNameRef = useRef("")
+
   const deleteFolderMutation = trpcReact.storage.swift.deleteFolder.useMutation({
     onSuccess: (deletedCount) => {
       utils.storage.swift.listObjects.invalidate()
-      onSuccess?.(folder!.displayName, deletedCount)
+      onSuccess?.(submittedFolderNameRef.current, deletedCount)
     },
     onError: (error) => {
-      onError?.(folder!.displayName, error.message)
+      onError?.(submittedFolderNameRef.current, error.message)
     },
     onSettled: () => {
       handleClose()
@@ -47,6 +51,7 @@ export const DeleteFolderModal = ({ isOpen, folder, onClose, onSuccess, onError 
 
   const handleConfirm = () => {
     if (!folder) return
+    submittedFolderNameRef.current = folder.displayName
     deleteFolderMutation.mutate({
       container: containerName,
       folderPath: folder.name,
@@ -56,6 +61,8 @@ export const DeleteFolderModal = ({ isOpen, folder, onClose, onSuccess, onError 
 
   if (!isOpen || !folder) return null
 
+  const folderDisplayName = folder.displayName
+
   return (
     <Modal
       title={
@@ -63,8 +70,8 @@ export const DeleteFolderModal = ({ isOpen, folder, onClose, onSuccess, onError 
           <span className="shrink-0">
             <Trans>Delete folder:</Trans>
           </span>
-          <span className="truncate font-mono" title={folder.displayName}>
-            {folder.displayName}
+          <span className="truncate font-mono" title={folderDisplayName}>
+            {folderDisplayName}
           </span>
         </span>
       }
@@ -86,7 +93,7 @@ export const DeleteFolderModal = ({ isOpen, folder, onClose, onSuccess, onError 
           <Message variant="warning">
             <Trans>
               <strong>Are you sure?</strong> Folder{" "}
-              <span className="font-mono font-semibold">"{folder.displayName}"</span> and all objects within it will be
+              <span className="font-mono font-semibold">"{folderDisplayName}"</span> and all objects within it will be
               permanently deleted. This cannot be undone.
             </Trans>
           </Message>
