@@ -25,7 +25,7 @@ describe("parseOrThrow", () => {
   it("logs the Zod error details on parse failure", () => {
     const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => undefined)
 
-    parseOrThrow(schema, { invalid: "data" }, "testRouter.procedure")
+    expect(() => parseOrThrow(schema, { invalid: "data" }, "testRouter.procedure")).toThrow(TRPCError)
 
     expect(consoleErrorSpy).toHaveBeenCalledWith("Zod Parsing Error in testRouter.procedure:", expect.anything())
 

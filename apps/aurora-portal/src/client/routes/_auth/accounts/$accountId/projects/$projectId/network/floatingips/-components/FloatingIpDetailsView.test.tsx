@@ -260,47 +260,6 @@ describe("FloatingIpDetailsView", () => {
       expect(screen.queryByTestId("edit-floating-ip-modal")).not.toBeInTheDocument()
     })
 
-    it("submits update and invalidates detail and list queries", async () => {
-      const user = userEvent.setup()
-      render(<FloatingIpDetailsView floatingIp={mockFloatingIp} />, { wrapper: TestWrapper })
-
-      await user.click(screen.getByRole("button", { name: "Edit Description" }))
-      await user.click(screen.getByRole("button", { name: "Save Edit" }))
-
-      await waitFor(() => {
-        expect(mutateAsyncMock).toHaveBeenCalledWith({
-          floatingip_id: mockFloatingIp.id,
-          port_id: mockFloatingIp.port_id,
-          description: "Updated details description",
-        })
-      })
-
-      await waitFor(() => {
-        expect(getByIdInvalidateMock).toHaveBeenCalledWith({ floatingip_id: mockFloatingIp.id })
-        expect(listInvalidateMock).toHaveBeenCalled()
-      })
-    })
-
-    it("submits detach update and invalidates detail and list queries", async () => {
-      const user = userEvent.setup()
-      render(<FloatingIpDetailsView floatingIp={mockFloatingIp} />, { wrapper: TestWrapper })
-
-      await user.click(screen.getByRole("button", { name: "Detach" }))
-      await user.click(screen.getByRole("button", { name: "Confirm Detach" }))
-
-      await waitFor(() => {
-        expect(mutateAsyncMock).toHaveBeenCalledWith({
-          floatingip_id: mockFloatingIp.id,
-          port_id: null,
-        })
-      })
-
-      await waitFor(() => {
-        expect(getByIdInvalidateMock).toHaveBeenCalledWith({ floatingip_id: mockFloatingIp.id })
-        expect(listInvalidateMock).toHaveBeenCalled()
-      })
-    })
-
     it("passes loading and error mutation state to edit modal", async () => {
       mockUpdateMutation.mockReturnValue({
         mutateAsync: vi.fn(),
@@ -333,26 +292,6 @@ describe("FloatingIpDetailsView", () => {
       })
     })
 
-    it("submits associate update and invalidates detail and list queries", async () => {
-      const user = userEvent.setup()
-      render(<FloatingIpDetailsView floatingIp={mockFloatingIp} />, { wrapper: TestWrapper })
-
-      await user.click(screen.getByRole("button", { name: "Attach" }))
-      await user.click(screen.getByRole("button", { name: "Confirm Associate" }))
-
-      await waitFor(() => {
-        expect(mutateAsyncMock).toHaveBeenCalledWith({
-          floatingip_id: mockFloatingIp.id,
-          port_id: "port-new",
-        })
-      })
-
-      await waitFor(() => {
-        expect(getByIdInvalidateMock).toHaveBeenCalledWith({ floatingip_id: mockFloatingIp.id })
-        expect(listInvalidateMock).toHaveBeenCalled()
-      })
-    })
-
     it("passes loading and error mutation state to associate modal", async () => {
       mockUpdateMutation.mockReturnValue({
         mutateAsync: vi.fn(),
@@ -382,24 +321,6 @@ describe("FloatingIpDetailsView", () => {
 
       await waitFor(() => {
         expect(screen.queryByTestId("release-floating-ip-modal")).not.toBeInTheDocument()
-      })
-    })
-
-    it("submits delete and invalidates list query", async () => {
-      const user = userEvent.setup()
-      render(<FloatingIpDetailsView floatingIp={mockFloatingIp} />, { wrapper: TestWrapper })
-
-      await user.click(screen.getByRole("button", { name: "Release" }))
-      await user.click(screen.getByRole("button", { name: "Confirm Release" }))
-
-      await waitFor(() => {
-        expect(deleteAsyncMock).toHaveBeenCalledWith({
-          floatingip_id: mockFloatingIp.id,
-        })
-      })
-
-      await waitFor(() => {
-        expect(listInvalidateMock).toHaveBeenCalled()
       })
     })
 

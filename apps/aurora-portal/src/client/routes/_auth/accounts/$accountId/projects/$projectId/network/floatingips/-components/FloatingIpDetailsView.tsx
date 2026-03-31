@@ -10,13 +10,13 @@ import {
   ContentHeading,
 } from "@cloudoperators/juno-ui-components/index"
 import type { FloatingIp } from "@/server/Network/types/floatingIp"
-import { trpcReact } from "@/client/trpcClient"
 import { formatFloatingIpStatus } from "@/client/utils/formatFloatingIpStatus"
 import { useModal } from "../-hooks/useModal"
-import { EditFloatingIpModal, FloatingIpUpdateFields } from "./-modals/EditFloatingIpModal"
-import { DetachFloatingIpModal } from "./-modals/DetachFloatingIpModal"
-import { ReleaseFloatingIpModal } from "./-modals/ReleaseFloatingIpModal"
-import { AssociateFloatingIpModal } from "./-modals/AssociateFloatingIpModal"
+import { EditFloatingIpModal } from "../../floatingips/-components/-modals/EditFloatingIpModal"
+import { DetachFloatingIpModal } from "../../floatingips/-components/-modals/DetachFloatingIpModal"
+import { ReleaseFloatingIpModal } from "../../floatingips/-components/-modals/ReleaseFloatingIpModal"
+import { AssociateFloatingIpModal } from "../../floatingips/-components/-modals/AssociateFloatingIpModal"
+import { useFloatingIpMutations } from "../-hooks/useFloatingIpMutations"
 
 interface FloatingIpDetailsViewProps {
   floatingIp: FloatingIp
@@ -24,62 +24,14 @@ interface FloatingIpDetailsViewProps {
 
 export const FloatingIpDetailsView = ({ floatingIp }: FloatingIpDetailsViewProps) => {
   const { t } = useLingui()
+
   const [editModalOpen, toggleEditModal] = useModal(false)
   const [attachModalOpen, toggleAttachModal] = useModal(false)
   const [detachModalOpen, toggleDetachModal] = useModal(false)
   const [releaseModalOpen, toggleReleaseModal] = useModal(false)
-  const utils = trpcReact.useUtils()
 
-  const updateFloatingIpMutation = trpcReact.network.floatingIp.update.useMutation({
-    onMutate: async (variables) => {
-      await utils.network.floatingIp.list.cancel()
-      await utils.network.floatingIp.getById.cancel({ floatingip_id: variables.floatingip_id })
-      const previousItem = utils.network.floatingIp.getById.getData({ floatingip_id: variables.floatingip_id })
-      utils.network.floatingIp.getById.setData({ floatingip_id: variables.floatingip_id }, (old) =>
-        old
-          ? {
-              ...old,
-              port_id: variables.port_id,
-              ...(variables.fixed_ip_address !== undefined && { fixed_ip_address: variables.fixed_ip_address }),
-              ...(variables.description !== undefined && { description: variables.description }),
-              ...(variables.distributed !== undefined && { distributed: variables.distributed }),
-            }
-          : old
-      )
-      return { previousItem }
-    },
-    onError: (_err, variables, context) => {
-      if (context?.previousItem !== undefined) {
-        utils.network.floatingIp.getById.setData({ floatingip_id: variables.floatingip_id }, context.previousItem)
-      }
-    },
-    onSettled: (_data, _error, variables) => {
-      utils.network.floatingIp.getById.invalidate({ floatingip_id: variables.floatingip_id })
-      utils.network.floatingIp.list.invalidate()
-    },
-  })
-
-  const deleteFloatingIpMutation = trpcReact.network.floatingIp.delete.useMutation({
-    onMutate: async () => {
-      await utils.network.floatingIp.list.cancel()
-    },
-    onSettled: () => {
-      utils.network.floatingIp.list.invalidate()
-    },
-  })
-
-  const handleUpdateFloatingIp = async (floatingIpId: string, data: FloatingIpUpdateFields) => {
-    await updateFloatingIpMutation.mutateAsync({
-      floatingip_id: floatingIpId,
-      ...data,
-    })
-  }
-
-  const handleDeleteFloatingIp = async (floatingIpId: string) => {
-    await deleteFloatingIpMutation.mutateAsync({
-      floatingip_id: floatingIpId,
-    })
-  }
+  const { handleUpdate, handleDelete, isUpdatePending, updateError, isDeletePending, deleteError } =
+    useFloatingIpMutations()
 
   return (
     <>
@@ -252,9 +204,9 @@ export const FloatingIpDetailsView = ({ floatingIp }: FloatingIpDetailsViewProps
           floatingIp={floatingIp}
           open={editModalOpen}
           onClose={toggleEditModal}
-          onUpdate={handleUpdateFloatingIp}
-          isLoading={updateFloatingIpMutation.isPending}
-          error={updateFloatingIpMutation.error?.message ?? null}
+          onUpdate={handleUpdate}
+          isLoading={isUpdatePending}
+          error={updateError}
         />
       )}
 
@@ -263,9 +215,9 @@ export const FloatingIpDetailsView = ({ floatingIp }: FloatingIpDetailsViewProps
           floatingIp={floatingIp}
           open={attachModalOpen}
           onClose={toggleAttachModal}
-          onUpdate={handleUpdateFloatingIp}
-          isLoading={updateFloatingIpMutation.isPending}
-          error={updateFloatingIpMutation.error?.message ?? null}
+          onUpdate={handleUpdate}
+          isLoading={isUpdatePending}
+          error={updateError}
         />
       )}
 
@@ -274,9 +226,9 @@ export const FloatingIpDetailsView = ({ floatingIp }: FloatingIpDetailsViewProps
           floatingIp={floatingIp}
           open={detachModalOpen}
           onClose={toggleDetachModal}
-          onUpdate={handleUpdateFloatingIp}
-          isLoading={updateFloatingIpMutation.isPending}
-          error={updateFloatingIpMutation.error?.message ?? null}
+          onUpdate={handleUpdate}
+          isLoading={isUpdatePending}
+          error={updateError}
         />
       )}
 
@@ -285,9 +237,9 @@ export const FloatingIpDetailsView = ({ floatingIp }: FloatingIpDetailsViewProps
           floatingIp={floatingIp}
           open={releaseModalOpen}
           onClose={toggleReleaseModal}
-          onUpdate={handleDeleteFloatingIp}
-          isLoading={deleteFloatingIpMutation.isPending}
-          error={deleteFloatingIpMutation.error?.message ?? null}
+          onUpdate={handleDelete}
+          isLoading={isDeletePending}
+          error={deleteError}
         />
       )}
     </>

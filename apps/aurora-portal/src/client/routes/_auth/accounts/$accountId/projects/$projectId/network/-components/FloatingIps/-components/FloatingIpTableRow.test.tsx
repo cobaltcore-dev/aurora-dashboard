@@ -385,37 +385,6 @@ describe("FloatingIpTableRow", () => {
       })
     })
 
-    it("submits update and invalidates floating IP queries", async () => {
-      const user = userEvent.setup()
-      const router = createTestRouter(<FloatingIpTableRow floatingIp={mockFloatingIp} />)
-      render(<RouterProvider router={router} />)
-
-      await waitFor(() => {
-        expect(screen.getByTestId(`floating-ip-row-${mockFloatingIp.id}`)).toBeInTheDocument()
-      })
-
-      const row = screen.getByTestId(`floating-ip-row-${mockFloatingIp.id}`)
-      const menuButton = row.querySelector("button")
-      expect(menuButton).toBeInTheDocument()
-
-      await user.click(menuButton!)
-      await user.click(screen.getByText("Edit Description"))
-      await user.click(screen.getByText("Save Edit"))
-
-      await waitFor(() => {
-        expect(mutateAsyncMock).toHaveBeenCalledWith({
-          floatingip_id: mockFloatingIp.id,
-          port_id: mockFloatingIp.port_id,
-          description: "Updated description",
-        })
-      })
-
-      await waitFor(() => {
-        expect(listInvalidateMock).toHaveBeenCalled()
-        expect(getByIdInvalidateMock).toHaveBeenCalledWith({ floatingip_id: mockFloatingIp.id })
-      })
-    })
-
     it("passes mutation loading and error state to edit modal", async () => {
       mockUpdateMutation.mockReturnValue({
         mutateAsync: vi.fn(),
@@ -464,36 +433,6 @@ describe("FloatingIpTableRow", () => {
 
       await waitFor(() => {
         expect(screen.queryByTestId("detach-floating-ip-modal")).not.toBeInTheDocument()
-      })
-    })
-
-    it("submits detach update and invalidates floating IP queries", async () => {
-      const user = userEvent.setup()
-      const router = createTestRouter(<FloatingIpTableRow floatingIp={mockFloatingIp} />)
-      render(<RouterProvider router={router} />)
-
-      await waitFor(() => {
-        expect(screen.getByTestId(`floating-ip-row-${mockFloatingIp.id}`)).toBeInTheDocument()
-      })
-
-      const row = screen.getByTestId(`floating-ip-row-${mockFloatingIp.id}`)
-      const menuButton = row.querySelector("button")
-      expect(menuButton).toBeInTheDocument()
-
-      await user.click(menuButton!)
-      await user.click(screen.getByText("Detach"))
-      await user.click(screen.getByText("Confirm Detach"))
-
-      await waitFor(() => {
-        expect(mutateAsyncMock).toHaveBeenCalledWith({
-          floatingip_id: mockFloatingIp.id,
-          port_id: null,
-        })
-      })
-
-      await waitFor(() => {
-        expect(listInvalidateMock).toHaveBeenCalled()
-        expect(getByIdInvalidateMock).toHaveBeenCalledWith({ floatingip_id: mockFloatingIp.id })
       })
     })
 
@@ -550,36 +489,6 @@ describe("FloatingIpTableRow", () => {
       })
     })
 
-    it("submits associate update and invalidates floating IP queries", async () => {
-      const user = userEvent.setup()
-      const router = createTestRouter(<FloatingIpTableRow floatingIp={mockFloatingIp} />)
-      render(<RouterProvider router={router} />)
-
-      await waitFor(() => {
-        expect(screen.getByTestId(`floating-ip-row-${mockFloatingIp.id}`)).toBeInTheDocument()
-      })
-
-      const row = screen.getByTestId(`floating-ip-row-${mockFloatingIp.id}`)
-      const menuButton = row.querySelector("button")
-      expect(menuButton).toBeInTheDocument()
-
-      await user.click(menuButton!)
-      await user.click(screen.getByText("Attach"))
-      await user.click(screen.getByText("Confirm Associate"))
-
-      await waitFor(() => {
-        expect(mutateAsyncMock).toHaveBeenCalledWith({
-          floatingip_id: mockFloatingIp.id,
-          port_id: "port-new",
-        })
-      })
-
-      await waitFor(() => {
-        expect(listInvalidateMock).toHaveBeenCalled()
-        expect(getByIdInvalidateMock).toHaveBeenCalledWith({ floatingip_id: mockFloatingIp.id })
-      })
-    })
-
     it("passes mutation loading and error state to attach modal", async () => {
       mockUpdateMutation.mockReturnValue({
         mutateAsync: vi.fn(),
@@ -630,34 +539,6 @@ describe("FloatingIpTableRow", () => {
 
       await waitFor(() => {
         expect(screen.queryByTestId("release-floating-ip-modal")).not.toBeInTheDocument()
-      })
-    })
-
-    it("submits delete and invalidates floating IP list", async () => {
-      const user = userEvent.setup()
-      const router = createTestRouter(<FloatingIpTableRow floatingIp={mockFloatingIp} />)
-      render(<RouterProvider router={router} />)
-
-      await waitFor(() => {
-        expect(screen.getByTestId(`floating-ip-row-${mockFloatingIp.id}`)).toBeInTheDocument()
-      })
-
-      const row = screen.getByTestId(`floating-ip-row-${mockFloatingIp.id}`)
-      const menuButton = row.querySelector("button")
-      expect(menuButton).toBeInTheDocument()
-
-      await user.click(menuButton!)
-      await user.click(screen.getByText("Release"))
-      await user.click(screen.getByText("Confirm Release"))
-
-      await waitFor(() => {
-        expect(deleteAsyncMock).toHaveBeenCalledWith({
-          floatingip_id: mockFloatingIp.id,
-        })
-      })
-
-      await waitFor(() => {
-        expect(listInvalidateMock).toHaveBeenCalled()
       })
     })
 
