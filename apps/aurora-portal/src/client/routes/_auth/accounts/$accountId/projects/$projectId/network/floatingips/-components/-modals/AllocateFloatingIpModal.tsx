@@ -200,7 +200,7 @@ export const AllocateFloatingIpModal = ({
                   id={field.name}
                   name={field.name}
                   value={field.state.value}
-                  onChange={(value) => field.handleChange(String(value))}
+                  onChange={(value) => field.handleChange(typeof value === "string" ? value : "")}
                   label={t`DNS Domain`}
                   helptext={t`Select a DNS domain.`}
                   disabled={isLoading || isDnsDomainsLoading || dnsDomains.length === 0}

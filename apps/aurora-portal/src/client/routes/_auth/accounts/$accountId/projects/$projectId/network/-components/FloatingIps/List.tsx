@@ -61,7 +61,7 @@ export const FloatingIps = () => {
   })
 
   const createFloatingIpMutation = trpcReact.network.floatingIp.create.useMutation({
-    onSuccess: () => utils.network.floatingIp.list.invalidate(),
+    onSettled: () => utils.network.floatingIp.list.invalidate(),
   })
 
   const handleCreateFloatingIp = async (data: FloatingIpCreateRequest) => {

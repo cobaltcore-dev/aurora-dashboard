@@ -158,17 +158,19 @@ describe("FloatingIpDetailsView", () => {
       },
     })
 
-    mockUpdateMutation.mockImplementation((options?: { onSettled?: (data: unknown, error: unknown, variables: unknown) => void }) => {
-      mutateAsyncMock.mockImplementation(async (variables: unknown) => {
-        await options?.onSettled?.(undefined, null, variables)
-      })
+    mockUpdateMutation.mockImplementation(
+      (options?: { onSettled?: (data: unknown, error: unknown, variables: unknown) => void }) => {
+        mutateAsyncMock.mockImplementation(async (variables: unknown) => {
+          await options?.onSettled?.(undefined, null, variables)
+        })
 
-      return {
-        mutateAsync: mutateAsyncMock,
-        isPending: false,
-        error: null,
+        return {
+          mutateAsync: mutateAsyncMock,
+          isPending: false,
+          error: null,
+        }
       }
-    })
+    )
 
     mockDeleteMutation.mockImplementation((options?: { onSettled?: () => void }) => {
       deleteAsyncMock.mockImplementation(async () => {
