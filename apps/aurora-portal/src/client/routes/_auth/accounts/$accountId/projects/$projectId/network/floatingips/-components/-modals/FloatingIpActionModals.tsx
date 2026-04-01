@@ -7,7 +7,7 @@ import { DetachFloatingIpModal } from "./DetachFloatingIpModal"
 import { EditFloatingIpModal } from "./EditFloatingIpModal"
 import { ReleaseFloatingIpModal } from "./ReleaseFloatingIpModal"
 
-interface FloatingIpActionModalTriggers {
+export interface FloatingIpActionModalTriggers {
   toggleEditModal: () => void
   toggleAttachModal: () => void
   toggleDetachModal: () => void

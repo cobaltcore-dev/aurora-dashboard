@@ -11,11 +11,11 @@ import { FloatingIp } from "@/server/Network/types/floatingIp"
 import { STATUS_CONFIG } from "./constants"
 import { FloatingIpActionModals } from "../-modals/FloatingIpActionModals"
 
-interface FloatingIpTableRow {
+interface FloatingIpTableRowProps {
   floatingIp: FloatingIp
 }
 
-export const FloatingIpTableRow = ({ floatingIp }: FloatingIpTableRow) => {
+export const FloatingIpTableRow = ({ floatingIp }: FloatingIpTableRowProps) => {
   const { t } = useLingui()
   const navigate = useNavigate()
   const { accountId, projectId } = useParams({ strict: false })
