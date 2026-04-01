@@ -3,7 +3,6 @@ import { Trans, useLingui } from "@lingui/react/macro"
 import { ErrorBoundary } from "react-error-boundary"
 import { getServiceIndex } from "@/server/Authentication/helpers"
 import { SecurityGroups } from "./-components/SecurityGroups/List"
-import { FloatingIps } from "./floatingips/-components/FloatingIps"
 
 const checkNetworkServiceAvailability = (
   availableServices: { type: string; name: string }[],
@@ -56,9 +55,6 @@ function RouteComponent() {
     case "securitygroups":
       setPageTitle(t`Security Groups`)
       break
-    case "floatingips":
-      setPageTitle(t`Floating IPs`)
-      break
     default:
       setPageTitle(t`Network Overview`)
   }
@@ -76,9 +72,6 @@ function RouteComponent() {
           switch (splat) {
             case "securitygroups":
               return <SecurityGroups />
-
-            case "floatingips":
-              return <FloatingIps />
 
             default:
               return (

@@ -51,8 +51,8 @@ function RouteComponent() {
 
   const navigateToFloatingIps = () => {
     navigate({
-      to: "/accounts/$accountId/projects/$projectId/network/$",
-      params: { accountId, projectId, _splat: "floatingips" },
+      to: "/accounts/$accountId/projects/$projectId/network/floatingips",
+      params: { accountId, projectId },
     })
   }
 
