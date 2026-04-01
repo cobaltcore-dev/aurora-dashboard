@@ -56,6 +56,7 @@ Comprehensive Zod schemas for type-safe validation of:
 - **Object operations**: Upload/download/copy/delete objects, manage object metadata
 - **Bulk operations**: Bulk delete for multiple objects
 - **Folder operations**: Create, list, move, and delete pseudo-folders
+- **Download**: Download object content via BFF with base64 transport
 - **Temporary URLs**: Generate time-limited signed URLs
 
 ### 2. `swiftHelpers.ts` - Helper Functions
@@ -103,6 +104,7 @@ Complete tRPC router with procedures for:
 - `updateObjectMetadata` - Update object metadata (POST operation)
 - `copyObject` - Copy object to a new location
 - `deleteObject` - Delete an object
+- `downloadObject` - Download object content via BFF, returning base64-encoded bytes, content type, and filename for client-side Blob construction
 
 #### Bulk Operations
 
@@ -143,6 +145,7 @@ Full support for:
 
 - **Service Discovery**: Query Swift capabilities via `/info` endpoint
 - **Pseudo-Folders**: Create and manage hierarchical folder structures
+- **Download**: Download object content via BFF with base64 transport
 - **Temporary URLs**: Generate time-limited signed URLs with HMAC-SHA256
 - **Pagination**: Marker-based pagination for large listings
 - **Filtering**: Prefix, delimiter, and range-based filtering
@@ -159,6 +162,7 @@ Proper handling of binary data for object uploads/downloads:
 - ArrayBuffer support
 - Base64 string conversion
 - Uint8Array support
+- `downloadObject` returns base64 for JSON-safe binary transport over tRPC; convert to `Blob` on the client for browser downloads
 
 ## Usage Examples
 
@@ -202,7 +206,7 @@ const metadata = await trpc.storage.swift.createObject.mutate({
 })
 ```
 
-### Download Object
+### Download Object (raw content + metadata)
 
 ```typescript
 const { content, metadata } = await trpc.storage.swift.getObject.query({
@@ -211,6 +215,28 @@ const { content, metadata } = await trpc.storage.swift.getObject.query({
   range: "bytes=0-1023", // Download first 1KB only
 })
 ```
+
+### Download Object (BFF — triggers browser save dialog)
+
+```typescript
+const { base64, contentType, filename } = await trpc.storage.swift.downloadObject.mutate({
+  container: "my-container",
+  object: "report.pdf",
+  filename: "Q4_Report.pdf",
+})
+
+// Convert base64 to Blob and trigger browser download
+const bytes = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0))
+const blob = new Blob([bytes], { type: contentType })
+const url = URL.createObjectURL(blob)
+const anchor = document.createElement("a")
+anchor.href = url
+anchor.download = filename
+anchor.click()
+URL.revokeObjectURL(url)
+```
+
+The response is base64-encoded because tRPC uses JSON transport and cannot stream binary directly. For very large files, consider `generateTempUrl` instead.
 
 ### Copy Object
 
@@ -373,7 +399,7 @@ The router expects `ctx.openstack` to be available with a `service("swift")` met
 ### 3. Import types as needed
 
 ```typescript
-import type { ContainerSummary, ObjectMetadata, AccountInfo } from "./types/swift"
+import type { ContainerSummary, ObjectMetadata, AccountInfo, DownloadObjectInput } from "./types/swift"
 ```
 
 ## Implementation Features
