@@ -11,12 +11,7 @@ import {
 } from "@cloudoperators/juno-ui-components/index"
 import type { FloatingIp } from "@/server/Network/types/floatingIp"
 import { formatFloatingIpStatus } from "@/client/utils/formatFloatingIpStatus"
-import { useModal } from "@/client/utils/useModal"
-import { EditFloatingIpModal } from "../-modals/EditFloatingIpModal"
-import { DetachFloatingIpModal } from "../-modals/DetachFloatingIpModal"
-import { ReleaseFloatingIpModal } from "../-modals/ReleaseFloatingIpModal"
-import { AssociateFloatingIpModal } from "../-modals/AssociateFloatingIpModal"
-import { useFloatingIpMutations } from "../../-hooks/useFloatingIpMutations"
+import { FloatingIpActionModals } from "../-modals/FloatingIpActionModals"
 
 interface FloatingIpDetailsViewProps {
   floatingIp: FloatingIp
@@ -24,14 +19,6 @@ interface FloatingIpDetailsViewProps {
 
 export const FloatingIpDetailsView = ({ floatingIp }: FloatingIpDetailsViewProps) => {
   const { t } = useLingui()
-
-  const [editModalOpen, toggleEditModal] = useModal(false)
-  const [attachModalOpen, toggleAttachModal] = useModal(false)
-  const [detachModalOpen, toggleDetachModal] = useModal(false)
-  const [releaseModalOpen, toggleReleaseModal] = useModal(false)
-
-  const { handleUpdate, handleDelete, isUpdatePending, updateError, isDeletePending, deleteError } =
-    useFloatingIpMutations()
 
   return (
     <>
@@ -45,12 +32,16 @@ export const FloatingIpDetailsView = ({ floatingIp }: FloatingIpDetailsViewProps
         </Trans>
       </p>
 
-      <ButtonRow>
-        <Button onClick={toggleEditModal}>{t`Edit Description`}</Button>
-        <Button onClick={toggleAttachModal}>{t`Attach`}</Button>
-        <Button onClick={toggleDetachModal}>{t`Detach`}</Button>
-        <Button onClick={toggleReleaseModal}>{t`Release`}</Button>
-      </ButtonRow>
+      <FloatingIpActionModals floatingIp={floatingIp}>
+        {({ toggleEditModal, toggleAttachModal, toggleDetachModal, toggleReleaseModal }) => (
+          <ButtonRow>
+            <Button onClick={toggleEditModal}>{t`Edit Description`}</Button>
+            <Button onClick={toggleAttachModal}>{t`Attach`}</Button>
+            <Button onClick={toggleDetachModal}>{t`Detach`}</Button>
+            <Button onClick={toggleReleaseModal}>{t`Release`}</Button>
+          </ButtonRow>
+        )}
+      </FloatingIpActionModals>
 
       <Stack direction="vertical" gap="6" className="mt-6">
         {/* Basic Info  */}
@@ -198,50 +189,6 @@ export const FloatingIpDetailsView = ({ floatingIp }: FloatingIpDetailsViewProps
           </DataGrid>
         </Stack>
       </Stack>
-
-      {editModalOpen && (
-        <EditFloatingIpModal
-          floatingIp={floatingIp}
-          open={editModalOpen}
-          onClose={toggleEditModal}
-          onUpdate={handleUpdate}
-          isLoading={isUpdatePending}
-          error={updateError}
-        />
-      )}
-
-      {attachModalOpen && (
-        <AssociateFloatingIpModal
-          floatingIp={floatingIp}
-          open={attachModalOpen}
-          onClose={toggleAttachModal}
-          onUpdate={handleUpdate}
-          isLoading={isUpdatePending}
-          error={updateError}
-        />
-      )}
-
-      {detachModalOpen && (
-        <DetachFloatingIpModal
-          floatingIp={floatingIp}
-          open={detachModalOpen}
-          onClose={toggleDetachModal}
-          onUpdate={handleUpdate}
-          isLoading={isUpdatePending}
-          error={updateError}
-        />
-      )}
-
-      {releaseModalOpen && (
-        <ReleaseFloatingIpModal
-          floatingIp={floatingIp}
-          open={releaseModalOpen}
-          onClose={toggleReleaseModal}
-          onUpdate={handleDelete}
-          isLoading={isDeletePending}
-          error={deleteError}
-        />
-      )}
     </>
   )
 }
