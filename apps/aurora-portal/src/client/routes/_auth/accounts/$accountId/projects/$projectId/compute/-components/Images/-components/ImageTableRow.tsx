@@ -95,12 +95,19 @@ export function ImageTableRow({
   const isMutating = updateMemberMutation.isPending
 
   const [confirmRevoke, setConfirmRevoke] = useState(false)
+  const [confirmReject, setConfirmReject] = useState(false)
   useEffect(() => {
     if (confirmRevoke) {
       const timer = setTimeout(() => setConfirmRevoke(false), 3000)
       return () => clearTimeout(timer)
     }
   }, [confirmRevoke])
+  useEffect(() => {
+    if (confirmReject) {
+      const timer = setTimeout(() => setConfirmReject(false), 3000)
+      return () => clearTimeout(timer)
+    }
+  }, [confirmReject])
 
   return (
     <DataGridRow
@@ -128,46 +135,60 @@ export function ImageTableRow({
       <DataGridCell>{created_at ? new Date(created_at).toLocaleDateString() : t`N/A`}</DataGridCell>
 
       <DataGridCell onClick={(e) => e.stopPropagation()}>
-        {isExternalImage && permissions.canUpdateMember ? (
-          <Stack direction="horizontal" gap="2">
-            {isMutating ? (
-              <Spinner variant="primary" size="small" />
-            ) : (
-              <>
-                {isPending && (
-                  <>
-                    <Button
-                      size="small"
-                      variant="subdued"
-                      label={t`Reject`}
-                      onClick={() => handleMemberStatusChange(MEMBER_STATUSES.REJECTED)}
-                    />
-                    <Button
-                      size="small"
-                      variant="primary"
-                      label={t`Accept`}
-                      onClick={() => handleMemberStatusChange(MEMBER_STATUSES.ACCEPTED)}
-                    />
-                  </>
-                )}
-                {isAccepted &&
-                  !isPending &&
-                  (confirmRevoke ? (
-                    <Button
-                      size="small"
-                      variant="primary-danger"
-                      label={t`Confirm`}
-                      onClick={() => {
-                        setConfirmRevoke(false)
-                        handleMemberStatusChange(MEMBER_STATUSES.REJECTED)
-                      }}
-                    />
-                  ) : (
-                    <Button size="small" label={t`Revoke`} onClick={() => setConfirmRevoke(true)} />
-                  ))}
-              </>
-            )}
-          </Stack>
+        {isExternalImage ? (
+          permissions.canUpdateMember ? (
+            <Stack direction="horizontal" gap="2">
+              {isMutating ? (
+                <Spinner variant="primary" size="small" />
+              ) : (
+                <>
+                  {isPending && (
+                    <>
+                      {confirmReject ? (
+                        <Button
+                          size="small"
+                          variant="primary-danger"
+                          label={t`Confirm`}
+                          onClick={() => {
+                            setConfirmReject(false)
+                            handleMemberStatusChange(MEMBER_STATUSES.REJECTED)
+                          }}
+                        />
+                      ) : (
+                        <Button
+                          size="small"
+                          variant="subdued"
+                          label={t`Reject`}
+                          onClick={() => setConfirmReject(true)}
+                        />
+                      )}
+                      <Button
+                        size="small"
+                        variant="primary"
+                        label={t`Accept`}
+                        onClick={() => handleMemberStatusChange(MEMBER_STATUSES.ACCEPTED)}
+                      />
+                    </>
+                  )}
+                  {isAccepted &&
+                    !isPending &&
+                    (confirmRevoke ? (
+                      <Button
+                        size="small"
+                        variant="primary-danger"
+                        label={t`Confirm`}
+                        onClick={() => {
+                          setConfirmRevoke(false)
+                          handleMemberStatusChange(MEMBER_STATUSES.REJECTED)
+                        }}
+                      />
+                    ) : (
+                      <Button size="small" label={t`Revoke`} onClick={() => setConfirmRevoke(true)} />
+                    ))}
+                </>
+              )}
+            </Stack>
+          ) : null
         ) : (
           <PopupMenu>
             <PopupMenuOptions>

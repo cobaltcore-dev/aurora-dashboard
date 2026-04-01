@@ -125,7 +125,6 @@ const MemberAccessSection: React.FC<{
   memberId: string
 }> = ({ image, memberId }) => {
   const { t } = useLingui()
-  const [message, setMessage] = useState<{ text: string; type: "error" | "info" } | null>(null)
 
   const { data: memberData, isLoading } = trpcReact.compute.getImageMember.useQuery(
     { imageId: image.id, memberId },
@@ -146,8 +145,6 @@ const MemberAccessSection: React.FC<{
 
   return (
     <Stack direction="vertical" gap="4">
-      {message && <Message text={message.text} variant={message.type} onDismiss={() => setMessage(null)} />}
-
       <DescriptionList alignTerms="right">
         <DescriptionTerm>{t`Access Status`}</DescriptionTerm>
         <DescriptionDefinition>

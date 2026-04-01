@@ -58,10 +58,16 @@ function RouteComponent() {
     flavorId,
   })
 
-  const { data: permissionsData } = trpcReact.compute.canUserBulk.useQuery(["flavors:delete", "flavors:list_projects"])
+  const { data: permissionsData } = trpcReact.compute.canUserBulk.useQuery([
+    "flavors:delete",
+    "flavors:list_projects",
+    "flavor_specs:create",
+    "flavor_specs:delete",
+  ])
 
   const canDeleteFlavor = permissionsData?.[0] ?? false
   const canManageAccess = permissionsData?.[1] ?? false
+  const canManageSpecs = (permissionsData?.[2] ?? false) || (permissionsData?.[3] ?? false)
 
   const [specModalOpen, setSpecModalOpen] = useState(false)
   const [accessModalOpen, setAccessModalOpen] = useState(false)
@@ -162,9 +168,11 @@ function RouteComponent() {
               </PopupMenuOptions>
             </PopupMenu>
           )}
-          <Button onClick={() => setSpecModalOpen(true)} variant="primary">
-            <Trans>Metadata</Trans>
-          </Button>
+          {canManageSpecs && (
+            <Button onClick={() => setSpecModalOpen(true)} variant="primary">
+              <Trans>Metadata</Trans>
+            </Button>
+          )}
         </ButtonRow>
         <FlavorDetailsView flavor={flavor} />
       </Stack>
