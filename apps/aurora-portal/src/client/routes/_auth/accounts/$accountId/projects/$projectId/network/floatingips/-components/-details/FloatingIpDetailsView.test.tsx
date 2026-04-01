@@ -6,10 +6,10 @@ import { I18nProvider } from "@lingui/react"
 import { i18n } from "@lingui/core"
 import type { FloatingIp } from "@/server/Network/types/floatingIp"
 import { FloatingIpDetailsView } from "./FloatingIpDetailsView"
-import { EditFloatingIpModalProps } from "./-modals/EditFloatingIpModal"
-import { DetachFloatingIpModalProps } from "./-modals/DetachFloatingIpModal"
-import { ReleaseFloatingIpModalProps } from "./-modals/ReleaseFloatingIpModal"
-import { AssociateFloatingIpModalProps } from "./-modals/AssociateFloatingIpModal"
+import { EditFloatingIpModalProps } from "../-modals/EditFloatingIpModal"
+import { DetachFloatingIpModalProps } from "../-modals/DetachFloatingIpModal"
+import { ReleaseFloatingIpModalProps } from "../-modals/ReleaseFloatingIpModal"
+import { AssociateFloatingIpModalProps } from "../-modals/AssociateFloatingIpModal"
 
 const { mockUseUtils, mockUpdateMutation, mockDeleteMutation } = vi.hoisted(() => ({
   mockUseUtils: vi.fn(),
@@ -33,7 +33,7 @@ vi.mock("@/client/trpcClient", () => ({
   },
 }))
 
-vi.mock("./-modals/EditFloatingIpModal", () => ({
+vi.mock("../-modals/EditFloatingIpModal", () => ({
   EditFloatingIpModal: ({ open, onClose, onUpdate, floatingIp, isLoading, error }: EditFloatingIpModalProps) =>
     open ? (
       <div data-testid="edit-floating-ip-modal">
@@ -51,7 +51,7 @@ vi.mock("./-modals/EditFloatingIpModal", () => ({
     ) : null,
 }))
 
-vi.mock("./-modals/DetachFloatingIpModal", () => ({
+vi.mock("../-modals/DetachFloatingIpModal", () => ({
   DetachFloatingIpModal: ({ open, onClose, onUpdate, floatingIp, isLoading, error }: DetachFloatingIpModalProps) =>
     open ? (
       <div data-testid="detach-floating-ip-modal">
@@ -63,7 +63,7 @@ vi.mock("./-modals/DetachFloatingIpModal", () => ({
     ) : null,
 }))
 
-vi.mock("./-modals/ReleaseFloatingIpModal", () => ({
+vi.mock("../-modals/ReleaseFloatingIpModal", () => ({
   ReleaseFloatingIpModal: ({ open, onClose, onUpdate, floatingIp, isLoading, error }: ReleaseFloatingIpModalProps) =>
     open ? (
       <div data-testid="release-floating-ip-modal">
@@ -75,7 +75,7 @@ vi.mock("./-modals/ReleaseFloatingIpModal", () => ({
     ) : null,
 }))
 
-vi.mock("./-modals/AssociateFloatingIpModal", () => ({
+vi.mock("../-modals/AssociateFloatingIpModal", () => ({
   AssociateFloatingIpModal: ({
     open,
     onClose,

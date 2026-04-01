@@ -6,12 +6,12 @@ import { ListToolbar } from "@/client/components/ListToolbar"
 import { trpcReact } from "@/client/trpcClient"
 import { buildFilterParams } from "@/client/utils/buildFilterParams"
 import { useListWithFiltering } from "@/client/utils/useListWithFiltering"
-import { FloatingIpListContainer } from "./-components/FloatingIpListContainer"
-import { useModal } from "../../floatingips/-hooks/useModal"
-import { AllocateFloatingIpModal } from "../../floatingips/-components/-modals/AllocateFloatingIpModal"
+import { useModal } from "@/client/utils/useModal"
+import { FloatingIpListContainer } from "./-table/FloatingIpListContainer"
+import { AllocateFloatingIpModal } from "./-modals/AllocateFloatingIpModal"
 
-export const DEFAULT_SORT_KEY = "fixed_ip_address"
-export const DEFAULT_SORT_DIR = "asc"
+const DEFAULT_SORT_KEY = "fixed_ip_address"
+const DEFAULT_SORT_DIR = "asc"
 export type FloatingIpsSortKey = NonNullable<FloatingIpQueryParameters["sort_key"]>
 
 export const FloatingIps = () => {

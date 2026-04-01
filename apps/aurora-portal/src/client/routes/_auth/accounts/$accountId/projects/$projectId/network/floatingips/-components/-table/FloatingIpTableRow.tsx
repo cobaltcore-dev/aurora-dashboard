@@ -8,13 +8,13 @@ import {
   PopupMenuOptions,
 } from "@cloudoperators/juno-ui-components"
 import { FloatingIp } from "@/server/Network/types/floatingIp"
+import { useModal } from "@/client/utils/useModal"
 import { STATUS_CONFIG } from "./constants"
-import { EditFloatingIpModal } from "../../../floatingips/-components/-modals/EditFloatingIpModal"
-import { useModal } from "../../../floatingips/-hooks/useModal"
-import { DetachFloatingIpModal } from "../../../floatingips/-components/-modals/DetachFloatingIpModal"
-import { ReleaseFloatingIpModal } from "../../../floatingips/-components/-modals/ReleaseFloatingIpModal"
-import { AssociateFloatingIpModal } from "../../../floatingips/-components/-modals/AssociateFloatingIpModal"
-import { useFloatingIpMutations } from "../../../floatingips/-hooks/useFloatingIpMutations"
+import { EditFloatingIpModal } from "../-modals/EditFloatingIpModal"
+import { DetachFloatingIpModal } from "../-modals/DetachFloatingIpModal"
+import { ReleaseFloatingIpModal } from "../-modals/ReleaseFloatingIpModal"
+import { AssociateFloatingIpModal } from "../-modals/AssociateFloatingIpModal"
+import { useFloatingIpMutations } from "../../-hooks/useFloatingIpMutations"
 
 interface FloatingIpTableRow {
   floatingIp: FloatingIp

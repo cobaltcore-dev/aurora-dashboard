@@ -5,8 +5,8 @@ import { i18n } from "@lingui/core"
 import { ReactNode } from "react"
 import { createRoute, createRootRoute, RouterProvider, createMemoryHistory, createRouter } from "@tanstack/react-router"
 import { PortalProvider } from "@cloudoperators/juno-ui-components"
-import { FloatingIpListContainer } from "./FloatingIpListContainer"
 import type { FloatingIp } from "@/server/Network/types/floatingIp"
+import { FloatingIpListContainer } from "./FloatingIpListContainer"
 
 vi.mock("./FloatingIpTableRow", () => ({
   FloatingIpTableRow: ({ floatingIp }: { floatingIp: FloatingIp }) => (
@@ -48,7 +48,7 @@ const createRouterWrapper = (children: ReactNode) => {
 
 describe("FloatingIpListContainer", () => {
   describe("Loading state", () => {
-    it("displays loading spinnerwhile loading", () => {
+    it("displays loading spinner while loading", () => {
       render(<FloatingIpListContainer floatingIps={[]} isLoading={true} isError={false} error={null} />, {
         wrapper: TestWrapper,
       })

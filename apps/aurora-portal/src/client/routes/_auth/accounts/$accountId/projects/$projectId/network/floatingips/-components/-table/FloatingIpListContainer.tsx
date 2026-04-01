@@ -66,10 +66,10 @@ export const FloatingIpListContainer = ({ floatingIps, isLoading, isError, error
         {columns.map((label) => (
           <DataGridHeadCell key={label}>{label}</DataGridHeadCell>
         ))}
-        {floatingIps.map((ip) => (
-          <FloatingIpTableRow key={ip.id} floatingIp={ip} />
-        ))}
       </DataGridRow>
+      {floatingIps.map((ip) => (
+        <FloatingIpTableRow key={ip.id} floatingIp={ip} />
+      ))}
     </DataGrid>
   )
 }

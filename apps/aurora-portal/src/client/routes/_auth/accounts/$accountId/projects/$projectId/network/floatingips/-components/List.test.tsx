@@ -5,14 +5,15 @@ import { I18nProvider } from "@lingui/react"
 import { i18n } from "@lingui/core"
 import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
-import { FloatingIps } from "./List"
-import { trpcReact } from "@/client/trpcClient"
 import type { FloatingIp, FloatingIpCreateRequest } from "@/server/Network/types/floatingIp"
-import type { AllocateFloatingIpModalProps } from "../../floatingips/-components/-modals/AllocateFloatingIpModal"
+import { trpcReact } from "@/client/trpcClient"
+import type { AllocateFloatingIpModalProps } from "./-modals/AllocateFloatingIpModal"
+import { FloatingIps } from "./List"
 
 // Mock useParams
 vi.mock("@tanstack/react-router", () => ({
   useParams: vi.fn(() => ({ projectId: "test-project" })),
+  useNavigate: vi.fn(() => vi.fn()),
 }))
 
 // Simplified mock for tRPC useQuery - only includes properties actually used
@@ -67,7 +68,7 @@ vi.mock("@/client/trpcClient", () => ({
 }))
 
 // Mock AllocateFloatingIpModal to avoid its internal tRPC calls
-vi.mock("../../floatingips/-components/-modals/AllocateFloatingIpModal", () => ({
+vi.mock("./-modals/AllocateFloatingIpModal", () => ({
   AllocateFloatingIpModal: ({ open, onClose, onUpdate, isLoading, error }: AllocateFloatingIpModalProps) =>
     open ? (
       <div data-testid="allocate-modal">
@@ -89,7 +90,7 @@ vi.mock("../../floatingips/-components/-modals/AllocateFloatingIpModal", () => (
 }))
 
 // Mock FloatingIpListContainer
-vi.mock("./-components/FloatingIpListContainer", () => ({
+vi.mock("./-table/FloatingIpListContainer", () => ({
   FloatingIpListContainer: ({
     floatingIps,
     isLoading,

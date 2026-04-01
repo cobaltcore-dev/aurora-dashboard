@@ -5,8 +5,8 @@ import { I18nProvider } from "@lingui/react"
 import { i18n } from "@lingui/core"
 import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
-import { AllocateFloatingIpModal } from "./AllocateFloatingIpModal"
 import { trpcReact } from "@/client/trpcClient"
+import { AllocateFloatingIpModal } from "./AllocateFloatingIpModal"
 
 // Mock useParams
 vi.mock("@tanstack/react-router", () => ({

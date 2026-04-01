@@ -8,10 +8,10 @@ import { createRoute, createRootRoute, RouterProvider, createMemoryHistory, crea
 import { describe, it, expect, vi, afterEach, beforeEach } from "vitest"
 import type { FloatingIp } from "@/server/Network/types/floatingIp"
 import { FloatingIpTableRow } from "./FloatingIpTableRow"
-import { EditFloatingIpModalProps } from "../../../floatingips/-components/-modals/EditFloatingIpModal"
-import { ReleaseFloatingIpModalProps } from "../../../floatingips/-components/-modals/ReleaseFloatingIpModal"
-import { DetachFloatingIpModalProps } from "../../../floatingips/-components/-modals/DetachFloatingIpModal"
-import { AssociateFloatingIpModalProps } from "../../../floatingips/-components/-modals/AssociateFloatingIpModal"
+import { EditFloatingIpModalProps } from "../-modals/EditFloatingIpModal"
+import { ReleaseFloatingIpModalProps } from "../-modals/ReleaseFloatingIpModal"
+import { DetachFloatingIpModalProps } from "../-modals/DetachFloatingIpModal"
+import { AssociateFloatingIpModalProps } from "../-modals/AssociateFloatingIpModal"
 
 const { mockUseUtils, mockUpdateMutation, mockDeleteMutation } = vi.hoisted(() => ({
   mockUseUtils: vi.fn(),

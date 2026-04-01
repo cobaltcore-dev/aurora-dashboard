@@ -11,12 +11,12 @@ import {
 } from "@cloudoperators/juno-ui-components/index"
 import type { FloatingIp } from "@/server/Network/types/floatingIp"
 import { formatFloatingIpStatus } from "@/client/utils/formatFloatingIpStatus"
-import { useModal } from "../-hooks/useModal"
-import { EditFloatingIpModal } from "../../floatingips/-components/-modals/EditFloatingIpModal"
-import { DetachFloatingIpModal } from "../../floatingips/-components/-modals/DetachFloatingIpModal"
-import { ReleaseFloatingIpModal } from "../../floatingips/-components/-modals/ReleaseFloatingIpModal"
-import { AssociateFloatingIpModal } from "../../floatingips/-components/-modals/AssociateFloatingIpModal"
-import { useFloatingIpMutations } from "../-hooks/useFloatingIpMutations"
+import { useModal } from "@/client/utils/useModal"
+import { EditFloatingIpModal } from "../-modals/EditFloatingIpModal"
+import { DetachFloatingIpModal } from "../-modals/DetachFloatingIpModal"
+import { ReleaseFloatingIpModal } from "../-modals/ReleaseFloatingIpModal"
+import { AssociateFloatingIpModal } from "../-modals/AssociateFloatingIpModal"
+import { useFloatingIpMutations } from "../../-hooks/useFloatingIpMutations"
 
 interface FloatingIpDetailsViewProps {
   floatingIp: FloatingIp

@@ -3,7 +3,7 @@ import { useLingui, Trans } from "@lingui/react/macro"
 import { Breadcrumb, BreadcrumbItem, Button, Spinner, Stack } from "@cloudoperators/juno-ui-components"
 import { getServiceIndex } from "@/server/Authentication/helpers"
 import { trpcReact } from "@/client/trpcClient"
-import { FloatingIpDetailsView } from "./-components/FloatingIpDetailsView"
+import { FloatingIpDetailsView } from "./-components/-details/FloatingIpDetailsView"
 
 export const Route = createFileRoute(
   "/_auth/accounts/$accountId/projects/$projectId/network/floatingips/$floatingIpId"
