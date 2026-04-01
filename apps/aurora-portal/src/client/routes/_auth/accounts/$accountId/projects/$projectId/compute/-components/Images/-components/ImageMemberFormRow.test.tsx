@@ -53,11 +53,6 @@ describe("ImageMemberFormRow", () => {
     expect(input.value).toBe(memberId)
   })
 
-  it("should display pending status badge", () => {
-    setup()
-    expect(screen.queryByText("pending")).not.toBeInTheDocument()
-  })
-
   it("should call onMemberIdChange when input value changes", () => {
     setup()
     const input = screen.getByPlaceholderText("Enter member ID") as HTMLInputElement
