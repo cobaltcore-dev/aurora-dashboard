@@ -5,7 +5,7 @@ import { I18nProvider } from "@lingui/react"
 import { i18n } from "@lingui/core"
 import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
-import type { FloatingIp } from "@/server/Network/types/floatingIp"
+import type { FloatingIp, FloatingIpCreateRequest } from "@/server/Network/types/floatingIp"
 import { trpcReact } from "@/client/trpcClient"
 import type { AllocateFloatingIpModalProps } from "./-modals/AllocateFloatingIpModal"
 import { FloatingIps } from "./FloatingIps"
@@ -35,13 +35,32 @@ const createMockQueryResult = <TData,>(overrides: Partial<MockQueryResult<TData>
     ...overrides,
   }) as ReturnType<typeof trpcReact.network.floatingIp.list.useQuery>
 
+// Simplified mock for tRPC useMutation
+type MockMutationResult = {
+  mutateAsync: (data: FloatingIpCreateRequest) => Promise<void>
+  isPending: boolean
+  error: { message: string } | null
+}
+
+const createMockMutationResult = (overrides: Partial<MockMutationResult> = {}) =>
+  ({
+    mutateAsync: vi.fn().mockResolvedValue(undefined),
+    isPending: false,
+    error: null,
+    ...overrides,
+  }) as unknown as ReturnType<typeof trpcReact.network.floatingIp.create.useMutation>
+
 // Mock the tRPC client
 vi.mock("@/client/trpcClient", () => ({
   trpcReact: {
+    useUtils: vi.fn(),
     network: {
       floatingIp: {
         list: {
           useQuery: vi.fn(),
+        },
+        create: {
+          useMutation: vi.fn(),
         },
       },
     },
@@ -152,6 +171,16 @@ describe("FloatingIps List", () => {
 
   beforeEach(() => {
     i18n.activate("en")
+    vi.mocked(trpcReact.network.floatingIp.create.useMutation).mockReturnValue(createMockMutationResult())
+    vi.mocked(trpcReact.useUtils).mockReturnValue({
+      network: {
+        floatingIp: {
+          list: {
+            invalidate: vi.fn(),
+          },
+        },
+      },
+    } as unknown as ReturnType<typeof trpcReact.useUtils>)
   })
 
   describe("Component rendering", () => {

@@ -74,16 +74,39 @@ vi.mock("../../../$provider/containers/$containerName/objects", () => ({
 // ─── Mock child components ────────────────────────────────────────────────────
 // We test index.tsx in isolation — child components are tested separately.
 
+// Capture the latest onDeleteFolderSuccess so tests can invoke it directly
+let capturedOnDeleteFolderSuccess: ((folderName: string, deletedCount: number) => void) | undefined
+
 vi.mock("./ObjectsTableView", () => ({
-  ObjectsTableView: vi.fn(({ rows, searchTerm }) => (
-    <div data-testid="objects-table-view" data-row-count={rows.length} data-search={searchTerm} />
-  )),
+  ObjectsTableView: vi.fn(({ rows, searchTerm, onDeleteFolderSuccess, onDeleteFolderError }) => {
+    capturedOnDeleteFolderSuccess = onDeleteFolderSuccess
+    return (
+      <div
+        data-testid="objects-table-view"
+        data-row-count={rows.length}
+        data-search={searchTerm}
+        data-has-delete-success={typeof onDeleteFolderSuccess === "function" ? "true" : "false"}
+        data-has-delete-error={typeof onDeleteFolderError === "function" ? "true" : "false"}
+      />
+    )
+  }),
 }))
 
 vi.mock("./ObjectsFileNavigation", () => ({
   ObjectsFileNavigation: vi.fn(({ containerName, currentPrefix }) => (
     <div data-testid="objects-file-navigation" data-container={containerName} data-prefix={currentPrefix} />
   )),
+}))
+
+// CreateFolderModal uses tRPC hooks internally — mock it to keep index tests isolated.
+vi.mock("./CreateFolderModal", () => ({
+  CreateFolderModal: vi.fn(({ isOpen, onClose }) =>
+    isOpen ? (
+      <div data-testid="create-folder-modal">
+        <button onClick={onClose}>Cancel</button>
+      </div>
+    ) : null
+  ),
 }))
 
 // ─── Mock tRPC ────────────────────────────────────────────────────────────────
@@ -105,6 +128,13 @@ let trpcState = {
   isLoading: false,
   error: null as { message: string } | null,
 }
+
+vi.mock("./ObjectToastNotifications", () => ({
+  getFolderCreatedToast: vi.fn(() => ({ variant: "success", children: null })),
+  getFolderCreateErrorToast: vi.fn(() => ({ variant: "error", children: null })),
+  getFolderDeletedToast: vi.fn(() => ({ variant: "success", children: null })),
+  getFolderDeleteErrorToast: vi.fn(() => ({ variant: "error", children: null })),
+}))
 
 vi.mock("@/client/trpcClient", () => ({
   trpcReact: {
@@ -195,6 +225,55 @@ describe("SwiftObjects (index)", () => {
       // 2 files + 1 folder from mockObjects
       const view = screen.getByTestId("objects-table-view")
       expect(view).toHaveAttribute("data-row-count", "3")
+    })
+
+    test("renders Create folder button", () => {
+      renderObjects()
+      expect(screen.getByRole("button", { name: /Create Folder/i })).toBeInTheDocument()
+    })
+
+    test("Create folder modal is closed by default", () => {
+      renderObjects()
+      expect(screen.queryByTestId("create-folder-modal")).not.toBeInTheDocument()
+    })
+
+    test("passes onDeleteFolderSuccess callback to ObjectsTableView", () => {
+      renderObjects()
+      expect(screen.getByTestId("objects-table-view")).toHaveAttribute("data-has-delete-success", "true")
+    })
+
+    test("passes onDeleteFolderError callback to ObjectsTableView", () => {
+      renderObjects()
+      expect(screen.getByTestId("objects-table-view")).toHaveAttribute("data-has-delete-error", "true")
+    })
+
+    test("subtracts 1 from deletedCount before passing to getFolderDeletedToast", async () => {
+      const { getFolderDeletedToast } = await import("./ObjectToastNotifications")
+      renderObjects()
+      // Simulate ObjectsTableView calling onDeleteFolderSuccess with Swift's raw count (includes placeholder)
+      await act(async () => {
+        capturedOnDeleteFolderSuccess?.("my-folder", 4)
+      })
+      // nestedCount = 4 - 1 = 3 should be passed to the toast factory
+      expect(getFolderDeletedToast).toHaveBeenCalledWith("my-folder", 3, expect.any(Object))
+    })
+  })
+
+  describe("Create folder modal", () => {
+    test("opens modal when Create folder button is clicked", async () => {
+      const user = userEvent.setup()
+      renderObjects()
+      await user.click(screen.getByRole("button", { name: /Create Folder/i }))
+      expect(screen.getByTestId("create-folder-modal")).toBeInTheDocument()
+    })
+
+    test("closes modal when onClose is called", async () => {
+      const user = userEvent.setup()
+      renderObjects()
+      await user.click(screen.getByRole("button", { name: /Create Folder/i }))
+      expect(screen.getByTestId("create-folder-modal")).toBeInTheDocument()
+      await user.click(screen.getByRole("button", { name: /Cancel/i }))
+      expect(screen.queryByTestId("create-folder-modal")).not.toBeInTheDocument()
     })
   })
 
