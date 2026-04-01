@@ -20,10 +20,14 @@ import { EditImageMetadataModal } from "../-components/Images/-components/EditIm
 import { DeleteImageModal } from "../-components/Images/-components/DeleteImageModal"
 import { ActivateImageModal } from "../-components/Images/-components/ActivateImageModal"
 import { DeactivateImageModal } from "../-components/Images/-components/DeactivateImageModal"
-import { ManageImageAccessModal } from "../-components/Images/-components/ManageImageAccessModal"
-import { ConfirmImageAccessModal } from "../-components/Images/-components/ConfirmImageAccessModal"
-import { IMAGE_STATUSES, IMAGE_VISIBILITY } from "../-constants/filters"
-import { GlanceImage } from "@/server/Compute/types/image"
+import { IMAGE_STATUSES, IMAGE_VISIBILITY, MEMBER_STATUSES } from "../-constants/filters"
+import { GlanceImage, MemberStatus } from "@/server/Compute/types/image"
+import { TRPCClientError } from "@trpc/client"
+import { InferrableClientTypes } from "@trpc/server/unstable-core-do-not-import"
+import {
+  getImageAccessStatusUpdatedToast,
+  getImageAccessStatusErrorToast,
+} from "../-components/Images/-components/ImageToastNotifications"
 import { useState } from "react"
 
 export const Route = createFileRoute("/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId")({
@@ -83,6 +87,13 @@ function RouteComponent() {
 
   const utils = trpcReact.useUtils()
 
+  const [editDetailsModalOpen, setEditDetailsModalOpen] = useState(false)
+  const [editMetadataModalOpen, setEditMetadataModalOpen] = useState(false)
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false)
+  const [activateModalOpen, setActivateModalOpen] = useState(false)
+  const [deactivateModalOpen, setDeactivateModalOpen] = useState(false)
+  const [toastData, setToastData] = useState<ToastProps | null>(null)
+
   const updateImageMutation = trpcReact.compute.updateImage.useMutation({
     onSuccess: () => {
       utils.compute.getImageById.invalidate({ imageId })
@@ -113,14 +124,32 @@ function RouteComponent() {
     },
   })
 
-  const [editDetailsModalOpen, setEditDetailsModalOpen] = useState(false)
-  const [editMetadataModalOpen, setEditMetadataModalOpen] = useState(false)
-  const [deleteModalOpen, setDeleteModalOpen] = useState(false)
-  const [activateModalOpen, setActivateModalOpen] = useState(false)
-  const [deactivateModalOpen, setDeactivateModalOpen] = useState(false)
-  const [manageAccessModalOpen, setManageAccessModalOpen] = useState(false)
-  const [confirmAccessModalOpen, setConfirmAccessModalOpen] = useState(false)
-  const [toastData, setToastData] = useState<ToastProps | null>(null)
+  const isSharedWithMe =
+    image?.visibility === IMAGE_VISIBILITY.SHARED && image?.owner !== undefined && image?.owner !== projectId
+
+  const { data: myMemberData } = trpcReact.compute.getImageMember.useQuery(
+    { imageId: imageId, memberId: projectId },
+    { enabled: isSharedWithMe && !!imageId && !!projectId }
+  )
+
+  const updateMemberMutation = trpcReact.compute.updateImageMember.useMutation({
+    onSuccess: () => {
+      utils.compute.getImageMember.invalidate({ imageId: imageId, memberId: projectId })
+      utils.compute.listImageMembers.invalidate({ imageId: imageId })
+      utils.compute.listImagesWithPagination.invalidate()
+      utils.compute.listSharedImagesByMemberStatus.invalidate()
+    },
+  })
+
+  const handleMemberStatusChange = async (newStatus: MemberStatus) => {
+    try {
+      await updateMemberMutation.mutateAsync({ imageId, memberId: projectId, status: newStatus })
+      setToastData(getImageAccessStatusUpdatedToast(newStatus, { onDismiss: () => setToastData(null) }))
+    } catch (error) {
+      const errorMessage = (error as TRPCClientError<InferrableClientTypes>)?.message
+      setToastData(getImageAccessStatusErrorToast(errorMessage, { onDismiss: () => setToastData(null) }))
+    }
+  }
 
   // Type-safe: name kann string | undefined | null sein
   if (image?.name && typeof image.name === "string") {
@@ -142,7 +171,6 @@ function RouteComponent() {
     })
   }
 
-  const isImageOwner = image?.owner === projectId
   const isLoading =
     updateImageMutation.isPending ||
     deleteImageMutation.isPending ||
@@ -258,7 +286,6 @@ function RouteComponent() {
   }
 
   const isDeactivated = image.status === IMAGE_STATUSES.DEACTIVATED
-  const isShared = image.visibility === IMAGE_VISIBILITY.SHARED
   const isPrivate = image.visibility === IMAGE_VISIBILITY.PRIVATE
   const hasMoreActions = permissions.canUpdate || (permissions.canDelete && !image.protected)
 
@@ -281,15 +308,6 @@ function RouteComponent() {
                     onClick={() => (isDeactivated ? setActivateModalOpen(true) : setDeactivateModalOpen(true))}
                   />
                 )}
-                {permissions.canUpdate &&
-                  isShared &&
-                  isImageOwner &&
-                  (permissions.canCreateMember || permissions.canDeleteMember) && (
-                    <PopupMenuItem label={t`Manage Access`} onClick={() => setManageAccessModalOpen(true)} />
-                  )}
-                {permissions.canUpdate && isShared && permissions.canUpdateMember && (
-                  <PopupMenuItem label={t`Review Access`} onClick={() => setConfirmAccessModalOpen(true)} />
-                )}
                 {permissions.canUpdate && isPrivate && (
                   <PopupMenuItem label={t`Set to "Shared"`} onClick={() => handleUpdateVisibility("shared")} />
                 )}
@@ -309,8 +327,48 @@ function RouteComponent() {
               <Trans>Edit Details</Trans>
             </Button>
           )}
+          {isSharedWithMe && permissions.canUpdateMember && myMemberData && (
+            <>
+              {myMemberData.status === MEMBER_STATUSES.PENDING && (
+                <Button
+                  onClick={() => handleMemberStatusChange(MEMBER_STATUSES.REJECTED)}
+                  disabled={updateMemberMutation.isPending}
+                  variant="subdued"
+                >
+                  <Trans>Reject</Trans>
+                </Button>
+              )}
+              {(myMemberData.status === MEMBER_STATUSES.PENDING ||
+                myMemberData.status === MEMBER_STATUSES.REJECTED) && (
+                <Button
+                  onClick={() => handleMemberStatusChange(MEMBER_STATUSES.ACCEPTED)}
+                  disabled={updateMemberMutation.isPending}
+                  variant="primary"
+                >
+                  <Trans>Accept</Trans>
+                </Button>
+              )}
+              {myMemberData.status === MEMBER_STATUSES.ACCEPTED && (
+                <Button
+                  onClick={() => handleMemberStatusChange(MEMBER_STATUSES.REJECTED)}
+                  disabled={updateMemberMutation.isPending}
+                  variant="primary-danger"
+                >
+                  <Trans>Revoke Access</Trans>
+                </Button>
+              )}
+            </>
+          )}
         </ButtonRow>
-        <ImageDetailsView image={image} currentProjectId={projectId} />
+        <ImageDetailsView
+          image={image}
+          currentProjectId={projectId}
+          permissions={{
+            canCreateMember: permissions.canCreateMember,
+            canDeleteMember: permissions.canDeleteMember,
+            canUpdateMember: permissions.canUpdateMember,
+          }}
+        />
       </Stack>
 
       {toastData && <Toast {...toastData} />}
@@ -363,29 +421,6 @@ function RouteComponent() {
           isLoading={deactivateImageMutation.isPending}
           onClose={() => setDeactivateModalOpen(false)}
           onDeactivate={handleDeactivate}
-        />
-      )}
-
-      {manageAccessModalOpen && (
-        <ManageImageAccessModal
-          image={image}
-          isOpen={manageAccessModalOpen}
-          onClose={() => setManageAccessModalOpen(false)}
-          permissions={{
-            canCreateMember: permissions.canCreateMember,
-            canDeleteMember: permissions.canDeleteMember,
-          }}
-        />
-      )}
-
-      {confirmAccessModalOpen && (
-        <ConfirmImageAccessModal
-          image={image}
-          isOpen={confirmAccessModalOpen}
-          onClose={() => setConfirmAccessModalOpen(false)}
-          memberId={projectId}
-          permissions={{ canUpdateMember: permissions.canUpdateMember }}
-          setMessage={setToastData}
         />
       )}
     </>

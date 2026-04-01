@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useState } from "react"
 import {
   DescriptionList,
   DescriptionTerm,
@@ -6,17 +6,32 @@ import {
   Container,
   ContentHeading,
   Stack,
+  Badge,
+  BadgeVariantType,
+  Button,
+  Spinner,
+  Message,
 } from "@cloudoperators/juno-ui-components"
 import { useLingui } from "@lingui/react/macro"
-import { GlanceImage } from "@/server/Compute/types/image"
+import { GlanceImage, MemberStatus } from "@/server/Compute/types/image"
 import { SizeDisplay } from "./SizeDisplay"
+import { trpcReact } from "@/client/trpcClient"
+import { TRPCClientError } from "@trpc/client"
+import { InferrableClientTypes } from "@trpc/server/unstable-core-do-not-import"
+import { MEMBER_STATUSES } from "../../../-constants/filters"
+import { ImageMembersTable } from "./ImageMembersTable"
 
 interface ImageDetailsViewProps {
   image: GlanceImage
   currentProjectId?: string
+  permissions?: {
+    canCreateMember: boolean
+    canDeleteMember: boolean
+    canUpdateMember: boolean
+  }
 }
 
-export const GeneralImageData: React.FC<ImageDetailsViewProps> = ({ image }) => {
+export const GeneralImageData: React.FC<{ image: GlanceImage }> = ({ image }) => {
   const { t } = useLingui()
 
   return (
@@ -67,7 +82,10 @@ export const GeneralImageData: React.FC<ImageDetailsViewProps> = ({ image }) => 
   )
 }
 
-export const SecuritySection: React.FC<ImageDetailsViewProps> = ({ image, currentProjectId }) => {
+export const SecuritySection: React.FC<{ image: GlanceImage; currentProjectId?: string }> = ({
+  image,
+  currentProjectId,
+}) => {
   const { t } = useLingui()
 
   const isSharedWithMe = image.visibility === "shared" && image.owner !== undefined && image.owner !== currentProjectId
@@ -92,10 +110,180 @@ export const SecuritySection: React.FC<ImageDetailsViewProps> = ({ image, curren
   )
 }
 
-export const CustomPropertiesSection: React.FC<ImageDetailsViewProps> = ({ image }) => {
+function getStatusBadgeVariant(status: string): BadgeVariantType {
+  switch (status) {
+    case MEMBER_STATUSES.PENDING:
+      return "warning"
+    case MEMBER_STATUSES.ACCEPTED:
+      return "success"
+    case MEMBER_STATUSES.REJECTED:
+      return "danger"
+    default:
+      return "default"
+  }
+}
+
+const MemberAccessSection: React.FC<{
+  image: GlanceImage
+  memberId: string
+  canUpdateMember: boolean
+  onStatusChanged?: () => void
+}> = ({ image, memberId, canUpdateMember, onStatusChanged }) => {
+  const { t } = useLingui()
+  const utils = trpcReact.useUtils()
+  const [message, setMessage] = useState<{ text: string; type: "error" | "info" } | null>(null)
+
+  const { data: memberData, isLoading } = trpcReact.compute.getImageMember.useQuery(
+    { imageId: image.id, memberId },
+    { enabled: !!image.id && !!memberId }
+  )
+
+  const updateMemberMutation = trpcReact.compute.updateImageMember.useMutation({
+    onSuccess: () => {
+      utils.compute.getImageMember.invalidate({ imageId: image.id, memberId })
+      utils.compute.listImageMembers.invalidate({ imageId: image.id })
+      utils.compute.listImagesWithPagination.invalidate()
+      utils.compute.listSharedImagesByMemberStatus.invalidate()
+      onStatusChanged?.()
+    },
+  })
+
+  const handleStatusChange = async (newStatus: MemberStatus) => {
+    try {
+      await updateMemberMutation.mutateAsync({ imageId: image.id, memberId, status: newStatus })
+      setMessage({ text: t`Access status updated successfully.`, type: "info" })
+    } catch (error) {
+      const errorMessage = (error as TRPCClientError<InferrableClientTypes>)?.message || t`Failed to update status`
+      setMessage({ text: errorMessage, type: "error" })
+    }
+  }
+
+  if (isLoading) {
+    return (
+      <Stack distribution="center" alignment="center" className="py-4">
+        <Spinner variant="primary" />
+      </Stack>
+    )
+  }
+
+  if (!memberData) {
+    return null
+  }
+
+  const isPending = memberData.status === MEMBER_STATUSES.PENDING
+  const isUpdating = updateMemberMutation.isPending
+
+  return (
+    <Stack direction="vertical" gap="4">
+      {message && <Message text={message.text} variant={message.type} onDismiss={() => setMessage(null)} />}
+
+      <DescriptionList alignTerms="right">
+        <DescriptionTerm>{t`Access Status`}</DescriptionTerm>
+        <DescriptionDefinition>
+          <Badge text={memberData.status} variant={getStatusBadgeVariant(memberData.status)} />
+        </DescriptionDefinition>
+
+        <DescriptionTerm>{t`Shared Since`}</DescriptionTerm>
+        <DescriptionDefinition>
+          {memberData.created_at ? new Date(memberData.created_at).toLocaleString() : ""}
+        </DescriptionDefinition>
+
+        <DescriptionTerm>{t`Last Updated`}</DescriptionTerm>
+        <DescriptionDefinition>
+          {memberData.updated_at ? new Date(memberData.updated_at).toLocaleString() : ""}
+        </DescriptionDefinition>
+      </DescriptionList>
+
+      {canUpdateMember && (
+        <Stack direction="horizontal" gap="2">
+          {isPending && (
+            <>
+              <Button
+                label={t`Reject`}
+                variant="subdued"
+                onClick={() => handleStatusChange(MEMBER_STATUSES.REJECTED)}
+                disabled={isUpdating}
+              />
+              <Button
+                label={t`Accept`}
+                variant="primary"
+                onClick={() => handleStatusChange(MEMBER_STATUSES.ACCEPTED)}
+                disabled={isUpdating}
+              />
+            </>
+          )}
+          {!isPending && memberData.status === MEMBER_STATUSES.REJECTED && (
+            <Button
+              label={t`Accept`}
+              variant="primary"
+              onClick={() => handleStatusChange(MEMBER_STATUSES.ACCEPTED)}
+              disabled={isUpdating}
+            />
+          )}
+          {!isPending && memberData.status !== MEMBER_STATUSES.REJECTED && (
+            <Button
+              label={t`Revoke Access`}
+              variant="primary-danger"
+              onClick={() => handleStatusChange(MEMBER_STATUSES.REJECTED)}
+              disabled={isUpdating}
+            />
+          )}
+        </Stack>
+      )}
+    </Stack>
+  )
+}
+
+const SharingSection: React.FC<ImageDetailsViewProps> = ({ image, currentProjectId, permissions }) => {
+  const { t } = useLingui()
+  const [isAddingMember, setIsAddingMember] = useState(false)
+  const [message, setMessage] = useState<{ text: string; type: "error" | "info" } | null>(null)
+
+  const isImageOwner = image.owner === currentProjectId
+  const isShared = image.visibility === "shared"
+
+  const { data: imageMembers, isLoading: isMembersLoading } = trpcReact.compute.listImageMembers.useQuery(
+    { imageId: image.id },
+    { enabled: isShared && isImageOwner && !!image.id }
+  )
+
+  if (!isShared) return null
+
+  return (
+    <Container px={false} py>
+      <ContentHeading>{t`Sharing`}</ContentHeading>
+
+      {message && (
+        <Message text={message.text} variant={message.type} onDismiss={() => setMessage(null)} className="mb-4" />
+      )}
+
+      {isImageOwner ? (
+        <ImageMembersTable
+          image={image}
+          imageMembers={imageMembers}
+          isMembersLoading={isMembersLoading}
+          canAdd={permissions?.canCreateMember ?? false}
+          canRemove={permissions?.canDeleteMember ?? false}
+          isAddingMember={isAddingMember}
+          setIsAddingMember={setIsAddingMember}
+          setMessage={setMessage}
+        />
+      ) : (
+        currentProjectId && (
+          <MemberAccessSection
+            image={image}
+            memberId={currentProjectId}
+            canUpdateMember={permissions?.canUpdateMember ?? false}
+          />
+        )
+      )}
+    </Container>
+  )
+}
+
+export const CustomPropertiesSection: React.FC<{ image: GlanceImage }> = ({ image }) => {
   const { t } = useLingui()
 
-  // Define the known fields that should NOT be displayed as custom metadata
   const knownFields = new Set([
     "id",
     "name",
@@ -113,7 +301,6 @@ export const CustomPropertiesSection: React.FC<ImageDetailsViewProps> = ({ image
     "checksum",
   ])
 
-  // Extract all custom properties (anything not in knownFields)
   const customProperties = Object.entries(image)
     .filter(([key]) => !knownFields.has(key))
     .sort(([a], [b]) => a.localeCompare(b))
@@ -153,12 +340,12 @@ export const CustomPropertiesSection: React.FC<ImageDetailsViewProps> = ({ image
   )
 }
 
-// Example usage component
-export const ImageDetailsView: React.FC<ImageDetailsViewProps> = ({ image, currentProjectId }) => {
+export const ImageDetailsView: React.FC<ImageDetailsViewProps> = ({ image, currentProjectId, permissions }) => {
   return (
     <Stack direction="vertical" gap="6">
       <GeneralImageData image={image} />
       <SecuritySection image={image} currentProjectId={currentProjectId} />
+      <SharingSection image={image} currentProjectId={currentProjectId} permissions={permissions} />
       <CustomPropertiesSection image={image} />
     </Stack>
   )
