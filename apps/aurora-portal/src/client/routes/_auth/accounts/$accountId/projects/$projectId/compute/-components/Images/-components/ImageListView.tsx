@@ -87,6 +87,7 @@ interface ImagePageProps {
   protectedImages: Array<string>
   activeImages: Array<string>
   deactivatedImages: Array<string>
+  onImageUpdated: (image: GlanceImage) => void
 }
 
 export function ImageListView({
@@ -113,6 +114,7 @@ export function ImageListView({
   protectedImages,
   activeImages,
   deactivatedImages,
+  onImageUpdated,
 }: ImagePageProps) {
   const [toastData, setToastData] = useState<ToastProps | null>(null)
 
@@ -205,9 +207,8 @@ export function ImageListView({
   const uploadImageMutation = trpcReact.compute.uploadImage.useMutation()
 
   const updateImageVisibilityMutation = trpcReact.compute.updateImageVisibility.useMutation({
-    onSuccess: () => {
-      utils.compute.listImagesWithPagination.invalidate()
-      utils.compute.getImageById.invalidate()
+    onSuccess: (updatedImage) => {
+      onImageUpdated(updatedImage)
     },
   })
 
@@ -230,8 +231,7 @@ export function ImageListView({
     deleteImagesMutation.isPending ||
     activateImagesMutation.isPending ||
     deactivateImagesMutation.isPending ||
-    updateImageMutation.isPending ||
-    updateImageVisibilityMutation.isPending
+    updateImageMutation.isPending
 
   const handleToastDismiss = () => setToastData(null)
 
