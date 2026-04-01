@@ -12,7 +12,8 @@ import {
 import { Trans, useLingui } from "@lingui/react/macro"
 import { MdFolder, MdDescription } from "react-icons/md"
 import { formatBytesBinary } from "@/client/utils/formatBytes"
-import { BrowserRow, FolderRow } from "./"
+import { trpcReact } from "@/client/trpcClient"
+import { BrowserRow, FolderRow, ObjectRow } from "./"
 import { DeleteFolderModal } from "./DeleteFolderModal"
 
 // Define column template — 4 columns: name | last modified | size | actions
@@ -21,22 +22,63 @@ const GRID_COLUMN_TEMPLATE = "minmax(200px, 3fr) minmax(180px, 2fr) minmax(100px
 interface ObjectsTableViewProps {
   rows: BrowserRow[]
   searchTerm: string
+  container: string
+  account?: string
   onFolderClick: (prefix: string) => void
   onDeleteFolderSuccess: (folderName: string, deletedCount: number) => void
   onDeleteFolderError: (folderName: string, errorMessage: string) => void
+  onDownloadError: (objectName: string, errorMessage: string) => void
+}
+
+const saveBlob = (base64: string, contentType: string, filename: string) => {
+  const bytes = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0))
+  const blob = new Blob([bytes], { type: contentType })
+  const url = URL.createObjectURL(blob)
+  const anchor = document.createElement("a")
+  anchor.href = url
+  anchor.download = filename
+  document.body.appendChild(anchor)
+  anchor.click()
+  document.body.removeChild(anchor)
+  URL.revokeObjectURL(url)
 }
 
 export const ObjectsTableView = ({
   rows,
   searchTerm,
+  container,
+  account,
   onFolderClick,
   onDeleteFolderSuccess,
   onDeleteFolderError,
+  onDownloadError,
 }: ObjectsTableViewProps) => {
   const { t } = useLingui()
   const parentRef = useRef<HTMLDivElement>(null)
   const [scrollbarWidth, setScrollbarWidth] = useState(0)
   const [deleteFolderTarget, setDeleteFolderTarget] = useState<FolderRow | null>(null)
+  const [downloadingRow, setDownloadingRow] = useState<ObjectRow | null>(null)
+
+  const downloadMutation = trpcReact.storage.swift.downloadObject.useMutation({
+    onSuccess: ({ base64, contentType, filename }) => {
+      saveBlob(base64, contentType, filename)
+      setDownloadingRow(null)
+    },
+    onError: (error) => {
+      onDownloadError(downloadingRow?.displayName ?? "", error.message)
+      setDownloadingRow(null)
+    },
+  })
+
+  const handleDownload = (row: ObjectRow) => {
+    setDownloadingRow(row)
+    downloadMutation.mutate({
+      container,
+      object: row.name,
+      filename: row.displayName,
+      ...(account ? { account } : {}),
+    })
+  }
 
   // Calculate scrollbar width
   // Pad the header right by scrollbar width to keep columns aligned with the body
@@ -128,6 +170,7 @@ export const ObjectsTableView = ({
             {rowVirtualizer.getVirtualItems().map((virtualRow) => {
               const row = rows[virtualRow.index]
               const isFolder = row.kind === "folder"
+              const isDownloading = !isFolder && downloadingRow?.name === row.name
 
               return (
                 <div
@@ -189,10 +232,9 @@ export const ObjectsTableView = ({
                           // File actions
                           <>
                             <PopupMenuItem
-                              label={t`Download`}
-                              onClick={() => {
-                                // TODO: trigger file download
-                              }}
+                              label={isDownloading ? t`Downloading...` : t`Download`}
+                              disabled={isDownloading}
+                              onClick={() => handleDownload(row as ObjectRow)}
                               data-testid={`download-action-${row.name}`}
                             />
                             <PopupMenuItem

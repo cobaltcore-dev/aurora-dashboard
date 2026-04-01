@@ -15,6 +15,7 @@ import {
   getFolderCreateErrorToast,
   getFolderDeletedToast,
   getFolderDeleteErrorToast,
+  getObjectDownloadErrorToast,
 } from "./ObjectToastNotifications"
 
 // ── Prefix helpers ────────────────────────────────────────────────────────────
@@ -192,6 +193,10 @@ export const SwiftObjects = () => {
     setToastData(getFolderDeleteErrorToast(folderName, errorMessage, { onDismiss: handleToastDismiss }))
   }
 
+  const handleDownloadError = (objectName: string, errorMessage: string) => {
+    setToastData(getObjectDownloadErrorToast(objectName, errorMessage, { onDismiss: handleToastDismiss }))
+  }
+
   const sortSettings: SortSettings = {
     options: [
       { label: t`Name`, value: "name" },
@@ -325,9 +330,11 @@ export const SwiftObjects = () => {
       <ObjectsTableView
         rows={sortedRows}
         searchTerm={searchParam}
+        container={containerName}
         onFolderClick={navigateToPrefix}
         onDeleteFolderSuccess={handleDeleteFolderSuccess}
         onDeleteFolderError={handleDeleteFolderError}
+        onDownloadError={handleDownloadError}
       />
 
       <CreateFolderModal
