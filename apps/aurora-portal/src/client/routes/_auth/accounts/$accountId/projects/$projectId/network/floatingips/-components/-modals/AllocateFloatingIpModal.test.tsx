@@ -295,11 +295,16 @@ describe("AllocateFloatingIpModal", () => {
         >
       )
 
+      vi.mocked(trpcReact.network.floatingIp.create.useMutation).mockReturnValue(
+        createMockCreateMutationResult({ error: { message: "Mutation error" } })
+      )
+
       render(<AllocateFloatingIpModal open={true} onClose={vi.fn()} />, {
         wrapper: createWrapper(),
       })
 
       expect(screen.getByText("Query error")).toBeInTheDocument()
+      expect(screen.queryByText("Mutation error")).not.toBeInTheDocument()
     })
   })
 

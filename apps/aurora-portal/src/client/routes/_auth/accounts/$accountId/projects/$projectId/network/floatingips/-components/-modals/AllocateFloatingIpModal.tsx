@@ -118,6 +118,8 @@ export const AllocateFloatingIpModal = ({ open, onClose }: AllocateFloatingIpMod
   })
 
   const handleClose = () => {
+    if (isPending) return
+
     form.reset()
     createFloatingIpMutation.reset()
     onClose()
