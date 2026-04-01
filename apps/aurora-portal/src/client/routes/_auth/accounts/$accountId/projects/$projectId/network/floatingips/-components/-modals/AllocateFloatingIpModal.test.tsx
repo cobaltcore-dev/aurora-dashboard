@@ -31,12 +31,14 @@ type CreateMutationResult = ReturnType<typeof trpcReact.network.floatingIp.creat
 const createMockCreateMutationResult = (
   overrides: Partial<{
     mutateAsync: () => Promise<unknown>
+    reset: () => void
     isPending: boolean
     error: { message?: string } | null
   }> = {}
 ) =>
   ({
     mutateAsync: vi.fn().mockResolvedValue({}),
+    reset: vi.fn(),
     isPending: false,
     error: null,
     ...overrides,

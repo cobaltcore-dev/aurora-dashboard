@@ -33,6 +33,8 @@ describe("FloatingIpDetailsView", () => {
     dns_domain: "example.com",
     dns_name: "fip-1",
     description: "Web server FIP",
+    created_at: "2025-01-01T10:30:00.000Z" as FloatingIp["created_at"],
+    updated_at: "2025-01-02T12:45:00.000Z" as FloatingIp["updated_at"],
     revision_number: 1,
     tags: ["production", "web"],
     port_details: {
@@ -131,8 +133,8 @@ describe("FloatingIpDetailsView", () => {
     it("displays created and updated timestamps when present", () => {
       render(<FloatingIpDetailsView floatingIp={mockFloatingIp} />, { wrapper: TestWrapper })
 
-      // Verify Basic Info section renders (timestamps are optional)
-      expect(screen.getByText("Basic Info")).toBeInTheDocument()
+      expect(screen.getByText(new Date(mockFloatingIp.created_at!).toLocaleString())).toBeInTheDocument()
+      expect(screen.getByText(new Date(mockFloatingIp.updated_at!).toLocaleString())).toBeInTheDocument()
     })
 
     it("displays tags joined by comma", () => {
