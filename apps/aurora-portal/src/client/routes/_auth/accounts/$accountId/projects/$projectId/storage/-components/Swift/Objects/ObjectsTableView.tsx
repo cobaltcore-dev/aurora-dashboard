@@ -58,19 +58,24 @@ export const ObjectsTableView = ({
   const [scrollbarWidth, setScrollbarWidth] = useState(0)
   const [deleteFolderTarget, setDeleteFolderTarget] = useState<FolderRow | null>(null)
   const [downloadingRow, setDownloadingRow] = useState<ObjectRow | null>(null)
+  // Ref keeps the in-flight row available to onError without a stale closure
+  const downloadingRowRef = useRef<ObjectRow | null>(null)
 
   const downloadMutation = trpcReact.storage.swift.downloadObject.useMutation({
     onSuccess: ({ base64, contentType, filename }) => {
       saveBlob(base64, contentType, filename)
+      downloadingRowRef.current = null
       setDownloadingRow(null)
     },
     onError: (error) => {
-      onDownloadError(downloadingRow?.displayName ?? "", error.message)
+      onDownloadError(downloadingRowRef.current?.displayName ?? "", error.message)
+      downloadingRowRef.current = null
       setDownloadingRow(null)
     },
   })
 
   const handleDownload = (row: ObjectRow) => {
+    downloadingRowRef.current = row
     setDownloadingRow(row)
     downloadMutation.mutate({
       container,

@@ -39,6 +39,33 @@ vi.mock("./DeleteFolderModal", () => ({
   ),
 }))
 
+// Mock trpcReact — isolates download mutation from actual tRPC/network layer
+let mockDownloadMutate = vi.fn()
+let mockDownloadIsPending = false
+
+vi.mock("@/client/trpcClient", () => ({
+  trpcReact: {
+    storage: {
+      swift: {
+        downloadObject: {
+          useMutation: vi.fn(
+            ({
+              onSuccess,
+              onError,
+            }: {
+              onSuccess?: (data: { base64: string; contentType: string; filename: string }) => void
+              onError?: (error: { message: string }) => void
+            }) => ({
+              mutate: (input: unknown) => mockDownloadMutate(input, { onSuccess, onError }),
+              isPending: mockDownloadIsPending,
+            })
+          ),
+        },
+      },
+    },
+  },
+}))
+
 // ─── Fixtures ─────────────────────────────────────────────────────────────────
 
 const makeFolder = (name: string): BrowserRow => ({
@@ -69,15 +96,19 @@ const mockRows: BrowserRow[] = [
 const renderView = ({
   rows = mockRows,
   searchTerm = "",
+  container = "test-container",
   onFolderClick = vi.fn(),
   onDeleteFolderSuccess = vi.fn(),
   onDeleteFolderError = vi.fn(),
+  onDownloadError = vi.fn(),
 }: {
   rows?: BrowserRow[]
   searchTerm?: string
+  container?: string
   onFolderClick?: (prefix: string) => void
   onDeleteFolderSuccess?: (folderName: string, deletedCount: number) => void
   onDeleteFolderError?: (folderName: string, errorMessage: string) => void
+  onDownloadError?: (objectName: string, errorMessage: string) => void
 } = {}) =>
   render(
     <I18nProvider i18n={i18n}>
@@ -85,9 +116,11 @@ const renderView = ({
         <ObjectsTableView
           rows={rows}
           searchTerm={searchTerm}
+          container={container}
           onFolderClick={onFolderClick}
           onDeleteFolderSuccess={onDeleteFolderSuccess}
           onDeleteFolderError={onDeleteFolderError}
+          onDownloadError={onDownloadError}
         />
       </PortalProvider>
     </I18nProvider>
@@ -98,6 +131,8 @@ const renderView = ({
 describe("ObjectsTableView", () => {
   beforeEach(async () => {
     vi.clearAllMocks()
+    mockDownloadMutate = vi.fn()
+    mockDownloadIsPending = false
     await act(async () => {
       i18n.activate("en")
     })
@@ -240,6 +275,45 @@ describe("ObjectsTableView", () => {
     test("footer total matches rows length", () => {
       renderView({ rows: [makeObject("a.txt"), makeObject("b.txt")] })
       expect(screen.getByText(/2 items/i)).toBeInTheDocument()
+    })
+  })
+
+  describe("Download action", () => {
+    test("Download menu item is present for object rows", async () => {
+      const user = userEvent.setup()
+      renderView({ rows: [makeObject("readme.txt")] })
+      await user.click(screen.getByRole("button", { name: /More/i }))
+      expect(screen.getByTestId("download-action-readme.txt")).toBeInTheDocument()
+    })
+
+    test("Download menu item is not present for folder rows", async () => {
+      const user = userEvent.setup()
+      renderView({ rows: [makeFolder("docs")] })
+      await user.click(screen.getByRole("button", { name: /More/i }))
+      expect(screen.queryByTestId("download-action-docs/")).not.toBeInTheDocument()
+    })
+
+    test("clicking Download calls mutate with correct input", async () => {
+      const user = userEvent.setup()
+      renderView({ rows: [makeObject("readme.txt")], container: "my-bucket" })
+      await user.click(screen.getByRole("button", { name: /More/i }))
+      await user.click(screen.getByTestId("download-action-readme.txt"))
+      expect(mockDownloadMutate).toHaveBeenCalledWith(
+        expect.objectContaining({ container: "my-bucket", object: "readme.txt", filename: "readme.txt" }),
+        expect.anything()
+      )
+    })
+
+    test("calls onDownloadError when mutation fails", async () => {
+      const onDownloadError = vi.fn()
+      mockDownloadMutate = vi.fn((_input, { onError }) => {
+        onError?.({ message: "Network error" })
+      })
+      const user = userEvent.setup()
+      renderView({ rows: [makeObject("readme.txt")], onDownloadError })
+      await user.click(screen.getByRole("button", { name: /More/i }))
+      await user.click(screen.getByTestId("download-action-readme.txt"))
+      expect(onDownloadError).toHaveBeenCalledWith("readme.txt", "Network error")
     })
   })
 })
