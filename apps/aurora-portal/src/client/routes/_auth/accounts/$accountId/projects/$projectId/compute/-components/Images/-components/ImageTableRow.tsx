@@ -156,7 +156,7 @@ export function ImageTableRow({
                     <Button
                       size="small"
                       variant="primary-danger"
-                      label={t`Confirm Revoke`}
+                      label={t`Confirm`}
                       onClick={() => {
                         setConfirmRevoke(false)
                         handleMemberStatusChange(MEMBER_STATUSES.REJECTED)

@@ -206,7 +206,6 @@ const MemberAccessSection: React.FC<{
               />
               <Button
                 label={t`Accept`}
-                variant="primary"
                 onClick={() => handleStatusChange(MEMBER_STATUSES.ACCEPTED)}
                 disabled={isUpdating}
               />
@@ -215,7 +214,6 @@ const MemberAccessSection: React.FC<{
           {!isPending && memberData.status === MEMBER_STATUSES.REJECTED && (
             <Button
               label={t`Accept`}
-              variant="primary"
               onClick={() => handleStatusChange(MEMBER_STATUSES.ACCEPTED)}
               disabled={isUpdating}
             />
@@ -223,7 +221,6 @@ const MemberAccessSection: React.FC<{
           {!isPending && memberData.status !== MEMBER_STATUSES.REJECTED && (
             <Button
               label={t`Revoke Access`}
-              variant="primary-danger"
               onClick={() => handleStatusChange(MEMBER_STATUSES.REJECTED)}
               disabled={isUpdating}
             />
