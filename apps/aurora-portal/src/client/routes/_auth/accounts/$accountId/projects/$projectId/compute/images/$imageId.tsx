@@ -119,8 +119,8 @@ function RouteComponent() {
   })
 
   const updateImageVisibilityMutation = trpcReact.compute.updateImageVisibility.useMutation({
-    onSuccess: () => {
-      utils.compute.getImageById.invalidate({ imageId })
+    onSuccess: (updatedImage) => {
+      utils.compute.getImageById.setData({ imageId }, updatedImage)
     },
   })
 
@@ -343,6 +343,7 @@ function RouteComponent() {
                 <Button
                   onClick={() => handleMemberStatusChange(MEMBER_STATUSES.ACCEPTED)}
                   disabled={updateMemberMutation.isPending}
+                  variant="primary"
                 >
                   <Trans>Accept</Trans>
                 </Button>
@@ -351,6 +352,7 @@ function RouteComponent() {
                 <Button
                   onClick={() => handleMemberStatusChange(MEMBER_STATUSES.REJECTED)}
                   disabled={updateMemberMutation.isPending}
+                  variant="primary-danger"
                 >
                   <Trans>Revoke Access</Trans>
                 </Button>

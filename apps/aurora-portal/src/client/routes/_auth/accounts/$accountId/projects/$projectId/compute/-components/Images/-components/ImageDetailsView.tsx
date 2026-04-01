@@ -8,16 +8,13 @@ import {
   Stack,
   Badge,
   BadgeVariantType,
-  Button,
   Spinner,
   Message,
 } from "@cloudoperators/juno-ui-components"
 import { useLingui } from "@lingui/react/macro"
-import { GlanceImage, MemberStatus } from "@/server/Compute/types/image"
+import { GlanceImage } from "@/server/Compute/types/image"
 import { SizeDisplay } from "./SizeDisplay"
 import { trpcReact } from "@/client/trpcClient"
-import { TRPCClientError } from "@trpc/client"
-import { InferrableClientTypes } from "@trpc/server/unstable-core-do-not-import"
 import { MEMBER_STATUSES } from "../../../-constants/filters"
 import { ImageMembersTable } from "./ImageMembersTable"
 
@@ -126,37 +123,14 @@ function getStatusBadgeVariant(status: string): BadgeVariantType {
 const MemberAccessSection: React.FC<{
   image: GlanceImage
   memberId: string
-  canUpdateMember: boolean
-  onStatusChanged?: () => void
-}> = ({ image, memberId, canUpdateMember, onStatusChanged }) => {
+}> = ({ image, memberId }) => {
   const { t } = useLingui()
-  const utils = trpcReact.useUtils()
   const [message, setMessage] = useState<{ text: string; type: "error" | "info" } | null>(null)
 
   const { data: memberData, isLoading } = trpcReact.compute.getImageMember.useQuery(
     { imageId: image.id, memberId },
     { enabled: !!image.id && !!memberId }
   )
-
-  const updateMemberMutation = trpcReact.compute.updateImageMember.useMutation({
-    onSuccess: () => {
-      utils.compute.getImageMember.invalidate({ imageId: image.id, memberId })
-      utils.compute.listImageMembers.invalidate({ imageId: image.id })
-      utils.compute.listImagesWithPagination.invalidate()
-      utils.compute.listSharedImagesByMemberStatus.invalidate()
-      onStatusChanged?.()
-    },
-  })
-
-  const handleStatusChange = async (newStatus: MemberStatus) => {
-    try {
-      await updateMemberMutation.mutateAsync({ imageId: image.id, memberId, status: newStatus })
-      setMessage({ text: t`Access status updated successfully.`, type: "info" })
-    } catch (error) {
-      const errorMessage = (error as TRPCClientError<InferrableClientTypes>)?.message || t`Failed to update status`
-      setMessage({ text: errorMessage, type: "error" })
-    }
-  }
 
   if (isLoading) {
     return (
@@ -170,9 +144,6 @@ const MemberAccessSection: React.FC<{
     return null
   }
 
-  const isPending = memberData.status === MEMBER_STATUSES.PENDING
-  const isUpdating = updateMemberMutation.isPending
-
   return (
     <Stack direction="vertical" gap="4">
       {message && <Message text={message.text} variant={message.type} onDismiss={() => setMessage(null)} />}
@@ -180,7 +151,9 @@ const MemberAccessSection: React.FC<{
       <DescriptionList alignTerms="right">
         <DescriptionTerm>{t`Access Status`}</DescriptionTerm>
         <DescriptionDefinition>
-          <Badge text={memberData.status} variant={getStatusBadgeVariant(memberData.status)} />
+          <div>
+            <Badge text={memberData.status} variant={getStatusBadgeVariant(memberData.status)} />
+          </div>
         </DescriptionDefinition>
 
         <DescriptionTerm>{t`Shared Since`}</DescriptionTerm>
@@ -193,40 +166,6 @@ const MemberAccessSection: React.FC<{
           {memberData.updated_at ? new Date(memberData.updated_at).toLocaleString() : ""}
         </DescriptionDefinition>
       </DescriptionList>
-
-      {canUpdateMember && (
-        <Stack direction="horizontal" gap="2">
-          {isPending && (
-            <>
-              <Button
-                label={t`Reject`}
-                variant="subdued"
-                onClick={() => handleStatusChange(MEMBER_STATUSES.REJECTED)}
-                disabled={isUpdating}
-              />
-              <Button
-                label={t`Accept`}
-                onClick={() => handleStatusChange(MEMBER_STATUSES.ACCEPTED)}
-                disabled={isUpdating}
-              />
-            </>
-          )}
-          {!isPending && memberData.status === MEMBER_STATUSES.REJECTED && (
-            <Button
-              label={t`Accept`}
-              onClick={() => handleStatusChange(MEMBER_STATUSES.ACCEPTED)}
-              disabled={isUpdating}
-            />
-          )}
-          {!isPending && memberData.status !== MEMBER_STATUSES.REJECTED && (
-            <Button
-              label={t`Revoke Access`}
-              onClick={() => handleStatusChange(MEMBER_STATUSES.REJECTED)}
-              disabled={isUpdating}
-            />
-          )}
-        </Stack>
-      )}
     </Stack>
   )
 }
@@ -266,13 +205,7 @@ const SharingSection: React.FC<ImageDetailsViewProps> = ({ image, currentProject
           setMessage={setMessage}
         />
       ) : (
-        currentProjectId && (
-          <MemberAccessSection
-            image={image}
-            memberId={currentProjectId}
-            canUpdateMember={permissions?.canUpdateMember ?? false}
-          />
-        )
+        currentProjectId && <MemberAccessSection image={image} memberId={currentProjectId} />
       )}
     </Container>
   )
@@ -342,8 +275,8 @@ export const ImageDetailsView: React.FC<ImageDetailsViewProps> = ({ image, curre
     <Stack direction="vertical" gap="6">
       <GeneralImageData image={image} />
       <SecuritySection image={image} currentProjectId={currentProjectId} />
-      <SharingSection image={image} currentProjectId={currentProjectId} permissions={permissions} />
       <CustomPropertiesSection image={image} />
+      <SharingSection image={image} currentProjectId={currentProjectId} permissions={permissions} />
     </Stack>
   )
 }
