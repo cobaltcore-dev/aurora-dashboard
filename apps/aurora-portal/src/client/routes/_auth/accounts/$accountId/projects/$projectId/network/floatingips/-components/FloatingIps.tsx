@@ -1,7 +1,7 @@
 import { useLingui } from "@lingui/react/macro"
 import { useParams } from "@tanstack/react-router"
 import { Button } from "@cloudoperators/juno-ui-components"
-import { FloatingIpCreateRequest, FloatingIpQueryParameters } from "@/server/Network/types/floatingIp"
+import { FloatingIpQueryParameters } from "@/server/Network/types/floatingIp"
 import { ListToolbar } from "@/client/components/ListToolbar"
 import { trpcReact } from "@/client/trpcClient"
 import { buildFilterParams } from "@/client/utils/buildFilterParams"
@@ -18,7 +18,6 @@ export const FloatingIps = () => {
   const { t } = useLingui()
   const { projectId } = useParams({ strict: false })
   const [allocateModalOpen, toggleAllocateModal] = useModal(false)
-  const utils = trpcReact.useUtils()
 
   const { searchTerm, handleSearchChange, sortSettings, handleSortChange, filterSettings, handleFilterChange } =
     useListWithFiltering<FloatingIpsSortKey>({
@@ -60,14 +59,6 @@ export const FloatingIps = () => {
     ...(searchTerm ? { searchTerm } : {}),
   })
 
-  const createFloatingIpMutation = trpcReact.network.floatingIp.create.useMutation({
-    onSettled: () => utils.network.floatingIp.list.invalidate(),
-  })
-
-  const handleCreateFloatingIp = async (data: FloatingIpCreateRequest) => {
-    await createFloatingIpMutation.mutateAsync({ ...data })
-  }
-
   return (
     <div className="relative">
       <ListToolbar
@@ -82,15 +73,7 @@ export const FloatingIps = () => {
 
       <FloatingIpListContainer floatingIps={floatingIps} isLoading={isLoading} isError={isError} error={error} />
 
-      {allocateModalOpen && (
-        <AllocateFloatingIpModal
-          open={allocateModalOpen}
-          onClose={toggleAllocateModal}
-          onUpdate={handleCreateFloatingIp}
-          isLoading={createFloatingIpMutation.isPending}
-          error={createFloatingIpMutation.error?.message ?? null}
-        />
-      )}
+      {allocateModalOpen && <AllocateFloatingIpModal open={allocateModalOpen} onClose={toggleAllocateModal} />}
     </div>
   )
 }
