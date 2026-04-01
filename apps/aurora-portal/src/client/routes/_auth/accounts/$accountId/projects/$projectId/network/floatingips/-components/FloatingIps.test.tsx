@@ -8,7 +8,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import type { FloatingIp, FloatingIpCreateRequest } from "@/server/Network/types/floatingIp"
 import { trpcReact } from "@/client/trpcClient"
 import type { AllocateFloatingIpModalProps } from "./-modals/AllocateFloatingIpModal"
-import { FloatingIps } from "./List"
+import { FloatingIps } from "./FloatingIps"
 
 // Mock useParams
 vi.mock("@tanstack/react-router", () => ({

@@ -3,7 +3,7 @@ import { Trans, useLingui } from "@lingui/react/macro"
 import { ErrorBoundary } from "react-error-boundary"
 import { getServiceIndex } from "@/server/Authentication/helpers"
 import { SecurityGroups } from "./-components/SecurityGroups/List"
-import { FloatingIps } from "./floatingips/-components/List"
+import { FloatingIps } from "./floatingips/-components/FloatingIps"
 
 const checkNetworkServiceAvailability = (
   availableServices: { type: string; name: string }[],
