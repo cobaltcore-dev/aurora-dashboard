@@ -142,7 +142,7 @@ msgstr "ACLs für Container \"{containerName}\" wurden erfolgreich aktualisiert.
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-components/-details/SecurityGroupRBACPolicies.tsx:143
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/DeleteRBACPolicyDialog.tsx:90
 msgid "Action"
-msgstr ""
+msgstr "Aktion"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageMetadataModal.tsx:314
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Instances/-components/ServerListView.tsx:25
@@ -224,7 +224,7 @@ msgstr "Nach dem Fortfahren hat Ihr Projekt keinen Zugriff mehr auf die Sicherhe
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/ObjectsFileNavigation.tsx:58
 msgid "All containers"
-msgstr ""
+msgstr "Alle Container"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/List.tsx:151
 msgid "All Images"
@@ -548,7 +548,7 @@ msgstr "Kopiert!"
 #: src/client/components/ClipboardText.tsx:48
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/ObjectsTableView.tsx:206
 msgid "Copy"
-msgstr ""
+msgstr "Kopieren"
 
 #: src/client/components/ClipboardText.tsx:60
 msgid "Copy {text} to clipboard"
@@ -916,7 +916,7 @@ msgstr ""
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/ObjectsTableView.tsx:192
 msgid "Download"
-msgstr ""
+msgstr "Herunterladen"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/CreateImageModal.tsx:439
 msgid "Drop your image file here"
@@ -1739,7 +1739,7 @@ msgstr "Zuletzt geändert"
 #. placeholder {0}: formatLastUpdated(lastUpdated)
 #: src/client/components/ListToolbar/index.tsx:218
 msgid "Last updated: {0}"
-msgstr ""
+msgstr "Zuletzt aktualisiert: {0}"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/AddRuleModal/sections/IcmpSection.tsx:39
 msgid "Leave empty for all codes"
@@ -2004,7 +2004,7 @@ msgstr "Weitere Aktionen"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/ObjectsTableView.tsx:213
 msgid "Move/Rename"
-msgstr ""
+msgstr "Verschieben/Umbenennen"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EditContainerMetadataModal.tsx:205
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EditContainerMetadataModal.tsx:211
@@ -2218,17 +2218,17 @@ msgstr "Objekt-Anzahl-Quota"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/ObjectsTableView.tsx:101
 msgid "Object Name"
-msgstr ""
+msgstr "Objektname"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/$provider/containers/$containerName/objects/index.tsx:145
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/$provider/containers/index.tsx:132
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/$provider/containers/index.tsx:135
 msgid "Object Storage"
-msgstr ""
+msgstr "Object Storage"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/DeleteRBACPolicyDialog.tsx:93
 msgid "Object Type"
-msgstr ""
+msgstr "Objekttyp"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EditContainerMetadataModal.tsx:567
 msgid "Object versioning"
@@ -2240,7 +2240,7 @@ msgstr "Objekte"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/$provider/containers/$containerName/objects/index.tsx:175
 msgid "Objects — {containerName}"
-msgstr ""
+msgstr "Objekte — {containerName}"
 
 #: src/client/components/Auth/InactivityModal.tsx:20
 msgid "OK"
@@ -2488,11 +2488,11 @@ msgstr ""
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-components/-details/SecurityGroupTabs.tsx:27
 msgid "RBAC Policies"
-msgstr ""
+msgstr "RBAC-Richtlinien"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/DeleteRBACPolicyDialog.tsx:83
 msgid "RBAC Policy Details:"
-msgstr ""
+msgstr "Details der RBAC-Richtlinie:"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ManageContainerAccessModal.tsx:294
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ManageContainerAccessModal.tsx:389
@@ -2544,7 +2544,7 @@ msgstr "Entfernte Quelle"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/DeleteRBACPolicyDialog.tsx:108
 msgid "remove"
-msgstr ""
+msgstr "entfernen"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/TenantAccessRow.tsx:50
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/CreateImageModal.tsx:486
@@ -2570,11 +2570,11 @@ msgstr "Mitgliedszugriff entfernen"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/DeleteRBACPolicyDialog.tsx:56
 msgid "Remove Policy"
-msgstr ""
+msgstr "Richtlinie entfernen"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/DeleteRBACPolicyDialog.tsx:46
 msgid "Remove RBAC Policy"
-msgstr ""
+msgstr "RBAC-Richtlinie entfernen"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/TenantAccessRow.tsx:45
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/TenantAccessRow.tsx:46
@@ -2583,7 +2583,7 @@ msgstr "Projektzugriff entfernen"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/DeleteRBACPolicyDialog.tsx:56
 msgid "Removing..."
-msgstr ""
+msgstr "Wird entfernt..."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EditContainerMetadataModal.tsx:646
 msgid "Reserved keys: web-index, web-listings, quota-count, quota-bytes"
@@ -2837,7 +2837,7 @@ msgstr "Details anzeigen"
 
 #: src/client/components/ListToolbar/index.tsx:211
 msgid "Showing {filteredCount} of {totalCount} {itemName}"
-msgstr ""
+msgstr "Zeige {filteredCount} von {totalCount} {itemName}"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EmptyContainerModal.tsx:214
 msgid "Showing first {actualObjectCount} of {total} objects"
@@ -3141,7 +3141,7 @@ msgstr ""
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/DeleteRBACPolicyDialog.tsx:68
 msgid "This action cannot be undone. The target project will lose access to this security group immediately."
-msgstr ""
+msgstr "Diese Aktion kann nicht rückgängig gemacht werden. Das Zielprojekt verliert sofort den Zugriff auf diese Sicherheitsgruppe."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/ReleaseFloatingIpModal.tsx:84
 msgid "This action is permanent. The address will be removed from your project and returned to the public pool. This action cannot be undone."
@@ -3258,7 +3258,7 @@ msgstr ""
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/DeleteRBACPolicyDialog.tsx:101
 msgid "Type <0>remove</0> to confirm:"
-msgstr ""
+msgstr "Geben Sie <0>entfernen</0> zur Bestätigung ein:"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/DeleteContainerModal.tsx:201
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EmptyContainerModal.tsx:224
