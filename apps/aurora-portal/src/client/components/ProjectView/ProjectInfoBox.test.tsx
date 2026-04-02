@@ -111,8 +111,9 @@ describe("ProjectInfoBox", () => {
       render(<RouterProvider router={createTestRouter(<ProjectInfoBox {...propsWithoutDomain} />)} />)
 
       await waitFor(() => {
-        expect(screen.queryByText("my-domain.com")).not.toBeInTheDocument()
+        expect(screen.getByText(/project-123/)).toBeInTheDocument()
       })
+      expect(screen.queryByText("my-domain.com")).not.toBeInTheDocument()
     })
   })
 })
