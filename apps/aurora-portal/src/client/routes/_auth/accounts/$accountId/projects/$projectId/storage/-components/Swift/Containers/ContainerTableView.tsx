@@ -1,5 +1,6 @@
 import { useRef, useEffect, useState } from "react"
 import { useVirtualizer } from "@tanstack/react-virtual"
+import { useNavigate, useParams } from "@tanstack/react-router"
 import {
   DataGrid,
   DataGridHeadCell,
@@ -31,7 +32,6 @@ import {
   getContainerAclUpdatedToast,
   getContainerAclUpdateErrorToast,
 } from "./ContainerToastNotifications"
-import { Link, useParams } from "@tanstack/react-router"
 
 interface ContainerTableViewProps {
   containers: ContainerSummary[]
@@ -51,6 +51,8 @@ export const ContainerTableView = ({
   })
 
   const { t } = useLingui()
+  const navigate = useNavigate()
+
   const parentRef = useRef<HTMLDivElement>(null)
   const [scrollbarWidth, setScrollbarWidth] = useState(0)
   const [toastData, setToastData] = useState<ToastProps | null>(null)
@@ -151,7 +153,6 @@ export const ContainerTableView = ({
   const gridColumnTemplate = "minmax(200px, 2fr) minmax(100px, 1fr) minmax(180px, 2fr) minmax(100px, 1fr) 60px"
 
   const allContainersCount = containers.length
-  const virtualizedContainersCount = rowVirtualizer.getVirtualItems().length
 
   return (
     <>
@@ -202,12 +203,19 @@ export const ContainerTableView = ({
           >
             {rowVirtualizer.getVirtualItems().map((virtualRow) => {
               const container = containers[virtualRow.index]
+
+              const handleRowNavigate = () =>
+                navigate({
+                  to: "/accounts/$accountId/projects/$projectId/storage/$provider/containers/$containerName/objects",
+                  params: { accountId, projectId, provider, containerName: container.name },
+                })
+
               return (
                 <div
                   key={container.name}
                   data-index={virtualRow.index}
                   ref={rowVirtualizer.measureElement}
-                  className="juno-datagrid"
+                  className="juno-datagrid group hover:bg-theme-background-lvl-1 cursor-pointer"
                   style={{
                     position: "absolute",
                     top: 0,
@@ -219,21 +227,25 @@ export const ContainerTableView = ({
                     alignItems: "stretch",
                   }}
                   data-testid={`container-row-${container.name}`}
+                  role="link"
+                  tabIndex={0}
+                  onClick={handleRowNavigate}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault()
+                      handleRowNavigate()
+                    }
+                  }}
                 >
                   <DataGridCell className="min-w-0 overflow-hidden">
-                    <Link
-                      to="/accounts/$accountId/projects/$projectId/storage/$provider/containers/$containerName/objects"
-                      params={{ accountId, projectId, provider, containerName: container.name }}
-                      className="text-theme-default hover:text-theme-link block truncate"
-                      title={container.name}
-                    >
+                    <span className="block truncate" title={container.name}>
                       {container.name}
-                    </Link>
+                    </span>
                   </DataGridCell>
                   <DataGridCell>{container.count.toLocaleString()}</DataGridCell>
                   <DataGridCell>{container.last_modified ? formatDate(container.last_modified) : t`N/A`}</DataGridCell>
                   <DataGridCell>{formatBytesBinary(container.bytes)}</DataGridCell>
-                  <DataGridCell>
+                  <DataGridCell onClick={(e) => e.stopPropagation()}>
                     <PopupMenu>
                       <PopupMenuOptions>
                         <PopupMenuItem
@@ -267,9 +279,11 @@ export const ContainerTableView = ({
 
         {/* Footer with count */}
         <div className="text-theme-light border-theme-background-lvl-2 border-t px-4 py-2 text-sm">
-          <Trans>
-            Showing {virtualizedContainersCount} of {allContainersCount} containers
-          </Trans>
+          {allContainersCount === 1 ? (
+            <Trans>{allContainersCount} container</Trans>
+          ) : (
+            <Trans>{allContainersCount} containers</Trans>
+          )}
         </div>
       </div>
 

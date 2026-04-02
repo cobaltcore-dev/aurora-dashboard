@@ -27,6 +27,18 @@ vi.mock("@tanstack/react-virtual", () => ({
   }),
 }))
 
+// DeleteFolderModal uses tRPC + useParams internally — mock it to keep
+// ObjectsTableView tests isolated.
+vi.mock("./DeleteFolderModal", () => ({
+  DeleteFolderModal: vi.fn(({ isOpen, onClose }) =>
+    isOpen ? (
+      <div data-testid="delete-folder-modal">
+        <button onClick={onClose}>Cancel</button>
+      </div>
+    ) : null
+  ),
+}))
+
 // ─── Fixtures ─────────────────────────────────────────────────────────────────
 
 const makeFolder = (name: string): BrowserRow => ({
@@ -58,15 +70,25 @@ const renderView = ({
   rows = mockRows,
   searchTerm = "",
   onFolderClick = vi.fn(),
+  onDeleteFolderSuccess = vi.fn(),
+  onDeleteFolderError = vi.fn(),
 }: {
   rows?: BrowserRow[]
   searchTerm?: string
   onFolderClick?: (prefix: string) => void
+  onDeleteFolderSuccess?: (folderName: string, deletedCount: number) => void
+  onDeleteFolderError?: (folderName: string, errorMessage: string) => void
 } = {}) =>
   render(
     <I18nProvider i18n={i18n}>
       <PortalProvider>
-        <ObjectsTableView rows={rows} searchTerm={searchTerm} onFolderClick={onFolderClick} />
+        <ObjectsTableView
+          rows={rows}
+          searchTerm={searchTerm}
+          onFolderClick={onFolderClick}
+          onDeleteFolderSuccess={onDeleteFolderSuccess}
+          onDeleteFolderError={onDeleteFolderError}
+        />
       </PortalProvider>
     </I18nProvider>
   )
@@ -180,6 +202,32 @@ describe("ObjectsTableView", () => {
     test("object rows do not render as buttons", () => {
       renderView({ rows: [makeObject("readme.txt")] })
       expect(screen.queryByTestId("folder-readme.txt")).not.toBeInTheDocument()
+    })
+  })
+
+  describe("Delete folder modal", () => {
+    test("delete folder modal is closed by default", () => {
+      renderView()
+      expect(screen.queryByTestId("delete-folder-modal")).not.toBeInTheDocument()
+    })
+
+    test("opens delete folder modal when Delete Recursively is clicked", async () => {
+      const user = userEvent.setup()
+      renderView({ rows: [makeFolder("documents")] })
+      // The popup menu items are only rendered after the toggle button is opened
+      await user.click(screen.getByRole("button", { name: /More/i }))
+      await user.click(screen.getByTestId("delete-recursively-action-documents/"))
+      expect(screen.getByTestId("delete-folder-modal")).toBeInTheDocument()
+    })
+
+    test("closes delete folder modal when onClose is called", async () => {
+      const user = userEvent.setup()
+      renderView({ rows: [makeFolder("documents")] })
+      await user.click(screen.getByRole("button", { name: /More/i }))
+      await user.click(screen.getByTestId("delete-recursively-action-documents/"))
+      expect(screen.getByTestId("delete-folder-modal")).toBeInTheDocument()
+      await user.click(screen.getByRole("button", { name: /Cancel/i }))
+      expect(screen.queryByTestId("delete-folder-modal")).not.toBeInTheDocument()
     })
   })
 
