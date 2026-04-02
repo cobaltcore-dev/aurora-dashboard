@@ -1,13 +1,7 @@
 import { z } from "zod"
 import { useForm } from "@tanstack/react-form"
 import { Trans, useLingui } from "@lingui/react/macro"
-import {
-  Modal,
-  Form,
-  FormSection,
-  TextInput,
-  Message,
-} from "@cloudoperators/juno-ui-components"
+import { Modal, Form, FormSection, TextInput, Message } from "@cloudoperators/juno-ui-components"
 import { trpcReact } from "@/client/trpcClient"
 
 interface AddRBACPolicyModalProps {
@@ -83,8 +77,8 @@ export function AddRBACPolicyModal({ isOpen, onClose, securityGroupId }: AddRBAC
     >
       <Message variant="info" className="mb-4">
         <Trans>
-          Share this security group with another project. The target project will be able to view and use this
-          security group, but will not be able to modify or delete it.
+          Share this security group with another project. The target project will be able to view and use this security
+          group, but will not be able to modify or delete it.
         </Trans>
       </Message>
 

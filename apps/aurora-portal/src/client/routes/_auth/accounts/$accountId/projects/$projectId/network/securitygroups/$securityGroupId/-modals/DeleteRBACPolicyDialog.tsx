@@ -97,7 +97,7 @@ export function DeleteRBACPolicyDialog({
         {/* Confirmation Input */}
         {!isLoading && (
           <Form
-            className="mb-0 mt-4"
+            className="mt-4 mb-0"
             onSubmit={(e) => {
               e.preventDefault()
               form.handleSubmit()
