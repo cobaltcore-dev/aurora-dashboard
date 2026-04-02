@@ -331,9 +331,16 @@ describe("EditImageMetadataModal", () => {
     // Verify property exists
     expect(screen.getByText("os_version")).toBeInTheDocument()
 
+    // First click: shows confirm button
     const deleteButton = screen.getByTestId("delete-os_version")
     await act(async () => {
       fireEvent.click(deleteButton)
+    })
+
+    // Second click: confirm deletion
+    const confirmButton = screen.getByTestId("confirm-delete-os_version")
+    await act(async () => {
+      fireEvent.click(confirmButton)
     })
 
     await waitFor(() => {
