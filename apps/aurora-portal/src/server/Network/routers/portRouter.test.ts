@@ -148,7 +148,7 @@ describe("portRouter.listAvailablePorts", () => {
     await expect(caller.port.listAvailablePorts({})).rejects.toThrow(
       new TRPCError({
         code: "PARSE_ERROR",
-        message: "Failed to parse ports response from OpenStack",
+        message: "Failed to parse response in portRouter.listAvailablePorts",
       })
     )
 
