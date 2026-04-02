@@ -15,6 +15,7 @@ import { RBACPolicyRow } from "./RBACPolicyRow"
 import { AddRBACPolicyModal } from "../../-modals/AddRBACPolicyModal"
 import { DeleteRBACPolicyDialog } from "../../-modals/DeleteRBACPolicyDialog"
 import { ListToolbar } from "@/client/components/ListToolbar"
+import { useModal } from "@/client/utils/useModal"
 
 interface SecurityGroupRBACPoliciesProps {
   securityGroupId: string
@@ -24,7 +25,7 @@ export function SecurityGroupRBACPolicies({ securityGroupId }: SecurityGroupRBAC
   const utils = trpcReact.useUtils()
   const { t } = useLingui()
 
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false)
+  const [isAddModalOpen, toggleAddModal] = useModal()
   const [policyToDelete, setPolicyToDelete] = useState<RBACPolicy | null>(null)
   const [searchTerm, setSearchTerm] = useState("")
 
@@ -120,7 +121,7 @@ export function SecurityGroupRBACPolicies({ securityGroupId }: SecurityGroupRBAC
           searchTerm={searchTerm}
           onSearch={handleSearchChange}
           actions={
-            <Button variant="primary" icon="addCircle" onClick={() => setIsAddModalOpen(true)}>
+            <Button variant="primary" icon="addCircle" onClick={toggleAddModal}>
               <Trans>Share Security Group</Trans>
             </Button>
           }
@@ -168,11 +169,7 @@ export function SecurityGroupRBACPolicies({ securityGroupId }: SecurityGroupRBAC
 
       {/* Add RBAC Policy Modal */}
       {isAddModalOpen && (
-        <AddRBACPolicyModal
-          isOpen={isAddModalOpen}
-          onClose={() => setIsAddModalOpen(false)}
-          securityGroupId={securityGroupId}
-        />
+        <AddRBACPolicyModal isOpen={isAddModalOpen} onClose={toggleAddModal} securityGroupId={securityGroupId} />
       )}
     </>
   )

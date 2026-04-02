@@ -1,9 +1,8 @@
-import { TRPCError } from "@trpc/server"
 import { protectedProcedure } from "@/server/trpc"
 import { withErrorHandling } from "@/server/helpers/errorHandling"
 import { appendQueryParamsFromObject } from "@/server/helpers/queryParams"
 import { ListAvailablePortsQuerySchema, AvailablePort, AvailablePortListResponseSchema } from "../types/port"
-import { getNetworkService } from "../helpers/index"
+import { getNetworkService, parseOrThrow } from "../helpers/index"
 import { PortErrorHandlers } from "../helpers/portHelpers"
 
 export const PORT_BASE_URL = "v2.0/ports"
@@ -35,16 +34,7 @@ export const portRouter = {
         }
 
         const data = await response.json()
-        const parsed = AvailablePortListResponseSchema.safeParse(data)
-        if (!parsed.success) {
-          console.error("Zod Parsing Error in portRouter.listAvailablePorts:", parsed.error.format())
-          throw new TRPCError({
-            code: "PARSE_ERROR",
-            message: "Failed to parse ports response from OpenStack",
-          })
-        }
-
-        return parsed.data.ports
+        return parseOrThrow(AvailablePortListResponseSchema, data, "portRouter.listAvailablePorts").ports
       }, "list available ports")
     }),
 }

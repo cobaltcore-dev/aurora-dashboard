@@ -17,6 +17,7 @@ import type { ListSortConfig } from "@/client/utils/useListWithFiltering"
 import { DeleteRuleDialog } from "../../-modals/DeleteRuleDialog"
 import { AddRuleModal } from "../../-modals/AddRuleModal/AddRuleModal"
 import { ListToolbar } from "@/client/components/ListToolbar"
+import { useModal } from "@/client/utils/useModal"
 
 interface SecurityGroupRulesTableProps {
   rules: SecurityGroupRule[] // Filtered rules
@@ -59,7 +60,7 @@ export function SecurityGroupRulesTable({
 }: SecurityGroupRulesTableProps) {
   const { t } = useLingui()
   const [ruleToDelete, setRuleToDelete] = useState<SecurityGroupRule | null>(null)
-  const [isAddRuleModalOpen, setIsAddRuleModalOpen] = useState(false)
+  const [isAddRuleModalOpen, toggleAddRuleModal] = useModal()
 
   const handleDeleteClick = (rule: SecurityGroupRule) => {
     setRuleToDelete(rule)
@@ -73,14 +74,6 @@ export function SecurityGroupRulesTable({
     if (!isDeletingRule) {
       setRuleToDelete(null)
     }
-  }
-
-  const handleAddRuleClick = () => {
-    setIsAddRuleModalOpen(true)
-  }
-
-  const handleCloseAddRuleModal = () => {
-    setIsAddRuleModalOpen(false)
   }
 
   // Close dialog after successful deletion
@@ -127,7 +120,7 @@ export function SecurityGroupRulesTable({
           onSearch={onSearchChange}
           actions={
             onCreateRule && (
-              <Button variant="primary" icon="addCircle" onClick={handleAddRuleClick}>
+              <Button variant="primary" icon="addCircle" onClick={toggleAddRuleModal}>
                 <Trans>Add rule</Trans>
               </Button>
             )
@@ -178,11 +171,11 @@ export function SecurityGroupRulesTable({
       />
 
       {/* Add Rule Modal */}
-      {securityGroupId && onCreateRule && (
+      {securityGroupId && onCreateRule && isAddRuleModalOpen && (
         <AddRuleModal
           securityGroupId={securityGroupId}
           open={isAddRuleModalOpen}
-          onClose={handleCloseAddRuleModal}
+          onClose={toggleAddRuleModal}
           onCreate={onCreateRule}
           isLoading={isCreatingRule}
           error={createRuleError}

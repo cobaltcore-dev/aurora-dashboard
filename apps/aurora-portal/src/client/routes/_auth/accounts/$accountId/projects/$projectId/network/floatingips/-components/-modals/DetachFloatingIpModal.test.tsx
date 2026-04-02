@@ -4,8 +4,8 @@ import userEvent from "@testing-library/user-event"
 import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import { i18n } from "@lingui/core"
 import { I18nProvider } from "@lingui/react"
-import { DetachFloatingIpModal, DetachFloatingIpModalProps } from "./DetachFloatingIpModal"
 import type { FloatingIp } from "@/server/Network/types/floatingIp"
+import { DetachFloatingIpModal, DetachFloatingIpModalProps } from "./DetachFloatingIpModal"
 
 const mockFloatingIp: FloatingIp = {
   id: "fip-123",
