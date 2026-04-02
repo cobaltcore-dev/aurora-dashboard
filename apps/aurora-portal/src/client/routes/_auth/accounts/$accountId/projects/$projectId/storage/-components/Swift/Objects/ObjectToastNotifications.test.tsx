@@ -7,6 +7,7 @@ import {
   getFolderCreateErrorToast,
   getFolderDeletedToast,
   getFolderDeleteErrorToast,
+  getObjectDownloadErrorToast,
 } from "./ObjectToastNotifications"
 
 describe("ObjectToastNotifications", () => {
@@ -192,6 +193,54 @@ describe("ObjectToastNotifications", () => {
     })
   })
 
+  // ── getObjectDownloadErrorToast ──────────────────────────────────────────────
+
+  describe("getObjectDownloadErrorToast", () => {
+    it("returns error toast with correct structure", () => {
+      const toast = getObjectDownloadErrorToast("file.txt", "Connection refused", defaultConfig)
+      expect(toast.variant).toBe("error")
+      expect(toast.autoDismiss).toBe(true)
+      expect(toast.autoDismissTimeout).toBe(5000)
+      expect(toast.onDismiss).toBe(mockOnDismiss)
+      expect(toast.children).toBeDefined()
+    })
+
+    it("renders correct error message content", () => {
+      const toast = getObjectDownloadErrorToast("file.txt", "Connection refused", defaultConfig)
+      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+      expect(screen.getByText("Failed to Download")).toBeInTheDocument()
+      expect(screen.getByText(/file\.txt/)).toBeInTheDocument()
+      expect(screen.getByText(/Could not download/)).toBeInTheDocument()
+      expect(screen.getByText(/Connection refused/)).toBeInTheDocument()
+    })
+
+    it("uses custom autoDismissTimeout when provided", () => {
+      const toast = getObjectDownloadErrorToast("file.txt", "err", {
+        onDismiss: mockOnDismiss,
+        autoDismissTimeout: 8000,
+      })
+      expect(toast.autoDismissTimeout).toBe(8000)
+    })
+
+    it("handles different error messages", () => {
+      const toast = getObjectDownloadErrorToast("report.pdf", "Object not found", defaultConfig)
+      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+      expect(screen.getByText(/Object not found/)).toBeInTheDocument()
+    })
+
+    it("handles empty error message", () => {
+      const toast = getObjectDownloadErrorToast("file.txt", "", defaultConfig)
+      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+      expect(screen.getByText("Failed to Download")).toBeInTheDocument()
+    })
+
+    it("handles object names with special characters", () => {
+      const toast = getObjectDownloadErrorToast("my file (2024).txt", "err", defaultConfig)
+      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+      expect(screen.getByText(/my file \(2024\)\.txt/)).toBeInTheDocument()
+    })
+  })
+
   // ── Toast configuration ──────────────────────────────────────────────────────
 
   describe("Toast configuration", () => {
@@ -208,6 +257,7 @@ describe("ObjectToastNotifications", () => {
       const errorToasts = [
         getFolderCreateErrorToast("f", "err", defaultConfig),
         getFolderDeleteErrorToast("f", "err", defaultConfig),
+        getObjectDownloadErrorToast("f", "err", defaultConfig),
       ]
       errorToasts.forEach((toast) => {
         expect(toast.variant).toBe("error")
@@ -230,6 +280,7 @@ describe("ObjectToastNotifications", () => {
         getFolderCreateErrorToast("f", "err", { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
         getFolderDeletedToast("f", 2, { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
         getFolderDeleteErrorToast("f", "err", { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
+        getObjectDownloadErrorToast("f", "err", { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
       ]
       toasts.forEach((toast) => {
         expect(toast.autoDismissTimeout).toBe(customTimeout)
@@ -242,6 +293,7 @@ describe("ObjectToastNotifications", () => {
         getFolderCreateErrorToast("f", "err", defaultConfig),
         getFolderDeletedToast("f", 2, defaultConfig),
         getFolderDeleteErrorToast("f", "err", defaultConfig),
+        getObjectDownloadErrorToast("f", "err", defaultConfig),
       ]
       toasts.forEach((toast) => {
         expect(toast.children).toBeTruthy()

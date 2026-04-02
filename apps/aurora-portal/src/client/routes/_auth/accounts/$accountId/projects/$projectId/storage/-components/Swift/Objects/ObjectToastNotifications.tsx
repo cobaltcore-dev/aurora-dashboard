@@ -101,3 +101,24 @@ export const getFolderDeleteErrorToast = (
     />
   ),
 })
+
+export const getObjectDownloadErrorToast = (
+  objectName: string,
+  errorMessage: string,
+  config: ToastConfig
+): ToastProps => ({
+  variant: "error",
+  autoDismiss: true,
+  autoDismissTimeout: config.autoDismissTimeout ?? 5000,
+  onDismiss: config.onDismiss,
+  children: (
+    <NotificationText
+      title={<Trans>Failed to Download</Trans>}
+      description={
+        <Trans>
+          Could not download "{objectName}": {errorMessage}
+        </Trans>
+      }
+    />
+  ),
+})

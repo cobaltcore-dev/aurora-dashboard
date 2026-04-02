@@ -53,6 +53,7 @@ import {
   deleteFolderInputSchema,
   TempUrl,
   generateTempUrlInputSchema,
+  downloadObjectInputSchema,
 } from "../types/swift"
 export const swiftRouter = {
   // ============================================================================
@@ -1223,5 +1224,39 @@ export const swiftRouter = {
           expiresAt,
         }
       }, "generate temp URL")
+    }),
+
+  // ============================================================================
+  // DOWNLOAD OPERATIONS
+  // ============================================================================
+
+  /**
+   * Downloads a Swift object via the BFF and returns its content as a base64
+   * string so the client can construct a Blob and trigger a save dialog.
+   */
+  downloadObject: protectedProcedure
+    .input(downloadObjectInputSchema)
+    .mutation(async ({ input, ctx }): Promise<{ base64: string; contentType: string; filename: string }> => {
+      return withErrorHandling(async () => {
+        const { container, object, filename, account } = input
+        const swift = ctx.openstack?.service("swift")
+
+        validateSwiftService(swift)
+
+        const accountPath = account || ""
+        const url = accountPath
+          ? `${accountPath}/${encodeURIComponent(container)}/${encodeURIComponent(object)}`
+          : `${encodeURIComponent(container)}/${encodeURIComponent(object)}`
+
+        const response = await swift.get(url).catch((error) => {
+          throw mapErrorResponseToTRPCError(error, { operation: "download object", container, object })
+        })
+
+        const contentType = response.headers.get("content-type") ?? "application/octet-stream"
+        const buffer = await response.arrayBuffer()
+        const base64 = Buffer.from(buffer).toString("base64")
+
+        return { base64, contentType, filename }
+      }, "download object")
     }),
 }

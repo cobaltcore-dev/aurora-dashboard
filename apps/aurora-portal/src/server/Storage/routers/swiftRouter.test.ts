@@ -139,6 +139,8 @@ const createCaller = createCallerFactory(auroraRouter({ storage: { swift: swiftR
 describe("swiftRouter", () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    // Reset validateSwiftService to no-op (prevents leak from Error Handling tests)
+    ;(swiftHelpers.validateSwiftService as Mock).mockImplementation(() => {})
     // Reset withErrorHandling to pass through by default
     ;(swiftHelpers.withErrorHandling as Mock).mockImplementation((fn) => fn())
     // Reset parseObjectMetadata to return mock data
@@ -1489,6 +1491,104 @@ describe("swiftRouter", () => {
       mockCtx.mockSwift.get.mockRejectedValue(mockError)
 
       await expect(caller.storage.swift.getObject({ container: "test", object: "missing.txt" })).rejects.toThrow()
+    })
+  })
+
+  // ============================================================================
+  // DOWNLOAD OPERATIONS
+  // ============================================================================
+
+  describe("downloadObject", () => {
+    it("should successfully download object and return base64 content", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      const mockContent = new TextEncoder().encode("Hello, World!")
+      mockCtx.mockSwift.get.mockResolvedValue({
+        ok: true,
+        headers: new Headers({ "content-type": "text/plain" }),
+        arrayBuffer: vi.fn().mockResolvedValue(mockContent.buffer),
+      })
+
+      const result = await caller.storage.swift.downloadObject({
+        container: "test-container",
+        object: "Hello_world.txt",
+        filename: "Hello_world.txt",
+      })
+
+      expect(mockCtx.mockSwift.get).toHaveBeenCalledWith(expect.stringContaining("test-container"))
+      expect(result.contentType).toBe("text/plain")
+      expect(result.filename).toBe("Hello_world.txt")
+      expect(typeof result.base64).toBe("string")
+      // Decode and verify round-trip
+      expect(Buffer.from(result.base64, "base64").toString()).toBe("Hello, World!")
+    })
+
+    it("should fall back to application/octet-stream when content-type header is absent", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      mockCtx.mockSwift.get.mockResolvedValue({
+        ok: true,
+        headers: new Headers(),
+        arrayBuffer: vi.fn().mockResolvedValue(new ArrayBuffer(0)),
+      })
+
+      const result = await caller.storage.swift.downloadObject({
+        container: "test-container",
+        object: "binary.bin",
+        filename: "binary.bin",
+      })
+
+      expect(result.contentType).toBe("application/octet-stream")
+    })
+
+    it("should include account in URL when provided", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      mockCtx.mockSwift.get.mockResolvedValue({
+        ok: true,
+        headers: new Headers({ "content-type": "text/plain" }),
+        arrayBuffer: vi.fn().mockResolvedValue(new ArrayBuffer(0)),
+      })
+
+      await caller.storage.swift.downloadObject({
+        container: "test-container",
+        object: "file.txt",
+        filename: "file.txt",
+        account: "AUTH_abc123",
+      })
+
+      expect(mockCtx.mockSwift.get).toHaveBeenCalledWith(expect.stringContaining("AUTH_abc123"))
+    })
+
+    it("should throw UNAUTHORIZED when session validation fails", async () => {
+      const mockCtx = createMockContext(true)
+      const caller = createCaller(mockCtx)
+
+      await expect(
+        caller.storage.swift.downloadObject({
+          container: "test-container",
+          object: "file.txt",
+          filename: "file.txt",
+        })
+      ).rejects.toThrow(new TRPCError({ code: "UNAUTHORIZED", message: "The session is invalid" }))
+    })
+
+    it("should throw when Swift GET fails", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      mockCtx.mockSwift.get.mockRejectedValue({ statusCode: 404, message: "Not Found" })
+
+      await expect(
+        caller.storage.swift.downloadObject({
+          container: "test-container",
+          object: "missing.txt",
+          filename: "missing.txt",
+        })
+      ).rejects.toThrow()
     })
   })
 })

@@ -403,6 +403,12 @@ export const tempUrlSchema = z.object({
   expiresAt: z.number(), // Unix timestamp
 })
 
+// Download object input schema
+export const downloadObjectInputSchema = baseContainerInputSchema.extend({
+  object: z.string().min(1),
+  filename: z.string(),
+})
+
 // ============================================================================
 // RESPONSE SCHEMAS
 // ============================================================================
@@ -475,3 +481,5 @@ export type MoveFolderInput = z.infer<typeof moveFolderInputSchema>
 export type DeleteFolderInput = z.infer<typeof deleteFolderInputSchema>
 
 export type GenerateTempUrlInput = z.infer<typeof generateTempUrlInputSchema>
+
+export type DownloadObjectInput = z.infer<typeof downloadObjectInputSchema>
