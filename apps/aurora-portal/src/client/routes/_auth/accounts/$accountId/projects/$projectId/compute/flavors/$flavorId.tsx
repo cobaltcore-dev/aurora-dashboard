@@ -18,7 +18,7 @@ import { useErrorTranslation } from "@/client/utils/useErrorTranslation"
 import { EditSpecModal } from "../-components/Flavors/-components/EditSpecModal"
 import { ManageAccessModal } from "../-components/Flavors/-components/ManageAccessModal"
 import { DeleteFlavorModal } from "../-components/Flavors/-components/DeleteFlavorModal"
-import { useState } from "react"
+import { useModal } from "@/client/utils/useModal"
 
 export const Route = createFileRoute("/_auth/accounts/$accountId/projects/$projectId/compute/flavors/$flavorId")({
   component: RouteComponent,
@@ -69,9 +69,9 @@ function RouteComponent() {
   const canManageAccess = permissionsData?.[1] ?? false
   const canManageSpecs = (permissionsData?.[2] ?? false) || (permissionsData?.[3] ?? false)
 
-  const [specModalOpen, setSpecModalOpen] = useState(false)
-  const [accessModalOpen, setAccessModalOpen] = useState(false)
-  const [deleteModalOpen, setDeleteModalOpen] = useState(false)
+  const [specModalOpen, toggleSpecModal] = useModal()
+  const [accessModalOpen, toggleAccessModal] = useModal()
+  const [deleteModalOpen, toggleDeleteModal] = useModal()
 
   if (flavor?.name) {
     setPageTitle(flavor.name)
@@ -163,13 +163,13 @@ function RouteComponent() {
                 </Button>
               </PopupMenuToggle>
               <PopupMenuOptions>
-                {canManageAccess && <PopupMenuItem label={t`Manage Access`} onClick={() => setAccessModalOpen(true)} />}
-                {canDeleteFlavor && <PopupMenuItem label={t`Delete Flavor`} onClick={() => setDeleteModalOpen(true)} />}
+                {canManageAccess && <PopupMenuItem label={t`Manage Access`} onClick={toggleAccessModal} />}
+                {canDeleteFlavor && <PopupMenuItem label={t`Delete Flavor`} onClick={toggleDeleteModal} />}
               </PopupMenuOptions>
             </PopupMenu>
           )}
           {canManageSpecs && (
-            <Button onClick={() => setSpecModalOpen(true)} variant="primary">
+            <Button onClick={toggleSpecModal} variant="primary">
               <Trans>Metadata</Trans>
             </Button>
           )}
@@ -179,30 +179,36 @@ function RouteComponent() {
 
       {trpcClient && (
         <>
-          <EditSpecModal
-            client={trpcClient}
-            isOpen={specModalOpen}
-            onClose={() => setSpecModalOpen(false)}
-            project={projectId}
-            flavor={flavor}
-          />
+          {specModalOpen && (
+            <EditSpecModal
+              client={trpcClient}
+              isOpen={specModalOpen}
+              onClose={toggleSpecModal}
+              project={projectId}
+              flavor={flavor}
+            />
+          )}
 
-          <ManageAccessModal
-            client={trpcClient}
-            isOpen={accessModalOpen}
-            onClose={() => setAccessModalOpen(false)}
-            project={projectId}
-            flavor={flavor}
-          />
+          {accessModalOpen && (
+            <ManageAccessModal
+              client={trpcClient}
+              isOpen={accessModalOpen}
+              onClose={toggleAccessModal}
+              project={projectId}
+              flavor={flavor}
+            />
+          )}
 
-          <DeleteFlavorModal
-            client={trpcClient}
-            isOpen={deleteModalOpen}
-            onClose={() => setDeleteModalOpen(false)}
-            project={projectId}
-            flavor={flavor}
-            onSuccess={handleBack}
-          />
+          {deleteModalOpen && (
+            <DeleteFlavorModal
+              client={trpcClient}
+              isOpen={deleteModalOpen}
+              onClose={toggleDeleteModal}
+              project={projectId}
+              flavor={flavor}
+              onSuccess={handleBack}
+            />
+          )}
         </>
       )}
     </>
