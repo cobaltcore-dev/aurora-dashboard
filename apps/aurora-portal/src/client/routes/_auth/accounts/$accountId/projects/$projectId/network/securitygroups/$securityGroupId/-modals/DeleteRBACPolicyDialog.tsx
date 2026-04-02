@@ -64,11 +64,9 @@ export function DeleteRBACPolicyDialog({
     >
       <div>
         {/* Warning */}
-        <Message dismissible={false} variant="warning">
-          <Trans>
-            This action cannot be undone. The target project will lose access to this security group immediately.
-          </Trans>
-        </Message>
+        <Trans>
+          This action cannot be undone. The target project will lose access to this security group immediately.
+        </Trans>
 
         {/* Error Message */}
         {error && (

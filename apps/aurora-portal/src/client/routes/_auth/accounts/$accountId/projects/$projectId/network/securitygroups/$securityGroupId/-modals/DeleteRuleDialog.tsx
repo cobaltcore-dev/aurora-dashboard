@@ -57,9 +57,7 @@ export function DeleteRuleDialog({ rule, open, onClose, onConfirm, isLoading, er
     >
       <div>
         {/* Warning */}
-        <Message dismissible={false} variant="warning">
-          <Trans>This action cannot be undone. The rule will be permanently deleted.</Trans>
-        </Message>
+        <Trans>This action cannot be undone. The rule will be permanently deleted.</Trans>
 
         {/* Error Message */}
         {error && (

@@ -65,9 +65,7 @@ export const DeleteSecurityGroupDialog: React.FC<DeleteSecurityGroupDialogProps>
     >
       <div>
         {/* Warning */}
-        <Message dismissible={false} variant="warning">
-          <Trans>This action cannot be undone. The security group will be permanently deleted.</Trans>
-        </Message>
+        <Trans>This action cannot be undone. The security group will be permanently deleted.</Trans>
 
         {/* Error Message */}
         {error && (
@@ -93,12 +91,10 @@ export const DeleteSecurityGroupDialog: React.FC<DeleteSecurityGroupDialogProps>
         </p>
 
         {/* In-use warning */}
-        <Message dismissible={false} variant="info" className="mb-4">
-          <Trans>
-            Note: If this security group is currently in use by one or more ports, the deletion will fail. Please ensure
-            no resources are using this security group before attempting to delete it.
-          </Trans>
-        </Message>
+        <Trans>
+          Note: If this security group is currently in use by one or more ports, the deletion will fail. Please ensure
+          no resources are using this security group before attempting to delete it.
+        </Trans>
 
         {/* Confirmation Input */}
         <div className="mt-4">
