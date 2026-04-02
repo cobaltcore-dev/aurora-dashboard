@@ -1,113 +1,216 @@
-import React from "react"
+import React, { useState } from "react"
 import {
-  DataGrid,
-  DataGridCell,
-  DataGridHeadCell,
+  DescriptionList,
+  DescriptionTerm,
+  DescriptionDefinition,
   Container,
-  DataGridRow,
   ContentHeading,
   Stack,
+  Badge,
+  BadgeVariantType,
+  Spinner,
+  Message,
 } from "@cloudoperators/juno-ui-components"
 import { useLingui } from "@lingui/react/macro"
 import { GlanceImage } from "@/server/Compute/types/image"
 import { SizeDisplay } from "./SizeDisplay"
+import { trpcReact } from "@/client/trpcClient"
+import { MEMBER_STATUSES } from "../../../-constants/filters"
+import { ImageMembersTable } from "./ImageMembersTable"
 
 interface ImageDetailsViewProps {
   image: GlanceImage
+  currentProjectId?: string
+  permissions?: {
+    canCreateMember: boolean
+    canDeleteMember: boolean
+    canUpdateMember: boolean
+  }
 }
 
-export const GeneralImageData: React.FC<ImageDetailsViewProps> = ({ image }) => {
+export const GeneralImageData: React.FC<{ image: GlanceImage }> = ({ image }) => {
   const { t } = useLingui()
 
   return (
     <Container px={false} py>
       <ContentHeading>{t`General Image Data`}</ContentHeading>
-      <DataGrid columns={2} gridColumnTemplate="38% auto">
-        <DataGridRow>
-          <DataGridHeadCell>{t`ID`}</DataGridHeadCell>
-          <DataGridCell>{image.id}</DataGridCell>
-        </DataGridRow>
-        <DataGridRow>
-          <DataGridHeadCell>{t`Name`}</DataGridHeadCell>
-          <DataGridCell>{image.name}</DataGridCell>
-        </DataGridRow>
-        <DataGridRow>
-          <DataGridHeadCell>{t`Status`}</DataGridHeadCell>
-          <DataGridCell>{image.status}</DataGridCell>
-        </DataGridRow>
-        <DataGridRow>
-          <DataGridHeadCell>{t`Size`}</DataGridHeadCell>
-          <DataGridCell>
-            <SizeDisplay size={image.size} />
-          </DataGridCell>
-        </DataGridRow>
-        <DataGridRow>
-          <DataGridHeadCell>{t`Min. Disk`}</DataGridHeadCell>
-          <DataGridCell>{image.min_disk} GB</DataGridCell>
-        </DataGridRow>
-        <DataGridRow>
-          <DataGridHeadCell>{t`Min. RAM`}</DataGridHeadCell>
-          <DataGridCell>{image.min_ram} MB</DataGridCell>
-        </DataGridRow>
-        <DataGridRow>
-          <DataGridHeadCell>{t`Disk Format`}</DataGridHeadCell>
-          <DataGridCell>
-            <span className="uppercase">{image.disk_format}</span>
-          </DataGridCell>
-        </DataGridRow>
-        <DataGridRow>
-          <DataGridHeadCell>{t`Container Format`}</DataGridHeadCell>
-          <DataGridCell>
-            <span className="uppercase">{image.container_format}</span>
-          </DataGridCell>
-        </DataGridRow>
-        <DataGridRow>
-          <DataGridHeadCell>{t`Created At`}</DataGridHeadCell>
-          <DataGridCell>{image.created_at ? new Date(image.created_at).toLocaleDateString() : t`N/A`}</DataGridCell>
-        </DataGridRow>
-        <DataGridRow>
-          <DataGridHeadCell>{t`Updated At`}</DataGridHeadCell>
-          <DataGridCell>{image.updated_at ? new Date(image.updated_at).toLocaleDateString() : t`N/A`}</DataGridCell>
-        </DataGridRow>
-      </DataGrid>
+      <DescriptionList alignTerms="right">
+        <DescriptionTerm>{t`ID`}</DescriptionTerm>
+        <DescriptionDefinition>{image.id}</DescriptionDefinition>
+
+        <DescriptionTerm>{t`Name`}</DescriptionTerm>
+        <DescriptionDefinition>{image.name}</DescriptionDefinition>
+
+        <DescriptionTerm>{t`Status`}</DescriptionTerm>
+        <DescriptionDefinition>{image.status}</DescriptionDefinition>
+
+        <DescriptionTerm>{t`Size`}</DescriptionTerm>
+        <DescriptionDefinition>
+          <SizeDisplay size={image.size} />
+        </DescriptionDefinition>
+
+        <DescriptionTerm>{t`Min. Disk`}</DescriptionTerm>
+        <DescriptionDefinition>{image.min_disk} GB</DescriptionDefinition>
+
+        <DescriptionTerm>{t`Min. RAM`}</DescriptionTerm>
+        <DescriptionDefinition>{image.min_ram} MB</DescriptionDefinition>
+
+        <DescriptionTerm>{t`Disk Format`}</DescriptionTerm>
+        <DescriptionDefinition>
+          <span className="uppercase">{image.disk_format}</span>
+        </DescriptionDefinition>
+
+        <DescriptionTerm>{t`Container Format`}</DescriptionTerm>
+        <DescriptionDefinition>
+          <span className="uppercase">{image.container_format}</span>
+        </DescriptionDefinition>
+
+        <DescriptionTerm>{t`Created At`}</DescriptionTerm>
+        <DescriptionDefinition>
+          {image.created_at ? new Date(image.created_at).toLocaleDateString() : t`N/A`}
+        </DescriptionDefinition>
+
+        <DescriptionTerm>{t`Updated At`}</DescriptionTerm>
+        <DescriptionDefinition>
+          {image.updated_at ? new Date(image.updated_at).toLocaleDateString() : t`N/A`}
+        </DescriptionDefinition>
+      </DescriptionList>
     </Container>
   )
 }
 
-export const SecuritySection: React.FC<ImageDetailsViewProps> = ({ image }) => {
+export const SecuritySection: React.FC<{ image: GlanceImage; currentProjectId?: string }> = ({
+  image,
+  currentProjectId,
+}) => {
   const { t } = useLingui()
+
+  const isSharedWithMe = image.visibility === "shared" && image.owner !== undefined && image.owner !== currentProjectId
 
   return (
     <Container px={false} py>
       <ContentHeading>{t`Security`}</ContentHeading>
-      <DataGrid columns={2} gridColumnTemplate="38% auto">
-        <DataGridRow>
-          <DataGridHeadCell>{t`Owner`}</DataGridHeadCell>
-          <DataGridCell>{image.owner}</DataGridCell>
-        </DataGridRow>
-        <DataGridRow>
-          <DataGridHeadCell>{t`Visibility`}</DataGridHeadCell>
-          <DataGridCell>{image.visibility}</DataGridCell>
-        </DataGridRow>
-        <DataGridRow>
-          <DataGridHeadCell>{t`Protected`}</DataGridHeadCell>
-          <DataGridCell>{image.protected ? t`Yes` : t`No`}</DataGridCell>
-        </DataGridRow>
-        {image.checksum && (
-          <DataGridRow>
-            <DataGridHeadCell>{t`Checksum`}</DataGridHeadCell>
-            <DataGridCell>{image.checksum}</DataGridCell>
-          </DataGridRow>
-        )}
-      </DataGrid>
+      <DescriptionList alignTerms="right">
+        <DescriptionTerm>{isSharedWithMe ? t`Shared by Project` : t`Owner Project ID`}</DescriptionTerm>
+        <DescriptionDefinition>{image.owner}</DescriptionDefinition>
+
+        <DescriptionTerm>{t`Visibility`}</DescriptionTerm>
+        <DescriptionDefinition>{image.visibility}</DescriptionDefinition>
+
+        <DescriptionTerm>{t`Protected`}</DescriptionTerm>
+        <DescriptionDefinition>{image.protected ? t`Yes` : t`No`}</DescriptionDefinition>
+
+        <DescriptionTerm>{t`Checksum`}</DescriptionTerm>
+        <DescriptionDefinition>{image?.checksum ? image.checksum : ""}</DescriptionDefinition>
+      </DescriptionList>
     </Container>
   )
 }
 
-export const CustomPropertiesSection: React.FC<ImageDetailsViewProps> = ({ image }) => {
+function getStatusBadgeVariant(status: string): BadgeVariantType {
+  switch (status) {
+    case MEMBER_STATUSES.PENDING:
+      return "warning"
+    case MEMBER_STATUSES.ACCEPTED:
+      return "success"
+    case MEMBER_STATUSES.REJECTED:
+      return "danger"
+    default:
+      return "default"
+  }
+}
+
+const MemberAccessSection: React.FC<{
+  image: GlanceImage
+  memberId: string
+}> = ({ image, memberId }) => {
   const { t } = useLingui()
 
-  // Define the known fields that should NOT be displayed as custom metadata
+  const { data: memberData, isLoading } = trpcReact.compute.getImageMember.useQuery(
+    { imageId: image.id, memberId },
+    { enabled: !!image.id && !!memberId }
+  )
+
+  if (isLoading) {
+    return (
+      <Stack distribution="center" alignment="center" className="py-4">
+        <Spinner variant="primary" />
+      </Stack>
+    )
+  }
+
+  if (!memberData) {
+    return null
+  }
+
+  return (
+    <Stack direction="vertical" gap="4">
+      <DescriptionList alignTerms="right">
+        <DescriptionTerm>{t`Access Status`}</DescriptionTerm>
+        <DescriptionDefinition>
+          <div>
+            <Badge text={memberData.status} variant={getStatusBadgeVariant(memberData.status)} />
+          </div>
+        </DescriptionDefinition>
+
+        <DescriptionTerm>{t`Shared Since`}</DescriptionTerm>
+        <DescriptionDefinition>
+          {memberData.created_at ? new Date(memberData.created_at).toLocaleString() : ""}
+        </DescriptionDefinition>
+
+        <DescriptionTerm>{t`Last Updated`}</DescriptionTerm>
+        <DescriptionDefinition>
+          {memberData.updated_at ? new Date(memberData.updated_at).toLocaleString() : ""}
+        </DescriptionDefinition>
+      </DescriptionList>
+    </Stack>
+  )
+}
+
+const SharingSection: React.FC<ImageDetailsViewProps> = ({ image, currentProjectId, permissions }) => {
+  const { t } = useLingui()
+  const [isAddingMember, setIsAddingMember] = useState(false)
+  const [message, setMessage] = useState<{ text: string; type: "error" | "info" } | null>(null)
+
+  const isImageOwner = image.owner === currentProjectId
+  const isShared = image.visibility === "shared"
+
+  const { data: imageMembers, isLoading: isMembersLoading } = trpcReact.compute.listImageMembers.useQuery(
+    { imageId: image.id },
+    { enabled: isShared && isImageOwner && !!image.id }
+  )
+
+  if (!isShared) return null
+
+  return (
+    <Container px={false} py>
+      <ContentHeading>{t`Sharing`}</ContentHeading>
+
+      {message && (
+        <Message text={message.text} variant={message.type} onDismiss={() => setMessage(null)} className="mb-4" />
+      )}
+
+      {isImageOwner ? (
+        <ImageMembersTable
+          image={image}
+          imageMembers={imageMembers}
+          isMembersLoading={isMembersLoading}
+          canAdd={permissions?.canCreateMember ?? false}
+          canRemove={permissions?.canDeleteMember ?? false}
+          isAddingMember={isAddingMember}
+          setIsAddingMember={setIsAddingMember}
+          setMessage={setMessage}
+        />
+      ) : (
+        currentProjectId && <MemberAccessSection image={image} memberId={currentProjectId} />
+      )}
+    </Container>
+  )
+}
+
+export const CustomPropertiesSection: React.FC<{ image: GlanceImage }> = ({ image }) => {
+  const { t } = useLingui()
+
   const knownFields = new Set([
     "id",
     "name",
@@ -125,7 +228,6 @@ export const CustomPropertiesSection: React.FC<ImageDetailsViewProps> = ({ image
     "checksum",
   ])
 
-  // Extract all custom properties (anything not in knownFields)
   const customProperties = Object.entries(image)
     .filter(([key]) => !knownFields.has(key))
     .sort(([a], [b]) => a.localeCompare(b))
@@ -136,11 +238,11 @@ export const CustomPropertiesSection: React.FC<ImageDetailsViewProps> = ({ image
     <Container px={false} py>
       <ContentHeading>{t`Custom Properties / Metadata`}</ContentHeading>
       {hasProperties ? (
-        <DataGrid columns={2} gridColumnTemplate="38% auto">
+        <DescriptionList alignTerms="right" className="grid-cols-4">
           {customProperties.map(([key, value]) => (
-            <DataGridRow key={key}>
-              <DataGridHeadCell>{key}</DataGridHeadCell>
-              <DataGridCell>
+            <React.Fragment key={key}>
+              <DescriptionTerm className="col-span-1">{key}</DescriptionTerm>
+              <DescriptionDefinition className="col-span-1">
                 {value === null || value === undefined ? (
                   <span>null</span>
                 ) : typeof value === "object" ? (
@@ -154,10 +256,10 @@ export const CustomPropertiesSection: React.FC<ImageDetailsViewProps> = ({ image
                 ) : (
                   <span className="break-all">{String(value)}</span>
                 )}
-              </DataGridCell>
-            </DataGridRow>
+              </DescriptionDefinition>
+            </React.Fragment>
           ))}
-        </DataGrid>
+        </DescriptionList>
       ) : (
         <p className="text-theme-light">{t`No custom properties defined`}</p>
       )}
@@ -165,13 +267,13 @@ export const CustomPropertiesSection: React.FC<ImageDetailsViewProps> = ({ image
   )
 }
 
-// Example usage component
-export const ImageDetailsView: React.FC<ImageDetailsViewProps> = ({ image }) => {
+export const ImageDetailsView: React.FC<ImageDetailsViewProps> = ({ image, currentProjectId, permissions }) => {
   return (
     <Stack direction="vertical" gap="6">
       <GeneralImageData image={image} />
-      <SecuritySection image={image} />
+      <SecuritySection image={image} currentProjectId={currentProjectId} />
       <CustomPropertiesSection image={image} />
+      <SharingSection image={image} currentProjectId={currentProjectId} permissions={permissions} />
     </Stack>
   )
 }

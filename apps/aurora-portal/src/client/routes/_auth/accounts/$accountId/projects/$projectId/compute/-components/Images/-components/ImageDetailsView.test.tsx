@@ -8,6 +8,16 @@ import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import { ImageDetailsView, GeneralImageData, SecuritySection, CustomPropertiesSection } from "./ImageDetailsView"
 import { JSX } from "react"
 
+vi.mock("./ImageMembersTable", () => ({ ImageMembersTable: () => null }))
+vi.mock("@/client/trpcClient", () => ({
+  trpcReact: {
+    compute: {
+      listImageMembers: { useQuery: () => ({ data: undefined, isLoading: false }) },
+    },
+    useUtils: () => ({}),
+  },
+}))
+
 describe("ImageDetailsView", () => {
   const mockImage: GlanceImage = {
     id: "test-id-123",
@@ -141,7 +151,7 @@ describe("ImageDetailsView", () => {
       setup(<SecuritySection image={mockImage} />)
 
       expect(screen.getByText("Security")).toBeInTheDocument()
-      expect(screen.getByText("Owner")).toBeInTheDocument()
+      expect(screen.getByText("Owner Project ID")).toBeInTheDocument()
       expect(screen.getByText(`${mockImage.owner}`)).toBeInTheDocument()
       expect(screen.getByText("Visibility")).toBeInTheDocument()
       expect(screen.getByText("Protected")).toBeInTheDocument()
@@ -169,11 +179,12 @@ describe("ImageDetailsView", () => {
       expect(screen.getByText("No")).toBeInTheDocument()
     })
 
-    it("should not render checksum row when checksum is not provided", () => {
+    it("should not render checksum value when checksum is not provided", () => {
       const imageWithoutChecksum = { ...mockImage, checksum: undefined }
       setup(<SecuritySection image={imageWithoutChecksum} />)
 
-      expect(screen.queryByText("Checksum")).not.toBeInTheDocument()
+      expect(screen.getByText("Checksum")).toBeInTheDocument()
+      expect(screen.queryByText("abc123def456")).not.toBeInTheDocument()
     })
 
     it("should render checksum row when checksum is provided", () => {
@@ -300,13 +311,13 @@ describe("ImageDetailsView", () => {
       }
       const { container } = setup(<CustomPropertiesSection image={imageWithCustomProps} />)
 
-      const headCells = container.querySelectorAll("[class*='juno-datagrid-cell']")
+      const terms = container.querySelectorAll("dt")
 
-      const headCellTexts = Array.from(headCells)
-        .map((cell) => cell.textContent)
+      const termTexts = Array.from(terms)
+        .map((dt) => dt.textContent)
         .filter((text) => ["alpha_prop", "beta_prop", "zebra_prop"].includes(text || ""))
 
-      expect(headCellTexts).toEqual(["alpha_prop", "beta_prop", "zebra_prop"])
+      expect(termTexts).toEqual(["alpha_prop", "beta_prop", "zebra_prop"])
     })
   })
 

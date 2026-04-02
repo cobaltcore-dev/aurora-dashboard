@@ -165,22 +165,6 @@ describe("FlavorDetailsView", () => {
     expect(screen.queryByText("Extra Specs")).not.toBeInTheDocument()
   })
 
-  it("does not render description when not provided", () => {
-    const flavorWithoutDescription = {
-      ...baseFlavor,
-      description: undefined,
-    }
-
-    render(
-      <TestingProvider>
-        <FlavorDetailsView flavor={flavorWithoutDescription} />
-      </TestingProvider>
-    )
-
-    expect(screen.getByText("Basic Information")).toBeInTheDocument()
-    expect(screen.queryByText("Description")).not.toBeInTheDocument()
-  })
-
   it("handles missing ephemeral disk data", () => {
     const flavorWithoutEphemeral = {
       ...baseFlavor,

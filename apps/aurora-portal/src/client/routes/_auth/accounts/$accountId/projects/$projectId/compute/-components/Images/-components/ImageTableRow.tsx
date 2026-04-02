@@ -1,16 +1,25 @@
+import { useEffect, useState } from "react"
 import { useParams, useNavigate } from "@tanstack/react-router"
 import {
+  Button,
   Checkbox,
   DataGridCell,
   DataGridRow,
   PopupMenu,
   PopupMenuItem,
   PopupMenuOptions,
+  Spinner,
+  Stack,
+  ToastProps,
 } from "@cloudoperators/juno-ui-components"
 import { useLingui } from "@lingui/react/macro"
-import { GlanceImage, ImageVisibility } from "@/server/Compute/types/image"
+import { GlanceImage, ImageVisibility, MemberStatus } from "@/server/Compute/types/image"
 import { SizeDisplay } from "./SizeDisplay"
-import { IMAGE_STATUSES, IMAGE_VISIBILITY } from "../../../-constants/filters"
+import { IMAGE_STATUSES, IMAGE_VISIBILITY, MEMBER_STATUSES } from "../../../-constants/filters"
+import { trpcReact } from "@/client/trpcClient"
+import { TRPCClientError } from "@trpc/client"
+import { InferrableClientTypes } from "@trpc/server/unstable-core-do-not-import"
+import { getImageAccessStatusUpdatedToast, getImageAccessStatusErrorToast } from "./ImageToastNotifications"
 
 interface ImageTableRowProps {
   image: GlanceImage
@@ -23,8 +32,8 @@ interface ImageTableRowProps {
   onSelect: (image: GlanceImage) => void
   onActivationStatusChange: (image: GlanceImage) => void
   onManageAccess: (image: GlanceImage) => void
-  onConfirmAccess: (image: GlanceImage) => void
   onUpdateVisibility: (imageId: string, newVisibility: ImageVisibility, imageName: string) => Promise<void>
+  setToastData: (toast: ToastProps | null) => void
   permissions: {
     canCreate: boolean
     canDelete: boolean
@@ -49,8 +58,8 @@ export function ImageTableRow({
   onSelect,
   onActivationStatusChange,
   onManageAccess,
-  onConfirmAccess,
   onUpdateVisibility,
+  setToastData,
   uploadId,
   uploadProgressPercent,
 }: ImageTableRowProps) {
@@ -63,7 +72,42 @@ export function ImageTableRow({
   })
   const navigate = useNavigate()
 
+  const utils = trpcReact.useUtils()
+  const updateMemberMutation = trpcReact.compute.updateImageMember.useMutation({
+    onSuccess: () => {
+      utils.compute.listImagesWithPagination.invalidate()
+      utils.compute.listSharedImagesByMemberStatus.invalidate()
+    },
+  })
+
+  const handleMemberStatusChange = async (newStatus: MemberStatus) => {
+    try {
+      await updateMemberMutation.mutateAsync({ imageId: id, memberId: projectId, status: newStatus })
+      setToastData(getImageAccessStatusUpdatedToast(newStatus, { onDismiss: () => setToastData(null) }))
+    } catch (error) {
+      const errorMessage = (error as TRPCClientError<InferrableClientTypes>)?.message
+      setToastData(getImageAccessStatusErrorToast(errorMessage, { onDismiss: () => setToastData(null) }))
+    }
+  }
+
   const isImageOwner = projectId === owner
+  const isExternalImage = isPending || isAccepted
+  const isMutating = updateMemberMutation.isPending
+
+  const [confirmRevoke, setConfirmRevoke] = useState(false)
+  const [confirmReject, setConfirmReject] = useState(false)
+  useEffect(() => {
+    if (confirmRevoke) {
+      const timer = setTimeout(() => setConfirmRevoke(false), 3000)
+      return () => clearTimeout(timer)
+    }
+  }, [confirmRevoke])
+  useEffect(() => {
+    if (confirmReject) {
+      const timer = setTimeout(() => setConfirmReject(false), 3000)
+      return () => clearTimeout(timer)
+    }
+  }, [confirmReject])
 
   return (
     <DataGridRow
@@ -91,51 +135,101 @@ export function ImageTableRow({
       <DataGridCell>{created_at ? new Date(created_at).toLocaleDateString() : t`N/A`}</DataGridCell>
 
       <DataGridCell onClick={(e) => e.stopPropagation()}>
-        <PopupMenu>
-          <PopupMenuOptions>
-            <PopupMenuItem
-              label={t`Show Details`}
-              onClick={() =>
-                navigate({
-                  to: "/accounts/$accountId/projects/$projectId/compute/images/$imageId",
-                  params: { accountId, projectId, imageId: id },
-                })
-              }
-            />
-            {permissions.canUpdate && (
-              <>
-                <PopupMenuItem label={t`Edit Details`} onClick={() => onEditDetails(image)} />
-                <PopupMenuItem label={t`Edit Metadata`} onClick={() => onEditMetadata(image)} />
-                <PopupMenuItem
-                  label={image.status === IMAGE_STATUSES.DEACTIVATED ? t`Activate` : t`Deactivate`}
-                  onClick={() => onActivationStatusChange(image)}
-                />
-                {image.visibility === IMAGE_VISIBILITY.SHARED && (
-                  <>
-                    {isImageOwner && (permissions.canCreateMember || permissions.canDeleteMember) && (
+        {isExternalImage ? (
+          permissions.canUpdateMember ? (
+            <Stack direction="horizontal" gap="2">
+              {isMutating ? (
+                <Spinner variant="primary" size="small" />
+              ) : (
+                <>
+                  {isPending && (
+                    <>
+                      {confirmReject ? (
+                        <Button
+                          size="small"
+                          variant="primary-danger"
+                          label={t`Confirm`}
+                          onClick={() => {
+                            setConfirmReject(false)
+                            handleMemberStatusChange(MEMBER_STATUSES.REJECTED)
+                          }}
+                        />
+                      ) : (
+                        <Button
+                          size="small"
+                          variant="subdued"
+                          label={t`Reject`}
+                          onClick={() => setConfirmReject(true)}
+                        />
+                      )}
+                      <Button
+                        size="small"
+                        variant="primary"
+                        label={t`Accept`}
+                        onClick={() => handleMemberStatusChange(MEMBER_STATUSES.ACCEPTED)}
+                      />
+                    </>
+                  )}
+                  {isAccepted &&
+                    !isPending &&
+                    (confirmRevoke ? (
+                      <Button
+                        size="small"
+                        variant="primary-danger"
+                        label={t`Confirm`}
+                        onClick={() => {
+                          setConfirmRevoke(false)
+                          handleMemberStatusChange(MEMBER_STATUSES.REJECTED)
+                        }}
+                      />
+                    ) : (
+                      <Button size="small" label={t`Revoke`} onClick={() => setConfirmRevoke(true)} />
+                    ))}
+                </>
+              )}
+            </Stack>
+          ) : null
+        ) : (
+          <PopupMenu>
+            <PopupMenuOptions>
+              <PopupMenuItem
+                label={t`Show Details`}
+                onClick={() =>
+                  navigate({
+                    to: "/accounts/$accountId/projects/$projectId/compute/images/$imageId",
+                    params: { accountId, projectId, imageId: id },
+                  })
+                }
+              />
+
+              {/* Own image: full actions */}
+              {permissions.canUpdate && (
+                <>
+                  <PopupMenuItem label={t`Edit Details`} onClick={() => onEditDetails(image)} />
+                  <PopupMenuItem label={t`Edit Metadata`} onClick={() => onEditMetadata(image)} />
+                  <PopupMenuItem
+                    label={image.status === IMAGE_STATUSES.DEACTIVATED ? t`Activate` : t`Deactivate`}
+                    onClick={() => onActivationStatusChange(image)}
+                  />
+                  {image.visibility === IMAGE_VISIBILITY.SHARED &&
+                    isImageOwner &&
+                    (permissions.canCreateMember || permissions.canDeleteMember) && (
                       <PopupMenuItem label={t`Manage Access`} onClick={() => onManageAccess(image)} />
                     )}
-                    {(isPending || isAccepted) && permissions.canUpdateMember && (
-                      <PopupMenuItem
-                        label={isPending ? t`Confirm Access` : t`Review Access`}
-                        onClick={() => onConfirmAccess(image)}
-                      />
-                    )}
-                  </>
-                )}
-                {image.visibility === IMAGE_VISIBILITY.PRIVATE && (
-                  <PopupMenuItem
-                    label={t`Set to "Shared"`}
-                    onClick={() => onUpdateVisibility(image.id, IMAGE_VISIBILITY.SHARED, imageName)}
-                  />
-                )}
-              </>
-            )}
-            {permissions.canDelete && !image.protected && (
-              <PopupMenuItem label={t`Delete`} onClick={() => onDelete(image)} />
-            )}
-          </PopupMenuOptions>
-        </PopupMenu>
+                  {image.visibility === IMAGE_VISIBILITY.PRIVATE && (
+                    <PopupMenuItem
+                      label={t`Set to "Shared"`}
+                      onClick={() => onUpdateVisibility(image.id, IMAGE_VISIBILITY.SHARED, imageName)}
+                    />
+                  )}
+                </>
+              )}
+              {permissions.canDelete && !image.protected && (
+                <PopupMenuItem label={t`Delete`} onClick={() => onDelete(image)} />
+              )}
+            </PopupMenuOptions>
+          </PopupMenu>
+        )}
       </DataGridCell>
     </DataGridRow>
   )

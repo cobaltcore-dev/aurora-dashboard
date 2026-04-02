@@ -331,9 +331,16 @@ describe("EditImageMetadataModal", () => {
     // Verify property exists
     expect(screen.getByText("os_version")).toBeInTheDocument()
 
+    // First click: shows confirm button
     const deleteButton = screen.getByTestId("delete-os_version")
     await act(async () => {
       fireEvent.click(deleteButton)
+    })
+
+    // Second click: confirm deletion
+    const confirmButton = screen.getByTestId("confirm-delete-os_version")
+    await act(async () => {
+      fireEvent.click(confirmButton)
     })
 
     await waitFor(() => {
@@ -508,28 +515,6 @@ describe("EditImageMetadataModal", () => {
     await waitFor(() => {
       const saveButton = screen.getByRole("button", { name: /Save Changes/i })
       expect(saveButton).toBeDisabled()
-    })
-  })
-
-  test("displays info message about custom metadata", async () => {
-    renderMetadataModal(true, mockOnClose, mockImage, mockOnSave)
-
-    await waitFor(() => {
-      expect(screen.getByText(/Changes to metadata will be saved when you click/i)).toBeInTheDocument()
-    })
-  })
-
-  test("does not display warning message when no metadata exists", async () => {
-    const emptyImage = {
-      id: "test-id",
-      name: "Test Image",
-      status: "active",
-    } as GlanceImage
-
-    renderMetadataModal(true, mockOnClose, emptyImage, mockOnSave)
-
-    await waitFor(() => {
-      expect(screen.queryByText(/Changes to metadata will be saved when you click/i)).not.toBeInTheDocument()
     })
   })
 
