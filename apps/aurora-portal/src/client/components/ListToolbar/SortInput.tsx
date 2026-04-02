@@ -54,7 +54,7 @@ export const SortInput: React.FC<SortInputProps> = ({
           </SelectOption>
         ))}
       </Select>
-      <SortButton {...getSortButtonProps()} />
+      <SortButton {...getSortButtonProps()} className="shadow-none" />
     </InputGroup>
   )
 }

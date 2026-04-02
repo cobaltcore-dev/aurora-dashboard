@@ -2,14 +2,14 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 import { TRPCError } from "@trpc/server"
 import { createCallerFactory, auroraRouter } from "../../trpc"
 import { PORT_BASE_URL, portRouter } from "./portRouter"
-import { Port } from "../types/port"
+import { AvailablePort } from "../types/port"
 import { AuroraPortalContext } from "@/server/context"
 
 const createMockContext = (opts?: {
   noNetworkService?: boolean
   invalidSession?: boolean
   parseError?: boolean
-  mockPorts?: Port[]
+  mockPorts?: AvailablePort[]
   httpStatus?: number
   statusText?: string
 }) => {
@@ -22,36 +22,16 @@ const createMockContext = (opts?: {
     statusText = "OK",
   } = opts || {}
 
-  const defaultPorts: Port[] = [
+  const defaultPorts: AvailablePort[] = [
     {
       id: "port-1",
-      admin_state_up: true,
-      allowed_address_pairs: [],
-      status: "ACTIVE",
       name: "web-port",
-      network_id: "network-1",
-      project_id: "project-1",
-      fixed_ips: [
-        {
-          ip_address: "10.0.0.5",
-          subnet_id: "subnet-1",
-        },
-      ],
+      fixed_ips: [{ ip_address: "10.0.0.5", subnet_id: "subnet-1" }],
     },
     {
       id: "port-2",
-      admin_state_up: true,
-      allowed_address_pairs: [],
-      status: "ACTIVE",
       name: "db-port",
-      network_id: "network-1",
-      project_id: "project-1",
-      fixed_ips: [
-        {
-          ip_address: "10.0.0.6",
-          subnet_id: "subnet-1",
-        },
-      ],
+      fixed_ips: [{ ip_address: "10.0.0.6", subnet_id: "subnet-1" }],
     },
   ]
 
@@ -109,8 +89,8 @@ describe("portRouter.listAvailablePorts", () => {
     expect(Array.isArray(result)).toBe(true)
     expect(result).toHaveLength(2)
     expect(result[0].id).toBe("port-1")
-    expect(result[0].status).toBe("ACTIVE")
-    expect(result[0].admin_state_up).toBe(true)
+    expect(result[0].name).toBe("web-port")
+    expect(result[0].fixed_ips).toHaveLength(1)
   })
 
   it("builds query string with defaults and filters", async () => {
@@ -135,6 +115,7 @@ describe("portRouter.listAvailablePorts", () => {
     expect(params.get("network_id")).toBe("network-1")
     expect(params.get("name")).toBe("web-port")
     expect(params.get("limit")).toBe("20")
+    expect(params.getAll("fields")).toEqual(expect.arrayContaining(["id", "name", "fixed_ips"]))
   })
 
   it("throws UNAUTHORIZED when session is invalid", async () => {
@@ -167,7 +148,7 @@ describe("portRouter.listAvailablePorts", () => {
     await expect(caller.port.listAvailablePorts({})).rejects.toThrow(
       new TRPCError({
         code: "PARSE_ERROR",
-        message: "Failed to parse ports response from OpenStack",
+        message: "Failed to parse response in portRouter.listAvailablePorts",
       })
     )
 

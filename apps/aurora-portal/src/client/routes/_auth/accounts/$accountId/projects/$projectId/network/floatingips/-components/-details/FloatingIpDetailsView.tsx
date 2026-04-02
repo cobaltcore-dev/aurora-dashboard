@@ -10,12 +10,8 @@ import {
   ContentHeading,
 } from "@cloudoperators/juno-ui-components/index"
 import type { FloatingIp } from "@/server/Network/types/floatingIp"
-import { trpcReact } from "@/client/trpcClient"
 import { formatFloatingIpStatus } from "@/client/utils/formatFloatingIpStatus"
-import { useModal } from "../-hooks/useModal"
-import { EditFloatingIpModal, FloatingIpUpdateFields } from "./-modals/EditFloatingIpModal"
-import { DetachFloatingIpModal } from "./-modals/DetachFloatingIpModal"
-import { ReleaseFloatingIpModal } from "./-modals/ReleaseFloatingIpModal"
+import { FloatingIpActionModals } from "../-modals/FloatingIpActionModals"
 
 interface FloatingIpDetailsViewProps {
   floatingIp: FloatingIp
@@ -23,36 +19,6 @@ interface FloatingIpDetailsViewProps {
 
 export const FloatingIpDetailsView = ({ floatingIp }: FloatingIpDetailsViewProps) => {
   const { t } = useLingui()
-  const [editModalOpen, toggleEditModal] = useModal(false)
-  const [detachModalOpen, toggleDetachModal] = useModal(false)
-  const [releaseModalOpen, toggleReleaseModal] = useModal(false)
-  const utils = trpcReact.useUtils()
-
-  const updateFloatingIpMutation = trpcReact.network.floatingIp.update.useMutation({
-    onSuccess: () => {
-      utils.network.floatingIp.getById.invalidate({ floatingip_id: floatingIp.id })
-      utils.network.floatingIp.list.invalidate()
-    },
-  })
-
-  const deleteFloatingIpMutation = trpcReact.network.floatingIp.delete.useMutation({
-    onSuccess: () => {
-      utils.network.floatingIp.list.invalidate()
-    },
-  })
-
-  const handleUpdateFloatingIp = async (floatingIpId: string, data: FloatingIpUpdateFields) => {
-    await updateFloatingIpMutation.mutateAsync({
-      floatingip_id: floatingIpId,
-      ...data,
-    })
-  }
-
-  const handleDeleteFloatingIp = async (floatingIpId: string) => {
-    await deleteFloatingIpMutation.mutateAsync({
-      floatingip_id: floatingIpId,
-    })
-  }
 
   return (
     <>
@@ -66,12 +32,16 @@ export const FloatingIpDetailsView = ({ floatingIp }: FloatingIpDetailsViewProps
         </Trans>
       </p>
 
-      <ButtonRow>
-        <Button onClick={toggleEditModal}>{t`Edit Description`}</Button>
-        <Button disabled>{t`Attach`}</Button>
-        <Button onClick={toggleDetachModal}>{t`Detach`}</Button>
-        <Button onClick={toggleReleaseModal}>{t`Release`}</Button>
-      </ButtonRow>
+      <FloatingIpActionModals floatingIp={floatingIp}>
+        {({ toggleEditModal, toggleAttachModal, toggleDetachModal, toggleReleaseModal }) => (
+          <ButtonRow>
+            <Button onClick={toggleEditModal}>{t`Edit Description`}</Button>
+            <Button onClick={toggleAttachModal}>{t`Attach`}</Button>
+            <Button onClick={toggleDetachModal}>{t`Detach`}</Button>
+            <Button onClick={toggleReleaseModal}>{t`Release`}</Button>
+          </ButtonRow>
+        )}
+      </FloatingIpActionModals>
 
       <Stack direction="vertical" gap="6" className="mt-6">
         {/* Basic Info  */}
@@ -219,39 +189,6 @@ export const FloatingIpDetailsView = ({ floatingIp }: FloatingIpDetailsViewProps
           </DataGrid>
         </Stack>
       </Stack>
-
-      {editModalOpen && (
-        <EditFloatingIpModal
-          floatingIp={floatingIp}
-          open={editModalOpen}
-          onClose={toggleEditModal}
-          onUpdate={handleUpdateFloatingIp}
-          isLoading={updateFloatingIpMutation.isPending}
-          error={updateFloatingIpMutation.error?.message ?? null}
-        />
-      )}
-
-      {detachModalOpen && (
-        <DetachFloatingIpModal
-          floatingIp={floatingIp}
-          open={detachModalOpen}
-          onClose={toggleDetachModal}
-          onUpdate={handleUpdateFloatingIp}
-          isLoading={updateFloatingIpMutation.isPending}
-          error={updateFloatingIpMutation.error?.message ?? null}
-        />
-      )}
-
-      {releaseModalOpen && (
-        <ReleaseFloatingIpModal
-          floatingIp={floatingIp}
-          open={releaseModalOpen}
-          onClose={toggleReleaseModal}
-          onUpdate={handleDeleteFloatingIp}
-          isLoading={deleteFloatingIpMutation.isPending}
-          error={deleteFloatingIpMutation.error?.message ?? null}
-        />
-      )}
     </>
   )
 }

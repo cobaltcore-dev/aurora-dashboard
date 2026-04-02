@@ -4,7 +4,7 @@ import { Trans, useLingui } from "@lingui/react/macro"
 import { Modal, Form, FormSection, Spinner, Message, TextInput, Stack } from "@cloudoperators/juno-ui-components"
 import type { FloatingIp } from "@/server/Network/types/floatingIp"
 
-interface ReleaseFloatingIpModalProps {
+export interface ReleaseFloatingIpModalProps {
   floatingIp: FloatingIp
   open: boolean
   onClose: () => void

@@ -12,6 +12,8 @@ import type { ContainerSummary } from "@/server/Storage/types/swift"
 // useVirtualizer doesn't work in jsdom (no layout engine), so we render all
 // items directly by mocking getVirtualItems to return every row.
 
+const mockNavigateFn = vi.fn()
+
 vi.mock("@tanstack/react-router", async () => {
   const actual = await vi.importActual("@tanstack/react-router")
   return {
@@ -21,22 +23,7 @@ vi.mock("@tanstack/react-router", async () => {
       projectId: "test-project",
       provider: "swift",
     })),
-    Link: vi.fn(
-      ({
-        children,
-        to,
-        ...props
-      }: {
-        children: React.ReactNode
-        to: string
-        params?: Record<string, string>
-        [key: string]: unknown
-      }) => (
-        <a href={to} {...props}>
-          {children}
-        </a>
-      )
-    ),
+    useNavigate: vi.fn(() => mockNavigateFn),
   }
 })
 
@@ -235,6 +222,7 @@ const renderView = ({
 describe("ContainerTableView", () => {
   beforeEach(async () => {
     vi.clearAllMocks()
+    mockNavigateFn.mockReset()
     await act(async () => {
       i18n.activate("en")
     })
@@ -319,15 +307,69 @@ describe("ContainerTableView", () => {
     })
   })
 
+  describe("Row navigation", () => {
+    test("clicking a container row calls navigate to the objects route", async () => {
+      const user = userEvent.setup()
+      renderView()
+      await user.click(screen.getByTestId("container-row-alpha"))
+      expect(mockNavigateFn).toHaveBeenCalledWith({
+        to: "/accounts/$accountId/projects/$projectId/storage/$provider/containers/$containerName/objects",
+        params: { accountId: "test-account", projectId: "test-project", provider: "swift", containerName: "alpha" },
+      })
+    })
+
+    test("pressing Enter on a focused container row calls navigate", async () => {
+      const user = userEvent.setup()
+      renderView()
+      const row = screen.getByTestId("container-row-alpha")
+      row.focus()
+      await user.keyboard("{Enter}")
+      expect(mockNavigateFn).toHaveBeenCalledWith({
+        to: "/accounts/$accountId/projects/$projectId/storage/$provider/containers/$containerName/objects",
+        params: { accountId: "test-account", projectId: "test-project", provider: "swift", containerName: "alpha" },
+      })
+    })
+
+    test("pressing Space on a focused container row calls navigate", async () => {
+      const user = userEvent.setup()
+      renderView()
+      const row = screen.getByTestId("container-row-alpha")
+      row.focus()
+      await user.keyboard(" ")
+      expect(mockNavigateFn).toHaveBeenCalledWith({
+        to: "/accounts/$accountId/projects/$projectId/storage/$provider/containers/$containerName/objects",
+        params: { accountId: "test-account", projectId: "test-project", provider: "swift", containerName: "alpha" },
+      })
+    })
+
+    test("container rows have tabIndex 0 and role link", () => {
+      renderView()
+      mockContainers.forEach((c) => {
+        const row = screen.getByTestId(`container-row-${c.name}`)
+        expect(row).toHaveAttribute("tabindex", "0")
+        expect(row).toHaveAttribute("role", "link")
+      })
+    })
+
+    test("clicking the popup menu does not trigger row navigation", async () => {
+      const user = userEvent.setup()
+      renderView()
+      const row = screen.getByTestId("container-row-alpha")
+      const toggle = row.querySelector("button[aria-haspopup='menu']") as HTMLElement
+      await user.click(toggle)
+      expect(mockNavigateFn).not.toHaveBeenCalled()
+    })
+  })
+
   describe("Footer", () => {
     test("shows container count in footer", () => {
       renderView()
-      expect(screen.getByText(/Showing.*of.*containers/i)).toBeInTheDocument()
+      expect(screen.getByText(/3 containers/i)).toBeInTheDocument()
     })
 
-    test("footer shows total count matching containers length", () => {
-      renderView()
-      expect(screen.getByText(/of 3 containers/i)).toBeInTheDocument()
+    test("footer count matches containers length", () => {
+      renderView({ containers: [makeContainer("only-one")] })
+      expect(screen.getByText(/1 container$/i)).toBeInTheDocument()
     })
   })
 

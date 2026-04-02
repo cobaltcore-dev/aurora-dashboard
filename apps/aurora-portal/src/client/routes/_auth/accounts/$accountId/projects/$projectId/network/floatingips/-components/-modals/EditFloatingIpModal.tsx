@@ -6,7 +6,7 @@ import type { FloatingIp, FloatingIpUpdateRequest } from "@/server/Network/types
 
 export type FloatingIpUpdateFields = Omit<FloatingIpUpdateRequest, "floatingip_id">
 
-interface EditFloatingIpModalProps {
+export interface EditFloatingIpModalProps {
   floatingIp: FloatingIp
   open: boolean
   onClose: () => void

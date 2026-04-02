@@ -4,8 +4,8 @@ import userEvent from "@testing-library/user-event"
 import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import { i18n } from "@lingui/core"
 import { I18nProvider } from "@lingui/react"
-import { EditFloatingIpModal, FloatingIpUpdateFields } from "./EditFloatingIpModal"
 import type { FloatingIp } from "@/server/Network/types/floatingIp"
+import { EditFloatingIpModal, EditFloatingIpModalProps } from "./EditFloatingIpModal"
 
 const mockFloatingIp: FloatingIp = {
   id: "fip-123",
@@ -24,6 +24,8 @@ const mockFloatingIp: FloatingIp = {
   tags: [],
 }
 
+type EditFloatingIpModalRenderOptions = Partial<EditFloatingIpModalProps>
+
 const renderModalComponent = ({
   floatingIp = mockFloatingIp,
   open = true,
@@ -31,14 +33,7 @@ const renderModalComponent = ({
   onUpdate = vi.fn(),
   isLoading = false,
   error = null,
-}: {
-  floatingIp?: FloatingIp
-  open?: boolean
-  onClose?: () => void
-  onUpdate?: (floatingIpId: string, data: FloatingIpUpdateFields) => Promise<void>
-  isLoading?: boolean
-  error?: string | null
-} = {}) => (
+}: EditFloatingIpModalRenderOptions = {}) => (
   <I18nProvider i18n={i18n}>
     <PortalProvider>
       <EditFloatingIpModal
@@ -60,14 +55,8 @@ const renderModal = ({
   onUpdate = vi.fn(),
   isLoading = false,
   error = null,
-}: {
-  floatingIp?: FloatingIp
-  open?: boolean
-  onClose?: () => void
-  onUpdate?: (floatingIpId: string, data: FloatingIpUpdateFields) => Promise<void>
-  isLoading?: boolean
-  error?: string | null
-} = {}) => render(renderModalComponent({ floatingIp, open, onClose, onUpdate, isLoading, error }))
+}: EditFloatingIpModalRenderOptions = {}) =>
+  render(renderModalComponent({ floatingIp, open, onClose, onUpdate, isLoading, error }))
 
 const submitModalForm = () => {
   fireEvent.submit(document.getElementById("edit-floating-ip-form") as HTMLFormElement)
@@ -152,19 +141,6 @@ describe("EditFloatingIpModal", () => {
           port_id: null,
           description: "new description",
         })
-      })
-    })
-
-    test("does not call onUpdate if onUpdate prop is undefined", async () => {
-      const user = userEvent.setup()
-      renderModal({ onUpdate: undefined })
-
-      const descriptionInput = screen.getByLabelText("Description")
-      await user.type(descriptionInput, " changed")
-      submitModalForm()
-
-      await waitFor(() => {
-        expect(screen.getByRole("button", { name: "Save" })).toBeInTheDocument()
       })
     })
   })

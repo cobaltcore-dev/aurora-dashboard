@@ -1,5 +1,11 @@
 import { describe, it, expect } from "vitest"
-import { ListAvailablePortsQuerySchema, PortListResponseSchema, PortSchema } from "./port"
+import {
+  ListAvailablePortsQuerySchema,
+  PortListResponseSchema,
+  PortSchema,
+  AvailablePortSchema,
+  AvailablePortListResponseSchema,
+} from "./port"
 
 describe("Port Schemas", () => {
   describe("ListAvailablePortsQuerySchema", () => {
@@ -274,6 +280,44 @@ describe("Port Schemas", () => {
 
     it("should parse valid port object", () => {
       const result = PortSchema.safeParse(validPort)
+
+      expect(result.success).toBe(true)
+    })
+
+    it("should parse realistic OpenStack list payload variants", () => {
+      const openstackLikePort = {
+        id: "b8d8cb9d-f337-4f34-b53a-9fa2bcf0f57b",
+        admin_state_up: true,
+        status: "DOWN",
+        project_id: "65a51966d6734c5b80ae62b0b31e5030",
+        tenant_id: "65a51966d6734c5b80ae62b0b31e5030",
+        network_id: "d8fdb5b2-134a-4f3f-96cd-97080f1c9f43",
+        name: "",
+        description: "",
+        device_id: "",
+        device_owner: "",
+        mac_address: "fa:16:3e:3b:0d:88",
+        fixed_ips: [
+          {
+            subnet_id: "f1af9f2b-b905-4a8b-a0e1-9d8e3ccf8950",
+            ip_address: "10.180.0.14",
+          },
+        ],
+        security_groups: ["d17db3a1-c7ed-4278-9dbf-9b0a64afd2fd"],
+        "binding:host_id": "",
+        "binding:vif_type": "unbound",
+        "binding:vif_details": {},
+        "binding:vnic_type": "normal",
+        "binding:profile": {},
+        resource_request: {
+          required: ["CUSTOM_VNIC_TYPE_NORMAL"],
+          resources: {
+            NET_BW_EGR_KILOBIT_PER_SEC: 1000,
+          },
+        },
+      }
+
+      const result = PortSchema.safeParse(openstackLikePort)
 
       expect(result.success).toBe(true)
     })
@@ -556,6 +600,92 @@ describe("Port Schemas", () => {
     it("should reject non-array ports", () => {
       const response = { ports: "not-an-array" }
       const result = PortListResponseSchema.safeParse(response)
+
+      expect(result.success).toBe(false)
+    })
+  })
+
+  describe("AvailablePortSchema", () => {
+    it("should parse a port with all 3 fields", () => {
+      const result = AvailablePortSchema.safeParse({
+        id: "port-uuid",
+        name: "web-port",
+        fixed_ips: [{ ip_address: "10.0.0.5", subnet_id: "subnet-1" }],
+      })
+
+      expect(result.success).toBe(true)
+      if (result.success) {
+        expect(result.data.id).toBe("port-uuid")
+        expect(result.data.name).toBe("web-port")
+        expect(result.data.fixed_ips).toHaveLength(1)
+      }
+    })
+
+    it("should parse a port with only id (name and fixed_ips optional)", () => {
+      const result = AvailablePortSchema.safeParse({ id: "port-uuid" })
+
+      expect(result.success).toBe(true)
+    })
+
+    it("should accept null name", () => {
+      const result = AvailablePortSchema.safeParse({ id: "port-uuid", name: null })
+
+      expect(result.success).toBe(true)
+      if (result.success) {
+        expect(result.data.name).toBeNull()
+      }
+    })
+
+    it("should accept port with empty fixed_ips array", () => {
+      const result = AvailablePortSchema.safeParse({ id: "port-uuid", fixed_ips: [] })
+
+      expect(result.success).toBe(true)
+    })
+
+    it("should reject a port missing id", () => {
+      const result = AvailablePortSchema.safeParse({ name: "web-port" })
+
+      expect(result.success).toBe(false)
+    })
+
+    it("should not fail on extra fields from full port response (strip mode)", () => {
+      const result = AvailablePortSchema.safeParse({
+        id: "port-uuid",
+        name: "web-port",
+        fixed_ips: [],
+        admin_state_up: true,
+        status: "ACTIVE",
+        network_id: "net-1",
+      })
+
+      expect(result.success).toBe(true)
+    })
+  })
+
+  describe("AvailablePortListResponseSchema", () => {
+    it("should parse a valid available ports list response", () => {
+      const response = {
+        ports: [
+          { id: "port-1", name: "web-port", fixed_ips: [{ ip_address: "10.0.0.1", subnet_id: "subnet-1" }] },
+          { id: "port-2", name: null, fixed_ips: [] },
+        ],
+      }
+      const result = AvailablePortListResponseSchema.safeParse(response)
+
+      expect(result.success).toBe(true)
+      if (result.success) {
+        expect(result.data.ports).toHaveLength(2)
+      }
+    })
+
+    it("should accept empty ports array", () => {
+      const result = AvailablePortListResponseSchema.safeParse({ ports: [] })
+
+      expect(result.success).toBe(true)
+    })
+
+    it("should reject missing ports key", () => {
+      const result = AvailablePortListResponseSchema.safeParse({})
 
       expect(result.success).toBe(false)
     })

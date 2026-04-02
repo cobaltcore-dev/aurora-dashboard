@@ -1,4 +1,3 @@
-import { TRPCError } from "@trpc/server"
 import { protectedProcedure } from "@/server/trpc"
 import { withErrorHandling } from "@/server/helpers/errorHandling"
 import { filterBySearchParams } from "@/server/helpers/filterBySearchParams"
@@ -11,9 +10,11 @@ import {
   FloatingIpUpdateRequestSchema,
   FloatingIpCreateRequestSchema,
 } from "../types/floatingIp"
-import { FLOATING_IPS_BASE_URL, FloatingIpErrorHandlers } from "../helpers/floatingIpHelpers"
-import { getNetworkService } from "../helpers/index"
+import { FloatingIpErrorHandlers } from "../helpers/floatingIpHelpers"
+import { getNetworkService, parseOrThrow } from "../helpers/index"
 import { appendQueryParamsFromObject } from "@/server/helpers/queryParams"
+
+const FLOATING_IPS_BASE_URL = "v2.0/floatingips"
 
 /**
  * tRPC router for OpenStack Neutron Floating IPs.
@@ -45,17 +46,9 @@ export const floatingIpRouter = {
         }
 
         const data = await response.json()
-        const parsed = FloatingIpListResponseSchema.safeParse(data)
-        if (!parsed.success) {
-          console.error("Zod Parsing Error in floatingIpRouter.list:", parsed.error.format())
-          throw new TRPCError({
-            code: "PARSE_ERROR",
-            message: "Failed to parse floating IPs response from OpenStack",
-          })
-        }
-        const floatingIps = parsed.data.floatingips
+        const { floatingips } = parseOrThrow(FloatingIpListResponseSchema, data, "floatingIpRouter.list")
 
-        return filterBySearchParams(floatingIps, searchTerm, ["description"])
+        return filterBySearchParams(floatingips, searchTerm, ["description"])
       }, "list floating IPs")
     }),
   create: protectedProcedure
@@ -86,43 +79,23 @@ export const floatingIpRouter = {
         }
 
         const data = await response.json()
-        const parsed = FloatingIpResponseSchema.safeParse(data)
-        if (!parsed.success) {
-          console.error("Zod Parsing Error in floatingIpRouter.create:", parsed.error.format())
-          throw new TRPCError({
-            code: "PARSE_ERROR",
-            message: "Failed to parse created floating IP response from OpenStack",
-          })
-        }
-
-        return parsed.data.floatingip
+        return parseOrThrow(FloatingIpResponseSchema, data, "floatingIpRouter.create").floatingip
       }, "create floating IP")
     }),
-  getById: protectedProcedure
-    .input(FloatingIpIdInputSchema)
-    .query(async ({ input, ctx }): Promise<FloatingIp | null> => {
-      return withErrorHandling(async () => {
-        const { floatingip_id } = input
-        const network = getNetworkService(ctx)
+  getById: protectedProcedure.input(FloatingIpIdInputSchema).query(async ({ input, ctx }): Promise<FloatingIp> => {
+    return withErrorHandling(async () => {
+      const { floatingip_id } = input
+      const network = getNetworkService(ctx)
 
-        const response = await network.get(`${FLOATING_IPS_BASE_URL}/${floatingip_id}`)
-        if (!response.ok) {
-          throw FloatingIpErrorHandlers.get(response, floatingip_id)
-        }
+      const response = await network.get(`${FLOATING_IPS_BASE_URL}/${floatingip_id}`)
+      if (!response.ok) {
+        throw FloatingIpErrorHandlers.get(response, floatingip_id)
+      }
 
-        const data = await response.json()
-        const parsed = FloatingIpResponseSchema.safeParse(data)
-        if (!parsed.success) {
-          console.error("Zod Parsing Error in floatingIpRouter.getById:", parsed.error.format())
-          throw new TRPCError({
-            code: "PARSE_ERROR",
-            message: "Failed to parse floating IP response from OpenStack",
-          })
-        }
-
-        return parsed.data.floatingip
-      }, "show floating IP details")
-    }),
+      const data = await response.json()
+      return parseOrThrow(FloatingIpResponseSchema, data, "floatingIpRouter.getById").floatingip
+    }, "show floating IP details")
+  }),
   update: protectedProcedure
     .input(FloatingIpUpdateRequestSchema)
     .mutation(async ({ input, ctx }): Promise<FloatingIp> => {
@@ -132,7 +105,7 @@ export const floatingIpRouter = {
 
         const requestBody = {
           floatingip: {
-            port_id: input.port_id,
+            port_id: updateFields.port_id,
             ...(updateFields.fixed_ip_address !== undefined && { fixed_ip_address: updateFields.fixed_ip_address }),
             ...(updateFields.description !== undefined && { description: updateFields.description }),
             ...(updateFields.distributed !== undefined && { distributed: updateFields.distributed }),
@@ -144,15 +117,7 @@ export const floatingIpRouter = {
         }
 
         const data = await response.json()
-        const parsed = FloatingIpResponseSchema.safeParse(data)
-        if (!parsed.success) {
-          console.error("Zod Parsing Error in floatingIpRouter.update:", parsed.error.format())
-          throw new TRPCError({
-            code: "PARSE_ERROR",
-            message: "Failed to parse updated floating IP response from OpenStack",
-          })
-        }
-        return parsed.data.floatingip
+        return parseOrThrow(FloatingIpResponseSchema, data, "floatingIpRouter.update").floatingip
       }, "update floating IP")
     }),
   delete: protectedProcedure.input(FloatingIpIdInputSchema).mutation(async ({ input, ctx }): Promise<boolean> => {
@@ -162,7 +127,7 @@ export const floatingIpRouter = {
 
       // OpenStack DELETE returns 204 No Content on success
       const response = await network.del(`${FLOATING_IPS_BASE_URL}/${floatingip_id}`)
-      if (!response?.ok) {
+      if (!response.ok) {
         throw FloatingIpErrorHandlers.delete(response, floatingip_id)
       }
 

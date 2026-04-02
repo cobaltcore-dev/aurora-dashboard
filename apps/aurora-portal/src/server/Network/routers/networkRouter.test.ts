@@ -162,7 +162,7 @@ describe("networkRouter.listExternalNetworks", () => {
     await expect(caller.network.listExternalNetworks({})).rejects.toThrow(
       new TRPCError({
         code: "PARSE_ERROR",
-        message: "Failed to parse networks response from OpenStack",
+        message: "Failed to parse response in networkRouter.listExternalNetworks",
       })
     )
 
@@ -236,7 +236,7 @@ describe("networkRouter.listDnsDomains", () => {
     await expect(caller.network.listDnsDomains({})).rejects.toThrow(
       new TRPCError({
         code: "PARSE_ERROR",
-        message: "Failed to parse dns domains response from OpenStack",
+        message: "Failed to parse response in networkRouter.listDnsDomains",
       })
     )
 
