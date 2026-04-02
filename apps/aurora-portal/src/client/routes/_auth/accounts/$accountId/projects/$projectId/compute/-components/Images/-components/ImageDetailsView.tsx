@@ -238,11 +238,11 @@ export const CustomPropertiesSection: React.FC<{ image: GlanceImage }> = ({ imag
     <Container px={false} py>
       <ContentHeading>{t`Custom Properties / Metadata`}</ContentHeading>
       {hasProperties ? (
-        <DescriptionList alignTerms="right">
+        <DescriptionList alignTerms="right" className="grid-cols-4">
           {customProperties.map(([key, value]) => (
             <React.Fragment key={key}>
-              <DescriptionTerm>{key}</DescriptionTerm>
-              <DescriptionDefinition>
+              <DescriptionTerm className="col-span-1">{key}</DescriptionTerm>
+              <DescriptionDefinition className="col-span-1">
                 {value === null || value === undefined ? (
                   <span>null</span>
                 ) : typeof value === "object" ? (
