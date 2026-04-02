@@ -155,21 +155,25 @@ export function SecurityGroupRBACPolicies({ securityGroupId }: SecurityGroupRBAC
       </Stack>
 
       {/* Delete Confirmation Dialog */}
-      <DeleteRBACPolicyDialog
-        policy={policyToDelete}
-        open={!!policyToDelete}
-        onClose={handleCloseDeleteDialog}
-        onConfirm={handleConfirmDelete}
-        isLoading={deleteMutation.isPending}
-        error={deleteMutation.error?.message || null}
-      />
+      {!!policyToDelete && (
+        <DeleteRBACPolicyDialog
+          policy={policyToDelete}
+          open={!!policyToDelete}
+          onClose={handleCloseDeleteDialog}
+          onConfirm={handleConfirmDelete}
+          isLoading={deleteMutation.isPending}
+          error={deleteMutation.error?.message || null}
+        />
+      )}
 
       {/* Add RBAC Policy Modal */}
-      <AddRBACPolicyModal
-        isOpen={isAddModalOpen}
-        onClose={() => setIsAddModalOpen(false)}
-        securityGroupId={securityGroupId}
-      />
+      {isAddModalOpen && (
+        <AddRBACPolicyModal
+          isOpen={isAddModalOpen}
+          onClose={() => setIsAddModalOpen(false)}
+          securityGroupId={securityGroupId}
+        />
+      )}
     </>
   )
 }

@@ -1,10 +1,11 @@
-import { useState } from "react"
-import { Modal, Button, ModalFooter, ButtonRow, Message, TextInput } from "@cloudoperators/juno-ui-components"
+import { z } from "zod"
+import { useForm, useStore } from "@tanstack/react-form"
+import { Modal, Message, TextInput, Form, FormSection } from "@cloudoperators/juno-ui-components"
 import { Trans, useLingui } from "@lingui/react/macro"
 import type { RBACPolicy } from "@/server/Network/types/rbacPolicy"
 
 interface DeleteRBACPolicyDialogProps {
-  policy: RBACPolicy | null
+  policy: RBACPolicy
   open: boolean
   onClose: () => void
   onConfirm: (policyId: string) => void
@@ -21,22 +22,35 @@ export function DeleteRBACPolicyDialog({
   error,
 }: DeleteRBACPolicyDialogProps) {
   const { t } = useLingui()
-  const [confirmText, setConfirmText] = useState("")
 
-  const handleConfirm = () => {
-    if (policy && confirmText === "remove") {
+  const formSchema = z.object({
+    confirmText: z.string().refine((value) => value === "remove", {
+      message: t`Type "remove" to confirm`,
+    }),
+  })
+
+  const form = useForm({
+    defaultValues: {
+      confirmText: "",
+    },
+    validators: {
+      onSubmit: formSchema,
+    },
+    onSubmit: async () => {
+      if (isLoading) return
+
       onConfirm(policy.id)
-    }
-  }
+      handleClose()
+    },
+  })
+
+  // Creates a reactive subscription so the component re-renders, which allows the confirm button to enable once the user types "remove"
+  const canRemove = useStore(form.store, (state) => state.isSubmitting || state.values.confirmText !== "remove")
 
   const handleClose = () => {
-    setConfirmText("")
+    form.reset()
     onClose()
   }
-
-  const isConfirmDisabled = confirmText !== "remove" || isLoading
-
-  if (!policy) return null
 
   return (
     <Modal
@@ -44,23 +58,10 @@ export function DeleteRBACPolicyDialog({
       onCancel={handleClose}
       size="small"
       title={t`Remove RBAC Policy`}
-      modalFooter={
-        <ModalFooter className="flex justify-end">
-          <ButtonRow>
-            <Button
-              variant="primary-danger"
-              onClick={handleConfirm}
-              disabled={isConfirmDisabled}
-              data-testid="confirm-remove-policy-button"
-            >
-              {isLoading ? <Trans>Removing...</Trans> : <Trans>Remove Policy</Trans>}
-            </Button>
-            <Button variant="default" onClick={handleClose} disabled={isLoading}>
-              <Trans>Cancel</Trans>
-            </Button>
-          </ButtonRow>
-        </ModalFooter>
-      }
+      onConfirm={form.handleSubmit}
+      cancelButtonLabel={t`Cancel`}
+      confirmButtonLabel={isLoading ? t`Removing...` : t`Remove Policy`}
+      disableConfirmButton={isLoading || canRemove}
     >
       <div>
         {/* Warning */}
@@ -94,21 +95,38 @@ export function DeleteRBACPolicyDialog({
         </div>
 
         {/* Confirmation Input */}
-        <div className="mt-4">
-          <p className="mb-2 text-sm">
-            <Trans>
-              Type <strong>remove</strong> to confirm:
-            </Trans>
-          </p>
-          <TextInput
-            value={confirmText}
-            onChange={(e) => setConfirmText(e.target.value)}
-            placeholder={t`remove`}
-            autoComplete="off"
-            disabled={isLoading}
-            data-testid="remove-policy-confirmation-input"
-          />
-        </div>
+        {!isLoading && (
+          <Form
+            className="mb-0 mt-4"
+            onSubmit={(e) => {
+              e.preventDefault()
+              form.handleSubmit()
+            }}
+          >
+            <FormSection>
+              <p className="mb-2 text-sm">
+                <Trans>
+                  Type <strong>remove</strong> to confirm:
+                </Trans>
+              </p>
+              <form.Field
+                name="confirmText"
+                children={(field) => (
+                  <TextInput
+                    id={field.name}
+                    name={field.name}
+                    value={field.state.value}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    placeholder={t`remove`}
+                    autoComplete="off"
+                    disabled={isLoading}
+                    data-testid="remove-policy-confirmation-input"
+                  />
+                )}
+              />
+            </FormSection>
+          </Form>
+        )}
       </div>
     </Modal>
   )
