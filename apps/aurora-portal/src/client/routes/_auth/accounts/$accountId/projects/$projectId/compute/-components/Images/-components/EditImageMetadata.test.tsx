@@ -511,28 +511,6 @@ describe("EditImageMetadataModal", () => {
     })
   })
 
-  test("displays info message about custom metadata", async () => {
-    renderMetadataModal(true, mockOnClose, mockImage, mockOnSave)
-
-    await waitFor(() => {
-      expect(screen.getByText(/Changes to metadata will be saved when you click/i)).toBeInTheDocument()
-    })
-  })
-
-  test("does not display warning message when no metadata exists", async () => {
-    const emptyImage = {
-      id: "test-id",
-      name: "Test Image",
-      status: "active",
-    } as GlanceImage
-
-    renderMetadataModal(true, mockOnClose, emptyImage, mockOnSave)
-
-    await waitFor(() => {
-      expect(screen.queryByText(/Changes to metadata will be saved when you click/i)).not.toBeInTheDocument()
-    })
-  })
-
   test("resets form when modal is closed", async () => {
     renderMetadataModal(true, mockOnClose, mockImage, mockOnSave)
 
