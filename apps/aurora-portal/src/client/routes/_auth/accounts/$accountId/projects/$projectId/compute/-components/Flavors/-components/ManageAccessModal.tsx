@@ -297,7 +297,13 @@ export const ManageAccessModal: React.FC<ManageAccessProps> = ({ client, isOpen,
     <Modal onCancel={handleClose} title={t`Manage Access - ${flavorName}`} open={isOpen} size="xl">
       <div>
         {message && (
-          <Message onDismiss={() => setMessage(null)} text={message.text} variant={message.type} className="mb-4" />
+          <Message
+            onDismiss={() => setMessage(null)}
+            text={message.text}
+            variant={message.type}
+            className="mb-4"
+            dismissible
+          />
         )}
 
         <Suspense fallback={<AccessLoading />}>

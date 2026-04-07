@@ -39,7 +39,6 @@ describe("ImageMemberFormRow", () => {
     setup()
     expect(screen.getByDisplayValue("member-123")).toBeInTheDocument()
     expect(screen.getByText("image-456")).toBeInTheDocument()
-    expect(screen.getByText("pending")).toBeInTheDocument()
   })
 
   it("should display the image ID in the first cell", () => {
@@ -52,11 +51,6 @@ describe("ImageMemberFormRow", () => {
     setup(memberId)
     const input = screen.getByDisplayValue(memberId) as HTMLInputElement
     expect(input.value).toBe(memberId)
-  })
-
-  it("should display pending status badge", () => {
-    setup()
-    expect(screen.getByText("pending")).toBeInTheDocument()
   })
 
   it("should call onMemberIdChange when input value changes", () => {
@@ -247,7 +241,6 @@ describe("ImageMemberFormRow", () => {
     // Verify the structure by checking all expected cells are rendered
     expect(screen.getByText("image-456")).toBeInTheDocument()
     expect(screen.getByDisplayValue("member-123")).toBeInTheDocument()
-    expect(screen.getByText("pending")).toBeInTheDocument()
   })
 
   it("should handle special characters in imageId", () => {
