@@ -1183,10 +1183,10 @@ export const swiftRouter = {
    *   Collect all base64 chunks → decode each → concatenate into a single
    *   Uint8Array → wrap in a Blob → trigger <a download>.
    *
-   * Compared to the previous ArrayBuffer approach:
+   * Advantages of this approach:
    *   - Server never holds the full file in memory
    *   - Client receives and processes chunks progressively
-   *   - Works correctly for large files
+   *   - Handles large files without memory pressure on either side
    */
   downloadObject: protectedProcedure.input(downloadObjectInputSchema).mutation(async function* ({
     input,
