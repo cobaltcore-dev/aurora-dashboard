@@ -139,7 +139,7 @@ Returns created `FloatingIp`.
 
 ### Update Floating IP
 
-Updates a floating IP. Used for associating a port (`port_id` set to a UUID), disassociating a port (`port_id` set to `null`) or editing description field.
+Updates a floating IP. Used for associating a port (`port_id` set to a UUID), disassociating a port (`port_id` set to `null`) or editing the description field.
 
 **Procedure**: `network.floatingIp.update`  
 **Method**: Mutation  
