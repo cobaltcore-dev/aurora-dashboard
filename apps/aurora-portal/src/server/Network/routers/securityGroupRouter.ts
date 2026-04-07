@@ -13,6 +13,7 @@ import { SecurityGroupErrorHandlers } from "../helpers/securityGroupHelpers"
 import { parseSecurityGroupResponse, parseSecurityGroupListResponse } from "../helpers/securityGroupHelpers"
 import { getNetworkService } from "../helpers/index"
 import { appendQueryParamsFromObject } from "../../helpers/queryParams"
+import type { SignalOpenstackServiceType } from "@cobaltcore-dev/signal-openstack"
 
 const SECURITY_GROUPS_BASE_URL = "v2.0/security-groups"
 
@@ -23,10 +24,50 @@ const LIST_SECURITY_GROUPS_QUERY_KEY_MAP: Record<string, string> = {
 }
 
 /**
+ * Helper function to fetch security groups with given parameters
+ */
+async function fetchSecurityGroupsWithParams(
+  network: SignalOpenstackServiceType,
+  params: Record<string, string | number | boolean | undefined>
+): Promise<SecurityGroup[]> {
+  const queryParams = appendQueryParamsFromObject(params, {
+    keyMap: LIST_SECURITY_GROUPS_QUERY_KEY_MAP,
+  })
+
+  const queryString = queryParams.toString()
+  const url = queryString ? `${SECURITY_GROUPS_BASE_URL}?${queryString}` : SECURITY_GROUPS_BASE_URL
+
+  const response = await network.get(url)
+
+  if (!response.ok) {
+    throw SecurityGroupErrorHandlers.list(response)
+  }
+
+  const data = await response.json()
+  return parseSecurityGroupListResponse(data, "fetchSecurityGroupsWithParams")
+}
+
+/**
+ * Deduplicates security groups by ID
+ */
+function deduplicateById(items: SecurityGroup[]): SecurityGroup[] {
+  const seen = new Map<string, SecurityGroup>()
+
+  for (const item of items) {
+    if (!seen.has(item.id)) {
+      seen.set(item.id, item)
+    }
+  }
+
+  return Array.from(seen.values())
+}
+
+/**
  * tRPC router for OpenStack Neutron Security Groups.
  *
  * Currently exposes:
- * - list: GET /v2.0/security-groups with pagination, sorting and basic filtering support.
+ * - list: GET /v2.0/security-groups - Fetches both own and shared security groups by default.
+ *   User can explicitly filter by shared=true/false.
  * - getById: GET /v2.0/security-groups/{security_group_id} to fetch a single security group with rules.
  *   Includes BFF-side search filtering by name, description, or id.
  * - create: POST /v2.0/security-groups to create a new security group.
@@ -38,28 +79,33 @@ export const securityGroupRouter = {
     .input(listSecurityGroupsInputSchema)
     .query(async ({ input, ctx }): Promise<SecurityGroup[]> => {
       return withErrorHandling(async () => {
-        const { searchTerm, ...queryInput } = input
+        const { searchTerm, project_id, shared, ...queryInput } = input
         const network = getNetworkService(ctx)
 
-        // Build query params from input
-        const queryParams = appendQueryParamsFromObject(queryInput, {
-          keyMap: LIST_SECURITY_GROUPS_QUERY_KEY_MAP,
-        })
-
-        const queryString = queryParams.toString()
-        const url = queryString ? `${SECURITY_GROUPS_BASE_URL}?${queryString}` : SECURITY_GROUPS_BASE_URL
-
-        const response = await network.get(url)
-
-        // Check for error responses before parsing
-        if (!response.ok) {
-          throw SecurityGroupErrorHandlers.list(response)
+        // If user explicitly filters by shared, use single request
+        if (shared !== undefined) {
+          const securityGroups = await fetchSecurityGroupsWithParams(network, {
+            ...queryInput,
+            shared,
+          })
+          return filterBySearchParams(securityGroups, searchTerm, ["name", "description", "id"])
         }
 
-        const data = await response.json()
-        const securityGroups = parseSecurityGroupListResponse(data, "securityGroupRouter.list")
+        // Otherwise, fetch both own and shared security groups in parallel
+        const [ownGroups, sharedGroups] = await Promise.all([
+          fetchSecurityGroupsWithParams(network, {
+            ...queryInput,
+            project_id,
+            shared: false,
+          }),
+          fetchSecurityGroupsWithParams(network, {
+            ...queryInput,
+            shared: true,
+          }),
+        ])
 
-        return filterBySearchParams(securityGroups, searchTerm, ["name", "description", "id"])
+        const combined = deduplicateById([...ownGroups, ...sharedGroups])
+        return filterBySearchParams(combined, searchTerm, ["name", "description", "id"])
       }, "list security groups")
     }),
 
