@@ -38,7 +38,7 @@
   },
   "devDependencies": {
     "@cobaltcore-dev/aurora-config": "workspace:*",
-    "@types/node": "^20.17.24",
+    "@types/node": "^24.0.0",
     "jsdom": "^29.0.0",
     "typescript": "^6.0.2",
     "vitest": "^4.1.2"
