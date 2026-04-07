@@ -327,10 +327,55 @@ describe("ObjectsTableView", () => {
       await user.click(screen.getByRole("button", { name: /More/i }))
       await user.click(screen.getByTestId("download-action-readme.txt"))
 
-      // Re-open the menu to inspect the item state
+      // The More button itself is disabled — menu cannot be opened
+      const moreButton = screen.getByRole("button", { name: /More/i })
+      expect(moreButton).toBeDisabled()
+
+      unblock()
+    })
+
+    test("shows Downloading... in last modified cell while download is in progress", async () => {
+      let unblock!: () => void
+      const blocker = new Promise<void>((resolve) => {
+        unblock = resolve
+      })
+
+      const { trpcClient } = await import("@/client/trpcClient")
+      vi.mocked(trpcClient.storage.swift.downloadObject.mutate).mockImplementation(async () => {
+        await blocker
+        return (async function* () {})()
+      })
+
+      const user = userEvent.setup()
+      renderView({ rows: [makeObject("readme.txt")] })
       await user.click(screen.getByRole("button", { name: /More/i }))
-      const menuItem = screen.getByTestId("download-action-readme.txt")
-      expect(menuItem).toHaveAttribute("aria-disabled", "true")
+      await user.click(screen.getByTestId("download-action-readme.txt"))
+
+      expect(await screen.findByText(/Downloading\.\.\./i)).toBeInTheDocument()
+
+      unblock()
+    })
+
+    test("actions menu is disabled for the downloading row", async () => {
+      let unblock!: () => void
+      const blocker = new Promise<void>((resolve) => {
+        unblock = resolve
+      })
+
+      const { trpcClient } = await import("@/client/trpcClient")
+      vi.mocked(trpcClient.storage.swift.downloadObject.mutate).mockImplementation(async () => {
+        await blocker
+        return (async function* () {})()
+      })
+
+      const user = userEvent.setup()
+      renderView({ rows: [makeObject("readme.txt")] })
+      await user.click(screen.getByRole("button", { name: /More/i }))
+      await user.click(screen.getByTestId("download-action-readme.txt"))
+
+      // The More button for the downloading row should be disabled
+      const moreButton = screen.getByRole("button", { name: /More/i })
+      expect(moreButton).toBeDisabled()
 
       unblock()
     })

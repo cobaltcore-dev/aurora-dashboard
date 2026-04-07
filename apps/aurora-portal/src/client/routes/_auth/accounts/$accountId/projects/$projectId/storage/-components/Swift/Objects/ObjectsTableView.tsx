@@ -11,6 +11,7 @@ import {
 } from "@cloudoperators/juno-ui-components"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { MdFolder, MdDescription } from "react-icons/md"
+import { Spinner } from "@cloudoperators/juno-ui-components"
 import { formatBytesBinary } from "@/client/utils/formatBytes"
 import { trpcClient } from "@/client/trpcClient"
 import { BrowserRow, FolderRow, ObjectRow } from "./"
@@ -222,14 +223,25 @@ export const ObjectsTableView = ({
                   </DataGridCell>
 
                   {/* Last Modified */}
-                  <DataGridCell>{!isFolder && row.last_modified ? formatDate(row.last_modified) : "—"}</DataGridCell>
+                  <DataGridCell>
+                    {isDownloading ? (
+                      <span className="text-theme-light flex items-center gap-2">
+                        <Spinner size="small" />
+                        <Trans>Downloading...</Trans>
+                      </span>
+                    ) : !isFolder && row.last_modified ? (
+                      formatDate(row.last_modified)
+                    ) : (
+                      "—"
+                    )}
+                  </DataGridCell>
 
                   {/* Size */}
                   <DataGridCell>{!isFolder ? formatBytesBinary(row.bytes) : "—"}</DataGridCell>
 
                   {/* Actions */}
                   <DataGridCell onClick={(e) => e.stopPropagation()}>
-                    <PopupMenu>
+                    <PopupMenu disabled={isDownloading}>
                       <PopupMenuOptions>
                         {isFolder ? (
                           // Folder actions
