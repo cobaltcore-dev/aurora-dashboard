@@ -3,8 +3,7 @@
   "compilerOptions": {
     "rootDir": "src",
     "outDir": "dist/esm",
-    "moduleResolution": "bundler",
-    "module": "ESNext",
+    "module": "NodeNext",
     "target": "ESNext"
   },
   "exclude": ["src/**/*.test.ts"]

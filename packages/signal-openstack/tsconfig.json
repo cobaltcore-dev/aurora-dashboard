@@ -6,14 +6,12 @@
     "isolatedModules": true,
     "skipLibCheck": true,
     "strict": true,
-    "moduleResolution": "bundler",
 
     "declaration": false,
     "declarationMap": false,
     "emitDeclarationOnly": false,
     "stripInternal": true,
 
-    "module": "ESNext",
     "target": "ESNext",
     "types": ["vitest/globals", "node"]
   },
