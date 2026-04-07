@@ -6,7 +6,7 @@
     "isolatedModules": true,
     "skipLibCheck": true,
     "strict": true,
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
 
     "declaration": false,
     "declarationMap": false,
@@ -15,7 +15,7 @@
 
     "module": "ESNext",
     "target": "ESNext",
-    "types": ["vitest/globals"]
+    "types": ["vitest/globals", "node"]
   },
   "include": ["src"],
   "exclude": ["node_modules", "dist"]

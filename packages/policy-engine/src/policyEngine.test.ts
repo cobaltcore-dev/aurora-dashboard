@@ -509,7 +509,7 @@ describe("PolicyEngine", () => {
       debugPolicy.check("owner", { user_id: "123" })
 
       const logCalls = consoleSpy.mock.calls.flat()
-      const hasParameterInfo = logCalls.some((call) => typeof call === "string" && call.includes("Required parameters"))
+      const hasParameterInfo = logCalls.some((call: unknown) => typeof call === "string" && call.includes("Required parameters"))
       expect(hasParameterInfo).toBe(true)
     })
 
@@ -518,7 +518,7 @@ describe("PolicyEngine", () => {
       debugPolicy.check("admin_or_owner")
 
       const logCalls = consoleSpy.mock.calls.flat()
-      const hasRuleTrace = logCalls.some((call) => typeof call === "string" && call.includes("Starting policy check"))
+      const hasRuleTrace = logCalls.some((call: unknown) => typeof call === "string" && call.includes("Starting policy check"))
       expect(hasRuleTrace).toBe(true)
     })
   })

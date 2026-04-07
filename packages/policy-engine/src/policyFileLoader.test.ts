@@ -4,8 +4,20 @@ import path from "path"
 import { loadPolicyConfigFromFile } from "./policyFileLoader"
 
 // Mock fs module
-vi.mock("fs")
-vi.mock("path")
+vi.mock("fs", () => ({
+  default: {
+    existsSync: vi.fn(),
+    readFileSync: vi.fn(),
+  },
+  existsSync: vi.fn(),
+  readFileSync: vi.fn(),
+}))
+vi.mock("path", () => ({
+  default: {
+    extname: vi.fn(),
+  },
+  extname: vi.fn(),
+}))
 
 const mockFs = vi.mocked(fs)
 const mockPath = vi.mocked(path)
