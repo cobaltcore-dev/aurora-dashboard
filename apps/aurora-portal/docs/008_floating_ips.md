@@ -117,8 +117,8 @@ Allocates a floating IP from an external network.
 | `subnet_id`           | string  | External subnet UUID                      | No       |
 | `distributed`         | boolean | Create as distributed floating IP         | No       |
 | `description`         | string  | Human-readable description                | No       |
-| `dns_name`            | string  | DNS hostname (requires `dns_integration`) | No       |
-| `dns_domain`          | string  | DNS domain (requires `dns_integration`)   | No       |
+| `dns_name`            | string  | DNS hostname (requires `dns-integration`) | No       |
+| `dns_domain`          | string  | DNS domain (requires `dns-integration`)   | No       |
 | `qos_policy_id`       | string  | QoS policy UUID (requires `qos`)          | No       |
 
 #### Response
@@ -127,19 +127,19 @@ Returns created `FloatingIp`.
 
 #### Error Handling
 
-| HTTP Status | tRPC Code               | Message                    |
-| ----------- | ----------------------- | -------------------------- |
-| 400         | `BAD_REQUEST`           | Invalid request data       |
-| 401         | `UNAUTHORIZED`          | Unauthorized access        |
-| 404         | `NOT_FOUND`             | Floating IP not found      |
-| 409         | `CONFLICT`              | Conflict - resource in use |
-| default     | `INTERNAL_SERVER_ERROR` | Failed to process request  |
+| HTTP Status | tRPC Code               | Message                     |
+| ----------- | ----------------------- | --------------------------- |
+| 400         | `BAD_REQUEST`           | Invalid request data        |
+| 401         | `UNAUTHORIZED`          | Unauthorized access         |
+| 404         | `NOT_FOUND`             | If the port ID is not valid |
+| 409         | `CONFLICT`              | Conflict - resource in use  |
+| default     | `INTERNAL_SERVER_ERROR` | Failed to process request   |
 
 ---
 
 ### Update Floating IP
 
-Updates a floating IP. Used for associating a port (`port_id` set to a UUID), disassociating a port (`port_id` set to `null`) and editing description field.
+Updates a floating IP. Used for associating a port (`port_id` set to a UUID), disassociating a port (`port_id` set to `null`) or editing description field.
 
 **Procedure**: `network.floatingIp.update`  
 **Method**: Mutation  
@@ -305,7 +305,7 @@ The `delete` mutation uses invalidate-and-refetch:
 ## Special Notes
 
 1. **Associate and disassociate share the same procedure** (`update`) — pass a port UUID to associate, `null` to disassociate.
-2. **DNS fields** (`dns_name`, `dns_domain`) require the `dns_integration` extension.
+2. **DNS fields** (`dns_name`, `dns_domain`) require the `dns-integration` extension.
 3. **QoS policy field** (`qos_policy_id`) requires the `qos` extension.
 4. **Status propagation may lag** in the Neutron L3 path; optimistic updates are reconciled via cache invalidation on settle.
 
