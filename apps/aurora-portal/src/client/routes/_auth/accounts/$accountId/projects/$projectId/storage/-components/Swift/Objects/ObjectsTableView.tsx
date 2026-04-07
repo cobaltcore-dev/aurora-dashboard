@@ -12,7 +12,7 @@ import {
 import { Trans, useLingui } from "@lingui/react/macro"
 import { MdFolder, MdDescription } from "react-icons/md"
 import { formatBytesBinary } from "@/client/utils/formatBytes"
-import { trpcReact } from "@/client/trpcClient"
+import { trpcClient } from "@/client/trpcClient"
 import { BrowserRow, FolderRow, ObjectRow } from "./"
 import { DeleteFolderModal } from "./DeleteFolderModal"
 
@@ -30,19 +30,6 @@ interface ObjectsTableViewProps {
   onDownloadError: (objectName: string, errorMessage: string) => void
 }
 
-const saveBlob = (base64: string, contentType: string, filename: string) => {
-  const bytes = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0))
-  const blob = new Blob([bytes], { type: contentType })
-  const url = URL.createObjectURL(blob)
-  const anchor = document.createElement("a")
-  anchor.href = url
-  anchor.download = filename
-  document.body.appendChild(anchor)
-  anchor.click()
-  document.body.removeChild(anchor)
-  URL.revokeObjectURL(url)
-}
-
 export const ObjectsTableView = ({
   rows,
   searchTerm,
@@ -58,31 +45,49 @@ export const ObjectsTableView = ({
   const [scrollbarWidth, setScrollbarWidth] = useState(0)
   const [deleteFolderTarget, setDeleteFolderTarget] = useState<FolderRow | null>(null)
   const [downloadingRow, setDownloadingRow] = useState<ObjectRow | null>(null)
-  // Ref keeps the in-flight row available to onError without a stale closure
-  const downloadingRowRef = useRef<ObjectRow | null>(null)
 
-  const downloadMutation = trpcReact.storage.swift.downloadObject.useMutation({
-    onSuccess: ({ base64, contentType, filename }) => {
-      saveBlob(base64, contentType, filename)
-      downloadingRowRef.current = null
-      setDownloadingRow(null)
-    },
-    onError: (error) => {
-      onDownloadError(downloadingRowRef.current?.displayName ?? "", error.message)
-      downloadingRowRef.current = null
-      setDownloadingRow(null)
-    },
-  })
-
-  const handleDownload = (row: ObjectRow) => {
-    downloadingRowRef.current = row
+  const handleDownload = async (row: ObjectRow) => {
     setDownloadingRow(row)
-    downloadMutation.mutate({
-      container,
-      object: row.name,
-      filename: row.displayName,
-      ...(account ? { account } : {}),
-    })
+    try {
+      const chunks: Uint8Array[] = []
+      let contentType = "application/octet-stream"
+      let filename = row.displayName
+
+      const iterable = await trpcClient.storage.swift.downloadObject.mutate({
+        container,
+        object: row.name,
+        filename: row.displayName,
+        ...(account ? { account } : {}),
+      })
+
+      for await (const { chunk, contentType: ct, filename: fn } of iterable) {
+        if (ct) contentType = ct
+        if (fn) filename = fn
+        chunks.push(Uint8Array.from(atob(chunk), (c) => c.charCodeAt(0)))
+      }
+
+      const totalLength = chunks.reduce((sum, c) => sum + c.length, 0)
+      const merged = new Uint8Array(totalLength)
+      let offset = 0
+      for (const c of chunks) {
+        merged.set(c, offset)
+        offset += c.length
+      }
+
+      const blob = new Blob([merged], { type: contentType })
+      const url = URL.createObjectURL(blob)
+      const anchor = document.createElement("a")
+      anchor.href = url
+      anchor.download = filename
+      document.body.appendChild(anchor)
+      anchor.click()
+      document.body.removeChild(anchor)
+      URL.revokeObjectURL(url)
+    } catch (err) {
+      onDownloadError(row.displayName, err instanceof Error ? err.message : String(err))
+    } finally {
+      setDownloadingRow(null)
+    }
   }
 
   // Calculate scrollbar width

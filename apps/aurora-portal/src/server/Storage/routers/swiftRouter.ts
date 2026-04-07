@@ -28,7 +28,6 @@ import {
   updateContainerMetadataInputSchema,
   getContainerMetadataInputSchema,
   deleteContainerInputSchema,
-  getObjectInputSchema,
   createObjectInputSchema,
   updateObjectMetadataInputSchema,
   copyObjectInputSchema,
@@ -42,7 +41,6 @@ import {
   AccountInfo,
   ContainerInfo,
   ObjectMetadata,
-  ObjectContentResponse,
   BulkDeleteResult,
   serviceInfoSchema,
   ServiceInfo,
@@ -497,66 +495,6 @@ export const swiftRouter = {
   // ============================================================================
   // OBJECT OPERATIONS
   // ============================================================================
-
-  /**
-   * Gets an object's content and metadata
-   */
-  getObject: protectedProcedure
-    .input(getObjectInputSchema)
-    .query(async ({ input, ctx }): Promise<ObjectContentResponse> => {
-      return withErrorHandling(async () => {
-        const {
-          account,
-          container,
-          object,
-          range,
-          ifMatch,
-          ifNoneMatch,
-          ifModifiedSince,
-          ifUnmodifiedSince,
-          multipartManifest,
-          symlink,
-          xNewest,
-        } = input
-        const openstackSession = ctx.openstack
-        const swift = openstackSession?.service("swift")
-
-        validateSwiftService(swift)
-
-        // Build URL with query parameters
-        const queryParams = new URLSearchParams()
-        if (multipartManifest) {
-          queryParams.append("multipart-manifest", multipartManifest)
-        }
-        if (symlink) {
-          queryParams.append("symlink", symlink)
-        }
-
-        const accountPath = account || ""
-        const basePath = accountPath
-          ? `${accountPath}/${encodeURIComponent(container)}/${encodeURIComponent(object)}`
-          : `${encodeURIComponent(container)}/${encodeURIComponent(object)}`
-        const url = queryParams.toString() ? `${basePath}?${queryParams.toString()}` : basePath
-
-        // Build headers
-        const headers: Record<string, string> = {}
-        if (range) headers["Range"] = range
-        if (ifMatch) headers["If-Match"] = ifMatch
-        if (ifNoneMatch) headers["If-None-Match"] = ifNoneMatch
-        if (ifModifiedSince) headers["If-Modified-Since"] = ifModifiedSince
-        if (ifUnmodifiedSince) headers["If-Unmodified-Since"] = ifUnmodifiedSince
-        if (xNewest !== undefined) headers["X-Newest"] = xNewest.toString()
-
-        const response = await swift.get(url, { headers }).catch((error) => {
-          throw mapErrorResponseToTRPCError(error, { operation: "get object", container, object })
-        })
-
-        const content = await response.arrayBuffer()
-        const metadata = parseObjectMetadata(response.headers)
-
-        return { content, metadata }
-      }, "get object")
-    }),
 
   /**
    * Creates or replaces an object with content and metadata
@@ -1231,32 +1169,70 @@ export const swiftRouter = {
   // ============================================================================
 
   /**
-   * Downloads a Swift object via the BFF and returns its content as a base64
-   * string so the client can construct a Blob and trigger a save dialog.
+   * Downloads a Swift object via the BFF, streaming the content as chunks of
+   * base64-encoded data using an async iterable.
+   *
+   * Why chunked base64 instead of raw binary:
+   *   tRPC uses JSON-based SSE transport for iterables, so each yielded value
+   *   must be JSON-serializable. We encode each Uint8Array chunk as base64 and
+   *   include the content-type + filename only in the first chunk so the client
+   *   can start constructing the Blob immediately without waiting for the full
+   *   file to buffer on the server.
+   *
+   * Client-side assembly:
+   *   Collect all base64 chunks → decode each → concatenate into a single
+   *   Uint8Array → wrap in a Blob → trigger <a download>.
+   *
+   * Compared to the previous ArrayBuffer approach:
+   *   - Server never holds the full file in memory
+   *   - Client receives and processes chunks progressively
+   *   - Works correctly for large files
    */
-  downloadObject: protectedProcedure
-    .input(downloadObjectInputSchema)
-    .mutation(async ({ input, ctx }): Promise<{ base64: string; contentType: string; filename: string }> => {
-      return withErrorHandling(async () => {
-        const { container, object, filename, account } = input
-        const swift = ctx.openstack?.service("swift")
+  downloadObject: protectedProcedure.input(downloadObjectInputSchema).mutation(async function* ({
+    input,
+    ctx,
+  }): AsyncGenerator<{
+    chunk: string // base64-encoded Uint8Array chunk
+    contentType?: string // only present in first chunk
+    filename?: string // only present in first chunk
+  }> {
+    const { container, object, filename, account } = input
+    const swift = ctx.openstack?.service("swift")
 
-        validateSwiftService(swift)
+    validateSwiftService(swift)
 
-        const accountPath = account || ""
-        const url = accountPath
-          ? `${accountPath}/${encodeURIComponent(container)}/${encodeURIComponent(object)}`
-          : `${encodeURIComponent(container)}/${encodeURIComponent(object)}`
+    const accountPath = account || ""
+    const url = accountPath
+      ? `${accountPath}/${encodeURIComponent(container)}/${encodeURIComponent(object)}`
+      : `${encodeURIComponent(container)}/${encodeURIComponent(object)}`
 
-        const response = await swift.get(url).catch((error) => {
-          throw mapErrorResponseToTRPCError(error, { operation: "download object", container, object })
-        })
+    const response = await swift.get(url).catch((error) => {
+      throw mapErrorResponseToTRPCError(error, { operation: "download object", container, object })
+    })
 
-        const contentType = response.headers.get("content-type") ?? "application/octet-stream"
-        const buffer = await response.arrayBuffer()
-        const base64 = Buffer.from(buffer).toString("base64")
+    const contentType = response.headers.get("content-type") ?? "application/octet-stream"
 
-        return { base64, contentType, filename }
-      }, "download object")
-    }),
+    if (!response.body) {
+      throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Swift response has no body" })
+    }
+
+    const reader = response.body.getReader()
+    let isFirst = true
+
+    try {
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+
+        yield {
+          chunk: Buffer.from(value).toString("base64"),
+          ...(isFirst ? { contentType, filename } : {}),
+        }
+
+        isFirst = false
+      }
+    } finally {
+      reader.releaseLock()
+    }
+  }),
 }

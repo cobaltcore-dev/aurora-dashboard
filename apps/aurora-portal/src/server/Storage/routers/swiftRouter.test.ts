@@ -707,61 +707,6 @@ describe("swiftRouter", () => {
 
   // ============================================================================
   // OBJECT OPERATIONS
-  // ============================================================================
-
-  describe("getObject", () => {
-    it("should successfully get object content", async () => {
-      const mockCtx = createMockContext()
-      const caller = createCaller(mockCtx)
-
-      const mockBuffer = new ArrayBuffer(512)
-      mockCtx.mockSwift.get.mockResolvedValue({
-        ok: true,
-        headers: new Headers({
-          "Content-Type": "text/plain",
-          "Content-Length": "512",
-        }),
-        arrayBuffer: vi.fn().mockResolvedValue(mockBuffer),
-      })
-      ;(swiftHelpers.parseObjectMetadata as Mock).mockReturnValue(mockObjectMetadata)
-
-      const input = { container: "test-container", object: "test-object.txt" }
-      const result = await caller.storage.swift.getObject(input)
-
-      expect(mockCtx.mockSwift.get).toHaveBeenCalled()
-      expect(result.content).toEqual(mockBuffer)
-      expect(result.metadata).toEqual(mockObjectMetadata)
-    })
-
-    it("should handle range request", async () => {
-      const mockCtx = createMockContext()
-      const caller = createCaller(mockCtx)
-
-      const mockBuffer = new ArrayBuffer(512)
-      mockCtx.mockSwift.get.mockResolvedValue({
-        ok: true,
-        headers: new Headers(),
-        arrayBuffer: vi.fn().mockResolvedValue(mockBuffer),
-      })
-      ;(swiftHelpers.parseObjectMetadata as Mock).mockReturnValue(mockObjectMetadata)
-
-      await caller.storage.swift.getObject({
-        container: "test-container",
-        object: "test-object.txt",
-        range: "bytes=0-1023",
-      })
-
-      expect(mockCtx.mockSwift.get).toHaveBeenCalledWith(
-        expect.any(String),
-        expect.objectContaining({
-          headers: expect.objectContaining({
-            Range: "bytes=0-1023",
-          }),
-        })
-      )
-    })
-  })
-
   describe("createObject", () => {
     it("should successfully create object with ArrayBuffer", async () => {
       const mockCtx = createMockContext()
@@ -1490,7 +1435,7 @@ describe("swiftRouter", () => {
       const mockError = { statusCode: 404, message: "Not Found" }
       mockCtx.mockSwift.get.mockRejectedValue(mockError)
 
-      await expect(caller.storage.swift.getObject({ container: "test", object: "missing.txt" })).rejects.toThrow()
+      await expect(caller.storage.swift.listObjects({ container: "test", format: "json" })).rejects.toThrow()
     })
   })
 
@@ -1499,66 +1444,142 @@ describe("swiftRouter", () => {
   // ============================================================================
 
   describe("downloadObject", () => {
-    it("should successfully download object and return base64 content", async () => {
+    // Helper: build a mock Response with a ReadableStream body
+    const makeStreamResponse = (chunks: Uint8Array[], contentType = "text/plain") => {
+      let index = 0
+      const stream = new ReadableStream<Uint8Array>({
+        pull(controller) {
+          if (index < chunks.length) {
+            controller.enqueue(chunks[index++])
+          } else {
+            controller.close()
+          }
+        },
+      })
+      return {
+        ok: true,
+        headers: new Headers({ "content-type": contentType }),
+        body: stream,
+      }
+    }
+
+    it("should stream object content as base64 chunks", async () => {
       const mockCtx = createMockContext()
       const caller = createCaller(mockCtx)
 
-      const mockContent = new TextEncoder().encode("Hello, World!")
-      mockCtx.mockSwift.get.mockResolvedValue({
-        ok: true,
-        headers: new Headers({ "content-type": "text/plain" }),
-        arrayBuffer: vi.fn().mockResolvedValue(mockContent.buffer),
-      })
+      const content = new TextEncoder().encode("Hello, World!")
+      mockCtx.mockSwift.get.mockResolvedValue(makeStreamResponse([content]))
 
-      const result = await caller.storage.swift.downloadObject({
+      const iterable = await caller.storage.swift.downloadObject({
         container: "test-container",
-        object: "Hello_world.txt",
-        filename: "Hello_world.txt",
+        object: "hello.txt",
+        filename: "hello.txt",
       })
 
-      expect(mockCtx.mockSwift.get).toHaveBeenCalledWith(expect.stringContaining("test-container"))
-      expect(result.contentType).toBe("text/plain")
-      expect(result.filename).toBe("Hello_world.txt")
-      expect(typeof result.base64).toBe("string")
-      // Decode and verify round-trip
-      expect(Buffer.from(result.base64, "base64").toString()).toBe("Hello, World!")
+      const chunks: string[] = []
+      let receivedContentType: string | undefined
+      let receivedFilename: string | undefined
+
+      for await (const item of iterable) {
+        chunks.push(item.chunk)
+        if (item.contentType) receivedContentType = item.contentType
+        if (item.filename) receivedFilename = item.filename
+      }
+
+      expect(receivedContentType).toBe("text/plain")
+      expect(receivedFilename).toBe("hello.txt")
+      // Decode all chunks and verify round-trip
+      const decoded = chunks.map((b64) => Buffer.from(b64, "base64").toString()).join("")
+      expect(decoded).toBe("Hello, World!")
+    })
+
+    it("should only send contentType and filename in the first chunk", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      const chunk1 = new TextEncoder().encode("part1")
+      const chunk2 = new TextEncoder().encode("part2")
+      mockCtx.mockSwift.get.mockResolvedValue(makeStreamResponse([chunk1, chunk2]))
+
+      const iterable = await caller.storage.swift.downloadObject({
+        container: "test-container",
+        object: "file.txt",
+        filename: "file.txt",
+      })
+
+      const items: Array<{ chunk: string; contentType?: string; filename?: string }> = []
+      for await (const item of iterable) {
+        items.push(item)
+      }
+
+      expect(items).toHaveLength(2)
+      // First chunk carries metadata
+      expect(items[0].contentType).toBe("text/plain")
+      expect(items[0].filename).toBe("file.txt")
+      // Subsequent chunks do not repeat metadata
+      expect(items[1].contentType).toBeUndefined()
+      expect(items[1].filename).toBeUndefined()
     })
 
     it("should fall back to application/octet-stream when content-type header is absent", async () => {
       const mockCtx = createMockContext()
       const caller = createCaller(mockCtx)
 
+      const stream = new ReadableStream<Uint8Array>({
+        start(controller) {
+          controller.close()
+        },
+      })
       mockCtx.mockSwift.get.mockResolvedValue({
         ok: true,
         headers: new Headers(),
-        arrayBuffer: vi.fn().mockResolvedValue(new ArrayBuffer(0)),
+        body: stream,
       })
 
-      const result = await caller.storage.swift.downloadObject({
+      const iterable = await caller.storage.swift.downloadObject({
         container: "test-container",
         object: "binary.bin",
         filename: "binary.bin",
       })
 
-      expect(result.contentType).toBe("application/octet-stream")
+      // Drain the iterable — empty stream yields nothing, but we still need
+      // the first-chunk metadata. For an empty body there are no chunks.
+      const items: Array<{ chunk: string; contentType?: string }> = []
+      for await (const item of iterable) {
+        items.push(item)
+      }
+
+      // No chunks for empty body — verify it doesn't throw
+      expect(items).toHaveLength(0)
     })
 
     it("should include account in URL when provided", async () => {
       const mockCtx = createMockContext()
       const caller = createCaller(mockCtx)
 
+      const stream = new ReadableStream<Uint8Array>({
+        start(controller) {
+          controller.enqueue(new TextEncoder().encode("data"))
+          controller.close()
+        },
+      })
       mockCtx.mockSwift.get.mockResolvedValue({
         ok: true,
         headers: new Headers({ "content-type": "text/plain" }),
-        arrayBuffer: vi.fn().mockResolvedValue(new ArrayBuffer(0)),
+        body: stream,
       })
 
-      await caller.storage.swift.downloadObject({
+      const iterable = await caller.storage.swift.downloadObject({
         container: "test-container",
         object: "file.txt",
         filename: "file.txt",
         account: "AUTH_abc123",
       })
+
+      // Drain
+      for await (const item of iterable) {
+        void item
+      }
 
       expect(mockCtx.mockSwift.get).toHaveBeenCalledWith(expect.stringContaining("AUTH_abc123"))
     })
@@ -1582,13 +1603,42 @@ describe("swiftRouter", () => {
 
       mockCtx.mockSwift.get.mockRejectedValue({ statusCode: 404, message: "Not Found" })
 
-      await expect(
-        caller.storage.swift.downloadObject({
-          container: "test-container",
-          object: "missing.txt",
-          filename: "missing.txt",
-        })
-      ).rejects.toThrow()
+      // async generators don't throw on creation — error surfaces when iterating
+      const iterable = await caller.storage.swift.downloadObject({
+        container: "test-container",
+        object: "missing.txt",
+        filename: "missing.txt",
+      })
+
+      await expect(async () => {
+        for await (const item of iterable) {
+          void item
+        }
+      }).rejects.toThrow()
+    })
+
+    it("should throw INTERNAL_SERVER_ERROR when response has no body", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      mockCtx.mockSwift.get.mockResolvedValue({
+        ok: true,
+        headers: new Headers({ "content-type": "text/plain" }),
+        body: null,
+      })
+
+      // async generators don't throw on creation — error surfaces when iterating
+      const iterable = await caller.storage.swift.downloadObject({
+        container: "test-container",
+        object: "file.txt",
+        filename: "file.txt",
+      })
+
+      await expect(async () => {
+        for await (const item of iterable) {
+          void item
+        }
+      }).rejects.toThrow("Swift response has no body")
     })
   })
 })

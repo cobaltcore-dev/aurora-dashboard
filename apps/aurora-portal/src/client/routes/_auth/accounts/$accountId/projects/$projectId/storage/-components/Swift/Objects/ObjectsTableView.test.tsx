@@ -39,27 +39,23 @@ vi.mock("./DeleteFolderModal", () => ({
   ),
 }))
 
-// Mock trpcReact — isolates download mutation from actual tRPC/network layer
-let mockDownloadMutate = vi.fn()
-let mockDownloadIsPending = false
+// ─── Mock trpcClient ──────────────────────────────────────────────────────────
+// downloadObject is now an async iterable (streaming mutation) called via the
+// vanilla trpcClient — mock it so tests can control chunks and errors without
+// touching the network.
+
+let mockDownloadIterable: AsyncIterable<{ chunk: string; contentType?: string; filename?: string }> | null = null
+let mockDownloadReject = false
 
 vi.mock("@/client/trpcClient", () => ({
-  trpcReact: {
+  trpcClient: {
     storage: {
       swift: {
         downloadObject: {
-          useMutation: vi.fn(
-            ({
-              onSuccess,
-              onError,
-            }: {
-              onSuccess?: (data: { base64: string; contentType: string; filename: string }) => void
-              onError?: (error: { message: string }) => void
-            }) => ({
-              mutate: (input: unknown) => mockDownloadMutate(input, { onSuccess, onError }),
-              isPending: mockDownloadIsPending,
-            })
-          ),
+          mutate: vi.fn(async () => {
+            if (mockDownloadReject) throw new Error("Network error")
+            return mockDownloadIterable ?? (async function* () {})()
+          }),
         },
       },
     },
@@ -131,8 +127,14 @@ const renderView = ({
 describe("ObjectsTableView", () => {
   beforeEach(async () => {
     vi.clearAllMocks()
-    mockDownloadMutate = vi.fn()
-    mockDownloadIsPending = false
+    mockDownloadIterable = null
+    mockDownloadReject = false
+    // Restore default implementation after any vi.mocked() override in previous tests
+    const { trpcClient } = await import("@/client/trpcClient")
+    vi.mocked(trpcClient.storage.swift.downloadObject.mutate).mockImplementation(async () => {
+      if (mockDownloadReject) throw new Error("Network error")
+      return mockDownloadIterable ?? (async function* () {})()
+    })
     await act(async () => {
       i18n.activate("en")
     })
@@ -293,27 +295,56 @@ describe("ObjectsTableView", () => {
       expect(screen.queryByTestId("download-action-docs/")).not.toBeInTheDocument()
     })
 
-    test("clicking Download calls mutate with correct input", async () => {
+    test("clicking Download calls trpcClient.mutate with correct input", async () => {
+      const { trpcClient } = await import("@/client/trpcClient")
+      mockDownloadIterable = (async function* () {})()
       const user = userEvent.setup()
       renderView({ rows: [makeObject("readme.txt")], container: "my-bucket" })
       await user.click(screen.getByRole("button", { name: /More/i }))
       await user.click(screen.getByTestId("download-action-readme.txt"))
-      expect(mockDownloadMutate).toHaveBeenCalledWith(
-        expect.objectContaining({ container: "my-bucket", object: "readme.txt", filename: "readme.txt" }),
-        expect.anything()
+      expect(trpcClient.storage.swift.downloadObject.mutate).toHaveBeenCalledWith(
+        expect.objectContaining({ container: "my-bucket", object: "readme.txt", filename: "readme.txt" })
       )
     })
 
-    test("calls onDownloadError when mutation fails", async () => {
-      const onDownloadError = vi.fn()
-      mockDownloadMutate = vi.fn((_input, { onError }) => {
-        onError?.({ message: "Network error" })
+    test("Download menu item is disabled while download is in progress", async () => {
+      // Block mutate so the download stays in-flight while we assert
+      let unblock!: () => void
+      const blocker = new Promise<void>((resolve) => {
+        unblock = resolve
       })
+
+      const { trpcClient } = await import("@/client/trpcClient")
+      vi.mocked(trpcClient.storage.swift.downloadObject.mutate).mockImplementation(async () => {
+        await blocker
+        return (async function* () {})()
+      })
+
+      const user = userEvent.setup()
+      renderView({ rows: [makeObject("readme.txt")] })
+
+      // First open — click download to start
+      await user.click(screen.getByRole("button", { name: /More/i }))
+      await user.click(screen.getByTestId("download-action-readme.txt"))
+
+      // Re-open the menu to inspect the item state
+      await user.click(screen.getByRole("button", { name: /More/i }))
+      const menuItem = screen.getByTestId("download-action-readme.txt")
+      expect(menuItem).toHaveAttribute("aria-disabled", "true")
+
+      unblock()
+    })
+
+    test("calls onDownloadError when mutate throws", async () => {
+      mockDownloadReject = true
+      const onDownloadError = vi.fn()
       const user = userEvent.setup()
       renderView({ rows: [makeObject("readme.txt")], onDownloadError })
       await user.click(screen.getByRole("button", { name: /More/i }))
       await user.click(screen.getByTestId("download-action-readme.txt"))
-      expect(onDownloadError).toHaveBeenCalledWith("readme.txt", "Network error")
+      await vi.waitFor(() => {
+        expect(onDownloadError).toHaveBeenCalledWith("readme.txt", "Network error")
+      })
     })
   })
 })

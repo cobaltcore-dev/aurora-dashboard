@@ -56,7 +56,7 @@ Comprehensive Zod schemas for type-safe validation of:
 - **Object operations**: Upload/download/copy/delete objects, manage object metadata
 - **Bulk operations**: Bulk delete for multiple objects
 - **Folder operations**: Create, list, move, and delete pseudo-folders
-- **Download**: Download object content via BFF with base64 transport
+- **Download**: Stream object content via BFF as base64 chunks using an async iterable procedure
 - **Temporary URLs**: Generate time-limited signed URLs
 
 ### 2. `swiftHelpers.ts` - Helper Functions
@@ -98,13 +98,12 @@ Complete tRPC router with procedures for:
 
 #### Object Operations
 
-- `getObject` - Download object content and metadata
 - `createObject` - Upload a new object or replace existing one
 - `getObjectMetadata` - Get object metadata without downloading content
 - `updateObjectMetadata` - Update object metadata (POST operation)
 - `copyObject` - Copy object to a new location
 - `deleteObject` - Delete an object
-- `downloadObject` - Download object content via BFF, returning base64-encoded bytes, content type, and filename for client-side Blob construction
+- `downloadObject` - Stream object content to the browser as base64 chunks via an async iterable; client assembles a Blob and triggers a save dialog
 
 #### Bulk Operations
 
@@ -145,7 +144,7 @@ Full support for:
 
 - **Service Discovery**: Query Swift capabilities via `/info` endpoint
 - **Pseudo-Folders**: Create and manage hierarchical folder structures
-- **Download**: Download object content via BFF with base64 transport
+- **Download**: Stream object content via BFF as base64 chunks using an async iterable procedure
 - **Temporary URLs**: Generate time-limited signed URLs with HMAC-SHA256
 - **Pagination**: Marker-based pagination for large listings
 - **Filtering**: Prefix, delimiter, and range-based filtering
@@ -159,10 +158,8 @@ Full support for:
 
 Proper handling of binary data for object uploads/downloads:
 
-- ArrayBuffer support
-- Base64 string conversion
-- Uint8Array support
-- `downloadObject` returns base64 for JSON-safe binary transport over tRPC; convert to `Blob` on the client for browser downloads
+- Base64 chunk streaming for `downloadObject` (browser save dialog) — server streams without buffering; client assembles a Blob
+- Uint8Array support for `createObject`
 
 ## Usage Examples
 
@@ -206,28 +203,38 @@ const metadata = await trpc.storage.swift.createObject.mutate({
 })
 ```
 
-### Download Object (raw content + metadata)
+### Download Object
 
 ```typescript
-const { content, metadata } = await trpc.storage.swift.getObject.query({
-  container: "my-container",
-  object: "document.pdf",
-  range: "bytes=0-1023", // Download first 1KB only
-})
-```
+const chunks: Uint8Array[] = []
+let contentType = "application/octet-stream"
+let filename = "download"
 
-### Download Object (BFF — triggers browser save dialog)
-
-```typescript
-const { base64, contentType, filename } = await trpc.storage.swift.downloadObject.mutate({
+// downloadObject is an async generator — the BFF streams chunks from Swift
+// without buffering the full file in memory. Content-type and filename are
+// sent only in the first chunk.
+const iterable = await trpcClient.storage.swift.downloadObject.mutate({
   container: "my-container",
   object: "report.pdf",
   filename: "Q4_Report.pdf",
 })
 
-// Convert base64 to Blob and trigger browser download
-const bytes = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0))
-const blob = new Blob([bytes], { type: contentType })
+for await (const { chunk, contentType: ct, filename: fn } of iterable) {
+  if (ct) contentType = ct
+  if (fn) filename = fn
+  chunks.push(Uint8Array.from(atob(chunk), (c) => c.charCodeAt(0)))
+}
+
+// Concatenate chunks and trigger browser save dialog
+const totalLength = chunks.reduce((sum, c) => sum + c.length, 0)
+const merged = new Uint8Array(totalLength)
+let offset = 0
+for (const c of chunks) {
+  merged.set(c, offset)
+  offset += c.length
+}
+
+const blob = new Blob([merged], { type: contentType })
 const url = URL.createObjectURL(blob)
 const anchor = document.createElement("a")
 anchor.href = url
@@ -236,7 +243,10 @@ anchor.click()
 URL.revokeObjectURL(url)
 ```
 
-The response is base64-encoded because tRPC uses JSON transport and cannot stream binary directly. For very large files, consider `generateTempUrl` instead.
+> **Note:** Uses `trpcClient` (vanilla) not `trpcReact`, because `useMutation`
+> cannot consume async iterables. For very large files where client-side Blob
+> assembly is a concern, use `generateTempUrl` instead — it produces a
+> short-lived signed URL the browser can download directly.
 
 ### Copy Object
 
@@ -399,7 +409,7 @@ The router expects `ctx.openstack` to be available with a `service("swift")` met
 ### 3. Import types as needed
 
 ```typescript
-import type { ContainerSummary, ObjectMetadata, AccountInfo, DownloadObjectInput } from "./types/swift"
+import type { ContainerSummary, ObjectMetadata, AccountInfo } from "./types/swift"
 ```
 
 ## Implementation Features
@@ -514,7 +524,7 @@ All operations include comprehensive error handling:
 
 1. **Pagination**: Use `limit` and `marker` for large listings
 2. **Partial Downloads**: Use `range` parameter for partial object downloads
-3. **Metadata Only**: Use HEAD operations (`getObjectMetadata`) when you don't need content
+3. **Metadata Only**: Use `getObjectMetadata` (HEAD) when you only need headers, not content
 4. **Bulk Operations**: Use `bulkDelete` for deleting multiple objects efficiently
 5. **Empty Container**: Use `emptyContainer` to remove all objects — it auto-selects bulk delete or individual deletes based on the `/info` capability check
 6. **Folder Navigation**: Use `delimiter="/"` for hierarchical folder browsing
