@@ -1,4 +1,4 @@
-FROM node:23-alpine 
+FROM node:24-alpine 
 LABEL source_repository="https://github.com/cobaltcore-dev/aurora-dashboard"
 
 # install git
