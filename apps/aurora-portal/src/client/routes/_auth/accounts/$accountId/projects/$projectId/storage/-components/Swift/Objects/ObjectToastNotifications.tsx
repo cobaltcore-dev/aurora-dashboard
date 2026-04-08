@@ -122,3 +122,37 @@ export const getObjectDownloadErrorToast = (
     />
   ),
 })
+
+export const getObjectDeletedToast = (objectName: string, config: ToastConfig): ToastProps => ({
+  variant: "success",
+  autoDismiss: true,
+  autoDismissTimeout: config.autoDismissTimeout ?? 5000,
+  onDismiss: config.onDismiss,
+  children: (
+    <NotificationText
+      title={<Trans>Object Deleted</Trans>}
+      description={<Trans>Object "{objectName}" was permanently deleted.</Trans>}
+    />
+  ),
+})
+
+export const getObjectDeleteErrorToast = (
+  objectName: string,
+  errorMessage: string,
+  config: ToastConfig
+): ToastProps => ({
+  variant: "error",
+  autoDismiss: true,
+  autoDismissTimeout: config.autoDismissTimeout ?? 5000,
+  onDismiss: config.onDismiss,
+  children: (
+    <NotificationText
+      title={<Trans>Failed to Delete Object</Trans>}
+      description={
+        <Trans>
+          Could not delete "{objectName}": {errorMessage}
+        </Trans>
+      }
+    />
+  ),
+})

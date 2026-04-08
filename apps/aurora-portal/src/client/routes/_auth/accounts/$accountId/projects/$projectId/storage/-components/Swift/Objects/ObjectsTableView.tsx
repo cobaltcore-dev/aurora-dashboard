@@ -16,6 +16,7 @@ import { formatBytesBinary } from "@/client/utils/formatBytes"
 import { trpcClient } from "@/client/trpcClient"
 import { BrowserRow, FolderRow, ObjectRow } from "./"
 import { DeleteFolderModal } from "./DeleteFolderModal"
+import { DeleteObjectModal, DeleteObjectVariant } from "./DeleteObjectModal"
 
 // Define column template — 4 columns: name | last modified | size | actions
 const GRID_COLUMN_TEMPLATE = "minmax(200px, 3fr) minmax(180px, 2fr) minmax(100px, 1fr) 60px"
@@ -29,6 +30,8 @@ interface ObjectsTableViewProps {
   onDeleteFolderSuccess: (folderName: string, deletedCount: number) => void
   onDeleteFolderError: (folderName: string, errorMessage: string) => void
   onDownloadError: (objectName: string, errorMessage: string) => void
+  onDeleteObjectSuccess: (objectName: string) => void
+  onDeleteObjectError: (objectName: string, errorMessage: string) => void
 }
 
 export const ObjectsTableView = ({
@@ -40,11 +43,17 @@ export const ObjectsTableView = ({
   onDeleteFolderSuccess,
   onDeleteFolderError,
   onDownloadError,
+  onDeleteObjectSuccess,
+  onDeleteObjectError,
 }: ObjectsTableViewProps) => {
   const { t } = useLingui()
   const parentRef = useRef<HTMLDivElement>(null)
   const [scrollbarWidth, setScrollbarWidth] = useState(0)
   const [deleteFolderTarget, setDeleteFolderTarget] = useState<FolderRow | null>(null)
+  const [deleteObjectTarget, setDeleteObjectTarget] = useState<{
+    object: ObjectRow
+    variant: DeleteObjectVariant
+  } | null>(null)
   const [downloadingRow, setDownloadingRow] = useState<ObjectRow | null>(null)
   const [downloadProgress, setDownloadProgress] = useState<{ downloaded: number; total: number } | null>(null)
 
@@ -301,16 +310,14 @@ export const ObjectsTableView = ({
                             />
                             <PopupMenuItem
                               label={t`Delete`}
-                              onClick={() => {
-                                // TODO: open DeleteObjectModal
-                              }}
+                              onClick={() => setDeleteObjectTarget({ object: row as ObjectRow, variant: "delete" })}
                               data-testid={`delete-action-${row.name}`}
                             />
                             <PopupMenuItem
                               label={t`Delete (Keep Segments)`}
-                              onClick={() => {
-                                // TODO: open DeleteObjectKeepSegmentsModal
-                              }}
+                              onClick={() =>
+                                setDeleteObjectTarget({ object: row as ObjectRow, variant: "keep-segments" })
+                              }
                               data-testid={`delete-keep-segments-action-${row.name}`}
                             />
                           </>
@@ -336,6 +343,15 @@ export const ObjectsTableView = ({
         onClose={() => setDeleteFolderTarget(null)}
         onSuccess={onDeleteFolderSuccess}
         onError={onDeleteFolderError}
+      />
+
+      <DeleteObjectModal
+        isOpen={deleteObjectTarget !== null}
+        object={deleteObjectTarget?.object ?? null}
+        variant={deleteObjectTarget?.variant ?? "delete"}
+        onClose={() => setDeleteObjectTarget(null)}
+        onSuccess={onDeleteObjectSuccess}
+        onError={onDeleteObjectError}
       />
     </>
   )

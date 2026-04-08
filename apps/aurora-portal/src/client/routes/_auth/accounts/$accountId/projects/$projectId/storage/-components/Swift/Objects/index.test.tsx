@@ -78,19 +78,31 @@ vi.mock("../../../$provider/containers/$containerName/objects", () => ({
 let capturedOnDeleteFolderSuccess: ((folderName: string, deletedCount: number) => void) | undefined
 
 vi.mock("./ObjectsTableView", () => ({
-  ObjectsTableView: vi.fn(({ rows, searchTerm, onDeleteFolderSuccess, onDeleteFolderError, onDownloadError }) => {
-    capturedOnDeleteFolderSuccess = onDeleteFolderSuccess
-    return (
-      <div
-        data-testid="objects-table-view"
-        data-row-count={rows.length}
-        data-search={searchTerm}
-        data-has-delete-success={typeof onDeleteFolderSuccess === "function" ? "true" : "false"}
-        data-has-delete-error={typeof onDeleteFolderError === "function" ? "true" : "false"}
-        data-has-download-error={typeof onDownloadError === "function" ? "true" : "false"}
-      />
-    )
-  }),
+  ObjectsTableView: vi.fn(
+    ({
+      rows,
+      searchTerm,
+      onDeleteFolderSuccess,
+      onDeleteFolderError,
+      onDownloadError,
+      onDeleteObjectSuccess,
+      onDeleteObjectError,
+    }) => {
+      capturedOnDeleteFolderSuccess = onDeleteFolderSuccess
+      return (
+        <div
+          data-testid="objects-table-view"
+          data-row-count={rows.length}
+          data-search={searchTerm}
+          data-has-delete-success={typeof onDeleteFolderSuccess === "function" ? "true" : "false"}
+          data-has-delete-error={typeof onDeleteFolderError === "function" ? "true" : "false"}
+          data-has-download-error={typeof onDownloadError === "function" ? "true" : "false"}
+          data-has-delete-object-success={typeof onDeleteObjectSuccess === "function" ? "true" : "false"}
+          data-has-delete-object-error={typeof onDeleteObjectError === "function" ? "true" : "false"}
+        />
+      )
+    }
+  ),
 }))
 
 vi.mock("./ObjectsFileNavigation", () => ({
@@ -136,6 +148,8 @@ vi.mock("./ObjectToastNotifications", () => ({
   getFolderDeletedToast: vi.fn(() => ({ variant: "success", children: null })),
   getFolderDeleteErrorToast: vi.fn(() => ({ variant: "error", children: null })),
   getObjectDownloadErrorToast: vi.fn(() => ({ variant: "error", children: null })),
+  getObjectDeletedToast: vi.fn(() => ({ variant: "success", children: null })),
+  getObjectDeleteErrorToast: vi.fn(() => ({ variant: "error", children: null })),
 }))
 
 vi.mock("@/client/trpcClient", () => ({
@@ -273,6 +287,16 @@ describe("SwiftObjects (index)", () => {
       // but we verify the toast factory is wired correctly in integration
       renderObjects()
       expect(getObjectDownloadErrorToast).toBeDefined()
+    })
+
+    test("passes onDeleteObjectSuccess callback to ObjectsTableView", () => {
+      renderObjects()
+      expect(screen.getByTestId("objects-table-view")).toHaveAttribute("data-has-delete-object-success", "true")
+    })
+
+    test("passes onDeleteObjectError callback to ObjectsTableView", () => {
+      renderObjects()
+      expect(screen.getByTestId("objects-table-view")).toHaveAttribute("data-has-delete-object-error", "true")
     })
 
     test("subtracts 1 from deletedCount before passing to getFolderDeletedToast", async () => {

@@ -8,6 +8,8 @@ import {
   getFolderDeletedToast,
   getFolderDeleteErrorToast,
   getObjectDownloadErrorToast,
+  getObjectDeletedToast,
+  getObjectDeleteErrorToast,
 } from "./ObjectToastNotifications"
 
 describe("ObjectToastNotifications", () => {
@@ -241,11 +243,89 @@ describe("ObjectToastNotifications", () => {
     })
   })
 
+  // ── getObjectDeletedToast ────────────────────────────────────────────────────
+
+  describe("getObjectDeletedToast", () => {
+    it("returns success toast with correct structure", () => {
+      const toast = getObjectDeletedToast("report.pdf", defaultConfig)
+      expect(toast.variant).toBe("success")
+      expect(toast.autoDismiss).toBe(true)
+      expect(toast.autoDismissTimeout).toBe(5000)
+      expect(toast.onDismiss).toBe(mockOnDismiss)
+      expect(toast.children).toBeDefined()
+    })
+
+    it("renders correct message content", () => {
+      const toast = getObjectDeletedToast("report.pdf", defaultConfig)
+      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+      expect(screen.getByText("Object Deleted")).toBeInTheDocument()
+      expect(screen.getByText(/report\.pdf/)).toBeInTheDocument()
+      expect(screen.getByText(/was permanently deleted/)).toBeInTheDocument()
+    })
+
+    it("uses custom autoDismissTimeout when provided", () => {
+      const toast = getObjectDeletedToast("file.txt", { onDismiss: mockOnDismiss, autoDismissTimeout: 3000 })
+      expect(toast.autoDismissTimeout).toBe(3000)
+    })
+
+    it("handles object names with special characters", () => {
+      const toast = getObjectDeletedToast("my file (2024).txt", defaultConfig)
+      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+      expect(screen.getByText(/my file/)).toBeInTheDocument()
+    })
+  })
+
+  // ── getObjectDeleteErrorToast ────────────────────────────────────────────────
+
+  describe("getObjectDeleteErrorToast", () => {
+    it("returns error toast with correct structure", () => {
+      const toast = getObjectDeleteErrorToast("report.pdf", "Forbidden", defaultConfig)
+      expect(toast.variant).toBe("error")
+      expect(toast.autoDismiss).toBe(true)
+      expect(toast.autoDismissTimeout).toBe(5000)
+      expect(toast.onDismiss).toBe(mockOnDismiss)
+      expect(toast.children).toBeDefined()
+    })
+
+    it("renders correct error message content", () => {
+      const toast = getObjectDeleteErrorToast("report.pdf", "Forbidden", defaultConfig)
+      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+      expect(screen.getByText("Failed to Delete Object")).toBeInTheDocument()
+      expect(screen.getByText(/report\.pdf/)).toBeInTheDocument()
+      expect(screen.getByText(/Could not delete/)).toBeInTheDocument()
+      expect(screen.getByText(/Forbidden/)).toBeInTheDocument()
+    })
+
+    it("uses custom autoDismissTimeout when provided", () => {
+      const toast = getObjectDeleteErrorToast("file.txt", "err", {
+        onDismiss: mockOnDismiss,
+        autoDismissTimeout: 10000,
+      })
+      expect(toast.autoDismissTimeout).toBe(10000)
+    })
+
+    it("handles different error messages", () => {
+      const toast = getObjectDeleteErrorToast("file.txt", "Internal Server Error", defaultConfig)
+      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+      expect(screen.getByText(/Internal Server Error/)).toBeInTheDocument()
+    })
+
+    it("handles empty error message", () => {
+      const toast = getObjectDeleteErrorToast("file.txt", "", defaultConfig)
+      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+      expect(screen.getByText("Failed to Delete Object")).toBeInTheDocument()
+    })
+  })
+
   // ── Toast configuration ──────────────────────────────────────────────────────
 
   describe("Toast configuration", () => {
     it("all success toasts have success variant and autoDismiss", () => {
-      const successToasts = [getFolderCreatedToast("f", defaultConfig), getFolderDeletedToast("f", 3, defaultConfig)]
+      const successToasts = [
+        getFolderCreatedToast("f", defaultConfig),
+        getFolderDeletedToast("f", 3, defaultConfig),
+        getObjectDeletedToast("f", defaultConfig),
+      ]
       successToasts.forEach((toast) => {
         expect(toast.variant).toBe("success")
         expect(toast.autoDismiss).toBe(true)
@@ -258,6 +338,7 @@ describe("ObjectToastNotifications", () => {
         getFolderCreateErrorToast("f", "err", defaultConfig),
         getFolderDeleteErrorToast("f", "err", defaultConfig),
         getObjectDownloadErrorToast("f", "err", defaultConfig),
+        getObjectDeleteErrorToast("f", "err", defaultConfig),
       ]
       errorToasts.forEach((toast) => {
         expect(toast.variant).toBe("error")
@@ -281,6 +362,8 @@ describe("ObjectToastNotifications", () => {
         getFolderDeletedToast("f", 2, { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
         getFolderDeleteErrorToast("f", "err", { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
         getObjectDownloadErrorToast("f", "err", { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
+        getObjectDeletedToast("f", { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
+        getObjectDeleteErrorToast("f", "err", { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
       ]
       toasts.forEach((toast) => {
         expect(toast.autoDismissTimeout).toBe(customTimeout)
@@ -294,6 +377,7 @@ describe("ObjectToastNotifications", () => {
         getFolderDeletedToast("f", 2, defaultConfig),
         getFolderDeleteErrorToast("f", "err", defaultConfig),
         getObjectDownloadErrorToast("f", "err", defaultConfig),
+        getObjectDeleteErrorToast("f", "err", defaultConfig),
       ]
       toasts.forEach((toast) => {
         expect(toast.children).toBeTruthy()

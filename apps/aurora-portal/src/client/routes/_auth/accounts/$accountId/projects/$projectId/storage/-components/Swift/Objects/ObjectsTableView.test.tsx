@@ -27,8 +27,17 @@ vi.mock("@tanstack/react-virtual", () => ({
   }),
 }))
 
-// DeleteFolderModal uses tRPC + useParams internally — mock it to keep
-// ObjectsTableView tests isolated.
+// Mock both modals to keep ObjectsTableView tests isolated.
+vi.mock("./DeleteObjectModal", () => ({
+  DeleteObjectModal: vi.fn(({ isOpen, onClose, variant }) =>
+    isOpen ? (
+      <div data-testid={`delete-object-modal-${variant}`}>
+        <button onClick={onClose}>Cancel</button>
+      </div>
+    ) : null
+  ),
+}))
+
 vi.mock("./DeleteFolderModal", () => ({
   DeleteFolderModal: vi.fn(({ isOpen, onClose }) =>
     isOpen ? (
@@ -108,6 +117,8 @@ const renderView = ({
   onDeleteFolderSuccess = vi.fn(),
   onDeleteFolderError = vi.fn(),
   onDownloadError = vi.fn(),
+  onDeleteObjectSuccess = vi.fn(),
+  onDeleteObjectError = vi.fn(),
 }: {
   rows?: BrowserRow[]
   searchTerm?: string
@@ -116,6 +127,8 @@ const renderView = ({
   onDeleteFolderSuccess?: (folderName: string, deletedCount: number) => void
   onDeleteFolderError?: (folderName: string, errorMessage: string) => void
   onDownloadError?: (objectName: string, errorMessage: string) => void
+  onDeleteObjectSuccess?: (objectName: string) => void
+  onDeleteObjectError?: (objectName: string, errorMessage: string) => void
 } = {}) =>
   render(
     <I18nProvider i18n={i18n}>
@@ -128,6 +141,8 @@ const renderView = ({
           onDeleteFolderSuccess={onDeleteFolderSuccess}
           onDeleteFolderError={onDeleteFolderError}
           onDownloadError={onDownloadError}
+          onDeleteObjectSuccess={onDeleteObjectSuccess}
+          onDeleteObjectError={onDeleteObjectError}
         />
       </PortalProvider>
     </I18nProvider>
@@ -452,6 +467,40 @@ describe("ObjectsTableView", () => {
       await vi.waitFor(() => {
         expect(onDownloadError).toHaveBeenCalledWith("readme.txt", "Network error")
       })
+    })
+  })
+
+  describe("Delete object modal", () => {
+    test("delete object modal is closed by default", () => {
+      renderView({ rows: [makeObject("readme.txt")] })
+      expect(screen.queryByTestId("delete-object-modal-delete")).not.toBeInTheDocument()
+      expect(screen.queryByTestId("delete-object-modal-keep-segments")).not.toBeInTheDocument()
+    })
+
+    test("opens delete modal (delete variant) when Delete is clicked", async () => {
+      const user = userEvent.setup()
+      renderView({ rows: [makeObject("readme.txt")] })
+      await user.click(screen.getByRole("button", { name: /More/i }))
+      await user.click(screen.getByTestId("delete-action-readme.txt"))
+      expect(screen.getByTestId("delete-object-modal-delete")).toBeInTheDocument()
+    })
+
+    test("opens delete modal (keep-segments variant) when Delete (Keep Segments) is clicked", async () => {
+      const user = userEvent.setup()
+      renderView({ rows: [makeObject("readme.txt")] })
+      await user.click(screen.getByRole("button", { name: /More/i }))
+      await user.click(screen.getByTestId("delete-keep-segments-action-readme.txt"))
+      expect(screen.getByTestId("delete-object-modal-keep-segments")).toBeInTheDocument()
+    })
+
+    test("closes delete object modal when onClose is called", async () => {
+      const user = userEvent.setup()
+      renderView({ rows: [makeObject("readme.txt")] })
+      await user.click(screen.getByRole("button", { name: /More/i }))
+      await user.click(screen.getByTestId("delete-action-readme.txt"))
+      expect(screen.getByTestId("delete-object-modal-delete")).toBeInTheDocument()
+      await user.click(screen.getByRole("button", { name: /Cancel/i }))
+      expect(screen.queryByTestId("delete-object-modal-delete")).not.toBeInTheDocument()
     })
   })
 })
