@@ -296,7 +296,7 @@ function RouteComponent() {
         <ButtonRow>
           {hasMoreActions && (
             <PopupMenu>
-              <PopupMenuToggle>
+              <PopupMenuToggle as="div">
                 <Button icon="moreVert" disabled={isLoading}>
                   <Trans>More Actions</Trans>
                 </Button>

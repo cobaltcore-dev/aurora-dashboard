@@ -32,9 +32,32 @@ export const SideNavBar = ({ accountId, projectId, availableServices }: SideNavB
 
   const getComputeNavigationLinks = () => {
     return [
-      { path: computeRootPath, label: t`Overview`, to: "/accounts/$accountId/projects/$projectId/compute/$" as const, params: { accountId, projectId, _splat: undefined } },
-      ...(serviceIndex["image"]?.["glance"] ? [{ path: `${computeRootPath}/images`, label: t`Images`, to: "/accounts/$accountId/projects/$projectId/compute/$" as const, params: { accountId, projectId, _splat: "images" } }] : []),
-      ...(serviceIndex?.["compute"]?.["nova"] ? [{ path: `${computeRootPath}/flavors`, label: t`Flavors`, to: "/accounts/$accountId/projects/$projectId/compute/$" as const, params: { accountId, projectId, _splat: "flavors" } }] : []),
+      {
+        path: computeRootPath,
+        label: t`Overview`,
+        to: "/accounts/$accountId/projects/$projectId/compute/$" as const,
+        params: { accountId, projectId, _splat: undefined },
+      },
+      ...(serviceIndex["image"]?.["glance"]
+        ? [
+            {
+              path: `${computeRootPath}/images`,
+              label: t`Images`,
+              to: "/accounts/$accountId/projects/$projectId/compute/$" as const,
+              params: { accountId, projectId, _splat: "images" },
+            },
+          ]
+        : []),
+      ...(serviceIndex?.["compute"]?.["nova"]
+        ? [
+            {
+              path: `${computeRootPath}/flavors`,
+              label: t`Flavors`,
+              to: "/accounts/$accountId/projects/$projectId/compute/$" as const,
+              params: { accountId, projectId, _splat: "flavors" },
+            },
+          ]
+        : []),
     ]
   }
 
@@ -61,7 +84,10 @@ export const SideNavBar = ({ accountId, projectId, availableServices }: SideNavB
     navigate({ to: path })
   }
 
-  const handleComputeNavigate = (to: "/accounts/$accountId/projects/$projectId/compute/$", params: { accountId: string; projectId: string; _splat: string | undefined }) => {
+  const handleComputeNavigate = (
+    to: "/accounts/$accountId/projects/$projectId/compute/$",
+    params: { accountId: string; projectId: string; _splat: string | undefined }
+  ) => {
     navigate({ to, params })
   }
 
@@ -78,7 +104,9 @@ export const SideNavBar = ({ accountId, projectId, availableServices }: SideNavB
                   label={label}
                   selected={
                     pathname.startsWith(path) &&
-                    !computeLinks.some((l) => l.path !== path && l.path.length > path.length && pathname.startsWith(l.path))
+                    !computeLinks.some(
+                      (l) => l.path !== path && l.path.length > path.length && pathname.startsWith(l.path)
+                    )
                   }
                 />
               ))}
