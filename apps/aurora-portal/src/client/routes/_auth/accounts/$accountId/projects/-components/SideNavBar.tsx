@@ -1,4 +1,4 @@
-import { useLocation, useNavigate } from "@tanstack/react-router"
+import { useMatches, useNavigate, useLocation } from "@tanstack/react-router"
 import { getServiceIndex } from "@/server/Authentication/helpers"
 import { SideNavigation, SideNavigationList, SideNavigationItem } from "@cloudoperators/juno-ui-components/index"
 import { useLingui } from "@lingui/react/macro"
@@ -14,6 +14,7 @@ interface SideNavBarProps {
 
 export const SideNavBar = ({ accountId, projectId, availableServices }: SideNavBarProps) => {
   const { t } = useLingui()
+  const matches = useMatches()
   const location = useLocation()
   const navigate = useNavigate()
 
@@ -23,15 +24,18 @@ export const SideNavBar = ({ accountId, projectId, availableServices }: SideNavB
 
   const serviceIndex = getServiceIndex(availableServices)
 
+  // The deepest matched route ID — used only to determine which section is open
+  const activeRouteId = matches[matches.length - 1]?.routeId ?? ""
+
+  const isInSection = (section: string) =>
+    activeRouteId.includes(`/projects/$projectId/${section}`)
+
   const getComputeNavigationLinks = () => {
     return [
       { path: computeRootPath, label: t`Overview` },
       ...(serviceIndex["image"]?.["glance"] ? [{ path: `${computeRootPath}/images`, label: t`Images` }] : []),
       ...(serviceIndex?.["compute"]?.["nova"]
         ? [
-            // { path: `${computeRootPath}/instances`, label: t`Instances` },
-            // { path: `${computeRootPath}/keypairs`, label: t`Key Pairs` },
-            // { path: `${computeRootPath}/servergroups`, label: t`Server Groups` },
             { path: `${computeRootPath}/flavors`, label: t`Flavors` },
           ]
         : []),
@@ -50,9 +54,6 @@ export const SideNavBar = ({ accountId, projectId, availableServices }: SideNavB
       ...(serviceIndex?.["object-store"]?.["swift"]
         ? [{ path: `${storageRootPath}/swift/containers`, label: t`Swift` }]
         : []),
-      // ...(serviceIndex?.["object-store"]?.["ceph"]
-      //   ? [{ path: `${storageRootPath}/ceph/containers`, label: t`Ceph` }]
-      //   : []),
     ]
   }
 
@@ -69,7 +70,7 @@ export const SideNavBar = ({ accountId, projectId, availableServices }: SideNavB
       <SideNavigationList>
         <>
           {computeLinks.length > 0 && (
-            <SideNavigationItem label="Compute">
+            <SideNavigationItem label="Compute" open={isInSection("compute")}>
               {computeLinks.map(({ path, label }) => (
                 <SideNavigationItem
                   key={path}
@@ -82,7 +83,7 @@ export const SideNavBar = ({ accountId, projectId, availableServices }: SideNavB
           )}
 
           {networkLinks.length > 0 && (
-            <SideNavigationItem label="Network">
+            <SideNavigationItem label="Network" open={isInSection("network")}>
               {networkLinks.map(({ path, label }) => (
                 <SideNavigationItem
                   key={path}
@@ -95,7 +96,7 @@ export const SideNavBar = ({ accountId, projectId, availableServices }: SideNavB
           )}
 
           {storageLinks.length > 0 && (
-            <SideNavigationItem label="Storage">
+            <SideNavigationItem label="Storage" open={isInSection("storage")}>
               {storageLinks.map(({ path, label }) => (
                 <SideNavigationItem
                   key={path}
