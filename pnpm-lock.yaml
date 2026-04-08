@@ -181,7 +181,7 @@ importers:
     devDependencies:
       '@cloudoperators/juno-ui-components':
         specifier: ^6.2.0
-        version: 6.2.0(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+        version: 6.2.1(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       '@cobaltcore-dev/aurora-config':
         specifier: workspace:*
         version: link:../../packages/config
@@ -451,8 +451,8 @@ packages:
     resolution: {integrity: sha512-ctxtJ/eA+t+6q2++vj5j7FYX3nRu311q1wfYH3xjlLOsczhlhxAg2FWNUXhpGvAw3BWo1xBcvOV6/YLc2r5FJw==}
     hasBin: true
 
-  '@cloudoperators/juno-ui-components@6.2.0':
-    resolution: {integrity: sha512-zY9y1Q/9cwcxwro/cOkVSwAaXx4TLSAjtYBQCGKX1gDOSX2nwZpC4Mu/rpPDkxTS4v8fAxHHldyy+4lwkcpLQQ==}
+  '@cloudoperators/juno-ui-components@6.2.1':
+    resolution: {integrity: sha512-wL3j/1UmF9JfhN0gV/VaQ1N+CK8sBq5oQbHkq95MMDz7/9Na/28vFee6Fy2sf8eUUCIoN86unb32AMxrcuQnoQ==}
     engines: {node: '>=20.0.0', pnpm: '>=8.0.0'}
     peerDependencies:
       react: ^19.1.0
@@ -4901,8 +4901,18 @@ packages:
     peerDependencies:
       seroval: ^1.0
 
+  seroval-plugins@1.5.2:
+    resolution: {integrity: sha512-qpY0Cl+fKYFn4GOf3cMiq6l72CpuVaawb6ILjubOQ+diJ54LfOWaSSPsaswN8DRPIPW4Yq+tE1k5aKd7ILyaFg==}
+    engines: {node: '>=10'}
+    peerDependencies:
+      seroval: ^1.0
+
   seroval@1.5.1:
     resolution: {integrity: sha512-OwrZRZAfhHww0WEnKHDY8OM0U/Qs8OTfIDWhUD4BLpNJUfXK4cGmjiagGze086m+mhI+V2nD0gfbHEnJjb9STA==}
+    engines: {node: '>=10'}
+
+  seroval@1.5.2:
+    resolution: {integrity: sha512-xcRN39BdsnO9Tf+VzsE7b3JyTJASItIV1FVFewJKCFcW4s4haIKS3e6vj8PGB9qBwC7tnuOywQMdv5N4qkzi7Q==}
     engines: {node: '>=10'}
 
   set-cookie-parser@2.7.2:
@@ -5777,7 +5787,7 @@ snapshots:
     dependencies:
       css-tree: 3.2.1
 
-  '@cloudoperators/juno-ui-components@6.2.0(react-dom@19.2.4(react@19.2.4))(react@19.2.4)':
+  '@cloudoperators/juno-ui-components@6.2.1(react-dom@19.2.4(react@19.2.4))(react@19.2.4)':
     dependencies:
       react: 19.2.4
       react-dom: 19.2.4(react@19.2.4)
@@ -10342,7 +10352,13 @@ snapshots:
     dependencies:
       seroval: 1.5.1
 
+  seroval-plugins@1.5.2(seroval@1.5.2):
+    dependencies:
+      seroval: 1.5.2
+
   seroval@1.5.1: {}
+
+  seroval@1.5.2: {}
 
   set-cookie-parser@2.7.2: {}
 
@@ -10432,8 +10448,8 @@ snapshots:
   solid-js@1.9.11:
     dependencies:
       csstype: 3.2.3
-      seroval: 1.5.1
-      seroval-plugins: 1.5.1(seroval@1.5.1)
+      seroval: 1.5.2
+      seroval-plugins: 1.5.2(seroval@1.5.2)
 
   sonic-boom@4.2.1:
     dependencies:
