@@ -26,14 +26,15 @@ export const SideNavBar = ({ accountId, projectId, availableServices }: SideNavB
 
   // The deepest matched route ID — used only to determine which section is open
   const activeRouteId = matches[matches.length - 1]?.routeId ?? ""
+  const pathname = location.pathname.replace(/\/$/, "")
 
   const isInSection = (section: string) => activeRouteId.includes(`/projects/$projectId/${section}`)
 
   const getComputeNavigationLinks = () => {
     return [
-      { path: computeRootPath, label: t`Overview` },
-      ...(serviceIndex["image"]?.["glance"] ? [{ path: `${computeRootPath}/images`, label: t`Images` }] : []),
-      ...(serviceIndex?.["compute"]?.["nova"] ? [{ path: `${computeRootPath}/flavors`, label: t`Flavors` }] : []),
+      { path: computeRootPath, label: t`Overview`, to: "/accounts/$accountId/projects/$projectId/compute/$" as const, params: { accountId, projectId, _splat: undefined } },
+      ...(serviceIndex["image"]?.["glance"] ? [{ path: `${computeRootPath}/images`, label: t`Images`, to: "/accounts/$accountId/projects/$projectId/compute/$" as const, params: { accountId, projectId, _splat: "images" } }] : []),
+      ...(serviceIndex?.["compute"]?.["nova"] ? [{ path: `${computeRootPath}/flavors`, label: t`Flavors`, to: "/accounts/$accountId/projects/$projectId/compute/$" as const, params: { accountId, projectId, _splat: "flavors" } }] : []),
     ]
   }
 
@@ -60,18 +61,25 @@ export const SideNavBar = ({ accountId, projectId, availableServices }: SideNavB
     navigate({ to: path })
   }
 
+  const handleComputeNavigate = (to: "/accounts/$accountId/projects/$projectId/compute/$", params: { accountId: string; projectId: string; _splat: string | undefined }) => {
+    navigate({ to, params })
+  }
+
   return (
     <SideNavigation ariaLabel="Project Side Navigation" onActiveItemChange={() => {}}>
       <SideNavigationList>
         <>
           {computeLinks.length > 0 && (
             <SideNavigationItem label="Compute" open={isInSection("compute")}>
-              {computeLinks.map(({ path, label }) => (
+              {computeLinks.map(({ path, label, to, params }) => (
                 <SideNavigationItem
                   key={path}
-                  onClick={() => handleNavigate(path)}
+                  onClick={() => handleComputeNavigate(to, params)}
                   label={label}
-                  selected={location.pathname === path}
+                  selected={
+                    pathname.startsWith(path) &&
+                    !computeLinks.some((l) => l.path !== path && l.path.length > path.length && pathname.startsWith(l.path))
+                  }
                 />
               ))}
             </SideNavigationItem>
@@ -84,7 +92,7 @@ export const SideNavBar = ({ accountId, projectId, availableServices }: SideNavB
                   key={path}
                   onClick={() => handleNavigate(path)}
                   label={label}
-                  selected={location.pathname === path}
+                  selected={pathname.startsWith(path)}
                 />
               ))}
             </SideNavigationItem>
@@ -97,7 +105,7 @@ export const SideNavBar = ({ accountId, projectId, availableServices }: SideNavB
                   key={path}
                   onClick={() => handleNavigate(path)}
                   label={label}
-                  selected={location.pathname === path}
+                  selected={pathname.startsWith(path)}
                 />
               ))}
             </SideNavigationItem>
