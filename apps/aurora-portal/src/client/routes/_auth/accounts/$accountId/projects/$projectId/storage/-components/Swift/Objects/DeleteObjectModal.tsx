@@ -6,9 +6,11 @@ import { useParams } from "@tanstack/react-router"
 import { ObjectRow } from "./"
 
 /**
- * "delete"        — deletes the object and all its segments (SLO/DLO manifests).
- * "keep-segments" — deletes only the manifest; segment objects are retained.
- *                   Only shown for large objects (SLO/DLO).
+ * "delete"        — deletes the object. For SLOs also deletes all segment
+ *                   objects via multipartManifest="delete". For DLOs and
+ *                   regular objects, plain DELETE (no query param).
+ * "keep-segments" — deletes only the SLO manifest; segment objects are
+ *                   retained. Always a plain DELETE (no multipartManifest).
  */
 export type DeleteObjectVariant = "delete" | "keep-segments"
 
@@ -32,6 +34,24 @@ export const DeleteObjectModal = ({ isOpen, object, variant, onClose, onSuccess,
   // useRef so the object display name survives re-renders triggered by
   // deleteObjectMutation.reset() inside handleClose() before onSuccess/onError fire.
   const submittedNameRef = useRef("")
+
+  // ── Metadata fetch ────────────────────────────────────────────────────────
+  // Fetch object metadata on open to detect SLO/DLO — determines whether
+  // multipartManifest="delete" should be sent in the DELETE request.
+  //
+  // SLO: X-Static-Large-Object: True  → staticLargeObject === true
+  // DLO: X-Object-Manifest: <prefix>  → objectManifest is set
+  const {
+    data: metadata,
+    isLoading: isLoadingMetadata,
+    error: metadataError,
+  } = trpcReact.storage.swift.getObjectMetadata.useQuery(
+    { container: containerName, object: object?.name ?? "" },
+    { enabled: isOpen && object !== null }
+  )
+
+  const isSLO = metadata?.staticLargeObject === true
+  const isDLO = !!metadata?.objectManifest
 
   const deleteObjectMutation = trpcReact.storage.swift.deleteObject.useMutation({
     onSuccess: () => {
@@ -63,9 +83,12 @@ export const DeleteObjectModal = ({ isOpen, object, variant, onClose, onSuccess,
     deleteObjectMutation.mutate({
       container: containerName,
       object: object.name,
-      // multipartManifest="delete" tells Swift to also delete all segment objects.
-      // Omitting it deletes only the manifest — i.e. keep-segments behaviour.
-      ...(variant === "delete" ? { multipartManifest: "delete" as const } : {}),
+      // Only send multipartManifest="delete" for confirmed SLO manifests in
+      // the "delete" variant — this tells Swift to also delete all segment
+      // objects. DLOs use a plain DELETE (their segments live under a prefix
+      // and must be removed separately). "keep-segments" always uses plain
+      // DELETE regardless of object type.
+      ...(variant === "delete" && isSLO ? { multipartManifest: "delete" as const } : {}),
     })
   }
 
@@ -73,6 +96,8 @@ export const DeleteObjectModal = ({ isOpen, object, variant, onClose, onSuccess,
 
   const isKeepSegments = variant === "keep-segments"
   const displayName = object.displayName
+  const isLoading = isLoadingMetadata
+  const isPending = deleteObjectMutation.isPending
 
   return (
     <Modal
@@ -88,17 +113,26 @@ export const DeleteObjectModal = ({ isOpen, object, variant, onClose, onSuccess,
       }
       open={isOpen}
       onCancel={handleClose}
-      confirmButtonLabel={deleteObjectMutation.isPending ? t`Deleting...` : t`Delete`}
+      confirmButtonLabel={isPending ? t`Deleting...` : t`Delete`}
       onConfirm={handleConfirm}
       cancelButtonLabel={t`Cancel`}
       size="small"
-      disableConfirmButton={deleteObjectMutation.isPending}
+      disableConfirmButton={isLoading || isPending}
     >
-      {deleteObjectMutation.isPending ? (
+      {isPending ? (
         <Stack direction="horizontal" alignment="center" gap="2" className="py-4">
           <Spinner size="small" />
           <Trans>Deleting...</Trans>
         </Stack>
+      ) : isLoading ? (
+        <Stack direction="horizontal" alignment="center" gap="2" className="py-4">
+          <Spinner size="small" />
+          <Trans>Loading object info...</Trans>
+        </Stack>
+      ) : metadataError ? (
+        <Message variant="danger">
+          <Trans>Failed to load object metadata: {metadataError.message}</Trans>
+        </Message>
       ) : isKeepSegments ? (
         <Stack direction="vertical" gap="4">
           <Message variant="warning">
@@ -124,12 +158,23 @@ export const DeleteObjectModal = ({ isOpen, object, variant, onClose, onSuccess,
               will be permanently deleted. This cannot be undone.
             </Trans>
           </Message>
-          <Message variant="info">
-            <Trans>
-              Note: for <strong>static and dynamic large objects</strong>, this also deletes all associated segment
-              objects. If you want to keep the segments, use <strong>Delete (Keep Segments)</strong> instead.
-            </Trans>
-          </Message>
+          {isSLO && (
+            <Message variant="info">
+              <Trans>
+                This is a <strong>static large object</strong> — all associated segment objects will also be permanently
+                deleted. If you want to keep the segments, use <strong>Delete (Keep Segments)</strong> instead.
+              </Trans>
+            </Message>
+          )}
+          {isDLO && (
+            <Message variant="info">
+              <Trans>
+                This is a <strong>dynamic large object</strong>. Only the manifest will be deleted — its segment objects
+                (stored under the manifest prefix) are <strong>not</strong> automatically removed and must be deleted
+                separately.
+              </Trans>
+            </Message>
+          )}
         </Stack>
       )}
     </Modal>

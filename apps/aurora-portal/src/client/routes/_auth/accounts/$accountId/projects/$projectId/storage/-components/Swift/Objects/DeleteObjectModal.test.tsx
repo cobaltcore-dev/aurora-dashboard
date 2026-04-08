@@ -13,6 +13,14 @@ import type { ObjectRow } from "./"
 let mockMutate = vi.fn()
 let mockIsPending = false
 
+// Metadata query state — controls what getObjectMetadata returns per test
+let mockMetadata: {
+  staticLargeObject?: boolean
+  objectManifest?: string
+} | null = {}
+let mockMetadataLoading = false
+let mockMetadataError: { message: string } | null = null
+
 vi.mock("@/client/trpcClient", () => ({
   trpcReact: {
     useUtils: () => ({
@@ -36,6 +44,13 @@ vi.mock("@/client/trpcClient", () => ({
               reset: vi.fn(),
             })
           ),
+        },
+        getObjectMetadata: {
+          useQuery: vi.fn(() => ({
+            data: mockMetadata,
+            isLoading: mockMetadataLoading,
+            error: mockMetadataError,
+          })),
         },
       },
     },
@@ -101,10 +116,15 @@ describe("DeleteObjectModal", () => {
     vi.clearAllMocks()
     mockMutate = vi.fn()
     mockIsPending = false
+    mockMetadata = {} // regular object by default
+    mockMetadataLoading = false
+    mockMetadataError = null
     await act(async () => {
       i18n.activate("en")
     })
   })
+
+  // ── Visibility ────────────────────────────────────────────────────────────
 
   describe("Visibility", () => {
     it("renders when isOpen is true and object is provided", () => {
@@ -123,7 +143,35 @@ describe("DeleteObjectModal", () => {
     })
   })
 
-  describe("variant: delete", () => {
+  // ── Metadata loading ──────────────────────────────────────────────────────
+
+  describe("Metadata loading", () => {
+    it("shows loading spinner while metadata is being fetched", () => {
+      mockMetadataLoading = true
+      mockMetadata = null
+      renderModal()
+      expect(screen.getByText(/Loading object info/i)).toBeInTheDocument()
+    })
+
+    it("disables confirm button while metadata is loading", () => {
+      mockMetadataLoading = true
+      mockMetadata = null
+      renderModal()
+      expect(screen.getByRole("button", { name: /^Delete$/i })).toBeDisabled()
+    })
+
+    it("shows error message when metadata fetch fails", () => {
+      mockMetadataError = { message: "Forbidden" }
+      mockMetadata = null
+      renderModal()
+      expect(screen.getByText(/Failed to load object metadata/i)).toBeInTheDocument()
+      expect(screen.getByText(/Forbidden/i)).toBeInTheDocument()
+    })
+  })
+
+  // ── Regular object (delete variant) ──────────────────────────────────────
+
+  describe("regular object — variant: delete", () => {
     it("shows Delete object title", () => {
       renderModal({ variant: "delete" })
       expect(screen.getByText(/Delete object:/i)).toBeInTheDocument()
@@ -139,16 +187,77 @@ describe("DeleteObjectModal", () => {
       expect(screen.getByText(/will be permanently deleted/i)).toBeInTheDocument()
     })
 
-    it("shows info note about large object segments", () => {
+    it("does not show SLO or DLO info notes for regular objects", () => {
       renderModal({ variant: "delete" })
-      expect(screen.getByText(/static and dynamic large objects/i)).toBeInTheDocument()
+      expect(screen.queryByText(/static large object/i)).not.toBeInTheDocument()
+      expect(screen.queryByText(/dynamic large object/i)).not.toBeInTheDocument()
     })
 
-    it("shows Delete confirm button", () => {
+    it("calls mutate without multipartManifest for regular objects", async () => {
+      const user = userEvent.setup()
       renderModal({ variant: "delete" })
-      expect(screen.getByRole("button", { name: /^Delete$/i })).toBeInTheDocument()
+      await user.click(screen.getByRole("button", { name: /^Delete$/i }))
+      const call = mockMutate.mock.calls[0][0]
+      expect(call.container).toBe("test-container")
+      expect(call.object).toBe("folder/report.pdf")
+      expect(call).not.toHaveProperty("multipartManifest")
     })
   })
+
+  // ── SLO (delete variant) ──────────────────────────────────────────────────
+
+  describe("SLO — variant: delete", () => {
+    beforeEach(() => {
+      mockMetadata = { staticLargeObject: true }
+    })
+
+    it("shows SLO info note explaining segments will be deleted", () => {
+      renderModal({ variant: "delete" })
+      expect(screen.getByText(/static large object/i)).toBeInTheDocument()
+    })
+
+    it("calls mutate with multipartManifest='delete' for SLO", async () => {
+      const user = userEvent.setup()
+      renderModal({ variant: "delete" })
+      await user.click(screen.getByRole("button", { name: /^Delete$/i }))
+      expect(mockMutate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          container: "test-container",
+          object: "folder/report.pdf",
+          multipartManifest: "delete",
+        }),
+        expect.anything()
+      )
+    })
+
+    it("suggests Delete (Keep Segments) as alternative in the info note", () => {
+      renderModal({ variant: "delete" })
+      expect(screen.getByText(/Delete \(Keep Segments\)/i)).toBeInTheDocument()
+    })
+  })
+
+  // ── DLO (delete variant) ──────────────────────────────────────────────────
+
+  describe("DLO — variant: delete", () => {
+    beforeEach(() => {
+      mockMetadata = { objectManifest: "segments/report-" }
+    })
+
+    it("shows DLO info note explaining only manifest is deleted", () => {
+      renderModal({ variant: "delete" })
+      expect(screen.getByText(/dynamic large object/i)).toBeInTheDocument()
+    })
+
+    it("calls mutate without multipartManifest for DLO", async () => {
+      const user = userEvent.setup()
+      renderModal({ variant: "delete" })
+      await user.click(screen.getByRole("button", { name: /^Delete$/i }))
+      const call = mockMutate.mock.calls[0][0]
+      expect(call).not.toHaveProperty("multipartManifest")
+    })
+  })
+
+  // ── keep-segments variant ─────────────────────────────────────────────────
 
   describe("variant: keep-segments", () => {
     it("shows Delete manifest title", () => {
@@ -165,33 +274,20 @@ describe("DeleteObjectModal", () => {
       renderModal({ variant: "keep-segments" })
       expect(screen.getByText(/shared across multiple manifests/i)).toBeInTheDocument()
     })
-  })
 
-  describe("Confirmation", () => {
-    it("calls mutate with correct input on confirm (delete variant)", async () => {
-      const user = userEvent.setup()
-      renderModal({ variant: "delete" })
-      await user.click(screen.getByRole("button", { name: /^Delete$/i }))
-      expect(mockMutate).toHaveBeenCalledWith(
-        expect.objectContaining({
-          container: "test-container",
-          object: "folder/report.pdf",
-          multipartManifest: "delete",
-        }),
-        expect.anything()
-      )
-    })
-
-    it("calls mutate without multipartManifest on confirm (keep-segments variant)", async () => {
+    it("calls mutate without multipartManifest regardless of object type", async () => {
+      mockMetadata = { staticLargeObject: true } // even for SLO
       const user = userEvent.setup()
       renderModal({ variant: "keep-segments" })
       await user.click(screen.getByRole("button", { name: /^Delete$/i }))
       const call = mockMutate.mock.calls[0][0]
-      expect(call.container).toBe("test-container")
-      expect(call.object).toBe("folder/report.pdf")
       expect(call).not.toHaveProperty("multipartManifest")
     })
+  })
 
+  // ── Callbacks ─────────────────────────────────────────────────────────────
+
+  describe("Callbacks", () => {
     it("calls onSuccess with display name after successful deletion", async () => {
       const onSuccess = vi.fn()
       mockMutate = vi.fn((_input, { onSuccess: cb }) => cb?.())
@@ -218,9 +314,7 @@ describe("DeleteObjectModal", () => {
       await user.click(screen.getByRole("button", { name: /^Delete$/i }))
       expect(onClose).toHaveBeenCalled()
     })
-  })
 
-  describe("Cancel", () => {
     it("calls onClose when Cancel is clicked", async () => {
       const onClose = vi.fn()
       const user = userEvent.setup()
