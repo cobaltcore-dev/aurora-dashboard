@@ -29,8 +29,8 @@
     "@fastify/multipart": "^9.4.0",
     "@fastify/static": "^9.0.0",
     "@headlessui/react": "^2.2.2",
-    "@lingui/core": "^5.9.0",
-    "@lingui/react": "^5.9.0",
+    "@lingui/core": "^5.9.5",
+    "@lingui/react": "^5.9.5",
     "@tanstack/react-form": "^1.28.5",
     "@tanstack/react-query": "^5.95.2",
     "@tanstack/react-router": "^1.168.4",
@@ -61,9 +61,9 @@
     "@cloudoperators/juno-ui-components": "^6.2.0",
     "@cobaltcore-dev/aurora-config": "workspace:*",
     "@fastify/vite": "^8.4.1",
-    "@lingui/cli": "^5.9.0",
-    "@lingui/swc-plugin": "^5.10.1",
-    "@lingui/vite-plugin": "^5.9.0",
+    "@lingui/cli": "^5.9.5",
+    "@lingui/swc-plugin": "^5.11.0",
+    "@lingui/vite-plugin": "^5.9.5",
     "@tailwindcss/vite": "^4.1.18",
     "@tanstack/react-devtools": "^0.10.0",
     "@tanstack/router-plugin": "^1.167.5",
@@ -85,10 +85,10 @@
     "prettier": "^3.4.2",
     "tailwindcss": "^4.1.7",
     "tsc-alias": "^1.8.16",
-    "typescript": "^5.9.3",
-    "vite": "^7.1.11",
+    "typescript": "^6.0.2",
+    "vite": "^7.3.2",
     "vite-plugin-svgr": "^4.3.0",
-    "vite-tsconfig-paths": "^5.1.4",
-    "vitest": "^3.1.4"
+    "vite-tsconfig-paths": "^6.1.1",
+    "vitest": "^4.1.2"
   }
 }

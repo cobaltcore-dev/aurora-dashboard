@@ -41,7 +41,7 @@ describe("Session Restoration Plugin", () => {
       del: vi.fn(),
     }
 
-    vi.mocked(SessionCookie).mockReturnValue(mockSessionCookie)
+    vi.mocked(SessionCookie).mockReturnValue(mockSessionCookie as unknown as ReturnType<typeof SessionCookie>)
   })
 
   afterEach(async () => {

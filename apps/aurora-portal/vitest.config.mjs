@@ -1,4 +1,4 @@
-import { defineConfig } from "vitest/config"
+import { defineConfig, configDefaults } from "vitest/config"
 import viteConfig from "./vite.config.mjs"
 
 const config = viteConfig({ mode: "test" }) // Use the vite config for test environment
@@ -10,5 +10,6 @@ export default defineConfig({
     environment: "jsdom",
     watch: true,
     setupFiles: "./vitest.setup.ts",
+    exclude: [...configDefaults.exclude, "**/dist/**"],
   },
 })

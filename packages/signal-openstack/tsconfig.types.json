@@ -7,5 +7,6 @@
     "rootDir": "src",
     "outDir": "dist/types",
     "stripInternal": true
-  }
+  },
+  "exclude": ["src/**/*.test.ts", "src/**/*.spec.ts"]
 }

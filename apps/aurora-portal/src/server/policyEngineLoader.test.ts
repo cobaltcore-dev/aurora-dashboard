@@ -5,8 +5,18 @@ import { loadPolicyEngine } from "./policyEngineLoader" // adjust path as needed
 import { createPolicyEngineFromFile } from "@cobaltcore-dev/policy-engine"
 
 // Mock the dependencies
-vi.mock("fs")
-vi.mock("path")
+vi.mock("fs", () => ({
+  default: {
+    existsSync: vi.fn(),
+  },
+  existsSync: vi.fn(),
+}))
+vi.mock("path", () => ({
+  default: {
+    join: vi.fn(),
+  },
+  join: vi.fn(),
+}))
 vi.mock("@cobaltcore-dev/policy-engine")
 
 const mockFs = vi.mocked(fs)
