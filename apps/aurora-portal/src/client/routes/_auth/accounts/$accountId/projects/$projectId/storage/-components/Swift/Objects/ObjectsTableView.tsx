@@ -46,6 +46,7 @@ export const ObjectsTableView = ({
   const [scrollbarWidth, setScrollbarWidth] = useState(0)
   const [deleteFolderTarget, setDeleteFolderTarget] = useState<FolderRow | null>(null)
   const [downloadingRow, setDownloadingRow] = useState<ObjectRow | null>(null)
+  const [downloadProgress, setDownloadProgress] = useState<{ downloaded: number; total: number } | null>(null)
 
   const handleDownload = async (row: ObjectRow) => {
     setDownloadingRow(row)
@@ -61,10 +62,11 @@ export const ObjectsTableView = ({
         ...(account ? { account } : {}),
       })
 
-      for await (const { chunk, contentType: ct, filename: fn } of iterable) {
+      for await (const { chunk, contentType: ct, filename: fn, downloaded, total } of iterable) {
         if (ct) contentType = ct
         if (fn) filename = fn
         chunks.push(Uint8Array.from(atob(chunk), (c) => c.charCodeAt(0)))
+        setDownloadProgress({ downloaded, total })
       }
 
       const totalLength = chunks.reduce((sum, c) => sum + c.length, 0)
@@ -88,6 +90,7 @@ export const ObjectsTableView = ({
       onDownloadError(row.displayName, err instanceof Error ? err.message : String(err))
     } finally {
       setDownloadingRow(null)
+      setDownloadProgress(null)
     }
   }
 
@@ -225,9 +228,25 @@ export const ObjectsTableView = ({
                   {/* Last Modified */}
                   <DataGridCell>
                     {isDownloading ? (
-                      <span className="text-theme-light flex items-center gap-2">
-                        <Spinner size="small" />
-                        <Trans>Downloading...</Trans>
+                      <span className="flex min-w-0 flex-col gap-1">
+                        <span className="text-theme-light flex items-center gap-2 text-sm">
+                          <Spinner size="small" />
+                          {downloadProgress && downloadProgress.total > 0 ? (
+                            <Trans>{Math.round((downloadProgress.downloaded / downloadProgress.total) * 100)}%</Trans>
+                          ) : (
+                            <Trans>Downloading...</Trans>
+                          )}
+                        </span>
+                        {downloadProgress && downloadProgress.total > 0 && (
+                          <div className="bg-theme-background-lvl-2 h-1 w-full overflow-hidden rounded-full">
+                            <div
+                              className="bg-theme-accent h-1 rounded-full transition-all duration-150"
+                              style={{
+                                width: `${Math.round((downloadProgress.downloaded / downloadProgress.total) * 100)}%`,
+                              }}
+                            />
+                          </div>
+                        )}
                       </span>
                     ) : !isFolder && row.last_modified ? (
                       formatDate(row.last_modified)

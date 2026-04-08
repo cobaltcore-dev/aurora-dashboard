@@ -44,7 +44,13 @@ vi.mock("./DeleteFolderModal", () => ({
 // vanilla trpcClient — mock it so tests can control chunks and errors without
 // touching the network.
 
-let mockDownloadIterable: AsyncIterable<{ chunk: string; contentType?: string; filename?: string }> | null = null
+let mockDownloadIterable: AsyncIterable<{
+  chunk: string
+  downloaded: number
+  total: number
+  contentType?: string
+  filename?: string
+}> | null = null
 let mockDownloadReject = false
 
 vi.mock("@/client/trpcClient", () => ({
@@ -54,7 +60,12 @@ vi.mock("@/client/trpcClient", () => ({
         downloadObject: {
           mutate: vi.fn(async () => {
             if (mockDownloadReject) throw new Error("Network error")
-            return mockDownloadIterable ?? (async function* () {})()
+            return (
+              mockDownloadIterable ??
+              (async function* () {
+                /* empty — no chunks */
+              })()
+            )
           }),
         },
       },
@@ -133,7 +144,12 @@ describe("ObjectsTableView", () => {
     const { trpcClient } = await import("@/client/trpcClient")
     vi.mocked(trpcClient.storage.swift.downloadObject.mutate).mockImplementation(async () => {
       if (mockDownloadReject) throw new Error("Network error")
-      return mockDownloadIterable ?? (async function* () {})()
+      return (
+        mockDownloadIterable ??
+        (async function* () {
+          /* empty */
+        })()
+      )
     })
     await act(async () => {
       i18n.activate("en")
@@ -376,6 +392,52 @@ describe("ObjectsTableView", () => {
       // The More button for the downloading row should be disabled
       const moreButton = screen.getByRole("button", { name: /More/i })
       expect(moreButton).toBeDisabled()
+
+      unblock()
+    })
+
+    test("shows percentage when content-length is known", async () => {
+      let unblock!: () => void
+      const blocker = new Promise<void>((resolve) => {
+        unblock = resolve
+      })
+
+      // Emit one chunk with 50% progress then block
+      mockDownloadIterable = (async function* () {
+        yield { chunk: btoa("half"), downloaded: 50, total: 100, contentType: "text/plain", filename: "f.txt" }
+        await blocker
+      })()
+
+      const user = userEvent.setup()
+      renderView({ rows: [makeObject("readme.txt")] })
+      await user.click(screen.getByRole("button", { name: /More/i }))
+      await user.click(screen.getByTestId("download-action-readme.txt"))
+
+      expect(await screen.findByText("50%")).toBeInTheDocument()
+
+      unblock()
+    })
+
+    test("shows Downloading... when total is unknown (no content-length)", async () => {
+      let unblock!: () => void
+      const blocker = new Promise<void>((resolve) => {
+        unblock = resolve
+      })
+
+      const { trpcClient } = await import("@/client/trpcClient")
+      vi.mocked(trpcClient.storage.swift.downloadObject.mutate).mockImplementation(async () => {
+        await blocker
+        return (async function* () {
+          /* empty */
+        })()
+      })
+
+      const user = userEvent.setup()
+      renderView({ rows: [makeObject("readme.txt")] })
+      await user.click(screen.getByRole("button", { name: /More/i }))
+      await user.click(screen.getByTestId("download-action-readme.txt"))
+
+      expect(await screen.findByText(/Downloading\.\.\./i)).toBeInTheDocument()
 
       unblock()
     })

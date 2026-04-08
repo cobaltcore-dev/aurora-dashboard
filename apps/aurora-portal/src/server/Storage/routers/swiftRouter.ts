@@ -1193,6 +1193,8 @@ export const swiftRouter = {
     ctx,
   }): AsyncGenerator<{
     chunk: string // base64-encoded Uint8Array chunk
+    downloaded: number // cumulative bytes received so far
+    total: number // total file size in bytes (0 if unknown)
     contentType?: string // only present in first chunk
     filename?: string // only present in first chunk
   }> {
@@ -1211,6 +1213,8 @@ export const swiftRouter = {
     })
 
     const contentType = response.headers.get("content-type") ?? "application/octet-stream"
+    // Content-Length may be absent for chunked-transfer responses; treat 0 as unknown
+    const total = parseInt(response.headers.get("content-length") ?? "0", 10) || 0
 
     if (!response.body) {
       throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Swift response has no body" })
@@ -1218,14 +1222,19 @@ export const swiftRouter = {
 
     const reader = response.body.getReader()
     let isFirst = true
+    let downloaded = 0
 
     try {
       while (true) {
         const { done, value } = await reader.read()
         if (done) break
 
+        downloaded += value.byteLength
+
         yield {
           chunk: Buffer.from(value).toString("base64"),
+          downloaded,
+          total,
           ...(isFirst ? { contentType, filename } : {}),
         }
 

@@ -103,7 +103,7 @@ Complete tRPC router with procedures for:
 - `updateObjectMetadata` - Update object metadata (POST operation)
 - `copyObject` - Copy object to a new location
 - `deleteObject` - Delete an object
-- `downloadObject` - Stream object content to the browser as base64 chunks via an async iterable; client assembles a Blob and triggers a save dialog
+- `downloadObject` - Stream object content to the browser as base64 chunks via an async iterable; each chunk carries `downloaded` and `total` byte counts for progress tracking; client assembles a Blob and triggers a save dialog
 
 #### Bulk Operations
 
@@ -158,7 +158,7 @@ Full support for:
 
 Proper handling of binary data for object uploads/downloads:
 
-- Base64 chunk streaming for `downloadObject` (browser save dialog) — server streams without buffering; client assembles a Blob
+- Base64 chunk streaming for `downloadObject` (browser save dialog) — server streams without buffering; each chunk includes `downloaded`/`total` byte counts for progress tracking; client assembles a Blob
 - Uint8Array support for `createObject`
 
 ## Usage Examples
@@ -219,10 +219,15 @@ const iterable = await trpcClient.storage.swift.downloadObject.mutate({
   filename: "Q4_Report.pdf",
 })
 
-for await (const { chunk, contentType: ct, filename: fn } of iterable) {
+for await (const { chunk, contentType: ct, filename: fn, downloaded, total } of iterable) {
   if (ct) contentType = ct
   if (fn) filename = fn
   chunks.push(Uint8Array.from(atob(chunk), (c) => c.charCodeAt(0)))
+  // `total` is 0 when Swift does not send a Content-Length header
+  if (total > 0) {
+    const percent = Math.round((downloaded / total) * 100)
+    console.log(`Download progress: ${percent}%`)
+  }
 }
 
 // Concatenate chunks and trigger browser save dialog

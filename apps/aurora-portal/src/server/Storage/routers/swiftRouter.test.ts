@@ -1445,7 +1445,7 @@ describe("swiftRouter", () => {
 
   describe("downloadObject", () => {
     // Helper: build a mock Response with a ReadableStream body
-    const makeStreamResponse = (chunks: Uint8Array[], contentType = "text/plain") => {
+    const makeStreamResponse = (chunks: Uint8Array[], contentType = "text/plain", contentLength?: number) => {
       let index = 0
       const stream = new ReadableStream<Uint8Array>({
         pull(controller) {
@@ -1456,11 +1456,11 @@ describe("swiftRouter", () => {
           }
         },
       })
-      return {
-        ok: true,
-        headers: new Headers({ "content-type": contentType }),
-        body: stream,
+      const headers = new Headers({ "content-type": contentType })
+      if (contentLength !== undefined) {
+        headers.set("content-length", String(contentLength))
       }
+      return { ok: true, headers, body: stream }
     }
 
     it("should stream object content as base64 chunks", async () => {
@@ -1479,11 +1479,15 @@ describe("swiftRouter", () => {
       const chunks: string[] = []
       let receivedContentType: string | undefined
       let receivedFilename: string | undefined
+      let lastDownloaded = 0
+      let lastTotal = 0
 
       for await (const item of iterable) {
         chunks.push(item.chunk)
         if (item.contentType) receivedContentType = item.contentType
         if (item.filename) receivedFilename = item.filename
+        lastDownloaded = item.downloaded
+        lastTotal = item.total
       }
 
       expect(receivedContentType).toBe("text/plain")
@@ -1491,6 +1495,9 @@ describe("swiftRouter", () => {
       // Decode all chunks and verify round-trip
       const decoded = chunks.map((b64) => Buffer.from(b64, "base64").toString()).join("")
       expect(decoded).toBe("Hello, World!")
+      // Progress: downloaded should equal content length, total is 0 (no content-length header)
+      expect(lastDownloaded).toBe(new TextEncoder().encode("Hello, World!").byteLength)
+      expect(lastTotal).toBe(0)
     })
 
     it("should only send contentType and filename in the first chunk", async () => {
@@ -1615,6 +1622,79 @@ describe("swiftRouter", () => {
           void item
         }
       }).rejects.toThrow()
+    })
+
+    it("should track download progress with content-length header", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      const part1 = new TextEncoder().encode("Hello, ")
+      const part2 = new TextEncoder().encode("World!")
+      const totalBytes = part1.byteLength + part2.byteLength
+
+      mockCtx.mockSwift.get.mockResolvedValue(makeStreamResponse([part1, part2], "text/plain", totalBytes))
+
+      const iterable = await caller.storage.swift.downloadObject({
+        container: "test-container",
+        object: "hello.txt",
+        filename: "hello.txt",
+      })
+
+      const progressSnapshots: Array<{ downloaded: number; total: number }> = []
+      for await (const { downloaded, total } of iterable) {
+        progressSnapshots.push({ downloaded, total })
+      }
+
+      expect(progressSnapshots).toHaveLength(2)
+      expect(progressSnapshots[0].total).toBe(totalBytes)
+      expect(progressSnapshots[0].downloaded).toBe(part1.byteLength)
+      expect(progressSnapshots[1].total).toBe(totalBytes)
+      expect(progressSnapshots[1].downloaded).toBe(totalBytes)
+    })
+
+    it("should report total as 0 when content-length header is absent", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      const content = new TextEncoder().encode("data")
+      // No contentLength passed — header will be absent
+      mockCtx.mockSwift.get.mockResolvedValue(makeStreamResponse([content]))
+
+      const iterable = await caller.storage.swift.downloadObject({
+        container: "test-container",
+        object: "file.txt",
+        filename: "file.txt",
+      })
+
+      const items: Array<{ downloaded: number; total: number }> = []
+      for await (const item of iterable) {
+        items.push(item)
+      }
+
+      expect(items[0].total).toBe(0)
+      expect(items[0].downloaded).toBe(content.byteLength)
+    })
+
+    it("should accumulate downloaded bytes across multiple chunks", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      const chunks = [new TextEncoder().encode("aaa"), new TextEncoder().encode("bb"), new TextEncoder().encode("c")]
+      const total = chunks.reduce((s, c) => s + c.byteLength, 0)
+      mockCtx.mockSwift.get.mockResolvedValue(makeStreamResponse(chunks, "text/plain", total))
+
+      const iterable = await caller.storage.swift.downloadObject({
+        container: "test-container",
+        object: "file.txt",
+        filename: "file.txt",
+      })
+
+      const downloaded: number[] = []
+      for await (const item of iterable) {
+        downloaded.push(item.downloaded)
+      }
+
+      expect(downloaded).toEqual([3, 5, 6])
     })
 
     it("should throw INTERNAL_SERVER_ERROR when response has no body", async () => {
