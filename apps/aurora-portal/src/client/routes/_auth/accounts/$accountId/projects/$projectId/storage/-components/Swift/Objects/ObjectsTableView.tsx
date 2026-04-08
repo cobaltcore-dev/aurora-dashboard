@@ -149,6 +149,7 @@ export const ObjectsTableView = ({
   }
 
   const allCount = rows.length
+  const isAnyDownloading = downloadingRow !== null
 
   return (
     <>
@@ -269,7 +270,7 @@ export const ObjectsTableView = ({
 
                   {/* Actions */}
                   <DataGridCell onClick={(e) => e.stopPropagation()}>
-                    <PopupMenu disabled={isDownloading}>
+                    <PopupMenu disabled={isAnyDownloading}>
                       <PopupMenuOptions>
                         {isFolder ? (
                           // Folder actions

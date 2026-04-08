@@ -457,6 +457,36 @@ describe("ObjectsTableView", () => {
       unblock()
     })
 
+    test("actions menu is disabled on all rows while a download is in progress", async () => {
+      let unblock!: () => void
+      const blocker = new Promise<void>((resolve) => {
+        unblock = resolve
+      })
+
+      const { trpcClient } = await import("@/client/trpcClient")
+      vi.mocked(trpcClient.storage.swift.downloadObject.mutate).mockImplementation(async () => {
+        await blocker
+        return (async function* () {
+          /* empty */
+        })()
+      })
+
+      const user = userEvent.setup()
+      // Render two object rows
+      renderView({ rows: [makeObject("readme.txt"), makeObject("photo.png")] })
+
+      // Start download on the first row
+      const [firstMore] = screen.getAllByRole("button", { name: /More/i })
+      await user.click(firstMore)
+      await user.click(screen.getByTestId("download-action-readme.txt"))
+
+      // Both More buttons should now be disabled
+      const moreButtons = screen.getAllByRole("button", { name: /More/i })
+      moreButtons.forEach((btn) => expect(btn).toBeDisabled())
+
+      unblock()
+    })
+
     test("calls onDownloadError when mutate throws", async () => {
       mockDownloadReject = true
       const onDownloadError = vi.fn()
