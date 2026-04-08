@@ -27,18 +27,13 @@ export const SideNavBar = ({ accountId, projectId, availableServices }: SideNavB
   // The deepest matched route ID — used only to determine which section is open
   const activeRouteId = matches[matches.length - 1]?.routeId ?? ""
 
-  const isInSection = (section: string) =>
-    activeRouteId.includes(`/projects/$projectId/${section}`)
+  const isInSection = (section: string) => activeRouteId.includes(`/projects/$projectId/${section}`)
 
   const getComputeNavigationLinks = () => {
     return [
       { path: computeRootPath, label: t`Overview` },
       ...(serviceIndex["image"]?.["glance"] ? [{ path: `${computeRootPath}/images`, label: t`Images` }] : []),
-      ...(serviceIndex?.["compute"]?.["nova"]
-        ? [
-            { path: `${computeRootPath}/flavors`, label: t`Flavors` },
-          ]
-        : []),
+      ...(serviceIndex?.["compute"]?.["nova"] ? [{ path: `${computeRootPath}/flavors`, label: t`Flavors` }] : []),
     ]
   }
 
