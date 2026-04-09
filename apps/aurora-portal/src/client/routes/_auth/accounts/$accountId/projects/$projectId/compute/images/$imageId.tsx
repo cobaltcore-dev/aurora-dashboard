@@ -293,6 +293,7 @@ function RouteComponent() {
   return (
     <>
       <ImageDetailsView
+        key={image.id}
         image={image}
         currentProjectId={projectId}
         permissions={{
