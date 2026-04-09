@@ -1,4 +1,5 @@
 import { useNavigate, useLocation } from "@tanstack/react-router"
+import { useState } from "react"
 import { getServiceIndex } from "@/server/Authentication/helpers"
 import { SideNavigation, SideNavigationList, SideNavigationItem } from "@cloudoperators/juno-ui-components/index"
 import { useLingui } from "@lingui/react/macro"
@@ -16,6 +17,12 @@ export const SideNavBar = ({ accountId, projectId, availableServices }: SideNavB
   const { t } = useLingui()
   const location = useLocation()
   const navigate = useNavigate()
+
+  const [openSections, setOpenSections] = useState({ compute: true, network: true, storage: true })
+
+  const toggleSection = (section: keyof typeof openSections) => {
+    setOpenSections((prev) => ({ ...prev, [section]: !prev[section] }))
+  }
 
   const computeRootPath = `/accounts/${accountId}/projects/${projectId}/compute`
   const networkRootPath = `/accounts/${accountId}/projects/${projectId}/network`
@@ -91,7 +98,7 @@ export const SideNavBar = ({ accountId, projectId, availableServices }: SideNavB
       <SideNavigationList>
         <>
           {computeLinks.length > 0 && (
-            <SideNavigationItem label="Compute" open={true}>
+            <SideNavigationItem label="Compute" open={openSections.compute} onClick={() => toggleSection("compute")}>
               {computeLinks.map(({ path, label, to, params }) => (
                 <SideNavigationItem
                   key={path}
@@ -109,7 +116,7 @@ export const SideNavBar = ({ accountId, projectId, availableServices }: SideNavB
           )}
 
           {networkLinks.length > 0 && (
-            <SideNavigationItem label="Network" open={true}>
+            <SideNavigationItem label="Network" open={openSections.network} onClick={() => toggleSection("network")}>
               {networkLinks.map(({ path, label }) => (
                 <SideNavigationItem
                   key={path}
@@ -122,7 +129,7 @@ export const SideNavBar = ({ accountId, projectId, availableServices }: SideNavB
           )}
 
           {storageLinks.length > 0 && (
-            <SideNavigationItem label="Storage" open={true}>
+            <SideNavigationItem label="Storage" open={openSections.storage} onClick={() => toggleSection("storage")}>
               {storageLinks.map(({ path, label }) => (
                 <SideNavigationItem
                   key={path}
