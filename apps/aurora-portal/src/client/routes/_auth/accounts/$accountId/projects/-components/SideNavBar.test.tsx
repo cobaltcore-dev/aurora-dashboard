@@ -58,16 +58,12 @@ describe("SideNavBar", () => {
       expect(screen.getByText("Compute")).toBeInTheDocument()
     })
 
-    it("renders Overview link in Compute section after expanding", () => {
+    it("renders Overview link in Compute section (open by default)", () => {
       render(
         <TestingProvider>
           <SideNavBar {...defaultProps} />
         </TestingProvider>
       )
-
-      // Click to expand Compute section
-      const computeSection = screen.getByText("Compute")
-      fireEvent.click(computeSection)
 
       expect(screen.getByText("Overview")).toBeInTheDocument()
     })
@@ -78,10 +74,6 @@ describe("SideNavBar", () => {
           <SideNavBar {...defaultProps} />
         </TestingProvider>
       )
-
-      // Expand Compute section
-      const computeSection = screen.getByText("Compute")
-      fireEvent.click(computeSection)
 
       expect(screen.getByText("Images")).toBeInTheDocument()
     })
@@ -98,10 +90,6 @@ describe("SideNavBar", () => {
         </TestingProvider>
       )
 
-      // Expand Compute section
-      const computeSection = screen.getByText("Compute")
-      fireEvent.click(computeSection)
-
       expect(screen.queryByText("Images")).not.toBeInTheDocument()
     })
 
@@ -111,10 +99,6 @@ describe("SideNavBar", () => {
           <SideNavBar {...defaultProps} />
         </TestingProvider>
       )
-
-      // Expand Compute section
-      const computeSection = screen.getByText("Compute")
-      fireEvent.click(computeSection)
 
       expect(screen.getByText("Flavors")).toBeInTheDocument()
     })
@@ -131,13 +115,23 @@ describe("SideNavBar", () => {
         </TestingProvider>
       )
 
-      // Expand Compute section if it exists (should bc images)
-      const computeSection = screen.queryByText("Compute")
-      if (computeSection) {
-        fireEvent.click(computeSection)
-      }
-
       expect(screen.queryByText("Flavors")).not.toBeInTheDocument()
+    })
+
+    it("collapses section when header is clicked", () => {
+      render(
+        <TestingProvider>
+          <SideNavBar {...defaultProps} />
+        </TestingProvider>
+      )
+
+      // Items visible initially (open by default)
+      expect(screen.getByText("Overview")).toBeInTheDocument()
+
+      // Click to collapse
+      fireEvent.click(screen.getByText("Compute"))
+
+      expect(screen.queryByText("Overview")).not.toBeInTheDocument()
     })
 
     describe("Storage Navigation", () => {
@@ -151,16 +145,12 @@ describe("SideNavBar", () => {
         expect(screen.getByText("Storage")).toBeInTheDocument()
       })
 
-      it("renders Object Storage link when swift service is available", () => {
+      it("renders Object Storage link when swift service is available (open by default)", () => {
         render(
           <TestingProvider>
             <SideNavBar {...defaultProps} />
           </TestingProvider>
         )
-
-        // Expand Storage section
-        const storageSection = screen.getByText("Storage")
-        fireEvent.click(storageSection)
 
         expect(screen.getByText("Swift")).toBeInTheDocument()
       })
@@ -185,41 +175,33 @@ describe("SideNavBar", () => {
     })
 
     describe("Navigation Behavior", () => {
-      it("calls navigate with correct path when Flavors link is clicked", () => {
+      it("calls navigate with correct params when Flavors link is clicked", () => {
         render(
           <TestingProvider>
             <SideNavBar {...defaultProps} />
           </TestingProvider>
         )
 
-        // Expand Compute section
-        const computeSection = screen.getByText("Compute")
-        fireEvent.click(computeSection)
-
-        const flavorsLink = screen.getByText("Flavors")
-        fireEvent.click(flavorsLink)
+        fireEvent.click(screen.getByText("Flavors"))
 
         expect(mockNavigate).toHaveBeenCalledWith({
-          to: "/accounts/acc-1/projects/proj-1/compute/flavors",
+          to: "/accounts/$accountId/projects/$projectId/compute/$",
+          params: { accountId: "acc-1", projectId: "proj-1", _splat: "flavors" },
         })
       })
 
-      it("calls navigate with correct path when Images link is clicked", () => {
+      it("calls navigate with correct params when Images link is clicked", () => {
         render(
           <TestingProvider>
             <SideNavBar {...defaultProps} />
           </TestingProvider>
         )
 
-        // Expand Compute section
-        const computeSection = screen.getByText("Compute")
-        fireEvent.click(computeSection)
-
-        const imagesLink = screen.getByText("Images")
-        fireEvent.click(imagesLink)
+        fireEvent.click(screen.getByText("Images"))
 
         expect(mockNavigate).toHaveBeenCalledWith({
-          to: "/accounts/acc-1/projects/proj-1/compute/images",
+          to: "/accounts/$accountId/projects/$projectId/compute/$",
+          params: { accountId: "acc-1", projectId: "proj-1", _splat: "images" },
         })
       })
 
@@ -230,34 +212,25 @@ describe("SideNavBar", () => {
           </TestingProvider>
         )
 
-        // Expand Storage section
-        const storageSection = screen.getByText("Storage")
-        fireEvent.click(storageSection)
-
-        const objectStorageLink = screen.getByText("Swift")
-        fireEvent.click(objectStorageLink)
+        fireEvent.click(screen.getByText("Swift"))
 
         expect(mockNavigate).toHaveBeenCalledWith({
           to: "/accounts/acc-1/projects/proj-1/storage/swift/containers",
         })
       })
 
-      it("calls navigate with correct path when Compute Overview is clicked", () => {
+      it("calls navigate with correct params when Compute Overview is clicked", () => {
         render(
           <TestingProvider>
             <SideNavBar {...defaultProps} />
           </TestingProvider>
         )
 
-        // Expand Compute section
-        const computeSection = screen.getByText("Compute")
-        fireEvent.click(computeSection)
-
-        const overviewLink = screen.getByText("Overview")
-        fireEvent.click(overviewLink)
+        fireEvent.click(screen.getByText("Overview"))
 
         expect(mockNavigate).toHaveBeenCalledWith({
-          to: "/accounts/acc-1/projects/proj-1/compute",
+          to: "/accounts/$accountId/projects/$projectId/compute/$",
+          params: { accountId: "acc-1", projectId: "proj-1", _splat: undefined },
         })
       })
     })
@@ -271,10 +244,6 @@ describe("SideNavBar", () => {
             <SideNavBar {...defaultProps} />
           </TestingProvider>
         )
-
-        // Expand Compute section
-        const computeSection = screen.getByText("Compute")
-        fireEvent.click(computeSection)
 
         // sting in div in span, in button with "selected class"
         const flavorsLink = screen.getByText("Flavors").closest("button")
