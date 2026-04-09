@@ -1,4 +1,4 @@
-import { protectedProcedure } from "../../trpc"
+import { protectedProcedure, projectScopedProcedure } from "../../trpc"
 import {
   listSecurityGroupsInputSchema,
   SecurityGroup,
@@ -67,7 +67,7 @@ function deduplicateById(items: SecurityGroup[]): SecurityGroup[] {
  *
  * Currently exposes:
  * - list: GET /v2.0/security-groups - Fetches both own and shared security groups by default.
- *   User can explicitly filter by shared=true/false.
+ *   User can explicitly filter by shared=true/false. Now uses projectScopedProcedure for automatic token rescoping.
  * - getById: GET /v2.0/security-groups/{security_group_id} to fetch a single security group with rules.
  *   Includes BFF-side search filtering by name, description, or id.
  * - create: POST /v2.0/security-groups to create a new security group.
@@ -75,11 +75,12 @@ function deduplicateById(items: SecurityGroup[]): SecurityGroup[] {
  * - deleteById: DELETE /v2.0/security-groups/{security_group_id} to delete a security group.
  */
 export const securityGroupRouter = {
-  list: protectedProcedure
+  list: projectScopedProcedure
     .input(listSecurityGroupsInputSchema)
     .query(async ({ input, ctx }): Promise<SecurityGroup[]> => {
       return withErrorHandling(async () => {
         const { searchTerm, project_id, shared, ...queryInput } = input
+        // ctx.openstack is already rescoped to the project by projectScopedProcedure
         const network = getNetworkService(ctx)
 
         // If user explicitly filters by shared, use single request

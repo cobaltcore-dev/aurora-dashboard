@@ -1,5 +1,6 @@
 import type { AuroraPortalContext } from "./context"
 import { initTRPC, TRPCError } from "@trpc/server"
+import { z } from "zod"
 
 const t = initTRPC.context<AuroraPortalContext>().create()
 
@@ -18,5 +19,218 @@ export const protectedProcedure = publicProcedure.use(async function isAuthentic
   }
   return opts.next({
     ctx: opts.ctx,
+  })
+})
+
+/**
+ * Base input schema that all project-scoped procedures must extend
+ * Ensures projectId is always present and validated
+ */
+export const projectScopedInputSchema = z.object({
+  project_id: z.string().min(1, "projectId must be a non-empty string"),
+})
+
+/**
+ * Base input schema that all domain-scoped procedures must extend
+ * Ensures domain_id is always present and validated
+ */
+export const domainScopedInputSchema = z.object({
+  domain_id: z.string().min(1, "domain_id must be a non-empty string"),
+})
+
+/**
+ * Project-scoped procedure middleware
+ *
+ * Automatically handles OpenStack token rescoping to a specific project.
+ * This middleware ensures that all subsequent API calls have the correct
+ * project-scoped token, which is required for accessing project-level resources
+ * like compute instances, networks, volumes, etc.
+ *
+ * Requirements:
+ * - User must be authenticated (extends protectedProcedure)
+ * - Input schema must extend projectScopedInputSchema
+ *
+ * Behavior:
+ * - Rescopes the OpenStack session to the specified project using Keystone
+ * - Caches the scoped token in a cookie to avoid unnecessary rescoping on subsequent requests
+ * - Passes the rescoped session to downstream procedures via ctx.openstack
+ *
+ * Error handling:
+ * - BAD_REQUEST: If projectId is missing or invalid (handled by Zod schema)
+ * - UNAUTHORIZED: If token rescoping fails (e.g., invalid token, Keystone unavailable)
+ * - FORBIDDEN: If user has no role assignment on the specified project
+ *
+ * Usage example:
+ * ```ts
+ * export const computeRouter = {
+ *   listServers: projectScopedProcedure
+ *     .input(projectScopedInputSchema.extend({ limit: z.number().optional() }))
+ *     .query(async ({ ctx, input }) => {
+ *       // Token is already rescoped to the project
+ *       const compute = ctx.openstack.service("compute")
+ *       return compute.servers.list()
+ *     })
+ * }
+ * ```
+ *
+ * @important The procedure using this middleware MUST use projectScopedInputSchema or extend it
+ */
+export const projectScopedProcedure = protectedProcedure.use(async function rescopeToProject(opts) {
+  const { ctx, next, getRawInput } = opts
+
+  // Get the raw input before Zod parsing
+  // This is available in tRPC v11 through getRawInput()
+  const rawInput = await getRawInput()
+
+  // Validate that project_id exists in the raw input (OpenStack uses snake_case)
+  if (!rawInput || typeof rawInput !== "object" || !("project_id" in rawInput)) {
+    throw new TRPCError({
+      code: "BAD_REQUEST",
+      message: "project_id is required for project-scoped operations",
+    })
+  }
+
+  const { project_id } = rawInput as { project_id: unknown }
+
+  // Validate project_id is a non-empty string
+  if (typeof project_id !== "string" || project_id.trim() === "") {
+    throw new TRPCError({
+      code: "BAD_REQUEST",
+      message: "project_id must be a non-empty string",
+    })
+  }
+
+  // Rescope the session to the specified project
+  // This calls Keystone to get a new token scoped to the project
+  // The token is automatically cached in a cookie by rescopeSession
+  const openstackSession = await ctx.rescopeSession({ projectId: project_id })
+
+  // If rescoping fails, it means either:
+  // 1. The user's token is invalid (should be caught by protectedProcedure)
+  // 2. The user doesn't have access to this project (no role assignment)
+  if (!openstackSession) {
+    throw new TRPCError({
+      code: "UNAUTHORIZED",
+      message: "Failed to scope session to project. User may not have access to this project.",
+    })
+  }
+
+  // Pass the rescoped session to the next middleware/procedure
+  return next({
+    ctx: {
+      ...ctx,
+      openstack: openstackSession,
+    },
+  })
+})
+
+/**
+ * Domain-scoped procedure middleware
+ *
+ * Automatically handles OpenStack token rescoping to a specific domain.
+ * This middleware ensures that all subsequent API calls have the correct
+ * domain-scoped token, which is required for accessing domain-level resources
+ * and performing administrative operations like user management, project creation, etc.
+ *
+ * Requirements:
+ * - User must be authenticated (extends protectedProcedure)
+ * - User must have domain admin rights (admin role)
+ * - User must have access to the requested domain
+ * - Input schema must extend domainScopedInputSchema
+ *
+ * Behavior:
+ * - Validates that domain_id is present in the input
+ * - Verifies that the user has the 'admin' role (domain admin rights)
+ * - Verifies that the user has access to the specific domain requested
+ * - Rescopes the OpenStack session to the specified domain using Keystone
+ * - Caches the scoped token in a cookie to avoid unnecessary rescoping on subsequent requests
+ * - Passes the rescoped session to downstream procedures via ctx.openstack
+ *
+ * Error handling:
+ * - BAD_REQUEST: If domain_id is missing or invalid (handled by Zod schema)
+ * - FORBIDDEN: If user is not a domain admin or lacks access to the requested domain
+ * - UNAUTHORIZED: If token rescoping fails (e.g., invalid token, Keystone unavailable)
+ *
+ * Usage example:
+ * ```ts
+ * export const identityRouter = {
+ *   listUsers: domainScopedProcedure
+ *     .input(domainScopedInputSchema.extend({ includeDisabled: z.boolean().optional() }))
+ *     .query(async ({ ctx, input }) => {
+ *       // Token is already rescoped to the domain with admin privileges
+ *       const identity = ctx.openstack.service("identity")
+ *       return identity.users.list()
+ *     })
+ * }
+ * ```
+ *
+ * @important The procedure using this middleware MUST use domainScopedInputSchema or extend it
+ */
+export const domainScopedProcedure = protectedProcedure.use(async function rescopeToDomain(opts) {
+  const { ctx, next, getRawInput } = opts
+
+  // Get the raw input before Zod parsing
+  // This is available in tRPC v11 through getRawInput()
+  const rawInput = await getRawInput()
+
+  // Validate that domain_id exists in the raw input (OpenStack uses snake_case)
+  if (!rawInput || typeof rawInput !== "object" || !("domain_id" in rawInput)) {
+    throw new TRPCError({
+      code: "BAD_REQUEST",
+      message: "domain_id is required for domain-scoped operations",
+    })
+  }
+
+  const { domain_id } = rawInput as { domain_id: unknown }
+
+  // Validate domain_id is a non-empty string
+  if (typeof domain_id !== "string" || domain_id.trim() === "") {
+    throw new TRPCError({
+      code: "BAD_REQUEST",
+      message: "domain_id must be a non-empty string",
+    })
+  }
+
+  // Check if user has domain admin rights
+  // In OpenStack, domain admin privileges are indicated by having the 'admin' role
+  if (!ctx.user?.isDomainAdmin) {
+    throw new TRPCError({
+      code: "FORBIDDEN",
+      message: "Domain admin rights required for this operation",
+    })
+  }
+
+  // Verify that the user has access to the specific domain requested
+  // This prevents privilege escalation where an admin of domain A tries to access domain B
+  const hasAccess = ctx.user.adminDomains.some((domain) => domain.id === domain_id)
+  if (!hasAccess) {
+    throw new TRPCError({
+      code: "FORBIDDEN",
+      message: `Access denied. User does not have admin rights for domain ${domain_id}`,
+    })
+  }
+
+  // Rescope the session to the specified domain
+  // This calls Keystone to get a new token scoped to the domain with admin privileges
+  // The token is automatically cached in a cookie by rescopeSession
+  const openstackSession = await ctx.rescopeSession({ domainId: domain_id })
+
+  // If rescoping fails, it typically means:
+  // 1. The user's token is invalid (should be caught by protectedProcedure)
+  // 2. Keystone service is unavailable
+  // 3. Internal error during token rescoping
+  if (!openstackSession) {
+    throw new TRPCError({
+      code: "UNAUTHORIZED",
+      message: "Failed to scope session to domain. Please try again or contact support.",
+    })
+  }
+
+  // Pass the rescoped session to the next middleware/procedure
+  return next({
+    ctx: {
+      ...ctx,
+      openstack: openstackSession,
+    },
   })
 })

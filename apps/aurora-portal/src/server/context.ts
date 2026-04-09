@@ -7,6 +7,13 @@ import { AuthConfig } from "./Authentication/types/models"
 export interface AuroraContext {
   validateSession: () => boolean
   openstack?: Awaited<SignalOpenstackSessionType>
+  // User information extracted from the OpenStack token
+  user?: {
+    // Indicates if the user has the 'admin' role in the current scope
+    isDomainAdmin: boolean
+    // List of domains where the user has admin rights (derived from token role assignments)
+    adminDomains: Array<{ id: string; name: string }>
+  }
 }
 
 // Load the identity endpoint from the environment
@@ -79,6 +86,34 @@ export async function createContext(opts: CreateFastifyContextOptions): Promise<
   }
 
   const validateSession = () => openstackSession?.isValid() || false
+
+  // Extract user information from token
+  // Check if user has 'admin' role - in OpenStack, domain admin role is typically named 'admin'
+  const getUserInfo = () => {
+    const token = openstackSession?.getToken()
+    if (!token) {
+      return undefined
+    }
+
+    const isDomainAdmin = token.hasRole("admin")
+
+    // In OpenStack, when a user has domain-scoped admin role, the domain information
+    // is available in the token's domain field. For simplicity, we'll extract
+    // the current domain if user is an admin. In a real scenario, you might need
+    // to make an additional API call to list all domains the user has admin access to.
+    const adminDomains: Array<{ id: string; name: string }> = []
+    if (isDomainAdmin && token.tokenData.domain) {
+      adminDomains.push({
+        id: token.tokenData.domain.id || "",
+        name: token.tokenData.domain.name || "",
+      })
+    }
+
+    return {
+      isDomainAdmin,
+      adminDomains,
+    }
+  }
 
   // Create a new session (Login)
   const createSession: AuroraPortalContext["createSession"] = async (params) => {
@@ -177,5 +212,6 @@ export async function createContext(opts: CreateFastifyContextOptions): Promise<
     validateSession,
     openstack: openstackSession,
     getMultipartData,
+    user: getUserInfo(),
   }
 }

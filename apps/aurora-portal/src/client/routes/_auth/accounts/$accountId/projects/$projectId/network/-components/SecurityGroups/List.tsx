@@ -64,7 +64,7 @@ export const SecurityGroups = () => {
     isError,
     error,
   } = trpcReact.network.securityGroup.list.useQuery({
-    project_id: projectId,
+    project_id: projectId || "",
     sort_key: sortSettings.sortBy,
     sort_dir: sortSettings.sortDirection,
     ...buildFilterParams(filterSettings),

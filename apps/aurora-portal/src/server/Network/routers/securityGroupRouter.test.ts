@@ -11,6 +11,7 @@ const createMockContext = (opts?: {
   mockSecurityGroups?: SecurityGroup[]
   mockSecurityGroup?: SecurityGroup
   mockError?: boolean
+  rescopeFails?: boolean
 }) => {
   const {
     noNetworkService = false,
@@ -18,6 +19,7 @@ const createMockContext = (opts?: {
     mockSecurityGroups,
     mockSecurityGroup,
     mockError,
+    rescopeFails = false,
   } = opts || {}
 
   const defaultSecurityGroups = [
@@ -32,53 +34,61 @@ const createMockContext = (opts?: {
     },
   ]
 
-  return {
-    validateSession: vi.fn().mockReturnValue(!invalidSession),
-    openstack: {
-      service: vi.fn().mockImplementation((serviceName: string) => {
-        if (serviceName !== "network" || noNetworkService) {
-          return null
-        }
+  const mockOpenstackSession = {
+    service: vi.fn().mockImplementation((serviceName: string) => {
+      if (serviceName !== "network" || noNetworkService) {
+        return null
+      }
 
-        return {
-          get: vi.fn().mockImplementation((url: string) => {
-            if (mockError) {
-              return Promise.reject(new Error("Network error"))
-            }
+      return {
+        get: vi.fn().mockImplementation((url: string) => {
+          if (mockError) {
+            return Promise.reject(new Error("Network error"))
+          }
 
-            // Handle list endpoint
-            if (url.includes("security-groups") && !url.match(/security-groups\/[^?]+$/)) {
-              return Promise.resolve({
-                ok: true,
-                json: vi.fn().mockResolvedValue({
-                  security_groups: mockSecurityGroups || defaultSecurityGroups,
-                }),
-              })
-            }
-
-            // Handle getById endpoint
-            if (mockSecurityGroup) {
-              return Promise.resolve({
-                ok: true,
-                json: vi.fn().mockResolvedValue({
-                  security_group: mockSecurityGroup,
-                }),
-              })
-            }
-
+          // Handle list endpoint
+          if (url.includes("security-groups") && !url.match(/security-groups\/[^?]+$/)) {
             return Promise.resolve({
               ok: true,
               json: vi.fn().mockResolvedValue({
-                security_group: defaultSecurityGroups[0],
+                security_groups: mockSecurityGroups || defaultSecurityGroups,
               }),
             })
-          }),
-        }
-      }),
-    },
+          }
+
+          // Handle getById endpoint
+          if (mockSecurityGroup) {
+            return Promise.resolve({
+              ok: true,
+              json: vi.fn().mockResolvedValue({
+                security_group: mockSecurityGroup,
+              }),
+            })
+          }
+
+          return Promise.resolve({
+            ok: true,
+            json: vi.fn().mockResolvedValue({
+              security_group: defaultSecurityGroups[0],
+            }),
+          })
+        }),
+      }
+    }),
+  }
+
+  return {
+    validateSession: vi.fn().mockReturnValue(!invalidSession),
+    openstack: mockOpenstackSession,
     createSession: vi.fn(),
     terminateSession: vi.fn(),
-    rescopeSession: vi.fn(),
+    // Mock rescopeSession to return the rescoped session for projectScopedProcedure
+    rescopeSession: vi.fn().mockImplementation(async () => {
+      if (rescopeFails) {
+        return null
+      }
+      return mockOpenstackSession
+    }),
     getMultipartData: vi.fn(),
   } as unknown as AuroraPortalContext
 }
@@ -99,6 +109,7 @@ describe("securityGroupRouter.list", () => {
     const caller = createCaller(ctx)
 
     const result = await caller.securityGroup.list({
+      project_id: "proj-1", // Required by projectScopedProcedure (OpenStack uses snake_case)
       limit: 10,
       sort_key: "name",
       sort_dir: "asc",
@@ -119,6 +130,7 @@ describe("securityGroupRouter.list", () => {
 
     await expect(
       caller.securityGroup.list({
+        project_id: "proj-1",
         limit: 5,
       })
     ).rejects.toThrow(
@@ -135,12 +147,13 @@ describe("securityGroupRouter.list", () => {
 
     await expect(
       caller.securityGroup.list({
+        project_id: "proj-1",
         limit: 5,
       })
     ).rejects.toThrowError(TRPCError)
 
     try {
-      await caller.securityGroup.list({ limit: 5 })
+      await caller.securityGroup.list({ project_id: "proj-1", limit: 5 })
     } catch (error) {
       if (error instanceof TRPCError) {
         expect(error.code).toBe("INTERNAL_SERVER_ERROR")
@@ -186,7 +199,7 @@ describe("securityGroupRouter.list", () => {
       const ctx = createMockContext({ mockSecurityGroups })
       const caller = createCaller(ctx)
 
-      const result = await caller.securityGroup.list({})
+      const result = await caller.securityGroup.list({ project_id: "proj-1" })
 
       expect(result.length).toBe(3)
     })
@@ -196,6 +209,7 @@ describe("securityGroupRouter.list", () => {
       const caller = createCaller(ctx)
 
       const result = await caller.securityGroup.list({
+        project_id: "proj-1",
         searchTerm: "WEB",
       })
 
@@ -208,6 +222,7 @@ describe("securityGroupRouter.list", () => {
       const caller = createCaller(ctx)
 
       const result = await caller.securityGroup.list({
+        project_id: "proj-1",
         searchTerm: "gateway",
       })
 
@@ -220,6 +235,7 @@ describe("securityGroupRouter.list", () => {
       const caller = createCaller(ctx)
 
       const result = await caller.securityGroup.list({
+        project_id: "proj-1",
         searchTerm: "sg-1",
       })
 
@@ -232,6 +248,7 @@ describe("securityGroupRouter.list", () => {
       const caller = createCaller(ctx)
 
       const result = await caller.securityGroup.list({
+        project_id: "proj-1",
         searchTerm: "server",
       })
 
@@ -245,6 +262,7 @@ describe("securityGroupRouter.list", () => {
       const caller = createCaller(ctx)
 
       const result = await caller.securityGroup.list({
+        project_id: "proj-1",
         searchTerm: "nonexistent",
       })
 
@@ -256,6 +274,7 @@ describe("securityGroupRouter.list", () => {
       const caller = createCaller(ctx)
 
       const result = await caller.securityGroup.list({
+        project_id: "proj-1",
         searchTerm: "  web  ",
       })
 
