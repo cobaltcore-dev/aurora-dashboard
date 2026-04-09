@@ -20,7 +20,7 @@ import { EditImageMetadataModal } from "../-components/Images/-components/EditIm
 import { DeleteImageModal } from "../-components/Images/-components/DeleteImageModal"
 import { ActivateImageModal } from "../-components/Images/-components/ActivateImageModal"
 import { DeactivateImageModal } from "../-components/Images/-components/DeactivateImageModal"
-import { IMAGE_STATUSES, IMAGE_VISIBILITY, MEMBER_STATUSES } from "../-constants/filters"
+import { IMAGE_STATUSES, IMAGE_VISIBILITY } from "../-constants/filters"
 import { GlanceImage, MemberStatus } from "@/server/Compute/types/image"
 import { TRPCClientError } from "@trpc/client"
 import { InferrableClientTypes } from "@trpc/server/unstable-core-do-not-import"
@@ -327,38 +327,6 @@ function RouteComponent() {
               <Trans>Edit Details</Trans>
             </Button>
           )}
-          {isSharedWithMe && permissions.canUpdateMember && myMemberData && (
-            <>
-              {myMemberData.status === MEMBER_STATUSES.PENDING && (
-                <Button
-                  onClick={() => handleMemberStatusChange(MEMBER_STATUSES.REJECTED)}
-                  disabled={updateMemberMutation.isPending}
-                  variant="subdued"
-                >
-                  <Trans>Reject</Trans>
-                </Button>
-              )}
-              {(myMemberData.status === MEMBER_STATUSES.PENDING ||
-                myMemberData.status === MEMBER_STATUSES.REJECTED) && (
-                <Button
-                  onClick={() => handleMemberStatusChange(MEMBER_STATUSES.ACCEPTED)}
-                  disabled={updateMemberMutation.isPending}
-                  variant="primary"
-                >
-                  <Trans>Accept</Trans>
-                </Button>
-              )}
-              {myMemberData.status === MEMBER_STATUSES.ACCEPTED && (
-                <Button
-                  onClick={() => handleMemberStatusChange(MEMBER_STATUSES.REJECTED)}
-                  disabled={updateMemberMutation.isPending}
-                  variant="primary-danger"
-                >
-                  <Trans>Revoke Access</Trans>
-                </Button>
-              )}
-            </>
-          )}
         </ButtonRow>
         <ImageDetailsView
           image={image}
@@ -368,6 +336,9 @@ function RouteComponent() {
             canDeleteMember: permissions.canDeleteMember,
             canUpdateMember: permissions.canUpdateMember,
           }}
+          myMemberData={myMemberData}
+          onMemberStatusChange={handleMemberStatusChange}
+          isMemberStatusChanging={updateMemberMutation.isPending}
         />
       </Stack>
 

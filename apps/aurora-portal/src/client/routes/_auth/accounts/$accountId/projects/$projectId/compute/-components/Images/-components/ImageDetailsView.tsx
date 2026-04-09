@@ -6,13 +6,13 @@ import {
   Container,
   ContentHeading,
   Stack,
-  Badge,
-  BadgeVariantType,
-  Spinner,
   Message,
+  Box,
+  Button,
+  ButtonRow,
 } from "@cloudoperators/juno-ui-components"
-import { useLingui } from "@lingui/react/macro"
-import { GlanceImage } from "@/server/Compute/types/image"
+import { Trans, useLingui } from "@lingui/react/macro"
+import { GlanceImage, ImageMember, MemberStatus } from "@/server/Compute/types/image"
 import { SizeDisplay } from "./SizeDisplay"
 import { trpcReact } from "@/client/trpcClient"
 import { MEMBER_STATUSES } from "../../../-constants/filters"
@@ -26,6 +26,84 @@ interface ImageDetailsViewProps {
     canDeleteMember: boolean
     canUpdateMember: boolean
   }
+  myMemberData?: ImageMember
+  onMemberStatusChange?: (status: MemberStatus) => void
+  isMemberStatusChanging?: boolean
+}
+
+const SharedImageBox: React.FC<{
+  image: GlanceImage
+  myMemberData: ImageMember
+  canUpdateMember: boolean
+  onStatusChange: (status: MemberStatus) => void
+  isLoading: boolean
+}> = ({ image, myMemberData, canUpdateMember, onStatusChange, isLoading }) => {
+  const { t } = useLingui()
+  const isPending = myMemberData.status === MEMBER_STATUSES.PENDING
+  const isRejected = myMemberData.status === MEMBER_STATUSES.REJECTED
+  const isAccepted = myMemberData.status === MEMBER_STATUSES.ACCEPTED
+
+  const sharedAt = myMemberData.created_at ? new Date(myMemberData.created_at).toLocaleString() : t`N/A`
+  const updatedAt = myMemberData.updated_at ? new Date(myMemberData.updated_at).toLocaleString() : t`N/A`
+
+  return (
+    <Box>
+      {isPending && (
+        <p className="text-theme-highest font-semibold">
+          <Trans>Your action is required</Trans>
+        </p>
+      )}
+      <p>
+        <Trans>
+          This image was shared with you by <span className="font-semibold">{image.owner}</span> on {sharedAt}.
+        </Trans>
+      </p>
+      <ul>
+        <li>
+          <span className="font-semibold">
+            <Trans>Access Status:</Trans>
+          </span>{" "}
+          {myMemberData.status}
+        </li>
+        <li>
+          <span className="font-semibold">
+            <Trans>Shared:</Trans>
+          </span>{" "}
+          {sharedAt}
+        </li>
+        <li>
+          <span className="font-semibold">
+            <Trans>Updated:</Trans>
+          </span>{" "}
+          {updatedAt}
+        </li>
+      </ul>
+
+      {canUpdateMember && (
+        <ButtonRow>
+          {isPending && (
+            <Button onClick={() => onStatusChange(MEMBER_STATUSES.REJECTED)} disabled={isLoading} variant="subdued">
+              <Trans>Reject</Trans>
+            </Button>
+          )}
+          {(isPending || isRejected) && (
+            <Button onClick={() => onStatusChange(MEMBER_STATUSES.ACCEPTED)} disabled={isLoading} variant="primary">
+              <Trans>Accept</Trans>
+            </Button>
+          )}
+          {isAccepted && (
+            <Button
+              onClick={() => onStatusChange(MEMBER_STATUSES.REJECTED)}
+              disabled={isLoading}
+              variant="primary-danger"
+            >
+              <Trans>Revoke Access</Trans>
+            </Button>
+          )}
+        </ButtonRow>
+      )}
+    </Box>
+  )
 }
 
 export const GeneralImageData: React.FC<{ image: GlanceImage }> = ({ image }) => {
@@ -107,107 +185,6 @@ export const SecuritySection: React.FC<{ image: GlanceImage; currentProjectId?: 
   )
 }
 
-function getStatusBadgeVariant(status: string): BadgeVariantType {
-  switch (status) {
-    case MEMBER_STATUSES.PENDING:
-      return "warning"
-    case MEMBER_STATUSES.ACCEPTED:
-      return "success"
-    case MEMBER_STATUSES.REJECTED:
-      return "danger"
-    default:
-      return "default"
-  }
-}
-
-const MemberAccessSection: React.FC<{
-  image: GlanceImage
-  memberId: string
-}> = ({ image, memberId }) => {
-  const { t } = useLingui()
-
-  const { data: memberData, isLoading } = trpcReact.compute.getImageMember.useQuery(
-    { imageId: image.id, memberId },
-    { enabled: !!image.id && !!memberId }
-  )
-
-  if (isLoading) {
-    return (
-      <Stack distribution="center" alignment="center" className="py-4">
-        <Spinner variant="primary" />
-      </Stack>
-    )
-  }
-
-  if (!memberData) {
-    return null
-  }
-
-  return (
-    <Stack direction="vertical" gap="4">
-      <DescriptionList alignTerms="right">
-        <DescriptionTerm>{t`Access Status`}</DescriptionTerm>
-        <DescriptionDefinition>
-          <div>
-            <Badge text={memberData.status} variant={getStatusBadgeVariant(memberData.status)} />
-          </div>
-        </DescriptionDefinition>
-
-        <DescriptionTerm>{t`Shared Since`}</DescriptionTerm>
-        <DescriptionDefinition>
-          {memberData.created_at ? new Date(memberData.created_at).toLocaleString() : ""}
-        </DescriptionDefinition>
-
-        <DescriptionTerm>{t`Last Updated`}</DescriptionTerm>
-        <DescriptionDefinition>
-          {memberData.updated_at ? new Date(memberData.updated_at).toLocaleString() : ""}
-        </DescriptionDefinition>
-      </DescriptionList>
-    </Stack>
-  )
-}
-
-const SharingSection: React.FC<ImageDetailsViewProps> = ({ image, currentProjectId, permissions }) => {
-  const { t } = useLingui()
-  const [isAddingMember, setIsAddingMember] = useState(false)
-  const [message, setMessage] = useState<{ text: string; type: "error" | "info" } | null>(null)
-
-  const isImageOwner = image.owner === currentProjectId
-  const isShared = image.visibility === "shared"
-
-  const { data: imageMembers, isLoading: isMembersLoading } = trpcReact.compute.listImageMembers.useQuery(
-    { imageId: image.id },
-    { enabled: isShared && isImageOwner && !!image.id }
-  )
-
-  if (!isShared) return null
-
-  return (
-    <Container px={false} py>
-      <ContentHeading>{t`Sharing`}</ContentHeading>
-
-      {message && (
-        <Message text={message.text} variant={message.type} onDismiss={() => setMessage(null)} className="mb-4" />
-      )}
-
-      {isImageOwner ? (
-        <ImageMembersTable
-          image={image}
-          imageMembers={imageMembers}
-          isMembersLoading={isMembersLoading}
-          canAdd={permissions?.canCreateMember ?? false}
-          canRemove={permissions?.canDeleteMember ?? false}
-          isAddingMember={isAddingMember}
-          setIsAddingMember={setIsAddingMember}
-          setMessage={setMessage}
-        />
-      ) : (
-        currentProjectId && <MemberAccessSection image={image} memberId={currentProjectId} />
-      )}
-    </Container>
-  )
-}
-
 export const CustomPropertiesSection: React.FC<{ image: GlanceImage }> = ({ image }) => {
   const { t } = useLingui()
 
@@ -267,13 +244,92 @@ export const CustomPropertiesSection: React.FC<{ image: GlanceImage }> = ({ imag
   )
 }
 
-export const ImageDetailsView: React.FC<ImageDetailsViewProps> = ({ image, currentProjectId, permissions }) => {
+type DetailTab = "details" | "sharing"
+
+const getTabClassName = (active: boolean) => {
+  const base = "px-6 py-3 font-semibold border-b-2 transition-colors"
+  return active
+    ? `${base} border-theme-accent text-theme-highest`
+    : `${base} border-transparent text-theme-secondary hover:text-theme-high`
+}
+
+const SharingDetailsTab: React.FC<ImageDetailsViewProps> = ({ image, permissions }) => {
+  const [isAddingMember, setIsAddingMember] = useState(false)
+  const [message, setMessage] = useState<{ text: string; type: "error" | "info" } | null>(null)
+
+  const { data: imageMembers, isLoading: isMembersLoading } = trpcReact.compute.listImageMembers.useQuery(
+    { imageId: image.id },
+    { enabled: !!image.id }
+  )
+
+  return (
+    <Container px={false} py>
+      {message && (
+        <Message text={message.text} variant={message.type} onDismiss={() => setMessage(null)} className="mb-4" />
+      )}
+      <ImageMembersTable
+        image={image}
+        imageMembers={imageMembers}
+        isMembersLoading={isMembersLoading}
+        canAdd={permissions?.canCreateMember ?? false}
+        canRemove={permissions?.canDeleteMember ?? false}
+        isAddingMember={isAddingMember}
+        setIsAddingMember={setIsAddingMember}
+        setMessage={setMessage}
+      />
+    </Container>
+  )
+}
+
+export const ImageDetailsView: React.FC<ImageDetailsViewProps> = ({
+  image,
+  currentProjectId,
+  permissions,
+  myMemberData,
+  onMemberStatusChange,
+  isMemberStatusChanging,
+}) => {
+  const { t } = useLingui()
+  const [activeTab, setActiveTab] = useState<DetailTab>("details")
+
+  const isSharedWithMe = image.visibility === "shared" && image.owner !== undefined && image.owner !== currentProjectId
+  const isImageOwner = image.owner === currentProjectId
+  const showTabs = isImageOwner && image.visibility === "shared"
+
   return (
     <Stack direction="vertical" gap="6">
-      <GeneralImageData image={image} />
-      <SecuritySection image={image} currentProjectId={currentProjectId} />
-      <CustomPropertiesSection image={image} />
-      <SharingSection image={image} currentProjectId={currentProjectId} permissions={permissions} />
+      {isSharedWithMe && myMemberData && onMemberStatusChange && (
+        <SharedImageBox
+          image={image}
+          myMemberData={myMemberData}
+          canUpdateMember={permissions?.canUpdateMember ?? false}
+          onStatusChange={onMemberStatusChange}
+          isLoading={isMemberStatusChanging ?? false}
+        />
+      )}
+
+      {showTabs && (
+        <div className="border-theme-background-lvl-3 border-b">
+          <Stack direction="horizontal" gap="0">
+            <button className={getTabClassName(activeTab === "details")} onClick={() => setActiveTab("details")}>
+              {t`Details`}
+            </button>
+            <button className={getTabClassName(activeTab === "sharing")} onClick={() => setActiveTab("sharing")}>
+              {t`Sharing Details`}
+            </button>
+          </Stack>
+        </div>
+      )}
+
+      {activeTab === "details" && (
+        <>
+          <GeneralImageData image={image} />
+          <SecuritySection image={image} currentProjectId={currentProjectId} />
+          <CustomPropertiesSection image={image} />
+        </>
+      )}
+
+      {activeTab === "sharing" && showTabs && <SharingDetailsTab image={image} permissions={permissions} />}
     </Stack>
   )
 }
