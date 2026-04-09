@@ -1215,9 +1215,13 @@ export const swiftRouter = {
     validateSwiftService(swift)
 
     const accountPath = account || ""
+    // Encode each segment of the object name individually so that slashes
+    // acting as path separators (e.g. "folder/file.txt") are preserved,
+    // while other special characters in segment names are still percent-encoded.
+    const encodedObject = object.split("/").map(encodeURIComponent).join("/")
     const url = accountPath
-      ? `${accountPath}/${encodeURIComponent(container)}/${encodeURIComponent(object)}`
-      : `${encodeURIComponent(container)}/${encodeURIComponent(object)}`
+      ? `${accountPath}/${encodeURIComponent(container)}/${encodedObject}`
+      : `${encodeURIComponent(container)}/${encodedObject}`
 
     const response = await swift.get(url).catch((error) => {
       throw mapErrorResponseToTRPCError(error, { operation: "download object", container, object })
