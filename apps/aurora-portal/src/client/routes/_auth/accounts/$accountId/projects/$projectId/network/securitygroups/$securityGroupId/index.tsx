@@ -121,7 +121,7 @@ function RouteComponent() {
   })
 
   // Fetch available security groups for the Add Rule dropdown
-  const { data: securityGroups } = trpcReact.network.securityGroup.list.useQuery({})
+  const { data: securityGroups } = trpcReact.network.securityGroup.list.useQuery({ project_id: projectId })
   const availableSecurityGroups = useMemo(() => {
     return (securityGroups || [])
       .filter((sg) => sg.id !== securityGroupId) // Exclude current group

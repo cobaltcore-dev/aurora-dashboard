@@ -88,7 +88,6 @@ describe("projectScopedProcedure", () => {
 
     const caller = createCallerFactory(testRouter)(ctx)
 
-    // @ts-expect-error - Intentionally passing invalid input without project_id
     await expect(caller.test.testProcedure({ otherField: "value" })).rejects.toThrow(
       expect.objectContaining({
         code: "BAD_REQUEST",
@@ -271,7 +270,6 @@ describe("domainScopedProcedure", () => {
 
     const caller = createCallerFactory(testRouter)(ctx)
 
-    // @ts-expect-error - Intentionally passing invalid input without domain_id
     await expect(caller.test.testProcedure({ otherField: "value" })).rejects.toThrow(
       expect.objectContaining({
         code: "BAD_REQUEST",
