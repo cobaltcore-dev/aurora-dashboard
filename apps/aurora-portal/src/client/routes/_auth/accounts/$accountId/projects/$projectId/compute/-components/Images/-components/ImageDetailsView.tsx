@@ -324,7 +324,7 @@ export const ImageDetailsView: React.FC<ImageDetailsViewProps> = ({
         </div>
       )}
 
-      {activeTab === "details" && (
+      {(activeTab === "details" || !showTabs) && (
         <>
           {actions}
           <GeneralImageData image={image} />

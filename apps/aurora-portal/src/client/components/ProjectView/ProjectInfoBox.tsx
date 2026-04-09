@@ -80,7 +80,9 @@ export function ProjectInfoBox({ projectInfo }: ProjectInfoBoxProps) {
     const childMatches = matches.filter((m) => m.routeId !== projectIdRouteId && m.routeId.startsWith(projectIdRouteId))
     const deepestMatch = childMatches[childMatches.length - 1]
 
-    const { section, service, isDetailPage } = deepestMatch ? parseSectionService(deepestMatch.routeId) : { isDetailPage: false }
+    const { section, service, isDetailPage } = deepestMatch
+      ? parseSectionService(deepestMatch.routeId)
+      : { isDetailPage: false }
 
     const isServicePage = !isDetailPage && !!service
     const isSectionPage = !isDetailPage && !service && !!section
