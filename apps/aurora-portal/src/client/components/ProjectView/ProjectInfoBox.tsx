@@ -1,7 +1,7 @@
 import { Breadcrumb, BreadcrumbItem, ContentHeading, Stack } from "@cloudoperators/juno-ui-components"
 import { Trans } from "@lingui/react/macro"
 import ClipboardText from "../ClipboardText"
-import { useRouteContext, useLocation, useNavigate, useParams } from "@tanstack/react-router"
+import { useRouteContext, useMatches, useNavigate, useParams } from "@tanstack/react-router"
 import { useState, useEffect } from "react"
 
 interface ProjectInfoBoxProps {
@@ -15,7 +15,6 @@ interface ProjectInfoBoxProps {
   }
 }
 
-// Maps URL path segments to human-readable labels
 const SECTION_LABELS: Record<string, string> = {
   compute: "Compute",
   network: "Network",
@@ -33,11 +32,34 @@ const SERVICE_LABELS: Record<string, string> = {
   swift: "Swift",
 }
 
+// Extract section, service and detail-page flag from a TanStack route ID.
+// Route IDs look like: "/_auth/accounts/$accountId/projects/$projectId/compute/$"
+// The segment after $projectId is the section; the next static segment (if any) is the service.
+function parseSectionService(routeId: string): { section?: string; service?: string; isDetailPage: boolean } {
+  const projectIdMarker = "/projects/$projectId/"
+  const idx = routeId.indexOf(projectIdMarker)
+  if (idx === -1) return { isDetailPage: false }
+
+  const rest = routeId.slice(idx + projectIdMarker.length)
+  // rest examples: "compute/$", "network/$", "network/floatingips/", "network/floatingips/$floatingIpId",
+  //                "network/securitygroups/$securityGroupId/", "storage/$provider/containers/",
+  //                "compute/images/$imageId", "compute/flavors/$flavorId"
+  const parts = rest.split("/").filter(Boolean)
+
+  const section = parts[0]?.startsWith("$") ? undefined : parts[0]
+  // Skip dynamic segments ($...) to find the service slug
+  const service = parts[1] && !parts[1].startsWith("$") ? parts[1] : undefined
+  // Detail if there's a dynamic segment beyond the service position
+  const isDetailPage = parts.length >= 3 || (parts.length >= 2 && parts[parts.length - 1].startsWith("$"))
+
+  return { section, service, isDetailPage }
+}
+
 export function ProjectInfoBox({ projectInfo }: ProjectInfoBoxProps) {
   const { pageTitleRef } = useRouteContext({ from: "__root__" })
   const [pageTitle, setPageTitle] = useState(pageTitleRef.current)
-  const location = useLocation()
   const navigate = useNavigate()
+  const matches = useMatches()
 
   const { accountId, projectId } = useParams({ strict: false }) as { accountId: string; projectId: string }
 
@@ -52,64 +74,83 @@ export function ProjectInfoBox({ projectInfo }: ProjectInfoBoxProps) {
     }
   }, [pageTitleRef])
 
-  // Parse the URL to build breadcrumb items
   const buildBreadcrumbs = () => {
-    const pathname = location.pathname
-    // Match: /accounts/$accountId/projects/$projectId/{section}/{service?}/{detailId?}/...
-    const base = `/accounts/${accountId}/projects/${projectId}`
-    const rest = pathname.startsWith(base) ? pathname.slice(base.length) : ""
-    // rest examples: "", "/compute", "/compute/images", "/compute/images/abc123", "/network/floatingips/xyz"
-    const parts = rest.split("/").filter(Boolean) // ["compute"], ["compute","images"], ["compute","images","abc123"]
+    // Find the deepest match that is a child of the $projectId route
+    const projectIdRouteId = "/_auth/accounts/$accountId/projects/$projectId"
+    const childMatches = matches.filter((m) => m.routeId !== projectIdRouteId && m.routeId.startsWith(projectIdRouteId))
+    const deepestMatch = childMatches[childMatches.length - 1]
 
-    const section = parts[0] // "compute", "network", "storage"
-    const service = parts[1] // "images", "flavors", "securitygroups", etc.
-    const isDetailPage = parts.length >= 3
-    const isServicePage = parts.length === 2
-    const isSectionPage = parts.length === 1
+    const { section, service, isDetailPage } = deepestMatch
+      ? parseSectionService(deepestMatch.routeId)
+      : { isDetailPage: false }
+
+    const isServicePage = !isDetailPage && !!service
+    const isSectionPage = !isDetailPage && !service && !!section
 
     const sectionLabel = section ? SECTION_LABELS[section] : undefined
     const serviceLabel = service ? SERVICE_LABELS[service] : undefined
 
     const items: Array<{ label: string; onClick?: () => void; active?: boolean }> = []
 
-    // Domain (no link — just a label)
     if (projectInfo.domain?.name) {
       items.push({ label: projectInfo.domain.name })
     }
 
-    // Project → navigate to projects list
     items.push({
       label: projectInfo.name,
       onClick: () => navigate({ to: "/accounts/$accountId/projects", params: { accountId } }),
     })
 
-    // Section (Compute / Network / Storage)
-    if (sectionLabel) {
-      const sectionPath = `${base}/${section}`
+    if (sectionLabel && section) {
       if (isSectionPage) {
         items.push({ label: sectionLabel, active: true })
-      } else {
+      } else if (section === "compute") {
         items.push({
           label: sectionLabel,
-          onClick: () => navigate({ to: sectionPath }),
+          onClick: () =>
+            navigate({
+              to: "/accounts/$accountId/projects/$projectId/compute/$",
+              params: { accountId, projectId, _splat: undefined },
+            }),
+        })
+      } else if (section === "network") {
+        items.push({
+          label: sectionLabel,
+          onClick: () =>
+            navigate({
+              to: "/accounts/$accountId/projects/$projectId/network/$",
+              params: { accountId, projectId, _splat: undefined },
+            }),
         })
       }
     }
 
-    // Service (Images / Flavors / etc.)
-    if (serviceLabel) {
-      const servicePath = `${base}/${section}/${service}`
+    if (serviceLabel && section && service) {
       if (isServicePage) {
         items.push({ label: serviceLabel, active: true })
       } else if (isDetailPage) {
-        items.push({
-          label: serviceLabel,
-          onClick: () => navigate({ to: servicePath }),
-        })
+        if (section === "compute") {
+          items.push({
+            label: serviceLabel,
+            onClick: () =>
+              navigate({
+                to: "/accounts/$accountId/projects/$projectId/compute/$",
+                params: { accountId, projectId, _splat: service },
+              }),
+          })
+        } else if (section === "network") {
+          items.push({
+            label: serviceLabel,
+            onClick: () =>
+              navigate({
+                to: "/accounts/$accountId/projects/$projectId/network/$",
+                params: { accountId, projectId, _splat: service },
+              }),
+          })
+        }
       }
     }
 
-    // Detail item (current page title) — only on detail pages
     if (isDetailPage) {
       items.push({ label: pageTitle, active: true })
     }

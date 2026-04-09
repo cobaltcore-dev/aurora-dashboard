@@ -20,7 +20,7 @@ import { EditImageMetadataModal } from "../-components/Images/-components/EditIm
 import { DeleteImageModal } from "../-components/Images/-components/DeleteImageModal"
 import { ActivateImageModal } from "../-components/Images/-components/ActivateImageModal"
 import { DeactivateImageModal } from "../-components/Images/-components/DeactivateImageModal"
-import { IMAGE_STATUSES, IMAGE_VISIBILITY, MEMBER_STATUSES } from "../-constants/filters"
+import { IMAGE_STATUSES, IMAGE_VISIBILITY } from "../-constants/filters"
 import { GlanceImage, MemberStatus } from "@/server/Compute/types/image"
 import { TRPCClientError } from "@trpc/client"
 import { InferrableClientTypes } from "@trpc/server/unstable-core-do-not-import"
@@ -292,84 +292,58 @@ function RouteComponent() {
   // Render success state
   return (
     <>
-      <Stack direction="vertical">
-        <ButtonRow>
-          {hasMoreActions && (
-            <PopupMenu>
-              <PopupMenuToggle>
-                <Button icon="moreVert" disabled={isLoading}>
-                  <Trans>More Actions</Trans>
-                </Button>
-              </PopupMenuToggle>
-              <PopupMenuOptions>
-                {permissions.canUpdate && (
-                  <PopupMenuItem
-                    label={isDeactivated ? t`Activate` : t`Deactivate`}
-                    onClick={() => (isDeactivated ? setActivateModalOpen(true) : setDeactivateModalOpen(true))}
-                  />
-                )}
-                {permissions.canUpdate && isPrivate && (
-                  <PopupMenuItem label={t`Set to "Shared"`} onClick={() => handleUpdateVisibility("shared")} />
-                )}
-                {permissions.canDelete && !image.protected && (
-                  <PopupMenuItem label={t`Delete`} onClick={() => setDeleteModalOpen(true)} />
-                )}
-              </PopupMenuOptions>
-            </PopupMenu>
-          )}
-          {permissions.canUpdate && (
-            <Button onClick={() => setEditMetadataModalOpen(true)} disabled={isLoading}>
-              <Trans>Edit Metadata</Trans>
-            </Button>
-          )}
-          {permissions.canUpdate && (
-            <Button onClick={() => setEditDetailsModalOpen(true)} variant="primary" disabled={isLoading}>
-              <Trans>Edit Details</Trans>
-            </Button>
-          )}
-          {isSharedWithMe && permissions.canUpdateMember && myMemberData && (
-            <>
-              {myMemberData.status === MEMBER_STATUSES.PENDING && (
-                <Button
-                  onClick={() => handleMemberStatusChange(MEMBER_STATUSES.REJECTED)}
-                  disabled={updateMemberMutation.isPending}
-                  variant="subdued"
-                >
-                  <Trans>Reject</Trans>
+      <ImageDetailsView
+        key={image.id}
+        image={image}
+        currentProjectId={projectId}
+        permissions={{
+          canCreateMember: permissions.canCreateMember,
+          canDeleteMember: permissions.canDeleteMember,
+          canUpdateMember: permissions.canUpdateMember,
+        }}
+        myMemberData={myMemberData}
+        onMemberStatusChange={handleMemberStatusChange}
+        isMemberStatusChanging={updateMemberMutation.isPending}
+        actions={
+          hasMoreActions || permissions.canUpdate ? (
+            <ButtonRow>
+              {hasMoreActions && (
+                <PopupMenu>
+                  <PopupMenuToggle as="div">
+                    <Button icon="moreVert" disabled={isLoading}>
+                      <Trans>More Actions</Trans>
+                    </Button>
+                  </PopupMenuToggle>
+                  <PopupMenuOptions>
+                    {permissions.canUpdate && (
+                      <PopupMenuItem
+                        label={isDeactivated ? t`Activate` : t`Deactivate`}
+                        onClick={() => (isDeactivated ? setActivateModalOpen(true) : setDeactivateModalOpen(true))}
+                      />
+                    )}
+                    {permissions.canUpdate && isPrivate && (
+                      <PopupMenuItem label={t`Set to "Shared"`} onClick={() => handleUpdateVisibility("shared")} />
+                    )}
+                    {permissions.canDelete && !image.protected && (
+                      <PopupMenuItem label={t`Delete`} onClick={() => setDeleteModalOpen(true)} />
+                    )}
+                  </PopupMenuOptions>
+                </PopupMenu>
+              )}
+              {permissions.canUpdate && (
+                <Button onClick={() => setEditMetadataModalOpen(true)} disabled={isLoading}>
+                  <Trans>Edit Metadata</Trans>
                 </Button>
               )}
-              {(myMemberData.status === MEMBER_STATUSES.PENDING ||
-                myMemberData.status === MEMBER_STATUSES.REJECTED) && (
-                <Button
-                  onClick={() => handleMemberStatusChange(MEMBER_STATUSES.ACCEPTED)}
-                  disabled={updateMemberMutation.isPending}
-                  variant="primary"
-                >
-                  <Trans>Accept</Trans>
+              {permissions.canUpdate && (
+                <Button onClick={() => setEditDetailsModalOpen(true)} variant="primary" disabled={isLoading}>
+                  <Trans>Edit Details</Trans>
                 </Button>
               )}
-              {myMemberData.status === MEMBER_STATUSES.ACCEPTED && (
-                <Button
-                  onClick={() => handleMemberStatusChange(MEMBER_STATUSES.REJECTED)}
-                  disabled={updateMemberMutation.isPending}
-                  variant="primary-danger"
-                >
-                  <Trans>Revoke Access</Trans>
-                </Button>
-              )}
-            </>
-          )}
-        </ButtonRow>
-        <ImageDetailsView
-          image={image}
-          currentProjectId={projectId}
-          permissions={{
-            canCreateMember: permissions.canCreateMember,
-            canDeleteMember: permissions.canDeleteMember,
-            canUpdateMember: permissions.canUpdateMember,
-          }}
-        />
-      </Stack>
+            </ButtonRow>
+          ) : undefined
+        }
+      />
 
       {toastData && <Toast {...toastData} />}
 
