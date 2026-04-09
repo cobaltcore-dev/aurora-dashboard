@@ -95,7 +95,9 @@ export async function createContext(opts: CreateFastifyContextOptions): Promise<
       return undefined
     }
 
-    const isDomainAdmin = token.hasRole("admin")
+    // Safety check: hasRole might fail if tokenData.roles is undefined
+    // This can happen with certain token types (e.g., unscoped tokens)
+    const isDomainAdmin = token.tokenData.roles ? token.hasRole("admin") : false
 
     // In OpenStack, when a user has domain-scoped admin role, the domain information
     // is available in the token's domain field. For simplicity, we'll extract
