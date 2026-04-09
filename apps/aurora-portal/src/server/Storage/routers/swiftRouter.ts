@@ -637,73 +637,84 @@ export const swiftRouter = {
    * Copies an object to a new location using PUT with X-Copy-From header
    * This is the recommended approach and equivalent to using the COPY HTTP method
    */
-  copyObject: protectedProcedure
-    .input(copyObjectInputSchema)
-    .mutation(async ({ input, ctx }): Promise<ObjectMetadata> => {
-      return withErrorHandling(async () => {
-        const {
-          account,
-          container,
-          object,
-          destination,
-          destinationAccount,
-          multipartManifest,
-          symlink,
-          freshMetadata,
-          ...options
-        } = input
-        const openstackSession = ctx.openstack
-        const swift = openstackSession?.service("swift")
+  copyObject: protectedProcedure.input(copyObjectInputSchema).mutation(async ({ input, ctx }): Promise<boolean> => {
+    return withErrorHandling(async () => {
+      const {
+        account,
+        container,
+        object,
+        destination,
+        destinationAccount,
+        multipartManifest,
+        symlink,
+        freshMetadata,
+        ...options
+      } = input
+      const openstackSession = ctx.openstack
+      const swift = openstackSession?.service("swift")
 
-        validateSwiftService(swift)
+      validateSwiftService(swift)
 
-        // Build source path for X-Copy-From header
-        const sourcePath = `/${encodeURIComponent(container)}/${encodeURIComponent(object)}`
+      // Build source path for X-Copy-From header
+      const sourcePath = `/${encodeURIComponent(container)}/${encodeURIComponent(object)}`
 
-        // Build query parameters for source URL
-        const queryParams = new URLSearchParams()
-        if (multipartManifest) {
-          queryParams.append("multipart-manifest", multipartManifest)
-        }
-        if (symlink) {
-          queryParams.append("symlink", symlink)
-        }
+      // Build query parameters for source URL
+      const queryParams = new URLSearchParams()
+      if (multipartManifest) {
+        queryParams.append("multipart-manifest", multipartManifest)
+      }
+      if (symlink) {
+        queryParams.append("symlink", symlink)
+      }
 
-        // Build destination URL
-        const accountPath = account || ""
-        const destUrl = accountPath ? `${accountPath}${destination}` : destination
+      // Build destination URL as a full URL string so the SDK's buildRequestUrl
+      // takes the `path.startsWith("http")` branch and uses `new URL(path)` directly,
+      // preserving percent-encoding. Using pathname assignment on a URL object would
+      // decode %20 back to spaces before the request is made.
+      const endpoints = swift.availableEndpoints()
+      const publicEndpoint = endpoints?.find((ep: { interface: string }) => ep.interface === "public")
+      if (!publicEndpoint?.url) {
+        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Swift public endpoint not found" })
+      }
+      const swiftBase = publicEndpoint.url.replace(/\/$/, "")
+      const accountPath = account || ""
+      // Encode each segment of the destination path individually
+      const encodedDestination = destination
+        .replace(/^\//, "")
+        .split("/")
+        .map((s) => (s ? encodeURIComponent(s) : s))
+        .join("/")
+      const destPath = accountPath ? `${accountPath}/${encodedDestination}` : encodedDestination
+      const destUrl = `${swiftBase}/${destPath}`
 
-        // Build headers - using X-Copy-From approach (equivalent to COPY method)
-        const headers: Record<string, string> = {
-          "X-Copy-From": queryParams.toString() ? `${sourcePath}?${queryParams.toString()}` : sourcePath,
-          "Content-Length": "0",
-        }
+      // Build headers - using X-Copy-From approach (equivalent to COPY method)
+      const headers: Record<string, string> = {
+        "X-Copy-From": queryParams.toString() ? `${sourcePath}?${queryParams.toString()}` : sourcePath,
+        "Content-Length": "0",
+      }
 
-        if (destinationAccount) {
-          headers["X-Copy-From-Account"] = destinationAccount
-        }
+      if (destinationAccount) {
+        headers["X-Copy-From-Account"] = destinationAccount
+      }
 
-        if (freshMetadata) {
-          headers["X-Fresh-Metadata"] = "true"
-        }
+      if (freshMetadata) {
+        headers["X-Fresh-Metadata"] = "true"
+      }
 
-        // Add metadata headers for the destination object
-        const metadataHeaders = buildObjectMetadataHeaders(options)
-        Object.assign(headers, metadataHeaders)
+      // Add metadata headers for the destination object
+      const metadataHeaders = buildObjectMetadataHeaders(options)
+      Object.assign(headers, metadataHeaders)
 
-        // Use PUT to destination with X-Copy-From header
-        const response = await swift
-          .put(destUrl, {
-            headers,
-            body: new ArrayBuffer(0), // Empty body required for PUT
-          })
-          .catch((error) => {
-            throw mapErrorResponseToTRPCError(error, { operation: "copy object", container, object })
-          })
+      // Use PUT to destination with X-Copy-From header.
+      // Body must be undefined/empty — the copy is server-side via X-Copy-From.
+      // Swift returns 201 on success with no meaningful response body.
+      await swift.put(destUrl, undefined, { headers }).catch((error) => {
+        throw mapErrorResponseToTRPCError(error, { operation: "copy object", container, object })
+      })
 
-        return parseObjectMetadata(response.headers)
-      }, "copy object")
-    }),
+      return true
+    }, "copy object")
+  }),
 
   /**
    * Deletes an object

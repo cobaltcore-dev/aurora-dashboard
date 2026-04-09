@@ -156,3 +156,43 @@ export const getObjectDeleteErrorToast = (
     />
   ),
 })
+
+export const getObjectCopiedToast = (
+  objectName: string,
+  targetContainer: string,
+  targetPath: string,
+  config: ToastConfig
+): ToastProps => ({
+  variant: "success",
+  autoDismiss: true,
+  autoDismissTimeout: config.autoDismissTimeout ?? 5000,
+  onDismiss: config.onDismiss,
+  children: (
+    <NotificationText
+      title={<Trans>Object Copied</Trans>}
+      description={
+        <Trans>
+          "{objectName}" was successfully copied to {targetContainer}
+          {targetPath}.
+        </Trans>
+      }
+    />
+  ),
+})
+
+export const getObjectCopyErrorToast = (objectName: string, errorMessage: string, config: ToastConfig): ToastProps => ({
+  variant: "error",
+  autoDismiss: true,
+  autoDismissTimeout: config.autoDismissTimeout ?? 5000,
+  onDismiss: config.onDismiss,
+  children: (
+    <NotificationText
+      title={<Trans>Failed to Copy Object</Trans>}
+      description={
+        <Trans>
+          Could not copy "{objectName}": {errorMessage}
+        </Trans>
+      }
+    />
+  ),
+})

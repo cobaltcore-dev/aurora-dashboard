@@ -18,6 +18,8 @@ import {
   getObjectDownloadErrorToast,
   getObjectDeletedToast,
   getObjectDeleteErrorToast,
+  getObjectCopiedToast,
+  getObjectCopyErrorToast,
 } from "./ObjectToastNotifications"
 
 // ── Prefix helpers ────────────────────────────────────────────────────────────
@@ -207,6 +209,14 @@ export const SwiftObjects = () => {
     setToastData(getObjectDeleteErrorToast(objectName, errorMessage, { onDismiss: handleToastDismiss }))
   }
 
+  const handleCopyObjectSuccess = (objectName: string, targetContainer: string, targetPath: string) => {
+    setToastData(getObjectCopiedToast(objectName, targetContainer, targetPath, { onDismiss: handleToastDismiss }))
+  }
+
+  const handleCopyObjectError = (objectName: string, errorMessage: string) => {
+    setToastData(getObjectCopyErrorToast(objectName, errorMessage, { onDismiss: handleToastDismiss }))
+  }
+
   const sortSettings: SortSettings = {
     options: [
       { label: t`Name`, value: "name" },
@@ -347,6 +357,8 @@ export const SwiftObjects = () => {
         onDownloadError={handleDownloadError}
         onDeleteObjectSuccess={handleDeleteObjectSuccess}
         onDeleteObjectError={handleDeleteObjectError}
+        onCopyObjectSuccess={handleCopyObjectSuccess}
+        onCopyObjectError={handleCopyObjectError}
       />
 
       <CreateFolderModal

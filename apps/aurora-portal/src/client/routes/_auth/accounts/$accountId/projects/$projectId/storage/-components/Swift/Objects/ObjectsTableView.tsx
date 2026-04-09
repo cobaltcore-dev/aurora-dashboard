@@ -17,6 +17,7 @@ import { trpcClient } from "@/client/trpcClient"
 import { BrowserRow, FolderRow, ObjectRow } from "./"
 import { DeleteFolderModal } from "./DeleteFolderModal"
 import { DeleteObjectModal, DeleteObjectVariant } from "./DeleteObjectModal"
+import { CopyObjectModal } from "./CopyObjectModal"
 
 // Define column template — 4 columns: name | last modified | size | actions
 const GRID_COLUMN_TEMPLATE = "minmax(200px, 3fr) minmax(180px, 2fr) minmax(100px, 1fr) 60px"
@@ -32,6 +33,8 @@ interface ObjectsTableViewProps {
   onDownloadError: (objectName: string, errorMessage: string) => void
   onDeleteObjectSuccess: (objectName: string) => void
   onDeleteObjectError: (objectName: string, errorMessage: string) => void
+  onCopyObjectSuccess: (objectName: string, targetContainer: string, targetPath: string) => void
+  onCopyObjectError: (objectName: string, errorMessage: string) => void
 }
 
 export const ObjectsTableView = ({
@@ -45,6 +48,8 @@ export const ObjectsTableView = ({
   onDownloadError,
   onDeleteObjectSuccess,
   onDeleteObjectError,
+  onCopyObjectSuccess,
+  onCopyObjectError,
 }: ObjectsTableViewProps) => {
   const { t } = useLingui()
   const parentRef = useRef<HTMLDivElement>(null)
@@ -54,6 +59,7 @@ export const ObjectsTableView = ({
     object: ObjectRow
     variant: DeleteObjectVariant
   } | null>(null)
+  const [copyObjectTarget, setCopyObjectTarget] = useState<ObjectRow | null>(null)
   const [downloadingRow, setDownloadingRow] = useState<ObjectRow | null>(null)
   const [downloadProgress, setDownloadProgress] = useState<{ downloaded: number; total: number } | null>(null)
 
@@ -297,9 +303,7 @@ export const ObjectsTableView = ({
                             />
                             <PopupMenuItem
                               label={t`Copy`}
-                              onClick={() => {
-                                // TODO: open CopyObjectModal
-                              }}
+                              onClick={() => setCopyObjectTarget(row as ObjectRow)}
                               data-testid={`copy-action-${row.name}`}
                             />
                             <PopupMenuItem
@@ -353,6 +357,14 @@ export const ObjectsTableView = ({
         onClose={() => setDeleteObjectTarget(null)}
         onSuccess={onDeleteObjectSuccess}
         onError={onDeleteObjectError}
+      />
+
+      <CopyObjectModal
+        isOpen={copyObjectTarget !== null}
+        object={copyObjectTarget}
+        onClose={() => setCopyObjectTarget(null)}
+        onSuccess={onCopyObjectSuccess}
+        onError={onCopyObjectError}
       />
     </>
   )
