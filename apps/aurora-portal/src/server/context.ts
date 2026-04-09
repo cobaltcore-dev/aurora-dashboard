@@ -77,7 +77,7 @@ export async function createContext(opts: CreateFastifyContextOptions): Promise<
         },
       },
       defaultSignalOpenstackOptions
-    ).catch((err) => {
+    ).catch((err: Error) => {
       // If the token is invalid, clear the cookie
       console.error("[createContext] Token validation failed:", err.message)
       sessionCookie.del()
@@ -134,31 +134,63 @@ export async function createContext(opts: CreateFastifyContextOptions): Promise<
     return openstackSession
   }
 
+  // Track pending rescope operations to prevent race conditions
+  // Key format: "project:{id}" or "domain:{id}" or "unscoped"
+  const pendingRescopes = new Map<string, Promise<Awaited<SignalOpenstackSessionType> | null>>()
+
   // Rescope the current session, change project or domain
   // This is how Openstack handles switching between projects
   // the auth token should always be scoped to a project or domain to access resources
   const rescopeSession: AuroraPortalContext["rescopeSession"] = async (scope) => {
     if (!openstackSession) return null
+
+    // Generate a unique key for this scope to detect concurrent rescope requests
+    const scopeKey = scope.projectId
+      ? `project:${scope.projectId}`
+      : scope.domainId
+        ? `domain:${scope.domainId}`
+        : "unscoped"
+
+    // If there's already a pending rescope for this exact scope, reuse it
+    // This prevents multiple Keystone API calls for the same scope
+    if (pendingRescopes.has(scopeKey)) {
+      return pendingRescopes.get(scopeKey)!
+    }
+
     const token = openstackSession.getToken()
     const currentScopeDomainId = token?.tokenData.domain?.id
     const currentScopeProjectId = token?.tokenData.project?.id
     const newScopeDomainId = scope.domainId
     const newScopeProjectId = scope.projectId
-    //check if newScope differs from currentScope
+
+    // Check if newScope differs from currentScope
     if (currentScopeDomainId === newScopeDomainId && currentScopeProjectId === newScopeProjectId) {
       return openstackSession
     }
 
-    const newScope: AuthConfig["auth"]["scope"] = newScopeProjectId
-      ? { project: { id: newScopeProjectId } }
-      : newScopeDomainId
-        ? { domain: { id: newScopeDomainId } }
-        : "unscoped"
+    // Create the rescope promise and store it to prevent race conditions
+    const rescopePromise = (async () => {
+      try {
+        const newScope: AuthConfig["auth"]["scope"] = newScopeProjectId
+          ? { project: { id: newScopeProjectId } }
+          : newScopeDomainId
+            ? { domain: { id: newScopeDomainId } }
+            : "unscoped"
 
-    await openstackSession.rescope(newScope)
-    // Update the cookie with the new token
-    sessionCookie.set(openstackSession.getToken()?.authToken)
-    return openstackSession
+        await openstackSession.rescope(newScope)
+        // Update the cookie with the new token
+        sessionCookie.set(openstackSession.getToken()?.authToken)
+        return openstackSession
+      } finally {
+        // Clean up the pending rescope entry once complete (success or failure)
+        pendingRescopes.delete(scopeKey)
+      }
+    })()
+
+    // Store the promise before awaiting to handle concurrent requests
+    pendingRescopes.set(scopeKey, rescopePromise)
+
+    return rescopePromise
   }
 
   // Terminate the current session (Logout)
