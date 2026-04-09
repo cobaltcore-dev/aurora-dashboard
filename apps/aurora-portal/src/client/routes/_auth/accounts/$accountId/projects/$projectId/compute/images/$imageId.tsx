@@ -293,41 +293,6 @@ function RouteComponent() {
   return (
     <>
       <Stack direction="vertical">
-        <ButtonRow>
-          {hasMoreActions && (
-            <PopupMenu>
-              <PopupMenuToggle as="div">
-                <Button icon="moreVert" disabled={isLoading}>
-                  <Trans>More Actions</Trans>
-                </Button>
-              </PopupMenuToggle>
-              <PopupMenuOptions>
-                {permissions.canUpdate && (
-                  <PopupMenuItem
-                    label={isDeactivated ? t`Activate` : t`Deactivate`}
-                    onClick={() => (isDeactivated ? setActivateModalOpen(true) : setDeactivateModalOpen(true))}
-                  />
-                )}
-                {permissions.canUpdate && isPrivate && (
-                  <PopupMenuItem label={t`Set to "Shared"`} onClick={() => handleUpdateVisibility("shared")} />
-                )}
-                {permissions.canDelete && !image.protected && (
-                  <PopupMenuItem label={t`Delete`} onClick={() => setDeleteModalOpen(true)} />
-                )}
-              </PopupMenuOptions>
-            </PopupMenu>
-          )}
-          {permissions.canUpdate && (
-            <Button onClick={() => setEditMetadataModalOpen(true)} disabled={isLoading}>
-              <Trans>Edit Metadata</Trans>
-            </Button>
-          )}
-          {permissions.canUpdate && (
-            <Button onClick={() => setEditDetailsModalOpen(true)} variant="primary" disabled={isLoading}>
-              <Trans>Edit Details</Trans>
-            </Button>
-          )}
-        </ButtonRow>
         <ImageDetailsView
           image={image}
           currentProjectId={projectId}
@@ -339,6 +304,45 @@ function RouteComponent() {
           myMemberData={myMemberData}
           onMemberStatusChange={handleMemberStatusChange}
           isMemberStatusChanging={updateMemberMutation.isPending}
+          actions={
+            hasMoreActions || permissions.canUpdate ? (
+              <ButtonRow>
+                {hasMoreActions && (
+                  <PopupMenu>
+                    <PopupMenuToggle as="div">
+                      <Button icon="moreVert" disabled={isLoading}>
+                        <Trans>More Actions</Trans>
+                      </Button>
+                    </PopupMenuToggle>
+                    <PopupMenuOptions>
+                      {permissions.canUpdate && (
+                        <PopupMenuItem
+                          label={isDeactivated ? t`Activate` : t`Deactivate`}
+                          onClick={() => (isDeactivated ? setActivateModalOpen(true) : setDeactivateModalOpen(true))}
+                        />
+                      )}
+                      {permissions.canUpdate && isPrivate && (
+                        <PopupMenuItem label={t`Set to "Shared"`} onClick={() => handleUpdateVisibility("shared")} />
+                      )}
+                      {permissions.canDelete && !image.protected && (
+                        <PopupMenuItem label={t`Delete`} onClick={() => setDeleteModalOpen(true)} />
+                      )}
+                    </PopupMenuOptions>
+                  </PopupMenu>
+                )}
+                {permissions.canUpdate && (
+                  <Button onClick={() => setEditMetadataModalOpen(true)} disabled={isLoading}>
+                    <Trans>Edit Metadata</Trans>
+                  </Button>
+                )}
+                {permissions.canUpdate && (
+                  <Button onClick={() => setEditDetailsModalOpen(true)} variant="primary" disabled={isLoading}>
+                    <Trans>Edit Details</Trans>
+                  </Button>
+                )}
+              </ButtonRow>
+            ) : undefined
+          }
         />
       </Stack>
 

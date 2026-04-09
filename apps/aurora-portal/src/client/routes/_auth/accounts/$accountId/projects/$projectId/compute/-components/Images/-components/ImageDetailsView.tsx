@@ -29,6 +29,7 @@ interface ImageDetailsViewProps {
   myMemberData?: ImageMember
   onMemberStatusChange?: (status: MemberStatus) => void
   isMemberStatusChanging?: boolean
+  actions?: React.ReactNode
 }
 
 const SharedImageBox: React.FC<{
@@ -288,6 +289,7 @@ export const ImageDetailsView: React.FC<ImageDetailsViewProps> = ({
   myMemberData,
   onMemberStatusChange,
   isMemberStatusChanging,
+  actions,
 }) => {
   const { t } = useLingui()
   const [activeTab, setActiveTab] = useState<DetailTab>("details")
@@ -323,6 +325,7 @@ export const ImageDetailsView: React.FC<ImageDetailsViewProps> = ({
 
       {activeTab === "details" && (
         <>
+          {actions}
           <GeneralImageData image={image} />
           <SecuritySection image={image} currentProjectId={currentProjectId} />
           <CustomPropertiesSection image={image} />
