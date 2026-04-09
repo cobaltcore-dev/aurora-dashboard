@@ -46,6 +46,7 @@ const SharedImageBox: React.FC<{
 
   const sharedAt = myMemberData.created_at ? new Date(myMemberData.created_at).toLocaleString() : t`N/A`
   const updatedAt = myMemberData.updated_at ? new Date(myMemberData.updated_at).toLocaleString() : t`N/A`
+  const ownerProject = image.owner ?? ""
 
   return (
     <Box>
@@ -56,7 +57,7 @@ const SharedImageBox: React.FC<{
       )}
       <p>
         <Trans>
-          This image was shared with you by <span className="font-semibold">{image.owner}</span> on {sharedAt}.
+          This image was shared with you by <span className="font-semibold">{ownerProject}</span> on {sharedAt}.
         </Trans>
       </p>
       <ul>

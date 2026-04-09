@@ -32,13 +32,13 @@ const SERVICE_LABELS: Record<string, string> = {
   swift: "Swift",
 }
 
-// Extract section and service from a TanStack route ID.
+// Extract section, service and detail-page flag from a TanStack route ID.
 // Route IDs look like: "/_auth/accounts/$accountId/projects/$projectId/compute/$"
 // The segment after $projectId is the section; the next static segment (if any) is the service.
-function parseSectionService(routeId: string): { section?: string; service?: string } {
+function parseSectionService(routeId: string): { section?: string; service?: string; isDetailPage: boolean } {
   const projectIdMarker = "/projects/$projectId/"
   const idx = routeId.indexOf(projectIdMarker)
-  if (idx === -1) return {}
+  if (idx === -1) return { isDetailPage: false }
 
   const rest = routeId.slice(idx + projectIdMarker.length)
   // rest examples: "compute/$", "network/$", "network/floatingips/", "network/floatingips/$floatingIpId",
@@ -49,8 +49,10 @@ function parseSectionService(routeId: string): { section?: string; service?: str
   const section = parts[0]?.startsWith("$") ? undefined : parts[0]
   // Skip dynamic segments ($...) to find the service slug
   const service = parts[1] && !parts[1].startsWith("$") ? parts[1] : undefined
+  // Detail if there's a dynamic segment beyond the service position
+  const isDetailPage = parts.length >= 3 || (parts.length >= 2 && parts[parts.length - 1].startsWith("$"))
 
-  return { section, service }
+  return { section, service, isDetailPage }
 }
 
 export function ProjectInfoBox({ projectInfo }: ProjectInfoBoxProps) {
@@ -78,20 +80,7 @@ export function ProjectInfoBox({ projectInfo }: ProjectInfoBoxProps) {
     const childMatches = matches.filter((m) => m.routeId !== projectIdRouteId && m.routeId.startsWith(projectIdRouteId))
     const deepestMatch = childMatches[childMatches.length - 1]
 
-    const { section, service } = deepestMatch ? parseSectionService(deepestMatch.routeId) : {}
-
-    // A detail page has a dynamic segment after the service (e.g. $imageId, $floatingIpId, $securityGroupId)
-    const isDetailPage = deepestMatch
-      ? (() => {
-          const projectIdMarker = "/projects/$projectId/"
-          const idx = deepestMatch.routeId.indexOf(projectIdMarker)
-          if (idx === -1) return false
-          const rest = deepestMatch.routeId.slice(idx + projectIdMarker.length)
-          const parts = rest.split("/").filter(Boolean)
-          // Detail if there's a dynamic segment beyond the service position
-          return parts.length >= 3 || (parts.length >= 2 && parts[parts.length - 1].startsWith("$"))
-        })()
-      : false
+    const { section, service, isDetailPage } = deepestMatch ? parseSectionService(deepestMatch.routeId) : { isDetailPage: false }
 
     const isServicePage = !isDetailPage && !!service
     const isSectionPage = !isDetailPage && !service && !!section
@@ -113,28 +102,50 @@ export function ProjectInfoBox({ projectInfo }: ProjectInfoBoxProps) {
     if (sectionLabel && section) {
       if (isSectionPage) {
         items.push({ label: sectionLabel, active: true })
-      } else {
+      } else if (section === "compute") {
         items.push({
           label: sectionLabel,
-          onClick: () => {
-            const base = `/accounts/${accountId}/projects/${projectId}`
-            navigate({ to: `${base}/${section}` as never })
-          },
+          onClick: () =>
+            navigate({
+              to: "/accounts/$accountId/projects/$projectId/compute/$",
+              params: { accountId, projectId, _splat: undefined },
+            }),
+        })
+      } else if (section === "network") {
+        items.push({
+          label: sectionLabel,
+          onClick: () =>
+            navigate({
+              to: "/accounts/$accountId/projects/$projectId/network/$",
+              params: { accountId, projectId, _splat: undefined },
+            }),
         })
       }
     }
 
-    if (serviceLabel) {
+    if (serviceLabel && section && service) {
       if (isServicePage) {
         items.push({ label: serviceLabel, active: true })
       } else if (isDetailPage) {
-        items.push({
-          label: serviceLabel,
-          onClick: () => {
-            const base = `/accounts/${accountId}/projects/${projectId}`
-            navigate({ to: `${base}/${section}/${service}` as never })
-          },
-        })
+        if (section === "compute") {
+          items.push({
+            label: serviceLabel,
+            onClick: () =>
+              navigate({
+                to: "/accounts/$accountId/projects/$projectId/compute/$",
+                params: { accountId, projectId, _splat: service },
+              }),
+          })
+        } else if (section === "network") {
+          items.push({
+            label: serviceLabel,
+            onClick: () =>
+              navigate({
+                to: "/accounts/$accountId/projects/$projectId/network/$",
+                params: { accountId, projectId, _splat: service },
+              }),
+          })
+        }
       }
     }
 

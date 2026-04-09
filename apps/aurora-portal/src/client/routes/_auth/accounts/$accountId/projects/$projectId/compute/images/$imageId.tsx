@@ -292,8 +292,7 @@ function RouteComponent() {
   // Render success state
   return (
     <>
-      <Stack direction="vertical">
-        <ImageDetailsView
+      <ImageDetailsView
           image={image}
           currentProjectId={projectId}
           permissions={{
@@ -344,7 +343,6 @@ function RouteComponent() {
             ) : undefined
           }
         />
-      </Stack>
 
       {toastData && <Toast {...toastData} />}
 
