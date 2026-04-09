@@ -20,7 +20,8 @@
     "generate:package": "turbo gen workspace --type package --copy @cobalcore-dev/aurora-package-template --name",
     "prepare": "husky",
     "release": "semantic-release",
-    "release:dry": "semantic-release --dry-run"
+    "release:dry": "semantic-release --dry-run",
+    "audit": "pnpm audit --prod"
   },
   "devDependencies": {
     "@commitlint/cli": "^20.3.1",
