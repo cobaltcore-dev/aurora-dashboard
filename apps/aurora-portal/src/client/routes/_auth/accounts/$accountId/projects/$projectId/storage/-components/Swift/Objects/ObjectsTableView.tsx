@@ -20,6 +20,52 @@ import { DeleteObjectModal, DeleteObjectVariant } from "./DeleteObjectModal"
 import { CopyObjectModal } from "./CopyObjectModal"
 import { MoveRenameObjectModal } from "./MoveRenameObjectModal"
 
+// MIME types natively previewable by all modern browsers.
+// Excludes types that require plugins or have inconsistent support.
+const BROWSER_PREVIEWABLE_TYPES = new Set([
+  // Images
+  "image/png",
+  "image/jpeg",
+  "image/gif",
+  "image/webp",
+  "image/svg+xml",
+  "image/avif",
+  "image/bmp",
+  "image/x-icon",
+  "image/vnd.microsoft.icon",
+  // Video
+  "video/mp4",
+  "video/webm",
+  "video/ogg",
+  // Audio
+  "audio/mpeg",
+  "audio/mp3",
+  "audio/ogg",
+  "audio/wav",
+  "audio/webm",
+  "audio/flac",
+  // Documents
+  "application/pdf",
+  // Text
+  "text/plain",
+  "text/html",
+  "text/css",
+  "text/javascript",
+  "text/xml",
+  "application/json",
+  "application/xml",
+])
+
+const isBrowserPreviewable = (contentType: string | undefined): boolean => {
+  if (!contentType) return false
+  // Strip parameters like charset (e.g. "text/plain; charset=utf-8" → "text/plain")
+  const base = contentType.split(";")[0].trim().toLowerCase()
+  if (BROWSER_PREVIEWABLE_TYPES.has(base)) return true
+  // Catch all text/* subtypes (e.g. text/csv, text/markdown, text/x-python)
+  if (base.startsWith("text/")) return true
+  return false
+}
+
 // Define column template — 4 columns: name | last modified | size | actions
 const GRID_COLUMN_TEMPLATE = "minmax(200px, 3fr) minmax(180px, 2fr) minmax(100px, 1fr) 60px"
 
@@ -68,6 +114,7 @@ export const ObjectsTableView = ({
   const [moveRenameObjectTarget, setMoveRenameObjectTarget] = useState<ObjectRow | null>(null)
   const [downloadingRow, setDownloadingRow] = useState<ObjectRow | null>(null)
   const [downloadProgress, setDownloadProgress] = useState<{ downloaded: number; total: number } | null>(null)
+  const [previewingRow, setPreviewingRow] = useState<ObjectRow | null>(null)
 
   const handleDownload = async (row: ObjectRow) => {
     setDownloadingRow(row)
@@ -110,6 +157,65 @@ export const ObjectsTableView = ({
     } catch (err) {
       onDownloadError(row.displayName, err instanceof Error ? err.message : String(err))
     } finally {
+      setDownloadingRow(null)
+      setDownloadProgress(null)
+    }
+  }
+
+  const handlePreviewOrDownload = async (row: ObjectRow) => {
+    const previewing = isBrowserPreviewable(row.content_type)
+    if (previewing) {
+      setPreviewingRow(row)
+    } else {
+      setDownloadingRow(row)
+    }
+    try {
+      const chunks: Uint8Array[] = []
+      let contentType = row.content_type ?? "application/octet-stream"
+      let filename = row.displayName
+
+      const iterable = await trpcClient.storage.swift.downloadObject.mutate({
+        container,
+        object: row.name,
+        filename: row.displayName,
+        ...(account ? { account } : {}),
+      })
+
+      for await (const { chunk, contentType: ct, filename: fn, downloaded, total } of iterable) {
+        if (ct) contentType = ct
+        if (fn) filename = fn
+        chunks.push(Uint8Array.from(atob(chunk), (c) => c.charCodeAt(0)))
+        if (!previewing) setDownloadProgress({ downloaded, total })
+      }
+
+      const totalLength = chunks.reduce((sum, c) => sum + c.length, 0)
+      const merged = new Uint8Array(totalLength)
+      let offset = 0
+      for (const c of chunks) {
+        merged.set(c, offset)
+        offset += c.length
+      }
+
+      const blob = new Blob([merged], { type: contentType })
+      const url = URL.createObjectURL(blob)
+
+      if (previewing) {
+        window.open(url, "_blank", "noopener,noreferrer")
+        // Revoke after a short delay to give the new tab time to load the blob
+        setTimeout(() => URL.revokeObjectURL(url), 10000)
+      } else {
+        const anchor = document.createElement("a")
+        anchor.href = url
+        anchor.download = filename
+        document.body.appendChild(anchor)
+        anchor.click()
+        document.body.removeChild(anchor)
+        URL.revokeObjectURL(url)
+      }
+    } catch (err) {
+      onDownloadError(row.displayName, err instanceof Error ? err.message : String(err))
+    } finally {
+      setPreviewingRow(null)
       setDownloadingRow(null)
       setDownloadProgress(null)
     }
@@ -161,7 +267,7 @@ export const ObjectsTableView = ({
   }
 
   const allCount = rows.length
-  const isAnyDownloading = downloadingRow !== null
+  const isAnyDownloading = downloadingRow !== null || previewingRow !== null
 
   return (
     <>
@@ -193,7 +299,7 @@ export const ObjectsTableView = ({
         <div
           ref={parentRef}
           className="overflow-auto"
-          style={{ height: "calc(100vh - 485px)" }}
+          style={{ height: "calc(100vh - 550px)" }}
           data-testid="objects-table-body"
         >
           <div
@@ -240,10 +346,25 @@ export const ObjectsTableView = ({
                         <span className="truncate">{row.displayName}</span>
                       </button>
                     ) : (
-                      <span className="flex min-w-0 items-center gap-2" title={row.displayName}>
-                        <MdDescription size={18} className="text-theme-light shrink-0" />
+                      <button
+                        type="button"
+                        className="focus-visible:outline-theme-focus flex min-w-0 items-center gap-2 rounded text-left hover:underline focus-visible:outline focus-visible:outline-2 disabled:cursor-wait disabled:opacity-60"
+                        onClick={() => handlePreviewOrDownload(row as ObjectRow)}
+                        disabled={isAnyDownloading}
+                        data-testid={`preview-${row.name}`}
+                        title={
+                          isBrowserPreviewable((row as ObjectRow).content_type)
+                            ? t`Preview ${row.displayName}`
+                            : t`Download ${row.displayName}`
+                        }
+                      >
+                        {previewingRow?.name === row.name ? (
+                          <Spinner size="small" className="shrink-0" />
+                        ) : (
+                          <MdDescription size={18} className="text-theme-light shrink-0" />
+                        )}
                         <span className="truncate">{row.displayName}</span>
-                      </span>
+                      </button>
                     )}
                   </DataGridCell>
 

@@ -187,6 +187,11 @@ describe("ObjectsTableView", () => {
     vi.clearAllMocks()
     mockDownloadIterable = null
     mockDownloadReject = false
+    // jsdom doesn't implement URL.createObjectURL — stub it so preview tests
+    // can assert on window.open being called with a blob URL string.
+    URL.createObjectURL = vi.fn(() => "blob:mock-url")
+    URL.revokeObjectURL = vi.fn()
+    vi.spyOn(window, "open").mockImplementation(() => null)
     // Restore default implementation after any vi.mocked() override in previous tests
     const { trpcClient } = await import("@/client/trpcClient")
     vi.mocked(trpcClient.storage.swift.downloadObject.mutate).mockImplementation(async () => {
@@ -299,9 +304,9 @@ describe("ObjectsTableView", () => {
       expect(onFolderClick).toHaveBeenCalledWith("documents/")
     })
 
-    test("object rows do not render as buttons", () => {
+    test("object rows render as clickable buttons for preview/download", () => {
       renderView({ rows: [makeObject("readme.txt")] })
-      expect(screen.queryByTestId("folder-readme.txt")).not.toBeInTheDocument()
+      expect(screen.getByTestId("preview-readme.txt")).toBeInTheDocument()
     })
   })
 
@@ -340,6 +345,122 @@ describe("ObjectsTableView", () => {
     test("footer total matches rows length", () => {
       renderView({ rows: [makeObject("a.txt"), makeObject("b.txt")] })
       expect(screen.getByText(/2 items/i)).toBeInTheDocument()
+    })
+  })
+
+  describe("File preview", () => {
+    test("clicking a previewable file name opens a new tab", async () => {
+      const user = userEvent.setup()
+      // text/plain is previewable
+      renderView({ rows: [makeObject("readme.txt", { content_type: "text/plain" })] })
+      await user.click(screen.getByTestId("preview-readme.txt"))
+      await vi.waitFor(() => {
+        expect(window.open).toHaveBeenCalledWith("blob:mock-url", "_blank", "noopener,noreferrer")
+      })
+    })
+
+    test("clicking a non-previewable file name triggers download instead", async () => {
+      const user = userEvent.setup()
+      // application/zip is not previewable — should trigger anchor download, not window.open
+      renderView({ rows: [makeObject("archive.zip", { content_type: "application/zip" })] })
+      await user.click(screen.getByTestId("preview-archive.zip"))
+      await vi.waitFor(() => {
+        expect(window.open).not.toHaveBeenCalled()
+      })
+    })
+
+    test("shows spinner on file name while preview is loading", async () => {
+      let unblock!: () => void
+      const blocker = new Promise<void>((resolve) => {
+        unblock = resolve
+      })
+
+      const { trpcClient } = await import("@/client/trpcClient")
+      vi.mocked(trpcClient.storage.swift.downloadObject.mutate).mockImplementation(async () => {
+        await blocker
+        return (async function* () {})()
+      })
+
+      const user = userEvent.setup()
+      renderView({ rows: [makeObject("readme.txt", { content_type: "text/plain" })] })
+      await user.click(screen.getByTestId("preview-readme.txt"))
+
+      // Spinner replaces the file icon while loading
+      expect(screen.getByTestId("preview-readme.txt").querySelector("svg, [class*=spinner]")).toBeTruthy()
+
+      unblock()
+    })
+
+    test("file name button is disabled while any download is in progress", async () => {
+      let unblock!: () => void
+      const blocker = new Promise<void>((resolve) => {
+        unblock = resolve
+      })
+
+      const { trpcClient } = await import("@/client/trpcClient")
+      vi.mocked(trpcClient.storage.swift.downloadObject.mutate).mockImplementation(async () => {
+        await blocker
+        return (async function* () {})()
+      })
+
+      const user = userEvent.setup()
+      // Use a non-previewable file to trigger download path
+      renderView({
+        rows: [
+          makeObject("archive.zip", { content_type: "application/zip" }),
+          makeObject("readme.txt", { content_type: "text/plain" }),
+        ],
+      })
+
+      // Start download on first file via popup menu
+      const [firstMore] = screen.getAllByRole("button", { name: /More/i })
+      await user.click(firstMore)
+      await user.click(screen.getByTestId("download-action-archive.zip"))
+
+      // Both file name buttons should be disabled
+      const previewButtons = screen.getAllByTestId(/^preview-/)
+      previewButtons.forEach((btn) => expect(btn).toBeDisabled())
+
+      unblock()
+    })
+
+    test("calls onDownloadError when preview fetch throws", async () => {
+      mockDownloadReject = true
+      const onDownloadError = vi.fn()
+      const user = userEvent.setup()
+      renderView({ rows: [makeObject("readme.txt", { content_type: "text/plain" })], onDownloadError })
+      await user.click(screen.getByTestId("preview-readme.txt"))
+      await vi.waitFor(() => {
+        expect(onDownloadError).toHaveBeenCalledWith("readme.txt", "Network error")
+      })
+    })
+
+    test("previewable file name button has Preview title", () => {
+      renderView({ rows: [makeObject("readme.txt", { content_type: "text/plain" })] })
+      expect(screen.getByTestId("preview-readme.txt")).toHaveAttribute("title", expect.stringContaining("Preview"))
+    })
+
+    test("non-previewable file name button has Download title", () => {
+      renderView({ rows: [makeObject("archive.zip", { content_type: "application/zip" })] })
+      expect(screen.getByTestId("preview-archive.zip")).toHaveAttribute("title", expect.stringContaining("Download"))
+    })
+
+    test("image/png is treated as previewable", async () => {
+      const user = userEvent.setup()
+      renderView({ rows: [makeObject("photo.png", { content_type: "image/png" })] })
+      await user.click(screen.getByTestId("preview-photo.png"))
+      await vi.waitFor(() => {
+        expect(window.open).toHaveBeenCalled()
+      })
+    })
+
+    test("application/pdf is treated as previewable", async () => {
+      const user = userEvent.setup()
+      renderView({ rows: [makeObject("doc.pdf", { content_type: "application/pdf" })] })
+      await user.click(screen.getByTestId("preview-doc.pdf"))
+      await vi.waitFor(() => {
+        expect(window.open).toHaveBeenCalled()
+      })
     })
   })
 
