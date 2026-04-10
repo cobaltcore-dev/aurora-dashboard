@@ -196,3 +196,43 @@ export const getObjectCopyErrorToast = (objectName: string, errorMessage: string
     />
   ),
 })
+
+export const getObjectMovedToast = (
+  objectName: string,
+  targetContainer: string,
+  targetPath: string,
+  config: ToastConfig
+): ToastProps => ({
+  variant: "success",
+  autoDismiss: true,
+  autoDismissTimeout: config.autoDismissTimeout ?? 5000,
+  onDismiss: config.onDismiss,
+  children: (
+    <NotificationText
+      title={<Trans>Object Moved</Trans>}
+      description={
+        <Trans>
+          "{objectName}" was successfully moved to {targetContainer}
+          {targetPath}.
+        </Trans>
+      }
+    />
+  ),
+})
+
+export const getObjectMoveErrorToast = (objectName: string, errorMessage: string, config: ToastConfig): ToastProps => ({
+  variant: "error",
+  autoDismiss: true,
+  autoDismissTimeout: config.autoDismissTimeout ?? 5000,
+  onDismiss: config.onDismiss,
+  children: (
+    <NotificationText
+      title={<Trans>Failed to Move Object</Trans>}
+      description={
+        <Trans>
+          Could not move "{objectName}": {errorMessage}
+        </Trans>
+      }
+    />
+  ),
+})

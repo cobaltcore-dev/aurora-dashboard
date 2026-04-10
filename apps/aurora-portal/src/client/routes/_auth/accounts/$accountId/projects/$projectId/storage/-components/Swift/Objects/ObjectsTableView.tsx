@@ -18,6 +18,7 @@ import { BrowserRow, FolderRow, ObjectRow } from "./"
 import { DeleteFolderModal } from "./DeleteFolderModal"
 import { DeleteObjectModal, DeleteObjectVariant } from "./DeleteObjectModal"
 import { CopyObjectModal } from "./CopyObjectModal"
+import { MoveRenameObjectModal } from "./MoveRenameObjectModal"
 
 // Define column template — 4 columns: name | last modified | size | actions
 const GRID_COLUMN_TEMPLATE = "minmax(200px, 3fr) minmax(180px, 2fr) minmax(100px, 1fr) 60px"
@@ -35,6 +36,8 @@ interface ObjectsTableViewProps {
   onDeleteObjectError: (objectName: string, errorMessage: string) => void
   onCopyObjectSuccess: (objectName: string, targetContainer: string, targetPath: string) => void
   onCopyObjectError: (objectName: string, errorMessage: string) => void
+  onMoveObjectSuccess: (objectName: string, targetContainer: string, targetPath: string) => void
+  onMoveObjectError: (objectName: string, errorMessage: string) => void
 }
 
 export const ObjectsTableView = ({
@@ -50,6 +53,8 @@ export const ObjectsTableView = ({
   onDeleteObjectError,
   onCopyObjectSuccess,
   onCopyObjectError,
+  onMoveObjectSuccess,
+  onMoveObjectError,
 }: ObjectsTableViewProps) => {
   const { t } = useLingui()
   const parentRef = useRef<HTMLDivElement>(null)
@@ -60,6 +65,7 @@ export const ObjectsTableView = ({
     variant: DeleteObjectVariant
   } | null>(null)
   const [copyObjectTarget, setCopyObjectTarget] = useState<ObjectRow | null>(null)
+  const [moveRenameObjectTarget, setMoveRenameObjectTarget] = useState<ObjectRow | null>(null)
   const [downloadingRow, setDownloadingRow] = useState<ObjectRow | null>(null)
   const [downloadProgress, setDownloadProgress] = useState<{ downloaded: number; total: number } | null>(null)
 
@@ -308,9 +314,7 @@ export const ObjectsTableView = ({
                             />
                             <PopupMenuItem
                               label={t`Move/Rename`}
-                              onClick={() => {
-                                // TODO: open MoveRenameObjectModal
-                              }}
+                              onClick={() => setMoveRenameObjectTarget(row as ObjectRow)}
                               data-testid={`move-rename-action-${row.name}`}
                             />
                             <PopupMenuItem
@@ -365,6 +369,14 @@ export const ObjectsTableView = ({
         onClose={() => setCopyObjectTarget(null)}
         onSuccess={onCopyObjectSuccess}
         onError={onCopyObjectError}
+      />
+
+      <MoveRenameObjectModal
+        isOpen={moveRenameObjectTarget !== null}
+        object={moveRenameObjectTarget}
+        onClose={() => setMoveRenameObjectTarget(null)}
+        onSuccess={onMoveObjectSuccess}
+        onError={onMoveObjectError}
       />
     </>
   )
