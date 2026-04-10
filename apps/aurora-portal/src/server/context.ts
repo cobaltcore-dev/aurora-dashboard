@@ -29,6 +29,12 @@ const defaultSignalOpenstackOptions = {
   },
 }
 
+// Global registry of pending rescope operations per session
+// This is shared across all requests and prevents race conditions between concurrent requests
+// Key: authToken (session identifier)
+// Value: Map of pending rescope promises keyed by scope (e.g., "project:{id}")
+const sessionRescopes = new Map<string, Map<string, Promise<Awaited<SignalOpenstackSessionType> | null>>>()
+
 export interface FilePartData {
   filename: string
   mimetype: string
@@ -172,15 +178,22 @@ export async function createContext(opts: CreateFastifyContextOptions): Promise<
     return openstackSession
   }
 
-  // Track pending rescope operations to prevent race conditions
-  // Key format: "project:{id}" or "domain:{id}" or "unscoped"
-  const pendingRescopes = new Map<string, Promise<Awaited<SignalOpenstackSessionType> | null>>()
-
   // Rescope the current session, change project or domain
   // This is how Openstack handles switching between projects
   // the auth token should always be scoped to a project or domain to access resources
   const rescopeSession: AuroraPortalContext["rescopeSession"] = async (scope) => {
     if (!openstackSession) return null
+
+    const token = openstackSession.getToken()
+    const sessionToken = token?.authToken
+    if (!sessionToken) return null
+
+    // Get or create the session-scoped pending rescopes map
+    // This ensures that concurrent requests from the same session coordinate their rescopes
+    if (!sessionRescopes.has(sessionToken)) {
+      sessionRescopes.set(sessionToken, new Map())
+    }
+    const pendingRescopes = sessionRescopes.get(sessionToken)!
 
     // Generate a unique key for this scope to detect concurrent rescope requests
     const scopeKey = scope.projectId
@@ -190,12 +203,11 @@ export async function createContext(opts: CreateFastifyContextOptions): Promise<
         : "unscoped"
 
     // If there's already a pending rescope for this exact scope, reuse it
-    // This prevents multiple Keystone API calls for the same scope
+    // This prevents multiple Keystone API calls for the same scope across concurrent requests
     if (pendingRescopes.has(scopeKey)) {
       return pendingRescopes.get(scopeKey)!
     }
 
-    const token = openstackSession.getToken()
     const currentScopeDomainId = token?.tokenData.domain?.id
     const currentScopeProjectId = token?.tokenData.project?.id
     const newScopeDomainId = scope.domainId
@@ -216,15 +228,41 @@ export async function createContext(opts: CreateFastifyContextOptions): Promise<
             : "unscoped"
 
         await openstackSession.rescope(newScope)
+
+        // Get the new token after rescoping
+        const newToken = openstackSession.getToken()
+        const newAuthToken = newToken?.authToken
+
         // Update the cookie with the new token
-        sessionCookie.set(openstackSession.getToken()?.authToken)
+        sessionCookie.set(newAuthToken)
+
+        // If the auth token changed, we need to move the pending rescopes to the new token
+        if (newAuthToken && newAuthToken !== sessionToken) {
+          const oldPendingRescopes = sessionRescopes.get(sessionToken)
+          if (oldPendingRescopes) {
+            sessionRescopes.set(newAuthToken, oldPendingRescopes)
+            sessionRescopes.delete(sessionToken)
+          }
+        }
+
         // Invalidate user info cache since role assignments may differ with new scope
         cachedUserId = undefined
         cachedUserInfo = undefined
+
         return openstackSession
       } finally {
         // Clean up the pending rescope entry once complete (success or failure)
         pendingRescopes.delete(scopeKey)
+
+        // Clean up empty session maps to prevent memory leaks
+        if (pendingRescopes.size === 0) {
+          sessionRescopes.delete(sessionToken)
+          // Also check if we moved to a new token
+          const currentToken = openstackSession?.getToken()?.authToken
+          if (currentToken && currentToken !== sessionToken && sessionRescopes.get(currentToken)?.size === 0) {
+            sessionRescopes.delete(currentToken)
+          }
+        }
       }
     })()
 
@@ -237,9 +275,14 @@ export async function createContext(opts: CreateFastifyContextOptions): Promise<
   // Terminate the current session (Logout)
   const terminateSession = async () => {
     if (openstackSession) {
+      const token = openstackSession.getToken()?.authToken
       await openstackSession.terminate().finally(() => {
         openstackSession = undefined
         sessionCookie.del()
+        // Clean up the session's pending rescopes on logout
+        if (token) {
+          sessionRescopes.delete(token)
+        }
       })
     }
   }
