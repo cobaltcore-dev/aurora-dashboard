@@ -297,6 +297,19 @@ export const MoveRenameObjectModal = ({ isOpen, object, onClose, onSuccess, onEr
   // ── Read-only target path preview ──────────────────────────────────────────
   const targetPathDisplay = `/${targetContainer}/${currentPrefix}${newObjectName.trim() || object.displayName}`
 
+  // The initial prefix is the folder the source object lives in —
+  // strip the displayName from the end of the full object name to get it.
+  const initialPrefix = object.name.endsWith(object.displayName)
+    ? object.name.slice(0, object.name.length - object.displayName.length)
+    : ""
+
+  // Disable submit when the destination is identical to the source —
+  // same container, same folder prefix, and same object name means nothing would change.
+  const isUnchanged =
+    targetContainer === sourceContainer &&
+    currentPrefix === initialPrefix &&
+    newObjectName.trim() === object.displayName
+
   return (
     <Modal
       title={
@@ -315,7 +328,7 @@ export const MoveRenameObjectModal = ({ isOpen, object, onClose, onSuccess, onEr
       onConfirm={handleMove}
       cancelButtonLabel={t`Cancel`}
       size="large"
-      disableConfirmButton={isPending || isLoadingContainers}
+      disableConfirmButton={isPending || isLoadingContainers || isUnchanged}
     >
       {isPending ? (
         <Stack direction="horizontal" alignment="center" gap="2" className="py-8">

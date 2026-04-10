@@ -259,6 +259,64 @@ describe("MoveRenameObjectModal", () => {
     })
   })
 
+  // ── Unchanged destination guard ───────────────────────────────────────────
+
+  describe("Unchanged destination guard", () => {
+    test("Move button is disabled when destination is unchanged (same container, same prefix, same name)", () => {
+      renderModal({ object: makeObject("report.pdf", "report.pdf") })
+      expect(screen.getByRole("button", { name: /^Move$/i })).toBeDisabled()
+    })
+
+    test("Move button is enabled after renaming the object", async () => {
+      const user = userEvent.setup()
+      renderModal({ object: makeObject("report.pdf", "report.pdf") })
+      const nameInput = screen.getByDisplayValue("report.pdf")
+      await user.clear(nameInput)
+      await user.type(nameInput, "renamed.pdf")
+      expect(screen.getByRole("button", { name: /^Move$/i })).not.toBeDisabled()
+    })
+
+    test("Move button is enabled after navigating into a folder", async () => {
+      const user = userEvent.setup()
+      renderModal({ object: makeObject("report.pdf", "report.pdf") })
+      await user.click(screen.getByText("docs"))
+      expect(screen.getByRole("button", { name: /^Move$/i })).not.toBeDisabled()
+    })
+
+    test("Move button is disabled again after navigating back to initial prefix with same name", async () => {
+      const user = userEvent.setup()
+      renderModal({ object: makeObject("report.pdf", "report.pdf") })
+      await user.click(screen.getByText("docs"))
+      expect(screen.getByRole("button", { name: /^Move$/i })).not.toBeDisabled()
+      await user.click(screen.getByRole("button", { name: /Back/i }))
+      expect(screen.getByRole("button", { name: /^Move$/i })).toBeDisabled()
+    })
+
+    test("Move button is enabled when object lives in a subfolder and browser is at root", () => {
+      // initialPrefix = "docs/" but currentPrefix = "" → different → enabled
+      renderModal({ object: makeObject("docs/report.pdf", "report.pdf") })
+      expect(screen.getByRole("button", { name: /^Move$/i })).not.toBeDisabled()
+    })
+
+    test("Move button is disabled when navigated to the object's own folder with the same name", async () => {
+      const user = userEvent.setup()
+      renderModal({ object: makeObject("docs/report.pdf", "report.pdf") })
+      // Navigate into docs/ to match the initialPrefix
+      await user.click(screen.getByText("docs"))
+      expect(screen.getByRole("button", { name: /^Move$/i })).toBeDisabled()
+    })
+
+    test("Move button is enabled when in the object's own folder but with a different name", async () => {
+      const user = userEvent.setup()
+      renderModal({ object: makeObject("docs/report.pdf", "report.pdf") })
+      await user.click(screen.getByText("docs"))
+      const nameInput = screen.getByDisplayValue("report.pdf")
+      await user.clear(nameInput)
+      await user.type(nameInput, "renamed.pdf")
+      expect(screen.getByRole("button", { name: /^Move$/i })).not.toBeDisabled()
+    })
+  })
+
   // ── Object name field ─────────────────────────────────────────────────────
 
   describe("Object name field", () => {
@@ -401,12 +459,14 @@ describe("MoveRenameObjectModal", () => {
     test("calls copyObject mutation with correct params on confirm", async () => {
       const user = userEvent.setup()
       renderModal({ object: makeObject("report.pdf", "report.pdf") })
+      // Navigate into a folder to enable the button (destination must differ from source)
+      await user.click(screen.getByText("docs"))
       await user.click(screen.getByRole("button", { name: /^Move$/i }))
       expect(trpcState.copyMutate).toHaveBeenCalledWith(
         expect.objectContaining({
           container: "source-container",
           object: "report.pdf",
-          destination: "/source-container/report.pdf",
+          destination: "/source-container/docs/report.pdf",
           freshMetadata: false,
         })
       )
@@ -429,6 +489,7 @@ describe("MoveRenameObjectModal", () => {
     test("calls deleteObject after copy succeeds", async () => {
       const user = userEvent.setup()
       renderModal({ object: makeObject("report.pdf", "report.pdf") })
+      await user.click(screen.getByText("docs"))
       await user.click(screen.getByRole("button", { name: /^Move$/i }))
       // Simulate copy succeeding
       act(() => {
@@ -446,6 +507,7 @@ describe("MoveRenameObjectModal", () => {
       const user = userEvent.setup()
       const onSuccess = vi.fn()
       renderModal({ object: makeObject("report.pdf", "report.pdf"), onSuccess })
+      await user.click(screen.getByText("docs"))
       await user.click(screen.getByRole("button", { name: /^Move$/i }))
       act(() => {
         capturedCopyOpts.onSuccess?.()
@@ -453,7 +515,7 @@ describe("MoveRenameObjectModal", () => {
       act(() => {
         capturedDeleteOpts.onSuccess?.()
       })
-      expect(onSuccess).toHaveBeenCalledWith("report.pdf", "source-container", "")
+      expect(onSuccess).toHaveBeenCalledWith("report.pdf", "source-container", "docs/")
     })
 
     test("calls onSuccess with renamed name when object is renamed", async () => {
@@ -476,6 +538,7 @@ describe("MoveRenameObjectModal", () => {
     test("invalidates listObjects cache after delete succeeds", async () => {
       const user = userEvent.setup()
       renderModal()
+      await user.click(screen.getByText("docs"))
       await user.click(screen.getByRole("button", { name: /^Move$/i }))
       act(() => {
         capturedCopyOpts.onSuccess?.()
@@ -490,6 +553,7 @@ describe("MoveRenameObjectModal", () => {
       const user = userEvent.setup()
       const onError = vi.fn()
       renderModal({ object: makeObject("report.pdf", "report.pdf"), onError })
+      await user.click(screen.getByText("docs"))
       await user.click(screen.getByRole("button", { name: /^Move$/i }))
       act(() => {
         capturedCopyOpts.onError?.({ message: "Forbidden" })
@@ -502,6 +566,7 @@ describe("MoveRenameObjectModal", () => {
       const user = userEvent.setup()
       const onError = vi.fn()
       renderModal({ object: makeObject("report.pdf", "report.pdf"), onError })
+      await user.click(screen.getByText("docs"))
       await user.click(screen.getByRole("button", { name: /^Move$/i }))
       act(() => {
         capturedCopyOpts.onSuccess?.()
@@ -516,6 +581,7 @@ describe("MoveRenameObjectModal", () => {
       const user = userEvent.setup()
       const onClose = vi.fn()
       renderModal({ onClose })
+      await user.click(screen.getByText("docs"))
       await user.click(screen.getByRole("button", { name: /^Move$/i }))
       act(() => {
         capturedCopyOpts.onSuccess?.()
@@ -540,7 +606,9 @@ describe("MoveRenameObjectModal", () => {
 
     test("does not call copyMutate when object name is invalid", async () => {
       const user = userEvent.setup()
-      renderModal({ object: makeObject("report.pdf", "report.pdf") })
+      // Use a subfolder object so the button starts enabled (initialPrefix = "docs/",
+      // currentPrefix = "" → not unchanged), then clear the name to make it invalid.
+      renderModal({ object: makeObject("docs/report.pdf", "report.pdf") })
       const nameInput = screen.getByDisplayValue("report.pdf")
       await user.clear(nameInput)
       await user.click(screen.getByRole("button", { name: /^Move$/i }))

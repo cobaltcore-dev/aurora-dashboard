@@ -254,6 +254,16 @@ export const CopyObjectModal = ({ isOpen, object, onClose, onSuccess, onError }:
   // ── Read-only target path field value ─────────────────────────────────────
   const targetPathDisplay = `/${targetContainer}/${currentPrefix}${displayName}`
 
+  // The initial prefix is the folder the source object lives in —
+  // strip the displayName from the end of the full object name to get it.
+  const initialPrefix = object.name.endsWith(object.displayName)
+    ? object.name.slice(0, object.name.length - object.displayName.length)
+    : ""
+
+  // Disable submit when the destination is identical to the source location —
+  // copying an object on top of itself is a no-op and would overwrite metadata.
+  const isUnchanged = targetContainer === sourceContainer && currentPrefix === initialPrefix
+
   return (
     <Modal
       title={
@@ -272,7 +282,7 @@ export const CopyObjectModal = ({ isOpen, object, onClose, onSuccess, onError }:
       onConfirm={handleCopy}
       cancelButtonLabel={t`Cancel`}
       size="large"
-      disableConfirmButton={isPending || isLoadingContainers}
+      disableConfirmButton={isPending || isLoadingContainers || isUnchanged}
     >
       {isPending ? (
         <Stack direction="horizontal" alignment="center" gap="2" className="py-8">

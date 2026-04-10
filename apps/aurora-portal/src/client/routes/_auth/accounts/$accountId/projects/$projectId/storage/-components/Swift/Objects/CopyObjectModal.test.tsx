@@ -218,6 +218,48 @@ describe("CopyObjectModal", () => {
     })
   })
 
+  // ── Unchanged destination guard ───────────────────────────────────────────────
+
+  describe("Unchanged destination guard", () => {
+    test("Copy button is disabled when destination is unchanged (same container, same prefix)", () => {
+      // Default: root-level object, target = source container, prefix = ""
+      renderModal({ object: makeObject("report.pdf", "report.pdf") })
+      expect(screen.getByRole("button", { name: /^Copy$/i })).toBeDisabled()
+    })
+
+    test("Copy button is enabled after navigating into a folder", async () => {
+      const user = userEvent.setup()
+      renderModal({ object: makeObject("report.pdf", "report.pdf") })
+      await user.click(screen.getByText("docs"))
+      expect(screen.getByRole("button", { name: /^Copy$/i })).not.toBeDisabled()
+    })
+
+    test("Copy button is disabled again after navigating back to the initial prefix", async () => {
+      const user = userEvent.setup()
+      // Object lives at root — navigating in then back returns to initial prefix
+      renderModal({ object: makeObject("report.pdf", "report.pdf") })
+      await user.click(screen.getByText("docs"))
+      expect(screen.getByRole("button", { name: /^Copy$/i })).not.toBeDisabled()
+      await user.click(screen.getByRole("button", { name: /Back/i }))
+      expect(screen.getByRole("button", { name: /^Copy$/i })).toBeDisabled()
+    })
+
+    test("Copy button is enabled when object lives in a subfolder and destination is root", () => {
+      // Object lives at "docs/report.pdf" → initialPrefix = "docs/"
+      // Default state has currentPrefix = "" (root) which differs from "docs/"
+      renderModal({ object: makeObject("docs/report.pdf", "report.pdf") })
+      expect(screen.getByRole("button", { name: /^Copy$/i })).not.toBeDisabled()
+    })
+
+    test("Copy button is disabled when navigated to the object's own folder", async () => {
+      const user = userEvent.setup()
+      // Object lives in "docs/" — navigating into docs/ matches the initial prefix
+      renderModal({ object: makeObject("docs/report.pdf", "report.pdf") })
+      await user.click(screen.getByText("docs"))
+      expect(screen.getByRole("button", { name: /^Copy$/i })).toBeDisabled()
+    })
+  })
+
   // ── Folder browser ────────────────────────────────────────────────────────────
 
   describe("Folder browser", () => {
@@ -373,12 +415,14 @@ describe("CopyObjectModal", () => {
     test("calls copyObject mutation with correct params on confirm", async () => {
       const user = userEvent.setup()
       renderModal({ object: makeObject("report.pdf", "report.pdf") })
+      // Navigate into a folder to enable the button (destination must differ from source)
+      await user.click(screen.getByText("docs"))
       await user.click(screen.getByRole("button", { name: /^Copy$/i }))
       expect(trpcState.copyMutate).toHaveBeenCalledWith(
         expect.objectContaining({
           container: "source-container",
           object: "report.pdf",
-          destination: "/source-container/report.pdf",
+          destination: "/source-container/docs/report.pdf",
         })
       )
     })
@@ -386,7 +430,7 @@ describe("CopyObjectModal", () => {
     test("includes freshMetadata: false when Copy metadata is checked", async () => {
       const user = userEvent.setup()
       renderModal({ object: makeObject("report.pdf", "report.pdf") })
-      // Checkbox is checked by default → freshMetadata should be false
+      await user.click(screen.getByText("docs"))
       await user.click(screen.getByRole("button", { name: /^Copy$/i }))
       expect(trpcState.copyMutate).toHaveBeenCalledWith(expect.objectContaining({ freshMetadata: false }))
     })
@@ -394,6 +438,7 @@ describe("CopyObjectModal", () => {
     test("includes freshMetadata: true when Copy metadata is unchecked", async () => {
       const user = userEvent.setup()
       renderModal({ object: makeObject("report.pdf", "report.pdf") })
+      await user.click(screen.getByText("docs"))
       await user.click(screen.getByRole("checkbox"))
       await user.click(screen.getByRole("button", { name: /^Copy$/i }))
       expect(trpcState.copyMutate).toHaveBeenCalledWith(expect.objectContaining({ freshMetadata: true }))
@@ -403,14 +448,16 @@ describe("CopyObjectModal", () => {
       const user = userEvent.setup()
       const onSuccess = vi.fn()
       renderModal({ object: makeObject("report.pdf", "report.pdf"), onSuccess })
+      await user.click(screen.getByText("docs"))
       await user.click(screen.getByRole("button", { name: /^Copy$/i }))
-      expect(onSuccess).toHaveBeenCalledWith("report.pdf", "source-container", "")
+      expect(onSuccess).toHaveBeenCalledWith("report.pdf", "source-container", "docs/")
     })
 
     test("calls onClose after successful copy", async () => {
       const user = userEvent.setup()
       const onClose = vi.fn()
       renderModal({ onClose })
+      await user.click(screen.getByText("docs"))
       await user.click(screen.getByRole("button", { name: /^Copy$/i }))
       expect(onClose).toHaveBeenCalled()
     })
@@ -421,6 +468,7 @@ describe("CopyObjectModal", () => {
       const user = userEvent.setup()
       const onError = vi.fn()
       renderModal({ object: makeObject("report.pdf", "report.pdf"), onError })
+      await user.click(screen.getByText("docs"))
       await user.click(screen.getByRole("button", { name: /^Copy$/i }))
       expect(onError).toHaveBeenCalledWith("report.pdf", "Forbidden")
     })
@@ -431,6 +479,7 @@ describe("CopyObjectModal", () => {
       const user = userEvent.setup()
       const onClose = vi.fn()
       renderModal({ onClose })
+      await user.click(screen.getByText("docs"))
       await user.click(screen.getByRole("button", { name: /^Copy$/i }))
       expect(onClose).toHaveBeenCalled()
     })
@@ -549,6 +598,7 @@ describe("CopyObjectModal", () => {
     test("invalidates listObjects cache on successful copy", async () => {
       const user = userEvent.setup()
       renderModal()
+      await user.click(screen.getByText("docs"))
       await user.click(screen.getByRole("button", { name: /^Copy$/i }))
       expect(mockInvalidate).toHaveBeenCalled()
     })
@@ -558,6 +608,7 @@ describe("CopyObjectModal", () => {
       trpcState.copyError = { message: "Forbidden" }
       const user = userEvent.setup()
       renderModal()
+      await user.click(screen.getByText("docs"))
       await user.click(screen.getByRole("button", { name: /^Copy$/i }))
       expect(mockInvalidate).not.toHaveBeenCalled()
     })
