@@ -89,6 +89,8 @@ vi.mock("./ObjectsTableView", () => ({
       onDeleteObjectError,
       onCopyObjectSuccess,
       onCopyObjectError,
+      onMoveObjectSuccess,
+      onMoveObjectError,
     }) => {
       capturedOnDeleteFolderSuccess = onDeleteFolderSuccess
       return (
@@ -103,6 +105,8 @@ vi.mock("./ObjectsTableView", () => ({
           data-has-delete-object-error={typeof onDeleteObjectError === "function" ? "true" : "false"}
           data-has-copy-object-success={typeof onCopyObjectSuccess === "function" ? "true" : "false"}
           data-has-copy-object-error={typeof onCopyObjectError === "function" ? "true" : "false"}
+          data-has-move-object-success={typeof onMoveObjectSuccess === "function" ? "true" : "false"}
+          data-has-move-object-error={typeof onMoveObjectError === "function" ? "true" : "false"}
         />
       )
     }
@@ -156,6 +160,8 @@ vi.mock("./ObjectToastNotifications", () => ({
   getObjectDeleteErrorToast: vi.fn(() => ({ variant: "error", children: null })),
   getObjectCopiedToast: vi.fn(() => ({ variant: "success", children: null })),
   getObjectCopyErrorToast: vi.fn(() => ({ variant: "error", children: null })),
+  getObjectMovedToast: vi.fn(() => ({ variant: "success", children: null })),
+  getObjectMoveErrorToast: vi.fn(() => ({ variant: "error", children: null })),
 }))
 
 vi.mock("@/client/trpcClient", () => ({
@@ -325,6 +331,28 @@ describe("SwiftObjects (index)", () => {
       const { getObjectCopyErrorToast } = await import("./ObjectToastNotifications")
       renderObjects()
       expect(getObjectCopyErrorToast).toBeDefined()
+    })
+
+    test("passes onMoveObjectSuccess callback to ObjectsTableView", () => {
+      renderObjects()
+      expect(screen.getByTestId("objects-table-view")).toHaveAttribute("data-has-move-object-success", "true")
+    })
+
+    test("passes onMoveObjectError callback to ObjectsTableView", () => {
+      renderObjects()
+      expect(screen.getByTestId("objects-table-view")).toHaveAttribute("data-has-move-object-error", "true")
+    })
+
+    test("onMoveObjectSuccess shows success toast via getObjectMovedToast", async () => {
+      const { getObjectMovedToast } = await import("./ObjectToastNotifications")
+      renderObjects()
+      expect(getObjectMovedToast).toBeDefined()
+    })
+
+    test("onMoveObjectError shows error toast via getObjectMoveErrorToast", async () => {
+      const { getObjectMoveErrorToast } = await import("./ObjectToastNotifications")
+      renderObjects()
+      expect(getObjectMoveErrorToast).toBeDefined()
     })
 
     test("subtracts 1 from deletedCount before passing to getFolderDeletedToast", async () => {

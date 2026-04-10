@@ -58,6 +58,16 @@ vi.mock("./CopyObjectModal", () => ({
   ),
 }))
 
+vi.mock("./MoveRenameObjectModal", () => ({
+  MoveRenameObjectModal: vi.fn(({ isOpen, onClose, object }) =>
+    isOpen ? (
+      <div data-testid="move-rename-object-modal" data-object={object?.name}>
+        <button onClick={onClose}>Cancel</button>
+      </div>
+    ) : null
+  ),
+}))
+
 // ─── Mock trpcClient ──────────────────────────────────────────────────────────
 // downloadObject is now an async iterable (streaming mutation) called via the
 // vanilla trpcClient — mock it so tests can control chunks and errors without
@@ -131,6 +141,8 @@ const renderView = ({
   onDeleteObjectError = vi.fn(),
   onCopyObjectSuccess = vi.fn(),
   onCopyObjectError = vi.fn(),
+  onMoveObjectSuccess = vi.fn(),
+  onMoveObjectError = vi.fn(),
 }: {
   rows?: BrowserRow[]
   searchTerm?: string
@@ -143,6 +155,8 @@ const renderView = ({
   onDeleteObjectError?: (objectName: string, errorMessage: string) => void
   onCopyObjectSuccess?: (objectName: string, targetContainer: string, targetPath: string) => void
   onCopyObjectError?: (objectName: string, errorMessage: string) => void
+  onMoveObjectSuccess?: (objectName: string, targetContainer: string, targetPath: string) => void
+  onMoveObjectError?: (objectName: string, errorMessage: string) => void
 } = {}) =>
   render(
     <I18nProvider i18n={i18n}>
@@ -159,6 +173,8 @@ const renderView = ({
           onDeleteObjectError={onDeleteObjectError}
           onCopyObjectSuccess={onCopyObjectSuccess}
           onCopyObjectError={onCopyObjectError}
+          onMoveObjectSuccess={onMoveObjectSuccess}
+          onMoveObjectError={onMoveObjectError}
         />
       </PortalProvider>
     </I18nProvider>
@@ -513,6 +529,46 @@ describe("ObjectsTableView", () => {
       await vi.waitFor(() => {
         expect(onDownloadError).toHaveBeenCalledWith("readme.txt", "Network error")
       })
+    })
+  })
+
+  describe("Move/Rename object modal", () => {
+    test("move/rename modal is closed by default", () => {
+      renderView({ rows: [makeObject("readme.txt")] })
+      expect(screen.queryByTestId("move-rename-object-modal")).not.toBeInTheDocument()
+    })
+
+    test("opens move/rename modal when Move/Rename is clicked", async () => {
+      const user = userEvent.setup()
+      renderView({ rows: [makeObject("readme.txt")] })
+      await user.click(screen.getByRole("button", { name: /More/i }))
+      await user.click(screen.getByTestId("move-rename-action-readme.txt"))
+      expect(screen.getByTestId("move-rename-object-modal")).toBeInTheDocument()
+    })
+
+    test("passes correct object name to MoveRenameObjectModal", async () => {
+      const user = userEvent.setup()
+      renderView({ rows: [makeObject("readme.txt")] })
+      await user.click(screen.getByRole("button", { name: /More/i }))
+      await user.click(screen.getByTestId("move-rename-action-readme.txt"))
+      expect(screen.getByTestId("move-rename-object-modal")).toHaveAttribute("data-object", "readme.txt")
+    })
+
+    test("closes move/rename modal when onClose is called", async () => {
+      const user = userEvent.setup()
+      renderView({ rows: [makeObject("readme.txt")] })
+      await user.click(screen.getByRole("button", { name: /More/i }))
+      await user.click(screen.getByTestId("move-rename-action-readme.txt"))
+      expect(screen.getByTestId("move-rename-object-modal")).toBeInTheDocument()
+      await user.click(screen.getByRole("button", { name: /Cancel/i }))
+      expect(screen.queryByTestId("move-rename-object-modal")).not.toBeInTheDocument()
+    })
+
+    test("Move/Rename action is not present for folder rows", async () => {
+      const user = userEvent.setup()
+      renderView({ rows: [makeFolder("docs")] })
+      await user.click(screen.getByRole("button", { name: /More/i }))
+      expect(screen.queryByTestId("move-rename-action-docs/")).not.toBeInTheDocument()
     })
   })
 

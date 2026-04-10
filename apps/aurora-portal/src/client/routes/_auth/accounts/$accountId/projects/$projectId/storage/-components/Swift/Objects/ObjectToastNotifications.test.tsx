@@ -12,6 +12,8 @@ import {
   getObjectDeleteErrorToast,
   getObjectCopiedToast,
   getObjectCopyErrorToast,
+  getObjectMovedToast,
+  getObjectMoveErrorToast,
 } from "./ObjectToastNotifications"
 
 describe("ObjectToastNotifications", () => {
@@ -397,6 +399,84 @@ describe("ObjectToastNotifications", () => {
     })
   })
 
+  // ── getObjectMovedToast ──────────────────────────────────────────────────────
+
+  describe("getObjectMovedToast", () => {
+    it("returns success toast with correct structure", () => {
+      const toast = getObjectMovedToast("report.pdf", "backup", "", defaultConfig)
+      expect(toast.variant).toBe("success")
+      expect(toast.autoDismiss).toBe(true)
+      expect(toast.autoDismissTimeout).toBe(5000)
+      expect(toast.onDismiss).toBe(mockOnDismiss)
+      expect(toast.children).toBeDefined()
+    })
+
+    it("renders correct message content with container and path", () => {
+      const toast = getObjectMovedToast("report.pdf", "backup-container", "archive/", defaultConfig)
+      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+      expect(screen.getByText("Object Moved")).toBeInTheDocument()
+      expect(screen.getByText(/report\.pdf/)).toBeInTheDocument()
+      expect(screen.getByText(/backup-container/)).toBeInTheDocument()
+    })
+
+    it("uses custom autoDismissTimeout when provided", () => {
+      const toast = getObjectMovedToast("f", "c", "", { onDismiss: mockOnDismiss, autoDismissTimeout: 3000 })
+      expect(toast.autoDismissTimeout).toBe(3000)
+    })
+
+    it("handles empty target path (root move)", () => {
+      const toast = getObjectMovedToast("file.txt", "other-container", "", defaultConfig)
+      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+      expect(screen.getByText("Object Moved")).toBeInTheDocument()
+      expect(screen.getByText(/other-container/)).toBeInTheDocument()
+    })
+
+    it("handles object names with special characters", () => {
+      const toast = getObjectMovedToast("my file (2024).txt", "backup", "", defaultConfig)
+      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+      expect(screen.getByText(/my file/)).toBeInTheDocument()
+    })
+  })
+
+  // ── getObjectMoveErrorToast ──────────────────────────────────────────────────
+
+  describe("getObjectMoveErrorToast", () => {
+    it("returns error toast with correct structure", () => {
+      const toast = getObjectMoveErrorToast("report.pdf", "Forbidden", defaultConfig)
+      expect(toast.variant).toBe("error")
+      expect(toast.autoDismiss).toBe(true)
+      expect(toast.autoDismissTimeout).toBe(5000)
+      expect(toast.onDismiss).toBe(mockOnDismiss)
+      expect(toast.children).toBeDefined()
+    })
+
+    it("renders correct error message content", () => {
+      const toast = getObjectMoveErrorToast("report.pdf", "Forbidden", defaultConfig)
+      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+      expect(screen.getByText("Failed to Move Object")).toBeInTheDocument()
+      expect(screen.getByText(/report\.pdf/)).toBeInTheDocument()
+      expect(screen.getByText(/Could not move/)).toBeInTheDocument()
+      expect(screen.getByText(/Forbidden/)).toBeInTheDocument()
+    })
+
+    it("uses custom autoDismissTimeout when provided", () => {
+      const toast = getObjectMoveErrorToast("f", "err", { onDismiss: mockOnDismiss, autoDismissTimeout: 8000 })
+      expect(toast.autoDismissTimeout).toBe(8000)
+    })
+
+    it("handles different error messages", () => {
+      const toast = getObjectMoveErrorToast("file.txt", "Internal Server Error", defaultConfig)
+      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+      expect(screen.getByText(/Internal Server Error/)).toBeInTheDocument()
+    })
+
+    it("handles empty error message", () => {
+      const toast = getObjectMoveErrorToast("file.txt", "", defaultConfig)
+      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+      expect(screen.getByText("Failed to Move Object")).toBeInTheDocument()
+    })
+  })
+
   // ── Toast configuration ──────────────────────────────────────────────────────
 
   describe("Toast configuration", () => {
@@ -406,6 +486,7 @@ describe("ObjectToastNotifications", () => {
         getFolderDeletedToast("f", 3, defaultConfig),
         getObjectDeletedToast("f", defaultConfig),
         getObjectCopiedToast("f", "c", "", defaultConfig),
+        getObjectMovedToast("f", "c", "", defaultConfig),
       ]
       successToasts.forEach((toast) => {
         expect(toast.variant).toBe("success")
@@ -421,6 +502,7 @@ describe("ObjectToastNotifications", () => {
         getObjectDownloadErrorToast("f", "err", defaultConfig),
         getObjectDeleteErrorToast("f", "err", defaultConfig),
         getObjectCopyErrorToast("f", "err", defaultConfig),
+        getObjectMoveErrorToast("f", "err", defaultConfig),
       ]
       errorToasts.forEach((toast) => {
         expect(toast.variant).toBe("error")
@@ -448,6 +530,8 @@ describe("ObjectToastNotifications", () => {
         getObjectDeleteErrorToast("f", "err", { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
         getObjectCopiedToast("f", "c", "", { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
         getObjectCopyErrorToast("f", "err", { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
+        getObjectMovedToast("f", "c", "", { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
+        getObjectMoveErrorToast("f", "err", { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
       ]
       toasts.forEach((toast) => {
         expect(toast.autoDismissTimeout).toBe(customTimeout)
@@ -464,6 +548,8 @@ describe("ObjectToastNotifications", () => {
         getObjectDeleteErrorToast("f", "err", defaultConfig),
         getObjectCopiedToast("f", "c", "", defaultConfig),
         getObjectCopyErrorToast("f", "err", defaultConfig),
+        getObjectMovedToast("f", "c", "", defaultConfig),
+        getObjectMoveErrorToast("f", "err", defaultConfig),
       ]
       toasts.forEach((toast) => {
         expect(toast.children).toBeTruthy()
