@@ -514,17 +514,20 @@ export const MoveRenameObjectModal = ({ isOpen, object, onClose, onSuccess, onEr
             helptext={t`The object will be moved to this path. Navigate folders above to change the destination.`}
           />
 
-          {(copyMutation.isError || deleteMutation.isError) && (
-            <Message variant="danger">
-              {copyMutation.isError ? (
-                <Trans>Failed to move object: {copyMutation.error.message}</Trans>
-              ) : (
-                <Trans>
-                  Object was copied but could not be deleted from the source: {deleteMutation.error?.message}
-                </Trans>
-              )}
-            </Message>
-          )}
+          {(copyMutation.isError || deleteMutation.isError) &&
+            (() => {
+              const copyErrorMessage = copyMutation.error?.message ?? ""
+              const deleteErrorMessage = deleteMutation.error?.message ?? ""
+              return (
+                <Message variant="danger">
+                  {copyMutation.isError ? (
+                    <Trans>Failed to move object: {copyErrorMessage}</Trans>
+                  ) : (
+                    <Trans>Object was copied but could not be deleted from the source: {deleteErrorMessage}</Trans>
+                  )}
+                </Message>
+              )
+            })()}
         </Stack>
       )}
     </Modal>

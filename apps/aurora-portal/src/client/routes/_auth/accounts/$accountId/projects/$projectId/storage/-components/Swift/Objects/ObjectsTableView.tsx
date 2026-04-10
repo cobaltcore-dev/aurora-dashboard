@@ -251,24 +251,28 @@ export const ObjectsTableView = ({
                   <DataGridCell>
                     {isDownloading ? (
                       <span className="flex min-w-0 flex-col gap-1">
-                        <span className="text-theme-light flex items-center gap-2 text-sm">
-                          <Spinner size="small" />
-                          {downloadProgress && downloadProgress.total > 0 ? (
-                            <Trans>{Math.round((downloadProgress.downloaded / downloadProgress.total) * 100)}%</Trans>
-                          ) : (
-                            <Trans>Downloading...</Trans>
-                          )}
-                        </span>
-                        {downloadProgress && downloadProgress.total > 0 && (
-                          <div className="bg-theme-background-lvl-2 h-1 w-full overflow-hidden rounded-full">
-                            <div
-                              className="bg-theme-accent h-1 rounded-full transition-all duration-150"
-                              style={{
-                                width: `${Math.round((downloadProgress.downloaded / downloadProgress.total) * 100)}%`,
-                              }}
-                            />
-                          </div>
-                        )}
+                        {(() => {
+                          const progressPct =
+                            downloadProgress && downloadProgress.total > 0
+                              ? Math.round((downloadProgress.downloaded / downloadProgress.total) * 100)
+                              : null
+                          return (
+                            <>
+                              <span className="text-theme-light flex items-center gap-2 text-sm">
+                                <Spinner size="small" />
+                                {progressPct !== null ? <Trans>{progressPct}%</Trans> : <Trans>Downloading...</Trans>}
+                              </span>
+                              {progressPct !== null && (
+                                <div className="bg-theme-background-lvl-2 h-1 w-full overflow-hidden rounded-full">
+                                  <div
+                                    className="bg-theme-accent h-1 rounded-full transition-all duration-150"
+                                    style={{ width: `${progressPct}%` }}
+                                  />
+                                </div>
+                              )}
+                            </>
+                          )
+                        })()}
                       </span>
                     ) : !isFolder && row.last_modified ? (
                       formatDate(row.last_modified)

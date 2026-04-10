@@ -468,11 +468,15 @@ export const CopyObjectModal = ({ isOpen, object, onClose, onSuccess, onError }:
             </span>
           </label>
 
-          {copyMutation.isError && (
-            <Message variant="danger">
-              <Trans>Failed to copy object: {copyMutation.error.message}</Trans>
-            </Message>
-          )}
+          {copyMutation.isError &&
+            (() => {
+              const errorMessage = copyMutation.error.message
+              return (
+                <Message variant="danger">
+                  <Trans>Failed to copy object: {errorMessage}</Trans>
+                </Message>
+              )
+            })()}
         </Stack>
       )}
     </Modal>

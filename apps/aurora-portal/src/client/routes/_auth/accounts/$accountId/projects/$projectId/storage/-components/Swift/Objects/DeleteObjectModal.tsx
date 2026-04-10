@@ -98,6 +98,7 @@ export const DeleteObjectModal = ({ isOpen, object, variant, onClose, onSuccess,
   const displayName = object.displayName
   const isLoading = isLoadingMetadata
   const isPending = deleteObjectMutation.isPending
+  const metadataErrorMessage = metadataError?.message ?? ""
 
   return (
     <Modal
@@ -131,7 +132,7 @@ export const DeleteObjectModal = ({ isOpen, object, variant, onClose, onSuccess,
         </Stack>
       ) : metadataError ? (
         <Message variant="danger">
-          <Trans>Failed to load object metadata: {metadataError.message}</Trans>
+          <Trans>Failed to load object metadata: {metadataErrorMessage}</Trans>
         </Message>
       ) : isKeepSegments ? (
         <Stack direction="vertical" gap="4">
