@@ -54,6 +54,7 @@ export const EmptyContainerModal = ({ isOpen, container, onClose, onSuccess, onE
   const emptyContainerMutation = trpcReact.storage.swift.emptyContainer.useMutation({
     onSuccess: (deletedCount) => {
       utils.storage.swift.listContainers.invalidate()
+      utils.storage.swift.listObjects.invalidate({ container: container!.name })
       onSuccess?.(container!.name, deletedCount)
     },
     onError: (error) => {
