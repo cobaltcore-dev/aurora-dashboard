@@ -16,7 +16,7 @@ import { formatBytesBinary } from "@/client/utils/formatBytes"
 import { trpcClient } from "@/client/trpcClient"
 import { BrowserRow, FolderRow, ObjectRow } from "./"
 import { DeleteFolderModal } from "./DeleteFolderModal"
-import { DeleteObjectModal, DeleteObjectVariant } from "./DeleteObjectModal"
+import { DeleteObjectModal } from "./DeleteObjectModal"
 import { CopyObjectModal } from "./CopyObjectModal"
 import { MoveRenameObjectModal } from "./MoveRenameObjectModal"
 
@@ -106,10 +106,7 @@ export const ObjectsTableView = ({
   const parentRef = useRef<HTMLDivElement>(null)
   const [scrollbarWidth, setScrollbarWidth] = useState(0)
   const [deleteFolderTarget, setDeleteFolderTarget] = useState<FolderRow | null>(null)
-  const [deleteObjectTarget, setDeleteObjectTarget] = useState<{
-    object: ObjectRow
-    variant: DeleteObjectVariant
-  } | null>(null)
+  const [deleteObjectTarget, setDeleteObjectTarget] = useState<ObjectRow | null>(null)
   const [copyObjectTarget, setCopyObjectTarget] = useState<ObjectRow | null>(null)
   const [moveRenameObjectTarget, setMoveRenameObjectTarget] = useState<ObjectRow | null>(null)
   const [downloadingRow, setDownloadingRow] = useState<ObjectRow | null>(null)
@@ -444,15 +441,8 @@ export const ObjectsTableView = ({
                             />
                             <PopupMenuItem
                               label={t`Delete`}
-                              onClick={() => setDeleteObjectTarget({ object: row as ObjectRow, variant: "delete" })}
+                              onClick={() => setDeleteObjectTarget(row as ObjectRow)}
                               data-testid={`delete-action-${row.name}`}
-                            />
-                            <PopupMenuItem
-                              label={t`Delete (Keep Segments)`}
-                              onClick={() =>
-                                setDeleteObjectTarget({ object: row as ObjectRow, variant: "keep-segments" })
-                              }
-                              data-testid={`delete-keep-segments-action-${row.name}`}
                             />
                           </>
                         )}
@@ -481,8 +471,7 @@ export const ObjectsTableView = ({
 
       <DeleteObjectModal
         isOpen={deleteObjectTarget !== null}
-        object={deleteObjectTarget?.object ?? null}
-        variant={deleteObjectTarget?.variant ?? "delete"}
+        object={deleteObjectTarget}
         onClose={() => setDeleteObjectTarget(null)}
         onSuccess={onDeleteObjectSuccess}
         onError={onDeleteObjectError}

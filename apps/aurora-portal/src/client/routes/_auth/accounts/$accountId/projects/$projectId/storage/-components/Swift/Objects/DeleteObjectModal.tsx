@@ -1,35 +1,30 @@
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import { Modal, Message, Stack, Spinner } from "@cloudoperators/juno-ui-components"
 import { useParams } from "@tanstack/react-router"
 import { ObjectRow } from "./"
 
-/**
- * "delete"        — deletes the object. For SLOs also deletes all segment
- *                   objects via multipartManifest="delete". For DLOs and
- *                   regular objects, plain DELETE (no query param).
- * "keep-segments" — deletes only the SLO manifest; segment objects are
- *                   retained. Always a plain DELETE (no multipartManifest).
- */
-export type DeleteObjectVariant = "delete" | "keep-segments"
+export type DeleteObjectVariant = "delete"
 
 interface DeleteObjectModalProps {
   isOpen: boolean
   object: ObjectRow | null
-  variant: DeleteObjectVariant
   onClose: () => void
   onSuccess?: (objectName: string) => void
   onError?: (objectName: string, errorMessage: string) => void
 }
 
-export const DeleteObjectModal = ({ isOpen, object, variant, onClose, onSuccess, onError }: DeleteObjectModalProps) => {
+export const DeleteObjectModal = ({ isOpen, object, onClose, onSuccess, onError }: DeleteObjectModalProps) => {
   const { t } = useLingui()
   const { containerName } = useParams({
     from: "/_auth/accounts/$accountId/projects/$projectId/storage/$provider/containers/$containerName/objects/",
   })
 
   const utils = trpcReact.useUtils()
+
+  // keepSegments is only relevant for SLOs — toggled by a checkbox in the modal.
+  const [keepSegments, setKeepSegments] = useState(false)
 
   // useRef so the object display name survives re-renders triggered by
   // deleteObjectMutation.reset() inside handleClose() before onSuccess/onError fire.
@@ -69,6 +64,7 @@ export const DeleteObjectModal = ({ isOpen, object, variant, onClose, onSuccess,
   useEffect(() => {
     if (!isOpen) {
       deleteObjectMutation.reset()
+      setKeepSegments(false)
     }
   }, [isOpen])
 
@@ -83,18 +79,15 @@ export const DeleteObjectModal = ({ isOpen, object, variant, onClose, onSuccess,
     deleteObjectMutation.mutate({
       container: containerName,
       object: object.name,
-      // Only send multipartManifest="delete" for confirmed SLO manifests in
-      // the "delete" variant — this tells Swift to also delete all segment
-      // objects. DLOs use a plain DELETE (their segments live under a prefix
-      // and must be removed separately). "keep-segments" always uses plain
-      // DELETE regardless of object type.
-      ...(variant === "delete" && isSLO ? { multipartManifest: "delete" as const } : {}),
+      // Send multipartManifest="delete" for SLOs only when the user has NOT
+      // checked "Keep segments" — tells Swift to also delete all segment objects.
+      // DLOs always use plain DELETE (segments are prefix-based, not enumerable).
+      ...(isSLO && !keepSegments ? { multipartManifest: "delete" as const } : {}),
     })
   }
 
   if (!isOpen || !object) return null
 
-  const isKeepSegments = variant === "keep-segments"
   const displayName = object.displayName
   const isLoading = isLoadingMetadata
   const isPending = deleteObjectMutation.isPending
@@ -105,7 +98,7 @@ export const DeleteObjectModal = ({ isOpen, object, variant, onClose, onSuccess,
       title={
         <span className="flex max-w-[400px] items-center gap-1">
           <span className="shrink-0">
-            {isKeepSegments ? <Trans>Delete manifest:</Trans> : <Trans>Delete object:</Trans>}
+            <Trans>Delete object:</Trans>
           </span>
           <span className="truncate font-mono" title={displayName}>
             {displayName}
@@ -134,23 +127,6 @@ export const DeleteObjectModal = ({ isOpen, object, variant, onClose, onSuccess,
         <Message variant="danger">
           <Trans>Failed to load object metadata: {metadataErrorMessage}</Trans>
         </Message>
-      ) : isKeepSegments ? (
-        <Stack direction="vertical" gap="4">
-          <Message variant="warning">
-            <Trans>
-              <strong>Are you sure?</strong> The manifest for{" "}
-              <span className="font-mono font-semibold">"{displayName}"</span> will be permanently deleted. This cannot
-              be undone.
-            </Trans>
-          </Message>
-          <Message variant="info">
-            <Trans>
-              Only the <strong>manifest</strong> will be deleted — the segment objects that make up this large object
-              will be <strong>retained</strong> in the container. Use this option when segments are shared across
-              multiple manifests. If you also want to remove the segments, use <strong>Delete</strong> instead.
-            </Trans>
-          </Message>
-        </Stack>
       ) : (
         <Stack direction="vertical" gap="4">
           <Message variant="warning">
@@ -160,12 +136,25 @@ export const DeleteObjectModal = ({ isOpen, object, variant, onClose, onSuccess,
             </Trans>
           </Message>
           {isSLO && (
-            <Message variant="info">
-              <Trans>
-                This is a <strong>static large object</strong> — all associated segment objects will also be permanently
-                deleted. If you want to keep the segments, use <strong>Delete (Keep Segments)</strong> instead.
-              </Trans>
-            </Message>
+            <>
+              <Message variant="info">
+                <Trans>
+                  This is a <strong>static large object</strong>. By default, all associated segment objects will also
+                  be permanently deleted.
+                </Trans>
+              </Message>
+              <label className="flex cursor-pointer items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={keepSegments}
+                  onChange={(e) => setKeepSegments(e.target.checked)}
+                  className="h-4 w-4"
+                />
+                <span className="text-sm">
+                  <Trans>Keep segments (delete manifest only)</Trans>
+                </span>
+              </label>
+            </>
           )}
           {isDLO && (
             <Message variant="info">

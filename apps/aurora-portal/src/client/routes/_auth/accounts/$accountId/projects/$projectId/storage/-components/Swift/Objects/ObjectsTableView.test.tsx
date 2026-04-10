@@ -29,9 +29,9 @@ vi.mock("@tanstack/react-virtual", () => ({
 
 // Mock both modals to keep ObjectsTableView tests isolated.
 vi.mock("./DeleteObjectModal", () => ({
-  DeleteObjectModal: vi.fn(({ isOpen, onClose, variant }) =>
+  DeleteObjectModal: vi.fn(({ isOpen, onClose }) =>
     isOpen ? (
-      <div data-testid={`delete-object-modal-${variant}`}>
+      <div data-testid="delete-object-modal">
         <button onClick={onClose}>Cancel</button>
       </div>
     ) : null
@@ -736,24 +736,22 @@ describe("ObjectsTableView", () => {
   describe("Delete object modal", () => {
     test("delete object modal is closed by default", () => {
       renderView({ rows: [makeObject("readme.txt")] })
-      expect(screen.queryByTestId("delete-object-modal-delete")).not.toBeInTheDocument()
-      expect(screen.queryByTestId("delete-object-modal-keep-segments")).not.toBeInTheDocument()
+      expect(screen.queryByTestId("delete-object-modal")).not.toBeInTheDocument()
     })
 
-    test("opens delete modal (delete variant) when Delete is clicked", async () => {
+    test("opens delete modal when Delete is clicked", async () => {
       const user = userEvent.setup()
       renderView({ rows: [makeObject("readme.txt")] })
       await user.click(screen.getByRole("button", { name: /More/i }))
       await user.click(screen.getByTestId("delete-action-readme.txt"))
-      expect(screen.getByTestId("delete-object-modal-delete")).toBeInTheDocument()
+      expect(screen.getByTestId("delete-object-modal")).toBeInTheDocument()
     })
 
-    test("opens delete modal (keep-segments variant) when Delete (Keep Segments) is clicked", async () => {
+    test("Delete (Keep Segments) action is no longer present in the menu", async () => {
       const user = userEvent.setup()
       renderView({ rows: [makeObject("readme.txt")] })
       await user.click(screen.getByRole("button", { name: /More/i }))
-      await user.click(screen.getByTestId("delete-keep-segments-action-readme.txt"))
-      expect(screen.getByTestId("delete-object-modal-keep-segments")).toBeInTheDocument()
+      expect(screen.queryByTestId("delete-keep-segments-action-readme.txt")).not.toBeInTheDocument()
     })
 
     test("closes delete object modal when onClose is called", async () => {
@@ -761,9 +759,9 @@ describe("ObjectsTableView", () => {
       renderView({ rows: [makeObject("readme.txt")] })
       await user.click(screen.getByRole("button", { name: /More/i }))
       await user.click(screen.getByTestId("delete-action-readme.txt"))
-      expect(screen.getByTestId("delete-object-modal-delete")).toBeInTheDocument()
+      expect(screen.getByTestId("delete-object-modal")).toBeInTheDocument()
       await user.click(screen.getByRole("button", { name: /Cancel/i }))
-      expect(screen.queryByTestId("delete-object-modal-delete")).not.toBeInTheDocument()
+      expect(screen.queryByTestId("delete-object-modal")).not.toBeInTheDocument()
     })
   })
 })

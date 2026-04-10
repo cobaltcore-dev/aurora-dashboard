@@ -5,7 +5,7 @@ import userEvent from "@testing-library/user-event"
 import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import { i18n } from "@lingui/core"
 import { I18nProvider } from "@lingui/react"
-import { DeleteObjectModal, DeleteObjectVariant } from "./DeleteObjectModal"
+import { DeleteObjectModal } from "./DeleteObjectModal"
 import type { ObjectRow } from "./"
 
 // ─── Mock tRPC ────────────────────────────────────────────────────────────────
@@ -89,7 +89,6 @@ const makeObject = (overrides: Partial<ObjectRow> = {}): ObjectRow => ({
 const renderModal = ({
   isOpen = true,
   object = makeObject(),
-  variant = "delete" as DeleteObjectVariant,
   onClose = vi.fn(),
   onSuccess = vi.fn(),
   onError = vi.fn(),
@@ -97,14 +96,7 @@ const renderModal = ({
   render(
     <I18nProvider i18n={i18n}>
       <PortalProvider>
-        <DeleteObjectModal
-          isOpen={isOpen}
-          object={object}
-          variant={variant}
-          onClose={onClose}
-          onSuccess={onSuccess}
-          onError={onError}
-        />
+        <DeleteObjectModal isOpen={isOpen} object={object} onClose={onClose} onSuccess={onSuccess} onError={onError} />
       </PortalProvider>
     </I18nProvider>
   )
@@ -171,31 +163,36 @@ describe("DeleteObjectModal", () => {
 
   // ── Regular object (delete variant) ──────────────────────────────────────
 
-  describe("regular object — variant: delete", () => {
+  describe("Regular object", () => {
     it("shows Delete object title", () => {
-      renderModal({ variant: "delete" })
+      renderModal()
       expect(screen.getByText(/Delete object:/i)).toBeInTheDocument()
     })
 
     it("shows the object display name in the title", () => {
-      renderModal({ variant: "delete" })
+      renderModal()
       expect(screen.getByTitle("report.pdf")).toBeInTheDocument()
     })
 
     it("shows warning about permanent deletion", () => {
-      renderModal({ variant: "delete" })
+      renderModal()
       expect(screen.getByText(/will be permanently deleted/i)).toBeInTheDocument()
     })
 
     it("does not show SLO or DLO info notes for regular objects", () => {
-      renderModal({ variant: "delete" })
+      renderModal()
       expect(screen.queryByText(/static large object/i)).not.toBeInTheDocument()
       expect(screen.queryByText(/dynamic large object/i)).not.toBeInTheDocument()
     })
 
+    it("does not show Keep segments checkbox for regular objects", () => {
+      renderModal()
+      expect(screen.queryByRole("checkbox")).not.toBeInTheDocument()
+    })
+
     it("calls mutate without multipartManifest for regular objects", async () => {
       const user = userEvent.setup()
-      renderModal({ variant: "delete" })
+      renderModal()
       await user.click(screen.getByRole("button", { name: /^Delete$/i }))
       const call = mockMutate.mock.calls[0][0]
       expect(call.container).toBe("test-container")
@@ -206,19 +203,29 @@ describe("DeleteObjectModal", () => {
 
   // ── SLO (delete variant) ──────────────────────────────────────────────────
 
-  describe("SLO — variant: delete", () => {
+  describe("SLO", () => {
     beforeEach(() => {
       mockMetadata = { staticLargeObject: true }
     })
 
-    it("shows SLO info note explaining segments will be deleted", () => {
-      renderModal({ variant: "delete" })
+    it("shows SLO info note explaining segments will be deleted by default", () => {
+      renderModal()
       expect(screen.getByText(/static large object/i)).toBeInTheDocument()
     })
 
-    it("calls mutate with multipartManifest='delete' for SLO", async () => {
+    it("shows Keep segments checkbox for SLO", () => {
+      renderModal()
+      expect(screen.getByRole("checkbox")).toBeInTheDocument()
+    })
+
+    it("Keep segments checkbox is unchecked by default", () => {
+      renderModal()
+      expect(screen.getByRole("checkbox")).not.toBeChecked()
+    })
+
+    it("calls mutate with multipartManifest='delete' when Keep segments is unchecked", async () => {
       const user = userEvent.setup()
-      renderModal({ variant: "delete" })
+      renderModal()
       await user.click(screen.getByRole("button", { name: /^Delete$/i }))
       expect(mockMutate).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -230,58 +237,77 @@ describe("DeleteObjectModal", () => {
       )
     })
 
-    it("suggests Delete (Keep Segments) as alternative in the info note", () => {
-      renderModal({ variant: "delete" })
-      expect(screen.getByText(/Delete \(Keep Segments\)/i)).toBeInTheDocument()
+    it("calls mutate without multipartManifest when Keep segments is checked", async () => {
+      const user = userEvent.setup()
+      renderModal()
+      await user.click(screen.getByRole("checkbox"))
+      await user.click(screen.getByRole("button", { name: /^Delete$/i }))
+      const call = mockMutate.mock.calls[0][0]
+      expect(call).not.toHaveProperty("multipartManifest")
+    })
+
+    it("shows Keep segments checkbox label", () => {
+      renderModal()
+      expect(screen.getByText(/Keep segments/i)).toBeInTheDocument()
     })
   })
 
   // ── DLO (delete variant) ──────────────────────────────────────────────────
 
-  describe("DLO — variant: delete", () => {
+  describe("DLO", () => {
     beforeEach(() => {
       mockMetadata = { objectManifest: "segments/report-" }
     })
 
     it("shows DLO info note explaining only manifest is deleted", () => {
-      renderModal({ variant: "delete" })
+      renderModal()
       expect(screen.getByText(/dynamic large object/i)).toBeInTheDocument()
+    })
+
+    it("does not show Keep segments checkbox for DLO", () => {
+      renderModal()
+      expect(screen.queryByRole("checkbox")).not.toBeInTheDocument()
     })
 
     it("calls mutate without multipartManifest for DLO", async () => {
       const user = userEvent.setup()
-      renderModal({ variant: "delete" })
+      renderModal()
       await user.click(screen.getByRole("button", { name: /^Delete$/i }))
       const call = mockMutate.mock.calls[0][0]
       expect(call).not.toHaveProperty("multipartManifest")
     })
   })
 
-  // ── keep-segments variant ─────────────────────────────────────────────────
+  // ── Keep segments checkbox state reset ───────────────────────────────────
 
-  describe("variant: keep-segments", () => {
-    it("shows Delete manifest title", () => {
-      renderModal({ variant: "keep-segments" })
-      expect(screen.getByText(/Delete manifest:/i)).toBeInTheDocument()
-    })
-
-    it("shows info note that segments will be retained", () => {
-      renderModal({ variant: "keep-segments" })
-      expect(screen.getByText(/retained/i)).toBeInTheDocument()
-    })
-
-    it("explains when to use keep-segments vs delete", () => {
-      renderModal({ variant: "keep-segments" })
-      expect(screen.getByText(/shared across multiple manifests/i)).toBeInTheDocument()
-    })
-
-    it("calls mutate without multipartManifest regardless of object type", async () => {
-      mockMetadata = { staticLargeObject: true } // even for SLO
+  describe("Keep segments state reset", () => {
+    it("resets Keep segments checkbox to unchecked when modal reopens", async () => {
+      mockMetadata = { staticLargeObject: true }
       const user = userEvent.setup()
-      renderModal({ variant: "keep-segments" })
-      await user.click(screen.getByRole("button", { name: /^Delete$/i }))
-      const call = mockMutate.mock.calls[0][0]
-      expect(call).not.toHaveProperty("multipartManifest")
+      const { rerender } = render(
+        <I18nProvider i18n={i18n}>
+          <PortalProvider>
+            <DeleteObjectModal isOpen={true} object={makeObject()} onClose={vi.fn()} />
+          </PortalProvider>
+        </I18nProvider>
+      )
+      await user.click(screen.getByRole("checkbox"))
+      expect(screen.getByRole("checkbox")).toBeChecked()
+      rerender(
+        <I18nProvider i18n={i18n}>
+          <PortalProvider>
+            <DeleteObjectModal isOpen={false} object={makeObject()} onClose={vi.fn()} />
+          </PortalProvider>
+        </I18nProvider>
+      )
+      rerender(
+        <I18nProvider i18n={i18n}>
+          <PortalProvider>
+            <DeleteObjectModal isOpen={true} object={makeObject()} onClose={vi.fn()} />
+          </PortalProvider>
+        </I18nProvider>
+      )
+      expect(screen.getByRole("checkbox")).not.toBeChecked()
     })
   })
 
@@ -291,8 +317,8 @@ describe("DeleteObjectModal", () => {
     it("calls onSuccess with display name after successful deletion", async () => {
       const onSuccess = vi.fn()
       mockMutate = vi.fn((_input, { onSuccess: cb }) => cb?.())
-      renderModal({ onSuccess })
       const user = userEvent.setup()
+      renderModal({ onSuccess })
       await user.click(screen.getByRole("button", { name: /^Delete$/i }))
       expect(onSuccess).toHaveBeenCalledWith("report.pdf")
     })
@@ -300,8 +326,8 @@ describe("DeleteObjectModal", () => {
     it("calls onError with display name and message on failure", async () => {
       const onError = vi.fn()
       mockMutate = vi.fn((_input, { onError: cb }) => cb?.({ message: "Forbidden" }))
-      renderModal({ onError })
       const user = userEvent.setup()
+      renderModal({ onError })
       await user.click(screen.getByRole("button", { name: /^Delete$/i }))
       expect(onError).toHaveBeenCalledWith("report.pdf", "Forbidden")
     })
@@ -309,8 +335,8 @@ describe("DeleteObjectModal", () => {
     it("calls onClose after mutation settles", async () => {
       const onClose = vi.fn()
       mockMutate = vi.fn((_input, { onSettled: cb }) => cb?.())
-      renderModal({ onClose })
       const user = userEvent.setup()
+      renderModal({ onClose })
       await user.click(screen.getByRole("button", { name: /^Delete$/i }))
       expect(onClose).toHaveBeenCalled()
     })
