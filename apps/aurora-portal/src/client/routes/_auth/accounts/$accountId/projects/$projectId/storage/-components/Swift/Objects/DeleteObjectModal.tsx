@@ -33,7 +33,7 @@ export const DeleteObjectModal = ({ isOpen, object, variant, onClose, onSuccess,
 
   // useRef so the object display name survives re-renders triggered by
   // deleteObjectMutation.reset() inside handleClose() before onSuccess/onError fire.
-  const submittedNameRef = useRef("")
+  const displayNameRef = useRef("")
 
   // ── Metadata fetch ────────────────────────────────────────────────────────
   // Fetch object metadata on open to detect SLO/DLO — determines whether
@@ -56,10 +56,10 @@ export const DeleteObjectModal = ({ isOpen, object, variant, onClose, onSuccess,
   const deleteObjectMutation = trpcReact.storage.swift.deleteObject.useMutation({
     onSuccess: () => {
       utils.storage.swift.listObjects.invalidate({ container: containerName })
-      onSuccess?.(submittedNameRef.current)
+      onSuccess?.(displayNameRef.current)
     },
     onError: (error) => {
-      onError?.(submittedNameRef.current, error.message)
+      onError?.(displayNameRef.current, error.message)
     },
     onSettled: () => {
       handleClose()
@@ -79,7 +79,7 @@ export const DeleteObjectModal = ({ isOpen, object, variant, onClose, onSuccess,
 
   const handleConfirm = () => {
     if (!object) return
-    submittedNameRef.current = object.displayName
+    displayNameRef.current = object.displayName
     deleteObjectMutation.mutate({
       container: containerName,
       object: object.name,
