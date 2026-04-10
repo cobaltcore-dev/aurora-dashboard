@@ -49,7 +49,7 @@ importers:
         version: 9.3.0
       cz-customizable:
         specifier: ^7.5.1
-        version: 7.5.1
+        version: 7.5.4
       eslint:
         specifier: ^10.0.2
         version: 10.1.0(jiti@2.6.1)
@@ -2728,8 +2728,8 @@ packages:
     resolution: {integrity: sha512-U466fIzU5U22eES5lTNiNbZ+d8dfcHcssH4o7QsdWaCcRs/feIPCxKYSWkYBNs5mny7MvEfwpTLWjvbm94hecw==}
     engines: {node: '>= 10'}
 
-  cz-customizable@7.5.1:
-    resolution: {integrity: sha512-eGUfpyD6/YdnPomAMMbbwmofeHAR9D4OsXS5Kmr9+uEOxdop32tdmHy6sx4Bhpms6V8HohQ17p/fYvlIllrdmQ==}
+  cz-customizable@7.5.4:
+    resolution: {integrity: sha512-vkNc7kLrWYBkr8VQKSZdDfy8athDZ2huIAWJwVxCrymBXRhB7q8hamkKd6JwAoLPwReS8fKi/kAjRpmy7VvL2w==}
     hasBin: true
 
   d3-array@3.2.4:
@@ -8059,7 +8059,7 @@ snapshots:
       - '@types/node'
       - typescript
 
-  cz-customizable@7.5.1:
+  cz-customizable@7.5.4:
     dependencies:
       editor: 1.0.0
       find-config: 1.0.0
