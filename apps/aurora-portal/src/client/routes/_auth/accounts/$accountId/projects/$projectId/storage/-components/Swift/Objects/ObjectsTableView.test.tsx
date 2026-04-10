@@ -48,6 +48,16 @@ vi.mock("./DeleteFolderModal", () => ({
   ),
 }))
 
+vi.mock("./CopyObjectModal", () => ({
+  CopyObjectModal: vi.fn(({ isOpen, onClose, object }) =>
+    isOpen ? (
+      <div data-testid="copy-object-modal" data-object={object?.name}>
+        <button onClick={onClose}>Cancel</button>
+      </div>
+    ) : null
+  ),
+}))
+
 // ─── Mock trpcClient ──────────────────────────────────────────────────────────
 // downloadObject is now an async iterable (streaming mutation) called via the
 // vanilla trpcClient — mock it so tests can control chunks and errors without
@@ -119,6 +129,8 @@ const renderView = ({
   onDownloadError = vi.fn(),
   onDeleteObjectSuccess = vi.fn(),
   onDeleteObjectError = vi.fn(),
+  onCopyObjectSuccess = vi.fn(),
+  onCopyObjectError = vi.fn(),
 }: {
   rows?: BrowserRow[]
   searchTerm?: string
@@ -129,6 +141,8 @@ const renderView = ({
   onDownloadError?: (objectName: string, errorMessage: string) => void
   onDeleteObjectSuccess?: (objectName: string) => void
   onDeleteObjectError?: (objectName: string, errorMessage: string) => void
+  onCopyObjectSuccess?: (objectName: string, targetContainer: string, targetPath: string) => void
+  onCopyObjectError?: (objectName: string, errorMessage: string) => void
 } = {}) =>
   render(
     <I18nProvider i18n={i18n}>
@@ -143,6 +157,8 @@ const renderView = ({
           onDownloadError={onDownloadError}
           onDeleteObjectSuccess={onDeleteObjectSuccess}
           onDeleteObjectError={onDeleteObjectError}
+          onCopyObjectSuccess={onCopyObjectSuccess}
+          onCopyObjectError={onCopyObjectError}
         />
       </PortalProvider>
     </I18nProvider>
@@ -497,6 +513,46 @@ describe("ObjectsTableView", () => {
       await vi.waitFor(() => {
         expect(onDownloadError).toHaveBeenCalledWith("readme.txt", "Network error")
       })
+    })
+  })
+
+  describe("Copy object modal", () => {
+    test("copy object modal is closed by default", () => {
+      renderView({ rows: [makeObject("readme.txt")] })
+      expect(screen.queryByTestId("copy-object-modal")).not.toBeInTheDocument()
+    })
+
+    test("opens copy modal when Copy is clicked", async () => {
+      const user = userEvent.setup()
+      renderView({ rows: [makeObject("readme.txt")] })
+      await user.click(screen.getByRole("button", { name: /More/i }))
+      await user.click(screen.getByTestId("copy-action-readme.txt"))
+      expect(screen.getByTestId("copy-object-modal")).toBeInTheDocument()
+    })
+
+    test("passes correct object name to CopyObjectModal", async () => {
+      const user = userEvent.setup()
+      renderView({ rows: [makeObject("readme.txt")] })
+      await user.click(screen.getByRole("button", { name: /More/i }))
+      await user.click(screen.getByTestId("copy-action-readme.txt"))
+      expect(screen.getByTestId("copy-object-modal")).toHaveAttribute("data-object", "readme.txt")
+    })
+
+    test("closes copy modal when onClose is called", async () => {
+      const user = userEvent.setup()
+      renderView({ rows: [makeObject("readme.txt")] })
+      await user.click(screen.getByRole("button", { name: /More/i }))
+      await user.click(screen.getByTestId("copy-action-readme.txt"))
+      expect(screen.getByTestId("copy-object-modal")).toBeInTheDocument()
+      await user.click(screen.getByRole("button", { name: /Cancel/i }))
+      expect(screen.queryByTestId("copy-object-modal")).not.toBeInTheDocument()
+    })
+
+    test("Copy action is not present for folder rows", async () => {
+      const user = userEvent.setup()
+      renderView({ rows: [makeFolder("docs")] })
+      await user.click(screen.getByRole("button", { name: /More/i }))
+      expect(screen.queryByTestId("copy-action-docs/")).not.toBeInTheDocument()
     })
   })
 

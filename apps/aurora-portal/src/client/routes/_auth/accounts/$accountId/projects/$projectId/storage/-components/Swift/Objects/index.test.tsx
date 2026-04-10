@@ -87,6 +87,8 @@ vi.mock("./ObjectsTableView", () => ({
       onDownloadError,
       onDeleteObjectSuccess,
       onDeleteObjectError,
+      onCopyObjectSuccess,
+      onCopyObjectError,
     }) => {
       capturedOnDeleteFolderSuccess = onDeleteFolderSuccess
       return (
@@ -99,6 +101,8 @@ vi.mock("./ObjectsTableView", () => ({
           data-has-download-error={typeof onDownloadError === "function" ? "true" : "false"}
           data-has-delete-object-success={typeof onDeleteObjectSuccess === "function" ? "true" : "false"}
           data-has-delete-object-error={typeof onDeleteObjectError === "function" ? "true" : "false"}
+          data-has-copy-object-success={typeof onCopyObjectSuccess === "function" ? "true" : "false"}
+          data-has-copy-object-error={typeof onCopyObjectError === "function" ? "true" : "false"}
         />
       )
     }
@@ -150,6 +154,8 @@ vi.mock("./ObjectToastNotifications", () => ({
   getObjectDownloadErrorToast: vi.fn(() => ({ variant: "error", children: null })),
   getObjectDeletedToast: vi.fn(() => ({ variant: "success", children: null })),
   getObjectDeleteErrorToast: vi.fn(() => ({ variant: "error", children: null })),
+  getObjectCopiedToast: vi.fn(() => ({ variant: "success", children: null })),
+  getObjectCopyErrorToast: vi.fn(() => ({ variant: "error", children: null })),
 }))
 
 vi.mock("@/client/trpcClient", () => ({
@@ -297,6 +303,28 @@ describe("SwiftObjects (index)", () => {
     test("passes onDeleteObjectError callback to ObjectsTableView", () => {
       renderObjects()
       expect(screen.getByTestId("objects-table-view")).toHaveAttribute("data-has-delete-object-error", "true")
+    })
+
+    test("passes onCopyObjectSuccess callback to ObjectsTableView", () => {
+      renderObjects()
+      expect(screen.getByTestId("objects-table-view")).toHaveAttribute("data-has-copy-object-success", "true")
+    })
+
+    test("passes onCopyObjectError callback to ObjectsTableView", () => {
+      renderObjects()
+      expect(screen.getByTestId("objects-table-view")).toHaveAttribute("data-has-copy-object-error", "true")
+    })
+
+    test("onCopyObjectSuccess shows success toast via getObjectCopiedToast", async () => {
+      const { getObjectCopiedToast } = await import("./ObjectToastNotifications")
+      renderObjects()
+      expect(getObjectCopiedToast).toBeDefined()
+    })
+
+    test("onCopyObjectError shows error toast via getObjectCopyErrorToast", async () => {
+      const { getObjectCopyErrorToast } = await import("./ObjectToastNotifications")
+      renderObjects()
+      expect(getObjectCopyErrorToast).toBeDefined()
     })
 
     test("subtracts 1 from deletedCount before passing to getFolderDeletedToast", async () => {

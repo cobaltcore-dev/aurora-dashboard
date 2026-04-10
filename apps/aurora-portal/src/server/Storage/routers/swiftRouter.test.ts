@@ -830,16 +830,6 @@ describe("swiftRouter", () => {
       const mockCtx = createMockContext()
       const caller = createCaller(mockCtx)
 
-      mockCtx.mockSwift.put.mockResolvedValue({
-        ok: true,
-        headers: new Headers({
-          "Content-Type": "text/plain",
-          "Content-Length": "512",
-          ETag: "xyz789",
-        }),
-      })
-      ;(swiftHelpers.parseObjectMetadata as Mock).mockReturnValue(mockObjectMetadata)
-
       const input = {
         container: "source-container",
         object: "source-object.txt",
@@ -850,13 +840,14 @@ describe("swiftRouter", () => {
 
       expect(mockCtx.mockSwift.put).toHaveBeenCalledWith(
         expect.stringContaining("dest-container/dest-object.txt"),
+        undefined,
         expect.objectContaining({
           headers: expect.objectContaining({
             "X-Copy-From": "/source-container/source-object.txt",
           }),
         })
       )
-      expect(result).toEqual(mockObjectMetadata)
+      expect(result).toBe(true)
     })
 
     it("should handle destination account", async () => {
@@ -874,6 +865,7 @@ describe("swiftRouter", () => {
 
       expect(mockCtx.mockSwift.put).toHaveBeenCalledWith(
         expect.stringContaining("dest-object.txt"),
+        undefined,
         expect.objectContaining({
           headers: expect.objectContaining({
             "X-Copy-From-Account": "AUTH_other",
