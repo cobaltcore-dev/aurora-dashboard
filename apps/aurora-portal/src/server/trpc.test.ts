@@ -10,16 +10,14 @@ import { z } from "zod"
 const createMockContext = (opts?: {
   invalidSession?: boolean
   rescopeFails?: boolean
-  isDomainAdmin?: boolean
-  adminDomains?: Array<{ id: string; name: string }>
+  availableDomains?: Array<{ id: string; name: string }>
   currentProjectId?: string
   currentDomainId?: string
 }) => {
   const {
     invalidSession = false,
     rescopeFails = false,
-    isDomainAdmin = false,
-    adminDomains = [],
+    availableDomains = [],
     currentProjectId,
     currentDomainId,
   } = opts || {}
@@ -32,7 +30,7 @@ const createMockContext = (opts?: {
       tokenData: {
         project: currentProjectId ? { id: currentProjectId } : undefined,
         domain: currentDomainId ? { id: currentDomainId } : undefined,
-        roles: isDomainAdmin ? [{ id: "admin-role-id", name: "admin" }] : [],
+        roles: [],
       },
     }),
     service: vi.fn(),
@@ -42,8 +40,7 @@ const createMockContext = (opts?: {
     validateSession: vi.fn().mockReturnValue(!invalidSession),
     openstack: mockOpenstackSession,
     user: {
-      isDomainAdmin,
-      adminDomains,
+      availableDomains,
     },
     rescopeSession: vi.fn().mockImplementation(async (scope: { projectId?: string; domain_id?: string }) => {
       // Simulate rescoping failure
@@ -258,7 +255,7 @@ describe("domainScopedProcedure", () => {
   })
 
   it("should throw BAD_REQUEST when domain_id is missing from input", async () => {
-    const ctx = createMockContext({ isDomainAdmin: true })
+    const ctx = createMockContext({ availableDomains: [{ id: "domain-123", name: "Domain 123" }] })
 
     const testRouter = auroraRouter({
       test: {
@@ -279,7 +276,7 @@ describe("domainScopedProcedure", () => {
   })
 
   it("should throw BAD_REQUEST when domain_id is an empty string", async () => {
-    const ctx = createMockContext({ isDomainAdmin: true })
+    const ctx = createMockContext({ availableDomains: [{ id: "domain-123", name: "Domain 123" }] })
 
     const testRouter = auroraRouter({
       test: {
@@ -299,31 +296,9 @@ describe("domainScopedProcedure", () => {
     )
   })
 
-  it("should throw FORBIDDEN when user is not a domain admin", async () => {
-    const ctx = createMockContext({ isDomainAdmin: false })
-
-    const testRouter = auroraRouter({
-      test: {
-        testProcedure: domainScopedProcedure.input(z.object({ domain_id: z.string() })).query(async () => {
-          return "success"
-        }),
-      },
-    })
-
-    const caller = createCallerFactory(testRouter)(ctx)
-
-    await expect(caller.test.testProcedure({ domain_id: "domain-123" })).rejects.toThrow(
-      expect.objectContaining({
-        code: "FORBIDDEN",
-        message: "Domain admin rights required for this operation",
-      })
-    )
-  })
-
   it("should throw FORBIDDEN when user does not have access to the requested domain", async () => {
     const ctx = createMockContext({
-      isDomainAdmin: true,
-      adminDomains: [
+      availableDomains: [
         { id: "domain-abc", name: "Domain ABC" },
         { id: "domain-xyz", name: "Domain XYZ" },
       ],
@@ -349,8 +324,7 @@ describe("domainScopedProcedure", () => {
 
   it("should throw UNAUTHORIZED when session rescoping fails", async () => {
     const ctx = createMockContext({
-      isDomainAdmin: true,
-      adminDomains: [{ id: "domain-123", name: "Domain 123" }],
+      availableDomains: [{ id: "domain-123", name: "Domain 123" }],
       rescopeFails: true,
     })
 
@@ -372,10 +346,9 @@ describe("domainScopedProcedure", () => {
     )
   })
 
-  it("should successfully rescope session when user has domain admin rights and access", async () => {
+  it("should successfully rescope session when user has access to the domain", async () => {
     const ctx = createMockContext({
-      isDomainAdmin: true,
-      adminDomains: [
+      availableDomains: [
         { id: "domain-123", name: "Domain 123" },
         { id: "domain-456", name: "Domain 456" },
       ],
@@ -408,8 +381,7 @@ describe("domainScopedProcedure", () => {
 
   it("should work with additional input fields beyond domain_id", async () => {
     const ctx = createMockContext({
-      isDomainAdmin: true,
-      adminDomains: [{ id: "domain-123", name: "Domain 123" }],
+      availableDomains: [{ id: "domain-123", name: "Domain 123" }],
     })
 
     const testRouter = auroraRouter({
@@ -451,8 +423,7 @@ describe("domainScopedProcedure", () => {
 
   it("should cache the scoped token to avoid unnecessary rescoping", async () => {
     const ctx = createMockContext({
-      isDomainAdmin: true,
-      adminDomains: [{ id: "domain-123", name: "Domain 123" }],
+      availableDomains: [{ id: "domain-123", name: "Domain 123" }],
       currentDomainId: "domain-123",
     })
 

@@ -9,10 +9,9 @@ export interface AuroraContext {
   openstack?: Awaited<SignalOpenstackSessionType>
   // User information extracted from the OpenStack token
   user?: {
-    // Indicates if the user has the 'admin' role in the current scope
-    isDomainAdmin: boolean
-    // List of domains where the user has admin rights (derived from token role assignments)
-    adminDomains: Array<{ id: string; name: string }>
+    // List of domains accessible to the user (from /v3/auth/domains)
+    // Used by domainScopedProcedure to validate domain access
+    availableDomains: Array<{ id: string; name: string }>
   }
 }
 
@@ -87,33 +86,70 @@ export async function createContext(opts: CreateFastifyContextOptions): Promise<
 
   const validateSession = () => openstackSession?.isValid() || false
 
-  // Extract user information from token
-  // Check if user has 'admin' role - in OpenStack, domain admin role is typically named 'admin'
-  const getUserInfo = () => {
+  // Cache for user info to avoid repeated API calls
+  let cachedUserInfo: { availableDomains: Array<{ id: string; name: string }> } | undefined
+  let cachedUserId: string | undefined
+
+  // Get list of domains accessible to the user
+  // This is used by domainScopedProcedure to validate domain access
+  // We don't check for specific roles - Keystone will enforce permissions when rescoping
+  const getUserInfo = async () => {
     const token = openstackSession?.getToken()
     if (!token) {
       return undefined
     }
 
-    // Safety check: hasRole might fail if tokenData.roles is undefined
-    // This can happen with certain token types (e.g., unscoped tokens)
-    const isDomainAdmin = token.tokenData.roles ? token.hasRole("admin") : false
-
-    // In OpenStack, when a user has domain-scoped admin role, the domain information
-    // is available in the token's domain field. For simplicity, we'll extract
-    // the current domain if user is an admin. In a real scenario, you might need
-    // to make an additional API call to list all domains the user has admin access to.
-    const adminDomains: Array<{ id: string; name: string }> = []
-    if (isDomainAdmin && token.tokenData.domain) {
-      adminDomains.push({
-        id: token.tokenData.domain.id || "",
-        name: token.tokenData.domain.name || "",
-      })
+    const userId = token.tokenData.user?.id
+    if (!userId) {
+      return undefined
     }
 
-    return {
-      isDomainAdmin,
-      adminDomains,
+    // Return cached result if we've already fetched for this user
+    if (cachedUserId === userId && cachedUserInfo) {
+      return cachedUserInfo
+    }
+
+    try {
+      // Use /v3/auth/domains to discover domains accessible to the user
+      // This endpoint doesn't require special permissions and returns domains
+      // where the user has any role assignment
+      const identityService = openstackSession?.service("identity")
+      if (!identityService) {
+        return undefined
+      }
+
+      console.debug(`[getUserInfo] Fetching accessible domains for user ${userId}`)
+
+      // GET /v3/auth/domains - returns domains accessible to the current user
+      const domainsResponse = await identityService.get("auth/domains", {
+        headers: {
+          Accept: "application/json",
+        },
+      })
+
+      const domainsData = await domainsResponse.json()
+      const domains = domainsData?.domains || []
+
+      console.debug(
+        `[getUserInfo] Found ${domains.length} accessible domains for user ${userId}: ${domains.map((d: { id: string }) => d.id).join(", ")}`
+      )
+
+      const availableDomains: Array<{ id: string; name: string }> = domains.map(
+        (domain: { id: string; name: string }) => ({
+          id: domain.id,
+          name: domain.name || "",
+        })
+      )
+
+      // Cache the result
+      cachedUserId = userId
+      cachedUserInfo = { availableDomains }
+
+      return cachedUserInfo
+    } catch (err) {
+      console.error("Error fetching accessible domains:", err)
+      // Fallback: return empty array if we can't fetch domains
+      return { availableDomains: [] }
     }
   }
 
@@ -182,6 +218,9 @@ export async function createContext(opts: CreateFastifyContextOptions): Promise<
         await openstackSession.rescope(newScope)
         // Update the cookie with the new token
         sessionCookie.set(openstackSession.getToken()?.authToken)
+        // Invalidate user info cache since role assignments may differ with new scope
+        cachedUserId = undefined
+        cachedUserInfo = undefined
         return openstackSession
       } finally {
         // Clean up the pending rescope entry once complete (success or failure)
@@ -246,6 +285,6 @@ export async function createContext(opts: CreateFastifyContextOptions): Promise<
     validateSession,
     openstack: openstackSession,
     getMultipartData,
-    user: getUserInfo(),
+    user: await getUserInfo(),
   }
 }

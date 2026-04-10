@@ -134,22 +134,24 @@ export const projectScopedProcedure = protectedProcedure.use(async function resc
  *
  * Requirements:
  * - User must be authenticated (extends protectedProcedure)
- * - User must have domain admin rights (admin role)
- * - User must have access to the requested domain
+ * - User must have access to the requested domain (validated via ctx.user.availableDomains)
  * - Input schema must extend domainScopedInputSchema
  *
  * Behavior:
  * - Validates that domain_id is present in the input
- * - Verifies that the user has the 'admin' role (domain admin rights)
- * - Verifies that the user has access to the specific domain requested
+ * - Verifies that the domain is in the user's available domains list (from /v3/auth/domains)
  * - Rescopes the OpenStack session to the specified domain using Keystone
+ * - Keystone enforces permissions based on user's actual role assignments in that domain
  * - Caches the scoped token in a cookie to avoid unnecessary rescoping on subsequent requests
  * - Passes the rescoped session to downstream procedures via ctx.openstack
  *
  * Error handling:
  * - BAD_REQUEST: If domain_id is missing or invalid (handled by Zod schema)
- * - FORBIDDEN: If user is not a domain admin or lacks access to the requested domain
+ * - FORBIDDEN: If user lacks access to the requested domain
  * - UNAUTHORIZED: If token rescoping fails (e.g., invalid token, Keystone unavailable)
+ *
+ * Note: We don't check for specific role names (like "admin") because OpenStack roles
+ * are configurable. Instead, we rely on Keystone to enforce permissions when rescoping.
  *
  * Usage example:
  * ```ts
@@ -157,7 +159,8 @@ export const projectScopedProcedure = protectedProcedure.use(async function resc
  *   listUsers: domainScopedProcedure
  *     .input(domainScopedInputSchema.extend({ includeDisabled: z.boolean().optional() }))
  *     .query(async ({ ctx, input }) => {
- *       // Token is already rescoped to the domain with admin privileges
+ *       // Token is already rescoped to the domain
+ *       // Keystone has validated user's permissions in this domain
  *       const identity = ctx.openstack.service("identity")
  *       return identity.users.list()
  *     })
@@ -191,27 +194,19 @@ export const domainScopedProcedure = protectedProcedure.use(async function resco
     })
   }
 
-  // Check if user has domain admin rights
-  // In OpenStack, domain admin privileges are indicated by having the 'admin' role
-  if (!ctx.user?.isDomainAdmin) {
-    throw new TRPCError({
-      code: "FORBIDDEN",
-      message: "Domain admin rights required for this operation",
-    })
-  }
-
   // Verify that the user has access to the specific domain requested
-  // This prevents privilege escalation where an admin of domain A tries to access domain B
-  const hasAccess = ctx.user.adminDomains.some((domain) => domain.id === domain_id)
+  // We check the list of available domains from /v3/auth/domains
+  // Actual permission enforcement happens in Keystone when we rescope
+  const hasAccess = ctx.user?.availableDomains?.some((domain) => domain.id === domain_id)
   if (!hasAccess) {
     throw new TRPCError({
       code: "FORBIDDEN",
-      message: `Access denied. User does not have admin rights for domain ${domain_id}`,
+      message: `Access denied. User does not have access to domain ${domain_id}`,
     })
   }
 
   // Rescope the session to the specified domain
-  // This calls Keystone to get a new token scoped to the domain with admin privileges
+  // Keystone will enforce permissions based on the user's role assignments in that domain
   // The token is automatically cached in a cookie by rescopeSession
   const openstackSession = await ctx.rescopeSession({ domainId: domain_id })
 
