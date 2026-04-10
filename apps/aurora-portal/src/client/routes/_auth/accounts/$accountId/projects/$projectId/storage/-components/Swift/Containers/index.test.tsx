@@ -52,6 +52,147 @@ const { mockContainersUseSearch } = vi.hoisted(() => {
     search: undefined,
   }))
   return { mockContainersUseSearch }
+  describe("Toast notifications", () => {
+    // Helper: open popup menu for a container row
+    const openMenu = async (user: ReturnType<typeof userEvent.setup>, containerName: string) => {
+      const row = screen.getByTestId(`container-row-${containerName}`)
+      const toggle = row.querySelector("button[aria-haspopup='menu']") as HTMLElement
+      await user.click(toggle)
+    }
+
+    test("shows success toast after container is created", async () => {
+      const user = userEvent.setup()
+      renderList()
+      await user.click(screen.getByRole("button", { name: /Create Container/i }))
+      await waitFor(() => expect(screen.getByTestId("create-container-modal")).toBeInTheDocument())
+      await user.click(screen.getByRole("button", { name: "SimulateSuccess" }))
+      await waitFor(() => {
+        expect(screen.getByText(/Container "new-container" was successfully created/i)).toBeInTheDocument()
+      })
+    })
+
+    test("shows error toast when container creation fails", async () => {
+      const user = userEvent.setup()
+      renderList()
+      await user.click(screen.getByRole("button", { name: /Create Container/i }))
+      await waitFor(() => expect(screen.getByTestId("create-container-modal")).toBeInTheDocument())
+      await user.click(screen.getByRole("button", { name: "SimulateError" }))
+      await waitFor(() => {
+        expect(screen.getByText(/Could not create container "new-container": Server error/i)).toBeInTheDocument()
+      })
+    })
+
+    test("shows success toast after container is emptied", async () => {
+      const user = userEvent.setup()
+      renderList()
+      await openMenu(user, "alpha")
+      await user.click(screen.getByTestId("empty-action-alpha"))
+      await waitFor(() => expect(screen.getByTestId("empty-container-modal")).toBeInTheDocument())
+      await user.click(screen.getByRole("button", { name: "SimulateEmptySuccess" }))
+      await waitFor(() => {
+        expect(screen.getByText(/Container "alpha" was successfully emptied/i)).toBeInTheDocument()
+      })
+    })
+
+    test("shows error toast when emptying container fails", async () => {
+      const user = userEvent.setup()
+      renderList()
+      await openMenu(user, "alpha")
+      await user.click(screen.getByTestId("empty-action-alpha"))
+      await waitFor(() => expect(screen.getByTestId("empty-container-modal")).toBeInTheDocument())
+      await user.click(screen.getByRole("button", { name: "SimulateEmptyError" }))
+      await waitFor(() => {
+        expect(screen.getByText(/Could not empty container "alpha": Delete failed/i)).toBeInTheDocument()
+      })
+    })
+
+    test("shows success toast after container is deleted", async () => {
+      const user = userEvent.setup()
+      renderList()
+      await openMenu(user, "alpha")
+      await user.click(screen.getByTestId("delete-action-alpha"))
+      await waitFor(() => expect(screen.getByTestId("delete-container-modal")).toBeInTheDocument())
+      await user.click(screen.getByRole("button", { name: "SimulateDeleteSuccess" }))
+      await waitFor(() => {
+        expect(screen.getByText(/Container "alpha" was successfully deleted/i)).toBeInTheDocument()
+      })
+    })
+
+    test("shows error toast when deleting container fails", async () => {
+      const user = userEvent.setup()
+      renderList()
+      await openMenu(user, "alpha")
+      await user.click(screen.getByTestId("delete-action-alpha"))
+      await waitFor(() => expect(screen.getByTestId("delete-container-modal")).toBeInTheDocument())
+      await user.click(screen.getByRole("button", { name: "SimulateDeleteError" }))
+      await waitFor(() => {
+        expect(screen.getByText(/Could not delete container "alpha": Delete failed/i)).toBeInTheDocument()
+      })
+    })
+
+    test("shows success toast after container properties are updated", async () => {
+      const user = userEvent.setup()
+      renderList()
+      await openMenu(user, "alpha")
+      await user.click(screen.getByTestId("properties-action-alpha"))
+      await waitFor(() => expect(screen.getByTestId("edit-container-modal")).toBeInTheDocument())
+      await user.click(screen.getByRole("button", { name: "SimulateEditSuccess" }))
+      await waitFor(() => {
+        expect(screen.getByText(/Container "alpha" properties were successfully updated/i)).toBeInTheDocument()
+      })
+    })
+
+    test("shows error toast when updating container properties fails", async () => {
+      const user = userEvent.setup()
+      renderList()
+      await openMenu(user, "alpha")
+      await user.click(screen.getByTestId("properties-action-alpha"))
+      await waitFor(() => expect(screen.getByTestId("edit-container-modal")).toBeInTheDocument())
+      await user.click(screen.getByRole("button", { name: "SimulateEditError" }))
+      await waitFor(() => {
+        expect(screen.getByText(/Could not update container "alpha": Update failed/i)).toBeInTheDocument()
+      })
+    })
+
+    test("shows success toast after ACLs are updated", async () => {
+      const user = userEvent.setup()
+      renderList()
+      await openMenu(user, "alpha")
+      await user.click(screen.getByTestId("access-control-action-alpha"))
+      await waitFor(() => expect(screen.getByTestId("manage-access-modal")).toBeInTheDocument())
+      await user.click(screen.getByRole("button", { name: "SimulateAclSuccess" }))
+      await waitFor(() => {
+        expect(screen.getByText(/ACLs for container "alpha" were successfully updated/i)).toBeInTheDocument()
+      })
+    })
+
+    test("shows error toast when ACL update fails", async () => {
+      const user = userEvent.setup()
+      renderList()
+      await openMenu(user, "alpha")
+      await user.click(screen.getByTestId("access-control-action-alpha"))
+      await waitFor(() => expect(screen.getByTestId("manage-access-modal")).toBeInTheDocument())
+      await user.click(screen.getByRole("button", { name: "SimulateAclError" }))
+      await waitFor(() => {
+        expect(screen.getByText(/Could not update ACLs for container "alpha": ACL update failed/i)).toBeInTheDocument()
+      })
+    })
+
+    test("dismisses toast when close button is clicked", async () => {
+      const user = userEvent.setup()
+      renderList()
+      await user.click(screen.getByRole("button", { name: /Create Container/i }))
+      await waitFor(() => expect(screen.getByTestId("create-container-modal")).toBeInTheDocument())
+      await user.click(screen.getByRole("button", { name: "SimulateSuccess" }))
+      await waitFor(() => {
+        expect(screen.getByText(/Container "new-container" was successfully created/i)).toBeInTheDocument()
+      })
+      await user.click(screen.getByRole("button", { name: "close" }))
+      await waitFor(() => {
+        expect(screen.queryByText(/Container "new-container" was successfully created/i)).not.toBeInTheDocument()
+      })
+    })
+  })
 })
 
 vi.mock("@tanstack/react-router", async () => {
@@ -165,6 +306,64 @@ vi.mock("@/client/trpcClient", () => ({
       },
     },
   },
+}))
+
+// ─── Mock toast notification builders ────────────────────────────────────────
+
+vi.mock("./ContainerToastNotifications", () => ({
+  getContainerCreatedToast: vi.fn((name) => ({
+    text: `Container "${name}" was successfully created.`,
+    variant: "success",
+    autoDismiss: true,
+  })),
+  getContainerCreateErrorToast: vi.fn((name, error) => ({
+    text: `Could not create container "${name}": ${error}`,
+    variant: "error",
+    autoDismiss: true,
+  })),
+  getContainerEmptiedToast: vi.fn((name, deletedCount) => ({
+    text:
+      deletedCount === 0
+        ? `Container "${name}" was already empty.`
+        : `Container "${name}" was successfully emptied. ${deletedCount} objects deleted.`,
+    variant: "success",
+    autoDismiss: true,
+  })),
+  getContainerEmptyErrorToast: vi.fn((name, error) => ({
+    text: `Could not empty container "${name}": ${error}`,
+    variant: "error",
+    autoDismiss: true,
+  })),
+  getContainerDeletedToast: vi.fn((name) => ({
+    text: `Container "${name}" was successfully deleted.`,
+    variant: "success",
+    autoDismiss: true,
+  })),
+  getContainerDeleteErrorToast: vi.fn((name, error) => ({
+    text: `Could not delete container "${name}": ${error}`,
+    variant: "error",
+    autoDismiss: true,
+  })),
+  getContainerUpdatedToast: vi.fn((name) => ({
+    text: `Container "${name}" properties were successfully updated.`,
+    variant: "success",
+    autoDismiss: true,
+  })),
+  getContainerUpdateErrorToast: vi.fn((name, error) => ({
+    text: `Could not update container "${name}": ${error}`,
+    variant: "error",
+    autoDismiss: true,
+  })),
+  getContainerAclUpdatedToast: vi.fn((name) => ({
+    text: `ACLs for container "${name}" were successfully updated.`,
+    variant: "success",
+    autoDismiss: true,
+  })),
+  getContainerAclUpdateErrorToast: vi.fn((name, error) => ({
+    text: `Could not update ACLs for container "${name}": ${error}`,
+    variant: "error",
+    autoDismiss: true,
+  })),
 }))
 
 // ─── Mock virtualizer (no layout engine in jsdom) ─────────────────────────────
