@@ -129,8 +129,6 @@ export async function createContext(opts: CreateFastifyContextOptions): Promise<
         return undefined
       }
 
-      console.debug(`[getUserInfo] Fetching accessible domains for user ${userId}`)
-
       // GET /v3/auth/domains - returns domains accessible to the current user
       const domainsResponse = await identityService.get("auth/domains", {
         headers: {
@@ -140,10 +138,6 @@ export async function createContext(opts: CreateFastifyContextOptions): Promise<
 
       const domainsData = await domainsResponse.json()
       const domains = domainsData?.domains || []
-
-      console.debug(
-        `[getUserInfo] Found ${domains.length} accessible domains for user ${userId}: ${domains.map((d: { id: string }) => d.id).join(", ")}`
-      )
 
       const availableDomains: Array<{ id: string; name: string }> = domains.map(
         (domain: { id: string; name: string }) => ({
@@ -193,6 +187,17 @@ export async function createContext(opts: CreateFastifyContextOptions): Promise<
     const sessionToken = token?.authToken
     if (!sessionToken) return null
 
+    // Check if newScope differs from currentScope (no-op rescope check)
+    // Do this early to avoid unnecessary map operations
+    const currentScopeDomainId = token?.tokenData.domain?.id
+    const currentScopeProjectId = token?.tokenData.project?.id
+    const newScopeDomainId = scope.domainId
+    const newScopeProjectId = scope.projectId
+
+    if (currentScopeDomainId === newScopeDomainId && currentScopeProjectId === newScopeProjectId) {
+      return openstackSession
+    }
+
     // Get or create the session-scoped pending rescopes map atomically
     // This ensures that concurrent requests from the same session coordinate their rescopes
     let pendingRescopes = sessionRescopes.get(sessionToken)
@@ -212,16 +217,6 @@ export async function createContext(opts: CreateFastifyContextOptions): Promise<
     // This prevents multiple Keystone API calls for the same scope across concurrent requests
     if (pendingRescopes.has(scopeKey)) {
       return pendingRescopes.get(scopeKey)!
-    }
-
-    const currentScopeDomainId = token?.tokenData.domain?.id
-    const currentScopeProjectId = token?.tokenData.project?.id
-    const newScopeDomainId = scope.domainId
-    const newScopeProjectId = scope.projectId
-
-    // Check if newScope differs from currentScope
-    if (currentScopeDomainId === newScopeDomainId && currentScopeProjectId === newScopeProjectId) {
-      return openstackSession
     }
 
     // Create the rescope promise and store it to prevent race conditions
