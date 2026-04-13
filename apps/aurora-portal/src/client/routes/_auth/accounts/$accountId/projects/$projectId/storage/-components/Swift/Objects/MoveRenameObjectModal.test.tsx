@@ -8,6 +8,25 @@ import { I18nProvider } from "@lingui/react"
 import { MoveRenameObjectModal } from "./MoveRenameObjectModal"
 import type { ObjectRow } from "./"
 
+// ─── Mock virtualizer ─────────────────────────────────────────────────────────
+// useVirtualizer doesn't work in jsdom (no layout engine), so we render all
+// items directly by mocking getVirtualItems to return every row.
+
+vi.mock("@tanstack/react-virtual", () => ({
+  useVirtualizer: ({ count }: { count: number }) => ({
+    getVirtualItems: () =>
+      Array.from({ length: count }, (_, i) => ({
+        index: i,
+        start: i * 32,
+        size: 32,
+        key: i,
+        measureElement: vi.fn(),
+      })),
+    getTotalSize: () => count * 32,
+    measureElement: vi.fn(),
+  }),
+}))
+
 // ─── Mock TanStack Router ─────────────────────────────────────────────────────
 
 vi.mock("@tanstack/react-router", async () => {

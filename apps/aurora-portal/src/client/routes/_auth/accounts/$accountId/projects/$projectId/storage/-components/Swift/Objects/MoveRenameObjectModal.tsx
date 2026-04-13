@@ -13,6 +13,7 @@ import {
 } from "@cloudoperators/juno-ui-components"
 import { useParams } from "@tanstack/react-router"
 import { MdFolder, MdDescription, MdCreateNewFolder, MdArrowBack } from "react-icons/md"
+import { useVirtualizer } from "@tanstack/react-virtual"
 import { ObjectRow, buildRows, BrowserRow } from "./"
 import { ObjectSummary } from "@/server/Storage/types/swift"
 
@@ -48,6 +49,7 @@ export const MoveRenameObjectModal = ({ isOpen, object, onClose, onSuccess, onEr
   const [containerSearch, setContainerSearch] = useState("")
   const [debouncedSearch, setDebouncedSearch] = useState("")
   const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const listRef = useRef<HTMLDivElement>(null)
 
   // Reset state when modal opens or target container changes
   useEffect(() => {
@@ -289,6 +291,19 @@ export const MoveRenameObjectModal = ({ isOpen, object, onClose, onSuccess, onEr
     })
   }
 
+  // ── Virtualized folder browser ─────────────────────────────────────────────
+  // Must be declared before the early return to satisfy Rules of Hooks.
+  const folderRows = rows.filter((r) => r.kind === "folder")
+  const objectRows = rows.filter((r) => r.kind === "object")
+  const allBrowserRows = [...folderRows, ...objectRows]
+
+  const rowVirtualizer = useVirtualizer({
+    count: allBrowserRows.length,
+    getScrollElement: () => listRef.current,
+    estimateSize: () => 32,
+    overscan: 5,
+  })
+
   if (!isOpen || !object) return null
 
   const isPending = copyMutation.isPending || deleteMutation.isPending
@@ -420,44 +435,54 @@ export const MoveRenameObjectModal = ({ isOpen, object, onClose, onSuccess, onEr
             </div>
 
             {/* Object browser list */}
-            <div className="border-theme-background-lvl-2 max-h-56 overflow-y-auto rounded-b border">
+            <div ref={listRef} className="border-theme-background-lvl-2 max-h-56 overflow-y-auto rounded-b border">
               {isLoading ? (
                 <Stack direction="horizontal" alignment="center" gap="2" className="py-6">
                   <Spinner size="small" />
                   <Trans>Loading...</Trans>
                 </Stack>
-              ) : rows.length === 0 && !showNewFolderInput ? (
+              ) : allBrowserRows.length === 0 && !showNewFolderInput ? (
                 <div className="text-theme-light px-4 py-6 text-center text-sm">
                   <Trans>This folder is empty — use New Folder to create one.</Trans>
                 </div>
               ) : (
-                <ul>
-                  {rows
-                    .filter((r) => r.kind === "folder")
-                    .map((row) => (
-                      <li key={row.name}>
-                        <button
-                          type="button"
-                          className="hover:bg-theme-background-lvl-2 focus-visible:outline-theme-focus flex w-full items-center gap-2 px-4 py-2 text-left text-sm focus-visible:outline focus-visible:outline-2"
-                          onClick={() => handleFolderClick(row.name)}
-                        >
-                          <MdFolder size={16} className="text-theme-light shrink-0" />
-                          <span className="truncate">{row.displayName}</span>
-                        </button>
-                      </li>
-                    ))}
-                  {/* Files shown as non-clickable, dimmed — for context only */}
-                  {rows
-                    .filter((r) => r.kind === "object")
-                    .map((row) => (
-                      <li key={row.name}>
-                        <span className="text-theme-light flex items-center gap-2 px-4 py-2 text-sm">
-                          <MdDescription size={16} className="shrink-0" />
-                          <span className="truncate">{row.displayName}</span>
-                        </span>
-                      </li>
-                    ))}
-                </ul>
+                <div style={{ height: `${rowVirtualizer.getTotalSize()}px`, position: "relative" }}>
+                  {rowVirtualizer.getVirtualItems().map((virtualRow) => {
+                    const row = allBrowserRows[virtualRow.index]
+                    const isFolder = row.kind === "folder"
+                    return (
+                      <div
+                        key={row.name}
+                        data-index={virtualRow.index}
+                        ref={rowVirtualizer.measureElement}
+                        style={{
+                          position: "absolute",
+                          top: 0,
+                          left: 0,
+                          width: "100%",
+                          transform: `translateY(${virtualRow.start}px)`,
+                        }}
+                      >
+                        {isFolder ? (
+                          <button
+                            type="button"
+                            className="hover:bg-theme-background-lvl-2 focus-visible:outline-theme-focus flex w-full items-center gap-2 px-4 py-2 text-left text-sm focus-visible:outline focus-visible:outline-2"
+                            onClick={() => handleFolderClick(row.name)}
+                          >
+                            <MdFolder size={16} className="text-theme-light shrink-0" />
+                            <span className="truncate">{row.displayName}</span>
+                          </button>
+                        ) : (
+                          /* Files shown as non-clickable, dimmed — for context only */
+                          <span className="text-theme-light flex items-center gap-2 px-4 py-2 text-sm">
+                            <MdDescription size={16} className="shrink-0" />
+                            <span className="truncate">{row.displayName}</span>
+                          </span>
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
               )}
 
               {/* Inline new folder input */}
