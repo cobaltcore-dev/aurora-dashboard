@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import { useLingui } from "@lingui/react/macro"
 import {
   Modal,
@@ -10,7 +10,6 @@ import {
   DataGridHeadCell,
   DataGridCell,
   TextInput,
-  Message,
 } from "@cloudoperators/juno-ui-components"
 import { GlanceImage } from "@/server/Compute/types/image"
 
@@ -108,6 +107,14 @@ export const EditImageMetadataModal: React.FC<EditImageMetadataModalProps> = ({
   const [isAddingNew, setIsAddingNew] = useState(false)
   const [newKey, setNewKey] = useState("")
   const [newValue, setNewValue] = useState("")
+  const [confirmDeleteIndex, setConfirmDeleteIndex] = useState<number | null>(null)
+
+  useEffect(() => {
+    if (confirmDeleteIndex !== null) {
+      const timer = setTimeout(() => setConfirmDeleteIndex(null), 3000)
+      return () => clearTimeout(timer)
+    }
+  }, [confirmDeleteIndex])
 
   const isSubmitDisabled =
     metadata.every((entry) => !entry.isNew && entry.key === entry.originalKey && entry.value === entry.originalValue) &&
@@ -171,6 +178,7 @@ export const EditImageMetadataModal: React.FC<EditImageMetadataModalProps> = ({
   }
 
   const handleEdit = (index: number) => {
+    setConfirmDeleteIndex(null)
     setMetadata(
       metadata.map((entry, i) => (i === index ? { ...entry, isEditing: true } : { ...entry, isEditing: false }))
     )
@@ -215,6 +223,7 @@ export const EditImageMetadataModal: React.FC<EditImageMetadataModalProps> = ({
 
   const handleDelete = (index: number) => {
     setMetadata(metadata.filter((_, i) => i !== index))
+    setConfirmDeleteIndex(null)
     setErrors({})
   }
 
@@ -307,11 +316,11 @@ export const EditImageMetadataModal: React.FC<EditImageMetadataModalProps> = ({
           </Stack>
 
           {/* Metadata Table */}
-          <DataGrid columns={3} className="mb-6">
+          <DataGrid columns={3} minContentColumns={[2]} className="mb-6">
             <DataGridRow>
               <DataGridHeadCell>{t`Property Key`}</DataGridHeadCell>
               <DataGridHeadCell>{t`Value`}</DataGridHeadCell>
-              <DataGridHeadCell>{t`Actions`}</DataGridHeadCell>
+              <DataGridHeadCell></DataGridHeadCell>
             </DataGridRow>
 
             {/* Add New Row */}
@@ -415,15 +424,27 @@ export const EditImageMetadataModal: React.FC<EditImageMetadataModalProps> = ({
                         title={t`Edit`}
                         disabled={isAddingNew || metadata.some((e) => e.isEditing)}
                       />
-                      <Button
-                        size="small"
-                        variant="primary-danger"
-                        onClick={() => handleDelete(index)}
-                        icon="deleteForever"
-                        data-testid={`delete-${entry.key}`}
-                        title={t`Delete`}
-                        disabled={isAddingNew || metadata.some((e) => e.isEditing)}
-                      />
+                      {confirmDeleteIndex === index ? (
+                        <Button
+                          size="small"
+                          variant="primary-danger"
+                          onClick={() => handleDelete(index)}
+                          data-testid={`confirm-delete-${entry.key}`}
+                          title={t`Delete`}
+                          disabled={isAddingNew || metadata.some((e) => e.isEditing)}
+                        >
+                          {t`Delete`}
+                        </Button>
+                      ) : (
+                        <Button
+                          size="small"
+                          onClick={() => setConfirmDeleteIndex(index)}
+                          icon="deleteForever"
+                          data-testid={`delete-${entry.key}`}
+                          title={t`Delete`}
+                          disabled={isAddingNew || metadata.some((e) => e.isEditing)}
+                        />
+                      )}
                     </Stack>
                   )}
                 </DataGridCell>
@@ -441,14 +462,6 @@ export const EditImageMetadataModal: React.FC<EditImageMetadataModalProps> = ({
               </DataGridRow>
             )}
           </DataGrid>
-
-          {/* Warning Message */}
-          {metadata.length > 0 && (
-            <Message
-              text={t`Changes to metadata will be saved when you click "Save Changes". Make sure all properties are correctly configured before saving.`}
-              variant="warning"
-            />
-          )}
         </div>
       )}
     </Modal>

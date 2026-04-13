@@ -35,7 +35,7 @@ export const ImageMemberFormRow: React.FC<ImageMemberFormRowProps> = ({
           required
         />
       </DataGridCell>
-      <DataGridCell>{t`pending`}</DataGridCell>
+      <DataGridCell></DataGridCell>
       <DataGridCell>
         <ButtonRow>
           <Button icon="check" onClick={onSave} variant="primary" title={t`Add Member`} disabled={isLoading} />

@@ -12,7 +12,7 @@ import * as dotenv from "dotenv"
 import path from "path"
 import { Readable } from "node:stream"
 import { ZodError } from "zod"
-import { AuroraFastifySessionFromToken, AuroraFastifyCsrfProtection } from "./aurora-fastify-plugins"
+import { AuroraFastifyCsrfProtection } from "./aurora-fastify-plugins"
 
 // Load environment variables from .env file
 dotenv.config()
@@ -116,11 +116,6 @@ async function startServer() {
 
       return reply.code(500).send({ message })
     }
-  })
-
-  // Register session restoration plugin
-  server.register(AuroraFastifySessionFromToken, {
-    route: "/auth/restore-session", // Custom route for restoring session from token
   })
 
   server.register(AuroraFastifyCsrfProtection, {

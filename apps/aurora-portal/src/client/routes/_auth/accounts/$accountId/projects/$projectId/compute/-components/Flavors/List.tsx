@@ -87,7 +87,9 @@ function FlavorsContent({
         onSort={handleSortChange}
         onSearch={setSearchTerm}
         actions={
-          permissions.canCreate ? <Button label={t`Create Flavor`} onClick={() => setCreateModalOpen(true)} /> : null
+          permissions.canCreate ? (
+            <Button variant="primary" label={t`Create Flavor`} onClick={() => setCreateModalOpen(true)} />
+          ) : null
         }
       />
 

@@ -1,11 +1,38 @@
-import { Breadcrumb, BreadcrumbItem, Button, Stack, Spinner } from "@cloudoperators/juno-ui-components/index"
+import {
+  Button,
+  ButtonRow,
+  Stack,
+  Spinner,
+  PopupMenu,
+  PopupMenuToggle,
+  PopupMenuOptions,
+  PopupMenuItem,
+  Toast,
+  ToastProps,
+} from "@cloudoperators/juno-ui-components/index"
 import { createFileRoute, redirect, useNavigate, useParams } from "@tanstack/react-router"
+import type { RouteInfo } from "@/client/routes/routeInfo"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { getServiceIndex } from "@/server/Authentication/helpers"
 import { trpcReact } from "@/client/trpcClient"
 import { ImageDetailsView } from "../-components/Images/-components/ImageDetailsView"
+import { EditImageDetailsModal } from "../-components/Images/-components/EditImageDetailsModal"
+import { EditImageMetadataModal } from "../-components/Images/-components/EditImageMetadataModal"
+import { DeleteImageModal } from "../-components/Images/-components/DeleteImageModal"
+import { ActivateImageModal } from "../-components/Images/-components/ActivateImageModal"
+import { DeactivateImageModal } from "../-components/Images/-components/DeactivateImageModal"
+import { IMAGE_STATUSES, IMAGE_VISIBILITY } from "../-constants/filters"
+import { GlanceImage, MemberStatus } from "@/server/Compute/types/image"
+import { TRPCClientError } from "@trpc/client"
+import { InferrableClientTypes } from "@trpc/server/unstable-core-do-not-import"
+import {
+  getImageAccessStatusUpdatedToast,
+  getImageAccessStatusErrorToast,
+} from "../-components/Images/-components/ImageToastNotifications"
+import { useState } from "react"
 
 export const Route = createFileRoute("/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId")({
+  staticData: { section: "compute", service: "images", isDetail: true } satisfies RouteInfo,
   component: RouteComponent,
   beforeLoad: async ({ context, params }) => {
     const { trpcClient } = context
@@ -26,8 +53,8 @@ export const Route = createFileRoute("/_auth/accounts/$accountId/projects/$proje
     if (!serviceIndex["image"]["glance"]) {
       // Redirect to the "Compute Services Overview" page if the "Glance" service is not available
       throw redirect({
-        to: "/accounts/$accountId/projects/$projectId/compute/$",
-        params: { ...params, _splat: undefined },
+        to: "/accounts/$accountId/projects/$projectId/compute/overview",
+        params: { accountId: params.accountId, projectId: params.projectId },
       })
     }
   },
@@ -44,6 +71,88 @@ function RouteComponent() {
 
   const { data: image, status, error } = trpcReact.compute.getImageById.useQuery({ imageId: imageId })
 
+  const { data: permissionsData } = trpcReact.compute.canUserBulk.useQuery([
+    "images:delete",
+    "images:update",
+    "images:create_member",
+    "images:delete_member",
+    "images:update_member",
+  ])
+
+  const permissions = {
+    canDelete: permissionsData?.[0] ?? false,
+    canUpdate: permissionsData?.[1] ?? false,
+    canCreateMember: permissionsData?.[2] ?? false,
+    canDeleteMember: permissionsData?.[3] ?? false,
+    canUpdateMember: permissionsData?.[4] ?? false,
+  }
+
+  const utils = trpcReact.useUtils()
+
+  const [editDetailsModalOpen, setEditDetailsModalOpen] = useState(false)
+  const [editMetadataModalOpen, setEditMetadataModalOpen] = useState(false)
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false)
+  const [activateModalOpen, setActivateModalOpen] = useState(false)
+  const [deactivateModalOpen, setDeactivateModalOpen] = useState(false)
+  const [toastData, setToastData] = useState<ToastProps | null>(null)
+
+  const updateImageMutation = trpcReact.compute.updateImage.useMutation({
+    onSuccess: () => {
+      utils.compute.getImageById.invalidate({ imageId })
+    },
+  })
+
+  const deleteImageMutation = trpcReact.compute.deleteImage.useMutation({
+    onSuccess: () => {
+      utils.compute.listImagesWithPagination.invalidate()
+    },
+  })
+
+  const deactivateImageMutation = trpcReact.compute.deactivateImage.useMutation({
+    onSuccess: () => {
+      utils.compute.getImageById.invalidate({ imageId })
+    },
+  })
+
+  const reactivateImageMutation = trpcReact.compute.reactivateImage.useMutation({
+    onSuccess: () => {
+      utils.compute.getImageById.invalidate({ imageId })
+    },
+  })
+
+  const updateImageVisibilityMutation = trpcReact.compute.updateImageVisibility.useMutation({
+    onSuccess: (updatedImage) => {
+      utils.compute.getImageById.setData({ imageId }, updatedImage)
+    },
+  })
+
+  const isSharedWithMe =
+    image?.visibility === IMAGE_VISIBILITY.SHARED && image?.owner !== undefined && image?.owner !== projectId
+
+  const { data: myMemberData } = trpcReact.compute.getImageMember.useQuery(
+    { imageId: imageId, memberId: projectId },
+    { enabled: isSharedWithMe && !!imageId && !!projectId }
+  )
+
+  const updateMemberMutation = trpcReact.compute.updateImageMember.useMutation({
+    onSuccess: () => {
+      utils.compute.getImageMember.invalidate({ imageId: imageId, memberId: projectId })
+      utils.compute.listImageMembers.invalidate({ imageId: imageId })
+      utils.compute.listImagesWithPagination.invalidate()
+      utils.compute.listSharedImagesByMemberStatus.invalidate()
+    },
+  })
+
+  const handleMemberStatusChange = async (newStatus: MemberStatus) => {
+    try {
+      await updateMemberMutation.mutateAsync({ imageId, memberId: projectId, status: newStatus })
+      setToastData(getImageAccessStatusUpdatedToast(newStatus, { onDismiss: () => setToastData(null) }))
+    } catch (error) {
+      const errorMessage = (error as TRPCClientError<InferrableClientTypes>)?.message
+      setToastData(getImageAccessStatusErrorToast(errorMessage, { onDismiss: () => setToastData(null) }))
+    }
+  }
+
   // Type-safe: name kann string | undefined | null sein
   if (image?.name && typeof image.name === "string") {
     setPageTitle(image.name)
@@ -59,9 +168,82 @@ function RouteComponent() {
 
   const handleBack = () => {
     navigate({
-      to: "/accounts/$accountId/projects/$projectId/compute/$",
-      params: { accountId, projectId, _splat: "images" },
+      to: "/accounts/$accountId/projects/$projectId/compute/images",
+      params: { accountId, projectId },
     })
+  }
+
+  const isLoading =
+    updateImageMutation.isPending ||
+    deleteImageMutation.isPending ||
+    deactivateImageMutation.isPending ||
+    reactivateImageMutation.isPending ||
+    updateImageVisibilityMutation.isPending
+
+  const convertToJsonPatchOperations = (
+    updatedProperties: Partial<GlanceImage>,
+    originalImage: GlanceImage
+  ): Array<{ op: "add" | "replace" | "remove"; path: string; value?: unknown }> => {
+    const operations: Array<{ op: "add" | "replace" | "remove"; path: string; value?: unknown }> = []
+    Object.entries(updatedProperties).forEach(([key, value]) => {
+      const path = `/${key}`
+      if (value === null || value === undefined) {
+        if (key in originalImage) operations.push({ op: "remove", path })
+      } else {
+        const propertyExists = key in originalImage
+        operations.push({ op: propertyExists ? "replace" : "add", path, value })
+      }
+    })
+    return operations
+  }
+
+  const handleSaveEdit = async (updatedProperties: Partial<GlanceImage>) => {
+    if (!image) return
+    const operations = convertToJsonPatchOperations(updatedProperties, image)
+    try {
+      await updateImageMutation.mutateAsync({ imageId, operations })
+      setEditDetailsModalOpen(false)
+      setEditMetadataModalOpen(false)
+    } catch {
+      // keep modal open on error
+    }
+  }
+
+  const handleDelete = async (deletedImage: GlanceImage) => {
+    try {
+      await deleteImageMutation.mutateAsync({ imageId: deletedImage.id })
+      setDeleteModalOpen(false)
+      handleBack()
+    } catch {
+      setDeleteModalOpen(false)
+    }
+  }
+
+  const handleActivate = async (img: GlanceImage) => {
+    try {
+      await reactivateImageMutation.mutateAsync({ imageId: img.id })
+      setActivateModalOpen(false)
+    } catch {
+      setActivateModalOpen(false)
+    }
+  }
+
+  const handleDeactivate = async (img: GlanceImage) => {
+    try {
+      await deactivateImageMutation.mutateAsync({ imageId: img.id })
+      setDeactivateModalOpen(false)
+    } catch {
+      setDeactivateModalOpen(false)
+    }
+  }
+
+  const handleUpdateVisibility = async (newVisibility: "public" | "private" | "shared" | "community") => {
+    if (!image) return
+    try {
+      await updateImageVisibilityMutation.mutateAsync({ imageId: image.id, visibility: newVisibility })
+    } catch {
+      // error handled by mutation state
+    }
   }
 
   // Handle loading state
@@ -105,27 +287,118 @@ function RouteComponent() {
     )
   }
 
-  // Type-safe label für Breadcrumb
-  const displayLabel = (image.name && typeof image.name === "string" ? image.name : image.id) || t`Unknown Image`
+  const isDeactivated = image.status === IMAGE_STATUSES.DEACTIVATED
+  const isPrivate = image.visibility === IMAGE_VISIBILITY.PRIVATE
+  const hasMoreActions = permissions.canUpdate || (permissions.canDelete && !image.protected)
 
   // Render success state
   return (
-    <Stack direction="vertical">
-      <Breadcrumb>
-        <BreadcrumbItem
-          onClick={() => {
-            navigate({
-              to: "/accounts/$accountId/projects/$projectId/compute/$",
-              params: { accountId, projectId, _splat: undefined },
-            })
-          }}
-          label={t`Overview`}
-          icon="home"
+    <>
+      <ImageDetailsView
+        key={image.id}
+        image={image}
+        currentProjectId={projectId}
+        permissions={{
+          canCreateMember: permissions.canCreateMember,
+          canDeleteMember: permissions.canDeleteMember,
+          canUpdateMember: permissions.canUpdateMember,
+        }}
+        myMemberData={myMemberData}
+        onMemberStatusChange={handleMemberStatusChange}
+        isMemberStatusChanging={updateMemberMutation.isPending}
+        actions={
+          hasMoreActions || permissions.canUpdate ? (
+            <ButtonRow>
+              {hasMoreActions && (
+                <PopupMenu>
+                  <PopupMenuToggle as="div">
+                    <Button icon="moreVert" disabled={isLoading}>
+                      <Trans>More Actions</Trans>
+                    </Button>
+                  </PopupMenuToggle>
+                  <PopupMenuOptions>
+                    {permissions.canUpdate && (
+                      <PopupMenuItem
+                        label={isDeactivated ? t`Activate` : t`Deactivate`}
+                        onClick={() => (isDeactivated ? setActivateModalOpen(true) : setDeactivateModalOpen(true))}
+                      />
+                    )}
+                    {permissions.canUpdate && isPrivate && (
+                      <PopupMenuItem label={t`Set to "Shared"`} onClick={() => handleUpdateVisibility("shared")} />
+                    )}
+                    {permissions.canDelete && !image.protected && (
+                      <PopupMenuItem label={t`Delete`} onClick={() => setDeleteModalOpen(true)} />
+                    )}
+                  </PopupMenuOptions>
+                </PopupMenu>
+              )}
+              {permissions.canUpdate && (
+                <Button onClick={() => setEditMetadataModalOpen(true)} disabled={isLoading}>
+                  <Trans>Edit Metadata</Trans>
+                </Button>
+              )}
+              {permissions.canUpdate && (
+                <Button onClick={() => setEditDetailsModalOpen(true)} variant="primary" disabled={isLoading}>
+                  <Trans>Edit Details</Trans>
+                </Button>
+              )}
+            </ButtonRow>
+          ) : undefined
+        }
+      />
+
+      {toastData && <Toast {...toastData} />}
+
+      {editDetailsModalOpen && (
+        <EditImageDetailsModal
+          image={image}
+          isOpen={editDetailsModalOpen}
+          isLoading={updateImageMutation.isPending}
+          onClose={() => setEditDetailsModalOpen(false)}
+          onSave={handleSaveEdit}
         />
-        <BreadcrumbItem onClick={handleBack} label={t`Images`} />
-        <BreadcrumbItem active label={displayLabel} />
-      </Breadcrumb>
-      <ImageDetailsView image={image} />
-    </Stack>
+      )}
+
+      {editMetadataModalOpen && (
+        <EditImageMetadataModal
+          image={image}
+          isOpen={editMetadataModalOpen}
+          isLoading={updateImageMutation.isPending}
+          onClose={() => setEditMetadataModalOpen(false)}
+          onSave={handleSaveEdit}
+        />
+      )}
+
+      {deleteModalOpen && (
+        <DeleteImageModal
+          image={image}
+          isOpen={deleteModalOpen}
+          isLoading={deleteImageMutation.isPending}
+          isDisabled={!!image.protected}
+          onClose={() => setDeleteModalOpen(false)}
+          onDelete={handleDelete}
+        />
+      )}
+
+      {activateModalOpen && (
+        <ActivateImageModal
+          image={image}
+          isOpen={activateModalOpen}
+          isLoading={reactivateImageMutation.isPending}
+          onClose={() => setActivateModalOpen(false)}
+          onActivate={handleActivate}
+        />
+      )}
+
+      {deactivateModalOpen && (
+        <DeactivateImageModal
+          image={image}
+          isOpen={deactivateModalOpen}
+          isLoading={deactivateImageMutation.isPending}
+          onClose={() => setDeactivateModalOpen(false)}
+          onDeactivate={handleDeactivate}
+        />
+      )}
+    </>
   )
 }

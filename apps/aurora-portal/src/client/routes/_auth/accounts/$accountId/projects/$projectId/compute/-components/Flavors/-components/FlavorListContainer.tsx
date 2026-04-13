@@ -47,7 +47,7 @@ export const FlavorListContainer = ({
   const [selectedFlavor, setSelectedFlavor] = useState<Flavor | null>(null)
 
   const { accountId, projectId } = useParams({
-    from: "/_auth/accounts/$accountId/projects/$projectId/compute/$",
+    from: "/_auth/accounts/$accountId/projects/$projectId/compute/flavors/",
   })
 
   const openDeleteModal = (flavor: Flavor) => {

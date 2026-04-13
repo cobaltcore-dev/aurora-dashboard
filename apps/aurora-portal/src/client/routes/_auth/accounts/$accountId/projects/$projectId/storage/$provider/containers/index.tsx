@@ -4,6 +4,7 @@ import { getServiceIndex } from "@/server/Authentication/helpers"
 import { ErrorBoundary } from "react-error-boundary"
 import { SwiftContainers } from "../../-components/Swift/Containers"
 import { Trans, useLingui } from "@lingui/react/macro"
+import type { RouteInfo } from "@/client/routes/routeInfo"
 
 export const checkServiceAvailability = (
   availableServices: {
@@ -87,6 +88,7 @@ const containersSearchSchema = z.object({
 })
 
 export const Route = createFileRoute("/_auth/accounts/$accountId/projects/$projectId/storage/$provider/containers/")({
+  staticData: { section: "storage", service: "containers" } satisfies RouteInfo,
   validateSearch: containersSearchSchema,
   component: () => {
     return <StorageDashboard />

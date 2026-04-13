@@ -1,13 +1,28 @@
-import { Breadcrumb, BreadcrumbItem, Stack, Spinner } from "@cloudoperators/juno-ui-components/index"
+import {
+  Button,
+  ButtonRow,
+  Stack,
+  Spinner,
+  PopupMenu,
+  PopupMenuToggle,
+  PopupMenuOptions,
+  PopupMenuItem,
+} from "@cloudoperators/juno-ui-components/index"
 import { createFileRoute, redirect, useNavigate, useParams } from "@tanstack/react-router"
+import type { RouteInfo } from "@/client/routes/routeInfo"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { getServiceIndex } from "@/server/Authentication/helpers"
 import { trpcReact } from "@/client/trpcClient"
 import { FlavorDetailsView } from "./-components/FlavorDetailsView"
 import { ErrorPage } from "@/client/components/Error/ErrorPage"
 import { useErrorTranslation } from "@/client/utils/useErrorTranslation"
+import { EditSpecModal } from "../-components/Flavors/-components/EditSpecModal"
+import { ManageAccessModal } from "../-components/Flavors/-components/ManageAccessModal"
+import { DeleteFlavorModal } from "../-components/Flavors/-components/DeleteFlavorModal"
+import { useModal } from "@/client/utils/useModal"
 
 export const Route = createFileRoute("/_auth/accounts/$accountId/projects/$projectId/compute/flavors/$flavorId")({
+  staticData: { section: "compute", service: "flavors", isDetail: true } satisfies RouteInfo,
   component: RouteComponent,
   beforeLoad: async ({ context, params }) => {
     const { trpcClient } = context
@@ -30,7 +45,7 @@ function RouteComponent() {
   const { accountId, projectId, flavorId } = useParams({
     from: "/_auth/accounts/$accountId/projects/$projectId/compute/flavors/$flavorId",
   })
-  const { setPageTitle } = Route.useRouteContext()
+  const { setPageTitle, trpcClient } = Route.useRouteContext()
   const navigate = useNavigate()
   const { t } = useLingui()
   const { translateError, isRetryableError } = useErrorTranslation()
@@ -45,6 +60,21 @@ function RouteComponent() {
     flavorId,
   })
 
+  const { data: permissionsData } = trpcReact.compute.canUserBulk.useQuery([
+    "flavors:delete",
+    "flavors:list_projects",
+    "flavor_specs:create",
+    "flavor_specs:delete",
+  ])
+
+  const canDeleteFlavor = permissionsData?.[0] ?? false
+  const canManageAccess = permissionsData?.[1] ?? false
+  const canManageSpecs = (permissionsData?.[2] ?? false) || (permissionsData?.[3] ?? false)
+
+  const [specModalOpen, toggleSpecModal] = useModal()
+  const [accessModalOpen, toggleAccessModal] = useModal()
+  const [deleteModalOpen, toggleDeleteModal] = useModal()
+
   if (flavor?.name) {
     setPageTitle(flavor.name)
   } else if (status === "error") {
@@ -57,15 +87,15 @@ function RouteComponent() {
 
   const handleBack = () => {
     navigate({
-      to: "/accounts/$accountId/projects/$projectId/compute/$",
-      params: { accountId, projectId, _splat: "flavors" },
+      to: "/accounts/$accountId/projects/$projectId/compute/flavors",
+      params: { accountId, projectId },
     })
   }
 
   const handleHome = () => {
     navigate({
-      to: "/accounts/$accountId/projects/$projectId/compute/$",
-      params: { accountId, projectId, _splat: undefined },
+      to: "/accounts/$accountId/projects/$projectId/compute/overview",
+      params: { accountId, projectId },
     })
   }
 
@@ -121,15 +151,68 @@ function RouteComponent() {
     )
   }
 
-  return (
-    <Stack direction="vertical">
-      <Breadcrumb>
-        <BreadcrumbItem onClick={handleHome} label={t`Overview`} icon="home" />
-        <BreadcrumbItem onClick={handleBack} label={t`Flavors`} />
-        <BreadcrumbItem active label={flavor.name || flavorId} />
-      </Breadcrumb>
+  const hasMoreActions = canManageAccess || canDeleteFlavor
 
-      <FlavorDetailsView flavor={flavor} />
-    </Stack>
+  return (
+    <>
+      <Stack direction="vertical">
+        <ButtonRow>
+          {hasMoreActions && (
+            <PopupMenu>
+              <PopupMenuToggle as="div">
+                <Button icon="moreVert">
+                  <Trans>More Actions</Trans>
+                </Button>
+              </PopupMenuToggle>
+              <PopupMenuOptions>
+                {canManageAccess && <PopupMenuItem label={t`Manage Access`} onClick={toggleAccessModal} />}
+                {canDeleteFlavor && <PopupMenuItem label={t`Delete Flavor`} onClick={toggleDeleteModal} />}
+              </PopupMenuOptions>
+            </PopupMenu>
+          )}
+          {canManageSpecs && (
+            <Button onClick={toggleSpecModal} variant="primary">
+              <Trans>Metadata</Trans>
+            </Button>
+          )}
+        </ButtonRow>
+        <FlavorDetailsView flavor={flavor} />
+      </Stack>
+
+      {trpcClient && (
+        <>
+          {specModalOpen && (
+            <EditSpecModal
+              client={trpcClient}
+              isOpen={specModalOpen}
+              onClose={toggleSpecModal}
+              project={projectId}
+              flavor={flavor}
+            />
+          )}
+
+          {accessModalOpen && (
+            <ManageAccessModal
+              client={trpcClient}
+              isOpen={accessModalOpen}
+              onClose={toggleAccessModal}
+              project={projectId}
+              flavor={flavor}
+            />
+          )}
+
+          {deleteModalOpen && (
+            <DeleteFlavorModal
+              client={trpcClient}
+              isOpen={deleteModalOpen}
+              onClose={toggleDeleteModal}
+              project={projectId}
+              flavor={flavor}
+              onSuccess={handleBack}
+            />
+          )}
+        </>
+      )}
+    </>
   )
 }

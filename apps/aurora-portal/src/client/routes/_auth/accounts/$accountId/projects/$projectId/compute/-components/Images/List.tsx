@@ -42,6 +42,7 @@ type RequiredSortSettings = {
 
 type ImagesContentProps = {
   imagesPromise: ReturnType<typeof createImagesPromise>
+  imageOverrides: Map<string, GlanceImage>
   permissionsPromise: Promise<{
     canCreate: boolean
     canDelete: boolean
@@ -72,10 +73,12 @@ type ImagesContentProps = {
   hasNextPage: boolean
   isFetchingNextPage: boolean
   fetchNextPage: () => void
+  onImageUpdated: (image: GlanceImage) => void
 }
 
 function ImagesContent({
   imagesPromise,
+  imageOverrides,
   permissionsPromise,
   searchTerm,
   setSearchTerm,
@@ -99,12 +102,22 @@ function ImagesContent({
   hasNextPage,
   isFetchingNextPage,
   fetchNextPage,
+  onImageUpdated,
 }: ImagesContentProps) {
   const { t } = useLingui()
   const imagesData = use(imagesPromise)
   const permissions = use(permissionsPromise)
 
-  const images = imagesData.images
+  const images = imagesData.images.map((img) => imageOverrides.get(img.id) ?? img)
+
+  const activeFilterSettings =
+    memberStatusView === "pending" || memberStatusView === "accepted"
+      ? {
+          ...filterSettings,
+          filters: filterSettings.filters.filter((f) => f.filterName !== "visibility"),
+          selectedFilters: (filterSettings.selectedFilters || []).filter((f) => f.name !== "visibility"),
+        }
+      : filterSettings
 
   // Only consider images that are in the current filtered/searched dataset
   const displayedImageIds = new Set(images.map((image: GlanceImage) => image.id))
@@ -160,7 +173,7 @@ function ImagesContent({
     <>
       <ListToolbar
         sortSettings={sortSettings}
-        filterSettings={filterSettings}
+        filterSettings={activeFilterSettings}
         searchTerm={searchTerm}
         onSort={handleSortChange}
         onFilter={handleFilterChange}
@@ -226,6 +239,7 @@ function ImagesContent({
         protectedImages={protectedImages}
         activeImages={activeImages}
         deactivatedImages={deactivatedImages}
+        onImageUpdated={onImageUpdated}
       />
     </>
   )
@@ -293,15 +307,16 @@ export const Images = ({ client }: ImagesProps) => {
   const [memberStatusView, setMemberStatusView] = useState<"all" | "pending" | "accepted">("all")
   const memberStatusFilter = memberStatusView === "all" ? undefined : memberStatusView
 
-  const [isFetching, setIsFetching] = useState(false)
+  const [isFetching, setIsFetching] = useState(true)
   const [isFetchingNextPage, setIsFetchingNextPage] = useState(false)
   const [allImages, setAllImages] = useState<GlanceImage[]>([])
   const [nextMarker, setNextMarker] = useState<string | undefined>()
-  const [imagesPromise, setImagesPromise] = useState(() =>
-    createImagesPromise(client, sortSettings.sortBy, sortSettings.sortDirection, searchTerm, {
-      ...buildFilterParams(filterSettings.selectedFilters || [], filterSettings.filters),
-      member_status: memberStatusFilter,
-    })
+  const [imageOverrides, setImageOverrides] = useState<Map<string, GlanceImage>>(new Map())
+  const [imagesPromise, setImagesPromise] = useState<ReturnType<typeof createImagesPromise>>(
+    () =>
+      new Promise(() => {
+        // Placeholder: replaced immediately by useEffect on mount
+      }) as ReturnType<typeof createImagesPromise>
   )
   const [permissionsPromise] = useState(() => createPermissionsPromise(client))
 
@@ -317,7 +332,12 @@ export const Images = ({ client }: ImagesProps) => {
         sortSettings.sortDirection,
         searchTerm,
         {
-          ...buildFilterParams(filterSettings.selectedFilters || [], filterSettings.filters),
+          ...buildFilterParams(
+            memberStatusView === "pending" || memberStatusView === "accepted"
+              ? (filterSettings.selectedFilters || []).filter((f) => f.name !== "visibility")
+              : filterSettings.selectedFilters || [],
+            filterSettings.filters
+          ),
           member_status: memberStatusFilter,
         },
         nextMarker
@@ -341,6 +361,9 @@ export const Images = ({ client }: ImagesProps) => {
   }, [nextMarker, client, sortSettings, searchTerm, filterSettings, memberStatusView, allImages, isFetchingNextPage])
 
   // Sync URL params to state and refetch when URL changes (single source of truth)
+  const handleImageUpdated = useCallback((updatedImage: GlanceImage) => {
+    setImageOverrides((prev) => new Map(prev).set(updatedImage.id, updatedImage))
+  }, [])
   useEffect(() => {
     const urlFilters = parseFiltersFromUrl(searchParams)
     const urlSortBy = searchParams.sortBy || "created_at"
@@ -361,20 +384,31 @@ export const Images = ({ client }: ImagesProps) => {
     // Reset pagination state
     setAllImages([])
     setNextMarker(undefined)
+    setImageOverrides(new Map())
 
     // Refetch with URL state (single fetch path)
     setIsFetching(true)
     startTransition(() => {
+      const effectiveFilters =
+        memberStatusView === "pending" || memberStatusView === "accepted"
+          ? (urlFilters || []).filter((f) => f.name !== "visibility")
+          : urlFilters || []
       const newPromise = createImagesPromise(client, urlSortBy, urlSortDirection, urlSearchTerm, {
-        ...buildFilterParams(urlFilters || [], filterSettings.filters),
+        ...buildFilterParams(effectiveFilters, filterSettings.filters),
         member_status: memberStatusFilter,
       })
       // Mark fetching as complete once the promise resolves and update state
-      newPromise.then((result) => {
-        setAllImages(result.images)
-        setNextMarker(result.next)
-        setIsFetching(false)
-      })
+      newPromise
+        .then((result) => {
+          setAllImages(result.images)
+          setNextMarker(result.next)
+        })
+        .catch(() => {
+          // Error is handled by the ErrorBoundary via use(imagesPromise)
+        })
+        .finally(() => {
+          setIsFetching(false)
+        })
       setImagesPromise(newPromise)
     })
   }, [
@@ -448,6 +482,7 @@ export const Images = ({ client }: ImagesProps) => {
       >
         <ImagesContent
           imagesPromise={imagesPromise}
+          imageOverrides={imageOverrides}
           permissionsPromise={permissionsPromise}
           searchTerm={searchTerm}
           setSearchTerm={handleSearchChange}
@@ -471,6 +506,7 @@ export const Images = ({ client }: ImagesProps) => {
           hasNextPage={!!nextMarker}
           isFetchingNextPage={isFetchingNextPage}
           fetchNextPage={fetchNextPage}
+          onImageUpdated={handleImageUpdated}
         />
       </Suspense>
     </div>

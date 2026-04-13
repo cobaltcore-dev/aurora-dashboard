@@ -5,6 +5,7 @@ import { ErrorBoundary } from "react-error-boundary"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { SwiftObjects } from "../../../../-components/Swift/Objects"
 import { z } from "zod"
+import type { RouteInfo } from "@/client/routes/routeInfo"
 
 export const checkServiceAvailability = (
   availableServices: {
@@ -92,6 +93,7 @@ const objectsSearchSchema = z.object({
 export const Route = createFileRoute(
   "/_auth/accounts/$accountId/projects/$projectId/storage/$provider/containers/$containerName/objects/"
 )({
+  staticData: { section: "storage", service: "containers", isDetail: true } satisfies RouteInfo,
   validateSearch: objectsSearchSchema,
   component: () => {
     return <ObjectsDashboard />
