@@ -52,7 +52,9 @@ export const Route = createFileRoute("/_auth/accounts/$accountId/projects/$proje
       ...search,
       status: imagesSearchFields.status.safeParse(search.status).success ? search.status : undefined,
       visibility: imagesSearchFields.visibility.safeParse(search.visibility).success ? search.visibility : undefined,
-      disk_format: imagesSearchFields.disk_format.safeParse(search.disk_format).success ? search.disk_format : undefined,
+      disk_format: imagesSearchFields.disk_format.safeParse(search.disk_format).success
+        ? search.disk_format
+        : undefined,
       container_format: imagesSearchFields.container_format.safeParse(search.container_format).success
         ? search.container_format
         : undefined,
