@@ -269,6 +269,18 @@ describe("DeleteContainerModal", () => {
       renderModal({ container: makeContainer({ count: 5 }) })
       expect(screen.getByRole("button", { name: /Got it!/i })).toBeInTheDocument()
     })
+
+    test("shows sync delay info message when count > 0 but no objects listed", () => {
+      listObjectsData = []
+      renderModal({ container: makeContainer({ count: 5 }) })
+      expect(screen.getByText(/temporary synchronization delay/i)).toBeInTheDocument()
+    })
+
+    test("does not show sync delay info message when objects are actually listed", () => {
+      listObjectsData = [makeObject("file.txt")]
+      renderModal({ container: makeContainer({ count: 1 }) })
+      expect(screen.queryByText(/temporary synchronization delay/i)).not.toBeInTheDocument()
+    })
   })
 
   describe("Versioned container", () => {
