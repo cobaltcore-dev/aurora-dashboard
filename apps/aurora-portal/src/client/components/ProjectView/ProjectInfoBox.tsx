@@ -152,10 +152,9 @@ export function ProjectInfoBox({ projectInfo }: ProjectInfoBoxProps) {
           items.push({
             label: serviceLabel,
             onClick: () => {
-              const path =
-                `/accounts/${accountId}/projects/${projectId}/${section}/${service}` as Parameters<
-                  typeof navigate
-                >[0]["to"]
+              const path = `/accounts/${accountId}/projects/${projectId}/${section}/${service}` as Parameters<
+                typeof navigate
+              >[0]["to"]
               navigate({ to: path })
             },
           })
