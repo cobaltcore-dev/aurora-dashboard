@@ -18,7 +18,7 @@ export const flavorSchema = z.object({
   rxtx_factor: z.number().optional(),
   description: z.string().nullable().optional(),
   links: z.array(linkSchema).optional(),
-  extra_specs: z.record(z.string()).optional(),
+  extra_specs: z.record(z.string(), z.string()).optional(),
 })
 
 export const flavorResponseSchema = z.object({

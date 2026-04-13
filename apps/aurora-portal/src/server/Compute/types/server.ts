@@ -13,7 +13,7 @@ const addressItemSchema = z.object({
   version: z.number().optional(),
 })
 
-const addressesSchema = z.record(z.array(addressItemSchema))
+const addressesSchema = z.record(z.string(), z.array(addressItemSchema))
 
 export const serverSchema = z
   .object({
@@ -29,7 +29,7 @@ export const serverSchema = z
       .object({
         disk: z.number().optional(),
         ephemeral: z.number().optional(),
-        extra_specs: z.record(z.any()).optional(),
+        extra_specs: z.record(z.string(), z.any()).optional(),
         original_name: z.string().optional(),
         ram: z.number().optional(),
         swap: z.number().optional(),
@@ -53,7 +53,7 @@ export const serverSchema = z
     links: z.array(linkSchema).optional(),
     locked: z.boolean().optional(),
     locked_reason: z.string().optional().nullable(),
-    metadata: z.record(z.string()).optional(),
+    metadata: z.record(z.string(), z.string()).optional(),
     name: z.string().optional().nullable(),
     "OS-DCF:diskConfig": z.union([z.literal("AUTO"), z.literal("MANUAL")]).optional(),
     "OS-EXT-AZ:availability_zone": z.string().optional().nullable(),

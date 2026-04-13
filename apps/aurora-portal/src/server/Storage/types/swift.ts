@@ -38,8 +38,8 @@ export const serviceInfoSchema = z.object({
       .optional(),
 
     // Quotas
-    container_quotas: z.object({}).optional(),
-    account_quotas: z.object({}).optional(),
+    container_quotas: z.unknown().optional(),
+    account_quotas: z.unknown().optional(),
 
     // Large objects
     slo: z
@@ -70,9 +70,9 @@ export const serviceInfoSchema = z.object({
     max_header_size: z.number().optional(),
 
     // Additional features
-    container_sync: z.object({}).optional(),
-    symlink: z.object({}).optional(),
-    versioned_writes: z.object({}).optional(),
+    container_sync: z.unknown().optional(),
+    symlink: z.unknown().optional(),
+    versioned_writes: z.unknown().optional(),
   }),
 })
 
@@ -97,7 +97,7 @@ const baseObjectInputSchema = baseContainerInputSchema.extend({
 // ============================================================================
 
 // Account metadata schema
-export const accountMetadataSchema = z.record(z.string())
+export const accountMetadataSchema = z.record(z.string(), z.string())
 
 // Account info schema (from response headers)
 export const accountInfoSchema = z.object({
@@ -132,7 +132,7 @@ export const listContainersInputSchema = baseAccountInputSchema.extend({
 
 // Update account metadata input schema
 export const updateAccountMetadataInputSchema = baseAccountInputSchema.extend({
-  metadata: z.record(z.string()), // Custom metadata to set/update
+  metadata: z.record(z.string(), z.string()), // Custom metadata to set/update
   removeMetadata: z.array(z.string()).optional(), // Metadata keys to remove
   tempUrlKey: z.string().optional(),
   tempUrlKey2: z.string().optional(),
@@ -151,7 +151,7 @@ export const deleteAccountInputSchema = baseAccountInputSchema
 // ============================================================================
 
 // Container metadata schema
-export const containerMetadataSchema = z.record(z.string())
+export const containerMetadataSchema = z.record(z.string(), z.string())
 
 // Container info schema (from response headers)
 export const containerInfoSchema = z.object({
@@ -197,7 +197,7 @@ export const listObjectsInputSchema = baseContainerInputSchema.extend({
 
 // Create container input schema
 export const createContainerInputSchema = baseContainerInputSchema.extend({
-  metadata: z.record(z.string()).optional(),
+  metadata: z.record(z.string(), z.string()).optional(),
   read: z.string().optional(), // Read ACL
   write: z.string().optional(), // Write ACL
   storagePolicy: z.string().optional(),
@@ -211,7 +211,7 @@ export const createContainerInputSchema = baseContainerInputSchema.extend({
 
 // Update container metadata input schema
 export const updateContainerMetadataInputSchema = baseContainerInputSchema.extend({
-  metadata: z.record(z.string()).optional(),
+  metadata: z.record(z.string(), z.string()).optional(),
   removeMetadata: z.array(z.string()).optional(),
   read: z.string().optional(),
   write: z.string().optional(),
@@ -246,7 +246,7 @@ export const objectMetadataSchema = z.object({
   etag: z.string().optional(),
   lastModified: z.string().optional(),
   deleteAt: z.number().optional(),
-  customMetadata: z.record(z.string()).optional(),
+  customMetadata: z.record(z.string(), z.string()).optional(),
   objectManifest: z.string().optional(), // For dynamic large objects
   staticLargeObject: z.boolean().optional(),
   symlinkTarget: z.string().optional(),
@@ -274,7 +274,7 @@ export const createObjectInputSchema = baseObjectInputSchema.extend({
   etag: z.string().optional(), // MD5 checksum for verification
   deleteAt: z.number().optional(), // Unix timestamp
   deleteAfter: z.number().optional(), // Seconds from now
-  metadata: z.record(z.string()).optional(),
+  metadata: z.record(z.string(), z.string()).optional(),
   objectManifest: z.string().optional(), // For dynamic large objects
   multipartManifest: z.enum(["put"]).optional(), // For static large objects
   detectContentType: z.boolean().optional(),
@@ -286,7 +286,7 @@ export const createObjectInputSchema = baseObjectInputSchema.extend({
 
 // Update object metadata input schema
 export const updateObjectMetadataInputSchema = baseObjectInputSchema.extend({
-  metadata: z.record(z.string()).optional(),
+  metadata: z.record(z.string(), z.string()).optional(),
   contentType: z.string().optional(),
   contentEncoding: z.string().optional(),
   contentDisposition: z.string().optional(),
@@ -298,7 +298,7 @@ export const updateObjectMetadataInputSchema = baseObjectInputSchema.extend({
 export const copyObjectInputSchema = baseObjectInputSchema.extend({
   destination: z.string(), // Format: "/container/object"
   destinationAccount: z.string().optional(),
-  metadata: z.record(z.string()).optional(), // New metadata for copied object
+  metadata: z.record(z.string(), z.string()).optional(), // New metadata for copied object
   contentType: z.string().optional(),
   contentEncoding: z.string().optional(),
   contentDisposition: z.string().optional(),
@@ -352,7 +352,7 @@ export const bulkDeleteResultSchema = z.object({
 // Create folder input schema
 export const createFolderInputSchema = baseContainerInputSchema.extend({
   folderPath: z.string().min(1), // e.g., "documents/2024/reports/" (should end with /)
-  metadata: z.record(z.string()).optional(),
+  metadata: z.record(z.string(), z.string()).optional(),
 })
 
 // List folder contents input schema

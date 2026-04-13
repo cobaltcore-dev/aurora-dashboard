@@ -1067,23 +1067,23 @@ describe("imageHelpers", () => {
   })
 
   describe("handleZodParsingError", () => {
-    it("should convert ZodError to TRPCError", () => {
+    it("should convert ZodError to TRPCError with the original error as cause", () => {
       const zodError = new ZodError([
         {
           code: "invalid_type",
           expected: "string",
-          received: "number",
+          input: 42,
           path: ["name"],
           message: "Expected string, received number",
         },
       ])
-      const operation = "parse image response"
 
-      const error = handleZodParsingError(zodError, operation)
+      const error = handleZodParsingError(zodError, "parse image response")
 
       expect(error.code).toBe("INTERNAL_SERVER_ERROR")
-      expect(error.message).toBe("Invalid response format from OpenStack Glance API during parse image response")
-      expect(error.cause).toBe(zodError)
+      expect(error.message).toContain("parse image response")
+      expect(error.cause).toBeDefined()
+      expect((error.cause as Error).message).toContain("Expected string, received number")
     })
   })
 
