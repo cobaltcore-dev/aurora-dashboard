@@ -411,8 +411,15 @@ export const sortSecurityGroups = <T extends Record<string, unknown>>(
 
     // Handle null/undefined values - always place them at the end
     // regardless of sort direction (OpenStack behavior)
-    if (aValue === null || aValue === undefined) return 1
-    if (bValue === null || bValue === undefined) return -1
+    const aIsNullish = aValue === null || aValue === undefined
+    const bIsNullish = bValue === null || bValue === undefined
+
+    // Both nullish - they are equal
+    if (aIsNullish && bIsNullish) return 0
+    // Only aValue is nullish - place it after bValue
+    if (aIsNullish) return 1
+    // Only bValue is nullish - place it after aValue
+    if (bIsNullish) return -1
 
     // String comparison
     if (typeof aValue === "string" && typeof bValue === "string") {

@@ -188,12 +188,13 @@ export async function createContext(opts: CreateFastifyContextOptions): Promise<
     const sessionToken = token?.authToken
     if (!sessionToken) return null
 
-    // Get or create the session-scoped pending rescopes map
+    // Get or create the session-scoped pending rescopes map atomically
     // This ensures that concurrent requests from the same session coordinate their rescopes
-    if (!sessionRescopes.has(sessionToken)) {
-      sessionRescopes.set(sessionToken, new Map())
+    let pendingRescopes = sessionRescopes.get(sessionToken)
+    if (!pendingRescopes) {
+      pendingRescopes = new Map()
+      sessionRescopes.set(sessionToken, pendingRescopes)
     }
-    const pendingRescopes = sessionRescopes.get(sessionToken)!
 
     // Generate a unique key for this scope to detect concurrent rescope requests
     const scopeKey = scope.projectId
@@ -236,11 +237,23 @@ export async function createContext(opts: CreateFastifyContextOptions): Promise<
         // Update the cookie with the new token
         sessionCookie.set(newAuthToken)
 
-        // If the auth token changed, we need to move the pending rescopes to the new token
+        // If the auth token changed, we need to migrate the pending rescopes to the new token
         if (newAuthToken && newAuthToken !== sessionToken) {
           const oldPendingRescopes = sessionRescopes.get(sessionToken)
           if (oldPendingRescopes) {
-            sessionRescopes.set(newAuthToken, oldPendingRescopes)
+            // Check if there's already a map under the new token (from concurrent requests)
+            const existingRescopes = sessionRescopes.get(newAuthToken)
+            if (existingRescopes) {
+              // Merge oldPendingRescopes into existing map to avoid overwriting
+              for (const [key, value] of oldPendingRescopes.entries()) {
+                if (!existingRescopes.has(key)) {
+                  existingRescopes.set(key, value)
+                }
+              }
+            } else {
+              // No existing map, safe to move the old one
+              sessionRescopes.set(newAuthToken, oldPendingRescopes)
+            }
             sessionRescopes.delete(sessionToken)
           }
         }

@@ -313,6 +313,21 @@ describe("sortSecurityGroups", () => {
     const result = sortSecurityGroups(mockSecurityGroups, "name")
     expect(result.map((sg) => sg.name)).toEqual(["alpha", "beta", "zebra"])
   })
+
+  it("handles multiple null values correctly (comparator symmetry)", () => {
+    const itemsWithMultipleNulls = [
+      { id: "1", name: "alpha", value: null },
+      { id: "2", name: "beta", value: 100 },
+      { id: "3", name: "gamma", value: null },
+      { id: "4", name: "delta", value: 50 },
+      { id: "5", name: "epsilon", value: undefined },
+    ]
+
+    const result = sortSecurityGroups(itemsWithMultipleNulls, "value", "asc")
+    // Non-null values first (50, 100), then all nullish values last
+    // Nullish values should maintain relative order from original array
+    expect(result.map((item) => item.id)).toEqual(["4", "2", "1", "3", "5"])
+  })
 })
 
 describe("applyMarkerPagination", () => {
