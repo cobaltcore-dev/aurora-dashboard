@@ -234,8 +234,10 @@ export async function createContext(opts: CreateFastifyContextOptions): Promise<
         const newToken = openstackSession.getToken()
         const newAuthToken = newToken?.authToken
 
-        // Update the cookie with the new token
-        sessionCookie.set(newAuthToken)
+        // Only update the cookie when a valid token is available
+        if (newAuthToken) {
+          sessionCookie.set(newAuthToken)
+        }
 
         // If the auth token changed, we need to migrate the pending rescopes to the new token
         if (newAuthToken && newAuthToken !== sessionToken) {
@@ -263,6 +265,10 @@ export async function createContext(opts: CreateFastifyContextOptions): Promise<
         cachedUserInfo = undefined
 
         return openstackSession
+      } catch {
+        // Return null on any rescope error (network failure, invalid scope, insufficient permissions)
+        // The caller (projectScopedProcedure/domainScopedProcedure) will handle this by throwing TRPCError
+        return null
       } finally {
         // Clean up the pending rescope entry once complete (success or failure)
         pendingRescopes.delete(scopeKey)
