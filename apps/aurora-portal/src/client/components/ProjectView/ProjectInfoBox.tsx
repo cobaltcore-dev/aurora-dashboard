@@ -151,9 +151,13 @@ export function ProjectInfoBox({ projectInfo }: ProjectInfoBoxProps) {
         } else {
           items.push({
             label: serviceLabel,
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            onClick: () =>
-              navigate({ to: `/accounts/${accountId}/projects/${projectId}/${section}/${service}` as any }),
+            onClick: () => {
+              const path =
+                `/accounts/${accountId}/projects/${projectId}/${section}/${service}` as Parameters<
+                  typeof navigate
+                >[0]["to"]
+              navigate({ to: path })
+            },
           })
         }
       }
