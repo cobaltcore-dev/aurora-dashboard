@@ -53,7 +53,7 @@ export const Route = createFileRoute("/_auth/accounts/$accountId/projects/$proje
     if (!serviceIndex["image"]["glance"]) {
       // Redirect to the "Compute Services Overview" page if the "Glance" service is not available
       throw redirect({
-        to: "/accounts/$accountId/projects/$projectId/compute/images",
+        to: "/accounts/$accountId/projects/$projectId/compute/overview",
         params: { accountId: params.accountId, projectId: params.projectId },
       })
     }

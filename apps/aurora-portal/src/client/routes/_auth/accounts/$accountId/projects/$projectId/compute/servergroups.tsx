@@ -8,8 +8,8 @@ export const Route = createFileRoute("/_auth/accounts/$accountId/projects/$proje
   beforeLoad: async ({ context, params }) => {
     const { trpcClient } = context
     const { accountId, projectId } = params
-    const availableServices = await trpcClient?.auth.getAvailableServices.query()
-    const serviceIndex = getServiceIndex(availableServices!)
+    const availableServices = (await trpcClient?.auth.getAvailableServices.query()) ?? []
+    const serviceIndex = getServiceIndex(availableServices)
 
     if (!serviceIndex["compute"]?.["nova"]) {
       throw redirect({

@@ -9,6 +9,7 @@ export function isRouteInfo(data: unknown): data is RouteInfo {
     typeof data === "object" &&
     data !== null &&
     typeof (data as RouteInfo).section === "string" &&
-    (typeof (data as RouteInfo).service === "string" || (data as RouteInfo).service === undefined)
+    (typeof (data as RouteInfo).service === "string" || (data as RouteInfo).service === undefined) &&
+    (typeof (data as RouteInfo).isDetail === "boolean" || (data as RouteInfo).isDetail === undefined)
   )
 }

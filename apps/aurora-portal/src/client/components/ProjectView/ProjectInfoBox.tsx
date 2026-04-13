@@ -148,6 +148,12 @@ export function ProjectInfoBox({ projectInfo }: ProjectInfoBoxProps) {
                 params: { accountId, projectId },
               }),
           })
+        } else {
+          items.push({
+            label: serviceLabel,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            onClick: () => navigate({ to: `/accounts/${accountId}/projects/${projectId}/${section}/${service}` as any }),
+          })
         }
       }
     }
