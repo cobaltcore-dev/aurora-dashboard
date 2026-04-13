@@ -42,6 +42,31 @@ function parseAclEntry(raw: string): ParsedAclEntry {
     return { raw: entry, label: "ANY referer", description: "", requiresToken: false }
   }
 
+  // .r:<referrer> or .r:-<referrer> — specific referrer granted (or denied) access
+  if (entry.startsWith(".r:")) {
+    const referrer = entry.slice(3)
+    const isDeny = referrer.startsWith("-")
+    const host = isDeny ? referrer.slice(1) : referrer
+    return {
+      raw: entry,
+      label: isDeny ? `Denied referer: ${host}` : `Specific referer: ${host}`,
+      description: "",
+      requiresToken: false,
+    }
+  }
+
+  // .r:-<referrer> — deny a specific referrer
+  if (entry.startsWith(".r:-")) {
+    const referrer = entry.slice(4)
+    return { raw: entry, label: `Denied referrer: ${referrer}`, description: "", requiresToken: false }
+  }
+
+  // .r:<referrer> — grant access to a specific referrer
+  if (entry.startsWith(".r:")) {
+    const referrer = entry.slice(3)
+    return { raw: entry, label: `Referrer: ${referrer}`, description: "", requiresToken: false }
+  }
+
   if (entry === ".rlistings") {
     return { raw: entry, label: "Listing access", description: "", requiresToken: false }
   }
@@ -390,10 +415,12 @@ export const ManageContainerAccessModal = ({
                     </p>
                     <div className="border-theme-background-lvl-3 divide-theme-background-lvl-3 divide-y rounded border">
                       {parsedReadEntries.map((entry, i) => (
-                        <div key={i} className="flex items-center justify-between gap-3 px-3 py-2">
-                          <div className="min-w-0">
-                            <p className="text-theme-default truncate text-sm font-medium">{entry.label}</p>
-                            <p className="text-theme-light text-xs">
+                        <div key={i} className="flex flex-col gap-1 px-3 py-2">
+                          <div className="flex items-center justify-between gap-3">
+                            <p className="text-theme-default truncate text-sm font-medium" title={entry.label}>
+                              {entry.label}
+                            </p>
+                            <p className="text-theme-light shrink-0 text-xs">
                               {entry.requiresToken ? (
                                 <Trans>valid token required: true</Trans>
                               ) : (
@@ -401,9 +428,9 @@ export const ManageContainerAccessModal = ({
                               )}
                             </p>
                           </div>
-                          <Badge variant="info" className="shrink-0 font-mono text-xs">
+                          <code className="text-theme-light bg-theme-background-lvl-2 block w-full rounded px-2 py-1 font-mono text-xs break-all">
                             {entry.raw}
-                          </Badge>
+                          </code>
                         </div>
                       ))}
                     </div>
@@ -417,16 +444,18 @@ export const ManageContainerAccessModal = ({
                     </p>
                     <div className="border-theme-background-lvl-3 divide-theme-background-lvl-3 divide-y rounded border">
                       {parsedWriteEntries.map((entry, i) => (
-                        <div key={i} className="flex items-center justify-between gap-3 px-3 py-2">
-                          <div className="min-w-0">
-                            <p className="text-theme-default truncate text-sm font-medium">{entry.label}</p>
-                            <p className="text-theme-light text-xs">
+                        <div key={i} className="flex flex-col gap-1 px-3 py-2">
+                          <div className="flex items-center justify-between gap-3">
+                            <p className="text-theme-default truncate text-sm font-medium" title={entry.label}>
+                              {entry.label}
+                            </p>
+                            <p className="text-theme-light shrink-0 text-xs">
                               <Trans>valid token required: true</Trans>
                             </p>
                           </div>
-                          <Badge variant="warning" className="shrink-0 font-mono text-xs">
+                          <code className="text-theme-light bg-theme-background-lvl-2 block w-full rounded px-2 py-1 font-mono text-xs break-all">
                             {entry.raw}
-                          </Badge>
+                          </code>
                         </div>
                       ))}
                     </div>
