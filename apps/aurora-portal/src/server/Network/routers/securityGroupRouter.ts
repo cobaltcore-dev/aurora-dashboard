@@ -101,13 +101,13 @@ export const securityGroupRouter = {
         ])
 
         // Merge and deduplicate
-        let combined = deduplicateSecurityGroupsById([...ownGroups, ...sharedGroups])
+        let combined = deduplicateSecurityGroupsById<SecurityGroup>([...ownGroups, ...sharedGroups])
 
         // Apply BFF-side search filter
-        combined = filterBySearchParams(combined, searchTerm, ["name", "description", "id"])
+        combined = filterBySearchParams<SecurityGroup>(combined, searchTerm, ["name", "description", "id"])
 
         // Apply global sort
-        combined = sortSecurityGroups(combined, sort_key, sort_dir)
+        combined = sortSecurityGroups<SecurityGroup>(combined, sort_key, sort_dir)
 
         return combined
       }, "list security groups")
