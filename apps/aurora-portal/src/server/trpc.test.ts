@@ -1,5 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from "vitest"
-import { createCallerFactory, auroraRouter, projectScopedProcedure, domainScopedProcedure } from "./trpc"
+import {
+  createCallerFactory,
+  auroraRouter,
+  projectScopedProcedure,
+  domainScopedProcedure,
+  projectScopedInputSchema,
+  domainScopedInputSchema,
+} from "./trpc"
 import { AuroraPortalContext } from "./context"
 import { z } from "zod"
 
@@ -77,18 +84,20 @@ describe("projectScopedProcedure", () => {
     // Create a test router using projectScopedProcedure
     const testRouter = auroraRouter({
       test: {
-        testProcedure: projectScopedProcedure.input(z.object({ otherField: z.string().optional() })).query(async () => {
-          return "success"
-        }),
+        testProcedure: projectScopedProcedure
+          .input(projectScopedInputSchema.extend({ otherField: z.string().optional() }))
+          .query(async () => {
+            return "success"
+          }),
       },
     })
 
     const caller = createCallerFactory(testRouter)(ctx)
 
+    // @ts-expect-error - Testing invalid input without project_id
     await expect(caller.test.testProcedure({ otherField: "value" })).rejects.toThrow(
       expect.objectContaining({
         code: "BAD_REQUEST",
-        message: "project_id is required for project-scoped operations",
       })
     )
   })
@@ -98,9 +107,11 @@ describe("projectScopedProcedure", () => {
 
     const testRouter = auroraRouter({
       test: {
-        testProcedure: projectScopedProcedure.input(z.object({ project_id: z.string() })).query(async () => {
-          return "success"
-        }),
+        testProcedure: projectScopedProcedure
+          .input(projectScopedInputSchema.extend({ otherField: z.string().optional() }))
+          .query(async () => {
+            return "success"
+          }),
       },
     })
 
@@ -109,7 +120,7 @@ describe("projectScopedProcedure", () => {
     await expect(caller.test.testProcedure({ project_id: "" })).rejects.toThrow(
       expect.objectContaining({
         code: "BAD_REQUEST",
-        message: "project_id must be a non-empty string",
+        // Zod validation error for min length
       })
     )
   })
@@ -119,9 +130,11 @@ describe("projectScopedProcedure", () => {
 
     const testRouter = auroraRouter({
       test: {
-        testProcedure: projectScopedProcedure.input(z.object({ project_id: z.string() })).query(async () => {
-          return "success"
-        }),
+        testProcedure: projectScopedProcedure
+          .input(projectScopedInputSchema.extend({ otherField: z.string().optional() }))
+          .query(async () => {
+            return "success"
+          }),
       },
     })
 
@@ -130,7 +143,7 @@ describe("projectScopedProcedure", () => {
     await expect(caller.test.testProcedure({ project_id: "   " })).rejects.toThrow(
       expect.objectContaining({
         code: "BAD_REQUEST",
-        message: "project_id must be a non-empty string",
+        // Zod validation error for min length after trim
       })
     )
   })
@@ -140,9 +153,11 @@ describe("projectScopedProcedure", () => {
 
     const testRouter = auroraRouter({
       test: {
-        testProcedure: projectScopedProcedure.input(z.object({ project_id: z.string() })).query(async () => {
-          return "success"
-        }),
+        testProcedure: projectScopedProcedure
+          .input(projectScopedInputSchema.extend({ otherField: z.string().optional() }))
+          .query(async () => {
+            return "success"
+          }),
       },
     })
 
@@ -163,11 +178,13 @@ describe("projectScopedProcedure", () => {
 
     const testRouter = auroraRouter({
       test: {
-        testProcedure: projectScopedProcedure.input(z.object({ project_id: z.string() })).query(async ({ ctx }) => {
-          // Capture the context to verify it was updated
-          capturedCtx = ctx
-          return "success"
-        }),
+        testProcedure: projectScopedProcedure
+          .input(projectScopedInputSchema.extend({ otherField: z.string().optional() }))
+          .query(async ({ ctx }) => {
+            // Capture the context to verify it was updated
+            capturedCtx = ctx
+            return "success"
+          }),
       },
     })
 
@@ -192,9 +209,11 @@ describe("projectScopedProcedure", () => {
 
     const testRouter = auroraRouter({
       test: {
-        testProcedure: projectScopedProcedure.input(z.object({ project_id: z.string() })).query(async () => {
-          return "success"
-        }),
+        testProcedure: projectScopedProcedure
+          .input(projectScopedInputSchema.extend({ otherField: z.string().optional() }))
+          .query(async () => {
+            return "success"
+          }),
       },
     })
 
@@ -215,8 +234,7 @@ describe("projectScopedProcedure", () => {
       test: {
         testProcedure: projectScopedProcedure
           .input(
-            z.object({
-              project_id: z.string(),
+            projectScopedInputSchema.extend({
               limit: z.number().optional(),
               searchTerm: z.string().optional(),
             })
@@ -259,18 +277,20 @@ describe("domainScopedProcedure", () => {
 
     const testRouter = auroraRouter({
       test: {
-        testProcedure: domainScopedProcedure.input(z.object({ otherField: z.string().optional() })).query(async () => {
-          return "success"
-        }),
+        testProcedure: domainScopedProcedure
+          .input(domainScopedInputSchema.extend({ otherField: z.string().optional() }))
+          .query(async () => {
+            return "success"
+          }),
       },
     })
 
     const caller = createCallerFactory(testRouter)(ctx)
 
+    // @ts-expect-error - Testing invalid input without domain_id
     await expect(caller.test.testProcedure({ otherField: "value" })).rejects.toThrow(
       expect.objectContaining({
         code: "BAD_REQUEST",
-        message: "domain_id is required for domain-scoped operations",
       })
     )
   })
@@ -280,9 +300,11 @@ describe("domainScopedProcedure", () => {
 
     const testRouter = auroraRouter({
       test: {
-        testProcedure: domainScopedProcedure.input(z.object({ domain_id: z.string() })).query(async () => {
-          return "success"
-        }),
+        testProcedure: domainScopedProcedure
+          .input(domainScopedInputSchema.extend({ otherField: z.string().optional() }))
+          .query(async () => {
+            return "success"
+          }),
       },
     })
 
@@ -291,7 +313,7 @@ describe("domainScopedProcedure", () => {
     await expect(caller.test.testProcedure({ domain_id: "" })).rejects.toThrow(
       expect.objectContaining({
         code: "BAD_REQUEST",
-        message: "domain_id must be a non-empty string",
+        // Zod validation error for min length
       })
     )
   })
@@ -306,9 +328,11 @@ describe("domainScopedProcedure", () => {
 
     const testRouter = auroraRouter({
       test: {
-        testProcedure: domainScopedProcedure.input(z.object({ domain_id: z.string() })).query(async () => {
-          return "success"
-        }),
+        testProcedure: domainScopedProcedure
+          .input(domainScopedInputSchema.extend({ otherField: z.string().optional() }))
+          .query(async () => {
+            return "success"
+          }),
       },
     })
 
@@ -330,9 +354,11 @@ describe("domainScopedProcedure", () => {
 
     const testRouter = auroraRouter({
       test: {
-        testProcedure: domainScopedProcedure.input(z.object({ domain_id: z.string() })).query(async () => {
-          return "success"
-        }),
+        testProcedure: domainScopedProcedure
+          .input(domainScopedInputSchema.extend({ otherField: z.string().optional() }))
+          .query(async () => {
+            return "success"
+          }),
       },
     })
 
@@ -358,10 +384,12 @@ describe("domainScopedProcedure", () => {
 
     const testRouter = auroraRouter({
       test: {
-        testProcedure: domainScopedProcedure.input(z.object({ domain_id: z.string() })).query(async ({ ctx }) => {
-          capturedCtx = ctx
-          return "success"
-        }),
+        testProcedure: domainScopedProcedure
+          .input(domainScopedInputSchema.extend({ otherField: z.string().optional() }))
+          .query(async ({ ctx }) => {
+            capturedCtx = ctx
+            return "success"
+          }),
       },
     })
 
@@ -388,8 +416,7 @@ describe("domainScopedProcedure", () => {
       test: {
         testProcedure: domainScopedProcedure
           .input(
-            z.object({
-              domain_id: z.string(),
+            domainScopedInputSchema.extend({
               includeDisabled: z.boolean().optional(),
               searchTerm: z.string().optional(),
             })
@@ -429,9 +456,11 @@ describe("domainScopedProcedure", () => {
 
     const testRouter = auroraRouter({
       test: {
-        testProcedure: domainScopedProcedure.input(z.object({ domain_id: z.string() })).query(async () => {
-          return "success"
-        }),
+        testProcedure: domainScopedProcedure
+          .input(domainScopedInputSchema.extend({ otherField: z.string().optional() }))
+          .query(async () => {
+            return "success"
+          }),
       },
     })
 
