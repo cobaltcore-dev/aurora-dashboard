@@ -117,8 +117,6 @@ describe("OpenStack Security Group Schema Validation", () => {
     it("should validate full list input", () => {
       const input = {
         project_id: "proj-1",
-        limit: 20,
-        marker: "sg-id",
         sort_key: "name",
         sort_dir: "asc",
         name: "web",
@@ -132,16 +130,6 @@ describe("OpenStack Security Group Schema Validation", () => {
     })
     it("should reject invalid sort_dir", () => {
       expect(listSecurityGroupsInputSchema.safeParse({ project_id: "proj-1", sort_dir: "invalid" }).success).toBe(false)
-    })
-    it("should validate limit within 1..1000", () => {
-      expect(listSecurityGroupsInputSchema.safeParse({ project_id: "proj-1", limit: 1 }).success).toBe(true)
-      expect(listSecurityGroupsInputSchema.safeParse({ project_id: "proj-1", limit: 1000 }).success).toBe(true)
-    })
-    it("should reject limit less than 1", () => {
-      expect(listSecurityGroupsInputSchema.safeParse({ project_id: "proj-1", limit: 0 }).success).toBe(false)
-    })
-    it("should reject limit greater than 1000", () => {
-      expect(listSecurityGroupsInputSchema.safeParse({ project_id: "proj-1", limit: 1001 }).success).toBe(false)
     })
   })
 

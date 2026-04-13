@@ -373,3 +373,110 @@ export const parseSecurityGroupRuleResponse = (data: unknown, operation: string)
   )
   return parsed.security_group_rule
 }
+
+/**
+ * Deduplicates security groups by ID
+ * @param items - Array of security groups to deduplicate
+ * @returns Deduplicated array of security groups
+ */
+export const deduplicateSecurityGroupsById = <T extends { id: string }>(items: T[]): T[] => {
+  const seen = new Map<string, T>()
+
+  for (const item of items) {
+    if (!seen.has(item.id)) {
+      seen.set(item.id, item)
+    }
+  }
+
+  return Array.from(seen.values())
+}
+
+/**
+ * Sorts security groups by the specified key and direction
+ * @param items - Array of security groups to sort
+ * @param sortKey - The field to sort by (e.g., 'name', 'id', 'created_at')
+ * @param sortDir - Sort direction ('asc' or 'desc')
+ * @returns Sorted array of security groups
+ */
+export const sortSecurityGroups = <T extends Record<string, unknown>>(
+  items: T[],
+  sortKey?: string,
+  sortDir: "asc" | "desc" = "asc"
+): T[] => {
+  if (!sortKey) return items
+
+  return [...items].sort((a, b) => {
+    const aValue = a[sortKey]
+    const bValue = b[sortKey]
+
+    // Handle null/undefined values - always place them at the end
+    // regardless of sort direction (OpenStack behavior)
+    if (aValue === null || aValue === undefined) return 1
+    if (bValue === null || bValue === undefined) return -1
+
+    // String comparison
+    if (typeof aValue === "string" && typeof bValue === "string") {
+      const comparison = aValue.localeCompare(bValue)
+      return sortDir === "asc" ? comparison : -comparison
+    }
+
+    // Numeric comparison
+    if (typeof aValue === "number" && typeof bValue === "number") {
+      return sortDir === "asc" ? aValue - bValue : bValue - aValue
+    }
+
+    // Boolean comparison
+    if (typeof aValue === "boolean" && typeof bValue === "boolean") {
+      return sortDir === "asc" ? Number(aValue) - Number(bValue) : Number(bValue) - Number(aValue)
+    }
+
+    return 0
+  })
+}
+
+/**
+ * Applies marker-based pagination to a sorted array
+ * Mimics OpenStack Neutron marker-based pagination behavior
+ *
+ * @param items - Sorted array of security groups
+ * @param marker - ID of the last item from the previous page
+ * @param limit - Maximum number of items to return
+ * @param pageReverse - If true, return items before the marker instead of after
+ * @returns Paginated array of security groups
+ */
+export const applyMarkerPagination = <T extends { id: string }>(
+  items: T[],
+  marker?: string,
+  limit?: number,
+  pageReverse?: boolean
+): T[] => {
+  let result = items
+
+  // Apply marker if provided
+  if (marker) {
+    const markerIndex = items.findIndex((item) => item.id === marker)
+    if (markerIndex !== -1) {
+      // If page_reverse=true, get items BEFORE marker; otherwise get items AFTER marker
+      if (pageReverse) {
+        result = items.slice(0, markerIndex).reverse()
+      } else {
+        result = items.slice(markerIndex + 1)
+      }
+    } else {
+      // Marker not found, return empty array (Neutron behavior)
+      return []
+    }
+  }
+
+  // Apply limit
+  if (limit !== undefined && limit > 0) {
+    result = result.slice(0, limit)
+  }
+
+  // If we reversed for page_reverse, reverse back to maintain sort order
+  if (pageReverse && marker) {
+    result = result.reverse()
+  }
+
+  return result
+}

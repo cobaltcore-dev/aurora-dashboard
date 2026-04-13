@@ -110,7 +110,6 @@ describe("securityGroupRouter.list", () => {
 
     const result = await caller.securityGroup.list({
       project_id: "proj-1", // Required by projectScopedProcedure (OpenStack uses snake_case)
-      limit: 10,
       sort_key: "name",
       sort_dir: "asc",
     })
@@ -131,7 +130,6 @@ describe("securityGroupRouter.list", () => {
     await expect(
       caller.securityGroup.list({
         project_id: "proj-1",
-        limit: 5,
       })
     ).rejects.toThrow(
       new TRPCError({
@@ -148,12 +146,11 @@ describe("securityGroupRouter.list", () => {
     await expect(
       caller.securityGroup.list({
         project_id: "proj-1",
-        limit: 5,
       })
     ).rejects.toThrowError(TRPCError)
 
     try {
-      await caller.securityGroup.list({ project_id: "proj-1", limit: 5 })
+      await caller.securityGroup.list({ project_id: "proj-1" })
     } catch (error) {
       if (error instanceof TRPCError) {
         expect(error.code).toBe("INTERNAL_SERVER_ERROR")
@@ -282,8 +279,194 @@ describe("securityGroupRouter.list", () => {
       expect(result[0].name).toBe("web-server")
     })
   })
-})
 
+  describe("Dual-fetch mode (own + shared)", () => {
+    const createMockContextForDualFetch = (opts?: { ownGroups?: SecurityGroup[]; sharedGroups?: SecurityGroup[] }) => {
+      const { ownGroups = [], sharedGroups = [] } = opts || {}
+
+      let callCount = 0
+
+      const mockOpenstackSession = {
+        service: vi.fn().mockImplementation((serviceName: string) => {
+          if (serviceName !== "network") {
+            return null
+          }
+
+          return {
+            get: vi.fn().mockImplementation(() => {
+              // First call: shared=false (own groups)
+              // Second call: shared=true (shared groups)
+              const isFirstCall = callCount === 0
+              callCount++
+
+              const groups = isFirstCall ? ownGroups : sharedGroups
+
+              return Promise.resolve({
+                ok: true,
+                json: vi.fn().mockResolvedValue({
+                  security_groups: groups,
+                }),
+              })
+            }),
+          }
+        }),
+      }
+
+      return {
+        validateSession: vi.fn().mockReturnValue(true),
+        openstack: mockOpenstackSession,
+        createSession: vi.fn(),
+        terminateSession: vi.fn(),
+        rescopeSession: vi.fn().mockResolvedValue(mockOpenstackSession),
+        getMultipartData: vi.fn(),
+      } as unknown as AuroraPortalContext
+    }
+
+    it("merges and deduplicates own and shared security groups", async () => {
+      const ownGroups: SecurityGroup[] = [
+        {
+          id: "sg-1",
+          name: "own-group-1",
+          project_id: "proj-1",
+          shared: false,
+          stateful: true,
+          security_group_rules: [],
+        },
+        {
+          id: "sg-2",
+          name: "own-group-2",
+          project_id: "proj-1",
+          shared: false,
+          stateful: true,
+          security_group_rules: [],
+        },
+      ]
+
+      const sharedGroups: SecurityGroup[] = [
+        {
+          id: "sg-3",
+          name: "shared-group-1",
+          project_id: "proj-other",
+          shared: true,
+          stateful: true,
+          security_group_rules: [],
+        },
+        {
+          id: "sg-1", // Duplicate - should be deduplicated
+          name: "own-group-1",
+          project_id: "proj-1",
+          shared: false,
+          stateful: true,
+          security_group_rules: [],
+        },
+      ]
+
+      const ctx = createMockContextForDualFetch({ ownGroups, sharedGroups })
+      const caller = createCaller(ctx)
+
+      const result = await caller.securityGroup.list({
+        project_id: "proj-1",
+        // shared is undefined - triggers dual-fetch mode
+      })
+
+      expect(result.length).toBe(3) // sg-1, sg-2, sg-3 (sg-1 duplicate removed)
+      const ids = result.map((sg) => sg.id).sort()
+      expect(ids).toEqual(["sg-1", "sg-2", "sg-3"])
+    })
+
+    it("applies global sorting after merging", async () => {
+      const ownGroups: SecurityGroup[] = [
+        {
+          id: "sg-3",
+          name: "zebra",
+          project_id: "proj-1",
+          shared: false,
+          stateful: true,
+          security_group_rules: [],
+        },
+        {
+          id: "sg-1",
+          name: "alpha",
+          project_id: "proj-1",
+          shared: false,
+          stateful: true,
+          security_group_rules: [],
+        },
+      ]
+
+      const sharedGroups: SecurityGroup[] = [
+        {
+          id: "sg-2",
+          name: "beta",
+          project_id: "proj-other",
+          shared: true,
+          stateful: true,
+          security_group_rules: [],
+        },
+      ]
+
+      const ctx = createMockContextForDualFetch({ ownGroups, sharedGroups })
+      const caller = createCaller(ctx)
+
+      const result = await caller.securityGroup.list({
+        project_id: "proj-1",
+        sort_key: "name",
+        sort_dir: "asc",
+      })
+
+      expect(result.length).toBe(3)
+      expect(result[0].name).toBe("alpha")
+      expect(result[1].name).toBe("beta")
+      expect(result[2].name).toBe("zebra")
+    })
+
+    it("applies global sorting in descending order", async () => {
+      const ownGroups: SecurityGroup[] = [
+        {
+          id: "sg-1",
+          name: "alpha",
+          project_id: "proj-1",
+          shared: false,
+          stateful: true,
+          security_group_rules: [],
+        },
+      ]
+
+      const sharedGroups: SecurityGroup[] = [
+        {
+          id: "sg-2",
+          name: "beta",
+          project_id: "proj-other",
+          shared: true,
+          stateful: true,
+          security_group_rules: [],
+        },
+        {
+          id: "sg-3",
+          name: "gamma",
+          project_id: "proj-other",
+          shared: true,
+          stateful: true,
+          security_group_rules: [],
+        },
+      ]
+
+      const ctx = createMockContextForDualFetch({ ownGroups, sharedGroups })
+      const caller = createCaller(ctx)
+
+      const result = await caller.securityGroup.list({
+        project_id: "proj-1",
+        sort_key: "name",
+        sort_dir: "desc",
+      })
+
+      expect(result.length).toBe(3)
+      expect(result[0].name).toBe("gamma")
+      expect(result[1].name).toBe("beta")
+      expect(result[2].name).toBe("alpha")
+    })
+  })
+})
 describe("securityGroupRouter.getById", () => {
   beforeEach(() => {
     vi.clearAllMocks()

@@ -50,11 +50,6 @@ export const securityGroupRuleResponseSchema = z.object({
 })
 
 export const listSecurityGroupsInputSchema = projectScopedInputSchema.extend({
-  // Pagination
-  limit: z.number().int().min(1).max(1000).optional(),
-  marker: z.string().optional(),
-  page_reverse: z.boolean().optional(),
-
   // Sorting
   sort_key: z.string().optional(),
   sort_dir: SortDirSchema.optional(),

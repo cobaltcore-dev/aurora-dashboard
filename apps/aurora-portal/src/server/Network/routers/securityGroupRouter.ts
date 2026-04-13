@@ -9,8 +9,13 @@ import {
 } from "../types/securityGroup"
 import { withErrorHandling } from "../../helpers/errorHandling"
 import { filterBySearchParams } from "../../helpers/filterBySearchParams"
-import { SecurityGroupErrorHandlers } from "../helpers/securityGroupHelpers"
-import { parseSecurityGroupResponse, parseSecurityGroupListResponse } from "../helpers/securityGroupHelpers"
+import {
+  SecurityGroupErrorHandlers,
+  parseSecurityGroupResponse,
+  parseSecurityGroupListResponse,
+  deduplicateSecurityGroupsById,
+  sortSecurityGroups,
+} from "../helpers/securityGroupHelpers"
 import { getNetworkService } from "../helpers/index"
 import { appendQueryParamsFromObject } from "../../helpers/queryParams"
 import type { SignalOpenstackServiceType } from "@cobaltcore-dev/signal-openstack"
@@ -48,21 +53,6 @@ async function fetchSecurityGroupsWithParams(
 }
 
 /**
- * Deduplicates security groups by ID
- */
-function deduplicateById(items: SecurityGroup[]): SecurityGroup[] {
-  const seen = new Map<string, SecurityGroup>()
-
-  for (const item of items) {
-    if (!seen.has(item.id)) {
-      seen.set(item.id, item)
-    }
-  }
-
-  return Array.from(seen.values())
-}
-
-/**
  * tRPC router for OpenStack Neutron Security Groups.
  *
  * Currently exposes:
@@ -79,20 +69,25 @@ export const securityGroupRouter = {
     .input(listSecurityGroupsInputSchema)
     .query(async ({ input, ctx }): Promise<SecurityGroup[]> => {
       return withErrorHandling(async () => {
-        const { searchTerm, project_id, shared, ...queryInput } = input
+        const { searchTerm, project_id, shared, sort_key, sort_dir, ...queryInput } = input
         // ctx.openstack is already rescoped to the project by projectScopedProcedure
         const network = getNetworkService(ctx)
 
-        // If user explicitly filters by shared, use single request
+        // If user explicitly filters by shared, use single request with all params
         if (shared !== undefined) {
           const securityGroups = await fetchSecurityGroupsWithParams(network, {
             ...queryInput,
             shared,
+            sort_key,
+            sort_dir,
           })
           return filterBySearchParams(securityGroups, searchTerm, ["name", "description", "id"])
         }
 
-        // Otherwise, fetch both own and shared security groups in parallel
+        // When fetching both own and shared groups, we need to:
+        // 1. Fetch ALL items from both sources
+        // 2. Merge and deduplicate
+        // 3. Apply global sort in-memory
         const [ownGroups, sharedGroups] = await Promise.all([
           fetchSecurityGroupsWithParams(network, {
             ...queryInput,
@@ -105,8 +100,16 @@ export const securityGroupRouter = {
           }),
         ])
 
-        const combined = deduplicateById([...ownGroups, ...sharedGroups])
-        return filterBySearchParams(combined, searchTerm, ["name", "description", "id"])
+        // Merge and deduplicate
+        let combined = deduplicateSecurityGroupsById([...ownGroups, ...sharedGroups])
+
+        // Apply BFF-side search filter
+        combined = filterBySearchParams(combined, searchTerm, ["name", "description", "id"])
+
+        // Apply global sort
+        combined = sortSecurityGroups(combined, sort_key, sort_dir)
+
+        return combined
       }, "list security groups")
     }),
 
