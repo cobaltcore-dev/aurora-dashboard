@@ -68,7 +68,7 @@ export function ImageTableRow({
   const imageName = name || t`Unnamed`
 
   const { accountId, projectId } = useParams({
-    from: "/_auth/accounts/$accountId/projects/$projectId/compute/$",
+    from: "/_auth/accounts/$accountId/projects/$projectId/compute/images/",
   })
   const navigate = useNavigate()
 
