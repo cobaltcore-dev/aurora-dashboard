@@ -112,6 +112,13 @@ describe("OpenStack Security Group Schema Validation", () => {
 
   describe("listSecurityGroupsInputSchema", () => {
     it("should validate empty input (project_id is required)", () => {
+      // project_id is required - empty object should fail
+      expect(listSecurityGroupsInputSchema.safeParse({}).success).toBe(false)
+
+      // project_id must be non-empty string - empty string should fail
+      expect(listSecurityGroupsInputSchema.safeParse({ project_id: "" }).success).toBe(false)
+
+      // Valid project_id should succeed
       expect(listSecurityGroupsInputSchema.safeParse({ project_id: "proj-1" }).success).toBe(true)
     })
     it("should validate full list input", () => {

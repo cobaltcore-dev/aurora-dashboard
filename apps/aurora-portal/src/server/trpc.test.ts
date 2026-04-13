@@ -42,7 +42,7 @@ const createMockContext = (opts?: {
     user: {
       availableDomains,
     },
-    rescopeSession: vi.fn().mockImplementation(async (scope: { projectId?: string; domain_id?: string }) => {
+    rescopeSession: vi.fn().mockImplementation(async (scope: { projectId?: string; domainId?: string }) => {
       // Simulate rescoping failure
       if (rescopeFails) {
         return null
@@ -55,7 +55,7 @@ const createMockContext = (opts?: {
           authToken: "rescoped-token",
           tokenData: {
             project: scope.projectId ? { id: scope.projectId } : undefined,
-            domain: scope.domain_id ? { id: scope.domain_id } : undefined,
+            domain: scope.domainId ? { id: scope.domainId } : undefined,
           },
         }),
       }

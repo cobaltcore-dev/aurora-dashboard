@@ -24,10 +24,10 @@ export const protectedProcedure = publicProcedure.use(async function isAuthentic
 
 /**
  * Base input schema that all project-scoped procedures must extend
- * Ensures projectId is always present and validated
+ * Ensures project_id is always present and validated
  */
 export const projectScopedInputSchema = z.object({
-  project_id: z.string().min(1, "projectId must be a non-empty string"),
+  project_id: z.string().min(1, "project_id must be a non-empty string"),
 })
 
 /**
@@ -56,7 +56,7 @@ export const domainScopedInputSchema = z.object({
  * - Passes the rescoped session to downstream procedures via ctx.openstack
  *
  * Error handling:
- * - BAD_REQUEST: If projectId is missing or invalid (handled by Zod schema)
+ * - BAD_REQUEST: If project_id is missing or invalid (handled by Zod schema)
  * - UNAUTHORIZED: If token rescoping fails (e.g., invalid token, Keystone unavailable)
  * - FORBIDDEN: If user has no role assignment on the specified project
  *
