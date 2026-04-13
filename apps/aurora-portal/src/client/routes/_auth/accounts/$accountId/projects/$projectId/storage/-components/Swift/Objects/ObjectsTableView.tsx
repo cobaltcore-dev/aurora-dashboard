@@ -310,6 +310,7 @@ export const ObjectsTableView = ({
               const row = rows[virtualRow.index]
               const isFolder = row.kind === "folder"
               const isDownloading = !isFolder && downloadingRow?.name === row.name
+              const rowDisplayName = row.displayName
 
               return (
                 <div
@@ -351,8 +352,8 @@ export const ObjectsTableView = ({
                         data-testid={`preview-${row.name}`}
                         title={
                           isBrowserPreviewable((row as ObjectRow).content_type)
-                            ? t`Preview ${row.displayName}`
-                            : t`Download ${row.displayName}`
+                            ? t`Preview ${rowDisplayName}`
+                            : t`Download ${rowDisplayName}`
                         }
                       >
                         {previewingRow?.name === row.name ? (
