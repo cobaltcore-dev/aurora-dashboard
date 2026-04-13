@@ -1,7 +1,9 @@
-import { useLocation, useNavigate } from "@tanstack/react-router"
+import { useNavigate, useMatches } from "@tanstack/react-router"
+import { useState } from "react"
 import { getServiceIndex } from "@/server/Authentication/helpers"
 import { SideNavigation, SideNavigationList, SideNavigationItem } from "@cloudoperators/juno-ui-components/index"
 import { useLingui } from "@lingui/react/macro"
+import { isRouteInfo } from "@/client/routes/routeInfo"
 
 interface SideNavBarProps {
   accountId: string
@@ -14,25 +16,49 @@ interface SideNavBarProps {
 
 export const SideNavBar = ({ accountId, projectId, availableServices }: SideNavBarProps) => {
   const { t } = useLingui()
-  const location = useLocation()
   const navigate = useNavigate()
+  const matches = useMatches()
 
-  const computeRootPath = `/accounts/${accountId}/projects/${projectId}/compute`
-  const networkRootPath = `/accounts/${accountId}/projects/${projectId}/network`
-  const storageRootPath = `/accounts/${accountId}/projects/${projectId}/storage`
+  const [openSections, setOpenSections] = useState({ compute: true, network: true, storage: true })
+
+  const toggleSection = (section: keyof typeof openSections) => {
+    setOpenSections((prev) => ({ ...prev, [section]: !prev[section] }))
+  }
 
   const serviceIndex = getServiceIndex(availableServices)
 
+  // Read active section/service from the deepest match that has valid RouteInfo staticData
+  const activeMatch = [...matches].reverse().find((m) => isRouteInfo(m.staticData))
+  const activeRouteInfo = activeMatch && isRouteInfo(activeMatch.staticData) ? activeMatch.staticData : undefined
+  const activeSection = activeRouteInfo?.section ?? null
+  const activeService = activeRouteInfo?.service ?? null
+
   const getComputeNavigationLinks = () => {
     return [
-      { path: computeRootPath, label: t`Overview` },
-      ...(serviceIndex["image"]?.["glance"] ? [{ path: `${computeRootPath}/images`, label: t`Images` }] : []),
+      {
+        service: "overview",
+        label: t`Overview`,
+        to: "/accounts/$accountId/projects/$projectId/compute/overview" as const,
+        params: { accountId, projectId },
+      },
+      ...(serviceIndex["image"]?.["glance"]
+        ? [
+            {
+              service: "images",
+              label: t`Images`,
+              to: "/accounts/$accountId/projects/$projectId/compute/images" as const,
+              params: { accountId, projectId },
+            },
+          ]
+        : []),
       ...(serviceIndex?.["compute"]?.["nova"]
         ? [
-            // { path: `${computeRootPath}/instances`, label: t`Instances` },
-            // { path: `${computeRootPath}/keypairs`, label: t`Key Pairs` },
-            // { path: `${computeRootPath}/servergroups`, label: t`Server Groups` },
-            { path: `${computeRootPath}/flavors`, label: t`Flavors` },
+            {
+              service: "flavors",
+              label: t`Flavors`,
+              to: "/accounts/$accountId/projects/$projectId/compute/flavors" as const,
+              params: { accountId, projectId },
+            },
           ]
         : []),
     ]
@@ -40,19 +66,41 @@ export const SideNavBar = ({ accountId, projectId, availableServices }: SideNavB
 
   const getNetworkNavigationLinks = () => {
     return [
-      ...(serviceIndex["network"] ? [{ path: `${networkRootPath}/securitygroups`, label: t`Security Groups` }] : []),
-      ...(serviceIndex["network"] ? [{ path: `${networkRootPath}/floatingips`, label: t`Floating IPs` }] : []),
+      ...(serviceIndex["network"]
+        ? [
+            {
+              service: "securitygroups",
+              label: t`Security Groups`,
+              to: "/accounts/$accountId/projects/$projectId/network/securitygroups" as const,
+              params: { accountId, projectId },
+            },
+          ]
+        : []),
+      ...(serviceIndex["network"]
+        ? [
+            {
+              service: "floatingips",
+              label: t`Floating IPs`,
+              to: "/accounts/$accountId/projects/$projectId/network/floatingips" as const,
+              params: { accountId, projectId },
+            },
+          ]
+        : []),
     ]
   }
 
   const getStorageNavigationLinks = () => {
     return [
       ...(serviceIndex?.["object-store"]?.["swift"]
-        ? [{ path: `${storageRootPath}/swift/containers`, label: t`Swift` }]
+        ? [
+            {
+              service: "containers",
+              label: t`Swift`,
+              to: "/accounts/$accountId/projects/$projectId/storage/$provider/containers" as const,
+              params: { accountId, projectId, provider: "swift" },
+            },
+          ]
         : []),
-      // ...(serviceIndex?.["object-store"]?.["ceph"]
-      //   ? [{ path: `${storageRootPath}/ceph/containers`, label: t`Ceph` }]
-      //   : []),
     ]
   }
 
@@ -60,48 +108,44 @@ export const SideNavBar = ({ accountId, projectId, availableServices }: SideNavB
   const networkLinks = getNetworkNavigationLinks()
   const storageLinks = getStorageNavigationLinks()
 
-  const handleNavigate = (path: string) => {
-    navigate({ to: path })
-  }
-
   return (
     <SideNavigation ariaLabel="Project Side Navigation" onActiveItemChange={() => {}}>
       <SideNavigationList>
         <>
           {computeLinks.length > 0 && (
-            <SideNavigationItem label="Compute">
-              {computeLinks.map(({ path, label }) => (
+            <SideNavigationItem label="Compute" open={openSections.compute} onClick={() => toggleSection("compute")}>
+              {computeLinks.map(({ service, label, to, params }) => (
                 <SideNavigationItem
-                  key={path}
-                  onClick={() => handleNavigate(path)}
+                  key={label}
+                  onClick={() => navigate({ to, params })}
                   label={label}
-                  selected={location.pathname === path}
+                  selected={activeSection === "compute" && activeService === service}
                 />
               ))}
             </SideNavigationItem>
           )}
 
           {networkLinks.length > 0 && (
-            <SideNavigationItem label="Network">
-              {networkLinks.map(({ path, label }) => (
+            <SideNavigationItem label="Network" open={openSections.network} onClick={() => toggleSection("network")}>
+              {networkLinks.map(({ service, label, to, params }) => (
                 <SideNavigationItem
-                  key={path}
-                  onClick={() => handleNavigate(path)}
+                  key={label}
+                  onClick={() => navigate({ to, params })}
                   label={label}
-                  selected={location.pathname === path}
+                  selected={activeSection === "network" && activeService === service}
                 />
               ))}
             </SideNavigationItem>
           )}
 
           {storageLinks.length > 0 && (
-            <SideNavigationItem label="Storage">
-              {storageLinks.map(({ path, label }) => (
+            <SideNavigationItem label="Storage" open={openSections.storage} onClick={() => toggleSection("storage")}>
+              {storageLinks.map(({ service, label, to, params }) => (
                 <SideNavigationItem
-                  key={path}
-                  onClick={() => handleNavigate(path)}
+                  key={label}
+                  onClick={() => navigate({ to, params })}
                   label={label}
-                  selected={location.pathname === path}
+                  selected={activeSection === "storage" && activeService === service}
                 />
               ))}
             </SideNavigationItem>

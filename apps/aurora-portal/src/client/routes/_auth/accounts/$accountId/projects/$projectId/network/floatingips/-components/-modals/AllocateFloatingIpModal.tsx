@@ -13,15 +13,11 @@ import {
   Select,
   SelectOption,
 } from "@cloudoperators/juno-ui-components"
-import { FloatingIpCreateRequest } from "@/server/Network/types/floatingIp"
 import { trpcReact } from "@/client/trpcClient"
 
 export interface AllocateFloatingIpModalProps {
   open: boolean
   onClose: () => void
-  onUpdate: (data: FloatingIpCreateRequest) => Promise<void>
-  isLoading?: boolean
-  error?: string | null
 }
 
 const ipv4Regex = /^(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}$/
@@ -30,15 +26,14 @@ const ipv6Regex =
 const isValidIpAddress = (value: string) => ipv4Regex.test(value) || ipv6Regex.test(value)
 const dnsNameRegex = /^([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)*[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?$/
 
-export const AllocateFloatingIpModal = ({
-  open,
-  onClose,
-  onUpdate,
-  isLoading = false,
-  error = null,
-}: AllocateFloatingIpModalProps) => {
+export const AllocateFloatingIpModal = ({ open, onClose }: AllocateFloatingIpModalProps) => {
   const { t } = useLingui()
   const { projectId } = useParams({ strict: false })
+  const utils = trpcReact.useUtils()
+
+  const { isPending, ...createFloatingIpMutation } = trpcReact.network.floatingIp.create.useMutation({
+    onSettled: () => utils.network.floatingIp.list.invalidate(),
+  })
 
   const {
     data: externalNetworks = [],
@@ -105,9 +100,9 @@ export const AllocateFloatingIpModal = ({
       onSubmit: formSchema,
     },
     onSubmit: async ({ value }) => {
-      if (isLoading) return
+      if (isPending) return
 
-      await onUpdate({
+      await createFloatingIpMutation.mutateAsync({
         project_id: projectId ?? "",
         tenant_id: projectId ?? "",
         floating_network_id: value.floating_network_id,
@@ -123,7 +118,10 @@ export const AllocateFloatingIpModal = ({
   })
 
   const handleClose = () => {
+    if (isPending) return
+
     form.reset()
+    createFloatingIpMutation.reset()
     onClose()
   }
 
@@ -132,7 +130,10 @@ export const AllocateFloatingIpModal = ({
   const selectedPort = availablePorts.find((port) => port.id === currentPortId)
   const portFixedIps = selectedPort?.fixed_ips ?? []
 
-  const formErrorMessage = (externalNetworksError?.message || dnsDomainsError?.message || portsError?.message) ?? error
+  const formErrorMessage =
+    (externalNetworksError?.message || dnsDomainsError?.message || portsError?.message) ??
+    createFloatingIpMutation.error?.message ??
+    null
 
   return (
     <Modal
@@ -143,7 +144,7 @@ export const AllocateFloatingIpModal = ({
       cancelButtonLabel={t`Cancel`}
       confirmButtonLabel={t`Allocate`}
       onConfirm={form.handleSubmit}
-      disableConfirmButton={isLoading || !currentFloatingNetworkId}
+      disableConfirmButton={isPending || !currentFloatingNetworkId}
     >
       {formErrorMessage && (
         <Message dismissible={false} variant="error" className="mb-4">
@@ -151,7 +152,7 @@ export const AllocateFloatingIpModal = ({
         </Message>
       )}
 
-      {isLoading && (
+      {isPending && (
         <div className="mb-4 flex items-center justify-center gap-2">
           <Spinner variant="primary" />
           <span className="text-theme-high text-sm">
@@ -160,7 +161,7 @@ export const AllocateFloatingIpModal = ({
         </div>
       )}
 
-      {!isLoading && (
+      {!isPending && (
         <Form
           className="mb-0"
           id="allocate-floating-ip-form"
@@ -181,7 +182,7 @@ export const AllocateFloatingIpModal = ({
                   label={t`External Network`}
                   helptext={t`The ID of the network associated with the floating IP.`}
                   placeholder={t`Select an external network`}
-                  disabled={isLoading || isExternalNetworksLoading || externalNetworks.length === 0}
+                  disabled={isPending || isExternalNetworksLoading || externalNetworks.length === 0}
                   loading={isExternalNetworksLoading}
                 >
                   {externalNetworks.map(({ id, name }) => (
@@ -200,10 +201,10 @@ export const AllocateFloatingIpModal = ({
                   id={field.name}
                   name={field.name}
                   value={field.state.value}
-                  onChange={(value) => field.handleChange(String(value))}
+                  onChange={(value) => field.handleChange(typeof value === "string" ? value : "")}
                   label={t`DNS Domain`}
                   helptext={t`Select a DNS domain.`}
-                  disabled={isLoading || isDnsDomainsLoading || dnsDomains.length === 0}
+                  disabled={isPending || isDnsDomainsLoading || dnsDomains.length === 0}
                   loading={isDnsDomainsLoading}
                 >
                   {dnsDomains.map((domain) => (
@@ -227,7 +228,7 @@ export const AllocateFloatingIpModal = ({
                   placeholder={t`Enter DNS name`}
                   helptext={t`Enter a valid PQDN or FQDN (max 63 characters) to associate with the floating IP. A and PTR records are created automatically.`}
                   errortext={field.state.meta.errors.map((e) => e?.message).join(", ")}
-                  disabled={isLoading}
+                  disabled={isPending}
                 />
               )}
             />
@@ -244,7 +245,7 @@ export const AllocateFloatingIpModal = ({
                   onChange={(e) => field.handleChange(e.target.value)}
                   placeholder={t`Description`}
                   errortext={field.state.meta.errors.map((e) => e?.message).join(", ")}
-                  disabled={isLoading}
+                  disabled={isPending}
                 />
               )}
             />
@@ -263,7 +264,7 @@ export const AllocateFloatingIpModal = ({
                   placeholder={t`Enter a floating IP`}
                   helptext={t`Enter a floating IP or leave blank to auto-assign one`}
                   errortext={field.state.meta.errors.map((e) => e?.message).join(", ")}
-                  disabled={isLoading}
+                  disabled={isPending}
                 />
               )}
             />
@@ -286,7 +287,7 @@ export const AllocateFloatingIpModal = ({
                   label={t`Port ID`}
                   placeholder={t`Select port to associate`}
                   errortext={field.state.meta.errors.map((e) => e?.message).join(", ")}
-                  disabled={isLoading || isPortsLoading}
+                  disabled={isPending || isPortsLoading}
                   loading={isPortsLoading}
                 >
                   {availablePorts.map((port) => (
@@ -314,7 +315,7 @@ export const AllocateFloatingIpModal = ({
                   placeholder={t`Select a fixed IP address`}
                   helptext={t`Associates on the selected port. If the port has multiple IPs, select the desired fixed IP address.`}
                   errortext={field.state.meta.errors.map((e) => e?.message).join(", ")}
-                  disabled={isLoading || portFixedIps.length === 0}
+                  disabled={isPending || portFixedIps.length === 0}
                 >
                   {portFixedIps.map(({ ip_address }) => (
                     <SelectOption key={ip_address} value={ip_address} label={ip_address} />

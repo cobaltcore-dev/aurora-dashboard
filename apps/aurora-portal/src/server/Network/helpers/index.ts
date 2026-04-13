@@ -1,3 +1,5 @@
+import type { ZodTypeAny, output } from "zod"
+import { TRPCError } from "@trpc/server"
 import type { AuroraPortalContext } from "@/server/context"
 import { validateOpenstackService } from "@/server/helpers/validateOpenstackService"
 
@@ -23,4 +25,22 @@ export const getNetworkService = (ctx: AuroraPortalContext) => {
   const network = openstackSession?.service("network")
   validateOpenstackService(network, "network")
   return network
+}
+
+/**
+ * Parses an unknown value with a Zod schema, throwing a TRPCError on failure.
+ * @param schema - Zod schema to validate against
+ * @param data - Raw data to parse
+ * @param context - Human-readable context string for the error log (e.g. "floatingIpRouter.list")
+ */
+export const parseOrThrow = <S extends ZodTypeAny>(schema: S, data: unknown, context: string): output<S> => {
+  const parsed = schema.safeParse(data)
+  if (!parsed.success) {
+    console.error(`Zod Parsing Error in ${context}:`, parsed.error.format())
+    throw new TRPCError({
+      code: "PARSE_ERROR",
+      message: `Failed to parse response in ${context}`,
+    })
+  }
+  return parsed.data
 }

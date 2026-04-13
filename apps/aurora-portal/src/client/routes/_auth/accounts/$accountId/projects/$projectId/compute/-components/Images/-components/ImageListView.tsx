@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef, ReactNode } from "react"
-import { useParams } from "@tanstack/react-router"
 import type { CreateImageInput, GlanceImage, ImageVisibility } from "@/server/Compute/types/image"
 import {
   Button,
@@ -55,7 +54,6 @@ import {
   getImageVisibilityUpdateErrorToast,
 } from "./ImageToastNotifications"
 import { ManageImageAccessModal } from "./ManageImageAccessModal"
-import { ConfirmImageAccessModal } from "./ConfirmImageAccessModal"
 import { IMAGE_STATUSES } from "../../../-constants/filters"
 
 interface ImagePageProps {
@@ -89,6 +87,7 @@ interface ImagePageProps {
   protectedImages: Array<string>
   activeImages: Array<string>
   deactivatedImages: Array<string>
+  onImageUpdated: (image: GlanceImage) => void
 }
 
 export function ImageListView({
@@ -115,11 +114,8 @@ export function ImageListView({
   protectedImages,
   activeImages,
   deactivatedImages,
+  onImageUpdated,
 }: ImagePageProps) {
-  const { projectId } = useParams({
-    from: "/_auth/accounts/$accountId/projects/$projectId/compute/$",
-  })
-
   const [toastData, setToastData] = useState<ToastProps | null>(null)
 
   const [editDetailsModalOpen, setEditDetailsModalOpen] = useState(false)
@@ -128,7 +124,6 @@ export function ImageListView({
   const [deactivateModalOpen, setDeactivateModalOpen] = useState(false)
   const [activateModalOpen, setActivateModalOpen] = useState(false)
   const [manageAccessModalOpen, setManageAccessModalOpen] = useState(false)
-  const [confirmAccessModalOpen, setConfirmAccessModalOpen] = useState(false)
   const [selectedImage, setSelectedImage] = useState<GlanceImage | null>(null)
   const [isCreateInProgress, setCreateInProgress] = useState(false)
   const [uploadId, setUploadId] = useState<string | null>(null)
@@ -212,9 +207,8 @@ export function ImageListView({
   const uploadImageMutation = trpcReact.compute.uploadImage.useMutation()
 
   const updateImageVisibilityMutation = trpcReact.compute.updateImageVisibility.useMutation({
-    onSuccess: () => {
-      utils.compute.listImagesWithPagination.invalidate()
-      utils.compute.getImageById.invalidate()
+    onSuccess: (updatedImage) => {
+      onImageUpdated(updatedImage)
     },
   })
 
@@ -237,8 +231,7 @@ export function ImageListView({
     deleteImagesMutation.isPending ||
     activateImagesMutation.isPending ||
     deactivateImagesMutation.isPending ||
-    updateImageMutation.isPending ||
-    updateImageVisibilityMutation.isPending
+    updateImageMutation.isPending
 
   const handleToastDismiss = () => setToastData(null)
 
@@ -457,11 +450,6 @@ export function ImageListView({
     setManageAccessModalOpen(true)
   }
 
-  const openConfirmAccessModal = (image: GlanceImage) => {
-    setSelectedImage(image)
-    setConfirmAccessModalOpen(true)
-  }
-
   const closeEditDetailsModal = () => {
     setSelectedImage(null)
     setEditDetailsModalOpen(false)
@@ -490,11 +478,6 @@ export function ImageListView({
   const closeManageAccessModal = () => {
     setSelectedImage(null)
     setManageAccessModalOpen(false)
-  }
-
-  const closeConfirmAccessModal = () => {
-    setSelectedImage(null)
-    setConfirmAccessModalOpen(false)
   }
 
   const handleBulkDelete = async (imageIds: Array<string>) => {
@@ -674,7 +657,6 @@ export function ImageListView({
                   onEditMetadata={openEditMetadataModal}
                   onDelete={openDeleteModal}
                   onManageAccess={openManageAccessModal}
-                  onConfirmAccess={openConfirmAccessModal}
                   onSelect={(image: GlanceImage) => {
                     const isImageSelected = selectedImages.includes(image.id)
 
@@ -686,6 +668,7 @@ export function ImageListView({
                   }}
                   onActivationStatusChange={handleActivationStatusChange}
                   onUpdateVisibility={handleUpdateImageVisibility}
+                  setToastData={setToastData}
                   uploadId={uploadId}
                   uploadProgressPercent={data?.percent}
                 />
@@ -770,14 +753,6 @@ export function ImageListView({
               isOpen={manageAccessModalOpen}
               onClose={closeManageAccessModal}
               permissions={permissions}
-            />
-            <ConfirmImageAccessModal
-              image={selectedImage}
-              isOpen={confirmAccessModalOpen}
-              onClose={closeConfirmAccessModal}
-              memberId={projectId}
-              permissions={permissions}
-              setMessage={setToastData}
             />
           </>
         )}

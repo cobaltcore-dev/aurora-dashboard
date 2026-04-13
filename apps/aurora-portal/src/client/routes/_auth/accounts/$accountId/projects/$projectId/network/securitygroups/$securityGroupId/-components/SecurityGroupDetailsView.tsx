@@ -1,5 +1,4 @@
 import { Container, Stack } from "@cloudoperators/juno-ui-components"
-import { Trans } from "@lingui/react/macro"
 import { useState } from "react"
 import type {
   SecurityGroup,
@@ -10,6 +9,7 @@ import type { FilterSettings, SortSettings } from "@/client/components/ListToolb
 import type { ListSortConfig } from "@/client/utils/useListWithFiltering"
 import { SecurityGroupHeader, SecurityGroupBasicInfo, SecurityGroupTabs, type TabType } from "./-details"
 import { SecurityGroupRulesTable } from "./-details"
+import { SecurityGroupRBACPolicies } from "./-details/SecurityGroupRBACPolicies"
 
 export interface RulesFilterControls {
   searchTerm: string
@@ -67,6 +67,7 @@ export function SecurityGroupDetailsView({
           {activeTab === "rules" && (
             <SecurityGroupRulesTable
               rules={filteredAndSortedRules}
+              totalRulesCount={securityGroup.security_group_rules?.length}
               onDeleteRule={onDeleteRule}
               isDeletingRule={isDeletingRule}
               deleteError={deleteRuleError}
@@ -83,11 +84,7 @@ export function SecurityGroupDetailsView({
               availableSecurityGroups={availableSecurityGroups}
             />
           )}
-          {activeTab === "rbac" && (
-            <p className="text-theme-secondary">
-              <Trans>RBAC Policies functionality coming soon</Trans>
-            </p>
-          )}
+          {activeTab === "rbac" && <SecurityGroupRBACPolicies securityGroupId={securityGroup.id} />}
         </div>
       </Stack>
     </Container>

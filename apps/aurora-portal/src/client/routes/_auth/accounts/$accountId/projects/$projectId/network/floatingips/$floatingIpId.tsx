@@ -1,38 +1,15 @@
-import { createFileRoute, redirect, useNavigate, useParams } from "@tanstack/react-router"
+import { createFileRoute, useNavigate, useParams } from "@tanstack/react-router"
+import type { RouteInfo } from "@/client/routes/routeInfo"
 import { useLingui, Trans } from "@lingui/react/macro"
 import { Breadcrumb, BreadcrumbItem, Button, Spinner, Stack } from "@cloudoperators/juno-ui-components"
-import { getServiceIndex } from "@/server/Authentication/helpers"
 import { trpcReact } from "@/client/trpcClient"
-import { FloatingIpDetailsView } from "./-components/FloatingIpDetailsView"
+import { FloatingIpDetailsView } from "./-components/-details/FloatingIpDetailsView"
 
 export const Route = createFileRoute(
   "/_auth/accounts/$accountId/projects/$projectId/network/floatingips/$floatingIpId"
 )({
+  staticData: { section: "network", service: "floatingips", isDetail: true } satisfies RouteInfo,
   component: RouteComponent,
-  beforeLoad: async ({ context, params }) => {
-    const { trpcClient } = context
-    const { accountId } = params
-
-    const availableServices = (await trpcClient?.auth.getAvailableServices.query()) || []
-
-    const serviceIndex = getServiceIndex(availableServices)
-
-    // Redirect to the "Projects Overview" page if network service not available
-    if (!serviceIndex["network"]) {
-      throw redirect({
-        to: "/accounts/$accountId/projects",
-        params: { accountId },
-      })
-    }
-
-    if (!serviceIndex["network"]["neutron"]) {
-      // Redirect to the "Network Services Overview" page if the "Neutron" service is not available
-      throw redirect({
-        to: "/accounts/$accountId/projects/$projectId/network/$",
-        params: { ...params, _splat: undefined },
-      })
-    }
-  },
 })
 
 function RouteComponent() {
@@ -44,15 +21,15 @@ function RouteComponent() {
 
   const navigateToProjectNetwork = () => {
     navigate({
-      to: "/accounts/$accountId/projects/$projectId/network/$",
-      params: { accountId, projectId, _splat: undefined },
+      to: "/accounts/$accountId/projects/$projectId/network/overview",
+      params: { accountId, projectId },
     })
   }
 
   const navigateToFloatingIps = () => {
     navigate({
-      to: "/accounts/$accountId/projects/$projectId/network/$",
-      params: { accountId, projectId, _splat: "floatingips" },
+      to: "/accounts/$accountId/projects/$projectId/network/floatingips",
+      params: { accountId, projectId },
     })
   }
 

@@ -509,18 +509,25 @@ describe("client", () => {
 
     it("should cancel file upload", async () => {
       const mockAbort = vi.fn()
-      global.AbortController = vi.fn().mockImplementation(() => ({
-        signal: expect.any(AbortSignal),
-        abort: mockAbort,
-      })) as Mock
+      const originalAbortController = global.AbortController
+      global.AbortController = vi.fn().mockImplementation(function () {
+        return {
+          signal: expect.any(AbortSignal),
+          abort: mockAbort,
+        }
+      }) as unknown as typeof AbortController
 
-      const formData = new FormData()
-      formData.append("file", new Blob(["large file content"]))
+      try {
+        const formData = new FormData()
+        formData.append("file", new Blob(["large file content"]))
 
-      const upload = client.cancellablePost("/upload", formData, { host: "http://localhost" })
-      upload.cancel()
+        const upload = client.cancellablePost("/upload", formData, { host: "http://localhost" })
+        upload.cancel()
 
-      expect(mockAbort).toHaveBeenCalled()
+        expect(mockAbort).toHaveBeenCalled()
+      } finally {
+        global.AbortController = originalAbortController
+      }
     })
   })
 

@@ -5,8 +5,8 @@ import { I18nProvider } from "@lingui/react"
 import { i18n } from "@lingui/core"
 import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
-import { AllocateFloatingIpModal } from "./AllocateFloatingIpModal"
 import { trpcReact } from "@/client/trpcClient"
+import { AllocateFloatingIpModal } from "./AllocateFloatingIpModal"
 
 // Mock useParams
 vi.mock("@tanstack/react-router", () => ({
@@ -26,9 +26,36 @@ const createMockQueryResult = <TData,>(overrides: Partial<QueryResultShape<TData
   ...overrides,
 })
 
+type CreateMutationResult = ReturnType<typeof trpcReact.network.floatingIp.create.useMutation>
+
+const createMockCreateMutationResult = (
+  overrides: Partial<{
+    mutateAsync: () => Promise<unknown>
+    reset: () => void
+    isPending: boolean
+    error: { message?: string } | null
+  }> = {}
+) =>
+  ({
+    mutateAsync: vi.fn().mockResolvedValue({}),
+    reset: vi.fn(),
+    isPending: false,
+    error: null,
+    ...overrides,
+  }) as unknown as CreateMutationResult
+
 // Mock tRPC client
 vi.mock("@/client/trpcClient", () => ({
   trpcReact: {
+    useUtils: vi.fn(() => ({
+      network: {
+        floatingIp: {
+          list: {
+            invalidate: vi.fn(),
+          },
+        },
+      },
+    })),
     network: {
       listExternalNetworks: {
         useQuery: vi.fn(),
@@ -39,6 +66,11 @@ vi.mock("@/client/trpcClient", () => ({
       port: {
         listAvailablePorts: {
           useQuery: vi.fn(),
+        },
+      },
+      floatingIp: {
+        create: {
+          useMutation: vi.fn(),
         },
       },
     },
@@ -104,11 +136,12 @@ describe("AllocateFloatingIpModal", () => {
         typeof trpcReact.network.port.listAvailablePorts.useQuery
       >
     )
+    vi.mocked(trpcReact.network.floatingIp.create.useMutation).mockReturnValue(createMockCreateMutationResult())
   })
 
   describe("Modal visibility", () => {
     it("does not render when open is false", () => {
-      const { container } = render(<AllocateFloatingIpModal open={false} onClose={vi.fn()} onUpdate={vi.fn()} />, {
+      const { container } = render(<AllocateFloatingIpModal open={false} onClose={vi.fn()} />, {
         wrapper: createWrapper(),
       })
 
@@ -123,7 +156,7 @@ describe("AllocateFloatingIpModal", () => {
         >
       )
 
-      const { container } = render(<AllocateFloatingIpModal open={true} onClose={vi.fn()} onUpdate={vi.fn()} />, {
+      const { container } = render(<AllocateFloatingIpModal open={true} onClose={vi.fn()} />, {
         wrapper: createWrapper(),
       })
 
@@ -132,7 +165,7 @@ describe("AllocateFloatingIpModal", () => {
     })
 
     it("displays correct title", () => {
-      render(<AllocateFloatingIpModal open={true} onClose={vi.fn()} onUpdate={vi.fn()} />, { wrapper: createWrapper() })
+      render(<AllocateFloatingIpModal open={true} onClose={vi.fn()} />, { wrapper: createWrapper() })
 
       expect(screen.getByText("Allocate Floating IP")).toBeInTheDocument()
     })
@@ -140,7 +173,7 @@ describe("AllocateFloatingIpModal", () => {
 
   describe("Form fields rendering", () => {
     it("renders all form field labels", () => {
-      render(<AllocateFloatingIpModal open={true} onClose={vi.fn()} onUpdate={vi.fn()} />, { wrapper: createWrapper() })
+      render(<AllocateFloatingIpModal open={true} onClose={vi.fn()} />, { wrapper: createWrapper() })
 
       expect(screen.getByText("External Network")).toBeInTheDocument()
       expect(screen.getByText("DNS Domain")).toBeInTheDocument()
@@ -151,7 +184,7 @@ describe("AllocateFloatingIpModal", () => {
     })
 
     it("renders external networks as options", async () => {
-      render(<AllocateFloatingIpModal open={true} onClose={vi.fn()} onUpdate={vi.fn()} />, { wrapper: createWrapper() })
+      render(<AllocateFloatingIpModal open={true} onClose={vi.fn()} />, { wrapper: createWrapper() })
 
       await waitFor(() => {
         mockExternalNetworks.forEach((net) => {
@@ -161,7 +194,7 @@ describe("AllocateFloatingIpModal", () => {
     })
 
     it("renders DNS domains as options", async () => {
-      render(<AllocateFloatingIpModal open={true} onClose={vi.fn()} onUpdate={vi.fn()} />, { wrapper: createWrapper() })
+      render(<AllocateFloatingIpModal open={true} onClose={vi.fn()} />, { wrapper: createWrapper() })
 
       await waitFor(() => {
         mockDnsDomains.forEach((domain) => {
@@ -171,7 +204,7 @@ describe("AllocateFloatingIpModal", () => {
     })
 
     it("renders available ports as options", async () => {
-      render(<AllocateFloatingIpModal open={true} onClose={vi.fn()} onUpdate={vi.fn()} />, { wrapper: createWrapper() })
+      render(<AllocateFloatingIpModal open={true} onClose={vi.fn()} />, { wrapper: createWrapper() })
 
       await waitFor(() => {
         mockPorts.forEach((port) => {
@@ -187,7 +220,7 @@ describe("AllocateFloatingIpModal", () => {
         createMockQueryResult({ isLoading: true }) as ReturnType<typeof trpcReact.network.listExternalNetworks.useQuery>
       )
 
-      render(<AllocateFloatingIpModal open={true} onClose={vi.fn()} onUpdate={vi.fn()} />, { wrapper: createWrapper() })
+      render(<AllocateFloatingIpModal open={true} onClose={vi.fn()} />, { wrapper: createWrapper() })
 
       const externalNetworkSelect = screen.getByLabelText("External Network")
       expect(externalNetworkSelect).toBeDisabled()
@@ -198,7 +231,7 @@ describe("AllocateFloatingIpModal", () => {
         createMockQueryResult({ isLoading: true }) as ReturnType<typeof trpcReact.network.listDnsDomains.useQuery>
       )
 
-      render(<AllocateFloatingIpModal open={true} onClose={vi.fn()} onUpdate={vi.fn()} />, { wrapper: createWrapper() })
+      render(<AllocateFloatingIpModal open={true} onClose={vi.fn()} />, { wrapper: createWrapper() })
 
       const dnsDomainSelect = screen.getByLabelText("DNS Domain")
       expect(dnsDomainSelect).toBeDisabled()
@@ -211,7 +244,7 @@ describe("AllocateFloatingIpModal", () => {
         >
       )
 
-      render(<AllocateFloatingIpModal open={true} onClose={vi.fn()} onUpdate={vi.fn()} />, { wrapper: createWrapper() })
+      render(<AllocateFloatingIpModal open={true} onClose={vi.fn()} />, { wrapper: createWrapper() })
 
       const portSelect = screen.getByLabelText("Port ID")
       expect(portSelect).toBeDisabled()
@@ -226,7 +259,7 @@ describe("AllocateFloatingIpModal", () => {
         >
       )
 
-      render(<AllocateFloatingIpModal open={true} onClose={vi.fn()} onUpdate={vi.fn()} />, { wrapper: createWrapper() })
+      render(<AllocateFloatingIpModal open={true} onClose={vi.fn()} />, { wrapper: createWrapper() })
 
       expect(screen.getByText("Failed to load networks")).toBeInTheDocument()
     })
@@ -238,7 +271,7 @@ describe("AllocateFloatingIpModal", () => {
         >
       )
 
-      render(<AllocateFloatingIpModal open={true} onClose={vi.fn()} onUpdate={vi.fn()} />, { wrapper: createWrapper() })
+      render(<AllocateFloatingIpModal open={true} onClose={vi.fn()} />, { wrapper: createWrapper() })
 
       expect(screen.getByText("Failed to load DNS domains")).toBeInTheDocument()
     })
@@ -250,61 +283,50 @@ describe("AllocateFloatingIpModal", () => {
         >
       )
 
-      render(<AllocateFloatingIpModal open={true} onClose={vi.fn()} onUpdate={vi.fn()} />, { wrapper: createWrapper() })
+      render(<AllocateFloatingIpModal open={true} onClose={vi.fn()} />, { wrapper: createWrapper() })
 
       expect(screen.getByText("Failed to load ports")).toBeInTheDocument()
     })
 
-    it("displays custom error message from props", () => {
-      vi.mocked(trpcReact.network.listExternalNetworks.useQuery).mockReturnValue(
-        createMockQueryResult({ data: mockExternalNetworks }) as ReturnType<
-          typeof trpcReact.network.listExternalNetworks.useQuery
-        >
-      )
-      vi.mocked(trpcReact.network.listDnsDomains.useQuery).mockReturnValue(
-        createMockQueryResult({ data: mockDnsDomains }) as ReturnType<typeof trpcReact.network.listDnsDomains.useQuery>
-      )
-      vi.mocked(trpcReact.network.port.listAvailablePorts.useQuery).mockReturnValue(
-        createMockQueryResult({ data: mockPorts }) as ReturnType<
-          typeof trpcReact.network.port.listAvailablePorts.useQuery
-        >
-      )
-
-      render(
-        <AllocateFloatingIpModal open={true} onClose={vi.fn()} onUpdate={vi.fn()} error="Custom error message" />,
-        { wrapper: createWrapper() }
-      )
-
-      expect(screen.getByText("Custom error message")).toBeInTheDocument()
-    })
-
-    it("prioritizes query errors over custom error message", () => {
+    it("prioritizes query errors over mutation error message", () => {
       vi.mocked(trpcReact.network.listExternalNetworks.useQuery).mockReturnValue(
         createMockQueryResult({ error: { message: "Query error" } }) as ReturnType<
           typeof trpcReact.network.listExternalNetworks.useQuery
         >
       )
 
-      render(<AllocateFloatingIpModal open={true} onClose={vi.fn()} onUpdate={vi.fn()} error="Custom error" />, {
+      vi.mocked(trpcReact.network.floatingIp.create.useMutation).mockReturnValue(
+        createMockCreateMutationResult({ error: { message: "Mutation error" } })
+      )
+
+      render(<AllocateFloatingIpModal open={true} onClose={vi.fn()} />, {
         wrapper: createWrapper(),
       })
 
       expect(screen.getByText("Query error")).toBeInTheDocument()
-      expect(screen.queryByText("Custom error")).not.toBeInTheDocument()
+      expect(screen.queryByText("Mutation error")).not.toBeInTheDocument()
     })
   })
 
   describe("Loading state UI", () => {
-    it("shows spinner and loading message when isLoading is true", () => {
-      render(<AllocateFloatingIpModal open={true} onClose={vi.fn()} onUpdate={vi.fn()} isLoading={true} />, {
+    it("shows spinner and loading message when mutation is pending", () => {
+      vi.mocked(trpcReact.network.floatingIp.create.useMutation).mockReturnValue(
+        createMockCreateMutationResult({ isPending: true })
+      )
+
+      render(<AllocateFloatingIpModal open={true} onClose={vi.fn()} />, {
         wrapper: createWrapper(),
       })
 
       expect(screen.getByText("Allocating Floating IP...")).toBeInTheDocument()
     })
 
-    it("hides form when isLoading is true", () => {
-      render(<AllocateFloatingIpModal open={true} onClose={vi.fn()} onUpdate={vi.fn()} isLoading={true} />, {
+    it("hides form when mutation is pending", () => {
+      vi.mocked(trpcReact.network.floatingIp.create.useMutation).mockReturnValue(
+        createMockCreateMutationResult({ isPending: true })
+      )
+
+      render(<AllocateFloatingIpModal open={true} onClose={vi.fn()} />, {
         wrapper: createWrapper(),
       })
 
@@ -312,8 +334,12 @@ describe("AllocateFloatingIpModal", () => {
       expect(dnsNameField).not.toBeInTheDocument()
     })
 
-    it("shows form when isLoading is false", () => {
-      render(<AllocateFloatingIpModal open={true} onClose={vi.fn()} onUpdate={vi.fn()} isLoading={false} />, {
+    it("shows form when mutation is not pending", () => {
+      vi.mocked(trpcReact.network.floatingIp.create.useMutation).mockReturnValue(
+        createMockCreateMutationResult({ isPending: false })
+      )
+
+      render(<AllocateFloatingIpModal open={true} onClose={vi.fn()} />, {
         wrapper: createWrapper(),
       })
 
@@ -323,7 +349,7 @@ describe("AllocateFloatingIpModal", () => {
 
   describe("Modal buttons", () => {
     it("renders Cancel and Allocate buttons", () => {
-      render(<AllocateFloatingIpModal open={true} onClose={vi.fn()} onUpdate={vi.fn()} />, { wrapper: createWrapper() })
+      render(<AllocateFloatingIpModal open={true} onClose={vi.fn()} />, { wrapper: createWrapper() })
 
       expect(screen.getByRole("button", { name: /Cancel/i })).toBeInTheDocument()
       expect(screen.getByRole("button", { name: /Allocate/i })).toBeInTheDocument()
@@ -333,7 +359,7 @@ describe("AllocateFloatingIpModal", () => {
       const onClose = vi.fn()
       const user = userEvent.setup()
 
-      render(<AllocateFloatingIpModal open={true} onClose={onClose} onUpdate={vi.fn()} />, { wrapper: createWrapper() })
+      render(<AllocateFloatingIpModal open={true} onClose={onClose} />, { wrapper: createWrapper() })
 
       await user.click(screen.getByRole("button", { name: /Cancel/i }))
       expect(onClose).toHaveBeenCalled()
@@ -342,7 +368,7 @@ describe("AllocateFloatingIpModal", () => {
 
   describe("Form validation", () => {
     it("displays validation error when empty form submitted", async () => {
-      render(<AllocateFloatingIpModal open={true} onClose={vi.fn()} onUpdate={vi.fn()} />, { wrapper: createWrapper() })
+      render(<AllocateFloatingIpModal open={true} onClose={vi.fn()} />, { wrapper: createWrapper() })
 
       const allocateButton = screen.getByRole("button", { name: /Allocate/i })
       expect(allocateButton).toBeDisabled()
@@ -350,28 +376,30 @@ describe("AllocateFloatingIpModal", () => {
   })
 
   describe("Form submission", () => {
-    it("does not call onUpdate when form is incomplete", () => {
-      render(<AllocateFloatingIpModal open={true} onClose={vi.fn()} onUpdate={vi.fn()} />, { wrapper: createWrapper() })
+    it("button is disabled when form is incomplete", () => {
+      render(<AllocateFloatingIpModal open={true} onClose={vi.fn()} />, { wrapper: createWrapper() })
 
       const allocateButton = screen.getByRole("button", { name: /Allocate/i })
       expect(allocateButton).toBeDisabled()
     })
 
-    it("does not submit form when isLoading is true", () => {
-      const onUpdate = vi.fn()
+    it("button is disabled when mutation is pending", () => {
+      vi.mocked(trpcReact.network.floatingIp.create.useMutation).mockReturnValue(
+        createMockCreateMutationResult({ isPending: true })
+      )
 
-      render(<AllocateFloatingIpModal open={true} onClose={vi.fn()} onUpdate={onUpdate} isLoading={true} />, {
+      render(<AllocateFloatingIpModal open={true} onClose={vi.fn()} />, {
         wrapper: createWrapper(),
       })
 
-      // Form should not be visible when loading
-      expect(screen.queryByLabelText("DNS Name")).not.toBeInTheDocument()
+      const allocateButton = screen.getByRole("button", { name: /Allocate/i })
+      expect(allocateButton).toBeDisabled()
     })
   })
 
   describe("Port and fixed IP interaction", () => {
     it("displays fixed IP address field", () => {
-      render(<AllocateFloatingIpModal open={true} onClose={vi.fn()} onUpdate={vi.fn()} />, { wrapper: createWrapper() })
+      render(<AllocateFloatingIpModal open={true} onClose={vi.fn()} />, { wrapper: createWrapper() })
 
       expect(screen.getByText("Fixed IP Address")).toBeInTheDocument()
     })

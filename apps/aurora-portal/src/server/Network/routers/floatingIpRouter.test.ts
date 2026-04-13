@@ -205,7 +205,7 @@ describe("floatingIpRouter.list", () => {
     await expect(caller.floatingIp.list({})).rejects.toThrow(
       new TRPCError({
         code: "PARSE_ERROR",
-        message: "Failed to parse floating IPs response from OpenStack",
+        message: "Failed to parse response in floatingIpRouter.list",
       })
     )
   })
@@ -483,7 +483,7 @@ describe("floatingIpRouter.create", () => {
     ).rejects.toThrow(
       new TRPCError({
         code: "PARSE_ERROR",
-        message: "Failed to parse created floating IP response from OpenStack",
+        message: "Failed to parse response in floatingIpRouter.create",
       })
     )
   })
@@ -559,7 +559,7 @@ describe("floatingIpRouter.getById", () => {
     await expect(caller.floatingIp.getById({ floatingip_id: "fip-1" })).rejects.toThrow(
       new TRPCError({
         code: "PARSE_ERROR",
-        message: "Failed to parse floating IP response from OpenStack",
+        message: "Failed to parse response in floatingIpRouter.getById",
       })
     )
   })
@@ -817,7 +817,7 @@ describe("floatingIpRouter.update", () => {
     ).rejects.toThrow(
       new TRPCError({
         code: "PARSE_ERROR",
-        message: "Failed to parse updated floating IP response from OpenStack",
+        message: "Failed to parse response in floatingIpRouter.update",
       })
     )
   })

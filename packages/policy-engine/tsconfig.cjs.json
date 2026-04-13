@@ -3,8 +3,8 @@
   "compilerOptions": {
     "rootDir": "src",
     "outDir": "dist/cjs",
-    "moduleResolution": "node",
-    "module": "CommonJS"
+    "moduleResolution": "node16",
+    "module": "Node16"
   },
   "exclude": ["src/**/*.test.ts"]
 }

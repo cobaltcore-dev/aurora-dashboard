@@ -5,14 +5,15 @@ import { I18nProvider } from "@lingui/react"
 import { i18n } from "@lingui/core"
 import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
-import { FloatingIps } from "./List"
-import { trpcReact } from "@/client/trpcClient"
 import type { FloatingIp, FloatingIpCreateRequest } from "@/server/Network/types/floatingIp"
-import type { AllocateFloatingIpModalProps } from "../../floatingips/-components/-modals/AllocateFloatingIpModal"
+import { trpcReact } from "@/client/trpcClient"
+import type { AllocateFloatingIpModalProps } from "./-modals/AllocateFloatingIpModal"
+import { FloatingIps } from "./FloatingIps"
 
 // Mock useParams
 vi.mock("@tanstack/react-router", () => ({
   useParams: vi.fn(() => ({ projectId: "test-project" })),
+  useNavigate: vi.fn(() => vi.fn()),
 }))
 
 // Simplified mock for tRPC useQuery - only includes properties actually used
@@ -67,8 +68,8 @@ vi.mock("@/client/trpcClient", () => ({
 }))
 
 // Mock AllocateFloatingIpModal to avoid its internal tRPC calls
-vi.mock("../../floatingips/-components/-modals/AllocateFloatingIpModal", () => ({
-  AllocateFloatingIpModal: ({ open, onClose, onUpdate, isLoading, error }: AllocateFloatingIpModalProps) =>
+vi.mock("./-modals/AllocateFloatingIpModal", () => ({
+  AllocateFloatingIpModal: ({ open, onClose }: AllocateFloatingIpModalProps) =>
     open ? (
       <div data-testid="allocate-modal">
         <button data-testid="modal-close" onClick={onClose}>
@@ -76,20 +77,20 @@ vi.mock("../../floatingips/-components/-modals/AllocateFloatingIpModal", () => (
         </button>
         <button
           data-testid="modal-submit"
-          onClick={() =>
-            onUpdate({ floating_network_id: "net-1", tenant_id: "test-project", project_id: "test-project" })
-          }
+          onClick={() => {
+            // Simulate successful submission
+            // In the real modal, this would call the mutation internally
+            onClose()
+          }}
         >
           Submit
         </button>
-        {isLoading && <div data-testid="modal-loading">Loading</div>}
-        {error && <div data-testid="modal-error">{error}</div>}
       </div>
     ) : null,
 }))
 
 // Mock FloatingIpListContainer
-vi.mock("./-components/FloatingIpListContainer", () => ({
+vi.mock("./-table/FloatingIpListContainer", () => ({
   FloatingIpListContainer: ({
     floatingIps,
     isLoading,
@@ -403,13 +404,9 @@ describe("FloatingIps List", () => {
       expect(screen.queryByTestId("allocate-modal")).not.toBeInTheDocument()
     })
 
-    it("calls create mutation when modal is submitted", async () => {
+    it("closes modal on submit", async () => {
       vi.mocked(trpcReact.network.floatingIp.list.useQuery).mockReturnValue(
         createMockQueryResult<FloatingIp[]>({ data: [] })
-      )
-      const mockMutateAsync = vi.fn().mockResolvedValue(undefined)
-      vi.mocked(trpcReact.network.floatingIp.create.useMutation).mockReturnValue(
-        createMockMutationResult({ mutateAsync: mockMutateAsync })
       )
 
       const user = userEvent.setup()
@@ -418,43 +415,9 @@ describe("FloatingIps List", () => {
       await user.click(screen.getByRole("button", { name: /Allocate Floating IP/i }))
       await user.click(screen.getByTestId("modal-submit"))
 
-      expect(mockMutateAsync).toHaveBeenCalledWith({
-        floating_network_id: "net-1",
-        tenant_id: "test-project",
-        project_id: "test-project",
+      await waitFor(() => {
+        expect(screen.queryByTestId("allocate-modal")).not.toBeInTheDocument()
       })
-    })
-
-    it("passes isPending state to modal as isLoading", async () => {
-      vi.mocked(trpcReact.network.floatingIp.list.useQuery).mockReturnValue(
-        createMockQueryResult<FloatingIp[]>({ data: [] })
-      )
-      vi.mocked(trpcReact.network.floatingIp.create.useMutation).mockReturnValue(
-        createMockMutationResult({ isPending: true })
-      )
-
-      const user = userEvent.setup()
-      render(<FloatingIps />, { wrapper: createWrapper() })
-
-      await user.click(screen.getByRole("button", { name: /Allocate Floating IP/i }))
-
-      expect(screen.getByTestId("modal-loading")).toBeInTheDocument()
-    })
-
-    it("passes mutation error message to modal error prop", async () => {
-      vi.mocked(trpcReact.network.floatingIp.list.useQuery).mockReturnValue(
-        createMockQueryResult<FloatingIp[]>({ data: [] })
-      )
-      vi.mocked(trpcReact.network.floatingIp.create.useMutation).mockReturnValue(
-        createMockMutationResult({ error: { message: "Failed to create floating IP" } })
-      )
-
-      const user = userEvent.setup()
-      render(<FloatingIps />, { wrapper: createWrapper() })
-
-      await user.click(screen.getByRole("button", { name: /Allocate Floating IP/i }))
-
-      expect(screen.getByTestId("modal-error")).toHaveTextContent("Failed to create floating IP")
     })
   })
 
@@ -469,15 +432,7 @@ describe("FloatingIps List", () => {
       // Change sort
       const sortSelect = screen.getByTestId("sort-select")
       await user.click(sortSelect)
-
-      // Wait for dropdown to appear and click the sort option (not the filter label)
-      await waitFor(() => {
-        const sortOptions = screen.getAllByText("Status")
-        // First is in the sort dropdown, second is in the filter label
-        return sortOptions.length > 1
-      })
-      const sortOptions = screen.getAllByText("Status")
-      await user.click(sortOptions[sortOptions.length - 1])
+      await user.click(screen.getByText("Floating IP Address"))
 
       // Apply filter
       const filterSelect = screen.getByTestId("select-filterValue")
@@ -490,14 +445,12 @@ describe("FloatingIps List", () => {
 
       // Search
       const searchbox = await screen.findByRole("searchbox")
-      await user.type(searchbox, "203")
-      const searchButton = await screen.findByRole("button", { name: "Search" })
-      await user.click(searchButton)
+      await user.type(searchbox, "203{Enter}")
 
       await waitFor(() => {
         const lastCall = mockUseQuery.mock.calls[mockUseQuery.mock.calls.length - 1][0]
         expect(lastCall).toMatchObject({
-          sort_key: "status",
+          sort_key: "floating_ip_address",
           sort_dir: "asc",
           status: "ACTIVE",
           searchTerm: "203",

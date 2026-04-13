@@ -20,6 +20,7 @@ export const scopes = [
   "core",
   "dashboard",
   "gardener",
+  "network",
   "template",
   "aurora-portal",
   "portal",

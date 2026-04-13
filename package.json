@@ -20,7 +20,8 @@
     "generate:package": "turbo gen workspace --type package --copy @cobalcore-dev/aurora-package-template --name",
     "prepare": "husky",
     "release": "semantic-release",
-    "release:dry": "semantic-release --dry-run"
+    "release:dry": "semantic-release --dry-run",
+    "audit": "pnpm audit --prod"
   },
   "devDependencies": {
     "@commitlint/cli": "^20.3.1",
@@ -50,13 +51,14 @@
   },
   "pnpm": {
     "overrides": {
-      "minimatch@<3.1.4": "3.1.5",
-      "minimatch@>=9 <9.0.7": "9.0.9",
-      "minimatch@>=10 <10.2.3": "10.2.4",
+      "minimatch@<10.2.5": "10.2.5",
       "tmp@<=0.2.3": ">=0.2.4",
       "lodash@>=4.0.0 <=4.17.22": ">=4.17.23",
-      "picomatch@<2.3.2": ">=2.3.2",
-      "picomatch@>=4.0.0 <4.0.4": ">=4.0.4",
+      "lodash@>=4.0.0 <=4.17.23": ">=4.18.0",
+      "lodash-es@>=4.0.0 <=4.17.23": ">=4.18.0",
+      "picomatch@<2.3.2": "4.0.4",
+      "picomatch@>=4.0.0 <4.0.4": "4.0.4",
+      "path-to-regexp@>=8.0.0 <8.4.0": ">=8.4.0",
       "brace-expansion@<5.0.5": ">=5.0.5"
     }
   }
