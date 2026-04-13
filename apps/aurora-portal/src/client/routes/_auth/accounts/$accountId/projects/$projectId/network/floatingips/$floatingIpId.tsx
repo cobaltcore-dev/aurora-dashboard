@@ -1,4 +1,5 @@
 import { createFileRoute, useNavigate, useParams } from "@tanstack/react-router"
+import type { RouteInfo } from "@/client/routes/routeInfo"
 import { useLingui, Trans } from "@lingui/react/macro"
 import { Breadcrumb, BreadcrumbItem, Button, Spinner, Stack } from "@cloudoperators/juno-ui-components"
 import { trpcReact } from "@/client/trpcClient"
@@ -7,6 +8,7 @@ import { FloatingIpDetailsView } from "./-components/-details/FloatingIpDetailsV
 export const Route = createFileRoute(
   "/_auth/accounts/$accountId/projects/$projectId/network/floatingips/$floatingIpId"
 )({
+  staticData: { section: "network", service: "floatingips", isDetail: true } satisfies RouteInfo,
   component: RouteComponent,
 })
 
@@ -19,8 +21,8 @@ function RouteComponent() {
 
   const navigateToProjectNetwork = () => {
     navigate({
-      to: "/accounts/$accountId/projects/$projectId/network/$",
-      params: { accountId, projectId, _splat: undefined },
+      to: "/accounts/$accountId/projects/$projectId/network/overview",
+      params: { accountId, projectId },
     })
   }
 

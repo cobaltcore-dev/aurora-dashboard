@@ -67,7 +67,7 @@ export function MainNavigation({ items, handleThemeToggle }: NavigationProps) {
             <>
               <span className={cn("flex-shrink-0", textMutedClass)}>/</span>
               <Link
-                to={project.path + "/compute/$"}
+                to={project.path + "/compute/"}
                 data-testid="project-link"
                 className={cn("flex-shrink-0", textColorClass, textHoverClass)}
               >

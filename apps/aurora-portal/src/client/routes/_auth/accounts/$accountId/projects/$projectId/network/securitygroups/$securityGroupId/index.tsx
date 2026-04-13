@@ -1,5 +1,6 @@
 import { Breadcrumb, BreadcrumbItem, Button, Stack, Spinner } from "@cloudoperators/juno-ui-components/index"
 import { createFileRoute, redirect, useNavigate, useParams } from "@tanstack/react-router"
+import type { RouteInfo } from "@/client/routes/routeInfo"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { useMemo } from "react"
 import { getServiceIndex } from "@/server/Authentication/helpers"
@@ -12,6 +13,7 @@ import { trpcReact } from "@/client/trpcClient"
 export const Route = createFileRoute(
   "/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/"
 )({
+  staticData: { section: "network", service: "securitygroups", isDetail: true } satisfies RouteInfo,
   component: RouteComponent,
   beforeLoad: async ({ context, params }) => {
     const { trpcClient } = context
@@ -32,8 +34,8 @@ export const Route = createFileRoute(
     if (!serviceIndex["network"]["neutron"]) {
       // Redirect to the "Network Services Overview" page if the "Neutron" service is not available
       throw redirect({
-        to: "/accounts/$accountId/projects/$projectId/network/$",
-        params: { ...params, _splat: undefined },
+        to: "/accounts/$accountId/projects/$projectId/network/overview",
+        params: { accountId: params.accountId, projectId: params.projectId },
       })
     }
   },
@@ -133,8 +135,8 @@ function RouteComponent() {
 
   const handleBack = () => {
     navigate({
-      to: "/accounts/$accountId/projects/$projectId/network/$",
-      params: { accountId, projectId, _splat: "securitygroups" },
+      to: "/accounts/$accountId/projects/$projectId/network/securitygroups",
+      params: { accountId, projectId },
     })
   }
 
@@ -186,8 +188,8 @@ function RouteComponent() {
         <BreadcrumbItem
           onClick={() => {
             navigate({
-              to: "/accounts/$accountId/projects/$projectId/network/$",
-              params: { accountId, projectId, _splat: undefined },
+              to: "/accounts/$accountId/projects/$projectId/network/overview",
+              params: { accountId, projectId },
             })
           }}
           label={t`Overview`}

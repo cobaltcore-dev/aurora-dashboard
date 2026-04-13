@@ -9,6 +9,7 @@ import {
   PopupMenuItem,
 } from "@cloudoperators/juno-ui-components/index"
 import { createFileRoute, redirect, useNavigate, useParams } from "@tanstack/react-router"
+import type { RouteInfo } from "@/client/routes/routeInfo"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { getServiceIndex } from "@/server/Authentication/helpers"
 import { trpcReact } from "@/client/trpcClient"
@@ -21,6 +22,7 @@ import { DeleteFlavorModal } from "../-components/Flavors/-components/DeleteFlav
 import { useModal } from "@/client/utils/useModal"
 
 export const Route = createFileRoute("/_auth/accounts/$accountId/projects/$projectId/compute/flavors/$flavorId")({
+  staticData: { section: "compute", service: "flavors", isDetail: true } satisfies RouteInfo,
   component: RouteComponent,
   beforeLoad: async ({ context, params }) => {
     const { trpcClient } = context
@@ -85,15 +87,15 @@ function RouteComponent() {
 
   const handleBack = () => {
     navigate({
-      to: "/accounts/$accountId/projects/$projectId/compute/$",
-      params: { accountId, projectId, _splat: "flavors" },
+      to: "/accounts/$accountId/projects/$projectId/compute/flavors",
+      params: { accountId, projectId },
     })
   }
 
   const handleHome = () => {
     navigate({
-      to: "/accounts/$accountId/projects/$projectId/compute/$",
-      params: { accountId, projectId, _splat: undefined },
+      to: "/accounts/$accountId/projects/$projectId/compute/overview",
+      params: { accountId, projectId },
     })
   }
 
