@@ -134,16 +134,22 @@ export const projectScopedProcedure = protectedProcedure.use(async function resc
  *
  * Requirements:
  * - User must be authenticated (extends protectedProcedure)
- * - User must have access to the requested domain (validated via ctx.user.availableDomains)
+ * - User must have access to the requested domain (validated via lazy-loaded getUserInfo)
  * - Input schema must extend domainScopedInputSchema
  *
  * Behavior:
  * - Validates that domain_id is present in the input
- * - Verifies that the domain is in the user's available domains list (from /v3/auth/domains)
+ * - Lazy-loads user info (calls /v3/auth/domains) only when this procedure is invoked
+ * - Verifies that the domain is in the user's available domains list
  * - Rescopes the OpenStack session to the specified domain using Keystone
  * - Keystone enforces permissions based on user's actual role assignments in that domain
  * - Caches the scoped token in a cookie to avoid unnecessary rescoping on subsequent requests
  * - Passes the rescoped session to downstream procedures via ctx.openstack
+ *
+ * Performance:
+ * - User info is fetched lazily (only when domainScopedProcedure is used)
+ * - This avoids unnecessary Keystone API calls for project-scoped or public procedures
+ * - User info is cached per session to avoid repeated API calls
  *
  * Error handling:
  * - BAD_REQUEST: If domain_id is missing or invalid (handled by Zod schema)
@@ -194,10 +200,15 @@ export const domainScopedProcedure = protectedProcedure.use(async function resco
     })
   }
 
+  // Lazy-load user info to get list of accessible domains
+  // This only happens for domain-scoped procedures, avoiding unnecessary Keystone calls
+  // for project-scoped or public procedures
+  const userInfo = ctx.getUserInfo ? await ctx.getUserInfo() : undefined
+
   // Verify that the user has access to the specific domain requested
   // We check the list of available domains from /v3/auth/domains
   // Actual permission enforcement happens in Keystone when we rescope
-  const hasAccess = ctx.user?.availableDomains?.some((domain) => domain.id === domain_id)
+  const hasAccess = userInfo?.availableDomains?.some((domain: { id: string }) => domain.id === domain_id)
   if (!hasAccess) {
     throw new TRPCError({
       code: "FORBIDDEN",

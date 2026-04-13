@@ -39,9 +39,9 @@ const createMockContext = (opts?: {
   return {
     validateSession: vi.fn().mockReturnValue(!invalidSession),
     openstack: mockOpenstackSession,
-    user: {
+    getUserInfo: vi.fn().mockResolvedValue({
       availableDomains,
-    },
+    }),
     rescopeSession: vi.fn().mockImplementation(async (scope: { projectId?: string; domainId?: string }) => {
       // Simulate rescoping failure
       if (rescopeFails) {

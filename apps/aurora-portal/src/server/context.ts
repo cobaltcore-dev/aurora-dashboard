@@ -7,12 +7,17 @@ import { AuthConfig } from "./Authentication/types/models"
 export interface AuroraContext {
   validateSession: () => boolean
   openstack?: Awaited<SignalOpenstackSessionType>
-  // User information extracted from the OpenStack token
-  user?: {
-    // List of domains accessible to the user (from /v3/auth/domains)
-    // Used by domainScopedProcedure to validate domain access
-    availableDomains: Array<{ id: string; name: string }>
-  }
+  // Lazy-loaded user information extracted from the OpenStack token
+  // Only fetched when needed (e.g., by domainScopedProcedure)
+  // Call this function to get user info on-demand
+  getUserInfo?: () => Promise<
+    | {
+        // List of domains accessible to the user (from /v3/auth/domains)
+        // Used by domainScopedProcedure to validate domain access
+        availableDomains: Array<{ id: string; name: string }>
+      }
+    | undefined
+  >
 }
 
 // Load the identity endpoint from the environment
@@ -341,6 +346,6 @@ export async function createContext(opts: CreateFastifyContextOptions): Promise<
     validateSession,
     openstack: openstackSession,
     getMultipartData,
-    user: await getUserInfo(),
+    getUserInfo,
   }
 }
