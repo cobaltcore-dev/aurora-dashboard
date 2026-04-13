@@ -28,24 +28,43 @@ msgstr "-"
 msgid "—"
 msgstr "—"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ContainerTableView.tsx:272
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/ObjectToastNotifications.tsx:174
+msgid "\"{objectName}\" was successfully copied to {targetContainer}{targetPath}."
+msgstr "\\{objectName}\" wurde erfolgreich nach {targetContainer}{targetPath} kopiert."
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/ObjectToastNotifications.tsx:214
+msgid "\"{objectName}\" was successfully moved to {targetContainer}{targetPath}."
+msgstr "\\{objectName}\" wurde erfolgreich nach {targetContainer}{targetPath} verschoben."
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ContainerTableView.tsx:245
+msgid "{allContainersCount} container"
+msgstr "{allContainersCount} Container"
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ContainerTableView.tsx:247
 msgid "{allContainersCount} containers"
 msgstr "{allContainersCount} Container"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/ObjectsTableView.tsx:246
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/ObjectsTableView.tsx:461
 msgid "{allCount} items"
 msgstr "{allCount} Elemente"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EmptyContainerModal.tsx:173
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/ObjectsTableView.tsx:382
+msgid "{progressPct}%"
+msgstr "{progressPct}%"
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EmptyContainerModal.tsx:174
 msgid "<0>Are you sure?</0> All objects in the container will be deleted. This cannot be undone."
 msgstr "<0>Sind Sie sicher?</0> Alle Objekte im Container werden gelöscht. Dies kann nicht rückgängig gemacht werden."
 
-#. placeholder {0}: folder.displayName
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/DeleteFolderModal.tsx:87
-msgid "<0>Are you sure?</0> Folder <1>\"{0}\"</1> and all objects within it will be permanently deleted. This cannot be undone."
-msgstr "<0>Sind Sie sicher?</0> Ordner <1>\"{0}\"</1> und alle darin enthaltenen Objekte werden dauerhaft gelöscht. Dies kann nicht rückgängig gemacht werden."
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/DeleteFolderModal.tsx:94
+msgid "<0>Are you sure?</0> Folder <1>\"{folderDisplayName}\"</1> and all objects within it will be permanently deleted. This cannot be undone."
+msgstr "<0>Sind Sie sicher?</0> Ordner <1>\"{folderDisplayName}\"</1> und alle darin enthaltenen Objekte werden dauerhaft gelöscht. Dies kann nicht rückgängig gemacht werden."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/DeleteContainerModal.tsx:188
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/DeleteObjectModal.tsx:133
+msgid "<0>Are you sure?</0> Object <1>\"{displayName}\"</1> will be permanently deleted. This cannot be undone."
+msgstr "<0>Sind Sie sicher?</0> Objekt <1>\"{displayName}\"</1> wird dauerhaft gelöscht. Dies kann nicht rückgängig gemacht werden."
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/DeleteContainerModal.tsx:201
 msgid "<0>Are you sure?</0> The container will be deleted. This cannot be undone."
 msgstr "<0>Sind Sie sicher?</0> Der Container wird gelöscht. Dies kann nicht rückgängig gemacht werden."
 
@@ -77,6 +96,11 @@ msgstr "<0>Vereinheitlichtes Cloud-Management:</0> Konsolidiert alle Ihre Cloud-
 msgid "A flavor with this ID or name already exists. Please use different values."
 msgstr "Ein Flavor mit dieser ID oder diesem Namen existiert bereits. Bitte verwenden Sie andere Werte."
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/CopyObjectModal.tsx:203
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/MoveRenameObjectModal.tsx:225
+msgid "A folder with this name already exists"
+msgstr "Ein Ordner mit diesem Namen existiert bereits"
+
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageMetadataModal.tsx:131
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EditContainerMetadataModal.tsx:223
 msgid "A property with this key already exists"
@@ -99,7 +123,7 @@ msgstr "Akzeptiert"
 msgid "Accepted Images"
 msgstr ""
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ManageContainerAccessModal.tsx:247
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ManageContainerAccessModal.tsx:272
 msgid "Access Control for container:"
 msgstr "Zugriffskontrolle für Container:"
 
@@ -128,7 +152,7 @@ msgstr "Account-Listing-Limit"
 msgid "Account quotas"
 msgstr "Account-Quotas"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ManageContainerAccessModal.tsx:268
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ManageContainerAccessModal.tsx:293
 msgid "ACL entries control who can read from or write to this container. Multiple entries are comma-separated. Changes take effect immediately after saving."
 msgstr "ACL-Einträge steuern, wer von diesem Container lesen oder in ihn schreiben kann. Mehrere Einträge werden durch Kommas getrennt. Änderungen werden sofort nach dem Speichern wirksam."
 
@@ -221,6 +245,19 @@ msgstr "Alle Container"
 msgid "All Images"
 msgstr "Alle Images"
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:144
+msgid "Allocate"
+msgstr ""
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/FloatingIps/List.tsx:80
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:141
+msgid "Allocate Floating IP"
+msgstr ""
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:158
+msgid "Allocating Floating IP..."
+msgstr ""
+
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ActivateImagesModal.tsx:82
 msgid "Already active (will be skipped)"
 msgstr "Bereits aktiv (wird übersprungen)"
@@ -241,11 +278,11 @@ msgstr "Bereits deaktiviert (wird übersprungen):"
 msgid "An unexpected error occurred. Please try again."
 msgstr "Ein unerwarteter Fehler ist aufgetreten. Bitte versuchen Sie es erneut."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ManageContainerAccessModal.tsx:353
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ManageContainerAccessModal.tsx:378
 msgid "Any user can perform a HEAD or GET operation on the container provided the user also has read access on objects. No token is required."
 msgstr "Jeder Benutzer kann eine HEAD- oder GET-Operation auf dem Container ausführen, sofern der Benutzer auch Lesezugriff auf Objekte hat. Es ist kein Token erforderlich."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ManageContainerAccessModal.tsx:349
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ManageContainerAccessModal.tsx:374
 msgid "Any user has read access to objects. No token is required in the request."
 msgstr "Jeder Benutzer hat Lesezugriff auf Objekte. Es ist kein Token in der Anfrage erforderlich."
 
@@ -257,6 +294,7 @@ msgstr ""
 msgid "Associate Floating IP {floating_ip_address} with Port"
 msgstr ""
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:315
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AssociateFloatingIpModal.tsx:149
 msgid "Associates on the selected port. If the port has multiple IPs, select the desired fixed IP address."
 msgstr ""
@@ -283,6 +321,8 @@ msgid "Aurora empowers you with robust tools to streamline your cloud management
 msgstr "Aurora bietet Ihnen robuste Tools, um Ihre Cloud-Verwaltung nahtlos zu optimieren. Erleben Sie eine mühelose Möglichkeit, Ihre Ressourcen in OpenStack-Umgebungen bereitzustellen, zu konfigurieren und zu skalieren."
 
 #: src/client/components/Error/ErrorPage.tsx:41
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/CopyObjectModal.tsx:367
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/MoveRenameObjectModal.tsx:427
 msgid "Back"
 msgstr "Zurück"
 
@@ -338,6 +378,7 @@ msgstr "Bulk-Upload von Archivdateien"
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/CreateSecurityGroupModal.tsx:123
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/DeleteSecurityGroupDialog.tsx:60
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/EditSecurityGroupModal.tsx:133
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:143
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AssociateFloatingIpModal.tsx:78
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/DetachFloatingIpModal.tsx:65
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/EditFloatingIpModal.tsx:73
@@ -345,16 +386,21 @@ msgstr "Bulk-Upload von Archivdateien"
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/AddRuleModal/AddRuleModal.tsx:158
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/DeleteRuleDialog.tsx:52
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/CreateContainerModal.tsx:91
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/DeleteContainerModal.tsx:144
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/DeleteContainerModal.tsx:147
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EditContainerMetadataModal.tsx:423
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EmptyContainerModal.tsx:135
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ManageContainerAccessModal.tsx:261
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/CreateFolderModal.tsx:103
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/DeleteFolderModal.tsx:75
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EmptyContainerModal.tsx:136
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ManageContainerAccessModal.tsx:286
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/CopyObjectModal.tsx:298
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/CopyObjectModal.tsx:465
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/CreateFolderModal.tsx:106
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/DeleteFolderModal.tsx:82
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/DeleteObjectModal.tsx:112
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/MoveRenameObjectModal.tsx:344
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/MoveRenameObjectModal.tsx:524
 msgid "Cancel"
 msgstr "Abbrechen"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/DeleteContainerModal.tsx:182
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/DeleteContainerModal.tsx:186
 msgid "Cannot delete. Container contains objects. Please empty it first."
 msgstr "Löschen nicht möglich. Container enthält Objekte. Bitte leeren Sie ihn zuerst."
 
@@ -469,7 +515,7 @@ msgstr "Container-Listing-Limit"
 msgid "Container name"
 msgstr "Container-Name"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ContainerTableView.tsx:170
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ContainerTableView.tsx:132
 msgid "Container Name"
 msgstr "Container-Name"
 
@@ -478,7 +524,7 @@ msgid "Container name cannot contain slashes"
 msgstr "Container-Name darf keine Schrägstriche enthalten"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/DeleteContainerModal.tsx:96
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EmptyContainerModal.tsx:83
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EmptyContainerModal.tsx:84
 msgid "Container name does not match"
 msgstr "Container-Name stimmt nicht überein"
 
@@ -514,13 +560,14 @@ msgstr "Container"
 msgid "Copied to clipboard!"
 msgstr ""
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/DeleteContainerModal.tsx:128
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EmptyContainerModal.tsx:119
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/DeleteContainerModal.tsx:131
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EmptyContainerModal.tsx:120
 msgid "Copied!"
 msgstr "Kopiert!"
 
 #: src/client/components/ClipboardText.tsx:48
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/ObjectsTableView.tsx:206
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/CopyObjectModal.tsx:296
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/ObjectsTableView.tsx:434
 msgid "Copy"
 msgstr "Kopieren"
 
@@ -528,10 +575,30 @@ msgstr "Kopieren"
 msgid "Copy {text} to clipboard"
 msgstr ""
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/DeleteContainerModal.tsx:128
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EmptyContainerModal.tsx:119
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/DeleteContainerModal.tsx:131
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EmptyContainerModal.tsx:120
 msgid "Copy container name"
 msgstr "Container-Name kopieren"
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/CopyObjectModal.tsx:492
+msgid "Copy metadata"
+msgstr "Metadaten kopieren"
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/CopyObjectModal.tsx:287
+msgid "Copy object:"
+msgstr "Objekt kopieren:"
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/CopyObjectModal.tsx:305
+msgid "Copying object..."
+msgstr "Objekt wird kopiert..."
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/CopyObjectModal.tsx:296
+msgid "Copying..."
+msgstr "Wird kopiert..."
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/ObjectToastNotifications.tsx:192
+msgid "Could not copy \"{objectName}\": {errorMessage}"
+msgstr "\"{objectName}\" konnte nicht kopiert werden: {errorMessage}"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ContainerToastNotifications.tsx:48
 msgid "Could not create container \"{containerName}\": {errorMessage}"
@@ -541,6 +608,10 @@ msgstr "Container \"{containerName}\" konnte nicht erstellt werden: {errorMessag
 msgid "Could not create folder \"{folderName}\": {errorMessage}"
 msgstr "Ordner \"{folderName}\" konnte nicht erstellt werden: {errorMessage}"
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/ObjectToastNotifications.tsx:152
+msgid "Could not delete \"{objectName}\": {errorMessage}"
+msgstr "\"{objectName}\" konnte nicht gelöscht werden: {errorMessage}"
+
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ContainerToastNotifications.tsx:132
 msgid "Could not delete container \"{containerName}\": {errorMessage}"
 msgstr "Container \"{containerName}\" konnte nicht gelöscht werden: {errorMessage}"
@@ -549,9 +620,17 @@ msgstr "Container \"{containerName}\" konnte nicht gelöscht werden: {errorMessa
 msgid "Could not delete folder \"{folderName}\": {errorMessage}"
 msgstr "Ordner \"{folderName}\" konnte nicht gelöscht werden: {errorMessage}"
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/ObjectToastNotifications.tsx:118
+msgid "Could not download \"{objectName}\": {errorMessage}"
+msgstr "\"{objectName}\" konnte nicht heruntergeladen werden: {errorMessage}"
+
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ContainerToastNotifications.tsx:98
 msgid "Could not empty container \"{containerName}\": {errorMessage}"
 msgstr "Container \"{containerName}\" konnte nicht geleert werden: {errorMessage}"
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/ObjectToastNotifications.tsx:232
+msgid "Could not move \"{objectName}\": {errorMessage}"
+msgstr "\"{objectName}\" konnte nicht verschoben werden: {errorMessage}"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ContainerToastNotifications.tsx:200
 msgid "Could not update ACLs for container \"{containerName}\": {errorMessage}"
@@ -566,11 +645,13 @@ msgid "CPU"
 msgstr "CPU"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/CreateContainerModal.tsx:89
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/CopyObjectModal.tsx:454
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/MoveRenameObjectModal.tsx:513
 msgid "Create"
 msgstr "Erstellen"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/CreateContainerModal.tsx:86
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/index.tsx:162
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/index.tsx:217
 msgid "Create Container"
 msgstr "Container erstellen"
 
@@ -579,12 +660,12 @@ msgstr "Container erstellen"
 msgid "Create Flavor"
 msgstr "Flavor erstellen"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/CreateFolderModal.tsx:101
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/index.tsx:318
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/CreateFolderModal.tsx:104
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/index.tsx:356
 msgid "Create Folder"
 msgstr "Ordner erstellen"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/CreateFolderModal.tsx:92
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/CreateFolderModal.tsx:95
 msgid "Create folder below:"
 msgstr "Ordner erstellen unter:"
 
@@ -595,6 +676,11 @@ msgstr "Image erstellen"
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/CreateFlavorModal.tsx:157
 msgid "Create New Flavor"
 msgstr "Neuen Flavor erstellen"
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/CopyObjectModal.tsx:352
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/MoveRenameObjectModal.tsx:412
+msgid "Create new folder here"
+msgstr "Neuen Ordner hier erstellen"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/CreateImageModal.tsx:362
 msgid "Create New Image"
@@ -684,24 +770,21 @@ msgstr ""
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/DeleteSecurityGroupDialog.tsx:57
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/SecurityGroupTableRow.tsx:73
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-components/-details/SecurityGroupRulesTable.tsx:155
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ContainerTableView.tsx:257
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/DeleteContainerModal.tsx:142
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ContainerTableView.tsx:229
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/DeleteContainerModal.tsx:145
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EditContainerMetadataModal.tsx:781
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/DeleteFolderModal.tsx:73
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/ObjectsTableView.tsx:220
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/DeleteFolderModal.tsx:80
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/DeleteObjectModal.tsx:110
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/ObjectsTableView.tsx:444
 msgid "Delete"
 msgstr "Löschen"
-
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/ObjectsTableView.tsx:227
-msgid "Delete (Keep Segments)"
-msgstr "Löschen (Segmente beibehalten)"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/SpecRow.tsx:53
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/SpecRow.tsx:54
 msgid "Delete {specKey}"
 msgstr "Lösche {specKey}"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/DeleteContainerModal.tsx:119
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/DeleteContainerModal.tsx:122
 msgid "Delete container:"
 msgstr "Container löschen:"
 
@@ -710,7 +793,7 @@ msgstr "Container löschen:"
 msgid "Delete Flavor"
 msgstr "Flavor löschen"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/DeleteFolderModal.tsx:64
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/DeleteFolderModal.tsx:71
 msgid "Delete folder:"
 msgstr "Ordner löschen:"
 
@@ -718,7 +801,11 @@ msgstr "Ordner löschen:"
 msgid "Delete Images"
 msgstr "Images löschen"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/ObjectsTableView.tsx:184
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/DeleteObjectModal.tsx:101
+msgid "Delete object:"
+msgstr "Objekt löschen:"
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/ObjectsTableView.tsx:413
 msgid "Delete Recursively"
 msgstr "Rekursiv löschen"
 
@@ -742,13 +829,15 @@ msgstr ""
 msgid "Deleted {successCount} image(s), but {failedCount} image(s) could not be deleted."
 msgstr "{successCount} Image(s) gelöscht, aber {failedCount} Image(s) konnten nicht gelöscht werden."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/DeleteFolderModal.tsx:82
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/DeleteFolderModal.tsx:89
 msgid "Deleting folder and all its contents..."
 msgstr "Ordner und alle Inhalte werden gelöscht..."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/DeleteSecurityGroupDialog.tsx:57
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/DeleteRuleDialog.tsx:49
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/DeleteFolderModal.tsx:73
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/DeleteFolderModal.tsx:80
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/DeleteObjectModal.tsx:110
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/DeleteObjectModal.tsx:119
 msgid "Deleting..."
 msgstr "Wird gelöscht..."
 
@@ -760,6 +849,7 @@ msgstr "Wird gelöscht..."
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/EditSecurityGroupModal.tsx:184
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/EditSecurityGroupModal.tsx:187
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/SecurityGroupListContainer.tsx:131
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:245
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/EditFloatingIpModal.tsx:112
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/EditFloatingIpModal.tsx:113
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/FloatingIpDetailsView.tsx:92
@@ -775,6 +865,7 @@ msgstr "Beschreibung"
 msgid "Description must be at least 1 character."
 msgstr ""
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:83
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/EditFloatingIpModal.tsx:34
 msgid "Description must be at most 255 characters."
 msgstr ""
@@ -860,12 +951,18 @@ msgstr "Festplattenformat ist erforderlich"
 msgid "DNS"
 msgstr ""
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:204
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/FloatingIpDetailsView.tsx:213
 msgid "DNS Domain"
 msgstr ""
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:226
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/FloatingIpDetailsView.tsx:218
 msgid "DNS Name"
+msgstr ""
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:76
+msgid "DNS name must be at most 63 characters."
 msgstr ""
 
 #: src/client/routes/index.tsx:46
@@ -880,19 +977,28 @@ msgstr "Domain"
 msgid "Domain Name"
 msgstr ""
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/ObjectsTableView.tsx:192
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/ObjectsTableView.tsx:421
 msgid "Download"
 msgstr "Herunterladen"
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/ObjectsTableView.tsx:356
+msgid "Download {rowDisplayName}"
+msgstr "{rowDisplayName} herunterladen"
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/ObjectsTableView.tsx:382
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/ObjectsTableView.tsx:421
+msgid "Downloading..."
+msgstr "Wird heruntergeladen..."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/CreateImageModal.tsx:439
 msgid "Drop your image file here"
 msgstr "Legen Sie Ihre Image-Datei hier ab"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ManageContainerAccessModal.tsx:299
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ManageContainerAccessModal.tsx:324
 msgid "e.g. .r:*,.rlistings"
 msgstr "z. B. .r:*,.rlistings"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ManageContainerAccessModal.tsx:322
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ManageContainerAccessModal.tsx:347
 msgid "e.g. PROJECT_ID:USER_ID"
 msgstr "z. B. PROJECT_ID:USER_ID"
 
@@ -930,7 +1036,7 @@ msgstr "Image-Metadaten bearbeiten"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:283
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageTableRow.tsx:108
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ContainerTableView.tsx:247
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ContainerTableView.tsx:219
 msgid "Edit Metadata"
 msgstr "Metadaten bearbeiten"
 
@@ -946,12 +1052,12 @@ msgstr "Effiziente Massenlöschung"
 msgid "Egress"
 msgstr ""
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ContainerTableView.tsx:252
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EmptyContainerModal.tsx:133
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ContainerTableView.tsx:224
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EmptyContainerModal.tsx:134
 msgid "Empty"
 msgstr "Leeren"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EmptyContainerModal.tsx:110
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EmptyContainerModal.tsx:111
 msgid "Empty container:"
 msgstr "Container leeren:"
 
@@ -959,9 +1065,17 @@ msgstr "Container leeren:"
 msgid "Enable file listing"
 msgstr "Dateilisting aktivieren"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ManageContainerAccessModal.tsx:487
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ManageContainerAccessModal.tsx:516
 msgid "Ensure ACL entries are valid — correct project IDs, user IDs, and formats are your responsibility. Invalid entries may silently grant or deny unintended access."
 msgstr "Stellen Sie sicher, dass ACL-Einträge gültig sind — korrekte Projekt-IDs, Benutzer-IDs und Formate liegen in Ihrer Verantwortung. Ungültige Einträge können stillschweigend unbeabsichtigten Zugriff gewähren oder verweigern."
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:263
+msgid "Enter a floating IP"
+msgstr ""
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:264
+msgid "Enter a floating IP or leave blank to auto-assign one"
+msgstr ""
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/AddRuleModal/sections/PortRangeSection.tsx:93
 msgid "Enter a single port, or define a range by also filling \"Port (to)\". \"Port (to)\" is optional."
@@ -971,9 +1085,17 @@ msgstr "Geben Sie einen einzelnen Port ein oder definieren Sie einen Bereich, in
 msgid "Enter a tag and press Enter or click Add"
 msgstr "Geben Sie ein Tag ein und drücken Sie Enter oder klicken Sie auf Hinzufügen"
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:228
+msgid "Enter a valid PQDN or FQDN (max 63 characters) to associate with the floating IP. A and PTR records are created automatically."
+msgstr ""
+
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/CreateContainerModal.tsx:112
 msgid "Enter container name"
 msgstr "Container-Name eingeben"
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:227
+msgid "Enter DNS name"
+msgstr ""
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/SpecFormRow.tsx:34
 msgid "Enter key"
@@ -1007,7 +1129,7 @@ msgstr "Geben Sie den Domain ein"
 msgid "Enter your username"
 msgstr "Geben Sie Ihren Benutzernamen ein"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ManageContainerAccessModal.tsx:343
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ManageContainerAccessModal.tsx:368
 msgid "Entries in ACLs are comma-separated. Examples:"
 msgstr "Einträge in ACLs werden durch Kommas getrennt. Beispiele:"
 
@@ -1038,7 +1160,7 @@ msgstr ""
 msgid "Error loading component"
 msgstr "Fehler beim Laden der Komponente"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/index.tsx:132
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/index.tsx:187
 msgid "Error Loading Containers: {errorMessage}"
 msgstr "Fehler beim Laden der Container: {errorMessage}"
 
@@ -1054,7 +1176,7 @@ msgstr ""
 msgid "Error loading image"
 msgstr "Fehler beim Laden des Images"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/index.tsx:298
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/index.tsx:336
 msgid "Error Loading Objects: {errorMessage}"
 msgstr "Fehler beim Laden der Objekte: {errorMessage}"
 
@@ -1067,6 +1189,10 @@ msgstr ""
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/index.tsx:74
 msgid "Ethertype"
 msgstr "Ethertype"
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:181
+msgid "External Network"
+msgstr ""
 
 #: src/client/utils/useErrorTranslation.ts:108
 msgid "Extra spec key is required and cannot be empty."
@@ -1091,6 +1217,14 @@ msgstr "Fehler beim Hinzufügen des Mitglieds"
 #: src/client/utils/useErrorTranslation.ts:126
 msgid "Failed to add tenant access to flavor. Please try again."
 msgstr "Fehler beim Hinzufügen des Zugriffs für das Project zum Flavor. Bitte versuchen Sie es erneut."
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/ObjectToastNotifications.tsx:190
+msgid "Failed to Copy Object"
+msgstr "Fehler beim Kopieren des Objekts"
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/CopyObjectModal.tsx:501
+msgid "Failed to copy object: {errorMessage}"
+msgstr "Fehler beim Kopieren des Objekts: {errorMessage}"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ContainerToastNotifications.tsx:46
 msgid "Failed to Create Container"
@@ -1148,6 +1282,10 @@ msgstr "Fehler beim Löschen des Ordners"
 msgid "Failed to Delete Images"
 msgstr "Fehler beim Löschen der Images"
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/ObjectToastNotifications.tsx:150
+msgid "Failed to Delete Object"
+msgstr "Fehler beim Löschen des Objekts"
+
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/List.tsx:115
 msgid "Failed to delete security group"
 msgstr ""
@@ -1159,6 +1297,10 @@ msgstr "Fehler beim Löschen des Extra-Specs. Bitte versuchen Sie es erneut."
 #: src/client/utils/useErrorTranslation.ts:62
 msgid "Failed to delete the flavor. Please try again."
 msgstr "Das Löschen des Flavor ist fehlgeschlagen. Bitte versuchen Sie es erneut"
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/ObjectToastNotifications.tsx:116
+msgid "Failed to Download"
+msgstr "Fehler beim Herunterladen"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ContainerToastNotifications.tsx:96
 msgid "Failed to Empty Container"
@@ -1172,16 +1314,16 @@ msgstr "Fehler beim Abrufen der Flavor-Zugriffsinformationen. Bitte versuchen Si
 msgid "Failed to fetch flavors from server."
 msgstr "Fehler beim Abrufen der Flavors vom Server."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ManageContainerAccessModal.tsx:283
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ManageContainerAccessModal.tsx:308
 msgid "Failed to load container ACLs: {errorMessage}"
 msgstr "Fehler beim Laden der Container-ACLs: {errorMessage}"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/DeleteContainerModal.tsx:160
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EmptyContainerModal.tsx:148
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/DeleteContainerModal.tsx:163
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EmptyContainerModal.tsx:149
 msgid "Failed to load container objects: {errorMessage}"
 msgstr "Fehler beim Laden der Container-Objekte: {errorMessage}"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/DeleteContainerModal.tsx:168
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/DeleteContainerModal.tsx:171
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EditContainerMetadataModal.tsx:437
 msgid "Failed to load container properties: {errorMessage}"
 msgstr "Fehler beim Laden der Container-Eigenschaften: {errorMessage}"
@@ -1198,9 +1340,21 @@ msgstr ""
 msgid "Failed to load Floating IPs"
 msgstr ""
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/DeleteObjectModal.tsx:128
+msgid "Failed to load object metadata: {metadataErrorMessage}"
+msgstr "Fehler beim Laden der Objekt-Metadaten: {metadataErrorMessage}"
+
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/SecurityGroupListContainer.tsx:117
 msgid "Failed to load security groups"
 msgstr ""
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/ObjectToastNotifications.tsx:230
+msgid "Failed to Move Object"
+msgstr "Fehler beim Verschieben des Objekts"
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/MoveRenameObjectModal.tsx:549
+msgid "Failed to move object: {copyErrorMessage}"
+msgstr "Fehler beim Verschieben des Objekts: {copyErrorMessage}"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ManageImageAccessModal.tsx:148
 msgid "Failed to remove member"
@@ -1222,7 +1376,7 @@ msgstr "Fehler beim Aktualisieren der Zugriffskontrolle"
 msgid "Failed to update access status"
 msgstr "Fehler beim Aktualisieren des Zugriffsstatus"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ManageContainerAccessModal.tsx:443
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ManageContainerAccessModal.tsx:472
 msgid "Failed to update ACLs: {errorMessage}"
 msgstr "Fehler beim Aktualisieren der ACLs: {errorMessage}"
 
@@ -1267,7 +1421,8 @@ msgid "Fingerprint"
 msgstr "Fingerprint"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/FloatingIps/-components/constants.tsx:29
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/FloatingIps/List.tsx:23
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/FloatingIps/List.tsx:28
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:313
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AssociateFloatingIpModal.tsx:147
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/FloatingIpDetailsView.tsx:145
 msgid "Fixed IP Address"
@@ -1315,7 +1470,8 @@ msgid "Flavors"
 msgstr "Flavors"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/FloatingIps/-components/constants.tsx:28
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/FloatingIps/List.tsx:24
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/FloatingIps/List.tsx:29
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:262
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/FloatingIpDetailsView.tsx:134
 msgid "Floating IP Address"
 msgstr ""
@@ -1334,12 +1490,12 @@ msgstr ""
 msgid "Floating Network"
 msgstr ""
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/FloatingIps/List.tsx:25
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/FloatingIps/List.tsx:30
 msgid "Floating Network ID"
 msgstr ""
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/ObjectToastNotifications.tsx:71
-msgid "Folder \"{folderName}\" and {deletedCount} object were permanently deleted."
+msgid "Folder \"{folderName}\" and {deletedCount} object was permanently deleted."
 msgstr "Ordner \"{folderName}\" und {deletedCount} Objekt wurden dauerhaft gelöscht."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/ObjectToastNotifications.tsx:75
@@ -1347,8 +1503,8 @@ msgid "Folder \"{folderName}\" and {deletedCount} objects were permanently delet
 msgstr "Ordner \"{folderName}\" und {deletedCount} Objekte wurden dauerhaft gelöscht."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/ObjectToastNotifications.tsx:69
-msgid "Folder \"{folderName}\" was already empty and has been removed."
-msgstr "Ordner \"{folderName}\" war bereits leer und wurde entfernt."
+msgid "Folder \"{folderName}\" was permanently deleted."
+msgstr "Ordner \"{folderName}\" wurde dauerhaft gelöscht."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/ObjectToastNotifications.tsx:33
 msgid "Folder \"{folderName}\" was successfully created."
@@ -1362,27 +1518,37 @@ msgstr "Ordner erstellt"
 msgid "Folder Deleted"
 msgstr "Ordner gelöscht"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/CreateFolderModal.tsx:54
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/CreateFolderModal.tsx:118
+msgid "Folder name"
+msgstr "Ordnername"
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/CopyObjectModal.tsx:193
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/CreateFolderModal.tsx:57
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/MoveRenameObjectModal.tsx:216
 msgid "Folder name cannot contain slashes"
 msgstr "Ordnername darf keine Schrägstriche enthalten"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/CreateFolderModal.tsx:58
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/CopyObjectModal.tsx:197
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/CreateFolderModal.tsx:61
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/MoveRenameObjectModal.tsx:220
 msgid "Folder name cannot have leading or trailing whitespace"
 msgstr "Ordnername darf keine führenden oder nachfolgenden Leerzeichen haben"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/CreateFolderModal.tsx:50
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/CopyObjectModal.tsx:189
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/CreateFolderModal.tsx:53
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/MoveRenameObjectModal.tsx:212
 msgid "Folder name is required"
 msgstr "Ordnername ist erforderlich"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/CreateFolderModal.tsx:124
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/CreateFolderModal.tsx:127
 msgid "folder-name"
 msgstr "ordner-name"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/CreateFolderModal.tsx:109
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/CreateFolderModal.tsx:112
 msgid "Folders in object storage are virtual — they are created as zero-byte placeholder objects with a trailing slash. The folder will appear once created."
 msgstr "Ordner im Object Storage sind virtuell — sie werden als Null-Byte-Platzhalterobjekte mit einem abschließenden Schrägstrich erstellt. Der Ordner wird nach der Erstellung angezeigt."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ManageContainerAccessModal.tsx:367
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ManageContainerAccessModal.tsx:392
 msgid "For more details, have a look at the <0>documentation</0>."
 msgstr "Weitere Details finden Sie in der <0>Dokumentation</0>."
 
@@ -1402,16 +1568,16 @@ msgstr "Mitmachen"
 msgid "GitHub"
 msgstr "GitHub"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/DeleteContainerModal.tsx:142
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EmptyContainerModal.tsx:133
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/DeleteContainerModal.tsx:145
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EmptyContainerModal.tsx:134
 msgid "Got it!"
 msgstr "Verstanden!"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ManageContainerAccessModal.tsx:357
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ManageContainerAccessModal.tsx:382
 msgid "Grant access to a user from a different project."
 msgstr "Zugriff für einen Benutzer aus einem anderen Projekt gewähren."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ManageContainerAccessModal.tsx:359
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ManageContainerAccessModal.tsx:384
 msgid "Grant access to all users from that project."
 msgstr "Zugriff für alle Benutzer aus diesem Projekt gewähren."
 
@@ -1427,7 +1593,7 @@ msgstr ""
 msgid "Hi"
 msgstr ""
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ManageContainerAccessModal.tsx:331
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ManageContainerAccessModal.tsx:356
 msgid "Hide ACLs Preview"
 msgstr "ACLs-Vorschau ausblenden"
 
@@ -1435,7 +1601,7 @@ msgstr "ACLs-Vorschau ausblenden"
 msgid "Home"
 msgstr ""
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/DeleteContainerModal.tsx:194
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/DeleteContainerModal.tsx:207
 msgid "I confirm that all existing versions will also be deleted"
 msgstr "Ich bestätige, dass alle vorhandenen Versionen ebenfalls gelöscht werden"
 
@@ -1456,7 +1622,7 @@ msgstr "Id"
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/DeleteFlavorModal.tsx:120
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageDetailsView.tsx:27
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/flavors/-components/FlavorDetailsView.tsx:31
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/FloatingIps/List.tsx:26
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/FloatingIps/List.tsx:31
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/FloatingIpDetailsView.tsx:86
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-components/-details/SecurityGroupBasicInfo.tsx:39
 msgid "ID"
@@ -1634,6 +1800,10 @@ msgstr "IPv4"
 msgid "IPv6"
 msgstr "IPv6"
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/DeleteObjectModal.tsx:154
+msgid "Keep segments (delete manifest only)"
+msgstr "Segmente beibehalten (nur Manifest löschen)"
+
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:203
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EditContainerMetadataModal.tsx:664
 msgid "Key"
@@ -1656,11 +1826,11 @@ msgstr "Keyname"
 msgid "Key Pairs"
 msgstr ""
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ContainerTableView.tsx:176
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EmptyContainerModal.tsx:194
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/index.tsx:31
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/index.tsx:195
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/ObjectsTableView.tsx:104
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ContainerTableView.tsx:138
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EmptyContainerModal.tsx:195
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/index.tsx:86
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/index.tsx:233
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/ObjectsTableView.tsx:285
 msgid "Last Modified"
 msgstr "Zuletzt geändert"
 
@@ -1680,15 +1850,20 @@ msgstr "Limits"
 msgid "Load More"
 msgstr "Mehr laden"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ManageContainerAccessModal.tsx:277
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ManageContainerAccessModal.tsx:302
 msgid "Loading ACLs..."
 msgstr "ACLs werden geladen..."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EditContainerMetadataModal.tsx:430
-msgid "Loading container properties…"
-msgstr "Container-Eigenschaften werden geladen…"
+msgid "Loading container properties..."
+msgstr "Container-Eigenschaften werden geladen..."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/index.tsx:121
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/CopyObjectModal.tsx:317
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/MoveRenameObjectModal.tsx:377
+msgid "Loading containers..."
+msgstr "Container werden geladen..."
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/index.tsx:176
 msgid "Loading Containers..."
 msgstr "Container werden geladen..."
 
@@ -1736,11 +1911,15 @@ msgstr "Lädt Key Pairs..."
 msgid "Loading more..."
 msgstr "Weitere werden geladen..."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EmptyContainerModal.tsx:155
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/DeleteObjectModal.tsx:124
+msgid "Loading object info..."
+msgstr "Objekt-Informationen werden geladen..."
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EmptyContainerModal.tsx:156
 msgid "Loading objects..."
 msgstr "Objekte werden geladen..."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/index.tsx:288
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/index.tsx:326
 msgid "Loading Objects..."
 msgstr "Objekte werden geladen..."
 
@@ -1757,7 +1936,9 @@ msgstr "Lädt Servergruppen"
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Overview.tsx:115
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/FloatingIps/-components/FloatingIpListContainer.tsx:30
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/SecurityGroupListContainer.tsx:108
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/DeleteContainerModal.tsx:177
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/DeleteContainerModal.tsx:180
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/CopyObjectModal.tsx:382
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/MoveRenameObjectModal.tsx:442
 #: src/client/routes/auth/login.tsx:223
 msgid "Loading..."
 msgstr "Lädt..."
@@ -1780,7 +1961,7 @@ msgstr ""
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:170
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageTableRow.tsx:116
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ContainerTableView.tsx:242
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ContainerTableView.tsx:214
 msgid "Manage Access"
 msgstr "Zugriff verwalten"
 
@@ -1925,14 +2106,38 @@ msgstr "Minimaler RAM, der zum Booten dieses Images erforderlich ist"
 msgid "More Actions"
 msgstr "Weitere Aktionen"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/ObjectsTableView.tsx:213
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/MoveRenameObjectModal.tsx:342
+msgid "Move"
+msgstr "Verschieben"
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/ObjectsTableView.tsx:439
 msgid "Move/Rename"
 msgstr "Verschieben/Umbenennen"
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/MoveRenameObjectModal.tsx:333
+msgid "Move/Rename object:"
+msgstr "Objekt verschieben/umbenennen:"
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/MoveRenameObjectModal.tsx:351
+msgid "Moving object..."
+msgstr "Objekt wird verschoben..."
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/MoveRenameObjectModal.tsx:342
+msgid "Moving..."
+msgstr "Wird verschoben..."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EditContainerMetadataModal.tsx:205
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EditContainerMetadataModal.tsx:211
 msgid "Must be a non-negative integer"
 msgstr "Muss eine nicht-negative Ganzzahl sein"
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:88
+msgid "Must be a valid IPv4 or IPv6 address (for example: 172.24.4.228 or 2001:db8::1)."
+msgstr ""
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:78
+msgid "Must be a valid PQDN or FQDN (alphanumeric and hyphens only, cannot start or end with hyphen)."
+msgstr ""
 
 #: src/client/components/navigation/UserMenu.tsx:82
 msgid "My Profile"
@@ -1948,10 +2153,10 @@ msgstr "Mein Profil"
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageDetailsView.tsx:70
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageTableRow.tsx:90
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageTableRow.tsx:91
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ContainerTableView.tsx:120
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ContainerTableView.tsx:236
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EmptyContainerModal.tsx:204
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/ObjectsTableView.tsx:60
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ContainerTableView.tsx:82
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ContainerTableView.tsx:208
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EmptyContainerModal.tsx:205
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/ObjectsTableView.tsx:240
 msgid "N/A"
 msgstr "keine Angabe"
 
@@ -1969,9 +2174,9 @@ msgstr "keine Angabe"
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/SecurityGroupListContainer.tsx:131
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/List.tsx:36
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-components/-details/SecurityGroupBasicInfo.tsx:45
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EmptyContainerModal.tsx:188
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/index.tsx:28
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/index.tsx:194
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EmptyContainerModal.tsx:189
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/index.tsx:83
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/index.tsx:232
 msgid "Name"
 msgstr "Name"
 
@@ -1996,6 +2201,20 @@ msgstr ""
 msgid "Network Overview"
 msgstr ""
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/CopyObjectModal.tsx:354
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/MoveRenameObjectModal.tsx:414
+msgid "New Folder"
+msgstr "Neuer Ordner"
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/MoveRenameObjectModal.tsx:357
+msgid "New object name"
+msgstr "Neuer Objektname"
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/CopyObjectModal.tsx:442
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/MoveRenameObjectModal.tsx:501
+msgid "new-folder-name"
+msgstr "new-folder-name"
+
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageDetailsView.tsx:94
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageTableRow.tsx:86
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/flavors/-components/FlavorDetailsView.tsx:56
@@ -2005,7 +2224,7 @@ msgstr ""
 msgid "No"
 msgstr "Nein"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ContainerTableView.tsx:138
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ContainerTableView.tsx:100
 msgid "No containers found"
 msgstr "Keine Container gefunden"
 
@@ -2051,11 +2270,11 @@ msgstr "Keine Keypaare verfügbar"
 msgid "No limit"
 msgstr "Kein Limit"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/ObjectsTableView.tsx:70
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/ObjectsTableView.tsx:250
 msgid "No objects found"
 msgstr "Keine Objekte gefunden"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/ObjectsTableView.tsx:74
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/ObjectsTableView.tsx:254
 msgid "No objects match your search. Try adjusting your search term."
 msgstr "Keine Objekte entsprechen Ihrer Suche. Versuchen Sie, Ihren Suchbegriff anzupassen."
 
@@ -2094,7 +2313,7 @@ msgstr "Kein spezifischer Projektzugriff für diesen privaten Flavor konfigurier
 msgid "None"
 msgstr ""
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/DeleteFolderModal.tsx:94
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/DeleteFolderModal.tsx:101
 msgid "Note: for <0>static and dynamic large objects</0> only the manifests are deleted — their segments outside this folder prefix are not affected."
 msgstr "Hinweis: Für <0>statische und dynamische große Objekte</0> werden nur die Manifeste gelöscht — ihre Segmente außerhalb dieses Ordnerpräfixes sind nicht betroffen."
 
@@ -2106,20 +2325,28 @@ msgstr "Hinweis: Wenn diese Sicherheitsgruppe derzeit von einem oder mehreren Po
 msgid "Note: The 'stateful' attribute cannot be changed if this security group is currently in use by one or more ports."
 msgstr ""
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EmptyContainerModal.tsx:163
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EmptyContainerModal.tsx:164
 msgid "Nothing to do. Container appears empty — the object count may not have synced yet due to a recent operation."
 msgstr "Nichts zu tun. Container scheint leer zu sein — die Objekt-Anzahl ist möglicherweise aufgrund einer kürzlichen Operation noch nicht synchronisiert."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EmptyContainerModal.tsx:161
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EmptyContainerModal.tsx:162
 msgid "Nothing to do. Container is already empty."
 msgstr "Nichts zu tun. Container ist bereits leer."
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/ObjectToastNotifications.tsx:134
+msgid "Object \"{objectName}\" was permanently deleted."
+msgstr "Objekt \"{objectName}\" wurde dauerhaft gelöscht."
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/ObjectToastNotifications.tsx:172
+msgid "Object Copied"
+msgstr "Objekt kopiert"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EditContainerMetadataModal.tsx:446
 msgid "Object count"
 msgstr "Objekt-Anzahl"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ContainerTableView.tsx:173
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/index.tsx:29
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ContainerTableView.tsx:135
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/index.tsx:84
 msgid "Object Count"
 msgstr "Objekt-Anzahl"
 
@@ -2127,9 +2354,29 @@ msgstr "Objekt-Anzahl"
 msgid "Object count quota"
 msgstr "Objekt-Anzahl-Quota"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/ObjectsTableView.tsx:101
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/ObjectToastNotifications.tsx:133
+msgid "Object Deleted"
+msgstr "Objekt gelöscht"
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/ObjectToastNotifications.tsx:212
+msgid "Object Moved"
+msgstr "Objekt verschoben"
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/ObjectsTableView.tsx:282
 msgid "Object Name"
 msgstr "Objektname"
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/MoveRenameObjectModal.tsx:242
+msgid "Object name cannot contain slashes"
+msgstr "Objektname darf keine Schrägstriche enthalten"
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/MoveRenameObjectModal.tsx:246
+msgid "Object name cannot have leading or trailing whitespace"
+msgstr "Objektname darf keine führenden oder nachfolgenden Leerzeichen haben"
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/MoveRenameObjectModal.tsx:238
+msgid "Object name is required"
+msgstr " Objektname ist erforderlich"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/$provider/containers/$containerName/objects/index.tsx:145
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/$provider/containers/index.tsx:132
@@ -2140,6 +2387,10 @@ msgstr "Object Storage"
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EditContainerMetadataModal.tsx:567
 msgid "Object versioning"
 msgstr "Objekt-Versionierung"
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/MoveRenameObjectModal.tsx:551
+msgid "Object was copied but could not be deleted from the source: {deleteErrorMessage}"
+msgstr "Objekt wurde kopiert, konnte aber nicht von der Quelle gelöscht werden: {deleteErrorMessage}"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ContainerLimitsTooltip.tsx:74
 msgid "Objects"
@@ -2226,7 +2477,7 @@ msgstr "Bitte korrigieren Sie die Validierungsfehler unten."
 msgid "Please log in again to continue."
 msgstr ""
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EmptyContainerModal.tsx:177
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EmptyContainerModal.tsx:178
 msgid "Please note: for <0>dynamic</0> and <1>static large objects</1> only the manifests are deleted. The related segments are not deleted."
 msgstr "Bitte beachten Sie: Für <0>dynamische</0> und <1>statische große Objekte</1> werden nur die Manifeste gelöscht. Die zugehörigen Segmente werden nicht gelöscht."
 
@@ -2246,6 +2497,7 @@ msgstr "Port (bis)"
 msgid "Port Forwarding"
 msgstr ""
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:286
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AssociateFloatingIpModal.tsx:122
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/FloatingIpDetailsView.tsx:188
 msgid "Port ID"
@@ -2271,6 +2523,10 @@ msgstr "Versehentliches Löschen verhindern"
 msgid "Preview"
 msgstr ""
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/ObjectsTableView.tsx:355
+msgid "Preview {rowDisplayName}"
+msgstr "{rowDisplayName} vorschauen"
+
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/CreateImageModal.tsx:555
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageDetailsModal.tsx:286
 msgid "Private"
@@ -2288,7 +2544,7 @@ msgstr ""
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ConfirmImageAccessModal.tsx:161
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ManageImageAccessModal.tsx:172
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ManageImageAccessModal.tsx:186
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/FloatingIps/List.tsx:31
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/FloatingIps/List.tsx:36
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/FloatingIpDetailsView.tsx:98
 msgid "Project ID"
 msgstr "Projekt-ID"
@@ -2297,7 +2553,7 @@ msgstr "Projekt-ID"
 msgid "Project Name"
 msgstr ""
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/ObjectsTableView.tsx:199
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/ObjectsTableView.tsx:427
 msgid "Properties"
 msgstr "Eigenschaften"
 
@@ -2308,7 +2564,7 @@ msgstr "Eigenschaftsschlüssel"
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageMetadataModal.tsx:333
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EditContainerMetadataModal.tsx:684
 msgid "property_key"
-msgstr "eigenschaftsschlüssel"
+msgstr "property_key"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageDetailsModal.tsx:299
 msgid "Protect this image from being deleted"
@@ -2348,7 +2604,7 @@ msgstr "Öffentlich"
 msgid "Public Flavor"
 msgstr "Öffentlicher Flavor"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ManageContainerAccessModal.tsx:304
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ManageContainerAccessModal.tsx:329
 msgid "Public Read Access"
 msgstr "Öffentlicher Lesezugriff"
 
@@ -2396,8 +2652,8 @@ msgstr ""
 msgid "RBAC Policies functionality coming soon"
 msgstr ""
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ManageContainerAccessModal.tsx:294
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ManageContainerAccessModal.tsx:389
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ManageContainerAccessModal.tsx:319
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ManageContainerAccessModal.tsx:414
 msgid "Read ACLs"
 msgstr "Lese-ACLs"
 
@@ -2423,7 +2679,7 @@ msgstr ""
 msgid "Releasing Floating IP..."
 msgstr ""
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/index.tsx:154
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/index.tsx:209
 msgid "Remaining Quota:"
 msgstr "Verfügbare Quota:"
 
@@ -2490,6 +2746,11 @@ msgstr "Zugriff überprüfen - {imageTitle}"
 msgid "Revoke Access"
 msgstr "Zugriff widerrufen"
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/CopyObjectModal.tsx:371
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/MoveRenameObjectModal.tsx:431
+msgid "Root"
+msgstr "Root"
+
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/List.tsx:114
 msgid "Root Disk"
 msgstr "Root Disk"
@@ -2502,7 +2763,7 @@ msgstr "Root Disk (GiB)"
 msgid "Root Disk must be an integer ≥ 0."
 msgstr "Root Disk muss eine ganze Zahl ≥ 0 sein."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/FloatingIps/List.tsx:27
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/FloatingIps/List.tsx:32
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/FloatingIpDetailsView.tsx:181
 msgid "Router ID"
 msgstr ""
@@ -2534,7 +2795,7 @@ msgstr "RX/TX Faktor muss eine ganze Zahl ≥ 1 sein."
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EditContainerMetadataModal.tsx:421
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EditContainerMetadataModal.tsx:704
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EditContainerMetadataModal.tsx:756
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ManageContainerAccessModal.tsx:259
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ManageContainerAccessModal.tsx:284
 msgid "Save"
 msgstr "Speichern"
 
@@ -2579,6 +2840,11 @@ msgstr ""
 msgid "Security Groups"
 msgstr ""
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:205
+msgid "Select a DNS domain."
+msgstr ""
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:314
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AssociateFloatingIpModal.tsx:148
 msgid "Select a fixed IP address"
 msgstr ""
@@ -2587,10 +2853,20 @@ msgstr ""
 msgid "Select a security group..."
 msgstr ""
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:183
+msgid "Select an external network"
+msgstr ""
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/CopyObjectModal.tsx:340
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/MoveRenameObjectModal.tsx:400
+msgid "Select destination folder"
+msgstr "Zielordner auswählen"
+
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/CreateImageModal.tsx:598
 msgid "Select disk format first"
 msgstr "Wählen Sie zuerst das Festplattenformat"
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:287
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AssociateFloatingIpModal.tsx:123
 msgid "Select port to associate"
 msgstr ""
@@ -2684,7 +2960,7 @@ msgstr "Auf \"Geteilt\" setzen"
 msgid "Shared"
 msgstr "Geteilt"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ManageContainerAccessModal.tsx:331
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ManageContainerAccessModal.tsx:356
 msgid "Show ACLs Preview"
 msgstr "ACLs-Vorschau anzeigen"
 
@@ -2693,11 +2969,13 @@ msgstr "ACLs-Vorschau anzeigen"
 msgid "Show Details"
 msgstr "Details anzeigen"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EmptyContainerModal.tsx:214
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EmptyContainerModal.tsx:215
 msgid "Showing first {actualObjectCount} of {total} objects"
 msgstr "Erste {actualObjectCount} von {total} Objekten werden angezeigt"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EditContainerMetadataModal.tsx:621
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/CopyObjectModal.tsx:322
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/MoveRenameObjectModal.tsx:382
 msgid "Showing first {maxOptions} of {totalCount} — refine your search to narrow results"
 msgstr "Erste {maxOptions} von {totalCount} werden angezeigt — verfeinern Sie Ihre Suche, um die Ergebnisse einzugrenzen"
 
@@ -2712,9 +2990,9 @@ msgstr "Einloggen"
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageDetailsView.tsx:39
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:653
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/List.tsx:244
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EmptyContainerModal.tsx:191
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/index.tsx:196
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/ObjectsTableView.tsx:107
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EmptyContainerModal.tsx:192
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/index.tsx:234
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/ObjectsTableView.tsx:288
 msgid "Size"
 msgstr "Größe"
 
@@ -2727,6 +3005,8 @@ msgid "Sort by"
 msgstr "Sortieren nach"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EditContainerMetadataModal.tsx:617
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/CopyObjectModal.tsx:318
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/MoveRenameObjectModal.tsx:378
 msgid "Start typing to search for a container"
 msgstr "Beginnen Sie mit der Eingabe, um nach einem Container zu suchen"
 
@@ -2757,8 +3037,8 @@ msgstr "Statisches Website-Serving"
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/List.tsx:254
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Instances/-components/ServerListView.tsx:19
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/FloatingIps/-components/constants.tsx:27
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/FloatingIps/List.tsx:28
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/FloatingIps/List.tsx:36
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/FloatingIps/List.tsx:33
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/FloatingIps/List.tsx:41
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/FloatingIpDetailsView.tsx:103
 msgid "Status"
 msgstr "Status"
@@ -2830,6 +3110,16 @@ msgstr "Symlinks"
 msgid "Tags"
 msgstr "Tags"
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/CopyObjectModal.tsx:311
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/MoveRenameObjectModal.tsx:371
+msgid "Target container"
+msgstr "Ziel-Container"
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/CopyObjectModal.tsx:476
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/MoveRenameObjectModal.tsx:535
+msgid "Target path"
+msgstr "Zielpfad"
+
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/AddRuleModal/sections/ProtocolSection.tsx:24
 msgid "tcp, udp, icmp, or protocol number"
 msgstr "tcp, udp, icmp oder Protokollnummer"
@@ -2848,13 +3138,17 @@ msgstr "Der Projektzugriff für \"{trimmedTenantId}\" wurde erfolgreich hinzugef
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/ManageAccessModal.tsx:190
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/ManageAccessModal.tsx:219
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/FloatingIps/List.tsx:30
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/FloatingIps/List.tsx:35
 msgid "Tenant ID"
 msgstr "Projekt ID"
 
 #: src/client/utils/useErrorTranslation.ts:158
 msgid "The compute service is currently unavailable for this project. Please try again later."
 msgstr "Der Compute-Dienst ist für dieses Projekt derzeit nicht verfügbar. Bitte versuchen Sie es später erneut."
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/DeleteContainerModal.tsx:190
+msgid "The container metadata reports objects but none were listed. This may be a temporary synchronization delay — please wait a moment and try again."
+msgstr "Die Container-Metadaten melden Objekte, aber keine wurden aufgelistet. Dies kann eine vorübergehende Synchronisierungsverzögerung sein — bitte warten Sie einen Moment und versuchen Sie es erneut."
 
 #: src/client/utils/useErrorTranslation.ts:104
 msgid "The extra spec could not be found. It may have already been deleted."
@@ -2890,6 +3184,10 @@ msgstr "Der Flavor oder das Projekt konnte nicht gefunden werden. Möglicherweis
 msgid "The flavor or tenant could not be found. Please verify they exist."
 msgstr "Der Flavor oder das Projekt konnte nicht gefunden werden. Bitte überprüfen Sie, ob sie existieren."
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:182
+msgid "The ID of the network associated with the floating IP."
+msgstr ""
+
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageToastNotifications.tsx:169
 msgid "The image \"{imageId}\" could not be deactivated: {message}"
 msgstr "Das Image \"{imageId}\" konnte nicht deaktiviert werden: {message}"
@@ -2910,11 +3208,19 @@ msgstr "Das Image \"{imageName}\" konnte nicht erstellt werden: "
 msgid "The image \"{imageName}\" could not be updated: "
 msgstr "Das Image \"{imageName}\" konnte nicht aktualisiert werden: "
 
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/CopyObjectModal.tsx:480
+msgid "The object will be copied to this path. Navigate folders above to change the destination."
+msgstr "Das Objekt wird zu diesem Pfad kopiert. Navigieren Sie oben durch die Ordner, um das Ziel zu ändern."
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/MoveRenameObjectModal.tsx:539
+msgid "The object will be moved to this path. Navigate folders above to change the destination."
+msgstr "Das Objekt wird zu diesem Pfad verschoben. Navigieren Sie oben durch die Ordner, um das Ziel zu ändern."
+
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/flavors/$flavorId.tsx:116
 msgid "The requested flavor could not be found. It may have been deleted or you may not have access to it."
 msgstr ""
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ManageContainerAccessModal.tsx:362
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ManageContainerAccessModal.tsx:387
 msgid "The specified user has access. A token for the user (scoped to any project) must be included in the request."
 msgstr "Der angegebene Benutzer hat Zugriff. Ein Token für den Benutzer (auf ein beliebiges Projekt bezogen) muss in der Anfrage enthalten sein."
 
@@ -2931,7 +3237,7 @@ msgstr ""
 msgid "The text must match “release” in lowercase."
 msgstr ""
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ContainerTableView.tsx:141
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ContainerTableView.tsx:103
 msgid "There are no containers available with the current search criteria. Try adjusting your search term."
 msgstr "Mit den aktuellen Suchkriterien sind keine Container verfügbar. Versuchen Sie, Ihren Suchbegriff anzupassen."
 
@@ -2979,13 +3285,26 @@ msgstr ""
 msgid "This extra spec keys already exist. Please use different keys."
 msgstr "Dieser Metadata-Key existiert bereits. Bitte verwenden Sie einen anderen Key."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/ObjectsTableView.tsx:76
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/CopyObjectModal.tsx:386
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/MoveRenameObjectModal.tsx:446
+msgid "This folder is empty — use New Folder to create one."
+msgstr "Dieser Ordner ist leer — verwenden Sie \"Neuer Ordner\", um einen zu erstellen."
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/ObjectsTableView.tsx:256
 msgid "This folder is empty."
 msgstr "Dieser Ordner ist leer."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ConfirmImageAccessModal.tsx:198
 msgid "This image has been shared with your project. Please confirm whether you want to accept or reject access. Once you accept, the image will be visible in your project's image list."
 msgstr "Dieses Image wurde mit Ihrem Projekt geteilt. Bitte bestätigen Sie, ob Sie den Zugriff akzeptieren oder ablehnen möchten. Nach der Akzeptanz wird das Image in Ihrer Projekt-Image-Liste sichtbar sein."
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/DeleteObjectModal.tsx:161
+msgid "This is a <0>dynamic large object</0>. Only the manifest will be deleted — its segment objects (stored under the manifest prefix) are <1>not</1> automatically removed and must be deleted separately."
+msgstr "Dies ist ein <0>dynamisches großes Objekt</0>. Nur das Manifest wird gelöscht — die zugehörigen Segment-Objekte (gespeichert unter dem Manifest-Präfix) werden <1>nicht</1> automatisch entfernt und müssen separat gelöscht werden."
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/DeleteObjectModal.tsx:141
+msgid "This is a <0>static large object</0>. By default, all associated segment objects will also be permanently deleted."
+msgstr "Dies ist ein <0>statisches großes Objekt</0>. Standardmäßig werden auch alle zugehörigen Segment-Objekte dauerhaft gelöscht."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/ManageAccessModal.tsx:195
 msgid "This is a public flavor. All tenants have access to it."
@@ -3031,8 +3350,8 @@ msgstr "Gemeinsam können wir das volle Potenzial Ihrer Cloud-Infrastruktur ersc
 msgid "Total size"
 msgstr "Gesamtspeicher"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ContainerTableView.tsx:179
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/index.tsx:30
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ContainerTableView.tsx:141
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/index.tsx:85
 msgid "Total Size"
 msgstr "Gesamtspeicher"
 
@@ -3080,12 +3399,8 @@ msgstr ""
 msgid "Type <0>delete</0> to confirm:"
 msgstr ""
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/CreateFolderModal.tsx:115
-msgid "Type container name"
-msgstr "Container-Name eingeben"
-
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/DeleteContainerModal.tsx:201
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EmptyContainerModal.tsx:224
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/DeleteContainerModal.tsx:214
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EmptyContainerModal.tsx:225
 msgid "Type container name to confirm"
 msgstr "Geben Sie den Container-Namen zur Bestätigung ein"
 
@@ -3095,6 +3410,8 @@ msgid "Type name"
 msgstr ""
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EditContainerMetadataModal.tsx:615
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/CopyObjectModal.tsx:315
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/MoveRenameObjectModal.tsx:375
 msgid "Type to search containers…"
 msgstr "Zum Suchen von Containern eingeben…"
 
@@ -3183,12 +3500,12 @@ msgstr "Belegt"
 msgid "User C/D/I"
 msgstr "Benutzer C/D/I"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ManageContainerAccessModal.tsx:400
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ManageContainerAccessModal.tsx:427
 msgid "valid token required: false"
 msgstr "gültiges Token erforderlich: false"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ManageContainerAccessModal.tsx:398
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ManageContainerAccessModal.tsx:424
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ManageContainerAccessModal.tsx:425
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ManageContainerAccessModal.tsx:453
 msgid "valid token required: true"
 msgstr "gültiges Token erforderlich: true"
 
@@ -3273,8 +3590,8 @@ msgstr "Warum Aurora wählen?"
 msgid "Would you like to remove the security group <0>{securityGroupName}</0> from your project?"
 msgstr ""
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ManageContainerAccessModal.tsx:314
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ManageContainerAccessModal.tsx:416
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ManageContainerAccessModal.tsx:339
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ManageContainerAccessModal.tsx:443
 msgid "Write ACLs"
 msgstr "Schreib-ACLs"
 
@@ -3342,6 +3659,10 @@ msgstr "Sie sind nicht berechtigt, Metadata anzusehen. Bitte melden Sie sich ern
 #: src/client/utils/useErrorTranslation.ts:24
 msgid "You are not authorized to view flavor details. Please log in again."
 msgstr ""
+
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/MoveRenameObjectModal.tsx:365
+msgid "You can rename the object by changing the name here."
+msgstr "Sie können das Objekt umbenennen, indem Sie den Namen hier ändern."
 
 #: src/client/utils/useErrorTranslation.ts:116
 msgid "You don't have permission to access flavor access information for this flavor."
