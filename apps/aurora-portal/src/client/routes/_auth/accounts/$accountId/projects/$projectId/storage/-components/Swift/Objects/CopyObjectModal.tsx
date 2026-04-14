@@ -76,7 +76,7 @@ export const CopyObjectModal = ({ isOpen, object, onClose, onSuccess, onError }:
       setContainerSearch("")
       setDebouncedSearch("")
     }
-  }, [isOpen])
+  }, [isOpen, sourceContainer])
 
   // ── Data fetching ─────────────────────────────────────────────────────────
 
