@@ -401,14 +401,11 @@ describe("CopyObjectModal", () => {
       renderModal()
       await user.click(screen.getByRole("button", { name: /New Folder/i }))
       const input = screen.getByPlaceholderText(/new-folder-name/i)
-      // Type a name with a leading space by manipulating the input value directly
-      await user.type(input, "valid")
-      // Clear and retype with leading space using fireEvent to bypass userEvent trimming
-      await user.clear(input)
-      // Use paste to insert a value with leading space
-      await userEvent.setup().paste(" leading")
+      // Use clipboard paste to insert value with leading space
+      await user.click(input)
+      await user.paste(" leading")
       await user.click(screen.getByRole("button", { name: /^Create$/i }))
-      // Either whitespace error or just passes — either way no crash
+      expect(screen.getByText(/cannot have leading or trailing whitespace/i)).toBeInTheDocument()
     })
 
     test("creates folder from keyboard Enter key", async () => {
