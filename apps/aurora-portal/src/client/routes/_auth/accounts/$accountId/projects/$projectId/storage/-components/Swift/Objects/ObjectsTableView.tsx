@@ -102,6 +102,13 @@ export const ObjectsTableView = ({
 }: ObjectsTableViewProps) => {
   const { t } = useLingui()
   const parentRef = useRef<HTMLDivElement>(null)
+  const isMounted = useRef(true)
+  useEffect(() => {
+    isMounted.current = true
+    return () => {
+      isMounted.current = false
+    }
+  }, [])
   const [scrollbarWidth, setScrollbarWidth] = useState(0)
   const [deleteFolderTarget, setDeleteFolderTarget] = useState<FolderRow | null>(null)
   const [deleteObjectTarget, setDeleteObjectTarget] = useState<ObjectRow | null>(null)
@@ -158,8 +165,10 @@ export const ObjectsTableView = ({
     } catch (err) {
       onDownloadError(row.displayName, err instanceof Error ? err.message : String(err))
     } finally {
-      setDownloadingRow(null)
-      setDownloadProgress(null)
+      if (isMounted.current) {
+        setDownloadingRow(null)
+        setDownloadProgress(null)
+      }
     }
   }
 
@@ -197,9 +206,11 @@ export const ObjectsTableView = ({
       previewTab?.close()
       onDownloadError(row.displayName, err instanceof Error ? err.message : String(err))
     } finally {
-      setPreviewingRow(null)
-      setDownloadingRow(null)
-      setDownloadProgress(null)
+      if (isMounted.current) {
+        setPreviewingRow(null)
+        setDownloadingRow(null)
+        setDownloadProgress(null)
+      }
     }
   }
 
