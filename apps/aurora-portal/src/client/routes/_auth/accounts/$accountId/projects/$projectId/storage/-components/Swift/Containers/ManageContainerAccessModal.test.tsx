@@ -432,7 +432,7 @@ describe("ManageContainerAccessModal", () => {
       mockContainerInfo = makeContainerInfo({ read: "proj123:user456" })
       renderModal()
       await user.click(screen.getByRole("button", { name: /Show ACLs Preview/i }))
-      expect(screen.getByText("User user456 for project proj123")).toBeInTheDocument()
+      expect(screen.getByText("User user456 from project proj123")).toBeInTheDocument()
     })
 
     test("shows correct label for PROJECT_ID:* entry", async () => {

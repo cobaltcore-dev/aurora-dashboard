@@ -180,7 +180,7 @@ function aclEntryLabel(entry: ParsedAclEntry): string {
     case "specific-user": {
       const projectId = entry.projectId || ""
       const userId = entry.userId || ""
-      return t`User ${userId} for project ${projectId}`
+      return t`User ${userId} from project ${projectId}`
     }
     case "unknown":
     default:
