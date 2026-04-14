@@ -55,18 +55,6 @@ function parseAclEntry(raw: string): ParsedAclEntry {
     }
   }
 
-  // .r:-<referrer> — deny a specific referrer
-  if (entry.startsWith(".r:-")) {
-    const referrer = entry.slice(4)
-    return { raw: entry, label: `Denied referrer: ${referrer}`, description: "", requiresToken: false }
-  }
-
-  // .r:<referrer> — grant access to a specific referrer
-  if (entry.startsWith(".r:")) {
-    const referrer = entry.slice(3)
-    return { raw: entry, label: `Referrer: ${referrer}`, description: "", requiresToken: false }
-  }
-
   if (entry === ".rlistings") {
     return { raw: entry, label: "Listing access", description: "", requiresToken: false }
   }
