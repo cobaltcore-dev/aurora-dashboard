@@ -139,7 +139,7 @@ export const CopyObjectModal = ({ isOpen, object, onClose, onSuccess, onError }:
 
   const copyMutation = trpcReact.storage.swift.copyObject.useMutation({
     onSuccess: () => {
-      utils.storage.swift.listObjects.invalidate()
+      utils.storage.swift.listObjects.invalidate({ container: targetContainer })
       onSuccess?.(submittedNameRef.current, targetContainer, currentPrefix)
       handleClose()
     },
