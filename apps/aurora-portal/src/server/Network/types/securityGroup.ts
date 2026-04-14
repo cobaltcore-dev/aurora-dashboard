@@ -137,4 +137,4 @@ export type CreateSecurityGroupInput = z.infer<typeof createSecurityGroupInputSc
 export type DeleteSecurityGroupInput = z.infer<typeof deleteSecurityGroupInputSchema>
 export type UpdateSecurityGroupInput = z.infer<typeof updateSecurityGroupInputSchema>
 export type DeleteSecurityGroupRuleInput = z.infer<typeof deleteSecurityGroupRuleInputSchema>
-export type CreateSecurityGroupRuleInput = z.infer<typeof createSecurityGroupRuleInputSchema>
+export type CreateSecurityGroupRuleInput = z.input<typeof createSecurityGroupRuleInputSchema>

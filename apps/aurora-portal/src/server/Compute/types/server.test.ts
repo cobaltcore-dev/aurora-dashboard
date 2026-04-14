@@ -410,7 +410,7 @@ describe("Project Schema Validation", () => {
   test("server json should pass", () => {
     const result = serverResponseSchema.safeParse(examplev2m1)
     if (!result.success) {
-      console.error("Validation failed:", result.error.errors)
+      console.error("Validation failed:", result.error.issues)
     }
     expect(result.success).toBe(true)
   })
@@ -418,7 +418,7 @@ describe("Project Schema Validation", () => {
   test("server json should pass", () => {
     const result = serverResponseSchema.safeParse(examplev2m98)
     if (!result.success) {
-      console.error("Validation failed:", result.error.errors)
+      console.error("Validation failed:", result.error.issues)
     }
     expect(result.success).toBe(true)
   })
@@ -426,7 +426,7 @@ describe("Project Schema Validation", () => {
   test("server json should pass", () => {
     const result = serverResponseSchema.safeParse(examplev2m96)
     if (!result.success) {
-      console.error("Validation failed:", result.error.errors)
+      console.error("Validation failed:", result.error.issues)
     }
     expect(result.success).toBe(true)
   })
@@ -434,7 +434,7 @@ describe("Project Schema Validation", () => {
   test("server json should pass", () => {
     const result = serverResponseSchema.safeParse(examplev2m73)
     if (!result.success) {
-      console.error("Validation failed:", result.error.errors)
+      console.error("Validation failed:", result.error.issues)
     }
     expect(result.success).toBe(true)
   })
@@ -442,7 +442,7 @@ describe("Project Schema Validation", () => {
   test("server json should pass", () => {
     const result = serverResponseSchema.safeParse(examplev2m69)
     if (!result.success) {
-      console.error("Validation failed:", result.error.errors)
+      console.error("Validation failed:", result.error.issues)
     }
     expect(result.success).toBe(true)
   })

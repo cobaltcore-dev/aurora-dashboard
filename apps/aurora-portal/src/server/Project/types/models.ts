@@ -8,7 +8,7 @@ export const baseProjectSchema = z.object({
   parent_id: z.string().nullable().optional(),
   is_domain: z.boolean().nullable().optional(),
   tags: z.array(z.string()).nullable().optional(),
-  options: z.record(z.string()).nullable().optional(),
+  options: z.record(z.string(), z.string()).nullable().optional(),
   description: z.string().nullable().optional(),
   links: z
     .object({

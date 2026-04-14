@@ -87,7 +87,7 @@ export const imageSchema = z
     os_hash_algo: z.string().optional().nullable(),
     os_hash_value: z.string().optional().nullable(),
     schema: z.string().optional(),
-    metadata: z.record(z.string()).optional(),
+    metadata: z.record(z.string(), z.string()).optional(),
     file: z.string().optional(),
     self: z.string().optional(),
     tags: z.array(z.string()).optional(),
@@ -109,7 +109,7 @@ export const imageSchema = z
       .array(
         z.object({
           url: z.string(),
-          metadata: z.record(z.any()).optional(),
+          metadata: z.record(z.string(), z.any()).optional(),
         })
       )
       .optional(),

@@ -109,7 +109,7 @@ const createCaller = createCallerFactory(auroraRouter({ image: imageRouter }))
 
 // Helper function to generate valid UUIDs for testing
 const generateTestUUID = (id: number): string => {
-  return `00000000-0000-0000-0000-${String(id).padStart(12, "0")}`
+  return `00000000-0000-4000-8000-${String(id).padStart(12, "0")}`
 }
 
 describe("imageRouter", () => {
@@ -1814,7 +1814,7 @@ describe("imageRouter", () => {
       mockCtx.mockGlance.post.mockResolvedValue({ ok: true })
 
       // Generate valid UUIDs for testing
-      const imageIds = Array.from({ length: 50 }, (_, i) => `00000000-0000-0000-0000-${String(i).padStart(12, "0")}`)
+      const imageIds = Array.from({ length: 50 }, (_, i) => `00000000-0000-4000-8000-${String(i).padStart(12, "0")}`)
       const input = { imageIds }
 
       const result = await caller.image.activateImages(input)
