@@ -676,16 +676,28 @@ export const swiftRouter = {
       if (!publicEndpoint?.url) {
         throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Swift public endpoint not found" })
       }
-      const swiftBase = publicEndpoint.url.replace(/\/$/, "")
-      const accountPath = account || ""
       // Encode each segment of the destination path individually
       const encodedDestination = destination
         .replace(/^\//, "")
         .split("/")
         .map((s) => (s ? encodeURIComponent(s) : s))
         .join("/")
-      const destPath = accountPath ? `${accountPath}/${encodedDestination}` : encodedDestination
-      const destUrl = `${swiftBase}/${destPath}`
+
+      // Build the destination URL by replacing (not appending) the account segment
+      // in the public endpoint URL. The endpoint already contains the account path
+      // (e.g. /v1/AUTH_test); if `account` overrides it, swap the last path segment.
+      const destEndpoint = new URL(publicEndpoint.url)
+      const endpointSegments = destEndpoint.pathname.split("/").filter(Boolean)
+      if (account) {
+        if (endpointSegments.length > 0) {
+          endpointSegments[endpointSegments.length - 1] = account
+        } else {
+          endpointSegments.push(account)
+        }
+      }
+      const basePath = endpointSegments.join("/")
+      destEndpoint.pathname = `/${basePath}/${encodedDestination}`.replace(/\/+$/, "")
+      const destUrl = destEndpoint.toString()
 
       // Build headers - using X-Copy-From approach (equivalent to COPY method)
       const headers: Record<string, string> = {
