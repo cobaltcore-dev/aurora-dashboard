@@ -432,7 +432,7 @@ describe("ManageContainerAccessModal", () => {
       mockContainerInfo = makeContainerInfo({ read: "proj123:user456" })
       renderModal()
       await user.click(screen.getByRole("button", { name: /Show ACLs Preview/i }))
-      expect(screen.getByText("Referrer user456 for project proj123")).toBeInTheDocument()
+      expect(screen.getByText("User user456 for project proj123")).toBeInTheDocument()
     })
 
     test("shows correct label for PROJECT_ID:* entry", async () => {
@@ -440,7 +440,7 @@ describe("ManageContainerAccessModal", () => {
       mockContainerInfo = makeContainerInfo({ read: "proj123:*" })
       renderModal()
       await user.click(screen.getByRole("button", { name: /Show ACLs Preview/i }))
-      expect(screen.getByText("All referrers from project proj123")).toBeInTheDocument()
+      expect(screen.getByText("All users from project proj123")).toBeInTheDocument()
     })
 
     test("shows correct label for *:USER_ID entry", async () => {
@@ -448,7 +448,7 @@ describe("ManageContainerAccessModal", () => {
       mockContainerInfo = makeContainerInfo({ read: "*:user456" })
       renderModal()
       await user.click(screen.getByRole("button", { name: /Show ACLs Preview/i }))
-      expect(screen.getByText("Referrer user456 (any project)")).toBeInTheDocument()
+      expect(screen.getByText("User user456 (any project)")).toBeInTheDocument()
     })
 
     test("shows 'Specific referrer' label for .r:<referrer> entry", async () => {

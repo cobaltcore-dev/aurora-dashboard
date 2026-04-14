@@ -171,16 +171,16 @@ function aclEntryLabel(entry: ParsedAclEntry): string {
       return t`Listing access`
     case "all-project-users": {
       const projectId = entry.projectId || ""
-      return t`All referrers from project ${projectId}`
+      return t`All users from project ${projectId}`
     }
     case "specific-user-any-project": {
       const userId = entry.userId || ""
-      return t`Referrer ${userId} (any project)`
+      return t`User ${userId} (any project)`
     }
     case "specific-user": {
       const projectId = entry.projectId || ""
       const userId = entry.userId || ""
-      return t`Referrer ${userId} for project ${projectId}`
+      return t`User ${userId} for project ${projectId}`
     }
     case "unknown":
     default:
