@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useRef } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import {
@@ -29,6 +29,7 @@ export const EmptyContainerModal = ({ isOpen, container, onClose, onSuccess, onE
   const [confirmName, setConfirmName] = useState("")
   const [nameError, setNameError] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
+  const containerNameRef = useRef("")
 
   const handleCopyName = () => {
     if (!container) return
@@ -54,11 +55,11 @@ export const EmptyContainerModal = ({ isOpen, container, onClose, onSuccess, onE
   const emptyContainerMutation = trpcReact.storage.swift.emptyContainer.useMutation({
     onSuccess: (deletedCount) => {
       utils.storage.swift.listContainers.invalidate()
-      utils.storage.swift.listObjects.invalidate({ container: container!.name })
-      onSuccess?.(container!.name, deletedCount)
+      utils.storage.swift.listObjects.invalidate({ container: containerNameRef.current })
+      onSuccess?.(containerNameRef.current, deletedCount)
     },
     onError: (error) => {
-      onError?.(container!.name, error.message)
+      onError?.(containerNameRef.current, error.message)
     },
     onSettled: () => {
       handleClose()
@@ -84,6 +85,7 @@ export const EmptyContainerModal = ({ isOpen, container, onClose, onSuccess, onE
       setNameError(t`Container name does not match`)
       return
     }
+    containerNameRef.current = container.name
     emptyContainerMutation.mutate({ container: container.name })
   }
 
