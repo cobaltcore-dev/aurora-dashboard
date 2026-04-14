@@ -133,12 +133,10 @@ export const CopyObjectModal = ({ isOpen, object, onClose, onSuccess, onError }:
     onSuccess: () => {
       utils.storage.swift.listObjects.invalidate()
       onSuccess?.(submittedNameRef.current, targetContainer, currentPrefix)
+      handleClose()
     },
     onError: (error) => {
       onError?.(submittedNameRef.current, error.message)
-    },
-    onSettled: () => {
-      handleClose()
     },
   })
 

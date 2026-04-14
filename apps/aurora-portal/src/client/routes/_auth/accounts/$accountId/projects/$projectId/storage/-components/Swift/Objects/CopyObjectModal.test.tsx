@@ -94,11 +94,7 @@ vi.mock("@/client/trpcClient", () => ({
               : { data: trpcState.objects, isLoading: trpcState.isLoadingObjects },
         },
         copyObject: {
-          useMutation: (opts: {
-            onSuccess?: () => void
-            onError?: (e: { message: string }) => void
-            onSettled?: () => void
-          }) => ({
+          useMutation: (opts: { onSuccess?: () => void; onError?: (e: { message: string }) => void }) => ({
             mutate: (input: unknown) => {
               trpcState.copyMutate(input)
               if (trpcState.copyIsError && trpcState.copyError) {
@@ -106,7 +102,6 @@ vi.mock("@/client/trpcClient", () => ({
               } else {
                 opts.onSuccess?.()
               }
-              opts.onSettled?.()
             },
             reset: trpcState.copyReset,
             isPending: trpcState.copyIsPending,
@@ -489,7 +484,7 @@ describe("CopyObjectModal", () => {
       expect(onError).toHaveBeenCalledWith("report.pdf", "Forbidden")
     })
 
-    test("calls onClose after failed copy (onSettled always fires)", async () => {
+    test("does not call onClose after failed copy", async () => {
       trpcState.copyIsError = true
       trpcState.copyError = { message: "Forbidden" }
       const user = userEvent.setup()
@@ -497,7 +492,7 @@ describe("CopyObjectModal", () => {
       renderModal({ onClose })
       await user.click(screen.getByText("docs"))
       await user.click(screen.getByRole("button", { name: /^Copy$/i }))
-      expect(onClose).toHaveBeenCalled()
+      expect(onClose).not.toHaveBeenCalled()
     })
 
     test("includes current prefix in destination when navigated into folder", async () => {
