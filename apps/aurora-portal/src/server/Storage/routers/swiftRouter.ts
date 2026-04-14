@@ -1257,6 +1257,7 @@ export const swiftRouter = {
         isFirst = false
       }
     } finally {
+      await reader.cancel()
       reader.releaseLock()
     }
   }),
