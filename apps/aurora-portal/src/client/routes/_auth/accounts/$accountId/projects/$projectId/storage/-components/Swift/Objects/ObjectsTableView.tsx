@@ -46,14 +46,8 @@ const BROWSER_PREVIEWABLE_TYPES = new Set([
   "audio/flac",
   // Documents
   "application/pdf",
-  // Text
+  // Safe text — plain content only, no script-executing types
   "text/plain",
-  "text/html",
-  "text/css",
-  "text/javascript",
-  "text/xml",
-  "application/json",
-  "application/xml",
 ])
 
 const isBrowserPreviewable = (contentType: string | undefined): boolean => {
@@ -61,8 +55,10 @@ const isBrowserPreviewable = (contentType: string | undefined): boolean => {
   // Strip parameters like charset (e.g. "text/plain; charset=utf-8" → "text/plain")
   const base = contentType.split(";")[0].trim().toLowerCase()
   if (BROWSER_PREVIEWABLE_TYPES.has(base)) return true
-  // Catch all text/* subtypes (e.g. text/csv, text/markdown, text/x-python)
-  if (base.startsWith("text/")) return true
+  // Allow image/*, video/*, audio/* subtypes broadly — these are passive media
+  // that cannot execute scripts. Excluded: text/html, text/javascript, text/css,
+  // application/json, application/xml and any other active/scriptable types.
+  if (base.startsWith("image/") || base.startsWith("video/") || base.startsWith("audio/")) return true
   return false
 }
 
