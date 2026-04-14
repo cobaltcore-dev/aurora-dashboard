@@ -1275,6 +1275,12 @@ export const swiftRouter = {
 
         isFirst = false
       }
+    } catch (error) {
+      throw mapErrorResponseToTRPCError(error as Parameters<typeof mapErrorResponseToTRPCError>[0], {
+        operation: "download object",
+        container,
+        object,
+      })
     } finally {
       await reader.cancel()
       reader.releaseLock()
