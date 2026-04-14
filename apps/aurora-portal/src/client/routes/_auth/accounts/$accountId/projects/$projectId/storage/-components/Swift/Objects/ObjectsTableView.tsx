@@ -28,7 +28,6 @@ const BROWSER_PREVIEWABLE_TYPES = new Set([
   "image/jpeg",
   "image/gif",
   "image/webp",
-  "image/svg+xml",
   "image/avif",
   "image/bmp",
   "image/x-icon",
@@ -58,6 +57,9 @@ const isBrowserPreviewable = (contentType: string | undefined): boolean => {
   // Allow image/*, video/*, audio/* subtypes broadly — these are passive media
   // that cannot execute scripts. Excluded: text/html, text/javascript, text/css,
   // application/json, application/xml and any other active/scriptable types.
+  // image/svg+xml is also excluded — SVG can contain embedded <script> tags and
+  // executes JavaScript when opened as a same-origin blob URL.
+  if (base === "image/svg+xml") return false
   if (base.startsWith("image/") || base.startsWith("video/") || base.startsWith("audio/")) return true
   return false
 }
