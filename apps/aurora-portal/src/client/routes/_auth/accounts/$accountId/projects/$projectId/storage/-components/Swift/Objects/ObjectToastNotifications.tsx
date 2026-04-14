@@ -162,23 +162,25 @@ export const getObjectCopiedToast = (
   targetContainer: string,
   targetPath: string,
   config: ToastConfig
-): ToastProps => ({
-  variant: "success",
-  autoDismiss: true,
-  autoDismissTimeout: config.autoDismissTimeout ?? 5000,
-  onDismiss: config.onDismiss,
-  children: (
-    <NotificationText
-      title={<Trans>Object Copied</Trans>}
-      description={
-        <Trans>
-          "{objectName}" was successfully copied to {targetContainer}
-          {targetPath}.
-        </Trans>
-      }
-    />
-  ),
-})
+): ToastProps => {
+  const destination = targetPath ? `${targetContainer}/${targetPath}` : targetContainer
+  return {
+    variant: "success",
+    autoDismiss: true,
+    autoDismissTimeout: config.autoDismissTimeout ?? 5000,
+    onDismiss: config.onDismiss,
+    children: (
+      <NotificationText
+        title={<Trans>Object Copied</Trans>}
+        description={
+          <Trans>
+            "{objectName}" was successfully copied to {destination}.
+          </Trans>
+        }
+      />
+    ),
+  }
+}
 
 export const getObjectCopyErrorToast = (objectName: string, errorMessage: string, config: ToastConfig): ToastProps => ({
   variant: "error",
@@ -202,23 +204,25 @@ export const getObjectMovedToast = (
   targetContainer: string,
   targetPath: string,
   config: ToastConfig
-): ToastProps => ({
-  variant: "success",
-  autoDismiss: true,
-  autoDismissTimeout: config.autoDismissTimeout ?? 5000,
-  onDismiss: config.onDismiss,
-  children: (
-    <NotificationText
-      title={<Trans>Object Moved</Trans>}
-      description={
-        <Trans>
-          "{objectName}" was successfully moved to {targetContainer}
-          {targetPath}.
-        </Trans>
-      }
-    />
-  ),
-})
+): ToastProps => {
+  const destination = targetPath ? `${targetContainer}/${targetPath}` : targetContainer
+  return {
+    variant: "success",
+    autoDismiss: true,
+    autoDismissTimeout: config.autoDismissTimeout ?? 5000,
+    onDismiss: config.onDismiss,
+    children: (
+      <NotificationText
+        title={<Trans>Object Moved</Trans>}
+        description={
+          <Trans>
+            "{objectName}" was successfully moved to {destination}.
+          </Trans>
+        }
+      />
+    ),
+  }
+}
 
 export const getObjectMoveErrorToast = (objectName: string, errorMessage: string, config: ToastConfig): ToastProps => ({
   variant: "error",
