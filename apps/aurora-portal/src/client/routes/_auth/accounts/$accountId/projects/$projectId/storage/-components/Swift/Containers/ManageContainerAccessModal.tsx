@@ -459,7 +459,10 @@ export const ManageContainerAccessModal = ({
                       {parsedReadEntries.map((entry, i) => (
                         <div key={i} className="flex flex-col gap-1 px-3 py-2">
                           <div className="flex items-center justify-between gap-3">
-                            <p className="text-theme-default truncate text-sm font-medium" title={aclEntryLabel(entry)}>
+                            <p
+                              className="text-theme-default min-w-0 truncate text-sm font-medium"
+                              title={aclEntryLabel(entry)}
+                            >
                               {aclEntryLabel(entry)}
                             </p>
                             <p className="text-theme-light shrink-0 text-xs">
@@ -488,7 +491,10 @@ export const ManageContainerAccessModal = ({
                       {parsedWriteEntries.map((entry, i) => (
                         <div key={i} className="flex flex-col gap-1 px-3 py-2">
                           <div className="flex items-center justify-between gap-3">
-                            <p className="text-theme-default truncate text-sm font-medium" title={aclEntryLabel(entry)}>
+                            <p
+                              className="text-theme-default min-w-0 truncate text-sm font-medium"
+                              title={aclEntryLabel(entry)}
+                            >
                               {aclEntryLabel(entry)}
                             </p>
                             <p className="text-theme-light shrink-0 text-xs">
