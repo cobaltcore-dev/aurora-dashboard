@@ -1157,9 +1157,9 @@ describe("Swift Object Storage Schema Validation", () => {
       expect(() => downloadObjectInputSchema.parse(input)).toThrow()
     })
 
-    it("should reject missing filename", () => {
+    it("should allow missing filename", () => {
       const input = { container: "my-container", object: "file.txt" }
-      expect(() => downloadObjectInputSchema.parse(input)).toThrow()
+      expect(() => downloadObjectInputSchema.parse(input)).not.toThrow()
     })
 
     it("should reject empty object name", () => {
