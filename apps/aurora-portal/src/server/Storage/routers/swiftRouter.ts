@@ -656,7 +656,14 @@ export const swiftRouter = {
       validateSwiftService(swift)
 
       // Build source path for X-Copy-From header
-      const sourcePath = `/${encodeURIComponent(container)}/${encodeURIComponent(object)}`
+      // Encode each object path segment individually to preserve "/" separators
+      // (pseudo-folder structure). encodeURIComponent on the full name would
+      // encode "/" to "%2F", breaking X-Copy-From for nested objects.
+      const encodedObjectPath = object
+        .split("/")
+        .map((segment) => encodeURIComponent(segment))
+        .join("/")
+      const sourcePath = `/${encodeURIComponent(container)}/${encodedObjectPath}`
 
       // Build query parameters for source URL
       const queryParams = new URLSearchParams()
