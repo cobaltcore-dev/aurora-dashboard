@@ -528,7 +528,7 @@ All operations include comprehensive error handling:
 ## Performance Considerations
 
 1. **Pagination**: Use `limit` and `marker` for large listings
-2. **Partial Downloads**: Use `range` parameter for partial object downloads
+2. **Large Downloads**: `downloadObject` retrieves the full object; for large client-side downloads, prefer **Temporary URLs** so clients can download directly from Swift without proxying the entire payload through the BFF
 3. **Metadata Only**: Use `getObjectMetadata` (HEAD) when you only need headers, not content
 4. **Bulk Operations**: Use `bulkDelete` for deleting multiple objects efficiently
 5. **Empty Container**: Use `emptyContainer` to remove all objects — it auto-selects bulk delete or individual deletes based on the `/info` capability check
