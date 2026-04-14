@@ -74,8 +74,13 @@ vi.mock("../../../$provider/containers/$containerName/objects", () => ({
 // ─── Mock child components ────────────────────────────────────────────────────
 // We test index.tsx in isolation — child components are tested separately.
 
-// Capture the latest onDeleteFolderSuccess so tests can invoke it directly
+// Capture the latest callbacks so tests can invoke them directly
 let capturedOnDeleteFolderSuccess: ((folderName: string, deletedCount: number) => void) | undefined
+let capturedOnDownloadError: ((objectName: string, errorMessage: string) => void) | undefined
+let capturedOnCopyObjectSuccess: ((objectName: string, targetContainer: string, targetPath: string) => void) | undefined
+let capturedOnCopyObjectError: ((objectName: string, errorMessage: string) => void) | undefined
+let capturedOnMoveObjectSuccess: ((objectName: string, targetContainer: string, targetPath: string) => void) | undefined
+let capturedOnMoveObjectError: ((objectName: string, errorMessage: string) => void) | undefined
 
 vi.mock("./ObjectsTableView", () => ({
   ObjectsTableView: vi.fn(
@@ -94,6 +99,11 @@ vi.mock("./ObjectsTableView", () => ({
       onMoveObjectError,
     }) => {
       capturedOnDeleteFolderSuccess = onDeleteFolderSuccess
+      capturedOnDownloadError = onDownloadError
+      capturedOnCopyObjectSuccess = onCopyObjectSuccess
+      capturedOnCopyObjectError = onCopyObjectError
+      capturedOnMoveObjectSuccess = onMoveObjectSuccess
+      capturedOnMoveObjectError = onMoveObjectError
       return (
         <div
           data-testid="objects-table-view"
@@ -292,11 +302,15 @@ describe("SwiftObjects (index)", () => {
 
     test("onDownloadError shows error toast via getObjectDownloadErrorToast", async () => {
       const { getObjectDownloadErrorToast } = await import("./ObjectToastNotifications")
-      // Directly invoke the handler by re-rendering with a spy
-      // We can't easily call the prop directly since ObjectsTableView is mocked,
-      // but we verify the toast factory is wired correctly in integration
       renderObjects()
-      expect(getObjectDownloadErrorToast).toBeDefined()
+      await act(async () => {
+        capturedOnDownloadError?.("report.pdf", "403 Forbidden")
+      })
+      expect(getObjectDownloadErrorToast).toHaveBeenCalledWith(
+        "report.pdf",
+        "403 Forbidden",
+        expect.objectContaining({ onDismiss: expect.any(Function) })
+      )
     })
 
     test("passes onDeleteObjectSuccess callback to ObjectsTableView", () => {
@@ -322,13 +336,28 @@ describe("SwiftObjects (index)", () => {
     test("onCopyObjectSuccess shows success toast via getObjectCopiedToast", async () => {
       const { getObjectCopiedToast } = await import("./ObjectToastNotifications")
       renderObjects()
-      expect(getObjectCopiedToast).toBeDefined()
+      await act(async () => {
+        capturedOnCopyObjectSuccess?.("report.pdf", "dest-container", "archive/")
+      })
+      expect(getObjectCopiedToast).toHaveBeenCalledWith(
+        "report.pdf",
+        "dest-container",
+        "archive/",
+        expect.objectContaining({ onDismiss: expect.any(Function) })
+      )
     })
 
     test("onCopyObjectError shows error toast via getObjectCopyErrorToast", async () => {
       const { getObjectCopyErrorToast } = await import("./ObjectToastNotifications")
       renderObjects()
-      expect(getObjectCopyErrorToast).toBeDefined()
+      await act(async () => {
+        capturedOnCopyObjectError?.("report.pdf", "403 Forbidden")
+      })
+      expect(getObjectCopyErrorToast).toHaveBeenCalledWith(
+        "report.pdf",
+        "403 Forbidden",
+        expect.objectContaining({ onDismiss: expect.any(Function) })
+      )
     })
 
     test("passes onMoveObjectSuccess callback to ObjectsTableView", () => {
@@ -344,13 +373,28 @@ describe("SwiftObjects (index)", () => {
     test("onMoveObjectSuccess shows success toast via getObjectMovedToast", async () => {
       const { getObjectMovedToast } = await import("./ObjectToastNotifications")
       renderObjects()
-      expect(getObjectMovedToast).toBeDefined()
+      await act(async () => {
+        capturedOnMoveObjectSuccess?.("report.pdf", "dest-container", "archive/")
+      })
+      expect(getObjectMovedToast).toHaveBeenCalledWith(
+        "report.pdf",
+        "dest-container",
+        "archive/",
+        expect.objectContaining({ onDismiss: expect.any(Function) })
+      )
     })
 
     test("onMoveObjectError shows error toast via getObjectMoveErrorToast", async () => {
       const { getObjectMoveErrorToast } = await import("./ObjectToastNotifications")
       renderObjects()
-      expect(getObjectMoveErrorToast).toBeDefined()
+      await act(async () => {
+        capturedOnMoveObjectError?.("report.pdf", "403 Forbidden")
+      })
+      expect(getObjectMoveErrorToast).toHaveBeenCalledWith(
+        "report.pdf",
+        "403 Forbidden",
+        expect.objectContaining({ onDismiss: expect.any(Function) })
+      )
     })
 
     test("subtracts 1 from deletedCount before passing to getFolderDeletedToast", async () => {
