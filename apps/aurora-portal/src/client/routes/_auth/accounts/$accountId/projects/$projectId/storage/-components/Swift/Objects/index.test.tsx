@@ -80,6 +80,7 @@ let capturedOnDeleteFolderSuccess: ((folderName: string, deletedCount: number) =
 vi.mock("./ObjectsTableView", () => ({
   ObjectsTableView: vi.fn(
     ({
+      container,
       rows,
       searchTerm,
       onDeleteFolderSuccess,
@@ -96,6 +97,7 @@ vi.mock("./ObjectsTableView", () => ({
       return (
         <div
           data-testid="objects-table-view"
+          data-container={container}
           data-row-count={rows.length}
           data-search={searchTerm}
           data-has-delete-success={typeof onDeleteFolderSuccess === "function" ? "true" : "false"}
@@ -280,11 +282,7 @@ describe("SwiftObjects (index)", () => {
 
     test("passes container name to ObjectsTableView", () => {
       renderObjects()
-      const view = screen.getByTestId("objects-table-view")
-      // container is passed as a prop — we verify indirectly via the mock
-      // (ObjectsTableView mock doesn't expose it as data-attr, but the prop
-      // must be present for TypeScript to compile; this test guards regression)
-      expect(view).toBeInTheDocument()
+      expect(screen.getByTestId("objects-table-view")).toHaveAttribute("data-container", "test-container")
     })
 
     test("passes onDownloadError callback to ObjectsTableView", () => {
