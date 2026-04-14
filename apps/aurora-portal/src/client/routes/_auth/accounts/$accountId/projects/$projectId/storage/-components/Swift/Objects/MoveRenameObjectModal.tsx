@@ -85,7 +85,7 @@ export const MoveRenameObjectModal = ({ isOpen, object, onClose, onSuccess, onEr
       setNewObjectName("")
       setNewObjectNameError(null)
     }
-  }, [isOpen])
+  }, [isOpen, sourceContainer])
 
   // ── Data fetching ──────────────────────────────────────────────────────────
 
