@@ -113,37 +113,50 @@ export const ObjectsTableView = ({
   const [downloadProgress, setDownloadProgress] = useState<{ downloaded: number; total: number } | null>(null)
   const [previewingRow, setPreviewingRow] = useState<ObjectRow | null>(null)
 
+  // Shared streaming helper — fetches the object from the BFF and assembles a Blob.
+  // onProgress is called for each chunk; pass null to skip progress tracking.
+  const streamObjectToBlob = async (
+    row: ObjectRow,
+    onProgress: ((progress: { downloaded: number; total: number }) => void) | null
+  ): Promise<{ blob: Blob; filename: string }> => {
+    let contentType = row.content_type ?? "application/octet-stream"
+    let filename = row.displayName
+
+    const iterable = await trpcClient.storage.swift.downloadObject.mutate({
+      container,
+      object: row.name,
+      filename: row.displayName,
+      ...(account ? { account } : {}),
+    })
+
+    const chunks: Uint8Array<ArrayBuffer>[] = []
+    for await (const { chunk, contentType: ct, filename: fn, downloaded, total } of iterable) {
+      if (ct) contentType = ct
+      if (fn) filename = fn
+      chunks.push(Uint8Array.from(atob(chunk), (c) => c.charCodeAt(0)) as Uint8Array<ArrayBuffer>)
+      onProgress?.({ downloaded, total })
+    }
+
+    return { blob: new Blob(chunks, { type: contentType }), filename }
+  }
+
+  // Triggers a browser file-save for the given blob URL then revokes it after a
+  // short delay to avoid racing the browser starting the download.
+  const triggerAnchorDownload = (url: string, filename: string) => {
+    const anchor = document.createElement("a")
+    anchor.href = url
+    anchor.download = filename
+    document.body.appendChild(anchor)
+    anchor.click()
+    document.body.removeChild(anchor)
+    setTimeout(() => URL.revokeObjectURL(url), 10000)
+  }
+
   const handleDownload = async (row: ObjectRow) => {
     setDownloadingRow(row)
     try {
-      const chunks: Uint8Array<ArrayBuffer>[] = []
-      let contentType = "application/octet-stream"
-      let filename = row.displayName
-
-      const iterable = await trpcClient.storage.swift.downloadObject.mutate({
-        container,
-        object: row.name,
-        filename: row.displayName,
-        ...(account ? { account } : {}),
-      })
-
-      for await (const { chunk, contentType: ct, filename: fn, downloaded, total } of iterable) {
-        if (ct) contentType = ct
-        if (fn) filename = fn
-        chunks.push(Uint8Array.from(atob(chunk), (c) => c.charCodeAt(0)) as Uint8Array<ArrayBuffer>)
-        setDownloadProgress({ downloaded, total })
-      }
-
-      const blob = new Blob(chunks, { type: contentType })
-      const url = URL.createObjectURL(blob)
-      const anchor = document.createElement("a")
-      anchor.href = url
-      anchor.download = filename
-      document.body.appendChild(anchor)
-      anchor.click()
-      document.body.removeChild(anchor)
-      // Revoke after a short delay to avoid racing the browser starting the download
-      setTimeout(() => URL.revokeObjectURL(url), 10000)
+      const { blob, filename } = await streamObjectToBlob(row, (p) => setDownloadProgress(p))
+      triggerAnchorDownload(URL.createObjectURL(blob), filename)
     } catch (err) {
       onDownloadError(row.displayName, err instanceof Error ? err.message : String(err))
     } finally {
@@ -160,40 +173,14 @@ export const ObjectsTableView = ({
       setDownloadingRow(row)
     }
     try {
-      const chunks: Uint8Array<ArrayBuffer>[] = []
-      let contentType = row.content_type ?? "application/octet-stream"
-      let filename = row.displayName
-
-      const iterable = await trpcClient.storage.swift.downloadObject.mutate({
-        container,
-        object: row.name,
-        filename: row.displayName,
-        ...(account ? { account } : {}),
-      })
-
-      for await (const { chunk, contentType: ct, filename: fn, downloaded, total } of iterable) {
-        if (ct) contentType = ct
-        if (fn) filename = fn
-        chunks.push(Uint8Array.from(atob(chunk), (c) => c.charCodeAt(0)) as Uint8Array<ArrayBuffer>)
-        if (!previewing) setDownloadProgress({ downloaded, total })
-      }
-
-      const blob = new Blob(chunks, { type: contentType })
+      const { blob, filename } = await streamObjectToBlob(row, previewing ? null : (p) => setDownloadProgress(p))
       const url = URL.createObjectURL(blob)
-
       if (previewing) {
         window.open(url, "_blank", "noopener,noreferrer")
         // Revoke after a short delay to give the new tab time to load the blob
         setTimeout(() => URL.revokeObjectURL(url), 10000)
       } else {
-        const anchor = document.createElement("a")
-        anchor.href = url
-        anchor.download = filename
-        document.body.appendChild(anchor)
-        anchor.click()
-        document.body.removeChild(anchor)
-        // Revoke after a short delay to avoid racing the browser starting the download
-        setTimeout(() => URL.revokeObjectURL(url), 10000)
+        triggerAnchorDownload(url, filename)
       }
     } catch (err) {
       onDownloadError(row.displayName, err instanceof Error ? err.message : String(err))
