@@ -63,7 +63,11 @@ export const MoveRenameObjectModal = ({ isOpen, object, onClose, onSuccess, onEr
   useEffect(() => {
     if (isOpen) {
       setCurrentPrefix("")
-      setLocalFolders({})
+      setLocalFolders((prev) => {
+        const next = { ...prev }
+        delete next[targetContainer]
+        return next
+      })
       setNewFolderName("")
       setNewFolderError(null)
       setShowNewFolderInput(false)

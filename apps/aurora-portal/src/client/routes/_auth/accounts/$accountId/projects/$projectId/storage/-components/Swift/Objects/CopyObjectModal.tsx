@@ -64,7 +64,11 @@ export const CopyObjectModal = ({ isOpen, object, onClose, onSuccess, onError }:
   useEffect(() => {
     if (isOpen) {
       setCurrentPrefix("")
-      setLocalFolders({})
+      setLocalFolders((prev) => {
+        const next = { ...prev }
+        delete next[targetContainer]
+        return next
+      })
       setNewFolderName("")
       setNewFolderError(null)
       setShowNewFolderInput(false)
