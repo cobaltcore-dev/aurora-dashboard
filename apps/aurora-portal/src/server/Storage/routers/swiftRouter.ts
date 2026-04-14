@@ -1187,17 +1187,18 @@ export const swiftRouter = {
    *   tRPC uses JSON-based SSE transport for iterables, so each yielded value
    *   must be JSON-serializable. We encode each Uint8Array chunk as base64 and
    *   include the content-type + filename only in the first chunk so the client
-   *   can start constructing the Blob immediately without waiting for the full
-   *   file to buffer on the server.
+   *   can begin processing the download immediately, while the server avoids
+   *   buffering the full file in memory.
    *
    * Client-side assembly:
    *   Collect all base64 chunks → decode each → concatenate into a single
    *   Uint8Array → wrap in a Blob → trigger <a download>.
    *
-   * Advantages of this approach:
+   * Current behavior / trade-offs:
    *   - Server never holds the full file in memory
-   *   - Client receives and processes chunks progressively
-   *   - Handles large files without memory pressure on either side
+   *   - Data is delivered to the client progressively, enabling download progress
+   *   - The current client implementation still buffers the full file before
+   *     creating the Blob, so client-side memory usage remains O(file size)
    */
   downloadObject: protectedProcedure.input(downloadObjectInputSchema).mutation(async function* ({
     input,
