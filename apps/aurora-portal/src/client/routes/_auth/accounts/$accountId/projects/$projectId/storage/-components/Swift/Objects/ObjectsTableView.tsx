@@ -116,7 +116,7 @@ export const ObjectsTableView = ({
   const handleDownload = async (row: ObjectRow) => {
     setDownloadingRow(row)
     try {
-      const chunks: Uint8Array[] = []
+      const chunks: Uint8Array<ArrayBuffer>[] = []
       let contentType = "application/octet-stream"
       let filename = row.displayName
 
@@ -130,19 +130,11 @@ export const ObjectsTableView = ({
       for await (const { chunk, contentType: ct, filename: fn, downloaded, total } of iterable) {
         if (ct) contentType = ct
         if (fn) filename = fn
-        chunks.push(Uint8Array.from(atob(chunk), (c) => c.charCodeAt(0)))
+        chunks.push(Uint8Array.from(atob(chunk), (c) => c.charCodeAt(0)) as Uint8Array<ArrayBuffer>)
         setDownloadProgress({ downloaded, total })
       }
 
-      const totalLength = chunks.reduce((sum, c) => sum + c.length, 0)
-      const merged = new Uint8Array(totalLength)
-      let offset = 0
-      for (const c of chunks) {
-        merged.set(c, offset)
-        offset += c.length
-      }
-
-      const blob = new Blob([merged], { type: contentType })
+      const blob = new Blob(chunks, { type: contentType })
       const url = URL.createObjectURL(blob)
       const anchor = document.createElement("a")
       anchor.href = url
@@ -168,7 +160,7 @@ export const ObjectsTableView = ({
       setDownloadingRow(row)
     }
     try {
-      const chunks: Uint8Array[] = []
+      const chunks: Uint8Array<ArrayBuffer>[] = []
       let contentType = row.content_type ?? "application/octet-stream"
       let filename = row.displayName
 
@@ -182,19 +174,11 @@ export const ObjectsTableView = ({
       for await (const { chunk, contentType: ct, filename: fn, downloaded, total } of iterable) {
         if (ct) contentType = ct
         if (fn) filename = fn
-        chunks.push(Uint8Array.from(atob(chunk), (c) => c.charCodeAt(0)))
+        chunks.push(Uint8Array.from(atob(chunk), (c) => c.charCodeAt(0)) as Uint8Array<ArrayBuffer>)
         if (!previewing) setDownloadProgress({ downloaded, total })
       }
 
-      const totalLength = chunks.reduce((sum, c) => sum + c.length, 0)
-      const merged = new Uint8Array(totalLength)
-      let offset = 0
-      for (const c of chunks) {
-        merged.set(c, offset)
-        offset += c.length
-      }
-
-      const blob = new Blob([merged], { type: contentType })
+      const blob = new Blob(chunks, { type: contentType })
       const url = URL.createObjectURL(blob)
 
       if (previewing) {
