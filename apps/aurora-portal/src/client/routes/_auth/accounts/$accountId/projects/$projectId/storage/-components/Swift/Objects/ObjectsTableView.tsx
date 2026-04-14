@@ -150,7 +150,8 @@ export const ObjectsTableView = ({
       document.body.appendChild(anchor)
       anchor.click()
       document.body.removeChild(anchor)
-      URL.revokeObjectURL(url)
+      // Revoke after a short delay to avoid racing the browser starting the download
+      setTimeout(() => URL.revokeObjectURL(url), 10000)
     } catch (err) {
       onDownloadError(row.displayName, err instanceof Error ? err.message : String(err))
     } finally {
@@ -207,7 +208,8 @@ export const ObjectsTableView = ({
         document.body.appendChild(anchor)
         anchor.click()
         document.body.removeChild(anchor)
-        URL.revokeObjectURL(url)
+        // Revoke after a short delay to avoid racing the browser starting the download
+        setTimeout(() => URL.revokeObjectURL(url), 10000)
       }
     } catch (err) {
       onDownloadError(row.displayName, err instanceof Error ? err.message : String(err))
