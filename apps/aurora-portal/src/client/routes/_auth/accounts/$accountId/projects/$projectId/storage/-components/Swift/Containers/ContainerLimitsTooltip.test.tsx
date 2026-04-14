@@ -52,15 +52,15 @@ const mockSwiftBase = {
 const mockServiceInfo: ServiceInfo = {
   swift: {
     ...mockSwiftBase,
-    account_quotas: true,
-    container_quotas: true,
+    account_quotas: {},
+    container_quotas: {},
     bulk_delete: { max_deletes_per_request: 10000, max_failed_deletes: 1000 },
     bulk_upload: { max_containers_per_extraction: 1000, max_failed_extractions: 10 },
     slo: { max_manifest_segments: 1000, max_manifest_size: 8388608, min_segment_size: 1048576 },
-    container_sync: true,
+    container_sync: { realms: {} },
     tempurl: { methods: ["GET", "HEAD", "PUT", "POST", "DELETE"] },
-    symlink: true,
-    versioned_writes: true,
+    symlink: { symloop_max: 2, static_links: true },
+    versioned_writes: { allowed_flags: ["x-versions-location", "x-history-location"] },
   },
 }
 
@@ -396,7 +396,7 @@ describe("ContainerLimitsTooltip", () => {
       const serviceInfo: ServiceInfo = {
         swift: {
           ...mockSwiftBase,
-          account_quotas: true,
+          account_quotas: {},
           tempurl: { methods: ["GET", "HEAD", "PUT", "POST", "DELETE"] },
         },
       }

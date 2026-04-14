@@ -37,9 +37,9 @@ export const serviceInfoSchema = z.object({
       })
       .optional(),
 
-    // Quotas
-    container_quotas: z.union([z.boolean(), z.record(z.string(), z.unknown())]).optional(),
-    account_quotas: z.union([z.boolean(), z.record(z.string(), z.unknown())]).optional(),
+    // Quotas – registered as bare markers; /info returns {}
+    container_quotas: z.object({}).optional(),
+    account_quotas: z.object({}).optional(),
 
     // Large objects
     slo: z
@@ -70,9 +70,9 @@ export const serviceInfoSchema = z.object({
     max_header_size: z.number().optional(),
 
     // Additional features
-    container_sync: z.union([z.boolean(), z.record(z.string(), z.unknown())]).optional(),
-    symlink: z.union([z.boolean(), z.record(z.string(), z.unknown())]).optional(),
-    versioned_writes: z.union([z.boolean(), z.record(z.string(), z.unknown())]).optional(),
+    container_sync: z.object({ realms: z.record(z.string(), z.unknown()) }).optional(),
+    symlink: z.object({ symloop_max: z.number(), static_links: z.boolean() }).optional(),
+    versioned_writes: z.object({ allowed_flags: z.array(z.string()) }).optional(),
   }),
 })
 
