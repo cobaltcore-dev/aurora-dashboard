@@ -52,6 +52,14 @@ export const CopyObjectModal = ({ isOpen, object, onClose, onSuccess, onError }:
   const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const listRef = useRef<HTMLDivElement>(null)
 
+  // Clear pending debounce timer on unmount to prevent state updates after unmount
+  useEffect(
+    () => () => {
+      if (debounceTimer.current) clearTimeout(debounceTimer.current)
+    },
+    []
+  )
+
   // Reset browser state when modal opens or target container changes
   useEffect(() => {
     if (isOpen) {

@@ -51,6 +51,14 @@ export const MoveRenameObjectModal = ({ isOpen, object, onClose, onSuccess, onEr
   const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const listRef = useRef<HTMLDivElement>(null)
 
+  // Clear pending debounce timer on unmount to prevent state updates after unmount
+  useEffect(
+    () => () => {
+      if (debounceTimer.current) clearTimeout(debounceTimer.current)
+    },
+    []
+  )
+
   // Reset state when modal opens or target container changes
   useEffect(() => {
     if (isOpen) {
