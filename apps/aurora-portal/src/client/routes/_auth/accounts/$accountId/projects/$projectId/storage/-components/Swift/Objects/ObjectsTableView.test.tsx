@@ -191,7 +191,8 @@ describe("ObjectsTableView", () => {
     // can assert on window.open being called with a blob URL string.
     URL.createObjectURL = vi.fn(() => "blob:mock-url")
     URL.revokeObjectURL = vi.fn()
-    vi.spyOn(window, "open").mockImplementation(() => null)
+    const mockTab = { location: { href: "" }, close: vi.fn() }
+    vi.spyOn(window, "open").mockImplementation(() => mockTab as unknown as Window)
     // Restore default implementation after any vi.mocked() override in previous tests
     const { trpcClient } = await import("@/client/trpcClient")
     vi.mocked(trpcClient.storage.swift.downloadObject.mutate).mockImplementation(async () => {
@@ -355,7 +356,9 @@ describe("ObjectsTableView", () => {
       renderView({ rows: [makeObject("readme.txt", { content_type: "text/plain" })] })
       await user.click(screen.getByTestId("preview-readme.txt"))
       await vi.waitFor(() => {
-        expect(window.open).toHaveBeenCalledWith("blob:mock-url", "_blank", "noopener,noreferrer")
+        expect(window.open).toHaveBeenCalledWith("", "_blank")
+        const mockTab = vi.mocked(window.open).mock.results[0].value as { location: { href: string } }
+        expect(mockTab.location.href).toBe("blob:mock-url")
       })
     })
 
