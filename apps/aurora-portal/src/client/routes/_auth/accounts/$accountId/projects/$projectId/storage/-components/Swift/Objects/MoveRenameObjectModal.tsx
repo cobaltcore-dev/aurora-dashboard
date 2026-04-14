@@ -137,7 +137,9 @@ export const MoveRenameObjectModal = ({ isOpen, object, onClose, onSuccess, onEr
 
   const deleteMutation = trpcReact.storage.swift.deleteObject.useMutation({
     onSuccess: () => {
-      utils.storage.swift.listObjects.invalidate()
+      // Invalidate only the two affected containers (source and destination)
+      const containersToInvalidate = [...new Set([sourceContainer, targetContainer])]
+      containersToInvalidate.forEach((container) => utils.storage.swift.listObjects.invalidate({ container }))
       onSuccess?.(submittedNameRef.current, targetContainer, currentPrefix)
     },
     onError: (error) => {
