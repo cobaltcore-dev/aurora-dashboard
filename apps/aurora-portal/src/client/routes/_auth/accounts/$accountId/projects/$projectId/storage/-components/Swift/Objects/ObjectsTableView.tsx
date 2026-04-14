@@ -172,10 +172,14 @@ export const ObjectsTableView = ({
     }
 
     // Open a blank tab synchronously while still inside the click handler so
-    // the popup is considered user-initiated and won't be blocked. noopener is
-    // intentionally omitted here — we need the window reference to navigate it
-    // to the blob URL once streaming completes.
+    // The popup is considered user-initiated and won't be blocked. Clear the
+    // opener relationship immediately so previewed content cannot access the
+    // current window, while still keeping the window reference for navigation
+    // after streaming completes.
     const previewTab = previewing ? window.open("", "_blank") : null
+    if (previewTab) {
+      previewTab.opener = null
+    }
 
     try {
       const { blob, filename } = await streamObjectToBlob(row, previewing ? null : (p) => setDownloadProgress(p))
