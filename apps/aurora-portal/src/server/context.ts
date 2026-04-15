@@ -37,8 +37,11 @@ const defaultSignalOpenstackOptions = {
 // Global registry of pending rescope operations per session
 // This is shared across all requests and prevents race conditions between concurrent requests
 // Key: authToken (session identifier)
-// Value: Map of pending rescope promises keyed by scope (e.g., "project:{id}")
-const sessionRescopes = new Map<string, Map<string, Promise<Awaited<SignalOpenstackSessionType> | null>>>()
+// Value: Map of pending rescope token promises keyed by scope (e.g., "project:{id}")
+// Important: only cache the rescoped auth token string here. Do not cache
+// SignalOpenstackSession instances across requests, because those objects may
+// carry request/response-bound state such as cookie updates.
+const sessionRescopes = new Map<string, Map<string, Promise<string | null>>>()
 
 export interface FilePartData {
   filename: string

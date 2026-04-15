@@ -59,8 +59,9 @@ export const domainScopedInputSchema = z.object({
  *
  * Error handling:
  * - BAD_REQUEST: If project_id is missing or invalid (handled by Zod schema)
- * - UNAUTHORIZED: If token rescoping fails (e.g., invalid token, Keystone unavailable)
- * - FORBIDDEN: If user has no role assignment on the specified project
+ * - UNAUTHORIZED: If token rescoping fails, including when the session cannot be
+ *   rescoped to the specified project (for example, due to an invalid token,
+ *   Keystone unavailability, or missing role assignment on that project)
  *
  * Usage example:
  * ```ts
