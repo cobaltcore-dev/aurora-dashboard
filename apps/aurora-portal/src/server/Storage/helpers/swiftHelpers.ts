@@ -733,8 +733,11 @@ export function constructTempUrl(
   expires: number,
   filename?: string
 ): string {
-  const fullPath = `${containerPath}/${encodeURIComponent(objectPath)}`
-  const url = new URL(fullPath, swiftUrl)
+  // Do NOT encodeURIComponent(objectPath) here — new URL() handles encoding,
+  // and double-encoding causes a signature mismatch because Swift decodes the
+  // URL path before HMAC verification.
+  const base = swiftUrl.endsWith("/") ? swiftUrl : `${swiftUrl}/`
+  const url = new URL(`${containerPath}/${objectPath}`, base)
 
   url.searchParams.append("temp_url_sig", signature)
   url.searchParams.append("temp_url_expires", expires.toString())

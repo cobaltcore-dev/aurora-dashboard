@@ -1145,20 +1145,28 @@ export const swiftRouter = {
 
         validateSwiftService(swift)
 
-        // Get account or container metadata to retrieve temp URL key
+        // Get account or container metadata to retrieve temp URL key.
+        // HEAD /container returns only container-level headers — account-level
+        // headers are only present on HEAD / (account root), so we need two
+        // separate requests when the container key is absent.
         const accountPath = account || ""
-        const metadataUrl = accountPath
+        const containerUrl = accountPath
           ? `${accountPath}/${encodeURIComponent(container)}`
           : encodeURIComponent(container)
 
-        const metadataResponse = await swift.head(metadataUrl).catch((error) => {
+        const containerMetaResponse = await swift.head(containerUrl).catch((error) => {
           throw mapErrorResponseToTRPCError(error, { operation: "get temp URL key", container })
         })
 
-        // Try container-level key first, then account-level
-        const tempUrlKey =
-          metadataResponse.headers.get("x-container-meta-temp-url-key") ||
-          metadataResponse.headers.get("x-account-meta-temp-url-key")
+        let tempUrlKey = containerMetaResponse.headers.get("x-container-meta-temp-url-key")
+
+        // Fall back to account-level key — HEAD the account root
+        if (!tempUrlKey) {
+          const accountMetaResponse = await swift.head(accountPath || "").catch((error) => {
+            throw mapErrorResponseToTRPCError(error, { operation: "get account temp URL key" })
+          })
+          tempUrlKey = accountMetaResponse.headers.get("x-account-meta-temp-url-key")
+        }
 
         if (!tempUrlKey) {
           throw new TRPCError({
@@ -1171,21 +1179,23 @@ export const swiftRouter = {
         const now = Math.floor(Date.now() / 1000)
         const expiresAt = now + expiresIn
 
-        // Build the path for signature calculation
-        const objectPath = accountPath
-          ? `/${accountPath}/${container}/${object}`
-          : `/v1/AUTH_${account || ""}/${container}/${object}`
-
-        // Generate signature
-        const signature = await generateTempUrlSignature(tempUrlKey, method, expiresAt, objectPath)
-
         // Get Swift base URL from the service endpoints
         const endpoints = swift.availableEndpoints()
         const publicEndpoint = endpoints?.find((ep) => ep.interface === "public")
         const swiftBaseUrl = publicEndpoint?.url || ""
 
+        // Derive the object path for HMAC signing from the service catalog endpoint.
+        // Swift verifies the signature against the decoded URL path, so this string
+        // must contain no percent-encoding — plain slash-separated segments only.
+        // swiftBaseUrl is e.g. "https://objectstore-3.qa-de-1.cloud.sap/v1/glance_e4b5c916-..."
+        const swiftUrlPath = new URL(swiftBaseUrl).pathname.replace(/\/$/, "")
+        const objectPath = `${swiftUrlPath}/${container}/${object}`
+
+        // Generate signature
+        const signature = await generateTempUrlSignature(tempUrlKey, method, expiresAt, objectPath)
+
         // Construct the temporary URL
-        const tempUrl = constructTempUrl(swiftBaseUrl, accountPath || container, object, signature, expiresAt, filename)
+        const tempUrl = constructTempUrl(swiftBaseUrl, container, object, signature, expiresAt, filename)
 
         return {
           url: tempUrl,
