@@ -41,7 +41,7 @@ export function parseErrorObject(object: unknown): string | null {
       .join(", ")
   } catch (e) {
     if (e instanceof ZodError) {
-      console.error("Invalid error object structure:", e.errors)
+      console.error("Invalid error object structure:", e.issues)
     }
     return null // Return null if parsing fails
   }
