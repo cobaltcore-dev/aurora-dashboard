@@ -111,6 +111,9 @@ export const DeleteContainerModal = ({ isOpen, container, onClose, onSuccess, on
   // Also covers the Swift consistency delay where count > 0 but listed objects === 0:
   // we trust container.count here to avoid letting the user delete a non-empty container.
   const hasObjects = !isLoadingObjects && (actualObjectCount > 0 || container.count > 0)
+  // Swift eventual consistency — count > 0 but listing returned 0 objects,
+  // likely because a recent empty/delete hasn't propagated yet.
+  const isConsistencyDelay = !isLoadingObjects && container.count > 0 && actualObjectCount === 0
   const hasPreflightError = !!(objectsError || metaError)
 
   const modalTitle = (
@@ -178,9 +181,19 @@ export const DeleteContainerModal = ({ isOpen, container, onClose, onSuccess, on
         </Stack>
       ) : hasObjects ? (
         // ── Container has objects — block deletion ───────────────────────────
-        <Message variant="danger">
-          <Trans>Cannot delete. Container contains objects. Please empty it first.</Trans>
-        </Message>
+        <Stack direction="vertical" gap="3">
+          <Message variant="danger">
+            <Trans>Cannot delete. Container contains objects. Please empty it first.</Trans>
+          </Message>
+          {isConsistencyDelay && (
+            <Message variant="info">
+              <Trans>
+                The container metadata reports objects but none were listed. This may be a temporary synchronization
+                delay — please wait a moment and try again.
+              </Trans>
+            </Message>
+          )}
+        </Stack>
       ) : (
         // ── Container is empty — allow deletion ──────────────────────────────
         <Stack direction="vertical" gap="6">

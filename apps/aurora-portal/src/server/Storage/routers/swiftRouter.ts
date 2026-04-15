@@ -28,7 +28,6 @@ import {
   updateContainerMetadataInputSchema,
   getContainerMetadataInputSchema,
   deleteContainerInputSchema,
-  getObjectInputSchema,
   createObjectInputSchema,
   updateObjectMetadataInputSchema,
   copyObjectInputSchema,
@@ -42,7 +41,6 @@ import {
   AccountInfo,
   ContainerInfo,
   ObjectMetadata,
-  ObjectContentResponse,
   BulkDeleteResult,
   serviceInfoSchema,
   ServiceInfo,
@@ -53,6 +51,7 @@ import {
   deleteFolderInputSchema,
   TempUrl,
   generateTempUrlInputSchema,
+  downloadObjectInputSchema,
 } from "../types/swift"
 export const swiftRouter = {
   // ============================================================================
@@ -498,66 +497,6 @@ export const swiftRouter = {
   // ============================================================================
 
   /**
-   * Gets an object's content and metadata
-   */
-  getObject: protectedProcedure
-    .input(getObjectInputSchema)
-    .query(async ({ input, ctx }): Promise<ObjectContentResponse> => {
-      return withErrorHandling(async () => {
-        const {
-          account,
-          container,
-          object,
-          range,
-          ifMatch,
-          ifNoneMatch,
-          ifModifiedSince,
-          ifUnmodifiedSince,
-          multipartManifest,
-          symlink,
-          xNewest,
-        } = input
-        const openstackSession = ctx.openstack
-        const swift = openstackSession?.service("swift")
-
-        validateSwiftService(swift)
-
-        // Build URL with query parameters
-        const queryParams = new URLSearchParams()
-        if (multipartManifest) {
-          queryParams.append("multipart-manifest", multipartManifest)
-        }
-        if (symlink) {
-          queryParams.append("symlink", symlink)
-        }
-
-        const accountPath = account || ""
-        const basePath = accountPath
-          ? `${accountPath}/${encodeURIComponent(container)}/${encodeURIComponent(object)}`
-          : `${encodeURIComponent(container)}/${encodeURIComponent(object)}`
-        const url = queryParams.toString() ? `${basePath}?${queryParams.toString()}` : basePath
-
-        // Build headers
-        const headers: Record<string, string> = {}
-        if (range) headers["Range"] = range
-        if (ifMatch) headers["If-Match"] = ifMatch
-        if (ifNoneMatch) headers["If-None-Match"] = ifNoneMatch
-        if (ifModifiedSince) headers["If-Modified-Since"] = ifModifiedSince
-        if (ifUnmodifiedSince) headers["If-Unmodified-Since"] = ifUnmodifiedSince
-        if (xNewest !== undefined) headers["X-Newest"] = xNewest.toString()
-
-        const response = await swift.get(url, { headers }).catch((error) => {
-          throw mapErrorResponseToTRPCError(error, { operation: "get object", container, object })
-        })
-
-        const content = await response.arrayBuffer()
-        const metadata = parseObjectMetadata(response.headers)
-
-        return { content, metadata }
-      }, "get object")
-    }),
-
-  /**
    * Creates or replaces an object with content and metadata
    */
   createObject: protectedProcedure
@@ -698,73 +637,103 @@ export const swiftRouter = {
    * Copies an object to a new location using PUT with X-Copy-From header
    * This is the recommended approach and equivalent to using the COPY HTTP method
    */
-  copyObject: protectedProcedure
-    .input(copyObjectInputSchema)
-    .mutation(async ({ input, ctx }): Promise<ObjectMetadata> => {
-      return withErrorHandling(async () => {
-        const {
-          account,
-          container,
-          object,
-          destination,
-          destinationAccount,
-          multipartManifest,
-          symlink,
-          freshMetadata,
-          ...options
-        } = input
-        const openstackSession = ctx.openstack
-        const swift = openstackSession?.service("swift")
+  copyObject: protectedProcedure.input(copyObjectInputSchema).mutation(async ({ input, ctx }): Promise<boolean> => {
+    return withErrorHandling(async () => {
+      const {
+        account,
+        container,
+        object,
+        destination,
+        destinationAccount,
+        multipartManifest,
+        symlink,
+        freshMetadata,
+        ...options
+      } = input
+      const openstackSession = ctx.openstack
+      const swift = openstackSession?.service("swift")
 
-        validateSwiftService(swift)
+      validateSwiftService(swift)
 
-        // Build source path for X-Copy-From header
-        const sourcePath = `/${encodeURIComponent(container)}/${encodeURIComponent(object)}`
+      // Build source path for X-Copy-From header
+      // Encode each object path segment individually to preserve "/" separators
+      // (pseudo-folder structure). encodeURIComponent on the full name would
+      // encode "/" to "%2F", breaking X-Copy-From for nested objects.
+      const encodedObjectPath = object
+        .split("/")
+        .map((segment) => encodeURIComponent(segment))
+        .join("/")
+      const sourcePath = `/${encodeURIComponent(container)}/${encodedObjectPath}`
 
-        // Build query parameters for source URL
-        const queryParams = new URLSearchParams()
-        if (multipartManifest) {
-          queryParams.append("multipart-manifest", multipartManifest)
+      // Build query parameters for source URL
+      const queryParams = new URLSearchParams()
+      if (multipartManifest) {
+        queryParams.append("multipart-manifest", multipartManifest)
+      }
+      if (symlink) {
+        queryParams.append("symlink", symlink)
+      }
+
+      // Build destination URL as a full URL string so the SDK's buildRequestUrl
+      // takes the `path.startsWith("http")` branch and uses `new URL(path)` directly,
+      // preserving percent-encoding. Using pathname assignment on a URL object would
+      // decode %20 back to spaces before the request is made.
+      const endpoints = swift.availableEndpoints()
+      const publicEndpoint = endpoints?.find((ep: { interface: string }) => ep.interface === "public")
+      if (!publicEndpoint?.url) {
+        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Swift public endpoint not found" })
+      }
+      // Encode each segment of the destination path individually
+      const encodedDestination = destination
+        .replace(/^\//, "")
+        .split("/")
+        .map((s) => (s ? encodeURIComponent(s) : s))
+        .join("/")
+
+      // Build the destination URL by replacing (not appending) the account segment
+      // in the public endpoint URL. The endpoint already contains the account path
+      // (e.g. /v1/AUTH_test); if `account` overrides it, swap the last path segment.
+      const destEndpoint = new URL(publicEndpoint.url)
+      const endpointSegments = destEndpoint.pathname.split("/").filter(Boolean)
+      if (account) {
+        if (endpointSegments.length > 0) {
+          endpointSegments[endpointSegments.length - 1] = account
+        } else {
+          endpointSegments.push(account)
         }
-        if (symlink) {
-          queryParams.append("symlink", symlink)
-        }
+      }
+      const basePath = endpointSegments.join("/")
+      destEndpoint.pathname = `/${basePath}/${encodedDestination}`.replace(/\/+$/, "")
+      const destUrl = destEndpoint.toString()
 
-        // Build destination URL
-        const accountPath = account || ""
-        const destUrl = accountPath ? `${accountPath}${destination}` : destination
+      // Build headers - using X-Copy-From approach (equivalent to COPY method)
+      const headers: Record<string, string> = {
+        "X-Copy-From": queryParams.toString() ? `${sourcePath}?${queryParams.toString()}` : sourcePath,
+        "Content-Length": "0",
+      }
 
-        // Build headers - using X-Copy-From approach (equivalent to COPY method)
-        const headers: Record<string, string> = {
-          "X-Copy-From": queryParams.toString() ? `${sourcePath}?${queryParams.toString()}` : sourcePath,
-          "Content-Length": "0",
-        }
+      if (destinationAccount) {
+        headers["X-Copy-From-Account"] = destinationAccount
+      }
 
-        if (destinationAccount) {
-          headers["X-Copy-From-Account"] = destinationAccount
-        }
+      if (freshMetadata) {
+        headers["X-Fresh-Metadata"] = "true"
+      }
 
-        if (freshMetadata) {
-          headers["X-Fresh-Metadata"] = "true"
-        }
+      // Add metadata headers for the destination object
+      const metadataHeaders = buildObjectMetadataHeaders(options)
+      Object.assign(headers, metadataHeaders)
 
-        // Add metadata headers for the destination object
-        const metadataHeaders = buildObjectMetadataHeaders(options)
-        Object.assign(headers, metadataHeaders)
+      // Use PUT to destination with X-Copy-From header.
+      // Body must be undefined/empty — the copy is server-side via X-Copy-From.
+      // Swift returns 201 on success with no meaningful response body.
+      await swift.put(destUrl, undefined, { headers }).catch((error) => {
+        throw mapErrorResponseToTRPCError(error, { operation: "copy object", container, object })
+      })
 
-        // Use PUT to destination with X-Copy-From header
-        const response = await swift
-          .put(destUrl, {
-            headers,
-            body: new ArrayBuffer(0), // Empty body required for PUT
-          })
-          .catch((error) => {
-            throw mapErrorResponseToTRPCError(error, { operation: "copy object", container, object })
-          })
-
-        return parseObjectMetadata(response.headers)
-      }, "copy object")
-    }),
+      return true
+    }, "copy object")
+  }),
 
   /**
    * Deletes an object
@@ -1224,4 +1193,97 @@ export const swiftRouter = {
         }
       }, "generate temp URL")
     }),
+
+  // ============================================================================
+  // DOWNLOAD OPERATIONS
+  // ============================================================================
+
+  /**
+   * Downloads a Swift object via the BFF, streaming the content as chunks of
+   * base64-encoded data using an async iterable.
+   *
+   * Why chunked base64 instead of raw binary:
+   *   tRPC uses JSON-based SSE transport for iterables, so each yielded value
+   *   must be JSON-serializable. We encode each Uint8Array chunk as base64 and
+   *   include the content-type + filename only in the first chunk so the client
+   *   can begin processing the download immediately, while the server avoids
+   *   buffering the full file in memory.
+   *
+   * Client-side assembly:
+   *   Collect all base64 chunks → decode each → concatenate into a single
+   *   Uint8Array → wrap in a Blob → trigger <a download>.
+   *
+   * Current behavior / trade-offs:
+   *   - Server never holds the full file in memory
+   *   - Data is delivered to the client progressively, enabling download progress
+   *   - The current client implementation still buffers the full file before
+   *     creating the Blob, so client-side memory usage remains O(file size)
+   */
+  downloadObject: protectedProcedure.input(downloadObjectInputSchema).mutation(async function* ({
+    input,
+    ctx,
+  }): AsyncGenerator<{
+    chunk: string // base64-encoded Uint8Array chunk
+    downloaded: number // cumulative bytes received so far
+    total: number // total file size in bytes (0 if unknown)
+    contentType?: string // only present in first chunk
+    filename?: string // only present in first chunk
+  }> {
+    const { container, object, filename, account } = input
+    const swift = ctx.openstack?.service("swift")
+
+    validateSwiftService(swift)
+
+    const accountPath = account || ""
+    // Encode each segment of the object name individually so that slashes
+    // acting as path separators (e.g. "folder/file.txt") are preserved,
+    // while other special characters in segment names are still percent-encoded.
+    const encodedObject = object.split("/").map(encodeURIComponent).join("/")
+    const url = accountPath
+      ? `${accountPath}/${encodeURIComponent(container)}/${encodedObject}`
+      : `${encodeURIComponent(container)}/${encodedObject}`
+
+    const response = await swift.get(url).catch((error) => {
+      throw mapErrorResponseToTRPCError(error, { operation: "download object", container, object })
+    })
+
+    const contentType = response.headers.get("content-type") ?? "application/octet-stream"
+    // Content-Length may be absent for chunked-transfer responses; treat 0 as unknown
+    const total = parseInt(response.headers.get("content-length") ?? "0", 10) || 0
+
+    if (!response.body) {
+      throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Swift response has no body" })
+    }
+
+    const reader = response.body.getReader()
+    let isFirst = true
+    let downloaded = 0
+
+    try {
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+
+        downloaded += value.byteLength
+
+        yield {
+          chunk: Buffer.from(value).toString("base64"),
+          downloaded,
+          total,
+          ...(isFirst ? { contentType, filename } : {}),
+        }
+
+        isFirst = false
+      }
+    } catch (error) {
+      throw mapErrorResponseToTRPCError(error as Parameters<typeof mapErrorResponseToTRPCError>[0], {
+        operation: "download object",
+        container,
+        object,
+      })
+    } finally {
+      await reader.cancel()
+      reader.releaseLock()
+    }
+  }),
 }

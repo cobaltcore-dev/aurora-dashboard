@@ -27,8 +27,17 @@ vi.mock("@tanstack/react-virtual", () => ({
   }),
 }))
 
-// DeleteFolderModal uses tRPC + useParams internally — mock it to keep
-// ObjectsTableView tests isolated.
+// Mock both modals to keep ObjectsTableView tests isolated.
+vi.mock("./DeleteObjectModal", () => ({
+  DeleteObjectModal: vi.fn(({ isOpen, onClose }) =>
+    isOpen ? (
+      <div data-testid="delete-object-modal">
+        <button onClick={onClose}>Cancel</button>
+      </div>
+    ) : null
+  ),
+}))
+
 vi.mock("./DeleteFolderModal", () => ({
   DeleteFolderModal: vi.fn(({ isOpen, onClose }) =>
     isOpen ? (
@@ -37,6 +46,60 @@ vi.mock("./DeleteFolderModal", () => ({
       </div>
     ) : null
   ),
+}))
+
+vi.mock("./CopyObjectModal", () => ({
+  CopyObjectModal: vi.fn(({ isOpen, onClose, object }) =>
+    isOpen ? (
+      <div data-testid="copy-object-modal" data-object={object?.name}>
+        <button onClick={onClose}>Cancel</button>
+      </div>
+    ) : null
+  ),
+}))
+
+vi.mock("./MoveRenameObjectModal", () => ({
+  MoveRenameObjectModal: vi.fn(({ isOpen, onClose, object }) =>
+    isOpen ? (
+      <div data-testid="move-rename-object-modal" data-object={object?.name}>
+        <button onClick={onClose}>Cancel</button>
+      </div>
+    ) : null
+  ),
+}))
+
+// ─── Mock trpcClient ──────────────────────────────────────────────────────────
+// downloadObject is now an async iterable (streaming mutation) called via the
+// vanilla trpcClient — mock it so tests can control chunks and errors without
+// touching the network.
+
+let mockDownloadIterable: AsyncIterable<{
+  chunk: string
+  downloaded: number
+  total: number
+  contentType?: string
+  filename?: string
+}> | null = null
+let mockDownloadReject = false
+
+vi.mock("@/client/trpcClient", () => ({
+  trpcClient: {
+    storage: {
+      swift: {
+        downloadObject: {
+          mutate: vi.fn(async () => {
+            if (mockDownloadReject) throw new Error("Network error")
+            return (
+              mockDownloadIterable ??
+              (async function* () {
+                /* empty — no chunks */
+              })()
+            )
+          }),
+        },
+      },
+    },
+  },
 }))
 
 // ─── Fixtures ─────────────────────────────────────────────────────────────────
@@ -69,15 +132,31 @@ const mockRows: BrowserRow[] = [
 const renderView = ({
   rows = mockRows,
   searchTerm = "",
+  container = "test-container",
   onFolderClick = vi.fn(),
   onDeleteFolderSuccess = vi.fn(),
   onDeleteFolderError = vi.fn(),
+  onDownloadError = vi.fn(),
+  onDeleteObjectSuccess = vi.fn(),
+  onDeleteObjectError = vi.fn(),
+  onCopyObjectSuccess = vi.fn(),
+  onCopyObjectError = vi.fn(),
+  onMoveObjectSuccess = vi.fn(),
+  onMoveObjectError = vi.fn(),
 }: {
   rows?: BrowserRow[]
   searchTerm?: string
+  container?: string
   onFolderClick?: (prefix: string) => void
   onDeleteFolderSuccess?: (folderName: string, deletedCount: number) => void
   onDeleteFolderError?: (folderName: string, errorMessage: string) => void
+  onDownloadError?: (objectName: string, errorMessage: string) => void
+  onDeleteObjectSuccess?: (objectName: string) => void
+  onDeleteObjectError?: (objectName: string, errorMessage: string) => void
+  onCopyObjectSuccess?: (objectName: string, targetContainer: string, targetPath: string) => void
+  onCopyObjectError?: (objectName: string, errorMessage: string) => void
+  onMoveObjectSuccess?: (objectName: string, targetContainer: string, targetPath: string) => void
+  onMoveObjectError?: (objectName: string, errorMessage: string) => void
 } = {}) =>
   render(
     <I18nProvider i18n={i18n}>
@@ -85,9 +164,17 @@ const renderView = ({
         <ObjectsTableView
           rows={rows}
           searchTerm={searchTerm}
+          container={container}
           onFolderClick={onFolderClick}
           onDeleteFolderSuccess={onDeleteFolderSuccess}
           onDeleteFolderError={onDeleteFolderError}
+          onDownloadError={onDownloadError}
+          onDeleteObjectSuccess={onDeleteObjectSuccess}
+          onDeleteObjectError={onDeleteObjectError}
+          onCopyObjectSuccess={onCopyObjectSuccess}
+          onCopyObjectError={onCopyObjectError}
+          onMoveObjectSuccess={onMoveObjectSuccess}
+          onMoveObjectError={onMoveObjectError}
         />
       </PortalProvider>
     </I18nProvider>
@@ -98,6 +185,25 @@ const renderView = ({
 describe("ObjectsTableView", () => {
   beforeEach(async () => {
     vi.clearAllMocks()
+    mockDownloadIterable = null
+    mockDownloadReject = false
+    // jsdom doesn't implement URL.createObjectURL — stub it so preview tests
+    // can assert on window.open being called with a blob URL string.
+    URL.createObjectURL = vi.fn(() => "blob:mock-url")
+    URL.revokeObjectURL = vi.fn()
+    const mockTab = { location: { href: "" }, close: vi.fn() }
+    vi.spyOn(window, "open").mockImplementation(() => mockTab as unknown as Window)
+    // Restore default implementation after any vi.mocked() override in previous tests
+    const { trpcClient } = await import("@/client/trpcClient")
+    vi.mocked(trpcClient.storage.swift.downloadObject.mutate).mockImplementation(async () => {
+      if (mockDownloadReject) throw new Error("Network error")
+      return (
+        mockDownloadIterable ??
+        (async function* () {
+          /* empty */
+        })()
+      )
+    })
     await act(async () => {
       i18n.activate("en")
     })
@@ -199,9 +305,9 @@ describe("ObjectsTableView", () => {
       expect(onFolderClick).toHaveBeenCalledWith("documents/")
     })
 
-    test("object rows do not render as buttons", () => {
+    test("object rows render as clickable buttons for preview/download", () => {
       renderView({ rows: [makeObject("readme.txt")] })
-      expect(screen.queryByTestId("folder-readme.txt")).not.toBeInTheDocument()
+      expect(screen.getByTestId("preview-readme.txt")).toBeInTheDocument()
     })
   })
 
@@ -240,6 +346,425 @@ describe("ObjectsTableView", () => {
     test("footer total matches rows length", () => {
       renderView({ rows: [makeObject("a.txt"), makeObject("b.txt")] })
       expect(screen.getByText(/2 items/i)).toBeInTheDocument()
+    })
+  })
+
+  describe("File preview", () => {
+    test("clicking a previewable file name opens a new tab", async () => {
+      const user = userEvent.setup()
+      // text/plain is previewable
+      renderView({ rows: [makeObject("readme.txt", { content_type: "text/plain" })] })
+      await user.click(screen.getByTestId("preview-readme.txt"))
+      await vi.waitFor(() => {
+        expect(window.open).toHaveBeenCalledWith("", "_blank")
+        const mockTab = vi.mocked(window.open).mock.results[0].value as { location: { href: string } }
+        expect(mockTab.location.href).toBe("blob:mock-url")
+      })
+    })
+
+    test("clicking a non-previewable file name triggers download instead", async () => {
+      const user = userEvent.setup()
+      // application/zip is not previewable — should trigger anchor download, not window.open
+      renderView({ rows: [makeObject("archive.zip", { content_type: "application/zip" })] })
+      await user.click(screen.getByTestId("preview-archive.zip"))
+      await vi.waitFor(() => {
+        expect(window.open).not.toHaveBeenCalled()
+      })
+    })
+
+    test("shows spinner on file name while preview is loading", async () => {
+      let unblock!: () => void
+      const blocker = new Promise<void>((resolve) => {
+        unblock = resolve
+      })
+
+      const { trpcClient } = await import("@/client/trpcClient")
+      vi.mocked(trpcClient.storage.swift.downloadObject.mutate).mockImplementation(async () => {
+        await blocker
+        return (async function* () {})()
+      })
+
+      const user = userEvent.setup()
+      renderView({ rows: [makeObject("readme.txt", { content_type: "text/plain" })] })
+      await user.click(screen.getByTestId("preview-readme.txt"))
+
+      // Spinner replaces the file icon while loading
+      expect(screen.getByTestId("preview-readme.txt").querySelector("svg, [class*=spinner]")).toBeTruthy()
+
+      unblock()
+    })
+
+    test("file name button is disabled while any download is in progress", async () => {
+      let unblock!: () => void
+      const blocker = new Promise<void>((resolve) => {
+        unblock = resolve
+      })
+
+      const { trpcClient } = await import("@/client/trpcClient")
+      vi.mocked(trpcClient.storage.swift.downloadObject.mutate).mockImplementation(async () => {
+        await blocker
+        return (async function* () {})()
+      })
+
+      const user = userEvent.setup()
+      // Use a non-previewable file to trigger download path
+      renderView({
+        rows: [
+          makeObject("archive.zip", { content_type: "application/zip" }),
+          makeObject("readme.txt", { content_type: "text/plain" }),
+        ],
+      })
+
+      // Start download on first file via popup menu
+      const [firstMore] = screen.getAllByRole("button", { name: /More/i })
+      await user.click(firstMore)
+      await user.click(screen.getByTestId("download-action-archive.zip"))
+
+      // Both file name buttons should be disabled
+      const previewButtons = screen.getAllByTestId(/^preview-/)
+      previewButtons.forEach((btn) => expect(btn).toBeDisabled())
+
+      unblock()
+    })
+
+    test("calls onDownloadError when preview fetch throws", async () => {
+      mockDownloadReject = true
+      const onDownloadError = vi.fn()
+      const user = userEvent.setup()
+      renderView({ rows: [makeObject("readme.txt", { content_type: "text/plain" })], onDownloadError })
+      await user.click(screen.getByTestId("preview-readme.txt"))
+      await vi.waitFor(() => {
+        expect(onDownloadError).toHaveBeenCalledWith("readme.txt", "Network error")
+      })
+    })
+
+    test("previewable file name button has Preview title", () => {
+      renderView({ rows: [makeObject("readme.txt", { content_type: "text/plain" })] })
+      expect(screen.getByTestId("preview-readme.txt")).toHaveAttribute("title", expect.stringContaining("Preview"))
+    })
+
+    test("non-previewable file name button has Download title", () => {
+      renderView({ rows: [makeObject("archive.zip", { content_type: "application/zip" })] })
+      expect(screen.getByTestId("preview-archive.zip")).toHaveAttribute("title", expect.stringContaining("Download"))
+    })
+
+    test("image/png is treated as previewable", async () => {
+      const user = userEvent.setup()
+      renderView({ rows: [makeObject("photo.png", { content_type: "image/png" })] })
+      await user.click(screen.getByTestId("preview-photo.png"))
+      await vi.waitFor(() => {
+        expect(window.open).toHaveBeenCalled()
+      })
+    })
+
+    test("application/pdf is treated as previewable", async () => {
+      const user = userEvent.setup()
+      renderView({ rows: [makeObject("doc.pdf", { content_type: "application/pdf" })] })
+      await user.click(screen.getByTestId("preview-doc.pdf"))
+      await vi.waitFor(() => {
+        expect(window.open).toHaveBeenCalled()
+      })
+    })
+  })
+
+  describe("Download action", () => {
+    test("Download menu item is present for object rows", async () => {
+      const user = userEvent.setup()
+      renderView({ rows: [makeObject("readme.txt")] })
+      await user.click(screen.getByRole("button", { name: /More/i }))
+      expect(screen.getByTestId("download-action-readme.txt")).toBeInTheDocument()
+    })
+
+    test("Download menu item is not present for folder rows", async () => {
+      const user = userEvent.setup()
+      renderView({ rows: [makeFolder("docs")] })
+      await user.click(screen.getByRole("button", { name: /More/i }))
+      expect(screen.queryByTestId("download-action-docs/")).not.toBeInTheDocument()
+    })
+
+    test("clicking Download calls trpcClient.mutate with correct input", async () => {
+      const { trpcClient } = await import("@/client/trpcClient")
+      mockDownloadIterable = (async function* () {})()
+      const user = userEvent.setup()
+      renderView({ rows: [makeObject("readme.txt")], container: "my-bucket" })
+      await user.click(screen.getByRole("button", { name: /More/i }))
+      await user.click(screen.getByTestId("download-action-readme.txt"))
+      expect(trpcClient.storage.swift.downloadObject.mutate).toHaveBeenCalledWith(
+        expect.objectContaining({ container: "my-bucket", object: "readme.txt", filename: "readme.txt" })
+      )
+    })
+
+    test("Download menu item is disabled while download is in progress", async () => {
+      // Block mutate so the download stays in-flight while we assert
+      let unblock!: () => void
+      const blocker = new Promise<void>((resolve) => {
+        unblock = resolve
+      })
+
+      const { trpcClient } = await import("@/client/trpcClient")
+      vi.mocked(trpcClient.storage.swift.downloadObject.mutate).mockImplementation(async () => {
+        await blocker
+        return (async function* () {})()
+      })
+
+      const user = userEvent.setup()
+      renderView({ rows: [makeObject("readme.txt")] })
+
+      // First open — click download to start
+      await user.click(screen.getByRole("button", { name: /More/i }))
+      await user.click(screen.getByTestId("download-action-readme.txt"))
+
+      // The More button itself is disabled — menu cannot be opened
+      const moreButton = screen.getByRole("button", { name: /More/i })
+      expect(moreButton).toBeDisabled()
+
+      unblock()
+    })
+
+    test("shows Downloading... in last modified cell while download is in progress", async () => {
+      let unblock!: () => void
+      const blocker = new Promise<void>((resolve) => {
+        unblock = resolve
+      })
+
+      const { trpcClient } = await import("@/client/trpcClient")
+      vi.mocked(trpcClient.storage.swift.downloadObject.mutate).mockImplementation(async () => {
+        await blocker
+        return (async function* () {})()
+      })
+
+      const user = userEvent.setup()
+      renderView({ rows: [makeObject("readme.txt")] })
+      await user.click(screen.getByRole("button", { name: /More/i }))
+      await user.click(screen.getByTestId("download-action-readme.txt"))
+
+      expect(await screen.findByText(/Downloading\.\.\./i)).toBeInTheDocument()
+
+      unblock()
+    })
+
+    test("actions menu is disabled for the downloading row", async () => {
+      let unblock!: () => void
+      const blocker = new Promise<void>((resolve) => {
+        unblock = resolve
+      })
+
+      const { trpcClient } = await import("@/client/trpcClient")
+      vi.mocked(trpcClient.storage.swift.downloadObject.mutate).mockImplementation(async () => {
+        await blocker
+        return (async function* () {})()
+      })
+
+      const user = userEvent.setup()
+      renderView({ rows: [makeObject("readme.txt")] })
+      await user.click(screen.getByRole("button", { name: /More/i }))
+      await user.click(screen.getByTestId("download-action-readme.txt"))
+
+      // The More button for the downloading row should be disabled
+      const moreButton = screen.getByRole("button", { name: /More/i })
+      expect(moreButton).toBeDisabled()
+
+      unblock()
+    })
+
+    test("shows percentage when content-length is known", async () => {
+      let unblock!: () => void
+      const blocker = new Promise<void>((resolve) => {
+        unblock = resolve
+      })
+
+      // Emit one chunk with 50% progress then block
+      mockDownloadIterable = (async function* () {
+        yield { chunk: btoa("half"), downloaded: 50, total: 100, contentType: "text/plain", filename: "f.txt" }
+        await blocker
+      })()
+
+      const user = userEvent.setup()
+      renderView({ rows: [makeObject("readme.txt")] })
+      await user.click(screen.getByRole("button", { name: /More/i }))
+      await user.click(screen.getByTestId("download-action-readme.txt"))
+
+      expect(await screen.findByText("50%")).toBeInTheDocument()
+
+      unblock()
+    })
+
+    test("shows Downloading... when total is unknown (no content-length)", async () => {
+      let unblock!: () => void
+      const blocker = new Promise<void>((resolve) => {
+        unblock = resolve
+      })
+
+      const { trpcClient } = await import("@/client/trpcClient")
+      vi.mocked(trpcClient.storage.swift.downloadObject.mutate).mockImplementation(async () => {
+        await blocker
+        return (async function* () {
+          /* empty */
+        })()
+      })
+
+      const user = userEvent.setup()
+      renderView({ rows: [makeObject("readme.txt")] })
+      await user.click(screen.getByRole("button", { name: /More/i }))
+      await user.click(screen.getByTestId("download-action-readme.txt"))
+
+      expect(await screen.findByText(/Downloading\.\.\./i)).toBeInTheDocument()
+
+      unblock()
+    })
+
+    test("actions menu is disabled on all rows while a download is in progress", async () => {
+      let unblock!: () => void
+      const blocker = new Promise<void>((resolve) => {
+        unblock = resolve
+      })
+
+      const { trpcClient } = await import("@/client/trpcClient")
+      vi.mocked(trpcClient.storage.swift.downloadObject.mutate).mockImplementation(async () => {
+        await blocker
+        return (async function* () {
+          /* empty */
+        })()
+      })
+
+      const user = userEvent.setup()
+      // Render two object rows
+      renderView({ rows: [makeObject("readme.txt"), makeObject("photo.png")] })
+
+      // Start download on the first row
+      const [firstMore] = screen.getAllByRole("button", { name: /More/i })
+      await user.click(firstMore)
+      await user.click(screen.getByTestId("download-action-readme.txt"))
+
+      // Both More buttons should now be disabled
+      const moreButtons = screen.getAllByRole("button", { name: /More/i })
+      moreButtons.forEach((btn) => expect(btn).toBeDisabled())
+
+      unblock()
+    })
+
+    test("calls onDownloadError when mutate throws", async () => {
+      mockDownloadReject = true
+      const onDownloadError = vi.fn()
+      const user = userEvent.setup()
+      renderView({ rows: [makeObject("readme.txt")], onDownloadError })
+      await user.click(screen.getByRole("button", { name: /More/i }))
+      await user.click(screen.getByTestId("download-action-readme.txt"))
+      await vi.waitFor(() => {
+        expect(onDownloadError).toHaveBeenCalledWith("readme.txt", "Network error")
+      })
+    })
+  })
+
+  describe("Move/Rename object modal", () => {
+    test("move/rename modal is closed by default", () => {
+      renderView({ rows: [makeObject("readme.txt")] })
+      expect(screen.queryByTestId("move-rename-object-modal")).not.toBeInTheDocument()
+    })
+
+    test("opens move/rename modal when Move/Rename is clicked", async () => {
+      const user = userEvent.setup()
+      renderView({ rows: [makeObject("readme.txt")] })
+      await user.click(screen.getByRole("button", { name: /More/i }))
+      await user.click(screen.getByTestId("move-rename-action-readme.txt"))
+      expect(screen.getByTestId("move-rename-object-modal")).toBeInTheDocument()
+    })
+
+    test("passes correct object name to MoveRenameObjectModal", async () => {
+      const user = userEvent.setup()
+      renderView({ rows: [makeObject("readme.txt")] })
+      await user.click(screen.getByRole("button", { name: /More/i }))
+      await user.click(screen.getByTestId("move-rename-action-readme.txt"))
+      expect(screen.getByTestId("move-rename-object-modal")).toHaveAttribute("data-object", "readme.txt")
+    })
+
+    test("closes move/rename modal when onClose is called", async () => {
+      const user = userEvent.setup()
+      renderView({ rows: [makeObject("readme.txt")] })
+      await user.click(screen.getByRole("button", { name: /More/i }))
+      await user.click(screen.getByTestId("move-rename-action-readme.txt"))
+      expect(screen.getByTestId("move-rename-object-modal")).toBeInTheDocument()
+      await user.click(screen.getByRole("button", { name: /Cancel/i }))
+      expect(screen.queryByTestId("move-rename-object-modal")).not.toBeInTheDocument()
+    })
+
+    test("Move/Rename action is not present for folder rows", async () => {
+      const user = userEvent.setup()
+      renderView({ rows: [makeFolder("docs")] })
+      await user.click(screen.getByRole("button", { name: /More/i }))
+      expect(screen.queryByTestId("move-rename-action-docs/")).not.toBeInTheDocument()
+    })
+  })
+
+  describe("Copy object modal", () => {
+    test("copy object modal is closed by default", () => {
+      renderView({ rows: [makeObject("readme.txt")] })
+      expect(screen.queryByTestId("copy-object-modal")).not.toBeInTheDocument()
+    })
+
+    test("opens copy modal when Copy is clicked", async () => {
+      const user = userEvent.setup()
+      renderView({ rows: [makeObject("readme.txt")] })
+      await user.click(screen.getByRole("button", { name: /More/i }))
+      await user.click(screen.getByTestId("copy-action-readme.txt"))
+      expect(screen.getByTestId("copy-object-modal")).toBeInTheDocument()
+    })
+
+    test("passes correct object name to CopyObjectModal", async () => {
+      const user = userEvent.setup()
+      renderView({ rows: [makeObject("readme.txt")] })
+      await user.click(screen.getByRole("button", { name: /More/i }))
+      await user.click(screen.getByTestId("copy-action-readme.txt"))
+      expect(screen.getByTestId("copy-object-modal")).toHaveAttribute("data-object", "readme.txt")
+    })
+
+    test("closes copy modal when onClose is called", async () => {
+      const user = userEvent.setup()
+      renderView({ rows: [makeObject("readme.txt")] })
+      await user.click(screen.getByRole("button", { name: /More/i }))
+      await user.click(screen.getByTestId("copy-action-readme.txt"))
+      expect(screen.getByTestId("copy-object-modal")).toBeInTheDocument()
+      await user.click(screen.getByRole("button", { name: /Cancel/i }))
+      expect(screen.queryByTestId("copy-object-modal")).not.toBeInTheDocument()
+    })
+
+    test("Copy action is not present for folder rows", async () => {
+      const user = userEvent.setup()
+      renderView({ rows: [makeFolder("docs")] })
+      await user.click(screen.getByRole("button", { name: /More/i }))
+      expect(screen.queryByTestId("copy-action-docs/")).not.toBeInTheDocument()
+    })
+  })
+
+  describe("Delete object modal", () => {
+    test("delete object modal is closed by default", () => {
+      renderView({ rows: [makeObject("readme.txt")] })
+      expect(screen.queryByTestId("delete-object-modal")).not.toBeInTheDocument()
+    })
+
+    test("opens delete modal when Delete is clicked", async () => {
+      const user = userEvent.setup()
+      renderView({ rows: [makeObject("readme.txt")] })
+      await user.click(screen.getByRole("button", { name: /More/i }))
+      await user.click(screen.getByTestId("delete-action-readme.txt"))
+      expect(screen.getByTestId("delete-object-modal")).toBeInTheDocument()
+    })
+
+    test("Delete (Keep Segments) action is no longer present in the menu", async () => {
+      const user = userEvent.setup()
+      renderView({ rows: [makeObject("readme.txt")] })
+      await user.click(screen.getByRole("button", { name: /More/i }))
+      expect(screen.queryByTestId("delete-keep-segments-action-readme.txt")).not.toBeInTheDocument()
+    })
+
+    test("closes delete object modal when onClose is called", async () => {
+      const user = userEvent.setup()
+      renderView({ rows: [makeObject("readme.txt")] })
+      await user.click(screen.getByRole("button", { name: /More/i }))
+      await user.click(screen.getByTestId("delete-action-readme.txt"))
+      expect(screen.getByTestId("delete-object-modal")).toBeInTheDocument()
+      await user.click(screen.getByRole("button", { name: /Cancel/i }))
+      expect(screen.queryByTestId("delete-object-modal")).not.toBeInTheDocument()
     })
   })
 })

@@ -411,12 +411,12 @@ describe("ManageContainerAccessModal", () => {
   // ──────────────────────────────────────────────────────────────────────────
 
   describe("Parsed ACL preview content", () => {
-    test("shows 'ANY referer' label for .r:* entry", async () => {
+    test("shows 'ANY referrer' label for .r:* entry", async () => {
       const user = userEvent.setup()
       mockContainerInfo = makeContainerInfo({ read: ".r:*" })
       renderModal()
       await user.click(screen.getByRole("button", { name: /Show ACLs Preview/i }))
-      expect(screen.getByText("ANY referer")).toBeInTheDocument()
+      expect(screen.getByText("ANY referrer")).toBeInTheDocument()
     })
 
     test("shows 'Listing access' label for .rlistings entry", async () => {
@@ -432,7 +432,7 @@ describe("ManageContainerAccessModal", () => {
       mockContainerInfo = makeContainerInfo({ read: "proj123:user456" })
       renderModal()
       await user.click(screen.getByRole("button", { name: /Show ACLs Preview/i }))
-      expect(screen.getByText("Referrer user456 for project proj123")).toBeInTheDocument()
+      expect(screen.getByText("User user456 from project proj123")).toBeInTheDocument()
     })
 
     test("shows correct label for PROJECT_ID:* entry", async () => {
@@ -440,7 +440,7 @@ describe("ManageContainerAccessModal", () => {
       mockContainerInfo = makeContainerInfo({ read: "proj123:*" })
       renderModal()
       await user.click(screen.getByRole("button", { name: /Show ACLs Preview/i }))
-      expect(screen.getByText("All referrers from project proj123")).toBeInTheDocument()
+      expect(screen.getByText("All users from project proj123")).toBeInTheDocument()
     })
 
     test("shows correct label for *:USER_ID entry", async () => {
@@ -448,7 +448,23 @@ describe("ManageContainerAccessModal", () => {
       mockContainerInfo = makeContainerInfo({ read: "*:user456" })
       renderModal()
       await user.click(screen.getByRole("button", { name: /Show ACLs Preview/i }))
-      expect(screen.getByText("Referrer user456 (any project)")).toBeInTheDocument()
+      expect(screen.getByText("User user456 (any project)")).toBeInTheDocument()
+    })
+
+    test("shows 'Specific referrer' label for .r:<referrer> entry", async () => {
+      const user = userEvent.setup()
+      mockContainerInfo = makeContainerInfo({ read: ".r:example.com" })
+      renderModal()
+      await user.click(screen.getByRole("button", { name: /Show ACLs Preview/i }))
+      expect(screen.getByText("Specific referrer: example.com")).toBeInTheDocument()
+    })
+
+    test("shows 'Denied referrer' label for .r:-<referrer> entry", async () => {
+      const user = userEvent.setup()
+      mockContainerInfo = makeContainerInfo({ read: ".r:-badhost.com" })
+      renderModal()
+      await user.click(screen.getByRole("button", { name: /Show ACLs Preview/i }))
+      expect(screen.getByText("Denied referrer: badhost.com")).toBeInTheDocument()
     })
 
     test("shows 'valid token required: false' for .r:* entry", async () => {

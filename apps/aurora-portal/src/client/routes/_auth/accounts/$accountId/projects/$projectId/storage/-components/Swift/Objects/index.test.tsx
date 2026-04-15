@@ -74,22 +74,55 @@ vi.mock("../../../$provider/containers/$containerName/objects", () => ({
 // ─── Mock child components ────────────────────────────────────────────────────
 // We test index.tsx in isolation — child components are tested separately.
 
-// Capture the latest onDeleteFolderSuccess so tests can invoke it directly
+// Capture the latest callbacks so tests can invoke them directly
 let capturedOnDeleteFolderSuccess: ((folderName: string, deletedCount: number) => void) | undefined
+let capturedOnDownloadError: ((objectName: string, errorMessage: string) => void) | undefined
+let capturedOnCopyObjectSuccess: ((objectName: string, targetContainer: string, targetPath: string) => void) | undefined
+let capturedOnCopyObjectError: ((objectName: string, errorMessage: string) => void) | undefined
+let capturedOnMoveObjectSuccess: ((objectName: string, targetContainer: string, targetPath: string) => void) | undefined
+let capturedOnMoveObjectError: ((objectName: string, errorMessage: string) => void) | undefined
 
 vi.mock("./ObjectsTableView", () => ({
-  ObjectsTableView: vi.fn(({ rows, searchTerm, onDeleteFolderSuccess, onDeleteFolderError }) => {
-    capturedOnDeleteFolderSuccess = onDeleteFolderSuccess
-    return (
-      <div
-        data-testid="objects-table-view"
-        data-row-count={rows.length}
-        data-search={searchTerm}
-        data-has-delete-success={typeof onDeleteFolderSuccess === "function" ? "true" : "false"}
-        data-has-delete-error={typeof onDeleteFolderError === "function" ? "true" : "false"}
-      />
-    )
-  }),
+  ObjectsTableView: vi.fn(
+    ({
+      container,
+      rows,
+      searchTerm,
+      onDeleteFolderSuccess,
+      onDeleteFolderError,
+      onDownloadError,
+      onDeleteObjectSuccess,
+      onDeleteObjectError,
+      onCopyObjectSuccess,
+      onCopyObjectError,
+      onMoveObjectSuccess,
+      onMoveObjectError,
+    }) => {
+      capturedOnDeleteFolderSuccess = onDeleteFolderSuccess
+      capturedOnDownloadError = onDownloadError
+      capturedOnCopyObjectSuccess = onCopyObjectSuccess
+      capturedOnCopyObjectError = onCopyObjectError
+      capturedOnMoveObjectSuccess = onMoveObjectSuccess
+      capturedOnMoveObjectError = onMoveObjectError
+      return (
+        <div
+          data-testid="objects-table-view"
+          data-container={container}
+          data-row-count={rows.length}
+          data-search={searchTerm}
+          data-has-delete-success={typeof onDeleteFolderSuccess === "function" ? "true" : "false"}
+          data-has-delete-error={typeof onDeleteFolderError === "function" ? "true" : "false"}
+          data-has-download-error={typeof onDownloadError === "function" ? "true" : "false"}
+          data-has-delete-object-success={typeof onDeleteObjectSuccess === "function" ? "true" : "false"}
+          data-has-delete-object-error={typeof onDeleteObjectError === "function" ? "true" : "false"}
+          data-has-copy-object-success={typeof onCopyObjectSuccess === "function" ? "true" : "false"}
+          data-has-copy-object-error={typeof onCopyObjectError === "function" ? "true" : "false"}
+          data-has-move-object-success={typeof onMoveObjectSuccess === "function" ? "true" : "false"}
+          data-has-move-object-error={typeof onMoveObjectError === "function" ? "true" : "false"}
+        />
+      )
+    }
+  ),
 }))
 
 vi.mock("./ObjectsFileNavigation", () => ({
@@ -134,6 +167,13 @@ vi.mock("./ObjectToastNotifications", () => ({
   getFolderCreateErrorToast: vi.fn(() => ({ variant: "error", children: null })),
   getFolderDeletedToast: vi.fn(() => ({ variant: "success", children: null })),
   getFolderDeleteErrorToast: vi.fn(() => ({ variant: "error", children: null })),
+  getObjectDownloadErrorToast: vi.fn(() => ({ variant: "error", children: null })),
+  getObjectDeletedToast: vi.fn(() => ({ variant: "success", children: null })),
+  getObjectDeleteErrorToast: vi.fn(() => ({ variant: "error", children: null })),
+  getObjectCopiedToast: vi.fn(() => ({ variant: "success", children: null })),
+  getObjectCopyErrorToast: vi.fn(() => ({ variant: "error", children: null })),
+  getObjectMovedToast: vi.fn(() => ({ variant: "success", children: null })),
+  getObjectMoveErrorToast: vi.fn(() => ({ variant: "error", children: null })),
 }))
 
 vi.mock("@/client/trpcClient", () => ({
@@ -146,6 +186,9 @@ vi.mock("@/client/trpcClient", () => ({
             isLoading: trpcState.isLoading,
             error: trpcState.error,
           }),
+        },
+        downloadObject: {
+          useMutation: vi.fn(() => ({ mutate: vi.fn(), isPending: false })),
         },
       },
     },
@@ -245,6 +288,113 @@ describe("SwiftObjects (index)", () => {
     test("passes onDeleteFolderError callback to ObjectsTableView", () => {
       renderObjects()
       expect(screen.getByTestId("objects-table-view")).toHaveAttribute("data-has-delete-error", "true")
+    })
+
+    test("passes container name to ObjectsTableView", () => {
+      renderObjects()
+      expect(screen.getByTestId("objects-table-view")).toHaveAttribute("data-container", "test-container")
+    })
+
+    test("passes onDownloadError callback to ObjectsTableView", () => {
+      renderObjects()
+      expect(screen.getByTestId("objects-table-view")).toHaveAttribute("data-has-download-error", "true")
+    })
+
+    test("onDownloadError shows error toast via getObjectDownloadErrorToast", async () => {
+      const { getObjectDownloadErrorToast } = await import("./ObjectToastNotifications")
+      renderObjects()
+      await act(async () => {
+        capturedOnDownloadError?.("report.pdf", "403 Forbidden")
+      })
+      expect(getObjectDownloadErrorToast).toHaveBeenCalledWith(
+        "report.pdf",
+        "403 Forbidden",
+        expect.objectContaining({ onDismiss: expect.any(Function) })
+      )
+    })
+
+    test("passes onDeleteObjectSuccess callback to ObjectsTableView", () => {
+      renderObjects()
+      expect(screen.getByTestId("objects-table-view")).toHaveAttribute("data-has-delete-object-success", "true")
+    })
+
+    test("passes onDeleteObjectError callback to ObjectsTableView", () => {
+      renderObjects()
+      expect(screen.getByTestId("objects-table-view")).toHaveAttribute("data-has-delete-object-error", "true")
+    })
+
+    test("passes onCopyObjectSuccess callback to ObjectsTableView", () => {
+      renderObjects()
+      expect(screen.getByTestId("objects-table-view")).toHaveAttribute("data-has-copy-object-success", "true")
+    })
+
+    test("passes onCopyObjectError callback to ObjectsTableView", () => {
+      renderObjects()
+      expect(screen.getByTestId("objects-table-view")).toHaveAttribute("data-has-copy-object-error", "true")
+    })
+
+    test("onCopyObjectSuccess shows success toast via getObjectCopiedToast", async () => {
+      const { getObjectCopiedToast } = await import("./ObjectToastNotifications")
+      renderObjects()
+      await act(async () => {
+        capturedOnCopyObjectSuccess?.("report.pdf", "dest-container", "archive/")
+      })
+      expect(getObjectCopiedToast).toHaveBeenCalledWith(
+        "report.pdf",
+        "dest-container",
+        "archive/",
+        expect.objectContaining({ onDismiss: expect.any(Function) })
+      )
+    })
+
+    test("onCopyObjectError shows error toast via getObjectCopyErrorToast", async () => {
+      const { getObjectCopyErrorToast } = await import("./ObjectToastNotifications")
+      renderObjects()
+      await act(async () => {
+        capturedOnCopyObjectError?.("report.pdf", "403 Forbidden")
+      })
+      expect(getObjectCopyErrorToast).toHaveBeenCalledWith(
+        "report.pdf",
+        "403 Forbidden",
+        expect.objectContaining({ onDismiss: expect.any(Function) })
+      )
+    })
+
+    test("passes onMoveObjectSuccess callback to ObjectsTableView", () => {
+      renderObjects()
+      expect(screen.getByTestId("objects-table-view")).toHaveAttribute("data-has-move-object-success", "true")
+    })
+
+    test("passes onMoveObjectError callback to ObjectsTableView", () => {
+      renderObjects()
+      expect(screen.getByTestId("objects-table-view")).toHaveAttribute("data-has-move-object-error", "true")
+    })
+
+    test("onMoveObjectSuccess shows success toast via getObjectMovedToast", async () => {
+      const { getObjectMovedToast } = await import("./ObjectToastNotifications")
+      renderObjects()
+      await act(async () => {
+        capturedOnMoveObjectSuccess?.("report.pdf", "dest-container", "archive/")
+      })
+      expect(getObjectMovedToast).toHaveBeenCalledWith(
+        "report.pdf",
+        "dest-container",
+        "archive/",
+        expect.objectContaining({ onDismiss: expect.any(Function) })
+      )
+    })
+
+    test("onMoveObjectError shows error toast via getObjectMoveErrorToast", async () => {
+      const { getObjectMoveErrorToast } = await import("./ObjectToastNotifications")
+      renderObjects()
+      await act(async () => {
+        capturedOnMoveObjectError?.("report.pdf", "403 Forbidden")
+      })
+      expect(getObjectMoveErrorToast).toHaveBeenCalledWith(
+        "report.pdf",
+        "403 Forbidden",
+        expect.objectContaining({ onDismiss: expect.any(Function) })
+      )
     })
 
     test("subtracts 1 from deletedCount before passing to getFolderDeletedToast", async () => {
