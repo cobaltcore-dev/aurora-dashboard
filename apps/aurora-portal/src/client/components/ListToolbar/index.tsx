@@ -3,7 +3,6 @@ import { Trans, useLingui } from "@lingui/react/macro"
 import {
   InputGroup,
   SearchInput,
-  SearchInputProps,
   Select,
   SelectOption,
   SortButton,
@@ -22,7 +21,6 @@ export type ListToolbarProps = {
   onSort?: (sortSettings: SortSettings) => void
   searchTerm?: string
   onSearch?: (searchTerm: string) => void
-  searchInputProps?: Omit<SearchInputProps, "value" | "onSearch" | "onClear" | "onInput">
   actions?: ReactNode
   tabs?: {
     items: Array<{ label: string; value: string }>
@@ -44,7 +42,6 @@ export const ListToolbar = ({
   onSort,
   searchTerm,
   onSearch,
-  searchInputProps = {},
   actions,
   tabs,
   totalCount,
@@ -54,6 +51,7 @@ export const ListToolbar = ({
 }: ListToolbarProps) => {
   const { t } = useLingui()
 
+  // replace sort and search with tanstack
   const debounceTimerRef = useRef<number | undefined>(undefined)
 
   useEffect(() => {
@@ -155,18 +153,6 @@ export const ListToolbar = ({
     [onSort, sortSettings]
   )
 
-  const searchProps: (SearchInputProps & { "data-testid"?: string }) | null = onSearch
-    ? {
-        placeholder: t`Search...`,
-        "data-testid": "searchbar",
-        value: searchTerm,
-        onInput: handleSearchInput,
-        onClear: handleSearchClear,
-        onSearch: handleSearch,
-        ...searchInputProps,
-      }
-    : null
-
   return (
     <>
       {tabs && (
@@ -216,9 +202,16 @@ export const ListToolbar = ({
               </InputGroup>
             </div>
           )}
-          {searchProps && (
+          {onSearch && (
             <div className="w-full md:ml-auto md:w-auto md:min-w-25">
-              <SearchInput {...searchProps} />
+              <SearchInput
+                placeholder={t`Search...`}
+                data-testid="searchbar"
+                value={searchTerm}
+                onInput={handleSearchInput}
+                onClear={handleSearchClear}
+                onSearch={handleSearch}
+              />
             </div>
           )}
         </div>
