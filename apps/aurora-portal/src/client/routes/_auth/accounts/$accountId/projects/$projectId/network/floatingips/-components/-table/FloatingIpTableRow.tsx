@@ -30,7 +30,7 @@ export const FloatingIpTableRow = ({ floatingIp }: FloatingIpTableRowProps) => {
   }
 
   return (
-    <DataGridRow key={floatingIp.id} data-testid={`floating-ip-row-${floatingIp.id}`}>
+    <DataGridRow key={floatingIp.id} data-testid={`floating-ip-row-${floatingIp.id}`} onClick={navigateToDetailsPage}>
       <DataGridCell>
         <div className="flex items-center gap-2">
           {STATUS_CONFIG[floatingIp.status].icon}

@@ -45,19 +45,19 @@ export function MainNavigation({ items, handleThemeToggle }: NavigationProps) {
 
   return (
     <PageHeader
-      logo={<Logo className={cn("h-6 w-6 flex-shrink-0 fill-current", textColorClass)} title="Aurora" />}
+      logo={<Logo className={cn("h-6 w-6 shrink-0 fill-current", textColorClass)} title="Aurora" />}
       applicationName={
         <div className="flex flex-nowrap items-center space-x-2">
           <Link to="/" className="flex flex-nowrap items-center space-x-2">
-            <span className={cn("flex-shrink-0", textColorClass, textHoverClass)}>Aurora</span>
+            <span className={cn("shrink-0", textColorClass, textHoverClass)}>Aurora</span>
           </Link>
           {domain && (
             <>
-              <span className={cn("flex-shrink-0", textMutedClass)}>/</span>
+              <span className={cn("shrink-0", textMutedClass)}>/</span>
               <Link
                 to={domain.path}
                 data-testid="domain-link"
-                className={cn("flex-shrink-0", textColorClass, textHoverClass)}
+                className={cn("shrink-0", textColorClass, textHoverClass)}
               >
                 {domain.name}
               </Link>
@@ -65,11 +65,11 @@ export function MainNavigation({ items, handleThemeToggle }: NavigationProps) {
           )}
           {project && (
             <>
-              <span className={cn("flex-shrink-0", textMutedClass)}>/</span>
+              <span className={cn("shrink-0", textMutedClass)}>/</span>
               <Link
                 to={project.path + "/compute/"}
                 data-testid="project-link"
-                className={cn("flex-shrink-0", textColorClass, textHoverClass)}
+                className={cn("shrink-0", textColorClass, textHoverClass)}
               >
                 {project.name}
               </Link>
@@ -79,7 +79,7 @@ export function MainNavigation({ items, handleThemeToggle }: NavigationProps) {
       }
     >
       {items.map(({ route, label }, index) => (
-        <Link className={cn("flex-shrink-0", textColorClass, textHoverClass)} key={index} to={route}>
+        <Link className={cn("shrink-0", textColorClass, textHoverClass)} key={index} to={route}>
           {label}
         </Link>
       ))}

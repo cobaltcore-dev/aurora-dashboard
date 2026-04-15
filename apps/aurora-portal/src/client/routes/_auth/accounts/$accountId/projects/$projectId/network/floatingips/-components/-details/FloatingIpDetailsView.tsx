@@ -3,10 +3,9 @@ import {
   Stack,
   ButtonRow,
   Button,
-  DataGrid,
-  DataGridRow,
-  DataGridCell,
-  DataGridHeadCell,
+  DescriptionList,
+  DescriptionTerm,
+  DescriptionDefinition,
   ContentHeading,
 } from "@cloudoperators/juno-ui-components/index"
 import type { FloatingIp } from "@/server/Network/types/floatingIp"
@@ -49,144 +48,90 @@ export const FloatingIpDetailsView = ({ floatingIp }: FloatingIpDetailsViewProps
           <ContentHeading>
             <Trans>Basic Info</Trans>
           </ContentHeading>
-          <DataGrid columns={2}>
-            <DataGridRow>
-              <DataGridHeadCell>{t`ID`}</DataGridHeadCell>
-              <DataGridCell>{floatingIp.id}</DataGridCell>
-            </DataGridRow>
+          <DescriptionList alignTerms="right">
+            <DescriptionTerm>{t`ID`}</DescriptionTerm>
+            <DescriptionDefinition>{floatingIp.id}</DescriptionDefinition>
 
-            {floatingIp.description && (
-              <DataGridRow>
-                <DataGridHeadCell>{t`Description`}</DataGridHeadCell>
-                <DataGridCell>{floatingIp.description}</DataGridCell>
-              </DataGridRow>
-            )}
+            <DescriptionTerm>{t`Description`}</DescriptionTerm>
+            <DescriptionDefinition>{floatingIp.description || `—`}</DescriptionDefinition>
 
-            <DataGridRow>
-              <DataGridHeadCell>{t`Project ID`}</DataGridHeadCell>
-              <DataGridCell>{floatingIp.project_id || `—`}</DataGridCell>
-            </DataGridRow>
+            <DescriptionTerm>{t`Project ID`}</DescriptionTerm>
+            <DescriptionDefinition>{floatingIp.project_id || `—`}</DescriptionDefinition>
 
-            <DataGridRow>
-              <DataGridHeadCell>{t`Status`}</DataGridHeadCell>
-              <DataGridCell>{formatFloatingIpStatus(floatingIp.status)}</DataGridCell>
-            </DataGridRow>
+            <DescriptionTerm>{t`Status`}</DescriptionTerm>
+            <DescriptionDefinition>{formatFloatingIpStatus(floatingIp.status)}</DescriptionDefinition>
 
-            <DataGridRow>
-              <DataGridHeadCell>{t`Created At`}</DataGridHeadCell>
-              <DataGridCell>
-                {floatingIp.created_at ? new Date(floatingIp.created_at).toLocaleString() : `—`}
-              </DataGridCell>
-            </DataGridRow>
+            <DescriptionTerm>{t`Created At`}</DescriptionTerm>
+            <DescriptionDefinition>
+              {floatingIp.created_at ? new Date(floatingIp.created_at).toLocaleString() : `—`}
+            </DescriptionDefinition>
 
-            <DataGridRow>
-              <DataGridHeadCell>{t`Updated At`}</DataGridHeadCell>
-              <DataGridCell>
-                {floatingIp.updated_at ? new Date(floatingIp.updated_at).toLocaleString() : `—`}
-              </DataGridCell>
-            </DataGridRow>
+            <DescriptionTerm>{t`Updated At`}</DescriptionTerm>
+            <DescriptionDefinition>
+              {floatingIp.updated_at ? new Date(floatingIp.updated_at).toLocaleString() : `—`}
+            </DescriptionDefinition>
 
-            <DataGridRow>
-              <DataGridHeadCell>{t`Tags`}</DataGridHeadCell>
-              <DataGridCell>{floatingIp.tags?.join(", ") || `—`}</DataGridCell>
-            </DataGridRow>
-          </DataGrid>
+            <DescriptionTerm>{t`Tags`}</DescriptionTerm>
+            <DescriptionDefinition>{floatingIp.tags?.join(", ") || `—`}</DescriptionDefinition>
+          </DescriptionList>
         </Stack>
         {/* Network & Routing  */}
         <Stack direction="vertical" gap="2">
           <ContentHeading>
             <Trans>Network & Routing</Trans>
           </ContentHeading>
-          <DataGrid columns={2}>
-            <DataGridRow>
-              <DataGridHeadCell>{t`Floating IP Address`}</DataGridHeadCell>
-              <DataGridCell>{floatingIp.floating_ip_address || `—`}</DataGridCell>
-            </DataGridRow>
+          <DescriptionList alignTerms="right">
+            <DescriptionTerm>{t`Floating IP Address`}</DescriptionTerm>
+            <DescriptionDefinition>{floatingIp.floating_ip_address || `—`}</DescriptionDefinition>
 
-            <DataGridRow>
-              <DataGridHeadCell>{t`Floating Network`}</DataGridHeadCell>
-              <DataGridCell>{floatingIp.floating_network_id || `—`}</DataGridCell>
-            </DataGridRow>
+            <DescriptionTerm>{t`Floating Network`}</DescriptionTerm>
+            <DescriptionDefinition>{floatingIp.floating_network_id || `—`}</DescriptionDefinition>
 
-            {floatingIp.fixed_ip_address && (
-              <DataGridRow>
-                <DataGridHeadCell>{t`Fixed IP Address`}</DataGridHeadCell>
-                <DataGridCell>{floatingIp.fixed_ip_address}</DataGridCell>
-              </DataGridRow>
-            )}
+            <DescriptionTerm>{t`Fixed IP Address`}</DescriptionTerm>
+            <DescriptionDefinition>{floatingIp.fixed_ip_address || `—`}</DescriptionDefinition>
 
-            {floatingIp.port_details && (
-              <>
-                <DataGridRow>
-                  <DataGridHeadCell>{t`Port Name`}</DataGridHeadCell>
-                  <DataGridCell>{floatingIp.port_details.name}</DataGridCell>
-                </DataGridRow>
+            <DescriptionTerm>{t`Port Name`}</DescriptionTerm>
+            <DescriptionDefinition>{floatingIp.port_details?.name || `—`}</DescriptionDefinition>
 
-                <DataGridRow>
-                  <DataGridHeadCell>{t`MAC Address`}</DataGridHeadCell>
-                  <DataGridCell>{floatingIp.port_details.mac_address}</DataGridCell>
-                </DataGridRow>
+            <DescriptionTerm>{t`MAC Address`}</DescriptionTerm>
+            <DescriptionDefinition>{floatingIp.port_details?.mac_address || `—`}</DescriptionDefinition>
 
-                <DataGridRow>
-                  <DataGridHeadCell>{t`Network ID`}</DataGridHeadCell>
-                  <DataGridCell>{floatingIp.port_details.network_id}</DataGridCell>
-                </DataGridRow>
+            <DescriptionTerm>{t`Network ID`}</DescriptionTerm>
+            <DescriptionDefinition>{floatingIp.port_details?.network_id || `—`}</DescriptionDefinition>
 
-                <DataGridRow>
-                  <DataGridHeadCell>{t`Device Owner`}</DataGridHeadCell>
-                  <DataGridCell>{floatingIp.port_details.device_owner}</DataGridCell>
-                </DataGridRow>
+            <DescriptionTerm>{t`Device Owner`}</DescriptionTerm>
+            <DescriptionDefinition>{floatingIp.port_details?.device_owner || `—`}</DescriptionDefinition>
 
-                <DataGridRow>
-                  <DataGridHeadCell>{t`Device ID`}</DataGridHeadCell>
-                  <DataGridCell>{floatingIp.port_details.device_id}</DataGridCell>
-                </DataGridRow>
-              </>
-            )}
+            <DescriptionTerm>{t`Device ID`}</DescriptionTerm>
+            <DescriptionDefinition>{floatingIp.port_details?.device_id || `—`}</DescriptionDefinition>
 
-            {floatingIp.router_id && (
-              <DataGridRow>
-                <DataGridHeadCell>{t`Router ID`}</DataGridHeadCell>
-                <DataGridCell>{floatingIp.router_id}</DataGridCell>
-              </DataGridRow>
-            )}
+            <DescriptionTerm>{t`Router ID`}</DescriptionTerm>
+            <DescriptionDefinition>{floatingIp.router_id || `—`}</DescriptionDefinition>
 
-            {floatingIp.port_id && (
-              <DataGridRow>
-                <DataGridHeadCell>{t`Port ID`}</DataGridHeadCell>
-                <DataGridCell>{floatingIp.port_id}</DataGridCell>
-              </DataGridRow>
-            )}
+            <DescriptionTerm>{t`Port ID`}</DescriptionTerm>
+            <DescriptionDefinition>{floatingIp.port_id || `—`}</DescriptionDefinition>
 
-            <DataGridRow>
-              <DataGridHeadCell>{t`QoS Policy ID`}</DataGridHeadCell>
-              <DataGridCell>{floatingIp.qos_policy_id || `—`}</DataGridCell>
-            </DataGridRow>
+            <DescriptionTerm>{t`QoS Policy ID`}</DescriptionTerm>
+            <DescriptionDefinition>{floatingIp.qos_policy_id || `—`}</DescriptionDefinition>
 
-            {floatingIp.port_forwardings && (
-              <DataGridRow>
-                <DataGridHeadCell>{t`Port Forwarding`}</DataGridHeadCell>
-                <DataGridCell>{floatingIp.port_forwardings.map((port) => port.id).join(", ")}</DataGridCell>
-              </DataGridRow>
-            )}
-          </DataGrid>
+            <DescriptionTerm>{t`Port Forwarding`}</DescriptionTerm>
+            <DescriptionDefinition>
+              {floatingIp.port_forwardings?.map((port) => port.id).join(", ") || `—`}
+            </DescriptionDefinition>
+          </DescriptionList>
         </Stack>
         {/* DNS */}
         <Stack direction="vertical" gap="2">
           <ContentHeading>
             <Trans>DNS</Trans>
           </ContentHeading>
-          <DataGrid columns={2}>
-            <DataGridRow>
-              <DataGridHeadCell>{t`DNS Domain`}</DataGridHeadCell>
-              <DataGridCell>{floatingIp.dns_domain || `—`}</DataGridCell>
-            </DataGridRow>
+          <DescriptionList alignTerms="right">
+            <DescriptionTerm>{t`DNS Domain`}</DescriptionTerm>
+            <DescriptionDefinition>{floatingIp.dns_domain || `—`}</DescriptionDefinition>
 
-            <DataGridRow>
-              <DataGridHeadCell>{t`DNS Name`}</DataGridHeadCell>
-              <DataGridCell>{floatingIp.dns_name || `—`}</DataGridCell>
-            </DataGridRow>
-          </DataGrid>
+            <DescriptionTerm>{t`DNS Name`}</DescriptionTerm>
+            <DescriptionDefinition>{floatingIp.dns_name || `—`}</DescriptionDefinition>
+          </DescriptionList>
         </Stack>
       </Stack>
     </>

@@ -1072,7 +1072,7 @@ describe("imageHelpers", () => {
         {
           code: "invalid_type",
           expected: "string",
-          input: 42,
+          received: "number",
           path: ["name"],
           message: "Expected string, received number",
         },

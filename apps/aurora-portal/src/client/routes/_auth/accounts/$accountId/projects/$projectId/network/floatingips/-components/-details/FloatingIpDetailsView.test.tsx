@@ -111,10 +111,12 @@ describe("FloatingIpDetailsView", () => {
       expect(screen.getByText("Web server FIP")).toBeInTheDocument()
     })
 
-    it("does not display description when absent", () => {
+    it("displays em dash for description when absent", () => {
       const fipWithoutDescription = { ...mockFloatingIp, description: null }
       render(<FloatingIpDetailsView floatingIp={fipWithoutDescription} />, { wrapper: TestWrapper })
 
+      expect(screen.getByText("Description")).toBeInTheDocument()
+      expect(screen.getByText("—")).toBeInTheDocument()
       expect(screen.queryByText("Web server FIP")).not.toBeInTheDocument()
     })
 
@@ -308,7 +310,7 @@ describe("FloatingIpDetailsView", () => {
     })
   })
 
-  describe("Data grid structure", () => {
+  describe("Description list structure", () => {
     it("renders multiple sections", () => {
       render(<FloatingIpDetailsView floatingIp={mockFloatingIp} />, { wrapper: TestWrapper })
 
