@@ -85,6 +85,7 @@ describe("ListToolbar", () => {
     expect(await screen.findByTestId("sort-select")).toBeInTheDocument()
     expect(await screen.findByTestId("direction-toggle")).toBeInTheDocument()
     expect(await screen.findByTestId("searchbar")).toBeInTheDocument()
+    expect(screen.getAllByText("Name").length).toBeGreaterThan(0)
   })
 
   it("renders the component without search when onSearch is not provided", async () => {
@@ -157,6 +158,38 @@ describe("ListToolbar", () => {
     expect(onSortSpy).toHaveBeenCalledWith(
       expect.objectContaining({
         sortBy: "date",
+        sortDirection: "asc",
+      })
+    )
+  })
+
+  it("should change sort field for options with special characters", async () => {
+    const onSortSpy = vi.fn()
+    const specialSortSettings = {
+      sortBy: "OS-FLV-EXT-DATA:ephemeral",
+      sortDirection: "asc" as const,
+      options: [
+        { value: "OS-FLV-EXT-DATA:ephemeral", label: "Ephemeral Disk" },
+        { value: "rxtx_factor", label: "RX/TX Factor" },
+      ],
+    }
+
+    const { user } = renderShell({
+      filterSettings,
+      sortSettings: specialSortSettings,
+      searchTerm,
+      onFilter: vi.fn(),
+      onSort: onSortSpy,
+      onSearch: vi.fn(),
+    })
+
+    const sortSelect = await screen.findByTestId("sort-select")
+    await user.click(sortSelect)
+    await user.click(await screen.findByText("RX/TX Factor"))
+
+    expect(onSortSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        sortBy: "rxtx_factor",
         sortDirection: "asc",
       })
     )

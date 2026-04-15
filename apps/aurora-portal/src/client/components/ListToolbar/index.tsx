@@ -1,15 +1,18 @@
 import { ReactNode, useCallback, useRef, useEffect } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import {
+  InputGroup,
   SearchInput,
   SearchInputProps,
+  Select,
+  SelectOption,
+  SortButton,
   Stack,
   TabNavigation,
   TabNavigationItem,
 } from "@cloudoperators/juno-ui-components"
 import { SelectedFilters } from "./SelectedFilters"
 import { FiltersInput } from "./FiltersInput"
-import { SortInput } from "./SortInput"
 import { FilterSettings, SelectedFilter, SortSettings } from "./types"
 
 export type ListToolbarProps = {
@@ -69,6 +72,7 @@ export const ListToolbar = ({
   }
 
   const showCountInfo = totalCount !== undefined && filteredCount !== undefined
+  const formattedLastUpdated = formatLastUpdated(lastUpdated)
 
   const handleFilterDelete = useCallback(
     (filterToRemove: SelectedFilter) => {
@@ -104,6 +108,7 @@ export const ListToolbar = ({
     onFilter({ ...filterSettings, selectedFilters: newSelected })
   }
 
+  // Add localisation
   const handleSearch = useCallback(
     (value: string | number | string[] | undefined) => {
       const searchValue = typeof value === "string" ? value : ""
@@ -132,17 +137,23 @@ export const ListToolbar = ({
   }, [onSearch])
 
   const filtersProps = filterSettings && onFilter ? { filters: filterSettings.filters, onChange: handleSelect } : null
-  const sortProps =
-    sortSettings && onSort
-      ? {
-          options: sortSettings.options,
-          sortBy: sortSettings.sortBy,
-          sortDirection: sortSettings.sortDirection || "asc",
-          onSortByChange: (param: string | number | string[] | undefined) =>
-            onSort({ ...sortSettings, sortBy: param, sortDirection: sortSettings.sortDirection || "asc" }),
-          onSortDirectionChange: (direction: "asc" | "desc") => onSort({ ...sortSettings, sortDirection: direction }),
-        }
-      : null
+  const sortDirection = sortSettings?.sortDirection ?? "asc"
+
+  const handleSortByChange = useCallback(
+    (param: string | number | string[] | undefined) => {
+      if (!sortSettings || !onSort) return
+      onSort({ ...sortSettings, sortBy: param, sortDirection })
+    },
+    [onSort, sortDirection, sortSettings]
+  )
+
+  const handleSortDirectionChange = useCallback(
+    (direction: "asc" | "desc") => {
+      if (!sortSettings || !onSort) return
+      onSort({ ...sortSettings, sortDirection: direction })
+    },
+    [onSort, sortSettings]
+  )
 
   const searchProps: (SearchInputProps & { "data-testid"?: string }) | null = onSearch
     ? {
@@ -180,9 +191,29 @@ export const ListToolbar = ({
               <FiltersInput {...filtersProps} />
             </div>
           )}
-          {sortProps && (
+          {sortSettings && onSort && (
             <div className="w-full md:w-auto md:min-w-45">
-              <SortInput {...sortProps} />
+              <InputGroup className="flex w-full items-end sm:w-auto">
+                <Select
+                  value={sortSettings.sortBy}
+                  onChange={handleSortByChange}
+                  label={t`Sort by`}
+                  className="grow"
+                  data-testid="sort-select"
+                >
+                  {sortSettings.options.map((option) => (
+                    <SelectOption key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectOption>
+                  ))}
+                </Select>
+                <SortButton
+                  order={sortDirection}
+                  onChange={handleSortDirectionChange}
+                  className="shadow-none"
+                  data-testid="direction-toggle"
+                />
+              </InputGroup>
             </div>
           )}
           {searchProps && (
@@ -215,7 +246,7 @@ export const ListToolbar = ({
             )}
             {lastUpdated && (
               <span>
-                <Trans>Last updated: {formatLastUpdated(lastUpdated)}</Trans>
+                <Trans>Last updated: {formattedLastUpdated}</Trans>
               </span>
             )}
           </div>

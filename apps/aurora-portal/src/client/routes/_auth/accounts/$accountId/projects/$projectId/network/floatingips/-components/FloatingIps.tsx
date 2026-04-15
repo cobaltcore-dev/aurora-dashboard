@@ -12,6 +12,7 @@ import { AllocateFloatingIpModal } from "./-modals/AllocateFloatingIpModal"
 
 const DEFAULT_SORT_KEY = "fixed_ip_address"
 const DEFAULT_SORT_DIR = "asc"
+
 export type FloatingIpsSortKey = NonNullable<FloatingIpQueryParameters["sort_key"]>
 
 export const FloatingIps = () => {
@@ -68,7 +69,7 @@ export const FloatingIps = () => {
         onSort={handleSortChange}
         filterSettings={filterSettings}
         onFilter={handleFilterChange}
-        actions={<Button label={t`Allocate Floating IP`} onClick={toggleAllocateModal} />}
+        actions={<Button variant="primary" label={t`Allocate Floating IP`} onClick={toggleAllocateModal} />}
       />
 
       <FloatingIpListContainer floatingIps={floatingIps} isLoading={isLoading} isError={isError} error={error} />

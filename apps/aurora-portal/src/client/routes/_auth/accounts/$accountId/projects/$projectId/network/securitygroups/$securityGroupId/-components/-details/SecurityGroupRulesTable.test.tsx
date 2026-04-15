@@ -191,8 +191,8 @@ describe("SecurityGroupRulesTable", () => {
         { wrapper: createWrapper() }
       )
 
-      // FiltersInput has a "Filters" label for the filter key select
-      const filterSelect = screen.getByLabelText("Filters")
+      // FiltersInput has a "Filter by" label for the filter key select
+      const filterSelect = screen.getByLabelText("Filter by")
       expect(filterSelect).toBeInTheDocument()
     })
 
@@ -212,8 +212,8 @@ describe("SecurityGroupRulesTable", () => {
 
       const user = userEvent.setup()
 
-      // Step 1: Click the filter key select (labeled "Filters")
-      const filterKeySelect = screen.getByLabelText("Filters")
+      // Step 1: Click the filter key select (labeled "Filter by")
+      const filterKeySelect = screen.getByLabelText("Filter by")
       await user.click(filterKeySelect)
 
       // Step 2: Select "Direction" as the filter key (use data-testid)
