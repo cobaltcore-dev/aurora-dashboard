@@ -1,3 +1,4 @@
+import React from "react"
 import { describe, it, expect, vi, beforeEach } from "vitest"
 import { render, screen } from "@testing-library/react"
 import { I18nProvider } from "@lingui/react"
@@ -14,6 +15,7 @@ import {
   getObjectCopyErrorToast,
   getObjectMovedToast,
   getObjectMoveErrorToast,
+  getTempUrlCopiedToast,
 } from "./ObjectToastNotifications"
 
 describe("ObjectToastNotifications", () => {
@@ -532,6 +534,7 @@ describe("ObjectToastNotifications", () => {
         getObjectCopyErrorToast("f", "err", { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
         getObjectMovedToast("f", "c", "", { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
         getObjectMoveErrorToast("f", "err", { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
+        getTempUrlCopiedToast("f", { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
       ]
       toasts.forEach((toast) => {
         expect(toast.autoDismissTimeout).toBe(customTimeout)
@@ -550,11 +553,41 @@ describe("ObjectToastNotifications", () => {
         getObjectCopyErrorToast("f", "err", defaultConfig),
         getObjectMovedToast("f", "c", "", defaultConfig),
         getObjectMoveErrorToast("f", "err", defaultConfig),
+        getTempUrlCopiedToast("f", defaultConfig),
       ]
       toasts.forEach((toast) => {
         expect(toast.children).toBeTruthy()
         expect(typeof toast.children).toBe("object")
       })
+    })
+  })
+
+  describe("getTempUrlCopiedToast", () => {
+    it("returns success variant", () => {
+      const toast = getTempUrlCopiedToast("report.pdf", defaultConfig)
+      expect(toast.variant).toBe("success")
+    })
+
+    it("uses 4000ms default autoDismissTimeout", () => {
+      const toast = getTempUrlCopiedToast("report.pdf", defaultConfig)
+      expect(toast.autoDismissTimeout).toBe(4000)
+    })
+
+    it("respects custom autoDismissTimeout", () => {
+      const toast = getTempUrlCopiedToast("report.pdf", { onDismiss: mockOnDismiss, autoDismissTimeout: 8000 })
+      expect(toast.autoDismissTimeout).toBe(8000)
+    })
+
+    it("calls onDismiss when dismissed", () => {
+      const toast = getTempUrlCopiedToast("report.pdf", defaultConfig)
+      toast.onDismiss?.()
+      expect(mockOnDismiss).toHaveBeenCalled()
+    })
+
+    it("renders object name in description", () => {
+      const toast = getTempUrlCopiedToast("report.pdf", defaultConfig)
+      render(<I18nProvider i18n={i18n}>{toast.children as React.ReactNode}</I18nProvider>)
+      expect(screen.getByText(/report\.pdf/)).toBeInTheDocument()
     })
   })
 })

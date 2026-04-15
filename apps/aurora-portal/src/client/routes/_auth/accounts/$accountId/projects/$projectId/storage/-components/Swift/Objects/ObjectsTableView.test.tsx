@@ -68,6 +68,16 @@ vi.mock("./MoveRenameObjectModal", () => ({
   ),
 }))
 
+vi.mock("./GenerateTempUrlModal", () => ({
+  GenerateTempUrlModal: vi.fn(({ isOpen, onClose, object }) =>
+    isOpen ? (
+      <div data-testid="generate-temp-url-modal" data-object={object?.name}>
+        <button onClick={onClose}>Cancel</button>
+      </div>
+    ) : null
+  ),
+}))
+
 // ─── Mock trpcClient ──────────────────────────────────────────────────────────
 // downloadObject is now an async iterable (streaming mutation) called via the
 // vanilla trpcClient — mock it so tests can control chunks and errors without
@@ -143,6 +153,7 @@ const renderView = ({
   onCopyObjectError = vi.fn(),
   onMoveObjectSuccess = vi.fn(),
   onMoveObjectError = vi.fn(),
+  onTempUrlCopySuccess = vi.fn(),
 }: {
   rows?: BrowserRow[]
   searchTerm?: string
@@ -157,6 +168,7 @@ const renderView = ({
   onCopyObjectError?: (objectName: string, errorMessage: string) => void
   onMoveObjectSuccess?: (objectName: string, targetContainer: string, targetPath: string) => void
   onMoveObjectError?: (objectName: string, errorMessage: string) => void
+  onTempUrlCopySuccess?: (objectName: string) => void
 } = {}) =>
   render(
     <I18nProvider i18n={i18n}>
@@ -175,6 +187,7 @@ const renderView = ({
           onCopyObjectError={onCopyObjectError}
           onMoveObjectSuccess={onMoveObjectSuccess}
           onMoveObjectError={onMoveObjectError}
+          onTempUrlCopySuccess={onTempUrlCopySuccess}
         />
       </PortalProvider>
     </I18nProvider>
@@ -765,6 +778,46 @@ describe("ObjectsTableView", () => {
       expect(screen.getByTestId("delete-object-modal")).toBeInTheDocument()
       await user.click(screen.getByRole("button", { name: /Cancel/i }))
       expect(screen.queryByTestId("delete-object-modal")).not.toBeInTheDocument()
+    })
+  })
+
+  describe("Share (Temporary URL) modal", () => {
+    test("temp URL modal is closed by default", () => {
+      renderView({ rows: [makeObject("readme.txt")] })
+      expect(screen.queryByTestId("generate-temp-url-modal")).not.toBeInTheDocument()
+    })
+
+    test("opens temp URL modal when Share action is clicked", async () => {
+      const user = userEvent.setup()
+      renderView({ rows: [makeObject("readme.txt")] })
+      await user.click(screen.getByRole("button", { name: /More/i }))
+      await user.click(screen.getByTestId("temp-url-action-readme.txt"))
+      expect(screen.getByTestId("generate-temp-url-modal")).toBeInTheDocument()
+    })
+
+    test("passes correct object name to GenerateTempUrlModal", async () => {
+      const user = userEvent.setup()
+      renderView({ rows: [makeObject("readme.txt")] })
+      await user.click(screen.getByRole("button", { name: /More/i }))
+      await user.click(screen.getByTestId("temp-url-action-readme.txt"))
+      expect(screen.getByTestId("generate-temp-url-modal")).toHaveAttribute("data-object", "readme.txt")
+    })
+
+    test("closes temp URL modal when onClose is called", async () => {
+      const user = userEvent.setup()
+      renderView({ rows: [makeObject("readme.txt")] })
+      await user.click(screen.getByRole("button", { name: /More/i }))
+      await user.click(screen.getByTestId("temp-url-action-readme.txt"))
+      expect(screen.getByTestId("generate-temp-url-modal")).toBeInTheDocument()
+      await user.click(screen.getByRole("button", { name: /Cancel/i }))
+      expect(screen.queryByTestId("generate-temp-url-modal")).not.toBeInTheDocument()
+    })
+
+    test("Share action is not present for folder rows", async () => {
+      const user = userEvent.setup()
+      renderView({ rows: [makeFolder("docs")] })
+      await user.click(screen.getByRole("button", { name: /More/i }))
+      expect(screen.queryByTestId("temp-url-action-docs/")).not.toBeInTheDocument()
     })
   })
 })

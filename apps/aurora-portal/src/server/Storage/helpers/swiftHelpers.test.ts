@@ -15,6 +15,8 @@ import {
   handleZodParsingError,
   wrapError,
   withErrorHandling,
+  generateTempUrlSignature,
+  constructTempUrl,
 } from "./swiftHelpers"
 import type { ListContainersInput, ListObjectsInput } from "../types/swift"
 
@@ -1136,6 +1138,95 @@ describe("swiftHelpers", () => {
         containers: ["container1", "container2"],
         count: 2,
       })
+    })
+  })
+
+  // ── generateTempUrlSignature ──────────────────────────────────────────────
+
+  describe("generateTempUrlSignature", () => {
+    it("should return a hex string of 64 characters (SHA-256)", async () => {
+      const sig = await generateTempUrlSignature("secret", "GET", 1700000000, "/v1/AUTH_test/container/object.txt")
+      expect(sig).toMatch(/^[0-9a-f]{64}$/)
+    })
+
+    it("should produce a deterministic signature for the same inputs", async () => {
+      const sig1 = await generateTempUrlSignature("key", "GET", 9999, "/v1/AUTH_x/c/o")
+      const sig2 = await generateTempUrlSignature("key", "GET", 9999, "/v1/AUTH_x/c/o")
+      expect(sig1).toBe(sig2)
+    })
+
+    it("should produce different signatures when the key changes", async () => {
+      const sig1 = await generateTempUrlSignature("key1", "GET", 9999, "/v1/AUTH_x/c/o")
+      const sig2 = await generateTempUrlSignature("key2", "GET", 9999, "/v1/AUTH_x/c/o")
+      expect(sig1).not.toBe(sig2)
+    })
+
+    it("should produce different signatures when the path changes", async () => {
+      const sig1 = await generateTempUrlSignature("key", "GET", 9999, "/v1/AUTH_x/c/object-a.txt")
+      const sig2 = await generateTempUrlSignature("key", "GET", 9999, "/v1/AUTH_x/c/object-b.txt")
+      expect(sig1).not.toBe(sig2)
+    })
+
+    it("should produce different signatures when the expiry changes", async () => {
+      const sig1 = await generateTempUrlSignature("key", "GET", 1000, "/v1/AUTH_x/c/o")
+      const sig2 = await generateTempUrlSignature("key", "GET", 2000, "/v1/AUTH_x/c/o")
+      expect(sig1).not.toBe(sig2)
+    })
+
+    it("should produce different signatures when the method changes", async () => {
+      const sig1 = await generateTempUrlSignature("key", "GET", 9999, "/v1/AUTH_x/c/o")
+      const sig2 = await generateTempUrlSignature("key", "PUT", 9999, "/v1/AUTH_x/c/o")
+      expect(sig1).not.toBe(sig2)
+    })
+  })
+
+  // ── constructTempUrl ──────────────────────────────────────────────────────
+
+  describe("constructTempUrl", () => {
+    const BASE = "https://objectstore.example.com/v1/AUTH_abc123"
+    const CONTAINER = "my-container"
+    const OBJECT = "report.pdf"
+    const SIG = "deadbeef"
+    const EXPIRES = 1700000000
+
+    it("should include temp_url_sig and temp_url_expires query params", () => {
+      const url = constructTempUrl(BASE, CONTAINER, OBJECT, SIG, EXPIRES)
+      const parsed = new URL(url)
+      expect(parsed.searchParams.get("temp_url_sig")).toBe(SIG)
+      expect(parsed.searchParams.get("temp_url_expires")).toBe(String(EXPIRES))
+    })
+
+    it("should include container and object in the URL path", () => {
+      const url = constructTempUrl(BASE, CONTAINER, OBJECT, SIG, EXPIRES)
+      expect(url).toContain(CONTAINER)
+      expect(url).toContain(OBJECT)
+    })
+
+    it("should append filename param when provided", () => {
+      const url = constructTempUrl(BASE, CONTAINER, OBJECT, SIG, EXPIRES, "download.pdf")
+      const parsed = new URL(url)
+      expect(parsed.searchParams.get("filename")).toBe("download.pdf")
+    })
+
+    it("should not include filename param when omitted", () => {
+      const url = constructTempUrl(BASE, CONTAINER, OBJECT, SIG, EXPIRES)
+      expect(url).not.toContain("filename")
+    })
+
+    it("should not double-encode object names with spaces", () => {
+      const url = constructTempUrl(BASE, CONTAINER, "my file.pdf", SIG, EXPIRES)
+      // URL must be valid — new URL() must not throw
+      expect(() => new URL(url)).not.toThrow()
+      // The decoded pathname should contain the original object name
+      const decoded = decodeURIComponent(new URL(url).pathname)
+      expect(decoded).toContain("my file.pdf")
+    })
+
+    it("should handle a trailing slash on the base URL", () => {
+      const url1 = constructTempUrl(BASE + "/", CONTAINER, OBJECT, SIG, EXPIRES)
+      const url2 = constructTempUrl(BASE, CONTAINER, OBJECT, SIG, EXPIRES)
+      // Both should produce the same path structure without double slashes
+      expect(new URL(url1).pathname).toBe(new URL(url2).pathname)
     })
   })
 })

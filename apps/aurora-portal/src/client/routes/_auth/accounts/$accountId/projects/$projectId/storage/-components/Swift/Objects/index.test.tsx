@@ -81,6 +81,7 @@ let capturedOnCopyObjectSuccess: ((objectName: string, targetContainer: string, 
 let capturedOnCopyObjectError: ((objectName: string, errorMessage: string) => void) | undefined
 let capturedOnMoveObjectSuccess: ((objectName: string, targetContainer: string, targetPath: string) => void) | undefined
 let capturedOnMoveObjectError: ((objectName: string, errorMessage: string) => void) | undefined
+let capturedOnTempUrlCopySuccess: ((objectName: string) => void) | undefined
 
 vi.mock("./ObjectsTableView", () => ({
   ObjectsTableView: vi.fn(
@@ -97,6 +98,7 @@ vi.mock("./ObjectsTableView", () => ({
       onCopyObjectError,
       onMoveObjectSuccess,
       onMoveObjectError,
+      onTempUrlCopySuccess,
     }) => {
       capturedOnDeleteFolderSuccess = onDeleteFolderSuccess
       capturedOnDownloadError = onDownloadError
@@ -104,6 +106,7 @@ vi.mock("./ObjectsTableView", () => ({
       capturedOnCopyObjectError = onCopyObjectError
       capturedOnMoveObjectSuccess = onMoveObjectSuccess
       capturedOnMoveObjectError = onMoveObjectError
+      capturedOnTempUrlCopySuccess = onTempUrlCopySuccess
       return (
         <div
           data-testid="objects-table-view"
@@ -119,6 +122,7 @@ vi.mock("./ObjectsTableView", () => ({
           data-has-copy-object-error={typeof onCopyObjectError === "function" ? "true" : "false"}
           data-has-move-object-success={typeof onMoveObjectSuccess === "function" ? "true" : "false"}
           data-has-move-object-error={typeof onMoveObjectError === "function" ? "true" : "false"}
+          data-has-temp-url-copy-success={typeof onTempUrlCopySuccess === "function" ? "true" : "false"}
         />
       )
     }
@@ -174,6 +178,7 @@ vi.mock("./ObjectToastNotifications", () => ({
   getObjectCopyErrorToast: vi.fn(() => ({ variant: "error", children: null })),
   getObjectMovedToast: vi.fn(() => ({ variant: "success", children: null })),
   getObjectMoveErrorToast: vi.fn(() => ({ variant: "error", children: null })),
+  getTempUrlCopiedToast: vi.fn(() => ({ variant: "success", children: null })),
 }))
 
 vi.mock("@/client/trpcClient", () => ({
@@ -393,6 +398,23 @@ describe("SwiftObjects (index)", () => {
       expect(getObjectMoveErrorToast).toHaveBeenCalledWith(
         "report.pdf",
         "403 Forbidden",
+        expect.objectContaining({ onDismiss: expect.any(Function) })
+      )
+    })
+
+    test("passes onTempUrlCopySuccess callback to ObjectsTableView", () => {
+      renderObjects()
+      expect(screen.getByTestId("objects-table-view")).toHaveAttribute("data-has-temp-url-copy-success", "true")
+    })
+
+    test("onTempUrlCopySuccess shows success toast via getTempUrlCopiedToast", async () => {
+      const { getTempUrlCopiedToast } = await import("./ObjectToastNotifications")
+      renderObjects()
+      await act(async () => {
+        capturedOnTempUrlCopySuccess?.("report.pdf")
+      })
+      expect(getTempUrlCopiedToast).toHaveBeenCalledWith(
+        "report.pdf",
         expect.objectContaining({ onDismiss: expect.any(Function) })
       )
     })
