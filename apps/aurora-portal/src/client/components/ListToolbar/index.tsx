@@ -1,4 +1,5 @@
-import { ReactNode, useCallback, useRef, useEffect } from "react"
+import { ReactNode, useCallback } from "react"
+import { useForm } from "@tanstack/react-form"
 import { Trans, useLingui } from "@lingui/react/macro"
 import {
   InputGroup,
@@ -51,16 +52,11 @@ export const ListToolbar = ({
 }: ListToolbarProps) => {
   const { t } = useLingui()
 
-  // replace sort and search with tanstack
-  const debounceTimerRef = useRef<number | undefined>(undefined)
-
-  useEffect(() => {
-    return () => {
-      if (debounceTimerRef.current) {
-        clearTimeout(debounceTimerRef.current)
-      }
-    }
-  }, [])
+  const form = useForm({
+    defaultValues: {
+      search: searchTerm ?? "",
+    },
+  })
 
   // Format last updated time
   const formatLastUpdated = (date: Date | string | undefined): string => {
@@ -106,34 +102,6 @@ export const ListToolbar = ({
     onFilter({ ...filterSettings, selectedFilters: newSelected })
   }
 
-  // Add localisation
-  const handleSearch = useCallback(
-    (value: string | number | string[] | undefined) => {
-      const searchValue = typeof value === "string" ? value : ""
-
-      if (debounceTimerRef.current) {
-        clearTimeout(debounceTimerRef.current)
-      }
-
-      onSearch?.(searchValue)
-    },
-    [onSearch]
-  )
-
-  const handleSearchInput = useCallback(
-    (event: React.FormEvent<HTMLInputElement>) => {
-      const searchValue = event.currentTarget.value
-      if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current)
-      debounceTimerRef.current = window.setTimeout(() => onSearch?.(searchValue), 500)
-    },
-    [onSearch]
-  )
-
-  const handleSearchClear = useCallback(() => {
-    if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current)
-    onSearch?.("")
-  }, [onSearch])
-
   const filtersProps = filterSettings && onFilter ? { filters: filterSettings.filters, onChange: handleSelect } : null
   const sortDirection = sortSettings?.sortDirection ?? "asc"
 
@@ -152,6 +120,11 @@ export const ListToolbar = ({
     },
     [onSort, sortSettings]
   )
+
+  const handleSearchClear = useCallback(() => {
+    form.setFieldValue("search", "")
+    onSearch?.("")
+  }, [onSearch])
 
   return (
     <>
@@ -204,13 +177,25 @@ export const ListToolbar = ({
           )}
           {onSearch && (
             <div className="w-full md:ml-auto md:w-auto md:min-w-25">
-              <SearchInput
-                placeholder={t`Search...`}
-                data-testid="searchbar"
-                value={searchTerm}
-                onInput={handleSearchInput}
-                onClear={handleSearchClear}
-                onSearch={handleSearch}
+              <form.Field
+                name="search"
+                listeners={{
+                  onChangeDebounceMs: 500,
+                  onChange: ({ value }) => {
+                    onSearch?.(value)
+                  },
+                }}
+                children={(field) => (
+                  <SearchInput
+                    id={field.name}
+                    name={field.name}
+                    value={field.state.value}
+                    onInput={(e) => field.handleChange(e.currentTarget.value)}
+                    onClear={handleSearchClear}
+                    placeholder={t`Search...`}
+                    data-testid="searchbar"
+                  />
+                )}
               />
             </div>
           )}

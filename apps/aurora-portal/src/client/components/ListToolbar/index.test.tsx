@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { cleanup, render, screen, fireEvent } from "@testing-library/react"
+import { cleanup, render, screen, fireEvent, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import { i18n } from "@lingui/core"
@@ -113,7 +113,10 @@ describe("ListToolbar", () => {
     await user.type(searchbox, "Europe")
     const searchButton = await screen.findByRole("button", { name: "Search" })
     await user.click(searchButton)
-    expect(onSearchSpy).toHaveBeenLastCalledWith("Europe")
+
+    await waitFor(() => {
+      expect(onSearchSpy).toHaveBeenLastCalledWith("Europe")
+    })
   })
 
   it("should select filter and filter value", async () => {
