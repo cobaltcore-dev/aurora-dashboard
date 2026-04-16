@@ -515,7 +515,7 @@ export const Images = ({ client }: ImagesProps) => {
           memberStatusView={memberStatusView}
           setMemberStatusView={handleMemberStatusChange}
           isFetching={isFetching}
-          hasNextPage={!!nextMarker}
+          hasNextPage={!!nextMarker && !isFetching}
           isFetchingNextPage={isFetchingNextPage}
           fetchNextPage={fetchNextPage}
           onImageUpdated={handleImageUpdated}

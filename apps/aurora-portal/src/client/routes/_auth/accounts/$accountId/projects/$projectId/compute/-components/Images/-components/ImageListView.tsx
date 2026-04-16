@@ -128,15 +128,23 @@ export function ImageListView({
   const [isCreateInProgress, setCreateInProgress] = useState(false)
   const [uploadId, setUploadId] = useState<string | null>(null)
 
-  // Intersection Observer for infinite scroll
   const loadMoreRef = useRef<HTMLDivElement>(null)
+  const hasAutoFetchedRef = useRef(false)
+
+  // Reset the auto-fetch flag whenever a fresh result set arrives (hasNextPage flips back to true)
+  useEffect(() => {
+    if (hasNextPage) {
+      hasAutoFetchedRef.current = false
+    }
+  }, [hasNextPage])
 
   useEffect(() => {
     if (!loadMoreRef.current || !hasNextPage || isFetchingNextPage) return
 
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
+        if (entries[0].isIntersecting && !hasAutoFetchedRef.current) {
+          hasAutoFetchedRef.current = true
           fetchNextPage?.()
         }
       },
@@ -144,7 +152,6 @@ export function ImageListView({
     )
 
     observer.observe(loadMoreRef.current)
-
     return () => observer.disconnect()
   }, [hasNextPage, isFetchingNextPage, fetchNextPage])
 
