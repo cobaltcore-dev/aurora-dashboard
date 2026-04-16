@@ -9,7 +9,6 @@ type ImagesSearchParams = {
   search?: string
   sortBy?: string
   sortDirection?: "asc" | "desc"
-  memberStatus?: "all" | "accepted" | "pending"
 }
 
 /**
@@ -104,13 +103,12 @@ export const buildFilterParams = (
 export const buildUrlSearchParams = (
   selectedFilters: SelectedFilter[],
   filterDefinitions: Filter[],
-  baseParams: { search?: string; sortBy?: string; sortDirection?: "asc" | "desc"; memberStatus?: "all" | "accepted" | "pending" }
+  baseParams: { search?: string; sortBy?: string; sortDirection?: "asc" | "desc" }
 ): ImagesSearchParams => {
   const newParams: ImagesSearchParams = {
     search: baseParams.search,
     sortBy: baseParams.sortBy,
     sortDirection: baseParams.sortDirection,
-    memberStatus: baseParams.memberStatus === "all" ? undefined : baseParams.memberStatus,
   }
 
   if (!selectedFilters?.length) return newParams
