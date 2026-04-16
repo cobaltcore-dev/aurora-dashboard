@@ -237,9 +237,6 @@ export async function createContext(opts: CreateFastifyContextOptions): Promise<
         return null
       }
 
-      // Apply the token to THIS request's session and cookie
-      sessionCookie.set(newAuthToken)
-
       // Rescope THIS request's openstackSession with the cached token
       const newScope: AuthConfig["auth"]["scope"] = newScopeProjectId
         ? { project: { id: newScopeProjectId } }
@@ -248,6 +245,9 @@ export async function createContext(opts: CreateFastifyContextOptions): Promise<
           : "unscoped"
 
       await openstackSession.rescope(newScope)
+
+      // Apply the token to THIS request's cookie only after successful rescope
+      sessionCookie.set(newAuthToken)
 
       return openstackSession
     }
