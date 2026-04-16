@@ -27,7 +27,7 @@
     "@fastify/csrf-protection": "^7.1.0",
     "@fastify/helmet": "^13.0.2",
     "@fastify/multipart": "^10.0.0",
-    "@fastify/static": "^9.0.0",
+    "@fastify/static": "^9.1.1",
     "@headlessui/react": "^2.2.2",
     "@lingui/core": "^5.9.5",
     "@lingui/react": "^5.9.5",
