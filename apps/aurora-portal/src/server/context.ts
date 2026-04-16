@@ -38,9 +38,16 @@ const defaultSignalOpenstackOptions = {
 // This is shared across all requests and prevents race conditions between concurrent requests
 // Key: authToken (session identifier)
 // Value: Map of pending rescope token promises keyed by scope (e.g., "project:{id}")
-// Important: only cache the rescoped auth token string here. Do not cache
-// SignalOpenstackSession instances across requests, because those objects may
-// carry request/response-bound state such as cookie updates.
+//
+// IMPORTANT: We cache only the rescoped auth token STRING (immutable data), not the
+// SignalOpenstackSession instances. This prevents race conditions where concurrent
+// requests would share the same session/cookie objects.
+//
+// How it works:
+// 1. First request creates a Promise that fetches the token from Keystone
+// 2. Concurrent requests reuse this Promise to get the same token (deduplication)
+// 3. Each request applies the token to its own openstackSession and sessionCookie
+// 4. This ensures each HTTP response gets the correct Set-Cookie header
 const sessionRescopes = new Map<string, Map<string, Promise<string | null>>>()
 
 export interface FilePartData {
@@ -219,11 +226,32 @@ export async function createContext(opts: CreateFastifyContextOptions): Promise<
     // If there's already a pending rescope for this exact scope, reuse it
     // This prevents multiple Keystone API calls for the same scope across concurrent requests
     if (pendingRescopes.has(scopeKey)) {
-      return pendingRescopes.get(scopeKey)!
+      const cachedTokenPromise = pendingRescopes.get(scopeKey)!
+
+      // Wait for the token from the shared promise
+      const newAuthToken = await cachedTokenPromise
+
+      if (!newAuthToken) {
+        return null
+      }
+
+      // Apply the token to THIS request's session and cookie
+      sessionCookie.set(newAuthToken)
+
+      // Rescope THIS request's openstackSession with the cached token
+      const newScope: AuthConfig["auth"]["scope"] = newScopeProjectId
+        ? { project: { id: newScopeProjectId } }
+        : newScopeDomainId
+          ? { domain: { id: newScopeDomainId } }
+          : "unscoped"
+
+      await openstackSession.rescope(newScope)
+
+      return openstackSession
     }
 
-    // Create the rescope promise and store it to prevent race conditions
-    const rescopePromise = (async () => {
+    // Create the rescope promise that returns only the token string (immutable)
+    const rescopeTokenPromise = (async (): Promise<string | null> => {
       try {
         const newScope: AuthConfig["auth"]["scope"] = newScopeProjectId
           ? { project: { id: newScopeProjectId } }
@@ -236,11 +264,6 @@ export async function createContext(opts: CreateFastifyContextOptions): Promise<
         // Get the new token after rescoping
         const newToken = openstackSession.getToken()
         const newAuthToken = newToken?.authToken
-
-        // Only update the cookie when a valid token is available
-        if (newAuthToken) {
-          sessionCookie.set(newAuthToken)
-        }
 
         // If the auth token changed, we need to migrate the pending rescopes to the new token
         if (newAuthToken && newAuthToken !== sessionToken) {
@@ -267,8 +290,10 @@ export async function createContext(opts: CreateFastifyContextOptions): Promise<
         cachedUserId = undefined
         cachedUserInfo = undefined
 
-        return openstackSession
-      } catch {
+        // Return only the token string, not the session object
+        return newAuthToken || null
+      } catch (err) {
+        console.error("Rescope error:", err)
         // Return null on any rescope error (network failure, invalid scope, insufficient permissions)
         // The caller (projectScopedProcedure/domainScopedProcedure) will handle this by throwing TRPCError
         return null
@@ -289,9 +314,19 @@ export async function createContext(opts: CreateFastifyContextOptions): Promise<
     })()
 
     // Store the promise before awaiting to handle concurrent requests
-    pendingRescopes.set(scopeKey, rescopePromise)
+    pendingRescopes.set(scopeKey, rescopeTokenPromise)
 
-    return rescopePromise
+    // Wait for the token
+    const newAuthToken = await rescopeTokenPromise
+
+    if (!newAuthToken) {
+      return null
+    }
+
+    // Apply the token to THIS request's session and cookie
+    sessionCookie.set(newAuthToken)
+
+    return openstackSession
   }
 
   // Terminate the current session (Logout)
