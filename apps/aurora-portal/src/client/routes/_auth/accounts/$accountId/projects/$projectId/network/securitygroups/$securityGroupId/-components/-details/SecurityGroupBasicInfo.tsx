@@ -25,17 +25,33 @@ export function SecurityGroupBasicInfo({ securityGroup, onEdit }: SecurityGroupB
       <DataGrid columns={4} gridColumnTemplate="15% 35% 15% 35%">
         <DataGridRow>
           <DataGridHeadCell>{t`Description`}</DataGridHeadCell>
-          <DataGridCell colSpan={3}>{securityGroup.description || t`—`}</DataGridCell>
+          <DataGridCell colSpan={3}>
+            <div className="overflow-hidden text-ellipsis whitespace-nowrap" title={securityGroup.description || undefined}>
+              {securityGroup.description || t`—`}
+            </div>
+          </DataGridCell>
         </DataGridRow>
         <DataGridRow>
           <DataGridHeadCell>{t`ID`}</DataGridHeadCell>
-          <DataGridCell>{securityGroup.id}</DataGridCell>
+          <DataGridCell>
+            <div className="overflow-hidden text-ellipsis whitespace-nowrap" title={securityGroup.id}>
+              {securityGroup.id}
+            </div>
+          </DataGridCell>
           <DataGridHeadCell>{t`Tags`}</DataGridHeadCell>
-          <DataGridCell>{securityGroup.tags?.join(", ") || t`—`}</DataGridCell>
+          <DataGridCell>
+            <div className="overflow-hidden text-ellipsis whitespace-nowrap" title={securityGroup.tags?.join(", ") || undefined}>
+              {securityGroup.tags?.join(", ") || t`—`}
+            </div>
+          </DataGridCell>
         </DataGridRow>
         <DataGridRow>
           <DataGridHeadCell>{t`Name`}</DataGridHeadCell>
-          <DataGridCell>{securityGroup.name}</DataGridCell>
+          <DataGridCell>
+            <div className="overflow-hidden text-ellipsis whitespace-nowrap" title={securityGroup.name || undefined}>
+              {securityGroup.name}
+            </div>
+          </DataGridCell>
           <DataGridHeadCell>{t`Stateful`}</DataGridHeadCell>
           <DataGridCell>
             <BooleanValue value={securityGroup.stateful} />
@@ -43,7 +59,11 @@ export function SecurityGroupBasicInfo({ securityGroup, onEdit }: SecurityGroupB
         </DataGridRow>
         <DataGridRow>
           <DataGridHeadCell>{t`Owning Project ID`}</DataGridHeadCell>
-          <DataGridCell>{securityGroup.project_id || t`—`}</DataGridCell>
+          <DataGridCell>
+            <div className="overflow-hidden text-ellipsis whitespace-nowrap" title={securityGroup.project_id || undefined}>
+              {securityGroup.project_id || t`—`}
+            </div>
+          </DataGridCell>
           <DataGridHeadCell>{t`Shared`}</DataGridHeadCell>
           <DataGridCell>
             <BooleanValue value={securityGroup.shared} />

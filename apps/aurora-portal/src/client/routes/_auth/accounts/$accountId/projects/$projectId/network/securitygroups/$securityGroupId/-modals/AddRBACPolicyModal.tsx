@@ -83,13 +83,6 @@ export function AddRBACPolicyModal({ isOpen, onClose, securityGroupId }: AddRBAC
       confirmButtonLabel={t`Share`}
       disableConfirmButton={createMutation.isPending}
     >
-      <p className="mb-4">
-        <Trans>
-          Share this security group with another project. The target project will be able to view and use this security
-          group, but will not be able to modify or delete it.
-        </Trans>
-      </p>
-
       {createMutation.error && (
         <Message variant="error" className="mb-4">
           {(() => {
@@ -106,6 +99,13 @@ export function AddRBACPolicyModal({ isOpen, onClose, securityGroupId }: AddRBAC
           })()}
         </Message>
       )}
+
+      <p className="mb-4">
+        <Trans>
+          Share this security group with another project. The target project will be able to view and use this security
+          group, but will not be able to modify or delete it.
+        </Trans>
+      </p>
 
       <Form
         className="mb-0"

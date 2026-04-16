@@ -56,15 +56,15 @@ export function DeleteRuleDialog({ rule, open, onClose, onConfirm, isLoading, er
       }
     >
       <div>
-        {/* Warning */}
-        <Trans>This action cannot be undone. The rule will be permanently deleted.</Trans>
-
         {/* Error Message */}
         {error && (
           <Message dismissible={false} variant="error" className="mt-4">
             {error}
           </Message>
         )}
+
+        {/* Warning */}
+        <Trans>This action cannot be undone. The rule will be permanently deleted.</Trans>
 
         {/* Rule Details */}
         <div className="bg-theme-background-lvl-1 mt-4 mb-4 rounded p-4">

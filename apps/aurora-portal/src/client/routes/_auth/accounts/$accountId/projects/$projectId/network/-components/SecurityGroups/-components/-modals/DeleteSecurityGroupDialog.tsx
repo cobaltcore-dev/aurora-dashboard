@@ -64,15 +64,15 @@ export const DeleteSecurityGroupDialog: React.FC<DeleteSecurityGroupDialogProps>
       }
     >
       <div>
-        {/* Warning */}
-        <Trans>This action cannot be undone. The security group will be permanently deleted.</Trans>
-
         {/* Error Message */}
         {error && (
           <Message dismissible={false} variant="error" className="mt-4">
             {error}
           </Message>
         )}
+
+        {/* Warning */}
+        <Trans>This action cannot be undone. The security group will be permanently deleted.</Trans>
 
         {/* Question */}
         <p className="mt-4">
