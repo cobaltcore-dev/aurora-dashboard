@@ -176,7 +176,6 @@ describe("Network query schemas", () => {
         id: "network-2",
         mtu: 1450,
         name: "private-network",
-        port_security_enabled: true,
         project_id: "project-1",
         "router:external": false,
         shared: false,
