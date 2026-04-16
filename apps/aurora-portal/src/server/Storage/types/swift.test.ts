@@ -19,7 +19,6 @@ import {
   // Object schemas
   objectSummarySchema,
   objectMetadataSchema,
-  getObjectInputSchema,
   createObjectInputSchema,
   updateObjectMetadataInputSchema,
   copyObjectInputSchema,
@@ -28,13 +27,14 @@ import {
   // Bulk operations
   bulkDeleteInputSchema,
   bulkDeleteResultSchema,
+  // Download schema
+  downloadObjectInputSchema,
   // Response schemas
   containersResponseSchema,
   objectsResponseSchema,
   accountInfoResponseSchema,
   containerInfoResponseSchema,
   objectMetadataResponseSchema,
-  objectContentResponseSchema,
 } from "./swift"
 
 describe("Swift Object Storage Schema Validation", () => {
@@ -541,44 +541,6 @@ describe("Swift Object Storage Schema Validation", () => {
       })
     })
 
-    describe("getObjectInputSchema", () => {
-      it("should validate minimal input", () => {
-        const input = {
-          container: containerName,
-          object: objectName,
-        }
-        const result = getObjectInputSchema.safeParse(input)
-        expect(result.success).toBe(true)
-      })
-
-      it("should validate with all parameters", () => {
-        const input = {
-          container: containerName,
-          object: objectName,
-          account: accountName,
-          range: "bytes=0-1023",
-          ifMatch: '"etag-value"',
-          ifNoneMatch: '"old-etag"',
-          ifModifiedSince: "Wed, 01 Mar 2025 12:00:00 GMT",
-          ifUnmodifiedSince: "Thu, 02 Mar 2025 12:00:00 GMT",
-          multipartManifest: "get" as const,
-          symlink: "get" as const,
-          xNewest: true,
-        }
-        const result = getObjectInputSchema.safeParse(input)
-        expect(result.success).toBe(true)
-      })
-
-      it("should reject empty object name", () => {
-        const input = {
-          container: containerName,
-          object: "",
-        }
-        const result = getObjectInputSchema.safeParse(input)
-        expect(result.success).toBe(false)
-      })
-    })
-
     describe("createObjectInputSchema", () => {
       it("should validate with ArrayBuffer", () => {
         const buffer = new ArrayBuffer(1024)
@@ -941,40 +903,6 @@ describe("Swift Object Storage Schema Validation", () => {
       })
     })
 
-    describe("objectContentResponseSchema", () => {
-      it("should validate with ArrayBuffer content", () => {
-        const response = {
-          content: new ArrayBuffer(1024),
-          metadata: {
-            contentType: "text/plain",
-            contentLength: 1024,
-          },
-        }
-        const result = objectContentResponseSchema.safeParse(response)
-        expect(result.success).toBe(true)
-      })
-
-      it("should validate with Uint8Array content", () => {
-        const response = {
-          content: new Uint8Array(1024),
-          metadata: {
-            contentType: "application/octet-stream",
-          },
-        }
-        const result = objectContentResponseSchema.safeParse(response)
-        expect(result.success).toBe(true)
-      })
-
-      it("should reject string content", () => {
-        const response = {
-          content: "text content",
-          metadata: {},
-        }
-        const result = objectContentResponseSchema.safeParse(response)
-        expect(result.success).toBe(false)
-      })
-    })
-
     describe("accountInfoResponseSchema", () => {
       it("should validate account info response", () => {
         const response = {
@@ -1055,7 +983,7 @@ describe("Swift Object Storage Schema Validation", () => {
           container: containerName,
           object: "x",
         }
-        const result = getObjectInputSchema.safeParse(input)
+        const result = getObjectMetadataInputSchema.safeParse(input)
         expect(result.success).toBe(true)
       })
 
@@ -1064,7 +992,7 @@ describe("Swift Object Storage Schema Validation", () => {
           container: containerName,
           object: "path/to/deeply/nested/object-v2.1_final.txt",
         }
-        const result = getObjectInputSchema.safeParse(input)
+        const result = getObjectMetadataInputSchema.safeParse(input)
         expect(result.success).toBe(true)
       })
 
@@ -1073,7 +1001,7 @@ describe("Swift Object Storage Schema Validation", () => {
           container: containerName,
           object: "",
         }
-        const result = getObjectInputSchema.safeParse(input)
+        const result = getObjectMetadataInputSchema.safeParse(input)
         expect(result.success).toBe(false)
       })
     })
@@ -1198,6 +1126,56 @@ describe("Swift Object Storage Schema Validation", () => {
         const result = containerSummarySchema.safeParse(containerSummary)
         expect(result.success).toBe(true)
       })
+    })
+  })
+
+  // ── downloadObjectInputSchema ────────────────────────────────────────────────
+
+  describe("downloadObjectInputSchema", () => {
+    it("should validate valid input with required fields", () => {
+      const input = { container: "my-container", object: "folder/file.txt", filename: "file.txt" }
+      expect(() => downloadObjectInputSchema.parse(input)).not.toThrow()
+    })
+
+    it("should validate input with optional account", () => {
+      const input = {
+        container: "my-container",
+        object: "file.txt",
+        filename: "file.txt",
+        account: "AUTH_abc123",
+      }
+      expect(() => downloadObjectInputSchema.parse(input)).not.toThrow()
+    })
+
+    it("should reject missing container", () => {
+      const input = { object: "file.txt", filename: "file.txt" }
+      expect(() => downloadObjectInputSchema.parse(input)).toThrow()
+    })
+
+    it("should reject missing object", () => {
+      const input = { container: "my-container", filename: "file.txt" }
+      expect(() => downloadObjectInputSchema.parse(input)).toThrow()
+    })
+
+    it("should allow missing filename", () => {
+      const input = { container: "my-container", object: "file.txt" }
+      expect(() => downloadObjectInputSchema.parse(input)).not.toThrow()
+    })
+
+    it("should reject empty object name", () => {
+      const input = { container: "my-container", object: "", filename: "file.txt" }
+      expect(() => downloadObjectInputSchema.parse(input)).toThrow()
+    })
+
+    it("should allow empty filename", () => {
+      const input = { container: "my-container", object: "file.txt", filename: "" }
+      expect(() => downloadObjectInputSchema.parse(input)).not.toThrow()
+    })
+
+    it("should strip unknown fields", () => {
+      const input = { container: "c", object: "o", filename: "f", extra: "ignored" }
+      const result = downloadObjectInputSchema.parse(input)
+      expect(result).not.toHaveProperty("extra")
     })
   })
 })

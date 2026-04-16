@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router"
+import { useLingui } from "@lingui/react/macro"
 import { Images } from "../-components/Images/List"
 import type { RouteInfo } from "@/client/routes/routeInfo"
 
@@ -8,6 +9,8 @@ export const Route = createFileRoute("/_auth/accounts/$accountId/projects/$proje
 })
 
 function RouteComponent() {
-  const { trpcClient } = Route.useRouteContext()
+  const { t } = useLingui()
+  const { trpcClient, setPageTitle } = Route.useRouteContext()
+  setPageTitle(t`Images`)
   return <Images client={trpcClient!} />
 }

@@ -5,8 +5,20 @@ import { SortSettings } from "@/client/components/ListToolbar/types"
 import { ContainerSummary } from "@/server/Storage/types/swift"
 import { trpcReact } from "@/client/trpcClient"
 import { formatBytesBinary } from "@/client/utils/formatBytes"
-import { Button, Spinner, Stack } from "@cloudoperators/juno-ui-components"
+import { Button, Spinner, Stack, Toast, ToastProps } from "@cloudoperators/juno-ui-components"
 import { ContainerTableView } from "./ContainerTableView"
+import {
+  getContainerCreatedToast,
+  getContainerCreateErrorToast,
+  getContainerEmptiedToast,
+  getContainerEmptyErrorToast,
+  getContainerDeletedToast,
+  getContainerDeleteErrorToast,
+  getContainerUpdatedToast,
+  getContainerUpdateErrorToast,
+  getContainerAclUpdatedToast,
+  getContainerAclUpdateErrorToast,
+} from "./ContainerToastNotifications"
 import { ContainerLimitsTooltip } from "./ContainerLimitsTooltip"
 import { useNavigate } from "@tanstack/react-router"
 import { Route } from "../../../$provider/containers/"
@@ -22,6 +34,49 @@ export const SwiftContainers = () => {
   const { sortBy, sortDirection, search: searchParam = "" } = Route.useSearch()
 
   const [createModalOpen, setCreateModalOpen] = useState(false)
+  const [toastData, setToastData] = useState<ToastProps | null>(null)
+
+  const handleToastDismiss = () => setToastData(null)
+
+  const handleCreateSuccess = (containerName: string) => {
+    setToastData(getContainerCreatedToast(containerName, { onDismiss: handleToastDismiss }))
+  }
+
+  const handleCreateError = (containerName: string, errorMessage: string) => {
+    setToastData(getContainerCreateErrorToast(containerName, errorMessage, { onDismiss: handleToastDismiss }))
+  }
+
+  const handleEmptySuccess = (containerName: string, deletedCount: number) => {
+    setToastData(getContainerEmptiedToast(containerName, deletedCount, { onDismiss: handleToastDismiss }))
+  }
+
+  const handleEmptyError = (containerName: string, errorMessage: string) => {
+    setToastData(getContainerEmptyErrorToast(containerName, errorMessage, { onDismiss: handleToastDismiss }))
+  }
+
+  const handleDeleteSuccess = (containerName: string) => {
+    setToastData(getContainerDeletedToast(containerName, { onDismiss: handleToastDismiss }))
+  }
+
+  const handleDeleteError = (containerName: string, errorMessage: string) => {
+    setToastData(getContainerDeleteErrorToast(containerName, errorMessage, { onDismiss: handleToastDismiss }))
+  }
+
+  const handlePropertiesSuccess = (containerName: string) => {
+    setToastData(getContainerUpdatedToast(containerName, { onDismiss: handleToastDismiss }))
+  }
+
+  const handlePropertiesError = (containerName: string, errorMessage: string) => {
+    setToastData(getContainerUpdateErrorToast(containerName, errorMessage, { onDismiss: handleToastDismiss }))
+  }
+
+  const handleAclSuccess = (containerName: string) => {
+    setToastData(getContainerAclUpdatedToast(containerName, { onDismiss: handleToastDismiss }))
+  }
+
+  const handleAclError = (containerName: string, errorMessage: string) => {
+    setToastData(getContainerAclUpdateErrorToast(containerName, errorMessage, { onDismiss: handleToastDismiss }))
+  }
 
   const sortSettings: SortSettings = {
     options: [
@@ -171,7 +226,21 @@ export const SwiftContainers = () => {
         createModalOpen={createModalOpen}
         setCreateModalOpen={setCreateModalOpen}
         maxContainerNameLength={serviceInfo?.swift?.max_container_name_length}
+        onCreateSuccess={handleCreateSuccess}
+        onCreateError={handleCreateError}
+        onEmptySuccess={handleEmptySuccess}
+        onEmptyError={handleEmptyError}
+        onDeleteSuccess={handleDeleteSuccess}
+        onDeleteError={handleDeleteError}
+        onPropertiesSuccess={handlePropertiesSuccess}
+        onPropertiesError={handlePropertiesError}
+        onAclSuccess={handleAclSuccess}
+        onAclError={handleAclError}
       />
+
+      {toastData && (
+        <Toast {...toastData} className="border-theme-light fixed top-5 right-5 z-50 rounded-lg border shadow-lg" />
+      )}
     </div>
   )
 }
