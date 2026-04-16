@@ -167,9 +167,7 @@ export const ListToolbar = ({
                 name="search"
                 listeners={{
                   onChangeDebounceMs: 500,
-                  onChange: ({ value }) => {
-                    onSearch?.(value)
-                  },
+                  onChange: ({ value }) => onSearch?.(value),
                 }}
                 children={(field) => (
                   <SearchInput
