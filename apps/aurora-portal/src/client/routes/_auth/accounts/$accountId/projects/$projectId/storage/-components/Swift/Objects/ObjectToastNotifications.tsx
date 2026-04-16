@@ -101,3 +101,142 @@ export const getFolderDeleteErrorToast = (
     />
   ),
 })
+
+export const getObjectDownloadErrorToast = (
+  objectName: string,
+  errorMessage: string,
+  config: ToastConfig
+): ToastProps => ({
+  variant: "error",
+  autoDismiss: true,
+  autoDismissTimeout: config.autoDismissTimeout ?? 5000,
+  onDismiss: config.onDismiss,
+  children: (
+    <NotificationText
+      title={<Trans>Failed to Download</Trans>}
+      description={
+        <Trans>
+          Could not download "{objectName}": {errorMessage}
+        </Trans>
+      }
+    />
+  ),
+})
+
+export const getObjectDeletedToast = (objectName: string, config: ToastConfig): ToastProps => ({
+  variant: "success",
+  autoDismiss: true,
+  autoDismissTimeout: config.autoDismissTimeout ?? 5000,
+  onDismiss: config.onDismiss,
+  children: (
+    <NotificationText
+      title={<Trans>Object Deleted</Trans>}
+      description={<Trans>Object "{objectName}" was permanently deleted.</Trans>}
+    />
+  ),
+})
+
+export const getObjectDeleteErrorToast = (
+  objectName: string,
+  errorMessage: string,
+  config: ToastConfig
+): ToastProps => ({
+  variant: "error",
+  autoDismiss: true,
+  autoDismissTimeout: config.autoDismissTimeout ?? 5000,
+  onDismiss: config.onDismiss,
+  children: (
+    <NotificationText
+      title={<Trans>Failed to Delete Object</Trans>}
+      description={
+        <Trans>
+          Could not delete "{objectName}": {errorMessage}
+        </Trans>
+      }
+    />
+  ),
+})
+
+export const getObjectCopiedToast = (
+  objectName: string,
+  targetContainer: string,
+  targetPath: string,
+  config: ToastConfig
+): ToastProps => {
+  const destination = targetPath ? `${targetContainer}/${targetPath}` : targetContainer
+  return {
+    variant: "success",
+    autoDismiss: true,
+    autoDismissTimeout: config.autoDismissTimeout ?? 5000,
+    onDismiss: config.onDismiss,
+    children: (
+      <NotificationText
+        title={<Trans>Object Copied</Trans>}
+        description={
+          <Trans>
+            "{objectName}" was successfully copied to {destination}.
+          </Trans>
+        }
+      />
+    ),
+  }
+}
+
+export const getObjectCopyErrorToast = (objectName: string, errorMessage: string, config: ToastConfig): ToastProps => ({
+  variant: "error",
+  autoDismiss: true,
+  autoDismissTimeout: config.autoDismissTimeout ?? 5000,
+  onDismiss: config.onDismiss,
+  children: (
+    <NotificationText
+      title={<Trans>Failed to Copy Object</Trans>}
+      description={
+        <Trans>
+          Could not copy "{objectName}": {errorMessage}
+        </Trans>
+      }
+    />
+  ),
+})
+
+export const getObjectMovedToast = (
+  objectName: string,
+  targetContainer: string,
+  targetPath: string,
+  config: ToastConfig
+): ToastProps => {
+  const destination = targetPath ? `${targetContainer}/${targetPath}` : targetContainer
+  return {
+    variant: "success",
+    autoDismiss: true,
+    autoDismissTimeout: config.autoDismissTimeout ?? 5000,
+    onDismiss: config.onDismiss,
+    children: (
+      <NotificationText
+        title={<Trans>Object Moved</Trans>}
+        description={
+          <Trans>
+            "{objectName}" was successfully moved to {destination}.
+          </Trans>
+        }
+      />
+    ),
+  }
+}
+
+export const getObjectMoveErrorToast = (objectName: string, errorMessage: string, config: ToastConfig): ToastProps => ({
+  variant: "error",
+  autoDismiss: true,
+  autoDismissTimeout: config.autoDismissTimeout ?? 5000,
+  onDismiss: config.onDismiss,
+  children: (
+    <NotificationText
+      title={<Trans>Failed to Move Object</Trans>}
+      description={
+        <Trans>
+          Could not move "{objectName}": {errorMessage}
+        </Trans>
+      }
+    />
+  ),
+})

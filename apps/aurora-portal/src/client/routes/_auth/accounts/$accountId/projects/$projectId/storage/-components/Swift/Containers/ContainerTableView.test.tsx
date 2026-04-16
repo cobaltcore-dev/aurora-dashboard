@@ -117,64 +117,6 @@ vi.mock("./ManageContainerAccessModal", () => ({
   ),
 }))
 
-// ─── Mock toast notification builders ────────────────────────────────────────
-
-vi.mock("./ContainerToastNotifications", () => ({
-  getContainerCreatedToast: vi.fn((name) => ({
-    text: `Container "${name}" was successfully created.`,
-    variant: "success",
-    autoDismiss: true,
-  })),
-  getContainerCreateErrorToast: vi.fn((name, error) => ({
-    text: `Could not create container "${name}": ${error}`,
-    variant: "error",
-    autoDismiss: true,
-  })),
-  getContainerEmptiedToast: vi.fn((name, deletedCount) => ({
-    text:
-      deletedCount === 0
-        ? `Container "${name}" was already empty.`
-        : `Container "${name}" was successfully emptied. ${deletedCount} objects deleted.`,
-    variant: "success",
-    autoDismiss: true,
-  })),
-  getContainerEmptyErrorToast: vi.fn((name, error) => ({
-    text: `Could not empty container "${name}": ${error}`,
-    variant: "error",
-    autoDismiss: true,
-  })),
-  getContainerDeletedToast: vi.fn((name) => ({
-    text: `Container "${name}" was successfully deleted.`,
-    variant: "success",
-    autoDismiss: true,
-  })),
-  getContainerDeleteErrorToast: vi.fn((name, error) => ({
-    text: `Could not delete container "${name}": ${error}`,
-    variant: "error",
-    autoDismiss: true,
-  })),
-  getContainerUpdatedToast: vi.fn((name) => ({
-    text: `Container "${name}" properties were successfully updated.`,
-    variant: "success",
-    autoDismiss: true,
-  })),
-  getContainerUpdateErrorToast: vi.fn((name, error) => ({
-    text: `Could not update container "${name}": ${error}`,
-    variant: "error",
-    autoDismiss: true,
-  })),
-  getContainerAclUpdatedToast: vi.fn((name) => ({
-    text: `ACLs for container "${name}" were successfully updated.`,
-    variant: "success",
-    autoDismiss: true,
-  })),
-  getContainerAclUpdateErrorToast: vi.fn((name, error) => ({
-    text: `Could not update ACLs for container "${name}": ${error}`,
-    variant: "error",
-    autoDismiss: true,
-  })),
-}))
-
 // ─── Fixtures ─────────────────────────────────────────────────────────────────
 
 const makeContainer = (name: string, overrides: Partial<ContainerSummary> = {}): ContainerSummary => ({
@@ -198,11 +140,31 @@ const renderView = ({
   createModalOpen = false,
   setCreateModalOpen = vi.fn(),
   maxContainerNameLength,
+  onCreateSuccess = vi.fn(),
+  onCreateError = vi.fn(),
+  onEmptySuccess = vi.fn(),
+  onEmptyError = vi.fn(),
+  onDeleteSuccess = vi.fn(),
+  onDeleteError = vi.fn(),
+  onPropertiesSuccess = vi.fn(),
+  onPropertiesError = vi.fn(),
+  onAclSuccess = vi.fn(),
+  onAclError = vi.fn(),
 }: {
   containers?: ContainerSummary[]
   createModalOpen?: boolean
   setCreateModalOpen?: (open: boolean) => void
   maxContainerNameLength?: number
+  onCreateSuccess?: (containerName: string) => void
+  onCreateError?: (containerName: string, errorMessage: string) => void
+  onEmptySuccess?: (containerName: string, deletedCount: number) => void
+  onEmptyError?: (containerName: string, errorMessage: string) => void
+  onDeleteSuccess?: (containerName: string) => void
+  onDeleteError?: (containerName: string, errorMessage: string) => void
+  onPropertiesSuccess?: (containerName: string) => void
+  onPropertiesError?: (containerName: string, errorMessage: string) => void
+  onAclSuccess?: (containerName: string) => void
+  onAclError?: (containerName: string, errorMessage: string) => void
 } = {}) =>
   render(
     <I18nProvider i18n={i18n}>
@@ -212,6 +174,16 @@ const renderView = ({
           createModalOpen={createModalOpen}
           setCreateModalOpen={setCreateModalOpen}
           maxContainerNameLength={maxContainerNameLength}
+          onCreateSuccess={onCreateSuccess}
+          onCreateError={onCreateError}
+          onEmptySuccess={onEmptySuccess}
+          onEmptyError={onEmptyError}
+          onDeleteSuccess={onDeleteSuccess}
+          onDeleteError={onDeleteError}
+          onPropertiesSuccess={onPropertiesSuccess}
+          onPropertiesError={onPropertiesError}
+          onAclSuccess={onAclSuccess}
+          onAclError={onAclError}
         />
       </PortalProvider>
     </I18nProvider>
@@ -412,38 +384,109 @@ describe("ContainerTableView", () => {
     })
   })
 
-  describe("Toast notifications", () => {
-    test("shows success toast after container is created", async () => {
+  describe("Callback props", () => {
+    test("calls onCreateSuccess when create modal fires success", async () => {
+      const onCreateSuccess = vi.fn()
       const user = userEvent.setup()
-      renderView({ createModalOpen: true })
+      renderView({ createModalOpen: true, onCreateSuccess })
       await user.click(screen.getByRole("button", { name: "SimulateSuccess" }))
-      await waitFor(() => {
-        expect(screen.getByText(/Container "new-container" was successfully created/i)).toBeInTheDocument()
-      })
+      expect(onCreateSuccess).toHaveBeenCalledWith("new-container")
     })
 
-    test("shows error toast when container creation fails", async () => {
+    test("calls onCreateError when create modal fires error", async () => {
+      const onCreateError = vi.fn()
       const user = userEvent.setup()
-      renderView({ createModalOpen: true })
+      renderView({ createModalOpen: true, onCreateError })
       await user.click(screen.getByRole("button", { name: "SimulateError" }))
-      await waitFor(() => {
-        expect(screen.getByText(/Could not create container "new-container": Server error/i)).toBeInTheDocument()
-      })
+      expect(onCreateError).toHaveBeenCalledWith("new-container", "Server error")
     })
 
-    test("dismisses toast when onDismiss is called", async () => {
+    test("calls onEmptySuccess when empty modal fires success", async () => {
+      const onEmptySuccess = vi.fn()
       const user = userEvent.setup()
-      renderView({ createModalOpen: true })
-      await user.click(screen.getByRole("button", { name: "SimulateSuccess" }))
-      await waitFor(() => {
-        expect(screen.getByText(/Container "new-container" was successfully created/i)).toBeInTheDocument()
-      })
-      // The Juno Toast renders a close button with aria-label="close"
-      const dismissButton = screen.getByRole("button", { name: "close" })
-      await user.click(dismissButton)
-      await waitFor(() => {
-        expect(screen.queryByText(/Container "new-container" was successfully created/i)).not.toBeInTheDocument()
-      })
+      renderView({ onEmptySuccess })
+      const row = screen.getByTestId("container-row-alpha")
+      await user.click(row.querySelector("button[aria-haspopup='menu']") as HTMLElement)
+      await user.click(screen.getByTestId("empty-action-alpha"))
+      await user.click(screen.getByRole("button", { name: "SimulateEmptySuccess" }))
+      expect(onEmptySuccess).toHaveBeenCalledWith("alpha", 3)
+    })
+
+    test("calls onEmptyError when empty modal fires error", async () => {
+      const onEmptyError = vi.fn()
+      const user = userEvent.setup()
+      renderView({ onEmptyError })
+      const row = screen.getByTestId("container-row-alpha")
+      await user.click(row.querySelector("button[aria-haspopup='menu']") as HTMLElement)
+      await user.click(screen.getByTestId("empty-action-alpha"))
+      await user.click(screen.getByRole("button", { name: "SimulateEmptyError" }))
+      expect(onEmptyError).toHaveBeenCalledWith("alpha", "Delete failed")
+    })
+
+    test("calls onDeleteSuccess when delete modal fires success", async () => {
+      const onDeleteSuccess = vi.fn()
+      const user = userEvent.setup()
+      renderView({ onDeleteSuccess })
+      const row = screen.getByTestId("container-row-alpha")
+      await user.click(row.querySelector("button[aria-haspopup='menu']") as HTMLElement)
+      await user.click(screen.getByTestId("delete-action-alpha"))
+      await user.click(screen.getByRole("button", { name: "SimulateDeleteSuccess" }))
+      expect(onDeleteSuccess).toHaveBeenCalledWith("alpha")
+    })
+
+    test("calls onDeleteError when delete modal fires error", async () => {
+      const onDeleteError = vi.fn()
+      const user = userEvent.setup()
+      renderView({ onDeleteError })
+      const row = screen.getByTestId("container-row-alpha")
+      await user.click(row.querySelector("button[aria-haspopup='menu']") as HTMLElement)
+      await user.click(screen.getByTestId("delete-action-alpha"))
+      await user.click(screen.getByRole("button", { name: "SimulateDeleteError" }))
+      expect(onDeleteError).toHaveBeenCalledWith("alpha", "Delete failed")
+    })
+
+    test("calls onPropertiesSuccess when edit modal fires success", async () => {
+      const onPropertiesSuccess = vi.fn()
+      const user = userEvent.setup()
+      renderView({ onPropertiesSuccess })
+      const row = screen.getByTestId("container-row-alpha")
+      await user.click(row.querySelector("button[aria-haspopup='menu']") as HTMLElement)
+      await user.click(screen.getByTestId("properties-action-alpha"))
+      await user.click(screen.getByRole("button", { name: "SimulateEditSuccess" }))
+      expect(onPropertiesSuccess).toHaveBeenCalledWith("alpha")
+    })
+
+    test("calls onPropertiesError when edit modal fires error", async () => {
+      const onPropertiesError = vi.fn()
+      const user = userEvent.setup()
+      renderView({ onPropertiesError })
+      const row = screen.getByTestId("container-row-alpha")
+      await user.click(row.querySelector("button[aria-haspopup='menu']") as HTMLElement)
+      await user.click(screen.getByTestId("properties-action-alpha"))
+      await user.click(screen.getByRole("button", { name: "SimulateEditError" }))
+      expect(onPropertiesError).toHaveBeenCalledWith("alpha", "Update failed")
+    })
+
+    test("calls onAclSuccess when manage access modal fires success", async () => {
+      const onAclSuccess = vi.fn()
+      const user = userEvent.setup()
+      renderView({ onAclSuccess })
+      const row = screen.getByTestId("container-row-alpha")
+      await user.click(row.querySelector("button[aria-haspopup='menu']") as HTMLElement)
+      await user.click(screen.getByTestId("access-control-action-alpha"))
+      await user.click(screen.getByRole("button", { name: "SimulateAclSuccess" }))
+      expect(onAclSuccess).toHaveBeenCalledWith("alpha")
+    })
+
+    test("calls onAclError when manage access modal fires error", async () => {
+      const onAclError = vi.fn()
+      const user = userEvent.setup()
+      renderView({ onAclError })
+      const row = screen.getByTestId("container-row-alpha")
+      await user.click(row.querySelector("button[aria-haspopup='menu']") as HTMLElement)
+      await user.click(screen.getByTestId("access-control-action-alpha"))
+      await user.click(screen.getByRole("button", { name: "SimulateAclError" }))
+      expect(onAclError).toHaveBeenCalledWith("alpha", "ACL update failed")
     })
   })
 
@@ -489,26 +532,6 @@ describe("ContainerTableView", () => {
       await user.click(screen.getByRole("button", { name: "CloseEmpty" }))
       await waitFor(() => {
         expect(screen.queryByTestId("empty-container-modal")).not.toBeInTheDocument()
-      })
-    })
-
-    test("shows success toast after container is emptied", async () => {
-      const user = userEvent.setup()
-      renderView()
-      await openEmptyModal(user, "alpha")
-      await user.click(screen.getByRole("button", { name: "SimulateEmptySuccess" }))
-      await waitFor(() => {
-        expect(screen.getByText(/Container "alpha" was successfully emptied/i)).toBeInTheDocument()
-      })
-    })
-
-    test("shows error toast when emptying container fails", async () => {
-      const user = userEvent.setup()
-      renderView()
-      await openEmptyModal(user, "alpha")
-      await user.click(screen.getByRole("button", { name: "SimulateEmptyError" }))
-      await waitFor(() => {
-        expect(screen.getByText(/Could not empty container "alpha": Delete failed/i)).toBeInTheDocument()
       })
     })
   })
@@ -557,26 +580,6 @@ describe("ContainerTableView", () => {
         expect(screen.queryByTestId("delete-container-modal")).not.toBeInTheDocument()
       })
     })
-
-    test("shows success toast after container is deleted", async () => {
-      const user = userEvent.setup()
-      renderView()
-      await openDeleteModal(user, "alpha")
-      await user.click(screen.getByRole("button", { name: "SimulateDeleteSuccess" }))
-      await waitFor(() => {
-        expect(screen.getByText(/Container "alpha" was successfully deleted/i)).toBeInTheDocument()
-      })
-    })
-
-    test("shows error toast when deleting container fails", async () => {
-      const user = userEvent.setup()
-      renderView()
-      await openDeleteModal(user, "alpha")
-      await user.click(screen.getByRole("button", { name: "SimulateDeleteError" }))
-      await waitFor(() => {
-        expect(screen.getByText(/Could not delete container "alpha": Delete failed/i)).toBeInTheDocument()
-      })
-    })
   })
 
   describe("ManageContainerAccessModal integration", () => {
@@ -621,26 +624,6 @@ describe("ContainerTableView", () => {
       await user.click(screen.getByRole("button", { name: "CloseManageAccess" }))
       await waitFor(() => {
         expect(screen.queryByTestId("manage-access-modal")).not.toBeInTheDocument()
-      })
-    })
-
-    test("shows success toast after ACLs are updated", async () => {
-      const user = userEvent.setup()
-      renderView()
-      await openManageAccessModal(user, "alpha")
-      await user.click(screen.getByRole("button", { name: "SimulateAclSuccess" }))
-      await waitFor(() => {
-        expect(screen.getByText(/ACLs for container "alpha" were successfully updated/i)).toBeInTheDocument()
-      })
-    })
-
-    test("shows error toast when ACL update fails", async () => {
-      const user = userEvent.setup()
-      renderView()
-      await openManageAccessModal(user, "alpha")
-      await user.click(screen.getByRole("button", { name: "SimulateAclError" }))
-      await waitFor(() => {
-        expect(screen.getByText(/Could not update ACLs for container "alpha": ACL update failed/i)).toBeInTheDocument()
       })
     })
   })

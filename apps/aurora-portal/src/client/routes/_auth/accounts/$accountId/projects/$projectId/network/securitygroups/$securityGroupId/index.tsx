@@ -47,6 +47,7 @@ function RouteComponent() {
   })
   const navigate = useNavigate()
   const { t } = useLingui()
+  const { setPageTitle } = Route.useRouteContext()
 
   // Rules filtering using the same pattern as List page
   const {
@@ -142,6 +143,7 @@ function RouteComponent() {
 
   // Handle loading state
   if (isLoading) {
+    setPageTitle(t`Loading...`)
     return (
       <Stack className="fixed inset-0" distribution="center" alignment="center" direction="vertical">
         <Spinner variant="primary" size="large" className="mb-2" />
@@ -182,6 +184,7 @@ function RouteComponent() {
   }
 
   // Render success state
+  setPageTitle(securityGroup.name || securityGroup.id)
   return (
     <Stack direction="vertical">
       <Breadcrumb className="my-6">

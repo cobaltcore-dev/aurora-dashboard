@@ -15,6 +15,13 @@ import {
   getFolderCreateErrorToast,
   getFolderDeletedToast,
   getFolderDeleteErrorToast,
+  getObjectDownloadErrorToast,
+  getObjectDeletedToast,
+  getObjectDeleteErrorToast,
+  getObjectCopiedToast,
+  getObjectCopyErrorToast,
+  getObjectMovedToast,
+  getObjectMoveErrorToast,
 } from "./ObjectToastNotifications"
 
 // ── Prefix helpers ────────────────────────────────────────────────────────────
@@ -192,6 +199,34 @@ export const SwiftObjects = () => {
     setToastData(getFolderDeleteErrorToast(folderName, errorMessage, { onDismiss: handleToastDismiss }))
   }
 
+  const handleDownloadError = (objectName: string, errorMessage: string) => {
+    setToastData(getObjectDownloadErrorToast(objectName, errorMessage, { onDismiss: handleToastDismiss }))
+  }
+
+  const handleDeleteObjectSuccess = (objectName: string) => {
+    setToastData(getObjectDeletedToast(objectName, { onDismiss: handleToastDismiss }))
+  }
+
+  const handleDeleteObjectError = (objectName: string, errorMessage: string) => {
+    setToastData(getObjectDeleteErrorToast(objectName, errorMessage, { onDismiss: handleToastDismiss }))
+  }
+
+  const handleCopyObjectSuccess = (objectName: string, targetContainer: string, targetPath: string) => {
+    setToastData(getObjectCopiedToast(objectName, targetContainer, targetPath, { onDismiss: handleToastDismiss }))
+  }
+
+  const handleCopyObjectError = (objectName: string, errorMessage: string) => {
+    setToastData(getObjectCopyErrorToast(objectName, errorMessage, { onDismiss: handleToastDismiss }))
+  }
+
+  const handleMoveObjectSuccess = (objectName: string, targetContainer: string, targetPath: string) => {
+    setToastData(getObjectMovedToast(objectName, targetContainer, targetPath, { onDismiss: handleToastDismiss }))
+  }
+
+  const handleMoveObjectError = (objectName: string, errorMessage: string) => {
+    setToastData(getObjectMoveErrorToast(objectName, errorMessage, { onDismiss: handleToastDismiss }))
+  }
+
   const sortSettings: SortSettings = {
     options: [
       { label: t`Name`, value: "name" },
@@ -325,9 +360,17 @@ export const SwiftObjects = () => {
       <ObjectsTableView
         rows={sortedRows}
         searchTerm={searchParam}
+        container={containerName}
         onFolderClick={navigateToPrefix}
         onDeleteFolderSuccess={handleDeleteFolderSuccess}
         onDeleteFolderError={handleDeleteFolderError}
+        onDownloadError={handleDownloadError}
+        onDeleteObjectSuccess={handleDeleteObjectSuccess}
+        onDeleteObjectError={handleDeleteObjectError}
+        onCopyObjectSuccess={handleCopyObjectSuccess}
+        onCopyObjectError={handleCopyObjectError}
+        onMoveObjectSuccess={handleMoveObjectSuccess}
+        onMoveObjectError={handleMoveObjectError}
       />
 
       <CreateFolderModal

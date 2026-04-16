@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate, useParams } from "@tanstack/react-router"
-import { Trans } from "@lingui/react/macro"
+import { Trans, useLingui } from "@lingui/react/macro"
 import { Button, Spinner, Stack } from "@cloudoperators/juno-ui-components"
 import type { RouteInfo } from "@/client/routes/routeInfo"
 import { trpcReact } from "@/client/trpcClient"
@@ -13,10 +13,12 @@ export const Route = createFileRoute(
 })
 
 function RouteComponent() {
+  const { t } = useLingui()
   const navigate = useNavigate()
   const { accountId, projectId, floatingIpId } = useParams({
     from: "/_auth/accounts/$accountId/projects/$projectId/network/floatingips/$floatingIpId",
   })
+  const { setPageTitle } = Route.useRouteContext()
 
   const navigateToFloatingIps = () => {
     navigate({
@@ -35,6 +37,7 @@ function RouteComponent() {
   })
 
   if (isLoading) {
+    setPageTitle(t`Loading...`)
     return (
       <Stack className="fixed inset-0" distribution="center" alignment="center" direction="vertical">
         <Spinner variant="primary" size="large" className="mb-2" />
@@ -70,5 +73,6 @@ function RouteComponent() {
     )
   }
 
+  setPageTitle(floatingIp.floating_ip_address || floatingIpId)
   return <FloatingIpDetailsView floatingIp={floatingIp} />
 }

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
+import { t } from "@lingui/core/macro"
 import { trpcReact } from "@/client/trpcClient"
 import {
   Modal,
@@ -19,9 +20,22 @@ import { ContainerSummary } from "@/server/Storage/types/swift"
 
 // ── ACL parsing helpers ──────────────────────────────────────────────────────
 
+type AclEntryType =
+  | "any-referrer"
+  | "denied-referrer"
+  | "specific-referrer"
+  | "listing-access"
+  | "all-project-users"
+  | "specific-user-any-project"
+  | "specific-user"
+  | "unknown"
+
 interface ParsedAclEntry {
   raw: string
-  label: string
+  type: AclEntryType
+  host?: string
+  projectId?: string
+  userId?: string
   description: string
   requiresToken: boolean
 }
@@ -29,7 +43,7 @@ interface ParsedAclEntry {
 /**
  * Parses a single ACL entry string into a human-readable representation.
  * Handles the following Swift ACL formats:
- *   .r:*           — public read (any referer)
+ *   .r:*           — public read (any referrer)
  *   .rlistings     — public container listing
  *   PROJECT:USER   — specific user from a specific project
  *   PROJECT:*      — all users from a project
@@ -39,11 +53,25 @@ function parseAclEntry(raw: string): ParsedAclEntry {
   const entry = raw.trim()
 
   if (entry === ".r:*") {
-    return { raw: entry, label: "ANY referer", description: "", requiresToken: false }
+    return { raw: entry, type: "any-referrer", description: "", requiresToken: false }
+  }
+
+  // .r:<referrer> or .r:-<referrer> — specific referrer granted (or denied) access
+  if (entry.startsWith(".r:")) {
+    const referrer = entry.slice(3)
+    const isDeny = referrer.startsWith("-")
+    const host = isDeny ? referrer.slice(1) : referrer
+    return {
+      raw: entry,
+      type: isDeny ? "denied-referrer" : "specific-referrer",
+      host,
+      description: "",
+      requiresToken: false,
+    }
   }
 
   if (entry === ".rlistings") {
-    return { raw: entry, label: "Listing access", description: "", requiresToken: false }
+    return { raw: entry, type: "listing-access", description: "", requiresToken: false }
   }
 
   // PROJECT_ID:* — all users from a project
@@ -51,7 +79,8 @@ function parseAclEntry(raw: string): ParsedAclEntry {
     const [projectId] = entry.split(":")
     return {
       raw: entry,
-      label: `All referrers from project ${projectId}`,
+      type: "all-project-users",
+      projectId,
       description: "",
       requiresToken: true,
     }
@@ -62,7 +91,8 @@ function parseAclEntry(raw: string): ParsedAclEntry {
     const userId = entry.slice(2)
     return {
       raw: entry,
-      label: `Referrer ${userId} (any project)`,
+      type: "specific-user-any-project",
+      userId,
       description: "",
       requiresToken: true,
     }
@@ -73,14 +103,16 @@ function parseAclEntry(raw: string): ParsedAclEntry {
     const [projectId, userId] = entry.split(":")
     return {
       raw: entry,
-      label: `Referrer ${userId} for project ${projectId}`,
+      type: "specific-user",
+      projectId,
+      userId,
       description: "",
       requiresToken: true,
     }
   }
 
   // Fallback — unknown format
-  return { raw: entry, label: entry, description: "", requiresToken: true }
+  return { raw: entry, type: "unknown", description: "", requiresToken: true }
 }
 
 function parseAclString(aclString: string): ParsedAclEntry[] {
@@ -119,6 +151,41 @@ function removePublicReadEntries(current: string): string {
     .map((s) => s.trim())
     .filter((e) => !PUBLIC_READ_ENTRIES.includes(e))
     .join(",")
+}
+
+// ── ACL label rendering helper ──────────────────────────────────────────────
+
+function aclEntryLabel(entry: ParsedAclEntry): string {
+  switch (entry.type) {
+    case "any-referrer":
+      return t`ANY referrer`
+    case "denied-referrer": {
+      const host = entry.host || ""
+      return t`Denied referrer: ${host}`
+    }
+    case "specific-referrer": {
+      const host = entry.host || ""
+      return t`Specific referrer: ${host}`
+    }
+    case "listing-access":
+      return t`Listing access`
+    case "all-project-users": {
+      const projectId = entry.projectId || ""
+      return t`All users from project ${projectId}`
+    }
+    case "specific-user-any-project": {
+      const userId = entry.userId || ""
+      return t`User ${userId} (any project)`
+    }
+    case "specific-user": {
+      const projectId = entry.projectId || ""
+      const userId = entry.userId || ""
+      return t`User ${userId} from project ${projectId}`
+    }
+    case "unknown":
+    default:
+      return entry.raw
+  }
 }
 
 // ── Component ────────────────────────────────────────────────────────────────
@@ -390,10 +457,15 @@ export const ManageContainerAccessModal = ({
                     </p>
                     <div className="border-theme-background-lvl-3 divide-theme-background-lvl-3 divide-y rounded border">
                       {parsedReadEntries.map((entry, i) => (
-                        <div key={i} className="flex items-center justify-between gap-3 px-3 py-2">
-                          <div className="min-w-0">
-                            <p className="text-theme-default truncate text-sm font-medium">{entry.label}</p>
-                            <p className="text-theme-light text-xs">
+                        <div key={i} className="flex flex-col gap-1 px-3 py-2">
+                          <div className="flex items-center justify-between gap-3">
+                            <p
+                              className="text-theme-default min-w-0 truncate text-sm font-medium"
+                              title={aclEntryLabel(entry)}
+                            >
+                              {aclEntryLabel(entry)}
+                            </p>
+                            <p className="text-theme-light shrink-0 text-xs">
                               {entry.requiresToken ? (
                                 <Trans>valid token required: true</Trans>
                               ) : (
@@ -401,9 +473,9 @@ export const ManageContainerAccessModal = ({
                               )}
                             </p>
                           </div>
-                          <Badge variant="info" className="shrink-0 font-mono text-xs">
+                          <code className="text-theme-light bg-theme-background-lvl-2 block w-full rounded px-2 py-1 font-mono text-xs break-all">
                             {entry.raw}
-                          </Badge>
+                          </code>
                         </div>
                       ))}
                     </div>
@@ -417,16 +489,21 @@ export const ManageContainerAccessModal = ({
                     </p>
                     <div className="border-theme-background-lvl-3 divide-theme-background-lvl-3 divide-y rounded border">
                       {parsedWriteEntries.map((entry, i) => (
-                        <div key={i} className="flex items-center justify-between gap-3 px-3 py-2">
-                          <div className="min-w-0">
-                            <p className="text-theme-default truncate text-sm font-medium">{entry.label}</p>
-                            <p className="text-theme-light text-xs">
+                        <div key={i} className="flex flex-col gap-1 px-3 py-2">
+                          <div className="flex items-center justify-between gap-3">
+                            <p
+                              className="text-theme-default min-w-0 truncate text-sm font-medium"
+                              title={aclEntryLabel(entry)}
+                            >
+                              {aclEntryLabel(entry)}
+                            </p>
+                            <p className="text-theme-light shrink-0 text-xs">
                               <Trans>valid token required: true</Trans>
                             </p>
                           </div>
-                          <Badge variant="warning" className="shrink-0 font-mono text-xs">
+                          <code className="text-theme-light bg-theme-background-lvl-2 block w-full rounded px-2 py-1 font-mono text-xs break-all">
                             {entry.raw}
-                          </Badge>
+                          </code>
                         </div>
                       ))}
                     </div>
