@@ -20,6 +20,7 @@ import { DeleteObjectModal } from "./DeleteObjectModal"
 import { CopyObjectModal } from "./CopyObjectModal"
 import { MoveRenameObjectModal } from "./MoveRenameObjectModal"
 import { GenerateTempUrlModal } from "./GenerateTempUrlModal"
+import { EditObjectMetadataModal } from "./EditObjectMetadataModal"
 
 // MIME types natively previewable by all modern browsers.
 // Excludes types that require plugins or have inconsistent support.
@@ -84,6 +85,8 @@ interface ObjectsTableViewProps {
   onMoveObjectSuccess: (objectName: string, targetContainer: string, targetPath: string) => void
   onMoveObjectError: (objectName: string, errorMessage: string) => void
   onTempUrlCopySuccess: (objectName: string) => void
+  onEditMetadataSuccess: (objectName: string) => void
+  onEditMetadataError: (objectName: string, errorMessage: string) => void
 }
 
 export const ObjectsTableView = ({
@@ -102,6 +105,8 @@ export const ObjectsTableView = ({
   onMoveObjectSuccess,
   onMoveObjectError,
   onTempUrlCopySuccess,
+  onEditMetadataSuccess,
+  onEditMetadataError,
 }: ObjectsTableViewProps) => {
   const { t } = useLingui()
   const parentRef = useRef<HTMLDivElement>(null)
@@ -118,6 +123,7 @@ export const ObjectsTableView = ({
   const [copyObjectTarget, setCopyObjectTarget] = useState<ObjectRow | null>(null)
   const [moveRenameObjectTarget, setMoveRenameObjectTarget] = useState<ObjectRow | null>(null)
   const [tempUrlTarget, setTempUrlTarget] = useState<ObjectRow | null>(null)
+  const [editMetadataTarget, setEditMetadataTarget] = useState<ObjectRow | null>(null)
   const [downloadingRow, setDownloadingRow] = useState<ObjectRow | null>(null)
   const [downloadProgress, setDownloadProgress] = useState<{ downloaded: number; total: number } | null>(null)
   const [previewingRow, setPreviewingRow] = useState<ObjectRow | null>(null)
@@ -424,10 +430,8 @@ export const ObjectsTableView = ({
                               data-testid={`download-action-${row.name}`}
                             />
                             <PopupMenuItem
-                              label={t`Properties`}
-                              onClick={() => {
-                                // TODO: open ObjectPropertiesModal
-                              }}
+                              label={t`Edit Metadata`}
+                              onClick={() => setEditMetadataTarget(row as ObjectRow)}
                               data-testid={`properties-action-${row.name}`}
                             />
                             <PopupMenuItem
@@ -505,6 +509,14 @@ export const ObjectsTableView = ({
         account={account}
         onClose={() => setTempUrlTarget(null)}
         onCopySuccess={onTempUrlCopySuccess}
+      />
+
+      <EditObjectMetadataModal
+        isOpen={editMetadataTarget !== null}
+        object={editMetadataTarget}
+        onClose={() => setEditMetadataTarget(null)}
+        onSuccess={onEditMetadataSuccess}
+        onError={onEditMetadataError}
       />
     </>
   )

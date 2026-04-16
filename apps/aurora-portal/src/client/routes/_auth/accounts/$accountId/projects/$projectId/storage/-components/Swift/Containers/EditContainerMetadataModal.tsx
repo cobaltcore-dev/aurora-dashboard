@@ -35,6 +35,10 @@ const RESERVED_META_KEYS = new Set([
 
 const MAX_COMBO_OPTIONS = 50
 
+// RFC 7230 token allowlist — letters, digits, and safe symbols only.
+// Using a positive allowlist avoids the ESLint no-control-regex rule.
+const VALID_KEY_RE = /^[a-zA-Z0-9!#$%&'*+\-.^_`|~]+$/
+
 interface MetadataEntry {
   key: string
   value: string
@@ -218,6 +222,8 @@ export const EditContainerMetadataModal = ({
 
   const validateMetaKey = (key: string, originalKey?: string): string | null => {
     if (!key.trim()) return t`Key is required`
+    if (!VALID_KEY_RE.test(key)) return t`Key contains invalid characters`
+    if (!/[a-zA-Z0-9]/.test(key)) return t`Key must contain at least one alphanumeric character`
     if (RESERVED_META_KEYS.has(key.toLowerCase())) return t`This key is reserved and managed separately`
     const isDuplicate = metadata.some((e) => e.key.toLowerCase() === key.toLowerCase() && e.originalKey !== originalKey)
     if (isDuplicate) return t`A property with this key already exists`
@@ -716,7 +722,7 @@ export const EditContainerMetadataModal = ({
 
                 {/* Existing metadata rows */}
                 {metadata.map((entry, index) => (
-                  <DataGridRow key={`${entry.originalKey ?? entry.key}-${index}`}>
+                  <DataGridRow key={index}>
                     <DataGridCell>
                       {entry.isEditing ? (
                         <TextInput
