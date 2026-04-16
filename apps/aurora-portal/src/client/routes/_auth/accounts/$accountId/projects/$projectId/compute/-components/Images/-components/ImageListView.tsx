@@ -69,6 +69,7 @@ interface ImagePageProps {
     canUpdateMember: boolean
   }
   hasNextPage?: boolean
+  nextMarker?: string
   isFetchingNextPage?: boolean
   isFetching?: boolean
   fetchNextPage?: () => void
@@ -96,6 +97,7 @@ export function ImageListView({
   acceptedImages,
   permissions,
   hasNextPage,
+  nextMarker,
   isFetchingNextPage,
   isFetching,
   fetchNextPage,
@@ -129,13 +131,15 @@ export function ImageListView({
   const [uploadId, setUploadId] = useState<string | null>(null)
 
   const loadMoreRef = useRef<HTMLDivElement>(null)
+  const fetchedMarkerRef = useRef<string | undefined>(undefined)
 
   useEffect(() => {
     if (!loadMoreRef.current || !hasNextPage || isFetchingNextPage) return
 
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting) {
+        if (entries[0].isIntersecting && fetchedMarkerRef.current !== nextMarker) {
+          fetchedMarkerRef.current = nextMarker
           fetchNextPage?.()
         }
       },
@@ -144,7 +148,7 @@ export function ImageListView({
 
     observer.observe(loadMoreRef.current)
     return () => observer.disconnect()
-  }, [hasNextPage, isFetchingNextPage, fetchNextPage])
+  }, [hasNextPage, nextMarker, isFetchingNextPage, fetchNextPage])
 
   const utils = trpcReact.useUtils()
 

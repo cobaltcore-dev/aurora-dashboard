@@ -72,6 +72,7 @@ type ImagesContentProps = {
   setMemberStatusView: (view: "all" | "pending" | "accepted") => void
   isFetching: boolean
   hasNextPage: boolean
+  nextMarker: string | undefined
   isFetchingNextPage: boolean
   fetchNextPage: () => void
   onImageUpdated: (image: GlanceImage) => void
@@ -101,6 +102,7 @@ function ImagesContent({
   setMemberStatusView,
   isFetching,
   hasNextPage,
+  nextMarker,
   isFetchingNextPage,
   fetchNextPage,
   onImageUpdated,
@@ -223,6 +225,7 @@ function ImagesContent({
         acceptedImages={memberStatusView === "accepted" ? images : []}
         permissions={permissions}
         hasNextPage={hasNextPage}
+        nextMarker={nextMarker}
         isFetchingNextPage={isFetchingNextPage}
         fetchNextPage={fetchNextPage}
         isFetching={isFetching}
@@ -516,6 +519,7 @@ export const Images = ({ client }: ImagesProps) => {
           setMemberStatusView={handleMemberStatusChange}
           isFetching={isFetching}
           hasNextPage={!!nextMarker && !isFetching}
+          nextMarker={nextMarker}
           isFetchingNextPage={isFetchingNextPage}
           fetchNextPage={fetchNextPage}
           onImageUpdated={handleImageUpdated}
