@@ -403,6 +403,9 @@ msgstr "Container:"
 msgid "Containers"
 msgstr "Container"
 
+msgid "Content type"
+msgstr ""
+
 msgid "Copied to clipboard!"
 msgstr "In die Zwischenablage kopiert!"
 
@@ -459,6 +462,9 @@ msgstr "Container \"{containerName}\" konnte nicht geleert werden: {errorMessage
 
 msgid "Could not move \"{objectName}\": {errorMessage}"
 msgstr "\"{objectName}\" konnte nicht verschoben werden: {errorMessage}"
+
+msgid "Could not update \"{objectName}\": {errorMessage}"
+msgstr ""
 
 msgid "Could not update ACLs for container \"{containerName}\": {errorMessage}"
 msgstr "ACLs für Container \"{containerName}\" konnten nicht aktualisiert werden: {errorMessage}"
@@ -742,6 +748,12 @@ msgstr "Geben Sie einen einzelnen Port ein oder definieren Sie einen Bereich, in
 msgid "Enter a tag and press Enter or click Add"
 msgstr "Geben Sie ein Tag ein und drücken Sie Enter oder klicken Sie auf Hinzufügen"
 
+msgid "Enter a timestamp like \"2026-05-16 18:05:52\" to schedule automatic deletion"
+msgstr ""
+
+msgid "Enter a timestamp like \"2026-05-16 18:14:57\" to schedule automatic deletion"
+msgstr ""
+
 msgid "Enter a valid PQDN or FQDN (max 63 characters) to associate with the floating IP. A and PTR records are created automatically."
 msgstr "Gültige PQDN oder FQDN (max. 63 Zeichen) eingeben, um sie der Floating IP zuzuordnen. A- und PTR-Einträge werden automatisch erstellt."
 
@@ -819,6 +831,9 @@ msgstr "Fehler beim Laden der Security Group"
 
 msgid "Ethertype"
 msgstr "Ethertype"
+
+msgid "Expires at (UTC)"
+msgstr ""
 
 msgid "Expires in"
 msgstr "Läuft ab in"
@@ -946,6 +961,10 @@ msgstr "Floating IPs konnten nicht geladen werden"
 msgid "Failed to load metadata configuration."
 msgstr ""
 
+#. placeholder {0}: metaError?.message ?? ""
+msgid "Failed to load object metadata: {0}"
+msgstr ""
+
 msgid "Failed to load object metadata: {metadataErrorMessage}"
 msgstr "Fehler beim Laden der Objekt-Metadaten: {metadataErrorMessage}"
 
@@ -981,6 +1000,13 @@ msgstr "Fehler beim Aktualisieren des Containers"
 
 msgid "Failed to update container: {errorMessage}"
 msgstr "Fehler beim Aktualisieren des Containers: {errorMessage}"
+
+msgid "Failed to Update Object"
+msgstr ""
+
+#. placeholder {0}: updateMutation.error.message
+msgid "Failed to update object: {0}"
+msgstr ""
 
 msgid "Failed to update security group"
 msgstr "Security Group konnte nicht aktualisiert werden"
@@ -1282,11 +1308,17 @@ msgstr "Segmente beibehalten (nur Manifest löschen)"
 msgid "Key"
 msgstr "Key"
 
+msgid "Key contains invalid characters"
+msgstr ""
+
 msgid "Key Features"
 msgstr "Hauptmerkmale"
 
 msgid "Key is required"
 msgstr "Schlüssel ist erforderlich"
+
+msgid "Key must contain at least one alphanumeric character"
+msgstr ""
 
 msgid "Key Name"
 msgstr "Keyname"
@@ -1296,6 +1328,9 @@ msgstr "Key Pairs"
 
 msgid "Last Modified"
 msgstr "Zuletzt geändert"
+
+msgid "Last modified (UTC)"
+msgstr ""
 
 msgid "Last updated: {formattedDate}"
 msgstr ""
@@ -1362,6 +1397,9 @@ msgstr "Weitere werden geladen..."
 
 msgid "Loading object info..."
 msgstr "Objekt-Informationen werden geladen..."
+
+msgid "Loading object properties..."
+msgstr ""
 
 msgid "Loading objects..."
 msgstr "Objekte werden geladen..."
@@ -1434,6 +1472,9 @@ msgstr "Maximale Objekt-Namenslänge"
 
 msgid "Max SLO segments"
 msgstr "Maximale SLO-Segmente"
+
+msgid "MD5 checksum"
+msgstr ""
 
 msgid "Member \"{memberIdToRemove}\" has been removed successfully."
 msgstr "Mitglied \"{memberIdToRemove}\" wurde erfolgreich entfernt."
@@ -1666,11 +1707,17 @@ msgstr "Objektname darf keine führenden oder nachfolgenden Leerzeichen haben"
 msgid "Object name is required"
 msgstr " Objektname ist erforderlich"
 
+msgid "Object properties"
+msgstr ""
+
 msgid "Object Storage"
 msgstr "Object Storage"
 
 msgid "Object Type"
 msgstr "Objekttyp"
+
+msgid "Object Updated"
+msgstr ""
 
 msgid "Object versioning"
 msgstr "Objekt-Versionierung"
@@ -1789,8 +1836,11 @@ msgstr "Projekt-ID"
 msgid "projects"
 msgstr "Projekte"
 
-msgid "Properties"
-msgstr "Eigenschaften"
+msgid "Properties of"
+msgstr ""
+
+msgid "Properties of \"{objectName}\" were successfully updated."
+msgstr ""
 
 msgid "Property Key"
 msgstr "Eigenschaftsschlüssel"
@@ -1965,6 +2015,9 @@ msgstr "Änderungen speichern"
 
 msgid "Save Metadata"
 msgstr "Metadata speichern"
+
+msgid "Saving..."
+msgstr ""
 
 msgid "Search..."
 msgstr "Suchen..."
@@ -2155,6 +2208,9 @@ msgstr "Alte Objekt-Versionen speichern"
 msgid "Store old object versions in container:"
 msgstr "Alte Objekt-Versionen in Container speichern:"
 
+msgid "Stored as X-Object-Meta-* headers. Keys are case-insensitive."
+msgstr ""
+
 msgid "Subnet"
 msgstr "Subnet"
 
@@ -2344,8 +2400,14 @@ msgstr "Dieser Ordner ist leer."
 msgid "This image was shared with you by <0>{ownerProject}</0> on {sharedAt}."
 msgstr "Dieses Image wurde am {sharedAt} von <0>{ownerProject}</0> mit Ihnen geteilt."
 
+msgid "This is a <0>dynamic large object (DLO)</0> manifest. Metadata changes apply to the manifest only — segment objects are not affected."
+msgstr ""
+
 msgid "This is a <0>dynamic large object</0>. Only the manifest will be deleted — its segment objects (stored under the manifest prefix) are <1>not</1> automatically removed and must be deleted separately."
 msgstr "Dies ist ein <0>dynamisches großes Objekt</0>. Nur das Manifest wird gelöscht — die zugehörigen Segment-Objekte (gespeichert unter dem Manifest-Präfix) werden <1>nicht</1> automatisch entfernt und müssen separat gelöscht werden."
+
+msgid "This is a <0>static large object (SLO)</0> manifest. Metadata changes apply to the manifest only — segment objects are not affected."
+msgstr ""
 
 msgid "This is a <0>static large object</0>. By default, all associated segment objects will also be permanently deleted."
 msgstr "Dies ist ein <0>statisches großes Objekt</0>. Standardmäßig werden auch alle zugehörigen Segment-Objekte dauerhaft gelöscht."
@@ -2469,6 +2531,9 @@ msgstr "Image-Datei kann nicht hochgeladen werden"
 
 msgid "Unnamed"
 msgstr "Unbenannt"
+
+msgid "Update object"
+msgstr ""
 
 msgid "Update Security Group"
 msgstr "Security Group aktualisieren"

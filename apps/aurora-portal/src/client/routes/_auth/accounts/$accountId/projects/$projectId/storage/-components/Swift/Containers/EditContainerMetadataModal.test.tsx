@@ -599,6 +599,51 @@ describe("EditContainerMetadataModal", () => {
       })
     })
 
+    test("shows error when key contains invalid characters (spaces)", async () => {
+      const user = userEvent.setup()
+      renderModal()
+      await user.click(screen.getByRole("button", { name: /Add Property/i }))
+      await user.type(screen.getByPlaceholderText(/property_key/i), "invalid key")
+      await user.click(getIconButton(/^Save$/i))
+      await waitFor(() => {
+        expect(screen.getByText(/Key contains invalid characters/i)).toBeInTheDocument()
+      })
+    })
+
+    test("shows error when key contains invalid characters (special separators)", async () => {
+      const user = userEvent.setup()
+      renderModal()
+      await user.click(screen.getByRole("button", { name: /Add Property/i }))
+      await user.type(screen.getByPlaceholderText(/property_key/i), "key@value")
+      await user.click(getIconButton(/^Save$/i))
+      await waitFor(() => {
+        expect(screen.getByText(/Key contains invalid characters/i)).toBeInTheDocument()
+      })
+    })
+
+    test("shows error when key has no alphanumeric characters", async () => {
+      const user = userEvent.setup()
+      renderModal()
+      await user.click(screen.getByRole("button", { name: /Add Property/i }))
+      await user.type(screen.getByPlaceholderText(/property_key/i), "----")
+      await user.click(getIconButton(/^Save$/i))
+      await waitFor(() => {
+        expect(screen.getByText(/Key must contain at least one alphanumeric character/i)).toBeInTheDocument()
+      })
+    })
+
+    test("accepts valid key with hyphens and alphanumeric characters", async () => {
+      const user = userEvent.setup()
+      renderModal()
+      await user.click(screen.getByRole("button", { name: /Add Property/i }))
+      await user.type(screen.getByPlaceholderText(/property_key/i), "my-key-1")
+      await user.type(screen.getByPlaceholderText(/Value/i), "value")
+      await user.click(getIconButton(/^Save$/i))
+      await waitFor(() => {
+        expect(screen.getByText("my-key-1")).toBeInTheDocument()
+      })
+    })
+
     test("adds new metadata entry to table after valid save", async () => {
       const user = userEvent.setup()
       renderModal()
