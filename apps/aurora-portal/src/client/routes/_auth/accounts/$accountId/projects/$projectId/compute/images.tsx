@@ -39,6 +39,7 @@ const imagesSearchFields = {
   search: z.string().optional(),
   sortBy: z.enum(["created_at", "updated_at", "name", "size", "status"]).optional(),
   sortDirection: z.enum(["asc", "desc"]).optional(),
+  memberStatus: z.enum(["all", "accepted", "pending"]).optional(),
 }
 
 const imagesSearchSchema = z.object(imagesSearchFields).passthrough()
@@ -63,6 +64,9 @@ export const Route = createFileRoute("/_auth/accounts/$accountId/projects/$proje
       sortBy: imagesSearchFields.sortBy.safeParse(search.sortBy).success ? search.sortBy : undefined,
       sortDirection: imagesSearchFields.sortDirection.safeParse(search.sortDirection).success
         ? search.sortDirection
+        : undefined,
+      memberStatus: imagesSearchFields.memberStatus.safeParse(search.memberStatus).success
+        ? search.memberStatus
         : undefined,
     }
   },

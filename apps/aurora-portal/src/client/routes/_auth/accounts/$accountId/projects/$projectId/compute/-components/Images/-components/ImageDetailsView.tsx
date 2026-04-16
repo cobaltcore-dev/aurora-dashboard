@@ -21,6 +21,8 @@ import { ImageMembersTable } from "./ImageMembersTable"
 interface ImageDetailsViewProps {
   image: GlanceImage
   currentProjectId?: string
+  activeTab?: "details" | "sharing"
+  onTabChange?: (tab: "details" | "sharing") => void
   permissions?: {
     canCreateMember: boolean
     canDeleteMember: boolean
@@ -246,8 +248,6 @@ export const CustomPropertiesSection: React.FC<{ image: GlanceImage }> = ({ imag
   )
 }
 
-type DetailTab = "details" | "sharing"
-
 const getTabClassName = (active: boolean) => {
   const base = "px-6 py-3 font-semibold border-b-2 transition-colors"
   return active
@@ -286,6 +286,8 @@ const SharingDetailsTab: React.FC<ImageDetailsViewProps> = ({ image, permissions
 export const ImageDetailsView: React.FC<ImageDetailsViewProps> = ({
   image,
   currentProjectId,
+  activeTab = "details",
+  onTabChange,
   permissions,
   myMemberData,
   onMemberStatusChange,
@@ -293,7 +295,6 @@ export const ImageDetailsView: React.FC<ImageDetailsViewProps> = ({
   actions,
 }) => {
   const { t } = useLingui()
-  const [activeTab, setActiveTab] = useState<DetailTab>("details")
 
   const isSharedWithMe = image.visibility === "shared" && image.owner !== undefined && image.owner !== currentProjectId
   const isImageOwner = image.owner === currentProjectId
@@ -314,10 +315,10 @@ export const ImageDetailsView: React.FC<ImageDetailsViewProps> = ({
       {showTabs && (
         <div className="border-theme-background-lvl-3 border-b">
           <Stack direction="horizontal" gap="0">
-            <button className={getTabClassName(activeTab === "details")} onClick={() => setActiveTab("details")}>
+            <button className={getTabClassName(activeTab === "details")} onClick={() => onTabChange?.("details")}>
               {t`Details`}
             </button>
-            <button className={getTabClassName(activeTab === "sharing")} onClick={() => setActiveTab("sharing")}>
+            <button className={getTabClassName(activeTab === "sharing")} onClick={() => onTabChange?.("sharing")}>
               {t`Sharing Details`}
             </button>
           </Stack>

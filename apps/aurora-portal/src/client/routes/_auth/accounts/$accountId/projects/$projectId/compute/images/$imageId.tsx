@@ -10,7 +10,8 @@ import {
   Toast,
   ToastProps,
 } from "@cloudoperators/juno-ui-components/index"
-import { createFileRoute, redirect, useNavigate, useParams } from "@tanstack/react-router"
+import { createFileRoute, redirect, useNavigate, useParams, useSearch } from "@tanstack/react-router"
+import { z } from "zod"
 import type { RouteInfo } from "@/client/routes/routeInfo"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { getServiceIndex } from "@/server/Authentication/helpers"
@@ -33,6 +34,9 @@ import { useState } from "react"
 
 export const Route = createFileRoute("/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId")({
   staticData: { section: "compute", service: "images", isDetail: true } satisfies RouteInfo,
+  validateSearch: z.object({
+    tab: z.enum(["details", "sharing"]).optional(),
+  }),
   component: RouteComponent,
   beforeLoad: async ({ context, params }) => {
     const { trpcClient } = context
@@ -62,6 +66,9 @@ export const Route = createFileRoute("/_auth/accounts/$accountId/projects/$proje
 
 function RouteComponent() {
   const { accountId, projectId, imageId } = useParams({
+    from: "/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId",
+  })
+  const { tab } = useSearch({
     from: "/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId",
   })
 
@@ -298,6 +305,12 @@ function RouteComponent() {
         key={image.id}
         image={image}
         currentProjectId={projectId}
+        activeTab={tab ?? "details"}
+        onTabChange={(newTab) =>
+          navigate({
+            search: { tab: newTab === "details" ? undefined : newTab } as unknown as true,
+          })
+        }
         permissions={{
           canCreateMember: permissions.canCreateMember,
           canDeleteMember: permissions.canDeleteMember,

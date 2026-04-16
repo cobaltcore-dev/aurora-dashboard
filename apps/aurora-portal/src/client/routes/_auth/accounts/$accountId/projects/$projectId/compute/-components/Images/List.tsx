@@ -32,6 +32,7 @@ type ImagesSearchParams = {
   search?: string
   sortBy?: string
   sortDirection?: "asc" | "desc"
+  memberStatus?: "all" | "accepted" | "pending"
 }
 
 type RequiredSortSettings = {
@@ -162,8 +163,8 @@ function ImagesContent({
   const memberStatusTabs = {
     items: [
       { label: t`All Images`, value: "all" },
-      { label: t`Suggested Images`, value: "pending" },
       { label: t`Accepted Images`, value: "accepted" },
+      { label: t`Suggested Images`, value: "pending" },
     ],
     activeItem: memberStatusView,
     onActiveItemChange: (value: ReactNode) => setMemberStatusView(value as "all" | "pending" | "accepted"),
@@ -304,7 +305,9 @@ export const Images = ({ client }: ImagesProps) => {
   const [deleteAllModalOpen, setDeleteAllModalOpen] = useState(false)
   const [deactivateAllModalOpen, setDeactivateAllModalOpen] = useState(false)
   const [activateAllModalOpen, setActivateAllModalOpen] = useState(false)
-  const [memberStatusView, setMemberStatusView] = useState<"all" | "pending" | "accepted">("all")
+  const [memberStatusView, setMemberStatusView] = useState<"all" | "pending" | "accepted">(
+    searchParams.memberStatus ?? "all"
+  )
   const memberStatusFilter = memberStatusView === "all" ? undefined : memberStatusView
 
   const [isFetching, setIsFetching] = useState(true)
@@ -377,6 +380,7 @@ export const Images = ({ client }: ImagesProps) => {
       sortDirection: urlSortDirection,
     }))
     setSearchTerm(urlSearchTerm)
+    setMemberStatusView(searchParams.memberStatus ?? "all")
 
     // Clear selection when dataset changes
     setSelectedImages([])
@@ -420,7 +424,7 @@ export const Images = ({ client }: ImagesProps) => {
     searchParams.sortBy,
     searchParams.sortDirection,
     searchParams.search,
-    memberStatusView,
+    searchParams.memberStatus,
   ])
 
   const handleSortChange = (newSortSettings: SortSettings) => {
@@ -468,6 +472,11 @@ export const Images = ({ client }: ImagesProps) => {
 
   const handleMemberStatusChange = (view: "all" | "pending" | "accepted") => {
     setMemberStatusView(view)
+    navigate({
+      search: {
+        memberStatus: view === "all" ? undefined : view,
+      } as unknown as true,
+    })
   }
 
   return (
