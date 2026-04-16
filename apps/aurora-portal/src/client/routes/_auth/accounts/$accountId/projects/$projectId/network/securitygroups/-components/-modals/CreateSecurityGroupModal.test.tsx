@@ -8,7 +8,6 @@ import { CreateSecurityGroupModal } from "./CreateSecurityGroupModal"
 import { CreateSecurityGroupInput } from "@/server/Network/types/securityGroup"
 
 // ─── Render helper ────────────────────────────────────────────────────────────
-
 const renderModal = ({
   isOpen = true,
   onClose = vi.fn(),
@@ -29,7 +28,6 @@ const renderModal = ({
   )
 
 // ─── Tests ────────────────────────────────────────────────────────────────────
-
 describe("CreateSecurityGroupModal", () => {
   beforeEach(async () => {
     vi.clearAllMocks()

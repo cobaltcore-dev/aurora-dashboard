@@ -4,8 +4,8 @@ import { Trans, useLingui } from "@lingui/react/macro"
 import { useNavigate, useParams } from "@tanstack/react-router"
 import type { SecurityGroup } from "@/server/Network/types/securityGroup"
 import type { UpdateSecurityGroupInput } from "@/server/Network/types/securityGroup"
-import { EditSecurityGroupModal } from "./-modals/EditSecurityGroupModal"
-import { DeleteSecurityGroupDialog } from "./-modals/DeleteSecurityGroupDialog"
+import { EditSecurityGroupModal } from "../-modals/EditSecurityGroupModal"
+import { DeleteSecurityGroupDialog } from "../-modals/DeleteSecurityGroupDialog"
 import { SecurityGroupTableRow, type SecurityGroupPermissions } from "./SecurityGroupTableRow"
 
 interface SecurityGroupListContainerProps {

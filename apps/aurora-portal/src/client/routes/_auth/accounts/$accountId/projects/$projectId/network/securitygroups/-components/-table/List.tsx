@@ -6,9 +6,9 @@ import { trpcReact } from "@/client/trpcClient"
 import { ListToolbar } from "@/client/components/ListToolbar"
 import { buildFilterParams } from "@/client/utils/buildFilterParams"
 import { useListWithFiltering } from "@/client/utils/useListWithFiltering"
-import { SecurityGroupListContainer } from "./-components/SecurityGroupListContainer"
-import { CreateSecurityGroupModal } from "./-components/-modals/CreateSecurityGroupModal"
 import { CreateSecurityGroupInput, UpdateSecurityGroupInput } from "@/server/Network/types/securityGroup"
+import { SecurityGroupListContainer } from "./SecurityGroupListContainer"
+import { CreateSecurityGroupModal } from "../-modals/CreateSecurityGroupModal"
 
 // Security group shared filter constants
 const SECURITY_GROUP_SHARED = {

@@ -21,9 +21,7 @@ import { Route as AuthAccountsAccountIdProjectsProjectIdNetworkRouteImport } fro
 import { Route as AuthAccountsAccountIdProjectsProjectIdComputeRouteImport } from "./routes/_auth/accounts/$accountId/projects/$projectId/compute"
 import { Route as AuthAccountsAccountIdProjectsProjectIdNetworkIndexRouteImport } from "./routes/_auth/accounts/$accountId/projects/$projectId/network/index"
 import { Route as AuthAccountsAccountIdProjectsProjectIdComputeIndexRouteImport } from "./routes/_auth/accounts/$accountId/projects/$projectId/compute/index"
-import { Route as AuthAccountsAccountIdProjectsProjectIdNetworkSecuritygroupsRouteImport } from "./routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups"
 import { Route as AuthAccountsAccountIdProjectsProjectIdNetworkOverviewRouteImport } from "./routes/_auth/accounts/$accountId/projects/$projectId/network/overview"
-import { Route as AuthAccountsAccountIdProjectsProjectIdNetworkFloatingipsRouteImport } from "./routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips"
 import { Route as AuthAccountsAccountIdProjectsProjectIdComputeServergroupsRouteImport } from "./routes/_auth/accounts/$accountId/projects/$projectId/compute/servergroups"
 import { Route as AuthAccountsAccountIdProjectsProjectIdComputeOverviewRouteImport } from "./routes/_auth/accounts/$accountId/projects/$projectId/compute/overview"
 import { Route as AuthAccountsAccountIdProjectsProjectIdComputeKeypairsRouteImport } from "./routes/_auth/accounts/$accountId/projects/$projectId/compute/keypairs"
@@ -106,24 +104,10 @@ const AuthAccountsAccountIdProjectsProjectIdComputeIndexRoute =
     path: "/",
     getParentRoute: () => AuthAccountsAccountIdProjectsProjectIdComputeRoute,
   } as any)
-const AuthAccountsAccountIdProjectsProjectIdNetworkSecuritygroupsRoute =
-  AuthAccountsAccountIdProjectsProjectIdNetworkSecuritygroupsRouteImport.update(
-    {
-      id: "/securitygroups",
-      path: "/securitygroups",
-      getParentRoute: () => AuthAccountsAccountIdProjectsProjectIdNetworkRoute,
-    } as any,
-  )
 const AuthAccountsAccountIdProjectsProjectIdNetworkOverviewRoute =
   AuthAccountsAccountIdProjectsProjectIdNetworkOverviewRouteImport.update({
     id: "/overview",
     path: "/overview",
-    getParentRoute: () => AuthAccountsAccountIdProjectsProjectIdNetworkRoute,
-  } as any)
-const AuthAccountsAccountIdProjectsProjectIdNetworkFloatingipsRoute =
-  AuthAccountsAccountIdProjectsProjectIdNetworkFloatingipsRouteImport.update({
-    id: "/floatingips",
-    path: "/floatingips",
     getParentRoute: () => AuthAccountsAccountIdProjectsProjectIdNetworkRoute,
   } as any)
 const AuthAccountsAccountIdProjectsProjectIdComputeServergroupsRoute =
@@ -165,19 +149,17 @@ const AuthAccountsAccountIdProjectsProjectIdComputeFlavorsRoute =
 const AuthAccountsAccountIdProjectsProjectIdNetworkSecuritygroupsIndexRoute =
   AuthAccountsAccountIdProjectsProjectIdNetworkSecuritygroupsIndexRouteImport.update(
     {
-      id: "/",
-      path: "/",
-      getParentRoute: () =>
-        AuthAccountsAccountIdProjectsProjectIdNetworkSecuritygroupsRoute,
+      id: "/securitygroups/",
+      path: "/securitygroups/",
+      getParentRoute: () => AuthAccountsAccountIdProjectsProjectIdNetworkRoute,
     } as any,
   )
 const AuthAccountsAccountIdProjectsProjectIdNetworkFloatingipsIndexRoute =
   AuthAccountsAccountIdProjectsProjectIdNetworkFloatingipsIndexRouteImport.update(
     {
-      id: "/",
-      path: "/",
-      getParentRoute: () =>
-        AuthAccountsAccountIdProjectsProjectIdNetworkFloatingipsRoute,
+      id: "/floatingips/",
+      path: "/floatingips/",
+      getParentRoute: () => AuthAccountsAccountIdProjectsProjectIdNetworkRoute,
     } as any,
   )
 const AuthAccountsAccountIdProjectsProjectIdComputeImagesIndexRoute =
@@ -197,10 +179,9 @@ const AuthAccountsAccountIdProjectsProjectIdComputeFlavorsIndexRoute =
 const AuthAccountsAccountIdProjectsProjectIdNetworkFloatingipsFloatingIpIdRoute =
   AuthAccountsAccountIdProjectsProjectIdNetworkFloatingipsFloatingIpIdRouteImport.update(
     {
-      id: "/$floatingIpId",
-      path: "/$floatingIpId",
-      getParentRoute: () =>
-        AuthAccountsAccountIdProjectsProjectIdNetworkFloatingipsRoute,
+      id: "/floatingips/$floatingIpId",
+      path: "/floatingips/$floatingIpId",
+      getParentRoute: () => AuthAccountsAccountIdProjectsProjectIdNetworkRoute,
     } as any,
   )
 const AuthAccountsAccountIdProjectsProjectIdComputeImagesImageIdRoute =
@@ -230,10 +211,9 @@ const AuthAccountsAccountIdProjectsProjectIdStorageProviderContainersIndexRoute 
 const AuthAccountsAccountIdProjectsProjectIdNetworkSecuritygroupsSecurityGroupIdIndexRoute =
   AuthAccountsAccountIdProjectsProjectIdNetworkSecuritygroupsSecurityGroupIdIndexRouteImport.update(
     {
-      id: "/$securityGroupId/",
-      path: "/$securityGroupId/",
-      getParentRoute: () =>
-        AuthAccountsAccountIdProjectsProjectIdNetworkSecuritygroupsRoute,
+      id: "/securitygroups/$securityGroupId/",
+      path: "/securitygroups/$securityGroupId/",
+      getParentRoute: () => AuthAccountsAccountIdProjectsProjectIdNetworkRoute,
     } as any,
   )
 const AuthAccountsAccountIdProjectsProjectIdStorageProviderContainersContainerNameObjectsIndexRoute =
@@ -261,9 +241,7 @@ export interface FileRoutesByFullPath {
   "/accounts/$accountId/projects/$projectId/compute/keypairs": typeof AuthAccountsAccountIdProjectsProjectIdComputeKeypairsRoute
   "/accounts/$accountId/projects/$projectId/compute/overview": typeof AuthAccountsAccountIdProjectsProjectIdComputeOverviewRoute
   "/accounts/$accountId/projects/$projectId/compute/servergroups": typeof AuthAccountsAccountIdProjectsProjectIdComputeServergroupsRoute
-  "/accounts/$accountId/projects/$projectId/network/floatingips": typeof AuthAccountsAccountIdProjectsProjectIdNetworkFloatingipsRouteWithChildren
   "/accounts/$accountId/projects/$projectId/network/overview": typeof AuthAccountsAccountIdProjectsProjectIdNetworkOverviewRoute
-  "/accounts/$accountId/projects/$projectId/network/securitygroups": typeof AuthAccountsAccountIdProjectsProjectIdNetworkSecuritygroupsRouteWithChildren
   "/accounts/$accountId/projects/$projectId/compute/": typeof AuthAccountsAccountIdProjectsProjectIdComputeIndexRoute
   "/accounts/$accountId/projects/$projectId/network/": typeof AuthAccountsAccountIdProjectsProjectIdNetworkIndexRoute
   "/accounts/$accountId/projects/$projectId/compute/flavors/$flavorId": typeof AuthAccountsAccountIdProjectsProjectIdComputeFlavorsFlavorIdRoute
@@ -321,9 +299,7 @@ export interface FileRoutesById {
   "/_auth/accounts/$accountId/projects/$projectId/compute/keypairs": typeof AuthAccountsAccountIdProjectsProjectIdComputeKeypairsRoute
   "/_auth/accounts/$accountId/projects/$projectId/compute/overview": typeof AuthAccountsAccountIdProjectsProjectIdComputeOverviewRoute
   "/_auth/accounts/$accountId/projects/$projectId/compute/servergroups": typeof AuthAccountsAccountIdProjectsProjectIdComputeServergroupsRoute
-  "/_auth/accounts/$accountId/projects/$projectId/network/floatingips": typeof AuthAccountsAccountIdProjectsProjectIdNetworkFloatingipsRouteWithChildren
   "/_auth/accounts/$accountId/projects/$projectId/network/overview": typeof AuthAccountsAccountIdProjectsProjectIdNetworkOverviewRoute
-  "/_auth/accounts/$accountId/projects/$projectId/network/securitygroups": typeof AuthAccountsAccountIdProjectsProjectIdNetworkSecuritygroupsRouteWithChildren
   "/_auth/accounts/$accountId/projects/$projectId/compute/": typeof AuthAccountsAccountIdProjectsProjectIdComputeIndexRoute
   "/_auth/accounts/$accountId/projects/$projectId/network/": typeof AuthAccountsAccountIdProjectsProjectIdNetworkIndexRoute
   "/_auth/accounts/$accountId/projects/$projectId/compute/flavors/$flavorId": typeof AuthAccountsAccountIdProjectsProjectIdComputeFlavorsFlavorIdRoute
@@ -355,9 +331,7 @@ export interface FileRouteTypes {
     | "/accounts/$accountId/projects/$projectId/compute/keypairs"
     | "/accounts/$accountId/projects/$projectId/compute/overview"
     | "/accounts/$accountId/projects/$projectId/compute/servergroups"
-    | "/accounts/$accountId/projects/$projectId/network/floatingips"
     | "/accounts/$accountId/projects/$projectId/network/overview"
-    | "/accounts/$accountId/projects/$projectId/network/securitygroups"
     | "/accounts/$accountId/projects/$projectId/compute/"
     | "/accounts/$accountId/projects/$projectId/network/"
     | "/accounts/$accountId/projects/$projectId/compute/flavors/$flavorId"
@@ -414,9 +388,7 @@ export interface FileRouteTypes {
     | "/_auth/accounts/$accountId/projects/$projectId/compute/keypairs"
     | "/_auth/accounts/$accountId/projects/$projectId/compute/overview"
     | "/_auth/accounts/$accountId/projects/$projectId/compute/servergroups"
-    | "/_auth/accounts/$accountId/projects/$projectId/network/floatingips"
     | "/_auth/accounts/$accountId/projects/$projectId/network/overview"
-    | "/_auth/accounts/$accountId/projects/$projectId/network/securitygroups"
     | "/_auth/accounts/$accountId/projects/$projectId/compute/"
     | "/_auth/accounts/$accountId/projects/$projectId/network/"
     | "/_auth/accounts/$accountId/projects/$projectId/compute/flavors/$flavorId"
@@ -524,25 +496,11 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof AuthAccountsAccountIdProjectsProjectIdComputeIndexRouteImport
       parentRoute: typeof AuthAccountsAccountIdProjectsProjectIdComputeRoute
     }
-    "/_auth/accounts/$accountId/projects/$projectId/network/securitygroups": {
-      id: "/_auth/accounts/$accountId/projects/$projectId/network/securitygroups"
-      path: "/securitygroups"
-      fullPath: "/accounts/$accountId/projects/$projectId/network/securitygroups"
-      preLoaderRoute: typeof AuthAccountsAccountIdProjectsProjectIdNetworkSecuritygroupsRouteImport
-      parentRoute: typeof AuthAccountsAccountIdProjectsProjectIdNetworkRoute
-    }
     "/_auth/accounts/$accountId/projects/$projectId/network/overview": {
       id: "/_auth/accounts/$accountId/projects/$projectId/network/overview"
       path: "/overview"
       fullPath: "/accounts/$accountId/projects/$projectId/network/overview"
       preLoaderRoute: typeof AuthAccountsAccountIdProjectsProjectIdNetworkOverviewRouteImport
-      parentRoute: typeof AuthAccountsAccountIdProjectsProjectIdNetworkRoute
-    }
-    "/_auth/accounts/$accountId/projects/$projectId/network/floatingips": {
-      id: "/_auth/accounts/$accountId/projects/$projectId/network/floatingips"
-      path: "/floatingips"
-      fullPath: "/accounts/$accountId/projects/$projectId/network/floatingips"
-      preLoaderRoute: typeof AuthAccountsAccountIdProjectsProjectIdNetworkFloatingipsRouteImport
       parentRoute: typeof AuthAccountsAccountIdProjectsProjectIdNetworkRoute
     }
     "/_auth/accounts/$accountId/projects/$projectId/compute/servergroups": {
@@ -589,17 +547,17 @@ declare module "@tanstack/react-router" {
     }
     "/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/": {
       id: "/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/"
-      path: "/"
+      path: "/securitygroups"
       fullPath: "/accounts/$accountId/projects/$projectId/network/securitygroups/"
       preLoaderRoute: typeof AuthAccountsAccountIdProjectsProjectIdNetworkSecuritygroupsIndexRouteImport
-      parentRoute: typeof AuthAccountsAccountIdProjectsProjectIdNetworkSecuritygroupsRoute
+      parentRoute: typeof AuthAccountsAccountIdProjectsProjectIdNetworkRoute
     }
     "/_auth/accounts/$accountId/projects/$projectId/network/floatingips/": {
       id: "/_auth/accounts/$accountId/projects/$projectId/network/floatingips/"
-      path: "/"
+      path: "/floatingips"
       fullPath: "/accounts/$accountId/projects/$projectId/network/floatingips/"
       preLoaderRoute: typeof AuthAccountsAccountIdProjectsProjectIdNetworkFloatingipsIndexRouteImport
-      parentRoute: typeof AuthAccountsAccountIdProjectsProjectIdNetworkFloatingipsRoute
+      parentRoute: typeof AuthAccountsAccountIdProjectsProjectIdNetworkRoute
     }
     "/_auth/accounts/$accountId/projects/$projectId/compute/images/": {
       id: "/_auth/accounts/$accountId/projects/$projectId/compute/images/"
@@ -617,10 +575,10 @@ declare module "@tanstack/react-router" {
     }
     "/_auth/accounts/$accountId/projects/$projectId/network/floatingips/$floatingIpId": {
       id: "/_auth/accounts/$accountId/projects/$projectId/network/floatingips/$floatingIpId"
-      path: "/$floatingIpId"
+      path: "/floatingips/$floatingIpId"
       fullPath: "/accounts/$accountId/projects/$projectId/network/floatingips/$floatingIpId"
       preLoaderRoute: typeof AuthAccountsAccountIdProjectsProjectIdNetworkFloatingipsFloatingIpIdRouteImport
-      parentRoute: typeof AuthAccountsAccountIdProjectsProjectIdNetworkFloatingipsRoute
+      parentRoute: typeof AuthAccountsAccountIdProjectsProjectIdNetworkRoute
     }
     "/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId": {
       id: "/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId"
@@ -645,10 +603,10 @@ declare module "@tanstack/react-router" {
     }
     "/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/": {
       id: "/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/"
-      path: "/$securityGroupId"
+      path: "/securitygroups/$securityGroupId"
       fullPath: "/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/"
       preLoaderRoute: typeof AuthAccountsAccountIdProjectsProjectIdNetworkSecuritygroupsSecurityGroupIdIndexRouteImport
-      parentRoute: typeof AuthAccountsAccountIdProjectsProjectIdNetworkSecuritygroupsRoute
+      parentRoute: typeof AuthAccountsAccountIdProjectsProjectIdNetworkRoute
     }
     "/_auth/accounts/$accountId/projects/$projectId/storage/$provider/containers/$containerName/objects/": {
       id: "/_auth/accounts/$accountId/projects/$projectId/storage/$provider/containers/$containerName/objects/"
@@ -729,59 +687,29 @@ const AuthAccountsAccountIdProjectsProjectIdComputeRouteWithChildren =
     AuthAccountsAccountIdProjectsProjectIdComputeRouteChildren,
   )
 
-interface AuthAccountsAccountIdProjectsProjectIdNetworkFloatingipsRouteChildren {
+interface AuthAccountsAccountIdProjectsProjectIdNetworkRouteChildren {
+  AuthAccountsAccountIdProjectsProjectIdNetworkOverviewRoute: typeof AuthAccountsAccountIdProjectsProjectIdNetworkOverviewRoute
+  AuthAccountsAccountIdProjectsProjectIdNetworkIndexRoute: typeof AuthAccountsAccountIdProjectsProjectIdNetworkIndexRoute
   AuthAccountsAccountIdProjectsProjectIdNetworkFloatingipsFloatingIpIdRoute: typeof AuthAccountsAccountIdProjectsProjectIdNetworkFloatingipsFloatingIpIdRoute
   AuthAccountsAccountIdProjectsProjectIdNetworkFloatingipsIndexRoute: typeof AuthAccountsAccountIdProjectsProjectIdNetworkFloatingipsIndexRoute
-}
-
-const AuthAccountsAccountIdProjectsProjectIdNetworkFloatingipsRouteChildren: AuthAccountsAccountIdProjectsProjectIdNetworkFloatingipsRouteChildren =
-  {
-    AuthAccountsAccountIdProjectsProjectIdNetworkFloatingipsFloatingIpIdRoute:
-      AuthAccountsAccountIdProjectsProjectIdNetworkFloatingipsFloatingIpIdRoute,
-    AuthAccountsAccountIdProjectsProjectIdNetworkFloatingipsIndexRoute:
-      AuthAccountsAccountIdProjectsProjectIdNetworkFloatingipsIndexRoute,
-  }
-
-const AuthAccountsAccountIdProjectsProjectIdNetworkFloatingipsRouteWithChildren =
-  AuthAccountsAccountIdProjectsProjectIdNetworkFloatingipsRoute._addFileChildren(
-    AuthAccountsAccountIdProjectsProjectIdNetworkFloatingipsRouteChildren,
-  )
-
-interface AuthAccountsAccountIdProjectsProjectIdNetworkSecuritygroupsRouteChildren {
   AuthAccountsAccountIdProjectsProjectIdNetworkSecuritygroupsIndexRoute: typeof AuthAccountsAccountIdProjectsProjectIdNetworkSecuritygroupsIndexRoute
   AuthAccountsAccountIdProjectsProjectIdNetworkSecuritygroupsSecurityGroupIdIndexRoute: typeof AuthAccountsAccountIdProjectsProjectIdNetworkSecuritygroupsSecurityGroupIdIndexRoute
 }
 
-const AuthAccountsAccountIdProjectsProjectIdNetworkSecuritygroupsRouteChildren: AuthAccountsAccountIdProjectsProjectIdNetworkSecuritygroupsRouteChildren =
+const AuthAccountsAccountIdProjectsProjectIdNetworkRouteChildren: AuthAccountsAccountIdProjectsProjectIdNetworkRouteChildren =
   {
+    AuthAccountsAccountIdProjectsProjectIdNetworkOverviewRoute:
+      AuthAccountsAccountIdProjectsProjectIdNetworkOverviewRoute,
+    AuthAccountsAccountIdProjectsProjectIdNetworkIndexRoute:
+      AuthAccountsAccountIdProjectsProjectIdNetworkIndexRoute,
+    AuthAccountsAccountIdProjectsProjectIdNetworkFloatingipsFloatingIpIdRoute:
+      AuthAccountsAccountIdProjectsProjectIdNetworkFloatingipsFloatingIpIdRoute,
+    AuthAccountsAccountIdProjectsProjectIdNetworkFloatingipsIndexRoute:
+      AuthAccountsAccountIdProjectsProjectIdNetworkFloatingipsIndexRoute,
     AuthAccountsAccountIdProjectsProjectIdNetworkSecuritygroupsIndexRoute:
       AuthAccountsAccountIdProjectsProjectIdNetworkSecuritygroupsIndexRoute,
     AuthAccountsAccountIdProjectsProjectIdNetworkSecuritygroupsSecurityGroupIdIndexRoute:
       AuthAccountsAccountIdProjectsProjectIdNetworkSecuritygroupsSecurityGroupIdIndexRoute,
-  }
-
-const AuthAccountsAccountIdProjectsProjectIdNetworkSecuritygroupsRouteWithChildren =
-  AuthAccountsAccountIdProjectsProjectIdNetworkSecuritygroupsRoute._addFileChildren(
-    AuthAccountsAccountIdProjectsProjectIdNetworkSecuritygroupsRouteChildren,
-  )
-
-interface AuthAccountsAccountIdProjectsProjectIdNetworkRouteChildren {
-  AuthAccountsAccountIdProjectsProjectIdNetworkFloatingipsRoute: typeof AuthAccountsAccountIdProjectsProjectIdNetworkFloatingipsRouteWithChildren
-  AuthAccountsAccountIdProjectsProjectIdNetworkOverviewRoute: typeof AuthAccountsAccountIdProjectsProjectIdNetworkOverviewRoute
-  AuthAccountsAccountIdProjectsProjectIdNetworkSecuritygroupsRoute: typeof AuthAccountsAccountIdProjectsProjectIdNetworkSecuritygroupsRouteWithChildren
-  AuthAccountsAccountIdProjectsProjectIdNetworkIndexRoute: typeof AuthAccountsAccountIdProjectsProjectIdNetworkIndexRoute
-}
-
-const AuthAccountsAccountIdProjectsProjectIdNetworkRouteChildren: AuthAccountsAccountIdProjectsProjectIdNetworkRouteChildren =
-  {
-    AuthAccountsAccountIdProjectsProjectIdNetworkFloatingipsRoute:
-      AuthAccountsAccountIdProjectsProjectIdNetworkFloatingipsRouteWithChildren,
-    AuthAccountsAccountIdProjectsProjectIdNetworkOverviewRoute:
-      AuthAccountsAccountIdProjectsProjectIdNetworkOverviewRoute,
-    AuthAccountsAccountIdProjectsProjectIdNetworkSecuritygroupsRoute:
-      AuthAccountsAccountIdProjectsProjectIdNetworkSecuritygroupsRouteWithChildren,
-    AuthAccountsAccountIdProjectsProjectIdNetworkIndexRoute:
-      AuthAccountsAccountIdProjectsProjectIdNetworkIndexRoute,
   }
 
 const AuthAccountsAccountIdProjectsProjectIdNetworkRouteWithChildren =

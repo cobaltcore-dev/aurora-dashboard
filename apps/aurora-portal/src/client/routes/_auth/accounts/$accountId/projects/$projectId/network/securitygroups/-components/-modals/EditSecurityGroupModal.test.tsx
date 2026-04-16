@@ -8,7 +8,6 @@ import { EditSecurityGroupModal } from "./EditSecurityGroupModal"
 import { SecurityGroup, UpdateSecurityGroupInput } from "@/server/Network/types/securityGroup"
 
 // ─── Mock Security Group ──────────────────────────────────────────────────────
-
 const mockSecurityGroup: SecurityGroup = {
   id: "sg-123",
   name: "existing-sg",
@@ -18,7 +17,6 @@ const mockSecurityGroup: SecurityGroup = {
 }
 
 // ─── Render helper ────────────────────────────────────────────────────────────
-
 const renderModal = ({
   securityGroup = mockSecurityGroup,
   open = true,
