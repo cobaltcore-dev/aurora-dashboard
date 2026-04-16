@@ -10,7 +10,7 @@ import type { SecurityGroup } from "@/server/Network/types/securityGroup"
 import { SecurityGroupPermissions } from "./SecurityGroupTableRow"
 
 // Mock the modals
-vi.mock("./-modals/EditSecurityGroupModal", () => ({
+vi.mock("../-modals/EditSecurityGroupModal", () => ({
   EditSecurityGroupModal: ({
     securityGroup,
     open,

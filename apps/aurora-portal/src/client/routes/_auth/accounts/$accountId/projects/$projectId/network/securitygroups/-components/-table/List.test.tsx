@@ -83,12 +83,12 @@ vi.mock("@tanstack/react-router", async () => {
 })
 
 // Mock CreateSecurityGroupModal
-vi.mock("./-components/-modals/CreateSecurityGroupModal", () => ({
+vi.mock("../-modals/CreateSecurityGroupModal", () => ({
   CreateSecurityGroupModal: () => <div data-testid="create-modal">Create Modal</div>,
 }))
 
 // Mock SecurityGroupListContainer
-vi.mock("./-components/SecurityGroupListContainer", () => ({
+vi.mock("./SecurityGroupListContainer", () => ({
   SecurityGroupListContainer: ({
     securityGroups,
     isLoading,

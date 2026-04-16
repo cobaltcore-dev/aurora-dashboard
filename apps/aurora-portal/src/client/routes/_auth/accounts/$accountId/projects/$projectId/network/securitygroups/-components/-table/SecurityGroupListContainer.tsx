@@ -4,6 +4,7 @@ import { Trans, useLingui } from "@lingui/react/macro"
 import { useNavigate, useParams } from "@tanstack/react-router"
 import type { SecurityGroup } from "@/server/Network/types/securityGroup"
 import type { UpdateSecurityGroupInput } from "@/server/Network/types/securityGroup"
+import { useModal } from "@/client/utils/useModal"
 import { EditSecurityGroupModal } from "../-modals/EditSecurityGroupModal"
 import { DeleteSecurityGroupDialog } from "../-modals/DeleteSecurityGroupDialog"
 import { SecurityGroupTableRow, type SecurityGroupPermissions } from "./SecurityGroupTableRow"
@@ -40,19 +41,19 @@ export const SecurityGroupListContainer = ({
   const navigate = useNavigate()
   const { accountId, projectId } = useParams({ strict: false })
   const [selectedSecurityGroup, setSelectedSecurityGroup] = useState<SecurityGroup | null>(null)
-  const [editModalOpen, setEditModalOpen] = useState(false)
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [editModalOpen, toggleEditModalOpen] = useModal(false)
+  const [deleteDialogOpen, toggleDeleteDialogOpen] = useModal(false)
   const prevIsDeletingRef = useRef<boolean>(false)
   const prevIsUpdatingRef = useRef<boolean>(false)
 
   const handleEdit = (sg: SecurityGroup) => {
     setSelectedSecurityGroup(sg)
-    setEditModalOpen(true)
+    toggleEditModalOpen()
   }
 
   const handleDelete = (sg: SecurityGroup) => {
     setSelectedSecurityGroup(sg)
-    setDeleteDialogOpen(true)
+    toggleDeleteDialogOpen()
   }
 
   const handleViewDetails = (sg: SecurityGroup) => {
@@ -64,12 +65,12 @@ export const SecurityGroupListContainer = ({
 
   const closeEditModal = () => {
     setSelectedSecurityGroup(null)
-    setEditModalOpen(false)
+    toggleEditModalOpen()
   }
 
   const closeDeleteDialog = () => {
     setSelectedSecurityGroup(null)
-    setDeleteDialogOpen(false)
+    toggleDeleteDialogOpen()
   }
 
   // Close delete dialog when deletion completes successfully
@@ -148,42 +149,34 @@ export const SecurityGroupListContainer = ({
 
       {selectedSecurityGroup && (
         <>
-          <EditSecurityGroupModal
-            securityGroup={selectedSecurityGroup}
-            open={editModalOpen}
-            onClose={closeEditModal}
-            onUpdate={async (id, data) => {
-              if (onUpdateSecurityGroup) {
-                await onUpdateSecurityGroup(id, data)
-              }
-            }}
-            isLoading={isUpdatingSecurityGroup}
-            error={updateError}
-          />
-          <DeleteSecurityGroupDialog
-            securityGroup={selectedSecurityGroup}
-            isOpen={deleteDialogOpen}
-            onClose={closeDeleteDialog}
-            onDelete={(id) => {
-              if (onDeleteSecurityGroup) {
-                onDeleteSecurityGroup(id)
-              }
-            }}
-            isDeleting={isDeletingSecurityGroup}
-            error={deleteError}
-          />
-          <DeleteSecurityGroupDialog
-            securityGroup={selectedSecurityGroup}
-            isOpen={deleteDialogOpen}
-            onClose={closeDeleteDialog}
-            onDelete={(id) => {
-              if (onDeleteSecurityGroup) {
-                onDeleteSecurityGroup(id)
-              }
-            }}
-            isDeleting={isDeletingSecurityGroup}
-            error={deleteError}
-          />
+          {editModalOpen && (
+            <EditSecurityGroupModal
+              securityGroup={selectedSecurityGroup}
+              open={editModalOpen}
+              onClose={closeEditModal}
+              onUpdate={async (id, data) => {
+                if (onUpdateSecurityGroup) {
+                  await onUpdateSecurityGroup(id, data)
+                }
+              }}
+              isLoading={isUpdatingSecurityGroup}
+              error={updateError}
+            />
+          )}
+          {deleteDialogOpen && (
+            <DeleteSecurityGroupDialog
+              securityGroup={selectedSecurityGroup}
+              isOpen={deleteDialogOpen}
+              onClose={closeDeleteDialog}
+              onDelete={(id) => {
+                if (onDeleteSecurityGroup) {
+                  onDeleteSecurityGroup(id)
+                }
+              }}
+              isDeleting={isDeletingSecurityGroup}
+              error={deleteError}
+            />
+          )}
         </>
       )}
     </>
