@@ -398,7 +398,9 @@ export const EditImageMetadataModal: React.FC<EditImageMetadataModalProps> = ({
   onClose,
   onSave,
 }) => {
-  const { data: excludedPropertiesData } = trpcReact.compute.getImageMetadataExcludedProperties.useQuery()
+  const { data: excludedPropertiesData } = trpcReact.compute.getImageMetadataExcludedProperties.useQuery(undefined, {
+    enabled: isOpen,
+  })
   const excludedProperties = useMemo(() => new Set(excludedPropertiesData ?? []), [excludedPropertiesData])
   const initialMetadata = useMemo(
     () => buildInitialMetadata(image, excludedProperties),

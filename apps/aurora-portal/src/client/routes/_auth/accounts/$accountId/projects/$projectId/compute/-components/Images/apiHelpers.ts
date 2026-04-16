@@ -27,6 +27,7 @@ export const createImagesPromise = (
         status: filters.status,
         disk_format: filters.disk_format,
         container_format: filters.container_format,
+        protected: filters.protected,
         sort: `${sortBy}:${sortDirection}`,
       })
       .then((images) => ({

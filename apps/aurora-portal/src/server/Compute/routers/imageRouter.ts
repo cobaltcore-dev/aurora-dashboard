@@ -15,6 +15,7 @@ import {
   validateBulkImageIds,
   processBulkOperation,
   validateUploadInput,
+  parseMultiValue,
 } from "../helpers/imageHelpers"
 import {
   imageResponseSchema,
@@ -103,25 +104,34 @@ export const imageRouter = {
           pageCount++
 
           if (hasSearchTerm) {
-            // Apply BFF-side filtering to current batch
-            let filteredImages = filterBySearchParams(allImages, queryInput.name, ["name"])
+            // Apply BFF-side filtering to current batch to check if we have enough results
+            let filteredSoFar = filterBySearchParams(allImages, queryInput.name, ["name"])
 
-            // Apply other filters
             if (queryInput.visibility && queryInput.visibility !== "all") {
-              filteredImages = filteredImages.filter((img) => img.visibility === queryInput.visibility)
+              filteredSoFar = filteredSoFar.filter((img) => img.visibility === queryInput.visibility)
             }
             if (queryInput.status) {
-              const statusValues = queryInput.status.startsWith("in:")
-                ? queryInput.status.replace("in:", "").split(",")
-                : [queryInput.status]
-              filteredImages = filteredImages.filter((img) => statusValues.includes(img.status ?? ""))
+              const values = parseMultiValue(queryInput.status)
+              filteredSoFar = filteredSoFar.filter((img) => values.includes(img.status ?? ""))
+            }
+            if (queryInput.disk_format) {
+              const values = parseMultiValue(queryInput.disk_format)
+              filteredSoFar = filteredSoFar.filter((img) => values.includes(img.disk_format ?? ""))
+            }
+            if (queryInput.container_format) {
+              const values = parseMultiValue(queryInput.container_format)
+              filteredSoFar = filteredSoFar.filter((img) => values.includes(img.container_format ?? ""))
+            }
+            if (queryInput.protected !== undefined && queryInput.protected !== null) {
+              const wantProtected = queryInput.protected === "true"
+              filteredSoFar = filteredSoFar.filter((img) => !!img.protected === wantProtected)
             }
             if (queryInput.owner) {
-              filteredImages = filteredImages.filter((img) => img.owner === queryInput.owner)
+              filteredSoFar = filteredSoFar.filter((img) => img.owner === queryInput.owner)
             }
 
             // If we have enough results, stop fetching but remember next page
-            if (filteredImages.length >= MIN_RESULTS_WHEN_SEARCHING) {
+            if (filteredSoFar.length >= MIN_RESULTS_WHEN_SEARCHING) {
               nextMarker = parsedData.data.next
               break
             }
@@ -139,10 +149,6 @@ export const imageRouter = {
         // Apply BFF-side filtering to all collected images
         let filteredImages = allImages
 
-        // Helper to parse multi-value "in:val1,val2" or single "val" filter params
-        const parseMultiValue = (param: string) =>
-          param.startsWith("in:") ? param.replace("in:", "").split(",") : [param]
-
         // Filter by name (search)
         if (hasSearchTerm) {
           filteredImages = filterBySearchParams(filteredImages, queryInput.name, ["name"])
@@ -155,20 +161,23 @@ export const imageRouter = {
 
         // Filter by status (supports multi-value "in:active,queued" format)
         if (queryInput.status) {
-          const statusValues = parseMultiValue(queryInput.status)
-          filteredImages = filteredImages.filter((img) => statusValues.includes(img.status ?? ""))
+          filteredImages = filteredImages.filter((img) =>
+            parseMultiValue(queryInput.status!).includes(img.status ?? "")
+          )
         }
 
         // Filter by disk_format (supports multi-value "in:qcow2,raw" format)
         if (queryInput.disk_format) {
-          const values = parseMultiValue(queryInput.disk_format)
-          filteredImages = filteredImages.filter((img) => values.includes(img.disk_format ?? ""))
+          filteredImages = filteredImages.filter((img) =>
+            parseMultiValue(queryInput.disk_format!).includes(img.disk_format ?? "")
+          )
         }
 
         // Filter by container_format (supports multi-value "in:bare,ovf" format)
         if (queryInput.container_format) {
-          const values = parseMultiValue(queryInput.container_format)
-          filteredImages = filteredImages.filter((img) => values.includes(img.container_format ?? ""))
+          filteredImages = filteredImages.filter((img) =>
+            parseMultiValue(queryInput.container_format!).includes(img.container_format ?? "")
+          )
         }
 
         // Filter by protected ("true" / "false" string)
@@ -248,10 +257,6 @@ export const imageRouter = {
         // Apply BFF-side filtering
         let filteredImages = allImages
 
-        // Helper to parse multi-value "in:val1,val2" or single "val" filter params
-        const parseMultiValue = (param: string) =>
-          param.startsWith("in:") ? param.replace("in:", "").split(",") : [param]
-
         // Filter by name (search)
         if (queryInput.name && queryInput.name.trim()) {
           filteredImages = filterBySearchParams(filteredImages, queryInput.name, ["name"])
@@ -264,20 +269,23 @@ export const imageRouter = {
 
         // Filter by status (supports multi-value "in:active,queued" format)
         if (queryInput.status) {
-          const statusValues = parseMultiValue(queryInput.status)
-          filteredImages = filteredImages.filter((img) => statusValues.includes(img.status ?? ""))
+          filteredImages = filteredImages.filter((img) =>
+            parseMultiValue(queryInput.status!).includes(img.status ?? "")
+          )
         }
 
         // Filter by disk_format (supports multi-value "in:qcow2,raw" format)
         if (queryInput.disk_format) {
-          const values = parseMultiValue(queryInput.disk_format)
-          filteredImages = filteredImages.filter((img) => values.includes(img.disk_format ?? ""))
+          filteredImages = filteredImages.filter((img) =>
+            parseMultiValue(queryInput.disk_format!).includes(img.disk_format ?? "")
+          )
         }
 
         // Filter by container_format (supports multi-value "in:bare,ovf" format)
         if (queryInput.container_format) {
-          const values = parseMultiValue(queryInput.container_format)
-          filteredImages = filteredImages.filter((img) => values.includes(img.container_format ?? ""))
+          filteredImages = filteredImages.filter((img) =>
+            parseMultiValue(queryInput.container_format!).includes(img.container_format ?? "")
+          )
         }
 
         // Filter by protected ("true" / "false" string)
@@ -881,12 +889,13 @@ export const imageRouter = {
         status: z.string().optional(),
         disk_format: z.string().optional(),
         container_format: z.string().optional(),
+        protected: z.string().optional(),
         sort: z.string().optional(),
       })
     )
     .query(async ({ ctx, input }): Promise<GlanceImage[]> => {
       return withErrorHandling(async () => {
-        const { memberStatus, name, status, disk_format, container_format, sort } = input
+        const { memberStatus, name, status, disk_format, container_format, protected: protectedFilter, sort } = input
 
         const openstackSession = ctx.openstack
         const glance = openstackSession?.service("glance")
@@ -955,25 +964,24 @@ export const imageRouter = {
           return member?.status === memberStatus
         })
 
-        // Step 5: Apply BFF-side filters (name search, status, disk_format, container_format)
-        // These use the 'in:' multi-value format: "in:val1,val2" or single "val"
-        const parseMultiValue = (param: string) =>
-          param.startsWith("in:") ? param.replace("in:", "").split(",") : [param]
-
+        // Step 5: Apply BFF-side filters (name search, status, disk_format, container_format, protected)
         if (name) {
           filteredImages = filterBySearchParams(filteredImages, name, ["name"])
         }
         if (status) {
-          const values = parseMultiValue(status)
-          filteredImages = filteredImages.filter((img) => values.includes(img.status ?? ""))
+          filteredImages = filteredImages.filter((img) => parseMultiValue(status).includes(img.status ?? ""))
         }
         if (disk_format) {
-          const values = parseMultiValue(disk_format)
-          filteredImages = filteredImages.filter((img) => values.includes(img.disk_format ?? ""))
+          filteredImages = filteredImages.filter((img) => parseMultiValue(disk_format).includes(img.disk_format ?? ""))
         }
         if (container_format) {
-          const values = parseMultiValue(container_format)
-          filteredImages = filteredImages.filter((img) => values.includes(img.container_format ?? ""))
+          filteredImages = filteredImages.filter((img) =>
+            parseMultiValue(container_format).includes(img.container_format ?? "")
+          )
+        }
+        if (protectedFilter !== undefined && protectedFilter !== null) {
+          const wantProtected = protectedFilter === "true"
+          filteredImages = filteredImages.filter((img) => !!img.protected === wantProtected)
         }
 
         return filteredImages
