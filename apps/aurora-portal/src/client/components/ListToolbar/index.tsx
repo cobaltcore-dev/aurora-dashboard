@@ -103,28 +103,12 @@ export const ListToolbar = ({
   }
 
   const filtersProps = filterSettings && onFilter ? { filters: filterSettings.filters, onChange: handleSelect } : null
-  const sortDirection = sortSettings?.sortDirection ?? "asc"
-
-  const handleSortByChange = useCallback(
-    (param: string | number | string[] | undefined) => {
-      if (!sortSettings || !onSort) return
-      onSort({ ...sortSettings, sortBy: param, sortDirection })
-    },
-    [onSort, sortDirection, sortSettings]
-  )
-
-  const handleSortDirectionChange = useCallback(
-    (direction: "asc" | "desc") => {
-      if (!sortSettings || !onSort) return
-      onSort({ ...sortSettings, sortDirection: direction })
-    },
-    [onSort, sortSettings]
-  )
+  const sortDirection = sortSettings?.sortDirection === "desc" ? "desc" : "asc"
 
   const handleSearchClear = useCallback(() => {
     form.setFieldValue("search", "")
     onSearch?.("")
-  }, [onSearch])
+  }, [form, onSearch])
 
   return (
     <>
@@ -155,7 +139,7 @@ export const ListToolbar = ({
               <InputGroup className="flex w-full items-end sm:w-auto">
                 <Select
                   value={sortSettings.sortBy}
-                  onChange={handleSortByChange}
+                  onChange={(value) => onSort({ ...sortSettings, sortBy: value ?? "", sortDirection })}
                   label={t`Sort by`}
                   className="grow"
                   data-testid="sort-select"
@@ -168,7 +152,9 @@ export const ListToolbar = ({
                 </Select>
                 <SortButton
                   order={sortDirection}
-                  onChange={handleSortDirectionChange}
+                  onChange={(direction) =>
+                    onSort({ ...sortSettings, sortDirection: direction === "desc" ? "desc" : "asc" })
+                  }
                   className="shadow-none"
                   data-testid="direction-toggle"
                 />
