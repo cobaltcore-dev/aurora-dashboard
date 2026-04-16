@@ -48,6 +48,9 @@ export const DeleteSecurityGroupDialog: React.FC<DeleteSecurityGroupDialogProps>
       modalFooter={
         <ModalFooter className="flex justify-end">
           <ButtonRow>
+            <Button variant="default" onClick={handleClose} disabled={isDeleting}>
+              <Trans>Cancel</Trans>
+            </Button>
             <Button
               variant="primary-danger"
               onClick={handleDelete}
@@ -55,9 +58,6 @@ export const DeleteSecurityGroupDialog: React.FC<DeleteSecurityGroupDialogProps>
               data-testid="confirm-delete-button"
             >
               {isDeleting ? <Trans>Deleting...</Trans> : <Trans>Delete</Trans>}
-            </Button>
-            <Button variant="default" onClick={handleClose} disabled={isDeleting}>
-              <Trans>Cancel</Trans>
             </Button>
           </ButtonRow>
         </ModalFooter>

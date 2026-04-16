@@ -40,6 +40,9 @@ export function DeleteRuleDialog({ rule, open, onClose, onConfirm, isLoading, er
       modalFooter={
         <ModalFooter className="flex justify-end">
           <ButtonRow>
+            <Button variant="default" onClick={handleClose} disabled={isLoading}>
+              <Trans>Cancel</Trans>
+            </Button>
             <Button
               variant="primary-danger"
               onClick={handleConfirm}
@@ -47,9 +50,6 @@ export function DeleteRuleDialog({ rule, open, onClose, onConfirm, isLoading, er
               data-testid="confirm-delete-rule-button"
             >
               {isLoading ? <Trans>Deleting...</Trans> : <Trans>Delete Rule</Trans>}
-            </Button>
-            <Button variant="default" onClick={handleClose} disabled={isLoading}>
-              <Trans>Cancel</Trans>
             </Button>
           </ButtonRow>
         </ModalFooter>

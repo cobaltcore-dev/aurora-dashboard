@@ -135,7 +135,7 @@ async function startServer() {
       onError: (err) => {
         // Format Zod validation errors for better client-side handling
         if (err.error.cause instanceof ZodError)
-          err.error.message = err.error.cause.errors.map((e) => e.message).join(",")
+          err.error.message = err.error.cause.issues.map((e: { message: string }) => e.message).join(",")
       },
     } satisfies FastifyTRPCPluginOptions<AuroraRouter>["trpcOptions"],
   })

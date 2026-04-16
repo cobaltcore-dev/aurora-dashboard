@@ -28,7 +28,7 @@ export const serverRouter = {
           console.error(JSON.stringify(parsedData.error.format(), null, 2))
 
           // Log the specific error path that caused the issue
-          parsedData.error.errors.forEach((err) => {
+          parsedData.error.issues.forEach((err) => {
             console.error(`Error at path ${err.path.join(".")}: ${err.message}`)
             // Show the actual data at this path for comparison
             const pathValue = err.path.reduce((obj, key) => obj && obj[key], rawData)

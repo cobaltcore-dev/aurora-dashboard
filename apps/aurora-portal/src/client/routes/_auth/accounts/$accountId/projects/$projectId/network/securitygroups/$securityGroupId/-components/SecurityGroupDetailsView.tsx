@@ -33,6 +33,7 @@ interface SecurityGroupDetailsViewProps {
   isCreatingRule?: boolean
   createRuleError?: string | null
   availableSecurityGroups?: Array<{ id: string; name: string | null }>
+  currentProjectId: string
 }
 
 export function SecurityGroupDetailsView({
@@ -47,8 +48,14 @@ export function SecurityGroupDetailsView({
   isCreatingRule = false,
   createRuleError = null,
   availableSecurityGroups = [],
+  currentProjectId,
 }: SecurityGroupDetailsViewProps) {
   const [activeTab, setActiveTab] = useState<TabType>("rules")
+
+  // Determine if RBAC tab should be shown
+  // RBAC policies can only be managed by the owner project
+  const isOwner = securityGroup.project_id === currentProjectId
+  const showRBACTab = isOwner
 
   return (
     <Container px={false} py>
@@ -60,7 +67,7 @@ export function SecurityGroupDetailsView({
         <SecurityGroupBasicInfo securityGroup={securityGroup} onEdit={onEdit} />
 
         {/* Tabs Navigation */}
-        <SecurityGroupTabs activeTab={activeTab} onTabChange={setActiveTab} />
+        <SecurityGroupTabs activeTab={activeTab} onTabChange={setActiveTab} showRBACTab={showRBACTab} />
 
         {/* Tab Content */}
         <div className="mt-6">

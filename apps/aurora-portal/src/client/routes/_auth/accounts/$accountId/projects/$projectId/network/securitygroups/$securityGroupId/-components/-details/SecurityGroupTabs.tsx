@@ -6,9 +6,10 @@ export type TabType = "rules" | "rbac"
 interface SecurityGroupTabsProps {
   activeTab: TabType
   onTabChange: (tab: TabType) => void
+  showRBACTab?: boolean
 }
 
-export function SecurityGroupTabs({ activeTab, onTabChange }: SecurityGroupTabsProps) {
+export function SecurityGroupTabs({ activeTab, onTabChange, showRBACTab = true }: SecurityGroupTabsProps) {
   const getTabClassName = (tab: TabType) => {
     const baseClasses = "px-6 py-3 font-semibold border-b-2 transition-colors"
     const activeClasses = "border-theme-accent text-theme-highest"
@@ -23,9 +24,11 @@ export function SecurityGroupTabs({ activeTab, onTabChange }: SecurityGroupTabsP
         <button className={getTabClassName("rules")} onClick={() => onTabChange("rules")}>
           <Trans>Rules</Trans>
         </button>
-        <button className={getTabClassName("rbac")} onClick={() => onTabChange("rbac")}>
-          <Trans>RBAC Policies</Trans>
-        </button>
+        {showRBACTab && (
+          <button className={getTabClassName("rbac")} onClick={() => onTabChange("rbac")}>
+            <Trans>RBAC Policies</Trans>
+          </button>
+        )}
       </Stack>
     </div>
   )

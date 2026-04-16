@@ -54,6 +54,8 @@ const mockSecurityGroup: SecurityGroup = {
   security_group_rules: [],
 }
 
+const mockCurrentProjectId = "project-456"
+
 const createWrapper =
   () =>
   ({ children }: { children: React.ReactNode }) => (
@@ -102,6 +104,7 @@ describe("SecurityGroupDetailsView", () => {
         onDeleteRule={() => {}}
         filterControls={defaultFilterControls}
         availableSecurityGroups={[]}
+        currentProjectId={mockCurrentProjectId}
       />,
       {
         wrapper: createWrapper(),
@@ -125,6 +128,7 @@ describe("SecurityGroupDetailsView", () => {
         onDeleteRule={() => {}}
         filterControls={defaultFilterControls}
         availableSecurityGroups={[]}
+        currentProjectId={mockCurrentProjectId}
       />,
       {
         wrapper: createWrapper(),
@@ -143,6 +147,7 @@ describe("SecurityGroupDetailsView", () => {
         onDeleteRule={() => {}}
         filterControls={defaultFilterControls}
         availableSecurityGroups={[]}
+        currentProjectId={mockCurrentProjectId}
       />,
       {
         wrapper: createWrapper(),
@@ -160,6 +165,7 @@ describe("SecurityGroupDetailsView", () => {
         onDeleteRule={() => {}}
         filterControls={defaultFilterControls}
         availableSecurityGroups={[]}
+        currentProjectId={mockCurrentProjectId}
       />,
       {
         wrapper: createWrapper(),
@@ -180,6 +186,7 @@ describe("SecurityGroupDetailsView", () => {
         onDeleteRule={() => {}}
         filterControls={defaultFilterControls}
         availableSecurityGroups={[]}
+        currentProjectId={mockCurrentProjectId}
       />,
       {
         wrapper: createWrapper(),
@@ -214,6 +221,7 @@ describe("SecurityGroupDetailsView", () => {
           onDeleteRule={() => {}}
           filterControls={filterControls}
           availableSecurityGroups={[]}
+          currentProjectId={mockCurrentProjectId}
         />,
         {
           wrapper: createWrapper(),
@@ -246,6 +254,7 @@ describe("SecurityGroupDetailsView", () => {
           onDeleteRule={() => {}}
           filterControls={filterControls}
           availableSecurityGroups={[]}
+          currentProjectId={mockCurrentProjectId}
         />,
         {
           wrapper: createWrapper(),
@@ -275,6 +284,7 @@ describe("SecurityGroupDetailsView", () => {
           onDeleteRule={() => {}}
           filterControls={filterControls}
           availableSecurityGroups={[]}
+          currentProjectId={mockCurrentProjectId}
         />,
         {
           wrapper: createWrapper(),
@@ -303,6 +313,7 @@ describe("SecurityGroupDetailsView", () => {
           onDeleteRule={() => {}}
           filterControls={filterControls}
           availableSecurityGroups={[]}
+          currentProjectId={mockCurrentProjectId}
         />,
         {
           wrapper: createWrapper(),
@@ -331,6 +342,7 @@ describe("SecurityGroupDetailsView", () => {
           onDeleteRule={() => {}}
           filterControls={filterControls}
           availableSecurityGroups={[]}
+          currentProjectId={mockCurrentProjectId}
         />,
         {
           wrapper: createWrapper(),
@@ -365,6 +377,7 @@ describe("SecurityGroupDetailsView", () => {
           onDeleteRule={() => {}}
           filterControls={filterControls}
           availableSecurityGroups={[]}
+          currentProjectId={mockCurrentProjectId}
         />,
         {
           wrapper: createWrapper(),
@@ -385,6 +398,7 @@ describe("SecurityGroupDetailsView", () => {
           onDeleteRule={() => {}}
           filterControls={defaultFilterControls}
           availableSecurityGroups={[]}
+          currentProjectId={mockCurrentProjectId}
         />,
         {
           wrapper: createWrapper(),
@@ -413,6 +427,7 @@ describe("SecurityGroupDetailsView", () => {
           onDeleteRule={() => {}}
           filterControls={filterControls}
           availableSecurityGroups={[]}
+          currentProjectId={mockCurrentProjectId}
         />,
         {
           wrapper: createWrapper(),
