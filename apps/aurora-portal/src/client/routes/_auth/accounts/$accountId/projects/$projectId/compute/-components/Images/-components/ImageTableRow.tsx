@@ -1,15 +1,14 @@
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { useParams, useNavigate } from "@tanstack/react-router"
 import {
-  Button,
   Checkbox,
   DataGridCell,
   DataGridRow,
+  Modal,
   PopupMenu,
   PopupMenuItem,
   PopupMenuOptions,
   Spinner,
-  Stack,
   ToastProps,
 } from "@cloudoperators/juno-ui-components"
 import { useLingui } from "@lingui/react/macro"
@@ -94,20 +93,8 @@ export function ImageTableRow({
   const isExternalImage = isPending || isAccepted
   const isMutating = updateMemberMutation.isPending
 
-  const [confirmRevoke, setConfirmRevoke] = useState(false)
-  const [confirmReject, setConfirmReject] = useState(false)
-  useEffect(() => {
-    if (confirmRevoke) {
-      const timer = setTimeout(() => setConfirmRevoke(false), 3000)
-      return () => clearTimeout(timer)
-    }
-  }, [confirmRevoke])
-  useEffect(() => {
-    if (confirmReject) {
-      const timer = setTimeout(() => setConfirmReject(false), 3000)
-      return () => clearTimeout(timer)
-    }
-  }, [confirmReject])
+  const [acceptModalOpen, setAcceptModalOpen] = useState(false)
+  const [rejectModalOpen, setRejectModalOpen] = useState(false)
 
   return (
     <DataGridRow
@@ -135,60 +122,8 @@ export function ImageTableRow({
       <DataGridCell>{created_at ? new Date(created_at).toLocaleDateString() : t`N/A`}</DataGridCell>
 
       <DataGridCell onClick={(e) => e.stopPropagation()}>
-        {isExternalImage ? (
-          permissions.canUpdateMember ? (
-            <Stack direction="horizontal" gap="2">
-              {isMutating ? (
-                <Spinner variant="primary" size="small" />
-              ) : (
-                <>
-                  {isPending && (
-                    <>
-                      {confirmReject ? (
-                        <Button
-                          size="small"
-                          variant="primary-danger"
-                          label={t`Confirm`}
-                          onClick={() => {
-                            setConfirmReject(false)
-                            handleMemberStatusChange(MEMBER_STATUSES.REJECTED)
-                          }}
-                        />
-                      ) : (
-                        <Button
-                          size="small"
-                          variant="subdued"
-                          label={t`Reject`}
-                          onClick={() => setConfirmReject(true)}
-                        />
-                      )}
-                      <Button
-                        size="small"
-                        variant="primary"
-                        label={t`Accept`}
-                        onClick={() => handleMemberStatusChange(MEMBER_STATUSES.ACCEPTED)}
-                      />
-                    </>
-                  )}
-                  {isAccepted &&
-                    !isPending &&
-                    (confirmRevoke ? (
-                      <Button
-                        size="small"
-                        variant="primary-danger"
-                        label={t`Confirm`}
-                        onClick={() => {
-                          setConfirmRevoke(false)
-                          handleMemberStatusChange(MEMBER_STATUSES.REJECTED)
-                        }}
-                      />
-                    ) : (
-                      <Button size="small" label={t`Revoke`} onClick={() => setConfirmRevoke(true)} />
-                    ))}
-                </>
-              )}
-            </Stack>
-          ) : null
+        {isMutating ? (
+          <Spinner variant="primary" size="small" />
         ) : (
           <PopupMenu>
             <PopupMenuOptions>
@@ -202,8 +137,31 @@ export function ImageTableRow({
                 }
               />
 
+              {isExternalImage && permissions.canUpdateMember && (
+                <>
+                  {isPending && (
+                    <PopupMenuItem
+                      label={t`Accept`}
+                      onClick={() => setAcceptModalOpen(true)}
+                    />
+                  )}
+                  {isPending && (
+                    <PopupMenuItem
+                      label={t`Reject`}
+                      onClick={() => setRejectModalOpen(true)}
+                    />
+                  )}
+                  {isAccepted && (
+                    <PopupMenuItem
+                      label={t`Reject`}
+                      onClick={() => setRejectModalOpen(true)}
+                    />
+                  )}
+                </>
+              )}
+
               {/* Own image: full actions */}
-              {permissions.canUpdate && (
+              {!isExternalImage && permissions.canUpdate && (
                 <>
                   <PopupMenuItem label={t`Edit Details`} onClick={() => onEditDetails(image)} />
                   <PopupMenuItem label={t`Edit Metadata`} onClick={() => onEditMetadata(image)} />
@@ -224,11 +182,47 @@ export function ImageTableRow({
                   )}
                 </>
               )}
-              {permissions.canDelete && !image.protected && (
+              {!isExternalImage && permissions.canDelete && !image.protected && (
                 <PopupMenuItem label={t`Delete`} onClick={() => onDelete(image)} />
               )}
             </PopupMenuOptions>
           </PopupMenu>
+        )}
+
+        {acceptModalOpen && (
+          <Modal
+            title={t`Accept Shared Image`}
+            open={acceptModalOpen}
+            onCancel={() => setAcceptModalOpen(false)}
+            confirmButtonLabel={t`Accept`}
+            onConfirm={() => {
+              setAcceptModalOpen(false)
+              handleMemberStatusChange(MEMBER_STATUSES.ACCEPTED)
+            }}
+          >
+            <p>
+              {t`Accept access to image`} <strong>{imageName}</strong>?{" "}
+              {t`It will appear in your image list.`}
+            </p>
+          </Modal>
+        )}
+
+        {rejectModalOpen && (
+          <Modal
+            title={t`Reject Shared Image`}
+            open={rejectModalOpen}
+            onCancel={() => setRejectModalOpen(false)}
+            confirmButtonLabel={t`Reject`}
+            onConfirm={() => {
+              setRejectModalOpen(false)
+              handleMemberStatusChange(MEMBER_STATUSES.REJECTED)
+            }}
+          >
+            <p>
+              {t`Reject access to image`} <strong>{imageName}</strong>?{" "}
+              {t`It will be removed from your image list.`}
+            </p>
+          </Modal>
         )}
       </DataGridCell>
     </DataGridRow>

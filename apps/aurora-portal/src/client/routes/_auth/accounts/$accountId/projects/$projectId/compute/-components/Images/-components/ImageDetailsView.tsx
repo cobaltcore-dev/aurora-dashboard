@@ -101,7 +101,7 @@ const SharedImageBox: React.FC<{
               disabled={isLoading}
               variant="primary-danger"
             >
-              <Trans>Revoke Access</Trans>
+              <Trans>Reject</Trans>
             </Button>
           )}
         </ButtonRow>
