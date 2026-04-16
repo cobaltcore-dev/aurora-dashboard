@@ -163,8 +163,10 @@ export async function createContext(opts: CreateFastifyContextOptions): Promise<
       return cachedUserInfo
     } catch (err) {
       console.error("Error fetching accessible domains:", err)
-      // Fallback: return empty array if we can't fetch domains
-      return { availableDomains: [] }
+      // Return undefined to signal that we couldn't fetch domain info
+      // domainScopedProcedure will treat this as "cannot verify access"
+      // and deny the request, which is safer than allowing access on error
+      return undefined
     }
   }
 

@@ -177,10 +177,21 @@ export const domainScopedProcedure = protectedProcedure
     // for project-scoped or public procedures
     const userInfo = ctx.getUserInfo ? await ctx.getUserInfo() : undefined
 
+    // If we couldn't fetch user info, it means either:
+    // 1. Keystone service is unavailable (network/server error)
+    // 2. Token is invalid (should be caught by protectedProcedure)
+    // We treat this as an authorization failure since we can't verify access
+    if (!userInfo) {
+      throw new TRPCError({
+        code: "UNAUTHORIZED",
+        message: "Failed to verify domain access. Please try again or contact support.",
+      })
+    }
+
     // Verify that the user has access to the specific domain requested
     // We check the list of available domains from /v3/auth/domains
     // Actual permission enforcement happens in Keystone when we rescope
-    const hasAccess = userInfo?.availableDomains?.some((domain: { id: string }) => domain.id === domain_id)
+    const hasAccess = userInfo.availableDomains?.some((domain: { id: string }) => domain.id === domain_id)
     if (!hasAccess) {
       throw new TRPCError({
         code: "FORBIDDEN",
