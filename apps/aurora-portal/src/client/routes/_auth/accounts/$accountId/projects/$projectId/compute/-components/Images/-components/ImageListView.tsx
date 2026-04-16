@@ -129,22 +129,13 @@ export function ImageListView({
   const [uploadId, setUploadId] = useState<string | null>(null)
 
   const loadMoreRef = useRef<HTMLDivElement>(null)
-  const hasAutoFetchedRef = useRef(false)
-
-  // Reset the auto-fetch flag whenever a fresh result set arrives (hasNextPage flips back to true)
-  useEffect(() => {
-    if (hasNextPage) {
-      hasAutoFetchedRef.current = false
-    }
-  }, [hasNextPage])
 
   useEffect(() => {
     if (!loadMoreRef.current || !hasNextPage || isFetchingNextPage) return
 
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting && !hasAutoFetchedRef.current) {
-          hasAutoFetchedRef.current = true
+        if (entries[0].isIntersecting) {
           fetchNextPage?.()
         }
       },
