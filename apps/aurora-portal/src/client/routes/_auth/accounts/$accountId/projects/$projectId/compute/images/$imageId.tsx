@@ -296,7 +296,7 @@ function RouteComponent() {
 
   const isDeactivated = image.status === IMAGE_STATUSES.DEACTIVATED
   const isPrivate = image.visibility === IMAGE_VISIBILITY.PRIVATE
-  const hasMoreActions = permissions.canUpdate || (permissions.canDelete && !image.protected)
+  const hasMoreActions = !isSharedWithMe && (permissions.canUpdate || (permissions.canDelete && !image.protected))
 
   // Render success state
   return (
@@ -320,7 +320,7 @@ function RouteComponent() {
         onMemberStatusChange={handleMemberStatusChange}
         isMemberStatusChanging={updateMemberMutation.isPending}
         actions={
-          hasMoreActions || permissions.canUpdate ? (
+          !isSharedWithMe && (hasMoreActions || permissions.canUpdate) ? (
             <ButtonRow>
               {hasMoreActions && (
                 <PopupMenu>
