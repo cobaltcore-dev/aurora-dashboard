@@ -392,14 +392,16 @@ export const Images = ({ client }: ImagesProps) => {
 
     // Refetch with URL state (single fetch path)
     setIsFetching(true)
+    const urlMemberStatus = searchParams.memberStatus ?? "all"
+    const urlMemberStatusFilter = urlMemberStatus === "all" ? undefined : urlMemberStatus
     startTransition(() => {
       const effectiveFilters =
-        memberStatusView === "pending" || memberStatusView === "accepted"
+        urlMemberStatus === "pending" || urlMemberStatus === "accepted"
           ? (urlFilters || []).filter((f) => f.name !== "visibility")
           : urlFilters || []
       const newPromise = createImagesPromise(client, urlSortBy, urlSortDirection, urlSearchTerm, {
         ...buildFilterParams(effectiveFilters, filterSettings.filters),
-        member_status: memberStatusFilter,
+        member_status: urlMemberStatusFilter,
       })
       // Mark fetching as complete once the promise resolves and update state
       newPromise
@@ -453,6 +455,7 @@ export const Images = ({ client }: ImagesProps) => {
           search: prev.search,
           sortBy: prev.sortBy,
           sortDirection: prev.sortDirection,
+          memberStatus: prev.memberStatus,
         })) as unknown as true,
       replace: true,
     })
