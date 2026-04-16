@@ -104,7 +104,12 @@ export const buildFilterParams = (
 export const buildUrlSearchParams = (
   selectedFilters: SelectedFilter[],
   filterDefinitions: Filter[],
-  baseParams: { search?: string; sortBy?: string; sortDirection?: "asc" | "desc"; memberStatus?: "all" | "accepted" | "pending" }
+  baseParams: {
+    search?: string
+    sortBy?: string
+    sortDirection?: "asc" | "desc"
+    memberStatus?: "all" | "accepted" | "pending"
+  }
 ): ImagesSearchParams => {
   const newParams: ImagesSearchParams = {
     search: baseParams.search,

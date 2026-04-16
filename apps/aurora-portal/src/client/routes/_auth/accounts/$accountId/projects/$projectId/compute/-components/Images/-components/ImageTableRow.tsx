@@ -139,24 +139,9 @@ export function ImageTableRow({
 
               {isExternalImage && permissions.canUpdateMember && (
                 <>
-                  {isPending && (
-                    <PopupMenuItem
-                      label={t`Accept`}
-                      onClick={() => setAcceptModalOpen(true)}
-                    />
-                  )}
-                  {isPending && (
-                    <PopupMenuItem
-                      label={t`Reject`}
-                      onClick={() => setRejectModalOpen(true)}
-                    />
-                  )}
-                  {isAccepted && (
-                    <PopupMenuItem
-                      label={t`Reject`}
-                      onClick={() => setRejectModalOpen(true)}
-                    />
-                  )}
+                  {isPending && <PopupMenuItem label={t`Accept`} onClick={() => setAcceptModalOpen(true)} />}
+                  {isPending && <PopupMenuItem label={t`Reject`} onClick={() => setRejectModalOpen(true)} />}
+                  {isAccepted && <PopupMenuItem label={t`Reject`} onClick={() => setRejectModalOpen(true)} />}
                 </>
               )}
 
@@ -201,8 +186,7 @@ export function ImageTableRow({
             }}
           >
             <p>
-              {t`Accept access to image`} <strong>{imageName}</strong>?{" "}
-              {t`It will appear in your image list.`}
+              {t`Accept access to image`} <strong>{imageName}</strong>? {t`It will appear in your image list.`}
             </p>
           </Modal>
         )}
@@ -219,8 +203,7 @@ export function ImageTableRow({
             }}
           >
             <p>
-              {t`Reject access to image`} <strong>{imageName}</strong>?{" "}
-              {t`It will be removed from your image list.`}
+              {t`Reject access to image`} <strong>{imageName}</strong>? {t`It will be removed from your image list.`}
             </p>
           </Modal>
         )}
