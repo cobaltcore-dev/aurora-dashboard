@@ -51,7 +51,7 @@ describe("SideNavBar", () => {
       expect(screen.getByText("Compute")).toBeInTheDocument()
     })
 
-    it("renders Compute header as Overview link (navigates to overview on click)", () => {
+    it("renders Compute header", () => {
       render(
         <TestingProvider>
           <SideNavBar {...defaultProps} />

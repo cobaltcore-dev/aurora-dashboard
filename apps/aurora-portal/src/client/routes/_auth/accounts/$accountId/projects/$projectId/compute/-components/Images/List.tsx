@@ -479,9 +479,10 @@ export const Images = ({ client }: ImagesProps) => {
   const handleMemberStatusChange = (view: "all" | "pending" | "accepted") => {
     setMemberStatusView(view)
     navigate({
-      search: {
+      search: ((prev: ImagesSearchParams) => ({
+        ...prev,
         memberStatus: view === "all" ? undefined : view,
-      } as unknown as true,
+      })) as unknown as true,
     })
   }
 

@@ -146,7 +146,7 @@ function EditImageMetadataModalInner({
   const handleCancelEdit = (index: number) => {
     setMetadata(
       metadata.map((e, i) =>
-        i === index ? { ...e, isEditing: false, key: e.originalKey || e.key, value: e.originalValue || e.value } : e
+        i === index ? { ...e, isEditing: false, key: e.originalKey ?? e.key, value: e.originalValue ?? e.value } : e
       )
     )
     setErrors({})
