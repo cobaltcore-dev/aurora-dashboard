@@ -52,9 +52,9 @@ export function SecurityGroupDetailsView({
 }: SecurityGroupDetailsViewProps) {
   const [activeTab, setActiveTab] = useState<TabType>("rules")
 
-  // Determine if RBAC tab should be shown
-  // RBAC policies can only be managed by the owner project
+  // Determine if this is a shared security group (not owned by current project)
   const isOwner = securityGroup.project_id === currentProjectId
+  const isShared = !isOwner
   const showRBACTab = isOwner
 
   return (
@@ -66,8 +66,10 @@ export function SecurityGroupDetailsView({
         {/* Basic Info Section */}
         <SecurityGroupBasicInfo securityGroup={securityGroup} onEdit={onEdit} />
 
-        {/* Tabs Navigation */}
-        <SecurityGroupTabs activeTab={activeTab} onTabChange={setActiveTab} showRBACTab={showRBACTab} />
+        {/* Tabs Navigation - Hide for shared security groups */}
+        {!isShared && (
+          <SecurityGroupTabs activeTab={activeTab} onTabChange={setActiveTab} showRBACTab={showRBACTab} />
+        )}
 
         {/* Tab Content */}
         <div className="mt-6">
@@ -85,10 +87,11 @@ export function SecurityGroupDetailsView({
               filterSettings={filterControls.filterSettings}
               onFilterChange={filterControls.onFilterChange}
               securityGroupId={securityGroup.id}
-              onCreateRule={onCreateRule}
+              onCreateRule={isShared ? undefined : onCreateRule}
               isCreatingRule={isCreatingRule}
               createRuleError={createRuleError}
               availableSecurityGroups={availableSecurityGroups}
+              readOnly={isShared}
             />
           )}
           {activeTab === "rbac" && <SecurityGroupRBACPolicies securityGroupId={securityGroup.id} />}

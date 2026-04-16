@@ -38,6 +38,7 @@ interface SecurityGroupRulesTableProps {
   isCreatingRule?: boolean
   createRuleError?: string | null
   availableSecurityGroups?: Array<{ id: string; name: string | null }>
+  readOnly?: boolean // Hide actions column and add rule button for shared security groups
 }
 
 export function SecurityGroupRulesTable({
@@ -57,6 +58,7 @@ export function SecurityGroupRulesTable({
   isCreatingRule = false,
   createRuleError = null,
   availableSecurityGroups = [],
+  readOnly = false,
 }: SecurityGroupRulesTableProps) {
   const { t } = useLingui()
   const [ruleToDelete, setRuleToDelete] = useState<SecurityGroupRule | null>(null)
@@ -119,6 +121,7 @@ export function SecurityGroupRulesTable({
           searchTerm={searchTerm}
           onSearch={onSearchChange}
           actions={
+            !readOnly &&
             onCreateRule && (
               <Button variant="primary" icon="addCircle" onClick={toggleAddRuleModal}>
                 <Trans>Add rule</Trans>
@@ -131,14 +134,14 @@ export function SecurityGroupRulesTable({
         {rules.length === 0 ? (
           <Trans>There are no rules for this security group</Trans>
         ) : (
-          <DataGrid columns={6} className="security-group-rules-table">
+          <DataGrid columns={readOnly ? 5 : 6} className="security-group-rules-table">
             <DataGridRow>
               <DataGridHeadCell>{t`Direction`}</DataGridHeadCell>
               <DataGridHeadCell>{t`Description`}</DataGridHeadCell>
               <DataGridHeadCell>{t`Ethertype`}</DataGridHeadCell>
               <DataGridHeadCell>{t`Protocol`}</DataGridHeadCell>
               <DataGridHeadCell>{t`Range`}</DataGridHeadCell>
-              <DataGridHeadCell>{t`Actions`}</DataGridHeadCell>
+              {!readOnly && <DataGridHeadCell>{t`Actions`}</DataGridHeadCell>}
             </DataGridRow>
             {rules.map((rule) => (
               <DataGridRow key={rule.id} data-testid={`rule-row-${rule.id}`}>
@@ -147,13 +150,15 @@ export function SecurityGroupRulesTable({
                 <DataGridCell>{rule.ethertype}</DataGridCell>
                 <DataGridCell>{rule.protocol || t`-`}</DataGridCell>
                 <DataGridCell>{formatPortRange(rule)}</DataGridCell>
-                <DataGridCell onClick={(e) => e.stopPropagation()} className="items-end justify-end pr-0">
-                  <PopupMenu>
-                    <PopupMenuOptions>
-                      <PopupMenuItem label={t`Delete`} onClick={() => handleDeleteClick(rule)} />
-                    </PopupMenuOptions>
-                  </PopupMenu>
-                </DataGridCell>
+                {!readOnly && (
+                  <DataGridCell onClick={(e) => e.stopPropagation()} className="items-end justify-end pr-0">
+                    <PopupMenu>
+                      <PopupMenuOptions>
+                        <PopupMenuItem label={t`Delete`} onClick={() => handleDeleteClick(rule)} />
+                      </PopupMenuOptions>
+                    </PopupMenu>
+                  </DataGridCell>
+                )}
               </DataGridRow>
             ))}
           </DataGrid>
@@ -161,17 +166,19 @@ export function SecurityGroupRulesTable({
       </Stack>
 
       {/* Delete Confirmation Dialog */}
-      <DeleteRuleDialog
-        rule={ruleToDelete}
-        open={!!ruleToDelete}
-        onClose={handleCloseDeleteDialog}
-        onConfirm={handleConfirmDelete}
-        isLoading={isDeletingRule}
-        error={deleteError}
-      />
+      {!readOnly && (
+        <DeleteRuleDialog
+          rule={ruleToDelete}
+          open={!!ruleToDelete}
+          onClose={handleCloseDeleteDialog}
+          onConfirm={handleConfirmDelete}
+          isLoading={isDeletingRule}
+          error={deleteError}
+        />
+      )}
 
       {/* Add Rule Modal */}
-      {securityGroupId && onCreateRule && isAddRuleModalOpen && (
+      {!readOnly && securityGroupId && onCreateRule && isAddRuleModalOpen && (
         <AddRuleModal
           securityGroupId={securityGroupId}
           open={isAddRuleModalOpen}
