@@ -979,4 +979,12 @@ export const imageRouter = {
         return filteredImages
       }, "list shared images by member status")
     }),
+
+  getImageMetadataExcludedProperties: protectedProcedure.query((): string[] => {
+    const raw = process.env.IMAGE_METADATA_EXCLUDED_PROPERTIES ?? ""
+    return raw
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean)
+  }),
 }
