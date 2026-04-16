@@ -51,14 +51,14 @@ describe("SideNavBar", () => {
       expect(screen.getByText("Compute")).toBeInTheDocument()
     })
 
-    it("renders Overview link in Compute section (open by default)", () => {
+    it("renders Compute header as Overview link (navigates to overview on click)", () => {
       render(
         <TestingProvider>
           <SideNavBar {...defaultProps} />
         </TestingProvider>
       )
 
-      expect(screen.getByText("Overview")).toBeInTheDocument()
+      expect(screen.getByText("Compute")).toBeInTheDocument()
     })
 
     it("renders Images link when glance service is available", () => {
@@ -111,18 +111,21 @@ describe("SideNavBar", () => {
       expect(screen.queryByText("Flavors")).not.toBeInTheDocument()
     })
 
-    it("collapses section when header is clicked", () => {
+    it("navigates to compute overview when Compute header is clicked", () => {
       render(
         <TestingProvider>
           <SideNavBar {...defaultProps} />
         </TestingProvider>
       )
 
-      expect(screen.getByText("Overview")).toBeInTheDocument()
+      expect(screen.getByText("Images")).toBeInTheDocument()
 
       fireEvent.click(screen.getByText("Compute"))
 
-      expect(screen.queryByText("Overview")).not.toBeInTheDocument()
+      expect(mockNavigate).toHaveBeenCalledWith({
+        to: "/accounts/$accountId/projects/$projectId/compute/overview",
+        params: { accountId: "acc-1", projectId: "proj-1" },
+      })
     })
 
     describe("Storage Navigation", () => {
@@ -196,14 +199,14 @@ describe("SideNavBar", () => {
         })
       })
 
-      it("calls navigate with correct params when Compute Overview is clicked", () => {
+      it("calls navigate with correct params when Compute header is clicked", () => {
         render(
           <TestingProvider>
             <SideNavBar {...defaultProps} />
           </TestingProvider>
         )
 
-        fireEvent.click(screen.getByText("Overview"))
+        fireEvent.click(screen.getByText("Compute"))
 
         expect(mockNavigate).toHaveBeenCalledWith({
           to: "/accounts/$accountId/projects/$projectId/compute/overview",
