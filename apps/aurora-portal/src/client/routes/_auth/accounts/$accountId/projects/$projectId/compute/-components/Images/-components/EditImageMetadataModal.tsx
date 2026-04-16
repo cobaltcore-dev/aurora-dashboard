@@ -84,12 +84,10 @@ function EditImageMetadataModalInner({
     if (!key || key.trim() === "") {
       return t`Key is required`
     }
-    if (excludedProperties.has(key.toLowerCase())) {
+    if (excludedProperties.has(key)) {
       return t`This property is reserved and cannot be modified`
     }
-    const isDuplicate = metadata.some(
-      (entry) => entry.key.toLowerCase() === key.toLowerCase() && entry.originalKey !== originalKey
-    )
+    const isDuplicate = metadata.some((entry) => entry.key === key && entry.originalKey !== originalKey)
     if (isDuplicate) {
       return t`A property with this key already exists`
     }
@@ -404,14 +402,14 @@ export const EditImageMetadataModal: React.FC<EditImageMetadataModalProps> = ({
   const excludedProperties = useMemo(() => new Set(excludedPropertiesData ?? []), [excludedPropertiesData])
   const initialMetadata = useMemo(
     () => buildInitialMetadata(image, excludedProperties),
-    [image.id, excludedPropertiesData]
+    [image.id, image.updated_at, excludedPropertiesData]
   )
 
   if (!isOpen) return null
 
   return (
     <EditImageMetadataModalInner
-      key={`${image.id}-${excludedPropertiesData?.length}`}
+      key={`${image.id}-${image.updated_at}-${excludedPropertiesData?.length}`}
       isLoading={isLoading}
       onClose={onClose}
       onSave={onSave}

@@ -133,6 +133,13 @@ export function ImageListView({
   const loadMoreRef = useRef<HTMLDivElement>(null)
   const fetchedMarkerRef = useRef<string | undefined>(undefined)
 
+  // Reset the guard when pagination is reset so each new dataset can auto-load
+  useEffect(() => {
+    if (!hasNextPage) {
+      fetchedMarkerRef.current = undefined
+    }
+  }, [hasNextPage])
+
   useEffect(() => {
     if (!loadMoreRef.current || !hasNextPage || isFetchingNextPage) return
 
