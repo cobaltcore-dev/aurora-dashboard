@@ -480,7 +480,9 @@ export const Images = ({ client }: ImagesProps) => {
     setMemberStatusView(view)
     navigate({
       search: ((prev: ImagesSearchParams) => ({
-        ...prev,
+        sortBy: prev.sortBy,
+        sortDirection: prev.sortDirection,
+        search: prev.search,
         memberStatus: view === "all" ? undefined : view,
       })) as unknown as true,
     })
