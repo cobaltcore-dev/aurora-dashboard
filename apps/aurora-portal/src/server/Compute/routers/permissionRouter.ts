@@ -74,7 +74,7 @@ const checkSinglePermission = (ctx: AuroraPortalContext, permission: PolicyKey) 
  * @type {import("zod").ZodType<PolicyKey>}
  */
 const PERMISSION_KEY = z.custom<PolicyKey>((value) => {
-  if (typeof value !== "string" || !(value in POLICY_MAPPINGS)) {
+  if (typeof value !== "string" || !Object.hasOwn(POLICY_MAPPINGS, value)) {
     return false
   }
   return value
@@ -102,9 +102,9 @@ export const permissionRouter = {
       const permissions = typeof input === "string" ? [input] : input
 
       if (permissions.length === 0) {
-      return []
-    }
+        return []
+      }
 
       return permissions.map((permission) => checkSinglePermission(ctx, permission))
-  }),
+    }),
 }
