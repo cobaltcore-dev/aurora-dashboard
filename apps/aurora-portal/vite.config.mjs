@@ -40,9 +40,7 @@ export default defineConfig(({ mode }) => {
           routeFileIgnorePrefix: "-",
           routeFileIgnorePattern: "test",
         }),
-      mode !== "production" && viteFastify({
-        clientModule: "/main.tsx",
-      }),
+      mode !== "production" && mode !== "test" && viteFastify(),
       react({
         plugins: [["@lingui/swc-plugin", {}]],
       }),
