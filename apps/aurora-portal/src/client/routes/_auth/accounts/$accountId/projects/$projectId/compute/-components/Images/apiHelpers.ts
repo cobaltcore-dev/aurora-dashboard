@@ -49,7 +49,7 @@ export const createImagesPromise = (
 }
 
 export const createPermissionsPromise = (client: TrpcClient) => {
-  return client.compute.canUserBulk
+  return client.compute.canUser
     .query([
       "images:create",
       "images:delete",

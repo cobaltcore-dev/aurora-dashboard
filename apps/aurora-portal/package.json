@@ -60,7 +60,7 @@
   "devDependencies": {
     "@cloudoperators/juno-ui-components": "^6.2.0",
     "@cobaltcore-dev/aurora-config": "workspace:*",
-    "@fastify/vite": "^8.4.1",
+    "@fastify/vite": "^9.0.0",
     "@lingui/cli": "^5.9.5",
     "@lingui/swc-plugin": "^5.11.0",
     "@lingui/vite-plugin": "^5.9.5",
@@ -86,7 +86,7 @@
     "tailwindcss": "^4.1.7",
     "tsc-alias": "^1.8.16",
     "typescript": "^6.0.2",
-    "vite": "^7.3.2",
+    "vite": "^8.0.0",
     "vite-plugin-svgr": "^5.0.0",
     "vite-tsconfig-paths": "^6.1.1",
     "vitest": "^4.1.2"

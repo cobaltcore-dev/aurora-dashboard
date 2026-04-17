@@ -7,3 +7,4 @@ dist
 build
 generated
 **/routeTree.gen.ts
+**/locales/**/messages.ts

@@ -17,7 +17,7 @@ msgstr ""
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-components/-details/SecurityGroupRulesTable.tsx:98
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-components/-details/SecurityGroupRulesTable.tsx:148
 msgid "-"
-msgstr ""
+msgstr "-"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/SecurityGroupTableRow.tsx:56
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-components/-details/SecurityGroupBasicInfo.tsx:36
@@ -30,11 +30,11 @@ msgstr "—"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/ObjectToastNotifications.tsx:176
 msgid "\"{objectName}\" was successfully copied to {destination}."
-msgstr ""
+msgstr "\"{objectName}\" wurde erfolgreich nach {destination} kopiert."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/ObjectToastNotifications.tsx:218
 msgid "\"{objectName}\" was successfully moved to {destination}."
-msgstr ""
+msgstr "\"{objectName}\" wurde erfolgreich nach {destination} verschoben."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ContainerTableView.tsx:245
 msgid "{allContainersCount} container"
@@ -101,7 +101,7 @@ msgstr "Ein Flavor mit dieser ID oder diesem Namen existiert bereits. Bitte verw
 msgid "A folder with this name already exists"
 msgstr "Ein Ordner mit diesem Namen existiert bereits"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageMetadataModal.tsx:94
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageMetadataModal.tsx:92
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EditContainerMetadataModal.tsx:223
 msgid "A property with this key already exists"
 msgstr "Eine Eigenschaft mit diesem Schlüssel existiert bereits"
@@ -130,7 +130,7 @@ msgstr "Akzeptiert"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/List.tsx:168
 msgid "Accepted Images"
-msgstr ""
+msgstr "Akzeptierte Images"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ManageContainerAccessModal.tsx:314
 msgid "Access Control for container:"
@@ -151,7 +151,7 @@ msgstr " Zugriffsstatus auf \"{newStatus}\" aktualisiert."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageDetailsView.tsx:68
 msgid "Access Status:"
-msgstr ""
+msgstr "Zugriffsstatus:"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ContainerLimitsTooltip.tsx:72
 msgid "Account"
@@ -195,7 +195,7 @@ msgstr "Aktivieren"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ActivateImageModal.tsx:43
 msgid "Activate Image"
-msgstr ""
+msgstr "Image aktivieren"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ActivateImagesModal.tsx:36
 msgid "Activate Images"
@@ -203,7 +203,7 @@ msgstr "Images aktivieren"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/List.tsx:213
 msgid "Activate Selected"
-msgstr ""
+msgstr "Ausgewählte aktivieren"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageToastNotifications.tsx:293
 msgid "Activated {successCount} image(s), but {failedCount} image(s) could not be activated."
@@ -211,7 +211,7 @@ msgstr "{successCount} Image(s) aktiviert, aber {failedCount} Image(s) konnten n
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ActivateImageModal.tsx:58
 msgid "Activating this image will allow it to be used to launch new instances again."
-msgstr ""
+msgstr "Durch die Aktivierung dieses Images kann es wieder zum Starten neuer Instances verwendet werden."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/CreateImageModal.tsx:530
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageDetailsModal.tsx:262
@@ -222,7 +222,7 @@ msgstr "Hinzufügen"
 msgid "Add Member"
 msgstr "Mitglied hinzufügen"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:192
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:191
 msgid "Add Metadata"
 msgstr "Metadata hinzufügen"
 
@@ -230,7 +230,7 @@ msgstr "Metadata hinzufügen"
 msgid "Add Project Access"
 msgstr "Projektzugriff hinzufügen"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageMetadataModal.tsx:235
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageMetadataModal.tsx:233
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EditContainerMetadataModal.tsx:653
 msgid "Add Property"
 msgstr "Eigenschaft hinzufügen"
@@ -247,7 +247,7 @@ msgstr "Regel hinzufügen"
 msgid "Add Security Group Rule"
 msgstr "Sicherheitsgruppenregel hinzufügen"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/ManageAccessModal.tsx:207
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/ManageAccessModal.tsx:206
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/TenantAccessFormRow.tsx:40
 msgid "Add Tenant Access"
 msgstr "Projektzugriff hinzufügen"
@@ -266,20 +266,20 @@ msgstr "Alle Images"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ManageContainerAccessModal.tsx:174
 msgid "All users from project {projectId}"
-msgstr ""
+msgstr "Alle Benutzer aus Projekt {projectId}"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:145
 msgid "Allocate"
-msgstr ""
+msgstr "Zuweisen"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:142
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/FloatingIps.tsx:71
 msgid "Allocate Floating IP"
-msgstr ""
+msgstr "Floating IP zuweisen"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:159
 msgid "Allocating Floating IP..."
-msgstr ""
+msgstr "Floating IP wird zugewiesen..."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ActivateImagesModal.tsx:82
 msgid "Already active (will be skipped)"
@@ -303,7 +303,7 @@ msgstr "Ein unerwarteter Fehler ist aufgetreten. Bitte versuchen Sie es erneut."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ManageContainerAccessModal.tsx:161
 msgid "ANY referrer"
-msgstr ""
+msgstr "Beliebiger Referrer"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ManageContainerAccessModal.tsx:420
 msgid "Any user can perform a HEAD or GET operation on the container provided the user also has read access on objects. No token is required."
@@ -315,20 +315,20 @@ msgstr "Jeder Benutzer hat Lesezugriff auf Objekte. Es ist kein Token in der Anf
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AssociateFloatingIpModal.tsx:79
 msgid "Associate"
-msgstr ""
+msgstr "Zuordnen"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AssociateFloatingIpModal.tsx:76
 msgid "Associate Floating IP {floating_ip_address} with Port"
-msgstr ""
+msgstr "Floating IP {floating_ip_address} einem Port zuordnen"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:316
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AssociateFloatingIpModal.tsx:149
 msgid "Associates on the selected port. If the port has multiple IPs, select the desired fixed IP address."
-msgstr ""
+msgstr "Wird dem ausgewählten Port zugeordnet. Wenn der Port mehrere IPs hat, wählen Sie die gewünschte feste IP-Adresse."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AssociateFloatingIpModal.tsx:93
 msgid "Associating Floating IP..."
-msgstr ""
+msgstr "Floating IP wird zugeordnet..."
 
 #: src/client/routes/about.tsx:28
 msgid "At Aurora, our mission is to provide a centralized platform that unifies cloud management. We aim to simplify the complexities of provisioning, configuring, and scaling resources across diverse cloud environments while enabling seamless growth for your business."
@@ -337,7 +337,7 @@ msgstr "Bei Aurora ist es unsere Mission, eine zentrale Plattform bereitzustelle
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-details/FloatingIpDetailsView.tsx:39
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-table/FloatingIpTableRow.tsx:51
 msgid "Attach"
-msgstr ""
+msgstr "Anhängen"
 
 #: src/client/routes/about.tsx:75
 msgid "Aurora Dashboard is more than just a tool—it's your partner in navigating the cloud. Whether you're a small startup or a global enterprise, Aurora provides the flexibility, power, and simplicity you need to achieve your goals."
@@ -356,7 +356,7 @@ msgstr "Zurück"
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/$floatingIpId.tsx:64
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/$floatingIpId.tsx:77
 msgid "Back to Floating IPs"
-msgstr ""
+msgstr "Zurück zu Floating IPs"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId.tsx:277
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId.tsx:291
@@ -366,15 +366,15 @@ msgstr "Zurück zu Images"
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/index.tsx:166
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/index.tsx:180
 msgid "Back to Security Groups"
-msgstr ""
+msgstr "Zurück zu Security Groups"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-details/FloatingIpDetailsView.tsx:50
 msgid "Basic Info"
-msgstr ""
+msgstr "Grundlegende Informationen"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/flavors/-components/FlavorDetailsView.tsx:26
 msgid "Basic Information"
-msgstr ""
+msgstr "Grundlegende Informationen"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/CreateImageModal.tsx:648
 msgid "Boot RAM"
@@ -400,7 +400,7 @@ msgstr "Bulk-Upload von Archivdateien"
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImageModal.tsx:54
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImagesModal.tsx:42
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageDetailsModal.tsx:221
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageMetadataModal.tsx:222
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageMetadataModal.tsx:220
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageMemberFormRow.tsx:42
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/CreateSecurityGroupModal.tsx:123
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/DeleteSecurityGroupDialog.tsx:60
@@ -451,7 +451,7 @@ msgstr "Prüfsumme"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/AddRuleModal/sections/RemoteSourceSection.tsx:37
 msgid "CIDR"
-msgstr ""
+msgstr "CIDR"
 
 #: src/client/components/ListToolbar/SelectedFilters.tsx:45
 msgid "Clear all"
@@ -472,7 +472,7 @@ msgstr ""
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/overview.tsx:15
 msgid "Compute Overview"
-msgstr ""
+msgstr "Compute-Übersicht"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-components/-details/SecurityGroupHeader.tsx:14
 msgid "Configure the ingress and egress rules that control which traffic is allowed for this security group."
@@ -579,7 +579,7 @@ msgstr "Container"
 
 #: src/client/components/ClipboardText.tsx:46
 msgid "Copied to clipboard!"
-msgstr ""
+msgstr "In die Zwischenablage kopiert!"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/DeleteContainerModal.tsx:131
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EmptyContainerModal.tsx:122
@@ -594,7 +594,7 @@ msgstr "Kopieren"
 
 #: src/client/components/ClipboardText.tsx:60
 msgid "Copy {text} to clipboard"
-msgstr ""
+msgstr "{text} in die Zwischenablage kopieren"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/DeleteContainerModal.tsx:131
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EmptyContainerModal.tsx:122
@@ -711,12 +711,12 @@ msgstr "Neues Image erstellen"
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/CreateSecurityGroupModal.tsx:120
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/List.tsx:161
 msgid "Create Security Group"
-msgstr ""
+msgstr "Security Group erstellen"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ActivateImageModal.tsx:89
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeactivateImageModal.tsx:92
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImageModal.tsx:113
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:644
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:651
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/KeyPairs/-components/KeyPairListView.tsx:55
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/ServerGroups/components/ServerGroupListView.tsx:61
 msgid "Created"
@@ -753,7 +753,7 @@ msgstr "Deaktivieren"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeactivateImageModal.tsx:43
 msgid "Deactivate Image"
-msgstr ""
+msgstr "Image deaktivieren"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeactivateImagesModal.tsx:36
 msgid "Deactivate Images"
@@ -761,7 +761,7 @@ msgstr "Images deaktivieren"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/List.tsx:208
 msgid "Deactivate Selected"
-msgstr ""
+msgstr "Ausgewählte deaktivieren"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageToastNotifications.tsx:357
 msgid "Deactivated {successCount} image(s), but {failedCount} image(s) could not be deactivated."
@@ -769,12 +769,12 @@ msgstr "{successCount} Image(s) deaktiviert, aber {failedCount} Image(s) konnten
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeactivateImageModal.tsx:58
 msgid "Deactivating this image will prevent it from being used to launch new instances. Existing instances will not be affected."
-msgstr ""
+msgstr "Durch die Deaktivierung dieses Images kann es nicht mehr zum Starten neuer Instances verwendet werden. Bestehende Instances sind nicht betroffen."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/DeleteSecurityGroupDialog.tsx:26
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/DeleteRuleDialog.tsx:122
 msgid "delete"
-msgstr ""
+msgstr "löschen"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/DeleteFlavorModal.tsx:89
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/SpecRow.tsx:40
@@ -782,9 +782,9 @@ msgstr ""
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/SpecRow.tsx:45
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImageModal.tsx:65
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImagesModal.tsx:50
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageMetadataModal.tsx:357
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageMetadataModal.tsx:360
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageMetadataModal.tsx:368
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageMetadataModal.tsx:355
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageMetadataModal.tsx:358
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageMetadataModal.tsx:366
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageTableRow.tsx:171
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId.tsx:343
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/DeleteSecurityGroupDialog.tsx:57
@@ -836,7 +836,7 @@ msgstr "Regel löschen"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/DeleteSecurityGroupDialog.tsx:47
 msgid "Delete Security Group"
-msgstr ""
+msgstr "Security Group löschen"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/DeleteRuleDialog.tsx:39
 msgid "Delete Security Group Rule"
@@ -844,7 +844,7 @@ msgstr "Sicherheitsgruppenregel löschen"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/List.tsx:203
 msgid "Delete Selected"
-msgstr ""
+msgstr "Ausgewählte löschen"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageToastNotifications.tsx:229
 msgid "Deleted {successCount} image(s), but {failedCount} image(s) could not be deleted."
@@ -864,7 +864,7 @@ msgstr "Wird gelöscht..."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ManageContainerAccessModal.tsx:164
 msgid "Denied referrer: {host}"
-msgstr ""
+msgstr "Abgelehnter Referrer: {host}"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/CreateFlavorModal.tsx:200
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/flavors/-components/FlavorDetailsView.tsx:40
@@ -888,12 +888,12 @@ msgstr "Beschreibung"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/EditFloatingIpModal.tsx:33
 msgid "Description must be at least 1 character."
-msgstr ""
+msgstr "Die Beschreibung muss mindestens 1 Zeichen lang sein."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:78
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/EditFloatingIpModal.tsx:34
 msgid "Description must be at most 255 characters."
-msgstr ""
+msgstr "Die Beschreibung darf höchstens 255 Zeichen lang sein."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/flavorValidation.ts:57
 msgid "Description must be less than 65535 characters."
@@ -903,32 +903,32 @@ msgstr "Die Beschreibung muss weniger als 65535 Zeichen haben."
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/DetachFloatingIpModal.tsx:66
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-table/FloatingIpTableRow.tsx:52
 msgid "Detach"
-msgstr ""
+msgstr "Trennen"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/DetachFloatingIpModal.tsx:63
 msgid "Detach Floating IP {floating_ip_address}"
-msgstr ""
+msgstr "Floating IP {floating_ip_address} trennen"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/DetachFloatingIpModal.tsx:80
 msgid "Detaching Floating IP..."
-msgstr ""
+msgstr "Floating IP wird getrennt..."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/DetachFloatingIpModal.tsx:87
 msgid "Detaching this Floating IP will remove its association with the current port. The instance will no longer be reachable through this address."
-msgstr ""
+msgstr "Das Trennen dieser Floating IP hebt die Zuordnung zum aktuellen Port auf. Die Instance ist über diese Adresse nicht mehr erreichbar."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:164
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageDetailsView.tsx:319
 msgid "Details"
-msgstr ""
+msgstr "Details"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-details/FloatingIpDetailsView.tsx:141
 msgid "Device ID"
-msgstr ""
+msgstr "Geräte-ID"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-details/FloatingIpDetailsView.tsx:136
 msgid "Device Owner"
-msgstr ""
+msgstr "Geräteeigentümer"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-components/-details/SecurityGroupRulesTable.tsx:136
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/AddRuleModal/sections/DirectionEthertypeSection.tsx:19
@@ -940,10 +940,10 @@ msgstr "Richtung"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/flavors/-components/FlavorDetailsView.tsx:52
 msgid "Disabled"
-msgstr ""
+msgstr "Deaktiviert"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageMetadataModal.tsx:290
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageMetadataModal.tsx:335
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageMetadataModal.tsx:288
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageMetadataModal.tsx:333
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EditContainerMetadataModal.tsx:710
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EditContainerMetadataModal.tsx:763
 msgid "Discard"
@@ -964,7 +964,7 @@ msgstr "Disk (GiB)"
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeactivateImageModal.tsx:88
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImageModal.tsx:109
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageDetailsView.tsx:140
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:641
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:648
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/List.tsx:284
 msgid "Disk Format"
 msgstr "Festplattenformat"
@@ -975,21 +975,21 @@ msgstr "Festplattenformat ist erforderlich"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-details/FloatingIpDetailsView.tsx:177
 msgid "DNS"
-msgstr ""
+msgstr "DNS"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-details/FloatingIpDetailsView.tsx:181
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:205
 msgid "DNS Domain"
-msgstr ""
+msgstr "DNS-Domain"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-details/FloatingIpDetailsView.tsx:186
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:227
 msgid "DNS Name"
-msgstr ""
+msgstr "DNS-Name"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:71
 msgid "DNS name must be at most 63 characters."
-msgstr ""
+msgstr "Der DNS-Name darf höchstens 63 Zeichen lang sein."
 
 #: src/client/routes/index.tsx:46
 msgid "Documentation"
@@ -1032,7 +1032,7 @@ msgstr "z. B. b90f9c4bc76140e18540b2cec1299e2a"
 msgid "e.g., production, linux, ubuntu"
 msgstr "z. B. production, linux, ubuntu"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageMetadataModal.tsx:347
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageMetadataModal.tsx:345
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/SecurityGroupTableRow.tsx:72
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-components/-details/SecurityGroupBasicInfo.tsx:28
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EditContainerMetadataModal.tsx:773
@@ -1042,7 +1042,7 @@ msgstr "Bearbeiten"
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-details/FloatingIpDetailsView.tsx:38
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-table/FloatingIpTableRow.tsx:50
 msgid "Edit Description"
-msgstr ""
+msgstr "Beschreibung bearbeiten"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageTableRow.tsx:151
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId.tsx:355
@@ -1051,17 +1051,17 @@ msgstr "Details bearbeiten"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/EditFloatingIpModal.tsx:71
 msgid "Edit Floating IP {floating_ip_address}"
-msgstr ""
+msgstr "Floating IP {floating_ip_address} bearbeiten"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageDetailsModal.tsx:218
 msgid "Edit Image Details"
 msgstr "Image-Details bearbeiten"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageMetadataModal.tsx:219
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageMetadataModal.tsx:217
 msgid "Edit Image Metadata"
 msgstr "Image-Metadaten bearbeiten"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:283
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:282
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageTableRow.tsx:152
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId.tsx:350
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ContainerTableView.tsx:219
@@ -1070,7 +1070,7 @@ msgstr "Metadaten bearbeiten"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/EditSecurityGroupModal.tsx:118
 msgid "Edit Security Group"
-msgstr ""
+msgstr "Security Group bearbeiten"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ContainerLimitsTooltip.tsx:50
 msgid "Efficient bulk deletion"
@@ -1078,7 +1078,7 @@ msgstr "Effiziente Massenlöschung"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/AddRuleModal/sections/DirectionEthertypeSection.tsx:27
 msgid "Egress"
-msgstr ""
+msgstr "Egress"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ContainerTableView.tsx:224
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EmptyContainerModal.tsx:136
@@ -1099,11 +1099,11 @@ msgstr "Stellen Sie sicher, dass ACL-Einträge gültig sind — korrekte Projekt
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:264
 msgid "Enter a floating IP"
-msgstr ""
+msgstr "Floating IP eingeben"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:265
 msgid "Enter a floating IP or leave blank to auto-assign one"
-msgstr ""
+msgstr "Floating IP eingeben oder leer lassen für automatische Zuweisung"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/AddRuleModal/sections/PortRangeSection.tsx:93
 msgid "Enter a single port, or define a range by also filling \"Port (to)\". \"Port (to)\" is optional."
@@ -1115,7 +1115,7 @@ msgstr "Geben Sie ein Tag ein und drücken Sie Enter oder klicken Sie auf Hinzuf
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:229
 msgid "Enter a valid PQDN or FQDN (max 63 characters) to associate with the floating IP. A and PTR records are created automatically."
-msgstr ""
+msgstr "Gültige PQDN oder FQDN (max. 63 Zeichen) eingeben, um sie der Floating IP zuzuordnen. A- und PTR-Einträge werden automatisch erstellt."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/CreateContainerModal.tsx:112
 msgid "Enter container name"
@@ -1123,7 +1123,7 @@ msgstr "Container-Name eingeben"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:228
 msgid "Enter DNS name"
-msgstr ""
+msgstr "DNS-Name eingeben"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/SpecFormRow.tsx:34
 msgid "Enter key"
@@ -1179,11 +1179,11 @@ msgstr "Ephemeral Disk muss eine ganze Zahl ≥ 0 sein."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/flavors/$flavorId.tsx:81
 msgid "Error - Flavor Details"
-msgstr ""
+msgstr "Fehler – Flavor-Details"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId.tsx:169
 msgid "Error - Image Details"
-msgstr ""
+msgstr "Fehler – Image-Details"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/$provider/containers/$containerName/objects/index.tsx:160
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/$provider/containers/index.tsx:149
@@ -1196,11 +1196,11 @@ msgstr "Fehler beim Laden der Container: {errorMessage}"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/flavors/$flavorId.tsx:131
 msgid "Error Loading Flavor"
-msgstr ""
+msgstr "Fehler beim Laden des Flavors"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/$floatingIpId.tsx:60
 msgid "Error loading Floating IP Details..."
-msgstr ""
+msgstr "Fehler beim Laden der Floating IP-Details..."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId.tsx:273
 msgid "Error loading image"
@@ -1212,7 +1212,7 @@ msgstr "Fehler beim Laden der Objekte: {errorMessage}"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/index.tsx:162
 msgid "Error loading security group"
-msgstr ""
+msgstr "Fehler beim Laden der Security Group"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-components/-details/SecurityGroupRulesTable.tsx:138
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/DeleteRuleDialog.tsx:84
@@ -1222,7 +1222,7 @@ msgstr "Ethertype"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:182
 msgid "External Network"
-msgstr ""
+msgstr "Externes Netzwerk"
 
 #: src/client/utils/useErrorTranslation.ts:108
 msgid "Extra spec key is required and cannot be empty."
@@ -1230,7 +1230,7 @@ msgstr "Der Key für die Extra-Spec ist erforderlich und darf nicht leer sein."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/flavors/-components/FlavorDetailsView.tsx:102
 msgid "Extra Specs"
-msgstr ""
+msgstr "Zusätzliche Spezifikationen"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageToastNotifications.tsx:271
 msgid "Failed to activate {failedCount} of {totalCount} image(s). Some images may already be active or in an invalid state."
@@ -1274,11 +1274,11 @@ msgstr "Fehler beim Erstellen des Ordners"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/CreateImageModal.tsx:343
 msgid "Failed to create image. Please try again."
-msgstr ""
+msgstr "Image konnte nicht erstellt werden. Bitte versuchen Sie es erneut."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/List.tsx:103
 msgid "Failed to create security group"
-msgstr ""
+msgstr "Security Group konnte nicht erstellt werden"
 
 #: src/client/utils/useErrorTranslation.ts:50
 msgid "Failed to create the flavor. Please try again."
@@ -1318,7 +1318,7 @@ msgstr "Fehler beim Löschen des Objekts"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/List.tsx:115
 msgid "Failed to delete security group"
-msgstr ""
+msgstr "Security Group konnte nicht gelöscht werden"
 
 #: src/client/utils/useErrorTranslation.ts:110
 msgid "Failed to delete the extra spec. Please try again."
@@ -1364,11 +1364,11 @@ msgstr "Fehler beim Laden der Extra-Specs. Bitte versuchen Sie es erneut."
 
 #: src/client/utils/useErrorTranslation.ts:36
 msgid "Failed to load flavor details. Please try again."
-msgstr ""
+msgstr "Flavor-Details konnten nicht geladen werden. Bitte versuchen Sie es erneut."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-table/FloatingIpListContainer.tsx:38
 msgid "Failed to load Floating IPs"
-msgstr ""
+msgstr "Floating IPs konnten nicht geladen werden"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/DeleteObjectModal.tsx:128
 msgid "Failed to load object metadata: {metadataErrorMessage}"
@@ -1376,7 +1376,7 @@ msgstr "Fehler beim Laden der Objekt-Metadaten: {metadataErrorMessage}"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/SecurityGroupListContainer.tsx:117
 msgid "Failed to load security groups"
-msgstr ""
+msgstr "Security Groups konnten nicht geladen werden"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/ObjectToastNotifications.tsx:234
 msgid "Failed to Move Object"
@@ -1420,13 +1420,13 @@ msgstr "Fehler beim Aktualisieren des Containers: {errorMessage}"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/List.tsx:127
 msgid "Failed to update security group"
-msgstr ""
+msgstr "Security Group konnte nicht aktualisiert werden"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageToastNotifications.tsx:428
 msgid "Failed to update visibility for \"{imageName}\": "
 msgstr "Fehler beim Aktualisieren der Sichtbarkeit für \"{imageName}\":"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:254
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:261
 msgid "Failed to update visibility to {newVisibility}"
 msgstr "Fehler beim Aktualisieren der Sichtbarkeit auf {newVisibility}"
 
@@ -1456,7 +1456,7 @@ msgstr "Fingerprint"
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-table/constants.tsx:29
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/FloatingIps.tsx:27
 msgid "Fixed IP Address"
-msgstr ""
+msgstr "Feste IP-Adresse"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/List.tsx:151
 msgid "Flavor \"{flavorName}\" has been successfully created."
@@ -1468,11 +1468,11 @@ msgstr "Flavor \"{flavorName}\" wurde erfolgreich gelöscht."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/flavors/$flavorId.tsx:85
 msgid "Flavor Details"
-msgstr ""
+msgstr "Flavor-Details"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/CreateFlavorModal.tsx:177
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/ManageAccessModal.tsx:189
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/ManageAccessModal.tsx:218
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/ManageAccessModal.tsx:188
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/ManageAccessModal.tsx:217
 msgid "Flavor ID"
 msgstr "Flavor ID"
 
@@ -1487,7 +1487,7 @@ msgstr "Flavor Name"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/flavors/$flavorId.tsx:145
 msgid "Flavor Not Found"
-msgstr ""
+msgstr "Flavor nicht gefunden"
 
 #: src/client/utils/useErrorTranslation.ts:14
 msgid "Flavor service is not available for this project."
@@ -1503,25 +1503,25 @@ msgstr "Flavors"
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-table/constants.tsx:28
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/FloatingIps.tsx:28
 msgid "Floating IP Address"
-msgstr ""
+msgstr "Floating IP-Adresse"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/$floatingIpId.tsx:74
 msgid "Floating IP not found"
-msgstr ""
+msgstr "Floating IP nicht gefunden"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/-components/SideNavBar.tsx:66
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/$floatingIpId.tsx:88
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/index.tsx:15
 msgid "Floating IPs"
-msgstr ""
+msgstr "Floating IPs"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-details/FloatingIpDetailsView.tsx:107
 msgid "Floating Network"
-msgstr ""
+msgstr "Floating Network"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/FloatingIps.tsx:29
 msgid "Floating Network ID"
-msgstr ""
+msgstr "Floating Network-ID"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/ObjectToastNotifications.tsx:71
 msgid "Folder \"{folderName}\" and {deletedCount} object was permanently deleted."
@@ -1583,7 +1583,7 @@ msgstr "Weitere Details finden Sie in der <0>Dokumentation</0>."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-details/FloatingIpDetailsView.tsx:29
 msgid "Full lifecycle management of Floating IPs, including attachment, port association/disassociation, DNS settings, and deletion"
-msgstr ""
+msgstr "Vollständiges Lifecycle-Management von Floating IPs, einschließlich Zuweisung, Port-Zuordnung/-Aufhebung, DNS-Einstellungen und Löschung"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageDetailsView.tsx:118
 msgid "General Image Data"
@@ -1616,11 +1616,11 @@ msgstr "Gruppenname"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/flavors/-components/FlavorDetailsView.tsx:62
 msgid "Hardware Specifications"
-msgstr ""
+msgstr "Hardware-Spezifikationen"
 
 #: src/client/routes/_auth/aurora.tsx:16
 msgid "Hi"
-msgstr ""
+msgstr "Hallo"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ManageContainerAccessModal.tsx:398
 msgid "Hide ACLs Preview"
@@ -1628,7 +1628,7 @@ msgstr "ACLs-Vorschau ausblenden"
 
 #: src/client/components/Error/ErrorPage.tsx:46
 msgid "Home"
-msgstr ""
+msgstr "Startseite"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/DeleteContainerModal.tsx:207
 msgid "I confirm that all existing versions will also be deleted"
@@ -1675,7 +1675,7 @@ msgstr "Sichtbarkeit des Images \"{imageName}\" auf {visibility} aktualisiert"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId.tsx:173
 msgid "Image Details"
-msgstr ""
+msgstr "Image-Details"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/CreateImageModal.tsx:402
 msgid "Image File"
@@ -1720,7 +1720,7 @@ msgstr "Image-Instanz \"{imageName}\" wurde aktualisiert"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/CreateImageModal.tsx:501
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageDetailsModal.tsx:238
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:629
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:636
 msgid "Image Name"
 msgstr "Image-Name"
 
@@ -1781,11 +1781,11 @@ msgstr "Zu löschende Images:"
 
 #: src/client/components/Auth/InactivityModal.tsx:11
 msgid "Inactivity Timeout"
-msgstr ""
+msgstr "Inaktivitäts-Timeout"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/AddRuleModal/sections/DirectionEthertypeSection.tsx:26
 msgid "Ingress"
-msgstr ""
+msgstr "Ingress"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/CreateContainerModal.tsx:97
 msgid "Inside a project, objects are stored in containers. Containers are where you define access permissions and quotas."
@@ -1793,7 +1793,7 @@ msgstr "Innerhalb eines Projekts werden Objekte in Containern gespeichert. Conta
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/instances.tsx:29
 msgid "Instances"
-msgstr ""
+msgstr "Instances"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/CreateImageModal.tsx:205
 msgid "Invalid file format. Supported formats: {supportedFileFormats}"
@@ -1813,11 +1813,11 @@ msgstr "Ungültiger Wert für die Einstellung des öffentlichen Flavors."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/AddRuleModal/sections/DirectionEthertypeSection.tsx:50
 msgid "IP Version"
-msgstr ""
+msgstr "IP-Version"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-details/FloatingIpDetailsView.tsx:26
 msgid "IP:"
-msgstr ""
+msgstr "IP:"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Instances/-components/ServerListView.tsx:20
 msgid "IPv4"
@@ -1839,7 +1839,7 @@ msgstr ""
 msgid "Keep segments (delete manifest only)"
 msgstr "Segmente beibehalten (nur Manifest löschen)"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:203
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:202
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EditContainerMetadataModal.tsx:664
 msgid "Key"
 msgstr "Key"
@@ -1859,7 +1859,7 @@ msgstr "Keyname"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/keypairs.tsx:29
 msgid "Key Pairs"
-msgstr ""
+msgstr "Key Pairs"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ContainerTableView.tsx:138
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EmptyContainerModal.tsx:197
@@ -1876,11 +1876,11 @@ msgstr "Zuletzt aktualisiert: {0}"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/AddRuleModal/sections/IcmpSection.tsx:39
 msgid "Leave empty for all codes"
-msgstr ""
+msgstr "Leer lassen für alle Codes"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/AddRuleModal/sections/IcmpSection.tsx:25
 msgid "Leave empty for all types"
-msgstr ""
+msgstr "Leer lassen für alle Typen"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ContainerLimitsTooltip.tsx:84
 msgid "Limits"
@@ -1888,9 +1888,9 @@ msgstr "Limits"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ManageContainerAccessModal.tsx:171
 msgid "Listing access"
-msgstr ""
+msgstr "Zugriff auflisten"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:691
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:698
 msgid "Load More"
 msgstr "Mehr laden"
 
@@ -1913,11 +1913,11 @@ msgstr "Container werden geladen..."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/flavors/$flavorId.tsx:110
 msgid "Loading Flavor Details..."
-msgstr ""
+msgstr "Flavor-Details werden geladen..."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/flavors/$flavorId.tsx:83
 msgid "Loading Flavor..."
-msgstr ""
+msgstr "Flavor wird geladen..."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/List.tsx:198
 msgid "Loading Flavors..."
@@ -1925,7 +1925,7 @@ msgstr "Lädt Flavors..."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/$floatingIpId.tsx:51
 msgid "Loading Floating IP Details..."
-msgstr ""
+msgstr "Floating IP-Details werden geladen..."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId.tsx:261
 msgid "Loading Image Details..."
@@ -1933,13 +1933,13 @@ msgstr "Image-Details werden geladen..."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId.tsx:171
 msgid "Loading Image..."
-msgstr ""
+msgstr "Image wird geladen..."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:601
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:608
 msgid "Loading images..."
-msgstr ""
+msgstr "Images werden geladen..."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/List.tsx:494
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/List.tsx:497
 msgid "Loading Images..."
 msgstr "Lädt Images..."
 
@@ -1951,7 +1951,7 @@ msgstr "Lädt Instanzen..."
 msgid "Loading Key Pairs..."
 msgstr "Lädt Key Pairs..."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:687
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:694
 msgid "Loading more..."
 msgstr "Weitere werden geladen..."
 
@@ -1969,14 +1969,14 @@ msgstr "Objekte werden geladen..."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/index.tsx:150
 msgid "Loading Security Group Details..."
-msgstr ""
+msgstr "Security Group-Details werden geladen..."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/ServerGroups/List.tsx:35
 msgid "Loading Server Groups..."
 msgstr "Lädt Servergruppen"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:88
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:582
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:589
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Overview.tsx:115
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/SecurityGroupListContainer.tsx:108
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-table/FloatingIpListContainer.tsx:30
@@ -1991,7 +1991,7 @@ msgstr "Lädt..."
 
 #: src/client/components/navigation/UserMenu.tsx:94
 msgid "Log Out"
-msgstr ""
+msgstr "Abmelden"
 
 #: src/client/routes/auth/login.tsx:99
 msgid "Login failed. Please check your credentials and try again."
@@ -2003,7 +2003,7 @@ msgstr "Bei Ihrem Konto anmelden"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-details/FloatingIpDetailsView.tsx:126
 msgid "MAC Address"
-msgstr ""
+msgstr "MAC-Adresse"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:170
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageTableRow.tsx:160
@@ -2012,7 +2012,7 @@ msgstr ""
 msgid "Manage Access"
 msgstr "Zugriff verwalten"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/ManageAccessModal.tsx:297
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/ManageAccessModal.tsx:296
 msgid "Manage Access - {flavorName}"
 msgstr "Zugriff verwalten - {flavorName}"
 
@@ -2094,13 +2094,13 @@ msgstr "Members"
 msgid "Metadata"
 msgstr "Metadata"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:162
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:161
 msgid "Metadata \"{keyToDelete}\" has been deleted successfully."
-msgstr ""
+msgstr "Metadaten \"{keyToDelete}\" wurden erfolgreich gelöscht."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:134
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:133
 msgid "Metadata \"{trimmedKey}\" has been added successfully."
-msgstr ""
+msgstr "Metadaten \"{trimmedKey}\" wurden erfolgreich hinzugefügt."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/CreateImageModal.tsx:629
 msgid "Min Disk (GB)"
@@ -2179,11 +2179,11 @@ msgstr "Muss eine nicht-negative Ganzzahl sein"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:83
 msgid "Must be a valid IPv4 or IPv6 address (for example: 172.24.4.228 or 2001:db8::1)."
-msgstr ""
+msgstr "Muss eine gültige IPv4- oder IPv6-Adresse sein (z. B.: 172.24.4.228 oder 2001:db8::1)."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:73
 msgid "Must be a valid PQDN or FQDN (alphanumeric and hyphens only, cannot start or end with hyphen)."
-msgstr ""
+msgstr "Muss eine gültige PQDN oder FQDN sein (nur alphanumerische Zeichen und Bindestriche, darf nicht mit einem Bindestrich beginnen oder enden)."
 
 #: src/client/components/navigation/UserMenu.tsx:82
 msgid "My Profile"
@@ -2242,16 +2242,16 @@ msgstr ""
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-details/FloatingIpDetailsView.tsx:98
 msgid "Network & Routing"
-msgstr ""
+msgstr "Netzwerk & Routing"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-details/FloatingIpDetailsView.tsx:131
 msgid "Network ID"
-msgstr ""
+msgstr "Netzwerk-ID"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/overview.tsx:13
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/overview.tsx:16
 msgid "Network Overview"
-msgstr ""
+msgstr "Netzwerk-Übersicht"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/CopyObjectModal.tsx:364
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/MoveRenameObjectModal.tsx:428
@@ -2280,7 +2280,7 @@ msgstr "Nein"
 msgid "No containers found"
 msgstr "Keine Container gefunden"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageMetadataModal.tsx:382
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageMetadataModal.tsx:380
 msgid "No custom metadata properties found. Click \"Add Property\" to create one."
 msgstr "Keine benutzerdefinierten Metadaten-Eigenschaften gefunden. Klicken Sie auf \"Eigenschaft hinzufügen\", um eine zu erstellen."
 
@@ -2292,7 +2292,7 @@ msgstr "Keine benutzerdefinierten Metadaten. Klicken Sie auf \"Eigenschaft hinzu
 msgid "No custom properties defined"
 msgstr "Keine benutzerdefinierten Eigenschaften definiert"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:239
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:238
 msgid "No extra specs found. Click \"Add Metadata\" to create one."
 msgstr "Keine Metadata gefunden. Klicken Sie auf \"Metadata hinzufügen\", um eine zu erstellen."
 
@@ -2302,13 +2302,13 @@ msgstr "Kein Flavor für die Löschung ausgewählt."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:103
 msgid "No flavors found"
-msgstr "No flavors found"
+msgstr "Keine Flavors gefunden"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-table/FloatingIpListContainer.tsx:49
 msgid "No Floating IPs found"
-msgstr ""
+msgstr "Keine Floating IPs gefunden"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:703
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:710
 msgid "No images found"
 msgstr "Keine Images gefunden"
 
@@ -2332,7 +2332,7 @@ msgstr "Keine Objekte entsprechen Ihrer Suche. Versuchen Sie, Ihren Suchbegriff 
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-components/-details/SecurityGroupRBACPolicies.tsx:133
 msgid "No policies match your search"
-msgstr ""
+msgstr "Keine Richtlinien entsprechen Ihrer Suche"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/$provider/containers/$containerName/objects/index.tsx:185
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/$provider/containers/index.tsx:166
@@ -2341,11 +2341,11 @@ msgstr "Kein Projekt ausgewählt"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/-components/ProjectCardView.tsx:45
 msgid "No projects available."
-msgstr ""
+msgstr "Keine Projekte verfügbar."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/-components/ProjectListView.tsx:35
 msgid "No projects found"
-msgstr ""
+msgstr "Keine Projekte gefunden"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageMembersTable.tsx:231
 msgid "No projects have access to this image yet. Click \"Add Project Access\" to grant access."
@@ -2360,13 +2360,13 @@ msgstr "Keine Servergruppen verfügbar"
 msgid "No servers available."
 msgstr "Keine Server verfügbar"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/ManageAccessModal.tsx:252
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/ManageAccessModal.tsx:251
 msgid "No specific tenant access configured for this private flavor. Click \"Add Tenant Access\" to grant access."
 msgstr "Kein spezifischer Projektzugriff für diesen privaten Flavor konfiguriert. Klicken Sie auf \"Projektzugriff hinzufügen\", um Zugriff zu gewähren."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/flavors/-components/FlavorDetailsView.tsx:89
 msgid "None"
-msgstr ""
+msgstr "Keine"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/DeleteFolderModal.tsx:101
 msgid "Note: for <0>static and dynamic large objects</0> only the manifests are deleted — their segments outside this folder prefix are not affected."
@@ -2378,7 +2378,7 @@ msgstr "Hinweis: Wenn diese Sicherheitsgruppe derzeit von einem oder mehreren Po
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/EditSecurityGroupModal.tsx:148
 msgid "Note: The 'stateful' attribute cannot be changed if this security group is currently in use by one or more ports."
-msgstr ""
+msgstr "Hinweis: Das Attribut 'stateful' kann nicht geändert werden, wenn diese Security Group derzeit von einem oder mehreren Ports verwendet wird."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EmptyContainerModal.tsx:166
 msgid "Nothing to do. Container appears empty — the object count may not have synced yet due to a recent operation."
@@ -2461,7 +2461,7 @@ msgstr "Objekte — {containerName}"
 
 #: src/client/components/Auth/InactivityModal.tsx:20
 msgid "OK"
-msgstr ""
+msgstr "OK"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EditContainerMetadataModal.tsx:503
 msgid "Open in new tab"
@@ -2469,7 +2469,7 @@ msgstr "In neuem Tab öffnen"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/AddRuleModal/sections/DescriptionSection.tsx:23
 msgid "Optional description"
-msgstr ""
+msgstr "Optionale Beschreibung"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/CreateImageModal.tsx:442
 msgid "or drag and drop"
@@ -2490,11 +2490,11 @@ msgstr "Eigentümer"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageDetailsView.tsx:176
 msgid "Owner Project ID"
-msgstr ""
+msgstr "Eigentümer-Projekt-ID"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-components/-details/SecurityGroupBasicInfo.tsx:53
 msgid "Owning Project ID"
-msgstr ""
+msgstr "Eigentümer-Projekt-ID"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageToastNotifications.tsx:291
 msgid "Partial Activation Success"
@@ -2521,8 +2521,8 @@ msgid "Pending file upload..."
 msgstr "Datei-Upload ausstehend..."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/CreateFlavorModal.tsx:110
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:115
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/ManageAccessModal.tsx:115
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:114
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/ManageAccessModal.tsx:114
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/CreateImageModal.tsx:320
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageMembersTable.tsx:97
 msgid "Please fix the validation errors below."
@@ -2530,7 +2530,7 @@ msgstr "Bitte korrigieren Sie die Validierungsfehler unten."
 
 #: src/client/components/Auth/InactivityModal.tsx:26
 msgid "Please log in again to continue."
-msgstr ""
+msgstr "Bitte melden Sie sich erneut an, um fortzufahren."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EmptyContainerModal.tsx:180
 msgid "Please note: for <0>dynamic</0> and <1>static large objects</1> only the manifests are deleted. The related segments are not deleted."
@@ -2550,17 +2550,17 @@ msgstr "Port (bis)"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-details/FloatingIpDetailsView.tsx:168
 msgid "Port Forwarding"
-msgstr ""
+msgstr "Port Forwarding"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-details/FloatingIpDetailsView.tsx:156
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:287
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AssociateFloatingIpModal.tsx:122
 msgid "Port ID"
-msgstr ""
+msgstr "Port-ID"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-details/FloatingIpDetailsView.tsx:121
 msgid "Port Name"
-msgstr ""
+msgstr "Port-Name"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/DeleteRuleDialog.tsx:93
 msgid "Port Range"
@@ -2576,7 +2576,7 @@ msgstr "Versehentliches Löschen verhindern"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-table/FloatingIpTableRow.tsx:49
 msgid "Preview"
-msgstr ""
+msgstr "Vorschau"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/ObjectsTableView.tsx:351
 msgid "Preview {rowDisplayName}"
@@ -2593,7 +2593,7 @@ msgstr "production, linux"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/List.tsx:37
 msgid "Project id"
-msgstr ""
+msgstr "Projekt-ID"
 
 #: src/client/components/ProjectView/ProjectInfoBox.tsx:188
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageMembersTable.tsx:162
@@ -2604,17 +2604,17 @@ msgstr "Projekt-ID"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-components/-details/SecurityGroupRBACPolicies.tsx:120
 msgid "projects"
-msgstr ""
+msgstr "Projekte"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/ObjectsTableView.tsx:423
 msgid "Properties"
 msgstr "Eigenschaften"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageMetadataModal.tsx:245
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageMetadataModal.tsx:243
 msgid "Property Key"
 msgstr "Eigenschaftsschlüssel"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageMetadataModal.tsx:265
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageMetadataModal.tsx:263
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EditContainerMetadataModal.tsx:684
 msgid "property_key"
 msgstr "property_key"
@@ -2626,7 +2626,7 @@ msgstr "Dieses Image vor dem Löschen schützen"
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/CreateImageModal.tsx:612
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageDetailsModal.tsx:296
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageDetailsView.tsx:182
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:635
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:642
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/List.tsx:296
 msgid "Protected"
 msgstr "Geschützt"
@@ -2671,7 +2671,7 @@ msgstr "QCOW2, Raw, VMDK, VHD, VHDX, VDI, AMI, ARI, AKI, ISO, PLOOP"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-details/FloatingIpDetailsView.tsx:162
 msgid "QoS Policy ID"
-msgstr ""
+msgstr "QoS-Policy-ID"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ContainerLimitsTooltip.tsx:77
 msgid "Quota"
@@ -2695,7 +2695,7 @@ msgstr "RAM muss eine ganze Zahl ≥ 128 MB sein."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-components/-details/SecurityGroupRulesTable.tsx:140
 msgid "Range"
-msgstr ""
+msgstr "Bereich"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-components/-details/SecurityGroupTabs.tsx:27
 msgid "RBAC Policies"
@@ -2734,15 +2734,15 @@ msgstr "Abgelehnt"
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/ReleaseFloatingIpModal.tsx:63
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-table/FloatingIpTableRow.tsx:53
 msgid "Release"
-msgstr ""
+msgstr "Freigeben"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/ReleaseFloatingIpModal.tsx:60
 msgid "Release Floating IP {floating_ip_address}"
-msgstr ""
+msgstr "Floating IP {floating_ip_address} freigeben"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/ReleaseFloatingIpModal.tsx:77
 msgid "Releasing Floating IP..."
-msgstr ""
+msgstr "Floating IP wird freigegeben..."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/index.tsx:209
 msgid "Remaining Quota:"
@@ -2836,7 +2836,7 @@ msgstr "Root Disk muss eine ganze Zahl ≥ 0 sein."
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-details/FloatingIpDetailsView.tsx:149
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/FloatingIps.tsx:31
 msgid "Router ID"
-msgstr ""
+msgstr "Router-ID"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/DeleteRuleDialog.tsx:72
 msgid "Rule Details:"
@@ -2848,7 +2848,7 @@ msgstr "Regeltyp"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-components/-details/SecurityGroupRulesTable.tsx:114
 msgid "rules"
-msgstr ""
+msgstr "Regeln"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-components/-details/SecurityGroupTabs.tsx:24
 msgid "Rules"
@@ -2863,8 +2863,8 @@ msgstr "RX/TX Factor"
 msgid "RX/TX Factor must be an integer ≥ 1."
 msgstr "RX/TX Faktor muss eine ganze Zahl ≥ 1 sein."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageMetadataModal.tsx:289
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageMetadataModal.tsx:328
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageMetadataModal.tsx:287
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageMetadataModal.tsx:326
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/EditFloatingIpModal.tsx:74
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EditContainerMetadataModal.tsx:421
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EditContainerMetadataModal.tsx:704
@@ -2874,7 +2874,7 @@ msgid "Save"
 msgstr "Speichern"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageDetailsModal.tsx:220
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageMetadataModal.tsx:221
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageMetadataModal.tsx:219
 msgid "Save Changes"
 msgstr "Änderungen speichern"
 
@@ -2893,43 +2893,43 @@ msgstr "Sicherheit"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/AddRuleModal/sections/RemoteSourceSection.tsx:38
 msgid "Security Group"
-msgstr ""
+msgstr "Security Group"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-components/-details/SecurityGroupBasicInfo.tsx:25
 msgid "Security Group Basic Info"
-msgstr ""
+msgstr "Security Group – Grundlegende Informationen"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/CreateSecurityGroupModal.tsx:73
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/EditSecurityGroupModal.tsx:83
 msgid "Security group name is required"
-msgstr ""
+msgstr "Security Group-Name ist erforderlich"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/index.tsx:177
 msgid "Security group not found"
-msgstr ""
+msgstr "Security Group nicht gefunden"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/-components/SideNavBar.tsx:60
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/index.tsx:201
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/index.tsx:14
 msgid "Security Groups"
-msgstr ""
+msgstr "Security Groups"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:206
 msgid "Select a DNS domain."
-msgstr ""
+msgstr "DNS-Domain auswählen."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:315
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AssociateFloatingIpModal.tsx:148
 msgid "Select a fixed IP address"
-msgstr ""
+msgstr "Feste IP-Adresse auswählen"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/AddRuleModal/sections/RemoteSourceSection.tsx:88
 msgid "Select a security group..."
-msgstr ""
+msgstr "Security Group auswählen..."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:184
 msgid "Select an external network"
-msgstr ""
+msgstr "Externes Netzwerk auswählen"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/CopyObjectModal.tsx:350
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/MoveRenameObjectModal.tsx:414
@@ -2943,7 +2943,7 @@ msgstr "Wählen Sie zuerst das Festplattenformat"
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:288
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AssociateFloatingIpModal.tsx:123
 msgid "Select port to associate"
-msgstr ""
+msgstr "Port zur Zuordnung auswählen"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EditContainerMetadataModal.tsx:519
 msgid "Serve objects as index when file name is:"
@@ -2979,7 +2979,7 @@ msgstr "Ein Serverfehler ist aufgetreten, während die Zugriffsinformationen fü
 
 #: src/client/utils/useErrorTranslation.ts:30
 msgid "Server error occurred while fetching flavor details. Please try again later."
-msgstr ""
+msgstr "Serverfehler beim Abrufen der Flavor-Details. Bitte versuchen Sie es später erneut."
 
 #: src/client/utils/useErrorTranslation.ts:154
 msgid "Server error occurred while removing tenant access. Please try again later."
@@ -2987,7 +2987,7 @@ msgstr "Ein Serverfehler ist aufgetreten, während der Projektzugriff entfernt w
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/servergroups.tsx:29
 msgid "Server Groups"
-msgstr ""
+msgstr "Server Groups"
 
 #: src/client/utils/useErrorTranslation.ts:16
 msgid "Server is experiencing issues. Please try again later."
@@ -3004,7 +3004,7 @@ msgstr "Der Server hat ein unerwartetes Datenformat für die Metadata zurückgeg
 
 #: src/client/utils/useErrorTranslation.ts:34
 msgid "Server returned unexpected data format for flavor details."
-msgstr ""
+msgstr "Der Server hat ein unerwartetes Datenformat für Flavor-Details zurückgegeben."
 
 #: src/client/utils/useErrorTranslation.ts:20
 msgid "Server returned unexpected data format."
@@ -3016,7 +3016,7 @@ msgstr "Serverrolle:"
 
 #: src/client/components/Auth/InactivityModal.tsx:11
 msgid "Session Expired"
-msgstr ""
+msgstr "Sitzung abgelaufen"
 
 #: src/client/components/Auth/SessionExpirationTimer.tsx:76
 msgid "Session expires in"
@@ -3050,15 +3050,15 @@ msgstr "Geteilt"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageDetailsView.tsx:176
 msgid "Shared by Project"
-msgstr ""
+msgstr "Vom Projekt geteilt"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageDetailsView.tsx:74
 msgid "Shared:"
-msgstr ""
+msgstr "Geteilt:"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageDetailsView.tsx:322
 msgid "Sharing Details"
-msgstr ""
+msgstr "Freigabe-Details"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ManageContainerAccessModal.tsx:398
 msgid "Show ACLs Preview"
@@ -3092,7 +3092,7 @@ msgstr "Einloggen"
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeactivateImageModal.tsx:82
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImageModal.tsx:103
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageDetailsView.tsx:129
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:638
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:645
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/List.tsx:262
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EmptyContainerModal.tsx:194
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/index.tsx:234
@@ -3110,7 +3110,7 @@ msgstr "Sortieren nach"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ManageContainerAccessModal.tsx:168
 msgid "Specific referrer: {host}"
-msgstr ""
+msgstr "Spezifischer Referrer: {host}"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EditContainerMetadataModal.tsx:617
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/CopyObjectModal.tsx:328
@@ -3123,7 +3123,7 @@ msgstr "Beginnen Sie mit der Eingabe, um nach einem Container zu suchen"
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/SecurityGroupListContainer.tsx:131
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-components/-details/SecurityGroupBasicInfo.tsx:47
 msgid "Stateful"
-msgstr ""
+msgstr "Stateful"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ContainerLimitsTooltip.tsx:52
 msgid "Static large object support"
@@ -3137,7 +3137,7 @@ msgstr "Statisches Website-Serving"
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeactivateImageModal.tsx:74
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImageModal.tsx:95
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageDetailsView.tsx:126
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:626
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:633
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageMembersTable.tsx:163
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageMembersTable.tsx:198
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/List.tsx:263
@@ -3173,7 +3173,7 @@ msgstr "Alte Objekt-Versionen in Container speichern:"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-table/constants.tsx:30
 msgid "Subnet"
-msgstr ""
+msgstr "Subnet"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageToastNotifications.tsx:250
 msgid "Successfully activated {successCount} of {totalCount} image(s)"
@@ -3189,7 +3189,7 @@ msgstr "{successCount} von {totalCount} Image(s) erfolgreich gelöscht"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/List.tsx:169
 msgid "Suggested Images"
-msgstr ""
+msgstr "Empfohlene Images"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/DeleteFlavorModal.tsx:137
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/List.tsx:117
@@ -3249,16 +3249,16 @@ msgstr "tcp, udp, icmp oder Protokollnummer"
 msgid "Temporary URLs"
 msgstr "Temporäre URLs"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/ManageAccessModal.tsx:161
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/ManageAccessModal.tsx:160
 msgid "Tenant access for \"{tenantIdToRemove}\" has been removed successfully."
 msgstr "Der Projektzugriff für \"{tenantIdToRemove}\" wurde erfolgreich entfernt."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/ManageAccessModal.tsx:132
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/ManageAccessModal.tsx:131
 msgid "Tenant access for \"{trimmedTenantId}\" has been added successfully."
 msgstr "Der Projektzugriff für \"{trimmedTenantId}\" wurde erfolgreich hinzugefügt."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/ManageAccessModal.tsx:190
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/ManageAccessModal.tsx:219
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/ManageAccessModal.tsx:189
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/ManageAccessModal.tsx:218
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/FloatingIps.tsx:34
 msgid "Tenant ID"
 msgstr "Projekt ID"
@@ -3307,7 +3307,7 @@ msgstr "Der Flavor oder das Projekt konnte nicht gefunden werden. Bitte überpr�
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:183
 msgid "The ID of the network associated with the floating IP."
-msgstr ""
+msgstr "Die ID des Netzwerks, das der Floating IP zugeordnet ist."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageToastNotifications.tsx:169
 msgid "The image \"{imageId}\" could not be deactivated: {message}"
@@ -3339,7 +3339,7 @@ msgstr "Das Objekt wird zu diesem Pfad verschoben. Navigieren Sie oben durch die
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/flavors/$flavorId.tsx:146
 msgid "The requested flavor could not be found. It may have been deleted or you may not have access to it."
-msgstr ""
+msgstr "Der angeforderte Flavor konnte nicht gefunden werden. Er wurde möglicherweise gelöscht oder Sie haben keinen Zugriff darauf."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/AddRBACPolicyModal.tsx:92
 msgid "The specified project does not exist or you don't have permission to share with it."
@@ -3356,11 +3356,11 @@ msgstr "Die angegebene Projekt-ID ist ungültig. Bitte überprüfen Sie Ihre Ein
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/DetachFloatingIpModal.tsx:118
 msgid "The text must match “detach” in lowercase."
-msgstr ""
+msgstr "Der Text muss “detach” in Kleinbuchstaben entsprechen."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/ReleaseFloatingIpModal.tsx:115
 msgid "The text must match “release” in lowercase."
-msgstr ""
+msgstr "Der Text muss “release” in Kleinbuchstaben entsprechen."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ContainerTableView.tsx:103
 msgid "There are no containers available with the current search criteria. Try adjusting your search term."
@@ -3372,19 +3372,19 @@ msgstr "Keine Flavors verfügbar. Filtern Sie neu oder erstellen Sie einen neuen
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-table/FloatingIpListContainer.tsx:52
 msgid "There are no Floating IPs available for this project. Floating IPs allow you to map public IP addresses to instances."
-msgstr ""
+msgstr "Für dieses Projekt sind keine Floating IPs verfügbar. Floating IPs ermöglichen es, öffentliche IP-Adressen Instances zuzuordnen."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/SecurityGroupListContainer.tsx:124
 msgid "There are no groups"
-msgstr ""
+msgstr "Keine Gruppen vorhanden"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:706
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:713
 msgid "There are no images available for this project with the current filters applied. Try adjusting your filter criteria or create a new image."
 msgstr "Keine Images verfügbar. Filtern Sie neu oder erstellen Sie ein neues Image."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-components/-details/SecurityGroupRBACPolicies.tsx:135
 msgid "There are no RBAC policies for this security group"
-msgstr ""
+msgstr "Für diese Security Group sind keine RBAC-Richtlinien vorhanden"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-components/-details/SecurityGroupRulesTable.tsx:132
 msgid "There are no rules for this security group"
@@ -3404,7 +3404,7 @@ msgstr "Diese Aktion kann nicht rückgängig gemacht werden. Die Regel wird daue
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/DeleteSecurityGroupDialog.tsx:68
 msgid "This action cannot be undone. The security group will be permanently deleted."
-msgstr ""
+msgstr "Diese Aktion kann nicht rückgängig gemacht werden. Die Security Group wird dauerhaft gelöscht."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/DeleteRBACPolicyDialog.tsx:68
 msgid "This action cannot be undone. The target project will lose access to this security group immediately."
@@ -3412,7 +3412,7 @@ msgstr "Diese Aktion kann nicht rückgängig gemacht werden. Das Zielprojekt ver
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/ReleaseFloatingIpModal.tsx:84
 msgid "This action is permanent. The address will be removed from your project and returned to the public pool. This action cannot be undone."
-msgstr ""
+msgstr "Diese Aktion ist dauerhaft. Die Adresse wird aus Ihrem Projekt entfernt und dem öffentlichen Pool zurückgegeben. Dies kann nicht rückgängig gemacht werden."
 
 #: src/client/utils/useErrorTranslation.ts:74
 msgid "This extra spec keys already exist. Please use different keys."
@@ -3429,7 +3429,7 @@ msgstr "Dieser Ordner ist leer."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageDetailsView.tsx:61
 msgid "This image was shared with you by <0>{ownerProject}</0> on {sharedAt}."
-msgstr ""
+msgstr "Dieses Image wurde am {sharedAt} von <0>{ownerProject}</0> mit Ihnen geteilt."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/DeleteObjectModal.tsx:161
 msgid "This is a <0>dynamic large object</0>. Only the manifest will be deleted — its segment objects (stored under the manifest prefix) are <1>not</1> automatically removed and must be deleted separately."
@@ -3439,7 +3439,7 @@ msgstr "Dies ist ein <0>dynamisches großes Objekt</0>. Nur das Manifest wird ge
 msgid "This is a <0>static large object</0>. By default, all associated segment objects will also be permanently deleted."
 msgstr "Dies ist ein <0>statisches großes Objekt</0>. Standardmäßig werden auch alle zugehörigen Segment-Objekte dauerhaft gelöscht."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/ManageAccessModal.tsx:195
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/ManageAccessModal.tsx:194
 msgid "This is a public flavor. All tenants have access to it."
 msgstr "Dies ist ein öffentlicher Flavor. Alle Projekte haben Zugriff darauf."
 
@@ -3473,11 +3473,11 @@ msgstr "Dieses Projekt hat keinen Zugriff auf den Flavor."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/DetachFloatingIpModal.tsx:93
 msgid "To confirm this action, type the word <0>“detach”</0> in the field below."
-msgstr ""
+msgstr "Um diese Aktion zu bestätigen, geben Sie das Wort <0>“detach”</0> in das Feld unten ein."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/ReleaseFloatingIpModal.tsx:90
 msgid "To confirm this action, type the word <0>\"release\"</0> in the field below."
-msgstr ""
+msgstr "Um diese Aktion zu bestätigen, geben Sie das Wort <0>\"release\"</0> in das Feld unten ein."
 
 #: src/client/routes/about.tsx:109
 msgid "Together, we can unlock the true potential of your cloud infrastructure."
@@ -3506,7 +3506,7 @@ msgstr "Erneut versuchen"
 
 #: src/client/components/Error/ErrorPage.tsx:52
 msgid "Try Again"
-msgstr ""
+msgstr "Erneut versuchen"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/KeyPairs/-components/KeyPairListView.tsx:49
 msgid "Type"
@@ -3514,31 +3514,31 @@ msgstr "Typ"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/DetachFloatingIpModal.tsx:117
 msgid "Type \"detach\" to confirm"
-msgstr ""
+msgstr "\"detach\" zur Bestätigung eingeben"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/DetachFloatingIpModal.tsx:30
 msgid "Type “detach” to confirm"
-msgstr ""
+msgstr "“detach” zur Bestätigung eingeben"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/ReleaseFloatingIpModal.tsx:114
 msgid "Type \"release\" to confirm"
-msgstr ""
+msgstr "\"release\" zur Bestätigung eingeben"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/ReleaseFloatingIpModal.tsx:29
 msgid "Type “release” to confirm"
-msgstr ""
+msgstr "“release” zur Bestätigung eingeben"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/DeleteRBACPolicyDialog.tsx:28
 msgid "Type \"remove\" to confirm"
-msgstr ""
+msgstr "\"remove\" zur Bestätigung eingeben"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/DeleteSecurityGroupDialog.tsx:102
 msgid "Type <0>{deleteWord}</0> to confirm:"
-msgstr ""
+msgstr "<0>{deleteWord}</0> zur Bestätigung eingeben:"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/DeleteRuleDialog.tsx:115
 msgid "Type <0>delete</0> to confirm:"
-msgstr ""
+msgstr "<0>delete</0> zur Bestätigung eingeben:"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/DeleteRBACPolicyDialog.tsx:108
 msgid "Type <0>remove</0> to confirm:"
@@ -3552,7 +3552,7 @@ msgstr "Geben Sie den Container-Namen zur Bestätigung ein"
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/CreateSecurityGroupModal.tsx:157
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/EditSecurityGroupModal.tsx:175
 msgid "Type name"
-msgstr ""
+msgstr "Name eingeben"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EditContainerMetadataModal.tsx:615
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/CopyObjectModal.tsx:325
@@ -3562,7 +3562,7 @@ msgstr "Zum Suchen von Containern eingeben…"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-components/-details/SecurityGroupRulesTable.tsx:92
 msgid "Type: {typeValue}, Code: {codeValue}"
-msgstr ""
+msgstr "Typ: {typeValue}, Code: {codeValue}"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/CreateImageModal.tsx:507
 msgid "Ubuntu 22.04 LTS"
@@ -3609,7 +3609,7 @@ msgstr "Unbenannt"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/EditSecurityGroupModal.tsx:130
 msgid "Update Security Group"
-msgstr ""
+msgstr "Security Group aktualisieren"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageDetailsView.tsx:155
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/List.tsx:260
@@ -3619,15 +3619,15 @@ msgstr "Aktualisiert am"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageDetailsView.tsx:80
 msgid "Updated:"
-msgstr ""
+msgstr "Aktualisiert:"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/EditFloatingIpModal.tsx:88
 msgid "Updating Floating IP..."
-msgstr ""
+msgstr "Floating IP wird aktualisiert..."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/EditSecurityGroupModal.tsx:158
 msgid "Updating security group..."
-msgstr ""
+msgstr "Security Group wird aktualisiert..."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EditContainerMetadataModal.tsx:496
 msgid "URL for public access"
@@ -3639,11 +3639,11 @@ msgstr "Belegt"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ManageContainerAccessModal.tsx:178
 msgid "User {userId} (any project)"
-msgstr ""
+msgstr "Benutzer {userId} (beliebiges Projekt)"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ManageContainerAccessModal.tsx:183
 msgid "User {userId} from project {projectId}"
-msgstr ""
+msgstr "Benutzer {userId} aus Projekt {projectId}"
 
 #: src/client/routes/auth/login.tsx:183
 msgid "User C/D/I"
@@ -3658,16 +3658,16 @@ msgstr "gültiges Token erforderlich: false"
 msgid "valid token required: true"
 msgstr "gültiges Token erforderlich: true"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:204
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageMetadataModal.tsx:246
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageMetadataModal.tsx:283
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:203
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageMetadataModal.tsx:244
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageMetadataModal.tsx:281
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EditContainerMetadataModal.tsx:667
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EditContainerMetadataModal.tsx:697
 msgid "Value"
 msgstr "Value"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageMetadataModal.tsx:106
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageMetadataModal.tsx:139
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageMetadataModal.tsx:104
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageMetadataModal.tsx:137
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EditContainerMetadataModal.tsx:235
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EditContainerMetadataModal.tsx:268
 msgid "Value is required"
@@ -3714,7 +3714,7 @@ msgstr "Repository ansehen"
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImageModal.tsx:99
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageDetailsModal.tsx:281
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageDetailsView.tsx:179
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:632
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:639
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/List.tsx:278
 msgid "Visibility"
 msgstr "Sichtbarkeit"
@@ -3737,7 +3737,7 @@ msgstr "Warum Aurora wählen?"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/DeleteSecurityGroupDialog.tsx:79
 msgid "Would you like to remove the security group <0>{securityGroupName}</0> from your project?"
-msgstr ""
+msgstr "Möchten Sie die Security Group <0>{securityGroupName}</0> aus Ihrem Projekt entfernen?"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ManageContainerAccessModal.tsx:381
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ManageContainerAccessModal.tsx:488
@@ -3755,11 +3755,11 @@ msgstr "Ja"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ActivateImagesModal.tsx:54
 msgid "You are about to activate <0>{deactivatedCount} image(s)</0>. Activated images will be available for launching new instances."
-msgstr ""
+msgstr "Sie sind dabei, <0>{deactivatedCount} Image(s)</0> zu aktivieren. Aktivierte Images stehen zum Starten neuer Instances zur Verfügung."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeactivateImagesModal.tsx:57
 msgid "You are about to deactivate <0>{activeCount} image(s)</0>. Deactivated images cannot be used to launch new instances."
-msgstr ""
+msgstr "Sie sind dabei, <0>{activeCount} Image(s)</0> zu deaktivieren. Deaktivierte Images können nicht zum Starten neuer Instances verwendet werden."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/DeleteImagesModal.tsx:68
 msgid "You are about to delete {deletableCount} image(s). This action cannot be undone."
@@ -3771,7 +3771,7 @@ msgstr "Sie sind bereits angemeldet."
 
 #: src/client/routes/_auth/aurora.tsx:19
 msgid "You are currently on the dashboard route."
-msgstr ""
+msgstr "Sie befinden sich derzeit auf der Dashboard-Route."
 
 #: src/client/utils/useErrorTranslation.ts:114
 msgid "You are not authorized to access flavor access information. Please log in again."
@@ -3807,7 +3807,7 @@ msgstr "Sie sind nicht berechtigt, Metadata anzusehen. Bitte melden Sie sich ern
 
 #: src/client/utils/useErrorTranslation.ts:24
 msgid "You are not authorized to view flavor details. Please log in again."
-msgstr ""
+msgstr "Sie sind nicht berechtigt, Flavor-Details anzuzeigen. Bitte melden Sie sich erneut an."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/MoveRenameObjectModal.tsx:379
 msgid "You can rename the object by changing the name here."
@@ -3855,11 +3855,11 @@ msgstr "Sie haben keine Berechtigung, Metadata für diesen Flavor anzusehen."
 
 #: src/client/utils/useErrorTranslation.ts:26
 msgid "You don't have permission to view this flavor's details."
-msgstr ""
+msgstr "Sie haben keine Berechtigung, die Details dieses Flavors anzuzeigen."
 
 #: src/client/components/Auth/InactivityModal.tsx:13
 msgid "You have been logged out due to inactivity."
-msgstr ""
+msgstr "Sie wurden aufgrund von Inaktivität abgemeldet."
 
 #: src/client/routes/auth/login.tsx:152
 msgid "You need to login to access this page."
@@ -3867,15 +3867,15 @@ msgstr "Sie müssen sich anmelden, um auf diese Seite zuzugreifen."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageDetailsView.tsx:57
 msgid "Your action is required"
-msgstr ""
+msgstr "Ihre Aktion ist erforderlich"
 
 #: src/client/routes/auth/login.tsx:150
 msgid "Your session expired. Please login again."
-msgstr ""
+msgstr "Ihre Sitzung ist abgelaufen. Bitte melden Sie sich erneut an."
 
 #: src/client/components/Auth/InactivityModal.tsx:13
 msgid "Your session has expired."
-msgstr ""
+msgstr "Ihre Sitzung ist abgelaufen."
 
 #: src/client/utils/useErrorTranslation.ts:10
 msgid "Your session has expired. Please log in again."
