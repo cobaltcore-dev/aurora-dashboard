@@ -77,7 +77,7 @@ const PERMISSION_KEY = z.custom<PolicyKey>((value) => {
   if (typeof value !== "string" || !Object.hasOwn(POLICY_MAPPINGS, value)) {
     return false
   }
-  return value
+  return true
 })
 
 /**

@@ -98,35 +98,27 @@ describe("permissionRouter", () => {
 
     describe("Permission key validation", () => {
       it("should throw BAD_REQUEST for unknown permission", async () => {
-        await expect(caller.canUser("invalid:permission" as unknown as PermissionKey)).rejects.toThrow(
-          expect.objectContaining({
-            code: "BAD_REQUEST",
-          })
-        )
+        await expect(caller.canUser("invalid:permission" as unknown as PermissionKey)).rejects.toMatchObject({
+          code: "BAD_REQUEST",
+        })
       })
 
       it("should throw BAD_REQUEST for empty string", async () => {
-        await expect(caller.canUser("" as unknown as PermissionKey)).rejects.toThrow(
-          expect.objectContaining({
-            code: "BAD_REQUEST",
-          })
-        )
+        await expect(caller.canUser("" as unknown as PermissionKey)).rejects.toMatchObject({
+          code: "BAD_REQUEST",
+        })
       })
 
       it("should throw BAD_REQUEST for malformed permission key", async () => {
-        await expect(caller.canUser("just-a-string" as unknown as PermissionKey)).rejects.toThrow(
-          expect.objectContaining({
-            code: "BAD_REQUEST",
-          })
-        )
+        await expect(caller.canUser("just-a-string" as unknown as PermissionKey)).rejects.toMatchObject({
+          code: "BAD_REQUEST",
+        })
       })
 
       it("should throw BAD_REQUEST for partial permission key", async () => {
-        await expect(caller.canUser("servers" as unknown as PermissionKey)).rejects.toThrow(
-          expect.objectContaining({
-            code: "BAD_REQUEST",
-          })
-        )
+        await expect(caller.canUser("servers" as unknown as PermissionKey)).rejects.toMatchObject({
+          code: "BAD_REQUEST",
+        })
       })
     })
 
