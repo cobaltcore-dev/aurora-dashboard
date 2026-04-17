@@ -679,6 +679,68 @@ export function isFolderMarker(name: string, bytes: number): boolean {
 }
 
 // ============================================================================
+// UPLOAD HELPERS
+// ============================================================================
+
+/**
+ * Validates and extracts the required fields from a multipart upload request.
+ * Mirrors the image router's validateUploadInput pattern, adapted for Swift objects.
+ *
+ * @param container - Container name from the multipart field
+ * @param object    - Full object path (prefix + filename) from the multipart field
+ * @param fileSize  - File size in bytes from the multipart field (may be absent for unknown sizes)
+ * @param fileStream - Node.js readable stream for the file part
+ * @returns Validated fields ready for use in the upload procedure
+ */
+export function validateSwiftUploadInput(
+  container: unknown,
+  object: unknown,
+  fileSize: unknown,
+  fileStream: unknown
+): {
+  validatedContainer: string
+  validatedObject: string
+  validatedFileSize: number
+  validatedFile: NodeJS.ReadableStream
+} {
+  if (!container || typeof container !== "string" || container.trim() === "") {
+    throw new TRPCError({ code: "BAD_REQUEST", message: "container is required" })
+  }
+
+  if (!object || typeof object !== "string" || object.trim() === "") {
+    throw new TRPCError({ code: "BAD_REQUEST", message: "object name is required" })
+  }
+
+  if (!fileStream) {
+    throw new TRPCError({ code: "BAD_REQUEST", message: "File not uploaded" })
+  }
+
+  if (
+    typeof fileStream !== "object" ||
+    !("pipe" in fileStream) ||
+    typeof (fileStream as NodeJS.ReadableStream).pipe !== "function"
+  ) {
+    throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Invalid file stream format" })
+  }
+
+  let parsedSize = 0
+  if (fileSize !== undefined && fileSize !== null) {
+    const n = typeof fileSize === "string" ? parseInt(fileSize, 10) : fileSize
+    if (typeof n !== "number" || !Number.isFinite(n) || n < 0) {
+      throw new TRPCError({ code: "BAD_REQUEST", message: "fileSize must be a non-negative finite number" })
+    }
+    parsedSize = n
+  }
+
+  return {
+    validatedContainer: container.trim(),
+    validatedObject: object.trim(),
+    validatedFileSize: parsedSize,
+    validatedFile: fileStream as NodeJS.ReadableStream,
+  }
+}
+
+// ============================================================================
 // TEMPORARY URL HELPERS
 // ============================================================================
 

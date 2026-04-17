@@ -1,7 +1,11 @@
 import { TRPCError } from "@trpc/server"
+import { z } from "zod"
+import EventEmitter from "node:events"
+import { Readable, Transform } from "node:stream"
 import { protectedProcedure } from "../../trpc"
 import {
   validateSwiftService,
+  validateSwiftUploadInput,
   applyContainerQueryParams,
   applyObjectQueryParams,
   parseAccountInfo,
@@ -18,6 +22,15 @@ import {
   generateTempUrlSignature,
   constructTempUrl,
 } from "../helpers/swiftHelpers"
+
+// ============================================================================
+// UPLOAD PROGRESS TRACKING (module-level, mirrors imageRouter pattern)
+// ============================================================================
+
+const uploadProgressEmitter = new EventEmitter()
+
+type UploadProgress = { uploaded: number; total: number; percent: number }
+const uploadProgressMap = new Map<string, UploadProgress>()
 import {
   listContainersInputSchema,
   updateAccountMetadataInputSchema,
@@ -1223,6 +1236,201 @@ export const swiftRouter = {
         }
       }, "generate temp URL")
     }),
+
+  // ============================================================================
+  // UPLOAD OPERATIONS
+  // ============================================================================
+
+  /**
+   * Uploads a file to a Swift container via multipart form data.
+   *
+   * Accepts multipart fields:
+   *   - container   (string) — target container name
+   *   - object      (string) — full object path including prefix, e.g. "folder/file.txt"
+   *   - contentType (string, optional) — MIME type detected client-side
+   *   - fileSize    (number, optional) — file size in bytes for progress tracking
+   *   - file        (binary) — the file part (must be last)
+   *
+   * Progress is tracked via a Node.js Transform stream and emitted through
+   * `uploadProgressEmitter` so that concurrent `watchUploadProgress` subscriptions
+   * can receive real-time byte counts without polling.
+   *
+   * Returns `{ uploadId }` — the client uses this to subscribe to progress via
+   * `watchUploadProgress` before (or immediately after) calling this mutation.
+   */
+  uploadObject: protectedProcedure.mutation(async ({ ctx }): Promise<{ success: boolean; uploadId: string }> => {
+    return withErrorHandling(async () => {
+      const swift = ctx.openstack?.service("swift")
+      validateSwiftService(swift)
+
+      const parts = ctx.getMultipartData()
+      let container: string | undefined
+      let object: string | undefined
+      let contentType: string | undefined
+      let fileSize: number | undefined
+      let fileStream: NodeJS.ReadableStream | undefined
+
+      for await (const part of parts) {
+        if (part.type === "field") {
+          switch (part.fieldname) {
+            case "container":
+              container = part.value
+              break
+            case "object":
+              object = part.value
+              break
+            case "contentType":
+              contentType = part.value
+              break
+            case "fileSize":
+              fileSize = parseInt(part.value, 10)
+              break
+          }
+        } else if (part.type === "file") {
+          fileStream = part.file
+          break // file must be last — FormData append order is preserved
+        }
+      }
+
+      const { validatedContainer, validatedObject, validatedFileSize, validatedFile } = validateSwiftUploadInput(
+        container,
+        object,
+        fileSize,
+        fileStream
+      )
+
+      // Use a stable, URL-safe upload ID derived from container + object so the
+      // client can compute it before starting the upload (no extra round-trip).
+      const uploadId = `${validatedContainer}:${validatedObject}`
+
+      uploadProgressMap.set(uploadId, { uploaded: 0, total: validatedFileSize, percent: 0 })
+
+      try {
+        const progress = uploadProgressMap.get(uploadId)!
+
+        // Transform stream that observes bytes as they flow through to Swift.
+        // No buffering — chunks are passed unmodified; we only count bytes.
+        const progressTracker = new Transform({
+          async transform(chunk: Buffer, _encoding, callback) {
+            progress.uploaded += chunk.length
+            progress.percent = progress.total > 0 ? Math.round((progress.uploaded / progress.total) * 100) : 0
+
+            uploadProgressEmitter.emit(`progress:${uploadId}`, { ...progress })
+
+            // Yield to the event loop so subscriptions can flush between chunks
+            await new Promise((resolve) => setTimeout(resolve, 0))
+
+            callback(null, chunk)
+          },
+        })
+
+        const trackedStream = validatedFile.pipe(progressTracker)
+        const webStream = Readable.toWeb(trackedStream)
+
+        // Encode each segment individually to preserve slash separators
+        const encodedObject = validatedObject.split("/").map(encodeURIComponent).join("/")
+        const url = `${encodeURIComponent(validatedContainer)}/${encodedObject}`
+
+        await swift.put(url, webStream, {
+          headers: {
+            "Content-Type": contentType ?? "application/octet-stream",
+            ...(validatedFileSize > 0 ? { "Content-Length": validatedFileSize.toString() } : {}),
+          },
+        })
+
+        uploadProgressEmitter.emit(`progress:${uploadId}:complete`)
+
+        return { success: true, uploadId }
+      } catch (error) {
+        uploadProgressEmitter.emit(`progress:${uploadId}:error`, error)
+        throw mapErrorResponseToTRPCError(error as Parameters<typeof mapErrorResponseToTRPCError>[0], {
+          operation: "upload object",
+          container: container,
+          object: object,
+        })
+      } finally {
+        uploadProgressMap.delete(uploadId)
+      }
+    }, "upload object")
+  }),
+
+  /**
+   * Subscribes to real-time upload progress for a given `uploadId`.
+   *
+   * The `uploadId` is returned by `uploadObject` and is also deterministically
+   * computable by the client as `"<container>:<objectPath>"` so the subscription
+   * can be opened before the upload mutation resolves.
+   *
+   * Yields `{ uploaded, total, percent }` as bytes flow through the server.
+   * Completes when the upload finishes or throws if the upload errors.
+   */
+  watchUploadProgress: protectedProcedure.input(z.object({ uploadId: z.string() })).subscription(async function* ({
+    input,
+  }) {
+    const { uploadId } = input
+
+    // Emit current snapshot immediately so late subscribers don't miss state
+    const current = uploadProgressMap.get(uploadId)
+    if (current) {
+      yield { ...current }
+    }
+
+    const queue: Array<UploadProgress> = []
+    let isComplete = false
+    let isError = false
+    let caughtError: Error | undefined
+    let waitResolver: ((value?: unknown) => void) | null = null
+
+    const onProgress = (data: UploadProgress) => {
+      queue.push(data)
+      waitResolver?.()
+      waitResolver = null
+    }
+
+    const onComplete = () => {
+      isComplete = true
+      waitResolver?.()
+      waitResolver = null
+    }
+
+    const onError = (err: unknown) => {
+      isError = true
+      caughtError = err instanceof Error ? err : new Error(String(err))
+      waitResolver?.()
+      waitResolver = null
+    }
+
+    uploadProgressEmitter.on(`progress:${uploadId}`, onProgress)
+    uploadProgressEmitter.on(`progress:${uploadId}:complete`, onComplete)
+    uploadProgressEmitter.on(`progress:${uploadId}:error`, onError)
+
+    try {
+      while (!isComplete && !isError) {
+        while (queue.length > 0) {
+          yield { ...queue.shift()! }
+        }
+
+        if (!isComplete && !isError) {
+          await new Promise((resolve) => {
+            waitResolver = resolve
+          })
+        }
+      }
+
+      // Drain any final events that arrived while we were awaiting
+      while (queue.length > 0) {
+        yield { ...queue.shift()! }
+      }
+
+      if (isError && caughtError) {
+        throw caughtError
+      }
+    } finally {
+      uploadProgressEmitter.off(`progress:${uploadId}`, onProgress)
+      uploadProgressEmitter.off(`progress:${uploadId}:complete`, onComplete)
+      uploadProgressEmitter.off(`progress:${uploadId}:error`, onError)
+    }
+  }),
 
   // ============================================================================
   // DOWNLOAD OPERATIONS

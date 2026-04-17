@@ -1,8 +1,10 @@
 import { describe, it, expect, beforeEach } from "vitest"
 import { TRPCError } from "@trpc/server"
 import { ZodError, z } from "zod"
+import { Readable } from "node:stream"
 import {
   validateSwiftService,
+  validateSwiftUploadInput,
   applyContainerQueryParams,
   applyObjectQueryParams,
   parseAccountInfo,
@@ -49,6 +51,112 @@ describe("swiftHelpers", () => {
         expect(error).toBeInstanceOf(TRPCError)
         expect((error as TRPCError).code).toBe("INTERNAL_SERVER_ERROR")
       }
+    })
+  })
+
+  // ── validateSwiftUploadInput ───────────────────────────────────────────────
+
+  describe("validateSwiftUploadInput", () => {
+    const makeStream = (): NodeJS.ReadableStream => Readable.from(["data"])
+
+    it("should return validated fields when all inputs are valid", () => {
+      const stream = makeStream()
+      const result = validateSwiftUploadInput("my-container", "folder/file.txt", 1024, stream)
+
+      expect(result.validatedContainer).toBe("my-container")
+      expect(result.validatedObject).toBe("folder/file.txt")
+      expect(result.validatedFileSize).toBe(1024)
+      expect(result.validatedFile).toBe(stream)
+    })
+
+    it("should trim whitespace from container and object", () => {
+      const stream = makeStream()
+      const result = validateSwiftUploadInput("  my-container  ", "  folder/file.txt  ", 0, stream)
+
+      expect(result.validatedContainer).toBe("my-container")
+      expect(result.validatedObject).toBe("folder/file.txt")
+    })
+
+    it("should default fileSize to 0 when undefined", () => {
+      const stream = makeStream()
+      const result = validateSwiftUploadInput("c", "o", undefined, stream)
+
+      expect(result.validatedFileSize).toBe(0)
+    })
+
+    it("should default fileSize to 0 when null", () => {
+      const stream = makeStream()
+      const result = validateSwiftUploadInput("c", "o", null, stream)
+
+      expect(result.validatedFileSize).toBe(0)
+    })
+
+    it("should accept fileSize as a numeric string and parse it", () => {
+      const stream = makeStream()
+      const result = validateSwiftUploadInput("c", "o", "2048", stream)
+
+      expect(result.validatedFileSize).toBe(2048)
+    })
+
+    it("should throw BAD_REQUEST when container is missing", () => {
+      expect(() => validateSwiftUploadInput(undefined, "file.txt", 0, makeStream())).toThrow(
+        expect.objectContaining({ code: "BAD_REQUEST", message: "container is required" })
+      )
+    })
+
+    it("should throw BAD_REQUEST when container is an empty string", () => {
+      expect(() => validateSwiftUploadInput("   ", "file.txt", 0, makeStream())).toThrow(
+        expect.objectContaining({ code: "BAD_REQUEST" })
+      )
+    })
+
+    it("should throw BAD_REQUEST when container is not a string", () => {
+      expect(() => validateSwiftUploadInput(123, "file.txt", 0, makeStream())).toThrow(
+        expect.objectContaining({ code: "BAD_REQUEST" })
+      )
+    })
+
+    it("should throw BAD_REQUEST when object name is missing", () => {
+      expect(() => validateSwiftUploadInput("container", undefined, 0, makeStream())).toThrow(
+        expect.objectContaining({ code: "BAD_REQUEST", message: "object name is required" })
+      )
+    })
+
+    it("should throw BAD_REQUEST when object name is an empty string", () => {
+      expect(() => validateSwiftUploadInput("container", "   ", 0, makeStream())).toThrow(
+        expect.objectContaining({ code: "BAD_REQUEST" })
+      )
+    })
+
+    it("should throw BAD_REQUEST when file stream is missing", () => {
+      expect(() => validateSwiftUploadInput("container", "file.txt", 0, undefined)).toThrow(
+        expect.objectContaining({ code: "BAD_REQUEST", message: "File not uploaded" })
+      )
+    })
+
+    it("should throw INTERNAL_SERVER_ERROR when file stream has no pipe method", () => {
+      const notAStream = { read: () => {} } // missing pipe
+      expect(() => validateSwiftUploadInput("container", "file.txt", 0, notAStream)).toThrow(
+        expect.objectContaining({ code: "INTERNAL_SERVER_ERROR", message: "Invalid file stream format" })
+      )
+    })
+
+    it("should throw BAD_REQUEST when fileSize is negative", () => {
+      expect(() => validateSwiftUploadInput("container", "file.txt", -1, makeStream())).toThrow(
+        expect.objectContaining({ code: "BAD_REQUEST" })
+      )
+    })
+
+    it("should throw BAD_REQUEST when fileSize is Infinity", () => {
+      expect(() => validateSwiftUploadInput("container", "file.txt", Infinity, makeStream())).toThrow(
+        expect.objectContaining({ code: "BAD_REQUEST" })
+      )
+    })
+
+    it("should throw BAD_REQUEST when fileSize is NaN", () => {
+      expect(() => validateSwiftUploadInput("container", "file.txt", NaN, makeStream())).toThrow(
+        expect.objectContaining({ code: "BAD_REQUEST" })
+      )
     })
   })
 
