@@ -22,15 +22,6 @@ import {
   generateTempUrlSignature,
   constructTempUrl,
 } from "../helpers/swiftHelpers"
-
-// ============================================================================
-// UPLOAD PROGRESS TRACKING (module-level, mirrors imageRouter pattern)
-// ============================================================================
-
-const uploadProgressEmitter = new EventEmitter()
-
-type UploadProgress = { uploaded: number; total: number; percent: number }
-const uploadProgressMap = new Map<string, UploadProgress>()
 import {
   listContainersInputSchema,
   updateAccountMetadataInputSchema,
@@ -65,6 +56,25 @@ import {
   generateTempUrlInputSchema,
   downloadObjectInputSchema,
 } from "../types/swift"
+
+// ============================================================================
+// UPLOAD PROGRESS TRACKING (module-level, mirrors imageRouter pattern)
+// ============================================================================
+
+const uploadProgressEmitter = new EventEmitter()
+
+type UploadProgress = { uploaded: number; total: number; percent: number }
+const uploadProgressMap = new Map<string, UploadProgress>()
+
+// ============================================================================
+// DOWNLOAD PROGRESS TRACKING
+// ============================================================================
+
+const downloadProgressEmitter = new EventEmitter()
+
+type DownloadProgress = { downloaded: number; total: number; percent: number }
+const downloadProgressMap = new Map<string, DownloadProgress>()
+
 export const swiftRouter = {
   // ============================================================================
   // SERVICE OPERATIONS
@@ -1392,6 +1402,14 @@ export const swiftRouter = {
    *   can begin processing the download immediately, while the server avoids
    *   buffering the full file in memory.
    *
+   * Progress tracking:
+   *   Per-chunk progress (`downloaded`, `total`, `percent`) is stored in
+   *   `downloadProgressMap` and emitted via `downloadProgressEmitter` so that
+   *   a concurrent `watchDownloadProgress` subscription can drive a progress bar
+   *   without the client having to count bytes from the iterable itself.
+   *   The `downloadId` is included in the first chunk so the client can subscribe
+   *   without having to compute it independently.
+   *
    * Client-side assembly:
    *   Collect all base64 chunks → decode each → concatenate into a single
    *   Uint8Array → wrap in a Blob → trigger <a download>.
@@ -1411,11 +1429,15 @@ export const swiftRouter = {
     total: number // total file size in bytes (0 if unknown)
     contentType?: string // only present in first chunk
     filename?: string // only present in first chunk
+    downloadId?: string // only present in first chunk — use to subscribe to watchDownloadProgress
   }> {
     const { container, object, filename, account } = input
     const swift = ctx.openstack?.service("swift")
 
     validateSwiftService(swift)
+
+    // downloadId mirrors the uploadId convention: "<container>:<objectPath>"
+    const downloadId = `${container}:${object}`
 
     const accountPath = account || ""
     // Encode each segment of the object name individually so that slashes
@@ -1438,6 +1460,8 @@ export const swiftRouter = {
       throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Swift response has no body" })
     }
 
+    downloadProgressMap.set(downloadId, { downloaded: 0, total, percent: 0 })
+
     const reader = response.body.getReader()
     let isFirst = true
     let downloaded = 0
@@ -1449,24 +1473,111 @@ export const swiftRouter = {
 
         downloaded += value.byteLength
 
+        const progress = downloadProgressMap.get(downloadId)!
+        progress.downloaded = downloaded
+        progress.percent = total > 0 ? Math.round((downloaded / total) * 100) : 0
+        downloadProgressEmitter.emit(`progress:${downloadId}`, { ...progress })
+
         yield {
           chunk: Buffer.from(value).toString("base64"),
           downloaded,
           total,
-          ...(isFirst ? { contentType, filename } : {}),
+          ...(isFirst ? { contentType, filename, downloadId } : {}),
         }
 
         isFirst = false
       }
+
+      downloadProgressEmitter.emit(`progress:${downloadId}:complete`)
     } catch (error) {
+      downloadProgressEmitter.emit(`progress:${downloadId}:error`, error)
       throw mapErrorResponseToTRPCError(error as Parameters<typeof mapErrorResponseToTRPCError>[0], {
         operation: "download object",
         container,
         object,
       })
     } finally {
+      downloadProgressMap.delete(downloadId)
       await reader.cancel()
       reader.releaseLock()
+    }
+  }),
+
+  /**
+   * Subscribes to real-time download progress for a given `downloadId`.
+   *
+   * The `downloadId` is included in the first chunk yielded by `downloadObject`
+   * and is also deterministically computable as `"<container>:<objectPath>"`.
+   *
+   * Yields `{ downloaded, total, percent }` as bytes flow through the server.
+   * `percent` is 0 when Swift does not send a Content-Length header.
+   * Completes when the download finishes or throws if it errors.
+   */
+  watchDownloadProgress: protectedProcedure.input(z.object({ downloadId: z.string() })).subscription(async function* ({
+    input,
+  }) {
+    const { downloadId } = input
+
+    // Yield current snapshot immediately for late subscribers
+    const current = downloadProgressMap.get(downloadId)
+    if (current) {
+      yield { ...current }
+    }
+
+    const queue: Array<DownloadProgress> = []
+    let isComplete = false
+    let isError = false
+    let caughtError: Error | undefined
+    let waitResolver: ((value?: unknown) => void) | null = null
+
+    const onProgress = (data: DownloadProgress) => {
+      queue.push(data)
+      waitResolver?.()
+      waitResolver = null
+    }
+
+    const onComplete = () => {
+      isComplete = true
+      waitResolver?.()
+      waitResolver = null
+    }
+
+    const onError = (err: unknown) => {
+      isError = true
+      caughtError = err instanceof Error ? err : new Error(String(err))
+      waitResolver?.()
+      waitResolver = null
+    }
+
+    downloadProgressEmitter.on(`progress:${downloadId}`, onProgress)
+    downloadProgressEmitter.on(`progress:${downloadId}:complete`, onComplete)
+    downloadProgressEmitter.on(`progress:${downloadId}:error`, onError)
+
+    try {
+      while (!isComplete && !isError) {
+        while (queue.length > 0) {
+          yield { ...queue.shift()! }
+        }
+
+        if (!isComplete && !isError) {
+          await new Promise((resolve) => {
+            waitResolver = resolve
+          })
+        }
+      }
+
+      // Drain any final events that arrived while we were awaiting
+      while (queue.length > 0) {
+        yield { ...queue.shift()! }
+      }
+
+      if (isError && caughtError) {
+        throw caughtError
+      }
+    } finally {
+      downloadProgressEmitter.off(`progress:${downloadId}`, onProgress)
+      downloadProgressEmitter.off(`progress:${downloadId}:complete`, onComplete)
+      downloadProgressEmitter.off(`progress:${downloadId}:error`, onError)
     }
   }),
 }

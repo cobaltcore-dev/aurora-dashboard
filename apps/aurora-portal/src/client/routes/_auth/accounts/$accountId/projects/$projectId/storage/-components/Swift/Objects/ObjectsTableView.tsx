@@ -13,7 +13,7 @@ import {
 import { Trans, useLingui } from "@lingui/react/macro"
 import { MdFolder, MdDescription } from "react-icons/md"
 import { formatBytesBinary } from "@/client/utils/formatBytes"
-import { trpcClient } from "@/client/trpcClient"
+import { trpcClient, trpcReact } from "@/client/trpcClient"
 import { BrowserRow, FolderRow, ObjectRow } from "./"
 import { DeleteFolderModal } from "./DeleteFolderModal"
 import { DeleteObjectModal } from "./DeleteObjectModal"
@@ -125,15 +125,19 @@ export const ObjectsTableView = ({
   const [tempUrlTarget, setTempUrlTarget] = useState<ObjectRow | null>(null)
   const [editMetadataTarget, setEditMetadataTarget] = useState<ObjectRow | null>(null)
   const [downloadingRow, setDownloadingRow] = useState<ObjectRow | null>(null)
-  const [downloadProgress, setDownloadProgress] = useState<{ downloaded: number; total: number } | null>(null)
+  const [downloadId, setDownloadId] = useState<string | null>(null)
   const [previewingRow, setPreviewingRow] = useState<ObjectRow | null>(null)
 
+  const { data: downloadProgress } = trpcReact.storage.swift.watchDownloadProgress.useSubscription(
+    { downloadId: downloadId ?? "" },
+    { enabled: !!downloadId && downloadingRow !== null }
+  )
+
   // Shared streaming helper — fetches the object from the BFF and assembles a Blob.
-  // onProgress is called for each chunk; pass null to skip progress tracking.
-  const streamObjectToBlob = async (
-    row: ObjectRow,
-    onProgress: ((progress: { downloaded: number; total: number }) => void) | null
-  ): Promise<{ blob: Blob; filename: string }> => {
+  // downloadId is computed client-side as "<container>:<objectName>" — the same
+  // convention used by the BFF — and set before the mutation starts so the
+  // watchDownloadProgress subscription is active from the very first byte.
+  const streamObjectToBlob = async (row: ObjectRow): Promise<{ blob: Blob; filename: string }> => {
     let contentType = row.content_type ?? "application/octet-stream"
     let filename = row.displayName
 
@@ -145,11 +149,10 @@ export const ObjectsTableView = ({
     })
 
     const chunks: Uint8Array<ArrayBuffer>[] = []
-    for await (const { chunk, contentType: ct, filename: fn, downloaded, total } of iterable) {
+    for await (const { chunk, contentType: ct, filename: fn } of iterable) {
       if (ct) contentType = ct
       if (fn) filename = fn
       chunks.push(Uint8Array.from(atob(chunk), (c) => c.charCodeAt(0)) as Uint8Array<ArrayBuffer>)
-      onProgress?.({ downloaded, total })
     }
 
     return { blob: new Blob(chunks, { type: contentType }), filename }
@@ -169,15 +172,16 @@ export const ObjectsTableView = ({
 
   const handleDownload = async (row: ObjectRow) => {
     setDownloadingRow(row)
+    setDownloadId(`${container}:${row.name}`)
     try {
-      const { blob, filename } = await streamObjectToBlob(row, (p) => setDownloadProgress(p))
+      const { blob, filename } = await streamObjectToBlob(row)
       triggerAnchorDownload(URL.createObjectURL(blob), filename)
     } catch (err) {
       onDownloadError(row.displayName, err instanceof Error ? err.message : String(err))
     } finally {
       if (isMounted.current) {
         setDownloadingRow(null)
-        setDownloadProgress(null)
+        setDownloadId(null)
       }
     }
   }
@@ -188,6 +192,7 @@ export const ObjectsTableView = ({
       setPreviewingRow(row)
     } else {
       setDownloadingRow(row)
+      setDownloadId(`${container}:${row.name}`)
     }
 
     // Open a blank tab synchronously while still inside the click handler so
@@ -201,7 +206,7 @@ export const ObjectsTableView = ({
     }
 
     try {
-      const { blob, filename } = await streamObjectToBlob(row, previewing ? null : (p) => setDownloadProgress(p))
+      const { blob, filename } = await streamObjectToBlob(row)
       const url = URL.createObjectURL(blob)
       if (previewing) {
         if (previewTab) {
@@ -219,7 +224,7 @@ export const ObjectsTableView = ({
       if (isMounted.current) {
         setPreviewingRow(null)
         setDownloadingRow(null)
-        setDownloadProgress(null)
+        setDownloadId(null)
       }
     }
   }
@@ -377,10 +382,7 @@ export const ObjectsTableView = ({
                     {isDownloading ? (
                       <span className="flex min-w-0 flex-col gap-1">
                         {(() => {
-                          const progressPct =
-                            downloadProgress && downloadProgress.total > 0
-                              ? Math.round((downloadProgress.downloaded / downloadProgress.total) * 100)
-                              : null
+                          const progressPct = downloadProgress?.percent ?? null
                           return (
                             <>
                               <span className="text-theme-light flex items-center gap-2 text-sm">
