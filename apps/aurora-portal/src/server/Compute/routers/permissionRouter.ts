@@ -67,12 +67,11 @@ const checkSinglePermission = (ctx: AuroraPortalContext, permission: PolicyKey) 
  * - The value is a string.
  * - The string is a known key in `POLICY_MAPPINGS` (e.g., "servers:list", "flavors:create").
  *
- * Any other string or non‑string input, or any string that is not a key in `POLICY_MAPPINGS`,
- * is rejected with a Zod `custom` issue whose message is of the form "Unknown permission: <key>"
- * and a path `["permission"]`.
+ * Any other string or non-string input, or any string that is not a key in `POLICY_MAPPINGS`,
+ * is rejected with a Zod `custom` issue whose message is of the form "Unknown permission: <key>".
  *
- * This results in a `BAD_REQUEST` error from tRPC before the handler runs,
- * which is useful for debugging and client‑side error handling.
+ * This results in a `BAD_REQUEST` error from tRPC before the handler runs.
+ * which is useful for debugging and client-side error handling.
  * This approach is explicit and tightly coupled to the defined policy mappings.
  *
  * @type {import("zod").ZodType<PolicyKey>}
@@ -84,7 +83,6 @@ const PERMISSION_KEY = z
       ctx.addIssue({
         code: "custom",
         message: `Unknown permission: ${value}`,
-        path: ["permission"],
       })
     }
   })

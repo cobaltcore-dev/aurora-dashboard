@@ -44,7 +44,7 @@ export const loadPolicyEngine = (fileName: string) => {
 
 ### Directory Structure
 
-```
+```text
 apps/aurora-portal/
 ├── permission_policies/          # Default policy files
 │   ├── compute.yaml              # Default compute permissions
