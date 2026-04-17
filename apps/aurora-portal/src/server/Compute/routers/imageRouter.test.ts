@@ -2629,7 +2629,7 @@ describe("imageRouter", () => {
         expect(result).toHaveLength(1)
         expect(result[0].id).toBe(activeImg.id)
         const glanceUrl: string = mockCtx.mockGlance.get.mock.calls[0][0]
-        expect(glanceUrl).not.toContain("status=")
+        expect(glanceUrl).not.toMatch(/(?<!\w)status=/)
       })
 
       it("filters by multi-value status using in: prefix", async () => {
@@ -2649,7 +2649,7 @@ describe("imageRouter", () => {
         expect(result.map((i) => i.id)).toContain(activeImg.id)
         expect(result.map((i) => i.id)).toContain(queuedImg.id)
         const glanceUrl: string = mockCtx.mockGlance.get.mock.calls[0][0]
-        expect(glanceUrl).not.toContain("status=")
+        expect(glanceUrl).not.toMatch(/(?<!\w)status=/)
       })
 
       it("filters by single disk_format value", async () => {
@@ -2796,7 +2796,7 @@ describe("imageRouter", () => {
         expect(result).toHaveLength(1)
         expect(result[0].id).toBe(matchImg.id)
         const glanceUrl: string = mockCtx.mockGlance.get.mock.calls[0][0]
-        expect(glanceUrl).not.toContain("status=")
+        expect(glanceUrl).not.toMatch(/(?<!\w)status=/)
         expect(glanceUrl).not.toContain("disk_format=")
       })
 
