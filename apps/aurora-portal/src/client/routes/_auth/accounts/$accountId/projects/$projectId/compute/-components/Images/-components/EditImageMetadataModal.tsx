@@ -19,7 +19,7 @@ interface EditImageMetadataModalProps {
   isOpen: boolean
   isLoading?: boolean
   onClose: () => void
-  onSave: (metadata: Record<string, string | null>) => void
+  onSave: (metadata: Record<string, string | null>) => Promise<void> | void
 }
 
 interface MetadataEntry {
@@ -56,7 +56,7 @@ function EditImageMetadataModalInner({
 }: {
   isLoading: boolean
   onClose: () => void
-  onSave: (metadata: Record<string, string | null>) => void
+  onSave: (metadata: Record<string, string | null>) => Promise<void> | void
   initialMetadata: MetadataEntry[]
   excludedProperties: Set<string>
 }) {
@@ -81,13 +81,14 @@ function EditImageMetadataModalInner({
     initialMetadata.length === metadata.length
 
   const validateKey = (key: string, originalKey?: string): string | null => {
-    if (!key || key.trim() === "") {
+    const normalized = key?.trim()
+    if (!normalized) {
       return t`Key is required`
     }
-    if (excludedProperties.has(key)) {
+    if (excludedProperties.has(normalized)) {
       return t`This property is reserved and cannot be modified`
     }
-    const isDuplicate = metadata.some((entry) => entry.key === key && entry.originalKey !== originalKey)
+    const isDuplicate = metadata.some((entry) => entry.key.trim() === normalized && entry.originalKey !== originalKey)
     if (isDuplicate) {
       return t`A property with this key already exists`
     }
@@ -180,7 +181,7 @@ function EditImageMetadataModalInner({
     }
   }
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const metadataObject: Record<string, string> = {}
     const removedEntries = Object.fromEntries(
       initialMetadata
@@ -196,7 +197,7 @@ function EditImageMetadataModalInner({
       .forEach((entry) => {
         metadataObject[entry.key] = entry.value
       })
-    onSave({ ...metadataObject, ...removedEntries })
+    await onSave({ ...metadataObject, ...removedEntries })
     onClose()
   }
 
@@ -405,11 +406,11 @@ export const EditImageMetadataModal: React.FC<EditImageMetadataModalProps> = ({
     [image.id, image.updated_at, excludedPropertiesData]
   )
 
-  if (!isOpen) return null
+  if (!isOpen || excludedPropertiesData === undefined) return null
 
   return (
     <EditImageMetadataModalInner
-      key={`${image.id}-${image.updated_at}-${excludedPropertiesData?.length}`}
+      key={`${image.id}-${image.updated_at}-${excludedProperties.size}`}
       isLoading={isLoading}
       onClose={onClose}
       onSave={onSave}

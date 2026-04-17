@@ -2610,6 +2610,8 @@ describe("imageRouter", () => {
 
         expect(result).toHaveLength(1)
         expect(result[0].id).toBe(imgA.id)
+        const glanceUrl: string = mockCtx.mockGlance.get.mock.calls[0][0]
+        expect(glanceUrl).not.toContain("name=")
       })
 
       it("filters by single status value", async () => {
@@ -2626,6 +2628,8 @@ describe("imageRouter", () => {
 
         expect(result).toHaveLength(1)
         expect(result[0].id).toBe(activeImg.id)
+        const glanceUrl: string = mockCtx.mockGlance.get.mock.calls[0][0]
+        expect(glanceUrl).not.toContain("status=")
       })
 
       it("filters by multi-value status using in: prefix", async () => {
@@ -2644,6 +2648,8 @@ describe("imageRouter", () => {
         expect(result).toHaveLength(2)
         expect(result.map((i) => i.id)).toContain(activeImg.id)
         expect(result.map((i) => i.id)).toContain(queuedImg.id)
+        const glanceUrl: string = mockCtx.mockGlance.get.mock.calls[0][0]
+        expect(glanceUrl).not.toContain("status=")
       })
 
       it("filters by single disk_format value", async () => {
@@ -2660,6 +2666,8 @@ describe("imageRouter", () => {
 
         expect(result).toHaveLength(1)
         expect(result[0].id).toBe(qcow2Img.id)
+        const glanceUrl: string = mockCtx.mockGlance.get.mock.calls[0][0]
+        expect(glanceUrl).not.toContain("disk_format=")
       })
 
       it("filters by multi-value disk_format using in: prefix", async () => {
@@ -2678,6 +2686,8 @@ describe("imageRouter", () => {
         expect(result).toHaveLength(2)
         expect(result.map((i) => i.id)).toContain(qcow2Img.id)
         expect(result.map((i) => i.id)).toContain(rawImg.id)
+        const glanceUrl: string = mockCtx.mockGlance.get.mock.calls[0][0]
+        expect(glanceUrl).not.toContain("disk_format=")
       })
 
       it("filters by single container_format value", async () => {
@@ -2694,6 +2704,8 @@ describe("imageRouter", () => {
 
         expect(result).toHaveLength(1)
         expect(result[0].id).toBe(bareImg.id)
+        const glanceUrl: string = mockCtx.mockGlance.get.mock.calls[0][0]
+        expect(glanceUrl).not.toContain("container_format=")
       })
 
       it("filters by multi-value container_format using in: prefix", async () => {
@@ -2712,6 +2724,8 @@ describe("imageRouter", () => {
         expect(result).toHaveLength(2)
         expect(result.map((i) => i.id)).toContain(bareImg.id)
         expect(result.map((i) => i.id)).toContain(ovfImg.id)
+        const glanceUrl: string = mockCtx.mockGlance.get.mock.calls[0][0]
+        expect(glanceUrl).not.toContain("container_format=")
       })
 
       it("filters by protected=true", async () => {
@@ -2728,6 +2742,8 @@ describe("imageRouter", () => {
 
         expect(result).toHaveLength(1)
         expect(result[0].id).toBe(protectedImg.id)
+        const glanceUrl: string = mockCtx.mockGlance.get.mock.calls[0][0]
+        expect(glanceUrl).not.toContain("protected=")
       })
 
       it("filters by protected=false", async () => {
@@ -2744,6 +2760,8 @@ describe("imageRouter", () => {
 
         expect(result).toHaveLength(1)
         expect(result[0].id).toBe(unprotectedImg.id)
+        const glanceUrl: string = mockCtx.mockGlance.get.mock.calls[0][0]
+        expect(glanceUrl).not.toContain("protected=")
       })
 
       it("combines multiple filters (status + disk_format)", async () => {
@@ -2777,6 +2795,9 @@ describe("imageRouter", () => {
 
         expect(result).toHaveLength(1)
         expect(result[0].id).toBe(matchImg.id)
+        const glanceUrl: string = mockCtx.mockGlance.get.mock.calls[0][0]
+        expect(glanceUrl).not.toContain("status=")
+        expect(glanceUrl).not.toContain("disk_format=")
       })
 
       it("returns all images when no BFF filters are provided", async () => {
