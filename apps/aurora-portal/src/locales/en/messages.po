@@ -464,11 +464,11 @@ msgstr "Click to upload"
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/CreateImageModal.tsx:557
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageDetailsModal.tsx:288
 msgid "Community"
-msgstr "Community<<<<<<< HEAD"
+msgstr "Community"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/-components/SideNavBar.tsx:92
 msgid "Compute"
-msgstr "Compute=======>>>>>>> main"
+msgstr "Compute"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/overview.tsx:15
 msgid "Compute Overview"
@@ -1059,7 +1059,7 @@ msgstr "Edit Image Details"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageMetadataModal.tsx:217
 msgid "Edit Image Metadata"
-msgstr "Edit Image Metadata<<<<<<< HEAD"
+msgstr "Edit Image Metadata"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:282
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageTableRow.tsx:152
@@ -1491,7 +1491,7 @@ msgstr "Flavor Not Found"
 
 #: src/client/utils/useErrorTranslation.ts:14
 msgid "Flavor service is not available for this project."
-msgstr "Flavor service is not available for this project.<<<<<<< HEAD"
+msgstr "Flavor service is not available for this project."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/-components/SideNavBar.tsx:47
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/flavors/index.tsx:15
@@ -1507,7 +1507,7 @@ msgstr "Floating IP Address"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/$floatingIpId.tsx:74
 msgid "Floating IP not found"
-msgstr "Floating IP not found<<<<<<< HEAD"
+msgstr "Floating IP not found"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/-components/SideNavBar.tsx:66
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/$floatingIpId.tsx:88
@@ -1736,7 +1736,7 @@ msgstr "Image not found"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageToastNotifications.tsx:404
 msgid "Image Visibility"
-msgstr "Image Visibility<<<<<<< HEAD"
+msgstr "Image Visibility"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/-components/SideNavBar.tsx:37
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/images/index.tsx:14
@@ -1888,7 +1888,7 @@ msgstr "Limits"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ManageContainerAccessModal.tsx:171
 msgid "Listing access"
-msgstr "Listing access<<<<<<< HEAD"
+msgstr "Listing access"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:698
 msgid "Load More"
@@ -2477,7 +2477,7 @@ msgstr "or drag and drop"
 
 #: src/client/routes/about.tsx:25
 msgid "Our Mission"
-msgstr "Our Mission<<<<<<< HEAD======="
+msgstr "Our Mission"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/$floatingIpId.tsx:87
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/index.tsx:198
@@ -2814,7 +2814,7 @@ msgstr "Reserved keys: web-index, web-listings, quota-count, quota-bytes"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Instances/-components/ServerCardView.tsx:50
 msgid "Restart"
-msgstr "Restart<<<<<<< HEAD======="
+msgstr "Restart"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/CopyObjectModal.tsx:381
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/MoveRenameObjectModal.tsx:445
@@ -2906,7 +2906,7 @@ msgstr "Security group name is required"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/index.tsx:177
 msgid "Security group not found"
-msgstr "Security group not found<<<<<<< HEAD"
+msgstr "Security group not found"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/-components/SideNavBar.tsx:60
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/index.tsx:201
@@ -3656,7 +3656,7 @@ msgstr "valid token required: false"
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ManageContainerAccessModal.tsx:470
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ManageContainerAccessModal.tsx:501
 msgid "valid token required: true"
-msgstr "valid token required: true<<<<<<< HEAD"
+msgstr "valid token required: true"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:203
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageMetadataModal.tsx:244
