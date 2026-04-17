@@ -3447,7 +3447,7 @@ msgstr "Dieses Projekt hat keinen Zugriff auf den Flavor."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/DetachFloatingIpModal.tsx:93
 msgid "To confirm this action, type the word <0>“detach”</0> in the field below."
-msgstr ""
+msgstr "Um diese Aktion zu bestätigen, geben Sie das Wort <0>“detach”</0> in das Feld unten ein."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/ReleaseFloatingIpModal.tsx:90
 msgid "To confirm this action, type the word <0>\"release\"</0> in the field below."
