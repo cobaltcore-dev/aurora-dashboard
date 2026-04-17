@@ -715,62 +715,6 @@ describe("swiftRouter", () => {
 
   // ============================================================================
   // OBJECT OPERATIONS
-  describe("createObject", () => {
-    it("should successfully create object with ArrayBuffer", async () => {
-      const mockCtx = createMockContext()
-      const caller = createCaller(mockCtx)
-
-      const buffer = new ArrayBuffer(1024)
-      const input = {
-        container: "test-container",
-        object: "new-object.txt",
-        content: buffer,
-      }
-
-      const result = await caller.storage.swift.createObject(input)
-
-      expect(swiftHelpers.buildObjectMetadataHeaders).toHaveBeenCalled()
-      expect(mockCtx.mockSwift.put).toHaveBeenCalled()
-      expect(result).toEqual(mockObjectMetadata)
-    })
-
-    it("should handle base64 string content", async () => {
-      const mockCtx = createMockContext()
-      const caller = createCaller(mockCtx)
-
-      const base64Data = btoa("test content")
-      const input = {
-        container: "test-container",
-        object: "new-object.txt",
-        content: base64Data,
-      }
-
-      await caller.storage.swift.createObject(input)
-
-      expect(mockCtx.mockSwift.put).toHaveBeenCalled()
-    })
-
-    it("should handle metadata during creation", async () => {
-      const mockCtx = createMockContext()
-      const caller = createCaller(mockCtx)
-
-      const input = {
-        container: "test-container",
-        object: "new-object.txt",
-        content: new ArrayBuffer(1024),
-        metadata: { author: "John" },
-      }
-
-      await caller.storage.swift.createObject(input)
-
-      expect(swiftHelpers.buildObjectMetadataHeaders).toHaveBeenCalledWith(
-        expect.objectContaining({
-          metadata: { author: "John" },
-        })
-      )
-    })
-  })
-
   describe("getObjectMetadata", () => {
     it("should successfully get object metadata", async () => {
       const mockCtx = createMockContext()

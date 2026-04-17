@@ -41,7 +41,6 @@ import {
   updateContainerMetadataInputSchema,
   getContainerMetadataInputSchema,
   deleteContainerInputSchema,
-  createObjectInputSchema,
   updateObjectMetadataInputSchema,
   copyObjectInputSchema,
   deleteObjectInputSchema,
@@ -508,60 +507,6 @@ export const swiftRouter = {
   // ============================================================================
   // OBJECT OPERATIONS
   // ============================================================================
-
-  /**
-   * Creates or replaces an object with content and metadata
-   */
-  createObject: protectedProcedure
-    .input(createObjectInputSchema)
-    .mutation(async ({ input, ctx }): Promise<ObjectMetadata> => {
-      return withErrorHandling(async () => {
-        const { account, container, object, content, multipartManifest, ...options } = input
-        const openstackSession = ctx.openstack
-        const swift = openstackSession?.service("swift")
-
-        validateSwiftService(swift)
-
-        // Build URL with query parameters
-        const queryParams = new URLSearchParams()
-        if (multipartManifest) {
-          queryParams.append("multipart-manifest", multipartManifest)
-        }
-
-        const accountPath = account || ""
-        const basePath = accountPath
-          ? `${accountPath}/${encodeURIComponent(container)}/${encodeURIComponent(object)}`
-          : `${encodeURIComponent(container)}/${encodeURIComponent(object)}`
-        const url = queryParams.toString() ? `${basePath}?${queryParams.toString()}` : basePath
-
-        // Convert content to appropriate format
-        let body: ArrayBuffer | string
-        if (typeof content === "string") {
-          // If it's a base64 string, convert to ArrayBuffer
-          const binaryString = atob(content)
-          const bytes = new Uint8Array(binaryString.length)
-          for (let i = 0; i < binaryString.length; i++) {
-            bytes[i] = binaryString.charCodeAt(i)
-          }
-          body = bytes.buffer
-        } else if (content instanceof Uint8Array) {
-          body = content.buffer
-        } else {
-          body = content
-        }
-
-        const headers = buildObjectMetadataHeaders(options)
-        if (!headers["Content-Length"]) {
-          headers["Content-Length"] = body instanceof ArrayBuffer ? body.byteLength.toString() : "0"
-        }
-
-        const response = await swift.put(url, { body, headers }).catch((error) => {
-          throw mapErrorResponseToTRPCError(error, { operation: "create object", container, object })
-        })
-
-        return parseObjectMetadata(response.headers)
-      }, "create object")
-    }),
 
   /**
    * Gets object metadata without downloading the content
