@@ -184,8 +184,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/config
       '@fastify/vite':
-        specifier: ^8.4.1
-        version: 8.4.1(fastify@5.8.5)(vite@8.0.8(@types/node@24.12.2)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0))
+        specifier: ^9.0.0
+        version: 9.0.0(fastify@5.8.5)(vite@8.0.8(@types/node@24.12.2)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0))
       '@lingui/cli':
         specifier: ^5.9.5
         version: 5.9.5(typescript@6.0.2)
@@ -1009,8 +1009,8 @@ packages:
   '@fastify/static@9.1.1':
     resolution: {integrity: sha512-LHxFea3qdwe0Pbbkh/yux7/k6nFNLGTNcbLKVYgmRDB6LdDE/8TFSO7qWZ0IzM/nF6iwR8W03oFlwe4v79R1Ow==}
 
-  '@fastify/vite@8.4.1':
-    resolution: {integrity: sha512-phfSE+GPL0hvFOPDRVCIk2y24elodtSKDbTodddQ8dxxNIhLzz90afSSOPTabOu3QiofJyOhJi/IvemXGnVJ3A==}
+  '@fastify/vite@9.0.0':
+    resolution: {integrity: sha512-KyGhrOxPK2TFQtAkgZEJcOVlKQFnK7l9QV9vz243ABgxkOkGdfu2HlYres3TuPBNBXJlG72dr2ao3VpttQFMaA==}
     peerDependencies:
       fastify: '>=5'
       vite: '>=6'
@@ -3616,9 +3616,6 @@ packages:
   html-encoding-sniffer@6.0.0:
     resolution: {integrity: sha512-CV9TW3Y3f8/wT0BRFc1/KAVQ3TUHiXmaAb6VW9vtiMFf7SLoMd1PdAc4W3KFOFETBJUb90KatHqlsZMWV+R9Gg==}
     engines: {node: ^20.19.0 || ^22.12.0 || >=24.0.0}
-
-  html-rewriter-wasm@0.4.1:
-    resolution: {integrity: sha512-lNovG8CMCCmcVB1Q7xggMSf7tqPCijZXaH4gL6iE8BFghdQCbaY5Met9i1x2Ex8m/cZHDUtXK9H6/znKamRP8Q==}
 
   http-errors@2.0.1:
     resolution: {integrity: sha512-4FbRdAX+bSdmo4AUFuS0WNiPz8NgFt+r8ThgNWmlrjQjt1Q7ZR9+zTlce2859x4KSXrwIsaeTqDoKQmtP8pLmQ==}
@@ -6361,7 +6358,7 @@ snapshots:
       fastq: 1.20.1
       glob: 13.0.6
 
-  '@fastify/vite@8.4.1(fastify@5.8.5)(vite@8.0.8(@types/node@24.12.2)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0))':
+  '@fastify/vite@9.0.0(fastify@5.8.5)(vite@8.0.8(@types/node@24.12.2)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0))':
     dependencies:
       '@fastify/deepmerge': 3.2.1
       '@fastify/middie': 9.3.1
@@ -6369,7 +6366,6 @@ snapshots:
       fastify: 5.8.5
       fastify-plugin: 5.1.0
       fs-extra: 11.3.4
-      html-rewriter-wasm: 0.4.1
       klaw: 4.1.0
       package-directory: 8.2.0
       vite: 8.0.8(@types/node@24.12.2)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)
@@ -9259,8 +9255,6 @@ snapshots:
       '@exodus/bytes': 1.15.0
     transitivePeerDependencies:
       - '@noble/hashes'
-
-  html-rewriter-wasm@0.4.1: {}
 
   http-errors@2.0.1:
     dependencies:

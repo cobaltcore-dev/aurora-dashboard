@@ -22,5 +22,5 @@
     }
   },
   "include": ["src/server"], // Include the server and shared code
-  "exclude": ["node_modules", "dist", "src/client"] // Exclude the node_modules and dist directories
+  "exclude": ["node_modules", "dist", "src/client", "**/*.test.ts", "**/*.test.tsx", "**/*.spec.ts", "**/*.spec.tsx"] // Exclude the node_modules, dist, client, and test files
 }
