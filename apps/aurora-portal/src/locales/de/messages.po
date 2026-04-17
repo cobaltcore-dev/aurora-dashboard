@@ -2282,7 +2282,7 @@ msgstr "Kein Flavor für die Löschung ausgewählt."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:103
 msgid "No flavors found"
-msgstr "No flavors found"
+msgstr "Keine Flavors gefunden"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-table/FloatingIpListContainer.tsx:49
 msgid "No Floating IPs found"
@@ -3330,11 +3330,11 @@ msgstr "Die angegebene Projekt-ID ist ungültig. Bitte überprüfen Sie Ihre Ein
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/DetachFloatingIpModal.tsx:118
 msgid "The text must match “detach” in lowercase."
-msgstr ""
+msgstr "Der Text muss “detach” in Kleinbuchstaben entsprechen."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/ReleaseFloatingIpModal.tsx:115
 msgid "The text must match “release” in lowercase."
-msgstr ""
+msgstr "Der Text muss “release” in Kleinbuchstaben entsprechen."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ContainerTableView.tsx:103
 msgid "There are no containers available with the current search criteria. Try adjusting your search term."
@@ -3492,7 +3492,7 @@ msgstr "\"detach\" zur Bestätigung eingeben"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/DetachFloatingIpModal.tsx:30
 msgid "Type “detach” to confirm"
-msgstr ""
+msgstr "“detach” zur Bestätigung eingeben"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/ReleaseFloatingIpModal.tsx:114
 msgid "Type \"release\" to confirm"
@@ -3500,7 +3500,7 @@ msgstr "\"release\" zur Bestätigung eingeben"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/ReleaseFloatingIpModal.tsx:29
 msgid "Type “release” to confirm"
-msgstr ""
+msgstr "“release” zur Bestätigung eingeben"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/DeleteRBACPolicyDialog.tsx:28
 msgid "Type \"remove\" to confirm"
