@@ -1,4 +1,4 @@
 pnpm lint
-pnpm format
 pnpm typecheck
-cd apps/aurora-portal && pnpm run extract && pnpm run compile && git add src/locales
+cd apps/aurora-portal && pnpm run extract && pnpm run compile && cd ../.. && pnpm exec prettier --write "apps/aurora-portal/src/locales/**/*.{po,ts}" && git add apps/aurora-portal/src/locales
+pnpm format
