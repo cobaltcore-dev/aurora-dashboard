@@ -1,3 +1,4 @@
 pnpm lint
 pnpm format
 pnpm typecheck
+cd apps/aurora-portal && pnpm run extract && pnpm run compile && git add src/locales
