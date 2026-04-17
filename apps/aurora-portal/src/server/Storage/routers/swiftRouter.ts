@@ -1210,10 +1210,10 @@ export const swiftRouter = {
    * `uploadProgressEmitter` so that concurrent `watchUploadProgress` subscriptions
    * can receive real-time byte counts without polling.
    *
-   * Returns `{ uploadId }` — the client uses this to subscribe to progress via
-   * `watchUploadProgress` before (or immediately after) calling this mutation.
+   * The client computes `uploadId` as `"<container>:<objectPath>"` before calling
+   * this mutation so the subscription can be opened in advance.
    */
-  uploadObject: protectedProcedure.mutation(async ({ ctx }): Promise<{ success: boolean; uploadId: string }> => {
+  uploadObject: protectedProcedure.mutation(async ({ ctx }): Promise<{ success: boolean }> => {
     return withErrorHandling(async () => {
       const swift = ctx.openstack?.service("swift")
       validateSwiftService(swift)
@@ -1295,7 +1295,7 @@ export const swiftRouter = {
 
         uploadProgressEmitter.emit(`progress:${uploadId}:complete`)
 
-        return { success: true, uploadId }
+        return { success: true }
       } catch (error) {
         uploadProgressEmitter.emit(`progress:${uploadId}:error`, error)
         throw mapErrorResponseToTRPCError(error as Parameters<typeof mapErrorResponseToTRPCError>[0], {
@@ -1312,9 +1312,8 @@ export const swiftRouter = {
   /**
    * Subscribes to real-time upload progress for a given `uploadId`.
    *
-   * The `uploadId` is returned by `uploadObject` and is also deterministically
-   * computable by the client as `"<container>:<objectPath>"` so the subscription
-   * can be opened before the upload mutation resolves.
+   * The `uploadId` is computed client-side as `"<container>:<objectPath>"` before
+   * the upload mutation is called, so the subscription can be opened in advance.
    *
    * Yields `{ uploaded, total, percent }` as bytes flow through the server.
    * Completes when the upload finishes or throws if the upload errors.
@@ -1405,10 +1404,9 @@ export const swiftRouter = {
    * Progress tracking:
    *   Per-chunk progress (`downloaded`, `total`, `percent`) is stored in
    *   `downloadProgressMap` and emitted via `downloadProgressEmitter` so that
-   *   a concurrent `watchDownloadProgress` subscription can drive a progress bar
-   *   without the client having to count bytes from the iterable itself.
-   *   The `downloadId` is included in the first chunk so the client can subscribe
-   *   without having to compute it independently.
+   *   a concurrent `watchDownloadProgress` subscription can drive a progress bar.
+   *   The client computes `downloadId` as `"<container>:<objectPath>"` before
+   *   calling this mutation so the subscription is active from the first byte.
    *
    * Client-side assembly:
    *   Collect all base64 chunks → decode each → concatenate into a single
@@ -1429,7 +1427,6 @@ export const swiftRouter = {
     total: number // total file size in bytes (0 if unknown)
     contentType?: string // only present in first chunk
     filename?: string // only present in first chunk
-    downloadId?: string // only present in first chunk — use to subscribe to watchDownloadProgress
   }> {
     const { container, object, filename, account } = input
     const swift = ctx.openstack?.service("swift")
@@ -1478,11 +1475,14 @@ export const swiftRouter = {
         progress.percent = total > 0 ? Math.round((downloaded / total) * 100) : 0
         downloadProgressEmitter.emit(`progress:${downloadId}`, { ...progress })
 
+        // Yield to the event loop so subscriptions can flush between chunks
+        await new Promise((resolve) => setTimeout(resolve, 0))
+
         yield {
           chunk: Buffer.from(value).toString("base64"),
           downloaded,
           total,
-          ...(isFirst ? { contentType, filename, downloadId } : {}),
+          ...(isFirst ? { contentType, filename } : {}),
         }
 
         isFirst = false
@@ -1506,8 +1506,9 @@ export const swiftRouter = {
   /**
    * Subscribes to real-time download progress for a given `downloadId`.
    *
-   * The `downloadId` is included in the first chunk yielded by `downloadObject`
-   * and is also deterministically computable as `"<container>:<objectPath>"`.
+   * The `downloadId` is computed client-side as `"<container>:<objectPath>"` —
+   * the same convention used by the BFF — and set before the mutation starts
+   * so this subscription is active from the very first byte.
    *
    * Yields `{ downloaded, total, percent }` as bytes flow through the server.
    * `percent` is 0 when Swift does not send a Content-Length header.
