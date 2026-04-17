@@ -26,10 +26,9 @@ interface EditSpecModalProps {
 }
 
 const createPermissionsPromise = (client: TrpcClient) => {
-  return Promise.all([
-    client.compute.canUser.query("flavor_specs:create"),
-    client.compute.canUser.query("flavor_specs:delete"),
-  ]).then(([canCreate, canDelete]) => ({ canCreate, canDelete }))
+  return client.compute.canUser
+    .query(["flavor_specs:create", "flavor_specs:delete"])
+    .then(([canCreate, canDelete]) => ({ canCreate, canDelete }))
 }
 
 const createExtraSpecsPromise = (client: TrpcClient, project: string, flavorId: string) => {
