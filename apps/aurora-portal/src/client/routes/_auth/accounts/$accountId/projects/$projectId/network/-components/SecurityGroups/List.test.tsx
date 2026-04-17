@@ -211,11 +211,16 @@ describe("SecurityGroups", () => {
 
       render(<SecurityGroups />, { wrapper: createWrapper() })
 
-      expect(mockUseQuery).toHaveBeenCalledWith({
-        project_id: "test-project",
-        sort_key: "name",
-        sort_dir: "asc",
-      })
+      expect(mockUseQuery).toHaveBeenCalledWith(
+        {
+          project_id: "test-project",
+          sort_key: "name",
+          sort_dir: "asc",
+        },
+        {
+          enabled: true,
+        }
+      )
     })
 
     it("passes loading state", () => {

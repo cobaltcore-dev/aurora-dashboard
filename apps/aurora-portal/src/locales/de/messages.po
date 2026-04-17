@@ -709,7 +709,7 @@ msgstr "Neues Image erstellen"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/CreateSecurityGroupModal.tsx:108
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/CreateSecurityGroupModal.tsx:120
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/List.tsx:161
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/List.tsx:166
 msgid "Create Security Group"
 msgstr "Security Group erstellen"
 
@@ -1276,7 +1276,7 @@ msgstr "Fehler beim Erstellen des Ordners"
 msgid "Failed to create image. Please try again."
 msgstr "Image konnte nicht erstellt werden. Bitte versuchen Sie es erneut."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/List.tsx:103
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/List.tsx:108
 msgid "Failed to create security group"
 msgstr "Security Group konnte nicht erstellt werden"
 
@@ -1316,7 +1316,7 @@ msgstr "Fehler beim Löschen der Images"
 msgid "Failed to Delete Object"
 msgstr "Fehler beim Löschen des Objekts"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/List.tsx:115
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/List.tsx:120
 msgid "Failed to delete security group"
 msgstr "Security Group konnte nicht gelöscht werden"
 
@@ -1418,7 +1418,7 @@ msgstr "Fehler beim Aktualisieren des Containers"
 msgid "Failed to update container: {errorMessage}"
 msgstr "Fehler beim Aktualisieren des Containers: {errorMessage}"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/List.tsx:127
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/List.tsx:132
 msgid "Failed to update security group"
 msgstr "Security Group konnte nicht aktualisiert werden"
 

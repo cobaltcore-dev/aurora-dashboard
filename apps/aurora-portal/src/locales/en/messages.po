@@ -709,7 +709,7 @@ msgstr "Create New Image"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/CreateSecurityGroupModal.tsx:108
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/CreateSecurityGroupModal.tsx:120
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/List.tsx:161
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/List.tsx:166
 msgid "Create Security Group"
 msgstr "Create Security Group"
 
@@ -1276,7 +1276,7 @@ msgstr "Failed to Create Folder"
 msgid "Failed to create image. Please try again."
 msgstr "Failed to create image. Please try again."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/List.tsx:103
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/List.tsx:108
 msgid "Failed to create security group"
 msgstr "Failed to create security group"
 
@@ -1316,7 +1316,7 @@ msgstr "Failed to Delete Images"
 msgid "Failed to Delete Object"
 msgstr "Failed to Delete Object"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/List.tsx:115
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/List.tsx:120
 msgid "Failed to delete security group"
 msgstr "Failed to delete security group"
 
@@ -1418,7 +1418,7 @@ msgstr "Failed to Update Container"
 msgid "Failed to update container: {errorMessage}"
 msgstr "Failed to update container: {errorMessage}"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/List.tsx:127
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/List.tsx:132
 msgid "Failed to update security group"
 msgstr "Failed to update security group"
 

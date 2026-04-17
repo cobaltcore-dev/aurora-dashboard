@@ -1,5 +1,6 @@
 import { z } from "zod"
 import { SortDirSchema } from "./index"
+import { projectScopedInputSchema } from "../../trpc"
 
 export const securityGroupRuleSchema = z.object({
   id: z.string(),
@@ -48,12 +49,7 @@ export const securityGroupRuleResponseSchema = z.object({
   security_group_rule: securityGroupRuleSchema,
 })
 
-export const listSecurityGroupsInputSchema = z.object({
-  // Pagination
-  limit: z.number().int().min(1).max(1000).optional(),
-  marker: z.string().optional(),
-  page_reverse: z.boolean().optional(),
-
+export const listSecurityGroupsInputSchema = projectScopedInputSchema.extend({
   // Sorting
   sort_key: z.string().optional(),
   sort_dir: SortDirSchema.optional(),
@@ -61,7 +57,6 @@ export const listSecurityGroupsInputSchema = z.object({
   // Basic filtering
   name: z.string().optional(),
   description: z.string().optional(),
-  project_id: z.string().optional(),
   tenant_id: z.string().optional(),
   shared: z.boolean().optional(),
 
