@@ -24,7 +24,7 @@ export function SecurityGroupBasicInfo({ securityGroup, onEdit }: SecurityGroupB
       <div className="mb-4 flex items-center justify-between">
         <ContentHeading>{t`Security Group Basic Info`}</ContentHeading>
         {onEdit && (
-          <Button variant="primary" onClick={onEdit}>
+          <Button variant="primary" onClick={onEdit} disabled={securityGroup.shared}>
             <Trans>Edit</Trans>
           </Button>
         )}

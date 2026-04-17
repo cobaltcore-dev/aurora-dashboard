@@ -111,29 +111,32 @@ describe("OpenStack Security Group Schema Validation", () => {
   })
 
   describe("listSecurityGroupsInputSchema", () => {
-    it("should validate empty input (all optional)", () => {
-      expect(listSecurityGroupsInputSchema.safeParse({}).success).toBe(true)
+    it("should validate empty input (project_id is required)", () => {
+      // project_id is required - empty object should fail
+      expect(listSecurityGroupsInputSchema.safeParse({}).success).toBe(false)
+
+      // project_id must be non-empty string - empty string should fail
+      expect(listSecurityGroupsInputSchema.safeParse({ project_id: "" }).success).toBe(false)
+
+      // Valid project_id should succeed
+      expect(listSecurityGroupsInputSchema.safeParse({ project_id: "proj-1" }).success).toBe(true)
     })
     it("should validate full list input", () => {
-      const input = { limit: 20, marker: "sg-id", sort_key: "name", sort_dir: "asc", name: "web", shared: false }
+      const input = {
+        project_id: "proj-1",
+        sort_key: "name",
+        sort_dir: "asc",
+        name: "web",
+        shared: false,
+      }
       expect(listSecurityGroupsInputSchema.safeParse(input).success).toBe(true)
     })
     it("should validate sort_dir only as asc or desc", () => {
-      expect(listSecurityGroupsInputSchema.safeParse({ sort_dir: "asc" }).success).toBe(true)
-      expect(listSecurityGroupsInputSchema.safeParse({ sort_dir: "desc" }).success).toBe(true)
+      expect(listSecurityGroupsInputSchema.safeParse({ project_id: "proj-1", sort_dir: "asc" }).success).toBe(true)
+      expect(listSecurityGroupsInputSchema.safeParse({ project_id: "proj-1", sort_dir: "desc" }).success).toBe(true)
     })
     it("should reject invalid sort_dir", () => {
-      expect(listSecurityGroupsInputSchema.safeParse({ sort_dir: "invalid" }).success).toBe(false)
-    })
-    it("should validate limit within 1..1000", () => {
-      expect(listSecurityGroupsInputSchema.safeParse({ limit: 1 }).success).toBe(true)
-      expect(listSecurityGroupsInputSchema.safeParse({ limit: 1000 }).success).toBe(true)
-    })
-    it("should reject limit less than 1", () => {
-      expect(listSecurityGroupsInputSchema.safeParse({ limit: 0 }).success).toBe(false)
-    })
-    it("should reject limit greater than 1000", () => {
-      expect(listSecurityGroupsInputSchema.safeParse({ limit: 1001 }).success).toBe(false)
+      expect(listSecurityGroupsInputSchema.safeParse({ project_id: "proj-1", sort_dir: "invalid" }).success).toBe(false)
     })
   })
 
