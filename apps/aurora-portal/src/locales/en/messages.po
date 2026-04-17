@@ -213,7 +213,7 @@ msgstr "Add"
 msgid "Add Member"
 msgstr "Add Member"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:192
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:191
 msgid "Add Metadata"
 msgstr "Add Metadata"
 
@@ -238,7 +238,7 @@ msgstr "Add Rule"
 msgid "Add Security Group Rule"
 msgstr "Add Security Group Rule"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/ManageAccessModal.tsx:207
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/ManageAccessModal.tsx:206
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/TenantAccessFormRow.tsx:40
 msgid "Add Tenant Access"
 msgstr "Add Tenant Access"
@@ -1053,7 +1053,7 @@ msgstr "Edit Image Details"
 msgid "Edit Image Metadata"
 msgstr "Edit Image Metadata"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:283
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:282
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageTableRow.tsx:209
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId.tsx:337
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ContainerTableView.tsx:219
@@ -1463,8 +1463,8 @@ msgid "Flavor Details"
 msgstr "Flavor Details"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/CreateFlavorModal.tsx:177
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/ManageAccessModal.tsx:189
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/ManageAccessModal.tsx:218
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/ManageAccessModal.tsx:188
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/ManageAccessModal.tsx:217
 msgid "Flavor ID"
 msgstr "Flavor ID"
 
@@ -1823,7 +1823,7 @@ msgstr "IPv6"
 msgid "Keep segments (delete manifest only)"
 msgstr "Keep segments (delete manifest only)"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:203
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:202
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EditContainerMetadataModal.tsx:664
 msgid "Key"
 msgstr "Key"
@@ -1996,7 +1996,7 @@ msgstr "MAC Address"
 msgid "Manage Access"
 msgstr "Manage Access"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/ManageAccessModal.tsx:297
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/ManageAccessModal.tsx:296
 msgid "Manage Access - {flavorName}"
 msgstr "Manage Access - {flavorName}"
 
@@ -2078,11 +2078,11 @@ msgstr "Members"
 msgid "Metadata"
 msgstr "Metadata"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:162
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:161
 msgid "Metadata \"{keyToDelete}\" has been deleted successfully."
 msgstr "Metadata \"{keyToDelete}\" has been deleted successfully."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:134
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:133
 msgid "Metadata \"{trimmedKey}\" has been added successfully."
 msgstr "Metadata \"{trimmedKey}\" has been added successfully."
 
@@ -2272,7 +2272,7 @@ msgstr "No custom metadata. Click \"Add Property\" to create one."
 msgid "No custom properties defined"
 msgstr "No custom properties defined"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:239
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:238
 msgid "No extra specs found. Click \"Add Metadata\" to create one."
 msgstr "No extra specs found. Click \"Add Metadata\" to create one."
 
@@ -2340,7 +2340,7 @@ msgstr "No server groups available."
 msgid "No servers available."
 msgstr "No servers available."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/ManageAccessModal.tsx:252
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/ManageAccessModal.tsx:251
 msgid "No specific tenant access configured for this private flavor. Click \"Add Tenant Access\" to grant access."
 msgstr "No specific tenant access configured for this private flavor. Click \"Add Tenant Access\" to grant access."
 
@@ -2502,8 +2502,8 @@ msgid "Pending file upload..."
 msgstr "Pending file upload..."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/CreateFlavorModal.tsx:110
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:115
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/ManageAccessModal.tsx:115
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:114
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/ManageAccessModal.tsx:114
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/CreateImageModal.tsx:320
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageMembersTable.tsx:97
 msgid "Please fix the validation errors below."
@@ -3223,16 +3223,16 @@ msgstr "tcp, udp, icmp, or protocol number"
 msgid "Temporary URLs"
 msgstr "Temporary URLs"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/ManageAccessModal.tsx:161
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/ManageAccessModal.tsx:160
 msgid "Tenant access for \"{tenantIdToRemove}\" has been removed successfully."
 msgstr "Tenant access for \"{tenantIdToRemove}\" has been removed successfully."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/ManageAccessModal.tsx:132
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/ManageAccessModal.tsx:131
 msgid "Tenant access for \"{trimmedTenantId}\" has been added successfully."
 msgstr "Tenant access for \"{trimmedTenantId}\" has been added successfully."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/ManageAccessModal.tsx:190
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/ManageAccessModal.tsx:219
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/ManageAccessModal.tsx:189
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/ManageAccessModal.tsx:218
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/FloatingIps.tsx:34
 msgid "Tenant ID"
 msgstr "Tenant ID"
@@ -3413,7 +3413,7 @@ msgstr "This is a <0>dynamic large object</0>. Only the manifest will be deleted
 msgid "This is a <0>static large object</0>. By default, all associated segment objects will also be permanently deleted."
 msgstr "This is a <0>static large object</0>. By default, all associated segment objects will also be permanently deleted."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/ManageAccessModal.tsx:195
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/ManageAccessModal.tsx:194
 msgid "This is a public flavor. All tenants have access to it."
 msgstr "This is a public flavor. All tenants have access to it."
 
@@ -3632,7 +3632,7 @@ msgstr "valid token required: false"
 msgid "valid token required: true"
 msgstr "valid token required: true"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:204
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:203
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageMetadataModal.tsx:322
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageMetadataModal.tsx:360
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EditContainerMetadataModal.tsx:667
