@@ -23,6 +23,7 @@ export default defineConfig(({ mode }) => {
       outDir: "../../dist/client", // Output directory for the client
       sourcemap: true, // Optional: Generate sourcemaps,
       emptyOutDir: true,
+      cssMinify: "esbuild", // Use esbuild instead of lightningcss for CSS minification
     },
     define: {
       BFF_ENDPOINT: JSON.stringify(BFF_ENDPOINT),
