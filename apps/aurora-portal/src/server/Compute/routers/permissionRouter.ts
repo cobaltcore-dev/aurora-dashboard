@@ -1,8 +1,8 @@
+import { z } from "zod"
 import { TRPCError } from "@trpc/server"
 import { AuroraPortalContext } from "@/server/context"
-import { protectedProcedure } from "../../trpc"
 import { loadPolicyEngine } from "@/server/policyEngineLoader"
-import { z } from "zod"
+import { protectedProcedure } from "../../trpc"
 
 const computePolicyEngine = loadPolicyEngine("compute.yaml")
 const imagePolicyEngine = loadPolicyEngine("image.yaml")
@@ -54,43 +54,65 @@ const POLICY_MAPPINGS = {
 
 type PolicyKey = keyof typeof POLICY_MAPPINGS
 
-// Helper function to validate a single permission
-const validatePermission = (permission: string): PolicyKey => {
-  const policyMapping = POLICY_MAPPINGS[permission as PolicyKey]
-  if (!policyMapping) {
-    throw new TRPCError({
-      code: "BAD_REQUEST",
-      message: `Unknown permission: ${permission}`,
-    })
-  }
-  return permission as PolicyKey
-}
-
-// Helper function to check a single permission
-const checkSinglePermission = (ctx: AuroraPortalContext, permission: PolicyKey): boolean => {
+const checkSinglePermission = (ctx: AuroraPortalContext, permission: PolicyKey) => {
   const policyMapping = POLICY_MAPPINGS[permission]
   const policy = getPolicy(ctx, policyMapping.engine)
   return policy.check(policyMapping.rule)
 }
 
-export const permissionRouter = {
-  canUser: protectedProcedure.input(z.string()).query(async ({ ctx, input }): Promise<boolean> => {
-    const validatedPermission = validatePermission(input)
-    return checkSinglePermission(ctx, validatedPermission)
-  }),
-
-  canUserBulk: protectedProcedure.input(z.array(z.string())).query(async ({ ctx, input }): Promise<boolean[]> => {
-    // Return empty array for empty input
-    if (input.length === 0) {
-      return []
+/**
+ * Zod schema for a valid permission key.
+ *
+ * This schema ensures that:
+ * - The value is a string.
+ * - The string is a known key in `POLICY_MAPPINGS` (e.g., "servers:list", "flavors:create").
+ *
+ * Any other string or non-string input, or any string that is not a key in `POLICY_MAPPINGS`,
+ * is rejected with a Zod `custom` issue whose message is of the form "Unknown permission: <key>".
+ *
+ * This results in a `BAD_REQUEST` error from tRPC before the handler runs.
+ * which is useful for debugging and client-side error handling.
+ * This approach is explicit and tightly coupled to the defined policy mappings.
+ *
+ * @type {import("zod").ZodType<PolicyKey>}
+ */
+const PERMISSION_KEY = z
+  .string()
+  .superRefine((value, ctx) => {
+    if (!Object.hasOwn(POLICY_MAPPINGS, value)) {
+      ctx.addIssue({
+        code: "custom",
+        message: `Unknown permission: ${value}`,
+      })
     }
+  })
+  .transform((value) => value as PolicyKey)
 
-    // Validate all permissions first (fail fast on invalid permissions)
-    const validatedPermissions = input.map((permission) => validatePermission(permission))
+/**
+ * Permission checking endpoint that determines whether a user has one or more specific permissions.
+ *
+ * Usage:
+ * - `canUser("servers:list")` → returns `[boolean]` (single permission check, always wrapped in array).
+ * - `canUser(["servers:list", "flavors:create"])` → returns `boolean[]` (bulk check, one result per permission in order).
+ *
+ * Input must be:
+ * - A single valid permission key (string in `POLICY_MAPPINGS`), or
+ * - An array of valid permission keys.
+ *
+ * Invalid keys or non‑string values are rejected with a `BAD_REQUEST` error before the handler runs.
+ * Empty array input returns an empty array (`[]`).
+ * Always returns `boolean[]` for consistent destructuring on the client.
+ */
+export const permissionRouter = {
+  canUser: protectedProcedure
+    .input(z.union([PERMISSION_KEY, z.array(PERMISSION_KEY)]))
+    .query(async ({ ctx, input }): Promise<boolean[]> => {
+      const permissions = typeof input === "string" ? [input] : input
 
-    // Check all permissions and return results in the same order
-    const results: boolean[] = validatedPermissions.map((permission) => checkSinglePermission(ctx, permission))
+      if (permissions.length === 0) {
+        return []
+      }
 
-    return results
-  }),
+      return permissions.map((permission) => checkSinglePermission(ctx, permission))
+    }),
 }

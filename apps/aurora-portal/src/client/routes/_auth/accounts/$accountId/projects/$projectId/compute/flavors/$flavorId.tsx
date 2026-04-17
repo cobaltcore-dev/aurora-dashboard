@@ -60,7 +60,7 @@ function RouteComponent() {
     flavorId,
   })
 
-  const { data: permissionsData } = trpcReact.compute.canUserBulk.useQuery([
+  const { data: permissionsData } = trpcReact.compute.canUser.useQuery([
     "flavors:delete",
     "flavors:list_projects",
     "flavor_specs:create",

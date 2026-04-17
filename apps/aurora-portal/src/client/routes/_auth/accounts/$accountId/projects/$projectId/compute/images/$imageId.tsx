@@ -71,7 +71,7 @@ function RouteComponent() {
 
   const { data: image, status, error } = trpcReact.compute.getImageById.useQuery({ imageId: imageId })
 
-  const { data: permissionsData } = trpcReact.compute.canUserBulk.useQuery([
+  const { data: permissionsData } = trpcReact.compute.canUser.useQuery([
     "images:delete",
     "images:update",
     "images:create_member",
