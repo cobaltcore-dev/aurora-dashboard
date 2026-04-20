@@ -39,7 +39,11 @@ vi.mock("./sections/IcmpSection", () => ({
 }))
 
 vi.mock("./sections/RemoteSourceSection", () => ({
-  RemoteSourceSection: ({ availableSecurityGroups }: { availableSecurityGroups?: Array<{ id: string; name: string | null }> }) => (
+  RemoteSourceSection: ({
+    availableSecurityGroups,
+  }: {
+    availableSecurityGroups?: Array<{ id: string; name: string | null }>
+  }) => (
     <div data-testid="remote-source-section">
       Remote Source Section
       {availableSecurityGroups && <span data-testid="security-groups-count">{availableSecurityGroups.length}</span>}
