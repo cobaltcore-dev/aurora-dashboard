@@ -375,6 +375,7 @@ export const tempUrlSchema = z.object({
 // Download object input schema
 export const downloadObjectInputSchema = baseObjectInputSchema.extend({
   filename: z.string().optional(),
+  downloadId: z.string(),
 })
 
 // ============================================================================

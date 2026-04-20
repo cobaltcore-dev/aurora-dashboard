@@ -134,9 +134,8 @@ export const ObjectsTableView = ({
   )
 
   // Shared streaming helper — fetches the object from the BFF and assembles a Blob.
-  // downloadId is computed client-side as "<container>:<objectName>" — the same
-  // convention used by the BFF — and set before the mutation starts so the
-  // watchDownloadProgress subscription is active from the very first byte.
+  // downloadId is set before the mutation starts so the watchDownloadProgress
+  // subscription is active from the very first byte.
   const streamObjectToBlob = async (row: ObjectRow): Promise<{ blob: Blob; filename: string }> => {
     let contentType = row.content_type ?? "application/octet-stream"
     let filename = row.displayName
@@ -145,6 +144,7 @@ export const ObjectsTableView = ({
       container,
       object: row.name,
       filename: row.displayName,
+      downloadId: `${container}:${row.name}`,
       ...(account ? { account } : {}),
     })
 
