@@ -3,6 +3,7 @@ import { z } from "zod"
 import EventEmitter from "node:events"
 import { Readable, Transform } from "node:stream"
 import { protectedProcedure } from "../../trpc"
+import { octetInputParser } from "@trpc/server/http"
 import {
   validateSwiftService,
   validateSwiftUploadInput,
@@ -1197,18 +1198,18 @@ export const swiftRouter = {
   // ============================================================================
 
   /**
-   * Uploads a file to a Swift container via multipart form data.
+   * Uploads a file to a Swift container via octet-stream.
    *
-   * Accepts a FormData body with the following fields:
-   *   - container   (string) — target container name
-   *   - object      (string) — full object path including prefix, e.g. "folder/file.txt"
-   *   - contentType (string, optional) — MIME type detected client-side
-   *   - fileSize    (number, optional) — file size in bytes for progress tracking
-   *   - file        (File) — the file to upload
+   * Uses `octetInputParser` so tRPC passes the request body as a true
+   * ReadableStream — never buffered — enabling per-chunk progress tracking
+   * via the Transform pipeline identical to imageRouter.uploadImage.
    *
-   * Uses tRPC's native FormData input support (v11.8.1+) via `.input(z.instanceof(FormData))`.
-   * The tRPC client routes this through `httpLink` (via `isNonJsonSerializable`) so the
-   * FormData body reaches Fastify intact — no `getMultipartData()` workaround needed.
+   * Metadata is sent as custom request headers:
+   *   - x-upload-container  (string) — target container name
+   *   - x-upload-object     (string) — full object path, e.g. "folder/file.txt"
+   *   - x-upload-type       (string, optional) — MIME type detected client-side
+   *   - x-upload-size       (number, optional) — file size in bytes
+   *   - x-upload-account    (string, optional) — OpenStack account override
    *
    * Progress is tracked via a Node.js Transform stream and emitted through
    * `uploadProgressEmitter` so that concurrent `watchUploadProgress` subscriptions
@@ -1218,25 +1219,21 @@ export const swiftRouter = {
    * this mutation so the subscription can be opened in advance.
    */
   uploadObject: protectedProcedure
-    .input(z.instanceof(FormData))
+    .input(octetInputParser)
     .mutation(async ({ input, ctx }): Promise<{ success: boolean }> => {
       return withErrorHandling(async () => {
         const swift = ctx.openstack?.service("swift")
         validateSwiftService(swift)
 
-        // tRPC v11.8.1+ natively parses FormData when .input(z.instanceof(FormData)) is used.
-        // Fields are read directly from the FormData instance — no getMultipartData() needed.
-        const container = input.get("container") as string | undefined
-        const object = input.get("object") as string | undefined
-        const contentType = input.get("contentType") as string | undefined
-        const fileSizeRaw = input.get("fileSize")
-        const fileSize = fileSizeRaw ? parseInt(fileSizeRaw as string, 10) : undefined
-        const fileBlob = input.get("file") as File | null
-        // File.stream() returns a Web ReadableStream — convert to Node.js Readable
-        // so validateSwiftUploadInput (which checks for .pipe()) accepts it.
-        const fileStream = fileBlob
-          ? Readable.fromWeb(fileBlob.stream() as import("stream/web").ReadableStream)
-          : undefined
+        // Metadata arrives as custom headers — the body is the raw file stream.
+        const headers = ctx.req.headers
+        const container = headers["x-upload-container"] as string | undefined
+        const object = headers["x-upload-object"] as string | undefined
+        const contentType = headers["x-upload-type"] as string | undefined
+        const fileSize = headers["x-upload-size"] ? parseInt(headers["x-upload-size"] as string, 10) : undefined
+
+        // input is a Web ReadableStream — convert to Node.js Readable for .pipe()
+        const fileStream = Readable.fromWeb(input as import("stream/web").ReadableStream)
 
         const { validatedContainer, validatedObject, validatedFileSize, validatedFile } = validateSwiftUploadInput(
           container,
@@ -1256,6 +1253,7 @@ export const swiftRouter = {
 
           // Transform stream that observes bytes as they flow through to Swift.
           // No buffering — chunks are passed unmodified; we only count bytes.
+          // True streaming because octetInputParser passes the raw HTTP body stream.
           const progressTracker = new Transform({
             async transform(chunk: Buffer, _encoding, callback) {
               progress.uploaded += chunk.length

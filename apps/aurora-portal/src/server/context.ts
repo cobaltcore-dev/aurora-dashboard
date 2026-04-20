@@ -1,4 +1,5 @@
 import type { CreateFastifyContextOptions } from "@trpc/server/adapters/fastify"
+import type { FastifyRequest } from "fastify"
 import { SignalOpenstackSession, SignalOpenstackSessionType } from "@cobaltcore-dev/signal-openstack"
 import { SessionCookie } from "./sessionCookie"
 import * as dotenv from "dotenv"
@@ -62,6 +63,7 @@ export interface FormFieldData {
 }
 
 export interface AuroraPortalContext extends AuroraContext {
+  req: FastifyRequest
   createSession: (params: { user: string; password: string; domain: string }) => SignalOpenstackSessionType
   rescopeSession: (scope: {
     projectId?: string
@@ -381,6 +383,7 @@ export async function createContext(opts: CreateFastifyContextOptions): Promise<
   }
 
   return {
+    req: opts.req,
     createSession,
     rescopeSession,
     terminateSession,

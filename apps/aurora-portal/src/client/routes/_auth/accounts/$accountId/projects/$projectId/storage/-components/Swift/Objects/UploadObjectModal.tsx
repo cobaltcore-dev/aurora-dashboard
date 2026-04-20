@@ -1,7 +1,7 @@
 import { useState, useRef } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { Modal, Stack, Message, Spinner } from "@cloudoperators/juno-ui-components"
-import { trpcReact } from "@/client/trpcClient"
+import { trpcClient, trpcReact } from "@/client/trpcClient"
 import { cn } from "@/client/utils/cn"
 import { formatBytesBinary } from "@/client/utils/formatBytes"
 
@@ -31,28 +31,26 @@ export const UploadObjectModal = ({
   const [isDragging, setIsDragging] = useState(false)
   const [uploadId, setUploadId] = useState<string | null>(null)
   const [uploadError, setUploadError] = useState<string | null>(null)
+  const [isPending, setIsPending] = useState(false)
 
   const submittedNameRef = useRef("")
 
   const utils = trpcReact.useUtils()
 
-  const uploadMutation = trpcReact.storage.swift.uploadObject.useMutation()
-
-  // Subscribe to upload progress — uploadId set client-side before mutateAsync
-  // so subscription is active from the very first byte.
+  // Subscribe to upload progress — uploadId is set before the upload starts
+  // so the subscription is active from the very first byte.
   const { data: uploadProgress } = trpcReact.storage.swift.watchUploadProgress.useSubscription(
     { uploadId: uploadId ?? "" },
-    { enabled: !!uploadId && uploadMutation.isPending }
+    { enabled: !!uploadId && isPending }
   )
 
   const handleClose = () => {
-    if (uploadMutation.isPending) return
+    if (isPending) return
     setSelectedFile(null)
     setFileError(null)
     setIsDragging(false)
     setUploadId(null)
     setUploadError(null)
-    uploadMutation.reset()
     onClose()
   }
 
@@ -99,21 +97,25 @@ export const UploadObjectModal = ({
     submittedNameRef.current = selectedFile.name
     setUploadError(null)
 
-    const formData = new FormData()
-    formData.append("container", container)
-    formData.append("object", objectName)
-    formData.append("contentType", selectedFile.type || "application/octet-stream")
-    formData.append("fileSize", String(selectedFile.size))
-    if (account) formData.append("account", account)
-    // file must be last — BFF iterates fields before the file stream
-    formData.append("file", selectedFile)
-
-    // Compute uploadId client-side before mutateAsync — subscription must be
+    // Compute uploadId client-side before upload starts — subscription must be
     // active before the first progress event fires from the BFF.
     setUploadId(`${container}:${objectName}`)
+    setIsPending(true)
 
     try {
-      await uploadMutation.mutateAsync(formData)
+      // Metadata is sent as custom headers via tRPC operation context —
+      // no shared mutable state, safe for concurrent uploads.
+      const uploadContext = {
+        headers: {
+          "x-upload-container": container,
+          "x-upload-object": objectName,
+          "x-upload-type": selectedFile.type || "application/octet-stream",
+          "x-upload-size": String(selectedFile.size),
+          ...(account ? { "x-upload-account": account } : {}),
+        },
+      }
+
+      await trpcClient.storage.swift.uploadObject.mutate(selectedFile, { context: uploadContext })
 
       utils.storage.swift.listObjects.invalidate({ container })
       onSuccess?.(submittedNameRef.current)
@@ -123,11 +125,12 @@ export const UploadObjectModal = ({
       setUploadError(message)
       onError?.(submittedNameRef.current, message)
     } finally {
+      setIsPending(false)
       setUploadId(null)
     }
   }
 
-  const isPending = uploadMutation.isPending
+  // isPending is tracked via useState above
   const progressPct = uploadProgress?.percent ?? null
 
   if (!isOpen) return null
