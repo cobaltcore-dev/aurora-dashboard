@@ -212,11 +212,14 @@ export const ListToolbar = ({
                   </Trans>
                 </span>
               )}
-              {lastUpdated && (
-                <span>
-                  <Trans>Last updated: {formatLastUpdated(lastUpdated)}</Trans>
-                </span>
-              )}
+              {lastUpdated && (() => {
+                const formattedDate = formatLastUpdated(lastUpdated)
+                return (
+                  <span>
+                    <Trans>Last updated: {formattedDate}</Trans>
+                  </span>
+                )
+              })()}
             </div>
           </div>
         )}
