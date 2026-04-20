@@ -11,6 +11,7 @@ import type { ContainerSummary, ObjectSummary } from "@/server/Storage/types/swi
 
 const mockReset = vi.fn()
 const mockInvalidate = vi.fn()
+const mockInvalidateObjects = vi.fn()
 
 let mutationError: string | null = null
 let listObjectsData: ObjectSummary[] = []
@@ -38,6 +39,7 @@ vi.mock("@/client/trpcClient", () => ({
       storage: {
         swift: {
           listContainers: { invalidate: mockInvalidate },
+          listObjects: { invalidate: mockInvalidateObjects },
         },
       },
     }),
@@ -367,6 +369,16 @@ describe("EmptyContainerModal", () => {
       await user.click(screen.getByRole("button", { name: /^Empty$/i }))
       await waitFor(() => {
         expect(mockInvalidate).toHaveBeenCalled()
+      })
+    })
+
+    test("calls listObjects.invalidate with container name after successful mutation", async () => {
+      const user = userEvent.setup()
+      renderModal()
+      await user.type(screen.getByLabelText(/Type container name to confirm/i), "my-container")
+      await user.click(screen.getByRole("button", { name: /^Empty$/i }))
+      await waitFor(() => {
+        expect(mockInvalidateObjects).toHaveBeenCalledWith({ container: "my-container" })
       })
     })
 

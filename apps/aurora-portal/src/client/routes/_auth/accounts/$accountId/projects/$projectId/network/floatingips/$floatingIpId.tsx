@@ -18,6 +18,7 @@ function RouteComponent() {
   const { accountId, projectId, floatingIpId } = useParams({
     from: "/_auth/accounts/$accountId/projects/$projectId/network/floatingips/$floatingIpId",
   })
+  const { setPageTitle } = Route.useRouteContext()
 
   const navigateToProjectNetwork = () => {
     navigate({
@@ -43,6 +44,7 @@ function RouteComponent() {
   })
 
   if (isLoading) {
+    setPageTitle(t`Loading...`)
     return (
       <Stack className="fixed inset-0" distribution="center" alignment="center" direction="vertical">
         <Spinner variant="primary" size="large" className="mb-2" />
@@ -78,6 +80,7 @@ function RouteComponent() {
     )
   }
 
+  setPageTitle(floatingIp.floating_ip_address || floatingIpId)
   return (
     <Stack direction="vertical">
       <Breadcrumb className="my-6">

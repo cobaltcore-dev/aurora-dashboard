@@ -26,7 +26,7 @@
     "@fastify/cookie": "^11.0.2",
     "@fastify/csrf-protection": "^7.1.0",
     "@fastify/helmet": "^13.0.2",
-    "@fastify/multipart": "^9.4.0",
+    "@fastify/multipart": "^10.0.0",
     "@fastify/static": "^9.0.0",
     "@headlessui/react": "^2.2.2",
     "@lingui/core": "^5.9.5",
@@ -43,10 +43,10 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "d3": "^7.9.0",
-    "dotenv": "^16.4.7",
+    "dotenv": "^17.0.0",
     "fastify": "^5.8.1",
     "fastify-plugin": "^5.1.0",
-    "focus-trap-react": "^11.0.3",
+    "focus-trap-react": "^12.0.0",
     "node-fetch": "^3.3.2",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
@@ -55,7 +55,7 @@
     "tailwind-merge": "^3.2.0",
     "tsconfig-paths": "^4.2.0",
     "tsx": "^4.21.0",
-    "zod": "^3.24.1"
+    "zod": "^4.0.0"
   },
   "devDependencies": {
     "@cloudoperators/juno-ui-components": "^6.2.0",
@@ -86,8 +86,8 @@
     "tailwindcss": "^4.1.7",
     "tsc-alias": "^1.8.16",
     "typescript": "^6.0.2",
-    "vite": "^7.3.2",
-    "vite-plugin-svgr": "^4.3.0",
+    "vite": "^8.0.0",
+    "vite-plugin-svgr": "^5.0.0",
     "vite-tsconfig-paths": "^6.1.1",
     "vitest": "^4.1.2"
   }

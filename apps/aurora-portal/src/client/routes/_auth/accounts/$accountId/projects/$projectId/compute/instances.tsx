@@ -1,4 +1,5 @@
 import { createFileRoute, redirect } from "@tanstack/react-router"
+import { useLingui } from "@lingui/react/macro"
 import { getServiceIndex } from "@/server/Authentication/helpers"
 import { Instances } from "./-components/Instances/List"
 import type { RouteInfo } from "@/client/routes/routeInfo"
@@ -22,7 +23,9 @@ export const Route = createFileRoute("/_auth/accounts/$accountId/projects/$proje
 })
 
 function RouteComponent() {
+  const { t } = useLingui()
   const { projectId } = Route.useParams()
-  const { trpcClient } = Route.useRouteContext()
+  const { trpcClient, setPageTitle } = Route.useRouteContext()
+  setPageTitle(t`Instances`)
   return <Instances client={trpcClient!} project={projectId} viewMode="list" />
 }

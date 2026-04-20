@@ -6,8 +6,6 @@ import {
   DataGridHeadCell,
   DataGridRow,
   DataGridCell,
-  Toast,
-  ToastProps,
   PopupMenu,
   PopupMenuItem,
   PopupMenuOptions,
@@ -20,24 +18,21 @@ import { EmptyContainerModal } from "./EmptyContainerModal"
 import { DeleteContainerModal } from "./DeleteContainerModal"
 import { EditContainerMetadataModal } from "./EditContainerMetadataModal"
 import { ManageContainerAccessModal } from "./ManageContainerAccessModal"
-import {
-  getContainerCreatedToast,
-  getContainerCreateErrorToast,
-  getContainerEmptiedToast,
-  getContainerEmptyErrorToast,
-  getContainerDeletedToast,
-  getContainerDeleteErrorToast,
-  getContainerUpdatedToast,
-  getContainerUpdateErrorToast,
-  getContainerAclUpdatedToast,
-  getContainerAclUpdateErrorToast,
-} from "./ContainerToastNotifications"
-
 interface ContainerTableViewProps {
   containers: ContainerSummary[]
   createModalOpen: boolean
   setCreateModalOpen: (open: boolean) => void
   maxContainerNameLength?: number
+  onCreateSuccess: (containerName: string) => void
+  onCreateError: (containerName: string, errorMessage: string) => void
+  onEmptySuccess: (containerName: string, deletedCount: number) => void
+  onEmptyError: (containerName: string, errorMessage: string) => void
+  onDeleteSuccess: (containerName: string) => void
+  onDeleteError: (containerName: string, errorMessage: string) => void
+  onPropertiesSuccess: (containerName: string) => void
+  onPropertiesError: (containerName: string, errorMessage: string) => void
+  onAclSuccess: (containerName: string) => void
+  onAclError: (containerName: string, errorMessage: string) => void
 }
 
 export const ContainerTableView = ({
@@ -45,6 +40,16 @@ export const ContainerTableView = ({
   createModalOpen,
   setCreateModalOpen,
   maxContainerNameLength,
+  onCreateSuccess,
+  onCreateError,
+  onEmptySuccess,
+  onEmptyError,
+  onDeleteSuccess,
+  onDeleteError,
+  onPropertiesSuccess,
+  onPropertiesError,
+  onAclSuccess,
+  onAclError,
 }: ContainerTableViewProps) => {
   const { accountId, projectId, provider } = useParams({
     from: "/_auth/accounts/$accountId/projects/$projectId/storage/$provider/containers/",
@@ -55,53 +60,10 @@ export const ContainerTableView = ({
 
   const parentRef = useRef<HTMLDivElement>(null)
   const [scrollbarWidth, setScrollbarWidth] = useState(0)
-  const [toastData, setToastData] = useState<ToastProps | null>(null)
   const [emptyModalContainer, setEmptyModalContainer] = useState<ContainerSummary | null>(null)
   const [deleteModalContainer, setDeleteModalContainer] = useState<ContainerSummary | null>(null)
   const [propertiesModalContainer, setPropertiesModalContainer] = useState<ContainerSummary | null>(null)
   const [accessControlModalContainer, setAccessControlModalContainer] = useState<ContainerSummary | null>(null)
-
-  const handleToastDismiss = () => setToastData(null)
-
-  const handleCreateSuccess = (containerName: string) => {
-    setToastData(getContainerCreatedToast(containerName, { onDismiss: handleToastDismiss }))
-  }
-
-  const handleCreateError = (containerName: string, errorMessage: string) => {
-    setToastData(getContainerCreateErrorToast(containerName, errorMessage, { onDismiss: handleToastDismiss }))
-  }
-
-  const handleEmptySuccess = (containerName: string, deletedCount: number) => {
-    setToastData(getContainerEmptiedToast(containerName, deletedCount, { onDismiss: handleToastDismiss }))
-  }
-
-  const handleEmptyError = (containerName: string, errorMessage: string) => {
-    setToastData(getContainerEmptyErrorToast(containerName, errorMessage, { onDismiss: handleToastDismiss }))
-  }
-
-  const handleDeleteSuccess = (containerName: string) => {
-    setToastData(getContainerDeletedToast(containerName, { onDismiss: handleToastDismiss }))
-  }
-
-  const handleDeleteError = (containerName: string, errorMessage: string) => {
-    setToastData(getContainerDeleteErrorToast(containerName, errorMessage, { onDismiss: handleToastDismiss }))
-  }
-
-  const handlePropertiesSuccess = (containerName: string) => {
-    setToastData(getContainerUpdatedToast(containerName, { onDismiss: handleToastDismiss }))
-  }
-
-  const handlePropertiesError = (containerName: string, errorMessage: string) => {
-    setToastData(getContainerUpdateErrorToast(containerName, errorMessage, { onDismiss: handleToastDismiss }))
-  }
-
-  const handleAclSuccess = (containerName: string) => {
-    setToastData(getContainerAclUpdatedToast(containerName, { onDismiss: handleToastDismiss }))
-  }
-
-  const handleAclError = (containerName: string, errorMessage: string) => {
-    setToastData(getContainerAclUpdateErrorToast(containerName, errorMessage, { onDismiss: handleToastDismiss }))
-  }
 
   // Calculate scrollbar width
   useEffect(() => {
@@ -290,8 +252,8 @@ export const ContainerTableView = ({
       <CreateContainerModal
         isOpen={createModalOpen}
         onClose={() => setCreateModalOpen(false)}
-        onSuccess={handleCreateSuccess}
-        onError={handleCreateError}
+        onSuccess={onCreateSuccess}
+        onError={onCreateError}
         maxContainerNameLength={maxContainerNameLength}
       />
 
@@ -299,37 +261,33 @@ export const ContainerTableView = ({
         isOpen={emptyModalContainer !== null}
         container={emptyModalContainer}
         onClose={() => setEmptyModalContainer(null)}
-        onSuccess={handleEmptySuccess}
-        onError={handleEmptyError}
+        onSuccess={onEmptySuccess}
+        onError={onEmptyError}
       />
 
       <DeleteContainerModal
         isOpen={deleteModalContainer !== null}
         container={deleteModalContainer}
         onClose={() => setDeleteModalContainer(null)}
-        onSuccess={handleDeleteSuccess}
-        onError={handleDeleteError}
+        onSuccess={onDeleteSuccess}
+        onError={onDeleteError}
       />
 
       <EditContainerMetadataModal
         isOpen={propertiesModalContainer !== null}
         container={propertiesModalContainer}
         onClose={() => setPropertiesModalContainer(null)}
-        onSuccess={handlePropertiesSuccess}
-        onError={handlePropertiesError}
+        onSuccess={onPropertiesSuccess}
+        onError={onPropertiesError}
       />
 
       <ManageContainerAccessModal
         isOpen={accessControlModalContainer !== null}
         container={accessControlModalContainer}
         onClose={() => setAccessControlModalContainer(null)}
-        onSuccess={handleAclSuccess}
-        onError={handleAclError}
+        onSuccess={onAclSuccess}
+        onError={onAclError}
       />
-
-      {toastData && (
-        <Toast {...toastData} className="border-theme-light fixed top-5 right-5 z-50 rounded-lg border shadow-lg" />
-      )}
     </>
   )
 }

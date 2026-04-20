@@ -427,7 +427,7 @@ export const EditContainerMetadataModal = ({
       {isLoading ? (
         <Stack direction="horizontal" alignment="center" gap="2" className="py-8">
           <Spinner size="small" />
-          <Trans>Loading container properties…</Trans>
+          <Trans>Loading container properties...</Trans>
         </Stack>
       ) : isMetaFailed ? (
         <Stack direction="vertical" alignment="center" gap="3" className="py-8">

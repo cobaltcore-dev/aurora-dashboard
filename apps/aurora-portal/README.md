@@ -34,20 +34,18 @@ The policy engine loader follows a simple override mechanism:
 
 ```typescript
 export const loadPolicyEngine = (fileName: string) => {
-  let file: string
-  if (fs.existsSync(path.join(__dirname, `./permission_custom_policies/${fileName}`))) {
-    file = path.join(__dirname, `./permission_custom_policies/${fileName}`)
-  } else {
-    file = path.join(__dirname, `./permission_policies/${fileName}`)
-  }
+  const customPath = path.join(__dirname, `../../permission_custom_policies/${fileName}`)
+  const defaultPath = path.join(__dirname, `../../permission_policies/${fileName}`)
+
+  const file = fs.existsSync(customPath) ? customPath : defaultPath
   return createPolicyEngineFromFile(file)
 }
 ```
 
 ### Directory Structure
 
-```
-src/server/
+```text
+apps/aurora-portal/
 ├── permission_policies/          # Default policy files
 │   ├── compute.yaml              # Default compute permissions
 │   ├── network.yaml              # Default network permissions

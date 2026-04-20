@@ -56,6 +56,7 @@ Comprehensive Zod schemas for type-safe validation of:
 - **Object operations**: Upload/download/copy/delete objects, manage object metadata
 - **Bulk operations**: Bulk delete for multiple objects
 - **Folder operations**: Create, list, move, and delete pseudo-folders
+- **Download**: Stream object content via BFF as base64 chunks using an async iterable procedure
 - **Temporary URLs**: Generate time-limited signed URLs
 
 ### 2. `swiftHelpers.ts` - Helper Functions
@@ -97,12 +98,12 @@ Complete tRPC router with procedures for:
 
 #### Object Operations
 
-- `getObject` - Download object content and metadata
 - `createObject` - Upload a new object or replace existing one
 - `getObjectMetadata` - Get object metadata without downloading content
 - `updateObjectMetadata` - Update object metadata (POST operation)
 - `copyObject` - Copy object to a new location
 - `deleteObject` - Delete an object
+- `downloadObject` - Stream object content to the browser as base64 chunks via an async iterable; each chunk carries `downloaded` and `total` byte counts for progress tracking; client assembles a Blob and triggers a save dialog
 
 #### Bulk Operations
 
@@ -143,6 +144,7 @@ Full support for:
 
 - **Service Discovery**: Query Swift capabilities via `/info` endpoint
 - **Pseudo-Folders**: Create and manage hierarchical folder structures
+- **Download**: Stream object content via BFF as base64 chunks using an async iterable procedure
 - **Temporary URLs**: Generate time-limited signed URLs with HMAC-SHA256
 - **Pagination**: Marker-based pagination for large listings
 - **Filtering**: Prefix, delimiter, and range-based filtering
@@ -156,9 +158,8 @@ Full support for:
 
 Proper handling of binary data for object uploads/downloads:
 
-- ArrayBuffer support
-- Base64 string conversion
-- Uint8Array support
+- Base64 chunk streaming for `downloadObject` (browser save dialog) — server streams without buffering; each chunk includes `downloaded`/`total` byte counts for progress tracking; client assembles a Blob
+- Uint8Array support for `createObject`
 
 ## Usage Examples
 
@@ -205,12 +206,52 @@ const metadata = await trpc.storage.swift.createObject.mutate({
 ### Download Object
 
 ```typescript
-const { content, metadata } = await trpc.storage.swift.getObject.query({
+const chunks: Uint8Array[] = []
+let contentType = "application/octet-stream"
+let filename = "download"
+
+// downloadObject is an async generator — the BFF streams chunks from Swift
+// without buffering the full file in memory. Content-type and filename are
+// sent only in the first chunk.
+const iterable = await trpcClient.storage.swift.downloadObject.mutate({
   container: "my-container",
-  object: "document.pdf",
-  range: "bytes=0-1023", // Download first 1KB only
+  object: "report.pdf",
+  filename: "Q4_Report.pdf",
 })
+
+for await (const { chunk, contentType: ct, filename: fn, downloaded, total } of iterable) {
+  if (ct) contentType = ct
+  if (fn) filename = fn
+  chunks.push(Uint8Array.from(atob(chunk), (c) => c.charCodeAt(0)))
+  // `total` is 0 when Swift does not send a Content-Length header
+  if (total > 0) {
+    const percent = Math.round((downloaded / total) * 100)
+    console.log(`Download progress: ${percent}%`)
+  }
+}
+
+// Concatenate chunks and trigger browser save dialog
+const totalLength = chunks.reduce((sum, c) => sum + c.length, 0)
+const merged = new Uint8Array(totalLength)
+let offset = 0
+for (const c of chunks) {
+  merged.set(c, offset)
+  offset += c.length
+}
+
+const blob = new Blob([merged], { type: contentType })
+const url = URL.createObjectURL(blob)
+const anchor = document.createElement("a")
+anchor.href = url
+anchor.download = filename
+anchor.click()
+URL.revokeObjectURL(url)
 ```
+
+> **Note:** Uses `trpcClient` (vanilla) not `trpcReact`, because `useMutation`
+> cannot consume async iterables. For very large files where client-side Blob
+> assembly is a concern, use `generateTempUrl` instead — it produces a
+> short-lived signed URL the browser can download directly.
 
 ### Copy Object
 
@@ -487,8 +528,8 @@ All operations include comprehensive error handling:
 ## Performance Considerations
 
 1. **Pagination**: Use `limit` and `marker` for large listings
-2. **Partial Downloads**: Use `range` parameter for partial object downloads
-3. **Metadata Only**: Use HEAD operations (`getObjectMetadata`) when you don't need content
+2. **Large Downloads**: `downloadObject` retrieves the full object; for large client-side downloads, prefer **Temporary URLs** so clients can download directly from Swift without proxying the entire payload through the BFF
+3. **Metadata Only**: Use `getObjectMetadata` (HEAD) when you only need headers, not content
 4. **Bulk Operations**: Use `bulkDelete` for deleting multiple objects efficiently
 5. **Empty Container**: Use `emptyContainer` to remove all objects — it auto-selects bulk delete or individual deletes based on the `/info` capability check
 6. **Folder Navigation**: Use `delimiter="/"` for hierarchical folder browsing

@@ -14,8 +14,14 @@ export function SecurityGroupBasicInfo({ securityGroup, onEdit }: SecurityGroupB
 
   return (
     <div>
+<<<<<<< HEAD
       <div className="mb-4 flex flex-row-reverse">
         {onEdit && !securityGroup?.shared && (
+=======
+      <div className="mb-4 flex items-center justify-between">
+        <ContentHeading>{t`Security Group Basic Info`}</ContentHeading>
+        {onEdit && (
+>>>>>>> 468e02c6d0371fbcacf33b99e1b1472fe028e2f8
           <Button variant="primary" onClick={onEdit} disabled={securityGroup.shared}>
             <Trans>Edit</Trans>
           </Button>

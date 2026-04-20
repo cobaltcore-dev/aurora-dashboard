@@ -2,6 +2,7 @@ import { createTRPCReact } from "@trpc/react-query"
 import {
   createTRPCClient,
   httpBatchLink,
+  httpBatchStreamLink,
   httpLink,
   splitLink,
   isNonJsonSerializable,
@@ -24,6 +25,11 @@ const getCsrfHeaders = async () => {
   }
 }
 
+// Procedures that return async iterables (chunked streaming responses).
+// These are routed through httpBatchStreamLink instead of httpBatchLink.
+// Add any new streaming procedure paths here.
+const STREAMING_PROCEDURES = new Set<string>(["storage.swift.downloadObject"])
+
 // Shared link configuration with nested splitLink for subscriptions + non-JSON data
 const getLinks = () => [
   splitLink({
@@ -37,23 +43,40 @@ const getLinks = () => [
         return { headers: await getCsrfHeaders() }
       },
     }),
-    // For non-subscriptions, check for non-JSON data
+    // For non-subscriptions, check for non-JSON data or streaming procedures
     false: splitLink({
-      // Check if the input contains non-JSON serializable data (FormData, Blob, etc.)
+      // Non-JSON serializable input (FormData, Blob, ArrayBuffer, etc.) → plain httpLink
       condition: (op) => isNonJsonSerializable(op.input),
-      // Use httpLink for FormData, Blob, ArrayBuffer, etc.
       true: httpLink({
         url: BFF_ENDPOINT,
         async headers() {
           return getCsrfHeaders()
         },
       }),
-      // Use httpBatchLink for regular JSON data (batching for performance)
-      false: httpBatchLink({
-        url: BFF_ENDPOINT,
-        async headers() {
-          return getCsrfHeaders()
-        },
+      // For JSON procedures, decide between streaming and regular batching
+      false: splitLink({
+        // Procedures returning async iterables must use httpBatchStreamLink.
+        // httpBatchLink buffers the full response before resolving, which
+        // breaks streaming. httpBatchStreamLink preserves batching while
+        // supporting chunked/streamed responses.
+        // Note: httpBatchStreamLink is intentionally NOT used globally because
+        // it is incompatible with the @fastify/csrf-protection cookie rotation
+        // used in this app — CSRF tokens can expire mid-stream on long-lived
+        // connections. Scope it only to procedures that actually need streaming.
+        condition: (op) => STREAMING_PROCEDURES.has(op.path),
+        true: httpBatchStreamLink({
+          url: BFF_ENDPOINT,
+          async headers() {
+            return getCsrfHeaders()
+          },
+        }),
+        // Regular JSON mutations/queries — standard batching
+        false: httpBatchLink({
+          url: BFF_ENDPOINT,
+          async headers() {
+            return getCsrfHeaders()
+          },
+        }),
       }),
     }),
   }),

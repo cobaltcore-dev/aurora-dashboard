@@ -253,18 +253,6 @@ export const objectMetadataSchema = z.object({
   symlinkTargetAccount: z.string().optional(),
 })
 
-// Get object input schema
-export const getObjectInputSchema = baseObjectInputSchema.extend({
-  range: z.string().optional(), // e.g., "bytes=0-1023"
-  ifMatch: z.string().optional(),
-  ifNoneMatch: z.string().optional(),
-  ifModifiedSince: z.string().optional(),
-  ifUnmodifiedSince: z.string().optional(),
-  multipartManifest: z.enum(["get"]).optional(), // Get manifest instead of concatenated content
-  symlink: z.enum(["get"]).optional(), // Get symlink target instead of following it
-  xNewest: z.boolean().optional(), // Query all replicas for most recent
-})
-
 // Create/update object input schema
 export const createObjectInputSchema = baseObjectInputSchema.extend({
   content: z.instanceof(ArrayBuffer).or(z.instanceof(Uint8Array)).or(z.string()), // Binary data or base64
@@ -403,6 +391,11 @@ export const tempUrlSchema = z.object({
   expiresAt: z.number(), // Unix timestamp
 })
 
+// Download object input schema
+export const downloadObjectInputSchema = baseObjectInputSchema.extend({
+  filename: z.string().optional(),
+})
+
 // ============================================================================
 // RESPONSE SCHEMAS
 // ============================================================================
@@ -416,12 +409,6 @@ export const accountInfoResponseSchema = accountInfoSchema
 export const containerInfoResponseSchema = containerInfoSchema
 
 export const objectMetadataResponseSchema = objectMetadataSchema
-
-// Object content response (for GET operations)
-export const objectContentResponseSchema = z.object({
-  content: z.instanceof(ArrayBuffer).or(z.instanceof(Uint8Array)),
-  metadata: objectMetadataSchema,
-})
 
 // Service info response
 export const serviceInfoResponseSchema = serviceInfoSchema
@@ -444,7 +431,6 @@ export type ContainerInfo = z.infer<typeof containerInfoSchema>
 export type ContainerMetadata = z.infer<typeof containerMetadataSchema>
 export type ObjectSummary = z.infer<typeof objectSummarySchema>
 export type ObjectMetadata = z.infer<typeof objectMetadataSchema>
-export type ObjectContentResponse = z.infer<typeof objectContentResponseSchema>
 export type FolderContents = z.infer<typeof folderContentsSchema>
 export type TempUrl = z.infer<typeof tempUrlSchema>
 
@@ -459,7 +445,6 @@ export type UpdateContainerMetadataInput = z.infer<typeof updateContainerMetadat
 export type GetContainerMetadataInput = z.infer<typeof getContainerMetadataInputSchema>
 export type DeleteContainerInput = z.infer<typeof deleteContainerInputSchema>
 
-export type GetObjectInput = z.infer<typeof getObjectInputSchema>
 export type CreateObjectInput = z.infer<typeof createObjectInputSchema>
 export type UpdateObjectMetadataInput = z.infer<typeof updateObjectMetadataInputSchema>
 export type CopyObjectInput = z.infer<typeof copyObjectInputSchema>
@@ -475,3 +460,5 @@ export type MoveFolderInput = z.infer<typeof moveFolderInputSchema>
 export type DeleteFolderInput = z.infer<typeof deleteFolderInputSchema>
 
 export type GenerateTempUrlInput = z.infer<typeof generateTempUrlInputSchema>
+
+export type DownloadObjectInput = z.infer<typeof downloadObjectInputSchema>

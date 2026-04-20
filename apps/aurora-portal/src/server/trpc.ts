@@ -59,8 +59,9 @@ export const domainScopedInputSchema = z.object({
  *
  * Error handling:
  * - BAD_REQUEST: If project_id is missing or invalid (handled by Zod schema)
- * - UNAUTHORIZED: If token rescoping fails (e.g., invalid token, Keystone unavailable)
- * - FORBIDDEN: If user has no role assignment on the specified project
+ * - UNAUTHORIZED: If token rescoping fails, including when the session cannot be
+ *   rescoped to the specified project (for example, due to an invalid token,
+ *   Keystone unavailability, or missing role assignment on that project)
  *
  * Usage example:
  * ```ts
@@ -176,10 +177,21 @@ export const domainScopedProcedure = protectedProcedure
     // for project-scoped or public procedures
     const userInfo = ctx.getUserInfo ? await ctx.getUserInfo() : undefined
 
+    // If we couldn't fetch user info, it means either:
+    // 1. Keystone service is unavailable (network/server error)
+    // 2. Token is invalid (should be caught by protectedProcedure)
+    // We treat this as an authorization failure since we can't verify access
+    if (!userInfo) {
+      throw new TRPCError({
+        code: "UNAUTHORIZED",
+        message: "Failed to verify domain access. Please try again or contact support.",
+      })
+    }
+
     // Verify that the user has access to the specific domain requested
     // We check the list of available domains from /v3/auth/domains
     // Actual permission enforcement happens in Keystone when we rescope
-    const hasAccess = userInfo?.availableDomains?.some((domain: { id: string }) => domain.id === domain_id)
+    const hasAccess = userInfo.availableDomains?.some((domain: { id: string }) => domain.id === domain_id)
     if (!hasAccess) {
       throw new TRPCError({
         code: "FORBIDDEN",
