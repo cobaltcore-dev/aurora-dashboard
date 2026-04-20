@@ -2890,7 +2890,7 @@ msgstr "Feste IP-Adresse auswählen"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/AddRuleModal/sections/RuleTypeSection.tsx:71
 msgid "Select a rule type..."
-msgstr ""
+msgstr "Regeltyp auswählen..."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/AddRuleModal/sections/RemoteSourceSection.tsx:88
 msgid "Select a security group..."
