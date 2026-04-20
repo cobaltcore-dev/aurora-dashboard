@@ -1199,12 +1199,16 @@ export const swiftRouter = {
   /**
    * Uploads a file to a Swift container via multipart form data.
    *
-   * Accepts multipart fields:
+   * Accepts a FormData body with the following fields:
    *   - container   (string) — target container name
    *   - object      (string) — full object path including prefix, e.g. "folder/file.txt"
    *   - contentType (string, optional) — MIME type detected client-side
    *   - fileSize    (number, optional) — file size in bytes for progress tracking
-   *   - file        (binary) — the file part (must be last)
+   *   - file        (File) — the file to upload
+   *
+   * Uses tRPC's native FormData input support (v11.8.1+) via `.input(z.instanceof(FormData))`.
+   * The tRPC client routes this through `httpLink` (via `isNonJsonSerializable`) so the
+   * FormData body reaches Fastify intact — no `getMultipartData()` workaround needed.
    *
    * Progress is tracked via a Node.js Transform stream and emitted through
    * `uploadProgressEmitter` so that concurrent `watchUploadProgress` subscriptions
@@ -1213,101 +1217,88 @@ export const swiftRouter = {
    * The client computes `uploadId` as `"<container>:<objectPath>"` before calling
    * this mutation so the subscription can be opened in advance.
    */
-  uploadObject: protectedProcedure.mutation(async ({ ctx }): Promise<{ success: boolean }> => {
-    return withErrorHandling(async () => {
-      const swift = ctx.openstack?.service("swift")
-      validateSwiftService(swift)
+  uploadObject: protectedProcedure
+    .input(z.instanceof(FormData))
+    .mutation(async ({ input, ctx }): Promise<{ success: boolean }> => {
+      return withErrorHandling(async () => {
+        const swift = ctx.openstack?.service("swift")
+        validateSwiftService(swift)
 
-      const parts = ctx.getMultipartData()
-      let container: string | undefined
-      let object: string | undefined
-      let contentType: string | undefined
-      let fileSize: number | undefined
-      let fileStream: NodeJS.ReadableStream | undefined
+        // tRPC v11.8.1+ natively parses FormData when .input(z.instanceof(FormData)) is used.
+        // Fields are read directly from the FormData instance — no getMultipartData() needed.
+        const container = input.get("container") as string | undefined
+        const object = input.get("object") as string | undefined
+        const contentType = input.get("contentType") as string | undefined
+        const fileSizeRaw = input.get("fileSize")
+        const fileSize = fileSizeRaw ? parseInt(fileSizeRaw as string, 10) : undefined
+        const fileBlob = input.get("file") as File | null
+        // File.stream() returns a Web ReadableStream — convert to Node.js Readable
+        // so validateSwiftUploadInput (which checks for .pipe()) accepts it.
+        const fileStream = fileBlob
+          ? Readable.fromWeb(fileBlob.stream() as import("stream/web").ReadableStream)
+          : undefined
 
-      for await (const part of parts) {
-        if (part.type === "field") {
-          switch (part.fieldname) {
-            case "container":
-              container = part.value
-              break
-            case "object":
-              object = part.value
-              break
-            case "contentType":
-              contentType = part.value
-              break
-            case "fileSize":
-              fileSize = parseInt(part.value, 10)
-              break
-          }
-        } else if (part.type === "file") {
-          fileStream = part.file
-          break // file must be last — FormData append order is preserved
+        const { validatedContainer, validatedObject, validatedFileSize, validatedFile } = validateSwiftUploadInput(
+          container,
+          object,
+          fileSize,
+          fileStream
+        )
+
+        // Use a stable, URL-safe upload ID derived from container + object so the
+        // client can compute it before starting the upload (no extra round-trip).
+        const uploadId = `${validatedContainer}:${validatedObject}`
+
+        uploadProgressMap.set(uploadId, { uploaded: 0, total: validatedFileSize, percent: 0 })
+
+        try {
+          const progress = uploadProgressMap.get(uploadId)!
+
+          // Transform stream that observes bytes as they flow through to Swift.
+          // No buffering — chunks are passed unmodified; we only count bytes.
+          const progressTracker = new Transform({
+            async transform(chunk: Buffer, _encoding, callback) {
+              progress.uploaded += chunk.length
+              progress.percent = progress.total > 0 ? Math.round((progress.uploaded / progress.total) * 100) : 0
+
+              uploadProgressEmitter.emit(`progress:${uploadId}`, { ...progress })
+
+              // Yield to the event loop so subscriptions can flush between chunks
+              await new Promise((resolve) => setTimeout(resolve, 0))
+
+              callback(null, chunk)
+            },
+          })
+
+          const trackedStream = validatedFile.pipe(progressTracker)
+          const webStream = Readable.toWeb(trackedStream)
+
+          // Encode each segment individually to preserve slash separators
+          const encodedObject = validatedObject.split("/").map(encodeURIComponent).join("/")
+          const url = `${encodeURIComponent(validatedContainer)}/${encodedObject}`
+
+          await swift.put(url, webStream, {
+            headers: {
+              "Content-Type": contentType ?? "application/octet-stream",
+              ...(validatedFileSize > 0 ? { "Content-Length": validatedFileSize.toString() } : {}),
+            },
+          })
+
+          uploadProgressEmitter.emit(`progress:${uploadId}:complete`)
+
+          return { success: true }
+        } catch (error) {
+          uploadProgressEmitter.emit(`progress:${uploadId}:error`, error)
+          throw mapErrorResponseToTRPCError(error as Parameters<typeof mapErrorResponseToTRPCError>[0], {
+            operation: "upload object",
+            container: container,
+            object: object,
+          })
+        } finally {
+          uploadProgressMap.delete(uploadId)
         }
-      }
-
-      const { validatedContainer, validatedObject, validatedFileSize, validatedFile } = validateSwiftUploadInput(
-        container,
-        object,
-        fileSize,
-        fileStream
-      )
-
-      // Use a stable, URL-safe upload ID derived from container + object so the
-      // client can compute it before starting the upload (no extra round-trip).
-      const uploadId = `${validatedContainer}:${validatedObject}`
-
-      uploadProgressMap.set(uploadId, { uploaded: 0, total: validatedFileSize, percent: 0 })
-
-      try {
-        const progress = uploadProgressMap.get(uploadId)!
-
-        // Transform stream that observes bytes as they flow through to Swift.
-        // No buffering — chunks are passed unmodified; we only count bytes.
-        const progressTracker = new Transform({
-          async transform(chunk: Buffer, _encoding, callback) {
-            progress.uploaded += chunk.length
-            progress.percent = progress.total > 0 ? Math.round((progress.uploaded / progress.total) * 100) : 0
-
-            uploadProgressEmitter.emit(`progress:${uploadId}`, { ...progress })
-
-            // Yield to the event loop so subscriptions can flush between chunks
-            await new Promise((resolve) => setTimeout(resolve, 0))
-
-            callback(null, chunk)
-          },
-        })
-
-        const trackedStream = validatedFile.pipe(progressTracker)
-        const webStream = Readable.toWeb(trackedStream)
-
-        // Encode each segment individually to preserve slash separators
-        const encodedObject = validatedObject.split("/").map(encodeURIComponent).join("/")
-        const url = `${encodeURIComponent(validatedContainer)}/${encodedObject}`
-
-        await swift.put(url, webStream, {
-          headers: {
-            "Content-Type": contentType ?? "application/octet-stream",
-            ...(validatedFileSize > 0 ? { "Content-Length": validatedFileSize.toString() } : {}),
-          },
-        })
-
-        uploadProgressEmitter.emit(`progress:${uploadId}:complete`)
-
-        return { success: true }
-      } catch (error) {
-        uploadProgressEmitter.emit(`progress:${uploadId}:error`, error)
-        throw mapErrorResponseToTRPCError(error as Parameters<typeof mapErrorResponseToTRPCError>[0], {
-          operation: "upload object",
-          container: container,
-          object: object,
-        })
-      } finally {
-        uploadProgressMap.delete(uploadId)
-      }
-    }, "upload object")
-  }),
+      }, "upload object")
+    }),
 
   /**
    * Subscribes to real-time upload progress for a given `uploadId`.

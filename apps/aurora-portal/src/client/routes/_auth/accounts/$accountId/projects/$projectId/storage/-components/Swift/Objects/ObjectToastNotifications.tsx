@@ -287,3 +287,37 @@ export const getObjectMetadataUpdateErrorToast = (
     />
   ),
 })
+
+export const getObjectUploadedToast = (objectName: string, config: ToastConfig): ToastProps => ({
+  variant: "success",
+  autoDismiss: true,
+  autoDismissTimeout: config.autoDismissTimeout ?? 5000,
+  onDismiss: config.onDismiss,
+  children: (
+    <NotificationText
+      title={<Trans>Object Uploaded</Trans>}
+      description={<Trans>"{objectName}" was successfully uploaded.</Trans>}
+    />
+  ),
+})
+
+export const getObjectUploadErrorToast = (
+  objectName: string,
+  errorMessage: string,
+  config: ToastConfig
+): ToastProps => ({
+  variant: "error",
+  autoDismiss: true,
+  autoDismissTimeout: config.autoDismissTimeout ?? 5000,
+  onDismiss: config.onDismiss,
+  children: (
+    <NotificationText
+      title={<Trans>Failed to Upload Object</Trans>}
+      description={
+        <Trans>
+          Could not upload "{objectName}": {errorMessage}
+        </Trans>
+      }
+    />
+  ),
+})

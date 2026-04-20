@@ -10,6 +10,7 @@ import { Route } from "../../../$provider/containers/$containerName/objects"
 import { ObjectsTableView } from "./ObjectsTableView"
 import { ObjectsFileNavigation } from "./ObjectsFileNavigation"
 import { CreateFolderModal } from "./CreateFolderModal"
+import { UploadObjectModal } from "./UploadObjectModal"
 import {
   getFolderCreatedToast,
   getFolderCreateErrorToast,
@@ -25,6 +26,8 @@ import {
   getTempUrlCopiedToast,
   getObjectMetadataUpdatedToast,
   getObjectMetadataUpdateErrorToast,
+  getObjectUploadedToast,
+  getObjectUploadErrorToast,
 } from "./ObjectToastNotifications"
 
 // ── Prefix helpers ────────────────────────────────────────────────────────────
@@ -179,6 +182,7 @@ export const SwiftObjects = () => {
   const currentPrefix = decodePrefix(encodedPrefix)
 
   const [createFolderModalOpen, setCreateFolderModalOpen] = useState(false)
+  const [uploadModalOpen, setUploadModalOpen] = useState(false)
   const [toastData, setToastData] = useState<ToastProps | null>(null)
 
   const handleToastDismiss = () => setToastData(null)
@@ -189,6 +193,14 @@ export const SwiftObjects = () => {
 
   const handleCreateFolderError = (folderName: string, errorMessage: string) => {
     setToastData(getFolderCreateErrorToast(folderName, errorMessage, { onDismiss: handleToastDismiss }))
+  }
+
+  const handleUploadSuccess = (objectName: string) => {
+    setToastData(getObjectUploadedToast(objectName, { onDismiss: handleToastDismiss }))
+  }
+
+  const handleUploadError = (objectName: string, errorMessage: string) => {
+    setToastData(getObjectUploadErrorToast(objectName, errorMessage, { onDismiss: handleToastDismiss }))
   }
 
   const handleDeleteFolderSuccess = (folderName: string, deletedCount: number) => {
@@ -367,9 +379,14 @@ export const SwiftObjects = () => {
         onSort={handleSortChange}
         onSearch={handleSearchChange}
         actions={
-          <Button variant="primary" onClick={() => setCreateFolderModalOpen(true)}>
-            <Trans>Create Folder</Trans>
-          </Button>
+          <Stack direction="horizontal" gap="2">
+            <Button variant="primary" onClick={() => setUploadModalOpen(true)}>
+              <Trans>Upload Object</Trans>
+            </Button>
+            <Button onClick={() => setCreateFolderModalOpen(true)}>
+              <Trans>Create Folder</Trans>
+            </Button>
+          </Stack>
         }
       />
       <ObjectsTableView
@@ -397,6 +414,15 @@ export const SwiftObjects = () => {
         onClose={() => setCreateFolderModalOpen(false)}
         onSuccess={handleCreateFolderSuccess}
         onError={handleCreateFolderError}
+      />
+
+      <UploadObjectModal
+        isOpen={uploadModalOpen}
+        currentPrefix={currentPrefix}
+        container={containerName}
+        onClose={() => setUploadModalOpen(false)}
+        onSuccess={handleUploadSuccess}
+        onError={handleUploadError}
       />
 
       {toastData && (

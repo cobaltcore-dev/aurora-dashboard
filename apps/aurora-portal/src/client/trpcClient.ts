@@ -45,7 +45,7 @@ const getLinks = () => [
     }),
     // For non-subscriptions, check for non-JSON data or streaming procedures
     false: splitLink({
-      // Non-JSON serializable input (FormData, Blob, ArrayBuffer, etc.) → plain httpLink
+      // Non-JSON serializable input (FormData, Blob, ArrayBuffer, etc.) → plain httpLink.
       condition: (op) => isNonJsonSerializable(op.input),
       true: httpLink({
         url: BFF_ENDPOINT,
