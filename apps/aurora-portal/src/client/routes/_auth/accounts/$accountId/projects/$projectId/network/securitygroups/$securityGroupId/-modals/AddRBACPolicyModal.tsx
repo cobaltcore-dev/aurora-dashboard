@@ -145,7 +145,12 @@ export function AddRBACPolicyModal({ isOpen, onClose, securityGroupId }: AddRBAC
             children={(field) => {
               // Get first error message as string
               const showError = (field.state.meta.isTouched || hasSubmitted) && field.state.meta.errors.length > 0
-              const errorMessage = showError ? String(field.state.meta.errors[0]) : undefined
+              const firstError = field.state.meta.errors[0]
+              const errorMessage = showError
+                ? typeof firstError === "string"
+                  ? firstError
+                  : firstError?.message
+                : undefined
 
               return (
                 <TextInput
