@@ -14,14 +14,8 @@ export function SecurityGroupBasicInfo({ securityGroup, onEdit }: SecurityGroupB
 
   return (
     <div>
-<<<<<<< HEAD
       <div className="mb-4 flex flex-row-reverse">
         {onEdit && !securityGroup?.shared && (
-=======
-      <div className="mb-4 flex items-center justify-between">
-        <ContentHeading>{t`Security Group Basic Info`}</ContentHeading>
-        {onEdit && (
->>>>>>> 468e02c6d0371fbcacf33b99e1b1472fe028e2f8
           <Button variant="primary" onClick={onEdit} disabled={securityGroup.shared}>
             <Trans>Edit</Trans>
           </Button>
@@ -32,7 +26,10 @@ export function SecurityGroupBasicInfo({ securityGroup, onEdit }: SecurityGroupB
         <DataGridRow>
           <DataGridHeadCell>{t`Description`}</DataGridHeadCell>
           <DataGridCell colSpan={3}>
-            <div className="overflow-hidden text-ellipsis whitespace-nowrap" title={securityGroup.description || undefined}>
+            <div
+              className="overflow-hidden text-ellipsis whitespace-nowrap"
+              title={securityGroup.description || undefined}
+            >
               {securityGroup.description || t`—`}
             </div>
           </DataGridCell>
@@ -46,7 +43,10 @@ export function SecurityGroupBasicInfo({ securityGroup, onEdit }: SecurityGroupB
           </DataGridCell>
           <DataGridHeadCell>{t`Tags`}</DataGridHeadCell>
           <DataGridCell>
-            <div className="overflow-hidden text-ellipsis whitespace-nowrap" title={securityGroup.tags?.join(", ") || undefined}>
+            <div
+              className="overflow-hidden text-ellipsis whitespace-nowrap"
+              title={securityGroup.tags?.join(", ") || undefined}
+            >
               {securityGroup.tags?.join(", ") || t`—`}
             </div>
           </DataGridCell>
@@ -66,7 +66,10 @@ export function SecurityGroupBasicInfo({ securityGroup, onEdit }: SecurityGroupB
         <DataGridRow>
           <DataGridHeadCell>{t`Owning Project ID`}</DataGridHeadCell>
           <DataGridCell>
-            <div className="overflow-hidden text-ellipsis whitespace-nowrap" title={securityGroup.project_id || undefined}>
+            <div
+              className="overflow-hidden text-ellipsis whitespace-nowrap"
+              title={securityGroup.project_id || undefined}
+            >
               {securityGroup.project_id || t`—`}
             </div>
           </DataGridCell>

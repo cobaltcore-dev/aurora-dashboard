@@ -69,8 +69,8 @@ export function SecurityGroupTableRow({
         <PopupMenu>
           <PopupMenuOptions>
             <PopupMenuItem label={t`Show Details`} onClick={() => handleShowDetails()} />
-            {permissions.canUpdate && <PopupMenuItem label={t`Edit`} onClick={() => onEdit(sg)} />}
-            {permissions.canDelete && <PopupMenuItem label={t`Delete`} onClick={() => onDelete(sg)} />}
+            {permissions.canUpdate && !sg.shared && <PopupMenuItem label={t`Edit`} onClick={() => onEdit(sg)} />}
+            {permissions.canDelete && !sg.shared && <PopupMenuItem label={t`Delete`} onClick={() => onDelete(sg)} />}
           </PopupMenuOptions>
         </PopupMenu>
       </DataGridCell>

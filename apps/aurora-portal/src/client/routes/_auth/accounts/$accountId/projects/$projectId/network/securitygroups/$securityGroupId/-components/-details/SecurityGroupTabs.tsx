@@ -19,7 +19,7 @@ export function SecurityGroupTabs({ activeTab, onTabChange, showRBACTab = true }
   }
 
   return (
-    <div className="border-theme-background-lvl-3 mt-8 border-b">
+    <div className="border-theme-background-lvl-3 mt-1 border-b">
       <Stack direction="horizontal" gap="0">
         <button className={getTabClassName("rules")} onClick={() => onTabChange("rules")}>
           <Trans>Rules</Trans>

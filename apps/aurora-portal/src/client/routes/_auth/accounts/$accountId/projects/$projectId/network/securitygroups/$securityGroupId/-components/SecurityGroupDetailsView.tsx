@@ -67,9 +67,7 @@ export function SecurityGroupDetailsView({
         <SecurityGroupBasicInfo securityGroup={securityGroup} onEdit={onEdit} />
 
         {/* Tabs Navigation - Hide for shared security groups */}
-        {!isShared && (
-          <SecurityGroupTabs activeTab={activeTab} onTabChange={setActiveTab} showRBACTab={showRBACTab} />
-        )}
+        {!isShared && <SecurityGroupTabs activeTab={activeTab} onTabChange={setActiveTab} showRBACTab={showRBACTab} />}
 
         {/* Tab Content */}
         <div className="mt-6">

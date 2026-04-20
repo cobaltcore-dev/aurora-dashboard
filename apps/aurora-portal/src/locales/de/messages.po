@@ -243,10 +243,6 @@ msgstr "Sicherheitsgruppenregel hinzufügen"
 msgid "Add Tenant Access"
 msgstr "Projektzugriff hinzufügen"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/DeleteSecurityGroupDialog.tsx:87
-msgid "After continuing, your project will no longer have access to the security group and any rules associated with it."
-msgstr "Nach dem Fortfahren hat Ihr Projekt keinen Zugriff mehr auf die Sicherheitsgruppe und alle damit verbundenen Regeln."
-
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/ObjectsFileNavigation.tsx:58
 msgid "All containers"
 msgstr "Alle Container"
@@ -827,8 +823,8 @@ msgid "Delete Rule"
 msgstr "Regel löschen"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/DeleteSecurityGroupDialog.tsx:47
-msgid "Delete Security Group"
-msgstr "Security Group löschen"
+msgid "Delete Security Group \"{securityGroupName}\""
+msgstr ""
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/DeleteRuleDialog.tsx:39
 msgid "Delete Security Group Rule"
@@ -1856,7 +1852,7 @@ msgid "Last Modified"
 msgstr "Zuletzt geändert"
 
 #. placeholder {0}: formatLastUpdated(lastUpdated)
-#: src/client/components/ListToolbar/index.tsx:218
+#: src/client/components/ListToolbar/index.tsx:217
 msgid "Last updated: {0}"
 msgstr "Zuletzt aktualisiert: {0}"
 
@@ -2353,10 +2349,6 @@ msgstr "Keine"
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/DeleteFolderModal.tsx:101
 msgid "Note: for <0>static and dynamic large objects</0> only the manifests are deleted — their segments outside this folder prefix are not affected."
 msgstr "Hinweis: Für <0>statische und dynamische große Objekte</0> werden nur die Manifeste gelöscht — ihre Segmente außerhalb dieses Ordnerpräfixes sind nicht betroffen."
-
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/DeleteSecurityGroupDialog.tsx:94
-msgid "Note: If this security group is currently in use by one or more ports, the deletion will fail. Please ensure no resources are using this security group before attempting to delete it."
-msgstr "Hinweis: Wenn diese Sicherheitsgruppe derzeit von einem oder mehreren Ports verwendet wird, schlägt die Löschung fehl. Bitte stellen Sie sicher, dass keine Ressourcen diese Sicherheitsgruppe verwenden, bevor Sie versuchen, sie zu löschen."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/EditSecurityGroupModal.tsx:148
 msgid "Note: The 'stateful' attribute cannot be changed if this security group is currently in use by one or more ports."
@@ -3043,7 +3035,7 @@ msgstr "ACLs-Vorschau anzeigen"
 msgid "Show Details"
 msgstr "Details anzeigen"
 
-#: src/client/components/ListToolbar/index.tsx:211
+#: src/client/components/ListToolbar/index.tsx:210
 msgid "Showing {filteredCount} of {totalCount} {itemName}"
 msgstr "Zeige {filteredCount} von {totalCount} {itemName}"
 
@@ -3504,7 +3496,7 @@ msgstr "“release” zur Bestätigung eingeben"
 msgid "Type \"remove\" to confirm"
 msgstr "\"remove\" zur Bestätigung eingeben"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/DeleteSecurityGroupDialog.tsx:102
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/DeleteSecurityGroupDialog.tsx:80
 msgid "Type <0>{deleteWord}</0> to confirm:"
 msgstr "<0>{deleteWord}</0> zur Bestätigung eingeben:"
 
@@ -3706,10 +3698,6 @@ msgstr "Willkommen beim <0>Aurora-Dashboard</0>, Ihrer Cloud-Management-Lösung 
 #: src/client/routes/about.tsx:72
 msgid "Why Choose Aurora?"
 msgstr "Warum Aurora wählen?"
-
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/DeleteSecurityGroupDialog.tsx:79
-msgid "Would you like to remove the security group <0>{securityGroupName}</0> from your project?"
-msgstr "Möchten Sie die Security Group <0>{securityGroupName}</0> aus Ihrem Projekt entfernen?"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ManageContainerAccessModal.tsx:381
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ManageContainerAccessModal.tsx:488

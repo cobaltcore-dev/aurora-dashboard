@@ -44,7 +44,7 @@ export const DeleteSecurityGroupDialog: React.FC<DeleteSecurityGroupDialogProps>
       open={isOpen}
       onCancel={handleClose}
       size="small"
-      title={t`Delete Security Group`}
+      title={t`Delete Security Group "${securityGroupName}"`}
       modalFooter={
         <ModalFooter className="flex justify-end">
           <ButtonRow>
@@ -73,28 +73,6 @@ export const DeleteSecurityGroupDialog: React.FC<DeleteSecurityGroupDialogProps>
 
         {/* Warning */}
         <Trans>This action cannot be undone. The security group will be permanently deleted.</Trans>
-
-        {/* Question */}
-        <p className="mt-4">
-          <Trans>
-            Would you like to remove the security group{" "}
-            <strong className="text-theme-high font-semibold">{securityGroupName}</strong> from your project?
-          </Trans>
-        </p>
-
-        {/* Consequence */}
-        <p className="mb-4">
-          <Trans>
-            After continuing, your project will no longer have access to the security group and any rules associated
-            with it.
-          </Trans>
-        </p>
-
-        {/* In-use warning */}
-        <Trans>
-          Note: If this security group is currently in use by one or more ports, the deletion will fail. Please ensure
-          no resources are using this security group before attempting to delete it.
-        </Trans>
 
         {/* Confirmation Input */}
         <div className="mt-4">
