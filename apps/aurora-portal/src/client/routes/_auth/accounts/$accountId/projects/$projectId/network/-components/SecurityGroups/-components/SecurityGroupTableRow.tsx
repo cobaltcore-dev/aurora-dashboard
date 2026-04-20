@@ -21,6 +21,7 @@ interface SecurityGroupTableRowProps {
   onEdit: (sg: SecurityGroup) => void
   onDelete: (sg: SecurityGroup) => void
   onViewDetails?: (sg: SecurityGroup) => void
+  isReadOnly?: boolean
 }
 
 export function SecurityGroupTableRow({
@@ -29,6 +30,7 @@ export function SecurityGroupTableRow({
   onEdit,
   onDelete,
   onViewDetails,
+  isReadOnly = false,
 }: SecurityGroupTableRowProps) {
   const { t } = useLingui()
 
@@ -69,8 +71,8 @@ export function SecurityGroupTableRow({
         <PopupMenu>
           <PopupMenuOptions>
             <PopupMenuItem label={t`Show Details`} onClick={() => handleShowDetails()} />
-            {permissions.canUpdate && !sg.shared && <PopupMenuItem label={t`Edit`} onClick={() => onEdit(sg)} />}
-            {permissions.canDelete && !sg.shared && <PopupMenuItem label={t`Delete`} onClick={() => onDelete(sg)} />}
+            {permissions.canUpdate && !isReadOnly && <PopupMenuItem label={t`Edit`} onClick={() => onEdit(sg)} />}
+            {permissions.canDelete && !isReadOnly && <PopupMenuItem label={t`Delete`} onClick={() => onDelete(sg)} />}
           </PopupMenuOptions>
         </PopupMenu>
       </DataGridCell>
