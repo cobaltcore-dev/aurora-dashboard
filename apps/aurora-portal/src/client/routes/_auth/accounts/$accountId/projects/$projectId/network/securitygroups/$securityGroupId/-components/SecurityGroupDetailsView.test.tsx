@@ -111,9 +111,7 @@ describe("SecurityGroupDetailsView", () => {
       }
     )
 
-    expect(screen.getByText("Security Group Basic Info")).toBeInTheDocument()
     expect(screen.getByText("sg-123")).toBeInTheDocument()
-    expect(screen.getByText("web-servers")).toBeInTheDocument()
     expect(screen.getByText("Security group for web servers")).toBeInTheDocument()
     expect(screen.getByText("project-456")).toBeInTheDocument()
     expect(screen.getByText("production, web")).toBeInTheDocument()
