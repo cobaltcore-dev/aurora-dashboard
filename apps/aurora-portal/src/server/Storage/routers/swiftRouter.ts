@@ -1209,6 +1209,7 @@ export const swiftRouter = {
    *   - x-upload-object     (string) — full object path, e.g. "folder/file.txt"
    *   - x-upload-type       (string, optional) — MIME type detected client-side
    *   - x-upload-size       (number, optional) — file size in bytes
+   *   - x-upload-id         (string) — client-computed upload ID for watchUploadProgress
    *   - x-upload-account    (string, optional) — OpenStack account override
    *
    * Progress is tracked via a Node.js Transform stream and emitted through
@@ -1231,6 +1232,7 @@ export const swiftRouter = {
         const object = headers["x-upload-object"] as string | undefined
         const contentType = headers["x-upload-type"] as string | undefined
         const fileSize = headers["x-upload-size"] ? parseInt(headers["x-upload-size"] as string, 10) : undefined
+        const uploadId = headers["x-upload-id"] as string | undefined
 
         // input is a Web ReadableStream — convert to Node.js Readable for .pipe()
         const fileStream = Readable.fromWeb(input as import("stream/web").ReadableStream)
@@ -1242,9 +1244,9 @@ export const swiftRouter = {
           fileStream
         )
 
-        // Use a stable, URL-safe upload ID derived from container + object so the
-        // client can compute it before starting the upload (no extra round-trip).
-        const uploadId = `${validatedContainer}:${validatedObject}`
+        if (!uploadId) {
+          throw new TRPCError({ code: "BAD_REQUEST", message: "x-upload-id header is required" })
+        }
 
         uploadProgressMap.set(uploadId, { uploaded: 0, total: validatedFileSize, percent: 0 })
 

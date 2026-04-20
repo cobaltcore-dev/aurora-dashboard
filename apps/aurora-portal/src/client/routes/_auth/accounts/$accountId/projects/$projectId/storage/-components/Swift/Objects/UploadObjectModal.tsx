@@ -111,6 +111,7 @@ export const UploadObjectModal = ({
           "x-upload-object": objectName,
           "x-upload-type": selectedFile.type || "application/octet-stream",
           "x-upload-size": String(selectedFile.size),
+          "x-upload-id": `${container}:${objectName}`,
           ...(account ? { "x-upload-account": account } : {}),
         },
       }
