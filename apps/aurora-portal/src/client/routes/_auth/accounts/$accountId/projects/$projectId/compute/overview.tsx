@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router"
+import { useLingui } from "@lingui/react/macro"
 import { Overview } from "./-components/Overview"
 import type { RouteInfo } from "@/client/routes/routeInfo"
 
@@ -8,8 +9,9 @@ export const Route = createFileRoute("/_auth/accounts/$accountId/projects/$proje
 })
 
 function RouteComponent() {
+  const { t } = useLingui()
   const { projectId } = Route.useParams()
-  const { trpcClient } = Route.useRouteContext()
-
+  const { trpcClient, setPageTitle } = Route.useRouteContext()
+  setPageTitle(t`Compute Overview`)
   return <Overview project={projectId} client={trpcClient!} />
 }

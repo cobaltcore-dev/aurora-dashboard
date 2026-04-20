@@ -35,7 +35,7 @@ const createFlavorsPromise = (
 }
 
 const createPermissionsPromise = (client: TrpcClient) => {
-  return client.compute.canUserBulk
+  return client.compute.canUser
     .query(["flavors:create", "flavors:delete", "flavors:list_projects"])
     .then(([canCreate, canDelete, canManageAccess]) => ({ canCreate, canDelete, canManageAccess }))
 }

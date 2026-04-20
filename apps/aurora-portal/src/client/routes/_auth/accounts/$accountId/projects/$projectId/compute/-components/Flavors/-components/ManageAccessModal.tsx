@@ -31,10 +31,9 @@ interface FlavorAccess {
 }
 
 const createPermissionsPromise = (client: TrpcClient) => {
-  return Promise.all([
-    client.compute.canUser.query("flavors:add_project"),
-    client.compute.canUser.query("flavors:remove_project"),
-  ]).then(([canAdd, canRemove]) => ({ canAdd, canRemove }))
+  return client.compute.canUser
+    .query(["flavors:add_project", "flavors:remove_project"])
+    .then(([canAdd, canRemove]) => ({ canAdd, canRemove }))
 }
 
 const createFlavorAccessPromise = (client: TrpcClient, project: string, flavorId: string) => {

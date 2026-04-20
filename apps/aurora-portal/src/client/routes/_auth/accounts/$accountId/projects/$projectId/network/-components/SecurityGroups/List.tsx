@@ -63,13 +63,18 @@ export const SecurityGroups = () => {
     isLoading,
     isError,
     error,
-  } = trpcReact.network.securityGroup.list.useQuery({
-    project_id: projectId,
-    sort_key: sortSettings.sortBy,
-    sort_dir: sortSettings.sortDirection,
-    ...buildFilterParams(filterSettings),
-    ...(searchTerm ? { searchTerm } : {}),
-  })
+  } = trpcReact.network.securityGroup.list.useQuery(
+    {
+      project_id: projectId || "",
+      sort_key: sortSettings.sortBy,
+      sort_dir: sortSettings.sortDirection,
+      ...buildFilterParams(filterSettings),
+      ...(searchTerm ? { searchTerm } : {}),
+    },
+    {
+      enabled: !!projectId,
+    }
+  )
 
   // Cache each security group individually for instant navigation to details page
   useEffect(() => {
