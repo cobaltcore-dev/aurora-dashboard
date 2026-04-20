@@ -64,7 +64,7 @@ export function SecurityGroupDetailsView({
         <SecurityGroupHeader name={securityGroup.name} id={securityGroup.id} />
 
         {/* Basic Info Section */}
-        <SecurityGroupBasicInfo securityGroup={securityGroup} onEdit={onEdit} />
+        <SecurityGroupBasicInfo securityGroup={securityGroup} onEdit={onEdit} isReadOnly={isShared} />
 
         {/* Tabs Navigation - Hide for shared security groups */}
         {!isShared && <SecurityGroupTabs activeTab={activeTab} onTabChange={setActiveTab} showRBACTab={showRBACTab} />}

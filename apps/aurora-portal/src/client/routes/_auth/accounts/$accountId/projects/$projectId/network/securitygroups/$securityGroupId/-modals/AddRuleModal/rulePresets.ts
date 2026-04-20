@@ -7,10 +7,10 @@ export interface RulePreset {
 }
 
 export const RULE_PRESETS: RulePreset[] = [
-  // Empty default option
+  // Empty default option - label rendered in UI with translation
   {
     value: "",
-    label: "Select a rule type...",
+    label: "", // Rendered in RuleTypeSection with t()
     protocol: null,
     portRangeMin: null,
     portRangeMax: null,

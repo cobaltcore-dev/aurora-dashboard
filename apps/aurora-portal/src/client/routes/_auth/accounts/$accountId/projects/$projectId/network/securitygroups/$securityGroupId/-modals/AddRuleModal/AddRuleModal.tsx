@@ -80,6 +80,11 @@ export const AddRuleModal: React.FC<AddRuleModalProps> = ({
         return
       }
 
+      // Guard: Reject empty ruleType
+      if (!value.ruleType) {
+        return
+      }
+
       // Build API payload from form values
       const payload: CreateSecurityGroupRuleInput = {
         security_group_id: securityGroupId,

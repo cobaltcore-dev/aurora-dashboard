@@ -5,9 +5,10 @@ import type { SecurityGroup } from "@/server/Network/types/securityGroup"
 interface SecurityGroupBasicInfoProps {
   securityGroup: SecurityGroup
   onEdit?: () => void
+  isReadOnly?: boolean
 }
 
-export function SecurityGroupBasicInfo({ securityGroup, onEdit }: SecurityGroupBasicInfoProps) {
+export function SecurityGroupBasicInfo({ securityGroup, onEdit, isReadOnly = false }: SecurityGroupBasicInfoProps) {
   const { t } = useLingui()
 
   const BooleanValue = ({ value }: { value: boolean | undefined }) => <span>{value ? t`Yes` : t`No`}</span>
@@ -15,8 +16,8 @@ export function SecurityGroupBasicInfo({ securityGroup, onEdit }: SecurityGroupB
   return (
     <div>
       <div className="mb-4 flex flex-row-reverse">
-        {onEdit && !securityGroup?.shared && (
-          <Button variant="primary" onClick={onEdit} disabled={securityGroup.shared}>
+        {onEdit && !isReadOnly && (
+          <Button variant="primary" onClick={onEdit} disabled={isReadOnly}>
             <Trans>Edit</Trans>
           </Button>
         )}

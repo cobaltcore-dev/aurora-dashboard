@@ -111,7 +111,7 @@ export function AddRBACPolicyModal({ isOpen, onClose, securityGroupId }: AddRBAC
         className="mb-0"
         onSubmit={(e) => {
           e.preventDefault()
-          form.handleSubmit()
+          handleConfirm()
         }}
       >
         <FormSection>

@@ -65,9 +65,13 @@ export function RuleTypeSection({ form, disabled = false }: RuleTypeSectionProps
             }}
             disabled={disabled}
           >
-            {RULE_PRESETS.map((preset) => (
-              <SelectOption key={preset.value} value={preset.value} label={preset.label} />
-            ))}
+            {RULE_PRESETS.map((preset) => {
+              // Render placeholder option with translation
+              if (preset.value === "") {
+                return <SelectOption key={preset.value} value={preset.value} label={t`Select a rule type...`} />
+              }
+              return <SelectOption key={preset.value} value={preset.value} label={preset.label} />
+            })}
           </Select>
         </FormRow>
       )}
