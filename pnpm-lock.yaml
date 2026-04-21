@@ -184,8 +184,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/config
       '@fastify/vite':
-        specifier: ^8.4.1
-        version: 8.4.1(fastify@5.8.5)(vite@8.0.8(@types/node@24.12.2)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0))
+        specifier: ^9.0.0
+        version: 9.0.2(fastify@5.8.5)(vite@8.0.8(@types/node@24.12.2)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0))
       '@lingui/cli':
         specifier: ^5.9.5
         version: 5.9.5(typescript@6.0.3)
@@ -994,8 +994,8 @@ packages:
   '@fastify/merge-json-schemas@0.2.1':
     resolution: {integrity: sha512-OA3KGBCy6KtIvLf8DINC5880o5iBlDX4SxzLQS8HorJAbqluzLRn80UXU0bxZn7UOFhFgpRJDasfwn9nG4FG4A==}
 
-  '@fastify/middie@9.3.1':
-    resolution: {integrity: sha512-5uvKKF5zkocgsSiTyBU7AW2LmQ1Fwn4MNJ/8bORAuFwsQ0hqHjtpYaPqO79BkP4aqH5T7P3F2gJ3b3kerAIk7A==}
+  '@fastify/middie@9.3.2':
+    resolution: {integrity: sha512-5C3xMHJxpfqoHd+xZSHPBI71fpzkoF6wMsYtgzXRyQUNvsIAxJm2yY4r2fUjF0h3rS9MXlo/aXLaXv3s4TL+JQ==}
 
   '@fastify/multipart@10.0.0':
     resolution: {integrity: sha512-pUx3Z1QStY7E7kwvDTIvB6P+rF5lzP+iqPgZyJyG3yBJVPvQaZxzDHYbQD89rbY0ciXrMOyGi8ezHDVexLvJDA==}
@@ -1009,8 +1009,11 @@ packages:
   '@fastify/static@9.1.1':
     resolution: {integrity: sha512-LHxFea3qdwe0Pbbkh/yux7/k6nFNLGTNcbLKVYgmRDB6LdDE/8TFSO7qWZ0IzM/nF6iwR8W03oFlwe4v79R1Ow==}
 
-  '@fastify/vite@8.4.1':
-    resolution: {integrity: sha512-phfSE+GPL0hvFOPDRVCIk2y24elodtSKDbTodddQ8dxxNIhLzz90afSSOPTabOu3QiofJyOhJi/IvemXGnVJ3A==}
+  '@fastify/static@9.1.3':
+    resolution: {integrity: sha512-aXrYtsiryLhRxRNaxNqsn7FUISeb7rB9q4eHUPIot5aeQBLNahnz1m6thzm7JWC1poSGXS9XrX8DvuMivp2hkQ==}
+
+  '@fastify/vite@9.0.2':
+    resolution: {integrity: sha512-xt3H3ZpyWoSDx/07/3pVh04upimojxsbU3t3lGhCzIVCZ+jYystnNgdKBFtgMjIIUWts32Ttm8BOtHMXk7L8HQ==}
     peerDependencies:
       fastify: '>=5'
       vite: '>=6'
@@ -3616,9 +3619,6 @@ packages:
   html-encoding-sniffer@6.0.0:
     resolution: {integrity: sha512-CV9TW3Y3f8/wT0BRFc1/KAVQ3TUHiXmaAb6VW9vtiMFf7SLoMd1PdAc4W3KFOFETBJUb90KatHqlsZMWV+R9Gg==}
     engines: {node: ^20.19.0 || ^22.12.0 || >=24.0.0}
-
-  html-rewriter-wasm@0.4.1:
-    resolution: {integrity: sha512-lNovG8CMCCmcVB1Q7xggMSf7tqPCijZXaH4gL6iE8BFghdQCbaY5Met9i1x2Ex8m/cZHDUtXK9H6/znKamRP8Q==}
 
   http-errors@2.0.1:
     resolution: {integrity: sha512-4FbRdAX+bSdmo4AUFuS0WNiPz8NgFt+r8ThgNWmlrjQjt1Q7ZR9+zTlce2859x4KSXrwIsaeTqDoKQmtP8pLmQ==}
@@ -6323,7 +6323,7 @@ snapshots:
     dependencies:
       dequal: 2.0.3
 
-  '@fastify/middie@9.3.1':
+  '@fastify/middie@9.3.2':
     dependencies:
       '@fastify/error': 4.2.0
       fastify-plugin: 5.1.0
@@ -6361,15 +6361,23 @@ snapshots:
       fastq: 1.20.1
       glob: 13.0.6
 
-  '@fastify/vite@8.4.1(fastify@5.8.5)(vite@8.0.8(@types/node@24.12.2)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0))':
+  '@fastify/static@9.1.3':
+    dependencies:
+      '@fastify/accept-negotiator': 2.0.1
+      '@fastify/send': 4.1.0
+      content-disposition: 1.1.0
+      fastify-plugin: 5.1.0
+      fastq: 1.20.1
+      glob: 13.0.6
+
+  '@fastify/vite@9.0.2(fastify@5.8.5)(vite@8.0.8(@types/node@24.12.2)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0))':
     dependencies:
       '@fastify/deepmerge': 3.2.1
-      '@fastify/middie': 9.3.1
-      '@fastify/static': 9.1.1
+      '@fastify/middie': 9.3.2
+      '@fastify/static': 9.1.3
       fastify: 5.8.5
       fastify-plugin: 5.1.0
       fs-extra: 11.3.4
-      html-rewriter-wasm: 0.4.1
       klaw: 4.1.0
       package-directory: 8.2.0
       vite: 8.0.8(@types/node@24.12.2)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)
@@ -9259,8 +9267,6 @@ snapshots:
       '@exodus/bytes': 1.15.0
     transitivePeerDependencies:
       - '@noble/hashes'
-
-  html-rewriter-wasm@0.4.1: {}
 
   http-errors@2.0.1:
     dependencies:
