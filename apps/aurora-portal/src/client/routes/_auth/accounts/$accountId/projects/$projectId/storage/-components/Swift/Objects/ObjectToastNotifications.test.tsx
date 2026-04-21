@@ -18,6 +18,8 @@ import {
   getTempUrlCopiedToast,
   getObjectMetadataUpdatedToast,
   getObjectMetadataUpdateErrorToast,
+  getObjectUploadedToast,
+  getObjectUploadErrorToast,
 } from "./ObjectToastNotifications"
 
 describe("ObjectToastNotifications", () => {
@@ -510,6 +512,7 @@ describe("ObjectToastNotifications", () => {
         getObjectCopyErrorToast("f", "err", defaultConfig),
         getObjectMoveErrorToast("f", "err", defaultConfig),
         getObjectMetadataUpdateErrorToast("f", "err", defaultConfig),
+        getObjectUploadErrorToast("f", "err", defaultConfig),
       ]
       errorToasts.forEach((toast) => {
         expect(toast.variant).toBe("error")
@@ -542,6 +545,8 @@ describe("ObjectToastNotifications", () => {
         getTempUrlCopiedToast("f", { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
         getObjectMetadataUpdatedToast("f", { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
         getObjectMetadataUpdateErrorToast("f", "err", { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
+        getObjectUploadedToast("f", { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
+        getObjectUploadErrorToast("f", "err", { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
       ]
       toasts.forEach((toast) => {
         expect(toast.autoDismissTimeout).toBe(customTimeout)
@@ -563,11 +568,87 @@ describe("ObjectToastNotifications", () => {
         getTempUrlCopiedToast("f", defaultConfig),
         getObjectMetadataUpdatedToast("f", defaultConfig),
         getObjectMetadataUpdateErrorToast("f", "err", defaultConfig),
+        getObjectUploadedToast("f", defaultConfig),
+        getObjectUploadErrorToast("f", "err", defaultConfig),
       ]
       toasts.forEach((toast) => {
         expect(toast.children).toBeTruthy()
         expect(typeof toast.children).toBe("object")
       })
+    })
+  })
+
+  // ── getObjectUploadedToast ──────────────────────────────────────────────────
+
+  describe("getObjectUploadedToast", () => {
+    it("returns success toast with correct structure", () => {
+      const toast = getObjectUploadedToast("report.pdf", defaultConfig)
+      expect(toast.variant).toBe("success")
+      expect(toast.autoDismiss).toBe(true)
+      expect(toast.autoDismissTimeout).toBe(5000)
+      expect(toast.onDismiss).toBe(mockOnDismiss)
+      expect(toast.children).toBeDefined()
+    })
+
+    it("renders correct message content", () => {
+      const toast = getObjectUploadedToast("report.pdf", defaultConfig)
+      render(<I18nProvider i18n={i18n}>{toast.children as React.ReactNode}</I18nProvider>)
+      expect(screen.getByText("Object Uploaded")).toBeInTheDocument()
+      expect(screen.getByText(/report\.pdf/)).toBeInTheDocument()
+      expect(screen.getByText(/successfully uploaded/)).toBeInTheDocument()
+    })
+
+    it("uses custom autoDismissTimeout when provided", () => {
+      const toast = getObjectUploadedToast("report.pdf", { onDismiss: mockOnDismiss, autoDismissTimeout: 3000 })
+      expect(toast.autoDismissTimeout).toBe(3000)
+    })
+
+    it("handles empty object name", () => {
+      const toast = getObjectUploadedToast("", defaultConfig)
+      render(<I18nProvider i18n={i18n}>{toast.children as React.ReactNode}</I18nProvider>)
+      expect(screen.getByText("Object Uploaded")).toBeInTheDocument()
+    })
+  })
+
+  // ── getObjectUploadErrorToast ────────────────────────────────────────────────
+
+  describe("getObjectUploadErrorToast", () => {
+    it("returns error toast with correct structure", () => {
+      const toast = getObjectUploadErrorToast("report.pdf", "Quota exceeded", defaultConfig)
+      expect(toast.variant).toBe("error")
+      expect(toast.autoDismiss).toBe(true)
+      expect(toast.autoDismissTimeout).toBe(5000)
+      expect(toast.onDismiss).toBe(mockOnDismiss)
+      expect(toast.children).toBeDefined()
+    })
+
+    it("renders correct error message content", () => {
+      const toast = getObjectUploadErrorToast("report.pdf", "Quota exceeded", defaultConfig)
+      render(<I18nProvider i18n={i18n}>{toast.children as React.ReactNode}</I18nProvider>)
+      expect(screen.getByText("Failed to Upload Object")).toBeInTheDocument()
+      expect(screen.getByText(/report\.pdf/)).toBeInTheDocument()
+      expect(screen.getByText(/Could not upload/)).toBeInTheDocument()
+      expect(screen.getByText(/Quota exceeded/)).toBeInTheDocument()
+    })
+
+    it("uses custom autoDismissTimeout when provided", () => {
+      const toast = getObjectUploadErrorToast("report.pdf", "err", {
+        onDismiss: mockOnDismiss,
+        autoDismissTimeout: 8000,
+      })
+      expect(toast.autoDismissTimeout).toBe(8000)
+    })
+
+    it("handles different error messages", () => {
+      const toast = getObjectUploadErrorToast("report.pdf", "Internal Server Error", defaultConfig)
+      render(<I18nProvider i18n={i18n}>{toast.children as React.ReactNode}</I18nProvider>)
+      expect(screen.getByText(/Internal Server Error/)).toBeInTheDocument()
+    })
+
+    it("handles empty error message", () => {
+      const toast = getObjectUploadErrorToast("report.pdf", "", defaultConfig)
+      render(<I18nProvider i18n={i18n}>{toast.children as React.ReactNode}</I18nProvider>)
+      expect(screen.getByText("Failed to Upload Object")).toBeInTheDocument()
     })
   })
 

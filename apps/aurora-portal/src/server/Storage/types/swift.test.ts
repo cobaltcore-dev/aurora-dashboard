@@ -1003,7 +1003,12 @@ describe("Swift Object Storage Schema Validation", () => {
 
   describe("downloadObjectInputSchema", () => {
     it("should validate valid input with required fields", () => {
-      const input = { container: "my-container", object: "folder/file.txt", filename: "file.txt" }
+      const input = {
+        container: "my-container",
+        object: "folder/file.txt",
+        filename: "file.txt",
+        downloadId: "my-container:folder/file.txt",
+      }
       expect(() => downloadObjectInputSchema.parse(input)).not.toThrow()
     })
 
@@ -1012,38 +1017,44 @@ describe("Swift Object Storage Schema Validation", () => {
         container: "my-container",
         object: "file.txt",
         filename: "file.txt",
+        downloadId: "my-container:file.txt",
         account: "AUTH_abc123",
       }
       expect(() => downloadObjectInputSchema.parse(input)).not.toThrow()
     })
 
     it("should reject missing container", () => {
-      const input = { object: "file.txt", filename: "file.txt" }
+      const input = { object: "file.txt", filename: "file.txt", downloadId: "c:file.txt" }
       expect(() => downloadObjectInputSchema.parse(input)).toThrow()
     })
 
     it("should reject missing object", () => {
-      const input = { container: "my-container", filename: "file.txt" }
+      const input = { container: "my-container", filename: "file.txt", downloadId: "my-container:file.txt" }
       expect(() => downloadObjectInputSchema.parse(input)).toThrow()
     })
 
     it("should allow missing filename", () => {
-      const input = { container: "my-container", object: "file.txt" }
+      const input = { container: "my-container", object: "file.txt", downloadId: "my-container:file.txt" }
       expect(() => downloadObjectInputSchema.parse(input)).not.toThrow()
     })
 
+    it("should reject missing downloadId", () => {
+      const input = { container: "my-container", object: "file.txt" }
+      expect(() => downloadObjectInputSchema.parse(input)).toThrow()
+    })
+
     it("should reject empty object name", () => {
-      const input = { container: "my-container", object: "", filename: "file.txt" }
+      const input = { container: "my-container", object: "", filename: "file.txt", downloadId: "my-container:" }
       expect(() => downloadObjectInputSchema.parse(input)).toThrow()
     })
 
     it("should allow empty filename", () => {
-      const input = { container: "my-container", object: "file.txt", filename: "" }
+      const input = { container: "my-container", object: "file.txt", filename: "", downloadId: "my-container:file.txt" }
       expect(() => downloadObjectInputSchema.parse(input)).not.toThrow()
     })
 
     it("should strip unknown fields", () => {
-      const input = { container: "c", object: "o", filename: "f", extra: "ignored" }
+      const input = { container: "c", object: "o", filename: "f", downloadId: "c:o", extra: "ignored" }
       const result = downloadObjectInputSchema.parse(input)
       expect(result).not.toHaveProperty("extra")
     })

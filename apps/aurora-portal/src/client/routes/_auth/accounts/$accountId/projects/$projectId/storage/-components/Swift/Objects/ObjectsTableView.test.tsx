@@ -101,6 +101,7 @@ let mockDownloadIterable: AsyncIterable<{
   filename?: string
 }> | null = null
 let mockDownloadReject = false
+let mockDownloadProgress: { percent: number; downloaded: number; total: number } | undefined = undefined
 
 vi.mock("@/client/trpcClient", () => ({
   trpcClient: {
@@ -116,6 +117,15 @@ vi.mock("@/client/trpcClient", () => ({
               })()
             )
           }),
+        },
+      },
+    },
+  },
+  trpcReact: {
+    storage: {
+      swift: {
+        watchDownloadProgress: {
+          useSubscription: vi.fn(() => ({ data: mockDownloadProgress })),
         },
       },
     },
@@ -219,6 +229,7 @@ describe("ObjectsTableView", () => {
     vi.clearAllMocks()
     mockDownloadIterable = null
     mockDownloadReject = false
+    mockDownloadProgress = undefined
     // jsdom doesn't implement URL.createObjectURL — stub it so preview tests
     // can assert on window.open being called with a blob URL string.
     URL.createObjectURL = vi.fn(() => "blob:mock-url")
@@ -605,16 +616,44 @@ describe("ObjectsTableView", () => {
         unblock = resolve
       })
 
-      // Emit one chunk with 50% progress then block
-      mockDownloadIterable = (async function* () {
-        yield { chunk: btoa("half"), downloaded: 50, total: 100, contentType: "text/plain", filename: "f.txt" }
+      // Block the download so the row stays in downloading state
+      const { trpcClient } = await import("@/client/trpcClient")
+      vi.mocked(trpcClient.storage.swift.downloadObject.mutate).mockImplementation(async () => {
         await blocker
-      })()
+        return (async function* () {})()
+      })
 
       const user = userEvent.setup()
-      renderView({ rows: [makeObject("readme.txt")] })
+      const { rerender } = renderView({ rows: [makeObject("readme.txt")] })
       await user.click(screen.getByRole("button", { name: /More/i }))
       await user.click(screen.getByTestId("download-action-readme.txt"))
+
+      // Simulate watchDownloadProgress subscription emitting 50% progress
+      mockDownloadProgress = { percent: 50, downloaded: 50, total: 100 }
+      rerender(
+        <I18nProvider i18n={i18n}>
+          <PortalProvider>
+            <ObjectsTableView
+              rows={[makeObject("readme.txt")]}
+              searchTerm=""
+              container="test-container"
+              onFolderClick={vi.fn()}
+              onDeleteFolderSuccess={vi.fn()}
+              onDeleteFolderError={vi.fn()}
+              onDownloadError={vi.fn()}
+              onDeleteObjectSuccess={vi.fn()}
+              onDeleteObjectError={vi.fn()}
+              onCopyObjectSuccess={vi.fn()}
+              onCopyObjectError={vi.fn()}
+              onMoveObjectSuccess={vi.fn()}
+              onMoveObjectError={vi.fn()}
+              onTempUrlCopySuccess={vi.fn()}
+              onEditMetadataSuccess={vi.fn()}
+              onEditMetadataError={vi.fn()}
+            />
+          </PortalProvider>
+        </I18nProvider>
+      )
 
       expect(await screen.findByText("50%")).toBeInTheDocument()
 

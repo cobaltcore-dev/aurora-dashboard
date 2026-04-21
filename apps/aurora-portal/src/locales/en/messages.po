@@ -25,6 +25,9 @@ msgstr "\"{objectName}\" was successfully copied to {destination}."
 msgid "\"{objectName}\" was successfully moved to {destination}."
 msgstr "\"{objectName}\" was successfully moved to {destination}."
 
+msgid "\"{objectName}\" was successfully uploaded."
+msgstr "\"{objectName}\" was successfully uploaded."
+
 msgid "{allContainersCount} container"
 msgstr "{allContainersCount} container"
 
@@ -231,6 +234,9 @@ msgstr "An unexpected error occurred"
 
 msgid "An unexpected error occurred. Please try again."
 msgstr "An unexpected error occurred. Please try again."
+
+msgid "Any file type"
+msgstr "Any file type"
 
 msgid "ANY referrer"
 msgstr "ANY referrer"
@@ -475,6 +481,9 @@ msgstr "Could not update ACLs for container \"{containerName}\": {errorMessage}"
 msgid "Could not update container \"{containerName}\": {errorMessage}"
 msgstr "Could not update container \"{containerName}\": {errorMessage}"
 
+msgid "Could not upload \"{objectName}\": {errorMessage}"
+msgstr "Could not upload \"{objectName}\": {errorMessage}"
+
 msgid "CPU"
 msgstr "CPU"
 
@@ -681,6 +690,9 @@ msgstr "Download {rowDisplayName}"
 
 msgid "Downloading..."
 msgstr "Downloading..."
+
+msgid "Drop your file here"
+msgstr "Drop your file here"
 
 msgid "Drop your image file here"
 msgstr "Drop your image file here"
@@ -1017,6 +1029,9 @@ msgstr "Failed to update visibility to {newVisibility}"
 
 msgid "Failed to upload file \"{fileName}\": "
 msgstr "Failed to upload file \"{fileName}\": "
+
+msgid "Failed to Upload Object"
+msgstr "Failed to Upload Object"
 
 msgid "False"
 msgstr "False"
@@ -1720,11 +1735,18 @@ msgstr "Object Type"
 msgid "Object Updated"
 msgstr "Object Updated"
 
+msgid "Object Uploaded"
+msgstr "Object Uploaded"
+
 msgid "Object versioning"
 msgstr "Object versioning"
 
 msgid "Object was copied but could not be deleted from the source: {deleteErrorMessage}"
 msgstr "Object was copied but could not be deleted from the source: {deleteErrorMessage}"
+
+#. placeholder {0}: selectedFile.name
+msgid "Object will be uploaded as: <0>{currentPrefix}{0}</0>"
+msgstr "Object will be uploaded as: <0>{currentPrefix}{0}</0>"
 
 msgid "Objects"
 msgstr "Objects"
@@ -1791,6 +1813,9 @@ msgstr "Please log in again to continue."
 
 msgid "Please note: for <0>dynamic</0> and <1>static large objects</1> only the manifests are deleted. The related segments are not deleted."
 msgstr "Please note: for <0>dynamic</0> and <1>static large objects</1> only the manifests are deleted. The related segments are not deleted."
+
+msgid "Please select a file to upload"
+msgstr "Please select a file to upload"
 
 msgid "Policy"
 msgstr "Policy"
@@ -2565,6 +2590,24 @@ msgstr "Updating Floating IP..."
 
 msgid "Updating security group..."
 msgstr "Updating security group..."
+
+msgid "Upload"
+msgstr "Upload"
+
+msgid "Upload failed: {uploadError}"
+msgstr "Upload failed: {uploadError}"
+
+msgid "Upload Object"
+msgstr "Upload Object"
+
+msgid "Upload object to:"
+msgstr "Upload object to:"
+
+msgid "Uploading..."
+msgstr "Uploading..."
+
+msgid "Uploading... {progressPct}%"
+msgstr "Uploading... {progressPct}%"
 
 msgid "URL Copied"
 msgstr "URL Copied"

@@ -124,10 +124,10 @@ const createMockContext = (shouldFailAuth = false, shouldFailSwift = false) => {
       .mockReturnValue([{ interface: "public", url: "https://swift.example.com/v1/AUTH_test" }]),
   }
 
-  // Default multipart async generator — yields no parts; individual tests override via mockCtx.getMultipartData
-  async function* defaultMultipart() {}
+  const mockReqHeaders: Record<string, string> = {}
 
   return {
+    req: { headers: mockReqHeaders },
     validateSession: vi.fn().mockReturnValue(!shouldFailAuth),
     createSession: vi.fn().mockResolvedValue({}),
     terminateSession: vi.fn().mockResolvedValue({}),
@@ -135,9 +135,9 @@ const createMockContext = (shouldFailAuth = false, shouldFailSwift = false) => {
       service: vi.fn().mockReturnValue(shouldFailSwift ? null : mockSwift),
     },
     rescopeSession: vi.fn().mockResolvedValue({}),
-    getMultipartData: vi.fn().mockReturnValue(defaultMultipart()),
     mockSwift,
-  } as unknown as AuroraPortalContext & { mockSwift: typeof mockSwift; getMultipartData: ReturnType<typeof vi.fn> }
+    mockReqHeaders,
+  } as unknown as AuroraPortalContext & { mockSwift: typeof mockSwift; mockReqHeaders: Record<string, string> }
 }
 
 const createCaller = createCallerFactory(auroraRouter({ storage: { swift: swiftRouter } }))
@@ -1453,6 +1453,7 @@ describe("swiftRouter", () => {
         container: "test-container",
         object: "hello.txt",
         filename: "hello.txt",
+        downloadId: "test-container:hello.txt",
       })
 
       const chunks: string[] = []
@@ -1491,6 +1492,7 @@ describe("swiftRouter", () => {
         container: "test-container",
         object: "file.txt",
         filename: "file.txt",
+        downloadId: "test-container:file.txt",
       })
 
       const items: Array<{ chunk: string; contentType?: string; filename?: string }> = []
@@ -1526,6 +1528,7 @@ describe("swiftRouter", () => {
         container: "test-container",
         object: "binary.bin",
         filename: "binary.bin",
+        downloadId: "test-container:binary.bin",
       })
 
       // Drain the iterable — empty stream yields nothing, but we still need
@@ -1560,6 +1563,7 @@ describe("swiftRouter", () => {
         object: "file.txt",
         filename: "file.txt",
         account: "AUTH_abc123",
+        downloadId: "test-container:file.txt",
       })
 
       // Drain
@@ -1579,6 +1583,7 @@ describe("swiftRouter", () => {
           container: "test-container",
           object: "file.txt",
           filename: "file.txt",
+          downloadId: "test-container:file.txt",
         })
       ).rejects.toThrow(new TRPCError({ code: "UNAUTHORIZED", message: "The session is invalid" }))
     })
@@ -1594,6 +1599,7 @@ describe("swiftRouter", () => {
         container: "test-container",
         object: "missing.txt",
         filename: "missing.txt",
+        downloadId: "test-container:missing.txt",
       })
 
       await expect(async () => {
@@ -1617,6 +1623,7 @@ describe("swiftRouter", () => {
         container: "test-container",
         object: "hello.txt",
         filename: "hello.txt",
+        downloadId: "test-container:hello.txt",
       })
 
       const progressSnapshots: Array<{ downloaded: number; total: number }> = []
@@ -1643,6 +1650,7 @@ describe("swiftRouter", () => {
         container: "test-container",
         object: "file.txt",
         filename: "file.txt",
+        downloadId: "test-container:file.txt",
       })
 
       const items: Array<{ downloaded: number; total: number }> = []
@@ -1666,6 +1674,7 @@ describe("swiftRouter", () => {
         container: "test-container",
         object: "file.txt",
         filename: "file.txt",
+        downloadId: "test-container:file.txt",
       })
 
       const downloaded: number[] = []
@@ -1691,6 +1700,7 @@ describe("swiftRouter", () => {
         container: "test-container",
         object: "file.txt",
         filename: "file.txt",
+        downloadId: "test-container:file.txt",
       })
 
       await expect(async () => {
@@ -1706,21 +1716,13 @@ describe("swiftRouter", () => {
   // ============================================================================
 
   describe("uploadObject", () => {
-    /**
-     * Build an async generator that yields multipart parts in order.
-     * The file part must be last (matches FormData append order convention).
-     */
-    const makeMultipartParts = (fields: Record<string, string>, file?: { file: NodeJS.ReadableStream }) =>
-      async function* () {
-        for (const [fieldname, value] of Object.entries(fields)) {
-          yield { type: "field" as const, fieldname, value }
-        }
-        if (file) {
-          yield { type: "file" as const, ...file }
-        }
-      }
+    // createCaller bypasses HTTP transport, so octetInputParser never converts
+    // Blob/File/Uint8Array to ReadableStream. We pass a ReadableStream directly
+    // (cast via `as never`) to satisfy the runtime instanceof check.
+    const callUpload = (caller: ReturnType<typeof createCaller>) =>
+      caller.storage.swift.uploadObject(new ReadableStream() as never)
 
-    /** Minimal valid Node.js ReadableStream stub for the file part. */
+    /** Minimal valid Node.js ReadableStream stub. */
     const makeFileStream = (): NodeJS.ReadableStream => Readable.from(["hello"])
 
     /** Default validated result returned by the validateSwiftUploadInput mock. */
@@ -1734,6 +1736,24 @@ describe("swiftRouter", () => {
       ...overrides,
     })
 
+    /** Set upload headers on the mock context. */
+    const setUploadHeaders = (
+      mockCtx: ReturnType<typeof createMockContext>,
+      fields: {
+        container?: string
+        object?: string
+        contentType?: string
+        fileSize?: string
+        uploadId?: string
+      }
+    ) => {
+      if (fields.container) mockCtx.mockReqHeaders["x-upload-container"] = fields.container
+      if (fields.object) mockCtx.mockReqHeaders["x-upload-object"] = fields.object
+      if (fields.contentType) mockCtx.mockReqHeaders["x-upload-type"] = fields.contentType
+      if (fields.fileSize) mockCtx.mockReqHeaders["x-upload-size"] = fields.fileSize
+      if (fields.uploadId) mockCtx.mockReqHeaders["x-upload-id"] = fields.uploadId
+    }
+
     beforeEach(() => {
       // Default: validateSwiftUploadInput returns a valid result
       ;(swiftHelpers.validateSwiftUploadInput as Mock).mockReturnValue(makeValidatedUploadInput())
@@ -1743,7 +1763,7 @@ describe("swiftRouter", () => {
       const mockCtx = createMockContext(true)
       const caller = createCaller(mockCtx)
 
-      await expect(caller.storage.swift.uploadObject()).rejects.toThrow(
+      await expect(callUpload(caller)).rejects.toThrow(
         new TRPCError({ code: "UNAUTHORIZED", message: "The session is invalid" })
       )
     })
@@ -1752,36 +1772,36 @@ describe("swiftRouter", () => {
       const mockCtx = createMockContext()
       const caller = createCaller(mockCtx)
 
-      mockCtx.getMultipartData.mockReturnValue(
-        makeMultipartParts(
-          { container: "test-container", object: "folder/sample.txt", fileSize: "1024" },
-          { file: makeFileStream() }
-        )()
-      )
+      setUploadHeaders(mockCtx, {
+        container: "test-container",
+        object: "folder/sample.txt",
+        fileSize: "1024",
+        uploadId: "test-container:folder/sample.txt",
+      })
 
-      await caller.storage.swift.uploadObject()
+      await callUpload(caller)
 
       expect(swiftHelpers.validateSwiftService).toHaveBeenCalled()
     })
 
-    it("should call validateSwiftUploadInput with parsed multipart fields", async () => {
+    it("should call validateSwiftUploadInput with parsed header fields", async () => {
       const mockCtx = createMockContext()
       const caller = createCaller(mockCtx)
 
-      mockCtx.getMultipartData.mockReturnValue(
-        makeMultipartParts(
-          { container: "test-container", object: "folder/sample.txt", fileSize: "512" },
-          { file: makeFileStream() }
-        )()
-      )
+      setUploadHeaders(mockCtx, {
+        container: "test-container",
+        object: "folder/sample.txt",
+        fileSize: "512",
+        uploadId: "test-container:folder/sample.txt",
+      })
 
-      await caller.storage.swift.uploadObject()
+      await callUpload(caller)
 
       expect(swiftHelpers.validateSwiftUploadInput).toHaveBeenCalledWith(
         "test-container",
         "folder/sample.txt",
         512,
-        expect.anything() // file stream
+        expect.anything() // file stream from octetInputParser
       )
     })
 
@@ -1796,8 +1816,9 @@ describe("swiftRouter", () => {
           validatedFileSize: 0,
         })
       )
+      setUploadHeaders(mockCtx, { uploadId: "my container:folder name/file name.txt" })
 
-      await caller.storage.swift.uploadObject()
+      await callUpload(caller)
 
       expect(mockCtx.mockSwift.put).toHaveBeenCalledWith(
         "my%20container/folder%20name/file%20name.txt",
@@ -1806,23 +1827,19 @@ describe("swiftRouter", () => {
       )
     })
 
-    it("should use detected contentType when provided as a multipart field", async () => {
+    it("should use detected contentType when provided in headers", async () => {
       const mockCtx = createMockContext()
       const caller = createCaller(mockCtx)
 
-      mockCtx.getMultipartData.mockReturnValue(
-        makeMultipartParts(
-          {
-            container: "test-container",
-            object: "image.png",
-            contentType: "image/png",
-            fileSize: "2048",
-          },
-          { file: makeFileStream() }
-        )()
-      )
+      setUploadHeaders(mockCtx, {
+        container: "test-container",
+        object: "image.png",
+        contentType: "image/png",
+        fileSize: "2048",
+        uploadId: "test-container:image.png",
+      })
 
-      await caller.storage.swift.uploadObject()
+      await callUpload(caller)
 
       expect(mockCtx.mockSwift.put).toHaveBeenCalledWith(
         expect.any(String),
@@ -1831,18 +1848,18 @@ describe("swiftRouter", () => {
       )
     })
 
-    it("should fall back to application/octet-stream when contentType is absent", async () => {
+    it("should fall back to application/octet-stream when contentType header is absent", async () => {
       const mockCtx = createMockContext()
       const caller = createCaller(mockCtx)
 
-      mockCtx.getMultipartData.mockReturnValue(
-        makeMultipartParts(
-          { container: "test-container", object: "file.bin", fileSize: "100" },
-          { file: makeFileStream() }
-        )()
-      )
+      setUploadHeaders(mockCtx, {
+        container: "test-container",
+        object: "file.bin",
+        fileSize: "100",
+        uploadId: "test-container:file.bin",
+      })
 
-      await caller.storage.swift.uploadObject()
+      await callUpload(caller)
 
       expect(mockCtx.mockSwift.put).toHaveBeenCalledWith(
         expect.any(String),
@@ -1860,8 +1877,9 @@ describe("swiftRouter", () => {
       ;(swiftHelpers.validateSwiftUploadInput as Mock).mockReturnValue(
         makeValidatedUploadInput({ validatedFileSize: 2048 })
       )
+      setUploadHeaders(mockCtx, { uploadId: "test-container:folder/sample.txt" })
 
-      await caller.storage.swift.uploadObject()
+      await callUpload(caller)
 
       expect(mockCtx.mockSwift.put).toHaveBeenCalledWith(
         expect.any(String),
@@ -1879,48 +1897,62 @@ describe("swiftRouter", () => {
       ;(swiftHelpers.validateSwiftUploadInput as Mock).mockReturnValue(
         makeValidatedUploadInput({ validatedFileSize: 0 })
       )
+      setUploadHeaders(mockCtx, { uploadId: "test-container:folder/sample.txt" })
 
-      await caller.storage.swift.uploadObject()
+      await callUpload(caller)
 
       const [, , options] = (mockCtx.mockSwift.put as Mock).mock.calls[0]
       expect(options.headers).not.toHaveProperty("Content-Length")
     })
 
-    it("should return { success: true, uploadId } on success", async () => {
+    it("should return { success: true } on success", async () => {
       const mockCtx = createMockContext()
       const caller = createCaller(mockCtx)
 
-      ;(swiftHelpers.validateSwiftUploadInput as Mock).mockReturnValue(
-        makeValidatedUploadInput({
-          validatedContainer: "my-bucket",
-          validatedObject: "docs/report.pdf",
-        })
-      )
+      setUploadHeaders(mockCtx, {
+        container: "my-bucket",
+        object: "docs/report.pdf",
+        uploadId: "my-bucket:docs/report.pdf",
+      })
 
-      const result = await caller.storage.swift.uploadObject()
+      const result = await callUpload(caller)
 
       expect(result.success).toBe(true)
-      expect(result.uploadId).toBe("my-bucket:docs/report.pdf")
+      expect(result).not.toHaveProperty("uploadId")
+    })
+
+    it("should throw BAD_REQUEST when x-upload-id header is missing", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      // No uploadId header set
+      setUploadHeaders(mockCtx, { container: "test-container", object: "file.txt" })
+
+      await expect(callUpload(caller)).rejects.toThrow(
+        new TRPCError({ code: "BAD_REQUEST", message: "x-upload-id header is required" })
+      )
     })
 
     it("should propagate error when Swift PUT fails", async () => {
       const mockCtx = createMockContext()
       const caller = createCaller(mockCtx)
 
+      setUploadHeaders(mockCtx, { uploadId: "test-container:folder/sample.txt" })
       mockCtx.mockSwift.put.mockRejectedValue({ statusCode: 403, message: "Forbidden" })
 
-      await expect(caller.storage.swift.uploadObject()).rejects.toThrow()
+      await expect(callUpload(caller)).rejects.toThrow()
     })
 
     it("should propagate BAD_REQUEST when validateSwiftUploadInput throws", async () => {
       const mockCtx = createMockContext()
       const caller = createCaller(mockCtx)
 
+      setUploadHeaders(mockCtx, { uploadId: "test-container:folder/sample.txt" })
       ;(swiftHelpers.validateSwiftUploadInput as Mock).mockImplementation(() => {
         throw new TRPCError({ code: "BAD_REQUEST", message: "container is required" })
       })
 
-      await expect(caller.storage.swift.uploadObject()).rejects.toThrow(
+      await expect(callUpload(caller)).rejects.toThrow(
         new TRPCError({ code: "BAD_REQUEST", message: "container is required" })
       )
     })

@@ -59,7 +59,7 @@ import {
 } from "../types/swift"
 
 // ============================================================================
-// UPLOAD PROGRESS TRACKING (module-level, mirrors imageRouter pattern)
+// UPLOAD PROGRESS TRACKING
 // ============================================================================
 
 const uploadProgressEmitter = new EventEmitter()
@@ -1222,83 +1222,83 @@ export const swiftRouter = {
   uploadObject: protectedProcedure
     .input(octetInputParser)
     .mutation(async ({ input, ctx }): Promise<{ success: boolean }> => {
-    return withErrorHandling(async () => {
-      const swift = ctx.openstack?.service("swift")
-      validateSwiftService(swift)
+      return withErrorHandling(async () => {
+        const swift = ctx.openstack?.service("swift")
+        validateSwiftService(swift)
 
-      // Metadata arrives as custom headers — the body is the raw file stream.
-      const headers = ctx.req.headers
-      const container = headers["x-upload-container"] as string | undefined
-      const object = headers["x-upload-object"] as string | undefined
-      const contentType = headers["x-upload-type"] as string | undefined
-      const fileSize = headers["x-upload-size"] ? parseInt(headers["x-upload-size"] as string, 10) : undefined
-      const uploadId = headers["x-upload-id"] as string | undefined
+        // Metadata arrives as custom headers — the body is the raw file stream.
+        const headers = ctx.req.headers
+        const container = headers["x-upload-container"] as string | undefined
+        const object = headers["x-upload-object"] as string | undefined
+        const contentType = headers["x-upload-type"] as string | undefined
+        const fileSize = headers["x-upload-size"] ? parseInt(headers["x-upload-size"] as string, 10) : undefined
+        const uploadId = headers["x-upload-id"] as string | undefined
 
-      // input is a Web ReadableStream — convert to Node.js Readable for .pipe()
-      const fileStream = Readable.fromWeb(input as import("stream/web").ReadableStream)
+        // input is a Web ReadableStream — convert to Node.js Readable for .pipe()
+        const fileStream = Readable.fromWeb(input as import("stream/web").ReadableStream)
 
-      const { validatedContainer, validatedObject, validatedFileSize, validatedFile } = validateSwiftUploadInput(
-        container,
-        object,
-        fileSize,
-        fileStream
-      )
+        const { validatedContainer, validatedObject, validatedFileSize, validatedFile } = validateSwiftUploadInput(
+          container,
+          object,
+          fileSize,
+          fileStream
+        )
 
-      if (!uploadId) {
-        throw new TRPCError({ code: "BAD_REQUEST", message: "x-upload-id header is required" })
-      }
+        if (!uploadId) {
+          throw new TRPCError({ code: "BAD_REQUEST", message: "x-upload-id header is required" })
+        }
 
-      uploadProgressMap.set(uploadId, { uploaded: 0, total: validatedFileSize, percent: 0 })
+        uploadProgressMap.set(uploadId, { uploaded: 0, total: validatedFileSize, percent: 0 })
 
-      try {
-        const progress = uploadProgressMap.get(uploadId)!
+        try {
+          const progress = uploadProgressMap.get(uploadId)!
 
-        // Transform stream that observes bytes as they flow through to Swift.
-        // No buffering — chunks are passed unmodified; we only count bytes.
-        // True streaming because octetInputParser passes the raw HTTP body stream.
-        const progressTracker = new Transform({
-          async transform(chunk: Buffer, _encoding, callback) {
-            progress.uploaded += chunk.length
-            progress.percent = progress.total > 0 ? Math.round((progress.uploaded / progress.total) * 100) : 0
+          // Transform stream that observes bytes as they flow through to Swift.
+          // No buffering — chunks are passed unmodified; we only count bytes.
+          // True streaming because octetInputParser passes the raw HTTP body stream.
+          const progressTracker = new Transform({
+            async transform(chunk: Buffer, _encoding, callback) {
+              progress.uploaded += chunk.length
+              progress.percent = progress.total > 0 ? Math.round((progress.uploaded / progress.total) * 100) : 0
 
-            uploadProgressEmitter.emit(`progress:${uploadId}`, { ...progress })
+              uploadProgressEmitter.emit(`progress:${uploadId}`, { ...progress })
 
-            // Yield to the event loop so subscriptions can flush between chunks
-            await new Promise((resolve) => setTimeout(resolve, 0))
+              // Yield to the event loop so subscriptions can flush between chunks
+              await new Promise((resolve) => setTimeout(resolve, 0))
 
-            callback(null, chunk)
-          },
-        })
+              callback(null, chunk)
+            },
+          })
 
-        const trackedStream = validatedFile.pipe(progressTracker)
-        const webStream = Readable.toWeb(trackedStream)
+          const trackedStream = validatedFile.pipe(progressTracker)
+          const webStream = Readable.toWeb(trackedStream)
 
-        // Encode each segment individually to preserve slash separators
-        const encodedObject = validatedObject.split("/").map(encodeURIComponent).join("/")
-        const url = `${encodeURIComponent(validatedContainer)}/${encodedObject}`
+          // Encode each segment individually to preserve slash separators
+          const encodedObject = validatedObject.split("/").map(encodeURIComponent).join("/")
+          const url = `${encodeURIComponent(validatedContainer)}/${encodedObject}`
 
-        await swift.put(url, webStream, {
-          headers: {
-            "Content-Type": contentType ?? "application/octet-stream",
-            ...(validatedFileSize > 0 ? { "Content-Length": validatedFileSize.toString() } : {}),
-          },
-        })
+          await swift.put(url, webStream, {
+            headers: {
+              "Content-Type": contentType ?? "application/octet-stream",
+              ...(validatedFileSize > 0 ? { "Content-Length": validatedFileSize.toString() } : {}),
+            },
+          })
 
-        uploadProgressEmitter.emit(`progress:${uploadId}:complete`)
+          uploadProgressEmitter.emit(`progress:${uploadId}:complete`)
 
-        return { success: true }
-      } catch (error) {
-        uploadProgressEmitter.emit(`progress:${uploadId}:error`, error)
-        throw mapErrorResponseToTRPCError(error as Parameters<typeof mapErrorResponseToTRPCError>[0], {
-          operation: "upload object",
-          container: container,
-          object: object,
-        })
-      } finally {
-        uploadProgressMap.delete(uploadId)
-      }
-    }, "upload object")
-  }),
+          return { success: true }
+        } catch (error) {
+          uploadProgressEmitter.emit(`progress:${uploadId}:error`, error)
+          throw mapErrorResponseToTRPCError(error as Parameters<typeof mapErrorResponseToTRPCError>[0], {
+            operation: "upload object",
+            container: container,
+            object: object,
+          })
+        } finally {
+          uploadProgressMap.delete(uploadId)
+        }
+      }, "upload object")
+    }),
 
   /**
    * Subscribes to real-time upload progress for a given `uploadId`.

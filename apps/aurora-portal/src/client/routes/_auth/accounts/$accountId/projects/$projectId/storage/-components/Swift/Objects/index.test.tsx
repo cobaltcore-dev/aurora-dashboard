@@ -84,6 +84,8 @@ let capturedOnMoveObjectError: ((objectName: string, errorMessage: string) => vo
 let capturedOnTempUrlCopySuccess: ((objectName: string) => void) | undefined
 let capturedOnEditMetadataSuccess: ((objectName: string) => void) | undefined
 let capturedOnEditMetadataError: ((objectName: string, errorMessage: string) => void) | undefined
+let capturedOnUploadSuccess: ((objectName: string) => void) | undefined
+let capturedOnUploadError: ((objectName: string, errorMessage: string) => void) | undefined
 
 vi.mock("./ObjectsTableView", () => ({
   ObjectsTableView: vi.fn(
@@ -154,6 +156,19 @@ vi.mock("./CreateFolderModal", () => ({
   ),
 }))
 
+// UploadObjectModal uses tRPC hooks internally — mock it to keep index tests isolated.
+vi.mock("./UploadObjectModal", () => ({
+  UploadObjectModal: vi.fn(({ isOpen, onClose, onSuccess, onError }) => {
+    capturedOnUploadSuccess = onSuccess
+    capturedOnUploadError = onError
+    return isOpen ? (
+      <div data-testid="upload-object-modal">
+        <button onClick={onClose}>Cancel</button>
+      </div>
+    ) : null
+  }),
+}))
+
 // ─── Mock tRPC ────────────────────────────────────────────────────────────────
 
 const mockObjects: ObjectSummary[] = [
@@ -189,6 +204,8 @@ vi.mock("./ObjectToastNotifications", () => ({
   getTempUrlCopiedToast: vi.fn(() => ({ variant: "success", children: null })),
   getObjectMetadataUpdatedToast: vi.fn(() => ({ variant: "success", children: null })),
   getObjectMetadataUpdateErrorToast: vi.fn(() => ({ variant: "error", children: null })),
+  getObjectUploadedToast: vi.fn(() => ({ variant: "success", children: null })),
+  getObjectUploadErrorToast: vi.fn(() => ({ variant: "error", children: null })),
 }))
 
 vi.mock("@/client/trpcClient", () => ({
@@ -288,6 +305,11 @@ describe("SwiftObjects (index)", () => {
     test("renders Create folder button", () => {
       renderObjects()
       expect(screen.getByRole("button", { name: /Create Folder/i })).toBeInTheDocument()
+    })
+
+    test("renders Upload Object button", () => {
+      renderObjects()
+      expect(screen.getByRole("button", { name: /Upload Object/i })).toBeInTheDocument()
     })
 
     test("Create folder modal is closed by default", () => {
@@ -491,6 +513,49 @@ describe("SwiftObjects (index)", () => {
       expect(screen.getByTestId("create-folder-modal")).toBeInTheDocument()
       await user.click(screen.getByRole("button", { name: /Cancel/i }))
       expect(screen.queryByTestId("create-folder-modal")).not.toBeInTheDocument()
+    })
+  })
+
+  describe("Upload object modal", () => {
+    test("Upload object modal is closed by default", () => {
+      renderObjects()
+      expect(screen.queryByTestId("upload-object-modal")).not.toBeInTheDocument()
+    })
+
+    test("opens modal when Upload Object button is clicked", async () => {
+      const user = userEvent.setup()
+      renderObjects()
+      await user.click(screen.getByRole("button", { name: /Upload Object/i }))
+      expect(screen.getByTestId("upload-object-modal")).toBeInTheDocument()
+    })
+
+    test("closes modal when onClose is called", async () => {
+      const user = userEvent.setup()
+      renderObjects()
+      await user.click(screen.getByRole("button", { name: /Upload Object/i }))
+      expect(screen.getByTestId("upload-object-modal")).toBeInTheDocument()
+      await user.click(screen.getByRole("button", { name: /Cancel/i }))
+      expect(screen.queryByTestId("upload-object-modal")).not.toBeInTheDocument()
+    })
+  })
+
+  describe("Upload object toast notifications", () => {
+    test("shows success toast when upload succeeds", async () => {
+      const { getObjectUploadedToast } = await import("./ObjectToastNotifications")
+      renderObjects()
+      act(() => {
+        capturedOnUploadSuccess?.("report.pdf")
+      })
+      expect(getObjectUploadedToast).toHaveBeenCalledWith("report.pdf", expect.any(Object))
+    })
+
+    test("shows error toast when upload fails", async () => {
+      const { getObjectUploadErrorToast } = await import("./ObjectToastNotifications")
+      renderObjects()
+      act(() => {
+        capturedOnUploadError?.("report.pdf", "Quota exceeded")
+      })
+      expect(getObjectUploadErrorToast).toHaveBeenCalledWith("report.pdf", "Quota exceeded", expect.any(Object))
     })
   })
 

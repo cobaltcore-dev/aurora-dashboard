@@ -25,6 +25,9 @@ msgstr "\"{objectName}\" wurde erfolgreich nach {destination} kopiert."
 msgid "\"{objectName}\" was successfully moved to {destination}."
 msgstr "\"{objectName}\" wurde erfolgreich nach {destination} verschoben."
 
+msgid "\"{objectName}\" was successfully uploaded."
+msgstr ""
+
 msgid "{allContainersCount} container"
 msgstr "{allContainersCount} Container"
 
@@ -231,6 +234,9 @@ msgstr "Ein unerwarteter Fehler ist aufgetreten"
 
 msgid "An unexpected error occurred. Please try again."
 msgstr "Ein unerwarteter Fehler ist aufgetreten. Bitte versuchen Sie es erneut."
+
+msgid "Any file type"
+msgstr ""
 
 msgid "ANY referrer"
 msgstr "Beliebiger Referrer"
@@ -475,6 +481,9 @@ msgstr "ACLs für Container \"{containerName}\" konnten nicht aktualisiert werde
 msgid "Could not update container \"{containerName}\": {errorMessage}"
 msgstr "Container \"{containerName}\" konnte nicht aktualisiert werden: {errorMessage}"
 
+msgid "Could not upload \"{objectName}\": {errorMessage}"
+msgstr ""
+
 msgid "CPU"
 msgstr "CPU"
 
@@ -681,6 +690,9 @@ msgstr "{rowDisplayName} herunterladen"
 
 msgid "Downloading..."
 msgstr "Wird heruntergeladen..."
+
+msgid "Drop your file here"
+msgstr ""
 
 msgid "Drop your image file here"
 msgstr "Legen Sie Ihre Image-Datei hier ab"
@@ -1017,6 +1029,9 @@ msgstr "Fehler beim Aktualisieren der Sichtbarkeit auf {newVisibility}"
 
 msgid "Failed to upload file \"{fileName}\": "
 msgstr "Fehler beim Hochladen der Datei \"{fileName}\": "
+
+msgid "Failed to Upload Object"
+msgstr ""
 
 msgid "False"
 msgstr "False"
@@ -1720,11 +1735,18 @@ msgstr "Objekttyp"
 msgid "Object Updated"
 msgstr "Objekt aktualisiert"
 
+msgid "Object Uploaded"
+msgstr ""
+
 msgid "Object versioning"
 msgstr "Objekt-Versionierung"
 
 msgid "Object was copied but could not be deleted from the source: {deleteErrorMessage}"
 msgstr "Objekt wurde kopiert, konnte aber nicht von der Quelle gelöscht werden: {deleteErrorMessage}"
+
+#. placeholder {0}: selectedFile.name
+msgid "Object will be uploaded as: <0>{currentPrefix}{0}</0>"
+msgstr ""
 
 msgid "Objects"
 msgstr "Objekte"
@@ -1791,6 +1813,9 @@ msgstr "Bitte melden Sie sich erneut an, um fortzufahren."
 
 msgid "Please note: for <0>dynamic</0> and <1>static large objects</1> only the manifests are deleted. The related segments are not deleted."
 msgstr "Bitte beachten Sie: Für <0>dynamische</0> und <1>statische große Objekte</1> werden nur die Manifeste gelöscht. Die zugehörigen Segmente werden nicht gelöscht."
+
+msgid "Please select a file to upload"
+msgstr ""
 
 msgid "Policy"
 msgstr "Richtlinie"
@@ -2565,6 +2590,24 @@ msgstr "Floating IP wird aktualisiert..."
 
 msgid "Updating security group..."
 msgstr "Security Group wird aktualisiert..."
+
+msgid "Upload"
+msgstr ""
+
+msgid "Upload failed: {uploadError}"
+msgstr ""
+
+msgid "Upload Object"
+msgstr ""
+
+msgid "Upload object to:"
+msgstr ""
+
+msgid "Uploading..."
+msgstr ""
+
+msgid "Uploading... {progressPct}%"
+msgstr ""
 
 msgid "URL Copied"
 msgstr "URL kopiert"
