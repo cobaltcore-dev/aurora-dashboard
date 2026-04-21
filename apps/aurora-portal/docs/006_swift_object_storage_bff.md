@@ -68,7 +68,7 @@ Utility functions including:
 - Header parsers (`parseAccountInfo`, `parseContainerInfo`, `parseObjectMetadata`)
 - Header builders (`buildAccountMetadataHeaders`, `buildContainerMetadataHeaders`, `buildObjectMetadataHeaders`)
 - Error handling (`mapErrorResponseToTRPCError`, `handleZodParsingError`, `wrapError`, `withErrorHandling`)
-- **Upload validation** (`validateSwiftUploadInput`) — validates multipart fields: container, object path, fileSize, and file stream
+- **Upload validation** (`validateSwiftUploadInput`) — validates upload inputs: container, object path, fileSize, and file stream (converted from the `octetInputParser` `ReadableStream` via `Readable.fromWeb()`)
 - **Folder helpers** (`parseBreadcrumb`, `normalizeFolderPath`, `isFolderMarker`, `extractFolders`)
 - **Temporary URL helpers** (`generateTempUrlSignature`, `constructTempUrl`)
 
@@ -121,12 +121,12 @@ Complete tRPC router with procedures for:
 
 #### Upload Operations
 
-- `uploadObject` - Upload a file via multipart form data; streams through a Node.js `Transform` pipe to Swift without buffering; emits per-chunk progress events via a module-level `EventEmitter`; returns `{ success, uploadId }`
-- `watchUploadProgress` - tRPC subscription yielding `{ uploaded, total, percent }` in real time for a given `uploadId`; also yields an immediate snapshot if the upload is already in progress when the subscription opens; terminates on upload completion or error
+- `uploadObject` - Upload a file via `octetInputParser` (raw `application/octet-stream` body); metadata sent as custom request headers (`x-upload-container`, `x-upload-object`, `x-upload-type`, `x-upload-size`, `x-upload-id`, `x-upload-account`); streams through a Node.js `Transform` pipe to Swift without buffering; emits per-chunk progress events via a module-level `EventEmitter`; returns `{ success }`
+- `watchUploadProgress` - tRPC subscription yielding `{ uploaded, total, percent }` in real time for a given `uploadId`; the `uploadId` is computed client-side as `"<container>:<objectPath>"` and passed as a header before the upload starts so the subscription is active from the first byte; also yields an immediate snapshot if the upload is already in progress when the subscription opens; terminates on upload completion or error
 
 #### Download Operations
 
-- `downloadObject` - Stream object content to the client as base64 chunks via an async iterable mutation; `contentType` and `filename` are included only in the first chunk; each chunk carries `downloaded` and `total` byte counts; server never buffers the full file in memory
+- `downloadObject` - Stream object content to the client as base64 chunks via an async iterable mutation; requires `downloadId` input (computed client-side as `"<container>:<objectPath>"`); `contentType` and `filename` are included only in the first chunk; each chunk carries `downloaded` and `total` byte counts; server never buffers the full file in memory
 
 ## Key Features
 
@@ -152,7 +152,7 @@ Full support for:
 
 - **Service Discovery**: Query Swift capabilities via `/info` endpoint
 - **Pseudo-Folders**: Create and manage hierarchical folder structures
-- **Streaming Upload**: Upload files via multipart form data with real-time byte-level progress via a tRPC subscription
+- **Streaming Upload**: Upload files via `octetInputParser` (raw binary body) with metadata in custom headers; real-time byte-level progress via a tRPC subscription keyed by a client-computed `uploadId`
 - **Download**: Stream object content via BFF as base64 chunks using an async iterable procedure
 - **Temporary URLs**: Generate time-limited signed URLs with HMAC-SHA256
 - **Pagination**: Marker-based pagination for large listings
@@ -165,7 +165,7 @@ Full support for:
 
 ### 5. Binary Data Handling
 
-- **Upload (`uploadObject`)**: Accepts multipart form data. The file stream is piped through a Node.js `Transform` that counts bytes per chunk without buffering, then converted to a Web `ReadableStream` via `Readable.toWeb()` and PUT to Swift. The BFF never holds the full file in memory. Per-chunk progress is emitted via a module-level `EventEmitter` keyed by `uploadId`.
+- **Upload (`uploadObject`)**: Uses tRPC's `octetInputParser` — the file is sent as a raw `application/octet-stream` body, giving the BFF a true `ReadableStream` without buffering. Metadata (`container`, `object`, `contentType`, `fileSize`, `uploadId`) is passed as custom `x-upload-*` request headers read from `ctx.req.headers`. The stream is piped through a Node.js `Transform` that counts bytes per chunk, then converted to a Web `ReadableStream` via `Readable.toWeb()` and PUT to Swift. The BFF never holds the full file in memory. Per-chunk progress is emitted via a module-level `EventEmitter` keyed by the client-provided `uploadId`.
 - **Download (`downloadObject`)**: Swift's response body is read chunk by chunk via a `ReadableStream` reader. Each chunk is base64-encoded (required because tRPC SSE transport is JSON-only) and yielded with cumulative `downloaded` and `total` byte counts. `contentType` and `filename` are included only in the first chunk. The server never buffers the full file; the client currently assembles a `Blob` in memory before saving.
 
 ## Usage Examples
@@ -556,7 +556,7 @@ All operations include comprehensive error handling:
 ## Performance Considerations
 
 1. **Pagination**: Use `limit` and `marker` for large listings
-2. **Large Uploads**: `uploadObject` streams through the BFF without buffering; for very large files, consider chunked/resumable uploads at the Swift SLO level
+2. **Large Uploads**: `uploadObject` uses `octetInputParser` for true streaming — the file body is never buffered in the BFF; for very large files, consider chunked/resumable uploads at the Swift SLO level
 3. **Large Downloads**: `downloadObject` retrieves the full object; for large client-side downloads, prefer **Temporary URLs** so clients can download directly from Swift without proxying the entire payload through the BFF
 4. **Metadata Only**: Use `getObjectMetadata` (HEAD) when you only need headers, not content
 5. **Bulk Operations**: Use `bulkDelete` for deleting multiple objects efficiently
