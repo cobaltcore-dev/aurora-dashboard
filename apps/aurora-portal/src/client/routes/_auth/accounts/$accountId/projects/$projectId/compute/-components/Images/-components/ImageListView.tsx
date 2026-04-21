@@ -13,7 +13,7 @@ import {
   Toast,
   ToastProps,
 } from "@cloudoperators/juno-ui-components"
-import { trpcReact } from "@/client/trpcClient"
+import { trpcClient, trpcReact } from "@/client/trpcClient"
 import { TRPCClientError } from "@trpc/client"
 import { InferrableClientTypes } from "@trpc/server/unstable-core-do-not-import"
 import { FastifyError } from "fastify"
@@ -131,6 +131,7 @@ export function ImageListView({
   const [selectedImage, setSelectedImage] = useState<GlanceImage | null>(null)
   const [isCreateInProgress, setCreateInProgress] = useState(false)
   const [uploadId, setUploadId] = useState<string | null>(null)
+  const [isUploadPending, setIsUploadPending] = useState(false)
 
   const loadMoreRef = useRef<HTMLDivElement>(null)
   const fetchedMarkerRef = useRef<string | undefined>(undefined)
@@ -215,8 +216,6 @@ export function ImageListView({
     },
   })
 
-  const uploadImageMutation = trpcReact.compute.uploadImage.useMutation()
-
   const updateImageVisibilityMutation = trpcReact.compute.updateImageVisibility.useMutation({
     onSuccess: (updatedImage) => {
       onImageUpdated(updatedImage)
@@ -226,9 +225,9 @@ export function ImageListView({
   const { data } = trpcReact.compute.watchUploadProgress.useSubscription(
     { uploadId: uploadId || "" },
     {
-      enabled: !!uploadId && uploadImageMutation.isPending,
+      enabled: !!uploadId && isUploadPending,
       onComplete() {
-        if (!manageAccessModalOpen && !toastData && uploadId && uploadImageMutation.isSuccess) {
+        if (!manageAccessModalOpen && !toastData && uploadId && !isUploadPending) {
           setToastData(getImageCreatedToast(uploadId, { onDismiss: handleToastDismiss }))
         }
       },
@@ -335,21 +334,19 @@ export function ImageListView({
       // Step 1: Create image
       const createdImage = await createImageMutation.mutateAsync(imageData)
 
-      // Step 2: Create FormData WITH file
-      const formData = new FormData()
-      formData.append("imageId", createdImage.id)
-      formData.append("fileSize", `${file.size}`)
-      formData.append("file", file)
-
+      // Step 2: Upload file via octetInputParser with metadata in custom headers.
+      // trpcClient (vanilla) is used so we can pass operation context with headers.
       setUploadId(createdImage.id)
+      setIsUploadPending(true)
 
-      // Step 3: Upload file
-      // FormData is handled by Fastify's multipart hook before reaching tRPC input validation.
-      // The tRPC client sends FormData as HTTP POST body, which Fastify processes and stores
-      // in request context, so we don't use tRPC input validator for multipart.
-
-      // @ts-expect-error Argument of type 'FormData' is not assignable to parameter of type 'void'.ts(2345)
-      await uploadImageMutation.mutateAsync(formData)
+      await trpcClient.compute.uploadImage.mutate(file, {
+        context: {
+          headers: {
+            "x-upload-id": createdImage.id,
+            "x-upload-size": String(file.size),
+          },
+        },
+      })
 
       // Show success notification and re-fetch image list
       setToastData(getImageCreatedToast(imageName, { onDismiss: handleToastDismiss }))
@@ -368,6 +365,7 @@ export function ImageListView({
       // Complete creation and close modal
       setCreateInProgress(false)
       setCreateModalOpen(false)
+      setIsUploadPending(false)
       setUploadId(null)
     }
   }
@@ -796,8 +794,8 @@ export function ImageListView({
             setCreateModalOpen(false)
           }}
           onCreate={handleCreate}
-          isLoading={createImageMutation.isPending || uploadImageMutation.isPending || isCreateInProgress}
-          isUploadPending={uploadImageMutation.isPending && !!uploadId}
+          isLoading={createImageMutation.isPending || isUploadPending || isCreateInProgress}
+          isUploadPending={isUploadPending && !!uploadId}
           uploadProgressPercent={data?.percent}
         />
       </div>
