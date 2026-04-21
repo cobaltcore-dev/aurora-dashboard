@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { useNavigate, useParams } from "@tanstack/react-router"
 import { Button } from "@cloudoperators/juno-ui-components"
@@ -6,6 +6,7 @@ import { trpcReact } from "@/client/trpcClient"
 import { ListToolbar } from "@/client/components/ListToolbar"
 import { buildFilterParams } from "@/client/utils/buildFilterParams"
 import { useListWithFiltering } from "@/client/utils/useListWithFiltering"
+import { useProjectId } from "@/client/hooks"
 import { SecurityGroupListContainer } from "./-components/SecurityGroupListContainer"
 import { CreateSecurityGroupModal } from "./-components/-modals/CreateSecurityGroupModal"
 import { CreateSecurityGroupInput, UpdateSecurityGroupInput } from "@/server/Network/types/securityGroup"
@@ -21,7 +22,9 @@ type SecurityGroupSortKey = "name" | "project_id"
 export const SecurityGroups = () => {
   const { t } = useLingui()
   const navigate = useNavigate()
-  const { accountId, projectId } = useParams({ strict: false })
+  const projectId = useProjectId()
+  // accountId is still needed for navigation (URL construction) until route refactoring
+  const { accountId } = useParams({ strict: false })
 
   const [createModalOpen, setCreateModalOpen] = useState(false)
   const [deleteError, setDeleteError] = useState<string | null>(null)
@@ -76,15 +79,6 @@ export const SecurityGroups = () => {
     }
   )
 
-  // Cache each security group individually for instant navigation to details page
-  useEffect(() => {
-    if (securityGroups.length > 0) {
-      securityGroups.forEach((sg) => {
-        utils.network.securityGroup.getById.setData({ securityGroupId: sg.id }, sg)
-      })
-    }
-  }, [securityGroups, utils])
-
   const createSecurityGroupMutation = trpcReact.network.securityGroup.create.useMutation({
     onSuccess: (createdSecurityGroup) => {
       // Invalidate and refetch the security groups list
@@ -92,7 +86,7 @@ export const SecurityGroups = () => {
       setCreateError(null)
 
       // Navigate to the details page of the newly created security group
-      if (accountId && projectId) {
+      if (accountId) {
         navigate({
           to: "/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId",
           params: {
@@ -133,22 +127,22 @@ export const SecurityGroups = () => {
     },
   })
 
-  const handleCreateSecurityGroup = async (securityGroupData: CreateSecurityGroupInput) => {
+  const handleCreateSecurityGroup = async (securityGroupData: Omit<CreateSecurityGroupInput, "project_id">) => {
     setCreateError(null)
-    await createSecurityGroupMutation.mutateAsync(securityGroupData)
+    await createSecurityGroupMutation.mutateAsync({ project_id: projectId, ...securityGroupData })
   }
 
   const handleDeleteSecurityGroup = (securityGroupId: string) => {
     setDeleteError(null)
-    deleteSecurityGroupMutation.mutate({ securityGroupId })
+    deleteSecurityGroupMutation.mutate({ project_id: projectId, securityGroupId })
   }
 
   const handleUpdateSecurityGroup = async (
     securityGroupId: string,
-    data: Omit<UpdateSecurityGroupInput, "securityGroupId">
+    data: Omit<UpdateSecurityGroupInput, "securityGroupId" | "project_id">
   ) => {
     setUpdateError(null)
-    await updateSecurityGroupMutation.mutateAsync({ securityGroupId, ...data })
+    await updateSecurityGroupMutation.mutateAsync({ project_id: projectId, securityGroupId, ...data })
   }
 
   return (

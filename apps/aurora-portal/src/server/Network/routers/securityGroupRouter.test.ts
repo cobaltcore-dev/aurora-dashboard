@@ -5,6 +5,9 @@ import { securityGroupRouter } from "./securityGroupRouter"
 import { SecurityGroup } from "../types/securityGroup"
 import { AuroraPortalContext } from "@/server/context"
 
+// Test constants
+const TEST_PROJECT_ID = "proj-1"
+
 const createMockContext = (opts?: {
   noNetworkService?: boolean
   invalidSession?: boolean
@@ -497,6 +500,7 @@ describe("securityGroupRouter.getById", () => {
     const caller = createCaller(ctx)
 
     const result = await caller.securityGroup.getById({
+      project_id: TEST_PROJECT_ID,
       securityGroupId: "sg-123",
     })
 
@@ -513,6 +517,7 @@ describe("securityGroupRouter.getById", () => {
 
     await expect(
       caller.securityGroup.getById({
+        project_id: TEST_PROJECT_ID,
         securityGroupId: "sg-123",
       })
     ).rejects.toThrow(
@@ -529,12 +534,13 @@ describe("securityGroupRouter.getById", () => {
 
     await expect(
       caller.securityGroup.getById({
+        project_id: TEST_PROJECT_ID,
         securityGroupId: "sg-123",
       })
     ).rejects.toThrowError(TRPCError)
 
     try {
-      await caller.securityGroup.getById({ securityGroupId: "sg-123" })
+      await caller.securityGroup.getById({ project_id: TEST_PROJECT_ID, securityGroupId: "sg-123" })
     } catch (error) {
       if (error instanceof TRPCError) {
         expect(error.code).toBe("INTERNAL_SERVER_ERROR")
@@ -610,6 +616,7 @@ describe("securityGroupRouter.create", () => {
     const caller = createCaller(ctx)
 
     const result = await caller.securityGroup.create({
+      project_id: TEST_PROJECT_ID,
       name: "test-sg",
       description: "Test security group",
       stateful: true,
@@ -625,6 +632,7 @@ describe("securityGroupRouter.create", () => {
     const caller = createCaller(ctx)
 
     const result = await caller.securityGroup.create({
+      project_id: TEST_PROJECT_ID,
       name: "minimal-sg",
     })
 
@@ -638,6 +646,7 @@ describe("securityGroupRouter.create", () => {
 
     await expect(
       caller.securityGroup.create({
+        project_id: TEST_PROJECT_ID,
         name: "test-sg",
       })
     ).rejects.toThrow(/Quota exceeded/)
@@ -649,6 +658,7 @@ describe("securityGroupRouter.create", () => {
 
     await expect(
       caller.securityGroup.create({
+        project_id: TEST_PROJECT_ID,
         name: "test-sg",
       })
     ).rejects.toThrow(
@@ -665,6 +675,7 @@ describe("securityGroupRouter.create", () => {
 
     await expect(
       caller.securityGroup.create({
+        project_id: TEST_PROJECT_ID,
         name: "test-sg",
       })
     ).rejects.toThrow("Network service is not available")
@@ -723,6 +734,7 @@ describe("securityGroupRouter.deleteById", () => {
 
     await expect(
       caller.securityGroup.deleteById({
+        project_id: TEST_PROJECT_ID,
         securityGroupId: "sg-123",
       })
     ).resolves.not.toThrow()
@@ -734,6 +746,7 @@ describe("securityGroupRouter.deleteById", () => {
 
     await expect(
       caller.securityGroup.deleteById({
+        project_id: TEST_PROJECT_ID,
         securityGroupId: "sg-123",
       })
     ).rejects.toThrow(/in use/)
@@ -745,6 +758,7 @@ describe("securityGroupRouter.deleteById", () => {
 
     await expect(
       caller.securityGroup.deleteById({
+        project_id: TEST_PROJECT_ID,
         securityGroupId: "sg-nonexistent",
       })
     ).rejects.toThrow("Security group not found")
@@ -756,6 +770,7 @@ describe("securityGroupRouter.deleteById", () => {
 
     await expect(
       caller.securityGroup.deleteById({
+        project_id: TEST_PROJECT_ID,
         securityGroupId: "sg-123",
       })
     ).rejects.toThrow(
@@ -772,6 +787,7 @@ describe("securityGroupRouter.deleteById", () => {
 
     await expect(
       caller.securityGroup.deleteById({
+        project_id: TEST_PROJECT_ID,
         securityGroupId: "sg-123",
       })
     ).rejects.toThrow("Network service is not available")
@@ -847,6 +863,7 @@ describe("securityGroupRouter.update", () => {
     const caller = createCaller(ctx)
 
     const result = await caller.securityGroup.update({
+      project_id: TEST_PROJECT_ID,
       securityGroupId: "sg-123",
       name: "updated-sg",
       description: "Updated security group",
@@ -862,6 +879,7 @@ describe("securityGroupRouter.update", () => {
     const caller = createCaller(ctx)
 
     const result = await caller.securityGroup.update({
+      project_id: TEST_PROJECT_ID,
       securityGroupId: "sg-123",
       name: "updated-name-only",
     })
@@ -876,6 +894,7 @@ describe("securityGroupRouter.update", () => {
 
     await expect(
       caller.securityGroup.update({
+        project_id: TEST_PROJECT_ID,
         securityGroupId: "sg-nonexistent",
         name: "new-name",
       })
@@ -888,6 +907,7 @@ describe("securityGroupRouter.update", () => {
 
     await expect(
       caller.securityGroup.update({
+        project_id: TEST_PROJECT_ID,
         securityGroupId: "sg-123",
         stateful: false,
       })
@@ -900,6 +920,7 @@ describe("securityGroupRouter.update", () => {
 
     await expect(
       caller.securityGroup.update({
+        project_id: TEST_PROJECT_ID,
         securityGroupId: "sg-123",
         name: "new-name",
       })
@@ -917,6 +938,7 @@ describe("securityGroupRouter.update", () => {
 
     await expect(
       caller.securityGroup.update({
+        project_id: TEST_PROJECT_ID,
         securityGroupId: "sg-123",
         name: "new-name",
       })

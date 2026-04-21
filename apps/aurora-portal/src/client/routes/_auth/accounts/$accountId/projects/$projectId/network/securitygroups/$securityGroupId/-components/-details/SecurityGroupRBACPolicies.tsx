@@ -10,6 +10,7 @@ import {
   Message,
 } from "@cloudoperators/juno-ui-components"
 import { trpcReact } from "@/client/trpcClient"
+import { useProjectId } from "@/client/hooks"
 import type { RBACPolicy } from "@/server/Network/types/rbacPolicy"
 import { RBACPolicyRow } from "./RBACPolicyRow"
 import { AddRBACPolicyModal } from "../../-modals/AddRBACPolicyModal"
@@ -24,6 +25,7 @@ interface SecurityGroupRBACPoliciesProps {
 export function SecurityGroupRBACPolicies({ securityGroupId }: SecurityGroupRBACPoliciesProps) {
   const utils = trpcReact.useUtils()
   const { t } = useLingui()
+  const projectId = useProjectId()
 
   const [isAddModalOpen, toggleAddModal] = useModal()
   const [policyToDelete, setPolicyToDelete] = useState<RBACPolicy | null>(null)
@@ -46,7 +48,7 @@ export function SecurityGroupRBACPolicies({ securityGroupId }: SecurityGroupRBAC
   const deleteMutation = trpcReact.network.rbacPolicy.delete.useMutation({
     onSuccess: () => {
       utils.network.rbacPolicy.list.invalidate({ securityGroupId })
-      utils.network.securityGroup.getById.invalidate({ securityGroupId })
+      utils.network.securityGroup.getById.invalidate({ project_id: projectId, securityGroupId })
     },
   })
 

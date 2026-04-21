@@ -19,7 +19,7 @@ import { CreateSecurityGroupInput } from "@/server/Network/types/securityGroup"
 interface CreateSecurityGroupModalProps {
   isOpen: boolean
   onClose: () => void
-  onCreate: (securityGroupData: CreateSecurityGroupInput) => Promise<void>
+  onCreate: (securityGroupData: Omit<CreateSecurityGroupInput, "project_id">) => Promise<void>
   isLoading?: boolean
   error?: string | null
 }
@@ -84,7 +84,7 @@ export const CreateSecurityGroupModal: React.FC<CreateSecurityGroupModalProps> =
       return
     }
 
-    const securityGroupData: CreateSecurityGroupInput = {
+    const securityGroupData: Omit<CreateSecurityGroupInput, "project_id"> = {
       name: properties.name.trim(),
       description: properties.description.trim() || undefined,
       stateful: properties.stateful,

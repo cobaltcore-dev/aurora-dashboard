@@ -17,7 +17,7 @@ const renderModal = ({
 }: {
   isOpen?: boolean
   onClose?: () => void
-  onCreate?: (securityGroupData: CreateSecurityGroupInput) => Promise<void>
+  onCreate?: (securityGroupData: Omit<CreateSecurityGroupInput, "project_id">) => Promise<void>
   isLoading?: boolean
 } = {}) =>
   render(

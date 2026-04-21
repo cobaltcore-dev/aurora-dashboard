@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react"
 import { trpcReact } from "@/client/trpcClient"
+import { useProjectId } from "@/client/hooks"
 import type { UpdateSecurityGroupInput, CreateSecurityGroupRuleInput } from "@/server/Network/types/securityGroup"
 import type { RulesFilterControls } from "../-components/SecurityGroupDetailsView"
 
@@ -10,6 +11,7 @@ interface UseSecurityGroupDetailsParams {
 
 export function useSecurityGroupDetails({ securityGroupId, filterControls }: UseSecurityGroupDetailsParams) {
   const [editModalOpen, setEditModalOpen] = useState(false)
+  const projectId = useProjectId()
 
   const utils = trpcReact.useUtils()
 
@@ -17,12 +19,13 @@ export function useSecurityGroupDetails({ securityGroupId, filterControls }: Use
   // Use cached data from list page if available (instant loading)
   const securityGroupQuery = trpcReact.network.securityGroup.getById.useQuery(
     {
+      project_id: projectId,
       securityGroupId,
     },
     {
       // Use cached data from list page as placeholder while fetching
       placeholderData: () => {
-        return utils.network.securityGroup.getById.getData({ securityGroupId })
+        return utils.network.securityGroup.getById.getData({ project_id: projectId, securityGroupId })
       },
     }
   )
@@ -86,7 +89,7 @@ export function useSecurityGroupDetails({ securityGroupId, filterControls }: Use
   // Update mutation
   const updateMutation = trpcReact.network.securityGroup.update.useMutation({
     onSuccess: () => {
-      utils.network.securityGroup.getById.invalidate({ securityGroupId })
+      utils.network.securityGroup.getById.invalidate({ project_id: projectId, securityGroupId })
       utils.network.securityGroup.list.invalidate()
       setEditModalOpen(false)
     },
@@ -96,7 +99,7 @@ export function useSecurityGroupDetails({ securityGroupId, filterControls }: Use
   const deleteRuleMutation = trpcReact.network.securityGroupRule.delete.useMutation({
     onSuccess: () => {
       // Invalidate the security group query to refresh the rules list
-      utils.network.securityGroup.getById.invalidate({ securityGroupId })
+      utils.network.securityGroup.getById.invalidate({ project_id: projectId, securityGroupId })
       utils.network.securityGroup.list.invalidate()
     },
   })
@@ -104,7 +107,7 @@ export function useSecurityGroupDetails({ securityGroupId, filterControls }: Use
   // Create rule mutation
   const createRuleMutation = trpcReact.network.securityGroupRule.create.useMutation({
     onSuccess: () => {
-      utils.network.securityGroup.getById.invalidate({ securityGroupId })
+      utils.network.securityGroup.getById.invalidate({ project_id: projectId, securityGroupId })
       utils.network.securityGroup.list.invalidate()
     },
   })
@@ -118,8 +121,9 @@ export function useSecurityGroupDetails({ securityGroupId, filterControls }: Use
     setEditModalOpen(false)
   }
 
-  const handleUpdate = async (id: string, data: Omit<UpdateSecurityGroupInput, "securityGroupId">) => {
+  const handleUpdate = async (id: string, data: Omit<UpdateSecurityGroupInput, "securityGroupId" | "project_id">) => {
     await updateMutation.mutateAsync({
+      project_id: projectId,
       securityGroupId: id,
       ...data,
     })

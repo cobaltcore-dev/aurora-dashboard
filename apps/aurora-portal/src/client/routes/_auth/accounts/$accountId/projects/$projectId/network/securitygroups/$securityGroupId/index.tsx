@@ -4,6 +4,7 @@ import type { RouteInfo } from "@/client/routes/routeInfo"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { useMemo } from "react"
 import { getServiceIndex } from "@/server/Authentication/helpers"
+import { useProjectId } from "@/client/hooks"
 import { SecurityGroupDetailsView } from "./-components/SecurityGroupDetailsView"
 import { EditSecurityGroupModal } from "../../-components/SecurityGroups/-components/-modals/EditSecurityGroupModal"
 import { useSecurityGroupDetails } from "./-hooks/useSecurityGroupDetails"
@@ -42,9 +43,10 @@ export const Route = createFileRoute(
 })
 
 function RouteComponent() {
-  const { accountId, projectId, securityGroupId } = useParams({
+  const { accountId, securityGroupId } = useParams({
     from: "/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/",
   })
+  const projectId = useProjectId()
   const navigate = useNavigate()
   const { t } = useLingui()
   const { setPageTitle } = Route.useRouteContext()

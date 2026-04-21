@@ -30,7 +30,10 @@ const renderModal = ({
   securityGroup?: SecurityGroup
   open?: boolean
   onClose?: () => void
-  onUpdate?: (securityGroupId: string, data: Omit<UpdateSecurityGroupInput, "securityGroupId">) => Promise<void>
+  onUpdate?: (
+    securityGroupId: string,
+    data: Omit<UpdateSecurityGroupInput, "securityGroupId" | "project_id">
+  ) => Promise<void>
   isLoading?: boolean
   error?: string | null
 } = {}) =>

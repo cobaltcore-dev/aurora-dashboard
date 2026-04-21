@@ -21,7 +21,10 @@ interface EditSecurityGroupModalProps {
   securityGroup: SecurityGroup
   open: boolean
   onClose: () => void
-  onUpdate?: (securityGroupId: string, data: Omit<UpdateSecurityGroupInput, "securityGroupId">) => Promise<void>
+  onUpdate?: (
+    securityGroupId: string,
+    data: Omit<UpdateSecurityGroupInput, "securityGroupId" | "project_id">
+  ) => Promise<void>
   isLoading?: boolean
   error?: string | null
 }
@@ -95,7 +98,7 @@ export const EditSecurityGroupModal: React.FC<EditSecurityGroupModalProps> = ({
     }
 
     if (onUpdate) {
-      const updateData: Omit<UpdateSecurityGroupInput, "securityGroupId"> = {
+      const updateData: Omit<UpdateSecurityGroupInput, "securityGroupId" | "project_id"> = {
         name: properties.name.trim(),
         description: properties.description.trim() || undefined,
         stateful: properties.stateful,

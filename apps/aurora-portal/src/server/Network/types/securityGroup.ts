@@ -70,21 +70,21 @@ export const listSecurityGroupsInputSchema = projectScopedInputSchema.extend({
   searchTerm: z.string().optional(),
 })
 
-export const getSecurityGroupByIdInputSchema = z.object({
+export const getSecurityGroupByIdInputSchema = projectScopedInputSchema.extend({
   securityGroupId: z.string(),
 })
 
-export const createSecurityGroupInputSchema = z.object({
+export const createSecurityGroupInputSchema = projectScopedInputSchema.extend({
   name: z.string().min(1, "Name is required"),
   description: z.string().optional(),
   stateful: z.boolean().optional(),
 })
 
-export const deleteSecurityGroupInputSchema = z.object({
+export const deleteSecurityGroupInputSchema = projectScopedInputSchema.extend({
   securityGroupId: z.string(),
 })
 
-export const updateSecurityGroupInputSchema = z.object({
+export const updateSecurityGroupInputSchema = projectScopedInputSchema.extend({
   securityGroupId: z.string(),
   name: z.string().min(1, "Name is required").optional(),
   description: z.string().optional(),
@@ -132,4 +132,4 @@ export type CreateSecurityGroupInput = z.infer<typeof createSecurityGroupInputSc
 export type DeleteSecurityGroupInput = z.infer<typeof deleteSecurityGroupInputSchema>
 export type UpdateSecurityGroupInput = z.infer<typeof updateSecurityGroupInputSchema>
 export type DeleteSecurityGroupRuleInput = z.infer<typeof deleteSecurityGroupRuleInputSchema>
-export type CreateSecurityGroupRuleInput = z.input<typeof createSecurityGroupRuleInputSchema>
+export type CreateSecurityGroupRuleInput = z.infer<typeof createSecurityGroupRuleInputSchema>

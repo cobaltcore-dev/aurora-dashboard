@@ -18,7 +18,10 @@ interface SecurityGroupListContainerProps {
   onDeleteSecurityGroup?: (securityGroupId: string) => void
   isDeletingSecurityGroup?: boolean
   deleteError?: string | null
-  onUpdateSecurityGroup?: (securityGroupId: string, data: Omit<UpdateSecurityGroupInput, "securityGroupId">) => void
+  onUpdateSecurityGroup?: (
+    securityGroupId: string,
+    data: Omit<UpdateSecurityGroupInput, "securityGroupId" | "project_id">
+  ) => void
   isUpdatingSecurityGroup?: boolean
   updateError?: string | null
 }

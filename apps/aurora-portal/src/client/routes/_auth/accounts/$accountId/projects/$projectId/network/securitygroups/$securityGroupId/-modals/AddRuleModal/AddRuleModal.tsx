@@ -87,6 +87,10 @@ export const AddRuleModal: React.FC<AddRuleModalProps> = ({
         ethertype: value.ethertype,
         description: value.description || undefined,
         protocol: value.protocol || null,
+        // Initialize remote fields as undefined (will be set below if applicable)
+        remote_ip_prefix: undefined,
+        remote_group_id: undefined,
+        remote_address_group_id: undefined,
       }
 
       // Add port range for TCP/UDP protocols

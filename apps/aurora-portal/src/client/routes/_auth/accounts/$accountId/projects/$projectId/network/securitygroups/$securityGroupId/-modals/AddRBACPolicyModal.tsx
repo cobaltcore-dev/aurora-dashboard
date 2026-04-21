@@ -3,6 +3,7 @@ import { useForm } from "@tanstack/react-form"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { Modal, Form, FormSection, TextInput, Message } from "@cloudoperators/juno-ui-components"
 import { trpcReact } from "@/client/trpcClient"
+import { useProjectId } from "@/client/hooks"
 
 interface AddRBACPolicyModalProps {
   isOpen: boolean
@@ -23,6 +24,7 @@ function isValidProjectID(value: string): boolean {
 export function AddRBACPolicyModal({ isOpen, onClose, securityGroupId }: AddRBACPolicyModalProps) {
   const { t } = useLingui()
   const utils = trpcReact.useUtils()
+  const projectId = useProjectId()
 
   const formSchema = z.object({
     targetTenant: z
@@ -36,7 +38,7 @@ export function AddRBACPolicyModal({ isOpen, onClose, securityGroupId }: AddRBAC
   const createMutation = trpcReact.network.rbacPolicy.create.useMutation({
     onSuccess: () => {
       utils.network.rbacPolicy.list.invalidate({ securityGroupId })
-      utils.network.securityGroup.getById.invalidate({ securityGroupId })
+      utils.network.securityGroup.getById.invalidate({ project_id: projectId, securityGroupId })
       handleClose()
     },
   })

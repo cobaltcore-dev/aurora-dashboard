@@ -164,14 +164,14 @@ msgstr "ACL-Einträge steuern, wer von diesem Container lesen oder in ihn schrei
 msgid "ACLs for container \"{containerName}\" were successfully updated."
 msgstr "ACLs für Container \"{containerName}\" wurden erfolgreich aktualisiert."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-components/-details/SecurityGroupRBACPolicies.tsx:144
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-components/-details/SecurityGroupRBACPolicies.tsx:146
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/DeleteRBACPolicyDialog.tsx:89
 msgid "Action"
 msgstr "Aktion"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Instances/-components/ServerListView.tsx:25
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/ServerGroups/components/ServerGroupListView.tsx:64
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-components/-details/SecurityGroupRBACPolicies.tsx:147
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-components/-details/SecurityGroupRBACPolicies.tsx:149
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-components/-details/SecurityGroupRulesTable.tsx:141
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EditContainerMetadataModal.tsx:670
 msgid "Actions"
@@ -230,11 +230,11 @@ msgstr "Eigenschaft hinzufügen"
 msgid "Add rule"
 msgstr "Regel hinzufügen"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/AddRuleModal/AddRuleModal.tsx:155
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/AddRuleModal/AddRuleModal.tsx:159
 msgid "Add Rule"
 msgstr "Regel hinzufügen"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/AddRuleModal/AddRuleModal.tsx:142
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/AddRuleModal/AddRuleModal.tsx:146
 msgid "Add Security Group Rule"
 msgstr "Sicherheitsgruppenregel hinzufügen"
 
@@ -354,8 +354,8 @@ msgstr "Zurück zu Floating IPs"
 msgid "Back to Images"
 msgstr "Zurück zu Images"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/index.tsx:166
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/index.tsx:180
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/index.tsx:168
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/index.tsx:182
 msgid "Back to Security Groups"
 msgstr "Zurück zu Security Groups"
 
@@ -395,14 +395,14 @@ msgstr "Bulk-Upload von Archivdateien"
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageMemberFormRow.tsx:42
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/CreateSecurityGroupModal.tsx:123
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/DeleteSecurityGroupDialog.tsx:60
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/EditSecurityGroupModal.tsx:133
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/EditSecurityGroupModal.tsx:136
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:144
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AssociateFloatingIpModal.tsx:78
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/DetachFloatingIpModal.tsx:65
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/EditFloatingIpModal.tsx:73
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/ReleaseFloatingIpModal.tsx:62
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/AddRBACPolicyModal.tsx:74
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/AddRuleModal/AddRuleModal.tsx:158
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/AddRBACPolicyModal.tsx:76
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/AddRuleModal/AddRuleModal.tsx:162
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/DeleteRBACPolicyDialog.tsx:62
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/DeleteRuleDialog.tsx:52
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/CreateContainerModal.tsx:91
@@ -701,7 +701,7 @@ msgstr "Neues Image erstellen"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/CreateSecurityGroupModal.tsx:108
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/CreateSecurityGroupModal.tsx:120
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/List.tsx:166
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/List.tsx:160
 msgid "Create Security Group"
 msgstr "Security Group erstellen"
 
@@ -724,7 +724,7 @@ msgstr "Erstellt am"
 msgid "Creating image..."
 msgstr "Image wird erstellt..."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/AddRuleModal/AddRuleModal.tsx:177
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/AddRuleModal/AddRuleModal.tsx:181
 msgid "Creating security group rule..."
 msgstr "Sicherheitsgruppenregel wird erstellt..."
 
@@ -862,9 +862,9 @@ msgstr "Abgelehnter Referrer: {host}"
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/flavors/-components/FlavorDetailsView.tsx:40
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/CreateSecurityGroupModal.tsx:166
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/CreateSecurityGroupModal.tsx:169
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/EditSecurityGroupModal.tsx:184
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/EditSecurityGroupModal.tsx:187
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/SecurityGroupListContainer.tsx:131
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/EditSecurityGroupModal.tsx:190
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/SecurityGroupListContainer.tsx:134
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-details/FloatingIpDetailsView.tsx:60
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:246
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/EditFloatingIpModal.tsx:112
@@ -874,7 +874,7 @@ msgstr "Abgelehnter Referrer: {host}"
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-components/-details/SecurityGroupRulesTable.tsx:137
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/AddRuleModal/sections/DescriptionSection.tsx:20
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/DeleteRuleDialog.tsx:80
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/index.tsx:66
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/index.tsx:68
 msgid "Description"
 msgstr "Beschreibung"
 
@@ -925,8 +925,8 @@ msgstr "Geräteeigentümer"
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-components/-details/SecurityGroupRulesTable.tsx:136
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/AddRuleModal/sections/DirectionEthertypeSection.tsx:19
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/DeleteRuleDialog.tsx:76
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/index.tsx:64
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/index.tsx:71
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/index.tsx:66
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/index.tsx:73
 msgid "Direction"
 msgstr "Richtung"
 
@@ -1016,7 +1016,7 @@ msgstr "z. B. .r:*,.rlistings"
 msgid "e.g. PROJECT_ID:USER_ID"
 msgstr "z. B. PROJECT_ID:USER_ID"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/AddRBACPolicyModal.tsx:119
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/AddRBACPolicyModal.tsx:121
 msgid "e.g., b90f9c4bc76140e18540b2cec1299e2a"
 msgstr "z. B. b90f9c4bc76140e18540b2cec1299e2a"
 
@@ -1060,7 +1060,7 @@ msgstr "Image-Metadaten bearbeiten"
 msgid "Edit Metadata"
 msgstr "Metadaten bearbeiten"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/EditSecurityGroupModal.tsx:118
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/EditSecurityGroupModal.tsx:121
 msgid "Edit Security Group"
 msgstr "Security Group bearbeiten"
 
@@ -1133,7 +1133,7 @@ msgstr "Project ID eingeben"
 msgid "Enter the Cloud"
 msgstr "Die Cloud betreten"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/AddRBACPolicyModal.tsx:121
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/AddRBACPolicyModal.tsx:123
 msgid "Enter the ID of the project you want to share this security group with. You can find project IDs in the account/project switcher or in the Identity service."
 msgstr "Geben Sie die ID des Projekts ein, mit dem Sie diese Sicherheitsgruppe teilen möchten. Sie finden Projekt-IDs im Konto-/Projekt-Umschalter oder im Identity-Service."
 
@@ -1202,13 +1202,13 @@ msgstr "Fehler beim Laden des Images"
 msgid "Error Loading Objects: {errorMessage}"
 msgstr "Fehler beim Laden der Objekte: {errorMessage}"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/index.tsx:162
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/index.tsx:164
 msgid "Error loading security group"
 msgstr "Fehler beim Laden der Security Group"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-components/-details/SecurityGroupRulesTable.tsx:138
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/DeleteRuleDialog.tsx:84
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/index.tsx:77
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/index.tsx:79
 msgid "Ethertype"
 msgstr "Ethertype"
 
@@ -1268,7 +1268,7 @@ msgstr "Fehler beim Erstellen des Ordners"
 msgid "Failed to create image. Please try again."
 msgstr "Image konnte nicht erstellt werden. Bitte versuchen Sie es erneut."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/List.tsx:108
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/List.tsx:102
 msgid "Failed to create security group"
 msgstr "Security Group konnte nicht erstellt werden"
 
@@ -1308,7 +1308,7 @@ msgstr "Fehler beim Löschen der Images"
 msgid "Failed to Delete Object"
 msgstr "Fehler beim Löschen des Objekts"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/List.tsx:120
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/List.tsx:114
 msgid "Failed to delete security group"
 msgstr "Security Group konnte nicht gelöscht werden"
 
@@ -1366,7 +1366,7 @@ msgstr "Floating IPs konnten nicht geladen werden"
 msgid "Failed to load object metadata: {metadataErrorMessage}"
 msgstr "Fehler beim Laden der Objekt-Metadaten: {metadataErrorMessage}"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/SecurityGroupListContainer.tsx:117
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/SecurityGroupListContainer.tsx:120
 msgid "Failed to load security groups"
 msgstr "Security Groups konnten nicht geladen werden"
 
@@ -1410,7 +1410,7 @@ msgstr "Fehler beim Aktualisieren des Containers"
 msgid "Failed to update container: {errorMessage}"
 msgstr "Fehler beim Aktualisieren des Containers: {errorMessage}"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/List.tsx:132
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/List.tsx:126
 msgid "Failed to update security group"
 msgstr "Security Group konnte nicht aktualisiert werden"
 
@@ -1795,7 +1795,7 @@ msgstr "Ungültiges Dateiformat. Unterstützte Formate: {supportedFileFormats}"
 msgid "Invalid format combination for selected disk format"
 msgstr "Ungültige Formatkombination für das ausgewählte Festplattenformat"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/AddRBACPolicyModal.tsx:32
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/AddRBACPolicyModal.tsx:34
 msgid "Invalid project ID format. Must be 32 hexadecimal characters (e.g., b90f9c4bc76140e18540b2cec1299e2a) or UUID format (e.g., 12345678-1234-1234-1234-123456789abc)"
 msgstr "Ungültiges Projekt-ID-Format. Muss 32 hexadezimale Zeichen sein (z. B. b90f9c4bc76140e18540b2cec1299e2a) oder UUID-Format (z. B. 12345678-1234-1234-1234-123456789abc)"
 
@@ -1951,7 +1951,7 @@ msgstr "Objekte werden geladen..."
 msgid "Loading Objects..."
 msgstr "Objekte werden geladen..."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/index.tsx:150
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/index.tsx:152
 msgid "Loading Security Group Details..."
 msgstr "Security Group-Details werden geladen..."
 
@@ -1962,10 +1962,10 @@ msgstr "Lädt Servergruppen"
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/FlavorListContainer.tsx:88
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageListView.tsx:580
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Overview.tsx:115
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/SecurityGroupListContainer.tsx:108
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/SecurityGroupListContainer.tsx:111
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-table/FloatingIpListContainer.tsx:30
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/$floatingIpId.tsx:47
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/index.tsx:146
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/index.tsx:148
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/DeleteContainerModal.tsx:180
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/CopyObjectModal.tsx:392
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/MoveRenameObjectModal.tsx:456
@@ -2202,9 +2202,9 @@ msgstr "keine Angabe"
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/List.tsx:257
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/flavors/-components/FlavorDetailsView.tsx:35
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/CreateSecurityGroupModal.tsx:152
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/EditSecurityGroupModal.tsx:170
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/SecurityGroupListContainer.tsx:131
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/List.tsx:36
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/EditSecurityGroupModal.tsx:173
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/SecurityGroupListContainer.tsx:134
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/List.tsx:39
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-components/-details/SecurityGroupBasicInfo.tsx:45
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EmptyContainerModal.tsx:191
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/index.tsx:83
@@ -2310,7 +2310,7 @@ msgstr "Keine Objekte gefunden"
 msgid "No objects match your search. Try adjusting your search term."
 msgstr "Keine Objekte entsprechen Ihrer Suche. Versuchen Sie, Ihren Suchbegriff anzupassen."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-components/-details/SecurityGroupRBACPolicies.tsx:133
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-components/-details/SecurityGroupRBACPolicies.tsx:135
 msgid "No policies match your search"
 msgstr "Keine Richtlinien entsprechen Ihrer Suche"
 
@@ -2356,7 +2356,7 @@ msgstr "Hinweis: Für <0>statische und dynamische große Objekte</0> werden nur 
 msgid "Note: If this security group is currently in use by one or more ports, the deletion will fail. Please ensure no resources are using this security group before attempting to delete it."
 msgstr "Hinweis: Wenn diese Sicherheitsgruppe derzeit von einem oder mehreren Ports verwendet wird, schlägt die Löschung fehl. Bitte stellen Sie sicher, dass keine Ressourcen diese Sicherheitsgruppe verwenden, bevor Sie versuchen, sie zu löschen."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/EditSecurityGroupModal.tsx:148
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/EditSecurityGroupModal.tsx:151
 msgid "Note: The 'stateful' attribute cannot be changed if this security group is currently in use by one or more ports."
 msgstr "Hinweis: Das Attribut 'stateful' kann nicht geändert werden, wenn diese Security Group derzeit von einem oder mehreren Ports verwendet wird."
 
@@ -2461,7 +2461,7 @@ msgstr "Unsere Mission"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/-components/SideNavBar.tsx:40
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/$floatingIpId.tsx:87
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/index.tsx:198
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/index.tsx:200
 msgid "Overview"
 msgstr "Übersicht"
 
@@ -2572,7 +2572,7 @@ msgstr "Privat"
 msgid "production, linux"
 msgstr "production, linux"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/List.tsx:37
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/List.tsx:40
 msgid "Project id"
 msgstr "Projekt-ID"
 
@@ -2583,7 +2583,7 @@ msgstr "Projekt-ID"
 msgid "Project ID"
 msgstr "Projekt-ID"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-components/-details/SecurityGroupRBACPolicies.tsx:120
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-components/-details/SecurityGroupRBACPolicies.tsx:122
 msgid "projects"
 msgstr "Projekte"
 
@@ -2623,8 +2623,8 @@ msgstr "Geschützte Images (können nicht gelöscht werden)"
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-components/-details/SecurityGroupRulesTable.tsx:139
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/AddRuleModal/sections/ProtocolSection.tsx:20
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/DeleteRuleDialog.tsx:88
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/index.tsx:65
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/index.tsx:83
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/index.tsx:67
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/index.tsx:85
 msgid "Protocol"
 msgstr "Protokoll"
 
@@ -2878,16 +2878,16 @@ msgid "Security Group Basic Info"
 msgstr "Security Group – Grundlegende Informationen"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/CreateSecurityGroupModal.tsx:73
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/EditSecurityGroupModal.tsx:83
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/EditSecurityGroupModal.tsx:86
 msgid "Security group name is required"
 msgstr "Security Group-Name ist erforderlich"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/index.tsx:177
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/index.tsx:179
 msgid "Security group not found"
 msgstr "Security Group nicht gefunden"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/-components/SideNavBar.tsx:73
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/index.tsx:201
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/index.tsx:203
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/index.tsx:14
 msgid "Security Groups"
 msgstr "Security Groups"
@@ -3005,23 +3005,23 @@ msgstr "Sitzung läuft ab in"
 msgid "Set to \"Shared\""
 msgstr "Auf \"Geteilt\" setzen"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/AddRBACPolicyModal.tsx:75
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/AddRBACPolicyModal.tsx:77
 msgid "Share"
 msgstr "Teilen"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-components/-details/SecurityGroupRBACPolicies.tsx:125
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/AddRBACPolicyModal.tsx:71
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-components/-details/SecurityGroupRBACPolicies.tsx:127
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/AddRBACPolicyModal.tsx:73
 msgid "Share Security Group"
 msgstr "Sicherheitsgruppe teilen"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/AddRBACPolicyModal.tsx:79
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/AddRBACPolicyModal.tsx:81
 msgid "Share this security group with another project. The target project will be able to view and use this security group, but will not be able to modify or delete it."
 msgstr "Teilen Sie diese Sicherheitsgruppe mit einem anderen Projekt. Das Zielprojekt kann diese Sicherheitsgruppe ansehen und verwenden, aber nicht ändern oder löschen."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/CreateImageModal.tsx:556
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageDetailsModal.tsx:287
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/SecurityGroupListContainer.tsx:131
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/List.tsx:42
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/SecurityGroupListContainer.tsx:134
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/List.tsx:45
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-components/-details/SecurityGroupBasicInfo.tsx:55
 msgid "Shared"
 msgstr "Geteilt"
@@ -3097,8 +3097,8 @@ msgid "Start typing to search for a container"
 msgstr "Beginnen Sie mit der Eingabe, um nach einem Container zu suchen"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/CreateSecurityGroupModal.tsx:179
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/EditSecurityGroupModal.tsx:197
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/SecurityGroupListContainer.tsx:131
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/EditSecurityGroupModal.tsx:200
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/SecurityGroupListContainer.tsx:134
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-components/-details/SecurityGroupBasicInfo.tsx:47
 msgid "Stateful"
 msgstr "Stateful"
@@ -3205,13 +3205,13 @@ msgstr "Ziel-Container"
 msgid "Target path"
 msgstr "Zielpfad"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-components/-details/SecurityGroupRBACPolicies.tsx:141
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/AddRBACPolicyModal.tsx:116
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-components/-details/SecurityGroupRBACPolicies.tsx:143
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/AddRBACPolicyModal.tsx:118
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/DeleteRBACPolicyDialog.tsx:86
 msgid "Target Project ID"
 msgstr "Zielprojekt-ID"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/AddRBACPolicyModal.tsx:30
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/AddRBACPolicyModal.tsx:32
 msgid "Target project ID is required"
 msgstr "Zielprojekt-ID ist erforderlich"
 
@@ -3315,7 +3315,7 @@ msgstr "Das Objekt wird zu diesem Pfad verschoben. Navigieren Sie oben durch die
 msgid "The requested flavor could not be found. It may have been deleted or you may not have access to it."
 msgstr "Der angeforderte Flavor konnte nicht gefunden werden. Er wurde möglicherweise gelöscht oder Sie haben keinen Zugriff darauf."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/AddRBACPolicyModal.tsx:92
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/AddRBACPolicyModal.tsx:94
 msgid "The specified project does not exist or you don't have permission to share with it."
 msgstr "Das angegebene Projekt existiert nicht oder Sie haben keine Berechtigung, es zu teilen."
 
@@ -3348,7 +3348,7 @@ msgstr "Keine Flavors verfügbar. Filtern Sie neu oder erstellen Sie einen neuen
 msgid "There are no Floating IPs available for this project. Floating IPs allow you to map public IP addresses to instances."
 msgstr "Für dieses Projekt sind keine Floating IPs verfügbar. Floating IPs ermöglichen es, öffentliche IP-Adressen Instances zuzuordnen."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/SecurityGroupListContainer.tsx:124
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/SecurityGroupListContainer.tsx:127
 msgid "There are no groups"
 msgstr "Keine Gruppen vorhanden"
 
@@ -3356,7 +3356,7 @@ msgstr "Keine Gruppen vorhanden"
 msgid "There are no images available for this project with the current filters applied. Try adjusting your filter criteria or create a new image."
 msgstr "Keine Images verfügbar. Filtern Sie neu oder erstellen Sie ein neues Image."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-components/-details/SecurityGroupRBACPolicies.tsx:135
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-components/-details/SecurityGroupRBACPolicies.tsx:137
 msgid "There are no RBAC policies for this security group"
 msgstr "Für diese Security Group sind keine RBAC-Richtlinien vorhanden"
 
@@ -3433,7 +3433,7 @@ msgstr "Dieses Mitglied hat bereits Zugriff auf dieses Image."
 msgid "This property is reserved and cannot be modified"
 msgstr "Diese Eigenschaft ist reserviert und kann nicht geändert werden"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/AddRBACPolicyModal.tsx:90
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/AddRBACPolicyModal.tsx:92
 msgid "This security group is already shared with the specified project."
 msgstr "Diese Sicherheitsgruppe ist bereits mit dem angegebenen Projekt geteilt."
 
@@ -3524,7 +3524,7 @@ msgid "Type container name to confirm"
 msgstr "Geben Sie den Container-Namen zur Bestätigung ein"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/CreateSecurityGroupModal.tsx:157
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/EditSecurityGroupModal.tsx:175
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/EditSecurityGroupModal.tsx:178
 msgid "Type name"
 msgstr "Name eingeben"
 
@@ -3581,7 +3581,7 @@ msgstr "Image-Datei kann nicht hochgeladen werden"
 msgid "Unnamed"
 msgstr "Unbenannt"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/EditSecurityGroupModal.tsx:130
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/EditSecurityGroupModal.tsx:133
 msgid "Update Security Group"
 msgstr "Security Group aktualisieren"
 
@@ -3599,7 +3599,7 @@ msgstr "Aktualisiert:"
 msgid "Updating Floating IP..."
 msgstr "Floating IP wird aktualisiert..."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/EditSecurityGroupModal.tsx:158
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/EditSecurityGroupModal.tsx:161
 msgid "Updating security group..."
 msgstr "Security Group wird aktualisiert..."
 
@@ -3819,7 +3819,7 @@ msgstr "Sie haben keine Berechtigung, Flavors in diesem Projekt zu löschen."
 msgid "You don't have permission to remove tenant access from this flavor."
 msgstr "Sie haben keine Berechtigung, Projektzugriffe von diesem Flavor zu entfernen."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/AddRBACPolicyModal.tsx:94
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/AddRBACPolicyModal.tsx:96
 msgid "You don't have permission to share this security group."
 msgstr "Sie haben keine Berechtigung, diese Sicherheitsgruppe zu teilen."
 
