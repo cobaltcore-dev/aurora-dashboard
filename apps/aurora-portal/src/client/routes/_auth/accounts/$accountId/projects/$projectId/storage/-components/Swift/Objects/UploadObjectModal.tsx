@@ -1,6 +1,7 @@
 import { useState, useRef } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { Modal, Stack, Message, Spinner } from "@cloudoperators/juno-ui-components"
+import { MdCloudUpload } from "react-icons/md"
 import { trpcClient, trpcReact } from "@/client/trpcClient"
 import { cn } from "@/client/utils/cn"
 import { formatBytesBinary } from "@/client/utils/formatBytes"
@@ -66,12 +67,14 @@ export const UploadObjectModal = ({
   const handleDragOver = (e: React.DragEvent<HTMLLabelElement>) => {
     e.preventDefault()
     e.stopPropagation()
+    if (isPending) return
     setIsDragging(true)
   }
 
   const handleDragLeave = (e: React.DragEvent<HTMLLabelElement>) => {
     e.preventDefault()
     e.stopPropagation()
+    if (isPending) return
     setIsDragging(false)
   }
 
@@ -79,6 +82,7 @@ export const UploadObjectModal = ({
     e.preventDefault()
     e.stopPropagation()
     setIsDragging(false)
+    if (isPending) return
     const file = e.dataTransfer.files?.[0]
     if (file) {
       setFileError(null)
@@ -164,17 +168,18 @@ export const UploadObjectModal = ({
           <label
             htmlFor="upload-object-file"
             className={cn(
-              "flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed px-6 py-8 text-center transition-colors",
+              "flex flex-col items-center justify-center rounded-lg border-2 border-dashed px-6 py-8 text-center transition-colors",
               isDragging
                 ? "border-theme-accent bg-theme-background-lvl-2"
-                : "border-theme-background-lvl-4 hover:border-theme-accent hover:bg-theme-background-lvl-1",
-              isPending && "cursor-not-allowed opacity-60"
+                : isPending
+                  ? "border-theme-background-lvl-4 pointer-events-none cursor-not-allowed opacity-60"
+                  : "border-theme-background-lvl-4 hover:border-theme-accent hover:bg-theme-background-lvl-1 cursor-pointer"
             )}
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
           >
-            <div className="mb-2 text-3xl">📁</div>
+            <MdCloudUpload className="text-theme-light mb-2" size={40} />
             <p className="text-theme-default text-sm font-medium">
               {isDragging ? (
                 <span>{t`Drop your file here`}</span>
