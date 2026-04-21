@@ -89,7 +89,6 @@ const createMockContext = (opts?: {
       }
       return mockOpenstackSession
     }),
-    getMultipartData: vi.fn(),
   } as unknown as AuroraPortalContext
 }
 
@@ -318,7 +317,6 @@ describe("securityGroupRouter.list", () => {
         createSession: vi.fn(),
         terminateSession: vi.fn(),
         rescopeSession: vi.fn().mockResolvedValue(mockOpenstackSession),
-        getMultipartData: vi.fn(),
       } as unknown as AuroraPortalContext
     }
 
@@ -601,7 +599,6 @@ describe("securityGroupRouter.create", () => {
       createSession: vi.fn(),
       terminateSession: vi.fn(),
       rescopeSession: vi.fn(),
-      getMultipartData: vi.fn(),
     } as unknown as AuroraPortalContext
   }
 
@@ -713,7 +710,6 @@ describe("securityGroupRouter.deleteById", () => {
       createSession: vi.fn(),
       terminateSession: vi.fn(),
       rescopeSession: vi.fn(),
-      getMultipartData: vi.fn(),
     } as unknown as AuroraPortalContext
   }
 
@@ -838,7 +834,6 @@ describe("securityGroupRouter.update", () => {
       createSession: vi.fn(),
       terminateSession: vi.fn(),
       rescopeSession: vi.fn(),
-      getMultipartData: vi.fn(),
     } as unknown as AuroraPortalContext
   }
 

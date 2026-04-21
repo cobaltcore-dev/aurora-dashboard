@@ -47,7 +47,6 @@ const createMockContext = (shouldFailAuth = false, shouldFailRescope = false, sh
           ),
         }
   ),
-  getMultipartData: vi.fn().mockResolvedValue({}),
 })
 
 const createCaller = createCallerFactory(auroraRouter({ flavor: flavorRouter }))
