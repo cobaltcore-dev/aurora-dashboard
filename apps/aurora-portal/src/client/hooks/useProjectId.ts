@@ -3,9 +3,9 @@ import { useParams } from "@tanstack/react-router"
 /**
  * Extract projectId from the current URL.
  *
- * This hook must be used within a project-scoped route.
- * Currently: /accounts/:accountId/projects/:projectId/...
- * Future: /projects/:projectId/...
+ * This hook works with both old and new route structures:
+ * - Old: /accounts/:accountId/projects/:projectId/...
+ * - New: /projects/:projectId/...
  *
  * @throws {Error} If used outside of a project route context
  * @returns {string} The current project ID from URL params
@@ -22,19 +22,20 @@ import { useParams } from "@tanstack/react-router"
  * ```
  */
 export function useProjectId(): string {
-  // Extract from current route structure
-  // This will be updated in one place when routes are restructured
+  // Use strict: false to work with any route that has projectId param
+  // Works with both:
+  // - /accounts/:accountId/projects/:projectId/... (old)
+  // - /projects/:projectId/... (new)
   const { projectId } = useParams({
-    from: "/_auth/accounts/$accountId/projects/$projectId",
+    strict: false,
   })
 
-  // Runtime validation - should never happen due to TanStack Router's type safety,
-  // but provides clear error message if route configuration is incorrect
+  // Runtime validation - provides clear error message if projectId is not in URL
   if (!projectId) {
     throw new Error(
       "useProjectId() must be used within a project-scoped route. " +
         "This is likely a routing configuration error. " +
-        "Expected route pattern: /accounts/:accountId/projects/:projectId/..."
+        "Expected route pattern with :projectId parameter"
     )
   }
 

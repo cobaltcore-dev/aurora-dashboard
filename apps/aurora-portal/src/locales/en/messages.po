@@ -174,6 +174,7 @@ msgstr "Action"
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-components/-details/SecurityGroupRBACPolicies.tsx:149
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-components/-details/SecurityGroupRulesTable.tsx:141
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EditContainerMetadataModal.tsx:670
+#: src/client/routes/_auth/projects/$projectId/network/securitygroups/-components/SecurityGroupListContainerProjectScoped.tsx:163
 msgid "Actions"
 msgstr "Actions"
 
@@ -356,6 +357,8 @@ msgstr "Back to Images"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/index.tsx:168
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/index.tsx:182
+#: src/client/routes/_auth/projects/$projectId/network/securitygroups/$securityGroupId/index.tsx:163
+#: src/client/routes/_auth/projects/$projectId/network/securitygroups/$securityGroupId/index.tsx:177
 msgid "Back to Security Groups"
 msgstr "Back to Security Groups"
 
@@ -702,6 +705,7 @@ msgstr "Create New Image"
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/CreateSecurityGroupModal.tsx:108
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/CreateSecurityGroupModal.tsx:120
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/List.tsx:160
+#: src/client/routes/_auth/projects/$projectId/network/securitygroups/-components/SecurityGroupsProjectScoped.tsx:148
 msgid "Create Security Group"
 msgstr "Create Security Group"
 
@@ -875,6 +879,8 @@ msgstr "Denied referrer: {host}"
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/AddRuleModal/sections/DescriptionSection.tsx:20
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/DeleteRuleDialog.tsx:80
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/index.tsx:68
+#: src/client/routes/_auth/projects/$projectId/network/securitygroups/-components/SecurityGroupListContainerProjectScoped.tsx:154
+#: src/client/routes/_auth/projects/$projectId/network/securitygroups/$securityGroupId/index.tsx:63
 msgid "Description"
 msgstr "Description"
 
@@ -927,6 +933,8 @@ msgstr "Device Owner"
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/DeleteRuleDialog.tsx:76
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/index.tsx:66
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/index.tsx:73
+#: src/client/routes/_auth/projects/$projectId/network/securitygroups/$securityGroupId/index.tsx:61
+#: src/client/routes/_auth/projects/$projectId/network/securitygroups/$securityGroupId/index.tsx:68
 msgid "Direction"
 msgstr "Direction"
 
@@ -1203,12 +1211,18 @@ msgid "Error Loading Objects: {errorMessage}"
 msgstr "Error Loading Objects: {errorMessage}"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/index.tsx:164
+#: src/client/routes/_auth/projects/$projectId/network/securitygroups/$securityGroupId/index.tsx:159
 msgid "Error loading security group"
 msgstr "Error loading security group"
+
+#: src/client/routes/_auth/projects/$projectId/network/securitygroups/-components/SecurityGroupListContainerProjectScoped.tsx:133
+msgid "Error loading security groups"
+msgstr "Error loading security groups"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-components/-details/SecurityGroupRulesTable.tsx:138
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/DeleteRuleDialog.tsx:84
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/index.tsx:79
+#: src/client/routes/_auth/projects/$projectId/network/securitygroups/$securityGroupId/index.tsx:74
 msgid "Ethertype"
 msgstr "Ethertype"
 
@@ -1269,6 +1283,7 @@ msgid "Failed to create image. Please try again."
 msgstr "Failed to create image. Please try again."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/List.tsx:102
+#: src/client/routes/_auth/projects/$projectId/network/securitygroups/-components/SecurityGroupsProjectScoped.tsx:94
 msgid "Failed to create security group"
 msgstr "Failed to create security group"
 
@@ -1309,6 +1324,7 @@ msgid "Failed to Delete Object"
 msgstr "Failed to Delete Object"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/List.tsx:114
+#: src/client/routes/_auth/projects/$projectId/network/securitygroups/-components/SecurityGroupsProjectScoped.tsx:104
 msgid "Failed to delete security group"
 msgstr "Failed to delete security group"
 
@@ -1411,6 +1427,7 @@ msgid "Failed to update container: {errorMessage}"
 msgstr "Failed to update container: {errorMessage}"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/List.tsx:126
+#: src/client/routes/_auth/projects/$projectId/network/securitygroups/-components/SecurityGroupsProjectScoped.tsx:114
 msgid "Failed to update security group"
 msgstr "Failed to update security group"
 
@@ -1952,6 +1969,7 @@ msgid "Loading Objects..."
 msgstr "Loading Objects..."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/index.tsx:152
+#: src/client/routes/_auth/projects/$projectId/network/securitygroups/$securityGroupId/index.tsx:147
 msgid "Loading Security Group Details..."
 msgstr "Loading Security Group Details..."
 
@@ -1969,6 +1987,7 @@ msgstr "Loading Server Groups..."
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/DeleteContainerModal.tsx:180
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/CopyObjectModal.tsx:392
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/MoveRenameObjectModal.tsx:456
+#: src/client/routes/_auth/projects/$projectId/network/securitygroups/$securityGroupId/index.tsx:143
 #: src/client/routes/auth/login.tsx:223
 msgid "Loading..."
 msgstr "Loading..."
@@ -2209,6 +2228,8 @@ msgstr "N/A"
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EmptyContainerModal.tsx:191
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/index.tsx:83
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/index.tsx:232
+#: src/client/routes/_auth/projects/$projectId/network/securitygroups/-components/SecurityGroupListContainerProjectScoped.tsx:151
+#: src/client/routes/_auth/projects/$projectId/network/securitygroups/-components/SecurityGroupsProjectScoped.tsx:47
 msgid "Name"
 msgstr "Name"
 
@@ -2330,6 +2351,10 @@ msgstr "No projects found"
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageMembersTable.tsx:231
 msgid "No projects have access to this image yet. Click \"Add Project Access\" to grant access."
 msgstr "No projects have access to this image yet. Click \"Add Project Access\" to grant access."
+
+#: src/client/routes/_auth/projects/$projectId/network/securitygroups/-components/SecurityGroupListContainerProjectScoped.tsx:141
+msgid "No security groups found"
+msgstr "No security groups found"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/ServerGroups/components/ServerGroupListView.tsx:85
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/ServerGroups/List.tsx:16
@@ -2573,6 +2598,7 @@ msgid "production, linux"
 msgstr "production, linux"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/List.tsx:40
+#: src/client/routes/_auth/projects/$projectId/network/securitygroups/-components/SecurityGroupsProjectScoped.tsx:48
 msgid "Project id"
 msgstr "Project id"
 
@@ -2625,6 +2651,8 @@ msgstr "Protected images (cannot be deleted)"
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/DeleteRuleDialog.tsx:88
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/index.tsx:67
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/index.tsx:85
+#: src/client/routes/_auth/projects/$projectId/network/securitygroups/$securityGroupId/index.tsx:62
+#: src/client/routes/_auth/projects/$projectId/network/securitygroups/$securityGroupId/index.tsx:80
 msgid "Protocol"
 msgstr "Protocol"
 
@@ -2883,12 +2911,15 @@ msgid "Security group name is required"
 msgstr "Security group name is required"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/index.tsx:179
+#: src/client/routes/_auth/projects/$projectId/network/securitygroups/$securityGroupId/index.tsx:174
 msgid "Security group not found"
 msgstr "Security group not found"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/-components/SideNavBar.tsx:73
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/index.tsx:203
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/index.tsx:14
+#: src/client/routes/_auth/projects/$projectId/network/securitygroups/$securityGroupId/index.tsx:188
+#: src/client/routes/_auth/projects/$projectId/network/securitygroups/index.tsx:14
 msgid "Security Groups"
 msgstr "Security Groups"
 
@@ -3023,6 +3054,8 @@ msgstr "Share this security group with another project. The target project will 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/SecurityGroupListContainer.tsx:134
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/List.tsx:45
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-components/-details/SecurityGroupBasicInfo.tsx:55
+#: src/client/routes/_auth/projects/$projectId/network/securitygroups/-components/SecurityGroupListContainerProjectScoped.tsx:157
+#: src/client/routes/_auth/projects/$projectId/network/securitygroups/-components/SecurityGroupsProjectScoped.tsx:53
 msgid "Shared"
 msgstr "Shared"
 
@@ -3100,6 +3133,7 @@ msgstr "Start typing to search for a container"
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/EditSecurityGroupModal.tsx:200
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/SecurityGroupListContainer.tsx:134
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-components/-details/SecurityGroupBasicInfo.tsx:47
+#: src/client/routes/_auth/projects/$projectId/network/securitygroups/-components/SecurityGroupListContainerProjectScoped.tsx:160
 msgid "Stateful"
 msgstr "Stateful"
 
