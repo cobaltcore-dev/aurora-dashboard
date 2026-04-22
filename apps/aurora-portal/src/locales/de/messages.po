@@ -832,6 +832,9 @@ msgstr "Fehler beim Laden der Security Group"
 msgid "Ethertype"
 msgstr "Ethertype"
 
+msgid "Expected format: YYYY-MM-DD HH:MM:SS"
+msgstr ""
+
 msgid "Expires at (UTC)"
 msgstr ""
 

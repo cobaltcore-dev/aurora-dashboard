@@ -62,11 +62,11 @@ const formatDate = (iso: string): string =>
     minute: "2-digit",
   })
 
-// Converts a Unix timestamp (seconds) to the "YYYY-MM-DD HH:MM:SS" field format
+// Converts a Unix timestamp (seconds) to the "YYYY-MM-DD HH:MM:SS" field format (UTC)
 const formatUnixToTimestamp = (unix: number): string => {
   const d = new Date(unix * 1000)
   const pad = (n: number) => String(n).padStart(2, "0")
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`
+  return `${d.getUTCFullYear()}-${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())} ${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}:${pad(d.getUTCSeconds())}`
 }
 
 // ── Component ──────────────────────────────────────────────────────────────────
@@ -205,7 +205,9 @@ export const EditObjectMetadataModal = ({
       container: containerName,
       object: object.name,
       metadata: metadataRecord,
-      ...(expiresAt.trim() ? { deleteAt: Math.floor(new Date(expiresAt.trim()).getTime() / 1000) } : {}),
+      ...(expiresAt.trim()
+        ? { deleteAt: Math.floor(new Date(expiresAt.trim().replace(" ", "T") + "Z").getTime() / 1000) }
+        : {}),
     })
   }
 
@@ -403,6 +405,7 @@ export const EditObjectMetadataModal = ({
               }, 600)
             }}
             invalid={!!expiresAtError}
+            errortext={expiresAtError ? t`Expected format: YYYY-MM-DD HH:MM:SS` : undefined}
             placeholder={t`Enter a timestamp like "2026-05-16 18:14:57" to schedule automatic deletion`}
             helptext={
               expiresAt.trim()

@@ -299,29 +299,26 @@ describe("EditObjectMetadataModal", () => {
     })
 
     test("field is populated with formatted timestamp when deleteAt is set", async () => {
-      // Unix 1747400000 → "2025-05-16 ..."
+      // Unix 1747400000 → 2025-05-16T12:53:20.000Z (UTC)
       mockObjectMetadata = makeObjectMetadata({ deleteAt: 1747400000 })
       renderModal()
       await flushEffects()
       const input = screen.getByLabelText(/Expires at/i)
-      expect(input.getAttribute("value")).toMatch(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/)
+      expect(input).toHaveValue("2025-05-16 12:53:20")
     })
 
     test("shows invalid state after debounce when format is wrong", async () => {
+      vi.useFakeTimers({ shouldAdvanceTime: true })
       mockObjectMetadata = makeObjectMetadata()
-      const user = userEvent.setup()
+      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime })
       renderModal()
       await flushEffects()
-      // Type an invalid value and wait longer than the 600ms debounce
       await user.type(screen.getByLabelText(/Expires at/i), "not-a-date")
-      // The invalid prop is set by the debounce — verify the input exists and has a value
-      await waitFor(
-        () => {
-          const input = screen.getByLabelText(/Expires at/i)
-          expect(input).toHaveValue("not-a-date")
-        },
-        { timeout: 2000 }
-      )
+      act(() => vi.advanceTimersByTime(700))
+      await waitFor(() => {
+        expect(screen.getByText(/Expected format: YYYY-MM-DD HH:MM:SS/i)).toBeInTheDocument()
+      })
+      vi.useRealTimers()
     }, 10000)
 
     test("shows helptext when user has typed something", async () => {
