@@ -189,6 +189,11 @@ export const GenerateTempUrlModal = ({ isOpen, object, onClose, onCopySuccess }:
     const validPresets = new Set([...EXPIRY_PRESETS.map((p) => String(p.seconds)), CUSTOM_VALUE])
     const nextPreset = candidate && validPresets.has(candidate) ? candidate : defaultPreset
     setSelectedPreset(nextPreset)
+    // Clear custom input state when switching away from custom
+    if (nextPreset !== CUSTOM_VALUE) {
+      setCustomMinutes("")
+      setCustomMinutesError(null)
+    }
     // Reset generated URL when config changes
     setTempUrl(null)
     setExpiresAt(null)
