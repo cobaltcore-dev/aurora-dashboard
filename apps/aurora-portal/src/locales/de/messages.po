@@ -50,7 +50,7 @@ msgstr "{allCount} Elemente"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/GenerateTempUrlModal.tsx:180
 msgid "{customMinutes} minute(s)"
-msgstr ""
+msgstr "{customMinutes} Minute(n)"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/ObjectsTableView.tsx:382
 msgid "{progressPct}%"
@@ -86,7 +86,7 @@ msgstr "<0>Zukunftssicher:</0> Aurora ist darauf ausgelegt, sich mit den neueste
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/GenerateTempUrlModal.tsx:245
 msgid "<0>No Temp URL key configured.</0> A temporary URL key must be set at the account or container level before temporary URLs can be generated. Contact your administrator to configure <1>X-Account-Meta-Temp-URL-Key</1> or <2>X-Container-Meta-Temp-URL-Key</2>."
-msgstr ""
+msgstr "<0>Kein Temp-URL-Schlüssel konfiguriert.</0> Ein temporärer URL-Schlüssel muss auf Account- oder Container-Ebene gesetzt werden, bevor temporäre URLs generiert werden können. Wenden Sie sich an Ihren Administrator, um <1>X-Account-Meta-Temp-URL-Key</1> oder <2>X-Container-Meta-Temp-URL-Key</2> zu konfigurieren."
 
 #: src/client/routes/about.tsx:56
 msgid "<0>Optimized Scalability:</0> Built for businesses of all sizes, Aurora grows with you, supporting simple environments and intricate multi-cloud setups alike."
@@ -116,7 +116,7 @@ msgstr "Eine Eigenschaft mit diesem Schlüssel existiert bereits"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/GenerateTempUrlModal.tsx:206
 msgid "A temporary URL grants time-limited read access to this object without requiring authentication. Anyone with the link can download it until it expires."
-msgstr ""
+msgstr "Eine temporäre URL gewährt zeitlich begrenzten Lesezugriff auf dieses Objekt ohne Authentifizierung. Jeder mit dem Link kann es herunterladen, bis es abläuft."
 
 #: src/client/routes/about.tsx:14
 msgid "About Aurora Dashboard"
@@ -466,7 +466,7 @@ msgstr "Zum Hochladen klicken"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/GenerateTempUrlModal.tsx:200
 msgid "Close"
-msgstr ""
+msgstr "Schließen"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/CreateImageModal.tsx:557
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageDetailsModal.tsx:288
@@ -620,7 +620,7 @@ msgstr "Objekt kopieren:"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/GenerateTempUrlModal.tsx:268
 msgid "Copy URL"
-msgstr ""
+msgstr "URL kopieren"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/CopyObjectModal.tsx:315
 msgid "Copying object..."
@@ -755,11 +755,11 @@ msgstr "Sicherheitsgruppe wird erstellt..."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/GenerateTempUrlModal.tsx:217
 msgid "Custom"
-msgstr ""
+msgstr "Benutzerdefiniert"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/GenerateTempUrlModal.tsx:223
 msgid "Custom duration (minutes)"
-msgstr ""
+msgstr "Benutzerdefinierte Dauer (Minuten)"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/ImageDetailsView.tsx:218
 msgid "Custom Properties / Metadata"
@@ -1243,11 +1243,11 @@ msgstr "Ethertype"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/GenerateTempUrlModal.tsx:213
 msgid "Expires in"
-msgstr ""
+msgstr "Läuft ab in"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/GenerateTempUrlModal.tsx:277
 msgid "Expires in {selectedPresetLabel} — at {expiresAtFormatted}"
-msgstr ""
+msgstr "Läuft ab in {selectedPresetLabel} — um {expiresAtFormatted}"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:182
 msgid "External Network"
@@ -1375,7 +1375,7 @@ msgstr "Fehler beim Abrufen der Flavors vom Server."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/GenerateTempUrlModal.tsx:256
 msgid "Failed to generate temporary URL: {generalError}"
-msgstr ""
+msgstr "Fehler beim Generieren der temporären URL: {generalError}"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ManageContainerAccessModal.tsx:350
 msgid "Failed to load container ACLs: {errorMessage}"
@@ -1624,15 +1624,15 @@ msgstr "Allgemeine Image-Daten"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/GenerateTempUrlModal.tsx:198
 msgid "Generate URL"
-msgstr ""
+msgstr "URL generieren"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/GenerateTempUrlModal.tsx:238
 msgid "Generating temporary URL..."
-msgstr ""
+msgstr "Temporäre URL wird generiert..."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/GenerateTempUrlModal.tsx:198
 msgid "Generating..."
-msgstr ""
+msgstr "Wird generiert..."
 
 #: src/client/routes/about.tsx:100
 msgid "Get Involved"
@@ -2556,7 +2556,7 @@ msgstr "Datei-Upload ausstehend..."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/GenerateTempUrlModal.tsx:111
 msgid "Please enter a valid number of minutes greater than 0"
-msgstr ""
+msgstr "Bitte geben Sie eine gültige Anzahl von Minuten größer als 0 ein"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/CreateFlavorModal.tsx:110
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Flavors/-components/EditSpecModal.tsx:114
@@ -3068,11 +3068,11 @@ msgstr "Teilen"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/ObjectsTableView.tsx:444
 msgid "Share (Temporary URL)"
-msgstr ""
+msgstr "Teilen (Temporäre URL)"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/GenerateTempUrlModal.tsx:189
 msgid "Share object:"
-msgstr ""
+msgstr "Objekt teilen:"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-components/-details/SecurityGroupRBACPolicies.tsx:125
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/AddRBACPolicyModal.tsx:71
@@ -3286,11 +3286,11 @@ msgstr "tcp, udp, icmp oder Protokollnummer"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/GenerateTempUrlModal.tsx:264
 msgid "Temporary URL"
-msgstr ""
+msgstr "Temporary URL"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/ObjectToastNotifications.tsx:252
 msgid "Temporary URL for \"{objectName}\" was copied to clipboard."
-msgstr ""
+msgstr "Temporäre URL für \"{objectName}\" wurde in die Zwischenablage kopiert."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ContainerLimitsTooltip.tsx:54
 msgid "Temporary URLs"
@@ -3678,7 +3678,7 @@ msgstr "Security Group wird aktualisiert..."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/ObjectToastNotifications.tsx:251
 msgid "URL Copied"
-msgstr ""
+msgstr "URL kopiert"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EditContainerMetadataModal.tsx:496
 msgid "URL for public access"
