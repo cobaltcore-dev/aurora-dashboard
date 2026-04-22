@@ -139,15 +139,18 @@ export const GenerateTempUrlModal = ({ isOpen, object, onClose, onCopySuccess }:
   }
 
   const handlePresetChange = (value?: string | number | string[]) => {
-    const v =
+    const defaultPreset = String(EXPIRY_PRESETS[1].seconds)
+    const candidate =
       typeof value === "string"
         ? value
         : typeof value === "number"
           ? String(value)
-          : Array.isArray(value)
+          : Array.isArray(value) && typeof value[0] === "string"
             ? value[0]
             : ""
-    setSelectedPreset(v ?? String(EXPIRY_PRESETS[1].seconds))
+    const validPresets = new Set([...EXPIRY_PRESETS.map((p) => String(p.seconds)), CUSTOM_VALUE])
+    const nextPreset = candidate && validPresets.has(candidate) ? candidate : defaultPreset
+    setSelectedPreset(nextPreset)
     // Reset generated URL when config changes
     setTempUrl(null)
     setExpiresAt(null)
