@@ -7,6 +7,14 @@ export interface RulePreset {
 }
 
 export const RULE_PRESETS: RulePreset[] = [
+  // Empty default option - label rendered in UI with translation
+  {
+    value: "",
+    label: "", // Rendered in RuleTypeSection with t()
+    protocol: null,
+    portRangeMin: null,
+    portRangeMax: null,
+  },
   // Custom rules (appears first)
   {
     value: "custom-tcp",

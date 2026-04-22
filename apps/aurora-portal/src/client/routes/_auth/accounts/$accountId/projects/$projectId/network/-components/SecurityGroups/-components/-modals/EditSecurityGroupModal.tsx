@@ -119,6 +119,9 @@ export const EditSecurityGroupModal: React.FC<EditSecurityGroupModalProps> = ({
       modalFooter={
         <ModalFooter className="flex justify-end">
           <ButtonRow>
+            <Button variant="default" onClick={handleClose} disabled={isLoading}>
+              <Trans>Cancel</Trans>
+            </Button>
             <Button
               variant="primary"
               onClick={(e) => {
@@ -128,9 +131,6 @@ export const EditSecurityGroupModal: React.FC<EditSecurityGroupModalProps> = ({
               data-testid="update-security-group-button"
             >
               {isLoading ? <Spinner size="small" /> : <Trans>Update Security Group</Trans>}
-            </Button>
-            <Button variant="default" onClick={handleClose} disabled={isLoading}>
-              <Trans>Cancel</Trans>
             </Button>
           </ButtonRow>
         </ModalFooter>

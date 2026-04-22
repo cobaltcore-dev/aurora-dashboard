@@ -201,26 +201,30 @@ export const ListToolbar = ({
             />
           </div>
         )}
-      </Stack>
-      {/* Count and Last Updated Info */}
-      {(showCountInfo || lastUpdated) && (
-        <div className="text-theme-secondary flex w-full items-center justify-between text-sm">
-          <div className="flex items-center gap-4">
-            {showCountInfo && (
-              <span>
-                <Trans>
-                  Showing {filteredCount} of {totalCount} {itemName}
-                </Trans>
-              </span>
-            )}
-            {lastUpdated && (
-              <span>
-                <Trans>Last updated: {formatLastUpdated(lastUpdated)}</Trans>
-              </span>
-            )}
+        {/* Count and Last Updated Info */}
+        {(showCountInfo || lastUpdated) && (
+          <div className="text-theme-secondary flex w-full items-center justify-between text-sm">
+            <div className="flex items-center gap-2">
+              {showCountInfo && (
+                <span>
+                  <Trans>
+                    Showing {filteredCount} of {totalCount} {itemName}
+                  </Trans>
+                </span>
+              )}
+              {lastUpdated &&
+                (() => {
+                  const formattedDate = formatLastUpdated(lastUpdated)
+                  return (
+                    <span>
+                      <Trans>Last updated: {formattedDate}</Trans>
+                    </span>
+                  )
+                })()}
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </Stack>
     </>
   )
 }

@@ -40,6 +40,9 @@ export function DeleteRuleDialog({ rule, open, onClose, onConfirm, isLoading, er
       modalFooter={
         <ModalFooter className="flex justify-end">
           <ButtonRow>
+            <Button variant="default" onClick={handleClose} disabled={isLoading}>
+              <Trans>Cancel</Trans>
+            </Button>
             <Button
               variant="primary-danger"
               onClick={handleConfirm}
@@ -48,23 +51,20 @@ export function DeleteRuleDialog({ rule, open, onClose, onConfirm, isLoading, er
             >
               {isLoading ? <Trans>Deleting...</Trans> : <Trans>Delete Rule</Trans>}
             </Button>
-            <Button variant="default" onClick={handleClose} disabled={isLoading}>
-              <Trans>Cancel</Trans>
-            </Button>
           </ButtonRow>
         </ModalFooter>
       }
     >
       <div>
-        {/* Warning */}
-        <Trans>This action cannot be undone. The rule will be permanently deleted.</Trans>
-
         {/* Error Message */}
         {error && (
           <Message dismissible={false} variant="error" className="mt-4">
             {error}
           </Message>
         )}
+
+        {/* Warning */}
+        <Trans>This action cannot be undone. The rule will be permanently deleted.</Trans>
 
         {/* Rule Details */}
         <div className="bg-theme-background-lvl-1 mt-4 mb-4 rounded p-4">
