@@ -43,6 +43,7 @@ interface ImageTableRowProps {
   }
   uploadId?: string | null
   uploadProgressPercent?: number
+  onMemberStatusChanged?: () => void
 }
 
 export function ImageTableRow({
@@ -61,6 +62,7 @@ export function ImageTableRow({
   setToastData,
   uploadId,
   uploadProgressPercent,
+  onMemberStatusChanged,
 }: ImageTableRowProps) {
   const { t } = useLingui()
   const { id, name, status, visibility, size, disk_format, created_at, owner } = image
@@ -83,6 +85,7 @@ export function ImageTableRow({
     try {
       await updateMemberMutation.mutateAsync({ imageId: id, memberId: projectId, status: newStatus })
       setToastData(getImageAccessStatusUpdatedToast(newStatus, { onDismiss: () => setToastData(null) }))
+      onMemberStatusChanged?.()
     } catch (error) {
       const errorMessage = (error as TRPCClientError<InferrableClientTypes>)?.message
       setToastData(getImageAccessStatusErrorToast(errorMessage, { onDismiss: () => setToastData(null) }))

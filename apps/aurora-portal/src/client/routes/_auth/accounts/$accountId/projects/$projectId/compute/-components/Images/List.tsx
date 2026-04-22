@@ -76,6 +76,7 @@ type ImagesContentProps = {
   isFetchingNextPage: boolean
   fetchNextPage: () => void
   onImageUpdated: (image: GlanceImage) => void
+  onMemberStatusChanged: () => void
 }
 
 function ImagesContent({
@@ -106,6 +107,7 @@ function ImagesContent({
   isFetchingNextPage,
   fetchNextPage,
   onImageUpdated,
+  onMemberStatusChanged,
 }: ImagesContentProps) {
   const { t } = useLingui()
   const imagesData = use(imagesPromise)
@@ -244,6 +246,7 @@ function ImagesContent({
         activeImages={activeImages}
         deactivatedImages={deactivatedImages}
         onImageUpdated={onImageUpdated}
+        onMemberStatusChanged={onMemberStatusChanged}
       />
     </>
   )
@@ -368,6 +371,33 @@ export const Images = ({ client }: ImagesProps) => {
   const handleImageUpdated = useCallback((updatedImage: GlanceImage) => {
     setImageOverrides((prev) => new Map(prev).set(updatedImage.id, updatedImage))
   }, [])
+
+  const handleMemberStatusChanged = useCallback(() => {
+    setAllImages([])
+    setNextMarker(undefined)
+    setImageOverrides(new Map())
+    setIsFetching(true)
+    const urlMemberStatus = searchParams.memberStatus ?? "all"
+    const urlMemberStatusFilter = urlMemberStatus === "all" ? undefined : urlMemberStatus
+    startTransition(() => {
+      const effectiveFilters =
+        urlMemberStatus === "pending" || urlMemberStatus === "accepted"
+          ? (filterSettings.selectedFilters || []).filter((f) => f.name !== "visibility")
+          : filterSettings.selectedFilters || []
+      const newPromise = createImagesPromise(client, sortSettings.sortBy, sortSettings.sortDirection, searchTerm, {
+        ...buildFilterParams(effectiveFilters, filterSettings.filters),
+        member_status: urlMemberStatusFilter,
+      })
+      newPromise
+        .then((result) => {
+          setAllImages(result.images)
+          setNextMarker(result.next)
+        })
+        .catch(() => {})
+        .finally(() => setIsFetching(false))
+      setImagesPromise(newPromise)
+    })
+  }, [client, sortSettings, searchTerm, filterSettings, searchParams.memberStatus])
   useEffect(() => {
     const urlFilters = parseFiltersFromUrl(searchParams)
     const urlSortBy = searchParams.sortBy || "created_at"
@@ -522,6 +552,7 @@ export const Images = ({ client }: ImagesProps) => {
           isFetchingNextPage={isFetchingNextPage}
           fetchNextPage={fetchNextPage}
           onImageUpdated={handleImageUpdated}
+          onMemberStatusChanged={handleMemberStatusChanged}
         />
       </Suspense>
     </div>

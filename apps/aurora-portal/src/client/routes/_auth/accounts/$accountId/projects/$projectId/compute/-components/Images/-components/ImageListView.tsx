@@ -89,6 +89,7 @@ interface ImagePageProps {
   activeImages: Array<string>
   deactivatedImages: Array<string>
   onImageUpdated: (image: GlanceImage) => void
+  onMemberStatusChanged: () => void
 }
 
 export function ImageListView({
@@ -117,6 +118,7 @@ export function ImageListView({
   activeImages,
   deactivatedImages,
   onImageUpdated,
+  onMemberStatusChanged,
 }: ImagePageProps) {
   const [toastData, setToastData] = useState<ToastProps | null>(null)
 
@@ -673,6 +675,7 @@ export function ImageListView({
                   setToastData={setToastData}
                   uploadId={uploadId}
                   uploadProgressPercent={data?.percent}
+                  onMemberStatusChanged={onMemberStatusChanged}
                 />
               ))}
             </DataGrid>
