@@ -121,8 +121,10 @@ export const GenerateTempUrlModal = ({
   }, [isOpen])
 
   // Parses customMinutes as a strict positive integer.
-  // Number() + Number.isInteger() rejects partial inputs that parseInt silently
-  // truncates: "1.5" → 1, "1e3" → 1, "10abc" → 10 with parseInt, but null here.
+  // Number() + Number.isInteger() rejects non-integer inputs such as "1.5" → 1.5
+  // and "10abc" → NaN with parseInt, but null here.
+  // Numeric formats accepted by Number() (for example, "1e3") are still allowed
+  // if they evaluate to a positive integer.
   const parseCustomMinutes = (): number | null => {
     if (!customMinutes.trim()) return null
     const mins = Number(customMinutes)
