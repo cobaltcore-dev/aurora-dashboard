@@ -1311,6 +1311,9 @@ msgstr "Keep segments (delete manifest only)"
 msgid "Key"
 msgstr "Key"
 
+msgid "Key already exists"
+msgstr "Key already exists"
+
 msgid "Key contains invalid characters"
 msgstr "Key contains invalid characters"
 

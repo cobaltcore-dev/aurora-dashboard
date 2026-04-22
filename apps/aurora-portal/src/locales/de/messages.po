@@ -1311,6 +1311,9 @@ msgstr "Segmente beibehalten (nur Manifest löschen)"
 msgid "Key"
 msgstr "Key"
 
+msgid "Key already exists"
+msgstr ""
+
 msgid "Key contains invalid characters"
 msgstr ""
 

@@ -263,6 +263,11 @@ export const EditObjectMetadataModal = ({
       setMetaErrors((prev) => ({ ...prev, [`edit-${index}`]: msg }))
       return
     }
+    const isDuplicate = metadata.some((e, i) => i !== index && e.key === entry.key)
+    if (isDuplicate) {
+      setMetaErrors((prev) => ({ ...prev, [`edit-${index}`]: t`Key already exists` }))
+      return
+    }
     setMetadata((prev) => prev.map((e, i) => (i === index ? { ...e, isEditing: false } : e)))
     setMetaErrors((prev) => {
       const next = { ...prev }
@@ -300,6 +305,11 @@ export const EditObjectMetadataModal = ({
             ? t`Key contains invalid characters`
             : t`Key must contain at least one alphanumeric character`
       )
+      return
+    }
+    const isDuplicate = metadata.some((e) => e.key === newKey.trim())
+    if (isDuplicate) {
+      setNewKeyError(t`Key already exists`)
       return
     }
     setMetadata((prev) => [...prev, { key: newKey.trim(), value: newValue, isEditing: false }])
