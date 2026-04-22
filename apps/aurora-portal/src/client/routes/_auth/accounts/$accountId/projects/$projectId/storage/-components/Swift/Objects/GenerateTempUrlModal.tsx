@@ -324,6 +324,7 @@ export const GenerateTempUrlModal = ({ isOpen, object, onClose, onCopySuccess }:
                 type="button"
                 onClick={handleCopy}
                 title={copied ? t`Copied!` : t`Copy URL`}
+                aria-label={copied ? t`Copied!` : t`Copy URL`}
                 className="text-theme-light hover:text-theme-default absolute top-1/2 right-2 inline-flex items-center transition-colors"
                 style={{ transform: "translateY(-50%)" }}
               >
