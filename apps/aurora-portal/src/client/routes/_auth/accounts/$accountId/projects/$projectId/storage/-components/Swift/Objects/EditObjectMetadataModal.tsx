@@ -117,7 +117,7 @@ export const EditObjectMetadataModal = ({
     error: metaError,
   } = trpcReact.storage.swift.getObjectMetadata.useQuery(
     { container: containerName, object: object?.name ?? "" },
-    { enabled: isOpen && object !== null }
+    { enabled: isOpen && object !== null, refetchOnWindowFocus: false }
   )
 
   const uidRef = useRef(0)
