@@ -61,6 +61,7 @@ export const GenerateTempUrlModal = ({ isOpen, object, onClose, onCopySuccess }:
   // "no key" errors get special inline treatment
   const [noKeyError, setNoKeyError] = useState(false)
   const [generalError, setGeneralError] = useState<string | null>(null)
+  const [copyError, setCopyError] = useState<string | null>(null)
 
   const displayNameRef = useRef("")
   const copyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -105,6 +106,7 @@ export const GenerateTempUrlModal = ({ isOpen, object, onClose, onCopySuccess }:
       setCopied(false)
       setNoKeyError(false)
       setGeneralError(null)
+      setCopyError(null)
     }
     return () => {
       if (copyTimeoutRef.current) clearTimeout(copyTimeoutRef.current)
@@ -159,7 +161,7 @@ export const GenerateTempUrlModal = ({ isOpen, object, onClose, onCopySuccess }:
 
   const handleCopy = () => {
     if (!tempUrl) return
-    setGeneralError(null)
+    setCopyError(null)
     navigator.clipboard
       .writeText(tempUrl)
       .then(() => {
@@ -172,7 +174,7 @@ export const GenerateTempUrlModal = ({ isOpen, object, onClose, onCopySuccess }:
         }, 2000)
       })
       .catch(() => {
-        setGeneralError(t`Failed to copy the temporary URL to the clipboard`)
+        setCopyError(t`Failed to copy the temporary URL to the clipboard`)
       })
   }
 
@@ -199,6 +201,7 @@ export const GenerateTempUrlModal = ({ isOpen, object, onClose, onCopySuccess }:
     setExpiresAt(null)
     setCopied(false)
     setGeneralError(null)
+    setCopyError(null)
     setNoKeyError(false)
   }
 
@@ -210,6 +213,7 @@ export const GenerateTempUrlModal = ({ isOpen, object, onClose, onCopySuccess }:
     setExpiresAt(null)
     setCopied(false)
     setGeneralError(null)
+    setCopyError(null)
     setNoKeyError(false)
   }
 
@@ -307,6 +311,9 @@ export const GenerateTempUrlModal = ({ isOpen, object, onClose, onCopySuccess }:
             <Trans>Failed to generate temporary URL: {generalError}</Trans>
           </Message>
         )}
+
+        {/* Clipboard copy error */}
+        {copyError && <Message variant="danger">{copyError}</Message>}
 
         {/* Generated URL */}
         {tempUrl && (
