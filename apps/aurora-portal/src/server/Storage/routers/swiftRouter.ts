@@ -1163,9 +1163,10 @@ export const swiftRouter = {
           tempUrlBase.pathname = `/${segments.join("/")}`
         }
         const swiftBaseUrl = tempUrlBase.toString()
-        // swiftBasePath is the decoded pathname without trailing slash,
+        // swiftBasePath is the pathname without trailing slash, decoded so that
+        // HMAC signing uses plain unencoded path segments as Swift expects.
         // e.g. "/v1/AUTH_abc" — used for both HEAD URLs and HMAC path.
-        const swiftBasePath = tempUrlBase.pathname.replace(/\/$/, "")
+        const swiftBasePath = decodeURIComponent(tempUrlBase.pathname).replace(/\/$/, "")
 
         // Get account or container metadata to retrieve temp URL key.
         // HEAD /container returns only container-level headers — account-level
