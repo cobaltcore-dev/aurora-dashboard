@@ -131,6 +131,7 @@ export const EditObjectMetadataModal = ({
 
   // Survives reset() inside handleClose() before onSuccess/onError fire
   const displayNameRef = useRef("")
+  const objectNameRef = useRef("")
   const expiresAtDebounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // ── Populate form when data arrives ───────────────────────────────────────
@@ -185,7 +186,7 @@ export const EditObjectMetadataModal = ({
   // ── Mutation ───────────────────────────────────────────────────────────────
   const updateMutation = trpcReact.storage.swift.updateObjectMetadata.useMutation({
     onSuccess: () => {
-      utils.storage.swift.getObjectMetadata.invalidate({ container: containerName, object: object!.name })
+      utils.storage.swift.getObjectMetadata.invalidate({ container: containerName, object: objectNameRef.current })
       utils.storage.swift.listObjects.invalidate({ container: containerName })
       onSuccess?.(displayNameRef.current)
       handleClose()
@@ -211,6 +212,7 @@ export const EditObjectMetadataModal = ({
     setExpiresAtError(null)
 
     displayNameRef.current = object.displayName
+    objectNameRef.current = object.name
 
     // Build metadata record from current entries (keys are X-Object-Meta-* suffixes).
     // Swift's POST metadata update replaces the full set — keys omitted from the
