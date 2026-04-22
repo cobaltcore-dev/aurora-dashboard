@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState, type ChangeEvent } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import {
@@ -185,7 +185,7 @@ export const GenerateTempUrlModal = ({ isOpen, object, onClose, onCopySuccess }:
     setNoKeyError(false)
   }
 
-  const handleCustomMinutesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleCustomMinutesChange = (e: ChangeEvent<HTMLInputElement>) => {
     setCustomMinutes(e.target.value)
     if (customMinutesError) setCustomMinutesError(null)
     // Reset generated URL when config changes

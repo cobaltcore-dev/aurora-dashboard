@@ -102,7 +102,7 @@ msgstr "<0>Vereinheitlichtes Cloud-Management:</0> Konsolidiert alle Ihre Cloud-
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/GenerateTempUrlModal.tsx:46
 msgid "1 hour"
-msgstr ""
+msgstr "1 Stunde"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/GenerateTempUrlModal.tsx:213
 msgid "1 minute"
@@ -110,11 +110,11 @@ msgstr "1 Minute"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/GenerateTempUrlModal.tsx:47
 msgid "24 hours"
-msgstr ""
+msgstr "24 Stunden"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/GenerateTempUrlModal.tsx:48
 msgid "7 days"
-msgstr ""
+msgstr "7 Tage"
 
 #: src/client/utils/useErrorTranslation.ts:46
 msgid "A flavor with this ID or name already exists. Please use different values."
@@ -1303,7 +1303,7 @@ msgstr "Fehler beim Kopieren des Objekts: {errorMessage}"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/GenerateTempUrlModal.tsx:163
 msgid "Failed to copy the temporary URL to the clipboard"
-msgstr ""
+msgstr "Fehler beim Kopieren der temporären URL in die Zwischenablage"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/ContainerToastNotifications.tsx:46
 msgid "Failed to Create Container"
