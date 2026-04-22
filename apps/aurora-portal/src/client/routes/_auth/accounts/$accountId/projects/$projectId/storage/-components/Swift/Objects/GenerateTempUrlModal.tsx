@@ -63,6 +63,7 @@ export const GenerateTempUrlModal = ({ isOpen, object, onClose, onCopySuccess }:
   const [generalError, setGeneralError] = useState<string | null>(null)
 
   const displayNameRef = useRef("")
+  const copyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   // Incremented on every generate call and on modal close/reopen.
   // Callbacks check their captured requestId against the ref to discard
   // stale in-flight responses that arrive after the modal was closed or
@@ -91,6 +92,10 @@ export const GenerateTempUrlModal = ({ isOpen, object, onClose, onCopySuccess }:
   useEffect(() => {
     if (!isOpen) {
       requestIdRef.current += 1
+      if (copyTimeoutRef.current) {
+        clearTimeout(copyTimeoutRef.current)
+        copyTimeoutRef.current = null
+      }
       generateMutation.reset()
       setTempUrl(null)
       setExpiresAt(null)
@@ -100,6 +105,9 @@ export const GenerateTempUrlModal = ({ isOpen, object, onClose, onCopySuccess }:
       setCopied(false)
       setNoKeyError(false)
       setGeneralError(null)
+    }
+    return () => {
+      if (copyTimeoutRef.current) clearTimeout(copyTimeoutRef.current)
     }
   }, [isOpen])
 
@@ -157,7 +165,11 @@ export const GenerateTempUrlModal = ({ isOpen, object, onClose, onCopySuccess }:
       .then(() => {
         setCopied(true)
         onCopySuccess?.(displayNameRef.current)
-        setTimeout(() => setCopied(false), 2000)
+        if (copyTimeoutRef.current) clearTimeout(copyTimeoutRef.current)
+        copyTimeoutRef.current = setTimeout(() => {
+          copyTimeoutRef.current = null
+          setCopied(false)
+        }, 2000)
       })
       .catch(() => {
         setGeneralError(t`Failed to copy the temporary URL to the clipboard`)
