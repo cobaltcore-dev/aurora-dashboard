@@ -20,6 +20,7 @@ import { ObjectRow } from "./"
 // ── Types ──────────────────────────────────────────────────────────────────────
 
 interface MetadataEntry {
+  uid: number
   key: string
   value: string
   isEditing?: boolean
@@ -116,6 +117,9 @@ export const EditObjectMetadataModal = ({
     { enabled: isOpen && object !== null }
   )
 
+  const uidRef = useRef(0)
+  const nextUid = () => ++uidRef.current
+
   // ── Form state ─────────────────────────────────────────────────────────────
   const [expiresAt, setExpiresAt] = useState("")
   const [expiresAtError, setExpiresAtError] = useState<string | null>(null)
@@ -144,6 +148,7 @@ export const EditObjectMetadataModal = ({
     originalExpiresAtRef.current = rawExpires
 
     const entries: MetadataEntry[] = Object.entries(metadataRaw.customMetadata ?? {}).map(([key, value]) => ({
+      uid: nextUid(),
       key,
       value,
       isEditing: false,
@@ -313,7 +318,7 @@ export const EditObjectMetadataModal = ({
       setNewKeyError(t`Key already exists`)
       return
     }
-    setMetadata((prev) => [...prev, { key: newKey.trim(), value: newValue, isEditing: false }])
+    setMetadata((prev) => [...prev, { uid: nextUid(), key: newKey.trim(), value: newValue, isEditing: false }])
     setNewKey("")
     setNewValue("")
     setNewKeyError(null)
@@ -521,7 +526,7 @@ export const EditObjectMetadataModal = ({
 
               {/* Existing rows */}
               {metadata.map((entry, index) => (
-                <DataGridRow key={entry.key}>
+                <DataGridRow key={entry.uid}>
                   <DataGridCell>
                     {entry.isEditing ? (
                       <TextInput
