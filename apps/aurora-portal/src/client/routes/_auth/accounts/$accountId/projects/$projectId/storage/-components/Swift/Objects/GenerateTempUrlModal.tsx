@@ -78,9 +78,8 @@ export const GenerateTempUrlModal = ({ isOpen, object, onClose, onCopySuccess }:
     setGeneralError(null)
   }
 
-  const handleGenerateError = (error: { message: string; data?: { code?: string } | null }) => {
-    const isNoKeyError = error.data?.code === "BAD_REQUEST" && error.message.includes("Temp URL key not configured")
-    if (isNoKeyError) {
+  const handleGenerateError = (error: { message: string }) => {
+    if (error.message.includes("Temp URL key not configured")) {
       setNoKeyError(true)
       setGeneralError(null)
     } else {
@@ -114,10 +113,19 @@ export const GenerateTempUrlModal = ({ isOpen, object, onClose, onCopySuccess }:
     }
   }, [isOpen])
 
+  // Parses customMinutes as a strict positive integer.
+  // Number() + Number.isInteger() rejects partial inputs that parseInt silently
+  // truncates: "1.5" → 1, "1e3" → 1, "10abc" → 10 with parseInt, but null here.
+  const parseCustomMinutes = (): number | null => {
+    if (!customMinutes.trim()) return null
+    const mins = Number(customMinutes)
+    return Number.isInteger(mins) && mins > 0 ? mins : null
+  }
+
   const resolveExpiresIn = (): number | null => {
     if (selectedPreset === CUSTOM_VALUE) {
-      const mins = parseInt(customMinutes, 10)
-      if (isNaN(mins) || mins <= 0) return null
+      const mins = parseCustomMinutes()
+      if (mins === null) return null
       return mins * 60
     }
     return parseInt(selectedPreset, 10)
@@ -126,8 +134,8 @@ export const GenerateTempUrlModal = ({ isOpen, object, onClose, onCopySuccess }:
   const handleGenerate = () => {
     if (!object) return
     if (selectedPreset === CUSTOM_VALUE) {
-      const mins = parseInt(customMinutes, 10)
-      if (!customMinutes.trim() || isNaN(mins) || mins <= 0) {
+      const mins = parseCustomMinutes()
+      if (mins === null) {
         setCustomMinutesError(t`Please enter a valid number of minutes greater than 0`)
         return
       }
@@ -231,7 +239,7 @@ export const GenerateTempUrlModal = ({ isOpen, object, onClose, onCopySuccess }:
   const selectedPresetLabel =
     selectedPreset === CUSTOM_VALUE
       ? customMinutes
-        ? parseInt(customMinutes, 10) === 1
+        ? parseCustomMinutes() === 1
           ? t`1 minute`
           : t`${customMinutes} minutes`
         : null
