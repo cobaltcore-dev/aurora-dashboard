@@ -1228,5 +1228,30 @@ describe("swiftHelpers", () => {
       // Both should produce the same path structure without double slashes
       expect(new URL(url1).pathname).toBe(new URL(url2).pathname)
     })
+
+    it("should encode ? in object name so it is not parsed as query delimiter", () => {
+      const url = constructTempUrl(BASE, CONTAINER, "report?final.pdf", SIG, EXPIRES)
+      const parsed = new URL(url)
+      // The pathname must contain the encoded ? — if it were raw, pathname would be truncated
+      expect(parsed.pathname).toContain("report%3Ffinal.pdf")
+      // The only query params should be temp_url_sig and temp_url_expires
+      expect(parsed.searchParams.has("temp_url_sig")).toBe(true)
+      expect(parsed.searchParams.has("temp_url_expires")).toBe(true)
+      expect([...parsed.searchParams.keys()]).toHaveLength(2)
+    })
+
+    it("should encode # in object name so it is not parsed as fragment delimiter", () => {
+      const url = constructTempUrl(BASE, CONTAINER, "report#v2.pdf", SIG, EXPIRES)
+      const parsed = new URL(url)
+      expect(parsed.pathname).toContain("report%23v2.pdf")
+      // No fragment should appear
+      expect(parsed.hash).toBe("")
+    })
+
+    it("should preserve slashes in object prefix paths", () => {
+      const url = constructTempUrl(BASE, CONTAINER, "folder/subfolder/file.txt", SIG, EXPIRES)
+      const decoded = decodeURIComponent(new URL(url).pathname)
+      expect(decoded).toContain("folder/subfolder/file.txt")
+    })
   })
 })
