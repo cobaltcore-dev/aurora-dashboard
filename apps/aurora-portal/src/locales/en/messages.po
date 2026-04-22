@@ -964,12 +964,11 @@ msgstr "Failed to load Floating IPs"
 msgid "Failed to load metadata configuration."
 msgstr "Failed to load metadata configuration."
 
-#. placeholder {0}: metaError?.message ?? ""
-msgid "Failed to load object metadata: {0}"
-msgstr "Failed to load object metadata: {0}"
-
 msgid "Failed to load object metadata: {metadataErrorMessage}"
 msgstr "Failed to load object metadata: {metadataErrorMessage}"
+
+msgid "Failed to load object metadata: {metaErrorMessage}"
+msgstr "Failed to load object metadata: {metaErrorMessage}"
 
 msgid "Failed to load security groups"
 msgstr "Failed to load security groups"
@@ -1007,9 +1006,8 @@ msgstr "Failed to update container: {errorMessage}"
 msgid "Failed to Update Object"
 msgstr "Failed to Update Object"
 
-#. placeholder {0}: updateMutation.error.message
-msgid "Failed to update object: {0}"
-msgstr "Failed to update object: {0}"
+msgid "Failed to update object: {mutationErrorMessage}"
+msgstr "Failed to update object: {mutationErrorMessage}"
 
 msgid "Failed to update security group"
 msgstr "Failed to update security group"
