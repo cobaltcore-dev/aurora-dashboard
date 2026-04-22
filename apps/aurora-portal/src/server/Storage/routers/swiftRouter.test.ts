@@ -1339,23 +1339,22 @@ describe("swiftRouter", () => {
   // ============================================================================
 
   describe("generateTempUrl", () => {
-    it("should successfully generate temp URL", async () => {
+    const input = {
+      container: "test-container",
+      object: "test-object.txt",
+      method: "GET" as const,
+      expiresIn: 3600,
+    }
+
+    it("should successfully generate temp URL using container-level key", async () => {
       const mockCtx = createMockContext()
       const caller = createCaller(mockCtx)
 
-      mockCtx.mockSwift.head.mockResolvedValue({
+      // First HEAD (container) returns the container-level key — no second HEAD needed
+      mockCtx.mockSwift.head.mockResolvedValueOnce({
         ok: true,
-        headers: new Headers({
-          "X-Account-Meta-Temp-URL-Key": "secret-key",
-        }),
+        headers: new Headers({ "x-container-meta-temp-url-key": "container-secret" }),
       })
-
-      const input = {
-        container: "test-container",
-        object: "test-object.txt",
-        method: "GET" as const,
-        expiresIn: 3600,
-      }
 
       const result = await caller.storage.swift.generateTempUrl(input)
 
@@ -1363,23 +1362,42 @@ describe("swiftRouter", () => {
       expect(swiftHelpers.constructTempUrl).toHaveBeenCalled()
       expect(result.url).toBeDefined()
       expect(result.expiresAt).toBeDefined()
+      // Only one HEAD should have been made (container-level key found immediately)
+      expect(mockCtx.mockSwift.head).toHaveBeenCalledTimes(1)
     })
 
-    it("should handle missing temp URL key", async () => {
+    it("should fall back to account-level key when container key is absent", async () => {
       const mockCtx = createMockContext()
       const caller = createCaller(mockCtx)
 
+      // First HEAD (container) — no container key
+      mockCtx.mockSwift.head.mockResolvedValueOnce({
+        ok: true,
+        headers: new Headers(),
+      })
+      // Second HEAD (account root) — account key present
+      mockCtx.mockSwift.head.mockResolvedValueOnce({
+        ok: true,
+        headers: new Headers({ "x-account-meta-temp-url-key": "account-secret" }),
+      })
+
+      const result = await caller.storage.swift.generateTempUrl(input)
+
+      expect(mockCtx.mockSwift.head).toHaveBeenCalledTimes(2)
+      expect(swiftHelpers.generateTempUrlSignature).toHaveBeenCalled()
+      expect(result.url).toBeDefined()
+      expect(result.expiresAt).toBeDefined()
+    })
+
+    it("should throw BAD_REQUEST when neither container nor account key is configured", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      // Both HEADs return no key headers
       mockCtx.mockSwift.head.mockResolvedValue({
         ok: true,
         headers: new Headers(),
       })
-
-      const input = {
-        container: "test-container",
-        object: "test-object.txt",
-        method: "GET" as const,
-        expiresIn: 3600,
-      }
 
       await expect(caller.storage.swift.generateTempUrl(input)).rejects.toThrow(
         new TRPCError({
@@ -1387,6 +1405,23 @@ describe("swiftRouter", () => {
           message: "Temp URL key not configured for this account or container",
         })
       )
+    })
+
+    it("should include expiresAt approximately equal to now + expiresIn", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      mockCtx.mockSwift.head.mockResolvedValue({
+        ok: true,
+        headers: new Headers({ "x-container-meta-temp-url-key": "secret" }),
+      })
+
+      const before = Math.floor(Date.now() / 1000)
+      const result = await caller.storage.swift.generateTempUrl(input)
+      const after = Math.floor(Date.now() / 1000)
+
+      expect(result.expiresAt).toBeGreaterThanOrEqual(before + input.expiresIn)
+      expect(result.expiresAt).toBeLessThanOrEqual(after + input.expiresIn)
     })
   })
 

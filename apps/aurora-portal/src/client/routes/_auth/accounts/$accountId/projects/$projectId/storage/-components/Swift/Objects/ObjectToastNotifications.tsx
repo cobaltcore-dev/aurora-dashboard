@@ -240,3 +240,16 @@ export const getObjectMoveErrorToast = (objectName: string, errorMessage: string
     />
   ),
 })
+
+export const getTempUrlCopiedToast = (objectName: string, config: ToastConfig): ToastProps => ({
+  variant: "success",
+  autoDismiss: true,
+  autoDismissTimeout: config.autoDismissTimeout ?? 4000,
+  onDismiss: config.onDismiss,
+  children: (
+    <NotificationText
+      title={<Trans>URL Copied</Trans>}
+      description={<Trans>Temporary URL for "{objectName}" was copied to clipboard.</Trans>}
+    />
+  ),
+})
