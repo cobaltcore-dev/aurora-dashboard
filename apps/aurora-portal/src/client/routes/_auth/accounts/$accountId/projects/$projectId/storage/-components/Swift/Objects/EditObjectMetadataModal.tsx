@@ -41,8 +41,27 @@ interface EditObjectMetadataModalProps {
 // Using a positive allowlist avoids the ESLint no-control-regex rule.
 const VALID_KEY_RE = /^[a-zA-Z0-9!#$%&'*+\-.^_`|~]+$/
 
-// Expected format: "YYYY-MM-DD HH:MM:SS"
+// Expected format: "YYYY-MM-DD HH:MM:SS" (UTC).
+// Checks shape first, then rejects semantically invalid dates (e.g. month 13, day 30 in Feb)
+// by parsing as UTC and verifying the parts round-trip back to the same values.
 const TIMESTAMP_RE = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/
+
+const isValidTimestamp = (value: string): boolean => {
+  if (!TIMESTAMP_RE.test(value)) return false
+  const d = new Date(value.replace(" ", "T") + "Z")
+  if (isNaN(d.getTime())) return false
+  const [datePart, timePart] = value.split(" ")
+  const [y, mo, day] = datePart.split("-").map(Number)
+  const [h, min, s] = timePart.split(":").map(Number)
+  return (
+    d.getUTCFullYear() === y &&
+    d.getUTCMonth() + 1 === mo &&
+    d.getUTCDate() === day &&
+    d.getUTCHours() === h &&
+    d.getUTCMinutes() === min &&
+    d.getUTCSeconds() === s
+  )
+}
 
 type MetaKeyError = "required" | "invalid-chars" | "no-alnum"
 
@@ -185,7 +204,7 @@ export const EditObjectMetadataModal = ({
   const handleSubmit = () => {
     if (!object) return
 
-    if (expiresAt.trim() && !TIMESTAMP_RE.test(expiresAt.trim())) {
+    if (expiresAt.trim() && !isValidTimestamp(expiresAt.trim())) {
       setExpiresAtError("invalid")
       return
     }
@@ -397,7 +416,7 @@ export const EditObjectMetadataModal = ({
               setExpiresAt(value)
               if (expiresAtDebounceTimer.current) clearTimeout(expiresAtDebounceTimer.current)
               expiresAtDebounceTimer.current = setTimeout(() => {
-                if (value.trim() && !TIMESTAMP_RE.test(value.trim())) {
+                if (value.trim() && !isValidTimestamp(value.trim())) {
                   setExpiresAtError("invalid")
                 } else {
                   setExpiresAtError(null)
