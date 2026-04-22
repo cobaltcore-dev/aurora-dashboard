@@ -73,8 +73,10 @@ const validateMetaKey = (key: string): MetaKeyError | null => {
   return null
 }
 
-const formatDate = (iso: string): string =>
-  new Date(iso).toLocaleString(undefined, {
+const formatDate = (iso: string): string => {
+  const date = new Date(iso)
+  if (isNaN(date.getTime())) return "—"
+  return date.toLocaleString(undefined, {
     year: "numeric",
     month: "short",
     day: "2-digit",
@@ -82,6 +84,7 @@ const formatDate = (iso: string): string =>
     minute: "2-digit",
     timeZone: "UTC",
   })
+}
 
 // Converts a Unix timestamp (seconds) to the "YYYY-MM-DD HH:MM:SS" field format (UTC)
 const formatUnixToTimestamp = (unix: number): string => {
