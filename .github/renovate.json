@@ -8,9 +8,20 @@
   "vulnerabilityAlerts": {
     "enabled": true,
     "labels": [ "security" ],
-    "schedule": [ "at any time" ],
-    "automerge": true
+    "schedule": [ "at any time" ]
   },
+  "packageRules": [
+    {
+      "matchUpdateTypes": [ "patch", "minor" ],
+      "isVulnerability": true,
+      "automerge": true
+    },
+    {
+      "matchUpdateTypes": [ "major" ],
+      "isVulnerability": true,
+      "dependencyDashboardApproval": true
+    }
+  ]
   "packageRules": [
     {
       "matchDepTypes": [ "devDependencies" ],
