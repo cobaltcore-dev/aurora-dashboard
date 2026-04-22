@@ -62,6 +62,7 @@
     "@cobaltcore-dev/aurora-config": "workspace:*",
     "@fastify/vite": "^8.4.1",
     "@lingui/cli": "^5.9.5",
+    "@lingui/format-po": "^5.9.5",
     "@lingui/swc-plugin": "^5.11.0",
     "@lingui/vite-plugin": "^5.9.5",
     "@tailwindcss/vite": "^4.1.18",
