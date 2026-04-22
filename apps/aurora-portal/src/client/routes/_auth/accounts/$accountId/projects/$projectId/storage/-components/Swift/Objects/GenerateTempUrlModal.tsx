@@ -177,7 +177,9 @@ export const GenerateTempUrlModal = ({ isOpen, object, onClose, onCopySuccess }:
   const selectedPresetLabel =
     selectedPreset === CUSTOM_VALUE
       ? customMinutes
-        ? t`${customMinutes} minute(s)`
+        ? parseInt(customMinutes, 10) === 1
+          ? t`1 minute`
+          : t`${customMinutes} minutes`
         : null
       : (EXPIRY_PRESETS.find((p) => String(p.seconds) === selectedPreset)?.labelKey ?? null)
 
