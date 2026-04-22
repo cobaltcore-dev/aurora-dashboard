@@ -521,7 +521,7 @@ export const EditObjectMetadataModal = ({
 
               {/* Existing rows */}
               {metadata.map((entry, index) => (
-                <DataGridRow key={index}>
+                <DataGridRow key={entry.key}>
                   <DataGridCell>
                     {entry.isEditing ? (
                       <TextInput
