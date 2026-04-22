@@ -3337,7 +3337,7 @@ msgstr "tcp, udp, icmp oder Protokollnummer"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/GenerateTempUrlModal.tsx:322
 msgid "Temporary URL"
-msgstr "Temporary URL"
+msgstr "Temporäre URL"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/ObjectToastNotifications.tsx:252
 msgid "Temporary URL for \"{objectName}\" was copied to clipboard."
