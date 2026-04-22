@@ -21,12 +21,6 @@ interface ExpiryPreset {
   seconds: number
 }
 
-const EXPIRY_PRESETS: ExpiryPreset[] = [
-  { labelKey: "1 hour", seconds: 3600 },
-  { labelKey: "24 hours", seconds: 86400 },
-  { labelKey: "7 days", seconds: 604800 },
-]
-
 const CUSTOM_VALUE = "custom"
 
 // ── Props ─────────────────────────────────────────────────────────────────────
@@ -45,6 +39,14 @@ export const GenerateTempUrlModal = ({ isOpen, object, onClose, onCopySuccess }:
   const { containerName } = useParams({
     from: "/_auth/accounts/$accountId/projects/$projectId/storage/$provider/containers/$containerName/objects/",
   })
+
+  // Defined inside the component so t`` runs in the correct Lingui context,
+  // ensuring labels are extracted and translated at render time.
+  const EXPIRY_PRESETS: ExpiryPreset[] = [
+    { labelKey: t`1 hour`, seconds: 3600 },
+    { labelKey: t`24 hours`, seconds: 86400 },
+    { labelKey: t`7 days`, seconds: 604800 },
+  ]
 
   // Selected preset key (seconds as string) or "custom"
   const [selectedPreset, setSelectedPreset] = useState<string>(String(EXPIRY_PRESETS[1].seconds))
@@ -173,7 +175,8 @@ export const GenerateTempUrlModal = ({ isOpen, object, onClose, onCopySuccess }:
 
   // Absolute expiry timestamp formatted for current locale
   const expiresAtFormatted = expiresAt ? new Date(expiresAt * 1000).toLocaleString() : null
-  // Human-readable relative label for the selected preset
+  // Human-readable relative label for the selected preset — used as a plain
+  // string inside the "Expires in {label} — at {timestamp}" interpolation.
   const selectedPresetLabel =
     selectedPreset === CUSTOM_VALUE
       ? customMinutes
