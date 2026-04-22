@@ -263,7 +263,7 @@ export const EditObjectMetadataModal = ({
       setMetaErrors((prev) => ({ ...prev, [`edit-${index}`]: msg }))
       return
     }
-    const isDuplicate = metadata.some((e, i) => i !== index && e.key === entry.key)
+    const isDuplicate = metadata.some((e, i) => i !== index && e.key.toLowerCase() === entry.key.toLowerCase())
     if (isDuplicate) {
       setMetaErrors((prev) => ({ ...prev, [`edit-${index}`]: t`Key already exists` }))
       return
@@ -307,7 +307,7 @@ export const EditObjectMetadataModal = ({
       )
       return
     }
-    const isDuplicate = metadata.some((e) => e.key === newKey.trim())
+    const isDuplicate = metadata.some((e) => e.key.toLowerCase() === newKey.trim().toLowerCase())
     if (isDuplicate) {
       setNewKeyError(t`Key already exists`)
       return
