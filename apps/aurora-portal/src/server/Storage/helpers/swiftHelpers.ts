@@ -718,8 +718,8 @@ export async function generateTempUrlSignature(
 /**
  * Constructs a temporary URL for object access
  * @param swiftUrl - Base Swift URL
- * @param containerPath - Path to container
- * @param objectPath - Path to object
+ * @param containerName - Container name (single segment, must not contain slashes)
+ * @param objectPath - Path to object (may contain slash-separated prefix segments)
  * @param signature - HMAC signature
  * @param expires - Unix timestamp
  * @param filename - Optional Content-Disposition filename
@@ -727,7 +727,7 @@ export async function generateTempUrlSignature(
  */
 export function constructTempUrl(
   swiftUrl: string,
-  containerPath: string,
+  containerName: string,
   objectPath: string,
   signature: string,
   expires: number,
@@ -739,7 +739,7 @@ export function constructTempUrl(
   // pathname and produce a signature mismatch.
   // Slashes within objectPath (prefix/name) are preserved by splitting on /,
   // encoding each segment, then rejoining.
-  const encodedContainer = encodeURIComponent(containerPath)
+  const encodedContainer = encodeURIComponent(containerName)
   const encodedObject = objectPath
     .split("/")
     .map((segment) => encodeURIComponent(segment))
