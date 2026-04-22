@@ -1,10 +1,9 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": [
-    "config:recommended"
-  ],
+  "extends": [ "config:recommended" ],
   "schedule": [ "before 9am on monday" ],
   "timezone": "Europe/Berlin",
+  "minimumReleaseAge": "3 days",
   "vulnerabilityAlerts": {
     "enabled": true,
     "labels": [ "security" ],
@@ -12,33 +11,28 @@
   },
   "packageRules": [
     {
+      "matchVulnerable": true,
       "matchUpdateTypes": [ "patch", "minor" ],
-      "isVulnerability": true,
-      "automerge": true
+      "automerge": true,
+      "groupName": "security fixes (non-major)"
     },
     {
+      "matchVulnerable": true,
       "matchUpdateTypes": [ "major" ],
-      "isVulnerability": true,
-      "dependencyDashboardApproval": true
-    }
-  ]
-  "packageRules": [
+      "dependencyDashboardApproval": false,
+      "automerge": false,
+      "labels": [ "security" ]
+    },
     {
+      "matchUpdateTypes": [ "minor", "patch" ],
       "matchDepTypes": [ "devDependencies" ],
-      "matchUpdateTypes": [ "patch" ],
+      "groupName": "dev dependencies (non-major)",
       "automerge": true
     },
     {
       "matchUpdateTypes": [ "minor", "patch" ],
       "excludeDepTypes": [ "devDependencies" ],
-      "groupName": "all non-major dependencies",
-      "groupSlug": "all-minor-patch"
-    },
-    {
-      "matchDepTypes": [ "devDependencies" ],
-      "matchUpdateTypes": [ "minor" ],
-      "groupName": "all non-major dependencies",
-      "groupSlug": "all-minor-patch"
+      "groupName": "production dependencies (non-major)"
     },
     {
       "matchUpdateTypes": [ "major" ],
