@@ -2575,5 +2575,242 @@ describe("imageRouter", () => {
         await expect(caller.image.listSharedImagesByMemberStatus({ memberStatus: "accepted" })).rejects.toThrow()
       })
     })
+
+    describe("BFF filters", () => {
+      const setupWithImages = (ctx: ReturnType<typeof createMockContext>, images: GlanceImage[]) => {
+        ctx.openstack.getToken = vi.fn().mockReturnValue({
+          tokenData: { project: { id: currentProjectId } },
+        })
+        // First get: images list
+        ctx.mockGlance.get.mockResolvedValueOnce({
+          ok: true,
+          json: vi.fn().mockResolvedValue({ images }),
+        })
+        // Subsequent gets: member status for each image
+        images.forEach((img) => {
+          ctx.mockGlance.get.mockResolvedValueOnce({
+            ok: true,
+            json: vi.fn().mockResolvedValue({
+              ...memberWithAcceptedStatus,
+              image_id: img.id,
+              member_id: currentProjectId,
+            }),
+          })
+        })
+      }
+
+      it("filters by name (substring match)", async () => {
+        const mockCtx = createMockContext()
+        const caller = createCaller(mockCtx)
+        const imgA = { ...sharedImageWithAcceptedStatus, id: generateTestUUID(20), name: "ubuntu-22.04" }
+        const imgB = { ...sharedImageWithAcceptedStatus, id: generateTestUUID(21), name: "centos-stream-9" }
+        setupWithImages(mockCtx, [imgA, imgB])
+
+        const result = await caller.image.listSharedImagesByMemberStatus({ memberStatus: "accepted", name: "ubuntu" })
+
+        expect(result).toHaveLength(1)
+        expect(result[0].id).toBe(imgA.id)
+        const glanceUrl: string = mockCtx.mockGlance.get.mock.calls[0][0]
+        expect(glanceUrl).not.toContain("name=")
+      })
+
+      it("filters by single status value", async () => {
+        const mockCtx = createMockContext()
+        const caller = createCaller(mockCtx)
+        const activeImg = { ...sharedImageWithAcceptedStatus, id: generateTestUUID(22), status: "active" }
+        const queuedImg = { ...sharedImageWithAcceptedStatus, id: generateTestUUID(23), status: "queued" }
+        setupWithImages(mockCtx, [activeImg, queuedImg])
+
+        const result = await caller.image.listSharedImagesByMemberStatus({
+          memberStatus: "accepted",
+          status: "active",
+        })
+
+        expect(result).toHaveLength(1)
+        expect(result[0].id).toBe(activeImg.id)
+        const glanceUrl: string = mockCtx.mockGlance.get.mock.calls[0][0]
+        expect(glanceUrl).not.toMatch(/(?<!\w)status=/)
+      })
+
+      it("filters by multi-value status using in: prefix", async () => {
+        const mockCtx = createMockContext()
+        const caller = createCaller(mockCtx)
+        const activeImg = { ...sharedImageWithAcceptedStatus, id: generateTestUUID(24), status: "active" }
+        const queuedImg = { ...sharedImageWithAcceptedStatus, id: generateTestUUID(25), status: "queued" }
+        const errorImg = { ...sharedImageWithAcceptedStatus, id: generateTestUUID(26), status: "killed" }
+        setupWithImages(mockCtx, [activeImg, queuedImg, errorImg])
+
+        const result = await caller.image.listSharedImagesByMemberStatus({
+          memberStatus: "accepted",
+          status: "in:active,queued",
+        })
+
+        expect(result).toHaveLength(2)
+        expect(result.map((i) => i.id)).toContain(activeImg.id)
+        expect(result.map((i) => i.id)).toContain(queuedImg.id)
+        const glanceUrl: string = mockCtx.mockGlance.get.mock.calls[0][0]
+        expect(glanceUrl).not.toMatch(/(?<!\w)status=/)
+      })
+
+      it("filters by single disk_format value", async () => {
+        const mockCtx = createMockContext()
+        const caller = createCaller(mockCtx)
+        const qcow2Img = { ...sharedImageWithAcceptedStatus, id: generateTestUUID(27), disk_format: "qcow2" }
+        const rawImg = { ...sharedImageWithAcceptedStatus, id: generateTestUUID(28), disk_format: "raw" }
+        setupWithImages(mockCtx, [qcow2Img, rawImg])
+
+        const result = await caller.image.listSharedImagesByMemberStatus({
+          memberStatus: "accepted",
+          disk_format: "qcow2",
+        })
+
+        expect(result).toHaveLength(1)
+        expect(result[0].id).toBe(qcow2Img.id)
+        const glanceUrl: string = mockCtx.mockGlance.get.mock.calls[0][0]
+        expect(glanceUrl).not.toContain("disk_format=")
+      })
+
+      it("filters by multi-value disk_format using in: prefix", async () => {
+        const mockCtx = createMockContext()
+        const caller = createCaller(mockCtx)
+        const qcow2Img = { ...sharedImageWithAcceptedStatus, id: generateTestUUID(29), disk_format: "qcow2" }
+        const rawImg = { ...sharedImageWithAcceptedStatus, id: generateTestUUID(30), disk_format: "raw" }
+        const vhdImg = { ...sharedImageWithAcceptedStatus, id: generateTestUUID(31), disk_format: "vhd" }
+        setupWithImages(mockCtx, [qcow2Img, rawImg, vhdImg])
+
+        const result = await caller.image.listSharedImagesByMemberStatus({
+          memberStatus: "accepted",
+          disk_format: "in:qcow2,raw",
+        })
+
+        expect(result).toHaveLength(2)
+        expect(result.map((i) => i.id)).toContain(qcow2Img.id)
+        expect(result.map((i) => i.id)).toContain(rawImg.id)
+        const glanceUrl: string = mockCtx.mockGlance.get.mock.calls[0][0]
+        expect(glanceUrl).not.toContain("disk_format=")
+      })
+
+      it("filters by single container_format value", async () => {
+        const mockCtx = createMockContext()
+        const caller = createCaller(mockCtx)
+        const bareImg = { ...sharedImageWithAcceptedStatus, id: generateTestUUID(32), container_format: "bare" }
+        const ovfImg = { ...sharedImageWithAcceptedStatus, id: generateTestUUID(33), container_format: "ovf" }
+        setupWithImages(mockCtx, [bareImg, ovfImg])
+
+        const result = await caller.image.listSharedImagesByMemberStatus({
+          memberStatus: "accepted",
+          container_format: "bare",
+        })
+
+        expect(result).toHaveLength(1)
+        expect(result[0].id).toBe(bareImg.id)
+        const glanceUrl: string = mockCtx.mockGlance.get.mock.calls[0][0]
+        expect(glanceUrl).not.toContain("container_format=")
+      })
+
+      it("filters by multi-value container_format using in: prefix", async () => {
+        const mockCtx = createMockContext()
+        const caller = createCaller(mockCtx)
+        const bareImg = { ...sharedImageWithAcceptedStatus, id: generateTestUUID(34), container_format: "bare" }
+        const ovfImg = { ...sharedImageWithAcceptedStatus, id: generateTestUUID(35), container_format: "ovf" }
+        const amiImg = { ...sharedImageWithAcceptedStatus, id: generateTestUUID(36), container_format: "ami" }
+        setupWithImages(mockCtx, [bareImg, ovfImg, amiImg])
+
+        const result = await caller.image.listSharedImagesByMemberStatus({
+          memberStatus: "accepted",
+          container_format: "in:bare,ovf",
+        })
+
+        expect(result).toHaveLength(2)
+        expect(result.map((i) => i.id)).toContain(bareImg.id)
+        expect(result.map((i) => i.id)).toContain(ovfImg.id)
+        const glanceUrl: string = mockCtx.mockGlance.get.mock.calls[0][0]
+        expect(glanceUrl).not.toContain("container_format=")
+      })
+
+      it("filters by protected=true", async () => {
+        const mockCtx = createMockContext()
+        const caller = createCaller(mockCtx)
+        const protectedImg = { ...sharedImageWithAcceptedStatus, id: generateTestUUID(37), protected: true }
+        const unprotectedImg = { ...sharedImageWithAcceptedStatus, id: generateTestUUID(38), protected: false }
+        setupWithImages(mockCtx, [protectedImg, unprotectedImg])
+
+        const result = await caller.image.listSharedImagesByMemberStatus({
+          memberStatus: "accepted",
+          protected: "true",
+        })
+
+        expect(result).toHaveLength(1)
+        expect(result[0].id).toBe(protectedImg.id)
+        const glanceUrl: string = mockCtx.mockGlance.get.mock.calls[0][0]
+        expect(glanceUrl).not.toContain("protected=")
+      })
+
+      it("filters by protected=false", async () => {
+        const mockCtx = createMockContext()
+        const caller = createCaller(mockCtx)
+        const protectedImg = { ...sharedImageWithAcceptedStatus, id: generateTestUUID(39), protected: true }
+        const unprotectedImg = { ...sharedImageWithAcceptedStatus, id: generateTestUUID(40), protected: false }
+        setupWithImages(mockCtx, [protectedImg, unprotectedImg])
+
+        const result = await caller.image.listSharedImagesByMemberStatus({
+          memberStatus: "accepted",
+          protected: "false",
+        })
+
+        expect(result).toHaveLength(1)
+        expect(result[0].id).toBe(unprotectedImg.id)
+        const glanceUrl: string = mockCtx.mockGlance.get.mock.calls[0][0]
+        expect(glanceUrl).not.toContain("protected=")
+      })
+
+      it("combines multiple filters (status + disk_format)", async () => {
+        const mockCtx = createMockContext()
+        const caller = createCaller(mockCtx)
+        const matchImg = {
+          ...sharedImageWithAcceptedStatus,
+          id: generateTestUUID(41),
+          status: "active",
+          disk_format: "qcow2",
+        }
+        const wrongStatus = {
+          ...sharedImageWithAcceptedStatus,
+          id: generateTestUUID(42),
+          status: "queued",
+          disk_format: "qcow2",
+        }
+        const wrongFormat = {
+          ...sharedImageWithAcceptedStatus,
+          id: generateTestUUID(43),
+          status: "active",
+          disk_format: "raw",
+        }
+        setupWithImages(mockCtx, [matchImg, wrongStatus, wrongFormat])
+
+        const result = await caller.image.listSharedImagesByMemberStatus({
+          memberStatus: "accepted",
+          status: "active",
+          disk_format: "qcow2",
+        })
+
+        expect(result).toHaveLength(1)
+        expect(result[0].id).toBe(matchImg.id)
+        const glanceUrl: string = mockCtx.mockGlance.get.mock.calls[0][0]
+        expect(glanceUrl).not.toMatch(/(?<!\w)status=/)
+        expect(glanceUrl).not.toContain("disk_format=")
+      })
+
+      it("returns all images when no BFF filters are provided", async () => {
+        const mockCtx = createMockContext()
+        const caller = createCaller(mockCtx)
+        const imgA = { ...sharedImageWithAcceptedStatus, id: generateTestUUID(44) }
+        const imgB = { ...sharedImageWithAcceptedStatus, id: generateTestUUID(45) }
+        setupWithImages(mockCtx, [imgA, imgB])
+
+        const result = await caller.image.listSharedImagesByMemberStatus({ memberStatus: "accepted" })
+
+        expect(result).toHaveLength(2)
+      })
+    })
   })
 })

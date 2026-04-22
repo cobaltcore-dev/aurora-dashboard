@@ -69,6 +69,7 @@ interface ImagePageProps {
     canUpdateMember: boolean
   }
   hasNextPage?: boolean
+  nextMarker?: string
   isFetchingNextPage?: boolean
   isFetching?: boolean
   fetchNextPage?: () => void
@@ -88,6 +89,7 @@ interface ImagePageProps {
   activeImages: Array<string>
   deactivatedImages: Array<string>
   onImageUpdated: (image: GlanceImage) => void
+  onMemberStatusChanged: () => void
 }
 
 export function ImageListView({
@@ -96,6 +98,7 @@ export function ImageListView({
   acceptedImages,
   permissions,
   hasNextPage,
+  nextMarker,
   isFetchingNextPage,
   isFetching,
   fetchNextPage,
@@ -115,6 +118,7 @@ export function ImageListView({
   activeImages,
   deactivatedImages,
   onImageUpdated,
+  onMemberStatusChanged,
 }: ImagePageProps) {
   const [toastData, setToastData] = useState<ToastProps | null>(null)
 
@@ -128,15 +132,23 @@ export function ImageListView({
   const [isCreateInProgress, setCreateInProgress] = useState(false)
   const [uploadId, setUploadId] = useState<string | null>(null)
 
-  // Intersection Observer for infinite scroll
   const loadMoreRef = useRef<HTMLDivElement>(null)
+  const fetchedMarkerRef = useRef<string | undefined>(undefined)
+
+  // Reset the guard when pagination is reset so each new dataset can auto-load
+  useEffect(() => {
+    if (!hasNextPage) {
+      fetchedMarkerRef.current = undefined
+    }
+  }, [hasNextPage])
 
   useEffect(() => {
     if (!loadMoreRef.current || !hasNextPage || isFetchingNextPage) return
 
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
+        if (entries[0].isIntersecting && fetchedMarkerRef.current !== nextMarker) {
+          fetchedMarkerRef.current = nextMarker
           fetchNextPage?.()
         }
       },
@@ -144,9 +156,8 @@ export function ImageListView({
     )
 
     observer.observe(loadMoreRef.current)
-
     return () => observer.disconnect()
-  }, [hasNextPage, isFetchingNextPage, fetchNextPage])
+  }, [hasNextPage, nextMarker, isFetchingNextPage, fetchNextPage])
 
   const utils = trpcReact.useUtils()
 
@@ -294,32 +305,25 @@ export function ImageListView({
     return operations
   }
 
-  const handleSaveEdit = async (updatedProperties: Partial<GlanceImage>) => {
-    if (!selectedImage) return
+  const handleSaveEdit = async (updatedProperties: Partial<GlanceImage>): Promise<boolean> => {
+    if (!selectedImage) return false
 
     const imageId = selectedImage.id
     const imageName = updatedProperties.name || selectedImage.name || imageId
 
     try {
-      // Convert updated properties to JSON Patch operations
-      // Pass the original image to determine correct operation types (add/replace/remove)
       const operations = convertToJsonPatchOperations(updatedProperties, selectedImage)
-
-      // Call the update mutation
       await updateImageMutation.mutateAsync({ imageId, operations })
-
-      // Close modals and show success toast
       setEditDetailsModalOpen(false)
-      setEditMetadataModalOpen(false)
       setToastData(getImageUpdatedToast(imageName, { onDismiss: handleToastDismiss }))
+      setSelectedImage(null)
+      return true
     } catch (error) {
       const { message } = error as TRPCClientError<InferrableClientTypes>
-
-      // Show error toast but keep modal open so user can retry
       setToastData(getImageUpdateErrorToast(imageName, message, { onDismiss: handleToastDismiss }))
+      setSelectedImage(null)
+      return false
     }
-
-    setSelectedImage(null)
   }
 
   const handleCreate = async (imageData: CreateImageInput, file: File) => {
@@ -671,6 +675,7 @@ export function ImageListView({
                   setToastData={setToastData}
                   uploadId={uploadId}
                   uploadProgressPercent={data?.percent}
+                  onMemberStatusChanged={onMemberStatusChanged}
                 />
               ))}
             </DataGrid>
