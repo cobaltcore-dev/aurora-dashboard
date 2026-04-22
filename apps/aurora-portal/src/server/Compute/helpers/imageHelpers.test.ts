@@ -20,6 +20,7 @@ import {
   getCompatibleContainerFormats,
   getDefaultContainerFormat,
   isValidFormatCombination,
+  parseMultiValue,
 } from "./imageHelpers"
 
 describe("imageHelpers", () => {
@@ -1579,6 +1580,33 @@ describe("imageHelpers", () => {
         // Parallels
         expect(isValidFormatCombination("ploop", "bare")).toBe(true)
       })
+    })
+  })
+
+  describe("parseMultiValue", () => {
+    it("returns a single-element array for a plain value", () => {
+      expect(parseMultiValue("active")).toEqual(["active"])
+    })
+
+    it("returns multiple values when prefixed with 'in:'", () => {
+      expect(parseMultiValue("in:active,queued")).toEqual(["active", "queued"])
+    })
+
+    it("handles a single value with 'in:' prefix", () => {
+      expect(parseMultiValue("in:active")).toEqual(["active"])
+    })
+
+    it("preserves values with no trimming", () => {
+      expect(parseMultiValue("in:qcow2,raw,vmdk")).toEqual(["qcow2", "raw", "vmdk"])
+    })
+
+    it("does not treat a value containing 'in:' mid-string as multi-value", () => {
+      const result = parseMultiValue("something_in:value")
+      expect(result).toEqual(["something_in:value"])
+    })
+
+    it("returns an empty string element for an empty 'in:' prefix", () => {
+      expect(parseMultiValue("in:")).toEqual([""])
     })
   })
 })

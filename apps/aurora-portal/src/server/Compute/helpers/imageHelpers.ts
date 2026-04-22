@@ -581,6 +581,14 @@ export function formatBulkOperationError(imageId: string, error: unknown, operat
  * @param operation - The operation being performed for error context
  * @throws TRPCError if array is empty
  */
+/**
+ * Parses a filter param that may be a single value or multi-value "in:val1,val2" format.
+ * Returns an array of values to match against.
+ */
+export function parseMultiValue(param: string): string[] {
+  return param.startsWith("in:") ? param.replace("in:", "").split(",") : [param]
+}
+
 export function validateBulkImageIds(imageIds: string[], operation: string): void {
   if (imageIds.length === 0) {
     throw new TRPCError({

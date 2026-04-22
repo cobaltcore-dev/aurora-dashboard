@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, useMemo } from "react"
 import { useLingui } from "@lingui/react/macro"
 import {
   Modal,
@@ -12,55 +12,15 @@ import {
   TextInput,
 } from "@cloudoperators/juno-ui-components"
 import { GlanceImage } from "@/server/Compute/types/image"
+import { trpcReact } from "@/client/trpcClient"
 
 interface EditImageMetadataModalProps {
   image: GlanceImage
   isOpen: boolean
   isLoading?: boolean
   onClose: () => void
-  onSave: (metadata: Record<string, string | null>) => void
+  onSave: (metadata: Record<string, string | null>) => Promise<boolean> | boolean
 }
-
-// Properties that should be excluded from metadata editing
-const EXCLUDED_PROPERTIES = new Set([
-  // Basic metadata (managed by separate modal)
-  "name",
-  "tags",
-  "visibility",
-  "protected",
-  "min_disk",
-  "min_ram",
-  // Immutable properties
-  "id",
-  "status",
-  "size",
-  "checksum",
-  "created_at",
-  "updated_at",
-  "created-at",
-  "updated-at",
-  "disk_format",
-  "container_format",
-  "file",
-  "schema",
-  "locations",
-  "self",
-  "direct_url",
-  "owner",
-  "virtual_size",
-  "kernel_id",
-  "ramdisk_id",
-  // Hash and integrity properties
-  "os_hash_algo",
-  "os_hash_value",
-  "os-hash-algo",
-  "os-hash-value",
-  // Backend and storage properties
-  "stores",
-  "owner_specified.openstack.md5",
-  "owner_specified.openstack.sha256",
-  "owner_specified.openstack.object",
-])
 
 interface MetadataEntry {
   key: string
@@ -71,38 +31,38 @@ interface MetadataEntry {
   originalValue?: string
 }
 
-export const EditImageMetadataModal: React.FC<EditImageMetadataModalProps> = ({
-  image,
-  isOpen,
-  isLoading = false,
+function toStrValue(value: unknown): string {
+  if (value === null || value === undefined) return ""
+  if (typeof value === "object") return JSON.stringify(value)
+  return String(value)
+}
+
+function buildInitialMetadata(image: GlanceImage, excludedProperties: Set<string>): MetadataEntry[] {
+  return Object.entries(image)
+    .filter(([key]) => !excludedProperties.has(key.toLowerCase()))
+    .map(([key, value]) => {
+      const strValue = toStrValue(value)
+      return { key, value: strValue, isNew: false, isEditing: false, originalKey: key, originalValue: strValue }
+    })
+}
+
+// Inner component receives already-computed initialMetadata so useState is seeded correctly
+function EditImageMetadataModalInner({
+  isLoading,
   onClose,
   onSave,
-}) => {
+  initialMetadata,
+  excludedProperties,
+}: {
+  isLoading: boolean
+  onClose: () => void
+  onSave: (metadata: Record<string, string | null>) => Promise<boolean> | boolean
+  initialMetadata: MetadataEntry[]
+  excludedProperties: Set<string>
+}) {
   const { t } = useLingui()
 
-  // Extract dynamic metadata from image, excluding reserved properties
-  const getInitialMetadata = (): MetadataEntry[] => {
-    const entries: MetadataEntry[] = []
-
-    // Get all properties from the image
-    Object.entries(image).forEach(([key, value]) => {
-      // Skip excluded properties and non-string values
-      if (!EXCLUDED_PROPERTIES.has(key) && typeof value === "string") {
-        entries.push({
-          key,
-          value,
-          isNew: false,
-          isEditing: false,
-          originalKey: key,
-          originalValue: value,
-        })
-      }
-    })
-
-    return entries
-  }
-
-  const [metadata, setMetadata] = useState<MetadataEntry[]>(getInitialMetadata())
+  const [metadata, setMetadata] = useState<MetadataEntry[]>(initialMetadata)
   const [errors, setErrors] = useState<{ [key: string]: string }>({})
   const [isAddingNew, setIsAddingNew] = useState(false)
   const [newKey, setNewKey] = useState("")
@@ -118,52 +78,37 @@ export const EditImageMetadataModal: React.FC<EditImageMetadataModalProps> = ({
 
   const isSubmitDisabled =
     metadata.every((entry) => !entry.isNew && entry.key === entry.originalKey && entry.value === entry.originalValue) &&
-    getInitialMetadata().length === metadata.length
+    initialMetadata.length === metadata.length
 
-  const validateKey = (key: string, originalKey?: string): string | null => {
-    if (!key || key.trim() === "") {
+  const validateKey = (key: string, originalKey?: string, rowIndex?: number): string | null => {
+    const normalized = key?.trim().toLowerCase()
+    if (!normalized) {
       return t`Key is required`
     }
-
-    if (EXCLUDED_PROPERTIES.has(key.toLowerCase())) {
+    if (excludedProperties.has(normalized)) {
       return t`This property is reserved and cannot be modified`
     }
-
-    // Check for duplicate keys (excluding the current entry being edited)
     const isDuplicate = metadata.some(
-      (entry) => entry.key.toLowerCase() === key.toLowerCase() && entry.originalKey !== originalKey
+      (entry, idx) =>
+        entry.key.trim().toLowerCase() === normalized && idx !== rowIndex && entry.originalKey !== originalKey
     )
-
     if (isDuplicate) {
       return t`A property with this key already exists`
     }
-
     return null
   }
 
   const handleAddNew = () => {
-    const keyError = validateKey(newKey)
-
+    const keyError = validateKey(newKey, undefined, metadata.length)
     if (keyError) {
       setErrors({ newKey: keyError })
       return
     }
-
     if (!newValue.trim()) {
       setErrors({ newValue: t`Value is required` })
       return
     }
-
-    setMetadata([
-      ...metadata,
-      {
-        key: newKey.trim(),
-        value: newValue.trim(),
-        isNew: true,
-        isEditing: false,
-      },
-    ])
-
+    setMetadata([...metadata, { key: newKey.trim(), value: newValue.trim(), isNew: true, isEditing: false }])
     setNewKey("")
     setNewValue("")
     setIsAddingNew(false)
@@ -187,18 +132,15 @@ export const EditImageMetadataModal: React.FC<EditImageMetadataModalProps> = ({
 
   const handleSaveEdit = (index: number) => {
     const entry = metadata[index]
-    const keyError = validateKey(entry.key, entry.originalKey)
-
+    const keyError = validateKey(entry.key, entry.originalKey, index)
     if (keyError) {
       setErrors({ [`edit-${index}`]: keyError })
       return
     }
-
     if (!entry.value.trim()) {
       setErrors({ [`edit-${index}`]: t`Value is required` })
       return
     }
-
     setMetadata(
       metadata.map((e, i) => (i === index ? { ...e, isEditing: false, key: e.key.trim(), value: e.value.trim() } : e))
     )
@@ -208,14 +150,7 @@ export const EditImageMetadataModal: React.FC<EditImageMetadataModalProps> = ({
   const handleCancelEdit = (index: number) => {
     setMetadata(
       metadata.map((e, i) =>
-        i === index
-          ? {
-              ...e,
-              isEditing: false,
-              key: e.originalKey || e.key,
-              value: e.originalValue || e.value,
-            }
-          : e
+        i === index ? { ...e, isEditing: false, key: e.originalKey ?? e.key, value: e.originalValue ?? e.value } : e
       )
     )
     setErrors({})
@@ -229,34 +164,30 @@ export const EditImageMetadataModal: React.FC<EditImageMetadataModalProps> = ({
 
   const handleKeyChange = (index: number, value: string) => {
     setMetadata(metadata.map((entry, i) => (i === index ? { ...entry, key: value } : entry)))
-    // Clear error for this field
     if (errors[`edit-${index}`]) {
       setErrors((prev) => {
-        const newErrors = { ...prev }
-        delete newErrors[`edit-${index}`]
-        return newErrors
+        const next = { ...prev }
+        delete next[`edit-${index}`]
+        return next
       })
     }
   }
 
   const handleValueChange = (index: number, value: string) => {
     setMetadata(metadata.map((entry, i) => (i === index ? { ...entry, value } : entry)))
-    // Clear error for this field
     if (errors[`edit-${index}`]) {
       setErrors((prev) => {
-        const newErrors = { ...prev }
-        delete newErrors[`edit-${index}`]
-        return newErrors
+        const next = { ...prev }
+        delete next[`edit-${index}`]
+        return next
       })
     }
   }
 
-  const handleSubmit = () => {
-    // Convert metadata array to object
+  const handleSubmit = async () => {
     const metadataObject: Record<string, string> = {}
-
     const removedEntries = Object.fromEntries(
-      getInitialMetadata()
+      initialMetadata
         .filter(
           (entry) =>
             !metadata.map((item) => item.originalKey).includes(entry.originalKey) ||
@@ -264,20 +195,17 @@ export const EditImageMetadataModal: React.FC<EditImageMetadataModalProps> = ({
         )
         .map((entry) => [entry.key, null])
     )
-
     metadata
-      // Exclude entries without updates (new added or edited)
       .filter((entry) => entry.isNew || entry.value !== entry.originalValue || entry.key !== entry.originalKey)
       .forEach((entry) => {
         metadataObject[entry.key] = entry.value
       })
-
-    onSave({ ...metadataObject, ...removedEntries })
-    handleClose()
+    const success = await onSave({ ...metadataObject, ...removedEntries })
+    if (success) onClose()
   }
 
   const handleClose = () => {
-    setMetadata(getInitialMetadata())
+    setMetadata(initialMetadata)
     setIsAddingNew(false)
     setNewKey("")
     setNewValue("")
@@ -287,7 +215,7 @@ export const EditImageMetadataModal: React.FC<EditImageMetadataModalProps> = ({
 
   return (
     <Modal
-      open={isOpen}
+      open
       onCancel={handleClose}
       size="large"
       title={t`Edit Image Metadata`}
@@ -304,7 +232,6 @@ export const EditImageMetadataModal: React.FC<EditImageMetadataModalProps> = ({
 
       {!isLoading && (
         <div>
-          {/* Add New Button */}
           <Stack direction="horizontal" className="jn:bg-theme-background-lvl-1 mb-4 justify-end p-2">
             <Button
               label={t`Add Property`}
@@ -315,7 +242,6 @@ export const EditImageMetadataModal: React.FC<EditImageMetadataModalProps> = ({
             />
           </Stack>
 
-          {/* Metadata Table */}
           <DataGrid columns={3} minContentColumns={[2]} className="mb-6">
             <DataGridRow>
               <DataGridHeadCell>{t`Property Key`}</DataGridHeadCell>
@@ -323,7 +249,6 @@ export const EditImageMetadataModal: React.FC<EditImageMetadataModalProps> = ({
               <DataGridHeadCell></DataGridHeadCell>
             </DataGridRow>
 
-            {/* Add New Row */}
             {isAddingNew && (
               <DataGridRow>
                 <DataGridCell>
@@ -333,9 +258,9 @@ export const EditImageMetadataModal: React.FC<EditImageMetadataModalProps> = ({
                       setNewKey(e.target.value)
                       if (errors.newKey) {
                         setErrors((prev) => {
-                          const newErrors = { ...prev }
-                          delete newErrors.newKey
-                          return newErrors
+                          const next = { ...prev }
+                          delete next.newKey
+                          return next
                         })
                       }
                     }}
@@ -351,9 +276,9 @@ export const EditImageMetadataModal: React.FC<EditImageMetadataModalProps> = ({
                       setNewValue(e.target.value)
                       if (errors.newValue) {
                         setErrors((prev) => {
-                          const newErrors = { ...prev }
-                          delete newErrors.newValue
-                          return newErrors
+                          const next = { ...prev }
+                          delete next.newValue
+                          return next
                         })
                       }
                     }}
@@ -370,7 +295,6 @@ export const EditImageMetadataModal: React.FC<EditImageMetadataModalProps> = ({
               </DataGridRow>
             )}
 
-            {/* Existing Metadata Rows */}
             {metadata.map((entry, index) => (
               <DataGridRow key={`${entry.originalKey}-${index}`}>
                 <DataGridCell>
@@ -415,15 +339,17 @@ export const EditImageMetadataModal: React.FC<EditImageMetadataModalProps> = ({
                     </Stack>
                   ) : (
                     <Stack direction="horizontal" gap="2">
-                      <Button
-                        size="small"
-                        variant="subdued"
-                        onClick={() => handleEdit(index)}
-                        icon="edit"
-                        data-testid={`edit-${entry.key}`}
-                        title={t`Edit`}
-                        disabled={isAddingNew || metadata.some((e) => e.isEditing)}
-                      />
+                      {confirmDeleteIndex !== index && (
+                        <Button
+                          size="small"
+                          variant="subdued"
+                          onClick={() => handleEdit(index)}
+                          icon="edit"
+                          data-testid={`edit-${entry.key}`}
+                          title={t`Edit`}
+                          disabled={isAddingNew || metadata.some((e) => e.isEditing)}
+                        />
+                      )}
                       {confirmDeleteIndex === index ? (
                         <Button
                           size="small"
@@ -451,7 +377,6 @@ export const EditImageMetadataModal: React.FC<EditImageMetadataModalProps> = ({
               </DataGridRow>
             ))}
 
-            {/* Empty State */}
             {metadata.length === 0 && !isAddingNew && (
               <DataGridRow>
                 <DataGridCell colSpan={3} className="jn:text-theme-light py-8 text-center">
@@ -465,5 +390,63 @@ export const EditImageMetadataModal: React.FC<EditImageMetadataModalProps> = ({
         </div>
       )}
     </Modal>
+  )
+}
+
+export const EditImageMetadataModal: React.FC<EditImageMetadataModalProps> = ({
+  image,
+  isOpen,
+  isLoading = false,
+  onClose,
+  onSave,
+}) => {
+  const { t } = useLingui()
+  const {
+    data: excludedPropertiesData,
+    isLoading: isLoadingExcluded,
+    isError: isErrorExcluded,
+  } = trpcReact.compute.getImageMetadataExcludedProperties.useQuery(undefined, {
+    enabled: isOpen,
+  })
+  const excludedProperties = useMemo(
+    () => new Set((excludedPropertiesData ?? []).map((s) => s.toLowerCase())),
+    [excludedPropertiesData]
+  )
+  const initialMetadata = useMemo(
+    () => buildInitialMetadata(image, excludedProperties),
+    [image.id, image.updated_at, excludedProperties]
+  )
+
+  if (!isOpen) return null
+
+  if (isLoadingExcluded) {
+    return (
+      <Modal open onCancel={onClose} size="large" title={t`Edit Image Metadata`}>
+        <Stack distribution="center" alignment="center">
+          <Spinner variant="primary" />
+        </Stack>
+      </Modal>
+    )
+  }
+
+  if (isErrorExcluded) {
+    return (
+      <Modal open onCancel={onClose} size="large" title={t`Edit Image Metadata`}>
+        <Stack distribution="center" alignment="center">
+          <span>{t`Failed to load metadata configuration.`}</span>
+        </Stack>
+      </Modal>
+    )
+  }
+
+  return (
+    <EditImageMetadataModalInner
+      key={`${image.id}-${image.updated_at}-${excludedProperties.size}`}
+      isLoading={isLoading}
+      onClose={onClose}
+      onSave={onSave}
+      initialMetadata={initialMetadata}
+      excludedProperties={excludedProperties}
+    />
   )
 }

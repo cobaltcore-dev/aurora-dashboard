@@ -23,6 +23,12 @@ export const createImagesPromise = (
     return client.compute.listSharedImagesByMemberStatus
       .query({
         memberStatus: filters.member_status,
+        name: searchTerm || undefined,
+        status: filters.status,
+        disk_format: filters.disk_format,
+        container_format: filters.container_format,
+        protected: filters.protected,
+        sort: `${sortBy}:${sortDirection}`,
       })
       .then((images) => ({
         images,
