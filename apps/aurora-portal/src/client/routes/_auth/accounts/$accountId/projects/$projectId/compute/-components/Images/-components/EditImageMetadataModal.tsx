@@ -89,7 +89,8 @@ function EditImageMetadataModalInner({
       return t`This property is reserved and cannot be modified`
     }
     const isDuplicate = metadata.some(
-      (entry, idx) => entry.key.trim().toLowerCase() === normalized && idx !== rowIndex && entry.originalKey !== originalKey
+      (entry, idx) =>
+        entry.key.trim().toLowerCase() === normalized && idx !== rowIndex && entry.originalKey !== originalKey
     )
     if (isDuplicate) {
       return t`A property with this key already exists`
