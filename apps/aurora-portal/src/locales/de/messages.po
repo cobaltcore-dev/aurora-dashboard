@@ -748,9 +748,6 @@ msgstr "Geben Sie einen einzelnen Port ein oder definieren Sie einen Bereich, in
 msgid "Enter a tag and press Enter or click Add"
 msgstr "Geben Sie ein Tag ein und drücken Sie Enter oder klicken Sie auf Hinzufügen"
 
-msgid "Enter a timestamp like \"2026-05-16 18:05:52\" to schedule automatic deletion"
-msgstr ""
-
 msgid "Enter a timestamp like \"2026-05-16 18:14:57\" to schedule automatic deletion"
 msgstr ""
 

@@ -440,7 +440,7 @@ export const EditObjectMetadataModal = ({
             placeholder={t`Enter a timestamp like "2026-05-16 18:14:57" to schedule automatic deletion`}
             helptext={
               expiresAt.trim()
-                ? t`Enter a timestamp like "2026-05-16 18:05:52" to schedule automatic deletion`
+                ? t`Enter a timestamp like "2026-05-16 18:14:57" to schedule automatic deletion`
                 : undefined
             }
             disabled={isBusy}
