@@ -131,11 +131,17 @@ export const GenerateTempUrlModal = ({ isOpen, object, onClose, onCopySuccess }:
 
   const handleCopy = () => {
     if (!tempUrl) return
-    navigator.clipboard.writeText(tempUrl).then(() => {
-      setCopied(true)
-      onCopySuccess?.(displayNameRef.current)
-      setTimeout(() => setCopied(false), 2000)
-    })
+    setGeneralError(null)
+    navigator.clipboard
+      .writeText(tempUrl)
+      .then(() => {
+        setCopied(true)
+        onCopySuccess?.(displayNameRef.current)
+        setTimeout(() => setCopied(false), 2000)
+      })
+      .catch(() => {
+        setGeneralError(t`Failed to copy the temporary URL to the clipboard`)
+      })
   }
 
   const handlePresetChange = (value?: string | number | string[]) => {
