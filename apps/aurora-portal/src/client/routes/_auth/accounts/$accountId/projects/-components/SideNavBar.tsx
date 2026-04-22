@@ -21,10 +21,6 @@ export const SideNavBar = ({ accountId, projectId, availableServices }: SideNavB
 
   const [openSections, setOpenSections] = useState({ compute: true, network: true, storage: true })
 
-  const toggleSection = (section: keyof typeof openSections) => {
-    setOpenSections((prev) => ({ ...prev, [section]: !prev[section] }))
-  }
-
   const serviceIndex = getServiceIndex(availableServices)
 
   // Read active section/service from the deepest match that has valid RouteInfo staticData
@@ -33,101 +29,101 @@ export const SideNavBar = ({ accountId, projectId, availableServices }: SideNavB
   const activeSection = activeRouteInfo?.section ?? null
   const activeService = activeRouteInfo?.service ?? null
 
-  const getComputeNavigationLinks = () => {
-    return [
-      {
-        service: "overview",
-        label: t`Overview`,
-        to: "/accounts/$accountId/projects/$projectId/compute/overview" as const,
-        params: { accountId, projectId },
-      },
-      ...(serviceIndex["image"]?.["glance"]
-        ? [
-            {
-              service: "images",
-              label: t`Images`,
-              to: "/accounts/$accountId/projects/$projectId/compute/images" as const,
-              params: { accountId, projectId },
-            },
-          ]
-        : []),
-      ...(serviceIndex?.["compute"]?.["nova"]
-        ? [
-            {
-              service: "flavors",
-              label: t`Flavors`,
-              to: "/accounts/$accountId/projects/$projectId/compute/flavors" as const,
-              params: { accountId, projectId },
-            },
-          ]
-        : []),
-    ]
-  }
+  const computeServices = [
+    ...(serviceIndex["image"]?.["glance"]
+      ? [
+          {
+            service: "images",
+            label: t`Images`,
+            to: "/accounts/$accountId/projects/$projectId/compute/images" as const,
+            params: { accountId, projectId },
+          },
+        ]
+      : []),
+    ...(serviceIndex?.["compute"]?.["nova"]
+      ? [
+          {
+            service: "flavors",
+            label: t`Flavors`,
+            to: "/accounts/$accountId/projects/$projectId/compute/flavors" as const,
+            params: { accountId, projectId },
+          },
+        ]
+      : []),
+  ]
 
-  const getNetworkNavigationLinks = () => {
-    return [
-      ...(serviceIndex["network"]
-        ? [
-            {
-              service: "securitygroups",
-              label: t`Security Groups`,
-              to: "/accounts/$accountId/projects/$projectId/network/securitygroups" as const,
-              params: { accountId, projectId },
-            },
-          ]
-        : []),
-      ...(serviceIndex["network"]
-        ? [
-            {
-              service: "floatingips",
-              label: t`Floating IPs`,
-              to: "/accounts/$accountId/projects/$projectId/network/floatingips" as const,
-              params: { accountId, projectId },
-            },
-          ]
-        : []),
-    ]
-  }
+  const networkServices = [
+    ...(serviceIndex["network"]
+      ? [
+          {
+            service: "securitygroups",
+            label: t`Security Groups`,
+            to: "/accounts/$accountId/projects/$projectId/network/securitygroups" as const,
+            params: { accountId, projectId },
+          },
+          {
+            service: "floatingips",
+            label: t`Floating IPs`,
+            to: "/accounts/$accountId/projects/$projectId/network/floatingips" as const,
+            params: { accountId, projectId },
+          },
+        ]
+      : []),
+  ]
 
-  const getStorageNavigationLinks = () => {
-    return [
-      ...(serviceIndex?.["object-store"]?.["swift"]
-        ? [
-            {
-              service: "containers",
-              label: t`Swift`,
-              to: "/accounts/$accountId/projects/$projectId/storage/$provider/containers" as const,
-              params: { accountId, projectId, provider: "swift" },
-            },
-          ]
-        : []),
-    ]
-  }
-
-  const computeLinks = getComputeNavigationLinks()
-  const networkLinks = getNetworkNavigationLinks()
-  const storageLinks = getStorageNavigationLinks()
+  const storageServices = [
+    ...(serviceIndex?.["object-store"]?.["swift"]
+      ? [
+          {
+            service: "containers",
+            label: t`Swift`,
+            to: "/accounts/$accountId/projects/$projectId/storage/$provider/containers" as const,
+            params: { accountId, projectId, provider: "swift" },
+          },
+        ]
+      : []),
+  ]
 
   return (
     <SideNavigation ariaLabel="Project Side Navigation" onActiveItemChange={() => {}}>
       <SideNavigationList>
         <>
-          {computeLinks.length > 0 && (
-            <SideNavigationItem label="Compute" open={openSections.compute} onClick={() => toggleSection("compute")}>
-              {computeLinks.map(({ service, label, to, params }) => (
-                <SideNavigationItem
-                  key={label}
-                  onClick={() => navigate({ to, params })}
-                  label={label}
-                  selected={activeSection === "compute" && activeService === service}
-                />
-              ))}
-            </SideNavigationItem>
-          )}
+          <SideNavigationItem
+            label={t`Compute`}
+            open={openSections.compute}
+            onClick={() => {
+              navigate({
+                to: "/accounts/$accountId/projects/$projectId/compute/overview",
+                params: { accountId, projectId },
+              })
+              setOpenSections((prev) => ({ ...prev, compute: true }))
+            }}
+            selected={activeSection === "compute" && activeService === "overview"}
+          >
+            {computeServices.map(({ service, label, to, params }) => (
+              <SideNavigationItem
+                key={label}
+                onClick={() => navigate({ to, params })}
+                label={label}
+                selected={activeSection === "compute" && activeService === service}
+              />
+            ))}
+          </SideNavigationItem>
 
-          {networkLinks.length > 0 && (
-            <SideNavigationItem label="Network" open={openSections.network} onClick={() => toggleSection("network")}>
-              {networkLinks.map(({ service, label, to, params }) => (
+          {networkServices.length > 0 && (
+            <SideNavigationItem
+              label={t`Network`}
+              open={openSections.network}
+              onClick={() => {
+                navigate({
+                  to: "/accounts/$accountId/projects/$projectId/network/overview",
+                  params: { accountId, projectId },
+                })
+                setOpenSections((prev) => ({ ...prev, network: true }))
+              }}
+              selected={activeSection === "network" && activeService === "overview"}
+            >
+              {networkServices.map(({ service, label, to, params }) => (
                 <SideNavigationItem
                   key={label}
                   onClick={() => navigate({ to, params })}
@@ -138,9 +134,13 @@ export const SideNavBar = ({ accountId, projectId, availableServices }: SideNavB
             </SideNavigationItem>
           )}
 
-          {storageLinks.length > 0 && (
-            <SideNavigationItem label="Storage" open={openSections.storage} onClick={() => toggleSection("storage")}>
-              {storageLinks.map(({ service, label, to, params }) => (
+          {storageServices.length > 0 && (
+            <SideNavigationItem
+              label={t`Storage`}
+              open={openSections.storage}
+              onClick={() => setOpenSections((prev) => ({ ...prev, storage: !prev.storage }))}
+            >
+              {storageServices.map(({ service, label, to, params }) => (
                 <SideNavigationItem
                   key={label}
                   onClick={() => navigate({ to, params })}

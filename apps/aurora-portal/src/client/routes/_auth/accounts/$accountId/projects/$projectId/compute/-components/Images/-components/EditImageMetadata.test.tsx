@@ -6,6 +6,37 @@ import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import { i18n } from "@lingui/core"
 import { I18nProvider } from "@lingui/react"
 
+const MOCK_EXCLUDED_PROPERTIES = [
+  "name",
+  "tags",
+  "visibility",
+  "protected",
+  "min_disk",
+  "min_ram",
+  "id",
+  "status",
+  "size",
+  "checksum",
+  "created_at",
+  "updated_at",
+  "disk_format",
+  "container_format",
+  "file",
+  "schema",
+  "self",
+  "owner",
+]
+
+vi.mock("@/client/trpcClient", () => ({
+  trpcReact: {
+    compute: {
+      getImageMetadataExcludedProperties: {
+        useQuery: () => ({ data: MOCK_EXCLUDED_PROPERTIES }),
+      },
+    },
+  },
+}))
+
 const renderMetadataModal = (
   isOpen = true,
   mockOnClose = vi.fn(),
