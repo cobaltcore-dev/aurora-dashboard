@@ -79,6 +79,7 @@ const formatDate = (iso: string): string =>
     day: "2-digit",
     hour: "2-digit",
     minute: "2-digit",
+    timeZone: "UTC",
   })
 
 // Converts a Unix timestamp (seconds) to the "YYYY-MM-DD HH:MM:SS" field format (UTC)
