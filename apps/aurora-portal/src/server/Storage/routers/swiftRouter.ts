@@ -1158,14 +1158,19 @@ export const swiftRouter = {
           throw mapErrorResponseToTRPCError(error, { operation: "get temp URL key", container })
         })
 
-        let tempUrlKey = containerMetaResponse.headers.get("x-container-meta-temp-url-key")
+        // Helper: returns the primary key, falling back to the secondary key (-2).
+        // Swift supports two keys per container/account for zero-downtime rotation.
+        const getTempUrlKey = (headers: Headers, scope: "container" | "account") =>
+          headers.get(`x-${scope}-meta-temp-url-key`) ?? headers.get(`x-${scope}-meta-temp-url-key-2`)
+
+        let tempUrlKey = getTempUrlKey(containerMetaResponse.headers, "container")
 
         // Fall back to account-level key — HEAD the account root
         if (!tempUrlKey) {
           const accountMetaResponse = await swift.head(accountPath || "").catch((error) => {
             throw mapErrorResponseToTRPCError(error, { operation: "get account temp URL key" })
           })
-          tempUrlKey = accountMetaResponse.headers.get("x-account-meta-temp-url-key")
+          tempUrlKey = getTempUrlKey(accountMetaResponse.headers, "account")
         }
 
         if (!tempUrlKey) {
