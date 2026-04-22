@@ -174,7 +174,7 @@ msgstr "Aktion"
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-components/-details/SecurityGroupRBACPolicies.tsx:149
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-components/-details/SecurityGroupRulesTable.tsx:141
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EditContainerMetadataModal.tsx:670
-#: src/client/routes/_auth/projects/$projectId/network/securitygroups/-components/SecurityGroupListContainerProjectScoped.tsx:163
+#: src/client/routes/_auth/projects/$projectId/network/securitygroups/-components/SecurityGroupListContainerProjectScoped.tsx:166
 msgid "Actions"
 msgstr "Aktionen"
 
@@ -260,16 +260,16 @@ msgstr "Alle Images"
 msgid "All users from project {projectId}"
 msgstr "Alle Benutzer aus Projekt {projectId}"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:145
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:136
 msgid "Allocate"
 msgstr "Zuweisen"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:142
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:133
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/FloatingIps.tsx:71
 msgid "Allocate Floating IP"
 msgstr "Floating IP zuweisen"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:159
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:150
 msgid "Allocating Floating IP..."
 msgstr "Floating IP wird zugewiesen..."
 
@@ -305,20 +305,20 @@ msgstr "Jeder Benutzer kann eine HEAD- oder GET-Operation auf dem Container ausf
 msgid "Any user has read access to objects. No token is required in the request."
 msgstr "Jeder Benutzer hat Lesezugriff auf Objekte. Es ist kein Token in der Anfrage erforderlich."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AssociateFloatingIpModal.tsx:79
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AssociateFloatingIpModal.tsx:80
 msgid "Associate"
 msgstr "Zuordnen"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AssociateFloatingIpModal.tsx:76
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AssociateFloatingIpModal.tsx:77
 msgid "Associate Floating IP {floating_ip_address} with Port"
 msgstr "Floating IP {floating_ip_address} einem Port zuordnen"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:316
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AssociateFloatingIpModal.tsx:149
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:307
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AssociateFloatingIpModal.tsx:150
 msgid "Associates on the selected port. If the port has multiple IPs, select the desired fixed IP address."
 msgstr "Wird dem ausgewählten Port zugeordnet. Wenn der Port mehrere IPs hat, wählen Sie die gewünschte feste IP-Adresse."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AssociateFloatingIpModal.tsx:93
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AssociateFloatingIpModal.tsx:94
 msgid "Associating Floating IP..."
 msgstr "Floating IP wird zugeordnet..."
 
@@ -345,8 +345,8 @@ msgstr "Aurora bietet Ihnen robuste Tools, um Ihre Cloud-Verwaltung nahtlos zu o
 msgid "Back"
 msgstr "Zurück"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/$floatingIpId.tsx:64
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/$floatingIpId.tsx:77
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/$floatingIpId.tsx:67
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/$floatingIpId.tsx:80
 msgid "Back to Floating IPs"
 msgstr "Zurück zu Floating IPs"
 
@@ -399,10 +399,10 @@ msgstr "Bulk-Upload von Archivdateien"
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/CreateSecurityGroupModal.tsx:123
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/DeleteSecurityGroupDialog.tsx:60
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/EditSecurityGroupModal.tsx:136
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:144
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AssociateFloatingIpModal.tsx:78
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/DetachFloatingIpModal.tsx:65
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/EditFloatingIpModal.tsx:73
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:135
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AssociateFloatingIpModal.tsx:79
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/DetachFloatingIpModal.tsx:68
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/EditFloatingIpModal.tsx:76
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/ReleaseFloatingIpModal.tsx:62
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/AddRBACPolicyModal.tsx:77
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/AddRuleModal/AddRuleModal.tsx:162
@@ -870,26 +870,26 @@ msgstr "Abgelehnter Referrer: {host}"
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/EditSecurityGroupModal.tsx:190
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/SecurityGroupListContainer.tsx:134
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-details/FloatingIpDetailsView.tsx:60
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:246
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/EditFloatingIpModal.tsx:112
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/EditFloatingIpModal.tsx:113
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:237
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/EditFloatingIpModal.tsx:115
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/EditFloatingIpModal.tsx:116
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-table/constants.tsx:31
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-components/-details/SecurityGroupBasicInfo.tsx:35
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-components/-details/SecurityGroupRulesTable.tsx:137
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/AddRuleModal/sections/DescriptionSection.tsx:20
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/DeleteRuleDialog.tsx:80
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/index.tsx:68
-#: src/client/routes/_auth/projects/$projectId/network/securitygroups/-components/SecurityGroupListContainerProjectScoped.tsx:154
+#: src/client/routes/_auth/projects/$projectId/network/securitygroups/-components/SecurityGroupListContainerProjectScoped.tsx:157
 #: src/client/routes/_auth/projects/$projectId/network/securitygroups/$securityGroupId/index.tsx:63
 msgid "Description"
 msgstr "Beschreibung"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/EditFloatingIpModal.tsx:33
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/EditFloatingIpModal.tsx:35
 msgid "Description must be at least 1 character."
 msgstr "Die Beschreibung muss mindestens 1 Zeichen lang sein."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:78
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/EditFloatingIpModal.tsx:34
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:69
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/EditFloatingIpModal.tsx:36
 msgid "Description must be at most 255 characters."
 msgstr "Die Beschreibung darf höchstens 255 Zeichen lang sein."
 
@@ -898,20 +898,20 @@ msgid "Description must be less than 65535 characters."
 msgstr "Die Beschreibung muss weniger als 65535 Zeichen haben."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-details/FloatingIpDetailsView.tsx:40
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/DetachFloatingIpModal.tsx:66
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/DetachFloatingIpModal.tsx:69
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-table/FloatingIpTableRow.tsx:52
 msgid "Detach"
 msgstr "Trennen"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/DetachFloatingIpModal.tsx:63
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/DetachFloatingIpModal.tsx:66
 msgid "Detach Floating IP {floating_ip_address}"
 msgstr "Floating IP {floating_ip_address} trennen"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/DetachFloatingIpModal.tsx:80
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/DetachFloatingIpModal.tsx:83
 msgid "Detaching Floating IP..."
 msgstr "Floating IP wird getrennt..."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/DetachFloatingIpModal.tsx:87
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/DetachFloatingIpModal.tsx:90
 msgid "Detaching this Floating IP will remove its association with the current port. The instance will no longer be reachable through this address."
 msgstr "Das Trennen dieser Floating IP hebt die Zuordnung zum aktuellen Port auf. Die Instance ist über diese Adresse nicht mehr erreichbar."
 
@@ -978,16 +978,16 @@ msgid "DNS"
 msgstr "DNS"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-details/FloatingIpDetailsView.tsx:181
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:205
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:196
 msgid "DNS Domain"
 msgstr "DNS-Domain"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-details/FloatingIpDetailsView.tsx:186
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:227
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:218
 msgid "DNS Name"
 msgstr "DNS-Name"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:71
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:62
 msgid "DNS name must be at most 63 characters."
 msgstr "Der DNS-Name darf höchstens 63 Zeichen lang sein."
 
@@ -1049,7 +1049,7 @@ msgstr "Beschreibung bearbeiten"
 msgid "Edit Details"
 msgstr "Details bearbeiten"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/EditFloatingIpModal.tsx:71
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/EditFloatingIpModal.tsx:74
 msgid "Edit Floating IP {floating_ip_address}"
 msgstr "Floating IP {floating_ip_address} bearbeiten"
 
@@ -1097,11 +1097,11 @@ msgstr "Dateilisting aktivieren"
 msgid "Ensure ACL entries are valid — correct project IDs, user IDs, and formats are your responsibility. Invalid entries may silently grant or deny unintended access."
 msgstr "Stellen Sie sicher, dass ACL-Einträge gültig sind — korrekte Projekt-IDs, Benutzer-IDs und Formate liegen in Ihrer Verantwortung. Ungültige Einträge können stillschweigend unbeabsichtigten Zugriff gewähren oder verweigern."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:264
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:255
 msgid "Enter a floating IP"
 msgstr "Floating IP eingeben"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:265
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:256
 msgid "Enter a floating IP or leave blank to auto-assign one"
 msgstr "Floating IP eingeben oder leer lassen für automatische Zuweisung"
 
@@ -1113,7 +1113,7 @@ msgstr "Geben Sie einen einzelnen Port ein oder definieren Sie einen Bereich, in
 msgid "Enter a tag and press Enter or click Add"
 msgstr "Geben Sie ein Tag ein und drücken Sie Enter oder klicken Sie auf Hinzufügen"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:229
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:220
 msgid "Enter a valid PQDN or FQDN (max 63 characters) to associate with the floating IP. A and PTR records are created automatically."
 msgstr "Gültige PQDN oder FQDN (max. 63 Zeichen) eingeben, um sie der Floating IP zuzuordnen. A- und PTR-Einträge werden automatisch erstellt."
 
@@ -1121,7 +1121,7 @@ msgstr "Gültige PQDN oder FQDN (max. 63 Zeichen) eingeben, um sie der Floating 
 msgid "Enter container name"
 msgstr "Container-Name eingeben"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:228
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:219
 msgid "Enter DNS name"
 msgstr "DNS-Name eingeben"
 
@@ -1198,7 +1198,7 @@ msgstr "Fehler beim Laden der Container: {errorMessage}"
 msgid "Error Loading Flavor"
 msgstr "Fehler beim Laden des Flavors"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/$floatingIpId.tsx:60
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/$floatingIpId.tsx:63
 msgid "Error loading Floating IP Details..."
 msgstr "Fehler beim Laden der Floating IP-Details..."
 
@@ -1215,7 +1215,7 @@ msgstr "Fehler beim Laden der Objekte: {errorMessage}"
 msgid "Error loading security group"
 msgstr "Fehler beim Laden der Security Group"
 
-#: src/client/routes/_auth/projects/$projectId/network/securitygroups/-components/SecurityGroupListContainerProjectScoped.tsx:133
+#: src/client/routes/_auth/projects/$projectId/network/securitygroups/-components/SecurityGroupListContainerProjectScoped.tsx:136
 msgid "Error loading security groups"
 msgstr ""
 
@@ -1226,7 +1226,7 @@ msgstr ""
 msgid "Ethertype"
 msgstr "Ethertype"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:182
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:173
 msgid "External Network"
 msgstr "Externes Netzwerk"
 
@@ -1460,8 +1460,8 @@ msgid "Fingerprint"
 msgstr "Fingerprint"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-details/FloatingIpDetailsView.tsx:113
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:314
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AssociateFloatingIpModal.tsx:147
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:305
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AssociateFloatingIpModal.tsx:148
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-table/constants.tsx:29
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/FloatingIps.tsx:27
 msgid "Fixed IP Address"
@@ -1508,18 +1508,18 @@ msgid "Flavors"
 msgstr "Flavors"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-details/FloatingIpDetailsView.tsx:102
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:263
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:254
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-table/constants.tsx:28
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/FloatingIps.tsx:28
 msgid "Floating IP Address"
 msgstr "Floating IP-Adresse"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/$floatingIpId.tsx:74
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/$floatingIpId.tsx:77
 msgid "Floating IP not found"
 msgstr "Floating IP nicht gefunden"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/-components/SideNavBar.tsx:83
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/$floatingIpId.tsx:88
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/$floatingIpId.tsx:91
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/index.tsx:15
 msgid "Floating IPs"
 msgstr "Floating IPs"
@@ -1924,7 +1924,7 @@ msgstr "Flavor wird geladen..."
 msgid "Loading Flavors..."
 msgstr "Lädt Flavors..."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/$floatingIpId.tsx:51
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/$floatingIpId.tsx:54
 msgid "Loading Floating IP Details..."
 msgstr "Floating IP-Details werden geladen..."
 
@@ -1982,7 +1982,7 @@ msgstr "Lädt Servergruppen"
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Overview.tsx:115
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/SecurityGroupListContainer.tsx:111
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-table/FloatingIpListContainer.tsx:30
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/$floatingIpId.tsx:47
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/$floatingIpId.tsx:50
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/index.tsx:148
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/DeleteContainerModal.tsx:180
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/CopyObjectModal.tsx:392
@@ -2180,11 +2180,11 @@ msgstr "Wird verschoben..."
 msgid "Must be a non-negative integer"
 msgstr "Muss eine nicht-negative Ganzzahl sein"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:83
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:74
 msgid "Must be a valid IPv4 or IPv6 address (for example: 172.24.4.228 or 2001:db8::1)."
 msgstr "Muss eine gültige IPv4- oder IPv6-Adresse sein (z. B.: 172.24.4.228 oder 2001:db8::1)."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:73
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:64
 msgid "Must be a valid PQDN or FQDN (alphanumeric and hyphens only, cannot start or end with hyphen)."
 msgstr "Muss eine gültige PQDN oder FQDN sein (nur alphanumerische Zeichen und Bindestriche, darf nicht mit einem Bindestrich beginnen oder enden)."
 
@@ -2228,8 +2228,8 @@ msgstr "keine Angabe"
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EmptyContainerModal.tsx:191
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/index.tsx:83
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Objects/index.tsx:232
-#: src/client/routes/_auth/projects/$projectId/network/securitygroups/-components/SecurityGroupListContainerProjectScoped.tsx:151
-#: src/client/routes/_auth/projects/$projectId/network/securitygroups/-components/SecurityGroupsProjectScoped.tsx:47
+#: src/client/routes/_auth/projects/$projectId/network/securitygroups/-components/SecurityGroupListContainerProjectScoped.tsx:154
+#: src/client/routes/_auth/projects/$projectId/network/securitygroups/-components/SecurityGroupsProjectScoped.tsx:44
 msgid "Name"
 msgstr "Name"
 
@@ -2352,7 +2352,7 @@ msgstr "Keine Projekte gefunden"
 msgid "No projects have access to this image yet. Click \"Add Project Access\" to grant access."
 msgstr "Noch kein Projekt hat Zugriff auf dieses Image. Klicken Sie auf \"Projektzugriff hinzufügen\", um Zugriff zu gewähren."
 
-#: src/client/routes/_auth/projects/$projectId/network/securitygroups/-components/SecurityGroupListContainerProjectScoped.tsx:141
+#: src/client/routes/_auth/projects/$projectId/network/securitygroups/-components/SecurityGroupListContainerProjectScoped.tsx:144
 msgid "No security groups found"
 msgstr ""
 
@@ -2485,7 +2485,7 @@ msgid "Our Mission"
 msgstr "Unsere Mission"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/-components/SideNavBar.tsx:40
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/$floatingIpId.tsx:87
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/$floatingIpId.tsx:90
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/index.tsx:200
 msgid "Overview"
 msgstr "Übersicht"
@@ -2559,8 +2559,8 @@ msgid "Port Forwarding"
 msgstr "Port Forwarding"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-details/FloatingIpDetailsView.tsx:156
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:287
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AssociateFloatingIpModal.tsx:122
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:278
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AssociateFloatingIpModal.tsx:123
 msgid "Port ID"
 msgstr "Port-ID"
 
@@ -2598,7 +2598,7 @@ msgid "production, linux"
 msgstr "production, linux"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/List.tsx:40
-#: src/client/routes/_auth/projects/$projectId/network/securitygroups/-components/SecurityGroupsProjectScoped.tsx:48
+#: src/client/routes/_auth/projects/$projectId/network/securitygroups/-components/SecurityGroupsProjectScoped.tsx:45
 msgid "Project id"
 msgstr "Projekt-ID"
 
@@ -2871,7 +2871,7 @@ msgstr "RX/TX Faktor muss eine ganze Zahl ≥ 1 sein."
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageMetadataModal.tsx:366
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/compute/-components/Images/-components/EditImageMetadataModal.tsx:406
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/EditFloatingIpModal.tsx:74
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/EditFloatingIpModal.tsx:77
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EditContainerMetadataModal.tsx:421
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EditContainerMetadataModal.tsx:704
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/storage/-components/Swift/Containers/EditContainerMetadataModal.tsx:756
@@ -2923,12 +2923,12 @@ msgstr "Security Group nicht gefunden"
 msgid "Security Groups"
 msgstr "Security Groups"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:206
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:197
 msgid "Select a DNS domain."
 msgstr "DNS-Domain auswählen."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:315
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AssociateFloatingIpModal.tsx:148
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:306
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AssociateFloatingIpModal.tsx:149
 msgid "Select a fixed IP address"
 msgstr "Feste IP-Adresse auswählen"
 
@@ -2936,7 +2936,7 @@ msgstr "Feste IP-Adresse auswählen"
 msgid "Select a security group..."
 msgstr "Security Group auswählen..."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:184
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:175
 msgid "Select an external network"
 msgstr "Externes Netzwerk auswählen"
 
@@ -2949,8 +2949,8 @@ msgstr "Zielordner auswählen"
 msgid "Select disk format first"
 msgstr "Wählen Sie zuerst das Festplattenformat"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:288
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AssociateFloatingIpModal.tsx:123
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:279
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AssociateFloatingIpModal.tsx:124
 msgid "Select port to associate"
 msgstr "Port zur Zuordnung auswählen"
 
@@ -3054,8 +3054,8 @@ msgstr "Teilen Sie diese Sicherheitsgruppe mit einem anderen Projekt. Das Zielpr
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/SecurityGroupListContainer.tsx:134
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/List.tsx:45
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-components/-details/SecurityGroupBasicInfo.tsx:55
-#: src/client/routes/_auth/projects/$projectId/network/securitygroups/-components/SecurityGroupListContainerProjectScoped.tsx:157
-#: src/client/routes/_auth/projects/$projectId/network/securitygroups/-components/SecurityGroupsProjectScoped.tsx:53
+#: src/client/routes/_auth/projects/$projectId/network/securitygroups/-components/SecurityGroupListContainerProjectScoped.tsx:160
+#: src/client/routes/_auth/projects/$projectId/network/securitygroups/-components/SecurityGroupsProjectScoped.tsx:50
 msgid "Shared"
 msgstr "Geteilt"
 
@@ -3133,7 +3133,7 @@ msgstr "Beginnen Sie mit der Eingabe, um nach einem Container zu suchen"
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/EditSecurityGroupModal.tsx:200
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/SecurityGroupListContainer.tsx:134
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-components/-details/SecurityGroupBasicInfo.tsx:47
-#: src/client/routes/_auth/projects/$projectId/network/securitygroups/-components/SecurityGroupListContainerProjectScoped.tsx:160
+#: src/client/routes/_auth/projects/$projectId/network/securitygroups/-components/SecurityGroupListContainerProjectScoped.tsx:163
 msgid "Stateful"
 msgstr "Stateful"
 
@@ -3313,7 +3313,7 @@ msgstr "Der Flavor oder das Projekt konnte nicht gefunden werden. Möglicherweis
 msgid "The flavor or tenant could not be found. Please verify they exist."
 msgstr "Der Flavor oder das Projekt konnte nicht gefunden werden. Bitte überprüfen Sie, ob sie existieren."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:183
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/AllocateFloatingIpModal.tsx:174
 msgid "The ID of the network associated with the floating IP."
 msgstr "Die ID des Netzwerks, das der Floating IP zugeordnet ist."
 
@@ -3362,7 +3362,7 @@ msgstr "Der angegebene Benutzer hat Zugriff. Ein Token für den Benutzer (auf ei
 msgid "The tenant ID provided is invalid. Please check your input."
 msgstr "Die angegebene Projekt-ID ist ungültig. Bitte überprüfen Sie Ihre Eingabe."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/DetachFloatingIpModal.tsx:118
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/DetachFloatingIpModal.tsx:121
 msgid "The text must match “detach” in lowercase."
 msgstr "Der Text muss “detach” in Kleinbuchstaben entsprechen."
 
@@ -3479,7 +3479,7 @@ msgstr "Dieses Projekt hat bereits Zugriff auf den Flavor."
 msgid "This tenant does not have access to the flavor."
 msgstr "Dieses Projekt hat keinen Zugriff auf den Flavor."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/DetachFloatingIpModal.tsx:93
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/DetachFloatingIpModal.tsx:96
 msgid "To confirm this action, type the word <0>“detach”</0> in the field below."
 msgstr "Um diese Aktion zu bestätigen, geben Sie das Wort <0>“detach”</0> in das Feld unten ein."
 
@@ -3520,11 +3520,11 @@ msgstr "Erneut versuchen"
 msgid "Type"
 msgstr "Typ"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/DetachFloatingIpModal.tsx:117
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/DetachFloatingIpModal.tsx:120
 msgid "Type \"detach\" to confirm"
 msgstr "\"detach\" zur Bestätigung eingeben"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/DetachFloatingIpModal.tsx:30
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/DetachFloatingIpModal.tsx:32
 msgid "Type “detach” to confirm"
 msgstr "“detach” zur Bestätigung eingeben"
 
@@ -3629,7 +3629,7 @@ msgstr "Aktualisiert am"
 msgid "Updated:"
 msgstr "Aktualisiert:"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/EditFloatingIpModal.tsx:88
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/EditFloatingIpModal.tsx:91
 msgid "Updating Floating IP..."
 msgstr "Floating IP wird aktualisiert..."
 

@@ -96,12 +96,14 @@ describe("useFloatingIpMutations", () => {
 
     await act(async () => {
       await result.current.handleUpdate("fip-123", {
+        project_id: "proj-1",
         port_id: "port-1",
         description: "Updated description",
       })
     })
 
     expect(updateMutateAsyncMock).toHaveBeenCalledWith({
+      project_id: "proj-1",
       floatingip_id: "fip-123",
       port_id: "port-1",
       description: "Updated description",
@@ -116,6 +118,7 @@ describe("useFloatingIpMutations", () => {
     })
 
     expect(deleteMutateAsyncMock).toHaveBeenCalledWith({
+      project_id: "proj-1",
       floatingip_id: "fip-123",
     })
   })

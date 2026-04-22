@@ -1,5 +1,4 @@
 import { useLingui } from "@lingui/react/macro"
-import { useParams } from "@tanstack/react-router"
 import { Button } from "@cloudoperators/juno-ui-components"
 import { FloatingIpQueryParameters } from "@/server/Network/types/floatingIp"
 import { ListToolbar } from "@/client/components/ListToolbar"
@@ -7,6 +6,7 @@ import { trpcReact } from "@/client/trpcClient"
 import { buildFilterParams } from "@/client/utils/buildFilterParams"
 import { useListWithFiltering } from "@/client/utils/useListWithFiltering"
 import { useModal } from "@/client/utils/useModal"
+import { useProjectId } from "@/client/hooks"
 import { FloatingIpListContainer } from "./-table/FloatingIpListContainer"
 import { AllocateFloatingIpModal } from "./-modals/AllocateFloatingIpModal"
 
@@ -16,7 +16,7 @@ export type FloatingIpsSortKey = NonNullable<FloatingIpQueryParameters["sort_key
 
 export const FloatingIps = () => {
   const { t } = useLingui()
-  const { projectId } = useParams({ strict: false })
+  const projectId = useProjectId()
   const [allocateModalOpen, toggleAllocateModal] = useModal(false)
 
   const { searchTerm, handleSearchChange, sortSettings, handleSortChange, filterSettings, handleFilterChange } =

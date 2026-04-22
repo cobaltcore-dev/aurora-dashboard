@@ -1,34 +1,44 @@
 import { trpcReact } from "@/client/trpcClient"
+import { useProjectId } from "@/client/hooks"
 import type { FloatingIpUpdateFields } from "../-components/-modals/EditFloatingIpModal"
 
 export const useFloatingIpMutations = () => {
+  const projectId = useProjectId()
   const utils = trpcReact.useUtils()
 
   const updateMutation = trpcReact.network.floatingIp.update.useMutation({
     onMutate: async (variables) => {
       await utils.network.floatingIp.list.cancel()
-      await utils.network.floatingIp.getById.cancel({ floatingip_id: variables.floatingip_id })
-      const previousItem = utils.network.floatingIp.getById.getData({ floatingip_id: variables.floatingip_id })
-      utils.network.floatingIp.getById.setData({ floatingip_id: variables.floatingip_id }, (old) =>
-        old
-          ? {
-              ...old,
-              port_id: variables.port_id,
-              ...(variables.fixed_ip_address !== undefined && { fixed_ip_address: variables.fixed_ip_address }),
-              ...(variables.description !== undefined && { description: variables.description }),
-              ...(variables.distributed !== undefined && { distributed: variables.distributed }),
-            }
-          : old
+      await utils.network.floatingIp.getById.cancel({ project_id: projectId, floatingip_id: variables.floatingip_id })
+      const previousItem = utils.network.floatingIp.getById.getData({
+        project_id: projectId,
+        floatingip_id: variables.floatingip_id,
+      })
+      utils.network.floatingIp.getById.setData(
+        { project_id: projectId, floatingip_id: variables.floatingip_id },
+        (old) =>
+          old
+            ? {
+                ...old,
+                port_id: variables.port_id,
+                ...(variables.fixed_ip_address !== undefined && { fixed_ip_address: variables.fixed_ip_address }),
+                ...(variables.description !== undefined && { description: variables.description }),
+                ...(variables.distributed !== undefined && { distributed: variables.distributed }),
+              }
+            : old
       )
       return { previousItem }
     },
     onError: (_err, variables, context) => {
       if (context?.previousItem !== undefined) {
-        utils.network.floatingIp.getById.setData({ floatingip_id: variables.floatingip_id }, context.previousItem)
+        utils.network.floatingIp.getById.setData(
+          { project_id: projectId, floatingip_id: variables.floatingip_id },
+          context.previousItem
+        )
       }
     },
     onSettled: (_data, _error, variables) => {
-      utils.network.floatingIp.getById.invalidate({ floatingip_id: variables.floatingip_id })
+      utils.network.floatingIp.getById.invalidate({ project_id: projectId, floatingip_id: variables.floatingip_id })
       utils.network.floatingIp.list.invalidate()
     },
   })
@@ -44,13 +54,14 @@ export const useFloatingIpMutations = () => {
 
   const handleUpdate = async (floatingIpId: string, data: FloatingIpUpdateFields) => {
     await updateMutation.mutateAsync({
-      floatingip_id: floatingIpId,
       ...data,
+      floatingip_id: floatingIpId,
     })
   }
 
   const handleDelete = async (floatingIpId: string) => {
     await deleteMutation.mutateAsync({
+      project_id: projectId,
       floatingip_id: floatingIpId,
     })
   }

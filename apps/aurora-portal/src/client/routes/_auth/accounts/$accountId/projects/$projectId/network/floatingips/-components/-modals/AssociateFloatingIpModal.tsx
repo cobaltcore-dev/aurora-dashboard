@@ -1,10 +1,10 @@
 import { z } from "zod"
 import { useForm, useStore } from "@tanstack/react-form"
-import { useParams } from "@tanstack/react-router"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { Modal, Form, FormSection, Spinner, Message, Select, SelectOption } from "@cloudoperators/juno-ui-components"
 import type { FloatingIp } from "@/server/Network/types/floatingIp"
 import { trpcReact } from "@/client/trpcClient"
+import { useProjectId } from "@/client/hooks"
 import { FloatingIpUpdateFields } from "./EditFloatingIpModal"
 
 export interface AssociateFloatingIpModalProps {
@@ -25,6 +25,7 @@ export const AssociateFloatingIpModal = ({
   error = null,
 }: AssociateFloatingIpModalProps) => {
   const { t } = useLingui()
+  const projectId = useProjectId()
   const { floating_ip_address } = floatingIp
 
   const formSchema = z.object({
@@ -32,11 +33,10 @@ export const AssociateFloatingIpModal = ({
     fixed_ip_address: z.string(),
   })
 
-  const { projectId } = useParams({ strict: false })
-  const { data: availablePorts = [] } = trpcReact.network.port.listAvailablePorts.useQuery(
-    { project_id: projectId, tenant_id: projectId },
-    { enabled: !!projectId }
-  )
+  const { data: availablePorts = [] } = trpcReact.network.port.listAvailablePorts.useQuery({
+    project_id: projectId,
+    tenant_id: projectId,
+  })
 
   const form = useForm({
     defaultValues: {
@@ -50,6 +50,7 @@ export const AssociateFloatingIpModal = ({
       if (isLoading) return
 
       await onUpdate(floatingIp.id, {
+        project_id: projectId,
         port_id: value.port_id,
         ...(value.fixed_ip_address && {
           fixed_ip_address: value.fixed_ip_address,

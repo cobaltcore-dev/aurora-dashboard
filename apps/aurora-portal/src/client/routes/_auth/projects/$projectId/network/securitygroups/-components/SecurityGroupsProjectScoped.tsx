@@ -8,10 +8,7 @@ import { useListWithFiltering } from "@/client/utils/useListWithFiltering"
 import { useProjectId } from "@/client/hooks"
 import { SecurityGroupListContainerProjectScoped } from "./SecurityGroupListContainerProjectScoped"
 import { CreateSecurityGroupModal } from "@/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/CreateSecurityGroupModal"
-import {
-  CreateSecurityGroupInput,
-  UpdateSecurityGroupInput,
-} from "@/server/Network/types/securityGroup"
+import { CreateSecurityGroupInput, UpdateSecurityGroupInput } from "@/server/Network/types/securityGroup"
 
 // Security group shared filter constants
 const SECURITY_GROUP_SHARED = {
@@ -74,15 +71,18 @@ export const SecurityGroupsProjectScoped = () => {
     isLoading,
     isError,
     error,
-  } = trpcReact.network.securityGroup.list.useQuery({
-    project_id: projectId || "",
-    sort_key: sortSettings.sortBy,
-    sort_dir: sortSettings.sortDirection,
-    ...buildFilterParams(filterSettings),
-    ...(searchTerm ? { searchTerm } : {}),
-  }, {
-    enabled: !!projectId,
-  })
+  } = trpcReact.network.securityGroup.list.useQuery(
+    {
+      project_id: projectId || "",
+      sort_key: sortSettings.sortBy,
+      sort_dir: sortSettings.sortDirection,
+      ...buildFilterParams(filterSettings),
+      ...(searchTerm ? { searchTerm } : {}),
+    },
+    {
+      enabled: !!projectId,
+    }
+  )
 
   const createSecurityGroupMutation = trpcReact.network.securityGroup.create.useMutation({
     onSuccess: () => {

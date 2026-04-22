@@ -3,6 +3,7 @@ import { useForm, useStore } from "@tanstack/react-form"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { Modal, Form, FormSection, Spinner, Message, TextInput, Stack } from "@cloudoperators/juno-ui-components"
 import type { FloatingIp } from "@/server/Network/types/floatingIp"
+import { useProjectId } from "@/client/hooks"
 import { FloatingIpUpdateFields } from "./EditFloatingIpModal"
 
 export interface DetachFloatingIpModalProps {
@@ -23,6 +24,7 @@ export const DetachFloatingIpModal = ({
   error = null,
 }: DetachFloatingIpModalProps) => {
   const { t } = useLingui()
+  const projectId = useProjectId()
   const { floating_ip_address } = floatingIp
 
   const formSchema = z.object({
@@ -42,6 +44,7 @@ export const DetachFloatingIpModal = ({
       if (isLoading) return
 
       await onUpdate(floatingIp.id, {
+        project_id: projectId,
         port_id: null, // Detach by clearing the port association
       })
       handleClose()

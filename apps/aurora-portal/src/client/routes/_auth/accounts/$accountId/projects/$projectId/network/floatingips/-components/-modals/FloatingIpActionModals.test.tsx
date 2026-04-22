@@ -42,7 +42,11 @@ vi.mock("./EditFloatingIpModal", () => ({
         <button onClick={onClose}>Close Edit Modal</button>
         <button
           onClick={() =>
-            onUpdate(floatingIp.id, { port_id: floatingIp.port_id ?? null, description: "Updated description" })
+            onUpdate(floatingIp.id, {
+              project_id: "test-project",
+              port_id: floatingIp.port_id ?? null,
+              description: "Updated description",
+            })
           }
         >
           Save Edit
@@ -70,7 +74,9 @@ vi.mock("./DetachFloatingIpModal", () => ({
         <span data-testid="detach-modal-loading">{isLoading ? "loading" : "idle"}</span>
         <span data-testid="detach-modal-error">{error ?? ""}</span>
         <button onClick={onClose}>Close Detach Modal</button>
-        <button onClick={() => onUpdate(floatingIp.id, { port_id: null })}>Confirm Detach</button>
+        <button onClick={() => onUpdate(floatingIp.id, { project_id: "test-project", port_id: null })}>
+          Confirm Detach
+        </button>
       </div>
     ) : null,
 }))
@@ -89,7 +95,9 @@ vi.mock("./AssociateFloatingIpModal", () => ({
         <span data-testid="associate-modal-loading">{isLoading ? "loading" : "idle"}</span>
         <span data-testid="associate-modal-error">{error ?? ""}</span>
         <button onClick={onClose}>Close Associate Modal</button>
-        <button onClick={() => onUpdate(floatingIp.id, { port_id: "port-new" })}>Confirm Associate</button>
+        <button onClick={() => onUpdate(floatingIp.id, { project_id: "test-project", port_id: "port-new" })}>
+          Confirm Associate
+        </button>
       </div>
     ) : null,
 }))

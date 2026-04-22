@@ -1,6 +1,5 @@
 import { z } from "zod"
 import { useForm, useStore } from "@tanstack/react-form"
-import { useParams } from "@tanstack/react-router"
 import { Trans, useLingui } from "@lingui/react/macro"
 import {
   Modal,
@@ -14,6 +13,7 @@ import {
   SelectOption,
 } from "@cloudoperators/juno-ui-components"
 import { trpcReact } from "@/client/trpcClient"
+import { useProjectId } from "@/client/hooks"
 
 export interface AllocateFloatingIpModalProps {
   open: boolean
@@ -28,7 +28,7 @@ const dnsNameRegex = /^([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)*[a-zA-Z0-
 
 export const AllocateFloatingIpModal = ({ open, onClose }: AllocateFloatingIpModalProps) => {
   const { t } = useLingui()
-  const { projectId } = useParams({ strict: false })
+  const projectId = useProjectId()
   const utils = trpcReact.useUtils()
 
   const { isPending, ...createFloatingIpMutation } = trpcReact.network.floatingIp.create.useMutation({
@@ -39,28 +39,19 @@ export const AllocateFloatingIpModal = ({ open, onClose }: AllocateFloatingIpMod
     data: externalNetworks = [],
     isLoading: isExternalNetworksLoading,
     error: externalNetworksError,
-  } = trpcReact.network.listExternalNetworks.useQuery(
-    { project_id: projectId, tenant_id: projectId },
-    { enabled: !!projectId }
-  )
+  } = trpcReact.network.listExternalNetworks.useQuery({ project_id: projectId, tenant_id: projectId })
 
   const {
     data: dnsDomains = [],
     isLoading: isDnsDomainsLoading,
     error: dnsDomainsError,
-  } = trpcReact.network.listDnsDomains.useQuery(
-    { project_id: projectId, tenant_id: projectId },
-    { enabled: !!projectId }
-  )
+  } = trpcReact.network.listDnsDomains.useQuery({ project_id: projectId, tenant_id: projectId })
 
   const {
     data: availablePorts = [],
     isLoading: isPortsLoading,
     error: portsError,
-  } = trpcReact.network.port.listAvailablePorts.useQuery(
-    { project_id: projectId, tenant_id: projectId },
-    { enabled: !!projectId }
-  )
+  } = trpcReact.network.port.listAvailablePorts.useQuery({ project_id: projectId, tenant_id: projectId })
 
   const formSchema = z.object({
     floating_network_id: z.string(),
@@ -103,8 +94,8 @@ export const AllocateFloatingIpModal = ({ open, onClose }: AllocateFloatingIpMod
       if (isPending) return
 
       await createFloatingIpMutation.mutateAsync({
-        project_id: projectId ?? "",
-        tenant_id: projectId ?? "",
+        project_id: projectId,
+        tenant_id: projectId,
         floating_network_id: value.floating_network_id,
         ...(value.dns_domain && { dns_domain: value.dns_domain }),
         ...(value.dns_name && { dns_name: value.dns_name }),

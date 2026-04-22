@@ -2,6 +2,7 @@ import { z } from "zod"
 import { useForm, useStore } from "@tanstack/react-form"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { Modal, Form, FormSection, Spinner, Textarea, Message } from "@cloudoperators/juno-ui-components"
+import { useProjectId } from "@/client/hooks"
 import type { FloatingIp, FloatingIpUpdateRequest } from "@/server/Network/types/floatingIp"
 
 export type FloatingIpUpdateFields = Omit<FloatingIpUpdateRequest, "floatingip_id">
@@ -24,6 +25,7 @@ export const EditFloatingIpModal = ({
   error = null,
 }: EditFloatingIpModalProps) => {
   const { t } = useLingui()
+  const projectId = useProjectId()
   const { description, floating_ip_address } = floatingIp
 
   const formSchema = z.object({
@@ -45,6 +47,7 @@ export const EditFloatingIpModal = ({
       if (isLoading) return
 
       const updateData: FloatingIpUpdateFields = {
+        project_id: projectId,
         // we are passing port so that port association is not lost when updating description as api requires this field
         port_id: floatingIp.port_id,
         description: value.description.trim(),

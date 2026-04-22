@@ -3,6 +3,7 @@ import type { RouteInfo } from "@/client/routes/routeInfo"
 import { useLingui, Trans } from "@lingui/react/macro"
 import { Breadcrumb, BreadcrumbItem, Button, Spinner, Stack } from "@cloudoperators/juno-ui-components"
 import { trpcReact } from "@/client/trpcClient"
+import { useProjectId } from "@/client/hooks"
 import { FloatingIpDetailsView } from "./-components/-details/FloatingIpDetailsView"
 
 export const Route = createFileRoute(
@@ -15,7 +16,8 @@ export const Route = createFileRoute(
 function RouteComponent() {
   const { t } = useLingui()
   const navigate = useNavigate()
-  const { accountId, projectId, floatingIpId } = useParams({
+  const projectId = useProjectId()
+  const { accountId, floatingIpId } = useParams({
     from: "/_auth/accounts/$accountId/projects/$projectId/network/floatingips/$floatingIpId",
   })
   const { setPageTitle } = Route.useRouteContext()
@@ -40,6 +42,7 @@ function RouteComponent() {
     isError,
     error,
   } = trpcReact.network.floatingIp.getById.useQuery({
+    project_id: projectId,
     floatingip_id: floatingIpId,
   })
 

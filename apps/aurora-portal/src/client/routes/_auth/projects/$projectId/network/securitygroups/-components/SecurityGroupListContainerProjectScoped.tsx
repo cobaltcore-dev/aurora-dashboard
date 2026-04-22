@@ -7,7 +7,10 @@ import type { SecurityGroup } from "@/server/Network/types/securityGroup"
 import type { UpdateSecurityGroupInput } from "@/server/Network/types/securityGroup"
 import { EditSecurityGroupModal } from "@/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/EditSecurityGroupModal"
 import { DeleteSecurityGroupDialog } from "@/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/DeleteSecurityGroupDialog"
-import { SecurityGroupTableRow, type SecurityGroupPermissions } from "@/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/SecurityGroupTableRow"
+import {
+  SecurityGroupTableRow,
+  type SecurityGroupPermissions,
+} from "@/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/SecurityGroupTableRow"
 
 interface SecurityGroupListContainerProjectScopedProps {
   securityGroups: SecurityGroup[]
