@@ -78,8 +78,9 @@ export const GenerateTempUrlModal = ({ isOpen, object, onClose, onCopySuccess }:
     setGeneralError(null)
   }
 
-  const handleGenerateError = (error: { message: string }) => {
-    if (error.message.includes("Temp URL key not configured")) {
+  const handleGenerateError = (error: { message: string; data?: { code?: string } | null }) => {
+    const isNoKeyError = error.data?.code === "BAD_REQUEST" && error.message.includes("Temp URL key not configured")
+    if (isNoKeyError) {
       setNoKeyError(true)
       setGeneralError(null)
     } else {
