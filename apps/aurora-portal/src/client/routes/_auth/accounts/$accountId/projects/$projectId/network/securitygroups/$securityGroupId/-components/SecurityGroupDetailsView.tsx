@@ -29,7 +29,7 @@ interface SecurityGroupDetailsViewProps {
   deleteRuleError?: string | null
   filterControls: RulesFilterControls
   // Add rule functionality - passed through to SecurityGroupRulesTable
-  onCreateRule?: (ruleData: CreateSecurityGroupRuleInput) => Promise<void>
+  onCreateRule?: (ruleData: Omit<CreateSecurityGroupRuleInput, "project_id">) => Promise<void>
   isCreatingRule?: boolean
   createRuleError?: string | null
   availableSecurityGroups?: Array<{ id: string; name: string | null }>

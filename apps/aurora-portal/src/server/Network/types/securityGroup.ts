@@ -91,11 +91,11 @@ export const updateSecurityGroupInputSchema = projectScopedInputSchema.extend({
   stateful: z.boolean().optional(),
 })
 
-export const deleteSecurityGroupRuleInputSchema = z.object({
+export const deleteSecurityGroupRuleInputSchema = projectScopedInputSchema.extend({
   ruleId: z.string(),
 })
 
-export const createSecurityGroupRuleInputSchema = z.object({
+export const createSecurityGroupRuleInputSchema = projectScopedInputSchema.extend({
   security_group_id: z.string(),
   direction: z.enum(["ingress", "egress"]),
   ethertype: z.enum(["IPv4", "IPv6"]).default("IPv4"),

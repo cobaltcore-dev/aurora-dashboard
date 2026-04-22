@@ -27,7 +27,7 @@ interface AddRuleModalProps {
   securityGroupId: string
   open: boolean
   onClose: () => void
-  onCreate: (ruleData: CreateSecurityGroupRuleInput) => Promise<void>
+  onCreate: (ruleData: Omit<CreateSecurityGroupRuleInput, "project_id">) => Promise<void>
   isLoading?: boolean
   error?: string | null
   availableSecurityGroups?: Array<{ id: string; name: string | null }>
@@ -80,8 +80,8 @@ export const AddRuleModal: React.FC<AddRuleModalProps> = ({
         return
       }
 
-      // Build API payload from form values
-      const payload: CreateSecurityGroupRuleInput = {
+      // Build API payload from form values (without project_id - added by parent)
+      const payload: Omit<CreateSecurityGroupRuleInput, "project_id"> = {
         security_group_id: securityGroupId,
         direction: value.direction,
         ethertype: value.ethertype,

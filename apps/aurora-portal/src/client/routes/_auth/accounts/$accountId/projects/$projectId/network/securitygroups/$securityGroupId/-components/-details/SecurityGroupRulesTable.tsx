@@ -34,7 +34,7 @@ interface SecurityGroupRulesTableProps {
   onFilterChange?: (filterSettings: FilterSettings) => void
   // Add rule functionality
   securityGroupId?: string
-  onCreateRule?: (ruleData: CreateSecurityGroupRuleInput) => Promise<void>
+  onCreateRule?: (ruleData: Omit<CreateSecurityGroupRuleInput, "project_id">) => Promise<void>
   isCreatingRule?: boolean
   createRuleError?: string | null
   availableSecurityGroups?: Array<{ id: string; name: string | null }>

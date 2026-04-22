@@ -38,7 +38,7 @@ export function SecurityGroupRBACPolicies({ securityGroupId }: SecurityGroupRBAC
     isError,
     error,
   } = trpcReact.network.rbacPolicy.list.useQuery(
-    { securityGroupId },
+    { project_id: projectId, securityGroupId },
     {
       refetchOnWindowFocus: false,
     }
@@ -47,7 +47,7 @@ export function SecurityGroupRBACPolicies({ securityGroupId }: SecurityGroupRBAC
   // Delete mutation
   const deleteMutation = trpcReact.network.rbacPolicy.delete.useMutation({
     onSuccess: () => {
-      utils.network.rbacPolicy.list.invalidate({ securityGroupId })
+      utils.network.rbacPolicy.list.invalidate({ project_id: projectId, securityGroupId })
       utils.network.securityGroup.getById.invalidate({ project_id: projectId, securityGroupId })
     },
   })
@@ -57,7 +57,7 @@ export function SecurityGroupRBACPolicies({ securityGroupId }: SecurityGroupRBAC
   }
 
   const handleConfirmDelete = (policyId: string) => {
-    deleteMutation.mutate({ policyId })
+    deleteMutation.mutate({ project_id: projectId, policyId })
   }
 
   const handleCloseDeleteDialog = () => {

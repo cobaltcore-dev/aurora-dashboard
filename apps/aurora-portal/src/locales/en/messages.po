@@ -401,7 +401,7 @@ msgstr "Bulk upload of archive files"
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/DetachFloatingIpModal.tsx:65
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/EditFloatingIpModal.tsx:73
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/floatingips/-components/-modals/ReleaseFloatingIpModal.tsx:62
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/AddRBACPolicyModal.tsx:76
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/AddRBACPolicyModal.tsx:77
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/AddRuleModal/AddRuleModal.tsx:162
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/DeleteRBACPolicyDialog.tsx:62
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/DeleteRuleDialog.tsx:52
@@ -1016,7 +1016,7 @@ msgstr "e.g. .r:*,.rlistings"
 msgid "e.g. PROJECT_ID:USER_ID"
 msgstr "e.g. PROJECT_ID:USER_ID"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/AddRBACPolicyModal.tsx:121
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/AddRBACPolicyModal.tsx:122
 msgid "e.g., b90f9c4bc76140e18540b2cec1299e2a"
 msgstr "e.g., b90f9c4bc76140e18540b2cec1299e2a"
 
@@ -1133,7 +1133,7 @@ msgstr "Enter tenant ID"
 msgid "Enter the Cloud"
 msgstr "Enter the Cloud"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/AddRBACPolicyModal.tsx:123
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/AddRBACPolicyModal.tsx:124
 msgid "Enter the ID of the project you want to share this security group with. You can find project IDs in the account/project switcher or in the Identity service."
 msgstr "Enter the ID of the project you want to share this security group with. You can find project IDs in the account/project switcher or in the Identity service."
 
@@ -3005,16 +3005,16 @@ msgstr "Session expires in"
 msgid "Set to \"Shared\""
 msgstr "Set to \"Shared\""
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/AddRBACPolicyModal.tsx:77
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/AddRBACPolicyModal.tsx:78
 msgid "Share"
 msgstr "Share"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-components/-details/SecurityGroupRBACPolicies.tsx:127
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/AddRBACPolicyModal.tsx:73
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/AddRBACPolicyModal.tsx:74
 msgid "Share Security Group"
 msgstr "Share Security Group"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/AddRBACPolicyModal.tsx:81
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/AddRBACPolicyModal.tsx:82
 msgid "Share this security group with another project. The target project will be able to view and use this security group, but will not be able to modify or delete it."
 msgstr "Share this security group with another project. The target project will be able to view and use this security group, but will not be able to modify or delete it."
 
@@ -3206,7 +3206,7 @@ msgid "Target path"
 msgstr "Target path"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-components/-details/SecurityGroupRBACPolicies.tsx:143
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/AddRBACPolicyModal.tsx:118
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/AddRBACPolicyModal.tsx:119
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/DeleteRBACPolicyDialog.tsx:86
 msgid "Target Project ID"
 msgstr "Target Project ID"
@@ -3315,7 +3315,7 @@ msgstr "The object will be moved to this path. Navigate folders above to change 
 msgid "The requested flavor could not be found. It may have been deleted or you may not have access to it."
 msgstr "The requested flavor could not be found. It may have been deleted or you may not have access to it."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/AddRBACPolicyModal.tsx:94
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/AddRBACPolicyModal.tsx:95
 msgid "The specified project does not exist or you don't have permission to share with it."
 msgstr "The specified project does not exist or you don't have permission to share with it."
 
@@ -3433,7 +3433,7 @@ msgstr "This member already has access to this image."
 msgid "This property is reserved and cannot be modified"
 msgstr "This property is reserved and cannot be modified"
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/AddRBACPolicyModal.tsx:92
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/AddRBACPolicyModal.tsx:93
 msgid "This security group is already shared with the specified project."
 msgstr "This security group is already shared with the specified project."
 
@@ -3819,7 +3819,7 @@ msgstr "You don't have permission to delete flavors in this project."
 msgid "You don't have permission to remove tenant access from this flavor."
 msgstr "You don't have permission to remove tenant access from this flavor."
 
-#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/AddRBACPolicyModal.tsx:96
+#: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/AddRBACPolicyModal.tsx:97
 msgid "You don't have permission to share this security group."
 msgstr "You don't have permission to share this security group."
 

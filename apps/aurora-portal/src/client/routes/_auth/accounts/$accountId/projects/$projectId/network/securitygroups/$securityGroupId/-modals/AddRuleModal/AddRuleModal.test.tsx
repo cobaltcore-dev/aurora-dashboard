@@ -60,7 +60,7 @@ const renderModal = ({
   securityGroupId?: string
   open?: boolean
   onClose?: () => void
-  onCreate?: (ruleData: CreateSecurityGroupRuleInput) => Promise<void>
+  onCreate?: (ruleData: Omit<CreateSecurityGroupRuleInput, "project_id">) => Promise<void>
   isLoading?: boolean
   error?: string | null
   availableSecurityGroups?: Array<{ id: string; name: string | null }>

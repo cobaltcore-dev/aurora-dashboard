@@ -37,7 +37,7 @@ export function AddRBACPolicyModal({ isOpen, onClose, securityGroupId }: AddRBAC
 
   const createMutation = trpcReact.network.rbacPolicy.create.useMutation({
     onSuccess: () => {
-      utils.network.rbacPolicy.list.invalidate({ securityGroupId })
+      utils.network.rbacPolicy.list.invalidate({ project_id: projectId, securityGroupId })
       utils.network.securityGroup.getById.invalidate({ project_id: projectId, securityGroupId })
       handleClose()
     },
@@ -54,6 +54,7 @@ export function AddRBACPolicyModal({ isOpen, onClose, securityGroupId }: AddRBAC
       if (createMutation.isPending) return
 
       createMutation.mutate({
+        project_id: projectId,
         securityGroupId,
         targetTenant: value.targetTenant.trim(),
       })

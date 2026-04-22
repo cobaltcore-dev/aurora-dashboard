@@ -130,11 +130,11 @@ export function useSecurityGroupDetails({ securityGroupId, filterControls }: Use
   }
 
   const handleDeleteRule = async (ruleId: string) => {
-    await deleteRuleMutation.mutateAsync({ ruleId })
+    await deleteRuleMutation.mutateAsync({ project_id: projectId, ruleId })
   }
 
-  const handleCreateRule = async (ruleData: CreateSecurityGroupRuleInput) => {
-    await createRuleMutation.mutateAsync(ruleData)
+  const handleCreateRule = async (ruleData: Omit<CreateSecurityGroupRuleInput, "project_id">) => {
+    await createRuleMutation.mutateAsync({ project_id: projectId, ...ruleData })
   }
 
   return {

@@ -1,4 +1,5 @@
 import { z } from "zod"
+import { projectScopedInputSchema } from "../../trpc"
 
 // OpenStack RBAC Policy Response Schema
 export const rbacPolicySchema = z.object({
@@ -19,22 +20,22 @@ export const rbacPolicyResponseSchema = z.object({
   rbac_policy: rbacPolicySchema,
 })
 
-// Input schemas for tRPC procedures
-export const listRBACPoliciesForSecurityGroupInputSchema = z.object({
+// Input schemas for tRPC procedures - now extend projectScopedInputSchema
+export const listRBACPoliciesForSecurityGroupInputSchema = projectScopedInputSchema.extend({
   securityGroupId: z.string(),
 })
 
-export const createRBACPolicyInputSchema = z.object({
+export const createRBACPolicyInputSchema = projectScopedInputSchema.extend({
   securityGroupId: z.string(),
   targetTenant: z.string().trim().min(1, "Target project ID is required"),
 })
 
-export const updateRBACPolicyInputSchema = z.object({
+export const updateRBACPolicyInputSchema = projectScopedInputSchema.extend({
   policyId: z.string(),
   targetTenant: z.string().trim().min(1, "Target project ID is required"),
 })
 
-export const deleteRBACPolicyInputSchema = z.object({
+export const deleteRBACPolicyInputSchema = projectScopedInputSchema.extend({
   policyId: z.string(),
 })
 

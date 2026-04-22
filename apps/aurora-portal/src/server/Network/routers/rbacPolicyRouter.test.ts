@@ -197,6 +197,8 @@ const createCaller = createCallerFactory(
   })
 )
 
+const TEST_PROJECT_ID = "proj-1"
+
 describe("rbacPolicyRouter.list", () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -207,6 +209,7 @@ describe("rbacPolicyRouter.list", () => {
     const caller = createCaller(ctx)
 
     const result = await caller.rbacPolicy.list({
+      project_id: TEST_PROJECT_ID,
       securityGroupId: "sg-123",
     })
 
@@ -226,6 +229,7 @@ describe("rbacPolicyRouter.list", () => {
     const caller = createCaller(ctx)
 
     const result = await caller.rbacPolicy.list({
+      project_id: TEST_PROJECT_ID,
       securityGroupId: "sg-123",
     })
 
@@ -239,6 +243,7 @@ describe("rbacPolicyRouter.list", () => {
 
     await expect(
       caller.rbacPolicy.list({
+        project_id: TEST_PROJECT_ID,
         securityGroupId: "sg-123",
       })
     ).rejects.toThrow(
@@ -253,7 +258,7 @@ describe("rbacPolicyRouter.list", () => {
     const ctx = createMockContext({ noNetworkService: true })
     const caller = createCaller(ctx)
 
-    await expect(caller.rbacPolicy.list({ securityGroupId: "sg-123" })).rejects.toThrow(
+    await expect(caller.rbacPolicy.list({ project_id: TEST_PROJECT_ID, securityGroupId: "sg-123" })).rejects.toThrow(
       new TRPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: "Network service is not available",
@@ -265,7 +270,7 @@ describe("rbacPolicyRouter.list", () => {
     const ctx = createMockContext({ mockHttpStatus: 401, mockStatusText: "Unauthorized" })
     const caller = createCaller(ctx)
 
-    await expect(caller.rbacPolicy.list({ securityGroupId: "sg-123" })).rejects.toThrow(
+    await expect(caller.rbacPolicy.list({ project_id: TEST_PROJECT_ID, securityGroupId: "sg-123" })).rejects.toThrow(
       new TRPCError({
         code: "UNAUTHORIZED",
         message: "Unauthorized access",
@@ -277,7 +282,7 @@ describe("rbacPolicyRouter.list", () => {
     const ctx = createMockContext({ mockHttpStatus: 403, mockStatusText: "Forbidden" })
     const caller = createCaller(ctx)
 
-    await expect(caller.rbacPolicy.list({ securityGroupId: "sg-123" })).rejects.toThrow(
+    await expect(caller.rbacPolicy.list({ project_id: TEST_PROJECT_ID, securityGroupId: "sg-123" })).rejects.toThrow(
       new TRPCError({
         code: "FORBIDDEN",
         message: "Access forbidden: Forbidden",
@@ -296,6 +301,7 @@ describe("rbacPolicyRouter.create", () => {
     const caller = createCaller(ctx)
 
     const result = await caller.rbacPolicy.create({
+      project_id: TEST_PROJECT_ID,
       securityGroupId: "sg-123",
       targetTenant: "target-project-1",
     })
@@ -313,6 +319,7 @@ describe("rbacPolicyRouter.create", () => {
 
     await expect(
       caller.rbacPolicy.create({
+        project_id: TEST_PROJECT_ID,
         securityGroupId: "sg-123",
         targetTenant: "target-project-1",
       })
@@ -330,6 +337,7 @@ describe("rbacPolicyRouter.create", () => {
 
     await expect(
       caller.rbacPolicy.create({
+        project_id: TEST_PROJECT_ID,
         securityGroupId: "sg-123",
         targetTenant: "target-project-1",
       })
@@ -347,6 +355,7 @@ describe("rbacPolicyRouter.create", () => {
 
     await expect(
       caller.rbacPolicy.create({
+        project_id: TEST_PROJECT_ID,
         securityGroupId: "sg-123",
         targetTenant: "target-project-1",
       })
@@ -364,6 +373,7 @@ describe("rbacPolicyRouter.create", () => {
 
     await expect(
       caller.rbacPolicy.create({
+        project_id: TEST_PROJECT_ID,
         securityGroupId: "sg-123",
         targetTenant: "target-project-1",
       })
@@ -381,6 +391,7 @@ describe("rbacPolicyRouter.create", () => {
 
     await expect(
       caller.rbacPolicy.create({
+        project_id: TEST_PROJECT_ID,
         securityGroupId: "sg-123",
         targetTenant: "target-project-1",
       })
@@ -398,6 +409,7 @@ describe("rbacPolicyRouter.create", () => {
 
     await expect(
       caller.rbacPolicy.create({
+        project_id: TEST_PROJECT_ID,
         securityGroupId: "sg-123",
         targetTenant: "",
       })
@@ -415,6 +427,7 @@ describe("rbacPolicyRouter.update", () => {
     const caller = createCaller(ctx)
 
     const result = await caller.rbacPolicy.update({
+      project_id: TEST_PROJECT_ID,
       policyId: "rbac-policy-1",
       targetTenant: "new-target-project",
     })
@@ -430,6 +443,7 @@ describe("rbacPolicyRouter.update", () => {
 
     await expect(
       caller.rbacPolicy.update({
+        project_id: TEST_PROJECT_ID,
         policyId: "rbac-policy-1",
         targetTenant: "new-target-project",
       })
@@ -447,6 +461,7 @@ describe("rbacPolicyRouter.update", () => {
 
     await expect(
       caller.rbacPolicy.update({
+        project_id: TEST_PROJECT_ID,
         policyId: "rbac-policy-1",
         targetTenant: "new-target-project",
       })
@@ -464,6 +479,7 @@ describe("rbacPolicyRouter.update", () => {
 
     await expect(
       caller.rbacPolicy.update({
+        project_id: TEST_PROJECT_ID,
         policyId: "nonexistent-policy",
         targetTenant: "new-target-project",
       })
@@ -481,6 +497,7 @@ describe("rbacPolicyRouter.update", () => {
 
     await expect(
       caller.rbacPolicy.update({
+        project_id: TEST_PROJECT_ID,
         policyId: "rbac-policy-1",
         targetTenant: "",
       })
@@ -498,6 +515,7 @@ describe("rbacPolicyRouter.delete", () => {
     const caller = createCaller(ctx)
 
     const result = await caller.rbacPolicy.delete({
+      project_id: TEST_PROJECT_ID,
       policyId: "rbac-policy-1",
     })
 
@@ -510,6 +528,7 @@ describe("rbacPolicyRouter.delete", () => {
 
     await expect(
       caller.rbacPolicy.delete({
+        project_id: TEST_PROJECT_ID,
         policyId: "rbac-policy-1",
       })
     ).rejects.toThrow(
@@ -526,6 +545,7 @@ describe("rbacPolicyRouter.delete", () => {
 
     await expect(
       caller.rbacPolicy.delete({
+        project_id: TEST_PROJECT_ID,
         policyId: "nonexistent-policy",
       })
     ).rejects.toThrow(
@@ -542,6 +562,7 @@ describe("rbacPolicyRouter.delete", () => {
 
     await expect(
       caller.rbacPolicy.delete({
+        project_id: TEST_PROJECT_ID,
         policyId: "rbac-policy-1",
       })
     ).rejects.toThrow(
@@ -556,7 +577,7 @@ describe("rbacPolicyRouter.delete", () => {
     const ctx = createMockContext({ noNetworkService: true })
     const caller = createCaller(ctx)
 
-    await expect(caller.rbacPolicy.delete({ policyId: "rbac-policy-1" })).rejects.toThrow(
+    await expect(caller.rbacPolicy.delete({ project_id: TEST_PROJECT_ID, policyId: "rbac-policy-1" })).rejects.toThrow(
       new TRPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: "Network service is not available",
