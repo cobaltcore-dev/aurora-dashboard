@@ -303,32 +303,25 @@ export function ImageListView({
     return operations
   }
 
-  const handleSaveEdit = async (updatedProperties: Partial<GlanceImage>) => {
-    if (!selectedImage) return
+  const handleSaveEdit = async (updatedProperties: Partial<GlanceImage>): Promise<boolean> => {
+    if (!selectedImage) return false
 
     const imageId = selectedImage.id
     const imageName = updatedProperties.name || selectedImage.name || imageId
 
     try {
-      // Convert updated properties to JSON Patch operations
-      // Pass the original image to determine correct operation types (add/replace/remove)
       const operations = convertToJsonPatchOperations(updatedProperties, selectedImage)
-
-      // Call the update mutation
       await updateImageMutation.mutateAsync({ imageId, operations })
-
-      // Close modals and show success toast
       setEditDetailsModalOpen(false)
-      setEditMetadataModalOpen(false)
       setToastData(getImageUpdatedToast(imageName, { onDismiss: handleToastDismiss }))
+      setSelectedImage(null)
+      return true
     } catch (error) {
       const { message } = error as TRPCClientError<InferrableClientTypes>
-
-      // Show error toast but keep modal open so user can retry
       setToastData(getImageUpdateErrorToast(imageName, message, { onDismiss: handleToastDismiss }))
+      setSelectedImage(null)
+      return false
     }
-
-    setSelectedImage(null)
   }
 
   const handleCreate = async (imageData: CreateImageInput, file: File) => {

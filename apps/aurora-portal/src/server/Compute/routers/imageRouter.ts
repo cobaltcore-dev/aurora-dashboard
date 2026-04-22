@@ -161,23 +161,20 @@ export const imageRouter = {
 
         // Filter by status (supports multi-value "in:active,queued" format)
         if (queryInput.status) {
-          filteredImages = filteredImages.filter((img) =>
-            parseMultiValue(queryInput.status!).includes(img.status ?? "")
-          )
+          const statusValues = parseMultiValue(queryInput.status)
+          filteredImages = filteredImages.filter((img) => statusValues.includes(img.status ?? ""))
         }
 
         // Filter by disk_format (supports multi-value "in:qcow2,raw" format)
         if (queryInput.disk_format) {
-          filteredImages = filteredImages.filter((img) =>
-            parseMultiValue(queryInput.disk_format!).includes(img.disk_format ?? "")
-          )
+          const diskFormatValues = parseMultiValue(queryInput.disk_format)
+          filteredImages = filteredImages.filter((img) => diskFormatValues.includes(img.disk_format ?? ""))
         }
 
         // Filter by container_format (supports multi-value "in:bare,ovf" format)
         if (queryInput.container_format) {
-          filteredImages = filteredImages.filter((img) =>
-            parseMultiValue(queryInput.container_format!).includes(img.container_format ?? "")
-          )
+          const containerFormatValues = parseMultiValue(queryInput.container_format)
+          filteredImages = filteredImages.filter((img) => containerFormatValues.includes(img.container_format ?? ""))
         }
 
         // Filter by protected ("true" / "false" string)
@@ -269,23 +266,20 @@ export const imageRouter = {
 
         // Filter by status (supports multi-value "in:active,queued" format)
         if (queryInput.status) {
-          filteredImages = filteredImages.filter((img) =>
-            parseMultiValue(queryInput.status!).includes(img.status ?? "")
-          )
+          const statusValues = parseMultiValue(queryInput.status)
+          filteredImages = filteredImages.filter((img) => statusValues.includes(img.status ?? ""))
         }
 
         // Filter by disk_format (supports multi-value "in:qcow2,raw" format)
         if (queryInput.disk_format) {
-          filteredImages = filteredImages.filter((img) =>
-            parseMultiValue(queryInput.disk_format!).includes(img.disk_format ?? "")
-          )
+          const diskFormatValues = parseMultiValue(queryInput.disk_format)
+          filteredImages = filteredImages.filter((img) => diskFormatValues.includes(img.disk_format ?? ""))
         }
 
         // Filter by container_format (supports multi-value "in:bare,ovf" format)
         if (queryInput.container_format) {
-          filteredImages = filteredImages.filter((img) =>
-            parseMultiValue(queryInput.container_format!).includes(img.container_format ?? "")
-          )
+          const containerFormatValues = parseMultiValue(queryInput.container_format)
+          filteredImages = filteredImages.filter((img) => containerFormatValues.includes(img.container_format ?? ""))
         }
 
         // Filter by protected ("true" / "false" string)
@@ -969,15 +963,16 @@ export const imageRouter = {
           filteredImages = filterBySearchParams(filteredImages, name, ["name"])
         }
         if (status) {
-          filteredImages = filteredImages.filter((img) => parseMultiValue(status).includes(img.status ?? ""))
+          const statusValues = parseMultiValue(status)
+          filteredImages = filteredImages.filter((img) => statusValues.includes(img.status ?? ""))
         }
         if (disk_format) {
-          filteredImages = filteredImages.filter((img) => parseMultiValue(disk_format).includes(img.disk_format ?? ""))
+          const diskFormatValues = parseMultiValue(disk_format)
+          filteredImages = filteredImages.filter((img) => diskFormatValues.includes(img.disk_format ?? ""))
         }
         if (container_format) {
-          filteredImages = filteredImages.filter((img) =>
-            parseMultiValue(container_format).includes(img.container_format ?? "")
-          )
+          const containerFormatValues = parseMultiValue(container_format)
+          filteredImages = filteredImages.filter((img) => containerFormatValues.includes(img.container_format ?? ""))
         }
         if (protectedFilter !== undefined && protectedFilter !== null) {
           const wantProtected = protectedFilter === "true"

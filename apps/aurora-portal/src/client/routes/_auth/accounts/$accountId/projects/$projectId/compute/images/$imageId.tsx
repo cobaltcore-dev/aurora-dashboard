@@ -204,15 +204,15 @@ function RouteComponent() {
     return operations
   }
 
-  const handleSaveEdit = async (updatedProperties: Partial<GlanceImage>) => {
-    if (!image) return
+  const handleSaveEdit = async (updatedProperties: Partial<GlanceImage>): Promise<boolean> => {
+    if (!image) return false
     const operations = convertToJsonPatchOperations(updatedProperties, image)
     try {
       await updateImageMutation.mutateAsync({ imageId, operations })
       setEditDetailsModalOpen(false)
-      setEditMetadataModalOpen(false)
+      return true
     } catch {
-      // keep modal open on error
+      return false
     }
   }
 

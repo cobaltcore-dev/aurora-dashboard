@@ -308,9 +308,7 @@ export const Images = ({ client }: ImagesProps) => {
   const [deleteAllModalOpen, setDeleteAllModalOpen] = useState(false)
   const [deactivateAllModalOpen, setDeactivateAllModalOpen] = useState(false)
   const [activateAllModalOpen, setActivateAllModalOpen] = useState(false)
-  const [memberStatusView, setMemberStatusView] = useState<"all" | "pending" | "accepted">(
-    searchParams.memberStatus ?? "all"
-  )
+  const memberStatusView = searchParams.memberStatus ?? "all"
   const memberStatusFilter = memberStatusView === "all" ? undefined : memberStatusView
 
   const [isFetching, setIsFetching] = useState(true)
@@ -383,7 +381,6 @@ export const Images = ({ client }: ImagesProps) => {
       sortDirection: urlSortDirection,
     }))
     setSearchTerm(urlSearchTerm)
-    setMemberStatusView(searchParams.memberStatus ?? "all")
 
     // Clear selection when dataset changes
     setSelectedImages([])
@@ -477,7 +474,6 @@ export const Images = ({ client }: ImagesProps) => {
   }
 
   const handleMemberStatusChange = (view: "all" | "pending" | "accepted") => {
-    setMemberStatusView(view)
     navigate({
       search: ((prev: ImagesSearchParams) => ({
         sortBy: prev.sortBy,

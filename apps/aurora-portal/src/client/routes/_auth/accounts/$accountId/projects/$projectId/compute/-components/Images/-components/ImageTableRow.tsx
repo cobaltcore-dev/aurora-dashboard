@@ -140,8 +140,7 @@ export function ImageTableRow({
               {isExternalImage && permissions.canUpdateMember && (
                 <>
                   {isPending && <PopupMenuItem label={t`Accept`} onClick={toggleAcceptModal} />}
-                  {isPending && <PopupMenuItem label={t`Reject`} onClick={toggleRejectModal} />}
-                  {isAccepted && <PopupMenuItem label={t`Reject`} onClick={toggleRejectModal} />}
+                  <PopupMenuItem label={t`Reject`} onClick={toggleRejectModal} />
                 </>
               )}
 

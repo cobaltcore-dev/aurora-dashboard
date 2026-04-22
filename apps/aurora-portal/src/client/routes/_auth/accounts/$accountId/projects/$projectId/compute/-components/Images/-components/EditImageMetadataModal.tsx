@@ -19,7 +19,7 @@ interface EditImageMetadataModalProps {
   isOpen: boolean
   isLoading?: boolean
   onClose: () => void
-  onSave: (metadata: Record<string, string | null>) => Promise<void> | void
+  onSave: (metadata: Record<string, string | null>) => Promise<boolean> | boolean
 }
 
 interface MetadataEntry {
@@ -39,7 +39,7 @@ function toStrValue(value: unknown): string {
 
 function buildInitialMetadata(image: GlanceImage, excludedProperties: Set<string>): MetadataEntry[] {
   return Object.entries(image)
-    .filter(([key]) => !excludedProperties.has(key))
+    .filter(([key]) => !excludedProperties.has(key.toLowerCase()))
     .map(([key, value]) => {
       const strValue = toStrValue(value)
       return { key, value: strValue, isNew: false, isEditing: false, originalKey: key, originalValue: strValue }
@@ -56,7 +56,7 @@ function EditImageMetadataModalInner({
 }: {
   isLoading: boolean
   onClose: () => void
-  onSave: (metadata: Record<string, string | null>) => Promise<void> | void
+  onSave: (metadata: Record<string, string | null>) => Promise<boolean> | boolean
   initialMetadata: MetadataEntry[]
   excludedProperties: Set<string>
 }) {
@@ -80,15 +80,17 @@ function EditImageMetadataModalInner({
     metadata.every((entry) => !entry.isNew && entry.key === entry.originalKey && entry.value === entry.originalValue) &&
     initialMetadata.length === metadata.length
 
-  const validateKey = (key: string, originalKey?: string): string | null => {
-    const normalized = key?.trim()
+  const validateKey = (key: string, originalKey?: string, rowIndex?: number): string | null => {
+    const normalized = key?.trim().toLowerCase()
     if (!normalized) {
       return t`Key is required`
     }
     if (excludedProperties.has(normalized)) {
       return t`This property is reserved and cannot be modified`
     }
-    const isDuplicate = metadata.some((entry) => entry.key.trim() === normalized && entry.originalKey !== originalKey)
+    const isDuplicate = metadata.some(
+      (entry, idx) => entry.key.trim().toLowerCase() === normalized && idx !== rowIndex && entry.originalKey !== originalKey
+    )
     if (isDuplicate) {
       return t`A property with this key already exists`
     }
@@ -96,7 +98,7 @@ function EditImageMetadataModalInner({
   }
 
   const handleAddNew = () => {
-    const keyError = validateKey(newKey)
+    const keyError = validateKey(newKey, undefined, metadata.length)
     if (keyError) {
       setErrors({ newKey: keyError })
       return
@@ -129,7 +131,7 @@ function EditImageMetadataModalInner({
 
   const handleSaveEdit = (index: number) => {
     const entry = metadata[index]
-    const keyError = validateKey(entry.key, entry.originalKey)
+    const keyError = validateKey(entry.key, entry.originalKey, index)
     if (keyError) {
       setErrors({ [`edit-${index}`]: keyError })
       return
@@ -197,8 +199,8 @@ function EditImageMetadataModalInner({
       .forEach((entry) => {
         metadataObject[entry.key] = entry.value
       })
-    await onSave({ ...metadataObject, ...removedEntries })
-    onClose()
+    const success = await onSave({ ...metadataObject, ...removedEntries })
+    if (success) onClose()
   }
 
   const handleClose = () => {
@@ -397,16 +399,44 @@ export const EditImageMetadataModal: React.FC<EditImageMetadataModalProps> = ({
   onClose,
   onSave,
 }) => {
-  const { data: excludedPropertiesData } = trpcReact.compute.getImageMetadataExcludedProperties.useQuery(undefined, {
+  const { t } = useLingui()
+  const {
+    data: excludedPropertiesData,
+    isLoading: isLoadingExcluded,
+    isError: isErrorExcluded,
+  } = trpcReact.compute.getImageMetadataExcludedProperties.useQuery(undefined, {
     enabled: isOpen,
   })
-  const excludedProperties = useMemo(() => new Set(excludedPropertiesData ?? []), [excludedPropertiesData])
+  const excludedProperties = useMemo(
+    () => new Set((excludedPropertiesData ?? []).map((s) => s.toLowerCase())),
+    [excludedPropertiesData]
+  )
   const initialMetadata = useMemo(
     () => buildInitialMetadata(image, excludedProperties),
-    [image.id, image.updated_at, excludedPropertiesData]
+    [image.id, image.updated_at, excludedProperties]
   )
 
-  if (!isOpen || excludedPropertiesData === undefined) return null
+  if (!isOpen) return null
+
+  if (isLoadingExcluded) {
+    return (
+      <Modal open onCancel={onClose} size="large" title={t`Edit Image Metadata`}>
+        <Stack distribution="center" alignment="center">
+          <Spinner variant="primary" />
+        </Stack>
+      </Modal>
+    )
+  }
+
+  if (isErrorExcluded) {
+    return (
+      <Modal open onCancel={onClose} size="large" title={t`Edit Image Metadata`}>
+        <Stack distribution="center" alignment="center">
+          <span>{t`Failed to load metadata configuration.`}</span>
+        </Stack>
+      </Modal>
+    )
+  }
 
   return (
     <EditImageMetadataModalInner
