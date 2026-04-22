@@ -1184,16 +1184,30 @@ export const swiftRouter = {
         const now = Math.floor(Date.now() / 1000)
         const expiresAt = now + expiresIn
 
-        // Get Swift base URL from the service endpoints
+        // Get Swift base URL from the service endpoints.
+        // publicEndpoint.url embeds the authenticated account (e.g. /v1/AUTH_abc).
+        // If an account override is provided, replace the last path segment with it
+        // so that both the HMAC signature path and the returned URL reference the
+        // same account — signing one path and returning a URL for another would
+        // produce a 401 from Swift.
         const endpoints = swift.availableEndpoints()
         const publicEndpoint = endpoints?.find((ep) => ep.interface === "public")
-        const swiftBaseUrl = publicEndpoint?.url || ""
+        if (!publicEndpoint?.url) {
+          throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Swift public endpoint not found" })
+        }
 
-        // Derive the object path for HMAC signing from the service catalog endpoint.
+        const tempUrlBase = new URL(publicEndpoint.url)
+        if (account) {
+          const segments = tempUrlBase.pathname.split("/").filter(Boolean)
+          segments[segments.length - 1] = account
+          tempUrlBase.pathname = `/${segments.join("/")}`
+        }
+        const swiftBaseUrl = tempUrlBase.toString()
+
+        // Derive the object path for HMAC signing from the (possibly overridden) base URL.
         // Swift verifies the signature against the decoded URL path, so this string
         // must contain no percent-encoding — plain slash-separated segments only.
-        // swiftBaseUrl is e.g. "https://objectstore-3.qa-de-1.cloud.sap/v1/glance_e4b5c916-..."
-        const swiftUrlPath = new URL(swiftBaseUrl).pathname.replace(/\/$/, "")
+        const swiftUrlPath = tempUrlBase.pathname.replace(/\/$/, "")
         const objectPath = `${swiftUrlPath}/${container}/${object}`
 
         // Generate signature
