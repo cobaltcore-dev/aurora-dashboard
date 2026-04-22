@@ -432,7 +432,7 @@ export const ObjectsTableView = ({
                             <PopupMenuItem
                               label={t`Edit Metadata`}
                               onClick={() => setEditMetadataTarget(row as ObjectRow)}
-                              data-testid={`properties-action-${row.name}`}
+                              data-testid={`edit-metadata-action-${row.name}`}
                             />
                             <PopupMenuItem
                               label={t`Copy`}
