@@ -118,6 +118,7 @@ export const GenerateTempUrlModal = ({ isOpen, object, onClose, onCopySuccess }:
     displayNameRef.current = object.displayName
     setTempUrl(null)
     setExpiresAt(null)
+    setCopied(false)
     generateMutation.mutate({
       container: containerName,
       object: object.name,
@@ -148,6 +149,7 @@ export const GenerateTempUrlModal = ({ isOpen, object, onClose, onCopySuccess }:
     // Reset generated URL when config changes
     setTempUrl(null)
     setExpiresAt(null)
+    setCopied(false)
     setGeneralError(null)
     setNoKeyError(false)
   }
@@ -158,6 +160,7 @@ export const GenerateTempUrlModal = ({ isOpen, object, onClose, onCopySuccess }:
     // Reset generated URL when config changes
     setTempUrl(null)
     setExpiresAt(null)
+    setCopied(false)
     setGeneralError(null)
     setNoKeyError(false)
   }
