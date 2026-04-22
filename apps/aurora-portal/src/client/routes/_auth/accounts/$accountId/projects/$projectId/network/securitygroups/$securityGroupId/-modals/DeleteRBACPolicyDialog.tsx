@@ -64,17 +64,17 @@ export function DeleteRBACPolicyDialog({
       disableConfirmButton={isLoading || canRemove}
     >
       <div>
-        {/* Warning */}
-        <Trans>
-          This action cannot be undone. The target project will lose access to this security group immediately.
-        </Trans>
-
         {/* Error Message */}
         {error && (
           <Message dismissible={false} variant="error" className="mt-4">
             {error}
           </Message>
         )}
+
+        {/* Warning */}
+        <Trans>
+          This action cannot be undone. The target project will lose access to this security group immediately.
+        </Trans>
 
         {/* Policy Details */}
         <div className="bg-theme-background-lvl-1 mt-4 mb-4 rounded p-4">

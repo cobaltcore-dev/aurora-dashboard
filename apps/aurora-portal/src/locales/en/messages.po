@@ -175,9 +175,6 @@ msgstr "Add Security Group Rule"
 msgid "Add Tenant Access"
 msgstr "Add Tenant Access"
 
-msgid "After continuing, your project will no longer have access to the security group and any rules associated with it."
-msgstr "After continuing, your project will no longer have access to the security group and any rules associated with it."
-
 msgid "All containers"
 msgstr "All containers"
 
@@ -541,8 +538,8 @@ msgstr "Delete Recursively"
 msgid "Delete Rule"
 msgstr "Delete Rule"
 
-msgid "Delete Security Group"
-msgstr "Delete Security Group"
+msgid "Delete Security Group \"{securityGroupName}\""
+msgstr "Delete Security Group \"{securityGroupName}\""
 
 msgid "Delete Security Group Rule"
 msgstr "Delete Security Group Rule"
@@ -1246,9 +1243,8 @@ msgstr "Key Pairs"
 msgid "Last Modified"
 msgstr "Last Modified"
 
-#. placeholder {0}: formatLastUpdated(lastUpdated)
-msgid "Last updated: {0}"
-msgstr "Last updated: {0}"
+msgid "Last updated: {formattedDate}"
+msgstr "Last updated: {formattedDate}"
 
 msgid "Leave empty for all codes"
 msgstr "Leave empty for all codes"
@@ -1573,9 +1569,6 @@ msgstr "None"
 
 msgid "Note: for <0>static and dynamic large objects</0> only the manifests are deleted — their segments outside this folder prefix are not affected."
 msgstr "Note: for <0>static and dynamic large objects</0> only the manifests are deleted — their segments outside this folder prefix are not affected."
-
-msgid "Note: If this security group is currently in use by one or more ports, the deletion will fail. Please ensure no resources are using this security group before attempting to delete it."
-msgstr "Note: If this security group is currently in use by one or more ports, the deletion will fail. Please ensure no resources are using this security group before attempting to delete it."
 
 msgid "Note: The 'stateful' attribute cannot be changed if this security group is currently in use by one or more ports."
 msgstr "Note: The 'stateful' attribute cannot be changed if this security group is currently in use by one or more ports."
@@ -1925,9 +1918,6 @@ msgstr "Security"
 msgid "Security Group"
 msgstr "Security Group"
 
-msgid "Security Group Basic Info"
-msgstr "Security Group Basic Info"
-
 msgid "Security group name is required"
 msgstr "Security group name is required"
 
@@ -1942,6 +1932,9 @@ msgstr "Select a DNS domain."
 
 msgid "Select a fixed IP address"
 msgstr "Select a fixed IP address"
+
+msgid "Select a rule type..."
+msgstr "Select a rule type..."
 
 msgid "Select a security group..."
 msgstr "Select a security group..."
@@ -2488,9 +2481,6 @@ msgstr "Welcome to <0>Aurora Dashboard</0>, your next-generation cloud managemen
 
 msgid "Why Choose Aurora?"
 msgstr "Why Choose Aurora?"
-
-msgid "Would you like to remove the security group <0>{securityGroupName}</0> from your project?"
-msgstr "Would you like to remove the security group <0>{securityGroupName}</0> from your project?"
 
 msgid "Write ACLs"
 msgstr "Write ACLs"

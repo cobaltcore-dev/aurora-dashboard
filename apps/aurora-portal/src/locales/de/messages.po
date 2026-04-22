@@ -83,10 +83,10 @@ msgid "Accept"
 msgstr "Akzeptieren"
 
 msgid "Accept access to image"
-msgstr "Zugriff auf Image akzeptieren"
+msgstr ""
 
 msgid "Accept Shared Image"
-msgstr "Geteiltes Image akzeptieren"
+msgstr ""
 
 msgid "Accepted"
 msgstr "Akzeptiert"
@@ -174,9 +174,6 @@ msgstr "Sicherheitsgruppenregel hinzufügen"
 
 msgid "Add Tenant Access"
 msgstr "Projektzugriff hinzufügen"
-
-msgid "After continuing, your project will no longer have access to the security group and any rules associated with it."
-msgstr "Nach dem Fortfahren hat Ihr Projekt keinen Zugriff mehr auf die Sicherheitsgruppe und alle damit verbundenen Regeln."
 
 msgid "All containers"
 msgstr "Alle Container"
@@ -302,7 +299,7 @@ msgid "Community"
 msgstr "Community"
 
 msgid "Compute"
-msgstr "Compute"
+msgstr ""
 
 msgid "Compute Overview"
 msgstr "Compute-Übersicht"
@@ -541,8 +538,8 @@ msgstr "Rekursiv löschen"
 msgid "Delete Rule"
 msgstr "Regel löschen"
 
-msgid "Delete Security Group"
-msgstr "Security Group löschen"
+msgid "Delete Security Group \"{securityGroupName}\""
+msgstr "Sicherheitsgruppe \"{securityGroupName}\" löschen"
 
 msgid "Delete Security Group Rule"
 msgstr "Sicherheitsgruppenregel löschen"
@@ -1220,10 +1217,10 @@ msgid "IPv6"
 msgstr "IPv6"
 
 msgid "It will appear in your image list."
-msgstr "Es wird in Ihrer Image-Liste angezeigt."
+msgstr ""
 
 msgid "It will be removed from your image list."
-msgstr "Es wird aus Ihrer Image-Liste entfernt."
+msgstr ""
 
 msgid "Keep segments (delete manifest only)"
 msgstr "Segmente beibehalten (nur Manifest löschen)"
@@ -1246,9 +1243,8 @@ msgstr "Key Pairs"
 msgid "Last Modified"
 msgstr "Zuletzt geändert"
 
-#. placeholder {0}: formatLastUpdated(lastUpdated)
-msgid "Last updated: {0}"
-msgstr "Zuletzt aktualisiert: {0}"
+msgid "Last updated: {formattedDate}"
+msgstr "Zuletzt aktualisiert: {formattedDate}"
 
 msgid "Leave empty for all codes"
 msgstr "Leer lassen für alle Codes"
@@ -1482,7 +1478,7 @@ msgid "Need help?"
 msgstr "Benötigen Sie Hilfe?"
 
 msgid "Network"
-msgstr "Netzwerk"
+msgstr ""
 
 msgid "Network & Routing"
 msgstr "Netzwerk & Routing"
@@ -1573,9 +1569,6 @@ msgstr "Keine"
 
 msgid "Note: for <0>static and dynamic large objects</0> only the manifests are deleted — their segments outside this folder prefix are not affected."
 msgstr "Hinweis: Für <0>statische und dynamische große Objekte</0> werden nur die Manifeste gelöscht — ihre Segmente außerhalb dieses Ordnerpräfixes sind nicht betroffen."
-
-msgid "Note: If this security group is currently in use by one or more ports, the deletion will fail. Please ensure no resources are using this security group before attempting to delete it."
-msgstr "Hinweis: Wenn diese Sicherheitsgruppe derzeit von einem oder mehreren Ports verwendet wird, schlägt die Löschung fehl. Bitte stellen Sie sicher, dass keine Ressourcen diese Sicherheitsgruppe verwenden, bevor Sie versuchen, sie zu löschen."
 
 msgid "Note: The 'stateful' attribute cannot be changed if this security group is currently in use by one or more ports."
 msgstr "Hinweis: Das Attribut 'stateful' kann nicht geändert werden, wenn diese Security Group derzeit von einem oder mehreren Ports verwendet wird."
@@ -1809,10 +1802,10 @@ msgid "Reject"
 msgstr "Ablehnen"
 
 msgid "Reject access to image"
-msgstr "Zugriff auf Image ablehnen"
+msgstr ""
 
 msgid "Reject Shared Image"
-msgstr "Geteiltes Image ablehnen"
+msgstr ""
 
 msgid "Rejected"
 msgstr "Abgelehnt"
@@ -1925,9 +1918,6 @@ msgstr "Sicherheit"
 msgid "Security Group"
 msgstr "Security Group"
 
-msgid "Security Group Basic Info"
-msgstr "Security Group – Grundlegende Informationen"
-
 msgid "Security group name is required"
 msgstr "Security Group-Name ist erforderlich"
 
@@ -1942,6 +1932,9 @@ msgstr "DNS-Domain auswählen."
 
 msgid "Select a fixed IP address"
 msgstr "Feste IP-Adresse auswählen"
+
+msgid "Select a rule type..."
+msgstr "Regeltyp auswählen..."
 
 msgid "Select a security group..."
 msgstr "Security Group auswählen..."
@@ -2085,7 +2078,7 @@ msgid "Status"
 msgstr "Status"
 
 msgid "Storage"
-msgstr "Storage"
+msgstr ""
 
 msgid "Storage container not found"
 msgstr "Storage-Container nicht gefunden"
@@ -2488,9 +2481,6 @@ msgstr "Willkommen beim <0>Aurora-Dashboard</0>, Ihrer Cloud-Management-Lösung 
 
 msgid "Why Choose Aurora?"
 msgstr "Warum Aurora wählen?"
-
-msgid "Would you like to remove the security group <0>{securityGroupName}</0> from your project?"
-msgstr "Möchten Sie die Security Group <0>{securityGroupName}</0> aus Ihrem Projekt entfernen?"
 
 msgid "Write ACLs"
 msgstr "Schreib-ACLs"

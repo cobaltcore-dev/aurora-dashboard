@@ -39,7 +39,16 @@ vi.mock("./sections/IcmpSection", () => ({
 }))
 
 vi.mock("./sections/RemoteSourceSection", () => ({
-  RemoteSourceSection: () => <div data-testid="remote-source-section">Remote Source Section</div>,
+  RemoteSourceSection: ({
+    availableSecurityGroups,
+  }: {
+    availableSecurityGroups?: Array<{ id: string; name: string | null }>
+  }) => (
+    <div data-testid="remote-source-section">
+      Remote Source Section
+      {availableSecurityGroups && <span data-testid="security-groups-count">{availableSecurityGroups.length}</span>}
+    </div>
+  ),
 }))
 
 vi.mock("./sections/DescriptionSection", () => ({
@@ -107,10 +116,9 @@ describe("AddRuleModal", () => {
   describe("Form sections rendering", () => {
     test("renders all required sections", () => {
       renderModal()
+      // Rule type section is always visible
       expect(screen.getByTestId("rule-type-section")).toBeInTheDocument()
-      expect(screen.getByTestId("direction-section")).toBeInTheDocument()
-      expect(screen.getByTestId("remote-source-section")).toBeInTheDocument()
-      expect(screen.getByTestId("description-section")).toBeInTheDocument()
+      // Other sections (direction, protocol, remote-source, description) render conditionally after rule type is selected
     })
 
     test("renders Add Rule and Cancel buttons", () => {
@@ -208,15 +216,24 @@ describe("AddRuleModal", () => {
   })
 
   describe("Available security groups", () => {
-    test("passes availableSecurityGroups to RemoteSourceSection", () => {
+    test("passes availableSecurityGroups to RemoteSourceSection when rule type is selected", async () => {
+      const user = userEvent.setup()
       const mockSecurityGroups = [
         { id: "sg-1", name: "Group 1" },
         { id: "sg-2", name: "Group 2" },
       ]
       renderModal({ availableSecurityGroups: mockSecurityGroups })
 
-      // The RemoteSourceSection should receive the prop (verified by mock)
+      // Initially, remote source section is not visible (no rule type selected)
+      expect(screen.queryByTestId("remote-source-section")).not.toBeInTheDocument()
+
+      // Select a rule type to make the section visible
+      const ruleTypeSelect = screen.getByTestId("rule-type-select")
+      await user.selectOptions(ruleTypeSelect, "ssh")
+
+      // Now the RemoteSourceSection should be visible with the security groups
       expect(screen.getByTestId("remote-source-section")).toBeInTheDocument()
+      expect(screen.getByTestId("security-groups-count")).toHaveTextContent("2")
     })
   })
 })

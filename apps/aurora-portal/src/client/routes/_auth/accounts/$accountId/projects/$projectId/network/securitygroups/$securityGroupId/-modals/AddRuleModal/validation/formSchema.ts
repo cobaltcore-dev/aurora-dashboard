@@ -14,7 +14,7 @@ import { CUSTOM_TCP_RULE, CUSTOM_UDP_RULE, OTHER_PROTOCOL_RULE, ICMP_MIN, ICMP_M
 export const createRuleFormSchema = z
   .object({
     // Rule preset selector (UI only, affects which fields are populated)
-    ruleType: z.string(),
+    ruleType: z.string().min(1, "Rule type is required"),
 
     // Required fields - always present
     direction: z.enum(["ingress", "egress"]),

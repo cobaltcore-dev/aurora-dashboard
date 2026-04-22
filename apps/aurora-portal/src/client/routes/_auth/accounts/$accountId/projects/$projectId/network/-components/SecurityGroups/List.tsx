@@ -182,6 +182,7 @@ export const SecurityGroups = () => {
         onUpdateSecurityGroup={handleUpdateSecurityGroup}
         isUpdatingSecurityGroup={updateSecurityGroupMutation.isPending}
         updateError={updateError}
+        currentProjectId={projectId}
       />
 
       <CreateSecurityGroupModal

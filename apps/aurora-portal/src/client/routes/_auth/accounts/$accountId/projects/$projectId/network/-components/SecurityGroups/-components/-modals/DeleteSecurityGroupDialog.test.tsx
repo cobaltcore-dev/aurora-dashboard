@@ -49,8 +49,7 @@ describe("DeleteSecurityGroupDialog", () => {
       { wrapper: createWrapper() }
     )
 
-    expect(screen.getByText("Delete Security Group")).toBeInTheDocument()
-    expect(screen.getByText("test-security-group")).toBeInTheDocument()
+    expect(screen.getByText('Delete Security Group "test-security-group"')).toBeInTheDocument()
   })
 
   it("displays error message when provided", () => {
