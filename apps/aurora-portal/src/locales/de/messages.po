@@ -404,7 +404,7 @@ msgid "Containers"
 msgstr "Container"
 
 msgid "Content type"
-msgstr ""
+msgstr "Content type"
 
 msgid "Copied to clipboard!"
 msgstr "In die Zwischenablage kopiert!"
@@ -464,7 +464,7 @@ msgid "Could not move \"{objectName}\": {errorMessage}"
 msgstr "\"{objectName}\" konnte nicht verschoben werden: {errorMessage}"
 
 msgid "Could not update \"{objectName}\": {errorMessage}"
-msgstr ""
+msgstr "\"{objectName}\" konnte nicht aktualisiert werden: {errorMessage}"
 
 msgid "Could not update ACLs for container \"{containerName}\": {errorMessage}"
 msgstr "ACLs für Container \"{containerName}\" konnten nicht aktualisiert werden: {errorMessage}"
@@ -749,7 +749,7 @@ msgid "Enter a tag and press Enter or click Add"
 msgstr "Geben Sie ein Tag ein und drücken Sie Enter oder klicken Sie auf Hinzufügen"
 
 msgid "Enter a timestamp like \"2026-05-16 18:14:57\" to schedule automatic deletion"
-msgstr ""
+msgstr "Geben Sie einen Zeitstempel wie \"2026-05-16 18:14:57\" ein, um die automatische Löschung zu planen"
 
 msgid "Enter a valid PQDN or FQDN (max 63 characters) to associate with the floating IP. A and PTR records are created automatically."
 msgstr "Gültige PQDN oder FQDN (max. 63 Zeichen) eingeben, um sie der Floating IP zuzuordnen. A- und PTR-Einträge werden automatisch erstellt."
@@ -830,10 +830,10 @@ msgid "Ethertype"
 msgstr "Ethertype"
 
 msgid "Expected format: YYYY-MM-DD HH:MM:SS"
-msgstr ""
+msgstr "Erwartetes Format: JJJJ-MM-TT HH:MM:SS"
 
 msgid "Expires at (UTC)"
-msgstr ""
+msgstr "Läuft ab um (UTC)"
 
 msgid "Expires in"
 msgstr "Läuft ab in"
@@ -964,9 +964,6 @@ msgstr ""
 msgid "Failed to load object metadata: {metadataErrorMessage}"
 msgstr "Fehler beim Laden der Objekt-Metadaten: {metadataErrorMessage}"
 
-msgid "Failed to load object metadata: {metaErrorMessage}"
-msgstr ""
-
 msgid "Failed to load security groups"
 msgstr "Security Groups konnten nicht geladen werden"
 
@@ -1001,10 +998,10 @@ msgid "Failed to update container: {errorMessage}"
 msgstr "Fehler beim Aktualisieren des Containers: {errorMessage}"
 
 msgid "Failed to Update Object"
-msgstr ""
+msgstr "Fehler beim Aktualisieren des Objekts"
 
 msgid "Failed to update object: {mutationErrorMessage}"
-msgstr ""
+msgstr "Fehler beim Aktualisieren des Objekts: {mutationErrorMessage}"
 
 msgid "Failed to update security group"
 msgstr "Security Group konnte nicht aktualisiert werden"
@@ -1307,10 +1304,10 @@ msgid "Key"
 msgstr "Key"
 
 msgid "Key already exists"
-msgstr ""
+msgstr "Schlüssel existiert bereits"
 
 msgid "Key contains invalid characters"
-msgstr ""
+msgstr "Schlüssel enthält ungültige Zeichen"
 
 msgid "Key Features"
 msgstr "Hauptmerkmale"
@@ -1319,7 +1316,7 @@ msgid "Key is required"
 msgstr "Schlüssel ist erforderlich"
 
 msgid "Key must contain at least one alphanumeric character"
-msgstr ""
+msgstr "Schlüssel muss mindestens ein alphanumerisches Zeichen enthalten"
 
 msgid "Key Name"
 msgstr "Keyname"
@@ -1331,10 +1328,10 @@ msgid "Last Modified"
 msgstr "Zuletzt geändert"
 
 msgid "Last modified (UTC)"
-msgstr ""
+msgstr "Zuletzt geändert (UTC)"
 
 msgid "Last updated: {formattedDate}"
-msgstr ""
+msgstr "Zuletzt aktualisiert: {formattedDate}"
 
 msgid "Leave empty for all codes"
 msgstr "Leer lassen für alle Codes"
@@ -1400,7 +1397,7 @@ msgid "Loading object info..."
 msgstr "Objekt-Informationen werden geladen..."
 
 msgid "Loading object properties..."
-msgstr ""
+msgstr "Objekt-Eigenschaften werden geladen..."
 
 msgid "Loading objects..."
 msgstr "Objekte werden geladen..."
@@ -1475,7 +1472,7 @@ msgid "Max SLO segments"
 msgstr "Maximale SLO-Segmente"
 
 msgid "MD5 checksum"
-msgstr ""
+msgstr "MD5-Prüfsumme"
 
 msgid "Member \"{memberIdToRemove}\" has been removed successfully."
 msgstr "Mitglied \"{memberIdToRemove}\" wurde erfolgreich entfernt."
@@ -1709,7 +1706,7 @@ msgid "Object name is required"
 msgstr " Objektname ist erforderlich"
 
 msgid "Object properties"
-msgstr ""
+msgstr "Objekt-Eigenschaften"
 
 msgid "Object Storage"
 msgstr "Object Storage"
@@ -1718,7 +1715,7 @@ msgid "Object Type"
 msgstr "Objekttyp"
 
 msgid "Object Updated"
-msgstr ""
+msgstr "Objekt aktualisiert"
 
 msgid "Object versioning"
 msgstr "Objekt-Versionierung"
@@ -1838,10 +1835,10 @@ msgid "projects"
 msgstr "Projekte"
 
 msgid "Properties of"
-msgstr ""
+msgstr "Eigenschaften von"
 
 msgid "Properties of \"{objectName}\" were successfully updated."
-msgstr ""
+msgstr "Eigenschaften von \"{objectName}\" wurden erfolgreich aktualisiert."
 
 msgid "Property Key"
 msgstr "Eigenschaftsschlüssel"
@@ -2018,7 +2015,7 @@ msgid "Save Metadata"
 msgstr "Metadata speichern"
 
 msgid "Saving..."
-msgstr ""
+msgstr "Wird gespeichert..."
 
 msgid "Search..."
 msgstr "Suchen..."
@@ -2210,7 +2207,7 @@ msgid "Store old object versions in container:"
 msgstr "Alte Objekt-Versionen in Container speichern:"
 
 msgid "Stored as X-Object-Meta-* headers. Keys are case-insensitive."
-msgstr ""
+msgstr "Gespeichert als X-Object-Meta-*-Header. Schlüssel sind nicht zwischen Groß- und Kleinschreibung unterscheidend."
 
 msgid "Subnet"
 msgstr "Subnet"
@@ -2402,13 +2399,13 @@ msgid "This image was shared with you by <0>{ownerProject}</0> on {sharedAt}."
 msgstr "Dieses Image wurde am {sharedAt} von <0>{ownerProject}</0> mit Ihnen geteilt."
 
 msgid "This is a <0>dynamic large object (DLO)</0> manifest. Metadata changes apply to the manifest only — segment objects are not affected."
-msgstr ""
+msgstr "Dies ist ein <0>dynamisches großes Objekt (DLO)</0>-Manifest. Metadaten-Änderungen gelten nur für das Manifest — Segment-Objekte sind nicht betroffen."
 
 msgid "This is a <0>dynamic large object</0>. Only the manifest will be deleted — its segment objects (stored under the manifest prefix) are <1>not</1> automatically removed and must be deleted separately."
 msgstr "Dies ist ein <0>dynamisches großes Objekt</0>. Nur das Manifest wird gelöscht — die zugehörigen Segment-Objekte (gespeichert unter dem Manifest-Präfix) werden <1>nicht</1> automatisch entfernt und müssen separat gelöscht werden."
 
 msgid "This is a <0>static large object (SLO)</0> manifest. Metadata changes apply to the manifest only — segment objects are not affected."
-msgstr ""
+msgstr "Dies ist ein <0>statisches großes Objekt (SLO)</0>-Manifest. Metadaten-Änderungen gelten nur für das Manifest — Segment-Objekte sind nicht betroffen."
 
 msgid "This is a <0>static large object</0>. By default, all associated segment objects will also be permanently deleted."
 msgstr "Dies ist ein <0>statisches großes Objekt</0>. Standardmäßig werden auch alle zugehörigen Segment-Objekte dauerhaft gelöscht."
@@ -2534,7 +2531,7 @@ msgid "Unnamed"
 msgstr "Unbenannt"
 
 msgid "Update object"
-msgstr ""
+msgstr "Objekt aktualisieren"
 
 msgid "Update Security Group"
 msgstr "Security Group aktualisieren"

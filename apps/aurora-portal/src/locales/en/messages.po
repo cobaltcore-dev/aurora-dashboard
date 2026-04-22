@@ -964,9 +964,6 @@ msgstr "Failed to load metadata configuration."
 msgid "Failed to load object metadata: {metadataErrorMessage}"
 msgstr "Failed to load object metadata: {metadataErrorMessage}"
 
-msgid "Failed to load object metadata: {metaErrorMessage}"
-msgstr "Failed to load object metadata: {metaErrorMessage}"
-
 msgid "Failed to load security groups"
 msgstr "Failed to load security groups"
 

@@ -342,7 +342,7 @@ export const EditObjectMetadataModal = ({
   const isBusy = isPending || isLoading
   const isSLO = metadataRaw?.staticLargeObject === true
   const isDLO = !!metadataRaw?.objectManifest
-  const metaErrorMessage = metaError?.message ?? ""
+  const metadataErrorMessage = metaError?.message ?? ""
   const mutationErrorMessage = updateMutation.error?.message ?? ""
 
   return (
@@ -372,7 +372,7 @@ export const EditObjectMetadataModal = ({
         </Stack>
       ) : isMetaError ? (
         <Message variant="danger">
-          <Trans>Failed to load object metadata: {metaErrorMessage}</Trans>
+          <Trans>Failed to load object metadata: {metadataErrorMessage}</Trans>
         </Message>
       ) : (
         <Stack direction="vertical" gap="6">
