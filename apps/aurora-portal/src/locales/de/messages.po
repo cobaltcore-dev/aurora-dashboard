@@ -1875,7 +1875,7 @@ msgstr "Zuletzt geändert"
 
 #: src/client/components/ListToolbar/index.tsx:220
 msgid "Last updated: {formattedDate}"
-msgstr ""
+msgstr "Zuletzt aktualisiert: {formattedDate}"
 
 #: src/client/routes/_auth/accounts/$accountId/projects/$projectId/network/securitygroups/$securityGroupId/-modals/AddRuleModal/sections/IcmpSection.tsx:42
 msgid "Leave empty for all codes"

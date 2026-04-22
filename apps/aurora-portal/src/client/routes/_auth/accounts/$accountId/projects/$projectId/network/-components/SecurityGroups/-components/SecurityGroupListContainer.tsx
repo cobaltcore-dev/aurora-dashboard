@@ -135,8 +135,8 @@ export const SecurityGroupListContainer = ({
           ))}
         </DataGridRow>
         {securityGroups.map((sg) => {
-          // Compute isReadOnly: true if security group is not owned by current project
-          const isReadOnly = currentProjectId ? sg.project_id !== currentProjectId : false
+          // Compute isReadOnly only when the security group has an explicit project owner
+          const isReadOnly = Boolean(currentProjectId && sg.project_id && sg.project_id !== currentProjectId)
 
           return (
             <SecurityGroupTableRow
