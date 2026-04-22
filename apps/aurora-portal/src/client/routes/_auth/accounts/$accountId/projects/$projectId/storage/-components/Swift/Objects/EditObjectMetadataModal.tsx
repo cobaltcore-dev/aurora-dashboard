@@ -176,10 +176,8 @@ export const EditObjectMetadataModal = ({
   const hasChanges = (() => {
     if (expiresAt !== originalExpiresAtRef.current) return true
     if (metadata.length !== originalMetadataRef.current.length) return true
-    return metadata.some((entry, i) => {
-      const orig = originalMetadataRef.current[i]
-      return !orig || entry.key !== orig.key || entry.value !== orig.value
-    })
+    const originalMetadataByKey = new Map(originalMetadataRef.current.map((entry) => [entry.key, entry.value]))
+    return metadata.some((entry) => originalMetadataByKey.get(entry.key) !== entry.value)
   })()
 
   const hasEditing = metadata.some((e) => e.isEditing)
