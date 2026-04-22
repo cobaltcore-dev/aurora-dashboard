@@ -63,27 +63,34 @@ export const GenerateTempUrlModal = ({ isOpen, object, onClose, onCopySuccess }:
   const [generalError, setGeneralError] = useState<string | null>(null)
 
   const displayNameRef = useRef("")
+  // Incremented on every generate call and on modal close/reopen.
+  // Callbacks check their captured requestId against the ref to discard
+  // stale in-flight responses that arrive after the modal was closed or
+  // a new request was started.
+  const requestIdRef = useRef(0)
 
-  const generateMutation = trpcReact.storage.swift.generateTempUrl.useMutation({
-    onSuccess: (data) => {
-      setTempUrl(data.url)
-      setExpiresAt(data.expiresAt)
-      setNoKeyError(false)
+  const handleGenerateSuccess = (data: { url: string; expiresAt: number }) => {
+    setTempUrl(data.url)
+    setExpiresAt(data.expiresAt)
+    setNoKeyError(false)
+    setGeneralError(null)
+  }
+
+  const handleGenerateError = (error: { message: string }) => {
+    if (error.message.includes("Temp URL key not configured")) {
+      setNoKeyError(true)
       setGeneralError(null)
-    },
-    onError: (error) => {
-      if (error.message.includes("Temp URL key not configured")) {
-        setNoKeyError(true)
-        setGeneralError(null)
-      } else {
-        setGeneralError(error.message)
-        setNoKeyError(false)
-      }
-    },
-  })
+    } else {
+      setGeneralError(error.message)
+      setNoKeyError(false)
+    }
+  }
+
+  const generateMutation = trpcReact.storage.swift.generateTempUrl.useMutation()
 
   useEffect(() => {
     if (!isOpen) {
+      requestIdRef.current += 1
       generateMutation.reset()
       setTempUrl(null)
       setExpiresAt(null)
@@ -121,12 +128,25 @@ export const GenerateTempUrlModal = ({ isOpen, object, onClose, onCopySuccess }:
     setTempUrl(null)
     setExpiresAt(null)
     setCopied(false)
-    generateMutation.mutate({
-      container: containerName,
-      object: object.name,
-      method: "GET",
-      expiresIn,
-    })
+    const requestId = ++requestIdRef.current
+    generateMutation.mutate(
+      {
+        container: containerName,
+        object: object.name,
+        method: "GET",
+        expiresIn,
+      },
+      {
+        onSuccess: (data) => {
+          if (requestId !== requestIdRef.current) return
+          handleGenerateSuccess(data)
+        },
+        onError: (error) => {
+          if (requestId !== requestIdRef.current) return
+          handleGenerateError(error)
+        },
+      }
+    )
   }
 
   const handleCopy = () => {

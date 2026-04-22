@@ -37,17 +37,21 @@ vi.mock("@/client/trpcClient", () => ({
     storage: {
       swift: {
         generateTempUrl: {
-          useMutation: (opts: {
-            onSuccess?: (data: { url: string; expiresAt: number }) => void
-            onError?: (error: { message: string }) => void
-          }) => {
-            capturedMutateOpts = opts
-            return {
-              mutate: (input: unknown) => trpcState.mutate(input),
-              isPending: trpcState.isPending,
-              reset: trpcState.reset,
-            }
-          },
+          useMutation: () => ({
+            mutate: (
+              input: unknown,
+              opts?: {
+                onSuccess?: (data: { url: string; expiresAt: number }) => void
+                onError?: (error: { message: string }) => void
+              }
+            ) => {
+              // Capture per-call callbacks so tests can fire them manually
+              capturedMutateOpts = opts ?? {}
+              trpcState.mutate(input)
+            },
+            isPending: trpcState.isPending,
+            reset: trpcState.reset,
+          }),
         },
       },
     },
