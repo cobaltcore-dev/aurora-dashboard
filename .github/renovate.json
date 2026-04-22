@@ -1,0 +1,52 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended"
+  ],
+  "schedule": [ "before 9am on monday" ],
+  "timezone": "Europe/Berlin",
+  "vulnerabilityAlerts": {
+    "enabled": true,
+    "labels": [ "security" ],
+    "schedule": [ "at any time" ]
+  },
+  "packageRules": [
+    {
+      "matchUpdateTypes": [ "patch", "minor" ],
+      "isVulnerability": true,
+      "automerge": true
+    },
+    {
+      "matchUpdateTypes": [ "major" ],
+      "isVulnerability": true,
+      "dependencyDashboardApproval": true
+    }
+  ]
+  "packageRules": [
+    {
+      "matchDepTypes": [ "devDependencies" ],
+      "matchUpdateTypes": [ "patch" ],
+      "automerge": true
+    },
+    {
+      "matchUpdateTypes": [ "minor", "patch" ],
+      "excludeDepTypes": [ "devDependencies" ],
+      "groupName": "all non-major dependencies",
+      "groupSlug": "all-minor-patch"
+    },
+    {
+      "matchDepTypes": [ "devDependencies" ],
+      "matchUpdateTypes": [ "minor" ],
+      "groupName": "all non-major dependencies",
+      "groupSlug": "all-minor-patch"
+    },
+    {
+      "matchUpdateTypes": [ "major" ],
+      "automerge": false,
+      "dependencyDashboardApproval": true
+    }
+  ],
+  "prConcurrentLimit": 3,
+  "prHourlyLimit": 2,
+  "labels": [ "dependencies" ]
+}
