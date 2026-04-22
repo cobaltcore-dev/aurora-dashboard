@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useModal } from "@/client/utils/useModal"
 import { useParams, useNavigate } from "@tanstack/react-router"
 import {
   Checkbox,
@@ -93,8 +93,8 @@ export function ImageTableRow({
   const isExternalImage = isPending || isAccepted
   const isMutating = updateMemberMutation.isPending
 
-  const [acceptModalOpen, setAcceptModalOpen] = useState(false)
-  const [rejectModalOpen, setRejectModalOpen] = useState(false)
+  const [acceptModalOpen, toggleAcceptModal] = useModal()
+  const [rejectModalOpen, toggleRejectModal] = useModal()
 
   return (
     <DataGridRow
@@ -139,9 +139,9 @@ export function ImageTableRow({
 
               {isExternalImage && permissions.canUpdateMember && (
                 <>
-                  {isPending && <PopupMenuItem label={t`Accept`} onClick={() => setAcceptModalOpen(true)} />}
-                  {isPending && <PopupMenuItem label={t`Reject`} onClick={() => setRejectModalOpen(true)} />}
-                  {isAccepted && <PopupMenuItem label={t`Reject`} onClick={() => setRejectModalOpen(true)} />}
+                  {isPending && <PopupMenuItem label={t`Accept`} onClick={toggleAcceptModal} />}
+                  {isPending && <PopupMenuItem label={t`Reject`} onClick={toggleRejectModal} />}
+                  {isAccepted && <PopupMenuItem label={t`Reject`} onClick={toggleRejectModal} />}
                 </>
               )}
 
@@ -178,10 +178,10 @@ export function ImageTableRow({
           <Modal
             title={t`Accept Shared Image`}
             open={acceptModalOpen}
-            onCancel={() => setAcceptModalOpen(false)}
+            onCancel={toggleAcceptModal}
             confirmButtonLabel={t`Accept`}
             onConfirm={() => {
-              setAcceptModalOpen(false)
+              toggleAcceptModal()
               handleMemberStatusChange(MEMBER_STATUSES.ACCEPTED)
             }}
           >
@@ -195,10 +195,10 @@ export function ImageTableRow({
           <Modal
             title={t`Reject Shared Image`}
             open={rejectModalOpen}
-            onCancel={() => setRejectModalOpen(false)}
+            onCancel={toggleRejectModal}
             confirmButtonLabel={t`Reject`}
             onConfirm={() => {
-              setRejectModalOpen(false)
+              toggleRejectModal()
               handleMemberStatusChange(MEMBER_STATUSES.REJECTED)
             }}
           >
