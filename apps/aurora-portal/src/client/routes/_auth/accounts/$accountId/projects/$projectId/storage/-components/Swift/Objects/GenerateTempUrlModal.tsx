@@ -28,13 +28,20 @@ const CUSTOM_VALUE = "custom"
 interface GenerateTempUrlModalProps {
   isOpen: boolean
   object: ObjectRow | null
+  account?: string
   onClose: () => void
   onCopySuccess?: (objectName: string) => void
 }
 
 // ── Component ─────────────────────────────────────────────────────────────────
 
-export const GenerateTempUrlModal = ({ isOpen, object, onClose, onCopySuccess }: GenerateTempUrlModalProps) => {
+export const GenerateTempUrlModal = ({
+  isOpen,
+  object,
+  account,
+  onClose,
+  onCopySuccess,
+}: GenerateTempUrlModalProps) => {
   const { t } = useLingui()
   const { containerName } = useParams({
     from: "/_auth/accounts/$accountId/projects/$projectId/storage/$provider/containers/$containerName/objects/",
@@ -154,6 +161,7 @@ export const GenerateTempUrlModal = ({ isOpen, object, onClose, onCopySuccess }:
         object: object.name,
         method: "GET",
         expiresIn,
+        ...(account ? { account } : {}),
       },
       {
         onSuccess: (data) => {

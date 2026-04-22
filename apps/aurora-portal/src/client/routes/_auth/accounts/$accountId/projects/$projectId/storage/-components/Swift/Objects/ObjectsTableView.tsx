@@ -502,6 +502,7 @@ export const ObjectsTableView = ({
       <GenerateTempUrlModal
         isOpen={tempUrlTarget !== null}
         object={tempUrlTarget}
+        account={account}
         onClose={() => setTempUrlTarget(null)}
         onCopySuccess={onTempUrlCopySuccess}
       />

@@ -23,7 +23,7 @@ vi.mock("@tanstack/react-router", async () => {
 
 let capturedMutateOpts: {
   onSuccess?: (data: { url: string; expiresAt: number }) => void
-  onError?: (error: { message: string }) => void
+  onError?: (error: { message: string; data?: { code?: string } | null }) => void
 } = {}
 
 let trpcState = {
@@ -42,7 +42,7 @@ vi.mock("@/client/trpcClient", () => ({
               input: unknown,
               opts?: {
                 onSuccess?: (data: { url: string; expiresAt: number }) => void
-                onError?: (error: { message: string }) => void
+                onError?: (error: { message: string; data?: { code?: string } | null }) => void
               }
             ) => {
               // Capture per-call callbacks so tests can fire them manually
@@ -76,13 +76,20 @@ const MOCK_URL = "https://swift.example.com/v1/AUTH_x/container/report.pdf?temp_
 const renderModal = ({
   isOpen = true,
   object = mockObject as ObjectRow | null,
+  account = undefined as string | undefined,
   onClose = vi.fn(),
   onCopySuccess = vi.fn(),
 } = {}) =>
   render(
     <I18nProvider i18n={i18n}>
       <PortalProvider>
-        <GenerateTempUrlModal isOpen={isOpen} object={object} onClose={onClose} onCopySuccess={onCopySuccess} />
+        <GenerateTempUrlModal
+          isOpen={isOpen}
+          object={object}
+          account={account}
+          onClose={onClose}
+          onCopySuccess={onCopySuccess}
+        />
       </PortalProvider>
     </I18nProvider>
   )
@@ -188,6 +195,19 @@ describe("GenerateTempUrlModal", () => {
         object: "path/to/report.pdf",
         method: "GET",
         expiresIn: 86400,
+      })
+    })
+
+    test("forwards account prop to mutation when provided", async () => {
+      const user = userEvent.setup()
+      renderModal({ account: "AUTH_other" })
+      await user.click(screen.getByRole("button", { name: /Generate URL/i }))
+      expect(trpcState.mutate).toHaveBeenCalledWith({
+        container: "test-container",
+        object: "path/to/report.pdf",
+        method: "GET",
+        expiresIn: 86400,
+        account: "AUTH_other",
       })
     })
 
@@ -297,6 +317,36 @@ describe("GenerateTempUrlModal", () => {
       await user.type(screen.getByLabelText(/Custom duration/i), "90")
       expect(screen.queryByDisplayValue(MOCK_URL)).not.toBeInTheDocument()
     })
+
+    test("rejects decimal input like '1.5' and shows validation error", async () => {
+      const user = userEvent.setup()
+      renderModal()
+      await selectPreset(user, "Custom")
+      await user.type(screen.getByLabelText(/Custom duration/i), "1.5")
+      await user.click(screen.getByRole("button", { name: /Generate URL/i }))
+      expect(screen.getByText(/valid number of minutes/i)).toBeInTheDocument()
+      expect(trpcState.mutate).not.toHaveBeenCalled()
+    })
+
+    test("rejects negative custom minutes and shows validation error", async () => {
+      const user = userEvent.setup()
+      renderModal()
+      await selectPreset(user, "Custom")
+      await user.type(screen.getByLabelText(/Custom duration/i), "-1")
+      await user.click(screen.getByRole("button", { name: /Generate URL/i }))
+      expect(screen.getByText(/valid number of minutes/i)).toBeInTheDocument()
+      expect(trpcState.mutate).not.toHaveBeenCalled()
+    })
+
+    test("rejects zero as custom minutes", async () => {
+      const user = userEvent.setup()
+      renderModal()
+      await selectPreset(user, "Custom")
+      await user.type(screen.getByLabelText(/Custom duration/i), "0")
+      await user.click(screen.getByRole("button", { name: /Generate URL/i }))
+      expect(screen.getByText(/valid number of minutes/i)).toBeInTheDocument()
+      expect(trpcState.mutate).not.toHaveBeenCalled()
+    })
   })
 
   // ── Error states ────────────────────────────────────────────────────────────
@@ -307,7 +357,10 @@ describe("GenerateTempUrlModal", () => {
       renderModal()
       await user.click(screen.getByRole("button", { name: /Generate URL/i }))
       await act(async () => {
-        capturedMutateOpts.onError?.({ message: "Temp URL key not configured for this account or container" })
+        capturedMutateOpts.onError?.({
+          message: "Temp URL key not configured for this account or container",
+          data: { code: "BAD_REQUEST" },
+        })
       })
       expect(screen.getByText(/No Temp URL key configured/i)).toBeInTheDocument()
     })
@@ -317,7 +370,10 @@ describe("GenerateTempUrlModal", () => {
       renderModal()
       await user.click(screen.getByRole("button", { name: /Generate URL/i }))
       await act(async () => {
-        capturedMutateOpts.onError?.({ message: "Temp URL key not configured for this account or container" })
+        capturedMutateOpts.onError?.({
+          message: "Temp URL key not configured for this account or container",
+          data: { code: "BAD_REQUEST" },
+        })
       })
       expect(screen.getByText(/X-Account-Meta-Temp-URL-Key/)).toBeInTheDocument()
       expect(screen.getByText(/X-Container-Meta-Temp-URL-Key/)).toBeInTheDocument()

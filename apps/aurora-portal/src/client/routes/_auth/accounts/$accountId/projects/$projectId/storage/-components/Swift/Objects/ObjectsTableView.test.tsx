@@ -69,9 +69,9 @@ vi.mock("./MoveRenameObjectModal", () => ({
 }))
 
 vi.mock("./GenerateTempUrlModal", () => ({
-  GenerateTempUrlModal: vi.fn(({ isOpen, onClose, object }) =>
+  GenerateTempUrlModal: vi.fn(({ isOpen, onClose, object, account }) =>
     isOpen ? (
-      <div data-testid="generate-temp-url-modal" data-object={object?.name}>
+      <div data-testid="generate-temp-url-modal" data-object={object?.name} data-account={account ?? ""}>
         <button onClick={onClose}>Cancel</button>
       </div>
     ) : null
@@ -154,10 +154,12 @@ const renderView = ({
   onMoveObjectSuccess = vi.fn(),
   onMoveObjectError = vi.fn(),
   onTempUrlCopySuccess = vi.fn(),
+  account = undefined as string | undefined,
 }: {
   rows?: BrowserRow[]
   searchTerm?: string
   container?: string
+  account?: string
   onFolderClick?: (prefix: string) => void
   onDeleteFolderSuccess?: (folderName: string, deletedCount: number) => void
   onDeleteFolderError?: (folderName: string, errorMessage: string) => void
@@ -177,6 +179,7 @@ const renderView = ({
           rows={rows}
           searchTerm={searchTerm}
           container={container}
+          account={account}
           onFolderClick={onFolderClick}
           onDeleteFolderSuccess={onDeleteFolderSuccess}
           onDeleteFolderError={onDeleteFolderError}
@@ -801,6 +804,14 @@ describe("ObjectsTableView", () => {
       await user.click(screen.getByRole("button", { name: /More/i }))
       await user.click(screen.getByTestId("temp-url-action-readme.txt"))
       expect(screen.getByTestId("generate-temp-url-modal")).toHaveAttribute("data-object", "readme.txt")
+    })
+
+    test("forwards account prop to GenerateTempUrlModal", async () => {
+      const user = userEvent.setup()
+      renderView({ rows: [makeObject("readme.txt")], account: "AUTH_other" })
+      await user.click(screen.getByRole("button", { name: /More/i }))
+      await user.click(screen.getByTestId("temp-url-action-readme.txt"))
+      expect(screen.getByTestId("generate-temp-url-modal")).toHaveAttribute("data-account", "AUTH_other")
     })
 
     test("closes temp URL modal when onClose is called", async () => {
