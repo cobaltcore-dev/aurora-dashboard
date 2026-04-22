@@ -1,4 +1,5 @@
 import { z } from "zod"
+import { useState } from "react"
 import { useForm } from "@tanstack/react-form"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { Modal, Form, FormSection, TextInput, Message } from "@cloudoperators/juno-ui-components"
@@ -25,6 +26,7 @@ export function AddRBACPolicyModal({ isOpen, onClose, securityGroupId }: AddRBAC
   const { t } = useLingui()
   const utils = trpcReact.useUtils()
   const projectId = useProjectId()
+  const [hasSubmitted, setHasSubmitted] = useState(false)
 
   const formSchema = z.object({
     targetTenant: z
@@ -64,7 +66,13 @@ export function AddRBACPolicyModal({ isOpen, onClose, securityGroupId }: AddRBAC
   const handleClose = () => {
     form.reset()
     createMutation.reset()
+    setHasSubmitted(false)
     onClose()
+  }
+
+  const handleConfirm = async () => {
+    setHasSubmitted(true)
+    await form.handleSubmit()
   }
 
   return (
@@ -73,18 +81,11 @@ export function AddRBACPolicyModal({ isOpen, onClose, securityGroupId }: AddRBAC
       onCancel={handleClose}
       title={t`Share Security Group`}
       size="large"
-      onConfirm={form.handleSubmit}
+      onConfirm={handleConfirm}
       cancelButtonLabel={t`Cancel`}
       confirmButtonLabel={t`Share`}
       disableConfirmButton={createMutation.isPending}
     >
-      <Message variant="info" className="mb-4">
-        <Trans>
-          Share this security group with another project. The target project will be able to view and use this security
-          group, but will not be able to modify or delete it.
-        </Trans>
-      </Message>
-
       {createMutation.error && (
         <Message variant="error" className="mb-4">
           {(() => {
@@ -102,29 +103,75 @@ export function AddRBACPolicyModal({ isOpen, onClose, securityGroupId }: AddRBAC
         </Message>
       )}
 
+      <p className="mb-4">
+        <Trans>
+          Share this security group with another project. The target project will be able to view and use this security
+          group, but will not be able to modify or delete it.
+        </Trans>
+      </p>
+
       <Form
         className="mb-0"
         onSubmit={(e) => {
           e.preventDefault()
-          form.handleSubmit()
+          handleConfirm()
         }}
       >
         <FormSection>
           <form.Field
             name="targetTenant"
-            children={(field) => (
-              <TextInput
-                id={field.name}
-                name={field.name}
-                label={t`Target Project ID`}
-                value={field.state.value}
-                onChange={(e) => field.handleChange(e.target.value)}
-                placeholder={t`e.g., b90f9c4bc76140e18540b2cec1299e2a`}
-                required
-                helptext={t`Enter the ID of the project you want to share this security group with. You can find project IDs in the account/project switcher or in the Identity service.`}
-                disabled={createMutation.isPending}
-              />
-            )}
+            validators={{
+              onBlur: ({ value }) => {
+                const trimmedValue = value.trim()
+                if (!trimmedValue) {
+                  return t`Target project ID is required`
+                }
+                if (!isValidProjectID(trimmedValue)) {
+                  return t`Invalid project ID format. Must be 32 hexadecimal characters (e.g., b90f9c4bc76140e18540b2cec1299e2a) or UUID format (e.g., 12345678-1234-1234-1234-123456789abc)`
+                }
+                return undefined
+              },
+              onChange: ({ value }) => {
+                // Validate on change only after first submit attempt
+                if (!hasSubmitted) return undefined
+
+                const trimmedValue = value.trim()
+                if (!trimmedValue) {
+                  return t`Target project ID is required`
+                }
+                if (!isValidProjectID(trimmedValue)) {
+                  return t`Invalid project ID format. Must be 32 hexadecimal characters (e.g., b90f9c4bc76140e18540b2cec1299e2a) or UUID format (e.g., 12345678-1234-1234-1234-123456789abc)`
+                }
+                return undefined
+              },
+            }}
+            children={(field) => {
+              // Get first error message as string
+              const showError = (field.state.meta.isTouched || hasSubmitted) && field.state.meta.errors.length > 0
+              const firstError = field.state.meta.errors[0]
+              const errorMessage = showError
+                ? typeof firstError === "string"
+                  ? firstError
+                  : firstError?.message
+                : undefined
+
+              return (
+                <TextInput
+                  id={field.name}
+                  name={field.name}
+                  label={t`Target Project ID`}
+                  value={field.state.value}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  onBlur={field.handleBlur}
+                  placeholder={t`e.g., b90f9c4bc76140e18540b2cec1299e2a`}
+                  required
+                  helptext={t`Enter the ID of the project you want to share this security group with. You can find project IDs in the account/project switcher or in the Identity service.`}
+                  disabled={createMutation.isPending}
+                  errortext={errorMessage}
+                  invalid={showError}
+                />
+              )
+            }}
           />
         </FormSection>
       </Form>

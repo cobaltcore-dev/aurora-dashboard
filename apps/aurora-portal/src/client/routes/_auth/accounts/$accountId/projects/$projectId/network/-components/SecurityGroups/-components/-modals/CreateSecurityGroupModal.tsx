@@ -109,6 +109,9 @@ export const CreateSecurityGroupModal: React.FC<CreateSecurityGroupModalProps> =
       modalFooter={
         <ModalFooter className="flex justify-end">
           <ButtonRow>
+            <Button variant="default" onClick={handleClose} disabled={isLoading}>
+              <Trans>Cancel</Trans>
+            </Button>
             <Button
               variant="primary"
               onClick={(e) => {
@@ -118,9 +121,6 @@ export const CreateSecurityGroupModal: React.FC<CreateSecurityGroupModalProps> =
               data-testid="create-security-group-button"
             >
               {isLoading ? <Spinner size="small" /> : <Trans>Create Security Group</Trans>}
-            </Button>
-            <Button variant="default" onClick={handleClose} disabled={isLoading}>
-              <Trans>Cancel</Trans>
             </Button>
           </ButtonRow>
         </ModalFooter>

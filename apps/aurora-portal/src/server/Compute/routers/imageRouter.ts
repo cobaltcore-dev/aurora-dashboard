@@ -15,6 +15,7 @@ import {
   validateBulkImageIds,
   processBulkOperation,
   validateUploadInput,
+  parseMultiValue,
 } from "../helpers/imageHelpers"
 import {
   imageResponseSchema,
@@ -103,22 +104,34 @@ export const imageRouter = {
           pageCount++
 
           if (hasSearchTerm) {
-            // Apply BFF-side filtering to current batch
-            let filteredImages = filterBySearchParams(allImages, queryInput.name, ["name"])
+            // Apply BFF-side filtering to current batch to check if we have enough results
+            let filteredSoFar = filterBySearchParams(allImages, queryInput.name, ["name"])
 
-            // Apply other filters
             if (queryInput.visibility && queryInput.visibility !== "all") {
-              filteredImages = filteredImages.filter((img) => img.visibility === queryInput.visibility)
+              filteredSoFar = filteredSoFar.filter((img) => img.visibility === queryInput.visibility)
             }
             if (queryInput.status) {
-              filteredImages = filteredImages.filter((img) => img.status === queryInput.status)
+              const values = parseMultiValue(queryInput.status)
+              filteredSoFar = filteredSoFar.filter((img) => values.includes(img.status ?? ""))
+            }
+            if (queryInput.disk_format) {
+              const values = parseMultiValue(queryInput.disk_format)
+              filteredSoFar = filteredSoFar.filter((img) => values.includes(img.disk_format ?? ""))
+            }
+            if (queryInput.container_format) {
+              const values = parseMultiValue(queryInput.container_format)
+              filteredSoFar = filteredSoFar.filter((img) => values.includes(img.container_format ?? ""))
+            }
+            if (queryInput.protected !== undefined && queryInput.protected !== null) {
+              const wantProtected = queryInput.protected === "true"
+              filteredSoFar = filteredSoFar.filter((img) => !!img.protected === wantProtected)
             }
             if (queryInput.owner) {
-              filteredImages = filteredImages.filter((img) => img.owner === queryInput.owner)
+              filteredSoFar = filteredSoFar.filter((img) => img.owner === queryInput.owner)
             }
 
             // If we have enough results, stop fetching but remember next page
-            if (filteredImages.length >= MIN_RESULTS_WHEN_SEARCHING) {
+            if (filteredSoFar.length >= MIN_RESULTS_WHEN_SEARCHING) {
               nextMarker = parsedData.data.next
               break
             }
@@ -146,9 +159,28 @@ export const imageRouter = {
           filteredImages = filteredImages.filter((img) => img.visibility === queryInput.visibility)
         }
 
-        // Filter by status
+        // Filter by status (supports multi-value "in:active,queued" format)
         if (queryInput.status) {
-          filteredImages = filteredImages.filter((img) => img.status === queryInput.status)
+          const statusValues = parseMultiValue(queryInput.status)
+          filteredImages = filteredImages.filter((img) => statusValues.includes(img.status ?? ""))
+        }
+
+        // Filter by disk_format (supports multi-value "in:qcow2,raw" format)
+        if (queryInput.disk_format) {
+          const diskFormatValues = parseMultiValue(queryInput.disk_format)
+          filteredImages = filteredImages.filter((img) => diskFormatValues.includes(img.disk_format ?? ""))
+        }
+
+        // Filter by container_format (supports multi-value "in:bare,ovf" format)
+        if (queryInput.container_format) {
+          const containerFormatValues = parseMultiValue(queryInput.container_format)
+          filteredImages = filteredImages.filter((img) => containerFormatValues.includes(img.container_format ?? ""))
+        }
+
+        // Filter by protected ("true" / "false" string)
+        if (queryInput.protected !== undefined && queryInput.protected !== null) {
+          const wantProtected = queryInput.protected === "true"
+          filteredImages = filteredImages.filter((img) => !!img.protected === wantProtected)
         }
 
         // Filter by owner
@@ -232,9 +264,28 @@ export const imageRouter = {
           filteredImages = filteredImages.filter((img) => img.visibility === queryInput.visibility)
         }
 
-        // Filter by status
+        // Filter by status (supports multi-value "in:active,queued" format)
         if (queryInput.status) {
-          filteredImages = filteredImages.filter((img) => img.status === queryInput.status)
+          const statusValues = parseMultiValue(queryInput.status)
+          filteredImages = filteredImages.filter((img) => statusValues.includes(img.status ?? ""))
+        }
+
+        // Filter by disk_format (supports multi-value "in:qcow2,raw" format)
+        if (queryInput.disk_format) {
+          const diskFormatValues = parseMultiValue(queryInput.disk_format)
+          filteredImages = filteredImages.filter((img) => diskFormatValues.includes(img.disk_format ?? ""))
+        }
+
+        // Filter by container_format (supports multi-value "in:bare,ovf" format)
+        if (queryInput.container_format) {
+          const containerFormatValues = parseMultiValue(queryInput.container_format)
+          filteredImages = filteredImages.filter((img) => containerFormatValues.includes(img.container_format ?? ""))
+        }
+
+        // Filter by protected ("true" / "false" string)
+        if (queryInput.protected !== undefined && queryInput.protected !== null) {
+          const wantProtected = queryInput.protected === "true"
+          filteredImages = filteredImages.filter((img) => !!img.protected === wantProtected)
         }
 
         // Filter by owner
@@ -825,10 +876,20 @@ export const imageRouter = {
     }),
 
   listSharedImagesByMemberStatus: protectedProcedure
-    .input(z.object({ memberStatus: memberStatusSchema }))
+    .input(
+      z.object({
+        memberStatus: memberStatusSchema,
+        name: z.string().optional(),
+        status: z.string().optional(),
+        disk_format: z.string().optional(),
+        container_format: z.string().optional(),
+        protected: z.string().optional(),
+        sort: z.string().optional(),
+      })
+    )
     .query(async ({ ctx, input }): Promise<GlanceImage[]> => {
       return withErrorHandling(async () => {
-        const memberStatus = input.memberStatus
+        const { memberStatus, name, status, disk_format, container_format, protected: protectedFilter, sort } = input
 
         const openstackSession = ctx.openstack
         const glance = openstackSession?.service("glance")
@@ -855,6 +916,7 @@ export const imageRouter = {
         const queryParams = new URLSearchParams()
         queryParams.append("visibility", "shared")
         queryParams.append("member_status", memberStatus)
+        if (sort) queryParams.append("sort", sort)
 
         const url = `v2/images?${queryParams.toString()}`
         const response = await glance.get(url).catch((error) => {
@@ -867,14 +929,14 @@ export const imageRouter = {
         }
 
         // Step 2: Filter out images owned by current project
-        const sharedImages = parsedData.data.images.filter((image) => image.owner !== projectId)
+        let filteredImages = parsedData.data.images.filter((image) => image.owner !== projectId)
 
-        if (sharedImages.length === 0) {
+        if (filteredImages.length === 0) {
           return []
         }
 
         // Step 3: Fetch member data for all remaining images using Promise.all
-        const imageMembersPromises = sharedImages.map(
+        const imageMembersPromises = filteredImages.map(
           (image) =>
             glance
               .get(`v2/images/${image.id}/members/${projectId}`)
@@ -891,12 +953,41 @@ export const imageRouter = {
         const imageMembers = await Promise.all(imageMembersPromises)
 
         // Step 4: Filter images by member_status
-        const filteredImages = sharedImages.filter((image, index) => {
+        filteredImages = filteredImages.filter((image, index) => {
           const member = imageMembers[index]
           return member?.status === memberStatus
         })
 
+        // Step 5: Apply BFF-side filters (name search, status, disk_format, container_format, protected)
+        if (name) {
+          filteredImages = filterBySearchParams(filteredImages, name, ["name"])
+        }
+        if (status) {
+          const statusValues = parseMultiValue(status)
+          filteredImages = filteredImages.filter((img) => statusValues.includes(img.status ?? ""))
+        }
+        if (disk_format) {
+          const diskFormatValues = parseMultiValue(disk_format)
+          filteredImages = filteredImages.filter((img) => diskFormatValues.includes(img.disk_format ?? ""))
+        }
+        if (container_format) {
+          const containerFormatValues = parseMultiValue(container_format)
+          filteredImages = filteredImages.filter((img) => containerFormatValues.includes(img.container_format ?? ""))
+        }
+        if (protectedFilter !== undefined && protectedFilter !== null) {
+          const wantProtected = protectedFilter === "true"
+          filteredImages = filteredImages.filter((img) => !!img.protected === wantProtected)
+        }
+
         return filteredImages
       }, "list shared images by member status")
     }),
+
+  getImageMetadataExcludedProperties: protectedProcedure.query((): string[] => {
+    const raw = process.env.IMAGE_METADATA_EXCLUDED_PROPERTIES ?? ""
+    return raw
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean)
+  }),
 }

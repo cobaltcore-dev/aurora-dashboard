@@ -147,22 +147,25 @@ export const AddRuleModal: React.FC<AddRuleModalProps> = ({
       modalFooter={
         <ModalFooter className="flex justify-end">
           <form.Subscribe>
-            {(state: { isSubmitting: boolean }) => (
-              <ButtonRow>
-                <Button
-                  variant="primary"
-                  type="button"
-                  onClick={() => form.handleSubmit()}
-                  disabled={isLoading || state.isSubmitting}
-                  data-testid="add-rule-button"
-                >
-                  {state.isSubmitting || isLoading ? <Spinner size="small" /> : <Trans>Add Rule</Trans>}
-                </Button>
-                <Button variant="default" onClick={handleClose} disabled={isLoading || state.isSubmitting}>
-                  <Trans>Cancel</Trans>
-                </Button>
-              </ButtonRow>
-            )}
+            {(state: { isSubmitting: boolean; values: { ruleType: string } }) => {
+              const isRuleTypeSelected = Boolean(state.values.ruleType)
+              return (
+                <ButtonRow>
+                  <Button variant="default" onClick={handleClose} disabled={isLoading || state.isSubmitting}>
+                    <Trans>Cancel</Trans>
+                  </Button>
+                  <Button
+                    variant="primary"
+                    type="button"
+                    onClick={() => form.handleSubmit()}
+                    disabled={isLoading || state.isSubmitting || !isRuleTypeSelected}
+                    data-testid="add-rule-button"
+                  >
+                    {state.isSubmitting || isLoading ? <Spinner size="small" /> : <Trans>Add Rule</Trans>}
+                  </Button>
+                </ButtonRow>
+              )
+            }}
           </form.Subscribe>
         </ModalFooter>
       }
@@ -194,47 +197,55 @@ export const AddRuleModal: React.FC<AddRuleModalProps> = ({
           {/* Rule Type Preset */}
           <RuleTypeSection form={form} disabled={isLoading} />
 
-          {/* Direction */}
-          <DirectionSection form={form} disabled={isLoading} />
-
-          {/* Protocol (conditional for "Other Protocol") */}
+          {/* Show other fields only when rule type is selected */}
           <form.Subscribe>
-            {(state: { values: { ruleType: string } }) =>
-              state.values.ruleType === OTHER_PROTOCOL_RULE && <ProtocolSection form={form} disabled={isLoading} />
-            }
-          </form.Subscribe>
+            {(state: {
+              values: { ruleType: string; protocol: string | null; remoteSourceType: "cidr" | "security_group" }
+            }) => {
+              const isRuleTypeSelected = Boolean(state.values.ruleType)
 
-          {/* Port Range (conditional for Custom TCP/UDP) */}
-          <form.Subscribe>
-            {(state: { values: { protocol: string | null; ruleType: string } }) => {
+              if (!isRuleTypeSelected) {
+                return null
+              }
+
               const isTcpUdp = state.values.protocol === "tcp" || state.values.protocol === "udp"
               const showPortFields = isTcpUdp && [CUSTOM_TCP_RULE, CUSTOM_UDP_RULE].includes(state.values.ruleType)
-              return showPortFields && <PortRangeSection form={form} disabled={isLoading} />
-            }}
-          </form.Subscribe>
-
-          {/* ICMP Fields (conditional for ICMP protocols) */}
-          <form.Subscribe>
-            {(state: { values: { protocol: string | null } }) => {
               const showIcmpFields = state.values.protocol === "icmp" || state.values.protocol === "ipv6-icmp"
-              return showIcmpFields && <IcmpSection form={form} disabled={isLoading} />
+
+              return (
+                <>
+                  {/* Direction */}
+                  <DirectionSection form={form} disabled={isLoading} />
+
+                  {/* Protocol (conditional for "Other Protocol") */}
+                  {state.values.ruleType === OTHER_PROTOCOL_RULE && (
+                    <ProtocolSection form={form} disabled={isLoading} />
+                  )}
+
+                  {/* Port Range (conditional for Custom TCP/UDP) */}
+                  {showPortFields && <PortRangeSection form={form} disabled={isLoading} />}
+
+                  {/* ICMP Fields (conditional for ICMP protocols) */}
+                  {showIcmpFields && <IcmpSection form={form} disabled={isLoading} />}
+
+                  {/* Remote Source (CIDR or Security Group) */}
+                  <RemoteSourceSection
+                    form={form}
+                    disabled={isLoading}
+                    availableSecurityGroups={availableSecurityGroups}
+                  />
+
+                  {/* Ethertype (conditional for Security Group remote source) */}
+                  {state.values.remoteSourceType === "security_group" && (
+                    <EthertypeSection form={form} disabled={isLoading} />
+                  )}
+
+                  {/* Description */}
+                  <DescriptionSection form={form} disabled={isLoading} />
+                </>
+              )
             }}
           </form.Subscribe>
-
-          {/* Remote Source (CIDR or Security Group) */}
-          <RemoteSourceSection form={form} disabled={isLoading} availableSecurityGroups={availableSecurityGroups} />
-
-          {/* Ethertype (conditional for Security Group remote source) */}
-          <form.Subscribe>
-            {(state: { values: { remoteSourceType: "cidr" | "security_group" } }) =>
-              state.values.remoteSourceType === "security_group" && (
-                <EthertypeSection form={form} disabled={isLoading} />
-              )
-            }
-          </form.Subscribe>
-
-          {/* Description */}
-          <DescriptionSection form={form} disabled={isLoading} />
         </FormSection>
       </Form>
     </Modal>

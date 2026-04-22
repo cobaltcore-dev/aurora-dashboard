@@ -20,8 +20,18 @@ export function RuleTypeSection({ form, disabled = false }: RuleTypeSectionProps
             label={t`Rule Type`}
             value={field.state.value}
             onChange={(value) => {
-              const newRuleType = String(value || "ssh")
+              const newRuleType = String(value || "")
               field.handleChange(newRuleType)
+
+              // Don't update dependent fields if no preset is selected
+              if (!newRuleType) {
+                form.setFieldValue("protocol", null)
+                form.setFieldValue("portFrom", "")
+                form.setFieldValue("portTo", "")
+                form.setFieldValue("icmpType", "")
+                form.setFieldValue("icmpCode", "")
+                return
+              }
 
               // Update dependent fields when preset changes
               const selectedPreset = RULE_PRESETS.find((p) => p.value === newRuleType)
@@ -55,9 +65,13 @@ export function RuleTypeSection({ form, disabled = false }: RuleTypeSectionProps
             }}
             disabled={disabled}
           >
-            {RULE_PRESETS.map((preset) => (
-              <SelectOption key={preset.value} value={preset.value} label={preset.label} />
-            ))}
+            {RULE_PRESETS.map((preset) => {
+              // Render placeholder option with translation
+              if (preset.value === "") {
+                return <SelectOption key={preset.value} value={preset.value} label={t`Select a rule type...`} />
+              }
+              return <SelectOption key={preset.value} value={preset.value} label={preset.label} />
+            })}
           </Select>
         </FormRow>
       )}

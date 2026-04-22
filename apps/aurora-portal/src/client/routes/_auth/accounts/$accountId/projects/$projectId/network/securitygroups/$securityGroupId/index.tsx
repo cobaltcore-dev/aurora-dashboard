@@ -1,4 +1,4 @@
-import { Breadcrumb, BreadcrumbItem, Button, Stack, Spinner } from "@cloudoperators/juno-ui-components/index"
+import { Button, Stack, Spinner } from "@cloudoperators/juno-ui-components/index"
 import { createFileRoute, redirect, useNavigate, useParams } from "@tanstack/react-router"
 import type { RouteInfo } from "@/client/routes/routeInfo"
 import { Trans, useLingui } from "@lingui/react/macro"
@@ -189,21 +189,6 @@ function RouteComponent() {
   setPageTitle(securityGroup.name || securityGroup.id)
   return (
     <Stack direction="vertical">
-      <Breadcrumb className="my-6">
-        <BreadcrumbItem
-          onClick={() => {
-            navigate({
-              to: "/accounts/$accountId/projects/$projectId/network/overview",
-              params: { accountId, projectId },
-            })
-          }}
-          label={t`Overview`}
-          icon="home"
-        />
-        <BreadcrumbItem onClick={handleBack} label={t`Security Groups`} />
-        <BreadcrumbItem active label={securityGroup.id} />
-      </Breadcrumb>
-
       <SecurityGroupDetailsView
         securityGroup={securityGroup}
         filteredAndSortedRules={filteredAndSortedRules}
@@ -216,6 +201,7 @@ function RouteComponent() {
         isCreatingRule={isCreatingRule}
         createRuleError={createRuleError}
         availableSecurityGroups={availableSecurityGroups}
+        currentProjectId={projectId}
       />
 
       <EditSecurityGroupModal

@@ -33,6 +33,7 @@ interface SecurityGroupDetailsViewProps {
   isCreatingRule?: boolean
   createRuleError?: string | null
   availableSecurityGroups?: Array<{ id: string; name: string | null }>
+  currentProjectId: string
 }
 
 export function SecurityGroupDetailsView({
@@ -47,8 +48,14 @@ export function SecurityGroupDetailsView({
   isCreatingRule = false,
   createRuleError = null,
   availableSecurityGroups = [],
+  currentProjectId,
 }: SecurityGroupDetailsViewProps) {
   const [activeTab, setActiveTab] = useState<TabType>("rules")
+
+  // Determine if this is a shared security group (not owned by current project)
+  const isOwner = securityGroup.project_id === currentProjectId
+  const isShared = !isOwner
+  const showRBACTab = isOwner
 
   return (
     <Container px={false} py>
@@ -57,10 +64,10 @@ export function SecurityGroupDetailsView({
         <SecurityGroupHeader name={securityGroup.name} id={securityGroup.id} />
 
         {/* Basic Info Section */}
-        <SecurityGroupBasicInfo securityGroup={securityGroup} onEdit={onEdit} />
+        <SecurityGroupBasicInfo securityGroup={securityGroup} onEdit={onEdit} isReadOnly={isShared} />
 
-        {/* Tabs Navigation */}
-        <SecurityGroupTabs activeTab={activeTab} onTabChange={setActiveTab} />
+        {/* Tabs Navigation - Hide for shared security groups */}
+        {!isShared && <SecurityGroupTabs activeTab={activeTab} onTabChange={setActiveTab} showRBACTab={showRBACTab} />}
 
         {/* Tab Content */}
         <div className="mt-6">
@@ -78,10 +85,11 @@ export function SecurityGroupDetailsView({
               filterSettings={filterControls.filterSettings}
               onFilterChange={filterControls.onFilterChange}
               securityGroupId={securityGroup.id}
-              onCreateRule={onCreateRule}
+              onCreateRule={isShared ? undefined : onCreateRule}
               isCreatingRule={isCreatingRule}
               createRuleError={createRuleError}
               availableSecurityGroups={availableSecurityGroups}
+              readOnly={isShared}
             />
           )}
           {activeTab === "rbac" && <SecurityGroupRBACPolicies securityGroupId={securityGroup.id} />}

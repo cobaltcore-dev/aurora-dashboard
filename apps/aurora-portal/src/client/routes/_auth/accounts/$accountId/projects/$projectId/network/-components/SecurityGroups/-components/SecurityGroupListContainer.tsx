@@ -24,6 +24,7 @@ interface SecurityGroupListContainerProps {
   ) => void
   isUpdatingSecurityGroup?: boolean
   updateError?: string | null
+  currentProjectId?: string
 }
 
 export const SecurityGroupListContainer = ({
@@ -38,6 +39,7 @@ export const SecurityGroupListContainer = ({
   onUpdateSecurityGroup,
   isUpdatingSecurityGroup = false,
   updateError = null,
+  currentProjectId,
 }: SecurityGroupListContainerProps) => {
   const { t } = useLingui()
   const navigate = useNavigate()
@@ -136,6 +138,9 @@ export const SecurityGroupListContainer = ({
           ))}
         </DataGridRow>
         {securityGroups.map((sg) => {
+          // Compute isReadOnly only when the security group has an explicit project owner
+          const isReadOnly = Boolean(currentProjectId && sg.project_id && sg.project_id !== currentProjectId)
+
           return (
             <SecurityGroupTableRow
               key={sg.id}
@@ -144,6 +149,7 @@ export const SecurityGroupListContainer = ({
               onEdit={handleEdit}
               onDelete={handleDelete}
               onViewDetails={handleViewDetails}
+              isReadOnly={isReadOnly}
             />
           )
         })}

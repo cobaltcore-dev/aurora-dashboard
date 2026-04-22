@@ -201,6 +201,7 @@ function RouteComponent() {
         isCreatingRule={isCreatingRule}
         createRuleError={createRuleError}
         availableSecurityGroups={availableSecurityGroups}
+        currentProjectId={projectId}
       />
 
       <EditSecurityGroupModal

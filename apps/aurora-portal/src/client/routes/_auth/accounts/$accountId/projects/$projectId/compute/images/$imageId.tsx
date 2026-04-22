@@ -10,7 +10,8 @@ import {
   Toast,
   ToastProps,
 } from "@cloudoperators/juno-ui-components/index"
-import { createFileRoute, redirect, useNavigate, useParams } from "@tanstack/react-router"
+import { createFileRoute, redirect, useNavigate, useParams, useSearch } from "@tanstack/react-router"
+import { z } from "zod"
 import type { RouteInfo } from "@/client/routes/routeInfo"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { getServiceIndex } from "@/server/Authentication/helpers"
@@ -33,6 +34,9 @@ import { useState } from "react"
 
 export const Route = createFileRoute("/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId")({
   staticData: { section: "compute", service: "images", isDetail: true } satisfies RouteInfo,
+  validateSearch: z.object({
+    tab: z.enum(["details", "sharing"]).optional(),
+  }),
   component: RouteComponent,
   beforeLoad: async ({ context, params }) => {
     const { trpcClient } = context
@@ -62,6 +66,9 @@ export const Route = createFileRoute("/_auth/accounts/$accountId/projects/$proje
 
 function RouteComponent() {
   const { accountId, projectId, imageId } = useParams({
+    from: "/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId",
+  })
+  const { tab } = useSearch({
     from: "/_auth/accounts/$accountId/projects/$projectId/compute/images/$imageId",
   })
 
@@ -197,15 +204,15 @@ function RouteComponent() {
     return operations
   }
 
-  const handleSaveEdit = async (updatedProperties: Partial<GlanceImage>) => {
-    if (!image) return
+  const handleSaveEdit = async (updatedProperties: Partial<GlanceImage>): Promise<boolean> => {
+    if (!image) return false
     const operations = convertToJsonPatchOperations(updatedProperties, image)
     try {
       await updateImageMutation.mutateAsync({ imageId, operations })
       setEditDetailsModalOpen(false)
-      setEditMetadataModalOpen(false)
+      return true
     } catch {
-      // keep modal open on error
+      return false
     }
   }
 
@@ -289,7 +296,7 @@ function RouteComponent() {
 
   const isDeactivated = image.status === IMAGE_STATUSES.DEACTIVATED
   const isPrivate = image.visibility === IMAGE_VISIBILITY.PRIVATE
-  const hasMoreActions = permissions.canUpdate || (permissions.canDelete && !image.protected)
+  const hasMoreActions = !isSharedWithMe && (permissions.canUpdate || (permissions.canDelete && !image.protected))
 
   // Render success state
   return (
@@ -298,6 +305,12 @@ function RouteComponent() {
         key={image.id}
         image={image}
         currentProjectId={projectId}
+        activeTab={tab ?? "details"}
+        onTabChange={(newTab) =>
+          navigate({
+            search: { tab: newTab === "details" ? undefined : newTab } as unknown as true,
+          })
+        }
         permissions={{
           canCreateMember: permissions.canCreateMember,
           canDeleteMember: permissions.canDeleteMember,
@@ -307,7 +320,7 @@ function RouteComponent() {
         onMemberStatusChange={handleMemberStatusChange}
         isMemberStatusChanging={updateMemberMutation.isPending}
         actions={
-          hasMoreActions || permissions.canUpdate ? (
+          !isSharedWithMe && (hasMoreActions || permissions.canUpdate) ? (
             <ButtonRow>
               {hasMoreActions && (
                 <PopupMenu>
