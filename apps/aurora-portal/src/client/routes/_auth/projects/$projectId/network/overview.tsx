@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router"
 import { useLingui, Trans } from "@lingui/react/macro"
 import type { RouteInfo } from "@/client/routes/routeInfo"
 
-export const Route = createFileRoute("/_auth/accounts/$accountId/projects/$projectId/network/overview")({
+export const Route = createFileRoute("/_auth/projects/$projectId/network/overview")({
   staticData: { section: "network", service: "overview" } satisfies RouteInfo,
   component: RouteComponent,
 })
