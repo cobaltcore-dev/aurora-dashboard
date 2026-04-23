@@ -21,6 +21,7 @@ import { createImagesPromise, createPermissionsPromise } from "./apiHelpers"
 
 interface ImagesProps {
   client: TrpcClient
+  projectId: string
 }
 
 type ImagesSearchParams = {
@@ -252,7 +253,7 @@ function ImagesContent({
   )
 }
 
-export const Images = ({ client }: ImagesProps) => {
+export const Images = ({ client, projectId }: ImagesProps) => {
   const { t } = useLingui()
   const navigate = useNavigate()
   const searchParams = useSearch({ strict: false }) as ImagesSearchParams
@@ -325,7 +326,7 @@ export const Images = ({ client }: ImagesProps) => {
         // Placeholder: replaced immediately by useEffect on mount
       }) as ReturnType<typeof createImagesPromise>
   )
-  const [permissionsPromise] = useState(() => createPermissionsPromise(client))
+  const [permissionsPromise] = useState(() => createPermissionsPromise(client, projectId))
 
   // Fetch next page
   const fetchNextPage = useCallback(async () => {
@@ -335,6 +336,7 @@ export const Images = ({ client }: ImagesProps) => {
     try {
       const result = await createImagesPromise(
         client,
+        projectId,
         sortSettings.sortBy,
         sortSettings.sortDirection,
         searchTerm,
@@ -384,7 +386,7 @@ export const Images = ({ client }: ImagesProps) => {
         urlMemberStatus === "pending" || urlMemberStatus === "accepted"
           ? (filterSettings.selectedFilters || []).filter((f) => f.name !== "visibility")
           : filterSettings.selectedFilters || []
-      const newPromise = createImagesPromise(client, sortSettings.sortBy, sortSettings.sortDirection, searchTerm, {
+      const newPromise = createImagesPromise(client, projectId, sortSettings.sortBy, sortSettings.sortDirection, searchTerm, {
         ...buildFilterParams(effectiveFilters, filterSettings.filters),
         member_status: urlMemberStatusFilter,
       })
@@ -429,7 +431,7 @@ export const Images = ({ client }: ImagesProps) => {
         urlMemberStatus === "pending" || urlMemberStatus === "accepted"
           ? (urlFilters || []).filter((f) => f.name !== "visibility")
           : urlFilters || []
-      const newPromise = createImagesPromise(client, urlSortBy, urlSortDirection, urlSearchTerm, {
+      const newPromise = createImagesPromise(client, projectId, urlSortBy, urlSortDirection, urlSearchTerm, {
         ...buildFilterParams(effectiveFilters, filterSettings.filters),
         member_status: urlMemberStatusFilter,
       })

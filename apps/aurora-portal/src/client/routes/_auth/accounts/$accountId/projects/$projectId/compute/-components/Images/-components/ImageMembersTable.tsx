@@ -14,6 +14,7 @@ import { GlanceImage, ImageMember } from "@/server/Compute/types/image"
 import { trpcReact } from "@/client/trpcClient"
 import { TRPCClientError } from "@trpc/client"
 import { InferrableClientTypes } from "@trpc/server/unstable-core-do-not-import"
+import { useProjectId } from "@/client/hooks"
 import { ImageMemberFormRow } from "./ImageMemberFormRow"
 import { ImageMemberRow } from "./ImageMemberRow"
 
@@ -51,6 +52,7 @@ export const ImageMembersTable: React.FC<ImageMembersTableProps> = ({
   setMessage,
 }) => {
   const { t } = useLingui()
+  const projectId = useProjectId()
   const utils = trpcReact.useUtils()
 
   const [memberId, setMemberId] = useState("")
@@ -102,6 +104,7 @@ export const ImageMembersTable: React.FC<ImageMembersTableProps> = ({
 
     try {
       await createMemberMutation.mutateAsync({
+        project_id: projectId,
         imageId: image.id,
         member: trimmedMemberId,
       })
@@ -126,6 +129,7 @@ export const ImageMembersTable: React.FC<ImageMembersTableProps> = ({
 
     try {
       await deleteMemberMutation.mutateAsync({
+        project_id: projectId,
         imageId: image.id,
         memberId: memberIdToRemove,
       })

@@ -4,6 +4,7 @@ import { Modal, Message } from "@cloudoperators/juno-ui-components"
 import { GlanceImage } from "@/server/Compute/types/image"
 import { trpcReact } from "@/client/trpcClient"
 import { ImageMembersTable } from "./ImageMembersTable"
+import { useProjectId } from "@/client/hooks"
 
 interface ManageImageAccessProps {
   isOpen: boolean
@@ -22,14 +23,15 @@ export const ManageImageAccessModal: React.FC<ManageImageAccessProps> = ({
   permissions: { canCreateMember, canDeleteMember },
 }) => {
   const { t } = useLingui()
+  const projectId = useProjectId()
 
   const [message, setMessage] = useState<{ text: string; type: "error" | "info" } | null>(null)
   const [isAddingMember, setIsAddingMember] = useState(false)
 
   const { data: imageMembers, isLoading: isMembersLoading } = trpcReact.compute.listImageMembers.useQuery(
-    { imageId: image?.id || "" },
+    { project_id: projectId, imageId: image?.id || "" },
     {
-      enabled: isOpen && !!image?.id,
+      enabled: isOpen && !!image?.id && !!projectId,
     }
   )
 

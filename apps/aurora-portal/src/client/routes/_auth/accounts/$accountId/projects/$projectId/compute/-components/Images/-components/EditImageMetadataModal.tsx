@@ -13,6 +13,7 @@ import {
 } from "@cloudoperators/juno-ui-components"
 import { GlanceImage } from "@/server/Compute/types/image"
 import { trpcReact } from "@/client/trpcClient"
+import { useProjectId } from "@/client/hooks"
 
 interface EditImageMetadataModalProps {
   image: GlanceImage
@@ -401,12 +402,13 @@ export const EditImageMetadataModal: React.FC<EditImageMetadataModalProps> = ({
   onSave,
 }) => {
   const { t } = useLingui()
+  const projectId = useProjectId()
   const {
     data: excludedPropertiesData,
     isLoading: isLoadingExcluded,
     isError: isErrorExcluded,
-  } = trpcReact.compute.getImageMetadataExcludedProperties.useQuery(undefined, {
-    enabled: isOpen,
+  } = trpcReact.compute.getImageMetadataExcludedProperties.useQuery({ project_id: projectId }, {
+    enabled: isOpen && !!projectId,
   })
   const excludedProperties = useMemo(
     () => new Set((excludedPropertiesData ?? []).map((s) => s.toLowerCase())),

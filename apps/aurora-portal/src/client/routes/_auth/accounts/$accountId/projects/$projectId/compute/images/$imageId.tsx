@@ -16,6 +16,7 @@ import type { RouteInfo } from "@/client/routes/routeInfo"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { getServiceIndex } from "@/server/Authentication/helpers"
 import { trpcReact } from "@/client/trpcClient"
+import { useProjectId } from "@/client/hooks"
 import { ImageDetailsView } from "../-components/Images/-components/ImageDetailsView"
 import { EditImageDetailsModal } from "../-components/Images/-components/EditImageDetailsModal"
 import { EditImageMetadataModal } from "../-components/Images/-components/EditImageMetadataModal"
@@ -76,7 +77,7 @@ function RouteComponent() {
   const navigate = useNavigate()
   const { t } = useLingui()
 
-  const { data: image, status, error } = trpcReact.compute.getImageById.useQuery({ imageId: imageId })
+  const { data: image, status, error } = trpcReact.compute.getImageById.useQuery({ project_id: projectId, imageId: imageId })
 
   const { data: permissionsData } = trpcReact.compute.canUser.useQuery([
     "images:delete",
@@ -105,7 +106,7 @@ function RouteComponent() {
 
   const updateImageMutation = trpcReact.compute.updateImage.useMutation({
     onSuccess: () => {
-      utils.compute.getImageById.invalidate({ imageId })
+      utils.compute.getImageById.invalidate({ project_id: projectId, imageId })
     },
   })
 
@@ -117,19 +118,19 @@ function RouteComponent() {
 
   const deactivateImageMutation = trpcReact.compute.deactivateImage.useMutation({
     onSuccess: () => {
-      utils.compute.getImageById.invalidate({ imageId })
+      utils.compute.getImageById.invalidate({ project_id: projectId, imageId })
     },
   })
 
   const reactivateImageMutation = trpcReact.compute.reactivateImage.useMutation({
     onSuccess: () => {
-      utils.compute.getImageById.invalidate({ imageId })
+      utils.compute.getImageById.invalidate({ project_id: projectId, imageId })
     },
   })
 
   const updateImageVisibilityMutation = trpcReact.compute.updateImageVisibility.useMutation({
     onSuccess: (updatedImage) => {
-      utils.compute.getImageById.setData({ imageId }, updatedImage)
+      utils.compute.getImageById.setData({ project_id: projectId, imageId }, updatedImage)
     },
   })
 
@@ -137,14 +138,14 @@ function RouteComponent() {
     image?.visibility === IMAGE_VISIBILITY.SHARED && image?.owner !== undefined && image?.owner !== projectId
 
   const { data: myMemberData } = trpcReact.compute.getImageMember.useQuery(
-    { imageId: imageId, memberId: projectId },
+    { project_id: projectId, imageId: imageId, memberId: projectId },
     { enabled: isSharedWithMe && !!imageId && !!projectId }
   )
 
   const updateMemberMutation = trpcReact.compute.updateImageMember.useMutation({
     onSuccess: () => {
-      utils.compute.getImageMember.invalidate({ imageId: imageId, memberId: projectId })
-      utils.compute.listImageMembers.invalidate({ imageId: imageId })
+      utils.compute.getImageMember.invalidate({ project_id: projectId, imageId: imageId, memberId: projectId })
+      utils.compute.listImageMembers.invalidate({ project_id: projectId, imageId: imageId })
       utils.compute.listImagesWithPagination.invalidate()
       utils.compute.listSharedImagesByMemberStatus.invalidate()
     },
@@ -152,7 +153,7 @@ function RouteComponent() {
 
   const handleMemberStatusChange = async (newStatus: MemberStatus) => {
     try {
-      await updateMemberMutation.mutateAsync({ imageId, memberId: projectId, status: newStatus })
+      await updateMemberMutation.mutateAsync({ project_id: projectId, imageId, memberId: projectId, status: newStatus })
       setToastData(getImageAccessStatusUpdatedToast(newStatus, { onDismiss: () => setToastData(null) }))
     } catch (error) {
       const errorMessage = (error as TRPCClientError<InferrableClientTypes>)?.message
@@ -208,7 +209,7 @@ function RouteComponent() {
     if (!image) return false
     const operations = convertToJsonPatchOperations(updatedProperties, image)
     try {
-      await updateImageMutation.mutateAsync({ imageId, operations })
+      await updateImageMutation.mutateAsync({ project_id: projectId, imageId, operations })
       setEditDetailsModalOpen(false)
       return true
     } catch {
@@ -218,7 +219,7 @@ function RouteComponent() {
 
   const handleDelete = async (deletedImage: GlanceImage) => {
     try {
-      await deleteImageMutation.mutateAsync({ imageId: deletedImage.id })
+      await deleteImageMutation.mutateAsync({ project_id: projectId, imageId: deletedImage.id })
       setDeleteModalOpen(false)
       handleBack()
     } catch {
@@ -228,7 +229,7 @@ function RouteComponent() {
 
   const handleActivate = async (img: GlanceImage) => {
     try {
-      await reactivateImageMutation.mutateAsync({ imageId: img.id })
+      await reactivateImageMutation.mutateAsync({ project_id: projectId, imageId: img.id })
       setActivateModalOpen(false)
     } catch {
       setActivateModalOpen(false)
@@ -237,7 +238,7 @@ function RouteComponent() {
 
   const handleDeactivate = async (img: GlanceImage) => {
     try {
-      await deactivateImageMutation.mutateAsync({ imageId: img.id })
+      await deactivateImageMutation.mutateAsync({ project_id: projectId, imageId: img.id })
       setDeactivateModalOpen(false)
     } catch {
       setDeactivateModalOpen(false)
@@ -247,7 +248,7 @@ function RouteComponent() {
   const handleUpdateVisibility = async (newVisibility: "public" | "private" | "shared" | "community") => {
     if (!image) return
     try {
-      await updateImageVisibilityMutation.mutateAsync({ imageId: image.id, visibility: newVisibility })
+      await updateImageVisibilityMutation.mutateAsync({ project_id: projectId, imageId: image.id, visibility: newVisibility })
     } catch {
       // error handled by mutation state
     }

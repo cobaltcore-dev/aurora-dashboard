@@ -17,6 +17,7 @@ import { SizeDisplay } from "./SizeDisplay"
 import { trpcReact } from "@/client/trpcClient"
 import { MEMBER_STATUSES } from "../../../-constants/filters"
 import { ImageMembersTable } from "./ImageMembersTable"
+import { useProjectId } from "@/client/hooks"
 
 interface ImageDetailsViewProps {
   image: GlanceImage
@@ -258,10 +259,11 @@ const getTabClassName = (active: boolean) => {
 const SharingDetailsTab: React.FC<ImageDetailsViewProps> = ({ image, permissions }) => {
   const [isAddingMember, setIsAddingMember] = useState(false)
   const [message, setMessage] = useState<{ text: string; type: "error" | "info" } | null>(null)
+  const projectId = useProjectId()
 
   const { data: imageMembers, isLoading: isMembersLoading } = trpcReact.compute.listImageMembers.useQuery(
-    { imageId: image.id },
-    { enabled: !!image.id }
+    { project_id: projectId, imageId: image.id },
+    { enabled: !!image.id && !!projectId }
   )
 
   return (

@@ -19,6 +19,7 @@ import { InferrableClientTypes } from "@trpc/server/unstable-core-do-not-import"
 import { FastifyError } from "fastify"
 import { Trans } from "@lingui/react/macro"
 import { t } from "@lingui/core/macro"
+import { useProjectId } from "@/client/hooks"
 import { EditImageDetailsModal } from "./EditImageDetailsModal"
 import { EditImageMetadataModal } from "./EditImageMetadataModal"
 import { ImageTableRow } from "./ImageTableRow"
@@ -120,6 +121,7 @@ export function ImageListView({
   onImageUpdated,
   onMemberStatusChanged,
 }: ImagePageProps) {
+  const projectId = useProjectId()
   const [toastData, setToastData] = useState<ToastProps | null>(null)
 
   const [editDetailsModalOpen, setEditDetailsModalOpen] = useState(false)
@@ -224,7 +226,7 @@ export function ImageListView({
   })
 
   const { data } = trpcReact.compute.watchUploadProgress.useSubscription(
-    { uploadId: uploadId || "" },
+    { project_id: projectId, uploadId: uploadId || "" },
     {
       enabled: !!uploadId && uploadImageMutation.isPending,
       onComplete() {
@@ -249,6 +251,7 @@ export function ImageListView({
   const handleUpdateImageVisibility = async (imageId: string, newVisibility: ImageVisibility, imageName: string) => {
     try {
       await updateImageVisibilityMutation.mutateAsync({
+        project_id: projectId,
         imageId,
         visibility: newVisibility,
       })
@@ -313,7 +316,7 @@ export function ImageListView({
 
     try {
       const operations = convertToJsonPatchOperations(updatedProperties, selectedImage)
-      await updateImageMutation.mutateAsync({ imageId, operations })
+      await updateImageMutation.mutateAsync({ project_id: projectId, imageId, operations })
       setEditDetailsModalOpen(false)
       setToastData(getImageUpdatedToast(imageName, { onDismiss: handleToastDismiss }))
       setSelectedImage(null)
@@ -380,7 +383,7 @@ export function ImageListView({
     const imageId = deletedImage.id
 
     try {
-      await deleteImageMutation.mutateAsync({ imageId })
+      await deleteImageMutation.mutateAsync({ project_id: projectId, imageId })
 
       setToastData(getImageDeletedToast(imageName, { onDismiss: handleToastDismiss }))
     } catch (error) {
@@ -409,7 +412,7 @@ export function ImageListView({
     const imageId = image.id
 
     try {
-      await reactivateImageMutation.mutateAsync({ imageId })
+      await reactivateImageMutation.mutateAsync({ project_id: projectId, imageId })
       setActivateModalOpen(false)
       setSelectedImage(null)
       setToastData(getImageActivatedToast(imageName, { onDismiss: handleToastDismiss }))
@@ -424,7 +427,7 @@ export function ImageListView({
     const imageId = image.id
 
     try {
-      await deactivateImageMutation.mutateAsync({ imageId })
+      await deactivateImageMutation.mutateAsync({ project_id: projectId, imageId })
       setDeactivateModalOpen(false)
       setSelectedImage(null)
       setToastData(getImageDeactivatedToast(imageName, { onDismiss: handleToastDismiss }))
@@ -488,7 +491,7 @@ export function ImageListView({
     setDeleteAllModalOpen(false)
 
     try {
-      const result = await deleteImagesMutation.mutateAsync({ imageIds })
+      const result = await deleteImagesMutation.mutateAsync({ project_id: projectId, imageIds })
 
       const successCount = result.successful.length
       const failedCount = result.failed.length
@@ -517,8 +520,8 @@ export function ImageListView({
   const handleBulkActivate = async (imageIds: Array<string>) => {
     setActivateAllModalOpen(false)
 
-    try {
-      const result = await activateImagesMutation.mutateAsync({ imageIds })
+    try{
+      const result = await activateImagesMutation.mutateAsync({ project_id: projectId, imageIds })
 
       const successCount = result.successful.length
       const failedCount = result.failed.length
@@ -548,7 +551,7 @@ export function ImageListView({
     setDeactivateAllModalOpen(false)
 
     try {
-      const result = await deactivateImagesMutation.mutateAsync({ imageIds })
+      const result = await deactivateImagesMutation.mutateAsync({ project_id: projectId, imageIds })
 
       const successCount = result.successful.length
       const failedCount = result.failed.length

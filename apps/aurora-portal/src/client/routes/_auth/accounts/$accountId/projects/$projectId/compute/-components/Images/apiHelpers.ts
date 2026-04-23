@@ -11,6 +11,7 @@ type ImageFilters = {
 
 export const createImagesPromise = (
   client: TrpcClient,
+  projectId: string,
   sortBy: string,
   sortDirection: string,
   searchTerm: string,
@@ -22,6 +23,7 @@ export const createImagesPromise = (
     // For member status, return all results as a single page
     return client.compute.listSharedImagesByMemberStatus
       .query({
+        project_id: projectId,
         memberStatus: filters.member_status,
         name: searchTerm || undefined,
         status: filters.status,
@@ -40,6 +42,7 @@ export const createImagesPromise = (
 
   // Otherwise use the regular search endpoint with pagination
   return client.compute.listImagesWithSearch.query({
+    project_id: projectId,
     sort: `${sortBy}:${sortDirection}`,
     name: searchTerm || undefined,
     ...filters,
@@ -48,7 +51,7 @@ export const createImagesPromise = (
   })
 }
 
-export const createPermissionsPromise = (client: TrpcClient) => {
+export const createPermissionsPromise = (client: TrpcClient, projectId: string) => {
   return client.compute.canUser
     .query([
       "images:create",
