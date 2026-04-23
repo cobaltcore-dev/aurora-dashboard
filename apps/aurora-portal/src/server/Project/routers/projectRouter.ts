@@ -31,6 +31,7 @@ export const projectRouter = {
       const parsedData = projectsResponseSchema.safeParse(
         await identityService?.get("auth/projects").then((res) => res.json())
       )
+
       if (!parsedData.success) {
         console.error("Zod Parsing Error:", parsedData.error.format())
         return undefined

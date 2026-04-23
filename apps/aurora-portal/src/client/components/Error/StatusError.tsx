@@ -1,18 +1,9 @@
-import {
-  Button,
-  ButtonRow,
-  ContentHeading,
-  PageHeader,
-  Container,
-  AppShell,
-} from "@cloudoperators/juno-ui-components/index"
+import { Button, ButtonRow, Container, ContentHeading } from "@cloudoperators/juno-ui-components/index"
 import { Trans } from "@lingui/react/macro"
-import Logo from "../../assets/logo.svg?react"
-import styles from "../../index.css?inline"
 
-interface ErrorPageProps {
-  statusCode?: number
+interface StatusErrorProps {
   message: string
+  statusCode?: number
   onHomeClick?: () => void
   onBackClick?: () => void
   title: string
@@ -20,16 +11,8 @@ interface ErrorPageProps {
   reset?: () => void
 }
 
-export function ErrorPage({
-  statusCode,
-  message,
-  onHomeClick,
-  onBackClick,
-  title,
-  showHeader = true,
-  reset,
-}: ErrorPageProps) {
-  const content = (
+export function StatusError({ message, statusCode, onHomeClick, onBackClick, title, reset }: StatusErrorProps) {
+  return (
     <Container className="mx-auto flex min-h-full max-w-3xl flex-col items-center justify-center px-6 py-12 sm:px-12 md:px-20">
       {statusCode && <div className="text-theme-high text-6xl font-bold">{statusCode}</div>}
       <ContentHeading>{title}</ContentHeading>
@@ -56,27 +39,4 @@ export function ErrorPage({
       )}
     </Container>
   )
-
-  if (showHeader) {
-    return (
-      <div>
-        <style>{styles.toString()}</style>
-        <AppShell
-          pageHeader={
-            <PageHeader
-              applicationName="Aurora"
-              onClick={onHomeClick}
-              logo={<Logo className="fill-theme-accent h-6 w-6" title="Aurora" />}
-            />
-          }
-          className="min-h-screen"
-          fullWidthContent
-        >
-          {content}
-        </AppShell>
-      </div>
-    )
-  }
-
-  return <>{content}</>
 }

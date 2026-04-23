@@ -2,7 +2,7 @@ import { use, Suspense, useState, startTransition } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { TrpcClient } from "@/client/trpcClient"
 import { Flavor } from "@/server/Compute/types/flavor"
-import { Message, Button, Stack, Spinner } from "@cloudoperators/juno-ui-components"
+import { Message, Button, Stack, Spinner, ContentHeading } from "@cloudoperators/juno-ui-components"
 import { ListToolbar } from "@/client/components/ListToolbar"
 import { SortSettings } from "@/client/components/ListToolbar/types"
 import { FlavorListContainer } from "./-components/FlavorListContainer"
@@ -199,6 +199,7 @@ export const Flavors = ({ client, project }: FlavorsProps) => {
           </Stack>
         }
       >
+        <ContentHeading className="mb-2 text-2xl">{t`Flavors`}</ContentHeading>
         <FlavorsContent
           flavorsPromise={flavorsPromise}
           permissionsPromise={permissionsPromise}
