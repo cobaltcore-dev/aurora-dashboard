@@ -1,17 +1,13 @@
-import { createFileRoute } from "@tanstack/react-router"
-import { useLingui } from "@lingui/react/macro"
-import { Overview } from "./-components/Overview"
-import type { RouteInfo } from "@/client/routes/routeInfo"
+import { createFileRoute, redirect } from "@tanstack/react-router"
 
-export const Route = createFileRoute("/_auth/accounts/$accountId/projects/$projectId/compute/overview")({
-  staticData: { section: "compute", service: "overview" } satisfies RouteInfo,
-  component: RouteComponent,
+export const Route = createFileRoute(
+  "/_auth/accounts/$accountId/projects/$projectId/compute/overview"
+)({
+  beforeLoad: ({ params }) => {
+    throw redirect({
+      to: "/projects/$projectId/compute/overview",
+      params: { projectId: params.projectId },
+      replace: true,
+    })
+  },
 })
-
-function RouteComponent() {
-  const { t } = useLingui()
-  const { projectId } = Route.useParams()
-  const { trpcClient, setPageTitle } = Route.useRouteContext()
-  setPageTitle(t`Compute Overview`)
-  return <Overview project={projectId} client={trpcClient!} />
-}

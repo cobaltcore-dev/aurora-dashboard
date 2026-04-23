@@ -43,10 +43,28 @@ export const SideNavBar = ({ accountId, projectId, availableServices }: SideNavB
     ...(serviceIndex?.["compute"]?.["nova"]
       ? [
           {
+            service: "instances",
+            label: t`Instances`,
+            to: "/projects/$projectId/compute/instances" as const,
+            params: { projectId },
+          },
+          {
             service: "flavors",
             label: t`Flavors`,
-            to: "/accounts/$accountId/projects/$projectId/compute/flavors" as const,
-            params: { accountId, projectId },
+            to: "/projects/$projectId/compute/flavors" as const,
+            params: { projectId },
+          },
+          {
+            service: "keypairs",
+            label: t`Key Pairs`,
+            to: "/projects/$projectId/compute/keypairs" as const,
+            params: { projectId },
+          },
+          {
+            service: "servergroups",
+            label: t`Server Groups`,
+            to: "/projects/$projectId/compute/servergroups" as const,
+            params: { projectId },
           },
         ]
       : []),

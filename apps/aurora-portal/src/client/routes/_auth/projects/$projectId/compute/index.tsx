@@ -1,11 +1,9 @@
 import { createFileRoute, redirect } from "@tanstack/react-router"
 
-export const Route = createFileRoute(
-  "/_auth/accounts/$accountId/projects/$projectId/compute/flavors"
-)({
+export const Route = createFileRoute("/_auth/projects/$projectId/compute/")({
   beforeLoad: ({ params }) => {
     throw redirect({
-      to: "/projects/\$projectId/compute/flavors",
+      to: "/projects/$projectId/compute/overview",
       params: { projectId: params.projectId },
       replace: true,
     })
