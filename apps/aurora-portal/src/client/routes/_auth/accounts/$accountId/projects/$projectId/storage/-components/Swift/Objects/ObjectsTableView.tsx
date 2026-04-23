@@ -136,7 +136,10 @@ export const ObjectsTableView = ({
   // Shared streaming helper — fetches the object from the BFF and assembles a Blob.
   // downloadId is set before the mutation starts so the watchDownloadProgress
   // subscription is active from the very first byte.
-  const streamObjectToBlob = async (row: ObjectRow): Promise<{ blob: Blob; filename: string }> => {
+  const streamObjectToBlob = async (
+    row: ObjectRow,
+    activeDownloadId: string
+  ): Promise<{ blob: Blob; filename: string }> => {
     let contentType = row.content_type ?? "application/octet-stream"
     let filename = row.displayName
 
@@ -144,7 +147,7 @@ export const ObjectsTableView = ({
       container,
       object: row.name,
       filename: row.displayName,
-      downloadId: `${container}:${row.name}`,
+      downloadId: activeDownloadId,
       ...(account ? { account } : {}),
     })
 
@@ -171,10 +174,11 @@ export const ObjectsTableView = ({
   }
 
   const handleDownload = async (row: ObjectRow) => {
+    const activeDownloadId = `${container}:${row.name}:${crypto.randomUUID()}`
     setDownloadingRow(row)
-    setDownloadId(`${container}:${row.name}`)
+    setDownloadId(activeDownloadId)
     try {
-      const { blob, filename } = await streamObjectToBlob(row)
+      const { blob, filename } = await streamObjectToBlob(row, activeDownloadId)
       triggerAnchorDownload(URL.createObjectURL(blob), filename)
     } catch (err) {
       onDownloadError(row.displayName, err instanceof Error ? err.message : String(err))
@@ -187,12 +191,13 @@ export const ObjectsTableView = ({
   }
 
   const handlePreviewOrDownload = async (row: ObjectRow) => {
+    const activeDownloadId = `${container}:${row.name}:${crypto.randomUUID()}`
     const previewing = isBrowserPreviewable(row.content_type)
     if (previewing) {
       setPreviewingRow(row)
     } else {
       setDownloadingRow(row)
-      setDownloadId(`${container}:${row.name}`)
+      setDownloadId(activeDownloadId)
     }
 
     // Open a blank tab synchronously while still inside the click handler so
@@ -206,7 +211,7 @@ export const ObjectsTableView = ({
     }
 
     try {
-      const { blob, filename } = await streamObjectToBlob(row)
+      const { blob, filename } = await streamObjectToBlob(row, activeDownloadId)
       const url = URL.createObjectURL(blob)
       if (previewing) {
         if (previewTab) {
