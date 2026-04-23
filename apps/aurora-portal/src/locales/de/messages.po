@@ -1787,7 +1787,7 @@ msgid "production, linux"
 msgstr "production, linux"
 
 msgid "Project"
-msgstr ""
+msgstr "Projekt"
 
 msgid "Project id"
 msgstr "Projekt-ID"
