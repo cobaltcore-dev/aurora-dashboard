@@ -575,7 +575,7 @@ msgid "Delete Rule"
 msgstr "Regel löschen"
 
 msgid "Delete Security Group \"{securityGroupName}\""
-msgstr ""
+msgstr "Security Group \"{securityGroupName}\" löschen"
 
 msgid "Delete Security Group Rule"
 msgstr "Sicherheitsgruppenregel löschen"
@@ -947,7 +947,7 @@ msgid "Failed to load Floating IPs"
 msgstr "Floating IPs konnten nicht geladen werden"
 
 msgid "Failed to load metadata configuration."
-msgstr ""
+msgstr "Metadaten-Konfiguration konnte nicht geladen werden."
 
 msgid "Failed to load object metadata: {metadataErrorMessage}"
 msgstr "Fehler beim Laden der Objekt-Metadaten: {metadataErrorMessage}"
@@ -1301,7 +1301,7 @@ msgid "Last Modified"
 msgstr "Zuletzt geändert"
 
 msgid "Last updated: {formattedDate}"
-msgstr ""
+msgstr "Zuletzt aktualisiert: {formattedDate}"
 
 msgid "Leave empty for all codes"
 msgstr "Leer lassen für alle Codes"
@@ -2000,7 +2000,7 @@ msgid "Select a fixed IP address"
 msgstr "Feste IP-Adresse auswählen"
 
 msgid "Select a rule type..."
-msgstr ""
+msgstr "Regeltyp auswählen..."
 
 msgid "Select a security group..."
 msgstr "Security Group auswählen..."
