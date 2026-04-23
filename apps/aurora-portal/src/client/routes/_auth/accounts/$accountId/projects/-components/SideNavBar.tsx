@@ -58,14 +58,14 @@ export const SideNavBar = ({ accountId, projectId, availableServices }: SideNavB
           {
             service: "securitygroups",
             label: t`Security Groups`,
-            to: "/accounts/$accountId/projects/$projectId/network/securitygroups" as const,
-            params: { accountId, projectId },
+            to: "/projects/$projectId/network/securitygroups" as const,
+            params: { projectId },
           },
           {
             service: "floatingips",
             label: t`Floating IPs`,
-            to: "/accounts/$accountId/projects/$projectId/network/floatingips" as const,
-            params: { accountId, projectId },
+            to: "/projects/$projectId/network/floatingips" as const,
+            params: { projectId },
           },
         ]
       : []),
