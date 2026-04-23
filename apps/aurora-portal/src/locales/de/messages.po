@@ -1021,8 +1021,8 @@ msgstr "Fehler beim Hochladen der Datei \"{fileName}\": "
 msgid "False"
 msgstr "False"
 
-msgid "Filters"
-msgstr "Filter"
+msgid "Filter by"
+msgstr ""
 
 msgid "Find detailed guides and references in our docs."
 msgstr "Finden Sie detaillierte Anleitungen und Referenzen in unserer Dokumentation."
