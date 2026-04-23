@@ -1022,7 +1022,7 @@ msgid "False"
 msgstr "False"
 
 msgid "Filter by"
-msgstr ""
+msgstr "Filtern nach"
 
 msgid "Find detailed guides and references in our docs."
 msgstr "Finden Sie detaillierte Anleitungen und Referenzen in unserer Dokumentation."
