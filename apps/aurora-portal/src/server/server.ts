@@ -48,10 +48,10 @@ async function startServer() {
     },
   })
 
-  // Register application/octet-stream parser that passes the raw request stream
-  // as the body. tRPC's octetInputParser expects to receive a ReadableStream —
-  // passing req directly (which is a Node.js IncomingMessage / Readable) satisfies
-  // this. Using parseAs:"buffer" would buffer everything; undefined causes a 400.
+  // Register application/octet-stream parser that passes the raw request payload
+  // stream as the body. tRPC's octetInputParser expects to receive a ReadableStream —
+  // payload is the Node.js IncomingMessage / Readable piped from the HTTP body.
+  // Using parseAs:"buffer" would buffer everything in memory; undefined causes a 400.
   server.addContentTypeParser("application/octet-stream", (_req, payload, done) => {
     done(null, payload)
   })
