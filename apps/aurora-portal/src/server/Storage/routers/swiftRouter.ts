@@ -63,6 +63,7 @@ import {
 // ============================================================================
 
 const uploadProgressEmitter = new EventEmitter()
+uploadProgressEmitter.setMaxListeners(0) // 0 = unlimited; shared across all concurrent uploads
 
 type UploadProgress = { uploaded: number; total: number; percent: number }
 const uploadProgressMap = new Map<string, UploadProgress>()
@@ -72,6 +73,7 @@ const uploadProgressMap = new Map<string, UploadProgress>()
 // ============================================================================
 
 const downloadProgressEmitter = new EventEmitter()
+downloadProgressEmitter.setMaxListeners(0) // 0 = unlimited; shared across all concurrent downloads
 
 type DownloadProgress = { downloaded: number; total: number; percent: number }
 const downloadProgressMap = new Map<string, DownloadProgress>()
