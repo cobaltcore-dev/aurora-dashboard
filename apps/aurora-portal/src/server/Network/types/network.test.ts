@@ -206,6 +206,36 @@ describe("Network query schemas", () => {
 
       expect(result.success).toBe(false)
     })
+
+    it("should accept null provider:segmentation_id on network", () => {
+      const result = NetworkSchema.safeParse({
+        ...validNetwork,
+        "provider:segmentation_id": null,
+      })
+
+      expect(result.success).toBe(true)
+      if (result.success) {
+        expect(result.data["provider:segmentation_id"]).toBeNull()
+      }
+    })
+
+    it("should accept null provider:segmentation_id inside segments", () => {
+      const result = NetworkSchema.safeParse({
+        ...validNetwork,
+        segments: [
+          {
+            "provider:network_type": "vxlan",
+            "provider:physical_network": "physnet1",
+            "provider:segmentation_id": null,
+          },
+        ],
+      })
+
+      expect(result.success).toBe(true)
+      if (result.success) {
+        expect(result.data.segments?.[0]["provider:segmentation_id"]).toBeNull()
+      }
+    })
   })
 
   describe("NetworkListResponseSchema", () => {

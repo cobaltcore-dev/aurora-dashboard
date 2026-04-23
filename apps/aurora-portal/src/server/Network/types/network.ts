@@ -21,8 +21,8 @@ export const ListNetworksQuerySchema = z.object({
   name: z.string().optional(),
   project_id: z.string().optional(),
   "provider:network_type": z.string().optional(),
-  "provider:physical_network": z.string().optional(),
-  "provider:segmentation_id": z.number().int().optional(),
+  "provider:physical_network": z.string().nullable().optional(),
+  "provider:segmentation_id": z.number().int().nullable().optional(),
   revision_number: z.number().int().optional(),
   "router:external": z.boolean().optional(),
   shared: z.boolean().optional(),
@@ -71,8 +71,8 @@ export const ListDnsDomainsQuerySchema = z.object({
  */
 const SegmentSchema = z.object({
   "provider:network_type": z.string(),
-  "provider:physical_network": z.string().nullable(),
-  "provider:segmentation_id": z.number().int(),
+  "provider:physical_network": z.string().nullable().optional(),
+  "provider:segmentation_id": z.number().int().nullable().optional(),
 })
 
 /**
@@ -102,7 +102,7 @@ export const NetworkSchema = z.object({
   project_id: z.string(),
   "provider:network_type": z.string().optional(),
   "provider:physical_network": z.string().nullable().optional(),
-  "provider:segmentation_id": z.number().int().optional(),
+  "provider:segmentation_id": z.number().int().nullable().optional(),
   qos_policy_id: z.string().optional(),
   revision_number: z.number().int().optional(),
   "router:external": z.boolean(),
