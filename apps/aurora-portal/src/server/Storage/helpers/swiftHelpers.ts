@@ -683,13 +683,13 @@ export function isFolderMarker(name: string, bytes: number): boolean {
 // ============================================================================
 
 /**
- * Validates and extracts the required fields from a multipart upload request.
+ * Validates and extracts the required values for a Swift octet-stream upload.
  * Mirrors the image router's validateUploadInput pattern, adapted for Swift objects.
  *
- * @param container - Container name from the multipart field
- * @param object    - Full object path (prefix + filename) from the multipart field
- * @param fileSize  - File size in bytes from the multipart field (may be absent for unknown sizes)
- * @param fileStream - Node.js readable stream for the file part
+ * @param container - Container name supplied via request metadata/header
+ * @param object    - Full object path (prefix + filename) supplied via request metadata/header
+ * @param fileSize  - File size in bytes supplied via request metadata/header (may be absent for unknown sizes)
+ * @param fileStream - Node.js readable stream for the upload body
  * @returns Validated fields ready for use in the upload procedure
  */
 export function validateSwiftUploadInput(
