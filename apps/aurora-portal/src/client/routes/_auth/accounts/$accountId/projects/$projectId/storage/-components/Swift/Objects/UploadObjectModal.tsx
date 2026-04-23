@@ -35,6 +35,7 @@ export const UploadObjectModal = ({
   const [isPending, setIsPending] = useState(false)
 
   const submittedNameRef = useRef("")
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const utils = trpcReact.useUtils()
 
@@ -52,6 +53,7 @@ export const UploadObjectModal = ({
     setIsDragging(false)
     setUploadId(null)
     setUploadError(null)
+    if (fileInputRef.current) fileInputRef.current.value = ""
     onClose()
   }
 
@@ -192,6 +194,7 @@ export const UploadObjectModal = ({
             </p>
             <p className="text-theme-light mt-1 text-xs">{t`Any file type`}</p>
             <input
+              ref={fileInputRef}
               id="upload-object-file"
               type="file"
               className="hidden"
@@ -221,6 +224,7 @@ export const UploadObjectModal = ({
                     setSelectedFile(null)
                     setFileError(null)
                     setUploadError(null)
+                    if (fileInputRef.current) fileInputRef.current.value = ""
                   }}
                   className="ml-2 shrink-0 font-medium text-red-600 hover:text-red-800"
                 >
