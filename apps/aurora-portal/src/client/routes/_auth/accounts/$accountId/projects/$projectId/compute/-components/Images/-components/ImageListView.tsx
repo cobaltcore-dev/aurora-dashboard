@@ -226,11 +226,6 @@ export function ImageListView({
     { uploadId: uploadId || "" },
     {
       enabled: !!uploadId && isUploadPending,
-      onComplete() {
-        if (!manageAccessModalOpen && !toastData && uploadId && !isUploadPending) {
-          setToastData(getImageCreatedToast(uploadId, { onDismiss: handleToastDismiss }))
-        }
-      },
     }
   )
 
