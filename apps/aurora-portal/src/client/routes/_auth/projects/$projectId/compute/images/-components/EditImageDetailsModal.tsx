@@ -15,7 +15,7 @@ import {
   Pill,
 } from "@cloudoperators/juno-ui-components"
 import { GlanceImage } from "@/server/Compute/types/image"
-import { IMAGE_VISIBILITY } from "../../../-constants/filters"
+import { IMAGE_VISIBILITY } from "../../-constants/filters"
 
 interface EditImageDetailsModalProps {
   image: GlanceImage

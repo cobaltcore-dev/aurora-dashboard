@@ -21,7 +21,7 @@ import {
   getDefaultContainerFormat,
   isValidFormatCombination,
 } from "@/server/Compute/helpers/imageHelpers"
-import { DISK_FORMATS, IMAGE_VISIBILITY } from "../../../-constants/filters"
+import { DISK_FORMATS, IMAGE_VISIBILITY } from "../../-constants/filters"
 import { cn } from "@/client/utils/cn"
 
 interface CreateImageModalProps {

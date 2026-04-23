@@ -14,7 +14,7 @@ import {
 import { useLingui } from "@lingui/react/macro"
 import { GlanceImage, ImageVisibility, MemberStatus } from "@/server/Compute/types/image"
 import { SizeDisplay } from "./SizeDisplay"
-import { IMAGE_STATUSES, IMAGE_VISIBILITY, MEMBER_STATUSES } from "../../../-constants/filters"
+import { IMAGE_STATUSES, IMAGE_VISIBILITY, MEMBER_STATUSES } from "../../-constants/filters"
 import { trpcReact } from "@/client/trpcClient"
 import { TRPCClientError } from "@trpc/client"
 import { InferrableClientTypes } from "@trpc/server/unstable-core-do-not-import"

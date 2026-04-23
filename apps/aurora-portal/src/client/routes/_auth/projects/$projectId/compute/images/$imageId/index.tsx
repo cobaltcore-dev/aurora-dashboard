@@ -17,12 +17,12 @@ import { Trans, useLingui } from "@lingui/react/macro"
 import { getServiceIndex } from "@/server/Authentication/helpers"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks"
-import { ImageDetailsView } from "../-components/-components/ImageDetailsView"
-import { EditImageDetailsModal } from "../-components/-components/EditImageDetailsModal"
-import { EditImageMetadataModal } from "../-components/-components/EditImageMetadataModal"
-import { DeleteImageModal } from "../-components/-components/DeleteImageModal"
-import { ActivateImageModal } from "../-components/-components/ActivateImageModal"
-import { DeactivateImageModal } from "../-components/-components/DeactivateImageModal"
+import { ImageDetailsView } from "../-components/ImageDetailsView"
+import { EditImageDetailsModal } from "../-components/EditImageDetailsModal"
+import { EditImageMetadataModal } from "../-components/EditImageMetadataModal"
+import { DeleteImageModal } from "../-components/DeleteImageModal"
+import { ActivateImageModal } from "../-components/ActivateImageModal"
+import { DeactivateImageModal } from "../-components/DeactivateImageModal"
 import { IMAGE_STATUSES, IMAGE_VISIBILITY } from "../../-constants/filters"
 import { GlanceImage, MemberStatus } from "@/server/Compute/types/image"
 import { TRPCClientError } from "@trpc/client"
@@ -30,7 +30,7 @@ import { InferrableClientTypes } from "@trpc/server/unstable-core-do-not-import"
 import {
   getImageAccessStatusUpdatedToast,
   getImageAccessStatusErrorToast,
-} from "../-components/-components/ImageToastNotifications"
+} from "../-components/ImageToastNotifications"
 import { useState } from "react"
 
 export const Route = createFileRoute("/_auth/projects/$projectId/compute/images/$imageId/")({

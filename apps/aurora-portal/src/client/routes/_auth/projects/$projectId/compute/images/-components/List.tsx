@@ -14,7 +14,7 @@ import {
 } from "@cloudoperators/juno-ui-components"
 import { ListToolbar } from "@/client/components/ListToolbar"
 import { FilterSettings, SortSettings } from "@/client/components/ListToolbar/types"
-import { ImageListView } from "./-components/ImageListView"
+import { ImageListView } from "./ImageListView"
 import { CONTAINER_FORMATS, DISK_FORMATS, IMAGE_STATUSES, IMAGE_VISIBILITY } from "../../-constants/filters"
 import { parseFiltersFromUrl, buildFilterParams, buildUrlSearchParams } from "./urlHelpers"
 import { createImagesPromise, createPermissionsPromise } from "./apiHelpers"

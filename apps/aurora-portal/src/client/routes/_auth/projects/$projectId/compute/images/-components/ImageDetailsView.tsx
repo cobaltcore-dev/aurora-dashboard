@@ -15,7 +15,7 @@ import { Trans, useLingui } from "@lingui/react/macro"
 import { GlanceImage, ImageMember, MemberStatus } from "@/server/Compute/types/image"
 import { SizeDisplay } from "./SizeDisplay"
 import { trpcReact } from "@/client/trpcClient"
-import { MEMBER_STATUSES } from "../../../-constants/filters"
+import { MEMBER_STATUSES } from "../../-constants/filters"
 import { ImageMembersTable } from "./ImageMembersTable"
 import { useProjectId } from "@/client/hooks"
 
