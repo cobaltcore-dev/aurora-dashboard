@@ -23,11 +23,7 @@ describe("StatusError", () => {
 
   it("renders error message with status code", () => {
     render(
-      <StatusError
-        statusCode={404}
-        title="Page Not Found"
-        message="The page you are looking for does not exist."
-      />,
+      <StatusError statusCode={404} title="Page Not Found" message="The page you are looking for does not exist." />,
       { wrapper: TestingProvider }
     )
 
@@ -46,10 +42,7 @@ describe("StatusError", () => {
 
   it("renders Back button when onBackClick is provided", () => {
     const onBackClick = vi.fn()
-    render(
-      <StatusError title="Error" message="Test error" onBackClick={onBackClick} />,
-      { wrapper: TestingProvider }
-    )
+    render(<StatusError title="Error" message="Test error" onBackClick={onBackClick} />, { wrapper: TestingProvider })
 
     const backButton = screen.getByText("Back")
     expect(backButton).toBeInTheDocument()
@@ -60,10 +53,7 @@ describe("StatusError", () => {
 
   it("renders Home button when onHomeClick is provided", () => {
     const onHomeClick = vi.fn()
-    render(
-      <StatusError title="Error" message="Test error" onHomeClick={onHomeClick} />,
-      { wrapper: TestingProvider }
-    )
+    render(<StatusError title="Error" message="Test error" onHomeClick={onHomeClick} />, { wrapper: TestingProvider })
 
     const homeButton = screen.getByText("Home")
     expect(homeButton).toBeInTheDocument()
@@ -74,10 +64,7 @@ describe("StatusError", () => {
 
   it("renders Try Again button when reset is provided", () => {
     const reset = vi.fn()
-    render(
-      <StatusError title="Error" message="Test error" reset={reset} />,
-      { wrapper: TestingProvider }
-    )
+    render(<StatusError title="Error" message="Test error" reset={reset} />, { wrapper: TestingProvider })
 
     const tryAgainButton = screen.getByText("Try Again")
     expect(tryAgainButton).toBeInTheDocument()
@@ -116,10 +103,9 @@ describe("StatusError", () => {
   })
 
   it("renders different status codes correctly", () => {
-    const { rerender } = render(
-      <StatusError statusCode={500} title="Server Error" message="Internal server error" />,
-      { wrapper: TestingProvider }
-    )
+    const { rerender } = render(<StatusError statusCode={500} title="Server Error" message="Internal server error" />, {
+      wrapper: TestingProvider,
+    })
 
     expect(screen.getByText("500")).toBeInTheDocument()
 
