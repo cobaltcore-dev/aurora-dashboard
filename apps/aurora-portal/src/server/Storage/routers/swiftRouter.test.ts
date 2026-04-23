@@ -1972,33 +1972,26 @@ describe("swiftRouter", () => {
       )
     })
 
-    it("should yield nothing and complete immediately for an unknown uploadId", async () => {
+    it("should not yield for an unknown uploadId until an event arrives", async () => {
       const mockCtx = createMockContext()
       const caller = createCaller(mockCtx)
 
-      // No upload is running for this ID — the subscription should complete without
-      // yielding any values (no current snapshot, emitter fires complete right away).
-      // We simulate the "already done" scenario by not registering any progress
-      // and relying on the fact that the emitter will never fire for this ID.
-      // The subscription terminates only when it receives a complete/error event,
-      // so for this test we verify it doesn't hang by racing with a timeout.
-      const items: unknown[] = []
-      const subscription = caller.storage.swift.watchUploadProgress({ uploadId: "nonexistent:file.txt" })
+      // Subscribe to a non-existent uploadId — it should not yield any items
+      // within a short window since no progress events are being emitted for it.
+      const subscription = await caller.storage.swift.watchUploadProgress({ uploadId: "nonexistent:file.txt" })
+      const iterator = subscription[Symbol.asyncIterator]()
 
-      // If the subscription leaks and never terminates, the test will time out.
-      // We collect items for a brief window and expect none to arrive.
+      // Race iterator.next() against a timeout — since no events arrive for this
+      // unknown ID, the timeout should win. We do NOT await iterator.return() as
+      // it would hang waiting for the pending next() to resolve.
+      const nextPromise = iterator.next().then(() => "yielded" as const)
       const result = await Promise.race([
-        (async () => {
-          // The subscription won't complete on its own for an unknown ID —
-          // it just won't yield anything while waiting. We verify it starts cleanly.
-          return "started"
-        })(),
-        new Promise<string>((_, reject) => setTimeout(() => reject(new Error("timeout")), 200)),
+        nextPromise,
+        new Promise<"timeout">((resolve) => setTimeout(() => resolve("timeout"), 200)),
       ])
 
-      expect(result).toBe("started")
-      expect(items).toHaveLength(0)
-      void subscription // reference to avoid unused warning
+      expect(result).toBe("timeout")
+      void nextPromise // allow the pending promise to settle without blocking
     })
 
     it("should return an async iterable", async () => {
