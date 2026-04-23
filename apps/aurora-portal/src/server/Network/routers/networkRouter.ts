@@ -31,7 +31,7 @@ export const networkRouter = {
         const network = getNetworkService(ctx)
 
         // Extract project_id from input - it's used for rescoping, not for OpenStack API filtering
-        const { project_id, ...openstackFilters } = input
+        const { ...openstackFilters } = input
         const openstackParams = { ...openstackFilters, "router:external": true as const }
         const queryParams = appendQueryParamsFromObject(openstackParams)
         const queryString = queryParams.toString()
@@ -54,7 +54,7 @@ export const networkRouter = {
         const network = getNetworkService(ctx)
 
         // Extract project_id from input - it's used for rescoping, not for OpenStack API filtering
-        const { project_id, ...openstackFilters } = input
+        const { ...openstackFilters } = input
         const openstackParams = { ...openstackFilters, fields: "dns_domain" }
         const queryParams = appendQueryParamsFromObject(openstackParams)
         const queryString = queryParams.toString()

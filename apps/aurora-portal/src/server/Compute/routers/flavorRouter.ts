@@ -1,4 +1,4 @@
-import { protectedProcedure } from "../../trpc"
+import { projectScopedProcedure } from "../../trpc"
 import { z } from "zod"
 import {
   createFlavor,
@@ -18,19 +18,19 @@ import { TRPCError } from "@trpc/server"
 import { ERROR_CODES } from "../../errorCodes"
 
 export const flavorRouter = {
-  getFlavorById: protectedProcedure
+  getFlavorById: projectScopedProcedure
     .input(
       z.object({
-        projectId: z.string(),
+        project_id: z.string(),
         flavorId: z.string(),
       })
     )
     .query(async ({ input, ctx }) => {
       try {
-        const { projectId, flavorId } = input
+        const { flavorId } = input
 
-        const openstackSession = await ctx.rescopeSession({ projectId })
-        const compute = openstackSession?.service("compute")
+        // ctx.openstack is already rescoped to the project by projectScopedProcedure
+        const compute = ctx.openstack?.service("compute")
         if (!compute) {
           throw new TRPCError({
             code: "INTERNAL_SERVER_ERROR",
@@ -52,10 +52,10 @@ export const flavorRouter = {
         })
       }
     }),
-  getFlavorsByProjectId: protectedProcedure
+  getFlavorsByProjectId: projectScopedProcedure
     .input(
       z.object({
-        projectId: z.string(),
+        project_id: z.string(),
         sortBy: z.string().optional().default("name"),
         sortDirection: z.string().optional().default("asc"),
         searchTerm: z.string().optional().default(""),
@@ -64,10 +64,10 @@ export const flavorRouter = {
     )
     .query(async ({ input, ctx }) => {
       try {
-        const { projectId, sortBy, sortDirection, searchTerm, isPublic } = input
+        const { sortBy, sortDirection, searchTerm, isPublic } = input
 
-        const openstackSession = await ctx.rescopeSession({ projectId })
-        const compute = openstackSession?.service("compute")
+        // ctx.openstack is already rescoped to the project by projectScopedProcedure
+        const compute = ctx.openstack?.service("compute")
         if (!compute) {
           throw new TRPCError({
             code: "INTERNAL_SERVER_ERROR",
@@ -89,10 +89,10 @@ export const flavorRouter = {
         })
       }
     }),
-  createFlavor: protectedProcedure
+  createFlavor: projectScopedProcedure
     .input(
       z.object({
-        projectId: z.string(),
+        project_id: z.string(),
         flavor: z.object({
           id: z.string().optional(),
           name: z.string(),
@@ -108,10 +108,10 @@ export const flavorRouter = {
     )
     .mutation(async ({ input, ctx }) => {
       try {
-        const { projectId, flavor } = input
+        const { flavor } = input
 
-        const openstackSession = await ctx.rescopeSession({ projectId })
-        const compute = openstackSession?.service("compute")
+        // ctx.openstack is already rescoped to the project by projectScopedProcedure
+        const compute = ctx.openstack?.service("compute")
         if (!compute) {
           throw new TRPCError({
             code: "INTERNAL_SERVER_ERROR",
@@ -138,19 +138,19 @@ export const flavorRouter = {
         })
       }
     }),
-  deleteFlavor: protectedProcedure
+  deleteFlavor: projectScopedProcedure
     .input(
       z.object({
-        projectId: z.string(),
+        project_id: z.string(),
         flavorId: z.string(),
       })
     )
     .mutation(async ({ input, ctx }) => {
       try {
-        const { projectId, flavorId } = input
+        const { flavorId } = input
 
-        const openstackSession = await ctx.rescopeSession({ projectId })
-        const compute = openstackSession?.service("compute")
+        // ctx.openstack is already rescoped to the project by projectScopedProcedure
+        const compute = ctx.openstack?.service("compute")
         if (!compute) {
           throw new TRPCError({
             code: "INTERNAL_SERVER_ERROR",
@@ -173,20 +173,20 @@ export const flavorRouter = {
         })
       }
     }),
-  createExtraSpecs: protectedProcedure
+  createExtraSpecs: projectScopedProcedure
     .input(
       z.object({
-        projectId: z.string(),
+        project_id: z.string(),
         flavorId: z.string(),
         extra_specs: z.record(z.string(), z.string()),
       })
     )
     .mutation(async ({ input, ctx }) => {
       try {
-        const { projectId, flavorId, extra_specs } = input
+        const { flavorId, extra_specs } = input
 
-        const openstackSession = await ctx.rescopeSession({ projectId })
-        const compute = openstackSession?.service("compute")
+        // ctx.openstack is already rescoped to the project by projectScopedProcedure
+        const compute = ctx.openstack?.service("compute")
         if (!compute) {
           throw new TRPCError({
             code: "INTERNAL_SERVER_ERROR",
@@ -208,19 +208,19 @@ export const flavorRouter = {
         })
       }
     }),
-  getExtraSpecs: protectedProcedure
+  getExtraSpecs: projectScopedProcedure
     .input(
       z.object({
-        projectId: z.string(),
+        project_id: z.string(),
         flavorId: z.string(),
       })
     )
     .query(async ({ input, ctx }) => {
       try {
-        const { projectId, flavorId } = input
+        const { flavorId } = input
 
-        const openstackSession = await ctx.rescopeSession({ projectId })
-        const compute = openstackSession?.service("compute")
+        // ctx.openstack is already rescoped to the project by projectScopedProcedure
+        const compute = ctx.openstack?.service("compute")
         if (!compute) {
           throw new TRPCError({
             code: "INTERNAL_SERVER_ERROR",
@@ -243,20 +243,20 @@ export const flavorRouter = {
       }
     }),
 
-  deleteExtraSpec: protectedProcedure
+  deleteExtraSpec: projectScopedProcedure
     .input(
       z.object({
-        projectId: z.string(),
+        project_id: z.string(),
         flavorId: z.string(),
         key: z.string(),
       })
     )
     .mutation(async ({ input, ctx }) => {
       try {
-        const { projectId, flavorId, key } = input
+        const { flavorId, key } = input
 
-        const openstackSession = await ctx.rescopeSession({ projectId })
-        const compute = openstackSession?.service("compute")
+        // ctx.openstack is already rescoped to the project by projectScopedProcedure
+        const compute = ctx.openstack?.service("compute")
         if (!compute) {
           throw new TRPCError({
             code: "INTERNAL_SERVER_ERROR",
@@ -278,19 +278,19 @@ export const flavorRouter = {
         })
       }
     }),
-  getFlavorAccess: protectedProcedure
+  getFlavorAccess: projectScopedProcedure
     .input(
       z.object({
-        projectId: z.string(),
+        project_id: z.string(),
         flavorId: z.string(),
       })
     )
     .query(async ({ input, ctx }) => {
       try {
-        const { projectId, flavorId } = input
+        const { flavorId } = input
 
-        const openstackSession = await ctx.rescopeSession({ projectId })
-        const compute = openstackSession?.service("compute")
+        // ctx.openstack is already rescoped to the project by projectScopedProcedure
+        const compute = ctx.openstack?.service("compute")
         if (!compute) {
           throw new TRPCError({
             code: "INTERNAL_SERVER_ERROR",
@@ -330,20 +330,20 @@ export const flavorRouter = {
         })
       }
     }),
-  addTenantAccess: protectedProcedure
+  addTenantAccess: projectScopedProcedure
     .input(
       z.object({
-        projectId: z.string(),
+        project_id: z.string(),
         flavorId: z.string(),
         tenantId: z.string(),
       })
     )
     .mutation(async ({ input, ctx }) => {
       try {
-        const { projectId, flavorId, tenantId } = input
+        const { flavorId, tenantId } = input
 
-        const openstackSession = await ctx.rescopeSession({ projectId })
-        const compute = openstackSession?.service("compute")
+        // ctx.openstack is already rescoped to the project by projectScopedProcedure
+        const compute = ctx.openstack?.service("compute")
         if (!compute) {
           throw new TRPCError({
             code: "INTERNAL_SERVER_ERROR",
@@ -366,20 +366,20 @@ export const flavorRouter = {
       }
     }),
 
-  removeTenantAccess: protectedProcedure
+  removeTenantAccess: projectScopedProcedure
     .input(
       z.object({
-        projectId: z.string(),
+        project_id: z.string(),
         flavorId: z.string(),
         tenantId: z.string(),
       })
     )
     .mutation(async ({ input, ctx }) => {
       try {
-        const { projectId, flavorId, tenantId } = input
+        const { flavorId, tenantId } = input
 
-        const openstackSession = await ctx.rescopeSession({ projectId })
-        const compute = openstackSession?.service("compute")
+        // ctx.openstack is already rescoped to the project by projectScopedProcedure
+        const compute = ctx.openstack?.service("compute")
         if (!compute) {
           throw new TRPCError({
             code: "INTERNAL_SERVER_ERROR",
