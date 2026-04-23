@@ -4,7 +4,7 @@ import { ProjectsOverviewNavBar, ViewMode } from "./-components/ProjectOverviewN
 import { ProjectCardView } from "./-components/ProjectCardView"
 import { ProjectListView } from "./-components/ProjectListView"
 import { Message } from "@cloudoperators/juno-ui-components"
-import { RouteError } from "../../../../../components/Error/RouteError"
+import { RouteError } from "@/client/components/Error/RouteError"
 import { TRPCClientError } from "@trpc/client"
 
 import { z } from "zod"
