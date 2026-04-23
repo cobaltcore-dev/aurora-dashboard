@@ -725,9 +725,9 @@ export function validateSwiftUploadInput(
 
   let parsedSize = 0
   if (fileSize !== undefined && fileSize !== null) {
-    const n = typeof fileSize === "string" ? parseInt(fileSize, 10) : fileSize
-    if (typeof n !== "number" || !Number.isFinite(n) || n < 0) {
-      throw new TRPCError({ code: "BAD_REQUEST", message: "fileSize must be a non-negative finite number" })
+    const n = typeof fileSize === "string" ? Number(fileSize) : fileSize
+    if (typeof n !== "number" || !Number.isFinite(n) || !Number.isInteger(n) || n < 0) {
+      throw new TRPCError({ code: "BAD_REQUEST", message: "fileSize must be a non-negative integer" })
     }
     parsedSize = n
   }

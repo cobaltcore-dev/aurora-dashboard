@@ -158,6 +158,24 @@ describe("swiftHelpers", () => {
         expect.objectContaining({ code: "BAD_REQUEST" })
       )
     })
+
+    it("should throw BAD_REQUEST when fileSize is a decimal", () => {
+      expect(() => validateSwiftUploadInput("container", "file.txt", 10.5, makeStream())).toThrow(
+        expect.objectContaining({ code: "BAD_REQUEST", message: "fileSize must be a non-negative integer" })
+      )
+    })
+
+    it("should throw BAD_REQUEST when fileSize string has trailing non-numeric characters", () => {
+      expect(() => validateSwiftUploadInput("container", "file.txt", "2048abc", makeStream())).toThrow(
+        expect.objectContaining({ code: "BAD_REQUEST", message: "fileSize must be a non-negative integer" })
+      )
+    })
+
+    it("should throw BAD_REQUEST when fileSize string is a decimal", () => {
+      expect(() => validateSwiftUploadInput("container", "file.txt", "10.5", makeStream())).toThrow(
+        expect.objectContaining({ code: "BAD_REQUEST", message: "fileSize must be a non-negative integer" })
+      )
+    })
   })
 
   describe("applyContainerQueryParams", () => {
