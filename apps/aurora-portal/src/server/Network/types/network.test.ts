@@ -138,7 +138,6 @@ describe("Network query schemas", () => {
       id: "network-1",
       mtu: 1500,
       name: "public-network",
-      port_security_enabled: true,
       project_id: "project-1",
       "provider:network_type": "vxlan",
       "provider:physical_network": "physnet1",
