@@ -23,8 +23,10 @@ export const portRouter = {
         // ctx.openstack is already rescoped to the project by projectScopedProcedure
         const network = getNetworkService(ctx)
 
+        // Extract project_id from input - it's used for rescoping, not for OpenStack API filtering
+        const { project_id, ...openstackFilters } = input
         const queryParams = appendQueryParamsFromObject({
-          ...input,
+          ...openstackFilters,
           // Fetch only these fields, as the floating IP association only requires port_id with name and fixed_ips. This optimizes the response size and parsing.
           fields: ["id", "name", "fixed_ips"],
         })

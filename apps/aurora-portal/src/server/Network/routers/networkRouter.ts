@@ -30,7 +30,9 @@ export const networkRouter = {
         // ctx.openstack is already rescoped to the project by projectScopedProcedure
         const network = getNetworkService(ctx)
 
-        const openstackParams = { ...input, "router:external": true as const }
+        // Extract project_id from input - it's used for rescoping, not for OpenStack API filtering
+        const { project_id, ...openstackFilters } = input
+        const openstackParams = { ...openstackFilters, "router:external": true as const }
         const queryParams = appendQueryParamsFromObject(openstackParams)
         const queryString = queryParams.toString()
         const url = queryString ? `${NETWORK_BASE_URL}?${queryString}` : NETWORK_BASE_URL
@@ -51,7 +53,9 @@ export const networkRouter = {
         // ctx.openstack is already rescoped to the project by projectScopedProcedure
         const network = getNetworkService(ctx)
 
-        const openstackParams = { ...input, fields: "dns_domain" }
+        // Extract project_id from input - it's used for rescoping, not for OpenStack API filtering
+        const { project_id, ...openstackFilters } = input
+        const openstackParams = { ...openstackFilters, fields: "dns_domain" }
         const queryParams = appendQueryParamsFromObject(openstackParams)
         const queryString = queryParams.toString()
         const url = queryString ? `${NETWORK_BASE_URL}?${queryString}` : NETWORK_BASE_URL
