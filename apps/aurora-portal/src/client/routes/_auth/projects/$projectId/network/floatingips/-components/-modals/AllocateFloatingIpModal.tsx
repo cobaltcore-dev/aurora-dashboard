@@ -39,19 +39,19 @@ export const AllocateFloatingIpModal = ({ open, onClose }: AllocateFloatingIpMod
     data: externalNetworks = [],
     isLoading: isExternalNetworksLoading,
     error: externalNetworksError,
-  } = trpcReact.network.listExternalNetworks.useQuery({ project_id: projectId, tenant_id: projectId })
+  } = trpcReact.network.listExternalNetworks.useQuery({ project_id: projectId })
 
   const {
     data: dnsDomains = [],
     isLoading: isDnsDomainsLoading,
     error: dnsDomainsError,
-  } = trpcReact.network.listDnsDomains.useQuery({ project_id: projectId, tenant_id: projectId })
+  } = trpcReact.network.listDnsDomains.useQuery({ project_id: projectId })
 
   const {
     data: availablePorts = [],
     isLoading: isPortsLoading,
     error: portsError,
-  } = trpcReact.network.port.listAvailablePorts.useQuery({ project_id: projectId, tenant_id: projectId })
+  } = trpcReact.network.port.listAvailablePorts.useQuery({ project_id: projectId })
 
   const formSchema = z.object({
     floating_network_id: z.string(),
