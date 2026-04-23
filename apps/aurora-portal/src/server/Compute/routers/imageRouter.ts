@@ -4,7 +4,7 @@ import { TRPCError } from "@trpc/server"
 import { filterBySearchParams } from "@/server/helpers/filterBySearchParams"
 import EventEmitter from "node:events"
 import { Readable, Transform } from "node:stream"
-import { protectedProcedure } from "../../trpc"
+import { projectScopedProcedure } from "../../trpc"
 import {
   applyImageQueryParams,
   validateGlanceService,
@@ -55,7 +55,7 @@ type UploadProgress = { uploaded: number; total: number; percent?: number }
 const uploadProgress = new Map<string, UploadProgress>()
 
 export const imageRouter = {
-  listImagesWithSearch: protectedProcedure
+  listImagesWithSearch: projectScopedProcedure
     .input(imagesPaginatedInputSchema)
     .query(async ({ input, ctx }): Promise<ImagesPaginatedResponse> => {
       return withErrorHandling(async () => {
@@ -207,7 +207,7 @@ export const imageRouter = {
       }, "list images")
     }),
 
-  listImagesWithPagination: protectedProcedure
+  listImagesWithPagination: projectScopedProcedure
     .input(imagesPaginatedInputSchema)
     .query(async ({ input, ctx }): Promise<ImagesPaginatedResponse> => {
       return withErrorHandling(async () => {
@@ -303,7 +303,7 @@ export const imageRouter = {
       }, "list images with pagination")
     }),
 
-  getImageById: protectedProcedure
+  getImageById: projectScopedProcedure
     .input(getImageByIdInputSchema)
     .query(async ({ input, ctx }): Promise<GlanceImage> => {
       return withErrorHandling(async () => {
@@ -326,7 +326,7 @@ export const imageRouter = {
       }, "fetch image by ID")
     }),
 
-  createImage: protectedProcedure
+  createImage: projectScopedProcedure
     .input(createImageInputSchema)
     .mutation(async ({ input, ctx }): Promise<GlanceImage> => {
       return withErrorHandling(async () => {
@@ -349,7 +349,7 @@ export const imageRouter = {
       }, "create image")
     }),
 
-  uploadImage: protectedProcedure.mutation(async ({ ctx }): Promise<{ success: boolean; imageId: string }> => {
+  uploadImage: projectScopedProcedure.mutation(async ({ ctx }): Promise<{ success: boolean; imageId: string }> => {
     return withErrorHandling(async () => {
       const glance = ctx.openstack?.service("glance")
 
@@ -448,7 +448,7 @@ export const imageRouter = {
     }, "upload image")
   }),
 
-  watchUploadProgress: protectedProcedure.input(z.object({ uploadId: z.string() })).subscription(async function* ({
+  watchUploadProgress: projectScopedProcedure.input(z.object({ uploadId: z.string() })).subscription(async function* ({
     input,
   }) {
     const uploadId = input.uploadId
@@ -535,7 +535,7 @@ export const imageRouter = {
     }
   }),
 
-  updateImage: protectedProcedure
+  updateImage: projectScopedProcedure
     .input(updateImageInputSchema)
     .mutation(async ({ input, ctx }): Promise<GlanceImage> => {
       return withErrorHandling(async () => {
@@ -572,7 +572,7 @@ export const imageRouter = {
       }, "update image")
     }),
 
-  updateImageVisibility: protectedProcedure
+  updateImageVisibility: projectScopedProcedure
     .input(updateImageVisibilityInputSchema)
     .mutation(async ({ input, ctx }): Promise<GlanceImage> => {
       return withErrorHandling(async () => {
@@ -614,7 +614,7 @@ export const imageRouter = {
       }, "update image visibility")
     }),
 
-  deleteImage: protectedProcedure.input(deleteImageInputSchema).mutation(async ({ input, ctx }): Promise<boolean> => {
+  deleteImage: projectScopedProcedure.input(deleteImageInputSchema).mutation(async ({ input, ctx }): Promise<boolean> => {
     return withErrorHandling(async () => {
       const { imageId } = input
       const openstackSession = ctx.openstack
@@ -632,7 +632,7 @@ export const imageRouter = {
     }, "delete image")
   }),
 
-  deactivateImage: protectedProcedure
+  deactivateImage: projectScopedProcedure
     .input(deactivateImageInputSchema)
     .mutation(async ({ input, ctx }): Promise<boolean> => {
       return withErrorHandling(async () => {
@@ -654,7 +654,7 @@ export const imageRouter = {
       }, "deactivate image")
     }),
 
-  reactivateImage: protectedProcedure
+  reactivateImage: projectScopedProcedure
     .input(reactivateImageInputSchema)
     .mutation(async ({ input, ctx }): Promise<boolean> => {
       return withErrorHandling(async () => {
@@ -676,7 +676,7 @@ export const imageRouter = {
       }, "reactivate image")
     }),
 
-  listImageMembers: protectedProcedure
+  listImageMembers: projectScopedProcedure
     .input(listImageMembersInputSchema)
     .query(async ({ input, ctx }): Promise<ImageMember[]> => {
       return withErrorHandling(async () => {
@@ -701,7 +701,7 @@ export const imageRouter = {
       }, "list image members")
     }),
 
-  getImageMember: protectedProcedure
+  getImageMember: projectScopedProcedure
     .input(getImageMemberInputSchema)
     .query(async ({ input, ctx }): Promise<ImageMember> => {
       return withErrorHandling(async () => {
@@ -726,7 +726,7 @@ export const imageRouter = {
       }, "get image member")
     }),
 
-  createImageMember: protectedProcedure
+  createImageMember: projectScopedProcedure
     .input(createImageMemberInputSchema)
     .mutation(async ({ input, ctx }): Promise<ImageMember> => {
       return withErrorHandling(async () => {
@@ -751,7 +751,7 @@ export const imageRouter = {
       }, "create image member")
     }),
 
-  updateImageMember: protectedProcedure
+  updateImageMember: projectScopedProcedure
     .input(updateImageMemberInputSchema)
     .mutation(async ({ input, ctx }): Promise<ImageMember> => {
       return withErrorHandling(async () => {
@@ -776,7 +776,7 @@ export const imageRouter = {
       }, "update image member")
     }),
 
-  deleteImageMember: protectedProcedure
+  deleteImageMember: projectScopedProcedure
     .input(deleteImageMemberInputSchema)
     .mutation(async ({ input, ctx }): Promise<boolean> => {
       return withErrorHandling(async () => {
@@ -796,7 +796,7 @@ export const imageRouter = {
       }, "delete image member")
     }),
 
-  deleteImages: protectedProcedure
+  deleteImages: projectScopedProcedure
     .input(deleteImagesInputSchema)
     .mutation(async ({ input, ctx }): Promise<BulkOperationResult> => {
       return withErrorHandling(async () => {
@@ -825,7 +825,7 @@ export const imageRouter = {
       }, "delete images")
     }),
 
-  activateImages: protectedProcedure
+  activateImages: projectScopedProcedure
     .input(activateImagesInputSchema)
     .mutation(async ({ input, ctx }): Promise<BulkOperationResult> => {
       return withErrorHandling(async () => {
@@ -850,7 +850,7 @@ export const imageRouter = {
       }, "activate images")
     }),
 
-  deactivateImages: protectedProcedure
+  deactivateImages: projectScopedProcedure
     .input(deactivateImagesInputSchema)
     .mutation(async ({ input, ctx }): Promise<BulkOperationResult> => {
       return withErrorHandling(async () => {
@@ -875,7 +875,7 @@ export const imageRouter = {
       }, "deactivate images")
     }),
 
-  listSharedImagesByMemberStatus: protectedProcedure
+  listSharedImagesByMemberStatus: projectScopedProcedure
     .input(
       z.object({
         memberStatus: memberStatusSchema,
@@ -983,7 +983,7 @@ export const imageRouter = {
       }, "list shared images by member status")
     }),
 
-  getImageMetadataExcludedProperties: protectedProcedure.query((): string[] => {
+  getImageMetadataExcludedProperties: projectScopedProcedure.query((): string[] => {
     const raw = process.env.IMAGE_METADATA_EXCLUDED_PROPERTIES ?? ""
     return raw
       .split(",")
