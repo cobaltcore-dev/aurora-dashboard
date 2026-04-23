@@ -93,9 +93,14 @@ export async function SignalOpenstackSession(
     return SignalOpenstackService(name, token!, { ...defaultHeaders, ...options, ...serviceDefaultOptions })
   }
 
+  function hasService(name: string) {
+    return token?.hasService(name) ?? false
+  }
+
   // expose the public functions
   return {
     service,
+    hasService,
     terminate,
     rescope,
     getToken,
