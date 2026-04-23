@@ -1376,9 +1376,17 @@ export const swiftRouter = {
         }
 
         if (!isComplete && !isError) {
-          await new Promise((resolve) => {
-            waitResolver = resolve
-          })
+          // Bounded wait: if no events arrive within 30 s the upload has likely
+          // already completed and the map entry was deleted before we subscribed.
+          // Break rather than hanging forever.
+          const timeout = new Promise((resolve) => setTimeout(resolve, 30_000))
+          await Promise.race([
+            new Promise((resolve) => {
+              waitResolver = resolve
+            }),
+            timeout,
+          ])
+          if (!isComplete && !isError && queue.length === 0) break
         }
       }
 
@@ -1582,9 +1590,17 @@ export const swiftRouter = {
         }
 
         if (!isComplete && !isError) {
-          await new Promise((resolve) => {
-            waitResolver = resolve
-          })
+          // Bounded wait: if no events arrive within 30 s the download has likely
+          // already completed and the map entry was deleted before we subscribed.
+          // Break rather than hanging forever.
+          const timeout = new Promise((resolve) => setTimeout(resolve, 30_000))
+          await Promise.race([
+            new Promise((resolve) => {
+              waitResolver = resolve
+            }),
+            timeout,
+          ])
+          if (!isComplete && !isError && queue.length === 0) break
         }
       }
 
