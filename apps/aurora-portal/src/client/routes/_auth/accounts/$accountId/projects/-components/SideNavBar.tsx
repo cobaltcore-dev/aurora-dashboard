@@ -35,8 +35,8 @@ export const SideNavBar = ({ accountId, projectId, availableServices }: SideNavB
           {
             service: "images",
             label: t`Images`,
-            to: "/accounts/$accountId/projects/$projectId/compute/images" as const,
-            params: { accountId, projectId },
+            to: "/projects/$projectId/compute/images" as const,
+            params: { projectId },
           },
         ]
       : []),
