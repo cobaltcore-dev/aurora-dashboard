@@ -1250,10 +1250,15 @@ export const swiftRouter = {
           throw new TRPCError({ code: "BAD_REQUEST", message: "x-upload-id header is required" })
         }
 
-        uploadProgressMap.set(uploadId, { uploaded: 0, total: validatedFileSize, percent: 0 })
+        // Scope the progress key to the project so cross-tenant observation is impossible
+        const uploadToken = ctx.openstack?.getToken()
+        const uploadProjectId = uploadToken?.tokenData.project?.id ?? "unknown"
+        const scopedUploadId = `${uploadProjectId}:${uploadId}`
+
+        uploadProgressMap.set(scopedUploadId, { uploaded: 0, total: validatedFileSize, percent: 0 })
 
         try {
-          const progress = uploadProgressMap.get(uploadId)!
+          const progress = uploadProgressMap.get(scopedUploadId)!
 
           // Transform stream that observes bytes as they flow through to Swift.
           // No buffering — chunks are passed unmodified; we only count bytes.
@@ -1263,7 +1268,7 @@ export const swiftRouter = {
               progress.uploaded += chunk.length
               progress.percent = progress.total > 0 ? Math.round((progress.uploaded / progress.total) * 100) : 0
 
-              uploadProgressEmitter.emit(`progress:${uploadId}`, { ...progress })
+              uploadProgressEmitter.emit(`progress:${scopedUploadId}`, { ...progress })
 
               // Yield to the event loop so subscriptions can flush between chunks
               await new Promise((resolve) => setTimeout(resolve, 0))
@@ -1286,18 +1291,18 @@ export const swiftRouter = {
             },
           })
 
-          uploadProgressEmitter.emit(`progress:${uploadId}:complete`)
+          uploadProgressEmitter.emit(`progress:${scopedUploadId}:complete`)
 
           return { success: true }
         } catch (error) {
-          uploadProgressEmitter.emit(`progress:${uploadId}:error`, error)
+          uploadProgressEmitter.emit(`progress:${scopedUploadId}:error`, error)
           throw mapErrorResponseToTRPCError(error as Parameters<typeof mapErrorResponseToTRPCError>[0], {
             operation: "upload object",
             container: container,
             object: object,
           })
         } finally {
-          uploadProgressMap.delete(uploadId)
+          uploadProgressMap.delete(scopedUploadId)
         }
       }, "upload object")
     }),
@@ -1313,11 +1318,17 @@ export const swiftRouter = {
    */
   watchUploadProgress: protectedProcedure.input(z.object({ uploadId: z.string() })).subscription(async function* ({
     input,
+    ctx,
   }) {
     const { uploadId } = input
 
+    // Scope to the project so a user can only observe their own transfers
+    const watchUploadToken = ctx.openstack?.getToken()
+    const watchUploadProjectId = watchUploadToken?.tokenData.project?.id ?? "unknown"
+    const scopedUploadId = `${watchUploadProjectId}:${uploadId}`
+
     // Emit current snapshot immediately so late subscribers don't miss state
-    const current = uploadProgressMap.get(uploadId)
+    const current = uploadProgressMap.get(scopedUploadId)
     if (current) {
       yield { ...current }
     }
@@ -1347,9 +1358,9 @@ export const swiftRouter = {
       waitResolver = null
     }
 
-    uploadProgressEmitter.on(`progress:${uploadId}`, onProgress)
-    uploadProgressEmitter.on(`progress:${uploadId}:complete`, onComplete)
-    uploadProgressEmitter.on(`progress:${uploadId}:error`, onError)
+    uploadProgressEmitter.on(`progress:${scopedUploadId}`, onProgress)
+    uploadProgressEmitter.on(`progress:${scopedUploadId}:complete`, onComplete)
+    uploadProgressEmitter.on(`progress:${scopedUploadId}:error`, onError)
 
     try {
       while (!isComplete && !isError) {
@@ -1373,9 +1384,9 @@ export const swiftRouter = {
         throw caughtError
       }
     } finally {
-      uploadProgressEmitter.off(`progress:${uploadId}`, onProgress)
-      uploadProgressEmitter.off(`progress:${uploadId}:complete`, onComplete)
-      uploadProgressEmitter.off(`progress:${uploadId}:error`, onError)
+      uploadProgressEmitter.off(`progress:${scopedUploadId}`, onProgress)
+      uploadProgressEmitter.off(`progress:${scopedUploadId}:complete`, onComplete)
+      uploadProgressEmitter.off(`progress:${scopedUploadId}:error`, onError)
     }
   }),
 
@@ -1447,7 +1458,12 @@ export const swiftRouter = {
       throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Swift response has no body" })
     }
 
-    downloadProgressMap.set(downloadId, { downloaded: 0, total, percent: 0 })
+    // Scope to the project so cross-tenant observation is impossible
+    const downloadToken = ctx.openstack?.getToken()
+    const downloadProjectId = downloadToken?.tokenData.project?.id ?? "unknown"
+    const scopedDownloadId = `${downloadProjectId}:${downloadId}`
+
+    downloadProgressMap.set(scopedDownloadId, { downloaded: 0, total, percent: 0 })
 
     const reader = response.body.getReader()
     let isFirst = true
@@ -1460,10 +1476,10 @@ export const swiftRouter = {
 
         downloaded += value.byteLength
 
-        const progress = downloadProgressMap.get(downloadId)!
+        const progress = downloadProgressMap.get(scopedDownloadId)!
         progress.downloaded = downloaded
         progress.percent = total > 0 ? Math.round((downloaded / total) * 100) : 0
-        downloadProgressEmitter.emit(`progress:${downloadId}`, { ...progress })
+        downloadProgressEmitter.emit(`progress:${scopedDownloadId}`, { ...progress })
 
         // Yield to the event loop so subscriptions can flush between chunks
         await new Promise((resolve) => setTimeout(resolve, 0))
@@ -1478,16 +1494,16 @@ export const swiftRouter = {
         isFirst = false
       }
 
-      downloadProgressEmitter.emit(`progress:${downloadId}:complete`)
+      downloadProgressEmitter.emit(`progress:${scopedDownloadId}:complete`)
     } catch (error) {
-      downloadProgressEmitter.emit(`progress:${downloadId}:error`, error)
+      downloadProgressEmitter.emit(`progress:${scopedDownloadId}:error`, error)
       throw mapErrorResponseToTRPCError(error as Parameters<typeof mapErrorResponseToTRPCError>[0], {
         operation: "download object",
         container,
         object,
       })
     } finally {
-      downloadProgressMap.delete(downloadId)
+      downloadProgressMap.delete(scopedDownloadId)
       await reader.cancel()
       reader.releaseLock()
     }
@@ -1506,11 +1522,17 @@ export const swiftRouter = {
    */
   watchDownloadProgress: protectedProcedure.input(z.object({ downloadId: z.string() })).subscription(async function* ({
     input,
+    ctx,
   }) {
     const { downloadId } = input
 
+    // Scope to the project so a user can only observe their own transfers
+    const watchDownloadToken = ctx.openstack?.getToken()
+    const watchDownloadProjectId = watchDownloadToken?.tokenData.project?.id ?? "unknown"
+    const scopedDownloadId = `${watchDownloadProjectId}:${downloadId}`
+
     // Yield current snapshot immediately for late subscribers
-    const current = downloadProgressMap.get(downloadId)
+    const current = downloadProgressMap.get(scopedDownloadId)
     if (current) {
       yield { ...current }
     }
@@ -1540,9 +1562,9 @@ export const swiftRouter = {
       waitResolver = null
     }
 
-    downloadProgressEmitter.on(`progress:${downloadId}`, onProgress)
-    downloadProgressEmitter.on(`progress:${downloadId}:complete`, onComplete)
-    downloadProgressEmitter.on(`progress:${downloadId}:error`, onError)
+    downloadProgressEmitter.on(`progress:${scopedDownloadId}`, onProgress)
+    downloadProgressEmitter.on(`progress:${scopedDownloadId}:complete`, onComplete)
+    downloadProgressEmitter.on(`progress:${scopedDownloadId}:error`, onError)
 
     try {
       while (!isComplete && !isError) {
@@ -1566,9 +1588,9 @@ export const swiftRouter = {
         throw caughtError
       }
     } finally {
-      downloadProgressEmitter.off(`progress:${downloadId}`, onProgress)
-      downloadProgressEmitter.off(`progress:${downloadId}:complete`, onComplete)
-      downloadProgressEmitter.off(`progress:${downloadId}:error`, onError)
+      downloadProgressEmitter.off(`progress:${scopedDownloadId}`, onProgress)
+      downloadProgressEmitter.off(`progress:${scopedDownloadId}:complete`, onComplete)
+      downloadProgressEmitter.off(`progress:${scopedDownloadId}:error`, onError)
     }
   }),
 }

@@ -133,6 +133,22 @@ const createMockContext = (shouldFailAuth = false, shouldFailSwift = false) => {
     terminateSession: vi.fn().mockResolvedValue({}),
     openstack: {
       service: vi.fn().mockReturnValue(shouldFailSwift ? null : mockSwift),
+      getToken: vi.fn().mockReturnValue({
+        tokenData: {
+          project: { id: "test-project-id" },
+          user: {
+            id: "test-user-id",
+            domain: { id: "default", name: "Default" },
+            name: "test-user",
+            password_expires_at: "",
+          },
+          expires_at: "",
+          issued_at: "",
+          methods: [],
+          roles: [],
+          system: { all: false },
+        },
+      }),
     },
     rescopeSession: vi.fn().mockResolvedValue({}),
     mockSwift,
