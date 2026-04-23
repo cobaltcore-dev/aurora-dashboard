@@ -21,8 +21,8 @@ export const ListNetworksQuerySchema = z.object({
   name: z.string().optional(),
   project_id: z.string().optional(),
   "provider:network_type": z.string().optional(),
-  "provider:physical_network": z.string().optional(),
-  "provider:segmentation_id": z.number().int().optional(),
+  "provider:physical_network": z.string().nullable().optional(),
+  "provider:segmentation_id": z.number().int().nullable().optional(),
   revision_number: z.number().int().optional(),
   "router:external": z.boolean().optional(),
   shared: z.boolean().optional(),
@@ -71,8 +71,8 @@ export const ListDnsDomainsQuerySchema = z.object({
  */
 const SegmentSchema = z.object({
   "provider:network_type": z.string(),
-  "provider:physical_network": z.string(),
-  "provider:segmentation_id": z.number().int(),
+  "provider:physical_network": z.string().nullable().optional(),
+  "provider:segmentation_id": z.number().int().nullable().optional(),
 })
 
 /**
@@ -93,16 +93,16 @@ export const NetworkSchema = z.object({
   created_at: ISO8601TimestampSchema,
   dns_domain: z.string().optional(),
   id: z.string(),
-  ipv4_address_scope: z.string().optional(),
-  ipv6_address_scope: z.string().optional(),
+  ipv4_address_scope: z.string().nullable().optional(),
+  ipv6_address_scope: z.string().nullable().optional(),
   l2_adjacency: z.boolean().optional(),
   mtu: z.number().int(),
   name: z.string(),
-  port_security_enabled: z.boolean(),
+  port_security_enabled: z.boolean().optional(),
   project_id: z.string(),
   "provider:network_type": z.string().optional(),
-  "provider:physical_network": z.string().optional(),
-  "provider:segmentation_id": z.number().int().optional(),
+  "provider:physical_network": z.string().nullable().optional(),
+  "provider:segmentation_id": z.number().int().nullable().optional(),
   qos_policy_id: z.string().optional(),
   revision_number: z.number().int().optional(),
   "router:external": z.boolean(),

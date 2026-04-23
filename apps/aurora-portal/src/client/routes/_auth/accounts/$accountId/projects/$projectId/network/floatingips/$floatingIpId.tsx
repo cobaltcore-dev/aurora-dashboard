@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate, useParams } from "@tanstack/react-router"
-import type { RouteInfo } from "@/client/routes/routeInfo"
 import { useLingui, Trans } from "@lingui/react/macro"
-import { Breadcrumb, BreadcrumbItem, Button, Spinner, Stack } from "@cloudoperators/juno-ui-components"
+import { Button, Spinner, Stack } from "@cloudoperators/juno-ui-components"
+import type { RouteInfo } from "@/client/routes/routeInfo"
 import { trpcReact } from "@/client/trpcClient"
 import { FloatingIpDetailsView } from "./-components/-details/FloatingIpDetailsView"
 
@@ -19,13 +19,6 @@ function RouteComponent() {
     from: "/_auth/accounts/$accountId/projects/$projectId/network/floatingips/$floatingIpId",
   })
   const { setPageTitle } = Route.useRouteContext()
-
-  const navigateToProjectNetwork = () => {
-    navigate({
-      to: "/accounts/$accountId/projects/$projectId/network/overview",
-      params: { accountId, projectId },
-    })
-  }
 
   const navigateToFloatingIps = () => {
     navigate({
@@ -80,16 +73,6 @@ function RouteComponent() {
     )
   }
 
-  setPageTitle(floatingIp.floating_ip_address || floatingIpId)
-  return (
-    <Stack direction="vertical">
-      <Breadcrumb className="my-6">
-        <BreadcrumbItem icon="home" label={t`Overview`} onClick={navigateToProjectNetwork} />
-        <BreadcrumbItem label={t`Floating IPs`} onClick={navigateToFloatingIps} />
-        <BreadcrumbItem active label={floatingIpId} />
-      </Breadcrumb>
-
-      <FloatingIpDetailsView floatingIp={floatingIp} />
-    </Stack>
-  )
+  setPageTitle(`IP: ${floatingIp.floating_ip_address || floatingIpId}`)
+  return <FloatingIpDetailsView floatingIp={floatingIp} />
 }

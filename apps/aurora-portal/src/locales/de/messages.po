@@ -1021,8 +1021,8 @@ msgstr "Fehler beim Hochladen der Datei \"{fileName}\": "
 msgid "False"
 msgstr "False"
 
-msgid "Filters"
-msgstr "Filter"
+msgid "Filter by"
+msgstr "Filtern nach"
 
 msgid "Find detailed guides and references in our docs."
 msgstr "Finden Sie detaillierte Anleitungen und Referenzen in unserer Dokumentation."
@@ -1284,9 +1284,6 @@ msgstr "Ungültiger Wert für die Einstellung des öffentlichen Flavors."
 
 msgid "IP Version"
 msgstr "IP-Version"
-
-msgid "IP:"
-msgstr "IP:"
 
 msgid "IPv4"
 msgstr "IPv4"

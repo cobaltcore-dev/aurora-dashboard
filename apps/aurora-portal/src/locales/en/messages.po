@@ -1021,8 +1021,8 @@ msgstr "Failed to upload file \"{fileName}\": "
 msgid "False"
 msgstr "False"
 
-msgid "Filters"
-msgstr "Filters"
+msgid "Filter by"
+msgstr "Filter by"
 
 msgid "Find detailed guides and references in our docs."
 msgstr "Find detailed guides and references in our docs."
@@ -1284,9 +1284,6 @@ msgstr "Invalid value for public flavor setting."
 
 msgid "IP Version"
 msgstr "IP Version"
-
-msgid "IP:"
-msgstr "IP:"
 
 msgid "IPv4"
 msgstr "IPv4"
