@@ -1744,9 +1744,8 @@ msgstr "Object versioning"
 msgid "Object was copied but could not be deleted from the source: {deleteErrorMessage}"
 msgstr "Object was copied but could not be deleted from the source: {deleteErrorMessage}"
 
-#. placeholder {0}: selectedFile.name
-msgid "Object will be uploaded as: <0>{currentPrefix}{0}</0>"
-msgstr "Object will be uploaded as: <0>{currentPrefix}{0}</0>"
+msgid "Object will be uploaded as: <0>{selectedObjectName}</0>"
+msgstr "Object will be uploaded as: <0>{selectedObjectName}</0>"
 
 msgid "Objects"
 msgstr "Objects"

@@ -1744,8 +1744,7 @@ msgstr "Objekt-Versionierung"
 msgid "Object was copied but could not be deleted from the source: {deleteErrorMessage}"
 msgstr "Objekt wurde kopiert, konnte aber nicht von der Quelle gelöscht werden: {deleteErrorMessage}"
 
-#. placeholder {0}: selectedFile.name
-msgid "Object will be uploaded as: <0>{currentPrefix}{0}</0>"
+msgid "Object will be uploaded as: <0>{selectedObjectName}</0>"
 msgstr ""
 
 msgid "Objects"

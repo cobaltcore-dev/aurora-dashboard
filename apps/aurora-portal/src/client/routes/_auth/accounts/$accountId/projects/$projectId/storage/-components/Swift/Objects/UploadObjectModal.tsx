@@ -144,6 +144,7 @@ export const UploadObjectModal = ({
   if (!isOpen) return null
 
   const parentPath = currentPrefix || "/"
+  const selectedObjectName = selectedFile ? `${currentPrefix}${selectedFile.name}` : ""
 
   return (
     <Modal
@@ -259,11 +260,7 @@ export const UploadObjectModal = ({
         {selectedFile && !isPending && (
           <Message variant="info">
             <Trans>
-              Object will be uploaded as:{" "}
-              <span className="font-mono font-semibold">
-                {currentPrefix}
-                {selectedFile.name}
-              </span>
+              Object will be uploaded as: <span className="font-mono font-semibold">{selectedObjectName}</span>
             </Trans>
           </Message>
         )}
