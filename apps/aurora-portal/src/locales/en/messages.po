@@ -34,6 +34,9 @@ msgstr "{allContainersCount} containers"
 msgid "{allCount} items"
 msgstr "{allCount} items"
 
+msgid "{customMinutes} minutes"
+msgstr "{customMinutes} minutes"
+
 msgid "{progressPct}%"
 msgstr "{progressPct}%"
 
@@ -58,6 +61,9 @@ msgstr "<0>Enhanced Productivity:</0> By reducing operational complexity, Aurora
 msgid "<0>Future-Ready:</0> Aurora is designed to evolve with the latest trends in cloud technology, ensuring your solution is always cutting-edge."
 msgstr "<0>Future-Ready:</0> Aurora is designed to evolve with the latest trends in cloud technology, ensuring your solution is always cutting-edge."
 
+msgid "<0>No Temp URL key configured.</0> A temporary URL key must be set at the account or container level before temporary URLs can be generated. Contact your administrator to configure <1>X-Account-Meta-Temp-URL-Key</1> or <2>X-Container-Meta-Temp-URL-Key</2>."
+msgstr "<0>No Temp URL key configured.</0> A temporary URL key must be set at the account or container level before temporary URLs can be generated. Contact your administrator to configure <1>X-Account-Meta-Temp-URL-Key</1> or <2>X-Container-Meta-Temp-URL-Key</2>."
+
 msgid "<0>Optimized Scalability:</0> Built for businesses of all sizes, Aurora grows with you, supporting simple environments and intricate multi-cloud setups alike."
 msgstr "<0>Optimized Scalability:</0> Built for businesses of all sizes, Aurora grows with you, supporting simple environments and intricate multi-cloud setups alike."
 
@@ -67,6 +73,18 @@ msgstr "<0>Secure & Reliable:</0> Your data and operations are safeguarded with 
 msgid "<0>Unified Cloud Management:</0> Consolidates all your cloud assets into one intuitive interface."
 msgstr "<0>Unified Cloud Management:</0> Consolidates all your cloud assets into one intuitive interface."
 
+msgid "1 hour"
+msgstr "1 hour"
+
+msgid "1 minute"
+msgstr "1 minute"
+
+msgid "24 hours"
+msgstr "24 hours"
+
+msgid "7 days"
+msgstr "7 days"
+
 msgid "A flavor with this ID or name already exists. Please use different values."
 msgstr "A flavor with this ID or name already exists. Please use different values."
 
@@ -75,6 +93,9 @@ msgstr "A folder with this name already exists"
 
 msgid "A property with this key already exists"
 msgstr "A property with this key already exists"
+
+msgid "A temporary URL grants time-limited read access to this object without requiring authentication. Anyone with the link can download it until it expires."
+msgstr "A temporary URL grants time-limited read access to this object without requiring authentication. Anyone with the link can download it until it expires."
 
 msgid "About Aurora Dashboard"
 msgstr "About Aurora Dashboard"
@@ -295,6 +316,9 @@ msgstr "Clear all"
 msgid "Click to upload"
 msgstr "Click to upload"
 
+msgid "Close"
+msgstr "Close"
+
 msgid "Community"
 msgstr "Community"
 
@@ -400,6 +424,9 @@ msgstr "Copy metadata"
 msgid "Copy object:"
 msgstr "Copy object:"
 
+msgid "Copy URL"
+msgstr "Copy URL"
+
 msgid "Copying object..."
 msgstr "Copying object..."
 
@@ -486,6 +513,12 @@ msgstr "Creating security group rule..."
 
 msgid "Creating security group..."
 msgstr "Creating security group..."
+
+msgid "Custom"
+msgstr "Custom"
+
+msgid "Custom duration (minutes)"
+msgstr "Custom duration (minutes)"
 
 msgid "Custom Properties / Metadata"
 msgstr "Custom Properties / Metadata"
@@ -790,6 +823,12 @@ msgstr "Error loading security groups"
 msgid "Ethertype"
 msgstr "Ethertype"
 
+msgid "Expires in"
+msgstr "Expires in"
+
+msgid "Expires in {selectedPresetLabel} — at {expiresAtFormatted}"
+msgstr "Expires in {selectedPresetLabel} — at {expiresAtFormatted}"
+
 msgid "External Network"
 msgstr "External Network"
 
@@ -816,6 +855,9 @@ msgstr "Failed to Copy Object"
 
 msgid "Failed to copy object: {errorMessage}"
 msgstr "Failed to copy object: {errorMessage}"
+
+msgid "Failed to copy the temporary URL to the clipboard"
+msgstr "Failed to copy the temporary URL to the clipboard"
 
 msgid "Failed to Create Container"
 msgstr "Failed to Create Container"
@@ -882,6 +924,9 @@ msgstr "Failed to fetch flavor access information. Please try again."
 
 msgid "Failed to fetch flavors from server."
 msgstr "Failed to fetch flavors from server."
+
+msgid "Failed to generate temporary URL: {generalError}"
+msgstr "Failed to generate temporary URL: {generalError}"
 
 msgid "Failed to load container ACLs: {errorMessage}"
 msgstr "Failed to load container ACLs: {errorMessage}"
@@ -1053,6 +1098,15 @@ msgstr "Full lifecycle management of Floating IPs, including attachment, port as
 
 msgid "General Image Data"
 msgstr "General Image Data"
+
+msgid "Generate URL"
+msgstr "Generate URL"
+
+msgid "Generating temporary URL..."
+msgstr "Generating temporary URL..."
+
+msgid "Generating..."
+msgstr "Generating..."
 
 msgid "Get Involved"
 msgstr "Get Involved"
@@ -1681,6 +1735,9 @@ msgstr "Pending"
 msgid "Pending file upload..."
 msgstr "Pending file upload..."
 
+msgid "Please enter a valid number of minutes greater than 0"
+msgstr "Please enter a valid number of minutes greater than 0"
+
 msgid "Please fix the validation errors below."
 msgstr "Please fix the validation errors below."
 
@@ -2020,6 +2077,12 @@ msgstr "Set to \"Shared\""
 msgid "Share"
 msgstr "Share"
 
+msgid "Share (Temporary URL)"
+msgstr "Share (Temporary URL)"
+
+msgid "Share object:"
+msgstr "Share object:"
+
 msgid "Share Security Group"
 msgstr "Share Security Group"
 
@@ -2145,6 +2208,12 @@ msgstr "Target project ID is required"
 
 msgid "tcp, udp, icmp, or protocol number"
 msgstr "tcp, udp, icmp, or protocol number"
+
+msgid "Temporary URL"
+msgstr "Temporary URL"
+
+msgid "Temporary URL for \"{objectName}\" was copied to clipboard."
+msgstr "Temporary URL for \"{objectName}\" was copied to clipboard."
 
 msgid "Temporary URLs"
 msgstr "Temporary URLs"
@@ -2421,6 +2490,9 @@ msgstr "Updating Floating IP..."
 
 msgid "Updating security group..."
 msgstr "Updating security group..."
+
+msgid "URL Copied"
+msgstr "URL Copied"
 
 msgid "URL for public access"
 msgstr "URL for public access"

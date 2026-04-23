@@ -1145,20 +1145,55 @@ export const swiftRouter = {
 
         validateSwiftService(swift)
 
-        // Get account or container metadata to retrieve temp URL key
-        const accountPath = account || ""
-        const metadataUrl = accountPath
-          ? `${accountPath}/${encodeURIComponent(container)}`
-          : encodeURIComponent(container)
+        // Resolve the Swift base URL with any account override applied first.
+        // This must happen before the HEAD requests so that the key lookup
+        // hits the correct account/container — passing bare accountPath as a
+        // relative path would cause the SDK to append it to the already
+        // account-scoped endpoint, hitting the wrong account.
+        const endpoints = swift.availableEndpoints()
+        const publicEndpoint = endpoints?.find((ep) => ep.interface === "public")
+        if (!publicEndpoint?.url) {
+          throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Swift public endpoint not found" })
+        }
 
-        const metadataResponse = await swift.head(metadataUrl).catch((error) => {
+        const tempUrlBase = new URL(publicEndpoint.url)
+        if (account) {
+          const segments = tempUrlBase.pathname.split("/").filter(Boolean)
+          segments[segments.length - 1] = account
+          tempUrlBase.pathname = `/${segments.join("/")}`
+        }
+        const swiftBaseUrl = tempUrlBase.toString()
+        // swiftBasePath is the pathname without trailing slash, decoded so that
+        // HMAC signing uses plain unencoded path segments as Swift expects.
+        // e.g. "/v1/AUTH_abc" — used for both HEAD URLs and HMAC path.
+        const swiftBasePath = decodeURIComponent(tempUrlBase.pathname).replace(/\/$/, "")
+
+        // Get account or container metadata to retrieve temp URL key.
+        // HEAD /container returns only container-level headers — account-level
+        // headers are only present on HEAD / (account root), so we need two
+        // separate requests when the container key is absent.
+        // Use absolute paths derived from swiftBasePath so the account override
+        // is correctly reflected in the request URL.
+        const containerUrl = `${swiftBasePath}/${encodeURIComponent(container)}`
+
+        const containerMetaResponse = await swift.head(containerUrl).catch((error) => {
           throw mapErrorResponseToTRPCError(error, { operation: "get temp URL key", container })
         })
 
-        // Try container-level key first, then account-level
-        const tempUrlKey =
-          metadataResponse.headers.get("x-container-meta-temp-url-key") ||
-          metadataResponse.headers.get("x-account-meta-temp-url-key")
+        // Helper: returns the primary key, falling back to the secondary key (-2).
+        // Swift supports two keys per container/account for zero-downtime rotation.
+        const getTempUrlKey = (headers: Headers, scope: "container" | "account") =>
+          headers.get(`x-${scope}-meta-temp-url-key`) ?? headers.get(`x-${scope}-meta-temp-url-key-2`)
+
+        let tempUrlKey = getTempUrlKey(containerMetaResponse.headers, "container")
+
+        // Fall back to account-level key — HEAD the account root
+        if (!tempUrlKey) {
+          const accountMetaResponse = await swift.head(swiftBasePath).catch((error) => {
+            throw mapErrorResponseToTRPCError(error, { operation: "get account temp URL key" })
+          })
+          tempUrlKey = getTempUrlKey(accountMetaResponse.headers, "account")
+        }
 
         if (!tempUrlKey) {
           throw new TRPCError({
@@ -1171,21 +1206,16 @@ export const swiftRouter = {
         const now = Math.floor(Date.now() / 1000)
         const expiresAt = now + expiresIn
 
-        // Build the path for signature calculation
-        const objectPath = accountPath
-          ? `/${accountPath}/${container}/${object}`
-          : `/v1/AUTH_${account || ""}/${container}/${object}`
+        // Derive the object path for HMAC signing from the (possibly overridden) base URL.
+        // Swift verifies the signature against the decoded URL path, so this string
+        // must contain no percent-encoding — plain slash-separated segments only.
+        const objectPath = `${swiftBasePath}/${container}/${object}`
 
         // Generate signature
         const signature = await generateTempUrlSignature(tempUrlKey, method, expiresAt, objectPath)
 
-        // Get Swift base URL from the service endpoints
-        const endpoints = swift.availableEndpoints()
-        const publicEndpoint = endpoints?.find((ep) => ep.interface === "public")
-        const swiftBaseUrl = publicEndpoint?.url || ""
-
         // Construct the temporary URL
-        const tempUrl = constructTempUrl(swiftBaseUrl, accountPath || container, object, signature, expiresAt, filename)
+        const tempUrl = constructTempUrl(swiftBaseUrl, container, object, signature, expiresAt, filename)
 
         return {
           url: tempUrl,

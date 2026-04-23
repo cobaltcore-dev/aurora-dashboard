@@ -34,6 +34,9 @@ msgstr ""
 msgid "{allCount} items"
 msgstr ""
 
+msgid "{customMinutes} minutes"
+msgstr "{customMinutes} Minuten"
+
 msgid "{progressPct}%"
 msgstr ""
 
@@ -58,6 +61,9 @@ msgstr ""
 msgid "<0>Future-Ready:</0> Aurora is designed to evolve with the latest trends in cloud technology, ensuring your solution is always cutting-edge."
 msgstr ""
 
+msgid "<0>No Temp URL key configured.</0> A temporary URL key must be set at the account or container level before temporary URLs can be generated. Contact your administrator to configure <1>X-Account-Meta-Temp-URL-Key</1> or <2>X-Container-Meta-Temp-URL-Key</2>."
+msgstr "<0>Kein Temp-URL-Schlüssel konfiguriert.</0> Ein temporärer URL-Schlüssel muss auf Account- oder Container-Ebene gesetzt werden, bevor temporäre URLs generiert werden können. Wenden Sie sich an Ihren Administrator, um <1>X-Account-Meta-Temp-URL-Key</1> oder <2>X-Container-Meta-Temp-URL-Key</2> zu konfigurieren."
+
 msgid "<0>Optimized Scalability:</0> Built for businesses of all sizes, Aurora grows with you, supporting simple environments and intricate multi-cloud setups alike."
 msgstr ""
 
@@ -66,6 +72,18 @@ msgstr ""
 
 msgid "<0>Unified Cloud Management:</0> Consolidates all your cloud assets into one intuitive interface."
 msgstr ""
+
+msgid "1 hour"
+msgstr "1 Stunde"
+
+msgid "1 minute"
+msgstr "1 Minute"
+
+msgid "24 hours"
+msgstr "24 Stunden"
+
+msgid "7 days"
+msgstr "7 Tage"
 
 msgid "A flavor with this ID or name already exists. Please use different values."
 msgstr ""
@@ -76,6 +94,9 @@ msgstr ""
 msgid "A property with this key already exists"
 msgstr ""
 
+msgid "A temporary URL grants time-limited read access to this object without requiring authentication. Anyone with the link can download it until it expires."
+msgstr "Eine temporäre URL gewährt zeitlich begrenzten Lesezugriff auf dieses Objekt ohne Authentifizierung. Jeder mit dem Link kann es herunterladen, bis es abläuft."
+
 msgid "About Aurora Dashboard"
 msgstr ""
 
@@ -83,10 +104,10 @@ msgid "Accept"
 msgstr ""
 
 msgid "Accept access to image"
-msgstr ""
+msgstr "Zugriff auf Image akzeptieren"
 
 msgid "Accept Shared Image"
-msgstr ""
+msgstr "Geteiltes Image akzeptieren"
 
 msgid "Accepted"
 msgstr ""
@@ -295,11 +316,14 @@ msgstr ""
 msgid "Click to upload"
 msgstr ""
 
+msgid "Close"
+msgstr "Schließen"
+
 msgid "Community"
 msgstr ""
 
 msgid "Compute"
-msgstr ""
+msgstr "Compute"
 
 msgid "Compute Overview"
 msgstr ""
@@ -400,6 +424,9 @@ msgstr ""
 msgid "Copy object:"
 msgstr ""
 
+msgid "Copy URL"
+msgstr "URL kopieren"
+
 msgid "Copying object..."
 msgstr ""
 
@@ -486,6 +513,12 @@ msgstr ""
 
 msgid "Creating security group..."
 msgstr ""
+
+msgid "Custom"
+msgstr "Benutzerdefiniert"
+
+msgid "Custom duration (minutes)"
+msgstr "Benutzerdefinierte Dauer (Minuten)"
 
 msgid "Custom Properties / Metadata"
 msgstr ""
@@ -790,6 +823,12 @@ msgstr ""
 msgid "Ethertype"
 msgstr ""
 
+msgid "Expires in"
+msgstr "Läuft ab in"
+
+msgid "Expires in {selectedPresetLabel} — at {expiresAtFormatted}"
+msgstr "Läuft ab in {selectedPresetLabel} — um {expiresAtFormatted}"
+
 msgid "External Network"
 msgstr ""
 
@@ -816,6 +855,9 @@ msgstr ""
 
 msgid "Failed to copy object: {errorMessage}"
 msgstr ""
+
+msgid "Failed to copy the temporary URL to the clipboard"
+msgstr "Fehler beim Kopieren der temporären URL in die Zwischenablage"
 
 msgid "Failed to Create Container"
 msgstr ""
@@ -882,6 +924,9 @@ msgstr ""
 
 msgid "Failed to fetch flavors from server."
 msgstr ""
+
+msgid "Failed to generate temporary URL: {generalError}"
+msgstr "Fehler beim Generieren der temporären URL: {generalError}"
 
 msgid "Failed to load container ACLs: {errorMessage}"
 msgstr ""
@@ -1054,6 +1099,15 @@ msgstr ""
 msgid "General Image Data"
 msgstr ""
 
+msgid "Generate URL"
+msgstr "URL generieren"
+
+msgid "Generating temporary URL..."
+msgstr "Temporäre URL wird generiert..."
+
+msgid "Generating..."
+msgstr "Wird generiert..."
+
 msgid "Get Involved"
 msgstr ""
 
@@ -1220,10 +1274,10 @@ msgid "IPv6"
 msgstr ""
 
 msgid "It will appear in your image list."
-msgstr ""
+msgstr "Es wird in Ihrer Image-Liste angezeigt."
 
 msgid "It will be removed from your image list."
-msgstr ""
+msgstr "Es wird aus Ihrer Image-Liste entfernt."
 
 msgid "Keep segments (delete manifest only)"
 msgstr ""
@@ -1481,7 +1535,7 @@ msgid "Need help?"
 msgstr ""
 
 msgid "Network"
-msgstr ""
+msgstr "Netzwerk"
 
 msgid "Network & Routing"
 msgstr ""
@@ -1681,6 +1735,9 @@ msgstr ""
 msgid "Pending file upload..."
 msgstr ""
 
+msgid "Please enter a valid number of minutes greater than 0"
+msgstr "Bitte geben Sie eine gültige Anzahl von Minuten größer als 0 ein"
+
 msgid "Please fix the validation errors below."
 msgstr ""
 
@@ -1808,10 +1865,10 @@ msgid "Reject"
 msgstr ""
 
 msgid "Reject access to image"
-msgstr ""
+msgstr "Zugriff auf Image ablehnen"
 
 msgid "Reject Shared Image"
-msgstr ""
+msgstr "Geteiltes Image ablehnen"
 
 msgid "Rejected"
 msgstr ""
@@ -2020,6 +2077,12 @@ msgstr ""
 msgid "Share"
 msgstr ""
 
+msgid "Share (Temporary URL)"
+msgstr "Teilen (Temporäre URL)"
+
+msgid "Share object:"
+msgstr "Objekt teilen:"
+
 msgid "Share Security Group"
 msgstr ""
 
@@ -2084,7 +2147,7 @@ msgid "Status"
 msgstr ""
 
 msgid "Storage"
-msgstr ""
+msgstr "Storage"
 
 msgid "Storage container not found"
 msgstr ""
@@ -2145,6 +2208,12 @@ msgstr ""
 
 msgid "tcp, udp, icmp, or protocol number"
 msgstr ""
+
+msgid "Temporary URL"
+msgstr "Temporäre URL"
+
+msgid "Temporary URL for \"{objectName}\" was copied to clipboard."
+msgstr "Temporäre URL für \"{objectName}\" wurde in die Zwischenablage kopiert."
 
 msgid "Temporary URLs"
 msgstr ""
@@ -2421,6 +2490,9 @@ msgstr ""
 
 msgid "Updating security group..."
 msgstr ""
+
+msgid "URL Copied"
+msgstr "URL kopiert"
 
 msgid "URL for public access"
 msgstr ""

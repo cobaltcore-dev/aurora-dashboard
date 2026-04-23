@@ -19,6 +19,7 @@ import { DeleteFolderModal } from "./DeleteFolderModal"
 import { DeleteObjectModal } from "./DeleteObjectModal"
 import { CopyObjectModal } from "./CopyObjectModal"
 import { MoveRenameObjectModal } from "./MoveRenameObjectModal"
+import { GenerateTempUrlModal } from "./GenerateTempUrlModal"
 
 // MIME types natively previewable by all modern browsers.
 // Excludes types that require plugins or have inconsistent support.
@@ -82,6 +83,7 @@ interface ObjectsTableViewProps {
   onCopyObjectError: (objectName: string, errorMessage: string) => void
   onMoveObjectSuccess: (objectName: string, targetContainer: string, targetPath: string) => void
   onMoveObjectError: (objectName: string, errorMessage: string) => void
+  onTempUrlCopySuccess: (objectName: string) => void
 }
 
 export const ObjectsTableView = ({
@@ -99,6 +101,7 @@ export const ObjectsTableView = ({
   onCopyObjectError,
   onMoveObjectSuccess,
   onMoveObjectError,
+  onTempUrlCopySuccess,
 }: ObjectsTableViewProps) => {
   const { t } = useLingui()
   const parentRef = useRef<HTMLDivElement>(null)
@@ -114,6 +117,7 @@ export const ObjectsTableView = ({
   const [deleteObjectTarget, setDeleteObjectTarget] = useState<ObjectRow | null>(null)
   const [copyObjectTarget, setCopyObjectTarget] = useState<ObjectRow | null>(null)
   const [moveRenameObjectTarget, setMoveRenameObjectTarget] = useState<ObjectRow | null>(null)
+  const [tempUrlTarget, setTempUrlTarget] = useState<ObjectRow | null>(null)
   const [downloadingRow, setDownloadingRow] = useState<ObjectRow | null>(null)
   const [downloadProgress, setDownloadProgress] = useState<{ downloaded: number; total: number } | null>(null)
   const [previewingRow, setPreviewingRow] = useState<ObjectRow | null>(null)
@@ -437,6 +441,11 @@ export const ObjectsTableView = ({
                               data-testid={`move-rename-action-${row.name}`}
                             />
                             <PopupMenuItem
+                              label={t`Share (Temporary URL)`}
+                              onClick={() => setTempUrlTarget(row as ObjectRow)}
+                              data-testid={`temp-url-action-${row.name}`}
+                            />
+                            <PopupMenuItem
                               label={t`Delete`}
                               onClick={() => setDeleteObjectTarget(row as ObjectRow)}
                               data-testid={`delete-action-${row.name}`}
@@ -488,6 +497,14 @@ export const ObjectsTableView = ({
         onClose={() => setMoveRenameObjectTarget(null)}
         onSuccess={onMoveObjectSuccess}
         onError={onMoveObjectError}
+      />
+
+      <GenerateTempUrlModal
+        isOpen={tempUrlTarget !== null}
+        object={tempUrlTarget}
+        account={account}
+        onClose={() => setTempUrlTarget(null)}
+        onCopySuccess={onTempUrlCopySuccess}
       />
     </>
   )
