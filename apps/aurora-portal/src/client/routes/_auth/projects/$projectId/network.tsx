@@ -1,7 +1,7 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router"
 import { getServiceIndex } from "@/server/Authentication/helpers"
 
-export const Route = createFileRoute("/_auth/accounts/$accountId/projects/$projectId/network")({
+export const Route = createFileRoute("/_auth/projects/$projectId/network")({
   loader: async ({ context }) => {
     const { trpcClient } = context
     const availableServices = await trpcClient?.auth.getAvailableServices.query()
@@ -9,14 +9,14 @@ export const Route = createFileRoute("/_auth/accounts/$accountId/projects/$proje
   },
   beforeLoad: async ({ context, params }) => {
     const { trpcClient } = context
-    const { accountId } = params
+    const { projectId } = params
     const availableServices = await trpcClient?.auth.getAvailableServices.query()
     const serviceIndex = getServiceIndex(availableServices!)
 
     if (!serviceIndex["network"]) {
       throw redirect({
-        to: "/accounts/$accountId/projects",
-        params: { accountId },
+        to: "/projects/$projectId",
+        params: { projectId },
       })
     }
   },
