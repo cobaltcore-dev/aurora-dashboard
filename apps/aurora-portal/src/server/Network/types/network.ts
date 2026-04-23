@@ -90,27 +90,28 @@ const SegmentSchema = z.object({
  * - Includes core fields plus optional extension-driven attributes.
  * - `created_at`/`updated_at` use the shared timestamp brand schema.
  * - Keys containing ":" should be accessed via bracket notation.
+ * - Many fields are optional as they may not be present in all OpenStack deployments or API responses
  */
 export const NetworkSchema = z.object({
   admin_state_up: z.boolean(),
   availability_zone_hints: z.array(z.string()).optional(),
   availability_zones: z.array(z.string()).optional(),
-  created_at: ISO8601TimestampSchema,
+  created_at: ISO8601TimestampSchema.optional(),
   dns_domain: z.string().optional(),
   id: z.string(),
-  ipv4_address_scope: z.string().optional(),
-  ipv6_address_scope: z.string().optional(),
+  ipv4_address_scope: z.string().optional().nullable(),
+  ipv6_address_scope: z.string().optional().nullable(),
   l2_adjacency: z.boolean().optional(),
   mtu: z.number().int(),
   name: z.string(),
-  port_security_enabled: z.boolean(),
-  project_id: z.string(),
+  port_security_enabled: z.boolean().optional(),
+  project_id: z.string().optional(),
   "provider:network_type": z.string().optional(),
-  "provider:physical_network": z.string().optional(),
-  "provider:segmentation_id": z.number().int().optional(),
-  qos_policy_id: z.string().optional(),
+  "provider:physical_network": z.string().optional().nullable(),
+  "provider:segmentation_id": z.number().int().optional().nullable(),
+  qos_policy_id: z.string().optional().nullable(),
   revision_number: z.number().int().optional(),
-  "router:external": z.boolean(),
+  "router:external": z.boolean().optional(),
   segments: z.array(SegmentSchema).optional(),
   shared: z.boolean(),
   status: NetworkPortStatusSchema,
