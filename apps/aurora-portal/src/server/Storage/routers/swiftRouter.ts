@@ -1236,7 +1236,7 @@ export const swiftRouter = {
         const object = headers["x-upload-object"] as string | undefined
         const contentType = headers["x-upload-type"] as string | undefined
         const fileSize = headers["x-upload-size"] as string | undefined
-        const uploadId = headers["x-upload-id"] as string | undefined
+        const uploadId = (headers["x-upload-id"] as string | undefined)?.trim()
         const uploadAccount = headers["x-upload-account"] as string | undefined
 
         // input is a Web ReadableStream — convert to Node.js Readable for .pipe()
