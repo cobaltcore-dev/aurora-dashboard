@@ -149,7 +149,7 @@ describe("ProjectListView", () => {
     // Verify navigation path
     expect(navigateSpy).toHaveBeenCalledWith(
       expect.objectContaining({
-        to: "/accounts/1789d1/projects/89ac3f/compute",
+        to: "/accounts/1789d1/projects/89ac3f",
       })
     )
   })

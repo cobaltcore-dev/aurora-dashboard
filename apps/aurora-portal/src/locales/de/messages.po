@@ -226,6 +226,9 @@ msgstr "Bereits deaktiviert (wird übersprungen)"
 msgid "Already deactivated (will be skipped):"
 msgstr "Bereits deaktiviert (wird übersprungen):"
 
+msgid "An unexpected error occurred"
+msgstr "Ein unerwarteter Fehler ist aufgetreten"
+
 msgid "An unexpected error occurred. Please try again."
 msgstr "Ein unerwarteter Fehler ist aufgetreten. Bitte versuchen Sie es erneut."
 
@@ -1711,6 +1714,9 @@ msgstr "Eigentümer-Projekt-ID"
 msgid "Owning Project ID"
 msgstr "Eigentümer-Projekt-ID"
 
+msgid "Page Not Found"
+msgstr "Seite nicht gefunden"
+
 msgid "Partial Activation Success"
 msgstr "Teilweise erfolgreich aktiviert"
 
@@ -1779,6 +1785,9 @@ msgstr "Privat"
 
 msgid "production, linux"
 msgstr "production, linux"
+
+msgid "Project"
+msgstr ""
 
 msgid "Project id"
 msgstr "Projekt-ID"
@@ -2275,6 +2284,9 @@ msgstr "Das Objekt wird zu diesem Pfad kopiert. Navigieren Sie oben durch die Or
 msgid "The object will be moved to this path. Navigate folders above to change the destination."
 msgstr "Das Objekt wird zu diesem Pfad verschoben. Navigieren Sie oben durch die Ordner, um das Ziel zu ändern."
 
+msgid "The page you are looking for does not exist."
+msgstr "Die gesuchte Seite existiert nicht."
+
 msgid "The requested flavor could not be found. It may have been deleted or you may not have access to it."
 msgstr "Der angeforderte Flavor konnte nicht gefunden werden. Er wurde möglicherweise gelöscht oder Sie haben keinen Zugriff darauf."
 
@@ -2331,6 +2343,9 @@ msgstr "Diese Aktion kann nicht rückgängig gemacht werden. Das Zielprojekt ver
 
 msgid "This action is permanent. The address will be removed from your project and returned to the public pool. This action cannot be undone."
 msgstr "Diese Aktion ist dauerhaft. Die Adresse wird aus Ihrem Projekt entfernt und dem öffentlichen Pool zurückgegeben. Dies kann nicht rückgängig gemacht werden."
+
+msgid "This could be due to insufficient permissions or a temporary service issue. Please check your access rights or try refreshing the page."
+msgstr "Dies kann auf unzureichende Berechtigungen oder ein vorübergehendes Serviceproblem zurückzuführen sein. Bitte überprüfen Sie Ihre Zugriffsrechte oder aktualisieren Sie die Seite."
 
 msgid "This extra spec keys already exist. Please use different keys."
 msgstr "Dieser Metadata-Key existiert bereits. Bitte verwenden Sie einen anderen Key."
@@ -2454,6 +2469,9 @@ msgstr "Image kann nicht deaktiviert werden"
 
 msgid "Unable to Delete Image"
 msgstr "Image kann nicht gelöscht werden"
+
+msgid "Unable to Load Content"
+msgstr "Inhalt kann nicht geladen werden"
 
 msgid "Unable to Re-activate Image"
 msgstr "Image kann nicht reaktiviert werden"

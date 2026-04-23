@@ -99,7 +99,7 @@ describe("ProjectCardView", () => {
           expect(navigateSpy).toHaveBeenCalledTimes(1)
           expect(navigateSpy).toHaveBeenCalledWith({
             from: undefined,
-            to: "/accounts/1789d1/projects/89ac3f/compute",
+            to: "/accounts/1789d1/projects/89ac3f",
           })
         },
         { timeout: 1000 }
@@ -133,7 +133,7 @@ describe("ProjectCardView", () => {
           expect(navigateSpy).toHaveBeenCalledTimes(1)
           expect(navigateSpy).toHaveBeenCalledWith({
             from: undefined,
-            to: "/accounts/1789d1/projects/89ac3f/compute",
+            to: "/accounts/1789d1/projects/89ac3f",
           })
         },
         { timeout: 1000 }

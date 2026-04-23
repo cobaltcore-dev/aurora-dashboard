@@ -3,12 +3,11 @@ import { AppShell, Spinner, Stack } from "@cloudoperators/juno-ui-components"
 import { MainNavigation } from "../components/navigation/MainNavigation"
 import { TrpcClient, TrpcReact } from "../trpcClient"
 import { AuthContext } from "../store/AuthProvider"
-import { useRouterState } from "@tanstack/react-router"
-import { ErrorBoundary } from "../components/Error/ErrorBoundry"
-import { NotFound } from "../components/Error/NotFound"
 import { NavigationItem } from "../components/navigation/types"
 import styles from "../index.css?inline"
 import { InactivityModal } from "../components/Auth/InactivityModal"
+import { RouteError } from "../components/Error/RouteError"
+import { useLingui } from "@lingui/react/macro"
 
 interface RouterContext {
   trpcReact: TrpcReact
@@ -21,16 +20,14 @@ interface RouterContext {
 }
 
 export const Route = createRootRouteWithContext<RouterContext>()({
-  component: AuroraLayout,
-  notFoundComponent: NotFound,
-  errorComponent: ErrorBoundary,
+  component: RootComponent,
+  notFoundComponent: PageNotFound,
+  errorComponent: RootErrorComponent,
+  pendingComponent: PendingComponent,
 })
 
-function AuroraLayout() {
+function AuroraLayout({ children }: { children: React.ReactNode }) {
   const { navItems, handleThemeToggle } = Route.useRouteContext()
-  const routerState = useRouterState()
-  const isNavigating =
-    routerState.status === "pending" && routerState.location.pathname !== routerState?.resolvedLocation?.pathname
 
   return (
     <>
@@ -38,14 +35,48 @@ function AuroraLayout() {
 
       <AppShell pageHeader={<MainNavigation items={navItems} handleThemeToggle={handleThemeToggle} />} fullWidthContent>
         <InactivityModal />
-        <Outlet />
-        {isNavigating && (
-          <Stack className="fixed inset-0" distribution="center" alignment="center">
-            <div className="absolute inset-0 backdrop-blur-sm" />
-            <Spinner variant="primary" size="large" />
-          </Stack>
-        )}
+        {children}
       </AppShell>
     </>
+  )
+}
+
+function RootComponent() {
+  return (
+    <AuroraLayout>
+      <Outlet />
+    </AuroraLayout>
+  )
+}
+
+function RootErrorComponent({ error }: { error: Error }) {
+  return (
+    <AuroraLayout>
+      <RouteError error={error} />
+    </AuroraLayout>
+  )
+}
+
+function PageNotFound() {
+  const { t } = useLingui()
+
+  return (
+    <RouteError
+      error={t`The page you are looking for does not exist.`}
+      statusCode={404}
+      helpText={t`The page you are looking for does not exist.`}
+      title={t`Page Not Found`}
+    />
+  )
+}
+
+function PendingComponent() {
+  return (
+    <AuroraLayout>
+      <Stack className="fixed inset-0" distribution="center" alignment="center">
+        <div className="absolute inset-0 backdrop-blur-sm" />
+        <Spinner variant="primary" size="large" />
+      </Stack>
+    </AuroraLayout>
   )
 }

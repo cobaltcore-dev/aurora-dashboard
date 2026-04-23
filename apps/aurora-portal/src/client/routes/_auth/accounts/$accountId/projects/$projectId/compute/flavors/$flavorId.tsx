@@ -14,7 +14,7 @@ import { Trans, useLingui } from "@lingui/react/macro"
 import { getServiceIndex } from "@/server/Authentication/helpers"
 import { trpcReact } from "@/client/trpcClient"
 import { FlavorDetailsView } from "./-components/FlavorDetailsView"
-import { ErrorPage } from "@/client/components/Error/ErrorPage"
+import { RouteError } from "@/client/components/Error/RouteError"
 import { useErrorTranslation } from "@/client/utils/useErrorTranslation"
 import { EditSpecModal } from "../-components/Flavors/-components/EditSpecModal"
 import { ManageAccessModal } from "../-components/Flavors/-components/ManageAccessModal"
@@ -126,27 +126,25 @@ function RouteComponent() {
     }
 
     return (
-      <ErrorPage
+      <RouteError
+        error={translatedError}
         statusCode={getStatusCode(errorCode)}
         title={t`Error Loading Flavor`}
-        message={translatedError}
         onBackClick={handleBack}
         onHomeClick={handleHome}
         reset={canRetry ? handleRetry : undefined}
-        showHeader={false}
       />
     )
   }
 
   if (!flavor) {
     return (
-      <ErrorPage
+      <RouteError
+        error={t`The requested flavor could not be found. It may have been deleted or you may not have access to it.`}
         statusCode={404}
         title={t`Flavor Not Found`}
-        message={t`The requested flavor could not be found. It may have been deleted or you may not have access to it.`}
         onBackClick={handleBack}
         onHomeClick={handleHome}
-        showHeader={false}
       />
     )
   }

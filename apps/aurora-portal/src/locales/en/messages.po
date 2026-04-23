@@ -226,6 +226,9 @@ msgstr "Already deactivated (will be skipped)"
 msgid "Already deactivated (will be skipped):"
 msgstr "Already deactivated (will be skipped):"
 
+msgid "An unexpected error occurred"
+msgstr "An unexpected error occurred"
+
 msgid "An unexpected error occurred. Please try again."
 msgstr "An unexpected error occurred. Please try again."
 
@@ -1711,6 +1714,9 @@ msgstr "Owner Project ID"
 msgid "Owning Project ID"
 msgstr "Owning Project ID"
 
+msgid "Page Not Found"
+msgstr "Page Not Found"
+
 msgid "Partial Activation Success"
 msgstr "Partial Activation Success"
 
@@ -1779,6 +1785,9 @@ msgstr "Private"
 
 msgid "production, linux"
 msgstr "production, linux"
+
+msgid "Project"
+msgstr "Project"
 
 msgid "Project id"
 msgstr "Project id"
@@ -2275,6 +2284,9 @@ msgstr "The object will be copied to this path. Navigate folders above to change
 msgid "The object will be moved to this path. Navigate folders above to change the destination."
 msgstr "The object will be moved to this path. Navigate folders above to change the destination."
 
+msgid "The page you are looking for does not exist."
+msgstr "The page you are looking for does not exist."
+
 msgid "The requested flavor could not be found. It may have been deleted or you may not have access to it."
 msgstr "The requested flavor could not be found. It may have been deleted or you may not have access to it."
 
@@ -2331,6 +2343,9 @@ msgstr "This action cannot be undone. The target project will lose access to thi
 
 msgid "This action is permanent. The address will be removed from your project and returned to the public pool. This action cannot be undone."
 msgstr "This action is permanent. The address will be removed from your project and returned to the public pool. This action cannot be undone."
+
+msgid "This could be due to insufficient permissions or a temporary service issue. Please check your access rights or try refreshing the page."
+msgstr "This could be due to insufficient permissions or a temporary service issue. Please check your access rights or try refreshing the page."
 
 msgid "This extra spec keys already exist. Please use different keys."
 msgstr "This extra spec keys already exist. Please use different keys."
@@ -2454,6 +2469,9 @@ msgstr "Unable to Deactivate Image"
 
 msgid "Unable to Delete Image"
 msgstr "Unable to Delete Image"
+
+msgid "Unable to Load Content"
+msgstr "Unable to Load Content"
 
 msgid "Unable to Re-activate Image"
 msgstr "Unable to Re-activate Image"
