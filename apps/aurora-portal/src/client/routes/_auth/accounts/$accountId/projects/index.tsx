@@ -1,9 +1,11 @@
-import { createFileRoute, ErrorComponent, redirect } from "@tanstack/react-router"
+import { createFileRoute, redirect } from "@tanstack/react-router"
 import { useState } from "react"
 import { ProjectsOverviewNavBar, ViewMode } from "./-components/ProjectOverviewNavBar"
 import { ProjectCardView } from "./-components/ProjectCardView"
 import { ProjectListView } from "./-components/ProjectListView"
 import { Message } from "@cloudoperators/juno-ui-components"
+import { RouteError } from "@/client/components/Error/RouteError"
+import { TRPCClientError } from "@trpc/client"
 
 import { z } from "zod"
 
@@ -13,12 +15,9 @@ const searchSchema = z.object({
 
 export const Route = createFileRoute("/_auth/accounts/$accountId/projects/")({
   component: ProjectsOverview,
-  errorComponent: ({ error }) => {
-    if (error instanceof Error) {
-      return <div>{error.message}</div>
-    }
-    return <ErrorComponent error={error} />
-  },
+  errorComponent: ({ error }) => (
+    <RouteError error={error} safeErrorMessage={error instanceof TRPCClientError ? error.message : undefined} />
+  ),
   notFoundComponent: () => {
     return <p>Projects not found</p>
   },
@@ -54,13 +53,9 @@ export const Route = createFileRoute("/_auth/accounts/$accountId/projects/")({
   }),
 
   loader: async ({ context, params, deps }) => {
-    const projects = await context.trpcClient?.project.searchProjects
-      .query({
-        search: deps.search,
-      })
-      .catch(() => {
-        return []
-      })
+    const projects = await context.trpcClient?.project.searchProjects.query({
+      search: deps.search,
+    })
     return {
       accountId: params.accountId,
       userHasAccountAccess: context.userHasAccountAccess,
