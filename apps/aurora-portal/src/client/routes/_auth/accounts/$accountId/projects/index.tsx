@@ -16,10 +16,7 @@ const searchSchema = z.object({
 export const Route = createFileRoute("/_auth/accounts/$accountId/projects/")({
   component: ProjectsOverview,
   errorComponent: ({ error }) => (
-    <RouteError
-      error={error}
-      safeErrorMessage={error instanceof TRPCClientError ? error.message : undefined}
-    />
+    <RouteError error={error} safeErrorMessage={error instanceof TRPCClientError ? error.message : undefined} />
   ),
   notFoundComponent: () => {
     return <p>Projects not found</p>
