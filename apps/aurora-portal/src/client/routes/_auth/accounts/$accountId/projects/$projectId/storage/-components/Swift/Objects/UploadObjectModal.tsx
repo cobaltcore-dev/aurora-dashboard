@@ -98,12 +98,13 @@ export const UploadObjectModal = ({
     }
 
     const objectName = `${currentPrefix}${selectedFile.name}`
+    const activeUploadId = `${container}:${objectName}:${crypto.randomUUID()}`
     submittedNameRef.current = selectedFile.name
     setUploadError(null)
 
     // Compute uploadId client-side before upload starts — subscription must be
     // active before the first progress event fires from the BFF.
-    setUploadId(`${container}:${objectName}`)
+    setUploadId(activeUploadId)
     setIsPending(true)
 
     try {
@@ -115,7 +116,7 @@ export const UploadObjectModal = ({
           "x-upload-object": objectName,
           "x-upload-type": selectedFile.type || "application/octet-stream",
           "x-upload-size": String(selectedFile.size),
-          "x-upload-id": `${container}:${objectName}`,
+          "x-upload-id": activeUploadId,
           ...(account ? { "x-upload-account": account } : {}),
         },
       }

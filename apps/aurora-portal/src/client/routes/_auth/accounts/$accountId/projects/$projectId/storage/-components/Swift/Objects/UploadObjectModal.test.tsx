@@ -203,7 +203,7 @@ describe("UploadObjectModal", () => {
               headers: expect.objectContaining({
                 "x-upload-container": "my-bucket",
                 "x-upload-object": "docs/report.pdf",
-                "x-upload-id": "my-bucket:docs/report.pdf",
+                "x-upload-id": expect.stringContaining("my-bucket:docs/report.pdf:"),
               }),
             }),
           })
