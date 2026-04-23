@@ -1237,6 +1237,7 @@ export const swiftRouter = {
         const contentType = headers["x-upload-type"] as string | undefined
         const fileSize = headers["x-upload-size"] ? parseInt(headers["x-upload-size"] as string, 10) : undefined
         const uploadId = headers["x-upload-id"] as string | undefined
+        const uploadAccount = headers["x-upload-account"] as string | undefined
 
         // input is a Web ReadableStream — convert to Node.js Readable for .pipe()
         const fileStream = Readable.fromWeb(input as import("stream/web").ReadableStream)
@@ -1284,7 +1285,9 @@ export const swiftRouter = {
 
           // Encode each segment individually to preserve slash separators
           const encodedObject = validatedObject.split("/").map(encodeURIComponent).join("/")
-          const url = `${encodeURIComponent(validatedContainer)}/${encodedObject}`
+          const url = uploadAccount
+            ? `${uploadAccount}/${encodeURIComponent(validatedContainer)}/${encodedObject}`
+            : `${encodeURIComponent(validatedContainer)}/${encodedObject}`
 
           await swift.put(url, webStream, {
             headers: {
