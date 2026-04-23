@@ -1,17 +1,13 @@
-import { Button, ButtonRow, Message } from "@cloudoperators/juno-ui-components"
-import { Trans, useLingui } from "@lingui/react/macro"
+import { ContentHeading } from "@cloudoperators/juno-ui-components"
+import { useLingui } from "@lingui/react/macro"
 
 interface RouteErrorProps {
   error: unknown
   title?: string
-  statusCode?: number
   helpText?: string
-  onBackClick?: () => void
-  onHomeClick?: () => void
-  reset?: () => void
 }
 
-export function RouteError({ error, statusCode, title, helpText, onBackClick, onHomeClick, reset }: RouteErrorProps) {
+export function RouteError({ error, title, helpText }: RouteErrorProps) {
   const { t } = useLingui()
 
   const defaultTitle = t`Unable to Load Content`
@@ -21,33 +17,12 @@ export function RouteError({ error, statusCode, title, helpText, onBackClick, on
   const errorMessage = error instanceof Error ? error.message : typeof error === "string" ? error : defaultErrorMessage
 
   return (
-    <div className="flex min-h-[400px] items-center justify-center p-8">
-      <Message variant="danger" title={title || defaultTitle} className="max-w-2xl">
-        <div className="space-y-2">
-          {statusCode && <div className="text-theme-error text-6xl font-bold">{statusCode}</div>}
-          <p className="text-theme-error">{errorMessage}</p>
-          <p className="text-theme-light mt-2 text-sm">{helpText || defaultHelpText}</p>
-          {(onBackClick || onHomeClick || reset) && (
-            <ButtonRow className="mt-6">
-              {onBackClick && (
-                <Button onClick={onBackClick} variant="primary">
-                  <Trans>Back</Trans>
-                </Button>
-              )}
-              {onHomeClick && (
-                <Button onClick={onHomeClick}>
-                  <Trans>Home</Trans>
-                </Button>
-              )}
-              {reset && (
-                <Button onClick={reset}>
-                  <Trans>Try Again</Trans>
-                </Button>
-              )}
-            </ButtonRow>
-          )}
-        </div>
-      </Message>
+    <div className="flex min-h-[400px] p-8">
+      <div className="space-y-2">
+        <ContentHeading className="text-theme-info">{title || defaultTitle}</ContentHeading>
+        <p>{errorMessage}</p>
+        <p className="text-theme-light mt-2 text-sm">{helpText || defaultHelpText}</p>
+      </div>
     </div>
   )
 }

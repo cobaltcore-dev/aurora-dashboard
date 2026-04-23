@@ -11,6 +11,7 @@ describe("RouteError", () => {
   beforeEach(() => {
     i18n.activate("en")
   })
+
   test("renders default error message for Error instance", () => {
     const error = new Error("Something went wrong")
     render(<RouteError error={error} />, { wrapper: TestWrapper })
@@ -68,31 +69,6 @@ describe("RouteError", () => {
     expect(screen.getByText("Custom string error")).toBeInTheDocument()
   })
 
-  test("renders status code when provided", () => {
-    const error = new Error("Server error")
-    render(<RouteError error={error} statusCode={500} />, { wrapper: TestWrapper })
-
-    expect(screen.getByText("500")).toBeInTheDocument()
-    expect(screen.getByText("Server error")).toBeInTheDocument()
-  })
-
-  test("does not render status code when not provided", () => {
-    const error = new Error("Test error")
-    render(<RouteError error={error} />, { wrapper: TestWrapper })
-
-    expect(screen.queryByText("404")).not.toBeInTheDocument()
-    expect(screen.queryByText("500")).not.toBeInTheDocument()
-  })
-
-  test("renders danger variant Message component", () => {
-    const error = new Error("Test")
-    const { container } = render(<RouteError error={error} />, { wrapper: TestWrapper })
-
-    // Check that the Message component is rendered with proper structure
-    const messageContainer = container.querySelector(".juno-message")
-    expect(messageContainer).toBeInTheDocument()
-  })
-
   test("extracts message from Error objects with various properties", () => {
     // Standard Error
     const standardError = new Error("Standard error message")
@@ -114,7 +90,7 @@ describe("RouteError", () => {
     const { container } = render(<RouteError error={error} />, { wrapper: TestWrapper })
 
     const wrapper = container.firstChild as HTMLElement
-    expect(wrapper).toHaveClass("flex", "items-center", "justify-center")
+    expect(wrapper).toHaveClass("flex")
     expect(wrapper).toHaveClass("min-h-[400px]")
     expect(wrapper).toHaveClass("p-8")
   })
