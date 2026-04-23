@@ -59,7 +59,8 @@
       "picomatch@<2.3.2": "4.0.4",
       "picomatch@>=4.0.0 <4.0.4": "4.0.4",
       "path-to-regexp@>=8.0.0 <8.4.0": ">=8.4.0",
-      "brace-expansion@<5.0.5": ">=5.0.5"
+      "brace-expansion@<5.0.5": ">=5.0.5",
+      "@fastify/middie@<=9.3.1": ">=9.3.2"
     }
   }
 }
