@@ -1210,7 +1210,7 @@ export const swiftRouter = {
    *   - x-upload-container  (string) — target container name
    *   - x-upload-object     (string) — full object path, e.g. "folder/file.txt"
    *   - x-upload-type       (string, optional) — MIME type detected client-side
-   *   - x-upload-size       (number, optional) — file size in bytes
+   *   - x-upload-size       (string, optional) — file size in bytes
    *   - x-upload-id         (string) — client-computed upload ID for watchUploadProgress
    *   - x-upload-account    (string, optional) — OpenStack account override
    *
@@ -1235,7 +1235,7 @@ export const swiftRouter = {
         const container = headers["x-upload-container"] as string | undefined
         const object = headers["x-upload-object"] as string | undefined
         const contentType = headers["x-upload-type"] as string | undefined
-        const fileSize = headers["x-upload-size"] ? parseInt(headers["x-upload-size"] as string, 10) : undefined
+        const fileSize = headers["x-upload-size"] as string | undefined
         const uploadId = headers["x-upload-id"] as string | undefined
         const uploadAccount = headers["x-upload-account"] as string | undefined
 

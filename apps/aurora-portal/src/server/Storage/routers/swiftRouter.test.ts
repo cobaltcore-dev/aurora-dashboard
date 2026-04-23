@@ -1816,7 +1816,7 @@ describe("swiftRouter", () => {
       expect(swiftHelpers.validateSwiftUploadInput).toHaveBeenCalledWith(
         "test-container",
         "folder/sample.txt",
-        512,
+        "512",
         expect.anything() // file stream from octetInputParser
       )
     })
