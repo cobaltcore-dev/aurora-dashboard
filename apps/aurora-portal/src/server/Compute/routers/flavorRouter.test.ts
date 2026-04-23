@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest"
-import { FastifyRequest } from "fastify/types/request"
+import type { FastifyRequest } from "fastify"
 import { flavorRouter } from "./flavorRouter"
 import { Flavor } from "../types/flavor"
 import { TRPCError } from "@trpc/server"
