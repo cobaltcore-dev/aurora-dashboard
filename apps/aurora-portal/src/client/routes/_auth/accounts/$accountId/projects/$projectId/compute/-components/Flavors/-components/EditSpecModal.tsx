@@ -33,7 +33,7 @@ const createPermissionsPromise = (client: TrpcClient) => {
 
 const createExtraSpecsPromise = (client: TrpcClient, project: string, flavorId: string) => {
   return client.compute.getExtraSpecs.query({
-    projectId: project,
+    project_id: project,
     flavorId: flavorId,
   })
 }
@@ -120,7 +120,7 @@ function EditSpecContent({
       const trimmedValue = value.trim()
 
       await client.compute.createExtraSpecs.mutate({
-        projectId: project,
+        project_id: project,
         flavorId: flavor.id,
         extra_specs: { [trimmedKey]: trimmedValue },
       })
@@ -147,7 +147,7 @@ function EditSpecContent({
     try {
       setIsDeleting(keyToDelete)
       await client.compute.deleteExtraSpec.mutate({
-        projectId: project,
+        project_id: project,
         flavorId: flavor.id,
         key: keyToDelete,
       })

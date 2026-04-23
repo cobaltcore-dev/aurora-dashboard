@@ -25,7 +25,7 @@ interface ServerGroupsProps {
 }
 
 export function ServerGroups({ client, project }: ServerGroupsProps) {
-  const getServerGroupsPromise = client.compute.getServerGroupsByProjectId.query({ projectId: project })
+  const getServerGroupsPromise = client.compute.getServerGroupsByProjectId.query({ project_id: project })
 
   return (
     <Suspense

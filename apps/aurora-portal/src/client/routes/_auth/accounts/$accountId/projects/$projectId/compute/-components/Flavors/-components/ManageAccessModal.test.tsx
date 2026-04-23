@@ -248,7 +248,7 @@ describe("ManageAccessModal", () => {
 
     await waitFor(() => {
       expect(mockClient.compute.getFlavorAccess.query).toHaveBeenCalledWith({
-        projectId: "test-project",
+        project_id: "test-project",
         flavorId: "test-flavor-id",
       })
     })

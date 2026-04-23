@@ -104,7 +104,7 @@ describe("CreateFlavorModal", () => {
     })
 
     expect(mockClient.compute.createFlavor.mutate).toHaveBeenCalledWith({
-      projectId: "test-project",
+      project_id: "test-project",
       flavor: {
         id: "TestFlavor",
         name: "TestFlavor",

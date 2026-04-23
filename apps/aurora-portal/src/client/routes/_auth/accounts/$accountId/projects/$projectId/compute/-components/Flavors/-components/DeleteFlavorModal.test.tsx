@@ -116,7 +116,7 @@ describe("DeleteFlavorModal", () => {
     })
 
     expect(mockClient.compute.deleteFlavor.mutate).toHaveBeenCalledWith({
-      projectId: "test-project",
+      project_id: "test-project",
       flavorId: "test-flavor-id",
     })
     expect(mockOnSuccess).toHaveBeenCalled()

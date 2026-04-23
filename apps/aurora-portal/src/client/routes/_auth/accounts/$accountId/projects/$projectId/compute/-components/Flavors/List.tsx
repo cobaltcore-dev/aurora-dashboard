@@ -27,7 +27,7 @@ const createFlavorsPromise = (
   searchTerm: string
 ) => {
   return client.compute.getFlavorsByProjectId.query({
-    projectId: project,
+    project_id: project,
     sortBy,
     sortDirection,
     searchTerm,

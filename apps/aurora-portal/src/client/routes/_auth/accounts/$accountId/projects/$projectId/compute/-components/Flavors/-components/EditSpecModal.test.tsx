@@ -210,7 +210,7 @@ describe("EditSpecModal", () => {
 
     await waitFor(() => {
       expect(mockClient.compute.getExtraSpecs.query).toHaveBeenCalledWith({
-        projectId: "test-project",
+        project_id: "test-project",
         flavorId: "test-flavor-id",
       })
     })

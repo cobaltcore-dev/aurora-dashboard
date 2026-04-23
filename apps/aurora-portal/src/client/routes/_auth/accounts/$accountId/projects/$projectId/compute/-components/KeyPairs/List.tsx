@@ -29,7 +29,7 @@ interface KeyPairsProps {
 }
 
 export function KeyPairs({ client, project }: KeyPairsProps) {
-  const getKeyPairsPromise = client.compute.getKeypairsByProjectId.query({ projectId: project })
+  const getKeyPairsPromise = client.compute.getKeypairsByProjectId.query({ project_id: project })
 
   return (
     <Suspense

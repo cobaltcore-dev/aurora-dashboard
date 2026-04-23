@@ -38,7 +38,7 @@ const createPermissionsPromise = (client: TrpcClient) => {
 
 const createFlavorAccessPromise = (client: TrpcClient, project: string, flavorId: string) => {
   return client.compute.getFlavorAccess.query({
-    projectId: project,
+    project_id: project,
     flavorId: flavorId,
   })
 }
@@ -120,7 +120,7 @@ function AccessContent({
       const trimmedTenantId = tenantId.trim()
 
       const updatedAccess = await client.compute.addTenantAccess.mutate({
-        projectId: project,
+        project_id: project,
         flavorId: flavor.id,
         tenantId: trimmedTenantId,
       })
@@ -150,7 +150,7 @@ function AccessContent({
 
     try {
       const updatedAccess = await client.compute.removeTenantAccess.mutate({
-        projectId: project,
+        project_id: project,
         flavorId: flavor.id,
         tenantId: tenantIdToRemove,
       })

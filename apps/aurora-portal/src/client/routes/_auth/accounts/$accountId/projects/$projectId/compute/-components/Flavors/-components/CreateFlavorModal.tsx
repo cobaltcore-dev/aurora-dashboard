@@ -117,7 +117,7 @@ export const CreateFlavorModal: React.FC<CreateFlavorModalProps> = ({
       const flavorData = cleanFlavorData(newFlavor)
 
       await client.compute.createFlavor.mutate({
-        projectId: project,
+        project_id: project,
         flavor: flavorData,
       })
 

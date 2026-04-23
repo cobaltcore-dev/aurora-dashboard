@@ -56,7 +56,7 @@ function RouteComponent() {
     error,
     refetch,
   } = trpcReact.compute.getFlavorById.useQuery({
-    projectId,
+    project_id: projectId,
     flavorId,
   })
 

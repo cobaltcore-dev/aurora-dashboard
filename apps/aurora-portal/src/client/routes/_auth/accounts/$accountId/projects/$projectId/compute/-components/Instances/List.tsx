@@ -28,7 +28,7 @@ export const Instances = ({
   client: TrpcClient
   viewMode: "list" | "card"
 }) => {
-  const getServersPromise = client.compute.getServersByProjectId.query({ projectId: project })
+  const getServersPromise = client.compute.getServersByProjectId.query({ project_id: project })
 
   return (
     <Suspense

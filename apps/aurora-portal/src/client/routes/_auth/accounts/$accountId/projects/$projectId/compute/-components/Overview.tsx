@@ -104,7 +104,7 @@ interface OverviewProps {
 
 export function Overview({ client, project }: OverviewProps) {
   const getDataPromise = Promise.all([
-    client.compute.getServersByProjectId.query({ projectId: project }),
+    client.compute.getServersByProjectId.query({ project_id: project }),
     client.compute.listImagesWithSearch.query({}),
   ])
 

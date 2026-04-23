@@ -13,7 +13,7 @@ vi.mock("@tanstack/react-router", async () => {
     ...actual,
     useParams: vi.fn(() => ({
       accountId: "test-account-id",
-      projectId: "test-project-id",
+      project_id: "test-project-id",
     })),
     Link: ({ children, to, ...props }: { children: React.ReactNode; to: string; [key: string]: unknown }) => (
       <a href={to} {...props}>

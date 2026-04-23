@@ -52,7 +52,7 @@ export const DeleteFlavorModal: React.FC<DeleteFlavorModalProps> = ({
       setIsLoading(true)
 
       await client.compute.deleteFlavor.mutate({
-        projectId: project,
+        project_id: project,
         flavorId: flavor.id,
       })
       onSuccess()
