@@ -82,6 +82,8 @@ let capturedOnCopyObjectError: ((objectName: string, errorMessage: string) => vo
 let capturedOnMoveObjectSuccess: ((objectName: string, targetContainer: string, targetPath: string) => void) | undefined
 let capturedOnMoveObjectError: ((objectName: string, errorMessage: string) => void) | undefined
 let capturedOnTempUrlCopySuccess: ((objectName: string) => void) | undefined
+let capturedOnEditMetadataSuccess: ((objectName: string) => void) | undefined
+let capturedOnEditMetadataError: ((objectName: string, errorMessage: string) => void) | undefined
 
 vi.mock("./ObjectsTableView", () => ({
   ObjectsTableView: vi.fn(
@@ -99,6 +101,8 @@ vi.mock("./ObjectsTableView", () => ({
       onMoveObjectSuccess,
       onMoveObjectError,
       onTempUrlCopySuccess,
+      onEditMetadataSuccess,
+      onEditMetadataError,
     }) => {
       capturedOnDeleteFolderSuccess = onDeleteFolderSuccess
       capturedOnDownloadError = onDownloadError
@@ -107,6 +111,8 @@ vi.mock("./ObjectsTableView", () => ({
       capturedOnMoveObjectSuccess = onMoveObjectSuccess
       capturedOnMoveObjectError = onMoveObjectError
       capturedOnTempUrlCopySuccess = onTempUrlCopySuccess
+      capturedOnEditMetadataSuccess = onEditMetadataSuccess
+      capturedOnEditMetadataError = onEditMetadataError
       return (
         <div
           data-testid="objects-table-view"
@@ -123,6 +129,8 @@ vi.mock("./ObjectsTableView", () => ({
           data-has-move-object-success={typeof onMoveObjectSuccess === "function" ? "true" : "false"}
           data-has-move-object-error={typeof onMoveObjectError === "function" ? "true" : "false"}
           data-has-temp-url-copy-success={typeof onTempUrlCopySuccess === "function" ? "true" : "false"}
+          data-has-edit-metadata-success={typeof onEditMetadataSuccess === "function" ? "true" : "false"}
+          data-has-edit-metadata-error={typeof onEditMetadataError === "function" ? "true" : "false"}
         />
       )
     }
@@ -179,6 +187,8 @@ vi.mock("./ObjectToastNotifications", () => ({
   getObjectMovedToast: vi.fn(() => ({ variant: "success", children: null })),
   getObjectMoveErrorToast: vi.fn(() => ({ variant: "error", children: null })),
   getTempUrlCopiedToast: vi.fn(() => ({ variant: "success", children: null })),
+  getObjectMetadataUpdatedToast: vi.fn(() => ({ variant: "success", children: null })),
+  getObjectMetadataUpdateErrorToast: vi.fn(() => ({ variant: "error", children: null })),
 }))
 
 vi.mock("@/client/trpcClient", () => ({
@@ -415,6 +425,41 @@ describe("SwiftObjects (index)", () => {
       })
       expect(getTempUrlCopiedToast).toHaveBeenCalledWith(
         "report.pdf",
+        expect.objectContaining({ onDismiss: expect.any(Function) })
+      )
+    })
+
+    test("passes onEditMetadataSuccess callback to ObjectsTableView", () => {
+      renderObjects()
+      expect(screen.getByTestId("objects-table-view")).toHaveAttribute("data-has-edit-metadata-success", "true")
+    })
+
+    test("passes onEditMetadataError callback to ObjectsTableView", () => {
+      renderObjects()
+      expect(screen.getByTestId("objects-table-view")).toHaveAttribute("data-has-edit-metadata-error", "true")
+    })
+
+    test("onEditMetadataSuccess shows success toast via getObjectMetadataUpdatedToast", async () => {
+      const { getObjectMetadataUpdatedToast } = await import("./ObjectToastNotifications")
+      renderObjects()
+      await act(async () => {
+        capturedOnEditMetadataSuccess?.("sample.txt")
+      })
+      expect(getObjectMetadataUpdatedToast).toHaveBeenCalledWith(
+        "sample.txt",
+        expect.objectContaining({ onDismiss: expect.any(Function) })
+      )
+    })
+
+    test("onEditMetadataError shows error toast via getObjectMetadataUpdateErrorToast", async () => {
+      const { getObjectMetadataUpdateErrorToast } = await import("./ObjectToastNotifications")
+      renderObjects()
+      await act(async () => {
+        capturedOnEditMetadataError?.("sample.txt", "403 Forbidden")
+      })
+      expect(getObjectMetadataUpdateErrorToast).toHaveBeenCalledWith(
+        "sample.txt",
+        "403 Forbidden",
         expect.objectContaining({ onDismiss: expect.any(Function) })
       )
     })

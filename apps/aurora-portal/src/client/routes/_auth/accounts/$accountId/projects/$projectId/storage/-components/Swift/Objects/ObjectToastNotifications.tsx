@@ -253,3 +253,37 @@ export const getTempUrlCopiedToast = (objectName: string, config: ToastConfig): 
     />
   ),
 })
+
+export const getObjectMetadataUpdatedToast = (objectName: string, config: ToastConfig): ToastProps => ({
+  variant: "success",
+  autoDismiss: true,
+  autoDismissTimeout: config.autoDismissTimeout ?? 5000,
+  onDismiss: config.onDismiss,
+  children: (
+    <NotificationText
+      title={<Trans>Object Updated</Trans>}
+      description={<Trans>Properties of "{objectName}" were successfully updated.</Trans>}
+    />
+  ),
+})
+
+export const getObjectMetadataUpdateErrorToast = (
+  objectName: string,
+  errorMessage: string,
+  config: ToastConfig
+): ToastProps => ({
+  variant: "error",
+  autoDismiss: true,
+  autoDismissTimeout: config.autoDismissTimeout ?? 5000,
+  onDismiss: config.onDismiss,
+  children: (
+    <NotificationText
+      title={<Trans>Failed to Update Object</Trans>}
+      description={
+        <Trans>
+          Could not update "{objectName}": {errorMessage}
+        </Trans>
+      }
+    />
+  ),
+})
