@@ -1043,6 +1043,16 @@ describe("Swift Object Storage Schema Validation", () => {
       expect(() => downloadObjectInputSchema.parse(input)).toThrow()
     })
 
+    it("should reject empty downloadId", () => {
+      const input = { container: "my-container", object: "file.txt", downloadId: "" }
+      expect(() => downloadObjectInputSchema.parse(input)).toThrow()
+    })
+
+    it("should reject whitespace-only downloadId", () => {
+      const input = { container: "my-container", object: "file.txt", downloadId: "   " }
+      expect(() => downloadObjectInputSchema.parse(input)).toThrow()
+    })
+
     it("should reject empty object name", () => {
       const input = { container: "my-container", object: "", filename: "file.txt", downloadId: "my-container:" }
       expect(() => downloadObjectInputSchema.parse(input)).toThrow()
