@@ -1,4 +1,4 @@
-import { protectedProcedure } from "@/server/trpc"
+import { projectScopedProcedure } from "@/server/trpc"
 import { withErrorHandling } from "@/server/helpers/errorHandling"
 import { appendQueryParamsFromObject } from "@/server/helpers/queryParams"
 import { getNetworkService, parseOrThrow } from "../helpers/index"
@@ -16,15 +16,18 @@ export const NETWORK_BASE_URL = "v2.0/networks"
 /**
  * tRPC router for OpenStack Neutron Network.
  *
+ * Now uses projectScopedProcedure for automatic token rescoping.
+ *
  * Currently exposes:
  * - listExternalNetworks: GET /v2.0/networks?router:external=true
  * - listDnsDomains: GET /v2.0/networks?fields=dns_domain
  */
 export const networkRouter = {
-  listExternalNetworks: protectedProcedure
+  listExternalNetworks: projectScopedProcedure
     .input(ListExternalNetworksQuerySchema)
     .query(async ({ input, ctx }): Promise<Network[]> => {
       return withErrorHandling(async () => {
+        // ctx.openstack is already rescoped to the project by projectScopedProcedure
         const network = getNetworkService(ctx)
 
         const openstackParams = { ...input, "router:external": true as const }
@@ -41,10 +44,11 @@ export const networkRouter = {
         return parseOrThrow(NetworkListResponseSchema, data, "networkRouter.listExternalNetworks").networks
       }, "list external networks")
     }),
-  listDnsDomains: protectedProcedure
+  listDnsDomains: projectScopedProcedure
     .input(ListDnsDomainsQuerySchema)
     .query(async ({ input, ctx }): Promise<string[]> => {
       return withErrorHandling(async () => {
+        // ctx.openstack is already rescoped to the project by projectScopedProcedure
         const network = getNetworkService(ctx)
 
         const openstackParams = { ...input, fields: "dns_domain" }

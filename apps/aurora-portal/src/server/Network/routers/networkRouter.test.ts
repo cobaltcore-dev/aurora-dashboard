@@ -99,7 +99,7 @@ describe("networkRouter.listExternalNetworks", () => {
     const ctx = createMockContext()
     const caller = createCaller(ctx)
 
-    const result = await caller.network.listExternalNetworks({})
+    const result = await caller.network.listExternalNetworks({ project_id: "test-project" })
 
     expect(Array.isArray(result)).toBe(true)
     expect(result).toHaveLength(2)
@@ -112,8 +112,8 @@ describe("networkRouter.listExternalNetworks", () => {
     const caller = createCaller(ctx)
 
     await caller.network.listExternalNetworks({
+      project_id: "test-project",
       name: "public-network",
-      project_id: "project-1",
       sort_dir: "asc",
       fields: "id",
     })
@@ -127,7 +127,7 @@ describe("networkRouter.listExternalNetworks", () => {
     const params = new URLSearchParams(query)
     expect(params.get("router:external")).toBe("true")
     expect(params.get("name")).toBe("public-network")
-    expect(params.get("project_id")).toBe("project-1")
+    expect(params.get("project_id")).toBe("test-project")
     expect(params.get("sort_dir")).toBe("asc")
     expect(params.get("fields")).toBe("id")
   })
@@ -136,7 +136,7 @@ describe("networkRouter.listExternalNetworks", () => {
     const ctx = createMockContext({ invalidSession: true })
     const caller = createCaller(ctx)
 
-    await expect(caller.network.listExternalNetworks({})).rejects.toMatchObject({
+    await expect(caller.network.listExternalNetworks({ project_id: "test-project" })).rejects.toMatchObject({
       code: "UNAUTHORIZED",
       message: "The session is invalid",
     })
@@ -146,7 +146,7 @@ describe("networkRouter.listExternalNetworks", () => {
     const ctx = createMockContext({ noNetworkService: true })
     const caller = createCaller(ctx)
 
-    await expect(caller.network.listExternalNetworks({})).rejects.toThrow(
+    await expect(caller.network.listExternalNetworks({ project_id: "test-project" })).rejects.toThrow(
       new TRPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: "Network service is not available",
@@ -159,7 +159,7 @@ describe("networkRouter.listExternalNetworks", () => {
     const caller = createCaller(ctx)
     const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => undefined)
 
-    await expect(caller.network.listExternalNetworks({})).rejects.toThrow(
+    await expect(caller.network.listExternalNetworks({ project_id: "test-project" })).rejects.toThrow(
       new TRPCError({
         code: "PARSE_ERROR",
         message: "Failed to parse response in networkRouter.listExternalNetworks",
@@ -176,7 +176,7 @@ describe("networkRouter.listExternalNetworks", () => {
     })
     const caller = createCaller(ctx)
 
-    await expect(caller.network.listExternalNetworks({})).rejects.toMatchObject({
+    await expect(caller.network.listExternalNetworks({ project_id: "test-project" })).rejects.toMatchObject({
       code: "UNAUTHORIZED",
       message: "Unauthorized access to Network: Unauthorized",
     })
@@ -200,7 +200,7 @@ describe("networkRouter.listDnsDomains", () => {
     })
     const caller = createCaller(ctx)
 
-    const result = await caller.network.listDnsDomains({})
+    const result = await caller.network.listDnsDomains({ project_id: "test-project" })
 
     expect(result).toEqual(["example.org.", "corp.local"])
   })
@@ -210,7 +210,7 @@ describe("networkRouter.listDnsDomains", () => {
     const caller = createCaller(ctx)
 
     await caller.network.listDnsDomains({
-      project_id: "project-1",
+      project_id: "test-project",
       tenant_id: "tenant-1",
       "router:external": true,
     })
@@ -233,7 +233,7 @@ describe("networkRouter.listDnsDomains", () => {
     const caller = createCaller(ctx)
     const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => undefined)
 
-    await expect(caller.network.listDnsDomains({})).rejects.toThrow(
+    await expect(caller.network.listDnsDomains({ project_id: "test-project" })).rejects.toThrow(
       new TRPCError({
         code: "PARSE_ERROR",
         message: "Failed to parse response in networkRouter.listDnsDomains",

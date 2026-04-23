@@ -1,4 +1,4 @@
-import { protectedProcedure } from "@/server/trpc"
+import { projectScopedProcedure } from "@/server/trpc"
 import { withErrorHandling } from "@/server/helpers/errorHandling"
 import { appendQueryParamsFromObject } from "@/server/helpers/queryParams"
 import { ListAvailablePortsQuerySchema, AvailablePort, AvailablePortListResponseSchema } from "../types/port"
@@ -10,14 +10,17 @@ export const PORT_BASE_URL = "v2.0/ports"
 /**
  * tRPC router for OpenStack Neutron Ports.
  *
+ * Now uses projectScopedProcedure for automatic token rescoping.
+ *
  * Currently exposes:
  * - listAvailablePorts: GET /v2.0/ports List available ports for creating floating IPs, ensuring users can only see valid, unassociated ports.
  */
 export const portRouter = {
-  listAvailablePorts: protectedProcedure
+  listAvailablePorts: projectScopedProcedure
     .input(ListAvailablePortsQuerySchema)
     .query(async ({ input, ctx }): Promise<AvailablePort[]> => {
       return withErrorHandling(async () => {
+        // ctx.openstack is already rescoped to the project by projectScopedProcedure
         const network = getNetworkService(ctx)
 
         const queryParams = appendQueryParamsFromObject({

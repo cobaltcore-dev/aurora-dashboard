@@ -91,9 +91,12 @@ const ListPortsQuerySchema = z.object({
  * - `status` is locked to `"ACTIVE"` — only operational ports can be associated
  * - `admin_state_up` is locked to `true` — only administratively enabled ports are eligible
  *
+ * Now requires project_id for use with projectScopedProcedure.
+ *
  * Used by the floating IP association dropdown.
  */
 export const ListAvailablePortsQuerySchema = ListPortsQuerySchema.extend({
+  project_id: z.string(),
   /** Only ACTIVE ports are eligible for floating IP association */
   status: z.literal("ACTIVE").default("ACTIVE"),
   /** Only administratively UP ports are eligible for floating IP association */

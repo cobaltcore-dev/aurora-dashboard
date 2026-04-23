@@ -46,8 +46,11 @@ export const ListNetworksQuerySchema = z.object({
  *
  * This keeps all standard list filters available, but enforces
  * "router:external" to be true.
+ *
+ * Now requires project_id for use with projectScopedProcedure.
  */
 export const ListExternalNetworksQuerySchema = ListNetworksQuerySchema.extend({
+  project_id: z.string(),
   "router:external": z.literal(true).default(true),
 })
 
@@ -56,9 +59,11 @@ export const ListExternalNetworksQuerySchema = ListNetworksQuerySchema.extend({
  * GET /v2.0/networks?fields=dns_domain
  *
  * Keeps only useful network-level filters for this procedure.
+ *
+ * Now requires project_id for use with projectScopedProcedure.
  */
 export const ListDnsDomainsQuerySchema = z.object({
-  project_id: z.string().optional(),
+  project_id: z.string(),
   tenant_id: z.string().optional(),
   "router:external": z.boolean().optional(),
 })
