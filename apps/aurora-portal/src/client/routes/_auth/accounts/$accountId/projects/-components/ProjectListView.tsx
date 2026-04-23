@@ -15,7 +15,7 @@ export function ProjectListView({ projects }: ProjectListViewProps) {
       {projects?.length ? (
         projects.map((project) => {
           const domain = project?.domain_id
-          const rootPath = `/accounts/${domain}/projects/${project.id}/compute`
+          const rootPath = `/accounts/${domain}/projects/${project.id}`
           return (
             <DataGridRow key={project.id} onClick={() => navigate({ to: rootPath })}>
               <DataGridCell>

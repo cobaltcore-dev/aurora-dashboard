@@ -1,4 +1,4 @@
-import { createFileRoute, ErrorComponent, redirect, useParams } from "@tanstack/react-router"
+import { createFileRoute, redirect, useParams } from "@tanstack/react-router"
 import { useEffect } from "react"
 import { getServiceIndex } from "@/server/Authentication/helpers"
 import { ErrorBoundary } from "react-error-boundary"
@@ -97,12 +97,6 @@ export const Route = createFileRoute(
   validateSearch: objectsSearchSchema,
   component: () => {
     return <ObjectsDashboard />
-  },
-  errorComponent: ({ error }) => {
-    if (error instanceof Error) {
-      return <div>{error.message}</div>
-    }
-    return <ErrorComponent error={error} />
   },
   notFoundComponent: () => {
     return (

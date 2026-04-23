@@ -13,7 +13,7 @@ type ProjectCardViewProps = {
 export function ProjectCard({ project }: ProjectCardProps) {
   const navigate = useNavigate()
   const domain = project?.domain_id // Assuming domain_id is the domai
-  const rootPath = `/accounts/${domain}/projects/${project.id}/compute`
+  const rootPath = `/accounts/${domain}/projects/${project.id}`
   return (
     <Box
       className="hover:bg-theme-background-lvl-2 min-h-50 rounded-lg p-6 shadow-md"

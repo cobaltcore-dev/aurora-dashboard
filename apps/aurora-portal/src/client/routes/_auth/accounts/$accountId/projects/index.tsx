@@ -54,9 +54,13 @@ export const Route = createFileRoute("/_auth/accounts/$accountId/projects/")({
   }),
 
   loader: async ({ context, params, deps }) => {
-    const projects = await context.trpcClient?.project.searchProjects.query({
-      search: deps.search,
-    })
+    const projects = await context.trpcClient?.project.searchProjects
+      .query({
+        search: deps.search,
+      })
+      .catch(() => {
+        return []
+      })
     return {
       accountId: params.accountId,
       userHasAccountAccess: context.userHasAccountAccess,
