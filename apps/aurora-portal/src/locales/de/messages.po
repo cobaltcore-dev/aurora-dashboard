@@ -1285,9 +1285,6 @@ msgstr "Ungültiger Wert für die Einstellung des öffentlichen Flavors."
 msgid "IP Version"
 msgstr "IP-Version"
 
-msgid "IP:"
-msgstr "IP:"
-
 msgid "IPv4"
 msgstr "IPv4"
 

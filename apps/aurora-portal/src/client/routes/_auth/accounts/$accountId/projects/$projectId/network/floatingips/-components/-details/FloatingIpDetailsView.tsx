@@ -1,15 +1,8 @@
 import { Trans, useLingui } from "@lingui/react/macro"
-import {
-  Stack,
-  ButtonRow,
-  Button,
-  DescriptionList,
-  DescriptionTerm,
-  DescriptionDefinition,
-  ContentHeading,
-} from "@cloudoperators/juno-ui-components/index"
+import { Stack, ButtonRow, Button, ContentHeading } from "@cloudoperators/juno-ui-components"
 import type { FloatingIp } from "@/server/Network/types/floatingIp"
 import { formatFloatingIpStatus } from "@/client/utils/formatFloatingIpStatus"
+import { DetailListItem, TwoColumnDescriptionList } from "./TwoColumnDescriptionList"
 import { FloatingIpActionModals } from "../-modals/FloatingIpActionModals"
 
 interface FloatingIpDetailsViewProps {
@@ -19,11 +12,38 @@ interface FloatingIpDetailsViewProps {
 export const FloatingIpDetailsView = ({ floatingIp }: FloatingIpDetailsViewProps) => {
   const { t } = useLingui()
 
+  const basicInfoItems: DetailListItem[] = [
+    { label: t`ID`, value: floatingIp.id },
+    { label: t`Description`, value: floatingIp.description || `—` },
+    { label: t`Project ID`, value: floatingIp.project_id || `—` },
+    { label: t`Status`, value: formatFloatingIpStatus(floatingIp.status) },
+    { label: t`Created At`, value: floatingIp.created_at ? new Date(floatingIp.created_at).toLocaleString() : `—` },
+    { label: t`Updated At`, value: floatingIp.updated_at ? new Date(floatingIp.updated_at).toLocaleString() : `—` },
+    { label: t`Tags`, value: floatingIp.tags?.join(", ") || `—` },
+  ]
+
+  const networkRoutingItems: DetailListItem[] = [
+    { label: t`Floating IP Address`, value: floatingIp.floating_ip_address || `—` },
+    { label: t`Floating Network`, value: floatingIp.floating_network_id || `—` },
+    { label: t`Fixed IP Address`, value: floatingIp.fixed_ip_address || `—` },
+    { label: t`Port Name`, value: floatingIp.port_details?.name || `—` },
+    { label: t`MAC Address`, value: floatingIp.port_details?.mac_address || `—` },
+    { label: t`Network ID`, value: floatingIp.port_details?.network_id || `—` },
+    { label: t`Device Owner`, value: floatingIp.port_details?.device_owner || `—` },
+    { label: t`Device ID`, value: floatingIp.port_details?.device_id || `—` },
+    { label: t`Router ID`, value: floatingIp.router_id || `—` },
+    { label: t`Port ID`, value: floatingIp.port_id || `—` },
+    { label: t`QoS Policy ID`, value: floatingIp.qos_policy_id || `—` },
+    { label: t`Port Forwarding`, value: floatingIp.port_forwardings?.map((port) => port.id).join(", ") || `—` },
+  ]
+
+  const dnsItems: DetailListItem[] = [
+    { label: t`DNS Domain`, value: floatingIp.dns_domain || `—` },
+    { label: t`DNS Name`, value: floatingIp.dns_name || `—` },
+  ]
+
   return (
     <>
-      <ContentHeading>
-        {t`IP:`} {floatingIp.floating_ip_address}
-      </ContentHeading>
       <p className="text-theme-secondary mt-2 text-sm">
         <Trans>
           Full lifecycle management of Floating IPs, including attachment, port association/disassociation, DNS
@@ -42,95 +62,26 @@ export const FloatingIpDetailsView = ({ floatingIp }: FloatingIpDetailsViewProps
         )}
       </FloatingIpActionModals>
 
-      <Stack direction="vertical" gap="6" className="mt-6">
-        {/* Basic Info  */}
+      <Stack direction="vertical" gap="6" className="my-6">
         <Stack direction="vertical" gap="2">
           <ContentHeading>
             <Trans>Basic Info</Trans>
           </ContentHeading>
-          <DescriptionList alignTerms="right">
-            <DescriptionTerm>{t`ID`}</DescriptionTerm>
-            <DescriptionDefinition>{floatingIp.id}</DescriptionDefinition>
-
-            <DescriptionTerm>{t`Description`}</DescriptionTerm>
-            <DescriptionDefinition>{floatingIp.description || `—`}</DescriptionDefinition>
-
-            <DescriptionTerm>{t`Project ID`}</DescriptionTerm>
-            <DescriptionDefinition>{floatingIp.project_id || `—`}</DescriptionDefinition>
-
-            <DescriptionTerm>{t`Status`}</DescriptionTerm>
-            <DescriptionDefinition>{formatFloatingIpStatus(floatingIp.status)}</DescriptionDefinition>
-
-            <DescriptionTerm>{t`Created At`}</DescriptionTerm>
-            <DescriptionDefinition>
-              {floatingIp.created_at ? new Date(floatingIp.created_at).toLocaleString() : `—`}
-            </DescriptionDefinition>
-
-            <DescriptionTerm>{t`Updated At`}</DescriptionTerm>
-            <DescriptionDefinition>
-              {floatingIp.updated_at ? new Date(floatingIp.updated_at).toLocaleString() : `—`}
-            </DescriptionDefinition>
-
-            <DescriptionTerm>{t`Tags`}</DescriptionTerm>
-            <DescriptionDefinition>{floatingIp.tags?.join(", ") || `—`}</DescriptionDefinition>
-          </DescriptionList>
+          <TwoColumnDescriptionList items={basicInfoItems} />
         </Stack>
-        {/* Network & Routing  */}
+
         <Stack direction="vertical" gap="2">
           <ContentHeading>
             <Trans>Network & Routing</Trans>
           </ContentHeading>
-          <DescriptionList alignTerms="right">
-            <DescriptionTerm>{t`Floating IP Address`}</DescriptionTerm>
-            <DescriptionDefinition>{floatingIp.floating_ip_address || `—`}</DescriptionDefinition>
-
-            <DescriptionTerm>{t`Floating Network`}</DescriptionTerm>
-            <DescriptionDefinition>{floatingIp.floating_network_id || `—`}</DescriptionDefinition>
-
-            <DescriptionTerm>{t`Fixed IP Address`}</DescriptionTerm>
-            <DescriptionDefinition>{floatingIp.fixed_ip_address || `—`}</DescriptionDefinition>
-
-            <DescriptionTerm>{t`Port Name`}</DescriptionTerm>
-            <DescriptionDefinition>{floatingIp.port_details?.name || `—`}</DescriptionDefinition>
-
-            <DescriptionTerm>{t`MAC Address`}</DescriptionTerm>
-            <DescriptionDefinition>{floatingIp.port_details?.mac_address || `—`}</DescriptionDefinition>
-
-            <DescriptionTerm>{t`Network ID`}</DescriptionTerm>
-            <DescriptionDefinition>{floatingIp.port_details?.network_id || `—`}</DescriptionDefinition>
-
-            <DescriptionTerm>{t`Device Owner`}</DescriptionTerm>
-            <DescriptionDefinition>{floatingIp.port_details?.device_owner || `—`}</DescriptionDefinition>
-
-            <DescriptionTerm>{t`Device ID`}</DescriptionTerm>
-            <DescriptionDefinition>{floatingIp.port_details?.device_id || `—`}</DescriptionDefinition>
-            <DescriptionTerm>{t`Router ID`}</DescriptionTerm>
-            <DescriptionDefinition>{floatingIp.router_id || `—`}</DescriptionDefinition>
-
-            <DescriptionTerm>{t`Port ID`}</DescriptionTerm>
-            <DescriptionDefinition>{floatingIp.port_id || `—`}</DescriptionDefinition>
-
-            <DescriptionTerm>{t`QoS Policy ID`}</DescriptionTerm>
-            <DescriptionDefinition>{floatingIp.qos_policy_id || `—`}</DescriptionDefinition>
-
-            <DescriptionTerm>{t`Port Forwarding`}</DescriptionTerm>
-            <DescriptionDefinition>
-              {floatingIp.port_forwardings?.map((port) => port.id).join(", ") || `—`}
-            </DescriptionDefinition>
-          </DescriptionList>
+          <TwoColumnDescriptionList items={networkRoutingItems} />
         </Stack>
-        {/* DNS */}
+
         <Stack direction="vertical" gap="2">
           <ContentHeading>
             <Trans>DNS</Trans>
           </ContentHeading>
-          <DescriptionList alignTerms="right">
-            <DescriptionTerm>{t`DNS Domain`}</DescriptionTerm>
-            <DescriptionDefinition>{floatingIp.dns_domain || `—`}</DescriptionDefinition>
-
-            <DescriptionTerm>{t`DNS Name`}</DescriptionTerm>
-            <DescriptionDefinition>{floatingIp.dns_name || `—`}</DescriptionDefinition>
-          </DescriptionList>
+          <TwoColumnDescriptionList items={dnsItems} />
         </Stack>
       </Stack>
     </>

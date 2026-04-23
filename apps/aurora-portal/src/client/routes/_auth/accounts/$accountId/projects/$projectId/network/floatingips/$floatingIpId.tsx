@@ -73,6 +73,6 @@ function RouteComponent() {
     )
   }
 
-  setPageTitle(floatingIp.floating_ip_address || floatingIpId)
+  setPageTitle(`IP: ${floatingIp.floating_ip_address || floatingIpId}`)
   return <FloatingIpDetailsView floatingIp={floatingIp} />
 }
