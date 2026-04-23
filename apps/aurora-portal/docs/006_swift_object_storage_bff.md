@@ -213,23 +213,25 @@ const progressSub = trpcClient.storage.swift.watchUploadProgress.subscribe(
   }
 )
 
-// 2. Build FormData — file part MUST be last (FormData append order is preserved by the BFF)
-const formData = new FormData()
-formData.append("container", container)
-formData.append("object", objectPath)
-formData.append("contentType", file.type || "application/octet-stream") // MIME type detected client-side
-formData.append("fileSize", String(file.size)) // enables percent tracking
-formData.append("file", file) // must be last
-
-// 3. Upload
-const { success, uploadId: id } = await trpcClient.storage.swift.uploadObject.mutate(formData)
+// 2. Upload raw file body with metadata in request headers
+const { success } = await trpcClient.storage.swift.uploadObject.mutate(file, {
+  context: {
+    headers: {
+      "x-upload-container": container,
+      "x-upload-object": objectPath,
+      "x-upload-type": file.type || "application/octet-stream",
+      "x-upload-size": String(file.size),
+      "x-upload-id": uploadId,
+    },
+  },
+})
 progressSub.unsubscribe()
-console.log("Upload complete:", success, id)
+console.log("Upload complete:", success)
 ```
 
 > **Note:** `uploadId` is `"<container>:<objectPath>"` — computable client-side before the mutation resolves, so the subscription can be opened first. The progress subscription can be consumed either via `trpcReact.storage.swift.watchUploadProgress.useSubscription()` in React components, or via the vanilla `trpcClient` `.subscribe()` call outside of React.
 >
-> `Content-Length` is set automatically when `fileSize > 0`. If `fileSize` is omitted or zero, the header is not sent and `percent` will always be `0` in progress events (bytes still accumulate in `uploaded`).
+> `Content-Length` is set from the `x-upload-size` header. If omitted or zero, the header is not sent and `percent` will always be `0` in progress events (bytes still accumulate in `uploaded`).
 
 ### Download Object
 
@@ -450,7 +452,7 @@ import type { ContainerSummary, ObjectMetadata, AccountInfo } from "./types/swif
 1. **Service Name**: Uses `swift`
 2. **URL Structure**: Swift uses path-based hierarchy (`/account/container/object`)
 3. **Metadata Headers**: Different header prefixes (`X-Account-Meta-`, `X-Container-Meta-`, `X-Object-Meta-`)
-4. **Binary Data**: `uploadObject` streams via multipart → `Transform` → `Readable.toWeb()` → Swift PUT; `downloadObject` streams Swift response as base64 chunks via async iterable mutation
+4. **Binary Data**: `uploadObject` streams the raw `File` body via `octetInputParser` with metadata in `x-upload-*` request headers → `Transform` → `Readable.toWeb()` → Swift PUT; `downloadObject` streams Swift response as base64 chunks via async iterable mutation
 5. **HTTP Methods**: Swift uses COPY method for object copying
 6. **Response Codes**: 204 No Content for empty listings instead of 200
 7. **Bulk Delete Response Format**: The `bulk_delete` middleware on some deployments only supports `text/plain` responses. All bulk delete operations explicitly set `Accept: text/plain` and parse `Number Deleted`, `Number Not Found`, and `Errors` from the plain text body via regex rather than `response.json()`
