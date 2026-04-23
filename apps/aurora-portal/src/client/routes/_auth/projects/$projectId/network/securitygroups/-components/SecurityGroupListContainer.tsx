@@ -1,18 +1,15 @@
 import { useState, useEffect, useRef } from "react"
 import { DataGrid, DataGridHeadCell, DataGridRow, Stack, Spinner } from "@cloudoperators/juno-ui-components"
-import { Trans } from "@lingui/react/macro"
+import { Trans, useLingui } from "@lingui/react/macro"
 import { useNavigate } from "@tanstack/react-router"
 import { useProjectId } from "@/client/hooks"
 import type { SecurityGroup } from "@/server/Network/types/securityGroup"
 import type { UpdateSecurityGroupInput } from "@/server/Network/types/securityGroup"
-import { EditSecurityGroupModal } from "@/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/EditSecurityGroupModal"
-import { DeleteSecurityGroupDialog } from "@/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/DeleteSecurityGroupDialog"
-import {
-  SecurityGroupTableRow,
-  type SecurityGroupPermissions,
-} from "@/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/SecurityGroupTableRow"
+import { EditSecurityGroupModal } from "./-modals/EditSecurityGroupModal"
+import { DeleteSecurityGroupDialog } from "./-modals/DeleteSecurityGroupDialog"
+import { SecurityGroupTableRow, type SecurityGroupPermissions } from "./SecurityGroupTableRow"
 
-interface SecurityGroupListContainerProjectScopedProps {
+interface SecurityGroupListContainerProps {
   securityGroups: SecurityGroup[]
   isLoading: boolean
   isError: boolean
@@ -28,15 +25,10 @@ interface SecurityGroupListContainerProjectScopedProps {
   ) => void
   isUpdatingSecurityGroup?: boolean
   updateError?: string | null
+  currentProjectId?: string
 }
 
-/**
- * Project-Scoped Security Group List Container
- *
- * Key difference from original: Uses new routing pattern /projects/:projectId/...
- * Does NOT require accountId for navigation
- */
-export const SecurityGroupListContainerProjectScoped = ({
+export const SecurityGroupListContainer = ({
   securityGroups,
   isLoading,
   isError,
@@ -48,9 +40,11 @@ export const SecurityGroupListContainerProjectScoped = ({
   onUpdateSecurityGroup,
   isUpdatingSecurityGroup = false,
   updateError = null,
-}: SecurityGroupListContainerProjectScopedProps) => {
+  currentProjectId,
+}: SecurityGroupListContainerProps) => {
+  const { t } = useLingui()
   const navigate = useNavigate()
-  const projectId = useProjectId() // Get projectId from URL directly
+  const projectId = useProjectId()
   const [selectedSecurityGroup, setSelectedSecurityGroup] = useState<SecurityGroup | null>(null)
   const [editModalOpen, setEditModalOpen] = useState(false)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
@@ -68,7 +62,6 @@ export const SecurityGroupListContainerProjectScoped = ({
   }
 
   const handleViewDetails = (sg: SecurityGroup) => {
-    // NEW: Navigate using project-scoped URL (no accountId needed!)
     navigate({
       to: "/projects/$projectId/network/securitygroups/$securityGroupId",
       params: { projectId, securityGroupId: sg.id },
@@ -87,96 +80,80 @@ export const SecurityGroupListContainerProjectScoped = ({
 
   // Close delete dialog when deletion completes successfully
   useEffect(() => {
+    // Check if deletion just finished (was deleting before, now not deleting)
     const deletionJustFinished = prevIsDeletingRef.current && !isDeletingSecurityGroup
 
+    // Close dialog if deletion just finished and there's no error
     if (deletionJustFinished && deleteDialogOpen && !deleteError) {
       closeDeleteDialog()
     }
 
+    // Update the ref for next render
     prevIsDeletingRef.current = isDeletingSecurityGroup
-  }, [isDeletingSecurityGroup, deleteDialogOpen, deleteError])
+  }, [isDeletingSecurityGroup, deleteError, deleteDialogOpen])
 
   // Close edit modal when update completes successfully
   useEffect(() => {
+    // Check if update just finished (was updating before, now not updating)
     const updateJustFinished = prevIsUpdatingRef.current && !isUpdatingSecurityGroup
 
+    // Close modal if update just finished and there's no error
     if (updateJustFinished && editModalOpen && !updateError) {
       closeEditModal()
     }
 
+    // Update the ref for next render
     prevIsUpdatingRef.current = isUpdatingSecurityGroup
-  }, [isUpdatingSecurityGroup, editModalOpen, updateError])
+  }, [isUpdatingSecurityGroup, updateError, editModalOpen])
 
-  const handleConfirmDelete = () => {
-    if (selectedSecurityGroup && onDeleteSecurityGroup) {
-      onDeleteSecurityGroup(selectedSecurityGroup.id)
-    }
-  }
-
-  const handleUpdateSecurityGroup = async (
-    securityGroupId: string,
-    data: Omit<UpdateSecurityGroupInput, "securityGroupId" | "project_id">
-  ): Promise<void> => {
-    if (onUpdateSecurityGroup) {
-      await onUpdateSecurityGroup(securityGroupId, data)
-    }
-  }
-
+  // Loading state
   if (isLoading) {
     return (
-      <Stack distribution="center" alignment="center" className="py-8">
-        <Spinner variant="primary" />
+      <Stack className="py-8" distribution="center" alignment="center" direction="vertical">
+        <Spinner variant="primary" size="large" className="mb-2" />
+        <Trans>Loading...</Trans>
       </Stack>
     )
   }
 
+  // Error state
   if (isError) {
     return (
-      <div className="text-theme-error p-4">
-        <Trans>Error loading security groups</Trans>: {error?.message}
-      </div>
+      <Stack className="py-8" distribution="center" alignment="center" direction="vertical">
+        {error?.message ?? t`Failed to load security groups`}
+      </Stack>
     )
   }
 
+  // Empty state
   if (securityGroups.length === 0) {
-    return (
-      <div className="text-theme-light p-4">
-        <Trans>No security groups found</Trans>
-      </div>
-    )
+    return <Trans>There are no groups</Trans>
   }
 
   return (
     <>
-      <DataGrid columns={5} className="security-groups-table">
+      <DataGrid columns={5}>
         <DataGridRow>
-          <DataGridHeadCell>
-            <Trans>Name</Trans>
-          </DataGridHeadCell>
-          <DataGridHeadCell>
-            <Trans>Description</Trans>
-          </DataGridHeadCell>
-          <DataGridHeadCell>
-            <Trans>Shared</Trans>
-          </DataGridHeadCell>
-          <DataGridHeadCell>
-            <Trans>Stateful</Trans>
-          </DataGridHeadCell>
-          <DataGridHeadCell>
-            <Trans>Actions</Trans>
-          </DataGridHeadCell>
+          {[t`Name`, t`Description`, t`Shared`, t`Stateful`, ""].map((label) => (
+            <DataGridHeadCell key={label}>{label}</DataGridHeadCell>
+          ))}
         </DataGridRow>
+        {securityGroups.map((sg) => {
+          // Compute isReadOnly only when the security group has an explicit project owner
+          const isReadOnly = Boolean(currentProjectId && sg.project_id && sg.project_id !== currentProjectId)
 
-        {securityGroups.map((sg) => (
-          <SecurityGroupTableRow
-            key={sg.id}
-            securityGroup={sg}
-            permissions={permissions}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-            onViewDetails={handleViewDetails}
-          />
-        ))}
+          return (
+            <SecurityGroupTableRow
+              key={sg.id}
+              securityGroup={sg}
+              permissions={permissions}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+              onViewDetails={handleViewDetails}
+              isReadOnly={isReadOnly}
+            />
+          )
+        })}
       </DataGrid>
 
       {selectedSecurityGroup && (
@@ -185,16 +162,23 @@ export const SecurityGroupListContainerProjectScoped = ({
             securityGroup={selectedSecurityGroup}
             open={editModalOpen}
             onClose={closeEditModal}
-            onUpdate={(securityGroupId, data) => handleUpdateSecurityGroup(securityGroupId, data)}
+            onUpdate={async (id, data) => {
+              if (onUpdateSecurityGroup) {
+                await onUpdateSecurityGroup(id, data)
+              }
+            }}
             isLoading={isUpdatingSecurityGroup}
             error={updateError}
           />
-
           <DeleteSecurityGroupDialog
             securityGroup={selectedSecurityGroup}
             isOpen={deleteDialogOpen}
             onClose={closeDeleteDialog}
-            onDelete={handleConfirmDelete}
+            onDelete={(id) => {
+              if (onDeleteSecurityGroup) {
+                onDeleteSecurityGroup(id)
+              }
+            }}
             isDeleting={isDeletingSecurityGroup}
             error={deleteError}
           />

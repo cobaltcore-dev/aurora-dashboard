@@ -1,13 +1,14 @@
 import { useState } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
+import { useNavigate } from "@tanstack/react-router"
 import { Button } from "@cloudoperators/juno-ui-components"
 import { trpcReact } from "@/client/trpcClient"
 import { ListToolbar } from "@/client/components/ListToolbar"
 import { buildFilterParams } from "@/client/utils/buildFilterParams"
 import { useListWithFiltering } from "@/client/utils/useListWithFiltering"
 import { useProjectId } from "@/client/hooks"
-import { SecurityGroupListContainerProjectScoped } from "./SecurityGroupListContainerProjectScoped"
-import { CreateSecurityGroupModal } from "@/client/routes/_auth/accounts/$accountId/projects/$projectId/network/-components/SecurityGroups/-components/-modals/CreateSecurityGroupModal"
+import { SecurityGroupListContainer } from "./SecurityGroupListContainer"
+import { CreateSecurityGroupModal } from "./-modals/CreateSecurityGroupModal"
 import { CreateSecurityGroupInput, UpdateSecurityGroupInput } from "@/server/Network/types/securityGroup"
 
 // Security group shared filter constants
@@ -18,17 +19,9 @@ const SECURITY_GROUP_SHARED = {
 
 type SecurityGroupSortKey = "name" | "project_id"
 
-/**
- * New Project-Scoped Security Groups List
- *
- * This component wraps the existing SecurityGroups component
- * but works with the new /projects/:projectId/... route structure
- * instead of /accounts/:accountId/projects/:projectId/...
- *
- * Key difference: Navigation doesn't require accountId
- */
-export const SecurityGroupsProjectScoped = () => {
+export const SecurityGroups = () => {
   const { t } = useLingui()
+  const navigate = useNavigate()
   const projectId = useProjectId()
 
   const [createModalOpen, setCreateModalOpen] = useState(false)
@@ -85,32 +78,46 @@ export const SecurityGroupsProjectScoped = () => {
   )
 
   const createSecurityGroupMutation = trpcReact.network.securityGroup.create.useMutation({
-    onSuccess: () => {
+    onSuccess: (createdSecurityGroup) => {
+      // Invalidate and refetch the security groups list
       utils.network.securityGroup.list.invalidate()
-      setCreateModalOpen(false)
       setCreateError(null)
+
+      // Navigate to the details page of the newly created security group
+      navigate({
+        to: "/projects/$projectId/network/securitygroups/$securityGroupId",
+        params: {
+          projectId,
+          securityGroupId: createdSecurityGroup.id,
+        },
+      })
     },
     onError: (error) => {
+      // Backend handles error parsing, just display the message
       setCreateError(error.message || t`Failed to create security group`)
     },
   })
 
   const deleteSecurityGroupMutation = trpcReact.network.securityGroup.deleteById.useMutation({
     onSuccess: () => {
+      // Invalidate and refetch the security groups list
       utils.network.securityGroup.list.invalidate()
       setDeleteError(null)
     },
     onError: (error) => {
+      // Backend handles error parsing, just display the message
       setDeleteError(error.message || t`Failed to delete security group`)
     },
   })
 
   const updateSecurityGroupMutation = trpcReact.network.securityGroup.update.useMutation({
     onSuccess: () => {
+      // Invalidate and refetch the security groups list
       utils.network.securityGroup.list.invalidate()
       setUpdateError(null)
     },
     onError: (error) => {
+      // Backend handles error parsing, just display the message
       setUpdateError(error.message || t`Failed to update security group`)
     },
   })
@@ -151,7 +158,7 @@ export const SecurityGroupsProjectScoped = () => {
         }
       />
 
-      <SecurityGroupListContainerProjectScoped
+      <SecurityGroupListContainer
         securityGroups={securityGroups}
         isLoading={isLoading}
         isError={isError}
@@ -164,6 +171,7 @@ export const SecurityGroupsProjectScoped = () => {
         onUpdateSecurityGroup={handleUpdateSecurityGroup}
         isUpdatingSecurityGroup={updateSecurityGroupMutation.isPending}
         updateError={updateError}
+        currentProjectId={projectId}
       />
 
       <CreateSecurityGroupModal

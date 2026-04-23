@@ -817,9 +817,6 @@ msgstr "Error Loading Objects: {errorMessage}"
 msgid "Error loading security group"
 msgstr "Error loading security group"
 
-msgid "Error loading security groups"
-msgstr "Error loading security groups"
-
 msgid "Ethertype"
 msgstr "Ethertype"
 
@@ -1611,9 +1608,6 @@ msgstr "No projects found"
 
 msgid "No projects have access to this image yet. Click \"Add Project Access\" to grant access."
 msgstr "No projects have access to this image yet. Click \"Add Project Access\" to grant access."
-
-msgid "No security groups found"
-msgstr "No security groups found"
 
 msgid "No server groups available."
 msgstr "No server groups available."
