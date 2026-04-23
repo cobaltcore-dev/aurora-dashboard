@@ -7,9 +7,7 @@ import { useProjectId } from "@/client/hooks"
 import { trpcReact } from "@/client/trpcClient"
 import { FloatingIpDetailsView } from "./-components/-details/FloatingIpDetailsView"
 
-export const Route = createFileRoute(
-  "/_auth/projects/$projectId/network/floatingips/$floatingIpId/"
-)({
+export const Route = createFileRoute("/_auth/projects/$projectId/network/floatingips/$floatingIpId/")({
   staticData: { section: "network", service: "floatingips", isDetail: true } satisfies RouteInfo,
   component: RouteComponent,
   beforeLoad: async ({ context, params }) => {

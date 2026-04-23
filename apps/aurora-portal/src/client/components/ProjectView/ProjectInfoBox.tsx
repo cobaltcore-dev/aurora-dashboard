@@ -99,8 +99,8 @@ export function ProjectInfoBox({ projectInfo }: ProjectInfoBoxProps) {
           label: sectionLabel,
           onClick: () =>
             navigate({
-              to: "/accounts/$accountId/projects/$projectId/network/overview",
-              params: { accountId, projectId },
+              to: "/projects/$projectId/network/overview",
+              params: { projectId },
             }),
         })
       } else if (section === "storage") {
@@ -135,8 +135,8 @@ export function ProjectInfoBox({ projectInfo }: ProjectInfoBoxProps) {
             label: serviceLabel,
             onClick: () =>
               navigate({
-                to: "/accounts/$accountId/projects/$projectId/network/securitygroups",
-                params: { accountId, projectId },
+                to: "/projects/$projectId/network/securitygroups",
+                params: { projectId },
               }),
           })
         } else if (section === "network" && service === "floatingips") {
@@ -144,8 +144,8 @@ export function ProjectInfoBox({ projectInfo }: ProjectInfoBoxProps) {
             label: serviceLabel,
             onClick: () =>
               navigate({
-                to: "/accounts/$accountId/projects/$projectId/network/floatingips",
-                params: { accountId, projectId },
+                to: "/projects/$projectId/network/floatingips",
+                params: { projectId },
               }),
           })
         } else {

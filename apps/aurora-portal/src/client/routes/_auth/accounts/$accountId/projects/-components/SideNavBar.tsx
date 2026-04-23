@@ -116,8 +116,8 @@ export const SideNavBar = ({ accountId, projectId, availableServices }: SideNavB
               open={openSections.network}
               onClick={() => {
                 navigate({
-                  to: "/accounts/$accountId/projects/$projectId/network/overview",
-                  params: { accountId, projectId },
+                  to: "/projects/$projectId/network/overview",
+                  params: { projectId },
                 })
                 setOpenSections((prev) => ({ ...prev, network: true }))
               }}
