@@ -805,7 +805,7 @@ msgstr ""
 msgid "Error Loading Flavor"
 msgstr ""
 
-msgid "Error loading Floating IP Details..."
+msgid "Error loading floating IP"
 msgstr ""
 
 msgid "Error loading image"
@@ -1697,9 +1697,6 @@ msgid "or drag and drop"
 msgstr ""
 
 msgid "Our Mission"
-msgstr ""
-
-msgid "Overview"
 msgstr ""
 
 msgid "Owner"

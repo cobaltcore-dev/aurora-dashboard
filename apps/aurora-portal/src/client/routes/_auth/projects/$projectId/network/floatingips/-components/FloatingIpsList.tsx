@@ -14,7 +14,7 @@ const DEFAULT_SORT_KEY = "fixed_ip_address"
 const DEFAULT_SORT_DIR = "asc"
 export type FloatingIpsSortKey = NonNullable<FloatingIpQueryParameters["sort_key"]>
 
-export const FloatingIps = () => {
+export const FloatingIpsList = () => {
   const { t } = useLingui()
   const projectId = useProjectId()
   const [allocateModalOpen, toggleAllocateModal] = useModal(false)

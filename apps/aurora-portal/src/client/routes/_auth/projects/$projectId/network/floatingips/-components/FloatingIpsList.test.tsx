@@ -8,7 +8,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import type { FloatingIp, FloatingIpCreateRequest } from "@/server/Network/types/floatingIp"
 import { trpcReact } from "@/client/trpcClient"
 import type { AllocateFloatingIpModalProps } from "./-modals/AllocateFloatingIpModal"
-import { FloatingIps } from "./FloatingIps"
+import { FloatingIpsList } from "./FloatingIpsList"
 
 // Mock useParams
 vi.mock("@tanstack/react-router", () => ({
@@ -191,7 +191,7 @@ describe("FloatingIps List", () => {
         })
       )
 
-      render(<FloatingIps />, { wrapper: createWrapper() })
+      render(<FloatingIpsList />, { wrapper: createWrapper() })
 
       expect(screen.getByTestId("floating-ip-list-container")).toBeInTheDocument()
     })
@@ -202,7 +202,7 @@ describe("FloatingIps List", () => {
       const mockUseQuery = vi.mocked(trpcReact.network.floatingIp.list.useQuery)
       mockUseQuery.mockReturnValue(createMockQueryResult<FloatingIp[]>({ data: [] }))
 
-      render(<FloatingIps />, { wrapper: createWrapper() })
+      render(<FloatingIpsList />, { wrapper: createWrapper() })
 
       expect(mockUseQuery).toHaveBeenCalledWith({
         project_id: "test-project",
@@ -218,7 +218,7 @@ describe("FloatingIps List", () => {
         })
       )
 
-      render(<FloatingIps />, { wrapper: createWrapper() })
+      render(<FloatingIpsList />, { wrapper: createWrapper() })
 
       expect(screen.getByText("Loading...")).toBeInTheDocument()
     })
@@ -231,7 +231,7 @@ describe("FloatingIps List", () => {
         })
       )
 
-      render(<FloatingIps />, { wrapper: createWrapper() })
+      render(<FloatingIpsList />, { wrapper: createWrapper() })
 
       expect(screen.getByTestId("error")).toHaveTextContent("Failed to fetch floating IPs")
     })
@@ -243,7 +243,7 @@ describe("FloatingIps List", () => {
         })
       )
 
-      render(<FloatingIps />, { wrapper: createWrapper() })
+      render(<FloatingIpsList />, { wrapper: createWrapper() })
 
       expect(screen.getByTestId("floating-ips-data")).toHaveTextContent("2 floating IPs")
     })
@@ -255,7 +255,7 @@ describe("FloatingIps List", () => {
       mockUseQuery.mockReturnValue(createMockQueryResult<FloatingIp[]>({ data: mockFloatingIps }))
 
       const user = userEvent.setup()
-      render(<FloatingIps />, { wrapper: createWrapper() })
+      render(<FloatingIpsList />, { wrapper: createWrapper() })
 
       const sortSelect = screen.getByTestId("sort-select")
       await user.click(sortSelect)
@@ -275,7 +275,7 @@ describe("FloatingIps List", () => {
       mockUseQuery.mockReturnValue(createMockQueryResult<FloatingIp[]>({ data: mockFloatingIps }))
 
       const user = userEvent.setup()
-      render(<FloatingIps />, { wrapper: createWrapper() })
+      render(<FloatingIpsList />, { wrapper: createWrapper() })
 
       const directionToggle = screen.getByTestId("direction-toggle")
       await user.click(directionToggle)
@@ -296,7 +296,7 @@ describe("FloatingIps List", () => {
       mockUseQuery.mockReturnValue(createMockQueryResult<FloatingIp[]>({ data: mockFloatingIps }))
 
       const user = userEvent.setup()
-      render(<FloatingIps />, { wrapper: createWrapper() })
+      render(<FloatingIpsList />, { wrapper: createWrapper() })
 
       const filterSelect = screen.getByTestId("select-filterValue")
       await user.click(filterSelect)
@@ -317,7 +317,7 @@ describe("FloatingIps List", () => {
       mockUseQuery.mockReturnValue(createMockQueryResult<FloatingIp[]>({ data: mockFloatingIps }))
 
       const user = userEvent.setup()
-      render(<FloatingIps />, { wrapper: createWrapper() })
+      render(<FloatingIpsList />, { wrapper: createWrapper() })
 
       const filterSelect = screen.getByTestId("select-filterValue")
       await user.click(filterSelect)
@@ -340,7 +340,7 @@ describe("FloatingIps List", () => {
       mockUseQuery.mockReturnValue(createMockQueryResult<FloatingIp[]>({ data: mockFloatingIps }))
 
       const user = userEvent.setup()
-      render(<FloatingIps />, { wrapper: createWrapper() })
+      render(<FloatingIpsList />, { wrapper: createWrapper() })
 
       const searchbox = screen.getByRole("searchbox")
       await user.type(searchbox, "203.0.113")
@@ -358,7 +358,7 @@ describe("FloatingIps List", () => {
       const mockUseQuery = vi.mocked(trpcReact.network.floatingIp.list.useQuery)
       mockUseQuery.mockReturnValue(createMockQueryResult<FloatingIp[]>({ data: mockFloatingIps }))
 
-      render(<FloatingIps />, { wrapper: createWrapper() })
+      render(<FloatingIpsList />, { wrapper: createWrapper() })
 
       const initialCall = mockUseQuery.mock.calls[0][0] as Record<string, unknown>
       expect("searchTerm" in initialCall).toBe(false)
@@ -371,7 +371,7 @@ describe("FloatingIps List", () => {
         createMockQueryResult<FloatingIp[]>({ data: [] })
       )
 
-      render(<FloatingIps />, { wrapper: createWrapper() })
+      render(<FloatingIpsList />, { wrapper: createWrapper() })
 
       expect(screen.getByRole("button", { name: /Allocate Floating IP/i })).toBeInTheDocument()
     })
@@ -382,7 +382,7 @@ describe("FloatingIps List", () => {
       )
 
       const user = userEvent.setup()
-      render(<FloatingIps />, { wrapper: createWrapper() })
+      render(<FloatingIpsList />, { wrapper: createWrapper() })
 
       expect(screen.queryByTestId("allocate-modal")).not.toBeInTheDocument()
       await user.click(screen.getByRole("button", { name: /Allocate Floating IP/i }))
@@ -395,7 +395,7 @@ describe("FloatingIps List", () => {
       )
 
       const user = userEvent.setup()
-      render(<FloatingIps />, { wrapper: createWrapper() })
+      render(<FloatingIpsList />, { wrapper: createWrapper() })
 
       await user.click(screen.getByRole("button", { name: /Allocate Floating IP/i }))
       expect(screen.getByTestId("allocate-modal")).toBeInTheDocument()
@@ -410,7 +410,7 @@ describe("FloatingIps List", () => {
       )
 
       const user = userEvent.setup()
-      render(<FloatingIps />, { wrapper: createWrapper() })
+      render(<FloatingIpsList />, { wrapper: createWrapper() })
 
       await user.click(screen.getByRole("button", { name: /Allocate Floating IP/i }))
       await user.click(screen.getByTestId("modal-submit"))
@@ -427,7 +427,7 @@ describe("FloatingIps List", () => {
       mockUseQuery.mockReturnValue(createMockQueryResult<FloatingIp[]>({ data: mockFloatingIps }))
 
       const user = userEvent.setup()
-      render(<FloatingIps />, { wrapper: createWrapper() })
+      render(<FloatingIpsList />, { wrapper: createWrapper() })
 
       // Change sort
       const sortSelect = screen.getByTestId("sort-select")

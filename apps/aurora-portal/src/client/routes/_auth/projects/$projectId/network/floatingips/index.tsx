@@ -1,9 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router"
 import { useLingui } from "@lingui/react/macro"
-import { FloatingIps } from "./-components/FloatingIps"
+import { FloatingIpsList } from "./-components/FloatingIpsList"
 import type { RouteInfo } from "@/client/routes/routeInfo"
 
-export const Route = createFileRoute("/_auth/accounts/$accountId/projects/$projectId/network/floatingips/")({
+export const Route = createFileRoute("/_auth/projects/$projectId/network/floatingips/")({
   staticData: { section: "network", service: "floatingips" } satisfies RouteInfo,
   component: RouteComponent,
 })
@@ -11,8 +11,6 @@ export const Route = createFileRoute("/_auth/accounts/$accountId/projects/$proje
 function RouteComponent() {
   const { t } = useLingui()
   const { setPageTitle } = Route.useRouteContext()
-
   setPageTitle(t`Floating IPs`)
-
-  return <FloatingIps />
+  return <FloatingIpsList />
 }

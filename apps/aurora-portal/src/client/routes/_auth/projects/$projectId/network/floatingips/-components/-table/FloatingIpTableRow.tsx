@@ -1,4 +1,4 @@
-import { useNavigate, useParams } from "@tanstack/react-router"
+import { useNavigate } from "@tanstack/react-router"
 import { useLingui } from "@lingui/react/macro"
 import {
   DataGridCell,
@@ -10,6 +10,7 @@ import {
 import { FloatingIp } from "@/server/Network/types/floatingIp"
 import { STATUS_CONFIG } from "./constants"
 import { FloatingIpActionModals } from "../-modals/FloatingIpActionModals"
+import { useProjectId } from "@/client/hooks"
 
 interface FloatingIpTableRowProps {
   floatingIp: FloatingIp
@@ -18,14 +19,12 @@ interface FloatingIpTableRowProps {
 export const FloatingIpTableRow = ({ floatingIp }: FloatingIpTableRowProps) => {
   const { t } = useLingui()
   const navigate = useNavigate()
-  const { accountId, projectId } = useParams({ strict: false })
+  const projectId = useProjectId()
 
   const navigateToDetailsPage = () => {
-    if (!accountId || !projectId) return
-
     navigate({
-      to: "/accounts/$accountId/projects/$projectId/network/floatingips/$floatingIpId",
-      params: { accountId, projectId, floatingIpId: floatingIp.id },
+      to: "/projects/$projectId/network/floatingips/$floatingIpId",
+      params: { projectId, floatingIpId: floatingIp.id },
     })
   }
 

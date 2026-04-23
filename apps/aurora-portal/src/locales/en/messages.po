@@ -805,8 +805,8 @@ msgstr "Error Loading Containers: {errorMessage}"
 msgid "Error Loading Flavor"
 msgstr "Error Loading Flavor"
 
-msgid "Error loading Floating IP Details..."
-msgstr "Error loading Floating IP Details..."
+msgid "Error loading floating IP"
+msgstr "Error loading floating IP"
 
 msgid "Error loading image"
 msgstr "Error loading image"
@@ -1698,9 +1698,6 @@ msgstr "or drag and drop"
 
 msgid "Our Mission"
 msgstr "Our Mission"
-
-msgid "Overview"
-msgstr "Overview"
 
 msgid "Owner"
 msgstr "Owner"
