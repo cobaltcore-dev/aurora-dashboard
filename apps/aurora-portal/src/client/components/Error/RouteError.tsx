@@ -11,15 +11,7 @@ interface RouteErrorProps {
   reset?: () => void
 }
 
-export function RouteError({
-  error,
-  statusCode,
-  title,
-  helpText,
-  onBackClick,
-  onHomeClick,
-  reset,
-}: RouteErrorProps) {
+export function RouteError({ error, statusCode, title, helpText, onBackClick, onHomeClick, reset }: RouteErrorProps) {
   const { t } = useLingui()
 
   const defaultTitle = t`Unable to Load Content`
@@ -32,7 +24,7 @@ export function RouteError({
     <div className="flex min-h-[400px] items-center justify-center p-8">
       <Message variant="danger" title={title || defaultTitle} className="max-w-2xl">
         <div className="space-y-2">
-          {statusCode && <div className="text-6xl font-bold text-theme-error">{statusCode}</div>}
+          {statusCode && <div className="text-theme-error text-6xl font-bold">{statusCode}</div>}
           <p className="text-theme-error">{errorMessage}</p>
           <p className="text-theme-light mt-2 text-sm">{helpText || defaultHelpText}</p>
           {(onBackClick || onHomeClick || reset) && (

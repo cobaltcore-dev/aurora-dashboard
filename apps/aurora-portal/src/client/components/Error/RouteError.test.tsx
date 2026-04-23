@@ -5,9 +5,7 @@ import { I18nProvider } from "@lingui/react"
 import { i18n } from "@lingui/core"
 
 // Wrapper component for tests
-const TestWrapper = ({ children }: { children: React.ReactNode }) => (
-  <I18nProvider i18n={i18n}>{children}</I18nProvider>
-)
+const TestWrapper = ({ children }: { children: React.ReactNode }) => <I18nProvider i18n={i18n}>{children}</I18nProvider>
 
 describe("RouteError", () => {
   beforeEach(() => {
@@ -20,9 +18,7 @@ describe("RouteError", () => {
     expect(screen.getByText("Unable to Load Content")).toBeInTheDocument()
     expect(screen.getByText("Something went wrong")).toBeInTheDocument()
     expect(
-      screen.getByText(
-        /This could be due to insufficient permissions or a temporary service issue/i
-      )
+      screen.getByText(/This could be due to insufficient permissions or a temporary service issue/i)
     ).toBeInTheDocument()
   })
 
@@ -48,21 +44,14 @@ describe("RouteError", () => {
     render(<RouteError error={error} helpText={customHelpText} />, { wrapper: TestWrapper })
 
     expect(screen.getByText(customHelpText)).toBeInTheDocument()
-    expect(
-      screen.queryByText(/This could be due to insufficient permissions/i)
-    ).not.toBeInTheDocument()
+    expect(screen.queryByText(/This could be due to insufficient permissions/i)).not.toBeInTheDocument()
   })
 
   test("renders with custom title and help text", () => {
     const error = new Error("Network failure")
-    render(
-      <RouteError
-        error={error}
-        title="Connection Error"
-        helpText="Check your network connection"
-      />,
-      { wrapper: TestWrapper }
-    )
+    render(<RouteError error={error} title="Connection Error" helpText="Check your network connection" />, {
+      wrapper: TestWrapper,
+    })
 
     expect(screen.getByText("Connection Error")).toBeInTheDocument()
     expect(screen.getByText("Network failure")).toBeInTheDocument()
