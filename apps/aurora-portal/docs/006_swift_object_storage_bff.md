@@ -122,11 +122,11 @@ Complete tRPC router with procedures for:
 #### Upload Operations
 
 - `uploadObject` - Upload a file via `octetInputParser` (raw `application/octet-stream` body); metadata sent as custom request headers (`x-upload-container`, `x-upload-object`, `x-upload-type`, `x-upload-size`, `x-upload-id`, `x-upload-account`); streams through a Node.js `Transform` pipe to Swift without buffering; emits per-chunk progress events via a module-level `EventEmitter`; returns `{ success }`
-- `watchUploadProgress` - tRPC subscription yielding `{ uploaded, total, percent }` in real time for a given `uploadId`; the `uploadId` is computed client-side as `"<container>:<objectPath>"` and passed as a header before the upload starts so the subscription is active from the first byte; also yields an immediate snapshot if the upload is already in progress when the subscription opens; terminates on upload completion or error
+- `watchUploadProgress` - tRPC subscription yielding `{ uploaded, total, percent }` in real time for a given `uploadId`; the `uploadId` is computed client-side as `"<container>:<objectPath>:<uuid>"` and passed as a header before the upload starts so the subscription is active from the first byte; the BFF scopes it with the Keystone project ID to prevent cross-tenant observation; also yields an immediate snapshot if the upload is already in progress when the subscription opens; terminates on upload completion or error
 
 #### Download Operations
 
-- `downloadObject` - Stream object content to the client as base64 chunks via an async iterable mutation; requires `downloadId` input (computed client-side as `"<container>:<objectPath>"`); `contentType` and `filename` are included only in the first chunk; each chunk carries `downloaded` and `total` byte counts; server never buffers the full file in memory
+- `downloadObject` - Stream object content to the client as base64 chunks via an async iterable mutation; requires `downloadId` input (computed client-side as `"<container>:<objectPath>:<uuid>"`; the BFF scopes it with the Keystone project ID to prevent cross-tenant observation); `contentType` and `filename` are included only in the first chunk; each chunk carries `downloaded` and `total` byte counts; server never buffers the full file in memory
 
 ## Key Features
 
@@ -165,7 +165,7 @@ Full support for:
 
 ### 5. Binary Data Handling
 
-- **Upload (`uploadObject`)**: Uses tRPC's `octetInputParser` — the file is sent as a raw `application/octet-stream` body, giving the BFF a true `ReadableStream` without buffering. Metadata (`container`, `object`, `contentType`, `fileSize`, `uploadId`) is passed as custom `x-upload-*` request headers read from `ctx.req.headers`. The stream is piped through a Node.js `Transform` that counts bytes per chunk, then converted to a Web `ReadableStream` via `Readable.toWeb()` and PUT to Swift. The BFF never holds the full file in memory. Per-chunk progress is emitted via a module-level `EventEmitter` keyed by the client-provided `uploadId`.
+- **Upload (`uploadObject`)**: Uses tRPC's `octetInputParser` — the file is sent as a raw `application/octet-stream` body, giving the BFF a true `ReadableStream` without buffering. Metadata (`container`, `object`, `contentType`, `fileSize`, `uploadId`) is passed as custom `x-upload-*` request headers read from `ctx.req.headers`. The stream is piped through a Node.js `Transform` that counts bytes per chunk, then converted to a Web `ReadableStream` via `Readable.toWeb()` and PUT to Swift. The BFF never holds the full file in memory. Per-chunk progress is emitted via a module-level `EventEmitter` keyed by `"${projectId}:${uploadId}"` — the BFF prepends the Keystone project ID to the client-provided `uploadId` to prevent cross-tenant progress observation.
 - **Download (`downloadObject`)**: Swift's response body is read chunk by chunk via a `ReadableStream` reader. Each chunk is base64-encoded (required because tRPC SSE transport is JSON-only) and yielded with cumulative `downloaded` and `total` byte counts. `contentType` and `filename` are included only in the first chunk. The server never buffers the full file; the client currently assembles a `Blob` in memory before saving.
 
 ## Usage Examples
@@ -197,11 +197,12 @@ await trpc.storage.swift.createContainer.mutate({
 ### Upload Object
 
 ```typescript
-// uploadId is deterministic: "<container>:<objectPath>"
+// uploadId format: "<container>:<objectPath>:<uuid>"
+// The UUID suffix prevents collisions when the same object is uploaded concurrently.
 // Compute it client-side so the subscription can be opened before the mutation.
 const container = "my-container"
 const objectPath = "folder/document.pdf" // full path including any prefix
-const uploadId = `${container}:${objectPath}`
+const uploadId = `${container}:${objectPath}:${crypto.randomUUID()}`
 
 // 1. Subscribe to progress first (vanilla tRPC client — useMutation can't consume subscriptions)
 const progressSub = trpcClient.storage.swift.watchUploadProgress.subscribe(
@@ -229,7 +230,7 @@ progressSub.unsubscribe()
 console.log("Upload complete:", success)
 ```
 
-> **Note:** `uploadId` is `"<container>:<objectPath>"` — computable client-side before the mutation resolves, so the subscription can be opened first. The progress subscription can be consumed either via `trpcReact.storage.swift.watchUploadProgress.useSubscription()` in React components, or via the vanilla `trpcClient` `.subscribe()` call outside of React.
+> **Note:** `uploadId` follows the format `"<container>:<objectPath>:<uuid>"` — computable client-side before the mutation resolves, so the subscription can be opened first. The UUID suffix prevents collisions between concurrent uploads of the same object. On the BFF, the ID is further namespaced with the Keystone project ID (`"${projectId}:${uploadId}"`) so subscribers can only observe their own project's transfers. The progress subscription can be consumed either via `trpcReact.storage.swift.watchUploadProgress.useSubscription()` in React components, or via the vanilla `trpcClient` `.subscribe()` call outside of React.
 >
 > `Content-Length` is set from the `x-upload-size` header. If omitted or zero, the header is not sent and `percent` will always be `0` in progress events (bytes still accumulate in `uploaded`).
 

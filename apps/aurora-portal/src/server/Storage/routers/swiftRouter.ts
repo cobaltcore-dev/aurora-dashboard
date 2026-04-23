@@ -1218,8 +1218,10 @@ export const swiftRouter = {
    * `uploadProgressEmitter` so that concurrent `watchUploadProgress` subscriptions
    * can receive real-time byte counts without polling.
    *
-   * The client computes `uploadId` as `"<container>:<objectPath>"` before calling
-   * this mutation so the subscription can be opened in advance.
+   * The client computes `uploadId` as `"<container>:<objectPath>:<uuid>"` before calling
+   * this mutation so the subscription can be opened in advance. The UUID suffix ensures
+   * concurrent uploads of the same object do not collide in the progress map.
+   * On the BFF, the ID is further scoped with the Keystone project ID before storage.
    */
   uploadObject: protectedProcedure
     .input(octetInputParser)
@@ -1310,8 +1312,10 @@ export const swiftRouter = {
   /**
    * Subscribes to real-time upload progress for a given `uploadId`.
    *
-   * The `uploadId` is computed client-side as `"<container>:<objectPath>"` before
+   * The `uploadId` is computed client-side as `"<container>:<objectPath>:<uuid>"` before
    * the upload mutation is called, so the subscription can be opened in advance.
+   * The BFF scopes it with the Keystone project ID so subscribers can only observe
+   * their own project's transfers.
    *
    * Yields `{ uploaded, total, percent }` as bytes flow through the server.
    * Completes when the upload finishes or throws if the upload errors.
@@ -1409,8 +1413,9 @@ export const swiftRouter = {
    *   Per-chunk progress (`downloaded`, `total`, `percent`) is stored in
    *   `downloadProgressMap` and emitted via `downloadProgressEmitter` so that
    *   a concurrent `watchDownloadProgress` subscription can drive a progress bar.
-   *   The client computes `downloadId` and passes it as input before calling
-   *   this mutation so the subscription can be opened in advance.
+   *   The client computes `downloadId` as `"<container>:<objectPath>:<uuid>"` and passes
+   *   it as input before calling this mutation so the subscription can be opened in advance.
+   *   The BFF scopes it with the Keystone project ID to prevent cross-tenant observation.
    *
    * Client-side assembly:
    *   Collect all base64 chunks → decode each → concatenate into a single
@@ -1512,9 +1517,10 @@ export const swiftRouter = {
   /**
    * Subscribes to real-time download progress for a given `downloadId`.
    *
-   * The `downloadId` is provided by the client and passed as input to
-   * `downloadObject` before the mutation starts, so this subscription
-   * is active from the very first byte.
+   * The `downloadId` is computed client-side as `"<container>:<objectPath>:<uuid>"` and
+   * passed as input to `downloadObject` before the mutation starts, so this subscription
+   * is active from the very first byte. The BFF scopes it with the Keystone project ID
+   * so subscribers can only observe their own project's transfers.
    *
    * Yields `{ downloaded, total, percent }` as bytes flow through the server.
    * `percent` is 0 when Swift does not send a Content-Length header.
