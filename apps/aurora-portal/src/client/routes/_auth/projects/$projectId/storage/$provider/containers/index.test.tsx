@@ -30,7 +30,6 @@ vi.mock("@/server/Authentication/helpers", () => ({
 
 describe("Storage Route - checkServiceAvailability", () => {
   const defaultParams = {
-    accountId: "acc-1",
     projectId: "proj-1",
     provider: "swift",
   }
@@ -66,7 +65,7 @@ describe("Storage Route - checkServiceAvailability", () => {
 
       expect(() => {
         checkServiceAvailability(defaultServices, defaultParams)
-      }).toThrow("Redirect to: /accounts/acc-1/projects")
+      }).toThrow("Redirect to: /projects/proj-1/compute/overview")
     })
 
     it("calls redirect with correct params when no storage services available", () => {
@@ -79,8 +78,8 @@ describe("Storage Route - checkServiceAvailability", () => {
       }
 
       expect(redirect).toHaveBeenCalledWith({
-        to: "/accounts/$accountId/projects",
-        params: { accountId: "acc-1" },
+        to: "/projects/$projectId/compute/overview",
+        params: { projectId: "proj-1" },
       })
     })
   })
@@ -107,7 +106,7 @@ describe("Storage Route - checkServiceAvailability", () => {
 
       expect(() => {
         checkServiceAvailability(defaultServices, { ...defaultParams, provider: "swift" })
-      }).toThrow("Redirect to: /accounts/acc-1/projects/proj-1/storage/ceph/containers")
+      }).toThrow("Redirect to: /projects/proj-1/storage/ceph/containers")
     })
 
     it("throws redirect when ceph is not available but provider is 'ceph'", () => {
@@ -119,7 +118,7 @@ describe("Storage Route - checkServiceAvailability", () => {
 
       expect(() => {
         checkServiceAvailability(defaultServices, { ...defaultParams, provider: "ceph" })
-      }).toThrow("Redirect to: /accounts/acc-1/projects/proj-1/storage/swift/containers")
+      }).toThrow("Redirect to: /projects/proj-1/storage/swift/containers")
     })
   })
 
@@ -138,7 +137,6 @@ describe("Storage Route - checkServiceAvailability", () => {
       })
 
       const params = {
-        accountId: "test-acc",
         projectId: "test-proj",
         provider: "swift",
       }
@@ -150,10 +148,10 @@ describe("Storage Route - checkServiceAvailability", () => {
       }
 
       // The implementation spreads `params` and overrides `provider`,
-      // so the call receives exactly { accountId, projectId, provider: "ceph" }.
+      // so the call receives exactly { projectId, provider: "ceph" }.
       expect(redirect).toHaveBeenCalledWith({
-        to: "/accounts/$accountId/projects/$projectId/storage/$provider/containers",
-        params: { accountId: "test-acc", projectId: "test-proj", provider: "ceph" },
+        to: "/projects/$projectId/storage/$provider/containers",
+        params: { projectId: "test-proj", provider: "ceph" },
       })
     })
   })
@@ -181,7 +179,7 @@ describe("Storage Route - checkServiceAvailability", () => {
 
       expect(() => {
         checkServiceAvailability(defaultServices, { ...defaultParams, provider: "swift" })
-      }).toThrow("Redirect to: /accounts/acc-1/projects/proj-1/storage/ceph/containers")
+      }).toThrow("Redirect to: /projects/proj-1/storage/ceph/containers")
     })
   })
 })
