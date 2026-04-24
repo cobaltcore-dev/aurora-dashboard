@@ -19,6 +19,9 @@ msgstr "-"
 msgid "—"
 msgstr "—"
 
+msgid "… and {hiddenCount} more"
+msgstr "… and {hiddenCount} more"
+
 msgid "\"{objectName}\" was successfully copied to {destination}."
 msgstr "\"{objectName}\" was successfully copied to {destination}."
 
@@ -40,11 +43,20 @@ msgstr "{allCount} items"
 msgid "{customMinutes} minutes"
 msgstr "{customMinutes} minutes"
 
+msgid "{emptiedCount} container(s) successfully emptied. {totalDeleted} object(s) deleted in total."
+msgstr "{emptiedCount} container(s) successfully emptied. {totalDeleted} object(s) deleted in total."
+
+msgid "{emptiedCount} container(s) were already empty."
+msgstr "{emptiedCount} container(s) were already empty."
+
 msgid "{progressPct}%"
 msgstr "{progressPct}%"
 
 msgid "<0>Are you sure?</0> All objects in the container will be deleted. This cannot be undone."
 msgstr "<0>Are you sure?</0> All objects in the container will be deleted. This cannot be undone."
+
+msgid "<0>Are you sure?</0> All objects in the selected containers will be permanently deleted. This cannot be undone."
+msgstr "<0>Are you sure?</0> All objects in the selected containers will be permanently deleted. This cannot be undone."
 
 msgid "<0>Are you sure?</0> Folder <1>\"{folderDisplayName}\"</1> and all objects within it will be permanently deleted. This cannot be undone."
 msgstr "<0>Are you sure?</0> Folder <1>\"{folderDisplayName}\"</1> and all objects within it will be permanently deleted. This cannot be undone."
@@ -415,6 +427,12 @@ msgstr "Container:"
 msgid "Containers"
 msgstr "Containers"
 
+msgid "Containers Emptied"
+msgstr "Containers Emptied"
+
+msgid "Containers to be emptied ({totalCount})"
+msgstr "Containers to be emptied ({totalCount})"
+
 msgid "Content type"
 msgstr "Content type"
 
@@ -760,6 +778,9 @@ msgstr "Empty All ({selectedCount})"
 msgid "Empty container:"
 msgstr "Empty container:"
 
+msgid "Empty Containers"
+msgstr "Empty Containers"
+
 msgid "Enable file listing"
 msgstr "Enable file listing"
 
@@ -960,6 +981,9 @@ msgstr "Failed to Download"
 
 msgid "Failed to Empty Container"
 msgstr "Failed to Empty Container"
+
+msgid "Failed to Empty Containers"
+msgstr "Failed to Empty Containers"
 
 msgid "Failed to fetch flavor access information. Please try again."
 msgstr "Failed to fetch flavor access information. Please try again."
@@ -1767,6 +1791,9 @@ msgstr "Objects — {containerName}"
 
 msgid "OK"
 msgstr "OK"
+
+msgid "One or more containers could not be emptied: {errorMessage}"
+msgstr "One or more containers could not be emptied: {errorMessage}"
 
 msgid "Open in new tab"
 msgstr "Open in new tab"

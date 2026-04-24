@@ -19,6 +19,9 @@ msgstr "-"
 msgid "—"
 msgstr "—"
 
+msgid "… and {hiddenCount} more"
+msgstr ""
+
 msgid "\"{objectName}\" was successfully copied to {destination}."
 msgstr "\"{objectName}\" wurde erfolgreich nach {destination} kopiert."
 
@@ -40,11 +43,20 @@ msgstr "{allCount} Elemente"
 msgid "{customMinutes} minutes"
 msgstr "{customMinutes} Minuten"
 
+msgid "{emptiedCount} container(s) successfully emptied. {totalDeleted} object(s) deleted in total."
+msgstr ""
+
+msgid "{emptiedCount} container(s) were already empty."
+msgstr ""
+
 msgid "{progressPct}%"
 msgstr "{progressPct}%"
 
 msgid "<0>Are you sure?</0> All objects in the container will be deleted. This cannot be undone."
 msgstr "<0>Sind Sie sicher?</0> Alle Objekte im Container werden gelöscht. Dies kann nicht rückgängig gemacht werden."
+
+msgid "<0>Are you sure?</0> All objects in the selected containers will be permanently deleted. This cannot be undone."
+msgstr ""
 
 msgid "<0>Are you sure?</0> Folder <1>\"{folderDisplayName}\"</1> and all objects within it will be permanently deleted. This cannot be undone."
 msgstr "<0>Sind Sie sicher?</0> Ordner <1>\"{folderDisplayName}\"</1> und alle darin enthaltenen Objekte werden dauerhaft gelöscht. Dies kann nicht rückgängig gemacht werden."
@@ -415,6 +427,12 @@ msgstr "Container:"
 msgid "Containers"
 msgstr "Container"
 
+msgid "Containers Emptied"
+msgstr ""
+
+msgid "Containers to be emptied ({totalCount})"
+msgstr ""
+
 msgid "Content type"
 msgstr "Content type"
 
@@ -760,6 +778,9 @@ msgstr ""
 msgid "Empty container:"
 msgstr "Container leeren:"
 
+msgid "Empty Containers"
+msgstr ""
+
 msgid "Enable file listing"
 msgstr "Dateilisting aktivieren"
 
@@ -960,6 +981,9 @@ msgstr "Fehler beim Herunterladen"
 
 msgid "Failed to Empty Container"
 msgstr "Fehler beim Leeren des Containers"
+
+msgid "Failed to Empty Containers"
+msgstr ""
 
 msgid "Failed to fetch flavor access information. Please try again."
 msgstr "Fehler beim Abrufen der Flavor-Zugriffsinformationen. Bitte versuchen Sie es erneut."
@@ -1767,6 +1791,9 @@ msgstr "Objekte — {containerName}"
 
 msgid "OK"
 msgstr "OK"
+
+msgid "One or more containers could not be emptied: {errorMessage}"
+msgstr ""
 
 msgid "Open in new tab"
 msgstr "In neuem Tab öffnen"

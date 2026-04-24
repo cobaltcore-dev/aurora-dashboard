@@ -18,8 +18,11 @@ import {
   getContainerUpdateErrorToast,
   getContainerAclUpdatedToast,
   getContainerAclUpdateErrorToast,
+  getContainersEmptiedToast,
+  getContainersEmptyErrorToast,
 } from "./ContainerToastNotifications"
 import { ContainerLimitsTooltip } from "./ContainerLimitsTooltip"
+import { EmptyContainersModal } from "./EmptyContainersModal"
 import { useNavigate } from "@tanstack/react-router"
 import { Route } from "../../../$provider/containers/"
 
@@ -34,6 +37,7 @@ export const SwiftContainers = () => {
   const { sortBy, sortDirection, search: searchParam = "" } = Route.useSearch()
 
   const [createModalOpen, setCreateModalOpen] = useState(false)
+  const [emptyAllModalOpen, setEmptyAllModalOpen] = useState(false)
   const [selectedContainers, setSelectedContainers] = useState<string[]>([])
   const [toastData, setToastData] = useState<ToastProps | null>(null)
 
@@ -77,6 +81,15 @@ export const SwiftContainers = () => {
 
   const handleAclError = (containerName: string, errorMessage: string) => {
     setToastData(getContainerAclUpdateErrorToast(containerName, errorMessage, { onDismiss: handleToastDismiss }))
+  }
+
+  const handleEmptyAllSuccess = (emptiedCount: number, totalDeleted: number) => {
+    setSelectedContainers([])
+    setToastData(getContainersEmptiedToast(emptiedCount, totalDeleted, { onDismiss: handleToastDismiss }))
+  }
+
+  const handleEmptyAllError = (errorMessage: string) => {
+    setToastData(getContainersEmptyErrorToast(errorMessage, { onDismiss: handleToastDismiss }))
   }
 
   const sortSettings: SortSettings = {
@@ -220,13 +233,7 @@ export const SwiftContainers = () => {
               <Button variant="primary" onClick={() => setCreateModalOpen(true)}>
                 <Trans>Create Container</Trans>
               </Button>
-              <Button
-                variant="primary-danger"
-                onClick={() => {
-                  /* TODO: open bulk empty modal */
-                }}
-                disabled={!hasSelection}
-              >
+              <Button variant="primary-danger" onClick={() => setEmptyAllModalOpen(true)} disabled={!hasSelection}>
                 {hasSelection ? <Trans>Empty All ({selectedCount})</Trans> : <Trans>Empty All</Trans>}
               </Button>
             </Stack>
@@ -251,6 +258,14 @@ export const SwiftContainers = () => {
         onAclError={handleAclError}
         selectedContainers={selectedContainers}
         setSelectedContainers={setSelectedContainers}
+      />
+
+      <EmptyContainersModal
+        isOpen={emptyAllModalOpen}
+        containers={sortedContainers.filter((c) => selectedContainers.includes(c.name))}
+        onClose={() => setEmptyAllModalOpen(false)}
+        onSuccess={handleEmptyAllSuccess}
+        onError={handleEmptyAllError}
       />
 
       {toastData && (

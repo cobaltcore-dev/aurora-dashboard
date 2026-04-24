@@ -207,3 +207,41 @@ export const getContainerAclUpdateErrorToast = (
   autoDismissTimeout: config.autoDismissTimeout ?? 5000,
   onDismiss: config.onDismiss,
 })
+
+export const getContainersEmptiedToast = (
+  emptiedCount: number,
+  totalDeleted: number,
+  config: ToastConfig
+): ToastProps => ({
+  variant: "success",
+  children: (
+    <NotificationText
+      title={<Trans>Containers Emptied</Trans>}
+      description={
+        totalDeleted === 0 ? (
+          <Trans>{emptiedCount} container(s) were already empty.</Trans>
+        ) : (
+          <Trans>
+            {emptiedCount} container(s) successfully emptied. {totalDeleted} object(s) deleted in total.
+          </Trans>
+        )
+      }
+    />
+  ),
+  autoDismiss: true,
+  autoDismissTimeout: config.autoDismissTimeout ?? 5000,
+  onDismiss: config.onDismiss,
+})
+
+export const getContainersEmptyErrorToast = (errorMessage: string, config: ToastConfig): ToastProps => ({
+  variant: "error",
+  children: (
+    <NotificationText
+      title={<Trans>Failed to Empty Containers</Trans>}
+      description={<Trans>One or more containers could not be emptied: {errorMessage}</Trans>}
+    />
+  ),
+  autoDismiss: true,
+  autoDismissTimeout: config.autoDismissTimeout ?? 5000,
+  onDismiss: config.onDismiss,
+})
