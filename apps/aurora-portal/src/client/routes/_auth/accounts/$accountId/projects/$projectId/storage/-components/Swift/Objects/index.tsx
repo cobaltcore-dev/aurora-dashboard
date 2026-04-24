@@ -311,11 +311,11 @@ export const SwiftObjects = () => {
         onSearch={handleSearchChange}
         actions={
           <Stack direction="horizontal" gap="2">
-            <Button variant="primary" onClick={() => setUploadModalOpen(true)}>
-              <Trans>Upload Object</Trans>
-            </Button>
-            <Button onClick={() => setCreateFolderModalOpen(true)}>
+            <Button variant="primary" onClick={() => setCreateFolderModalOpen(true)}>
               <Trans>Create Folder</Trans>
+            </Button>
+            <Button onClick={() => setUploadModalOpen(true)}>
+              <Trans>Upload Object</Trans>
             </Button>
             <Button variant="primary-danger" onClick={() => setDeleteAllModalOpen(true)} disabled={!hasSelection}>
               {hasSelection ? <Trans>Delete All ({selectedCount})</Trans> : <Trans>Delete All</Trans>}
