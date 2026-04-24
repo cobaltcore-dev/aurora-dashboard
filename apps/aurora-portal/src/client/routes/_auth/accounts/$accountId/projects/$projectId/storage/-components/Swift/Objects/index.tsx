@@ -11,6 +11,7 @@ import { ObjectsTableView } from "./ObjectsTableView"
 import { ObjectsFileNavigation } from "./ObjectsFileNavigation"
 import { CreateFolderModal } from "./CreateFolderModal"
 import { UploadObjectModal } from "./UploadObjectModal"
+import { DeleteObjectsModal } from "./DeleteObjectsModal"
 import {
   getFolderCreatedToast,
   getFolderCreateErrorToast,
@@ -28,6 +29,8 @@ import {
   getObjectMetadataUpdateErrorToast,
   getObjectUploadedToast,
   getObjectUploadErrorToast,
+  getObjectsBulkDeletedToast,
+  getObjectsBulkDeleteErrorToast,
 } from "./ObjectToastNotifications"
 
 // ── Prefix helpers ────────────────────────────────────────────────────────────
@@ -141,6 +144,7 @@ export const SwiftObjects = () => {
 
   const [createFolderModalOpen, setCreateFolderModalOpen] = useState(false)
   const [uploadModalOpen, setUploadModalOpen] = useState(false)
+  const [deleteAllModalOpen, setDeleteAllModalOpen] = useState(false)
   const [selectedObjects, setSelectedObjects] = useState<string[]>([])
   const [toastData, setToastData] = useState<ToastProps | null>(null)
 
@@ -180,6 +184,15 @@ export const SwiftObjects = () => {
     setToastData(getObjectMetadataUpdatedToast(objectName, { onDismiss: handleToastDismiss }))
   const handleEditMetadataError = (objectName: string, errorMessage: string) =>
     setToastData(getObjectMetadataUpdateErrorToast(objectName, errorMessage, { onDismiss: handleToastDismiss }))
+
+  const handleBulkDeleteSuccess = (numberDeleted: number) => {
+    setSelectedObjects([])
+    setToastData(getObjectsBulkDeletedToast(numberDeleted, { onDismiss: handleToastDismiss }))
+  }
+
+  const handleBulkDeleteError = (errorMessage: string) => {
+    setToastData(getObjectsBulkDeleteErrorToast(errorMessage, { onDismiss: handleToastDismiss }))
+  }
 
   const sortSettings: SortSettings = {
     options: [
@@ -304,13 +317,7 @@ export const SwiftObjects = () => {
             <Button onClick={() => setCreateFolderModalOpen(true)}>
               <Trans>Create Folder</Trans>
             </Button>
-            <Button
-              variant="primary-danger"
-              onClick={() => {
-                /* TODO: open bulk delete modal */
-              }}
-              disabled={!hasSelection}
-            >
+            <Button variant="primary-danger" onClick={() => setDeleteAllModalOpen(true)} disabled={!hasSelection}>
               {hasSelection ? <Trans>Delete All ({selectedCount})</Trans> : <Trans>Delete All</Trans>}
             </Button>
           </Stack>
@@ -335,6 +342,16 @@ export const SwiftObjects = () => {
         onEditMetadataError={handleEditMetadataError}
         selectedObjects={selectedObjects}
         setSelectedObjects={setSelectedObjects}
+      />
+
+      <DeleteObjectsModal
+        isOpen={deleteAllModalOpen}
+        objectNames={selectedObjects}
+        objectKeys={selectedObjects}
+        container={containerName}
+        onClose={() => setDeleteAllModalOpen(false)}
+        onSuccess={handleBulkDeleteSuccess}
+        onError={handleBulkDeleteError}
       />
 
       <CreateFolderModal

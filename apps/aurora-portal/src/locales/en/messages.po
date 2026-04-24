@@ -49,6 +49,12 @@ msgstr "{emptiedCount} container(s) successfully emptied. {totalDeleted} object(
 msgid "{emptiedCount} container(s) were already empty."
 msgstr "{emptiedCount} container(s) were already empty."
 
+msgid "{numberDeleted} object was permanently deleted."
+msgstr "{numberDeleted} object was permanently deleted."
+
+msgid "{numberDeleted} objects were permanently deleted."
+msgstr "{numberDeleted} objects were permanently deleted."
+
 msgid "{progressPct}%"
 msgstr "{progressPct}%"
 
@@ -66,6 +72,9 @@ msgstr "<0>Are you sure?</0> Object <1>\"{displayName}\"</1> will be permanently
 
 msgid "<0>Are you sure?</0> The container will be deleted. This cannot be undone."
 msgstr "<0>Are you sure?</0> The container will be deleted. This cannot be undone."
+
+msgid "<0>Are you sure?</0> The selected objects will be permanently deleted. This cannot be undone."
+msgstr "<0>Are you sure?</0> The selected objects will be permanently deleted. This cannot be undone."
 
 msgid "<0>Effortless Resource Provisioning:</0> Quickly provision, configure, and deploy resources like servers, networks, and volumes with just a few clicks."
 msgstr "<0>Effortless Resource Provisioning:</0> Quickly provision, configure, and deploy resources like servers, networks, and volumes with just a few clicks."
@@ -610,6 +619,9 @@ msgstr "Delete Images"
 msgid "Delete object:"
 msgstr "Delete object:"
 
+msgid "Delete Objects"
+msgstr "Delete Objects"
+
 msgid "Delete Recursively"
 msgstr "Delete Recursively"
 
@@ -966,6 +978,9 @@ msgstr "Failed to Delete Images"
 
 msgid "Failed to Delete Object"
 msgstr "Failed to Delete Object"
+
+msgid "Failed to Delete Objects"
+msgstr "Failed to Delete Objects"
 
 msgid "Failed to delete security group"
 msgstr "Failed to delete security group"
@@ -1789,11 +1804,20 @@ msgstr "Objects"
 msgid "Objects — {containerName}"
 msgstr "Objects — {containerName}"
 
+msgid "Objects Deleted"
+msgstr "Objects Deleted"
+
+msgid "Objects to be deleted ({totalCount})"
+msgstr "Objects to be deleted ({totalCount})"
+
 msgid "OK"
 msgstr "OK"
 
 msgid "One or more containers could not be emptied: {errorMessage}"
 msgstr "One or more containers could not be emptied: {errorMessage}"
+
+msgid "One or more objects could not be deleted: {errorMessage}"
+msgstr "One or more objects could not be deleted: {errorMessage}"
 
 msgid "Open in new tab"
 msgstr "Open in new tab"

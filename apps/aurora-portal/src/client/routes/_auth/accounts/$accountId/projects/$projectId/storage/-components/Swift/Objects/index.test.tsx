@@ -184,6 +184,18 @@ vi.mock("./UploadObjectModal", () => ({
   }),
 }))
 
+vi.mock("./DeleteObjectsModal", () => ({
+  DeleteObjectsModal: vi.fn(({ isOpen, objectKeys, onClose, onSuccess, onError }) =>
+    isOpen ? (
+      <div data-testid="delete-objects-modal" data-object-count={objectKeys.length}>
+        <button onClick={onClose}>CloseDeleteAll</button>
+        <button onClick={() => onSuccess?.(objectKeys.length)}>SimulateBulkDeleteSuccess</button>
+        <button onClick={() => onError?.("bulk delete failed")}>SimulateBulkDeleteError</button>
+      </div>
+    ) : null
+  ),
+}))
+
 // ─── Mock tRPC ────────────────────────────────────────────────────────────────
 
 const mockObjects: ObjectSummary[] = [
@@ -221,6 +233,8 @@ vi.mock("./ObjectToastNotifications", () => ({
   getObjectMetadataUpdateErrorToast: vi.fn(() => ({ variant: "error", children: null })),
   getObjectUploadedToast: vi.fn(() => ({ variant: "success", children: null })),
   getObjectUploadErrorToast: vi.fn(() => ({ variant: "error", children: null })),
+  getObjectsBulkDeletedToast: vi.fn(() => ({ variant: "success", children: null })),
+  getObjectsBulkDeleteErrorToast: vi.fn(() => ({ variant: "error", children: null })),
 }))
 
 vi.mock("@/client/trpcClient", () => ({
@@ -236,6 +250,22 @@ vi.mock("@/client/trpcClient", () => ({
         },
         downloadObject: {
           useMutation: vi.fn(() => ({ mutate: vi.fn(), isPending: false })),
+        },
+        bulkDelete: {
+          useMutation: vi.fn(
+            (options: {
+              onSuccess?: (r: unknown) => void
+              onError?: (e: { message: string }) => void
+              onSettled?: () => void
+            }) => ({
+              mutate: vi.fn().mockImplementation(() => {
+                options.onSuccess?.({ numberDeleted: 2, numberNotFound: 0, errors: [] })
+                options.onSettled?.()
+              }),
+              reset: vi.fn(),
+              isPending: false,
+            })
+          ),
         },
       },
     },
@@ -637,6 +667,83 @@ describe("SwiftObjects (index)", () => {
       await user.click(screen.getByTestId("simulate-deselect-all"))
       await waitFor(() => {
         expect(screen.getByRole("button", { name: "Delete All" })).toBeDisabled()
+      })
+    })
+  })
+
+  describe("Delete All modal", () => {
+    const selectOne = async (user: ReturnType<typeof userEvent.setup>) => {
+      await user.click(screen.getByTestId("simulate-select-object"))
+      await waitFor(() => expect(screen.getByRole("button", { name: /Delete All \(1\)/i })).toBeEnabled())
+    }
+
+    test("modal is not visible by default", () => {
+      renderObjects()
+      expect(screen.queryByTestId("delete-objects-modal")).not.toBeInTheDocument()
+    })
+
+    test("clicking Delete All opens the modal", async () => {
+      const user = userEvent.setup()
+      renderObjects()
+      await selectOne(user)
+      await user.click(screen.getByRole("button", { name: /Delete All \(1\)/i }))
+      await waitFor(() => {
+        expect(screen.getByTestId("delete-objects-modal")).toBeInTheDocument()
+      })
+    })
+
+    test("modal receives the selected object count", async () => {
+      const user = userEvent.setup()
+      renderObjects()
+      await selectOne(user)
+      await user.click(screen.getByRole("button", { name: /Delete All \(1\)/i }))
+      await waitFor(() => {
+        expect(screen.getByTestId("delete-objects-modal")).toHaveAttribute("data-object-count", "1")
+      })
+    })
+
+    test("closing the modal hides it", async () => {
+      const user = userEvent.setup()
+      renderObjects()
+      await selectOne(user)
+      await user.click(screen.getByRole("button", { name: /Delete All \(1\)/i }))
+      await waitFor(() => expect(screen.getByTestId("delete-objects-modal")).toBeInTheDocument())
+      await user.click(screen.getByRole("button", { name: "CloseDeleteAll" }))
+      await waitFor(() => {
+        expect(screen.queryByTestId("delete-objects-modal")).not.toBeInTheDocument()
+      })
+    })
+
+    test("shows success toast and clears selection after successful bulk delete", async () => {
+      const { getObjectsBulkDeletedToast } = await import("./ObjectToastNotifications")
+      const user = userEvent.setup()
+      renderObjects()
+      await selectOne(user)
+      await user.click(screen.getByRole("button", { name: /Delete All \(1\)/i }))
+      await waitFor(() => expect(screen.getByTestId("delete-objects-modal")).toBeInTheDocument())
+      await user.click(screen.getByRole("button", { name: "SimulateBulkDeleteSuccess" }))
+      await waitFor(() => {
+        expect(getObjectsBulkDeletedToast).toHaveBeenCalledWith(
+          1,
+          expect.objectContaining({ onDismiss: expect.any(Function) })
+        )
+        expect(screen.getByRole("button", { name: "Delete All" })).toBeDisabled()
+      })
+    })
+
+    test("shows error toast when bulk delete fails", async () => {
+      const { getObjectsBulkDeleteErrorToast } = await import("./ObjectToastNotifications")
+      const user = userEvent.setup()
+      renderObjects()
+      await selectOne(user)
+      await user.click(screen.getByRole("button", { name: /Delete All \(1\)/i }))
+      await waitFor(() => expect(screen.getByTestId("delete-objects-modal")).toBeInTheDocument())
+      await user.click(screen.getByRole("button", { name: "SimulateBulkDeleteError" }))
+      await waitFor(() => {
+        expect(getObjectsBulkDeleteErrorToast).toHaveBeenCalledWith(
+          "bulk delete failed",
+          expect.objectContaining({ onDismiss: expect.any(Function) })
+        )
       })
     })
   })
