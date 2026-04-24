@@ -263,7 +263,8 @@ export const ObjectsTableView = ({
 
   // Only object rows (not folders) are selectable
   const selectableRows = rows.filter((r): r is ObjectRow => r.kind === "object")
-  const allSelected = selectableRows.length > 0 && selectedObjects.length === selectableRows.length
+  const selectedSet = new Set(selectedObjects)
+  const allSelected = selectableRows.length > 0 && selectableRows.every((r) => selectedSet.has(r.name))
 
   const handleSelectAll = () => {
     if (allSelected) {
