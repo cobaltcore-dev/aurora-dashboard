@@ -29,12 +29,12 @@ export const Route = createFileRoute("/_auth/projects/$projectId")({
 })
 
 function RouteComponent() {
-  const { availableServices, accountId, projectId, crumbProject } = useLoaderData({ from: Route.id })
+  const { availableServices, projectId, crumbProject } = useLoaderData({ from: Route.id })
 
   return (
     <AppShell
       embedded
-      sideNavigation={<SideNavBar availableServices={availableServices!} accountId={accountId} projectId={projectId} />}
+      sideNavigation={<SideNavBar availableServices={availableServices!} projectId={projectId} />}
       className="h-min-screen"
     >
       <Container>

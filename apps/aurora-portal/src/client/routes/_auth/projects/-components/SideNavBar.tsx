@@ -6,7 +6,6 @@ import { useLingui } from "@lingui/react/macro"
 import { isRouteInfo } from "@/client/routes/routeInfo"
 
 interface SideNavBarProps {
-  accountId: string
   projectId: string
   availableServices: {
     type: string
@@ -14,7 +13,7 @@ interface SideNavBarProps {
   }[]
 }
 
-export const SideNavBar = ({ accountId, projectId, availableServices }: SideNavBarProps) => {
+export const SideNavBar = ({ projectId, availableServices }: SideNavBarProps) => {
   const { t } = useLingui()
   const navigate = useNavigate()
   const matches = useMatches()
@@ -111,8 +110,8 @@ export const SideNavBar = ({ accountId, projectId, availableServices }: SideNavB
             open={openSections.compute}
             onClick={() => {
               navigate({
-                to: "/accounts/$accountId/projects/$projectId/compute/overview",
-                params: { accountId, projectId },
+                to: "/projects/$projectId/compute/overview",
+                params: { projectId },
               })
               setOpenSections((prev) => ({ ...prev, compute: true }))
             }}
