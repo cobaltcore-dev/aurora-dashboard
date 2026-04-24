@@ -185,9 +185,13 @@ vi.mock("./UploadObjectModal", () => ({
 }))
 
 vi.mock("./DeleteObjectsModal", () => ({
-  DeleteObjectsModal: vi.fn(({ isOpen, objectKeys, onClose, onSuccess, onError }) =>
+  DeleteObjectsModal: vi.fn(({ isOpen, objectNames, objectKeys, onClose, onSuccess, onError }) =>
     isOpen ? (
-      <div data-testid="delete-objects-modal" data-object-count={objectKeys.length}>
+      <div
+        data-testid="delete-objects-modal"
+        data-object-count={objectKeys.length}
+        data-object-names-count={objectNames?.length ?? 0}
+      >
         <button onClick={onClose}>CloseDeleteAll</button>
         <button onClick={() => onSuccess?.(objectKeys.length)}>SimulateBulkDeleteSuccess</button>
         <button onClick={() => onError?.("bulk delete failed")}>SimulateBulkDeleteError</button>
@@ -698,6 +702,16 @@ describe("SwiftObjects (index)", () => {
       await user.click(screen.getByRole("button", { name: /Delete All \(1\)/i }))
       await waitFor(() => {
         expect(screen.getByTestId("delete-objects-modal")).toHaveAttribute("data-object-count", "1")
+      })
+    })
+
+    test("modal receives objectNames matching the selected objects", async () => {
+      const user = userEvent.setup()
+      renderObjects()
+      await selectOne(user)
+      await user.click(screen.getByRole("button", { name: /Delete All \(1\)/i }))
+      await waitFor(() => {
+        expect(screen.getByTestId("delete-objects-modal")).toHaveAttribute("data-object-names-count", "1")
       })
     })
 
