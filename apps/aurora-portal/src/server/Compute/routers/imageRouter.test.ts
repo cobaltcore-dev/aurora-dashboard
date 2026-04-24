@@ -788,12 +788,9 @@ describe("imageRouter", () => {
         const mockCtx = createMockContext()
         setUploadHeaders(mockCtx, { uploadId: "550e8400-e29b-41d4-a716-446655440000" })
         const caller = createCaller(mockCtx)
-        // ReadableStream converted by octetInputParser becomes a Node Readable via fromWeb —
-        // validateUploadInput checks for .pipe(); an empty ReadableStream should pass through.
-        // This test verifies the happy path doesn't crash on stream presence.
-        mockCtx.mockGlance.put.mockResolvedValue({ ok: true })
-        const result = await callUpload(caller)
-        expect(result.success).toBe(true)
+        // Pass a non-stream value so validateUploadInput rejects it before reaching Glance
+        await expect(caller.image.uploadImage({} as never)).rejects.toThrow()
+        expect(mockCtx.mockGlance.put).not.toHaveBeenCalled()
       })
     })
 
