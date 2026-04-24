@@ -7,21 +7,20 @@ import { ContainerSummary } from "@/server/Storage/types/swift"
 // Max number of container names shown in the list before truncating
 const MAX_VISIBLE = 20
 
+interface EmptyContainersResult {
+  emptiedCount: number
+  totalDeleted: number
+  errors: string[]
+}
+
 interface EmptyContainersModalProps {
   isOpen: boolean
   containers: ContainerSummary[]
   onClose: () => void
-  onSuccess?: (emptiedCount: number, totalDeleted: number) => void
-  onError?: (errorMessage: string) => void
+  onComplete?: (result: EmptyContainersResult) => void
 }
 
-export const EmptyContainersModal = ({
-  isOpen,
-  containers,
-  onClose,
-  onSuccess,
-  onError,
-}: EmptyContainersModalProps) => {
+export const EmptyContainersModal = ({ isOpen, containers, onClose, onComplete }: EmptyContainersModalProps) => {
   const { t } = useLingui()
   const containerNamesRef = useRef<string[]>([])
   // Cancellation flag — set to true by handleClose so the for loop stops
@@ -77,14 +76,7 @@ export const EmptyContainersModal = ({
 
     await utils.storage.swift.listContainers.invalidate()
 
-    if (errors.length > 0) {
-      if (emptiedCount > 0) {
-        onSuccess?.(emptiedCount, totalDeleted)
-      }
-      onError?.(errors.join("\n"))
-    } else {
-      onSuccess?.(emptiedCount, totalDeleted)
-    }
+    onComplete?.({ emptiedCount, totalDeleted, errors })
 
     handleClose()
   }

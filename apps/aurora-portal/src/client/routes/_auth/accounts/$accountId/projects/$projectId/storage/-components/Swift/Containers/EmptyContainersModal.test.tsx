@@ -63,25 +63,17 @@ const renderModal = ({
   isOpen = true,
   containers = mockContainers,
   onClose = vi.fn(),
-  onSuccess = vi.fn(),
-  onError = vi.fn(),
+  onComplete = vi.fn(),
 }: {
   isOpen?: boolean
   containers?: ContainerSummary[]
   onClose?: () => void
-  onSuccess?: (emptiedCount: number, totalDeleted: number) => void
-  onError?: (errorMessage: string) => void
+  onComplete?: (result: { emptiedCount: number; totalDeleted: number; errors: string[] }) => void
 } = {}) =>
   render(
     <I18nProvider i18n={i18n}>
       <PortalProvider>
-        <EmptyContainersModal
-          isOpen={isOpen}
-          containers={containers}
-          onClose={onClose}
-          onSuccess={onSuccess}
-          onError={onError}
-        />
+        <EmptyContainersModal isOpen={isOpen} containers={containers} onClose={onClose} onComplete={onComplete} />
       </PortalProvider>
     </I18nProvider>
   )
@@ -206,15 +198,14 @@ describe("EmptyContainersModal", () => {
       })
     })
 
-    test("calls onSuccess with correct emptied count and total deleted objects", async () => {
+    test("calls onComplete with correct emptied count and total deleted objects", async () => {
       mutationDeletedCount = 5
-      const onSuccess = vi.fn()
+      const onComplete = vi.fn()
       const user = userEvent.setup()
-      renderModal({ onSuccess })
+      renderModal({ onComplete })
       await user.click(screen.getByRole("button", { name: /^Empty$/i }))
       await waitFor(() => {
-        // 3 containers × 5 deleted each = 15 total
-        expect(onSuccess).toHaveBeenCalledWith(3, 15)
+        expect(onComplete).toHaveBeenCalledWith({ emptiedCount: 3, totalDeleted: 15, errors: [] })
       })
     })
 
@@ -228,63 +219,51 @@ describe("EmptyContainersModal", () => {
       })
     })
 
-    test("calls onSuccess with totalDeleted 0 when all containers return 0 objects", async () => {
+    test("calls onComplete with totalDeleted 0 when all containers return 0 objects", async () => {
       mutationDeletedCount = 0
-      const onSuccess = vi.fn()
+      const onComplete = vi.fn()
       const user = userEvent.setup()
-      renderModal({ onSuccess })
+      renderModal({ onComplete })
       await user.click(screen.getByRole("button", { name: /^Empty$/i }))
       await waitFor(() => {
-        expect(onSuccess).toHaveBeenCalledWith(3, 0)
+        expect(onComplete).toHaveBeenCalledWith({ emptiedCount: 3, totalDeleted: 0, errors: [] })
       })
     })
   })
 
   describe("Error handling", () => {
-    test("calls onError with combined error message when mutation fails", async () => {
+    test("calls onComplete with errors when mutation fails", async () => {
       mutationError = "Bulk delete failed"
-      const onError = vi.fn()
+      const onComplete = vi.fn()
       const user = userEvent.setup()
-      renderModal({ onError })
+      renderModal({ onComplete })
       await user.click(screen.getByRole("button", { name: /^Empty$/i }))
       await waitFor(() => {
-        expect(onError).toHaveBeenCalledTimes(1)
-        const errorMessage = onError.mock.calls[0][0] as string
-        expect(errorMessage).toContain("alpha: Bulk delete failed")
-        expect(errorMessage).toContain("beta: Bulk delete failed")
-        expect(errorMessage).toContain("gamma: Bulk delete failed")
+        expect(onComplete).toHaveBeenCalledTimes(1)
+        const result = onComplete.mock.calls[0][0]
+        expect(result.errors).toContain("alpha: Bulk delete failed")
+        expect(result.errors).toContain("beta: Bulk delete failed")
+        expect(result.errors).toContain("gamma: Bulk delete failed")
+        expect(result.emptiedCount).toBe(0)
       })
     })
 
-    test("calls onError not onSuccess when all containers fail", async () => {
-      mutationError = "Server error"
-      const onSuccess = vi.fn()
-      const onError = vi.fn()
-      const user = userEvent.setup()
-      renderModal({ onSuccess, onError })
-      await user.click(screen.getByRole("button", { name: /^Empty$/i }))
-      await waitFor(() => {
-        expect(onError).toHaveBeenCalled()
-        expect(onSuccess).not.toHaveBeenCalled()
-      })
-    })
-
-    test("calls both onSuccess and onError in partial-success case", async () => {
-      // First container succeeds, rest fail
+    test("calls onComplete with partial results in partial-success case", async () => {
       let callCount = 0
       mockMutateAsync.mockImplementation(async () => {
         callCount++
         if (callCount === 1) return 4
         throw new Error("Server error")
       })
-      const onSuccess = vi.fn()
-      const onError = vi.fn()
+      const onComplete = vi.fn()
       const user = userEvent.setup()
-      renderModal({ onSuccess, onError })
+      renderModal({ onComplete })
       await user.click(screen.getByRole("button", { name: /^Empty$/i }))
       await waitFor(() => {
-        expect(onSuccess).toHaveBeenCalledWith(1, 4)
-        expect(onError).toHaveBeenCalled()
+        const result = onComplete.mock.calls[0][0]
+        expect(result.emptiedCount).toBe(1)
+        expect(result.totalDeleted).toBe(4)
+        expect(result.errors.length).toBe(2)
       })
     })
 

@@ -18,8 +18,7 @@ import {
   getContainerUpdateErrorToast,
   getContainerAclUpdatedToast,
   getContainerAclUpdateErrorToast,
-  getContainersEmptiedToast,
-  getContainersEmptyErrorToast,
+  getContainersEmptyCompleteToast,
 } from "./ContainerToastNotifications"
 import { ContainerLimitsTooltip } from "./ContainerLimitsTooltip"
 import { EmptyContainersModal } from "./EmptyContainersModal"
@@ -83,13 +82,21 @@ export const SwiftContainers = () => {
     setToastData(getContainerAclUpdateErrorToast(containerName, errorMessage, { onDismiss: handleToastDismiss }))
   }
 
-  const handleEmptyAllSuccess = (emptiedCount: number, totalDeleted: number) => {
-    setSelectedContainers([])
-    setToastData(getContainersEmptiedToast(emptiedCount, totalDeleted, { onDismiss: handleToastDismiss }))
-  }
-
-  const handleEmptyAllError = (errorMessage: string) => {
-    setToastData(getContainersEmptyErrorToast(errorMessage, { onDismiss: handleToastDismiss }))
+  const handleEmptyAllComplete = ({
+    emptiedCount,
+    totalDeleted,
+    errors,
+  }: {
+    emptiedCount: number
+    totalDeleted: number
+    errors: string[]
+  }) => {
+    // Only clear selection when all containers succeeded — failed ones remain
+    // selected so the user can retry without having to re-select them.
+    if (errors.length === 0) {
+      setSelectedContainers([])
+    }
+    setToastData(getContainersEmptyCompleteToast(emptiedCount, totalDeleted, errors, { onDismiss: handleToastDismiss }))
   }
 
   const sortSettings: SortSettings = {
@@ -269,8 +276,7 @@ export const SwiftContainers = () => {
         isOpen={emptyAllModalOpen}
         containers={selectedContainerSummaries}
         onClose={() => setEmptyAllModalOpen(false)}
-        onSuccess={handleEmptyAllSuccess}
-        onError={handleEmptyAllError}
+        onComplete={handleEmptyAllComplete}
       />
 
       {toastData && (

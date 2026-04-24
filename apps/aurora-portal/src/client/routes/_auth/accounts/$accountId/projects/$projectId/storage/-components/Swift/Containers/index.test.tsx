@@ -225,16 +225,19 @@ vi.mock("./ContainerToastNotifications", () => ({
     autoDismiss: true,
   })),
   getContainersEmptiedToast: vi.fn((emptiedCount, totalDeleted) => ({
-    text:
-      totalDeleted === 0
-        ? `${emptiedCount} container(s) were already empty.`
-        : `${emptiedCount} container(s) successfully emptied. ${totalDeleted} object(s) deleted in total.`,
+    text: `${emptiedCount} container(s) successfully emptied. ${totalDeleted} object(s) deleted in total.`,
     variant: "success",
     autoDismiss: true,
   })),
   getContainersEmptyErrorToast: vi.fn((errorMessage) => ({
     text: `One or more containers could not be emptied: ${errorMessage}`,
     variant: "error",
+    autoDismiss: true,
+  })),
+  getContainersEmptyCompleteToast: vi.fn((emptiedCount, totalDeleted, errors) => ({
+    text:
+      errors.length > 0 ? `Partial: ${emptiedCount} emptied, errors: ${errors.join(", ")}` : `${emptiedCount} emptied`,
+    variant: errors.length > 0 && emptiedCount > 0 ? "warning" : errors.length > 0 ? "error" : "success",
     autoDismiss: true,
   })),
 }))
@@ -306,12 +309,20 @@ vi.mock("./ContainerLimitsTooltip", () => ({
 }))
 
 vi.mock("./EmptyContainersModal", () => ({
-  EmptyContainersModal: vi.fn(({ isOpen, containers, onClose, onSuccess, onError }) =>
+  EmptyContainersModal: vi.fn(({ isOpen, containers, onClose, onComplete }) =>
     isOpen ? (
       <div data-testid="empty-containers-modal" data-container-count={containers.length}>
         <button onClick={onClose}>CloseEmptyAll</button>
-        <button onClick={() => onSuccess?.(containers.length, containers.length * 3)}>SimulateEmptyAllSuccess</button>
-        <button onClick={() => onError?.("bulk empty failed")}>SimulateEmptyAllError</button>
+        <button
+          onClick={() =>
+            onComplete?.({ emptiedCount: containers.length, totalDeleted: containers.length * 3, errors: [] })
+          }
+        >
+          SimulateEmptyAllSuccess
+        </button>
+        <button onClick={() => onComplete?.({ emptiedCount: 0, totalDeleted: 0, errors: ["bulk empty failed"] })}>
+          SimulateEmptyAllError
+        </button>
       </div>
     ) : null
   ),
@@ -544,7 +555,7 @@ describe("SwiftContainers (List)", () => {
     })
 
     test("shows success toast and clears selection after successful empty", async () => {
-      const { getContainersEmptiedToast } = await import("./ContainerToastNotifications")
+      const { getContainersEmptyCompleteToast } = await import("./ContainerToastNotifications")
       const user = userEvent.setup()
       renderList()
       await selectAlpha(user)
@@ -552,18 +563,18 @@ describe("SwiftContainers (List)", () => {
       await waitFor(() => expect(screen.getByTestId("empty-containers-modal")).toBeInTheDocument())
       await user.click(screen.getByRole("button", { name: "SimulateEmptyAllSuccess" }))
       await waitFor(() => {
-        expect(getContainersEmptiedToast).toHaveBeenCalledWith(
+        expect(getContainersEmptyCompleteToast).toHaveBeenCalledWith(
           1,
           3,
+          [],
           expect.objectContaining({ onDismiss: expect.any(Function) })
         )
-        // selection is cleared — button returns to disabled
         expect(screen.getByRole("button", { name: "Empty All" })).toBeDisabled()
       })
     })
 
     test("shows error toast when bulk empty fails", async () => {
-      const { getContainersEmptyErrorToast } = await import("./ContainerToastNotifications")
+      const { getContainersEmptyCompleteToast } = await import("./ContainerToastNotifications")
       const user = userEvent.setup()
       renderList()
       await selectAlpha(user)
@@ -571,8 +582,10 @@ describe("SwiftContainers (List)", () => {
       await waitFor(() => expect(screen.getByTestId("empty-containers-modal")).toBeInTheDocument())
       await user.click(screen.getByRole("button", { name: "SimulateEmptyAllError" }))
       await waitFor(() => {
-        expect(getContainersEmptyErrorToast).toHaveBeenCalledWith(
-          "bulk empty failed",
+        expect(getContainersEmptyCompleteToast).toHaveBeenCalledWith(
+          0,
+          0,
+          ["bulk empty failed"],
           expect.objectContaining({ onDismiss: expect.any(Function) })
         )
       })

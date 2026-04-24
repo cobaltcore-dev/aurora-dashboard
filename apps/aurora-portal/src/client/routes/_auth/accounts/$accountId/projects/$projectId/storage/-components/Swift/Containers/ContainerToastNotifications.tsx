@@ -250,3 +250,53 @@ export const getContainersEmptyErrorToast = (errorMessage: string, config: Toast
   autoDismissTimeout: config.autoDismissTimeout ?? 5000,
   onDismiss: config.onDismiss,
 })
+export const getContainersEmptyCompleteToast = (
+  emptiedCount: number,
+  totalDeleted: number,
+  errors: string[],
+  config: ToastConfig
+): ToastProps => {
+  const hasErrors = errors.length > 0
+  const hasSuccess = emptiedCount > 0
+  const isPartial = hasErrors && hasSuccess
+
+  return {
+    variant: isPartial ? "warning" : hasErrors ? "error" : "success",
+    children: (
+      <NotificationText
+        title={
+          isPartial ? (
+            <Trans>Containers Partially Emptied</Trans>
+          ) : hasErrors ? (
+            <Trans>Failed to Empty Containers</Trans>
+          ) : (
+            <Trans>Containers Emptied</Trans>
+          )
+        }
+        description={
+          <Stack direction="vertical" gap="1">
+            {hasSuccess && (
+              <span>
+                <Trans>
+                  <Plural value={emptiedCount} one="# container" other="# containers" /> successfully emptied.{" "}
+                  <Plural value={totalDeleted} one="# object" other="# objects" /> deleted in total.
+                </Trans>
+              </span>
+            )}
+            {hasErrors && (
+              <span className="whitespace-pre-line">
+                {(() => {
+                  const errorDetails = errors.join("\n")
+                  return <Trans>Failed: {errorDetails}</Trans>
+                })()}
+              </span>
+            )}
+          </Stack>
+        }
+      />
+    ),
+    autoDismiss: true,
+    autoDismissTimeout: config.autoDismissTimeout ?? 5000,
+    onDismiss: config.onDismiss,
+  }
+}

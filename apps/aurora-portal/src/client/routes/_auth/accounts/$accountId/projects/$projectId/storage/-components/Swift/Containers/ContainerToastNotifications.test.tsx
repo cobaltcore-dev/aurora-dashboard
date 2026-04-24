@@ -15,6 +15,7 @@ import {
   getContainerAclUpdateErrorToast,
   getContainersEmptiedToast,
   getContainersEmptyErrorToast,
+  getContainersEmptyCompleteToast,
 } from "./ContainerToastNotifications"
 
 describe("ContainerToastNotifications", () => {
@@ -475,6 +476,54 @@ describe("ContainerToastNotifications", () => {
     })
   })
 
+  describe("getContainersEmptyCompleteToast", () => {
+    it("returns success toast when all containers emptied successfully", () => {
+      const toast = getContainersEmptyCompleteToast(3, 12, [], defaultConfig)
+      expect(toast.variant).toBe("success")
+      expect(toast.autoDismiss).toBe(true)
+      expect(toast.autoDismissTimeout).toBe(5000)
+      expect(toast.onDismiss).toBe(mockOnDismiss)
+    })
+
+    it("renders success title and counts when no errors", () => {
+      const toast = getContainersEmptyCompleteToast(3, 12, [], defaultConfig)
+      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+      expect(screen.getByText("Containers Emptied")).toBeInTheDocument()
+      expect(screen.getByText(/3 containers/)).toBeInTheDocument()
+      expect(screen.getByText(/12 objects/)).toBeInTheDocument()
+    })
+
+    it("returns warning toast in partial-success case", () => {
+      const toast = getContainersEmptyCompleteToast(2, 8, ["bucket-c: 500 error"], defaultConfig)
+      expect(toast.variant).toBe("warning")
+    })
+
+    it("renders partial title and both success and error info", () => {
+      const toast = getContainersEmptyCompleteToast(2, 8, ["bucket-c: 500 error"], defaultConfig)
+      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+      expect(screen.getByText("Containers Partially Emptied")).toBeInTheDocument()
+      expect(screen.getByText(/2 containers/)).toBeInTheDocument()
+      expect(screen.getByText(/bucket-c/)).toBeInTheDocument()
+    })
+
+    it("returns error toast when all containers failed", () => {
+      const toast = getContainersEmptyCompleteToast(0, 0, ["a: err", "b: err"], defaultConfig)
+      expect(toast.variant).toBe("error")
+    })
+
+    it("renders error title and error details when emptiedCount is 0", () => {
+      const toast = getContainersEmptyCompleteToast(0, 0, ["a: err", "b: err"], defaultConfig)
+      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+      expect(screen.getByText("Failed to Empty Containers")).toBeInTheDocument()
+      expect(screen.getByText(/a: err/)).toBeInTheDocument()
+    })
+
+    it("uses custom autoDismissTimeout when provided", () => {
+      const toast = getContainersEmptyCompleteToast(1, 3, [], { onDismiss: mockOnDismiss, autoDismissTimeout: 8000 })
+      expect(toast.autoDismissTimeout).toBe(8000)
+    })
+  })
+
   describe("Toast Configuration", () => {
     it("all success toasts should have success variant and autoDismiss", () => {
       const successToasts = [
@@ -484,6 +533,7 @@ describe("ContainerToastNotifications", () => {
         getContainerUpdatedToast("c", defaultConfig),
         getContainerAclUpdatedToast("c", defaultConfig),
         getContainersEmptiedToast(2, 5, defaultConfig),
+        getContainersEmptyCompleteToast(2, 5, [], defaultConfig),
       ]
       successToasts.forEach((toast) => {
         expect(toast.variant).toBe("success")
@@ -500,6 +550,7 @@ describe("ContainerToastNotifications", () => {
         getContainerUpdateErrorToast("c", "err", defaultConfig),
         getContainerAclUpdateErrorToast("c", "err", defaultConfig),
         getContainersEmptyErrorToast("err", defaultConfig),
+        getContainersEmptyCompleteToast(0, 0, ["err"], defaultConfig),
       ]
       errorToasts.forEach((toast) => {
         expect(toast.variant).toBe("error")
@@ -530,6 +581,7 @@ describe("ContainerToastNotifications", () => {
         getContainerAclUpdateErrorToast("c", "err", { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
         getContainersEmptiedToast(2, 5, { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
         getContainersEmptyErrorToast("err", { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
+        getContainersEmptyCompleteToast(2, 5, [], { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
       ]
       toasts.forEach((toast) => {
         expect(toast.autoDismissTimeout).toBe(customTimeout)
@@ -550,6 +602,7 @@ describe("ContainerToastNotifications", () => {
         getContainerAclUpdateErrorToast("c", "err", defaultConfig),
         getContainersEmptiedToast(2, 5, defaultConfig),
         getContainersEmptyErrorToast("err", defaultConfig),
+        getContainersEmptyCompleteToast(2, 5, [], defaultConfig),
       ]
       toasts.forEach((toast) => {
         expect(toast.children).toBeTruthy()

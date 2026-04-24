@@ -439,6 +439,9 @@ msgstr "Containers"
 msgid "Containers Emptied"
 msgstr "Containers Emptied"
 
+msgid "Containers Partially Emptied"
+msgstr "Containers Partially Emptied"
+
 msgid "Containers to be emptied ({totalCount})"
 msgstr "Containers to be emptied ({totalCount})"
 
@@ -1089,6 +1092,9 @@ msgstr "Failed to upload file \"{fileName}\": "
 
 msgid "Failed to Upload Object"
 msgstr "Failed to Upload Object"
+
+msgid "Failed: {errorDetails}"
+msgstr "Failed: {errorDetails}"
 
 msgid "False"
 msgstr "False"
