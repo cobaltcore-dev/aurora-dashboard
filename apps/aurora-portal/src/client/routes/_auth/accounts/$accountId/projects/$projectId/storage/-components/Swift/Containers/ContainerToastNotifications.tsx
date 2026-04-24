@@ -238,7 +238,11 @@ export const getContainersEmptyErrorToast = (errorMessage: string, config: Toast
   children: (
     <NotificationText
       title={<Trans>Failed to Empty Containers</Trans>}
-      description={<Trans>One or more containers could not be emptied: {errorMessage}</Trans>}
+      description={
+        <span className="whitespace-pre-line">
+          <Trans>One or more containers could not be emptied: {errorMessage}</Trans>
+        </span>
+      }
     />
   ),
   autoDismiss: true,
