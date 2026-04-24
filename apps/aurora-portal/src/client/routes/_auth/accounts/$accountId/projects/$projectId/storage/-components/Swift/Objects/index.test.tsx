@@ -357,14 +357,13 @@ describe("SwiftObjects (index)", () => {
       expect(screen.getByRole("button", { name: /Upload Object/i })).toBeInTheDocument()
     })
 
-    test("selection is reset when navigating to a new prefix", async () => {
+    test("Delete All button returns to disabled after selection is cleared externally", async () => {
       const user = userEvent.setup()
       renderObjects()
       // Select some objects first
       await user.click(screen.getByTestId("simulate-select-object"))
       await waitFor(() => expect(screen.getByRole("button", { name: /Delete All \(1\)/i })).toBeEnabled())
-      // Simulate folder navigation — ObjectsTableView calls onFolderClick which calls navigateToPrefix
-      // which calls setSelectedObjects([]) before navigating
+      // Simulate selection being cleared (e.g. via navigateToPrefix calling setSelectedObjects([]))
       await user.click(screen.getByTestId("simulate-deselect-all"))
       await waitFor(() => {
         expect(screen.getByRole("button", { name: "Delete All" })).toBeDisabled()
