@@ -412,11 +412,19 @@ export const imageRouter = {
           const webStream = Readable.toWeb(trackedStream)
 
           // Upload to Glance with progress tracking
-          await glance.put(`v2/images/${validatedImageId}/file`, webStream, {
+          const uploadResponse = await glance.put(`v2/images/${validatedImageId}/file`, webStream, {
             headers: {
               "Content-Type": "application/octet-stream",
             },
           })
+
+          if (!uploadResponse?.ok) {
+            throw ImageErrorHandlers.upload(
+              uploadResponse as unknown as SignalOpenstackApiError,
+              validatedImageId,
+              "application/octet-stream"
+            )
+          }
 
           // Emit completion event
           uploadProgressEmitter.emit(`progress:${validatedImageId}:complete`)
