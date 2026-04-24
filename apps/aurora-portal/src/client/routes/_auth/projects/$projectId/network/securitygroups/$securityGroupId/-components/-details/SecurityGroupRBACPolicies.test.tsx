@@ -9,6 +9,10 @@ import { SecurityGroupRBACPolicies } from "./SecurityGroupRBACPolicies"
 import { trpcReact } from "@/client/trpcClient"
 import type { RBACPolicy } from "@/server/Network/types/rbacPolicy"
 
+vi.mock("@tanstack/react-router", () => ({
+  useParams: vi.fn(() => ({ projectId: "test-project" })),
+}))
+
 // Simplified mock for tRPC useQuery - only includes properties actually used
 type MockQueryResult<TData> = {
   data: TData | undefined

@@ -11,6 +11,10 @@ import { DetachFloatingIpModalProps } from "./DetachFloatingIpModal"
 import { ReleaseFloatingIpModalProps } from "./ReleaseFloatingIpModal"
 import { AssociateFloatingIpModalProps } from "./AssociateFloatingIpModal"
 
+vi.mock("@tanstack/react-router", () => ({
+  useParams: vi.fn(() => ({ projectId: "test-project" })),
+}))
+
 const { mockUseUtils, mockUpdateMutation, mockDeleteMutation } = vi.hoisted(() => ({
   mockUseUtils: vi.fn(),
   mockUpdateMutation: vi.fn(),

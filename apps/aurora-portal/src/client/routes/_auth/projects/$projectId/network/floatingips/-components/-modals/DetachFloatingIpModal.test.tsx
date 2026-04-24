@@ -7,6 +7,10 @@ import { I18nProvider } from "@lingui/react"
 import type { FloatingIp } from "@/server/Network/types/floatingIp"
 import { DetachFloatingIpModal, DetachFloatingIpModalProps } from "./DetachFloatingIpModal"
 
+vi.mock("@tanstack/react-router", () => ({
+  useParams: vi.fn(() => ({ projectId: "test-project" })),
+}))
+
 const mockFloatingIp: FloatingIp = {
   id: "fip-123",
   floating_ip_address: "203.0.113.10",
