@@ -70,6 +70,9 @@ msgstr "<0>Kein Temp-URL-Schlüssel konfiguriert.</0> Ein temporärer URL-Schlü
 msgid "<0>Optimized Scalability:</0> Built for businesses of all sizes, Aurora grows with you, supporting simple environments and intricate multi-cloud setups alike."
 msgstr "<0>Optimierte Skalierbarkeit:</0> Aurora ist für Unternehmen jeder Größe konzipiert und wächst mit Ihnen mit, unterstützt einfache Umgebungen und komplexe Multi-Cloud-Setups gleichermaßen."
 
+msgid "<0>Properties of</0> <1>{displayName}</1>"
+msgstr "<0>Eigenschaften von</0> <1>{displayName}</1>"
+
 msgid "<0>Secure & Reliable:</0> Your data and operations are safeguarded with enterprise-grade security and robust reliability."
 msgstr "<0>Sicher & Zuverlässig:</0> Ihre Daten und Operationen sind mit Sicherheitsstandards auf Unternehmensebene und robuster Zuverlässigkeit geschützt."
 
@@ -1863,9 +1866,6 @@ msgstr "Projekt-ID"
 
 msgid "projects"
 msgstr "Projekte"
-
-msgid "Properties of"
-msgstr "Eigenschaften von"
 
 msgid "Properties of \"{objectName}\" were successfully updated."
 msgstr "Eigenschaften von \"{objectName}\" wurden erfolgreich aktualisiert."

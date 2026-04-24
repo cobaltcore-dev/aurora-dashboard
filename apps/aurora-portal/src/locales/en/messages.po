@@ -70,6 +70,9 @@ msgstr "<0>No Temp URL key configured.</0> A temporary URL key must be set at th
 msgid "<0>Optimized Scalability:</0> Built for businesses of all sizes, Aurora grows with you, supporting simple environments and intricate multi-cloud setups alike."
 msgstr "<0>Optimized Scalability:</0> Built for businesses of all sizes, Aurora grows with you, supporting simple environments and intricate multi-cloud setups alike."
 
+msgid "<0>Properties of</0> <1>{displayName}</1>"
+msgstr "<0>Properties of</0> <1>{displayName}</1>"
+
 msgid "<0>Secure & Reliable:</0> Your data and operations are safeguarded with enterprise-grade security and robust reliability."
 msgstr "<0>Secure & Reliable:</0> Your data and operations are safeguarded with enterprise-grade security and robust reliability."
 
@@ -1863,9 +1866,6 @@ msgstr "Project ID"
 
 msgid "projects"
 msgstr "projects"
-
-msgid "Properties of"
-msgstr "Properties of"
 
 msgid "Properties of \"{objectName}\" were successfully updated."
 msgstr "Properties of \"{objectName}\" were successfully updated."

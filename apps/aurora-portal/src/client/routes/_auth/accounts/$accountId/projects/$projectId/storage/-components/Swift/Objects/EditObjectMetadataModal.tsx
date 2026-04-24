@@ -349,12 +349,12 @@ export const EditObjectMetadataModal = ({
     <Modal
       title={
         <span className="flex max-w-[400px] items-center gap-1">
-          <span className="shrink-0">
-            <Trans>Properties of</Trans>
-          </span>
-          <span className="truncate font-mono" title={displayName}>
-            {displayName}
-          </span>
+          <Trans>
+            <span className="shrink-0">Properties of</span>{" "}
+            <span className="truncate font-mono" title={displayName}>
+              {displayName}
+            </span>
+          </Trans>
         </span>
       }
       open={isOpen}
