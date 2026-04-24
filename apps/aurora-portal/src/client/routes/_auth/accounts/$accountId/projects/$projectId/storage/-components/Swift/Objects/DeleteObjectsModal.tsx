@@ -78,9 +78,9 @@ export const DeleteObjectsModal = ({
     <Modal
       title={t`Delete Objects`}
       open={isOpen}
-      onCancel={handleClose}
+      onCancel={isPending ? undefined : handleClose}
       confirmButtonLabel={t`Delete`}
-      cancelButtonLabel={t`Cancel`}
+      cancelButtonLabel={isPending ? undefined : t`Cancel`}
       onConfirm={handleConfirm}
       disableConfirmButton={isPending}
       size="small"
