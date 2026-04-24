@@ -122,7 +122,7 @@ function AccessContent({
       const updatedAccess = await client.compute.addTenantAccess.mutate({
         project_id: project,
         flavorId: flavor.id,
-        tenantId: trimmedTenantId,
+        targetProjectId: trimmedTenantId,
       })
 
       onAccessUpdate(updatedAccess)
@@ -152,7 +152,7 @@ function AccessContent({
       const updatedAccess = await client.compute.removeTenantAccess.mutate({
         project_id: project,
         flavorId: flavor.id,
-        tenantId: tenantIdToRemove,
+        targetProjectId: tenantIdToRemove,
       })
 
       onAccessUpdate(updatedAccess)

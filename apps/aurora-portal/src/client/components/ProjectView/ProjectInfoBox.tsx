@@ -53,8 +53,14 @@ export function ProjectInfoBox({ projectInfo }: ProjectInfoBoxProps) {
   }, [pageTitleRef])
 
   const buildBreadcrumbs = () => {
-    // Find the deepest match that is a child of the $projectId route
-    const projectIdRouteId = "/_auth/accounts/$accountId/projects/$projectId"
+    // Support both old and new route structures during migration
+    const oldProjectIdRouteId = "/_auth/accounts/$accountId/projects/$projectId"
+    const newProjectIdRouteId = "/_auth/projects/$projectId"
+
+    // Check which route structure we're using
+    const isNewRouteStructure = matches.some((m) => m.routeId.startsWith(newProjectIdRouteId))
+    const projectIdRouteId = isNewRouteStructure ? newProjectIdRouteId : oldProjectIdRouteId
+
     const childMatches = matches.filter((m) => m.routeId !== projectIdRouteId && m.routeId.startsWith(projectIdRouteId))
     const deepestMatch = childMatches[childMatches.length - 1]
 
@@ -79,7 +85,9 @@ export function ProjectInfoBox({ projectInfo }: ProjectInfoBoxProps) {
 
     items.push({
       label: projectInfo.name,
-      onClick: () => navigate({ to: "/accounts/$accountId/projects", params: { accountId } }),
+      onClick: accountId
+        ? () => navigate({ to: "/accounts/$accountId/projects", params: { accountId } })
+        : undefined,
     })
 
     if (sectionLabel && section) {
@@ -90,8 +98,8 @@ export function ProjectInfoBox({ projectInfo }: ProjectInfoBoxProps) {
           label: sectionLabel,
           onClick: () =>
             navigate({
-              to: "/accounts/$accountId/projects/$projectId/compute/overview",
-              params: { accountId, projectId },
+              to: "/projects/$projectId/compute/overview",
+              params: { projectId },
             }),
         })
       } else if (section === "network") {
@@ -117,8 +125,8 @@ export function ProjectInfoBox({ projectInfo }: ProjectInfoBoxProps) {
             label: serviceLabel,
             onClick: () =>
               navigate({
-                to: "/accounts/$accountId/projects/$projectId/compute/images",
-                params: { accountId, projectId },
+                to: "/projects/$projectId/compute/images",
+                params: { projectId },
               }),
           })
         } else if (section === "compute" && service === "flavors") {
@@ -126,8 +134,8 @@ export function ProjectInfoBox({ projectInfo }: ProjectInfoBoxProps) {
             label: serviceLabel,
             onClick: () =>
               navigate({
-                to: "/accounts/$accountId/projects/$projectId/compute/flavors",
-                params: { accountId, projectId },
+                to: "/projects/$projectId/compute/flavors",
+                params: { projectId },
               }),
           })
         } else if (section === "network" && service === "securitygroups") {
@@ -152,9 +160,7 @@ export function ProjectInfoBox({ projectInfo }: ProjectInfoBoxProps) {
           items.push({
             label: serviceLabel,
             onClick: () => {
-              const path = `/accounts/${accountId}/projects/${projectId}/${section}/${service}` as Parameters<
-                typeof navigate
-              >[0]["to"]
+              const path = `/projects/${projectId}/${section}/${service}` as Parameters<typeof navigate>[0]["to"]
               navigate({ to: path })
             },
           })

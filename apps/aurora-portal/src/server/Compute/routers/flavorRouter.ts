@@ -335,12 +335,12 @@ export const flavorRouter = {
       z.object({
         project_id: z.string(),
         flavorId: z.string(),
-        tenantId: z.string(),
+        targetProjectId: z.string(),
       })
     )
     .mutation(async ({ input, ctx }) => {
       try {
-        const { flavorId, tenantId } = input
+        const { flavorId, targetProjectId } = input
 
         // ctx.openstack is already rescoped to the project by projectScopedProcedure
         const compute = ctx.openstack?.service("compute")
@@ -351,7 +351,7 @@ export const flavorRouter = {
           })
         }
 
-        const result = await addTenantAccess(compute, flavorId, tenantId)
+        const result = await addTenantAccess(compute, flavorId, targetProjectId)
         return result
       } catch (error) {
         if (error instanceof TRPCError) {
@@ -371,12 +371,12 @@ export const flavorRouter = {
       z.object({
         project_id: z.string(),
         flavorId: z.string(),
-        tenantId: z.string(),
+        targetProjectId: z.string(),
       })
     )
     .mutation(async ({ input, ctx }) => {
       try {
-        const { flavorId, tenantId } = input
+        const { flavorId, targetProjectId } = input
 
         // ctx.openstack is already rescoped to the project by projectScopedProcedure
         const compute = ctx.openstack?.service("compute")
@@ -387,7 +387,7 @@ export const flavorRouter = {
           })
         }
 
-        const result = await removeTenantAccess(compute, flavorId, tenantId)
+        const result = await removeTenantAccess(compute, flavorId, targetProjectId)
         return result
       } catch (error) {
         if (error instanceof TRPCError) {

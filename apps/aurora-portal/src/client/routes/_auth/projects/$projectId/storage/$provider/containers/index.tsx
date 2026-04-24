@@ -12,20 +12,19 @@ export const checkServiceAvailability = (
     name: string
   }[],
   params: {
-    accountId: string
     projectId: string
     provider: string
   }
 ) => {
-  const { provider, accountId } = params
+  const { provider, projectId } = params
 
   const serviceIndex = getServiceIndex(availableServices)
 
   // Redirect to the "Projects Overview" page if no storage services available
   if (!serviceIndex["object-store"]) {
     throw redirect({
-      to: "/accounts/$accountId/projects",
-      params: { accountId },
+      to: "/projects/$projectId/compute/overview",
+      params: { projectId },
     })
   }
 
@@ -38,12 +37,12 @@ export const checkServiceAvailability = (
   if (provider !== "swift" && provider !== "ceph") {
     if (!fallbackProvider) {
       throw redirect({
-        to: "/accounts/$accountId/projects",
-        params: { accountId },
+        to: "/projects/$projectId/compute/overview",
+        params: { projectId },
       })
     }
     throw redirect({
-      to: "/accounts/$accountId/projects/$projectId/storage/$provider/containers",
+      to: "/projects/$projectId/storage/$provider/containers",
       params: { ...params, provider: fallbackProvider },
     })
   }
@@ -51,13 +50,13 @@ export const checkServiceAvailability = (
   if (provider === "swift" && !hasSwift) {
     if (!hasCeph) {
       throw redirect({
-        to: "/accounts/$accountId/projects",
-        params: { accountId },
+        to: "/projects/$projectId/compute/overview",
+        params: { projectId },
       })
     }
 
     throw redirect({
-      to: "/accounts/$accountId/projects/$projectId/storage/$provider/containers",
+      to: "/projects/$projectId/storage/$provider/containers",
       params: { ...params, provider: "ceph" },
     })
   }
@@ -65,13 +64,13 @@ export const checkServiceAvailability = (
   if (provider === "ceph" && !hasCeph) {
     if (!hasSwift) {
       throw redirect({
-        to: "/accounts/$accountId/projects",
-        params: { accountId },
+        to: "/projects/$projectId/compute/overview",
+        params: { projectId },
       })
     }
 
     throw redirect({
-      to: "/accounts/$accountId/projects/$projectId/storage/$provider/containers",
+      to: "/projects/$projectId/storage/$provider/containers",
       params: { ...params, provider: "swift" },
     })
   }
@@ -87,7 +86,7 @@ const containersSearchSchema = z.object({
   search: z.string().optional(),
 })
 
-export const Route = createFileRoute("/_auth/accounts/$accountId/projects/$projectId/storage/$provider/containers/")({
+export const Route = createFileRoute("/_auth/projects/$projectId/storage/$provider/containers/")({
   staticData: { section: "storage", service: "containers" } satisfies RouteInfo,
   validateSearch: containersSearchSchema,
   component: () => {
@@ -120,7 +119,7 @@ export const Route = createFileRoute("/_auth/accounts/$accountId/projects/$proje
 
 function StorageDashboard() {
   const { project, provider } = useParams({
-    from: "/_auth/accounts/$accountId/projects/$projectId/storage/$provider/containers/",
+    from: "/_auth/projects/$projectId/storage/$provider/containers/",
     select: (params) => {
       return { project: params.projectId, provider: params.provider }
     },

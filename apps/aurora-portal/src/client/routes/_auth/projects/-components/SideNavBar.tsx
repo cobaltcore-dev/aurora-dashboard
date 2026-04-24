@@ -95,8 +95,8 @@ export const SideNavBar = ({ accountId, projectId, availableServices }: SideNavB
           {
             service: "containers",
             label: t`Swift`,
-            to: "/accounts/$accountId/projects/$projectId/storage/$provider/containers" as const,
-            params: { accountId, projectId, provider: "swift" },
+            to: "/projects/$projectId/storage/$provider/containers" as const,
+            params: { projectId, provider: "swift" },
           },
         ]
       : []),

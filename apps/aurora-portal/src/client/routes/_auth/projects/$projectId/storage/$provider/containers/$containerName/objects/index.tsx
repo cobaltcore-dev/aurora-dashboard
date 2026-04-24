@@ -13,21 +13,20 @@ export const checkServiceAvailability = (
     name: string
   }[],
   params: {
-    accountId: string
     projectId: string
     provider: string
     containerName: string
   }
 ) => {
-  const { provider, accountId, projectId, containerName } = params
+  const { provider, projectId, containerName } = params
 
   const serviceIndex = getServiceIndex(availableServices)
 
   // Redirect to the "Projects Overview" page if no storage services available
   if (!serviceIndex["object-store"]) {
     throw redirect({
-      to: "/accounts/$accountId/projects",
-      params: { accountId },
+      to: "/projects/$projectId/compute/overview",
+      params: { projectId },
     })
   }
 
@@ -40,41 +39,41 @@ export const checkServiceAvailability = (
   if (provider !== "swift" && provider !== "ceph") {
     if (!fallbackProvider) {
       throw redirect({
-        to: "/accounts/$accountId/projects",
-        params: { accountId },
+        to: "/projects/$projectId/compute/overview",
+        params: { projectId },
       })
     }
     throw redirect({
-      to: "/accounts/$accountId/projects/$projectId/storage/$provider/containers/$containerName/objects",
-      params: { accountId, projectId, provider: fallbackProvider, containerName },
+      to: "/projects/$projectId/storage/$provider/containers/$containerName/objects",
+      params: { projectId, provider: fallbackProvider, containerName },
     })
   }
 
   if (provider === "swift" && !hasSwift) {
     if (!hasCeph) {
       throw redirect({
-        to: "/accounts/$accountId/projects",
-        params: { accountId },
+        to: "/projects/$projectId/compute/overview",
+        params: { projectId },
       })
     }
 
     throw redirect({
-      to: "/accounts/$accountId/projects/$projectId/storage/$provider/containers/$containerName/objects",
-      params: { accountId, projectId, provider: "ceph", containerName },
+      to: "/projects/$projectId/storage/$provider/containers/$containerName/objects",
+      params: { projectId, provider: "ceph", containerName },
     })
   }
 
   if (provider === "ceph" && !hasCeph) {
     if (!hasSwift) {
       throw redirect({
-        to: "/accounts/$accountId/projects",
-        params: { accountId },
+        to: "/projects/$projectId/compute/overview",
+        params: { projectId },
       })
     }
 
     throw redirect({
-      to: "/accounts/$accountId/projects/$projectId/storage/$provider/containers/$containerName/objects",
-      params: { accountId, projectId, provider: "swift", containerName },
+      to: "/projects/$projectId/storage/$provider/containers/$containerName/objects",
+      params: { projectId, provider: "swift", containerName },
     })
   }
 }
@@ -91,7 +90,7 @@ const objectsSearchSchema = z.object({
 })
 
 export const Route = createFileRoute(
-  "/_auth/accounts/$accountId/projects/$projectId/storage/$provider/containers/$containerName/objects/"
+  "/_auth/projects/$projectId/storage/$provider/containers/$containerName/objects/"
 )({
   staticData: { section: "storage", service: "containers", isDetail: true } satisfies RouteInfo,
   validateSearch: objectsSearchSchema,
@@ -129,7 +128,7 @@ export const Route = createFileRoute(
 
 function ObjectsDashboard() {
   const { project, provider, containerName } = useParams({
-    from: "/_auth/accounts/$accountId/projects/$projectId/storage/$provider/containers/$containerName/objects/",
+    from: "/_auth/projects/$projectId/storage/$provider/containers/$containerName/objects/",
     select: (params) => ({
       project: params.projectId,
       provider: params.provider,

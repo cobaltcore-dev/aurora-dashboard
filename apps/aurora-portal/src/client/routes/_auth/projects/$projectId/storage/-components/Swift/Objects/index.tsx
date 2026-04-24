@@ -167,8 +167,8 @@ export const SwiftObjects = () => {
   const { t } = useLingui()
   const navigate = useNavigate({ from: Route.fullPath })
 
-  const { accountId, projectId, provider, containerName } = useParams({
-    from: "/_auth/accounts/$accountId/projects/$projectId/storage/$provider/containers/$containerName/objects/",
+  const { projectId, provider, containerName } = useParams({
+    from: "/_auth/projects/$projectId/storage/$provider/containers/$containerName/objects/",
   })
 
   // All UI state is persisted in the URL search params so that sort, prefix and
@@ -256,8 +256,8 @@ export const SwiftObjects = () => {
 
   const navigateToContainers = () => {
     navigate({
-      to: "/accounts/$accountId/projects/$projectId/storage/$provider/containers",
-      params: { accountId, projectId, provider },
+      to: "/projects/$projectId/storage/$provider/containers",
+      params: { projectId, provider },
     })
   }
 
