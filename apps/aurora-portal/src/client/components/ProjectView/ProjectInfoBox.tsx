@@ -25,9 +25,6 @@ const SECTION_LABELS: Record<string, string> = {
 const SERVICE_LABELS: Record<string, string> = {
   images: "Images",
   flavors: "Flavors",
-  instances: "Instances",
-  keypairs: "Key Pairs",
-  servergroups: "Server Groups",
   securitygroups: "Security Groups",
   floatingips: "Floating IPs",
   containers: "Swift",
