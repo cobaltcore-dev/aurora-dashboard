@@ -441,6 +441,7 @@ describe("OpenStack Floating IP Schema Validation", () => {
   describe("FloatingIpUpdateRequestSchema", () => {
     it("should validate simple association request", () => {
       const request = {
+        project_id: "test-project",
         floatingip_id: "fip-123",
         port_id: "fc861431-0e6c-4842-a0ed-e2363f9bc3a8",
       }
@@ -450,6 +451,7 @@ describe("OpenStack Floating IP Schema Validation", () => {
 
     it("should validate disassociate request with null port_id", () => {
       const request = {
+        project_id: "test-project",
         floatingip_id: "fip-123",
         port_id: null,
       }
@@ -459,6 +461,7 @@ describe("OpenStack Floating IP Schema Validation", () => {
 
     it("should validate disassociation from port using floating IP id", () => {
       const request = {
+        project_id: "test-project",
         floatingip_id: "fip-123",
         port_id: null,
       }
@@ -473,6 +476,7 @@ describe("OpenStack Floating IP Schema Validation", () => {
 
     it("should validate request with optional fields", () => {
       const request = {
+        project_id: "test-project",
         floatingip_id: "fip-123",
         port_id: "fc861431-0e6c-4842-a0ed-e2363f9bc3a8",
         fixed_ip_address: "10.0.0.5",
@@ -485,6 +489,7 @@ describe("OpenStack Floating IP Schema Validation", () => {
 
     it("should reject request without floatingip_id", () => {
       const request = {
+        project_id: "test-project",
         port_id: "fc861431-0e6c-4842-a0ed-e2363f9bc3a8",
       }
 
@@ -493,6 +498,7 @@ describe("OpenStack Floating IP Schema Validation", () => {
 
     it("should reject request without port_id", () => {
       const request = {
+        project_id: "test-project",
         floatingip_id: "fip-123",
         description: "Updated floating IP",
       }
@@ -502,6 +508,7 @@ describe("OpenStack Floating IP Schema Validation", () => {
 
     it("should validate optional fixed_ip_address field", () => {
       const request = {
+        project_id: "test-project",
         floatingip_id: "fip-123",
         port_id: "fc861431-0e6c-4842-a0ed-e2363f9bc3a8",
         fixed_ip_address: "10.0.0.5",
@@ -512,6 +519,7 @@ describe("OpenStack Floating IP Schema Validation", () => {
 
     it("should validate optional description field", () => {
       const request = {
+        project_id: "test-project",
         floatingip_id: "fip-123",
         port_id: "fc861431-0e6c-4842-a0ed-e2363f9bc3a8",
         description: "Updated floating IP",
@@ -522,6 +530,7 @@ describe("OpenStack Floating IP Schema Validation", () => {
 
     it("should validate optional distributed field", () => {
       const request = {
+        project_id: "test-project",
         floatingip_id: "fip-123",
         port_id: "fc861431-0e6c-4842-a0ed-e2363f9bc3a8",
         distributed: true,
@@ -532,6 +541,7 @@ describe("OpenStack Floating IP Schema Validation", () => {
 
     it("should reject invalid distributed type", () => {
       const request = {
+        project_id: "test-project",
         floatingip_id: "fip-123",
         port_id: "fc861431-0e6c-4842-a0ed-e2363f9bc3a8",
         distributed: "true",
@@ -542,6 +552,7 @@ describe("OpenStack Floating IP Schema Validation", () => {
 
     it("should reject invalid fixed_ip_address type", () => {
       const request = {
+        project_id: "test-project",
         floatingip_id: "fip-123",
         port_id: "fc861431-0e6c-4842-a0ed-e2363f9bc3a8",
         fixed_ip_address: 123,
@@ -552,6 +563,7 @@ describe("OpenStack Floating IP Schema Validation", () => {
 
     it("should reject invalid description type", () => {
       const request = {
+        project_id: "test-project",
         floatingip_id: "fip-123",
         port_id: "fc861431-0e6c-4842-a0ed-e2363f9bc3a8",
         description: 123,
@@ -574,6 +586,7 @@ describe("OpenStack Floating IP Schema Validation", () => {
   describe("FloatingIpCreateRequestSchema", () => {
     it("should validate minimal create request", () => {
       const request = {
+        project_id: "test-project",
         tenant_id: "tenant-1",
         project_id: "project-1",
         floating_network_id: "376da547-b977-4cfe-9cba-275c80debf57",
@@ -584,6 +597,7 @@ describe("OpenStack Floating IP Schema Validation", () => {
 
     it("should validate complete create request", () => {
       const request = {
+        project_id: "test-project",
         tenant_id: "tenant-1",
         project_id: "project-1",
         floating_network_id: "376da547-b977-4cfe-9cba-275c80debf57",
@@ -603,6 +617,7 @@ describe("OpenStack Floating IP Schema Validation", () => {
 
     it("should reject request without floating_network_id", () => {
       const request = {
+        project_id: "test-project",
         tenant_id: "tenant-1",
         project_id: "project-1",
       }
@@ -621,6 +636,7 @@ describe("OpenStack Floating IP Schema Validation", () => {
 
     it("should reject request without project_id", () => {
       const request = {
+        project_id: "test-project",
         tenant_id: "tenant-1",
         floating_network_id: "376da547-b977-4cfe-9cba-275c80debf57",
       }
