@@ -194,7 +194,7 @@ vi.mock("./DeleteObjectsModal", () => ({
       >
         <button onClick={onClose}>CloseDeleteAll</button>
         <button onClick={() => onSuccess?.(objectKeys.length)}>SimulateBulkDeleteSuccess</button>
-        <button onClick={() => onError?.("bulk delete failed")}>SimulateBulkDeleteError</button>
+        <button onClick={() => onError?.("bulk delete failed", [])}>SimulateBulkDeleteError</button>
       </div>
     ) : null
   ),

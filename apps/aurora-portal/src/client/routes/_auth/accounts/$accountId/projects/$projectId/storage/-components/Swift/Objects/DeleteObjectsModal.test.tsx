@@ -264,7 +264,7 @@ describe("DeleteObjectsModal", () => {
       renderModal({ onError })
       await user.click(screen.getByRole("button", { name: /^Delete$/i }))
       await waitFor(() => {
-        expect(onError).toHaveBeenCalledWith("Bulk delete failed with status 500")
+        expect(onError).toHaveBeenCalledWith("Bulk delete failed with status 500", [])
       })
     })
 
@@ -276,7 +276,7 @@ describe("DeleteObjectsModal", () => {
       renderModal({ onSuccess, onError })
       await user.click(screen.getByRole("button", { name: /^Delete$/i }))
       await waitFor(() => {
-        expect(onError).toHaveBeenCalled()
+        expect(onError).toHaveBeenCalledWith("Internal Server Error", [])
         expect(onSuccess).not.toHaveBeenCalled()
       })
     })
@@ -294,7 +294,11 @@ describe("DeleteObjectsModal", () => {
       await user.click(screen.getByRole("button", { name: /^Delete$/i }))
       await waitFor(() => {
         expect(onSuccess).toHaveBeenCalledWith(1)
-        expect(onError).toHaveBeenCalled()
+        // deleted keys exclude the failed path
+        expect(onError).toHaveBeenCalledWith(
+          expect.stringContaining("Forbidden"),
+          expect.arrayContaining(["file-a.txt", "folder/report.pdf"])
+        )
       })
     })
 

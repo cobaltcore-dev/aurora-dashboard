@@ -15,7 +15,7 @@ interface DeleteObjectsModalProps {
   account?: string
   onClose: () => void
   onSuccess?: (numberDeleted: number) => void
-  onError?: (errorMessage: string) => void
+  onError?: (errorMessage: string, deletedKeys: string[]) => void
 }
 
 export const DeleteObjectsModal = ({
@@ -37,16 +37,19 @@ export const DeleteObjectsModal = ({
       utils.storage.swift.listObjects.invalidate({ container })
       if (result.errors.length > 0) {
         const errorMessages = result.errors.map((e) => `${e.path}: ${e.error}`).join("\n")
+        // Derive keys that were actually deleted so the parent can prune them from selection
+        const failedPaths = new Set(result.errors.map((e) => e.path))
+        const deletedKeys = objectKeys.filter((key) => !failedPaths.has(`/${container}/${key}`))
         if (result.numberDeleted > 0) {
           onSuccess?.(result.numberDeleted)
         }
-        onError?.(errorMessages)
+        onError?.(errorMessages, deletedKeys)
       } else {
         onSuccess?.(result.numberDeleted)
       }
     },
     onError: (error) => {
-      onError?.(error.message)
+      onError?.(error.message, [])
     },
     onSettled: () => {
       handleClose()

@@ -194,7 +194,10 @@ export const SwiftObjects = () => {
     setToastData(getObjectsBulkDeletedToast(numberDeleted, { onDismiss: handleToastDismiss }))
   }
 
-  const handleBulkDeleteError = (errorMessage: string) => {
+  const handleBulkDeleteError = (errorMessage: string, deletedKeys: string[]) => {
+    if (deletedKeys.length > 0) {
+      setSelectedObjects((prev) => prev.filter((key) => !deletedKeys.includes(key)))
+    }
     setToastData(getObjectsBulkDeleteErrorToast(errorMessage, { onDismiss: handleToastDismiss }))
   }
 
