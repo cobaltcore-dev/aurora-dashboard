@@ -43,11 +43,11 @@ msgstr "{allCount} Elemente"
 msgid "{customMinutes} minutes"
 msgstr "{customMinutes} Minuten"
 
-msgid "{emptiedCount} container(s) successfully emptied. {totalDeleted} object(s) deleted in total."
-msgstr "{emptiedCount} Container erfolgreich geleert. {totalDeleted} Objekt(e) insgesamt gelöscht."
+msgid "{emptiedCount, plural, one {# container was already empty.} other {# containers were already empty.}}"
+msgstr "{emptiedCount, plural, one {# Container war bereits leer.} other {# Container waren bereits leer.}}"
 
-msgid "{emptiedCount} container(s) were already empty."
-msgstr "{emptiedCount} Container waren bereits leer."
+msgid "{emptiedCount, plural, one {# container} other {# containers}} successfully emptied. {totalDeleted, plural, one {# object} other {# objects}} deleted in total."
+msgstr "{emptiedCount, plural, one {# Container} other {# Container}} erfolgreich geleert. {totalDeleted, plural, one {# Objekt} other {# Objekte}} insgesamt gelöscht."
 
 msgid "{numberDeleted} object was permanently deleted."
 msgstr "{numberDeleted} Objekt wurde dauerhaft gelöscht."
@@ -793,8 +793,8 @@ msgstr "Container leeren:"
 msgid "Empty Containers"
 msgstr "Container leeren"
 
-msgid "Emptying {current} of {total}…"
-msgstr ""
+msgid "Emptying {current} of {total}..."
+msgstr "{current} von {total} werden geleert..."
 
 msgid "Enable file listing"
 msgstr "Dateilisting aktivieren"

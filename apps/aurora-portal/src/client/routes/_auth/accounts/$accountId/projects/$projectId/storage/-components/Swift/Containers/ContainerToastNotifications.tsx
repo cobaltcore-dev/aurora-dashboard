@@ -1,6 +1,6 @@
 import { ReactNode } from "react"
 import { ToastProps } from "@cloudoperators/juno-ui-components"
-import { Trans } from "@lingui/react/macro"
+import { Trans, Plural } from "@lingui/react/macro"
 import { Stack } from "@cloudoperators/juno-ui-components/index"
 
 interface NotificationTextProps {
@@ -219,10 +219,11 @@ export const getContainersEmptiedToast = (
       title={<Trans>Containers Emptied</Trans>}
       description={
         totalDeleted === 0 ? (
-          <Trans>{emptiedCount} container(s) were already empty.</Trans>
+          <Plural value={emptiedCount} one="# container was already empty." other="# containers were already empty." />
         ) : (
           <Trans>
-            {emptiedCount} container(s) successfully emptied. {totalDeleted} object(s) deleted in total.
+            <Plural value={emptiedCount} one="# container" other="# containers" /> successfully emptied.{" "}
+            <Plural value={totalDeleted} one="# object" other="# objects" /> deleted in total.
           </Trans>
         )
       }

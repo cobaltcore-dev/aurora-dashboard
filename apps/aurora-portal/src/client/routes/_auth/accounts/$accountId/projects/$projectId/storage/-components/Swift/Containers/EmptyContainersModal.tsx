@@ -113,7 +113,7 @@ export const EmptyContainersModal = ({
                 const total = progress.total
                 return (
                   <Trans>
-                    Emptying {current} of {total}…
+                    Emptying {current} of {total}...
                   </Trans>
                 )
               })()}
