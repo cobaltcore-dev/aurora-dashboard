@@ -178,16 +178,16 @@ describe("DeleteObjectsModal", () => {
       expect(screen.queryByText("file-20.txt")).not.toBeInTheDocument()
     })
 
-    test("shows '… and N more' note when list is truncated", () => {
+    test("shows '... and N more' note when list is truncated", () => {
       const many = Array.from({ length: 25 }, (_, i) => `file-${i}.txt`)
       renderModal({ objectNames: many, objectKeys: many })
-      expect(screen.getByText(/… and 5 more/i)).toBeInTheDocument()
+      expect(screen.getByText(/... and 5 more/i)).toBeInTheDocument()
     })
 
     test("does not show overflow note when 20 or fewer objects", () => {
       const exact = Array.from({ length: 20 }, (_, i) => `file-${i}.txt`)
       renderModal({ objectNames: exact, objectKeys: exact })
-      expect(screen.queryByText(/… and/i)).not.toBeInTheDocument()
+      expect(screen.queryByText(/... and/i)).not.toBeInTheDocument()
     })
   })
 

@@ -114,7 +114,7 @@ export const DeleteObjectsModal = ({
               </ul>
               {hiddenCount > 0 && (
                 <p className="text-theme-light mt-2 text-xs">
-                  <Trans>… and {hiddenCount} more</Trans>
+                  <Trans>... and {hiddenCount} more</Trans>
                 </p>
               )}
             </div>

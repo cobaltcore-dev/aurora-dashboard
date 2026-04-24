@@ -171,16 +171,16 @@ describe("EmptyContainersModal", () => {
       expect(screen.queryByText("container-20")).not.toBeInTheDocument()
     })
 
-    test("shows '… and N more' note when list is truncated", () => {
+    test("shows '... and N more' note when list is truncated", () => {
       const manyContainers = Array.from({ length: 25 }, (_, i) => makeContainer(`container-${i}`))
       renderModal({ containers: manyContainers })
-      expect(screen.getByText(/… and 5 more/i)).toBeInTheDocument()
+      expect(screen.getByText(/... and 5 more/i)).toBeInTheDocument()
     })
 
     test("does not show overflow note when 20 or fewer containers", () => {
       const exactContainers = Array.from({ length: 20 }, (_, i) => makeContainer(`container-${i}`))
       renderModal({ containers: exactContainers })
-      expect(screen.queryByText(/… and/i)).not.toBeInTheDocument()
+      expect(screen.queryByText(/... and \d+ more/i)).not.toBeInTheDocument()
     })
   })
 

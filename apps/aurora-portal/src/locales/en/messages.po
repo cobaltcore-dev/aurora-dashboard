@@ -19,8 +19,8 @@ msgstr "-"
 msgid "—"
 msgstr "—"
 
-msgid "… and {hiddenCount} more"
-msgstr "… and {hiddenCount} more"
+msgid "... and {hiddenCount} more"
+msgstr "... and {hiddenCount} more"
 
 msgid "\"{objectName}\" was successfully copied to {destination}."
 msgstr "\"{objectName}\" was successfully copied to {destination}."
@@ -2596,8 +2596,8 @@ msgstr "Type container name to confirm"
 msgid "Type name"
 msgstr "Type name"
 
-msgid "Type to search containers…"
-msgstr "Type to search containers…"
+msgid "Type to search containers..."
+msgstr "Type to search containers..."
 
 msgid "Type: {typeValue}, Code: {codeValue}"
 msgstr "Type: {typeValue}, Code: {codeValue}"

@@ -66,7 +66,13 @@ export const EmptyContainersModal = ({
       }
     }
 
-    // Don't fire callbacks or invalidate if the user cancelled mid-loop
+    // Always refresh the list so already-processed containers appear up-to-date,
+    // even if the user cancelled mid-loop.
+    if (emptiedCount > 0) {
+      await utils.storage.swift.listContainers.invalidate()
+    }
+
+    // Don't fire callbacks if the user cancelled mid-loop
     if (cancelledRef.current) return
 
     await utils.storage.swift.listContainers.invalidate()
@@ -148,7 +154,7 @@ export const EmptyContainersModal = ({
               </ul>
               {hiddenCount > 0 && (
                 <p className="text-theme-light mt-2 text-xs">
-                  <Trans>… and {hiddenCount} more</Trans>
+                  <Trans>... and {hiddenCount} more</Trans>
                 </p>
               )}
             </div>
