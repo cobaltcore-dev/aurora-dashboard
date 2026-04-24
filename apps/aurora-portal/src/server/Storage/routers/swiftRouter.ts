@@ -1289,12 +1289,23 @@ export const swiftRouter = {
             ? `${uploadAccount}/${encodeURIComponent(validatedContainer)}/${encodedObject}`
             : `${encodeURIComponent(validatedContainer)}/${encodedObject}`
 
-          await swift.put(url, webStream, {
+          const uploadResponse = await swift.put(url, webStream, {
             headers: {
               "Content-Type": contentType ?? "application/octet-stream",
               ...(validatedFileSize > 0 ? { "Content-Length": validatedFileSize.toString() } : {}),
             },
           })
+
+          if (!uploadResponse?.ok) {
+            throw mapErrorResponseToTRPCError(
+              uploadResponse as unknown as Parameters<typeof mapErrorResponseToTRPCError>[0],
+              {
+                operation: "upload object",
+                container: validatedContainer,
+                object: validatedObject,
+              }
+            )
+          }
 
           uploadProgressEmitter.emit(`progress:${scopedUploadId}:complete`)
 
