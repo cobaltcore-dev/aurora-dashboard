@@ -39,7 +39,9 @@ export const DeleteObjectsModal = ({
         const errorMessages = result.errors.map((e) => `${e.path}: ${e.error}`).join("\n")
         // Derive keys that were actually deleted so the parent can prune them from selection
         const failedPaths = new Set(result.errors.map((e) => e.path))
-        const deletedKeys = objectKeys.filter((key) => !failedPaths.has(`/${container}/${key}`))
+        const deletedKeys = objectKeys.filter(
+          (key) => !failedPaths.has(`/${encodeURIComponent(container)}/${encodeURIComponent(key)}`)
+        )
         if (result.numberDeleted > 0) {
           onSuccess?.(result.numberDeleted)
         }
@@ -63,7 +65,9 @@ export const DeleteObjectsModal = ({
 
   const handleConfirm = () => {
     // bulkDelete expects fully-qualified paths: /<container>/<object>
-    const objects = objectKeys.map((key) => `/${container}/${key}`)
+    // Each segment must be URL-encoded to match Swift's bulk-delete protocol —
+    // object keys containing newlines or % would otherwise corrupt the request body.
+    const objects = objectKeys.map((key) => `/${encodeURIComponent(container)}/${encodeURIComponent(key)}`)
     bulkDeleteMutation.mutate({
       objects,
       ...(account ? { account } : {}),
