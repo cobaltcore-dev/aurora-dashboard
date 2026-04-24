@@ -177,6 +177,8 @@ const renderView = ({
   account = undefined as string | undefined,
   onEditMetadataSuccess = vi.fn(),
   onEditMetadataError = vi.fn(),
+  selectedObjects = [] as string[],
+  setSelectedObjects = vi.fn(),
 }: {
   rows?: BrowserRow[]
   searchTerm?: string
@@ -195,6 +197,8 @@ const renderView = ({
   onTempUrlCopySuccess?: (objectName: string) => void
   onEditMetadataSuccess?: (objectName: string) => void
   onEditMetadataError?: (objectName: string, errorMessage: string) => void
+  selectedObjects?: string[]
+  setSelectedObjects?: (objects: string[]) => void
 } = {}) =>
   render(
     <I18nProvider i18n={i18n}>
@@ -217,6 +221,8 @@ const renderView = ({
           onTempUrlCopySuccess={onTempUrlCopySuccess}
           onEditMetadataSuccess={onEditMetadataSuccess}
           onEditMetadataError={onEditMetadataError}
+          selectedObjects={selectedObjects}
+          setSelectedObjects={setSelectedObjects}
         />
       </PortalProvider>
     </I18nProvider>
@@ -650,6 +656,8 @@ describe("ObjectsTableView", () => {
               onTempUrlCopySuccess={vi.fn()}
               onEditMetadataSuccess={vi.fn()}
               onEditMetadataError={vi.fn()}
+              selectedObjects={[]}
+              setSelectedObjects={vi.fn()}
             />
           </PortalProvider>
         </I18nProvider>
@@ -884,6 +892,88 @@ describe("ObjectsTableView", () => {
       renderView({ rows: [makeFolder("docs")] })
       await user.click(screen.getByRole("button", { name: /More/i }))
       expect(screen.queryByTestId("temp-url-action-docs/")).not.toBeInTheDocument()
+    })
+  })
+
+  describe("Selection", () => {
+    const objectRows = mockRows.filter((r) => r.kind === "object")
+
+    test("renders select-all checkbox in table header", () => {
+      renderView()
+      expect(screen.getByTestId("select-all-objects")).toBeInTheDocument()
+    })
+
+    test("renders a checkbox for each object row", () => {
+      renderView()
+      objectRows.forEach((r) => {
+        expect(screen.getByTestId(`select-object-${r.name}`)).toBeInTheDocument()
+      })
+    })
+
+    test("does not render a checkbox for folder rows", () => {
+      renderView()
+      const folderRows = mockRows.filter((r) => r.kind === "folder")
+      folderRows.forEach((r) => {
+        expect(screen.queryByTestId(`select-object-${r.name}`)).not.toBeInTheDocument()
+      })
+    })
+
+    test("row checkbox is unchecked when object is not selected", () => {
+      renderView({ selectedObjects: [] })
+      expect(screen.getByTestId("select-object-readme.txt").querySelector("input")).not.toBeChecked()
+    })
+
+    test("row checkbox is checked when object is in selectedObjects", () => {
+      renderView({ selectedObjects: ["readme.txt"] })
+      expect(screen.getByTestId("select-object-readme.txt").querySelector("input")).toBeChecked()
+      expect(screen.getByTestId("select-object-photo.png").querySelector("input")).not.toBeChecked()
+    })
+
+    test("select-all checkbox is unchecked when nothing is selected", () => {
+      renderView({ selectedObjects: [] })
+      expect(screen.getByTestId("select-all-objects").querySelector("input")).not.toBeChecked()
+    })
+
+    test("select-all checkbox is checked when all object rows are selected", () => {
+      renderView({ selectedObjects: objectRows.map((r) => r.name) })
+      expect(screen.getByTestId("select-all-objects").querySelector("input")).toBeChecked()
+    })
+
+    test("select-all checkbox is unchecked when only some objects are selected", () => {
+      renderView({ selectedObjects: ["readme.txt"] })
+      expect(screen.getByTestId("select-all-objects").querySelector("input")).not.toBeChecked()
+    })
+
+    test("clicking a row checkbox calls setSelectedObjects with the object added", async () => {
+      const setSelectedObjects = vi.fn()
+      const user = userEvent.setup()
+      renderView({ selectedObjects: [], setSelectedObjects })
+      await user.click(screen.getByTestId("select-object-readme.txt").querySelector("input") as HTMLElement)
+      expect(setSelectedObjects).toHaveBeenCalledWith(["readme.txt"])
+    })
+
+    test("clicking a checked row checkbox calls setSelectedObjects with the object removed", async () => {
+      const setSelectedObjects = vi.fn()
+      const user = userEvent.setup()
+      renderView({ selectedObjects: ["readme.txt", "photo.png"], setSelectedObjects })
+      await user.click(screen.getByTestId("select-object-readme.txt").querySelector("input") as HTMLElement)
+      expect(setSelectedObjects).toHaveBeenCalledWith(["photo.png"])
+    })
+
+    test("clicking select-all calls setSelectedObjects with all object names", async () => {
+      const setSelectedObjects = vi.fn()
+      const user = userEvent.setup()
+      renderView({ selectedObjects: [], setSelectedObjects })
+      await user.click(screen.getByTestId("select-all-objects").querySelector("input") as HTMLElement)
+      expect(setSelectedObjects).toHaveBeenCalledWith(objectRows.map((r) => r.name))
+    })
+
+    test("clicking select-all when all selected calls setSelectedObjects with empty array", async () => {
+      const setSelectedObjects = vi.fn()
+      const user = userEvent.setup()
+      renderView({ selectedObjects: objectRows.map((r) => r.name), setSelectedObjects })
+      await user.click(screen.getByTestId("select-all-objects").querySelector("input") as HTMLElement)
+      expect(setSelectedObjects).toHaveBeenCalledWith([])
     })
   })
 

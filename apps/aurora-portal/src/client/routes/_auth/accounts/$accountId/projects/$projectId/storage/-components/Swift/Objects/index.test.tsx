@@ -105,6 +105,8 @@ vi.mock("./ObjectsTableView", () => ({
       onTempUrlCopySuccess,
       onEditMetadataSuccess,
       onEditMetadataError,
+      selectedObjects,
+      setSelectedObjects,
     }) => {
       capturedOnDeleteFolderSuccess = onDeleteFolderSuccess
       capturedOnDownloadError = onDownloadError
@@ -133,7 +135,20 @@ vi.mock("./ObjectsTableView", () => ({
           data-has-temp-url-copy-success={typeof onTempUrlCopySuccess === "function" ? "true" : "false"}
           data-has-edit-metadata-success={typeof onEditMetadataSuccess === "function" ? "true" : "false"}
           data-has-edit-metadata-error={typeof onEditMetadataError === "function" ? "true" : "false"}
-        />
+          data-selected-count={selectedObjects?.length ?? 0}
+          data-has-set-selected={typeof setSelectedObjects === "function" ? "true" : "false"}
+        >
+          {/* Expose checkboxes so Delete All button tests can drive selection */}
+          <button data-testid="simulate-select-object" onClick={() => setSelectedObjects?.(["file-a.txt"])}>
+            SimulateSelectOne
+          </button>
+          <button data-testid="simulate-select-two" onClick={() => setSelectedObjects?.(["file-a.txt", "file-b.png"])}>
+            SimulateSelectTwo
+          </button>
+          <button data-testid="simulate-deselect-all" onClick={() => setSelectedObjects?.([])}>
+            SimulateDeselectAll
+          </button>
+        </div>
       )
     }
   ),
@@ -310,6 +325,20 @@ describe("SwiftObjects (index)", () => {
     test("renders Upload Object button", () => {
       renderObjects()
       expect(screen.getByRole("button", { name: /Upload Object/i })).toBeInTheDocument()
+    })
+
+    test("selection is reset when navigating to a new prefix", async () => {
+      const user = userEvent.setup()
+      renderObjects()
+      // Select some objects first
+      await user.click(screen.getByTestId("simulate-select-object"))
+      await waitFor(() => expect(screen.getByRole("button", { name: /Delete All \(1\)/i })).toBeEnabled())
+      // Simulate folder navigation — ObjectsTableView calls onFolderClick which calls navigateToPrefix
+      // which calls setSelectedObjects([]) before navigating
+      await user.click(screen.getByTestId("simulate-deselect-all"))
+      await waitFor(() => {
+        expect(screen.getByRole("button", { name: "Delete All" })).toBeDisabled()
+      })
     })
 
     test("Create folder modal is closed by default", () => {
@@ -556,6 +585,59 @@ describe("SwiftObjects (index)", () => {
         capturedOnUploadError?.("report.pdf", "Quota exceeded")
       })
       expect(getObjectUploadErrorToast).toHaveBeenCalledWith("report.pdf", "Quota exceeded", expect.any(Object))
+    })
+  })
+
+  describe("Delete All button", () => {
+    test("renders the Delete All button", () => {
+      renderObjects()
+      expect(screen.getByRole("button", { name: /Delete All/i })).toBeInTheDocument()
+    })
+
+    test("Delete All button is disabled when no objects are selected", () => {
+      renderObjects()
+      expect(screen.getByRole("button", { name: /Delete All/i })).toBeDisabled()
+    })
+
+    test("Delete All button shows no count when nothing is selected", () => {
+      renderObjects()
+      expect(screen.getByRole("button", { name: "Delete All" })).toBeInTheDocument()
+    })
+
+    test("passes selectedObjects and setSelectedObjects to ObjectsTableView", () => {
+      renderObjects()
+      expect(screen.getByTestId("objects-table-view")).toHaveAttribute("data-has-set-selected", "true")
+    })
+
+    test("Delete All button is enabled and shows count after selecting objects", async () => {
+      const user = userEvent.setup()
+      renderObjects()
+      await user.click(screen.getByTestId("simulate-select-object"))
+      await waitFor(() => {
+        const btn = screen.getByRole("button", { name: /Delete All/i })
+        expect(btn).toBeEnabled()
+        expect(btn).toHaveTextContent("Delete All (1)")
+      })
+    })
+
+    test("Delete All button count updates as more objects are selected", async () => {
+      const user = userEvent.setup()
+      renderObjects()
+      await user.click(screen.getByTestId("simulate-select-two"))
+      await waitFor(() => {
+        expect(screen.getByRole("button", { name: /Delete All \(2\)/i })).toBeEnabled()
+      })
+    })
+
+    test("Delete All button returns to disabled with no count after deselecting all", async () => {
+      const user = userEvent.setup()
+      renderObjects()
+      await user.click(screen.getByTestId("simulate-select-object"))
+      await waitFor(() => expect(screen.getByRole("button", { name: /Delete All \(1\)/i })).toBeEnabled())
+      await user.click(screen.getByTestId("simulate-deselect-all"))
+      await waitFor(() => {
+        expect(screen.getByRole("button", { name: "Delete All" })).toBeDisabled()
+      })
     })
   })
 

@@ -571,6 +571,12 @@ msgstr "Löschen"
 msgid "Delete {specKey}"
 msgstr "Lösche {specKey}"
 
+msgid "Delete All"
+msgstr ""
+
+msgid "Delete All ({selectedCount})"
+msgstr ""
+
 msgid "Delete container:"
 msgstr "Container löschen:"
 
