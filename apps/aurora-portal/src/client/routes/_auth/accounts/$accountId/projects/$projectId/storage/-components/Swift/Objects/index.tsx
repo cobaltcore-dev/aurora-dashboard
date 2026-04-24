@@ -303,6 +303,10 @@ export const SwiftObjects = () => {
   const hasSelection = selectedObjects.length > 0
   const selectedCount = selectedObjects.length
 
+  // Derive short display names for the modal list — selectedObjects holds full
+  // keys (e.g. "folder/sub/file.txt") but the modal should show "file.txt".
+  const selectedDisplayNames = selectedObjects.map((key) => sortedRows.find((r) => r.name === key)?.displayName ?? key)
+
   return (
     <div className="relative">
       <ObjectsFileNavigation
@@ -353,7 +357,7 @@ export const SwiftObjects = () => {
 
       <DeleteObjectsModal
         isOpen={deleteAllModalOpen}
-        objectNames={selectedObjects}
+        objectNames={selectedDisplayNames}
         objectKeys={selectedObjects}
         container={containerName}
         onClose={() => setDeleteAllModalOpen(false)}
