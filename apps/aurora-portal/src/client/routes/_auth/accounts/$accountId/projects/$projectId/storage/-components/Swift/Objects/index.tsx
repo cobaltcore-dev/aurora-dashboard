@@ -166,16 +166,20 @@ export const SwiftObjects = () => {
     setToastData(getFolderDeleteErrorToast(folderName, errorMessage, { onDismiss: handleToastDismiss }))
   const handleDownloadError = (objectName: string, errorMessage: string) =>
     setToastData(getObjectDownloadErrorToast(objectName, errorMessage, { onDismiss: handleToastDismiss }))
-  const handleDeleteObjectSuccess = (objectName: string) =>
+  const handleDeleteObjectSuccess = (objectName: string) => {
+    setSelectedObjects((prev) => prev.filter((name) => name !== objectName))
     setToastData(getObjectDeletedToast(objectName, { onDismiss: handleToastDismiss }))
+  }
   const handleDeleteObjectError = (objectName: string, errorMessage: string) =>
     setToastData(getObjectDeleteErrorToast(objectName, errorMessage, { onDismiss: handleToastDismiss }))
   const handleCopyObjectSuccess = (objectName: string, targetContainer: string, targetPath: string) =>
     setToastData(getObjectCopiedToast(objectName, targetContainer, targetPath, { onDismiss: handleToastDismiss }))
   const handleCopyObjectError = (objectName: string, errorMessage: string) =>
     setToastData(getObjectCopyErrorToast(objectName, errorMessage, { onDismiss: handleToastDismiss }))
-  const handleMoveObjectSuccess = (objectName: string, targetContainer: string, targetPath: string) =>
+  const handleMoveObjectSuccess = (objectName: string, targetContainer: string, targetPath: string) => {
+    setSelectedObjects((prev) => prev.filter((name) => name !== objectName))
     setToastData(getObjectMovedToast(objectName, targetContainer, targetPath, { onDismiss: handleToastDismiss }))
+  }
   const handleMoveObjectError = (objectName: string, errorMessage: string) =>
     setToastData(getObjectMoveErrorToast(objectName, errorMessage, { onDismiss: handleToastDismiss }))
   const handleTempUrlCopySuccess = (objectName: string) =>
