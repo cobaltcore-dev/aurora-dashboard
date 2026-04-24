@@ -793,6 +793,9 @@ msgstr "Empty container:"
 msgid "Empty Containers"
 msgstr "Empty Containers"
 
+msgid "Emptying {current} of {total}…"
+msgstr "Emptying {current} of {total}…"
+
 msgid "Enable file listing"
 msgstr "Enable file listing"
 

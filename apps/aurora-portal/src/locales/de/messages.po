@@ -793,6 +793,9 @@ msgstr "Container leeren:"
 msgid "Empty Containers"
 msgstr "Container leeren"
 
+msgid "Emptying {current} of {total}…"
+msgstr ""
+
 msgid "Enable file listing"
 msgstr "Dateilisting aktivieren"
 
