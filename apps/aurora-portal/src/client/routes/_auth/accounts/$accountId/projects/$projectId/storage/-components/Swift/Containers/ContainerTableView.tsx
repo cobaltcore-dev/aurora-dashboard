@@ -2,6 +2,7 @@ import { useRef, useEffect, useState } from "react"
 import { useVirtualizer } from "@tanstack/react-virtual"
 import { useNavigate, useParams } from "@tanstack/react-router"
 import {
+  Checkbox,
   DataGrid,
   DataGridHeadCell,
   DataGridRow,
@@ -18,6 +19,7 @@ import { EmptyContainerModal } from "./EmptyContainerModal"
 import { DeleteContainerModal } from "./DeleteContainerModal"
 import { EditContainerMetadataModal } from "./EditContainerMetadataModal"
 import { ManageContainerAccessModal } from "./ManageContainerAccessModal"
+
 interface ContainerTableViewProps {
   containers: ContainerSummary[]
   createModalOpen: boolean
@@ -33,6 +35,8 @@ interface ContainerTableViewProps {
   onPropertiesError: (containerName: string, errorMessage: string) => void
   onAclSuccess: (containerName: string) => void
   onAclError: (containerName: string, errorMessage: string) => void
+  selectedContainers: string[]
+  setSelectedContainers: (containers: string[]) => void
 }
 
 export const ContainerTableView = ({
@@ -50,6 +54,8 @@ export const ContainerTableView = ({
   onPropertiesError,
   onAclSuccess,
   onAclError,
+  selectedContainers,
+  setSelectedContainers,
 }: ContainerTableViewProps) => {
   const { accountId, projectId, provider } = useParams({
     from: "/_auth/accounts/$accountId/projects/$projectId/storage/$provider/containers/",
@@ -90,6 +96,24 @@ export const ContainerTableView = ({
     overscan: 10,
   })
 
+  const allSelected = containers.length > 0 && selectedContainers.length === containers.length
+
+  const handleSelectAll = () => {
+    if (allSelected) {
+      setSelectedContainers([])
+    } else {
+      setSelectedContainers(containers.map((c) => c.name))
+    }
+  }
+
+  const handleSelectContainer = (containerName: string) => {
+    if (selectedContainers.includes(containerName)) {
+      setSelectedContainers(selectedContainers.filter((name) => name !== containerName))
+    } else {
+      setSelectedContainers([...selectedContainers, containerName])
+    }
+  }
+
   if (!containers || containers.length === 0) {
     return (
       <DataGrid columns={4} className="containers" data-testid="no-containers">
@@ -111,8 +135,8 @@ export const ContainerTableView = ({
     )
   }
 
-  // Define column template — 5 columns, last one for the actions menu
-  const gridColumnTemplate = "minmax(200px, 2fr) minmax(100px, 1fr) minmax(180px, 2fr) minmax(100px, 1fr) 60px"
+  // Define column template — 6 columns: checkbox, name, count, last modified, size, actions menu
+  const gridColumnTemplate = "40px minmax(200px, 2fr) minmax(100px, 1fr) minmax(180px, 2fr) minmax(100px, 1fr) 60px"
 
   const allContainersCount = containers.length
 
@@ -122,12 +146,15 @@ export const ContainerTableView = ({
         {/* Table Header with scrollbar padding */}
         <div style={{ paddingRight: `${scrollbarWidth}px` }}>
           <DataGrid
-            columns={5}
+            columns={6}
             gridColumnTemplate={gridColumnTemplate}
             className="containers"
             data-testid="containers-table-header"
           >
             <DataGridRow>
+              <DataGridHeadCell>
+                <Checkbox checked={allSelected} onChange={handleSelectAll} data-testid="select-all-containers" />
+              </DataGridHeadCell>
               <DataGridHeadCell>
                 <Trans>Container Name</Trans>
               </DataGridHeadCell>
@@ -150,9 +177,7 @@ export const ContainerTableView = ({
           ref={parentRef}
           className="overflow-auto"
           style={{
-            height: "calc(100vh - 545px)", // Dynamic height based on viewport
-            // minHeight: "400px", // Minimum height for usability
-            // maxHeight: "800px", // Maximum height to prevent overflow
+            height: "calc(100vh - 545px)",
           }}
           data-testid="containers-table-body"
         >
@@ -165,6 +190,7 @@ export const ContainerTableView = ({
           >
             {rowVirtualizer.getVirtualItems().map((virtualRow) => {
               const container = containers[virtualRow.index]
+              const isSelected = selectedContainers.includes(container.name)
 
               const handleRowNavigate = () =>
                 navigate({
@@ -199,6 +225,13 @@ export const ContainerTableView = ({
                     }
                   }}
                 >
+                  <DataGridCell onClick={(e) => e.stopPropagation()}>
+                    <Checkbox
+                      checked={isSelected}
+                      onChange={() => handleSelectContainer(container.name)}
+                      data-testid={`select-container-${container.name}`}
+                    />
+                  </DataGridCell>
                   <DataGridCell className="min-w-0 overflow-hidden">
                     <span className="block truncate" title={container.name}>
                       {container.name}

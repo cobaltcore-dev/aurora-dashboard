@@ -34,6 +34,7 @@ export const SwiftContainers = () => {
   const { sortBy, sortDirection, search: searchParam = "" } = Route.useSearch()
 
   const [createModalOpen, setCreateModalOpen] = useState(false)
+  const [selectedContainers, setSelectedContainers] = useState<string[]>([])
   const [toastData, setToastData] = useState<ToastProps | null>(null)
 
   const handleToastDismiss = () => setToastData(null)
@@ -194,6 +195,9 @@ export const SwiftContainers = () => {
   const quotaBytes = accountInfo?.quotaBytes || 0
   const remainingBytes = quotaBytes > 0 ? quotaBytes - bytesUsed : 0
 
+  const hasSelection = selectedContainers.length > 0
+  const selectedCount = selectedContainers.length
+
   return (
     <div className="relative">
       <ListToolbar
@@ -216,6 +220,15 @@ export const SwiftContainers = () => {
               <Button variant="primary" onClick={() => setCreateModalOpen(true)}>
                 <Trans>Create Container</Trans>
               </Button>
+              <Button
+                variant="primary-danger"
+                onClick={() => {
+                  /* TODO: open bulk empty modal */
+                }}
+                disabled={!hasSelection}
+              >
+                {hasSelection ? <Trans>Empty All ({selectedCount})</Trans> : <Trans>Empty All</Trans>}
+              </Button>
             </Stack>
           </Stack>
         }
@@ -236,6 +249,8 @@ export const SwiftContainers = () => {
         onPropertiesError={handlePropertiesError}
         onAclSuccess={handleAclSuccess}
         onAclError={handleAclError}
+        selectedContainers={selectedContainers}
+        setSelectedContainers={setSelectedContainers}
       />
 
       {toastData && (
