@@ -16,7 +16,7 @@ interface DeleteFolderModalProps {
 export const DeleteFolderModal = ({ isOpen, folder, onClose, onSuccess, onError }: DeleteFolderModalProps) => {
   const { t } = useLingui()
   const { containerName } = useParams({
-    from: "/_auth/accounts/$accountId/projects/$projectId/storage/$provider/containers/$containerName/objects/",
+    from: "/_auth/projects/$projectId/storage/$provider/containers/$containerName/objects/",
   })
 
   const utils = trpcReact.useUtils()

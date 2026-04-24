@@ -30,7 +30,7 @@ interface MoveRenameObjectModalProps {
 export const MoveRenameObjectModal = ({ isOpen, object, onClose, onSuccess, onError }: MoveRenameObjectModalProps) => {
   const { t } = useLingui()
   const { containerName: sourceContainer } = useParams({
-    from: "/_auth/accounts/$accountId/projects/$projectId/storage/$provider/containers/$containerName/objects/",
+    from: "/_auth/projects/$projectId/storage/$provider/containers/$containerName/objects/",
   })
 
   const utils = trpcReact.useUtils()

@@ -18,7 +18,7 @@ interface DeleteObjectModalProps {
 export const DeleteObjectModal = ({ isOpen, object, onClose, onSuccess, onError }: DeleteObjectModalProps) => {
   const { t } = useLingui()
   const { containerName } = useParams({
-    from: "/_auth/accounts/$accountId/projects/$projectId/storage/$provider/containers/$containerName/objects/",
+    from: "/_auth/projects/$projectId/storage/$provider/containers/$containerName/objects/",
   })
 
   const utils = trpcReact.useUtils()

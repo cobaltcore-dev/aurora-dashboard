@@ -30,7 +30,6 @@ vi.mock("@/server/Authentication/helpers", () => ({
 
 describe("Objects Route - checkServiceAvailability", () => {
   const defaultParams = {
-    accountId: "acc-1",
     projectId: "proj-1",
     provider: "swift",
     containerName: "my-container",
@@ -67,7 +66,7 @@ describe("Objects Route - checkServiceAvailability", () => {
 
       expect(() => {
         checkServiceAvailability(defaultServices, defaultParams)
-      }).toThrow("Redirect to: /accounts/acc-1/projects")
+      }).toThrow("Redirect to: /projects/proj-1/compute/overview")
     })
 
     it("calls redirect with correct params when no storage services available", () => {
@@ -80,8 +79,8 @@ describe("Objects Route - checkServiceAvailability", () => {
       }
 
       expect(redirect).toHaveBeenCalledWith({
-        to: "/accounts/$accountId/projects",
-        params: { accountId: "acc-1" },
+        to: "/projects/$projectId/compute/overview",
+        params: { projectId: "proj-1" },
       })
     })
   })
@@ -108,7 +107,7 @@ describe("Objects Route - checkServiceAvailability", () => {
 
       expect(() => {
         checkServiceAvailability(defaultServices, { ...defaultParams, provider: "swift" })
-      }).toThrow("Redirect to: /accounts/acc-1/projects/proj-1/storage/ceph/containers/my-container/objects")
+      }).toThrow("Redirect to: /projects/proj-1/storage/ceph/containers/my-container/objects")
     })
 
     it("throws redirect when ceph is not available but provider is 'ceph'", () => {
@@ -120,7 +119,7 @@ describe("Objects Route - checkServiceAvailability", () => {
 
       expect(() => {
         checkServiceAvailability(defaultServices, { ...defaultParams, provider: "ceph" })
-      }).toThrow("Redirect to: /accounts/acc-1/projects/proj-1/storage/swift/containers/my-container/objects")
+      }).toThrow("Redirect to: /projects/proj-1/storage/swift/containers/my-container/objects")
     })
   })
 
@@ -139,7 +138,6 @@ describe("Objects Route - checkServiceAvailability", () => {
       })
 
       const params = {
-        accountId: "test-acc",
         projectId: "test-proj",
         provider: "swift",
         containerName: "test-container",
@@ -152,10 +150,10 @@ describe("Objects Route - checkServiceAvailability", () => {
       }
 
       // The implementation passes explicit params (not a spread), so the call
-      // receives exactly { accountId, projectId, provider: "ceph", containerName }.
+      // receives exactly { projectId, provider: "ceph", containerName }.
       expect(redirect).toHaveBeenCalledWith({
-        to: "/accounts/$accountId/projects/$projectId/storage/$provider/containers/$containerName/objects",
-        params: { accountId: "test-acc", projectId: "test-proj", provider: "ceph", containerName: "test-container" },
+        to: "/projects/$projectId/storage/$provider/containers/$containerName/objects",
+        params: { projectId: "test-proj", provider: "ceph", containerName: "test-container" },
       })
     })
   })
@@ -183,7 +181,7 @@ describe("Objects Route - checkServiceAvailability", () => {
 
       expect(() => {
         checkServiceAvailability(defaultServices, { ...defaultParams, provider: "swift" })
-      }).toThrow("Redirect to: /accounts/acc-1/projects/proj-1/storage/ceph/containers/my-container/objects")
+      }).toThrow("Redirect to: /projects/proj-1/storage/ceph/containers/my-container/objects")
     })
 
     it("redirects to swift when object-store exists but ceph is missing", () => {
@@ -195,7 +193,7 @@ describe("Objects Route - checkServiceAvailability", () => {
 
       expect(() => {
         checkServiceAvailability(defaultServices, { ...defaultParams, provider: "ceph" })
-      }).toThrow("Redirect to: /accounts/acc-1/projects/proj-1/storage/swift/containers/my-container/objects")
+      }).toThrow("Redirect to: /projects/proj-1/storage/swift/containers/my-container/objects")
     })
 
     it("redirects to projects when neither swift nor ceph is available", () => {
@@ -205,7 +203,7 @@ describe("Objects Route - checkServiceAvailability", () => {
 
       expect(() => {
         checkServiceAvailability(defaultServices, { ...defaultParams, provider: "swift" })
-      }).toThrow("Redirect to: /accounts/acc-1/projects")
+      }).toThrow("Redirect to: /projects/proj-1/compute/overview")
     })
   })
 })

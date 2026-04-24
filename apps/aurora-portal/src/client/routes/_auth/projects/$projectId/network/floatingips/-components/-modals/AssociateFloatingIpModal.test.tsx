@@ -147,6 +147,7 @@ describe("AssociateFloatingIpModal", () => {
       expect(onUpdate).toHaveBeenCalledWith("fip-123", {
         port_id: "port-1",
         fixed_ip_address: "10.0.0.5",
+        project_id: "test-project",
       })
     })
     expect(onClose).toHaveBeenCalledTimes(1)
@@ -163,6 +164,7 @@ describe("AssociateFloatingIpModal", () => {
     await waitFor(() => {
       expect(onUpdate).toHaveBeenCalledWith("fip-123", {
         port_id: "port-2",
+        project_id: "test-project",
       })
     })
   })
@@ -185,6 +187,7 @@ describe("AssociateFloatingIpModal", () => {
       expect(onUpdate).toHaveBeenCalledWith("fip-123", {
         port_id: "port-2",
         fixed_ip_address: "10.0.0.7",
+        project_id: "test-project",
       })
     })
   })

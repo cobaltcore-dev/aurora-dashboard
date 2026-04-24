@@ -30,7 +30,7 @@ interface CopyObjectModalProps {
 export const CopyObjectModal = ({ isOpen, object, onClose, onSuccess, onError }: CopyObjectModalProps) => {
   const { t } = useLingui()
   const { containerName: sourceContainer } = useParams({
-    from: "/_auth/accounts/$accountId/projects/$projectId/storage/$provider/containers/$containerName/objects/",
+    from: "/_auth/projects/$projectId/storage/$provider/containers/$containerName/objects/",
   })
 
   const utils = trpcReact.useUtils()

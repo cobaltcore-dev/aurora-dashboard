@@ -15,7 +15,7 @@ interface CreateFolderModalProps {
 export const CreateFolderModal = ({ isOpen, currentPrefix, onClose, onSuccess, onError }: CreateFolderModalProps) => {
   const { t } = useLingui()
   const { containerName } = useParams({
-    from: "/_auth/accounts/$accountId/projects/$projectId/storage/$provider/containers/$containerName/objects/",
+    from: "/_auth/projects/$projectId/storage/$provider/containers/$containerName/objects/",
   })
 
   const [folderName, setFolderName] = useState("")
