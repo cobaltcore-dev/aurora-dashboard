@@ -253,25 +253,6 @@ export const objectMetadataSchema = z.object({
   symlinkTargetAccount: z.string().optional(),
 })
 
-// Create/update object input schema
-export const createObjectInputSchema = baseObjectInputSchema.extend({
-  content: z.instanceof(ArrayBuffer).or(z.instanceof(Uint8Array)).or(z.string()), // Binary data or base64
-  contentType: z.string().optional(),
-  contentEncoding: z.string().optional(),
-  contentDisposition: z.string().optional(),
-  etag: z.string().optional(), // MD5 checksum for verification
-  deleteAt: z.number().optional(), // Unix timestamp
-  deleteAfter: z.number().optional(), // Seconds from now
-  metadata: z.record(z.string(), z.string()).optional(),
-  objectManifest: z.string().optional(), // For dynamic large objects
-  multipartManifest: z.enum(["put"]).optional(), // For static large objects
-  detectContentType: z.boolean().optional(),
-  copyFrom: z.string().optional(), // Copy from another object
-  copyFromAccount: z.string().optional(),
-  symlinkTarget: z.string().optional(), // Create symlink
-  symlinkTargetAccount: z.string().optional(),
-})
-
 // Update object metadata input schema
 export const updateObjectMetadataInputSchema = baseObjectInputSchema.extend({
   metadata: z.record(z.string(), z.string()).optional(),
@@ -394,6 +375,7 @@ export const tempUrlSchema = z.object({
 // Download object input schema
 export const downloadObjectInputSchema = baseObjectInputSchema.extend({
   filename: z.string().optional(),
+  downloadId: z.string().trim().min(1),
 })
 
 // ============================================================================
@@ -445,7 +427,6 @@ export type UpdateContainerMetadataInput = z.infer<typeof updateContainerMetadat
 export type GetContainerMetadataInput = z.infer<typeof getContainerMetadataInputSchema>
 export type DeleteContainerInput = z.infer<typeof deleteContainerInputSchema>
 
-export type CreateObjectInput = z.infer<typeof createObjectInputSchema>
 export type UpdateObjectMetadataInput = z.infer<typeof updateObjectMetadataInputSchema>
 export type CopyObjectInput = z.infer<typeof copyObjectInputSchema>
 export type DeleteObjectInput = z.infer<typeof deleteObjectInputSchema>

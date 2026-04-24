@@ -25,6 +25,9 @@ msgstr "\"{objectName}\" was successfully copied to {destination}."
 msgid "\"{objectName}\" was successfully moved to {destination}."
 msgstr "\"{objectName}\" was successfully moved to {destination}."
 
+msgid "\"{objectName}\" was successfully uploaded."
+msgstr "\"{objectName}\" was successfully uploaded."
+
 msgid "{allContainersCount} container"
 msgstr "{allContainersCount} container"
 
@@ -66,6 +69,9 @@ msgstr "<0>No Temp URL key configured.</0> A temporary URL key must be set at th
 
 msgid "<0>Optimized Scalability:</0> Built for businesses of all sizes, Aurora grows with you, supporting simple environments and intricate multi-cloud setups alike."
 msgstr "<0>Optimized Scalability:</0> Built for businesses of all sizes, Aurora grows with you, supporting simple environments and intricate multi-cloud setups alike."
+
+msgid "<0>Properties of</0> <1>{displayName}</1>"
+msgstr "<0>Properties of</0> <1>{displayName}</1>"
 
 msgid "<0>Secure & Reliable:</0> Your data and operations are safeguarded with enterprise-grade security and robust reliability."
 msgstr "<0>Secure & Reliable:</0> Your data and operations are safeguarded with enterprise-grade security and robust reliability."
@@ -231,6 +237,9 @@ msgstr "An unexpected error occurred"
 
 msgid "An unexpected error occurred. Please try again."
 msgstr "An unexpected error occurred. Please try again."
+
+msgid "Any file type"
+msgstr "Any file type"
 
 msgid "ANY referrer"
 msgstr "ANY referrer"
@@ -475,6 +484,9 @@ msgstr "Could not update ACLs for container \"{containerName}\": {errorMessage}"
 msgid "Could not update container \"{containerName}\": {errorMessage}"
 msgstr "Could not update container \"{containerName}\": {errorMessage}"
 
+msgid "Could not upload \"{objectName}\": {errorMessage}"
+msgstr "Could not upload \"{objectName}\": {errorMessage}"
+
 msgid "CPU"
 msgstr "CPU"
 
@@ -682,6 +694,9 @@ msgstr "Download {rowDisplayName}"
 msgid "Downloading..."
 msgstr "Downloading..."
 
+msgid "Drop your file here"
+msgstr "Drop your file here"
+
 msgid "Drop your image file here"
 msgstr "Drop your image file here"
 
@@ -751,8 +766,8 @@ msgstr "Enter a single port, or define a range by also filling \"Port (to)\". \"
 msgid "Enter a tag and press Enter or click Add"
 msgstr "Enter a tag and press Enter or click Add"
 
-msgid "Enter a timestamp like \"2026-05-16 18:14:57\" to schedule automatic deletion"
-msgstr "Enter a timestamp like \"2026-05-16 18:14:57\" to schedule automatic deletion"
+msgid "Enter a timestamp like \"YYYY-MM-DD HH:mm:ss\" to schedule automatic deletion"
+msgstr "Enter a timestamp like \"YYYY-MM-DD HH:mm:ss\" to schedule automatic deletion"
 
 msgid "Enter a valid PQDN or FQDN (max 63 characters) to associate with the floating IP. A and PTR records are created automatically."
 msgstr "Enter a valid PQDN or FQDN (max 63 characters) to associate with the floating IP. A and PTR records are created automatically."
@@ -1017,6 +1032,9 @@ msgstr "Failed to update visibility to {newVisibility}"
 
 msgid "Failed to upload file \"{fileName}\": "
 msgstr "Failed to upload file \"{fileName}\": "
+
+msgid "Failed to Upload Object"
+msgstr "Failed to Upload Object"
 
 msgid "False"
 msgstr "False"
@@ -1717,11 +1735,17 @@ msgstr "Object Type"
 msgid "Object Updated"
 msgstr "Object Updated"
 
+msgid "Object Uploaded"
+msgstr "Object Uploaded"
+
 msgid "Object versioning"
 msgstr "Object versioning"
 
 msgid "Object was copied but could not be deleted from the source: {deleteErrorMessage}"
 msgstr "Object was copied but could not be deleted from the source: {deleteErrorMessage}"
+
+msgid "Object will be uploaded as: <0>{selectedObjectName}</0>"
+msgstr "Object will be uploaded as: <0>{selectedObjectName}</0>"
 
 msgid "Objects"
 msgstr "Objects"
@@ -1789,6 +1813,9 @@ msgstr "Please log in again to continue."
 msgid "Please note: for <0>dynamic</0> and <1>static large objects</1> only the manifests are deleted. The related segments are not deleted."
 msgstr "Please note: for <0>dynamic</0> and <1>static large objects</1> only the manifests are deleted. The related segments are not deleted."
 
+msgid "Please select a file to upload"
+msgstr "Please select a file to upload"
+
 msgid "Policy"
 msgstr "Policy"
 
@@ -1839,9 +1866,6 @@ msgstr "Project ID"
 
 msgid "projects"
 msgstr "projects"
-
-msgid "Properties of"
-msgstr "Properties of"
 
 msgid "Properties of \"{objectName}\" were successfully updated."
 msgstr "Properties of \"{objectName}\" were successfully updated."
@@ -2562,6 +2586,24 @@ msgstr "Updating Floating IP..."
 
 msgid "Updating security group..."
 msgstr "Updating security group..."
+
+msgid "Upload"
+msgstr "Upload"
+
+msgid "Upload failed: {uploadError}"
+msgstr "Upload failed: {uploadError}"
+
+msgid "Upload Object"
+msgstr "Upload Object"
+
+msgid "Upload object to:"
+msgstr "Upload object to:"
+
+msgid "Uploading..."
+msgstr "Uploading..."
+
+msgid "Uploading... {progressPct}%"
+msgstr "Uploading... {progressPct}%"
 
 msgid "URL Copied"
 msgstr "URL Copied"

@@ -77,7 +77,6 @@ const createMockContext = (opts?: {
     createSession: vi.fn(),
     terminateSession: vi.fn(),
     rescopeSession: vi.fn(),
-    getMultipartData: vi.fn(),
     __networkGetMock: networkGetMock,
   } as unknown as AuroraPortalContext & {
     __networkGetMock: typeof networkGetMock

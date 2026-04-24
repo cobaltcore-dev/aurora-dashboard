@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach, Mock } from "vitest"
 import { TRPCError } from "@trpc/server"
+import { Readable } from "node:stream"
 import { AuroraPortalContext } from "../../context"
 import { swiftRouter } from "./swiftRouter"
 import * as swiftHelpers from "../helpers/swiftHelpers"
@@ -20,6 +21,7 @@ vi.mock("../helpers/swiftHelpers", async (importOriginal) => {
   return {
     ...actual,
     validateSwiftService: vi.fn(),
+    validateSwiftUploadInput: vi.fn(),
     applyContainerQueryParams: vi.fn(),
     applyObjectQueryParams: vi.fn(),
     parseAccountInfo: vi.fn(),
@@ -122,16 +124,36 @@ const createMockContext = (shouldFailAuth = false, shouldFailSwift = false) => {
       .mockReturnValue([{ interface: "public", url: "https://swift.example.com/v1/AUTH_test" }]),
   }
 
+  const mockReqHeaders: Record<string, string> = {}
+
   return {
+    req: { headers: mockReqHeaders },
     validateSession: vi.fn().mockReturnValue(!shouldFailAuth),
     createSession: vi.fn().mockResolvedValue({}),
     terminateSession: vi.fn().mockResolvedValue({}),
     openstack: {
       service: vi.fn().mockReturnValue(shouldFailSwift ? null : mockSwift),
+      getToken: vi.fn().mockReturnValue({
+        tokenData: {
+          project: { id: "test-project-id" },
+          user: {
+            id: "test-user-id",
+            domain: { id: "default", name: "Default" },
+            name: "test-user",
+            password_expires_at: "",
+          },
+          expires_at: "",
+          issued_at: "",
+          methods: [],
+          roles: [],
+          system: { all: false },
+        },
+      }),
     },
     rescopeSession: vi.fn().mockResolvedValue({}),
     mockSwift,
-  } as unknown as AuroraPortalContext & { mockSwift: typeof mockSwift }
+    mockReqHeaders,
+  } as unknown as AuroraPortalContext & { mockSwift: typeof mockSwift; mockReqHeaders: Record<string, string> }
 }
 
 const createCaller = createCallerFactory(auroraRouter({ storage: { swift: swiftRouter } }))
@@ -141,6 +163,8 @@ describe("swiftRouter", () => {
     vi.clearAllMocks()
     // Reset validateSwiftService to no-op (prevents leak from Error Handling tests)
     ;(swiftHelpers.validateSwiftService as Mock).mockImplementation(() => {})
+    // Reset validateSwiftUploadInput to no-op — individual upload tests override it
+    ;(swiftHelpers.validateSwiftUploadInput as Mock).mockImplementation(() => {})
     // Reset withErrorHandling to pass through by default
     ;(swiftHelpers.withErrorHandling as Mock).mockImplementation((fn) => fn())
     // Reset parseObjectMetadata to return mock data
@@ -707,62 +731,6 @@ describe("swiftRouter", () => {
 
   // ============================================================================
   // OBJECT OPERATIONS
-  describe("createObject", () => {
-    it("should successfully create object with ArrayBuffer", async () => {
-      const mockCtx = createMockContext()
-      const caller = createCaller(mockCtx)
-
-      const buffer = new ArrayBuffer(1024)
-      const input = {
-        container: "test-container",
-        object: "new-object.txt",
-        content: buffer,
-      }
-
-      const result = await caller.storage.swift.createObject(input)
-
-      expect(swiftHelpers.buildObjectMetadataHeaders).toHaveBeenCalled()
-      expect(mockCtx.mockSwift.put).toHaveBeenCalled()
-      expect(result).toEqual(mockObjectMetadata)
-    })
-
-    it("should handle base64 string content", async () => {
-      const mockCtx = createMockContext()
-      const caller = createCaller(mockCtx)
-
-      const base64Data = btoa("test content")
-      const input = {
-        container: "test-container",
-        object: "new-object.txt",
-        content: base64Data,
-      }
-
-      await caller.storage.swift.createObject(input)
-
-      expect(mockCtx.mockSwift.put).toHaveBeenCalled()
-    })
-
-    it("should handle metadata during creation", async () => {
-      const mockCtx = createMockContext()
-      const caller = createCaller(mockCtx)
-
-      const input = {
-        container: "test-container",
-        object: "new-object.txt",
-        content: new ArrayBuffer(1024),
-        metadata: { author: "John" },
-      }
-
-      await caller.storage.swift.createObject(input)
-
-      expect(swiftHelpers.buildObjectMetadataHeaders).toHaveBeenCalledWith(
-        expect.objectContaining({
-          metadata: { author: "John" },
-        })
-      )
-    })
-  })
-
   describe("getObjectMetadata", () => {
     it("should successfully get object metadata", async () => {
       const mockCtx = createMockContext()
@@ -1501,6 +1469,7 @@ describe("swiftRouter", () => {
         container: "test-container",
         object: "hello.txt",
         filename: "hello.txt",
+        downloadId: "test-container:hello.txt",
       })
 
       const chunks: string[] = []
@@ -1539,6 +1508,7 @@ describe("swiftRouter", () => {
         container: "test-container",
         object: "file.txt",
         filename: "file.txt",
+        downloadId: "test-container:file.txt",
       })
 
       const items: Array<{ chunk: string; contentType?: string; filename?: string }> = []
@@ -1574,6 +1544,7 @@ describe("swiftRouter", () => {
         container: "test-container",
         object: "binary.bin",
         filename: "binary.bin",
+        downloadId: "test-container:binary.bin",
       })
 
       // Drain the iterable — empty stream yields nothing, but we still need
@@ -1608,6 +1579,7 @@ describe("swiftRouter", () => {
         object: "file.txt",
         filename: "file.txt",
         account: "AUTH_abc123",
+        downloadId: "test-container:file.txt",
       })
 
       // Drain
@@ -1627,6 +1599,7 @@ describe("swiftRouter", () => {
           container: "test-container",
           object: "file.txt",
           filename: "file.txt",
+          downloadId: "test-container:file.txt",
         })
       ).rejects.toThrow(new TRPCError({ code: "UNAUTHORIZED", message: "The session is invalid" }))
     })
@@ -1642,6 +1615,7 @@ describe("swiftRouter", () => {
         container: "test-container",
         object: "missing.txt",
         filename: "missing.txt",
+        downloadId: "test-container:missing.txt",
       })
 
       await expect(async () => {
@@ -1665,6 +1639,7 @@ describe("swiftRouter", () => {
         container: "test-container",
         object: "hello.txt",
         filename: "hello.txt",
+        downloadId: "test-container:hello.txt",
       })
 
       const progressSnapshots: Array<{ downloaded: number; total: number }> = []
@@ -1691,6 +1666,7 @@ describe("swiftRouter", () => {
         container: "test-container",
         object: "file.txt",
         filename: "file.txt",
+        downloadId: "test-container:file.txt",
       })
 
       const items: Array<{ downloaded: number; total: number }> = []
@@ -1714,6 +1690,7 @@ describe("swiftRouter", () => {
         container: "test-container",
         object: "file.txt",
         filename: "file.txt",
+        downloadId: "test-container:file.txt",
       })
 
       const downloaded: number[] = []
@@ -1739,6 +1716,7 @@ describe("swiftRouter", () => {
         container: "test-container",
         object: "file.txt",
         filename: "file.txt",
+        downloadId: "test-container:file.txt",
       })
 
       await expect(async () => {
@@ -1746,6 +1724,303 @@ describe("swiftRouter", () => {
           void item
         }
       }).rejects.toThrow("Swift response has no body")
+    })
+  })
+
+  // ============================================================================
+  // UPLOAD OPERATIONS
+  // ============================================================================
+
+  describe("uploadObject", () => {
+    // createCaller bypasses HTTP transport, so octetInputParser never converts
+    // Blob/File/Uint8Array to ReadableStream. We pass a ReadableStream directly
+    // (cast via `as never`) to satisfy the runtime instanceof check.
+    const callUpload = (caller: ReturnType<typeof createCaller>) =>
+      caller.storage.swift.uploadObject(new ReadableStream() as never)
+
+    /** Minimal valid Node.js ReadableStream stub. */
+    const makeFileStream = (): NodeJS.ReadableStream => Readable.from(["hello"])
+
+    /** Default validated result returned by the validateSwiftUploadInput mock. */
+    const makeValidatedUploadInput = (
+      overrides?: Partial<ReturnType<typeof import("../helpers/swiftHelpers").validateSwiftUploadInput>>
+    ) => ({
+      validatedContainer: "test-container",
+      validatedObject: "folder/sample.txt",
+      validatedFileSize: 1024,
+      validatedFile: makeFileStream(),
+      ...overrides,
+    })
+
+    /** Set upload headers on the mock context. */
+    const setUploadHeaders = (
+      mockCtx: ReturnType<typeof createMockContext>,
+      fields: {
+        container?: string
+        object?: string
+        contentType?: string
+        fileSize?: string
+        uploadId?: string
+      }
+    ) => {
+      if (fields.container) mockCtx.mockReqHeaders["x-upload-container"] = fields.container
+      if (fields.object) mockCtx.mockReqHeaders["x-upload-object"] = fields.object
+      if (fields.contentType) mockCtx.mockReqHeaders["x-upload-type"] = fields.contentType
+      if (fields.fileSize) mockCtx.mockReqHeaders["x-upload-size"] = fields.fileSize
+      if (fields.uploadId) mockCtx.mockReqHeaders["x-upload-id"] = fields.uploadId
+    }
+
+    beforeEach(() => {
+      // Default: validateSwiftUploadInput returns a valid result
+      ;(swiftHelpers.validateSwiftUploadInput as Mock).mockReturnValue(makeValidatedUploadInput())
+    })
+
+    it("should throw UNAUTHORIZED when session validation fails", async () => {
+      const mockCtx = createMockContext(true)
+      const caller = createCaller(mockCtx)
+
+      await expect(callUpload(caller)).rejects.toThrow(
+        new TRPCError({ code: "UNAUTHORIZED", message: "The session is invalid" })
+      )
+    })
+
+    it("should call validateSwiftService", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      setUploadHeaders(mockCtx, {
+        container: "test-container",
+        object: "folder/sample.txt",
+        fileSize: "1024",
+        uploadId: "test-container:folder/sample.txt",
+      })
+
+      await callUpload(caller)
+
+      expect(swiftHelpers.validateSwiftService).toHaveBeenCalled()
+    })
+
+    it("should call validateSwiftUploadInput with parsed header fields", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      setUploadHeaders(mockCtx, {
+        container: "test-container",
+        object: "folder/sample.txt",
+        fileSize: "512",
+        uploadId: "test-container:folder/sample.txt",
+      })
+
+      await callUpload(caller)
+
+      expect(swiftHelpers.validateSwiftUploadInput).toHaveBeenCalledWith(
+        "test-container",
+        "folder/sample.txt",
+        "512",
+        expect.anything() // file stream from octetInputParser
+      )
+    })
+
+    it("should PUT to the correct URL with per-segment encoding", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      ;(swiftHelpers.validateSwiftUploadInput as Mock).mockReturnValue(
+        makeValidatedUploadInput({
+          validatedContainer: "my container",
+          validatedObject: "folder name/file name.txt",
+          validatedFileSize: 0,
+        })
+      )
+      setUploadHeaders(mockCtx, { uploadId: "my container:folder name/file name.txt" })
+
+      await callUpload(caller)
+
+      expect(mockCtx.mockSwift.put).toHaveBeenCalledWith(
+        "my%20container/folder%20name/file%20name.txt",
+        expect.anything(),
+        expect.objectContaining({ headers: expect.objectContaining({ "Content-Type": expect.any(String) }) })
+      )
+    })
+
+    it("should use detected contentType when provided in headers", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      setUploadHeaders(mockCtx, {
+        container: "test-container",
+        object: "image.png",
+        contentType: "image/png",
+        fileSize: "2048",
+        uploadId: "test-container:image.png",
+      })
+
+      await callUpload(caller)
+
+      expect(mockCtx.mockSwift.put).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.anything(),
+        expect.objectContaining({ headers: expect.objectContaining({ "Content-Type": "image/png" }) })
+      )
+    })
+
+    it("should fall back to application/octet-stream when contentType header is absent", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      setUploadHeaders(mockCtx, {
+        container: "test-container",
+        object: "file.bin",
+        fileSize: "100",
+        uploadId: "test-container:file.bin",
+      })
+
+      await callUpload(caller)
+
+      expect(mockCtx.mockSwift.put).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.anything(),
+        expect.objectContaining({
+          headers: expect.objectContaining({ "Content-Type": "application/octet-stream" }),
+        })
+      )
+    })
+
+    it("should include Content-Length header when fileSize > 0", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      ;(swiftHelpers.validateSwiftUploadInput as Mock).mockReturnValue(
+        makeValidatedUploadInput({ validatedFileSize: 2048 })
+      )
+      setUploadHeaders(mockCtx, { uploadId: "test-container:folder/sample.txt" })
+
+      await callUpload(caller)
+
+      expect(mockCtx.mockSwift.put).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.anything(),
+        expect.objectContaining({
+          headers: expect.objectContaining({ "Content-Length": "2048" }),
+        })
+      )
+    })
+
+    it("should omit Content-Length header when fileSize is 0 (unknown)", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      ;(swiftHelpers.validateSwiftUploadInput as Mock).mockReturnValue(
+        makeValidatedUploadInput({ validatedFileSize: 0 })
+      )
+      setUploadHeaders(mockCtx, { uploadId: "test-container:folder/sample.txt" })
+
+      await callUpload(caller)
+
+      const [, , options] = (mockCtx.mockSwift.put as Mock).mock.calls[0]
+      expect(options.headers).not.toHaveProperty("Content-Length")
+    })
+
+    it("should return { success: true } on success", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      setUploadHeaders(mockCtx, {
+        container: "my-bucket",
+        object: "docs/report.pdf",
+        uploadId: "my-bucket:docs/report.pdf",
+      })
+
+      const result = await callUpload(caller)
+
+      expect(result.success).toBe(true)
+      expect(result).not.toHaveProperty("uploadId")
+    })
+
+    it("should throw BAD_REQUEST when x-upload-id header is missing", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      // No uploadId header set
+      setUploadHeaders(mockCtx, { container: "test-container", object: "file.txt" })
+
+      await expect(callUpload(caller)).rejects.toThrow(
+        new TRPCError({ code: "BAD_REQUEST", message: "x-upload-id header is required" })
+      )
+    })
+
+    it("should propagate error when Swift PUT fails", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      setUploadHeaders(mockCtx, { uploadId: "test-container:folder/sample.txt" })
+      mockCtx.mockSwift.put.mockRejectedValue({ statusCode: 403, message: "Forbidden" })
+
+      await expect(callUpload(caller)).rejects.toThrow()
+    })
+
+    it("should propagate BAD_REQUEST when validateSwiftUploadInput throws", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      setUploadHeaders(mockCtx, { uploadId: "test-container:folder/sample.txt" })
+      ;(swiftHelpers.validateSwiftUploadInput as Mock).mockImplementation(() => {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "container is required" })
+      })
+
+      await expect(callUpload(caller)).rejects.toThrow(
+        new TRPCError({ code: "BAD_REQUEST", message: "container is required" })
+      )
+    })
+  })
+
+  // ============================================================================
+  // WATCH UPLOAD PROGRESS
+  // ============================================================================
+
+  describe("watchUploadProgress", () => {
+    it("should throw UNAUTHORIZED when session validation fails", async () => {
+      const mockCtx = createMockContext(true)
+      const caller = createCaller(mockCtx)
+
+      await expect(caller.storage.swift.watchUploadProgress({ uploadId: "my-bucket:file.txt" })).rejects.toThrow(
+        new TRPCError({ code: "UNAUTHORIZED", message: "The session is invalid" })
+      )
+    })
+
+    it("should not yield for an unknown uploadId until an event arrives", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      // Subscribe to a non-existent uploadId — it should not yield any items
+      // within a short window since no progress events are being emitted for it.
+      const subscription = await caller.storage.swift.watchUploadProgress({ uploadId: "nonexistent:file.txt" })
+      const iterator = subscription[Symbol.asyncIterator]()
+
+      // Race iterator.next() against a timeout — since no events arrive for this
+      // unknown ID, the timeout should win. We do NOT await iterator.return() as
+      // it would hang waiting for the pending next() to resolve.
+      const nextPromise = iterator.next().then(() => "yielded" as const)
+      const result = await Promise.race([
+        nextPromise,
+        new Promise<"timeout">((resolve) => setTimeout(() => resolve("timeout"), 200)),
+      ])
+
+      expect(result).toBe("timeout")
+      void nextPromise // allow the pending promise to settle without blocking
+    })
+
+    it("should return an async iterable", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      // The subscription for any uploadId returns an async iterable.
+      // Live progress events require the module-level emitter which is not
+      // exported — emitter round-trip coverage lives in integration tests.
+      const subscription = await caller.storage.swift.watchUploadProgress({ uploadId: "bucket:file.txt" })
+
+      expect(subscription).toBeDefined()
+      expect(typeof subscription[Symbol.asyncIterator]).toBe("function")
     })
   })
 })

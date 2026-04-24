@@ -25,6 +25,9 @@ msgstr "\"{objectName}\" wurde erfolgreich nach {destination} kopiert."
 msgid "\"{objectName}\" was successfully moved to {destination}."
 msgstr "\"{objectName}\" wurde erfolgreich nach {destination} verschoben."
 
+msgid "\"{objectName}\" was successfully uploaded."
+msgstr "\"{objectName}\" wurde erfolgreich hochgeladen."
+
 msgid "{allContainersCount} container"
 msgstr "{allContainersCount} Container"
 
@@ -66,6 +69,9 @@ msgstr "<0>Kein Temp-URL-Schlüssel konfiguriert.</0> Ein temporärer URL-Schlü
 
 msgid "<0>Optimized Scalability:</0> Built for businesses of all sizes, Aurora grows with you, supporting simple environments and intricate multi-cloud setups alike."
 msgstr "<0>Optimierte Skalierbarkeit:</0> Aurora ist für Unternehmen jeder Größe konzipiert und wächst mit Ihnen mit, unterstützt einfache Umgebungen und komplexe Multi-Cloud-Setups gleichermaßen."
+
+msgid "<0>Properties of</0> <1>{displayName}</1>"
+msgstr "<0>Eigenschaften von</0> <1>{displayName}</1>"
 
 msgid "<0>Secure & Reliable:</0> Your data and operations are safeguarded with enterprise-grade security and robust reliability."
 msgstr "<0>Sicher & Zuverlässig:</0> Ihre Daten und Operationen sind mit Sicherheitsstandards auf Unternehmensebene und robuster Zuverlässigkeit geschützt."
@@ -231,6 +237,9 @@ msgstr "Ein unerwarteter Fehler ist aufgetreten"
 
 msgid "An unexpected error occurred. Please try again."
 msgstr "Ein unerwarteter Fehler ist aufgetreten. Bitte versuchen Sie es erneut."
+
+msgid "Any file type"
+msgstr "Beliebiger Dateityp"
 
 msgid "ANY referrer"
 msgstr "Beliebiger Referrer"
@@ -475,6 +484,9 @@ msgstr "ACLs für Container \"{containerName}\" konnten nicht aktualisiert werde
 msgid "Could not update container \"{containerName}\": {errorMessage}"
 msgstr "Container \"{containerName}\" konnte nicht aktualisiert werden: {errorMessage}"
 
+msgid "Could not upload \"{objectName}\": {errorMessage}"
+msgstr "\"{objectName}\" konnte nicht hochgeladen werden: {errorMessage}"
+
 msgid "CPU"
 msgstr "CPU"
 
@@ -682,6 +694,9 @@ msgstr "{rowDisplayName} herunterladen"
 msgid "Downloading..."
 msgstr "Wird heruntergeladen..."
 
+msgid "Drop your file here"
+msgstr "Legen Sie Ihre Datei hier ab"
+
 msgid "Drop your image file here"
 msgstr "Legen Sie Ihre Image-Datei hier ab"
 
@@ -751,8 +766,8 @@ msgstr "Geben Sie einen einzelnen Port ein oder definieren Sie einen Bereich, in
 msgid "Enter a tag and press Enter or click Add"
 msgstr "Geben Sie ein Tag ein und drücken Sie Enter oder klicken Sie auf Hinzufügen"
 
-msgid "Enter a timestamp like \"2026-05-16 18:14:57\" to schedule automatic deletion"
-msgstr "Geben Sie einen Zeitstempel wie \"2026-05-16 18:14:57\" ein, um die automatische Löschung zu planen"
+msgid "Enter a timestamp like \"YYYY-MM-DD HH:mm:ss\" to schedule automatic deletion"
+msgstr "Geben Sie einen Zeitstempel wie \"YYYY-MM-DD HH:mm:ss\" ein, um die automatische Löschung zu planen"
 
 msgid "Enter a valid PQDN or FQDN (max 63 characters) to associate with the floating IP. A and PTR records are created automatically."
 msgstr "Gültige PQDN oder FQDN (max. 63 Zeichen) eingeben, um sie der Floating IP zuzuordnen. A- und PTR-Einträge werden automatisch erstellt."
@@ -1017,6 +1032,9 @@ msgstr "Fehler beim Aktualisieren der Sichtbarkeit auf {newVisibility}"
 
 msgid "Failed to upload file \"{fileName}\": "
 msgstr "Fehler beim Hochladen der Datei \"{fileName}\": "
+
+msgid "Failed to Upload Object"
+msgstr "Fehler beim Hochladen des Objekts"
 
 msgid "False"
 msgstr "False"
@@ -1717,11 +1735,17 @@ msgstr "Objekttyp"
 msgid "Object Updated"
 msgstr "Objekt aktualisiert"
 
+msgid "Object Uploaded"
+msgstr "Objekt hochgeladen"
+
 msgid "Object versioning"
 msgstr "Objekt-Versionierung"
 
 msgid "Object was copied but could not be deleted from the source: {deleteErrorMessage}"
 msgstr "Objekt wurde kopiert, konnte aber nicht von der Quelle gelöscht werden: {deleteErrorMessage}"
+
+msgid "Object will be uploaded as: <0>{selectedObjectName}</0>"
+msgstr "Objekt wird hochgeladen als: <0>{selectedObjectName}</0>"
 
 msgid "Objects"
 msgstr "Objekte"
@@ -1789,6 +1813,9 @@ msgstr "Bitte melden Sie sich erneut an, um fortzufahren."
 msgid "Please note: for <0>dynamic</0> and <1>static large objects</1> only the manifests are deleted. The related segments are not deleted."
 msgstr "Bitte beachten Sie: Für <0>dynamische</0> und <1>statische große Objekte</1> werden nur die Manifeste gelöscht. Die zugehörigen Segmente werden nicht gelöscht."
 
+msgid "Please select a file to upload"
+msgstr "Bitte wählen Sie eine Datei zum Hochladen aus"
+
 msgid "Policy"
 msgstr "Richtlinie"
 
@@ -1839,9 +1866,6 @@ msgstr "Projekt-ID"
 
 msgid "projects"
 msgstr "Projekte"
-
-msgid "Properties of"
-msgstr "Eigenschaften von"
 
 msgid "Properties of \"{objectName}\" were successfully updated."
 msgstr "Eigenschaften von \"{objectName}\" wurden erfolgreich aktualisiert."
@@ -2562,6 +2586,24 @@ msgstr "Floating IP wird aktualisiert..."
 
 msgid "Updating security group..."
 msgstr "Security Group wird aktualisiert..."
+
+msgid "Upload"
+msgstr "Hochladen"
+
+msgid "Upload failed: {uploadError}"
+msgstr "Upload fehlgeschlagen: {uploadError}"
+
+msgid "Upload Object"
+msgstr "Objekt hochladen"
+
+msgid "Upload object to:"
+msgstr "Objekt hochladen nach:"
+
+msgid "Uploading..."
+msgstr "Wird hochgeladen..."
+
+msgid "Uploading... {progressPct}%"
+msgstr "Wird hochgeladen... {progressPct}%"
 
 msgid "URL Copied"
 msgstr "URL kopiert"

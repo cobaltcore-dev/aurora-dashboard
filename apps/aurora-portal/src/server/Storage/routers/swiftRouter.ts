@@ -1,7 +1,12 @@
 import { TRPCError } from "@trpc/server"
+import { z } from "zod"
+import EventEmitter from "node:events"
+import { Readable, Transform } from "node:stream"
 import { protectedProcedure } from "../../trpc"
+import { octetInputParser } from "@trpc/server/http"
 import {
   validateSwiftService,
+  validateSwiftUploadInput,
   applyContainerQueryParams,
   applyObjectQueryParams,
   parseAccountInfo,
@@ -28,7 +33,6 @@ import {
   updateContainerMetadataInputSchema,
   getContainerMetadataInputSchema,
   deleteContainerInputSchema,
-  createObjectInputSchema,
   updateObjectMetadataInputSchema,
   copyObjectInputSchema,
   deleteObjectInputSchema,
@@ -53,6 +57,27 @@ import {
   generateTempUrlInputSchema,
   downloadObjectInputSchema,
 } from "../types/swift"
+
+// ============================================================================
+// UPLOAD PROGRESS TRACKING
+// ============================================================================
+
+const uploadProgressEmitter = new EventEmitter()
+uploadProgressEmitter.setMaxListeners(0) // 0 = unlimited; shared across all concurrent uploads
+
+type UploadProgress = { uploaded: number; total: number; percent: number }
+const uploadProgressMap = new Map<string, UploadProgress>()
+
+// ============================================================================
+// DOWNLOAD PROGRESS TRACKING
+// ============================================================================
+
+const downloadProgressEmitter = new EventEmitter()
+downloadProgressEmitter.setMaxListeners(0) // 0 = unlimited; shared across all concurrent downloads
+
+type DownloadProgress = { downloaded: number; total: number; percent: number }
+const downloadProgressMap = new Map<string, DownloadProgress>()
+
 export const swiftRouter = {
   // ============================================================================
   // SERVICE OPERATIONS
@@ -495,60 +520,6 @@ export const swiftRouter = {
   // ============================================================================
   // OBJECT OPERATIONS
   // ============================================================================
-
-  /**
-   * Creates or replaces an object with content and metadata
-   */
-  createObject: protectedProcedure
-    .input(createObjectInputSchema)
-    .mutation(async ({ input, ctx }): Promise<ObjectMetadata> => {
-      return withErrorHandling(async () => {
-        const { account, container, object, content, multipartManifest, ...options } = input
-        const openstackSession = ctx.openstack
-        const swift = openstackSession?.service("swift")
-
-        validateSwiftService(swift)
-
-        // Build URL with query parameters
-        const queryParams = new URLSearchParams()
-        if (multipartManifest) {
-          queryParams.append("multipart-manifest", multipartManifest)
-        }
-
-        const accountPath = account || ""
-        const basePath = accountPath
-          ? `${accountPath}/${encodeURIComponent(container)}/${encodeURIComponent(object)}`
-          : `${encodeURIComponent(container)}/${encodeURIComponent(object)}`
-        const url = queryParams.toString() ? `${basePath}?${queryParams.toString()}` : basePath
-
-        // Convert content to appropriate format
-        let body: ArrayBuffer | string
-        if (typeof content === "string") {
-          // If it's a base64 string, convert to ArrayBuffer
-          const binaryString = atob(content)
-          const bytes = new Uint8Array(binaryString.length)
-          for (let i = 0; i < binaryString.length; i++) {
-            bytes[i] = binaryString.charCodeAt(i)
-          }
-          body = bytes.buffer
-        } else if (content instanceof Uint8Array) {
-          body = content.buffer
-        } else {
-          body = content
-        }
-
-        const headers = buildObjectMetadataHeaders(options)
-        if (!headers["Content-Length"]) {
-          headers["Content-Length"] = body instanceof ArrayBuffer ? body.byteLength.toString() : "0"
-        }
-
-        const response = await swift.put(url, { body, headers }).catch((error) => {
-          throw mapErrorResponseToTRPCError(error, { operation: "create object", container, object })
-        })
-
-        return parseObjectMetadata(response.headers)
-      }, "create object")
-    }),
 
   /**
    * Gets object metadata without downloading the content
@@ -1225,6 +1196,227 @@ export const swiftRouter = {
     }),
 
   // ============================================================================
+  // UPLOAD OPERATIONS
+  // ============================================================================
+
+  /**
+   * Uploads a file to a Swift container via octet-stream.
+   *
+   * Uses `octetInputParser` so tRPC passes the request body as a true
+   * ReadableStream — never buffered — enabling per-chunk progress tracking
+   * via the Transform pipeline identical to imageRouter.uploadImage.
+   *
+   * Metadata is sent as custom request headers:
+   *   - x-upload-container  (string) — target container name
+   *   - x-upload-object     (string) — full object path, e.g. "folder/file.txt"
+   *   - x-upload-type       (string, optional) — MIME type detected client-side
+   *   - x-upload-size       (string, optional) — file size in bytes
+   *   - x-upload-id         (string) — client-computed upload ID for watchUploadProgress
+   *   - x-upload-account    (string, optional) — OpenStack account override
+   *
+   * Progress is tracked via a Node.js Transform stream and emitted through
+   * `uploadProgressEmitter` so that concurrent `watchUploadProgress` subscriptions
+   * can receive real-time byte counts without polling.
+   *
+   * The client computes `uploadId` as `"<container>:<objectPath>:<uuid>"` before calling
+   * this mutation so the subscription can be opened in advance. The UUID suffix ensures
+   * concurrent uploads of the same object do not collide in the progress map.
+   * On the BFF, the ID is further scoped with the Keystone project ID before storage.
+   */
+  uploadObject: protectedProcedure
+    .input(octetInputParser)
+    .mutation(async ({ input, ctx }): Promise<{ success: boolean }> => {
+      return withErrorHandling(async () => {
+        const swift = ctx.openstack?.service("swift")
+        validateSwiftService(swift)
+
+        // Metadata arrives as custom headers — the body is the raw file stream.
+        const headers = ctx.req.headers
+        const container = headers["x-upload-container"] as string | undefined
+        const object = headers["x-upload-object"] as string | undefined
+        const contentType = headers["x-upload-type"] as string | undefined
+        const fileSize = headers["x-upload-size"] as string | undefined
+        const uploadId = (headers["x-upload-id"] as string | undefined)?.trim()
+        const uploadAccount = headers["x-upload-account"] as string | undefined
+
+        // input is a Web ReadableStream — convert to Node.js Readable for .pipe()
+        const fileStream = Readable.fromWeb(input as import("stream/web").ReadableStream)
+
+        const { validatedContainer, validatedObject, validatedFileSize, validatedFile } = validateSwiftUploadInput(
+          container,
+          object,
+          fileSize,
+          fileStream
+        )
+
+        if (!uploadId) {
+          throw new TRPCError({ code: "BAD_REQUEST", message: "x-upload-id header is required" })
+        }
+
+        // Scope the progress key to the project so cross-tenant observation is impossible
+        const uploadToken = ctx.openstack?.getToken()
+        const uploadProjectId = uploadToken?.tokenData.project?.id ?? "unknown"
+        const scopedUploadId = `${uploadProjectId}:${uploadId}`
+
+        uploadProgressMap.set(scopedUploadId, { uploaded: 0, total: validatedFileSize, percent: 0 })
+
+        try {
+          const progress = uploadProgressMap.get(scopedUploadId)!
+
+          // Transform stream that observes bytes as they flow through to Swift.
+          // No buffering — chunks are passed unmodified; we only count bytes.
+          // True streaming because octetInputParser passes the raw HTTP body stream.
+          const progressTracker = new Transform({
+            async transform(chunk: Buffer, _encoding, callback) {
+              progress.uploaded += chunk.length
+              progress.percent = progress.total > 0 ? Math.round((progress.uploaded / progress.total) * 100) : 0
+
+              uploadProgressEmitter.emit(`progress:${scopedUploadId}`, { ...progress })
+
+              // Yield to the event loop so subscriptions can flush between chunks
+              await new Promise((resolve) => setTimeout(resolve, 0))
+
+              callback(null, chunk)
+            },
+          })
+
+          const trackedStream = validatedFile.pipe(progressTracker)
+          const webStream = Readable.toWeb(trackedStream)
+
+          // Encode each segment individually to preserve slash separators
+          const encodedObject = validatedObject.split("/").map(encodeURIComponent).join("/")
+          const url = uploadAccount
+            ? `${uploadAccount}/${encodeURIComponent(validatedContainer)}/${encodedObject}`
+            : `${encodeURIComponent(validatedContainer)}/${encodedObject}`
+
+          const uploadResponse = await swift.put(url, webStream, {
+            headers: {
+              "Content-Type": contentType ?? "application/octet-stream",
+              ...(validatedFileSize > 0 ? { "Content-Length": validatedFileSize.toString() } : {}),
+            },
+          })
+
+          if (!uploadResponse?.ok) {
+            throw mapErrorResponseToTRPCError(
+              uploadResponse as unknown as Parameters<typeof mapErrorResponseToTRPCError>[0],
+              {
+                operation: "upload object",
+                container: validatedContainer,
+                object: validatedObject,
+              }
+            )
+          }
+
+          uploadProgressEmitter.emit(`progress:${scopedUploadId}:complete`)
+
+          return { success: true }
+        } catch (error) {
+          uploadProgressEmitter.emit(`progress:${scopedUploadId}:error`, error)
+          throw mapErrorResponseToTRPCError(error as Parameters<typeof mapErrorResponseToTRPCError>[0], {
+            operation: "upload object",
+            container: container,
+            object: object,
+          })
+        } finally {
+          uploadProgressMap.delete(scopedUploadId)
+        }
+      }, "upload object")
+    }),
+
+  /**
+   * Subscribes to real-time upload progress for a given `uploadId`.
+   *
+   * The `uploadId` is computed client-side as `"<container>:<objectPath>:<uuid>"` before
+   * the upload mutation is called, so the subscription can be opened in advance.
+   * The BFF scopes it with the Keystone project ID so subscribers can only observe
+   * their own project's transfers.
+   *
+   * Yields `{ uploaded, total, percent }` as bytes flow through the server.
+   * Completes when the upload finishes or throws if the upload errors.
+   */
+  watchUploadProgress: protectedProcedure.input(z.object({ uploadId: z.string() })).subscription(async function* ({
+    input,
+    ctx,
+  }) {
+    const { uploadId } = input
+
+    // Scope to the project so a user can only observe their own transfers
+    const watchUploadToken = ctx.openstack?.getToken()
+    const watchUploadProjectId = watchUploadToken?.tokenData.project?.id ?? "unknown"
+    const scopedUploadId = `${watchUploadProjectId}:${uploadId}`
+
+    // Emit current snapshot immediately so late subscribers don't miss state
+    const current = uploadProgressMap.get(scopedUploadId)
+    if (current) {
+      yield { ...current }
+    }
+
+    const queue: Array<UploadProgress> = []
+    let isComplete = false
+    let isError = false
+    let caughtError: Error | undefined
+    let waitResolver: ((value?: unknown) => void) | null = null
+
+    const onProgress = (data: UploadProgress) => {
+      queue.push(data)
+      waitResolver?.()
+      waitResolver = null
+    }
+
+    const onComplete = () => {
+      isComplete = true
+      waitResolver?.()
+      waitResolver = null
+    }
+
+    const onError = (err: unknown) => {
+      isError = true
+      caughtError = err instanceof Error ? err : new Error(String(err))
+      waitResolver?.()
+      waitResolver = null
+    }
+
+    uploadProgressEmitter.on(`progress:${scopedUploadId}`, onProgress)
+    uploadProgressEmitter.on(`progress:${scopedUploadId}:complete`, onComplete)
+    uploadProgressEmitter.on(`progress:${scopedUploadId}:error`, onError)
+
+    try {
+      while (!isComplete && !isError) {
+        while (queue.length > 0) {
+          yield { ...queue.shift()! }
+        }
+
+        if (!isComplete && !isError) {
+          // Bounded wait: if no events arrive within 30 s the upload has likely
+          // already completed and the map entry was deleted before we subscribed.
+          // Break rather than hanging forever.
+          const timeout = new Promise((resolve) => setTimeout(resolve, 30_000))
+          await Promise.race([
+            new Promise((resolve) => {
+              waitResolver = resolve
+            }),
+            timeout,
+          ])
+          if (!isComplete && !isError && queue.length === 0) break
+        }
+      }
+
+      // Drain any final events that arrived while we were awaiting
+      while (queue.length > 0) {
+        yield { ...queue.shift()! }
+      }
+
+      if (isError && caughtError) {
+        throw caughtError
+      }
+    } finally {
+      uploadProgressEmitter.off(`progress:${scopedUploadId}`, onProgress)
+      uploadProgressEmitter.off(`progress:${scopedUploadId}:complete`, onComplete)
+      uploadProgressEmitter.off(`progress:${scopedUploadId}:error`, onError)
+    }
+  }),
+
+  // ============================================================================
   // DOWNLOAD OPERATIONS
   // ============================================================================
 
@@ -1238,6 +1430,14 @@ export const swiftRouter = {
    *   include the content-type + filename only in the first chunk so the client
    *   can begin processing the download immediately, while the server avoids
    *   buffering the full file in memory.
+   *
+   * Progress tracking:
+   *   Per-chunk progress (`downloaded`, `total`, `percent`) is stored in
+   *   `downloadProgressMap` and emitted via `downloadProgressEmitter` so that
+   *   a concurrent `watchDownloadProgress` subscription can drive a progress bar.
+   *   The client computes `downloadId` as `"<container>:<objectPath>:<uuid>"` and passes
+   *   it as input before calling this mutation so the subscription can be opened in advance.
+   *   The BFF scopes it with the Keystone project ID to prevent cross-tenant observation.
    *
    * Client-side assembly:
    *   Collect all base64 chunks → decode each → concatenate into a single
@@ -1259,7 +1459,7 @@ export const swiftRouter = {
     contentType?: string // only present in first chunk
     filename?: string // only present in first chunk
   }> {
-    const { container, object, filename, account } = input
+    const { container, object, filename, account, downloadId } = input
     const swift = ctx.openstack?.service("swift")
 
     validateSwiftService(swift)
@@ -1285,6 +1485,13 @@ export const swiftRouter = {
       throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Swift response has no body" })
     }
 
+    // Scope to the project so cross-tenant observation is impossible
+    const downloadToken = ctx.openstack?.getToken()
+    const downloadProjectId = downloadToken?.tokenData.project?.id ?? "unknown"
+    const scopedDownloadId = `${downloadProjectId}:${downloadId}`
+
+    downloadProgressMap.set(scopedDownloadId, { downloaded: 0, total, percent: 0 })
+
     const reader = response.body.getReader()
     let isFirst = true
     let downloaded = 0
@@ -1296,6 +1503,14 @@ export const swiftRouter = {
 
         downloaded += value.byteLength
 
+        const progress = downloadProgressMap.get(scopedDownloadId)!
+        progress.downloaded = downloaded
+        progress.percent = total > 0 ? Math.round((downloaded / total) * 100) : 0
+        downloadProgressEmitter.emit(`progress:${scopedDownloadId}`, { ...progress })
+
+        // Yield to the event loop so subscriptions can flush between chunks
+        await new Promise((resolve) => setTimeout(resolve, 0))
+
         yield {
           chunk: Buffer.from(value).toString("base64"),
           downloaded,
@@ -1305,15 +1520,113 @@ export const swiftRouter = {
 
         isFirst = false
       }
+
+      downloadProgressEmitter.emit(`progress:${scopedDownloadId}:complete`)
     } catch (error) {
+      downloadProgressEmitter.emit(`progress:${scopedDownloadId}:error`, error)
       throw mapErrorResponseToTRPCError(error as Parameters<typeof mapErrorResponseToTRPCError>[0], {
         operation: "download object",
         container,
         object,
       })
     } finally {
+      downloadProgressMap.delete(scopedDownloadId)
       await reader.cancel()
       reader.releaseLock()
+    }
+  }),
+
+  /**
+   * Subscribes to real-time download progress for a given `downloadId`.
+   *
+   * The `downloadId` is computed client-side as `"<container>:<objectPath>:<uuid>"` and
+   * passed as input to `downloadObject` before the mutation starts, so this subscription
+   * is active from the very first byte. The BFF scopes it with the Keystone project ID
+   * so subscribers can only observe their own project's transfers.
+   *
+   * Yields `{ downloaded, total, percent }` as bytes flow through the server.
+   * `percent` is 0 when Swift does not send a Content-Length header.
+   * Completes when the download finishes or throws if it errors.
+   */
+  watchDownloadProgress: protectedProcedure.input(z.object({ downloadId: z.string() })).subscription(async function* ({
+    input,
+    ctx,
+  }) {
+    const { downloadId } = input
+
+    // Scope to the project so a user can only observe their own transfers
+    const watchDownloadToken = ctx.openstack?.getToken()
+    const watchDownloadProjectId = watchDownloadToken?.tokenData.project?.id ?? "unknown"
+    const scopedDownloadId = `${watchDownloadProjectId}:${downloadId}`
+
+    // Yield current snapshot immediately for late subscribers
+    const current = downloadProgressMap.get(scopedDownloadId)
+    if (current) {
+      yield { ...current }
+    }
+
+    const queue: Array<DownloadProgress> = []
+    let isComplete = false
+    let isError = false
+    let caughtError: Error | undefined
+    let waitResolver: ((value?: unknown) => void) | null = null
+
+    const onProgress = (data: DownloadProgress) => {
+      queue.push(data)
+      waitResolver?.()
+      waitResolver = null
+    }
+
+    const onComplete = () => {
+      isComplete = true
+      waitResolver?.()
+      waitResolver = null
+    }
+
+    const onError = (err: unknown) => {
+      isError = true
+      caughtError = err instanceof Error ? err : new Error(String(err))
+      waitResolver?.()
+      waitResolver = null
+    }
+
+    downloadProgressEmitter.on(`progress:${scopedDownloadId}`, onProgress)
+    downloadProgressEmitter.on(`progress:${scopedDownloadId}:complete`, onComplete)
+    downloadProgressEmitter.on(`progress:${scopedDownloadId}:error`, onError)
+
+    try {
+      while (!isComplete && !isError) {
+        while (queue.length > 0) {
+          yield { ...queue.shift()! }
+        }
+
+        if (!isComplete && !isError) {
+          // Bounded wait: if no events arrive within 30 s the download has likely
+          // already completed and the map entry was deleted before we subscribed.
+          // Break rather than hanging forever.
+          const timeout = new Promise((resolve) => setTimeout(resolve, 30_000))
+          await Promise.race([
+            new Promise((resolve) => {
+              waitResolver = resolve
+            }),
+            timeout,
+          ])
+          if (!isComplete && !isError && queue.length === 0) break
+        }
+      }
+
+      // Drain any final events that arrived while we were awaiting
+      while (queue.length > 0) {
+        yield { ...queue.shift()! }
+      }
+
+      if (isError && caughtError) {
+        throw caughtError
+      }
+    } finally {
+      downloadProgressEmitter.off(`progress:${scopedDownloadId}`, onProgress)
+      downloadProgressEmitter.off(`progress:${scopedDownloadId}:complete`, onComplete)
+      downloadProgressEmitter.off(`progress:${scopedDownloadId}:error`, onError)
     }
   }),
 }

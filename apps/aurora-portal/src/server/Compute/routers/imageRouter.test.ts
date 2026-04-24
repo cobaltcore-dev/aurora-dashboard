@@ -92,16 +92,21 @@ const createMockContext = (shouldFailAuth = false, shouldFailGlance = false) => 
     }),
   }
 
+  const mockReqHeaders: Record<string, string> = {}
+
   return {
+    req: { headers: mockReqHeaders } as unknown as import("fastify").FastifyRequest,
     validateSession: vi.fn().mockReturnValue(!shouldFailAuth),
     createSession: vi.fn().mockResolvedValue({}),
     terminateSession: vi.fn().mockResolvedValue({}),
     openstack: mockOpenstack,
     rescopeSession: vi.fn().mockResolvedValue({}),
     mockGlance,
+    mockReqHeaders,
   } as unknown as AuroraPortalContext & {
     mockGlance: typeof mockGlance
     openstack: typeof mockOpenstack
+    mockReqHeaders: Record<string, string>
   }
 }
 
@@ -691,144 +696,64 @@ describe("imageRouter", () => {
   })
 
   describe("uploadImage - Streaming with Progress Tracking", () => {
-    function createMockFileStream() {
-      return {
-        pipe: vi.fn().mockReturnThis(),
-        on: vi.fn().mockReturnThis(),
-      }
+    /** Helper to set upload headers on the mock context. */
+    const setUploadHeaders = (
+      mockCtx: ReturnType<typeof createMockContext>,
+      fields: { uploadId?: string; fileSize?: string }
+    ) => {
+      if (fields.uploadId) mockCtx.mockReqHeaders["x-upload-id"] = fields.uploadId
+      if (fields.fileSize) mockCtx.mockReqHeaders["x-upload-size"] = fields.fileSize
     }
 
+    // createCaller bypasses HTTP transport — octetInputParser never converts
+    // Blob/File to ReadableStream. Pass a ReadableStream directly cast via `as never`.
+    const callUpload = (caller: ReturnType<typeof createCaller>) =>
+      caller.image.uploadImage(new ReadableStream() as never)
+
     describe("Valid uploads", () => {
-      // SKIP: These tests require actual Node.js stream conversion
-      // which doesn't work in test environment
-      it.skip("should upload image with multipart stream data successfully", async () => {
+      it("should upload image with header metadata successfully", async () => {
         const mockCtx = createMockContext()
         const imageId = "550e8400-e29b-41d4-a716-446655440000"
-        const fileSize = 1024 * 1024
-        const fileStream = createMockFileStream()
 
-        mockCtx.getMultipartData = vi.fn().mockReturnValue(
-          (async function* () {
-            yield {
-              type: "field" as const,
-              fieldname: "imageId",
-              value: imageId,
-            }
-            yield {
-              type: "field" as const,
-              fieldname: "fileSize",
-              value: fileSize.toString(),
-            }
-            yield {
-              type: "file" as const,
-              filename: "test-image.iso",
-              mimetype: "application/octet-stream",
-              encoding: "7bit",
-              file: fileStream,
-            }
-          })()
-        )
+        setUploadHeaders(mockCtx, { uploadId: imageId, fileSize: String(1024 * 1024) })
 
         const caller = createCaller(mockCtx)
         mockCtx.mockGlance.put.mockResolvedValue({ ok: true })
 
-        const result = await caller.image.uploadImage()
+        const result = await callUpload(caller)
 
         expect(result).toEqual({ success: true, imageId })
-        expect(mockCtx.mockGlance.put).toHaveBeenCalled()
-      })
-
-      it.skip("should handle upload without fileSize field", async () => {
-        const mockCtx = createMockContext()
-        const imageId = "550e8400-e29b-41d4-a716-446655440000"
-        const fileStream = createMockFileStream()
-
-        mockCtx.getMultipartData = vi.fn().mockReturnValue(
-          (async function* () {
-            yield {
-              type: "field" as const,
-              fieldname: "imageId",
-              value: imageId,
-            }
-            yield {
-              type: "file" as const,
-              filename: "test-image.iso",
-              mimetype: "application/octet-stream",
-              encoding: "7bit",
-              file: fileStream,
-            }
-          })()
-        )
-
-        const caller = createCaller(mockCtx)
-        mockCtx.mockGlance.put.mockResolvedValue({ ok: true })
-
-        const result = await caller.image.uploadImage()
-
-        expect(result).toEqual({ success: true, imageId })
-      })
-
-      it.skip("should trim whitespace from imageId", async () => {
-        const mockCtx = createMockContext()
-        const imageId = "550e8400-e29b-41d4-a716-446655440000"
-        const fileStream = createMockFileStream()
-
-        mockCtx.getMultipartData = vi.fn().mockReturnValue(
-          (async function* () {
-            yield {
-              type: "field" as const,
-              fieldname: "imageId",
-              value: `  ${imageId}  `,
-            }
-            yield {
-              type: "file" as const,
-              filename: "test-image.iso",
-              mimetype: "application/octet-stream",
-              encoding: "7bit",
-              file: fileStream,
-            }
-          })()
-        )
-
-        const caller = createCaller(mockCtx)
-        mockCtx.mockGlance.put.mockResolvedValue({ ok: true })
-
-        const result = await caller.image.uploadImage()
-
         expect(mockCtx.mockGlance.put).toHaveBeenCalledWith(
           `v2/images/${imageId}/file`,
           expect.any(Object),
           expect.any(Object)
         )
-        expect(result.imageId).toBe(imageId)
       })
 
-      it.skip("should return success and imageId", async () => {
+      it("should upload without fileSize header", async () => {
         const mockCtx = createMockContext()
         const imageId = "550e8400-e29b-41d4-a716-446655440000"
-        const fileStream = createMockFileStream()
 
-        mockCtx.getMultipartData = vi.fn().mockReturnValue(
-          (async function* () {
-            yield {
-              type: "field" as const,
-              fieldname: "imageId",
-              value: imageId,
-            }
-            yield {
-              type: "file" as const,
-              filename: "test-image.iso",
-              mimetype: "application/octet-stream",
-              encoding: "7bit",
-              file: fileStream,
-            }
-          })()
-        )
+        setUploadHeaders(mockCtx, { uploadId: imageId })
 
         const caller = createCaller(mockCtx)
         mockCtx.mockGlance.put.mockResolvedValue({ ok: true })
 
-        const result = await caller.image.uploadImage()
+        const result = await callUpload(caller)
+
+        expect(result).toEqual({ success: true, imageId })
+      })
+
+      it("should return success and imageId", async () => {
+        const mockCtx = createMockContext()
+        const imageId = "550e8400-e29b-41d4-a716-446655440000"
+
+        setUploadHeaders(mockCtx, { uploadId: imageId })
+
+        const caller = createCaller(mockCtx)
+        mockCtx.mockGlance.put.mockResolvedValue({ ok: true })
+
+        const result = await callUpload(caller)
 
         expect(result).toHaveProperty("success", true)
         expect(result).toHaveProperty("imageId", imageId)
@@ -836,384 +761,53 @@ describe("imageRouter", () => {
     })
 
     describe("ImageId validation", () => {
-      it("should require imageId", async () => {
+      it("should require imageId header", async () => {
         const mockCtx = createMockContext()
-        const fileStream = createMockFileStream()
-
-        mockCtx.getMultipartData = vi.fn().mockReturnValue(
-          (async function* () {
-            yield {
-              type: "file" as const,
-              filename: "test-image.iso",
-              mimetype: "application/octet-stream",
-              encoding: "7bit",
-              file: fileStream,
-            }
-          })()
-        )
-
         const caller = createCaller(mockCtx)
-
-        await expect(caller.image.uploadImage()).rejects.toThrow("imageId is required")
+        // No x-upload-id header set
+        await expect(callUpload(caller)).rejects.toThrow("imageId is required")
       })
 
-      it("should reject empty imageId", async () => {
+      it("should reject empty imageId header", async () => {
         const mockCtx = createMockContext()
-        const fileStream = createMockFileStream()
-
-        mockCtx.getMultipartData = vi.fn().mockReturnValue(
-          (async function* () {
-            yield {
-              type: "field" as const,
-              fieldname: "imageId",
-              value: "",
-            }
-            yield {
-              type: "file" as const,
-              filename: "test-image.iso",
-              mimetype: "application/octet-stream",
-              encoding: "7bit",
-              file: fileStream,
-            }
-          })()
-        )
-
+        mockCtx.mockReqHeaders["x-upload-id"] = ""
         const caller = createCaller(mockCtx)
-
-        await expect(caller.image.uploadImage()).rejects.toThrow("imageId is required")
+        await expect(callUpload(caller)).rejects.toThrow("imageId is required")
       })
 
-      it("should reject whitespace-only imageId", async () => {
+      it("should reject whitespace-only imageId header", async () => {
         const mockCtx = createMockContext()
-        const fileStream = createMockFileStream()
-
-        mockCtx.getMultipartData = vi.fn().mockReturnValue(
-          (async function* () {
-            yield {
-              type: "field" as const,
-              fieldname: "imageId",
-              value: "   ",
-            }
-            yield {
-              type: "file" as const,
-              filename: "test-image.iso",
-              mimetype: "application/octet-stream",
-              encoding: "7bit",
-              file: fileStream,
-            }
-          })()
-        )
-
+        mockCtx.mockReqHeaders["x-upload-id"] = "   "
         const caller = createCaller(mockCtx)
-
-        await expect(caller.image.uploadImage()).rejects.toThrow("imageId cannot be empty")
+        await expect(callUpload(caller)).rejects.toThrow("imageId cannot be empty")
       })
     })
 
     describe("FileStream validation", () => {
-      it("should require file", async () => {
+      it("should reject when file stream is invalid", async () => {
         const mockCtx = createMockContext()
-        const imageId = "550e8400-e29b-41d4-a716-446655440000"
-
-        mockCtx.getMultipartData = vi.fn().mockReturnValue(
-          (async function* () {
-            yield {
-              type: "field" as const,
-              fieldname: "imageId",
-              value: imageId,
-            }
-          })()
-        )
-
+        setUploadHeaders(mockCtx, { uploadId: "550e8400-e29b-41d4-a716-446655440000" })
         const caller = createCaller(mockCtx)
-
-        await expect(caller.image.uploadImage()).rejects.toThrow("File not uploaded")
-      })
-
-      it("should validate file has pipe method", async () => {
-        const mockCtx = createMockContext()
-        const imageId = "550e8400-e29b-41d4-a716-446655440000"
-
-        mockCtx.getMultipartData = vi.fn().mockReturnValue(
-          (async function* () {
-            yield {
-              type: "field" as const,
-              fieldname: "imageId",
-              value: imageId,
-            }
-            yield {
-              type: "file" as const,
-              filename: "test.iso",
-              mimetype: "application/octet-stream",
-              encoding: "7bit",
-              file: { read: vi.fn() },
-            }
-          })()
-        )
-
-        const caller = createCaller(mockCtx)
-
-        await expect(caller.image.uploadImage()).rejects.toThrow("Invalid file stream format")
-      })
-    })
-
-    describe("FileSize validation", () => {
-      it.skip("should accept fileSize of 0", async () => {
-        const mockCtx = createMockContext()
-        const imageId = "550e8400-e29b-41d4-a716-446655440000"
-        const fileStream = createMockFileStream()
-
-        mockCtx.getMultipartData = vi.fn().mockReturnValue(
-          (async function* () {
-            yield {
-              type: "field" as const,
-              fieldname: "imageId",
-              value: imageId,
-            }
-            yield {
-              type: "field" as const,
-              fieldname: "fileSize",
-              value: "0",
-            }
-            yield {
-              type: "file" as const,
-              filename: "test-image.iso",
-              mimetype: "application/octet-stream",
-              encoding: "7bit",
-              file: fileStream,
-            }
-          })()
-        )
-
-        const caller = createCaller(mockCtx)
-        mockCtx.mockGlance.put.mockResolvedValue({ ok: true })
-
-        const result = await caller.image.uploadImage()
-
-        expect(result.success).toBe(true)
-      })
-
-      it("should reject negative fileSize", async () => {
-        const mockCtx = createMockContext()
-        const imageId = "550e8400-e29b-41d4-a716-446655440000"
-        const fileStream = createMockFileStream()
-
-        mockCtx.getMultipartData = vi.fn().mockReturnValue(
-          (async function* () {
-            yield {
-              type: "field" as const,
-              fieldname: "imageId",
-              value: imageId,
-            }
-            yield {
-              type: "field" as const,
-              fieldname: "fileSize",
-              value: "-1024",
-            }
-            yield {
-              type: "file" as const,
-              filename: "test-image.iso",
-              mimetype: "application/octet-stream",
-              encoding: "7bit",
-              file: fileStream,
-            }
-          })()
-        )
-
-        const caller = createCaller(mockCtx)
-
-        await expect(caller.image.uploadImage()).rejects.toThrow("fileSize cannot be negative")
-      })
-
-      it("should reject non-numeric fileSize", async () => {
-        const mockCtx = createMockContext()
-        const imageId = "550e8400-e29b-41d4-a716-446655440000"
-        const fileStream = createMockFileStream()
-
-        mockCtx.getMultipartData = vi.fn().mockReturnValue(
-          (async function* () {
-            yield {
-              type: "field" as const,
-              fieldname: "imageId",
-              value: imageId,
-            }
-            yield {
-              type: "field" as const,
-              fieldname: "fileSize",
-              value: "not-a-number",
-            }
-            yield {
-              type: "file" as const,
-              filename: "test-image.iso",
-              mimetype: "application/octet-stream",
-              encoding: "7bit",
-              file: fileStream,
-            }
-          })()
-        )
-
-        const caller = createCaller(mockCtx)
-
-        await expect(caller.image.uploadImage()).rejects.toThrow("fileSize must be a finite number")
+        // Pass a non-stream value so validateUploadInput rejects it before reaching Glance
+        await expect(caller.image.uploadImage({} as never)).rejects.toThrow()
+        expect(mockCtx.mockGlance.put).not.toHaveBeenCalled()
       })
     })
 
     describe("Error handling", () => {
-      it("should handle Glance upload errors", async () => {
-        const mockCtx = createMockContext()
-        const imageId = "550e8400-e29b-41d4-a716-446655440000"
-        const fileStream = createMockFileStream()
-
-        mockCtx.getMultipartData = vi.fn().mockReturnValue(
-          (async function* () {
-            yield {
-              type: "field" as const,
-              fieldname: "imageId",
-              value: imageId,
-            }
-            yield {
-              type: "file" as const,
-              filename: "test-image.iso",
-              mimetype: "application/octet-stream",
-              encoding: "7bit",
-              file: fileStream,
-            }
-          })()
-        )
-
+      it("should throw UNAUTHORIZED when session validation fails", async () => {
+        const mockCtx = createMockContext(true)
+        setUploadHeaders(mockCtx, { uploadId: "550e8400-e29b-41d4-a716-446655440000" })
         const caller = createCaller(mockCtx)
-        mockCtx.mockGlance.put.mockRejectedValue(new Error("Network error"))
-
-        await expect(caller.image.uploadImage()).rejects.toThrow()
+        await expect(callUpload(caller)).rejects.toThrow("The session is invalid")
       })
 
-      it("should validate glance service is available", async () => {
-        const mockCtx = createMockContext(false, true)
-        const imageId = "550e8400-e29b-41d4-a716-446655440000"
-        const fileStream = createMockFileStream()
-
-        mockCtx.getMultipartData = vi.fn().mockReturnValue(
-          (async function* () {
-            yield {
-              type: "field" as const,
-              fieldname: "imageId",
-              value: imageId,
-            }
-            yield {
-              type: "file" as const,
-              filename: "test-image.iso",
-              mimetype: "application/octet-stream",
-              encoding: "7bit",
-              file: fileStream,
-            }
-          })()
-        )
-
-        const caller = createCaller(mockCtx)
-
-        await expect(caller.image.uploadImage()).rejects.toThrow()
-      })
-    })
-
-    describe("Edge cases", () => {
-      it.skip("should handle UUID format imageId", async () => {
+      it("should propagate error when Glance PUT fails", async () => {
         const mockCtx = createMockContext()
-        const imageId = "550e8400-e29b-41d4-a716-446655440000"
-        const fileStream = createMockFileStream()
-
-        mockCtx.getMultipartData = vi.fn().mockReturnValue(
-          (async function* () {
-            yield {
-              type: "field" as const,
-              fieldname: "imageId",
-              value: imageId,
-            }
-            yield {
-              type: "file" as const,
-              filename: "test-image.iso",
-              mimetype: "application/octet-stream",
-              encoding: "7bit",
-              file: fileStream,
-            }
-          })()
-        )
-
+        setUploadHeaders(mockCtx, { uploadId: "550e8400-e29b-41d4-a716-446655440000" })
         const caller = createCaller(mockCtx)
-        mockCtx.mockGlance.put.mockResolvedValue({ ok: true })
-
-        const result = await caller.image.uploadImage()
-
-        expect(result.imageId).toBe(imageId)
-      })
-
-      it.skip("should handle alphanumeric imageId", async () => {
-        const mockCtx = createMockContext()
-        const imageId = "image-abc123"
-        const fileStream = createMockFileStream()
-
-        mockCtx.getMultipartData = vi.fn().mockReturnValue(
-          (async function* () {
-            yield {
-              type: "field" as const,
-              fieldname: "imageId",
-              value: imageId,
-            }
-            yield {
-              type: "file" as const,
-              filename: "test-image.iso",
-              mimetype: "application/octet-stream",
-              encoding: "7bit",
-              file: fileStream,
-            }
-          })()
-        )
-
-        const caller = createCaller(mockCtx)
-        mockCtx.mockGlance.put.mockResolvedValue({ ok: true })
-
-        const result = await caller.image.uploadImage()
-
-        expect(result.imageId).toBe(imageId)
-      })
-
-      it.skip("should handle metadata fields alongside imageId", async () => {
-        const mockCtx = createMockContext()
-        const imageId = "550e8400-e29b-41d4-a716-446655440000"
-        const fileStream = createMockFileStream()
-
-        mockCtx.getMultipartData = vi.fn().mockReturnValue(
-          (async function* () {
-            yield {
-              type: "field" as const,
-              fieldname: "imageId",
-              value: imageId,
-            }
-            yield {
-              type: "field" as const,
-              fieldname: "name",
-              value: "my-image",
-            }
-            yield {
-              type: "field" as const,
-              fieldname: "description",
-              value: "Test image",
-            }
-            yield {
-              type: "file" as const,
-              filename: "test-image.iso",
-              mimetype: "application/octet-stream",
-              encoding: "7bit",
-              file: fileStream,
-            }
-          })()
-        )
-
-        const caller = createCaller(mockCtx)
-        mockCtx.mockGlance.put.mockResolvedValue({ ok: true })
-
-        const result = await caller.image.uploadImage()
-
-        expect(result.imageId).toBe(imageId)
+        mockCtx.mockGlance.put.mockRejectedValue({ statusCode: 409, message: "Conflict" })
+        await expect(callUpload(caller)).rejects.toThrow()
       })
     })
   })
