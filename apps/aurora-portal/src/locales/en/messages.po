@@ -766,8 +766,8 @@ msgstr "Enter a single port, or define a range by also filling \"Port (to)\". \"
 msgid "Enter a tag and press Enter or click Add"
 msgstr "Enter a tag and press Enter or click Add"
 
-msgid "Enter a timestamp like \"2026-05-16 18:14:57\" to schedule automatic deletion"
-msgstr "Enter a timestamp like \"2026-05-16 18:14:57\" to schedule automatic deletion"
+msgid "Enter a timestamp like \"YYYY-MM-DD HH:mm:ss\" to schedule automatic deletion"
+msgstr "Enter a timestamp like \"YYYY-MM-DD HH:mm:ss\" to schedule automatic deletion"
 
 msgid "Enter a valid PQDN or FQDN (max 63 characters) to associate with the floating IP. A and PTR records are created automatically."
 msgstr "Enter a valid PQDN or FQDN (max 63 characters) to associate with the floating IP. A and PTR records are created automatically."

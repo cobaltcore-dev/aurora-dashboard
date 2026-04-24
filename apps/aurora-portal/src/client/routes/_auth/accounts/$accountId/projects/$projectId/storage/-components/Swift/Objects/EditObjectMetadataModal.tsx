@@ -446,10 +446,10 @@ export const EditObjectMetadataModal = ({
             }}
             invalid={!!expiresAtError}
             errortext={expiresAtError ? t`Expected format: YYYY-MM-DD HH:MM:SS` : undefined}
-            placeholder={t`Enter a timestamp like "2026-05-16 18:14:57" to schedule automatic deletion`}
+            placeholder={t`Enter a timestamp like "YYYY-MM-DD HH:mm:ss" to schedule automatic deletion`}
             helptext={
               expiresAt.trim()
-                ? t`Enter a timestamp like "2026-05-16 18:14:57" to schedule automatic deletion`
+                ? t`Enter a timestamp like "YYYY-MM-DD HH:mm:ss" to schedule automatic deletion`
                 : undefined
             }
             disabled={isBusy}
