@@ -197,7 +197,7 @@ describe("DeleteObjectsModal", () => {
       renderModal()
       await user.click(screen.getByRole("button", { name: /^Delete$/i }))
       expect(mockMutate).toHaveBeenCalledWith({
-        objects: ["/test-container/file-a.txt", "/test-container/file-b.png", "/test-container/folder/report.pdf"],
+        objects: ["/test-container/file-a.txt", "/test-container/file-b.png", "/test-container/folder%2Freport.pdf"],
       })
     })
 
