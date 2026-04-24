@@ -415,6 +415,65 @@ describe("SwiftContainers (List)", () => {
     })
   })
 
+  describe("Empty All button", () => {
+    test("renders the Empty All button", () => {
+      renderList()
+      expect(screen.getByRole("button", { name: /Empty All/i })).toBeInTheDocument()
+    })
+
+    test("Empty All button is disabled when no containers are selected", () => {
+      renderList()
+      expect(screen.getByRole("button", { name: /Empty All/i })).toBeDisabled()
+    })
+
+    test("Empty All button shows no count when no containers are selected", () => {
+      renderList()
+      expect(screen.getByRole("button", { name: "Empty All" })).toBeInTheDocument()
+    })
+
+    test("Empty All button is enabled and shows count after selecting containers", async () => {
+      const user = userEvent.setup()
+      renderList()
+      await user.click(screen.getByTestId("select-container-alpha").querySelector("input") as HTMLElement)
+      await waitFor(() => {
+        const btn = screen.getByRole("button", { name: /Empty All/i })
+        expect(btn).toBeEnabled()
+        expect(btn).toHaveTextContent("Empty All (1)")
+      })
+    })
+
+    test("Empty All button count increments as more containers are selected", async () => {
+      const user = userEvent.setup()
+      renderList()
+      await user.click(screen.getByTestId("select-container-alpha").querySelector("input") as HTMLElement)
+      await user.click(screen.getByTestId("select-container-beta").querySelector("input") as HTMLElement)
+      await waitFor(() => {
+        expect(screen.getByRole("button", { name: /Empty All \(2\)/i })).toBeEnabled()
+      })
+    })
+
+    test("Empty All button returns to disabled with no count after deselecting all", async () => {
+      const user = userEvent.setup()
+      renderList()
+      const alphaCheckbox = screen.getByTestId("select-container-alpha").querySelector("input") as HTMLElement
+      await user.click(alphaCheckbox)
+      await waitFor(() => expect(screen.getByRole("button", { name: /Empty All \(1\)/i })).toBeEnabled())
+      await user.click(alphaCheckbox)
+      await waitFor(() => {
+        expect(screen.getByRole("button", { name: "Empty All" })).toBeDisabled()
+      })
+    })
+
+    test("selecting all via header checkbox enables Empty All with full count", async () => {
+      const user = userEvent.setup()
+      renderList()
+      await user.click(screen.getByTestId("select-all-containers").querySelector("input") as HTMLElement)
+      await waitFor(() => {
+        expect(screen.getByRole("button", { name: /Empty All \(3\)/i })).toBeEnabled()
+      })
+    })
+  })
+
   describe("Search filtering", () => {
     test("calls navigate when search input changes", async () => {
       const user = userEvent.setup()

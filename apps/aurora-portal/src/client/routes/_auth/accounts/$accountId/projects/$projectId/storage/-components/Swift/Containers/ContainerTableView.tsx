@@ -177,7 +177,9 @@ export const ContainerTableView = ({
           ref={parentRef}
           className="overflow-auto"
           style={{
-            height: "calc(100vh - 545px)",
+            height: "calc(100vh - 545px)", // Dynamic height based on viewport
+            // minHeight: "400px", // Minimum height for usability
+            // maxHeight: "800px", // Maximum height to prevent overflow
           }}
           data-testid="containers-table-body"
         >

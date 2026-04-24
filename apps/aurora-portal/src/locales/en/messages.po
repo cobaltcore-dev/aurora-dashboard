@@ -745,6 +745,12 @@ msgstr "Egress"
 msgid "Empty"
 msgstr "Empty"
 
+msgid "Empty All"
+msgstr "Empty All"
+
+msgid "Empty All ({selectedCount})"
+msgstr "Empty All ({selectedCount})"
+
 msgid "Empty container:"
 msgstr "Empty container:"
 
