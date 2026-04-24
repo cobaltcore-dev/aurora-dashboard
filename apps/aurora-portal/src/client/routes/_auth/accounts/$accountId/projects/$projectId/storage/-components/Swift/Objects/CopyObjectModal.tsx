@@ -322,7 +322,7 @@ export const CopyObjectModal = ({ isOpen, object, onClose, onSuccess, onError }:
             value={targetContainer}
             onChange={handleContainerChange}
             onInputChange={handleContainerSearch}
-            placeholder={t`Type to search containers…`}
+            placeholder={t`Type to search containers...`}
             helptext={(() => {
               if (isLoadingContainers) return t`Loading containers...`
               if (containerSearch.trim().length === 0) return t`Start typing to search for a container`

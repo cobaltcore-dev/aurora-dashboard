@@ -1,6 +1,6 @@
 import { ReactNode } from "react"
 import { ToastProps } from "@cloudoperators/juno-ui-components"
-import { Trans } from "@lingui/react/macro"
+import { Trans, Plural } from "@lingui/react/macro"
 import { Stack } from "@cloudoperators/juno-ui-components/index"
 
 interface NotificationTextProps {
@@ -207,3 +207,96 @@ export const getContainerAclUpdateErrorToast = (
   autoDismissTimeout: config.autoDismissTimeout ?? 5000,
   onDismiss: config.onDismiss,
 })
+
+export const getContainersEmptiedToast = (
+  emptiedCount: number,
+  totalDeleted: number,
+  config: ToastConfig
+): ToastProps => ({
+  variant: "success",
+  children: (
+    <NotificationText
+      title={<Trans>Containers Emptied</Trans>}
+      description={
+        totalDeleted === 0 ? (
+          <Plural value={emptiedCount} one="# container was already empty." other="# containers were already empty." />
+        ) : (
+          <Trans>
+            <Plural value={emptiedCount} one="# container" other="# containers" /> successfully emptied.{" "}
+            <Plural value={totalDeleted} one="# object" other="# objects" /> deleted in total.
+          </Trans>
+        )
+      }
+    />
+  ),
+  autoDismiss: true,
+  autoDismissTimeout: config.autoDismissTimeout ?? 5000,
+  onDismiss: config.onDismiss,
+})
+
+export const getContainersEmptyErrorToast = (errorMessage: string, config: ToastConfig): ToastProps => ({
+  variant: "error",
+  children: (
+    <NotificationText
+      title={<Trans>Failed to Empty Containers</Trans>}
+      description={
+        <span className="whitespace-pre-line">
+          <Trans>One or more containers could not be emptied: {errorMessage}</Trans>
+        </span>
+      }
+    />
+  ),
+  autoDismiss: true,
+  autoDismissTimeout: config.autoDismissTimeout ?? 5000,
+  onDismiss: config.onDismiss,
+})
+export const getContainersEmptyCompleteToast = (
+  emptiedCount: number,
+  totalDeleted: number,
+  errors: string[],
+  config: ToastConfig
+): ToastProps => {
+  const hasErrors = errors.length > 0
+  const hasSuccess = emptiedCount > 0
+  const isPartial = hasErrors && hasSuccess
+
+  return {
+    variant: isPartial ? "warning" : hasErrors ? "error" : "success",
+    children: (
+      <NotificationText
+        title={
+          isPartial ? (
+            <Trans>Containers Partially Emptied</Trans>
+          ) : hasErrors ? (
+            <Trans>Failed to Empty Containers</Trans>
+          ) : (
+            <Trans>Containers Emptied</Trans>
+          )
+        }
+        description={
+          <Stack direction="vertical" gap="1">
+            {hasSuccess && (
+              <span>
+                <Trans>
+                  <Plural value={emptiedCount} one="# container" other="# containers" /> successfully emptied.{" "}
+                  <Plural value={totalDeleted} one="# object" other="# objects" /> deleted in total.
+                </Trans>
+              </span>
+            )}
+            {hasErrors && (
+              <span className="whitespace-pre-line">
+                {(() => {
+                  const errorDetails = errors.join("\n")
+                  return <Trans>Failed: {errorDetails}</Trans>
+                })()}
+              </span>
+            )}
+          </Stack>
+        }
+      />
+    ),
+    autoDismiss: true,
+    autoDismissTimeout: config.autoDismissTimeout ?? 5000,
+    onDismiss: config.onDismiss,
+  }
+}
