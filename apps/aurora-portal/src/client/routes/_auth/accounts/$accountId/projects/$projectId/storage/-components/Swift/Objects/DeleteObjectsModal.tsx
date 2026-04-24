@@ -37,6 +37,9 @@ export const DeleteObjectsModal = ({
       utils.storage.swift.listObjects.invalidate({ container })
       if (result.errors.length > 0) {
         const errorMessages = result.errors.map((e) => `${e.path}: ${e.error}`).join("\n")
+        if (result.numberDeleted > 0) {
+          onSuccess?.(result.numberDeleted)
+        }
         onError?.(errorMessages)
       } else {
         onSuccess?.(result.numberDeleted)

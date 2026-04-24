@@ -281,6 +281,23 @@ describe("DeleteObjectsModal", () => {
       })
     })
 
+    test("calls both onSuccess and onError in partial-success case", async () => {
+      mutationResult = {
+        numberDeleted: 1,
+        numberNotFound: 0,
+        errors: [{ path: "/test-container/file-b.png", status: "403", error: "Forbidden" }],
+      }
+      const onSuccess = vi.fn()
+      const onError = vi.fn()
+      const user = userEvent.setup()
+      renderModal({ onSuccess, onError })
+      await user.click(screen.getByRole("button", { name: /^Delete$/i }))
+      await waitFor(() => {
+        expect(onSuccess).toHaveBeenCalledWith(1)
+        expect(onError).toHaveBeenCalled()
+      })
+    })
+
     test("calls onError with per-path details when result contains errors", async () => {
       mutationResult = {
         numberDeleted: 1,
