@@ -55,6 +55,9 @@ export const EmptyContainersModal = ({
     await utils.storage.swift.listContainers.invalidate()
 
     if (errors.length > 0) {
+      if (emptiedCount > 0) {
+        onSuccess?.(emptiedCount, totalDeleted)
+      }
       onError?.(errors.join("\n"))
     } else {
       onSuccess?.(emptiedCount, totalDeleted)

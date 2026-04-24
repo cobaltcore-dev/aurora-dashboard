@@ -269,6 +269,25 @@ describe("EmptyContainersModal", () => {
       })
     })
 
+    test("calls both onSuccess and onError in partial-success case", async () => {
+      // First container succeeds, rest fail
+      let callCount = 0
+      mockMutateAsync.mockImplementation(async () => {
+        callCount++
+        if (callCount === 1) return 4
+        throw new Error("Server error")
+      })
+      const onSuccess = vi.fn()
+      const onError = vi.fn()
+      const user = userEvent.setup()
+      renderModal({ onSuccess, onError })
+      await user.click(screen.getByRole("button", { name: /^Empty$/i }))
+      await waitFor(() => {
+        expect(onSuccess).toHaveBeenCalledWith(1, 4)
+        expect(onError).toHaveBeenCalled()
+      })
+    })
+
     test("calls onClose after error", async () => {
       mutationError = "Server error"
       const onClose = vi.fn()
