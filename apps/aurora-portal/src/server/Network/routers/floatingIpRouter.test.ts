@@ -127,7 +127,7 @@ const createMockContext = (opts?: {
     },
     createSession: vi.fn(),
     terminateSession: vi.fn(),
-    rescopeSession: vi.fn(),
+    rescopeSession: vi.fn().mockResolvedValue(!invalidSession ? {} : null),
     getMultipartData: vi.fn(),
     __networkGetMock: networkGetMock,
     __networkPostMock: networkPostMock,

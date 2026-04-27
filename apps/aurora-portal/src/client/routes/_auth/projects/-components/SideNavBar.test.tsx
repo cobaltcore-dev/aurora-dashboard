@@ -123,8 +123,8 @@ describe("SideNavBar", () => {
       fireEvent.click(screen.getByText("Compute"))
 
       expect(mockNavigate).toHaveBeenCalledWith({
-        to: "/accounts/$accountId/projects/$projectId/compute/overview",
-        params: { accountId: "acc-1", projectId: "proj-1" },
+        to: "/projects/$projectId/compute/overview",
+        params: { projectId: "proj-1" },
       })
     })
 
@@ -179,8 +179,8 @@ describe("SideNavBar", () => {
         fireEvent.click(screen.getByText("Flavors"))
 
         expect(mockNavigate).toHaveBeenCalledWith({
-          to: "/accounts/$accountId/projects/$projectId/compute/flavors",
-          params: { accountId: "acc-1", projectId: "proj-1" },
+          to: "/projects/$projectId/compute/flavors",
+          params: { projectId: "proj-1" },
         })
       })
 
@@ -194,8 +194,8 @@ describe("SideNavBar", () => {
         fireEvent.click(screen.getByText("Images"))
 
         expect(mockNavigate).toHaveBeenCalledWith({
-          to: "/accounts/$accountId/projects/$projectId/compute/images",
-          params: { accountId: "acc-1", projectId: "proj-1" },
+          to: "/projects/$projectId/compute/images",
+          params: { projectId: "proj-1" },
         })
       })
 
@@ -209,8 +209,8 @@ describe("SideNavBar", () => {
         fireEvent.click(screen.getByText("Compute"))
 
         expect(mockNavigate).toHaveBeenCalledWith({
-          to: "/accounts/$accountId/projects/$projectId/compute/overview",
-          params: { accountId: "acc-1", projectId: "proj-1" },
+          to: "/projects/$projectId/compute/overview",
+          params: { projectId: "proj-1" },
         })
       })
     })

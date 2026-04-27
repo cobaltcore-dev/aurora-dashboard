@@ -24,6 +24,10 @@ vi.mock("@/client/trpcClient", () => ({
   },
 }))
 
+vi.mock("@/client/hooks", () => ({
+  useProjectId: vi.fn(() => "proj-1"),
+}))
+
 describe("useFloatingIpMutations", () => {
   const listCancelMock = vi.fn(async () => undefined)
   const listInvalidateMock = vi.fn()
@@ -142,8 +146,8 @@ describe("useFloatingIpMutations", () => {
     })
 
     expect(listCancelMock).toHaveBeenCalledTimes(1)
-    expect(getByIdCancelMock).toHaveBeenCalledWith({ floatingip_id: "fip-123" })
-    expect(getByIdGetDataMock).toHaveBeenCalledWith({ floatingip_id: "fip-123" })
+    expect(getByIdCancelMock).toHaveBeenCalledWith({ project_id: "proj-1", floatingip_id: "fip-123" })
+    expect(getByIdGetDataMock).toHaveBeenCalledWith({ project_id: "proj-1", floatingip_id: "fip-123" })
     expect(mutationContext).toEqual({ previousItem: existingItem })
 
     expect(getByIdSetDataMock).toHaveBeenCalledTimes(1)
@@ -166,7 +170,7 @@ describe("useFloatingIpMutations", () => {
 
     updateOptions?.onError?.(new Error("update failed"), { floatingip_id: "fip-123" }, { previousItem })
 
-    expect(getByIdSetDataMock).toHaveBeenCalledWith({ floatingip_id: "fip-123" }, previousItem)
+    expect(getByIdSetDataMock).toHaveBeenCalledWith({ project_id: "proj-1", floatingip_id: "fip-123" }, previousItem)
   })
 
   it("invalidates detail and list queries on update onSettled", () => {
@@ -174,7 +178,7 @@ describe("useFloatingIpMutations", () => {
 
     updateOptions?.onSettled?.(undefined, null, { floatingip_id: "fip-123" })
 
-    expect(getByIdInvalidateMock).toHaveBeenCalledWith({ floatingip_id: "fip-123" })
+    expect(getByIdInvalidateMock).toHaveBeenCalledWith({ project_id: "proj-1", floatingip_id: "fip-123" })
     expect(listInvalidateMock).toHaveBeenCalledTimes(1)
   })
 

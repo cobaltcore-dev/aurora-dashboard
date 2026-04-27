@@ -584,7 +584,7 @@ describe("SecurityGroupRBACPolicies", () => {
       const confirmButton = screen.getByRole("button", { name: /Confirm/i })
       await user.click(confirmButton)
 
-      expect(mockMutate).toHaveBeenCalledWith({ policyId: "policy-1" })
+      expect(mockMutate).toHaveBeenCalledWith({ project_id: "test-project", policyId: "policy-1" })
     })
   })
 
@@ -598,7 +598,7 @@ describe("SecurityGroupRBACPolicies", () => {
       })
 
       expect(mockUseQuery).toHaveBeenCalledWith(
-        { securityGroupId: "sg-456" },
+        { project_id: "test-project", securityGroupId: "sg-456" },
         expect.objectContaining({
           refetchOnWindowFocus: false,
         })

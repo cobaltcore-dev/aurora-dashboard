@@ -123,7 +123,7 @@ describe("DetachFloatingIpModal", () => {
       await user.click(detachButton)
 
       await waitFor(() => {
-        expect(onUpdate).toHaveBeenCalledWith("fip-123", { port_id: null })
+        expect(onUpdate).toHaveBeenCalledWith("fip-123", { project_id: "test-project", port_id: null })
       })
     })
 

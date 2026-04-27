@@ -120,6 +120,7 @@ describe("EditFloatingIpModal", () => {
 
       await waitFor(() => {
         expect(onUpdate).toHaveBeenCalledWith("fip-123", {
+          project_id: "test-project",
           port_id: "port-1",
           description: "Updated description",
         })
@@ -142,6 +143,7 @@ describe("EditFloatingIpModal", () => {
 
       await waitFor(() => {
         expect(onUpdate).toHaveBeenCalledWith("fip-123", {
+          project_id: "test-project",
           port_id: null,
           description: "new description",
         })
