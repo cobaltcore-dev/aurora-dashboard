@@ -1762,9 +1762,6 @@ msgstr ""
 msgid "Our Mission"
 msgstr ""
 
-msgid "Overview"
-msgstr ""
-
 msgid "Owner"
 msgstr ""
 
@@ -1847,9 +1844,6 @@ msgid "Private"
 msgstr ""
 
 msgid "production, linux"
-msgstr ""
-
-msgid "Project"
 msgstr ""
 
 msgid "Project id"

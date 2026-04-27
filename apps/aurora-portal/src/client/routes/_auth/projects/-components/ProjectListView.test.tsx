@@ -43,7 +43,7 @@ describe("ProjectListView", () => {
     // Add a dummy compute route for navigation testing
     const computeRoute = createRoute({
       getParentRoute: () => rootRoute,
-      path: "/accounts/$domain/projects/$projectId/compute",
+      path: "/projects/$projectId/compute",
       component: () => <div>Compute Page</div>,
     })
 
@@ -149,7 +149,8 @@ describe("ProjectListView", () => {
     // Verify navigation path
     expect(navigateSpy).toHaveBeenCalledWith(
       expect.objectContaining({
-        to: "/accounts/1789d1/projects/89ac3f",
+        to: "/projects/$projectId",
+        params: { projectId: "89ac3f" },
       })
     )
   })

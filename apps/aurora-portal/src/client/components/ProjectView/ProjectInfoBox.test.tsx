@@ -12,14 +12,14 @@ let mockMatches: { routeId: string; staticData?: Record<string, unknown> }[] = [
 vi.mock("@tanstack/react-router", () => ({
   useNavigate: () => mockNavigate,
   useMatches: () => mockMatches,
-  useParams: () => ({ accountId: "test-account", projectId: "test-project" }),
+  useParams: () => ({ projectId: "test-project" }),
   useRouteContext: vi.fn(() => ({
     pageTitle: "Test Page Title",
     pageTitleRef: { current: "Test Page Title" },
   })),
 }))
 
-const PROJECT_ROUTE_ID = "/_auth/accounts/$accountId/projects/$projectId"
+const PROJECT_ROUTE_ID = "/_auth/projects/$projectId"
 
 const defaultProjectInfo = {
   id: "project-123",
@@ -251,8 +251,7 @@ describe("ProjectInfoBox", () => {
       fireEvent.click(screen.getByText("My Project"))
 
       expect(mockNavigate).toHaveBeenCalledWith({
-        to: "/accounts/$accountId/projects",
-        params: { accountId: "test-account" },
+        to: "/projects",
       })
     })
 

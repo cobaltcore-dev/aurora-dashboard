@@ -14,10 +14,11 @@ export function ProjectListView({ projects }: ProjectListViewProps) {
     <DataGrid className="overflow-hidden" columns={3} minContentColumns={[0]}>
       {projects?.length ? (
         projects.map((project) => {
-          const domain = project?.domain_id
-          const rootPath = `/accounts/${domain}/projects/${project.id}`
           return (
-            <DataGridRow key={project.id} onClick={() => navigate({ to: rootPath })}>
+            <DataGridRow
+              key={project.id}
+              onClick={() => navigate({ to: "/projects/$projectId", params: { projectId: project.id } })}
+            >
               <DataGridCell>
                 {project.enabled ? (
                   <Icon icon="checkCircle" color="text-theme-success" />

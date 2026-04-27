@@ -1,16 +1,13 @@
-import { useParams } from "@tanstack/react-router"
+import { useAuth } from "@/client/store/AuthProvider"
 
 /**
- * Extract domainId (accountId) from the current URL.
+ * Get the current user's domain ID from the authentication context.
  *
- * This hook must be used within a domain-scoped route.
- * Currently: /accounts/:accountId/...
- * Future: /domains/:domainId/...
+ * This hook provides access to the domain ID of the currently authenticated user.
+ * The domain ID is obtained from the user's session, not from URL parameters.
  *
- * Note: In the current routing structure, accountId === domainId
- *
- * @throws {Error} If used outside of a domain route context
- * @returns {string} The current domain ID (account ID) from URL params
+ * @throws {Error} If user is not authenticated or domain ID is not available
+ * @returns {string} The current domain ID from the user's session
  *
  * @example
  * ```tsx
@@ -24,21 +21,17 @@ import { useParams } from "@tanstack/react-router"
  * ```
  */
 export function useDomainId(): string {
-  // Extract from current route structure
-  // This will be updated in one place when routes are restructured
-  // Using strict: false to allow usage from any child route
-  const { accountId } = useParams({ strict: false })
+  const { user } = useAuth()
 
-  // Runtime validation - should never happen due to TanStack Router's type safety,
-  // but provides clear error message if route configuration is incorrect
-  if (!accountId) {
+  const domainId = user?.domain?.id
+
+  if (!domainId) {
     throw new Error(
-      "useDomainId() must be used within a domain-scoped route. " +
-        "This is likely a routing configuration error. " +
-        "Expected route pattern: /accounts/:accountId/..."
+      "useDomainId() requires an authenticated user with a domain. " +
+        "This is likely an authentication error. " +
+        "Ensure the user is logged in and has a domain assigned."
     )
   }
 
-  // In current structure, accountId is used as domainId
-  return accountId
+  return domainId
 }

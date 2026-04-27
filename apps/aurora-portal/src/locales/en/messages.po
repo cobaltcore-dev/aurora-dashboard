@@ -1762,9 +1762,6 @@ msgstr "or drag and drop"
 msgid "Our Mission"
 msgstr "Our Mission"
 
-msgid "Overview"
-msgstr "Overview"
-
 msgid "Owner"
 msgstr "Owner"
 
@@ -1848,9 +1845,6 @@ msgstr "Private"
 
 msgid "production, linux"
 msgstr "production, linux"
-
-msgid "Project"
-msgstr "Project"
 
 msgid "Project id"
 msgstr "Project id"

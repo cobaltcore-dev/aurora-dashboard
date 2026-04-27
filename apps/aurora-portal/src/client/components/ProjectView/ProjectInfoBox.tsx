@@ -36,7 +36,7 @@ export function ProjectInfoBox({ projectInfo }: ProjectInfoBoxProps) {
   const navigate = useNavigate()
   const matches = useMatches()
 
-  const { accountId, projectId } = useParams({ strict: false }) as { accountId: string; projectId: string }
+  const { projectId } = useParams({ strict: false }) as { projectId: string }
 
   useEffect(() => {
     const handleTitleChange = (e: CustomEvent<{ title: string }>) => {
@@ -50,13 +50,7 @@ export function ProjectInfoBox({ projectInfo }: ProjectInfoBoxProps) {
   }, [pageTitleRef])
 
   const buildBreadcrumbs = () => {
-    // Support both old and new route structures during migration
-    const oldProjectIdRouteId = "/_auth/accounts/$accountId/projects/$projectId"
-    const newProjectIdRouteId = "/_auth/projects/$projectId"
-
-    // Check which route structure we're using
-    const isNewRouteStructure = matches.some((m) => m.routeId.startsWith(newProjectIdRouteId))
-    const projectIdRouteId = isNewRouteStructure ? newProjectIdRouteId : oldProjectIdRouteId
+    const projectIdRouteId = "/_auth/projects/$projectId"
 
     const childMatches = matches.filter((m) => m.routeId !== projectIdRouteId && m.routeId.startsWith(projectIdRouteId))
     const deepestMatch = childMatches[childMatches.length - 1]
@@ -82,7 +76,7 @@ export function ProjectInfoBox({ projectInfo }: ProjectInfoBoxProps) {
 
     items.push({
       label: projectInfo.name,
-      onClick: accountId ? () => navigate({ to: "/accounts/$accountId/projects", params: { accountId } }) : undefined,
+      onClick: () => navigate({ to: "/projects" }),
     })
 
     if (sectionLabel && section) {

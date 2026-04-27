@@ -32,16 +32,9 @@ describe("ProjectCardView", () => {
       component: () => <I18nProvider i18n={i18n}>{Component}</I18nProvider>,
     })
 
-    // Nested account route
-    const accountRoute = createRoute({
-      getParentRoute: () => rootRoute,
-      path: "/accounts/$accountId",
-      component: () => <div>Account</div>,
-    })
-
     // Nested projects route
     const projectsRoute = createRoute({
-      getParentRoute: () => accountRoute,
+      getParentRoute: () => rootRoute,
       path: "/projects/$projectId",
       component: () => <div>Projects</div>,
     })
@@ -54,7 +47,7 @@ describe("ProjectCardView", () => {
     })
 
     // Build route tree with nested structure
-    const routeTree = rootRoute.addChildren([accountRoute.addChildren([projectsRoute.addChildren([computeRoute])])])
+    const routeTree = rootRoute.addChildren([projectsRoute.addChildren([computeRoute])])
 
     return createRouter({
       routeTree,
@@ -99,7 +92,8 @@ describe("ProjectCardView", () => {
           expect(navigateSpy).toHaveBeenCalledTimes(1)
           expect(navigateSpy).toHaveBeenCalledWith({
             from: undefined,
-            to: "/accounts/1789d1/projects/89ac3f",
+            to: "/projects/$projectId",
+            params: { projectId: "89ac3f" },
           })
         },
         { timeout: 1000 }
@@ -133,7 +127,8 @@ describe("ProjectCardView", () => {
           expect(navigateSpy).toHaveBeenCalledTimes(1)
           expect(navigateSpy).toHaveBeenCalledWith({
             from: undefined,
-            to: "/accounts/1789d1/projects/89ac3f",
+            to: "/projects/$projectId",
+            params: { projectId: "89ac3f" },
           })
         },
         { timeout: 1000 }
