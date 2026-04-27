@@ -1,7 +1,7 @@
 import { z } from "zod"
 import { TRPCError } from "@trpc/server"
 import { protectedProcedure } from "../../trpc"
-import { Project, projectsResponseSchema } from "../types/models"
+import { Project, projectResponseSchema, projectsResponseSchema } from "../types/models"
 
 export const projectRouter = {
   getAuthProjects: protectedProcedure.query(async ({ ctx }): Promise<Project[] | undefined> => {
@@ -62,16 +62,14 @@ export const projectRouter = {
   getProjectById: protectedProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ input, ctx }): Promise<Project | undefined> => {
-      const openstackSession = ctx.openstack
-
-      const identityService = openstackSession?.service("identity")
-      const parsedData = projectsResponseSchema.safeParse(
+      const identityService = ctx.openstack?.service("identity")
+      const parsedData = projectResponseSchema.safeParse(
         await identityService?.get(`projects/${input.id}`).then((res) => res.json())
       )
       if (!parsedData.success) {
         console.error("Zod Parsing Error:", parsedData.error.format())
         return undefined
       }
-      return parsedData.data.projects.find((project: Project) => project.id === input.id)
+      return parsedData.data.project
     }),
 }

@@ -1,10 +1,14 @@
 import { createFileRoute, Link, useLoaderData } from "@tanstack/react-router"
-import { Box, Stack } from "@cloudoperators/juno-ui-components"
+import { Box, ContentHeading, Stack } from "@cloudoperators/juno-ui-components"
 import { getServiceIndex } from "@/server/Authentication/helpers"
 import { Trans } from "@lingui/react/macro"
 
 export const Route = createFileRoute("/_auth/accounts/$accountId/projects/$projectId/")({
   component: RouteComponent,
+  loader: async ({ context, params }) => {
+    const project = await context.trpcClient?.project.getProjectById.query({ id: params.projectId })
+    return { description: project?.description ?? null }
+  },
 })
 
 interface ServiceCardProps {
@@ -33,6 +37,7 @@ function RouteComponent() {
   const { crumbProject, availableServices, accountId, projectId } = useLoaderData({
     from: "/_auth/accounts/$accountId/projects/$projectId",
   })
+  const { description } = Route.useLoaderData()
 
   const serviceIndex = getServiceIndex(availableServices ?? [])
   const base = `/accounts/${accountId}/projects/${projectId}`
@@ -66,7 +71,8 @@ function RouteComponent() {
   return (
     <Stack direction="vertical" gap="6" className="py-4">
       <div>
-        <h1 className="text-theme-highest text-2xl font-bold">{crumbProject?.name}</h1>
+        <ContentHeading className="text-theme-highest text-2xl font-bold">{crumbProject?.name}</ContentHeading>
+        {description && <p className="text-theme-light mt-1 text-sm">{description}</p>}
       </div>
       {cards.length > 0 ? (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
