@@ -1432,9 +1432,6 @@ msgstr "Lädt Servergruppen"
 msgid "Loading..."
 msgstr "Lädt..."
 
-msgid "Log Out"
-msgstr "Abmelden"
-
 msgid "Login failed. Please check your credentials and try again."
 msgstr "Anmeldung fehlgeschlagen. Bitte überprüfen Sie Ihre Anmeldeinformationen und versuchen Sie es erneut."
 
@@ -1572,9 +1569,6 @@ msgstr "Muss eine gültige IPv4- oder IPv6-Adresse sein (z. B.: 172.24.4.228 ode
 
 msgid "Must be a valid PQDN or FQDN (alphanumeric and hyphens only, cannot start or end with hyphen)."
 msgstr "Muss eine gültige PQDN oder FQDN sein (nur alphanumerische Zeichen und Bindestriche, darf nicht mit einem Bindestrich beginnen oder enden)."
-
-msgid "My Profile"
-msgstr "Mein Profil"
 
 msgid "N/A"
 msgstr "keine Angabe"
