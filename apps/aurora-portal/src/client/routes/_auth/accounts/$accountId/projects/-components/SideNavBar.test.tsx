@@ -24,6 +24,7 @@ describe("SideNavBar", () => {
   const defaultProps = {
     accountId: "acc-1",
     projectId: "proj-1",
+    projectName: "Test Project",
     availableServices: [
       { type: "compute", name: "nova" },
       { type: "image", name: "glance" },
@@ -111,7 +112,7 @@ describe("SideNavBar", () => {
       expect(screen.queryByText("Flavors")).not.toBeInTheDocument()
     })
 
-    it("navigates to compute overview when Compute header is clicked", () => {
+    it("toggles compute section open/closed when Compute header is clicked", () => {
       render(
         <TestingProvider>
           <SideNavBar {...defaultProps} />
@@ -122,10 +123,7 @@ describe("SideNavBar", () => {
 
       fireEvent.click(screen.getByText("Compute"))
 
-      expect(mockNavigate).toHaveBeenCalledWith({
-        to: "/accounts/$accountId/projects/$projectId/compute/overview",
-        params: { accountId: "acc-1", projectId: "proj-1" },
-      })
+      expect(mockNavigate).not.toHaveBeenCalled()
     })
 
     describe("Storage Navigation", () => {
@@ -199,7 +197,7 @@ describe("SideNavBar", () => {
         })
       })
 
-      it("calls navigate with correct params when Compute header is clicked", () => {
+      it("does not navigate when Compute header is clicked (toggles section instead)", () => {
         render(
           <TestingProvider>
             <SideNavBar {...defaultProps} />
@@ -208,10 +206,7 @@ describe("SideNavBar", () => {
 
         fireEvent.click(screen.getByText("Compute"))
 
-        expect(mockNavigate).toHaveBeenCalledWith({
-          to: "/accounts/$accountId/projects/$projectId/compute/overview",
-          params: { accountId: "acc-1", projectId: "proj-1" },
-        })
+        expect(mockNavigate).not.toHaveBeenCalled()
       })
     })
 

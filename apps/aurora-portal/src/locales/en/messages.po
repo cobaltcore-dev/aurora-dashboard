@@ -1672,6 +1672,9 @@ msgstr "No server groups available."
 msgid "No servers available."
 msgstr "No servers available."
 
+msgid "No services available for this project."
+msgstr "No services available for this project."
+
 msgid "No specific tenant access configured for this private flavor. Click \"Add Tenant Access\" to grant access."
 msgstr "No specific tenant access configured for this private flavor. Click \"Add Tenant Access\" to grant access."
 

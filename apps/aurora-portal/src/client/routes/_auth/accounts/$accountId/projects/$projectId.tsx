@@ -28,11 +28,18 @@ export const Route = createFileRoute("/_auth/accounts/$accountId/projects/$proje
 })
 
 function Layout({ children }: { children: React.ReactNode }) {
-  const { availableServices, accountId, projectId } = useLoaderData({ from: Route.id })
+  const { availableServices, accountId, projectId, crumbProject } = useLoaderData({ from: Route.id })
   return (
     <AppShell
       embedded
-      sideNavigation={<SideNavBar availableServices={availableServices!} accountId={accountId} projectId={projectId} />}
+      sideNavigation={
+        <SideNavBar
+          availableServices={availableServices!}
+          accountId={accountId}
+          projectId={projectId}
+          projectName={crumbProject?.name || projectId}
+        />
+      }
       className="h-min-screen"
     >
       <Container>

@@ -8,13 +8,14 @@ import { isRouteInfo } from "@/client/routes/routeInfo"
 interface SideNavBarProps {
   accountId: string
   projectId: string
+  projectName: string
   availableServices: {
     type: string
     name: string
   }[]
 }
 
-export const SideNavBar = ({ accountId, projectId, availableServices }: SideNavBarProps) => {
+export const SideNavBar = ({ accountId, projectId, projectName, availableServices }: SideNavBarProps) => {
   const { t } = useLingui()
   const navigate = useNavigate()
   const matches = useMatches()
@@ -84,13 +85,20 @@ export const SideNavBar = ({ accountId, projectId, availableServices }: SideNavB
       : []),
   ]
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- used by commented-out Project Overview item
   const isOverviewActive = activeSection === null
 
   return (
     <SideNavigation ariaLabel="Project Side Navigation" onActiveItemChange={() => {}}>
       <SideNavigationList>
         <>
+          <SideNavigationItem
+            icon="home"
+            label={projectName}
+            onClick={() =>
+              navigate({ to: "/accounts/$accountId/projects/$projectId", params: { accountId, projectId } })
+            }
+            selected={isOverviewActive}
+          />
           {/* <SideNavigationItem
             label={t`Project Overview`}
             onClick={() =>
