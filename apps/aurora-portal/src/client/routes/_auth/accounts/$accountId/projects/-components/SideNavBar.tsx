@@ -84,30 +84,32 @@ export const SideNavBar = ({ accountId, projectId, availableServices }: SideNavB
       : []),
   ]
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- used by commented-out Project Overview item
   const isOverviewActive = activeSection === null
 
   return (
     <SideNavigation ariaLabel="Project Side Navigation" onActiveItemChange={() => {}}>
       <SideNavigationList>
         <>
-          <SideNavigationItem
-            label={t`Overview`}
+          {/* <SideNavigationItem
+            label={t`Project Overview`}
             onClick={() =>
               navigate({ to: "/accounts/$accountId/projects/$projectId", params: { accountId, projectId } })
             }
             selected={isOverviewActive}
-          />
+          /> */}
           <SideNavigationItem
             label={t`Compute`}
             open={openSections.compute}
-            onClick={() => {
-              navigate({
-                to: "/accounts/$accountId/projects/$projectId/compute/overview",
-                params: { accountId, projectId },
-              })
-              setOpenSections((prev) => ({ ...prev, compute: true }))
-            }}
-            selected={activeSection === "compute" && activeService === "overview"}
+            onClick={() => setOpenSections((prev) => ({ ...prev, compute: !prev.compute }))}
+            // onClick={() => {
+            //   navigate({
+            //     to: "/accounts/$accountId/projects/$projectId/compute/overview",
+            //     params: { accountId, projectId },
+            //   })
+            //   setOpenSections((prev) => ({ ...prev, compute: true }))
+            // }}
+            // selected={activeSection === "compute" && activeService === "overview"}
           >
             {computeServices.map(({ service, label, to, params }) => (
               <SideNavigationItem
@@ -123,14 +125,15 @@ export const SideNavBar = ({ accountId, projectId, availableServices }: SideNavB
             <SideNavigationItem
               label={t`Network`}
               open={openSections.network}
-              onClick={() => {
-                navigate({
-                  to: "/accounts/$accountId/projects/$projectId/network/overview",
-                  params: { accountId, projectId },
-                })
-                setOpenSections((prev) => ({ ...prev, network: true }))
-              }}
-              selected={activeSection === "network" && activeService === "overview"}
+              onClick={() => setOpenSections((prev) => ({ ...prev, network: !prev.network }))}
+              // onClick={() => {
+              //   navigate({
+              //     to: "/accounts/$accountId/projects/$projectId/network/overview",
+              //     params: { accountId, projectId },
+              //   })
+              //   setOpenSections((prev) => ({ ...prev, network: true }))
+              // }}
+              // selected={activeSection === "network" && activeService === "overview"}
             >
               {networkServices.map(({ service, label, to, params }) => (
                 <SideNavigationItem
@@ -148,6 +151,7 @@ export const SideNavBar = ({ accountId, projectId, availableServices }: SideNavB
               label={t`Storage`}
               open={openSections.storage}
               onClick={() => setOpenSections((prev) => ({ ...prev, storage: !prev.storage }))}
+              // onClick={() => setOpenSections((prev) => ({ ...prev, storage: !prev.storage }))}
             >
               {storageServices.map(({ service, label, to, params }) => (
                 <SideNavigationItem
