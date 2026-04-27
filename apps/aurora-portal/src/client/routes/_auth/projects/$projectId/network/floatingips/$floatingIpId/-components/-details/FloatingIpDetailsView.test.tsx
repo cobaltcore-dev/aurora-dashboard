@@ -68,10 +68,10 @@ describe("FloatingIpDetailsView", () => {
   })
 
   describe("Header and description", () => {
-    it("displays floating IP address in heading", () => {
+    it("displays floating IP address in the network section", () => {
       render(<FloatingIpDetailsView floatingIp={mockFloatingIp} />, { wrapper: TestWrapper })
 
-      expect(screen.getByText(/IP: 203.0.113.10/i)).toBeInTheDocument()
+      expect(screen.getByText("203.0.113.10")).toBeInTheDocument()
     })
 
     it("displays description text", () => {
@@ -111,10 +111,12 @@ describe("FloatingIpDetailsView", () => {
       expect(screen.getByText("Web server FIP")).toBeInTheDocument()
     })
 
-    it("does not display description when absent", () => {
+    it("displays em dash for description when absent", () => {
       const fipWithoutDescription = { ...mockFloatingIp, description: null }
       render(<FloatingIpDetailsView floatingIp={fipWithoutDescription} />, { wrapper: TestWrapper })
 
+      expect(screen.getByText("Description")).toBeInTheDocument()
+      expect(screen.getByText("—")).toBeInTheDocument()
       expect(screen.queryByText("Web server FIP")).not.toBeInTheDocument()
     })
 
@@ -279,7 +281,7 @@ describe("FloatingIpDetailsView", () => {
     it("renders with minimal required data", () => {
       render(<FloatingIpDetailsView floatingIp={minimalFloatingIp} />, { wrapper: TestWrapper })
 
-      expect(screen.getByRole("heading", { name: /203\.0\.113\.100/ })).toBeInTheDocument()
+      expect(screen.getByText("203.0.113.100")).toBeInTheDocument()
       expect(screen.getByText("Down")).toBeInTheDocument()
       expect(screen.getByText("net-ext")).toBeInTheDocument()
     })
@@ -308,7 +310,7 @@ describe("FloatingIpDetailsView", () => {
     })
   })
 
-  describe("Data grid structure", () => {
+  describe("Description list structure", () => {
     it("renders multiple sections", () => {
       render(<FloatingIpDetailsView floatingIp={mockFloatingIp} />, { wrapper: TestWrapper })
 
