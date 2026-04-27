@@ -115,7 +115,7 @@ describe("Network query schemas", () => {
 
   describe("ListDnsDomainsQuerySchema", () => {
     it("should validate empty query", () => {
-      const result = ListDnsDomainsQuerySchema.safeParse({})
+      const result = ListDnsDomainsQuerySchema.safeParse({ project_id: "test-project" })
 
       expect(result.success).toBe(true)
     })
@@ -131,7 +131,7 @@ describe("Network query schemas", () => {
     })
 
     it("should reject non-boolean router external flag", () => {
-      const result = ListDnsDomainsQuerySchema.safeParse({ "router:external": "true" })
+      const result = ListDnsDomainsQuerySchema.safeParse({ project_id: "test-project", "router:external": "true" })
 
       expect(result.success).toBe(false)
     })

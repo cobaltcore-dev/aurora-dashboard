@@ -331,7 +331,8 @@ export const imageRouter = {
     .input(createImageInputSchema)
     .mutation(async ({ input, ctx }): Promise<GlanceImage> => {
       return withErrorHandling(async () => {
-        const { ...imageData } = input
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { project_id, ...imageData } = input
         const openstackSession = ctx.openstack
         const glance = openstackSession?.service("glance")
 

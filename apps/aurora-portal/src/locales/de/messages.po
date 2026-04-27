@@ -832,8 +832,8 @@ msgstr "Fehler beim Laden der Container: {errorMessage}"
 msgid "Error Loading Flavor"
 msgstr "Fehler beim Laden des Flavors"
 
-msgid "Error loading Floating IP Details..."
-msgstr "Fehler beim Laden der Floating IP-Details..."
+msgid "Error loading floating IP"
+msgstr ""
 
 msgid "Error loading image"
 msgstr "Fehler beim Laden des Images"
@@ -1285,9 +1285,6 @@ msgstr "Ingress"
 msgid "Inside a project, objects are stored in containers. Containers are where you define access permissions and quotas."
 msgstr "Innerhalb eines Projekts werden Objekte in Containern gespeichert. Container sind der Ort, an dem Sie Zugriffsberechtigungen und Quotas definieren."
 
-msgid "Instances"
-msgstr "Instances"
-
 msgid "Invalid file format. Supported formats: {supportedFileFormats}"
 msgstr "Ungültiges Dateiformat. Unterstützte Formate: {supportedFileFormats}"
 
@@ -1302,6 +1299,9 @@ msgstr "Ungültiger Wert für die Einstellung des öffentlichen Flavors."
 
 msgid "IP Version"
 msgstr "IP-Version"
+
+msgid "IP:"
+msgstr ""
 
 msgid "IPv4"
 msgstr "IPv4"
@@ -1338,9 +1338,6 @@ msgstr "Schlüssel muss mindestens ein alphanumerisches Zeichen enthalten"
 
 msgid "Key Name"
 msgstr "Keyname"
-
-msgid "Key Pairs"
-msgstr "Key Pairs"
 
 msgid "Last Modified"
 msgstr "Zuletzt geändert"
@@ -2118,9 +2115,6 @@ msgstr "Serverfehler beim Abrufen der Flavor-Details. Bitte versuchen Sie es sp�
 
 msgid "Server error occurred while removing tenant access. Please try again later."
 msgstr "Ein Serverfehler ist aufgetreten, während der Projektzugriff entfernt wurde. Bitte versuchen Sie es später noch einmal."
-
-msgid "Server Groups"
-msgstr "Server Groups"
 
 msgid "Server is experiencing issues. Please try again later."
 msgstr "Der Server hat Probleme. Bitte versuchen Sie es später erneut."

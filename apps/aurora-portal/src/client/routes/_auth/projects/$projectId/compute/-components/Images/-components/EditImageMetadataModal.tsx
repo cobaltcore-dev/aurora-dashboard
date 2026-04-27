@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react"
 import { useLingui } from "@lingui/react/macro"
+import { useProjectId } from "@/client/hooks"
 import {
   Modal,
   Button,
@@ -401,13 +402,17 @@ export const EditImageMetadataModal: React.FC<EditImageMetadataModalProps> = ({
   onSave,
 }) => {
   const { t } = useLingui()
+  const projectId = useProjectId()
   const {
     data: excludedPropertiesData,
     isLoading: isLoadingExcluded,
     isError: isErrorExcluded,
-  } = trpcReact.compute.getImageMetadataExcludedProperties.useQuery(undefined, {
-    enabled: isOpen,
-  })
+  } = trpcReact.compute.getImageMetadataExcludedProperties.useQuery(
+    { project_id: projectId },
+    {
+      enabled: isOpen,
+    }
+  )
   const excludedProperties = useMemo(
     () => new Set((excludedPropertiesData ?? []).map((s) => s.toLowerCase())),
     [excludedPropertiesData]

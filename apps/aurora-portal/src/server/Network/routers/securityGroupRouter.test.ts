@@ -76,6 +76,37 @@ const createMockContext = (opts?: {
             }),
           })
         }),
+        post: vi.fn().mockImplementation(() => {
+          if (mockError) {
+            return Promise.reject(new Error("Network error"))
+          }
+          return Promise.resolve({
+            ok: true,
+            json: vi.fn().mockResolvedValue({
+              security_group: mockSecurityGroup || defaultSecurityGroups[0],
+            }),
+          })
+        }),
+        put: vi.fn().mockImplementation(() => {
+          if (mockError) {
+            return Promise.reject(new Error("Network error"))
+          }
+          return Promise.resolve({
+            ok: true,
+            json: vi.fn().mockResolvedValue({
+              security_group: mockSecurityGroup || defaultSecurityGroups[0],
+            }),
+          })
+        }),
+        del: vi.fn().mockImplementation(() => {
+          if (mockError) {
+            return Promise.reject(new Error("Network error"))
+          }
+          return Promise.resolve({
+            ok: true,
+            status: 204,
+          })
+        }),
       }
     }),
   }
@@ -572,39 +603,41 @@ describe("securityGroupRouter.create", () => {
       security_group_rules: [],
     }
 
+    const mockOpenstackSession = {
+      service: vi.fn().mockImplementation((serviceName: string) => {
+        if (serviceName !== "network" || noNetworkService) {
+          return null
+        }
+
+        return {
+          post: vi.fn().mockImplementation(() => {
+            if (responseStatus === 201) {
+              return Promise.resolve({
+                ok: true,
+                status: responseStatus,
+                json: vi.fn().mockResolvedValue({
+                  security_group: mockCreatedSecurityGroup,
+                }),
+              })
+            }
+
+            // Mock error responses
+            return Promise.resolve({
+              ok: false,
+              status: responseStatus,
+              statusText: responseStatus === 413 ? "Quota exceeded" : "Error",
+            })
+          }),
+        }
+      }),
+    }
+
     return {
       validateSession: vi.fn().mockReturnValue(!invalidSession),
-      openstack: {
-        service: vi.fn().mockImplementation((serviceName: string) => {
-          if (serviceName !== "network" || noNetworkService) {
-            return null
-          }
-
-          return {
-            post: vi.fn().mockImplementation(() => {
-              if (responseStatus === 201) {
-                return Promise.resolve({
-                  ok: true,
-                  status: responseStatus,
-                  json: vi.fn().mockResolvedValue({
-                    security_group: mockCreatedSecurityGroup,
-                  }),
-                })
-              }
-
-              // Mock error responses
-              return Promise.resolve({
-                ok: false,
-                status: responseStatus,
-                statusText: responseStatus === 413 ? "Quota exceeded" : "Error",
-              })
-            }),
-          }
-        }),
-      },
+      openstack: mockOpenstackSession,
       createSession: vi.fn(),
       terminateSession: vi.fn(),
-      rescopeSession: vi.fn(),
+      rescopeSession: vi.fn().mockResolvedValue(mockOpenstackSession),
     } as unknown as AuroraPortalContext
   }
 
@@ -691,36 +724,38 @@ describe("securityGroupRouter.deleteById", () => {
   }) => {
     const { noNetworkService = false, invalidSession = false, responseStatus = 204 } = opts || {}
 
+    const mockOpenstackSession = {
+      service: vi.fn().mockImplementation((serviceName: string) => {
+        if (serviceName !== "network" || noNetworkService) {
+          return null
+        }
+
+        return {
+          del: vi.fn().mockImplementation(() => {
+            if (responseStatus === 204) {
+              return Promise.resolve({
+                ok: true,
+                status: responseStatus,
+              })
+            }
+
+            // Mock error responses
+            return Promise.resolve({
+              ok: false,
+              status: responseStatus,
+              statusText: responseStatus === 409 ? "Conflict" : responseStatus === 404 ? "Not Found" : "Error",
+            })
+          }),
+        }
+      }),
+    }
+
     return {
       validateSession: vi.fn().mockReturnValue(!invalidSession),
-      openstack: {
-        service: vi.fn().mockImplementation((serviceName: string) => {
-          if (serviceName !== "network" || noNetworkService) {
-            return null
-          }
-
-          return {
-            del: vi.fn().mockImplementation(() => {
-              if (responseStatus === 204) {
-                return Promise.resolve({
-                  ok: true,
-                  status: responseStatus,
-                })
-              }
-
-              // Mock error responses
-              return Promise.resolve({
-                ok: false,
-                status: responseStatus,
-                statusText: responseStatus === 409 ? "Conflict" : responseStatus === 404 ? "Not Found" : "Error",
-              })
-            }),
-          }
-        }),
-      },
+      openstack: mockOpenstackSession,
       createSession: vi.fn(),
       terminateSession: vi.fn(),
-      rescopeSession: vi.fn(),
+      rescopeSession: vi.fn().mockResolvedValue(mockOpenstackSession),
     } as unknown as AuroraPortalContext
   }
 
@@ -812,44 +847,46 @@ describe("securityGroupRouter.update", () => {
       security_group_rules: [],
     }
 
+    const mockOpenstackSession = {
+      service: vi.fn().mockImplementation((serviceName: string) => {
+        if (serviceName !== "network" || noNetworkService) {
+          return null
+        }
+
+        return {
+          put: vi.fn().mockImplementation(() => {
+            if (responseStatus === 200) {
+              return Promise.resolve({
+                ok: true,
+                status: responseStatus,
+                json: vi.fn().mockResolvedValue({
+                  security_group: mockUpdatedSecurityGroup,
+                }),
+              })
+            }
+
+            // Mock error responses
+            return Promise.resolve({
+              ok: false,
+              status: responseStatus,
+              statusText:
+                responseStatus === 404
+                  ? "Not Found"
+                  : responseStatus === 409
+                    ? "Cannot update stateful attribute while in use"
+                    : "Error",
+            })
+          }),
+        }
+      }),
+    }
+
     return {
       validateSession: vi.fn().mockReturnValue(!invalidSession),
-      openstack: {
-        service: vi.fn().mockImplementation((serviceName: string) => {
-          if (serviceName !== "network" || noNetworkService) {
-            return null
-          }
-
-          return {
-            put: vi.fn().mockImplementation(() => {
-              if (responseStatus === 200) {
-                return Promise.resolve({
-                  ok: true,
-                  status: responseStatus,
-                  json: vi.fn().mockResolvedValue({
-                    security_group: mockUpdatedSecurityGroup,
-                  }),
-                })
-              }
-
-              // Mock error responses
-              return Promise.resolve({
-                ok: false,
-                status: responseStatus,
-                statusText:
-                  responseStatus === 404
-                    ? "Not Found"
-                    : responseStatus === 409
-                      ? "Cannot update stateful attribute while in use"
-                      : "Error",
-              })
-            }),
-          }
-        }),
-      },
+      openstack: mockOpenstackSession,
       createSession: vi.fn(),
       terminateSession: vi.fn(),
-      rescopeSession: vi.fn(),
+      rescopeSession: vi.fn().mockResolvedValue(mockOpenstackSession),
     } as unknown as AuroraPortalContext
   }
 

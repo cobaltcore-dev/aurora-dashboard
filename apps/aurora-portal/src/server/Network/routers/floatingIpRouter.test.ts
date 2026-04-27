@@ -109,25 +109,27 @@ const createMockContext = (opts?: {
     })
   })
 
+  const mockOpenstackSession = {
+    service: vi.fn().mockImplementation((serviceName: string) => {
+      if (serviceName !== "network" || noNetworkService) {
+        return null
+      }
+
+      return {
+        get: networkGetMock,
+        post: networkPostMock,
+        put: networkPutMock,
+        del: networkDelMock,
+      }
+    }),
+  }
+
   return {
     validateSession: vi.fn().mockReturnValue(!invalidSession),
-    openstack: {
-      service: vi.fn().mockImplementation((serviceName: string) => {
-        if (serviceName !== "network" || noNetworkService) {
-          return null
-        }
-
-        return {
-          get: networkGetMock,
-          post: networkPostMock,
-          put: networkPutMock,
-          del: networkDelMock,
-        }
-      }),
-    },
+    openstack: mockOpenstackSession,
     createSession: vi.fn(),
     terminateSession: vi.fn(),
-    rescopeSession: vi.fn().mockResolvedValue(!invalidSession ? {} : null),
+    rescopeSession: vi.fn().mockResolvedValue(!invalidSession ? mockOpenstackSession : null),
     getMultipartData: vi.fn(),
     __networkGetMock: networkGetMock,
     __networkPostMock: networkPostMock,
@@ -287,30 +289,33 @@ describe("floatingIpRouter.list", () => {
   })
 
   it("returns empty array when no floating IPs exist", async () => {
+    const mockOpenstackSession = {
+      service: vi.fn().mockImplementation((serviceName: string) => {
+        if (serviceName !== "network") {
+          return null
+        }
+
+        return {
+          get: vi.fn().mockResolvedValue({
+            ok: true,
+            status: 200,
+            statusText: "OK",
+            json: vi.fn().mockResolvedValue({
+              floatingips: [],
+            }),
+          }),
+          del: vi.fn().mockResolvedValue({
+            ok: true,
+            status: 204,
+          }),
+        }
+      }),
+    }
+
     const ctx = {
       ...createMockContext(),
-      openstack: {
-        service: vi.fn().mockImplementation((serviceName: string) => {
-          if (serviceName !== "network") {
-            return null
-          }
-
-          return {
-            get: vi.fn().mockResolvedValue({
-              ok: true,
-              status: 200,
-              statusText: "OK",
-              json: vi.fn().mockResolvedValue({
-                floatingips: [],
-              }),
-            }),
-            del: vi.fn().mockResolvedValue({
-              ok: true,
-              status: 204,
-            }),
-          }
-        }),
-      },
+      openstack: mockOpenstackSession,
+      rescopeSession: vi.fn().mockResolvedValue(mockOpenstackSession),
     } as unknown as AuroraPortalContext
 
     const caller = createCaller(ctx)

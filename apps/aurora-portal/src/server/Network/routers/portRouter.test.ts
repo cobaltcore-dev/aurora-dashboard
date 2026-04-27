@@ -46,22 +46,24 @@ const createMockContext = (opts?: {
     })
   })
 
+  const mockOpenstackSession = {
+    service: vi.fn().mockImplementation((serviceName: string) => {
+      if (serviceName !== "network" || noNetworkService) {
+        return null
+      }
+
+      return {
+        get: networkGetMock,
+      }
+    }),
+  }
+
   return {
     validateSession: vi.fn().mockReturnValue(!invalidSession),
-    openstack: {
-      service: vi.fn().mockImplementation((serviceName: string) => {
-        if (serviceName !== "network" || noNetworkService) {
-          return null
-        }
-
-        return {
-          get: networkGetMock,
-        }
-      }),
-    },
+    openstack: mockOpenstackSession,
     createSession: vi.fn(),
     terminateSession: vi.fn(),
-    rescopeSession: vi.fn(),
+    rescopeSession: vi.fn().mockResolvedValue(mockOpenstackSession),
     __networkGetMock: networkGetMock,
   } as unknown as AuroraPortalContext & {
     __networkGetMock: typeof networkGetMock

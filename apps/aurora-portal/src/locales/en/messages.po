@@ -1285,9 +1285,6 @@ msgstr "Ingress"
 msgid "Inside a project, objects are stored in containers. Containers are where you define access permissions and quotas."
 msgstr "Inside a project, objects are stored in containers. Containers are where you define access permissions and quotas."
 
-msgid "Instances"
-msgstr "Instances"
-
 msgid "Invalid file format. Supported formats: {supportedFileFormats}"
 msgstr "Invalid file format. Supported formats: {supportedFileFormats}"
 
@@ -1302,6 +1299,9 @@ msgstr "Invalid value for public flavor setting."
 
 msgid "IP Version"
 msgstr "IP Version"
+
+msgid "IP:"
+msgstr "IP:"
 
 msgid "IPv4"
 msgstr "IPv4"
@@ -1338,9 +1338,6 @@ msgstr "Key must contain at least one alphanumeric character"
 
 msgid "Key Name"
 msgstr "Key Name"
-
-msgid "Key Pairs"
-msgstr "Key Pairs"
 
 msgid "Last Modified"
 msgstr "Last Modified"
@@ -1768,6 +1765,9 @@ msgstr "or drag and drop"
 msgid "Our Mission"
 msgstr "Our Mission"
 
+msgid "Overview"
+msgstr "Overview"
+
 msgid "Owner"
 msgstr "Owner"
 
@@ -2115,9 +2115,6 @@ msgstr "Server error occurred while fetching flavor details. Please try again la
 
 msgid "Server error occurred while removing tenant access. Please try again later."
 msgstr "Server error occurred while removing tenant access. Please try again later."
-
-msgid "Server Groups"
-msgstr "Server Groups"
 
 msgid "Server is experiencing issues. Please try again later."
 msgstr "Server is experiencing issues. Please try again later."

@@ -633,7 +633,6 @@ describe("OpenStack Floating IP Schema Validation", () => {
 
     it("should reject request without project_id", () => {
       const request = {
-        project_id: "test-project",
         tenant_id: "tenant-1",
         floating_network_id: "376da547-b977-4cfe-9cba-275c80debf57",
       }
@@ -644,14 +643,14 @@ describe("OpenStack Floating IP Schema Validation", () => {
 
   describe("FloatingIpQueryParametersSchema", () => {
     it("should validate empty query parameters (all optional)", () => {
-      expect(FloatingIpQueryParametersSchema.safeParse({}).success).toBe(true)
+      expect(FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project" }).success).toBe(true)
     })
 
     it("should validate query with single filter", () => {
-      expect(FloatingIpQueryParametersSchema.safeParse({ id: "fip-123" }).success).toBe(true)
-      expect(FloatingIpQueryParametersSchema.safeParse({ floating_ip_address: "203.0.113.10" }).success).toBe(true)
-      expect(FloatingIpQueryParametersSchema.safeParse({ status: "ACTIVE" }).success).toBe(true)
-      expect(FloatingIpQueryParametersSchema.safeParse({ searchTerm: "web" }).success).toBe(true)
+      expect(FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", id: "fip-123" }).success).toBe(true)
+      expect(FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", floating_ip_address: "203.0.113.10" }).success).toBe(true)
+      expect(FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", status: "ACTIVE" }).success).toBe(true)
+      expect(FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", searchTerm: "web" }).success).toBe(true)
     })
 
     it("should validate query with multiple filters", () => {
@@ -664,18 +663,18 @@ describe("OpenStack Floating IP Schema Validation", () => {
     })
 
     it("should validate nullable router_id filter", () => {
-      expect(FloatingIpQueryParametersSchema.safeParse({ router_id: null }).success).toBe(true)
-      expect(FloatingIpQueryParametersSchema.safeParse({ router_id: "router-1" }).success).toBe(true)
+      expect(FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", router_id: null }).success).toBe(true)
+      expect(FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", router_id: "router-1" }).success).toBe(true)
     })
 
     it("should validate nullable port_id filter", () => {
-      expect(FloatingIpQueryParametersSchema.safeParse({ port_id: null }).success).toBe(true)
-      expect(FloatingIpQueryParametersSchema.safeParse({ port_id: "port-123" }).success).toBe(true)
+      expect(FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", port_id: null }).success).toBe(true)
+      expect(FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", port_id: "port-123" }).success).toBe(true)
     })
 
     it("should validate sort parameters", () => {
-      expect(FloatingIpQueryParametersSchema.safeParse({ sort_dir: "asc" }).success).toBe(true)
-      expect(FloatingIpQueryParametersSchema.safeParse({ sort_dir: "desc" }).success).toBe(true)
+      expect(FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", sort_dir: "asc" }).success).toBe(true)
+      expect(FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", sort_dir: "desc" }).success).toBe(true)
     })
 
     it("should reject invalid sort_dir", () => {
@@ -694,50 +693,51 @@ describe("OpenStack Floating IP Schema Validation", () => {
         "project_id",
       ]
       validSortKeys.forEach((key) => {
-        expect(FloatingIpQueryParametersSchema.safeParse({ sort_key: key }).success).toBe(true)
+        expect(FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", sort_key: key }).success).toBe(true)
       })
     })
 
     it("should reject invalid sort_key", () => {
-      expect(FloatingIpQueryParametersSchema.safeParse({ sort_key: "invalid_key" }).success).toBe(false)
+      expect(FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", sort_key: "invalid_key" }).success).toBe(false)
     })
 
     it("should validate tag filters", () => {
-      expect(FloatingIpQueryParametersSchema.safeParse({ tags: ["tag1", "tag2"] }).success).toBe(true)
-      expect(FloatingIpQueryParametersSchema.safeParse({ "tags-any": "tag1,tag2" }).success).toBe(true)
-      expect(FloatingIpQueryParametersSchema.safeParse({ "not-tags": "tag1,tag2" }).success).toBe(true)
-      expect(FloatingIpQueryParametersSchema.safeParse({ "not-tags-any": "tag1,tag2" }).success).toBe(true)
+      expect(FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", tags: ["tag1", "tag2"] }).success).toBe(true)
+      expect(FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", "tags-any": "tag1,tag2" }).success).toBe(true)
+      expect(FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", "not-tags": "tag1,tag2" }).success).toBe(true)
+      expect(FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", "not-tags-any": "tag1,tag2" }).success).toBe(true)
     })
 
     it("should validate tags as array of strings", () => {
-      expect(FloatingIpQueryParametersSchema.safeParse({ tags: [] }).success).toBe(true)
-      expect(FloatingIpQueryParametersSchema.safeParse({ tags: ["production"] }).success).toBe(true)
-      expect(FloatingIpQueryParametersSchema.safeParse({ tags: ["prod", "web", "critical"] }).success).toBe(true)
+      expect(FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", tags: [] }).success).toBe(true)
+      expect(FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", tags: ["production"] }).success).toBe(true)
+      expect(FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", tags: ["prod", "web", "critical"] }).success).toBe(true)
     })
 
     it("should reject tags as non-array type", () => {
-      expect(FloatingIpQueryParametersSchema.safeParse({ tags: "production" }).success).toBe(false)
+      expect(FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", tags: "production" }).success).toBe(false)
     })
 
     it("should validate nullable description filter", () => {
-      expect(FloatingIpQueryParametersSchema.safeParse({ description: null }).success).toBe(true)
-      expect(FloatingIpQueryParametersSchema.safeParse({ description: "Test" }).success).toBe(true)
+      expect(FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", description: null }).success).toBe(true)
+      expect(FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", description: "Test" }).success).toBe(true)
     })
 
     it("should validate fields parameter as string", () => {
-      expect(FloatingIpQueryParametersSchema.safeParse({ fields: "id,floating_ip_address" }).success).toBe(true)
+      expect(FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", fields: "id,floating_ip_address" }).success).toBe(true)
     })
 
     it("should validate fields parameter as array", () => {
-      expect(FloatingIpQueryParametersSchema.safeParse({ fields: ["id", "floating_ip_address"] }).success).toBe(true)
+      expect(FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", fields: ["id", "floating_ip_address"] }).success).toBe(true)
     })
 
     it("should reject fields parameter with invalid type", () => {
-      expect(FloatingIpQueryParametersSchema.safeParse({ fields: 123 }).success).toBe(false)
+      expect(FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", fields: 123 }).success).toBe(false)
     })
 
     it("should validate pagination parameters", () => {
       const query = {
+        project_id: "test-project",
         limit: 50,
         marker: "fip-last",
         page_reverse: false,
@@ -746,8 +746,8 @@ describe("OpenStack Floating IP Schema Validation", () => {
     })
 
     it("should validate page_reverse as boolean", () => {
-      expect(FloatingIpQueryParametersSchema.safeParse({ page_reverse: true }).success).toBe(true)
-      expect(FloatingIpQueryParametersSchema.safeParse({ page_reverse: false }).success).toBe(true)
+      expect(FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", page_reverse: true }).success).toBe(true)
+      expect(FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", page_reverse: false }).success).toBe(true)
     })
 
     it("should validate complete query with all parameters", () => {
@@ -778,29 +778,30 @@ describe("OpenStack Floating IP Schema Validation", () => {
     })
 
     it("should validate status filter with all valid values", () => {
-      expect(FloatingIpQueryParametersSchema.safeParse({ status: "ACTIVE" }).success).toBe(true)
-      expect(FloatingIpQueryParametersSchema.safeParse({ status: "DOWN" }).success).toBe(true)
-      expect(FloatingIpQueryParametersSchema.safeParse({ status: "ERROR" }).success).toBe(true)
+      expect(FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", status: "ACTIVE" }).success).toBe(true)
+      expect(FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", status: "DOWN" }).success).toBe(true)
+      expect(FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", status: "ERROR" }).success).toBe(true)
     })
 
     it("should reject invalid status filter", () => {
-      expect(FloatingIpQueryParametersSchema.safeParse({ status: "INVALID" }).success).toBe(false)
+      expect(FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", status: "INVALID" }).success).toBe(false)
     })
 
     it("should validate revision_number as number", () => {
-      expect(FloatingIpQueryParametersSchema.safeParse({ revision_number: 0 }).success).toBe(true)
-      expect(FloatingIpQueryParametersSchema.safeParse({ revision_number: 999 }).success).toBe(true)
+      expect(FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", revision_number: 0 }).success).toBe(true)
+      expect(FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", revision_number: 999 }).success).toBe(true)
     })
 
     it("should validate limit as number", () => {
-      expect(FloatingIpQueryParametersSchema.safeParse({ limit: 1 }).success).toBe(true)
-      expect(FloatingIpQueryParametersSchema.safeParse({ limit: 1000 }).success).toBe(true)
+      expect(FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", limit: 1 }).success).toBe(true)
+      expect(FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", limit: 1000 }).success).toBe(true)
     })
 
     it("should validate real-world filtering scenarios", () => {
       // Find unassociated floating IPs
       expect(
         FloatingIpQueryParametersSchema.safeParse({
+          project_id: "test-project",
           router_id: null,
           port_id: null,
           status: "DOWN" as const,
@@ -819,6 +820,7 @@ describe("OpenStack Floating IP Schema Validation", () => {
       // Find floating IPs by network
       expect(
         FloatingIpQueryParametersSchema.safeParse({
+          project_id: "test-project",
           floating_network_id: "net-external-1",
           limit: 50,
         }).success
@@ -827,6 +829,7 @@ describe("OpenStack Floating IP Schema Validation", () => {
       // Find active floating IPs with tags
       expect(
         FloatingIpQueryParametersSchema.safeParse({
+          project_id: "test-project",
           status: "ACTIVE" as const,
           tags: ["production"],
         }).success

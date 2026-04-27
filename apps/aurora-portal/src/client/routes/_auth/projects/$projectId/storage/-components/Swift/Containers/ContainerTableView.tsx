@@ -51,8 +51,8 @@ export const ContainerTableView = ({
   onAclSuccess,
   onAclError,
 }: ContainerTableViewProps) => {
-  const { accountId, projectId, provider } = useParams({
-    from: "/_auth/accounts/$accountId/projects/$projectId/storage/$provider/containers/",
+  const { projectId, provider } = useParams({
+    from: "/_auth/projects/$projectId/storage/$provider/containers/",
   })
 
   const { t } = useLingui()
@@ -168,8 +168,8 @@ export const ContainerTableView = ({
 
               const handleRowNavigate = () =>
                 navigate({
-                  to: "/accounts/$accountId/projects/$projectId/storage/$provider/containers/$containerName/objects",
-                  params: { accountId, projectId, provider, containerName: container.name },
+                  to: "/projects/$projectId/storage/$provider/containers/$containerName/objects",
+                  params: { projectId, provider, containerName: container.name },
                 })
 
               return (

@@ -32,10 +32,12 @@ export const floatingIpRouter = {
     .input(FloatingIpQueryParametersSchema)
     .query(async ({ input, ctx }): Promise<FloatingIp[]> => {
       return withErrorHandling(async () => {
-        const { searchTerm, ...queryInput } = input
+        // Extract project_id and searchTerm - they're used for rescoping/filtering, not for OpenStack API
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { searchTerm, project_id, ...openstackFilters } = input
         const network = getNetworkService(ctx)
 
-        const queryParams = appendQueryParamsFromObject(queryInput)
+        const queryParams = appendQueryParamsFromObject(openstackFilters)
 
         const queryString = queryParams.toString()
         const url = queryString ? `${FLOATING_IPS_BASE_URL}?${queryString}` : FLOATING_IPS_BASE_URL

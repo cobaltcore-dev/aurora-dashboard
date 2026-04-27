@@ -61,22 +61,24 @@ const createMockContext = (opts?: {
     })
   })
 
+  const mockOpenstackSession = {
+    service: vi.fn().mockImplementation((serviceName: string) => {
+      if (serviceName !== "network" || noNetworkService) {
+        return null
+      }
+
+      return {
+        get: networkGetMock,
+      }
+    }),
+  }
+
   return {
     validateSession: vi.fn().mockReturnValue(!invalidSession),
-    openstack: {
-      service: vi.fn().mockImplementation((serviceName: string) => {
-        if (serviceName !== "network" || noNetworkService) {
-          return null
-        }
-
-        return {
-          get: networkGetMock,
-        }
-      }),
-    },
+    openstack: mockOpenstackSession,
     createSession: vi.fn(),
     terminateSession: vi.fn(),
-    rescopeSession: vi.fn(),
+    rescopeSession: vi.fn().mockResolvedValue(mockOpenstackSession),
     __networkGetMock: networkGetMock,
   } as unknown as AuroraPortalContext & {
     __networkGetMock: typeof networkGetMock
@@ -126,7 +128,7 @@ describe("networkRouter.listExternalNetworks", () => {
     const params = new URLSearchParams(query)
     expect(params.get("router:external")).toBe("true")
     expect(params.get("name")).toBe("public-network")
-    expect(params.get("project_id")).toBe("test-project")
+    expect(params.get("project_id")).toBe(null) // project_id is not sent to OpenStack API
     expect(params.get("sort_dir")).toBe("asc")
     expect(params.get("fields")).toBe("id")
   })
@@ -222,7 +224,7 @@ describe("networkRouter.listDnsDomains", () => {
 
     const params = new URLSearchParams(query)
     expect(params.get("fields")).toBe("dns_domain")
-    expect(params.get("project_id")).toBe("project-1")
+    expect(params.get("project_id")).toBe(null) // project_id is not sent to OpenStack API
     expect(params.get("tenant_id")).toBe("tenant-1")
     expect(params.get("router:external")).toBe("true")
   })

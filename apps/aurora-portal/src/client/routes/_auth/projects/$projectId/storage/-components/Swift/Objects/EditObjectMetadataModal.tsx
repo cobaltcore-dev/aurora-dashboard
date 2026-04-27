@@ -104,7 +104,7 @@ export const EditObjectMetadataModal = ({
 }: EditObjectMetadataModalProps) => {
   const { t } = useLingui()
   const { containerName } = useParams({
-    from: "/_auth/accounts/$accountId/projects/$projectId/storage/$provider/containers/$containerName/objects/",
+    from: "/_auth/projects/$projectId/storage/$provider/containers/$containerName/objects/",
   })
 
   const utils = trpcReact.useUtils()
