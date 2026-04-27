@@ -14,6 +14,8 @@ import { Trans, useLingui } from "@lingui/react/macro"
 import { getServiceIndex } from "@/server/Authentication/helpers"
 import { trpcReact } from "@/client/trpcClient"
 import { FlavorDetailsView } from "./-components/FlavorDetailsView"
+import { StatusError } from "@/client/components/Error/StatusError"
+import { useErrorTranslation } from "@/client/utils/useErrorTranslation"
 import { EditSpecModal } from "../-components/Flavors/-components/EditSpecModal"
 import { ManageAccessModal } from "../-components/Flavors/-components/ManageAccessModal"
 import { DeleteFlavorModal } from "../-components/Flavors/-components/DeleteFlavorModal"
@@ -46,6 +48,7 @@ function RouteComponent() {
   const { setPageTitle, trpcClient } = Route.useRouteContext()
   const navigate = useNavigate()
   const { t } = useLingui()
+  const { translateError, isRetryableError } = useErrorTranslation()
 
   const {
     data: flavor,
@@ -89,6 +92,13 @@ function RouteComponent() {
     })
   }
 
+  const handleHome = () => {
+    navigate({
+      to: "/projects/$projectId/compute/overview",
+      params: { projectId },
+    })
+  }
+
   const handleRetry = () => {
     refetch()
   }
@@ -103,34 +113,39 @@ function RouteComponent() {
   }
 
   if (status === "error") {
+    const errorCode = error?.message || "UNKNOWN_ERROR"
+    const translatedError = translateError(errorCode)
+    const canRetry = isRetryableError(errorCode)
+
+    const getStatusCode = (code: string): number | undefined => {
+      if (code.includes("UNAUTHORIZED")) return 401
+      if (code.includes("FORBIDDEN")) return 403
+      if (code.includes("NOT_FOUND")) return 404
+      if (code.includes("SERVER_ERROR")) return 500
+      return undefined
+    }
+
     return (
-      <Stack className="fixed inset-0" distribution="center" alignment="center" direction="vertical" gap="5">
-        <p className="text-theme-error font-semibold">
-          <Trans>Error loading flavor</Trans>
-        </p>
-        <p className="text-theme-highest">{error?.message || "Unknown error"}</p>
-        <ButtonRow>
-          <Button onClick={handleBack} variant="subdued">
-            <Trans>Back to Flavors</Trans>
-          </Button>
-          <Button onClick={handleRetry} variant="primary">
-            <Trans>Retry</Trans>
-          </Button>
-        </ButtonRow>
-      </Stack>
+      <StatusError
+        message={translatedError}
+        statusCode={getStatusCode(errorCode)}
+        title={t`Error Loading Flavor`}
+        onBackClick={handleBack}
+        onHomeClick={handleHome}
+        reset={canRetry ? handleRetry : undefined}
+      />
     )
   }
 
   if (!flavor) {
     return (
-      <Stack className="fixed inset-0" distribution="center" alignment="center" direction="vertical" gap="5">
-        <p className="text-theme-highest">
-          <Trans>Flavor not found</Trans>
-        </p>
-        <Button onClick={handleBack} variant="primary">
-          <Trans>Back to Flavors</Trans>
-        </Button>
-      </Stack>
+      <StatusError
+        message={t`The requested flavor could not be found. It may have been deleted or you may not have access to it.`}
+        statusCode={404}
+        title={t`Flavor Not Found`}
+        onBackClick={handleBack}
+        onHomeClick={handleHome}
+      />
     )
   }
 

@@ -1,4 +1,5 @@
 import type { CreateFastifyContextOptions } from "@trpc/server/adapters/fastify"
+import type { FastifyRequest } from "fastify"
 import { SignalOpenstackSession, SignalOpenstackSessionType } from "@cobaltcore-dev/signal-openstack"
 import { SessionCookie } from "./sessionCookie"
 import * as dotenv from "dotenv"
@@ -50,33 +51,19 @@ const defaultSignalOpenstackOptions = {
 // 4. This ensures each HTTP response gets the correct Set-Cookie header
 const sessionRescopes = new Map<string, Map<string, Promise<string | null>>>()
 
-export interface FilePartData {
-  filename: string
-  mimetype: string
-  encoding: string
-  file: NodeJS.ReadableStream
-}
-
 export interface FormFieldData {
   [key: string]: string | string[]
 }
 
 export interface AuroraPortalContext extends AuroraContext {
+  req: FastifyRequest
   createSession: (params: { user: string; password: string; domain: string }) => SignalOpenstackSessionType
   rescopeSession: (scope: {
     projectId?: string
     domainId?: string
   }) => Promise<Awaited<SignalOpenstackSessionType | null>>
   terminateSession: () => Promise<void>
-  // Stream-based multipart data
-  getMultipartData: () => AsyncGenerator<
-    | { type: "field"; fieldname: string; value: string }
-    | { type: "file"; filename: string; mimetype: string; encoding: string; file: NodeJS.ReadableStream },
-    void,
-    unknown
-  >
   formFields?: FormFieldData
-  uploadedFileStream?: FilePartData
 }
 
 export async function createContext(opts: CreateFastifyContextOptions): Promise<AuroraPortalContext> {
@@ -346,47 +333,13 @@ export async function createContext(opts: CreateFastifyContextOptions): Promise<
     }
   }
 
-  // Lazy multipart parsing - returns async generator
-  // This allows consuming parts on-demand without buffering
-  // TODO: Add first-class support for multipart/form-data requests, enabling FormData inputs (e.g., for file uploads)
-  // to be passed through and processed reliably with Fastify-based servers.
-  // fix(server): fastify form-data type #6974: https://github.com/trpc/trpc/pull/6974
-  // https://github.com/trpc/trpc/releases/tag/v11.8.1
-  const getMultipartData = async function* () {
-    const contentType = opts.req.headers["content-type"] || ""
-
-    // Only parse multipart if content-type indicates it
-    if (!contentType.includes("multipart")) {
-      return
-    }
-
-    // Iterate through all parts of the multipart request
-    for await (const part of opts.req.parts()) {
-      if (part.type === "field") {
-        yield {
-          type: "field" as const,
-          fieldname: part.fieldname,
-          value: String(part.value), // Cast unknown to string
-        }
-      } else if (part.type === "file") {
-        yield {
-          type: "file" as const,
-          filename: part.filename,
-          mimetype: part.mimetype,
-          encoding: part.encoding,
-          file: part.file as NodeJS.ReadableStream, // Cast BusboyFileStream to NodeJS.ReadableStream
-        }
-      }
-    }
-  }
-
   return {
+    req: opts.req,
     createSession,
     rescopeSession,
     terminateSession,
     validateSession,
     openstack: openstackSession,
-    getMultipartData,
     getUserInfo,
   }
 }

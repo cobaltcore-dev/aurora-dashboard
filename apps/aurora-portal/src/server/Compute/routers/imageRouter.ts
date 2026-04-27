@@ -4,7 +4,8 @@ import { TRPCError } from "@trpc/server"
 import { filterBySearchParams } from "@/server/helpers/filterBySearchParams"
 import EventEmitter from "node:events"
 import { Readable, Transform } from "node:stream"
-import { projectScopedProcedure } from "../../trpc"
+import { projectScopedProcedure, protectedProcedure } from "../../trpc"
+import { octetInputParser } from "@trpc/server/http"
 import {
   applyImageQueryParams,
   validateGlanceService,
@@ -349,42 +350,30 @@ export const imageRouter = {
       }, "create image")
     }),
 
-  uploadImage: projectScopedProcedure.mutation(async ({ ctx }): Promise<{ success: boolean; imageId: string }> => {
-    return withErrorHandling(async () => {
-      const glance = ctx.openstack?.service("glance")
+  uploadImage: protectedProcedure
+    .input(octetInputParser)
+    .mutation(async ({ input, ctx }): Promise<{ success: boolean; imageId: string }> => {
+      return withErrorHandling(async () => {
+        const glance = ctx.openstack?.service("glance")
 
-      // Validate Glance service is available
-      validateGlanceService(glance)
+        // Validate Glance service is available
+        validateGlanceService(glance)
 
-      const parts = ctx.getMultipartData()
-      let imageId: string | undefined
-      let fileSize: number | undefined
-      let fileStream: NodeJS.ReadableStream | undefined
-      const metadata: Record<string, string> = {}
+        // Metadata arrives as custom headers — the body is the raw file stream.
+        // octetInputParser passes the request body as a true ReadableStream without buffering.
+        const headers = ctx.req.headers
+        const imageId = headers["x-upload-id"] as string | undefined
+        const fileSize = headers["x-upload-size"] ? parseInt(headers["x-upload-size"] as string, 10) : undefined
 
-      // Consume parts one by one
-      for await (const part of parts) {
-        if (part.type === "field") {
-          switch (part.fieldname) {
-            case "imageId":
-              imageId = part.value
-              break
-            case "fileSize":
-              fileSize = parseInt(part.value, 10)
-              break
-            default:
-              metadata[part.fieldname] = part.value
-          }
-        } else if (part.type === "file") {
-          fileStream = part.file
-          // Note: We break here because we found the file
-          // The file is expected to be the last part in the multipart form data (FormData append order is preserved)
-          break
-        }
-      }
+        // input is a Web ReadableStream — convert to Node.js Readable for .pipe()
+        const fileStream = Readable.fromWeb(input as import("stream/web").ReadableStream)
 
-      // Validate required inputs (imageId, file size and type)
-      const { validatedImageId, validatedFileSize, validatedFile } = validateUploadInput(imageId, fileSize, fileStream)
+        // Validate required inputs (imageId, file size and type)
+        const { validatedImageId, validatedFileSize, validatedFile } = validateUploadInput(
+          imageId,
+          fileSize,
+          fileStream
+        )
 
       // Initialize progress tracking
       uploadProgress.set(validatedImageId, {
@@ -423,11 +412,19 @@ export const imageRouter = {
         const webStream = Readable.toWeb(trackedStream)
 
         // Upload to Glance with progress tracking
-        await glance.put(`v2/images/${validatedImageId}/file`, webStream, {
+        const uploadResponse = await glance.put(`v2/images/${validatedImageId}/file`, webStream, {
           headers: {
             "Content-Type": "application/octet-stream",
           },
         })
+
+        if (!uploadResponse?.ok) {
+          throw ImageErrorHandlers.upload(
+            uploadResponse as unknown as SignalOpenstackApiError,
+            validatedImageId,
+            "application/octet-stream"
+          )
+        }
 
         // Emit completion event
         uploadProgressEmitter.emit(`progress:${validatedImageId}:complete`)
@@ -440,7 +437,11 @@ export const imageRouter = {
         // Emit error event for subscriptions
         uploadProgressEmitter.emit(`progress:${validatedImageId}:error`, error)
 
-        throw ImageErrorHandlers.upload(error as SignalOpenstackApiError, validatedImageId, "application/octet-stream")
+        throw ImageErrorHandlers.upload(
+          error as SignalOpenstackApiError,
+          validatedImageId,
+          "application/octet-stream"
+        )
       } finally {
         // Always cleanup progress tracking
         uploadProgress.delete(validatedImageId)

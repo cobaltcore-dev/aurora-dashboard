@@ -69,7 +69,6 @@ const createMockContext = (opts?: {
     }),
     createSession: vi.fn(),
     terminateSession: vi.fn(),
-    getMultipartData: vi.fn(),
   } as unknown as AuroraPortalContext
 }
 

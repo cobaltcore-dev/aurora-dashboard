@@ -29,7 +29,7 @@ export const FloatingIpTableRow = ({ floatingIp }: FloatingIpTableRowProps) => {
   }
 
   return (
-    <DataGridRow key={floatingIp.id} data-testid={`floating-ip-row-${floatingIp.id}`}>
+    <DataGridRow key={floatingIp.id} data-testid={`floating-ip-row-${floatingIp.id}`} onClick={navigateToDetailsPage}>
       <DataGridCell>
         <div className="flex items-center gap-2">
           {STATUS_CONFIG[floatingIp.status].icon}
@@ -40,7 +40,7 @@ export const FloatingIpTableRow = ({ floatingIp }: FloatingIpTableRowProps) => {
       <DataGridCell>{floatingIp.fixed_ip_address || "—"}</DataGridCell>
       <DataGridCell>{floatingIp.floating_network_id}</DataGridCell>
       <DataGridCell>{floatingIp.description || "—"}</DataGridCell>
-      <DataGridCell onClick={(e) => e.stopPropagation()}>
+      <DataGridCell onClick={(e) => e.stopPropagation()} className="items-end pr-0">
         <FloatingIpActionModals floatingIp={floatingIp}>
           {({ toggleEditModal, toggleAttachModal, toggleDetachModal, toggleReleaseModal }) => (
             <PopupMenu>

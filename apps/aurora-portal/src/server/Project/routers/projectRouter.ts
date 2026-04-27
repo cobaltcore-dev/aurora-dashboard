@@ -1,4 +1,5 @@
 import { z } from "zod"
+import { TRPCError } from "@trpc/server"
 import { protectedProcedure } from "../../trpc"
 import { Project, projectsResponseSchema } from "../types/models"
 
@@ -26,11 +27,16 @@ export const projectRouter = {
       })
     )
     .query(async ({ ctx, input }): Promise<Project[] | undefined> => {
-      const identityService = ctx.openstack?.service("identity")
+      if (!ctx.openstack?.hasService("identity")) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Identity service is not available in the service catalog" })
+      }
+
+      const identityService = ctx.openstack.service("identity")
 
       const parsedData = projectsResponseSchema.safeParse(
-        await identityService?.get("auth/projects").then((res) => res.json())
+        await identityService.get("auth/projects").then((res) => res.json())
       )
+
       if (!parsedData.success) {
         console.error("Zod Parsing Error:", parsedData.error.format())
         return undefined

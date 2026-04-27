@@ -19,7 +19,6 @@ import {
   // Object schemas
   objectSummarySchema,
   objectMetadataSchema,
-  createObjectInputSchema,
   updateObjectMetadataInputSchema,
   copyObjectInputSchema,
   deleteObjectInputSchema,
@@ -541,96 +540,6 @@ describe("Swift Object Storage Schema Validation", () => {
       })
     })
 
-    describe("createObjectInputSchema", () => {
-      it("should validate with ArrayBuffer", () => {
-        const buffer = new ArrayBuffer(1024)
-        const input = {
-          container: containerName,
-          object: objectName,
-          content: buffer,
-        }
-        const result = createObjectInputSchema.safeParse(input)
-        expect(result.success).toBe(true)
-      })
-
-      it("should validate with Uint8Array", () => {
-        const array = new Uint8Array(1024)
-        const input = {
-          container: containerName,
-          object: objectName,
-          content: array,
-        }
-        const result = createObjectInputSchema.safeParse(input)
-        expect(result.success).toBe(true)
-      })
-
-      it("should validate with string (base64)", () => {
-        const input = {
-          container: containerName,
-          object: objectName,
-          content: "SGVsbG8gV29ybGQ=", // "Hello World" in base64
-        }
-        const result = createObjectInputSchema.safeParse(input)
-        expect(result.success).toBe(true)
-      })
-
-      it("should validate with all options", () => {
-        const input = {
-          container: containerName,
-          object: objectName,
-          content: new ArrayBuffer(1024),
-          contentType: "application/json",
-          contentEncoding: "gzip",
-          contentDisposition: "attachment; filename=data.json",
-          etag: "d41d8cd98f00b204e9800998ecf8427e",
-          deleteAt: 1735689600,
-          deleteAfter: 86400, // 24 hours
-          metadata: {
-            author: "John",
-            version: "2.0",
-          },
-          objectManifest: "/segments/prefix",
-          multipartManifest: "put" as const,
-          detectContentType: true,
-        }
-        const result = createObjectInputSchema.safeParse(input)
-        expect(result.success).toBe(true)
-      })
-
-      it("should validate copy operation", () => {
-        const input = {
-          container: containerName,
-          object: objectName,
-          content: "", // Empty for copy
-          copyFrom: "/source-container/source-object",
-          copyFromAccount: "AUTH_other-account",
-        }
-        const result = createObjectInputSchema.safeParse(input)
-        expect(result.success).toBe(true)
-      })
-
-      it("should validate symlink creation", () => {
-        const input = {
-          container: containerName,
-          object: "link-object",
-          content: "", // Empty for symlink
-          symlinkTarget: "/target-container/target-object",
-          symlinkTargetAccount: "AUTH_target-account",
-        }
-        const result = createObjectInputSchema.safeParse(input)
-        expect(result.success).toBe(true)
-      })
-
-      it("should reject missing content", () => {
-        const input = {
-          container: containerName,
-          object: objectName,
-        }
-        const result = createObjectInputSchema.safeParse(input)
-        expect(result.success).toBe(false)
-      })
-    })
-
     describe("copyObjectInputSchema", () => {
       it("should validate minimal copy", () => {
         const input = {
@@ -1032,45 +941,6 @@ describe("Swift Object Storage Schema Validation", () => {
       })
     })
 
-    describe("Binary Content Validation", () => {
-      it("should accept various binary content types", () => {
-        const buffer = new ArrayBuffer(1024)
-        const array = new Uint8Array(1024)
-        const base64 = "SGVsbG8gV29ybGQ="
-
-        const inputs = [
-          { container: containerName, object: "file1", content: buffer },
-          { container: containerName, object: "file2", content: array },
-          { container: containerName, object: "file3", content: base64 },
-        ]
-
-        for (const input of inputs) {
-          const result = createObjectInputSchema.safeParse(input)
-          expect(result.success).toBe(true)
-        }
-      })
-
-      it("should reject number as content", () => {
-        const input = {
-          container: containerName,
-          object: objectName,
-          content: 12345,
-        }
-        const result = createObjectInputSchema.safeParse(input)
-        expect(result.success).toBe(false)
-      })
-
-      it("should reject object as content", () => {
-        const input = {
-          container: containerName,
-          object: objectName,
-          content: { data: "test" },
-        }
-        const result = createObjectInputSchema.safeParse(input)
-        expect(result.success).toBe(false)
-      })
-    })
-
     describe("Metadata Record Validation", () => {
       it("should accept various string key-value pairs in metadata", () => {
         const input = {
@@ -1133,7 +1003,12 @@ describe("Swift Object Storage Schema Validation", () => {
 
   describe("downloadObjectInputSchema", () => {
     it("should validate valid input with required fields", () => {
-      const input = { container: "my-container", object: "folder/file.txt", filename: "file.txt" }
+      const input = {
+        container: "my-container",
+        object: "folder/file.txt",
+        filename: "file.txt",
+        downloadId: "my-container:folder/file.txt",
+      }
       expect(() => downloadObjectInputSchema.parse(input)).not.toThrow()
     })
 
@@ -1142,38 +1017,54 @@ describe("Swift Object Storage Schema Validation", () => {
         container: "my-container",
         object: "file.txt",
         filename: "file.txt",
+        downloadId: "my-container:file.txt",
         account: "AUTH_abc123",
       }
       expect(() => downloadObjectInputSchema.parse(input)).not.toThrow()
     })
 
     it("should reject missing container", () => {
-      const input = { object: "file.txt", filename: "file.txt" }
+      const input = { object: "file.txt", filename: "file.txt", downloadId: "c:file.txt" }
       expect(() => downloadObjectInputSchema.parse(input)).toThrow()
     })
 
     it("should reject missing object", () => {
-      const input = { container: "my-container", filename: "file.txt" }
+      const input = { container: "my-container", filename: "file.txt", downloadId: "my-container:file.txt" }
       expect(() => downloadObjectInputSchema.parse(input)).toThrow()
     })
 
     it("should allow missing filename", () => {
-      const input = { container: "my-container", object: "file.txt" }
+      const input = { container: "my-container", object: "file.txt", downloadId: "my-container:file.txt" }
       expect(() => downloadObjectInputSchema.parse(input)).not.toThrow()
     })
 
+    it("should reject missing downloadId", () => {
+      const input = { container: "my-container", object: "file.txt" }
+      expect(() => downloadObjectInputSchema.parse(input)).toThrow()
+    })
+
+    it("should reject empty downloadId", () => {
+      const input = { container: "my-container", object: "file.txt", downloadId: "" }
+      expect(() => downloadObjectInputSchema.parse(input)).toThrow()
+    })
+
+    it("should reject whitespace-only downloadId", () => {
+      const input = { container: "my-container", object: "file.txt", downloadId: "   " }
+      expect(() => downloadObjectInputSchema.parse(input)).toThrow()
+    })
+
     it("should reject empty object name", () => {
-      const input = { container: "my-container", object: "", filename: "file.txt" }
+      const input = { container: "my-container", object: "", filename: "file.txt", downloadId: "my-container:" }
       expect(() => downloadObjectInputSchema.parse(input)).toThrow()
     })
 
     it("should allow empty filename", () => {
-      const input = { container: "my-container", object: "file.txt", filename: "" }
+      const input = { container: "my-container", object: "file.txt", filename: "", downloadId: "my-container:file.txt" }
       expect(() => downloadObjectInputSchema.parse(input)).not.toThrow()
     })
 
     it("should strip unknown fields", () => {
-      const input = { container: "c", object: "o", filename: "f", extra: "ignored" }
+      const input = { container: "c", object: "o", filename: "f", downloadId: "c:o", extra: "ignored" }
       const result = downloadObjectInputSchema.parse(input)
       expect(result).not.toHaveProperty("extra")
     })

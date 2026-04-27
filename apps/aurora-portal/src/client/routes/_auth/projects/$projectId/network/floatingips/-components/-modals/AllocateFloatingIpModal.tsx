@@ -173,7 +173,8 @@ export const AllocateFloatingIpModal = ({ open, onClose }: AllocateFloatingIpMod
                   label={t`External Network`}
                   helptext={t`The ID of the network associated with the floating IP.`}
                   placeholder={t`Select an external network`}
-                  disabled={isPending || isExternalNetworksLoading || externalNetworks.length === 0}
+                  disabled={isPending || isExternalNetworksLoading}
+                  required
                   loading={isExternalNetworksLoading}
                 >
                   {externalNetworks.map(({ id, name }) => (
@@ -195,7 +196,7 @@ export const AllocateFloatingIpModal = ({ open, onClose }: AllocateFloatingIpMod
                   onChange={(value) => field.handleChange(typeof value === "string" ? value : "")}
                   label={t`DNS Domain`}
                   helptext={t`Select a DNS domain.`}
-                  disabled={isPending || isDnsDomainsLoading || dnsDomains.length === 0}
+                  disabled={isPending || isDnsDomainsLoading}
                   loading={isDnsDomainsLoading}
                 >
                   {dnsDomains.map((domain) => (

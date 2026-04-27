@@ -25,6 +25,9 @@ msgstr "\"{objectName}\" was successfully copied to {destination}."
 msgid "\"{objectName}\" was successfully moved to {destination}."
 msgstr "\"{objectName}\" was successfully moved to {destination}."
 
+msgid "\"{objectName}\" was successfully uploaded."
+msgstr "\"{objectName}\" was successfully uploaded."
+
 msgid "{allContainersCount} container"
 msgstr "{allContainersCount} container"
 
@@ -66,6 +69,9 @@ msgstr "<0>No Temp URL key configured.</0> A temporary URL key must be set at th
 
 msgid "<0>Optimized Scalability:</0> Built for businesses of all sizes, Aurora grows with you, supporting simple environments and intricate multi-cloud setups alike."
 msgstr "<0>Optimized Scalability:</0> Built for businesses of all sizes, Aurora grows with you, supporting simple environments and intricate multi-cloud setups alike."
+
+msgid "<0>Properties of</0> <1>{displayName}</1>"
+msgstr "<0>Properties of</0> <1>{displayName}</1>"
 
 msgid "<0>Secure & Reliable:</0> Your data and operations are safeguarded with enterprise-grade security and robust reliability."
 msgstr "<0>Secure & Reliable:</0> Your data and operations are safeguarded with enterprise-grade security and robust reliability."
@@ -226,8 +232,14 @@ msgstr "Already deactivated (will be skipped)"
 msgid "Already deactivated (will be skipped):"
 msgstr "Already deactivated (will be skipped):"
 
+msgid "An unexpected error occurred"
+msgstr "An unexpected error occurred"
+
 msgid "An unexpected error occurred. Please try again."
 msgstr "An unexpected error occurred. Please try again."
+
+msgid "Any file type"
+msgstr "Any file type"
 
 msgid "ANY referrer"
 msgstr "ANY referrer"
@@ -403,6 +415,9 @@ msgstr "Container:"
 msgid "Containers"
 msgstr "Containers"
 
+msgid "Content type"
+msgstr "Content type"
+
 msgid "Copied to clipboard!"
 msgstr "Copied to clipboard!"
 
@@ -460,11 +475,17 @@ msgstr "Could not empty container \"{containerName}\": {errorMessage}"
 msgid "Could not move \"{objectName}\": {errorMessage}"
 msgstr "Could not move \"{objectName}\": {errorMessage}"
 
+msgid "Could not update \"{objectName}\": {errorMessage}"
+msgstr "Could not update \"{objectName}\": {errorMessage}"
+
 msgid "Could not update ACLs for container \"{containerName}\": {errorMessage}"
 msgstr "Could not update ACLs for container \"{containerName}\": {errorMessage}"
 
 msgid "Could not update container \"{containerName}\": {errorMessage}"
 msgstr "Could not update container \"{containerName}\": {errorMessage}"
+
+msgid "Could not upload \"{objectName}\": {errorMessage}"
+msgstr "Could not upload \"{objectName}\": {errorMessage}"
 
 msgid "CPU"
 msgstr "CPU"
@@ -673,6 +694,9 @@ msgstr "Download {rowDisplayName}"
 msgid "Downloading..."
 msgstr "Downloading..."
 
+msgid "Drop your file here"
+msgstr "Drop your file here"
+
 msgid "Drop your image file here"
 msgstr "Drop your image file here"
 
@@ -741,6 +765,9 @@ msgstr "Enter a single port, or define a range by also filling \"Port (to)\". \"
 
 msgid "Enter a tag and press Enter or click Add"
 msgstr "Enter a tag and press Enter or click Add"
+
+msgid "Enter a timestamp like \"YYYY-MM-DD HH:mm:ss\" to schedule automatic deletion"
+msgstr "Enter a timestamp like \"YYYY-MM-DD HH:mm:ss\" to schedule automatic deletion"
 
 msgid "Enter a valid PQDN or FQDN (max 63 characters) to associate with the floating IP. A and PTR records are created automatically."
 msgstr "Enter a valid PQDN or FQDN (max 63 characters) to associate with the floating IP. A and PTR records are created automatically."
@@ -819,6 +846,12 @@ msgstr "Error loading security group"
 
 msgid "Ethertype"
 msgstr "Ethertype"
+
+msgid "Expected format: YYYY-MM-DD HH:MM:SS"
+msgstr "Expected format: YYYY-MM-DD HH:MM:SS"
+
+msgid "Expires at (UTC)"
+msgstr "Expires at (UTC)"
 
 msgid "Expires in"
 msgstr "Expires in"
@@ -982,6 +1015,12 @@ msgstr "Failed to Update Container"
 msgid "Failed to update container: {errorMessage}"
 msgstr "Failed to update container: {errorMessage}"
 
+msgid "Failed to Update Object"
+msgstr "Failed to Update Object"
+
+msgid "Failed to update object: {mutationErrorMessage}"
+msgstr "Failed to update object: {mutationErrorMessage}"
+
 msgid "Failed to update security group"
 msgstr "Failed to update security group"
 
@@ -994,11 +1033,14 @@ msgstr "Failed to update visibility to {newVisibility}"
 msgid "Failed to upload file \"{fileName}\": "
 msgstr "Failed to upload file \"{fileName}\": "
 
+msgid "Failed to Upload Object"
+msgstr "Failed to Upload Object"
+
 msgid "False"
 msgstr "False"
 
-msgid "Filters"
-msgstr "Filters"
+msgid "Filter by"
+msgstr "Filter by"
 
 msgid "Find detailed guides and references in our docs."
 msgstr "Find detailed guides and references in our docs."
@@ -1261,9 +1303,6 @@ msgstr "Invalid value for public flavor setting."
 msgid "IP Version"
 msgstr "IP Version"
 
-msgid "IP:"
-msgstr "IP:"
-
 msgid "IPv4"
 msgstr "IPv4"
 
@@ -1282,11 +1321,20 @@ msgstr "Keep segments (delete manifest only)"
 msgid "Key"
 msgstr "Key"
 
+msgid "Key already exists"
+msgstr "Key already exists"
+
+msgid "Key contains invalid characters"
+msgstr "Key contains invalid characters"
+
 msgid "Key Features"
 msgstr "Key Features"
 
 msgid "Key is required"
 msgstr "Key is required"
+
+msgid "Key must contain at least one alphanumeric character"
+msgstr "Key must contain at least one alphanumeric character"
 
 msgid "Key Name"
 msgstr "Key Name"
@@ -1296,6 +1344,9 @@ msgstr "Key Pairs"
 
 msgid "Last Modified"
 msgstr "Last Modified"
+
+msgid "Last modified (UTC)"
+msgstr "Last modified (UTC)"
 
 msgid "Last updated: {formattedDate}"
 msgstr "Last updated: {formattedDate}"
@@ -1362,6 +1413,9 @@ msgstr "Loading more..."
 
 msgid "Loading object info..."
 msgstr "Loading object info..."
+
+msgid "Loading object properties..."
+msgstr "Loading object properties..."
 
 msgid "Loading objects..."
 msgstr "Loading objects..."
@@ -1434,6 +1488,9 @@ msgstr "Max object name length"
 
 msgid "Max SLO segments"
 msgstr "Max SLO segments"
+
+msgid "MD5 checksum"
+msgstr "MD5 checksum"
 
 msgid "Member \"{memberIdToRemove}\" has been removed successfully."
 msgstr "Member \"{memberIdToRemove}\" has been removed successfully."
@@ -1666,17 +1723,29 @@ msgstr "Object name cannot have leading or trailing whitespace"
 msgid "Object name is required"
 msgstr "Object name is required"
 
+msgid "Object properties"
+msgstr "Object properties"
+
 msgid "Object Storage"
 msgstr "Object Storage"
 
 msgid "Object Type"
 msgstr "Object Type"
 
+msgid "Object Updated"
+msgstr "Object Updated"
+
+msgid "Object Uploaded"
+msgstr "Object Uploaded"
+
 msgid "Object versioning"
 msgstr "Object versioning"
 
 msgid "Object was copied but could not be deleted from the source: {deleteErrorMessage}"
 msgstr "Object was copied but could not be deleted from the source: {deleteErrorMessage}"
+
+msgid "Object will be uploaded as: <0>{selectedObjectName}</0>"
+msgstr "Object will be uploaded as: <0>{selectedObjectName}</0>"
 
 msgid "Objects"
 msgstr "Objects"
@@ -1708,6 +1777,9 @@ msgstr "Owner Project ID"
 msgid "Owning Project ID"
 msgstr "Owning Project ID"
 
+msgid "Page Not Found"
+msgstr "Page Not Found"
+
 msgid "Partial Activation Success"
 msgstr "Partial Activation Success"
 
@@ -1737,6 +1809,9 @@ msgstr "Please log in again to continue."
 
 msgid "Please note: for <0>dynamic</0> and <1>static large objects</1> only the manifests are deleted. The related segments are not deleted."
 msgstr "Please note: for <0>dynamic</0> and <1>static large objects</1> only the manifests are deleted. The related segments are not deleted."
+
+msgid "Please select a file to upload"
+msgstr "Please select a file to upload"
 
 msgid "Policy"
 msgstr "Policy"
@@ -1777,6 +1852,9 @@ msgstr "Private"
 msgid "production, linux"
 msgstr "production, linux"
 
+msgid "Project"
+msgstr "Project"
+
 msgid "Project id"
 msgstr "Project id"
 
@@ -1786,8 +1864,8 @@ msgstr "Project ID"
 msgid "projects"
 msgstr "projects"
 
-msgid "Properties"
-msgstr "Properties"
+msgid "Properties of \"{objectName}\" were successfully updated."
+msgstr "Properties of \"{objectName}\" were successfully updated."
 
 msgid "Property Key"
 msgstr "Property Key"
@@ -1962,6 +2040,9 @@ msgstr "Save Changes"
 
 msgid "Save Metadata"
 msgstr "Save Metadata"
+
+msgid "Saving..."
+msgstr "Saving..."
 
 msgid "Search..."
 msgstr "Search..."
@@ -2152,6 +2233,9 @@ msgstr "Store old object versions"
 msgid "Store old object versions in container:"
 msgstr "Store old object versions in container:"
 
+msgid "Stored as X-Object-Meta-* headers. Keys are case-insensitive."
+msgstr "Stored as X-Object-Meta-* headers. Keys are case-insensitive."
+
 msgid "Subnet"
 msgstr "Subnet"
 
@@ -2272,6 +2356,9 @@ msgstr "The object will be copied to this path. Navigate folders above to change
 msgid "The object will be moved to this path. Navigate folders above to change the destination."
 msgstr "The object will be moved to this path. Navigate folders above to change the destination."
 
+msgid "The page you are looking for does not exist."
+msgstr "The page you are looking for does not exist."
+
 msgid "The requested flavor could not be found. It may have been deleted or you may not have access to it."
 msgstr "The requested flavor could not be found. It may have been deleted or you may not have access to it."
 
@@ -2329,6 +2416,9 @@ msgstr "This action cannot be undone. The target project will lose access to thi
 msgid "This action is permanent. The address will be removed from your project and returned to the public pool. This action cannot be undone."
 msgstr "This action is permanent. The address will be removed from your project and returned to the public pool. This action cannot be undone."
 
+msgid "This could be due to insufficient permissions or a temporary service issue. Please check your access rights or try refreshing the page."
+msgstr "This could be due to insufficient permissions or a temporary service issue. Please check your access rights or try refreshing the page."
+
 msgid "This extra spec keys already exist. Please use different keys."
 msgstr "This extra spec keys already exist. Please use different keys."
 
@@ -2341,8 +2431,14 @@ msgstr "This folder is empty."
 msgid "This image was shared with you by <0>{ownerProject}</0> on {sharedAt}."
 msgstr "This image was shared with you by <0>{ownerProject}</0> on {sharedAt}."
 
+msgid "This is a <0>dynamic large object (DLO)</0> manifest. Metadata changes apply to the manifest only — segment objects are not affected."
+msgstr "This is a <0>dynamic large object (DLO)</0> manifest. Metadata changes apply to the manifest only — segment objects are not affected."
+
 msgid "This is a <0>dynamic large object</0>. Only the manifest will be deleted — its segment objects (stored under the manifest prefix) are <1>not</1> automatically removed and must be deleted separately."
 msgstr "This is a <0>dynamic large object</0>. Only the manifest will be deleted — its segment objects (stored under the manifest prefix) are <1>not</1> automatically removed and must be deleted separately."
+
+msgid "This is a <0>static large object (SLO)</0> manifest. Metadata changes apply to the manifest only — segment objects are not affected."
+msgstr "This is a <0>static large object (SLO)</0> manifest. Metadata changes apply to the manifest only — segment objects are not affected."
 
 msgid "This is a <0>static large object</0>. By default, all associated segment objects will also be permanently deleted."
 msgstr "This is a <0>static large object</0>. By default, all associated segment objects will also be permanently deleted."
@@ -2452,6 +2548,9 @@ msgstr "Unable to Deactivate Image"
 msgid "Unable to Delete Image"
 msgstr "Unable to Delete Image"
 
+msgid "Unable to Load Content"
+msgstr "Unable to Load Content"
+
 msgid "Unable to Re-activate Image"
 msgstr "Unable to Re-activate Image"
 
@@ -2467,6 +2566,9 @@ msgstr "Unable to Upload Image File"
 msgid "Unnamed"
 msgstr "Unnamed"
 
+msgid "Update object"
+msgstr "Update object"
+
 msgid "Update Security Group"
 msgstr "Update Security Group"
 
@@ -2481,6 +2583,24 @@ msgstr "Updating Floating IP..."
 
 msgid "Updating security group..."
 msgstr "Updating security group..."
+
+msgid "Upload"
+msgstr "Upload"
+
+msgid "Upload failed: {uploadError}"
+msgstr "Upload failed: {uploadError}"
+
+msgid "Upload Object"
+msgstr "Upload Object"
+
+msgid "Upload object to:"
+msgstr "Upload object to:"
+
+msgid "Uploading..."
+msgstr "Uploading..."
+
+msgid "Uploading... {progressPct}%"
+msgstr "Uploading... {progressPct}%"
 
 msgid "URL Copied"
 msgstr "URL Copied"

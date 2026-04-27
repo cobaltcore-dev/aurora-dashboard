@@ -1,4 +1,4 @@
-import { createFileRoute, ErrorComponent, redirect, useParams } from "@tanstack/react-router"
+import { createFileRoute, redirect, useParams } from "@tanstack/react-router"
 import { z } from "zod"
 import { getServiceIndex } from "@/server/Authentication/helpers"
 import { ErrorBoundary } from "react-error-boundary"
@@ -91,12 +91,6 @@ export const Route = createFileRoute("/_auth/projects/$projectId/storage/$provid
   validateSearch: containersSearchSchema,
   component: () => {
     return <StorageDashboard />
-  },
-  errorComponent: ({ error }) => {
-    if (error instanceof Error) {
-      return <div>{error.message}</div>
-    }
-    return <ErrorComponent error={error} />
   },
   notFoundComponent: () => {
     return <p>Storage service not found</p>

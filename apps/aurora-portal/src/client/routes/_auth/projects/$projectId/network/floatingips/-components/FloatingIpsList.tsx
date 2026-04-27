@@ -68,7 +68,7 @@ export const FloatingIpsList = () => {
         onSort={handleSortChange}
         filterSettings={filterSettings}
         onFilter={handleFilterChange}
-        actions={<Button label={t`Allocate Floating IP`} onClick={toggleAllocateModal} />}
+        actions={<Button variant="primary" label={t`Allocate Floating IP`} onClick={toggleAllocateModal} />}
       />
 
       <FloatingIpListContainer floatingIps={floatingIps} isLoading={isLoading} isError={isError} error={error} />

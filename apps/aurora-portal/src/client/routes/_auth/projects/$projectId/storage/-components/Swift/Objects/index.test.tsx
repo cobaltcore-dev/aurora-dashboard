@@ -82,6 +82,10 @@ let capturedOnCopyObjectError: ((objectName: string, errorMessage: string) => vo
 let capturedOnMoveObjectSuccess: ((objectName: string, targetContainer: string, targetPath: string) => void) | undefined
 let capturedOnMoveObjectError: ((objectName: string, errorMessage: string) => void) | undefined
 let capturedOnTempUrlCopySuccess: ((objectName: string) => void) | undefined
+let capturedOnEditMetadataSuccess: ((objectName: string) => void) | undefined
+let capturedOnEditMetadataError: ((objectName: string, errorMessage: string) => void) | undefined
+let capturedOnUploadSuccess: ((objectName: string) => void) | undefined
+let capturedOnUploadError: ((objectName: string, errorMessage: string) => void) | undefined
 
 vi.mock("./ObjectsTableView", () => ({
   ObjectsTableView: vi.fn(
@@ -99,6 +103,8 @@ vi.mock("./ObjectsTableView", () => ({
       onMoveObjectSuccess,
       onMoveObjectError,
       onTempUrlCopySuccess,
+      onEditMetadataSuccess,
+      onEditMetadataError,
     }) => {
       capturedOnDeleteFolderSuccess = onDeleteFolderSuccess
       capturedOnDownloadError = onDownloadError
@@ -107,6 +113,8 @@ vi.mock("./ObjectsTableView", () => ({
       capturedOnMoveObjectSuccess = onMoveObjectSuccess
       capturedOnMoveObjectError = onMoveObjectError
       capturedOnTempUrlCopySuccess = onTempUrlCopySuccess
+      capturedOnEditMetadataSuccess = onEditMetadataSuccess
+      capturedOnEditMetadataError = onEditMetadataError
       return (
         <div
           data-testid="objects-table-view"
@@ -123,6 +131,8 @@ vi.mock("./ObjectsTableView", () => ({
           data-has-move-object-success={typeof onMoveObjectSuccess === "function" ? "true" : "false"}
           data-has-move-object-error={typeof onMoveObjectError === "function" ? "true" : "false"}
           data-has-temp-url-copy-success={typeof onTempUrlCopySuccess === "function" ? "true" : "false"}
+          data-has-edit-metadata-success={typeof onEditMetadataSuccess === "function" ? "true" : "false"}
+          data-has-edit-metadata-error={typeof onEditMetadataError === "function" ? "true" : "false"}
         />
       )
     }
@@ -144,6 +154,19 @@ vi.mock("./CreateFolderModal", () => ({
       </div>
     ) : null
   ),
+}))
+
+// UploadObjectModal uses tRPC hooks internally — mock it to keep index tests isolated.
+vi.mock("./UploadObjectModal", () => ({
+  UploadObjectModal: vi.fn(({ isOpen, onClose, onSuccess, onError }) => {
+    capturedOnUploadSuccess = onSuccess
+    capturedOnUploadError = onError
+    return isOpen ? (
+      <div data-testid="upload-object-modal">
+        <button onClick={onClose}>Cancel</button>
+      </div>
+    ) : null
+  }),
 }))
 
 // ─── Mock tRPC ────────────────────────────────────────────────────────────────
@@ -179,6 +202,10 @@ vi.mock("./ObjectToastNotifications", () => ({
   getObjectMovedToast: vi.fn(() => ({ variant: "success", children: null })),
   getObjectMoveErrorToast: vi.fn(() => ({ variant: "error", children: null })),
   getTempUrlCopiedToast: vi.fn(() => ({ variant: "success", children: null })),
+  getObjectMetadataUpdatedToast: vi.fn(() => ({ variant: "success", children: null })),
+  getObjectMetadataUpdateErrorToast: vi.fn(() => ({ variant: "error", children: null })),
+  getObjectUploadedToast: vi.fn(() => ({ variant: "success", children: null })),
+  getObjectUploadErrorToast: vi.fn(() => ({ variant: "error", children: null })),
 }))
 
 vi.mock("@/client/trpcClient", () => ({
@@ -278,6 +305,11 @@ describe("SwiftObjects (index)", () => {
     test("renders Create folder button", () => {
       renderObjects()
       expect(screen.getByRole("button", { name: /Create Folder/i })).toBeInTheDocument()
+    })
+
+    test("renders Upload Object button", () => {
+      renderObjects()
+      expect(screen.getByRole("button", { name: /Upload Object/i })).toBeInTheDocument()
     })
 
     test("Create folder modal is closed by default", () => {
@@ -419,6 +451,41 @@ describe("SwiftObjects (index)", () => {
       )
     })
 
+    test("passes onEditMetadataSuccess callback to ObjectsTableView", () => {
+      renderObjects()
+      expect(screen.getByTestId("objects-table-view")).toHaveAttribute("data-has-edit-metadata-success", "true")
+    })
+
+    test("passes onEditMetadataError callback to ObjectsTableView", () => {
+      renderObjects()
+      expect(screen.getByTestId("objects-table-view")).toHaveAttribute("data-has-edit-metadata-error", "true")
+    })
+
+    test("onEditMetadataSuccess shows success toast via getObjectMetadataUpdatedToast", async () => {
+      const { getObjectMetadataUpdatedToast } = await import("./ObjectToastNotifications")
+      renderObjects()
+      await act(async () => {
+        capturedOnEditMetadataSuccess?.("sample.txt")
+      })
+      expect(getObjectMetadataUpdatedToast).toHaveBeenCalledWith(
+        "sample.txt",
+        expect.objectContaining({ onDismiss: expect.any(Function) })
+      )
+    })
+
+    test("onEditMetadataError shows error toast via getObjectMetadataUpdateErrorToast", async () => {
+      const { getObjectMetadataUpdateErrorToast } = await import("./ObjectToastNotifications")
+      renderObjects()
+      await act(async () => {
+        capturedOnEditMetadataError?.("sample.txt", "403 Forbidden")
+      })
+      expect(getObjectMetadataUpdateErrorToast).toHaveBeenCalledWith(
+        "sample.txt",
+        "403 Forbidden",
+        expect.objectContaining({ onDismiss: expect.any(Function) })
+      )
+    })
+
     test("subtracts 1 from deletedCount before passing to getFolderDeletedToast", async () => {
       const { getFolderDeletedToast } = await import("./ObjectToastNotifications")
       renderObjects()
@@ -446,6 +513,49 @@ describe("SwiftObjects (index)", () => {
       expect(screen.getByTestId("create-folder-modal")).toBeInTheDocument()
       await user.click(screen.getByRole("button", { name: /Cancel/i }))
       expect(screen.queryByTestId("create-folder-modal")).not.toBeInTheDocument()
+    })
+  })
+
+  describe("Upload object modal", () => {
+    test("Upload object modal is closed by default", () => {
+      renderObjects()
+      expect(screen.queryByTestId("upload-object-modal")).not.toBeInTheDocument()
+    })
+
+    test("opens modal when Upload Object button is clicked", async () => {
+      const user = userEvent.setup()
+      renderObjects()
+      await user.click(screen.getByRole("button", { name: /Upload Object/i }))
+      expect(screen.getByTestId("upload-object-modal")).toBeInTheDocument()
+    })
+
+    test("closes modal when onClose is called", async () => {
+      const user = userEvent.setup()
+      renderObjects()
+      await user.click(screen.getByRole("button", { name: /Upload Object/i }))
+      expect(screen.getByTestId("upload-object-modal")).toBeInTheDocument()
+      await user.click(screen.getByRole("button", { name: /Cancel/i }))
+      expect(screen.queryByTestId("upload-object-modal")).not.toBeInTheDocument()
+    })
+  })
+
+  describe("Upload object toast notifications", () => {
+    test("shows success toast when upload succeeds", async () => {
+      const { getObjectUploadedToast } = await import("./ObjectToastNotifications")
+      renderObjects()
+      act(() => {
+        capturedOnUploadSuccess?.("report.pdf")
+      })
+      expect(getObjectUploadedToast).toHaveBeenCalledWith("report.pdf", expect.any(Object))
+    })
+
+    test("shows error toast when upload fails", async () => {
+      const { getObjectUploadErrorToast } = await import("./ObjectToastNotifications")
+      renderObjects()
+      act(() => {
+        capturedOnUploadError?.("report.pdf", "Quota exceeded")
+      })
+      expect(getObjectUploadErrorToast).toHaveBeenCalledWith("report.pdf", "Quota exceeded", expect.any(Object))
     })
   })
 

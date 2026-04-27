@@ -53,7 +53,7 @@ Comprehensive Zod schemas for type-safe validation of:
 - **Service operations**: Service info and capabilities
 - **Account operations**: List containers, manage account metadata
 - **Container operations**: Create/list/update/delete containers, manage container metadata
-- **Object operations**: Upload/download/copy/delete objects, manage object metadata
+- **Object operations**: Download/copy/delete objects, manage object metadata
 - **Bulk operations**: Bulk delete for multiple objects
 - **Folder operations**: Create, list, move, and delete pseudo-folders
 - **Download**: Stream object content via BFF as base64 chunks using an async iterable procedure
@@ -67,7 +67,8 @@ Utility functions including:
 - Query parameter builders (`applyContainerQueryParams`, `applyObjectQueryParams`)
 - Header parsers (`parseAccountInfo`, `parseContainerInfo`, `parseObjectMetadata`)
 - Header builders (`buildAccountMetadataHeaders`, `buildContainerMetadataHeaders`, `buildObjectMetadataHeaders`)
-- Error handling (`mapErrorResponseToTRPCError`, `handleZodParsingError`, `withErrorHandling`)
+- Error handling (`mapErrorResponseToTRPCError`, `handleZodParsingError`, `wrapError`, `withErrorHandling`)
+- **Upload validation** (`validateSwiftUploadInput`) — validates upload inputs: container, object path, fileSize, and file stream (converted from the `octetInputParser` `ReadableStream` via `Readable.fromWeb()`)
 - **Folder helpers** (`parseBreadcrumb`, `normalizeFolderPath`, `isFolderMarker`, `extractFolders`)
 - **Temporary URL helpers** (`generateTempUrlSignature`, `constructTempUrl`)
 
@@ -98,12 +99,10 @@ Complete tRPC router with procedures for:
 
 #### Object Operations
 
-- `createObject` - Upload a new object or replace existing one
-- `getObjectMetadata` - Get object metadata without downloading content
-- `updateObjectMetadata` - Update object metadata (POST operation)
-- `copyObject` - Copy object to a new location
-- `deleteObject` - Delete an object
-- `downloadObject` - Stream object content to the browser as base64 chunks via an async iterable; each chunk carries `downloaded` and `total` byte counts for progress tracking; client assembles a Blob and triggers a save dialog
+- `getObjectMetadata` - Get object metadata without downloading content (HEAD)
+- `updateObjectMetadata` - Update object metadata without re-uploading content (POST)
+- `copyObject` - Copy an object to a new location using PUT with `X-Copy-From`
+- `deleteObject` - Delete an object; supports `?multipart-manifest=delete` for SLO cleanup
 
 #### Bulk Operations
 
@@ -111,14 +110,23 @@ Complete tRPC router with procedures for:
 
 #### Folder Operations
 
-- `createFolder` - Create a pseudo-folder with zero-byte marker object
+- `createFolder` - Create a pseudo-folder with a zero-byte marker object (`Content-Type: application/directory`)
 - `listFolderContents` - List folders and objects at the current level with hierarchy
-- `moveFolder` - Move a folder by copying all objects and deleting originals
-- `deleteFolder` - Delete a folder recursively or non-recursively
+- `moveFolder` - Move a folder by copying all objects then deleting originals
+- `deleteFolder` - Delete a folder recursively or at the current level only
 
 #### Temporary URL Operations
 
-- `generateTempUrl` - Generate time-limited signed URL for secure object access
+- `generateTempUrl` - Generate a time-limited HMAC-SHA256 signed URL; looks up the temp URL key from the container first, falls back to the account level
+
+#### Upload Operations
+
+- `uploadObject` - Upload a file via `octetInputParser` (raw `application/octet-stream` body); metadata sent as custom request headers (`x-upload-container`, `x-upload-object`, `x-upload-type`, `x-upload-size`, `x-upload-id`, `x-upload-account`); streams through a Node.js `Transform` pipe to Swift without buffering; emits per-chunk progress events via a module-level `EventEmitter`; returns `{ success }`
+- `watchUploadProgress` - tRPC subscription yielding `{ uploaded, total, percent }` in real time for a given `uploadId`; the `uploadId` is computed client-side as `"<container>:<objectPath>:<uuid>"` and passed as a header before the upload starts so the subscription is active from the first byte; the BFF scopes it with the Keystone project ID to prevent cross-tenant observation; also yields an immediate snapshot if the upload is already in progress when the subscription opens; terminates on upload completion or error
+
+#### Download Operations
+
+- `downloadObject` - Stream object content to the client as base64 chunks via an async iterable mutation; requires `downloadId` input (computed client-side as `"<container>:<objectPath>:<uuid>"`; the BFF scopes it with the Keystone project ID to prevent cross-tenant observation); `contentType` and `filename` are included only in the first chunk; each chunk carries `downloaded` and `total` byte counts; server never buffers the full file in memory
 
 ## Key Features
 
@@ -144,6 +152,7 @@ Full support for:
 
 - **Service Discovery**: Query Swift capabilities via `/info` endpoint
 - **Pseudo-Folders**: Create and manage hierarchical folder structures
+- **Streaming Upload**: Upload files via `octetInputParser` (raw binary body) with metadata in custom headers; real-time byte-level progress via a tRPC subscription keyed by a client-computed `uploadId`
 - **Download**: Stream object content via BFF as base64 chunks using an async iterable procedure
 - **Temporary URLs**: Generate time-limited signed URLs with HMAC-SHA256
 - **Pagination**: Marker-based pagination for large listings
@@ -156,10 +165,8 @@ Full support for:
 
 ### 5. Binary Data Handling
 
-Proper handling of binary data for object uploads/downloads:
-
-- Base64 chunk streaming for `downloadObject` (browser save dialog) — server streams without buffering; each chunk includes `downloaded`/`total` byte counts for progress tracking; client assembles a Blob
-- Uint8Array support for `createObject`
+- **Upload (`uploadObject`)**: Uses tRPC's `octetInputParser` — the file is sent as a raw `application/octet-stream` body, giving the BFF a true `ReadableStream` without buffering. Metadata (`container`, `object`, `contentType`, `fileSize`, `uploadId`) is passed as custom `x-upload-*` request headers read from `ctx.req.headers`. The stream is piped through a Node.js `Transform` that counts bytes per chunk, then converted to a Web `ReadableStream` via `Readable.toWeb()` and PUT to Swift. The BFF never holds the full file in memory. Per-chunk progress is emitted via a module-level `EventEmitter` keyed by `"${projectId}:${uploadId}"` — the BFF prepends the Keystone project ID to the client-provided `uploadId` to prevent cross-tenant progress observation.
+- **Download (`downloadObject`)**: Swift's response body is read chunk by chunk via a `ReadableStream` reader. Each chunk is base64-encoded (required because tRPC SSE transport is JSON-only) and yielded with cumulative `downloaded` and `total` byte counts. `contentType` and `filename` are included only in the first chunk. The server never buffers the full file; the client currently assembles a `Blob` in memory before saving.
 
 ## Usage Examples
 
@@ -190,18 +197,42 @@ await trpc.storage.swift.createContainer.mutate({
 ### Upload Object
 
 ```typescript
-const metadata = await trpc.storage.swift.createObject.mutate({
-  container: "my-container",
-  object: "document.pdf",
-  content: fileBuffer, // ArrayBuffer or Uint8Array
-  contentType: "application/pdf",
-  metadata: {
-    author: "John Doe",
-    version: "1.0",
+// uploadId format: "<container>:<objectPath>:<uuid>"
+// The UUID suffix prevents collisions when the same object is uploaded concurrently.
+// Compute it client-side so the subscription can be opened before the mutation.
+const container = "my-container"
+const objectPath = "folder/document.pdf" // full path including any prefix
+const uploadId = `${container}:${objectPath}:${crypto.randomUUID()}`
+
+// 1. Subscribe to progress first (vanilla tRPC client — useMutation can't consume subscriptions)
+const progressSub = trpcClient.storage.swift.watchUploadProgress.subscribe(
+  { uploadId },
+  {
+    onData({ uploaded, total, percent }) {
+      console.log(`Upload progress: ${percent}% (${uploaded}/${total} bytes)`)
+    },
+  }
+)
+
+// 2. Upload raw file body with metadata in request headers
+const { success } = await trpcClient.storage.swift.uploadObject.mutate(file, {
+  context: {
+    headers: {
+      "x-upload-container": container,
+      "x-upload-object": objectPath,
+      "x-upload-type": file.type || "application/octet-stream",
+      "x-upload-size": String(file.size),
+      "x-upload-id": uploadId,
+    },
   },
-  deleteAfter: 86400, // Auto-delete after 24 hours
 })
+progressSub.unsubscribe()
+console.log("Upload complete:", success)
 ```
+
+> **Note:** `uploadId` follows the format `"<container>:<objectPath>:<uuid>"` — computable client-side before the mutation resolves, so the subscription can be opened first. The UUID suffix prevents collisions between concurrent uploads of the same object. On the BFF, the ID is further namespaced with the Keystone project ID (`"${projectId}:${uploadId}"`) so subscribers can only observe their own project's transfers. The progress subscription can be consumed either via `trpcReact.storage.swift.watchUploadProgress.useSubscription()` in React components, or via the vanilla `trpcClient` `.subscribe()` call outside of React.
+>
+> `Content-Length` is set from the `x-upload-size` header. If omitted or zero, the header is not sent and `percent` will always be `0` in progress events (bytes still accumulate in `uploaded`).
 
 ### Download Object
 
@@ -422,7 +453,7 @@ import type { ContainerSummary, ObjectMetadata, AccountInfo } from "./types/swif
 1. **Service Name**: Uses `swift`
 2. **URL Structure**: Swift uses path-based hierarchy (`/account/container/object`)
 3. **Metadata Headers**: Different header prefixes (`X-Account-Meta-`, `X-Container-Meta-`, `X-Object-Meta-`)
-4. **Binary Data**: Strong emphasis on binary content handling for objects
+4. **Binary Data**: `uploadObject` streams the raw `File` body via `octetInputParser` with metadata in `x-upload-*` request headers → `Transform` → `Readable.toWeb()` → Swift PUT; `downloadObject` streams Swift response as base64 chunks via async iterable mutation
 5. **HTTP Methods**: Swift uses COPY method for object copying
 6. **Response Codes**: 204 No Content for empty listings instead of 200
 7. **Bulk Delete Response Format**: The `bulk_delete` middleware on some deployments only supports `text/plain` responses. All bulk delete operations explicitly set `Accept: text/plain` and parse `Number Deleted`, `Number Not Found`, and `Errors` from the plain text body via regex rather than `response.json()`
@@ -528,11 +559,12 @@ All operations include comprehensive error handling:
 ## Performance Considerations
 
 1. **Pagination**: Use `limit` and `marker` for large listings
-2. **Large Downloads**: `downloadObject` retrieves the full object; for large client-side downloads, prefer **Temporary URLs** so clients can download directly from Swift without proxying the entire payload through the BFF
-3. **Metadata Only**: Use `getObjectMetadata` (HEAD) when you only need headers, not content
-4. **Bulk Operations**: Use `bulkDelete` for deleting multiple objects efficiently
-5. **Empty Container**: Use `emptyContainer` to remove all objects — it auto-selects bulk delete or individual deletes based on the `/info` capability check
-6. **Folder Navigation**: Use `delimiter="/"` for hierarchical folder browsing
+2. **Large Uploads**: `uploadObject` uses `octetInputParser` for true streaming — the file body is never buffered in the BFF; for very large files, consider chunked/resumable uploads at the Swift SLO level
+3. **Large Downloads**: `downloadObject` retrieves the full object; for large client-side downloads, prefer **Temporary URLs** so clients can download directly from Swift without proxying the entire payload through the BFF
+4. **Metadata Only**: Use `getObjectMetadata` (HEAD) when you only need headers, not content
+5. **Bulk Operations**: Use `bulkDelete` for deleting multiple objects efficiently
+6. **Empty Container**: Use `emptyContainer` to remove all objects — it auto-selects bulk delete or individual deletes based on the `/info` capability check
+7. **Folder Navigation**: Use `delimiter="/"` for hierarchical folder browsing
 
 ## Extended Capabilities
 
@@ -600,12 +632,13 @@ Generate time-limited, cryptographically signed URLs for secure object access wi
 
 ## Next Steps
 
-1. Add support for chunked/resumable uploads for large files
-2. Add support for container synchronization
-3. Implement form POST for browser uploads
-4. Add support for archive extraction (tar files)
-5. Implement CORS configuration helpers
-6. Add support for Static Large Object (SLO) manifest operations
+1. Add pause/resume support for individual file uploads (requires SLO segment management)
+2. Add folder upload support with directory structure preservation as pseudo-folder prefixes
+3. Add support for container synchronization
+4. Implement form POST for browser uploads
+5. Add support for archive extraction (tar files)
+6. Implement CORS configuration helpers
+7. Add support for Static Large Object (SLO) manifest operations
 
 ## References
 

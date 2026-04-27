@@ -13,13 +13,14 @@ import {
 import { Trans, useLingui } from "@lingui/react/macro"
 import { MdFolder, MdDescription } from "react-icons/md"
 import { formatBytesBinary } from "@/client/utils/formatBytes"
-import { trpcClient } from "@/client/trpcClient"
+import { trpcClient, trpcReact } from "@/client/trpcClient"
 import { BrowserRow, FolderRow, ObjectRow } from "./"
 import { DeleteFolderModal } from "./DeleteFolderModal"
 import { DeleteObjectModal } from "./DeleteObjectModal"
 import { CopyObjectModal } from "./CopyObjectModal"
 import { MoveRenameObjectModal } from "./MoveRenameObjectModal"
 import { GenerateTempUrlModal } from "./GenerateTempUrlModal"
+import { EditObjectMetadataModal } from "./EditObjectMetadataModal"
 
 // MIME types natively previewable by all modern browsers.
 // Excludes types that require plugins or have inconsistent support.
@@ -84,6 +85,8 @@ interface ObjectsTableViewProps {
   onMoveObjectSuccess: (objectName: string, targetContainer: string, targetPath: string) => void
   onMoveObjectError: (objectName: string, errorMessage: string) => void
   onTempUrlCopySuccess: (objectName: string) => void
+  onEditMetadataSuccess: (objectName: string) => void
+  onEditMetadataError: (objectName: string, errorMessage: string) => void
 }
 
 export const ObjectsTableView = ({
@@ -102,6 +105,8 @@ export const ObjectsTableView = ({
   onMoveObjectSuccess,
   onMoveObjectError,
   onTempUrlCopySuccess,
+  onEditMetadataSuccess,
+  onEditMetadataError,
 }: ObjectsTableViewProps) => {
   const { t } = useLingui()
   const parentRef = useRef<HTMLDivElement>(null)
@@ -118,15 +123,22 @@ export const ObjectsTableView = ({
   const [copyObjectTarget, setCopyObjectTarget] = useState<ObjectRow | null>(null)
   const [moveRenameObjectTarget, setMoveRenameObjectTarget] = useState<ObjectRow | null>(null)
   const [tempUrlTarget, setTempUrlTarget] = useState<ObjectRow | null>(null)
+  const [editMetadataTarget, setEditMetadataTarget] = useState<ObjectRow | null>(null)
   const [downloadingRow, setDownloadingRow] = useState<ObjectRow | null>(null)
-  const [downloadProgress, setDownloadProgress] = useState<{ downloaded: number; total: number } | null>(null)
+  const [downloadId, setDownloadId] = useState<string | null>(null)
   const [previewingRow, setPreviewingRow] = useState<ObjectRow | null>(null)
 
+  const { data: downloadProgress } = trpcReact.storage.swift.watchDownloadProgress.useSubscription(
+    { downloadId: downloadId ?? "" },
+    { enabled: !!downloadId && downloadingRow !== null }
+  )
+
   // Shared streaming helper — fetches the object from the BFF and assembles a Blob.
-  // onProgress is called for each chunk; pass null to skip progress tracking.
+  // downloadId is set before the mutation starts so the watchDownloadProgress
+  // subscription is active from the very first byte.
   const streamObjectToBlob = async (
     row: ObjectRow,
-    onProgress: ((progress: { downloaded: number; total: number }) => void) | null
+    activeDownloadId: string
   ): Promise<{ blob: Blob; filename: string }> => {
     let contentType = row.content_type ?? "application/octet-stream"
     let filename = row.displayName
@@ -135,15 +147,15 @@ export const ObjectsTableView = ({
       container,
       object: row.name,
       filename: row.displayName,
+      downloadId: activeDownloadId,
       ...(account ? { account } : {}),
     })
 
     const chunks: Uint8Array<ArrayBuffer>[] = []
-    for await (const { chunk, contentType: ct, filename: fn, downloaded, total } of iterable) {
+    for await (const { chunk, contentType: ct, filename: fn } of iterable) {
       if (ct) contentType = ct
       if (fn) filename = fn
       chunks.push(Uint8Array.from(atob(chunk), (c) => c.charCodeAt(0)) as Uint8Array<ArrayBuffer>)
-      onProgress?.({ downloaded, total })
     }
 
     return { blob: new Blob(chunks, { type: contentType }), filename }
@@ -162,26 +174,30 @@ export const ObjectsTableView = ({
   }
 
   const handleDownload = async (row: ObjectRow) => {
+    const activeDownloadId = `${container}:${row.name}:${crypto.randomUUID()}`
     setDownloadingRow(row)
+    setDownloadId(activeDownloadId)
     try {
-      const { blob, filename } = await streamObjectToBlob(row, (p) => setDownloadProgress(p))
+      const { blob, filename } = await streamObjectToBlob(row, activeDownloadId)
       triggerAnchorDownload(URL.createObjectURL(blob), filename)
     } catch (err) {
       onDownloadError(row.displayName, err instanceof Error ? err.message : String(err))
     } finally {
       if (isMounted.current) {
         setDownloadingRow(null)
-        setDownloadProgress(null)
+        setDownloadId(null)
       }
     }
   }
 
   const handlePreviewOrDownload = async (row: ObjectRow) => {
+    const activeDownloadId = `${container}:${row.name}:${crypto.randomUUID()}`
     const previewing = isBrowserPreviewable(row.content_type)
     if (previewing) {
       setPreviewingRow(row)
     } else {
       setDownloadingRow(row)
+      setDownloadId(activeDownloadId)
     }
 
     // Open a blank tab synchronously while still inside the click handler so
@@ -195,7 +211,7 @@ export const ObjectsTableView = ({
     }
 
     try {
-      const { blob, filename } = await streamObjectToBlob(row, previewing ? null : (p) => setDownloadProgress(p))
+      const { blob, filename } = await streamObjectToBlob(row, activeDownloadId)
       const url = URL.createObjectURL(blob)
       if (previewing) {
         if (previewTab) {
@@ -213,7 +229,7 @@ export const ObjectsTableView = ({
       if (isMounted.current) {
         setPreviewingRow(null)
         setDownloadingRow(null)
-        setDownloadProgress(null)
+        setDownloadId(null)
       }
     }
   }
@@ -371,10 +387,7 @@ export const ObjectsTableView = ({
                     {isDownloading ? (
                       <span className="flex min-w-0 flex-col gap-1">
                         {(() => {
-                          const progressPct =
-                            downloadProgress && downloadProgress.total > 0
-                              ? Math.round((downloadProgress.downloaded / downloadProgress.total) * 100)
-                              : null
+                          const progressPct = downloadProgress?.percent ?? null
                           return (
                             <>
                               <span className="text-theme-light flex items-center gap-2 text-sm">
@@ -424,11 +437,9 @@ export const ObjectsTableView = ({
                               data-testid={`download-action-${row.name}`}
                             />
                             <PopupMenuItem
-                              label={t`Properties`}
-                              onClick={() => {
-                                // TODO: open ObjectPropertiesModal
-                              }}
-                              data-testid={`properties-action-${row.name}`}
+                              label={t`Edit Metadata`}
+                              onClick={() => setEditMetadataTarget(row as ObjectRow)}
+                              data-testid={`edit-metadata-action-${row.name}`}
                             />
                             <PopupMenuItem
                               label={t`Copy`}
@@ -505,6 +516,14 @@ export const ObjectsTableView = ({
         account={account}
         onClose={() => setTempUrlTarget(null)}
         onCopySuccess={onTempUrlCopySuccess}
+      />
+
+      <EditObjectMetadataModal
+        isOpen={editMetadataTarget !== null}
+        object={editMetadataTarget}
+        onClose={() => setEditMetadataTarget(null)}
+        onSuccess={onEditMetadataSuccess}
+        onError={onEditMetadataError}
       />
     </>
   )

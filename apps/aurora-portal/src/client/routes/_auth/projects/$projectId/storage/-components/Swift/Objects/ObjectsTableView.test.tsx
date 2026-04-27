@@ -78,6 +78,16 @@ vi.mock("./GenerateTempUrlModal", () => ({
   ),
 }))
 
+vi.mock("./EditObjectMetadataModal", () => ({
+  EditObjectMetadataModal: vi.fn(({ isOpen, onClose, object }) =>
+    isOpen ? (
+      <div data-testid="edit-object-metadata-modal" data-object={object?.name}>
+        <button onClick={onClose}>Cancel</button>
+      </div>
+    ) : null
+  ),
+}))
+
 // ─── Mock trpcClient ──────────────────────────────────────────────────────────
 // downloadObject is now an async iterable (streaming mutation) called via the
 // vanilla trpcClient — mock it so tests can control chunks and errors without
@@ -91,6 +101,7 @@ let mockDownloadIterable: AsyncIterable<{
   filename?: string
 }> | null = null
 let mockDownloadReject = false
+let mockDownloadProgress: { percent: number; downloaded: number; total: number } | undefined = undefined
 
 vi.mock("@/client/trpcClient", () => ({
   trpcClient: {
@@ -106,6 +117,15 @@ vi.mock("@/client/trpcClient", () => ({
               })()
             )
           }),
+        },
+      },
+    },
+  },
+  trpcReact: {
+    storage: {
+      swift: {
+        watchDownloadProgress: {
+          useSubscription: vi.fn(() => ({ data: mockDownloadProgress })),
         },
       },
     },
@@ -155,6 +175,8 @@ const renderView = ({
   onMoveObjectError = vi.fn(),
   onTempUrlCopySuccess = vi.fn(),
   account = undefined as string | undefined,
+  onEditMetadataSuccess = vi.fn(),
+  onEditMetadataError = vi.fn(),
 }: {
   rows?: BrowserRow[]
   searchTerm?: string
@@ -171,6 +193,8 @@ const renderView = ({
   onMoveObjectSuccess?: (objectName: string, targetContainer: string, targetPath: string) => void
   onMoveObjectError?: (objectName: string, errorMessage: string) => void
   onTempUrlCopySuccess?: (objectName: string) => void
+  onEditMetadataSuccess?: (objectName: string) => void
+  onEditMetadataError?: (objectName: string, errorMessage: string) => void
 } = {}) =>
   render(
     <I18nProvider i18n={i18n}>
@@ -191,6 +215,8 @@ const renderView = ({
           onMoveObjectSuccess={onMoveObjectSuccess}
           onMoveObjectError={onMoveObjectError}
           onTempUrlCopySuccess={onTempUrlCopySuccess}
+          onEditMetadataSuccess={onEditMetadataSuccess}
+          onEditMetadataError={onEditMetadataError}
         />
       </PortalProvider>
     </I18nProvider>
@@ -203,6 +229,7 @@ describe("ObjectsTableView", () => {
     vi.clearAllMocks()
     mockDownloadIterable = null
     mockDownloadReject = false
+    mockDownloadProgress = undefined
     // jsdom doesn't implement URL.createObjectURL — stub it so preview tests
     // can assert on window.open being called with a blob URL string.
     URL.createObjectURL = vi.fn(() => "blob:mock-url")
@@ -589,16 +616,44 @@ describe("ObjectsTableView", () => {
         unblock = resolve
       })
 
-      // Emit one chunk with 50% progress then block
-      mockDownloadIterable = (async function* () {
-        yield { chunk: btoa("half"), downloaded: 50, total: 100, contentType: "text/plain", filename: "f.txt" }
+      // Block the download so the row stays in downloading state
+      const { trpcClient } = await import("@/client/trpcClient")
+      vi.mocked(trpcClient.storage.swift.downloadObject.mutate).mockImplementation(async () => {
         await blocker
-      })()
+        return (async function* () {})()
+      })
 
       const user = userEvent.setup()
-      renderView({ rows: [makeObject("readme.txt")] })
+      const { rerender } = renderView({ rows: [makeObject("readme.txt")] })
       await user.click(screen.getByRole("button", { name: /More/i }))
       await user.click(screen.getByTestId("download-action-readme.txt"))
+
+      // Simulate watchDownloadProgress subscription emitting 50% progress
+      mockDownloadProgress = { percent: 50, downloaded: 50, total: 100 }
+      rerender(
+        <I18nProvider i18n={i18n}>
+          <PortalProvider>
+            <ObjectsTableView
+              rows={[makeObject("readme.txt")]}
+              searchTerm=""
+              container="test-container"
+              onFolderClick={vi.fn()}
+              onDeleteFolderSuccess={vi.fn()}
+              onDeleteFolderError={vi.fn()}
+              onDownloadError={vi.fn()}
+              onDeleteObjectSuccess={vi.fn()}
+              onDeleteObjectError={vi.fn()}
+              onCopyObjectSuccess={vi.fn()}
+              onCopyObjectError={vi.fn()}
+              onMoveObjectSuccess={vi.fn()}
+              onMoveObjectError={vi.fn()}
+              onTempUrlCopySuccess={vi.fn()}
+              onEditMetadataSuccess={vi.fn()}
+              onEditMetadataError={vi.fn()}
+            />
+          </PortalProvider>
+        </I18nProvider>
+      )
 
       expect(await screen.findByText("50%")).toBeInTheDocument()
 
@@ -829,6 +884,46 @@ describe("ObjectsTableView", () => {
       renderView({ rows: [makeFolder("docs")] })
       await user.click(screen.getByRole("button", { name: /More/i }))
       expect(screen.queryByTestId("temp-url-action-docs/")).not.toBeInTheDocument()
+    })
+  })
+
+  describe("Properties (Edit metadata) modal", () => {
+    test("edit metadata modal is closed by default", () => {
+      renderView({ rows: [makeObject("readme.txt")] })
+      expect(screen.queryByTestId("edit-object-metadata-modal")).not.toBeInTheDocument()
+    })
+
+    test("opens edit metadata modal when Properties is clicked", async () => {
+      const user = userEvent.setup()
+      renderView({ rows: [makeObject("readme.txt")] })
+      await user.click(screen.getByRole("button", { name: /More/i }))
+      await user.click(screen.getByTestId("edit-metadata-action-readme.txt"))
+      expect(screen.getByTestId("edit-object-metadata-modal")).toBeInTheDocument()
+    })
+
+    test("passes correct object name to EditObjectMetadataModal", async () => {
+      const user = userEvent.setup()
+      renderView({ rows: [makeObject("readme.txt")] })
+      await user.click(screen.getByRole("button", { name: /More/i }))
+      await user.click(screen.getByTestId("edit-metadata-action-readme.txt"))
+      expect(screen.getByTestId("edit-object-metadata-modal")).toHaveAttribute("data-object", "readme.txt")
+    })
+
+    test("closes edit metadata modal when onClose is called", async () => {
+      const user = userEvent.setup()
+      renderView({ rows: [makeObject("readme.txt")] })
+      await user.click(screen.getByRole("button", { name: /More/i }))
+      await user.click(screen.getByTestId("edit-metadata-action-readme.txt"))
+      expect(screen.getByTestId("edit-object-metadata-modal")).toBeInTheDocument()
+      await user.click(screen.getByRole("button", { name: /Cancel/i }))
+      expect(screen.queryByTestId("edit-object-metadata-modal")).not.toBeInTheDocument()
+    })
+
+    test("Properties action is not present for folder rows", async () => {
+      const user = userEvent.setup()
+      renderView({ rows: [makeFolder("docs")] })
+      await user.click(screen.getByRole("button", { name: /More/i }))
+      expect(screen.queryByTestId("edit-metadata-action-docs/")).not.toBeInTheDocument()
     })
   })
 })

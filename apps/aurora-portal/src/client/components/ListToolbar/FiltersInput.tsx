@@ -54,7 +54,7 @@ export const FiltersInput = ({ filters, onChange }: FiltersInputProps) => {
     className: "w-full sm:flex-1 sm:min-w-0",
     name: "filter",
     "data-testid": "select-filterValue",
-    label: t`Filters`,
+    label: t`Filter by`,
     value: selectedFilterName,
     onChange: (value: string | number | string[] | undefined) => {
       setSelectedFilterName(String(value))
