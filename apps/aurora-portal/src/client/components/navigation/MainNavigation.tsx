@@ -3,7 +3,6 @@ import { NavigationItem } from "./types"
 import { isMatch, Link, MakeRouteMatchUnion, useRouterState } from "@tanstack/react-router"
 import { UserMenu } from "./UserMenu"
 import { PageHeader, ThemeToggle } from "@cloudoperators/juno-ui-components/index"
-import { LanguageSelect } from "./LanguageSelect"
 import { cn } from "@/client/utils/cn"
 
 interface NavigationProps {
@@ -79,7 +78,6 @@ export function MainNavigation({ items, handleThemeToggle }: NavigationProps) {
           {label}
         </Link>
       ))}
-      <LanguageSelect className={textColorClass} />
       <ThemeToggle onToggleTheme={(newTheme: string) => handleThemeToggle?.(newTheme)} />
       <UserMenu />
     </PageHeader>

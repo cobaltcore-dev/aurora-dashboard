@@ -3,18 +3,9 @@ import App from "./App"
 import { i18n } from "@lingui/core"
 import { I18nProvider } from "@lingui/react"
 import { messages } from "../locales/en/messages"
-import { messages as messagesDe } from "../locales/de/messages"
-import { detectLanguage } from "./utils/languageDetection"
 
-// Load messages
-i18n.load({
-  en: messages,
-  de: messagesDe,
-})
-
-// Detect and activate language
-const detectedLocale = detectLanguage()
-i18n.activate(detectedLocale)
+i18n.load({ en: messages })
+i18n.activate("en")
 
 const container = document.getElementById("app")!
 createRoot(container).render(

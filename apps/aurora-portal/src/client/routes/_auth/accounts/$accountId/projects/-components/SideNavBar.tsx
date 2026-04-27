@@ -92,7 +92,9 @@ export const SideNavBar = ({ accountId, projectId, availableServices }: SideNavB
         <>
           <SideNavigationItem
             label={t`Overview`}
-            onClick={() => navigate({ to: "/accounts/$accountId/projects/$projectId", params: { accountId, projectId } })}
+            onClick={() =>
+              navigate({ to: "/accounts/$accountId/projects/$projectId", params: { accountId, projectId } })
+            }
             selected={isOverviewActive}
           />
           <SideNavigationItem
