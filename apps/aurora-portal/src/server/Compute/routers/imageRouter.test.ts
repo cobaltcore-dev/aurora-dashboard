@@ -112,6 +112,9 @@ const createMockContext = (shouldFailAuth = false, shouldFailGlance = false) => 
 
 const createCaller = createCallerFactory(auroraRouter({ image: imageRouter }))
 
+// Test constants
+const TEST_PROJECT_ID = "test-project-id"
+
 // Helper function to generate valid UUIDs for testing
 const generateTestUUID = (id: number): string => {
   return `00000000-0000-4000-8000-${String(id).padStart(12, "0")}`
@@ -189,7 +192,7 @@ describe("imageRouter", () => {
         json: vi.fn().mockResolvedValue({ images: [ubuntuImage, centosImage] }),
       })
 
-      const result = await caller.image.listImagesWithSearch({ name: "ubuntu" })
+      const result = await caller.image.listImagesWithSearch({ project_id: TEST_PROJECT_ID, name: "ubuntu" })
 
       expect(result.images).toEqual([ubuntuImage])
     })
@@ -203,7 +206,7 @@ describe("imageRouter", () => {
         json: vi.fn().mockResolvedValue({ images: [mockGlanceImage] }),
       })
 
-      await caller.image.listImagesWithSearch({ name: "ubuntu" })
+      await caller.image.listImagesWithSearch({ project_id: TEST_PROJECT_ID, name: "ubuntu" })
 
       const calledUrl: string = mockCtx.mockGlance.get.mock.calls[0][0]
       expect(calledUrl).not.toContain("name=ubuntu")
@@ -221,7 +224,7 @@ describe("imageRouter", () => {
         json: vi.fn().mockResolvedValue({ images: [image1, image2] }),
       })
 
-      const result = await caller.image.listImagesWithSearch({})
+      const result = await caller.image.listImagesWithSearch({ project_id: TEST_PROJECT_ID })
 
       expect(result.images).toHaveLength(2)
     })
@@ -243,7 +246,7 @@ describe("imageRouter", () => {
         }),
       })
 
-      const result = await caller.image.listImagesWithSearch({ name: "ubuntu" })
+      const result = await caller.image.listImagesWithSearch({ project_id: TEST_PROJECT_ID, name: "ubuntu" })
 
       expect(result.images).toHaveLength(1)
       expect(result.images[0].name).toBe("ubuntu-22.04-lts")
@@ -298,7 +301,7 @@ describe("imageRouter", () => {
           }),
         })
 
-      const result = await caller.image.listImagesWithSearch({ name: "ubuntu" })
+      const result = await caller.image.listImagesWithSearch({ project_id: TEST_PROJECT_ID, name: "ubuntu" })
 
       // Should fetch all 3 pages and filter for ubuntu
       expect(mockCtx.mockGlance.get).toHaveBeenCalledTimes(3)
@@ -338,7 +341,7 @@ describe("imageRouter", () => {
           }),
         })
 
-      const result = await caller.image.listImagesWithSearch({ name: "ubuntu" })
+      const result = await caller.image.listImagesWithSearch({ project_id: TEST_PROJECT_ID, name: "ubuntu" })
 
       // Should stop after 2 pages because we have >= 50 matching results (MIN_RESULTS_WHEN_SEARCHING)
       expect(mockCtx.mockGlance.get).toHaveBeenCalledTimes(2)
@@ -414,7 +417,7 @@ describe("imageRouter", () => {
           }),
         })
 
-      const result = await caller.image.listImagesWithPagination({})
+      const result = await caller.image.listImagesWithPagination({ project_id: TEST_PROJECT_ID })
 
       expect(mockCtx.mockGlance.get).toHaveBeenCalledTimes(3)
       expect(result.images).toHaveLength(5)
@@ -471,7 +474,7 @@ describe("imageRouter", () => {
         }),
       })
 
-      await caller.image.listImagesWithPagination({ name: "ubuntu" })
+      await caller.image.listImagesWithPagination({ project_id: TEST_PROJECT_ID, name: "ubuntu" })
 
       const calledUrl: string = mockCtx.mockGlance.get.mock.calls[0][0]
       expect(calledUrl).not.toContain("name=ubuntu")
@@ -492,7 +495,7 @@ describe("imageRouter", () => {
         }),
       })
 
-      const result = await caller.image.listImagesWithPagination({ name: "ubuntu" })
+      const result = await caller.image.listImagesWithPagination({ project_id: TEST_PROJECT_ID, name: "ubuntu" })
 
       expect(result.images).toHaveLength(1)
       expect(result.images[0].name).toBe("Ubuntu-22.04-LTS")
@@ -510,7 +513,7 @@ describe("imageRouter", () => {
         }),
       })
 
-      const result = await caller.image.listImagesWithPagination({ name: "nonexistent" })
+      const result = await caller.image.listImagesWithPagination({ project_id: TEST_PROJECT_ID, name: "nonexistent" })
 
       expect(result.images).toHaveLength(0)
     })
@@ -530,7 +533,7 @@ describe("imageRouter", () => {
         }),
       })
 
-      const result = await caller.image.listImagesWithPagination({})
+      const result = await caller.image.listImagesWithPagination({ project_id: TEST_PROJECT_ID })
 
       expect(result.images).toHaveLength(2)
     })
@@ -550,7 +553,7 @@ describe("imageRouter", () => {
         }),
       })
 
-      const result = await caller.image.listImagesWithPagination({ name: "ubuntu" })
+      const result = await caller.image.listImagesWithPagination({ project_id: TEST_PROJECT_ID, name: "ubuntu" })
 
       // Only the named image should match; the undefined-name image should be excluded
       expect(result.images).toHaveLength(1)
@@ -563,7 +566,7 @@ describe("imageRouter", () => {
 
       mockCtx.mockGlance.get.mockRejectedValue({ statusCode: 500, message: "Internal Server Error" })
 
-      await expect(caller.image.listImagesWithPagination({})).rejects.toThrow(
+      await expect(caller.image.listImagesWithPagination({ project_id: TEST_PROJECT_ID })).rejects.toThrow(
         "Failed to list images with pagination: Internal Server Error"
       )
     })
@@ -582,7 +585,7 @@ describe("imageRouter", () => {
         }),
       })
 
-      const result = await caller.image.listImagesWithPagination({})
+      const result = await caller.image.listImagesWithPagination({ project_id: TEST_PROJECT_ID })
 
       // Should stop after MAX_PAGES (1000) even though 'next' is always present
       expect(mockCtx.mockGlance.get).toHaveBeenCalledTimes(1000)
@@ -610,7 +613,7 @@ describe("imageRouter", () => {
         })
       })
 
-      const result = await caller.image.listImagesWithPagination({})
+      const result = await caller.image.listImagesWithPagination({ project_id: TEST_PROJECT_ID })
 
       // Should stop at 5 pages (not 100) because 'next' became undefined
       expect(mockCtx.mockGlance.get).toHaveBeenCalledTimes(5)
@@ -988,7 +991,7 @@ describe("imageRouter", () => {
       const mockCtx = createMockContext()
       const caller = createCaller(mockCtx)
 
-      await caller.image.listImagesWithSearch({})
+      await caller.image.listImagesWithSearch({ project_id: TEST_PROJECT_ID })
 
       expect(imageHelpers.validateGlanceService).toHaveBeenCalled()
     })
