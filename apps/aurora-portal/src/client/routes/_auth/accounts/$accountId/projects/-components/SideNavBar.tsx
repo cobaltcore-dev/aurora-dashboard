@@ -84,10 +84,17 @@ export const SideNavBar = ({ accountId, projectId, availableServices }: SideNavB
       : []),
   ]
 
+  const isOverviewActive = activeSection === null
+
   return (
     <SideNavigation ariaLabel="Project Side Navigation" onActiveItemChange={() => {}}>
       <SideNavigationList>
         <>
+          <SideNavigationItem
+            label={t`Overview`}
+            onClick={() => navigate({ to: "/accounts/$accountId/projects/$projectId", params: { accountId, projectId } })}
+            selected={isOverviewActive}
+          />
           <SideNavigationItem
             label={t`Compute`}
             open={openSections.compute}

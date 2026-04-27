@@ -126,7 +126,7 @@ describe("MainNavigation", () => {
     await waitFor(() => render(<RouterProvider router={router} />))
 
     // Check if logo is rendered
-    expect(screen.getByText("Aurora")).toBeDefined()
+    expect(screen.getByText("SAP Cloud Infrastructure")).toBeDefined()
 
     // Check if navigation items are rendered
     expect(screen.getByText("About")).toBeDefined()
@@ -147,10 +147,11 @@ describe("MainNavigation", () => {
 
     await waitFor(() => render(<RouterProvider router={router} />))
 
-    // Check if domain name is rendered
+    // Domain is plain text, not a link
     await waitFor(() => {
       expect(screen.getByText("Test Domain (domain1)")).toBeDefined()
-      expect(screen.getByTestId("domain-link")).toBeDefined()
+      expect(screen.getByTestId("domain-name")).toBeDefined()
+      expect(screen.queryByTestId("domain-link")).toBeNull()
     })
   })
 
@@ -197,12 +198,12 @@ describe("MainNavigation", () => {
 
     await waitFor(() => render(<RouterProvider router={router} />))
 
-    // Click on the domain link
+    // Click on the project link
     await waitFor(async () => {
-      const domainLink = screen.getByTestId("domain-link")
-      await fireEvent.click(domainLink)
+      const projectLink = screen.getByTestId("project-link")
+      await fireEvent.click(projectLink)
 
-      expect(screen.getByText("Test Domain (domain1)")).toBeDefined()
+      expect(screen.getByText("Test Project (project1)")).toBeDefined()
     })
   })
 
