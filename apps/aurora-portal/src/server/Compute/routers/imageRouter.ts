@@ -376,79 +376,79 @@ export const imageRouter = {
           fileStream
         )
 
-      // Initialize progress tracking
-      uploadProgress.set(validatedImageId, {
-        uploaded: 0,
-        total: validatedFileSize,
-      })
-
-      try {
-        const progress = uploadProgress.get(validatedImageId)!
-
-        // Create a Transform stream to track progress
-        // This doesn't buffer - it just observes chunks as they flow through
-        const progressTracker = new Transform({
-          async transform(chunk: Buffer, encoding, callback) {
-            progress.uploaded += chunk.length
-
-            // Emit progress event for real-time subscription updates
-            uploadProgressEmitter.emit(`progress:${validatedImageId}`, {
-              uploaded: progress.uploaded,
-              total: progress.total,
-              percent: progress.total > 0 ? Math.round((progress.uploaded / progress.total) * 100) : 0,
-            })
-
-            // Yield control to allow progress subscriptions to run between chunks
-            // This is important for real-time updates without blocking
-            await new Promise((resolve) => setTimeout(resolve, 0))
-
-            // Pass the chunk through unmodified
-            callback(null, chunk)
-          },
+        // Initialize progress tracking
+        uploadProgress.set(validatedImageId, {
+          uploaded: 0,
+          total: validatedFileSize,
         })
 
-        // Convert Node.js stream to Web Stream API
-        // Pipe through progress tracker before converting
-        const trackedStream = validatedFile.pipe(progressTracker)
-        const webStream = Readable.toWeb(trackedStream)
+        try {
+          const progress = uploadProgress.get(validatedImageId)!
 
-        // Upload to Glance with progress tracking
-        const uploadResponse = await glance.put(`v2/images/${validatedImageId}/file`, webStream, {
-          headers: {
-            "Content-Type": "application/octet-stream",
-          },
-        })
+          // Create a Transform stream to track progress
+          // This doesn't buffer - it just observes chunks as they flow through
+          const progressTracker = new Transform({
+            async transform(chunk: Buffer, encoding, callback) {
+              progress.uploaded += chunk.length
 
-        if (!uploadResponse?.ok) {
+              // Emit progress event for real-time subscription updates
+              uploadProgressEmitter.emit(`progress:${validatedImageId}`, {
+                uploaded: progress.uploaded,
+                total: progress.total,
+                percent: progress.total > 0 ? Math.round((progress.uploaded / progress.total) * 100) : 0,
+              })
+
+              // Yield control to allow progress subscriptions to run between chunks
+              // This is important for real-time updates without blocking
+              await new Promise((resolve) => setTimeout(resolve, 0))
+
+              // Pass the chunk through unmodified
+              callback(null, chunk)
+            },
+          })
+
+          // Convert Node.js stream to Web Stream API
+          // Pipe through progress tracker before converting
+          const trackedStream = validatedFile.pipe(progressTracker)
+          const webStream = Readable.toWeb(trackedStream)
+
+          // Upload to Glance with progress tracking
+          const uploadResponse = await glance.put(`v2/images/${validatedImageId}/file`, webStream, {
+            headers: {
+              "Content-Type": "application/octet-stream",
+            },
+          })
+
+          if (!uploadResponse?.ok) {
+            throw ImageErrorHandlers.upload(
+              uploadResponse as unknown as SignalOpenstackApiError,
+              validatedImageId,
+              "application/octet-stream"
+            )
+          }
+
+          // Emit completion event
+          uploadProgressEmitter.emit(`progress:${validatedImageId}:complete`)
+
+          return {
+            success: true,
+            imageId: validatedImageId,
+          }
+        } catch (error) {
+          // Emit error event for subscriptions
+          uploadProgressEmitter.emit(`progress:${validatedImageId}:error`, error)
+
           throw ImageErrorHandlers.upload(
-            uploadResponse as unknown as SignalOpenstackApiError,
+            error as SignalOpenstackApiError,
             validatedImageId,
             "application/octet-stream"
           )
+        } finally {
+          // Always cleanup progress tracking
+          uploadProgress.delete(validatedImageId)
         }
-
-        // Emit completion event
-        uploadProgressEmitter.emit(`progress:${validatedImageId}:complete`)
-
-        return {
-          success: true,
-          imageId: validatedImageId,
-        }
-      } catch (error) {
-        // Emit error event for subscriptions
-        uploadProgressEmitter.emit(`progress:${validatedImageId}:error`, error)
-
-        throw ImageErrorHandlers.upload(
-          error as SignalOpenstackApiError,
-          validatedImageId,
-          "application/octet-stream"
-        )
-      } finally {
-        // Always cleanup progress tracking
-        uploadProgress.delete(validatedImageId)
-      }
-    }, "upload image")
-  }),
+      }, "upload image")
+    }),
 
   watchUploadProgress: projectScopedProcedure.input(z.object({ uploadId: z.string() })).subscription(async function* ({
     input,
@@ -616,23 +616,25 @@ export const imageRouter = {
       }, "update image visibility")
     }),
 
-  deleteImage: projectScopedProcedure.input(deleteImageInputSchema).mutation(async ({ input, ctx }): Promise<boolean> => {
-    return withErrorHandling(async () => {
-      const { imageId } = input
-      const openstackSession = ctx.openstack
-      const glance = openstackSession?.service("glance")
+  deleteImage: projectScopedProcedure
+    .input(deleteImageInputSchema)
+    .mutation(async ({ input, ctx }): Promise<boolean> => {
+      return withErrorHandling(async () => {
+        const { imageId } = input
+        const openstackSession = ctx.openstack
+        const glance = openstackSession?.service("glance")
 
-      validateGlanceService(glance)
+        validateGlanceService(glance)
 
-      const response = await glance.del(`v2/images/${imageId}`)
+        const response = await glance.del(`v2/images/${imageId}`)
 
-      if (!response?.ok) {
-        throw ImageErrorHandlers.delete(response, imageId)
-      }
+        if (!response?.ok) {
+          throw ImageErrorHandlers.delete(response, imageId)
+        }
 
-      return true
-    }, "delete image")
-  }),
+        return true
+      }, "delete image")
+    }),
 
   deactivateImage: projectScopedProcedure
     .input(deactivateImageInputSchema)

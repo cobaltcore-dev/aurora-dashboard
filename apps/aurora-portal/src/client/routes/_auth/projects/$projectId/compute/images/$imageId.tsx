@@ -76,7 +76,11 @@ function RouteComponent() {
   const navigate = useNavigate()
   const { t } = useLingui()
 
-  const { data: image, status, error } = trpcReact.compute.getImageById.useQuery({ project_id: projectId, imageId: imageId })
+  const {
+    data: image,
+    status,
+    error,
+  } = trpcReact.compute.getImageById.useQuery({ project_id: projectId, imageId: imageId })
 
   const { data: permissionsData } = trpcReact.compute.canUser.useQuery([
     "images:delete",
@@ -247,7 +251,11 @@ function RouteComponent() {
   const handleUpdateVisibility = async (newVisibility: "public" | "private" | "shared" | "community") => {
     if (!image) return
     try {
-      await updateImageVisibilityMutation.mutateAsync({ project_id: projectId, imageId: image.id, visibility: newVisibility })
+      await updateImageVisibilityMutation.mutateAsync({
+        project_id: projectId,
+        imageId: image.id,
+        visibility: newVisibility,
+      })
     } catch {
       // error handled by mutation state
     }

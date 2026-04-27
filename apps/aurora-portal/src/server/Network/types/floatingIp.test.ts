@@ -575,7 +575,9 @@ describe("OpenStack Floating IP Schema Validation", () => {
 
   describe("FloatingIpIdInputSchema", () => {
     it("should validate request with floatingip_id", () => {
-      expect(FloatingIpIdInputSchema.safeParse({ project_id: "test-project", floatingip_id: "fip-123" }).success).toBe(true)
+      expect(FloatingIpIdInputSchema.safeParse({ project_id: "test-project", floatingip_id: "fip-123" }).success).toBe(
+        true
+      )
     })
 
     it("should reject request without floatingip_id", () => {
@@ -647,10 +649,19 @@ describe("OpenStack Floating IP Schema Validation", () => {
     })
 
     it("should validate query with single filter", () => {
-      expect(FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", id: "fip-123" }).success).toBe(true)
-      expect(FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", floating_ip_address: "203.0.113.10" }).success).toBe(true)
-      expect(FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", status: "ACTIVE" }).success).toBe(true)
-      expect(FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", searchTerm: "web" }).success).toBe(true)
+      expect(FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", id: "fip-123" }).success).toBe(
+        true
+      )
+      expect(
+        FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", floating_ip_address: "203.0.113.10" })
+          .success
+      ).toBe(true)
+      expect(FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", status: "ACTIVE" }).success).toBe(
+        true
+      )
+      expect(FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", searchTerm: "web" }).success).toBe(
+        true
+      )
     })
 
     it("should validate query with multiple filters", () => {
@@ -663,18 +674,30 @@ describe("OpenStack Floating IP Schema Validation", () => {
     })
 
     it("should validate nullable router_id filter", () => {
-      expect(FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", router_id: null }).success).toBe(true)
-      expect(FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", router_id: "router-1" }).success).toBe(true)
+      expect(FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", router_id: null }).success).toBe(
+        true
+      )
+      expect(
+        FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", router_id: "router-1" }).success
+      ).toBe(true)
     })
 
     it("should validate nullable port_id filter", () => {
-      expect(FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", port_id: null }).success).toBe(true)
-      expect(FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", port_id: "port-123" }).success).toBe(true)
+      expect(FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", port_id: null }).success).toBe(
+        true
+      )
+      expect(
+        FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", port_id: "port-123" }).success
+      ).toBe(true)
     })
 
     it("should validate sort parameters", () => {
-      expect(FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", sort_dir: "asc" }).success).toBe(true)
-      expect(FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", sort_dir: "desc" }).success).toBe(true)
+      expect(FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", sort_dir: "asc" }).success).toBe(
+        true
+      )
+      expect(FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", sort_dir: "desc" }).success).toBe(
+        true
+      )
     })
 
     it("should reject invalid sort_dir", () => {
@@ -693,42 +716,71 @@ describe("OpenStack Floating IP Schema Validation", () => {
         "project_id",
       ]
       validSortKeys.forEach((key) => {
-        expect(FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", sort_key: key }).success).toBe(true)
+        expect(FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", sort_key: key }).success).toBe(
+          true
+        )
       })
     })
 
     it("should reject invalid sort_key", () => {
-      expect(FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", sort_key: "invalid_key" }).success).toBe(false)
+      expect(
+        FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", sort_key: "invalid_key" }).success
+      ).toBe(false)
     })
 
     it("should validate tag filters", () => {
-      expect(FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", tags: ["tag1", "tag2"] }).success).toBe(true)
-      expect(FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", "tags-any": "tag1,tag2" }).success).toBe(true)
-      expect(FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", "not-tags": "tag1,tag2" }).success).toBe(true)
-      expect(FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", "not-tags-any": "tag1,tag2" }).success).toBe(true)
+      expect(
+        FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", tags: ["tag1", "tag2"] }).success
+      ).toBe(true)
+      expect(
+        FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", "tags-any": "tag1,tag2" }).success
+      ).toBe(true)
+      expect(
+        FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", "not-tags": "tag1,tag2" }).success
+      ).toBe(true)
+      expect(
+        FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", "not-tags-any": "tag1,tag2" }).success
+      ).toBe(true)
     })
 
     it("should validate tags as array of strings", () => {
       expect(FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", tags: [] }).success).toBe(true)
-      expect(FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", tags: ["production"] }).success).toBe(true)
-      expect(FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", tags: ["prod", "web", "critical"] }).success).toBe(true)
+      expect(
+        FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", tags: ["production"] }).success
+      ).toBe(true)
+      expect(
+        FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", tags: ["prod", "web", "critical"] })
+          .success
+      ).toBe(true)
     })
 
     it("should reject tags as non-array type", () => {
-      expect(FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", tags: "production" }).success).toBe(false)
+      expect(
+        FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", tags: "production" }).success
+      ).toBe(false)
     })
 
     it("should validate nullable description filter", () => {
-      expect(FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", description: null }).success).toBe(true)
-      expect(FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", description: "Test" }).success).toBe(true)
+      expect(FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", description: null }).success).toBe(
+        true
+      )
+      expect(
+        FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", description: "Test" }).success
+      ).toBe(true)
     })
 
     it("should validate fields parameter as string", () => {
-      expect(FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", fields: "id,floating_ip_address" }).success).toBe(true)
+      expect(
+        FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", fields: "id,floating_ip_address" })
+          .success
+      ).toBe(true)
     })
 
     it("should validate fields parameter as array", () => {
-      expect(FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", fields: ["id", "floating_ip_address"] }).success).toBe(true)
+      expect(
+        FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", fields: ["id", "floating_ip_address"] })
+          .success
+      ).toBe(true)
     })
 
     it("should reject fields parameter with invalid type", () => {
@@ -746,8 +798,12 @@ describe("OpenStack Floating IP Schema Validation", () => {
     })
 
     it("should validate page_reverse as boolean", () => {
-      expect(FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", page_reverse: true }).success).toBe(true)
-      expect(FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", page_reverse: false }).success).toBe(true)
+      expect(
+        FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", page_reverse: true }).success
+      ).toBe(true)
+      expect(
+        FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", page_reverse: false }).success
+      ).toBe(true)
     })
 
     it("should validate complete query with all parameters", () => {
@@ -778,18 +834,30 @@ describe("OpenStack Floating IP Schema Validation", () => {
     })
 
     it("should validate status filter with all valid values", () => {
-      expect(FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", status: "ACTIVE" }).success).toBe(true)
-      expect(FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", status: "DOWN" }).success).toBe(true)
-      expect(FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", status: "ERROR" }).success).toBe(true)
+      expect(FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", status: "ACTIVE" }).success).toBe(
+        true
+      )
+      expect(FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", status: "DOWN" }).success).toBe(
+        true
+      )
+      expect(FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", status: "ERROR" }).success).toBe(
+        true
+      )
     })
 
     it("should reject invalid status filter", () => {
-      expect(FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", status: "INVALID" }).success).toBe(false)
+      expect(FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", status: "INVALID" }).success).toBe(
+        false
+      )
     })
 
     it("should validate revision_number as number", () => {
-      expect(FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", revision_number: 0 }).success).toBe(true)
-      expect(FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", revision_number: 999 }).success).toBe(true)
+      expect(
+        FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", revision_number: 0 }).success
+      ).toBe(true)
+      expect(
+        FloatingIpQueryParametersSchema.safeParse({ project_id: "test-project", revision_number: 999 }).success
+      ).toBe(true)
     })
 
     it("should validate limit as number", () => {

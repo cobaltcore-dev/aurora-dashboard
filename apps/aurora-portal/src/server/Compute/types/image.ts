@@ -270,34 +270,35 @@ export const imagesPaginatedInputSchema = listImagesInputSchema.extend({
 export const getImageByIdInputSchema = baseImageInputSchema
 
 // Input schema for creating an image
-export const createImageInputSchema = projectScopedInputSchema.extend({
-  // Core properties that can be set during creation
-  name: z.string().optional(),
-  id: z.string().uuid().optional(), // Optional UUID, API will generate if omitted
-  container_format: containerFormatSchema.optional().default("bare"),
-  disk_format: diskFormatSchema.optional(),
-  visibility: imageVisibilityEnumSchema.optional().default("private"),
-  protected: z.boolean().optional().default(false),
-  min_ram: z.number().int().nonnegative().optional().default(0),
-  min_disk: z.number().int().nonnegative().optional().default(0),
-  tags: z.array(z.string().max(255)).optional().default([]),
-  // Additional properties - can include any string key-value pairs
-  // Following OpenStack property naming conventions
-  os_type: osTypeFilterSchema.optional(),
-  os_distro: z.string().optional(),
-  os_version: z.string().optional(),
-  architecture: z.string().optional(),
-  os_hidden: z.boolean().optional().default(false),
-  // Hardware properties
-  hw_disk_bus: z.string().optional(),
-  hw_scsi_model: z.string().optional(),
-  hw_serial: z.string().optional(),
-  hw_qemu_guest_agent: z.boolean().optional(),
-  hw_vif_model: z.string().optional(),
-  hw_rng_model: z.string().optional(),
-  hw_machine_type: z.string().optional(),
-  // Allow additional custom properties as strings
-})
+export const createImageInputSchema = projectScopedInputSchema
+  .extend({
+    // Core properties that can be set during creation
+    name: z.string().optional(),
+    id: z.string().uuid().optional(), // Optional UUID, API will generate if omitted
+    container_format: containerFormatSchema.optional().default("bare"),
+    disk_format: diskFormatSchema.optional(),
+    visibility: imageVisibilityEnumSchema.optional().default("private"),
+    protected: z.boolean().optional().default(false),
+    min_ram: z.number().int().nonnegative().optional().default(0),
+    min_disk: z.number().int().nonnegative().optional().default(0),
+    tags: z.array(z.string().max(255)).optional().default([]),
+    // Additional properties - can include any string key-value pairs
+    // Following OpenStack property naming conventions
+    os_type: osTypeFilterSchema.optional(),
+    os_distro: z.string().optional(),
+    os_version: z.string().optional(),
+    architecture: z.string().optional(),
+    os_hidden: z.boolean().optional().default(false),
+    // Hardware properties
+    hw_disk_bus: z.string().optional(),
+    hw_scsi_model: z.string().optional(),
+    hw_serial: z.string().optional(),
+    hw_qemu_guest_agent: z.boolean().optional(),
+    hw_vif_model: z.string().optional(),
+    hw_rng_model: z.string().optional(),
+    hw_machine_type: z.string().optional(),
+    // Allow additional custom properties as strings
+  })
   .catchall(z.string())
 
 // JSON Patch operation schema for updating images

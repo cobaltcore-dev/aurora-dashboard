@@ -81,7 +81,7 @@ describe("Network query schemas", () => {
     it("should validate when router:external is explicitly true", () => {
       const result = ListExternalNetworksQuerySchema.safeParse({
         project_id: "project-1",
-        "router:external": true
+        "router:external": true,
       })
 
       expect(result.success).toBe(true)
@@ -90,7 +90,7 @@ describe("Network query schemas", () => {
     it("should reject router:external when false", () => {
       const result = ListExternalNetworksQuerySchema.safeParse({
         project_id: "project-1",
-        "router:external": false
+        "router:external": false,
       })
 
       expect(result.success).toBe(false)

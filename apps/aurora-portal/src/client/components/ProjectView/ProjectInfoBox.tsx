@@ -82,9 +82,7 @@ export function ProjectInfoBox({ projectInfo }: ProjectInfoBoxProps) {
 
     items.push({
       label: projectInfo.name,
-      onClick: accountId
-        ? () => navigate({ to: "/accounts/$accountId/projects", params: { accountId } })
-        : undefined,
+      onClick: accountId ? () => navigate({ to: "/accounts/$accountId/projects", params: { accountId } }) : undefined,
     })
 
     if (sectionLabel && section) {

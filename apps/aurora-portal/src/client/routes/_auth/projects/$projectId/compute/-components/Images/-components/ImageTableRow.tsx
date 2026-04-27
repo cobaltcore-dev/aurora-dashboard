@@ -83,7 +83,12 @@ export function ImageTableRow({
 
   const handleMemberStatusChange = async (newStatus: MemberStatus) => {
     try {
-      await updateMemberMutation.mutateAsync({ project_id: projectId, imageId: id, memberId: projectId, status: newStatus })
+      await updateMemberMutation.mutateAsync({
+        project_id: projectId,
+        imageId: id,
+        memberId: projectId,
+        status: newStatus,
+      })
       setToastData(getImageAccessStatusUpdatedToast(newStatus, { onDismiss: () => setToastData(null) }))
       onMemberStatusChanged?.()
     } catch (error) {

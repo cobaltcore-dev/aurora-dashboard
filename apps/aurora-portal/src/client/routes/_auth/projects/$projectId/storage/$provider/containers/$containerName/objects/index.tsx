@@ -89,36 +89,36 @@ const objectsSearchSchema = z.object({
   search: z.string().optional(),
 })
 
-export const Route = createFileRoute(
-  "/_auth/projects/$projectId/storage/$provider/containers/$containerName/objects/"
-)({
-  staticData: { section: "storage", service: "containers", isDetail: true } satisfies RouteInfo,
-  validateSearch: objectsSearchSchema,
-  component: () => {
-    return <ObjectsDashboard />
-  },
-  notFoundComponent: () => {
-    return (
-      <p>
-        <Trans>Storage container not found</Trans>
-      </p>
-    )
-  },
-  loader: async ({ context }) => {
-    const { trpcClient } = context
-    const availableServices = await trpcClient?.auth.getAvailableServices.query()
+export const Route = createFileRoute("/_auth/projects/$projectId/storage/$provider/containers/$containerName/objects/")(
+  {
+    staticData: { section: "storage", service: "containers", isDetail: true } satisfies RouteInfo,
+    validateSearch: objectsSearchSchema,
+    component: () => {
+      return <ObjectsDashboard />
+    },
+    notFoundComponent: () => {
+      return (
+        <p>
+          <Trans>Storage container not found</Trans>
+        </p>
+      )
+    },
+    loader: async ({ context }) => {
+      const { trpcClient } = context
+      const availableServices = await trpcClient?.auth.getAvailableServices.query()
 
-    return {
-      client: trpcClient,
-      availableServices,
-    }
-  },
-  beforeLoad: async ({ context, params }) => {
-    const { trpcClient } = context
-    const availableServices = await trpcClient?.auth.getAvailableServices.query()
-    checkServiceAvailability(availableServices!, params)
-  },
-})
+      return {
+        client: trpcClient,
+        availableServices,
+      }
+    },
+    beforeLoad: async ({ context, params }) => {
+      const { trpcClient } = context
+      const availableServices = await trpcClient?.auth.getAvailableServices.query()
+      checkServiceAvailability(availableServices!, params)
+    },
+  }
+)
 
 function ObjectsDashboard() {
   const { project, provider, containerName } = useParams({

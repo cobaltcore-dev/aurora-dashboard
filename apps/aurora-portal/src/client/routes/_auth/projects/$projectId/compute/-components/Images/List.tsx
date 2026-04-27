@@ -386,10 +386,17 @@ export const Images = ({ client, project }: ImagesProps) => {
         urlMemberStatus === "pending" || urlMemberStatus === "accepted"
           ? (filterSettings.selectedFilters || []).filter((f) => f.name !== "visibility")
           : filterSettings.selectedFilters || []
-      const newPromise = createImagesPromise(client, project, sortSettings.sortBy, sortSettings.sortDirection, searchTerm, {
-        ...buildFilterParams(effectiveFilters, filterSettings.filters),
-        member_status: urlMemberStatusFilter,
-      })
+      const newPromise = createImagesPromise(
+        client,
+        project,
+        sortSettings.sortBy,
+        sortSettings.sortDirection,
+        searchTerm,
+        {
+          ...buildFilterParams(effectiveFilters, filterSettings.filters),
+          member_status: urlMemberStatusFilter,
+        }
+      )
       newPromise
         .then((result) => {
           setAllImages(result.images)

@@ -190,7 +190,7 @@ describe("SecurityGroups", () => {
       render(<SecurityGroups />, { wrapper: createWrapper() })
 
       // Give it a moment to render
-      await new Promise(resolve => setTimeout(resolve, 100))
+      await new Promise((resolve) => setTimeout(resolve, 100))
 
       expect(screen.getByTestId("security-group-list-container")).toBeInTheDocument()
     })
@@ -205,7 +205,7 @@ describe("SecurityGroups", () => {
       render(<SecurityGroups />, { wrapper: createWrapper() })
 
       // Give it a moment to render
-      await new Promise(resolve => setTimeout(resolve, 100))
+      await new Promise((resolve) => setTimeout(resolve, 100))
 
       const permissionsElement = screen.getByTestId("permissions")
       expect(permissionsElement.textContent).toBe(
@@ -261,7 +261,7 @@ describe("SecurityGroups", () => {
       render(<SecurityGroups />, { wrapper: createWrapper() })
 
       // Give it a moment to render
-      await new Promise(resolve => setTimeout(resolve, 100))
+      await new Promise((resolve) => setTimeout(resolve, 100))
 
       expect(screen.getByTestId("error")).toHaveTextContent("Failed to fetch")
     })
@@ -276,7 +276,7 @@ describe("SecurityGroups", () => {
       render(<SecurityGroups />, { wrapper: createWrapper() })
 
       // Give it a moment to render
-      await new Promise(resolve => setTimeout(resolve, 100))
+      await new Promise((resolve) => setTimeout(resolve, 100))
 
       expect(screen.getByTestId("security-groups-data")).toHaveTextContent("2 security groups")
     })
