@@ -122,6 +122,7 @@ export const FloatingIpSchema = z.object({
  * See https://docs.openstack.org/api-ref/network/v2/index.html#floating-ips
  */
 export const FloatingIpIdInputSchema = z.object({
+  project_id: z.string(),
   floatingip_id: z.string(),
 })
 
@@ -151,6 +152,7 @@ export const FloatingIpCreateRequestSchema = z.object({
  * See https://docs.openstack.org/api-ref/network/v2/index.html#update-floating-ip
  */
 export const FloatingIpUpdateRequestSchema = z.object({
+  project_id: z.string(),
   floatingip_id: z.string(),
   port_id: z.string().nullable(),
   fixed_ip_address: z.string().optional(),
@@ -187,6 +189,8 @@ export const FloatingIpListResponseSchema = z.object({
  * See https://docs.openstack.org/api-ref/network/v2/index.html#list-floating-ips
  */
 export const FloatingIpQueryParametersSchema = z.object({
+  /** Project ID for rescoping (required for projectScopedProcedure) */
+  project_id: z.string(),
   /** Filter by the ID of the floating IP */
   id: z.string().optional(),
   /** Filter by the ID of the router for the floating IP */
@@ -195,8 +199,6 @@ export const FloatingIpQueryParametersSchema = z.object({
   status: FloatingIpStatusSchema.optional(),
   /** Filter by the ID of the project that owns the resource */
   tenant_id: z.string().optional(),
-  /** Filter by the ID of the project that owns the resource */
-  project_id: z.string().optional(),
   /** Filter by the revision number of the resource */
   revision_number: z.number().optional(),
   /** Filter by the human-readable description of the resource */

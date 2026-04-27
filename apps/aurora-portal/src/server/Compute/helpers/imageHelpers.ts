@@ -8,7 +8,7 @@ import { SignalOpenstackApiError } from "@cobaltcore-dev/signal-openstack"
  * @param queryParams - URLSearchParams object to modify
  * @param input - Input object containing sorting and filtering parameters
  */
-export function applyImageQueryParams(queryParams: URLSearchParams, input: ListImagesInput): void {
+export function applyImageQueryParams(queryParams: URLSearchParams, input: Omit<ListImagesInput, "project_id">): void {
   const {
     sort_key,
     sort_dir,

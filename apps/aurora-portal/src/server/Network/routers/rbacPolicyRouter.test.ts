@@ -52,141 +52,143 @@ const createMockContext = (opts?: {
     },
   ]
 
+  const mockOpenstackSession = {
+    service: vi.fn().mockImplementation((serviceName: string) => {
+      if (serviceName !== "network" || noNetworkService) {
+        return null
+      }
+
+      return {
+        get: vi.fn().mockImplementation((url: string) => {
+          if (mockError) {
+            return Promise.reject(new Error("Network error"))
+          }
+
+          if (mockHttpStatus && mockHttpStatus !== 200) {
+            return Promise.resolve({
+              ok: false,
+              status: mockHttpStatus,
+              statusText: mockStatusText || "Error",
+            })
+          }
+
+          // Handle list endpoint
+          if (url.includes("rbac-policies")) {
+            return Promise.resolve({
+              ok: true,
+              status: 200,
+              json: vi.fn().mockResolvedValue({
+                rbac_policies: mockRBACPolicies || defaultRBACPolicies,
+              }),
+            })
+          }
+
+          return Promise.resolve({
+            ok: true,
+            status: 200,
+            json: vi.fn().mockResolvedValue({
+              rbac_policy: mockRBACPolicy || defaultRBACPolicies[0],
+            }),
+          })
+        }),
+
+        post: vi.fn().mockImplementation((_url: string, body: unknown) => {
+          if (mockError) {
+            return Promise.reject(new Error("Network error"))
+          }
+
+          if (mockHttpStatus && mockHttpStatus !== 200) {
+            return Promise.resolve({
+              ok: false,
+              status: mockHttpStatus,
+              statusText: mockStatusText || "Error",
+            })
+          }
+
+          // Create endpoint
+          const requestBody = body as CreateRBACPolicyRequestBody
+          const createdPolicy: RBACPolicy = {
+            id: "rbac-policy-new",
+            object_type: "security_group",
+            object_id: requestBody.rbac_policy.object_id,
+            action: "access_as_shared",
+            target_tenant: requestBody.rbac_policy.target_tenant,
+            tenant_id: "owner-project-1",
+            project_id: "owner-project-1",
+          }
+
+          return Promise.resolve({
+            ok: true,
+            status: 201,
+            json: vi.fn().mockResolvedValue({
+              rbac_policy: mockRBACPolicy || createdPolicy,
+            }),
+          })
+        }),
+
+        put: vi.fn().mockImplementation((url: string, body: unknown) => {
+          if (mockError) {
+            return Promise.reject(new Error("Network error"))
+          }
+
+          if (mockHttpStatus && mockHttpStatus !== 200) {
+            return Promise.resolve({
+              ok: false,
+              status: mockHttpStatus,
+              statusText: mockStatusText || "Error",
+            })
+          }
+
+          // Update endpoint
+          const requestBody = body as UpdateRBACPolicyRequestBody
+          const updatedPolicy: RBACPolicy = {
+            id: url.split("/").pop() || "rbac-policy-1",
+            object_type: "security_group",
+            object_id: "sg-123",
+            action: "access_as_shared",
+            target_tenant: requestBody.rbac_policy.target_tenant,
+            tenant_id: "owner-project-1",
+            project_id: "owner-project-1",
+          }
+
+          return Promise.resolve({
+            ok: true,
+            status: 200,
+            json: vi.fn().mockResolvedValue({
+              rbac_policy: mockRBACPolicy || updatedPolicy,
+            }),
+          })
+        }),
+
+        del: vi.fn().mockImplementation(() => {
+          if (mockError) {
+            return Promise.reject(new Error("Network error"))
+          }
+
+          if (mockHttpStatus && mockHttpStatus !== 204) {
+            return Promise.resolve({
+              ok: false,
+              status: mockHttpStatus,
+              statusText: mockStatusText || "Error",
+            })
+          }
+
+          // Delete endpoint
+          return Promise.resolve({
+            ok: true,
+            status: 204,
+          })
+        }),
+      }
+    }),
+  }
+
   return {
     validateSession: vi.fn().mockReturnValue(!invalidSession),
-    openstack: {
-      service: vi.fn().mockImplementation((serviceName: string) => {
-        if (serviceName !== "network" || noNetworkService) {
-          return null
-        }
-
-        return {
-          get: vi.fn().mockImplementation((url: string) => {
-            if (mockError) {
-              return Promise.reject(new Error("Network error"))
-            }
-
-            if (mockHttpStatus && mockHttpStatus !== 200) {
-              return Promise.resolve({
-                ok: false,
-                status: mockHttpStatus,
-                statusText: mockStatusText || "Error",
-              })
-            }
-
-            // Handle list endpoint
-            if (url.includes("rbac-policies")) {
-              return Promise.resolve({
-                ok: true,
-                status: 200,
-                json: vi.fn().mockResolvedValue({
-                  rbac_policies: mockRBACPolicies || defaultRBACPolicies,
-                }),
-              })
-            }
-
-            return Promise.resolve({
-              ok: true,
-              status: 200,
-              json: vi.fn().mockResolvedValue({
-                rbac_policy: mockRBACPolicy || defaultRBACPolicies[0],
-              }),
-            })
-          }),
-
-          post: vi.fn().mockImplementation((_url: string, body: unknown) => {
-            if (mockError) {
-              return Promise.reject(new Error("Network error"))
-            }
-
-            if (mockHttpStatus && mockHttpStatus !== 200) {
-              return Promise.resolve({
-                ok: false,
-                status: mockHttpStatus,
-                statusText: mockStatusText || "Error",
-              })
-            }
-
-            // Create endpoint
-            const requestBody = body as CreateRBACPolicyRequestBody
-            const createdPolicy: RBACPolicy = {
-              id: "rbac-policy-new",
-              object_type: "security_group",
-              object_id: requestBody.rbac_policy.object_id,
-              action: "access_as_shared",
-              target_tenant: requestBody.rbac_policy.target_tenant,
-              tenant_id: "owner-project-1",
-              project_id: "owner-project-1",
-            }
-
-            return Promise.resolve({
-              ok: true,
-              status: 201,
-              json: vi.fn().mockResolvedValue({
-                rbac_policy: mockRBACPolicy || createdPolicy,
-              }),
-            })
-          }),
-
-          put: vi.fn().mockImplementation((url: string, body: unknown) => {
-            if (mockError) {
-              return Promise.reject(new Error("Network error"))
-            }
-
-            if (mockHttpStatus && mockHttpStatus !== 200) {
-              return Promise.resolve({
-                ok: false,
-                status: mockHttpStatus,
-                statusText: mockStatusText || "Error",
-              })
-            }
-
-            // Update endpoint
-            const requestBody = body as UpdateRBACPolicyRequestBody
-            const updatedPolicy: RBACPolicy = {
-              id: url.split("/").pop() || "rbac-policy-1",
-              object_type: "security_group",
-              object_id: "sg-123",
-              action: "access_as_shared",
-              target_tenant: requestBody.rbac_policy.target_tenant,
-              tenant_id: "owner-project-1",
-              project_id: "owner-project-1",
-            }
-
-            return Promise.resolve({
-              ok: true,
-              status: 200,
-              json: vi.fn().mockResolvedValue({
-                rbac_policy: mockRBACPolicy || updatedPolicy,
-              }),
-            })
-          }),
-
-          del: vi.fn().mockImplementation(() => {
-            if (mockError) {
-              return Promise.reject(new Error("Network error"))
-            }
-
-            if (mockHttpStatus && mockHttpStatus !== 204) {
-              return Promise.resolve({
-                ok: false,
-                status: mockHttpStatus,
-                statusText: mockStatusText || "Error",
-              })
-            }
-
-            // Delete endpoint
-            return Promise.resolve({
-              ok: true,
-              status: 204,
-            })
-          }),
-        }
-      }),
-    },
+    openstack: mockOpenstackSession,
     createSession: vi.fn(),
     terminateSession: vi.fn(),
-    rescopeSession: vi.fn(),
+    rescopeSession: vi.fn().mockResolvedValue(mockOpenstackSession),
   } as unknown as AuroraPortalContext
 }
 
@@ -195,6 +197,8 @@ const createCaller = createCallerFactory(
     rbacPolicy: rbacPolicyRouter,
   })
 )
+
+const TEST_PROJECT_ID = "proj-1"
 
 describe("rbacPolicyRouter.list", () => {
   beforeEach(() => {
@@ -206,6 +210,7 @@ describe("rbacPolicyRouter.list", () => {
     const caller = createCaller(ctx)
 
     const result = await caller.rbacPolicy.list({
+      project_id: TEST_PROJECT_ID,
       securityGroupId: "sg-123",
     })
 
@@ -225,6 +230,7 @@ describe("rbacPolicyRouter.list", () => {
     const caller = createCaller(ctx)
 
     const result = await caller.rbacPolicy.list({
+      project_id: TEST_PROJECT_ID,
       securityGroupId: "sg-123",
     })
 
@@ -238,6 +244,7 @@ describe("rbacPolicyRouter.list", () => {
 
     await expect(
       caller.rbacPolicy.list({
+        project_id: TEST_PROJECT_ID,
         securityGroupId: "sg-123",
       })
     ).rejects.toThrow(
@@ -252,7 +259,7 @@ describe("rbacPolicyRouter.list", () => {
     const ctx = createMockContext({ noNetworkService: true })
     const caller = createCaller(ctx)
 
-    await expect(caller.rbacPolicy.list({ securityGroupId: "sg-123" })).rejects.toThrow(
+    await expect(caller.rbacPolicy.list({ project_id: TEST_PROJECT_ID, securityGroupId: "sg-123" })).rejects.toThrow(
       new TRPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: "Network service is not available",
@@ -264,7 +271,7 @@ describe("rbacPolicyRouter.list", () => {
     const ctx = createMockContext({ mockHttpStatus: 401, mockStatusText: "Unauthorized" })
     const caller = createCaller(ctx)
 
-    await expect(caller.rbacPolicy.list({ securityGroupId: "sg-123" })).rejects.toThrow(
+    await expect(caller.rbacPolicy.list({ project_id: TEST_PROJECT_ID, securityGroupId: "sg-123" })).rejects.toThrow(
       new TRPCError({
         code: "UNAUTHORIZED",
         message: "Unauthorized access",
@@ -276,7 +283,7 @@ describe("rbacPolicyRouter.list", () => {
     const ctx = createMockContext({ mockHttpStatus: 403, mockStatusText: "Forbidden" })
     const caller = createCaller(ctx)
 
-    await expect(caller.rbacPolicy.list({ securityGroupId: "sg-123" })).rejects.toThrow(
+    await expect(caller.rbacPolicy.list({ project_id: TEST_PROJECT_ID, securityGroupId: "sg-123" })).rejects.toThrow(
       new TRPCError({
         code: "FORBIDDEN",
         message: "Access forbidden: Forbidden",
@@ -295,6 +302,7 @@ describe("rbacPolicyRouter.create", () => {
     const caller = createCaller(ctx)
 
     const result = await caller.rbacPolicy.create({
+      project_id: TEST_PROJECT_ID,
       securityGroupId: "sg-123",
       targetTenant: "target-project-1",
     })
@@ -312,6 +320,7 @@ describe("rbacPolicyRouter.create", () => {
 
     await expect(
       caller.rbacPolicy.create({
+        project_id: TEST_PROJECT_ID,
         securityGroupId: "sg-123",
         targetTenant: "target-project-1",
       })
@@ -329,6 +338,7 @@ describe("rbacPolicyRouter.create", () => {
 
     await expect(
       caller.rbacPolicy.create({
+        project_id: TEST_PROJECT_ID,
         securityGroupId: "sg-123",
         targetTenant: "target-project-1",
       })
@@ -346,6 +356,7 @@ describe("rbacPolicyRouter.create", () => {
 
     await expect(
       caller.rbacPolicy.create({
+        project_id: TEST_PROJECT_ID,
         securityGroupId: "sg-123",
         targetTenant: "target-project-1",
       })
@@ -363,6 +374,7 @@ describe("rbacPolicyRouter.create", () => {
 
     await expect(
       caller.rbacPolicy.create({
+        project_id: TEST_PROJECT_ID,
         securityGroupId: "sg-123",
         targetTenant: "target-project-1",
       })
@@ -380,6 +392,7 @@ describe("rbacPolicyRouter.create", () => {
 
     await expect(
       caller.rbacPolicy.create({
+        project_id: TEST_PROJECT_ID,
         securityGroupId: "sg-123",
         targetTenant: "target-project-1",
       })
@@ -397,6 +410,7 @@ describe("rbacPolicyRouter.create", () => {
 
     await expect(
       caller.rbacPolicy.create({
+        project_id: TEST_PROJECT_ID,
         securityGroupId: "sg-123",
         targetTenant: "",
       })
@@ -414,6 +428,7 @@ describe("rbacPolicyRouter.update", () => {
     const caller = createCaller(ctx)
 
     const result = await caller.rbacPolicy.update({
+      project_id: TEST_PROJECT_ID,
       policyId: "rbac-policy-1",
       targetTenant: "new-target-project",
     })
@@ -429,6 +444,7 @@ describe("rbacPolicyRouter.update", () => {
 
     await expect(
       caller.rbacPolicy.update({
+        project_id: TEST_PROJECT_ID,
         policyId: "rbac-policy-1",
         targetTenant: "new-target-project",
       })
@@ -446,6 +462,7 @@ describe("rbacPolicyRouter.update", () => {
 
     await expect(
       caller.rbacPolicy.update({
+        project_id: TEST_PROJECT_ID,
         policyId: "rbac-policy-1",
         targetTenant: "new-target-project",
       })
@@ -463,6 +480,7 @@ describe("rbacPolicyRouter.update", () => {
 
     await expect(
       caller.rbacPolicy.update({
+        project_id: TEST_PROJECT_ID,
         policyId: "nonexistent-policy",
         targetTenant: "new-target-project",
       })
@@ -480,6 +498,7 @@ describe("rbacPolicyRouter.update", () => {
 
     await expect(
       caller.rbacPolicy.update({
+        project_id: TEST_PROJECT_ID,
         policyId: "rbac-policy-1",
         targetTenant: "",
       })
@@ -497,6 +516,7 @@ describe("rbacPolicyRouter.delete", () => {
     const caller = createCaller(ctx)
 
     const result = await caller.rbacPolicy.delete({
+      project_id: TEST_PROJECT_ID,
       policyId: "rbac-policy-1",
     })
 
@@ -509,6 +529,7 @@ describe("rbacPolicyRouter.delete", () => {
 
     await expect(
       caller.rbacPolicy.delete({
+        project_id: TEST_PROJECT_ID,
         policyId: "rbac-policy-1",
       })
     ).rejects.toThrow(
@@ -525,6 +546,7 @@ describe("rbacPolicyRouter.delete", () => {
 
     await expect(
       caller.rbacPolicy.delete({
+        project_id: TEST_PROJECT_ID,
         policyId: "nonexistent-policy",
       })
     ).rejects.toThrow(
@@ -541,6 +563,7 @@ describe("rbacPolicyRouter.delete", () => {
 
     await expect(
       caller.rbacPolicy.delete({
+        project_id: TEST_PROJECT_ID,
         policyId: "rbac-policy-1",
       })
     ).rejects.toThrow(
@@ -555,7 +578,7 @@ describe("rbacPolicyRouter.delete", () => {
     const ctx = createMockContext({ noNetworkService: true })
     const caller = createCaller(ctx)
 
-    await expect(caller.rbacPolicy.delete({ policyId: "rbac-policy-1" })).rejects.toThrow(
+    await expect(caller.rbacPolicy.delete({ project_id: TEST_PROJECT_ID, policyId: "rbac-policy-1" })).rejects.toThrow(
       new TRPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: "Network service is not available",

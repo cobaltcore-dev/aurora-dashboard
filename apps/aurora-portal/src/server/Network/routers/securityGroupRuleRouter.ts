@@ -1,4 +1,4 @@
-import { protectedProcedure } from "../../trpc"
+import { projectScopedProcedure } from "../../trpc"
 import {
   deleteSecurityGroupRuleInputSchema,
   createSecurityGroupRuleInputSchema,
@@ -13,16 +13,19 @@ const SECURITY_GROUP_RULES_BASE_URL = "v2.0/security-group-rules"
 /**
  * tRPC router for OpenStack Neutron Security Group Rules.
  *
+ * Now uses projectScopedProcedure for automatic token rescoping.
+ *
  * Currently exposes:
  * - delete: DELETE /v2.0/security-group-rules/{security_group_rule_id} to delete a rule.
  * - create: POST /v2.0/security-group-rules to create a new rule.
  */
 export const securityGroupRuleRouter = {
-  delete: protectedProcedure
+  delete: projectScopedProcedure
     .input(deleteSecurityGroupRuleInputSchema)
     .mutation(async ({ input, ctx }): Promise<void> => {
       return withErrorHandling(async () => {
         const { ruleId } = input
+        // ctx.openstack is already rescoped to the project by projectScopedProcedure
         const network = getNetworkService(ctx)
 
         const response = await network.del(`${SECURITY_GROUP_RULES_BASE_URL}/${ruleId}`)
@@ -33,10 +36,11 @@ export const securityGroupRuleRouter = {
       }, "delete security group rule")
     }),
 
-  create: protectedProcedure
+  create: projectScopedProcedure
     .input(createSecurityGroupRuleInputSchema)
     .mutation(async ({ input, ctx }): Promise<SecurityGroupRule> => {
       return withErrorHandling(async () => {
+        // ctx.openstack is already rescoped to the project by projectScopedProcedure
         const network = getNetworkService(ctx)
 
         // Build request body (wrap in "security_group_rule" key per OpenStack API)

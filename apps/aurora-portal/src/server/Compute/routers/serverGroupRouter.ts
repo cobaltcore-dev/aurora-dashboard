@@ -1,13 +1,13 @@
 import { z } from "zod"
-import { protectedProcedure } from "../../trpc"
+import { projectScopedProcedure } from "../../trpc"
 import { serverGroupsResponseSchema, ServerGroup } from "../types/serverGroup"
 
 export const serverGroupRouter = {
-  getServerGroupsByProjectId: protectedProcedure
-    .input(z.object({ projectId: z.string() }))
-    .query(async ({ input, ctx }): Promise<ServerGroup[] | undefined> => {
-      const openstackSession = await ctx.rescopeSession({ projectId: input.projectId })
-      const compute = openstackSession?.service("compute")
+  getServerGroupsByProjectId: projectScopedProcedure
+    .input(z.object({ project_id: z.string() }))
+    .query(async ({ ctx }): Promise<ServerGroup[] | undefined> => {
+      // ctx.openstack is already rescoped to the project by projectScopedProcedure
+      const compute = ctx.openstack?.service("compute")
 
       const parsedData = serverGroupsResponseSchema.safeParse(
         await compute?.get("os-server-groups").then((res) => res.json())

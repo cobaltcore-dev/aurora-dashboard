@@ -13,7 +13,6 @@ vi.mock("../helpers/imageHelpers", async (importOriginal) => {
   return {
     ...actual,
     applyImageQueryParams: vi.fn(),
-    validateGlanceService: vi.fn(),
     ImageErrorHandlers: {
       upload: vi.fn(),
       visibility: vi.fn(),
@@ -100,7 +99,7 @@ const createMockContext = (shouldFailAuth = false, shouldFailGlance = false) => 
     createSession: vi.fn().mockResolvedValue({}),
     terminateSession: vi.fn().mockResolvedValue({}),
     openstack: mockOpenstack,
-    rescopeSession: vi.fn().mockResolvedValue({}),
+    rescopeSession: vi.fn().mockResolvedValue(mockOpenstack),
     mockGlance,
     mockReqHeaders,
   } as unknown as AuroraPortalContext & {
@@ -111,6 +110,9 @@ const createMockContext = (shouldFailAuth = false, shouldFailGlance = false) => 
 }
 
 const createCaller = createCallerFactory(auroraRouter({ image: imageRouter }))
+
+// Test constants
+const TEST_PROJECT_ID = "test-project-id"
 
 // Helper function to generate valid UUIDs for testing
 const generateTestUUID = (id: number): string => {
@@ -129,7 +131,7 @@ describe("imageRouter", () => {
       const mockCtx = createMockContext(true)
       const caller = createCaller(mockCtx)
 
-      const input = {}
+      const input = { project_id: "test-project-id" }
 
       await expect(caller.image.listImagesWithSearch(input)).rejects.toThrow(
         new TRPCError({
@@ -153,11 +155,10 @@ describe("imageRouter", () => {
         }),
       })
 
-      const input = {}
+      const input = { project_id: "test-project-id" }
       const result = await caller.image.listImagesWithSearch(input)
 
       expect(mockCtx.validateSession).toHaveBeenCalled()
-      expect(imageHelpers.validateGlanceService).toHaveBeenCalled()
       expect(imageHelpers.applyImageQueryParams).toHaveBeenCalled()
       expect(mockCtx.mockGlance.get).toHaveBeenCalledWith(expect.stringContaining("v2/images?"))
       expect(result.images).toEqual([mockGlanceImage])
@@ -170,7 +171,7 @@ describe("imageRouter", () => {
       // Mock failed response
       mockCtx.mockGlance.get.mockRejectedValue({ statusCode: 500, message: "Internal Server Error" })
 
-      const input = {}
+      const input = { project_id: "test-project-id" }
 
       await expect(caller.image.listImagesWithSearch(input)).rejects.toThrow(
         "Failed to list images: Internal Server Error"
@@ -189,7 +190,7 @@ describe("imageRouter", () => {
         json: vi.fn().mockResolvedValue({ images: [ubuntuImage, centosImage] }),
       })
 
-      const result = await caller.image.listImagesWithSearch({ name: "ubuntu" })
+      const result = await caller.image.listImagesWithSearch({ project_id: TEST_PROJECT_ID, name: "ubuntu" })
 
       expect(result.images).toEqual([ubuntuImage])
     })
@@ -203,7 +204,7 @@ describe("imageRouter", () => {
         json: vi.fn().mockResolvedValue({ images: [mockGlanceImage] }),
       })
 
-      await caller.image.listImagesWithSearch({ name: "ubuntu" })
+      await caller.image.listImagesWithSearch({ project_id: TEST_PROJECT_ID, name: "ubuntu" })
 
       const calledUrl: string = mockCtx.mockGlance.get.mock.calls[0][0]
       expect(calledUrl).not.toContain("name=ubuntu")
@@ -221,7 +222,7 @@ describe("imageRouter", () => {
         json: vi.fn().mockResolvedValue({ images: [image1, image2] }),
       })
 
-      const result = await caller.image.listImagesWithSearch({})
+      const result = await caller.image.listImagesWithSearch({ project_id: TEST_PROJECT_ID })
 
       expect(result.images).toHaveLength(2)
     })
@@ -243,7 +244,7 @@ describe("imageRouter", () => {
         }),
       })
 
-      const result = await caller.image.listImagesWithSearch({ name: "ubuntu" })
+      const result = await caller.image.listImagesWithSearch({ project_id: TEST_PROJECT_ID, name: "ubuntu" })
 
       expect(result.images).toHaveLength(1)
       expect(result.images[0].name).toBe("ubuntu-22.04-lts")
@@ -298,7 +299,7 @@ describe("imageRouter", () => {
           }),
         })
 
-      const result = await caller.image.listImagesWithSearch({ name: "ubuntu" })
+      const result = await caller.image.listImagesWithSearch({ project_id: TEST_PROJECT_ID, name: "ubuntu" })
 
       // Should fetch all 3 pages and filter for ubuntu
       expect(mockCtx.mockGlance.get).toHaveBeenCalledTimes(3)
@@ -338,7 +339,7 @@ describe("imageRouter", () => {
           }),
         })
 
-      const result = await caller.image.listImagesWithSearch({ name: "ubuntu" })
+      const result = await caller.image.listImagesWithSearch({ project_id: TEST_PROJECT_ID, name: "ubuntu" })
 
       // Should stop after 2 pages because we have >= 50 matching results (MIN_RESULTS_WHEN_SEARCHING)
       expect(mockCtx.mockGlance.get).toHaveBeenCalledTimes(2)
@@ -363,10 +364,9 @@ describe("imageRouter", () => {
         }),
       })
 
-      const input = {}
+      const input = { project_id: "test-project-id" }
       const result = await caller.image.listImagesWithPagination(input)
 
-      expect(imageHelpers.validateGlanceService).toHaveBeenCalled()
       expect(imageHelpers.applyImageQueryParams).toHaveBeenCalled()
       expect(mockCtx.mockGlance.get).toHaveBeenCalledWith(expect.stringContaining("v2/images?"))
       expect(mockCtx.mockGlance.get).toHaveBeenCalledTimes(1) // Only one page
@@ -414,7 +414,7 @@ describe("imageRouter", () => {
           }),
         })
 
-      const result = await caller.image.listImagesWithPagination({})
+      const result = await caller.image.listImagesWithPagination({ project_id: TEST_PROJECT_ID })
 
       expect(mockCtx.mockGlance.get).toHaveBeenCalledTimes(3)
       expect(result.images).toHaveLength(5)
@@ -434,7 +434,7 @@ describe("imageRouter", () => {
         }),
       })
 
-      const input = { first: firstUrl }
+      const input = { project_id: "test-project-id", first: firstUrl }
       await caller.image.listImagesWithPagination(input)
 
       expect(mockCtx.mockGlance.get).toHaveBeenCalledWith(firstUrl)
@@ -453,7 +453,7 @@ describe("imageRouter", () => {
         }),
       })
 
-      const input = { next: nextUrl }
+      const input = { project_id: "test-project-id", next: nextUrl }
       await caller.image.listImagesWithPagination(input)
 
       expect(mockCtx.mockGlance.get).toHaveBeenCalledWith(nextUrl)
@@ -471,7 +471,7 @@ describe("imageRouter", () => {
         }),
       })
 
-      await caller.image.listImagesWithPagination({ name: "ubuntu" })
+      await caller.image.listImagesWithPagination({ project_id: TEST_PROJECT_ID, name: "ubuntu" })
 
       const calledUrl: string = mockCtx.mockGlance.get.mock.calls[0][0]
       expect(calledUrl).not.toContain("name=ubuntu")
@@ -492,7 +492,7 @@ describe("imageRouter", () => {
         }),
       })
 
-      const result = await caller.image.listImagesWithPagination({ name: "ubuntu" })
+      const result = await caller.image.listImagesWithPagination({ project_id: TEST_PROJECT_ID, name: "ubuntu" })
 
       expect(result.images).toHaveLength(1)
       expect(result.images[0].name).toBe("Ubuntu-22.04-LTS")
@@ -510,7 +510,7 @@ describe("imageRouter", () => {
         }),
       })
 
-      const result = await caller.image.listImagesWithPagination({ name: "nonexistent" })
+      const result = await caller.image.listImagesWithPagination({ project_id: TEST_PROJECT_ID, name: "nonexistent" })
 
       expect(result.images).toHaveLength(0)
     })
@@ -530,7 +530,7 @@ describe("imageRouter", () => {
         }),
       })
 
-      const result = await caller.image.listImagesWithPagination({})
+      const result = await caller.image.listImagesWithPagination({ project_id: TEST_PROJECT_ID })
 
       expect(result.images).toHaveLength(2)
     })
@@ -550,7 +550,7 @@ describe("imageRouter", () => {
         }),
       })
 
-      const result = await caller.image.listImagesWithPagination({ name: "ubuntu" })
+      const result = await caller.image.listImagesWithPagination({ project_id: TEST_PROJECT_ID, name: "ubuntu" })
 
       // Only the named image should match; the undefined-name image should be excluded
       expect(result.images).toHaveLength(1)
@@ -563,7 +563,7 @@ describe("imageRouter", () => {
 
       mockCtx.mockGlance.get.mockRejectedValue({ statusCode: 500, message: "Internal Server Error" })
 
-      await expect(caller.image.listImagesWithPagination({})).rejects.toThrow(
+      await expect(caller.image.listImagesWithPagination({ project_id: TEST_PROJECT_ID })).rejects.toThrow(
         "Failed to list images with pagination: Internal Server Error"
       )
     })
@@ -582,7 +582,7 @@ describe("imageRouter", () => {
         }),
       })
 
-      const result = await caller.image.listImagesWithPagination({})
+      const result = await caller.image.listImagesWithPagination({ project_id: TEST_PROJECT_ID })
 
       // Should stop after MAX_PAGES (1000) even though 'next' is always present
       expect(mockCtx.mockGlance.get).toHaveBeenCalledTimes(1000)
@@ -610,7 +610,7 @@ describe("imageRouter", () => {
         })
       })
 
-      const result = await caller.image.listImagesWithPagination({})
+      const result = await caller.image.listImagesWithPagination({ project_id: TEST_PROJECT_ID })
 
       // Should stop at 5 pages (not 100) because 'next' became undefined
       expect(mockCtx.mockGlance.get).toHaveBeenCalledTimes(5)
@@ -628,7 +628,7 @@ describe("imageRouter", () => {
         json: vi.fn().mockResolvedValue(mockGlanceImage),
       })
 
-      const input = { imageId: "123e4567-e89b-12d3-a456-426614174000" }
+      const input = { project_id: "test-project-id", imageId: "123e4567-e89b-12d3-a456-426614174000" }
       const result = await caller.image.getImageById(input)
 
       expect(mockCtx.mockGlance.get).toHaveBeenCalledWith("v2/images/123e4567-e89b-12d3-a456-426614174000")
@@ -641,7 +641,7 @@ describe("imageRouter", () => {
 
       mockCtx.mockGlance.get.mockRejectedValue({ statusCode: 404, message: "Not Found" })
 
-      const input = { imageId: "123e4567-e89b-12d3-a456-426614174111" }
+      const input = { project_id: "test-project-id", imageId: "123e4567-e89b-12d3-a456-426614174000" }
 
       await expect(caller.image.getImageById(input)).rejects.toThrow(`Image not found image: ${input.imageId}`)
     })
@@ -658,6 +658,7 @@ describe("imageRouter", () => {
       })
 
       const input = {
+        project_id: "test-project-id",
         name: "new-image",
         container_format: "bare" as const,
         disk_format: "qcow2" as const,
@@ -686,6 +687,7 @@ describe("imageRouter", () => {
       mockCtx.mockGlance.post.mockRejectedValue({ statusCode: 400, message: "Bad Request" })
 
       const input = {
+        project_id: "test-project-id",
         name: "new-image",
         container_format: "bare" as const,
         disk_format: "qcow2" as const,
@@ -824,6 +826,7 @@ describe("imageRouter", () => {
 
       const operations = [{ op: "replace" as const, path: "/name", value: "updated-name" }]
       const input = {
+        project_id: "test-project-id",
         imageId: "123e4567-e89b-12d3-a456-426614174000",
         operations,
       }
@@ -853,6 +856,7 @@ describe("imageRouter", () => {
       })
 
       const input = {
+        project_id: "test-project-id",
         imageId: "123e4567-e89b-12d3-a456-426614174000",
         visibility: "public" as const,
       }
@@ -883,6 +887,7 @@ describe("imageRouter", () => {
       ;(imageHelpers.ImageErrorHandlers.visibility as Mock).mockReturnValue(mockError)
 
       const input = {
+        project_id: "test-project-id",
         imageId: "123e4567-e89b-12d3-a456-426614174000",
         visibility: "public" as const,
       }
@@ -900,7 +905,7 @@ describe("imageRouter", () => {
         ok: true,
       })
 
-      const input = { imageId: "123e4567-e89b-12d3-a456-426614174000" }
+      const input = { project_id: "test-project-id", imageId: "123e4567-e89b-12d3-a456-426614174000" }
       const result = await caller.image.deleteImage(input)
 
       expect(mockCtx.mockGlance.del).toHaveBeenCalledWith("v2/images/123e4567-e89b-12d3-a456-426614174000")
@@ -920,7 +925,7 @@ describe("imageRouter", () => {
       const mockError = new TRPCError({ code: "NOT_FOUND", message: "Delete failed" })
       ;(imageHelpers.ImageErrorHandlers.delete as Mock).mockReturnValue(mockError)
 
-      const input = { imageId: "123e4567-e89b-12d3-a456-426614174000" }
+      const input = { project_id: "test-project-id", imageId: "123e4567-e89b-12d3-a456-426614174000" }
 
       await expect(caller.image.deleteImage(input)).rejects.toThrow("Delete failed")
     })
@@ -936,7 +941,7 @@ describe("imageRouter", () => {
         json: vi.fn().mockResolvedValue({ members: [mockImageMember] }),
       })
 
-      const input = { imageId: "123e4567-e89b-12d3-a456-426614174000" }
+      const input = { project_id: "test-project-id", imageId: "123e4567-e89b-12d3-a456-426614174000" }
       const result = await caller.image.listImageMembers(input)
 
       expect(mockCtx.mockGlance.get).toHaveBeenCalledWith("v2/images/123e4567-e89b-12d3-a456-426614174000/members")
@@ -956,7 +961,7 @@ describe("imageRouter", () => {
       const mockError = new TRPCError({ code: "NOT_FOUND", message: "List members failed" })
       ;(imageHelpers.ImageErrorHandlers.member.list as Mock).mockReturnValue(mockError)
 
-      const input = { imageId: "123e4567-e89b-12d3-a456-426614174000" }
+      const input = { project_id: "test-project-id", imageId: "123e4567-e89b-12d3-a456-426614174000" }
 
       await expect(caller.image.listImageMembers(input)).rejects.toThrow("List members failed")
     })
@@ -973,6 +978,7 @@ describe("imageRouter", () => {
       })
 
       const input = {
+        project_id: "test-project-id",
         imageId: "123e4567-e89b-12d3-a456-426614174000",
         member: "test-member-id",
       }
@@ -998,6 +1004,7 @@ describe("imageRouter", () => {
       ;(imageHelpers.ImageErrorHandlers.member.create as Mock).mockReturnValue(mockError)
 
       const input = {
+        project_id: "test-project-id",
         imageId: "123e4567-e89b-12d3-a456-426614174000",
         member: "test-member-id",
       }
@@ -1011,16 +1018,14 @@ describe("imageRouter", () => {
       const mockCtx = createMockContext()
       const caller = createCaller(mockCtx)
 
-      await caller.image.listImagesWithSearch({})
-
-      expect(imageHelpers.validateGlanceService).toHaveBeenCalled()
+      await caller.image.listImagesWithSearch({ project_id: TEST_PROJECT_ID })
     })
 
     it("should handle missing glance service", async () => {
       const mockCtx = createMockContext(false, true)
       const caller = createCaller(mockCtx)
 
-      const input = {}
+      const input = { project_id: "test-project-id" }
 
       await expect(caller.image.listImagesWithSearch(input)).rejects.toThrow()
     })
@@ -1037,11 +1042,7 @@ describe("imageRouter", () => {
         }),
       })
 
-      const input = {
-        name: "test-image",
-        status: "active" as const,
-        sort: "name:asc",
-      }
+      const input = { project_id: "test-project-id", sort: "name:asc" }
 
       await caller.image.listImagesWithSearch(input)
 
@@ -1061,12 +1062,13 @@ describe("imageRouter", () => {
       const mockCtx = createMockContext()
       const caller = createCaller(mockCtx)
 
+      const imageIds = [generateTestUUID(1), generateTestUUID(2), generateTestUUID(3)]
+
       mockCtx.mockGlance.del.mockResolvedValue({
         ok: true,
       })
 
-      const imageIds = [generateTestUUID(1), generateTestUUID(2), generateTestUUID(3)]
-      const input = { imageIds }
+      const input = { project_id: TEST_PROJECT_ID, imageIds }
 
       const result = await caller.image.deleteImages(input)
 
@@ -1082,13 +1084,14 @@ describe("imageRouter", () => {
       const mockCtx = createMockContext()
       const caller = createCaller(mockCtx)
 
+      const imageIds = [generateTestUUID(1), generateTestUUID(2), generateTestUUID(3)]
+
       mockCtx.mockGlance.del
         .mockResolvedValueOnce({ ok: true })
         .mockResolvedValueOnce({ ok: false, status: 403 })
         .mockResolvedValueOnce({ ok: true })
 
-      const imageIds = [generateTestUUID(1), generateTestUUID(2), generateTestUUID(3)]
-      const input = { imageIds }
+      const input = { project_id: TEST_PROJECT_ID, imageIds }
 
       const result = await caller.image.deleteImages(input)
 
@@ -1102,13 +1105,14 @@ describe("imageRouter", () => {
       const mockCtx = createMockContext()
       const caller = createCaller(mockCtx)
 
+      const imageIds = [generateTestUUID(1), generateTestUUID(2), generateTestUUID(3)]
+
       mockCtx.mockGlance.del
         .mockResolvedValueOnce({ ok: true })
         .mockRejectedValueOnce(new Error("Network error"))
         .mockResolvedValueOnce({ ok: true })
 
-      const imageIds = [generateTestUUID(1), generateTestUUID(2), generateTestUUID(3)]
-      const input = { imageIds }
+      const input = { project_id: "test-project-id", imageIds }
 
       const result = await caller.image.deleteImages(input)
 
@@ -1122,9 +1126,7 @@ describe("imageRouter", () => {
       const mockCtx = createMockContext()
       const caller = createCaller(mockCtx)
 
-      const input = {
-        imageIds: [],
-      }
+      const input = { project_id: "test-project-id", imageIds: [] }
 
       await expect(caller.image.deleteImages(input)).rejects.toThrow()
     })
@@ -1133,13 +1135,14 @@ describe("imageRouter", () => {
       const mockCtx = createMockContext()
       const caller = createCaller(mockCtx)
 
+      const imageIds = [generateTestUUID(1), generateTestUUID(2)]
+
       mockCtx.mockGlance.del.mockResolvedValue({
         ok: false,
         status: 500,
       })
 
-      const imageIds = [generateTestUUID(1), generateTestUUID(2)]
-      const input = { imageIds }
+      const input = { project_id: "test-project-id", imageIds }
 
       const result = await caller.image.deleteImages(input)
 
@@ -1153,12 +1156,13 @@ describe("imageRouter", () => {
       const mockCtx = createMockContext()
       const caller = createCaller(mockCtx)
 
+      const imageIds = [generateTestUUID(1), generateTestUUID(2), generateTestUUID(3)]
+
       mockCtx.mockGlance.post.mockResolvedValue({
         ok: true,
       })
 
-      const imageIds = [generateTestUUID(1), generateTestUUID(2), generateTestUUID(3)]
-      const input = { imageIds }
+      const input = { project_id: "test-project-id", imageIds }
 
       const result = await caller.image.activateImages(input)
 
@@ -1174,13 +1178,14 @@ describe("imageRouter", () => {
       const mockCtx = createMockContext()
       const caller = createCaller(mockCtx)
 
+      const imageIds = [generateTestUUID(1), generateTestUUID(2), generateTestUUID(3)]
+
       mockCtx.mockGlance.post
         .mockResolvedValueOnce({ ok: true })
         .mockRejectedValueOnce(new Error("Permission denied"))
         .mockResolvedValueOnce({ ok: true })
 
-      const imageIds = [generateTestUUID(1), generateTestUUID(2), generateTestUUID(3)]
-      const input = { imageIds }
+      const input = { project_id: "test-project-id", imageIds }
 
       const result = await caller.image.activateImages(input)
 
@@ -1194,9 +1199,7 @@ describe("imageRouter", () => {
       const mockCtx = createMockContext()
       const caller = createCaller(mockCtx)
 
-      const input = {
-        imageIds: [],
-      }
+      const input = { project_id: "test-project-id", imageIds: [] }
 
       await expect(caller.image.activateImages(input)).rejects.toThrow()
     })
@@ -1205,10 +1208,11 @@ describe("imageRouter", () => {
       const mockCtx = createMockContext()
       const caller = createCaller(mockCtx)
 
+      const imageIds = [generateTestUUID(1), generateTestUUID(2)]
+
       mockCtx.mockGlance.post.mockRejectedValue(new Error("Activation failed"))
 
-      const imageIds = [generateTestUUID(1), generateTestUUID(2)]
-      const input = { imageIds }
+      const input = { project_id: "test-project-id", imageIds }
 
       const result = await caller.image.activateImages(input)
 
@@ -1222,14 +1226,15 @@ describe("imageRouter", () => {
       const mockCtx = createMockContext()
       const caller = createCaller(mockCtx)
 
+      const imageIds = [generateTestUUID(1), generateTestUUID(2), generateTestUUID(3)]
+
       const callTimes: number[] = []
       mockCtx.mockGlance.post.mockImplementation(() => {
         callTimes.push(Date.now())
         return Promise.resolve({ ok: true })
       })
 
-      const imageIds = [generateTestUUID(1), generateTestUUID(2), generateTestUUID(3)]
-      const input = { imageIds }
+      const input = { project_id: "test-project-id", imageIds }
 
       await caller.image.activateImages(input)
 
@@ -1246,12 +1251,13 @@ describe("imageRouter", () => {
       const mockCtx = createMockContext()
       const caller = createCaller(mockCtx)
 
+      const imageIds = [generateTestUUID(1), generateTestUUID(2), generateTestUUID(3)]
+
       mockCtx.mockGlance.post.mockResolvedValue({
         ok: true,
       })
 
-      const imageIds = [generateTestUUID(1), generateTestUUID(2), generateTestUUID(3)]
-      const input = { imageIds }
+      const input = { project_id: "test-project-id", imageIds }
 
       const result = await caller.image.deactivateImages(input)
 
@@ -1267,13 +1273,14 @@ describe("imageRouter", () => {
       const mockCtx = createMockContext()
       const caller = createCaller(mockCtx)
 
+      const imageIds = [generateTestUUID(1), generateTestUUID(2), generateTestUUID(3)]
+
       mockCtx.mockGlance.post
         .mockResolvedValueOnce({ ok: true })
         .mockRejectedValueOnce(new Error("Image is protected"))
         .mockResolvedValueOnce({ ok: true })
 
-      const imageIds = [generateTestUUID(1), generateTestUUID(2), generateTestUUID(3)]
-      const input = { imageIds }
+      const input = { project_id: "test-project-id", imageIds }
 
       const result = await caller.image.deactivateImages(input)
 
@@ -1287,9 +1294,7 @@ describe("imageRouter", () => {
       const mockCtx = createMockContext()
       const caller = createCaller(mockCtx)
 
-      const input = {
-        imageIds: [],
-      }
+      const input = { project_id: "test-project-id", imageIds: [] }
 
       await expect(caller.image.deactivateImages(input)).rejects.toThrow()
     })
@@ -1298,10 +1303,11 @@ describe("imageRouter", () => {
       const mockCtx = createMockContext()
       const caller = createCaller(mockCtx)
 
+      const imageIds = [generateTestUUID(1), generateTestUUID(2)]
+
       mockCtx.mockGlance.post.mockRejectedValue(new Error("Deactivation failed"))
 
-      const imageIds = [generateTestUUID(1), generateTestUUID(2)]
-      const input = { imageIds }
+      const input = { project_id: "test-project-id", imageIds }
 
       const result = await caller.image.deactivateImages(input)
 
@@ -1315,14 +1321,15 @@ describe("imageRouter", () => {
       const mockCtx = createMockContext()
       const caller = createCaller(mockCtx)
 
+      const imageIds = [generateTestUUID(1), generateTestUUID(2), generateTestUUID(3)]
+
       const callTimes: number[] = []
       mockCtx.mockGlance.post.mockImplementation(() => {
         callTimes.push(Date.now())
         return Promise.resolve({ ok: true })
       })
 
-      const imageIds = [generateTestUUID(1), generateTestUUID(2), generateTestUUID(3)]
-      const input = { imageIds }
+      const input = { project_id: "test-project-id", imageIds }
 
       await caller.image.deactivateImages(input)
 
@@ -1337,13 +1344,14 @@ describe("imageRouter", () => {
       const mockCtx = createMockContext()
       const caller = createCaller(mockCtx)
 
+      const imageIds = [generateTestUUID(1), generateTestUUID(2), generateTestUUID(3)]
+
       mockCtx.mockGlance.post
         .mockResolvedValueOnce({ ok: true })
         .mockRejectedValueOnce(new Error("Network timeout"))
         .mockRejectedValueOnce({ message: "Invalid state" })
 
-      const imageIds = [generateTestUUID(1), generateTestUUID(2), generateTestUUID(3)]
-      const input = { imageIds }
+      const input = { project_id: "test-project-id", imageIds }
 
       const result = await caller.image.deactivateImages(input)
 
@@ -1359,16 +1367,14 @@ describe("imageRouter", () => {
       const mockCtx = createMockContext()
       const caller = createCaller(mockCtx)
 
-      await caller.image.deleteImages({ imageIds: [generateTestUUID(1)] })
-
-      expect(imageHelpers.validateGlanceService).toHaveBeenCalled()
+      await caller.image.deleteImages({ project_id: TEST_PROJECT_ID, imageIds: [generateTestUUID(1)] })
     })
 
     it("should handle unauthorized session for bulk operations", async () => {
       const mockCtx = createMockContext(true)
       const caller = createCaller(mockCtx)
 
-      const input = { imageIds: ["image-1"] }
+      const input = { project_id: "test-project-id", imageIds: [generateTestUUID(1)] }
 
       await expect(caller.image.deleteImages(input)).rejects.toThrow(
         new TRPCError({
@@ -1382,8 +1388,9 @@ describe("imageRouter", () => {
       const mockCtx = createMockContext(false, true)
       const caller = createCaller(mockCtx)
 
-      const input = { imageIds: ["image-1"] }
+      const input = { project_id: "test-project-id", imageIds: [generateTestUUID(1)] }
 
+      // When glance service is missing, validateGlanceService should throw an error
       await expect(caller.image.activateImages(input)).rejects.toThrow()
     })
 
@@ -1394,7 +1401,7 @@ describe("imageRouter", () => {
       mockCtx.mockGlance.del.mockResolvedValue({ ok: true })
 
       const imageId = generateTestUUID(1)
-      const input = { imageIds: [imageId] }
+      const input = { project_id: "test-project-id", imageIds: [imageId] }
       const result = await caller.image.deleteImages(input)
 
       expect(result.successful).toEqual([imageId])
@@ -1405,11 +1412,11 @@ describe("imageRouter", () => {
       const mockCtx = createMockContext()
       const caller = createCaller(mockCtx)
 
+      const imageIds = Array.from({ length: 50 }, (_, i) => generateTestUUID(100 + i))
+
       mockCtx.mockGlance.post.mockResolvedValue({ ok: true })
 
-      // Generate valid UUIDs for testing
-      const imageIds = Array.from({ length: 50 }, (_, i) => `00000000-0000-4000-8000-${String(i).padStart(12, "0")}`)
-      const input = { imageIds }
+      const input = { project_id: "test-project-id", imageIds }
 
       const result = await caller.image.activateImages(input)
 
@@ -1480,7 +1487,9 @@ describe("imageRouter", () => {
 
         mockCtx.openstack.getToken = vi.fn().mockReturnValue(null)
 
-        await expect(caller.image.listSharedImagesByMemberStatus({ memberStatus: "pending" })).rejects.toThrow(
+        await expect(
+          caller.image.listSharedImagesByMemberStatus({ project_id: TEST_PROJECT_ID, memberStatus: "pending" })
+        ).rejects.toThrow(
           new TRPCError({
             code: "UNAUTHORIZED",
             message: "No valid OpenStack token found",
@@ -1496,7 +1505,9 @@ describe("imageRouter", () => {
           tokenData: { project: null },
         })
 
-        await expect(caller.image.listSharedImagesByMemberStatus({ memberStatus: "accepted" })).rejects.toThrow(
+        await expect(
+          caller.image.listSharedImagesByMemberStatus({ project_id: TEST_PROJECT_ID, memberStatus: "accepted" })
+        ).rejects.toThrow(
           new TRPCError({
             code: "UNAUTHORIZED",
             message: "Unable to determine current project ID from OpenStack token",
@@ -1512,9 +1523,9 @@ describe("imageRouter", () => {
           tokenData: { project: { id: currentProjectId } },
         })
 
-        await expect(caller.image.listSharedImagesByMemberStatus({ memberStatus: "pending" })).rejects.toThrow()
-
-        expect(imageHelpers.validateGlanceService).toHaveBeenCalled()
+        await expect(
+          caller.image.listSharedImagesByMemberStatus({ project_id: TEST_PROJECT_ID, memberStatus: "pending" })
+        ).rejects.toThrow()
       })
     })
 
@@ -1532,7 +1543,7 @@ describe("imageRouter", () => {
           json: vi.fn().mockResolvedValue({ images: [] }),
         })
 
-        await caller.image.listSharedImagesByMemberStatus({ memberStatus: "pending" })
+        await caller.image.listSharedImagesByMemberStatus({ project_id: TEST_PROJECT_ID, memberStatus: "pending" })
 
         expect(mockCtx.mockGlance.get).toHaveBeenCalledWith(expect.stringContaining("visibility=shared"))
       })
@@ -1550,7 +1561,7 @@ describe("imageRouter", () => {
           json: vi.fn().mockResolvedValue({ images: [] }),
         })
 
-        await caller.image.listSharedImagesByMemberStatus({ memberStatus: "pending" })
+        await caller.image.listSharedImagesByMemberStatus({ project_id: TEST_PROJECT_ID, memberStatus: "pending" })
 
         expect(mockCtx.mockGlance.get).toHaveBeenCalledWith(expect.stringContaining("member_status=pending"))
       })
@@ -1568,7 +1579,7 @@ describe("imageRouter", () => {
           json: vi.fn().mockResolvedValue({ images: [] }),
         })
 
-        await caller.image.listSharedImagesByMemberStatus({ memberStatus: "accepted" })
+        await caller.image.listSharedImagesByMemberStatus({ project_id: TEST_PROJECT_ID, memberStatus: "accepted" })
 
         expect(mockCtx.mockGlance.get).toHaveBeenCalledWith(expect.stringContaining("member_status=accepted"))
       })
@@ -1586,7 +1597,7 @@ describe("imageRouter", () => {
           json: vi.fn().mockResolvedValue({ images: [] }),
         })
 
-        await caller.image.listSharedImagesByMemberStatus({ memberStatus: "rejected" })
+        await caller.image.listSharedImagesByMemberStatus({ project_id: TEST_PROJECT_ID, memberStatus: "rejected" })
 
         expect(mockCtx.mockGlance.get).toHaveBeenCalledWith(expect.stringContaining("member_status=rejected"))
       })
@@ -1606,7 +1617,10 @@ describe("imageRouter", () => {
           json: vi.fn().mockResolvedValue({ images: [] }),
         })
 
-        const result = await caller.image.listSharedImagesByMemberStatus({ memberStatus: "pending" })
+        const result = await caller.image.listSharedImagesByMemberStatus({
+          project_id: TEST_PROJECT_ID,
+          memberStatus: "pending",
+        })
 
         expect(result).toEqual([])
       })
@@ -1629,7 +1643,10 @@ describe("imageRouter", () => {
           json: vi.fn().mockResolvedValue({ images: [ownedImage] }),
         })
 
-        const result = await caller.image.listSharedImagesByMemberStatus({ memberStatus: "pending" })
+        const result = await caller.image.listSharedImagesByMemberStatus({
+          project_id: TEST_PROJECT_ID,
+          memberStatus: "pending",
+        })
 
         expect(result).toEqual([])
       })
@@ -1668,7 +1685,10 @@ describe("imageRouter", () => {
           json: vi.fn().mockResolvedValue(memberWithPendingStatus),
         })
 
-        const result = await caller.image.listSharedImagesByMemberStatus({ memberStatus: "pending" })
+        const result = await caller.image.listSharedImagesByMemberStatus({
+          project_id: TEST_PROJECT_ID,
+          memberStatus: "pending",
+        })
 
         // Should not include the owned image
         expect(result.every((img) => img.owner !== currentProjectId)).toBe(true)
@@ -1701,7 +1721,10 @@ describe("imageRouter", () => {
           json: vi.fn().mockResolvedValue(memberWithAcceptedStatus),
         })
 
-        const result = await caller.image.listSharedImagesByMemberStatus({ memberStatus: "accepted" })
+        const result = await caller.image.listSharedImagesByMemberStatus({
+          project_id: TEST_PROJECT_ID,
+          memberStatus: "accepted",
+        })
 
         expect(result).toHaveLength(2)
       })
@@ -1739,7 +1762,10 @@ describe("imageRouter", () => {
           json: vi.fn().mockResolvedValue(memberWithRejectedStatus),
         })
 
-        const result = await caller.image.listSharedImagesByMemberStatus({ memberStatus: "pending" })
+        const result = await caller.image.listSharedImagesByMemberStatus({
+          project_id: TEST_PROJECT_ID,
+          memberStatus: "pending",
+        })
 
         expect(result).toHaveLength(1)
         expect(result[0].id).toBe(sharedImageWithPendingStatus.id)
@@ -1776,7 +1802,10 @@ describe("imageRouter", () => {
           json: vi.fn().mockResolvedValue(memberWithRejectedStatus),
         })
 
-        const result = await caller.image.listSharedImagesByMemberStatus({ memberStatus: "accepted" })
+        const result = await caller.image.listSharedImagesByMemberStatus({
+          project_id: TEST_PROJECT_ID,
+          memberStatus: "accepted",
+        })
 
         expect(result).toHaveLength(1)
         expect(result[0].id).toBe(sharedImageWithAcceptedStatus.id)
@@ -1813,7 +1842,10 @@ describe("imageRouter", () => {
           json: vi.fn().mockResolvedValue(memberWithRejectedStatus),
         })
 
-        const result = await caller.image.listSharedImagesByMemberStatus({ memberStatus: "rejected" })
+        const result = await caller.image.listSharedImagesByMemberStatus({
+          project_id: TEST_PROJECT_ID,
+          memberStatus: "rejected",
+        })
 
         expect(result).toHaveLength(1)
         expect(result[0].id).toBe(sharedImageWithRejectedStatus.id)
@@ -1841,7 +1873,7 @@ describe("imageRouter", () => {
           json: vi.fn().mockResolvedValue(memberWithAcceptedStatus),
         })
 
-        await caller.image.listSharedImagesByMemberStatus({ memberStatus: "accepted" })
+        await caller.image.listSharedImagesByMemberStatus({ project_id: TEST_PROJECT_ID, memberStatus: "accepted" })
 
         expect(mockCtx.mockGlance.get).toHaveBeenCalledWith(
           `v2/images/${sharedImageWithAcceptedStatus.id}/members/${currentProjectId}`
@@ -1872,7 +1904,7 @@ describe("imageRouter", () => {
           })
         })
 
-        await caller.image.listSharedImagesByMemberStatus({ memberStatus: "accepted" })
+        await caller.image.listSharedImagesByMemberStatus({ project_id: TEST_PROJECT_ID, memberStatus: "accepted" })
 
         // Should have called for both member data at nearly the same time (parallel)
         expect(callTimes.length).toBeGreaterThanOrEqual(2)
@@ -1898,7 +1930,10 @@ describe("imageRouter", () => {
           ok: false,
         })
 
-        const result = await caller.image.listSharedImagesByMemberStatus({ memberStatus: "accepted" })
+        const result = await caller.image.listSharedImagesByMemberStatus({
+          project_id: TEST_PROJECT_ID,
+          memberStatus: "accepted",
+        })
 
         // Should return empty since member data doesn't match the requested status
         expect(result).toEqual([])
@@ -1927,7 +1962,10 @@ describe("imageRouter", () => {
           json: vi.fn().mockResolvedValue(memberWithAcceptedStatus),
         })
 
-        const result = await caller.image.listSharedImagesByMemberStatus({ memberStatus: "accepted" })
+        const result = await caller.image.listSharedImagesByMemberStatus({
+          project_id: TEST_PROJECT_ID,
+          memberStatus: "accepted",
+        })
 
         // Should return only the second image since first one failed to fetch
         expect(result).toHaveLength(1)
@@ -1955,7 +1993,10 @@ describe("imageRouter", () => {
           json: vi.fn().mockResolvedValue({ invalid: "data" }),
         })
 
-        const result = await caller.image.listSharedImagesByMemberStatus({ memberStatus: "accepted" })
+        const result = await caller.image.listSharedImagesByMemberStatus({
+          project_id: TEST_PROJECT_ID,
+          memberStatus: "accepted",
+        })
 
         // Should return empty since parsing failed
         expect(result).toEqual([])
@@ -2059,9 +2100,18 @@ describe("imageRouter", () => {
           json: vi.fn().mockResolvedValue({ ...memberWithPendingStatus, image_id: image4.id }),
         })
 
-        const resultPending = await caller.image.listSharedImagesByMemberStatus({ memberStatus: "pending" })
-        const resultAccepted = await caller.image.listSharedImagesByMemberStatus({ memberStatus: "accepted" })
-        const resultRejected = await caller.image.listSharedImagesByMemberStatus({ memberStatus: "rejected" })
+        const resultPending = await caller.image.listSharedImagesByMemberStatus({
+          project_id: TEST_PROJECT_ID,
+          memberStatus: "pending",
+        })
+        const resultAccepted = await caller.image.listSharedImagesByMemberStatus({
+          project_id: TEST_PROJECT_ID,
+          memberStatus: "accepted",
+        })
+        const resultRejected = await caller.image.listSharedImagesByMemberStatus({
+          project_id: TEST_PROJECT_ID,
+          memberStatus: "rejected",
+        })
 
         expect(resultPending).toHaveLength(2)
         expect(resultAccepted).toHaveLength(1)
@@ -2096,7 +2146,10 @@ describe("imageRouter", () => {
           })
         })
 
-        const result = await caller.image.listSharedImagesByMemberStatus({ memberStatus: "accepted" })
+        const result = await caller.image.listSharedImagesByMemberStatus({
+          project_id: TEST_PROJECT_ID,
+          memberStatus: "accepted",
+        })
 
         expect(result).toHaveLength(20)
         // Verify all member fetch calls were made
@@ -2131,7 +2184,10 @@ describe("imageRouter", () => {
           json: vi.fn().mockResolvedValue(memberWithAcceptedStatus),
         })
 
-        const result = await caller.image.listSharedImagesByMemberStatus({ memberStatus: "accepted" })
+        const result = await caller.image.listSharedImagesByMemberStatus({
+          project_id: TEST_PROJECT_ID,
+          memberStatus: "accepted",
+        })
 
         expect(result[0]).toEqual(imageWithMetadata)
         expect(result[0].size).toBe(5368709120)
@@ -2150,7 +2206,9 @@ describe("imageRouter", () => {
 
         mockCtx.mockGlance.get.mockRejectedValueOnce({ statusCode: 500, message: "Internal Server Error" })
 
-        await expect(caller.image.listSharedImagesByMemberStatus({ memberStatus: "pending" })).rejects.toThrow()
+        await expect(
+          caller.image.listSharedImagesByMemberStatus({ project_id: TEST_PROJECT_ID, memberStatus: "pending" })
+        ).rejects.toThrow()
       })
 
       it("should handle invalid response schema when fetching images", async () => {
@@ -2166,7 +2224,9 @@ describe("imageRouter", () => {
           json: vi.fn().mockResolvedValue({ invalid: "response" }),
         })
 
-        await expect(caller.image.listSharedImagesByMemberStatus({ memberStatus: "accepted" })).rejects.toThrow()
+        await expect(
+          caller.image.listSharedImagesByMemberStatus({ project_id: TEST_PROJECT_ID, memberStatus: "accepted" })
+        ).rejects.toThrow()
       })
     })
 
@@ -2200,7 +2260,11 @@ describe("imageRouter", () => {
         const imgB = { ...sharedImageWithAcceptedStatus, id: generateTestUUID(21), name: "centos-stream-9" }
         setupWithImages(mockCtx, [imgA, imgB])
 
-        const result = await caller.image.listSharedImagesByMemberStatus({ memberStatus: "accepted", name: "ubuntu" })
+        const result = await caller.image.listSharedImagesByMemberStatus({
+          project_id: TEST_PROJECT_ID,
+          memberStatus: "accepted",
+          name: "ubuntu",
+        })
 
         expect(result).toHaveLength(1)
         expect(result[0].id).toBe(imgA.id)
@@ -2216,6 +2280,7 @@ describe("imageRouter", () => {
         setupWithImages(mockCtx, [activeImg, queuedImg])
 
         const result = await caller.image.listSharedImagesByMemberStatus({
+          project_id: TEST_PROJECT_ID,
           memberStatus: "accepted",
           status: "active",
         })
@@ -2235,6 +2300,7 @@ describe("imageRouter", () => {
         setupWithImages(mockCtx, [activeImg, queuedImg, errorImg])
 
         const result = await caller.image.listSharedImagesByMemberStatus({
+          project_id: TEST_PROJECT_ID,
           memberStatus: "accepted",
           status: "in:active,queued",
         })
@@ -2254,6 +2320,7 @@ describe("imageRouter", () => {
         setupWithImages(mockCtx, [qcow2Img, rawImg])
 
         const result = await caller.image.listSharedImagesByMemberStatus({
+          project_id: TEST_PROJECT_ID,
           memberStatus: "accepted",
           disk_format: "qcow2",
         })
@@ -2273,6 +2340,7 @@ describe("imageRouter", () => {
         setupWithImages(mockCtx, [qcow2Img, rawImg, vhdImg])
 
         const result = await caller.image.listSharedImagesByMemberStatus({
+          project_id: TEST_PROJECT_ID,
           memberStatus: "accepted",
           disk_format: "in:qcow2,raw",
         })
@@ -2292,6 +2360,7 @@ describe("imageRouter", () => {
         setupWithImages(mockCtx, [bareImg, ovfImg])
 
         const result = await caller.image.listSharedImagesByMemberStatus({
+          project_id: TEST_PROJECT_ID,
           memberStatus: "accepted",
           container_format: "bare",
         })
@@ -2311,6 +2380,7 @@ describe("imageRouter", () => {
         setupWithImages(mockCtx, [bareImg, ovfImg, amiImg])
 
         const result = await caller.image.listSharedImagesByMemberStatus({
+          project_id: TEST_PROJECT_ID,
           memberStatus: "accepted",
           container_format: "in:bare,ovf",
         })
@@ -2330,6 +2400,7 @@ describe("imageRouter", () => {
         setupWithImages(mockCtx, [protectedImg, unprotectedImg])
 
         const result = await caller.image.listSharedImagesByMemberStatus({
+          project_id: TEST_PROJECT_ID,
           memberStatus: "accepted",
           protected: "true",
         })
@@ -2348,6 +2419,7 @@ describe("imageRouter", () => {
         setupWithImages(mockCtx, [protectedImg, unprotectedImg])
 
         const result = await caller.image.listSharedImagesByMemberStatus({
+          project_id: TEST_PROJECT_ID,
           memberStatus: "accepted",
           protected: "false",
         })
@@ -2382,6 +2454,7 @@ describe("imageRouter", () => {
         setupWithImages(mockCtx, [matchImg, wrongStatus, wrongFormat])
 
         const result = await caller.image.listSharedImagesByMemberStatus({
+          project_id: TEST_PROJECT_ID,
           memberStatus: "accepted",
           status: "active",
           disk_format: "qcow2",
@@ -2401,7 +2474,10 @@ describe("imageRouter", () => {
         const imgB = { ...sharedImageWithAcceptedStatus, id: generateTestUUID(45) }
         setupWithImages(mockCtx, [imgA, imgB])
 
-        const result = await caller.image.listSharedImagesByMemberStatus({ memberStatus: "accepted" })
+        const result = await caller.image.listSharedImagesByMemberStatus({
+          project_id: TEST_PROJECT_ID,
+          memberStatus: "accepted",
+        })
 
         expect(result).toHaveLength(2)
       })

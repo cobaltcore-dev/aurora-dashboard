@@ -1,6 +1,6 @@
 import { createFileRoute, Outlet, useLoaderData } from "@tanstack/react-router"
 import { AppShell, Container, Stack } from "@cloudoperators/juno-ui-components"
-import { SideNavBar } from "./-components/SideNavBar"
+import { SideNavBar } from "@/client/routes/_auth/projects/-components/SideNavBar"
 import { ProjectInfoBox } from "@/client/components/ProjectView/ProjectInfoBox"
 import { RouteError } from "@/client/components/Error/RouteError"
 import { t } from "@lingui/core/macro"
@@ -28,11 +28,11 @@ export const Route = createFileRoute("/_auth/accounts/$accountId/projects/$proje
 })
 
 function Layout({ children }: { children: React.ReactNode }) {
-  const { availableServices, accountId, projectId } = useLoaderData({ from: Route.id })
+  const { availableServices, projectId } = useLoaderData({ from: Route.id })
   return (
     <AppShell
       embedded
-      sideNavigation={<SideNavBar availableServices={availableServices!} accountId={accountId} projectId={projectId} />}
+      sideNavigation={<SideNavBar availableServices={availableServices!} projectId={projectId} />}
       className="h-min-screen"
     >
       <Container>

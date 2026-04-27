@@ -268,8 +268,8 @@ describe("ProjectInfoBox", () => {
       fireEvent.click(screen.getByText("Compute"))
 
       expect(mockNavigate).toHaveBeenCalledWith({
-        to: "/accounts/$accountId/projects/$projectId/compute/overview",
-        params: { accountId: "test-account", projectId: "test-project" },
+        to: "/projects/$projectId/compute/overview",
+        params: { projectId: "test-project" },
       })
     })
 
@@ -288,8 +288,8 @@ describe("ProjectInfoBox", () => {
       fireEvent.click(screen.getByText("Compute"))
 
       expect(mockNavigate).toHaveBeenCalledWith({
-        to: "/accounts/$accountId/projects/$projectId/compute/overview",
-        params: { accountId: "test-account", projectId: "test-project" },
+        to: "/projects/$projectId/compute/overview",
+        params: { projectId: "test-project" },
       })
     })
 
@@ -308,8 +308,8 @@ describe("ProjectInfoBox", () => {
       fireEvent.click(screen.getByText("Images"))
 
       expect(mockNavigate).toHaveBeenCalledWith({
-        to: "/accounts/$accountId/projects/$projectId/compute/images",
-        params: { accountId: "test-account", projectId: "test-project" },
+        to: "/projects/$projectId/compute/images",
+        params: { projectId: "test-project" },
       })
     })
 
@@ -328,8 +328,8 @@ describe("ProjectInfoBox", () => {
       fireEvent.click(screen.getByText("Flavors"))
 
       expect(mockNavigate).toHaveBeenCalledWith({
-        to: "/accounts/$accountId/projects/$projectId/compute/flavors",
-        params: { accountId: "test-account", projectId: "test-project" },
+        to: "/projects/$projectId/compute/flavors",
+        params: { projectId: "test-project" },
       })
     })
 
@@ -348,8 +348,8 @@ describe("ProjectInfoBox", () => {
       fireEvent.click(screen.getByText("Network"))
 
       expect(mockNavigate).toHaveBeenCalledWith({
-        to: "/accounts/$accountId/projects/$projectId/network/overview",
-        params: { accountId: "test-account", projectId: "test-project" },
+        to: "/projects/$projectId/network/overview",
+        params: { projectId: "test-project" },
       })
     })
 
@@ -368,8 +368,8 @@ describe("ProjectInfoBox", () => {
       fireEvent.click(screen.getByText("Security Groups"))
 
       expect(mockNavigate).toHaveBeenCalledWith({
-        to: "/accounts/$accountId/projects/$projectId/network/securitygroups",
-        params: { accountId: "test-account", projectId: "test-project" },
+        to: "/projects/$projectId/network/securitygroups",
+        params: { projectId: "test-project" },
       })
     })
 
@@ -388,8 +388,8 @@ describe("ProjectInfoBox", () => {
       fireEvent.click(screen.getByText("Floating IPs"))
 
       expect(mockNavigate).toHaveBeenCalledWith({
-        to: "/accounts/$accountId/projects/$projectId/network/floatingips",
-        params: { accountId: "test-account", projectId: "test-project" },
+        to: "/projects/$projectId/network/floatingips",
+        params: { projectId: "test-project" },
       })
     })
   })
