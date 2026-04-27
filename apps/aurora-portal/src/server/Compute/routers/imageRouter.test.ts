@@ -124,7 +124,7 @@ describe("imageRouter", () => {
       const mockCtx = createMockContext(true)
       const caller = createCaller(mockCtx)
 
-      const input = { project_id: "test-project-id", \1 }
+      const input = { project_id: "test-project-id" }
 
       await expect(caller.image.listImagesWithSearch(input)).rejects.toThrow(
         new TRPCError({
@@ -148,7 +148,7 @@ describe("imageRouter", () => {
         }),
       })
 
-      const input = { project_id: "test-project-id", \1 }
+      const input = { project_id: "test-project-id" }
       const result = await caller.image.listImagesWithSearch(input)
 
       expect(mockCtx.validateSession).toHaveBeenCalled()
@@ -165,7 +165,7 @@ describe("imageRouter", () => {
       // Mock failed response
       mockCtx.mockGlance.get.mockRejectedValue({ statusCode: 500, message: "Internal Server Error" })
 
-      const input = { project_id: "test-project-id", \1 }
+      const input = { project_id: "test-project-id" }
 
       await expect(caller.image.listImagesWithSearch(input)).rejects.toThrow(
         "Failed to list images: Internal Server Error"
@@ -358,7 +358,7 @@ describe("imageRouter", () => {
         }),
       })
 
-      const input = { project_id: "test-project-id", \1 }
+      const input = { project_id: "test-project-id" }
       const result = await caller.image.listImagesWithPagination(input)
 
       expect(imageHelpers.validateGlanceService).toHaveBeenCalled()
@@ -429,7 +429,7 @@ describe("imageRouter", () => {
         }),
       })
 
-      const input = { project_id: "test-project-id", \1 }
+      const input = { project_id: "test-project-id" }
       await caller.image.listImagesWithPagination(input)
 
       expect(mockCtx.mockGlance.get).toHaveBeenCalledWith(firstUrl)
@@ -448,7 +448,7 @@ describe("imageRouter", () => {
         }),
       })
 
-      const input = { project_id: "test-project-id", \1 }
+      const input = { project_id: "test-project-id" }
       await caller.image.listImagesWithPagination(input)
 
       expect(mockCtx.mockGlance.get).toHaveBeenCalledWith(nextUrl)
@@ -623,7 +623,7 @@ describe("imageRouter", () => {
         json: vi.fn().mockResolvedValue(mockGlanceImage),
       })
 
-      const input = { project_id: "test-project-id", \1 }
+      const input = { project_id: "test-project-id" }
       const result = await caller.image.getImageById(input)
 
       expect(mockCtx.mockGlance.get).toHaveBeenCalledWith("v2/images/123e4567-e89b-12d3-a456-426614174000")
@@ -636,7 +636,7 @@ describe("imageRouter", () => {
 
       mockCtx.mockGlance.get.mockRejectedValue({ statusCode: 404, message: "Not Found" })
 
-      const input = { project_id: "test-project-id", \1 }
+      const input = { project_id: "test-project-id" }
 
       await expect(caller.image.getImageById(input)).rejects.toThrow(`Image not found image: ${input.imageId}`)
     })
@@ -652,7 +652,7 @@ describe("imageRouter", () => {
         json: vi.fn().mockResolvedValue(mockGlanceImage),
       })
 
-      const input = { project_id: "test-project-id", \1 }
+      const input = { project_id: "test-project-id" }
       const result = await caller.image.createImage(input)
 
       expect(mockCtx.mockGlance.post).toHaveBeenCalledWith("v2/images", {
@@ -676,7 +676,7 @@ describe("imageRouter", () => {
 
       mockCtx.mockGlance.post.mockRejectedValue({ statusCode: 400, message: "Bad Request" })
 
-      const input = { project_id: "test-project-id", \1 }
+      const input = { project_id: "test-project-id" }
 
       await expect(caller.image.createImage(input)).rejects.toThrow("Failed to create image")
     })
@@ -1221,7 +1221,7 @@ describe("imageRouter", () => {
       })
 
       const operations = [{ op: "replace" as const, path: "/name", value: "updated-name" }]
-      const input = { project_id: "test-project-id", \1 }
+      const input = { project_id: "test-project-id" }
 
       const result = await caller.image.updateImage(input)
 
@@ -1247,7 +1247,7 @@ describe("imageRouter", () => {
         json: vi.fn().mockResolvedValue(updatedImage),
       })
 
-      const input = { project_id: "test-project-id", \1 }
+      const input = { project_id: "test-project-id" }
 
       const result = await caller.image.updateImageVisibility(input)
 
@@ -1274,7 +1274,7 @@ describe("imageRouter", () => {
       const mockError = new TRPCError({ code: "FORBIDDEN", message: "Visibility update failed" })
       ;(imageHelpers.ImageErrorHandlers.visibility as Mock).mockReturnValue(mockError)
 
-      const input = { project_id: "test-project-id", \1 }
+      const input = { project_id: "test-project-id" }
 
       await expect(caller.image.updateImageVisibility(input)).rejects.toThrow("Visibility update failed")
     })
@@ -1289,7 +1289,7 @@ describe("imageRouter", () => {
         ok: true,
       })
 
-      const input = { project_id: "test-project-id", \1 }
+      const input = { project_id: "test-project-id" }
       const result = await caller.image.deleteImage(input)
 
       expect(mockCtx.mockGlance.del).toHaveBeenCalledWith("v2/images/123e4567-e89b-12d3-a456-426614174000")
@@ -1309,7 +1309,7 @@ describe("imageRouter", () => {
       const mockError = new TRPCError({ code: "NOT_FOUND", message: "Delete failed" })
       ;(imageHelpers.ImageErrorHandlers.delete as Mock).mockReturnValue(mockError)
 
-      const input = { project_id: "test-project-id", \1 }
+      const input = { project_id: "test-project-id" }
 
       await expect(caller.image.deleteImage(input)).rejects.toThrow("Delete failed")
     })
@@ -1325,7 +1325,7 @@ describe("imageRouter", () => {
         json: vi.fn().mockResolvedValue({ members: [mockImageMember] }),
       })
 
-      const input = { project_id: "test-project-id", \1 }
+      const input = { project_id: "test-project-id" }
       const result = await caller.image.listImageMembers(input)
 
       expect(mockCtx.mockGlance.get).toHaveBeenCalledWith("v2/images/123e4567-e89b-12d3-a456-426614174000/members")
@@ -1345,7 +1345,7 @@ describe("imageRouter", () => {
       const mockError = new TRPCError({ code: "NOT_FOUND", message: "List members failed" })
       ;(imageHelpers.ImageErrorHandlers.member.list as Mock).mockReturnValue(mockError)
 
-      const input = { project_id: "test-project-id", \1 }
+      const input = { project_id: "test-project-id" }
 
       await expect(caller.image.listImageMembers(input)).rejects.toThrow("List members failed")
     })
@@ -1361,7 +1361,7 @@ describe("imageRouter", () => {
         json: vi.fn().mockResolvedValue(mockImageMember),
       })
 
-      const input = { project_id: "test-project-id", \1 }
+      const input = { project_id: "test-project-id" }
       const result = await caller.image.createImageMember(input)
 
       expect(mockCtx.mockGlance.post).toHaveBeenCalledWith("v2/images/123e4567-e89b-12d3-a456-426614174000/members", {
@@ -1383,7 +1383,7 @@ describe("imageRouter", () => {
       const mockError = new TRPCError({ code: "CONFLICT", message: "Create member failed" })
       ;(imageHelpers.ImageErrorHandlers.member.create as Mock).mockReturnValue(mockError)
 
-      const input = { project_id: "test-project-id", \1 }
+      const input = { project_id: "test-project-id" }
 
       await expect(caller.image.createImageMember(input)).rejects.toThrow("Create member failed")
     })
@@ -1403,7 +1403,7 @@ describe("imageRouter", () => {
       const mockCtx = createMockContext(false, true)
       const caller = createCaller(mockCtx)
 
-      const input = { project_id: "test-project-id", \1 }
+      const input = { project_id: "test-project-id" }
 
       await expect(caller.image.listImagesWithSearch(input)).rejects.toThrow()
     })
@@ -1420,7 +1420,7 @@ describe("imageRouter", () => {
         }),
       })
 
-      const input = { project_id: "test-project-id", \1 }
+      const input = { project_id: "test-project-id" }
 
       await caller.image.listImagesWithSearch(input)
 
@@ -1444,8 +1444,7 @@ describe("imageRouter", () => {
         ok: true,
       })
 
-      const imageIds = [generateTestUUID(1), generateTestUUID(2), generateTestUUID(3)]
-      const input = { project_id: "test-project-id", \1 }
+      const input = { project_id: "test-project-id" }
 
       const result = await caller.image.deleteImages(input)
 
@@ -1466,8 +1465,7 @@ describe("imageRouter", () => {
         .mockResolvedValueOnce({ ok: false, status: 403 })
         .mockResolvedValueOnce({ ok: true })
 
-      const imageIds = [generateTestUUID(1), generateTestUUID(2), generateTestUUID(3)]
-      const input = { project_id: "test-project-id", \1 }
+      const input = { project_id: "test-project-id" }
 
       const result = await caller.image.deleteImages(input)
 
@@ -1486,8 +1484,7 @@ describe("imageRouter", () => {
         .mockRejectedValueOnce(new Error("Network error"))
         .mockResolvedValueOnce({ ok: true })
 
-      const imageIds = [generateTestUUID(1), generateTestUUID(2), generateTestUUID(3)]
-      const input = { project_id: "test-project-id", \1 }
+      const input = { project_id: "test-project-id" }
 
       const result = await caller.image.deleteImages(input)
 
@@ -1501,7 +1498,7 @@ describe("imageRouter", () => {
       const mockCtx = createMockContext()
       const caller = createCaller(mockCtx)
 
-      const input = { project_id: "test-project-id", \1 }
+      const input = { project_id: "test-project-id" }
 
       await expect(caller.image.deleteImages(input)).rejects.toThrow()
     })
@@ -1515,8 +1512,7 @@ describe("imageRouter", () => {
         status: 500,
       })
 
-      const imageIds = [generateTestUUID(1), generateTestUUID(2)]
-      const input = { project_id: "test-project-id", \1 }
+      const input = { project_id: "test-project-id" }
 
       const result = await caller.image.deleteImages(input)
 
@@ -1534,8 +1530,7 @@ describe("imageRouter", () => {
         ok: true,
       })
 
-      const imageIds = [generateTestUUID(1), generateTestUUID(2), generateTestUUID(3)]
-      const input = { project_id: "test-project-id", \1 }
+      const input = { project_id: "test-project-id" }
 
       const result = await caller.image.activateImages(input)
 
@@ -1556,8 +1551,7 @@ describe("imageRouter", () => {
         .mockRejectedValueOnce(new Error("Permission denied"))
         .mockResolvedValueOnce({ ok: true })
 
-      const imageIds = [generateTestUUID(1), generateTestUUID(2), generateTestUUID(3)]
-      const input = { project_id: "test-project-id", \1 }
+      const input = { project_id: "test-project-id" }
 
       const result = await caller.image.activateImages(input)
 
@@ -1571,7 +1565,7 @@ describe("imageRouter", () => {
       const mockCtx = createMockContext()
       const caller = createCaller(mockCtx)
 
-      const input = { project_id: "test-project-id", \1 }
+      const input = { project_id: "test-project-id" }
 
       await expect(caller.image.activateImages(input)).rejects.toThrow()
     })
@@ -1582,8 +1576,7 @@ describe("imageRouter", () => {
 
       mockCtx.mockGlance.post.mockRejectedValue(new Error("Activation failed"))
 
-      const imageIds = [generateTestUUID(1), generateTestUUID(2)]
-      const input = { project_id: "test-project-id", \1 }
+      const input = { project_id: "test-project-id" }
 
       const result = await caller.image.activateImages(input)
 
@@ -1603,8 +1596,7 @@ describe("imageRouter", () => {
         return Promise.resolve({ ok: true })
       })
 
-      const imageIds = [generateTestUUID(1), generateTestUUID(2), generateTestUUID(3)]
-      const input = { project_id: "test-project-id", \1 }
+      const input = { project_id: "test-project-id" }
 
       await caller.image.activateImages(input)
 
@@ -1625,8 +1617,7 @@ describe("imageRouter", () => {
         ok: true,
       })
 
-      const imageIds = [generateTestUUID(1), generateTestUUID(2), generateTestUUID(3)]
-      const input = { project_id: "test-project-id", \1 }
+      const input = { project_id: "test-project-id" }
 
       const result = await caller.image.deactivateImages(input)
 
@@ -1647,8 +1638,7 @@ describe("imageRouter", () => {
         .mockRejectedValueOnce(new Error("Image is protected"))
         .mockResolvedValueOnce({ ok: true })
 
-      const imageIds = [generateTestUUID(1), generateTestUUID(2), generateTestUUID(3)]
-      const input = { project_id: "test-project-id", \1 }
+      const input = { project_id: "test-project-id" }
 
       const result = await caller.image.deactivateImages(input)
 
@@ -1662,7 +1652,7 @@ describe("imageRouter", () => {
       const mockCtx = createMockContext()
       const caller = createCaller(mockCtx)
 
-      const input = { project_id: "test-project-id", \1 }
+      const input = { project_id: "test-project-id" }
 
       await expect(caller.image.deactivateImages(input)).rejects.toThrow()
     })
@@ -1673,8 +1663,7 @@ describe("imageRouter", () => {
 
       mockCtx.mockGlance.post.mockRejectedValue(new Error("Deactivation failed"))
 
-      const imageIds = [generateTestUUID(1), generateTestUUID(2)]
-      const input = { project_id: "test-project-id", \1 }
+      const input = { project_id: "test-project-id" }
 
       const result = await caller.image.deactivateImages(input)
 
@@ -1694,8 +1683,7 @@ describe("imageRouter", () => {
         return Promise.resolve({ ok: true })
       })
 
-      const imageIds = [generateTestUUID(1), generateTestUUID(2), generateTestUUID(3)]
-      const input = { project_id: "test-project-id", \1 }
+      const input = { project_id: "test-project-id" }
 
       await caller.image.deactivateImages(input)
 
@@ -1715,8 +1703,7 @@ describe("imageRouter", () => {
         .mockRejectedValueOnce(new Error("Network timeout"))
         .mockRejectedValueOnce({ message: "Invalid state" })
 
-      const imageIds = [generateTestUUID(1), generateTestUUID(2), generateTestUUID(3)]
-      const input = { project_id: "test-project-id", \1 }
+      const input = { project_id: "test-project-id" }
 
       const result = await caller.image.deactivateImages(input)
 
@@ -1741,7 +1728,7 @@ describe("imageRouter", () => {
       const mockCtx = createMockContext(true)
       const caller = createCaller(mockCtx)
 
-      const input = { project_id: "test-project-id", \1 }
+      const input = { project_id: "test-project-id" }
 
       await expect(caller.image.deleteImages(input)).rejects.toThrow(
         new TRPCError({
@@ -1755,7 +1742,7 @@ describe("imageRouter", () => {
       const mockCtx = createMockContext(false, true)
       const caller = createCaller(mockCtx)
 
-      const input = { project_id: "test-project-id", \1 }
+      const input = { project_id: "test-project-id" }
 
       await expect(caller.image.activateImages(input)).rejects.toThrow()
     })
@@ -1767,7 +1754,7 @@ describe("imageRouter", () => {
       mockCtx.mockGlance.del.mockResolvedValue({ ok: true })
 
       const imageId = generateTestUUID(1)
-      const input = { project_id: "test-project-id", \1 }
+      const input = { project_id: "test-project-id" }
       const result = await caller.image.deleteImages(input)
 
       expect(result.successful).toEqual([imageId])
@@ -1780,9 +1767,7 @@ describe("imageRouter", () => {
 
       mockCtx.mockGlance.post.mockResolvedValue({ ok: true })
 
-      // Generate valid UUIDs for testing
-      const imageIds = Array.from({ length: 50 }, (_, i) => `00000000-0000-4000-8000-${String(i).padStart(12, "0")}`)
-      const input = { project_id: "test-project-id", \1 }
+      const input = { project_id: "test-project-id" }
 
       const result = await caller.image.activateImages(input)
 

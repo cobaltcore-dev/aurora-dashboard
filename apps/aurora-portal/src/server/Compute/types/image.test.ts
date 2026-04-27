@@ -32,6 +32,7 @@ import {
 describe("Glance Image Schema Validation", () => {
   // Using a simple, known-good UUID
   const imageId = "123e4567-e89b-12d3-a456-426614174000"
+  const projectId = "test-project-id"
 
   // Valid minimal image data
   const minimalValidImage = {
@@ -312,13 +313,14 @@ describe("Glance Image Schema Validation", () => {
   describe("Input Schemas", () => {
     describe("List Images Input", () => {
       it("should validate minimal list images input", () => {
-        const input = {}
+        const input = { project_id: projectId }
         const result = listImagesInputSchema.safeParse(input)
         expect(result.success).toBe(true)
       })
 
       it("should validate complete list images input", () => {
         const input = {
+          project_id: projectId,
           sort_key: "name" as const,
           sort_dir: "asc" as const,
           limit: 50,
@@ -378,7 +380,11 @@ describe("Glance Image Schema Validation", () => {
       })
 
       it("should reject invalid limit values", () => {
-        const inputs = [{ limit: 0 }, { limit: 1001 }, { limit: -1 }]
+        const inputs = [
+          { project_id: projectId, limit: 0 },
+          { project_id: projectId, limit: 1001 },
+          { project_id: projectId, limit: -1 },
+        ]
 
         for (const input of inputs) {
           const result = listImagesInputSchema.safeParse(input)
@@ -389,13 +395,14 @@ describe("Glance Image Schema Validation", () => {
 
     describe("Image Member Input Schemas", () => {
       it("should validate list image members input", () => {
-        const input = { imageId }
+        const input = { project_id: projectId, imageId }
         const result = listImageMembersInputSchema.safeParse(input)
         expect(result.success).toBe(true)
       })
 
       it("should validate get image member input", () => {
         const input = {
+          project_id: projectId,
           imageId,
           memberId: "member-project-123",
         }
@@ -405,6 +412,7 @@ describe("Glance Image Schema Validation", () => {
 
       it("should validate create image member input", () => {
         const input = {
+          project_id: projectId,
           imageId,
           member: "new-member-project-456",
         }
@@ -414,6 +422,7 @@ describe("Glance Image Schema Validation", () => {
 
       it("should validate update image member input", () => {
         const input = {
+          project_id: projectId,
           imageId,
           memberId: "member-project-123",
           status: "accepted" as const,
@@ -424,6 +433,7 @@ describe("Glance Image Schema Validation", () => {
 
       it("should validate delete image member input", () => {
         const input = {
+          project_id: projectId,
           imageId,
           memberId: "member-project-123",
         }
@@ -434,13 +444,13 @@ describe("Glance Image Schema Validation", () => {
 
     describe("Get Image Input", () => {
       it("should validate get image by id input", () => {
-        const input = { imageId }
+        const input = { project_id: projectId, imageId }
         const result = getImageByIdInputSchema.safeParse(input)
         expect(result.success).toBe(true)
       })
 
       it("should require valid UUID for imageId", () => {
-        const input = { imageId: "invalid-uuid" }
+        const input = { project_id: projectId, imageId: "invalid-uuid" }
         const result = getImageByIdInputSchema.safeParse(input)
         expect(result.success).toBe(false)
       })
@@ -448,7 +458,7 @@ describe("Glance Image Schema Validation", () => {
 
     describe("Create Image Input", () => {
       it("should validate minimal create image input", () => {
-        const input = {}
+        const input = { project_id: projectId }
         const result = createImageInputSchema.safeParse(input)
         expect(result.success).toBe(true)
         if (result.success) {
@@ -463,6 +473,7 @@ describe("Glance Image Schema Validation", () => {
 
       it("should validate complete create image input", () => {
         const input = {
+          project_id: projectId,
           name: "My Custom Image",
           id: "6ba7b810-9dad-11d1-80b4-00c04fd430c8",
           container_format: "bare" as const,
@@ -491,7 +502,10 @@ describe("Glance Image Schema Validation", () => {
       })
 
       it("should reject negative min_ram and min_disk", () => {
-        const inputs = [{ min_ram: -1 }, { min_disk: -1 }]
+        const inputs = [
+          { project_id: projectId, min_ram: -1 },
+          { project_id: projectId, min_disk: -1 },
+        ]
 
         for (const input of inputs) {
           const result = createImageInputSchema.safeParse(input)
@@ -512,6 +526,7 @@ describe("Glance Image Schema Validation", () => {
     describe("Update Image Input", () => {
       it("should validate update image input with JSON patch operations", () => {
         const input = {
+          project_id: projectId,
           imageId,
           operations: [
             { op: "replace" as const, path: "/name", value: "New Name" },
@@ -528,6 +543,7 @@ describe("Glance Image Schema Validation", () => {
 
         for (const op of operations) {
           const input = {
+            project_id: projectId,
             imageId,
             operations: [{ op, path: "/test", value: "test" }],
           }
@@ -538,6 +554,7 @@ describe("Glance Image Schema Validation", () => {
 
       it("should require at least one operation", () => {
         const input = {
+          project_id: projectId,
           imageId,
           operations: [],
         }
@@ -549,6 +566,7 @@ describe("Glance Image Schema Validation", () => {
     describe("Update Visibility Input", () => {
       it("should validate update visibility input", () => {
         const input = {
+          project_id: projectId,
           imageId,
           visibility: "public" as const,
         }
@@ -559,19 +577,19 @@ describe("Glance Image Schema Validation", () => {
 
     describe("Simple Operation Inputs", () => {
       it("should validate delete image input", () => {
-        const input = { imageId }
+        const input = { project_id: projectId, imageId }
         const result = deleteImageInputSchema.safeParse(input)
         expect(result.success).toBe(true)
       })
 
       it("should validate deactivate image input", () => {
-        const input = { imageId }
+        const input = { project_id: projectId, imageId }
         const result = deactivateImageInputSchema.safeParse(input)
         expect(result.success).toBe(true)
       })
 
       it("should validate reactivate image input", () => {
-        const input = { imageId }
+        const input = { project_id: projectId, imageId }
         const result = reactivateImageInputSchema.safeParse(input)
         expect(result.success).toBe(true)
       })
@@ -580,6 +598,7 @@ describe("Glance Image Schema Validation", () => {
     describe("Paginated Input", () => {
       it("should validate paginated input schema", () => {
         const input = {
+          project_id: projectId,
           limit: 10,
           first: "http://example.com/v2/images?limit=10",
           next: "http://example.com/v2/images?limit=10&marker=123",
@@ -650,31 +669,31 @@ describe("Glance Image Schema Validation", () => {
 
     describe("Delete Images", () => {
       it("should validate delete images input with multiple IDs", () => {
-        const input = { imageIds: validUUIDs }
+        const input = { project_id: projectId, imageIds: validUUIDs }
         const result = deleteImagesInputSchema.safeParse(input)
         expect(result.success).toBe(true)
       })
 
       it("should validate delete images input with single ID", () => {
-        const input = { imageIds: [validUUIDs[0]] }
+        const input = { project_id: projectId, imageIds: [validUUIDs[0]] }
         const result = deleteImagesInputSchema.safeParse(input)
         expect(result.success).toBe(true)
       })
 
       it("should reject empty imageIds array", () => {
-        const input = { imageIds: [] }
+        const input = { project_id: projectId, imageIds: [] }
         const result = deleteImagesInputSchema.safeParse(input)
         expect(result.success).toBe(false)
       })
 
       it("should reject invalid UUID in imageIds", () => {
-        const input = { imageIds: ["invalid-uuid"] }
+        const input = { project_id: projectId, imageIds: ["invalid-uuid"] }
         const result = deleteImagesInputSchema.safeParse(input)
         expect(result.success).toBe(false)
       })
 
       it("should reject when imageIds is missing", () => {
-        const input = {}
+        const input = { project_id: projectId }
         const result = deleteImagesInputSchema.safeParse(input)
         expect(result.success).toBe(false)
       })
@@ -682,19 +701,19 @@ describe("Glance Image Schema Validation", () => {
 
     describe("Activate Images", () => {
       it("should validate activate images input", () => {
-        const input = { imageIds: validUUIDs }
+        const input = { project_id: projectId, imageIds: validUUIDs }
         const result = activateImagesInputSchema.safeParse(input)
         expect(result.success).toBe(true)
       })
 
       it("should reject empty array", () => {
-        const input = { imageIds: [] }
+        const input = { project_id: projectId, imageIds: [] }
         const result = activateImagesInputSchema.safeParse(input)
         expect(result.success).toBe(false)
       })
 
       it("should reject mixed valid and invalid UUIDs", () => {
-        const input = { imageIds: [validUUIDs[0], "not-a-uuid"] }
+        const input = { project_id: projectId, imageIds: [validUUIDs[0], "not-a-uuid"] }
         const result = activateImagesInputSchema.safeParse(input)
         expect(result.success).toBe(false)
       })
@@ -702,13 +721,13 @@ describe("Glance Image Schema Validation", () => {
 
     describe("Deactivate Images", () => {
       it("should validate deactivate images input", () => {
-        const input = { imageIds: validUUIDs }
+        const input = { project_id: projectId, imageIds: validUUIDs }
         const result = deactivateImagesInputSchema.safeParse(input)
         expect(result.success).toBe(true)
       })
 
       it("should reject empty array", () => {
-        const input = { imageIds: [] }
+        const input = { project_id: projectId, imageIds: [] }
         const result = deactivateImagesInputSchema.safeParse(input)
         expect(result.success).toBe(false)
       })

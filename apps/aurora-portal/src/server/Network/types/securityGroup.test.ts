@@ -142,6 +142,7 @@ describe("OpenStack Security Group Schema Validation", () => {
 
   describe("createSecurityGroupRuleInputSchema - Type checking", () => {
     const minimalValidInput = {
+      project_id: "test-project-id",
       security_group_id: "sg-123",
       direction: "ingress" as const,
     }
@@ -179,6 +180,7 @@ describe("OpenStack Security Group Schema Validation", () => {
 
     it("should reject missing required field: security_group_id", () => {
       const result = createSecurityGroupRuleInputSchema.safeParse({
+        project_id: "test-project-id",
         direction: "ingress",
       })
       expect(result.success).toBe(false)
@@ -186,6 +188,7 @@ describe("OpenStack Security Group Schema Validation", () => {
 
     it("should reject missing required field: direction", () => {
       const result = createSecurityGroupRuleInputSchema.safeParse({
+        project_id: "test-project-id",
         security_group_id: "sg-123",
       })
       expect(result.success).toBe(false)

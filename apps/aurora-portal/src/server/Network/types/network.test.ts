@@ -70,7 +70,7 @@ describe("Network query schemas", () => {
 
   describe("ListExternalNetworksQuerySchema", () => {
     it("should default router:external to true when omitted", () => {
-      const result = ListExternalNetworksQuerySchema.safeParse({})
+      const result = ListExternalNetworksQuerySchema.safeParse({ project_id: "project-1" })
 
       expect(result.success).toBe(true)
       if (result.success) {
@@ -79,13 +79,19 @@ describe("Network query schemas", () => {
     })
 
     it("should validate when router:external is explicitly true", () => {
-      const result = ListExternalNetworksQuerySchema.safeParse({ "router:external": true })
+      const result = ListExternalNetworksQuerySchema.safeParse({
+        project_id: "project-1",
+        "router:external": true
+      })
 
       expect(result.success).toBe(true)
     })
 
     it("should reject router:external when false", () => {
-      const result = ListExternalNetworksQuerySchema.safeParse({ "router:external": false })
+      const result = ListExternalNetworksQuerySchema.safeParse({
+        project_id: "project-1",
+        "router:external": false
+      })
 
       expect(result.success).toBe(false)
     })

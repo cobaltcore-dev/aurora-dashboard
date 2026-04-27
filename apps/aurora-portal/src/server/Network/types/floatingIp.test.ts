@@ -575,11 +575,11 @@ describe("OpenStack Floating IP Schema Validation", () => {
 
   describe("FloatingIpIdInputSchema", () => {
     it("should validate request with floatingip_id", () => {
-      expect(FloatingIpIdInputSchema.safeParse({ floatingip_id: "fip-123" }).success).toBe(true)
+      expect(FloatingIpIdInputSchema.safeParse({ project_id: "test-project", floatingip_id: "fip-123" }).success).toBe(true)
     })
 
     it("should reject request without floatingip_id", () => {
-      expect(FloatingIpIdInputSchema.safeParse({}).success).toBe(false)
+      expect(FloatingIpIdInputSchema.safeParse({ project_id: "test-project" }).success).toBe(false)
     })
   })
 
@@ -588,7 +588,6 @@ describe("OpenStack Floating IP Schema Validation", () => {
       const request = {
         project_id: "test-project",
         tenant_id: "tenant-1",
-        project_id: "project-1",
         floating_network_id: "376da547-b977-4cfe-9cba-275c80debf57",
       }
 
@@ -599,7 +598,6 @@ describe("OpenStack Floating IP Schema Validation", () => {
       const request = {
         project_id: "test-project",
         tenant_id: "tenant-1",
-        project_id: "project-1",
         floating_network_id: "376da547-b977-4cfe-9cba-275c80debf57",
         port_id: "ce705c24-c1ef-408a-bda3-7bbd946164ab",
         subnet_id: "278d9507-36e7-403c-bb80-1d7093318fe6",
@@ -619,7 +617,6 @@ describe("OpenStack Floating IP Schema Validation", () => {
       const request = {
         project_id: "test-project",
         tenant_id: "tenant-1",
-        project_id: "project-1",
       }
 
       expect(FloatingIpCreateRequestSchema.safeParse(request).success).toBe(false)

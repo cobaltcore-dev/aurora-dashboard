@@ -207,6 +207,7 @@ describe("rbacPolicyResponseSchema", () => {
 describe("listRBACPoliciesForSecurityGroupInputSchema", () => {
   it("validates valid security group ID", () => {
     const input = {
+      project_id: "test-project-id",
       securityGroupId: "sg-123",
     }
 
@@ -219,7 +220,7 @@ describe("listRBACPoliciesForSecurityGroupInputSchema", () => {
   })
 
   it("requires securityGroupId field", () => {
-    const input = {}
+    const input = { project_id: "test-project-id" }
 
     const result = listRBACPoliciesForSecurityGroupInputSchema.safeParse(input)
 
@@ -230,6 +231,7 @@ describe("listRBACPoliciesForSecurityGroupInputSchema", () => {
 describe("createRBACPolicyInputSchema", () => {
   it("validates valid create input", () => {
     const input = {
+      project_id: "test-project-id",
       securityGroupId: "sg-123",
       targetTenant: "project-456",
     }
@@ -245,6 +247,7 @@ describe("createRBACPolicyInputSchema", () => {
 
   it("requires securityGroupId field", () => {
     const input = {
+      project_id: "test-project-id",
       targetTenant: "project-456",
     }
 
@@ -255,6 +258,7 @@ describe("createRBACPolicyInputSchema", () => {
 
   it("requires targetTenant field", () => {
     const input = {
+      project_id: "test-project-id",
       securityGroupId: "sg-123",
     }
 
