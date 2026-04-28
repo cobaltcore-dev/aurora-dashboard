@@ -133,6 +133,11 @@ export async function createContext(opts: CreateFastifyContextOptions): Promise<
         },
       })
 
+      if (!domainsResponse.ok) {
+        console.error("[getUserInfo] Failed to fetch domains, status:", domainsResponse.status)
+        return undefined
+      }
+
       const domainsData = await domainsResponse.json()
       const domains = domainsData?.domains || []
 
@@ -149,7 +154,7 @@ export async function createContext(opts: CreateFastifyContextOptions): Promise<
 
       return cachedUserInfo
     } catch (err) {
-      console.error("Error fetching accessible domains:", err)
+      console.error("[getUserInfo] Error fetching accessible domains:", err)
       // Return undefined to signal that we couldn't fetch domain info
       // domainScopedProcedure will treat this as "cannot verify access"
       // and deny the request, which is safer than allowing access on error
