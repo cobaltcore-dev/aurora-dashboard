@@ -2,9 +2,13 @@ import { createFileRoute, Outlet, useLoaderData } from "@tanstack/react-router"
 import { AppShell, Container, Stack } from "@cloudoperators/juno-ui-components"
 import { SideNavBar } from "@/client/routes/_auth/projects/-components/SideNavBar"
 import { ProjectInfoBox } from "@/client/components/ProjectView/ProjectInfoBox"
+import { RouteError } from "@/client/components/Error/RouteError"
 
 export const Route = createFileRoute("/_auth/projects/$projectId")({
   component: RouteComponent,
+  errorComponent: ({ error }) => {
+    return <RouteError error={error} />
+  },
   loader: async (options) => {
     const { context, params } = options
     const data = await context.trpcClient?.auth.setCurrentScope.mutate({
