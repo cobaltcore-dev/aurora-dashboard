@@ -2,7 +2,7 @@ import { TRPCError } from "@trpc/server"
 import { z } from "zod"
 import EventEmitter from "node:events"
 import { Readable, Transform } from "node:stream"
-import { protectedProcedure } from "../../trpc"
+import { protectedProcedure, projectScopedProcedure, projectScopedInputSchema } from "../../trpc"
 import { octetInputParser } from "@trpc/server/http"
 import {
   validateSwiftService,
@@ -84,8 +84,13 @@ export const swiftRouter = {
   // ============================================================================
 
   /**
-   * Gets Swift service information and capabilities from /info endpoint
-   * This provides information about supported features, limits, and configuration
+   * Gets Swift service information and capabilities from /info endpoint.
+   * This provides information about supported features, limits, and configuration.
+   *
+   * Uses protectedProcedure (not project-scoped) because:
+   * - /info endpoint returns service-level metadata
+   * - No project-specific data is accessed
+   * - Available to all authenticated users
    */
   getServiceInfo: protectedProcedure.query(async ({ ctx }): Promise<ServiceInfo> => {
     return withErrorHandling(async () => {
@@ -112,13 +117,20 @@ export const swiftRouter = {
   // ============================================================================
 
   /**
-   * Lists containers in an account with optional filtering and pagination
+   * Lists containers in an account with optional filtering and pagination.
+   *
+   * Uses projectScopedProcedure because:
+   * - Containers belong to projects (OpenStack maps project → Swift account)
+   * - Requires project-scoped token to list containers in that project's account
+   * - The optional 'account' parameter allows cross-account access for admin users
    */
-  listContainers: protectedProcedure
-    .input(listContainersInputSchema)
+  listContainers: projectScopedProcedure
+    .input(projectScopedInputSchema.extend(listContainersInputSchema.shape))
     .query(async ({ input, ctx }): Promise<ContainerSummary[]> => {
       return withErrorHandling(async () => {
-        const { account, xNewest, ...queryInput } = input
+        // Extract project_id - used for rescoping, not for OpenStack API
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { project_id, account, xNewest, ...queryInput } = input
         const openstackSession = ctx.openstack
         const swift = openstackSession?.service("swift")
 
@@ -157,13 +169,18 @@ export const swiftRouter = {
     }),
 
   /**
-   * Gets account metadata including container count, object count, and bytes used
+   * Gets account metadata including container count, object count, and bytes used.
+   *
+   * Uses projectScopedProcedure because:
+   * - Account metadata reflects the project's storage usage and configuration
+   * - Requires project-scoped token to access project-specific account data
    */
-  getAccountMetadata: protectedProcedure
-    .input(getAccountMetadataInputSchema)
+  getAccountMetadata: projectScopedProcedure
+    .input(projectScopedInputSchema.extend(getAccountMetadataInputSchema.shape))
     .query(async ({ input, ctx }): Promise<AccountInfo> => {
       return withErrorHandling(async () => {
-        const { account, xNewest } = input
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { project_id, account, xNewest } = input
         const openstackSession = ctx.openstack
         const swift = openstackSession?.service("swift")
 
@@ -184,13 +201,18 @@ export const swiftRouter = {
     }),
 
   /**
-   * Updates account metadata
+   * Updates account metadata.
+   *
+   * Uses projectScopedProcedure because:
+   * - Modifies project-specific account settings and metadata
+   * - Requires project-scoped token to update account configuration
    */
-  updateAccountMetadata: protectedProcedure
-    .input(updateAccountMetadataInputSchema)
+  updateAccountMetadata: projectScopedProcedure
+    .input(projectScopedInputSchema.extend(updateAccountMetadataInputSchema.shape))
     .mutation(async ({ input, ctx }): Promise<boolean> => {
       return withErrorHandling(async () => {
-        const { account, metadata, removeMetadata, tempUrlKey, tempUrlKey2 } = input
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { project_id, account, metadata, removeMetadata, tempUrlKey, tempUrlKey2 } = input
         const openstackSession = ctx.openstack
         const swift = openstackSession?.service("swift")
 
@@ -208,13 +230,18 @@ export const swiftRouter = {
     }),
 
   /**
-   * Deletes an account (requires reseller admin privileges)
+   * Deletes an account (requires reseller admin privileges).
+   *
+   * Uses projectScopedProcedure because:
+   * - Deletes a project-specific account
+   * - Requires project-scoped token (and admin role) for account deletion
    */
-  deleteAccount: protectedProcedure
-    .input(deleteAccountInputSchema)
+  deleteAccount: projectScopedProcedure
+    .input(projectScopedInputSchema.extend(deleteAccountInputSchema.shape))
     .mutation(async ({ input, ctx }): Promise<boolean> => {
       return withErrorHandling(async () => {
-        const { account } = input
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { project_id, account } = input
         const openstackSession = ctx.openstack
         const swift = openstackSession?.service("swift")
 
@@ -237,13 +264,18 @@ export const swiftRouter = {
   // ============================================================================
 
   /**
-   * Lists objects in a container with optional filtering and pagination
+   * Lists objects in a container with optional filtering and pagination.
+   *
+   * Uses projectScopedProcedure because:
+   * - Containers belong to projects
+   * - Requires project-scoped token to list objects within a project's container
    */
-  listObjects: protectedProcedure
-    .input(listObjectsInputSchema)
+  listObjects: projectScopedProcedure
+    .input(projectScopedInputSchema.extend(listObjectsInputSchema.shape))
     .query(async ({ input, ctx }): Promise<ObjectSummary[]> => {
       return withErrorHandling(async () => {
-        const { account, container, xNewest, ...queryInput } = input
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { project_id, account, container, xNewest, ...queryInput } = input
         const openstackSession = ctx.openstack
         const swift = openstackSession?.service("swift")
 
@@ -284,13 +316,18 @@ export const swiftRouter = {
     }),
 
   /**
-   * Creates a container with optional metadata and settings
+   * Creates a container with optional metadata and settings.
+   *
+   * Uses projectScopedProcedure because:
+   * - Containers are project resources
+   * - Requires project-scoped token to create containers
    */
-  createContainer: protectedProcedure
-    .input(createContainerInputSchema)
+  createContainer: projectScopedProcedure
+    .input(projectScopedInputSchema.extend(createContainerInputSchema.shape))
     .mutation(async ({ input, ctx }): Promise<boolean> => {
       return withErrorHandling(async () => {
-        const { account, container, ...options } = input
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { project_id, account, container, ...options } = input
         const openstackSession = ctx.openstack
         const swift = openstackSession?.service("swift")
 
@@ -310,13 +347,18 @@ export const swiftRouter = {
     }),
 
   /**
-   * Gets container metadata
+   * Gets container metadata.
+   *
+   * Uses projectScopedProcedure because:
+   * - Container metadata is project-specific
+   * - Requires project-scoped token to access container information
    */
-  getContainerMetadata: protectedProcedure
-    .input(getContainerMetadataInputSchema)
+  getContainerMetadata: projectScopedProcedure
+    .input(projectScopedInputSchema.extend(getContainerMetadataInputSchema.shape))
     .query(async ({ input, ctx }): Promise<ContainerInfo> => {
       return withErrorHandling(async () => {
-        const { account, container, xNewest } = input
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { project_id, account, container, xNewest } = input
         const openstackSession = ctx.openstack
         const swift = openstackSession?.service("swift")
 
@@ -339,13 +381,18 @@ export const swiftRouter = {
     }),
 
   /**
-   * Updates container metadata
+   * Updates container metadata.
+   *
+   * Uses projectScopedProcedure because:
+   * - Modifies project-specific container settings
+   * - Requires project-scoped token to update container metadata
    */
-  updateContainerMetadata: protectedProcedure
-    .input(updateContainerMetadataInputSchema)
+  updateContainerMetadata: projectScopedProcedure
+    .input(projectScopedInputSchema.extend(updateContainerMetadataInputSchema.shape))
     .mutation(async ({ input, ctx }): Promise<boolean> => {
       return withErrorHandling(async () => {
-        const { account, container, ...options } = input
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { project_id, account, container, ...options } = input
         const openstackSession = ctx.openstack
         const swift = openstackSession?.service("swift")
 
@@ -365,13 +412,18 @@ export const swiftRouter = {
     }),
 
   /**
-   * Returns the public URL for a container (derived from the service catalog public endpoint)
+   * Returns the public URL for a container (derived from the service catalog public endpoint).
+   *
+   * Uses projectScopedProcedure because:
+   * - Container public URLs are project-specific
+   * - Requires project-scoped token to access the correct service endpoint
    */
-  getContainerPublicUrl: protectedProcedure
-    .input(getContainerMetadataInputSchema)
+  getContainerPublicUrl: projectScopedProcedure
+    .input(projectScopedInputSchema.extend(getContainerMetadataInputSchema.shape))
     .query(async ({ input, ctx }): Promise<string | null> => {
       return withErrorHandling(async () => {
-        const { container } = input
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { project_id, container } = input
         const openstackSession = ctx.openstack
         const swift = openstackSession?.service("swift")
 
@@ -387,13 +439,18 @@ export const swiftRouter = {
     }),
 
   /**
-   * Deletes an empty container
+   * Deletes an empty container.
+   *
+   * Uses projectScopedProcedure because:
+   * - Containers are project resources
+   * - Requires project-scoped token to delete project containers
    */
-  deleteContainer: protectedProcedure
-    .input(deleteContainerInputSchema)
+  deleteContainer: projectScopedProcedure
+    .input(projectScopedInputSchema.extend(deleteContainerInputSchema.shape))
     .mutation(async ({ input, ctx }): Promise<boolean> => {
       return withErrorHandling(async () => {
-        const { account, container } = input
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { project_id, account, container } = input
         const openstackSession = ctx.openstack
         const swift = openstackSession?.service("swift")
 
@@ -420,12 +477,17 @@ export const swiftRouter = {
    * if so, uses bulk delete for efficiency; otherwise falls back to individual
    * DELETE requests. Paginates through all objects to handle large containers.
    * Returns the total number of deleted objects.
+   *
+   * Uses projectScopedProcedure because:
+   * - Operates on project-owned containers and objects
+   * - Requires project-scoped token to delete container contents
    */
-  emptyContainer: protectedProcedure
-    .input(deleteContainerInputSchema)
+  emptyContainer: projectScopedProcedure
+    .input(projectScopedInputSchema.extend(deleteContainerInputSchema.shape))
     .mutation(async ({ input, ctx }): Promise<number> => {
       return withErrorHandling(async () => {
-        const { account, container } = input
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { project_id, account, container } = input
         const openstackSession = ctx.openstack
         const swift = openstackSession?.service("swift")
 
@@ -522,13 +584,19 @@ export const swiftRouter = {
   // ============================================================================
 
   /**
-   * Gets object metadata without downloading the content
+   * Gets object metadata without downloading the content.
+   *
+   * Uses projectScopedProcedure because:
+   * - Objects are stored in project-owned containers
+   * - Requires project-scoped token to access object metadata
    */
-  getObjectMetadata: protectedProcedure
-    .input(getObjectMetadataInputSchema)
+  getObjectMetadata: projectScopedProcedure
+    .input(projectScopedInputSchema.extend(getObjectMetadataInputSchema.shape))
     .query(async ({ input, ctx }): Promise<ObjectMetadata> => {
       return withErrorHandling(async () => {
         const {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          project_id,
           account,
           container,
           object,
@@ -577,13 +645,18 @@ export const swiftRouter = {
     }),
 
   /**
-   * Updates object metadata without modifying the content
+   * Updates object metadata without modifying the content.
+   *
+   * Uses projectScopedProcedure because:
+   * - Objects belong to project-owned containers
+   * - Requires project-scoped token to update object metadata
    */
-  updateObjectMetadata: protectedProcedure
-    .input(updateObjectMetadataInputSchema)
+  updateObjectMetadata: projectScopedProcedure
+    .input(projectScopedInputSchema.extend(updateObjectMetadataInputSchema.shape))
     .mutation(async ({ input, ctx }): Promise<boolean> => {
       return withErrorHandling(async () => {
-        const { account, container, object, ...options } = input
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { project_id, account, container, object, ...options } = input
         const openstackSession = ctx.openstack
         const swift = openstackSession?.service("swift")
 
@@ -605,26 +678,34 @@ export const swiftRouter = {
     }),
 
   /**
-   * Copies an object to a new location using PUT with X-Copy-From header
-   * This is the recommended approach and equivalent to using the COPY HTTP method
+   * Copies an object to a new location using PUT with X-Copy-From header.
+   * This is the recommended approach and equivalent to using the COPY HTTP method.
+   *
+   * Uses projectScopedProcedure because:
+   * - Source and destination objects are in project-owned containers
+   * - Requires project-scoped token to copy objects within project
    */
-  copyObject: protectedProcedure.input(copyObjectInputSchema).mutation(async ({ input, ctx }): Promise<boolean> => {
-    return withErrorHandling(async () => {
-      const {
-        account,
-        container,
-        object,
-        destination,
-        destinationAccount,
-        multipartManifest,
-        symlink,
-        freshMetadata,
-        ...options
-      } = input
-      const openstackSession = ctx.openstack
-      const swift = openstackSession?.service("swift")
+  copyObject: projectScopedProcedure
+    .input(projectScopedInputSchema.extend(copyObjectInputSchema.shape))
+    .mutation(async ({ input, ctx }): Promise<boolean> => {
+      return withErrorHandling(async () => {
+        const {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          project_id,
+          account,
+          container,
+          object,
+          destination,
+          destinationAccount,
+          multipartManifest,
+          symlink,
+          freshMetadata,
+          ...options
+        } = input
+        const openstackSession = ctx.openstack
+        const swift = openstackSession?.service("swift")
 
-      validateSwiftService(swift)
+        validateSwiftService(swift)
 
       // Build source path for X-Copy-From header
       // Encode each object path segment individually to preserve "/" separators
@@ -707,15 +788,22 @@ export const swiftRouter = {
   }),
 
   /**
-   * Deletes an object
+   * Deletes an object.
+   *
+   * Uses projectScopedProcedure because:
+   * - Objects are stored in project-owned containers
+   * - Requires project-scoped token to delete objects
    */
-  deleteObject: protectedProcedure.input(deleteObjectInputSchema).mutation(async ({ input, ctx }): Promise<boolean> => {
-    return withErrorHandling(async () => {
-      const { account, container, object, multipartManifest } = input
-      const openstackSession = ctx.openstack
-      const swift = openstackSession?.service("swift")
+  deleteObject: projectScopedProcedure
+    .input(projectScopedInputSchema.extend(deleteObjectInputSchema.shape))
+    .mutation(async ({ input, ctx }): Promise<boolean> => {
+      return withErrorHandling(async () => {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { project_id, account, container, object, multipartManifest } = input
+        const openstackSession = ctx.openstack
+        const swift = openstackSession?.service("swift")
 
-      validateSwiftService(swift)
+        validateSwiftService(swift)
 
       // Build URL with query parameters
       const queryParams = new URLSearchParams()
@@ -742,13 +830,18 @@ export const swiftRouter = {
   // ============================================================================
 
   /**
-   * Deletes multiple objects in a single request (up to 10,000)
+   * Deletes multiple objects in a single request (up to 10,000).
+   *
+   * Uses projectScopedProcedure because:
+   * - Deletes objects from project-owned containers
+   * - Requires project-scoped token for bulk delete operations
    */
-  bulkDelete: protectedProcedure
-    .input(bulkDeleteInputSchema)
+  bulkDelete: projectScopedProcedure
+    .input(projectScopedInputSchema.extend(bulkDeleteInputSchema.shape))
     .mutation(async ({ input, ctx }): Promise<BulkDeleteResult> => {
       return withErrorHandling(async () => {
-        const { account, objects } = input
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { project_id, account, objects } = input
         const openstackSession = ctx.openstack
         const swift = openstackSession?.service("swift")
 
@@ -804,16 +897,23 @@ export const swiftRouter = {
   // ============================================================================
 
   /**
-   * Creates a pseudo-folder by creating a zero-byte marker object
-   * Folder paths should end with a trailing slash (e.g., "documents/2024/")
+   * Creates a pseudo-folder by creating a zero-byte marker object.
+   * Folder paths should end with a trailing slash (e.g., "documents/2024/").
+   *
+   * Uses projectScopedProcedure because:
+   * - Folders are objects in project-owned containers
+   * - Requires project-scoped token to create folder markers
    */
-  createFolder: protectedProcedure.input(createFolderInputSchema).mutation(async ({ input, ctx }): Promise<boolean> => {
-    return withErrorHandling(async () => {
-      const { account, container, folderPath, metadata } = input
-      const openstackSession = ctx.openstack
-      const swift = openstackSession?.service("swift")
+  createFolder: projectScopedProcedure
+    .input(projectScopedInputSchema.extend(createFolderInputSchema.shape))
+    .mutation(async ({ input, ctx }): Promise<boolean> => {
+      return withErrorHandling(async () => {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { project_id, account, container, folderPath, metadata } = input
+        const openstackSession = ctx.openstack
+        const swift = openstackSession?.service("swift")
 
-      validateSwiftService(swift)
+        validateSwiftService(swift)
 
       // Ensure folder path ends with /
       const normalizedPath = normalizeFolderPath(folderPath)
@@ -849,14 +949,19 @@ export const swiftRouter = {
   }),
 
   /**
-   * Lists folder contents (folders and objects at current level)
-   * Uses delimiter="/" to get pseudo-hierarchical folder structure
+   * Lists folder contents (folders and objects at current level).
+   * Uses delimiter="/" to get pseudo-hierarchical folder structure.
+   *
+   * Uses projectScopedProcedure because:
+   * - Lists contents of project-owned containers
+   * - Requires project-scoped token to list folder contents
    */
-  listFolderContents: protectedProcedure
-    .input(listFolderContentsInputSchema)
+  listFolderContents: projectScopedProcedure
+    .input(projectScopedInputSchema.extend(listFolderContentsInputSchema.shape))
     .query(async ({ input, ctx }): Promise<FolderContents> => {
       return withErrorHandling(async () => {
-        const { account, container, folderPath, limit, marker } = input
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { project_id, account, container, folderPath, limit, marker } = input
         const openstackSession = ctx.openstack
         const swift = openstackSession?.service("swift")
 
@@ -939,16 +1044,23 @@ export const swiftRouter = {
     }),
 
   /**
-   * Moves a folder by copying all objects with the source prefix to the destination
-   * This operation can take time for folders with many objects
+   * Moves a folder by copying all objects with the source prefix to the destination.
+   * This operation can take time for folders with many objects.
+   *
+   * Uses projectScopedProcedure because:
+   * - Copies and deletes objects in project-owned containers
+   * - Requires project-scoped token for folder move operations
    */
-  moveFolder: protectedProcedure.input(moveFolderInputSchema).mutation(async ({ input, ctx }): Promise<number> => {
-    return withErrorHandling(async () => {
-      const { account, container, sourcePath, destinationPath, destinationContainer } = input
-      const openstackSession = ctx.openstack
-      const swift = openstackSession?.service("swift")
+  moveFolder: projectScopedProcedure
+    .input(projectScopedInputSchema.extend(moveFolderInputSchema.shape))
+    .mutation(async ({ input, ctx }): Promise<number> => {
+      return withErrorHandling(async () => {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { project_id, account, container, sourcePath, destinationPath, destinationContainer } = input
+        const openstackSession = ctx.openstack
+        const swift = openstackSession?.service("swift")
 
-      validateSwiftService(swift)
+        validateSwiftService(swift)
 
       const normalizedSource = normalizeFolderPath(sourcePath)
       const normalizedDest = normalizeFolderPath(destinationPath)
@@ -1034,16 +1146,23 @@ export const swiftRouter = {
   }),
 
   /**
-   * Deletes a folder by deleting all objects with the folder prefix
-   * Uses bulk delete for efficiency
+   * Deletes a folder by deleting all objects with the folder prefix.
+   * Uses bulk delete for efficiency.
+   *
+   * Uses projectScopedProcedure because:
+   * - Deletes objects from project-owned containers
+   * - Requires project-scoped token for folder deletion
    */
-  deleteFolder: protectedProcedure.input(deleteFolderInputSchema).mutation(async ({ input, ctx }): Promise<number> => {
-    return withErrorHandling(async () => {
-      const { account, container, folderPath, recursive } = input
-      const openstackSession = ctx.openstack
-      const swift = openstackSession?.service("swift")
+  deleteFolder: projectScopedProcedure
+    .input(projectScopedInputSchema.extend(deleteFolderInputSchema.shape))
+    .mutation(async ({ input, ctx }): Promise<number> => {
+      return withErrorHandling(async () => {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { project_id, account, container, folderPath, recursive } = input
+        const openstackSession = ctx.openstack
+        const swift = openstackSession?.service("swift")
 
-      validateSwiftService(swift)
+        validateSwiftService(swift)
 
       const normalizedPath = normalizeFolderPath(folderPath)
 
@@ -1103,14 +1222,19 @@ export const swiftRouter = {
   // ============================================================================
 
   /**
-   * Generates a temporary URL for time-limited object access
-   * Requires temp URL key to be configured at account or container level
+   * Generates a temporary URL for time-limited object access.
+   * Requires temp URL key to be configured at account or container level.
+   *
+   * Uses projectScopedProcedure because:
+   * - Generates URLs for objects in project-owned containers
+   * - Requires project-scoped token to access temp URL keys
    */
-  generateTempUrl: protectedProcedure
-    .input(generateTempUrlInputSchema)
+  generateTempUrl: projectScopedProcedure
+    .input(projectScopedInputSchema.extend(generateTempUrlInputSchema.shape))
     .mutation(async ({ input, ctx }): Promise<TempUrl> => {
       return withErrorHandling(async () => {
-        const { account, container, object, method, expiresIn, filename } = input
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { project_id, account, container, object, method, expiresIn, filename } = input
         const openstackSession = ctx.openstack
         const swift = openstackSession?.service("swift")
 
@@ -1207,6 +1331,7 @@ export const swiftRouter = {
    * via the Transform pipeline identical to imageRouter.uploadImage.
    *
    * Metadata is sent as custom request headers:
+   *   - x-upload-project-id (string) — project ID for rescoping (required)
    *   - x-upload-container  (string) — target container name
    *   - x-upload-object     (string) — full object path, e.g. "folder/file.txt"
    *   - x-upload-type       (string, optional) — MIME type detected client-side
@@ -1222,16 +1347,40 @@ export const swiftRouter = {
    * this mutation so the subscription can be opened in advance. The UUID suffix ensures
    * concurrent uploads of the same object do not collide in the progress map.
    * On the BFF, the ID is further scoped with the Keystone project ID before storage.
+   *
+   * Uses protectedProcedure (not projectScopedProcedure) because:
+   * - Special handling required for octetInputParser (file upload streams)
+   * - Manual project rescoping performed using x-upload-project-id header
+   * - Cannot use standard input schema with binary stream data
    */
   uploadObject: protectedProcedure
     .input(octetInputParser)
     .mutation(async ({ input, ctx }): Promise<{ success: boolean }> => {
       return withErrorHandling(async () => {
-        const swift = ctx.openstack?.service("swift")
+        // Manual project rescoping for upload operations
+        const headers = ctx.req.headers
+        const uploadProjectId = headers["x-upload-project-id"] as string | undefined
+
+        if (!uploadProjectId || uploadProjectId.trim().length === 0) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "x-upload-project-id header is required for file uploads",
+          })
+        }
+
+        // Rescope session to the specified project
+        const openstackSession = await ctx.rescopeSession({ projectId: uploadProjectId })
+        if (!openstackSession) {
+          throw new TRPCError({
+            code: "UNAUTHORIZED",
+            message: "Failed to scope session to project. User may not have access to this project.",
+          })
+        }
+
+        const swift = openstackSession?.service("swift")
         validateSwiftService(swift)
 
         // Metadata arrives as custom headers — the body is the raw file stream.
-        const headers = ctx.req.headers
         const container = headers["x-upload-container"] as string | undefined
         const object = headers["x-upload-object"] as string | undefined
         const contentType = headers["x-upload-type"] as string | undefined
@@ -1254,9 +1403,9 @@ export const swiftRouter = {
         }
 
         // Scope the progress key to the project so cross-tenant observation is impossible
-        const uploadToken = ctx.openstack?.getToken()
-        const uploadProjectId = uploadToken?.tokenData.project?.id ?? "unknown"
-        const scopedUploadId = `${uploadProjectId}:${uploadId}`
+        const uploadToken = openstackSession.getToken()
+        const scopedProjectId = uploadToken?.tokenData.project?.id ?? "unknown"
+        const scopedUploadId = `${scopedProjectId}:${uploadId}`
 
         uploadProgressMap.set(scopedUploadId, { uploaded: 0, total: validatedFileSize, percent: 0 })
 
@@ -1448,21 +1597,28 @@ export const swiftRouter = {
    *   - Data is delivered to the client progressively, enabling download progress
    *   - The current client implementation still buffers the full file before
    *     creating the Blob, so client-side memory usage remains O(file size)
+   *
+   * Uses projectScopedProcedure because:
+   * - Downloads objects from project-owned containers
+   * - Requires project-scoped token to access and stream object data
    */
-  downloadObject: protectedProcedure.input(downloadObjectInputSchema).mutation(async function* ({
-    input,
-    ctx,
-  }): AsyncGenerator<{
-    chunk: string // base64-encoded Uint8Array chunk
-    downloaded: number // cumulative bytes received so far
-    total: number // total file size in bytes (0 if unknown)
-    contentType?: string // only present in first chunk
-    filename?: string // only present in first chunk
-  }> {
-    const { container, object, filename, account, downloadId } = input
-    const swift = ctx.openstack?.service("swift")
+  downloadObject: projectScopedProcedure
+    .input(projectScopedInputSchema.extend(downloadObjectInputSchema.shape))
+    .mutation(async function* ({
+      input,
+      ctx,
+    }): AsyncGenerator<{
+      chunk: string // base64-encoded Uint8Array chunk
+      downloaded: number // cumulative bytes received so far
+      total: number // total file size in bytes (0 if unknown)
+      contentType?: string // only present in first chunk
+      filename?: string // only present in first chunk
+    }> {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { project_id, container, object, filename, account, downloadId } = input
+      const swift = ctx.openstack?.service("swift")
 
-    validateSwiftService(swift)
+      validateSwiftService(swift)
 
     const accountPath = account || ""
     // Encode each segment of the object name individually so that slashes

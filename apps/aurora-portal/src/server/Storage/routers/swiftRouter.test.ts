@@ -82,6 +82,9 @@ const mockServiceInfo: ServiceInfo = {
   },
 }
 
+// Test project ID constant
+const TEST_PROJECT_ID = "test-project-id"
+
 // Mock context
 const createMockContext = (shouldFailAuth = false, shouldFailSwift = false) => {
   const mockSwift = {
@@ -150,7 +153,25 @@ const createMockContext = (shouldFailAuth = false, shouldFailSwift = false) => {
         },
       }),
     },
-    rescopeSession: vi.fn().mockResolvedValue({}),
+    rescopeSession: vi.fn().mockResolvedValue({
+      service: vi.fn().mockReturnValue(shouldFailSwift ? null : mockSwift),
+      getToken: vi.fn().mockReturnValue({
+        tokenData: {
+          project: { id: "test-project-id" },
+          user: {
+            id: "test-user-id",
+            domain: { id: "default", name: "Default" },
+            name: "test-user",
+            password_expires_at: "",
+          },
+          expires_at: "",
+          issued_at: "",
+          methods: [],
+          roles: [],
+          system: { all: false },
+        },
+      }),
+    }),
     mockSwift,
     mockReqHeaders,
   } as unknown as AuroraPortalContext & { mockSwift: typeof mockSwift; mockReqHeaders: Record<string, string> }
@@ -229,7 +250,7 @@ describe("swiftRouter", () => {
       const mockCtx = createMockContext(true)
       const caller = createCaller(mockCtx)
 
-      await expect(caller.storage.swift.listContainers({ format: "json" })).rejects.toThrow(
+      await expect(caller.storage.swift.listContainers({ project_id: TEST_PROJECT_ID, format: "json" })).rejects.toThrow(
         new TRPCError({
           code: "UNAUTHORIZED",
           message: "The session is invalid",
@@ -246,7 +267,7 @@ describe("swiftRouter", () => {
         json: vi.fn().mockResolvedValue([mockContainerSummary]),
       })
 
-      const input = { format: "json" as const }
+      const input = { project_id: TEST_PROJECT_ID, format: "json" as const }
       const result = await caller.storage.swift.listContainers(input)
 
       expect(mockCtx.validateSession).toHaveBeenCalled()
@@ -265,7 +286,7 @@ describe("swiftRouter", () => {
         json: vi.fn().mockResolvedValue([mockContainerSummary]),
       })
 
-      await caller.storage.swift.listContainers({ limit: 100, format: "json" })
+      await caller.storage.swift.listContainers({ project_id: TEST_PROJECT_ID, limit: 100, format: "json" })
 
       expect(swiftHelpers.applyContainerQueryParams).toHaveBeenCalled()
     })
@@ -276,7 +297,7 @@ describe("swiftRouter", () => {
 
       mockCtx.mockSwift.get.mockRejectedValue({ statusCode: 500, message: "Internal Server Error" })
 
-      await expect(caller.storage.swift.listContainers({ format: "json" })).rejects.toThrow()
+      await expect(caller.storage.swift.listContainers({ project_id: TEST_PROJECT_ID, format: "json" })).rejects.toThrow()
     })
 
     it("should return empty array on 204 No Content response", async () => {
@@ -285,7 +306,7 @@ describe("swiftRouter", () => {
 
       mockCtx.mockSwift.get.mockResolvedValue({ status: 204 })
 
-      const result = await caller.storage.swift.listContainers({ format: "json" })
+      const result = await caller.storage.swift.listContainers({ project_id: TEST_PROJECT_ID, format: "json" })
 
       expect(result).toEqual([])
     })
@@ -299,7 +320,7 @@ describe("swiftRouter", () => {
         json: vi.fn().mockResolvedValue([mockContainerSummary]),
       })
 
-      await caller.storage.swift.listContainers({ format: "json", xNewest: true })
+      await caller.storage.swift.listContainers({ project_id: TEST_PROJECT_ID, format: "json", xNewest: true })
 
       expect(mockCtx.mockSwift.get).toHaveBeenCalledWith(
         expect.any(String),
@@ -315,7 +336,7 @@ describe("swiftRouter", () => {
 
       ;(swiftHelpers.parseAccountInfo as Mock).mockReturnValue(mockAccountInfo)
 
-      const result = await caller.storage.swift.getAccountMetadata({})
+      const result = await caller.storage.swift.getAccountMetadata({ project_id: TEST_PROJECT_ID })
 
       expect(mockCtx.mockSwift.head).toHaveBeenCalled()
       expect(swiftHelpers.parseAccountInfo).toHaveBeenCalled()
@@ -328,7 +349,7 @@ describe("swiftRouter", () => {
 
       ;(swiftHelpers.parseAccountInfo as Mock).mockReturnValue(mockAccountInfo)
 
-      await caller.storage.swift.getAccountMetadata({ xNewest: true })
+      await caller.storage.swift.getAccountMetadata({ project_id: TEST_PROJECT_ID, xNewest: true })
 
       expect(mockCtx.mockSwift.head).toHaveBeenCalledWith(
         expect.any(String),
@@ -347,6 +368,7 @@ describe("swiftRouter", () => {
       const caller = createCaller(mockCtx)
 
       const input = {
+        project_id: TEST_PROJECT_ID,
         metadata: { project: "new-project" },
       }
 
@@ -362,6 +384,7 @@ describe("swiftRouter", () => {
       const caller = createCaller(mockCtx)
 
       const input = {
+        project_id: TEST_PROJECT_ID,
         metadata: {},
         removeMetadata: ["oldKey"],
       }
@@ -377,7 +400,7 @@ describe("swiftRouter", () => {
 
       ;(swiftHelpers.buildAccountMetadataHeaders as Mock).mockReturnValue({ "X-Account-Meta-Foo": "bar" })
 
-      await caller.storage.swift.updateAccountMetadata({ metadata: { foo: "bar" } })
+      await caller.storage.swift.updateAccountMetadata({ project_id: TEST_PROJECT_ID, metadata: { foo: "bar" } })
 
       expect(mockCtx.mockSwift.post).toHaveBeenCalledWith(
         expect.any(String),
@@ -390,7 +413,7 @@ describe("swiftRouter", () => {
       const mockCtx = createMockContext(true)
       const caller = createCaller(mockCtx)
 
-      await expect(caller.storage.swift.updateAccountMetadata({ metadata: {} })).rejects.toThrow(
+      await expect(caller.storage.swift.updateAccountMetadata({ project_id: TEST_PROJECT_ID, metadata: {} })).rejects.toThrow(
         new TRPCError({ code: "UNAUTHORIZED", message: "The session is invalid" })
       )
     })
@@ -401,7 +424,7 @@ describe("swiftRouter", () => {
       const mockCtx = createMockContext()
       const caller = createCaller(mockCtx)
 
-      const result = await caller.storage.swift.deleteAccount({})
+      const result = await caller.storage.swift.deleteAccount({ project_id: TEST_PROJECT_ID })
 
       expect(mockCtx.mockSwift.del).toHaveBeenCalled()
       expect(result).toBe(true)
@@ -411,7 +434,7 @@ describe("swiftRouter", () => {
       const mockCtx = createMockContext(true)
       const caller = createCaller(mockCtx)
 
-      await expect(caller.storage.swift.deleteAccount({})).rejects.toThrow(
+      await expect(caller.storage.swift.deleteAccount({ project_id: TEST_PROJECT_ID })).rejects.toThrow(
         new TRPCError({ code: "UNAUTHORIZED", message: "The session is invalid" })
       )
     })
@@ -422,7 +445,7 @@ describe("swiftRouter", () => {
 
       mockCtx.mockSwift.del.mockRejectedValue({ statusCode: 403, message: "Forbidden" })
 
-      await expect(caller.storage.swift.deleteAccount({})).rejects.toThrow()
+      await expect(caller.storage.swift.deleteAccount({ project_id: TEST_PROJECT_ID })).rejects.toThrow()
     })
   })
 
@@ -440,7 +463,7 @@ describe("swiftRouter", () => {
         json: vi.fn().mockResolvedValue([mockObjectSummary]),
       })
 
-      const input = { container: "test-container", format: "json" as const }
+      const input = { project_id: TEST_PROJECT_ID,  container: "test-container", format: "json" as const }
       const result = await caller.storage.swift.listObjects(input)
 
       expect(swiftHelpers.validateSwiftService).toHaveBeenCalled()
@@ -458,7 +481,7 @@ describe("swiftRouter", () => {
         json: vi.fn().mockResolvedValue([mockObjectSummary]),
       })
 
-      await caller.storage.swift.listObjects({
+      await caller.storage.swift.listObjects({ project_id: TEST_PROJECT_ID,
         container: "test-container",
         prefix: "logs/",
         format: "json",
@@ -473,7 +496,7 @@ describe("swiftRouter", () => {
 
       mockCtx.mockSwift.get.mockResolvedValue({ status: 204 })
 
-      const result = await caller.storage.swift.listObjects({ container: "test-container", format: "json" })
+      const result = await caller.storage.swift.listObjects({ project_id: TEST_PROJECT_ID, container: "test-container", format: "json" })
 
       expect(result).toEqual([])
     })
@@ -482,7 +505,7 @@ describe("swiftRouter", () => {
       const mockCtx = createMockContext(true)
       const caller = createCaller(mockCtx)
 
-      await expect(caller.storage.swift.listObjects({ container: "test-container", format: "json" })).rejects.toThrow(
+      await expect(caller.storage.swift.listObjects({ project_id: TEST_PROJECT_ID, container: "test-container", format: "json" })).rejects.toThrow(
         new TRPCError({ code: "UNAUTHORIZED", message: "The session is invalid" })
       )
     })
@@ -493,7 +516,7 @@ describe("swiftRouter", () => {
       const mockCtx = createMockContext()
       const caller = createCaller(mockCtx)
 
-      const input = { container: "new-container" }
+      const input = { project_id: TEST_PROJECT_ID,  container: "new-container" }
       const result = await caller.storage.swift.createContainer(input)
 
       expect(swiftHelpers.buildContainerMetadataHeaders).toHaveBeenCalled()
@@ -506,6 +529,7 @@ describe("swiftRouter", () => {
       const caller = createCaller(mockCtx)
 
       const input = {
+        project_id: TEST_PROJECT_ID,
         container: "new-container",
         metadata: { project: "test" },
       }
@@ -527,7 +551,7 @@ describe("swiftRouter", () => {
 
       ;(swiftHelpers.parseContainerInfo as Mock).mockReturnValue(mockContainerInfo)
 
-      const input = { container: "test-container" }
+      const input = { project_id: TEST_PROJECT_ID,  container: "test-container" }
       const result = await caller.storage.swift.getContainerMetadata(input)
 
       expect(mockCtx.mockSwift.head).toHaveBeenCalled()
@@ -541,7 +565,7 @@ describe("swiftRouter", () => {
 
       ;(swiftHelpers.parseContainerInfo as Mock).mockReturnValue(mockContainerInfo)
 
-      await caller.storage.swift.getContainerMetadata({ container: "test-container", xNewest: true })
+      await caller.storage.swift.getContainerMetadata({ project_id: TEST_PROJECT_ID, container: "test-container", xNewest: true })
 
       expect(mockCtx.mockSwift.head).toHaveBeenCalledWith(
         expect.any(String),
@@ -555,7 +579,7 @@ describe("swiftRouter", () => {
 
       ;(swiftHelpers.parseContainerInfo as Mock).mockReturnValue(mockContainerInfo)
 
-      await caller.storage.swift.getContainerMetadata({ container: "test-container", account: "AUTH_other" })
+      await caller.storage.swift.getContainerMetadata({ project_id: TEST_PROJECT_ID, container: "test-container", account: "AUTH_other" })
 
       expect(mockCtx.mockSwift.head).toHaveBeenCalledWith(expect.stringContaining("AUTH_other"), expect.anything())
     })
@@ -566,7 +590,7 @@ describe("swiftRouter", () => {
 
       mockCtx.mockSwift.head.mockRejectedValue({ statusCode: 404, message: "Not Found" })
 
-      await expect(caller.storage.swift.getContainerMetadata({ container: "missing" })).rejects.toThrow()
+      await expect(caller.storage.swift.getContainerMetadata({ project_id: TEST_PROJECT_ID, container: "missing" })).rejects.toThrow()
     })
   })
 
@@ -576,6 +600,7 @@ describe("swiftRouter", () => {
       const caller = createCaller(mockCtx)
 
       const input = {
+        project_id: TEST_PROJECT_ID,
         container: "test-container",
         metadata: { environment: "production" },
       }
@@ -595,7 +620,7 @@ describe("swiftRouter", () => {
         "X-Container-Meta-Env": "production",
       })
 
-      await caller.storage.swift.updateContainerMetadata({
+      await caller.storage.swift.updateContainerMetadata({ project_id: TEST_PROJECT_ID,
         container: "test-container",
         metadata: { env: "production" },
       })
@@ -612,7 +637,7 @@ describe("swiftRouter", () => {
       const mockCtx = createMockContext()
       const caller = createCaller(mockCtx)
 
-      await caller.storage.swift.updateContainerMetadata({
+      await caller.storage.swift.updateContainerMetadata({ project_id: TEST_PROJECT_ID,
         container: "test-container",
         metadata: {},
         removeMetadata: ["old-key"],
@@ -634,7 +659,7 @@ describe("swiftRouter", () => {
       const caller = createCaller(mockCtx)
 
       // availableEndpoints already returns a public endpoint in the default mock
-      const result = await caller.storage.swift.getContainerPublicUrl({ container: "my-container" })
+      const result = await caller.storage.swift.getContainerPublicUrl({ project_id: TEST_PROJECT_ID, container: "my-container" })
 
       expect(mockCtx.mockSwift.availableEndpoints).toHaveBeenCalled()
       expect(result).toBe("https://swift.example.com/v1/AUTH_test/my-container/")
@@ -644,7 +669,7 @@ describe("swiftRouter", () => {
       const mockCtx = createMockContext()
       const caller = createCaller(mockCtx)
 
-      const result = await caller.storage.swift.getContainerPublicUrl({ container: "my container/test" })
+      const result = await caller.storage.swift.getContainerPublicUrl({ project_id: TEST_PROJECT_ID, container: "my container/test" })
 
       expect(result).toBe("https://swift.example.com/v1/AUTH_test/my%20container%2Ftest/")
     })
@@ -657,7 +682,7 @@ describe("swiftRouter", () => {
         { interface: "public", url: "https://swift.example.com/v1/AUTH_test/" },
       ])
 
-      const result = await caller.storage.swift.getContainerPublicUrl({ container: "bucket" })
+      const result = await caller.storage.swift.getContainerPublicUrl({ project_id: TEST_PROJECT_ID, container: "bucket" })
 
       expect(result).toBe("https://swift.example.com/v1/AUTH_test/bucket/")
     })
@@ -668,7 +693,7 @@ describe("swiftRouter", () => {
 
       mockCtx.mockSwift.availableEndpoints.mockReturnValue([{ interface: "internal", url: "https://internal.swift/" }])
 
-      const result = await caller.storage.swift.getContainerPublicUrl({ container: "test-container" })
+      const result = await caller.storage.swift.getContainerPublicUrl({ project_id: TEST_PROJECT_ID, container: "test-container" })
 
       expect(result).toBeNull()
     })
@@ -679,7 +704,7 @@ describe("swiftRouter", () => {
 
       mockCtx.mockSwift.availableEndpoints.mockReturnValue([])
 
-      const result = await caller.storage.swift.getContainerPublicUrl({ container: "test-container" })
+      const result = await caller.storage.swift.getContainerPublicUrl({ project_id: TEST_PROJECT_ID, container: "test-container" })
 
       expect(result).toBeNull()
     })
@@ -690,7 +715,7 @@ describe("swiftRouter", () => {
 
       mockCtx.mockSwift.availableEndpoints.mockReturnValue(undefined)
 
-      const result = await caller.storage.swift.getContainerPublicUrl({ container: "test-container" })
+      const result = await caller.storage.swift.getContainerPublicUrl({ project_id: TEST_PROJECT_ID, container: "test-container" })
 
       expect(result).toBeNull()
     })
@@ -699,7 +724,7 @@ describe("swiftRouter", () => {
       const mockCtx = createMockContext(true)
       const caller = createCaller(mockCtx)
 
-      await expect(caller.storage.swift.getContainerPublicUrl({ container: "test-container" })).rejects.toThrow(
+      await expect(caller.storage.swift.getContainerPublicUrl({ project_id: TEST_PROJECT_ID, container: "test-container" })).rejects.toThrow(
         new TRPCError({ code: "UNAUTHORIZED", message: "The session is invalid" })
       )
     })
@@ -710,7 +735,7 @@ describe("swiftRouter", () => {
       const mockCtx = createMockContext()
       const caller = createCaller(mockCtx)
 
-      const input = { container: "test-container" }
+      const input = { project_id: TEST_PROJECT_ID,  container: "test-container" }
       const result = await caller.storage.swift.deleteContainer(input)
 
       expect(mockCtx.mockSwift.del).toHaveBeenCalled()
@@ -723,7 +748,7 @@ describe("swiftRouter", () => {
 
       mockCtx.mockSwift.del.mockRejectedValue({ statusCode: 409, message: "Conflict" })
 
-      const input = { container: "non-empty-container" }
+      const input = { project_id: TEST_PROJECT_ID,  container: "non-empty-container" }
 
       await expect(caller.storage.swift.deleteContainer(input)).rejects.toThrow()
     })
@@ -738,7 +763,7 @@ describe("swiftRouter", () => {
 
       ;(swiftHelpers.parseObjectMetadata as Mock).mockReturnValue(mockObjectMetadata)
 
-      const input = { container: "test-container", object: "test-object.txt" }
+      const input = { project_id: TEST_PROJECT_ID,  container: "test-container", object: "test-object.txt" }
       const result = await caller.storage.swift.getObjectMetadata(input)
 
       expect(mockCtx.mockSwift.head).toHaveBeenCalled()
@@ -753,6 +778,7 @@ describe("swiftRouter", () => {
       ;(swiftHelpers.parseObjectMetadata as Mock).mockReturnValue(mockObjectMetadata)
 
       await caller.storage.swift.getObjectMetadata({
+        project_id: TEST_PROJECT_ID,
         container: "test-container",
         object: "test-object.txt",
         xNewest: true,
@@ -769,7 +795,7 @@ describe("swiftRouter", () => {
       const caller = createCaller(mockCtx)
 
       await expect(
-        caller.storage.swift.getObjectMetadata({ container: "test-container", object: "file.txt" })
+        caller.storage.swift.getObjectMetadata({ project_id: TEST_PROJECT_ID, container: "test-container", object: "file.txt" })
       ).rejects.toThrow(new TRPCError({ code: "UNAUTHORIZED", message: "The session is invalid" }))
     })
   })
@@ -780,6 +806,7 @@ describe("swiftRouter", () => {
       const caller = createCaller(mockCtx)
 
       const input = {
+        project_id: TEST_PROJECT_ID,
         container: "test-container",
         object: "test-object.txt",
         metadata: { version: "2.0" },
@@ -799,6 +826,7 @@ describe("swiftRouter", () => {
       const caller = createCaller(mockCtx)
 
       const input = {
+        project_id: TEST_PROJECT_ID,
         container: "source-container",
         object: "source-object.txt",
         destination: "/dest-container/dest-object.txt",
@@ -823,6 +851,7 @@ describe("swiftRouter", () => {
       const caller = createCaller(mockCtx)
 
       const input = {
+        project_id: TEST_PROJECT_ID,
         container: "source-container",
         object: "source-object.txt",
         destination: "/dest-container/dest-object.txt",
@@ -848,7 +877,7 @@ describe("swiftRouter", () => {
       const mockCtx = createMockContext()
       const caller = createCaller(mockCtx)
 
-      const input = { container: "test-container", object: "test-object.txt" }
+      const input = { project_id: TEST_PROJECT_ID,  container: "test-container", object: "test-object.txt" }
       const result = await caller.storage.swift.deleteObject(input)
 
       expect(mockCtx.mockSwift.del).toHaveBeenCalled()
@@ -860,6 +889,7 @@ describe("swiftRouter", () => {
       const caller = createCaller(mockCtx)
 
       const input = {
+        project_id: TEST_PROJECT_ID,
         container: "test-container",
         object: "large-object",
         multipartManifest: "delete" as const,
@@ -886,6 +916,7 @@ describe("swiftRouter", () => {
       })
 
       const input = {
+        project_id: TEST_PROJECT_ID,
         objects: ["/container/obj1.txt", "/container/obj2.txt", "/container/obj3.txt"],
       }
 
@@ -917,6 +948,7 @@ describe("swiftRouter", () => {
       })
 
       const input = {
+        project_id: TEST_PROJECT_ID,
         objects: ["/container/obj1.txt", "/container/obj2.txt", "/container/protected.txt"],
       }
 
@@ -964,7 +996,7 @@ describe("swiftRouter", () => {
         text: vi.fn().mockResolvedValue("Number Deleted: 2\nNumber Not Found: 0\nErrors:\n"),
       })
 
-      const result = await caller.storage.swift.emptyContainer({ container: "test-container" })
+      const result = await caller.storage.swift.emptyContainer({ project_id: TEST_PROJECT_ID, container: "test-container" })
 
       expect(result).toBe(2)
       expect(mockCtx.mockSwift.post).toHaveBeenCalledWith(
@@ -1003,7 +1035,7 @@ describe("swiftRouter", () => {
           json: vi.fn().mockResolvedValue([]),
         })
 
-      const result = await caller.storage.swift.emptyContainer({ container: "test-container" })
+      const result = await caller.storage.swift.emptyContainer({ project_id: TEST_PROJECT_ID, container: "test-container" })
 
       expect(result).toBe(2)
       expect(mockCtx.mockSwift.del).toHaveBeenCalledTimes(2)
@@ -1023,7 +1055,7 @@ describe("swiftRouter", () => {
         // Container listing returns 204 No Content
         .mockResolvedValueOnce({ ok: true, status: 204 })
 
-      const result = await caller.storage.swift.emptyContainer({ container: "empty-container" })
+      const result = await caller.storage.swift.emptyContainer({ project_id: TEST_PROJECT_ID, container: "empty-container" })
 
       expect(result).toBe(0)
       expect(mockCtx.mockSwift.del).not.toHaveBeenCalled()
@@ -1061,7 +1093,7 @@ describe("swiftRouter", () => {
           json: vi.fn().mockResolvedValue([]),
         })
 
-      const result = await caller.storage.swift.emptyContainer({ container: "test-container" })
+      const result = await caller.storage.swift.emptyContainer({ project_id: TEST_PROJECT_ID, container: "test-container" })
 
       expect(result).toBe(3)
       expect(mockCtx.mockSwift.del).toHaveBeenCalledTimes(3)
@@ -1081,7 +1113,7 @@ describe("swiftRouter", () => {
 
       ;(swiftHelpers.normalizeFolderPath as Mock).mockReturnValue("test-folder/")
 
-      const input = { container: "test-container", folderPath: "test-folder" }
+      const input = { project_id: TEST_PROJECT_ID,  container: "test-container", folderPath: "test-folder" }
       const result = await caller.storage.swift.createFolder(input)
 
       expect(swiftHelpers.normalizeFolderPath).toHaveBeenCalledWith("test-folder")
@@ -1112,7 +1144,7 @@ describe("swiftRouter", () => {
         json: vi.fn().mockResolvedValue([mockObjectSummary]),
       })
 
-      const input = { container: "test-container", folderPath: "folder" }
+      const input = { project_id: TEST_PROJECT_ID,  container: "test-container", folderPath: "folder" }
       const result = await caller.storage.swift.listFolderContents(input)
 
       expect(result.objects).toBeDefined()
@@ -1142,7 +1174,7 @@ describe("swiftRouter", () => {
         json: vi.fn().mockResolvedValue([{ subdir: "folder/" }, folderMarker, regularFile]),
       })
 
-      const input = { container: "test-container" }
+      const input = { project_id: TEST_PROJECT_ID,  container: "test-container" }
       const result = await caller.storage.swift.listFolderContents(input)
 
       expect(result.folders.length).toBeGreaterThan(0)
@@ -1166,6 +1198,7 @@ describe("swiftRouter", () => {
       })
 
       const input = {
+        project_id: TEST_PROJECT_ID,
         container: "test-container",
         sourcePath: "old-folder",
         destinationPath: "new-folder",
@@ -1193,6 +1226,7 @@ describe("swiftRouter", () => {
       mockCtx.mockSwift.get.mockResolvedValue({ status: 204 })
 
       const result = await caller.storage.swift.moveFolder({
+        project_id: TEST_PROJECT_ID,
         container: "test-container",
         sourcePath: "old",
         destinationPath: "new",
@@ -1208,7 +1242,7 @@ describe("swiftRouter", () => {
       const caller = createCaller(mockCtx)
 
       await expect(
-        caller.storage.swift.moveFolder({ container: "c", sourcePath: "a", destinationPath: "b" })
+        caller.storage.swift.moveFolder({ project_id: TEST_PROJECT_ID, container: "c", sourcePath: "a", destinationPath: "b" })
       ).rejects.toThrow(new TRPCError({ code: "UNAUTHORIZED", message: "The session is invalid" }))
     })
   })
@@ -1233,7 +1267,7 @@ describe("swiftRouter", () => {
         text: vi.fn().mockResolvedValue("Number Deleted: 2\nNumber Not Found: 0\nErrors:\n"),
       })
 
-      const input = { container: "test-container", folderPath: "folder" }
+      const input = { project_id: TEST_PROJECT_ID,  container: "test-container", folderPath: "folder" }
       const result = await caller.storage.swift.deleteFolder(input)
 
       expect(result).toBe(2)
@@ -1254,7 +1288,7 @@ describe("swiftRouter", () => {
 
       mockCtx.mockSwift.get.mockResolvedValue({ status: 204 })
 
-      const result = await caller.storage.swift.deleteFolder({ container: "test-container", folderPath: "folder" })
+      const result = await caller.storage.swift.deleteFolder({ project_id: TEST_PROJECT_ID, container: "test-container", folderPath: "folder" })
 
       expect(result).toBe(0)
       expect(mockCtx.mockSwift.post).not.toHaveBeenCalled()
@@ -1272,6 +1306,7 @@ describe("swiftRouter", () => {
       })
 
       const result = await caller.storage.swift.deleteFolder({
+        project_id: TEST_PROJECT_ID,
         container: "test-container",
         folderPath: "empty-folder",
       })
@@ -1296,7 +1331,7 @@ describe("swiftRouter", () => {
         text: vi.fn().mockResolvedValue("Number Deleted: 1\nNumber Not Found: 0\nErrors:\n"),
       })
 
-      await caller.storage.swift.deleteFolder({ container: "test-container", folderPath: "folder", recursive: false })
+      await caller.storage.swift.deleteFolder({ project_id: TEST_PROJECT_ID, container: "test-container", folderPath: "folder", recursive: false })
 
       expect(mockCtx.mockSwift.get).toHaveBeenCalledWith(expect.stringContaining("delimiter=%2F"))
     })
@@ -1308,6 +1343,7 @@ describe("swiftRouter", () => {
 
   describe("generateTempUrl", () => {
     const input = {
+      project_id: TEST_PROJECT_ID,
       container: "test-container",
       object: "test-object.txt",
       method: "GET" as const,
@@ -1409,7 +1445,7 @@ describe("swiftRouter", () => {
         })
       })
 
-      await expect(caller.storage.swift.listContainers({ format: "json" })).rejects.toThrow(
+      await expect(caller.storage.swift.listContainers({ project_id: TEST_PROJECT_ID, format: "json" })).rejects.toThrow(
         "Failed to initialize OpenStack Swift (Object Storage) service"
       )
     })
@@ -1420,7 +1456,7 @@ describe("swiftRouter", () => {
 
       mockCtx.mockSwift.get.mockRejectedValue(new Error("Network timeout"))
 
-      await expect(caller.storage.swift.listContainers({ format: "json" })).rejects.toThrow()
+      await expect(caller.storage.swift.listContainers({ project_id: TEST_PROJECT_ID, format: "json" })).rejects.toThrow()
     })
 
     it("should handle 404 not found errors", async () => {
@@ -1430,7 +1466,7 @@ describe("swiftRouter", () => {
       const mockError = { statusCode: 404, message: "Not Found" }
       mockCtx.mockSwift.get.mockRejectedValue(mockError)
 
-      await expect(caller.storage.swift.listObjects({ container: "test", format: "json" })).rejects.toThrow()
+      await expect(caller.storage.swift.listObjects({ project_id: TEST_PROJECT_ID, container: "test", format: "json" })).rejects.toThrow()
     })
   })
 
@@ -1465,7 +1501,7 @@ describe("swiftRouter", () => {
       const content = new TextEncoder().encode("Hello, World!")
       mockCtx.mockSwift.get.mockResolvedValue(makeStreamResponse([content]))
 
-      const iterable = await caller.storage.swift.downloadObject({
+      const iterable = await caller.storage.swift.downloadObject({ project_id: TEST_PROJECT_ID,
         container: "test-container",
         object: "hello.txt",
         filename: "hello.txt",
@@ -1504,7 +1540,7 @@ describe("swiftRouter", () => {
       const chunk2 = new TextEncoder().encode("part2")
       mockCtx.mockSwift.get.mockResolvedValue(makeStreamResponse([chunk1, chunk2]))
 
-      const iterable = await caller.storage.swift.downloadObject({
+      const iterable = await caller.storage.swift.downloadObject({ project_id: TEST_PROJECT_ID,
         container: "test-container",
         object: "file.txt",
         filename: "file.txt",
@@ -1540,7 +1576,7 @@ describe("swiftRouter", () => {
         body: stream,
       })
 
-      const iterable = await caller.storage.swift.downloadObject({
+      const iterable = await caller.storage.swift.downloadObject({ project_id: TEST_PROJECT_ID,
         container: "test-container",
         object: "binary.bin",
         filename: "binary.bin",
@@ -1574,7 +1610,7 @@ describe("swiftRouter", () => {
         body: stream,
       })
 
-      const iterable = await caller.storage.swift.downloadObject({
+      const iterable = await caller.storage.swift.downloadObject({ project_id: TEST_PROJECT_ID,
         container: "test-container",
         object: "file.txt",
         filename: "file.txt",
@@ -1595,7 +1631,7 @@ describe("swiftRouter", () => {
       const caller = createCaller(mockCtx)
 
       await expect(
-        caller.storage.swift.downloadObject({
+        caller.storage.swift.downloadObject({ project_id: TEST_PROJECT_ID,
           container: "test-container",
           object: "file.txt",
           filename: "file.txt",
@@ -1611,7 +1647,7 @@ describe("swiftRouter", () => {
       mockCtx.mockSwift.get.mockRejectedValue({ statusCode: 404, message: "Not Found" })
 
       // async generators don't throw on creation — error surfaces when iterating
-      const iterable = await caller.storage.swift.downloadObject({
+      const iterable = await caller.storage.swift.downloadObject({ project_id: TEST_PROJECT_ID,
         container: "test-container",
         object: "missing.txt",
         filename: "missing.txt",
@@ -1635,7 +1671,7 @@ describe("swiftRouter", () => {
 
       mockCtx.mockSwift.get.mockResolvedValue(makeStreamResponse([part1, part2], "text/plain", totalBytes))
 
-      const iterable = await caller.storage.swift.downloadObject({
+      const iterable = await caller.storage.swift.downloadObject({ project_id: TEST_PROJECT_ID,
         container: "test-container",
         object: "hello.txt",
         filename: "hello.txt",
@@ -1662,7 +1698,7 @@ describe("swiftRouter", () => {
       // No contentLength passed — header will be absent
       mockCtx.mockSwift.get.mockResolvedValue(makeStreamResponse([content]))
 
-      const iterable = await caller.storage.swift.downloadObject({
+      const iterable = await caller.storage.swift.downloadObject({ project_id: TEST_PROJECT_ID,
         container: "test-container",
         object: "file.txt",
         filename: "file.txt",
@@ -1686,7 +1722,7 @@ describe("swiftRouter", () => {
       const total = chunks.reduce((s, c) => s + c.byteLength, 0)
       mockCtx.mockSwift.get.mockResolvedValue(makeStreamResponse(chunks, "text/plain", total))
 
-      const iterable = await caller.storage.swift.downloadObject({
+      const iterable = await caller.storage.swift.downloadObject({ project_id: TEST_PROJECT_ID,
         container: "test-container",
         object: "file.txt",
         filename: "file.txt",
@@ -1712,7 +1748,7 @@ describe("swiftRouter", () => {
       })
 
       // async generators don't throw on creation — error surfaces when iterating
-      const iterable = await caller.storage.swift.downloadObject({
+      const iterable = await caller.storage.swift.downloadObject({ project_id: TEST_PROJECT_ID,
         container: "test-container",
         object: "file.txt",
         filename: "file.txt",
@@ -1763,6 +1799,8 @@ describe("swiftRouter", () => {
         uploadId?: string
       }
     ) => {
+      // Always set project_id for upload tests
+      mockCtx.mockReqHeaders["x-upload-project-id"] = TEST_PROJECT_ID
       if (fields.container) mockCtx.mockReqHeaders["x-upload-container"] = fields.container
       if (fields.object) mockCtx.mockReqHeaders["x-upload-object"] = fields.object
       if (fields.contentType) mockCtx.mockReqHeaders["x-upload-type"] = fields.contentType
