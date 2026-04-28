@@ -28,9 +28,20 @@ export const Route = createFileRoute("/_auth/projects/")({
   }),
 
   loader: async ({ context, deps }) => {
-    const projects = await context.trpcClient?.project.searchProjects.query({
-      search: deps.search,
-    })
+    // Use getAuthProjects which handles rescoping internally
+    const allProjects = await context.trpcClient?.project.getAuthProjects.query()
+
+    // Filter projects based on search term
+    let projects = allProjects
+    if (deps.search && deps.search.trim() !== "") {
+      const searchTermLower = deps.search.toLowerCase()
+      projects = allProjects?.filter(
+        (project) =>
+          project.name?.toLowerCase().includes(searchTermLower) ||
+          project.description?.toLowerCase().includes(searchTermLower)
+      )
+    }
+
     return {
       projects,
     }
