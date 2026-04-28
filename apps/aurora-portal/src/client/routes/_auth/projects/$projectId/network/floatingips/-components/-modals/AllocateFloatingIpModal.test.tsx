@@ -9,9 +9,13 @@ import { trpcReact } from "@/client/trpcClient"
 import { AllocateFloatingIpModal } from "./AllocateFloatingIpModal"
 
 // Mock useParams
-vi.mock("@tanstack/react-router", () => ({
-  useParams: vi.fn(() => ({ projectId: "test-project" })),
-}))
+vi.mock("@tanstack/react-router", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@tanstack/react-router")>()
+  return {
+    ...actual,
+    useParams: vi.fn(() => ({ projectId: "test-project" })),
+  }
+})
 
 type QueryResultShape<TData> = {
   data?: TData
@@ -45,37 +49,41 @@ const createMockCreateMutationResult = (
   }) as unknown as CreateMutationResult
 
 // Mock tRPC client
-vi.mock("@/client/trpcClient", () => ({
-  trpcReact: {
-    useUtils: vi.fn(() => ({
+vi.mock("@/client/trpcClient", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/client/trpcClient")>()
+  return {
+    ...actual,
+    trpcReact: {
+      useUtils: vi.fn(() => ({
+        network: {
+          floatingIp: {
+            list: {
+              invalidate: vi.fn(),
+            },
+          },
+        },
+      })),
       network: {
+        listExternalNetworks: {
+          useQuery: vi.fn(),
+        },
+        listDnsDomains: {
+          useQuery: vi.fn(),
+        },
+        port: {
+          listAvailablePorts: {
+            useQuery: vi.fn(),
+          },
+        },
         floatingIp: {
-          list: {
-            invalidate: vi.fn(),
+          create: {
+            useMutation: vi.fn(),
           },
         },
       },
-    })),
-    network: {
-      listExternalNetworks: {
-        useQuery: vi.fn(),
-      },
-      listDnsDomains: {
-        useQuery: vi.fn(),
-      },
-      port: {
-        listAvailablePorts: {
-          useQuery: vi.fn(),
-        },
-      },
-      floatingIp: {
-        create: {
-          useMutation: vi.fn(),
-        },
-      },
     },
-  },
-}))
+  }
+})
 
 const mockExternalNetworks = [
   { id: "net-1", name: "Public Network" },

@@ -27,15 +27,19 @@ const MOCK_EXCLUDED_PROPERTIES = [
   "owner",
 ]
 
-vi.mock("@/client/trpcClient", () => ({
-  trpcReact: {
-    compute: {
-      getImageMetadataExcludedProperties: {
-        useQuery: () => ({ data: MOCK_EXCLUDED_PROPERTIES }),
+vi.mock("@/client/trpcClient", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/client/trpcClient")>()
+  return {
+    ...actual,
+    trpcReact: {
+      compute: {
+        getImageMetadataExcludedProperties: {
+          useQuery: () => ({ data: MOCK_EXCLUDED_PROPERTIES }),
+        },
       },
     },
-  },
-}))
+  }
+})
 
 const renderMetadataModal = (
   isOpen = true,

@@ -9,9 +9,13 @@ import { SecurityGroupRBACPolicies } from "./SecurityGroupRBACPolicies"
 import { trpcReact } from "@/client/trpcClient"
 import type { RBACPolicy } from "@/server/Network/types/rbacPolicy"
 
-vi.mock("@tanstack/react-router", () => ({
-  useParams: vi.fn(() => ({ projectId: "test-project" })),
-}))
+vi.mock("@tanstack/react-router", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@tanstack/react-router")>()
+  return {
+    ...actual,
+    useParams: vi.fn(() => ({ projectId: "test-project" })),
+  }
+})
 
 // Simplified mock for tRPC useQuery - only includes properties actually used
 type MockQueryResult<TData> = {
@@ -100,37 +104,41 @@ vi.mock("../../-modals/DeleteRBACPolicyDialog", () => ({
 }))
 
 // Mock tRPC
-vi.mock("@/client/trpcClient", () => ({
-  trpcReact: {
-    useUtils: vi.fn(() => ({
+vi.mock("@/client/trpcClient", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/client/trpcClient")>()
+  return {
+    ...actual,
+    trpcReact: {
+      useUtils: vi.fn(() => ({
+        network: {
+          rbacPolicy: {
+            list: {
+              invalidate: vi.fn(),
+            },
+          },
+          securityGroup: {
+            getById: {
+              invalidate: vi.fn(),
+            },
+          },
+        },
+      })),
       network: {
         rbacPolicy: {
           list: {
-            invalidate: vi.fn(),
+            useQuery: vi.fn(),
           },
-        },
-        securityGroup: {
-          getById: {
-            invalidate: vi.fn(),
+          delete: {
+            useMutation: vi.fn(() => ({
+              mutate: vi.fn(),
+              isPending: false,
+            })),
           },
-        },
-      },
-    })),
-    network: {
-      rbacPolicy: {
-        list: {
-          useQuery: vi.fn(),
-        },
-        delete: {
-          useMutation: vi.fn(() => ({
-            mutate: vi.fn(),
-            isPending: false,
-          })),
         },
       },
     },
-  },
-}))
+  }
+})
 
 const mockPolicies: RBACPolicy[] = [
   {

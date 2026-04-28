@@ -144,9 +144,12 @@ describe("MainNavigation", () => {
 
     const router = createTestRouter(<MainNavigation items={mainNavItems} />)
 
-    // Navigate to a domain route first using the correct syntax with params
+    // Navigate to a project route to see domain data
     await router.navigate({
-      to: "/projects",
+      to: "/projects/$projectId",
+      params: {
+        projectId: "project1",
+      },
     })
 
     await waitFor(() => render(<RouterProvider router={router} />))

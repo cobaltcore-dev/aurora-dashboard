@@ -323,14 +323,17 @@ export function ImageListView({
     }
   }
 
-  const handleCreate = async (imageData: CreateImageInput, file: File) => {
+  const handleCreate = async (imageData: Omit<CreateImageInput, "project_id">, file: File) => {
     const imageName = imageData.name || "Unnamed"
 
     try {
       setCreateInProgress(true)
 
-      // Step 1: Create image
-      const createdImage = await createImageMutation.mutateAsync(imageData)
+      // Step 1: Create image with project_id
+      const createdImage = await createImageMutation.mutateAsync({
+        project_id: projectId,
+        ...imageData,
+      })
 
       // Step 2: Upload file via octetInputParser with metadata in custom headers.
       // trpcClient (vanilla) is used so we can pass operation context with headers.
@@ -340,6 +343,7 @@ export function ImageListView({
       await trpcClient.compute.uploadImage.mutate(file, {
         context: {
           headers: {
+            "x-project-id": projectId,
             "x-upload-id": createdImage.id,
             "x-upload-size": String(file.size),
           },

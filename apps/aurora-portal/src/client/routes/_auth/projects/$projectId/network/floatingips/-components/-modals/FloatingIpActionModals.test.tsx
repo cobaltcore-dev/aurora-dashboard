@@ -11,9 +11,13 @@ import { DetachFloatingIpModalProps } from "./DetachFloatingIpModal"
 import { ReleaseFloatingIpModalProps } from "./ReleaseFloatingIpModal"
 import { AssociateFloatingIpModalProps } from "./AssociateFloatingIpModal"
 
-vi.mock("@tanstack/react-router", () => ({
-  useParams: vi.fn(() => ({ projectId: "test-project" })),
-}))
+vi.mock("@tanstack/react-router", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@tanstack/react-router")>()
+  return {
+    ...actual,
+    useParams: vi.fn(() => ({ projectId: "test-project" })),
+  }
+})
 
 const { mockUseUtils, mockUpdateMutation, mockDeleteMutation } = vi.hoisted(() => ({
   mockUseUtils: vi.fn(),
@@ -21,21 +25,25 @@ const { mockUseUtils, mockUpdateMutation, mockDeleteMutation } = vi.hoisted(() =
   mockDeleteMutation: vi.fn(),
 }))
 
-vi.mock("@/client/trpcClient", () => ({
-  trpcReact: {
-    useUtils: mockUseUtils,
-    network: {
-      floatingIp: {
-        update: {
-          useMutation: mockUpdateMutation,
-        },
-        delete: {
-          useMutation: mockDeleteMutation,
+vi.mock("@/client/trpcClient", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/client/trpcClient")>()
+  return {
+    ...actual,
+    trpcReact: {
+      useUtils: mockUseUtils,
+      network: {
+        floatingIp: {
+          update: {
+            useMutation: mockUpdateMutation,
+          },
+          delete: {
+            useMutation: mockDeleteMutation,
+          },
         },
       },
     },
-  },
-}))
+  }
+})
 
 vi.mock("./EditFloatingIpModal", () => ({
   EditFloatingIpModal: ({ open, onClose, onUpdate, floatingIp, isLoading, error }: EditFloatingIpModalProps) =>

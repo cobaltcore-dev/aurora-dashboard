@@ -11,10 +11,14 @@ import type { AllocateFloatingIpModalProps } from "./-modals/AllocateFloatingIpM
 import { FloatingIpsList } from "./FloatingIpsList"
 
 // Mock useParams
-vi.mock("@tanstack/react-router", () => ({
-  useParams: vi.fn(() => ({ projectId: "test-project" })),
-  useNavigate: vi.fn(() => vi.fn()),
-}))
+vi.mock("@tanstack/react-router", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@tanstack/react-router")>()
+  return {
+    ...actual,
+    useParams: vi.fn(() => ({ projectId: "test-project" })),
+    useNavigate: vi.fn(() => vi.fn()),
+  }
+})
 
 // Simplified mock for tRPC useQuery - only includes properties actually used
 type MockQueryResult<TData> = {
@@ -51,21 +55,25 @@ const createMockMutationResult = (overrides: Partial<MockMutationResult> = {}) =
   }) as unknown as ReturnType<typeof trpcReact.network.floatingIp.create.useMutation>
 
 // Mock the tRPC client
-vi.mock("@/client/trpcClient", () => ({
-  trpcReact: {
-    useUtils: vi.fn(),
-    network: {
-      floatingIp: {
-        list: {
-          useQuery: vi.fn(),
-        },
-        create: {
-          useMutation: vi.fn(),
+vi.mock("@/client/trpcClient", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/client/trpcClient")>()
+  return {
+    ...actual,
+    trpcReact: {
+      useUtils: vi.fn(),
+      network: {
+        floatingIp: {
+          list: {
+            useQuery: vi.fn(),
+          },
+          create: {
+            useMutation: vi.fn(),
+          },
         },
       },
     },
-  },
-}))
+  }
+})
 
 // Mock AllocateFloatingIpModal to avoid its internal tRPC calls
 vi.mock("./-modals/AllocateFloatingIpModal", () => ({

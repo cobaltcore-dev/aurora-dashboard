@@ -1,10 +1,14 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react"
 import { ProjectListView } from "./ProjectListView"
 import { describe, test, expect, vi, beforeEach } from "vitest"
-import { createMemoryHistory, createRouter, RouterProvider, createRootRoute, createRoute } from "@tanstack/react-router"
-import { JSX } from "react/jsx-runtime"
 import { I18nProvider } from "@lingui/react"
 import { i18n } from "@lingui/core"
+
+const mockNavigate = vi.fn()
+
+vi.mock("@tanstack/react-router", () => ({
+  useNavigate: () => mockNavigate,
+}))
 
 const projects = [
   {
@@ -30,39 +34,17 @@ const projects = [
 ]
 
 describe("ProjectListView", () => {
-  // Helper function to create a test router
-  const createTestRouter = (Component: JSX.Element) => {
-    const memoryHistory = createMemoryHistory({
-      initialEntries: ["/"],
-    })
-
-    const rootRoute = createRootRoute({
-      component: () => <I18nProvider i18n={i18n}>{Component}</I18nProvider>,
-    })
-
-    // Add a dummy compute route for navigation testing
-    const computeRoute = createRoute({
-      getParentRoute: () => rootRoute,
-      path: "/projects/$projectId/compute",
-      component: () => <div>Compute Page</div>,
-    })
-
-    const routeTree = rootRoute.addChildren([computeRoute])
-
-    return createRouter({
-      routeTree,
-      history: memoryHistory,
-    })
-  }
-
   beforeEach(() => {
     vi.clearAllMocks()
     i18n.activate("en")
   })
 
   test("renders without crashing when no projects", async () => {
-    const router = createTestRouter(<ProjectListView projects={undefined} />)
-    render(<RouterProvider router={router} />)
+    render(
+      <I18nProvider i18n={i18n}>
+        <ProjectListView projects={undefined} />
+      </I18nProvider>
+    )
 
     await waitFor(() => {
       expect(screen.getByText(/no projects found/i)).toBeInTheDocument()
@@ -70,8 +52,11 @@ describe("ProjectListView", () => {
   })
 
   test("renders without crashing when empty projects array", async () => {
-    const router = createTestRouter(<ProjectListView projects={[]} />)
-    render(<RouterProvider router={router} />)
+    render(
+      <I18nProvider i18n={i18n}>
+        <ProjectListView projects={[]} />
+      </I18nProvider>
+    )
 
     await waitFor(() => {
       expect(screen.getByText(/no projects found/i)).toBeInTheDocument()
@@ -79,8 +64,11 @@ describe("ProjectListView", () => {
   })
 
   test("renders project data correctly", async () => {
-    const router = createTestRouter(<ProjectListView projects={projects} />)
-    render(<RouterProvider router={router} />)
+    render(
+      <I18nProvider i18n={i18n}>
+        <ProjectListView projects={projects} />
+      </I18nProvider>
+    )
 
     await waitFor(() => {
       expect(screen.getByText("Security Group")).toBeInTheDocument()
@@ -90,8 +78,11 @@ describe("ProjectListView", () => {
   })
 
   test("renders multiple projects", async () => {
-    const router = createTestRouter(<ProjectListView projects={projects} />)
-    render(<RouterProvider router={router} />)
+    render(
+      <I18nProvider i18n={i18n}>
+        <ProjectListView projects={projects} />
+      </I18nProvider>
+    )
 
     await waitFor(() => {
       expect(screen.getByText("Security Group")).toBeInTheDocument()
@@ -102,8 +93,11 @@ describe("ProjectListView", () => {
   })
 
   test("renders enabled project with checkmark icon", async () => {
-    const router = createTestRouter(<ProjectListView projects={[projects[0]]} />)
-    render(<RouterProvider router={router} />)
+    render(
+      <I18nProvider i18n={i18n}>
+        <ProjectListView projects={[projects[0]]} />
+      </I18nProvider>
+    )
 
     await waitFor(() => {
       expect(screen.getByText("Security Group")).toBeInTheDocument()
@@ -115,8 +109,11 @@ describe("ProjectListView", () => {
   })
 
   test("renders disabled project with info icon", async () => {
-    const router = createTestRouter(<ProjectListView projects={[projects[1]]} />)
-    render(<RouterProvider router={router} />)
+    render(
+      <I18nProvider i18n={i18n}>
+        <ProjectListView projects={[projects[1]]} />
+      </I18nProvider>
+    )
 
     await waitFor(() => {
       expect(screen.getByText("Database Management")).toBeInTheDocument()
@@ -127,62 +124,70 @@ describe("ProjectListView", () => {
     expect(infoIcon).toBeInTheDocument()
   })
 
-  test("clicking the project title triggers navigation", async () => {
-    const router = createTestRouter(<ProjectListView projects={projects} />)
-
-    // Spy on router navigation
-    const navigateSpy = vi.spyOn(router, "navigate")
-
-    render(<RouterProvider router={router} />)
+  test("clicking the row triggers navigation", async () => {
+    render(
+      <I18nProvider i18n={i18n}>
+        <ProjectListView projects={projects} />
+      </I18nProvider>
+    )
 
     await waitFor(() => {
       expect(screen.getByText("Security Group")).toBeInTheDocument()
     })
 
-    const title = screen.getByText("Security Group")
-    fireEvent.click(title)
+    // Get the row by finding the project name cell and getting its parent row
+    const projectCell = screen.getByText("Security Group")
+    const row = projectCell.closest("[role='row']")
+
+    expect(row).not.toBeNull()
+    fireEvent.click(row!)
 
     await waitFor(() => {
-      expect(navigateSpy).toHaveBeenCalledTimes(1)
+      expect(mockNavigate).toHaveBeenCalledTimes(1)
     })
 
     // Verify navigation path
-    expect(navigateSpy).toHaveBeenCalledWith(
-      expect.objectContaining({
-        to: "/projects/$projectId",
-        params: { projectId: "89ac3f" },
-      })
-    )
+    expect(mockNavigate).toHaveBeenCalledWith({
+      to: "/projects/$projectId",
+      params: { projectId: "89ac3f" },
+    })
   })
 
-  test("clicking the row navigates correctly", async () => {
-    const router = createTestRouter(<ProjectListView projects={projects} />)
-
-    // Spy on router navigation
-    const navigateSpy = vi.spyOn(router, "navigate")
-
-    render(<RouterProvider router={router} />)
+  test("clicking different rows navigates to correct projects", async () => {
+    render(
+      <I18nProvider i18n={i18n}>
+        <ProjectListView projects={projects} />
+      </I18nProvider>
+    )
 
     await waitFor(() => {
-      expect(screen.getByText("Security Group")).toBeInTheDocument()
+      expect(screen.getByText("Database Management")).toBeInTheDocument()
     })
 
-    // Get the row by finding the project name and getting its parent DataGridRow
-    const projectCell = screen.getByText("Security Group")
-    const row = projectCell.closest("[role='row']") || projectCell.closest("div")
+    // Click the second project row
+    const projectCell = screen.getByText("Database Management")
+    const row = projectCell.closest("[role='row']")
 
-    if (row) {
-      fireEvent.click(row)
+    expect(row).not.toBeNull()
+    fireEvent.click(row!)
 
-      await waitFor(() => {
-        expect(navigateSpy).toHaveBeenCalled()
-      })
-    }
+    await waitFor(() => {
+      expect(mockNavigate).toHaveBeenCalled()
+    })
+
+    // Verify navigation to the second project
+    expect(mockNavigate).toHaveBeenCalledWith({
+      to: "/projects/$projectId",
+      params: { projectId: "89ac3g" },
+    })
   })
 
   test("renders data grid with correct structure", async () => {
-    const router = createTestRouter(<ProjectListView projects={projects} />)
-    render(<RouterProvider router={router} />)
+    render(
+      <I18nProvider i18n={i18n}>
+        <ProjectListView projects={projects} />
+      </I18nProvider>
+    )
 
     await waitFor(() => {
       expect(screen.getByText("Security Group")).toBeInTheDocument()
@@ -194,8 +199,11 @@ describe("ProjectListView", () => {
   })
 
   test("renders correct number of project rows", async () => {
-    const router = createTestRouter(<ProjectListView projects={projects} />)
-    render(<RouterProvider router={router} />)
+    render(
+      <I18nProvider i18n={i18n}>
+        <ProjectListView projects={projects} />
+      </I18nProvider>
+    )
 
     await waitFor(() => {
       expect(screen.getByText("Security Group")).toBeInTheDocument()

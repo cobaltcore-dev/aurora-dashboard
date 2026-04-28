@@ -4,11 +4,20 @@ import userEvent from "@testing-library/user-event"
 import { i18n } from "@lingui/core"
 import { I18nProvider } from "@lingui/react"
 import { PortalProvider } from "@cloudoperators/juno-ui-components"
-import { createRoute, createRootRoute, RouterProvider, createMemoryHistory, createRouter } from "@tanstack/react-router"
 import { describe, it, expect, vi, afterEach, beforeEach } from "vitest"
 import type { FloatingIp } from "@/server/Network/types/floatingIp"
 import { FloatingIpTableRow } from "./FloatingIpTableRow"
 import { FloatingIpActionModalTriggers } from "../-modals/FloatingIpActionModals"
+
+const mockNavigate = vi.fn()
+
+vi.mock("@tanstack/react-router", () => ({
+  useNavigate: () => mockNavigate,
+}))
+
+vi.mock("@/client/hooks", () => ({
+  useProjectId: () => "test-project",
+}))
 
 vi.mock("../-modals/FloatingIpActionModals", () => ({
   FloatingIpActionModals: ({ children }: { children: (triggers: FloatingIpActionModalTriggers) => ReactElement }) =>
@@ -19,56 +28,6 @@ vi.mock("../-modals/FloatingIpActionModals", () => ({
       toggleReleaseModal: vi.fn(),
     }),
 }))
-
-const createTestRouter = (Component: ReactElement) => {
-  const memoryHistory = createMemoryHistory({
-    initialEntries: ["/accounts/test-account/projects/test-project/network/"],
-  })
-
-  const rootRoute = createRootRoute({
-    component: () => (
-      <I18nProvider i18n={i18n}>
-        <PortalProvider>{Component}</PortalProvider>
-      </I18nProvider>
-    ),
-  })
-
-  const accountsRoute = createRoute({
-    getParentRoute: () => rootRoute,
-    path: "accounts/$accountId",
-  })
-
-  const projectsRoute = createRoute({
-    getParentRoute: () => accountsRoute,
-    path: "projects/$projectId",
-  })
-
-  const networkRoute = createRoute({
-    getParentRoute: () => projectsRoute,
-    path: "network",
-  })
-
-  const floatingIpsRoute = createRoute({
-    getParentRoute: () => networkRoute,
-    path: "floatingips",
-  })
-
-  const floatingIpDetailsRoute = createRoute({
-    getParentRoute: () => floatingIpsRoute,
-    path: "$floatingIpId",
-  })
-
-  const routeTree = rootRoute.addChildren([
-    accountsRoute.addChildren([
-      projectsRoute.addChildren([networkRoute.addChildren([floatingIpsRoute.addChildren([floatingIpDetailsRoute])])]),
-    ]),
-  ])
-
-  return createRouter({
-    routeTree,
-    history: memoryHistory,
-  })
-}
 
 describe("FloatingIpTableRow", () => {
   const mockFloatingIp: FloatingIp = {
@@ -97,10 +56,19 @@ describe("FloatingIpTableRow", () => {
     i18n.activate("en")
   })
 
+  const renderComponent = () => {
+    return render(
+      <I18nProvider i18n={i18n}>
+        <PortalProvider>
+          <FloatingIpTableRow floatingIp={mockFloatingIp} />
+        </PortalProvider>
+      </I18nProvider>
+    )
+  }
+
   describe("Rendering", () => {
     it("renders floating IP data in cells", async () => {
-      const router = createTestRouter(<FloatingIpTableRow floatingIp={mockFloatingIp} />)
-      render(<RouterProvider router={router} />)
+      renderComponent()
 
       await waitFor(() => {
         expect(screen.getByText("203.0.113.10")).toBeInTheDocument()
@@ -112,8 +80,7 @@ describe("FloatingIpTableRow", () => {
     })
 
     it("renders status icon and text in single cell", async () => {
-      const router = createTestRouter(<FloatingIpTableRow floatingIp={mockFloatingIp} />)
-      render(<RouterProvider router={router} />)
+      renderComponent()
 
       await waitFor(() => {
         expect(screen.getByText("Active")).toBeInTheDocument()
@@ -126,8 +93,13 @@ describe("FloatingIpTableRow", () => {
 
     it("renders em dash when fixed IP is missing", async () => {
       const fipWithoutFixedIp = { ...mockFloatingIp, fixed_ip_address: null }
-      const router = createTestRouter(<FloatingIpTableRow floatingIp={fipWithoutFixedIp} />)
-      render(<RouterProvider router={router} />)
+      render(
+        <I18nProvider i18n={i18n}>
+          <PortalProvider>
+            <FloatingIpTableRow floatingIp={fipWithoutFixedIp} />
+          </PortalProvider>
+        </I18nProvider>
+      )
 
       await waitFor(() => {
         const cells = screen.getAllByText("—")
@@ -137,8 +109,13 @@ describe("FloatingIpTableRow", () => {
 
     it("renders em dash when description is missing", async () => {
       const fipWithoutDescription = { ...mockFloatingIp, description: null }
-      const router = createTestRouter(<FloatingIpTableRow floatingIp={fipWithoutDescription} />)
-      render(<RouterProvider router={router} />)
+      render(
+        <I18nProvider i18n={i18n}>
+          <PortalProvider>
+            <FloatingIpTableRow floatingIp={fipWithoutDescription} />
+          </PortalProvider>
+        </I18nProvider>
+      )
 
       await waitFor(() => {
         const cells = screen.getAllByText("—")
@@ -147,8 +124,7 @@ describe("FloatingIpTableRow", () => {
     })
 
     it("renders correct data-testid", async () => {
-      const router = createTestRouter(<FloatingIpTableRow floatingIp={mockFloatingIp} />)
-      render(<RouterProvider router={router} />)
+      renderComponent()
 
       await waitFor(() => {
         expect(screen.getByTestId(`floating-ip-row-${mockFloatingIp.id}`)).toBeInTheDocument()
@@ -164,9 +140,11 @@ describe("FloatingIpTableRow", () => {
 
       for (const [status, displayText] of testCases) {
         const { unmount } = render(
-          <RouterProvider
-            router={createTestRouter(<FloatingIpTableRow floatingIp={{ ...mockFloatingIp, status }} />)}
-          />
+          <I18nProvider i18n={i18n}>
+            <PortalProvider>
+              <FloatingIpTableRow floatingIp={{ ...mockFloatingIp, status }} />
+            </PortalProvider>
+          </I18nProvider>
         )
 
         await waitFor(() => {
@@ -181,8 +159,7 @@ describe("FloatingIpTableRow", () => {
   describe("Navigation", () => {
     it("navigates to details page when Preview is clicked", async () => {
       const user = userEvent.setup()
-      const router = createTestRouter(<FloatingIpTableRow floatingIp={mockFloatingIp} />)
-      render(<RouterProvider router={router} />)
+      renderComponent()
 
       await waitFor(() => {
         expect(screen.getByText("203.0.113.10")).toBeInTheDocument()
@@ -203,16 +180,18 @@ describe("FloatingIpTableRow", () => {
       const previewItem = screen.getByText("Preview")
       await user.click(previewItem)
 
-      // Verify navigation occurred (the router should update the location)
+      // Verify navigation was called with correct parameters
       await waitFor(() => {
-        expect(router.state.location.pathname).toContain("floatingips/fip-123")
+        expect(mockNavigate).toHaveBeenCalledWith({
+          to: "/projects/$projectId/network/floatingips/$floatingIpId",
+          params: { projectId: "test-project", floatingIpId: "fip-123" },
+        })
       })
     })
 
     it("renders menu items with correct labels", async () => {
       const user = userEvent.setup()
-      const router = createTestRouter(<FloatingIpTableRow floatingIp={mockFloatingIp} />)
-      render(<RouterProvider router={router} />)
+      renderComponent()
 
       await waitFor(() => {
         expect(screen.getByText("203.0.113.10")).toBeInTheDocument()

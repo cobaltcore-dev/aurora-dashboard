@@ -27,7 +27,7 @@ import { cn } from "@/client/utils/cn"
 interface CreateImageModalProps {
   isOpen: boolean
   onClose: () => void
-  onCreate: (imageData: CreateImageInput, file: File) => Promise<void>
+  onCreate: (imageData: Omit<CreateImageInput, "project_id">, file: File) => Promise<void>
   isLoading?: boolean
   isUploadPending?: boolean
   uploadProgressPercent?: number
@@ -332,7 +332,7 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({
         protected: properties.protected,
         min_disk: properties.min_disk,
         min_ram: properties.min_ram,
-      } as CreateImageInput
+      } as unknown as Omit<CreateImageInput, "project_id">
 
       // Call onCreate with imageData and file as separate arguments
       // File will be uploaded after image is created

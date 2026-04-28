@@ -355,16 +355,37 @@ export const imageRouter = {
     .input(octetInputParser)
     .mutation(async ({ input, ctx }): Promise<{ success: boolean; imageId: string }> => {
       return withErrorHandling(async () => {
-        const glance = ctx.openstack?.service("glance")
-
-        // Validate Glance service is available
-        validateGlanceService(glance)
-
         // Metadata arrives as custom headers — the body is the raw file stream.
         // octetInputParser passes the request body as a true ReadableStream without buffering.
         const headers = ctx.req.headers
+        const projectId = headers["x-project-id"] as string | undefined
         const imageId = headers["x-upload-id"] as string | undefined
         const fileSize = headers["x-upload-size"] ? parseInt(headers["x-upload-size"] as string, 10) : undefined
+
+        // Validate project_id is present
+        if (!projectId || projectId.trim().length === 0) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "x-project-id header is required and must be a non-empty string",
+          })
+        }
+
+        // Rescope the session to the specified project
+        // This ensures the upload uses the correct project-scoped token
+        const openstackSession = await ctx.rescopeSession({ projectId: projectId.trim() })
+
+        if (!openstackSession) {
+          throw new TRPCError({
+            code: "UNAUTHORIZED",
+            message:
+              "Failed to rescope session to the specified project. This may happen if the project does not exist or the user does not have access to it.",
+          })
+        }
+
+        const glance = openstackSession.service("glance")
+
+        // Validate Glance service is available
+        validateGlanceService(glance)
 
         // input is a Web ReadableStream — convert to Node.js Readable for .pipe()
         const fileStream = Readable.fromWeb(input as import("stream/web").ReadableStream)

@@ -701,10 +701,11 @@ describe("imageRouter", () => {
     /** Helper to set upload headers on the mock context. */
     const setUploadHeaders = (
       mockCtx: ReturnType<typeof createMockContext>,
-      fields: { uploadId?: string; fileSize?: string }
+      fields: { uploadId?: string; fileSize?: string; projectId?: string }
     ) => {
       if (fields.uploadId) mockCtx.mockReqHeaders["x-upload-id"] = fields.uploadId
       if (fields.fileSize) mockCtx.mockReqHeaders["x-upload-size"] = fields.fileSize
+      if (fields.projectId) mockCtx.mockReqHeaders["x-project-id"] = fields.projectId
     }
 
     // createCaller bypasses HTTP transport — octetInputParser never converts
@@ -716,8 +717,9 @@ describe("imageRouter", () => {
       it("should upload image with header metadata successfully", async () => {
         const mockCtx = createMockContext()
         const imageId = "550e8400-e29b-41d4-a716-446655440000"
+        const projectId = "test-project-id"
 
-        setUploadHeaders(mockCtx, { uploadId: imageId, fileSize: String(1024 * 1024) })
+        setUploadHeaders(mockCtx, { uploadId: imageId, fileSize: String(1024 * 1024), projectId })
 
         const caller = createCaller(mockCtx)
         mockCtx.mockGlance.put.mockResolvedValue({ ok: true })
@@ -735,8 +737,9 @@ describe("imageRouter", () => {
       it("should upload without fileSize header", async () => {
         const mockCtx = createMockContext()
         const imageId = "550e8400-e29b-41d4-a716-446655440000"
+        const projectId = "test-project-id"
 
-        setUploadHeaders(mockCtx, { uploadId: imageId })
+        setUploadHeaders(mockCtx, { uploadId: imageId, projectId })
 
         const caller = createCaller(mockCtx)
         mockCtx.mockGlance.put.mockResolvedValue({ ok: true })
@@ -749,8 +752,9 @@ describe("imageRouter", () => {
       it("should return success and imageId", async () => {
         const mockCtx = createMockContext()
         const imageId = "550e8400-e29b-41d4-a716-446655440000"
+        const projectId = "test-project-id"
 
-        setUploadHeaders(mockCtx, { uploadId: imageId })
+        setUploadHeaders(mockCtx, { uploadId: imageId, projectId })
 
         const caller = createCaller(mockCtx)
         mockCtx.mockGlance.put.mockResolvedValue({ ok: true })
@@ -763,16 +767,42 @@ describe("imageRouter", () => {
     })
 
     describe("ImageId validation", () => {
+      it("should require projectId header", async () => {
+        const mockCtx = createMockContext()
+        const caller = createCaller(mockCtx)
+        // No x-project-id header set
+        setUploadHeaders(mockCtx, { uploadId: "550e8400-e29b-41d4-a716-446655440000" })
+        await expect(callUpload(caller)).rejects.toThrow("x-project-id header is required")
+      })
+
+      it("should reject empty projectId header", async () => {
+        const mockCtx = createMockContext()
+        mockCtx.mockReqHeaders["x-project-id"] = ""
+        setUploadHeaders(mockCtx, { uploadId: "550e8400-e29b-41d4-a716-446655440000" })
+        const caller = createCaller(mockCtx)
+        await expect(callUpload(caller)).rejects.toThrow("x-project-id header is required")
+      })
+
+      it("should reject whitespace-only projectId header", async () => {
+        const mockCtx = createMockContext()
+        mockCtx.mockReqHeaders["x-project-id"] = "   "
+        setUploadHeaders(mockCtx, { uploadId: "550e8400-e29b-41d4-a716-446655440000" })
+        const caller = createCaller(mockCtx)
+        await expect(callUpload(caller)).rejects.toThrow("x-project-id header is required")
+      })
+
       it("should require imageId header", async () => {
         const mockCtx = createMockContext()
         const caller = createCaller(mockCtx)
         // No x-upload-id header set
+        setUploadHeaders(mockCtx, { projectId: "test-project-id" })
         await expect(callUpload(caller)).rejects.toThrow("imageId is required")
       })
 
       it("should reject empty imageId header", async () => {
         const mockCtx = createMockContext()
         mockCtx.mockReqHeaders["x-upload-id"] = ""
+        setUploadHeaders(mockCtx, { projectId: "test-project-id" })
         const caller = createCaller(mockCtx)
         await expect(callUpload(caller)).rejects.toThrow("imageId is required")
       })
@@ -780,6 +810,7 @@ describe("imageRouter", () => {
       it("should reject whitespace-only imageId header", async () => {
         const mockCtx = createMockContext()
         mockCtx.mockReqHeaders["x-upload-id"] = "   "
+        setUploadHeaders(mockCtx, { projectId: "test-project-id" })
         const caller = createCaller(mockCtx)
         await expect(callUpload(caller)).rejects.toThrow("imageId cannot be empty")
       })
@@ -788,7 +819,7 @@ describe("imageRouter", () => {
     describe("FileStream validation", () => {
       it("should reject when file stream is invalid", async () => {
         const mockCtx = createMockContext()
-        setUploadHeaders(mockCtx, { uploadId: "550e8400-e29b-41d4-a716-446655440000" })
+        setUploadHeaders(mockCtx, { uploadId: "550e8400-e29b-41d4-a716-446655440000", projectId: "test-project-id" })
         const caller = createCaller(mockCtx)
         // Pass a non-stream value so validateUploadInput rejects it before reaching Glance
         await expect(caller.image.uploadImage({} as never)).rejects.toThrow()
@@ -799,14 +830,14 @@ describe("imageRouter", () => {
     describe("Error handling", () => {
       it("should throw UNAUTHORIZED when session validation fails", async () => {
         const mockCtx = createMockContext(true)
-        setUploadHeaders(mockCtx, { uploadId: "550e8400-e29b-41d4-a716-446655440000" })
+        setUploadHeaders(mockCtx, { uploadId: "550e8400-e29b-41d4-a716-446655440000", projectId: "test-project-id" })
         const caller = createCaller(mockCtx)
         await expect(callUpload(caller)).rejects.toThrow("The session is invalid")
       })
 
       it("should propagate error when Glance PUT fails", async () => {
         const mockCtx = createMockContext()
-        setUploadHeaders(mockCtx, { uploadId: "550e8400-e29b-41d4-a716-446655440000" })
+        setUploadHeaders(mockCtx, { uploadId: "550e8400-e29b-41d4-a716-446655440000", projectId: "test-project-id" })
         const caller = createCaller(mockCtx)
         mockCtx.mockGlance.put.mockRejectedValue({ statusCode: 409, message: "Conflict" })
         await expect(callUpload(caller)).rejects.toThrow()

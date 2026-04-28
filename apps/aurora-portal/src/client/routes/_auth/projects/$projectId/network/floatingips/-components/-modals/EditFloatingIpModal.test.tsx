@@ -7,9 +7,13 @@ import { I18nProvider } from "@lingui/react"
 import type { FloatingIp } from "@/server/Network/types/floatingIp"
 import { EditFloatingIpModal, EditFloatingIpModalProps } from "./EditFloatingIpModal"
 
-vi.mock("@tanstack/react-router", () => ({
-  useParams: vi.fn(() => ({ projectId: "test-project" })),
-}))
+vi.mock("@tanstack/react-router", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@tanstack/react-router")>()
+  return {
+    ...actual,
+    useParams: vi.fn(() => ({ projectId: "test-project" })),
+  }
+})
 
 const mockFloatingIp: FloatingIp = {
   id: "fip-123",

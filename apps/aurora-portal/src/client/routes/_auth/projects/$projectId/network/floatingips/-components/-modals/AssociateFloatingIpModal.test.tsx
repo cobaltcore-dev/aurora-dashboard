@@ -9,21 +9,29 @@ import type { AvailablePort } from "@/server/Network/types/port"
 import { trpcReact } from "@/client/trpcClient"
 import { AssociateFloatingIpModal, AssociateFloatingIpModalProps } from "./AssociateFloatingIpModal"
 
-vi.mock("@tanstack/react-router", () => ({
-  useParams: vi.fn(() => ({ projectId: "test-project" })),
-}))
+vi.mock("@tanstack/react-router", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@tanstack/react-router")>()
+  return {
+    ...actual,
+    useParams: vi.fn(() => ({ projectId: "test-project" })),
+  }
+})
 
-vi.mock("@/client/trpcClient", () => ({
-  trpcReact: {
-    network: {
-      port: {
-        listAvailablePorts: {
-          useQuery: vi.fn(),
+vi.mock("@/client/trpcClient", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/client/trpcClient")>()
+  return {
+    ...actual,
+    trpcReact: {
+      network: {
+        port: {
+          listAvailablePorts: {
+            useQuery: vi.fn(),
+          },
         },
       },
     },
-  },
-}))
+  }
+})
 
 const mockPorts: AvailablePort[] = [
   {
