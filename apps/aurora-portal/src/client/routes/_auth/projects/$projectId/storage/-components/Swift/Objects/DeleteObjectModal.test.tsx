@@ -8,6 +8,14 @@ import { I18nProvider } from "@lingui/react"
 import { DeleteObjectModal } from "./DeleteObjectModal"
 import type { ObjectRow } from "./"
 
+// ─── Mock useProjectId ────────────────────────────────────────────────────────
+
+const mockProjectId = "test-project-123"
+
+vi.mock("@/client/hooks/useProjectId", () => ({
+  useProjectId: () => mockProjectId,
+}))
+
 // ─── Mock tRPC ────────────────────────────────────────────────────────────────
 
 let mockMutate = vi.fn()
@@ -229,6 +237,7 @@ describe("DeleteObjectModal", () => {
       await user.click(screen.getByRole("button", { name: /^Delete$/i }))
       expect(mockMutate).toHaveBeenCalledWith(
         expect.objectContaining({
+          project_id: mockProjectId,
           container: "test-container",
           object: "folder/report.pdf",
           multipartManifest: "delete",

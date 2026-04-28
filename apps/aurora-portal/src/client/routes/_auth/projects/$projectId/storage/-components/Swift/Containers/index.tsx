@@ -22,9 +22,11 @@ import {
 import { ContainerLimitsTooltip } from "./ContainerLimitsTooltip"
 import { useNavigate } from "@tanstack/react-router"
 import { Route } from "../../../$provider/containers/"
+import { useProjectId } from "@/client/hooks/useProjectId"
 
 export const SwiftContainers = () => {
   const { t } = useLingui()
+  const projectId = useProjectId()
   const navigate = useNavigate({ from: Route.fullPath })
 
   // Sort state is persisted in the URL so that sort order survives navigation,
@@ -95,11 +97,14 @@ export const SwiftContainers = () => {
     isLoading,
     error,
   } = trpcReact.storage.swift.listContainers.useQuery({
+    project_id: projectId,
     format: "json",
   })
 
   // Fetch account metadata for quota information
-  const { data: accountInfo } = trpcReact.storage.swift.getAccountMetadata.useQuery({})
+  const { data: accountInfo } = trpcReact.storage.swift.getAccountMetadata.useQuery({
+    project_id: projectId,
+  })
 
   // Fetch Swift service info
   const { data: serviceInfo } = trpcReact.storage.swift.getServiceInfo.useQuery()

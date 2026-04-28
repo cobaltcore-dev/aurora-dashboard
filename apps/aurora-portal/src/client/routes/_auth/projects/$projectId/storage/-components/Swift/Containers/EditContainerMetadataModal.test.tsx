@@ -7,6 +7,14 @@ import { I18nProvider } from "@lingui/react"
 import { EditContainerMetadataModal } from "./EditContainerMetadataModal"
 import type { ContainerSummary, ContainerInfo } from "@/server/Storage/types/swift"
 
+// ─── Mock useProjectId ────────────────────────────────────────────────────────
+
+const mockProjectId = "test-project-123"
+
+vi.mock("@/client/hooks/useProjectId", () => ({
+  useProjectId: () => mockProjectId,
+}))
+
 // ─── tRPC mock ────────────────────────────────────────────────────────────────
 
 const mockReset = vi.fn()
@@ -793,7 +801,9 @@ describe("EditContainerMetadataModal", () => {
       renderModal()
       await user.type(screen.getByLabelText(/Total size quota/i), "2048")
       await user.click(screen.getByRole("button", { name: /Save/i }))
-      expect(mockMutate).toHaveBeenCalledWith(expect.objectContaining({ container: "my-container", quotaBytes: 2048 }))
+      expect(mockMutate).toHaveBeenCalledWith(
+        expect.objectContaining({ project_id: mockProjectId, container: "my-container", quotaBytes: 2048 })
+      )
     })
 
     test("calls mutate with quotaCount when changed", async () => {
@@ -802,7 +812,9 @@ describe("EditContainerMetadataModal", () => {
       renderModal()
       await user.type(screen.getByLabelText(/Object count quota/i), "100")
       await user.click(screen.getByRole("button", { name: /Save/i }))
-      expect(mockMutate).toHaveBeenCalledWith(expect.objectContaining({ container: "my-container", quotaCount: 100 }))
+      expect(mockMutate).toHaveBeenCalledWith(
+        expect.objectContaining({ project_id: mockProjectId, container: "my-container", quotaCount: 100 })
+      )
     })
 
     test("calls mutate with new metadata entry", async () => {
@@ -815,7 +827,7 @@ describe("EditContainerMetadataModal", () => {
       await user.click(getIconButton(/^Save$/i))
       await user.click(screen.getByRole("button", { name: /Save/i }))
       expect(mockMutate).toHaveBeenCalledWith(
-        expect.objectContaining({ metadata: expect.objectContaining({ owner: "Alice" }) })
+        expect.objectContaining({ project_id: mockProjectId, metadata: expect.objectContaining({ owner: "Alice" }) })
       )
     })
 
@@ -826,7 +838,7 @@ describe("EditContainerMetadataModal", () => {
       await user.click(getIconButton(/^Delete$/i))
       await user.click(screen.getByRole("button", { name: /Save/i }))
       expect(mockMutate).toHaveBeenCalledWith(
-        expect.objectContaining({ removeMetadata: expect.arrayContaining(["author"]) })
+        expect.objectContaining({ project_id: mockProjectId, removeMetadata: expect.arrayContaining(["author"]) })
       )
     })
 
@@ -836,7 +848,9 @@ describe("EditContainerMetadataModal", () => {
       renderModal()
       await user.click(screen.getByLabelText(/Store old object versions in container/i))
       await user.click(screen.getByRole("button", { name: /Save/i }))
-      expect(mockMutate).toHaveBeenCalledWith(expect.objectContaining({ removeVersionsLocation: true }))
+      expect(mockMutate).toHaveBeenCalledWith(
+        expect.objectContaining({ project_id: mockProjectId, removeVersionsLocation: true })
+      )
     })
 
     test("calls onSuccess with container name after successful mutation", async () => {

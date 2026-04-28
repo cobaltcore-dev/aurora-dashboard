@@ -7,6 +7,14 @@ import { I18nProvider } from "@lingui/react"
 import { ManageContainerAccessModal } from "./ManageContainerAccessModal"
 import type { ContainerSummary, ContainerInfo } from "@/server/Storage/types/swift"
 
+// ─── Mock useProjectId ────────────────────────────────────────────────────────
+
+const mockProjectId = "test-project-123"
+
+vi.mock("@/client/hooks/useProjectId", () => ({
+  useProjectId: () => mockProjectId,
+}))
+
 // ─── tRPC mock ────────────────────────────────────────────────────────────────
 
 const mockReset = vi.fn()
@@ -505,7 +513,9 @@ describe("ManageContainerAccessModal", () => {
       const textareas = screen.getAllByRole("textbox") as HTMLTextAreaElement[]
       await user.type(textareas[0], ".r:*")
       await user.click(screen.getByRole("button", { name: /Save/i }))
-      expect(mockMutate).toHaveBeenCalledWith(expect.objectContaining({ container: "my-container", read: ".r:*" }))
+      expect(mockMutate).toHaveBeenCalledWith(
+        expect.objectContaining({ project_id: mockProjectId, container: "my-container", read: ".r:*" })
+      )
     })
 
     test("sends empty string for read when ACL is cleared (to remove existing ACL)", async () => {
@@ -517,7 +527,7 @@ describe("ManageContainerAccessModal", () => {
       await user.clear(readTextarea)
       await user.click(screen.getByRole("button", { name: /Save/i }))
       expect(mockMutate).toHaveBeenCalledWith(
-        expect.objectContaining({ container: "my-container", read: "", write: "" })
+        expect.objectContaining({ project_id: mockProjectId, container: "my-container", read: "", write: "" })
       )
     })
 
@@ -530,7 +540,7 @@ describe("ManageContainerAccessModal", () => {
       await user.clear(writeTextarea)
       await user.click(screen.getByRole("button", { name: /Save/i }))
       expect(mockMutate).toHaveBeenCalledWith(
-        expect.objectContaining({ container: "my-container", read: "", write: "" })
+        expect.objectContaining({ project_id: mockProjectId, container: "my-container", read: "", write: "" })
       )
     })
 
@@ -555,7 +565,10 @@ describe("ManageContainerAccessModal", () => {
       await user.type(textareas[0], ".r:*")
       await user.click(screen.getByRole("button", { name: /Save/i }))
       await waitFor(() => {
-        expect(mockInvalidateContainerMetadata).toHaveBeenCalledWith({ container: "my-container" })
+        expect(mockInvalidateContainerMetadata).toHaveBeenCalledWith({
+          project_id: mockProjectId,
+          container: "my-container",
+        })
       })
     })
 

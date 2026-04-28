@@ -7,6 +7,14 @@ import { I18nProvider } from "@lingui/react"
 import { EmptyContainerModal } from "./EmptyContainerModal"
 import type { ContainerSummary, ObjectSummary } from "@/server/Storage/types/swift"
 
+// ─── Mock useProjectId ────────────────────────────────────────────────────────
+
+const mockProjectId = "test-project-123"
+
+vi.mock("@/client/hooks/useProjectId", () => ({
+  useProjectId: () => mockProjectId,
+}))
+
 // ─── tRPC mock ────────────────────────────────────────────────────────────────
 
 const mockReset = vi.fn()
@@ -340,7 +348,10 @@ describe("EmptyContainerModal", () => {
       renderModal()
       await user.type(screen.getByLabelText(/Type container name to confirm/i), "my-container")
       await user.click(screen.getByRole("button", { name: /^Empty$/i }))
-      expect(mockMutate).toHaveBeenCalledWith({ container: "my-container" })
+      expect(mockMutate).toHaveBeenCalledWith({
+        project_id: mockProjectId,
+        container: "my-container",
+      })
     })
 
     test("calls mutate on Enter key press with correct name", async () => {
@@ -348,7 +359,10 @@ describe("EmptyContainerModal", () => {
       renderModal()
       await user.type(screen.getByLabelText(/Type container name to confirm/i), "my-container")
       await user.keyboard("{Enter}")
-      expect(mockMutate).toHaveBeenCalledWith({ container: "my-container" })
+      expect(mockMutate).toHaveBeenCalledWith({
+        project_id: mockProjectId,
+        container: "my-container",
+      })
     })
 
     test("calls onSuccess with container name and deleted count after successful mutation", async () => {
@@ -378,7 +392,10 @@ describe("EmptyContainerModal", () => {
       await user.type(screen.getByLabelText(/Type container name to confirm/i), "my-container")
       await user.click(screen.getByRole("button", { name: /^Empty$/i }))
       await waitFor(() => {
-        expect(mockInvalidateObjects).toHaveBeenCalledWith({ container: "my-container" })
+        expect(mockInvalidateObjects).toHaveBeenCalledWith({
+          project_id: mockProjectId,
+          container: "my-container",
+        })
       })
     })
 

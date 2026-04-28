@@ -707,85 +707,85 @@ export const swiftRouter = {
 
         validateSwiftService(swift)
 
-      // Build source path for X-Copy-From header
-      // Encode each object path segment individually to preserve "/" separators
-      // (pseudo-folder structure). encodeURIComponent on the full name would
-      // encode "/" to "%2F", breaking X-Copy-From for nested objects.
-      const encodedObjectPath = object
-        .split("/")
-        .map((segment) => encodeURIComponent(segment))
-        .join("/")
-      const sourcePath = `/${encodeURIComponent(container)}/${encodedObjectPath}`
+        // Build source path for X-Copy-From header
+        // Encode each object path segment individually to preserve "/" separators
+        // (pseudo-folder structure). encodeURIComponent on the full name would
+        // encode "/" to "%2F", breaking X-Copy-From for nested objects.
+        const encodedObjectPath = object
+          .split("/")
+          .map((segment) => encodeURIComponent(segment))
+          .join("/")
+        const sourcePath = `/${encodeURIComponent(container)}/${encodedObjectPath}`
 
-      // Build query parameters for source URL
-      const queryParams = new URLSearchParams()
-      if (multipartManifest) {
-        queryParams.append("multipart-manifest", multipartManifest)
-      }
-      if (symlink) {
-        queryParams.append("symlink", symlink)
-      }
-
-      // Build destination URL as a full URL string so the SDK's buildRequestUrl
-      // takes the `path.startsWith("http")` branch and uses `new URL(path)` directly,
-      // preserving percent-encoding. Using pathname assignment on a URL object would
-      // decode %20 back to spaces before the request is made.
-      const endpoints = swift.availableEndpoints()
-      const publicEndpoint = endpoints?.find((ep: { interface: string }) => ep.interface === "public")
-      if (!publicEndpoint?.url) {
-        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Swift public endpoint not found" })
-      }
-      // Encode each segment of the destination path individually
-      const encodedDestination = destination
-        .replace(/^\//, "")
-        .split("/")
-        .map((s) => (s ? encodeURIComponent(s) : s))
-        .join("/")
-
-      // Build the destination URL by replacing (not appending) the account segment
-      // in the public endpoint URL. The endpoint already contains the account path
-      // (e.g. /v1/AUTH_test); if `account` overrides it, swap the last path segment.
-      const destEndpoint = new URL(publicEndpoint.url)
-      const endpointSegments = destEndpoint.pathname.split("/").filter(Boolean)
-      if (account) {
-        if (endpointSegments.length > 0) {
-          endpointSegments[endpointSegments.length - 1] = account
-        } else {
-          endpointSegments.push(account)
+        // Build query parameters for source URL
+        const queryParams = new URLSearchParams()
+        if (multipartManifest) {
+          queryParams.append("multipart-manifest", multipartManifest)
         }
-      }
-      const basePath = endpointSegments.join("/")
-      destEndpoint.pathname = `/${basePath}/${encodedDestination}`.replace(/\/+$/, "")
-      const destUrl = destEndpoint.toString()
+        if (symlink) {
+          queryParams.append("symlink", symlink)
+        }
 
-      // Build headers - using X-Copy-From approach (equivalent to COPY method)
-      const headers: Record<string, string> = {
-        "X-Copy-From": queryParams.toString() ? `${sourcePath}?${queryParams.toString()}` : sourcePath,
-        "Content-Length": "0",
-      }
+        // Build destination URL as a full URL string so the SDK's buildRequestUrl
+        // takes the `path.startsWith("http")` branch and uses `new URL(path)` directly,
+        // preserving percent-encoding. Using pathname assignment on a URL object would
+        // decode %20 back to spaces before the request is made.
+        const endpoints = swift.availableEndpoints()
+        const publicEndpoint = endpoints?.find((ep: { interface: string }) => ep.interface === "public")
+        if (!publicEndpoint?.url) {
+          throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Swift public endpoint not found" })
+        }
+        // Encode each segment of the destination path individually
+        const encodedDestination = destination
+          .replace(/^\//, "")
+          .split("/")
+          .map((s) => (s ? encodeURIComponent(s) : s))
+          .join("/")
 
-      if (destinationAccount) {
-        headers["X-Copy-From-Account"] = destinationAccount
-      }
+        // Build the destination URL by replacing (not appending) the account segment
+        // in the public endpoint URL. The endpoint already contains the account path
+        // (e.g. /v1/AUTH_test); if `account` overrides it, swap the last path segment.
+        const destEndpoint = new URL(publicEndpoint.url)
+        const endpointSegments = destEndpoint.pathname.split("/").filter(Boolean)
+        if (account) {
+          if (endpointSegments.length > 0) {
+            endpointSegments[endpointSegments.length - 1] = account
+          } else {
+            endpointSegments.push(account)
+          }
+        }
+        const basePath = endpointSegments.join("/")
+        destEndpoint.pathname = `/${basePath}/${encodedDestination}`.replace(/\/+$/, "")
+        const destUrl = destEndpoint.toString()
 
-      if (freshMetadata) {
-        headers["X-Fresh-Metadata"] = "true"
-      }
+        // Build headers - using X-Copy-From approach (equivalent to COPY method)
+        const headers: Record<string, string> = {
+          "X-Copy-From": queryParams.toString() ? `${sourcePath}?${queryParams.toString()}` : sourcePath,
+          "Content-Length": "0",
+        }
 
-      // Add metadata headers for the destination object
-      const metadataHeaders = buildObjectMetadataHeaders(options)
-      Object.assign(headers, metadataHeaders)
+        if (destinationAccount) {
+          headers["X-Copy-From-Account"] = destinationAccount
+        }
 
-      // Use PUT to destination with X-Copy-From header.
-      // Body must be undefined/empty — the copy is server-side via X-Copy-From.
-      // Swift returns 201 on success with no meaningful response body.
-      await swift.put(destUrl, undefined, { headers }).catch((error) => {
-        throw mapErrorResponseToTRPCError(error, { operation: "copy object", container, object })
-      })
+        if (freshMetadata) {
+          headers["X-Fresh-Metadata"] = "true"
+        }
 
-      return true
-    }, "copy object")
-  }),
+        // Add metadata headers for the destination object
+        const metadataHeaders = buildObjectMetadataHeaders(options)
+        Object.assign(headers, metadataHeaders)
+
+        // Use PUT to destination with X-Copy-From header.
+        // Body must be undefined/empty — the copy is server-side via X-Copy-From.
+        // Swift returns 201 on success with no meaningful response body.
+        await swift.put(destUrl, undefined, { headers }).catch((error) => {
+          throw mapErrorResponseToTRPCError(error, { operation: "copy object", container, object })
+        })
+
+        return true
+      }, "copy object")
+    }),
 
   /**
    * Deletes an object.
@@ -805,25 +805,25 @@ export const swiftRouter = {
 
         validateSwiftService(swift)
 
-      // Build URL with query parameters
-      const queryParams = new URLSearchParams()
-      if (multipartManifest) {
-        queryParams.append("multipart-manifest", multipartManifest)
-      }
+        // Build URL with query parameters
+        const queryParams = new URLSearchParams()
+        if (multipartManifest) {
+          queryParams.append("multipart-manifest", multipartManifest)
+        }
 
-      const accountPath = account || ""
-      const basePath = accountPath
-        ? `${accountPath}/${encodeURIComponent(container)}/${encodeURIComponent(object)}`
-        : `${encodeURIComponent(container)}/${encodeURIComponent(object)}`
-      const url = queryParams.toString() ? `${basePath}?${queryParams.toString()}` : basePath
+        const accountPath = account || ""
+        const basePath = accountPath
+          ? `${accountPath}/${encodeURIComponent(container)}/${encodeURIComponent(object)}`
+          : `${encodeURIComponent(container)}/${encodeURIComponent(object)}`
+        const url = queryParams.toString() ? `${basePath}?${queryParams.toString()}` : basePath
 
-      await swift.del(url).catch((error) => {
-        throw mapErrorResponseToTRPCError(error, { operation: "delete object", container, object })
-      })
+        await swift.del(url).catch((error) => {
+          throw mapErrorResponseToTRPCError(error, { operation: "delete object", container, object })
+        })
 
-      return true
-    }, "delete object")
-  }),
+        return true
+      }, "delete object")
+    }),
 
   // ============================================================================
   // BULK OPERATIONS
@@ -915,38 +915,38 @@ export const swiftRouter = {
 
         validateSwiftService(swift)
 
-      // Ensure folder path ends with /
-      const normalizedPath = normalizeFolderPath(folderPath)
+        // Ensure folder path ends with /
+        const normalizedPath = normalizeFolderPath(folderPath)
 
-      const headers: Record<string, string> = {
-        "Content-Type": "application/directory",
-        "Content-Length": "0",
-      }
+        const headers: Record<string, string> = {
+          "Content-Type": "application/directory",
+          "Content-Length": "0",
+        }
 
-      // Add custom metadata if provided
-      if (metadata) {
-        Object.entries(metadata).forEach(([key, value]) => {
-          headers[`X-Object-Meta-${key}`] = value
-        })
-      }
+        // Add custom metadata if provided
+        if (metadata) {
+          Object.entries(metadata).forEach(([key, value]) => {
+            headers[`X-Object-Meta-${key}`] = value
+          })
+        }
 
-      const accountPath = account || ""
-      const url = accountPath
-        ? `${accountPath}/${encodeURIComponent(container)}/${encodeURIComponent(normalizedPath)}`
-        : `${encodeURIComponent(container)}/${encodeURIComponent(normalizedPath)}`
+        const accountPath = account || ""
+        const url = accountPath
+          ? `${accountPath}/${encodeURIComponent(container)}/${encodeURIComponent(normalizedPath)}`
+          : `${encodeURIComponent(container)}/${encodeURIComponent(normalizedPath)}`
 
-      await swift
-        .put(url, {
-          headers,
-          body: new ArrayBuffer(0), // Zero-byte object
-        })
-        .catch((error) => {
-          throw mapErrorResponseToTRPCError(error, { operation: "create folder", container, object: normalizedPath })
-        })
+        await swift
+          .put(url, {
+            headers,
+            body: new ArrayBuffer(0), // Zero-byte object
+          })
+          .catch((error) => {
+            throw mapErrorResponseToTRPCError(error, { operation: "create folder", container, object: normalizedPath })
+          })
 
-      return true
-    }, "create folder")
-  }),
+        return true
+      }, "create folder")
+    }),
 
   /**
    * Lists folder contents (folders and objects at current level).
@@ -1062,88 +1062,88 @@ export const swiftRouter = {
 
         validateSwiftService(swift)
 
-      const normalizedSource = normalizeFolderPath(sourcePath)
-      const normalizedDest = normalizeFolderPath(destinationPath)
-      const destContainer = destinationContainer || container
+        const normalizedSource = normalizeFolderPath(sourcePath)
+        const normalizedDest = normalizeFolderPath(destinationPath)
+        const destContainer = destinationContainer || container
 
-      // List all objects with source prefix
-      const queryParams = new URLSearchParams()
-      queryParams.append("format", "json")
-      queryParams.append("prefix", normalizedSource)
+        // List all objects with source prefix
+        const queryParams = new URLSearchParams()
+        queryParams.append("format", "json")
+        queryParams.append("prefix", normalizedSource)
 
-      const accountPath = account || ""
-      const listUrl = accountPath
-        ? `${accountPath}/${encodeURIComponent(container)}?${queryParams.toString()}`
-        : `${encodeURIComponent(container)}?${queryParams.toString()}`
+        const accountPath = account || ""
+        const listUrl = accountPath
+          ? `${accountPath}/${encodeURIComponent(container)}?${queryParams.toString()}`
+          : `${encodeURIComponent(container)}?${queryParams.toString()}`
 
-      const listResponse = await swift.get(listUrl).catch((error) => {
-        throw mapErrorResponseToTRPCError(error, { operation: "list objects for move", container })
-      })
+        const listResponse = await swift.get(listUrl).catch((error) => {
+          throw mapErrorResponseToTRPCError(error, { operation: "list objects for move", container })
+        })
 
-      if (listResponse.status === 204) {
-        return 0 // No objects to move
-      }
-
-      const objects: ObjectSummary[] = await listResponse.json()
-      let movedCount = 0
-
-      // Copy each object to new location
-      for (const obj of objects) {
-        const relativePath = obj.name.substring(normalizedSource.length)
-        const newObjectName = normalizedDest + relativePath
-
-        // Copy object
-        const copyHeaders: Record<string, string> = {
-          "X-Copy-From": `/${encodeURIComponent(container)}/${encodeURIComponent(obj.name)}`,
-          "Content-Length": "0",
+        if (listResponse.status === 204) {
+          return 0 // No objects to move
         }
 
-        if (destinationContainer && destinationContainer !== container) {
-          copyHeaders["X-Copy-From-Account"] = account || ""
-        }
+        const objects: ObjectSummary[] = await listResponse.json()
+        let movedCount = 0
 
-        const destUrl = accountPath
-          ? `${accountPath}/${encodeURIComponent(destContainer)}/${encodeURIComponent(newObjectName)}`
-          : `${encodeURIComponent(destContainer)}/${encodeURIComponent(newObjectName)}`
+        // Copy each object to new location
+        for (const obj of objects) {
+          const relativePath = obj.name.substring(normalizedSource.length)
+          const newObjectName = normalizedDest + relativePath
 
-        await swift
-          .put(destUrl, {
-            headers: copyHeaders,
-            body: new ArrayBuffer(0),
-          })
-          .catch((error) => {
-            throw mapErrorResponseToTRPCError(error, {
-              operation: "copy object during folder move",
-              container: destContainer,
-              object: newObjectName,
+          // Copy object
+          const copyHeaders: Record<string, string> = {
+            "X-Copy-From": `/${encodeURIComponent(container)}/${encodeURIComponent(obj.name)}`,
+            "Content-Length": "0",
+          }
+
+          if (destinationContainer && destinationContainer !== container) {
+            copyHeaders["X-Copy-From-Account"] = account || ""
+          }
+
+          const destUrl = accountPath
+            ? `${accountPath}/${encodeURIComponent(destContainer)}/${encodeURIComponent(newObjectName)}`
+            : `${encodeURIComponent(destContainer)}/${encodeURIComponent(newObjectName)}`
+
+          await swift
+            .put(destUrl, {
+              headers: copyHeaders,
+              body: new ArrayBuffer(0),
             })
-          })
+            .catch((error) => {
+              throw mapErrorResponseToTRPCError(error, {
+                operation: "copy object during folder move",
+                container: destContainer,
+                object: newObjectName,
+              })
+            })
 
-        movedCount++
-      }
+          movedCount++
+        }
 
-      // Delete original objects using bulk delete
-      const objectPaths = objects.map((obj: ObjectSummary) => `/${container}/${obj.name}`)
+        // Delete original objects using bulk delete
+        const objectPaths = objects.map((obj: ObjectSummary) => `/${container}/${obj.name}`)
 
-      if (objectPaths.length > 0) {
-        const bulkDeleteUrl = accountPath ? `${accountPath}?bulk-delete` : "?bulk-delete"
-        const body = objectPaths.join("\n")
+        if (objectPaths.length > 0) {
+          const bulkDeleteUrl = accountPath ? `${accountPath}?bulk-delete` : "?bulk-delete"
+          const body = objectPaths.join("\n")
 
-        await swift
-          .post(bulkDeleteUrl, body, {
-            headers: {
-              "Content-Type": "text/plain",
-              Accept: "text/plain",
-            },
-          })
-          .catch((error) => {
-            throw mapErrorResponseToTRPCError(error, { operation: "delete original objects after move" })
-          })
-      }
+          await swift
+            .post(bulkDeleteUrl, body, {
+              headers: {
+                "Content-Type": "text/plain",
+                Accept: "text/plain",
+              },
+            })
+            .catch((error) => {
+              throw mapErrorResponseToTRPCError(error, { operation: "delete original objects after move" })
+            })
+        }
 
-      return movedCount
-    }, "move folder")
-  }),
+        return movedCount
+      }, "move folder")
+    }),
 
   /**
    * Deletes a folder by deleting all objects with the folder prefix.
@@ -1164,58 +1164,58 @@ export const swiftRouter = {
 
         validateSwiftService(swift)
 
-      const normalizedPath = normalizeFolderPath(folderPath)
+        const normalizedPath = normalizeFolderPath(folderPath)
 
-      // List all objects with folder prefix
-      const queryParams = new URLSearchParams()
-      queryParams.append("format", "json")
-      queryParams.append("prefix", normalizedPath)
+        // List all objects with folder prefix
+        const queryParams = new URLSearchParams()
+        queryParams.append("format", "json")
+        queryParams.append("prefix", normalizedPath)
 
-      if (!recursive) {
-        // Only delete objects at this level (use delimiter)
-        queryParams.append("delimiter", "/")
-      }
+        if (!recursive) {
+          // Only delete objects at this level (use delimiter)
+          queryParams.append("delimiter", "/")
+        }
 
-      const accountPath = account || ""
-      const listUrl = accountPath
-        ? `${accountPath}/${encodeURIComponent(container)}?${queryParams.toString()}`
-        : `${encodeURIComponent(container)}?${queryParams.toString()}`
+        const accountPath = account || ""
+        const listUrl = accountPath
+          ? `${accountPath}/${encodeURIComponent(container)}?${queryParams.toString()}`
+          : `${encodeURIComponent(container)}?${queryParams.toString()}`
 
-      const listResponse = await swift.get(listUrl).catch((error) => {
-        throw mapErrorResponseToTRPCError(error, { operation: "list objects for deletion", container })
-      })
-
-      if (listResponse.status === 204) {
-        return 0 // No objects to delete
-      }
-
-      const objects: ObjectSummary[] = await listResponse.json()
-      const objectPaths = objects.map((obj) => `/${container}/${obj.name}`)
-
-      if (objectPaths.length === 0) {
-        return 0
-      }
-
-      // Use bulk delete
-      const bulkDeleteUrl = accountPath ? `${accountPath}?bulk-delete` : "?bulk-delete"
-      const body = objectPaths.join("\n")
-
-      const response = await swift
-        .post(bulkDeleteUrl, body, {
-          headers: {
-            "Content-Type": "text/plain",
-            Accept: "text/plain",
-          },
-        })
-        .catch((error) => {
-          throw mapErrorResponseToTRPCError(error, { operation: "bulk delete folder contents" })
+        const listResponse = await swift.get(listUrl).catch((error) => {
+          throw mapErrorResponseToTRPCError(error, { operation: "list objects for deletion", container })
         })
 
-      const bulkResultText = await response.text()
-      const match = bulkResultText.match(/Number Deleted:\s*(\d+)/)
-      return match ? parseInt(match[1], 10) : 0
-    }, "delete folder")
-  }),
+        if (listResponse.status === 204) {
+          return 0 // No objects to delete
+        }
+
+        const objects: ObjectSummary[] = await listResponse.json()
+        const objectPaths = objects.map((obj) => `/${container}/${obj.name}`)
+
+        if (objectPaths.length === 0) {
+          return 0
+        }
+
+        // Use bulk delete
+        const bulkDeleteUrl = accountPath ? `${accountPath}?bulk-delete` : "?bulk-delete"
+        const body = objectPaths.join("\n")
+
+        const response = await swift
+          .post(bulkDeleteUrl, body, {
+            headers: {
+              "Content-Type": "text/plain",
+              Accept: "text/plain",
+            },
+          })
+          .catch((error) => {
+            throw mapErrorResponseToTRPCError(error, { operation: "bulk delete folder contents" })
+          })
+
+        const bulkResultText = await response.text()
+        const match = bulkResultText.match(/Number Deleted:\s*(\d+)/)
+        return match ? parseInt(match[1], 10) : 0
+      }, "delete folder")
+    }),
 
   // ============================================================================
   // TEMPORARY URL OPERATIONS
@@ -1604,10 +1604,7 @@ export const swiftRouter = {
    */
   downloadObject: projectScopedProcedure
     .input(projectScopedInputSchema.extend(downloadObjectInputSchema.shape))
-    .mutation(async function* ({
-      input,
-      ctx,
-    }): AsyncGenerator<{
+    .mutation(async function* ({ input, ctx }): AsyncGenerator<{
       chunk: string // base64-encoded Uint8Array chunk
       downloaded: number // cumulative bytes received so far
       total: number // total file size in bytes (0 if unknown)
@@ -1620,77 +1617,77 @@ export const swiftRouter = {
 
       validateSwiftService(swift)
 
-    const accountPath = account || ""
-    // Encode each segment of the object name individually so that slashes
-    // acting as path separators (e.g. "folder/file.txt") are preserved,
-    // while other special characters in segment names are still percent-encoded.
-    const encodedObject = object.split("/").map(encodeURIComponent).join("/")
-    const url = accountPath
-      ? `${accountPath}/${encodeURIComponent(container)}/${encodedObject}`
-      : `${encodeURIComponent(container)}/${encodedObject}`
+      const accountPath = account || ""
+      // Encode each segment of the object name individually so that slashes
+      // acting as path separators (e.g. "folder/file.txt") are preserved,
+      // while other special characters in segment names are still percent-encoded.
+      const encodedObject = object.split("/").map(encodeURIComponent).join("/")
+      const url = accountPath
+        ? `${accountPath}/${encodeURIComponent(container)}/${encodedObject}`
+        : `${encodeURIComponent(container)}/${encodedObject}`
 
-    const response = await swift.get(url).catch((error) => {
-      throw mapErrorResponseToTRPCError(error, { operation: "download object", container, object })
-    })
+      const response = await swift.get(url).catch((error) => {
+        throw mapErrorResponseToTRPCError(error, { operation: "download object", container, object })
+      })
 
-    const contentType = response.headers.get("content-type") ?? "application/octet-stream"
-    // Content-Length may be absent for chunked-transfer responses; treat 0 as unknown
-    const total = parseInt(response.headers.get("content-length") ?? "0", 10) || 0
+      const contentType = response.headers.get("content-type") ?? "application/octet-stream"
+      // Content-Length may be absent for chunked-transfer responses; treat 0 as unknown
+      const total = parseInt(response.headers.get("content-length") ?? "0", 10) || 0
 
-    if (!response.body) {
-      throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Swift response has no body" })
-    }
-
-    // Scope to the project so cross-tenant observation is impossible
-    const downloadToken = ctx.openstack?.getToken()
-    const downloadProjectId = downloadToken?.tokenData.project?.id ?? "unknown"
-    const scopedDownloadId = `${downloadProjectId}:${downloadId}`
-
-    downloadProgressMap.set(scopedDownloadId, { downloaded: 0, total, percent: 0 })
-
-    const reader = response.body.getReader()
-    let isFirst = true
-    let downloaded = 0
-
-    try {
-      while (true) {
-        const { done, value } = await reader.read()
-        if (done) break
-
-        downloaded += value.byteLength
-
-        const progress = downloadProgressMap.get(scopedDownloadId)!
-        progress.downloaded = downloaded
-        progress.percent = total > 0 ? Math.round((downloaded / total) * 100) : 0
-        downloadProgressEmitter.emit(`progress:${scopedDownloadId}`, { ...progress })
-
-        // Yield to the event loop so subscriptions can flush between chunks
-        await new Promise((resolve) => setTimeout(resolve, 0))
-
-        yield {
-          chunk: Buffer.from(value).toString("base64"),
-          downloaded,
-          total,
-          ...(isFirst ? { contentType, filename } : {}),
-        }
-
-        isFirst = false
+      if (!response.body) {
+        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Swift response has no body" })
       }
 
-      downloadProgressEmitter.emit(`progress:${scopedDownloadId}:complete`)
-    } catch (error) {
-      downloadProgressEmitter.emit(`progress:${scopedDownloadId}:error`, error)
-      throw mapErrorResponseToTRPCError(error as Parameters<typeof mapErrorResponseToTRPCError>[0], {
-        operation: "download object",
-        container,
-        object,
-      })
-    } finally {
-      downloadProgressMap.delete(scopedDownloadId)
-      await reader.cancel()
-      reader.releaseLock()
-    }
-  }),
+      // Scope to the project so cross-tenant observation is impossible
+      const downloadToken = ctx.openstack?.getToken()
+      const downloadProjectId = downloadToken?.tokenData.project?.id ?? "unknown"
+      const scopedDownloadId = `${downloadProjectId}:${downloadId}`
+
+      downloadProgressMap.set(scopedDownloadId, { downloaded: 0, total, percent: 0 })
+
+      const reader = response.body.getReader()
+      let isFirst = true
+      let downloaded = 0
+
+      try {
+        while (true) {
+          const { done, value } = await reader.read()
+          if (done) break
+
+          downloaded += value.byteLength
+
+          const progress = downloadProgressMap.get(scopedDownloadId)!
+          progress.downloaded = downloaded
+          progress.percent = total > 0 ? Math.round((downloaded / total) * 100) : 0
+          downloadProgressEmitter.emit(`progress:${scopedDownloadId}`, { ...progress })
+
+          // Yield to the event loop so subscriptions can flush between chunks
+          await new Promise((resolve) => setTimeout(resolve, 0))
+
+          yield {
+            chunk: Buffer.from(value).toString("base64"),
+            downloaded,
+            total,
+            ...(isFirst ? { contentType, filename } : {}),
+          }
+
+          isFirst = false
+        }
+
+        downloadProgressEmitter.emit(`progress:${scopedDownloadId}:complete`)
+      } catch (error) {
+        downloadProgressEmitter.emit(`progress:${scopedDownloadId}:error`, error)
+        throw mapErrorResponseToTRPCError(error as Parameters<typeof mapErrorResponseToTRPCError>[0], {
+          operation: "download object",
+          container,
+          object,
+        })
+      } finally {
+        downloadProgressMap.delete(scopedDownloadId)
+        await reader.cancel()
+        reader.releaseLock()
+      }
+    }),
 
   /**
    * Subscribes to real-time download progress for a given `downloadId`.

@@ -22,6 +22,7 @@ import {
   ComboBoxOption,
 } from "@cloudoperators/juno-ui-components"
 import { ContainerSummary } from "@/server/Storage/types/swift"
+import { useProjectId } from "@/client/hooks/useProjectId"
 
 // ── Reserved metadata keys that are exposed as dedicated fields ──────────────
 const RESERVED_META_KEYS = new Set([
@@ -64,6 +65,7 @@ export const EditContainerMetadataModal = ({
   onError,
 }: EditContainerMetadataModalProps) => {
   const { t } = useLingui()
+  const projectId = useProjectId()
 
   // ── Query ─────────────────────────────────────────────────────────────────
   const {
@@ -72,18 +74,21 @@ export const EditContainerMetadataModal = ({
     isError: isMetaError,
     error: metaError,
   } = trpcReact.storage.swift.getContainerMetadata.useQuery(
-    { container: container?.name ?? "" },
+    { project_id: projectId, container: container?.name ?? "" },
     { enabled: isOpen && container !== null }
   )
 
   const isPublicAccess = info?.read === ".r:*,.rlistings"
 
   const { data: publicUrl } = trpcReact.storage.swift.getContainerPublicUrl.useQuery(
-    { container: container?.name ?? "" },
+    { project_id: projectId, container: container?.name ?? "" },
     { enabled: isOpen && container !== null && isPublicAccess }
   )
 
-  const { data: containers } = trpcReact.storage.swift.listContainers.useQuery({}, { enabled: isOpen })
+  const { data: containers } = trpcReact.storage.swift.listContainers.useQuery(
+    { project_id: projectId },
+    { enabled: isOpen }
+  )
 
   const [containerSearch, setContainerSearch] = useState("")
   const [debouncedSearch, setDebouncedSearch] = useState("")
@@ -361,6 +366,7 @@ export const EditContainerMetadataModal = ({
     const previousLocation = info?.versionsLocation || info?.historyLocation || ""
 
     updateMutation.mutate({
+      project_id: projectId,
       container: container.name,
       metadata: metadataToSet,
       removeMetadata: removeMetadata.length ? removeMetadata : undefined,

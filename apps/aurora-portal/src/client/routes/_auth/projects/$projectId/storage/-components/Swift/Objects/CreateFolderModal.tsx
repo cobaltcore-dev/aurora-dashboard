@@ -1,6 +1,7 @@
 import { useState, useRef } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
+import { useProjectId } from "@/client/hooks/useProjectId"
 import { Modal, TextInput, Stack, Message } from "@cloudoperators/juno-ui-components"
 import { useParams } from "@tanstack/react-router"
 
@@ -14,6 +15,7 @@ interface CreateFolderModalProps {
 
 export const CreateFolderModal = ({ isOpen, currentPrefix, onClose, onSuccess, onError }: CreateFolderModalProps) => {
   const { t } = useLingui()
+  const projectId = useProjectId()
   const { containerName } = useParams({
     from: "/_auth/projects/$projectId/storage/$provider/containers/$containerName/objects/",
   })
@@ -75,7 +77,7 @@ export const CreateFolderModal = ({ isOpen, currentPrefix, onClose, onSuccess, o
     if (!validateName(folderName)) return
     submittedNameRef.current = folderName.trim()
     const folderPath = `${currentPrefix}${submittedNameRef.current}/`
-    createFolderMutation.mutate({ container: containerName, folderPath })
+    createFolderMutation.mutate({ project_id: projectId, container: containerName, folderPath })
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {

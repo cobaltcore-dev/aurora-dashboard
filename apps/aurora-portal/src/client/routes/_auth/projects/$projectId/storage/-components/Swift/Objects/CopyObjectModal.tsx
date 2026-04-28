@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
+import { useProjectId } from "@/client/hooks/useProjectId"
 import {
   Modal,
   Stack,
@@ -29,6 +30,7 @@ interface CopyObjectModalProps {
 
 export const CopyObjectModal = ({ isOpen, object, onClose, onSuccess, onError }: CopyObjectModalProps) => {
   const { t } = useLingui()
+  const projectId = useProjectId()
   const { containerName: sourceContainer } = useParams({
     from: "/_auth/projects/$projectId/storage/$provider/containers/$containerName/objects/",
   })
@@ -93,12 +95,12 @@ export const CopyObjectModal = ({ isOpen, object, onClose, onSuccess, onError }:
   // ── Data fetching ─────────────────────────────────────────────────────────
 
   const { data: containers, isLoading: isLoadingContainers } = trpcReact.storage.swift.listContainers.useQuery(
-    {},
+    { project_id: projectId },
     { enabled: isOpen }
   )
 
   const { data: objects, isLoading: isLoadingObjects } = trpcReact.storage.swift.listObjects.useQuery(
-    { container: targetContainer, format: "json", prefix: currentPrefix || undefined },
+    { project_id: projectId, container: targetContainer, format: "json", prefix: currentPrefix || undefined },
     { enabled: isOpen && !!targetContainer }
   )
 
@@ -143,7 +145,7 @@ export const CopyObjectModal = ({ isOpen, object, onClose, onSuccess, onError }:
 
   const copyMutation = trpcReact.storage.swift.copyObject.useMutation({
     onSuccess: () => {
-      utils.storage.swift.listObjects.invalidate({ container: targetContainer })
+      utils.storage.swift.listObjects.invalidate({ project_id: projectId, container: targetContainer })
       onSuccess?.(submittedNameRef.current, targetContainer, currentPrefix)
       handleClose()
     },
@@ -250,6 +252,7 @@ export const CopyObjectModal = ({ isOpen, object, onClose, onSuccess, onError }:
     // Encoding is handled in the router to avoid double-encoding.
     const destPath = `/${targetContainer}/${currentPrefix}${object.displayName}`
     copyMutation.mutate({
+      project_id: projectId,
       container: sourceContainer,
       object: object.name,
       destination: destPath,

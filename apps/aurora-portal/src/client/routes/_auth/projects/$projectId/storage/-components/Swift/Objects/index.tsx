@@ -2,6 +2,7 @@ import { useState, startTransition } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { Spinner, Button, Toast, ToastProps, Stack } from "@cloudoperators/juno-ui-components"
 import { trpcReact } from "@/client/trpcClient"
+import { useProjectId } from "@/client/hooks/useProjectId"
 import { ObjectSummary } from "@/server/Storage/types/swift"
 import { ListToolbar } from "@/client/components/ListToolbar"
 import { SortSettings } from "@/client/components/ListToolbar/types"
@@ -170,9 +171,10 @@ const resolveSortBy = (sortBy: SortSettings["sortBy"]): SortKey | undefined => {
 
 export const SwiftObjects = () => {
   const { t } = useLingui()
+  const projectId = useProjectId()
   const navigate = useNavigate({ from: Route.fullPath })
 
-  const { projectId, provider, containerName } = useParams({
+  const { provider, containerName } = useParams({
     from: "/_auth/projects/$projectId/storage/$provider/containers/$containerName/objects/",
   })
 
@@ -269,6 +271,7 @@ export const SwiftObjects = () => {
     isLoading,
     error,
   } = trpcReact.storage.swift.listObjects.useQuery({
+    project_id: projectId,
     container: containerName,
     format: "json",
     prefix: currentPrefix || undefined,

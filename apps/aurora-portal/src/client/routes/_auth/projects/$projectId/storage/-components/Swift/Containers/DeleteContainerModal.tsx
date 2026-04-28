@@ -3,6 +3,7 @@ import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import { Modal, TextInput, Stack, Message, Spinner, Icon, Checkbox } from "@cloudoperators/juno-ui-components"
 import { ContainerSummary } from "@/server/Storage/types/swift"
+import { useProjectId } from "@/client/hooks/useProjectId"
 
 interface DeleteContainerModalProps {
   isOpen: boolean
@@ -14,6 +15,7 @@ interface DeleteContainerModalProps {
 
 export const DeleteContainerModal = ({ isOpen, container, onClose, onSuccess, onError }: DeleteContainerModalProps) => {
   const { t } = useLingui()
+  const projectId = useProjectId()
   const [confirmName, setConfirmName] = useState("")
   const [nameError, setNameError] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
@@ -36,13 +38,13 @@ export const DeleteContainerModal = ({ isOpen, container, onClose, onSuccess, on
     isLoading: isLoadingObjects,
     error: objectsError,
   } = trpcReact.storage.swift.listObjects.useQuery(
-    { container: container?.name ?? "", format: "json", limit: 1 },
+    { project_id: projectId, container: container?.name ?? "", format: "json", limit: 1 },
     { enabled: isOpen && container !== null }
   )
 
   // Fetch container metadata to check if versioning is enabled
   const { data: containerMetadata, error: metaError } = trpcReact.storage.swift.getContainerMetadata.useQuery(
-    { container: container?.name ?? "" },
+    { project_id: projectId, container: container?.name ?? "" },
     { enabled: isOpen && container !== null }
   )
 
@@ -96,7 +98,7 @@ export const DeleteContainerModal = ({ isOpen, container, onClose, onSuccess, on
       setNameError(t`Container name does not match`)
       return
     }
-    deleteContainerMutation.mutate({ container: container.name })
+    deleteContainerMutation.mutate({ project_id: projectId, container: container.name })
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {

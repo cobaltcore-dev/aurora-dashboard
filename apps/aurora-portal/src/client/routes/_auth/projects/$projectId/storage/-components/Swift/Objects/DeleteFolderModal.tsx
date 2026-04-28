@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
+import { useProjectId } from "@/client/hooks/useProjectId"
 import { Modal, Message, Stack, Spinner } from "@cloudoperators/juno-ui-components"
 import { useParams } from "@tanstack/react-router"
 import { FolderRow } from "./"
@@ -15,6 +16,7 @@ interface DeleteFolderModalProps {
 
 export const DeleteFolderModal = ({ isOpen, folder, onClose, onSuccess, onError }: DeleteFolderModalProps) => {
   const { t } = useLingui()
+  const projectId = useProjectId()
   const { containerName } = useParams({
     from: "/_auth/projects/$projectId/storage/$provider/containers/$containerName/objects/",
   })
@@ -27,7 +29,7 @@ export const DeleteFolderModal = ({ isOpen, folder, onClose, onSuccess, onError 
 
   const deleteFolderMutation = trpcReact.storage.swift.deleteFolder.useMutation({
     onSuccess: (deletedCount) => {
-      utils.storage.swift.listObjects.invalidate({ container: containerName })
+      utils.storage.swift.listObjects.invalidate({ project_id: projectId, container: containerName })
       onSuccess?.(submittedFolderNameRef.current, deletedCount)
     },
     onError: (error) => {
@@ -53,6 +55,7 @@ export const DeleteFolderModal = ({ isOpen, folder, onClose, onSuccess, onError 
     if (!folder) return
     submittedFolderNameRef.current = folder.displayName
     deleteFolderMutation.mutate({
+      project_id: projectId,
       container: containerName,
       folderPath: folder.name,
       recursive: true,

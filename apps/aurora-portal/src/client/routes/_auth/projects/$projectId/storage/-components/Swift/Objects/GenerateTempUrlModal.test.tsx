@@ -18,6 +18,14 @@ vi.mock("@tanstack/react-router", async () => {
   }
 })
 
+// ─── Mock useProjectId ────────────────────────────────────────────────────────
+
+const mockProjectId = "test-project-123"
+
+vi.mock("@/client/hooks/useProjectId", () => ({
+  useProjectId: () => mockProjectId,
+}))
+
 // ─── Mock tRPC ────────────────────────────────────────────────────────────────
 // Plain factory (not vi.fn wrapping) so vi.clearAllMocks() doesn't wipe the implementation.
 
@@ -191,6 +199,7 @@ describe("GenerateTempUrlModal", () => {
       renderModal()
       await user.click(screen.getByRole("button", { name: /Generate URL/i }))
       expect(trpcState.mutate).toHaveBeenCalledWith({
+        project_id: mockProjectId,
         container: "test-container",
         object: "path/to/report.pdf",
         method: "GET",
@@ -203,6 +212,7 @@ describe("GenerateTempUrlModal", () => {
       renderModal({ account: "AUTH_other" })
       await user.click(screen.getByRole("button", { name: /Generate URL/i }))
       expect(trpcState.mutate).toHaveBeenCalledWith({
+        project_id: mockProjectId,
         container: "test-container",
         object: "path/to/report.pdf",
         method: "GET",
@@ -246,7 +256,9 @@ describe("GenerateTempUrlModal", () => {
       renderModal()
       await selectPreset(user, "1 hour")
       await user.click(screen.getByRole("button", { name: /Generate URL/i }))
-      expect(trpcState.mutate).toHaveBeenCalledWith(expect.objectContaining({ expiresIn: 3600 }))
+      expect(trpcState.mutate).toHaveBeenCalledWith(
+        expect.objectContaining({ project_id: mockProjectId, expiresIn: 3600 })
+      )
     })
 
     test("calls mutation with expiresIn 604800 when 7 days preset is selected", async () => {
@@ -254,7 +266,9 @@ describe("GenerateTempUrlModal", () => {
       renderModal()
       await selectPreset(user, "7 days")
       await user.click(screen.getByRole("button", { name: /Generate URL/i }))
-      expect(trpcState.mutate).toHaveBeenCalledWith(expect.objectContaining({ expiresIn: 604800 }))
+      expect(trpcState.mutate).toHaveBeenCalledWith(
+        expect.objectContaining({ project_id: mockProjectId, expiresIn: 604800 })
+      )
     })
 
     test("resets generated URL when preset is changed after generation", async () => {
@@ -300,7 +314,9 @@ describe("GenerateTempUrlModal", () => {
       await selectPreset(user, "Custom")
       await user.type(screen.getByLabelText(/Custom duration/i), "30")
       await user.click(screen.getByRole("button", { name: /Generate URL/i }))
-      expect(trpcState.mutate).toHaveBeenCalledWith(expect.objectContaining({ expiresIn: 1800 }))
+      expect(trpcState.mutate).toHaveBeenCalledWith(
+        expect.objectContaining({ project_id: mockProjectId, expiresIn: 1800 })
+      )
     })
 
     test("resets generated URL when custom minutes value changes after generation", async () => {

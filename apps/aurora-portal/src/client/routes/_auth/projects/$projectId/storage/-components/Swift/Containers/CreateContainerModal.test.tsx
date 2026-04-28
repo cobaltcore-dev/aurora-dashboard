@@ -6,6 +6,14 @@ import { i18n } from "@lingui/core"
 import { I18nProvider } from "@lingui/react"
 import { CreateContainerModal } from "./CreateContainerModal"
 
+// ─── Mock useProjectId ────────────────────────────────────────────────────────
+
+const mockProjectId = "test-project-123"
+
+vi.mock("@/client/hooks/useProjectId", () => ({
+  useProjectId: () => mockProjectId,
+}))
+
 // ─── tRPC mock ────────────────────────────────────────────────────────────────
 
 const mockReset = vi.fn()
@@ -218,7 +226,10 @@ describe("CreateContainerModal", () => {
       renderModal()
       await user.type(screen.getByLabelText(/Container name/i), "  my-container  ")
       await user.click(screen.getByRole("button", { name: /Create/i }))
-      expect(mockMutate).toHaveBeenCalledWith({ container: "my-container" })
+      expect(mockMutate).toHaveBeenCalledWith({
+        project_id: mockProjectId,
+        container: "my-container",
+      })
     })
 
     test("calls mutate on Enter key press", async () => {
@@ -226,7 +237,10 @@ describe("CreateContainerModal", () => {
       renderModal()
       await user.type(screen.getByLabelText(/Container name/i), "my-container")
       await user.keyboard("{Enter}")
-      expect(mockMutate).toHaveBeenCalledWith({ container: "my-container" })
+      expect(mockMutate).toHaveBeenCalledWith({
+        project_id: mockProjectId,
+        container: "my-container",
+      })
     })
 
     test("calls onSuccess with container name after successful mutation", async () => {

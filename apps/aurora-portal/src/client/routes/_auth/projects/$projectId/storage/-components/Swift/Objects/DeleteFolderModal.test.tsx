@@ -7,6 +7,14 @@ import { I18nProvider } from "@lingui/react"
 import { DeleteFolderModal } from "./DeleteFolderModal"
 import type { FolderRow } from "./"
 
+// ─── Mock useProjectId ────────────────────────────────────────────────────────
+
+const mockProjectId = "test-project-123"
+
+vi.mock("@/client/hooks/useProjectId", () => ({
+  useProjectId: () => mockProjectId,
+}))
+
 // ─── tRPC mock ────────────────────────────────────────────────────────────────
 
 const mockReset = vi.fn()
@@ -175,6 +183,7 @@ describe("DeleteFolderModal", () => {
       renderModal()
       await user.click(screen.getByRole("button", { name: /^Delete$/i }))
       expect(mockMutate).toHaveBeenCalledWith({
+        project_id: mockProjectId,
         container: "test-container",
         folderPath: "documents/",
         recursive: true,
@@ -197,7 +206,10 @@ describe("DeleteFolderModal", () => {
       renderModal()
       await user.click(screen.getByRole("button", { name: /^Delete$/i }))
       await waitFor(() => {
-        expect(mockInvalidate).toHaveBeenCalledWith({ container: "test-container" })
+        expect(mockInvalidate).toHaveBeenCalledWith({
+          project_id: mockProjectId,
+          container: "test-container",
+        })
       })
     })
 

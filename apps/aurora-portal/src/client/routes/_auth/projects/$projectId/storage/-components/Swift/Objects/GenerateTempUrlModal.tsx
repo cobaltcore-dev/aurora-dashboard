@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type ChangeEvent } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
+import { useProjectId } from "@/client/hooks/useProjectId"
 import {
   Modal,
   Message,
@@ -43,6 +44,7 @@ export const GenerateTempUrlModal = ({
   onCopySuccess,
 }: GenerateTempUrlModalProps) => {
   const { t } = useLingui()
+  const projectId = useProjectId()
   const { containerName } = useParams({
     from: "/_auth/projects/$projectId/storage/$provider/containers/$containerName/objects/",
   })
@@ -159,6 +161,7 @@ export const GenerateTempUrlModal = ({
     const requestId = ++requestIdRef.current
     generateMutation.mutate(
       {
+        project_id: projectId,
         container: containerName,
         object: object.name,
         method: "GET",

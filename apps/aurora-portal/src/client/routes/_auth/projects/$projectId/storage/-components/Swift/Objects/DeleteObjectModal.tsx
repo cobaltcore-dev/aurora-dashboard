@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
+import { useProjectId } from "@/client/hooks/useProjectId"
 import { Modal, Message, Stack, Spinner } from "@cloudoperators/juno-ui-components"
 import { useParams } from "@tanstack/react-router"
 import { ObjectRow } from "./"
@@ -17,6 +18,7 @@ interface DeleteObjectModalProps {
 
 export const DeleteObjectModal = ({ isOpen, object, onClose, onSuccess, onError }: DeleteObjectModalProps) => {
   const { t } = useLingui()
+  const projectId = useProjectId()
   const { containerName } = useParams({
     from: "/_auth/projects/$projectId/storage/$provider/containers/$containerName/objects/",
   })
@@ -41,7 +43,7 @@ export const DeleteObjectModal = ({ isOpen, object, onClose, onSuccess, onError 
     isLoading: isLoadingMetadata,
     error: metadataError,
   } = trpcReact.storage.swift.getObjectMetadata.useQuery(
-    { container: containerName, object: object?.name ?? "" },
+    { project_id: projectId, container: containerName, object: object?.name ?? "" },
     { enabled: isOpen && object !== null }
   )
 
@@ -50,7 +52,7 @@ export const DeleteObjectModal = ({ isOpen, object, onClose, onSuccess, onError 
 
   const deleteObjectMutation = trpcReact.storage.swift.deleteObject.useMutation({
     onSuccess: () => {
-      utils.storage.swift.listObjects.invalidate({ container: containerName })
+      utils.storage.swift.listObjects.invalidate({ project_id: projectId, container: containerName })
       onSuccess?.(displayNameRef.current)
     },
     onError: (error) => {
@@ -77,6 +79,7 @@ export const DeleteObjectModal = ({ isOpen, object, onClose, onSuccess, onError 
     if (!object) return
     displayNameRef.current = object.displayName
     deleteObjectMutation.mutate({
+      project_id: projectId,
       container: containerName,
       object: object.name,
       // Send multipartManifest="delete" for SLOs only when the user has NOT

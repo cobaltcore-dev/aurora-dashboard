@@ -7,6 +7,14 @@ import { I18nProvider } from "@lingui/react"
 import { EditObjectMetadataModal } from "./EditObjectMetadataModal"
 import type { ObjectMetadata } from "@/server/Storage/types/swift"
 
+// ─── Mock useProjectId ────────────────────────────────────────────────────────
+
+const mockProjectId = "test-project-123"
+
+vi.mock("@/client/hooks/useProjectId", () => ({
+  useProjectId: () => mockProjectId,
+}))
+
 // ─── tRPC mock ────────────────────────────────────────────────────────────────
 
 const mockReset = vi.fn()
@@ -634,7 +642,7 @@ describe("EditObjectMetadataModal", () => {
       await user.click(getIconButton(/^Save$/i))
       await user.click(getModalUpdateButton())
       expect(mockMutate).toHaveBeenCalledWith(
-        expect.objectContaining({ metadata: expect.objectContaining({ owner: "Alice" }) })
+        expect.objectContaining({ project_id: mockProjectId, metadata: expect.objectContaining({ owner: "Alice" }) })
       )
     })
 
@@ -645,7 +653,9 @@ describe("EditObjectMetadataModal", () => {
       await flushEffects()
       await user.type(screen.getByLabelText(/Expires at/i), "2026-05-16 18:14:57")
       await user.click(getModalUpdateButton())
-      expect(mockMutate).toHaveBeenCalledWith(expect.objectContaining({ deleteAt: expect.any(Number) }))
+      expect(mockMutate).toHaveBeenCalledWith(
+        expect.objectContaining({ project_id: mockProjectId, deleteAt: expect.any(Number) })
+      )
     })
 
     test("calls mutate without deleteAt when expires at is empty", async () => {
@@ -655,6 +665,7 @@ describe("EditObjectMetadataModal", () => {
       await flushEffects()
       await user.click(getIconButton(/^Delete$/i))
       await user.click(getModalUpdateButton())
+      expect(mockMutate).toHaveBeenCalledWith(expect.objectContaining({ project_id: mockProjectId }))
       expect(mockMutate).toHaveBeenCalledWith(expect.not.objectContaining({ deleteAt: expect.anything() }))
     })
 
@@ -692,6 +703,7 @@ describe("EditObjectMetadataModal", () => {
       await user.click(getModalUpdateButton())
       await waitFor(() => {
         expect(mockInvalidateObjectMetadata).toHaveBeenCalledWith({
+          project_id: mockProjectId,
           container: "test-container",
           object: "sample.txt",
         })
@@ -706,7 +718,10 @@ describe("EditObjectMetadataModal", () => {
       await user.click(getIconButton(/^Delete$/i))
       await user.click(getModalUpdateButton())
       await waitFor(() => {
-        expect(mockInvalidateListObjects).toHaveBeenCalledWith({ container: "test-container" })
+        expect(mockInvalidateListObjects).toHaveBeenCalledWith({
+          project_id: mockProjectId,
+          container: "test-container",
+        })
       })
     })
 

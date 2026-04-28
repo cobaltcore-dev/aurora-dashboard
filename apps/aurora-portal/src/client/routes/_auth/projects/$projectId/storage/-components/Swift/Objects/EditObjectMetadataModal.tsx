@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
+import { useProjectId } from "@/client/hooks/useProjectId"
 import {
   Modal,
   TextInput,
@@ -103,6 +104,7 @@ export const EditObjectMetadataModal = ({
   onError,
 }: EditObjectMetadataModalProps) => {
   const { t } = useLingui()
+  const projectId = useProjectId()
   const { containerName } = useParams({
     from: "/_auth/projects/$projectId/storage/$provider/containers/$containerName/objects/",
   })
@@ -116,7 +118,7 @@ export const EditObjectMetadataModal = ({
     isError: isMetaError,
     error: metaError,
   } = trpcReact.storage.swift.getObjectMetadata.useQuery(
-    { container: containerName, object: object?.name ?? "" },
+    { project_id: projectId, container: containerName, object: object?.name ?? "" },
     { enabled: isOpen && object !== null, refetchOnWindowFocus: false }
   )
 
@@ -193,8 +195,12 @@ export const EditObjectMetadataModal = ({
   // ── Mutation ───────────────────────────────────────────────────────────────
   const updateMutation = trpcReact.storage.swift.updateObjectMetadata.useMutation({
     onSuccess: () => {
-      utils.storage.swift.getObjectMetadata.invalidate({ container: containerName, object: objectNameRef.current })
-      utils.storage.swift.listObjects.invalidate({ container: containerName })
+      utils.storage.swift.getObjectMetadata.invalidate({
+        project_id: projectId,
+        container: containerName,
+        object: objectNameRef.current,
+      })
+      utils.storage.swift.listObjects.invalidate({ project_id: projectId, container: containerName })
       onSuccess?.(displayNameRef.current)
       handleClose()
     },
@@ -230,6 +236,7 @@ export const EditObjectMetadataModal = ({
     }
 
     updateMutation.mutate({
+      project_id: projectId,
       container: containerName,
       object: object.name,
       metadata: metadataRecord,

@@ -14,6 +14,7 @@ import { Trans, useLingui } from "@lingui/react/macro"
 import { MdFolder, MdDescription } from "react-icons/md"
 import { formatBytesBinary } from "@/client/utils/formatBytes"
 import { trpcClient, trpcReact } from "@/client/trpcClient"
+import { useProjectId } from "@/client/hooks/useProjectId"
 import { BrowserRow, FolderRow, ObjectRow } from "./"
 import { DeleteFolderModal } from "./DeleteFolderModal"
 import { DeleteObjectModal } from "./DeleteObjectModal"
@@ -109,6 +110,7 @@ export const ObjectsTableView = ({
   onEditMetadataError,
 }: ObjectsTableViewProps) => {
   const { t } = useLingui()
+  const projectId = useProjectId()
   const parentRef = useRef<HTMLDivElement>(null)
   const isMounted = useRef(true)
   useEffect(() => {
@@ -144,6 +146,7 @@ export const ObjectsTableView = ({
     let filename = row.displayName
 
     const iterable = await trpcClient.storage.swift.downloadObject.mutate({
+      project_id: projectId,
       container,
       object: row.name,
       filename: row.displayName,

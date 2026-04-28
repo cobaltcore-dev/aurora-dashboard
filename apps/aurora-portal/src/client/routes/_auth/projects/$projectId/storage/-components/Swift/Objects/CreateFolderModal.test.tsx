@@ -6,6 +6,14 @@ import { i18n } from "@lingui/core"
 import { I18nProvider } from "@lingui/react"
 import { CreateFolderModal } from "./CreateFolderModal"
 
+// ─── Mock useProjectId ────────────────────────────────────────────────────────
+
+const mockProjectId = "test-project-123"
+
+vi.mock("@/client/hooks/useProjectId", () => ({
+  useProjectId: () => mockProjectId,
+}))
+
 // ─── tRPC mock ────────────────────────────────────────────────────────────────
 
 const mockReset = vi.fn()
@@ -238,6 +246,7 @@ describe("CreateFolderModal", () => {
       await user.type(screen.getByLabelText(/Folder name/i), "my-folder")
       await user.click(screen.getByRole("button", { name: /Create folder/i }))
       expect(mockMutate).toHaveBeenCalledWith({
+        project_id: mockProjectId,
         container: "test-container",
         folderPath: "my-folder/",
       })
@@ -249,6 +258,7 @@ describe("CreateFolderModal", () => {
       await user.type(screen.getByLabelText(/Folder name/i), "reports")
       await user.click(screen.getByRole("button", { name: /Create folder/i }))
       expect(mockMutate).toHaveBeenCalledWith({
+        project_id: mockProjectId,
         container: "test-container",
         folderPath: "documents/reports/",
       })

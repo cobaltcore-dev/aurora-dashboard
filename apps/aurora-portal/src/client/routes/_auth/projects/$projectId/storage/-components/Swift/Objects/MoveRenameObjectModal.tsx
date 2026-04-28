@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
+import { useProjectId } from "@/client/hooks/useProjectId"
 import {
   Modal,
   Stack,
@@ -29,6 +30,7 @@ interface MoveRenameObjectModalProps {
 
 export const MoveRenameObjectModal = ({ isOpen, object, onClose, onSuccess, onError }: MoveRenameObjectModalProps) => {
   const { t } = useLingui()
+  const projectId = useProjectId()
   const { containerName: sourceContainer } = useParams({
     from: "/_auth/projects/$projectId/storage/$provider/containers/$containerName/objects/",
   })
@@ -102,12 +104,12 @@ export const MoveRenameObjectModal = ({ isOpen, object, onClose, onSuccess, onEr
   // ── Data fetching ──────────────────────────────────────────────────────────
 
   const { data: containers, isLoading: isLoadingContainers } = trpcReact.storage.swift.listContainers.useQuery(
-    {},
+    { project_id: projectId },
     { enabled: isOpen }
   )
 
   const { data: objects, isLoading: isLoadingObjects } = trpcReact.storage.swift.listObjects.useQuery(
-    { container: targetContainer, format: "json", prefix: currentPrefix || undefined },
+    { project_id: projectId, container: targetContainer, format: "json", prefix: currentPrefix || undefined },
     { enabled: isOpen && !!targetContainer }
   )
 
@@ -151,7 +153,9 @@ export const MoveRenameObjectModal = ({ isOpen, object, onClose, onSuccess, onEr
     onSuccess: () => {
       // Invalidate only the two affected containers (source and destination)
       const containersToInvalidate = [...new Set([sourceContainer, targetContainer])]
-      containersToInvalidate.forEach((container) => utils.storage.swift.listObjects.invalidate({ container }))
+      containersToInvalidate.forEach((container) =>
+        utils.storage.swift.listObjects.invalidate({ project_id: projectId, container })
+      )
       onSuccess?.(submittedNameRef.current, targetContainer, currentPrefix)
     },
     onError: (error) => {
@@ -169,6 +173,7 @@ export const MoveRenameObjectModal = ({ isOpen, object, onClose, onSuccess, onEr
       if (!object) return
       // Copy succeeded — now delete the source to complete the move.
       deleteMutation.mutate({
+        project_id: projectId,
         container: sourceContainer,
         object: object.name,
       })
@@ -298,6 +303,7 @@ export const MoveRenameObjectModal = ({ isOpen, object, onClose, onSuccess, onEr
     // Encoding is handled in the router to avoid double-encoding.
     const destPath = `/${targetContainer}/${currentPrefix}${trimmedName}`
     copyMutation.mutate({
+      project_id: projectId,
       container: sourceContainer,
       object: object.name,
       destination: destPath,

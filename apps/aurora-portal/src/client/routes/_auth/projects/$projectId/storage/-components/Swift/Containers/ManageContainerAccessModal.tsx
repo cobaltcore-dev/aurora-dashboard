@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { t } from "@lingui/core/macro"
 import { trpcReact } from "@/client/trpcClient"
+import { useProjectId } from "@/client/hooks/useProjectId"
 import {
   Modal,
   Textarea,
@@ -206,6 +207,7 @@ export const ManageContainerAccessModal = ({
   onError,
 }: ManageContainerAccessModalProps) => {
   const { t } = useLingui()
+  const projectId = useProjectId()
 
   const [readAcl, setReadAcl] = useState("")
   const [writeAcl, setWriteAcl] = useState("")
@@ -224,7 +226,7 @@ export const ManageContainerAccessModal = ({
     isError: isMetaError,
     error: metaError,
   } = trpcReact.storage.swift.getContainerMetadata.useQuery(
-    { container: container?.name ?? "" },
+    { project_id: projectId, container: container?.name ?? "" },
     { enabled: isOpen && container !== null }
   )
 
@@ -243,7 +245,7 @@ export const ManageContainerAccessModal = ({
 
   const updateMutation = trpcReact.storage.swift.updateContainerMetadata.useMutation({
     onSuccess: () => {
-      utils.storage.swift.getContainerMetadata.invalidate({ container: container!.name })
+      utils.storage.swift.getContainerMetadata.invalidate({ project_id: projectId, container: container!.name })
       utils.storage.swift.listContainers.invalidate()
       onSuccess?.(container!.name)
       handleClose()
@@ -295,6 +297,7 @@ export const ManageContainerAccessModal = ({
   const handleSubmit = () => {
     if (!container) return
     updateMutation.mutate({
+      project_id: projectId,
       container: container.name,
       read: readAcl.trim(),
       write: writeAcl.trim(),

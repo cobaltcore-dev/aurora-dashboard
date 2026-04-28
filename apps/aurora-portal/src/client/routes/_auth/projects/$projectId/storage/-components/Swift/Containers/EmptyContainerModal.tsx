@@ -1,6 +1,7 @@
 import { useState, useRef } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
+import { useProjectId } from "@/client/hooks/useProjectId"
 import {
   Modal,
   TextInput,
@@ -26,6 +27,7 @@ interface EmptyContainerModalProps {
 
 export const EmptyContainerModal = ({ isOpen, container, onClose, onSuccess, onError }: EmptyContainerModalProps) => {
   const { t } = useLingui()
+  const projectId = useProjectId()
   const [confirmName, setConfirmName] = useState("")
   const [nameError, setNameError] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
@@ -48,14 +50,14 @@ export const EmptyContainerModal = ({ isOpen, container, onClose, onSuccess, onE
     isLoading: isLoadingObjects,
     error: objectsError,
   } = trpcReact.storage.swift.listObjects.useQuery(
-    { container: container?.name ?? "", format: "json", limit: 100 },
+    { project_id: projectId, container: container?.name ?? "", format: "json", limit: 100 },
     { enabled: isOpen && container !== null }
   )
 
   const emptyContainerMutation = trpcReact.storage.swift.emptyContainer.useMutation({
     onSuccess: (deletedCount) => {
       utils.storage.swift.listContainers.invalidate()
-      utils.storage.swift.listObjects.invalidate({ container: containerNameRef.current })
+      utils.storage.swift.listObjects.invalidate({ project_id: projectId, container: containerNameRef.current })
       onSuccess?.(containerNameRef.current, deletedCount)
     },
     onError: (error) => {
@@ -86,7 +88,7 @@ export const EmptyContainerModal = ({ isOpen, container, onClose, onSuccess, onE
       return
     }
     containerNameRef.current = container.name
-    emptyContainerMutation.mutate({ container: container.name })
+    emptyContainerMutation.mutate({ project_id: projectId, container: container.name })
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {

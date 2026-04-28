@@ -29,18 +29,26 @@ vi.mock("@tanstack/react-virtual", () => ({
 
 // ─── Mock TanStack Router ─────────────────────────────────────────────────────
 
+const mockProjectId = "test-project"
+
 vi.mock("@tanstack/react-router", async () => {
   const actual = await vi.importActual("@tanstack/react-router")
   return {
     ...actual,
     useParams: vi.fn(() => ({
       accountId: "test-account",
-      projectId: "test-project",
+      projectId: mockProjectId,
       provider: "swift",
       containerName: "source-container",
     })),
   }
 })
+
+// ─── Mock useProjectId ────────────────────────────────────────────────────────
+
+vi.mock("@/client/hooks/useProjectId", () => ({
+  useProjectId: () => mockProjectId,
+}))
 
 // ─── Mock tRPC ────────────────────────────────────────────────────────────────
 
@@ -483,6 +491,7 @@ describe("MoveRenameObjectModal", () => {
       await user.click(screen.getByRole("button", { name: /^Move$/i }))
       expect(trpcState.copyMutate).toHaveBeenCalledWith(
         expect.objectContaining({
+          project_id: mockProjectId,
           container: "source-container",
           object: "report.pdf",
           destination: "/source-container/docs/report.pdf",
@@ -500,6 +509,7 @@ describe("MoveRenameObjectModal", () => {
       await user.click(screen.getByRole("button", { name: /^Move$/i }))
       expect(trpcState.copyMutate).toHaveBeenCalledWith(
         expect.objectContaining({
+          project_id: mockProjectId,
           destination: "/source-container/renamed.pdf",
         })
       )
@@ -516,6 +526,7 @@ describe("MoveRenameObjectModal", () => {
       })
       expect(trpcState.deleteMutate).toHaveBeenCalledWith(
         expect.objectContaining({
+          project_id: mockProjectId,
           container: "source-container",
           object: "report.pdf",
         })

@@ -2,6 +2,7 @@ import { useState } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import { Modal, TextInput, Stack, Message } from "@cloudoperators/juno-ui-components"
+import { useProjectId } from "@/client/hooks/useProjectId"
 
 interface CreateContainerModalProps {
   isOpen: boolean
@@ -19,6 +20,7 @@ export const CreateContainerModal = ({
   maxContainerNameLength = 256,
 }: CreateContainerModalProps) => {
   const { t } = useLingui()
+  const projectId = useProjectId()
   const [containerName, setContainerName] = useState("")
   const [nameError, setNameError] = useState<string | null>(null)
 
@@ -70,7 +72,10 @@ export const CreateContainerModal = ({
 
   const handleSubmit = () => {
     if (!validateName(containerName)) return
-    createContainerMutation.mutate({ container: containerName.trim() })
+    createContainerMutation.mutate({
+      project_id: projectId,
+      container: containerName.trim(),
+    })
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
