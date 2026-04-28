@@ -60,12 +60,10 @@ function RouteComponent() {
     flavorId,
   })
 
-  const { data: permissionsData } = trpcReact.compute.canUser.useQuery([
-    "flavors:delete",
-    "flavors:list_projects",
-    "flavor_specs:create",
-    "flavor_specs:delete",
-  ])
+  const { data: permissionsData } = trpcReact.compute.canUser.useQuery({
+    project_id: projectId,
+    permission: ["flavors:delete", "flavors:list_projects", "flavor_specs:create", "flavor_specs:delete"],
+  })
 
   const canDeleteFlavor = permissionsData?.[0] ?? false
   const canManageAccess = permissionsData?.[1] ?? false

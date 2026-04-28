@@ -231,7 +231,10 @@ describe("EditSpecModal", () => {
     })
 
     await waitFor(() => {
-      expect(mockClient.compute.canUser.query).toHaveBeenCalledWith(["flavor_specs:create", "flavor_specs:delete"])
+      expect(mockClient.compute.canUser.query).toHaveBeenCalledWith({
+        project_id: "test-project",
+        permission: ["flavor_specs:create", "flavor_specs:delete"],
+      })
     })
   })
 })

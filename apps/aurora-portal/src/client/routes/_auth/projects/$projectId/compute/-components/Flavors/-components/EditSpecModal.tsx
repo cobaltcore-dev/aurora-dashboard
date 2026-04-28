@@ -25,9 +25,12 @@ interface EditSpecModalProps {
   flavor: Flavor | null
 }
 
-const createPermissionsPromise = (client: TrpcClient) => {
+const createPermissionsPromise = (client: TrpcClient, project: string) => {
   return client.compute.canUser
-    .query(["flavor_specs:create", "flavor_specs:delete"])
+    .query({
+      project_id: project,
+      permission: ["flavor_specs:create", "flavor_specs:delete"],
+    })
     .then(([canCreate, canDelete]) => ({ canCreate, canDelete }))
 }
 
@@ -251,7 +254,10 @@ export const EditSpecModal: React.FC<EditSpecModalProps> = ({ client, isOpen, on
   const [isAddingSpec, setIsAddingSpec] = useState(false)
   const [extraSpecsPromise, setExtraSpecsPromise] = useState<Promise<Record<string, string>> | null>(null)
 
-  const permissionsPromise = React.useMemo(() => (isOpen ? createPermissionsPromise(client) : null), [client, isOpen])
+  const permissionsPromise = React.useMemo(
+    () => (isOpen ? createPermissionsPromise(client, project) : null),
+    [client, project, isOpen]
+  )
 
   React.useEffect(() => {
     if (isOpen && flavor?.id) {

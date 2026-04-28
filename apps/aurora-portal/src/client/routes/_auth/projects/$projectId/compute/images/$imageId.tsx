@@ -82,13 +82,16 @@ function RouteComponent() {
     error,
   } = trpcReact.compute.getImageById.useQuery({ project_id: projectId, imageId: imageId })
 
-  const { data: permissionsData } = trpcReact.compute.canUser.useQuery([
-    "images:delete",
-    "images:update",
-    "images:create_member",
-    "images:delete_member",
-    "images:update_member",
-  ])
+  const { data: permissionsData } = trpcReact.compute.canUser.useQuery({
+    project_id: projectId,
+    permission: [
+      "images:delete",
+      "images:update",
+      "images:create_member",
+      "images:delete_member",
+      "images:update_member",
+    ],
+  })
 
   const permissions = {
     canDelete: permissionsData?.[0] ?? false,

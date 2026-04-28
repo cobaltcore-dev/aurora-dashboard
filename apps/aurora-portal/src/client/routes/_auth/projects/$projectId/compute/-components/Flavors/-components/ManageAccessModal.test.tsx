@@ -269,7 +269,10 @@ describe("ManageAccessModal", () => {
     })
 
     await waitFor(() => {
-      expect(mockClient.compute.canUser.query).toHaveBeenCalledWith(["flavors:add_project", "flavors:remove_project"])
+      expect(mockClient.compute.canUser.query).toHaveBeenCalledWith({
+        project_id: "test-project",
+        permission: ["flavors:add_project", "flavors:remove_project"],
+      })
     })
   })
 })

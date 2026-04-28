@@ -30,9 +30,12 @@ interface FlavorAccess {
   tenant_id: string
 }
 
-const createPermissionsPromise = (client: TrpcClient) => {
+const createPermissionsPromise = (client: TrpcClient, project: string) => {
   return client.compute.canUser
-    .query(["flavors:add_project", "flavors:remove_project"])
+    .query({
+      project_id: project,
+      permission: ["flavors:add_project", "flavors:remove_project"],
+    })
     .then(([canAdd, canRemove]) => ({ canAdd, canRemove }))
 }
 
@@ -264,7 +267,10 @@ export const ManageAccessModal: React.FC<ManageAccessProps> = ({ client, isOpen,
   const [isAddingAccess, setIsAddingAccess] = useState(false)
   const [flavorAccessPromise, setFlavorAccessPromise] = useState<Promise<FlavorAccess[]> | null>(null)
 
-  const permissionsPromise = React.useMemo(() => (isOpen ? createPermissionsPromise(client) : null), [client, isOpen])
+  const permissionsPromise = React.useMemo(
+    () => (isOpen ? createPermissionsPromise(client, project) : null),
+    [client, project, isOpen]
+  )
 
   useEffect(() => {
     if (isOpen && flavor?.id) {

@@ -326,7 +326,7 @@ export const Images = ({ client, project }: ImagesProps) => {
         // Placeholder: replaced immediately by useEffect on mount
       }) as ReturnType<typeof createImagesPromise>
   )
-  const [permissionsPromise] = useState(() => createPermissionsPromise(client))
+  const [permissionsPromise] = useState(() => createPermissionsPromise(client, project))
 
   // Fetch next page
   const fetchNextPage = useCallback(async () => {

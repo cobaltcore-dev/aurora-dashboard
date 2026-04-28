@@ -51,16 +51,19 @@ export const createImagesPromise = (
   })
 }
 
-export const createPermissionsPromise = (client: TrpcClient) => {
+export const createPermissionsPromise = (client: TrpcClient, project: string) => {
   return client.compute.canUser
-    .query([
-      "images:create",
-      "images:delete",
-      "images:update",
-      "images:create_member",
-      "images:delete_member",
-      "images:update_member",
-    ])
+    .query({
+      project_id: project,
+      permission: [
+        "images:create",
+        "images:delete",
+        "images:update",
+        "images:create_member",
+        "images:delete_member",
+        "images:update_member",
+      ],
+    })
     .then(([canCreate, canDelete, canUpdate, canCreateMember, canDeleteMember, canUpdateMember]) => ({
       canCreate,
       canDelete,

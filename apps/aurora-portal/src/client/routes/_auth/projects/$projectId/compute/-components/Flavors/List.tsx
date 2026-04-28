@@ -34,9 +34,12 @@ const createFlavorsPromise = (
   })
 }
 
-const createPermissionsPromise = (client: TrpcClient) => {
+const createPermissionsPromise = (client: TrpcClient, project: string) => {
   return client.compute.canUser
-    .query(["flavors:create", "flavors:delete", "flavors:list_projects"])
+    .query({
+      project_id: project,
+      permission: ["flavors:create", "flavors:delete", "flavors:list_projects"],
+    })
     .then(([canCreate, canDelete, canManageAccess]) => ({ canCreate, canDelete, canManageAccess }))
 }
 
@@ -127,7 +130,7 @@ export const Flavors = ({ client, project }: FlavorsProps) => {
   const [flavorsPromise, setFlavorsPromise] = useState(() =>
     createFlavorsPromise(client, project, sortSettings.sortBy, sortSettings.sortDirection, searchTerm)
   )
-  const [permissionsPromise] = useState(() => createPermissionsPromise(client))
+  const [permissionsPromise] = useState(() => createPermissionsPromise(client, project))
 
   const refetchFlavors = () => {
     startTransition(() => {
