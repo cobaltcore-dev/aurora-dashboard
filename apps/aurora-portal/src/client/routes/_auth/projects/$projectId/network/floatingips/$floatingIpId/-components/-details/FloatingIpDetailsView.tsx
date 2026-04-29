@@ -2,7 +2,7 @@ import { Trans, useLingui } from "@lingui/react/macro"
 import { Stack, ButtonRow, Button, ContentHeading } from "@cloudoperators/juno-ui-components"
 import type { FloatingIp } from "@/server/Network/types/floatingIp"
 import { formatFloatingIpStatus } from "@/client/utils/formatFloatingIpStatus"
-import { DetailListItem, TwoColumnDescriptionList } from "./TwoColumnDescriptionList"
+import { DetailListItem, TwoColumnDescriptionList } from "@/client/components/TwoColumnDescriptionList"
 import { FloatingIpActionModals } from "../../../-components/-modals/FloatingIpActionModals"
 
 interface FloatingIpDetailsViewProps {
