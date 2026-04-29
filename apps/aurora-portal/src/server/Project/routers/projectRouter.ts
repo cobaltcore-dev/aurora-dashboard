@@ -32,12 +32,8 @@ async function callIdentityAPI(authToken: string, path: string): Promise<Respons
   }
 
   // Ensure endpoint ends with /v3/
-  const normalizedEndpoint = identityEndpoint.endsWith("/")
-    ? identityEndpoint
-    : `${identityEndpoint}/`
-  const endpoint = normalizedEndpoint.endsWith("/v3/")
-    ? normalizedEndpoint
-    : normalizedEndpoint.replace(/\/?$/, "/v3/")
+  const normalizedEndpoint = identityEndpoint.endsWith("/") ? identityEndpoint : `${identityEndpoint}/`
+  const endpoint = normalizedEndpoint.endsWith("/v3/") ? normalizedEndpoint : normalizedEndpoint.replace(/\/?$/, "/v3/")
 
   const response = await fetch(`${endpoint}${path}`, {
     method: "GET",
@@ -57,7 +53,6 @@ async function callIdentityAPI(authToken: string, path: string): Promise<Respons
 
   return response
 }
-
 
 export const projectRouter = {
   /**
