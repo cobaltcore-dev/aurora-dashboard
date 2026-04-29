@@ -3,102 +3,153 @@ import { TRPCError } from "@trpc/server"
 import { protectedProcedure } from "../../trpc"
 import { Project, projectsResponseSchema } from "../types/models"
 
+/**
+ * Helper function to call Identity API endpoints directly
+ *
+ * This is needed because unscoped/domain-scoped tokens don't have service catalog,
+ * so we can't use openstackSession.service("identity") which relies on catalog lookup.
+ *
+ * Instead, we:
+ * 1. Get the Identity endpoint directly from IDENTITY_ENDPOINT env var
+ * 2. Make a direct HTTP call with the user's current auth token
+ * 3. This works with ANY valid token type (unscoped, domain-scoped, project-scoped)
+ *
+ * Use this for /v3/auth/* endpoints (auth/projects, auth/domains) which are designed
+ * to work without service catalog and return resources based on role assignments.
+ *
+ * @param authToken - The user's X-Auth-Token from their current session
+ * @param path - The API path relative to /v3/ (e.g., "auth/projects")
+ * @returns Promise<Response> - The fetch Response object
+ * @throws TRPCError if IDENTITY_ENDPOINT is not configured or API call fails
+ */
+async function callIdentityAPI(authToken: string, path: string): Promise<Response> {
+  const identityEndpoint = process.env.IDENTITY_ENDPOINT
+  if (!identityEndpoint) {
+    throw new TRPCError({
+      code: "INTERNAL_SERVER_ERROR",
+      message: "Identity endpoint not configured",
+    })
+  }
+
+  // Ensure endpoint ends with /v3/
+  const normalizedEndpoint = identityEndpoint.endsWith("/")
+    ? identityEndpoint
+    : `${identityEndpoint}/`
+  const endpoint = normalizedEndpoint.endsWith("/v3/")
+    ? normalizedEndpoint
+    : normalizedEndpoint.replace(/\/?$/, "/v3/")
+
+  const response = await fetch(`${endpoint}${path}`, {
+    method: "GET",
+    headers: {
+      "X-Auth-Token": authToken,
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+  })
+
+  if (!response.ok) {
+    throw new TRPCError({
+      code: "INTERNAL_SERVER_ERROR",
+      message: `Identity API call failed: ${response.status} ${response.statusText}`,
+    })
+  }
+
+  return response
+}
+
+
 export const projectRouter = {
   /**
-   * Get authenticated projects for a specific domain
+   * Get authenticated projects
    *
-   * This endpoint supports two modes:
-   * 1. Explicit domain_id in input (recommended for new code)
-   * 2. Automatic extraction from token (backward compatibility)
+   * Returns all projects that the authenticated user has access to,
+   * across all domains. Uses the OpenStack /v3/auth/projects endpoint
+   * which works with any valid token (unscoped, domain-scoped, or project-scoped).
    *
-   * The domain_id determines which domain's projects are returned.
-   * Token is automatically rescoped to the domain for proper authorization.
+   * AUTHORIZATION FLOW:
+   *
+   * 1. This endpoint does NOT require project-scoping or domain-scoping.
+   *    It works with the user's current token as-is and returns all projects
+   *    where the user has ANY role assignment (member, admin, reader, etc.).
+   *
+   * 2. This is essentially a "navigation menu" - showing users which projects
+   *    they can access. It does NOT check specific permissions within projects.
+   *
+   * 3. Actual permission checks happen later when accessing project resources:
+   *    - User selects a project from the list
+   *    - Frontend calls an endpoint with project_id (e.g., listServers)
+   *    - projectScopedProcedure rescopes the token to that specific project
+   *    - OpenStack service (Nova, Neutron, etc.) checks permissions via policy.json
+   *    - User may have different roles/permissions in different projects
+   *
+   * TECHNICAL NOTES:
+   * - We call Identity API directly via fetch (not via service catalog)
+   *   because unscoped/domain-scoped tokens don't have service catalog
+   * - No rescoping means faster response and works with any token type
+   * - Keystone enforces access control based on role_assignments table
    */
-  getAuthProjects: protectedProcedure
-    .input(z.object({ domain_id: z.string().optional() }).optional())
-    .query(async ({ ctx, input }): Promise<Project[] | undefined> => {
-      // Extract domain_id from input or fallback to token
-      const token = ctx.openstack?.getToken()
-      const domainId = input?.domain_id || token?.tokenData?.project?.domain?.id || token?.tokenData?.user?.domain?.id
+  getAuthProjects: protectedProcedure.query(async ({ ctx }): Promise<Project[] | undefined> => {
+    if (!ctx.openstack) {
+      throw new TRPCError({
+        code: "UNAUTHORIZED",
+        message: "No authenticated session",
+      })
+    }
 
-      if (!domainId) {
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: "domain_id is required either in input or token",
-        })
-      }
+    const token = ctx.openstack.getToken()
+    if (!token?.authToken) {
+      throw new TRPCError({
+        code: "UNAUTHORIZED",
+        message: "No auth token available",
+      })
+    }
 
-      // Rescope to the domain for proper authorization
-      const openstackSession = await ctx.rescopeSession({ domainId })
+    const response = await callIdentityAPI(token.authToken, "auth/projects")
+    const data = await response.json()
+    const parsedData = projectsResponseSchema.safeParse(data)
 
-      if (!openstackSession) {
-        throw new TRPCError({
-          code: "UNAUTHORIZED",
-          message: "Failed to scope session to domain. User may not have access to this domain.",
-        })
-      }
-
-      const identityService = openstackSession.service("identity")
-      const parsedData = projectsResponseSchema.safeParse(
-        await identityService.get("auth/projects").then((res) => res.json())
-      )
-      if (!parsedData.success) {
-        console.error("Zod Parsing Error:", parsedData.error.format())
-        return undefined
-      }
-      return parsedData.data.projects
-    }),
+    if (!parsedData.success) {
+      console.error("Zod Parsing Error:", parsedData.error.format())
+      return undefined
+    }
+    return parsedData.data.projects
+  }),
 
   /**
-   * Search projects within a specific domain with optional text filtering
+   * Search projects with optional text filtering
    *
-   * This endpoint supports two modes:
-   * 1. Explicit domain_id in input (recommended for new code)
-   * 2. Automatic extraction from token (backward compatibility)
+   * Returns all projects that the authenticated user has access to,
+   * filtered by the optional search term. Uses the OpenStack /v3/auth/projects
+   * endpoint which works with any valid token.
    */
   searchProjects: protectedProcedure
     .input(
       z
         .object({
-          domain_id: z.string().optional(),
           search: z.string().optional(),
         })
         .optional()
     )
     .query(async ({ ctx, input }): Promise<Project[] | undefined> => {
-      if (!ctx.openstack?.hasService("identity")) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "Identity service is not available in the service catalog",
-        })
-      }
-
-      // Extract domain_id from input or fallback to token
-      const token = ctx.openstack.getToken()
-      const domainId = input?.domain_id || token?.tokenData?.project?.domain?.id || token?.tokenData?.user?.domain?.id
-
-      if (!domainId) {
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: "domain_id is required either in input or token",
-        })
-      }
-
-      // Rescope to the domain for proper authorization
-      const openstackSession = await ctx.rescopeSession({ domainId })
-
-      if (!openstackSession) {
+      if (!ctx.openstack) {
         throw new TRPCError({
           code: "UNAUTHORIZED",
-          message: "Failed to scope session to domain. User may not have access to this domain.",
+          message: "No authenticated session",
         })
       }
 
-      const identityService = openstackSession.service("identity")
+      const token = ctx.openstack.getToken()
+      if (!token?.authToken) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "No auth token available",
+        })
+      }
 
-      const parsedData = projectsResponseSchema.safeParse(
-        await identityService.get("auth/projects").then((res) => res.json())
-      )
+      const response = await callIdentityAPI(token.authToken, "auth/projects")
+      const data = await response.json()
+      const parsedData = projectsResponseSchema.safeParse(data)
 
       if (!parsedData.success) {
         console.error("Zod Parsing Error:", parsedData.error.format())
