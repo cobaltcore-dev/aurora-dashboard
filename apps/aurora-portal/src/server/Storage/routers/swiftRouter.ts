@@ -129,8 +129,7 @@ export const swiftRouter = {
     .query(async ({ input, ctx }): Promise<ContainerSummary[]> => {
       return withErrorHandling(async () => {
         // Extract project_id - used for rescoping, not for OpenStack API
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { project_id, account, xNewest, ...queryInput } = input
+        const { account, xNewest, ...queryInput } = input
         const openstackSession = ctx.openstack
         const swift = openstackSession?.service("swift")
 
@@ -179,8 +178,7 @@ export const swiftRouter = {
     .input(projectScopedInputSchema.extend(getAccountMetadataInputSchema.shape))
     .query(async ({ input, ctx }): Promise<AccountInfo> => {
       return withErrorHandling(async () => {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { project_id, account, xNewest } = input
+        const { account, xNewest } = input
         const openstackSession = ctx.openstack
         const swift = openstackSession?.service("swift")
 
@@ -211,8 +209,7 @@ export const swiftRouter = {
     .input(projectScopedInputSchema.extend(updateAccountMetadataInputSchema.shape))
     .mutation(async ({ input, ctx }): Promise<boolean> => {
       return withErrorHandling(async () => {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { project_id, account, metadata, removeMetadata, tempUrlKey, tempUrlKey2 } = input
+        const { account, metadata, removeMetadata, tempUrlKey, tempUrlKey2 } = input
         const openstackSession = ctx.openstack
         const swift = openstackSession?.service("swift")
 
@@ -240,8 +237,7 @@ export const swiftRouter = {
     .input(projectScopedInputSchema.extend(deleteAccountInputSchema.shape))
     .mutation(async ({ input, ctx }): Promise<boolean> => {
       return withErrorHandling(async () => {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { project_id, account } = input
+        const { account } = input
         const openstackSession = ctx.openstack
         const swift = openstackSession?.service("swift")
 
@@ -274,8 +270,7 @@ export const swiftRouter = {
     .input(projectScopedInputSchema.extend(listObjectsInputSchema.shape))
     .query(async ({ input, ctx }): Promise<ObjectSummary[]> => {
       return withErrorHandling(async () => {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { project_id, account, container, xNewest, ...queryInput } = input
+        const { account, container, xNewest, ...queryInput } = input
         const openstackSession = ctx.openstack
         const swift = openstackSession?.service("swift")
 
@@ -326,8 +321,7 @@ export const swiftRouter = {
     .input(projectScopedInputSchema.extend(createContainerInputSchema.shape))
     .mutation(async ({ input, ctx }): Promise<boolean> => {
       return withErrorHandling(async () => {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { project_id, account, container, ...options } = input
+        const { account, container, ...options } = input
         const openstackSession = ctx.openstack
         const swift = openstackSession?.service("swift")
 
@@ -357,8 +351,7 @@ export const swiftRouter = {
     .input(projectScopedInputSchema.extend(getContainerMetadataInputSchema.shape))
     .query(async ({ input, ctx }): Promise<ContainerInfo> => {
       return withErrorHandling(async () => {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { project_id, account, container, xNewest } = input
+        const { account, container, xNewest } = input
         const openstackSession = ctx.openstack
         const swift = openstackSession?.service("swift")
 
@@ -391,8 +384,7 @@ export const swiftRouter = {
     .input(projectScopedInputSchema.extend(updateContainerMetadataInputSchema.shape))
     .mutation(async ({ input, ctx }): Promise<boolean> => {
       return withErrorHandling(async () => {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { project_id, account, container, ...options } = input
+        const { account, container, ...options } = input
         const openstackSession = ctx.openstack
         const swift = openstackSession?.service("swift")
 
@@ -422,8 +414,7 @@ export const swiftRouter = {
     .input(projectScopedInputSchema.extend(getContainerMetadataInputSchema.shape))
     .query(async ({ input, ctx }): Promise<string | null> => {
       return withErrorHandling(async () => {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { project_id, container } = input
+        const { container } = input
         const openstackSession = ctx.openstack
         const swift = openstackSession?.service("swift")
 
@@ -449,8 +440,7 @@ export const swiftRouter = {
     .input(projectScopedInputSchema.extend(deleteContainerInputSchema.shape))
     .mutation(async ({ input, ctx }): Promise<boolean> => {
       return withErrorHandling(async () => {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { project_id, account, container } = input
+        const { account, container } = input
         const openstackSession = ctx.openstack
         const swift = openstackSession?.service("swift")
 
@@ -486,8 +476,7 @@ export const swiftRouter = {
     .input(projectScopedInputSchema.extend(deleteContainerInputSchema.shape))
     .mutation(async ({ input, ctx }): Promise<number> => {
       return withErrorHandling(async () => {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { project_id, account, container } = input
+        const { account, container } = input
         const openstackSession = ctx.openstack
         const swift = openstackSession?.service("swift")
 
@@ -595,8 +584,6 @@ export const swiftRouter = {
     .query(async ({ input, ctx }): Promise<ObjectMetadata> => {
       return withErrorHandling(async () => {
         const {
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          project_id,
           account,
           container,
           object,
@@ -655,8 +642,7 @@ export const swiftRouter = {
     .input(projectScopedInputSchema.extend(updateObjectMetadataInputSchema.shape))
     .mutation(async ({ input, ctx }): Promise<boolean> => {
       return withErrorHandling(async () => {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { project_id, account, container, object, ...options } = input
+        const { account, container, object, ...options } = input
         const openstackSession = ctx.openstack
         const swift = openstackSession?.service("swift")
 
@@ -690,8 +676,6 @@ export const swiftRouter = {
     .mutation(async ({ input, ctx }): Promise<boolean> => {
       return withErrorHandling(async () => {
         const {
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          project_id,
           account,
           container,
           object,
@@ -798,8 +782,7 @@ export const swiftRouter = {
     .input(projectScopedInputSchema.extend(deleteObjectInputSchema.shape))
     .mutation(async ({ input, ctx }): Promise<boolean> => {
       return withErrorHandling(async () => {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { project_id, account, container, object, multipartManifest } = input
+        const { account, container, object, multipartManifest } = input
         const openstackSession = ctx.openstack
         const swift = openstackSession?.service("swift")
 
@@ -840,8 +823,7 @@ export const swiftRouter = {
     .input(projectScopedInputSchema.extend(bulkDeleteInputSchema.shape))
     .mutation(async ({ input, ctx }): Promise<BulkDeleteResult> => {
       return withErrorHandling(async () => {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { project_id, account, objects } = input
+        const { account, objects } = input
         const openstackSession = ctx.openstack
         const swift = openstackSession?.service("swift")
 
@@ -908,8 +890,7 @@ export const swiftRouter = {
     .input(projectScopedInputSchema.extend(createFolderInputSchema.shape))
     .mutation(async ({ input, ctx }): Promise<boolean> => {
       return withErrorHandling(async () => {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { project_id, account, container, folderPath, metadata } = input
+        const { account, container, folderPath, metadata } = input
         const openstackSession = ctx.openstack
         const swift = openstackSession?.service("swift")
 
@@ -960,8 +941,7 @@ export const swiftRouter = {
     .input(projectScopedInputSchema.extend(listFolderContentsInputSchema.shape))
     .query(async ({ input, ctx }): Promise<FolderContents> => {
       return withErrorHandling(async () => {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { project_id, account, container, folderPath, limit, marker } = input
+        const { account, container, folderPath, limit, marker } = input
         const openstackSession = ctx.openstack
         const swift = openstackSession?.service("swift")
 
@@ -1055,8 +1035,7 @@ export const swiftRouter = {
     .input(projectScopedInputSchema.extend(moveFolderInputSchema.shape))
     .mutation(async ({ input, ctx }): Promise<number> => {
       return withErrorHandling(async () => {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { project_id, account, container, sourcePath, destinationPath, destinationContainer } = input
+        const { account, container, sourcePath, destinationPath, destinationContainer } = input
         const openstackSession = ctx.openstack
         const swift = openstackSession?.service("swift")
 
@@ -1157,8 +1136,7 @@ export const swiftRouter = {
     .input(projectScopedInputSchema.extend(deleteFolderInputSchema.shape))
     .mutation(async ({ input, ctx }): Promise<number> => {
       return withErrorHandling(async () => {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { project_id, account, container, folderPath, recursive } = input
+        const { account, container, folderPath, recursive } = input
         const openstackSession = ctx.openstack
         const swift = openstackSession?.service("swift")
 
@@ -1233,8 +1211,7 @@ export const swiftRouter = {
     .input(projectScopedInputSchema.extend(generateTempUrlInputSchema.shape))
     .mutation(async ({ input, ctx }): Promise<TempUrl> => {
       return withErrorHandling(async () => {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { project_id, account, container, object, method, expiresIn, filename } = input
+        const { account, container, object, method, expiresIn, filename } = input
         const openstackSession = ctx.openstack
         const swift = openstackSession?.service("swift")
 
@@ -1611,8 +1588,7 @@ export const swiftRouter = {
       contentType?: string // only present in first chunk
       filename?: string // only present in first chunk
     }> {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { project_id, container, object, filename, account, downloadId } = input
+      const { container, object, filename, account, downloadId } = input
       const swift = ctx.openstack?.service("swift")
 
       validateSwiftService(swift)
