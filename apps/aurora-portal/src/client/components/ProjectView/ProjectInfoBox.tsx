@@ -179,14 +179,14 @@ export function ProjectInfoBox({ projectInfo }: ProjectInfoBoxProps) {
             <BreadcrumbItem key={index} label={item.label} onClick={item.onClick} active={item.active} />
           ))}
         </Breadcrumb>
-        <div className="text-theme-light ml-auto flex items-center gap-1 text-sm">
+        <div className="text-theme-light ml-auto flex items-center gap-1">
           <span className="font-semibold">
             <Trans>Project ID</Trans>:{" "}
           </span>
           <ClipboardText text={projectInfo.id} truncateAt={15} />
         </div>
       </Stack>
-      <ContentHeading className="text-theme-highest text-2xl font-bold">{pageTitle}</ContentHeading>
+      <ContentHeading>{pageTitle}</ContentHeading>
     </Stack>
   )
 }
