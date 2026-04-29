@@ -1,6 +1,7 @@
 import { beforeAll, beforeEach, vi, expect } from "vitest"
 import * as matchers from "@testing-library/jest-dom/matchers"
 import { i18n } from "@lingui/core"
+import type { ReactNode } from "react"
 
 import { messages } from "./src/locales/en/messages"
 import { messages as deMessages } from "./src/locales/de/messages"
@@ -21,11 +22,11 @@ vi.mock("@tanstack/react-router", async (importOriginal) => {
 })
 
 // Global mock for @/client/trpcClient
-vi.mock("./src/client/trpcClient", () => {
+vi.mock("@/client/trpcClient", () => {
   const mockTrpcReact = {
     useUtils: vi.fn(),
     createClient: vi.fn(() => ({})),
-    Provider: ({ children }: { children: React.ReactNode }) => children,
+    Provider: ({ children }: { children: ReactNode }) => children,
   }
 
   const mockTrpcReactClient = {}
