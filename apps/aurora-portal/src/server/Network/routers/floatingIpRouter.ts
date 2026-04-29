@@ -33,6 +33,7 @@ export const floatingIpRouter = {
     .query(async ({ input, ctx }): Promise<FloatingIp[]> => {
       return withErrorHandling(async () => {
         // Extract project_id and searchTerm - they're used for rescoping/filtering, not for OpenStack API
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { searchTerm, project_id, ...openstackFilters } = input
         const network = getNetworkService(ctx)
 
