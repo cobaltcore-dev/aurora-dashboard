@@ -93,9 +93,7 @@ export const SideNavBar = ({ projectId, projectName, availableServices }: SideNa
           <SideNavigationItem
             icon="home"
             label={projectName}
-            onClick={() =>
-              navigate({ to: "/projects/$projectId", params: { projectId } })
-            }
+            onClick={() => navigate({ to: "/projects/$projectId", params: { projectId } })}
             selected={isOverviewActive}
           />
           <SideNavigationItem
