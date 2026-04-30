@@ -205,10 +205,7 @@ describe("SideNavBar", () => {
 
         fireEvent.click(screen.getByText("Compute"))
 
-        expect(mockNavigate).toHaveBeenCalledWith({
-          to: "/projects/$projectId/compute/overview",
-          params: { projectId: "proj-1" },
-        })
+        expect(mockNavigate).not.toHaveBeenCalled()
       })
     })
 

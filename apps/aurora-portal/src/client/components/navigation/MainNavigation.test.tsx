@@ -157,7 +157,7 @@ describe("MainNavigation", () => {
     // Domain is plain text, not a link
     await waitFor(() => {
       expect(screen.getByText("Test Domain")).toBeDefined()
-      expect(screen.getByTestId("domain-link")).toBeDefined()
+      expect(screen.getByTestId("domain-name")).toBeDefined()
     })
   })
 
