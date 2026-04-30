@@ -1,4 +1,11 @@
-import { Breadcrumb, BreadcrumbItem, Button, ContentHeading, Stack, Spinner } from "@cloudoperators/juno-ui-components/index"
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  Button,
+  ContentHeading,
+  Stack,
+  Spinner,
+} from "@cloudoperators/juno-ui-components/index"
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router"
 import type { RouteInfo } from "@/client/routes/routeInfo"
 import { Trans, useLingui } from "@lingui/react/macro"

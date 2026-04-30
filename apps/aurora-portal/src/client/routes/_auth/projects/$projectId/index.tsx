@@ -71,7 +71,7 @@ function RouteComponent() {
   return (
     <Stack direction="vertical" gap="6" className="py-4">
       <div>
-        <ContentHeading className="text-theme-highest text-2xl font-bold">{crumbProject?.name}</ContentHeading>
+        <ContentHeading>{crumbProject?.name}</ContentHeading>
         {description && <p className="text-theme-light mt-1 text-sm">{description}</p>}
       </div>
       {cards.length > 0 ? (
