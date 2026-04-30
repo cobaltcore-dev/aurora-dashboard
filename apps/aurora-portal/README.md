@@ -18,7 +18,74 @@ Aurora aims to simplify operations for OpenStack-based cloud infrastructure. Our
 
 ## Getting Started
 
-(Include instructions on how to install, run, or access the dashboard here.)
+install dependencies and with `pnpm install` and then setup the environment variables
+
+```bash
+export PORT=4000
+export IDENTITY_ENDPOINT=http://<keystone_url>:5000/v3
+export DEFAULT_ENDPOINT_INTERFACE=public
+```
+
+or use the `.env` file to set the environment variables, that should be places in the `apps/` folder with the following content:
+
+```bash
+PORT=4000
+IDENTITY_ENDPOINT=http://<keystone_url>:5000/v3
+DEFAULT_ENDPOINT_INTERFACE=public
+```
+
+see also the .env.example file for reference
+
+Than run the development server with `pnpm dev`
+
+## Debugging with mitmproxy
+
+Aurora Portal supports routing all OpenStack API calls through [mitmproxy](https://mitmproxy.org/) for debugging and inspection.
+
+### Setup
+
+1. **Enable proxy in `.env`:**
+
+```bash
+# Add to apps/aurora-portal/.env
+GLOBAL_AGENT_HTTP_PROXY=http://localhost:8888
+NODE_TLS_REJECT_UNAUTHORIZED=0  # Allows mitmproxy's self-signed certificates
+```
+
+2. **Start mitmproxy** (in a separate terminal):
+
+```bash
+mitmproxy -p 8888
+```
+
+3. **Run the development server with proxy support:**
+
+```bash
+pnpm dev:proxy
+```
+
+### What you'll see in mitmproxy
+
+All outgoing HTTP/HTTPS requests from the BFF to OpenStack services:
+
+- `POST https://identity-endpoint/v3/auth/tokens` - Authentication
+- `GET https://nova-endpoint/v2.1/servers/detail` - Server listing
+- `PUT https://glance-endpoint/v2/images/{id}/file` - Image uploads
+- All other OpenStack API calls (Neutron, Cinder, etc.)
+
+### How it works
+
+The proxy is implemented at the `fetch()` level in the `@cobaltcore-dev/signal-openstack` package using [undici's ProxyAgent](https://undici.nodejs.org/#/docs/api/ProxyAgent). When `GLOBAL_AGENT_HTTP_PROXY` is set, all OpenStack API requests are automatically routed through the specified proxy.
+
+### Disabling the proxy
+
+Simply run the normal dev command:
+
+```bash
+pnpm dev
+```
+
+Or comment out the proxy variables in `.env`.
 
 ## Policy Engine Configuration
 
