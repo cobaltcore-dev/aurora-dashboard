@@ -9,8 +9,10 @@ import {
 
 describe("Port Schemas", () => {
   describe("ListAvailablePortsQuerySchema", () => {
+    const TEST_PROJECT_ID = "test-project"
+
     it("should parse valid query with defaults", () => {
-      const input = {}
+      const input = { project_id: TEST_PROJECT_ID }
       const result = ListAvailablePortsQuerySchema.safeParse(input)
 
       expect(result.success).toBe(true)
@@ -21,14 +23,14 @@ describe("Port Schemas", () => {
     })
 
     it("should lock status to ACTIVE even if provided differently", () => {
-      const input = { status: "DOWN" }
+      const input = { project_id: TEST_PROJECT_ID, status: "DOWN" }
       const result = ListAvailablePortsQuerySchema.safeParse(input)
 
       expect(result.success).toBe(false)
     })
 
     it("should lock admin_state_up to true even if provided as false", () => {
-      const input = { admin_state_up: false }
+      const input = { project_id: TEST_PROJECT_ID, admin_state_up: false }
       const result = ListAvailablePortsQuerySchema.safeParse(input)
 
       expect(result.success).toBe(false)
@@ -47,7 +49,7 @@ describe("Port Schemas", () => {
     })
 
     it("should support id as string", () => {
-      const input = { id: "port-uuid" }
+      const input = { project_id: TEST_PROJECT_ID, id: "port-uuid" }
       const result = ListAvailablePortsQuerySchema.safeParse(input)
 
       expect(result.success).toBe(true)
@@ -57,7 +59,7 @@ describe("Port Schemas", () => {
     })
 
     it("should support id as array of strings", () => {
-      const input = { id: ["port-1", "port-2", "port-3"] }
+      const input = { project_id: TEST_PROJECT_ID, id: ["port-1", "port-2", "port-3"] }
       const result = ListAvailablePortsQuerySchema.safeParse(input)
 
       expect(result.success).toBe(true)
@@ -68,7 +70,7 @@ describe("Port Schemas", () => {
     })
 
     it("should support sort_key as single value", () => {
-      const input = { sort_key: "name" }
+      const input = { project_id: TEST_PROJECT_ID, sort_key: "name" }
       const result = ListAvailablePortsQuerySchema.safeParse(input)
 
       expect(result.success).toBe(true)
@@ -78,7 +80,7 @@ describe("Port Schemas", () => {
     })
 
     it("should support sort_key as array", () => {
-      const input = { sort_key: ["name", "project_id"] }
+      const input = { project_id: TEST_PROJECT_ID, sort_key: ["name", "project_id"] }
       const result = ListAvailablePortsQuerySchema.safeParse(input)
 
       expect(result.success).toBe(true)
@@ -89,14 +91,14 @@ describe("Port Schemas", () => {
     })
 
     it("should reject invalid sort_key values", () => {
-      const input = { sort_key: "invalid_field" }
+      const input = { project_id: TEST_PROJECT_ID, sort_key: "invalid_field" }
       const result = ListAvailablePortsQuerySchema.safeParse(input)
 
       expect(result.success).toBe(false)
     })
 
     it("should support sort_dir as single value", () => {
-      const input = { sort_dir: "asc" }
+      const input = { project_id: TEST_PROJECT_ID, sort_dir: "asc" }
       const result = ListAvailablePortsQuerySchema.safeParse(input)
 
       expect(result.success).toBe(true)
@@ -106,7 +108,7 @@ describe("Port Schemas", () => {
     })
 
     it("should support sort_dir as array", () => {
-      const input = { sort_dir: ["asc", "desc"] }
+      const input = { project_id: TEST_PROJECT_ID, sort_dir: ["asc", "desc"] }
       const result = ListAvailablePortsQuerySchema.safeParse(input)
 
       expect(result.success).toBe(true)
@@ -117,6 +119,7 @@ describe("Port Schemas", () => {
 
     it("should support pagination parameters", () => {
       const input = {
+        project_id: TEST_PROJECT_ID,
         limit: 50,
         marker: "last-port-id",
         page_reverse: false,
@@ -132,14 +135,14 @@ describe("Port Schemas", () => {
     })
 
     it("should reject negative limit", () => {
-      const input = { limit: -10 }
+      const input = { project_id: TEST_PROJECT_ID, limit: -10 }
       const result = ListAvailablePortsQuerySchema.safeParse(input)
 
       expect(result.success).toBe(false)
     })
 
     it("should reject zero limit", () => {
-      const input = { limit: 0 }
+      const input = { project_id: TEST_PROJECT_ID, limit: 0 }
       const result = ListAvailablePortsQuerySchema.safeParse(input)
 
       expect(result.success).toBe(false)
@@ -147,6 +150,7 @@ describe("Port Schemas", () => {
 
     it("should support tag filters", () => {
       const input = {
+        project_id: TEST_PROJECT_ID,
         tags: "production",
         "tags-any": "staging,dev",
         "not-tags": "deprecated",
@@ -158,14 +162,14 @@ describe("Port Schemas", () => {
     })
 
     it("should support fields parameter as string", () => {
-      const input = { fields: "id" }
+      const input = { project_id: TEST_PROJECT_ID, fields: "id" }
       const result = ListAvailablePortsQuerySchema.safeParse(input)
 
       expect(result.success).toBe(true)
     })
 
     it("should support fields parameter as array", () => {
-      const input = { fields: ["id", "name", "status"] }
+      const input = { project_id: TEST_PROJECT_ID, fields: ["id", "name", "status"] }
       const result = ListAvailablePortsQuerySchema.safeParse(input)
 
       expect(result.success).toBe(true)
@@ -177,6 +181,7 @@ describe("Port Schemas", () => {
 
     it("should support fixed_ips filter", () => {
       const input = {
+        project_id: TEST_PROJECT_ID,
         fixed_ips: [
           { ip_address: "10.0.0.5", subnet_id: "subnet-123" },
           { ip_address_substr: "10.0", subnet_id: "subnet-456" },
@@ -189,6 +194,7 @@ describe("Port Schemas", () => {
 
     it("should support device_id and device_owner filters", () => {
       const input = {
+        project_id: TEST_PROJECT_ID,
         device_id: "instance-123",
         device_owner: "compute:nova",
       }
@@ -198,28 +204,28 @@ describe("Port Schemas", () => {
     })
 
     it("should support mac_address filter", () => {
-      const input = { mac_address: "fa:16:3e:00:00:01" }
+      const input = { project_id: TEST_PROJECT_ID, mac_address: "fa:16:3e:00:00:01" }
       const result = ListAvailablePortsQuerySchema.safeParse(input)
 
       expect(result.success).toBe(true)
     })
 
     it("should support ip_allocation filter", () => {
-      const input = { ip_allocation: "immediate" }
+      const input = { project_id: TEST_PROJECT_ID, ip_allocation: "immediate" }
       const result = ListAvailablePortsQuerySchema.safeParse(input)
 
       expect(result.success).toBe(true)
     })
 
     it("should reject invalid ip_allocation", () => {
-      const input = { ip_allocation: "invalid_mode" }
+      const input = { project_id: TEST_PROJECT_ID, ip_allocation: "invalid_mode" }
       const result = ListAvailablePortsQuerySchema.safeParse(input)
 
       expect(result.success).toBe(false)
     })
 
     it("should support mac_learning_enabled filter", () => {
-      const input = { mac_learning_enabled: true }
+      const input = { project_id: TEST_PROJECT_ID, mac_learning_enabled: true }
       const result = ListAvailablePortsQuerySchema.safeParse(input)
 
       expect(result.success).toBe(true)

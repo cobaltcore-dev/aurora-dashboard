@@ -83,6 +83,24 @@ export const sessionRouter = {
     ctx.terminateSession()
   }),
 
+  /**
+   * Returns the list of available OpenStack services from the current token's service catalog.
+   *
+   * Scoping decision: Uses `protectedProcedure` (no rescoping) because:
+   * - This is a read-only operation that reads from the current token's catalog
+   * - The service catalog is included in every scoped token (project, domain, or unscoped)
+   * - No additional OpenStack API calls are made - just reading token metadata
+   * - The frontend calls this after rescoping to a project to determine which UI sections to show
+   * - Rescoping is unnecessary and would add overhead without benefit
+   *
+   * The service catalog content varies by token scope:
+   * - Project-scoped tokens: Full catalog with project-level endpoints
+   * - Domain-scoped tokens: Catalog with domain-level endpoints
+   * - Unscoped tokens: May have limited or no catalog entries
+   *
+   * Frontend usage: Called in route loaders after `setCurrentScope` to conditionally
+   * render navigation items and feature sections based on available services.
+   */
   getAvailableServices: protectedProcedure.query(async ({ ctx }) => {
     const token = ctx.openstack?.getToken()
 

@@ -46,22 +46,24 @@ const createMockContext = (opts?: {
     })
   })
 
+  const mockOpenstackSession = {
+    service: vi.fn().mockImplementation((serviceName: string) => {
+      if (serviceName !== "network" || noNetworkService) {
+        return null
+      }
+
+      return {
+        get: networkGetMock,
+      }
+    }),
+  }
+
   return {
     validateSession: vi.fn().mockReturnValue(!invalidSession),
-    openstack: {
-      service: vi.fn().mockImplementation((serviceName: string) => {
-        if (serviceName !== "network" || noNetworkService) {
-          return null
-        }
-
-        return {
-          get: networkGetMock,
-        }
-      }),
-    },
+    openstack: mockOpenstackSession,
     createSession: vi.fn(),
     terminateSession: vi.fn(),
-    rescopeSession: vi.fn(),
+    rescopeSession: vi.fn().mockResolvedValue(mockOpenstackSession),
     __networkGetMock: networkGetMock,
   } as unknown as AuroraPortalContext & {
     __networkGetMock: typeof networkGetMock
@@ -83,7 +85,7 @@ describe("portRouter.listAvailablePorts", () => {
     const ctx = createMockContext()
     const caller = createCaller(ctx)
 
-    const result = await caller.port.listAvailablePorts({})
+    const result = await caller.port.listAvailablePorts({ project_id: "test-project" })
 
     expect(Array.isArray(result)).toBe(true)
     expect(result).toHaveLength(2)
@@ -97,6 +99,7 @@ describe("portRouter.listAvailablePorts", () => {
     const caller = createCaller(ctx)
 
     await caller.port.listAvailablePorts({
+      project_id: "test-project",
       network_id: "network-1",
       name: "web-port",
       limit: 20,
@@ -121,7 +124,7 @@ describe("portRouter.listAvailablePorts", () => {
     const ctx = createMockContext({ invalidSession: true })
     const caller = createCaller(ctx)
 
-    await expect(caller.port.listAvailablePorts({})).rejects.toMatchObject({
+    await expect(caller.port.listAvailablePorts({ project_id: "test-project" })).rejects.toMatchObject({
       code: "UNAUTHORIZED",
       message: "The session is invalid",
     })
@@ -131,7 +134,7 @@ describe("portRouter.listAvailablePorts", () => {
     const ctx = createMockContext({ noNetworkService: true })
     const caller = createCaller(ctx)
 
-    await expect(caller.port.listAvailablePorts({})).rejects.toThrow(
+    await expect(caller.port.listAvailablePorts({ project_id: "test-project" })).rejects.toThrow(
       new TRPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: "Network service is not available",
@@ -144,7 +147,7 @@ describe("portRouter.listAvailablePorts", () => {
     const caller = createCaller(ctx)
     const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => undefined)
 
-    await expect(caller.port.listAvailablePorts({})).rejects.toThrow(
+    await expect(caller.port.listAvailablePorts({ project_id: "test-project" })).rejects.toThrow(
       new TRPCError({
         code: "PARSE_ERROR",
         message: "Failed to parse response in portRouter.listAvailablePorts",
@@ -161,7 +164,7 @@ describe("portRouter.listAvailablePorts", () => {
     })
     const caller = createCaller(ctx)
 
-    await expect(caller.port.listAvailablePorts({})).rejects.toMatchObject({
+    await expect(caller.port.listAvailablePorts({ project_id: "test-project" })).rejects.toMatchObject({
       code: "UNAUTHORIZED",
       message: "Unauthorized access to Port: Unauthorized",
     })

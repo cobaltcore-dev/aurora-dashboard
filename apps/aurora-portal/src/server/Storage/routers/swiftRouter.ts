@@ -2,7 +2,7 @@ import { TRPCError } from "@trpc/server"
 import { z } from "zod"
 import EventEmitter from "node:events"
 import { Readable, Transform } from "node:stream"
-import { protectedProcedure } from "../../trpc"
+import { protectedProcedure, projectScopedProcedure, projectScopedInputSchema } from "../../trpc"
 import { octetInputParser } from "@trpc/server/http"
 import {
   validateSwiftService,
@@ -84,8 +84,13 @@ export const swiftRouter = {
   // ============================================================================
 
   /**
-   * Gets Swift service information and capabilities from /info endpoint
-   * This provides information about supported features, limits, and configuration
+   * Gets Swift service information and capabilities from /info endpoint.
+   * This provides information about supported features, limits, and configuration.
+   *
+   * Uses protectedProcedure (not project-scoped) because:
+   * - /info endpoint returns service-level metadata
+   * - No project-specific data is accessed
+   * - Available to all authenticated users
    */
   getServiceInfo: protectedProcedure.query(async ({ ctx }): Promise<ServiceInfo> => {
     return withErrorHandling(async () => {
@@ -112,12 +117,18 @@ export const swiftRouter = {
   // ============================================================================
 
   /**
-   * Lists containers in an account with optional filtering and pagination
+   * Lists containers in an account with optional filtering and pagination.
+   *
+   * Uses projectScopedProcedure because:
+   * - Containers belong to projects (OpenStack maps project → Swift account)
+   * - Requires project-scoped token to list containers in that project's account
+   * - The optional 'account' parameter allows cross-account access for admin users
    */
-  listContainers: protectedProcedure
-    .input(listContainersInputSchema)
+  listContainers: projectScopedProcedure
+    .input(projectScopedInputSchema.extend(listContainersInputSchema.shape))
     .query(async ({ input, ctx }): Promise<ContainerSummary[]> => {
       return withErrorHandling(async () => {
+        // Extract project_id - used for rescoping, not for OpenStack API
         const { account, xNewest, ...queryInput } = input
         const openstackSession = ctx.openstack
         const swift = openstackSession?.service("swift")
@@ -157,10 +168,14 @@ export const swiftRouter = {
     }),
 
   /**
-   * Gets account metadata including container count, object count, and bytes used
+   * Gets account metadata including container count, object count, and bytes used.
+   *
+   * Uses projectScopedProcedure because:
+   * - Account metadata reflects the project's storage usage and configuration
+   * - Requires project-scoped token to access project-specific account data
    */
-  getAccountMetadata: protectedProcedure
-    .input(getAccountMetadataInputSchema)
+  getAccountMetadata: projectScopedProcedure
+    .input(projectScopedInputSchema.extend(getAccountMetadataInputSchema.shape))
     .query(async ({ input, ctx }): Promise<AccountInfo> => {
       return withErrorHandling(async () => {
         const { account, xNewest } = input
@@ -184,10 +199,14 @@ export const swiftRouter = {
     }),
 
   /**
-   * Updates account metadata
+   * Updates account metadata.
+   *
+   * Uses projectScopedProcedure because:
+   * - Modifies project-specific account settings and metadata
+   * - Requires project-scoped token to update account configuration
    */
-  updateAccountMetadata: protectedProcedure
-    .input(updateAccountMetadataInputSchema)
+  updateAccountMetadata: projectScopedProcedure
+    .input(projectScopedInputSchema.extend(updateAccountMetadataInputSchema.shape))
     .mutation(async ({ input, ctx }): Promise<boolean> => {
       return withErrorHandling(async () => {
         const { account, metadata, removeMetadata, tempUrlKey, tempUrlKey2 } = input
@@ -208,10 +227,14 @@ export const swiftRouter = {
     }),
 
   /**
-   * Deletes an account (requires reseller admin privileges)
+   * Deletes an account (requires reseller admin privileges).
+   *
+   * Uses projectScopedProcedure because:
+   * - Deletes a project-specific account
+   * - Requires project-scoped token (and admin role) for account deletion
    */
-  deleteAccount: protectedProcedure
-    .input(deleteAccountInputSchema)
+  deleteAccount: projectScopedProcedure
+    .input(projectScopedInputSchema.extend(deleteAccountInputSchema.shape))
     .mutation(async ({ input, ctx }): Promise<boolean> => {
       return withErrorHandling(async () => {
         const { account } = input
@@ -237,10 +260,14 @@ export const swiftRouter = {
   // ============================================================================
 
   /**
-   * Lists objects in a container with optional filtering and pagination
+   * Lists objects in a container with optional filtering and pagination.
+   *
+   * Uses projectScopedProcedure because:
+   * - Containers belong to projects
+   * - Requires project-scoped token to list objects within a project's container
    */
-  listObjects: protectedProcedure
-    .input(listObjectsInputSchema)
+  listObjects: projectScopedProcedure
+    .input(projectScopedInputSchema.extend(listObjectsInputSchema.shape))
     .query(async ({ input, ctx }): Promise<ObjectSummary[]> => {
       return withErrorHandling(async () => {
         const { account, container, xNewest, ...queryInput } = input
@@ -284,10 +311,14 @@ export const swiftRouter = {
     }),
 
   /**
-   * Creates a container with optional metadata and settings
+   * Creates a container with optional metadata and settings.
+   *
+   * Uses projectScopedProcedure because:
+   * - Containers are project resources
+   * - Requires project-scoped token to create containers
    */
-  createContainer: protectedProcedure
-    .input(createContainerInputSchema)
+  createContainer: projectScopedProcedure
+    .input(projectScopedInputSchema.extend(createContainerInputSchema.shape))
     .mutation(async ({ input, ctx }): Promise<boolean> => {
       return withErrorHandling(async () => {
         const { account, container, ...options } = input
@@ -310,10 +341,14 @@ export const swiftRouter = {
     }),
 
   /**
-   * Gets container metadata
+   * Gets container metadata.
+   *
+   * Uses projectScopedProcedure because:
+   * - Container metadata is project-specific
+   * - Requires project-scoped token to access container information
    */
-  getContainerMetadata: protectedProcedure
-    .input(getContainerMetadataInputSchema)
+  getContainerMetadata: projectScopedProcedure
+    .input(projectScopedInputSchema.extend(getContainerMetadataInputSchema.shape))
     .query(async ({ input, ctx }): Promise<ContainerInfo> => {
       return withErrorHandling(async () => {
         const { account, container, xNewest } = input
@@ -339,10 +374,14 @@ export const swiftRouter = {
     }),
 
   /**
-   * Updates container metadata
+   * Updates container metadata.
+   *
+   * Uses projectScopedProcedure because:
+   * - Modifies project-specific container settings
+   * - Requires project-scoped token to update container metadata
    */
-  updateContainerMetadata: protectedProcedure
-    .input(updateContainerMetadataInputSchema)
+  updateContainerMetadata: projectScopedProcedure
+    .input(projectScopedInputSchema.extend(updateContainerMetadataInputSchema.shape))
     .mutation(async ({ input, ctx }): Promise<boolean> => {
       return withErrorHandling(async () => {
         const { account, container, ...options } = input
@@ -365,10 +404,14 @@ export const swiftRouter = {
     }),
 
   /**
-   * Returns the public URL for a container (derived from the service catalog public endpoint)
+   * Returns the public URL for a container (derived from the service catalog public endpoint).
+   *
+   * Uses projectScopedProcedure because:
+   * - Container public URLs are project-specific
+   * - Requires project-scoped token to access the correct service endpoint
    */
-  getContainerPublicUrl: protectedProcedure
-    .input(getContainerMetadataInputSchema)
+  getContainerPublicUrl: projectScopedProcedure
+    .input(projectScopedInputSchema.extend(getContainerMetadataInputSchema.shape))
     .query(async ({ input, ctx }): Promise<string | null> => {
       return withErrorHandling(async () => {
         const { container } = input
@@ -387,10 +430,14 @@ export const swiftRouter = {
     }),
 
   /**
-   * Deletes an empty container
+   * Deletes an empty container.
+   *
+   * Uses projectScopedProcedure because:
+   * - Containers are project resources
+   * - Requires project-scoped token to delete project containers
    */
-  deleteContainer: protectedProcedure
-    .input(deleteContainerInputSchema)
+  deleteContainer: projectScopedProcedure
+    .input(projectScopedInputSchema.extend(deleteContainerInputSchema.shape))
     .mutation(async ({ input, ctx }): Promise<boolean> => {
       return withErrorHandling(async () => {
         const { account, container } = input
@@ -420,9 +467,13 @@ export const swiftRouter = {
    * if so, uses bulk delete for efficiency; otherwise falls back to individual
    * DELETE requests. Paginates through all objects to handle large containers.
    * Returns the total number of deleted objects.
+   *
+   * Uses projectScopedProcedure because:
+   * - Operates on project-owned containers and objects
+   * - Requires project-scoped token to delete container contents
    */
-  emptyContainer: protectedProcedure
-    .input(deleteContainerInputSchema)
+  emptyContainer: projectScopedProcedure
+    .input(projectScopedInputSchema.extend(deleteContainerInputSchema.shape))
     .mutation(async ({ input, ctx }): Promise<number> => {
       return withErrorHandling(async () => {
         const { account, container } = input
@@ -522,10 +573,14 @@ export const swiftRouter = {
   // ============================================================================
 
   /**
-   * Gets object metadata without downloading the content
+   * Gets object metadata without downloading the content.
+   *
+   * Uses projectScopedProcedure because:
+   * - Objects are stored in project-owned containers
+   * - Requires project-scoped token to access object metadata
    */
-  getObjectMetadata: protectedProcedure
-    .input(getObjectMetadataInputSchema)
+  getObjectMetadata: projectScopedProcedure
+    .input(projectScopedInputSchema.extend(getObjectMetadataInputSchema.shape))
     .query(async ({ input, ctx }): Promise<ObjectMetadata> => {
       return withErrorHandling(async () => {
         const {
@@ -577,10 +632,14 @@ export const swiftRouter = {
     }),
 
   /**
-   * Updates object metadata without modifying the content
+   * Updates object metadata without modifying the content.
+   *
+   * Uses projectScopedProcedure because:
+   * - Objects belong to project-owned containers
+   * - Requires project-scoped token to update object metadata
    */
-  updateObjectMetadata: protectedProcedure
-    .input(updateObjectMetadataInputSchema)
+  updateObjectMetadata: projectScopedProcedure
+    .input(projectScopedInputSchema.extend(updateObjectMetadataInputSchema.shape))
     .mutation(async ({ input, ctx }): Promise<boolean> => {
       return withErrorHandling(async () => {
         const { account, container, object, ...options } = input
@@ -605,147 +664,163 @@ export const swiftRouter = {
     }),
 
   /**
-   * Copies an object to a new location using PUT with X-Copy-From header
-   * This is the recommended approach and equivalent to using the COPY HTTP method
+   * Copies an object to a new location using PUT with X-Copy-From header.
+   * This is the recommended approach and equivalent to using the COPY HTTP method.
+   *
+   * Uses projectScopedProcedure because:
+   * - Source and destination objects are in project-owned containers
+   * - Requires project-scoped token to copy objects within project
    */
-  copyObject: protectedProcedure.input(copyObjectInputSchema).mutation(async ({ input, ctx }): Promise<boolean> => {
-    return withErrorHandling(async () => {
-      const {
-        account,
-        container,
-        object,
-        destination,
-        destinationAccount,
-        multipartManifest,
-        symlink,
-        freshMetadata,
-        ...options
-      } = input
-      const openstackSession = ctx.openstack
-      const swift = openstackSession?.service("swift")
+  copyObject: projectScopedProcedure
+    .input(projectScopedInputSchema.extend(copyObjectInputSchema.shape))
+    .mutation(async ({ input, ctx }): Promise<boolean> => {
+      return withErrorHandling(async () => {
+        const {
+          account,
+          container,
+          object,
+          destination,
+          destinationAccount,
+          multipartManifest,
+          symlink,
+          freshMetadata,
+          ...options
+        } = input
+        const openstackSession = ctx.openstack
+        const swift = openstackSession?.service("swift")
 
-      validateSwiftService(swift)
+        validateSwiftService(swift)
 
-      // Build source path for X-Copy-From header
-      // Encode each object path segment individually to preserve "/" separators
-      // (pseudo-folder structure). encodeURIComponent on the full name would
-      // encode "/" to "%2F", breaking X-Copy-From for nested objects.
-      const encodedObjectPath = object
-        .split("/")
-        .map((segment) => encodeURIComponent(segment))
-        .join("/")
-      const sourcePath = `/${encodeURIComponent(container)}/${encodedObjectPath}`
+        // Build source path for X-Copy-From header
+        // Encode each object path segment individually to preserve "/" separators
+        // (pseudo-folder structure). encodeURIComponent on the full name would
+        // encode "/" to "%2F", breaking X-Copy-From for nested objects.
+        const encodedObjectPath = object
+          .split("/")
+          .map((segment) => encodeURIComponent(segment))
+          .join("/")
+        const sourcePath = `/${encodeURIComponent(container)}/${encodedObjectPath}`
 
-      // Build query parameters for source URL
-      const queryParams = new URLSearchParams()
-      if (multipartManifest) {
-        queryParams.append("multipart-manifest", multipartManifest)
-      }
-      if (symlink) {
-        queryParams.append("symlink", symlink)
-      }
-
-      // Build destination URL as a full URL string so the SDK's buildRequestUrl
-      // takes the `path.startsWith("http")` branch and uses `new URL(path)` directly,
-      // preserving percent-encoding. Using pathname assignment on a URL object would
-      // decode %20 back to spaces before the request is made.
-      const endpoints = swift.availableEndpoints()
-      const publicEndpoint = endpoints?.find((ep: { interface: string }) => ep.interface === "public")
-      if (!publicEndpoint?.url) {
-        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Swift public endpoint not found" })
-      }
-      // Encode each segment of the destination path individually
-      const encodedDestination = destination
-        .replace(/^\//, "")
-        .split("/")
-        .map((s) => (s ? encodeURIComponent(s) : s))
-        .join("/")
-
-      // Build the destination URL by replacing (not appending) the account segment
-      // in the public endpoint URL. The endpoint already contains the account path
-      // (e.g. /v1/AUTH_test); if `account` overrides it, swap the last path segment.
-      const destEndpoint = new URL(publicEndpoint.url)
-      const endpointSegments = destEndpoint.pathname.split("/").filter(Boolean)
-      if (account) {
-        if (endpointSegments.length > 0) {
-          endpointSegments[endpointSegments.length - 1] = account
-        } else {
-          endpointSegments.push(account)
+        // Build query parameters for source URL
+        const queryParams = new URLSearchParams()
+        if (multipartManifest) {
+          queryParams.append("multipart-manifest", multipartManifest)
         }
-      }
-      const basePath = endpointSegments.join("/")
-      destEndpoint.pathname = `/${basePath}/${encodedDestination}`.replace(/\/+$/, "")
-      const destUrl = destEndpoint.toString()
+        if (symlink) {
+          queryParams.append("symlink", symlink)
+        }
 
-      // Build headers - using X-Copy-From approach (equivalent to COPY method)
-      const headers: Record<string, string> = {
-        "X-Copy-From": queryParams.toString() ? `${sourcePath}?${queryParams.toString()}` : sourcePath,
-        "Content-Length": "0",
-      }
+        // Build destination URL as a full URL string so the SDK's buildRequestUrl
+        // takes the `path.startsWith("http")` branch and uses `new URL(path)` directly,
+        // preserving percent-encoding. Using pathname assignment on a URL object would
+        // decode %20 back to spaces before the request is made.
+        const endpoints = swift.availableEndpoints()
+        const publicEndpoint = endpoints?.find((ep: { interface: string }) => ep.interface === "public")
+        if (!publicEndpoint?.url) {
+          throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Swift public endpoint not found" })
+        }
+        // Encode each segment of the destination path individually
+        const encodedDestination = destination
+          .replace(/^\//, "")
+          .split("/")
+          .map((s) => (s ? encodeURIComponent(s) : s))
+          .join("/")
 
-      if (destinationAccount) {
-        headers["X-Copy-From-Account"] = destinationAccount
-      }
+        // Build the destination URL by replacing (not appending) the account segment
+        // in the public endpoint URL. The endpoint already contains the account path
+        // (e.g. /v1/AUTH_test); if `account` overrides it, swap the last path segment.
+        const destEndpoint = new URL(publicEndpoint.url)
+        const endpointSegments = destEndpoint.pathname.split("/").filter(Boolean)
+        if (account) {
+          if (endpointSegments.length > 0) {
+            endpointSegments[endpointSegments.length - 1] = account
+          } else {
+            endpointSegments.push(account)
+          }
+        }
+        const basePath = endpointSegments.join("/")
+        destEndpoint.pathname = `/${basePath}/${encodedDestination}`.replace(/\/+$/, "")
+        const destUrl = destEndpoint.toString()
 
-      if (freshMetadata) {
-        headers["X-Fresh-Metadata"] = "true"
-      }
+        // Build headers - using X-Copy-From approach (equivalent to COPY method)
+        const headers: Record<string, string> = {
+          "X-Copy-From": queryParams.toString() ? `${sourcePath}?${queryParams.toString()}` : sourcePath,
+          "Content-Length": "0",
+        }
 
-      // Add metadata headers for the destination object
-      const metadataHeaders = buildObjectMetadataHeaders(options)
-      Object.assign(headers, metadataHeaders)
+        if (destinationAccount) {
+          headers["X-Copy-From-Account"] = destinationAccount
+        }
 
-      // Use PUT to destination with X-Copy-From header.
-      // Body must be undefined/empty — the copy is server-side via X-Copy-From.
-      // Swift returns 201 on success with no meaningful response body.
-      await swift.put(destUrl, undefined, { headers }).catch((error) => {
-        throw mapErrorResponseToTRPCError(error, { operation: "copy object", container, object })
-      })
+        if (freshMetadata) {
+          headers["X-Fresh-Metadata"] = "true"
+        }
 
-      return true
-    }, "copy object")
-  }),
+        // Add metadata headers for the destination object
+        const metadataHeaders = buildObjectMetadataHeaders(options)
+        Object.assign(headers, metadataHeaders)
+
+        // Use PUT to destination with X-Copy-From header.
+        // Body must be undefined/empty — the copy is server-side via X-Copy-From.
+        // Swift returns 201 on success with no meaningful response body.
+        await swift.put(destUrl, undefined, { headers }).catch((error) => {
+          throw mapErrorResponseToTRPCError(error, { operation: "copy object", container, object })
+        })
+
+        return true
+      }, "copy object")
+    }),
 
   /**
-   * Deletes an object
+   * Deletes an object.
+   *
+   * Uses projectScopedProcedure because:
+   * - Objects are stored in project-owned containers
+   * - Requires project-scoped token to delete objects
    */
-  deleteObject: protectedProcedure.input(deleteObjectInputSchema).mutation(async ({ input, ctx }): Promise<boolean> => {
-    return withErrorHandling(async () => {
-      const { account, container, object, multipartManifest } = input
-      const openstackSession = ctx.openstack
-      const swift = openstackSession?.service("swift")
+  deleteObject: projectScopedProcedure
+    .input(projectScopedInputSchema.extend(deleteObjectInputSchema.shape))
+    .mutation(async ({ input, ctx }): Promise<boolean> => {
+      return withErrorHandling(async () => {
+        const { account, container, object, multipartManifest } = input
+        const openstackSession = ctx.openstack
+        const swift = openstackSession?.service("swift")
 
-      validateSwiftService(swift)
+        validateSwiftService(swift)
 
-      // Build URL with query parameters
-      const queryParams = new URLSearchParams()
-      if (multipartManifest) {
-        queryParams.append("multipart-manifest", multipartManifest)
-      }
+        // Build URL with query parameters
+        const queryParams = new URLSearchParams()
+        if (multipartManifest) {
+          queryParams.append("multipart-manifest", multipartManifest)
+        }
 
-      const accountPath = account || ""
-      const basePath = accountPath
-        ? `${accountPath}/${encodeURIComponent(container)}/${encodeURIComponent(object)}`
-        : `${encodeURIComponent(container)}/${encodeURIComponent(object)}`
-      const url = queryParams.toString() ? `${basePath}?${queryParams.toString()}` : basePath
+        const accountPath = account || ""
+        const basePath = accountPath
+          ? `${accountPath}/${encodeURIComponent(container)}/${encodeURIComponent(object)}`
+          : `${encodeURIComponent(container)}/${encodeURIComponent(object)}`
+        const url = queryParams.toString() ? `${basePath}?${queryParams.toString()}` : basePath
 
-      await swift.del(url).catch((error) => {
-        throw mapErrorResponseToTRPCError(error, { operation: "delete object", container, object })
-      })
+        await swift.del(url).catch((error) => {
+          throw mapErrorResponseToTRPCError(error, { operation: "delete object", container, object })
+        })
 
-      return true
-    }, "delete object")
-  }),
+        return true
+      }, "delete object")
+    }),
 
   // ============================================================================
   // BULK OPERATIONS
   // ============================================================================
 
   /**
-   * Deletes multiple objects in a single request (up to 10,000)
+   * Deletes multiple objects in a single request (up to 10,000).
+   *
+   * Uses projectScopedProcedure because:
+   * - Deletes objects from project-owned containers
+   * - Requires project-scoped token for bulk delete operations
    */
-  bulkDelete: protectedProcedure
-    .input(bulkDeleteInputSchema)
+  bulkDelete: projectScopedProcedure
+    .input(projectScopedInputSchema.extend(bulkDeleteInputSchema.shape))
     .mutation(async ({ input, ctx }): Promise<BulkDeleteResult> => {
       return withErrorHandling(async () => {
         const { account, objects } = input
@@ -804,56 +879,66 @@ export const swiftRouter = {
   // ============================================================================
 
   /**
-   * Creates a pseudo-folder by creating a zero-byte marker object
-   * Folder paths should end with a trailing slash (e.g., "documents/2024/")
+   * Creates a pseudo-folder by creating a zero-byte marker object.
+   * Folder paths should end with a trailing slash (e.g., "documents/2024/").
+   *
+   * Uses projectScopedProcedure because:
+   * - Folders are objects in project-owned containers
+   * - Requires project-scoped token to create folder markers
    */
-  createFolder: protectedProcedure.input(createFolderInputSchema).mutation(async ({ input, ctx }): Promise<boolean> => {
-    return withErrorHandling(async () => {
-      const { account, container, folderPath, metadata } = input
-      const openstackSession = ctx.openstack
-      const swift = openstackSession?.service("swift")
+  createFolder: projectScopedProcedure
+    .input(projectScopedInputSchema.extend(createFolderInputSchema.shape))
+    .mutation(async ({ input, ctx }): Promise<boolean> => {
+      return withErrorHandling(async () => {
+        const { account, container, folderPath, metadata } = input
+        const openstackSession = ctx.openstack
+        const swift = openstackSession?.service("swift")
 
-      validateSwiftService(swift)
+        validateSwiftService(swift)
 
-      // Ensure folder path ends with /
-      const normalizedPath = normalizeFolderPath(folderPath)
+        // Ensure folder path ends with /
+        const normalizedPath = normalizeFolderPath(folderPath)
 
-      const headers: Record<string, string> = {
-        "Content-Type": "application/directory",
-        "Content-Length": "0",
-      }
+        const headers: Record<string, string> = {
+          "Content-Type": "application/directory",
+          "Content-Length": "0",
+        }
 
-      // Add custom metadata if provided
-      if (metadata) {
-        Object.entries(metadata).forEach(([key, value]) => {
-          headers[`X-Object-Meta-${key}`] = value
-        })
-      }
+        // Add custom metadata if provided
+        if (metadata) {
+          Object.entries(metadata).forEach(([key, value]) => {
+            headers[`X-Object-Meta-${key}`] = value
+          })
+        }
 
-      const accountPath = account || ""
-      const url = accountPath
-        ? `${accountPath}/${encodeURIComponent(container)}/${encodeURIComponent(normalizedPath)}`
-        : `${encodeURIComponent(container)}/${encodeURIComponent(normalizedPath)}`
+        const accountPath = account || ""
+        const url = accountPath
+          ? `${accountPath}/${encodeURIComponent(container)}/${encodeURIComponent(normalizedPath)}`
+          : `${encodeURIComponent(container)}/${encodeURIComponent(normalizedPath)}`
 
-      await swift
-        .put(url, {
-          headers,
-          body: new ArrayBuffer(0), // Zero-byte object
-        })
-        .catch((error) => {
-          throw mapErrorResponseToTRPCError(error, { operation: "create folder", container, object: normalizedPath })
-        })
+        await swift
+          .put(url, {
+            headers,
+            body: new ArrayBuffer(0), // Zero-byte object
+          })
+          .catch((error) => {
+            throw mapErrorResponseToTRPCError(error, { operation: "create folder", container, object: normalizedPath })
+          })
 
-      return true
-    }, "create folder")
-  }),
+        return true
+      }, "create folder")
+    }),
 
   /**
-   * Lists folder contents (folders and objects at current level)
-   * Uses delimiter="/" to get pseudo-hierarchical folder structure
+   * Lists folder contents (folders and objects at current level).
+   * Uses delimiter="/" to get pseudo-hierarchical folder structure.
+   *
+   * Uses projectScopedProcedure because:
+   * - Lists contents of project-owned containers
+   * - Requires project-scoped token to list folder contents
    */
-  listFolderContents: protectedProcedure
-    .input(listFolderContentsInputSchema)
+  listFolderContents: projectScopedProcedure
+    .input(projectScopedInputSchema.extend(listFolderContentsInputSchema.shape))
     .query(async ({ input, ctx }): Promise<FolderContents> => {
       return withErrorHandling(async () => {
         const { account, container, folderPath, limit, marker } = input
@@ -939,85 +1024,161 @@ export const swiftRouter = {
     }),
 
   /**
-   * Moves a folder by copying all objects with the source prefix to the destination
-   * This operation can take time for folders with many objects
+   * Moves a folder by copying all objects with the source prefix to the destination.
+   * This operation can take time for folders with many objects.
+   *
+   * Uses projectScopedProcedure because:
+   * - Copies and deletes objects in project-owned containers
+   * - Requires project-scoped token for folder move operations
    */
-  moveFolder: protectedProcedure.input(moveFolderInputSchema).mutation(async ({ input, ctx }): Promise<number> => {
-    return withErrorHandling(async () => {
-      const { account, container, sourcePath, destinationPath, destinationContainer } = input
-      const openstackSession = ctx.openstack
-      const swift = openstackSession?.service("swift")
+  moveFolder: projectScopedProcedure
+    .input(projectScopedInputSchema.extend(moveFolderInputSchema.shape))
+    .mutation(async ({ input, ctx }): Promise<number> => {
+      return withErrorHandling(async () => {
+        const { account, container, sourcePath, destinationPath, destinationContainer } = input
+        const openstackSession = ctx.openstack
+        const swift = openstackSession?.service("swift")
 
-      validateSwiftService(swift)
+        validateSwiftService(swift)
 
-      const normalizedSource = normalizeFolderPath(sourcePath)
-      const normalizedDest = normalizeFolderPath(destinationPath)
-      const destContainer = destinationContainer || container
+        const normalizedSource = normalizeFolderPath(sourcePath)
+        const normalizedDest = normalizeFolderPath(destinationPath)
+        const destContainer = destinationContainer || container
 
-      // List all objects with source prefix
-      const queryParams = new URLSearchParams()
-      queryParams.append("format", "json")
-      queryParams.append("prefix", normalizedSource)
+        // List all objects with source prefix
+        const queryParams = new URLSearchParams()
+        queryParams.append("format", "json")
+        queryParams.append("prefix", normalizedSource)
 
-      const accountPath = account || ""
-      const listUrl = accountPath
-        ? `${accountPath}/${encodeURIComponent(container)}?${queryParams.toString()}`
-        : `${encodeURIComponent(container)}?${queryParams.toString()}`
+        const accountPath = account || ""
+        const listUrl = accountPath
+          ? `${accountPath}/${encodeURIComponent(container)}?${queryParams.toString()}`
+          : `${encodeURIComponent(container)}?${queryParams.toString()}`
 
-      const listResponse = await swift.get(listUrl).catch((error) => {
-        throw mapErrorResponseToTRPCError(error, { operation: "list objects for move", container })
-      })
+        const listResponse = await swift.get(listUrl).catch((error) => {
+          throw mapErrorResponseToTRPCError(error, { operation: "list objects for move", container })
+        })
 
-      if (listResponse.status === 204) {
-        return 0 // No objects to move
-      }
-
-      const objects: ObjectSummary[] = await listResponse.json()
-      let movedCount = 0
-
-      // Copy each object to new location
-      for (const obj of objects) {
-        const relativePath = obj.name.substring(normalizedSource.length)
-        const newObjectName = normalizedDest + relativePath
-
-        // Copy object
-        const copyHeaders: Record<string, string> = {
-          "X-Copy-From": `/${encodeURIComponent(container)}/${encodeURIComponent(obj.name)}`,
-          "Content-Length": "0",
+        if (listResponse.status === 204) {
+          return 0 // No objects to move
         }
 
-        if (destinationContainer && destinationContainer !== container) {
-          copyHeaders["X-Copy-From-Account"] = account || ""
-        }
+        const objects: ObjectSummary[] = await listResponse.json()
+        let movedCount = 0
 
-        const destUrl = accountPath
-          ? `${accountPath}/${encodeURIComponent(destContainer)}/${encodeURIComponent(newObjectName)}`
-          : `${encodeURIComponent(destContainer)}/${encodeURIComponent(newObjectName)}`
+        // Copy each object to new location
+        for (const obj of objects) {
+          const relativePath = obj.name.substring(normalizedSource.length)
+          const newObjectName = normalizedDest + relativePath
 
-        await swift
-          .put(destUrl, {
-            headers: copyHeaders,
-            body: new ArrayBuffer(0),
-          })
-          .catch((error) => {
-            throw mapErrorResponseToTRPCError(error, {
-              operation: "copy object during folder move",
-              container: destContainer,
-              object: newObjectName,
+          // Copy object
+          const copyHeaders: Record<string, string> = {
+            "X-Copy-From": `/${encodeURIComponent(container)}/${encodeURIComponent(obj.name)}`,
+            "Content-Length": "0",
+          }
+
+          if (destinationContainer && destinationContainer !== container) {
+            copyHeaders["X-Copy-From-Account"] = account || ""
+          }
+
+          const destUrl = accountPath
+            ? `${accountPath}/${encodeURIComponent(destContainer)}/${encodeURIComponent(newObjectName)}`
+            : `${encodeURIComponent(destContainer)}/${encodeURIComponent(newObjectName)}`
+
+          await swift
+            .put(destUrl, {
+              headers: copyHeaders,
+              body: new ArrayBuffer(0),
             })
-          })
+            .catch((error) => {
+              throw mapErrorResponseToTRPCError(error, {
+                operation: "copy object during folder move",
+                container: destContainer,
+                object: newObjectName,
+              })
+            })
 
-        movedCount++
-      }
+          movedCount++
+        }
 
-      // Delete original objects using bulk delete
-      const objectPaths = objects.map((obj: ObjectSummary) => `/${container}/${obj.name}`)
+        // Delete original objects using bulk delete
+        const objectPaths = objects.map((obj: ObjectSummary) => `/${container}/${obj.name}`)
 
-      if (objectPaths.length > 0) {
+        if (objectPaths.length > 0) {
+          const bulkDeleteUrl = accountPath ? `${accountPath}?bulk-delete` : "?bulk-delete"
+          const body = objectPaths.join("\n")
+
+          await swift
+            .post(bulkDeleteUrl, body, {
+              headers: {
+                "Content-Type": "text/plain",
+                Accept: "text/plain",
+              },
+            })
+            .catch((error) => {
+              throw mapErrorResponseToTRPCError(error, { operation: "delete original objects after move" })
+            })
+        }
+
+        return movedCount
+      }, "move folder")
+    }),
+
+  /**
+   * Deletes a folder by deleting all objects with the folder prefix.
+   * Uses bulk delete for efficiency.
+   *
+   * Uses projectScopedProcedure because:
+   * - Deletes objects from project-owned containers
+   * - Requires project-scoped token for folder deletion
+   */
+  deleteFolder: projectScopedProcedure
+    .input(projectScopedInputSchema.extend(deleteFolderInputSchema.shape))
+    .mutation(async ({ input, ctx }): Promise<number> => {
+      return withErrorHandling(async () => {
+        const { account, container, folderPath, recursive } = input
+        const openstackSession = ctx.openstack
+        const swift = openstackSession?.service("swift")
+
+        validateSwiftService(swift)
+
+        const normalizedPath = normalizeFolderPath(folderPath)
+
+        // List all objects with folder prefix
+        const queryParams = new URLSearchParams()
+        queryParams.append("format", "json")
+        queryParams.append("prefix", normalizedPath)
+
+        if (!recursive) {
+          // Only delete objects at this level (use delimiter)
+          queryParams.append("delimiter", "/")
+        }
+
+        const accountPath = account || ""
+        const listUrl = accountPath
+          ? `${accountPath}/${encodeURIComponent(container)}?${queryParams.toString()}`
+          : `${encodeURIComponent(container)}?${queryParams.toString()}`
+
+        const listResponse = await swift.get(listUrl).catch((error) => {
+          throw mapErrorResponseToTRPCError(error, { operation: "list objects for deletion", container })
+        })
+
+        if (listResponse.status === 204) {
+          return 0 // No objects to delete
+        }
+
+        const objects: ObjectSummary[] = await listResponse.json()
+        const objectPaths = objects.map((obj) => `/${container}/${obj.name}`)
+
+        if (objectPaths.length === 0) {
+          return 0
+        }
+
+        // Use bulk delete
         const bulkDeleteUrl = accountPath ? `${accountPath}?bulk-delete` : "?bulk-delete"
         const body = objectPaths.join("\n")
 
-        await swift
+        const response = await swift
           .post(bulkDeleteUrl, body, {
             headers: {
               "Content-Type": "text/plain",
@@ -1025,89 +1186,29 @@ export const swiftRouter = {
             },
           })
           .catch((error) => {
-            throw mapErrorResponseToTRPCError(error, { operation: "delete original objects after move" })
+            throw mapErrorResponseToTRPCError(error, { operation: "bulk delete folder contents" })
           })
-      }
 
-      return movedCount
-    }, "move folder")
-  }),
-
-  /**
-   * Deletes a folder by deleting all objects with the folder prefix
-   * Uses bulk delete for efficiency
-   */
-  deleteFolder: protectedProcedure.input(deleteFolderInputSchema).mutation(async ({ input, ctx }): Promise<number> => {
-    return withErrorHandling(async () => {
-      const { account, container, folderPath, recursive } = input
-      const openstackSession = ctx.openstack
-      const swift = openstackSession?.service("swift")
-
-      validateSwiftService(swift)
-
-      const normalizedPath = normalizeFolderPath(folderPath)
-
-      // List all objects with folder prefix
-      const queryParams = new URLSearchParams()
-      queryParams.append("format", "json")
-      queryParams.append("prefix", normalizedPath)
-
-      if (!recursive) {
-        // Only delete objects at this level (use delimiter)
-        queryParams.append("delimiter", "/")
-      }
-
-      const accountPath = account || ""
-      const listUrl = accountPath
-        ? `${accountPath}/${encodeURIComponent(container)}?${queryParams.toString()}`
-        : `${encodeURIComponent(container)}?${queryParams.toString()}`
-
-      const listResponse = await swift.get(listUrl).catch((error) => {
-        throw mapErrorResponseToTRPCError(error, { operation: "list objects for deletion", container })
-      })
-
-      if (listResponse.status === 204) {
-        return 0 // No objects to delete
-      }
-
-      const objects: ObjectSummary[] = await listResponse.json()
-      const objectPaths = objects.map((obj) => `/${container}/${obj.name}`)
-
-      if (objectPaths.length === 0) {
-        return 0
-      }
-
-      // Use bulk delete
-      const bulkDeleteUrl = accountPath ? `${accountPath}?bulk-delete` : "?bulk-delete"
-      const body = objectPaths.join("\n")
-
-      const response = await swift
-        .post(bulkDeleteUrl, body, {
-          headers: {
-            "Content-Type": "text/plain",
-            Accept: "text/plain",
-          },
-        })
-        .catch((error) => {
-          throw mapErrorResponseToTRPCError(error, { operation: "bulk delete folder contents" })
-        })
-
-      const bulkResultText = await response.text()
-      const match = bulkResultText.match(/Number Deleted:\s*(\d+)/)
-      return match ? parseInt(match[1], 10) : 0
-    }, "delete folder")
-  }),
+        const bulkResultText = await response.text()
+        const match = bulkResultText.match(/Number Deleted:\s*(\d+)/)
+        return match ? parseInt(match[1], 10) : 0
+      }, "delete folder")
+    }),
 
   // ============================================================================
   // TEMPORARY URL OPERATIONS
   // ============================================================================
 
   /**
-   * Generates a temporary URL for time-limited object access
-   * Requires temp URL key to be configured at account or container level
+   * Generates a temporary URL for time-limited object access.
+   * Requires temp URL key to be configured at account or container level.
+   *
+   * Uses projectScopedProcedure because:
+   * - Generates URLs for objects in project-owned containers
+   * - Requires project-scoped token to access temp URL keys
    */
-  generateTempUrl: protectedProcedure
-    .input(generateTempUrlInputSchema)
+  generateTempUrl: projectScopedProcedure
+    .input(projectScopedInputSchema.extend(generateTempUrlInputSchema.shape))
     .mutation(async ({ input, ctx }): Promise<TempUrl> => {
       return withErrorHandling(async () => {
         const { account, container, object, method, expiresIn, filename } = input
@@ -1207,6 +1308,7 @@ export const swiftRouter = {
    * via the Transform pipeline identical to imageRouter.uploadImage.
    *
    * Metadata is sent as custom request headers:
+   *   - x-upload-project-id (string) — project ID for rescoping (required)
    *   - x-upload-container  (string) — target container name
    *   - x-upload-object     (string) — full object path, e.g. "folder/file.txt"
    *   - x-upload-type       (string, optional) — MIME type detected client-side
@@ -1222,16 +1324,40 @@ export const swiftRouter = {
    * this mutation so the subscription can be opened in advance. The UUID suffix ensures
    * concurrent uploads of the same object do not collide in the progress map.
    * On the BFF, the ID is further scoped with the Keystone project ID before storage.
+   *
+   * Uses protectedProcedure (not projectScopedProcedure) because:
+   * - Special handling required for octetInputParser (file upload streams)
+   * - Manual project rescoping performed using x-upload-project-id header
+   * - Cannot use standard input schema with binary stream data
    */
   uploadObject: protectedProcedure
     .input(octetInputParser)
     .mutation(async ({ input, ctx }): Promise<{ success: boolean }> => {
       return withErrorHandling(async () => {
-        const swift = ctx.openstack?.service("swift")
+        // Manual project rescoping for upload operations
+        const headers = ctx.req.headers
+        const uploadProjectId = headers["x-upload-project-id"] as string | undefined
+
+        if (!uploadProjectId || uploadProjectId.trim().length === 0) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "x-upload-project-id header is required for file uploads",
+          })
+        }
+
+        // Rescope session to the specified project
+        const openstackSession = await ctx.rescopeSession({ projectId: uploadProjectId })
+        if (!openstackSession) {
+          throw new TRPCError({
+            code: "UNAUTHORIZED",
+            message: "Failed to scope session to project. User may not have access to this project.",
+          })
+        }
+
+        const swift = openstackSession?.service("swift")
         validateSwiftService(swift)
 
         // Metadata arrives as custom headers — the body is the raw file stream.
-        const headers = ctx.req.headers
         const container = headers["x-upload-container"] as string | undefined
         const object = headers["x-upload-object"] as string | undefined
         const contentType = headers["x-upload-type"] as string | undefined
@@ -1254,9 +1380,9 @@ export const swiftRouter = {
         }
 
         // Scope the progress key to the project so cross-tenant observation is impossible
-        const uploadToken = ctx.openstack?.getToken()
-        const uploadProjectId = uploadToken?.tokenData.project?.id ?? "unknown"
-        const scopedUploadId = `${uploadProjectId}:${uploadId}`
+        const uploadToken = openstackSession.getToken()
+        const scopedProjectId = uploadToken?.tokenData.project?.id ?? "unknown"
+        const scopedUploadId = `${scopedProjectId}:${uploadId}`
 
         uploadProgressMap.set(scopedUploadId, { uploaded: 0, total: validatedFileSize, percent: 0 })
 
@@ -1448,93 +1574,96 @@ export const swiftRouter = {
    *   - Data is delivered to the client progressively, enabling download progress
    *   - The current client implementation still buffers the full file before
    *     creating the Blob, so client-side memory usage remains O(file size)
+   *
+   * Uses projectScopedProcedure because:
+   * - Downloads objects from project-owned containers
+   * - Requires project-scoped token to access and stream object data
    */
-  downloadObject: protectedProcedure.input(downloadObjectInputSchema).mutation(async function* ({
-    input,
-    ctx,
-  }): AsyncGenerator<{
-    chunk: string // base64-encoded Uint8Array chunk
-    downloaded: number // cumulative bytes received so far
-    total: number // total file size in bytes (0 if unknown)
-    contentType?: string // only present in first chunk
-    filename?: string // only present in first chunk
-  }> {
-    const { container, object, filename, account, downloadId } = input
-    const swift = ctx.openstack?.service("swift")
+  downloadObject: projectScopedProcedure
+    .input(projectScopedInputSchema.extend(downloadObjectInputSchema.shape))
+    .mutation(async function* ({ input, ctx }): AsyncGenerator<{
+      chunk: string // base64-encoded Uint8Array chunk
+      downloaded: number // cumulative bytes received so far
+      total: number // total file size in bytes (0 if unknown)
+      contentType?: string // only present in first chunk
+      filename?: string // only present in first chunk
+    }> {
+      const { container, object, filename, account, downloadId } = input
+      const swift = ctx.openstack?.service("swift")
 
-    validateSwiftService(swift)
+      validateSwiftService(swift)
 
-    const accountPath = account || ""
-    // Encode each segment of the object name individually so that slashes
-    // acting as path separators (e.g. "folder/file.txt") are preserved,
-    // while other special characters in segment names are still percent-encoded.
-    const encodedObject = object.split("/").map(encodeURIComponent).join("/")
-    const url = accountPath
-      ? `${accountPath}/${encodeURIComponent(container)}/${encodedObject}`
-      : `${encodeURIComponent(container)}/${encodedObject}`
+      const accountPath = account || ""
+      // Encode each segment of the object name individually so that slashes
+      // acting as path separators (e.g. "folder/file.txt") are preserved,
+      // while other special characters in segment names are still percent-encoded.
+      const encodedObject = object.split("/").map(encodeURIComponent).join("/")
+      const url = accountPath
+        ? `${accountPath}/${encodeURIComponent(container)}/${encodedObject}`
+        : `${encodeURIComponent(container)}/${encodedObject}`
 
-    const response = await swift.get(url).catch((error) => {
-      throw mapErrorResponseToTRPCError(error, { operation: "download object", container, object })
-    })
+      const response = await swift.get(url).catch((error) => {
+        throw mapErrorResponseToTRPCError(error, { operation: "download object", container, object })
+      })
 
-    const contentType = response.headers.get("content-type") ?? "application/octet-stream"
-    // Content-Length may be absent for chunked-transfer responses; treat 0 as unknown
-    const total = parseInt(response.headers.get("content-length") ?? "0", 10) || 0
+      const contentType = response.headers.get("content-type") ?? "application/octet-stream"
+      // Content-Length may be absent for chunked-transfer responses; treat 0 as unknown
+      const total = parseInt(response.headers.get("content-length") ?? "0", 10) || 0
 
-    if (!response.body) {
-      throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Swift response has no body" })
-    }
-
-    // Scope to the project so cross-tenant observation is impossible
-    const downloadToken = ctx.openstack?.getToken()
-    const downloadProjectId = downloadToken?.tokenData.project?.id ?? "unknown"
-    const scopedDownloadId = `${downloadProjectId}:${downloadId}`
-
-    downloadProgressMap.set(scopedDownloadId, { downloaded: 0, total, percent: 0 })
-
-    const reader = response.body.getReader()
-    let isFirst = true
-    let downloaded = 0
-
-    try {
-      while (true) {
-        const { done, value } = await reader.read()
-        if (done) break
-
-        downloaded += value.byteLength
-
-        const progress = downloadProgressMap.get(scopedDownloadId)!
-        progress.downloaded = downloaded
-        progress.percent = total > 0 ? Math.round((downloaded / total) * 100) : 0
-        downloadProgressEmitter.emit(`progress:${scopedDownloadId}`, { ...progress })
-
-        // Yield to the event loop so subscriptions can flush between chunks
-        await new Promise((resolve) => setTimeout(resolve, 0))
-
-        yield {
-          chunk: Buffer.from(value).toString("base64"),
-          downloaded,
-          total,
-          ...(isFirst ? { contentType, filename } : {}),
-        }
-
-        isFirst = false
+      if (!response.body) {
+        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Swift response has no body" })
       }
 
-      downloadProgressEmitter.emit(`progress:${scopedDownloadId}:complete`)
-    } catch (error) {
-      downloadProgressEmitter.emit(`progress:${scopedDownloadId}:error`, error)
-      throw mapErrorResponseToTRPCError(error as Parameters<typeof mapErrorResponseToTRPCError>[0], {
-        operation: "download object",
-        container,
-        object,
-      })
-    } finally {
-      downloadProgressMap.delete(scopedDownloadId)
-      await reader.cancel()
-      reader.releaseLock()
-    }
-  }),
+      // Scope to the project so cross-tenant observation is impossible
+      const downloadToken = ctx.openstack?.getToken()
+      const downloadProjectId = downloadToken?.tokenData.project?.id ?? "unknown"
+      const scopedDownloadId = `${downloadProjectId}:${downloadId}`
+
+      downloadProgressMap.set(scopedDownloadId, { downloaded: 0, total, percent: 0 })
+
+      const reader = response.body.getReader()
+      let isFirst = true
+      let downloaded = 0
+
+      try {
+        while (true) {
+          const { done, value } = await reader.read()
+          if (done) break
+
+          downloaded += value.byteLength
+
+          const progress = downloadProgressMap.get(scopedDownloadId)!
+          progress.downloaded = downloaded
+          progress.percent = total > 0 ? Math.round((downloaded / total) * 100) : 0
+          downloadProgressEmitter.emit(`progress:${scopedDownloadId}`, { ...progress })
+
+          // Yield to the event loop so subscriptions can flush between chunks
+          await new Promise((resolve) => setTimeout(resolve, 0))
+
+          yield {
+            chunk: Buffer.from(value).toString("base64"),
+            downloaded,
+            total,
+            ...(isFirst ? { contentType, filename } : {}),
+          }
+
+          isFirst = false
+        }
+
+        downloadProgressEmitter.emit(`progress:${scopedDownloadId}:complete`)
+      } catch (error) {
+        downloadProgressEmitter.emit(`progress:${scopedDownloadId}:error`, error)
+        throw mapErrorResponseToTRPCError(error as Parameters<typeof mapErrorResponseToTRPCError>[0], {
+          operation: "download object",
+          container,
+          object,
+        })
+      } finally {
+        downloadProgressMap.delete(scopedDownloadId)
+        await reader.cancel()
+        reader.releaseLock()
+      }
+    }),
 
   /**
    * Subscribes to real-time download progress for a given `downloadId`.

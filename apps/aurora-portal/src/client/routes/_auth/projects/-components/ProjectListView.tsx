@@ -1,0 +1,41 @@
+import { Project } from "@/server/Project/types/models"
+import { DataGrid, DataGridCell, DataGridRow, Icon } from "@cloudoperators/juno-ui-components"
+import { Trans } from "@lingui/react/macro"
+import { useNavigate } from "@tanstack/react-router"
+
+type ProjectListViewProps = {
+  projects: Project[] | undefined
+}
+
+export function ProjectListView({ projects }: ProjectListViewProps) {
+  const navigate = useNavigate()
+
+  return (
+    <DataGrid className="overflow-hidden" columns={3} minContentColumns={[0]}>
+      {projects?.length ? (
+        projects.map((project) => {
+          return (
+            <DataGridRow
+              key={project.id}
+              onClick={() => navigate({ to: "/projects/$projectId", params: { projectId: project.id } })}
+            >
+              <DataGridCell>
+                {project.enabled ? (
+                  <Icon icon="checkCircle" color="text-theme-success" />
+                ) : (
+                  <Icon icon="info" color="text-theme-danger" />
+                )}
+              </DataGridCell>
+              <DataGridCell>{project.name}</DataGridCell>
+              <DataGridCell>{project.description}</DataGridCell>
+            </DataGridRow>
+          )
+        })
+      ) : (
+        <div className="py-6 text-center">
+          <Trans>No projects found</Trans>
+        </div>
+      )}
+    </DataGrid>
+  )
+}

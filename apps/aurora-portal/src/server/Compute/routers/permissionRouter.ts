@@ -2,7 +2,7 @@ import { z } from "zod"
 import { TRPCError } from "@trpc/server"
 import { AuroraPortalContext } from "@/server/context"
 import { loadPolicyEngine } from "@/server/policyEngineLoader"
-import { protectedProcedure } from "../../trpc"
+import { projectScopedProcedure, projectScopedInputSchema } from "../../trpc"
 
 const computePolicyEngine = loadPolicyEngine("compute.yaml")
 const imagePolicyEngine = loadPolicyEngine("image.yaml")
@@ -92,10 +92,11 @@ const PERMISSION_KEY = z
  * Permission checking endpoint that determines whether a user has one or more specific permissions.
  *
  * Usage:
- * - `canUser("servers:list")` → returns `[boolean]` (single permission check, always wrapped in array).
- * - `canUser(["servers:list", "flavors:create"])` → returns `boolean[]` (bulk check, one result per permission in order).
+ * - `canUser({ project_id: "abc", permission: "servers:list" })` → returns `[boolean]` (single permission check, always wrapped in array).
+ * - `canUser({ project_id: "abc", permission: ["servers:list", "flavors:create"] })` → returns `boolean[]` (bulk check, one result per permission in order).
  *
  * Input must be:
+ * - A project_id (required, validated by projectScopedInputSchema), and
  * - A single valid permission key (string in `POLICY_MAPPINGS`), or
  * - An array of valid permission keys.
  *
@@ -104,10 +105,14 @@ const PERMISSION_KEY = z
  * Always returns `boolean[]` for consistent destructuring on the client.
  */
 export const permissionRouter = {
-  canUser: protectedProcedure
-    .input(z.union([PERMISSION_KEY, z.array(PERMISSION_KEY)]))
+  canUser: projectScopedProcedure
+    .input(
+      projectScopedInputSchema.extend({
+        permission: z.union([PERMISSION_KEY, z.array(PERMISSION_KEY)]),
+      })
+    )
     .query(async ({ ctx, input }): Promise<boolean[]> => {
-      const permissions = typeof input === "string" ? [input] : input
+      const permissions = typeof input.permission === "string" ? [input.permission] : input.permission
 
       if (permissions.length === 0) {
         return []

@@ -75,19 +75,22 @@ describe("MainNavigation", () => {
     })
 
     const projectsRoute = createRoute({
-      getParentRoute: () => domainRoute,
+      getParentRoute: () => rootRoute,
       path: "/projects",
       component: () => <div>Projects Page</div>,
     })
 
     const projectRoute = createRoute({
-      getParentRoute: () => projectsRoute,
-      path: "/$projectId",
+      getParentRoute: () => rootRoute,
+      path: "/projects/$projectId",
       loader: ({ params }) => ({
+        crumbDomain: {
+          name: "Test Domain",
+          path: "/projects",
+        },
         crumbProject: {
           id: params.projectId,
           name: `Test Project (${params.projectId})`,
-          domain_id: params.accountId,
           description: "A test project",
           enabled: true,
           links: {
@@ -101,7 +104,9 @@ describe("MainNavigation", () => {
     const routeTree = rootRoute.addChildren([
       homeRoute,
       aboutRoute,
-      accountsRoute.addChildren([domainRoute.addChildren([projectsRoute.addChildren([projectRoute])])]),
+      projectsRoute,
+      projectRoute,
+      accountsRoute.addChildren([domainRoute]),
     ])
 
     return createRouter({
@@ -139,17 +144,19 @@ describe("MainNavigation", () => {
 
     const router = createTestRouter(<MainNavigation items={mainNavItems} />)
 
-    // Navigate to a domain route first using the correct syntax with params
+    // Navigate to a project route to see domain data
     await router.navigate({
-      to: "/accounts/$accountId/projects",
-      params: { accountId: "domain1" },
+      to: "/projects/$projectId",
+      params: {
+        projectId: "project1",
+      },
     })
 
     await waitFor(() => render(<RouterProvider router={router} />))
 
     // Check if domain name is rendered
     await waitFor(() => {
-      expect(screen.getByText("Test Domain (domain1)")).toBeDefined()
+      expect(screen.getByText("Test Domain")).toBeDefined()
       expect(screen.getByTestId("domain-link")).toBeDefined()
     })
   })
@@ -163,9 +170,8 @@ describe("MainNavigation", () => {
 
     // Navigate to a project route with the correct syntax using params
     await router.navigate({
-      to: "/accounts/$accountId/projects/$projectId",
+      to: "/projects/$projectId",
       params: {
-        accountId: "domain1",
         projectId: "project1",
       },
     })
@@ -174,7 +180,7 @@ describe("MainNavigation", () => {
 
     // Check if domain and project names are rendered
     await waitFor(() => {
-      expect(screen.getByText("Test Domain (domain1)")).toBeDefined()
+      expect(screen.getByText("Test Domain")).toBeDefined()
       expect(screen.getByText("Test Project (project1)")).toBeDefined()
     })
   })
@@ -188,9 +194,8 @@ describe("MainNavigation", () => {
 
     // Navigate to a domain route first
     await router.navigate({
-      to: "/accounts/$accountId/projects/$projectId",
+      to: "/projects/$projectId",
       params: {
-        accountId: "domain1",
         projectId: "project1",
       },
     })
@@ -202,7 +207,7 @@ describe("MainNavigation", () => {
       const domainLink = screen.getByTestId("domain-link")
       await fireEvent.click(domainLink)
 
-      expect(screen.getByText("Test Domain (domain1)")).toBeDefined()
+      expect(screen.getByText("Test Domain")).toBeDefined()
     })
   })
 

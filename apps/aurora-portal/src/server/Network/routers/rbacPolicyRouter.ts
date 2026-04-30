@@ -1,4 +1,4 @@
-import { protectedProcedure } from "../../trpc"
+import { projectScopedProcedure } from "../../trpc"
 import {
   listRBACPoliciesForSecurityGroupInputSchema,
   createRBACPolicyInputSchema,
@@ -19,6 +19,8 @@ const RBAC_POLICIES_BASE_URL = "v2.0/rbac-policies"
 /**
  * tRPC router for OpenStack Neutron RBAC Policies.
  *
+ * Now uses projectScopedProcedure for automatic token rescoping.
+ *
  * Exposes:
  * - list: GET /v2.0/rbac-policies filtered by object_type and object_id
  * - create: POST /v2.0/rbac-policies to share a security group
@@ -26,11 +28,12 @@ const RBAC_POLICIES_BASE_URL = "v2.0/rbac-policies"
  * - delete: DELETE /v2.0/rbac-policies/{rbac_policy_id} to revoke sharing
  */
 export const rbacPolicyRouter = {
-  list: protectedProcedure
+  list: projectScopedProcedure
     .input(listRBACPoliciesForSecurityGroupInputSchema)
     .query(async ({ input, ctx }): Promise<RBACPolicy[]> => {
       return withErrorHandling(async () => {
         const { securityGroupId } = input
+        // ctx.openstack is already rescoped to the project by projectScopedProcedure
         const network = getNetworkService(ctx)
 
         // Query parameters to filter by security group
@@ -51,11 +54,12 @@ export const rbacPolicyRouter = {
       }, "list RBAC policies for security group")
     }),
 
-  create: protectedProcedure
+  create: projectScopedProcedure
     .input(createRBACPolicyInputSchema)
     .mutation(async ({ input, ctx }): Promise<RBACPolicy> => {
       return withErrorHandling(async () => {
         const { securityGroupId, targetTenant } = input
+        // ctx.openstack is already rescoped to the project by projectScopedProcedure
         const network = getNetworkService(ctx)
 
         const requestBody = {
@@ -78,11 +82,12 @@ export const rbacPolicyRouter = {
       }, "create RBAC policy")
     }),
 
-  update: protectedProcedure
+  update: projectScopedProcedure
     .input(updateRBACPolicyInputSchema)
     .mutation(async ({ input, ctx }): Promise<RBACPolicy> => {
       return withErrorHandling(async () => {
         const { policyId, targetTenant } = input
+        // ctx.openstack is already rescoped to the project by projectScopedProcedure
         const network = getNetworkService(ctx)
 
         const requestBody = {
@@ -102,9 +107,10 @@ export const rbacPolicyRouter = {
       }, "update RBAC policy")
     }),
 
-  delete: protectedProcedure.input(deleteRBACPolicyInputSchema).mutation(async ({ input, ctx }): Promise<void> => {
+  delete: projectScopedProcedure.input(deleteRBACPolicyInputSchema).mutation(async ({ input, ctx }): Promise<void> => {
     return withErrorHandling(async () => {
       const { policyId } = input
+      // ctx.openstack is already rescoped to the project by projectScopedProcedure
       const network = getNetworkService(ctx)
 
       const response = await network.del(`${RBAC_POLICIES_BASE_URL}/${policyId}`)

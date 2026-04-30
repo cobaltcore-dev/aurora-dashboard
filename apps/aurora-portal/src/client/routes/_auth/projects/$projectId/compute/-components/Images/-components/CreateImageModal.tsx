@@ -1,0 +1,660 @@
+import React, { useState, useMemo } from "react"
+import { Trans, useLingui } from "@lingui/react/macro"
+import {
+  Modal,
+  Form,
+  FormRow,
+  FormSection,
+  TextInput,
+  Select,
+  SelectOption,
+  Checkbox,
+  Button,
+  Spinner,
+  Stack,
+  Pill,
+  Message,
+} from "@cloudoperators/juno-ui-components"
+import { CreateImageInput } from "@/server/Compute/types/image"
+import {
+  getCompatibleContainerFormats,
+  getDefaultContainerFormat,
+  isValidFormatCombination,
+} from "@/server/Compute/helpers/imageHelpers"
+import { DISK_FORMATS, IMAGE_VISIBILITY } from "../../../-constants/filters"
+import { cn } from "@/client/utils/cn"
+
+interface CreateImageModalProps {
+  isOpen: boolean
+  onClose: () => void
+  onCreate: (imageData: Omit<CreateImageInput, "project_id">, file: File) => Promise<void>
+  isLoading?: boolean
+  isUploadPending?: boolean
+  uploadProgressPercent?: number
+}
+
+interface ImageProperties {
+  name: string
+  tags: string[]
+  visibility: string
+  disk_format?: string
+  container_format?: string
+  protected: boolean
+  min_disk: number
+  min_ram: number
+}
+
+const defaultImageValues: ImageProperties = {
+  name: "",
+  tags: [],
+  visibility: IMAGE_VISIBILITY.PRIVATE,
+  disk_format: undefined,
+  container_format: undefined,
+  protected: false,
+  min_disk: 0,
+  min_ram: 0,
+}
+
+export const CreateImageModal: React.FC<CreateImageModalProps> = ({
+  isOpen,
+  onClose,
+  onCreate,
+  isLoading = false,
+  isUploadPending = false,
+  uploadProgressPercent,
+}) => {
+  const { t } = useLingui()
+
+  const [properties, setProperties] = useState<ImageProperties>({ ...defaultImageValues })
+  const [tagsInput, setTagsInput] = useState<string>("")
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [errors, setErrors] = useState<{ [key: string]: string }>({})
+  const [isDragging, setIsDragging] = useState<boolean>(false)
+  const [generalError, setGeneralError] = useState<string | null>(null)
+
+  // Check if form is valid for submit button
+  const isFormValid =
+    properties.name.trim() !== "" &&
+    selectedFile !== null &&
+    properties.disk_format !== undefined &&
+    properties.disk_format.trim() !== "" &&
+    properties.container_format !== undefined &&
+    properties.container_format.trim() !== "" &&
+    properties.min_disk >= 0 &&
+    properties.min_ram >= 0
+
+  // Get compatible container formats for current disk_format
+  const compatibleContainerFormats = useMemo(() => {
+    return properties.disk_format ? getCompatibleContainerFormats(properties.disk_format) : []
+  }, [properties.disk_format])
+
+  const validExtensions = [
+    ".qcow2",
+    ".raw",
+    ".vmdk",
+    ".vhd",
+    ".vhdx",
+    ".vdi",
+    ".ami",
+    ".ari",
+    ".aki",
+    ".iso",
+    ".ploop",
+    ".img",
+  ]
+  const supportedFileFormats = validExtensions.join(", ")
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value, type, checked } = e.target
+
+    setProperties((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }))
+
+    if (errors[name]) {
+      setErrors((prev) => {
+        const newErrors = { ...prev }
+        delete newErrors[name]
+        return newErrors
+      })
+    }
+  }
+
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    const { name, value } = e.target
+
+    // Validate on blur
+    if (name === "name" && (!value || value.trim() === "")) {
+      setErrors((prev) => ({ ...prev, name: t`Image name is required` }))
+    }
+  }
+
+  const handleSelectChange = (name: string, value: string | number | string[] | undefined) => {
+    if (name === "disk_format") {
+      // When disk_format changes, auto-update container_format to the default
+      const newDiskFormat = value as string
+      const recommended = getDefaultContainerFormat(newDiskFormat)
+
+      setProperties((prev) => ({
+        ...prev,
+        disk_format: newDiskFormat,
+        container_format: recommended,
+      }))
+    } else {
+      setProperties((prev) => ({
+        ...prev,
+        [name]: value,
+      }))
+    }
+
+    if (errors[name]) {
+      setErrors((prev) => {
+        const newErrors = { ...prev }
+        delete newErrors[name]
+        return newErrors
+      })
+    }
+  }
+
+  const handleNumericChange = (name: string, value: string) => {
+    const numValue = value === "" ? 0 : parseInt(value, 10)
+
+    if (!isNaN(numValue)) {
+      setProperties((prev) => ({
+        ...prev,
+        [name]: numValue,
+      }))
+
+      if (errors[name]) {
+        setErrors((prev) => {
+          const newErrors = { ...prev }
+          delete newErrors[name]
+          return newErrors
+        })
+      }
+    }
+  }
+
+  const handleNumericBlur = (name: string, value: number) => {
+    if (value < 0) {
+      if (name === "min_disk") {
+        setErrors((prev) => ({ ...prev, min_disk: t`Minimum disk must be 0 or greater` }))
+      } else if (name === "min_ram") {
+        setErrors((prev) => ({ ...prev, min_ram: t`Minimum RAM must be 0 or greater` }))
+      }
+    }
+  }
+
+  const validateAndSetFile = (file: File) => {
+    const fileName = file.name.toLowerCase()
+    const isValidFile = validExtensions.some((ext) => fileName.endsWith(ext))
+
+    if (isValidFile) {
+      setSelectedFile(file)
+      if (errors.file) {
+        setErrors((prev) => {
+          const newErrors = { ...prev }
+          delete newErrors.file
+          return newErrors
+        })
+      }
+    } else {
+      setErrors((prev) => ({
+        ...prev,
+        file: t`Invalid file format. Supported formats: ${supportedFileFormats}`,
+      }))
+    }
+  }
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      validateAndSetFile(file)
+    }
+  }
+
+  const handleDragOver = (e: React.DragEvent<HTMLLabelElement>) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDragging(true)
+  }
+
+  const handleDragLeave = (e: React.DragEvent<HTMLLabelElement>) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDragging(false)
+  }
+
+  const handleDrop = (e: React.DragEvent<HTMLLabelElement>) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDragging(false)
+
+    const droppedFiles = e.dataTransfer.files
+
+    if (droppedFiles && droppedFiles.length > 0) {
+      validateAndSetFile(droppedFiles[0])
+    }
+  }
+
+  const handleTagsInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setTagsInput(e.target.value)
+  }
+
+  const handleAddTag = () => {
+    const trimmedTag = tagsInput.trim()
+
+    if (trimmedTag === "") return
+
+    if (properties.tags.includes(trimmedTag)) {
+      setTagsInput("")
+      return
+    }
+
+    setProperties((prev) => ({
+      ...prev,
+      tags: [...prev.tags, trimmedTag],
+    }))
+
+    setTagsInput("")
+  }
+
+  const handleTagKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault()
+      handleAddTag()
+    }
+  }
+
+  const handleRemoveTag = (tagToRemove: string) => {
+    setProperties((prev) => ({
+      ...prev,
+      tags: prev.tags.filter((tag) => tag !== tagToRemove),
+    }))
+  }
+
+  const validateForm = (): boolean => {
+    const newErrors: { [key: string]: string } = {}
+
+    if (!properties.name || properties.name.trim() === "") {
+      newErrors.name = t`Image name is required`
+    }
+
+    if (!selectedFile) {
+      newErrors.file = t`Image file is required`
+    }
+
+    if (!properties.disk_format || properties.disk_format.trim() === "") {
+      newErrors.disk_format = t`Disk format is required`
+    }
+
+    if (!properties.container_format || properties.container_format.trim() === "") {
+      newErrors.container_format = t`Container format is required`
+    }
+
+    // Validate format combination
+    if (properties.disk_format && properties.container_format) {
+      if (!isValidFormatCombination(properties.disk_format, properties.container_format)) {
+        newErrors.container_format = t`Invalid format combination for selected disk format`
+      }
+    }
+
+    if (properties.min_disk < 0) {
+      newErrors.min_disk = t`Minimum disk must be 0 or greater`
+    }
+
+    if (properties.min_ram < 0) {
+      newErrors.min_ram = t`Minimum RAM must be 0 or greater`
+    }
+
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setGeneralError(null)
+
+    if (!validateForm()) {
+      setGeneralError(t`Please fix the validation errors below.`)
+      return
+    }
+
+    try {
+      // Prepare image data without the file (file is uploaded separately)
+      const imageData = {
+        name: properties.name.trim(),
+        tags: properties.tags,
+        visibility: properties.visibility,
+        disk_format: properties.disk_format,
+        container_format: properties.container_format,
+        protected: properties.protected,
+        min_disk: properties.min_disk,
+        min_ram: properties.min_ram,
+      } as unknown as Omit<CreateImageInput, "project_id">
+
+      // Call onCreate with imageData and file as separate arguments
+      // File will be uploaded after image is created
+      await onCreate(imageData, selectedFile!)
+      handleClose()
+    } catch (error) {
+      // Display error in modal instead of toast
+      const errorMessage = error instanceof Error ? error.message : t`Failed to create image. Please try again.`
+      setGeneralError(errorMessage)
+    }
+  }
+
+  const handleClose = () => {
+    setProperties({ ...defaultImageValues })
+    setTagsInput("")
+    setSelectedFile(null)
+    setErrors({})
+    setGeneralError(null)
+    onClose()
+  }
+
+  return (
+    <Modal
+      open={isOpen}
+      onCancel={isLoading ? undefined : handleClose}
+      size="large"
+      title={t`Create New Image`}
+      onConfirm={handleSubmit}
+      confirmButtonLabel={t`Create Image`}
+      cancelButtonLabel={t`Cancel`}
+      disableConfirmButton={isLoading || !isFormValid}
+      closeable={!isLoading}
+      closeOnEsc={!isLoading}
+    >
+      {isLoading && !uploadProgressPercent && (
+        <Stack distribution="center" alignment="center" className="mt-4">
+          <Spinner variant="primary" />
+          {!isUploadPending && <Trans>Creating image...</Trans>}
+          {isUploadPending && <Trans>Pending file upload...</Trans>}
+        </Stack>
+      )}
+
+      {isLoading && !!uploadProgressPercent && (
+        <div className="bg-neutral-quaternary mt-4 w-full rounded-full">
+          <div
+            className="bg-theme-info flex h-4 items-center justify-center rounded-full p-0.5 text-center text-xs leading-none font-medium text-white"
+            style={{ width: `${uploadProgressPercent}%` }}
+          >
+            {uploadProgressPercent}%
+          </div>
+        </div>
+      )}
+
+      {!isLoading && (
+        <Form className="mb-6">
+          {generalError && (
+            <Message variant="error" className="mb-6">
+              {generalError}
+            </Message>
+          )}
+
+          {/* File Upload Section */}
+          <FormSection className="mb-6">
+            <FormRow>
+              <div className="w-full">
+                <label htmlFor="image-file" className="mb-2 block text-sm font-medium text-gray-900">
+                  {t`Image File`}
+                  <span className="ml-1 text-red-500">*</span>
+                </label>
+                <div className="flex w-full items-center justify-center">
+                  <label
+                    htmlFor="image-file"
+                    onDragOver={handleDragOver}
+                    onDragLeave={handleDragLeave}
+                    onDrop={handleDrop}
+                    className={cn(
+                      "flex h-24 w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed transition-all",
+                      isDragging ? "border-blue-500 bg-blue-50" : "border-gray-300 bg-gray-50 hover:bg-gray-100"
+                    )}
+                  >
+                    <div className="flex flex-col items-center justify-center pt-3 pb-3">
+                      <svg
+                        className={cn("mb-1 h-6 w-6 transition-colors", isDragging ? "text-blue-500" : "text-gray-500")}
+                        aria-hidden="true"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 20 16"
+                      >
+                        <path
+                          stroke="currentColor"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 5.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
+                        />
+                      </svg>
+                      <p
+                        className={cn(
+                          "text-xs transition-colors",
+                          isDragging ? "font-semibold text-blue-600" : "text-gray-500"
+                        )}
+                      >
+                        {isDragging ? (
+                          <span>{t`Drop your image file here`}</span>
+                        ) : (
+                          <>
+                            <span className="font-semibold">{t`Click to upload`}</span> {t`or drag and drop`}
+                          </>
+                        )}
+                      </p>
+                      <p className="text-xs text-gray-400">{t`QCOW2, Raw, VMDK, VHD, VHDX, VDI, AMI, ARI, AKI, ISO, PLOOP`}</p>
+                    </div>
+                    <input
+                      id="image-file"
+                      type="file"
+                      className="hidden"
+                      onChange={handleFileChange}
+                      accept={supportedFileFormats}
+                      disabled={isLoading}
+                    />
+                  </label>
+                </div>
+                {selectedFile && (
+                  <div className="mt-2 flex items-center justify-between rounded-lg border border-green-200 bg-green-50 p-2 text-xs">
+                    <div className="flex items-center">
+                      <svg className="mr-2 h-4 w-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                        <path
+                          fillRule="evenodd"
+                          d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                      <span className="text-gray-700">{selectedFile.name}</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedFile(null)
+                        // Clear file error when removing file
+                        if (errors.file) {
+                          setErrors((prev) => {
+                            const newErrors = { ...prev }
+                            delete newErrors.file
+                            return newErrors
+                          })
+                        }
+                      }}
+                      className="font-medium text-red-600 hover:text-red-800"
+                      disabled={isLoading}
+                    >
+                      {t`Remove`}
+                    </button>
+                  </div>
+                )}
+                {errors.file && <p className="text-theme-error mt-1 text-xs text-red-600">{errors.file}</p>}
+              </div>
+            </FormRow>
+          </FormSection>
+
+          {/* Basic Details Section */}
+          <FormSection className="mb-6">
+            <FormRow className="mb-6">
+              <TextInput
+                id="name"
+                name="name"
+                label={t`Image Name`}
+                value={properties.name}
+                onChange={handleInputChange}
+                onBlur={handleBlur}
+                required
+                errortext={errors.name}
+                placeholder={t`Ubuntu 22.04 LTS`}
+                disabled={isLoading}
+              />
+            </FormRow>
+
+            <FormRow className="mb-6">
+              <div className="w-full">
+                <Stack gap="1" direction="horizontal" alignment="start">
+                  <div className="flex-1">
+                    <TextInput
+                      id="tags"
+                      name="tags"
+                      label={t`Tags`}
+                      value={tagsInput}
+                      onChange={handleTagsInputChange}
+                      onKeyDown={handleTagKeyPress}
+                      helptext={t`Press Enter to add`}
+                      placeholder={t`production, linux`}
+                      disabled={isLoading}
+                    />
+                  </div>
+
+                  <Button variant="primary" onClick={handleAddTag} disabled={isLoading || tagsInput.trim() === ""}>
+                    <Trans>Add</Trans>
+                  </Button>
+                </Stack>
+
+                {properties.tags.length > 0 && (
+                  <Stack gap="1" wrap={true} alignment="center" className="mt-1">
+                    {properties.tags.map((tag) => (
+                      <Pill key={tag} closeable pillKey="" pillValue={tag} onClose={() => handleRemoveTag(tag)} />
+                    ))}
+                  </Stack>
+                )}
+              </div>
+            </FormRow>
+
+            <FormRow className="mb-6">
+              <Select
+                id="visibility"
+                name="visibility"
+                label={t`Visibility`}
+                value={properties.visibility}
+                onChange={(value) => handleSelectChange("visibility", value)}
+                disabled={isLoading}
+                loading={isLoading}
+              >
+                <SelectOption value={IMAGE_VISIBILITY.PUBLIC} label={t`Public`} />
+                <SelectOption value={IMAGE_VISIBILITY.PRIVATE} label={t`Private`} />
+                <SelectOption value={IMAGE_VISIBILITY.SHARED} label={t`Shared`} />
+                <SelectOption value={IMAGE_VISIBILITY.COMMUNITY} label={t`Community`} />
+              </Select>
+            </FormRow>
+
+            <FormRow className="mb-6">
+              <Stack direction="horizontal" gap="3" distribution="evenly" className="w-full">
+                <div className="flex-1">
+                  <Select
+                    id="disk_format"
+                    name="disk_format"
+                    label={t`Disk Format`}
+                    value={properties.disk_format}
+                    onChange={(value) => handleSelectChange("disk_format", value)}
+                    disabled={isLoading}
+                    loading={isLoading}
+                    required
+                    errortext={errors.disk_format}
+                  >
+                    <SelectOption value={DISK_FORMATS.QCOW2} label="QCOW2 - QEMU Emulator" />
+                    <SelectOption value={DISK_FORMATS.RAW} label="Raw" />
+                    <SelectOption value={DISK_FORMATS.VMDK} label="VMDK - Virtual Machine Disk" />
+                    <SelectOption value={DISK_FORMATS.VHD} label="VHD - Virtual Hard Disk" />
+                    <SelectOption value={DISK_FORMATS.VHDX} label="VHDX - Virtual Hard Disk Extended" />
+                    <SelectOption value={DISK_FORMATS.VDI} label="VDI - Virtual Disk Image" />
+                    <SelectOption value={DISK_FORMATS.AMI} label="AMI - Amazon Machine Image" />
+                    <SelectOption value={DISK_FORMATS.ARI} label="ARI - Amazon Ramdisk Image" />
+                    <SelectOption value={DISK_FORMATS.AKI} label="AKI - Amazon Kernel Image" />
+                    <SelectOption value={DISK_FORMATS.ISO} label="ISO - Optical Disk Image" />
+                    <SelectOption value={DISK_FORMATS.PLOOP} label="PLOOP - Virtuozzo/Parallels Loopback Disk" />
+                  </Select>
+                </div>
+                <div className="flex-1">
+                  <Select
+                    id="container_format"
+                    name="container_format"
+                    label={t`Container Format`}
+                    value={properties.container_format}
+                    onChange={(value) => handleSelectChange("container_format", value)}
+                    disabled={isLoading || !properties.disk_format || !compatibleContainerFormats.length}
+                    required
+                    errortext={errors.container_format}
+                    helptext={!compatibleContainerFormats.length && t`Select disk format first`}
+                  >
+                    {compatibleContainerFormats.map((format) => (
+                      <SelectOption key={format} value={format} label={format.toUpperCase()} />
+                    ))}
+                  </Select>
+                </div>
+              </Stack>
+            </FormRow>
+
+            <FormRow className="mb-0">
+              <Checkbox
+                id="protected"
+                name="protected"
+                label={t`Protected`}
+                checked={properties.protected}
+                onChange={handleInputChange}
+                helptext={t`Prevent accidental deletion`}
+                disabled={isLoading}
+              />
+            </FormRow>
+          </FormSection>
+
+          {/* Resource Requirements Section */}
+          <FormSection className="mb-6">
+            <FormRow className="mb-0">
+              <Stack direction="horizontal" gap="3" distribution="evenly" className="w-full">
+                <div className="flex-1">
+                  <TextInput
+                    id="min_disk"
+                    name="min_disk"
+                    label={t`Min Disk (GB)`}
+                    type="number"
+                    value={String(properties.min_disk)}
+                    onChange={(e) => handleNumericChange("min_disk", e.target.value)}
+                    onBlur={() => handleNumericBlur("min_disk", properties.min_disk)}
+                    helptext={t`Boot size`}
+                    errortext={errors.min_disk}
+                    disabled={isLoading}
+                  />
+                </div>
+                <div className="flex-1">
+                  <TextInput
+                    id="min_ram"
+                    name="min_ram"
+                    label={t`Min RAM (MB)`}
+                    type="number"
+                    value={String(properties.min_ram)}
+                    onChange={(e) => handleNumericChange("min_ram", e.target.value)}
+                    onBlur={() => handleNumericBlur("min_ram", properties.min_ram)}
+                    helptext={t`Boot RAM`}
+                    errortext={errors.min_ram}
+                    disabled={isLoading}
+                  />
+                </div>
+              </Stack>
+            </FormRow>
+          </FormSection>
+        </Form>
+      )}
+    </Modal>
+  )
+}

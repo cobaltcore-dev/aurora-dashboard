@@ -1,4 +1,4 @@
-import { protectedProcedure, projectScopedProcedure } from "../../trpc"
+import { projectScopedProcedure } from "../../trpc"
 import {
   listSecurityGroupsInputSchema,
   SecurityGroup,
@@ -113,11 +113,12 @@ export const securityGroupRouter = {
       }, "list security groups")
     }),
 
-  getById: protectedProcedure
+  getById: projectScopedProcedure
     .input(getSecurityGroupByIdInputSchema)
     .query(async ({ input, ctx }): Promise<SecurityGroup> => {
       return withErrorHandling(async () => {
         const { securityGroupId } = input
+        // ctx.openstack is already rescoped to the project by projectScopedProcedure
         const network = getNetworkService(ctx)
 
         const response = await network.get(`${SECURITY_GROUPS_BASE_URL}/${securityGroupId}`)
@@ -134,10 +135,11 @@ export const securityGroupRouter = {
       }, "fetch security group by ID")
     }),
 
-  create: protectedProcedure
+  create: projectScopedProcedure
     .input(createSecurityGroupInputSchema)
     .mutation(async ({ input, ctx }): Promise<SecurityGroup> => {
       return withErrorHandling(async () => {
+        // ctx.openstack is already rescoped to the project by projectScopedProcedure
         const network = getNetworkService(ctx)
 
         const requestBody = {
@@ -160,11 +162,12 @@ export const securityGroupRouter = {
       }, "create security group")
     }),
 
-  deleteById: protectedProcedure
+  deleteById: projectScopedProcedure
     .input(deleteSecurityGroupInputSchema)
     .mutation(async ({ input, ctx }): Promise<void> => {
       return withErrorHandling(async () => {
         const { securityGroupId } = input
+        // ctx.openstack is already rescoped to the project by projectScopedProcedure
         const network = getNetworkService(ctx)
 
         const response = await network.del(`${SECURITY_GROUPS_BASE_URL}/${securityGroupId}`)
@@ -174,11 +177,12 @@ export const securityGroupRouter = {
         }
       }, "delete security group")
     }),
-  update: protectedProcedure
+  update: projectScopedProcedure
     .input(updateSecurityGroupInputSchema)
     .mutation(async ({ input, ctx }): Promise<SecurityGroup> => {
       return withErrorHandling(async () => {
         const { securityGroupId, ...updateFields } = input
+        // ctx.openstack is already rescoped to the project by projectScopedProcedure
         const network = getNetworkService(ctx)
 
         const requestBody = {

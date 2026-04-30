@@ -32,7 +32,7 @@ describe("imageHelpers", () => {
     })
 
     it("should apply sort parameter when provided", () => {
-      const input: Omit<ListImagesInput, "projectId"> = {
+      const input: Omit<ListImagesInput, "project_id"> = {
         sort: "name:asc",
         sort_key: "created_at",
         sort_dir: "desc",
@@ -46,7 +46,7 @@ describe("imageHelpers", () => {
     })
 
     it("should apply classic sort parameters when sort is not provided", () => {
-      const input: Omit<ListImagesInput, "projectId"> = {
+      const input: Omit<ListImagesInput, "project_id"> = {
         sort_key: "created_at",
         sort_dir: "desc",
       }
@@ -57,7 +57,7 @@ describe("imageHelpers", () => {
     })
 
     it("should apply pagination parameters", () => {
-      const input: Omit<ListImagesInput, "projectId"> = {
+      const input: Omit<ListImagesInput, "project_id"> = {
         limit: 25,
         marker: "image-123",
         sort_key: "name",
@@ -71,7 +71,7 @@ describe("imageHelpers", () => {
     })
 
     it("should apply basic filtering parameters (excluding name)", () => {
-      const input: Omit<ListImagesInput, "projectId"> = {
+      const input: Omit<ListImagesInput, "project_id"> = {
         name: "ubuntu",
         status: "active",
         visibility: "public",
@@ -93,7 +93,7 @@ describe("imageHelpers", () => {
     })
 
     it("should not add name to URL even when name is provided", () => {
-      const input: Omit<ListImagesInput, "projectId"> = {
+      const input: Omit<ListImagesInput, "project_id"> = {
         name: "ubuntu-22.04",
         sort_key: "name",
         sort_dir: "asc",
@@ -105,7 +105,7 @@ describe("imageHelpers", () => {
     })
 
     it("should apply boolean parameters correctly", () => {
-      const input: Omit<ListImagesInput, "projectId"> = {
+      const input: Omit<ListImagesInput, "project_id"> = {
         protected: "true",
         os_hidden: false,
         sort_key: "name",
@@ -119,7 +119,7 @@ describe("imageHelpers", () => {
     })
 
     it("should apply format parameters", () => {
-      const input: Omit<ListImagesInput, "projectId"> = {
+      const input: Omit<ListImagesInput, "project_id"> = {
         container_format: "bare",
         disk_format: "qcow2",
         sort_key: "name",
@@ -133,7 +133,7 @@ describe("imageHelpers", () => {
     })
 
     it("should apply numeric parameters", () => {
-      const input: Omit<ListImagesInput, "projectId"> = {
+      const input: Omit<ListImagesInput, "project_id"> = {
         min_ram: 512,
         min_disk: 10,
         size_min: 1024,
@@ -151,7 +151,7 @@ describe("imageHelpers", () => {
     })
 
     it("should apply tag and OS parameters", () => {
-      const input: Omit<ListImagesInput, "projectId"> = {
+      const input: Omit<ListImagesInput, "project_id"> = {
         tag: "production",
         os_type: "linux",
         sort_key: "name",
@@ -165,7 +165,7 @@ describe("imageHelpers", () => {
     })
 
     it("should apply time-based filtering parameters", () => {
-      const input: Omit<ListImagesInput, "projectId"> = {
+      const input: Omit<ListImagesInput, "project_id"> = {
         created_at: "gte:2023-01-01T00:00:00Z",
         updated_at: "lt:2023-12-31T23:59:59Z",
         sort_key: "name",
@@ -179,7 +179,7 @@ describe("imageHelpers", () => {
     })
 
     it("should not apply undefined or null parameters", () => {
-      const input: Omit<ListImagesInput, "projectId"> = {
+      const input: Omit<ListImagesInput, "project_id"> = {
         name: undefined,
         limit: undefined,
         protected: undefined,

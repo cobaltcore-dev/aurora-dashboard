@@ -207,6 +207,7 @@ describe("rbacPolicyResponseSchema", () => {
 describe("listRBACPoliciesForSecurityGroupInputSchema", () => {
   it("validates valid security group ID", () => {
     const input = {
+      project_id: "test-project-id",
       securityGroupId: "sg-123",
     }
 
@@ -219,7 +220,7 @@ describe("listRBACPoliciesForSecurityGroupInputSchema", () => {
   })
 
   it("requires securityGroupId field", () => {
-    const input = {}
+    const input = { project_id: "test-project-id" }
 
     const result = listRBACPoliciesForSecurityGroupInputSchema.safeParse(input)
 
@@ -230,6 +231,7 @@ describe("listRBACPoliciesForSecurityGroupInputSchema", () => {
 describe("createRBACPolicyInputSchema", () => {
   it("validates valid create input", () => {
     const input = {
+      project_id: "test-project-id",
       securityGroupId: "sg-123",
       targetTenant: "project-456",
     }
@@ -245,6 +247,7 @@ describe("createRBACPolicyInputSchema", () => {
 
   it("requires securityGroupId field", () => {
     const input = {
+      project_id: "test-project-id",
       targetTenant: "project-456",
     }
 
@@ -255,6 +258,7 @@ describe("createRBACPolicyInputSchema", () => {
 
   it("requires targetTenant field", () => {
     const input = {
+      project_id: "test-project-id",
       securityGroupId: "sg-123",
     }
 
@@ -265,6 +269,7 @@ describe("createRBACPolicyInputSchema", () => {
 
   it("rejects empty targetTenant", () => {
     const input = {
+      project_id: "project-123",
       securityGroupId: "sg-123",
       targetTenant: "",
     }
@@ -279,6 +284,7 @@ describe("createRBACPolicyInputSchema", () => {
 
   it("rejects targetTenant with whitespace only", () => {
     const input = {
+      project_id: "project-123",
       securityGroupId: "sg-123",
       targetTenant: "   ",
     }
@@ -295,6 +301,7 @@ describe("createRBACPolicyInputSchema", () => {
 describe("updateRBACPolicyInputSchema", () => {
   it("validates valid update input", () => {
     const input = {
+      project_id: "project-123",
       policyId: "policy-123",
       targetTenant: "project-456",
     }
@@ -310,6 +317,7 @@ describe("updateRBACPolicyInputSchema", () => {
 
   it("requires policyId field", () => {
     const input = {
+      project_id: "project-123",
       targetTenant: "project-456",
     }
 
@@ -320,6 +328,7 @@ describe("updateRBACPolicyInputSchema", () => {
 
   it("requires targetTenant field", () => {
     const input = {
+      project_id: "project-123",
       policyId: "policy-123",
     }
 
@@ -330,6 +339,7 @@ describe("updateRBACPolicyInputSchema", () => {
 
   it("rejects empty targetTenant", () => {
     const input = {
+      project_id: "project-123",
       policyId: "policy-123",
       targetTenant: "",
     }
@@ -344,6 +354,7 @@ describe("updateRBACPolicyInputSchema", () => {
 
   it("rejects targetTenant with whitespace only", () => {
     const input = {
+      project_id: "project-123",
       policyId: "policy-123",
       targetTenant: "   ",
     }
@@ -360,6 +371,7 @@ describe("updateRBACPolicyInputSchema", () => {
 describe("deleteRBACPolicyInputSchema", () => {
   it("validates valid delete input", () => {
     const input = {
+      project_id: "project-123",
       policyId: "policy-123",
     }
 
@@ -372,7 +384,9 @@ describe("deleteRBACPolicyInputSchema", () => {
   })
 
   it("requires policyId field", () => {
-    const input = {}
+    const input = {
+      project_id: "project-123",
+    }
 
     const result = deleteRBACPolicyInputSchema.safeParse(input)
 
@@ -383,7 +397,7 @@ describe("deleteRBACPolicyInputSchema", () => {
     const testCases = ["policy-123", "abc-def-ghi", "12345"]
 
     testCases.forEach((policyId) => {
-      const result = deleteRBACPolicyInputSchema.safeParse({ policyId })
+      const result = deleteRBACPolicyInputSchema.safeParse({ project_id: "project-123", policyId })
       expect(result.success).toBe(true)
     })
   })

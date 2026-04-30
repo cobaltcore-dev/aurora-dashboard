@@ -1,4 +1,5 @@
 import { z } from "zod"
+import { projectScopedInputSchema } from "../../trpc"
 
 // Common base schemas
 const linkSchema = z.object({
@@ -6,7 +7,7 @@ const linkSchema = z.object({
   rel: z.string().nullable().optional(),
 })
 
-const baseImageInputSchema = z.object({
+const baseImageInputSchema = projectScopedInputSchema.extend({
   imageId: z.string().uuid(),
 })
 
@@ -215,7 +216,7 @@ const multiValueFilter = <T extends z.ZodTypeAny>(enumSchema: T) =>
   ])
 
 // Input schema for listing images with sorting and filtering
-export const listImagesInputSchema = z.object({
+export const listImagesInputSchema = projectScopedInputSchema.extend({
   // Sorting parameters
   sort_key: sortKeySchema.optional(),
   sort_dir: sortDirSchema.optional(),
@@ -269,8 +270,8 @@ export const imagesPaginatedInputSchema = listImagesInputSchema.extend({
 export const getImageByIdInputSchema = baseImageInputSchema
 
 // Input schema for creating an image
-export const createImageInputSchema = z
-  .object({
+export const createImageInputSchema = projectScopedInputSchema
+  .extend({
     // Core properties that can be set during creation
     name: z.string().optional(),
     id: z.string().uuid().optional(), // Optional UUID, API will generate if omitted
@@ -324,15 +325,15 @@ export const deactivateImageInputSchema = baseImageInputSchema
 export const reactivateImageInputSchema = baseImageInputSchema
 
 // Bulk operation input schemas
-export const deleteImagesInputSchema = z.object({
+export const deleteImagesInputSchema = projectScopedInputSchema.extend({
   imageIds: z.array(z.string().uuid()).min(1, "At least one image ID is required"),
 })
 
-export const activateImagesInputSchema = z.object({
+export const activateImagesInputSchema = projectScopedInputSchema.extend({
   imageIds: z.array(z.string().uuid()).min(1, "At least one image ID is required"),
 })
 
-export const deactivateImagesInputSchema = z.object({
+export const deactivateImagesInputSchema = projectScopedInputSchema.extend({
   imageIds: z.array(z.string().uuid()).min(1, "At least one image ID is required"),
 })
 
