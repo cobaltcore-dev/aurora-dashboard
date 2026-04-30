@@ -14,3 +14,7 @@ CLAUDE*
 
 .releaserc.js.bak
 .semantic-release/
+
+test-results/
+playwright-report/
+playwright/.cache/
