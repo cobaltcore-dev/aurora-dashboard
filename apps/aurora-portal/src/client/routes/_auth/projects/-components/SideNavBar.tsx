@@ -83,7 +83,7 @@ export const SideNavBar = ({ projectId, availableServices }: SideNavBarProps) =>
       : []),
   ]
 
-return (
+  return (
     <SideNavigation ariaLabel="Project Side Navigation" onActiveItemChange={() => {}}>
       <SideNavigationList>
         <>
@@ -138,7 +138,6 @@ return (
               label={t`Storage`}
               open={openSections.storage}
               onClick={() => setOpenSections((prev) => ({ ...prev, storage: !prev.storage }))}
-              // onClick={() => setOpenSections((prev) => ({ ...prev, storage: !prev.storage }))}
             >
               {storageServices.map(({ service, label, to, params }) => (
                 <SideNavigationItem
