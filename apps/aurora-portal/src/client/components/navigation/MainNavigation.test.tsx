@@ -131,7 +131,7 @@ describe("MainNavigation", () => {
     await waitFor(() => render(<RouterProvider router={router} />))
 
     // Check if logo is rendered
-    expect(screen.getByText("SAP Cloud Infrastructure")).toBeDefined()
+    expect(screen.getByText("Aurora")).toBeDefined()
 
     // Check if navigation items are rendered
     expect(screen.getByText("About")).toBeDefined()

@@ -49,7 +49,7 @@ export function MainNavigation({ items, handleThemeToggle }: NavigationProps) {
       applicationName={
         <div className="flex flex-nowrap items-center space-x-2">
           <Link to="/" className={cn("shrink-0", textColorClass, textHoverClass)}>
-            SAP Cloud Infrastructure
+            Aurora
           </Link>
           {domain && (
             <>
