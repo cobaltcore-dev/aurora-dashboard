@@ -1,4 +1,4 @@
-import { Breadcrumb, BreadcrumbItem, Button, Stack, Spinner } from "@cloudoperators/juno-ui-components/index"
+import { Breadcrumb, BreadcrumbItem, Button, ContentHeading, Stack, Spinner } from "@cloudoperators/juno-ui-components/index"
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router"
 import type { RouteInfo } from "@/client/routes/routeInfo"
 import { Trans, useLingui } from "@lingui/react/macro"
@@ -184,6 +184,7 @@ function RouteComponent() {
   setPageTitle(securityGroup.name || securityGroup.id)
   return (
     <Stack direction="vertical">
+      <ContentHeading>{securityGroup.name || securityGroup.id}</ContentHeading>
       <Breadcrumb className="my-6">
         <BreadcrumbItem onClick={handleBack} label={t`Security Groups`} />
         <BreadcrumbItem active label={securityGroup.id} />

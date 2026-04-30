@@ -5,6 +5,7 @@ import { ErrorBoundary } from "react-error-boundary"
 import { SwiftContainers } from "../../-components/Swift/Containers"
 import { Trans, useLingui } from "@lingui/react/macro"
 import type { RouteInfo } from "@/client/routes/routeInfo"
+import { ContentHeading } from "@cloudoperators/juno-ui-components"
 
 export const checkServiceAvailability = (
   availableServices: {
@@ -122,19 +123,20 @@ function StorageDashboard() {
   const { setPageTitle } = Route.useRouteContext()
   const { t } = useLingui()
 
+  let pageTitle: string
   switch (provider) {
     case "swift":
-      setPageTitle(t`Object Storage`)
-      break
     case "ceph":
-      setPageTitle(t`Object Storage`)
+      pageTitle = t`Object Storage`
       break
     default:
-      setPageTitle(t`Storage Overview`)
+      pageTitle = t`Storage Overview`
   }
+  setPageTitle(pageTitle)
 
   return (
     <div>
+      <ContentHeading>{pageTitle}</ContentHeading>
       {project ? (
         <ErrorBoundary
           fallback={

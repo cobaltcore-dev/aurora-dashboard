@@ -1,4 +1,4 @@
-import { Breadcrumb, BreadcrumbItem, ContentHeading, Stack } from "@cloudoperators/juno-ui-components"
+import { Breadcrumb, BreadcrumbItem, Stack } from "@cloudoperators/juno-ui-components"
 import { Trans } from "@lingui/react/macro"
 import ClipboardText from "../ClipboardText"
 import { useRouteContext, useMatches, useNavigate, useParams } from "@tanstack/react-router"
@@ -181,7 +181,6 @@ export function ProjectInfoBox({ projectInfo }: ProjectInfoBoxProps) {
           <ClipboardText text={projectInfo.id} truncateAt={15} />
         </div>
       </Stack>
-      <ContentHeading>{pageTitle}</ContentHeading>
     </Stack>
   )
 }

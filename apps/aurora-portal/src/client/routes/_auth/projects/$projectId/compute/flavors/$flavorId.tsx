@@ -1,6 +1,7 @@
 import {
   Button,
   ButtonRow,
+  ContentHeading,
   Stack,
   Spinner,
   PopupMenu,
@@ -151,6 +152,7 @@ function RouteComponent() {
 
   return (
     <>
+      <ContentHeading>{flavor.name}</ContentHeading>
       <Stack direction="vertical">
         <ButtonRow>
           {hasMoreActions && (
