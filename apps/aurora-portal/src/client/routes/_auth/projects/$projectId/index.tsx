@@ -69,7 +69,7 @@ function RouteComponent() {
   }
 
   return (
-    <Stack direction="vertical" gap="6" className="py-4">
+    <Stack direction="vertical" gap="6" className="pb-4">
       <div>
         <ContentHeading>{crumbProject?.name}</ContentHeading>
         {description && <p className="text-theme-light mt-1 text-sm">{description}</p>}
