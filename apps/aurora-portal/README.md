@@ -18,25 +18,10 @@ Aurora aims to simplify operations for OpenStack-based cloud infrastructure. Our
 
 ## Getting Started
 
-install dependencies and with `pnpm install` and then setup the environment variables
-
-```bash
-export PORT=4000
-export IDENTITY_ENDPOINT=http://<keystone_url>:5000/v3
-export DEFAULT_ENDPOINT_INTERFACE=public
-```
-
-or use the `.env` file to set the environment variables, that should be places in the `apps/` folder with the following content:
-
-```bash
-PORT=4000
-IDENTITY_ENDPOINT=http://<keystone_url>:5000/v3
-DEFAULT_ENDPOINT_INTERFACE=public
-```
-
-see also the .env.example file for reference
-
-Than run the development server with `pnpm dev`
+1. Install dependencies with `pnpm install`
+2. Then setup the environment variables by creating a `.env` file with `cp .env.example .env` in the `apps/aurora-portal` directory
+3. Review the defaults and update with the necessary values.
+4. Then run the development server with `pnpm dev`
 
 ## Debugging with mitmproxy
 
