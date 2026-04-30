@@ -123,6 +123,11 @@ describe("SideNavBar", () => {
       fireEvent.click(screen.getByText("Compute"))
 
       expect(mockNavigate).not.toHaveBeenCalled()
+      expect(screen.queryByText("Images")).not.toBeInTheDocument()
+
+      fireEvent.click(screen.getByText("Compute"))
+
+      expect(screen.getByText("Images")).toBeInTheDocument()
     })
 
     describe("Storage Navigation", () => {

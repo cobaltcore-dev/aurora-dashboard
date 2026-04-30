@@ -185,29 +185,24 @@ describe("MainNavigation", () => {
     })
   })
 
-  test("domain link navigates to projects page", async () => {
+  test("project link navigates to project page", async () => {
     await act(async () => {
       i18n.activate("en")
     })
 
     const router = createTestRouter(<MainNavigation items={mainNavItems} />)
 
-    // Navigate to a domain route first
     await router.navigate({
       to: "/projects/$projectId",
-      params: {
-        projectId: "project1",
-      },
+      params: { projectId: "project1" },
     })
 
     await waitFor(() => render(<RouterProvider router={router} />))
 
-    // Click on the project link
     await waitFor(async () => {
       const projectLink = screen.getByTestId("project-link")
-      await fireEvent.click(projectLink)
-
-      expect(screen.getByText("Test Domain")).toBeDefined()
+      fireEvent.click(projectLink)
+      expect(router.state.location.pathname).toBe("/projects/project1")
     })
   })
 

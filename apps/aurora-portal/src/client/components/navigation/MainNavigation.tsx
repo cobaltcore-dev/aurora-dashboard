@@ -31,9 +31,10 @@ function getProject(matches: MakeRouteMatchUnion[]) {
     return null
   }
   const domain = getDomain(matches)
+  const projectId = projectMatch.loaderData?.crumbProject?.id
   return {
     name: projectMatch.loaderData?.crumbProject?.name || undefined,
-    path: domain ? `${domain.path}/${projectMatch.loaderData?.crumbProject?.id}` : undefined,
+    path: domain?.path && projectId ? `${domain.path}/${projectId}` : undefined,
   }
 }
 
@@ -62,7 +63,7 @@ export function MainNavigation({ items, handleThemeToggle }: NavigationProps) {
             <>
               <span className={cn("shrink-0", textMutedClass)}>|</span>
               <Link
-                to={project.path + ""}
+                to={project.path ?? "/projects"}
                 data-testid="project-link"
                 className={cn("shrink-0", textColorClass, textHoverClass)}
               >
