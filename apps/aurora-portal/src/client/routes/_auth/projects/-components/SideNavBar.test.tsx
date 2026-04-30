@@ -22,7 +22,6 @@ const TestingProvider = ({ children }: { children: ReactNode }) => (
 
 describe("SideNavBar", () => {
   const defaultProps = {
-    accountId: "acc-1",
     projectId: "proj-1",
     projectName: "Test Project",
     availableServices: [
@@ -123,10 +122,7 @@ describe("SideNavBar", () => {
 
       fireEvent.click(screen.getByText("Compute"))
 
-      expect(mockNavigate).toHaveBeenCalledWith({
-        to: "/projects/$projectId/compute/overview",
-        params: { projectId: "proj-1" },
-      })
+      expect(mockNavigate).not.toHaveBeenCalled()
     })
 
     describe("Storage Navigation", () => {

@@ -7,13 +7,14 @@ import { isRouteInfo } from "@/client/routes/routeInfo"
 
 interface SideNavBarProps {
   projectId: string
+  projectName: string
   availableServices: {
     type: string
     name: string
   }[]
 }
 
-export const SideNavBar = ({ projectId, availableServices }: SideNavBarProps) => {
+export const SideNavBar = ({ projectId, projectName, availableServices }: SideNavBarProps) => {
   const { t } = useLingui()
   const navigate = useNavigate()
   const matches = useMatches()
@@ -83,21 +84,24 @@ export const SideNavBar = ({ projectId, availableServices }: SideNavBarProps) =>
       : []),
   ]
 
+  const isOverviewActive = activeSection === null
+
   return (
     <SideNavigation ariaLabel="Project Side Navigation" onActiveItemChange={() => {}}>
       <SideNavigationList>
         <>
           <SideNavigationItem
+            icon="home"
+            label={projectName}
+            onClick={() =>
+              navigate({ to: "/projects/$projectId", params: { projectId } })
+            }
+            selected={isOverviewActive}
+          />
+          <SideNavigationItem
             label={t`Compute`}
             open={openSections.compute}
-            onClick={() => {
-              navigate({
-                to: "/projects/$projectId/compute/overview",
-                params: { projectId },
-              })
-              setOpenSections((prev) => ({ ...prev, compute: true }))
-            }}
-            selected={activeSection === "compute" && activeService === "overview"}
+            onClick={() => setOpenSections((prev) => ({ ...prev, compute: !prev.compute }))}
           >
             {computeServices.map(({ service, label, to, params }) => (
               <SideNavigationItem
@@ -113,14 +117,7 @@ export const SideNavBar = ({ projectId, availableServices }: SideNavBarProps) =>
             <SideNavigationItem
               label={t`Network`}
               open={openSections.network}
-              onClick={() => {
-                navigate({
-                  to: "/projects/$projectId/network/overview",
-                  params: { projectId },
-                })
-                setOpenSections((prev) => ({ ...prev, network: true }))
-              }}
-              selected={activeSection === "network" && activeService === "overview"}
+              onClick={() => setOpenSections((prev) => ({ ...prev, network: !prev.network }))}
             >
               {networkServices.map(({ service, label, to, params }) => (
                 <SideNavigationItem
