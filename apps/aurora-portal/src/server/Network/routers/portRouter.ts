@@ -1,6 +1,7 @@
 import { projectScopedProcedure } from "@/server/trpc"
 import { withErrorHandling } from "@/server/helpers/errorHandling"
 import { appendQueryParamsFromObject } from "@/server/helpers/queryParams"
+import { omit } from "@/server/helpers/object"
 import { ListAvailablePortsQuerySchema, AvailablePort, AvailablePortListResponseSchema } from "../types/port"
 import { getNetworkService, parseOrThrow } from "../helpers/index"
 import { PortErrorHandlers } from "../helpers/portHelpers"
@@ -24,8 +25,7 @@ export const portRouter = {
         const network = getNetworkService(ctx)
 
         // Extract project_id from input - it's used for rescoping, not for OpenStack API filtering
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { project_id, ...openstackFilters } = input
+        const openstackFilters = omit(input, "project_id")
         const queryParams = appendQueryParamsFromObject({
           ...openstackFilters,
           // Fetch only these fields, as the floating IP association only requires port_id with name and fixed_ips. This optimizes the response size and parsing.

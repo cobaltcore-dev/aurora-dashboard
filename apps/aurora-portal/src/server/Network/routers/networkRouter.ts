@@ -1,6 +1,7 @@
 import { projectScopedProcedure } from "@/server/trpc"
 import { withErrorHandling } from "@/server/helpers/errorHandling"
 import { appendQueryParamsFromObject } from "@/server/helpers/queryParams"
+import { omit } from "@/server/helpers/object"
 import { getNetworkService, parseOrThrow } from "../helpers/index"
 import { NetworkErrorHandlers } from "../helpers/networkHelpers"
 import {
@@ -31,8 +32,7 @@ export const networkRouter = {
         const network = getNetworkService(ctx)
 
         // Extract project_id from input - it's used for rescoping, not for OpenStack API filtering
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { project_id, ...openstackFilters } = input
+        const openstackFilters = omit(input, "project_id")
         const openstackParams = { ...openstackFilters, "router:external": true as const }
         const queryParams = appendQueryParamsFromObject(openstackParams)
         const queryString = queryParams.toString()
@@ -55,8 +55,7 @@ export const networkRouter = {
         const network = getNetworkService(ctx)
 
         // Extract project_id from input - it's used for rescoping, not for OpenStack API filtering
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { project_id, ...openstackFilters } = input
+        const openstackFilters = omit(input, "project_id")
         const openstackParams = { ...openstackFilters, fields: "dns_domain" }
         const queryParams = appendQueryParamsFromObject(openstackParams)
         const queryString = queryParams.toString()

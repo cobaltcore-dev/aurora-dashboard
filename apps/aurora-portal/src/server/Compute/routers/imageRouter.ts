@@ -2,6 +2,7 @@ import { z } from "zod"
 import { SignalOpenstackApiError } from "@cobaltcore-dev/signal-openstack"
 import { TRPCError } from "@trpc/server"
 import { filterBySearchParams } from "@/server/helpers/filterBySearchParams"
+import { omit } from "@/server/helpers/object"
 import EventEmitter from "node:events"
 import { Readable, Transform } from "node:stream"
 import { projectScopedProcedure, protectedProcedure } from "../../trpc"
@@ -331,8 +332,7 @@ export const imageRouter = {
     .input(createImageInputSchema)
     .mutation(async ({ input, ctx }): Promise<GlanceImage> => {
       return withErrorHandling(async () => {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { project_id, ...imageData } = input
+        const imageData = omit(input, "project_id")
         const openstackSession = ctx.openstack
         const glance = openstackSession?.service("glance")
 
