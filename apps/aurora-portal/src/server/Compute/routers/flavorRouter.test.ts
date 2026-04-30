@@ -112,7 +112,7 @@ describe("flavorRouter", () => {
       const caller = createCaller(mockCtx)
 
       const input = {
-        projectId: "test-project-123",
+        project_id: "test-project-123",
       }
 
       await expect(caller.flavor.getFlavorsByProjectId(input)).rejects.toThrow(
@@ -134,7 +134,7 @@ describe("flavorRouter", () => {
       vi.mocked(flavorHelpers.filterAndSortFlavors).mockReturnValue(filteredAndSortedFlavors)
 
       const input = {
-        projectId: "test-project-123",
+        project_id: "test-project-123",
         sortBy: "name",
         sortDirection: "desc",
         searchTerm: "m1",
@@ -166,7 +166,7 @@ describe("flavorRouter", () => {
       vi.mocked(flavorHelpers.filterAndSortFlavors).mockReturnValue(mockFlavors)
 
       const input = {
-        projectId: "test-project-123",
+        project_id: "test-project-123",
       }
 
       const result = await caller.flavor.getFlavorsByProjectId(input)
@@ -184,18 +184,18 @@ describe("flavorRouter", () => {
       expect(result).toEqual(mockFlavors)
     })
 
-    it("should throw INTERNAL_SERVER_ERROR when rescopeSession returns null", async () => {
+    it("should throw UNAUTHORIZED when rescopeSession returns null", async () => {
       const mockCtx = createMockContext(false, true) // shouldFailRescope = true
       const caller = createCaller(mockCtx)
 
       const input = {
-        projectId: "test-project-123",
+        project_id: "test-project-123",
       }
 
       await expect(caller.flavor.getFlavorsByProjectId(input)).rejects.toThrow(
         new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "COMPUTE_SERVICE_UNAVAILABLE",
+          code: "UNAUTHORIZED",
+          message: "Failed to scope session to project. User may not have access to this project.",
         })
       )
 
@@ -208,7 +208,7 @@ describe("flavorRouter", () => {
       const caller = createCaller(mockCtx)
 
       const input = {
-        projectId: "test-project-123",
+        project_id: "test-project-123",
       }
 
       await expect(caller.flavor.getFlavorsByProjectId(input)).rejects.toThrow(
@@ -232,7 +232,7 @@ describe("flavorRouter", () => {
       vi.mocked(flavorHelpers.fetchFlavors).mockRejectedValue(originalTRPCError)
 
       const input = {
-        projectId: "test-project-123",
+        project_id: "test-project-123",
       }
 
       await expect(caller.flavor.getFlavorsByProjectId(input)).rejects.toThrow(originalTRPCError)
@@ -247,7 +247,7 @@ describe("flavorRouter", () => {
       vi.mocked(flavorHelpers.fetchFlavors).mockRejectedValue(networkError)
 
       const input = {
-        projectId: "test-project-123",
+        project_id: "test-project-123",
       }
 
       await expect(caller.flavor.getFlavorsByProjectId(input)).rejects.toThrow(
@@ -274,7 +274,7 @@ describe("flavorRouter", () => {
         vi.mocked(flavorHelpers.filterAndSortFlavors).mockReturnValue(mockFlavors)
 
         const input = {
-          projectId: "test-project-123",
+          project_id: "test-project-123",
           sortBy,
           sortDirection: "desc",
         }
@@ -292,7 +292,7 @@ describe("flavorRouter", () => {
       vi.mocked(flavorHelpers.filterAndSortFlavors).mockReturnValue(mockFlavors)
 
       await caller.flavor.getFlavorsByProjectId({
-        projectId: "test-project-123",
+        project_id: "test-project-123",
         sortDirection: "asc",
       })
 
@@ -303,7 +303,7 @@ describe("flavorRouter", () => {
       vi.mocked(flavorHelpers.filterAndSortFlavors).mockReturnValue(mockFlavors)
 
       await caller.flavor.getFlavorsByProjectId({
-        projectId: "test-project-123",
+        project_id: "test-project-123",
         sortDirection: "desc",
       })
 
@@ -327,7 +327,7 @@ describe("flavorRouter", () => {
     }
 
     const validFlavorInput = {
-      projectId: "test-project-123",
+      project_id: "test-project-123",
       flavor: {
         name: "test-flavor",
         vcpus: 2,
@@ -420,7 +420,7 @@ describe("flavorRouter", () => {
 
   describe("deleteFlavor", () => {
     const validDeleteInput = {
-      projectId: "test-project-123",
+      project_id: "test-project-123",
       flavorId: "flavor-to-delete",
     }
 
@@ -547,7 +547,7 @@ describe("flavorRouter", () => {
         vi.mocked(flavorHelpers.deleteFlavor).mockResolvedValue(undefined)
 
         const input = {
-          projectId: "test-project-123",
+          project_id: "test-project-123",
           flavorId,
         }
 
@@ -566,7 +566,7 @@ describe("flavorRouter", () => {
   })
   describe("createExtraSpecs", () => {
     const validCreateExtraSpecsInput = {
-      projectId: "test-project-123",
+      project_id: "test-project-123",
       flavorId: "test-flavor-id",
       extra_specs: {
         cpu: "dedicated",
@@ -663,7 +663,7 @@ describe("flavorRouter", () => {
       vi.mocked(flavorHelpers.createExtraSpecs).mockResolvedValue({})
 
       const input = {
-        projectId: "test-project-123",
+        project_id: "test-project-123",
         flavorId: "test-flavor-id",
         extra_specs: {},
       }
@@ -693,7 +693,7 @@ describe("flavorRouter", () => {
       vi.mocked(flavorHelpers.createExtraSpecs).mockResolvedValue(complexExtraSpecs)
 
       const input = {
-        projectId: "test-project-123",
+        project_id: "test-project-123",
         flavorId: "test-flavor-id",
         extra_specs: complexExtraSpecs,
       }
@@ -711,7 +711,7 @@ describe("flavorRouter", () => {
 
   describe("getExtraSpecs", () => {
     const validGetExtraSpecsInput = {
-      projectId: "test-project-123",
+      project_id: "test-project-123",
       flavorId: "test-flavor-id",
     }
 
@@ -823,7 +823,7 @@ describe("flavorRouter", () => {
         vi.mocked(flavorHelpers.getExtraSpecs).mockResolvedValue(mockExtraSpecs)
 
         const input = {
-          projectId: "test-project-123",
+          project_id: "test-project-123",
           flavorId,
         }
 
@@ -840,7 +840,7 @@ describe("flavorRouter", () => {
 
   describe("deleteExtraSpec", () => {
     const validDeleteExtraSpecInput = {
-      projectId: "test-project-123",
+      project_id: "test-project-123",
       flavorId: "test-flavor-id",
       key: "cpu",
     }
@@ -942,7 +942,7 @@ describe("flavorRouter", () => {
         vi.mocked(flavorHelpers.deleteExtraSpec).mockResolvedValue(undefined)
 
         const input = {
-          projectId: "test-project-123",
+          project_id: "test-project-123",
           flavorId: "test-flavor-id",
           key,
         }
@@ -1004,7 +1004,7 @@ describe("flavorRouter", () => {
         vi.mocked(flavorHelpers.deleteExtraSpec).mockResolvedValue(undefined)
 
         const input = {
-          projectId: "test-project-123",
+          project_id: "test-project-123",
           flavorId: testCase.flavorId,
           key: testCase.key,
         }

@@ -1,13 +1,12 @@
-import { z } from "zod"
-import { protectedProcedure } from "../../trpc"
+import { projectScopedProcedure, projectScopedInputSchema } from "../../trpc"
 import { keypairsResponseSchema, Keypair } from "../types/keypair"
 
 export const keypairRouter = {
-  getKeypairsByProjectId: protectedProcedure
-    .input(z.object({ projectId: z.string() }))
-    .query(async ({ input, ctx }): Promise<Keypair[] | undefined> => {
-      const openstackSession = await ctx.rescopeSession({ projectId: input.projectId })
-      const compute = openstackSession?.service("compute")
+  getKeypairsByProjectId: projectScopedProcedure
+    .input(projectScopedInputSchema)
+    .query(async ({ ctx }): Promise<Keypair[] | undefined> => {
+      // ctx.openstack is already rescoped to the project by projectScopedProcedure
+      const compute = ctx.openstack?.service("compute")
 
       const parsedData = keypairsResponseSchema.safeParse(await compute?.get("os-keypairs").then((res) => res.json()))
       if (!parsedData.success) {

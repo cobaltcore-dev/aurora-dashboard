@@ -5,6 +5,8 @@ import { floatingIpRouter } from "./floatingIpRouter"
 import { FloatingIp } from "../types/floatingIp"
 import { AuroraPortalContext } from "@/server/context"
 
+const TEST_PROJECT_ID = "proj-1"
+
 const createMockContext = (opts?: {
   noNetworkService?: boolean
   invalidSession?: boolean
@@ -107,25 +109,28 @@ const createMockContext = (opts?: {
     })
   })
 
+  const mockOpenstackSession = {
+    service: vi.fn().mockImplementation((serviceName: string) => {
+      if (serviceName !== "network" || noNetworkService) {
+        return null
+      }
+
+      return {
+        get: networkGetMock,
+        post: networkPostMock,
+        put: networkPutMock,
+        del: networkDelMock,
+      }
+    }),
+  }
+
   return {
     validateSession: vi.fn().mockReturnValue(!invalidSession),
-    openstack: {
-      service: vi.fn().mockImplementation((serviceName: string) => {
-        if (serviceName !== "network" || noNetworkService) {
-          return null
-        }
-
-        return {
-          get: networkGetMock,
-          post: networkPostMock,
-          put: networkPutMock,
-          del: networkDelMock,
-        }
-      }),
-    },
+    openstack: mockOpenstackSession,
     createSession: vi.fn(),
     terminateSession: vi.fn(),
-    rescopeSession: vi.fn(),
+    rescopeSession: vi.fn().mockResolvedValue(!invalidSession ? mockOpenstackSession : null),
+    getMultipartData: vi.fn(),
     __networkGetMock: networkGetMock,
     __networkPostMock: networkPostMock,
     __networkPutMock: networkPutMock,
@@ -153,7 +158,7 @@ describe("floatingIpRouter.list", () => {
     const ctx = createMockContext()
     const caller = createCaller(ctx)
 
-    const result = await caller.floatingIp.list({})
+    const result = await caller.floatingIp.list({ project_id: TEST_PROJECT_ID })
 
     expect(Array.isArray(result)).toBe(true)
     expect(result.length).toBe(2)
@@ -177,7 +182,7 @@ describe("floatingIpRouter.list", () => {
     const ctx = createMockContext({ invalidSession: true })
     const caller = createCaller(ctx)
 
-    await expect(caller.floatingIp.list({})).rejects.toThrow(
+    await expect(caller.floatingIp.list({ project_id: TEST_PROJECT_ID })).rejects.toThrow(
       new TRPCError({
         code: "UNAUTHORIZED",
         message: "The session is invalid",
@@ -189,7 +194,7 @@ describe("floatingIpRouter.list", () => {
     const ctx = createMockContext({ noNetworkService: true })
     const caller = createCaller(ctx)
 
-    await expect(caller.floatingIp.list({})).rejects.toThrow(
+    await expect(caller.floatingIp.list({ project_id: TEST_PROJECT_ID })).rejects.toThrow(
       new TRPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: "Network service is not available",
@@ -201,7 +206,7 @@ describe("floatingIpRouter.list", () => {
     const ctx = createMockContext({ parseError: true })
     const caller = createCaller(ctx)
 
-    await expect(caller.floatingIp.list({})).rejects.toThrow(
+    await expect(caller.floatingIp.list({ project_id: TEST_PROJECT_ID })).rejects.toThrow(
       new TRPCError({
         code: "PARSE_ERROR",
         message: "Failed to parse response in floatingIpRouter.list",
@@ -213,7 +218,7 @@ describe("floatingIpRouter.list", () => {
     const ctx = createMockContext({ httpStatus: 401 })
     const caller = createCaller(ctx)
 
-    await expect(caller.floatingIp.list({})).rejects.toThrow(TRPCError)
+    await expect(caller.floatingIp.list({ project_id: TEST_PROJECT_ID })).rejects.toThrow(TRPCError)
   })
 
   it("accepts pagination parameters", async () => {
@@ -221,6 +226,7 @@ describe("floatingIpRouter.list", () => {
     const caller = createCaller(ctx)
 
     const result = await caller.floatingIp.list({
+      project_id: TEST_PROJECT_ID,
       limit: 10,
       marker: "fip-1",
       page_reverse: false,
@@ -235,6 +241,7 @@ describe("floatingIpRouter.list", () => {
     const caller = createCaller(ctx)
 
     const result = await caller.floatingIp.list({
+      project_id: TEST_PROJECT_ID,
       sort_key: "floating_ip_address",
       sort_dir: "asc",
     })
@@ -248,9 +255,9 @@ describe("floatingIpRouter.list", () => {
     const caller = createCaller(ctx)
 
     const result = await caller.floatingIp.list({
+      project_id: TEST_PROJECT_ID,
       status: "ACTIVE",
       floating_network_id: "net-1",
-      project_id: "proj-1",
     })
 
     expect(Array.isArray(result)).toBe(true)
@@ -262,6 +269,7 @@ describe("floatingIpRouter.list", () => {
     const caller = createCaller(ctx)
 
     const result = await caller.floatingIp.list({
+      project_id: TEST_PROJECT_ID,
       limit: 20,
       marker: "fip-0",
       page_reverse: false,
@@ -272,7 +280,6 @@ describe("floatingIpRouter.list", () => {
       fixed_ip_address: "10.0.0.5",
       port_id: "port-1",
       router_id: "router-1",
-      project_id: "proj-1",
       tenant_id: "proj-1",
       floating_network_id: "net-1",
     })
@@ -282,34 +289,37 @@ describe("floatingIpRouter.list", () => {
   })
 
   it("returns empty array when no floating IPs exist", async () => {
+    const mockOpenstackSession = {
+      service: vi.fn().mockImplementation((serviceName: string) => {
+        if (serviceName !== "network") {
+          return null
+        }
+
+        return {
+          get: vi.fn().mockResolvedValue({
+            ok: true,
+            status: 200,
+            statusText: "OK",
+            json: vi.fn().mockResolvedValue({
+              floatingips: [],
+            }),
+          }),
+          del: vi.fn().mockResolvedValue({
+            ok: true,
+            status: 204,
+          }),
+        }
+      }),
+    }
+
     const ctx = {
       ...createMockContext(),
-      openstack: {
-        service: vi.fn().mockImplementation((serviceName: string) => {
-          if (serviceName !== "network") {
-            return null
-          }
-
-          return {
-            get: vi.fn().mockResolvedValue({
-              ok: true,
-              status: 200,
-              statusText: "OK",
-              json: vi.fn().mockResolvedValue({
-                floatingips: [],
-              }),
-            }),
-            del: vi.fn().mockResolvedValue({
-              ok: true,
-              status: 204,
-            }),
-          }
-        }),
-      },
+      openstack: mockOpenstackSession,
+      rescopeSession: vi.fn().mockResolvedValue(mockOpenstackSession),
     } as unknown as AuroraPortalContext
 
     const caller = createCaller(ctx)
-    const result = await caller.floatingIp.list({})
+    const result = await caller.floatingIp.list({ project_id: TEST_PROJECT_ID })
 
     expect(Array.isArray(result)).toBe(true)
     expect(result.length).toBe(0)
@@ -362,7 +372,7 @@ describe("floatingIpRouter.list", () => {
       const ctx = createMockContext({ mockFloatingIps })
       const caller = createCaller(ctx)
 
-      const result = await caller.floatingIp.list({})
+      const result = await caller.floatingIp.list({ project_id: TEST_PROJECT_ID })
 
       expect(result.length).toBe(3)
     })
@@ -371,7 +381,7 @@ describe("floatingIpRouter.list", () => {
       const ctx = createMockContext({ mockFloatingIps })
       const caller = createCaller(ctx)
 
-      const result = await caller.floatingIp.list({ searchTerm: "web" })
+      const result = await caller.floatingIp.list({ project_id: TEST_PROJECT_ID, searchTerm: "web" })
 
       expect(result.length).toBe(2)
       const ids = result.map((fip) => fip.id).sort()
@@ -382,7 +392,7 @@ describe("floatingIpRouter.list", () => {
       const ctx = createMockContext({ mockFloatingIps })
       const caller = createCaller(ctx)
 
-      const result = await caller.floatingIp.list({ searchTerm: "nonexistent" })
+      const result = await caller.floatingIp.list({ project_id: TEST_PROJECT_ID, searchTerm: "nonexistent" })
 
       expect(result.length).toBe(0)
     })
@@ -391,7 +401,7 @@ describe("floatingIpRouter.list", () => {
       const ctx = createMockContext({ mockFloatingIps })
       const caller = createCaller(ctx)
 
-      const result = await caller.floatingIp.list({ searchTerm: "  database  " })
+      const result = await caller.floatingIp.list({ project_id: TEST_PROJECT_ID, searchTerm: "  database  " })
 
       expect(result.length).toBe(1)
       expect(result[0].id).toBe("fip-2")
@@ -401,7 +411,7 @@ describe("floatingIpRouter.list", () => {
       const ctx = createMockContext({ mockFloatingIps })
       const caller = createCaller(ctx)
 
-      const result = await caller.floatingIp.list({ searchTerm: "" })
+      const result = await caller.floatingIp.list({ project_id: TEST_PROJECT_ID, searchTerm: "" })
 
       expect(result.length).toBe(3)
     })
@@ -410,7 +420,7 @@ describe("floatingIpRouter.list", () => {
       const ctx = createMockContext({ mockFloatingIps })
       const caller = createCaller(ctx)
 
-      const result = await caller.floatingIp.list({ searchTerm: "   " })
+      const result = await caller.floatingIp.list({ project_id: TEST_PROJECT_ID, searchTerm: "   " })
 
       expect(result.length).toBe(3)
     })
@@ -427,15 +437,15 @@ describe("floatingIpRouter.create", () => {
     const caller = createCaller(ctx)
 
     await caller.floatingIp.create({
+      project_id: TEST_PROJECT_ID,
       tenant_id: "tenant-1",
-      project_id: "project-1",
       floating_network_id: "net-external-1",
     })
 
     expect(ctx.__networkPostMock).toHaveBeenCalledWith("v2.0/floatingips", {
       floatingip: {
         tenant_id: "tenant-1",
-        project_id: "project-1",
+        project_id: TEST_PROJECT_ID,
         floating_network_id: "net-external-1",
       },
     })
@@ -460,8 +470,8 @@ describe("floatingIpRouter.create", () => {
     const caller = createCaller(ctx)
 
     const result = await caller.floatingIp.create({
+      project_id: TEST_PROJECT_ID,
       tenant_id: "tenant-1",
-      project_id: "project-1",
       floating_network_id: "net-external-1",
     })
 
@@ -475,8 +485,8 @@ describe("floatingIpRouter.create", () => {
 
     await expect(
       caller.floatingIp.create({
+        project_id: TEST_PROJECT_ID,
         tenant_id: "tenant-1",
-        project_id: "project-1",
         floating_network_id: "net-external-1",
       })
     ).rejects.toThrow(
@@ -493,8 +503,8 @@ describe("floatingIpRouter.create", () => {
 
     await expect(
       caller.floatingIp.create({
+        project_id: TEST_PROJECT_ID,
         tenant_id: "tenant-1",
-        project_id: "project-1",
         floating_network_id: "net-external-1",
       })
     ).rejects.toThrow(TRPCError)
@@ -510,7 +520,7 @@ describe("floatingIpRouter.getById", () => {
     const ctx = createMockContext()
     const caller = createCaller(ctx)
 
-    await caller.floatingIp.getById({ floatingip_id: "fip-123" })
+    await caller.floatingIp.getById({ project_id: TEST_PROJECT_ID, floatingip_id: "fip-123" })
 
     expect(ctx.__networkGetMock).toHaveBeenCalledWith("v2.0/floatingips/fip-123")
   })
@@ -519,7 +529,7 @@ describe("floatingIpRouter.getById", () => {
     const ctx = createMockContext()
     const caller = createCaller(ctx)
 
-    const result = await caller.floatingIp.getById({ floatingip_id: "fip-1" })
+    const result = await caller.floatingIp.getById({ project_id: TEST_PROJECT_ID, floatingip_id: "fip-1" })
 
     expect(result).not.toBeNull()
     expect(result?.id).toBe("fip-1")
@@ -531,7 +541,7 @@ describe("floatingIpRouter.getById", () => {
     const ctx = createMockContext({ invalidSession: true })
     const caller = createCaller(ctx)
 
-    await expect(caller.floatingIp.getById({ floatingip_id: "fip-1" })).rejects.toThrow(
+    await expect(caller.floatingIp.getById({ project_id: TEST_PROJECT_ID, floatingip_id: "fip-1" })).rejects.toThrow(
       new TRPCError({
         code: "UNAUTHORIZED",
         message: "The session is invalid",
@@ -543,7 +553,7 @@ describe("floatingIpRouter.getById", () => {
     const ctx = createMockContext({ noNetworkService: true })
     const caller = createCaller(ctx)
 
-    await expect(caller.floatingIp.getById({ floatingip_id: "fip-1" })).rejects.toThrow(
+    await expect(caller.floatingIp.getById({ project_id: TEST_PROJECT_ID, floatingip_id: "fip-1" })).rejects.toThrow(
       new TRPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: "Network service is not available",
@@ -555,7 +565,7 @@ describe("floatingIpRouter.getById", () => {
     const ctx = createMockContext({ parseError: true })
     const caller = createCaller(ctx)
 
-    await expect(caller.floatingIp.getById({ floatingip_id: "fip-1" })).rejects.toThrow(
+    await expect(caller.floatingIp.getById({ project_id: TEST_PROJECT_ID, floatingip_id: "fip-1" })).rejects.toThrow(
       new TRPCError({
         code: "PARSE_ERROR",
         message: "Failed to parse response in floatingIpRouter.getById",
@@ -567,7 +577,9 @@ describe("floatingIpRouter.getById", () => {
     const ctx = createMockContext({ httpStatus: 404 })
     const caller = createCaller(ctx)
 
-    await expect(caller.floatingIp.getById({ floatingip_id: "fip-1" })).rejects.toThrow(TRPCError)
+    await expect(caller.floatingIp.getById({ project_id: TEST_PROJECT_ID, floatingip_id: "fip-1" })).rejects.toThrow(
+      TRPCError
+    )
   })
 })
 
@@ -581,6 +593,7 @@ describe("floatingIpRouter.update", () => {
     const caller = createCaller(ctx)
 
     await caller.floatingIp.update({
+      project_id: TEST_PROJECT_ID,
       floatingip_id: "fip-123",
       port_id: "port-456",
     })
@@ -611,6 +624,7 @@ describe("floatingIpRouter.update", () => {
     const caller = createCaller(ctx)
 
     const result = await caller.floatingIp.update({
+      project_id: TEST_PROJECT_ID,
       floatingip_id: "fip-1",
       port_id: "port-456",
     })
@@ -639,6 +653,7 @@ describe("floatingIpRouter.update", () => {
     const caller = createCaller(ctx)
 
     const result = await caller.floatingIp.update({
+      project_id: TEST_PROJECT_ID,
       floatingip_id: "fip-1",
       port_id: null,
     })
@@ -666,6 +681,7 @@ describe("floatingIpRouter.update", () => {
     const caller = createCaller(ctx)
 
     const result = await caller.floatingIp.update({
+      project_id: TEST_PROJECT_ID,
       floatingip_id: "fip-1",
       port_id: "port-1",
       description: "New description",
@@ -693,6 +709,7 @@ describe("floatingIpRouter.update", () => {
     const caller = createCaller(ctx)
 
     const result = await caller.floatingIp.update({
+      project_id: TEST_PROJECT_ID,
       floatingip_id: "fip-1",
       port_id: "port-1",
       fixed_ip_address: "10.0.0.20",
@@ -721,6 +738,7 @@ describe("floatingIpRouter.update", () => {
     const caller = createCaller(ctx)
 
     const result = await caller.floatingIp.update({
+      project_id: TEST_PROJECT_ID,
       floatingip_id: "fip-1",
       port_id: "port-1",
       distributed: true,
@@ -749,6 +767,7 @@ describe("floatingIpRouter.update", () => {
     const caller = createCaller(ctx)
 
     const result = await caller.floatingIp.update({
+      project_id: TEST_PROJECT_ID,
       floatingip_id: "fip-1",
       port_id: "port-1",
       fixed_ip_address: "10.0.0.20",
@@ -776,6 +795,7 @@ describe("floatingIpRouter.update", () => {
 
     await expect(
       caller.floatingIp.update({
+        project_id: TEST_PROJECT_ID,
         floatingip_id: "fip-1",
         port_id: "port-456",
       })
@@ -793,6 +813,7 @@ describe("floatingIpRouter.update", () => {
 
     await expect(
       caller.floatingIp.update({
+        project_id: TEST_PROJECT_ID,
         floatingip_id: "fip-1",
         port_id: "port-456",
       })
@@ -810,6 +831,7 @@ describe("floatingIpRouter.update", () => {
 
     await expect(
       caller.floatingIp.update({
+        project_id: TEST_PROJECT_ID,
         floatingip_id: "fip-1",
         port_id: "port-456",
       })
@@ -827,6 +849,7 @@ describe("floatingIpRouter.update", () => {
 
     await expect(
       caller.floatingIp.update({
+        project_id: TEST_PROJECT_ID,
         floatingip_id: "fip-1",
         port_id: "port-456",
       })
@@ -843,7 +866,7 @@ describe("floatingIpRouter.delete", () => {
     const ctx = createMockContext()
     const caller = createCaller(ctx)
 
-    await caller.floatingIp.delete({ floatingip_id: "fip-123" })
+    await caller.floatingIp.delete({ project_id: TEST_PROJECT_ID, floatingip_id: "fip-123" })
 
     expect(ctx.__networkDelMock).toHaveBeenCalledWith("v2.0/floatingips/fip-123")
   })
@@ -852,7 +875,7 @@ describe("floatingIpRouter.delete", () => {
     const ctx = createMockContext()
     const caller = createCaller(ctx)
 
-    const result = await caller.floatingIp.delete({ floatingip_id: "fip-1" })
+    const result = await caller.floatingIp.delete({ project_id: TEST_PROJECT_ID, floatingip_id: "fip-1" })
 
     expect(result).toBe(true)
   })
@@ -861,7 +884,7 @@ describe("floatingIpRouter.delete", () => {
     const ctx = createMockContext({ invalidSession: true })
     const caller = createCaller(ctx)
 
-    await expect(caller.floatingIp.delete({ floatingip_id: "fip-1" })).rejects.toThrow(
+    await expect(caller.floatingIp.delete({ project_id: TEST_PROJECT_ID, floatingip_id: "fip-1" })).rejects.toThrow(
       new TRPCError({
         code: "UNAUTHORIZED",
         message: "The session is invalid",
@@ -873,7 +896,7 @@ describe("floatingIpRouter.delete", () => {
     const ctx = createMockContext({ noNetworkService: true })
     const caller = createCaller(ctx)
 
-    await expect(caller.floatingIp.delete({ floatingip_id: "fip-1" })).rejects.toThrow(
+    await expect(caller.floatingIp.delete({ project_id: TEST_PROJECT_ID, floatingip_id: "fip-1" })).rejects.toThrow(
       new TRPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: "Network service is not available",
@@ -885,6 +908,8 @@ describe("floatingIpRouter.delete", () => {
     const ctx = createMockContext({ httpStatus: 404, deleteSuccess: false })
     const caller = createCaller(ctx)
 
-    await expect(caller.floatingIp.delete({ floatingip_id: "fip-1" })).rejects.toThrow(TRPCError)
+    await expect(caller.floatingIp.delete({ project_id: TEST_PROJECT_ID, floatingip_id: "fip-1" })).rejects.toThrow(
+      TRPCError
+    )
   })
 })
