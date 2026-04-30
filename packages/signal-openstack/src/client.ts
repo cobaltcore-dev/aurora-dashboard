@@ -1,6 +1,26 @@
 import { parseErrorObject } from "./responseErrorHandler"
 import { SignalOpenstackError, SignalOpenstackApiError } from "./error"
 
+// Proxy support for mitmproxy/debugging
+if (process.env.GLOBAL_AGENT_HTTP_PROXY) {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports -- Dynamic import needed for optional undici dependency
+    const { ProxyAgent, setGlobalDispatcher } = require("undici")
+    const proxyUrl = process.env.GLOBAL_AGENT_HTTP_PROXY
+    const proxyAgent = new ProxyAgent({
+      uri: proxyUrl,
+      // Allow self-signed certificates (for mitmproxy)
+      requestTls: {
+        rejectUnauthorized: process.env.NODE_TLS_REJECT_UNAUTHORIZED !== "0",
+      },
+    })
+    setGlobalDispatcher(proxyAgent)
+    console.log("✅ [signal-openstack] Proxy configured:", proxyUrl)
+  } catch (err) {
+    console.warn("⚠️ [signal-openstack] Could not configure proxy:", err)
+  }
+}
+
 interface RequestParams {
   method: "GET" | "POST" | "PUT" | "DELETE" | "PATCH" | "HEAD"
   path: string

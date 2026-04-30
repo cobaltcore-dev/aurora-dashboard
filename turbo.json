@@ -22,6 +22,11 @@
       "cache": true,
       "persistent": true
     },
+    "dev:proxy": {
+      "cache": false,
+      "persistent": true,
+      "dependsOn": ["^build"]
+    },
     "clean": {
       "cache": false
     },

@@ -6,6 +6,7 @@
   "scripts": {
     "build": "turbo build",
     "dev": "turbo dev",
+    "dev:proxy": "turbo dev:proxy",
     "check-i18n": "turbo check-i18n",
     "lint": "turbo lint",
     "test": "turbo test",
