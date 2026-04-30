@@ -38,7 +38,13 @@ function RouteComponent() {
   return (
     <AppShell
       embedded
-      sideNavigation={<SideNavBar availableServices={availableServices!} projectId={projectId} />}
+      sideNavigation={
+        <SideNavBar
+          availableServices={availableServices!}
+          projectId={projectId}
+          projectName={crumbProject?.name || projectId}
+        />
+      }
       className="h-min-screen"
     >
       <Container>

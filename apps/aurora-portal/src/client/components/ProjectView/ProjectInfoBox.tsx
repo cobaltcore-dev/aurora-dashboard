@@ -1,4 +1,4 @@
-import { Breadcrumb, BreadcrumbItem, ContentHeading, Stack } from "@cloudoperators/juno-ui-components"
+import { Breadcrumb, BreadcrumbItem, Stack } from "@cloudoperators/juno-ui-components"
 import { Trans } from "@lingui/react/macro"
 import ClipboardText from "../ClipboardText"
 import { useRouteContext, useMatches, useNavigate, useParams } from "@tanstack/react-router"
@@ -168,24 +168,18 @@ export function ProjectInfoBox({ projectInfo }: ProjectInfoBoxProps) {
 
   return (
     <Stack direction="vertical" className="my-6" gap="2">
-      <Breadcrumb>
-        {breadcrumbs.map((item, index) => (
-          <BreadcrumbItem key={index} label={item.label} onClick={item.onClick} active={item.active} />
-        ))}
-      </Breadcrumb>
-      <Stack direction="horizontal" alignment="stretch">
-        <ContentHeading className="text-theme-highest text-2xl font-bold">{pageTitle}</ContentHeading>
-
-        <Stack direction="vertical" className="ml-auto">
-          <div>
-            <div className="text-theme-light">
-              <span className="text-theme-light font-semibold">
-                <Trans>Project ID</Trans>:{" "}
-              </span>
-              <ClipboardText text={projectInfo.id} truncateAt={15} />
-            </div>
-          </div>
-        </Stack>
+      <Stack direction="horizontal" alignment="center">
+        <Breadcrumb>
+          {breadcrumbs.map((item, index) => (
+            <BreadcrumbItem key={index} label={item.label} onClick={item.onClick} active={item.active} />
+          ))}
+        </Breadcrumb>
+        <div className="text-theme-light ml-auto flex items-center gap-1">
+          <span className="font-semibold">
+            <Trans>Project ID</Trans>:{" "}
+          </span>
+          <ClipboardText text={projectInfo.id} truncateAt={15} />
+        </div>
       </Stack>
     </Stack>
   )

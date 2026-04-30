@@ -1426,9 +1426,6 @@ msgstr ""
 msgid "Loading..."
 msgstr ""
 
-msgid "Log Out"
-msgstr ""
-
 msgid "Login failed. Please check your credentials and try again."
 msgstr ""
 
@@ -1567,9 +1564,6 @@ msgstr ""
 msgid "Must be a valid PQDN or FQDN (alphanumeric and hyphens only, cannot start or end with hyphen)."
 msgstr ""
 
-msgid "My Profile"
-msgstr ""
-
 msgid "N/A"
 msgstr ""
 
@@ -1664,6 +1658,9 @@ msgid "No server groups available."
 msgstr ""
 
 msgid "No servers available."
+msgstr ""
+
+msgid "No services available for this project."
 msgstr ""
 
 msgid "No specific tenant access configured for this private flavor. Click \"Add Tenant Access\" to grant access."

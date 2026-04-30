@@ -1426,9 +1426,6 @@ msgstr "Loading Server Groups..."
 msgid "Loading..."
 msgstr "Loading..."
 
-msgid "Log Out"
-msgstr "Log Out"
-
 msgid "Login failed. Please check your credentials and try again."
 msgstr "Login failed. Please check your credentials and try again."
 
@@ -1567,9 +1564,6 @@ msgstr "Must be a valid IPv4 or IPv6 address (for example: 172.24.4.228 or 2001:
 msgid "Must be a valid PQDN or FQDN (alphanumeric and hyphens only, cannot start or end with hyphen)."
 msgstr "Must be a valid PQDN or FQDN (alphanumeric and hyphens only, cannot start or end with hyphen)."
 
-msgid "My Profile"
-msgstr "My Profile"
-
 msgid "N/A"
 msgstr "N/A"
 
@@ -1665,6 +1659,9 @@ msgstr "No server groups available."
 
 msgid "No servers available."
 msgstr "No servers available."
+
+msgid "No services available for this project."
+msgstr "No services available for this project."
 
 msgid "No specific tenant access configured for this private flavor. Click \"Add Tenant Access\" to grant access."
 msgstr "No specific tenant access configured for this private flavor. Click \"Add Tenant Access\" to grant access."

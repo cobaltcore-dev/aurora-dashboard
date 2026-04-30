@@ -1,6 +1,7 @@
 import {
   Button,
   ButtonRow,
+  ContentHeading,
   Stack,
   Spinner,
   PopupMenu,
@@ -312,6 +313,7 @@ function RouteComponent() {
   // Render success state
   return (
     <>
+      <ContentHeading heading={String(image.name ?? image.id)} />
       <ImageDetailsView
         key={image.id}
         image={image}

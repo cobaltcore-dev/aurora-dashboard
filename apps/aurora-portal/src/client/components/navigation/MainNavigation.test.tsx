@@ -131,7 +131,7 @@ describe("MainNavigation", () => {
     await waitFor(() => render(<RouterProvider router={router} />))
 
     // Check if logo is rendered
-    expect(screen.getByText("Aurora")).toBeDefined()
+    expect(screen.getByText("SAP Cloud Infrastructure")).toBeDefined()
 
     // Check if navigation items are rendered
     expect(screen.getByText("About")).toBeDefined()
@@ -154,10 +154,10 @@ describe("MainNavigation", () => {
 
     await waitFor(() => render(<RouterProvider router={router} />))
 
-    // Check if domain name is rendered
+    // Domain is plain text, not a link
     await waitFor(() => {
       expect(screen.getByText("Test Domain")).toBeDefined()
-      expect(screen.getByTestId("domain-link")).toBeDefined()
+      expect(screen.getByTestId("domain-name")).toBeDefined()
     })
   })
 
@@ -185,29 +185,24 @@ describe("MainNavigation", () => {
     })
   })
 
-  test("domain link navigates to projects page", async () => {
+  test("project link navigates to project page", async () => {
     await act(async () => {
       i18n.activate("en")
     })
 
     const router = createTestRouter(<MainNavigation items={mainNavItems} />)
 
-    // Navigate to a domain route first
     await router.navigate({
       to: "/projects/$projectId",
-      params: {
-        projectId: "project1",
-      },
+      params: { projectId: "project1" },
     })
 
     await waitFor(() => render(<RouterProvider router={router} />))
 
-    // Click on the domain link
     await waitFor(async () => {
-      const domainLink = screen.getByTestId("domain-link")
-      await fireEvent.click(domainLink)
-
-      expect(screen.getByText("Test Domain")).toBeDefined()
+      const projectLink = screen.getByTestId("project-link")
+      fireEvent.click(projectLink)
+      expect(router.state.location.pathname).toBe("/projects/project1")
     })
   })
 

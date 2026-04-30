@@ -3,7 +3,6 @@ import { NavigationItem } from "./types"
 import { isMatch, Link, MakeRouteMatchUnion, useRouterState } from "@tanstack/react-router"
 import { UserMenu } from "./UserMenu"
 import { PageHeader, ThemeToggle } from "@cloudoperators/juno-ui-components/index"
-import { LanguageSelect } from "./LanguageSelect"
 import { cn } from "@/client/utils/cn"
 
 interface NavigationProps {
@@ -11,7 +10,6 @@ interface NavigationProps {
   handleThemeToggle?: (theme: string) => void
 }
 
-// Text colors for header elements
 const textColorClass = "text-theme-pageheader-appname-default"
 const textHoverClass = "hover:text-theme-pageheader-appname-hover"
 const textMutedClass = "text-theme-pageheader-appname-default/40"
@@ -32,9 +30,11 @@ function getProject(matches: MakeRouteMatchUnion[]) {
   if (!projectMatch) {
     return null
   }
+  const domain = getDomain(matches)
+  const projectId = projectMatch.loaderData?.crumbProject?.id
   return {
     name: projectMatch.loaderData?.crumbProject?.name || undefined,
-    path: projectMatch.fullPath,
+    path: domain?.path && projectId ? `${domain.path}/${projectId}` : undefined,
   }
 }
 
@@ -48,26 +48,22 @@ export function MainNavigation({ items, handleThemeToggle }: NavigationProps) {
       logo={<Logo className={cn("h-6 w-6 shrink-0 fill-current", textColorClass)} title="Aurora" />}
       applicationName={
         <div className="flex flex-nowrap items-center space-x-2">
-          <Link to="/" className="flex flex-nowrap items-center space-x-2">
-            <span className={cn("shrink-0", textColorClass, textHoverClass)}>Aurora</span>
+          <Link to="/" className={cn("shrink-0", textColorClass, textHoverClass)}>
+            SAP Cloud Infrastructure
           </Link>
           {domain && (
             <>
-              <span className={cn("shrink-0", textMutedClass)}>/</span>
-              <Link
-                to={domain.path}
-                data-testid="domain-link"
-                className={cn("shrink-0", textColorClass, textHoverClass)}
-              >
+              <span className={cn("shrink-0", textMutedClass)}>|</span>
+              <span data-testid="domain-name" className={cn("shrink-0", textColorClass)}>
                 {domain.name}
-              </Link>
+              </span>
             </>
           )}
           {project && (
             <>
-              <span className={cn("shrink-0", textMutedClass)}>/</span>
+              <span className={cn("shrink-0", textMutedClass)}>|</span>
               <Link
-                to={project.path + ""}
+                to={project.path ?? "/projects"}
                 data-testid="project-link"
                 className={cn("shrink-0", textColorClass, textHoverClass)}
               >
@@ -83,7 +79,6 @@ export function MainNavigation({ items, handleThemeToggle }: NavigationProps) {
           {label}
         </Link>
       ))}
-      <LanguageSelect className={textColorClass} />
       <ThemeToggle onToggleTheme={(newTheme: string) => handleThemeToggle?.(newTheme)} />
       <UserMenu />
     </PageHeader>

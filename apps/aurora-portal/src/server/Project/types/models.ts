@@ -27,6 +27,10 @@ export const projectSchema = baseProjectSchema.extend({
     .optional(),
 })
 
+export const projectResponseSchema = z.object({
+  project: projectSchema,
+})
+
 export const projectsResponseSchema = z.object({
   projects: z.array(projectSchema),
   links: z

@@ -1,7 +1,7 @@
 import { z } from "zod"
 import { TRPCError } from "@trpc/server"
 import { protectedProcedure } from "../../trpc"
-import { Project, projectsResponseSchema } from "../types/models"
+import { Project, projectResponseSchema, projectsResponseSchema } from "../types/models"
 
 /**
  * Helper function to call Identity API endpoints directly
@@ -189,16 +189,20 @@ export const projectRouter = {
   getProjectById: protectedProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ input, ctx }): Promise<Project | undefined> => {
-      const openstackSession = ctx.openstack
-
-      const identityService = openstackSession?.service("identity")
-      const parsedData = projectsResponseSchema.safeParse(
-        await identityService?.get(`projects/${input.id}`).then((res) => res.json())
+      const identityService = ctx.openstack?.service("identity")
+      if (!ctx.openstack || !identityService) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Identity service unavailable",
+        })
+      }
+      const parsedData = projectResponseSchema.safeParse(
+        await identityService.get(`projects/${input.id}`).then((res) => res.json())
       )
       if (!parsedData.success) {
         console.error("Zod Parsing Error:", parsedData.error.format())
         return undefined
       }
-      return parsedData.data.projects.find((project: Project) => project.id === input.id)
+      return parsedData.data.project
     }),
 }
