@@ -1,10 +1,9 @@
-import { z } from "zod"
-import { projectScopedProcedure } from "../../trpc"
+import { projectScopedProcedure, projectScopedInputSchema } from "../../trpc"
 import { serverGroupsResponseSchema, ServerGroup } from "../types/serverGroup"
 
 export const serverGroupRouter = {
   getServerGroupsByProjectId: projectScopedProcedure
-    .input(z.object({ project_id: z.string() }))
+    .input(projectScopedInputSchema)
     .query(async ({ ctx }): Promise<ServerGroup[] | undefined> => {
       // ctx.openstack is already rescoped to the project by projectScopedProcedure
       const compute = ctx.openstack?.service("compute")

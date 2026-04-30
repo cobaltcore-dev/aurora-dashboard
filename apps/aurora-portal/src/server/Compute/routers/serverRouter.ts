@@ -1,10 +1,9 @@
-import { z } from "zod"
-import { projectScopedProcedure } from "../../trpc"
+import { projectScopedProcedure, projectScopedInputSchema } from "../../trpc"
 import { Server, serverResponseSchema } from "../types/server"
 
 export const serverRouter = {
   getServersByProjectId: projectScopedProcedure
-    .input(z.object({ project_id: z.string() }))
+    .input(projectScopedInputSchema)
     .query(async ({ ctx }): Promise<Server[] | undefined> => {
       try {
         // ctx.openstack is already rescoped to the project by projectScopedProcedure
