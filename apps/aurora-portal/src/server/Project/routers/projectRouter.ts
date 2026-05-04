@@ -179,13 +179,14 @@ export const projectRouter = {
    * 2. A domain-scoped token (returns full info if user is domain admin)
    * 3. A project-scoped token (returns full info if scoped to the same project)
    *
-   * Since we're just reading basic metadata and the user's initial token already
-   * has visibility to projects they have access to, we don't need to rescope.
-   * Rescoping would add unnecessary overhead and complexity.
-   *
    * IMPORTANT: This should be called AFTER rescoping the session to the target project
-   * or a domain with admin privileges. Calling it with an unscoped or differently-scoped
-   * token may result in 403 FORBIDDEN if the user doesn't have sufficient privileges.
+   * or a domain with admin privileges. Calling it before rescoping may result in:
+   * - INTERNAL_SERVER_ERROR if the service catalog is not yet populated (identity service unavailable)
+   * - 403 FORBIDDEN response from OpenStack API if the token lacks sufficient privileges
+   *
+   * The procedure itself uses protectedProcedure (no automatic rescoping) for flexibility,
+   * allowing callers to decide the appropriate scope. However, in practice, it should be
+   * called after setCurrentScope() completes to ensure the service catalog is ready.
    *
    * If in the future we need to access project-specific resources (compute, network, etc.),
    * we should create a separate procedure using projectScopedProcedure.
