@@ -1,6 +1,8 @@
 import { projectScopedProcedure } from "@/server/trpc"
 import { withErrorHandling } from "@/server/helpers/errorHandling"
 import { filterBySearchParams } from "@/server/helpers/filterBySearchParams"
+import { appendQueryParamsFromObject } from "@/server/helpers/queryParams"
+import { omit } from "@/server/helpers/object"
 import {
   FloatingIpQueryParametersSchema,
   FloatingIp,
@@ -9,27 +11,31 @@ import {
   FloatingIpIdInputSchema,
   FloatingIpUpdateRequestSchema,
   FloatingIpCreateRequestSchema,
-  ListAvailablePortsQuerySchema,
+  ExternalNetwork,
+  ExternalNetworksQuerySchema,
+  ExternalNetworksResponseSchema,
   AvailablePort,
-  AvailablePortListResponseSchema,
+  AvailablePortsQuerySchema,
+  AvailablePortsResponseSchema,
 } from "../types/floatingIp"
 import { FloatingIpErrorHandlers } from "../helpers/floatingIpHelpers"
 import { getNetworkService, parseOrThrow } from "../helpers/index"
-import { appendQueryParamsFromObject } from "@/server/helpers/queryParams"
 
 const FLOATING_IPS_BASE_URL = "v2.0/floatingips"
+const NETWORK_BASE_URL = "v2.0/networks"
 const PORT_BASE_URL = "v2.0/ports"
 
 /**
  * tRPC router for OpenStack Neutron Floating IPs.
  *
  * Currently exposes:
- * - list: GET /v2.0/floatingips List floating IPs with pagination, sorting and filtering support.
- *   Includes BFF-side search filtering by specific fields.
+ * - list: GET /v2.0/floatingips List floating IPs with pagination, sorting and filtering support, includes BFF-side search.
  * - create: POST /v2.0/floatingips Create floating IP.
  * - getById: GET /v2.0/floatingips/{floatingip_id} Show floating IP details.
  * - update: PUT /v2.0/floatingips/{floatingip_id} Update floating IP.
  * - delete: DELETE /v2.0/floatingips/{floatingip_id} Delete floating IP.
+ *
+ * - listExternalNetworks: GET /v2.0/networks?router:external=true for creating floating IP, fetches only external networks with router:true.
  * - listAvailablePorts: GET /v2.0/ports List available ports for creating or updating floating IP, ensuring users can only see valid, unassociated ports.
  */
 export const floatingIpRouter = {
@@ -140,13 +146,28 @@ export const floatingIpRouter = {
       return true
     }, "delete floating IP")
   }),
+  listExternalNetworks: projectScopedProcedure
+    .input(ExternalNetworksQuerySchema)
+    .query(async ({ input, ctx }): Promise<ExternalNetwork[]> => {
+      return withErrorHandling(async () => {
+        const network = getNetworkService(ctx)
+
+        const queryParams = appendQueryParamsFromObject(omit(input, "project_id"))
+        const queryString = queryParams.toString()
+        const url = queryString ? `${NETWORK_BASE_URL}?${queryString}` : NETWORK_BASE_URL
+
+        const response = await network.get(url)
+        const data = await response.json()
+
+        return parseOrThrow(ExternalNetworksResponseSchema, data, "networkRouter.listExternalNetworks").networks
+      }, "list external networks for floating IP create operation")
+    }),
   listAvailablePorts: projectScopedProcedure
-    .input(ListAvailablePortsQuerySchema)
+    .input(AvailablePortsQuerySchema)
     .query(async ({ input, ctx }): Promise<AvailablePort[]> => {
       return withErrorHandling(async () => {
         const network = getNetworkService(ctx)
 
-        // Fetch only [id, name, fixed_ips], as the floating IP association and creation requires only port_id with name and fixed_ips. This optimizes the response size and parsing.
         const queryParams = appendQueryParamsFromObject({ ...input, fields: ["id", "name", "fixed_ips"] })
         const queryString = queryParams.toString()
         const url = queryString ? `${PORT_BASE_URL}?${queryString}` : PORT_BASE_URL
@@ -154,7 +175,7 @@ export const floatingIpRouter = {
         const response = await network.get(url)
         const data = await response.json()
 
-        return parseOrThrow(AvailablePortListResponseSchema, data, "portRouter.listAvailablePorts").ports
+        return parseOrThrow(AvailablePortsResponseSchema, data, "portRouter.listAvailablePorts").ports
       }, "list available ports for floating IP update and create operations")
     }),
 }

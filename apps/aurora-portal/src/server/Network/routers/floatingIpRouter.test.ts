@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest"
 import { TRPCError } from "@trpc/server"
 import { createCallerFactory, auroraRouter } from "../../trpc"
 import { floatingIpRouter } from "./floatingIpRouter"
-import { AvailablePort, FloatingIp } from "../types/floatingIp"
+import { AvailablePort, ExternalNetwork, FloatingIp } from "../types/floatingIp"
 import { AuroraPortalContext } from "@/server/context"
 
 const TEST_PROJECT_ID = "proj-1"
@@ -13,6 +13,7 @@ const createMockContext = (opts?: {
   parseError?: boolean
   mockFloatingIps?: FloatingIp[]
   mockFloatingIpDetail?: FloatingIp
+  mockExternalNetworks?: ExternalNetwork[]
   mockAvailablePorts?: AvailablePort[]
   httpStatus?: number
   createSuccess?: boolean
@@ -25,6 +26,7 @@ const createMockContext = (opts?: {
     parseError = false,
     mockFloatingIps,
     mockFloatingIpDetail,
+    mockExternalNetworks,
     mockAvailablePorts,
     httpStatus = 200,
     createSuccess = true,
@@ -74,16 +76,31 @@ const createMockContext = (opts?: {
     },
   ]
 
+  const defaultExternalNetworks: ExternalNetwork[] = [
+    {
+      id: "ext-net-1",
+      name: "public-network",
+      project_id: "admin-project",
+      "router:external": true,
+      shared: true,
+      status: "ACTIVE",
+      is_default: true,
+    },
+  ]
+
   const networkGetMock = vi.fn().mockImplementation((url: string) => {
     const isPortsRequest = url.startsWith("v2.0/ports")
+    const isNetworksRequest = url.startsWith("v2.0/networks")
     const isDetailRequest = url.startsWith("v2.0/floatingips/")
     const responseBody = parseError
       ? { invalid: "data" }
       : isPortsRequest
         ? { ports: mockAvailablePorts || defaultAvailablePorts }
-        : isDetailRequest
-          ? { floatingip: mockFloatingIpDetail || defaultFloatingIps[0] }
-          : { floatingips: mockFloatingIps || defaultFloatingIps }
+        : isNetworksRequest
+          ? { networks: mockExternalNetworks || defaultExternalNetworks }
+          : isDetailRequest
+            ? { floatingip: mockFloatingIpDetail || defaultFloatingIps[0] }
+            : { floatingips: mockFloatingIps || defaultFloatingIps }
 
     return Promise.resolve({
       ok: httpStatus >= 200 && httpStatus < 300,
@@ -442,6 +459,41 @@ describe("floatingIpRouter.list", () => {
 
       expect(result.length).toBe(3)
     })
+  })
+})
+
+describe("floatingIpRouter.listExternalNetworks", () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it("returns external networks on success", async () => {
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    const result = await caller.floatingIp.listExternalNetworks({ project_id: TEST_PROJECT_ID })
+
+    expect(Array.isArray(result)).toBe(true)
+    expect(result).toHaveLength(1)
+    expect(result[0].id).toBe("ext-net-1")
+    expect(result[0]["router:external"]).toBe(true)
+  })
+
+  it("does not forward project_id to the networks query", async () => {
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    await caller.floatingIp.listExternalNetworks({ project_id: TEST_PROJECT_ID })
+
+    expect(ctx.__networkGetMock).toHaveBeenCalledTimes(1)
+    const calledUrl = ctx.__networkGetMock.mock.calls[0][0] as string
+    const [path, query] = calledUrl.split("?")
+
+    expect(path).toBe("v2.0/networks")
+
+    const params = new URLSearchParams(query)
+    expect(params.get("router:external")).toBe("true")
+    expect(params.get("project_id")).toBe(null)
   })
 })
 

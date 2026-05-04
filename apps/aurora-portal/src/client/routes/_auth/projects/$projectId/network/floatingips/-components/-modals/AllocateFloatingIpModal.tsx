@@ -39,7 +39,7 @@ export const AllocateFloatingIpModal = ({ open, onClose }: AllocateFloatingIpMod
     data: externalNetworks = [],
     isLoading: isExternalNetworksLoading,
     error: externalNetworksError,
-  } = trpcReact.network.listExternalNetworks.useQuery({ project_id: projectId })
+  } = trpcReact.network.floatingIp.listExternalNetworks.useQuery({ project_id: projectId })
 
   const {
     data: dnsDomains = [],

@@ -1,5 +1,5 @@
 import { z } from "zod"
-import { ISO8601TimestampSchema, SortDirSchema } from "./index"
+import { ISO8601TimestampSchema, NetworkPortStatusSchema, SortDirSchema } from "./index"
 
 /** The status of the floating IP. Values are ACTIVE, DOWN and ERROR. */
 export const FloatingIpStatusSchema = z.enum(["ACTIVE", "DOWN", "ERROR"])
@@ -248,13 +248,54 @@ export const FloatingIpQueryParametersSchema = z.object({
 })
 
 /**
+ * Query schema for external networks only that enforces "router:external" to be true:
+ * GET /v2.0/networks?router:external=true
+ *
+ * Reference:
+ * https://docs.openstack.org/api-ref/network/v2/index.html#list-networks
+ */
+export const ExternalNetworksQuerySchema = z.object({
+  project_id: z.string(),
+  "router:external": z.literal(true).default(true),
+})
+
+/**
+ * OpenStack Neutron limited schema for external networks.
+ *
+ * Reference:
+ * https://docs.openstack.org/api-ref/network/v2/index.html#networks
+ *
+ */
+export const ExternalNetworkSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  project_id: z.string(),
+  "router:external": z.boolean().optional(),
+  shared: z.boolean(),
+  status: NetworkPortStatusSchema,
+  updated_at: ISO8601TimestampSchema.optional(),
+  is_default: z.boolean().optional(),
+})
+
+/**
+ * External networks response wrapper.
+ * Contains an array of network objects.
+ * Used by GET /v2.0/networks (list networks)
+ * to fetch external-network `?router:external=true`.
+ */
+
+export const ExternalNetworksResponseSchema = z.object({
+  networks: z.array(ExternalNetworkSchema),
+})
+
+/**
  * Query parameters for listing ports eligible for floating IP creation and association.
  *
  * - `project_id` is required — only ports within the specified project can be associated
  * - `status` is locked to `"ACTIVE"` — only operational ports can be associated
  * - `admin_state_up` is locked to `true` — only administratively enabled ports are eligible
  */
-export const ListAvailablePortsQuerySchema = z.object({
+export const AvailablePortsQuerySchema = z.object({
   project_id: z.string(),
   /** Only ACTIVE ports are eligible for floating IP association */
   status: z.literal("ACTIVE").default("ACTIVE"),
@@ -295,13 +336,13 @@ export const AvailablePortSchema = z.object({
  * Optimized response for floating IP creation and association featuring only essential port fields.
  * Used by GET /v2.0/ports (list available ports) with fields filter.
  */
-export const AvailablePortListResponseSchema = z.object({
+export const AvailablePortsResponseSchema = z.object({
   ports: z.array(AvailablePortSchema),
 })
 
-export type FloatingIpStatus = z.infer<typeof FloatingIpStatusSchema>
 export type PortDetails = z.infer<typeof PortDetailsSchema>
 export type PortForwarding = z.infer<typeof PortForwardingSchema>
+export type FloatingIpStatus = z.infer<typeof FloatingIpStatusSchema>
 export type FloatingIp = z.infer<typeof FloatingIpSchema>
 export type FloatingIpListResponse = z.infer<typeof FloatingIpListResponseSchema>
 export type FloatingIpQueryParameters = z.infer<typeof FloatingIpQueryParametersSchema>
@@ -309,6 +350,11 @@ export type FloatingIpResponse = z.infer<typeof FloatingIpResponseSchema>
 export type FloatingIpIdInput = z.infer<typeof FloatingIpIdInputSchema>
 export type FloatingIpCreateRequest = z.infer<typeof FloatingIpCreateRequestSchema>
 export type FloatingIpUpdateRequest = z.infer<typeof FloatingIpUpdateRequestSchema>
-export type ListAvailablePortsQuery = z.infer<typeof ListAvailablePortsQuerySchema>
+
+export type ExternalNetworksQuery = z.infer<typeof ExternalNetworksQuerySchema>
+export type ExternalNetwork = z.infer<typeof ExternalNetworkSchema>
+export type ExternalNetworkResponse = z.infer<typeof ExternalNetworksResponseSchema>
+
+export type AvailablePortsQuery = z.infer<typeof AvailablePortsQuerySchema>
 export type AvailablePort = z.infer<typeof AvailablePortSchema>
-export type AvailablePortListResponse = z.infer<typeof AvailablePortListResponseSchema>
+export type AvailablePortsResponse = z.infer<typeof AvailablePortsResponseSchema>

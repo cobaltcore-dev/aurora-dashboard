@@ -8,7 +8,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { trpcReact } from "@/client/trpcClient"
 import { AllocateFloatingIpModal } from "./AllocateFloatingIpModal"
 
-// Mock useParams
 vi.mock("@tanstack/react-router", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@tanstack/react-router")>()
   return {
@@ -131,9 +130,9 @@ describe("AllocateFloatingIpModal", () => {
 
   beforeEach(() => {
     i18n.activate("en")
-    vi.mocked(trpcReact.network.listExternalNetworks.useQuery).mockReturnValue(
+    vi.mocked(trpcReact.network.floatingIp.listExternalNetworks.useQuery).mockReturnValue(
       createMockQueryResult({ data: mockExternalNetworks }) as ReturnType<
-        typeof trpcReact.network.listExternalNetworks.useQuery
+        typeof trpcReact.network.floatingIp.listExternalNetworks.useQuery
       >
     )
     vi.mocked(trpcReact.network.listDnsDomains.useQuery).mockReturnValue(
@@ -158,9 +157,9 @@ describe("AllocateFloatingIpModal", () => {
     })
 
     it("renders when open is true", () => {
-      vi.mocked(trpcReact.network.listExternalNetworks.useQuery).mockReturnValue(
+      vi.mocked(trpcReact.network.floatingIp.listExternalNetworks.useQuery).mockReturnValue(
         createMockQueryResult({ data: mockExternalNetworks }) as ReturnType<
-          typeof trpcReact.network.listExternalNetworks.useQuery
+          typeof trpcReact.network.floatingIp.listExternalNetworks.useQuery
         >
       )
 
@@ -224,8 +223,10 @@ describe("AllocateFloatingIpModal", () => {
 
   describe("Query loading states", () => {
     it("shows loading state for external networks", () => {
-      vi.mocked(trpcReact.network.listExternalNetworks.useQuery).mockReturnValue(
-        createMockQueryResult({ isLoading: true }) as ReturnType<typeof trpcReact.network.listExternalNetworks.useQuery>
+      vi.mocked(trpcReact.network.floatingIp.listExternalNetworks.useQuery).mockReturnValue(
+        createMockQueryResult({ isLoading: true }) as ReturnType<
+          typeof trpcReact.network.floatingIp.listExternalNetworks.useQuery
+        >
       )
 
       render(<AllocateFloatingIpModal open={true} onClose={vi.fn()} />, { wrapper: createWrapper() })
@@ -261,9 +262,9 @@ describe("AllocateFloatingIpModal", () => {
 
   describe("Query error handling", () => {
     it("displays error message from external networks query", () => {
-      vi.mocked(trpcReact.network.listExternalNetworks.useQuery).mockReturnValue(
+      vi.mocked(trpcReact.network.floatingIp.listExternalNetworks.useQuery).mockReturnValue(
         createMockQueryResult({ error: { message: "Failed to load networks" } }) as ReturnType<
-          typeof trpcReact.network.listExternalNetworks.useQuery
+          typeof trpcReact.network.floatingIp.listExternalNetworks.useQuery
         >
       )
 
@@ -297,9 +298,9 @@ describe("AllocateFloatingIpModal", () => {
     })
 
     it("prioritizes query errors over mutation error message", () => {
-      vi.mocked(trpcReact.network.listExternalNetworks.useQuery).mockReturnValue(
+      vi.mocked(trpcReact.network.floatingIp.listExternalNetworks.useQuery).mockReturnValue(
         createMockQueryResult({ error: { message: "Query error" } }) as ReturnType<
-          typeof trpcReact.network.listExternalNetworks.useQuery
+          typeof trpcReact.network.floatingIp.listExternalNetworks.useQuery
         >
       )
 
