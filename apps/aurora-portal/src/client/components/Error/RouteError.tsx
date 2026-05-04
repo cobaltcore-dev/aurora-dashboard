@@ -31,12 +31,10 @@ export function RouteError({ error, title, helpText, safeErrorMessage }: RouteEr
     defaultErrorMessage
 
   return (
-    <div className="flex min-h-[400px] p-8">
-      <div className="space-y-2">
-        <ContentHeading className="text-theme-info">{title || defaultTitle}</ContentHeading>
-        <p>{errorMessage}</p>
-        <p className="text-theme-light mt-2 text-sm">{helpText || defaultHelpText}</p>
-      </div>
+    <div className="flex min-h-100 flex-col space-y-2 p-8">
+      <ContentHeading className="text-theme-info">{title || defaultTitle}</ContentHeading>
+      <p>{errorMessage}</p>
+      <p className="text-theme-light text-sm">{helpText || defaultHelpText}</p>
     </div>
   )
 }
