@@ -9,12 +9,16 @@ import {
   FloatingIpIdInputSchema,
   FloatingIpUpdateRequestSchema,
   FloatingIpCreateRequestSchema,
+  ListAvailablePortsQuerySchema,
+  AvailablePort,
+  AvailablePortListResponseSchema,
 } from "../types/floatingIp"
 import { FloatingIpErrorHandlers } from "../helpers/floatingIpHelpers"
 import { getNetworkService, parseOrThrow } from "../helpers/index"
 import { appendQueryParamsFromObject } from "@/server/helpers/queryParams"
 
 const FLOATING_IPS_BASE_URL = "v2.0/floatingips"
+const PORT_BASE_URL = "v2.0/ports"
 
 /**
  * tRPC router for OpenStack Neutron Floating IPs.
@@ -26,6 +30,7 @@ const FLOATING_IPS_BASE_URL = "v2.0/floatingips"
  * - getById: GET /v2.0/floatingips/{floatingip_id} Show floating IP details.
  * - update: PUT /v2.0/floatingips/{floatingip_id} Update floating IP.
  * - delete: DELETE /v2.0/floatingips/{floatingip_id} Delete floating IP.
+ * - listAvailablePorts: GET /v2.0/ports List available ports for creating or updating floating IP, ensuring users can only see valid, unassociated ports.
  */
 export const floatingIpRouter = {
   list: projectScopedProcedure
@@ -135,4 +140,21 @@ export const floatingIpRouter = {
       return true
     }, "delete floating IP")
   }),
+  listAvailablePorts: projectScopedProcedure
+    .input(ListAvailablePortsQuerySchema)
+    .query(async ({ input, ctx }): Promise<AvailablePort[]> => {
+      return withErrorHandling(async () => {
+        const network = getNetworkService(ctx)
+
+        // Fetch only [id, name, fixed_ips], as the floating IP association and creation requires only port_id with name and fixed_ips. This optimizes the response size and parsing.
+        const queryParams = appendQueryParamsFromObject({ ...input, fields: ["id", "name", "fixed_ips"] })
+        const queryString = queryParams.toString()
+        const url = queryString ? `${PORT_BASE_URL}?${queryString}` : PORT_BASE_URL
+
+        const response = await network.get(url)
+        const data = await response.json()
+
+        return parseOrThrow(AvailablePortListResponseSchema, data, "portRouter.listAvailablePorts").ports
+      }, "list available ports for floating IP update and create operations")
+    }),
 }

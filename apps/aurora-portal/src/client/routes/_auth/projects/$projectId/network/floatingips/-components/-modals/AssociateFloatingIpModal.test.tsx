@@ -4,8 +4,7 @@ import userEvent from "@testing-library/user-event"
 import { i18n } from "@lingui/core"
 import { I18nProvider } from "@lingui/react"
 import { PortalProvider } from "@cloudoperators/juno-ui-components"
-import type { FloatingIp } from "@/server/Network/types/floatingIp"
-import type { AvailablePort } from "@/server/Network/types/port"
+import type { AvailablePort, FloatingIp } from "@/server/Network/types/floatingIp"
 import { trpcReact } from "@/client/trpcClient"
 import { AssociateFloatingIpModal, AssociateFloatingIpModalProps } from "./AssociateFloatingIpModal"
 
@@ -100,12 +99,12 @@ describe("AssociateFloatingIpModal", () => {
   beforeEach(() => {
     vi.clearAllMocks()
     i18n.activate("en")
-    vi.mocked(trpcReact.network.port.listAvailablePorts.useQuery).mockReturnValue({
+    vi.mocked(trpcReact.network.floatingIp.listAvailablePorts.useQuery).mockReturnValue({
       data: mockPorts,
       isLoading: false,
       isError: false,
       error: null,
-    } as ReturnType<typeof trpcReact.network.port.listAvailablePorts.useQuery>)
+    } as ReturnType<typeof trpcReact.network.floatingIp.listAvailablePorts.useQuery>)
   })
 
   test("renders title, port select and fixed IP select", () => {
@@ -242,12 +241,12 @@ describe("AssociateFloatingIpModal", () => {
   })
 
   test("shows port loading state while fetching ports", () => {
-    vi.mocked(trpcReact.network.port.listAvailablePorts.useQuery).mockReturnValue({
+    vi.mocked(trpcReact.network.floatingIp.listAvailablePorts.useQuery).mockReturnValue({
       data: undefined,
       isLoading: true,
       isError: false,
       error: null,
-    } as ReturnType<typeof trpcReact.network.port.listAvailablePorts.useQuery>)
+    } as ReturnType<typeof trpcReact.network.floatingIp.listAvailablePorts.useQuery>)
 
     renderModal()
 

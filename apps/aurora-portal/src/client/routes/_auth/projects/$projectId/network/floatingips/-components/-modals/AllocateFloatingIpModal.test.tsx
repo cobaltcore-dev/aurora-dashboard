@@ -139,9 +139,9 @@ describe("AllocateFloatingIpModal", () => {
     vi.mocked(trpcReact.network.listDnsDomains.useQuery).mockReturnValue(
       createMockQueryResult({ data: mockDnsDomains }) as ReturnType<typeof trpcReact.network.listDnsDomains.useQuery>
     )
-    vi.mocked(trpcReact.network.port.listAvailablePorts.useQuery).mockReturnValue(
+    vi.mocked(trpcReact.network.floatingIp.listAvailablePorts.useQuery).mockReturnValue(
       createMockQueryResult({ data: mockPorts }) as ReturnType<
-        typeof trpcReact.network.port.listAvailablePorts.useQuery
+        typeof trpcReact.network.floatingIp.listAvailablePorts.useQuery
       >
     )
     vi.mocked(trpcReact.network.floatingIp.create.useMutation).mockReturnValue(createMockCreateMutationResult())
@@ -246,9 +246,9 @@ describe("AllocateFloatingIpModal", () => {
     })
 
     it("shows loading state for ports", () => {
-      vi.mocked(trpcReact.network.port.listAvailablePorts.useQuery).mockReturnValue(
+      vi.mocked(trpcReact.network.floatingIp.listAvailablePorts.useQuery).mockReturnValue(
         createMockQueryResult({ isLoading: true }) as ReturnType<
-          typeof trpcReact.network.port.listAvailablePorts.useQuery
+          typeof trpcReact.network.floatingIp.listAvailablePorts.useQuery
         >
       )
 
@@ -285,9 +285,9 @@ describe("AllocateFloatingIpModal", () => {
     })
 
     it("displays error message from ports query", () => {
-      vi.mocked(trpcReact.network.port.listAvailablePorts.useQuery).mockReturnValue(
+      vi.mocked(trpcReact.network.floatingIp.listAvailablePorts.useQuery).mockReturnValue(
         createMockQueryResult({ error: { message: "Failed to load ports" } }) as ReturnType<
-          typeof trpcReact.network.port.listAvailablePorts.useQuery
+          typeof trpcReact.network.floatingIp.listAvailablePorts.useQuery
         >
       )
 

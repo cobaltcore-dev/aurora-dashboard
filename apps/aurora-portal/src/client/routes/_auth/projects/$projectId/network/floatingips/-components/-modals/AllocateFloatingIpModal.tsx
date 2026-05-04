@@ -51,7 +51,7 @@ export const AllocateFloatingIpModal = ({ open, onClose }: AllocateFloatingIpMod
     data: availablePorts = [],
     isLoading: isPortsLoading,
     error: portsError,
-  } = trpcReact.network.port.listAvailablePorts.useQuery({ project_id: projectId })
+  } = trpcReact.network.floatingIp.listAvailablePorts.useQuery({ project_id: projectId })
 
   const formSchema = z.object({
     floating_network_id: z.string(),

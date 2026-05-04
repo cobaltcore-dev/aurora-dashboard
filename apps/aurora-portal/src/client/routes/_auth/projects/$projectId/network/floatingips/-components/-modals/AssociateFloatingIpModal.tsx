@@ -33,9 +33,8 @@ export const AssociateFloatingIpModal = ({
     fixed_ip_address: z.string(),
   })
 
-  const { data: availablePorts = [] } = trpcReact.network.port.listAvailablePorts.useQuery({
+  const { data: availablePorts = [] } = trpcReact.network.floatingIp.listAvailablePorts.useQuery({
     project_id: projectId,
-    tenant_id: projectId,
   })
 
   const form = useForm({

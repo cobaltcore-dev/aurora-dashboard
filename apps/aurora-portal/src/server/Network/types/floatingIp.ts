@@ -247,6 +247,58 @@ export const FloatingIpQueryParametersSchema = z.object({
   searchTerm: z.string().optional(),
 })
 
+/**
+ * Query parameters for listing ports eligible for floating IP creation and association.
+ *
+ * - `project_id` is required — only ports within the specified project can be associated
+ * - `status` is locked to `"ACTIVE"` — only operational ports can be associated
+ * - `admin_state_up` is locked to `true` — only administratively enabled ports are eligible
+ */
+export const ListAvailablePortsQuerySchema = z.object({
+  project_id: z.string(),
+  /** Only ACTIVE ports are eligible for floating IP association */
+  status: z.literal("ACTIVE").default("ACTIVE"),
+  /** Only administratively UP ports are eligible for floating IP association */
+  admin_state_up: z.literal(true).default(true),
+})
+
+/**
+ * Optimized port schema for listing available ports.
+ * Contains only essential fields for floating IP association:
+ * - `id`: Port identifier
+ * - `name`: Port display name
+ * - `fixed_ips`: Fixed IP assignments
+ *
+ * Used by GET /v2.0/ports with fields filter (id, name, fixed_ips).
+ * See https://docs.openstack.org/api-ref/network/v2/index.html#ports
+ */
+export const AvailablePortSchema = z.object({
+  /** The ID of the port */
+  id: z.string(),
+  /** Human-readable name of the port */
+  name: z.string().nullable().optional(),
+  /** List of fixed IPs assigned to the port, each entry pairs an IP address with its subnet. */
+  fixed_ips: z
+    .array(
+      z.object({
+        /** The fixed IP address assigned to the port */
+        ip_address: z.string(),
+        /** The ID of the subnet the IP belongs to */
+        subnet_id: z.string().optional(),
+      })
+    )
+    .optional(),
+})
+
+/**
+ * Available ports list response wrapper.
+ * Optimized response for floating IP creation and association featuring only essential port fields.
+ * Used by GET /v2.0/ports (list available ports) with fields filter.
+ */
+export const AvailablePortListResponseSchema = z.object({
+  ports: z.array(AvailablePortSchema),
+})
+
 export type FloatingIpStatus = z.infer<typeof FloatingIpStatusSchema>
 export type PortDetails = z.infer<typeof PortDetailsSchema>
 export type PortForwarding = z.infer<typeof PortForwardingSchema>
@@ -257,3 +309,6 @@ export type FloatingIpResponse = z.infer<typeof FloatingIpResponseSchema>
 export type FloatingIpIdInput = z.infer<typeof FloatingIpIdInputSchema>
 export type FloatingIpCreateRequest = z.infer<typeof FloatingIpCreateRequestSchema>
 export type FloatingIpUpdateRequest = z.infer<typeof FloatingIpUpdateRequestSchema>
+export type ListAvailablePortsQuery = z.infer<typeof ListAvailablePortsQuerySchema>
+export type AvailablePort = z.infer<typeof AvailablePortSchema>
+export type AvailablePortListResponse = z.infer<typeof AvailablePortListResponseSchema>

@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest"
 import { TRPCError } from "@trpc/server"
 import { createCallerFactory, auroraRouter } from "../../trpc"
 import { floatingIpRouter } from "./floatingIpRouter"
-import { FloatingIp } from "../types/floatingIp"
+import { AvailablePort, FloatingIp } from "../types/floatingIp"
 import { AuroraPortalContext } from "@/server/context"
 
 const TEST_PROJECT_ID = "proj-1"
@@ -13,6 +13,7 @@ const createMockContext = (opts?: {
   parseError?: boolean
   mockFloatingIps?: FloatingIp[]
   mockFloatingIpDetail?: FloatingIp
+  mockAvailablePorts?: AvailablePort[]
   httpStatus?: number
   createSuccess?: boolean
   deleteSuccess?: boolean
@@ -24,6 +25,7 @@ const createMockContext = (opts?: {
     parseError = false,
     mockFloatingIps,
     mockFloatingIpDetail,
+    mockAvailablePorts,
     httpStatus = 200,
     createSuccess = true,
     deleteSuccess = true,
@@ -59,13 +61,29 @@ const createMockContext = (opts?: {
     },
   ]
 
+  const defaultAvailablePorts: AvailablePort[] = [
+    {
+      id: "port-1",
+      name: "web-port",
+      fixed_ips: [{ ip_address: "10.0.0.5", subnet_id: "subnet-1" }],
+    },
+    {
+      id: "port-2",
+      name: "db-port",
+      fixed_ips: [{ ip_address: "10.0.0.6", subnet_id: "subnet-1" }],
+    },
+  ]
+
   const networkGetMock = vi.fn().mockImplementation((url: string) => {
+    const isPortsRequest = url.startsWith("v2.0/ports")
     const isDetailRequest = url.startsWith("v2.0/floatingips/")
     const responseBody = parseError
       ? { invalid: "data" }
-      : isDetailRequest
-        ? { floatingip: mockFloatingIpDetail || defaultFloatingIps[0] }
-        : { floatingips: mockFloatingIps || defaultFloatingIps }
+      : isPortsRequest
+        ? { ports: mockAvailablePorts || defaultAvailablePorts }
+        : isDetailRequest
+          ? { floatingip: mockFloatingIpDetail || defaultFloatingIps[0] }
+          : { floatingips: mockFloatingIps || defaultFloatingIps }
 
     return Promise.resolve({
       ok: httpStatus >= 200 && httpStatus < 300,
@@ -424,6 +442,82 @@ describe("floatingIpRouter.list", () => {
 
       expect(result.length).toBe(3)
     })
+  })
+})
+
+describe("floatingIpRouter.listAvailablePorts", () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it("returns available ports on success", async () => {
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    const result = await caller.floatingIp.listAvailablePorts({ project_id: TEST_PROJECT_ID })
+
+    expect(Array.isArray(result)).toBe(true)
+    expect(result).toHaveLength(2)
+    expect(result[0].id).toBe("port-1")
+    expect(result[0].name).toBe("web-port")
+    expect(result[0].fixed_ips).toEqual([{ ip_address: "10.0.0.5", subnet_id: "subnet-1" }])
+  })
+
+  it("builds the ports query string with defaults and selected fields", async () => {
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    await caller.floatingIp.listAvailablePorts({
+      project_id: TEST_PROJECT_ID,
+    })
+
+    expect(ctx.__networkGetMock).toHaveBeenCalledTimes(1)
+    const calledUrl = ctx.__networkGetMock.mock.calls[0][0] as string
+    const [path, query] = calledUrl.split("?")
+
+    expect(path).toBe("v2.0/ports")
+
+    const params = new URLSearchParams(query)
+    expect(params.get("project_id")).toBe(TEST_PROJECT_ID)
+    expect(params.get("status")).toBe("ACTIVE")
+    expect(params.get("admin_state_up")).toBe("true")
+    expect(params.getAll("fields")).toEqual(["id", "name", "fixed_ips"])
+  })
+
+  it("throws UNAUTHORIZED when session is invalid", async () => {
+    const ctx = createMockContext({ invalidSession: true })
+    const caller = createCaller(ctx)
+
+    await expect(caller.floatingIp.listAvailablePorts({ project_id: TEST_PROJECT_ID })).rejects.toThrow(
+      new TRPCError({
+        code: "UNAUTHORIZED",
+        message: "The session is invalid",
+      })
+    )
+  })
+
+  it("throws INTERNAL_SERVER_ERROR when network service is unavailable", async () => {
+    const ctx = createMockContext({ noNetworkService: true })
+    const caller = createCaller(ctx)
+
+    await expect(caller.floatingIp.listAvailablePorts({ project_id: TEST_PROJECT_ID })).rejects.toThrow(
+      new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Network service is not available",
+      })
+    )
+  })
+
+  it("throws PARSE_ERROR when the ports response cannot be parsed", async () => {
+    const ctx = createMockContext({ parseError: true })
+    const caller = createCaller(ctx)
+
+    await expect(caller.floatingIp.listAvailablePorts({ project_id: TEST_PROJECT_ID })).rejects.toThrow(
+      new TRPCError({
+        code: "PARSE_ERROR",
+        message: "Failed to parse response in portRouter.listAvailablePorts",
+      })
+    )
   })
 })
 
