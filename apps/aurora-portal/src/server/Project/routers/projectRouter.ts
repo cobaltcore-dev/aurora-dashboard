@@ -183,6 +183,10 @@ export const projectRouter = {
    * has visibility to projects they have access to, we don't need to rescope.
    * Rescoping would add unnecessary overhead and complexity.
    *
+   * IMPORTANT: This should be called AFTER rescoping the session to the target project
+   * or a domain with admin privileges. Calling it with an unscoped or differently-scoped
+   * token may result in 403 FORBIDDEN if the user doesn't have sufficient privileges.
+   *
    * If in the future we need to access project-specific resources (compute, network, etc.),
    * we should create a separate procedure using projectScopedProcedure.
    */
