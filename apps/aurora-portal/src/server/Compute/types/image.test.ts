@@ -32,6 +32,7 @@ import {
 describe("Glance Image Schema Validation", () => {
   // Using a simple, known-good UUID
   const imageId = "123e4567-e89b-12d3-a456-426614174000"
+  const projectId = "test-project-id"
 
   // Valid minimal image data
   const minimalValidImage = {
@@ -312,13 +313,14 @@ describe("Glance Image Schema Validation", () => {
   describe("Input Schemas", () => {
     describe("List Images Input", () => {
       it("should validate minimal list images input", () => {
-        const input = {}
+        const input = { project_id: projectId }
         const result = listImagesInputSchema.safeParse(input)
         expect(result.success).toBe(true)
       })
 
       it("should validate complete list images input", () => {
         const input = {
+          project_id: projectId,
           sort_key: "name" as const,
           sort_dir: "asc" as const,
           limit: 50,
@@ -378,7 +380,11 @@ describe("Glance Image Schema Validation", () => {
       })
 
       it("should reject invalid limit values", () => {
-        const inputs = [{ limit: 0 }, { limit: 1001 }, { limit: -1 }]
+        const inputs = [
+          { project_id: projectId, limit: 0 },
+          { project_id: projectId, limit: 1001 },
+          { project_id: projectId, limit: -1 },
+        ]
 
         for (const input of inputs) {
           const result = listImagesInputSchema.safeParse(input)
@@ -389,13 +395,14 @@ describe("Glance Image Schema Validation", () => {
 
     describe("Image Member Input Schemas", () => {
       it("should validate list image members input", () => {
-        const input = { imageId }
+        const input = { project_id: projectId, imageId }
         const result = listImageMembersInputSchema.safeParse(input)
         expect(result.success).toBe(true)
       })
 
       it("should validate get image member input", () => {
         const input = {
+          project_id: projectId,
           imageId,
           memberId: "member-project-123",
         }
@@ -405,6 +412,7 @@ describe("Glance Image Schema Validation", () => {
 
       it("should validate create image member input", () => {
         const input = {
+          project_id: projectId,
           imageId,
           member: "new-member-project-456",
         }
@@ -414,6 +422,7 @@ describe("Glance Image Schema Validation", () => {
 
       it("should validate update image member input", () => {
         const input = {
+          project_id: projectId,
           imageId,
           memberId: "member-project-123",
           status: "accepted" as const,
@@ -424,6 +433,7 @@ describe("Glance Image Schema Validation", () => {
 
       it("should validate delete image member input", () => {
         const input = {
+          project_id: projectId,
           imageId,
           memberId: "member-project-123",
         }
@@ -434,13 +444,13 @@ describe("Glance Image Schema Validation", () => {
 
     describe("Get Image Input", () => {
       it("should validate get image by id input", () => {
-        const input = { imageId }
+        const input = { project_id: projectId, imageId }
         const result = getImageByIdInputSchema.safeParse(input)
         expect(result.success).toBe(true)
       })
 
       it("should require valid UUID for imageId", () => {
-        const input = { imageId: "invalid-uuid" }
+        const input = { project_id: projectId, imageId: "invalid-uuid" }
         const result = getImageByIdInputSchema.safeParse(input)
         expect(result.success).toBe(false)
       })
@@ -448,7 +458,7 @@ describe("Glance Image Schema Validation", () => {
 
     describe("Create Image Input", () => {
       it("should validate minimal create image input", () => {
-        const input = {}
+        const input = { project_id: projectId }
         const result = createImageInputSchema.safeParse(input)
         expect(result.success).toBe(true)
         if (result.success) {
@@ -463,6 +473,7 @@ describe("Glance Image Schema Validation", () => {
 
       it("should validate complete create image input", () => {
         const input = {
+          project_id: projectId,
           name: "My Custom Image",
           id: "6ba7b810-9dad-11d1-80b4-00c04fd430c8",
           container_format: "bare" as const,
@@ -491,7 +502,10 @@ describe("Glance Image Schema Validation", () => {
       })
 
       it("should reject negative min_ram and min_disk", () => {
-        const inputs = [{ min_ram: -1 }, { min_disk: -1 }]
+        const inputs = [
+          { project_id: projectId, min_ram: -1 },
+          { project_id: projectId, min_disk: -1 },
+        ]
 
         for (const input of inputs) {
           const result = createImageInputSchema.safeParse(input)
@@ -512,6 +526,7 @@ describe("Glance Image Schema Validation", () => {
     describe("Update Image Input", () => {
       it("should validate update image input with JSON patch operations", () => {
         const input = {
+          project_id: projectId,
           imageId,
           operations: [
             { op: "replace" as const, path: "/name", value: "New Name" },
@@ -528,6 +543,7 @@ describe("Glance Image Schema Validation", () => {
 
         for (const op of operations) {
           const input = {
+            project_id: projectId,
             imageId,
             operations: [{ op, path: "/test", value: "test" }],
           }
@@ -538,6 +554,7 @@ describe("Glance Image Schema Validation", () => {
 
       it("should require at least one operation", () => {
         const input = {
+          project_id: projectId,
           imageId,
           operations: [],
         }
@@ -549,6 +566,7 @@ describe("Glance Image Schema Validation", () => {
     describe("Update Visibility Input", () => {
       it("should validate update visibility input", () => {
         const input = {
+          project_id: projectId,
           imageId,
           visibility: "public" as const,
         }
@@ -559,19 +577,19 @@ describe("Glance Image Schema Validation", () => {
 
     describe("Simple Operation Inputs", () => {
       it("should validate delete image input", () => {
-        const input = { imageId }
+        const input = { project_id: projectId, imageId }
         const result = deleteImageInputSchema.safeParse(input)
         expect(result.success).toBe(true)
       })
 
       it("should validate deactivate image input", () => {
-        const input = { imageId }
+        const input = { project_id: projectId, imageId }
         const result = deactivateImageInputSchema.safeParse(input)
         expect(result.success).toBe(true)
       })
 
       it("should validate reactivate image input", () => {
-        const input = { imageId }
+        const input = { project_id: projectId, imageId }
         const result = reactivateImageInputSchema.safeParse(input)
         expect(result.success).toBe(true)
       })
@@ -580,6 +598,7 @@ describe("Glance Image Schema Validation", () => {
     describe("Paginated Input", () => {
       it("should validate paginated input schema", () => {
         const input = {
+          project_id: projectId,
           limit: 10,
           first: "http://example.com/v2/images?limit=10",
           next: "http://example.com/v2/images?limit=10&marker=123",
@@ -625,6 +644,7 @@ describe("Glance Image Schema Validation", () => {
     it("should validate long tag arrays", () => {
       const tags = Array.from({ length: 100 }, (_, i) => `tag-${i}`)
       const input = {
+        project_id: projectId,
         tags,
       }
       const result = createImageInputSchema.safeParse(input)
@@ -650,31 +670,31 @@ describe("Glance Image Schema Validation", () => {
 
     describe("Delete Images", () => {
       it("should validate delete images input with multiple IDs", () => {
-        const input = { imageIds: validUUIDs }
+        const input = { project_id: projectId, imageIds: validUUIDs }
         const result = deleteImagesInputSchema.safeParse(input)
         expect(result.success).toBe(true)
       })
 
       it("should validate delete images input with single ID", () => {
-        const input = { imageIds: [validUUIDs[0]] }
+        const input = { project_id: projectId, imageIds: [validUUIDs[0]] }
         const result = deleteImagesInputSchema.safeParse(input)
         expect(result.success).toBe(true)
       })
 
       it("should reject empty imageIds array", () => {
-        const input = { imageIds: [] }
+        const input = { project_id: projectId, imageIds: [] }
         const result = deleteImagesInputSchema.safeParse(input)
         expect(result.success).toBe(false)
       })
 
       it("should reject invalid UUID in imageIds", () => {
-        const input = { imageIds: ["invalid-uuid"] }
+        const input = { project_id: projectId, imageIds: ["invalid-uuid"] }
         const result = deleteImagesInputSchema.safeParse(input)
         expect(result.success).toBe(false)
       })
 
       it("should reject when imageIds is missing", () => {
-        const input = {}
+        const input = { project_id: projectId }
         const result = deleteImagesInputSchema.safeParse(input)
         expect(result.success).toBe(false)
       })
@@ -682,19 +702,19 @@ describe("Glance Image Schema Validation", () => {
 
     describe("Activate Images", () => {
       it("should validate activate images input", () => {
-        const input = { imageIds: validUUIDs }
+        const input = { project_id: projectId, imageIds: validUUIDs }
         const result = activateImagesInputSchema.safeParse(input)
         expect(result.success).toBe(true)
       })
 
       it("should reject empty array", () => {
-        const input = { imageIds: [] }
+        const input = { project_id: projectId, imageIds: [] }
         const result = activateImagesInputSchema.safeParse(input)
         expect(result.success).toBe(false)
       })
 
       it("should reject mixed valid and invalid UUIDs", () => {
-        const input = { imageIds: [validUUIDs[0], "not-a-uuid"] }
+        const input = { project_id: projectId, imageIds: [validUUIDs[0], "not-a-uuid"] }
         const result = activateImagesInputSchema.safeParse(input)
         expect(result.success).toBe(false)
       })
@@ -702,13 +722,13 @@ describe("Glance Image Schema Validation", () => {
 
     describe("Deactivate Images", () => {
       it("should validate deactivate images input", () => {
-        const input = { imageIds: validUUIDs }
+        const input = { project_id: projectId, imageIds: validUUIDs }
         const result = deactivateImagesInputSchema.safeParse(input)
         expect(result.success).toBe(true)
       })
 
       it("should reject empty array", () => {
-        const input = { imageIds: [] }
+        const input = { project_id: projectId, imageIds: [] }
         const result = deactivateImagesInputSchema.safeParse(input)
         expect(result.success).toBe(false)
       })
@@ -827,13 +847,13 @@ describe("Glance Image Schema Validation", () => {
   describe("Multi-Value Filters", () => {
     describe("Status Filter", () => {
       it("should validate single status value", () => {
-        const input = { status: "active" }
+        const input = { project_id: projectId, status: "active" }
         const result = listImagesInputSchema.safeParse(input)
         expect(result.success).toBe(true)
       })
 
       it("should validate multi-value status with 'in:' operator", () => {
-        const input = { status: "in:active,queued,saving" }
+        const input = { project_id: projectId, status: "in:active,queued,saving" }
         const result = listImagesInputSchema.safeParse(input)
         expect(result.success).toBe(true)
       })
@@ -852,7 +872,7 @@ describe("Glance Image Schema Validation", () => {
         ]
 
         for (const status of statuses) {
-          const result = listImagesInputSchema.safeParse({ status })
+          const result = listImagesInputSchema.safeParse({ project_id: projectId, status })
           expect(result.success).toBe(true)
         }
       })
@@ -860,13 +880,13 @@ describe("Glance Image Schema Validation", () => {
 
     describe("Container Format Filter", () => {
       it("should validate single container format", () => {
-        const input = { container_format: "bare" }
+        const input = { project_id: projectId, container_format: "bare" }
         const result = listImagesInputSchema.safeParse(input)
         expect(result.success).toBe(true)
       })
 
       it("should validate multi-value container format", () => {
-        const input = { container_format: "in:bare,ovf,ova" }
+        const input = { project_id: projectId, container_format: "in:bare,ovf,ova" }
         const result = listImagesInputSchema.safeParse(input)
         expect(result.success).toBe(true)
       })
@@ -875,7 +895,7 @@ describe("Glance Image Schema Validation", () => {
         const formats = ["bare", "ovf", "ova", "docker", "ami", "ari", "aki", "compressed"]
 
         for (const format of formats) {
-          const result = listImagesInputSchema.safeParse({ container_format: format })
+          const result = listImagesInputSchema.safeParse({ project_id: projectId, container_format: format })
           expect(result.success).toBe(true)
         }
       })
@@ -883,13 +903,13 @@ describe("Glance Image Schema Validation", () => {
 
     describe("Disk Format Filter", () => {
       it("should validate single disk format", () => {
-        const input = { disk_format: "qcow2" }
+        const input = { project_id: projectId, disk_format: "qcow2" }
         const result = listImagesInputSchema.safeParse(input)
         expect(result.success).toBe(true)
       })
 
       it("should validate multi-value disk format", () => {
-        const input = { disk_format: "in:qcow2,raw,vmdk" }
+        const input = { project_id: projectId, disk_format: "in:qcow2,raw,vmdk" }
         const result = listImagesInputSchema.safeParse(input)
         expect(result.success).toBe(true)
       })
@@ -898,7 +918,7 @@ describe("Glance Image Schema Validation", () => {
         const formats = ["ami", "ari", "aki", "vhd", "vhdx", "vmdk", "raw", "qcow2", "vdi", "iso", "ploop"]
 
         for (const format of formats) {
-          const result = listImagesInputSchema.safeParse({ disk_format: format })
+          const result = listImagesInputSchema.safeParse({ project_id: projectId, disk_format: format })
           expect(result.success).toBe(true)
         }
       })
@@ -907,7 +927,7 @@ describe("Glance Image Schema Validation", () => {
 
   describe("Advanced List Images Filtering", () => {
     it("should validate visibility filter with 'all'", () => {
-      const input = { visibility: "all" }
+      const input = { project_id: projectId, visibility: "all" }
       const result = listImagesInputSchema.safeParse(input)
       expect(result.success).toBe(true)
     })
@@ -916,13 +936,14 @@ describe("Glance Image Schema Validation", () => {
       const visibilities = ["public", "private", "shared", "community", "all"]
 
       for (const visibility of visibilities) {
-        const result = listImagesInputSchema.safeParse({ visibility })
+        const result = listImagesInputSchema.safeParse({ project_id: projectId, visibility })
         expect(result.success).toBe(true)
       }
     })
 
     it("should validate size range filters", () => {
       const input = {
+        project_id: projectId,
         size_min: 1073741824, // 1GB
         size_max: 10737418240, // 10GB
       }
@@ -932,6 +953,7 @@ describe("Glance Image Schema Validation", () => {
 
     it("should validate min_ram and min_disk filters", () => {
       const input = {
+        project_id: projectId,
         min_ram: 2048,
         min_disk: 20,
       }
@@ -940,7 +962,7 @@ describe("Glance Image Schema Validation", () => {
     })
 
     it("should validate tag filter", () => {
-      const input = { tag: "ubuntu" }
+      const input = { project_id: projectId, tag: "ubuntu" }
       const result = listImagesInputSchema.safeParse(input)
       expect(result.success).toBe(true)
     })
@@ -949,7 +971,7 @@ describe("Glance Image Schema Validation", () => {
       const osTypes = ["linux", "windows"]
 
       for (const osType of osTypes) {
-        const result = listImagesInputSchema.safeParse({ os_type: osType })
+        const result = listImagesInputSchema.safeParse({ project_id: projectId, os_type: osType })
         expect(result.success).toBe(true)
       }
     })
@@ -958,7 +980,7 @@ describe("Glance Image Schema Validation", () => {
       const inputs = [{ os_hidden: true }, { os_hidden: false }]
 
       for (const input of inputs) {
-        const result = listImagesInputSchema.safeParse(input)
+        const result = listImagesInputSchema.safeParse({ ...input, project_id: projectId })
         expect(result.success).toBe(true)
       }
     })
@@ -967,25 +989,25 @@ describe("Glance Image Schema Validation", () => {
       const statuses = ["pending", "accepted", "rejected", "all"]
 
       for (const status of statuses) {
-        const result = listImagesInputSchema.safeParse({ member_status: status })
+        const result = listImagesInputSchema.safeParse({ project_id: projectId, member_status: status })
         expect(result.success).toBe(true)
       }
     })
 
     it("should validate created_at filter with operator", () => {
-      const input = { created_at: "gte:2025-01-01T00:00:00Z" }
+      const input = { project_id: projectId, created_at: "gte:2025-01-01T00:00:00Z" }
       const result = listImagesInputSchema.safeParse(input)
       expect(result.success).toBe(true)
     })
 
     it("should validate updated_at filter with operator", () => {
-      const input = { updated_at: "lte:2025-12-31T23:59:59Z" }
+      const input = { project_id: projectId, updated_at: "lte:2025-12-31T23:59:59Z" }
       const result = listImagesInputSchema.safeParse(input)
       expect(result.success).toBe(true)
     })
 
     it("should validate owner filter", () => {
-      const input = { owner: "project-123" }
+      const input = { project_id: projectId, owner: "project-123" }
       const result = listImagesInputSchema.safeParse(input)
       expect(result.success).toBe(true)
     })
@@ -994,13 +1016,14 @@ describe("Glance Image Schema Validation", () => {
       const inputs = [{ protected: "true" }, { protected: "false" }]
 
       for (const input of inputs) {
-        const result = listImagesInputSchema.safeParse(input)
+        const result = listImagesInputSchema.safeParse({ ...input, project_id: projectId })
         expect(result.success).toBe(true)
       }
     })
 
     it("should validate combined filters", () => {
       const input = {
+        project_id: projectId,
         name: "Ubuntu",
         status: "in:active,queued",
         visibility: "public",
@@ -1018,7 +1041,7 @@ describe("Glance Image Schema Validation", () => {
     })
 
     it("should validate alternative sort syntax", () => {
-      const input = { sort: "name:asc,created_at:desc" }
+      const input = { project_id: projectId, sort: "name:asc,created_at:desc" }
       const result = listImagesInputSchema.safeParse(input)
       expect(result.success).toBe(true)
     })
@@ -1037,6 +1060,7 @@ describe("Glance Image Schema Validation", () => {
 
     it("should validate marker for pagination", () => {
       const input = {
+        project_id: projectId,
         limit: 100,
         marker: "123e4567-e89b-12d3-a456-426614174000",
       }
@@ -1050,6 +1074,7 @@ describe("Glance Image Schema Validation", () => {
 
     it("should validate move operation with from field", () => {
       const input = {
+        project_id: projectId,
         imageId,
         operations: [{ op: "move" as const, path: "/new-path", from: "/old-path" }],
       }
@@ -1059,6 +1084,7 @@ describe("Glance Image Schema Validation", () => {
 
     it("should validate copy operation with from field", () => {
       const input = {
+        project_id: projectId,
         imageId,
         operations: [{ op: "copy" as const, path: "/new-path", from: "/source-path" }],
       }
@@ -1068,6 +1094,7 @@ describe("Glance Image Schema Validation", () => {
 
     it("should validate test operation", () => {
       const input = {
+        project_id: projectId,
         imageId,
         operations: [{ op: "test" as const, path: "/name", value: "Expected Name" }],
       }
@@ -1077,6 +1104,7 @@ describe("Glance Image Schema Validation", () => {
 
     it("should validate remove operation without value", () => {
       const input = {
+        project_id: projectId,
         imageId,
         operations: [{ op: "remove" as const, path: "/old-property" }],
       }
@@ -1086,6 +1114,7 @@ describe("Glance Image Schema Validation", () => {
 
     it("should validate multiple operations in single request", () => {
       const input = {
+        project_id: projectId,
         imageId,
         operations: [
           { op: "replace" as const, path: "/name", value: "New Name" },
@@ -1100,6 +1129,7 @@ describe("Glance Image Schema Validation", () => {
 
     it("should validate operations on nested paths", () => {
       const input = {
+        project_id: projectId,
         imageId,
         operations: [{ op: "replace" as const, path: "/metadata/key", value: "new-value" }],
       }
@@ -1109,6 +1139,7 @@ describe("Glance Image Schema Validation", () => {
 
     it("should validate array index operations", () => {
       const input = {
+        project_id: projectId,
         imageId,
         operations: [
           { op: "add" as const, path: "/tags/0", value: "first-tag" },
@@ -1123,6 +1154,7 @@ describe("Glance Image Schema Validation", () => {
   describe("Create Image Custom Properties", () => {
     it("should allow custom string properties via catchall", () => {
       const input = {
+        project_id: projectId,
         name: "Custom Image",
         custom_key1: "value1",
         custom_key2: "value2",
@@ -1134,6 +1166,7 @@ describe("Glance Image Schema Validation", () => {
 
     it("should reject non-string custom properties", () => {
       const input = {
+        project_id: projectId,
         name: "Custom Image",
         custom_number: 123, // Should be string per catchall
       }
@@ -1143,6 +1176,7 @@ describe("Glance Image Schema Validation", () => {
 
     it("should validate with all hardware properties", () => {
       const input = {
+        project_id: projectId,
         hw_disk_bus: "virtio",
         hw_scsi_model: "virtio-scsi",
         hw_serial: "ds=nocloud-net",
@@ -1172,7 +1206,7 @@ describe("Glance Image Schema Validation", () => {
       const statuses = ["pending", "accepted", "rejected"] as const
 
       for (const status of statuses) {
-        const input = { imageId, memberId: "member-123", status }
+        const input = { project_id: projectId, imageId, memberId: "member-123", status }
         const result = updateImageMemberInputSchema.safeParse(input)
         expect(result.success).toBe(true)
       }
@@ -1190,6 +1224,7 @@ describe("Glance Image Schema Validation", () => {
 
     it("should validate create member with project ID", () => {
       const input = {
+        project_id: projectId,
         imageId,
         member: "project-456",
       }

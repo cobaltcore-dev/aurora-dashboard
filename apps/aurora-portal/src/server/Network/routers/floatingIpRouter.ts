@@ -1,4 +1,4 @@
-import { protectedProcedure } from "@/server/trpc"
+import { projectScopedProcedure } from "@/server/trpc"
 import { withErrorHandling } from "@/server/helpers/errorHandling"
 import { filterBySearchParams } from "@/server/helpers/filterBySearchParams"
 import {
@@ -28,14 +28,14 @@ const FLOATING_IPS_BASE_URL = "v2.0/floatingips"
  * - delete: DELETE /v2.0/floatingips/{floatingip_id} Delete floating IP.
  */
 export const floatingIpRouter = {
-  list: protectedProcedure
+  list: projectScopedProcedure
     .input(FloatingIpQueryParametersSchema)
     .query(async ({ input, ctx }): Promise<FloatingIp[]> => {
       return withErrorHandling(async () => {
-        const { searchTerm, ...queryInput } = input
+        const { searchTerm, ...openstackFilters } = input
         const network = getNetworkService(ctx)
 
-        const queryParams = appendQueryParamsFromObject(queryInput)
+        const queryParams = appendQueryParamsFromObject(openstackFilters)
 
         const queryString = queryParams.toString()
         const url = queryString ? `${FLOATING_IPS_BASE_URL}?${queryString}` : FLOATING_IPS_BASE_URL
@@ -51,7 +51,7 @@ export const floatingIpRouter = {
         return filterBySearchParams(floatingips, searchTerm, ["description"])
       }, "list floating IPs")
     }),
-  create: protectedProcedure
+  create: projectScopedProcedure
     .input(FloatingIpCreateRequestSchema)
     .mutation(async ({ input, ctx }): Promise<FloatingIp> => {
       return withErrorHandling(async () => {
@@ -82,7 +82,7 @@ export const floatingIpRouter = {
         return parseOrThrow(FloatingIpResponseSchema, data, "floatingIpRouter.create").floatingip
       }, "create floating IP")
     }),
-  getById: protectedProcedure.input(FloatingIpIdInputSchema).query(async ({ input, ctx }): Promise<FloatingIp> => {
+  getById: projectScopedProcedure.input(FloatingIpIdInputSchema).query(async ({ input, ctx }): Promise<FloatingIp> => {
     return withErrorHandling(async () => {
       const { floatingip_id } = input
       const network = getNetworkService(ctx)
@@ -96,7 +96,7 @@ export const floatingIpRouter = {
       return parseOrThrow(FloatingIpResponseSchema, data, "floatingIpRouter.getById").floatingip
     }, "show floating IP details")
   }),
-  update: protectedProcedure
+  update: projectScopedProcedure
     .input(FloatingIpUpdateRequestSchema)
     .mutation(async ({ input, ctx }): Promise<FloatingIp> => {
       return withErrorHandling(async () => {
@@ -120,7 +120,7 @@ export const floatingIpRouter = {
         return parseOrThrow(FloatingIpResponseSchema, data, "floatingIpRouter.update").floatingip
       }, "update floating IP")
     }),
-  delete: protectedProcedure.input(FloatingIpIdInputSchema).mutation(async ({ input, ctx }): Promise<boolean> => {
+  delete: projectScopedProcedure.input(FloatingIpIdInputSchema).mutation(async ({ input, ctx }): Promise<boolean> => {
     return withErrorHandling(async () => {
       const { floatingip_id } = input
       const network = getNetworkService(ctx)

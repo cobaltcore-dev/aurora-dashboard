@@ -1,14 +1,13 @@
-import { z } from "zod"
-import { protectedProcedure } from "../../trpc"
+import { projectScopedProcedure, projectScopedInputSchema } from "../../trpc"
 import { Server, serverResponseSchema } from "../types/server"
 
 export const serverRouter = {
-  getServersByProjectId: protectedProcedure
-    .input(z.object({ projectId: z.string() }))
-    .query(async ({ input, ctx }): Promise<Server[] | undefined> => {
+  getServersByProjectId: projectScopedProcedure
+    .input(projectScopedInputSchema)
+    .query(async ({ ctx }): Promise<Server[] | undefined> => {
       try {
-        const openstackSession = await ctx.rescopeSession({ projectId: input.projectId })
-        const compute = openstackSession?.service("compute")
+        // ctx.openstack is already rescoped to the project by projectScopedProcedure
+        const compute = ctx.openstack?.service("compute")
 
         if (!compute) {
           console.error("Compute service not available")

@@ -46,8 +46,11 @@ export const ListNetworksQuerySchema = z.object({
  *
  * This keeps all standard list filters available, but enforces
  * "router:external" to be true.
+ *
+ * Now requires project_id for use with projectScopedProcedure.
  */
 export const ListExternalNetworksQuerySchema = ListNetworksQuerySchema.extend({
+  project_id: z.string(),
   "router:external": z.literal(true).default(true),
 })
 
@@ -56,9 +59,11 @@ export const ListExternalNetworksQuerySchema = ListNetworksQuerySchema.extend({
  * GET /v2.0/networks?fields=dns_domain
  *
  * Keeps only useful network-level filters for this procedure.
+ *
+ * Now requires project_id for use with projectScopedProcedure.
  */
 export const ListDnsDomainsQuerySchema = z.object({
-  project_id: z.string().optional(),
+  project_id: z.string(),
   tenant_id: z.string().optional(),
   "router:external": z.boolean().optional(),
 })
@@ -85,12 +90,13 @@ const SegmentSchema = z.object({
  * - Includes core fields plus optional extension-driven attributes.
  * - `created_at`/`updated_at` use the shared timestamp brand schema.
  * - Keys containing ":" should be accessed via bracket notation.
+ * - Many fields are optional as they may not be present in all OpenStack deployments or API responses
  */
 export const NetworkSchema = z.object({
   admin_state_up: z.boolean(),
   availability_zone_hints: z.array(z.string()).optional(),
   availability_zones: z.array(z.string()).optional(),
-  created_at: ISO8601TimestampSchema,
+  created_at: ISO8601TimestampSchema.optional(),
   dns_domain: z.string().optional(),
   id: z.string(),
   ipv4_address_scope: z.string().nullable().optional(),
@@ -103,9 +109,9 @@ export const NetworkSchema = z.object({
   "provider:network_type": z.string().optional(),
   "provider:physical_network": z.string().nullable().optional(),
   "provider:segmentation_id": z.number().int().nullable().optional(),
-  qos_policy_id: z.string().optional(),
+  qos_policy_id: z.string().nullable().optional(),
   revision_number: z.number().int().optional(),
-  "router:external": z.boolean(),
+  "router:external": z.boolean().optional(),
   segments: z.array(SegmentSchema).optional(),
   shared: z.boolean(),
   status: NetworkPortStatusSchema,

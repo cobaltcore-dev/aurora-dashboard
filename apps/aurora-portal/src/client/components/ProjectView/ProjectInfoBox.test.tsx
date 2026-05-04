@@ -12,14 +12,14 @@ let mockMatches: { routeId: string; staticData?: Record<string, unknown> }[] = [
 vi.mock("@tanstack/react-router", () => ({
   useNavigate: () => mockNavigate,
   useMatches: () => mockMatches,
-  useParams: () => ({ accountId: "test-account", projectId: "test-project" }),
+  useParams: () => ({ projectId: "test-project" }),
   useRouteContext: vi.fn(() => ({
     pageTitle: "Test Page Title",
     pageTitleRef: { current: "Test Page Title" },
   })),
 }))
 
-const PROJECT_ROUTE_ID = "/_auth/accounts/$accountId/projects/$projectId"
+const PROJECT_ROUTE_ID = "/_auth/projects/$projectId"
 
 const defaultProjectInfo = {
   id: "project-123",
@@ -251,8 +251,7 @@ describe("ProjectInfoBox", () => {
       fireEvent.click(screen.getByText("My Project"))
 
       expect(mockNavigate).toHaveBeenCalledWith({
-        to: "/accounts/$accountId/projects",
-        params: { accountId: "test-account" },
+        to: "/projects",
       })
     })
 
@@ -268,8 +267,8 @@ describe("ProjectInfoBox", () => {
       fireEvent.click(screen.getByText("Compute"))
 
       expect(mockNavigate).toHaveBeenCalledWith({
-        to: "/accounts/$accountId/projects/$projectId/compute/overview",
-        params: { accountId: "test-account", projectId: "test-project" },
+        to: "/projects/$projectId/compute/overview",
+        params: { projectId: "test-project" },
       })
     })
 
@@ -288,8 +287,8 @@ describe("ProjectInfoBox", () => {
       fireEvent.click(screen.getByText("Compute"))
 
       expect(mockNavigate).toHaveBeenCalledWith({
-        to: "/accounts/$accountId/projects/$projectId/compute/overview",
-        params: { accountId: "test-account", projectId: "test-project" },
+        to: "/projects/$projectId/compute/overview",
+        params: { projectId: "test-project" },
       })
     })
 
@@ -308,8 +307,8 @@ describe("ProjectInfoBox", () => {
       fireEvent.click(screen.getByText("Images"))
 
       expect(mockNavigate).toHaveBeenCalledWith({
-        to: "/accounts/$accountId/projects/$projectId/compute/images",
-        params: { accountId: "test-account", projectId: "test-project" },
+        to: "/projects/$projectId/compute/images",
+        params: { projectId: "test-project" },
       })
     })
 
@@ -328,8 +327,8 @@ describe("ProjectInfoBox", () => {
       fireEvent.click(screen.getByText("Flavors"))
 
       expect(mockNavigate).toHaveBeenCalledWith({
-        to: "/accounts/$accountId/projects/$projectId/compute/flavors",
-        params: { accountId: "test-account", projectId: "test-project" },
+        to: "/projects/$projectId/compute/flavors",
+        params: { projectId: "test-project" },
       })
     })
 
@@ -348,8 +347,8 @@ describe("ProjectInfoBox", () => {
       fireEvent.click(screen.getByText("Network"))
 
       expect(mockNavigate).toHaveBeenCalledWith({
-        to: "/accounts/$accountId/projects/$projectId/network/overview",
-        params: { accountId: "test-account", projectId: "test-project" },
+        to: "/projects/$projectId/network/overview",
+        params: { projectId: "test-project" },
       })
     })
 
@@ -368,8 +367,8 @@ describe("ProjectInfoBox", () => {
       fireEvent.click(screen.getByText("Security Groups"))
 
       expect(mockNavigate).toHaveBeenCalledWith({
-        to: "/accounts/$accountId/projects/$projectId/network/securitygroups",
-        params: { accountId: "test-account", projectId: "test-project" },
+        to: "/projects/$projectId/network/securitygroups",
+        params: { projectId: "test-project" },
       })
     })
 
@@ -388,8 +387,8 @@ describe("ProjectInfoBox", () => {
       fireEvent.click(screen.getByText("Floating IPs"))
 
       expect(mockNavigate).toHaveBeenCalledWith({
-        to: "/accounts/$accountId/projects/$projectId/network/floatingips",
-        params: { accountId: "test-account", projectId: "test-project" },
+        to: "/projects/$projectId/network/floatingips",
+        params: { projectId: "test-project" },
       })
     })
   })

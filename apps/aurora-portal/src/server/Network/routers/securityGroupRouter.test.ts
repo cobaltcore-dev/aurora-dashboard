@@ -5,6 +5,9 @@ import { securityGroupRouter } from "./securityGroupRouter"
 import { SecurityGroup } from "../types/securityGroup"
 import { AuroraPortalContext } from "@/server/context"
 
+// Test constants
+const TEST_PROJECT_ID = "proj-1"
+
 const createMockContext = (opts?: {
   noNetworkService?: boolean
   invalidSession?: boolean
@@ -71,6 +74,37 @@ const createMockContext = (opts?: {
             json: vi.fn().mockResolvedValue({
               security_group: defaultSecurityGroups[0],
             }),
+          })
+        }),
+        post: vi.fn().mockImplementation(() => {
+          if (mockError) {
+            return Promise.reject(new Error("Network error"))
+          }
+          return Promise.resolve({
+            ok: true,
+            json: vi.fn().mockResolvedValue({
+              security_group: mockSecurityGroup || defaultSecurityGroups[0],
+            }),
+          })
+        }),
+        put: vi.fn().mockImplementation(() => {
+          if (mockError) {
+            return Promise.reject(new Error("Network error"))
+          }
+          return Promise.resolve({
+            ok: true,
+            json: vi.fn().mockResolvedValue({
+              security_group: mockSecurityGroup || defaultSecurityGroups[0],
+            }),
+          })
+        }),
+        del: vi.fn().mockImplementation(() => {
+          if (mockError) {
+            return Promise.reject(new Error("Network error"))
+          }
+          return Promise.resolve({
+            ok: true,
+            status: 204,
           })
         }),
       }
@@ -495,6 +529,7 @@ describe("securityGroupRouter.getById", () => {
     const caller = createCaller(ctx)
 
     const result = await caller.securityGroup.getById({
+      project_id: TEST_PROJECT_ID,
       securityGroupId: "sg-123",
     })
 
@@ -511,6 +546,7 @@ describe("securityGroupRouter.getById", () => {
 
     await expect(
       caller.securityGroup.getById({
+        project_id: TEST_PROJECT_ID,
         securityGroupId: "sg-123",
       })
     ).rejects.toThrow(
@@ -527,12 +563,13 @@ describe("securityGroupRouter.getById", () => {
 
     await expect(
       caller.securityGroup.getById({
+        project_id: TEST_PROJECT_ID,
         securityGroupId: "sg-123",
       })
     ).rejects.toThrowError(TRPCError)
 
     try {
-      await caller.securityGroup.getById({ securityGroupId: "sg-123" })
+      await caller.securityGroup.getById({ project_id: TEST_PROJECT_ID, securityGroupId: "sg-123" })
     } catch (error) {
       if (error instanceof TRPCError) {
         expect(error.code).toBe("INTERNAL_SERVER_ERROR")
@@ -566,39 +603,41 @@ describe("securityGroupRouter.create", () => {
       security_group_rules: [],
     }
 
+    const mockOpenstackSession = {
+      service: vi.fn().mockImplementation((serviceName: string) => {
+        if (serviceName !== "network" || noNetworkService) {
+          return null
+        }
+
+        return {
+          post: vi.fn().mockImplementation(() => {
+            if (responseStatus === 201) {
+              return Promise.resolve({
+                ok: true,
+                status: responseStatus,
+                json: vi.fn().mockResolvedValue({
+                  security_group: mockCreatedSecurityGroup,
+                }),
+              })
+            }
+
+            // Mock error responses
+            return Promise.resolve({
+              ok: false,
+              status: responseStatus,
+              statusText: responseStatus === 413 ? "Quota exceeded" : "Error",
+            })
+          }),
+        }
+      }),
+    }
+
     return {
       validateSession: vi.fn().mockReturnValue(!invalidSession),
-      openstack: {
-        service: vi.fn().mockImplementation((serviceName: string) => {
-          if (serviceName !== "network" || noNetworkService) {
-            return null
-          }
-
-          return {
-            post: vi.fn().mockImplementation(() => {
-              if (responseStatus === 201) {
-                return Promise.resolve({
-                  ok: true,
-                  status: responseStatus,
-                  json: vi.fn().mockResolvedValue({
-                    security_group: mockCreatedSecurityGroup,
-                  }),
-                })
-              }
-
-              // Mock error responses
-              return Promise.resolve({
-                ok: false,
-                status: responseStatus,
-                statusText: responseStatus === 413 ? "Quota exceeded" : "Error",
-              })
-            }),
-          }
-        }),
-      },
+      openstack: mockOpenstackSession,
       createSession: vi.fn(),
       terminateSession: vi.fn(),
-      rescopeSession: vi.fn(),
+      rescopeSession: vi.fn().mockResolvedValue(mockOpenstackSession),
     } as unknown as AuroraPortalContext
   }
 
@@ -607,6 +646,7 @@ describe("securityGroupRouter.create", () => {
     const caller = createCaller(ctx)
 
     const result = await caller.securityGroup.create({
+      project_id: TEST_PROJECT_ID,
       name: "test-sg",
       description: "Test security group",
       stateful: true,
@@ -622,6 +662,7 @@ describe("securityGroupRouter.create", () => {
     const caller = createCaller(ctx)
 
     const result = await caller.securityGroup.create({
+      project_id: TEST_PROJECT_ID,
       name: "minimal-sg",
     })
 
@@ -635,6 +676,7 @@ describe("securityGroupRouter.create", () => {
 
     await expect(
       caller.securityGroup.create({
+        project_id: TEST_PROJECT_ID,
         name: "test-sg",
       })
     ).rejects.toThrow(/Quota exceeded/)
@@ -646,6 +688,7 @@ describe("securityGroupRouter.create", () => {
 
     await expect(
       caller.securityGroup.create({
+        project_id: TEST_PROJECT_ID,
         name: "test-sg",
       })
     ).rejects.toThrow(
@@ -662,6 +705,7 @@ describe("securityGroupRouter.create", () => {
 
     await expect(
       caller.securityGroup.create({
+        project_id: TEST_PROJECT_ID,
         name: "test-sg",
       })
     ).rejects.toThrow("Network service is not available")
@@ -680,36 +724,38 @@ describe("securityGroupRouter.deleteById", () => {
   }) => {
     const { noNetworkService = false, invalidSession = false, responseStatus = 204 } = opts || {}
 
+    const mockOpenstackSession = {
+      service: vi.fn().mockImplementation((serviceName: string) => {
+        if (serviceName !== "network" || noNetworkService) {
+          return null
+        }
+
+        return {
+          del: vi.fn().mockImplementation(() => {
+            if (responseStatus === 204) {
+              return Promise.resolve({
+                ok: true,
+                status: responseStatus,
+              })
+            }
+
+            // Mock error responses
+            return Promise.resolve({
+              ok: false,
+              status: responseStatus,
+              statusText: responseStatus === 409 ? "Conflict" : responseStatus === 404 ? "Not Found" : "Error",
+            })
+          }),
+        }
+      }),
+    }
+
     return {
       validateSession: vi.fn().mockReturnValue(!invalidSession),
-      openstack: {
-        service: vi.fn().mockImplementation((serviceName: string) => {
-          if (serviceName !== "network" || noNetworkService) {
-            return null
-          }
-
-          return {
-            del: vi.fn().mockImplementation(() => {
-              if (responseStatus === 204) {
-                return Promise.resolve({
-                  ok: true,
-                  status: responseStatus,
-                })
-              }
-
-              // Mock error responses
-              return Promise.resolve({
-                ok: false,
-                status: responseStatus,
-                statusText: responseStatus === 409 ? "Conflict" : responseStatus === 404 ? "Not Found" : "Error",
-              })
-            }),
-          }
-        }),
-      },
+      openstack: mockOpenstackSession,
       createSession: vi.fn(),
       terminateSession: vi.fn(),
-      rescopeSession: vi.fn(),
+      rescopeSession: vi.fn().mockResolvedValue(mockOpenstackSession),
     } as unknown as AuroraPortalContext
   }
 
@@ -719,6 +765,7 @@ describe("securityGroupRouter.deleteById", () => {
 
     await expect(
       caller.securityGroup.deleteById({
+        project_id: TEST_PROJECT_ID,
         securityGroupId: "sg-123",
       })
     ).resolves.not.toThrow()
@@ -730,6 +777,7 @@ describe("securityGroupRouter.deleteById", () => {
 
     await expect(
       caller.securityGroup.deleteById({
+        project_id: TEST_PROJECT_ID,
         securityGroupId: "sg-123",
       })
     ).rejects.toThrow(/in use/)
@@ -741,6 +789,7 @@ describe("securityGroupRouter.deleteById", () => {
 
     await expect(
       caller.securityGroup.deleteById({
+        project_id: TEST_PROJECT_ID,
         securityGroupId: "sg-nonexistent",
       })
     ).rejects.toThrow("Security group not found")
@@ -752,6 +801,7 @@ describe("securityGroupRouter.deleteById", () => {
 
     await expect(
       caller.securityGroup.deleteById({
+        project_id: TEST_PROJECT_ID,
         securityGroupId: "sg-123",
       })
     ).rejects.toThrow(
@@ -768,6 +818,7 @@ describe("securityGroupRouter.deleteById", () => {
 
     await expect(
       caller.securityGroup.deleteById({
+        project_id: TEST_PROJECT_ID,
         securityGroupId: "sg-123",
       })
     ).rejects.toThrow("Network service is not available")
@@ -796,44 +847,46 @@ describe("securityGroupRouter.update", () => {
       security_group_rules: [],
     }
 
+    const mockOpenstackSession = {
+      service: vi.fn().mockImplementation((serviceName: string) => {
+        if (serviceName !== "network" || noNetworkService) {
+          return null
+        }
+
+        return {
+          put: vi.fn().mockImplementation(() => {
+            if (responseStatus === 200) {
+              return Promise.resolve({
+                ok: true,
+                status: responseStatus,
+                json: vi.fn().mockResolvedValue({
+                  security_group: mockUpdatedSecurityGroup,
+                }),
+              })
+            }
+
+            // Mock error responses
+            return Promise.resolve({
+              ok: false,
+              status: responseStatus,
+              statusText:
+                responseStatus === 404
+                  ? "Not Found"
+                  : responseStatus === 409
+                    ? "Cannot update stateful attribute while in use"
+                    : "Error",
+            })
+          }),
+        }
+      }),
+    }
+
     return {
       validateSession: vi.fn().mockReturnValue(!invalidSession),
-      openstack: {
-        service: vi.fn().mockImplementation((serviceName: string) => {
-          if (serviceName !== "network" || noNetworkService) {
-            return null
-          }
-
-          return {
-            put: vi.fn().mockImplementation(() => {
-              if (responseStatus === 200) {
-                return Promise.resolve({
-                  ok: true,
-                  status: responseStatus,
-                  json: vi.fn().mockResolvedValue({
-                    security_group: mockUpdatedSecurityGroup,
-                  }),
-                })
-              }
-
-              // Mock error responses
-              return Promise.resolve({
-                ok: false,
-                status: responseStatus,
-                statusText:
-                  responseStatus === 404
-                    ? "Not Found"
-                    : responseStatus === 409
-                      ? "Cannot update stateful attribute while in use"
-                      : "Error",
-              })
-            }),
-          }
-        }),
-      },
+      openstack: mockOpenstackSession,
       createSession: vi.fn(),
       terminateSession: vi.fn(),
-      rescopeSession: vi.fn(),
+      rescopeSession: vi.fn().mockResolvedValue(mockOpenstackSession),
     } as unknown as AuroraPortalContext
   }
 
@@ -842,6 +895,7 @@ describe("securityGroupRouter.update", () => {
     const caller = createCaller(ctx)
 
     const result = await caller.securityGroup.update({
+      project_id: TEST_PROJECT_ID,
       securityGroupId: "sg-123",
       name: "updated-sg",
       description: "Updated security group",
@@ -857,6 +911,7 @@ describe("securityGroupRouter.update", () => {
     const caller = createCaller(ctx)
 
     const result = await caller.securityGroup.update({
+      project_id: TEST_PROJECT_ID,
       securityGroupId: "sg-123",
       name: "updated-name-only",
     })
@@ -871,6 +926,7 @@ describe("securityGroupRouter.update", () => {
 
     await expect(
       caller.securityGroup.update({
+        project_id: TEST_PROJECT_ID,
         securityGroupId: "sg-nonexistent",
         name: "new-name",
       })
@@ -883,6 +939,7 @@ describe("securityGroupRouter.update", () => {
 
     await expect(
       caller.securityGroup.update({
+        project_id: TEST_PROJECT_ID,
         securityGroupId: "sg-123",
         stateful: false,
       })
@@ -895,6 +952,7 @@ describe("securityGroupRouter.update", () => {
 
     await expect(
       caller.securityGroup.update({
+        project_id: TEST_PROJECT_ID,
         securityGroupId: "sg-123",
         name: "new-name",
       })
@@ -912,6 +970,7 @@ describe("securityGroupRouter.update", () => {
 
     await expect(
       caller.securityGroup.update({
+        project_id: TEST_PROJECT_ID,
         securityGroupId: "sg-123",
         name: "new-name",
       })

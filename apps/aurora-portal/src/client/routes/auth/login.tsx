@@ -15,7 +15,7 @@ export const Route = createFileRoute("/auth/login")({
     if (context.auth?.isAuthenticated) {
       const savedRedirect = sessionStorage.getItem("redirect_after_login")
 
-      let redirectTo = `/accounts/${context.auth.user?.domain.id}/projects`
+      let redirectTo = `/projects`
 
       if (savedRedirect && typeof savedRedirect === "string" && savedRedirect.startsWith("/")) {
         redirectTo = savedRedirect
@@ -73,7 +73,7 @@ export function AuthLoginPage() {
 
       const savedRedirect = sessionStorage.getItem("redirect_after_login")
       const searchRedirect = search.redirect
-      const defaultRedirect = `/accounts/${token.user.domain.id}/projects`
+      const defaultRedirect = `/projects`
 
       let redirectTo = defaultRedirect
 

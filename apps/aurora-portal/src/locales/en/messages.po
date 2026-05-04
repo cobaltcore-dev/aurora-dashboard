@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"POT-Creation-Date: 2025-06-03 11:49+0200\n"
+"POT-Creation-Date: 2026-04-27 16:27+0200\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -883,8 +883,8 @@ msgstr "Error Loading Containers: {errorMessage}"
 msgid "Error Loading Flavor"
 msgstr "Error Loading Flavor"
 
-msgid "Error loading Floating IP Details..."
-msgstr "Error loading Floating IP Details..."
+msgid "Error loading floating IP"
+msgstr "Error loading floating IP"
 
 msgid "Error loading image"
 msgstr "Error loading image"
@@ -1345,9 +1345,6 @@ msgstr "Ingress"
 msgid "Inside a project, objects are stored in containers. Containers are where you define access permissions and quotas."
 msgstr "Inside a project, objects are stored in containers. Containers are where you define access permissions and quotas."
 
-msgid "Instances"
-msgstr "Instances"
-
 msgid "Invalid file format. Supported formats: {supportedFileFormats}"
 msgstr "Invalid file format. Supported formats: {supportedFileFormats}"
 
@@ -1398,9 +1395,6 @@ msgstr "Key must contain at least one alphanumeric character"
 
 msgid "Key Name"
 msgstr "Key Name"
-
-msgid "Key Pairs"
-msgstr "Key Pairs"
 
 msgid "Last Modified"
 msgstr "Last Modified"
@@ -1491,9 +1485,6 @@ msgstr "Loading Server Groups..."
 
 msgid "Loading..."
 msgstr "Loading..."
-
-msgid "Log Out"
-msgstr "Log Out"
 
 msgid "Login failed. Please check your credentials and try again."
 msgstr "Login failed. Please check your credentials and try again."
@@ -1633,9 +1624,6 @@ msgstr "Must be a valid IPv4 or IPv6 address (for example: 172.24.4.228 or 2001:
 msgid "Must be a valid PQDN or FQDN (alphanumeric and hyphens only, cannot start or end with hyphen)."
 msgstr "Must be a valid PQDN or FQDN (alphanumeric and hyphens only, cannot start or end with hyphen)."
 
-msgid "My Profile"
-msgstr "My Profile"
-
 msgid "N/A"
 msgstr "N/A"
 
@@ -1731,6 +1719,9 @@ msgstr "No server groups available."
 
 msgid "No servers available."
 msgstr "No servers available."
+
+msgid "No services available for this project."
+msgstr "No services available for this project."
 
 msgid "No specific tenant access configured for this private flavor. Click \"Add Tenant Access\" to grant access."
 msgstr "No specific tenant access configured for this private flavor. Click \"Add Tenant Access\" to grant access."
@@ -1840,9 +1831,6 @@ msgstr "or drag and drop"
 msgid "Our Mission"
 msgstr "Our Mission"
 
-msgid "Overview"
-msgstr "Overview"
-
 msgid "Owner"
 msgstr "Owner"
 
@@ -1926,9 +1914,6 @@ msgstr "Private"
 
 msgid "production, linux"
 msgstr "production, linux"
-
-msgid "Project"
-msgstr "Project"
 
 msgid "Project id"
 msgstr "Project id"
@@ -2190,9 +2175,6 @@ msgstr "Server error occurred while fetching flavor details. Please try again la
 
 msgid "Server error occurred while removing tenant access. Please try again later."
 msgstr "Server error occurred while removing tenant access. Please try again later."
-
-msgid "Server Groups"
-msgstr "Server Groups"
 
 msgid "Server is experiencing issues. Please try again later."
 msgstr "Server is experiencing issues. Please try again later."

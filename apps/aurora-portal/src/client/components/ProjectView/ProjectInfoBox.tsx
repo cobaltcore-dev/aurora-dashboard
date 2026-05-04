@@ -1,4 +1,4 @@
-import { Breadcrumb, BreadcrumbItem, ContentHeading, Stack } from "@cloudoperators/juno-ui-components"
+import { Breadcrumb, BreadcrumbItem, Stack } from "@cloudoperators/juno-ui-components"
 import { Trans } from "@lingui/react/macro"
 import ClipboardText from "../ClipboardText"
 import { useRouteContext, useMatches, useNavigate, useParams } from "@tanstack/react-router"
@@ -25,9 +25,6 @@ const SECTION_LABELS: Record<string, string> = {
 const SERVICE_LABELS: Record<string, string> = {
   images: "Images",
   flavors: "Flavors",
-  instances: "Instances",
-  keypairs: "Key Pairs",
-  servergroups: "Server Groups",
   securitygroups: "Security Groups",
   floatingips: "Floating IPs",
   containers: "Swift",
@@ -39,7 +36,7 @@ export function ProjectInfoBox({ projectInfo }: ProjectInfoBoxProps) {
   const navigate = useNavigate()
   const matches = useMatches()
 
-  const { accountId, projectId } = useParams({ strict: false }) as { accountId: string; projectId: string }
+  const { projectId } = useParams({ strict: false }) as { projectId: string }
 
   useEffect(() => {
     const handleTitleChange = (e: CustomEvent<{ title: string }>) => {
@@ -53,8 +50,8 @@ export function ProjectInfoBox({ projectInfo }: ProjectInfoBoxProps) {
   }, [pageTitleRef])
 
   const buildBreadcrumbs = () => {
-    // Find the deepest match that is a child of the $projectId route
-    const projectIdRouteId = "/_auth/accounts/$accountId/projects/$projectId"
+    const projectIdRouteId = "/_auth/projects/$projectId"
+
     const childMatches = matches.filter((m) => m.routeId !== projectIdRouteId && m.routeId.startsWith(projectIdRouteId))
     const deepestMatch = childMatches[childMatches.length - 1]
 
@@ -79,7 +76,7 @@ export function ProjectInfoBox({ projectInfo }: ProjectInfoBoxProps) {
 
     items.push({
       label: projectInfo.name,
-      onClick: () => navigate({ to: "/accounts/$accountId/projects", params: { accountId } }),
+      onClick: () => navigate({ to: "/projects" }),
     })
 
     if (sectionLabel && section) {
@@ -90,8 +87,8 @@ export function ProjectInfoBox({ projectInfo }: ProjectInfoBoxProps) {
           label: sectionLabel,
           onClick: () =>
             navigate({
-              to: "/accounts/$accountId/projects/$projectId/compute/overview",
-              params: { accountId, projectId },
+              to: "/projects/$projectId/compute/overview",
+              params: { projectId },
             }),
         })
       } else if (section === "network") {
@@ -99,8 +96,8 @@ export function ProjectInfoBox({ projectInfo }: ProjectInfoBoxProps) {
           label: sectionLabel,
           onClick: () =>
             navigate({
-              to: "/accounts/$accountId/projects/$projectId/network/overview",
-              params: { accountId, projectId },
+              to: "/projects/$projectId/network/overview",
+              params: { projectId },
             }),
         })
       } else if (section === "storage") {
@@ -117,8 +114,8 @@ export function ProjectInfoBox({ projectInfo }: ProjectInfoBoxProps) {
             label: serviceLabel,
             onClick: () =>
               navigate({
-                to: "/accounts/$accountId/projects/$projectId/compute/images",
-                params: { accountId, projectId },
+                to: "/projects/$projectId/compute/images",
+                params: { projectId },
               }),
           })
         } else if (section === "compute" && service === "flavors") {
@@ -126,8 +123,8 @@ export function ProjectInfoBox({ projectInfo }: ProjectInfoBoxProps) {
             label: serviceLabel,
             onClick: () =>
               navigate({
-                to: "/accounts/$accountId/projects/$projectId/compute/flavors",
-                params: { accountId, projectId },
+                to: "/projects/$projectId/compute/flavors",
+                params: { projectId },
               }),
           })
         } else if (section === "network" && service === "securitygroups") {
@@ -135,8 +132,8 @@ export function ProjectInfoBox({ projectInfo }: ProjectInfoBoxProps) {
             label: serviceLabel,
             onClick: () =>
               navigate({
-                to: "/accounts/$accountId/projects/$projectId/network/securitygroups",
-                params: { accountId, projectId },
+                to: "/projects/$projectId/network/securitygroups",
+                params: { projectId },
               }),
           })
         } else if (section === "network" && service === "floatingips") {
@@ -144,17 +141,15 @@ export function ProjectInfoBox({ projectInfo }: ProjectInfoBoxProps) {
             label: serviceLabel,
             onClick: () =>
               navigate({
-                to: "/accounts/$accountId/projects/$projectId/network/floatingips",
-                params: { accountId, projectId },
+                to: "/projects/$projectId/network/floatingips",
+                params: { projectId },
               }),
           })
         } else {
           items.push({
             label: serviceLabel,
             onClick: () => {
-              const path = `/accounts/${accountId}/projects/${projectId}/${section}/${service}` as Parameters<
-                typeof navigate
-              >[0]["to"]
+              const path = `/projects/${projectId}/${section}/${service}` as Parameters<typeof navigate>[0]["to"]
               navigate({ to: path })
             },
           })
@@ -173,24 +168,18 @@ export function ProjectInfoBox({ projectInfo }: ProjectInfoBoxProps) {
 
   return (
     <Stack direction="vertical" className="my-6" gap="2">
-      <Breadcrumb>
-        {breadcrumbs.map((item, index) => (
-          <BreadcrumbItem key={index} label={item.label} onClick={item.onClick} active={item.active} />
-        ))}
-      </Breadcrumb>
-      <Stack direction="horizontal" alignment="stretch">
-        <ContentHeading className="text-theme-highest text-2xl font-bold">{pageTitle}</ContentHeading>
-
-        <Stack direction="vertical" className="ml-auto">
-          <div>
-            <div className="text-theme-light">
-              <span className="text-theme-light font-semibold">
-                <Trans>Project ID</Trans>:{" "}
-              </span>
-              <ClipboardText text={projectInfo.id} truncateAt={15} />
-            </div>
-          </div>
-        </Stack>
+      <Stack direction="horizontal" alignment="center">
+        <Breadcrumb>
+          {breadcrumbs.map((item, index) => (
+            <BreadcrumbItem key={index} label={item.label} onClick={item.onClick} active={item.active} />
+          ))}
+        </Breadcrumb>
+        <div className="text-theme-light ml-auto flex items-center gap-1">
+          <span className="font-semibold">
+            <Trans>Project ID</Trans>:{" "}
+          </span>
+          <ClipboardText text={projectInfo.id} truncateAt={15} />
+        </div>
       </Stack>
     </Stack>
   )
