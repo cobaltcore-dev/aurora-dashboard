@@ -5,10 +5,6 @@ import { Trans } from "@lingui/react/macro"
 
 export const Route = createFileRoute("/_auth/projects/$projectId/")({
   component: RouteComponent,
-  loader: async ({ context, params }) => {
-    const project = await context.trpcClient?.project.getProjectById.query({ id: params.projectId })
-    return { description: project?.description ?? null }
-  },
 })
 
 interface ServiceCardProps {
@@ -37,7 +33,6 @@ function RouteComponent() {
   const { crumbProject, availableServices, projectId } = useLoaderData({
     from: "/_auth/projects/$projectId",
   })
-  const { description } = Route.useLoaderData()
 
   const serviceIndex = getServiceIndex(availableServices ?? [])
   const base = `/projects/${projectId}`
@@ -72,7 +67,6 @@ function RouteComponent() {
     <Stack direction="vertical" gap="6" className="pb-4">
       <div>
         <ContentHeading>{crumbProject?.name}</ContentHeading>
-        {description && <p className="text-theme-light mt-1 text-sm">{description}</p>}
       </div>
       {cards.length > 0 ? (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
