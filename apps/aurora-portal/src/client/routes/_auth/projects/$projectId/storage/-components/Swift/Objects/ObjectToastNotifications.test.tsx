@@ -20,6 +20,8 @@ import {
   getObjectMetadataUpdateErrorToast,
   getObjectUploadedToast,
   getObjectUploadErrorToast,
+  getObjectsBulkDeletedToast,
+  getObjectsBulkDeleteErrorToast,
 } from "./ObjectToastNotifications"
 
 describe("ObjectToastNotifications", () => {
@@ -495,6 +497,7 @@ describe("ObjectToastNotifications", () => {
         getObjectMovedToast("f", "c", "", defaultConfig),
         getTempUrlCopiedToast("f", defaultConfig),
         getObjectMetadataUpdatedToast("f", defaultConfig),
+        getObjectsBulkDeletedToast(3, defaultConfig),
       ]
       successToasts.forEach((toast) => {
         expect(toast.variant).toBe("success")
@@ -513,6 +516,7 @@ describe("ObjectToastNotifications", () => {
         getObjectMoveErrorToast("f", "err", defaultConfig),
         getObjectMetadataUpdateErrorToast("f", "err", defaultConfig),
         getObjectUploadErrorToast("f", "err", defaultConfig),
+        getObjectsBulkDeleteErrorToast("err", defaultConfig),
       ]
       errorToasts.forEach((toast) => {
         expect(toast.variant).toBe("error")
@@ -547,6 +551,8 @@ describe("ObjectToastNotifications", () => {
         getObjectMetadataUpdateErrorToast("f", "err", { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
         getObjectUploadedToast("f", { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
         getObjectUploadErrorToast("f", "err", { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
+        getObjectsBulkDeletedToast(3, { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
+        getObjectsBulkDeleteErrorToast("err", { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
       ]
       toasts.forEach((toast) => {
         expect(toast.autoDismissTimeout).toBe(customTimeout)
@@ -570,11 +576,77 @@ describe("ObjectToastNotifications", () => {
         getObjectMetadataUpdateErrorToast("f", "err", defaultConfig),
         getObjectUploadedToast("f", defaultConfig),
         getObjectUploadErrorToast("f", "err", defaultConfig),
+        getObjectsBulkDeletedToast(3, defaultConfig),
+        getObjectsBulkDeleteErrorToast("err", defaultConfig),
       ]
       toasts.forEach((toast) => {
         expect(toast.children).toBeTruthy()
         expect(typeof toast.children).toBe("object")
       })
+    })
+  })
+
+  // ── getObjectsBulkDeletedToast ───────────────────────────────────────────────
+
+  describe("getObjectsBulkDeletedToast", () => {
+    it("returns success toast with correct structure", () => {
+      const toast = getObjectsBulkDeletedToast(5, defaultConfig)
+      expect(toast.variant).toBe("success")
+      expect(toast.autoDismiss).toBe(true)
+      expect(toast.autoDismissTimeout).toBe(5000)
+      expect(toast.onDismiss).toBe(mockOnDismiss)
+      expect(toast.children).toBeDefined()
+    })
+
+    it("renders plural message when multiple objects deleted", () => {
+      const toast = getObjectsBulkDeletedToast(5, defaultConfig)
+      render(<I18nProvider i18n={i18n}>{toast.children as React.ReactNode}</I18nProvider>)
+      expect(screen.getByText("Objects Deleted")).toBeInTheDocument()
+      expect(screen.getByText(/5 objects were permanently deleted/)).toBeInTheDocument()
+    })
+
+    it("renders singular message when exactly 1 object deleted", () => {
+      const toast = getObjectsBulkDeletedToast(1, defaultConfig)
+      render(<I18nProvider i18n={i18n}>{toast.children as React.ReactNode}</I18nProvider>)
+      expect(screen.getByText(/1 object was permanently deleted/)).toBeInTheDocument()
+    })
+
+    it("uses custom autoDismissTimeout when provided", () => {
+      const toast = getObjectsBulkDeletedToast(3, { onDismiss: mockOnDismiss, autoDismissTimeout: 3000 })
+      expect(toast.autoDismissTimeout).toBe(3000)
+    })
+  })
+
+  // ── getObjectsBulkDeleteErrorToast ───────────────────────────────────────────
+
+  describe("getObjectsBulkDeleteErrorToast", () => {
+    it("returns error toast with correct structure", () => {
+      const toast = getObjectsBulkDeleteErrorToast("403 Forbidden", defaultConfig)
+      expect(toast.variant).toBe("error")
+      expect(toast.autoDismiss).toBe(true)
+      expect(toast.autoDismissTimeout).toBe(5000)
+      expect(toast.onDismiss).toBe(mockOnDismiss)
+      expect(toast.children).toBeDefined()
+    })
+
+    it("renders correct error message content", () => {
+      const toast = getObjectsBulkDeleteErrorToast("403 Forbidden", defaultConfig)
+      render(<I18nProvider i18n={i18n}>{toast.children as React.ReactNode}</I18nProvider>)
+      expect(screen.getByText("Failed to Delete Objects")).toBeInTheDocument()
+      expect(screen.getByText(/One or more objects could not be deleted/)).toBeInTheDocument()
+      expect(screen.getByText(/403 Forbidden/)).toBeInTheDocument()
+    })
+
+    it("uses custom autoDismissTimeout when provided", () => {
+      const toast = getObjectsBulkDeleteErrorToast("err", { onDismiss: mockOnDismiss, autoDismissTimeout: 10000 })
+      expect(toast.autoDismissTimeout).toBe(10000)
+    })
+
+    it("handles multi-line error message (per-path errors)", () => {
+      const multiLine = "/container/a.txt: 403 Forbidden\n/container/b.png: 404 Not Found"
+      const toast = getObjectsBulkDeleteErrorToast(multiLine, defaultConfig)
+      render(<I18nProvider i18n={i18n}>{toast.children as React.ReactNode}</I18nProvider>)
+      expect(screen.getByText("Failed to Delete Objects")).toBeInTheDocument()
     })
   })
 

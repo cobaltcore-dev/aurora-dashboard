@@ -19,6 +19,9 @@ msgstr "-"
 msgid "—"
 msgstr "—"
 
+msgid "... and {hiddenCount} more"
+msgstr "... and {hiddenCount} more"
+
 msgid "\"{objectName}\" was successfully copied to {destination}."
 msgstr "\"{objectName}\" was successfully copied to {destination}."
 
@@ -40,11 +43,26 @@ msgstr "{allCount} items"
 msgid "{customMinutes} minutes"
 msgstr "{customMinutes} minutes"
 
+msgid "{emptiedCount, plural, one {# container was already empty.} other {# containers were already empty.}}"
+msgstr "{emptiedCount, plural, one {# container was already empty.} other {# containers were already empty.}}"
+
+msgid "{emptiedCount, plural, one {# container} other {# containers}} successfully emptied. {totalDeleted, plural, one {# object} other {# objects}} deleted in total."
+msgstr "{emptiedCount, plural, one {# container} other {# containers}} successfully emptied. {totalDeleted, plural, one {# object} other {# objects}} deleted in total."
+
+msgid "{numberDeleted} object was permanently deleted."
+msgstr "{numberDeleted} object was permanently deleted."
+
+msgid "{numberDeleted} objects were permanently deleted."
+msgstr "{numberDeleted} objects were permanently deleted."
+
 msgid "{progressPct}%"
 msgstr "{progressPct}%"
 
 msgid "<0>Are you sure?</0> All objects in the container will be deleted. This cannot be undone."
 msgstr "<0>Are you sure?</0> All objects in the container will be deleted. This cannot be undone."
+
+msgid "<0>Are you sure?</0> All objects in the selected containers will be permanently deleted. This cannot be undone."
+msgstr "<0>Are you sure?</0> All objects in the selected containers will be permanently deleted. This cannot be undone."
 
 msgid "<0>Are you sure?</0> Folder <1>\"{folderDisplayName}\"</1> and all objects within it will be permanently deleted. This cannot be undone."
 msgstr "<0>Are you sure?</0> Folder <1>\"{folderDisplayName}\"</1> and all objects within it will be permanently deleted. This cannot be undone."
@@ -54,6 +72,9 @@ msgstr "<0>Are you sure?</0> Object <1>\"{displayName}\"</1> will be permanently
 
 msgid "<0>Are you sure?</0> The container will be deleted. This cannot be undone."
 msgstr "<0>Are you sure?</0> The container will be deleted. This cannot be undone."
+
+msgid "<0>Are you sure?</0> The selected objects will be permanently deleted. This cannot be undone."
+msgstr "<0>Are you sure?</0> The selected objects will be permanently deleted. This cannot be undone."
 
 msgid "<0>Effortless Resource Provisioning:</0> Quickly provision, configure, and deploy resources like servers, networks, and volumes with just a few clicks."
 msgstr "<0>Effortless Resource Provisioning:</0> Quickly provision, configure, and deploy resources like servers, networks, and volumes with just a few clicks."
@@ -415,6 +436,15 @@ msgstr "Container:"
 msgid "Containers"
 msgstr "Containers"
 
+msgid "Containers Emptied"
+msgstr "Containers Emptied"
+
+msgid "Containers Partially Emptied"
+msgstr "Containers Partially Emptied"
+
+msgid "Containers to be emptied ({totalCount})"
+msgstr "Containers to be emptied ({totalCount})"
+
 msgid "Content type"
 msgstr "Content type"
 
@@ -571,6 +601,12 @@ msgstr "Delete"
 msgid "Delete {specKey}"
 msgstr "Delete {specKey}"
 
+msgid "Delete All"
+msgstr "Delete All"
+
+msgid "Delete All ({selectedCount})"
+msgstr "Delete All ({selectedCount})"
+
 msgid "Delete container:"
 msgstr "Delete container:"
 
@@ -585,6 +621,9 @@ msgstr "Delete Images"
 
 msgid "Delete object:"
 msgstr "Delete object:"
+
+msgid "Delete Objects"
+msgstr "Delete Objects"
 
 msgid "Delete Recursively"
 msgstr "Delete Recursively"
@@ -745,8 +784,20 @@ msgstr "Egress"
 msgid "Empty"
 msgstr "Empty"
 
+msgid "Empty All"
+msgstr "Empty All"
+
+msgid "Empty All ({selectedCount})"
+msgstr "Empty All ({selectedCount})"
+
 msgid "Empty container:"
 msgstr "Empty container:"
+
+msgid "Empty Containers"
+msgstr "Empty Containers"
+
+msgid "Emptying {current} of {total}..."
+msgstr "Emptying {current} of {total}..."
 
 msgid "Enable file listing"
 msgstr "Enable file listing"
@@ -934,6 +985,9 @@ msgstr "Failed to Delete Images"
 msgid "Failed to Delete Object"
 msgstr "Failed to Delete Object"
 
+msgid "Failed to Delete Objects"
+msgstr "Failed to Delete Objects"
+
 msgid "Failed to delete security group"
 msgstr "Failed to delete security group"
 
@@ -948,6 +1002,9 @@ msgstr "Failed to Download"
 
 msgid "Failed to Empty Container"
 msgstr "Failed to Empty Container"
+
+msgid "Failed to Empty Containers"
+msgstr "Failed to Empty Containers"
 
 msgid "Failed to fetch flavor access information. Please try again."
 msgstr "Failed to fetch flavor access information. Please try again."
@@ -1035,6 +1092,9 @@ msgstr "Failed to upload file \"{fileName}\": "
 
 msgid "Failed to Upload Object"
 msgstr "Failed to Upload Object"
+
+msgid "Failed: {errorDetails}"
+msgstr "Failed: {errorDetails}"
 
 msgid "False"
 msgstr "False"
@@ -1744,8 +1804,20 @@ msgstr "Objects"
 msgid "Objects — {containerName}"
 msgstr "Objects — {containerName}"
 
+msgid "Objects Deleted"
+msgstr "Objects Deleted"
+
+msgid "Objects to be deleted ({totalCount})"
+msgstr "Objects to be deleted ({totalCount})"
+
 msgid "OK"
 msgstr "OK"
+
+msgid "One or more containers could not be emptied: {errorMessage}"
+msgstr "One or more containers could not be emptied: {errorMessage}"
+
+msgid "One or more objects could not be deleted: {errorMessage}"
+msgstr "One or more objects could not be deleted: {errorMessage}"
 
 msgid "Open in new tab"
 msgstr "Open in new tab"
@@ -2512,8 +2584,8 @@ msgstr "Type container name to confirm"
 msgid "Type name"
 msgstr "Type name"
 
-msgid "Type to search containers…"
-msgstr "Type to search containers…"
+msgid "Type to search containers..."
+msgstr "Type to search containers..."
 
 msgid "Type: {typeValue}, Code: {codeValue}"
 msgstr "Type: {typeValue}, Code: {codeValue}"

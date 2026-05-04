@@ -148,6 +148,7 @@ vi.mock("@/client/trpcClient", () => ({
         emptyContainer: {
           useMutation: () => ({
             mutate: vi.fn(),
+            mutateAsync: vi.fn().mockResolvedValue(3),
             reset: vi.fn(),
             isPending: false,
           }),
@@ -223,6 +224,22 @@ vi.mock("./ContainerToastNotifications", () => ({
     variant: "error",
     autoDismiss: true,
   })),
+  getContainersEmptiedToast: vi.fn((emptiedCount, totalDeleted) => ({
+    text: `${emptiedCount} container(s) successfully emptied. ${totalDeleted} object(s) deleted in total.`,
+    variant: "success",
+    autoDismiss: true,
+  })),
+  getContainersEmptyErrorToast: vi.fn((errorMessage) => ({
+    text: `One or more containers could not be emptied: ${errorMessage}`,
+    variant: "error",
+    autoDismiss: true,
+  })),
+  getContainersEmptyCompleteToast: vi.fn((emptiedCount, totalDeleted, errors) => ({
+    text:
+      errors.length > 0 ? `Partial: ${emptiedCount} emptied, errors: ${errors.join(", ")}` : `${emptiedCount} emptied`,
+    variant: errors.length > 0 && emptiedCount > 0 ? "warning" : errors.length > 0 ? "error" : "success",
+    autoDismiss: true,
+  })),
 }))
 
 // ─── Mock individual container modals ────────────────────────────────────────
@@ -289,6 +306,26 @@ vi.mock("./ManageContainerAccessModal", () => ({
 
 vi.mock("./ContainerLimitsTooltip", () => ({
   ContainerLimitsTooltip: vi.fn(() => <span role="img" aria-label="info" />),
+}))
+
+vi.mock("./EmptyContainersModal", () => ({
+  EmptyContainersModal: vi.fn(({ isOpen, containers, onClose, onComplete }) =>
+    isOpen ? (
+      <div data-testid="empty-containers-modal" data-container-count={containers.length}>
+        <button onClick={onClose}>CloseEmptyAll</button>
+        <button
+          onClick={() =>
+            onComplete?.({ emptiedCount: containers.length, totalDeleted: containers.length * 3, errors: [] })
+          }
+        >
+          SimulateEmptyAllSuccess
+        </button>
+        <button onClick={() => onComplete?.({ emptiedCount: 0, totalDeleted: 0, errors: ["bulk empty failed"] })}>
+          SimulateEmptyAllError
+        </button>
+      </div>
+    ) : null
+  ),
 }))
 
 // ─── Mock virtualizer (no layout engine in jsdom) ─────────────────────────────
@@ -412,6 +449,146 @@ describe("SwiftContainers (List)", () => {
       trpcState.containers = []
       renderList()
       expect(screen.getByText(/No containers found/i)).toBeInTheDocument()
+    })
+  })
+
+  describe("Empty All button", () => {
+    test("renders the Empty All button", () => {
+      renderList()
+      expect(screen.getByRole("button", { name: /Empty All/i })).toBeInTheDocument()
+    })
+
+    test("Empty All button is disabled when no containers are selected", () => {
+      renderList()
+      expect(screen.getByRole("button", { name: /Empty All/i })).toBeDisabled()
+    })
+
+    test("Empty All button shows no count when no containers are selected", () => {
+      renderList()
+      expect(screen.getByRole("button", { name: "Empty All" })).toBeInTheDocument()
+    })
+
+    test("Empty All button is enabled and shows count after selecting containers", async () => {
+      const user = userEvent.setup()
+      renderList()
+      await user.click(screen.getByTestId("select-container-alpha").querySelector("input") as HTMLElement)
+      await waitFor(() => {
+        const btn = screen.getByRole("button", { name: /Empty All/i })
+        expect(btn).toBeEnabled()
+        expect(btn).toHaveTextContent("Empty All (1)")
+      })
+    })
+
+    test("Empty All button count increments as more containers are selected", async () => {
+      const user = userEvent.setup()
+      renderList()
+      await user.click(screen.getByTestId("select-container-alpha").querySelector("input") as HTMLElement)
+      await user.click(screen.getByTestId("select-container-beta").querySelector("input") as HTMLElement)
+      await waitFor(() => {
+        expect(screen.getByRole("button", { name: /Empty All \(2\)/i })).toBeEnabled()
+      })
+    })
+
+    test("Empty All button returns to disabled with no count after deselecting all", async () => {
+      const user = userEvent.setup()
+      renderList()
+      const alphaCheckbox = screen.getByTestId("select-container-alpha").querySelector("input") as HTMLElement
+      await user.click(alphaCheckbox)
+      await waitFor(() => expect(screen.getByRole("button", { name: /Empty All \(1\)/i })).toBeEnabled())
+      await user.click(alphaCheckbox)
+      await waitFor(() => {
+        expect(screen.getByRole("button", { name: "Empty All" })).toBeDisabled()
+      })
+    })
+
+    test("selecting all via header checkbox enables Empty All with full count", async () => {
+      const user = userEvent.setup()
+      renderList()
+      await user.click(screen.getByTestId("select-all-containers").querySelector("input") as HTMLElement)
+      await waitFor(() => {
+        expect(screen.getByRole("button", { name: /Empty All \(3\)/i })).toBeEnabled()
+      })
+    })
+  })
+
+  describe("Empty All modal", () => {
+    const selectAlpha = async (user: ReturnType<typeof userEvent.setup>) => {
+      await user.click(screen.getByTestId("select-container-alpha").querySelector("input") as HTMLElement)
+      await waitFor(() => expect(screen.getByRole("button", { name: /Empty All \(1\)/i })).toBeEnabled())
+    }
+
+    test("modal is not visible by default", () => {
+      renderList()
+      expect(screen.queryByTestId("empty-containers-modal")).not.toBeInTheDocument()
+    })
+
+    test("clicking Empty All opens the modal", async () => {
+      const user = userEvent.setup()
+      renderList()
+      await selectAlpha(user)
+      await user.click(screen.getByRole("button", { name: /Empty All \(1\)/i }))
+      await waitFor(() => {
+        expect(screen.getByTestId("empty-containers-modal")).toBeInTheDocument()
+      })
+    })
+
+    test("modal receives the selected containers", async () => {
+      const user = userEvent.setup()
+      renderList()
+      await selectAlpha(user)
+      await user.click(screen.getByRole("button", { name: /Empty All \(1\)/i }))
+      await waitFor(() => {
+        expect(screen.getByTestId("empty-containers-modal")).toHaveAttribute("data-container-count", "1")
+      })
+    })
+
+    test("closing the modal hides it", async () => {
+      const user = userEvent.setup()
+      renderList()
+      await selectAlpha(user)
+      await user.click(screen.getByRole("button", { name: /Empty All \(1\)/i }))
+      await waitFor(() => expect(screen.getByTestId("empty-containers-modal")).toBeInTheDocument())
+      await user.click(screen.getByRole("button", { name: "CloseEmptyAll" }))
+      await waitFor(() => {
+        expect(screen.queryByTestId("empty-containers-modal")).not.toBeInTheDocument()
+      })
+    })
+
+    test("shows success toast and clears selection after successful empty", async () => {
+      const { getContainersEmptyCompleteToast } = await import("./ContainerToastNotifications")
+      const user = userEvent.setup()
+      renderList()
+      await selectAlpha(user)
+      await user.click(screen.getByRole("button", { name: /Empty All \(1\)/i }))
+      await waitFor(() => expect(screen.getByTestId("empty-containers-modal")).toBeInTheDocument())
+      await user.click(screen.getByRole("button", { name: "SimulateEmptyAllSuccess" }))
+      await waitFor(() => {
+        expect(getContainersEmptyCompleteToast).toHaveBeenCalledWith(
+          1,
+          3,
+          [],
+          expect.objectContaining({ onDismiss: expect.any(Function) })
+        )
+        expect(screen.getByRole("button", { name: "Empty All" })).toBeDisabled()
+      })
+    })
+
+    test("shows error toast when bulk empty fails", async () => {
+      const { getContainersEmptyCompleteToast } = await import("./ContainerToastNotifications")
+      const user = userEvent.setup()
+      renderList()
+      await selectAlpha(user)
+      await user.click(screen.getByRole("button", { name: /Empty All \(1\)/i }))
+      await waitFor(() => expect(screen.getByTestId("empty-containers-modal")).toBeInTheDocument())
+      await user.click(screen.getByRole("button", { name: "SimulateEmptyAllError" }))
+      await waitFor(() => {
+        expect(getContainersEmptyCompleteToast).toHaveBeenCalledWith(
+          0,
+          0,
+          ["bulk empty failed"],
+          expect.objectContaining({ onDismiss: expect.any(Function) })
+        )
+      })
     })
   })
 

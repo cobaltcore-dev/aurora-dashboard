@@ -624,7 +624,7 @@ export const EditContainerMetadataModal = ({
                         value={versionsLocation}
                         onChange={(value: string) => setVersionsLocation(value)}
                         onInputChange={handleContainerSearch}
-                        placeholder={t`Type to search containers…`}
+                        placeholder={t`Type to search containers...`}
                         helptext={(() => {
                           if (containerSearch.trim().length === 0) return t`Start typing to search for a container`
                           if (hiddenCount > 0) {

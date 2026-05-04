@@ -19,6 +19,9 @@ msgstr ""
 msgid "—"
 msgstr ""
 
+msgid "... and {hiddenCount} more"
+msgstr "... und {hiddenCount} weitere"
+
 msgid "\"{objectName}\" was successfully copied to {destination}."
 msgstr ""
 
@@ -40,11 +43,26 @@ msgstr ""
 msgid "{customMinutes} minutes"
 msgstr ""
 
+msgid "{emptiedCount, plural, one {# container was already empty.} other {# containers were already empty.}}"
+msgstr "{emptiedCount, plural, one {# Container war bereits leer.} other {# Container waren bereits leer.}}"
+
+msgid "{emptiedCount, plural, one {# container} other {# containers}} successfully emptied. {totalDeleted, plural, one {# object} other {# objects}} deleted in total."
+msgstr "{emptiedCount, plural, one {# Container} other {# Container}} erfolgreich geleert. {totalDeleted, plural, one {# Objekt} other {# Objekte}} insgesamt gelöscht."
+
+msgid "{numberDeleted} object was permanently deleted."
+msgstr "{numberDeleted} Objekt wurde dauerhaft gelöscht."
+
+msgid "{numberDeleted} objects were permanently deleted."
+msgstr "{numberDeleted} Objekte wurden dauerhaft gelöscht."
+
 msgid "{progressPct}%"
 msgstr ""
 
 msgid "<0>Are you sure?</0> All objects in the container will be deleted. This cannot be undone."
 msgstr ""
+
+msgid "<0>Are you sure?</0> All objects in the selected containers will be permanently deleted. This cannot be undone."
+msgstr "<0>Sind Sie sicher?</0> Alle Objekte in den ausgewählten Containern werden dauerhaft gelöscht. Dies kann nicht rückgängig gemacht werden."
 
 msgid "<0>Are you sure?</0> Folder <1>\"{folderDisplayName}\"</1> and all objects within it will be permanently deleted. This cannot be undone."
 msgstr ""
@@ -54,6 +72,9 @@ msgstr ""
 
 msgid "<0>Are you sure?</0> The container will be deleted. This cannot be undone."
 msgstr ""
+
+msgid "<0>Are you sure?</0> The selected objects will be permanently deleted. This cannot be undone."
+msgstr "<0>Sind Sie sicher?</0> Die ausgewählten Objekte werden dauerhaft gelöscht. Dies kann nicht rückgängig gemacht werden."
 
 msgid "<0>Effortless Resource Provisioning:</0> Quickly provision, configure, and deploy resources like servers, networks, and volumes with just a few clicks."
 msgstr ""
@@ -415,6 +436,15 @@ msgstr ""
 msgid "Containers"
 msgstr ""
 
+msgid "Containers Emptied"
+msgstr "Container geleert"
+
+msgid "Containers Partially Emptied"
+msgstr "Container teilweise geleert"
+
+msgid "Containers to be emptied ({totalCount})"
+msgstr "Zu leerende Container ({totalCount})"
+
 msgid "Content type"
 msgstr ""
 
@@ -571,6 +601,12 @@ msgstr ""
 msgid "Delete {specKey}"
 msgstr ""
 
+msgid "Delete All"
+msgstr "Alle löschen"
+
+msgid "Delete All ({selectedCount})"
+msgstr "Alle löschen ({selectedCount})"
+
 msgid "Delete container:"
 msgstr ""
 
@@ -585,6 +621,9 @@ msgstr ""
 
 msgid "Delete object:"
 msgstr ""
+
+msgid "Delete Objects"
+msgstr "Objekte löschen"
 
 msgid "Delete Recursively"
 msgstr ""
@@ -745,8 +784,20 @@ msgstr ""
 msgid "Empty"
 msgstr ""
 
+msgid "Empty All"
+msgstr "Alle leeren"
+
+msgid "Empty All ({selectedCount})"
+msgstr "Alle leeren ({selectedCount})"
+
 msgid "Empty container:"
 msgstr ""
+
+msgid "Empty Containers"
+msgstr "Container leeren"
+
+msgid "Emptying {current} of {total}..."
+msgstr "{current} von {total} werden geleert..."
 
 msgid "Enable file listing"
 msgstr ""
@@ -934,6 +985,9 @@ msgstr ""
 msgid "Failed to Delete Object"
 msgstr ""
 
+msgid "Failed to Delete Objects"
+msgstr "Fehler beim Löschen der Objekte"
+
 msgid "Failed to delete security group"
 msgstr ""
 
@@ -948,6 +1002,9 @@ msgstr ""
 
 msgid "Failed to Empty Container"
 msgstr ""
+
+msgid "Failed to Empty Containers"
+msgstr "Fehler beim Leeren der Container"
 
 msgid "Failed to fetch flavor access information. Please try again."
 msgstr ""
@@ -1035,6 +1092,9 @@ msgstr ""
 
 msgid "Failed to Upload Object"
 msgstr ""
+
+msgid "Failed: {errorDetails}"
+msgstr "Fehlgeschlagen: {errorDetails}"
 
 msgid "False"
 msgstr ""
@@ -1744,8 +1804,20 @@ msgstr ""
 msgid "Objects — {containerName}"
 msgstr ""
 
+msgid "Objects Deleted"
+msgstr "Objekte gelöscht"
+
+msgid "Objects to be deleted ({totalCount})"
+msgstr "Zu löschende Objekte ({totalCount})"
+
 msgid "OK"
 msgstr ""
+
+msgid "One or more containers could not be emptied: {errorMessage}"
+msgstr "Ein oder mehrere Container konnten nicht geleert werden: {errorMessage}"
+
+msgid "One or more objects could not be deleted: {errorMessage}"
+msgstr "Ein oder mehrere Objekte konnten nicht gelöscht werden: {errorMessage}"
 
 msgid "Open in new tab"
 msgstr ""
@@ -2512,8 +2584,8 @@ msgstr ""
 msgid "Type name"
 msgstr ""
 
-msgid "Type to search containers…"
-msgstr ""
+msgid "Type to search containers..."
+msgstr "Zum Suchen von Containern eingeben..."
 
 msgid "Type: {typeValue}, Code: {codeValue}"
 msgstr ""
