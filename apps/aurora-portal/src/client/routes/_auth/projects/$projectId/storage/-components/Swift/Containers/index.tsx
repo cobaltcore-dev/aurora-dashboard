@@ -96,11 +96,11 @@ export const SwiftContainers = () => {
     if (errors.length === 0) {
       setSelectedContainers([])
     } else {
-      setSelectedContainers((previouslySelectedContainers) =>
-        previouslySelectedContainers.filter((containerName) =>
-          errors.some((errorMessage) => errorMessage.includes(containerName))
-        )
-      )
+      // Extract the container name from each error string formatted as "<containerName>: <message>".
+      // Using exact name extraction avoids the false-positive substring match that
+      // errorMessage.includes(containerName) would produce (e.g. "foo" matched inside "foobar" error).
+      const failedContainerNames = new Set(errors.map((e) => e.split(": ")[0]))
+      setSelectedContainers((prev) => prev.filter((name) => failedContainerNames.has(name)))
     }
     setToastData(getContainersEmptyCompleteToast(emptiedCount, totalDeleted, errors, { onDismiss: handleToastDismiss }))
   }
