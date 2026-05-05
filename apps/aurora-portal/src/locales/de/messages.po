@@ -1819,8 +1819,8 @@ msgstr "OK"
 msgid "One or more containers could not be emptied: {errorMessage}"
 msgstr "Ein oder mehrere Container konnten nicht geleert werden: {errorMessage}"
 
-msgid "One or more objects could not be deleted: {errorMessage}"
-msgstr "Ein oder mehrere Objekte konnten nicht gelöscht werden: {errorMessage}"
+msgid "One or more objects could not be deleted:"
+msgstr "Ein oder mehrere Objekte konnten nicht gelöscht werden:"
 
 msgid "Open in new tab"
 msgstr "In neuem Tab öffnen"

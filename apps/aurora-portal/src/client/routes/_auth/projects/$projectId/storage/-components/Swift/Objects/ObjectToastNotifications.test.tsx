@@ -647,6 +647,10 @@ describe("ObjectToastNotifications", () => {
       const toast = getObjectsBulkDeleteErrorToast(multiLine, defaultConfig)
       render(<I18nProvider i18n={i18n}>{toast.children as React.ReactNode}</I18nProvider>)
       expect(screen.getByText("Failed to Delete Objects")).toBeInTheDocument()
+      const pre = screen.getByText(/403 Forbidden/).closest("pre")
+      expect(pre).toBeInTheDocument()
+      expect(pre).toHaveClass("whitespace-pre-wrap")
+      expect(pre).toHaveTextContent("404 Not Found")
     })
   })
 
