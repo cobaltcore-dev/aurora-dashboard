@@ -9,6 +9,8 @@ dist-ssr
 .cache
 server/dist
 public/dist
+.claude
+CLAUDE*
 
 .releaserc.js.bak
 .semantic-release/
