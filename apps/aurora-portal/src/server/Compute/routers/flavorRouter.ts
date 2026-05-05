@@ -59,12 +59,11 @@ export const flavorRouter = {
         sortBy: z.string().optional().default("name"),
         sortDirection: z.string().optional().default("asc"),
         searchTerm: z.string().optional().default(""),
-        isPublic: z.string().optional().default("None"),
       })
     )
     .query(async ({ input, ctx }) => {
       try {
-        const { sortBy, sortDirection, searchTerm, isPublic } = input
+        const { sortBy, sortDirection, searchTerm } = input
 
         // ctx.openstack is already rescoped to the project by projectScopedProcedure
         const compute = ctx.openstack?.service("compute")
@@ -74,7 +73,18 @@ export const flavorRouter = {
             message: ERROR_CODES.COMPUTE_SERVICE_UNAVAILABLE,
           })
         }
-        const flavors = await fetchFlavors(compute, isPublic)
+
+        // Fetch public and private flavors separately.
+        // is_public=false returns only private flavors accessible to the current project
+        // (either created by it or explicitly shared with it), preventing cross-project visibility.
+        const [publicFlavors, privateFlavors] = await Promise.all([
+          fetchFlavors(compute, "true"),
+          fetchFlavors(compute, "false").catch(() => [] as Flavor[]),
+        ])
+
+        const flavors = [...publicFlavors, ...privateFlavors].filter(
+          (f, idx, arr) => arr.findIndex((o) => o.id === f.id) === idx
+        )
 
         return filterAndSortFlavors(flavors, searchTerm, sortBy as keyof Flavor, sortDirection)
       } catch (error) {

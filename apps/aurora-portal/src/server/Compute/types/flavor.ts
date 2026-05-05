@@ -19,6 +19,7 @@ export const flavorSchema = z.object({
   description: z.string().nullable().optional(),
   links: z.array(linkSchema).optional(),
   extra_specs: z.record(z.string(), z.string()).optional(),
+  project_id: z.string().optional(),
 })
 
 export const flavorResponseSchema = z.object({

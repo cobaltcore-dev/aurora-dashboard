@@ -238,9 +238,9 @@ function AccessContent({
           />
         )}
 
-        {flavorAccess.map((access, index) => (
+        {flavorAccess.map((access) => (
           <TenantAccessRow
-            key={`${access.tenant_id}-${index}`}
+            key={access.tenant_id}
             access={access}
             isDeleting={deletingTenants.has(access.tenant_id)}
             onDelete={() => handleRemoveTenant(access.tenant_id)}
@@ -262,6 +262,7 @@ function AccessContent({
 
 export const ManageAccessModal: React.FC<ManageAccessProps> = ({ client, isOpen, onClose, project, flavor }) => {
   const { t } = useLingui()
+  const { translateError } = useErrorTranslation()
 
   const [message, setMessage] = useState<{ text: string; type: "error" | "info" } | null>(null)
   const [isAddingAccess, setIsAddingAccess] = useState(false)
@@ -274,8 +275,13 @@ export const ManageAccessModal: React.FC<ManageAccessProps> = ({ client, isOpen,
 
   useEffect(() => {
     if (isOpen && flavor?.id) {
+      const safePromise = createFlavorAccessPromise(client, project, flavor.id).catch((error) => {
+        const msg = translateError((error as Error)?.message || "GET_FLAVOR_ACCESS_FAILED")
+        setMessage({ text: msg, type: "error" })
+        return [] as FlavorAccess[]
+      })
       startTransition(() => {
-        setFlavorAccessPromise(createFlavorAccessPromise(client, project, flavor.id))
+        setFlavorAccessPromise(safePromise)
       })
     }
   }, [isOpen, flavor?.id, client, project])
@@ -288,8 +294,11 @@ export const ManageAccessModal: React.FC<ManageAccessProps> = ({ client, isOpen,
   }
 
   const handleAccessUpdate = (access: FlavorAccess[]) => {
+    const deduplicated = access.filter(
+      (entry, idx, arr) => arr.findIndex((e) => e.tenant_id === entry.tenant_id) === idx
+    )
     startTransition(() => {
-      setFlavorAccessPromise(Promise.resolve(access))
+      setFlavorAccessPromise(Promise.resolve(deduplicated))
     })
   }
 
