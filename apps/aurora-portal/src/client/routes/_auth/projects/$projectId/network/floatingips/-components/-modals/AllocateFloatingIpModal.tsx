@@ -199,7 +199,7 @@ export const AllocateFloatingIpModal = ({ open, onClose }: AllocateFloatingIpMod
                   loading={isDnsDomainsLoading}
                 >
                   {dnsDomains.map(({ id, name }) => (
-                    <SelectOption key={id} value={id} label={name} />
+                    <SelectOption key={id} value={name} label={name} />
                   ))}
                 </Select>
               )}

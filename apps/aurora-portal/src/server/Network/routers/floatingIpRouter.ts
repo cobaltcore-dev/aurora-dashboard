@@ -164,7 +164,7 @@ export const floatingIpRouter = {
         const response = await network.get(url)
         const data = await response.json()
 
-        return parseOrThrow(ExternalNetworksResponseSchema, data, "networkRouter.listExternalNetworks").networks
+        return parseOrThrow(ExternalNetworksResponseSchema, data, "floatingIpRouter.listExternalNetworks").networks
       }, "list external networks for floating IP create operation")
     }),
   listDnsDomains: protectedProcedure.query(async ({ ctx }): Promise<DnsDomain[]> => {
@@ -191,7 +191,7 @@ export const floatingIpRouter = {
         const response = await network.get(url)
         const data = await response.json()
 
-        return parseOrThrow(AvailablePortsResponseSchema, data, "portRouter.listAvailablePorts").ports
+        return parseOrThrow(AvailablePortsResponseSchema, data, "floatingIpRouter.listAvailablePorts").ports
       }, "list available ports for floating IP update and create operations")
     }),
 }

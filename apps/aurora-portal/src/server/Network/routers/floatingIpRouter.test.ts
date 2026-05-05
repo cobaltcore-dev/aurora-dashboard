@@ -686,7 +686,7 @@ describe("floatingIpRouter.listAvailablePorts", () => {
     await expect(caller.floatingIp.listAvailablePorts({ project_id: TEST_PROJECT_ID })).rejects.toThrow(
       new TRPCError({
         code: "PARSE_ERROR",
-        message: "Failed to parse response in portRouter.listAvailablePorts",
+        message: "Failed to parse response in floatingIpRouter.listAvailablePorts",
       })
     )
   })
