@@ -37,9 +37,15 @@ const proxyConfig =
       }
     : undefined
 
-// Log warning if proxy is attempted in production
+// Log proxy configuration status at startup
 if (process.env.NODE_ENV === "production" && process.env.GLOBAL_AGENT_HTTP_PROXY) {
-  console.warn("⚠️ [context] GLOBAL_AGENT_HTTP_PROXY is set but ignored in production mode for security reasons")
+  console.warn(
+    "⚠️ [context] GLOBAL_AGENT_HTTP_PROXY is set but ignored in production mode for security reasons"
+  )
+} else if (proxyConfig) {
+  // Redact credentials from URL if present (user:pass@host)
+  const redactedUrl = proxyConfig.uri.replace(/\/\/([^:]+):([^@]+)@/, "//$1:***@")
+  console.log("✅ [context] Proxy configured:", redactedUrl)
 }
 
 const defaultSignalOpenstackOptions = {

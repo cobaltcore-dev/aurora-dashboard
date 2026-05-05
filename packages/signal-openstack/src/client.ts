@@ -13,17 +13,13 @@ function createProxyDispatcher(proxyConfig: ProxyConfig): unknown {
   try {
     // eslint-disable-next-line @typescript-eslint/no-require-imports -- Dynamic import needed for optional undici dependency
     const { ProxyAgent } = require("undici")
-    const dispatcher = new ProxyAgent({
+    return new ProxyAgent({
       uri: proxyConfig.uri,
       // Always disable TLS validation for proxy debugging (mitmproxy uses self-signed certs)
       requestTls: {
         rejectUnauthorized: false,
       },
     })
-    // Redact credentials from URL if present (user:pass@host)
-    const redactedUrl = proxyConfig.uri.replace(/\/\/([^:]+):([^@]+)@/, "//$1:***@")
-    console.log("✅ [signal-openstack] Proxy configured:", redactedUrl)
-    return dispatcher
   } catch (err) {
     console.warn("⚠️ [signal-openstack] Could not configure proxy:", err)
     return undefined
