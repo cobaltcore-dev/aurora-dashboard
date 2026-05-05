@@ -21,6 +21,7 @@ import { Route as AuthProjectsProjectIdIndexRouteImport } from "./routes/_auth/p
 import { Route as AuthProjectsProjectIdNetworkRouteImport } from "./routes/_auth/projects/$projectId/network"
 import { Route as AuthProjectsProjectIdNetworkIndexRouteImport } from "./routes/_auth/projects/$projectId/network/index"
 import { Route as AuthProjectsProjectIdComputeIndexRouteImport } from "./routes/_auth/projects/$projectId/compute/index"
+import { Route as AuthProjectsProjectIdStorageS3RouteImport } from "./routes/_auth/projects/$projectId/storage/s3"
 import { Route as AuthProjectsProjectIdNetworkOverviewRouteImport } from "./routes/_auth/projects/$projectId/network/overview"
 import { Route as AuthProjectsProjectIdComputeOverviewRouteImport } from "./routes/_auth/projects/$projectId/compute/overview"
 import { Route as AuthProjectsProjectIdComputeImagesRouteImport } from "./routes/_auth/projects/$projectId/compute/images"
@@ -31,6 +32,7 @@ import { Route as AuthProjectsProjectIdComputeImagesIndexRouteImport } from "./r
 import { Route as AuthProjectsProjectIdComputeFlavorsIndexRouteImport } from "./routes/_auth/projects/$projectId/compute/flavors/index"
 import { Route as AuthProjectsProjectIdComputeImagesImageIdRouteImport } from "./routes/_auth/projects/$projectId/compute/images/$imageId"
 import { Route as AuthProjectsProjectIdComputeFlavorsFlavorIdRouteImport } from "./routes/_auth/projects/$projectId/compute/flavors/$flavorId"
+import { Route as AuthProjectsProjectIdStorageS3CredentialsIndexRouteImport } from "./routes/_auth/projects/$projectId/storage/s3/credentials/index"
 import { Route as AuthProjectsProjectIdStorageProviderContainersIndexRouteImport } from "./routes/_auth/projects/$projectId/storage/$provider/containers/index"
 import { Route as AuthProjectsProjectIdNetworkSecuritygroupsSecurityGroupIdIndexRouteImport } from "./routes/_auth/projects/$projectId/network/securitygroups/$securityGroupId/index"
 import { Route as AuthProjectsProjectIdNetworkFloatingipsFloatingIpIdIndexRouteImport } from "./routes/_auth/projects/$projectId/network/floatingips/$floatingIpId/index"
@@ -99,6 +101,12 @@ const AuthProjectsProjectIdComputeIndexRoute =
     path: "/compute/",
     getParentRoute: () => AuthProjectsProjectIdRoute,
   } as any)
+const AuthProjectsProjectIdStorageS3Route =
+  AuthProjectsProjectIdStorageS3RouteImport.update({
+    id: "/storage/s3",
+    path: "/storage/s3",
+    getParentRoute: () => AuthProjectsProjectIdRoute,
+  } as any)
 const AuthProjectsProjectIdNetworkOverviewRoute =
   AuthProjectsProjectIdNetworkOverviewRouteImport.update({
     id: "/overview",
@@ -159,6 +167,12 @@ const AuthProjectsProjectIdComputeFlavorsFlavorIdRoute =
     path: "/$flavorId",
     getParentRoute: () => AuthProjectsProjectIdComputeFlavorsRoute,
   } as any)
+const AuthProjectsProjectIdStorageS3CredentialsIndexRoute =
+  AuthProjectsProjectIdStorageS3CredentialsIndexRouteImport.update({
+    id: "/credentials/",
+    path: "/credentials/",
+    getParentRoute: () => AuthProjectsProjectIdStorageS3Route,
+  } as any)
 const AuthProjectsProjectIdStorageProviderContainersIndexRoute =
   AuthProjectsProjectIdStorageProviderContainersIndexRouteImport.update({
     id: "/storage/$provider/containers/",
@@ -202,6 +216,7 @@ export interface FileRoutesByFullPath {
   "/projects/$projectId/compute/images": typeof AuthProjectsProjectIdComputeImagesRouteWithChildren
   "/projects/$projectId/compute/overview": typeof AuthProjectsProjectIdComputeOverviewRoute
   "/projects/$projectId/network/overview": typeof AuthProjectsProjectIdNetworkOverviewRoute
+  "/projects/$projectId/storage/s3": typeof AuthProjectsProjectIdStorageS3RouteWithChildren
   "/projects/$projectId/compute/": typeof AuthProjectsProjectIdComputeIndexRoute
   "/projects/$projectId/network/": typeof AuthProjectsProjectIdNetworkIndexRoute
   "/projects/$projectId/compute/flavors/$flavorId": typeof AuthProjectsProjectIdComputeFlavorsFlavorIdRoute
@@ -213,6 +228,7 @@ export interface FileRoutesByFullPath {
   "/projects/$projectId/network/floatingips/$floatingIpId/": typeof AuthProjectsProjectIdNetworkFloatingipsFloatingIpIdIndexRoute
   "/projects/$projectId/network/securitygroups/$securityGroupId/": typeof AuthProjectsProjectIdNetworkSecuritygroupsSecurityGroupIdIndexRoute
   "/projects/$projectId/storage/$provider/containers/": typeof AuthProjectsProjectIdStorageProviderContainersIndexRoute
+  "/projects/$projectId/storage/s3/credentials/": typeof AuthProjectsProjectIdStorageS3CredentialsIndexRoute
   "/projects/$projectId/storage/$provider/containers/$containerName/objects/": typeof AuthProjectsProjectIdStorageProviderContainersContainerNameObjectsIndexRoute
 }
 export interface FileRoutesByTo {
@@ -225,6 +241,7 @@ export interface FileRoutesByTo {
   "/projects/$projectId": typeof AuthProjectsProjectIdIndexRoute
   "/projects/$projectId/compute/overview": typeof AuthProjectsProjectIdComputeOverviewRoute
   "/projects/$projectId/network/overview": typeof AuthProjectsProjectIdNetworkOverviewRoute
+  "/projects/$projectId/storage/s3": typeof AuthProjectsProjectIdStorageS3RouteWithChildren
   "/projects/$projectId/compute": typeof AuthProjectsProjectIdComputeIndexRoute
   "/projects/$projectId/network": typeof AuthProjectsProjectIdNetworkIndexRoute
   "/projects/$projectId/compute/flavors/$flavorId": typeof AuthProjectsProjectIdComputeFlavorsFlavorIdRoute
@@ -236,6 +253,7 @@ export interface FileRoutesByTo {
   "/projects/$projectId/network/floatingips/$floatingIpId": typeof AuthProjectsProjectIdNetworkFloatingipsFloatingIpIdIndexRoute
   "/projects/$projectId/network/securitygroups/$securityGroupId": typeof AuthProjectsProjectIdNetworkSecuritygroupsSecurityGroupIdIndexRoute
   "/projects/$projectId/storage/$provider/containers": typeof AuthProjectsProjectIdStorageProviderContainersIndexRoute
+  "/projects/$projectId/storage/s3/credentials": typeof AuthProjectsProjectIdStorageS3CredentialsIndexRoute
   "/projects/$projectId/storage/$provider/containers/$containerName/objects": typeof AuthProjectsProjectIdStorageProviderContainersContainerNameObjectsIndexRoute
 }
 export interface FileRoutesById {
@@ -254,6 +272,7 @@ export interface FileRoutesById {
   "/_auth/projects/$projectId/compute/images": typeof AuthProjectsProjectIdComputeImagesRouteWithChildren
   "/_auth/projects/$projectId/compute/overview": typeof AuthProjectsProjectIdComputeOverviewRoute
   "/_auth/projects/$projectId/network/overview": typeof AuthProjectsProjectIdNetworkOverviewRoute
+  "/_auth/projects/$projectId/storage/s3": typeof AuthProjectsProjectIdStorageS3RouteWithChildren
   "/_auth/projects/$projectId/compute/": typeof AuthProjectsProjectIdComputeIndexRoute
   "/_auth/projects/$projectId/network/": typeof AuthProjectsProjectIdNetworkIndexRoute
   "/_auth/projects/$projectId/compute/flavors/$flavorId": typeof AuthProjectsProjectIdComputeFlavorsFlavorIdRoute
@@ -265,6 +284,7 @@ export interface FileRoutesById {
   "/_auth/projects/$projectId/network/floatingips/$floatingIpId/": typeof AuthProjectsProjectIdNetworkFloatingipsFloatingIpIdIndexRoute
   "/_auth/projects/$projectId/network/securitygroups/$securityGroupId/": typeof AuthProjectsProjectIdNetworkSecuritygroupsSecurityGroupIdIndexRoute
   "/_auth/projects/$projectId/storage/$provider/containers/": typeof AuthProjectsProjectIdStorageProviderContainersIndexRoute
+  "/_auth/projects/$projectId/storage/s3/credentials/": typeof AuthProjectsProjectIdStorageS3CredentialsIndexRoute
   "/_auth/projects/$projectId/storage/$provider/containers/$containerName/objects/": typeof AuthProjectsProjectIdStorageProviderContainersContainerNameObjectsIndexRoute
 }
 export interface FileRouteTypes {
@@ -283,6 +303,7 @@ export interface FileRouteTypes {
     | "/projects/$projectId/compute/images"
     | "/projects/$projectId/compute/overview"
     | "/projects/$projectId/network/overview"
+    | "/projects/$projectId/storage/s3"
     | "/projects/$projectId/compute/"
     | "/projects/$projectId/network/"
     | "/projects/$projectId/compute/flavors/$flavorId"
@@ -294,6 +315,7 @@ export interface FileRouteTypes {
     | "/projects/$projectId/network/floatingips/$floatingIpId/"
     | "/projects/$projectId/network/securitygroups/$securityGroupId/"
     | "/projects/$projectId/storage/$provider/containers/"
+    | "/projects/$projectId/storage/s3/credentials/"
     | "/projects/$projectId/storage/$provider/containers/$containerName/objects/"
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -306,6 +328,7 @@ export interface FileRouteTypes {
     | "/projects/$projectId"
     | "/projects/$projectId/compute/overview"
     | "/projects/$projectId/network/overview"
+    | "/projects/$projectId/storage/s3"
     | "/projects/$projectId/compute"
     | "/projects/$projectId/network"
     | "/projects/$projectId/compute/flavors/$flavorId"
@@ -317,6 +340,7 @@ export interface FileRouteTypes {
     | "/projects/$projectId/network/floatingips/$floatingIpId"
     | "/projects/$projectId/network/securitygroups/$securityGroupId"
     | "/projects/$projectId/storage/$provider/containers"
+    | "/projects/$projectId/storage/s3/credentials"
     | "/projects/$projectId/storage/$provider/containers/$containerName/objects"
   id:
     | "__root__"
@@ -334,6 +358,7 @@ export interface FileRouteTypes {
     | "/_auth/projects/$projectId/compute/images"
     | "/_auth/projects/$projectId/compute/overview"
     | "/_auth/projects/$projectId/network/overview"
+    | "/_auth/projects/$projectId/storage/s3"
     | "/_auth/projects/$projectId/compute/"
     | "/_auth/projects/$projectId/network/"
     | "/_auth/projects/$projectId/compute/flavors/$flavorId"
@@ -345,6 +370,7 @@ export interface FileRouteTypes {
     | "/_auth/projects/$projectId/network/floatingips/$floatingIpId/"
     | "/_auth/projects/$projectId/network/securitygroups/$securityGroupId/"
     | "/_auth/projects/$projectId/storage/$provider/containers/"
+    | "/_auth/projects/$projectId/storage/s3/credentials/"
     | "/_auth/projects/$projectId/storage/$provider/containers/$containerName/objects/"
   fileRoutesById: FileRoutesById
 }
@@ -441,6 +467,13 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof AuthProjectsProjectIdComputeIndexRouteImport
       parentRoute: typeof AuthProjectsProjectIdRoute
     }
+    "/_auth/projects/$projectId/storage/s3": {
+      id: "/_auth/projects/$projectId/storage/s3"
+      path: "/storage/s3"
+      fullPath: "/projects/$projectId/storage/s3"
+      preLoaderRoute: typeof AuthProjectsProjectIdStorageS3RouteImport
+      parentRoute: typeof AuthProjectsProjectIdRoute
+    }
     "/_auth/projects/$projectId/network/overview": {
       id: "/_auth/projects/$projectId/network/overview"
       path: "/overview"
@@ -510,6 +543,13 @@ declare module "@tanstack/react-router" {
       fullPath: "/projects/$projectId/compute/flavors/$flavorId"
       preLoaderRoute: typeof AuthProjectsProjectIdComputeFlavorsFlavorIdRouteImport
       parentRoute: typeof AuthProjectsProjectIdComputeFlavorsRoute
+    }
+    "/_auth/projects/$projectId/storage/s3/credentials/": {
+      id: "/_auth/projects/$projectId/storage/s3/credentials/"
+      path: "/credentials"
+      fullPath: "/projects/$projectId/storage/s3/credentials/"
+      preLoaderRoute: typeof AuthProjectsProjectIdStorageS3CredentialsIndexRouteImport
+      parentRoute: typeof AuthProjectsProjectIdStorageS3Route
     }
     "/_auth/projects/$projectId/storage/$provider/containers/": {
       id: "/_auth/projects/$projectId/storage/$provider/containers/"
@@ -608,12 +648,28 @@ const AuthProjectsProjectIdComputeImagesRouteWithChildren =
     AuthProjectsProjectIdComputeImagesRouteChildren,
   )
 
+interface AuthProjectsProjectIdStorageS3RouteChildren {
+  AuthProjectsProjectIdStorageS3CredentialsIndexRoute: typeof AuthProjectsProjectIdStorageS3CredentialsIndexRoute
+}
+
+const AuthProjectsProjectIdStorageS3RouteChildren: AuthProjectsProjectIdStorageS3RouteChildren =
+  {
+    AuthProjectsProjectIdStorageS3CredentialsIndexRoute:
+      AuthProjectsProjectIdStorageS3CredentialsIndexRoute,
+  }
+
+const AuthProjectsProjectIdStorageS3RouteWithChildren =
+  AuthProjectsProjectIdStorageS3Route._addFileChildren(
+    AuthProjectsProjectIdStorageS3RouteChildren,
+  )
+
 interface AuthProjectsProjectIdRouteChildren {
   AuthProjectsProjectIdNetworkRoute: typeof AuthProjectsProjectIdNetworkRouteWithChildren
   AuthProjectsProjectIdIndexRoute: typeof AuthProjectsProjectIdIndexRoute
   AuthProjectsProjectIdComputeFlavorsRoute: typeof AuthProjectsProjectIdComputeFlavorsRouteWithChildren
   AuthProjectsProjectIdComputeImagesRoute: typeof AuthProjectsProjectIdComputeImagesRouteWithChildren
   AuthProjectsProjectIdComputeOverviewRoute: typeof AuthProjectsProjectIdComputeOverviewRoute
+  AuthProjectsProjectIdStorageS3Route: typeof AuthProjectsProjectIdStorageS3RouteWithChildren
   AuthProjectsProjectIdComputeIndexRoute: typeof AuthProjectsProjectIdComputeIndexRoute
   AuthProjectsProjectIdStorageProviderContainersIndexRoute: typeof AuthProjectsProjectIdStorageProviderContainersIndexRoute
   AuthProjectsProjectIdStorageProviderContainersContainerNameObjectsIndexRoute: typeof AuthProjectsProjectIdStorageProviderContainersContainerNameObjectsIndexRoute
@@ -629,6 +685,8 @@ const AuthProjectsProjectIdRouteChildren: AuthProjectsProjectIdRouteChildren = {
     AuthProjectsProjectIdComputeImagesRouteWithChildren,
   AuthProjectsProjectIdComputeOverviewRoute:
     AuthProjectsProjectIdComputeOverviewRoute,
+  AuthProjectsProjectIdStorageS3Route:
+    AuthProjectsProjectIdStorageS3RouteWithChildren,
   AuthProjectsProjectIdComputeIndexRoute:
     AuthProjectsProjectIdComputeIndexRoute,
   AuthProjectsProjectIdStorageProviderContainersIndexRoute:

@@ -28,6 +28,10 @@ msgstr "\"{objectName}\" wurde erfolgreich nach {destination} verschoben."
 msgid "\"{objectName}\" was successfully uploaded."
 msgstr "\"{objectName}\" wurde erfolgreich hochgeladen."
 
+#. placeholder {0}: credentials.length
+msgid "{0} credential(s) for this project"
+msgstr ""
+
 msgid "{allContainersCount} container"
 msgstr "{allContainersCount} Container"
 
@@ -418,6 +422,9 @@ msgstr "Container"
 msgid "Content type"
 msgstr "Content type"
 
+msgid "Continue"
+msgstr ""
+
 msgid "Copied to clipboard!"
 msgstr "In die Zwischenablage kopiert!"
 
@@ -496,6 +503,9 @@ msgstr "Erstellen"
 msgid "Create Container"
 msgstr "Container erstellen"
 
+msgid "Create Credential"
+msgstr ""
+
 msgid "Create Flavor"
 msgstr "Flavor erstellen"
 
@@ -534,6 +544,12 @@ msgstr "Sicherheitsgruppenregel wird erstellt..."
 
 msgid "Creating security group..."
 msgstr "Sicherheitsgruppe wird erstellt..."
+
+msgid "Creating..."
+msgstr ""
+
+msgid "Credential deleted."
+msgstr ""
 
 msgid "Custom"
 msgstr "Benutzerdefiniert"
@@ -667,6 +683,9 @@ msgstr "Festplattenformat"
 msgid "Disk format is required"
 msgstr "Festplattenformat ist erforderlich"
 
+msgid "Dismiss"
+msgstr ""
+
 msgid "DNS"
 msgstr "DNS"
 
@@ -711,6 +730,9 @@ msgstr "z. B. b90f9c4bc76140e18540b2cec1299e2a"
 
 msgid "e.g., production, linux, ubuntu"
 msgstr "z. B. production, linux, ubuntu"
+
+msgid "EC2 credential created. Save the secret key — it won't be shown again."
+msgstr ""
 
 msgid "Edit"
 msgstr "Bearbeiten"
@@ -892,6 +914,10 @@ msgstr "Fehler beim Kopieren der temporären URL in die Zwischenablage"
 msgid "Failed to Create Container"
 msgstr "Fehler beim Erstellen des Containers"
 
+#. placeholder {0}: err.message
+msgid "Failed to create credential: {0}"
+msgstr ""
+
 msgid "Failed to create extra specs. Please try again."
 msgstr "Fehler beim Erstellen des Extra-Specs. Bitte versuchen Sie es erneut."
 
@@ -921,6 +947,10 @@ msgstr "{failedCount} von {totalCount} Image(s) konnten nicht gelöscht werden. 
 
 msgid "Failed to Delete Container"
 msgstr "Fehler beim Löschen des Containers"
+
+#. placeholder {0}: err.message
+msgid "Failed to delete credential: {0}"
+msgstr ""
 
 msgid "Failed to delete flavor. Please try again."
 msgstr "Fehler beim Löschen des Flavors. Bitte versuchen Sie es erneut."
@@ -1612,6 +1642,9 @@ msgstr "Keine benutzerdefinierten Metadaten. Klicken Sie auf \"Eigenschaft hinzu
 msgid "No custom properties defined"
 msgstr "Keine benutzerdefinierten Eigenschaften definiert"
 
+msgid "No EC2 credentials yet. Click \"Create Credential\" to generate one."
+msgstr ""
+
 msgid "No extra specs found. Click \"Add Metadata\" to create one."
 msgstr "Keine Metadata gefunden. Klicken Sie auf \"Metadata hinzufügen\", um eine zu erstellen."
 
@@ -2020,6 +2053,21 @@ msgstr "RX/TX Factor"
 msgid "RX/TX Factor must be an integer ≥ 1."
 msgstr "RX/TX Faktor muss eine ganze Zahl ≥ 1 sein."
 
+msgid "S3 (dev)"
+msgstr ""
+
+msgid "S3 Credential Created"
+msgstr ""
+
+msgid "S3 Object Storage — EC2 Credentials"
+msgstr ""
+
+msgid "S3 Object Storage — Setup Required"
+msgstr ""
+
+msgid "S3 Object Storage requires EC2 credentials (access key + secret key) to authenticate your requests. You need to create credentials before accessing S3 resources."
+msgstr ""
+
 msgid "Save"
 msgstr "Speichern"
 
@@ -2034,6 +2082,12 @@ msgstr "Wird gespeichert..."
 
 msgid "Search..."
 msgstr "Suchen..."
+
+msgid "Secret Key (shown once — copy it now):"
+msgstr ""
+
+msgid "Secret key copied to clipboard."
+msgstr ""
 
 msgid "Security"
 msgstr "Sicherheit"
@@ -2217,6 +2271,9 @@ msgstr "Alte Objekt-Versionen speichern"
 
 msgid "Store old object versions in container:"
 msgstr "Alte Objekt-Versionen in Container speichern:"
+
+msgid "Store this secret key securely. It will not be shown again."
+msgstr ""
 
 msgid "Stored as X-Object-Meta-* headers. Keys are case-insensitive."
 msgstr "Gespeichert als X-Object-Meta-*-Header. Schlüssel sind nicht zwischen Groß- und Kleinschreibung unterscheidend."

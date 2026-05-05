@@ -151,7 +151,7 @@ describe("SideNavBar", () => {
         expect(screen.getByText("Swift")).toBeInTheDocument()
       })
 
-      it("does not render Storage section when swift service is unavailable", () => {
+      it("renders Storage section with S3 (dev) even when swift service is unavailable", () => {
         const propsWithoutSwift = {
           ...defaultProps,
           availableServices: [
@@ -166,7 +166,9 @@ describe("SideNavBar", () => {
           </TestingProvider>
         )
 
-        expect(screen.queryByText("Storage")).not.toBeInTheDocument()
+        expect(screen.queryByText("Storage")).toBeInTheDocument()
+        expect(screen.queryByText("S3 (dev)")).toBeInTheDocument()
+        expect(screen.queryByText("Swift")).not.toBeInTheDocument()
       })
     })
 
@@ -270,7 +272,8 @@ describe("SideNavBar", () => {
         )
 
         expect(screen.queryByText("Compute")).toBeInTheDocument()
-        expect(screen.queryByText("Storage")).not.toBeInTheDocument()
+        expect(screen.queryByText("Storage")).toBeInTheDocument()
+        expect(screen.queryByText("S3 (dev)")).toBeInTheDocument()
       })
 
       it("handles malformed service data gracefully", () => {

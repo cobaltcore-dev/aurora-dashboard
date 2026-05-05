@@ -28,6 +28,10 @@ msgstr "\"{objectName}\" was successfully moved to {destination}."
 msgid "\"{objectName}\" was successfully uploaded."
 msgstr "\"{objectName}\" was successfully uploaded."
 
+#. placeholder {0}: credentials.length
+msgid "{0} credential(s) for this project"
+msgstr "{0} credential(s) for this project"
+
 msgid "{allContainersCount} container"
 msgstr "{allContainersCount} container"
 
@@ -418,6 +422,9 @@ msgstr "Containers"
 msgid "Content type"
 msgstr "Content type"
 
+msgid "Continue"
+msgstr "Continue"
+
 msgid "Copied to clipboard!"
 msgstr "Copied to clipboard!"
 
@@ -496,6 +503,9 @@ msgstr "Create"
 msgid "Create Container"
 msgstr "Create Container"
 
+msgid "Create Credential"
+msgstr "Create Credential"
+
 msgid "Create Flavor"
 msgstr "Create Flavor"
 
@@ -534,6 +544,12 @@ msgstr "Creating security group rule..."
 
 msgid "Creating security group..."
 msgstr "Creating security group..."
+
+msgid "Creating..."
+msgstr "Creating..."
+
+msgid "Credential deleted."
+msgstr "Credential deleted."
 
 msgid "Custom"
 msgstr "Custom"
@@ -667,6 +683,9 @@ msgstr "Disk Format"
 msgid "Disk format is required"
 msgstr "Disk format is required"
 
+msgid "Dismiss"
+msgstr "Dismiss"
+
 msgid "DNS"
 msgstr "DNS"
 
@@ -711,6 +730,9 @@ msgstr "e.g., b90f9c4bc76140e18540b2cec1299e2a"
 
 msgid "e.g., production, linux, ubuntu"
 msgstr "e.g., production, linux, ubuntu"
+
+msgid "EC2 credential created. Save the secret key — it won't be shown again."
+msgstr "EC2 credential created. Save the secret key — it won't be shown again."
 
 msgid "Edit"
 msgstr "Edit"
@@ -892,6 +914,10 @@ msgstr "Failed to copy the temporary URL to the clipboard"
 msgid "Failed to Create Container"
 msgstr "Failed to Create Container"
 
+#. placeholder {0}: err.message
+msgid "Failed to create credential: {0}"
+msgstr "Failed to create credential: {0}"
+
 msgid "Failed to create extra specs. Please try again."
 msgstr "Failed to create extra specs. Please try again."
 
@@ -921,6 +947,10 @@ msgstr "Failed to delete {failedCount} of {totalCount} image(s). Some images may
 
 msgid "Failed to Delete Container"
 msgstr "Failed to Delete Container"
+
+#. placeholder {0}: err.message
+msgid "Failed to delete credential: {0}"
+msgstr "Failed to delete credential: {0}"
 
 msgid "Failed to delete flavor. Please try again."
 msgstr "Failed to delete flavor. Please try again."
@@ -1612,6 +1642,9 @@ msgstr "No custom metadata. Click \"Add Property\" to create one."
 msgid "No custom properties defined"
 msgstr "No custom properties defined"
 
+msgid "No EC2 credentials yet. Click \"Create Credential\" to generate one."
+msgstr "No EC2 credentials yet. Click \"Create Credential\" to generate one."
+
 msgid "No extra specs found. Click \"Add Metadata\" to create one."
 msgstr "No extra specs found. Click \"Add Metadata\" to create one."
 
@@ -2020,6 +2053,21 @@ msgstr "RX/TX Factor"
 msgid "RX/TX Factor must be an integer ≥ 1."
 msgstr "RX/TX Factor must be an integer ≥ 1."
 
+msgid "S3 (dev)"
+msgstr "S3 (dev)"
+
+msgid "S3 Credential Created"
+msgstr "S3 Credential Created"
+
+msgid "S3 Object Storage — EC2 Credentials"
+msgstr "S3 Object Storage — EC2 Credentials"
+
+msgid "S3 Object Storage — Setup Required"
+msgstr "S3 Object Storage — Setup Required"
+
+msgid "S3 Object Storage requires EC2 credentials (access key + secret key) to authenticate your requests. You need to create credentials before accessing S3 resources."
+msgstr "S3 Object Storage requires EC2 credentials (access key + secret key) to authenticate your requests. You need to create credentials before accessing S3 resources."
+
 msgid "Save"
 msgstr "Save"
 
@@ -2034,6 +2082,12 @@ msgstr "Saving..."
 
 msgid "Search..."
 msgstr "Search..."
+
+msgid "Secret Key (shown once — copy it now):"
+msgstr "Secret Key (shown once — copy it now):"
+
+msgid "Secret key copied to clipboard."
+msgstr "Secret key copied to clipboard."
 
 msgid "Security"
 msgstr "Security"
@@ -2217,6 +2271,9 @@ msgstr "Store old object versions"
 
 msgid "Store old object versions in container:"
 msgstr "Store old object versions in container:"
+
+msgid "Store this secret key securely. It will not be shown again."
+msgstr "Store this secret key securely. It will not be shown again."
 
 msgid "Stored as X-Object-Meta-* headers. Keys are case-insensitive."
 msgstr "Stored as X-Object-Meta-* headers. Keys are case-insensitive."

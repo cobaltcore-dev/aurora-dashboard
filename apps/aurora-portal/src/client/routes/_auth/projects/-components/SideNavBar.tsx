@@ -82,6 +82,12 @@ export const SideNavBar = ({ projectId, projectName, availableServices }: SideNa
           },
         ]
       : []),
+    {
+      service: "s3-credentials",
+      label: t`S3 (dev)`,
+      to: "/projects/$projectId/storage/s3/credentials" as const,
+      params: { projectId },
+    },
   ]
 
   const isOverviewActive = activeSection === null
