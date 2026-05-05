@@ -1,4 +1,4 @@
-import { useState, startTransition } from "react"
+import { useState, useEffect, startTransition } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { Spinner, Button, Toast, ToastProps, Stack } from "@cloudoperators/juno-ui-components"
 import { trpcReact } from "@/client/trpcClient"
@@ -148,6 +148,12 @@ export const SwiftObjects = () => {
   const [uploadModalOpen, setUploadModalOpen] = useState(false)
   const [deleteAllModalOpen, setDeleteAllModalOpen] = useState(false)
   const [selectedObjects, setSelectedObjects] = useState<string[]>([])
+
+  // Clear selection when prefix changes via browser back/forward or deep link,
+  // since navigateToPrefix only clears it for in-app folder navigation
+  useEffect(() => {
+    setSelectedObjects([])
+  }, [currentPrefix])
   const [toastData, setToastData] = useState<ToastProps | null>(null)
 
   const handleToastDismiss = () => setToastData(null)
