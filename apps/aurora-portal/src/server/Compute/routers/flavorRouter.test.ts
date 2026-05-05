@@ -206,10 +206,15 @@ describe("flavorRouter", () => {
       const mockCtx = createMockContext()
       const caller = createCaller(mockCtx)
 
-      const originalError = new TRPCError({ code: "UNAUTHORIZED", message: "Your session has expired. Please log in again." })
+      const originalError = new TRPCError({
+        code: "UNAUTHORIZED",
+        message: "Your session has expired. Please log in again.",
+      })
       vi.mocked(flavorHelpers.fetchFlavors).mockRejectedValue(originalError)
 
-      await expect(caller.flavor.getFlavorsByProjectId({ project_id: "test-project-123" })).rejects.toThrow(originalError)
+      await expect(caller.flavor.getFlavorsByProjectId({ project_id: "test-project-123" })).rejects.toThrow(
+        originalError
+      )
       expect(flavorHelpers.filterAndSortFlavors).not.toHaveBeenCalled()
     })
 
