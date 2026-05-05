@@ -7,24 +7,37 @@ import { Page } from "@playwright/test"
 
 interface LoginOptions {
   domain?: string
+  useAdmin?: boolean
 }
 
 /**
  * Perform login with test user credentials from environment
  *
  * @param page - Playwright page object
- * @param options - Optional configuration (domain override)
+ * @param options - Optional configuration (domain override, admin vs member user)
  */
 export async function loginAsTestUser(page: Page, options: LoginOptions = {}) {
   const domain = options.domain || process.env.TEST_DOMAIN
-  const username = process.env.TEST_USER
-  const password = process.env.TEST_PASSWORD
+  const username = options.useAdmin ? process.env.TEST_ADMIN_USER : process.env.TEST_MEMBER_USER
+  const password = options.useAdmin ? process.env.TEST_ADMIN_PASSWORD : process.env.TEST_MEMBER_PASSWORD
 
   if (!domain || !username || !password) {
-    throw new Error("TEST_DOMAIN, TEST_USER and TEST_PASSWORD must be set in environment")
+    throw new Error(
+      "TEST_DOMAIN, TEST_MEMBER_USER, TEST_MEMBER_PASSWORD (and optionally TEST_ADMIN_USER, TEST_ADMIN_PASSWORD) must be set in environment"
+    )
   }
 
   await auroraLogin(page, domain, username, password)
+}
+
+/**
+ * Perform login as admin user
+ *
+ * @param page - Playwright page object
+ * @param options - Optional configuration (domain override)
+ */
+export async function loginAsAdminUser(page: Page, options: Omit<LoginOptions, "useAdmin"> = {}) {
+  return loginAsTestUser(page, { ...options, useAdmin: true })
 }
 
 /**
