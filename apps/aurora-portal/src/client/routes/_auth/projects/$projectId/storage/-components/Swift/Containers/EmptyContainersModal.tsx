@@ -77,8 +77,6 @@ export const EmptyContainersModal = ({ isOpen, containers, onClose, onComplete }
     // Don't fire callbacks if the user cancelled mid-loop
     if (cancelledRef.current) return
 
-    await utils.storage.swift.listContainers.invalidate()
-
     onComplete?.({ emptiedCount, totalDeleted, errors })
 
     handleClose()
@@ -90,6 +88,8 @@ export const EmptyContainersModal = ({ isOpen, containers, onClose, onComplete }
   const visibleContainers = containers.slice(0, MAX_VISIBLE)
   const hiddenCount = totalCount - visibleContainers.length
   const isPending = emptyContainerMutation.isPending || progress !== null
+  const progressCurrent = progress?.current
+  const progressTotal = progress?.total
 
   return (
     <Modal
@@ -109,15 +109,9 @@ export const EmptyContainersModal = ({ isOpen, containers, onClose, onComplete }
           <Spinner variant="primary" />
           {progress && (
             <p className="text-theme-light text-sm">
-              {(() => {
-                const current = progress.current
-                const total = progress.total
-                return (
-                  <Trans>
-                    Emptying {current} of {total}...
-                  </Trans>
-                )
-              })()}
+              <Trans>
+                Emptying {progressCurrent} of {progressTotal}...
+              </Trans>
             </p>
           )}
         </Stack>

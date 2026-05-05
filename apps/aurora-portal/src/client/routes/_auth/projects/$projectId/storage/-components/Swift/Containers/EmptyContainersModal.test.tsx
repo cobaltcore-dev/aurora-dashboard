@@ -285,16 +285,6 @@ describe("EmptyContainersModal", () => {
         expect(onClose).toHaveBeenCalled()
       })
     })
-
-    test("invalidates listContainers even when mutation fails", async () => {
-      mutationError = "Server error"
-      const user = userEvent.setup()
-      renderModal()
-      await user.click(screen.getByRole("button", { name: /^Empty$/i }))
-      await waitFor(() => {
-        expect(mockInvalidate).toHaveBeenCalled()
-      })
-    })
   })
 
   describe("Cancel / close", () => {

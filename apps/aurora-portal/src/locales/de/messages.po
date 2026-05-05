@@ -796,8 +796,8 @@ msgstr "Container leeren:"
 msgid "Empty Containers"
 msgstr "Container leeren"
 
-msgid "Emptying {current} of {total}..."
-msgstr "{current} von {total} werden geleert..."
+msgid "Emptying {progressCurrent} of {progressTotal}..."
+msgstr "{progressCurrent} von {progressTotal} werden geleert..."
 
 msgid "Enable file listing"
 msgstr "Dateilisting aktivieren"
