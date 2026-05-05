@@ -27,6 +27,8 @@ Aurora aims to simplify operations for OpenStack-based cloud infrastructure. Our
 
 Aurora Portal supports routing all OpenStack API calls through [mitmproxy](https://mitmproxy.org/) for debugging and inspection.
 
+**⚠️ Security Note:** The proxy feature is **only available in development mode** (`NODE_ENV !== "production"`). If `GLOBAL_AGENT_HTTP_PROXY` is set in production, it will be ignored and a warning will be logged.
+
 ### Setup
 
 1. **Enable proxy in `.env`:**
@@ -34,8 +36,9 @@ Aurora Portal supports routing all OpenStack API calls through [mitmproxy](https
 ```bash
 # Add to apps/aurora-portal/.env
 GLOBAL_AGENT_HTTP_PROXY=http://localhost:8888
-NODE_TLS_REJECT_UNAUTHORIZED=0  # Allows mitmproxy's self-signed certificates
 ```
+
+Note: TLS certificate validation is automatically disabled when using a proxy, since mitmproxy uses self-signed certificates.
 
 2. **Start mitmproxy** (in a separate terminal):
 
@@ -60,7 +63,7 @@ All outgoing HTTP/HTTPS requests from the BFF to OpenStack services:
 
 ### How it works
 
-The proxy is implemented at the `fetch()` level in the `@cobaltcore-dev/signal-openstack` package using [undici's ProxyAgent](https://undici.nodejs.org/#/docs/api/ProxyAgent). When `GLOBAL_AGENT_HTTP_PROXY` is set, all OpenStack API requests are automatically routed through the specified proxy.
+The proxy is implemented at the `fetch()` level in the `@cobaltcore-dev/signal-openstack` package using [undici's ProxyAgent](https://undici.nodejs.org/#/docs/api/ProxyAgent). When `GLOBAL_AGENT_HTTP_PROXY` is set in development mode, all OpenStack API requests are automatically routed through the specified proxy.
 
 ### Disabling the proxy
 
@@ -70,7 +73,7 @@ Simply run the normal dev command:
 pnpm dev
 ```
 
-Or comment out the proxy variables in `.env`.
+Or comment out the proxy variable in `.env`.
 
 ## Policy Engine Configuration
 
