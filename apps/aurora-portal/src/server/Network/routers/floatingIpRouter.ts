@@ -1,6 +1,9 @@
 import { projectScopedProcedure } from "@/server/trpc"
 import { withErrorHandling } from "@/server/helpers/errorHandling"
 import { filterBySearchParams } from "@/server/helpers/filterBySearchParams"
+import { appendQueryParamsFromObject } from "@/server/helpers/queryParams"
+import { omit } from "@/server/helpers/object"
+import { validateOpenstackService } from "@/server/helpers/validateOpenstackService"
 import {
   FloatingIpQueryParametersSchema,
   FloatingIp,
@@ -9,23 +12,36 @@ import {
   FloatingIpIdInputSchema,
   FloatingIpUpdateRequestSchema,
   FloatingIpCreateRequestSchema,
+  ExternalNetwork,
+  ExternalNetworksQuerySchema,
+  ExternalNetworksResponseSchema,
+  DnsDomain,
+  DnsDomainResponseSchema,
+  AvailablePort,
+  AvailablePortsQuerySchema,
+  AvailablePortsResponseSchema,
 } from "../types/floatingIp"
 import { FloatingIpErrorHandlers } from "../helpers/floatingIpHelpers"
 import { getNetworkService, parseOrThrow } from "../helpers/index"
-import { appendQueryParamsFromObject } from "@/server/helpers/queryParams"
 
 const FLOATING_IPS_BASE_URL = "v2.0/floatingips"
+const NETWORK_BASE_URL = "v2.0/networks"
+const DNS_BASE_URL = "v2/zones"
+const PORT_BASE_URL = "v2.0/ports"
 
 /**
  * tRPC router for OpenStack Neutron Floating IPs.
  *
  * Currently exposes:
- * - list: GET /v2.0/floatingips List floating IPs with pagination, sorting and filtering support.
- *   Includes BFF-side search filtering by specific fields.
+ * - list: GET /v2.0/floatingips List floating IPs with pagination, sorting and filtering support, includes BFF-side search.
  * - create: POST /v2.0/floatingips Create floating IP.
  * - getById: GET /v2.0/floatingips/{floatingip_id} Show floating IP details.
  * - update: PUT /v2.0/floatingips/{floatingip_id} Update floating IP.
  * - delete: DELETE /v2.0/floatingips/{floatingip_id} Delete floating IP.
+ *
+ * - listExternalNetworks: GET /v2.0/networks?router:external=true for creating floating IP, fetches only external networks with router:true.
+ * - listDnsDomains: GET /v2/zones for creating floating IP, fetches only DNS domains.
+ * - listAvailablePorts: GET /v2.0/ports List available ports for creating or updating floating IP, ensuring users can only see valid, unassociated ports.
  */
 export const floatingIpRouter = {
   list: projectScopedProcedure
@@ -135,4 +151,47 @@ export const floatingIpRouter = {
       return true
     }, "delete floating IP")
   }),
+  listExternalNetworks: projectScopedProcedure
+    .input(ExternalNetworksQuerySchema)
+    .query(async ({ input, ctx }): Promise<ExternalNetwork[]> => {
+      return withErrorHandling(async () => {
+        const network = getNetworkService(ctx)
+
+        const queryParams = appendQueryParamsFromObject(omit(input, "project_id"))
+        const queryString = queryParams.toString()
+        const url = queryString ? `${NETWORK_BASE_URL}?${queryString}` : NETWORK_BASE_URL
+
+        const response = await network.get(url)
+        const data = await response.json()
+
+        return parseOrThrow(ExternalNetworksResponseSchema, data, "floatingIpRouter.listExternalNetworks").networks
+      }, "list external networks for floating IP create operation")
+    }),
+  listDnsDomains: projectScopedProcedure.query(async ({ ctx }): Promise<DnsDomain[]> => {
+    return withErrorHandling(async () => {
+      const dnsService = ctx.openstack?.service("dns") ?? ctx.openstack?.service("designate")
+      validateOpenstackService(dnsService, "dns")
+
+      const response = await dnsService.get(DNS_BASE_URL)
+      const data = await response.json()
+
+      return parseOrThrow(DnsDomainResponseSchema, data, "floatingIpRouter.listDnsDomains").zones
+    }, "list dns domains for floating IP create operation")
+  }),
+  listAvailablePorts: projectScopedProcedure
+    .input(AvailablePortsQuerySchema)
+    .query(async ({ input, ctx }): Promise<AvailablePort[]> => {
+      return withErrorHandling(async () => {
+        const network = getNetworkService(ctx)
+
+        const queryParams = appendQueryParamsFromObject({ ...input, fields: ["id", "name", "fixed_ips"] })
+        const queryString = queryParams.toString()
+        const url = queryString ? `${PORT_BASE_URL}?${queryString}` : PORT_BASE_URL
+
+        const response = await network.get(url)
+        const data = await response.json()
+
+        return parseOrThrow(AvailablePortsResponseSchema, data, "floatingIpRouter.listAvailablePorts").ports
+      }, "list available ports for floating IP update and create operations")
+    }),
 }
