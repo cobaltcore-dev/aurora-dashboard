@@ -289,6 +289,22 @@ export const ExternalNetworksResponseSchema = z.object({
 })
 
 /**
+ * Reduced DNS Domain zone-item used by Floating IP select options, only keeps fields needed by UI
+ */
+export const DnsDomainSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+})
+
+/**
+ * DNS zones response wrapper returned by Designate list zones API.
+ * Used by GET /v2/zones.
+ */
+export const DnsDomainResponseSchema = z.object({
+  zones: z.array(DnsDomainSchema),
+})
+
+/**
  * Query parameters for listing ports eligible for floating IP creation and association.
  *
  * - `project_id` is required — only ports within the specified project can be associated
@@ -354,6 +370,9 @@ export type FloatingIpUpdateRequest = z.infer<typeof FloatingIpUpdateRequestSche
 export type ExternalNetworksQuery = z.infer<typeof ExternalNetworksQuerySchema>
 export type ExternalNetwork = z.infer<typeof ExternalNetworkSchema>
 export type ExternalNetworkResponse = z.infer<typeof ExternalNetworksResponseSchema>
+
+export type DnsDomain = z.infer<typeof DnsDomainSchema>
+export type DnsDomainResponse = z.infer<typeof DnsDomainResponseSchema>
 
 export type AvailablePortsQuery = z.infer<typeof AvailablePortsQuerySchema>
 export type AvailablePort = z.infer<typeof AvailablePortSchema>

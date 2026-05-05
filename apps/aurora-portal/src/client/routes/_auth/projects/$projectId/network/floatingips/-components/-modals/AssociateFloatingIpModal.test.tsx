@@ -22,7 +22,7 @@ vi.mock("@/client/trpcClient", async (importOriginal) => {
     ...actual,
     trpcReact: {
       network: {
-        port: {
+        floatingIp: {
           listAvailablePorts: {
             useQuery: vi.fn(),
           },

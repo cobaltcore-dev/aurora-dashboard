@@ -1,8 +1,9 @@
-import { projectScopedProcedure } from "@/server/trpc"
+import { projectScopedProcedure, protectedProcedure } from "@/server/trpc"
 import { withErrorHandling } from "@/server/helpers/errorHandling"
 import { filterBySearchParams } from "@/server/helpers/filterBySearchParams"
 import { appendQueryParamsFromObject } from "@/server/helpers/queryParams"
 import { omit } from "@/server/helpers/object"
+import { validateOpenstackService } from "@/server/helpers/validateOpenstackService"
 import {
   FloatingIpQueryParametersSchema,
   FloatingIp,
@@ -14,6 +15,8 @@ import {
   ExternalNetwork,
   ExternalNetworksQuerySchema,
   ExternalNetworksResponseSchema,
+  DnsDomain,
+  DnsDomainResponseSchema,
   AvailablePort,
   AvailablePortsQuerySchema,
   AvailablePortsResponseSchema,
@@ -23,6 +26,7 @@ import { getNetworkService, parseOrThrow } from "../helpers/index"
 
 const FLOATING_IPS_BASE_URL = "v2.0/floatingips"
 const NETWORK_BASE_URL = "v2.0/networks"
+const DNS_BASE_URL = "v2/zones"
 const PORT_BASE_URL = "v2.0/ports"
 
 /**
@@ -36,6 +40,7 @@ const PORT_BASE_URL = "v2.0/ports"
  * - delete: DELETE /v2.0/floatingips/{floatingip_id} Delete floating IP.
  *
  * - listExternalNetworks: GET /v2.0/networks?router:external=true for creating floating IP, fetches only external networks with router:true.
+ * - listDnsDomains: GET /v2/zones for creating floating IP, fetches only DNS domains.
  * - listAvailablePorts: GET /v2.0/ports List available ports for creating or updating floating IP, ensuring users can only see valid, unassociated ports.
  */
 export const floatingIpRouter = {
@@ -162,6 +167,17 @@ export const floatingIpRouter = {
         return parseOrThrow(ExternalNetworksResponseSchema, data, "networkRouter.listExternalNetworks").networks
       }, "list external networks for floating IP create operation")
     }),
+  listDnsDomains: protectedProcedure.query(async ({ ctx }): Promise<DnsDomain[]> => {
+    return withErrorHandling(async () => {
+      const dnsService = ctx.openstack?.service("dns") ?? ctx.openstack?.service("designate")
+      validateOpenstackService(dnsService, "dns")
+
+      const response = await dnsService.get(DNS_BASE_URL)
+      const data = await response.json()
+
+      return parseOrThrow(DnsDomainResponseSchema, data, "floatingIpRouter.listDnsDomains").zones
+    }, "list dns domains for floating IP create operation")
+  }),
   listAvailablePorts: projectScopedProcedure
     .input(AvailablePortsQuerySchema)
     .query(async ({ input, ctx }): Promise<AvailablePort[]> => {

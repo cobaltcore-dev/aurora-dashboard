@@ -45,7 +45,7 @@ export const AllocateFloatingIpModal = ({ open, onClose }: AllocateFloatingIpMod
     data: dnsDomains = [],
     isLoading: isDnsDomainsLoading,
     error: dnsDomainsError,
-  } = trpcReact.network.listDnsDomains.useQuery({ project_id: projectId })
+  } = trpcReact.network.floatingIp.listDnsDomains.useQuery()
 
   const {
     data: availablePorts = [],
@@ -184,7 +184,6 @@ export const AllocateFloatingIpModal = ({ open, onClose }: AllocateFloatingIpMod
               )}
             />
           </FormSection>
-
           <FormSection className="mb-4">
             <form.Field
               name="dns_domain"
@@ -199,8 +198,8 @@ export const AllocateFloatingIpModal = ({ open, onClose }: AllocateFloatingIpMod
                   disabled={isPending || isDnsDomainsLoading}
                   loading={isDnsDomainsLoading}
                 >
-                  {dnsDomains.map((domain) => (
-                    <SelectOption key={domain} value={domain} label={domain} />
+                  {dnsDomains.map(({ id, name }) => (
+                    <SelectOption key={id} value={id} label={name} />
                   ))}
                 </Select>
               )}

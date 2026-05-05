@@ -13,6 +13,8 @@ import {
   ExternalNetworksQuerySchema,
   ExternalNetworkSchema,
   ExternalNetworksResponseSchema,
+  DnsDomainSchema,
+  DnsDomainResponseSchema,
   AvailablePortsQuerySchema,
   AvailablePortSchema,
   AvailablePortsResponseSchema,
@@ -1014,6 +1016,52 @@ describe("OpenStack Floating IP Schema Validation", () => {
 
     it("should reject response without networks", () => {
       const result = ExternalNetworksResponseSchema.safeParse({})
+
+      expect(result.success).toBe(false)
+    })
+  })
+
+  describe("DnsDomainSchema", () => {
+    it("should parse a reduced dns domain item", () => {
+      const result = DnsDomainSchema.safeParse({
+        id: "3cb0ef71-9c5b-4ca9-a777-0069f772e4c1",
+        name: "sama.c.qa-de-2.cloud.sap.",
+      })
+
+      expect(result.success).toBe(true)
+    })
+
+    it("should reject domain without name", () => {
+      const result = DnsDomainSchema.safeParse({
+        id: "3cb0ef71-9c5b-4ca9-a777-0069f772e4c1",
+      })
+
+      expect(result.success).toBe(false)
+    })
+  })
+
+  describe("DnsDomainResponseSchema", () => {
+    it("should parse a valid domains response", () => {
+      const result = DnsDomainResponseSchema.safeParse({
+        zones: [
+          {
+            id: "3cb0ef71-9c5b-4ca9-a777-0069f772e4c1",
+            name: "sama.c.qa-de-2.cloud.sap.",
+          },
+        ],
+      })
+
+      expect(result.success).toBe(true)
+    })
+
+    it("should accept empty zones array", () => {
+      const result = DnsDomainResponseSchema.safeParse({ zones: [] })
+
+      expect(result.success).toBe(true)
+    })
+
+    it("should reject response without zones key", () => {
+      const result = DnsDomainResponseSchema.safeParse({})
 
       expect(result.success).toBe(false)
     })
