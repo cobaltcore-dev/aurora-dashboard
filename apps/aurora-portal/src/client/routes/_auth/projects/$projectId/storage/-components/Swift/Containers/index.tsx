@@ -224,13 +224,12 @@ export const SwiftContainers = () => {
   const quotaBytes = accountInfo?.quotaBytes || 0
   const remainingBytes = quotaBytes > 0 ? quotaBytes - bytesUsed : 0
 
-  const hasSelection = selectedContainers.length > 0
-  const selectedCount = selectedContainers.length
-
   // Resolve selected ContainerSummary objects from the full unfiltered list so
   // the modal always operates on what was actually selected — not the filtered
   // subset currently visible in the table.
   const selectedContainerSummaries = (containers || []).filter((c) => selectedContainers.includes(c.name))
+  const hasSelection = selectedContainerSummaries.length > 0
+  const selectedCount = selectedContainerSummaries.length
 
   return (
     <div className="relative">
