@@ -39,19 +39,19 @@ export const AllocateFloatingIpModal = ({ open, onClose }: AllocateFloatingIpMod
     data: externalNetworks = [],
     isLoading: isExternalNetworksLoading,
     error: externalNetworksError,
-  } = trpcReact.network.listExternalNetworks.useQuery({ project_id: projectId })
+  } = trpcReact.network.floatingIp.listExternalNetworks.useQuery({ project_id: projectId })
 
   const {
     data: dnsDomains = [],
     isLoading: isDnsDomainsLoading,
     error: dnsDomainsError,
-  } = trpcReact.network.listDnsDomains.useQuery({ project_id: projectId })
+  } = trpcReact.network.floatingIp.listDnsDomains.useQuery({ project_id: projectId })
 
   const {
     data: availablePorts = [],
     isLoading: isPortsLoading,
     error: portsError,
-  } = trpcReact.network.port.listAvailablePorts.useQuery({ project_id: projectId })
+  } = trpcReact.network.floatingIp.listAvailablePorts.useQuery({ project_id: projectId })
 
   const formSchema = z.object({
     floating_network_id: z.string(),
@@ -184,7 +184,6 @@ export const AllocateFloatingIpModal = ({ open, onClose }: AllocateFloatingIpMod
               )}
             />
           </FormSection>
-
           <FormSection className="mb-4">
             <form.Field
               name="dns_domain"
@@ -199,8 +198,8 @@ export const AllocateFloatingIpModal = ({ open, onClose }: AllocateFloatingIpMod
                   disabled={isPending || isDnsDomainsLoading}
                   loading={isDnsDomainsLoading}
                 >
-                  {dnsDomains.map((domain) => (
-                    <SelectOption key={domain} value={domain} label={domain} />
+                  {dnsDomains.map(({ id, name }) => (
+                    <SelectOption key={id} value={name} label={name} />
                   ))}
                 </Select>
               )}

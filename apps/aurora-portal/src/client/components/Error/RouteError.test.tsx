@@ -157,7 +157,7 @@ describe("RouteError", () => {
 
     const wrapper = container.firstChild as HTMLElement
     expect(wrapper).toHaveClass("flex")
-    expect(wrapper).toHaveClass("min-h-[400px]")
+    expect(wrapper).toHaveClass("min-h-100")
     expect(wrapper).toHaveClass("p-8")
   })
 })

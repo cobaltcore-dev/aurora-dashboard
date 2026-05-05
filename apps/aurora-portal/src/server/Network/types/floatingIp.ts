@@ -1,5 +1,5 @@
 import { z } from "zod"
-import { ISO8601TimestampSchema, SortDirSchema } from "./index"
+import { ISO8601TimestampSchema, NetworkPortStatusSchema, SortDirSchema } from "./index"
 
 /** The status of the floating IP. Values are ACTIVE, DOWN and ERROR. */
 export const FloatingIpStatusSchema = z.enum(["ACTIVE", "DOWN", "ERROR"])
@@ -247,9 +247,118 @@ export const FloatingIpQueryParametersSchema = z.object({
   searchTerm: z.string().optional(),
 })
 
-export type FloatingIpStatus = z.infer<typeof FloatingIpStatusSchema>
+/**
+ * Query schema for external networks only that enforces "router:external" to be true:
+ * GET /v2.0/networks?router:external=true
+ *
+ * Reference:
+ * https://docs.openstack.org/api-ref/network/v2/index.html#list-networks
+ */
+export const ExternalNetworksQuerySchema = z.object({
+  project_id: z.string(),
+  "router:external": z.literal(true).default(true),
+})
+
+/**
+ * OpenStack Neutron limited schema for external networks.
+ *
+ * Reference:
+ * https://docs.openstack.org/api-ref/network/v2/index.html#networks
+ *
+ */
+export const ExternalNetworkSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  project_id: z.string(),
+  "router:external": z.boolean().optional(),
+  shared: z.boolean(),
+  status: NetworkPortStatusSchema,
+  updated_at: ISO8601TimestampSchema.optional(),
+  is_default: z.boolean().optional(),
+})
+
+/**
+ * External networks response wrapper.
+ * Contains an array of network objects.
+ * Used by GET /v2.0/networks (list networks)
+ * to fetch external-network `?router:external=true`.
+ */
+
+export const ExternalNetworksResponseSchema = z.object({
+  networks: z.array(ExternalNetworkSchema),
+})
+
+/**
+ * Reduced DNS Domain zone-item used by Floating IP select options, only keeps fields needed by UI
+ */
+export const DnsDomainSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+})
+
+/**
+ * DNS zones response wrapper returned by Designate list zones API.
+ * Used by GET /v2/zones.
+ */
+export const DnsDomainResponseSchema = z.object({
+  zones: z.array(DnsDomainSchema),
+})
+
+/**
+ * Query parameters for listing ports eligible for floating IP creation and association.
+ *
+ * - `project_id` is required — only ports within the specified project can be associated
+ * - `status` is locked to `"ACTIVE"` — only operational ports can be associated
+ * - `admin_state_up` is locked to `true` — only administratively enabled ports are eligible
+ */
+export const AvailablePortsQuerySchema = z.object({
+  project_id: z.string(),
+  /** Only ACTIVE ports are eligible for floating IP association */
+  status: z.literal("ACTIVE").default("ACTIVE"),
+  /** Only administratively UP ports are eligible for floating IP association */
+  admin_state_up: z.literal(true).default(true),
+})
+
+/**
+ * Optimized port schema for listing available ports.
+ * Contains only essential fields for floating IP association:
+ * - `id`: Port identifier
+ * - `name`: Port display name
+ * - `fixed_ips`: Fixed IP assignments
+ *
+ * Used by GET /v2.0/ports with fields filter (id, name, fixed_ips).
+ * See https://docs.openstack.org/api-ref/network/v2/index.html#ports
+ */
+export const AvailablePortSchema = z.object({
+  /** The ID of the port */
+  id: z.string(),
+  /** Human-readable name of the port */
+  name: z.string().nullable().optional(),
+  /** List of fixed IPs assigned to the port, each entry pairs an IP address with its subnet. */
+  fixed_ips: z
+    .array(
+      z.object({
+        /** The fixed IP address assigned to the port */
+        ip_address: z.string(),
+        /** The ID of the subnet the IP belongs to */
+        subnet_id: z.string().optional(),
+      })
+    )
+    .optional(),
+})
+
+/**
+ * Available ports list response wrapper.
+ * Optimized response for floating IP creation and association featuring only essential port fields.
+ * Used by GET /v2.0/ports (list available ports) with fields filter.
+ */
+export const AvailablePortsResponseSchema = z.object({
+  ports: z.array(AvailablePortSchema),
+})
+
 export type PortDetails = z.infer<typeof PortDetailsSchema>
 export type PortForwarding = z.infer<typeof PortForwardingSchema>
+export type FloatingIpStatus = z.infer<typeof FloatingIpStatusSchema>
 export type FloatingIp = z.infer<typeof FloatingIpSchema>
 export type FloatingIpListResponse = z.infer<typeof FloatingIpListResponseSchema>
 export type FloatingIpQueryParameters = z.infer<typeof FloatingIpQueryParametersSchema>
@@ -257,3 +366,14 @@ export type FloatingIpResponse = z.infer<typeof FloatingIpResponseSchema>
 export type FloatingIpIdInput = z.infer<typeof FloatingIpIdInputSchema>
 export type FloatingIpCreateRequest = z.infer<typeof FloatingIpCreateRequestSchema>
 export type FloatingIpUpdateRequest = z.infer<typeof FloatingIpUpdateRequestSchema>
+
+export type ExternalNetworksQuery = z.infer<typeof ExternalNetworksQuerySchema>
+export type ExternalNetwork = z.infer<typeof ExternalNetworkSchema>
+export type ExternalNetworkResponse = z.infer<typeof ExternalNetworksResponseSchema>
+
+export type DnsDomain = z.infer<typeof DnsDomainSchema>
+export type DnsDomainResponse = z.infer<typeof DnsDomainResponseSchema>
+
+export type AvailablePortsQuery = z.infer<typeof AvailablePortsQuerySchema>
+export type AvailablePort = z.infer<typeof AvailablePortSchema>
+export type AvailablePortsResponse = z.infer<typeof AvailablePortsResponseSchema>

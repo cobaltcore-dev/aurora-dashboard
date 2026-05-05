@@ -36,7 +36,7 @@ export const getNetworkService = (ctx: AuroraPortalContext) => {
 export const parseOrThrow = <S extends ZodTypeAny>(schema: S, data: unknown, context: string): output<S> => {
   const parsed = schema.safeParse(data)
   if (!parsed.success) {
-    console.error(`Zod Parsing Error in ${context}:`, parsed.error.format())
+    console.error(`Zod Parsing Error in ${context}:`, parsed.error.issues)
     throw new TRPCError({
       code: "PARSE_ERROR",
       message: `Failed to parse response in ${context}`,

@@ -10,6 +10,14 @@ import {
   FloatingIpListResponseSchema,
   FloatingIpResponseSchema,
   FloatingIpQueryParametersSchema,
+  ExternalNetworksQuerySchema,
+  ExternalNetworkSchema,
+  ExternalNetworksResponseSchema,
+  DnsDomainSchema,
+  DnsDomainResponseSchema,
+  AvailablePortsQuerySchema,
+  AvailablePortSchema,
+  AvailablePortsResponseSchema,
 } from "./floatingIp"
 import { ISO8601TimestampSchema } from "./index"
 
@@ -902,6 +910,291 @@ describe("OpenStack Floating IP Schema Validation", () => {
           tags: ["production"],
         }).success
       ).toBe(true)
+    })
+  })
+
+  describe("ExternalNetworksQuerySchema", () => {
+    it("should apply router:external=true default", () => {
+      const result = ExternalNetworksQuerySchema.safeParse({ project_id: "test-project" })
+
+      expect(result.success).toBe(true)
+      if (result.success) {
+        expect(result.data.project_id).toBe("test-project")
+        expect(result.data["router:external"]).toBe(true)
+      }
+    })
+
+    it("should accept explicit router:external=true", () => {
+      const result = ExternalNetworksQuerySchema.safeParse({
+        project_id: "test-project",
+        "router:external": true,
+      })
+
+      expect(result.success).toBe(true)
+    })
+
+    it("should reject router:external=false", () => {
+      const result = ExternalNetworksQuerySchema.safeParse({
+        project_id: "test-project",
+        "router:external": false,
+      })
+
+      expect(result.success).toBe(false)
+    })
+
+    it("should reject missing project_id", () => {
+      const result = ExternalNetworksQuerySchema.safeParse({})
+
+      expect(result.success).toBe(false)
+    })
+  })
+
+  describe("ExternalNetworkSchema", () => {
+    it("should parse a valid external network", () => {
+      const result = ExternalNetworkSchema.safeParse({
+        id: "net-1",
+        name: "public",
+        project_id: "admin-project",
+        "router:external": true,
+        shared: true,
+        status: "ACTIVE",
+        updated_at: "2026-05-05T10:00:00Z",
+        is_default: true,
+      })
+
+      expect(result.success).toBe(true)
+    })
+
+    it("should parse with required fields only", () => {
+      const result = ExternalNetworkSchema.safeParse({
+        id: "net-2",
+        name: "public-2",
+        project_id: "admin-project",
+        shared: false,
+        status: "DOWN",
+      })
+
+      expect(result.success).toBe(true)
+    })
+
+    it("should reject invalid network status", () => {
+      const result = ExternalNetworkSchema.safeParse({
+        id: "net-3",
+        name: "broken",
+        project_id: "admin-project",
+        shared: true,
+        status: "BROKEN",
+      })
+
+      expect(result.success).toBe(false)
+    })
+  })
+
+  describe("ExternalNetworksResponseSchema", () => {
+    it("should parse valid external networks response", () => {
+      const result = ExternalNetworksResponseSchema.safeParse({
+        networks: [
+          {
+            id: "net-1",
+            name: "public",
+            project_id: "admin-project",
+            "router:external": true,
+            shared: true,
+            status: "ACTIVE",
+          },
+        ],
+      })
+
+      expect(result.success).toBe(true)
+    })
+
+    it("should accept empty networks array", () => {
+      const result = ExternalNetworksResponseSchema.safeParse({ networks: [] })
+
+      expect(result.success).toBe(true)
+    })
+
+    it("should reject response without networks", () => {
+      const result = ExternalNetworksResponseSchema.safeParse({})
+
+      expect(result.success).toBe(false)
+    })
+  })
+
+  describe("DnsDomainSchema", () => {
+    it("should parse a reduced dns domain item", () => {
+      const result = DnsDomainSchema.safeParse({
+        id: "3cb0ef71-9c5b-4ca9-a777-0069f772e4c1",
+        name: "sama.c.qa-de-2.cloud.sap.",
+      })
+
+      expect(result.success).toBe(true)
+    })
+
+    it("should reject domain without name", () => {
+      const result = DnsDomainSchema.safeParse({
+        id: "3cb0ef71-9c5b-4ca9-a777-0069f772e4c1",
+      })
+
+      expect(result.success).toBe(false)
+    })
+  })
+
+  describe("DnsDomainResponseSchema", () => {
+    it("should parse a valid domains response", () => {
+      const result = DnsDomainResponseSchema.safeParse({
+        zones: [
+          {
+            id: "3cb0ef71-9c5b-4ca9-a777-0069f772e4c1",
+            name: "sama.c.qa-de-2.cloud.sap.",
+          },
+        ],
+      })
+
+      expect(result.success).toBe(true)
+    })
+
+    it("should accept empty zones array", () => {
+      const result = DnsDomainResponseSchema.safeParse({ zones: [] })
+
+      expect(result.success).toBe(true)
+    })
+
+    it("should reject response without zones key", () => {
+      const result = DnsDomainResponseSchema.safeParse({})
+
+      expect(result.success).toBe(false)
+    })
+  })
+
+  describe("AvailablePortsQuerySchema", () => {
+    it("should apply defaults for required project query", () => {
+      const result = AvailablePortsQuerySchema.safeParse({ project_id: "test-project" })
+
+      expect(result.success).toBe(true)
+      if (result.success) {
+        expect(result.data.project_id).toBe("test-project")
+        expect(result.data.status).toBe("ACTIVE")
+        expect(result.data.admin_state_up).toBe(true)
+      }
+    })
+
+    it("should accept explicit ACTIVE and true values", () => {
+      const result = AvailablePortsQuerySchema.safeParse({
+        project_id: "test-project",
+        status: "ACTIVE",
+        admin_state_up: true,
+      })
+
+      expect(result.success).toBe(true)
+    })
+
+    it("should reject non-ACTIVE status", () => {
+      const result = AvailablePortsQuerySchema.safeParse({
+        project_id: "test-project",
+        status: "DOWN",
+      })
+
+      expect(result.success).toBe(false)
+    })
+
+    it("should reject admin_state_up false", () => {
+      const result = AvailablePortsQuerySchema.safeParse({
+        project_id: "test-project",
+        admin_state_up: false,
+      })
+
+      expect(result.success).toBe(false)
+    })
+
+    it("should reject missing project_id", () => {
+      const result = AvailablePortsQuerySchema.safeParse({})
+
+      expect(result.success).toBe(false)
+    })
+  })
+
+  describe("AvailablePortSchema", () => {
+    it("should parse a port with all available fields", () => {
+      const result = AvailablePortSchema.safeParse({
+        id: "port-uuid",
+        name: "web-port",
+        fixed_ips: [{ ip_address: "10.0.0.5", subnet_id: "subnet-1" }],
+      })
+
+      expect(result.success).toBe(true)
+      if (result.success) {
+        expect(result.data.id).toBe("port-uuid")
+        expect(result.data.name).toBe("web-port")
+        expect(result.data.fixed_ips).toHaveLength(1)
+      }
+    })
+
+    it("should parse a port with only id", () => {
+      const result = AvailablePortSchema.safeParse({ id: "port-uuid" })
+
+      expect(result.success).toBe(true)
+    })
+
+    it("should accept null name", () => {
+      const result = AvailablePortSchema.safeParse({ id: "port-uuid", name: null })
+
+      expect(result.success).toBe(true)
+      if (result.success) {
+        expect(result.data.name).toBeNull()
+      }
+    })
+
+    it("should accept empty fixed_ips array", () => {
+      const result = AvailablePortSchema.safeParse({ id: "port-uuid", fixed_ips: [] })
+
+      expect(result.success).toBe(true)
+    })
+
+    it("should reject a port without id", () => {
+      const result = AvailablePortSchema.safeParse({ name: "web-port" })
+
+      expect(result.success).toBe(false)
+    })
+
+    it("should allow extra fields from a broader port payload", () => {
+      const result = AvailablePortSchema.safeParse({
+        id: "port-uuid",
+        name: "web-port",
+        fixed_ips: [],
+        admin_state_up: true,
+        network_id: "net-1",
+      })
+
+      expect(result.success).toBe(true)
+    })
+  })
+
+  describe("AvailablePortsResponseSchema", () => {
+    it("should parse a valid available ports response", () => {
+      const result = AvailablePortsResponseSchema.safeParse({
+        ports: [
+          { id: "port-1", name: "web-port", fixed_ips: [{ ip_address: "10.0.0.1", subnet_id: "subnet-1" }] },
+          { id: "port-2", name: null, fixed_ips: [] },
+        ],
+      })
+
+      expect(result.success).toBe(true)
+      if (result.success) {
+        expect(result.data.ports).toHaveLength(2)
+      }
+    })
+
+    it("should accept an empty ports array", () => {
+      const result = AvailablePortsResponseSchema.safeParse({ ports: [] })
+
+      expect(result.success).toBe(true)
+    })
+
+    it("should reject a response without ports", () => {
+      const result = AvailablePortsResponseSchema.safeParse({})
+
+      expect(result.success).toBe(false)
     })
   })
 })
