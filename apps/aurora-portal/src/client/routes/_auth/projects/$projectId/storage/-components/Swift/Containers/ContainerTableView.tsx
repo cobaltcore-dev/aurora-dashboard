@@ -228,7 +228,14 @@ export const ContainerTableView = ({
                     }
                   }}
                 >
-                  <DataGridCell onClick={(e) => e.stopPropagation()}>
+                  <DataGridCell
+                    onClick={(e) => e.stopPropagation()}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.stopPropagation()
+                      }
+                    }}
+                  >
                     <Checkbox
                       checked={isSelected}
                       onChange={() => handleSelectContainer(container.name)}
