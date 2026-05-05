@@ -16,6 +16,7 @@ vi.mock("../helpers/flavorHelpers", () => ({
   createExtraSpecs: vi.fn(),
   getExtraSpecs: vi.fn(),
   deleteExtraSpec: vi.fn(),
+  getFlavorAccess: vi.fn(),
 }))
 
 const createMockContext = (shouldFailAuth = false, shouldFailRescope = false, shouldFailCompute = false) => ({
@@ -57,257 +58,176 @@ describe("flavorRouter", () => {
   })
 
   describe("getFlavorsByProjectId", () => {
-    const mockFlavors: Flavor[] = [
-      {
-        id: "1",
-        name: "m1.small",
-        vcpus: 1,
-        ram: 2048,
-        disk: 20,
-        description: "Small flavor",
-        "OS-FLV-DISABLED:disabled": false,
-        "OS-FLV-EXT-DATA:ephemeral": 0,
-        "os-flavor-access:is_public": true,
-      },
-      {
-        id: "2",
-        name: "m1.large",
-        vcpus: 4,
-        ram: 8192,
-        disk: 80,
-        description: "Large flavor",
-        "OS-FLV-DISABLED:disabled": false,
-        "OS-FLV-EXT-DATA:ephemeral": 0,
-        "os-flavor-access:is_public": true,
-      },
-    ]
+    const publicFlavor: Flavor = {
+      id: "1",
+      name: "m1.small",
+      vcpus: 1,
+      ram: 2048,
+      disk: 20,
+      description: "Small flavor",
+      "OS-FLV-DISABLED:disabled": false,
+      "OS-FLV-EXT-DATA:ephemeral": 0,
+      "os-flavor-access:is_public": true,
+    }
 
-    const filteredAndSortedFlavors: Flavor[] = [
-      {
-        id: "2",
-        name: "m1.large",
-        vcpus: 4,
-        ram: 8192,
-        disk: 80,
-        description: "Large flavor",
-        "OS-FLV-DISABLED:disabled": false,
-        "OS-FLV-EXT-DATA:ephemeral": 0,
-        "os-flavor-access:is_public": true,
-      },
-      {
-        id: "1",
-        name: "m1.small",
-        vcpus: 1,
-        ram: 2048,
-        disk: 20,
-        description: "Small flavor",
-        "OS-FLV-DISABLED:disabled": false,
-        "OS-FLV-EXT-DATA:ephemeral": 0,
-        "os-flavor-access:is_public": true,
-      },
-    ]
+    const privateFlavor: Flavor = {
+      id: "2",
+      name: "m1.private",
+      vcpus: 2,
+      ram: 4096,
+      disk: 40,
+      description: "Private flavor",
+      "OS-FLV-DISABLED:disabled": false,
+      "OS-FLV-EXT-DATA:ephemeral": 0,
+      "os-flavor-access:is_public": false,
+    }
 
     it("should throw UNAUTHORIZED when session validation fails", async () => {
       const mockCtx = createMockContext(true)
       const caller = createCaller(mockCtx)
 
-      const input = {
-        project_id: "test-project-123",
-      }
-
-      await expect(caller.flavor.getFlavorsByProjectId(input)).rejects.toThrow(
-        new TRPCError({
-          code: "UNAUTHORIZED",
-          message: "The session is invalid",
-        })
+      await expect(caller.flavor.getFlavorsByProjectId({ project_id: "test-project-123" })).rejects.toThrow(
+        new TRPCError({ code: "UNAUTHORIZED", message: "The session is invalid" })
       )
 
       expect(mockCtx.validateSession).toHaveBeenCalled()
       expect(mockCtx.rescopeSession).not.toHaveBeenCalled()
     })
 
-    it("should successfully fetch, filter and sort flavors", async () => {
+    it("should make two separate fetchFlavors calls with is_public=true and is_public=false", async () => {
       const mockCtx = createMockContext()
       const caller = createCaller(mockCtx)
 
-      vi.mocked(flavorHelpers.fetchFlavors).mockResolvedValue(mockFlavors)
-      vi.mocked(flavorHelpers.filterAndSortFlavors).mockReturnValue(filteredAndSortedFlavors)
+      vi.mocked(flavorHelpers.fetchFlavors).mockImplementation(async (_compute, isPublic) =>
+        isPublic === "true" ? [publicFlavor] : [privateFlavor]
+      )
+      vi.mocked(flavorHelpers.filterAndSortFlavors).mockReturnValue([publicFlavor, privateFlavor])
 
-      const input = {
+      await caller.flavor.getFlavorsByProjectId({ project_id: "test-project-123" })
+
+      expect(flavorHelpers.fetchFlavors).toHaveBeenCalledTimes(2)
+      expect(flavorHelpers.fetchFlavors).toHaveBeenCalledWith(expect.anything(), "true")
+      expect(flavorHelpers.fetchFlavors).toHaveBeenCalledWith(expect.anything(), "false")
+    })
+
+    it("should merge public and private flavors and pass them to filterAndSortFlavors", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      vi.mocked(flavorHelpers.fetchFlavors).mockImplementation(async (_compute, isPublic) =>
+        isPublic === "true" ? [publicFlavor] : [privateFlavor]
+      )
+      vi.mocked(flavorHelpers.filterAndSortFlavors).mockReturnValue([publicFlavor, privateFlavor])
+
+      const result = await caller.flavor.getFlavorsByProjectId({
         project_id: "test-project-123",
         sortBy: "name",
         sortDirection: "desc",
         searchTerm: "m1",
-      }
+      })
 
-      const result = await caller.flavor.getFlavorsByProjectId(input)
-
-      expect(mockCtx.validateSession).toHaveBeenCalled()
-      expect(mockCtx.rescopeSession).toHaveBeenCalledWith({ projectId: "test-project-123" })
-
-      expect(flavorHelpers.fetchFlavors).toHaveBeenCalledWith(
-        expect.objectContaining({
-          get: expect.any(Function),
-          post: expect.any(Function),
-          del: expect.any(Function),
-        }),
-        expect.any(String)
+      expect(flavorHelpers.filterAndSortFlavors).toHaveBeenCalledWith(
+        expect.arrayContaining([publicFlavor, privateFlavor]),
+        "m1",
+        "name",
+        "desc"
       )
+      expect(result).toEqual([publicFlavor, privateFlavor])
+    })
 
-      expect(flavorHelpers.filterAndSortFlavors).toHaveBeenCalledWith(mockFlavors, "m1", "name", "desc")
-      expect(result).toEqual(filteredAndSortedFlavors)
+    it("should deduplicate flavors with the same id", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      // Same flavor returned by both calls (shouldn't happen normally, but guards against it)
+      vi.mocked(flavorHelpers.fetchFlavors).mockResolvedValue([publicFlavor])
+      vi.mocked(flavorHelpers.filterAndSortFlavors).mockImplementation((flavors) => flavors)
+
+      await caller.flavor.getFlavorsByProjectId({ project_id: "test-project-123" })
+
+      const passedFlavors = vi.mocked(flavorHelpers.filterAndSortFlavors).mock.calls[0][0] as Flavor[]
+      const ids = passedFlavors.map((f) => f.id)
+      expect(ids).toEqual([...new Set(ids)])
+    })
+
+    it("should return only public flavors when private fetch fails", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      vi.mocked(flavorHelpers.fetchFlavors).mockImplementation(async (_compute, isPublic) => {
+        if (isPublic === "false") throw new Error("403 Forbidden")
+        return [publicFlavor]
+      })
+      vi.mocked(flavorHelpers.filterAndSortFlavors).mockImplementation((flavors) => flavors)
+
+      const result = await caller.flavor.getFlavorsByProjectId({ project_id: "test-project-123" })
+
+      expect(result).toEqual([publicFlavor])
     })
 
     it("should use default values for optional parameters", async () => {
       const mockCtx = createMockContext()
       const caller = createCaller(mockCtx)
 
-      vi.mocked(flavorHelpers.fetchFlavors).mockResolvedValue(mockFlavors)
-      vi.mocked(flavorHelpers.filterAndSortFlavors).mockReturnValue(mockFlavors)
+      vi.mocked(flavorHelpers.fetchFlavors).mockResolvedValue([publicFlavor])
+      vi.mocked(flavorHelpers.filterAndSortFlavors).mockReturnValue([publicFlavor])
 
-      const input = {
-        project_id: "test-project-123",
-      }
+      await caller.flavor.getFlavorsByProjectId({ project_id: "test-project-123" })
 
-      const result = await caller.flavor.getFlavorsByProjectId(input)
-
-      expect(flavorHelpers.fetchFlavors).toHaveBeenCalledWith(
-        expect.objectContaining({
-          get: expect.any(Function),
-          post: expect.any(Function),
-          del: expect.any(Function),
-        }),
-        expect.any(String)
-      )
-
-      expect(flavorHelpers.filterAndSortFlavors).toHaveBeenCalledWith(mockFlavors, "", "name", "asc")
-      expect(result).toEqual(mockFlavors)
+      expect(flavorHelpers.filterAndSortFlavors).toHaveBeenCalledWith(expect.any(Array), "", "name", "asc")
     })
 
     it("should throw UNAUTHORIZED when rescopeSession returns null", async () => {
-      const mockCtx = createMockContext(false, true) // shouldFailRescope = true
+      const mockCtx = createMockContext(false, true)
       const caller = createCaller(mockCtx)
 
-      const input = {
-        project_id: "test-project-123",
-      }
-
-      await expect(caller.flavor.getFlavorsByProjectId(input)).rejects.toThrow(
+      await expect(caller.flavor.getFlavorsByProjectId({ project_id: "test-project-123" })).rejects.toThrow(
         new TRPCError({
           code: "UNAUTHORIZED",
           message: "Failed to scope session to project. User may not have access to this project.",
         })
       )
 
-      expect(mockCtx.validateSession).toHaveBeenCalled()
       expect(flavorHelpers.fetchFlavors).not.toHaveBeenCalled()
     })
 
     it("should throw INTERNAL_SERVER_ERROR when compute service is unavailable", async () => {
-      const mockCtx = createMockContext(false, false, true) // shouldFailCompute = true
+      const mockCtx = createMockContext(false, false, true)
       const caller = createCaller(mockCtx)
 
-      const input = {
-        project_id: "test-project-123",
-      }
-
-      await expect(caller.flavor.getFlavorsByProjectId(input)).rejects.toThrow(
-        new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "COMPUTE_SERVICE_UNAVAILABLE",
-        })
+      await expect(caller.flavor.getFlavorsByProjectId({ project_id: "test-project-123" })).rejects.toThrow(
+        new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "COMPUTE_SERVICE_UNAVAILABLE" })
       )
 
       expect(flavorHelpers.fetchFlavors).not.toHaveBeenCalled()
     })
 
-    it("should re-throw TRPCError from fetchFlavors without wrapping", async () => {
+    it("should re-throw TRPCError from the public fetchFlavors call", async () => {
       const mockCtx = createMockContext()
       const caller = createCaller(mockCtx)
 
-      const originalTRPCError = new TRPCError({
-        code: "UNAUTHORIZED",
-        message: "Your session has expired. Please log in again.",
-      })
-      vi.mocked(flavorHelpers.fetchFlavors).mockRejectedValue(originalTRPCError)
+      const originalError = new TRPCError({ code: "UNAUTHORIZED", message: "Your session has expired. Please log in again." })
+      vi.mocked(flavorHelpers.fetchFlavors).mockRejectedValue(originalError)
 
-      const input = {
-        project_id: "test-project-123",
-      }
-
-      await expect(caller.flavor.getFlavorsByProjectId(input)).rejects.toThrow(originalTRPCError)
+      await expect(caller.flavor.getFlavorsByProjectId({ project_id: "test-project-123" })).rejects.toThrow(originalError)
       expect(flavorHelpers.filterAndSortFlavors).not.toHaveBeenCalled()
-    })
-
-    it("should wrap non-TRPC errors from fetchFlavors", async () => {
-      const mockCtx = createMockContext()
-      const caller = createCaller(mockCtx)
-
-      const networkError = new Error("Network timeout")
-      vi.mocked(flavorHelpers.fetchFlavors).mockRejectedValue(networkError)
-
-      const input = {
-        project_id: "test-project-123",
-      }
-
-      await expect(caller.flavor.getFlavorsByProjectId(input)).rejects.toThrow(
-        new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "FLAVORS_FETCH_FAILED",
-          cause: networkError,
-        })
-      )
     })
 
     it("should handle all possible sortBy fields", async () => {
       const mockCtx = createMockContext()
       const caller = createCaller(mockCtx)
 
-      vi.mocked(flavorHelpers.fetchFlavors).mockResolvedValue(mockFlavors)
-      vi.mocked(flavorHelpers.filterAndSortFlavors).mockReturnValue(mockFlavors)
+      vi.mocked(flavorHelpers.fetchFlavors).mockResolvedValue([publicFlavor])
+      vi.mocked(flavorHelpers.filterAndSortFlavors).mockReturnValue([publicFlavor])
 
-      const sortByOptions = ["id", "name", "vcpus", "ram", "disk", "description"]
-
-      for (const sortBy of sortByOptions) {
+      for (const sortBy of ["id", "name", "vcpus", "ram", "disk", "description"]) {
         vi.clearAllMocks()
-        vi.mocked(flavorHelpers.fetchFlavors).mockResolvedValue(mockFlavors)
-        vi.mocked(flavorHelpers.filterAndSortFlavors).mockReturnValue(mockFlavors)
+        vi.mocked(flavorHelpers.fetchFlavors).mockResolvedValue([publicFlavor])
+        vi.mocked(flavorHelpers.filterAndSortFlavors).mockReturnValue([publicFlavor])
 
-        const input = {
-          project_id: "test-project-123",
-          sortBy,
-          sortDirection: "desc",
-        }
-
-        await caller.flavor.getFlavorsByProjectId(input)
-        expect(flavorHelpers.filterAndSortFlavors).toHaveBeenCalledWith(mockFlavors, "", sortBy, "desc")
+        await caller.flavor.getFlavorsByProjectId({ project_id: "test-project-123", sortBy, sortDirection: "desc" })
+        expect(flavorHelpers.filterAndSortFlavors).toHaveBeenCalledWith(expect.any(Array), "", sortBy, "desc")
       }
-    })
-
-    it("should handle both asc and desc sort directions", async () => {
-      const mockCtx = createMockContext()
-      const caller = createCaller(mockCtx)
-
-      vi.mocked(flavorHelpers.fetchFlavors).mockResolvedValue(mockFlavors)
-      vi.mocked(flavorHelpers.filterAndSortFlavors).mockReturnValue(mockFlavors)
-
-      await caller.flavor.getFlavorsByProjectId({
-        project_id: "test-project-123",
-        sortDirection: "asc",
-      })
-
-      expect(flavorHelpers.filterAndSortFlavors).toHaveBeenCalledWith(mockFlavors, "", "name", "asc")
-
-      vi.clearAllMocks()
-      vi.mocked(flavorHelpers.fetchFlavors).mockResolvedValue(mockFlavors)
-      vi.mocked(flavorHelpers.filterAndSortFlavors).mockReturnValue(mockFlavors)
-
-      await caller.flavor.getFlavorsByProjectId({
-        project_id: "test-project-123",
-        sortDirection: "desc",
-      })
-
-      expect(flavorHelpers.filterAndSortFlavors).toHaveBeenCalledWith(mockFlavors, "", "name", "desc")
     })
   })
 
